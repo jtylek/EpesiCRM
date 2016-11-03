@@ -36,7 +36,7 @@
 			} else {
 				is_collapsed[id][sub] = 0;
 				el.css('display', "block");
-				jq('#utils_tree_opener_img_'+id+'_'+sub).attr('src' = "modules/Utils/Tree/theme/opener_active_open.gif");
+				jq('#utils_tree_opener_img_'+id+'_'+sub).attr('src', "modules/Utils/Tree/theme/opener_active_open.gif");
 			}
 		}
 	}
