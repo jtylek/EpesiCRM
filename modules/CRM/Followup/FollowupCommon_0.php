@@ -57,7 +57,6 @@ class CRM_FollowupCommon extends ModuleCommon {
 	}
 	
 	public static function drawLeightbox($prefix) {
-		if(MOBILE_DEVICE) return;
 		$meetings = CRM_MeetingInstall::is_installed();
 		$tasks = CRM_TasksInstall::is_installed();
 		$phonecall = CRM_PhoneCallInstall::is_installed();

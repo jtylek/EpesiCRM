@@ -919,11 +919,11 @@ JS;
 	}
 
 	public static function create_map_href($r) {
-		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
 	}
 
 	public static function create_home_map_href($r) {
-		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
 	}
 
 	public static function maplink($r,$nolink,$desc) {
@@ -941,8 +941,6 @@ JS;
             return $r[$desc['id']];
         }
 
-        if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
-            return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
         if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
             if(isset($r['country']) && $r['country']) {

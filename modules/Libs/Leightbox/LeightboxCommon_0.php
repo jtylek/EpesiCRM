@@ -11,7 +11,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_LeightboxCommon extends ModuleCommon {
 	public static function get($id,$content,$header='',$big=0) {
-		if(MOBILE_DEVICE) return '';
 		static $init = true;
 		if ($init) {
 			Base_ThemeCommon::load_css(Libs_LeightboxCommon::module_name(),'default',false);
@@ -47,7 +46,6 @@ class Libs_LeightboxCommon extends ModuleCommon {
 	}
 	
 	public static function get_open_href($id) {
-		if(MOBILE_DEVICE) return '';
 		return 'class="lbOn" rel="'.$id.'" href="javascript:void(0)"';
 	}
 	
