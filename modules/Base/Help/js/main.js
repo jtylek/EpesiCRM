@@ -10,9 +10,9 @@ Base_Help = function(){
 	this.target;
 	this.operation;
 	this.help_hooks;
-	this.click_icon = $("Base_Help__click_icon");
-	this.help_arrow = $("Base_Help__help_arrow");
-	this.comment_frame = $("Base_Help__help_comment");
+	this.click_icon = jq("#Base_Help__click_icon").get(0);
+	this.help_arrow = jq("#Base_Help__help_arrow").get(0);
+	this.comment_frame = jq("#Base_Help__help_comment").get(0);
 	this.screen = '';
 	this.last_keypress = 0;
 	this.trigger_search = false;
@@ -28,7 +28,7 @@ Base_Help = function(){
 		var has_pointerevents = jQuery("#help_canvas").css('pointer-events');
 		if (has_pointerevents=='auto') {
 			jQuery("#help_canvas").css('pointer-events', 'none');
-			this.context = $("help_canvas").getContext("2d");
+			this.context = jq("#help_canvas").get(0).getContext("2d");
 			this.compatibility_mode = false;
             jQuery("#help_canvas").hide();
 		} else {
@@ -53,7 +53,7 @@ Base_Help = function(){
 
 	this.stop_tutorial = function() {
         jQuery("#help_canvas").hide();
-		$('Base_Help__overlay').style.display = 'none';
+		jq('#Base_Help__overlay').hide();
 		this.help_arrow.style.display = 'none';
 		this.comment_frame.style.display = 'none';
 		this.step = 0;
@@ -125,7 +125,7 @@ Base_Help = function(){
 	}
 	this.update = function(e) {
 		current = new Date().getTime();
-		if (this.trigger_search && (current - this.last_keypress)>800) this.search($('Base_Help__search').value);
+		if (this.trigger_search && (current - this.last_keypress)>800) this.search(jq('#Base_Help__search').val());
 		
 		if (Helper.compatibility_mode===false)
 			jQuery("#help_canvas").css('pointer-events', 'none');
@@ -160,7 +160,7 @@ Base_Help = function(){
 		}
 	}
 	this.escape = function() {
-		if ($('Base_Help__menu').style.display=="block") this.hide_menu();
+		if (!jq('#Base_Help__menu').is(':hidden')) this.hide_menu();
 		else if (Helper.steps) {
 			if (this.steps[this.step].operation == 'finish') this.stop_tutorial();
 			else {
@@ -171,9 +171,9 @@ Base_Help = function(){
 	}
 	this.menu = function () {
 		this.stop_tutorial();
-		$('Base_Help__overlay').style.display="block";
-		$('Base_Help__menu').style.display="block";
-		$('Base_Help__search').value='';
+		jq('#Base_Help__overlay').css('display',"block");
+		jq('#Base_Help__menu').css('display',"block");
+		jq('#Base_Help__search').val('');
 		this.trigger_search = true;
 		this.search();
 		focus_by_id('Base_Help__search');
@@ -188,8 +188,8 @@ Base_Help = function(){
 	this.search = function(value) {
 		this.trigger_search = false;
 		if (!value) {
-			$('Base_Help__help_suggestions').style.display='block';
-			$('Base_Help__help_links').style.display='none';
+			jq('#Base_Help__help_suggestions').css('display','block');
+			jq('#Base_Help__help_links').hide();
 			jq.ajax('modules/Base/Help/suggestions.php', { 
 				method: 'post', 
 				data:{
@@ -200,8 +200,8 @@ Base_Help = function(){
 				}
 			});
 		} else {
-			$('Base_Help__help_suggestions').style.display='none';
-			$('Base_Help__help_links').style.display='block';
+			jq('#Base_Help__help_suggestions').hide();
+			jq('#Base_Help__help_links').css('display','block');
 			jq.ajax('modules/Base/Help/search.php', { 
 				method: 'post', 
 				data:{
@@ -216,8 +216,8 @@ Base_Help = function(){
 	}
 
 	this.hide_menu = function () {
-		$('Base_Help__overlay').style.display="none";
-		$('Base_Help__menu').style.display="none";
+		jq('#Base_Help__overlay').hide();
+		jq('#Base_Help__menu').hide();
 	}
 
 	this.get_help_element = function (helpid) {
@@ -226,8 +226,8 @@ Base_Help = function(){
 	}
 
 	this.get_all_help_hooks = function() {
-		$('Base_Help__button_next').onclick = function(){Helper.prompt_next_step = true;};
-		$('Base_Help__button_finish').onclick = function(){Helper.prompt_next_step = true;};
+		jq('#Base_Help__button_next').click(function(){Helper.prompt_next_step = true;});
+		jq('#Base_Help__button_finish').click(function(){Helper.prompt_next_step = true;});
 		Helper.hooks = new Array();
 		jQuery('[helpID]').each(function(){Helper.hooks[jQuery(this).attr('helpID')] = this});
 		return;
@@ -256,9 +256,9 @@ Base_Help = function(){
 		if (this.pointerY>o_bottom) targetY = o_bottom;
 		var show_click = false;
 		if (this.operation=='finish') {
-			$('Base_Help__overlay').style.display = 'block';
-			$('Base_Help__button_finish').style.display = 'block';
-			$('Base_Help__button_next').style.display = 'none';
+			jq('#Base_Help__overlay').css('display', 'block');
+			jq('#Base_Help__button_finish').css('display', 'block');
+			jq('#Base_Help__button_next').hide();
 			this.help_arrow.style.display = "none";
 			o_right = (window.innerWidth - this.comment_frame.scrollWidth)/2 - 50;
 			o_bottom = (window.innerHeight - this.comment_frame.scrollHeight)/2 - 10;
@@ -267,15 +267,15 @@ Base_Help = function(){
 			sourceX = targetX+50;
 			sourceY = targetY+100;
 		} else if (this.operation=='prompt') {
-			$('Base_Help__button_next').style.display = 'block';
-			$('Base_Help__button_finish').style.display = 'none';
+			jq('#Base_Help__button_next').css('display', 'block');
+			jq('#Base_Help__button_finish').hide();
 			targetX = o_right;
 			targetY = o_bottom;
 			sourceX = targetX+50;
 			sourceY = targetY+100;
 		} else {
-			$('Base_Help__button_next').style.display = 'none';
-			$('Base_Help__button_finish').style.display = 'none';
+			jq('#Base_Help__button_next').hide();
+			jq('#Base_Help__button_finish').hide();
 			if ((this.pointerX>=offset.left && this.pointerX<=offset.right && this.pointerY>=offset.top && this.pointerY<=offset.bottom) || this.compatibility_mode || (this.operation=='fill' && this.target==document.activeElement)) {
 				targetX = o_right;
 				targetY = o_bottom;
@@ -300,7 +300,7 @@ Base_Help = function(){
 			}
 		}
 		if (this.steps[this.step].comment && (this.operation!='fill' || this.target==document.activeElement)) {
-			$('Base_Help__help_comment_contents').innerHTML = this.steps[this.step].comment;
+			jq('#Base_Help__help_comment_contents').html(this.steps[this.step].comment);
 			this.comment_frame.style.display = 'block';
 			this.comment_frame.style.left = (o_right+50)+'px';
 			this.comment_frame.style.top = (o_bottom+10)+'px';
