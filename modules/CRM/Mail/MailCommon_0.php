@@ -497,7 +497,7 @@ class CRM_MailCommon extends ModuleCommon {
                 throw new Exception($err);
             } else {
                 $return = $unseen;
-                $cache->set($cache_key, $return, $cache_validity_in_minutes);
+                Cache::set($cache_key, $return, $cache_validity_in_minutes);
             }
         }
         return $return;
