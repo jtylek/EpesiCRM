@@ -919,11 +919,11 @@ JS;
 	}
 
 	public static function create_map_href($r) {
-		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
 	}
 
 	public static function create_home_map_href($r) {
-		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
+		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
 	}
 
 	public static function maplink($r,$nolink,$desc) {
@@ -941,8 +941,6 @@ JS;
             return $r[$desc['id']];
         }
 
-        if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
-            return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
         if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
             if(isset($r['country']) && $r['country']) {
@@ -1384,33 +1382,6 @@ JS;
         return $ret;
     }
 
-    //////////////////////////
-    // mobile devices
-    public static function mobile_menu() {
-        if(!Acl::is_user())
-            return array();
-        return array(__('Contacts')=>array('func'=>'mobile_contacts','color'=>'red'),__('Companies')=>array('func'=>'mobile_companies','color'=>'black'));
-    }
-
-    public static function mobile_contacts() {
-        $sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
-        $info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
-        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-                        'permission'=>'0',
-                        'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'));
-        Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info,$defaults);
-    }
-
-    public static function mobile_companies() {
-        $info = array('phone'=>1);
-        $sort = array('company_name'=>'ASC');
-        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
-                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
-                        'permission'=>'0');
-        Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
-    }
 }
 
 Utils_RecordBrowser_Crits::register_special_value_callback(array('CRM_ContactsCommon', 'crits_special_values'));

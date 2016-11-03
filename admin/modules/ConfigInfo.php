@@ -78,7 +78,6 @@ class ConfigInfo extends AdminModule {
         $this->printTD('Set Session: ', (SET_SESSION ? 'YES' : 'NO'));
 
         $this->printTD('Read Only Session: ', (READ_ONLY_SESSION ? 'YES' : 'NO'));
-        $this->printTD('Mobile Device: ', (MOBILE_DEVICE ? 'YES' : 'NO'));
         $this->printTD('First Run: ', (FIRST_RUN ? 'YES' : 'NO'));
         $this->printTD('Hosting Mode: ', (HOSTING_MODE ? 'YES' : 'NO'));
         $this->printTD('Trial Mode: ', (TRIAL_MODE ? 'YES' : 'NO'));

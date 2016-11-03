@@ -48,7 +48,6 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @return string HTML tag attributes
 	 */
 	public static function open_tag_attrs( $tip, $help=true ) {
-		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
 
@@ -73,7 +72,6 @@ JS;
 	 * @return string HTML tag attributes
 	 */
 	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
-		if(MOBILE_DEVICE) return '';
 		static $tooltip_id = 0;
 		static $tooltip_cleared = false;
 		if (isset($_REQUEST['__location']) && $tooltip_cleared!=$_REQUEST['__location']) {

@@ -137,8 +137,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
 	public static function display_phone_number($record, $nolink) {
 		if ($record['other_phone']) {
-			if(MOBILE_DEVICE && IPHONE && !$nolink && preg_match('/^([0-9\t\+-]+)/',$record['other_phone_number'],$args))
-				return '<a href="tel:'.$args[1].'">'.__('O').': '.$record['other_phone_number'].'</a>';
 			return __('O').': '.CRM_CommonCommon::get_dial_code($record['other_phone_number']);
 		} else return self::display_phone($record,false,array('id'=>'phone'));
 	}
@@ -178,8 +176,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		$number_sanitized = preg_replace('/[^0-9+pP*#,@wW]/', '', $number);
 
-		if(MOBILE_DEVICE && IPHONE)
-			return $nr[0].': '.'<a href="tel:'.$number_sanitized.'">'.$number.'</a>';
 		if($nolink)
 			return $nr[0].': '.$number;
 		return $nr[0].': '.CRM_CommonCommon::get_dial_code($number, $number_sanitized);
@@ -360,20 +356,6 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$ret .= __('Phone: %s',array(self::display_phone($a,true,array('id'=>'phone'))))."\n";
 
 		return $ret.__('Subject: %s',array($a['subject']));
-	}
-
-	//////////////////////////
-	// mobile devices
-	public static function mobile_menu() {
-		if(!Utils_RecordBrowserCommon::get_access('phonecall','browse'))
-			return array();
-		return array(__('Phonecalls')=>array('func'=>'mobile_phone_calls','color'=>'blue'));
-	}
-
-	public static function mobile_phone_calls() {
-		$me = CRM_ContactsCommon::get_my_record();
-		$defaults = array('date_and_time'=>date('Y-m-d H:i:s'), 'employees'=>array($me['id']), 'permission'=>'0', 'status'=>'0', 'priority'=>CRM_CommonCommon::get_default_priority());
-		Utils_RecordBrowserCommon::mobile_rb('phonecall',array('employees'=>array($me['id'])),array('status'=>'ASC', 'date_and_time'=>'ASC', 'subject'=>'ASC'),array(),$defaults);
 	}
 
 	public static function crm_calendar_handler($action) {
