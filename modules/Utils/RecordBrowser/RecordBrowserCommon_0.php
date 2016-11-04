@@ -2305,7 +2305,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		if (empty($record_vals[$field])) continue;
     		$vals[] = $record_vals[$field];
     	}
-    	$text = self::create_record_tooltip(implode(' ', $vals), $tab, $id, $nolink, $tooltip);
+        $record_label = implode(' ', $vals);
+        if (!$record_label) $record_label = self::get_caption($tab) . ": " . sprintf("#%06d", $id);
+        $text = self::create_record_tooltip($record_label, $tab, $id, $nolink, $tooltip);
 
     	return self::record_link_open_tag_r($tab, $record, $nolink) .
     			$text . self::record_link_close_tag();
