@@ -406,7 +406,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
+		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
         $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
         					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
         
@@ -424,7 +424,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
+		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
 		
         return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
 				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
