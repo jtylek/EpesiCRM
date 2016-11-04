@@ -101,31 +101,31 @@
 				{/if}
 				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
 						<div class="well well-sm">
-							<td style="text-align: left; width: 1px; white-space: nowrap;">
+							<div style="text-align: left; width: 1px; white-space: nowrap;">
 								{if isset($order)}
 									{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
 								{/if}
-							</td>
+							</div>
 							{if isset($__link.first.open) || isset($__link.last.open)}
 								{if isset($__link.first.open)}{$__link.first.open}<button class="btn btn-primary"><i class="fa fa-fast-backward"></i> {$__link.first.text}</button>{$__link.first.close}{/if}
 								{if isset($__link.prev.open)}{$__link.prev.open}<button class="btn btn-primary"><i class="fa fa-backward"></i> {$__link.prev.text}</button>{$__link.prev.close}{/if}
 							{/if}
-							<td class="nav_summary" nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
+							<div class="nav_summary" nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</div>
 							{if isset($__link.first.open) || isset($__link.last.open)}
 								{if isset($__link.next.open)}{$__link.next.open}<button class="btn btn-primary"><i class="fa fa-forward"></i> {$__link.next.text}</button>{$__link.next.close}{/if}
 								{if isset($__link.last.open)}{$__link.last.open}<button class="btn btn-primary"><i class="fa fa-fast-forward"></i> {$__link.last.text}</button>{$__link.last.close}{/if}
 							{/if}
-							<td style="width:30%"></td>
-							<td class="nav_pagin" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
+							<div style="width:30%"></div>
+							<div class="nav_pagin" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.page)}
 									{$form_data_paging.page.label} {$form_data_paging.page.html}
 								{/if}
-							</td>
-							<td class="nav_per_page" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
+							</div>
+							<div class="nav_per_page" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.per_page)}
 									{$form_data_paging.per_page.label} {$form_data_paging.per_page.html}
 								{/if}
-							</td>
+							</div>
 						</div>
 				{/if}
 
