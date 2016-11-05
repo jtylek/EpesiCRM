@@ -1,6 +1,6 @@
 <?php
 
-load_js('libs/quickform/QuickForm/autoselect.js');
+load_js('libs/quickform/QuickForm/Field/Select/autoselect.js');
 
 /**
  * HTML class for an autoselect field

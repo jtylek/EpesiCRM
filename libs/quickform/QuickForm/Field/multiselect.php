@@ -456,7 +456,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
             $buttons = array();
 
-            load_js('libs/quickform/QuickForm/multiselect.js');
+            load_js('libs/quickform/QuickForm/Field/multiselect.js');
 
             $buttons['add_all'] = '<input id="' . $myName . '__add_all" type=button value=">>" onclick="' .
                 'ms_add_all(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
