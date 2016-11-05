@@ -70,20 +70,6 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
     }
 
     /**
-     * Returns the checkbox element in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return HTML_QuickForm_input::toHtml() . $this->_text;
-        } else {
-            return HTML_QuickForm_input::toHtml() . '<label for="' . $this->getAttribute('id') . '">' . $this->_text . '</label>';
-        }
-    }
-
-    /**
      * Returns the value of field without HTML tags
      *
      * @return    string
@@ -92,10 +78,15 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
     {
       if ($this->getChecked()) {
           return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_on.png').'" alt="'.__('Yes').'" />' .
-                 $this->_getPersistantData();
+                 $this->_getPersistantData() . $this->_text;
       } else {
-          return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />';
+          return '<img src="'.Base_ThemeCommon::get_template_file('images','checkbox_off.png').'" alt="'.__('No').'" />' . $this->_text;
       }
+    }
+
+    public function getHtml()
+    {
+        return parent::getHtml() . '<label for="' . $this->getAttribute('id') . '">' . $this->_text . '</label>';
     }
 
     /**
