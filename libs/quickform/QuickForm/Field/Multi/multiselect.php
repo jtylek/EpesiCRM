@@ -9,10 +9,8 @@
  * @subpackage QuickForm
  */
 
-class HTML_QuickForm_multiselect extends HTML_QuickForm_element
+class HTML_QuickForm_multiselect extends HTML_QuickForm_multi
 {
-    use toHtml;
-
     /**
      * Contains the select options
      *
@@ -21,21 +19,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
      */
     var $_options = array();
 
-    /**
-     * Default values of the SELECT
-     *
-     * @var       string
-     * @access    private
-     */
-    var $_values = array();
-
-    /**
-     * Hash table to hold original keys of given options
-     *
-     * @var       string
-     * @access    private
-     */
-    var $keyhash = array();
 	private $on_add_js_code = '';
 	private $on_remove_js_code = '';
 
@@ -65,129 +48,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
         if (isset($options)) {
             $this->load($options);
         }
-    }
-
-    /**
-     * Returns the current API version
-     *
-     * @access    public
-     * @return    double
-     */
-    function apiVersion()
-    {
-        return 2.3;
-    }
-
-    /**
-     * Sets the default values of the select box
-     *
-     * @param     mixed    $values  Array or comma delimited string of selected values
-     * @access    public
-     * @return    void
-     */
-    function setSelected($values)
-    {
-    	if (!is_array($this->_values)) $this->_values = array();
-        if (!is_array($values)) {
-            $values = array($values);
-        }
-    	foreach($values as $k=>$v)
-        	if (!in_array($v,$this->_values)) $this->_values[] = $v;
-    }
-
-    /**
-     * Returns an array of the selected values
-     *
-     * @access    public
-     * @return    array of selected values
-     */
-    function getSelected()
-    {
-        return $this->_values;
-    }
-
-    function getMultiple()
-    {
-        return true;
-    }
-    /**
-     * Sets the input field name
-     *
-     * @param     string    $name   Input field name attribute
-     * @access    public
-     * @return    void
-     */
-    function setName($name)
-    {
-        $this->updateAttributes(array('name' => $name));
-    }
-
-    /**
-     * Returns the element name
-     *
-     * @access    public
-     * @return    string
-     */
-    function getName()
-    {
-        return $this->getAttribute('name');
-    }
-
-    /**
-     * Returns the element name (possibly with brackets appended)
-     *
-     * @access    public
-     * @return    string
-     */
-    function getPrivateName()
-    {
-        return $this->getName();
-    }
-
-    /**
-     * Sets the value of the form element
-     *
-     * @param     mixed    $values  Array or comma delimited string of selected values
-     * @access    public
-     * @return    void
-     */
-    function setValue($value)
-    {
-        $this->setSelected($value);
-    }
-
-    /**
-     * Returns an array of the selected values
-     *
-     * @access    public
-     * @return    array of selected values
-     */
-    function getValue()
-    {
-        return $this->_values;
-    }
-
-    /**
-     * Sets the select field size
-     *
-     * @param     int    $size  Size of select  field
-     * @access    public
-     * @return    void
-     */
-    function setSize($size)
-    {
-        $this->updateAttributes(array('size' => $size));
-    }
-
-    /**
-     * Returns the select field size
-     *
-     * @access    public
-     * @return    int
-     */
-    function getSize()
-    {
-        return $this->getAttribute('size');
     }
 
     /**
@@ -377,27 +237,6 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 		return $this->_prepareValue($value, $assoc);
     }
 
-    function onQuickFormEvent($event, $arg, &$caller)
-    {
-        if ('updateValue' == $event) {
-            $value = $this->_findValue($caller->_constantValues);
-            if (null === $value) {
-                $value = $this->_findValue($caller->_submitValues);
-                // Fix for bug #4465 & #5269
-                // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || $this->isFrozen())) {
-                    $value = $this->_findValue($caller->_defaultValues);
-                }
-            }
-            if (null !== $value) {
-                $this->setValue($value);
-            }
-            return true;
-        } else {
-            return parent::onQuickFormEvent($event, $arg, $caller);
-        }
-    }
-
     /**
      * @return string
      */
@@ -456,7 +295,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
             $buttons = array();
 
-            load_js('libs/quickform/QuickForm/Field/multiselect.js');
+            load_js('libs/quickform/QuickForm/Field/Multi/multiselect.js');
 
             $buttons['add_all'] = '<input id="' . $myName . '__add_all" type=button value=">>" onclick="' .
                 'ms_add_all(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
