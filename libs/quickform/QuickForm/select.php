@@ -330,41 +330,6 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
     }
 
     /**
-     * Returns the SELECT in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            $strHtml = '';
-
-            if (!$this->getMultiple()) {
-                $attrString = $this->_getAttrString($this->_attributes);
-            } else {
-                $myName = $this->getName();
-                $this->setName($myName . '[]');
-                $attrString = $this->_getAttrString($this->_attributes);
-                $this->setName($myName);
-            }
-            $strHtml .= '<select' . $attrString . ">\n";
-
-            $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-            foreach ($this->_options as $option) {
-                if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
-                    $option['attr']['selected'] = 'selected';
-                }
-                $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
-                            $option['text'] . "</option>\n";
-            }
-
-            return $strHtml . '</select>';
-        }
-    }
-
-    /**
      * Returns the value of field without HTML tags
      *
      * @return    string
@@ -457,6 +422,35 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         } else {
             return parent::onQuickFormEvent($event, $arg, $caller);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        $strHtml = '';
+
+        if (!$this->getMultiple()) {
+            $attrString = $this->_getAttrString($this->_attributes);
+        } else {
+            $myName = $this->getName();
+            $this->setName($myName . '[]');
+            $attrString = $this->_getAttrString($this->_attributes);
+            $this->setName($myName);
+        }
+        $strHtml .= '<select' . $attrString . ">\n";
+
+        $strValues = is_array($this->_values) ? array_map('strval', $this->_values) : array();
+        foreach ($this->_options as $option) {
+            if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
+                $option['attr']['selected'] = 'selected';
+            }
+            $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $option['text'] . "</option>\n";
+        }
+
+        return $strHtml . '</select>';
     }
 }
 ?>
