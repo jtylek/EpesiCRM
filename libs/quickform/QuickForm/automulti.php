@@ -234,11 +234,10 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
      */
     function toHtml()
     {
-    	//print_r($this->_values);
-		$this->updateAttributes(array('multiple' => 'multiple'));
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
+            $this->updateAttributes(array('multiple' => 'multiple'));
 			$strHtml = '';
 			
 			$myName = $this->getName();
