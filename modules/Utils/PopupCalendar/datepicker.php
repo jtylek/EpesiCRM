@@ -11,8 +11,8 @@ require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
-	function HTML_QuickForm_datepicker($elementName=null, $elementLabel=null, $attributes=null) {
-		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+	function __construct($elementName=null, $elementLabel=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('datepicker');
 //		$this->updateAttributes(array('readonly'=>1));
