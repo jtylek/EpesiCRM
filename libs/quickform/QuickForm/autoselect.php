@@ -74,56 +74,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 		$label = call_user_func_array($this->more_opts_format, array($val[0], $this->more_opts_args));
 		if ($label!==null) $this->addOption(strip_tags($label), $val[0]);
 	}
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            $strHtml = '';
-
-            $myName = $this->getName();
-			$this->updateAttributes(array('id'=>$myName));
-			eval_js('Event.observe("'.$myName.'", "keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
-            if (!$this->getMultiple()) {
-                $attrString = $this->_getAttrString($this->_attributes);
-            } else {
-                $this->setName($myName . '[]');
-                $attrString = $this->_getAttrString($this->_attributes);
-                $this->setName($myName);
-            }
-            $strHtml .= '<select' . $attrString . ">\n";
-			$mode = Base_User_SettingsCommon::get('Libs_QuickForm','autoselect_mode');
-
-				
-            $strValues = is_array($this->_values)? array_map('strval', $this->_values): array();
-			$hint = __('Start typing to search...');
-			$strHtml .= '<option value="">'.$hint.'</option>';
-//			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
-//			eval_js('set_style_for_search_tip("'.$myName.'");');
-//			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
-            foreach ($this->_options as $option) {
-                if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
-                    $option['attr']['selected'] = 'selected';
-                }
-                $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
-                            $option['text'] . "</option>\n";
-            }
-			$strHtml .= '</select>';
-
-			$text_attrs = array('placeholder'=>$hint);
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);
-			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
-
-			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
-			
-			if (isset($val[0]) && $val[0]!='')
-				$mode=1;
-			
-            return 	'<span id="__'.$myName.'_select_span"'.($mode==0?' style="display:none;"':'').'>'.
-						$strHtml.
-					'</span>'.
-					'<span id="__'.$myName.'_autocomplete_span"'.($mode==1?' style="display:none;"':'').'>'.
-						$search->toHtml().
-					'</span>';
-        }
+	return parent::toHtml();
     } //end func toHtml
 
     function exportValue(&$submitValues, $assoc = false) {
@@ -141,6 +92,61 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             return $this->_prepareValue($cleanValue, $assoc);
         }
 	}
+
+    /**
+     * @param $val
+     * @return string
+     */
+    public function getHtml()
+    {
+        $strHtml = '';
+        $val = $this->getValue();
+
+        $myName = $this->getName();
+        $this->updateAttributes(array('id' => $myName));
+        eval_js('Event.observe("' . $myName . '", "keydown", function(ev){autoselect_start_searching("' . $myName . '", ev.keyCode)});');
+        if (!$this->getMultiple()) {
+            $attrString = $this->_getAttrString($this->_attributes);
+        } else {
+            $this->setName($myName . '[]');
+            $attrString = $this->_getAttrString($this->_attributes);
+            $this->setName($myName);
+        }
+        $strHtml .= '<select' . $attrString . ">\n";
+        $mode = Base_User_SettingsCommon::get('Libs_QuickForm', 'autoselect_mode');
+
+
+        $strValues = is_array($this->_values) ? array_map('strval', $this->_values) : array();
+        $hint = __('Start typing to search...');
+        $strHtml .= '<option value="">' . $hint . '</option>';
+//			eval_js('set_style_for_search_tip = function(el){if($(el).value=="__SEARCH_TIP__")$(el).className="autoselect_search_tip";else $(el).className=""}');
+//			eval_js('set_style_for_search_tip("'.$myName.'");');
+//			eval_js('Event.observe("'.$myName.'", "change", function (){set_style_for_search_tip("'.$myName.'");});');
+        foreach ($this->_options as $option) {
+            if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
+                $option['attr']['selected'] = 'selected';
+            }
+            $strHtml .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
+                $option['text'] . "</option>\n";
+        }
+        $strHtml .= '</select>';
+
+        $text_attrs = array('placeholder' => $hint);
+        $search = new HTML_QuickForm_autocomplete($myName . '__search', '', array('HTML_QuickForm_autoselect', 'get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);
+        $search->on_hide_js('autoselect_on_hide("' . $myName . '",' . ($mode ? '1' : '0') . ');' . $this->on_hide_js_code);
+
+        if ($mode == 0) eval_js('Event.observe("' . $myName . '","change",function(){if($("' . $myName . '").value=="")autoselect_start_searching("' . $myName . '");});');
+
+        if (isset($val[0]) && $val[0] != '')
+            $mode = 1;
+
+        return '<span id="__' . $myName . '_select_span"' . ($mode == 0 ? ' style="display:none;"' : '') . '>' .
+            $strHtml .
+            '</span>' .
+            '<span id="__' . $myName . '_autocomplete_span"' . ($mode == 1 ? ' style="display:none;"' : '') . '>' .
+            $search->toHtml() .
+            '</span>';
+    }
 }
 
 ?>
