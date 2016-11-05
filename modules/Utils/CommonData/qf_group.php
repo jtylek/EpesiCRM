@@ -18,8 +18,8 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 	var $_cd_depth = 1;
 	var $_add_empty_fields = false;
 
-	function HTML_QuickForm_commondata_group($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
-		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	function __construct($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'commondata';
 		$this->_appendName = false;
