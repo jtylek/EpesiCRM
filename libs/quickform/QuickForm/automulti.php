@@ -227,65 +227,6 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
     }
 
     /**
-     * Returns the SELECT in HTML
-     *
-     * @access    public
-     * @return    string
-     */
-    function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            $this->updateAttributes(array('multiple' => 'multiple'));
-			$strHtml = '';
-			
-			$myName = $this->getName();
-			$this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
-
-			load_js('libs/quickform/QuickForm/automulti.js');
-
-			$searchElement = '';
-			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_automulti','get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
-			$search->setAttribute('placeholder', __('Start typing to search...'));
-			$search->on_hide_js('if($("__autocomplete_id_'.$myName.'__search").value!=""){automulti_on_hide("'.$myName.'","'.self::$list_sep.'");'.$this->on_add_js_code.'}');
-			
-			$searchElement .= $search->toHtml()."\n";
-			if (isset($this->_values[0]) && (preg_match('/'.addcslashes(self::$list_sep,'/').'/i',$this->_values[0]) || $this->_values[0]=='')) {
-		        $this->_values = explode(self::$list_sep,$this->_values[0]);
-		        array_shift($this->_values);
-			}
-
-			$this->setName($myName.'__display');
-
-			$mainElement = '';
-			$list = '';
-			$attrString = $this->_getAttrString($this->_attributes);
-			$mainElement .= '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
-			if ($this->_format_callback) foreach ($this->_values as $value) {
-				$mainElement .= "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
-				$list .= '__SEP__'.$value;
-            }
-			$mainElement .= '</select>';
-
-			$strHtml .= '<table class="automulti">';
-            $strHtml .= '<tr>'.
-            			'<td class="search-element">' . $searchElement . '</td>'.
-						($this->search_button? '<td class="search">'.$this->search_button.'</td>' : '<td></td>').
-						'<td width="80px;" class="button disabled" id="automulti_button_style_'.$myName.'">'.
-						'<input style="width:100%" type="button" onclick="automulti_remove_button_action(\''.$myName.'\', \''.self::$list_sep.'\');'.$this->on_remove_js_code.'" value="'.__('Remove').'">'.'</td>' .
-								'</tr>';
-
-			$strHtml .= '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
-
-			$this->setName($myName);
-
-			$strHtml .= '<input type="hidden" name="'.$myName.'" value="'.$list.'" id="'.$myName.'__var_holder" />'."\n";
-			return $strHtml;
-        }
-    }
-
-    /**
      * Returns the value of field without HTML tags
      *
      * @access    public
@@ -340,6 +281,58 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
         } else {
             return parent::onQuickFormEvent($event, $arg, $caller);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        $this->updateAttributes(array('multiple' => 'multiple'));
+        $strHtml = '';
+
+        $myName = $this->getName();
+        $this->updateAttributes(array('id' => $myName)); // Workaround for not processing attributes arg properly
+
+        load_js('libs/quickform/QuickForm/automulti.js');
+
+        $searchElement = '';
+        $search = new HTML_QuickForm_autocomplete($myName . '__search', '', array('HTML_QuickForm_automulti', 'get_autocomplete_suggestbox'), array($this->_options_callback, $this->_options_callback_args, $this->_format_callback));
+        $search->setAttribute('placeholder', __('Start typing to search...'));
+        $search->on_hide_js('if($("__autocomplete_id_' . $myName . '__search").value!=""){automulti_on_hide("' . $myName . '","' . self::$list_sep . '");' . $this->on_add_js_code . '}');
+
+        $searchElement .= $search->toHtml() . "\n";
+        if (isset($this->_values[0]) && (preg_match('/' . addcslashes(self::$list_sep, '/') . '/i', $this->_values[0]) || $this->_values[0] == '')) {
+            $this->_values = explode(self::$list_sep, $this->_values[0]);
+            array_shift($this->_values);
+        }
+
+        $this->setName($myName . '__display');
+
+        $mainElement = '';
+        $list = '';
+        $attrString = $this->_getAttrString($this->_attributes);
+        $mainElement .= '<select' . $attrString . ' onclick="automulti_remove_button_update(\'' . $myName . '\');">' . "\n";
+        if ($this->_format_callback) foreach ($this->_values as $value) {
+            $mainElement .= "\t" . '<option value="' . $value . '">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>' . "\n";
+            $list .= '__SEP__' . $value;
+        }
+        $mainElement .= '</select>';
+
+        $strHtml .= '<table class="automulti">';
+        $strHtml .= '<tr>' .
+            '<td class="search-element">' . $searchElement . '</td>' .
+            ($this->search_button ? '<td class="search">' . $this->search_button . '</td>' : '<td></td>') .
+            '<td width="80px;" class="button disabled" id="automulti_button_style_' . $myName . '">' .
+            '<input style="width:100%" type="button" onclick="automulti_remove_button_action(\'' . $myName . '\', \'' . self::$list_sep . '\');' . $this->on_remove_js_code . '" value="' . __('Remove') . '">' . '</td>' .
+            '</tr>';
+
+        $strHtml .= '<tr><td class="main-element" colspan="3">' . $mainElement . '</td></tr></table>';
+
+        $this->setName($myName);
+
+        $strHtml .= '<input type="hidden" name="' . $myName . '" value="' . $list . '" id="' . $myName . '__var_holder" />' . "\n";
+        return $strHtml;
     }
 
 }
