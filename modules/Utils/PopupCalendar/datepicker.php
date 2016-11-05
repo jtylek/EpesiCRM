@@ -7,8 +7,6 @@
  * @package epesi-Utils
  * @subpackage PopupCalendar
  */
-require_once("HTML/QuickForm/input.php");
-
 class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function __construct($elementName=null, $elementLabel=null, $attributes=null) {
