@@ -78,7 +78,7 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {
-            return '<input' . $this->_getAttrString($this->_attributes) . ' />';
+            return $this->getHtml();
         }
     }
 
@@ -120,6 +120,14 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
         } else {
             return parent::exportValue($submitValues, $assoc);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        return '<input' . $this->_getAttrString($this->_attributes) . ' />';
     }
 }
 ?>
