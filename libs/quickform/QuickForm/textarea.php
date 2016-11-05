@@ -109,23 +109,6 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
     }
 
     /**
-     * Returns the textarea element in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
-                   // because we wrap the form later we don't want the text indented
-                   preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
-                   '</textarea>';
-        }
-    }
-
-    /**
      * Returns the value of field without HTML tags (in this case, value is changed to a mask)
      *
      * @return    string
@@ -139,6 +122,17 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
             $html = nl2br($value)."\n";
         }
         return $html . $this->_getPersistantData();
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
+            // because we wrap the form later we don't want the text indented
+            preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
+            '</textarea>';
     }
 }
 ?>
