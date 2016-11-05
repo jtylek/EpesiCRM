@@ -7,7 +7,6 @@
  * @package epesi-utils
  * @subpackage CurrencyField
  */
-require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
