@@ -70,20 +70,6 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
     }
 
     /**
-     * Returns the radio element in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return HTML_QuickForm_input::toHtml() . $this->_text;
-        } else {
-            return HTML_QuickForm_input::toHtml() . '<label for="' . $this->getAttribute('id') . '">' . $this->_text . '</label>';
-        }
-    }
-
-    /**
      * Returns the value of field without HTML tags
      *
      * @return    string
@@ -91,10 +77,9 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
     public function getFrozenHtml()
     {
       if ($this->getChecked()) {
-          return '<div class="radio_on"></div>' .
-                 $this->_getPersistantData();
+          return '<div class="radio_on"></div>' . $this->_getPersistantData() . $this->_text;
       } else {
-          return '<div class="radio_off"></div>';
+          return '<div class="radio_off"></div>' . $this->_text;
       }
     }
 
@@ -173,6 +158,14 @@ class HTML_QuickForm_radio extends HTML_QuickForm_input
             $value = null;
         }
         return $this->_prepareValue($value, $assoc);
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        return parent::getHtml() . '<label for="' . $this->getAttribute('id') . '">' . $this->_text . '</label>';
     }
 }
 ?>
