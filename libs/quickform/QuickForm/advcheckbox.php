@@ -134,26 +134,6 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
         }
     }
 
-    /**
-     * Returns the checkbox element in HTML
-     * and the additional hidden element in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return parent::toHtml();
-        } else {
-            return '<input' . $this->_getAttrString(array(
-                        'type'  => 'hidden',
-                        'name'  => $this->getName(),
-                        'value' => $this->_values[0]
-                   )) . ' />' . parent::toHtml();
-
-        }
-    }
-
    /**
     * Unlike checkbox, this has to append a hidden input in both
     * checked and non-checked states
@@ -216,6 +196,18 @@ class HTML_QuickForm_advcheckbox extends HTML_QuickForm_checkbox
             $value = null;
         }
         return $this->_prepareValue($value, $assoc);
+    }
+
+    /**
+     * @return string
+     */
+    public function getHtml()
+    {
+        return '<input' . $this->_getAttrString(array(
+                'type' => 'hidden',
+                'name' => $this->getName(),
+                'value' => $this->_values[0]
+            )) . ' />' . parent::getHtml();
     }
 }
 ?>
