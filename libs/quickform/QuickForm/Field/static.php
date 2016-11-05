@@ -36,26 +36,6 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
     }
 
     /**
-     * Sets the element name
-     *
-     * @param     string    $name   Element name
-     */
-    public function setName($name)
-    {
-        $this->updateAttributes(array('name'=>$name));
-    }
-
-    /**
-     * Returns the element name
-     *
-     * @return    string
-     */
-    public function getName()
-    {
-        return $this->getAttribute('name');
-    }
-
-    /**
      * Sets the text
      *
      * @param     string    $text

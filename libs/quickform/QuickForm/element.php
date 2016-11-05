@@ -103,7 +103,7 @@ abstract class HTML_QuickForm_element extends HTML_Common
      */
     public function setName($name)
     {
-        // interface method
+        $this->updateAttributes(array('name'=>$name));
     }
 
     /**
@@ -113,7 +113,7 @@ abstract class HTML_QuickForm_element extends HTML_Common
      */
     public function getName()
     {
-        // interface method
+        return $this->getAttribute('name');
     }
 
     /**

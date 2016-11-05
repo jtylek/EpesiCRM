@@ -63,28 +63,6 @@ abstract class HTML_QuickForm_multi extends HTML_QuickForm_element
     {
         return true;
     }
-    /**
-     * Sets the input field name
-     *
-     * @param     string    $name   Input field name attribute
-     * @access    public
-     * @return    void
-     */
-    function setName($name)
-    {
-        $this->updateAttributes(array('name' => $name));
-    }
-
-    /**
-     * Returns the element name
-     *
-     * @access    public
-     * @return    string
-     */
-    function getName()
-    {
-        return $this->getAttribute('name');
-    }
 
     /**
      * Returns the element name (possibly with brackets appended)

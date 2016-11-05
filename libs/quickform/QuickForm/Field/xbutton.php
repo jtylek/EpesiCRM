@@ -51,18 +51,6 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
         return false;
     }
 
-    function setName($name)
-    {
-        $this->updateAttributes(array(
-            'name' => $name
-        ));
-    }
-
-    function getName()
-    {
-        return $this->getAttribute('name');
-    }
-
     function setValue($value)
     {
         $this->updateAttributes(array(

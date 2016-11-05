@@ -40,26 +40,6 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
     }
 
     /**
-     * Sets the input field name
-     *
-     * @param     string    $name   Input field name attribute
-     */
-    public function setName($name)
-    {
-        $this->updateAttributes(array('name'=>$name));
-    }
-
-    /**
-     * Returns the element name
-     *
-     * @return    string
-     */
-    public function getName()
-    {
-        return $this->getAttribute('name');
-    }
-
-    /**
      * Sets value for textarea element
      *
      * @param     string    $value  Value for textarea element
