@@ -76,9 +76,7 @@ class HTML_QuickForm_checkbox extends HTML_QuickForm_input
      */
     public function toHtml()
     {
-        if (0 == strlen($this->_text)) {
-            $label = '';
-        } elseif ($this->_flagFrozen) {
+        if ($this->_flagFrozen) {
             $label = $this->_text;
         } else {
             $label = '<label for="' . $this->getAttribute('id') . '">' . $this->_text . '</label>';
