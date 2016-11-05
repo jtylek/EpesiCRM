@@ -14,13 +14,11 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
-	HTML_Quickform::registerElementType('ckeditor','modules/Libs/CKEditor/ckeditor.php'
+HTML_QuickForm::registerElementType('ckeditor','modules/Libs/CKEditor/ckeditor.php'
                                             ,'HTML_Quickform_ckeditor');
 /*	load_js('modules/Libs/CKEditor/onsubmit.js');*/
-	load_css('modules/Libs/CKEditor/frontend.css');
+load_css('modules/Libs/CKEditor/frontend.css');
 /*	Libs_QuickFormCommon::add_on_submit_action("if(typeof(ckeditor_onsubmit)!='undefined')ckeditor_onsubmit(this)");*/
-}
 class Libs_CKEditorCommon extends ModuleCommon {
 	public static function QFfield_cb(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callbacks) {
         if ($mode=='add' || $mode=='edit') {
