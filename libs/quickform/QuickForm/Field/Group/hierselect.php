@@ -399,17 +399,17 @@ JAVASCRIPT;
             }
             $this->_js .= "_hs_defaults['" . $this->_escapeString($this->getName()) . "'] = " .
                           $this->_convertArrayToJavascript($values) . ";\n";
+            if (!empty($onChange)) {
+                $keys     = array_keys($this->_elements);
+                for ($i = 0; $i < count($keys) - 1; $i++) {
+                    $this->_elements[$keys[$i]]->updateAttributes(array('onchange' => $onChange[$i]));
+                }
+            }
         }
         $renderer = new HTML_QuickForm_Renderer_Default();
         $renderer->setElementTemplate('{element}');
         parent::accept($renderer);
 
-        if (!empty($onChange)) {
-            $keys     = array_keys($this->_elements);
-            for ($i = 0; $i < count($keys) - 1; $i++) {
-                $this->_elements[$keys[$i]]->updateAttributes(array('onchange' => $onChange[$i]));
-            }
-        }
         return (empty($this->_js)? '': "<script type=\"text/javascript\">\n//<![CDATA[\n" . $this->_js . "//]]>\n</script>") .
                $renderer->toHtml();
     }
