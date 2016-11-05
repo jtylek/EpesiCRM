@@ -11,6 +11,7 @@
 
 class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 {
+    use toHtml;
 
     /**
      * Contains the select options

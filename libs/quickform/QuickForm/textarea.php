@@ -16,6 +16,7 @@
  */
 class HTML_QuickForm_textarea extends HTML_QuickForm_element
 {
+    use toHtml;
     /**
      * Field value
      *

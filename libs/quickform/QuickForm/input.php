@@ -17,6 +17,7 @@
  */
 class HTML_QuickForm_input extends HTML_QuickForm_element
 {
+    use toHtml;
     /**
      * Sets the element type
      *
@@ -66,20 +67,6 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
     public function getValue()
     {
         return $this->getAttribute('value');
-    }
-
-    /**
-     * Returns the input field in HTML
-     *
-     * @return    string
-     */
-    public function toHtml()
-    {
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            return $this->getHtml();
-        }
     }
 
     /**
