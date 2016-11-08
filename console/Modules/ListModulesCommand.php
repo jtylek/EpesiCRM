@@ -40,6 +40,8 @@ class ListModulesCommand extends Command
                 $state = "<fg=green>Active</fg=green>";
             if ($module['state'] === (string)ModuleManager::MODULE_DISABLED)
                 $state = "<fg=yellow>Inactive</fg=yellow>";
+            if ($module['state'] === (string)ModuleManager::MODULE_NOT_FOUND)
+                $state = "<fg=cyan>Files Not Found</fg=cyan>";
             if ($module['state'] === null)
                 $state = "<fg=red>Not installed</fg=red>";
 

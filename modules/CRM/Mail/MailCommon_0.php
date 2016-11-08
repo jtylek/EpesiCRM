@@ -497,7 +497,7 @@ class CRM_MailCommon extends ModuleCommon {
                 throw new Exception($err);
             } else {
                 $return = $unseen;
-                $cache->set($cache_key, $return, $cache_validity_in_minutes);
+                Cache::set($cache_key, $return, $cache_validity_in_minutes);
             }
         }
         return $return;
@@ -601,6 +601,8 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function get_connection($rec) {
+        error_reporting(error_reporting() & ~E_NOTICE); //fetch sometimes gives E_NOTICE on email parse error
+
         static $cache = array();
         if(is_numeric($rec)) {
             if(isset($cache[$rec])) return $cache[$rec];
