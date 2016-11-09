@@ -1872,7 +1872,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if ($action != 'browse' && $action != 'clone') {
                     foreach ($crits_raw[$action] as $rule_id => $c) {
                         if ($record != null && !self::check_record_against_crits($tab, $record, $c)) {
-                            continue;
+                        	if ($rule_id == 'callback') {
+                        		$ret = false;
+                        		break;
+                        	}
+                        	else continue;
                         }
                         $ret = true;
                         if ($rule_id == 'callback') continue;
