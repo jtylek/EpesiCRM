@@ -3,6 +3,36 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+CURRENT
+-------
+
+### Added
+- Allow to assign multiple contacts to company by related field (georgehristov)
+- New caching engine
+- New console commands:
+    * create backups of db (mysql only) and files
+    * enable all disabled modules at once
+    * create module files (Dev)
+- Show recordset caption and record id if label would be empty
+- Show requirement of PHP gd library during installation
+
+### Fixed
+- Mobile edit issues
+- MySQL syntax error during watchdog cleanup
+- Decrease RB search index size - do not store empty strings
+- Allow empty option key in Leightbox Prompt
+- Issue when creating a new phonecall from company addon
+- Editing select field - populate with proper label
+- Like operator for date fields - issue with mysql collaction
+- Selection crits
+- Resetting advanced order in GB/RB
+- Record labels with empty values - sometimes unwanted html appeared
+
+### Changed
+- Always use default linked label for select field suggestbox
+- Error reporting - better console readability
+
+
 RELEASE 1.8.0-20160926
 -------
 
