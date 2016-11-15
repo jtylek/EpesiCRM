@@ -1220,10 +1220,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_description_fields($tab) {
         static $cache = null;
         if ($cache===null) {
-            $cache = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
-            foreach ($cache as $tab => $fields) {
+            $db_ret = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
+            foreach ($db_ret as $t => $fields) {
                 if ($fields) {
-                    $cache[$tab] = array_filter(array_map('trim', explode(',', $fields)));
+                    $cache[$t] = array_filter(array_map('trim', explode(',', $fields)));
                 }
             }
         }
