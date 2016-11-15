@@ -966,9 +966,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
      */
     public static function rename_field($tab, $old_name, $new_name)
     {
-        $id = Utils_RecordBrowserCommon::get_field_id($old_name);
-        $new_id = Utils_RecordBrowserCommon::get_field_id($new_name);
-        Utils_RecordBrowserCommon::check_table_name($tab);
+        $id = self::get_field_id($old_name);
+        $new_id = self::get_field_id($new_name);
+        self::check_table_name($tab);
 
         DB::StartTrans();
         if (DB::is_postgresql()) {
@@ -976,9 +976,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         } else {
             $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
             $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, Utils_RecordBrowserCommon::actual_db_type($type, $old_param));
+            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
         }
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
+        DB::Execute('UPDATE ' . $tab . '_access_fields SET block_fields=%s WHERE block_fields=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::CompleteTrans();
