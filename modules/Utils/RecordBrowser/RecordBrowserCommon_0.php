@@ -1153,6 +1153,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('UPDATE recordbrowser_table_properties SET description_callback=%s WHERE tab=%s', array($callback, $tab));
     }
+
+    /**
+     * Set description fields to be used as default linked label
+     *
+     * You can use double quotes to put any text between field values
+     * e.g. 'Last Name, ", ", First Name,'
+     *
+     * @param string $tab recordset name
+     * @param string|array $fields comma separated list of fields or array of fields
+     */
+    public static function set_description_fields($tab, $fields)
+    {
+        if (is_array($fields)) $fields = implode(',', $fields);
+        DB::Execute('UPDATE recordbrowser_table_properties SET description_fields=%s WHERE tab=%s', array($fields, $tab));
+    }
     public static function set_printer($tab,$class) {
         Base_PrintCommon::register_printer(new $class());
         DB::Execute('UPDATE recordbrowser_table_properties SET printer=%s WHERE tab=%s', array($class, $tab));
@@ -1201,6 +1216,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	}
     	
     	return false;
+    }
+    public static function get_description_fields($tab) {
+        static $cache = null;
+        if ($cache===null) {
+            $cache = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
+            foreach ($cache as $tab => $fields) {
+                if ($fields) {
+                    $cache[$tab] = array_filter(array_map('trim', explode(',', $fields)));
+                }
+            }
+        }
+
+        if (is_string($tab) && isset($cache[$tab])) {
+            return $cache[$tab];
+        }
+
+        return false;
     }
     public static function get_sql_type($type) {
         switch ($type) {
@@ -2408,22 +2440,42 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $record = self::get_record($tab,$id);
         if(!$record) return '';
         $description_callback = self::get_description_callback($tab);
-        
+        $description_fields = self::get_description_fields($tab);
+        $access = self::get_access($tab, 'view', $record);
+
         $tab_caption = self::get_caption($tab);
         if(!$tab_caption || $tab_caption == '---') $tab_caption = $tab;
-        
-        if($description_callback)
-            $label = call_user_func($description_callback, $record, $nolink);
-        else {
-            $field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE (type=\'autonumber\' OR ((type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1)) AND visible=1 AND active=1 ORDER BY position');
-            if(!$field)
-                $label = $id;
-            else
-                $label = self::get_val($tab,$field,$record,$nolink);
+
+        $label = '';
+        if ($access) {
+            if ($description_callback) {
+                $label = call_user_func($description_callback, $record, $nolink);
+            } elseif ($description_fields) {
+                $labels_arr = array();
+                foreach ($description_fields as $field) {
+                    if ($field[0] === '"') {
+                        $labels_arr[] = trim($field, '"');
+                    } else {
+                        $field_id = self::get_field_id($field);
+                        if ($access === true || (array_key_exists($field_id, $access) && $access[$field_id])) {
+                            $labels_arr[] = self::get_val($tab, $field, $record, true);
+                        }
+                    }
+                }
+                $label = implode(' ', $labels_arr);
+            } else {
+                $field = DB::GetOne('SELECT field FROM ' . $tab . '_field WHERE (type=\'autonumber\' OR ((type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1)) AND visible=1 AND active=1 ORDER BY position');
+                if ($field) {
+                    $label = self::get_val($tab, $field, $record, $nolink);
+                }
+            }
         }
-        
-        $label = ($table_name? $tab_caption . ': ': '') . $label;
-        
+        if (!$label) {
+            $label = sprintf("%s: #%06d", $tab_caption, $id);
+        } else {
+            $label = ($table_name? $tab_caption . ': ': '') . $label;
+        }
+
         $ret = self::record_link_open_tag_r($tab, $record, $nolink) . $label . self::record_link_close_tag();
         if ($nolink == false && $detailed_tooltip) {
             $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
