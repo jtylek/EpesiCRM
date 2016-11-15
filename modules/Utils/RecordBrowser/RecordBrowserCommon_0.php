@@ -2994,8 +2994,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             
             $access = self::get_access($t, 'selection', null, true);
             if ($access===false) continue;
-            if ($access!==true && (is_array($access) || $access instanceof Utils_RecordBrowswer_CritsInterface)) {
-            	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowswer_CritsInterface)
+            if ($access!==true && (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface)) {
+            	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowser_CritsInterface)
             		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access);
                 else 
                 	$tab_crits[$t] = $access;
@@ -3026,8 +3026,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $crits2B = self::merge_crits($crits2B, array('~' . $field_id => $words_db_tmp), true);
                 $order[$field_id] = 'ASC';
             }
-            $crits3A = self::merge_crits(isset($crits[$t])?$crits[$t]:array(),$crits2A);
-            $crits3B = self::merge_crits(isset($crits[$t])?$crits[$t]:array(),$crits2B);
+            $crits3A = self::merge_crits(isset($tab_crits[$t])?$tab_crits[$t]:array(),$crits2A);
+            $crits3B = self::merge_crits(isset($tab_crits[$t])?$tab_crits[$t]:array(),$crits2B);
 
             $records = self::get_records($t, $crits3A, array(), $order, 10);
 
