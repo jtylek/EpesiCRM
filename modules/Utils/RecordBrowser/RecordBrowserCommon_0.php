@@ -2261,7 +2261,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 self::$del_or_a = '</del>';
             }
             if (!$has_access) {
-                $tip = ($tip?'<br>':'').__('You don\'t have permission to view this record.');
+                $tip .= ($tip?'<br>':'').__('You don\'t have permission to view this record.');
             }
             $tip = $tip ? Utils_TooltipCommon::open_tag_attrs($tip) : '';
             if (!$nolink) {
