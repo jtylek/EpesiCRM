@@ -1551,8 +1551,9 @@ class Utils_RecordBrowser extends Module {
         $full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'settings')==2;
         
         $form = $this->init_module(Libs_QuickForm::module_name());
-        $r = DB::GetRow('SELECT caption,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
+        $r = DB::GetRow('SELECT caption,description_fields,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
         $form->addElement('text', 'caption', __('Caption'));
+        $form->addElement('text', 'description_fields', __('Description Fields'), array('placeholder' => __('Comma separated list of field names')));
         $form->addElement('select', 'favorites', __('Favorites'), array(__('No'), __('Yes')));
         $recent_values = array(0 => __('No'));
         foreach (array(5, 10, 15, 20, 25) as $rv) { $recent_values[$rv] = "$rv " . __('Records') ; }
@@ -1573,8 +1574,8 @@ class Utils_RecordBrowser extends Module {
             $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clear_search_index'), array($this->tab));
             echo "<a $clear_index_href>" . __('Clear search index') . "</a>";
             if ($form->validate()) {
-                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
-                            array($form->exportValue('caption'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
+                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,description_fields=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
+                            array($form->exportValue('caption'), $form->exportValue('description_fields'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
             }
         }
     }

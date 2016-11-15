@@ -7,6 +7,7 @@ CURRENT
 -------
 
 ### Added
+- Allow to define fields to use as default record label
 - Allow to assign multiple contacts to company by related field (georgehristov)
 - New caching engine
 - New console commands:

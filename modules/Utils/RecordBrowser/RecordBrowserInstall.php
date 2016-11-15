@@ -28,6 +28,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 						'caption C(32) DEFAULT \'\','.
 						'icon C(255) DEFAULT \'\','.
 						'description_callback C(128) DEFAULT \'\','.
+						'description_fields C(255) DEFAULT \'\','.
                         'jump_to_id I1 DEFAULT 1,'.
                         'search_include I1 DEFAULT 0,'.
                         'search_priority I1 DEFAULT 0,'.
