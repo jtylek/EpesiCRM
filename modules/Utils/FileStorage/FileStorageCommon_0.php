@@ -22,7 +22,16 @@ class Utils_FileStorageCommon extends ModuleCommon {
     public static function write_content($filename,$content,$link='') {
         $hash = hash('sha512',$content);
         $path = self::get_storage_file_path($hash);
-        if(file_exists($path)) {
+        $id = null;
+        if (file_exists($path)) {
+            $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
+        } else {
+            copy($file, $path);
+        }
+        if(!$id) {
+            DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
+            $id = DB::Insert_ID('utils_filestorage_files','id');
+        }        if(file_exists($path)) {
             $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
         } else {
             file_put_contents($path,$content);
