@@ -1553,6 +1553,11 @@ class Utils_RecordBrowser extends Module {
         $form = $this->init_module(Libs_QuickForm::module_name());
         $r = DB::GetRow('SELECT caption,description_fields,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
         $form->addElement('text', 'caption', __('Caption'));
+        $callback = Utils_RecordBrowserCommon::get_description_callback($this->tab);
+        if ($callback) {
+            echo '<div style="color:red; padding: 1em;">' . __('Description Fields take precedence over callback. Leave them empty to use callback') . '</div>';
+            $form->addElement('static', '', __('Description Callback'), implode('::', $callback))->freeze();
+        }
         $form->addElement('text', 'description_fields', __('Description Fields'), array('placeholder' => __('Comma separated list of field names')));
         $form->addElement('select', 'favorites', __('Favorites'), array(__('No'), __('Yes')));
         $recent_values = array(0 => __('No'));
