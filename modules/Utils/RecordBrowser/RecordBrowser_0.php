@@ -1393,17 +1393,20 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function check_new_record_access($data) {
-		$problems = array();
 		$ret = array();
         if (is_array(Utils_RecordBrowser::$last_record))
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
-//		$crits = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true);
-		$crits2 = Utils_RecordBrowserCommon::get_access($this->tab,'add',null, true, true);
+		$rule_crits = Utils_RecordBrowserCommon::get_access_rule_crits($this->tab,'add');
+		if (Utils_RecordBrowserCommon::get_access_full_grant($rule_crits)) return array();
+		if (Utils_RecordBrowserCommon::get_access_full_deny($rule_crits)) {
+			$fields = array_keys($data);
+			$first_field = reset($fields);
+			return array($first_field=>__('Access denied'));
+		}
         $required_crits = array();
-		foreach($crits2 as $crits) {
+		foreach($rule_crits as $crits) {
 		    $problems = array();
-    		$ret = Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems);
-            if (!$ret) {
+            if (!Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems)) {
                 foreach ($problems as $c) {
                     if ($c instanceof Utils_RecordBrowser_CritsSingle) {
                         list($f, $subf) = Utils_RecordBrowser_CritsSingle::parse_subfield($c->get_field());
@@ -1412,9 +1415,9 @@ class Utils_RecordBrowser extends Module {
                 }
                 $required_crits[] = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
             }
-    		if($problems) continue;
-    		return array();
-    	}
+	   	}
+    	if (!$required_crits) return array();
+    	
         /** @var Base_Theme $th */
         $th = $this->init_module(Base_Theme::module_name());
         $th->assign('crits', $required_crits);

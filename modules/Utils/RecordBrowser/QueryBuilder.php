@@ -554,7 +554,7 @@ class Utils_RecordBrowser_QueryBuilder
             }
             if (!$action) return $handled_with_php;
 
-            $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
+            $access_crits = Utils_RecordBrowserCommon::get_access_crits($tab2, $action);
             $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode);
             if ($subquery) {
                 $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
