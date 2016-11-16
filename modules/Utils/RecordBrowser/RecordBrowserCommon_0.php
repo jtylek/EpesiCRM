@@ -2448,9 +2448,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $label = '';
         if ($access) {
-            if ($description_callback) {
-                $label = call_user_func($description_callback, $record, $nolink);
-            } elseif ($description_fields) {
+            if ($description_fields) {
                 $labels_arr = array();
                 foreach ($description_fields as $field) {
                     if ($field[0] === '"') {
@@ -2463,6 +2461,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                 }
                 $label = implode(' ', $labels_arr);
+            } elseif ($description_callback) {
+                $label = call_user_func($description_callback, $record, $nolink);
             } else {
                 $field = DB::GetOne('SELECT field FROM ' . $tab . '_field WHERE (type=\'autonumber\' OR ((type=\'text\' OR type=\'commondata\' OR type=\'integer\' OR type=\'date\') AND required=1)) AND visible=1 AND active=1 ORDER BY position');
                 if ($field) {
