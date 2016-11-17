@@ -979,7 +979,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
         }
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
-        DB::Execute('UPDATE ' . $tab . '_access_fields SET block_fields=%s WHERE block_fields=%s', array($new_id, $id));
+        DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::CompleteTrans();
