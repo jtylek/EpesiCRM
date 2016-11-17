@@ -906,7 +906,7 @@ class ModuleManager {
 		$file_lines = file($file);
 
 		$VA_regex = '/Direct access forbidden/i';
-        $use_keyword_regex = '/\s*use/i';
+        $use_keyword_regex = '/^\s*use/i';
 
 		foreach ($file_lines as $i => $line) {
 			if ($i >= $start && $i < $end) continue;
