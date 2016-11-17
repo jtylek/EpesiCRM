@@ -982,6 +982,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
+        
+        $result = DB::Execute('SELECT * FROM ' . $tab . '_access');
+        while ($row = $result->FetchRow()) {
+        	$crits = self::unserialize_crits($row['crits']);
+        	
+        	if (!is_object($crits))
+        		$crits = Utils_RecordBrowser_Crits::from_array($crits);
+        	
+        	foreach ($crits->find($id) as $c) $c->set_field($new_id);
+
+        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        }
+        
         DB::CompleteTrans();
     }
     
