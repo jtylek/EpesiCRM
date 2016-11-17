@@ -162,6 +162,13 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
     {
         return $this->field;
     }
+    
+    public function set_field($key)
+    {
+    	$this->field = $key;
+    	
+    	return $this;
+    }
 
     /**
      * @return mixed
