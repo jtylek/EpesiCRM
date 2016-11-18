@@ -298,7 +298,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $sql = array();
                     foreach ($value as $v) {
                         $vals[] = $v;
-                        $sql[] = $this->tab_alias.'.created_by = %d';
+                        $sql[] = $this->tab_alias.'.created_by ' . $operator . ' %d';
                     }
                     $sql = implode(' OR ', $sql);
                     if ($negation) {
