@@ -9,14 +9,6 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 use phpFastCache\CacheManager;
-$phpfastcache_config = array(
-    "path" => EPESI_LOCAL_DIR . '/' . DATA_DIR.'/cache',
-);
-if(MEMCACHE_SESSION_SERVER) {
-    $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
-    $phpfastcache_config['memcache'] = array(array($srv[0],isset($srv[1])?$srv[1]:11211));
-}
-CacheManager::setDefaultConfig($phpfastcache_config);
 
 class Cache
 {
@@ -25,11 +17,22 @@ class Cache
     public static function init()
     {
         $drivers = array();
-        if (class_exists('Memcached')) {
-            $drivers[] = 'Memcached';
-        } elseif (class_exists('Memcache')) {
-            $drivers[] = 'Memcache';
+        $phpfastcache_config = array(
+            "path" => EPESI_LOCAL_DIR . '/' . DATA_DIR.'/cache',
+            "securityKey" => INSTALLATION_ID
+        );
+        if(MEMCACHE_SESSION_SERVER) {
+            $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
+            $phpfastcache_config['memcache'] = array(array($srv[0],isset($srv[1])?$srv[1]:11211));
+
+            if (class_exists('Memcached')) {
+                $drivers[] = 'Memcached';
+            } elseif (class_exists('Memcache')) {
+                $drivers[] = 'Memcache';
+            }
         }
+        CacheManager::setDefaultConfig($phpfastcache_config);
+
         $drivers = array_merge($drivers, array('Apc', 'Apcu', 'Xcache', 'Zendshm', 'files'));
         foreach ($drivers as $driver) {
             try {
@@ -45,6 +48,7 @@ class Cache
 
     public static function get($name, $default = null)
     {
+        $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
         $ret = self::$cache_object->getItem($name);
         if(is_null($ret->get())) return $default;
         return $ret->get();
@@ -52,6 +56,7 @@ class Cache
 
     public static function set($name, $value,$expiration_seconds=0)
     {
+        $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
         $ret = self::$cache_object->getItem($name);
         $ret->set($value);
         if($expiration_seconds>0) $ret->expiresAfter($expiration_seconds);
@@ -61,6 +66,7 @@ class Cache
     public static function clear($name=null)
     {
         if ($name) {
+            $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
             self::$cache_object->deleteItem($name);
         } else {
             self::$cache_object->clear();
