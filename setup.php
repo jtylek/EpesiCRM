@@ -522,7 +522,7 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
 //define(\'DEMO_MODE\',0);
 
 define(\'FILE_SESSION_DIR\',\''.str_replace('\\', '/', sys_get_temp_dir()).'\');
-define(\'FILE_SESSION_TOKEN\',\'epesi_'.md5(__FILE__).'_\');
+define(\'INSTALLATION_ID\',\''.md5(__FILE__ . strval(microtime(true))).'\');
 
 '.$other_conf.'
 ?>');

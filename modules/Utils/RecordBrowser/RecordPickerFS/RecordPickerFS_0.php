@@ -32,14 +32,12 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	}
 	
 	public function back() {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		$x->pop_main();
+		Base_BoxCommon::pop_main();
 	}
 
 	public function cancel() {
 		$GLOBALS['rpfs_old_sel'] = $this->get_module_variable('old_selected',array());
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		$x->pop_main();
+		Base_BoxCommon::pop_main();
 	}
 	
 	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$filters_defaults=array(),$path=null,$caption=null) {

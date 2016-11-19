@@ -210,7 +210,9 @@ class Utils_RecordBrowser_Filters extends Module {
 								$param['crits_callback'] = $crits_callback;
 								$multi_adv_params = Utils_RecordBrowserCommon::call_select_adv_params_callback($param['adv_params_callback']);
 								$format_callback = $multi_adv_params['format_callback'];
-								$crits = call_user_func($crits_callback, false);
+								if (is_callable($crits_callback)) {
+									$crits = call_user_func($crits_callback, false);
+								}
 							}
 							///--->end temporary use. to be removed when bug fixed
 							

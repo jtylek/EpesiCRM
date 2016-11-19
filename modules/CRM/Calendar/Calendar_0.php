@@ -22,9 +22,7 @@ class CRM_Calendar extends Module {
 		$callback = explode('::', $callback);
 		$ret = call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, null, $this);
 		if (!$ret) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			return $x->pop_main();
+			return Base_BoxCommon::pop_main();
 		}
 	}
 

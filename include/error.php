@@ -21,12 +21,14 @@ class ErrorHandler {
 	private static $observers = array();
 	
 	private static function notify_client($buffer) {
+        epesi_log("$buffer\n\n",'php_errors.log');
+
 		if(JS_OUTPUT && class_exists('Epesi')) {
 			chdir(dirname(dirname(__FILE__)));
 			Epesi::clean();
 			if(DISPLAY_ERRORS) {
 				Epesi::js("$('debug_content').style.display='block';");
-				Epesi::text($buffer.'<hr>','error_box','prepend');
+				Epesi::text('<pre>' . $buffer . '</pre><hr>','error_box','prepend');
 			}
 			Epesi::alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));
 			return Epesi::get_output();
@@ -37,15 +39,15 @@ class ErrorHandler {
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
     	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
-				
-				epesi_log(self::error_code_to_string($type) . ' (' . $type . '): '.$message."\n".'File: '.$errfile.' ('.$errline.")\n\n",'php_errors.log');
-				
+
+                $message = "Type: " . self::error_code_to_string($type) . " ($type)\nMessage: $message\nFile: $errfile\nLine={$errline}{$backtrace}";
+
 				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
 					return false;
 				}
-				
+
 				while(@ob_end_clean());
-				echo self::notify_client('Type: ' . self::error_code_to_string($type) . ' (' . $type . ')<br>Message: '.$message.'<br>File: '.$errfile.'<br>Line='.$errline.$backtrace.'<hr>');
+				echo self::notify_client($message);
 				exit();
 		}
 
@@ -56,10 +58,10 @@ class ErrorHandler {
     {
         $backtrace = self::debug_backtrace($exception->getTrace());
         while (@ob_end_clean());
-        $msg = get_class($exception) . '<br>Message: '
-               . $exception->getMessage() . '<br>File: ' .
-               $exception->getFile() . '<br>Line=' . $exception->getLine() .
-               $backtrace . '<hr>';
+        $msg = get_class($exception) . "\nMessage: "
+               . $exception->getMessage() . "\nFile: " .
+               $exception->getFile() . "\nLine=" . $exception->getLine() .
+               $backtrace . "\n\n";
         echo self::notify_client($msg);
     }
     
@@ -87,19 +89,19 @@ class ErrorHandler {
             $bt = debug_backtrace();
         }
         if ($bt !== null) {
-			$backtrace = '<br />error backtrace:<br />';
+			$backtrace = "\nerror backtrace:\n";
 
 			for($i = 0; $i <= count($bt) - 1; $i++) {
 				if(isset($bt[$i]['file']) && ($bt[$i]['function']=='debug_backtrace' || $bt[$i]['function']=='handle_error') && preg_match('/error.php$/',$bt[$i]["file"]))
 					continue;
 				if(!isset($bt[$i]["file"]))
-					$backtrace .= "[PHP core called function]<br />";
+					$backtrace .= "[PHP core called function]\n";
 				else
-					$backtrace .= "File: ".$bt[$i]["file"]."<br />";
+					$backtrace .= "File: ".$bt[$i]["file"]."\n";
 	   
 						if(isset($bt[$i]["line"]))
-					$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;line ".$bt[$i]["line"]."<br />";
-				$backtrace .= "&nbsp;&nbsp;&nbsp;&nbsp;function called: ".$bt[$i]["function"];
+					$backtrace .= "    line ".$bt[$i]["line"]."\n";
+				$backtrace .= "    function called: ".$bt[$i]["function"];
 				if(isset($bt[$i]['args'])) {
 				    $args = $bt[$i]['args'];
 				    foreach($args as & $arg) {
@@ -155,7 +157,7 @@ class ErrorHandler {
 				    }
 				    $backtrace .= '('.implode(', ',$args).')';
 				}
-				$backtrace .= "<br /><br />";
+				$backtrace .= "\n\n";
 			}
 		} else $backtrace = '';
 		return $backtrace;

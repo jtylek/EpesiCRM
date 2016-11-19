@@ -7,12 +7,15 @@
  * @package epesi-base
  */
 
+if (__FILE__ == realpath($_SERVER['SCRIPT_FILENAME'])) die("Direct access forbidden");
+
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
 umask(0022);
 
 chdir(dirname(__FILE__));
 try {
+    require_once('vendor/autoload.php');
     require_once('include/include_path.php');
     require_once('include/data_dir.php');
     require_once('include/config.php');

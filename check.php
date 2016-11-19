@@ -192,12 +192,14 @@ $zip = class_exists('ZipArchive');
 $curl = extension_loaded('curl');
 $remote_fgc = ini_get('allow_url_fopen');
 $modules_writable = is_writable('modules');
+$imagegd = function_exists('imagecreatefromjpeg');
 
 $error_tests = array();
 $error_tests[] = array('label'=>'Remote file_get_contents()', 'status'=>$remote_fgc?'Enabled':'Disabled', 'severity'=>$remote_fgc?0:2);
 $error_tests[] = array('label'=>'ZIPArchive library loaded', 'status'=>$zip?'Loaded':'Not found', 'severity'=>$zip?0:2);
 $error_tests[] = array('label'=>'cURL library loaded', 'status'=>$curl?'Loaded':'Not found', 'severity'=>$curl?0:1);
 $error_tests[] = array('label'=>'Modules directory writable', 'status'=>$modules_writable?'Yes':'No', 'severity'=>$modules_writable?0:1);
+$error_tests[] = array('label'=>'PHP GD extension - image processing', 'status'=>$imagegd?'Yes':'No', 'severity'=>$imagegd?0:2);
 
 
 $checks[] = array('label'=>'Features', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');

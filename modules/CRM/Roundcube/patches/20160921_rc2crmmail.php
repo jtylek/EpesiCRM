@@ -39,6 +39,7 @@ if (!Utils_CommonDataCommon::get_id('CRM/Mail')) {
 } elseif (!Utils_CommonDataCommon::get_id('CRM/Mail/Security')) {
     Utils_CommonDataCommon::new_array('CRM/Mail/Security', array('tls' => _M('TLS'), 'ssl' => _M('SSL')), true, true);
 }
+Utils_CommonDataCommon::get_id('CRM/Roundcube/Security', true); // clear cache to avoid deleting moved tree element
 Utils_CommonDataCommon::remove('CRM/Roundcube/Security');
 $parent = Utils_CommonDataCommon::get_array('CRM/Roundcube', 'value', false, true);
 if (empty($parent)) {

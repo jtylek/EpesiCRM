@@ -20,9 +20,7 @@ class Utils_Messenger extends Module {
 	private $parent_type;
 
 	public function pop_box0() {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->pop_main();
+		Base_BoxCommon::pop_main();
 	}
 
 	public function push_box0($func,$args,$const_args) {

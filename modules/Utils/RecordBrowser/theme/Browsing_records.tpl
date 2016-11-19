@@ -22,12 +22,12 @@
 				</td>
 			{/if}
     		<td class="filters">
-                {if $filters.controls}
+                {if isset($filters.controls)}
 	                {$filters.controls}
                 {/if}
             </td>
         </tr>
-        {if $filters.elements}
+        {if isset($filters.elements)}
         <tr>
             <td colspan="3" class="filters">
             {$filters.elements}

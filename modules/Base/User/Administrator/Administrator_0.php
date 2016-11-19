@@ -26,7 +26,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addElement('password','new_pass',__('New password'));
         $form->addElement('password','new_pass_c',__('Confirm new password'));
         $form->addRule(array('new_pass', 'new_pass_c'), __('Your passwords don\'t match'), 'compare');
-        $form->addRule('new_pass', __('Your password must be longer then 5 chars'), 'minlength', 6);
+        $form->addRule('new_pass', __('Your password must be longer than 5 characters'), 'minlength', 6);
 
         //mail
         $form->addElement('header', null, __('Change e-mail'));
@@ -230,9 +230,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
     public function edit_user_form($edit_id) {
 		if ($this->is_back()) {
 			if($this->parent->get_type()!='Base_Admin') {
-				$x = ModuleManager::get_instance('/Base_Box|0');
-				if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-				$x->pop_main();
+				Base_BoxCommon::pop_main();
 			}
 			return false;
 		}
@@ -280,9 +278,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         if($form->validate()) {
             if($form->process(array(&$this, 'submit_edit_user_form'))) {
 				if($this->parent->get_type()!='Base_Admin') {
-					$x = ModuleManager::get_instance('/Base_Box|0');
-					if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-					$x->pop_main();
+					Base_BoxCommon::pop_main();
 				}
                 return false;
 			}

@@ -1,5 +1,7 @@
 <?php
 
+use Ifsnop\Mysqldump\Mysqldump;
+
 class BackupUtil {
 
     private $_backup_dir;
@@ -13,6 +15,25 @@ class BackupUtil {
         $this->_backup_store = new BackupStore($backup_dir);
     }
 
+    public static function backup_db($file = null)
+    {
+        if (\DB::is_postgresql()) {
+            throw new Exception('PostgreSQL is not supported yet');
+        }
+        $compress = Mysqldump::NONE;
+        $extension = strtolower(substr($file, -3));
+        if ($extension == '.gz') $compress = Mysqldump::GZIP;
+        if ($extension == '.bz') $compress = Mysqldump::BZIP2;
+        $options = array(
+            'compress' => $compress,
+            'add-drop-table' => true,
+            'no-data' => array('recordbrowser_search_index', 'session', 'session_client', 'history'),
+        );
+        $dump = new Mysqldump('mysql:host=' . DATABASE_HOST . ';dbname=' . DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, $options);
+        $dump->start($file);
+        return $file;
+    }
+
     function list_backups() {
         $files = $this->_backup_store->list_backup_files();
         $ret = array();
@@ -23,21 +44,37 @@ class BackupUtil {
     }
 
     function create_backup_of_epesi() {
+
         $description = "EPESI ver " . EPESI_VERSION . " rev " . EPESI_REVISION;
-        return $this->_create_backup('.', $description);
+        $backup = $this->create_backup('.', $description);
+        $this->addDbBackup($backup);
+        return $backup;
     }
 
-    function create_backup($files, $description = '') {
-        return $this->_create_backup($files, $description);
+    function addDbBackup(Backup $backup)
+    {
+        $db_backup = 'db_backup_' . time() . '.sql.gz';
+        self::backup_db($db_backup);
+        if (file_exists($db_backup)) {
+            $backup->get_archive()->addSingleFile($db_backup, 'db_backup.sql.gz');
+            unlink($db_backup);
+        }
     }
 
-    private function _create_backup($files, $description) {
-        $file = $this->_backup_store->new_backup_file();
-        $bkp = new Backup($file);
+    function create_backup($files, $description = '', $output_file = null, $overwrite = false) {
+        if (!$output_file) {
+            $output_file = $this->_backup_store->new_backup_file();
+        }
+        $bkp = new Backup($output_file, $overwrite);
+        return $this->_create_backup($files, $description, $bkp);
+    }
+
+    private function _create_backup($files, $description, Backup $backup) {
         $this->_chdir_to_epesi();
-        $success = $bkp->create($files, $description, $this->_backup_dir);
+        $exclude = array($this->_backup_dir, DATA_DIR . '/cache');
+        $success = $backup->create($files, $description, $exclude);
         $this->_chdir_back();
-        return $success ? $bkp : false;
+        return $success ? $backup : false;
     }
 
     private function _chdir_to_epesi() {
@@ -54,14 +91,14 @@ class BackupUtil {
     }
 
     static function default_instance() {
-        return new BackupUtil(getcwd(), 'data/backups');
+        return new BackupUtil(getcwd(), DATA_DIR . '/backups');
     }
 
 }
 
 class BackupStore {
 
-    private $_extension = 'bkp';
+    private $_extension = 'bkp.zip';
     private $_dir;
 
     public function __construct($dir) {
@@ -92,8 +129,9 @@ class BackupStore {
         $ret = array();
         $dir = new DirectoryIterator($this->_dir);
         foreach ($dir as $file) {
-            if ($file->getExtension() == $this->_extension)
+            if (preg_match('/.*' . preg_quote($this->_extension) . '$/', $file->getFilename())) {
                 $ret[] = $file->getPathname();
+            }
         }
         return $ret;
     }
@@ -105,21 +143,21 @@ class Backup {
     private static $__properties_in_metadata = array('date', 'description');
     private $date;
     private $description;
-    private $files;
-    private $_overwrite;
+    private $file;
+    private $overwrite;
 
     /** @var BackupArchive */
-    private $_archive;
+    private $archive;
 
     public function __construct($backup_file, $overwrite = false) {
-        $this->_file = $backup_file;
-        $this->_overwrite = $overwrite;
-        $this->_archive = new BackupArchive($backup_file);
+        $this->file = $backup_file;
+        $this->overwrite = $overwrite;
+        $this->archive = new BackupArchive($backup_file);
         $this->_read_metadata();
     }
 
     private function _read_metadata() {
-        $data = $this->_archive->get_metadata();
+        $data = $this->archive->get_metadata();
         $this->_set_properties($data);
     }
 
@@ -142,41 +180,61 @@ class Backup {
 
     public function create($files, $description, $exclude_files = array()) {
         set_time_limit(0);
-        if ($this->_overwrite == false && $this->_archive->exists())
-            return false;
+        if ($this->overwrite == false && $this->archive->exists()) {
+            throw new Exception('Backup archive exists - overwrite is forbidden.');
+        }
 
-        $success = $this->_archive->create($files, $exclude_files);
+        $success = $this->archive->create($files, $exclude_files);
         if ($success) {
             $this->date = time();
             $this->description = $description;
-            $this->_archive->set_metadata($this->_get_properties());
+            $this->archive->set_metadata($this->_get_properties());
         }
         return $success;
     }
 
     public function restore_to($destination) {
         set_time_limit(0);
-        return $this->_archive->extractTo($destination);
+        return $this->archive->extractTo($destination);
     }
     
     public function restore() {
         return $this->restore_to('.');
     }
 
+    /**
+     * @param string|null $format date function format string
+     *
+     * @return int|string unix timestamp or formatted date
+     */
     public function get_date($format = null) {
         if (is_string($format))
             return date($format, $this->date);
         return $this->date;
     }
 
+    /**
+     * Backup description
+     *
+     * @return string
+     */
     public function get_description() {
         return $this->description;
     }
 
-    public function get_files() {
-        if (!$this->files)
-            $this->files = $this->_archive->list_files();
-        return $this->files;
+    /**
+     * @return BackupArchive
+     */
+    public function get_archive() {
+        return $this->archive;
+    }
+
+    /**
+     * @return string File path to backup
+     */
+    public function get_file()
+    {
+        return $this->file;
     }
 
 }
@@ -262,6 +320,13 @@ class BackupArchive extends ZipArchive {
             return $this->addFile($path);
     }
 
+    public function addSingleFile($file, $dest)
+    {
+        $this->_open();
+        $this->addFile($file, $dest);
+        $this->close();
+    }
+
     public function get_metadata() {
         if (!file_exists($this->_file))
             return null;
@@ -298,7 +363,7 @@ class BackupArchive extends ZipArchive {
 
     private function _is_excluded($file) {
         foreach ($this->_exclude as $ex) {
-            if (strpos($file, $ex) === 0)
+            if (preg_match("#$ex#", $file))
                 return true;
         }
         return false;

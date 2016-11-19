@@ -406,7 +406,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
+		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
         $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
         					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
         
@@ -424,7 +424,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format);
+		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
 		
         return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
 				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
@@ -1304,7 +1304,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$cont = DB::GetRow('SELECT id, created_on, created_by FROM contact_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='contact'?$rid:-1));
 		if ($cont)
 			return array('contact', $cont['id']);
-		if (ModuleManager::is_installed('CRM_Roundcube')>=0) {
+		if (ModuleManager::is_installed('CRM_Mail')>=0) {
 			$vals = array($email);
 			$where_id = '';
 			if ($rid!=null) {

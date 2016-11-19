@@ -1,4 +1,4 @@
-s<?php
+<?php
 /**
  * 
  * @author Georgi Hristov <ghristov@gmx.de>

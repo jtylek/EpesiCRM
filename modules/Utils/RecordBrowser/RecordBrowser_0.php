@@ -364,9 +364,7 @@ class Utils_RecordBrowser extends Module {
         return false;
     }
     public function back(){
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-        return $x->pop_main();
+    	Base_BoxCommon::pop_main();
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function show_data($crits = array(), $cols = array(), $order = array(), $admin = false, $special = false, $pdf = false, $limit = null) {
@@ -750,9 +748,9 @@ class Utils_RecordBrowser extends Module {
                 $row_data[] = Utils_WatchdogCommon::get_change_subscription_icon($this->tab,$row['id']);
             if ($special) {
                 $element = $this->get_module_variable('element');
-                $format = $this->get_module_variable('format_func');
                 $row_id = $this->include_tab_in_id? $this->tab . '/' . $row['id']: $row['id'];
-                $formated_name = is_callable($format) ? strip_tags(call_user_func($format, $row_id, true)) : Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
+                $formated_name = Utils_RecordBrowserCommon::create_default_linked_label($this->tab, $row['id'], true);
+                $formated_name = htmlspecialchars(strip_tags($formated_name));
                 $row_data = array('<input type="checkbox" id="leightbox_rpicker_' . $element . '_' . $row_id . '" formated_name="' . $formated_name . '" />');
                 $rpicker_ind[] = $row_id;
             }
@@ -1553,8 +1551,14 @@ class Utils_RecordBrowser extends Module {
         $full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'settings')==2;
         
         $form = $this->init_module(Libs_QuickForm::module_name());
-        $r = DB::GetRow('SELECT caption,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
+        $r = DB::GetRow('SELECT caption,description_fields,favorites,recent,full_history,jump_to_id,search_include,search_priority FROM recordbrowser_table_properties WHERE tab=%s',array($this->tab));
         $form->addElement('text', 'caption', __('Caption'));
+        $callback = Utils_RecordBrowserCommon::get_description_callback($this->tab);
+        if ($callback) {
+            echo '<div style="color:red; padding: 1em;">' . __('Description Fields take precedence over callback. Leave them empty to use callback') . '</div>';
+            $form->addElement('static', '', __('Description Callback'), implode('::', $callback))->freeze();
+        }
+        $form->addElement('text', 'description_fields', __('Description Fields'), array('placeholder' => __('Comma separated list of field names')));
         $form->addElement('select', 'favorites', __('Favorites'), array(__('No'), __('Yes')));
         $recent_values = array(0 => __('No'));
         foreach (array(5, 10, 15, 20, 25) as $rv) { $recent_values[$rv] = "$rv " . __('Records') ; }
@@ -1575,8 +1579,8 @@ class Utils_RecordBrowser extends Module {
             $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clear_search_index'), array($this->tab));
             echo "<a $clear_index_href>" . __('Clear search index') . "</a>";
             if ($form->validate()) {
-                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
-                            array($form->exportValue('caption'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
+                DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,description_fields=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
+                            array($form->exportValue('caption'), $form->exportValue('description_fields'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
             }
         }
     }
