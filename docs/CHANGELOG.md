@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.8.1-20161118
 -------
 
 ### Added
