@@ -3,7 +3,7 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-RELEASE 1.8.1-20161118
+RELEASE 1.8.1-20161121
 -------
 
 ### Added
@@ -31,6 +31,16 @@ RELEASE 1.8.1-20161118
 ### Changed
 - Always use default linked label for select field suggestbox
 - Error reporting - better console readability
+
+RELEASE 1.8.1-20161118
+-------
+
+Replaced by rev. 20161121.
+
+Added in this revision PhpFastCache library requires PHP 5.5,
+but EPESI works fine with PHP 5.4.
+Cache engine has been reverted to the old one in rev. 20161121.
+
 
 RELEASE 1.8.0-20160926
 -------
