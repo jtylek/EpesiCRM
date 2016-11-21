@@ -31,7 +31,6 @@ RELEASE 1.8.1-20161118
 ### Changed
 - Always use default linked label for select field suggestbox
 - Error reporting - better console readability
-- Use phpFastCache library for caching
 
 RELEASE 1.8.0-20160926
 -------
