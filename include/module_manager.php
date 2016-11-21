@@ -1105,5 +1105,8 @@ class ModuleManager {
             $args[] = $state;
         }
         DB::Execute($sql, $args);
+        $enabled_modules = DB::Affected_Rows();
+        Cache::clear();
+        return $enabled_modules;
     }
 }
