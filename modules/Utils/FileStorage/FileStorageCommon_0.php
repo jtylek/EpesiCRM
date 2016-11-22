@@ -20,37 +20,35 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
     
     public static function write_content($filename,$content,$link='') {
-        $hash = hash('sha512',$content);
-        $path = self::get_storage_file_path($hash);
-        $id = null;
-        if(file_exists($path)) {
-            $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-        } else {
-            file_put_contents($path, $content);
-        }
-        if (!$id) {
-            DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
-            $id = DB::Insert_ID('utils_filestorage_files','id');
-        }
-        if(!$id) throw new Utils_FileStorage_WriteError('Exception - write error.');
-        if($link) self::add_link($link,$id);
-        return $id;
+    	$hash = hash('sha512',$content);
+    	$path = self::get_storage_file_path($hash);
+    	$id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
+    	$saved = true;
+    	if(!file_exists($path)) {
+    		$saved = file_put_contents($path, $content);
+    	}
+    	if (!$id && $saved) {
+    		DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
+    		$id = DB::Insert_ID('utils_filestorage_files','id');
+    	}
+    	if(!$id || !$saved) throw new Utils_FileStorage_WriteError('Exception - write error.');
+    	if($link) self::add_link($link,$id);
+    	return $id;
     }
     
     public static function write_file($filename,$file,$link='') {
         $hash = hash_file('sha512',$file);
         $path = self::get_storage_file_path($hash);
-        $id = null;
-        if (file_exists($path)) {
-            $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-        } else {
-            copy($file, $path);
+        $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
+        $copied = true;
+        if (!file_exists($path)) {
+        	$copied = copy($file, $path);
         }
-        if(!$id) {
-            DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
-            $id = DB::Insert_ID('utils_filestorage_files','id');
+        if(!$id && $copied) {
+        	DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
+        	$id = DB::Insert_ID('utils_filestorage_files','id');
         }
-        if(!$id) throw new Utils_FileStorage_WriteError();
+        if(!$id || !$copied) throw new Utils_FileStorage_WriteError();
         if($link) self::add_link($link,$id);
         return $id;
     }
