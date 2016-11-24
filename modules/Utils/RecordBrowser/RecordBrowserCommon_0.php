@@ -435,20 +435,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     			
     		$ret = $tab_crits;
     	}
-
+    	
     	foreach ($ret as $tab=>$crits) {
     		if (!$tab || !self::check_table_name($tab, false, false)) {
     			unset($ret[$tab]);
     			continue;
     		}
-    		$access = self::get_access($tab, 'selection', null, true);
-    		if ($access===false) unset($ret[$tab]);
-    		if ($access===true) continue;
-    		if (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface) {
+    		$access_crits = self::get_access_crits($tab, 'selection');
+    		if ($access_crits===false) unset($ret[$tab]);
+    		if ($access_crits===true) continue;
+    		if (is_array($access_crits) || $access_crits instanceof Utils_RecordBrowser_CritsInterface) {
     			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowser_CritsInterface)
-    				$ret[$tab] = self::merge_crits($crits, $access);
+    				$ret[$tab] = self::merge_crits($crits, $access_crits);
     			else
-    				$ret[$tab] = $access;
+    				$ret[$tab] = $access_crits;
     		}
     	}
 
@@ -1494,10 +1494,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return $cache[$cache_key];
         }
 
-        $access = ($admin || in_array($tab, $stack)) ? true : self::get_access($tab, 'browse', null, true);
-        if ($access == false) return array();
-        elseif ($access !== true) {
-            $crits = self::merge_crits($crits, $access);
+        $access_crits = ($admin || in_array($tab, $stack)) ? true : self::get_access_crits($tab, 'browse');
+        if ($access_crits == false) return array();
+        elseif ($access_crits !== true) {
+            $crits = self::merge_crits($crits, $access_crits);
         }
 
         if ($admin) {
@@ -1824,135 +1824,252 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($tab === null) {
             return $custom_access_callbacks;
         }
-        $ret = isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
-        return $ret;
+        
+        return isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
     }
-
     public static function call_custom_access_callbacks($tab, $action, $record = null)
     {
         $callbacks = self::get_custom_access_callbacks($tab);
-        $crits = null;
+        $ret = array('grant'=>null, 'restrict'=>null);
         foreach ($callbacks as $callback) {
-            $ret = call_user_func($callback, $action, $record, $tab);
-            if ($ret === true) {
-                return true;
-            } elseif ($ret === false) {
-                return false;
-            } elseif ($ret !== null) {
-                if ($crits === null) {
-                    $crits = is_array($ret)? Utils_RecordBrowser_Crits::from_array($ret): $ret;
-                } else {
-                    $crits = self::merge_crits($crits, $ret);
-                }
+            $callback_crits = call_user_func($callback, $action, $record, $tab);
+            
+            if (is_bool($callback_crits)) {
+            	$ret[$callback_crits? 'grant': 'restrict'] = true;
+            	break;
             }
-        }
-        return $crits;
-    }
-	
-	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
-        if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
-            $ret = true;
-        } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
-			return false;
-		} else {
-			static $cache = array();
-            $cache_key = "{$tab}__USER_" . Base_AclCommon::get_user();
-            $callback_ret = self::call_custom_access_callbacks($tab, $action, $record);
-			if (!isset($cache[$cache_key])) {
-				self::check_table_name($tab);
-				$user_clearance = Base_AclCommon::get_clearance();
+            
+            if ($callback_crits === null) continue;
 				
-				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
-				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null, 'print'=>null, 'export'=>null, 'selection'=>null);
-				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array(),'selection'=>array());
-				$fields = array();
-				while ($row = $r->FetchRow()) {
-					$fields[$row['id']] = array();
-					$new = self::parse_access_crits($row['crits']);
-					$crits_raw[$row['action']][$row['id']] = $new;
-                    // if new or existing crit is empty, then we have access to all records
-                    if ($new->is_empty()) {
-                        $crits[$row['action']] = $new;
-                    }
-                    if ($crits[$row['action']] instanceof Utils_RecordBrowser_Crits
-                        && $crits[$row['action']]->is_empty()) {
-                        continue;
-                    }
-					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
-				}
-				$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
-				while ($row = $r->FetchRow()) {
-					$fields[$row['rule_id']][$row['block_field']] = $row['block_field'];
-				}
-				$cache[$cache_key]['crits'] = $crits;
-				$cache[$cache_key]['crits_raw'] = $crits_raw;
-				$cache[$cache_key]['fields'] = $fields;
-			} else {
-				$crits = $cache[$cache_key]['crits'];
-				$crits_raw = $cache[$cache_key]['crits_raw'];
-				$fields = $cache[$cache_key]['fields'];
+			// if callback return is crits or crits array use it by default in restrict mode for backward compatibility
+			$crits = array(
+				'grant' => null,
+				'restrict' => $callback_crits
+			);
+			
+			if (is_array($callback_crits) && (isset($callback_crits['grant']) || isset($callback_crits['restrict']))) {
+				// if restrict rules are not set make sure the restrict crits are clean
+				if (! isset($callback_crits['restrict'])) $callback_crits['restrict'] = null;
+				$crits = array_merge($crits, $callback_crits);
 			}
-            if ($callback_ret instanceof Utils_RecordBrowser_CritsInterface) {
-                $action2 = $action == 'browse' ? 'view' : $action;
-                $crits_raw[$action2]['callback'] = $callback_ret;
-                $crits[$action2] = self::merge_crits($crits[$action2], $callback_ret);
-            }
-			if ($return_crits) {
-                if ($action == 'browse') {
-                    $action = 'view';
-                }
-			    if($return_in_array) return $crits_raw[$action];
-                if (is_bool($callback_ret)) {
-                    return $callback_ret;
-                }
-			    return $crits[$action];
+			
+			if (!$crits['grant'])
+				$crits['grant'] = null;
+			
+			foreach ($crits as $mode => $c) {
+				$c = is_array($c) ? Utils_RecordBrowser_Crits::from_array($c): $c;
+				
+				if ($c instanceof Utils_RecordBrowser_Crits) 
+					$ret[$mode] = ($ret[$mode] !== null) ? self::merge_crits($ret[$mode], $c, $mode === 'grant'): $c;
+				elseif (is_bool($c))
+					$ret[$mode] = $c;
 			}
-			if ($action=='browse') {
-				return $crits['view']!==null ? true : false;
-			}
-            if (is_bool($callback_ret)) {
-                $ret = $callback_ret;
-            } else {
-                $ret = false;
-                $blocked_fields = null;
-                if ($action != 'browse' && $action != 'clone') {
-                    foreach ($crits_raw[$action] as $rule_id => $c) {
-                        if ($record != null && !self::check_record_against_crits($tab, $record, $c)) {
-                        	if ($rule_id == 'callback') {
-                        		$ret = false;
-                        		break;
-                        	}
-                        	else continue;
-                        }
-                        $ret = true;
-                        if ($rule_id == 'callback') continue;
-                        if ($blocked_fields === null) {
-                            $blocked_fields = $fields[$rule_id];
-                        } else {
-                            foreach ($blocked_fields as $f => $v) {
-                                if (!isset($fields[$rule_id][$f])) {
-                                    unset($blocked_fields[$f]);
-                                }
-                            }
-                        }
-                    }
-                }
-                if ($blocked_fields === null) $blocked_fields = array();
-            }
-        }
-        if ($action!=='browse' && $action!=='delete') {
-            self::init($tab);
-            if ($ret===false) return false;
-            if ($ret===true) $ret = array();
-            foreach (self::$table_rows as $field=>$desc)
-                if (!isset($ret[$desc['id']])) {
-					if (isset($blocked_fields[$desc['id']]))
-						$ret[$desc['id']] = false;
-					else
-						$ret[$desc['id']] = true;
-				}
-        }
+		}
+
         return $ret;
+    }
+
+	/**
+	 * 
+	 * Check if user has access to recordset, record or recordset fields based on action performed
+	 * 
+	 * @param string $tab
+	 * @param string $action
+	 * @param array $record
+	 * @param boolean $return_crits - deprecated, use method Utils_RecordBrowserCommon::get_access_crits instead
+	 * @param string $return_in_array - deprecated, use method Utils_RecordBrowserCommon::get_access_rule_crits instead
+	 * @return false - deny access | array - fields access array
+	 */
+	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
+		//start deprecated code - used for backward compatibility
+		if ($return_crits) {
+			if ($return_in_array)
+				return self::get_access_rule_crits($tab, $action, $record);
+			
+			return self::get_access_crits($tab, $action, $record);
+		}
+		//end deprecated code
+
+		//access inactive records only in admin mode
+		if (!self::get_record_inactive_access($record, $action) && !(self::$admin_access && Acl::i_am_admin())) 
+			return false;
+
+		$rule_crits = self::get_access_rule_crits($tab, $action, $record);
+		
+		if (self::get_access_full_deny($rule_crits)) 
+			return false;
+			
+		if ($action === 'browse') 
+			return self::get_access_crits_from_rules($rule_crits) !== null ? true: false;
+
+		$grant_rule_ids = self::get_access_active_grant_rules($tab, $action, $record, $rule_crits);
+
+		if ($grant_rule_ids===false) 
+			return false;
+
+		if ($action === 'delete') 
+			return true;	
+				
+       	return self::get_access_fields($tab, $grant_rule_ids);      
+    }
+    
+    /**
+     * @param string $tab
+     * @param string $action
+     * @param array $record
+     * @return null|boolean|Utils_RecordBrowser_Crits
+     */
+    public static function get_access_crits($tab, $action, $record=null) { 
+    	if(!self::get_record_inactive_access($record, $action)) return false;
+    	 
+    	$rule_crits = self::get_access_rule_crits($tab, $action, $record);    	
+    	
+    	return self::get_access_crits_from_rules($rule_crits);
+    }
+    
+    /**
+     * @param string $tab
+     * @param string $action
+     * @param array $record
+     * @return array - rule_id => rule
+     */
+    public static function get_access_rule_crits($tab, $action, $record=null) {
+    	static $cache = array();
+    	 
+    	$cache_key = "{$tab}__USER_" . Acl::get_user();
+    	 
+    	$action = ($action == 'browse')? 'view': $action;
+    	
+    	if (!isset($cache[$cache_key])) {
+    		self::check_table_name($tab);
+    
+    		$user_clearance = Acl::get_clearance();
+    
+    		$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
+    		$rule_crits = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array(),'selection'=>array());
+    		while ($row = $r->FetchRow())
+    			$rule_crits[$row['action']][$row['id']] = self::parse_access_crits($row['crits']);
+    
+    		$cache[$cache_key] = $rule_crits;
+    	}
+    	 
+    	$rule_crits = $cache[$cache_key];
+
+    	return $rule_crits[$action] + self::call_custom_access_callbacks($tab, $action, $record);
+    }
+    public static function get_access_full_grant($rule_crits) {
+    	return ($rule_crits['restrict']!==true && $rule_crits['grant']===true);
+    }
+    public static function get_access_full_deny($rule_crits) {
+    	return $rule_crits['restrict']===true;
+    }
+    private static function get_record_inactive_access($record, $action) {
+    	if(!self::is_record_active($record) && ($action=='edit' || $action=='delete'))
+    		return false;
+    		 
+    	return true;
+    }
+    public static function is_record_active($record) {
+    	if (isset($record[':active']) && !$record[':active'])
+    		return false;
+    	
+    	return true;
+    }
+    private static function get_access_crits_from_rules($rule_crits) {  
+    	if (self::get_access_full_deny($rule_crits))
+    		return null;
+    	
+    	if (self::get_access_full_grant($rule_crits))
+    		return true;
+    	
+    	$ret = null;
+
+    	foreach ($rule_crits as $rule_id=>$c) {
+    		if ($rule_id === 'restrict') continue;
+    		
+    		if (!$c instanceof Utils_RecordBrowser_CritsInterface)
+    			continue;
+    			    		
+    		// if crit is empty, then we have access to all records
+    		if ($c->is_empty())
+    			$ret = $c;
+  
+    		if ($ret instanceof Utils_RecordBrowser_Crits && $ret->is_empty())
+    			continue;
+
+    		$ret = self::merge_crits($ret, $c, true);
+    	}
+    	
+    	//if there is any access granted - limit it based on restrict crits
+    	if ($ret !== null && $rule_crits['restrict'] instanceof Utils_RecordBrowser_Crits)
+    		$ret = self::merge_crits($ret, $rule_crits['restrict']);
+    	
+    	return $ret;
+    }
+    private static function get_access_active_grant_rules($tab, $action, $record, $rule_crits) {
+    	if (self::get_access_full_deny($rule_crits))
+    		return false;
+    	
+    	if (self::get_access_full_grant($rule_crits))
+    		return array('grant');
+    	
+    	if ($record != null && $action !== 'add' &&
+    			$rule_crits['restrict'] instanceof Utils_RecordBrowser_CritsInterface &&
+    			!self::check_record_against_crits($tab, $record, $rule_crits['restrict'])) {
+    				
+    		return false;
+    	}
+    	
+    	$ret = array();  	
+		foreach ($rule_crits as $rule_id => $c) {
+			if ($rule_id === 'restrict') continue;
+			
+			if (!$c instanceof Utils_RecordBrowser_CritsInterface)
+				continue;
+
+			if ($record != null && !self::check_record_against_crits($tab, $record, $c))
+				continue;
+
+			$ret[] = $rule_id;
+		}
+
+		return $ret?: false;
+    }
+    private static function get_access_fields($tab, $grant_rule_ids) {
+    	$access_rule_blocked_fields = array();
+    	 
+    	foreach ($grant_rule_ids as $rule_id)
+    		$access_rule_blocked_fields[$rule_id] = self::get_access_rule_blocked_fields($tab, $rule_id);
+
+    	self::init($tab);
+    	
+    	$blocked_fields = count($access_rule_blocked_fields) > 1? call_user_func_array('array_intersect', $access_rule_blocked_fields): reset($access_rule_blocked_fields);
+    
+    	$full_field_access = array_fill_keys(array_keys(self::$hash), true);
+    
+    	$blocked_field_access = array();
+    	if ($blocked_fields)
+    		$blocked_field_access = array_fill_keys($blocked_fields, false);
+    		 
+    	return array_merge($full_field_access, $blocked_field_access);
+    }
+    private static function get_access_rule_blocked_fields($tab, $rule_id) {
+    	static $cache;
+    	 
+    	if (!is_numeric($rule_id)) return array();    	
+    	 
+    	if (!isset($cache[$tab])) {
+    		$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
+    		 
+    		$fields = array();
+    		while ($row = $r->FetchRow()) {
+    			$fields[$row['rule_id']][] = $row['block_field'];
+    		}
+    		 
+    		$cache[$tab] = $fields;
+    	}
+
+    	return isset($cache[$tab][$rule_id])? $cache[$tab][$rule_id]: array();
     }
     public static function get_record_info($tab, $id) {
         self::check_table_name($tab);
@@ -2298,9 +2415,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tip = '';
             self::$del_or_a = '';
             $has_access = self::get_access($tab, 'view', $record);
-            $is_active = isset($record[':active']) ? $record[':active'] : true;
 
-            if (!$is_active) {
+            if (!self::is_record_active($record)) {
                 $tip = __('This record was deleted from the system, please edit current record or contact system administrator');
                 $ret = '<del>';
                 self::$del_or_a = '</del>';
@@ -3005,13 +3121,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($tabs as $t=>$caption) {
             if(!empty($tab_crits) && !isset($tab_crits[$t])) continue;
             
-            $access = self::get_access($t, 'selection', null, true);
-            if ($access===false) continue;
-            if ($access!==true && (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface)) {
+            $access_crits = self::get_access_crits($t, 'selection');
+            if ($access_crits===false) continue;
+            if ($access_crits!==true && (is_array($access_crits) || $access_crits instanceof Utils_RecordBrowser_CritsInterface)) {
             	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowser_CritsInterface)
-            		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access);
+            		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access_crits);
                 else 
-                	$tab_crits[$t] = $access;
+                	$tab_crits[$t] = $access_crits;
             }
            
             $fields = $param['cols'];
