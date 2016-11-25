@@ -57,8 +57,7 @@ class Utils_Watchdog extends Module {
 		} else {
 			$opts['title'] = __('Watchdog - Selection');
 		}
-		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
-		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new.'AND category_id IN ('.implode(',',$categories).')', array(Acl::get_user()));
+		$records = Utils_WatchdogCommon::get_records_with_new_notifications();
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),'subscriptions','subscriptions');
 		$gb->set_table_columns($header);
 		$something_to_purge = false;
