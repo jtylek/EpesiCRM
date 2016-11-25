@@ -17,8 +17,12 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	public static function init() {
 		self::$bbcodes = array();
 		$bbcodes_raw = DB::GetAll('SELECT * FROM utils_bbcode');
-		foreach ($bbcodes_raw as $v)
-			self::$bbcodes[$v['code']] = explode('::', $v['func']);
+        foreach ($bbcodes_raw as $v) {
+            $callback = explode('::', $v['func']);
+            if (is_callable($callback)) {
+                self::$bbcodes[$v['code']] = $callback;
+            }
+        }
 	}
 	
 	public static function optimize($text) {
