@@ -53,9 +53,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
     {
-        $callback_func = self::callback_check_function($callback);
+        $callback_func = self::callback_check_function($callback, true);
         if ($callback_func) {
-            $ret = call_user_func($callback_func, $record, $links_not_recommended, $field, $tab);
+            if (is_callable($callback_func)) {
+                $ret = call_user_func($callback_func, $record, $links_not_recommended, $field, $tab);
+            } else {
+                $callback_str = (is_array($callback_func) ? implode('::', $callback_func) : $callback_func);
+                trigger_error("Callback $callback_str for field: '$field[id]', recordset: '$tab' not found", E_USER_NOTICE);
+                $ret = $record[$field['id']];
+            }
         } else {
             ob_start();
             $ret = eval($callback);
@@ -108,12 +114,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			$display_callback = self::get_default_display_callback($desc['type']);
 		}
-		
-		if (is_callable($display_callback))
-			$ret = self::call_display_callback($display_callback, $record, $links_not_recommended, $desc, $tab);
-	    else 
-	    	$ret = $val;
-        
+
+        if ($display_callback) {
+            $ret = self::call_display_callback($display_callback, $record, $links_not_recommended, $desc, $tab);
+        } else {
+		    $ret = $val;
+        }
+
         unset($recurrence_call_stack[$function_call_id]);
         return $ret;
     }
