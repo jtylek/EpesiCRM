@@ -1462,8 +1462,6 @@ class Utils_RecordBrowser extends Module {
             } else {
                 $ff = Utils_RecordBrowserCommon::get_default_QFfield_callback($args['type']);
             }
-            if (!is_callable($ff))
-                continue;
 
             Utils_RecordBrowserCommon::call_QFfield_callback($ff,$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
 

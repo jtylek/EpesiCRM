@@ -72,9 +72,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($display_callback_table === null) {
             $display_callback_table = self::display_callback_cache($rb_obj->tab);
         }
-        $callback_func = self::callback_check_function($callback);
+        $callback_func = self::callback_check_function($callback, true);
         if ($callback_func) {
-            call_user_func_array($callback_func, array(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table));
+            if (is_callable($callback_func)) {
+                call_user_func_array($callback_func, array(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table));
+            } else {
+                $callback_str = (is_array($callback_func) ? implode('::', $callback_func) : $callback_func);
+                trigger_error("Callback $callback_str for field: '$field', recordset: '{$rb_obj->tab}' not found", E_USER_NOTICE);
+            }
         } else {
             eval($callback);
         }
