@@ -14,6 +14,7 @@
  */
 class HTML_QuickForm_xbutton extends HTML_QuickForm_element
 {
+    use toHtml;
    /**
     * Contents of the <button> tag
     * @var      string
@@ -36,14 +37,14 @@ class HTML_QuickForm_xbutton extends HTML_QuickForm_element
         $this->_type = 'xbutton';
     }
 
-    function toHtml()
+    function getHtml()
     {
         return '<button' . $this->getAttributes(true) . '>' . $this->_content . '</button>';
     }
 
     function getFrozenHtml()
     {
-        return $this->toHtml();
+        return $this->getHtml();
     }
 
     function freeze()
