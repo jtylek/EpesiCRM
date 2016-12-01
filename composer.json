@@ -8,7 +8,8 @@
         "fzaninotto/faker": "^1.6",
         "phpFastCache/phpFastCache": "^5.0",
         "ifsnop/mysqldump-php": "dev-master",
-        "memio/memio": "^1.0"
+        "memio/memio": "^1.0",
+        "anahkiasen/underscore-php": "^2.0"
     },
     "scripts": {
         "post-install-cmd": [
