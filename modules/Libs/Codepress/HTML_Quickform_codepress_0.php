@@ -17,8 +17,8 @@ class HTML_Quickform_codepress extends HTML_QuickForm_element {
 	private $config = array('lang'=>'php','linenumbers'=>true,'autocomplete'=>true);
 	private $_value = null;
 
-	public function HTML_Quickform_codepress($elementName=null, $elementLabel=null, $attributes=null) {
-		HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'codepress';
 	}
