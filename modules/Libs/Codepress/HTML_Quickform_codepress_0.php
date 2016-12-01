@@ -24,29 +24,6 @@ class HTML_Quickform_codepress extends HTML_QuickForm_element {
 	}
 
 	/**
-	* Sets the input field name
-	* 
-	* @param     string    $name   Input field name attribute
-	* @since     1.0
-	* @access    public
-	* @return    void
-	*/
-	public function setName($name) {
-		$this->updateAttributes(array('name'=>$name));
-	} //end func setName
-
-	/**
-	* Returns the element name
-	* 
-	* @since     1.0
-	* @access    public
-	* @return    string
-	*/
-	public function getName() {
-		return $this->getAttribute('name');
-	} //end func getName
-
-	/**
 	* Sets lang
 	* 
 	* @param     string    $value coding lang
