@@ -29,36 +29,6 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
     }
     
     /**
-     * Sets the input field name
-     * 
-     * @param     string    $name   Input field name attribute
-     * @since     1.0
-     * @access    public
-     * @return    void
-     */
-    function setName($name)
-    {
-        $this->updateAttributes(array('name'=>$name));
-    } //end func setName
-    
-    // }}}
-    // {{{ getName()
-
-    /**
-     * Returns the element name
-     * 
-     * @since     1.0
-     * @access    public
-     * @return    string
-     */
-    function getName()
-    {
-        return $this->getAttribute('name');
-    } //end func getName
-
-    // }}}
-
-    /**
      * Sets value for textarea element
      * 
      * @param     string    $value  Value for textarea element
@@ -94,23 +64,6 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
     * @access public
     * @return mixed
     */
-
-   /**
-    * Returns a 'safe' element's value
-    *
-    * @param  array   array of submitted values to search
-    * @param  bool    whether to return the value as associative array
-    * @access public
-    * @return mixed
-    */
-    function exportValue(&$submitValues, $assoc = false)
-    {
-        $value = $this->_findValue($submitValues);
-        if (null === $value) {
-            $value = $this->getValue();
-        }
-        return $this->_prepareValue($value, $assoc);
-    }
 
     function getHtml() {
 
