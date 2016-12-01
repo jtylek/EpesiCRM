@@ -1093,4 +1093,15 @@ class ModuleManager {
 		DB::Execute('UPDATE modules SET state=%d WHERE name=%s', array($state, $module));
 		Cache::clear();
 	}
+
+    public static function enable_modules($state = null)
+    {
+        $sql = 'UPDATE modules SET state=%d';
+        $args = array(ModuleManager::MODULE_ENABLED);
+        if ($state) {
+            $sql .= ' WHERE state=%d';
+            $args[] = $state;
+        }
+        DB::Execute($sql, $args);
+    }
 }

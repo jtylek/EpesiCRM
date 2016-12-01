@@ -373,8 +373,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
@@ -392,8 +392,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
@@ -411,8 +411,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         if ($operator == '!=') {
             $sql = $value ?
@@ -432,8 +432,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
@@ -455,8 +455,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
@@ -494,7 +494,6 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
             return array("$field $operator %s", array($value));
         }
         $vals = array();

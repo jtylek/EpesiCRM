@@ -20,11 +20,7 @@ class Apps_Shoutbox extends Module {
 		*/
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		if ($this->is_back()) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if (!$x)
-				trigger_error('There is no base box module instance', E_USER_ERROR);
-			$x->pop_main();
-			return;
+			return Base_BoxCommon::pop_main();
 		}
 		
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
