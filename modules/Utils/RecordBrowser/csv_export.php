@@ -28,7 +28,9 @@ if (!Utils_RecordBrowserCommon::get_access($tab, 'export') && !Base_AclCommon::i
     die('Access denied');
 set_time_limit(0);
 
-$csv = new Utils_RecordBrowser_CsvExport($tab, $crits, $order, $admin);
+$params = Utils_CommonDataCommon::get_array('System/export_params');
+
+$csv = new Utils_RecordBrowser_CsvExport($tab, $crits, $order, $admin, $params['charset'], $params['field_separator'], $params['decimal_separator'], $params['end_line_type'], $params['text_space_indicator'], $params['text_space_separator']);
 
 header('Content-Type: text/csv');
 //header('Content-Length: '.strlen($buffer));
