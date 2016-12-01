@@ -14,6 +14,7 @@
  */
 class HTML_QuickForm_static extends HTML_QuickForm_element
 {
+    use toHtml;
     /**
      * Display text
      * @var       string
@@ -60,7 +61,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      *
      * @return    string
      */
-    public function toHtml()
+    public function getHtml()
     {
         return $this->_text;
     }
@@ -72,7 +73,7 @@ class HTML_QuickForm_static extends HTML_QuickForm_element
      */
     public function getFrozenHtml()
     {
-        return $this->toHtml();
+        return $this->getHtml();
     }
 
     /**
