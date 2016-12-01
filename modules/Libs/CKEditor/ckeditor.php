@@ -1,5 +1,6 @@
 <?php
 class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
+    use toHtml;
     private $config;
     private $_value = null;
 //    private $e2module;
@@ -111,22 +112,19 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
         return $this->_prepareValue($value, $assoc);
     }
 
-    function toHtml() {
-        if ($this->_flagFrozen) {
-            return $this->getFrozenHtml();
-        } else {
-            if(!isset($this->config['language']))
-            	$this->config['language'] = substr(Base_LangCommon::get_lang_code(),0,2);
-            if(!isset($this->config['scayt_sLang']))
-                $this->config['scayt_sLang'] = Base_LangCommon::get_lang_code();
-            if(!isset($this->config['scayt_autoStartup']))
-                $this->config['scayt_autoStartup'] = 0;
-      	    eval_js('ckeditors_hib["'.$this->_attributes['id'].'"]='.json_encode($this->config));
-            return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
-                   // because we wrap the form later we don't want the text indented
-                   preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
-                   '</textarea>';
-        }
+    function getHtml() {
+
+        if(!isset($this->config['language']))
+            $this->config['language'] = substr(Base_LangCommon::get_lang_code(),0,2);
+        if(!isset($this->config['scayt_sLang']))
+            $this->config['scayt_sLang'] = Base_LangCommon::get_lang_code();
+        if(!isset($this->config['scayt_autoStartup']))
+            $this->config['scayt_autoStartup'] = 0;
+        eval_js('ckeditors_hib["'.$this->_attributes['id'].'"]='.json_encode($this->config));
+        return '<textarea' . $this->_getAttrString($this->_attributes) . '>' .
+            // because we wrap the form later we don't want the text indented
+            preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
+            '</textarea>';
     } //end func toHtml
 
     function getFrozenHtml()
