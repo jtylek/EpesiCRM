@@ -39,4 +39,5 @@ $application->add(new \Epesi\Console\Backup\BackupFilesCommand());
 $application->add(new \Epesi\Console\Backup\BackupAllCommand());
 $application->add(new \Epesi\Console\Backup\ListBackupsCommand());
 $application->add(new \Epesi\Console\Develop\CreateModuleCommand());
+$application->add(new \Epesi\Console\ShellCommand());
 $application->run($input);
