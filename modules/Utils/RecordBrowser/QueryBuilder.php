@@ -232,7 +232,7 @@ class Utils_RecordBrowser_QueryBuilder
                 case 'id' :
                     if (!is_array($value)) {
                         $sql = $this->tab_alias.".id $operator %d";
-                        $value = preg_replace('/[^0-9]*/', '', $value);
+                        $value = preg_replace('/[^0-9-]*/', '', $value);
                         $vals[] = $value;
                     } else {
                         if ($operator != '=' && $operator != '==') {
@@ -588,7 +588,7 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             } else {
                 // compatibility code to replace old company/contact style
-                if (preg_match('/([PC]):([0-9]+)/', $value, $matches)) {
+                if (preg_match('/([PC]):([0-9-]+)/', $value, $matches)) {
                     $value = ( $matches[1] == 'C' ? 'company' : 'contact' ) . '/' . $matches[2];
                 }
                 if ($single_tab) {
