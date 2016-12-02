@@ -99,6 +99,9 @@ class Utils_RecordBrowser_CritsValidator
                     $crit_value = preg_replace('#.*/#', '', $crit_value); // remove prefix for select from single tab: contact/1 => 1
                 }
             }
+            if ($field == 'id') {
+                $crit_value = preg_replace('/[^0-9-]/', '', $crit_value);
+            }
             $vv = is_string($crit_value) ? explode('::',$crit_value,2) : null;
             if (isset($vv[1]) && is_callable($vv)) {
                 $result = call_user_func_array($vv, array($this->tab, &$record, $field, $crits));
