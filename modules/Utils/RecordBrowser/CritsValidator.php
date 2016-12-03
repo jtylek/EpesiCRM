@@ -143,6 +143,7 @@ class Utils_RecordBrowser_CritsValidator
 
     public static function check_like_match($value, $pattern, $ignore_case = true)
     {
+        $pattern = preg_quote($pattern);
         $pattern = str_replace(array('_', '%'), array('.', '.*'), $pattern);
         $pattern = "/^$pattern\$/" . ($ignore_case ? "i" : "");
         return preg_match($pattern, $value) > 0;
