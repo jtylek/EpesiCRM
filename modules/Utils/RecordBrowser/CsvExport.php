@@ -17,6 +17,7 @@ class Utils_RecordBrowser_CsvExport
     private $end_line_type;
     private $text_space_indicator;
     private $text_space_separator;
+    private $error_charset_conv;
     /**
      * Utils_RecordBrowser_CsvExport constructor.
      *
@@ -25,16 +26,23 @@ class Utils_RecordBrowser_CsvExport
      * @param array                           $order Order
      * @param bool                            $admin RB Admin mode - list inactive records
      */
-    public function __construct($tab, $crits = array(), $order = array(), $admin = false, $charset = 'UTF-8', $field_separator = ',', $decimal_separator = '.', $end_line_type = 'UNIX', $text_space_indicator = 1, $text_space_separator = '"')
+    public function __construct($tab, $crits = array(), $order = array(), $admin = false, $config = array())
     {
         $this->tab = $tab;
         $this->crits = $crits;
         $this->order = $order;
         $this->admin = $admin;
-        $this->charset          = $charset;
-        $this->field_separator  = $field_separator;
-        $this->decimal_separator= $decimal_separator;
-        switch (strtoupper($end_line_type)){
+        
+        $def_config = Utils_CommonDataCommon::get_array('System/csv_export_params');
+        foreach ($def_config as $ck => $cv) {
+            if (!array_key_exists($ck,$config)) $config[$ck] = $cv;
+        }        
+
+        $this->charset          = $config['charset'];
+        $this->field_separator  = $config['field_separator'];
+        $this->decimal_separator= $config['decimal_separator'];
+        
+        switch (strtoupper($config['end_line_type'])){
             case ('LIN'):
             case ('LINUX'):
             case ('UNI'):
@@ -54,12 +62,13 @@ class Utils_RecordBrowser_CsvExport
                 break;
         }
         $this->end_line_type         = $end_line_type;
-        $this->text_space_indicator  = $text_space_indicator;
-        $this->text_space_separator  = $text_space_separator;
+        $this->text_space_indicator  = $config['text_space_indicator'];
+        $this->text_space_separator  = $config['text_space_separator'];
         if (!$this->text_space_indicator){ //if we want separator around string contained spaces, we should disable separator character from oryginal string.
-            $this->text_space_separator = chr(254); //Unfortunately can not can be epmty - this char is not easy accesible from keyboard, so we can use it.
+            $this->text_space_separator = chr(254); //Unfortunately can not be empty - this char is not easy accesible from keyboard, so we can use it.
         }
-    }
+        $this->error_charset_conv = 0;
+    }    
 
     function rb_csv_export_format_currency_value($v, $symbol)
     {
@@ -119,19 +128,19 @@ class Utils_RecordBrowser_CsvExport
         set_time_limit(0);
         $tab_info = Utils_RecordBrowserCommon::init($this->tab);
         $cols = array(
-            __('Record ID'),
-            __('Created on'),
-            __('Created by'),
-            __('Edited on'),
-            __('Edited by'),
+            $this->utf_to_charset(__('Record ID')),
+            $this->utf_to_charset(__('Created on')),
+            $this->utf_to_charset(__('Created by')),
+            $this->utf_to_charset(__('Edited on')),
+            $this->utf_to_charset(__('Edited by')),
         );
         foreach ($tab_info as $v) {
             if (!$v['export']) {
                 continue;
             }
-            $cols[] = $this->UtfToCharset(_V($v['name']));
+            $cols[] = $this->utf_to_charset(_V($v['name']));
             if ($v['style'] == 'currency') {
-                $cols[] = $this->UtfToCharset(_V($v['name']) . ' - ' . __('Currency'));
+                $cols[] = $this->utf_to_charset(_V($v['name']) . ' - ' . __('Currency'));
             }
         }
         //fwrite($f, "\xEF\xBB\xBF"); //oryginal
@@ -140,7 +149,7 @@ class Utils_RecordBrowser_CsvExport
         $text_space_separator   = $this->text_space_separator;
         $text_space_indicator   = $this->text_space_indicator;        
         ob_start(function($buffer) use ($end_line_type,$text_space_indicator,$text_space_separator) {
-            return Utils_RecordBrowser_CsvExport::EOLConversion($buffer, $end_line_type,$text_space_indicator,$text_space_separator);
+            return Utils_RecordBrowser_CsvExport::eol_conversion($buffer, $end_line_type,$text_space_indicator,$text_space_separator);
         });
         fputcsv($f, $cols, $this->field_separator, $this->text_space_separator);
         $currency_codes = DB::GetAssoc('SELECT symbol, code FROM utils_currency');
@@ -160,10 +169,10 @@ class Utils_RecordBrowser_CsvExport
                     $r['id'],
                 );
                 $details = Utils_RecordBrowserCommon::get_record_info($this->tab, $r['id']);
-                $rec[] = $this->UtfToCharset($details['created_on']);
-                $rec[] = $this->UtfToCharset(Base_UserCommon::get_user_label($details['created_by'], true));
-                $rec[] = $this->UtfToCharset($details['edited_on']);
-                $rec[] = $this->UtfToCharset($details['edited_by'] ? Base_UserCommon::get_user_label($details['edited_by'], true) : '');
+                $rec[] = $this->utf_to_charset($details['created_on']);
+                $rec[] = $this->utf_to_charset(Base_UserCommon::get_user_label($details['created_by'], true));
+                $rec[] = $this->utf_to_charset($details['edited_on']);
+                $rec[] = $this->utf_to_charset($details['edited_by'] ? Base_UserCommon::get_user_label($details['edited_by'], true) : '');
                 foreach ($tab_info as $field_name => $v) {
                     if (!$v['export']) {
                         continue;
@@ -184,11 +193,11 @@ class Utils_RecordBrowser_CsvExport
                             foreach ($val as $v) {
                                 $v = explode('_', $v);
                                 if (isset($v[1])) {
-                                    $final[] = $this->UtfToCharset($this->rb_csv_export_format_currency_value($v[0], $v[1]) . ' ' . $currency_codes[$v[1]]);
+                                    $final[] = $this->utf_to_charset($this->rb_csv_export_format_currency_value($v[0], $v[1]) . ' ' . $currency_codes[$v[1]]);
                                 }
                             }
                             $rec[] = implode('; ', $final);
-                            $rec[] = $this->UtfToCharset('---');
+                            $rec[] = $this->utf_to_charset('---');
                             continue;
                         }
                         $val = explode('_', $val[0]);
@@ -209,29 +218,43 @@ class Utils_RecordBrowser_CsvExport
                             $rec[] = $currency_symbol;
                         }
                     } else {
-                        $rec[] = $this->UtfToCharset(str_replace(array(\PHP_EOL,"&#8194;","&rArr;",$this->text_space_separator), array(' ','','',''),trim($val)));
+                        $rec[] = $this->utf_to_charset(str_replace(array(\PHP_EOL,"&#8194;","&rArr;",$this->text_space_separator), array(' ','','',''),trim($val)));
                     }
                 }
                 fputcsv($f, $rec, $this->field_separator, $this->text_space_separator);
             }
         }
+        if ($this->error_charset_conv){
+            $error_text = __('Missing PHP module iconv. You should enable it in PHP environment or use only UTF-8 charset for CSV output, not '.$this->charset.'.');
+            trigger_error($error_text, E_USER_NOTICE); //if we want error.
+            //fputcsv($f, array('WARNING',$error_text), $this->field_separator, $this->text_space_separator); //if we want not converted output with additional warning at the end.
+        }
     }
     
-    public function UtfToCharset($str){ //Conversion to requested charset
+    public function utf_to_charset($str){ //Conversion to requested charset
         $text_space_separator = '';
         if ($this->text_space_indicator){ //if we want use separator we should clean string from that character.
             $text_space_separator = $this->text_space_separator;
         }
         $ret = str_replace(array($this->field_separator,$text_space_separator),array(' ',''),$str); //We do not want field separator char inside oryginal text
         if (strtoupper($this->charset) <> 'UTF-8'){
-            $ret =  iconv('UTF-8', $this->charset.'//TRANSLIT', $ret);
+            $ret =  $this->charset_conversion($ret);
         }
         return $ret;
     }
-    public function EOLConversion($string, $end_line_type, $text_space_indicator, $text_space_separator) {
+    public function eol_conversion($string, $end_line_type, $text_space_indicator, $text_space_separator) {
         if ($text_space_indicator){ //do not remove space indicator character
             $text_space_separator = '';
         }
         return str_replace(array(PHP_EOL,$text_space_separator), array($end_line_type,''), $string);
+    }
+    public function charset_conversion($string){
+        if (function_exists('iconv')) {
+            $ret =  iconv('UTF-8', $this->charset.'//TRANSLIT', $string);
+        }else{
+            $this->error_charset_conv = 1;//there is no function for charset translation
+            $ret = $string;
+        }
+        return $ret;
     }
 }

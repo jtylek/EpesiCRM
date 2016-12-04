@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 Utils_CommonDataCommon::new_array('System',array(),false,true);
-Utils_CommonDataCommon::new_array('System/export_params'  ,array(
+Utils_CommonDataCommon::new_array('System/csv_export_params'  ,array(
              'charset'              => 'UTF-8' //Charset in html/php style (for Polish CP1250)
             ,'field_separator'      => ','      //field separator. 
             ,'decimal_separator'    => '.'      //decimal separator for float or currency
@@ -14,7 +14,7 @@ Utils_CommonDataCommon::new_array('System/export_params'  ,array(
 
 //dla Polaków ze starymi excelami polecam export zdefiniowany poniżej:
 /*
-Utils_CommonDataCommon::new_array('System/export_params'  ,array(
+Utils_CommonDataCommon::new_array('System/csv_export_params'  ,array(
              'charset'              => 'CP1250' //Charset in html/php style (for Polish CP1250)
             ,'field_separator'      => ';'      //field separator. 
             ,'decimal_separator'    => ','      //decimal separator for float or currency
