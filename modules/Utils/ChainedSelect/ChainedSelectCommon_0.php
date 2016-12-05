@@ -38,7 +38,12 @@ class Utils_ChainedSelectCommon extends ModuleCommon {
 	
 	public static function create_callback($dest_id, array $prev_ids, $callback, array $params = null, $default_val=null) {
 		$params['__field__'] = $dest_id;
-		$params['__callback__'] = is_array($callback)? implode('::', $callback): $callback;
+		$callback = is_array($callback)? implode('::', $callback): $callback;		 
+		$callback_hash = md5(serialize($callback));
+		
+		$_SESSION['client']['utils_chainedselect'][$callback_hash] = $callback;
+		
+		$params['__callback__'] = $callback_hash;
 		
 		self::create($dest_id, $prev_ids, 'modules/Utils/ChainedSelect/callback.php', $params, $default_val);
 	}
