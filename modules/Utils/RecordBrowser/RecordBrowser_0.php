@@ -2915,23 +2915,19 @@ class Utils_RecordBrowser extends Module {
 		
 		$actions = $this->get_permission_actions();
 		$form->addElement('select', 'action', __('Action'), $actions);
-		
-		$fields_permissions = $all_fields;
 
 		for ($i=0; $i<$counts['clearance']; $i++)
 			$form->addElement('select', 'clearance_'.$i, __('Clearance'), $all_clearances);
 
 		$defaults = array();
-		foreach ($fields_permissions as $k=>$v) {
-			$defaults['field_'.$k] = 1;
-			$form->addElement('checkbox', 'field_'.$k, _V($this->table_rows[$v]['name']));
-		}
+		$form->addElement('multiselect', 'blocked_fields', null, $all_fields);
+
 		$theme->assign('labels', array(
 			'and' => '<span class="joint">'.__('and').'</span>',
 			'or' => '<span class="joint">'.__('or').'</span>',
 			'caption' => $id?__('Edit permission rule'):__('Add permission rule'),
 			'clearance' => __('Clearance requried'),
-			'fields' => __('Fields allowed'),
+			'fields' => __('Field permissions'),
 			'crits' => __('Criteria required'),
 			'add_clearance' => __('Add clearance'),
 			'add_or' => __('Add criteria (or)'),
@@ -2955,11 +2951,8 @@ class Utils_RecordBrowser extends Module {
 				$i++;
 			}
 			$current_clearance += $i-1;
-			
-			$tmp = DB::GetAll('SELECT * FROM '.$this->tab.'_access_fields AS acs WHERE rule_id=%d', array($id));
-			foreach ($tmp as $t) {
-				unset($defaults['field_'.$t['block_field']]);
-			}
+
+			$defaults['blocked_fields'] = DB::GetCol('SELECT block_field FROM '.$this->tab.'_access_fields AS acs WHERE rule_id=%d', array($id));
 		}
         $form->addElement('crits', 'qb_crits', __('Crits'), $this->tab, $crits);
 
@@ -2975,24 +2968,22 @@ class Utils_RecordBrowser extends Module {
 
             $crits = $vals['qb_crits'];
 
-			$blocked_fields = array();
-			foreach ($fields_permissions as $k=>$v) {
-				if (isset($vals['field_'.$k])) continue;
-				$blocked_fields[] = $k;
-			}
-			
 			if ($id===null || $clone)
-				Utils_RecordBrowserCommon::add_access($this->tab, $action, $clearance, $crits, $blocked_fields);
+				Utils_RecordBrowserCommon::add_access($this->tab, $action, $clearance, $crits, $vals['blocked_fields']);
 			else
-				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $blocked_fields);
+				Utils_RecordBrowserCommon::update_access($this->tab, $id, $action, $clearance, $crits, $vals['blocked_fields']);
 			return false;
 		}
 		
+		$labels_map = array(
+			'blocked_fields__from' => __('GRANT'),
+			'blocked_fields__to' => __('DENY')
+		);
+		eval_js('utils_recordbrowser__set_field_access_titles ('.json_encode($labels_map).')');
 		eval_js('utils_recordbrowser__init_clearance('.$current_clearance.', '.$counts['clearance'].')');
 		eval_js('utils_recordbrowser__crits_initialized = true;');
 		
 		$form->assign_theme('form', $theme);
-		$theme->assign('fields', $fields_permissions);
 		$theme->assign('counts', $counts);
 		
 		$theme->display('edit_permissions');

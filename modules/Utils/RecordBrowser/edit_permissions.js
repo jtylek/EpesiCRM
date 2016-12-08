@@ -98,3 +98,11 @@ utils_recordbrowser__add_or = function (row) {
 	$('div_crits_or_'+row+'_'+utils_recordbrowser__crits_ors[row]).style.display = '';
 }
 
+utils_recordbrowser__set_field_access_titles = function (labels_map) {
+	if (jq(".permissions_option_title").length) return;
+
+	jq.each(labels_map, function(id, label) {
+		jq("#"+id).prepend('<option disabled class="permissions_option_title">' + label + '</option>').height('300px');
+	});
+}
+
