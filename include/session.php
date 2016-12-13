@@ -211,6 +211,7 @@ class DBSession {
             case 'memcache':
                 for($k=0;;$k++)
                     if(!self::$memcached->delete(MEMCACHE_SESSION_TOKEN.$name.'_'.$i.'/'.$k)) break;
+                self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name.'_'.$i);
                 break;
             case 'sql':
                 DB::Execute('DELETE FROM session_client WHERE session_name=%s AND client_id=%d',array($name,$i));
@@ -233,6 +234,7 @@ class DBSession {
             case 'memcache':
                 for($k=0;;$k++)
                     if(!self::$memcached->delete(MEMCACHE_SESSION_TOKEN.$name.'/'.$k)) break;
+                self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name);
                 break;
         }
         DB::BeginTrans();
