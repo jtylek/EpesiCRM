@@ -2473,7 +2473,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-	public static function create_linked_label($tab, $cols, $id, $nolink=false, $tooltip=false){
+	public static function create_linked_label($tab, $cols, $id, $nolink=false, $tooltip=false, $more=array()){
     	if (!is_numeric($id)) return '';
     	if (!is_array($cols))
     		$cols = explode('|', $cols);
@@ -2492,17 +2492,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$record_label) $record_label = self::get_caption($tab) . ": " . sprintf("#%06d", $id);
         $text = self::create_record_tooltip($record_label, $tab, $id, $nolink, $tooltip);
 
-    	return self::record_link_open_tag_r($tab, $record, $nolink) .
+    	return self::record_link_open_tag_r($tab, $record, $nolink, 'view', $more) .
     			$text . self::record_link_close_tag();
     }
-	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true){
+	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true, $more=array()){
 		if ($nolink) return $text;
 		
     	if (!is_numeric($id)) return '';
     	
     	$text = self::create_record_tooltip($text, $tab, $id, $nolink, $tooltip);
     	
-    	return self::record_link_open_tag($tab, $id, $nolink) . 
+    	return self::record_link_open_tag($tab, $id, $nolink, 'view', $more) . 
     			$text . self::record_link_close_tag();
     }
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
