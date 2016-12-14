@@ -132,7 +132,16 @@ class DBSession {
     }
 
     public static function write($name, $data) {
-        if(READ_ONLY_SESSION || defined('SESSION_EXPIRED')) return true;
+        if(READ_ONLY_SESSION) return true;
+        if(defined('SESSION_EXPIRED')) {
+            if(self::$session_type=='memcache') {
+                if(CID!==false) {
+                    self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name.'_'.CID);
+                }
+                self::$memcached->unlock(MEMCACHE_SESSION_TOKEN.$name);
+            }
+            return true;
+        }
         $name = self::truncated_session_id($name);
         $ret = 1;
         if(CID!==false && isset($_SESSION['client']) && !isset($_SESSION['session_destroyed'][CID])) {
