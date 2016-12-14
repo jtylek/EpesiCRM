@@ -133,6 +133,7 @@ class DBSession {
 
     public static function write($name, $data) {
         if(READ_ONLY_SESSION) return true;
+        $name = self::truncated_session_id($name);
         if(defined('SESSION_EXPIRED')) {
             if(self::$session_type=='memcache') {
                 if(CID!==false) {
@@ -142,7 +143,6 @@ class DBSession {
             }
             return true;
         }
-        $name = self::truncated_session_id($name);
         $ret = 1;
         if(CID!==false && isset($_SESSION['client']) && !isset($_SESSION['session_destroyed'][CID])) {
             $data = serialize($_SESSION['client']);
