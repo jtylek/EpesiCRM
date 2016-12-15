@@ -35,8 +35,6 @@ $filename = $local.'/'.$file_id;
 if(headers_sent())
 	die('Some data has already been output to browser, can\'t send file');
 
-require_once('mime.php');
-
 $t = time();
 $remote_address = get_client_ip_address();
 $remote_host = gethostbyaddr($remote_address);
@@ -51,7 +49,7 @@ if(!file_exists($f_filename))
 
 @ini_set('memory_limit',ceil(filesize($f_filename)/1024/1024+64).'M');
 $buffer = file_get_contents($f_filename);
-header('Content-Type: '.get_mime_type($f_filename,$original));
+header('Content-Type: '.Utils_FileStorageCommon::get_mime_type($f_filename,$original));
 header('Content-Length: '.strlen($buffer));
 header('Content-disposition: attachment; filename="'.$original.'"');
 echo $buffer;
