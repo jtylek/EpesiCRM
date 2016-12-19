@@ -126,6 +126,9 @@ class CreateModuleCommand extends Command
                                           ->addArgument(
                                               Argument::make('mixed', 'v'))
                                           ->setBody("{$t}{$t}return array(\n$required_modules_str\n{$t}{$t});"))
+                                ->addMethod(
+                                    Method::make('version')
+                                          ->setBody("{$t}{$t}return array('0.1');"))
                       );
 
         if (file_put_contents($file_install, $prettyPrinter->generateCode($myFile)) !== false) {
