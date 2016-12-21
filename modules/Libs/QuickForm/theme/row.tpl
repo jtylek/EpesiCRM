@@ -8,7 +8,7 @@
 {/foreach}
 <div style="margin:5px; line-height: 200%">
 		{foreach from=$form_data item=f}
-		{if is_array($f) && isset($f.type) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
+		{if is_array($f) && isset($f.type) && isset($f.html) && isset($f.label) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
             <div style="display: inline-block; white-space: nowrap;">
 			<span style="display: table-cell;  width:10px" class="epesi_label">
 				{$f.label}{if $f.required}*{/if}
