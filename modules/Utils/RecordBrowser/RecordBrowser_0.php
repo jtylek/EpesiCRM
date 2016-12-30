@@ -546,7 +546,7 @@ class Utils_RecordBrowser extends Module {
 				$args = $this->table_rows[$hash[$f_id]];
 				if ($args['commondata']) $k = $k.'[]';
 				elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
-                if ($k[0]=='"') {
+                if ($k[0]=='"') { // quickjump case
                     $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~' . $k => $v));
                     continue;
                 }
@@ -554,10 +554,7 @@ class Utils_RecordBrowser extends Module {
                 $v = explode(' ', $v);
                 foreach ($v as $w) {
                     if ($w === '') continue;
-					if (!$args['commondata']) {
-						$w = "%$w%";
-					}
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$k =>$w));
+                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~'.$k =>"%$w%"));
 				}
             }
         } else {
@@ -572,38 +569,26 @@ class Utils_RecordBrowser extends Module {
                 $search_res = $search_result->get_crits($keyword, true);
             }
             */
-
-            $val = reset($search);
-            $isearch = $gb->get_module_variable('search');
-            if (empty($isearch)) $val = null;
-            $val2 = explode(' ', $val[0]);
-            $leftovers = array();
-            foreach ($val2 as $vv) {
-                if ($vv === '') continue;
+            $search_var = $gb->get_module_variable('search');
+            $search_text = isset($search_var['__keyword__']) ? $search_var['__keyword__'] : '';
+            $search_words = explode(' ', $search_text);
+            foreach ($search_words as $word) {
+                if ($word === '') continue;
                 $search_part = new Utils_RecordBrowser_Crits();
-                foreach ($search as $k=>$v) {
-                    if ($v!=$val) {
-                        $leftovers[$k] = $v;
-                        continue;
-                    }
-                    if ($k[0]=='"') {
-                        $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k => $vv), true);
-                        continue;
-                    }
-					$args = $this->table_rows[$hash[trim($k, '(|')]];
-					if ($args['commondata']) $k = $k.'[]';
-					elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
-					if (!$args['commondata']) {
-						$w = "%$vv%";
-					} else {
-						$w = $vv;
-					}
-                    $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$k =>$w), true);
+                foreach ($search as $search_col => $search_col_val) {
+                    if ($search_col[0] == '"') continue; // remove quickjump
+                    $args = $this->table_rows[$hash[trim($search_col, '(|')]];
+                    if ($args['commondata']) $search_col = $search_col.'[]';
+                    elseif (isset($args['ref_field']) && $args['ref_field']) $search_col = $search_col.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
+                    $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$search_col =>"%$word%"), true);
                 }
                 $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $search_part);
             }
-            if ($leftovers) {
-                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $leftovers);
+            // add quickjump
+            if ($gb->get_module_variable('quickjump') && $gb->get_module_variable('quickjump_to')) {
+                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array(
+                    $gb->get_module_variable('quickjump') => $gb->get_module_variable('quickjump_to')
+                ));
             }
         }
 
