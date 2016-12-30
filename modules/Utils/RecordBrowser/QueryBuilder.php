@@ -644,6 +644,8 @@ class Utils_RecordBrowser_QueryBuilder
             $field_def['ref_table'] = $field_def['param']['array_id'];
         }
 
+        $sql = array();
+        $vals = array();
         if ($sub_field !== false) { // may be empty string for value lookup with field[]
             $commondata_table = $field_def['ref_table'];
             $ret = Utils_CommonDataCommon::get_translated_array($commondata_table);
@@ -654,6 +656,10 @@ class Utils_RecordBrowser_QueryBuilder
             if ($operator == DB::like()) {
                 $operator = '=';
             }
+            // add false in statement to force empty set if final_vals are empty
+            if (empty($final_vals)) {
+                $sql[] = 'false';
+            }
         } else {
             $final_vals = array($value);
         }
@@ -663,8 +669,6 @@ class Utils_RecordBrowser_QueryBuilder
             $operator = DB::like();
         }
 
-        $sql = array();
-        $vals = array();
         foreach ($final_vals as $val) {
             $sql[] = "($field $operator %s AND $field IS NOT NULL)";
             if ($multiselect) {
