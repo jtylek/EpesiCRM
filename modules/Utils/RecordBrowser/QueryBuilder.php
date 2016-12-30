@@ -649,9 +649,7 @@ class Utils_RecordBrowser_QueryBuilder
         if ($sub_field !== false) { // may be empty string for value lookup with field[]
             $commondata_table = $field_def['ref_table'];
             $ret = Utils_CommonDataCommon::get_translated_array($commondata_table);
-            $val_regex = $operator == DB::like() ?
-                '/' . preg_quote($value, '/') . '/i' :
-                '/^' . preg_quote($value, '/') . '$/i';
+            $val_regex = '/^' . str_replace(array('%', '_'), array('.*', '.'), preg_quote($value, '/')) . '$/i';
             $final_vals = array_keys(preg_grep($val_regex, $ret));
             if ($operator == DB::like()) {
                 $operator = '=';
