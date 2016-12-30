@@ -2520,22 +2520,31 @@ class Utils_RecordBrowser extends Module {
 	public function crm_perspective_default() {
 		return '__PERSPECTIVE__';
 	}
-    public function set_filters_defaults($arg){
-		if(!$this->isset_module_variable('def_filter')) {
-			$f = array();
-			if(is_array($arg)) {
-				foreach ($arg as $k=>$v) {
-					$f[Utils_RecordBrowser_Filters::get_element_id($k)] = $v;
-				}
-			}
-			$this->set_filters($f);
-		}
+    public function set_filters_defaults($arg, $merge = false, $overwrite = false) {
+        if (!$overwrite && $this->isset_module_variable('def_filter')) return;
+        if (!$merge) $this->set_filters(array());
+        $f = $this->get_filters();
+        if(is_array($arg)) {
+            foreach ($arg as $k => $v) {
+                if (!array_key_exists($k, $f) || $overwrite) {
+                    $f[$k] = $v;
+                }
+            }
+        }
+        $this->set_filters($f);
     }
-    public function set_filters($filters){
-    	$this->set_module_variable('def_filter', $filters);
+    public function set_filters($filters, $merge = false, $override_saved = false) {
+        $current_filters = $merge ? $this->get_filters($override_saved) : array();
+        $filters = array_merge($current_filters, $filters);
+        if ($override_saved) {
+            $this->set_module_variable('def_filter_over', $filters);
+        } else {
+            $this->set_module_variable('def_filter', $filters);
+        }
     }
-    public function get_filters(){
-    	return $this->get_module_variable('def_filter', array());
+    public function get_filters($override_saved = false) {
+        $filter_var = $override_saved ? 'def_filter_over' : 'def_filter';
+    	return $this->get_module_variable($filter_var, array());
     }
     public function set_default_order($arg){
         foreach ($arg as $k=>$v)
