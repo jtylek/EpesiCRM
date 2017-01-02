@@ -68,10 +68,10 @@ ChainedSelect.prototype = {
 		jq('modules/Utils/ChainedSelect/req.php', {
 			method: 'post',
 			data:{
-				values:Object.toJSON(vals),
+				values:JSON.stringify(vals),
 				dest_id:dest_id,
-				parameters:Object.toJSON(this.params),
-				defaults:Object.toJSON(def_val),
+				parameters:JSON.stringify(this.params),
+				defaults:JSON.stringify(def_val),
 				cid: Epesi.client_id
 			},
 			success:function(t) {

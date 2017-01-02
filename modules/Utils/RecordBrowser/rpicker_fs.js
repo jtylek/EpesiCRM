@@ -8,7 +8,7 @@ rpicker_fs_init = function(id,checked,path){
 			data:{
 				select: this.checked,
 				row: id,
-				path: Object.toJSON(path),
+				path: JSON.stringify(path),
 				cid: Epesi.client_id
 			}
 		});

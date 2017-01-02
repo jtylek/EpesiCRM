@@ -83,9 +83,9 @@ function resource_changed(resource,type) {
 	jq.ajax('modules/Utils/Planner/resource_change.php', {
 		method: 'post',
 		data:{
-			resource:Object.toJSON(resource),
-			options:Object.toJSON(opts),
-			value:Object.toJSON(rvalue),
+			resource:JSON.stringify(resource),
+			options:JSON.stringify(opts),
+			value:JSON.stringify(rvalue),
 			cid: Epesi.client_id
 		},
 		success:function(t) {
@@ -106,7 +106,7 @@ function update_grid() {
 	jq.ajax('modules/Utils/Planner/grid_change.php', {
 		method: 'post',
 		data:{
-			frames:Object.toJSON(frames),
+			frames:JSON.stringify(frames),
 			cid: Epesi.client_id
 		},
 		success:function(t) {

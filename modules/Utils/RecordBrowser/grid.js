@@ -36,11 +36,11 @@ grid_enable_field_edit = function(element_name, recid, tab, form_name) {
 	jq.ajax('modules/Utils/RecordBrowser/grid.php', {
 		method: 'post',
 		data:{
-			element:Object.toJSON(element_name),
-			id:Object.toJSON(recid),
-			tab:Object.toJSON(tab),
-			form_name:Object.toJSON(form_name),
-			mode:Object.toJSON('edit'),
+			element:JSON.stringify(element_name),
+			id:JSON.stringify(recid),
+			tab:JSON.stringify(tab),
+			form_name:JSON.stringify(form_name),
+			mode:JSON.stringify('edit'),
 			cid: Epesi.client_id
 		},
 		success:function(t) {
@@ -61,12 +61,12 @@ grid_submit_field = function(element_name, recid, tab) {
 	jq.ajax('modules/Utils/RecordBrowser/grid.php', {
 		method: 'post',
 		data:{
-			element:Object.toJSON(element_name),
-			value:Object.toJSON(jq('#'+grid_edit_form_name).serialize()),
-			form_name:Object.toJSON(grid_edit_form_name),
-			id:Object.toJSON(recid),
-			tab:Object.toJSON(tab),
-			mode:Object.toJSON('submit'),
+			element:JSON.stringify(element_name),
+			value:JSON.stringify(jq('#'+grid_edit_form_name).serialize()),
+			form_name:JSON.stringify(grid_edit_form_name),
+			id:JSON.stringify(recid),
+			tab:JSON.stringify(tab),
+			mode:JSON.stringify('submit'),
 			cid: Epesi.client_id
 		},
 		success:function(t) {

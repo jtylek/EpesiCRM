@@ -5,8 +5,8 @@ var RecordPicker_select_all = function(select,path,message) {
 	jq.ajax('modules/Utils/RecordBrowser/RecordPickerFS/select_all.php', {
 		method: 'post',
 		data:{
-			select: Object.toJSON(select),
-			path: Object.toJSON(path),
+			select: JSON.stringify(select),
+			path: JSON.stringify(path),
 			cid: Epesi.client_id
 		},
 		success:function(t) {
