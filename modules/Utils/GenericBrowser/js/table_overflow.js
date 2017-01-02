@@ -42,7 +42,7 @@ table_overflow_show = function (e_td, force) {
 
 		e_tip.clonePosition(e_td,{cloneHeight: false, cloneWidth: false, offsetTop: -2, offsetLeft: leftOffset});
 		e_tip.show();
-		if (e_tip.width()<=e_td.width() && e_tip.height()-3<=e_td.height()) { // 3 pixels because Firefox is getting lost at what height should elements have
+		if (e_tip.width()<=jq(e_td).width() && e_tip.height()-3<=jq(e_td).height()) { // 3 pixels because Firefox is getting lost at what height should elements have
 			utils_genericbrowser__hidetip = true;
 			table_overflow_hide(utils_genericbrowser__hide_current); // Work-around for firefox, because it cannot handle scrollWidth in <td>
 		} else {
@@ -67,11 +67,11 @@ table_overflow_hide = function (current) {
 	var e_tip = jq("#table_overflow");
 	if (!e_tip.length) return;
 	if (utils_genericbrowser__last_td) {
-		utils_genericbrowser__last_td.html('');
+		jq(utils_genericbrowser__last_td).html('');
         jq('#table_overflow_content div.expandable.collapsed_hold').removeClass('collapsed_hold').addClass('collapsed');
         jq('#table_overflow_content div.expandable.expanded_hold').removeClass('expanded_hold').addClass('expanded');
 		while (jq("#table_overflow_content").children().length>0) {
-			utils_genericbrowser__last_td.append(jq("#table_overflow_content").children().first());
+			jq(utils_genericbrowser__last_td).append(jq("#table_overflow_content").children().first());
 		}
 		utils_genericbrowser__last_td = false;
 	}
