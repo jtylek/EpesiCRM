@@ -60,14 +60,16 @@ function checkIt(string) {
 
 /*-----------------------------------------------------------------------------------------------*/
 
-var leightbox = Class.create();
+function leightbox(ctrl) {
+    this.initialize(ctrl);
+}
 
 leightbox.prototype = {
 
     yPos : 0,
 
     initialize: function(ctrl) {
-        this.content = ctrl.getAttribute("rel");
+        this.content = jq(ctrl).attr("rel");
         var _this = this;
 	var exec = function(ev){ _this.activate.call(_this,ev); };
         jq(ctrl).click(exec);
@@ -162,7 +164,7 @@ leightbox.prototype = {
         lbActions = document.getElementsByClassName('lbAction');
         var _this = this;
         for(i = 0; i < lbActions.length; i++) {
-            jq(lbActions[i]).click(function(e){_this[lbActions[i].getAttribute("rel")].call(_this,e)});
+            jq(lbActions[i]).click(function(e){_this[jq(lbActions[i]).attr("rel")].call(_this,e)});
             lbActions[i].onclick = function(){return false;};
         }
 
@@ -206,7 +208,7 @@ function addLeightboxMarkup() {
 leightbox_is_active = false;
 
 function leightbox_deactivate(name) {
-for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
+    for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
 }
 
 function leightbox_activate(name) {
@@ -229,7 +231,7 @@ function leightbox_reload() {
     if(leightbox_is_active) {
         var lbs = jq('#leightbox_container .leightbox');
         if(lbs.length>0) {
-            var id = lbs.attr('id')
+            var id = jq(lbs).attr('id')
             leightbox_deactivate(id);
             leightbox_activate(id);
         }
@@ -240,9 +242,9 @@ function leightbox_reload() {
     for(i = 0; i < leightboxes.length; i++)
         delete(leightboxes[i]);
     for(i = 0; i < lbox.length; i++) {
-        lbox[i].stopObserving('click');
+        jq(lbox[i]).off('click');
         leightboxes[i] = new leightbox(lbox[i]);
-        if (leightbox_to_activate==lbox[i].getAttribute("rel")) {
+        if (leightbox_to_activate==jq(lbox[i]).attr("rel")) {
             leightboxes[i].activate();
             leightbox_to_activate='';
         }
