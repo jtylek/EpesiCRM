@@ -66,9 +66,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
-		if ($this->_options['date'])
-			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
+        $attributes = $this->getAttributes();
+        $date_attr = is_array($attributes) ? array_merge($attributes, array('style' => 'width:auto;')) : array('style' => 'width:auto;');
+        $this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $date_attr);
+        if ($this->_options['date'])
+            $this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $attributes);
 	}
 
 	// }}}
