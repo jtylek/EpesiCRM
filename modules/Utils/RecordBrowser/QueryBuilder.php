@@ -232,7 +232,7 @@ class Utils_RecordBrowser_QueryBuilder
                 case 'id' :
                     if (!is_array($value)) {
                         $sql = $this->tab_alias.".id $operator %d";
-                        $value = preg_replace('/[^0-9]*/', '', $value);
+                        $value = preg_replace('/[^0-9-]*/', '', $value);
                         $vals[] = $value;
                     } else {
                         if ($operator != '=' && $operator != '==') {
@@ -298,7 +298,7 @@ class Utils_RecordBrowser_QueryBuilder
                     $sql = array();
                     foreach ($value as $v) {
                         $vals[] = $v;
-                        $sql[] = $this->tab_alias.'.created_by = %d';
+                        $sql[] = $this->tab_alias.'.created_by ' . $operator . ' %d';
                     }
                     $sql = implode(' OR ', $sql);
                     if ($negation) {
@@ -373,8 +373,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
@@ -392,8 +392,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if ($value === '' || $value === null || $value === false) {
@@ -411,8 +411,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         if ($operator == '!=') {
             $sql = $value ?
@@ -432,8 +432,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
@@ -455,8 +455,8 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
-            return array("$field $operator %s", array($value));
+            $casttype = DB::is_postgresql() ? 'varchar' : 'char';
+            return array("CAST($field AS $casttype) $operator %s", array($value));
         }
         $vals = array();
         if (!$value) {
@@ -494,7 +494,6 @@ class Utils_RecordBrowser_QueryBuilder
             return array("$field $operator $value", array());
         }
         if ($operator == DB::like()) {
-            if (DB::is_postgresql()) $field .= '::varchar';
             return array("$field $operator %s", array($value));
         }
         $vals = array();
@@ -555,7 +554,7 @@ class Utils_RecordBrowser_QueryBuilder
             }
             if (!$action) return $handled_with_php;
 
-            $access_crits = Utils_RecordBrowserCommon::get_access($tab2, $action, null, true);
+            $access_crits = Utils_RecordBrowserCommon::get_access_crits($tab2, $action);
             $subquery = Utils_RecordBrowserCommon::build_query($tab2, $access_crits, $this->admin_mode);
             if ($subquery) {
                 $ids = DB::GetCol("SELECT r.id FROM $subquery[sql]", $subquery['vals']);
@@ -589,7 +588,7 @@ class Utils_RecordBrowser_QueryBuilder
                 }
             } else {
                 // compatibility code to replace old company/contact style
-                if (preg_match('/([PC]):([0-9]+)/', $value, $matches)) {
+                if (preg_match('/([PC]):([0-9-]+)/', $value, $matches)) {
                     $value = ( $matches[1] == 'C' ? 'company' : 'contact' ) . '/' . $matches[2];
                 }
                 if ($single_tab) {
@@ -645,15 +644,19 @@ class Utils_RecordBrowser_QueryBuilder
             $field_def['ref_table'] = $field_def['param']['array_id'];
         }
 
+        $sql = array();
+        $vals = array();
         if ($sub_field !== false) { // may be empty string for value lookup with field[]
             $commondata_table = $field_def['ref_table'];
             $ret = Utils_CommonDataCommon::get_translated_array($commondata_table);
-            $val_regex = $operator == DB::like() ?
-                '/' . preg_quote($value, '/') . '/i' :
-                '/^' . preg_quote($value, '/') . '$/i';
+            $val_regex = '/^' . str_replace(array('%', '_'), array('.*', '.'), preg_quote($value, '/')) . '$/i';
             $final_vals = array_keys(preg_grep($val_regex, $ret));
             if ($operator == DB::like()) {
                 $operator = '=';
+            }
+            // add false in statement to force empty set if final_vals are empty
+            if (empty($final_vals)) {
+                $sql[] = 'false';
             }
         } else {
             $final_vals = array($value);
@@ -664,8 +667,6 @@ class Utils_RecordBrowser_QueryBuilder
             $operator = DB::like();
         }
 
-        $sql = array();
-        $vals = array();
         foreach ($final_vals as $val) {
             $sql[] = "($field $operator %s AND $field IS NOT NULL)";
             if ($multiselect) {

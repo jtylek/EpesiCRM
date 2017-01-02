@@ -72,14 +72,11 @@ JS;
 	 * @return string HTML tag attributes
 	 */
 	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
-		static $tooltip_id = 0;
-		static $tooltip_cleared = false;
-		if (isset($_REQUEST['__location']) && $tooltip_cleared!=$_REQUEST['__location']) {
-			$tooltip_cleared = $_REQUEST['__location'];
-			$tooltip_id = 0;
-		}
-		$tooltip_id++;
-		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = array('callback'=>$callback, 'args'=>$args);
+		$tooltip_settings = array('callback'=>$callback, 'args'=>$args);
+		$tooltip_id = md5(serialize($tooltip_settings));
+		
+		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
+		
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}

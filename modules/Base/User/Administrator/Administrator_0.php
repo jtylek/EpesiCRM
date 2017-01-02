@@ -26,7 +26,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addElement('password','new_pass',__('New password'));
         $form->addElement('password','new_pass_c',__('Confirm new password'));
         $form->addRule(array('new_pass', 'new_pass_c'), __('Your passwords don\'t match'), 'compare');
-        $form->addRule('new_pass', __('Your password must be longer then 5 chars'), 'minlength', 6);
+        $form->addRule('new_pass', __('Your password must be longer than 5 characters'), 'minlength', 6);
 
         //mail
         $form->addElement('header', null, __('Change e-mail'));

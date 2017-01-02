@@ -132,7 +132,7 @@ class CRM_Mail extends Module {
 		));*/
 
 		$thread_query = Utils_RecordBrowserCommon::build_query('rc_mails', array('related' => $rs.'/'.$id));
-		$assoc_threads_ids = DB::GetCol('SELECT f_thread FROM '.$thread_query['sql'], $thread_query['vals']);
+		$assoc_threads_ids = empty($thread_query) ? array() : DB::GetCol('SELECT f_thread FROM '.$thread_query['sql'], $thread_query['vals']);
 		if($rs=='contact') {
 			//$ids = DB::GetCol('SELECT id FROM rc_mails_data_1 WHERE f_employee=%d OR (f_recordset=%s AND f_object=%d)',array($id,$rs,$id));
 			$this->display_module($rb, array(array('(contacts'=>array('contact/'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');

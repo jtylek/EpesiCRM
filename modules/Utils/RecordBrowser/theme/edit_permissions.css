@@ -43,3 +43,29 @@ div.crits_callback_info .description {
 	color: #585858;
 	font-style: italic;
 }
+
+select#blocked_fields__from {
+	background-color: #5CB85C; 
+}
+
+select#blocked_fields__to {
+	background-color: rgba(217, 83, 79, 0.8);
+}
+
+.field_permissions option {
+	color: white;
+}
+
+.permissions_option_title {
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#blocked_fields__from .permissions_option_title {
+	color: #004200;
+}
+
+#blocked_fields__to .permissions_option_title {	
+	color: #6b1919;
+}

@@ -7,6 +7,8 @@
  * @package epesi-base
  */
 
+if (__FILE__ == realpath($_SERVER['SCRIPT_FILENAME'])) die("Direct access forbidden");
+
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
 umask(0022);

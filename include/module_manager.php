@@ -228,7 +228,9 @@ class ModuleManager {
 
 	public static function create_module_mock($class)
 	{
-		eval ("class $class extends ModulePrimitive {} ");
+        if (!class_exists($class, false)) {
+            eval ("class $class extends ModulePrimitive {} ");
+        }
 	}
 
 	private static function satisfy_dependencies($module_to_install,$version,$check=null) {
@@ -906,10 +908,12 @@ class ModuleManager {
 		$file_lines = file($file);
 
 		$VA_regex = '/Direct access forbidden/i';
+        $use_keyword_regex = '/^\s*use/i';
 
 		foreach ($file_lines as $i => $line) {
 			if ($i >= $start && $i < $end) continue;
 			if (preg_match($VA_regex, $line)) continue;
+			if (preg_match($use_keyword_regex, $line)) continue;
 			$file_content .= $line;
 		}
         $tmp_file = tmpfile();
@@ -1093,4 +1097,18 @@ class ModuleManager {
 		DB::Execute('UPDATE modules SET state=%d WHERE name=%s', array($state, $module));
 		Cache::clear();
 	}
+
+    public static function enable_modules($state = null)
+    {
+        $sql = 'UPDATE modules SET state=%d';
+        $args = array(ModuleManager::MODULE_ENABLED);
+        if ($state) {
+            $sql .= ' WHERE state=%d';
+            $args[] = $state;
+        }
+        DB::Execute($sql, $args);
+        $enabled_modules = DB::Affected_Rows();
+        Cache::clear();
+        return $enabled_modules;
+    }
 }
