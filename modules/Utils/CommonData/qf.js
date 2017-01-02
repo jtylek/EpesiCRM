@@ -98,7 +98,7 @@ Utils_CommonData_freeze.prototype = {
 		for(var i=1; i<this.path.length; i++) {
 			var val = eval('obj.form.'+this.path[i]).value;
 			if(val=='') {
-				jq('#'.this.id+'_label').html('---');
+				jq('#'+this.id+'_label').html('---');
 				setTimeout(function(){jq(this.obj).trigger('e_u_cd:load')},1);
 				return;
 			}

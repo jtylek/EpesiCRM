@@ -36,7 +36,7 @@ function client_messages_add_discard_buttons() {
 function toggle_client_messages_frame() {
     if(!client_messages_frame_id)
         return;
-    var obj = jq('#'.client_messages_frame_id + "_content");
+    var obj = jq('#'+client_messages_frame_id + "_content");
     if(!obj.is(':hidden')) {
         obj.hide();
         jq('#'+client_messages_frame_id+"_hide").html(ess_client_messages_show_button_label);
