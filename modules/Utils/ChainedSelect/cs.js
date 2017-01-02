@@ -1,4 +1,6 @@
-var ChainedSelect = Class.create();
+function ChainedSelect(dest_id,prev_ids,params,def_val) {
+    this.initialize(dest_id,prev_ids,params,def_val);
+}
 ChainedSelect.prototype = {
 	prev_ids:null,
 	dest_id:null,
@@ -75,7 +77,7 @@ ChainedSelect.prototype = {
 				cid: Epesi.client_id
 			},
 			success:function(t) {
-				var new_opts = t.evalJSON();
+				var new_opts = jq.parseJSON(t);
 				var obj = jq('#'+dest_id);
 				var opts = obj.get(0).options;
                 if(new_opts == false) {

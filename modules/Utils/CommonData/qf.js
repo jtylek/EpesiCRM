@@ -1,4 +1,6 @@
-var Utils_CommonData = Class.create();
+function Utils_CommonData(id,val,cd,ae,order) {
+    this.initialize(id,val,cd,ae,order);
+}
 Utils_CommonData.prototype = {
 	obj:null,
 	path:null,
@@ -10,7 +12,7 @@ Utils_CommonData.prototype = {
 		this.obj = jq('#'+id);
 		if(!this.obj.length) return;
 		this.obj = this.obj.get(0);
-		this.path = cd.evalJSON();
+		this.path = jq.parseJSON(cd);
 		this.add_empty = ae;
 		this.def_val = val;
 		this.order = order;
@@ -48,7 +50,7 @@ Utils_CommonData.prototype = {
 	},
 	on_request: function(t) {
 		if (!t) return;
-		var new_opts = t.evalJSON();
+		var new_opts = jq.parseJSON(t);
 		var opts = this.obj.options;
 		opts.length=0;
 		if(new_opts.length==0) {
@@ -67,7 +69,9 @@ Utils_CommonData.prototype = {
 	}
 };
 
-var Utils_CommonData_freeze = Class.create();
+function Utils_CommonData_freeze(id,cd){
+    this.initialize(id,cd);
+}
 Utils_CommonData_freeze.prototype = {
 	obj:null,
 	path:null,
@@ -78,7 +82,7 @@ Utils_CommonData_freeze.prototype = {
 		this.obj = jq('#'+id);
 		if(!this.obj.length) return;
 		this.obj = this.obj.get(0);
-		this.path = cd.evalJSON();
+		this.path = jq.parseJSON(cd);
 		var obj = this.obj;
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
 		if(this.path.length>2)
@@ -117,7 +121,7 @@ Utils_CommonData_freeze.prototype = {
 	},
 	on_request: function(t) {
 		if (!t) return;
-		var val = t.evalJSON();
+		var val = jq.parseJSON(t);
 		jq('#'+this.id+'_label').html(val);
 		setTimeout(function(){jq(this.obj).trigger('e_u_cd:load')},1);
 	}

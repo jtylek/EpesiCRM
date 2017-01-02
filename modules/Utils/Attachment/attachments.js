@@ -79,7 +79,7 @@ Utils_Attachment__init_uploader = function (max_fs) {
 		Utils_Attachment__submit_note();
 	});
 	uploader.bind('FileUploaded', function(up, file, response) {
-		response = response.response.evalJSON();
+		response = jq.parseJSON(response.response);
 		if (response.error != undefined && response.error.code){
 			alert(file.name+': '+response.error.message);
 		}
@@ -109,7 +109,7 @@ document.onpaste = function(event) {
 					success:function(t) {
                                         	Epesi.procOn--;
                                         	Epesi.updateIndicator();
-						var file = t.evalJSON();
+						var file = jq.parseJSON(t);
 						Utils_Attachment__add_file_to_list(file.name, null, file.id, false, true);
 					}
 				});
@@ -138,7 +138,7 @@ function utils_attachment_submit_password(id,reload) {
             pass: pass
         },
         success:function(t) {
-            result = t.evalJSON();
+            result = jq.parseJSON(t);
             if(typeof result.error != "undefined") return alert(result.error);
             if(reload) {
                 _chj("","","queue");
