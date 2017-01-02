@@ -181,33 +181,6 @@ ob_start();
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
         <?php } ?>
         <noscript>Please enable JavaScript in your browser and let <?php print(EPESI);?> work!</noscript>
-        <script type="application/javascript">
-            (function() {
-                var isBootstrapEvent = false;
-                if (window.jQuery) {
-                    var all = jQuery('*');
-                    jQuery.each(['hide.bs.dropdown',
-                        'hide.bs.collapse',
-                        'hide.bs.modal',
-                        'hide.bs.tooltip'], function(index, eventName) {
-                        all.on(eventName, function( event ) {
-                            isBootstrapEvent = true;
-                        });
-                    });
-                }
-                var originalHide = Element.hide;
-                Element.addMethods({
-                    hide: function(element) {
-                        if(isBootstrapEvent) {
-                            isBootstrapEvent = false;
-                            return element;
-                        }
-                        return originalHide(element);
-                    }
-                });
-            })();
-
-        </script>
 	</body>
 </html>
 <?php
