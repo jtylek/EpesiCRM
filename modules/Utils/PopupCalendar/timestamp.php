@@ -45,8 +45,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// }}}
 	// {{{ constructor
 
-	function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
+	    parent::__construct($elementName, $elementLabel);
+	    $this->setAttributes($attributes);
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
