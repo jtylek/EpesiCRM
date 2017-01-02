@@ -2,7 +2,11 @@
     {foreach item=i from=$icons}
         {$i.open}
         <div class="btn btn-default" helpID="{$i.helpID}">
-            <i class="fa fa-{$i.icon} fa-3x"></i>
+            {if $i.icon_url}
+                <img src="{$i.icon_url}" style="height:3em">
+            {else}
+                <i class="fa fa-{$i.icon} fa-3x"></i>
+            {/if}
             <div>{$i.label}</div>
         </div>
         {$i.close}
@@ -13,7 +17,7 @@
 {foreach item=i from=$launcher}
     {$i.open}
     <div class="btn btn-default">
-        <i class="fa fa-{$i.icon} fa-3x"></i>
+        <img src="{$i.icon}" style="height:3em">
         <div>{$i.label}</div>
     </div>
     {$i.close}
