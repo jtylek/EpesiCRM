@@ -22,14 +22,9 @@
  */
 
 /**
- * Class for a group of form elements
- */
-require_once 'HTML/QuickForm/group.php';
-/**
  * Class for <select></select> elements
  */
 require_once 'datepicker.php';
-require_once 'HTML/QuickForm/date.php';
 
 /**
  * Class for a group of elements used to input dates (and times).
@@ -101,7 +96,6 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ toHtml()
 
 	function toHtml() {
-		include_once('HTML/QuickForm/Renderer/Default.php');
 		$renderer = new HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);
@@ -138,7 +132,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// }}}
 	// {{{ accept()
 
-	function accept(&$renderer, $required = false, $error = null) {
+	function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null) {
 		$renderer->renderElement($this, $required, $error);
 	}
 
