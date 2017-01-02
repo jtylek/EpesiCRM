@@ -6,7 +6,7 @@ var utils_genericbrowser__firefox_fix = false;
 table_overflow_show = function (e_td, force) {
 	var e_tip = jq("#table_overflow");
 	if (!e_tip.length) return;
-	e_td = jq(e_td);
+	e_td = jq(e_td)[0];
 	// *** firefox fix ***
 	if (utils_genericbrowser__firefox_fix == e_td) return; 
 	utils_genericbrowser__firefox_fix = e_td;
