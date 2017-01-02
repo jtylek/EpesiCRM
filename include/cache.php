@@ -19,7 +19,8 @@ class Cache
         $drivers = array();
         $phpfastcache_config = array(
             "path" => EPESI_LOCAL_DIR . '/' . DATA_DIR.'/cache',
-            "securityKey" => INSTALLATION_ID
+            "securityKey" => INSTALLATION_ID,
+            "defaultTtl" => 86400, // 24h
         );
         if(MEMCACHE_SESSION_SERVER) {
             $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
