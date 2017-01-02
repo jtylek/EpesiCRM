@@ -91,7 +91,8 @@ class Libs_QuickForm extends Module {
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
 			try {
-                return call_user_func_array(array(& $this->qf, $func_name), $args);
+                $ret = call_user_func_array(array(& $this->qf, $func_name), $args);
+                return $ret;
             } catch (HTML_QuickForm_Error $e){
             	//TODO: At least log it...
 				return $e;
