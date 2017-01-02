@@ -15,7 +15,7 @@ class CRM_WhoIsOnline extends Module {
 	public function body() {
 	}
 	
-	public function applet($v,$o) {
+	public function applet($conf, &$opts) {
 		$all = Tools_WhoIsOnlineCommon::get();
 		$map = array();
 		foreach($all as $id=>$x) {
@@ -30,9 +30,9 @@ class CRM_WhoIsOnline extends Module {
 
 		$c = count($all);
 		if($c==1)
-    		$o['title'] = __('%d user online',array($c));
+    		$opts['title'] = __('%d user online',array($c));
     	else
-    		$o['title'] = __('%d users online',array($c));
+    		$opts['title'] = __('%d users online',array($c));
 
         print('<ul>');
     	foreach($map as $id=>$x)

@@ -24,14 +24,16 @@ class EnableAllModuleCommand extends Command
     {
         $by_missing_files = $input->getOption('missing-files');
         $by_user = $input->getOption('disabled');
+        $cnt = 0;
         if ($by_missing_files) {
-            ModuleManager::enable_modules(ModuleManager::MODULE_NOT_FOUND);
+            $cnt = ModuleManager::enable_modules(ModuleManager::MODULE_NOT_FOUND);
         }
         if ($by_user) {
-            ModuleManager::enable_modules(ModuleManager::MODULE_DISABLED);
+            $cnt = ModuleManager::enable_modules(ModuleManager::MODULE_DISABLED);
         }
         if (!$by_missing_files && !$by_user) {
-            ModuleManager::enable_modules();
+            $cnt = ModuleManager::enable_modules();
         }
+        $output->writeln('Modules enabled: ' . $cnt);
     }
 }

@@ -48,6 +48,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		$count = 0;
 		foreach (self::$events_handlers as $handler) {
 			$callback = explode('::',$custom_handlers[$handler]);
+			if (!is_callable($callback)) continue;
 			$result_ext = call_user_func($callback, 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];

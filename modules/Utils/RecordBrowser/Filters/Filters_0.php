@@ -425,15 +425,29 @@ class Utils_RecordBrowser_Filters extends Module {
 			Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $def_filter);
 		}
 	}
+
+    protected function get_filters_for_qf($override_saved = false)
+    {
+        $filters = $this->rb_obj->get_filters($override_saved);
+        $ret = array();
+        foreach ($filters as $k => $v) {
+			$ret[self::get_element_id($k)] = $v;
+        }
+        return $ret;
+    }
 	
 	protected function get_saved_filters() {
-		$defaults = $this->rb_obj->get_filters();
+		$defaults = $this->get_filters_for_qf();
 		if ($this->saving_filters_enabled()) {
 			$saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
 			if ($saved_filters) {
 				$defaults = $saved_filters;
 			}
 		}
+        foreach ($this->get_filters_for_qf(true) as $k => $v) {
+			$defaults[$k] = $v;
+        }
+
 		return $defaults;
 	}
 	

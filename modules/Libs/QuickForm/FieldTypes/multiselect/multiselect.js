@@ -70,6 +70,10 @@ ms_remove_all = function(myName, list_sep){
 	var k = 0;
 	var i = 0;
 	while (k!=tolist.options.length) {
+		if (tolist.options[k].disabled) {
+			k++;
+			continue;
+		}
 		while (i!=fromlist.options.length && fromlist.options[i].value<tolist.options[k].value) 
 			i++;
 		jj = fromlist.length;
@@ -83,7 +87,7 @@ ms_remove_all = function(myName, list_sep){
 		k++;
 	}
 	for(i = (tolist.length-1); i >= 0; i--) {
-		tolist.options[i] = null;
+		if (!tolist.options[i].disabled) tolist.options[i] = null;
 	}
 	document.getElementsByName(myName)[0].value=list_result;
 };
@@ -95,6 +99,10 @@ ms_add_all = function(myName, list_sep){
 	var i = 0;
 	var list_result = "";
 	while (k!=fromlist.length) {
+		if (fromlist.options[k].disabled) {
+			k++;
+			continue;
+		}
 		while(i < tolist.length && tolist.options[i].value<fromlist.options[k].value) 
 			i++;
 		jj = tolist.length;
@@ -108,7 +116,7 @@ ms_add_all = function(myName, list_sep){
 		k++;
 	}
 	for(i = (fromlist.length-1); i >= 0; i--) {
-		fromlist.options[i] = null;
+		if (!fromlist.options[i].disabled) fromlist.options[i] = null;
 	}
 	k = 0;
 	while (k!=tolist.length) { 

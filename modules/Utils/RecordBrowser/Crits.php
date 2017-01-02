@@ -162,6 +162,13 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
     {
         return $this->field;
     }
+    
+    public function set_field($key)
+    {
+    	$this->field = $key;
+    	
+    	return $this;
+    }
 
     /**
      * @return mixed
@@ -558,7 +565,10 @@ class Utils_RecordBrowser_CritsBuilder
     public function build_from_array($crits)
     {
         $CRITS = array(new Utils_RecordBrowser_Crits());
-        if (!$crits) {
+        if (is_bool($crits)) {
+            return $crits ? $CRITS[0] : new Utils_RecordBrowser_CritsRawSQL('false', 'true');
+        }
+        if (!$crits) { // empty array case
             return $CRITS[0];
         }
         $CRITS_cnt = 1;

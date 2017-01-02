@@ -25,9 +25,11 @@ class Utils_QueryBuilder extends Module
 
     private static $empty_rules = array('condition' => 'AND', 'rules' => array());
 
-    public function construct($form = null, $form_element_id = null)
+    public function construct($form = null)
     {
         $this->form = $form;
+        $this->element_name = 'crits';
+        $this->element_label = __('Rules');
     }
 
     public function body()
@@ -56,8 +58,6 @@ class Utils_QueryBuilder extends Module
 
     protected function generate_query_builder()
     {
-        $this->load_libs();
-
         $this->init_form();
 
         $this->options['filters'] = $this->filters;
@@ -111,6 +111,7 @@ class Utils_QueryBuilder extends Module
     public function init_form()
     {
         if (!$this->form_initialized) {
+            $this->load_libs();
             $this->form_initialized = true;
             if (!$this->form) {
                 $this->form = $this->init_module('Libs/QuickForm');
