@@ -715,16 +715,13 @@ class Utils_GenericBrowser extends Module {
 		if (!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns', E_USER_ERROR);
 
-<<<<<<< HEAD
 		$options = array();
-=======
 		if ($this->isset_unique_href_variable('action')
 			&& $this->get_unique_href_variable('action') == 'reset_order') {
 			$this->set_module_variable('order',$this->get_module_variable('default_order'));
 			location(array());
 			return;
 		}
->>>>>>> testing
 		$md5_id = md5($this->get_path());
 		$this->set_module_variable('first_display', 'done');
 		$theme = $this->init_module(Base_Theme::module_name());
