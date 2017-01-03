@@ -8,97 +8,76 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-class FileCache
-{
-    private $file;
-    private $data = array();
-
-    function __construct($file)
-    {
-        $this->file = $file;
-        $this->init();
-    }
-
-    protected function init()
-    {
-        $data = false;
-        if (file_exists($this->file)) {
-            $content = file_get_contents($this->file);
-            $content = substr($content, 8);
-            $data = @unserialize($content);
-            if (!$data) {
-                @unlink($this->file);
-            }
-        } else {
-            $cache_dir = dirname($this->file);
-            if (!file_exists($cache_dir)) {
-                mkdir($cache_dir, 0777, true);
-            }
-        }
-        $this->data = is_array($data) ? $data : array();
-    }
-
-    protected function save()
-    {
-        $data = "<?php //";
-        $data .= serialize($this->data);
-        file_put_contents($this->file, $data, LOCK_EX);
-    }
-
-    public function get($name, $default = null)
-    {
-        $ret = isset($this->data[$name]) ? $this->data[$name] : $default;
-        return $ret;
-    }
-
-    public function set($name, $value)
-    {
-        $this->data[$name] = $value;
-        $this->save();
-    }
-
-    public function clear($name = null)
-    {
-        if(function_exists('xcache_clear_cache') && function_exists('xcache_count')) {
-            $count = xcache_count(XC_TYPE_PHP);
-            for($cache_id=0; $cache_id<$count; $cache_id++)
-                xcache_clear_cache(XC_TYPE_PHP,$cache_id);
-        }
-
-        if ($name === null) {
-            $this->data = array();
-        } else {
-            unset($this->data[$name]);
-        }
-        $this->save();
-    }
-
-}
+use phpFastCache\CacheManager;
 
 class Cache
 {
     protected static $cache_object;
 
-    public static function init($cache_object)
+    public static function init()
     {
-        self::$cache_object = $cache_object;
+        $drivers = array();
+        $phpfastcache_config = array(
+            "path" => EPESI_LOCAL_DIR . '/' . DATA_DIR.'/cache',
+            "securityKey" => INSTALLATION_ID,
+            "defaultTtl" => 86400, // 24h
+        );
+        if(MEMCACHE_SESSION_SERVER) {
+            $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
+            $phpfastcache_config['memcache'] = array(array($srv[0],isset($srv[1])?$srv[1]:11211));
+
+            if (class_exists('Memcached')) {
+                $drivers[] = 'Memcached';
+            } elseif (class_exists('Memcache')) {
+                $drivers[] = 'Memcache';
+            }
+        }
+        CacheManager::setDefaultConfig($phpfastcache_config);
+
+        $drivers = array_merge($drivers, array('Apc', 'Apcu', 'Xcache', 'Zendshm', 'files'));
+        foreach ($drivers as $driver) {
+            try {
+                self::$cache_object = CacheManager::getInstance($driver);
+                break;
+            } catch (Exception $e) {
+            }
+        }
+        if (!self::$cache_object) {
+            throw new Exception('No valid cache driver');
+        }
     }
 
     public static function get($name, $default = null)
     {
-        return self::$cache_object->get($name, $default);
+        $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
+        $ret = self::$cache_object->getItem($name);
+        if(is_null($ret->get())) return $default;
+        return $ret->get();
     }
 
-    public static function set($name, $value)
+    public static function set($name, $value,$expiration_seconds=0)
     {
-        return self::$cache_object->set($name, $value);
+        $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
+        $ret = self::$cache_object->getItem($name);
+        $ret->set($value);
+        if($expiration_seconds>0) $ret->expiresAfter($expiration_seconds);
+        self::$cache_object->save($ret);
     }
 
-    public static function clear($name = null)
+    public static function clear($name=null)
     {
-        return self::$cache_object->clear($name);
+        if ($name) {
+            $name = 'epesi_' . INSTALLATION_ID . '_' . $name;
+            self::$cache_object->deleteItem($name);
+        } else {
+            self::$cache_object->clear();
+            $class_uses = class_uses(self::$cache_object);
+            if (in_array('phpFastCache\Core\PathSeekerTrait', $class_uses)) {
+                self::$cache_object->tmp = array();
+            }
+        }
     }
 
 }
 
-Cache::init(new FileCache(EPESI_LOCAL_DIR . '/' . DATA_DIR . '/cache/common_cache.php'));
+Cache::init();

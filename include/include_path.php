@@ -2,7 +2,7 @@
 /**
  * @author Paul Bukowski <shacky7@gmail.com>
  * @version 1.0
- * @license SPL
+ * @license MIT
  * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
