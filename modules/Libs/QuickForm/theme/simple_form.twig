@@ -15,7 +15,7 @@
         <div class="form-group">
             <div class="input-group">
                 <span class="input-group-addon">{{ element.label | raw }}{% if element.required %}*{% endif %}</span>
-                <span class="form-control {% if element.frozem %}form-control-static{% endif %}">{{ element.html | raw }}</span>
+                <span class="{% if element.frozem %}form-control-static{% endif %}">{{ element.html | raw }}</span>
             </div>
             {{ element.error | raw }}
         </div>
