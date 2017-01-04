@@ -63,11 +63,11 @@
 						{* create new company *}
 						{if isset($form_data.create_company)}
 <div class="row">
-	<div class="col col-md-12" style="margin-bottom: 10px">
-							<div class="label label-default" nowrap>
+	<div class="col col-md-12 form-group clearfix" style="margin-bottom: 10px">
+							<label class="control-label col-sm-2" nowrap>
 								{$form_data.create_company.label}
-							</div>
-							<div style="display: inline-block; margin-left: 10px">
+							</label>
+							<div class="col-sm-10">
 								<div class="create-company" style="width:24px; display:inline-block; float: left">
 									{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
