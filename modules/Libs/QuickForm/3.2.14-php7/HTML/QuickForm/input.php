@@ -54,6 +54,10 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
      */
     function HTML_QuickForm_input($elementName=null, $elementLabel=null, $attributes=null)
     {
+        if(isset($attributes['class'])){
+           if(is_string($attributes['class'])) $attributes['class'] .= ' form-control';
+           elseif(is_array($attributes['class'])) $attributes['class'][] = 'form-control';
+        } else $attributes['class'] = 'form-control';
         $this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
     } //end constructor
 

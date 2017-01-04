@@ -64,6 +64,10 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      */
     function HTML_QuickForm_textarea($elementName=null, $elementLabel=null, $attributes=null)
     {
+        if(isset($attributes['class'])){
+           if(is_string($attributes['class'])) $attributes['class'] .= ' form-control';
+           elseif(is_array($attributes['class'])) $attributes['class'][] = 'form-control';
+        } else $attributes['class'] = 'form-control';
         HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'textarea';
