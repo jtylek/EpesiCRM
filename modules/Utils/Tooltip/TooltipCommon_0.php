@@ -53,14 +53,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 
         $tip = htmlspecialchars($tip);
 
-		//TODO: It runs everytime function is called - fix it
 		$js = <<<'JS'
-			jQuery(function () {
-  				jQuery('[data-toggle="tooltip"]').tooltip({html: true})
-			});
+		jQuery(function () {
+			jQuery('body').tooltip({selector: '[data-toggle="tooltip"]', html: true})
+		});
 JS;
-		eval_js($js);
-		return "data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"$tip\"";
+        // using selector will automate tooltip creation so eval once is enough
+		eval_js_once($js);
+		return "data-toggle=\"tooltip\" data-placement=\"auto bottom\" title=\"$tip\"";
 	}
 
 	/**
@@ -71,14 +71,38 @@ JS;
 	 * @param array parameters that will be passed to the callback
 	 * @return string HTML tag attributes
 	 */
-	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
+	public static function ajax_open_tag_attrs($callback, $args) {
 		$tooltip_settings = array('callback'=>$callback, 'args'=>$args);
 		$tooltip_id = md5(serialize($tooltip_settings));
 		
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
 		
-		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
-		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
+		$loading_message = '<img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...');
+        $js = <<<JS
+			jQuery(function () {
+			    jQuery('[data-ajaxtooltip=\"$tooltip_id\"]').on('shown.bs.tooltip', function() {
+			        var el = jq(this);
+			        if (el.data('ajaxtooltip')) {
+						jq.ajax({
+							type: 'POST',
+							url: 'modules/Utils/Tooltip/req.php',
+							data:{
+								tooltip_id: el.data('ajaxtooltip'),
+								cid: Epesi.client_id
+							},
+							success:function(t) {
+							    el
+							    	.attr('title', t)
+							    	.tooltip('fixTitle').tooltip('show');
+								el.data('ajaxtooltip', null);
+							}
+						});
+					}
+			    });
+			});
+JS;
+		eval_js($js);
+        return "data-toggle=\"tooltip\" data-placement=\"auto bottom\" title=\"$loading_message\" data-ajaxtooltip=\"$tooltip_id\"";
 	}
 
 	/**
@@ -121,10 +145,10 @@ JS;
 	*/
 	public static function format_info_tooltip( $arg) {
 		if(!is_array($arg) || empty($arg)) return '';
-		$table='<table width="280" cellpadding="2">';
+		$table='<table>';
 		foreach ($arg as $k=>$v){
-			$table.='<tr><td width="90"><strong>';
-			$table.=$k.'</strong></td><td bgcolor="white" style="word-wrap: break-word;">';
+			$table.='<tr><td>';
+			$table.=$k.'</td><td>';
 			$table.= $v; // Value
 			$table.='</td></tr>';
 		}
