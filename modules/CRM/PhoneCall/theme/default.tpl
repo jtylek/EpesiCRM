@@ -235,6 +235,7 @@
 										{/if}
 									{/if}
 								{/foreach}
+								</div>
 							</div>
 							{if !empty($multiselects)}
 								<div class="row">
@@ -257,7 +258,7 @@
 							{/if}
 							<div>
 										{foreach key=k item=f from=$longfields name=fields}
-											{$f.full_field}
+											<div class="col-md-12">{$f.full_field}</div>
 										{/foreach}
 							</div>
 
