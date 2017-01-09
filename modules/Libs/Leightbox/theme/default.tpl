@@ -4,7 +4,7 @@
 
 <div class="panel panel-default" style="margin-bottom: 0px; height: 100%">
 	<div class="panel-heading">
-		<span class="panel-title">{$header}</span>
+		<span class="panel-title">{if $header}{$header}{else}&nbsp;{/if}</span>
 		<div class="pull-right action-buttons">
 			<a onClick="libs_leightbox_resize(this.parentNode.parentNode.parentNode.parentNode)" title="{$resize_label}">
 				<button class="btn btn-success btn-xs">
