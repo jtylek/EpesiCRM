@@ -103,7 +103,7 @@
 									{/foreach}
 								</div>
 							{/if}
-							<div>
+							<div class="row">
 										{foreach key=k item=f from=$longfields name=fields}
 											<div class="col-md-12">{$f.full_field}</div>
 										{/foreach}
