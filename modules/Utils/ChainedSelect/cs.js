@@ -27,9 +27,9 @@ ChainedSelect.prototype = {
 		jq('#'+prev_obj).on('change',this.request_f);
 		jq('#'+prev_obj).on('e_cs:load',this.request_f);
 		jq('#'+prev_obj).on('e_cs:clear',this.clear_f);
-		jq('#'+document).on('e:load',this.stop_f);
+		jq(document).on('e:load',this.stop_f);
 		if(prev_ids.length==1) {
-			jq('#'+document).on('e:load',this.load_def_f);
+			jq(document).on('e:load',this.load_def_f);
 		}
 	},
 	load_def:function() {
@@ -56,18 +56,18 @@ ChainedSelect.prototype = {
 		}
 	},
 	request:function() {
-		var vals = new Hash();
+		var vals = {};
 		if(this.default_val!=null) {
 			var def_val = this.default_val;
 			this.default_val = null;
 		}
 		for(x in this.prev_ids) {
-			var p = jq(this.prev_ids[x]);
+			var p = jq('#'+this.prev_ids[x]);
 			if(!p.length) return;
-			vals.set(this.prev_ids[x],p.val());
+			vals[this.prev_ids[x]] = p.val();
 		}
 		var dest_id = this.dest_id;
-		jq('modules/Utils/ChainedSelect/req.php', {
+		jq.ajax({url: 'modules/Utils/ChainedSelect/req.php',
 			method: 'post',
 			data:{
 				values:JSON.stringify(vals),
@@ -80,19 +80,13 @@ ChainedSelect.prototype = {
 				var new_opts = jq.parseJSON(t);
 				var obj = jq('#'+dest_id);
 				var opts = obj.get(0).options;
-                if(new_opts == false) {
-                    obj.attr("oldDisplayValue", obj.style.display);
-                    return;
-                } else {
-                        obj.show();
-                }
 				opts.length=0;
 				if(new_opts.length==0) {
 					obj.trigger('e_cs:clear');
-                    obj.attr("disabled", true);
+					obj.attr("disabled", true);
 				} else {
-                    obj.attr("disabled", false);
-					if(Object.isArray(new_opts)) {
+					obj.attr("disabled", false);
+					if(jq.isArray(new_opts)) {
 						for(y=0; y<new_opts.length; y++) {
 							if(typeof new_opts[y].key != "undefined" && typeof new_opts[y].caption != "undefined")
 								opts[opts.length] = new Option(new_opts[y].caption,new_opts[y].key);
