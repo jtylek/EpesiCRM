@@ -128,8 +128,9 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
                                   more: (params.page * 30) < data.total_count
                                 }
                               };
-                            },
-                    }
+                            }
+                    },
+                    allowClear: true
                 });
 js;
 
