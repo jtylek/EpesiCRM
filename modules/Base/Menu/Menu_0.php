@@ -57,11 +57,17 @@ class Base_Menu extends Module {
 			else {
 				$icon = null;
 				if(array_key_exists('__icon_small__',$arr)) {
-					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
+					if (is_readable($arr['__icon_small__']))
+						$icon = $arr['__icon_small__'];
+					else
+						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon_small__']);
 					unset($arr['__icon_small__']);
 					unset($arr['__icon__']);
 				} else if(array_key_exists('__icon__',$arr)) {
-					$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
+					if (is_readable($arr['__icon__']))
+						$icon = $arr['__icon__'];
+					else
+						$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], $arr['__icon__']);
 					unset($arr['__icon__']);
 				} else {
 					if(isset($arr['parent_module']) && is_string($arr['parent_module']))
