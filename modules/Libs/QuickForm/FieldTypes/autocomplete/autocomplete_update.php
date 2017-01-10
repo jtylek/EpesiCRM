@@ -25,7 +25,7 @@ if (!isset($_SESSION['client']['quickform']['autocomplete'][$_GET['key']])) {
     die('<ul><li style="font-weight: bold;text-align:center;">'.__('Search disabled in grid view').'</li></ul>');
 }
 $params = $_SESSION['client']['quickform']['autocomplete'][$_GET['key']];
-$string = $_GET[$params['field']];
+$string = isset($_GET[$params['field']]) ? $_GET[$params['field']] : '';
 $callback = $params['callback'];
 
 if (is_callable($callback)) {
