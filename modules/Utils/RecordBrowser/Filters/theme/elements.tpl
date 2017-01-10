@@ -4,7 +4,7 @@
 	{foreach item=f from=$filter_group.elements}
 		<div class="input-group">
 			<span class="input-group-addon">{$form_data.$f.label}</span>
-			<div class="form-control">{$form_data.$f.html}</div>
+			{$form_data.$f.html}
 		</div>
 	{/foreach}
 	{$form_data.submit.html}
