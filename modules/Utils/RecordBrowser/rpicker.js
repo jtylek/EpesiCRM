@@ -1,11 +1,11 @@
 rpicker_init = function(element, id){
+	id = id.replace('/', '\\/');
 	var checkbox = jq('#leightbox_rpicker_'+element+'_'+id);
 	var list = document.getElementsByName(element+'to[]')[0];
 	if (!list)
 		list = jq('#'+element).get(0);
 	var k = 0;
 	checkbox.prop("checked", false);
-	list.each
 	if(list) while (k!=list.length) {
 		if (list.options[k].value == id) {
 			checkbox.prop("checked", true);
