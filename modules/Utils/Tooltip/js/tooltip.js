@@ -1,7 +1,8 @@
 Utils_Tooltip = {
     timeout_obj: false,
     enable_tooltips: function () {
-        jQuery('body').tooltip({selector: '[data-toggle="tooltip"]', html: true, trigger: "hover", container: "body"})
+        jQuery('body').tooltip({selector: '[data-toggle="tooltip"]', html: true, trigger: "hover", container: "body"});
+        jQuery(document).on('e:loading', function() { jQuery('[role="tooltip"]').remove() });
     },
     load_ajax: function (tooltip_id) {
         jQuery('[data-ajaxtooltip="' + tooltip_id + '"]').on('shown.bs.tooltip', function () {
