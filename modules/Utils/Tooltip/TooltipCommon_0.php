@@ -35,6 +35,7 @@ class Utils_TooltipCommon extends ModuleCommon
         if (!$loaded) {
             Base_ThemeCommon::load_css(Utils_TooltipCommon::module_name(), 'default');
             load_js('modules/Utils/Tooltip/js/tooltip.js');
+            eval_js_once('Utils_Tooltip.enable_tooltips()');
             $loaded = true;
         }
     }
@@ -54,8 +55,7 @@ class Utils_TooltipCommon extends ModuleCommon
 
         $tip = htmlspecialchars($tip);
 
-        eval_js_once('Utils_Tooltip.enable_tooltips()');
-        return "data-toggle=\"tooltip\" data-placement=\"auto bottom\" title=\"$tip\"";
+        return "data-toggle=\"tooltip\" data-epesi-tooltip=\"$tip\"";
     }
 
     /**
@@ -75,8 +75,7 @@ class Utils_TooltipCommon extends ModuleCommon
         $_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
 
         $loading_message = '<img src=' . Base_ThemeCommon::get_template_file('Utils_Tooltip', 'loader.gif') . ' /><br/>' . __('Loading...');
-        eval_js('Utils_Tooltip.load_ajax("' . $tooltip_id . '")', false);
-        return "data-toggle=\"tooltip\" data-placement=\"auto bottom\" title=\"$loading_message\" data-ajaxtooltip=\"$tooltip_id\"";
+        return "data-toggle=\"tooltip\" data-epesi-tooltip=\"$loading_message\" data-ajaxtooltip=\"$tooltip_id\"";
     }
 
     /**
