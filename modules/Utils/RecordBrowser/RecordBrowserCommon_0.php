@@ -982,29 +982,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $new_id = self::get_field_id($new_name);
         self::check_table_name($tab);
 
+        $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        
+        $db_field_exists = !($type === 'calculated' && !$old_param);
+        
         DB::StartTrans();
-        if (DB::is_postgresql()) {
-            DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
-        } else {
-            $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        if ($db_field_exists) {
+        	if (DB::is_postgresql()) {
+        		DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
+        	} else {
+        		 
+        		DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        	}
+        	DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         }
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
-        DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
         
         $result = DB::Execute('SELECT * FROM ' . $tab . '_access');
         while ($row = $result->FetchRow()) {
         	$crits = self::unserialize_crits($row['crits']);
-        	
+        	 
+        	if (!$crits) continue;
+        	 
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
-        	
-        	foreach ($crits->find($id) as $c) $c->set_field($new_id);
-
-        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        
+        		foreach ($crits->find($id) as $c) $c->set_field($new_id);
+        
+        		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
         
         DB::CompleteTrans();
