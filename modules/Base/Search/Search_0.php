@@ -108,14 +108,14 @@ class Base_Search extends Module {
 
 /*
 	public static function search_menu(){
-		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+$(\'qs_keyword\').value);" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
+		return '<form action="javascript:load_page(\'href=Base_Search&qs_keyword=\'+jq(\'#qs_keyword\').val());" method=POST><input type=text name=qs_keyword /><input type=submit value=Search /></form>';
 	}
 	*/
 	public function mini() {
 		if (!Base_AclCommon::check_permission('Search')) return '';
 		$form = $this->init_module(Libs_QuickForm::module_name(),__('Searching'));
 
-		$form->addElement('text', 'quick_search', __('Quick Search'), array('x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
+		$form->addElement('text', 'quick_search', __('Quick Search'), array('class'=>'form-control','x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$form->get_submit_form_js()));
 		$form->addElement('submit', 'quick_search_submit', __('Search'), array('class'=>'mini_submit'));
 
 		$theme = $this->pack_module(Base_Theme::module_name());

@@ -23,41 +23,36 @@
 {/php}
 
 {if $main_page}
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
-				{if isset($new)}
-					{foreach item=n from=$new}
-						&nbsp;&nbsp;&nbsp;{$n}
-					{/foreach}
-				{/if}
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="panel panel-default">
+	<div class="panel-heading clearfix">
+		<div class="pull-left">
+			<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span class="form-inline">{$caption}</span>
+		</div>
+		<div class="pull-right">
+			&nbsp;*&nbsp;{$required_note}
+			{if isset($subscription_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+			{/if}
+			{if isset($fav_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+			{/if}
+			{if isset($info_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$info_tooltip}
+			{/if}
+			{if isset($clipboard_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+			{/if}
+			{if isset($history_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$history_tooltip}
+			{/if}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
+		</div>
+	</div>
+	<div class="panel-body">
 
 {if isset($click2fill)}
     {$click2fill}
@@ -168,3 +163,7 @@
 
  		</div>
 	</div>
+		{if $main_page}
+	</div>
+</div>
+{/if}

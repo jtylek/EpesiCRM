@@ -755,7 +755,7 @@ class ModuleManager {
 	 * @return bool null if module instance was not found, requested module object otherwise
 	 */
 	public static final function get_instance($path) {
-		$xx = explode('/',$path);
+		$xx = explode('--',$path);
 		$curr = self::$root;
 		if(is_object($curr) && $curr->get_node_id() != $xx[1]) {
 			$x = null;

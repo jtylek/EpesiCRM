@@ -26,19 +26,24 @@ class Base_MenuCommon extends ModuleCommon {
 						unset($arr['__module__']);
 					} else
 						$action = array('box_main_module'=>$name);
+
 					$action['parent_module'] = $name;
+
 					if(array_key_exists('__function__',$arr)) {
 						$action['box_main_function']=$arr['__function__'];
 						unset($arr['__function__']);
 					}
+
 					if(array_key_exists('__function_arguments__',$arr)) {
 						$action['box_main_arguments']=$arr['__function_arguments__'];
 						unset($arr['__function_arguments__']);
 					}
+
 					if(array_key_exists('__constructor_arguments__',$arr)) {
 						$action['box_main_constructor_arguments']=$arr['__constructor_arguments__'];
 						unset($arr['__constructor_arguments__']);
 					}
+
 					$m[$k] = array_merge($action,$arr);
 				}
 			} elseif($k!='__icon__' && $k!='__description__' && $k!='__url__' && $k!='__target__' && $k!='__weight__' && $k!='__function__' && $k!='__function_arguments__' && $k!='__module__')
@@ -96,6 +101,75 @@ class Base_MenuCommon extends ModuleCommon {
 
 	public static function create_array($arr) {
 		return self::create_href_js(null,$arr,'array');
+	}
+
+	public static function generate_urls($mod, &$menu_arr)
+	{
+		if(array_key_exists('__submenu__',$menu_arr)){
+			foreach($menu_arr as $name => &$submenu_arr){
+				if($name != '__split__' && is_array($submenu_arr))
+					self::generate_urls($mod, $submenu_arr);
+			}
+		}
+		elseif(!isset($menu_arr['__url__']))
+			$menu_arr['__url__'] = 'javascript:'.self::create_href_js($mod, $menu_arr);
+	}
+
+	public static function build_menu($m) {
+		$menu_arr = array();
+		foreach($m as $k=>$arr) {
+			if ($k == '__submenu__' || $k == '__icon__')
+				continue;
+
+			if($k=='__split__'){
+				$menu_arr[] = array('type' => 'split');
+			} elseif(array_key_exists('__submenu__', $arr)) {
+				unset($arr['__submenu__']);
+				$submenu = self::build_menu($arr);
+				if(array_key_exists('__icon__', $arr))
+					$icon = $arr['__icon__'];
+				else
+					$icon = null;
+				$menu_arr[] = array(
+					'type' => 'submenu',
+					'items' => $submenu,
+					'label' => _V($k),
+					'icon' => $icon
+				);
+			} else {
+				if(array_key_exists('__description__',$arr)) {
+					$description = "'".$arr['__description__']."'";
+					unset($arr['__description__']);
+				} else
+					$description = '';
+
+				if(array_key_exists('__url__',$arr)) {
+					$url = $arr['__url__'];
+					unset($arr['__url__']);
+					if(array_key_exists('__target__',$arr)) {
+						$target = $arr['__target__'];
+						unset($arr['__target__']);
+					} else {
+						$target = null;
+					}
+				} else
+					$url = null;
+				$target = null;
+
+				if(array_key_exists('__icon__', $arr)) $icon = $arr['__icon__'];
+				else $icon = null;
+
+				$menu_arr[] = array(
+					'type' => 'item',
+					'description' => $description,
+					'url' => $url,
+					'target' => $target,
+					'label' => _V($k),
+					'icon' => $icon
+				);
+			}
+		}
+		return $menu_arr;
 	}
 }
 

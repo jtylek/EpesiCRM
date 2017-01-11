@@ -31,7 +31,7 @@ class CRM_Contacts_PhotoCommon extends ModuleCommon {
 		}
 		if (isset($_REQUEST['upload_new_photo']) && $_REQUEST['upload_new_photo']==$values['id']) {
 			unset($_REQUEST['upload_new_photo']);
-			$x = ModuleManager::get_instance('/Base_Box|0');
+			$x = Base_BoxCommon::root();
 			if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 			$x->push_main('CRM/Contacts/Photo','body',array($values));
 		}

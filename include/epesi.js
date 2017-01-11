@@ -8,7 +8,7 @@ jQuery.noConflict();
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
-	if(xx) setTimeout('xx.focus();',200);
+	if(xx) setTimeout(function(){jq(xx).focus();},200);
 };
 
 function addslashes(x){return x.replace(/('|"|\\)/g,"\\$1")}
@@ -25,8 +25,8 @@ var Epesi = {
 	procOn:0,
 	client_id:0,
 	process_file:'process.php',
-	indicator:'epesiStatus',
-	indicator_text:'epesiStatusText',
+	indicator:'#epesiStatus',
+	indicator_text:'#epesiStatusText',
 	confirmLeave: {
 		// object of form ids which require confirmation for leaving the page
         // store changed fields to pass through submit state
@@ -106,7 +106,7 @@ var Epesi = {
                 this.forms = {};
                 this.forms_freezed = {};
             }
-				
+
 			if (!Object.keys(this.forms).length) jQuery(window).unbind('beforeunload');
 		},
         freeze: function(f) {
@@ -117,12 +117,15 @@ var Epesi = {
         }
 	},
 	updateIndicator: function() {
-		var s = $(Epesi.indicator);
-		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
-		if (!Epesi.procOn) $('main_content').style.display = '';
+		var s = jq(Epesi.indicator);
+		if(s.length) {
+		    if(Epesi.procOn) s.show();
+		    else s.hide();
+		}
+		if (!Epesi.procOn) jq('#main_content').show();
 	},
 	updateIndicatorText: function(text) {
-		$(Epesi.indicator_text).innerHTML = text;
+		jq(Epesi.indicator_text).html(text);
 	},
 	history_on:1,
 	history_add:function(id){
@@ -170,29 +173,27 @@ var Epesi = {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
 		var keep_focus_field = null;
-		new Ajax.Request(Epesi.process_file, {
+		jQuery.ajax(Epesi.process_file, {
 			method: 'post',
-			parameters: {
+			data: {
 				history: history_id,
 				url: url
 			},
-			onComplete: function(t) {
+			complete: function(xhr,t) {
 				Epesi.procOn--;
-				Epesi.append_js('Event.fire(document,\'e:load\');Epesi.updateIndicator();');
+				Epesi.append_js('jQuery(document).trigger(\'e:load\');Epesi.updateIndicator();');
 				if(keep_focus_field!=null) {
                     Epesi.append_js('jQuery("#'+keep_focus_field+':visible").focus();');
                 }
 			},
-			onSuccess: function(t) {
+			success: function(t) {
 				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
-				Event.fire(document,'e:loading');
+				jQuery(document).trigger('e:loading');
 			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(t,type,error) {
+				//throw(type+": "+e);
+				alert(type+' ('+error+')');
+				Epesi.text(type+": "+error,'error_box','p');
 			}
 		});
 	},
@@ -213,14 +214,14 @@ var Epesi = {
 		jQuery('form[name="' + formName + '"] input[name="submited"]').val(0);
 	},
 	text: function(txt,idt,type) {
-		var t=$(idt);
-		if(!t) return;
+		var t=jq('#'+idt);
+		if(!t.length) return;
 		if(type=='i')//instead
-			t.innerHTML = txt;
+			t.html(txt);
 		else if(type=='p')//prepend
-			t.innerHTML = txt+t.innerHTML;
+			t.prepend(txt);
 		else if(type=='a')//append
-			t.innerHTML += txt;
+			t.append(txt);
 	},
 	//js loader
 	loaded_jss:new Array(),
@@ -229,7 +230,7 @@ var Epesi = {
 	js_loader_running:false,
 	load_js:function(file) {
 		if (Epesi.loaded_jss.indexOf(file)!=-1) return;
-		Epesi.to_load_jss[Epesi.to_load_jss.size()] = file;
+		Epesi.to_load_jss.push(file);
 		if(Epesi.js_loader_running==false) {
 			Epesi.js_loader_running=true;
 			Epesi.js_loader();
@@ -239,7 +240,7 @@ var Epesi = {
 		if(Epesi.js_loader_running==false) {
 			Epesi.append_js_script(texti);
 		} else
-			Epesi.to_append_jss[Epesi.to_append_jss.size()] = texti;
+			Epesi.to_append_jss.push(texti);
 	},
 	append_js_script:function(texti) {
 		fileref=document.createElement("script");
@@ -248,7 +249,7 @@ var Epesi = {
 		document.getElementsByTagName("head").item(0).appendChild(fileref);
 	},
 	js_loader:function() {
-		file = Epesi.to_load_jss.first();
+		file = Epesi.to_load_jss.shift();
 		if(typeof file != 'undefined') {
 			fileref=document.createElement("script")
 			fileref.setAttribute("type", "text/javascript");
@@ -256,17 +257,15 @@ var Epesi = {
 			fileref.onload=fileref.onreadystatechange=function() {
 				if (fileref.readyState && fileref.readyState != 'loaded' && fileref.readyState != 'complete')
 					return;
-				Epesi.loaded_jss[Epesi.loaded_jss.size()] = file;
+				Epesi.loaded_jss.push(file);
 				Epesi.js_loader();
 			}
 			document.getElementsByTagName("head").item(0).appendChild(fileref);
-			Epesi.to_load_jss = Epesi.to_load_jss.without(file);
 		} else {
-			for(var i=0; i<Epesi.to_append_jss.size(); i++) {
-				var texti = Epesi.to_append_jss[i];
+			jq(Epesi.to_append_jss).each(function(i,texti) {
 				Epesi.append_js_script(texti);
-			}
-			Epesi.to_append_jss.clear();
+			});
+			Epesi.to_append_jss.length=0;
 			Epesi.js_loader_running = false;
 		}
 	},
@@ -279,23 +278,15 @@ var Epesi = {
 		fileref.setAttribute("type", "text/css");
 		fileref.setAttribute("href", file);
 		document.getElementsByTagName("head").item(0).appendChild(fileref);
-		Epesi.loaded_csses[Epesi.loaded_csses.size()] = file;
+		Epesi.loaded_csses.push(file);
 		return true;
 	}
 };
 _chj=Epesi.href;
-Ajax.Responders.register({
-onCreate: function(x,y) { //hack
-        if (typeof x.options.requestHeaders == 'undefined')
-		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
-	else if (typeof x.options.requestHeaders.push == 'function')
-		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-	else
-		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});	
-},
-onException: function(req, e){
-	alert(e);
-}});
+jQuery(document).ajaxSend(function(ev,xhr,settings){
+	xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
+});
+
 function getTotalTopOffet(e) {
 	var ret=0;
 	while (e!=null) {

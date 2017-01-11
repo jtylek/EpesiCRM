@@ -1,9 +1,9 @@
 <?php
 /**
  * ActionBar
- * 
+ *
  * This class provides action bar component.
- * 
+ *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
@@ -44,7 +44,7 @@ class Base_ActionBar extends Module {
 	 */
 	public function body() {
 		$this->help('ActionBar basics','main');
-		
+
 		$icons = Base_ActionBarCommon::get();
 
 		//sort
@@ -127,14 +127,13 @@ class Base_ActionBar extends Module {
 		$th->assign('launcher',array_reverse($launcher));
 		$th->display();
 	}
-	
+
 	public function launchpad() {
 		if (self::$launchpad==null) return;
 
 		$launcher = array();
 		usort(self::$launchpad,array($this,'compare_launcher'));
 		if(!empty(self::$launchpad)) {
-			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
 			$th = $this->pack_module(Base_Theme::module_name());
 			usort(self::$launchpad,array($this,'compare_launcher'));
 			$th->assign('icons',self::$launchpad);
@@ -144,13 +143,11 @@ class Base_ActionBar extends Module {
 			$lp_out = ob_get_clean();
 			$big = count(self::$launchpad)>10;
 			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
-			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>'th-large');
 			$th = $this->pack_module(Base_Theme::module_name());
-			$th->assign('icons',array());
-			$th->assign('launcher',array_reverse($launcher));
+			$th->assign('launcher',array());
+			$th->assign('icons',array_reverse($launcher));
 			$th->display();
-			eval_js('$("launchpad_button_section").style.display="";');
-			eval_js('$("launchpad_button_section_spacing").style.display="";');
 		}
 	}
 

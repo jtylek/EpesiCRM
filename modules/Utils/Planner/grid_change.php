@@ -67,7 +67,7 @@ foreach ($cleanFrames as $day=>$v) {
 	}
 }
 
-$js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
+$js .= 'jq("#grid_selected_frames").val("'.implode(';',$selected_frames).'");';
 
 $timeframe_string = '<table class="time_frames">';
 if (isset($_SESSION['client']['utils_planner']['date']))
@@ -90,7 +90,7 @@ do {
 
 $timeframe_string .= '</table>';
 
-$js .= '$("Utils_Planner__time_frames").innerHTML="'.Epesi::escapeJS($timeframe_string).'";';
+$js .= 'jq("#Utils_Planner__time_frames").html("'.Epesi::escapeJS($timeframe_string).'");';
 
 $js .= Utils_PlannerCommon::timeframe_changed($selected_frames);
 

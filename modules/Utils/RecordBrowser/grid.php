@@ -86,7 +86,7 @@ if ($mode=='submit') {// && $form->validate()) {
 		$html = '<form '.$data['attributes'].'>'.$html.'</form>';
 	}
 
-	print('$("grid_value_field_'.$element.'_'.$id.'").innerHTML = \''.Epesi::escapeJS($html).'\';');
+	print('jq("#grid_value_field_'.$element.'_'.$id.'").html(\''.Epesi::escapeJS($html).'\');');
 	return;
 }
 ob_start();
@@ -104,7 +104,7 @@ $more_html .= ob_get_clean();
 
 $html .= $more_html;
 
-print('$("grid_form_field_'.$element.'_'.$id.'").innerHTML = \''.Epesi::escapeJS($html).'\';');
+print('jq("#grid_form_field_'.$element.'_'.$id.'").html(\''.Epesi::escapeJS($html).'\');');
 print('grid_edit_form_name = "'.$form_name.'";');
 
 preg_match_all('/name=\"([^\"]+)\"/', $data['__grid_'.$element]['html'], $matches);

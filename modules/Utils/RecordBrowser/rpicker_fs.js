@@ -1,14 +1,14 @@
 rpicker_fs_init = function(id,checked,path){
-	checkbox = $('leightbox_rpicker__'+id);
-	if(checked==1) checkbox.checked = true;
-		else checkbox.checked = false;
-	checkbox.observe('click', function(e){
-		new Ajax.Request('modules/Utils/RecordBrowser/RecordPickerFS/select.php', {
+	checkbox = jq('#leightbox_rpicker__'+id);
+	if(checked==1) checkbox.prop("checked",true);
+		else checkbox.prop("checked", false);
+	checkbox.click(function(e){
+		jq.ajax('modules/Utils/RecordBrowser/RecordPickerFS/select.php', {
 			method: 'post',
-			parameters:{
+			data:{
 				select: this.checked,
 				row: id,
-				path: Object.toJSON(path),
+				path: JSON.stringify(path),
 				cid: Epesi.client_id
 			}
 		});

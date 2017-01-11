@@ -71,12 +71,12 @@ class Base_BoxCommon extends ModuleCommon {
 	}
 	
 	public static function push_module($module = null, $func = null, $args = null, $constr_args = null, $name = null) {
-        self::_base_box_instance()->push_main($module, $func, $args, $constr_args, $name);
+        self::root()->push_main($module, $func, $args, $constr_args, $name);
         return false;
     }
     
     public static function pop_main() {
-        self::_base_box_instance()->pop_main();
+        self::root()->pop_main();
     }
     
     public static function pop_main_href() {
@@ -103,11 +103,11 @@ class Base_BoxCommon extends ModuleCommon {
      * @return Module
      */
     public static function main_module_instance() {
-        return self::_base_box_instance()->get_main_module();
+        return self::root()->get_main_module();
     }
 
-    private static function _base_box_instance() {
-        $x = ModuleManager::get_instance('/Base_Box|0');
+    public static function root() {
+        $x = ModuleManager::get_instance('--Base_Box__0');
         if (!$x)
             throw new Exception('There is no base box module instance');
         return $x;

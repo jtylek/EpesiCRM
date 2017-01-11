@@ -547,12 +547,12 @@ class Utils_CalendarBusyReport extends Module {
 					$ii = $today_t_timeless.'_'.$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
 				}
 				$prev = $v;
 			}
@@ -650,7 +650,7 @@ class Utils_CalendarBusyReport extends Module {
 	}
 
 	public function push_event_action($action,$arg=null) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main($this->event_module,$action,$arg);
 	}

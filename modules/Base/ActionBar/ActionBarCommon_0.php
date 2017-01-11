@@ -44,8 +44,39 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'reply'		=> 23,
 			'forward'	=> 24);
 
+	public static $translate = array(
+		'home'		=> 'home',
+		'back'		=> 'arrow-left',
+		'report'	=> 'bar-chart',
+		'history'	=> 'history',
+		'all'		=> 'globe',
+		'favorites'	=> 'heart',
+		'calendar'	=> 'calendar',
+		'search'	=> 'search',
+		'folder'	=> 'folder',
+		'edit'		=> 'pencil',
+		'view'		=> 'folder-open',
+		'add'		=> 'plus',
+		'delete'	=> 'trash',
+		'save'		=> 'floppy-o',
+		'print'		=> 'print',
+		'clone'		=> 'clone',
+		'settings'	=> 'cog',
+		'scan'		=> 'search',
+		'filter'	=> 'filter',
+		'retry'		=> 'repeat',
+		'send'		=> 'paper-plane',
+		'new-mail'	=> 'envelope',
+		'attach'	=> 'paperclip',
+		'reply'		=> 'reply',
+		'forward'	=> 'share'
+	);
+
 	public static function add($type, $text, $action, $description=null, $position = 0) {
 //		if(!array_key_exists($type,self::$available_icons)) trigger_error('Invalid action '.$type,E_USER_ERROR);
+		if(array_key_exists($type, self::$translate))
+			$type = self::$translate[$type];
+		
 		foreach (self::$icons as $k=>$v) {
 			if ($v['icon']==$type && $v['label']==$text) unset(self::$icons[$k]);
 		}

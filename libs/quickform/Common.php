@@ -6,7 +6,7 @@
  * @author      Adam Daniel <adaniel1@eesus.jnj.com>
  * @copyright   2001-2009 The PHP Group
  * @license     http://www.php.net/license/3_01.txt PHP License 3.01
- */ 
+ */
 
 /**
  * Base class for all HTML classes
@@ -274,6 +274,17 @@ abstract class HTML_Common
             $charset = $newCharset;
         }
         return $charset;
+    }
+
+    public function addClass($addClass)
+    {
+        $class = $this->getAttribute('class');
+        if($class != null) {
+            $class = $class.' '.$addClass;
+        } else {
+            $class = $addClass;
+        }
+        $this->setAttribute('class', $class);
     }
 }
 ?>

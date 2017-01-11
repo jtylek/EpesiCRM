@@ -1,0 +1,15 @@
+#Base_User_Settings div.btn {
+    margin-bottom:5px;
+    overflow: hidden;
+}
+#Base_User_Settings div.btn > a {
+    display:block;
+    height:54px;
+    width:100%;
+    vertical-align: middle;
+}
+#Base_User_Settings div.btn > a > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -32,7 +32,7 @@ class CRM_Calendar extends Module {
 		$callback = explode('::', $callback);
 		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, null, $this);
 /*		if (!is_numeric($timestamp)) $timestamp = strtotime($timestamp);
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('CRM_Calendar','new_event',array($option, $timestamp, $timeless));*/
 	}
@@ -235,7 +235,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function view_event($id) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('CRM_Calendar_Event','view',$id);
 	}

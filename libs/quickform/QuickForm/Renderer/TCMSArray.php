@@ -157,7 +157,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
-//        $js = "HTML_QuickForm_Renderer_TCMSArray_error=function(err_id, error){terefere = $(err_id);if(terefere) terefere.innerHTML = error;}";
+//        $js = "HTML_QuickForm_Renderer_TCMSArray_error=function(err_id, error){terefere = jq('#'+err_id).get(0);if(terefere) terefere.innerHTML = error;}";
 //		eval_js($js);
     } // end constructor
 
@@ -396,11 +396,22 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
      * Only implemented in Default renderer. Usage of 'html' elements is
      * discouraged, templates should be used instead.
      *
-     * @param    HTML_QuickForm_html     a 'raw html' element being visited
+     * @param  object     An HTML_QuickForm_html element being visited
+     * @access public
+     * @return void
      */
-    public function renderHtml(&$data)
+    function renderHtml(&$data)
     {
-        // TODO: Implement renderHtml() method.
-    }
+        $ret = array(
+            'name'      => null,
+            'value'     => null,
+            'type'      => 'html',
+            'frozen'    => null,
+            'required'  => null,
+            'error'		=> null,
+            'html'      => $data->toHtml()
+        );
+        $this->_ary['elements'][] = $ret;
+    } // end func renderHtml
 }
 ?>

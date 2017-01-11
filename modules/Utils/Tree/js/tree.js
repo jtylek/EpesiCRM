@@ -8,42 +8,44 @@
 	utils_tree_expand_all = function(id, sub) {
 		for( i = 0; i < sub; i++) {
 			is_collapsed[id][i] = 0;
-			if($('utils_tree_'+id+'_'+i)) {
-				$('utils_tree_'+id+'_'+i).style.display = "block";
-				$('utils_tree_opener_img_'+id+'_'+i).src = "modules/Utils/Tree/theme/opener_active_open.gif";
+			var el = jq('#utils_tree_'+id+'_'+i);
+			if(el.length) {
+				el.css('display', "block");
+				jq('#utils_tree_opener_img_'+id+'_'+i).attr('src',"modules/Utils/Tree/theme/opener_active_open.gif");
 			}
 		}
-		//$('tree_expand_all_'+id).innerHTML = 'Collapse All';
 	}
 	utils_tree_collapse_all = function(id, sub) {
 		for( i = 0; i < sub; i++) {
 			is_collapsed[id][i] = 1;
-			if($('utils_tree_'+id+'_'+i)) {
-				$('utils_tree_'+id+'_'+i).style.display = "none";
-				$('utils_tree_opener_img_'+id+'_'+i).src = "modules/Utils/Tree/theme/opener_active_closed.gif";
+			var el = jq('#utils_tree_'+id+'_'+i);
+			if(el.length) {
+				el.hide();
+				jq('#utils_tree_opener_img_'+id+'_'+i).attr('src',"modules/Utils/Tree/theme/opener_active_closed.gif");
 			}
 		}
-		//$('tree_expand_all_'+id).innerHTML = 'Expand All';
 	}
 	
 	tree_node_visibility_toggle = function( id, sub ) {
-		if($('utils_tree_'+id+'_'+sub)) {
+	        var el = jq('#utils_tree_'+id+'_'+sub);
+		if(el.length) {
 			if( is_collapsed[id][sub] == 0 ) {
 				is_collapsed[id][sub] = 1;
-				$('utils_tree_'+id+'_'+sub).style.display = "none";
-				$('utils_tree_opener_img_'+id+'_'+sub).src = "modules/Utils/Tree/theme/opener_active_closed.gif";
+				el.hide();
+				jq('#utils_tree_opener_img_'+id+'_'+sub).attr('src', "modules/Utils/Tree/theme/opener_active_closed.gif");
 			} else {
 				is_collapsed[id][sub] = 0;
-				$('utils_tree_'+id+'_'+sub).style.display = "block";
-				$('utils_tree_opener_img_'+id+'_'+sub).src = "modules/Utils/Tree/theme/opener_active_open.gif";
+				el.css('display', "block");
+				jq('#utils_tree_opener_img_'+id+'_'+sub).attr('src', "modules/Utils/Tree/theme/opener_active_open.gif");
 			}
 		}
 	}
 	tree_node_visibility_show = function( id, sub ) {
-		if($('utils_tree_'+id+'_'+sub)) {
+	        var el = jq('#utils_tree_'+id+'_'+sub);
+		if(el.length) {
 			is_collapsed[id][sub] = 0;
-			$('utils_tree_'+id+'_'+sub).style.display = "block";
-			$('utils_tree_opener_img_'+id+'_'+sub).src = "modules/Utils/Tree/theme/opener_active_open.gif";
+			el.css('display', "block");
+			jq('utils_tree_opener_img_'+id+'_'+sub).attr('src', "modules/Utils/Tree/theme/opener_active_open.gif");
 		}
 	}
 	

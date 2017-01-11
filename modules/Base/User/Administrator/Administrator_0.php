@@ -63,7 +63,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $ret = DB::Execute('SELECT p.mail FROM user_password p  WHERE p.user_login_id=%d', Acl::get_user());
             if(($row = $ret->FetchRow())) $form->setDefaults(array('mail'=>$row[0]));
 
-            $form->display();
+            $form->display_as_column();
         }
     }
 

@@ -41,7 +41,7 @@ round:function(val,currency) {
 	return all/prec;
 },
 validate: function(ev) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	var val = elem.value;
 	var key = ev.which;
@@ -49,26 +49,26 @@ validate: function(ev) {
 	var Ecar = jq(elem).caret().end;
 	var Scar = jq(elem).caret().start;
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
-	this.init_re(currency.regex);
-	if(!this.re.test(val))
-		Event.stop(ev);
-	if(!this.re.test(elem.value)) {
+	Utils_CurrencyField.init_re(currency.regex);
+	if(!Utils_CurrencyField.re.test(val))
+		ev.stopPropagation();
+	if(!Utils_CurrencyField.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 validate_blur: function(ev,f) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
-	this.init_re(currency.regex);
-	if(!this.re.test(elem.value)) {
+	Utils_CurrencyField.init_re(currency.regex);
+	if(!Utils_CurrencyField.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 init_re: function(f) {
-	if(this.format!=f) {
-		this.re = new RegExp();
-		this.re.compile('^'+f+'$');
-		this.format=f;
+	if(Utils_CurrencyField.format!=f) {
+		Utils_CurrencyField.re = new RegExp();
+		Utils_CurrencyField.re.compile('^'+f+'$');
+		Utils_CurrencyField.format=f;
 	}
 },
 };

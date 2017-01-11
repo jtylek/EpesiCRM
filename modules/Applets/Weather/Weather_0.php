@@ -44,14 +44,15 @@ class Applets_Weather extends Module {
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
 			'rssfeedfunc = function(name,fee,num,cache){'.
-			'if(!$(\'rssfeed_\'+name)) return;'.
+			'var rss = jq(\'#rssfeed_\'+name);'.
+			'if(!rss.length) return;'.
 			'if(cache && typeof rssfeedcache[name] != \'undefined\')'.
-				'$(\'rssfeed_\'+name).innerHTML = rssfeedcache[name];'.
+				'rss.html(rssfeedcache[name]);'.
 			'else '.
-				'new Ajax.Updater(\'rssfeed_\'+name,\'modules/Applets/Weather/refresh.php\',{'.
+				'jq.ajax(\'modules/Applets/Weather/refresh.php\',{'.
 					'method:\'post\','.
-					'onComplete:function(r){rssfeedcache[name]=r.responseText},'.
-					'parameters:{feed:fee, number:num, cid: Epesi.client_id}});'.
+					'success:function(r){rssfeedcache[name]=r;rss.html(r);},'.
+					'data:{feed:fee, number:num, cid: Epesi.client_id}});'.
 			'}');
 		eval_js_once('setInterval(\'rssfeedfunc(\\\''.$name.'\\\',\\\''.Epesi::escapeJS($rssfeed, false).'\\\' , 2 , 0)\',1799993)'); //29 minutes and 53 seconds
 

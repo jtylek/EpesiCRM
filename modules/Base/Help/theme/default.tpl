@@ -1,6 +1,6 @@
-<div class="help">
-	<a {$href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';">
-		<img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" alt="?" border="0"><div class="help_label">{$label}</div>
+<div>
+	<a {$href}>
+		<i class="fa fa-question-circle"></i> {$label}
 	</a>
 </div>
 <div id="Base_Help__overlay" style="display:none;" onclick="Helper.hide_menu();"></div>

@@ -62,7 +62,7 @@ foreach($table_rows as $field => $args) {
 	if (!$val)
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, true, $args);
 	ob_end_clean();
-	print('if($("_'.$args['id'].'__data"))$("_'.$args['id'].'__data").innerHTML = "'.Epesi::escapeJS($val).'";');
+	print('var dd=jq("#_'.$args['id'].'__data");if(dd.length)dd.html("'.Epesi::escapeJS($val).'");');
 //	if (!$access[$args['id']]) continue;
 //	if ($created[$args['id']] !== '') $created[$args['id']] = $val; // TRSL
 }

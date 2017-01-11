@@ -54,7 +54,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		$link_text = Module::create_href_js(array('UCev_id'=>$ev['id'], 'UCaction'=>'move','UCdate'=>'__YEAR__-__MONTH__-__DAY__'));
 		if(!isset($ev['move_action']) || $ev['move_action']===true)
-			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.str_replace(array('#','-'),'_',$ev['id']), $link_text,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{setWidth:false,setHeight:false,offsetTop:$(\'utils_calendar_event:'.$ev['id'].'\').getHeight()})'));
+			$th->assign('move_href', Utils_PopupCalendarCommon::create_href('move_event'.str_replace(array('#','-'),'_',$ev['id']), $link_text,null,null,'popup.clonePosition(\'utils_calendar_event:'.$ev['id'].'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#utils_calendar_event:'.$ev['id'].'\').height()})'));
 
 		if(!isset($ev['delete_action']) || $ev['delete_action']===true)
 			$th->assign('delete_href', Module::create_confirm_href(__('Delete this event?'),array('UCev_id'=>$ev['id'], 'UCaction'=>'delete')));
@@ -149,72 +149,6 @@ class Utils_CalendarCommon extends ModuleCommon {
 		return array('duration'=>$duration_str,'start'=>$start_t,'end'=>$end_t,'start_time'=>$start_time,'end_time'=>$end_time,'start_date'=>$start_date,'end_date'=>$end_date,'start_day'=>$start_day,'end_day'=>$end_day);
 	}
 
-	public static function mobile_agenda($evmod,$extra_settings=array(),$time_shift=0,$view_func=null) {
-		$settings = array(
-			'custom_agenda_cols'=>null
-		);
-		$settings = array_merge($settings,$extra_settings);
-
-		$start = time()+$time_shift;
-		$end = $start + (7 * 24 * 60 * 60)+$time_shift;
-		
-		if(!IPHONE) {
-			$columns = array(
-				array('name'=>__('Start'), 'order'=>'start', 'width'=>10),
-				array('name'=>__('Duration'), 'order'=>'end', 'width'=>5),
-				array('name'=>__('Title'), 'order'=>'title','width'=>10));
-		}
-		
-		//add data
-		ob_start();
-		$ret_raw = call_user_func(array(str_replace('/','_',$evmod).'Common','get_all'),date('Y-m-d',$start),date('Y-m-d',$end));
-		ob_get_clean();
-		if(!is_array($ret_raw))
-			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
-
-		if(IPHONE) {
-			print('<ul>');
-			$date = null;
-		} else {
-			$data = array();
-		}
-		$ret = array();
-		$i = 0;
-		foreach($ret_raw as $row) {
-			$ret[$row['start'].'_'.$i] = $row;
-			$i++;
-		}
-		ksort($ret);
-		foreach($ret as $row) {
-			$ex = Utils_CalendarCommon::process_event($row);
-			if($view_func)
-				$h = mobile_stack_href($view_func,array($row['id']),__('View event'));
-			else
-				$h = '';
-			if(IPHONE) {
-				if($date!==$ex['start_date']) {
-					$date=$ex['start_date'];
-					print('</ul><h4>'.$date.'</h4><ul>');
-				}
-				$start = '<a '.$h.'>'.$ex['start'].'</a>';
-				$duration = '<a '.$h.'>'.$ex['duration'].'</a>';
-				$title = '<a '.$h.'>'.$row['title'].'</a>';
-				print('<li class="arrow">'.$start.$duration.$title.'</li>');
-			} else {
-				$rrr = array(array('label'=>'<a '.$h.'>'.$ex['start'].'</a>','order_value'=>isset($row['timeless'])?strtotime($row['timeless']):$row['start']),'<a '.$h.'>'.$ex['duration'].'</a>','<a '.$h.'>'.$row['title'].'</a>');
-//				foreach($add_cols as $a)
-//					$rrr[] = $row['custom_agenda_col_'.$a];
-
-				$data[] = $rrr;
-			}
-		}
-
-		if(IPHONE) {
-			print('</ul>');
-		} else {
-			Utils_GenericBrowserCommon::mobile_table($columns,$data,'start');
-		}
-	}
 }
 
 // ***** date("l") *****

@@ -1,15 +1,17 @@
-#Base_Admin .buttons_container {
-    text-align: start;
-    width: 100%;
-    padding: 0;
-    margin: 5px 0px;
+#Base_Admin div.btn {
+    margin-bottom:5px;
+    overflow: hidden;
 }
 
-#Base_Admin epesi_label.header {
-    padding-left: 0;
-    padding-right: 0;
+#Base_Admin div.btn > a {
+    display:block;
+    height:54px;
+    width:100%;
+    vertical-align: middle;
 }
 
-#Base_Admin .epesi_big_button {
-    margin: 5px;
+#Base_Admin div.btn > a > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

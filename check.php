@@ -210,11 +210,11 @@ foreach ($checks as $c) {
 	$solution = false;
 	foreach ($c['tests'] as $t) {
 		switch ($t['severity']) {
-			case 0: $color = '#00CC00'; break;
-			case 1: $color = '#CCAA00'; $solution = true; break;
-			case 2: $color = 'red'; $solution = true; break;
+			case 0: $class = 'text-success'; break;
+			case 1: $class = 'text-warning'; $solution = true; break;
+			case 2: $class = 'text-danger'; $solution = true; break;
 		}
-		$html .= '<span style="font-weight:bold;float:right;margin-right:100px;color:'.$color.'">'.$t['status'].'</span>';
+		$html .= '<span style="font-weight:bold;float:right;" class="'.$class.'">'.$t['status'].'</span>';
 		$html .= '<span style="margin-left:40px;">'.$t['label'].'</span>';
 		$html .= '<br>';
 	}
@@ -228,11 +228,12 @@ foreach ($checks as $c) {
 $html .= '<br><br>';
 $html .= '<font size=-2>';
 $html .= 'Legend:<br>';
-$html .= '<span style="color:#00CC00;">Green</span> - matches EPESI requirements<br>';
-$html .= '<span style="color:#CCAA00;">Yellow</span> - shouldn\'t prevent EPESI from running, but it\'s recommended to change the settings<br>';
-$html .= '<span style="color:red;">Red</span> - check failed, it\'s necessary to change the settings<br>';
+$html .= '<div><span class="text-success">Green</span> - matches EPESI requirements</div>';
+$html .= '<div><span class="text-warning">Yellow</span> - shouldn\'t prevent EPESI from running, but it\'s recommended to change the settings</div>';
+$html .= '<div><span class="text-danger">Red</span> - check failed, it\'s necessary to change the settings</div>';
 $html .= '</font>';
 
+print('<div class="col-md-6 col-md-offset-3"><div class="panel panel-default"><div class="panel-body">');
 if ($fullscreen) {
 	if (class_exists('Utils_FrontPageCommon'))
 		Utils_FrontPageCommon::display('EPESI Compatibility check', $html);
@@ -241,5 +242,5 @@ if ($fullscreen) {
 } else {
 	print($html);
 }
-
+print('</div></div></div>');
 ?>

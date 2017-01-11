@@ -1,29 +1,10 @@
-<table id="banner" border="0" cellpadding="0" cellspacing="0">
-    <tr>
-        <td class="image">&nbsp;</td>
-        <td class="back">&nbsp;</td>
-    </tr>
-</table>
 
-<br>
+            <div class="col-md-6 col-md-offset-3" style="margin-top: 20px"> <!-- -->{$wizard}<!-- --></div>
 
-<center>
-<table id="main" border="0" cellpadding="0" cellspacing="0">
-    <tr>
-        <td>
-            <!-- -->{$wizard}<!-- -->
-        </td>
-    </tr>
-</table>
-</center>
-
-<br>
-
-<center>
-<span class="footer">Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-<br>
-<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
-</center>
+            <div class="col-xs-12 text-center" style="margin-top: 20px">
+                <span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+                <p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
+            </div>
 {php}
 eval_js_once('document.body.id=\'FirstRun\'');
 {/php}

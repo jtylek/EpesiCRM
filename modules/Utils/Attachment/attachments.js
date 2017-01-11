@@ -1,51 +1,51 @@
 var uploader;
 
 Utils_Attachment__restore_existing = function (id) {
-	$('restore_existing_'+id).style.display="none";
-	$('delete_existing_'+id).style.display="";
-	$('existing_file_'+id).className = 'file';
-	var files = $('delete_files').value.split(';');
+	jq('#restore_existing_'+id).hide();
+	jq('#delete_existing_'+id).show();
+	jq('#existing_file_'+id).attr('class','file');
+	var files = jq('#delete_files').val().split(';');
 	for (var i in files) {
 		if (files[i]==id) files.splice(i,1);
 	}
-	$('delete_files').value = files.join(';');
+	jq('#delete_files').val(files.join(';'));
 }
 
 Utils_Attachment__delete_existing = function (id) {
-	$('restore_existing_'+id).style.display="";
-	$('delete_existing_'+id).style.display="none";
-	$('existing_file_'+id).className = 'file deleted';
-	$('delete_files').value = $('delete_files').value + ';' + id; 
+	jq('#restore_existing_'+id).show();
+	jq('#delete_existing_'+id).hide();
+	jq('#existing_file_'+id).attr('class','file deleted');
+	jq('#delete_files').val(jq('#delete_files').val() + ';' + id); 
 }
 
 Utils_Attachment__delete_clipboard = function (id) {
-	var files = $('clipboard_files').value.split(';');
+	var files = jq('#clipboard_files').val().split(';');
 	for (var i in files) {
 		if (files[i]==id) files.splice(i,1);
 	}
-	$('clipboard_files').value = files.join(';');
+	jq('#clipboard_files').val(files.join(';'));
 }
 
 Utils_Attachment__add_clipboard = function (id) {
-	$('clipboard_files').value = $('clipboard_files').value + ';' + id; 
+	jq('#clipboard_files').val(jq('#clipboard_files').val() + ';' + id); 
 }
 
 Utils_Attachment__add_file_to_list = function (name, size, id, upload, clipboard) {
 	var button = '';
 	if (clipboard) {
 		Utils_Attachment__add_clipboard(id);
-		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');Effect.Fade(\'clipboard_file_'+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+		button = '<a href="javascript:void(0);" onclick="this.onclick=null;Utils_Attachment__delete_clipboard(\''+id+'\');jq(\'#clipboard_file_'+id+'\').fadeOut();"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 		id = 'clipboard_file_'+id;
 	} else {
 		if (upload) {
-			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));Effect.Fade(\''+id+'\',{duration:0.5});"><img src="'+Utils_Attachment__delete_button+'" /></a>';
+			button = '<a href="javascript:void(0);" onclick="this.onclick=null;uploader.removeFile(uploader.getFile(\''+id+'\'));jq(\'#'+id+'\').fadeOut();"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 		} else {
 			button = '<a href="javascript:void(0);" id="delete_existing_'+id+'" onclick="Utils_Attachment__delete_existing('+id+');"><img src="'+Utils_Attachment__delete_button+'" /></a>';
 			button += '<a href="javascript:void(0);" id="restore_existing_'+id+'" onclick="Utils_Attachment__restore_existing('+id+');" style="display:none;"><img src="'+Utils_Attachment__restore_button+'" /></a>';
 			id = 'existing_file_'+id;
 		}
 	}
-	$('filelist').innerHTML += '<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>';
+	jq('#filelist').append('<div class="file" id="' + id + '"><div class="indicator">'+button+'</div><div class="filename">' + name + (size!=null?' (' + plupload.formatSize(size) + ')':'')+'</div></div>');
 }
 
 Utils_Attachment__init_uploader = function (max_fs) {
@@ -72,14 +72,14 @@ Utils_Attachment__init_uploader = function (max_fs) {
 	});
 
 	uploader.bind('UploadProgress', function(up, file) {
-		$(file.id).getElementsByTagName('div')[0].innerHTML = '<b>' + file.percent + "%</b>";
+		jq('#'+file.id).find('div').first().html('<b>' + file.percent + "%</b>");
 	});
 	uploader.bind('UploadComplete', function(up,files){
 	        up.files.length = 0;
 		Utils_Attachment__submit_note();
 	});
 	uploader.bind('FileUploaded', function(up, file, response) {
-		response = response.response.evalJSON();
+		response = jq.parseJSON(response.response);
 		if (response.error != undefined && response.error.code){
 			alert(file.name+': '+response.error.message);
 		}
@@ -100,16 +100,16 @@ document.onpaste = function(event) {
 			reader.onload = function(event) {
                         	Epesi.procOn++;
                         	Epesi.updateIndicator();
-				new Ajax.Request("modules/Utils/Attachment/paste.php", {
+				jq.ajax("modules/Utils/Attachment/paste.php", {
 					method: "post",
-					parameters:{
+					data:{
 						cid: Epesi.client_id,
 						data: event.target.result
 					},
-					onSuccess:function(t) {
+					success:function(t) {
                                         	Epesi.procOn--;
                                         	Epesi.updateIndicator();
-						var file = t.responseText.evalJSON();
+						var file = jq.parseJSON(t);
 						Utils_Attachment__add_file_to_list(file.name, null, file.id, false, true);
 					}
 				});
@@ -130,25 +130,25 @@ utils_attachment_password = function(label,label_button,id,reload) {
 function utils_attachment_submit_password(id,reload) {
     var pass = jq('#attachment_pass_'+id).val();
     if (pass!=null && pass!='') {
-      new Ajax.Request("modules/Utils/Attachment/check_decrypt.php", {
+      jq.ajax("modules/Utils/Attachment/check_decrypt.php", {
         method: "post",
-        parameters:{
+        data:{
             cid: Epesi.client_id,
             id: id,
             pass: pass
         },
-        onSuccess:function(t) {
-            result = t.responseText.evalJSON();
+        success:function(t) {
+            result = jq.parseJSON(t);
             if(typeof result.error != "undefined") return alert(result.error);
             if(reload) {
                 _chj("","","queue");
             } else {
-                Event.fire(document,'e:loading');
+                jq(document).trigger('e:loading');
                 if(typeof result.js != "undefined") {
                     eval(result.js);
                 }
-                $("note_value_"+id).innerHTML = result.note;
-                Event.fire(document,'e:load');
+                jq("#note_value_"+id).text(result.note);
+                jq(document).trigger('e:load');
             }
         }
       });

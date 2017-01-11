@@ -37,4 +37,4 @@ foreach ($results as $count=>$tutorials) {
 	foreach ($tutorials as $tut)
 		$html .= '<a href="javascript:void(0);" onclick="Helper.start_tutorial(\''.Epesi::escapeJS(trim($tut['steps'], '#')).'\')">'.$tut['label'].'</a>';
 }
-print('$("Base_Help__help_links").innerHTML = "'.Epesi::escapeJS($html).'";');
+print('jq("#Base_Help__help_links").html("'.Epesi::escapeJS($html).'");');

@@ -70,7 +70,9 @@ class CRM_LoginAudit extends Module {
 				$el->addOption($label,$id,array('style'=>'background-color: lightgray;'));
 		}
 		$user = $form->exportValue('users');
+		ob_start();
         $form->display_as_row();
+		$form_html = ob_get_clean();
         $this->set_module_variable('filter_user',$user);
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'login_audit');
@@ -107,8 +109,10 @@ class CRM_LoginAudit extends Module {
                 $sess_time=date("G:i:s",strtotime($row['end_time'])-strtotime($row['start_time'])+$offset);
                 $gb->add_row('<b>'.$ulogin.' ['.$row['user_login_id'].']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name']);
 			}
-
+		ob_start();
 		$this->display_module($gb);
+		$gb_html = ob_get_clean();
+		$this->twig_display('template.twig',['form'=>$form_html, 'gb'=>$gb_html]);
 
 	if(!DEMO_MODE)
 	        Base_ActionBarCommon::add('settings',__('Maintenance'),$this->create_callback_href(array($this, 'purge_log')));

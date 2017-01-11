@@ -203,30 +203,6 @@ table#Base_User_Login td.recover_password a:hover {
 	color: #000000;
 }
 
-table#Base_User_Login td.autologin {
-	text-align: center;
-	height: 30px;
-	color: #777777;
-}
-
-table#Base_User_Login td.donation_notice {
-	text-align: center;
-	vertical-align: middle;
-	height: 30px; 
-	width:100%; 
-	font-weight:normal; 
-	color: #888;
-}
-
-table#Base_User_Login td.donation_notice a {
-	color: #00F;
-}
-
-table#Base_User_Login td.donation_notice a:hover {
-	color: #77F;
-	text-decoration: underline;
-}
-
 .logout_icon_img {
 	width: 20px;
 	height: 20px;

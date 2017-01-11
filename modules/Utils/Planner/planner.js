@@ -22,74 +22,74 @@ function disableSelection(target){
 
 var switch_direction = '';
 function time_grid_mouse_down(from_time,day,switchd) {
-	elem = $(day+'__'+from_time);
-	if (!elem) {
+	elem = jq('#'+day+'__'+from_time);
+	if (!elem.length) {
 //		alert(day+'__'+from_time+': element not found');
 		return;
 	}
-	if (has_class(elem,'unused'))
+	if (elem.hasClass('unused'))
 		switch_direction = 'used';
 	else 
 		switch_direction = 'unused';
 	if (switchd) switch_direction = switchd;
-	if (has_class(elem,'noconflict'))
-		elem.className = 'border_radius_3px noconflict '+switch_direction;
+	if (elem.hasClass('noconflict'))
+		elem.attr('class','border_radius_3px noconflict '+switch_direction);
 	else
-		elem.className = 'conflict '+switch_direction;
+		elem.attr('class','conflict '+switch_direction);
 }
 
 function time_grid_mouse_move(from_time,day) {
 	if (switch_direction=='') return;
-	elem = $(day+'__'+from_time);
-	if (has_class(elem,'noconflict'))
-		elem.className = 'border_radius_3px noconflict '+switch_direction;
+	elem = jq('#'+day+'__'+from_time);
+	if (elem.hasClass('noconflict'))
+		elem.attr('class', 'border_radius_3px noconflict '+switch_direction);
 	else
-		elem.className = 'border_radius_3px conflict '+switch_direction;
+		elem.attr('class','border_radius_3px conflict '+switch_direction);
 }
 
 function time_grid_change_conflicts(from_time,day,conflict) {
-	elem = $(day+'__'+from_time);
-	if (!elem) return;
+	elem = jq('#'+day+'__'+from_time);
+	if (!elem.length) return;
 	if (conflict)
 		switch_conflict = 'conflict';
 	else 
 		switch_conflict = 'noconflict';
-	if (has_class(elem,'unused'))
-		elem.className = 'unused '+switch_conflict;
+	if (elem.hasClass('unused'))
+		elem.attr('class', 'unused '+switch_conflict);
 	else
-		elem.className = 'used '+switch_conflict;
+		elem.attr('class', 'used '+switch_conflict);
 }
 
 function resource_changed(resource,type) {
 	if (!type) {
-		opts = new Array();
+		var opts = new Array();
 		i=0;
-		while (i!=$(resource).options.length){
-			opts[i] = $(resource).options[i].value;
+		jq(resource).find('option').each(function() {
+			opts[i] = jq(this).val();
 			i++;
-		}
-		rvalue = $(resource).value;
+		});
+		rvalue = jq(resource).val();
 	} else {
 		if (type=='checkbox') {
 			opts = 0;
-			if ($(resource).checked) rvalue = 1;
+			if (jq(resource).is(':checked')) rvalue = 1;
 			else rvalue = 0;
 		}
 		if (type=='datepicker') {
 			opts = 0;
-			rvalue = $(resource).value;
+			rvalue = jq(resource).val();
 		}
 	}
-	new Ajax.Request('modules/Utils/Planner/resource_change.php', {
+	jq.ajax('modules/Utils/Planner/resource_change.php', {
 		method: 'post',
-		parameters:{
-			resource:Object.toJSON(resource),
-			options:Object.toJSON(opts),
-			value:Object.toJSON(rvalue),
+		data:{
+			resource:JSON.stringify(resource),
+			options:JSON.stringify(opts),
+			value:JSON.stringify(rvalue),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 }
@@ -103,14 +103,14 @@ function update_grid() {
 //		frames[id[0]][id[1]] = true;
 		frames[i] = frames_elems[i].id;
 	}
-	new Ajax.Request('modules/Utils/Planner/grid_change.php', {
+	jq.ajax('modules/Utils/Planner/grid_change.php', {
 		method: 'post',
-		parameters:{
-			frames:Object.toJSON(frames),
+		data:{
+			frames:JSON.stringify(frames),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		success:function(t) {
+			eval(t);
 		}
 	});
 }

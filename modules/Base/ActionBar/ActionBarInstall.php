@@ -37,8 +37,8 @@ class Base_ActionBarInstall extends ModuleInstall {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
 			array('name'=>Libs_LeightboxInstall::module_name(),'version'=>0),
-			array('name'=>Base_Menu_QuickAccessInstall::module_name(),'version'=>0),
 			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0),
+			array('name'=>Base_Menu_QuickAccessInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0),
 			array('name'=>Base_User_SettingsInstall::module_name(),'version'=>0));
 	}

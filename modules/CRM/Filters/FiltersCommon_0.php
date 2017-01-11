@@ -13,7 +13,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 	public static $in_use = false;
 	
 	public static function get_profile_desc() {
-		$profile_desc = Module::static_get_module_variable('/Base_Box|0/CRM_Filters|filter','profile_desc','');
+		$profile_desc = Module::static_get_module_variable('--Base_Box__0--CRM_Filters__filter','profile_desc','');
 		return $profile_desc;
 	}
 	

@@ -1,7 +1,3 @@
-function getElementStyle(elemID, IEStyleProp, CSSStyleProp) {
-    var elem = $(elemID);
-}
-
 libs_theme__scrolled_table_getWidth = function(someObject){
 	if (document.defaultView!=null && document.defaultView.getComputedStyle) {
 		var compStyle = document.defaultView.getComputedStyle(someObject, "");

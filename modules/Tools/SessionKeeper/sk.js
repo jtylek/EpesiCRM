@@ -1,10 +1,10 @@
 var SessionKeeper = {
-    func: function(pe) {
-        new Ajax.Request('modules/Tools/SessionKeeper/sk.php');
+    func: function() {
+        jq.ajax('modules/Tools/SessionKeeper/sk.php');
         SessionKeeper.time-=SessionKeeper.interval;
         if(SessionKeeper.time<=0) {
-            pe.stop();
-            new Ajax.Request('modules/Tools/SessionKeeper/logout.php');
+            clearInterval(SessionKeeper.id);
+            jq.ajax('modules/Tools/SessionKeeper/logout.php');
         }
     },
     interval: 10,
@@ -14,10 +14,10 @@ var SessionKeeper = {
     load: function() {
         if(SessionKeeper.maxtime==null) return;
         SessionKeeper.time = SessionKeeper.maxtime;
-        if(SessionKeeper.id!=null) SessionKeeper.id.stop();
-        SessionKeeper.id = new PeriodicalExecuter(SessionKeeper.func,SessionKeeper.interval);
+        if(SessionKeeper.id!=null) clearInterval(SessionKeeper.id);
+        SessionKeeper.id = setInterval(SessionKeeper.func,SessionKeeper.interval*1000);
     }
 };
-document.observe("e:load", function() {
+jq(document).on("e:load", function() {
     SessionKeeper.load();
 });

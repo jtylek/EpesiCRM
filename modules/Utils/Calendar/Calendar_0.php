@@ -263,8 +263,6 @@ class Utils_Calendar extends Module {
 		load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
 		load_js($this->get_module_dir().'calendar-jq.js');
 
-//		load_js($this->get_module_dir().'calendar.js');
-
 		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {
 			$this->display_module($this->tb);
@@ -289,7 +287,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function push_event_action($action,$arg=null) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main($this->event_module,$action,$arg);
 	}
@@ -689,7 +687,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
@@ -697,7 +695,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
+//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
 				}
 				$prev = $v;
 			}

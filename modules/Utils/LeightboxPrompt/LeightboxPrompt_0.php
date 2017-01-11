@@ -38,7 +38,6 @@ class Utils_LeightboxPrompt extends Module {
     }
 
     public function body($header='', $params_list = array(), $additional_info='', $big=true) {
-        if (MOBILE_DEVICE) return;
         if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
             $this->last_location = $_REQUEST['__location'];
             $this->leightbox_ready = false;

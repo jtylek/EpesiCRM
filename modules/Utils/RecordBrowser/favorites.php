@@ -24,6 +24,6 @@ $element = json_decode($_POST['element']);
 if (!Acl::is_user()) die('alert("Unauthorized access");');
 
 Utils_RecordBrowserCommon::set_favs($tab, $id, $state);
-print('$("'.$element.'").innerHTML="'.Epesi::escapeJS(Utils_RecordBrowserCommon::get_fav_button_tags($tab, $id, $state)).'";');
+print('jq("#'.$element.'").html("'.Epesi::escapeJS(Utils_RecordBrowserCommon::get_fav_button_tags($tab, $id, $state)).'");');
 
 ?>

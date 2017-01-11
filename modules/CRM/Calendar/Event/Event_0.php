@@ -219,17 +219,17 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('calendar_event_handlers_changed=0;');
 		eval_js('hide_calendar_event_handlers_popup = function() {'.
 			'if(var_hide_calendar_event_handlers_popup==1){'.
-				'$("calendar_event_handlers_popup").style.display="none";'.
-				'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_default;'.
+				'jq("#calendar_event_handlers_popup").hide();'.
+				'jq("#calendar_event_handlers_trigger").html(calendar_event_handlers_message_default);'.
 				'if(calendar_event_handlers_changed==1){'.
 					$form->get_submit_form_js().
-					'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_processing;'.
+					'jq("#calendar_event_handlers_trigger").html(calendar_event_handlers_message_processing);'.
 				'}'.
 			'}'.
 		'}');
 		eval_js('show_calendar_event_handlers_popup = function() {'.
-			'$("calendar_event_handlers_popup").style.display="";'.
-			'$("calendar_event_handlers_trigger").innerHTML=calendar_event_handlers_message_confirm;'.
+			'jq("#calendar_event_handlers_popup").show();'.
+			'jq("#calendar_event_handlers_trigger").html(calendar_event_handlers_message_confirm);'.
 		'}');
 
 		$selected = Base_User_SettingsCommon::get('CRM_Calendar_Event', 'event_handlers');

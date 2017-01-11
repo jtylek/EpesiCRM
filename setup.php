@@ -63,34 +63,23 @@ function set_header($str) {
 	  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
 	  <title><?php echo __("EPESI setup"); ?></title>
 	  <link href="setup.css" type="text/css" rel="stylesheet"/>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
 </head>
 <body>
-		<table id="banner" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td class="image">&nbsp;</td>
-				<td class="back" id="setup_page_header">&nbsp;</td>
-				<td class="image back">&nbsp;</td>
-			</tr>
-		</table>
-		<br>
-		<center>
-		<table id="main" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td>
+		<h1 class="text-center" id="setup_page_header"></h1>
+		<div>
 <?php
 
 function footer() {
 ?>
-				</td>
-			</tr>
-		</table>
-		</center>
-		<br>
-		<center>
-		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
-		<br>
-		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
-		</center>
+</div>
+
+<div class="col-xs-12 text-center" style="margin-top: 20px">
+	<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+	<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
+</div>
+
 </body>
 </html>
 <?php
@@ -112,19 +101,22 @@ if (!isset($install_lang_code)) {
 	asort($list);
 	asort($rest);
 	$list = array_merge(array('en'=>$labels['en']), $list);
+	print('<div class="col-md-10 col-md-offset-1 panel panel-default"><div class="panel-body">');
 	print('<div id="complete_translations">');
 	foreach ($list as $l=>$label) {
 		Base_LangCommon::print_flag($l, $label, 'href="?install_lang='.$l.'"');
 		unset($rest[$l]);
 	}
 	print('</div>');
-	print('<a class="show_incomplete button" onclick="this.style.display=\'none\';document.getElementById(\'incomplete_translations\').style.display=\'\';">Show incomplete translations</a>');
 	print('<div id="incomplete_translations" style="display:none;">');
 	foreach ($rest as $l=>$label) {
 		Base_LangCommon::print_flag($l, $label, 'href="?install_lang='.$l.'"');
 	}
 	print('</div>');
-	
+
+	print('</div></div>');
+	print('<a class="btn btn-success btn-lg col-md-4 col-md-offset-4" onclick="this.style.display=\'none\';document.getElementById(\'incomplete_translations\').style.display=\'\';">Show incomplete translations</a>');
+
 	set_header('Select Language');
 	die();
 }
@@ -139,7 +131,7 @@ if(file_exists('easyinstall.php')){
 
 if (isset($_GET['check'])) {
 	require_once('check.php');
-	print('<br><br><a class="button" href="index.php?install_lang='.$install_lang_load.'" style="display:block;width:200px; margin:0 auto;">' . __('Continue with installation') . '</a>');
+	print('<div class="col-md-6 col-md-offset-3"><a class="btn btn-success btn-block" href="index.php?install_lang='.$install_lang_load.'">' . __('Continue with installation') . '</a></div>');
 	die();
 }
 
@@ -162,12 +154,12 @@ if (isset($_GET['tos1']) && $_GET['tos1'] && isset($_GET['tos2']) && $_GET['tos2
 
 if(!isset($_GET['license'])) {
 	set_header(__('License Agreement'));
-	print('<div class="license">');
+	print('<div class="col-md-5 col-md-offset-1"><div class="panel panel-default"><div class="panel-body">');
     print read_doc_file('license');
-	print('</div>');
-	print('<div class="license agreement">');
+	print('</div></div></div>');
+	print('<div class="col-md-5"><div class="panel panel-default"><div class="panel-body">');
 	$form = new HTML_QuickForm('licenceform','get');
-	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
+	$form -> addElement('html', '<h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3>');
 	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
 	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"EPESI powered"</strong> logo and the link from the application login screen or the toolbar.'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
@@ -182,18 +174,18 @@ if(!isset($_GET['license'])) {
 	$form -> addRule('tos3', __('Field required'), 'required');
 	$form -> addRule('tos4', __('Field required'), 'required');
 	isset($_GET['submitted']) && $_GET['submitted'] && $form->validate();
-	$form -> addElement('submit', null, __('Next'));
+	$form -> addElement('submit', null, __('Next'), array('class' => 'btn btn-success pull-right'));
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 	$form->display();
-    print('</div>');
+    print('</div></div></div>');
 } elseif(!isset($_GET['htaccess'])) {
 	ob_start();
-	print('<h1>' . __('Welcome to EPESI setup!') . '<br></h1><h2>' . __('Hosting compatibility') . ':</h2><br><div class="license">');
+	print('<div class="col-md-6 col-md-offset-3"><div class="panel panel-default"><div class="panel-body"><h1>' . __('Welcome to EPESI setup!') . '</h1><h2>' . __('Hosting compatibility') . ':</h2>');
 	if(check_htaccess()) {
 		$_GET['htaccess'] = 1;
 		ob_end_clean();
 	} else {
-		print('</div><br><a class="button" href="setup.php?license=1&htaccess=1&install_lang='.$install_lang_load.'">' . __('Ok') . '</a>');
+		print('<a class="btn btn-success pull-right" href="setup.php?license=1&htaccess=1&install_lang='.$install_lang_load.'">' . __('Ok') . '</a></div></div></div>');
 		ob_end_flush();
 	}
 }
@@ -201,27 +193,29 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	set_header(__('Configuration'));
 	$form = new HTML_QuickForm('serverform','post',$_SERVER['PHP_SELF'].'?'.http_build_query($_GET));
 	$form -> addElement('header', null, __('Database server settings'));
-	$form -> addElement('text', 'host', __('Database server address'));
+	$form -> addElement('text', 'host', __('Database server address'),array('class'=>'form-control'));
 	$form -> addRule('host', __('Field required'), 'required');
-	$form -> addElement('text', 'port', __('Custom database port'));
-	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqli'=>'MySQL'));
+	$form -> addElement('text', 'port', __('Custom database port'),array('class'=>'form-control'));
+	$form -> addElement('select', 'engine', __('Database engine'), array('postgres'=>'PostgreSQL', 'mysqli'=>'MySQL'),array('class'=>'form-control'));
 	$form -> addRule('engine', __('Field required'), 'required');
-	$form -> addElement('text', 'user', __('Database server user'));
+	$form -> addElement('text', 'user', __('Database server user'),array('class'=>'form-control'));
 	$form -> addRule('user', __('Field required'), 'required');
-	$form -> addElement('password', 'password', __('Database server password'));
+	$form -> addElement('password', 'password', __('Database server password'),array('class'=>'form-control'));
 	$form -> addRule('password', __('Field required'), 'required');
-	$form -> addElement('text', 'db', __('Database name'));
+	$form -> addElement('text', 'db', __('Database name'),array('class'=>'form-control'));
 	$form -> addRule('db', __('Field required'), 'required');
     $create_db_warn_msg = __('WARNING: Make sure you have CREATE access level to do this!');
 	$form -> addElement('select', 'newdb', __('Create new database'),
             array(0 => __('No'), 1 => __('Yes')),
-            array('onChange' => 'if(this.value==1) alert("' . $create_db_warn_msg . '","warning");'));
+            array('class'=>'form-control', 'onChange' => 'if(this.value==1) alert("' . $create_db_warn_msg . '","warning");'));
 	$form -> addRule('newdb', __('Field required'), 'required');
 	$form -> addElement('header', null, __('Other settings'));
 	$form -> addElement('select', 'direction', __('Text direction'),
-            array(0 => __('Left to Right'), 1 => __('Right to Left')));
+            array(0 => __('Left to Right'), 1 => __('Right to Left')), array('class'=>'form-control'));
 
-	$form -> addElement('submit', 'submit', __('Next'));
+//	$form -> addElement('submit', 'submit', __('Next'));
+	$nxxx = __('Next');
+	$form->addElement('html',"<input type='submit' value='$nxxx' name='submit' class='btn btn-success pull-right'>");
 	$form -> setDefaults(array('engine'=>'mysqli','db'=>'epesi','host'=>'localhost'));
 	$form->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
 
@@ -324,10 +318,18 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	}
 
 	$renderer =& $form->defaultRenderer();
-	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
-	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
+	$renderer->setHeaderTemplate("<div class='well'>{header}</div>");
+	$renderer->setElementTemplate(<<<HTML
+<div class="input-group" style="margin-bottom: 20px">
+<span class="input-group-addon"><span style="color: #ff0000">*</span><!-- END required -->{label}</span>{element}
+</div>
+<!-- BEGIN error --><p class="help-block text-danger">{error}</p><!-- END error -->
+HTML
+);
 		$form->accept($renderer);
+		print('<div class="col-md-6 col-md-offset-3 panel-default panel"><div class="panel-body">');
 		print($renderer->toHtml());
+		print('</div></div>');
 	}
 
 ///////////////////////////////////////////////////////////////

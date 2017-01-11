@@ -11,6 +11,7 @@
 
 class HTML_QuickForm_multiselect extends HTML_QuickForm_multi
 {
+
     /**
      * Contains the select options
      *
@@ -214,16 +215,16 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_multi
      */
     function getFrozenHtml()
     {
-    	$html = '';
-    	foreach($this->_options as $k=>$v)
-	        if (in_array($v['attr']['value'],$this->_values)) $html .= ($html?'<br />':'').(empty($v['text'])? '&nbsp;':'<span>'.$v['text'].'</span>');
+        $html = '';
+        foreach($this->_options as $k=>$v)
+            if (in_array($v['attr']['value'],$this->_values)) $html .= ($html?'<br />':'').(empty($v['text'])? '&nbsp;':'<span>'.$v['text'].'</span>');
         return $html;
     }
 
-   /**
-    * We check the options and return only the values that _could_ have been
-    * selected. We also return a scalar value if select is not "multiple"
-    */
+    /**
+     * We check the options and return only the values that _could_ have been
+     * selected. We also return a scalar value if select is not "multiple"
+     */
     function exportValue(&$submitValues, $assoc = false)
     {
         $value = $this->_findValue($submitValues);
@@ -234,104 +235,44 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_multi
 			$value = explode($this->list_sep,$value);
 			array_shift($value);
 		}
-		return $this->_prepareValue($value, $assoc);
+        return $this->_prepareValue($value, $assoc);
     }
 
     /**
-     * @return string
+     * Returns the SELECT in HTML
+     *
+     * @access    public
+     * @return    string
      */
     public function getHtml()
     {
-        $strHtml = '';
         $this->updateAttributes(array('multiple' => 'multiple'));
         $myName = $this->getName();
-        $mod = $myName;
-        if (detect_mobile_device()) {
-            $this->setName($myName . '[]');
-            $attrString = $this->_getAttrString($this->_attributes);
 
-            $strHtml = '<select' . $attrString . 'name="' . $myName . '" style="height:100%;" >' . "\n";
-
-            foreach ($this->_options as $k => $option) {
-                $selected = (is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)) ? 'selected="1" ' : '';
-                $strHtml .= '<option ' . $selected . $this->_getAttrString($this->_options[$k]['attr']) . '>' . $this->_options[$k]['text'] . '</option>' . "\n";
-            }
-
-            $strHtml .= '</select>';
-        } else {
-            $this->setName($myName . 'from[]');
-            $this->_attributes['id'] = $myName . '__from';
-            $attrString = $this->_getAttrString($this->_attributes);
-
-            $fromElement = '';
-            $fromElement .= '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_add_selected(\'' . $mod . '\', \'' . $this->list_sep . '\');' . $this->on_add_js_code . '" ondblclick="ms_add_selected(\'' . $mod . '\', \'' . $this->list_sep . '\');' . $this->on_add_js_code . '">' . "\n";
-            if (isset($this->_values[0]) && preg_match('/' . addcslashes($this->list_sep, '/') . '/i', $this->_values[0])) {
-                $this->_values = explode($this->list_sep, $this->_values[0]);
-                array_shift($this->_values);
-            }
-            $i = 0;
-            foreach ($this->_options as $k => $option) {
-                $this->keyhash[$i] = $this->_options[$k]['attr']['value'];
-                $kv = array_search($this->_options[$k]['attr']['value'], $this->_values);
-                $i++;
-                if (!(is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)))
-                    $fromElement .= "\t<option " . $this->_getAttrString($this->_options[$k]['attr']) . ">" . $this->_options[$k]['text'] . "</option>\n";
-            }
-            $fromElement .= '</select>';
-
-            $toElement = '';
-            $this->setName($myName . 'to[]');
-            $this->_attributes['id'] = $myName . '__to';
-            $attrString = $this->_getAttrString($this->_attributes);
-            $toElement .= '<select' . $attrString . ' onkeypress="var key=event.which || event.keyCode;if(key==32)ms_remove_selected(\'' . $mod . '\', \'' . $this->list_sep . '\');' . $this->on_remove_js_code . '" ondblclick="ms_remove_selected(\'' . $mod . '\', \'' . $this->list_sep . '\');' . $this->on_remove_js_code . '">' . "\n";
-            $list = '';
-            foreach ($this->_options as $option) {
-                if (is_array($this->_values) && in_array((string)$option['attr']['value'], $this->_values)) {
-                    $toElement .= "\t<option " . $this->_getAttrString($option['attr']) . ">" . $option['text'] . "</option>\n";
-                    $list .= $this->list_sep . $option['attr']['value'];
-                }
-            }
-            $toElement .= '</select>';
-
-            $buttons = array();
-
-            load_js('libs/quickform/QuickForm/Field/Multi/multiselect.js');
-
-            $buttons['add_all'] = '<input id="' . $myName . '__add_all" type=button value=">>" onclick="' .
-                'ms_add_all(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
-                $this->on_add_js_code .
-                '"/>';
-            $buttons['remove_all'] = '<input id="' . $myName . '__remove_all" align=center type=button value="<<" onclick="' .
-                'ms_remove_all(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
-                $this->on_remove_js_code .
-                '"/>';
-            $buttons['remove_selected'] = '<input onFocus="focus_by_id(\'' . $myName . '__from\');" id="' . $myName . '__remove_selected" type=button value="<" onclick="' .
-                'ms_remove_selected(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
-                $this->on_remove_js_code .
-                '"/>';
-            $buttons['add_selected'] = '<input onFocus="focus_by_id(\'' . $myName . '__to\');" id="' . $myName . '__add_selected" type=button value=">" onclick="' .
-                'ms_add_selected(\'' . $myName . '\', \'' . $this->list_sep . '\');' .
-                $this->on_add_js_code .
-                '"/>';
-
-            $strHtml .= '<table id="multiselect">';
-            $strHtml .= '<tr><td class="form-element">' . $fromElement . '</td>';
-
-            $strHtml .= '<td class="buttons-cell"><table>' .
-                '<tr><td >' . $buttons['add_selected'] . '</td></tr>' .
-                '<tr><td >' . $buttons['add_all'] . '</td></tr>' .
-                '<tr><td >' . $buttons['remove_all'] . '</td></tr>' .
-                '<tr><td >' . $buttons['remove_selected'] . '</td></tr>' .
-                '</table></td>';
-
-            $strHtml .= '<td class="to-element">' . $toElement . '</td></tr></table>';
-
-            $this->setName($myName);
-            $attrString = $this->_getAttrString($this->_attributes);
-            $strHtml .= '<input type="hidden" name="' . $myName . "\" value=\"" . $list . "\" />\n";
+        $options_ = '';
+        foreach ($this->_options as $k=>$option) {
+            $selected = (is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values)) ? 'selected="1" ' : '';
+            $options_ .= '<option ' . $selected . $this->_getAttrString($this->_options[$k]['attr']) . '>' . $this->_options[$k]['text'] . '</option>' . "\n";
         }
-//			print_r($this->_options);
-        return $strHtml;
+        $attrString = $this->_getAttrString($this->_attributes);
+        $select2_js = <<<js
+            jQuery("select[name='{$myName}[]']").select2();
+            jQuery("select[name='{$myName}[]']").on('select2:select', function(evt) {
+              {$this->on_add_js_code}
+            });
+            jQuery("select[name='{$myName}[]']").on('select2:unselect', function(evt) {
+              {$this->on_remove_js_code}
+            });
+js;
+
+        $select2 = <<<html
+            <select class="js-example-basic-multiple" multiple="multiple" style="width: 100%" name="{$myName}[]" {$attrString}>
+              {$options_}
+            </select>
+html;
+
+        eval_js($select2_js);
+        return $select2;
     }
 
 }

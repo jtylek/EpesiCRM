@@ -20,7 +20,6 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			array('name'=>'adv_history','label'=>__('Advanced order history'),'type'=>'bool','default'=>0),
 			array('name'=>'display_no_records_message','label'=>__('Hide \'No records found\' message'),'type'=>'bool','default'=>0),
 			array('name'=>'show_all_button','label'=>__('Display \'Show all\' button'),'type'=>'bool','default'=>1),
-			array('name'=>'zoom_actions','label'=>__('Zoom "Actions" buttons'),'type'=>'select', 'values'=>array(0=>__('Never'), 1=>__('For mobile devices'), 2=>__('Always')),'default'=>1),
             array('name'=>'disable_expandable', 'label' => __('Do not use expandable rows'), 'type' => 'bool', 'default' => 0)
 			));
 	}

@@ -37,6 +37,7 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
         parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'textarea';
+        $this->addClass('form-control');
     }
 
     /**

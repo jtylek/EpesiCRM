@@ -1,3 +1,5 @@
 function quick_jump_letters(id) {
-   Effect.toggle('quick_jump_letters_' + id, 'appear', {duration:0.3});
+   var j=jq('#quick_jump_letters_' + id);
+   if(!j.is(':hidden')) j.fadeOut();
+   else j.fadeIn();
 }

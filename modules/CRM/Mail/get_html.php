@@ -34,7 +34,7 @@ $html = str_replace('__MAIL_ID__',$_GET['id'],$html);
 $html = preg_replace("/<a([^>]*)>(.*)<\/a>/i", '<a$1 target="_blank">$2</a>', $html);
 $html = '<html>'.
         '<head><meta http-equiv=Content-Type content="text/html; charset=utf-8" />'.
-        '<script type="text/javascript">function fix_height(){parent.$("rc_mail_body").height = Math.max(document.body.offsetHeight,document.body.scrollHeight)+30;}</script>'.
+        '<script type="text/javascript">function fix_height(){parent.jq("#rc_mail_body").height(Math.max(document.body.offsetHeight,document.body.scrollHeight)+30);}</script>'.
         '</head><body>'.$html.($images?'<hr />'.implode('<br />',$images):'').
         '<script type="text/javascript">fix_height();</script>'.
         '</body>'.

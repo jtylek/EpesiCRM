@@ -422,7 +422,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if($rb_obj->record['crypted']) {
             if(!(isset($rb_obj->record['id']) && isset($_SESSION['client']['cp'.$rb_obj->record['id']])) && !(isset($rb_obj->record['clone_id']) && isset($_SESSION['client']['cp'.$rb_obj->record['clone_id']]))) {
                 /*Epesi::alert(__('Note encrypted.'));
-                $x = ModuleManager::get_instance('/Base_Box|0');
+                $x = Base_BoxCommon::root();
                 if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
                 return $x->pop_main();*/
                 $form->addElement('static', $field, $label);
@@ -508,7 +508,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;');
+            if(!$crypted) eval_js('jq("#note_password").prop("disabled",true);jq("#note_password2").prop("disabled",true);jq("#note_password_hint").prop("disabled",true);');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }

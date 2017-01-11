@@ -72,9 +72,9 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+prev_year+'\', \''+prev_month+'\')">&lt;&lt</a></td>';
 			header_string += '<td class="label"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></td>';
 			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+next_year+'\', \''+next_month+'\')">&gt;&gt</a></td>';
-			header_string += '<td class="close"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
+			header_string += '<td class="close"><a href="javascript:void(0)" onClick="jq(\'#datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
 			header_string += '</tr></table>';
-			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
+			jq('#datepicker_'+this.instance_id+'_header').html(header_string);
 
 			// filling month
 			Calendar.setDate(1);
@@ -134,7 +134,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			}
 			cal += '</TABLE>';
 			// and final solution
-			$('datepicker_'+this.instance_id+'_view').innerHTML = cal;
+			jq('#datepicker_'+this.instance_id+'_view').html(cal);
 		}
 
 		//show a year
@@ -160,7 +160,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+prev_year+'\')">&lt;&lt</a></td>';
 			header_string += '<td class="label"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></td>';
 			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+next_year+'\')">&gt;&gt</a></td>';
-			header_string += '<td class="close"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
+			header_string += '<td class="close"><a href="javascript:void(0)" onClick="jq(\'#datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
@@ -218,7 +218,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+prev_decade+'\')">&lt;&lt</a></td>';
 			header_string += '<td class="label"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></td>';
 			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+next_decade+'\')">&gt;&gt</a></td>';
-			header_string += '<td class="close"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
+			header_string += '<td class="close"><a href="javascript:void(0)" onClick="jq(\'#datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
@@ -276,7 +276,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<td class="prev"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+prev_century+'\')">&lt;&lt</a></td>';
 			header_string += '<td class="label">'+ century_real + ' - ' + (century_real+100) + '</td>';
 			header_string += '<td class="next"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+next_century+'\')">&gt;&gt</a></td>';
-			header_string += '<td class="close"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
+			header_string += '<td class="close"><a href="javascript:void(0)" onClick="jq(\'#datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></td>';
 			header_string += '</tr></table>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 

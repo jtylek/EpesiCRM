@@ -376,5 +376,26 @@ class HTML_QuickForm_Renderer_TCMSArraySmarty extends HTML_QuickForm_Renderer_TC
     {
         $this->_error = $template;
     } // end func setErrorTemplate
+
+    /**
+     * Called when visiting a raw HTML/text pseudo-element
+     *
+     * @param  object     An HTML_QuickForm_html element being visited
+     * @access public
+     * @return void
+     */
+    function renderHtml(&$data)
+    {
+        $ret = array(
+            'name'      => null,
+            'value'     => null,
+            'type'      => 'html',
+            'frozen'    => null,
+            'required'  => null,
+            'error'		=> null,
+            'html'      => $data->toHtml()
+        );
+        $this->_ary['elements'][] = $ret;
+    } // end func renderHtml
 }
 ?>

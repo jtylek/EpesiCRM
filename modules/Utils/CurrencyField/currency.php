@@ -60,8 +60,8 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 			$str .= '</div>';
 
-			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField))');
-			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField))');
+			eval_js('jq(\'#'.$id.'\').keypress(Utils_CurrencyField.validate)');
+			eval_js('jq(\'#'.$id.'\').blur(Utils_CurrencyField.validate_blur)');
 		}
 		return $str;
 	} //end func toHtml

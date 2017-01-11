@@ -19,7 +19,7 @@ class Base_MainModuleIndicator extends Module {
 		$t = $this->pack_module(Base_Theme::module_name());
 
 		//caption
-		$box_module = ModuleManager::get_instance('/Base_Box|0');
+		$box_module = Base_BoxCommon::root();
 		if($box_module)
 			$active_module = $box_module->get_main_module();
 		if($active_module && is_callable(array($active_module,'caption'))) {

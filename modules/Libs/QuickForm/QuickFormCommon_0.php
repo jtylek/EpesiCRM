@@ -23,12 +23,6 @@ class Libs_QuickFormCommon extends ModuleCommon {
 		return $ret;
 	}
 	
-	public static function user_settings() {
-		return array(__('Forms')=>array(
-			array('name'=>'autoselect_mode', 'label'=>__('Auto-select - display for empty fields'), 'type'=>'select', 'values'=>array(0=>__('Text field'), 1=>__('Select field')), 'default'=>0)
-		));
-	}
-	
 	public static function get_error_closing_button() {
 		return ' <a href="javascript:void(0);" onclick="this.parentNode.innerHTML=\'\'"><img src="'.Base_ThemeCommon::get_template_file('Libs_QuickForm','close.png').'"></a>';
 	}

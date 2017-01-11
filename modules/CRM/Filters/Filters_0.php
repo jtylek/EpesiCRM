@@ -19,19 +19,19 @@ class CRM_Filters extends Module {
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
 		$th->assign('my','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'my').' id="crm_filters_my">'.__('My records').'</a>');
-		eval_js('Event.observe(\'crm_filters_my\',\'click\', crm_filters_deactivate)');
+		eval_js('jq(\'#crm_filters_my\').click(crm_filters_deactivate)');
 
 		/*$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
-		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');*/
+		eval_js('jq(\'#crm_filters_all\').click(crm_filters_deactivate)');*/
 
 		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.__('Manage presets').'</a>');
-		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
+		eval_js('jq(\'#crm_filters_manage\').click(crm_filters_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
 			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
-			eval_js('Event.observe(\'crm_filters_'.$row['id'].'\',\'click\', crm_filters_deactivate)');
+			eval_js('jq(\'#crm_filters_'.$row['id'].'\').click(crm_filters_deactivate)');
 		}
 		$th->assign('filters',$filters);
 
@@ -42,7 +42,7 @@ class CRM_Filters extends Module {
         if (Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')) $recent_crits['!login'] = '';
 		$contacts = CRM_ContactsCommon::get_contacts($recent_crits,array(),array(),15);
 		$cont = array();
-		foreach ($contacts as $v) { 
+		foreach ($contacts as $v) {
 			$cont[$v['id']] = call_user_func($fcallback, $v, true);
 		}
 		asort($cont);
@@ -52,7 +52,7 @@ class CRM_Filters extends Module {
 		if(isset($_SESSION['client']['filter_'.Acl::get_user()]['value'])) {
 			$qf->setDefaults(array('crm_filter_contact'=>explode(',',$_SESSION['client']['filter_'.Acl::get_user()]['value'])));
 		}
-		$qf->addElement('submit','submit',__('Show'), array('onclick'=>'crm_filters_deactivate()'));
+		$qf->addElement('submit','submit',__('Show'), array('class'=>'btn btn-success','onclick'=>'crm_filters_deactivate()'));
 		if($qf->validate()) {
 			$c = $qf->exportValue('crm_filter_contact');
 			CRM_FiltersCommon::set_profile('c'.$c);
@@ -69,15 +69,15 @@ class CRM_Filters extends Module {
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,__('Perspective'),true);
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
 			CRM_FiltersCommon::set_profile('my');
-		    
+
 		//Base_ActionBarCommon::add('folder',__('Filters'),'class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',__('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print('<a class="lbOn'.($in_use?'':' disabled').' button" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><div class="filter_icon_img"></div></a>');
+		print('<a class="lbOn'.($in_use?'':' disabled').' btn btn-primary btn-block" style="white-space: inherit ! important;" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><i class="glyphicon glyphicon-search pull-right"></i></a>');
 	}
 
 	public function manage_filters() {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main($this->get_type(),'edit', array(false));
 	}
@@ -119,8 +119,9 @@ class CRM_Filters extends Module {
 			$gb_row->add_data($row['name'], $row['description'], implode(', ',$users));
 		}
 
+		print('<div class="panel panel-default"><div class="panel panel-body">');
 		$this->display_module($gb);
-		
+
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');
 		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
         $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
@@ -134,9 +135,10 @@ class CRM_Filters extends Module {
 			Base_User_SettingsCommon::save('CRM_Contacts','show_all_contacts_in_filters',$vals['show_all_contacts_in_filters']);
 			Base_User_SettingsCommon::save('CRM_Contacts','show_only_users_in_filters',$vals['show_only_users_in_filters']);
 		}
-		$qf->display();
+		$qf->display_as_column();
+		print('</div></div>');
 	}
-	
+
 	public function edit_group($id=null) {
 		if($this->is_back()) return false;
 
@@ -183,11 +185,9 @@ class CRM_Filters extends Module {
 
 		return true;
 	}
-	
+
 	public function check_amount_of_records ($data) {
-		$sep = '__SEP__';
-		$c = explode($sep, trim($data['contacts'], $sep));
-		if (count($c) > 5)
+		if (count($data) > 5)
 			return array('contacts'=>__('Too many records selected'));
 		else
 			return array();

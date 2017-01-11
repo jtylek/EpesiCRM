@@ -1,12 +1,13 @@
 function event_menu(event_id) {
-	var menu = $('event_menu_' + event_id);
-	var ev = $('utils_calendar_event:'+event_id);
-	if(menu.parentNode.id=='Utils_Calendar__event' || menu.parentNode.id=='Utils_Calendar__event_day') {
-		menu.style.position = 'absolute';
-		menu.style.zIndex = 21;
-//		ev.parentNode.appendChild(menu);
+	var menu = jq('#event_menu_' + event_id);
+	var ev = jq('#utils_calendar_event:'+event_id);
+	if(menu.parent().attr('id')=='Utils_Calendar__event' || menu.parent().attr('id')=='Utils_Calendar__event_day') {
+		menu.css('position', 'absolute');
+		menu.css('zIndex', 21);
 	}
-	menu.clonePosition(ev,{setHeight: false, setWidth: false, offsetLeft: 20});
+	var ev_pos = ev.position();
+	menu.css({top:ev_pos.top,left:20+ev_pos.left});
 
-	Effect.toggle(menu, 'appear', {duration:0.3});
+        if(menu.is(':hidden')) menu.fadeIn();
+        else menu.fadeOut();
 }

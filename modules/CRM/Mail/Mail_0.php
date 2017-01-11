@@ -146,9 +146,10 @@ class CRM_Mail extends Module {
 			$show_related = $this->get_module_variable('include_related');
 			$form->setDefaults(array('include_related'=>$show_related));
 
-			ob_start();
-			$form->display_as_row();
-			$html = ob_get_clean();
+            $form->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+            $html = $this->twig_render('button.twig',[
+                'form' => $renderer->toArray()
+            ]);
 
 			$rb->set_button(false, $html);
 			$customers = array('company/'.$id);
@@ -186,9 +187,10 @@ class CRM_Mail extends Module {
 			$show_related = $this->get_module_variable('include_related');
 			$form->setDefaults(array('include_related'=>$show_related));
 
-			ob_start();
-			$form->display_as_row();
-			$html = ob_get_clean();
+            $form->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+            $html = $this->twig_render('button.twig',[
+                'form' => $renderer->toArray()
+            ]);
 
 			$rb->set_button(false, $html);
 			$customers = array('company/'.$id);
@@ -242,7 +244,7 @@ class CRM_Mail extends Module {
 	public function open_mail_client($id) {
 		$mail_client = Variable::get('crm_mail_default_client','');
 		if(!$mail_client) return;
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		$x->push_main($mail_client,'body',array(array(),$id));
 	}
 

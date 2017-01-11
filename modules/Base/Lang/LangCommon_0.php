@@ -64,13 +64,20 @@ class Base_LangCommon extends ModuleCommon {
 	}
 	
 	public static function print_flag($code, $label, $href='') {
-		$file = 'modules/Base/Lang/theme/flag_'.$code.'.png';
-		if (!file_exists($file))
-			$file = 'modules/Base/Lang/theme/flag_placeholder.png';
-		print(	'<a '.$href.' class="flag_button">'.
-					'<img class="flag" src="'.$file.'" />'.
-					'<span class="label">'.$label.'</span>'.
-				'</a>');
+		$file = 'modules/Base/Lang/theme/flags/'.$code.'.svg';
+        $html = <<<HTML
+<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 clearfix">
+<a $href>
+    <div class="panel panel-default clearfix">
+        <div class="panel-heading" title="$label">
+            {$label}
+        </div>
+        <img style="width: 100%" src="{$file}" alt="{$code}"/>
+    </div>
+</a>
+</div>
+HTML;
+        print($html);
 	}
 
     public static function get_base_languages() {

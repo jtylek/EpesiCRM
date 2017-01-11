@@ -57,7 +57,6 @@ class CRM_FollowupCommon extends ModuleCommon {
 	}
 	
 	public static function drawLeightbox($prefix) {
-		if(MOBILE_DEVICE) return;
 		$meetings = CRM_MeetingInstall::is_installed();
 		$tasks = CRM_TasksInstall::is_installed();
 		$phonecall = CRM_PhoneCallInstall::is_installed();
@@ -70,32 +69,32 @@ class CRM_FollowupCommon extends ModuleCommon {
 	
 			if ($meetings) {
 				$theme->assign('new_meeting',array('open'=>'<a id="'.$prefix.'_new_meeting_button" onclick="'.$prefix.'_set_action(\'new_meeting\');'.$prefix.'_submit_form();">','text'=>__( 'New Meeting'),'close'=>'</a>'));
-				eval_js('Event.observe(\''.$prefix.'_new_meeting_button\',\'click\', '.$prefix.'_followups_deactivate)');
+				eval_js('jq(\'#'.$prefix.'_new_meeting_button\').click('.$prefix.'_followups_deactivate)');
 			}
 
 			if ($tasks) {
 				$theme->assign('new_task',array('open'=>'<a id="'.$prefix.'_new_task_button" onclick="'.$prefix.'_set_action(\'new_task\');'.$prefix.'_submit_form();">','text'=>__( 'New Task'),'close'=>'</a>'));
-				eval_js('Event.observe(\''.$prefix.'_new_task_button\',\'click\', '.$prefix.'_followups_deactivate)');
+				eval_js('jq(\'#'.$prefix.'_new_task_button\').click('.$prefix.'_followups_deactivate)');
 			}
 
 			if ($phonecall) {
 				$theme->assign('new_phonecall',array('open'=>'<a id="'.$prefix.'_new_phonecall_button" onclick="'.$prefix.'_set_action(\'new_phonecall\');'.$prefix.'_submit_form();">','text'=>__( 'New Phonecall'),'close'=>'</a>'));
-				eval_js('Event.observe(\''.$prefix.'_new_phonecall_button\',\'click\', '.$prefix.'_followups_deactivate)');
+				eval_js('jq(\'#'.$prefix.'_new_phonecall_button\').click('.$prefix.'_followups_deactivate)');
 			}
 
 			$theme->assign('just_close',array('open'=>'<a id="'.$prefix.'_just_close_button" onclick="'.$prefix.'_set_action(\'none\');'.$prefix.'_submit_form();">','text'=>__( 'Save'),'close'=>'</a>'));
-			eval_js('Event.observe(\''.$prefix.'_just_close_button\',\'click\', '.$prefix.'_followups_deactivate)');
+			eval_js('jq(\'#'.$prefix.'_just_close_button\').click('.$prefix.'_followups_deactivate)');
 
 			eval_js($prefix.'_submit_form = function () {'.
-						'$(\''.$prefix.'_follow_up_form\').submited.value=1;Epesi.href($(\''.$prefix.'_follow_up_form\').serialize(), \'processing...\');$(\''.$prefix.'_follow_up_form\').submited.value=0;'.
+						'jq(\'#'.$prefix.'_follow_up_form input[name=submited]\').val(1);Epesi.href(jq(\'#'.$prefix.'_follow_up_form\').serialize(), \'processing...\');jq(\'#'.$prefix.'_follow_up_form input[name=submited]\').val(0);'.
 					'}');
 			eval_js($prefix.'_set_action = function (arg) {'.
 						'document.forms["'.$prefix.'_follow_up_form"].action.value = arg;'.
 					'}');
 			eval_js($prefix.'_set_id = function (id) {'.
 						'document.forms["'.$prefix.'_follow_up_form"].id.value = id;'.
-						'$("'.$prefix.'_closecancel").value=3;'.
-						'$("'.$prefix.'_note").value="";'.
+						'jq("#'.$prefix.'_closecancel").val(3);'.
+						'jq("#'.$prefix.'_note").val("");'.
 					'}');
 			$theme->assign('form_open','<form id="'.$prefix.'_follow_up_form" name="'.$prefix.'_follow_up_form" method="POST">'.
 							'<input type="hidden" name="submited" value="0" />'.

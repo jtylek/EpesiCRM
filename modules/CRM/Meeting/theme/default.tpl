@@ -19,62 +19,57 @@
 	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
-{/php}
-{php}
+	$this->_tpl_vars['grid_cols'] = 12 / $this->_tpl_vars['cols'];
+	if($this->_tpl_vars['action']=='view') $this->_tpl_vars['grid_cols']-=1;
 	$this->_tpl_vars['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week();
 	$this->_tpl_vars['fdow']--;
 	if ($this->_tpl_vars['fdow']<0) $this->_tpl_vars['fdow']+=7;
 {/php}
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
-				{foreach item=n from=$new}
-					&nbsp;&nbsp;&nbsp;{$n}
-				{/foreach}
-			</td>
-		</tr>
-	</tbody>
-</table>
-{if isset($click2fill)}
-    {$click2fill}
+
+{if $main_page}
+
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">
+			<div class="pull-left">
+				<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span class="form-inline">{$caption}</span>
+			</div>
+			<div class="pull-right">
+					&nbsp;*&nbsp;{$required_note}
+					{if isset($subscription_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+					{/if}
+					{if isset($fav_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+					{/if}
+					{if isset($info_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$info_tooltip}
+					{/if}
+					{if isset($clipboard_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+					{/if}
+					{if isset($history_tooltip)}
+						&nbsp;&nbsp;&nbsp;{$history_tooltip}
+					{/if}
+					{if isset($new)}
+						{foreach item=n from=$new}
+							&nbsp;&nbsp;&nbsp;{$n}
+						{/foreach}
+					{/if}
+			</div>
+		</div>
+		<div class="panel-body">
+
+			{if isset($click2fill)}
+				{$click2fill}
+			{/if}
+
 {/if}
-<div class="CRM_Calendar_Event_Personal">
 
-<!-- SHADIW BEGIN-->
-	<div class="layer" style="padding: 9px; width: 98%;">
-		<div class="css3_content_shadow">
-<!-- -->
-
-<div class="Utils_RecordBrowser__container">
-    <table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-        <tbody>
-            <tr>
+<div id="CRM_PhoneCall">
+	<div class="row">
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
-                <td rowspan="3" style="width:143px; vertical-align:top;">
+                <div class="col-md-{$cols}">
                     <table border="0" class="header-new">
                         <tbody>
                             <tr>
@@ -117,94 +112,209 @@
                             </tr>
                         </tbody>
                     </table>
-                </td>
+                </div>
                 {/if}
-                <!-- LEFT -->
-                <td style="width: 50%; height: 101px; vertical-align: top;">
-                    {* title *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-							{$fields.title.full_field}
-							{$fields.permission.full_field}
-							{$fields.priority.full_field}
-							{$fields.status.full_field}
-                        </tbody>
-                    </table>
-                </td>
-                <!-- -->
-                <!-- RIGHT -->
-                <td style="width: 50%; height: 101px; vertical-align: top;">
-                    <table style="table-layout: auto;" name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-                    {* start - end *}
-                    {if $action != 'view'}
-                                <tr>
-                                    <td class="label">{$form_data.date.label}{if $form_data.date.required}*{/if}</td>
-                                    <td colspan="2" class="data timestamp">
-										<div style="position:relative;">
-											<span class="error">{$form_data.date.error}</span>
-											<div id="time_s" id="_time__data">{$form_data.time.html}</div>
-											<div class="time_s" id="_date__data">{$form_data.date.html}</div>
-										</div>
-									</td>
-                                </tr>
-                    {/if}
-                            <tr>
-                                <td class="label" align="left">{$form_data.timeless.label}{if $form_data.timeless.required}*{/if}</td>
-                                <td class="data" align="left" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
-                            </tr>
-                    {if $action != 'view'}
-                                <tr id="duration_end_date__data_">
-                                    <td class="label">
-										{$form_data.duration.label} / {$form_data.end_time.label}
-									</td>
-                                    <td colspan="2" class="data" style="height: 20px;">
-										<div style="position:relative;">
-											<div class="toggle_button">{$form_data.toggle.html}</div>
-											<div id="crm_calendar_duration_block">
-													<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
-											</div>
-											<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
-										</div>
-                                    </td>
-                                </tr>
-                    {/if}
-                            <tr>
-                                <td class="label" align="left">{$form_data.recurrence_type.label}</td>
-                                <td class="data" align="left" colspan="2" id="_recurrence_type__data">
-                                    {$form_data.recurrence_type.html}
-                                </td>
-                            </tr>
-			    {if isset($form_data.recurrence_start_date)}
-				    <tr id="recurrence_start_date_row">
-					<td class="label" align="left">{$form_data.recurrence_start_date.label}</td>
-					<td class="data" align="left" colspan="2" id="_recurrence_start_date__data">
-						<span id="recurrence_start_date_span">
-							{$form_data.recurrence_start_date.html}
-						</span>
-					</td>
-				    </tr>
-			    {/if}
-                            <tr id="recurrence_end_date_row">
-                                <td class="label" align="left" style="width:25%">{$form_data.recurrence_end.label}</td>
-                                {if isset($form_data.recurrence_end_checkbox)}
-									<td align="left" style="width:1px;" id="_recurrence_end_checkbox__data">
-										{$form_data.recurrence_end_checkbox.html}
-									</td>
-								<td class="data" align="left" id="_recurrence_end__data" style="width:99%;">
+
+								{assign var=x value=1}
+								{assign var=y value=1}
+								<div class="col col-md-{$grid_cols}">
+
+								{$fields.title.full_field}
+								
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
 								{else}
-                                <td class="data" align="left" id="_recurrence_end__data" colspan="2">
+									{assign var=y value=$y+1}
 								{/if}
-									<span id="recurrence_end_date_span">
-										{$form_data.recurrence_end.html}
-									</span>
-                                </td>
-                            </tr>
-                            <tr id="recurrence_hash_row">
-                                <td class="label" align="left">{$form_data.recurrence_hash.label}</td>
-                                <td class="data" align="left" colspan="2" id="_recurrence_hash__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.recurrence_hash.error}</span>
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{$fields.permission.full_field}
+								
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{$fields.priority.full_field}
+								
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{$fields.status.full_field}
+								
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{if $action!='view'}
+
+								<div class="form-group clearfix" id="_{$form_data.date.element}__container">
+								    <label class="control-label{if $form_data.date.type != 'long text'} col-sm-2{/if}">{$form_data.date.label}{if $form_data.date.required}*{/if}{$form_data.date.advanced}</label>
+								    <span class="data {if $form_data.date.type != 'long text'} col-sm-10{/if}" style="{$form_data.date.style}" id="_{$form_data.date.element}__data">
+								        {if $form_data.date.error}{$form_data.date.error}{/if}
+								        {if $form_data.time.error}{$form_data.time.error}{/if}
+								        {if $form_data.date.help}
+								            <div class="help"><img src="{$form_data.date.help.icon}" alt="help" {$form_data.date.help.text}></div>
+								        {/if}
+								        <div class="col-sm-6" id="_date__data">
+								            {$form_data.date.html}
+								        </div>
+								        <div class="col-sm-6" id="_time__data">
+								            {$form_data.time.html}
+								        </div>
+								    </span>
+								</div>
+
+								{/if}
+
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{$fields.timeless.full_field}
+								
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+								
+								{if $action!='view'}
+								<div class="form-group clearfix" id="_{$form_data.duration.element}__container">
+								    <label class="control-label{if $form_data.duration.type != 'long text'} col-sm-2{/if}">{$form_data.duration.label} / {$form_data.end_time.label}{if $form_data.duration.required}*{/if}{$form_data.duration.advanced} {$form_data.end_time.advanced}</label>
+								    <span class="data {if $form_data.duration.type != 'long text'} col-sm-10{/if}" style="{$form_data.duration.style}" id="_{$form_data.duration.element}__data">
+								        {if $form_data.duration.help}
+								            <div class="help"><img src="{$form_data.duration.help.icon}" alt="help" {$form_data.duration.help.text}></div>
+								        {/if}
+								        <div class="col-sm-2 toggle_button">
+								    	    {$form_data.toggle.html}
+								        </div>
+								        <div class="col-sm-10" id="crm_calendar_duration_block">
+								            {if $form_data.duration.error}{$form_data.duration.error}{/if}
+								            <span id="duration">{$form_data.duration.html}</span>
+								        </div>
+								        <div class="col-sm-10" id="crm_calendar_event_end_block">
+								            {if $form_data.end_time.error}{$form_data.end_time.error}{/if}
+								            <span id="time_e">{$form_data.end_time.html}</span>
+								        </div>
+								    </span>
+								</div>
+
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+								
+								{/if}
+
+								{$fields.recurrence_type.full_field}
+
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								{if $fields.recurrence_start_date.full_field}
+									{$fields.recurrence_start_date.full_field}
+									{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+										{assign var=y value=1}
+										{assign var=x value=$x+1}
+										</div>
+									{else}
+										{assign var=y value=$y+1}
+									{/if}
+									{if $y==1}
+										<div class="col col-md-{$grid_cols}">
+									{/if}
+								{/if}
+
+								<div class="form-group clearfix" id="_{$form_data.recurrence_end.element}__container">
+								    <label class="control-label{if $form_data.recurrence_end.type != 'long text'} col-sm-2{/if}">{$form_data.recurrence_end.label}{if $form_data.recurrence_end.required}*{/if}{$form_data.recurrence_end.advanced}</label>
+								    <span class="data {if $form_data.recurrence_end.type != 'long text'} col-sm-10{/if}" style="{$form_data.recurrence_end.style}" id="_{$form_data.recurrence_end.element}__data">
+								        {if $form_data.recurrence_end.help}
+								            <div class="help"><img src="{$form_data.recurrence_end.help.icon}" alt="help" {$form_data.recurrence_end.help.text}></div>
+								        {/if}
+									{if isset($form_data.recurrence_end_checkbox)}
+								        <div class="col-sm-2" id="_recurrence_end_checkbox__data">
+								            {if $form_data.recurrence_end_checkbox.error}{$form_data.recurrence_end_checkbox.error}{/if}
+								            {$form_data.recurrence_end_checkbox.html}
+								        </div>
+								        {/if}
+								        <div class="col-sm-10" id="_recurrence_end__data">
+								            {if $form_data.recurrence_end.error}{$form_data.recurrence_end.error}{/if}
+								            <span id="recurrence_end_date_span">{$form_data.recurrence_end.html}</span>
+								        </div>
+								    </span>
+								</div>
+
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
+									</div>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+								<div class="form-group clearfix" id="recurrence_hash_row">
+								    <label class="control-label{if $form_data.recurrence_hash.type != 'long text'} col-sm-2{/if}">{$form_data.recurrence_hash.label}{if $form_data.recurrence_hash.required}*{/if}{$form_data.recurrence_hash.advanced}</label>
+								    <span class="data {if $form_data.recurrence_hash.type != 'long text'} col-sm-10{/if}" style="{$form_data.recurrence_hash.style}" id="_{$form_data.recurrence_hash.element}__data">
+								        {if $form_data.recurrence_hash.error}{$form_data.recurrence_hash.error}{/if}
+								        {if $form_data.recurrence_hash.help}
+								            <div class="help"><img src="{$form_data.recurrence_hash.help.icon}" alt="help" {$form_data.recurrence_hash.help.text}></div>
+								        {/if}
+								        <div style="position:relative;">
 										<table>
 											<tr>
 												{if $fdow<=0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
@@ -237,121 +347,125 @@
 												{if $fdow>5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
 											</tr>
 										</table>
+								        </div>
+								    </span>
+								</div>
+
+								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+									{assign var=x value=$x+1}
 									</div>
-								</td>
-                            </tr>
-				{foreach key=k item=f from=$fields name=fields}
-					{if (	$k!='title' &&
-							$k!='customers' &&
-							$k!='duration' &&
-							$k!='employees' &&
-							$k!='recurrence_type' &&
-							$k!='recurrence_hash' &&
-							$k!='recurrence_end' &&
-							$k!='date' &&
-							$k!='time' &&
-							$k!='end_time' &&
-							$k!='priority' &&
-							$k!='status' &&
-							$k!='permission' &&
-                            $f.type != 'multiselect'
-                    )}
-						{$f.full_field}
-					{/if}
-				{/foreach}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-			{if !empty($multiselects)}
-				<tr>
-					{assign var=x value=1}
-					{assign var=y value=1}
-					{foreach key=k item=f from=$multiselects name=fields}
-						{if $y==1}
-						<td class="column" style="width: {$cols_percent}%;">
-							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-						{/if}
-						{$f.full_field}
-						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-							{if $x>$mss_no_empty}
-								<tr style="display:none;">
-									<td class="label">&nbsp;</td>
-									<td class="data">&nbsp;</td>
-								</tr>
+								{else}
+									{assign var=y value=$y+1}
+								{/if}
+								{if $y==1}
+									<div class="col col-md-{$grid_cols}">
+								{/if}
+
+
+								{foreach key=k item=f from=$fields name=fields}
+									{if (	$k!='title' &&
+									$k!='permission' &&
+									$k!='status' &&
+									$k!='priority' &&
+									$k!='customers' &&
+									$k!='duration' &&
+									$k!='employees' &&
+									$k!='recurrence_type' &&
+									$k!='recurrence_hash' &&
+									$k!='recurrence_end' &&
+									$k!='date' &&
+									$k!='time' &&
+									$k!='end_time' &&
+									$f.type!="multiselect")}
+										{if $y==1}
+											<div class="col col-md-{$grid_cols}">
+										{/if}
+										{$f.full_field}
+										{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+													{assign var=y value=1}
+											{assign var=x value=$x+1}
+											</div>
+										{else}
+											{assign var=y value=$y+1}
+										{/if}
+									{/if}
+								{/foreach}
+								</div>
+							</div>
+							{if !empty($multiselects)}
+								<div class="row">
+									{assign var=x value=1}
+									{assign var=y value=1}
+									{foreach key=k item=f from=$multiselects name=fields}
+										{if $y==1}
+											<div class="col col-md-{$grid_cols}">
+										{/if}
+										{$f.full_field}
+										{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+											{assign var=y value=1}
+											{assign var=x value=$x+1}
+											</div>
+										{else}
+											{assign var=y value=$y+1}
+										{/if}
+									{/foreach}
+								</div>
 							{/if}
-							{assign var=y value=1}
-							{assign var=x value=$x+1}
-							</table>
-						</td>
-						{else}
-							{assign var=y value=$y+1}
-						{/if}
-					{/foreach}
-				</tr>
+							<div class="row">
+										{foreach key=k item=f from=$longfields name=fields}
+											<div class="col-md-12">{$f.full_field}</div>
+										{/foreach}
+							</div>
+			</div>
+	                {if $action=='add'}
+        		<div class="row">
+							<div class="form-group clearfix" id="_{$form_data.messenger_on.element}__container">
+								<label class="control-label{if $form_data.messenger_on.type != 'long text'} col-sm-2{/if}">{$form_data.messenger_on.label}{if $form_data.messenger_on.required}*{/if}{$form_data.messenger_on.advanced}</label>
+								<span class="data {if $form_data.messenger_on.type != 'long text'} col-sm-10{/if}" style="{$form_data.messenger_on.style}" id="_{$form_data.messenger_on.element}__data">
+							        {if $form_data.messenger_on.error}{$form_data.messenger_on.error}{/if}
+							        {if $form_data.messenger_on.help}
+							            <div class="help"><img src="{$form_data.messenger_on.help.icon}" alt="help" {$form_data.messenger_on.help.text}></div>
+							        {/if}
+							        {$form_data.messenger_on.html}
+							    </span>
+							</div>
+
+			                	        <div id="messenger_block">
+								<div class="form-group clearfix" id="_{$form_data.messenger_before.element}__container">
+								    <label class="control-label{if $form_data.messenger_before.type != 'long text'} col-sm-2{/if}">{$form_data.messenger_before.label}{if $form_data.messenger_before.required}*{/if}{$form_data.messenger_before.advanced}</label>
+								    <span class="data {if $form_data.messenger_before.type != 'long text'} col-sm-10{/if}" style="{$form_data.messenger_before.style}" id="_{$form_data.messenger_before.element}__data">
+								        {if $form_data.messenger_before.error}{$form_data.messenger_before.error}{/if}
+								        {if $form_data.messenger_before.help}
+								            <div class="help"><img src="{$form_data.messenger_before.help.icon}" alt="help" {$form_data.messenger_before.help.text}></div>
+								        {/if}
+								        {$form_data.messenger_before.html}
+								    </span>
+								</div>
+
+								<div class="form-group clearfix" id="_{$form_data.messenger_message.element}__container">
+								    <label class="control-label{if $form_data.messenger_message.type != 'long text'} col-sm-2{/if}">{$form_data.messenger_message.label}{if $form_data.messenger_message.required}*{/if}{$form_data.messenger_message.advanced}</label>
+								    <span class="data {if $form_data.messenger_message.type != 'long text'} col-sm-10{/if}" style="{$form_data.messenger_message.style}" id="_{$form_data.messenger_message.element}__data">
+								        {if $form_data.messenger_message.error}{$form_data.messenger_message.error}{/if}
+								        {if $form_data.messenger_message.help}
+								            <div class="help"><img src="{$form_data.messenger_message.help.icon}" alt="help" {$form_data.messenger_message.help.text}></div>
+								        {/if}
+								        {$form_data.messenger_message.html}
+								    </span>
+								</div>
+				                        </div>
+			</div>
 			{/if}
-			<tr>
-				<td colspan="2">
-				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{foreach key=k item=f from=$longfields name=fields}
-						{$f.full_field}
-					{/foreach}
-				</table>
-				</td>
-			</tr>
-            {if $action=='add'}
-            <tr>
-                <td style="width: 50%; vertical-align: top;" colspan=2>
-                        <div id="alert" style="padding-top: 5px;">
-                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
-                                <tbody>
-                                    <tr>
-                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_on.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}
-											</div>
-										</td>
-	                                </tr>
-    	                        </tbody>
-        	                </table>
-            	            <div id="messenger_block">
-                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
-                                <tbody>
-                                    <tr>
-                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_before.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}
-											</div>
-										</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="label" align="left">{$form_data.messenger_message.label}*</td>
-                                        <td class="data smalltext" align="left">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}
-											</div>
-										</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                </td>
-			</tr>
-			{/if}
-        </tbody>
-    </table>
-</div>
+
 
 
 {php}
 	eval_js('focus_by_id(\'event_title\');');
 {/php}
 
-<!-- SHADOW END-->
- 		</div>
-	</div>
-<!-- -->
-
 </div>
+
+		{if $main_page}
+	</div>
+</div>
+{/if}

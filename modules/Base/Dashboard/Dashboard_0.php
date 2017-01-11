@@ -85,20 +85,19 @@ class Base_Dashboard extends Module {
 		}
 
 		if ($config_mode)
-			print('<table style="width:100%;"><tr><td style="width:75%;vertical-align:top;">');
+			print('<div class="row"><div class="col-md-8">');
 		$init_tabs_js = array();
 		if(count($tabs)>1 || $config_mode) {
 			foreach($tabs as $tab) {
 				$label = $tab['name'];
 				$buttons = array();
 				if ($config_mode) {
-					$label .= '&nbsp;';
 					if($tab['pos']>$tabs[0]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '&nbsp;<button type="button" class="btn btn-primary btn-xs" '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],-1)).'><i class="fa fa-arrow-left" aria-hidden="true"></i></button>';
 					if($tab['pos']<$tabs[count($tabs)-1]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '&nbsp;<button type="button" class="btn btn-primary btn-xs" '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><i class="fa fa-arrow-right" aria-hidden="true"></i></button>';
+					$label .= '&nbsp;<button type="button" class="btn btn-warning btn-xs" onclick="edit_dashboard_tab('.$tab['id'].');"><i class="fa fa-cog" aria-hidden="true"></i></button>';
+					$label .= '&nbsp;<button type="button" class="btn btn-danger btn-xs" '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><i class="fa fa-trash" aria-hidden="true"></i></button>';
 				}
 				$this->tb->set_tab($label, array($this,'display_dashboard'),$tab['id'], $config_mode, $buttons);
 				$init_tabs_js[] = $tab['id'];
@@ -129,19 +128,18 @@ class Base_Dashboard extends Module {
 			$init_tabs_js[] = $tabs[0]['id'];
 		}
 		if ($config_mode) {
-			print('</td>');
-			print('<td id="dashboard" style="vertical-align:top;">');
+			print('</div>');
+			print('<div class="col-md-4">');
 			$search_caption = __('Search applets...');
-			print('<input type="text" id="dashboard_applets_filter" style="color:#555;width:90%;" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
-			print('<div id="dashboard_applets_new_scroll" style="overflow-y:auto;overflow-x: hidden;height:200px;vertical-align:top">');
+			print('<input type="text" id="dashboard_applets_filter" class="form-control" style="margin-bottom: 20px" value="'.$search_caption.'" onblur="dashboard_prepare_filter_box(0,\''.$search_caption.'\')" onfocus="dashboard_prepare_filter_box(1,\''.$search_caption.'\')" onkeyup="dashboard_filter_applets()">');
+			print('<div id="dashboard_applets_new_scroll" style="position: relative; overflow-y:auto;overflow-x: hidden;height:80vh;vertical-align:top">');
 			print('<div id="dashboard_applets_new" style="vertical-align:top">');
 
 			print(Base_DashboardCommon::get_installed_applets_html());
 
 			print('</div>');
-			print('</div>');
-			print('</td></tr></table>');
-			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
+			print('</div></div></div>');
+//			eval_js('var dim=document.viewport.getDimensions();var dct=jq("#dashboard_applets_new_scroll");dct.height((Math.max(dim.height,document.documentElement.clientHeight)-150)+"px");');
 		}
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
@@ -164,9 +162,9 @@ class Base_Dashboard extends Module {
 		while($row = $ret->FetchRow())
 			$applets[$row['col']][] = $row;
 
-		print('<div id="dashboard" style="width: 100%;">');
+		print('<div id="dashboard" class="row">');
 		for($j=0; $j<3; $j++) {
-			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" class="col-md-4" style="min-height: 200px;">');
 
 			foreach($applets[$j] as $row) {
 				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;
@@ -395,7 +393,7 @@ class Base_Dashboard extends Module {
 			return false;
 		}
 		$ok=null;
-		$f->display();
+		$f->display_as_column();
 
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());

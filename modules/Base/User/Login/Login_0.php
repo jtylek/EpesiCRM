@@ -18,6 +18,19 @@ class Base_User_Login extends Module {
 
 	public function construct() {
 		$this->theme = $this->pack_module(Base_Theme::module_name());
+
+		$this->theme->assign('is_logged_in', Acl::is_user());
+		$this->theme->assign('is_demo', DEMO_MODE);
+		if (SUGGEST_DONATION) {
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/cost" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
+		}
+
+		if(Acl::is_user()) {
+			if ($this->get_unique_href_variable('logout')) {
+				Base_User_LoginCommon::logout();
+				eval_js('document.location=\'index.php\';', false);
+			}
+		}
 	}
 
 	private function autologin() {
@@ -26,6 +39,28 @@ class Base_User_Login extends Module {
 	            return true;
 	        }
 		return false;
+	}
+
+	public function indicator()
+	{
+		//todo-pj: Add profile link
+		$indicator = array(
+			'label' => Base_UserCommon::get_my_user_label(),
+			'login' => Base_UserCommon::get_my_user_login()
+		);
+
+
+		$logout = array(
+			'href' => $this->create_unique_href(array('logout'=>1)),
+			'text' => __('Logout')
+		);
+
+		return $this->twig_render('indicator.twig', array(
+				'indicator' => $indicator,
+				'logout' => $logout,
+			)
+		);
+
 	}
 
 	public function body($tpl=null) {
@@ -47,8 +82,9 @@ class Base_User_Login extends Module {
 			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$this->theme->assign('logged_as', '<div class="logged_as">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.__('Logout').'<div class="logout_icon_img"></div></a></div>');
+				$this->theme->assign('logged_as', '<div class="pull-left">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
+				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
+				$this->theme->assign('logout_label',__('Logout'));
 				$this->theme->display();
 			}
 			return;
@@ -75,11 +111,11 @@ class Base_User_Login extends Module {
 		
 		if(DEMO_MODE) {
 			global $demo_users;
-			$form->addElement('select', 'username', __('Username'), $demo_users, array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+			$form->addElement('select', 'username', __('Username'), $demo_users, array('class'=>'form-control', 'id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
 			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
-			$form->addElement('text', 'username', __('Username'),array('id'=>'username'));
-			$form->addElement('password', 'password', __('Password'));
+			$form->addElement('text', 'username', __('Username'),array('class'=>'form-control', 'id'=>'username'));
+			$form->addElement('password', 'password', __('Password'), array('class'=>'form-control', 'id' => 'password'));
 		}
 
 		// Display warning about storing a cookie
@@ -90,7 +126,7 @@ class Base_User_Login extends Module {
         }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit'));
+		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'btn btn-primary btn-block'));
 
         // register and add a rule to check if user is banned
         $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');

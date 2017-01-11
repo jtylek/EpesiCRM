@@ -31,7 +31,7 @@ $records = Utils_RecordBrowserCommon::get_records($tab, $crits, array(), $order,
 
 $js = '';
 //foreach ($browsed_records as $r) {
-//	$js .= '$(\'leightbox_rpicker_'.$element.'_'.$r.'\').checked='.($_POST['select']?1:0).';';
+//	$js .= 'jq(\'#leightbox_rpicker_'.$element.'_'.$r.'\').prop("checked",'.($_POST['select']?1:0).');';
 //}
 foreach ($records as $row)
 	$js .= 'rpicker_move(\''.$element.'\','.$row['id'].',\''.epesi::escapeJS(is_callable($func)?htmlspecialchars_decode(strip_tags(call_user_func($func, $row, true))):'').'\','.($_POST['select']?1:0).');';

@@ -3,12 +3,12 @@
 	<form {$form_data.attributes}>
 	{$form_data.hidden}
     <!-- Display the fields -->
-	    <table id="Base_Search__Search" cellpadding="0" cellspacing="0" border="0">
-			<tr>
-				<td class="input">{$form_data.quick_search.html}</td>
-				<td class="submit"><div class="search_button_css3_box"><a class="search_button" {$submit_href}>{$submit_label}<div class="search_icon"></div></a></div></td>
-			</tr>		
-		</table>
+		<div class="input-group">
+			{$form_data.quick_search.html}
+			<span class="input-group-btn">
+				<button class="btn btn-success" type="button" {$submit_href}>{$submit_label}&nbsp;<i class="glyphicon glyphicon-search"></i></button>
+			</span>
+		</div>
 	</form>
 {else}
 	{$form_data.javascript}

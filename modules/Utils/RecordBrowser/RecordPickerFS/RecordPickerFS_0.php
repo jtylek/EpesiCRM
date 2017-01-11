@@ -25,7 +25,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 	}
 
 	public function open($caption=null) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
+		$x = Base_BoxCommon::root();
 		$x->push_main(Utils_RecordBrowser_RecordPickerFS::module_name(),'show',array($this->tab,$this->crits,$this->cols,$this->order,$this->filters,$this->filters_defaults,$this->get_path(),$caption));
 		$selected = $this->get_module_variable('selected',array());
 		$this->set_module_variable('old_selected',$selected);
@@ -85,7 +85,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 					$form->setDefaults(array($select=>$selected));
 				}
 			}
-			return '$(\'rpfs_'.$md.'\').value=1;'.$form->get_submit_form_js(false);
+			return 'jq(\'#rpfs_'.$md.'\').val(1);'.$form->get_submit_form_js(false);
 		} else {
 			return $this->create_callback_href_js(array($this,'open'));
 		}

@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ShoutboxCommon extends ModuleCommon {
 	public static function menu() {
 	    if(Base_AclCommon::check_permission('Shoutbox'))
-    		return array(_M('Shoutbox')=>array());
+    		return array(_M('Shoutbox')=>array('__icon__'=>'comment'));
     	return array();
 	}
 
@@ -84,7 +84,7 @@ class Apps_ShoutboxCommon extends ModuleCommon {
 
 	public static function create_write_to_link ($uid) {
 		$ret = Base_UserCommon::get_user_label($uid, true);
-		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');$('shoutbox_to').onchange();\">".$ret.'</a>';
+		if (Acl::get_user() != $uid) $ret = "<a href=\"javascript:void(0);\" onclick=\"autoselect_add_value('shoutbox_to', ".$uid.", '".Epesi::escapeJS($ret)."');autoselect_stop_searching('shoutbox_to');jq('#shoutbox_to').change();\">".$ret.'</a>';
 		return $ret;
 	}
 

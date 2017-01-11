@@ -51,6 +51,7 @@ class HTML_QuickForm_select extends HTML_QuickForm_element
         if (isset($options)) {
             $this->load($options);
         }
+        $this->addClass('form-control');
     }
 
     /**

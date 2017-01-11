@@ -1,104 +1,5 @@
 //TODO: ajax and ipad dblclick still from prototype
 
-(function($){
-
-	function setOffset(el, newOffset){
-		var $el = $(el);
-
-		// get the current css position of the element
-		var cssPosition = $el.css('position');
-
-		// whether or not element is hidden
-		var hidden = false;
-
-		// if element was hidden, show it
-		if($el.css('display') == 'none'){
-			hidden = true;
-			$el.show();
-		}
-
-		// get the current offset of the element
-		var curOffset = $el.offset();
-
-		// if there is no current jQuery offset, give up
-		if(!curOffset){
-			// if element was hidden, hide it again
-			if(hidden)
-				$el.hide();
-			return;
-		}
-
-		// set position to relative if it's static
-		if (cssPosition == 'static') {
-			$el.css('position', 'relative');
-			cssPosition = 'relative';
-		}
-
-		// get current 'left' and 'top' values from css
-		// this is not necessarily the same as the jQuery offset
-		var delta = {
-			left : parseInt($el.css('left'), 10),
-			top: parseInt($el.css('top'), 10)
-		};
-
-		// if the css left or top are 'auto', they aren't numbers
-		if (isNaN(delta.left)){
-			delta.left = (cssPosition == 'relative') ? 0 : el.offsetLeft;
-		}
-		if (isNaN(delta.top)){
-			delta.top = (cssPosition == 'relative') ? 0 : el.offsetTop;
-		}
-
-		if (newOffset.left || 0 === newOffset.left){
-			$el.css('left', newOffset.left - curOffset.left + delta.left + 'px');
-		}
-		if (newOffset.top || 0 === newOffset.top){
-			$el.css('top', newOffset.top - curOffset.top + delta.top + 'px');
-		}
-
-		// if element was hidden, hide it again
-		if(hidden)
-			$el.hide();
-	}
-
-	$.fn.extend({
-
-		/**
-		 * Store the original version of offset(), so that we don't lose it
-		 */
-		_offset : $.fn.offset,
-
-		/**
-		 * Set or get the specific left and top position of the matched
-		 * elements, relative the the browser window by calling setXY
-		 * @param {Object} newOffset
-		 */
-		offset : function(newOffset){
-			return !newOffset ? this._offset() : this.each(function(){
-				setOffset(this, newOffset);
-			});
-		}
-	});
-
-  $.fn.clonePosition = function(element, options){
-    var options = $.extend({
-      cloneWidth: true,
-      cloneHeight: true,
-      offsetLeft: 0,
-      offsetTop: 0
-    }, (options || {}));
-
-    var offsets = $(element).offset();
-
-    $(this).offset({top: (offsets.top + options.offsetTop),
-      left: (offsets.left + options.offsetLeft)});
-
-    if (options.cloneWidth) $(this).width($(element).width());
-    if (options.cloneHeight) $(this).height($(element).height());
-
-    return this;
-  }
-})(jQuery);
 
 Utils_Calendar = {
 children_events:{},
@@ -308,7 +209,7 @@ add_event_tag:function(dest,ev) {
 			var err_evs = too_many_events;
 			dest.removeAttr("too_many_events");
 			var date = dest.attr('id').substr(7);
-			var err = $('tooManyEventsCell_'+date);
+			var err = jq('#tooManyEventsCell_'+date).get(0);
 			err.parentNode.removeChild(err);
 			jQuery.each(err_evs,function(i,id) {
 				if(typeof id == undefined) return;
@@ -352,12 +253,12 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			f = f.replace('__TIMELESS__','0');
 		}
 
-		Event.observe(cell_id,'dblclick',function(e){eval(f)});
-		Event.observe(cell_id,'touchend',function(e){
+		jq('#'+cell_id).on('dblclick',function(e){eval(f)});
+		jq('#'+cell_id).on('touchend',function(e){
 		    var now = new Date().getTime();
-		    var lastTouch = $(this).readAttribute('lastTouch') || 0;
+		    var lastTouch = jq(this).attr('lastTouch') || 0;
 		    var delta = now-lastTouch;
-		    $(this).writeAttribute('lastTouch',now);
+		    jq(this).attr('lastTouch',now);
 		    if(delta<500)
     		    eval(f);
 		});
@@ -378,18 +279,18 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 				Epesi.procOn++;
 				Epesi.updateIndicator();
 //				element.css({zIndex:0});
-				new Ajax.Request('modules/Utils/Calendar/update.php',{
+				jq.ajax('modules/Utils/Calendar/update.php',{
 					method:'post',
-					parameters:{
+					data:{
 						ev_id: element.attr('id').substr(21),
 						cell_id: droppable.attr('id').substr(7),
 						path: mpath,
 						cid: ecid,
 						page_type: Utils_Calendar.page_type
 					},
-					onComplete: function(t) {
+					success: function(t) {
 						var reject=false;
-						eval(t.responseText);
+						eval(t);
 						if(!reject) {
 							setTimeout(function() {
 							if(Utils_Calendar.page_type=='month') {
@@ -426,12 +327,9 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						Epesi.procOn--;
 						Epesi.updateIndicator();
 					},
-					onException: function(t,e) {
-						throw(e);
-					},
-					onFailure: function(t) {
-						alert('Failure ('+t.status+')');
-						Epesi.text(t.responseText,'error_box','p');
+					error: function(xhr,status,t) {
+						alert('Failure ('+status+')');
+						Epesi.text(t,'error_box','p');
 					}
 				});
 			}
@@ -462,17 +360,17 @@ delete_event:function(eid,mpath,ecid) {
 	Epesi.updateIndicatorText("Deleting event");
 	Epesi.procOn++;
 	Epesi.updateIndicator();
-	new Ajax.Request('modules/Utils/Calendar/update.php',{
+	jq.ajax('modules/Utils/Calendar/update.php',{
 			method:'post',
-			parameters:{
+			data:{
 				ev_id: eid.substr(21),
 				cell_id: 'trash',
 				path: mpath,
 				cid: ecid
 			},
-			onComplete: function(t) {
+			success: function(t) {
 				var reject=false;
-				eval(t.responseText);
+				eval(t);
                 var element = Utils_Calendar.jq_id(eid);
 				if(reject) {
                     Utils_Calendar.revert_element(element);
@@ -487,12 +385,9 @@ delete_event:function(eid,mpath,ecid) {
 				Epesi.procOn--;
 				Epesi.updateIndicator();
 			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(xhr,status,t) {
+				alert('Failure ('+status+')');
+				Epesi.text(t,'error_box','p');
 			}
 	});
 },
@@ -532,4 +427,4 @@ destroy:function() {
 	Utils_Calendar.jq_cache = {};
 }
 };
-document.observe('e:loading', Utils_Calendar.destroy);
+jq(document).on('e:loading', Utils_Calendar.destroy);
