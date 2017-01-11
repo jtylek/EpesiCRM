@@ -28,11 +28,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
      */
     function __construct($elementName = null, $elementLabel = null, $options = null, $more_opts_callback = null, $format = null, $attributes = null)
     {
-        parent::__construct($elementName, $elementLabel, $attributes);
-        $this->_persistantFreeze = true;
-        $this->_type = 'select';
+        parent::__construct($elementName, $elementLabel, $options, $attributes);
         if (isset($options)) {
-            $this->load($options);
             $this->__options = $options;
         }
         $this->more_opts_callback = $more_opts_callback[0];
