@@ -20,15 +20,6 @@ class HTML_QuickForm_input extends HTML_QuickForm_element
     use toHtml;
 
     /**
-     * HTML_QuickForm_input constructor.
-     */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null)
-    {
-        parent::__construct($elementName, $elementLabel, $attributes);
-        $this->addClass('form-control');
-    }
-
-    /**
      * Sets the element type
      *
      * @param     string    $type   Element type

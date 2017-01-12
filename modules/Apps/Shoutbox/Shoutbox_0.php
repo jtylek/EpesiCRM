@@ -229,7 +229,7 @@ class Apps_Shoutbox extends Module {
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('shoutbox_to'));
 			//create text box
-			$qf->addElement('textarea','post',__('Message'),'class="form-control" id="shoutbox_text"');
+			$qf->addElement('textarea','post',__('Message'),'id="shoutbox_text"');
 			$qf->addRule('post',__('Field required'),'required');
 			//create submit button
 			$qf->addElement('submit','submit_button',__('Send'), 'class="btn btn-primary btn-block" id="shoutbox_button"');

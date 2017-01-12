@@ -114,8 +114,8 @@ class Base_User_Login extends Module {
 			$form->addElement('select', 'username', __('Username'), $demo_users, array('class'=>'form-control', 'id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
 			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
-			$form->addElement('text', 'username', __('Username'),array('class'=>'form-control', 'id'=>'username'));
-			$form->addElement('password', 'password', __('Password'), array('class'=>'form-control', 'id' => 'password'));
+			$form->addElement('text', 'username', __('Username'),array('id'=>'username'));
+			$form->addElement('password', 'password', __('Password'), array('id' => 'password'));
 		}
 
 		// Display warning about storing a cookie

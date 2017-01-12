@@ -28,6 +28,7 @@ class HTML_QuickForm_password extends HTML_QuickForm_input
     {
         parent::__construct($elementName, $elementLabel, $attributes);
         $this->setType('password');
+        $this->addClass('form-control');
     }
 
     /**

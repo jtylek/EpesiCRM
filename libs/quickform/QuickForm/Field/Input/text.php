@@ -29,6 +29,7 @@ class HTML_QuickForm_text extends HTML_QuickForm_input
         parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->setType('text');
+        $this->addClass('form-control');
     }
 
     /**
