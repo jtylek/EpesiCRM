@@ -7,12 +7,10 @@
  * @package epesi-Utils
  * @subpackage PopupCalendar
  */
-require_once("HTML/QuickForm/input.php");
-
 class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
-	function HTML_QuickForm_datepicker($elementName=null, $elementLabel=null, $attributes=null) {
-		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+	function __construct($elementName=null, $elementLabel=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('datepicker');
 //		$this->updateAttributes(array('readonly'=>1));
@@ -43,7 +41,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
                     'success:function(t){e=jq(\'#'.Epesi::escapeJS($id,false).'\');if(e.length) {e.val(t);e.change();}}})',
                     null,null,
                     'jq(popup).clonePosition(\'#'.$id.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$id.'\').height()})',$value, $id);
-            $str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
+            $str .= '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
 			eval_js('jq(\'#'.$id.'\').keypress(function(ev){Utils_PopupCalendarDatePicker.validate(ev,\''.Epesi::escapeJS($date_format,false).'\')})');
 			eval_js('jq(\'#'.$id.'\').blur(function(ev){Utils_PopupCalendarDatePicker.validate_blur(ev,\''.Epesi::escapeJS($date_format,false).'\')})');
 		}

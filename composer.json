@@ -9,7 +9,8 @@
         "phpFastCache/phpFastCache": "^5.0",
         "ifsnop/mysqldump-php": "dev-master",
         "memio/memio": "^1.0",
-        "psy/psysh": "@stable"
+        "psy/psysh": "@stable",
+        "anahkiasen/underscore-php": "^2.0"
     },
     "scripts": {
         "post-install-cmd": [
@@ -23,7 +24,8 @@
         },
         "psr-0": {
             "": "modules/"
-        }
+        },
+        "classmap": ["libs/quickform"]
     },
     "require-dev": {
         "codeception/codeception": "*"

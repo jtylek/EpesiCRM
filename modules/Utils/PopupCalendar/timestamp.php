@@ -22,14 +22,9 @@
  */
 
 /**
- * Class for a group of form elements
- */
-require_once 'HTML/QuickForm/group.php';
-/**
  * Class for <select></select> elements
  */
 require_once 'datepicker.php';
-require_once 'HTML/QuickForm/date.php';
 
 /**
  * Class for a group of elements used to input dates (and times).
@@ -50,8 +45,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// }}}
 	// {{{ constructor
 
-	function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
+	    parent::__construct($elementName, $elementLabel);
+	    $this->setAttributes($attributes);
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
@@ -70,9 +66,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
-		if ($this->_options['date'])
-			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
+        $attributes = $this->getAttributes();
+        $date_attr = is_array($attributes) ? array_merge($attributes, array('style' => 'width:auto;')) : array('style' => 'width:auto;');
+        $this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $date_attr);
+        if ($this->_options['date'])
+            $this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $attributes);
 	}
 
 	// }}}
@@ -101,7 +99,6 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ toHtml()
 
 	function toHtml() {
-		include_once('HTML/QuickForm/Renderer/Default.php');
 		$renderer = new HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);
@@ -138,7 +135,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// }}}
 	// {{{ accept()
 
-	function accept(&$renderer, $required = false, $error = null) {
+	function accept(HTML_QuickForm_Renderer &$renderer, $required = false, $error = null) {
 		$renderer->renderElement($this, $required, $error);
 	}
 

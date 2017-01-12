@@ -17,34 +17,11 @@ class HTML_Quickform_codepress extends HTML_QuickForm_element {
 	private $config = array('lang'=>'php','linenumbers'=>true,'autocomplete'=>true);
 	private $_value = null;
 
-	public function HTML_Quickform_codepress($elementName=null, $elementLabel=null, $attributes=null) {
-		HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'codepress';
 	}
-
-	/**
-	* Sets the input field name
-	* 
-	* @param     string    $name   Input field name attribute
-	* @since     1.0
-	* @access    public
-	* @return    void
-	*/
-	public function setName($name) {
-		$this->updateAttributes(array('name'=>$name));
-	} //end func setName
-
-	/**
-	* Returns the element name
-	* 
-	* @since     1.0
-	* @access    public
-	* @return    string
-	*/
-	public function getName() {
-		return $this->getAttribute('name');
-	} //end func getName
 
 	/**
 	* Sets lang
@@ -137,8 +114,7 @@ class HTML_Quickform_codepress extends HTML_QuickForm_element {
 	* @return    string
 	*/
 	function toHtml() {
-		return $this->_getTabs() .
-		'<textarea' . $this->_getAttrString($this->_attributes) . ' class="codepress '.$this->config['lang'].' '.($this->config['linenumbers']?'':'linenumbers-off').' '.($this->config['autocomplete']?'':'autocomplete-off').' '.($this->_flagFrozen?'readonly-on':'').'" id="'.$this->getName().'">' .
+		return '<textarea' . $this->_getAttrString($this->_attributes) . ' class="codepress '.$this->config['lang'].' '.($this->config['linenumbers']?'':'linenumbers-off').' '.($this->config['autocomplete']?'':'autocomplete-off').' '.($this->_flagFrozen?'readonly-on':'').'" id="'.$this->getName().'">' .
 			   // because we wrap the form later we don't want the text indented
 			   preg_replace("/(\r\n|\n|\r)/", '&#010;', htmlspecialchars($this->_value)) .
 			   '</textarea>';

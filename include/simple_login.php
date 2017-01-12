@@ -15,8 +15,6 @@ class SimpleLogin {
             return self::t('You have exceeded the number of allowed login attempts.');
         }
 
-        require_once('modules/Libs/QuickForm/requires.php');
-
         if ((!Base_AclCommon::is_user()) && !$anonymous) {
             Base_User_LoginCommon::autologin();
         }
