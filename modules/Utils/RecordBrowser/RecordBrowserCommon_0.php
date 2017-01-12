@@ -982,29 +982,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $new_id = self::get_field_id($new_name);
         self::check_table_name($tab);
 
+        $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        
+        $db_field_exists = !($type === 'calculated' && !$old_param);
+        
         DB::StartTrans();
-        if (DB::is_postgresql()) {
-            DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
-        } else {
-            $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        if ($db_field_exists) {
+        	if (DB::is_postgresql()) {
+        		DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
+        	} else {
+        		 
+        		DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        	}
+        	DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         }
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
-        DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
         
         $result = DB::Execute('SELECT * FROM ' . $tab . '_access');
         while ($row = $result->FetchRow()) {
         	$crits = self::unserialize_crits($row['crits']);
-        	
+        	 
+        	if (!$crits) continue;
+        	 
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
-        	
-        	foreach ($crits->find($id) as $c) $c->set_field($new_id);
-
-        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        
+        		foreach ($crits->find($id) as $c) $c->set_field($new_id);
+        
+        		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
         
         DB::CompleteTrans();
@@ -1248,7 +1256,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $db_ret = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
             foreach ($db_ret as $t => $fields) {
                 if ($fields) {
-                    $cache[$t] = array_filter(array_map('trim', explode(',', $fields)));
+                    $fields = str_replace('"', '\'"', $fields);
+                    $cache[$t] = array_filter(array_map('trim', str_getcsv($fields, ',', "'")));
                 }
             }
         }
@@ -2590,18 +2599,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $label = '';
         if ($access) {
             if ($description_fields) {
-                $labels_arr = array();
+                $put_space_before = false;
                 foreach ($description_fields as $field) {
                     if ($field[0] === '"') {
-                        $labels_arr[] = trim($field, '"');
+                        $label .= trim($field, '"');
+                        $put_space_before = false;
                     } else {
                         $field_id = self::get_field_id($field);
                         if ($access === true || (array_key_exists($field_id, $access) && $access[$field_id])) {
-                            $labels_arr[] = self::get_val($tab, $field, $record, true);
+                            $field_val = self::get_val($tab, $field, $record, true);
+                            if ($field_val) {
+                                if ($put_space_before) $label .= ' ';
+                                $label .= $field_val;
+                                $put_space_before = true;
+                            }
                         }
                     }
                 }
-                $label = implode(' ', $labels_arr);
             } elseif ($description_callback) {
                 $label = call_user_func($description_callback, $record, $nolink);
             } else {

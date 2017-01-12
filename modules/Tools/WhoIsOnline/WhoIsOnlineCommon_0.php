@@ -30,12 +30,18 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 		return $ret;
 	}
 }
-if(!isset($_SESSION['tools_whoisonline']) || $_SESSION['tools_whoisonline']!=Acl::get_user()) {
-    if(Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me')) {
-        if (DB::GetOne('SELECT COUNT(*) FROM tools_whoisonline_users WHERE session_name=%s', array(DBSession::truncated_session_id())) == 0) {
-            @DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array(DBSession::truncated_session_id(),Acl::get_user()));
+if(!array_key_exists('tools_whoisonline', $_SESSION)
+   || $_SESSION['tools_whoisonline'] != Base_AclCommon::get_user()) {
+    $current_user = Base_AclCommon::get_user();
+    $session_id = DBSession::truncated_session_id();
+    if ($current_user && Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me')) {
+        if (DB::GetOne('SELECT COUNT(*) FROM tools_whoisonline_users WHERE session_name=%s', array($session_id)) == 0) {
+            @DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array($session_id, $current_user));
         }
     }
-	$_SESSION['tools_whoisonline']=Acl::get_user();
+    if ($session_id && !$current_user) {
+        DB::Execute('DELETE FROM tools_whoisonline_users WHERE session_name=%s', array($session_id));
+    }
+    $_SESSION['tools_whoisonline'] = $current_user;
 }
 ?>

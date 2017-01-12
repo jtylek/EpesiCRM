@@ -3,7 +3,8 @@ $d = getcwd();
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 chdir(dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))));
 define('SET_SESSION',false);
-define('CID',false);
+$CID = isset($_GET['ECID']) ? $_GET['ECID'] : false;
+define('CID', $CID);
 define('READ_ONLY_SESSION',isset($_GET['_action']) && $_GET['_action']=='plugin.epesi_archive'?false:true);
 error_reporting(E_ALL & ~(E_STRICT | E_NOTICE | E_DEPRECATED));
 
@@ -38,9 +39,9 @@ try {
 
     if(isset($_GET['_autologin_id'])) {
         $id = $_GET['_autologin_id'];
-        setcookie('rc_account',$id);
-    } elseif(isset($_COOKIE['rc_account'])) {
-        $id = $_COOKIE['rc_account'];
+        setcookie("rc_account$CID",$id);
+    } elseif(isset($_COOKIE["rc_account$CID"])) {
+        $id = $_COOKIE["rc_account$CID"];
     } else {
         throw new Exception('Forbidden');
     }
@@ -153,6 +154,8 @@ $config['skin'] = 'classic';
 
 $config['log_dir'] = $log_dir;
 $config['temp_dir'] = $data_dir;
+$config['session_auth_name'] = 'roundcube_sessauth_ecid' . $CID;
+$config['session_name'] = "roundcube_sessid_ecid" . $CID;
 $config['session_lifetime'] = 480;
 $config['session_storage'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
 $config['memcache_hosts'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?array(MEMCACHE_SESSION_SERVER):null; // e.g. array( 'localhost:11211', '192.168.1.12:11211', 'unix:///var/tmp/memcached.sock' );
