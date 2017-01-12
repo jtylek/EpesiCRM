@@ -53,7 +53,8 @@ ob_start();
 		<title><?php print(EPESI);?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
 			<link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
 			<?php
