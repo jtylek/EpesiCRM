@@ -340,7 +340,14 @@ class EpesiUpdate
         define('CID', false);
         require_once 'include.php';
         require_once 'include/backups.php';
-        ModuleManager::enable_modules(ModuleManager::MODULE_NOT_FOUND);
+
+        // Enable all disabled modules
+        //     check if method exists, because we recommend to use this update
+        //     script on older installations where method was not present
+        if (method_exists('ModuleManager', 'enable_modules')) {
+            ModuleManager::enable_modules(ModuleManager::MODULE_NOT_FOUND);
+        }
+
         ModuleManager::load_modules();
         Base_LangCommon::load();
 

@@ -37,8 +37,12 @@ class CRM_Roundcube extends Module {
             return;
         }
         $params = array('_autologin_id'=>$def['id'])+$params2;
-//        if($params2) $params['_url'] = http_build_query($params2);
-        print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/RC/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
+        $multiwin = CRM_RoundcubeCommon::multiwin_supported();
+        $RC = $multiwin ? 'RCWIN_' . CID : 'RC';
+        if (!$multiwin) {
+            echo '<div style="color:red; padding-bottom: 1em;">' . __('Warning! Your hosting does not support multiple Roundcube sessions. Opening second Roundcube window may cause error in the previous one.') . '</div>';
+        }
+        print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/' . $RC . '/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
         eval_js('var dim=document.viewport.getDimensions();var rc=jq("#rc_frame");rc.height((Math.max(dim.height,document.documentElement.clientHeight)-130)+"px");');
         $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
         $epesi_mail_name = EPESI . ' - ' . get_epesi_url();

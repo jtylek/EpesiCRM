@@ -71,6 +71,28 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
     }
 
+    public static function multiwin_supported()
+    {
+        $supported = Cache::get('rc_multiwin');
+        if ($supported === null) {
+            $test_url = get_epesi_url() . '/modules/CRM/Roundcube/RCWIN_0/robots.txt';
+            $ret = '';
+            if(ini_get('allow_url_fopen'))
+                $ret = @file_get_contents($test_url);
+            elseif (extension_loaded('curl')) { // Test if curl is loaded
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Set curl to return the data instead of printing it to the browser.
+                curl_setopt($ch, CURLOPT_URL, $test_url);
+                $ret = curl_exec($ch);
+                curl_close($ch);
+            }
+            $supported = strpos($ret, 'User-agent') !== false;
+            Cache::set('rc_multiwin', $supported);
+        }
+        return $supported;
+    }
+
 }
 
 if (isset($_GET['rc_mailto'])) {

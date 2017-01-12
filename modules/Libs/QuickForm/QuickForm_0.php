@@ -368,23 +368,25 @@ class Libs_QuickForm extends Module {
 	 * @param mixed $default
 	 * @param array $hide_mapping array(array('values'=>array(), 'fields'=>array()), array('mode'=>[show/hide] 'values'=>array(), 'fields'=>array()))
 	 */
-	public function autohide_fields($field, $default, $hide_mapping) { //$hide_mapping =
+	public function autohide_fields($field, $default, $hide_mapping, $field_id = null) {
 		$field_obj = $this->getElement($field);
 		$field_type = $field_obj->getType();
+		$field_id = $field_id?: $field;
 	
 		$allowed_types = array('static', 'hidden', 'select', 'checkbox', 'commondata', 'text','automulti');
 		if (!in_array($field_type, $allowed_types)) throw new Exception('Cannot autohide on '.$field_type);
 	
 		if ($field_type == 'static') {
 			$field .= '__autohide';
-			$this->addElement('hidden', $field , is_array($default)?implode('__SEP__',$default):$default, 'id="' . $field . '"');
+			$field_id .= '__autohide';
+			$this->addElement('hidden', $field , is_array($default)?implode('__SEP__',$default):$default, 'id="' . $field_id . '"');
 		} elseif(is_a($field_obj,'HTML_QuickForm_multiselect')) {
-			$field.='__to';
+			$field_id .= '__to';
 		} elseif($field_type=='automulti') {
-			Libs_QuickFormCommon::autohide_fields($field.'__to', $hide_mapping);
+			Libs_QuickFormCommon::autohide_fields($field_id.'__to', $hide_mapping);
 		}
 	
-		Libs_QuickFormCommon::autohide_fields($field, $hide_mapping);
+		Libs_QuickFormCommon::autohide_fields($field_id, $hide_mapping);
 	}
 }
 ?>
