@@ -211,6 +211,20 @@ class Base_User_LoginCommon extends ModuleCommon {
         return null;
     }
 
+    public static function logout()
+    {
+        if (isset($_COOKIE['autologin_id'])) {
+            $arr = explode(' ', $_COOKIE['autologin_id']);
+            if (count($arr) == 2) {
+                list($user, $autologin_id) = $arr;
+                if ($user == Base_UserCommon::get_my_user_login())
+                    DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d', array($autologin_id, Acl::get_user()));
+            }
+        }
+        Acl::set_user(null, true);
+        return false;
+    }
+
 	public static function clean_old_autologins()
 	{
 		DB::Execute('DELETE FROM user_autologin WHERE last_log<%T', array(strtotime('-30 days')));
