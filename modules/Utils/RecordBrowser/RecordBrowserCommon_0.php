@@ -1256,7 +1256,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $db_ret = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
             foreach ($db_ret as $t => $fields) {
                 if ($fields) {
-                    $cache[$t] = array_filter(array_map('trim', explode(',', $fields)));
+                    $fields = str_replace('"', '\'"', $fields);
+                    $cache[$t] = array_filter(array_map('trim', str_getcsv($fields, ',', "'")));
                 }
             }
         }
@@ -2598,18 +2599,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $label = '';
         if ($access) {
             if ($description_fields) {
-                $labels_arr = array();
+                $put_space_before = false;
                 foreach ($description_fields as $field) {
                     if ($field[0] === '"') {
-                        $labels_arr[] = trim($field, '"');
+                        $label .= trim($field, '"');
+                        $put_space_before = false;
                     } else {
                         $field_id = self::get_field_id($field);
                         if ($access === true || (array_key_exists($field_id, $access) && $access[$field_id])) {
-                            $labels_arr[] = self::get_val($tab, $field, $record, true);
+                            $field_val = self::get_val($tab, $field, $record, true);
+                            if ($field_val) {
+                                if ($put_space_before) $label .= ' ';
+                                $label .= $field_val;
+                                $put_space_before = true;
+                            }
                         }
                     }
                 }
-                $label = implode(' ', $labels_arr);
             } elseif ($description_callback) {
                 $label = call_user_func($description_callback, $record, $nolink);
             } else {
