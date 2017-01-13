@@ -19,10 +19,14 @@ class Base_User_Login extends Module {
 	public function construct() {
 		$this->theme = $this->pack_module(Base_Theme::module_name());
 
+        $logo = $this->init_module(Base_MainModuleIndicator::module_name());
+        $logo->set_inline_display();
+        $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
 		$this->theme->assign('is_logged_in', Acl::is_user());
 		$this->theme->assign('is_demo', DEMO_MODE);
+        $this->theme->assign('epesi_url', get_epesi_url());
 		if (SUGGEST_DONATION) {
-			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/cost" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).' '.__('Your funding will help to ensure continued development of this project.'));
 		}
 
 		if(Acl::is_user()) {
@@ -66,17 +70,11 @@ class Base_User_Login extends Module {
 	public function body($tpl=null) {
 		//check bans
         if (!Acl::is_user() && Base_User_LoginCommon::is_banned()) {
-            print __('You have exceeded the number of allowed login attempts.').'<br>';
-            print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
+        	$this->theme->assign('banned', true);
+        	$this->theme->display();
             return;
 		}
 
-		//if logged
-		$this->theme->assign('is_logged_in', Acl::is_user());
-		$this->theme->assign('is_demo', DEMO_MODE);
-		if (SUGGEST_DONATION) {
-			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
-		}
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 			        Base_User_LoginCommon::logout();
@@ -99,7 +97,8 @@ class Base_User_Login extends Module {
 			return;
 		}
 		if (isset($_REQUEST['password_recovered'])) {
-			$this->theme->assign('message', __('An e-mail with a new password has been sent.').'<br><a href="'.get_epesi_url().'">'.__('Login').'</a>');
+			$this->theme->assign('message', __('An e-mail with a new password has been sent.'));
+            $this->theme->assign('message_action', '<a href="'.get_epesi_url().'">'.__('Login').'</a>');
 			$this->theme->display();
 			return;
 		}
@@ -154,10 +153,6 @@ class Base_User_Login extends Module {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
 
-            $logo = $this->init_module(Base_MainModuleIndicator::module_name());
-            $logo->set_inline_display();
-            $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
-
 			ob_start();
 			if (!$tpl) {
 			        $this->theme->set_inline_display();
@@ -180,9 +175,8 @@ class Base_User_Login extends Module {
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
 		$form->addElement('text', 'username', __('Username'));
 		$form->addElement('text', 'mail', __('E-mail'));
-		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', __('OK'));
-		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
-		$form->addGroup(array($ok_b,$cancel_b),'buttons');
+		$form->addElement('submit', 'submit_button', __('Recover Password'), array('class'=>'btn btn-primary btn-block'));
+		$this->theme->assign('back_href', $this->create_back_href());
 
 		// require a username
 		$form->addRule('username', __('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
@@ -195,8 +189,10 @@ class Base_User_Login extends Module {
 		$form->addRule('mail', __('Invalid e-mail address'), 'email');
 
 		if($form->validate()) {
-			if($form->process(array(&$this, 'submit_recover')))
-				$this->theme->assign('message', __('Password reset instructions were sent.').'<br><a '.$this->create_back_href().'>'.__('Login').'</a>');
+            if ($form->process(array(&$this, 'submit_recover'))) {
+                $this->theme->assign('message', __('Password reset instructions were sent.'));
+                $this->theme->assign('message_action', '<a '.$this->create_back_href().'>'.__('Login').'</a>');
+            }
 		} else {
 			$this->theme->assign('mode', 'recover_pass');
 			$form->assign_theme('form', $this->theme);
