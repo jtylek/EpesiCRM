@@ -125,7 +125,7 @@ var Epesi = {
 		if (!Epesi.procOn) jq('#main_content').show();
 	},
 	updateIndicatorText: function(text) {
-		jq(Epesi.indicator_text).html(text);
+		jq('#' + Epesi.indicator_text).html(text);
 	},
 	history_on:1,
 	history_add:function(id){

@@ -84,6 +84,9 @@ ob_start();
             <style type="text/css">
 
                 #epesiStatus {
+                    font-family: "Open Sans";
+                    font-weight: 300;
+                    font-size: 15px;
                     background-color: white;
                     position: fixed;
                     left: 50%;
@@ -96,8 +99,13 @@ ob_start();
                     overflow: hidden;
                     padding-top: 20px;
                 }
+                #epesiStatus img {
+                    padding: 15px;
+                }
 
                 #epesiStatus .text {
+                    margin-top: 10px;
+                    margin-bottom: 25px;
                     font-size: 22px;
                 }
 
@@ -157,7 +165,7 @@ ob_start();
 
             <div id="epesiStatus" class="panel panel-default">
                 <img src="images/epesi_logo_RGB_Solid.png">
-                <div class="text" style="display: none">{{ starting_message }}</div>
+                <div class="lead text" id="epesiStatusText"><?php print(STARTING_MESSAGE);?></div>
                 <div class="spinner">
                     <div class="bounce1"></div>
                     <div class="bounce2"></div>
