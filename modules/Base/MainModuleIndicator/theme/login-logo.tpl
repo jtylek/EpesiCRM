@@ -1,1 +1,1 @@
-<a href="#"><img border="0" src="{if $logo}{$logo}{else}images/epesi_logo_RGB_Solid_login.png{/if}" width="100%"></a>
+<a href="#"><img src="{if $logo}{$logo}{else}images/epesi_logo_RGB_Solid_login.png{/if}" alt="login-logo" class="img-responsive center-block"></a>

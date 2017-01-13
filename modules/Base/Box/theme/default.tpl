@@ -29,7 +29,7 @@
                         </div>
                     </button>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body logo-container">
                     {$logo}
                 </div>
             </div>

@@ -7,6 +7,10 @@ header > div .panel-body {
 header > div .panel-heading.vertical-align-middle {
 	line-height:36px;
 }
+header .logo-container img {
+	max-height: 76px;
+	max-width: 100%;
+}
 /* Global */
 
 .nonselectable {

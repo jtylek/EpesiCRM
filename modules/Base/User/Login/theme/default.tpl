@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 panel panel-default">
             <div class="panel-body">
-                <div class="logo">{$logo}</div>
+                <div class="logo img-responsive">{$logo}</div>
                 {if $banned}
                     <p class="alert alert-danger">{'You have exceeded the number of allowed login attempts.'|t}</p>
                     <p><a href="{$epesi_url}">{'Host banned. Click here to refresh.'|t}</a></p>
