@@ -42,7 +42,7 @@ Utils_Tooltip = {
                     // if leightbox has been opened and tooltip is still loading then, fill lb content again
                     if (el.hasClass('lbOn') && jq('#tooltip_leightbox_mode_content').is(':visible')) {
                         Utils_Tooltip.leightbox_mode(el);
-                    } else {
+                    } else if(el.is(':hover')) {
                         el.tooltip('show');
                     }
                 },
