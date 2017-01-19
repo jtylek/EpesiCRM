@@ -45,7 +45,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
     public static function get_autocomplete_suggestbox($string, $callback, $args, $format = null)
     {
         if (!is_string($string)) $string = '';
-        $suggestbox_args = $args;
+        $suggestbox_args = is_array($args)?$args:array();
         array_unshift($suggestbox_args, $string);
         $result = call_user_func_array($callback, $suggestbox_args);
         $res = [];
@@ -112,7 +112,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
 
         $key = md5(serialize($callback) . $this->getAttribute('id'));
         $_SESSION['client']['quickform']['autocomplete'][$key] = array(
-            'callback' => array('HTML_QuickForm_autoselect', 'get_autocomplete_suggestbox'),
+            'callback' => array(get_called_class(), 'get_autocomplete_suggestbox'),
             'field' => 'q',
             'args' => $callback
         );
