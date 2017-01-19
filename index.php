@@ -62,7 +62,7 @@ ob_start();
 		require_once('Minify/Build.php');
 		$jquery = DEBUG_JS ? 'libs/jquery-3.1.1.js' : 'libs/jquery-3.1.1.min.js';
 		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-3.0.0.js' : 'libs/jquery-migrate-3.0.0.min.js';
-		$jses = array($jquery, $jquery_migrate, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js');
+		$jses = array($jquery, $jquery_migrate, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
@@ -71,7 +71,7 @@ ob_start();
 		foreach($jses as $js)
 			print("<script type='text/javascript' src='$js'></script>");
 	}
-	$csses = array('libs/jquery-ui-1.10.1.custom.min.css', 'libs/select2/css/select2.css');
+	$csses = array('libs/jquery-ui-1.12.1.custom.min.css', 'libs/select2/css/select2.css');
 	$csses_build = new Minify_Build($csses);
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
