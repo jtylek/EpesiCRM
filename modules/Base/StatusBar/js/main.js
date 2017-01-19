@@ -8,19 +8,11 @@ statusbar_fade=function(fade_count){
 	var seconds = 0.2;
 	wait_while_null('jq(\'#Base_StatusBar\').get(0)','jq(\'#Base_StatusBar\').fadeOut();');
 	jq('#Base_StatusBar').get(0).onclick = null;
-	statusbar_hide_selects('visible');
 	setTimeout('statusbar_fade_double_check('+statusbar_fade_count+')',seconds*1000+50);
 };
 statusbar_fade_double_check = function(fade_count) {
 	if (fade_count && statusbar_fade_count!=fade_count) jq('#Base_StatusBar').show();
 	else jq('#Base_StatusBar').get(0).onclick = Function("if(!Epesi.procOn)statusbar_fade();");
-};
-statusbar_hide_selects=function(visibility){
-	if(jq.browser.msie){
-	selects = document.getElementsByTagName('select');
-	for(i = 0; i < selects.length; i++) {
-		selects[i].style.visibility = visibility;
-	}}
 };
 updateEpesiIndicatorFunction=function(){
 	Epesi.indicator_text='statusbar_text';
@@ -41,7 +33,6 @@ updateEpesiIndicatorFunction=function(){
             jq('#dismiss').hide();
 			statbar.style.display='block';
 			cache_pause=true;
-			statusbar_hide_selects('hidden');
 		}else{
 			if(statusbar_message_t!='') {
                 jq('#dismiss').show();

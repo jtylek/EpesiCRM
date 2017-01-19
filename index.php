@@ -60,8 +60,8 @@ ob_start();
 			<?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
-		$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
-		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.4.1.js' : 'libs/jquery-migrate-1.4.1.min.js';
+		$jquery = DEBUG_JS ? 'libs/jquery-3.1.1.js' : 'libs/jquery-3.1.1.min.js';
+		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-3.0.0.js' : 'libs/jquery-migrate-3.0.0.min.js';
 		$jses = array($jquery, $jquery_migrate, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);

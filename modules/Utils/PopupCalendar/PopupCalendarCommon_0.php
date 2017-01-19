@@ -59,7 +59,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			'</div>');
 
 		if(!isset($pos_js)) $pos_js = 'jq(popup).clonePosition(\'#'.$butt.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$butt.'\').height()});';
-		eval_js('if(jq.browser.msie)jq(\'#'.$entry.'\').css("position","fixed");else jq(\'#'.$entry.'\').absolutize();');
+		eval_js('jq(\'#'.$entry.'\').absolutize();');
 
 		$ret = 'onClick="var popup=jq(\'#'.$entry.'\');'.$pos_js.';jq(\'#'.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
 		$function .= ';jq(\'#'.$entry.'\').hide()';
