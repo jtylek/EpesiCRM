@@ -144,7 +144,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_multi
         $attrString = $this->_getAttrString($this->_attributes);
         $options = '';
         if ($this->_format_callback) foreach ($this->_values as $value) {
-            $options .= "\t" . '<option value="' . $value . '">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>' . "\n";
+            $options .= "\t" . '<option value="' . $value . '" selected="selected">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>' . "\n";
         }
 
         $callback = array($this->_options_callback, $this->_options_callback_args, $this->_format_callback);
