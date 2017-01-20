@@ -102,11 +102,25 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
 
         $options = '';
         foreach ($this->_options as $option) {
-            if (!empty($strValues) && in_array($option['attr']['value'], $strValues, true)) {
+            if (!empty($strValues)) {
+              $found = array_search($option['attr']['value'], $strValues, true);
+              if($found!==false) {
                 $option['attr']['selected'] = 'selected';
+                unset($strValues[$found]);
+              }
             }
             $options .= "\t<option" . $this->_getAttrString($option['attr']) . '>' .
                 $option['text'] . "</option>\n";
+        }
+        foreach($strValues as $val) {
+          if($this->more_opts_format)
+            $label = call_user_func_array($this->more_opts_format, array($val, $this->more_opts_args));
+          else {
+            $labels = call_user_func_array($this->more_opts_callback, array($val, $this->more_opts_args));
+            $label = array_shift($labels);
+          }
+          $options .= "\t<option value=\"" . $val . '" selected="selected">' .
+              $label . "</option>\n";
         }
         $callback = array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format);
 
