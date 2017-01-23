@@ -21,11 +21,12 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_autoselect {
      */
     function __construct($elementName=null, $elementLabel=null, $callback=null, $args=null, $attributes=null) {
         parent::__construct($elementName, $elementLabel, array(),array($callback),null,$attributes);
+        $this->set_select2_options(array('tags'=>true));
     }
 
-    public static function get_autocomplete_suggestbox($string, $callback, $args, $format = null)
+  /*  public static function get_autocomplete_suggestbox($string, $callback, $args, $format = null)
     {
         return array_merge(array(array('id'=>$string,'text'=>$string)),parent::get_autocomplete_suggestbox($string,$callback,$args,$format));
-    }
+    }*/
 }
 ?>

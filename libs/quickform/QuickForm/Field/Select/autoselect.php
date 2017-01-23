@@ -12,8 +12,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
     private $more_opts_callback = null;
     private $more_opts_args = null;
     private $more_opts_format = null;
-    private $on_hide_js_code = '';
     private $__options = array();
+    private $on_select = '';
+    private $on_selecting = '';
+    private $select2_options = array();
 
     /**
      * Class constructor
@@ -37,9 +39,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
         $this->more_opts_format = $format;
     } //end constructor
 
-    function on_hide_js($js)
-    {
-        $this->on_hide_js_code = $js;
+    public function set_select2_options($options) {
+      $this->select2_options = $options;
     }
 
     public static function get_autocomplete_suggestbox($string, $callback, $args, $format = null)
@@ -135,8 +136,9 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
 
         $cid = CID;
         $hint = __('Start typing to search...');
+        $select2_options = json_encode($this->select2_options);
         $select2_js = <<<js
-                jQuery("select[name='{$myName}']").select2({
+                jQuery("select[name='{$myName}']").select2(jq.extend({
                     placeholder: "{$hint}",
                     ajax: {
                         url: "autocomplete_update.php",
@@ -164,7 +166,8 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
                               };
                             },
                     }
-                });
+                },{$select2_options})).on("select2:selecting", function(e) { {$this->on_selecting} })
+                  .on("select2:select", function(e) { {$this->on_select} });
 js;
 
         $select2 = <<<html
@@ -177,6 +180,13 @@ html;
         return $select2;
     } //end func toHtml
 
+    public function on_selecting($js) {
+      $this->on_selecting = $js;
+    }
+
+    public function on_select($js) {
+      $this->on_select = $js;
+    }
 
 }
 
