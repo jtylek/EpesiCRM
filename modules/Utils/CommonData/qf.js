@@ -18,7 +18,7 @@ Utils_CommonData.prototype = {
 		this.order = order;
 		var obj = this.obj;
 		var prev_obj = eval('obj.form.'+this.path[this.path.length-1]);
-		jq(prev_obj).on('change',function(e){_this.request.call(_this,e)}).on('e_u_cd:load',function(e){_this.request.call(_this,e)}).on('e_u_cd:clear',function(){jq(obj).options.length=0;obj.trigger('e_u_cd:clear');});
+		jq(prev_obj).on('change',function(e){_this.request.call(_this,e)}).on('e_u_cd:load',function(e){_this.request.call(_this,e)}).on('e_u_cd:clear',function(){obj.options.length=0;jq(obj).trigger('e_u_cd:clear');});
 
 		if(this.path.length==2)
 			jq(document).one('e:load',function(e){_this.request.call(_this,null)});
