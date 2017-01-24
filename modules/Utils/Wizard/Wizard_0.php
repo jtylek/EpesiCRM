@@ -28,7 +28,7 @@ class Utils_Wizard extends Module {
 	 * Module constructor.
 	 * You can choose starting page while creating new instance of this module.
 	 *
-	 * @param integer starting page number
+	 * @param $start_page integer starting page number
 	 */
 	public function construct($start_page=0) {
 		$this->counter = 0;
@@ -180,7 +180,7 @@ class Utils_Wizard extends Module {
 
 	/**
 	 * Delete page
-	 * @param page name or number
+	 * @param $x page name or number
 	 */
 	public function delete_page($x) {
 		$this->to_del[] = $x;
