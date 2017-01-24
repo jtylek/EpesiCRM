@@ -17,7 +17,7 @@ class Applets_NoteCommon extends ModuleCommon {
 	public static function applet_info() {
 		return __('Simple note applet'); //here can be associative array
 	}
-	
+
 //	public static function applet_icon() {
 //	}
 
@@ -28,13 +28,13 @@ class Applets_NoteCommon extends ModuleCommon {
 			array('name'=>'bcolor','label'=>__('Background color'),'type'=>'select','default'=>'nice yellow','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')), 'values'=>array('nice-yellow' => __('Yellow'), 'blue'=>__('Blue'), 'red'=>__('Red'), 'yellow'=>__('Bleak Yellow'), 'green' => __('Green'), 'white'=>__('White'), 'gradient' => __('Gradient'), 'gradient2' => __('Gradient 2'), 'gray' => __('Gray'), 'dark-blue' => __('Dark blue'), 'dark-red' => __('Dark red'), 'dark-yellow' => __('Dark yellow'), 'dark-green' => __('Dark green')))
 			);
 	}
-	
+
 	public static function filter_text($val) {
 		return EpesiHTML::parse($val,true);
 	}
-	
-	public static function text_elem($name, $args, & $def_js) {
-		$obj = HTML_QuickForm::createElement('ckeditor',$name,__('Text to display'));
+
+	public static function text_elem($name, $args, & $def_js, $form) {
+		$obj = $form->createElement('ckeditor',$name,__('Text to display'));
 		$obj->setFCKProps('400','300',false);
 		return $obj;
 	}
