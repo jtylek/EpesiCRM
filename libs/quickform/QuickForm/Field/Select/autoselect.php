@@ -141,7 +141,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select
                 jQuery("select[name='{$myName}']").select2(jq.extend({
                     placeholder: "{$hint}",
                     ajax: {
-                        url: "autocomplete_update.php",
+                        url: "libs/quickform/autocomplete_update.php",
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {

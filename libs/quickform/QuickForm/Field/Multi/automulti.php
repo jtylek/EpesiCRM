@@ -164,7 +164,7 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_multi
             jQuery("select[name='{$myName}[]']").select2({
                 placeholder: "{$hint}",
                 ajax: {
-                    url: "autocomplete_update.php",
+                    url: "libs/quickform/autocomplete_update.php",
                     dataType: 'json',
                     delay: 250,
                     data: function(params) {
