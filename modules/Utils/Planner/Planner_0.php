@@ -14,40 +14,40 @@ class Utils_Planner extends Module {
 	private $grid = array();
 	private $form;
 	private $values = array();
-	
+
 	public function clear() {
 		unset($_SESSION['client']['utils_planner']);
 		$this->unset_module_variable('fixed_date');
 	}
-	
+
 	public function construct() {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
 		$this->form = $this->init_module(Libs_QuickForm::module_name());
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
 	}
-	
+
 	public function set_fixed_week($date) {
 		if (!is_numeric($date)) $date = strtotime($date);
 		$this->date = $this->get_module_variable('fixed_date', $date);
 	}
-	
+
 	public function get_form() {
 		return $this->form;
 	}
-	
+
 	public function set_timeframe_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['timeframe_availability_check_callback'] = $callback;
 	}
-	
+
 	public function set_resource_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['resource_availability_check_callback'] = $callback;
 	}
-	
+
 	public function set_processing_callback($callback) {
 		$_SESSION['client']['utils_planner']['processing_callback'] = $callback;
 	}
-	
+
 	public function set_regular_grid($start_time='00:00', $end_time='23:59', $grid_size='01:00') {
 		foreach (array('start_time','end_time','grid_size') as $v)
 			if ($$v!=(string)intval($$v)) {
@@ -68,7 +68,7 @@ class Utils_Planner extends Module {
 	public function set_custom_grid($grid) {
 		$this->grid = $grid;
 	}
-	
+
 	public function add_resource($def, $prop=array()) {
 		if (isset($def[0])) $type = $def[0];
 		if (isset($def[1])) $name = $def[1];
@@ -107,10 +107,10 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 		if ($type=='autoselect'){
-			$on_change .= 'jq("#'.$name.'").attr("class",jq("#'.$name.'").find(":selected").attr("class"));';
-			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'});');
+			$on_change .= 'jq(this).attr("class",jq(this).find(":selected").attr("class"));';
+			//eval_js('jq("#'.$name.'").change(function(){'.$on_change.'});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3, array('id'=>$name));
-			$el->on_hide_js($on_change);
+			$el->on_select($on_change);
 			return $el;
 		}
 		if ($type=='text'){
@@ -118,12 +118,12 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 	}
-	
+
 	public function set_resource_default($k, $v) {
 		$this->form->setDefaults(array($k=>$v));
 		$this->values[$k] = $v;
 	}
-	
+
 	public function set_default_time_frames($day, $start, $end) {
 		$mark = false;
 		$base_unix_time = strtotime('1970-01-01 00:00');
@@ -141,7 +141,7 @@ class Utils_Planner extends Module {
 		}
 		eval_js('time_grid_mouse_up();');
 	}
-	
+
 	public function body(){
 		if (empty($this->grid)) {
 			print('Time grid not defined, aborting');
@@ -186,13 +186,13 @@ class Utils_Planner extends Module {
 				$select_all[$k1] .= ($select_all[$k1]?'time_grid_mouse_move':'time_grid_mouse_down').'('.$v.','.$k1.');';
 			$grid_legend[$v] = Utils_PlannerCommon::format_time($v*60);
 			$grid_legend[$v] .= ' - '.Utils_PlannerCommon::format_time($this->grid[$k+1]*60);
-			$grid_attrs[$v] = array(); 
+			$grid_attrs[$v] = array();
 			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="if(typeof(time_grid_mouse_move)!=\'undefined\')time_grid_mouse_move('.$v.','.$k2.')"';
 		}
 		foreach ($headers as $k1=>$v1)
 			$select_all[$k1] .= 'time_grid_mouse_up();';
 		/* GRID LEGEND END */
-		
+
 		$theme->assign('select_all',$select_all);
 		$theme->assign('select_all_label',__('Select all'));
 
@@ -228,12 +228,12 @@ class Utils_Planner extends Module {
 			foreach ($values as $k=>$v)
 				$this->values[$k] = $v;
 		}
-			
+
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
 		Base_ActionBarCommon::add('save',__('Save'),$this->form->get_submit_form_href());
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-		
+
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {
 			foreach ($time_frames as $k=>$v) {
