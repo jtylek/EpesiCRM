@@ -1,3 +1,4 @@
+<div id="Base_ActionBar">
 <div class="pull-left">
     {foreach item=i from=$icons}
         {$i.open}
@@ -17,9 +18,14 @@
 {foreach item=i from=$launcher}
     {$i.open}
     <div class="btn btn-default">
-        <img src="{$i.icon}" style="height:3em">
-        <div>{$i.label}</div>
+      {if $i.icon_url}
+          <img src="{$i.icon_url}" style="height:3em">
+      {else}
+          <i class="fa fa-{$i.icon} fa-3x"></i>
+      {/if}
+      <div>{$i.label}</div>
     </div>
     {$i.close}
 {/foreach}
+</div>
 </div>

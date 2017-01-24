@@ -92,7 +92,7 @@ class Base_ActionBar extends Module {
 						else
 							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
 						if (!$icon) $icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-						$ii['icon'] = $icon;
+						$ii['icon_url'] = $icon;
 						$launcher[] = $ii;
 					}
 					if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
@@ -118,6 +118,19 @@ class Base_ActionBar extends Module {
 						self::$launchpad[] = $ii;
 					}
 				}
+				usort(self::$launchpad,array($this,'compare_launcher'));
+				if(!empty(self::$launchpad)) {
+					$th = $this->pack_module(Base_Theme::module_name());
+					usort(self::$launchpad,array($this,'compare_launcher'));
+					$th->assign('icons',self::$launchpad);
+					eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
+					ob_start();
+					$th->display('launchpad');
+					$lp_out = ob_get_clean();
+					$big = count(self::$launchpad)>10;
+					Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
+					array_unshift($launcher,array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>'th-large'));
+				}
 			}
 		}
 
@@ -126,29 +139,6 @@ class Base_ActionBar extends Module {
 		$th->assign('icons',$icons);
 		$th->assign('launcher',array_reverse($launcher));
 		$th->display();
-	}
-
-	public function launchpad() {
-		if (self::$launchpad==null) return;
-
-		$launcher = array();
-		usort(self::$launchpad,array($this,'compare_launcher'));
-		if(!empty(self::$launchpad)) {
-			$th = $this->pack_module(Base_Theme::module_name());
-			usort(self::$launchpad,array($this,'compare_launcher'));
-			$th->assign('icons',self::$launchpad);
-			eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
-			ob_start();
-			$th->display('launchpad');
-			$lp_out = ob_get_clean();
-			$big = count(self::$launchpad)>10;
-			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
-			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>'th-large');
-			$th = $this->pack_module(Base_Theme::module_name());
-			$th->assign('launcher',array());
-			$th->assign('icons',array_reverse($launcher));
-			$th->display();
-		}
 	}
 
 }

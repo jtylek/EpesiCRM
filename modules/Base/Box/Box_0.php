@@ -29,7 +29,7 @@ class Base_Box extends Module {
 
         $theme = $this->pack_module(Base_Theme::module_name());
 		$ini = Base_BoxCommon::get_ini_file();
-		
+
         if (!$ini) {
             print(__('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
             $this->pack_module(Base_Theme_Administrator::module_name(),null,'admin');
@@ -150,11 +150,11 @@ class Base_Box extends Module {
 		$version_no = Base_BoxCommon::update_version_check_indicator();
 
 		if (SUGGEST_DONATION)
-			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/donate/">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a %s.', array(__('donation'))).'<br/>'.__('Your funding will help to ensure continued development of this project.').'<br/>'.__('Click for details.').'</center>', false, 500));
-			
+			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/donate/" class="btn btn-warning">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a %s.', array(__('donation'))).'<br/>'.__('Your funding will help to ensure continued development of this project.').'<br/>'.__('Click for details.').'</center>', false, 500));
+
 		// Consider moving this code properly as initated module by *.ini file
 		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
-		
+
         $theme->assign('version_no',$version_no);
         $theme->assign('indicator', $this->init_module(Base_User_Login::module_name())->indicator());
         $theme->display();
@@ -192,7 +192,7 @@ class Base_Box extends Module {
         if($x>=5) array_shift($mains);
         location(array());
     }
-    
+
     public function replace_main($module=null,$func=null,$args=null,$constr_args=null,$name=null) {
         $this->push_main($module,$func,$args,$constr_args,$name,true);
     }
