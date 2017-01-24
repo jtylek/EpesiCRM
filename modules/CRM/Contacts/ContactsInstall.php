@@ -109,7 +109,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_CommonDataCommon::new_array('Companies_Groups',array('customer'=>_M('Customer'),'vendor'=>_M('Vendor'),'other'=>_M('Other'),'manager'=>_M('Manager')),true,true);
 		Utils_CommonDataCommon::new_array('Contacts_Groups',array('office'=>_M('Office Staff'),'field'=>_M('Field Staff'),'custm'=>_M('Customer')),true,true);
 		Utils_CommonDataCommon::new_array('Contacts/Access',array('manager'=>_M('Manager')),true,true);
-		
+
 		Utils_BBCodeCommon::new_bbcode('contact', 'CRM_ContactsCommon', 'contact_bbcode');
 		Utils_BBCodeCommon::new_bbcode('company', 'CRM_ContactsCommon', 'company_bbcode');
         Utils_RecordBrowserCommon::set_search('company',1,2);
@@ -123,7 +123,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 
 		return true;
 	}
-	
+
 	public static function install_permissions() {
 		Utils_RecordBrowserCommon::wipe_access('company');
 		Utils_RecordBrowserCommon::add_access('company', 'print', 'SUPERADMIN');
@@ -216,9 +216,9 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	private static $country_elem_name;
-	public static function country_element($name, $args, & $def_js) {
+	public static function country_element($name, $args, & $def_js, $form) {
 		self::$country_elem_name = $name;
-		return HTML_QuickForm::createElement('commondata',$name,'Country','Countries');
+		return $form->createElement('commondata',$name,'Country','Countries');
 	}
 
 	public static function state_element($name, $args, & $def_js) {
