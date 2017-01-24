@@ -10,20 +10,19 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_QuickForm extends Module{
-	
+
 	public function body(){
 		$f = $this->init_module(Libs_QuickForm::module_name());
 
 		$f->addElement('automulti','automul','Automulti test', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
 		$f->setDefaults(array('automul'=>array(2,3)));
-		$f->addElement('autoselect','autosel','Autoselect test', array(1=>1, 3=>3, 8=>8), array($this->get_type().'Common', 'autoselect_search'));
+		$f->addElement('autoselect','autosel','Autoselect test', array(1=>1, 3=>3, 8=>8), array(array($this->get_type().'Common', 'autoselect_search')));
 		$f->addElement('text','frozen','Frozen test');
 		$f->addRule('frozen','required','required');
-		$x = $f->addElement('timestamp','xxxyss','Date picker');
-		print('get(here is what was submited): '.$x->getValue().'<br>');
-		print('export: '.$f->exportValue('xxxyss').'<br>');
+		$f->addElement('timestamp','xxxyss','Date picker');
 		$f->addRule('xxxyss','required rule not passed','required');
 		$f->addElement('autocomplete','auto_test','Autocomplete', array($this->get_type().'Common', 'autocomplete'));
+		//$f->addElement('autoselect','auto_test2','Autocomplete2', array(),array($this->get_type().'Common', 'autocomplete'));
 
 		$f->addElement('currency','cur','Currency');
 //		$f->setDefaults(array('xxxyss'=>time()));
@@ -59,7 +58,7 @@ class Tests_QuickForm extends Module{
 		$f->addElement('select','sel33','sel33', array(),array('id'=>'sel33'));
 		Utils_ChainedSelectCommon::create('sel22',array('sel11'),'modules/Tests/QuickForm/update_sel2.php',null,$f->exportValue('sel22'));
 		Utils_ChainedSelectCommon::create('sel33',array('sel11','sel22'),'modules/Tests/QuickForm/update_sel2.php',null,$f->exportValue('sel33'));
-		
+
 
 		$c1 = $f->createElement('checkbox','c1','c1_l','c1_t');
 		$c2 = $f->createElement('checkbox','c2','c2_l','c2_t');
@@ -83,7 +82,7 @@ class Tests_QuickForm extends Module{
 		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickFormCommon_0.php');
 
 	}
-	
+
 }
 
 ?>

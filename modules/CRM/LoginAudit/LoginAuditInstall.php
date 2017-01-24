@@ -14,7 +14,7 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 
 	public function install() {
 		Base_ThemeCommon::install_default_theme($this -> get_type());
-		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T, ip_address C(32), host_name C(64)");
+		$ret = DB::CreateTable('base_login_audit',"id I AUTO KEY, user_login_id I, start_time T, end_time T, ip_address C(32), host_name C(255)");
 		if($ret===false){
 			die('Invalid SQL query - Database module (login_audit table)');
 		}

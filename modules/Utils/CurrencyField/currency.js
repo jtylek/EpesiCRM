@@ -50,8 +50,9 @@ validate: function(ev) {
 	var Scar = jq(elem).caret().start;
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
 	Utils_CurrencyField.init_re(currency.regex);
-	if(!Utils_CurrencyField.re.test(val))
-		ev.stopPropagation();
+	if(!Utils_CurrencyField.re.test(val)) {
+		ev.preventDefault();
+	}
 	if(!Utils_CurrencyField.re.test(elem.value)) {
 		elem.value='';
 	}
@@ -93,6 +94,7 @@ init_re: function(f) {
 				end=start+re[0][len];
 			}
 		}
+
 		if(typeof start!="undefined"){
 			this[0].selectionStart=start;
 			this[0].selectionEnd=end;

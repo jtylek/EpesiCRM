@@ -71,12 +71,6 @@ class Libs_QuickForm extends Module {
 				$type = $args[0];
 			else
 				$type = $args[0]->getType();
-			if($type=='select' || $type=='commondata' || $type=='multiselect') {
-				load_js('modules/Libs/QuickForm/select.js');
-				if (!isset($args[4])) $args[4] = array('onkeydown'=>'typeAhead();');
-				if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
-				else $args[4] .= ' onkeydown="typeAhead();"';
-			}
 			if ($type == 'crits') {
 				// 0=type, 1=name, 2=label, 3=tab, 4=crits
 				if (isset ($args[3]) && Utils_RecordBrowserCommon::check_table_name($args[3], false, false)) {
