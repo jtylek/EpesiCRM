@@ -41,7 +41,6 @@ class BaseInstall extends ModuleInstall {
 		    array('name'=>Base_ActionBarInstall::module_name(),'version'=>0),
 		    array('name'=>Base_CronInstall::module_name(),'version'=>0),
 		    array('name'=>Base_DashboardInstall::module_name(),'version'=>0),
-		    array('name'=>Base_HelpInstall::module_name(),'version'=>0),
 		    array('name'=>Base_SetupInstall::module_name(),'version'=>0),
 		    array('name'=>Base_EpesiStoreInstall::module_name(),'version'=>0),
 		    array('name'=>Base_Lang_AdministratorInstall::module_name(),'version'=>0),
