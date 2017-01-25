@@ -13,6 +13,9 @@
 class HTML_QuickForm_datepicker extends HTML_QuickForm_text
 {
 
+    protected $dateFormat = 'Y-m-d';
+    protected $useLocalDate = false;
+
     function getMomentJsDateFormat()
     {
         $trans = array(
@@ -27,8 +30,8 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_text
 
     function getHtml()
     {
-        $value = $this->getAttribute('value');
-        if (is_numeric($value)) $value = date('Y-m-d', $value);
+        $value = $this->getValue();
+        if (is_numeric($value)) $value = date($this->dateFormat, $value);
         $id = $this->getAttribute('id');
         $name = $this->getAttribute('name');
         if (!isset($id)) {
@@ -68,11 +71,10 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_text
     {
         $value = $this->getAttribute('value');
         if (!$value) return $value;
-//		print('get_value('.$this->getName().')='.$value.' '.Base_RegionalSettingsCommon::time2reg($value,false,true,false).'<hr>');
         if (!is_numeric($value) && is_string($value) && !strtotime($value)) return $value;
-        $time2reg = Base_RegionalSettingsCommon::time2reg($value, false, true, false);
+        $time2reg = Base_RegionalSettingsCommon::time2reg($value, true, true, false, false);
         return $time2reg;
-    } // end func setValue
+    }
 
     function exportValue(&$submitValues, $assoc = false)
     {
@@ -81,20 +83,38 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_text
             $value = $this->getValue();
         }
         if ($value == '') return $this->_prepareValue('', $assoc);
-        $cleanValue = date('Y-m-d', Base_RegionalSettingsCommon::reg2time($value, false));
+        $cleanValue = date($this->dateFormat, Base_RegionalSettingsCommon::reg2time($value, $this->useLocalDate));
         return $this->_prepareValue($cleanValue, $assoc);
     }
 
     function onQuickFormEvent($event, $arg, &$caller)
     {
-        if ($event == 'updateValue' && is_callable(array($caller, 'applyFilter')))
-            $caller->applyFilter($this->getName(), array($this, 'reg2time'));
-        return parent::onQuickFormEvent($event, $arg, $caller);
+        if ('updateValue' == $event) {
+            $value = $this->_findValue($caller->_constantValues);
+            if (null === $value) {
+                $value = $this->_findValue($caller->_submitValues);
+                $value = $this->reg2time($value);
+                // Fix for bug #4465 & #5269
+                // XXX: should we push this to element::onQuickFormEvent()?
+                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || $this->isFrozen())) {
+                    $value = $this->_findValue($caller->_defaultValues);
+                    if ($value) {
+                        $value = Base_RegionalSettingsCommon::time2reg($value, true, true, $this->useLocalDate, false);
+                    }
+                }
+            }
+            if (null !== $value) {
+                $this->setValue($value);
+            }
+            return true;
+        } else {
+            return parent::onQuickFormEvent($event, $arg, $caller);
+        }
     }
 
     function reg2time($value)
     {
-        if (!$value) return '';
-        return strftime('%Y-%m-%d', Base_RegionalSettingsCommon::reg2time($value, false));
+        if (!$value) return $value;
+        return date($this->dateFormat, Base_RegionalSettingsCommon::reg2time($value, false));
     }
 }

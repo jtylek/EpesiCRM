@@ -29,6 +29,8 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_datepicker
         if (isset($options['date'])) {
             $this->showDate = $options['date'] == true;
         }
+        $this->dateFormat = $this->showDate ? 'Y-m-d H:i:s' : '1970-01-01 H:i:s';
+        $this->useLocalDate = true;
     }
 
     function getMomentJsDateFormat()
