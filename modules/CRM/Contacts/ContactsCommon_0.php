@@ -16,10 +16,6 @@ class CRM_ContactsCommon extends ModuleCommon {
 	static $field = null;
 	static $rset = null;
 	static $rid = null;
-	
-	public static function help() {
-		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
-	}
 
 	public static function home_page() {
         return array(_M('My Contact') => array(CRM_Contacts::module_name(), 'body', array('my_contact')),
@@ -29,7 +25,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function crm_clearance($all = false) {
 		$clearance = array();
 		$all |= Base_AclCommon::i_am_sa();
-		$me = CRM_ContactsCommon::get_my_record(); 
+		$me = CRM_ContactsCommon::get_my_record();
 		//$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
 			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', 'key');
@@ -62,7 +58,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $cache[$user_id][$nolink] = CRM_ContactsCommon::contact_format_no_company($user, $nolink);
 		}
 		return $cache[$user_id][$nolink];
-		
+
 	}
     public static function get_contact_by_user_id($uid) {
         static $cache = array();
@@ -146,7 +142,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$opts['__submenu__'] = 1;
 			$ret[_M('CRM')] = $opts;
  		}
-		
+
         $ret[_M('My settings')]=array('__submenu__'=>1,'__icon__'=>'cogs');
 
         $me = self::get_my_record();
@@ -251,7 +247,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $id = $arg['id'];
             $tab = "contact";
         }
-    	
+
     	if (!$id) return '---';
 
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
@@ -367,8 +363,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
         if (!$record || $record=='__NULL__') return null;
-        
-        return Utils_RecordBrowserCommon::create_linked_text($record['company_name'], 'company', $record['id'], $nolink, 
+
+        return Utils_RecordBrowserCommon::create_linked_text($record['company_name'], 'company', $record['id'], $nolink,
         					array(array('CRM_ContactsCommon','company_get_tooltip'), array($record)));
     }
     public static function contact_get_tooltip($record) {
@@ -406,9 +402,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
+        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
         					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
-        
+
         if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
@@ -424,7 +420,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-		
+
         return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
 				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
     }
@@ -493,12 +489,12 @@ class CRM_ContactsCommon extends ModuleCommon {
         if ($fcallback==null) $fcallback = array('CRM_ContactsCommon','contact_format_no_company');
         $rb->set_custom_filter($field, array('type'=>'autoselect','label'=>$label,'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_contact_filter_trans')));
 	}
-	
+
 	public static function autoselect_contact_filter_trans($val, $field) {
         if ($val!='__NULL__' && $val) return array($field=>$val);
         else return array();
 	}
-	
+
 	public static function autoselect_company_filter_trans($val, $field) {
         if ($val!='__NULL__' && $val) return array($field=>$val);
         else return array();
@@ -715,7 +711,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label, $def);
         }
     }
-	
+
 	public static function display_admin($r, $nolink=false) {
 		if (!$r['login']) return '---';
 		$ret = Base_AclCommon::get_admin_level($r['login']);
@@ -863,7 +859,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_login(array('login'=>$default), true, array('id'=>'login'))));
             return;
-        } 
+        }
 		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
 		$users = array(''=>'---', 'new'=>'['.__('Create new user').']');
 		while ($row=$ret->FetchRow()) {
@@ -999,7 +995,7 @@ JS;
 		}
 		return $values;
 	}
-	
+
     public static function submit_contact($values, $mode) {
         switch ($mode) {
         case 'cloning':
@@ -1153,7 +1149,7 @@ JS;
 		if ($id) $htmlinfo[__('Record ID').':'] = $id;
 		$htmlinfo[__('Created by').':'] = $created_by;
 		$htmlinfo[__('Created on').':'] = Base_RegionalSettingsCommon::time2reg($created_on);
-        
+
 		if ($edited_by!=null) {
 			$htmlinfo=$htmlinfo+array(
 				__('Edited by').':'=>$edited_by,
@@ -1294,7 +1290,7 @@ JS;
         $ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args));
         return $ret;
     }
-	
+
 	public static function add_rule_email_unique($form, $field, $rset=null, $rid=null) {
 		self::$field = $field;
 		self::$rset = $rset;
@@ -1310,7 +1306,7 @@ JS;
 		if ($rec == false) return array();
 		return array(self::$field=>__( 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
 	}
-	
+
 	public static function get_record_by_email($email, $rset=null, $rid=null) {
 		if ($rid==null) $rset=null;
 		$cont = DB::GetRow('SELECT id, created_on, created_by FROM contact_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='contact'?$rid:-1));
