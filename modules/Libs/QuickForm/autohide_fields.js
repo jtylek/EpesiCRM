@@ -9,7 +9,7 @@ Libs_QuickForm__autohide = function(e) {
 		'hide' : 'show',
 		'show' : 'hide'
 	};
-	
+
 	var multi = ((el.prop('tagName').toLowerCase()=='select') && (el.attr('name').match(/\_\_display$/) || el.attr('id').match(/\_\_to$/)));
 	var set_fields = {};
 	jq.each(hide_groups, function(i, group) {
@@ -44,16 +44,16 @@ Libs_QuickForm__autohide = function(e) {
 				confirmed = confirm(group.confirm);
 
 			if (confirmed) {
-				jq(group.fields).closest('tr')[group.mode]();
+				jq(group.fields).closest('div')[group.mode]();
 				jq(group.fields)[group.mode]().removeClass('auto' + reverse_mode[group.mode]).addClass('auto' + group.mode); // hide/show element to trigger nested autohide
 			}
 		} else {
 			//apply reverse mode only to fields not specifically set
 			not_set_fields = jq(group.fields).not(set_fields[group.mode]).get();
-			jq(not_set_fields).closest('tr')[reverse_mode[group.mode]]();
+			jq(not_set_fields).closest('div')[reverse_mode[group.mode]]();
 			jq(not_set_fields)[reverse_mode[group.mode]]().removeClass('auto' + group.mode).addClass('auto' + reverse_mode[group.mode]); // hide/show element to trigger nested autohide
 		}
-		
+
 		set_fields[group.mode] = group.fields;
 	});
 }
