@@ -14,7 +14,7 @@ if(!isset($_GET['key']) || !isset($_GET['cid'])  || !is_numeric($_GET['cid']))
 	
 define('CID',$_GET['cid']); 
 define('READ_ONLY_SESSION',true);
-require_once('include.php');
+require_once('../../include.php');
 ModuleManager::load_modules();
 
 if (!isset($_SESSION['client']['quickform'])) {
