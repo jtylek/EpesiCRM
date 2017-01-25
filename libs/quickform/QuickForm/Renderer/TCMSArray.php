@@ -258,16 +258,16 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 		$type = $element->getType();
 		$name = $element->getName();
 		$err_id = 'error_' . $this->_formName . "_" . $name . "_" . $type;
-		
+
         $ret = array(
             'name'      => $element->getName(),
             'value'     => $element->getValue(),
             'type'      => $element->getType(),
             'frozen'    => $element->isFrozen(),
             'required'  => $required,
-           	'error'		=> '<span class="form_error" id="'.htmlspecialchars($err_id).'">'.($this->inline_errors?$error:'').'</span>'
+           	'error'		=> '<div class="alert alert-danger" style="display:none;padding:5px"  id="'.htmlspecialchars($err_id).'">'.($this->inline_errors?$error:'').'</div>'
         );
-        
+
         // render label(s)
         $labels = $element->getLabel();
         if (is_array($labels) && $this->_staticLabels) {
@@ -337,7 +337,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             $this->_elementStyles[$elementName] = $styleName;
         }
     }
-    
+
 	function _prepareValue(&$element, $group_name=null) {
 		return;
 		$type = $element->getType();
@@ -359,7 +359,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 			} elseif($type == 'select') {
 				$value = $element->getValue();
   				$element->setValue(array());
-				if($element->getMultiple()) $name .= '[]'; 
+				if($element->getMultiple()) $name .= '[]';
 				if($value!==null)
 				foreach($value as $v) {
 					eval_js('setselectvalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($v))).'\')');

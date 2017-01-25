@@ -30,13 +30,13 @@
 /**
  * A concrete renderer for HTML_QuickForm,
  * based on QuickForm 2.x built-in one
- * 
+ *
  * @access public
  */
 class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 {
    /**
-    * The HTML of the form  
+    * The HTML of the form
     * @var      string
     * @access   private
     */
@@ -47,7 +47,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @var      string
     * @access   private
     */
-    var $_headerTemplate = 
+    var $_headerTemplate =
         "\n\t<tr>\n\t\t<td class=\"header\" colspan=\"2\">{header}</td>\n\t</tr>";
 
    /**
@@ -55,15 +55,15 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @var      string
     * @access   private
     */
-    var $_elementTemplate = 
-        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><span class=\"error\" id=\"{error_id}\"></span>\t{element}</td>\n\t</tr>";
+    var $_elementTemplate =
+        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><div class=\"alert alert-danger\" style=\"display:none;padding:5px\" id=\"{error_id}\"></div>\t{element}</td>\n\t</tr>";
 
    /**
     * Form template string
     * @var      string
     * @access   private
     */
-    var $_formTemplate = 
+    var $_formTemplate =
         "\n<form{attributes}>\n<div>\n{hidden}<table border=\"0\" id=\"quickform\">\n{content}\n</table>\n</div>\n</form>";
 
    /**
@@ -71,7 +71,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @var      string
     * @access   private
     */
-    var $_requiredNoteTemplate = 
+    var $_requiredNoteTemplate =
         "\n\t<tr>\n\t\t<td></td>\n\t<td align=\"left\" valign=\"top\">{requiredNote}</td>\n\t</tr>";
 
    /**
@@ -83,10 +83,10 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 
    /**
     * Array containing the templates for group wraps.
-    * 
+    *
     * These templates are wrapped around group elements and groups' own
     * templates wrap around them. This is set by setGroupTemplate().
-    * 
+    *
     * @var      array
     * @access   private
     */
@@ -100,7 +100,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     var $_groupTemplates = array();
 
    /**
-    * True if we are inside a group 
+    * True if we are inside a group
     * @var      bool
     * @access   private
     */
@@ -133,7 +133,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access   private
     */
     var $_groupTemplate = '';
-    
+
    /**
     * Collected HTML of the hidden fields
     * @var      string
@@ -153,7 +153,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         // finishForm() was not called (e.g. group::toHtml(), bug #3511)
         return $this->_hiddenHtml . $this->_html;
     } // end func toHtml
-    
+
    /**
     * Called when visiting a form, before processing any form elements
     *
@@ -172,7 +172,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
    /**
     * Called when visiting a form, after processing all form elements
     * Adds required note, form attributes, validation javascript and form content.
-    * 
+    *
     * @param    object      An HTML_QuickForm object being visited
     * @access   public
     * @return   void
@@ -197,7 +197,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
             $this->_html = $script . "\n" . $this->_html;
         }
     } // end func finishForm
-      
+
    /**
     * Called when visiting a header element
     *
@@ -259,7 +259,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         }
         return $html;
     } // end func _prepareTemplate
-    
+
 	function _prepareValue(&$element, $group_name=null) {
 		return;
 		$type = $element->getType();
@@ -281,7 +281,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 			} elseif($type == 'select') {
 				$value = $element->getValue();
   				$element->setValue(array());
-				if($element->getMultiple()) $name .= '[]'; 
+				if($element->getMultiple()) $name .= '[]';
 				if($value!==null)
 					foreach($value as $v) {
 						eval_js('setselectvalue(\''.$this->_formName.'\',\''.$name.'\',\''.str_replace("\n",'\n',addslashes(addslashes($v))).'\')');
@@ -337,11 +337,11 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
             if (!$this->_groupType) $this->_groupType = $element->getType();
         }
     } // end func renderElement
-   
+
    /**
     * Renders an hidden element
     * Called when visiting a hidden element
-    * 
+    *
     * @param object     An HTML_QuickForm_hidden object being visited
     * @access public
     * @return void
@@ -354,7 +354,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 
    /**
     * Called when visiting a raw HTML/text pseudo-element
-    * 
+    *
     * @param  object     An HTML_QuickForm_html element being visited
     * @access public
     * @return void
@@ -414,9 +414,9 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     } // end func finishGroup
 
     /**
-     * Sets element template 
+     * Sets element template
      *
-     * @param       string      The HTML surrounding an element 
+     * @param       string      The HTML surrounding an element
      * @param       string      (optional) Name of the element to apply template for
      * @access      public
      * @return      void
@@ -432,9 +432,9 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
 
 
     /**
-     * Sets template for a group wrapper 
-     * 
-     * This template is contained within a group-as-element template 
+     * Sets template for a group wrapper
+     *
+     * This template is contained within a group-as-element template
      * set via setTemplate() and contains group's element templates, set
      * via setGroupElementTemplate()
      *
@@ -451,7 +451,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     /**
      * Sets element template for elements within a group
      *
-     * @param       string      The HTML surrounding an element 
+     * @param       string      The HTML surrounding an element
      * @param       string      Name of the group to apply template for
      * @access      public
      * @return      void
@@ -464,7 +464,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     /**
      * Sets header template
      *
-     * @param       string      The HTML surrounding the header 
+     * @param       string      The HTML surrounding the header
      * @access      public
      * @return      void
      */
@@ -474,9 +474,9 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     } // end func setHeaderTemplate
 
     /**
-     * Sets form template 
+     * Sets form template
      *
-     * @param     string    The HTML surrounding the form tags 
+     * @param     string    The HTML surrounding the form tags
      * @access    public
      * @return    void
      */
@@ -488,7 +488,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     /**
      * Sets the note indicating required fields template
      *
-     * @param       string      The HTML surrounding the required note 
+     * @param       string      The HTML surrounding the required note
      * @access      public
      * @return      void
      */

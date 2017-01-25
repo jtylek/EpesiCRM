@@ -31,10 +31,11 @@ for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==value)e[i].checked=t
 }};
 
 seterror=function(err_id, error){
-t=jq('#'+err_id).get(0);
-if(t) {
-if (error!="") t.innerHTML = error+"<br>";
-else t.innerHTML = error;
+t=jq('#'+err_id);
+if(t.length) {
+  t.html(error)
+  if (error!="") t.fadeIn();
+  else t.hide();
 }else{
 if(error!="")
 alert("Error field not defined in smarty template, unable to fill '"+err_id+"' with error: '"+error+"'");
