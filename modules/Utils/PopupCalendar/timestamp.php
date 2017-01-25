@@ -13,6 +13,7 @@ require_once 'datepicker.php';
 class HTML_QuickForm_timestamp extends HTML_QuickForm_datepicker
 {
     protected $showDate = true;
+    protected $stepping = 5;
 
     /**
      * Class constructor
@@ -29,6 +30,9 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_datepicker
         if (isset($options['date'])) {
             $this->showDate = $options['date'] == true;
         }
+        if (isset($options['optionIncrement']) && isset($options['optionIncrement']['i'])) {
+            $this->stepping = $options['optionIncrement']['i'];
+        }
         $this->dateFormat = $this->showDate ? 'Y-m-d H:i:s' : '1970-01-01 H:i:s';
         $this->useLocalDate = true;
     }
@@ -44,7 +48,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_datepicker
     {
         $options = parent::getDatetimepickerOptions();
         $options['sideBySide'] = true;
-        $options['stepping'] = 5;
+        $options['stepping'] = $this->stepping;
         return $options;
     }
 
