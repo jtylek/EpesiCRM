@@ -1793,8 +1793,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($rule_id, $f));
 	}
 	public static function update_access($tab, $id, $action, $clearance, $crits=array(), $blocked_fields=array()) {
-    $serialized = self::serialize_crits($crits);
-    DB::Execute('UPDATE ' . $tab . '_access SET crits=%s, action=%s WHERE id=%d', array($serialized, $action, $id));
+		if(is_string($id) && in_array($id,array('grant','restrict'))) return;
+		elseif(!is_numeric($id)) throw new Exception('Utils_RecordBrowserCommon::update_access - id have to be a number');
+		
+        $serialized = self::serialize_crits($crits);
+        DB::Execute('UPDATE ' . $tab . '_access SET crits=%s, action=%s WHERE id=%d', array($serialized, $action, $id));
 		if (!is_array($clearance)) $clearance = array($clearance);
 		DB::Execute('DELETE FROM '.$tab.'_access_clearance WHERE rule_id=%d', array($id));
 		DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE rule_id=%d', array($id));
