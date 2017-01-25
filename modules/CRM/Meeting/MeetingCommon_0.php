@@ -157,7 +157,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					'var ts = jq(\'#time_s\');'.
 					'if(ts.length) ts.css("display",cal_style);'.
 				'}');
-			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'button'));
+			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'btn btn-default'));
 			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless'));
 
 			eval_js('crm_calendar_event_timeless(jq("#timeless").is(":checked"))');
