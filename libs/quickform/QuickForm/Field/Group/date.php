@@ -282,6 +282,8 @@ class HTML_QuickForm_date extends HTML_QuickForm_group
                 }
             }
         }
+
+        $this->addClass('form-datefield');
     }
 
     function _createElements()
