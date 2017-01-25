@@ -50,6 +50,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_text
         if ($value) {
             eval_js('jq(\'#' . $id . '\').data("DateTimePicker").date(moment(\'' . $value . '\'));');
         }
+        eval_js('jq(\'#' . $id . '\').on(\'dp.change\', function(date) { jq(\'#' . $id . '\').change(); })');
         return parent::getHtml();
     }
 
