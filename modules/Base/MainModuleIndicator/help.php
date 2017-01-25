@@ -21,7 +21,7 @@ if(!isset($_SESSION['client']['help']) || !($h = $_SESSION['client']['help'])) {
 <?php
 
 	require_once('libs/minify/Minify/Build.php');
-	$jses = array('libs/prototype.js','modules/Base/MainModuleIndicator/help.js');
+	$jses = array_merge(glob('libs/jquery-*.min.js'),array('modules/Base/MainModuleIndicator/help.js'));
 	$jsses_build = new Minify_Build($jses);
 	$jsses_src = $jsses_build->uri('../../../serve.php?'.http_build_query(array('f'=>array_values($jses))));
 ?>

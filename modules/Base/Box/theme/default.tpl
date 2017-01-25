@@ -28,6 +28,7 @@
         <div class="col-lg-3 col-xs-6 pull-right">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
+                  <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
                     <div class="pull-right">{$indicator}</div>
                 </div>
                 <div class="panel-body">
@@ -41,7 +42,6 @@
                 <div class="panel-heading vertical-align-middle">
                     <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                     <div class="pull-right">
-                      <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>&nbsp;{$version_no}
                       {if isset($donate)}
                         {$donate}
                       {/if}
