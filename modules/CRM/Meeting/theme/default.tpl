@@ -65,7 +65,7 @@
 
 {/if}
 
-<div id="CRM_PhoneCall">
+<div id="CRM_Meeting">
 	<div class="row">
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
@@ -173,10 +173,10 @@
 
 								{if $action!='view'}
 
-								<div class="form-group clearfix" id="_{$form_data.date.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.date.name}__container">
 									<div class="row">
 										<label class="control-label{if $form_data.date.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.date.label}{if $form_data.date.required}*{/if}{$form_data.date.advanced}</label>
-										<span class="data {if $form_data.date.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.date.style}" id="_{$form_data.date.element}__data">
+										<span class="data {if $form_data.date.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.date.style}" id="_{$form_data.date.name}__data">
 											{if $form_data.date.error}{$form_data.date.error}{/if}
 											{if $form_data.time.error}{$form_data.time.error}{/if}
 											{if $form_data.date.help}
@@ -207,10 +207,10 @@
 									<div class="col col-md-{$grid_cols}">
 								{/if}
 
-								<div class="form-group clearfix" id="_{$form_data.timeless.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.timeless.name}__container">
 									<div class="row">
 										<label class="control-label col-md-4 col-sm-3 col-xs-12">{$form_data.timeless.label}{if $form_data.timeless.required}*{/if}{$form_data.timeless.advanced}</label>
-										<span class="data col-md-8 col-sm-9 col-xs-12" style="{$form_data.timeless.style}" id="_{$form_data.timeless.element}__data">
+										<span class="data col-md-8 col-sm-9 col-xs-12" style="{$form_data.timeless.style}" id="_{$form_data.timeless.name}__data">
 											{if $form_data.timeless.error}{$form_data.timeless.error}{/if}
 											{if $form_data.timeless.help}
 												<div class="help"><img src="{$form_data.timeless.help.icon}" alt="help" {$form_data.timeless.help.text}></div>
@@ -234,10 +234,10 @@
 								{/if}
 								
 								{if $action!='view'}
-								<div class="form-group clearfix" id="_{$form_data.duration.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.duration.name}__container">
 									<div class="row">
 										<label class="control-label{if $form_data.duration.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.duration.label} / {$form_data.end_time.label}{if $form_data.duration.required}*{/if}{$form_data.duration.advanced} {$form_data.end_time.advanced}</label>
-										<span class="data {if $form_data.duration.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.duration.style}" id="_{$form_data.duration.element}__data">
+										<span class="data {if $form_data.duration.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.duration.style}" id="_{$form_data.duration.name}__data">
 											{if $form_data.duration.help}
 												<div class="help"><img src="{$form_data.duration.help.icon}" alt="help" {$form_data.duration.help.text}></div>
 											{/if}
@@ -298,10 +298,10 @@
 									{/if}
 								{/if}
 
-								<div class="form-group clearfix" id="_{$form_data.recurrence_end.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.recurrence_end.name}__container">
 									<div class="row">
 										<label class="control-label{if $form_data.recurrence_end.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.recurrence_end.label}{if $form_data.recurrence_end.required}*{/if}{$form_data.recurrence_end.advanced}</label>
-										<span class="data {if $form_data.recurrence_end.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.recurrence_end.style}" id="_{$form_data.recurrence_end.element}__data">
+										<span class="data {if $form_data.recurrence_end.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.recurrence_end.style}" id="_{$form_data.recurrence_end.name}__data">
 											{if $form_data.recurrence_end.help}
 												<div class="help"><img src="{$form_data.recurrence_end.help.icon}" alt="help" {$form_data.recurrence_end.help.text}></div>
 											{/if}
@@ -335,7 +335,7 @@
 								<div class="form-group clearfix" id="recurrence_hash_row">
 									<div class="row">
 								    <label class="control-label{if $form_data.recurrence_hash.type != 'long text'} col-sm-2{/if} col-xs-12">{$form_data.recurrence_hash.label}{if $form_data.recurrence_hash.required}*{/if}{$form_data.recurrence_hash.advanced}</label>
-								    <span class="data {if $form_data.recurrence_hash.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.recurrence_hash.style}" id="_{$form_data.recurrence_hash.element}__data">
+								    <span class="data {if $form_data.recurrence_hash.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.recurrence_hash.style}" id="_{$form_data.recurrence_hash.name}__data">
 								        {if $form_data.recurrence_hash.error}{$form_data.recurrence_hash.error}{/if}
 								        {if $form_data.recurrence_hash.help}
 								            <div class="help"><img src="{$form_data.recurrence_hash.help.icon}" alt="help" {$form_data.recurrence_hash.help.text}></div>
@@ -446,9 +446,9 @@
 							</div>
 	                {if $action=='add'}
         		<div class="row">
-							<div class="form-group clearfix" id="_{$form_data.messenger_on.element}__container">
+							<div class="form-group clearfix" id="_{$form_data.messenger_on.name}__container">
 								<label class="control-label{if $form_data.messenger_on.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.messenger_on.label}{if $form_data.messenger_on.required}*{/if}{$form_data.messenger_on.advanced}</label>
-								<span class="data {if $form_data.messenger_on.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_on.style}" id="_{$form_data.messenger_on.element}__data">
+								<span class="data {if $form_data.messenger_on.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_on.style}" id="_{$form_data.messenger_on.name}__data">
 							        {if $form_data.messenger_on.error}{$form_data.messenger_on.error}{/if}
 							        {if $form_data.messenger_on.help}
 							            <div class="help"><img src="{$form_data.messenger_on.help.icon}" alt="help" {$form_data.messenger_on.help.text}></div>
@@ -458,9 +458,9 @@
 							</div>
 
 			                	        <div id="messenger_block">
-								<div class="form-group clearfix" id="_{$form_data.messenger_before.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.messenger_before.name}__container">
 								    <label class="control-label{if $form_data.messenger_before.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.messenger_before.label}{if $form_data.messenger_before.required}*{/if}{$form_data.messenger_before.advanced}</label>
-								    <span class="data {if $form_data.messenger_before.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_before.style}" id="_{$form_data.messenger_before.element}__data">
+								    <span class="data {if $form_data.messenger_before.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_before.style}" id="_{$form_data.messenger_before.name}__data">
 								        {if $form_data.messenger_before.error}{$form_data.messenger_before.error}{/if}
 								        {if $form_data.messenger_before.help}
 								            <div class="help"><img src="{$form_data.messenger_before.help.icon}" alt="help" {$form_data.messenger_before.help.text}></div>
@@ -469,9 +469,9 @@
 								    </span>
 								</div>
 
-								<div class="form-group clearfix" id="_{$form_data.messenger_message.element}__container">
+								<div class="form-group clearfix" id="_{$form_data.messenger_message.name}__container">
 								    <label class="control-label{if $form_data.messenger_message.type != 'long text'} col-md-4 col-sm-3{/if} col-xs-12">{$form_data.messenger_message.label}{if $form_data.messenger_message.required}*{/if}{$form_data.messenger_message.advanced}</label>
-								    <span class="data {if $form_data.messenger_message.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_message.style}" id="_{$form_data.messenger_message.element}__data">
+								    <span class="data {if $form_data.messenger_message.type != 'long text'} col-md-8 col-sm-9{/if} col-xs-12" style="{$form_data.messenger_message.style}" id="_{$form_data.messenger_message.name}__data">
 								        {if $form_data.messenger_message.error}{$form_data.messenger_message.error}{/if}
 								        {if $form_data.messenger_message.help}
 								            <div class="help"><img src="{$form_data.messenger_message.help.icon}" alt="help" {$form_data.messenger_message.help.text}></div>

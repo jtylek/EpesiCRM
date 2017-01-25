@@ -152,9 +152,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 					'}else{'.
 					'cal_style = \'\';'.
 					'}'.
-					'var db = jq(\'#duration_end_date__data_\');'.
+					'var db = jq(\'#_duration__container\');'.
 					'if(db.length) db.css("display", cal_style);'.
-					'var ts = jq(\'#time_s\');'.
+					'var ts = jq(\'#_time__data\');'.
 					'if(ts.length) ts.css("display",cal_style);'.
 				'}');
 			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'btn btn-default'));
