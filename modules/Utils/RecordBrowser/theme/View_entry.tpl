@@ -60,61 +60,62 @@
 				{$click2fill}
 			{/if}
 
-			{/if}
-							<div class="row">
-								{assign var=x value=1}
-								{assign var=y value=1}
-								{foreach key=k item=f from=$fields name=fields}
-									{if $f.type!="multiselect"}
-										{if !isset($focus) && $f.type=="text"}
-											{assign var=focus value=$f.element}
-										{/if}
-
-										{if $y==1}
-											<div class="col col-md-{$grid_cols}">
-										{/if}
-										{$f.full_field}
-										{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-													{assign var=y value=1}
-											{assign var=x value=$x+1}
-											</div>
-										{else}
-											{assign var=y value=$y+1}
-										{/if}
-									{/if}
-								{/foreach}
-							</div>
-							{if !empty($multiselects)}
-								<div class="row">
-									{assign var=x value=1}
-									{assign var=y value=1}
-									{foreach key=k item=f from=$multiselects name=fields}
-										{if $y==1}
-											<div class="col col-md-{$grid_cols}">
-										{/if}
-										{$f.full_field}
-										{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-											{assign var=y value=1}
-											{assign var=x value=$x+1}
-											</div>
-										{else}
-											{assign var=y value=$y+1}
-										{/if}
-									{/foreach}
-								</div>
-							{/if}
-							<div class="row">
-										{foreach key=k item=f from=$longfields name=fields}
-											<div class="col-md-12">{$f.full_field}</div>
-										{/foreach}
-							</div>
-
-						{if $main_page}
-							{php}
-								if (isset($this->_tpl_vars['focus'])) eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
-							{/php}
+{/if}
+			<div class="row">
+				{assign var=x value=1}
+				{assign var=y value=1}
+				{foreach key=k item=f from=$fields name=fields}
+					{if $f.type!="multiselect"}
+						{if !isset($focus) && $f.type=="text"}
+							{assign var=focus value=$f.element}
 						{/if}
 
+						{if $y==1}
+							<div class="col col-md-{$grid_cols}">
+						{/if}
+						{$f.full_field}
+						{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+									{assign var=y value=1}
+							{assign var=x value=$x+1}
+							</div>
+						{else}
+							{assign var=y value=$y+1}
+						{/if}
+					{/if}
+				{/foreach}
+			</div>
+			{if !empty($multiselects)}
+				<div class="row">
+					{assign var=x value=1}
+					{assign var=y value=1}
+					{foreach key=k item=f from=$multiselects name=fields}
+						{if $y==1}
+							<div class="col col-md-{$grid_cols}">
+						{/if}
+						{$f.full_field}
+						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+							{assign var=y value=1}
+							{assign var=x value=$x+1}
+							</div>
+						{else}
+							{assign var=y value=$y+1}
+						{/if}
+					{/foreach}
+				</div>
+			{/if}
+			<div class="row">
+						{foreach key=k item=f from=$longfields name=fields}
+							<div class="col-xs-12">{$f.full_field}</div>
+						{/foreach}
+			</div>
+
 		{if $main_page}
-			</div></div>
+			{php}
+				if (isset($this->_tpl_vars['focus'])) eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
+			{/php}
 		{/if}
+
+{if $main_page}
+		</div>
+	</div>
+{/if}
