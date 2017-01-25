@@ -17,6 +17,9 @@ class ShellCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        eval(\Psy\sh());
+        \Base_AclCommon::set_sa_user();
+        \Psy\Shell::debug(get_defined_vars());
+        // below not working in PHP >= 7.1
+//        eval(\Psy\sh());
     }
 }
