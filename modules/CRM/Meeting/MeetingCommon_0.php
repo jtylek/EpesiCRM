@@ -198,8 +198,8 @@ class CRM_MeetingCommon extends ModuleCommon {
 	public static function check_date_and_time($data) {
 		$ret = array();
 		if (!$data['duration_switch']) {
-			$start = recalculate_time('',$data['time']['__date']);
-			$end = recalculate_time('',$data['end_time']['__date']);
+			$start = strtotime($data['time']);
+			$end = strtotime($data['end_time']);
 			if ($end<$start) $ret['end_time'] = __('Invalid end time');
 		}
 		if ($data['recurrence_type']==8) {
