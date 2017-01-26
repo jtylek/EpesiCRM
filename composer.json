@@ -11,7 +11,8 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "@composer -d='modules/CRM/Mail' install"
+            "@composer -d='modules/CRM/Mail' install",
+            "@composer -d='modules/Libs/PHPExcel' install"
         ]
     },
     "autoload": {
