@@ -203,7 +203,7 @@ class Libs_QuickForm extends Module {
 			case 'callback':
 				if(!isset($v['func']))
 					trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
-				$elem = call_user_func($v['func'],$v['name'],$v,$default_js);
+				$elem = call_user_func_array($v['func'],array($v['name'], $v, &$default_js));
 				break;
 			default:
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
