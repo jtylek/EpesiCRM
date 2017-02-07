@@ -25,8 +25,8 @@ var Epesi = {
 	procOn:0,
 	client_id:0,
 	process_file:'process.php',
-	indicator:'#epesiStatus',
-	indicator_text:'#epesiStatusText',
+	indicator:'epesiStatus',
+	indicator_text:'epesiStatusText',
 	confirmLeave: {
 		// object of form ids which require confirmation for leaving the page
         // store changed fields to pass through submit state
@@ -117,7 +117,7 @@ var Epesi = {
         }
 	},
 	updateIndicator: function() {
-		var s = jq(Epesi.indicator);
+		var s = jq('#' + Epesi.indicator);
 		if(s.length) {
 		    if(Epesi.procOn) s.show();
 		    else s.hide();
