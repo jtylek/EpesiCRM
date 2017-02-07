@@ -1410,6 +1410,8 @@ class Utils_RecordBrowser extends Module {
                 }
                 $required_crits[] = Utils_RecordBrowserCommon::crits_to_words($this->tab, $crits);
             }
+            if($problems) continue;
+            return array();
 	   	}
     	if (!$required_crits) return array();
 

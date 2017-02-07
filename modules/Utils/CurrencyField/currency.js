@@ -9,7 +9,8 @@ format_amount:function(val,currency){
 	if(isNaN(all)) return '';
 	var all=all.toString(10);
 	var first=all.substr(0,all.length-currency['dec_digits']);
-	var second=all.substr(all.length-currency['dec_digits']);
+    // get string padded at the beggining with zeros
+	var second=("0000000000" + all).substr(-currency['dec_digits']);
 	if(first=='') first = '0';
 	return first+currency['decp']+second;
 },
@@ -20,7 +21,8 @@ format_currency:function(val,currency) {
 	if(isNaN(all)) return '';
 	var all=all.toString(10);
 	var first=all.substr(0,all.length-currency['dec_digits']);
-	var second=all.substr(all.length-currency['dec_digits']);
+    // get string padded at the beggining with zeros
+	var second=("0000000000" + all).substr(-currency['dec_digits']);
 	var thsd = first==''?0:parseInt(first);
 	var first_clean = '';
 	do {

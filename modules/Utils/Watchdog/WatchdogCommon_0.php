@@ -457,13 +457,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!Utils_RecordBrowserCommon::check_table_name($tab, false, false)) {
 			return true;
 		}
+		$access = false;
+        $old_user = Base_AclCommon::get_user();
+        Base_AclCommon::set_user($user_id);
 		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
-		if (!$record) {
-			return false;
-		}
-		$old_user = Base_AclCommon::get_user();
-		Base_AclCommon::set_user($user_id);
-		$access = Utils_RecordBrowserCommon::get_access($tab, 'view', $id);
+		if ($record) {
+            $access = Utils_RecordBrowserCommon::get_access($tab, 'view', $record);
+        }
 		Base_AclCommon::set_user($old_user);
 		return $access != false;
 	}
