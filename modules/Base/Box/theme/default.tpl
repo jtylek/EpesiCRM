@@ -26,7 +26,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6 col-xs-12">
+        <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
