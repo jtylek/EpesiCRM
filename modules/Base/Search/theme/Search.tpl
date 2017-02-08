@@ -6,7 +6,7 @@
 		<div class="input-group">
 			{$form_data.quick_search.html}
 			<span class="input-group-btn">
-				<button class="btn btn-success" type="button" {$submit_href}>{$submit_label}&nbsp;<i class="glyphicon glyphicon-search"></i></button>
+				<button class="btn btn-success" type="button" {$submit_href}><span class="hidden-xs">{$submit_label}&nbsp;</span><i class="glyphicon glyphicon-search"></i></button>
 			</span>
 		</div>
 	</form>
