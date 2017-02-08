@@ -10,7 +10,7 @@
         eval_js_once('document.body.id=null'); //pointer-events:none;
     {/php}
     <header class="row">
-        <div class="col-lg-2 col-xs-6">
+        <div class="col-lg-2 col-xs-12 col-sm-6">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-left">{$menu}</div>
@@ -26,7 +26,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-xs-6 pull-right">
+        <div class="col-lg-3 col-sm-6 col-xs-12">
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
@@ -42,7 +42,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading vertical-align-middle">
                     <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
-                    <div class="pull-right">
+                    <div class="pull-right hidden-xs">
                       {if isset($donate)}
                         {$donate}
                       {/if}
