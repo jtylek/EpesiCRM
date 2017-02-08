@@ -14,10 +14,11 @@
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-left">{$menu}</div>
-                    <button class="btn btn-default pull-right" {$home.href}>
-                        <div id="home-bar1">
+                    <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" {$home.href}>
+                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                        <span class="hidden-xs">
                                 {$home.label}
-                        </div>
+                        </span>
                     </button>
                 </div>
                 <div class="panel-body logo-container">
