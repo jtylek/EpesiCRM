@@ -21,6 +21,8 @@ $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_Quic
 
 /**
  * This class provides saving any page as homepage for each user.
+ *
+ * @mixin HTML_QuickForm
  */
 class Libs_QuickForm extends Module {
 	private $qf;
