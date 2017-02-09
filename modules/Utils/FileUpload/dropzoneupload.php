@@ -24,7 +24,7 @@ if (!Acl::is_user()) {
 $module_path = $_REQUEST['path'];
 $files_in_session = &Module::static_get_module_variable($module_path, 'files');
 if (!is_array($files_in_session)) {
-    $files_in_session = array('add' => array(), 'delete' => array());
+    $files_in_session = array('add' => array(), 'delete' => array(), 'existing' => array());
 }
 $module_data_dir = DATA_DIR . '/Utils_FileUpload/';
 
@@ -33,12 +33,18 @@ if (array_key_exists('delete', $_POST)) {
     foreach ($files_in_session['add'] as $file_key => $file_detail) {
         if ($_POST['delete'] == $file_detail['name']) {
             unset($files_in_session['add'][$file_key]);
+            @unlink($file_detail['file']);
             $found = true;
             break;
         }
     }
     if (!$found) {
-        $files_in_session['delete'][] = $_POST['delete'];
+        foreach ($files_in_session['existing'] as $file_key => $file_detail) {
+            if ($_POST['delete'] == $file_detail['name']) {
+                $files_in_session['delete'][$file_detail['file_id']] = $file_detail['file_id'];
+                break;
+            }
+        }
     }
 } else {
     foreach ($_FILES['file']['tmp_name'] as $key => $file) {
