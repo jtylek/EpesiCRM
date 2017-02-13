@@ -26,7 +26,7 @@ class Utils_FileStorage_Patch_RewriteTables
     protected function createNewTables()
     {
         $cp = Patch::checkpoint('newTables');
-        if (false && !$cp->is_done()) {
+        if (!$cp->is_done()) {
             PatchUtil::db_add_column('utils_filestorage_files', 'deleted', 'I1 DEFAULT 0');
             DB::CreateTable('utils_filestorage', '
                 id I8 AUTO KEY,
@@ -46,6 +46,15 @@ class Utils_FileStorage_Patch_RewriteTables
 
     protected function rewriteAttachmentFiles()
     {
+        $tables = DB::MetaTables();
+        if (!in_array('utils_attachment_file', $tables)) return false;
+
+        $dropConstraint = Patch::checkpoint('drop_constraint');
+        if (!$dropConstraint->is_done()) {
+            $this->dropAttachmentsForeignKey();
+            $dropConstraint->done();
+        }
+
         $cp = Patch::checkpoint('rewrite_af');
         if (!$cp->is_done()) {
             $lastId = $cp->get('last_id', 0);
@@ -66,19 +75,31 @@ class Utils_FileStorage_Patch_RewriteTables
                     ];
                     self::log('CREATE NEW FILE RECORD: ' . json_encode($newFileRecord));
                     DB::AutoExecute('utils_filestorage', $newFileRecord);
+                    $newId = DB::Insert_ID('utils_filestorage', 'id');
+                    self::log('UPDATE ATTACHMENT FILESTORAGE ID: ' . $file['id'] . ' => ' . $newId);
+                    DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d', array($newId, $file['id']));
                     self::log('DELETE LINK: ' . $file['link']);
                     DB::Execute('DELETE FROM utils_filestorage_link WHERE link=%s', array($file['link']));
                     $lastId = $file['id'];
                     $cp->set('last_id', $lastId);
                 }
+                Patch::require_time(5);
             }
             $cp->done();
         }
+
+        $addConstraint = Patch::checkpoint('add_constraint');
+        if (!$addConstraint->is_done()) {
+            $this->addAttachmentsForeignKey();
+            $addConstraint->done();
+        }
+
         return true;
     }
 
     protected function rewriteOtherFilesWithLink()
     {
+        Patch::require_time(10);
         $cp = Patch::checkpoint('rewrite_other_with_links');
         if (!$cp->is_done()) {
             $sql = 'SELECT f.*, l.link FROM utils_filestorage_link l LEFT JOIN utils_filestorage_files f ON l.storage_id=f.id';
@@ -108,6 +129,7 @@ class Utils_FileStorage_Patch_RewriteTables
 
     protected function rewriteRest()
     {
+        Patch::require_time(5);
         $cp = Patch::checkpoint('rewrite_rest');
         if (!$cp->is_done()) {
             $sql = 'SELECT * FROM utils_filestorage_files WHERE id NOT IN (SELECT file_id FROM utils_filestorage)';
@@ -153,6 +175,46 @@ class Utils_FileStorage_Patch_RewriteTables
     {
         $msg .= "\n";
         epesi_log($msg, 'filestorage_rewrite.log');
+    }
+
+    private function dropAttachmentsForeignKey()
+    {
+        self::log('REMOVE attachments FOREIGN KEY CONSTRAINT');
+        $tryRemove = true;
+        while ($tryRemove) {
+            if (DB::is_mysql()) {
+                $a = DB::GetRow('SHOW CREATE TABLE utils_attachment_file');
+                if (preg_match('/CONSTRAINT (.+) FOREIGN KEY .*filestorage_id/', $a[1], $m)) {
+                    DB::Execute('ALTER TABLE `utils_attachment_file` DROP FOREIGN KEY ' . $m[1]);
+                } else {
+                    $tryRemove = false;
+                }
+            } else {
+                $a = DB::GetOne("SELECT tc.constraint_name FROM
+                        information_schema.table_constraints AS tc
+                    JOIN information_schema.key_column_usage AS kcu
+                      ON tc.constraint_name = kcu.constraint_name
+                    JOIN information_schema.constraint_column_usage AS ccu
+                      ON ccu.constraint_name = tc.constraint_name
+                    WHERE constraint_type = 'FOREIGN KEY' AND 
+                      tc.table_name='utils_attachment_file' AND kcu.column_name='filestorage_id';");
+                if ($a) {
+                    DB::Execute('ALTER TABLE utils_attachment_file DROP CONSTRAINT "' . $a . '"');
+                } else {
+                    $tryRemove = false;
+                }
+            }
+        }
+    }
+
+    private function addAttachmentsForeignKey()
+    {
+        self::log('ADD attachments FOREIGN KEY CONSTRAINT');
+        if (DB::is_postgresql()) {
+            DB::Execute('ALTER TABLE utils_attachment_file ADD CONSTRAINT utils_attachemt_file_filestorage_id_fkey FOREIGN KEY (filestorage_id) REFERENCES utils_filestorage');
+        } else {
+            DB::Execute('ALTER TABLE utils_attachment_file ADD FOREIGN KEY (filestorage_id) REFERENCES utils_filestorage(id)');
+        }
     }
 }
 
