@@ -66,7 +66,7 @@ class Utils_FileStorage_Patch_RewriteTables
                 foreach ($files as $file) {
                     $newFileRecord = [
                         'link' => $file['link'],
-                        'backref' => 'utils_attachment/' . $file['attach_id'],
+                        'backref' => 'rb:utils_attachment/' . $file['attach_id'],
                         'filename' => $file['original'],
                         'file_id' => $file['filestorage_id'],
                         'created_on' => $file['created_on'],
