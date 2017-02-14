@@ -2,6 +2,7 @@
 /**
  * 
  * @author pbukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
  * @license MIT
  * @version 0.1
@@ -10,118 +11,378 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/**
+ * File storage mechanism with data deduplication.
+ */
 class Utils_FileStorageCommon extends ModuleCommon {
 
-    private static function get_storage_file_path($hash) {
-        $dirs = str_split(substr($hash,0,5));
-        $path = self::Instance()->get_data_dir().implode(DIRECTORY_SEPARATOR,$dirs);
-        @mkdir($path,0770,true);
-        return $path.DIRECTORY_SEPARATOR.substr($hash,5);
+    const HASH_METHOD = 'sha512';
+
+    private static function get_storage_file_path($hash)
+    {
+        $dirs = str_split(substr($hash, 0, 5));
+        $path = self::Instance()->get_data_dir() . implode(DIRECTORY_SEPARATOR, $dirs);
+        @mkdir($path, 0770, true);
+        return $path . DIRECTORY_SEPARATOR . substr($hash, 5);
     }
-    
-    public static function write_content($filename,$content,$link='') {
-    	$hash = hash('sha512',$content);
-    	$path = self::get_storage_file_path($hash);
-    	$id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-    	$saved = true;
-    	if(!file_exists($path)) {
-    		$saved = file_put_contents($path, $content);
-    	}
-    	if (!$id && $saved) {
-    		DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
-    		$id = DB::Insert_ID('utils_filestorage_files','id');
-    	}
-    	if(!$id || !$saved) throw new Utils_FileStorage_WriteError('Exception - write error.');
-    	if($link) self::add_link($link,$id);
-    	return $id;
+
+    public static function hash_content(& $content)
+    {
+        $hash = hash(self::HASH_METHOD, $content);
+        return $hash;
     }
-    
-    public static function write_file($filename,$file,$link='') {
-        $hash = hash_file('sha512',$file);
+
+    public static function hash_file($file)
+    {
+        $hash = hash_file(self::HASH_METHOD, $file);
+        return $hash;
+    }
+
+    /**
+     * Add data to the filestorage
+     *
+     * @param string $hash File contents hash
+     * @param callable $store_closure Callable that will save data to the specified path
+     * <code>
+     *   function ($path) use ($some_data) {
+     *       return file_put_contents($path, $some_data);
+     *   }
+     * </code>
+     *
+     * @return int File id in the database
+     * @throws Utils_FileStorage_WriteError
+     */
+    public static function add_data($hash, $store_closure)
+    {
         $path = self::get_storage_file_path($hash);
-        $id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
-        $copied = true;
+        $file_id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
         if (!file_exists($path)) {
-        	$copied = copy($file, $path);
+            if (!$store_closure($path)) {
+                throw new Utils_FileStorage_WriteError('Storing data failed');
+            }
         }
-        if(!$id && $copied) {
-        	DB::Execute('INSERT INTO utils_filestorage_files(filename,uploaded_on,hash) VALUES(%s,%T,%s)',array($filename,time(),$hash));
-        	$id = DB::Insert_ID('utils_filestorage_files','id');
+        if (!$file_id) {
+            DB::Execute('INSERT INTO utils_filestorage_files(hash) VALUES(%s)', array($hash));
+            $file_id = DB::Insert_ID('utils_filestorage_files', 'id');
+            if (!$file_id) {
+                throw new Utils_FileStorage_WriteError('Writing file hash to database failed');
+            }
         }
-        if(!$id || !$copied) throw new Utils_FileStorage_WriteError();
-        if($link) self::add_link($link,$id);
+        return $file_id;
+    }
+
+    /**
+     * Add content to the filestorage
+     *
+     * @param string $content Content to save
+     *
+     * @return int File id in the database
+     */
+    public static function add_data_from_content(& $content)
+    {
+        $hash = self::hash_content($content);
+        $store_closure = function ($path) use (& $content) {
+            return file_put_contents($path, $content);
+        };
+        return self::add_data($hash, $store_closure);
+    }
+
+    /**
+     * Add file to the filestorage
+     *
+     * @param string $file File path to save
+     *
+     * @return int File id in the database
+     */
+    public static function add_data_from_file($file)
+    {
+        $hash = self::hash_file($file);
+        $store_closure = function ($path) use ($file) {
+            return copy($file, $path);
+        };
+        return self::add_data($hash, $store_closure);
+    }
+
+    /**
+     * Write file to the storage using store callback.
+     * Use write_content or write_file if you are not sure what this function does.
+     *
+     * @param int        $file_id    File id - retrieved by self::add_data* methods
+     * @param string     $filename   Original filename
+     * @param string     $link       Unique string identifier to the file - not required
+     * @param string     $backref    Reference to the "place" where file is used. Use rb: prefix for recordbrowser. E.g. rb:contact/33
+     * @param string|int $created_on Date in unix timestamp or string for database
+     * @param int        $created_by User ID
+     *
+     * @return int       Filestorage ID
+     * @throws Utils_FileStorage_WriteError
+     * @throws Utils_FileStorage_LinkDuplicate
+     */
+    public static function write_metadata($file_id, $filename, $link = null,
+                                          $backref = null, $created_on = null, $created_by = null)
+    {
+        if ($link && self::get_storage_id_by_link($link, false)) throw new Utils_FileStorage_LinkDuplicate($link);
+
+        if ($created_on === null) {
+            $created_on = time();
+        }
+        if ($created_by === null) {
+            $created_by = Base_AclCommon::get_user();
+        }
+        $data = [$filename, $link, $backref, $created_on, $created_by, $file_id];
+        DB::Execute('INSERT INTO utils_filestorage(filename,link,backref,created_on,created_by,file_id) VALUES(%s,%s,%s,%T,%d,%d)', $data);
+        $id = DB::Insert_ID('utils_filestorage', 'id');
+        if (!$id) {
+            throw new Utils_FileStorage_WriteError('Saving file metadata failed');
+        }
         return $id;
     }
 
-    public static function meta($id, $use_cache=true) {
+    /**
+     * @param string     $filename   Original filename
+     * @param string     $content    Content of the file
+     * @param string     $link       Unique string identifier to the file - not required
+     * @param string     $backref    Reference to the "place" where file is used. Use rb: prefix for recordbrowser. E.g. rb:contact/33
+     * @param string|int $created_on Date in unix timestamp or string for database
+     * @param int        $created_by User ID
+     *
+     * @return int Filestorage ID
+     * @throws Utils_FileStorage_LinkDuplicate
+     */
+    public static function write_content($filename, $content, $link = null, $backref = null,
+                                         $created_on = null, $created_by = null)
+    {
+        if ($link && self::get_storage_id_by_link($link, false)) throw new Utils_FileStorage_LinkDuplicate($link);
+        $file_id = self::add_data_from_content($content);
+        return self::write_metadata($file_id, $filename, $link, $backref, $created_on, $created_by);
+    }
+
+    /**
+     * @param string     $filename   Original filename
+     * @param string     $file       Filepath on the system to copy from
+     * @param string     $link       Unique string identifier to the file - not required
+     * @param string     $backref    Reference to the "place" where file is used. Use rb: prefix for recordbrowser. E.g. rb:contact/33
+     * @param string|int $created_on Date in unix timestamp or string for database
+     * @param int        $created_by User ID
+     *
+     * @return int Filestorage ID
+     * @throws Utils_FileStorage_LinkDuplicate
+     */
+    public static function write_file($filename, $file, $link = null, $backref = null,
+                                      $created_on = null, $created_by = null)
+    {
+        if ($link && self::get_storage_id_by_link($link, false)) throw new Utils_FileStorage_LinkDuplicate($link);
+        $file_id = self::add_data_from_file($file);
+        return self::write_metadata($file_id, $filename, $link, $backref, $created_on, $created_by);
+    }
+
+    /**
+     * Replace Filestorage content with a new one.
+     * Deleting orphan will remove it's original content if it is not used
+     * anywhere else - useful to encrypt the content of the file.
+     *
+     * @param int    $id            Filestorage ID
+     * @param string $content       New content of the file
+     * @param bool   $delete_orphan If original content of the file was used only
+     *                              in this file, then remove this content
+     */
+    public static function set_content($id, $content, $delete_orphan = true)
+    {
+        $file_id = self::add_data_from_content($content);
+        self::set_file_id($id, $file_id, $delete_orphan);
+    }
+
+    /**
+     * Assign File ID to Filestorage ID
+     *
+     * @param int  $id
+     * @param int  $file_id
+     * @param bool $delete_orphan If previous File ID was used only by this
+     *                            filestorage then it from the filesystem
+     */
+    public static function set_file_id($id, $file_id, $delete_orphan = true)
+    {
+        $meta = self::meta($id);
+        $id = $meta['id']; // force numeric id - not link
+        $old_file_id = $meta['file_id'];
+        DB::Execute('UPDATE utils_filestorage SET file_id=%d WHERE id=%d', array($file_id, $id));
+        if ($delete_orphan) {
+            self::delete_orphaned_file($old_file_id);
+        }
+    }
+
+    /**
+     * Delete File from the filesystem if it is not used by any filestorage
+     *
+     * @param int $file_id Unique File ID - not filestorage!
+     */
+    public static function delete_orphaned_file($file_id)
+    {
+        $used = DB::GetOne('SELECT 1 FROM utils_filestorage WHERE file_id=%d', array($file_id));
+        if (!$used) {
+            self::delete_file_on_disk($file_id);
+            DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d', array($file_id));
+        }
+    }
+
+    /**
+     * Retrieve meta info about the file
+     *
+     * @param int|string $id Filestorage ID or unique link string
+     * @param bool $use_cache Use cache or not
+     *
+     * @return array Metadata about the file.
+     *               Keys in array: hash, file, filename, link, backref,
+     *               created_on, created_by, deleted, file_id
+     * @throws Utils_FileStorage_FileNotFound
+     * @throws Utils_FileStorage_StorageNotFound
+     */
+    public static function meta($id, $use_cache = true)
+    {
         static $meta_cache = array();
-        if(!is_numeric($id)) $id = self::get_storage_id_by_link($id);
-        if($use_cache && isset($meta_cache[$id])) return $meta_cache[$id];
-        
-        $meta = DB::GetRow('SELECT * FROM utils_filestorage_files WHERE id=%d',array($id));
-        if(!$meta) throw new Utils_FileStorage_StorageNotFound('Exception - DB storage object not found: '.$id);
+        if (!is_numeric($id)) {
+            $id = self::get_storage_id_by_link($id, true, true);
+        }
+        if ($use_cache && isset($meta_cache[$id])) {
+            return $meta_cache[$id];
+        }
+
+        $meta = DB::GetRow('SELECT s.*, f.hash FROM (SELECT * FROM utils_filestorage WHERE id=%d) s LEFT JOIN utils_filestorage_files f ON s.file_id=f.id', array($id));
+        if (!$meta) {
+            throw new Utils_FileStorage_StorageNotFound('Exception - DB storage object not found: ' . $id);
+        }
+        if (!isset($meta['hash']) || empty($meta['hash'])) {
+            throw new Utils_FileStorage_FileNotFound('File object does not have corresponding file hash');
+        }
         $meta['file'] = self::get_storage_file_path($meta['hash']);
-        if(!file_exists($meta['file'])) throw new Utils_FileStorage_FileNotFound('Exception - file not found: '.$meta['file']);
-        $meta['links'] = DB::GetCol('SELECT link FROM utils_filestorage_link WHERE storage_id=%d',array($id));
+        if (!file_exists($meta['file'])) {
+            throw new Utils_FileStorage_FileNotFound('Exception - file not found: ' . $meta['file']);
+        }
         $meta_cache[$id] = $meta;
         return $meta;
     }
-    
-    public static function read_content($id) {
+
+    /**
+     * Get contents of the file
+     *
+     * @param int|string $id Filestorage ID or unique link
+     *
+     * @return string Contents of the file
+     */
+    public static function read_content($id)
+    {
         $meta = self::meta($id);
         return file_get_contents($meta['file']);
     }
-    
-    public static function add_link($link,$id) {
+
+    /**
+     * Add unique string identifier to the file
+     *
+     * @param string $link Unique link
+     * @param int    $id   Filestorage ID
+     *
+     * @throws Utils_FileStorage_LinkDuplicate
+     */
+    public static function add_link($link, $id)
+    {
         try {
-            $id2 = self::get_storage_id_by_link($link,false);
-            if($id2!=$id) {
+            $id2 = self::get_storage_id_by_link($link, false, true);
+            if ($id2 != $id) {
                 throw new Utils_FileStorage_LinkDuplicate($link);
             }
-        } catch(Utils_FileStorage_LinkNotFound $e) {
-            DB::Execute('INSERT INTO utils_filestorage_link(storage_id,link) VALUES(%d,%s)',array($id,$link));
+        } catch (Utils_FileStorage_LinkNotFound $e) {
+            DB::Execute('UPDATE utils_filestorage SET link=%s WHERE id=%d', array($link, $id));
         }
     }
 
-    public static function update_link($link,$id) {
-        try {
-            self::add_link($link,$id);
-        } catch(Utils_FileStorage_LinkDuplicate $e) {
-            $id2 = self::get_storage_id_by_link($link);
-            DB::Execute('UPDATE utils_filestorage_link SET storage_id=%d WHERE link=%s',array($id,$link));
-            self::delete($id2);
-            self::get_storage_id_by_link($link,false); //update cache
-        }
-    }
-
-    public static function get_storage_id_by_link($link,$use_cache=true) {
+    /**
+     * Get Filestorage ID by link
+     *
+     * @param string $link            Unique link
+     * @param bool   $use_cache       Use cache or not
+     * @param bool   $throw_exception Throw exception if link is not found
+     *
+     * @return int Filestorage ID
+     * @throws Utils_FileStorage_LinkNotFound
+     */
+    public static function get_storage_id_by_link($link, $use_cache = true, $throw_exception = false)
+    {
         static $cache = array();
-        if(!$use_cache || !isset($cache[$link])) {
-            $cache[$link] = DB::GetOne('SELECT storage_id FROM utils_filestorage_link WHERE link=%s',array($link));
-            if(!$cache[$link]) throw new Utils_FileStorage_LinkNotFound($link);
+        if (!$use_cache || !isset($cache[$link])) {
+            $cache[$link] = DB::GetOne('SELECT id FROM utils_filestorage WHERE link=%s', array($link));
+            if (!$cache[$link] && $throw_exception) {
+                throw new Utils_FileStorage_LinkNotFound($link);
+            }
         }
         return $cache[$link];
     }
 
-    public static function delete($id) {
+    /**
+     * Mark file as deleted. Does not remove any content!
+     *
+     * @param int|string $id Filestorage ID or unique link
+     */
+    public static function delete($id)
+    {
         DB::StartTrans();
-        if(!is_numeric($id)) {
-            $mid = self::get_storage_id_by_link($id,false);
-            DB::Execute('DELETE FROM utils_filestorage_link WHERE link=%s',array($id));
-            $id = $mid;
+        if (!is_numeric($id)) {
+            $id = self::get_storage_id_by_link($id, false);
         }
-        if(DB::GetOne('SELECT 1 FROM utils_filestorage_link WHERE storage_id=%d',array($id))) return;
-        $meta = self::meta($id);
-        DB::Execute('DELETE FROM utils_filestorage_files WHERE id=%d',array($id));
+        if ($id) {
+            DB::Execute('UPDATE utils_filestorage SET deleted=1 WHERE id=%d', array($id));
+        }
         DB::CompleteTrans();
-        @unlink($meta['file']);
-        for($i=0; $i<=4; $i++) {
-            $meta['file'] = dirname($meta['file']);
-            if(!@rmdir($meta['file'])) break;
-        }
     }
-    
-    public static function get($id) {
+
+    /**
+     * Delete file from disk.
+     * Mark all filestorages that used this file as deleted.
+     * Use with caution!
+     *
+     * @param int $file_id Unique File ID - not Filestorage ID!
+     */
+    public static function delete_file_on_disk($file_id)
+    {
+        $hash = self::get_hash_by_file_id($file_id);
+        if (!$hash) {
+            return;
+        }
+
+        $filepath = self::get_storage_file_path($hash);
+        @unlink($filepath);
+        // remove leftover dirs if empty
+        for ($i = 0; $i <= 4; $i++) {
+            $filepath = dirname($filepath);
+            if (!@rmdir($filepath)) {
+                break;
+            }
+        }
+        DB::Execute('UPDATE utils_filestorage_files SET deleted=1 WHERE id=%d', array($file_id));
+        DB::Execute('UPDATE utils_filestorage SET deleted=1 WHERE file_id=%d', array($file_id));
+    }
+
+    /**
+     * Get file hash for unique file.
+     *
+     * @param int $file_id Unique File ID - not Filestorage ID!
+     *
+     * @return string File contents hash
+     */
+    public static function get_hash_by_file_id($file_id)
+    {
+        $hash = DB::GetOne('SELECT hash FROM utils_filestorage_files WHERE id=%d', array($file_id));
+        return $hash;
+    }
+
+    /**
+     * Get filestorage object
+     *
+     * @param int|string $id Filestorage ID or unique link string
+     *
+     * @return Utils_FileStorage_Object
+     */
+    public static function get($id)
+    {
         return new Utils_FileStorage_Object($id);
     }
     
