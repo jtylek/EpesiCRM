@@ -986,8 +986,11 @@ class Utils_RecordBrowser extends Module {
                 return true;
             }
         }
-        if ($mode=='add' && !$access) {
-			print(__('You don\'t have permission to perform this action.'));
+        if ($mode=='add' && (!$access || !$this->view_fields_permission)) {
+            $msg = !$access ?
+                __('You don\'t have permission to perform this action.')
+                : __('You can\'t see any of the records fields.');
+            print($msg);
 			if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
 				Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 				//Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
@@ -1044,7 +1047,8 @@ class Utils_RecordBrowser extends Module {
             $values = $form->exportValues();
 			
 			foreach ($defaults as $k=>$v) {
-				if (!isset($values[$k]) && isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]) $values[$k] = $v;
+				if (!isset($values[$k]) && ($this->view_fields_permission === false
+                        || (isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]))) $values[$k] = $v;
 				if (isset($access[$k]) && !$access[$k]) $values[$k] = $v;
 			}
             foreach ($this->table_rows as $v) {
@@ -1422,7 +1426,9 @@ class Utils_RecordBrowser extends Module {
         uasort($fields_by_processing_order, array(__CLASS__, 'sort_by_processing_order'));
         foreach($fields_by_processing_order as $field => $args){
             // check permissions
-            if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
+            if ($this->view_fields_permission === false ||
+                (isset($this->view_fields_permission[$args['id']])
+                 && !$this->view_fields_permission[$args['id']])) continue;
             // check visible cols
             if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
             // set default value to '' if not set at all
