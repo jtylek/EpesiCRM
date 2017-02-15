@@ -403,22 +403,26 @@ class Utils_RecordBrowser_Filters extends Module {
 	protected function get_filter_elements() {
 		return array_merge($this->standard_filter_elements, $this->external_filter_elements);
 	}
+
+    protected function save_filter_values()
+    {
+        $to_save = array();
+        foreach ($this->values as $k => $v) {
+            $c = preg_replace('/^filter__/', '', $k);
+            if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type'] == 'checkbox' && $v === self::$empty_value) {
+                unset($this->values[$k]);
+            } else {
+                $to_save[$c] = $v;
+            }
+        }
+
+        unset($to_save['submited']);
+        unset($to_save['submit']);
+
+        $this->save_filters($to_save);
+    }
 	
-	protected function save_filter_values() {
-		foreach ($this->values as $k=>$v) {
-			$c = str_replace('filter__','',$k);
-			if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type']=='checkbox' && $v===self::$empty_value) 
-				unset($this->values[$k]);
-		}
-			
-		$permanent_save = isset($this->values['submited']) && $this->values['submited'];
-		unset($this->values['submited']);
-		unset($this->values['submit']);
-			
-		$this->save_filters($this->values, $permanent_save);
-	}
-	
-	protected function save_filters($def_filter, $permanent_save = true) {
+	protected function save_filters($def_filter) {
 		$this->rb_obj->set_filters($def_filter);
 	
 		if ($this->saving_filters_enabled()) {
