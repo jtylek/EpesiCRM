@@ -256,7 +256,7 @@ class Utils_RecordBrowser_Filters extends Module {
 			print('<span style="display:none;">'.microtime(true).'</span>');
 		}
 
-		$this->form->setDefaults($this->get_saved_filters());
+		$this->form->setDefaults(self::get_filters_for_qf($this->get_saved_filters()));
 		
 		$this->values = $this->form->exportValues();	
 	}	
@@ -430,9 +430,8 @@ class Utils_RecordBrowser_Filters extends Module {
 		}
 	}
 
-    protected function get_filters_for_qf($override_saved = false)
+    protected static function get_filters_for_qf($filters)
     {
-        $filters = $this->rb_obj->get_filters($override_saved);
         $ret = array();
         foreach ($filters as $k => $v) {
 			$ret[self::get_element_id($k)] = $v;
@@ -441,14 +440,14 @@ class Utils_RecordBrowser_Filters extends Module {
     }
 	
 	protected function get_saved_filters() {
-		$defaults = $this->get_filters_for_qf();
+        $defaults = $this->rb_obj->get_filters();
 		if ($this->saving_filters_enabled()) {
 			$saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
 			if ($saved_filters) {
 				$defaults = $saved_filters;
 			}
 		}
-        foreach ($this->get_filters_for_qf(true) as $k => $v) {
+        foreach ($this->rb_obj->get_filters(true) as $k => $v) {
 			$defaults[$k] = $v;
         }
 
@@ -478,6 +477,7 @@ class Utils_RecordBrowser_Filters extends Module {
 	}
 	
 	public static function get_element_id($filter_id) {
+		if (preg_match('/^filter__/', $filter_id)) return $filter_id;
 		return 'filter__' . $filter_id;
 	}
 	
