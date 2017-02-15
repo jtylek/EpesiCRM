@@ -44,7 +44,7 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 ob_start();
 
 if(IPHONE) {
-	if(!isset($_GET['force_epesi'])) {
+	if(!isset($_GET['force_desktop'])) {
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -69,7 +69,7 @@ if(IPHONE) {
 
 Please choose <?php print(EPESI);?> version:<ul>
 <li><a href="mobile.php" class="white button">mobile</a><br>
-<li><a href="index.php?force_epesi=1" class="green button">desktop</a>
+<li><a href="index.php?force_desktop=1" class="green button">desktop</a>
 </ul>
 
 </body>
