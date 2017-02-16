@@ -420,4 +420,16 @@ class RBO_Field_Autonumber extends RBO_FieldDefinition {
         return Utils_RecordBrowserCommon::encode_autonumber_param($prefix, $pad_length, $pad_mask);
     }    
 }
+
+/**
+ * @author Norbert Nader <nnader@telaxus.com>
+ */
+class RBO_Field_File extends RBO_FieldDefinition {
+
+    const type = 'file';
+
+    public function __construct($display_name) {
+        parent::__construct($display_name, self::type);
+    }
+}
 ?>
