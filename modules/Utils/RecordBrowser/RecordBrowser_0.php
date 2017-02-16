@@ -1795,7 +1795,8 @@ class Utils_RecordBrowser extends Module {
 				'text'=>__('Text'),
 				'long text'=>__('Long text'),
 				'select'=>__('Select field'),
-				'multiselect'=>__('Multiselect field')
+				'multiselect'=>__('Multiselect field'),
+                'file'=>__('File')
 			);
             if ($args['type'] == 'page_split')
                     $gb_row->add_data(
@@ -1885,7 +1886,8 @@ class Utils_RecordBrowser extends Module {
             'text'=>__('Text'),
             'long text'=>__('Long text'),
             'select'=>__('Select field'),
-            'calculated'=>__('Calculated')
+            'calculated'=>__('Calculated'),
+            'file'=>__('File')
 	
         );
         natcasesort($data_type);
