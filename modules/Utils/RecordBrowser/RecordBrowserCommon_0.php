@@ -130,7 +130,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     public static function get_default_display_callback($type) {
     	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox', 
-    			'date', 'timestamp', 'time', 'long text');
+    			'date', 'timestamp', 'time', 'long text', 'file');
     	if (array_search($type, $types) !== false) {
     		return __CLASS__. '::display_' . self::get_field_id($type);
     	}
@@ -3341,7 +3341,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_default_QFfield_callback($type) {
         $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
-            'commondata', 'select', 'multiselect', 'autonumber');
+            'commondata', 'select', 'multiselect', 'autonumber', 'file');
         if (array_search($type, $types) !== false) {
             return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
