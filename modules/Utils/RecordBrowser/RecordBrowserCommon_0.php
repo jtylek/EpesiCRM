@@ -3622,6 +3622,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $val = '<div class="static_field" id="' . $field_id . '">' . $value . '</div>';
         $form->setDefaults(array($field => $val));
     }
+
+	//region File
+	public static function display_file($r, $nolink=false, $desc=null, $tab=null)
+	{
+		$ret = '';
+		return $ret;
+	}
+
+	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
+	{
+		$content = '';
+		$form->addElement('static', $field, $label, $content);
+		$form->setDefaults(array($field => $content));
+	}
+	//endregion
     
     public static function cron() {
         return array('indexer' => 10);
