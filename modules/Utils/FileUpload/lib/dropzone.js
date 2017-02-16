@@ -1058,15 +1058,6 @@
         this.cancelUpload(file);
       }
       this.files = without(this.files, file);
-      // jq.ajax({
-      //   type:'POST',
-      //   url:'/modules/Premium/Laycom/fileupload.php',
-      //   data:{
-      //     action:'delete',
-      //     filename:file.name,
-      //     cid:Epesi.client_id
-      //   }
-      // });
       this.emit("removedfile", file);
       if (this.files.length === 0) {
         return this.emit("reset");
