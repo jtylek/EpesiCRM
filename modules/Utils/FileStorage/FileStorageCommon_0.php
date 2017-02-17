@@ -18,6 +18,13 @@ class Utils_FileStorageCommon extends ModuleCommon {
 
     const HASH_METHOD = 'sha512';
 
+    //region admin caption
+    public static function admin_caption()
+    {
+        return ['label' => __('Files'), 'section' => __('Data')];
+    }
+    //endregion
+
     private static function get_storage_file_path($hash)
     {
         $dirs = str_split(substr($hash, 0, 5));
