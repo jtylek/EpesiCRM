@@ -716,6 +716,9 @@ class Utils_RecordBrowser extends Module {
             $form = $this->init_module(Libs_QuickForm::module_name(),null, 'add_in_table__'.$this->tab);
             $form_name = $form->get_name();
         } else $form_name = '';
+
+        $column_access = array_fill(0, count($query_cols), false);
+        $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {
                 self::$browsed_records['records'][$row['id']] = $i;
@@ -740,11 +743,14 @@ class Utils_RecordBrowser extends Module {
                 $rpicker_ind[] = $row_id;
             }
             $r_access = $this->get_access('view', $row);
+            $data_rows_offset = count($row_data);
             foreach($query_cols as $k=>$argsid) {
 				if (!$r_access || !$r_access[$argsid]) {
 					$row_data[] = '';
 					continue;
 				}
+				$column_access[$k] = true;
+
                 $field = $hash[$argsid];
                 $args = $this->table_rows[$field];
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
@@ -883,6 +889,11 @@ class Utils_RecordBrowser extends Module {
 			$gb->absolute_width(true);
 			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
 		} else $args = array();
+        foreach ($column_access as $k => $access) {
+            if (!$access) {
+                $gb->set_column_display($k + $data_rows_offset, false);
+            }
+        }
 		$this->display_module($gb, $args);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
