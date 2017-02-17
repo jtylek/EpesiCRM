@@ -1337,6 +1337,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
         foreach(self::$table_rows as $field => $desc) {
+
+
+//	        if ($desc['type'] == 'file') {
+//		        $files = $values[$desc['id']];
+//		        $filestorage_ids = [];
+//		        foreach ($files as $file) {
+			        // Utils_FileStorage::write
+//			        $filestorage_ids[] = 5;
+
+//		        }
+		        // serialize filestorageids using __<id>__
+//		        $values[$desc['id']] = '';
+//	        }
+
+
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
 			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
@@ -1368,6 +1383,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 self::update_record($tab, $id, array($desc['id'] => $autonumber_value), false, null, true);
                 $values[$desc['id']] = $autonumber_value;
             }
+
+			// Set filestorage backref to record 
         }
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
@@ -3632,8 +3649,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
 	{
-		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
-		$dropzoneField->add_to_form($form, $field, $label);
+		if ($mode == 'add' || $mode == 'edit') {
+			$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
+			$dropzoneField->add_to_form($form, $field, $label);
+		} else {
+			$content = self::display_file($rb_obj->record,false,$desc,$rb_obj->tab);
+			$form->addElement('static', $field, $label, $content);
+			$form->setDefaults(array($field => $content));
+		}
 	}
 	//endregion
     
