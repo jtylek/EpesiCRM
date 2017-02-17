@@ -87,6 +87,7 @@ class Utils_FileUpload_Dropzone extends Module
     {
         $content = $this->get_div($identifier);
         $form->addElement('static', $identifier, $label, $content)->freeze();
+        $form->setDefaults(array($identifier => $content));
     }
 
     public function get_uploaded_files()
