@@ -3632,9 +3632,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
 	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
 	{
-		$content = '';
-		$form->addElement('static', $field, $label, $content);
-		$form->setDefaults(array($field => $content));
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
+		$dropzoneField->add_to_form($form, $field, $label);
 	}
 	//endregion
     
