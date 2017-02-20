@@ -25,6 +25,39 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
     //endregion
 
+    public static function get_file_label($id, $nolink = false, $icon = true)
+    {
+        $meta = is_numeric($id) ? self::meta($id) : $id;
+        $filename = $meta['filename'];
+        $filename = $filename ?: htmlspecialchars('<' . __('missing filename') . '>');
+
+        $file_exists = self::file_exists($meta);
+        if ($icon) {
+            $icon_file = $file_exists ? 'z-attach.png' : 'z-attach-off.png';
+            $img_src = Base_ThemeCommon::get_template_file(self::module_name(), $icon_file);
+            $icon_img = '<img src="' . $img_src . '" style="vertical-align:bottom">';
+        } else {
+            $icon_img = '';
+        }
+
+        if ($nolink) {
+            return $filename . ($file_exists ? '' : ' [' . __('missing file') . ']');
+        }
+
+        if ($file_exists) {
+            $filesize = filesize_hr($meta['file']);
+            $filetooltip = __('File size: %s', array($filesize)) . '<hr>' .
+                           __('Uploaded by: %s', array(Base_UserCommon::get_user_label($meta['created_by'], true))) . '<br/>' .
+                           __('Uploaded on: %s', array(Base_RegionalSettingsCommon::time2reg($meta['created_on'])));
+            $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip) . ' '
+                         . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta);
+        } else {
+            $tooltip_text = __('Missing file: %s', array(substr($meta['hash'], 0, 32) . '...'));
+            $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
+        }
+        return '<div class="file_link"><a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a></div>';
+    }
+
     private static function get_storage_file_path($hash)
     {
         $dirs = str_split(substr($hash, 0, 5));

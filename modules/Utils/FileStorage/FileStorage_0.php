@@ -39,7 +39,7 @@ class Utils_FileStorage extends Module
         $sqlPart = $this->get_sql_query($gb);
 
         foreach (DB::GetAll("SELECT * $sqlPart") as $r) {
-            $filename = $r['filename'];
+            $filename = Utils_FileStorageCommon::get_file_label($r['id']);
             $created_on = Base_RegionalSettingsCommon::time2reg($r['created_on']);
             $created_by = Base_UserCommon::get_user_label($r['created_by']);
             $deleted = $r['deleted'] ? __('Yes') : __('No');
