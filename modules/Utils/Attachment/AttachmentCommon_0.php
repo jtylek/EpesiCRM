@@ -322,6 +322,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 try {
                     $meta = Utils_FileStorageCommon::meta($f['filestorage_id']);
+                    Utils_FileStorageCommon::file_exists($meta, true);
                     $f_filename = $meta['file'];
                     $filename = $f['original'];
                     $filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
