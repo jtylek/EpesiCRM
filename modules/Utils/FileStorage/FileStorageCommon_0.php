@@ -262,11 +262,30 @@ class Utils_FileStorageCommon extends ModuleCommon {
             throw new Utils_FileStorage_FileNotFound('File object does not have corresponding file hash');
         }
         $meta['file'] = self::get_storage_file_path($meta['hash']);
-        if (!file_exists($meta['file'])) {
-            throw new Utils_FileStorage_FileNotFound('Exception - file not found: ' . $meta['file']);
-        }
         $meta_cache[$id] = $meta;
         return $meta;
+    }
+
+    /**
+     * Check if file exists
+     *
+     * @param int|array $id              Filestorage ID or meta array
+     * @param bool      $throw_exception Throw exception on missing file or return false
+     *
+     * @return bool True if file exists, false otherwise
+     * @throws Utils_FileStorage_FileNotFound May be thrown if $throw_exception set to true
+     */
+    public static function file_exists($id, $throw_exception = false)
+    {
+        $meta = is_numeric($id) ? self::meta($id) : $id;
+        if (!file_exists($meta['file'])) {
+            if ($throw_exception) {
+                throw new Utils_FileStorage_FileNotFound('Exception - file not found: ' . $meta['file']);
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -279,6 +298,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     public static function read_content($id)
     {
         $meta = self::meta($id);
+        self::file_exists($meta, true);
         return file_get_contents($meta['file']);
     }
 
@@ -485,11 +505,12 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
 }
 
-class Utils_FileStorage_StorageNotFound extends Exception {}
-class Utils_FileStorage_LinkNotFound extends Exception {}
-class Utils_FileStorage_LinkDuplicate extends Exception {}
-class Utils_FileStorage_FileNotFound extends Exception {}
-class Utils_FileStorage_WriteError extends Exception {}
+class Utils_FileStorage_Exception extends Exception {}
+class Utils_FileStorage_StorageNotFound extends Utils_FileStorage_Exception {}
+class Utils_FileStorage_LinkNotFound extends Utils_FileStorage_Exception {}
+class Utils_FileStorage_LinkDuplicate extends Utils_FileStorage_Exception {}
+class Utils_FileStorage_FileNotFound extends Utils_FileStorage_Exception {}
+class Utils_FileStorage_WriteError extends Utils_FileStorage_Exception {}
 
 class Utils_FileStorage_Object {
     private $id;
