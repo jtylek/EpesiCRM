@@ -19,11 +19,16 @@ $handleRequest = function(Request $request) {
     $adminAccess = Base_AdminCommon::get_access('Utils_FileStorage');
     if ((Base_AclCommon::i_am_admin() && $adminAccess)
         || (defined('FILE_ACCESS') && FILE_ACCESS == $filestorageId)) {
-        $meta = Utils_FileStorageCommon::meta($filestorageId);
+        try {
+            $meta = Utils_FileStorageCommon::meta($filestorageId);
+            $buffer = Utils_FileStorageCommon::read_content($filestorageId);
+        } catch (Utils_FileStorage_Exception $ex) {
+            return new Response($ex->getMessage(), 400);
+        }
+
         $mime = Utils_FileStorageCommon::get_mime_type($meta['file'], $meta['filename']);
         $disposition = $request->get('view') ? 'inline' : 'attachment';
 
-        $buffer = Utils_FileStorageCommon::read_content($filestorageId);
         $response = new Response();
         $response->setContent($buffer);
         $response->headers->set('Content-Type', $mime);
