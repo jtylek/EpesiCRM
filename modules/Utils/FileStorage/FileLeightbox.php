@@ -18,7 +18,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileStorage_FileLeightbox
 {
 
-    public static function get_file_leightbox($meta)
+    public static function get_file_leightbox($meta, $view_callable = null)
     {
         $theme = Base_ThemeCommon::init_smarty();
 
@@ -28,7 +28,6 @@ class Utils_FileStorage_FileLeightbox
 
         $close_leightbox_js = 'leightbox_deactivate(\'' . $lid . '\');';
         $theme->assign('save_options_id', '');
-        $onclick = $close_leightbox_js;
         $theme->assign('download_options_id', 'attachment_download_options_' . $meta['id']);
 
 
@@ -38,8 +37,15 @@ class Utils_FileStorage_FileLeightbox
 //            self::navigate_to_file_history($meta['id']);
         }
 
-        $view_link = 'modules/Utils/Attachment/get.php?' . http_build_query(array('id' => $meta['id'], 'cid' => CID, 'view' => 1));
-        $download_link = 'modules/Utils/Attachment/get.php?' . http_build_query(array('id' => $meta['id'], 'cid' => CID));
+        if (!$view_callable) {
+            $view_callable = function ($id, $view) {
+                $args = ['id' => $id];
+                if ($view) $args['view'] = $view;
+                return 'modules/Utils/FileStorage/download.php?' . http_build_query($args);
+            };
+        }
+        $view_link = call_user_func_array($view_callable, [$meta['id'], true]);
+        $download_link = call_user_func_array($view_callable, [$meta['id'], false]);
         $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_attachment_file_history' => $file_history_key)), true, false);
 
 
@@ -68,7 +74,7 @@ class Utils_FileStorage_FileLeightbox
         foreach ($getters as $mod => $arr) {
             if (is_array($arr)) {
                 foreach ($arr as $caption => $func) {
-                    $cus_id = md5($mod . $caption . serialize($func));
+                    $cus_id = md5($mod . $caption . serialize($func) . $meta['id']);
                     if (isset($_GET['utils_attachment_custom_getter']) && $_GET['utils_attachment_custom_getter'] == $cus_id) {
                         call_user_func_array(array($mod . 'Common', $func['func']), array($filepath, $meta['filename'], $meta['id']));
                     }

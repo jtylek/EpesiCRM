@@ -25,7 +25,20 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
     //endregion
 
-    public static function get_file_label($id, $nolink = false, $icon = true)
+    /**
+     * Get file link with leightbox popup to download, preview, etc
+     *
+     * @param int|array $id Filestorage ID or meta array
+     * @param bool $nolink Do not create link, just show filename
+     * @param bool $icon Do not add the file icon
+     * @param callable $view_callable Url generation method with params
+     *                                ($filestorage_id, $view) - $view
+     *                                is true for preview action, otherwise it's
+     *                                download action.
+     *
+     * @return string File label with link
+     */
+    public static function get_file_label($id, $nolink = false, $icon = true, $view_callable = null)
     {
         $meta = is_numeric($id) ? self::meta($id) : $id;
         $filename = $meta['filename'];
@@ -50,7 +63,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
                            __('Uploaded by: %s', array(Base_UserCommon::get_user_label($meta['created_by'], true))) . '<br/>' .
                            __('Uploaded on: %s', array(Base_RegionalSettingsCommon::time2reg($meta['created_on'])));
             $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip) . ' '
-                         . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta);
+                         . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $view_callable);
         } else {
             $tooltip_text = __('Missing file: %s', array(substr($meta['hash'], 0, 32) . '...'));
             $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
