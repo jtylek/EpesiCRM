@@ -18,7 +18,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileStorage_FileLeightbox
 {
 
-    public static function get_file_leightbox($meta, $view_callable = null)
+    public static function get_file_leightbox($meta, $action_urls = null)
     {
         $theme = Base_ThemeCommon::init_smarty();
 
@@ -37,23 +37,19 @@ class Utils_FileStorage_FileLeightbox
 //            self::navigate_to_file_history($meta['id']);
         }
 
-        if (!$view_callable) {
-            $view_callable = function ($id, $view) {
-                $args = ['id' => $id];
-                if ($view) $args['view'] = $view;
-                return 'modules/Utils/FileStorage/download.php?' . http_build_query($args);
-            };
+        if ($action_urls === null) {
+            $default_action_handler = new Utils_FileStorage_ActionHandler();
+            $action_urls = $default_action_handler->getActionUrls($meta['id']);
         }
-        $view_link = call_user_func_array($view_callable, [$meta['id'], true]);
-        $download_link = call_user_func_array($view_callable, [$meta['id'], false]);
         $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_attachment_file_history' => $file_history_key)), true, false);
 
 
-        $links['view'] = '<a href="' . $view_link . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
-        $links['download'] = '<a href="' . $download_link . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
+        $links['view'] = '<a href="' . $action_urls['preview'] . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
+        $links['download'] = '<a href="' . $action_urls['download'] . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
         $links['history'] = '<a onclick="' . $history_href_js . ';'.$close_leightbox_js.'">' . __('File History') . '</a><br>';
+        $links['link'] = '<a href="javascript:void(0)" onclick="utils_filestorage_get_remote_link(\''.$action_urls['remote'].'\');'.$close_leightbox_js.'">'.__('Get link').'</a><br>';
 
-        load_js('modules/Utils/Attachment/remote.js');
+        load_js('modules/Utils/FileStorage/remote.js');
         $theme->assign('filename', $meta['filename']);
         $filepath = $meta['file'];
         $theme->assign('file_size', __('File size: %s', array(filesize_hr($filepath))));

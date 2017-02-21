@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author pbukowski@telaxus.com
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Telaxus LLC
@@ -31,14 +31,13 @@ class Utils_FileStorageCommon extends ModuleCommon {
      * @param int|array $id Filestorage ID or meta array
      * @param bool $nolink Do not create link, just show filename
      * @param bool $icon Do not add the file icon
-     * @param callable $view_callable Url generation method with params
-     *                                ($filestorage_id, $view) - $view
-     *                                is true for preview action, otherwise it's
-     *                                download action.
+     * @param array $action_urls Array with action urls. If empty then default
+     *                           \Utils_FileStorage_ActionHandler::getActionUrls
+     *                           will be used
      *
      * @return string File label with link
      */
-    public static function get_file_label($id, $nolink = false, $icon = true, $view_callable = null)
+    public static function get_file_label($id, $nolink = false, $icon = true, $action_urls = null)
     {
         $meta = is_numeric($id) ? self::meta($id) : $id;
         $filename = $meta['filename'];
@@ -63,7 +62,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
                            __('Uploaded by: %s', array(Base_UserCommon::get_user_label($meta['created_by'], true))) . '<br/>' .
                            __('Uploaded on: %s', array(Base_RegionalSettingsCommon::time2reg($meta['created_on'])));
             $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip) . ' '
-                         . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $view_callable);
+                         . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls);
         } else {
             $tooltip_text = __('Missing file: %s', array(substr($meta['hash'], 0, 32) . '...'));
             $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
@@ -458,12 +457,12 @@ class Utils_FileStorageCommon extends ModuleCommon {
     {
         return new Utils_FileStorage_Object($id);
     }
-    
+
 
     public static function get_mime_type($file, $original, $buffer = null)
     {
     	$return = null;
-    
+
     	//new method, but not compiled in by default
     	if (false && extension_loaded('fileinfo')) {
     		$fff = new finfo(FILEINFO_MIME);
@@ -477,7 +476,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     			return $return;
     		}
     	}
-    
+
     	$delete_file = false;
     	if (!$file) {
     		$file = tempnam(sys_get_temp_dir(), 'mime');
@@ -487,9 +486,9 @@ class Utils_FileStorageCommon extends ModuleCommon {
     			$file = null;
     		}
     	}
-    
+
     	if ($file) {
-    
+
     		// unix system
     		$ret = 0;
     		ob_start();
@@ -498,7 +497,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     		if ($ret == 0) {
     			$return = trim($output);
     		}
-    
+
     		// mime_content_type
     		if (!$return) {
     			if (function_exists('mime_content_type')) {
@@ -506,14 +505,14 @@ class Utils_FileStorageCommon extends ModuleCommon {
     			}
     		}
     	}
-    
+
     	if ($delete_file) {
     		@unlink($file);
     	}
     	if ($return) {
     		return $return;
     	}
-    
+
     	preg_match("/\.(.*?)$/", $original, $m);
     	if (!isset($m[1])) {
     		return "application/octet-stream";
@@ -563,12 +562,12 @@ class Utils_FileStorage_Object {
     public function __construct($id) {
         $this->id = $id;
     }
-    
+
     public function fp() {
         $meta = Utils_FileStorageCommon::meta($this->id);
         return fopen($meta['file'],'rb');
     }
-    
+
     public function file() {
         $meta = Utils_FileStorageCommon::meta($this->id);
         return $meta['file'];
@@ -577,11 +576,11 @@ class Utils_FileStorage_Object {
     public function read() {
         return Utils_FileStorageCommon::read_content($this->id);
     }
-    
+
     public function delete() {
         return Utils_FileStorageCommon::delete($this->id);
     }
-    
+
     public function meta() {
         return Utils_FileStorageCommon::meta($this->id);
     }

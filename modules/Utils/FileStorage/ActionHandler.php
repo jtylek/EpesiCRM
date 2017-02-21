@@ -30,6 +30,23 @@ class Utils_FileStorage_ActionHandler
         return $response;
     }
 
+    protected function getHandlingScript()
+    {
+        return get_epesi_url() . '/modules/Utils/FileStorage/file.php';
+    }
+
+    public function getActionUrls($filestorageId, $params = [])
+    {
+        $urls = [];
+        $file = $this->getHandlingScript();
+        $params['id'] = $filestorageId;
+        foreach ($this->allowedActions as $action) {
+            $paramsWithAction = ['action' => $action] + $params;
+            $urls[$action] = "$file?" . http_build_query($paramsWithAction);
+        }
+        return $urls;
+    }
+
     protected function loadEpesi()
     {
         define('CID', false);
