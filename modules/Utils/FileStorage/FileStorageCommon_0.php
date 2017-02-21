@@ -190,6 +190,22 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return $id;
     }
 
+    public static function update_metadata($id, $filename = false, $link = false,
+                                           $backref = false, $created_on = false,
+                                           $created_by = false, $deleted = false)
+    {
+        $update_values = [];
+        foreach (['filename', 'link', 'backref', 'created_on', 'created_by', 'deleted'] as $var) {
+            if ($$var !== false) {
+                $update_values[$var] = $$var;
+            }
+        }
+        if (empty($update_values)) {
+            return false;
+        }
+        return DB::AutoExecute('utils_filestorage', $update_values, 'UPDATE', 'id = ' . intval($id));
+    }
+
     /**
      * @param string     $filename   Original filename
      * @param string     $content    Content of the file
