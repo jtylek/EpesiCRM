@@ -1042,6 +1042,11 @@ class Utils_RecordBrowser extends Module {
             }
         if ($form->exportValue('submited') && $form->validate()) {
             $values = $form->exportValues();
+
+            foreach (Utils_FileUpload_Dropzone::get_registered_file_fields($form) as $file_field => $file_module) {
+                $file = $file_module->get_uploaded_files();
+                $values[$file_field] = $file;
+            }
 			
 			foreach ($defaults as $k=>$v) {
 				if (!isset($values[$k]) && isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]) $values[$k] = $v;
