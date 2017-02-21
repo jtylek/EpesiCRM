@@ -190,20 +190,51 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return $id;
     }
 
+    /**
+     * Update filestorage metadata. Leave value as false to not update it
+     *
+     * @param int $id Filestorage ID
+     * @param bool|string $filename New Filename
+     * @param bool|string $link New Unique link
+     * @param bool|string $backref New backref
+     * @param bool|int|string $created_on Timestamp in seconds or string
+     * @param bool|int $created_by User ID
+     * @param bool|int $deleted Deleted - use 0 value to set not deleted
+     */
     public static function update_metadata($id, $filename = false, $link = false,
                                            $backref = false, $created_on = false,
                                            $created_by = false, $deleted = false)
     {
-        $update_values = [];
-        foreach (['filename', 'link', 'backref', 'created_on', 'created_by', 'deleted'] as $var) {
-            if ($$var !== false) {
-                $update_values[$var] = $$var;
-            }
+        $fields = [];
+        $values = [];
+        if (false !== $filename) {
+            $fields[] = 'filename=%s';
+            $values[] = $filename;
         }
-        if (empty($update_values)) {
-            return false;
+        if (false !== $backref) {
+            $fields[] = 'backref=%s';
+            $values[] = $backref;
         }
-        return DB::AutoExecute('utils_filestorage', $update_values, 'UPDATE', 'id = ' . intval($id));
+        if (false !== $created_on) {
+            $fields[] = 'created_on=%T';
+            $values[] = $created_on;
+        }
+        if (false !== $created_by) {
+            $fields[] = 'created_by=%d';
+            $values[] = $created_by;
+        }
+        if (false !== $deleted) {
+            $fields[] = 'deleted=%d';
+            $values[] = $deleted;
+        }
+        if (!empty($fields)) {
+            $fields = implode(',', $fields);
+            $values[] = $id;
+            DB::Execute("UPDATE utils_filestorage SET $fields WHERE id=%d", $values);
+        }
+        if (false !== $link) {
+            self::add_link($link, $id);
+        }
     }
 
     /**
