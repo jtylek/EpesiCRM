@@ -1337,19 +1337,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
+	    $filestorageIds = [];
         foreach(self::$table_rows as $field => $desc) {
 	        
 	        if ($desc['type'] == 'file') {
 		        $files = $values[$desc['id']];
-		        $filestorageIds = [];
 		        foreach ($files['add'] as $file) {
-			        $filestorageIds[] = Utils_FileStorageCommon::write_content($file['name'], file_get_contents(
+			        $filestorageIds[] = Utils_FileStorageCommon::write_file(
+				        $file['name'],
 				        $file['file'],
 				        null,
-				        'rb:' . $tab,
-				        $user,
-				        date('Y-m-d H:i:s')
-			        ));
+				        null
+			        );
 		        }
 		        $values[$desc['id']] = '';
 		        foreach ($filestorageIds as $key => $filestorageId) {
@@ -1388,8 +1387,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 self::update_record($tab, $id, array($desc['id'] => $autonumber_value), false, null, true);
                 $values[$desc['id']] = $autonumber_value;
             }
-
-			// Set filestorage backref to record 
+			if ($desc['type'] === 'file') {
+				foreach($filestorageIds as $key => $filestorageId) {
+					Utils_FileStorageCommon::update_metadata(
+						$filestorageId,
+						false,
+						$tab . '/' . $id . '/' . $desc['id'],
+						'rb:' . $tab . '/' . $id . '/' . $desc['id']);
+				}
+			}
         }
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
