@@ -1338,18 +1338,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
         foreach(self::$table_rows as $field => $desc) {
-
-
+	        
 	        if ($desc['type'] == 'file') {
-//		        $files = $values[$desc['id']];
-//		        $filestorage_ids = [];
-//		        foreach ($files as $file) {
-			        // Utils_FileStorage::write
-//			        $filestorage_ids[] = 5;
-
-//		        }
-		        // serialize filestorageids using __<id>__
-//		        $values[$desc['id']] = '';
+		        $files = $values[$desc['id']];
+		        $filestorageIds = [];
+		        foreach ($files['add'] as $file) {
+			        $filestorageIds[] = Utils_FileStorageCommon::write_content($file['name'], file_get_contents(
+				        $file['file'],
+				        null,
+				        'rb:' . $tab,
+				        $user,
+				        date('Y-m-d H:i:s')
+			        ));
+		        }
+		        $values[$desc['id']] = '';
+		        foreach ($filestorageIds as $key => $filestorageId) {
+			        $values[$desc['id']] .= '__'.$filestorageId.((count($filestorageIds)-1 == $key)?'__':'');
+	            }
 	        }
 
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
