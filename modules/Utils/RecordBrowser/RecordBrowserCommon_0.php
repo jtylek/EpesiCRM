@@ -1392,7 +1392,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 					Utils_FileStorageCommon::update_metadata(
 						$filestorageId,
 						false,
-						$tab . '/' . $id . '/' . $desc['id'],
+						false,
 						'rb:' . $tab . '/' . $id . '/' . $desc['id']);
 				}
 			}
@@ -2195,7 +2195,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $record[$v] = $row[$v];
             $record[':active'] = $row['active'];
             foreach(self::$table_rows as $field=>$desc) {
-                if ($desc['type']==='multiselect') {
+                if ($desc['type']==='multiselect' || $desc['type'] === 'file') {
                     if (!isset($row['f_'.$desc['id']])) $r = array();
                     else $r = self::decode_multi($row['f_'.$desc['id']]);
                     $record[$desc['id']] = $r;
@@ -3654,20 +3654,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	//region File
 	public static function display_file($r, $nolink=false, $desc=null, $tab=null)
 	{
-		$ret = '';
-		return $ret;
+		$ret = [];
+		$fileStorageIds = self::decode_multi($r[$desc['id']]);
+		$fileHandler = new Utils_RecordBrowser_FileActionHandler();
+		foreach($fileStorageIds as $fileStorageId) {
+			if(!empty($fileStorageId)) {
+				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
+				$ret[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
+			}
+		}
+		return implode('<br>', $ret);
 	}
 
 	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
 	{
-		if ($mode == 'add' || $mode == 'edit') {
-			$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
-			$dropzoneField->add_to_form($form, $field, $label);
-		} else {
-			$content = self::display_file($rb_obj->record,false,$desc,$rb_obj->tab);
-			$form->addElement('static', $field, $label, $content);
-			$form->setDefaults(array($field => $content));
-		}
+		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+			return;
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
+		$dropzoneField->add_to_form($form, $field, $label);
 	}
 	//endregion
     
