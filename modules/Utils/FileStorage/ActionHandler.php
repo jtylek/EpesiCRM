@@ -5,7 +5,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Utils_FileStorage_ActionHandler
 {
+    /**
+     * You can override this variable to define allowed actions
+     *
+     * @var array Possible actions to execute
+     */
     protected $allowedActions = ['download', 'preview', 'remote'];
+
+    /**
+     * You can override this variable to allow access for not logged in users
+     *
+     * @var bool
+     */
+    protected $forUsersOnly = true;
 
     public function handle()
     {
@@ -34,9 +46,20 @@ class Utils_FileStorage_ActionHandler
         return Base_AclCommon::i_am_admin() && $adminAccess;
     }
 
+    protected function hasUserAccess()
+    {
+        if ($this->forUsersOnly) {
+            return Base_AclCommon::is_user();
+        }
+        return true;
+    }
+
     protected function handleAction(Request $request)
     {
         $action = $request->get('action', 'download');
+        if (!$this->hasUserAccess()) {
+            return new Response('Only for logged in users.', 403);
+        }
         if (!in_array($action, $this->allowedActions)
             || !$this->hasAccess($action, $request)
         ) {
