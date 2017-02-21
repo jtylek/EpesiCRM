@@ -1085,6 +1085,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
             case 'autonumber': $len = strlen(self::format_autonumber_str($param, null));
                 $f = DB::dict()->ActualType('C') . "($len)"; break;
+	        case 'file': $f = DB::dict()->ActualType('X'); break;
         }
         return $f;
     }
@@ -1339,7 +1340,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach(self::$table_rows as $field => $desc) {
 
 
-//	        if ($desc['type'] == 'file') {
+	        if ($desc['type'] == 'file') {
 //		        $files = $values[$desc['id']];
 //		        $filestorage_ids = [];
 //		        foreach ($files as $file) {
@@ -1349,8 +1350,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //		        }
 		        // serialize filestorageids using __<id>__
 //		        $values[$desc['id']] = '';
-//	        }
-
+	        }
 
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
