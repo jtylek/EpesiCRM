@@ -14,6 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FileUpload_Dropzone extends Module
 {
+    public static $fileFields;
 
     public function get_div($identifier = '')
     {
@@ -83,11 +84,12 @@ class Utils_FileUpload_Dropzone extends Module
         $this->set_uploaded_files($uploaded);
     }
 
-    public function add_to_form($form, $identifier, $label)
+    public function add_to_form(Libs_QuickForm $form, $identifier, $label)
     {
         $content = $this->get_div($identifier);
         $form->addElement('static', $identifier, $label, $content)->freeze();
         $form->setDefaults(array($identifier => $content));
+        $this->register_file_fields($form, $identifier);
     }
 
     public function get_uploaded_files()
@@ -127,5 +129,15 @@ class Utils_FileUpload_Dropzone extends Module
 
             closedir($dir);
         }
+    }
+    
+    public function register_file_fields(Libs_QuickForm $form, $identifier)
+    {
+        self::$fileFields[$form->get_name()][$identifier] = $this;
+    }
+
+    public static function get_registered_file_fields(Libs_QuickForm $form)
+    {
+        return self::$fileFields[$form->get_name()];
     }
 }
