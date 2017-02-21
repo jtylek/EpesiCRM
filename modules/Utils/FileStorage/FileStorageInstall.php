@@ -18,7 +18,9 @@ class Utils_FileStorageInstall extends ModuleInstall {
         $ret &= DB::CreateTable('utils_filestorage_files', '
 			id I8 AUTO KEY,
 			hash C(128) NOTNULL,
-            deleted I1 DEFAULT 0',
+            deleted I1 DEFAULT 0,
+            size I8,
+            type C(256)',
             array('constraints' => ', UNIQUE(hash)'));
         if (!$ret) {
             print('Unable to create table utils_filestorage_files.<br>');

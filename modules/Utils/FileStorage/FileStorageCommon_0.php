@@ -70,7 +70,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return '<div class="file_link"><a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a></div>';
     }
 
-    private static function get_storage_file_path($hash)
+    public static function get_storage_file_path($hash)
     {
         $dirs = str_split(substr($hash, 0, 5));
         $path = self::Instance()->get_data_dir() . implode(DIRECTORY_SEPARATOR, $dirs);
@@ -114,7 +114,9 @@ class Utils_FileStorageCommon extends ModuleCommon {
             }
         }
         if (!$file_id) {
-            DB::Execute('INSERT INTO utils_filestorage_files(hash) VALUES(%s)', array($hash));
+            $size = filesize($path);
+            $type = self::get_mime_type($path);
+            DB::Execute('INSERT INTO utils_filestorage_files(hash,size,type) VALUES(%s,%d,%s)', array($hash,$size,$type));
             $file_id = DB::Insert_ID('utils_filestorage_files', 'id');
             if (!$file_id) {
                 throw new Utils_FileStorage_WriteError('Writing file hash to database failed');
@@ -346,7 +348,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
             return $meta_cache[$id];
         }
 
-        $meta = DB::GetRow('SELECT s.*, f.hash FROM (SELECT * FROM utils_filestorage WHERE id=%d) s LEFT JOIN utils_filestorage_files f ON s.file_id=f.id', array($id));
+        $meta = DB::GetRow('SELECT s.*, f.hash, f.type, f.size FROM (SELECT * FROM utils_filestorage WHERE id=%d) s LEFT JOIN utils_filestorage_files f ON s.file_id=f.id', array($id));
         if (!$meta) {
             throw new Utils_FileStorage_StorageNotFound('Exception - DB storage object not found: ' . $id);
         }
