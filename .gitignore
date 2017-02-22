@@ -25,4 +25,3 @@ Thumbs.db
 # Composer packages directory
 vendor
 !modules/CRM/Roundcube/RC/vendor
-tests/_output/*
