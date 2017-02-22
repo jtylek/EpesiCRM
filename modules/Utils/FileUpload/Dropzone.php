@@ -76,10 +76,11 @@ class Utils_FileUpload_Dropzone extends Module
     {
         $uploaded = $this->get_uploaded_files();
         foreach ($files as $file_id => $filename) {
+            $file = Utils_FileStorageCommon::meta($file_id);
             $uploaded['existing'][$file_id] = [
-                'name' => $filename,
-                'type' => '',
-                'size' => '',
+                'name' => $file['filename'],
+                'type' => $file['type'],
+                'size' => $file['size'],
                 'file_id' => $file_id
             ];
         }
@@ -157,7 +158,7 @@ class Utils_FileUpload_Dropzone extends Module
         }
         $last_hist = $this->get_module_variable('hist', 0);
         $curr_hist = History::get_id();
-        if ($curr_hist - $last_hist > 1) $this->clear_uploaded_files();
+        if ($curr_hist - $last_hist > 1) $this->get_module_variable('files')['add'] = [];
         $this->set_module_variable('hist', $curr_hist);
     }
 }
