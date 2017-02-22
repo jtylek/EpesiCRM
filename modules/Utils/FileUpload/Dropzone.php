@@ -18,6 +18,7 @@ class Utils_FileUpload_Dropzone extends Module
 
     public function get_div($identifier = '')
     {
+        $this->check_clear();
         $identifier = 'dropzone_' . $identifier;
         $content = "<div id=\"{$identifier}\" class=\"dropzone\"></div>";
         $dir = 'modules/Utils/FileUpload/';
@@ -26,6 +27,7 @@ class Utils_FileUpload_Dropzone extends Module
         $query = http_build_query(array('cid' => CID, 'path' => $this->get_path()));
         $files = $this->get_uploaded_files();
         $files_js = '';
+        //Dropzone.forElement("#dropzone_files").emit("addedfile", jsonFile);
         if (isset($files['add'])) {
             foreach ($files['add'] as $file) {
                 $js_file = json_encode(array('name' => $file['name'], 'size' => $file['size']));
@@ -139,5 +141,23 @@ class Utils_FileUpload_Dropzone extends Module
     public static function get_registered_file_fields(Libs_QuickForm $form)
     {
         return self::$fileFields[$form->get_name()];
+    }
+
+    protected $disable_check_clear = false;
+
+    public function enable_persistent_fileupload()
+    {
+        $this->disable_check_clear = true;
+    }
+
+    protected function check_clear()
+    {
+        if ($this->disable_check_clear) {
+            return;
+        }
+        $last_hist = $this->get_module_variable('hist', 0);
+        $curr_hist = History::get_id();
+        if ($curr_hist - $last_hist > 1) $this->clear_uploaded_files();
+        $this->set_module_variable('hist', $curr_hist);
     }
 }
