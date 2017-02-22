@@ -95,7 +95,7 @@ class Utils_RecordBrowser_CritsValidator
                 } else {
                     $first = $r_val;
                 }
-                if (preg_match('/[0-9]+/', $first)) {
+                if (preg_match('/^[0-9-]+$/', $first)) {
                     $crit_value = preg_replace('#.*/#', '', $crit_value); // remove prefix for select from single tab: contact/1 => 1
                 }
             }

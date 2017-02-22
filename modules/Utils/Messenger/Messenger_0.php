@@ -122,7 +122,7 @@ class Utils_Messenger extends Module {
 		$data = DB::GetAll('SELECT * FROM utils_messenger_message WHERE page_id=\''.$this->mid.'\'');
 		foreach($data as & $row) {
 			$row['users'] = DB::GetCol('SELECT user_login_id FROM utils_messenger_users WHERE message_id=\''.$row['id'].'\'');
-			$r = & $gb->get_new_row();
+			$r = $gb->get_new_row();
 			if(is_array($this->users)) {
 				$us = '';
 				foreach($row['users'] as $rr)

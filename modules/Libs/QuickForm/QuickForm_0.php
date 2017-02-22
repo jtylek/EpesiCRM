@@ -21,6 +21,8 @@ $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_Quic
 
 /**
  * This class provides saving any page as homepage for each user.
+ *
+ * @mixin HTML_QuickForm
  */
 class Libs_QuickForm extends Module {
 	private $qf;
@@ -203,7 +205,7 @@ class Libs_QuickForm extends Module {
 			case 'callback':
 				if(!isset($v['func']))
 					trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
-				$elem = call_user_func($v['func'],$v['name'],$v,$default_js);
+				$elem = call_user_func_array($v['func'],array($v['name'], $v, &$default_js, $this));
 				break;
 			default:
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);

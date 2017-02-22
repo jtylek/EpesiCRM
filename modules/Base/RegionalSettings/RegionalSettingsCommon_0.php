@@ -92,13 +92,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	}
 
 	private static $country_elem_name;
-	public static function default_country_elem($name) {
+	public static function default_country_elem($name,$params,$js,$form) {
 		self::$country_elem_name = $name;
-		return HTML_QuickForm::createElement('commondata',$name,__('Country'),'Countries');
+		return $form->createElement('commondata',$name,__('Country'),'Countries');
 	}
 
-	public static function default_state_elem($name) {
-		return HTML_QuickForm::createElement('commondata',$name,__('State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
+	public static function default_state_elem($name,$params,$js,$form) {
+		return $form->createElement('commondata',$name,__('State'),array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 
 	public static function get_default_location() {
@@ -204,7 +204,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	
+
 	public static function set_locale() {
 		self::$curr_locale = setlocale(LC_ALL,0);
 		if (ModuleManager::is_installed('Base_Lang')!==-1) $lang_code = strtolower(Base_LangCommon::get_lang_code());
@@ -215,7 +215,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'.UTF-8',
 				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
 		setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
-		
+
 		// detect turkish issues - fixed in php 5.5
 		// https://bugs.php.net/bug.php?id=18556
 		// http://www.i18nguy.com/unicode/turkish-i18n.html#problem
@@ -363,7 +363,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	if($seconds_h) {
 	    $seconds = intval($seconds)%60;
             $ret .= __('%s seconds',array($seconds));
-	}	
+	}
 		return $ret;
         }
 
