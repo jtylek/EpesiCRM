@@ -265,8 +265,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function display_time($record, $nolink, $desc=null) {
     	$ret = '';
-    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
-    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds',false);
+    	if (isset($desc['id']) && isset($record[$desc['id']])) {
+            $ret = $record[$desc['id']] !== '' && $record[$desc['id']] !== false
+                ? Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds', false)
+                : '---';
     	}
     
     	return $ret;

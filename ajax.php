@@ -26,7 +26,6 @@ if (!is_callable($callback))
     throw new Exception('Callback ' . print_r($callback, true) . ' is not callable');
 
 $request = Request::createFromGlobals();
-array_unshift($params['args'], $string);
 /** @var Response $response */
 $response = call_user_func_array($callback, array($request, $args));
 

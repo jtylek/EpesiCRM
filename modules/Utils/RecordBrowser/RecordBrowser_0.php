@@ -105,6 +105,10 @@ class Utils_RecordBrowser extends Module {
     public function get_custom_defaults(){
         return $this->custom_defaults;
     }
+    
+    public function get_crits() {
+    	return $this->crits;
+    }
 
     public function get_final_crits() {
         if (!$this->displayed()) trigger_error('You need to call display_module() before calling get_final_crits() method.', E_USER_ERROR);
@@ -716,6 +720,9 @@ class Utils_RecordBrowser extends Module {
             $form = $this->init_module(Libs_QuickForm::module_name(),null, 'add_in_table__'.$this->tab);
             $form_name = $form->get_name();
         } else $form_name = '';
+
+        $column_access = array_fill(0, count($query_cols), false);
+        $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {
                 self::$browsed_records['records'][$row['id']] = $i;
@@ -740,11 +747,14 @@ class Utils_RecordBrowser extends Module {
                 $rpicker_ind[] = $row_id;
             }
             $r_access = $this->get_access('view', $row);
+            $data_rows_offset = count($row_data);
             foreach($query_cols as $k=>$argsid) {
 				if (!$r_access || !$r_access[$argsid]) {
 					$row_data[] = '';
 					continue;
 				}
+				$column_access[$k] = true;
+
                 $field = $hash[$argsid];
                 $args = $this->table_rows[$field];
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
@@ -883,6 +893,11 @@ class Utils_RecordBrowser extends Module {
 			$gb->absolute_width(true);
 			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
 		} else $args = array();
+        foreach ($column_access as $k => $access) {
+            if (!$access) {
+                $gb->set_column_display($k + $data_rows_offset, false);
+            }
+        }
 		$this->display_module($gb, $args);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -986,8 +1001,11 @@ class Utils_RecordBrowser extends Module {
                 return true;
             }
         }
-        if ($mode=='add' && !$access) {
-			print(__('You don\'t have permission to perform this action.'));
+        if ($mode=='add' && (!$access || !$this->view_fields_permission)) {
+            $msg = !$access ?
+                __('You don\'t have permission to perform this action.')
+                : __('You can\'t see any of the records fields.');
+            print($msg);
 			if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back']))) {
 				Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 				//Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
@@ -1049,7 +1067,8 @@ class Utils_RecordBrowser extends Module {
             }
 			
 			foreach ($defaults as $k=>$v) {
-				if (!isset($values[$k]) && isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]) $values[$k] = $v;
+				if (!isset($values[$k]) && ($this->view_fields_permission === false
+                        || (isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]))) $values[$k] = $v;
 				if (isset($access[$k]) && !$access[$k]) $values[$k] = $v;
 			}
             foreach ($this->table_rows as $v) {
@@ -1427,7 +1446,9 @@ class Utils_RecordBrowser extends Module {
         uasort($fields_by_processing_order, array(__CLASS__, 'sort_by_processing_order'));
         foreach($fields_by_processing_order as $field => $args){
             // check permissions
-            if (isset($this->view_fields_permission[$args['id']]) && !$this->view_fields_permission[$args['id']]) continue;
+            if ($this->view_fields_permission === false ||
+                (isset($this->view_fields_permission[$args['id']])
+                 && !$this->view_fields_permission[$args['id']])) continue;
             // check visible cols
             if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
             // set default value to '' if not set at all
