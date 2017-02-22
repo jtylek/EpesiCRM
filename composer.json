@@ -29,6 +29,7 @@
         "classmap": ["libs/quickform"]
     },
     "require-dev": {
-        "codeception/codeception": "*"
+        "codeception/codeception": "*",
+        "codeception/aspect-mock": "*"
     }
 }
