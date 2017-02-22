@@ -15,7 +15,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 HTML_QuickForm::registerElementType('ckeditor','modules/Libs/CKEditor/ckeditor.php'
-                                            ,'HTML_Quickform_ckeditor');
+                                            ,'HTML_QuickForm_ckeditor');
 load_css('modules/Libs/CKEditor/frontend.css');
 
 class Libs_CKEditorCommon extends ModuleCommon {
