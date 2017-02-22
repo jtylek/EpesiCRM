@@ -14,6 +14,7 @@ extensions:
         - Codeception\Extension\RunFailed
 params:
     - env
+    - tests/config.yml
 modules:
     config:
         Db:
