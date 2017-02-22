@@ -513,7 +513,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	$return = null;
 
     	//new method, but not compiled in by default
-    	if (false && extension_loaded('fileinfo')) {
+    	if (extension_loaded('fileinfo')) {
     		$fff = new finfo(FILEINFO_MIME);
     		if ($file) {
     			$return = $fff->file($file);
