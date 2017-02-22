@@ -27,7 +27,6 @@ class Utils_FileUpload_Dropzone extends Module
         $query = http_build_query(array('cid' => CID, 'path' => $this->get_path()));
         $files = $this->get_uploaded_files();
         $files_js = '';
-        //Dropzone.forElement("#dropzone_files").emit("addedfile", jsonFile);
         if (isset($files['add'])) {
             foreach ($files['add'] as $file) {
                 $js_file = json_encode(array('name' => $file['name'], 'size' => $file['size']));

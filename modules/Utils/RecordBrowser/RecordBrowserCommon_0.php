@@ -1352,7 +1352,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		        }
 		        $values[$desc['id']] = '';
 		        foreach ($filestorageIds as $key => $filestorageId) {
-			        $values[$desc['id']] .= '__'.$filestorageId.((count($filestorageIds)-1 == $key)?'__':'');
+			        $values[$desc['id']] .= '__'.$filestorageId.
+				        ((count($filestorageIds)-1 == $key || count($filestorageIds) == 1)
+					        ?'__'
+					        :'');
 	            }
 	        }
 
@@ -1433,6 +1436,36 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $diff = array();
         self::init($tab);
         foreach(self::$table_rows as $field => $desc){
+	        if ($desc['type'] == 'file') {
+		        $files = $values[$desc['id']];
+		        foreach ($files['add'] as $file) {
+			        $filestorageIds[] = Utils_FileStorageCommon::write_file(
+				        $file['name'],
+				        $file['file'],
+				        null,
+				        'rb:' . $tab . '/' . $id . '/' . $desc['id']
+			        );
+		        }
+		        $values[$desc['id']] = '';
+		        foreach ($files['existing'] as $key => $file) {
+			        $values[$desc['id']] .= '__'.$file['file_id'].
+				        ((count($files['existing'])-1 == $key || count($files['existing']) == 1)
+					        ? '__'
+					        : ''
+				        );
+		        }
+		        foreach ($filestorageIds as $key => $filestorageId) {
+			        $values[$desc['id']] .=
+				        count($values[$desc['id']]) > 1
+					        ? '__'
+					        : ''
+					        . $filestorageId .
+				        ((count($filestorageIds)-1 == $key || count($filestorageIds) == 1)
+					        ? '__'
+					        : ''
+				        );
+		        }
+	        }
 			if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if ($desc['id']=='id') continue;
             if (!isset($values[$desc['id']])) {
