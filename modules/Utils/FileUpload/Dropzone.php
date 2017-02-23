@@ -74,8 +74,7 @@ class Utils_FileUpload_Dropzone extends Module
     public function set_defaults($files)
     {
         $uploaded = $this->get_uploaded_files();
-        foreach ($files as $file_id => $filename) {
-            $file = Utils_FileStorageCommon::meta($file_id);
+        foreach ($files as $file_id => $file) {
             $uploaded['existing'][$file_id] = [
                 'name' => $file['filename'],
                 'type' => $file['type'],
@@ -99,7 +98,12 @@ class Utils_FileUpload_Dropzone extends Module
         $var = $this->get_module_variable('files');
 
         if (!is_array($var)) {
-            $var = array('add' => array(), 'delete' => array(), 'existing' => array());
+            $var = [];
+        }
+        foreach (['add', 'delete', 'existing'] as $key) {
+            if (!array_key_exists($key, $var)) {
+                $var[$key] = [];
+            }
         }
         return $var;
     }
