@@ -397,7 +397,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function decode_record_token($token, $single_tab=false) {
-    	$kk = explode('/',$token,2);
+    	$kk = explode('/',$token);
     	if(count($kk)==1) {
     		if ($single_tab && is_numeric($kk[0])) {
     			$tab = $single_tab;
@@ -624,6 +624,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $row['param'] = self::decode_commondata_param($row['param']);
 				$commondata = true;
 			}
+            if ($row['type'] == 'file') {
+                $row['param'] = json_decode($row['param'], true);
+                if (!is_array($row['param'])) $row['param'] = [];
+                if (!isset($row['param']['max_files'])) $row['param']['max_files'] = false;
+            }
             $next_field =
                 array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
@@ -935,6 +940,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($param)) {
             if ($definition['type']=='commondata') {
                 $param = self::encode_commondata_param($param);
+            } elseif($definition['type'] == 'file') {
+                $param = json_encode($param);
             } else {
                 $tmp = array();
                 foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
@@ -1341,24 +1348,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
 	    $filestorageIds = [];
         foreach(self::$table_rows as $field => $desc) {
-	        
+
 	        if ($desc['type'] == 'file') {
-		        $files = $values[$desc['id']];
-		        foreach ($files['add'] as $file) {
-			        $filestorageIds[] = Utils_FileStorageCommon::write_file(
-				        $file['name'],
-				        $file['file'],
-				        null,
-				        null
-			        );
-		        }
-		        $values[$desc['id']] = '';
-		        foreach ($filestorageIds as $key => $filestorageId) {
-			        $values[$desc['id']] .= '__'.$filestorageId.
-				        ((count($filestorageIds)-1 == $key || count($filestorageIds) == 1)
-					        ?'__'
-					        :'');
-	            }
+                $files = $values[$desc['id']];
+                if (is_string($files)) $files = self::decode_multi($files);
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds[$field] = Utils_FileStorageCommon::add_files($files);
+                $values[$desc['id']] = self::encode_multi($filestorageIds[$field]);
 	        }
 
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
@@ -1393,14 +1391,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $values[$desc['id']] = $autonumber_value;
             }
 			if ($desc['type'] === 'file') {
-				foreach($filestorageIds as $key => $filestorageId) {
-					Utils_FileStorageCommon::update_metadata(
-						$filestorageId,
-						false,
-						false,
-						'rb:' . $tab . '/' . $id . '/' . $desc['id']);
-				}
-			}
+			    // update backref
+			    Utils_FileStorageCommon::add_files($filestorageIds[$field], "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds[$field];
+            }
         }
 		$values['id'] = $id;
 		self::record_processing($tab, $values, 'added');
@@ -1438,36 +1432,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $diff = array();
         self::init($tab);
         foreach(self::$table_rows as $field => $desc){
-	        if ($desc['type'] == 'file') {
-		        $files = $values[$desc['id']];
-		        foreach ($files['add'] as $file) {
-			        $filestorageIds[] = Utils_FileStorageCommon::write_file(
-				        $file['name'],
-				        $file['file'],
-				        null,
-				        'rb:' . $tab . '/' . $id . '/' . $desc['id']
-			        );
-		        }
-		        $values[$desc['id']] = '';
-		        foreach ($files['existing'] as $key => $file) {
-			        $values[$desc['id']] .= '__'.$file['file_id'].
-				        ((count($files['existing'])-1 == $key || count($files['existing']) == 1)
-					        ? '__'
-					        : ''
-				        );
-		        }
-		        foreach ($filestorageIds as $key => $filestorageId) {
-			        $values[$desc['id']] .=
-				        count($values[$desc['id']]) > 1
-					        ? '__'
-					        : ''
-					        . $filestorageId .
-				        ((count($filestorageIds)-1 == $key || count($filestorageIds) == 1)
-					        ? '__'
-					        : ''
-				        );
-		        }
-	        }
 			if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if ($desc['id']=='id') continue;
             if (!isset($values[$desc['id']])) {
@@ -1491,6 +1455,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
                 $v = self::encode_multi($values[$desc['id']]);
                 $old = self::encode_multi($record[$desc['id']]);
+            } elseif ($desc['type'] == 'file') {
+                $files = $values[$desc['id']];
+                if (is_string($files)) {
+                    $files = self::decode_multi($files);
+                }
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds = Utils_FileStorageCommon::add_files($files, "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds;
+                // Delete files not present in the field right now
+                $old = $record[$desc['id']];
+                sort($old);
+                if ($old == $filestorageIds) continue;
+                foreach ($record[$desc['id']] as $file) {
+                    if (!in_array($file, $filestorageIds)) {
+                        // delete file
+                        Utils_FileStorageCommon::delete($file);
+                    }
+                }
+                $v = self::encode_multi($filestorageIds);
+                $old = self::encode_multi($old);
             } else {
                 if ($record[$desc['id']]===$values[$desc['id']]) continue;
                 $v = $values[$desc['id']];
@@ -3705,9 +3691,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	{
 		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
 			return;
-		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload_Dropzone');
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone');
 		if ($default) {
-			$dropzoneField->set_defaults($default);
+		    $files = [];
+            foreach ($default as $filestorageId) {
+                $meta = Utils_FileStorageCommon::meta($filestorageId);
+                $files[$filestorageId] = [
+                    'filename' => $meta['filename'],
+                    'type' => $meta['type'],
+                    'size' => $meta['size']
+                ];
+            }
+			$dropzoneField->set_defaults($files);
 		}
 		$dropzoneField->add_to_form($form, $field, $label);
 	}

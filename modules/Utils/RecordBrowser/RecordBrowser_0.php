@@ -465,11 +465,6 @@ class Utils_RecordBrowser extends Module {
                     $arr[$v] = $this->more_table_properties[$args['id']][$v];
                 }
             }
-            if (is_array($args['param']))
-                $str = explode(';', $args['param']['array_id']);
-            else
-                $str = explode(';', $args['param']);
-            $ref = explode('::', $str[0]);
             $each = array();
             if (!$pdf && $quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
             if (!$pdf && !$this->disabled['search']) $each[] = 'search';
@@ -1061,9 +1056,23 @@ class Utils_RecordBrowser extends Module {
         if ($form->exportValue('submited') && $form->validate()) {
             $values = $form->exportValues();
 
+            /**
+             * @var Utils_FileUpload_Dropzone $file_module
+             */
             foreach (Utils_FileUpload_Dropzone::get_registered_file_fields($form) as $file_field => $file_module) {
-                $file = $file_module->get_uploaded_files();
-                $values[$file_field] = $file;
+                $files = [];
+                $uploaded_files = $file_module->get_uploaded_files();
+                foreach ($uploaded_files['existing'] as $file) {
+                    if (isset($uploaded_files['delete'][$file['file_id']])) continue;
+                    $files[] = $file['file_id'];
+                }
+                foreach ($uploaded_files['add'] as $file) {
+                    $files[] = [
+                        'filename' => $file['name'],
+                        'file' => $file['file']
+                    ];
+                }
+                $values[$file_field] = $files;
             }
 			
 			foreach ($defaults as $k=>$v) {
