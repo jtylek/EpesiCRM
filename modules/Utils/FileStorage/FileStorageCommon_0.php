@@ -100,11 +100,12 @@ class Utils_FileStorageCommon extends ModuleCommon {
      *       return file_put_contents($path, $some_data);
      *   }
      * </code>
+     * @param string $filename Original filename - required to guess mime type
      *
      * @return int File id in the database
      * @throws Utils_FileStorage_WriteError
      */
-    public static function add_data($hash, $store_closure)
+    public static function add_data($hash, $store_closure, $filename = '')
     {
         $path = self::get_storage_file_path($hash);
         $file_id = DB::GetOne('SELECT id FROM utils_filestorage_files WHERE hash=%s',array($hash));
@@ -115,7 +116,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
         }
         if (!$file_id) {
             $size = filesize($path);
-            $type = self::get_mime_type($path);
+            $type = self::get_mime_type($path, $filename);
             DB::Execute('INSERT INTO utils_filestorage_files(hash,size,type) VALUES(%s,%d,%s)', array($hash,$size,$type));
             $file_id = DB::Insert_ID('utils_filestorage_files', 'id');
             if (!$file_id) {
@@ -129,32 +130,34 @@ class Utils_FileStorageCommon extends ModuleCommon {
      * Add content to the filestorage
      *
      * @param string $content Content to save
+     * @param string $filename Original filename - required to guess mime type
      *
      * @return int File id in the database
      */
-    public static function add_data_from_content(& $content)
+    public static function add_data_from_content(& $content, $filename = '')
     {
         $hash = self::hash_content($content);
         $store_closure = function ($path) use (& $content) {
             return file_put_contents($path, $content);
         };
-        return self::add_data($hash, $store_closure);
+        return self::add_data($hash, $store_closure, $filename);
     }
 
     /**
      * Add file to the filestorage
      *
      * @param string $file File path to save
+     * @param string $filename Original filename - required to guess mime type
      *
      * @return int File id in the database
      */
-    public static function add_data_from_file($file)
+    public static function add_data_from_file($file, $filename = '')
     {
         $hash = self::hash_file($file);
         $store_closure = function ($path) use ($file) {
             return copy($file, $path);
         };
-        return self::add_data($hash, $store_closure);
+        return self::add_data($hash, $store_closure, $filename);
     }
 
     /**
@@ -254,7 +257,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
                                          $created_on = null, $created_by = null)
     {
         if ($link && self::get_storage_id_by_link($link, false)) throw new Utils_FileStorage_LinkDuplicate($link);
-        $file_id = self::add_data_from_content($content);
+        $file_id = self::add_data_from_content($content, $filename);
         return self::write_metadata($file_id, $filename, $link, $backref, $created_on, $created_by);
     }
 
@@ -273,9 +276,43 @@ class Utils_FileStorageCommon extends ModuleCommon {
                                       $created_on = null, $created_by = null)
     {
         if ($link && self::get_storage_id_by_link($link, false)) throw new Utils_FileStorage_LinkDuplicate($link);
-        $file_id = self::add_data_from_file($file);
+        $file_id = self::add_data_from_file($file, $filename);
         return self::write_metadata($file_id, $filename, $link, $backref, $created_on, $created_by);
     }
+
+    public static function add_files(array $files, $backref = null)
+    {
+        $filestorageIds = [];
+        foreach ($files as $file) {
+            if (is_array($file)) {
+                $filename = $file['filename'];
+                $created_by = isset($file['created_by']) ? $file['created_by'] : null;
+                $created_on = isset($file['created_on']) ? $file['created_on'] : null;
+                $link = isset($file['link']) ? $file['link'] : null;
+                if (isset($file['file'])) {
+                    $filestorageIds[] = self::write_file($filename, $file['file'],
+                                                         $link, $backref,
+                                                         $created_on, $created_by);
+                } elseif (isset($file['content'])) {
+                    $filestorageIds[] = self::write_content($filename, $file['content'],
+                                                         $link, $backref,
+                                                         $created_on, $created_by);
+                }
+            } else {
+                $meta = self::meta($file, false);
+                if (!$meta['backref'] && $backref !== null) {
+                    self::update_metadata($meta['id'], false, false, $backref);
+                } elseif ($backref === null || $meta['backref'] != $backref) {
+                    $file = self::write_file($meta['filename'], $meta['file'],
+                                             null, $backref);
+                }
+                $filestorageIds[] = $file;
+            }
+        }
+        sort($filestorageIds);
+        return $filestorageIds;
+    }
+
 
     /**
      * Replace Filestorage content with a new one.
