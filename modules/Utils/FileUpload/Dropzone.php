@@ -14,7 +14,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_FileUpload_Dropzone extends Module
 {
-    public static $fileFields;
+    public static $fileFields = [];
 
     public function get_div($identifier = '')
     {
@@ -144,7 +144,11 @@ class Utils_FileUpload_Dropzone extends Module
 
     public static function get_registered_file_fields(Libs_QuickForm $form)
     {
-        return self::$fileFields[$form->get_name()];
+        $form_name = $form->get_name();
+        if (isset(self::$fileFields[$form_name]) && is_array(self::$fileFields[$form_name])) {
+            return self::$fileFields[$form_name];
+        }
+        return [];
     }
 
     protected $disable_check_clear = false;
