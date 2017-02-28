@@ -23,4 +23,14 @@ class AcceptanceTester extends \Codeception\Actor
    /**
     * Define custom actions here
     */
+
+    /**
+     * Wait for EPESI to finish request
+     *
+     * @param int $time
+     */
+    public function waitForEpesi($time = 60)
+    {
+        $this->waitForJS('return Epesi.procOn == 0;', $time);
+    }
 }
