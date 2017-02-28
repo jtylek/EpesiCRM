@@ -16,6 +16,8 @@ class Utils_FileUpload_Dropzone extends Module
 {
     public static $fileFields = [];
 
+    public $maxFiles = null;
+
     public function get_div($identifier = '')
     {
         $this->check_clear();
@@ -52,11 +54,14 @@ class Utils_FileUpload_Dropzone extends Module
                 })(dz);';
             }
         }
+        $options = [
+            'url' => get_epesi_url() . '/' . $dir . 'dropzoneupload.php?' . $query,
+            'uploadMultiple' => true,
+            'addRemoveLinks' => true,
+            'maxFiles' => $this->maxFiles,
+        ];
         eval_js('jq(".dz-hidden-input").remove(); if (!document.querySelector("#' . $identifier . '").dropzone) {
-            var dz = new Dropzone("#' . $identifier . '", {
-            url:"' . get_epesi_url() . '/' . $dir . 'dropzoneupload.php?' . $query . '",
-            uploadMultiple:true,
-            addRemoveLinks:true});
+            var dz = new Dropzone("#' . $identifier . '", '.json_encode($options).');
             dz.on("removedfile", function(file) {
                    jq.ajax({
                     type:\'POST\',
@@ -83,6 +88,11 @@ class Utils_FileUpload_Dropzone extends Module
             ];
         }
         $this->set_uploaded_files($uploaded);
+    }
+
+    public function set_max_files($maxFiles)
+    {
+        $this->maxFiles = $maxFiles;
     }
 
     public function add_to_form(Libs_QuickForm $form, $identifier, $label)
