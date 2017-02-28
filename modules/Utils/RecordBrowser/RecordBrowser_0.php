@@ -1073,6 +1073,7 @@ class Utils_RecordBrowser extends Module {
                     ];
                 }
                 $values[$file_field] = $files;
+                $file_module->clear_uploaded_files();
             }
 			
 			foreach ($defaults as $k=>$v) {

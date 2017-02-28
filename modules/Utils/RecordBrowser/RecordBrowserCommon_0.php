@@ -3691,7 +3691,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	{
 		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
 			return;
-		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone');
+		$record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : 'new';
+		$module_id = md5($rb_obj->tab . '/' . $record_id . '/' . $field);
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone', null, $module_id);
         $default = self::decode_multi($default);
 		if ($default) {
 		    $files = [];

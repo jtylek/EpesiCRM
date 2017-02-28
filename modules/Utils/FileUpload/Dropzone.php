@@ -175,7 +175,12 @@ class Utils_FileUpload_Dropzone extends Module
         }
         $last_hist = $this->get_module_variable('hist', 0);
         $curr_hist = History::get_id();
-        if ($curr_hist - $last_hist > 1) $this->get_module_variable('files')['add'] = [];
+        if ($curr_hist - $last_hist > 1) {
+            $files = $this->get_uploaded_files();
+            $files['add'] = [];
+            $files['delete'] = [];
+            $this->set_uploaded_files($files);
+        }
         $this->set_module_variable('hist', $curr_hist);
     }
 }
