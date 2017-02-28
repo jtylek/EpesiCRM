@@ -1660,7 +1660,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'created_on'=>$row['created_on']);
             foreach(self::$table_rows as $desc){
                 if (isset($row['f_'.$desc['id']])) {
-                    if ($desc['type']=='multiselect') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
+                    if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
                     elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
                     else $r[$desc['id']] = $row['f_'.$desc['id']];
                 } else {
@@ -3692,6 +3692,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
 			return;
 		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone');
+        $default = self::decode_multi($default);
 		if ($default) {
 		    $files = [];
             foreach ($default as $filestorageId) {
