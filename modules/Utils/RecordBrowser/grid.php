@@ -8,7 +8,7 @@
  * @subpackage recordbrowser
  */
 if (!isset($_POST['id']) || !isset($_POST['tab']) || !isset($_POST['mode']) || !isset($_POST['element']) || !isset($_POST['cid']))
-	die('Invalid request: '.print_r($_POST,true));
+	die('Invalid request');
 
 define('JS_OUTPUT',1);
 define('CID',$_POST['cid']); 
@@ -26,7 +26,7 @@ if (isset($_POST['form_name'])) $form_name = json_decode($_POST['form_name']);
 else $form_name = '';
 
 if (!is_numeric($id) || !is_string($element)) 
-	die('Invalid request: '.$element.' & '.$id);
+	die('Invalid element or id');
 
 if ($mode=='submit') {
 	$form = ModuleManager::new_instance('Libs_QuickForm', null, 'grid_form');
