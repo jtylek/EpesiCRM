@@ -27,7 +27,6 @@ class Utils_FileStorage_FileLeightbox
         $lid = 'get_file_' . md5(serialize($meta));
 
         $close_leightbox_js = 'leightbox_deactivate(\'' . $lid . '\');';
-        $theme->assign('save_options_id', '');
         $theme->assign('download_options_id', 'attachment_download_options_' . $meta['id']);
 
 

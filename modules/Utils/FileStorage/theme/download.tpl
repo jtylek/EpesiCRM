@@ -89,32 +89,4 @@
 	</table>
 	{/if}
 </div>
-
-{if isset($save_options_id)}
-	<div id="{$save_options_id}" style="display: none;">
-		<table id="Utils_FileStorage__download" cellspacing="0" cellpadding="0">
-			<tr>
-				<!-- SAVE -->
-				<td valign="top">
-					{$__link.save.open}
-						<div class="epesi_big_button">
-							<img src="{$theme_dir}/Utils/FileStorage/save.png" alt="" align="middle" border="0" width="32" height="32">
-							<span>{$__link.save.text}</span>
-						</div>
-					{$__link.save.close}
-				</td>
-				<!-- DISCARD -->
-				<td valign="top">
-					{$__link.discard.open}
-						<div class="epesi_big_button">
-							<img src="{$theme_dir}/Utils/FileStorage/discard.png" alt="" align="middle" border="0" width="32" height="32">
-							<span>{$__link.discard.text}</span>
-						</div>
-					{$__link.discard.close}
-				</td>
-			</tr>
-		</table>
-	</div>
-{/if}
-
 </center>
