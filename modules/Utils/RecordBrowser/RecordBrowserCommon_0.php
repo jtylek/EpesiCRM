@@ -3700,12 +3700,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		    $files = [];
             foreach ($default as $filestorageId) {
                 $meta = Utils_FileStorageCommon::meta($filestorageId);
-                $files[$filestorageId] = [
+                $arr = [
                     'filename' => $meta['filename'],
                     'type' => $meta['type'],
                     'size' => $meta['size'],
-                    'file' => $meta['file']
                 ];
+                $backref = explode('/', $meta['backref']);
+                if (count($backref) === 3) {
+                    list ($br_tab, $br_record, $br_field) = $backref;
+                    $file_handler = new Utils_RecordBrowser_FileActionHandler();
+                    $actions = $file_handler->getActionUrlsRB($filestorageId, $br_tab, $br_record, $br_field);
+                    if (isset($actions['preview'])) {
+                        $arr['file'] = $actions['preview'];
+                    }
+                }
+                $files[$filestorageId] = $arr;
             }
 			$dropzoneField->set_defaults($files);
 		}
