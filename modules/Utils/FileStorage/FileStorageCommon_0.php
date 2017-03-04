@@ -280,6 +280,14 @@ class Utils_FileStorageCommon extends ModuleCommon {
         return self::write_metadata($file_id, $filename, $link, $backref, $created_on, $created_by);
     }
 
+    /**
+     * Add multiple files, clone file if file id is provided.
+     * May be used to update backref for all files.
+     *
+     * @param array $files array of existing filestorage ids or array with values for the new file
+     * @param string|null $backref Backref for all files
+     * @return array Newly created Filestorage Ids sorted in ascending order
+     */
     public static function add_files(array $files, $backref = null)
     {
         $filestorageIds = [];
