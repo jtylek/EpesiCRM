@@ -3693,6 +3693,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			return;
 		$record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : 'new';
 		$module_id = md5($rb_obj->tab . '/' . $record_id . '/' . $field);
+		/** @var Utils_FileUpload_Dropzone $dropzoneField */
 		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone', null, $module_id);
         $default = self::decode_multi($default);
 		if ($default) {
@@ -3702,7 +3703,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $files[$filestorageId] = [
                     'filename' => $meta['filename'],
                     'type' => $meta['type'],
-                    'size' => $meta['size']
+                    'size' => $meta['size'],
+                    'file' => $meta['file']
                 ];
             }
 			$dropzoneField->set_defaults($files);
