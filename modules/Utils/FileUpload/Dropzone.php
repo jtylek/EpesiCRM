@@ -80,12 +80,16 @@ class Utils_FileUpload_Dropzone extends Module
     {
         $uploaded = $this->get_uploaded_files();
         foreach ($files as $file_id => $file) {
-            $uploaded['existing'][$file_id] = [
+            $arr = [
                 'name' => $file['filename'],
                 'type' => $file['type'],
                 'size' => $file['size'],
                 'file_id' => $file_id
             ];
+            if (isset($file['file'])) {
+                $arr['file'] = $file['file'];
+            }
+            $uploaded['existing'][$file_id] = $arr;
         }
         $this->set_uploaded_files($uploaded);
     }
