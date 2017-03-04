@@ -3705,7 +3705,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'type' => $meta['type'],
                     'size' => $meta['size'],
                 ];
-                $backref = explode('/', $meta['backref']);
+                $backref = substr($meta['backref'], 0, 3) == 'rb:' ? explode('/', substr($meta['backref'], 3)) : [];
                 if (count($backref) === 3) {
                     list ($br_tab, $br_record, $br_field) = $backref;
                     $file_handler = new Utils_RecordBrowser_FileActionHandler();
