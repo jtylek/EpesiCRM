@@ -50,9 +50,7 @@ class CRM_Roundcube extends Module {
     }
 
     public function push_settings($s) {
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-        $x->push_main('Base_User_Settings',null,array($s));
+        Base_BoxCommon::push_module(Base_User_Settings::module_name(),null,array($s));
     }
 
     public function new_mail($to='',$subject='',$body='',$message_id='',$references='') {

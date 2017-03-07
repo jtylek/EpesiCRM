@@ -23,10 +23,8 @@ class CRM_CalendarCommon extends ModuleCommon {
 	}
 
 	public static function view_event($func, $def) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		if ($func=='add') $def = array(date('Y-m-d H:i:s'), false, $def);
-		$x->push_main('CRM_Calendar_Event',$func,$def);
+		Base_BoxCommon::push_module(CRM_Calendar_Event::module_name(),$func,$def);
 	}
 
 	public static function get_new_event_href($def, $id='none'){
