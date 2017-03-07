@@ -268,10 +268,7 @@ class CRM_Contacts extends Module {
 	}
 
 	public function company_addon_new_contact($id){
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main(CRM_Contacts::module_name(),'new_contact',$id,array());
-		return false;
+		return Base_BoxCommon::push_module(CRM_Contacts::module_name(),'new_contact',$id,array());
 	}
 
     public function update_contacts_address_prompt($company, $lid) {
