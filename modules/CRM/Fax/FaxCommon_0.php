@@ -19,10 +19,8 @@ class CRM_FaxCommon extends ModuleCommon {
 	public static function fax_file($f,$oryg) {
 		$tmp = self::Instance()->get_data_dir().$oryg;
 		copy($f,$tmp);
-		
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM_Fax','send',$tmp);
+
+		Base_BoxCommon::push_module(CRM_Fax::module_name(),'send',$tmp);
 	}
 	
 	public static function rpicker_contact_format($e) {
