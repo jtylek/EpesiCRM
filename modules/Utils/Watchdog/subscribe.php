@@ -8,7 +8,7 @@
  * @subpackage watchdog
  */
 if (!isset($_POST['id']) || !isset($_POST['state']) || !isset($_POST['element']) || !isset($_POST['cat']) || !isset($_POST['cid']))
-	die('Invalid request: '.print_r($_POST,true));
+	die('Invalid request');
 
 define('JS_OUTPUT',1);
 define('CID',$_POST['cid']); 
