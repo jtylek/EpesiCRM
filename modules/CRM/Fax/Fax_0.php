@@ -274,8 +274,8 @@ class CRM_Fax extends Module {
 
 		$form->add_upload_element();
 
-		$s = HTML_QuickForm::createElement('button',null,__('Send fax'),$form->get_submit_form_href());
-		$c = HTML_QuickForm::createElement('button',null,__('Cancel'),$this->create_back_href());
+		$s = $form->createElement('button',null,__('Send fax'),$form->get_submit_form_href());
+		$c = $form->createElement('button',null,__('Cancel'),$this->create_back_href());
 		$form->addGroup(array($s,$c));
 
 		$this->display_module($form, array( array($this,'submit_fax_file') ));

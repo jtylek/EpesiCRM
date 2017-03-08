@@ -218,11 +218,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 	private static $country_elem_name;
 	public static function country_element($name, $args, & $def_js) {
 		self::$country_elem_name = $name;
-		return HTML_QuickForm::createElement('commondata',$name,'Country','Countries');
+		$form = new HTML_QuickForm();
+		return $form->createElement('commondata',$name,'Country','Countries');
 	}
 
 	public static function state_element($name, $args, & $def_js) {
-		return HTML_QuickForm::createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
+		$form = new HTML_QuickForm();
+		return $form->createElement('commondata',$name,'State',array('Countries',self::$country_elem_name),array('empty_option'=>true));
 	}
 
 	public static function post_install_process($val) {
