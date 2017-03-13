@@ -432,6 +432,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
 		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
+		if(count($records)>500) {
+			DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d', array(Acl::get_user()));
+			DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=-1 WHERE last_seen_event IS NULL');
+		}
 		foreach ($records as $rec_key => $w) {
 			$k = $w['internal_id'];
 			$v = $w['category_id'];
