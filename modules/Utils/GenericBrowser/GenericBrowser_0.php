@@ -965,7 +965,7 @@ class Utils_GenericBrowser extends Module {
 				else $column_no = count($this->columns);
 				$col[$column_no]['attrs'] = '';
 				if (!empty($this->actions[$i])) {
-					$fa_icons = Smk_FontAwesome::getArray('libs/font-awesome/css/font-awesome.css');
+					$fa_icons = FontAwesome::get();
 					uasort($this->actions[$i], array($this, 'sort_actions'));
 					$actions = '';
 					foreach ($this->actions[$i] as $icon => $arr) {
