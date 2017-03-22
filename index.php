@@ -56,13 +56,15 @@ ob_start();
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
-			<link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
 			<?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
-		$jquery = DEBUG_JS ? 'libs/jquery-3.1.1.js' : 'libs/jquery-3.1.1.min.js';
-		$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-3.0.0.js' : 'libs/jquery-migrate-3.0.0.min.js';
-		$jses = array($jquery, $jquery_migrate, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js');
+		$jquery = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js' : 'vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.min.js';
+		$bootstrap = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js' : 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js';
+		$select2 = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js' : 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.min.js';
+		$template = DEBUG_JS ? 'vendor/bower-asset/gentelella/build/js/custom.js' : 'vendor/bower-asset/gentelella/build/js/custom.min.js';
+		$jquery_ui = DEBUG_JS ? 'libs/jquery-ui-1.12.1.custom.js':'libs/jquery-ui-1.12.1.custom.min.js';
+		$jses = array($jquery, $bootstrap, $template, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js', $select2);
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
@@ -71,20 +73,13 @@ ob_start();
 		foreach($jses as $js)
 			print("<script type='text/javascript' src='$js'></script>");
 	}
-	$csses = array('libs/jquery-ui-1.12.1.custom.min.css', 'libs/select2/css/select2.css');
-	$csses_build = new Minify_Build($csses);
-	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
+	$csses = array('libs/jquery-ui-1.12.1.custom.min.css', 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/css/bootstrap.css', 'vendor/bower-asset/gentelella/build/css/custom.css','vendor/bower-asset/gentelella/vendors/select2/dist/css/select2.css','vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.min.css');
+	foreach($csses as $css) 
+		print('<link href="'.$css.'" rel="stylesheet" type="text/css">');
 ?>
-		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
-		<link type="text/css" href="libs/font-awesome/css/font-awesome.css" rel="stylesheet"/>
-			<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=latin-ext,latin" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="libs/bootstrap/js/bootstrap.js"></script>
-			<script type="text/javascript" src="libs/select2/js/select2.js"></script>
-
             <style type="text/css">
 
                 #epesiStatus {
-                    font-family: "Open Sans";
                     font-weight: 300;
                     font-size: 15px;
                     background-color: white;
