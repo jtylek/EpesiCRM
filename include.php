@@ -37,7 +37,7 @@ try {
     require_once('include/history.php');
     require_once('include/patches.php');
     require_once('include/simple_login.php');
-    require_once('libs/php-fontawesome.php');
+    require_once('include/fontawesome.php');
 } catch (Exception $e) {
     die($e->getMessage());
 }
