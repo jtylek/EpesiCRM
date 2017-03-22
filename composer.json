@@ -10,7 +10,8 @@
         "ifsnop/mysqldump-php": "dev-master",
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
-        "anahkiasen/underscore-php": "^2.0"
+        "anahkiasen/underscore-php": "^2.0",
+        "bower-asset/gentelella": "*"
     },
     "scripts": {
         "post-install-cmd": [
