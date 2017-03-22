@@ -38,6 +38,12 @@ It requires properly configured HTTP server with PHP and MySQL or PostgreSQL dat
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
 - Github: https://github.com/Telaxus/epesi
 
+Install composer asset plugin (https://github.com/fxpio/composer-asset-plugin/blob/master/Resources/doc/index.md):
+- composer global require "fxp/composer-asset-plugin:~1.2"
+
+Install Epesi dependencies with composer:
+- composer install
+
 <b>Reviews</b>
 - Users reviews collected from our support forum: http://epe.si/reviews/
 - Sourceforge: https://sourceforge.net/projects/epesi/reviews/
