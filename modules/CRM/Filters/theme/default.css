@@ -55,3 +55,12 @@
 #CRM_Filters .filters-autoselect select {
 	width: 180px;
 }
+
+#CRM_Filters_button {
+	width: 100%;
+	padding: 5px 10px;
+	margin: 0px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

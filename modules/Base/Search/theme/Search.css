@@ -1,3 +1,9 @@
+#search_panel {
+  margin-bottom:0px;
+}
+#search_panel .btn {
+  margin-right:0px;
+}
 table#Base_Search__Search {
     width:970px;
     margin:0px auto;
@@ -25,7 +31,7 @@ table#Base_Search__Search td.header_tail {
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7b9cbd', endColorstr='#7b9cbd',GradientType=0 ); /* IE6-9 */
 	background: linear-gradient(top, #7b9cbd 0%,#7b9cbd 50%,#336699 51%,#7b9cbd 100%); /* W3C */
 	/* end css3  gradient */
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -54,7 +60,7 @@ table#Base_Search__Search input[type=text] {
 	height: 16px;
 	font-size: 11px;
 	padding-left: 5px;
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -89,7 +95,7 @@ table#Base_Search__Search input.mini_submit {
 	display: block;
 	float: right;
 	cursor: pointer;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -131,7 +137,7 @@ table#Base_Search__Search input.submit {
 	width: 100px;
 	height: 20px;
 	font-size: 11px;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */
@@ -184,7 +190,7 @@ table#Base_Search__Search td.data select {
     border: none;
     text-align: center;
     vertical-align: middle;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	background: -moz-linear-gradient(top, #709c70 0%, #4d844d 49%, #226622 51%, #649464 100%); /* FF3.6+ */

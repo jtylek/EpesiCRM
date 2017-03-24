@@ -26,6 +26,7 @@ table {
 
 #content_body {
 	padding-bottom:20px;
+	padding-top: 75px;
 }
 
 #debug {
@@ -50,8 +51,16 @@ pre.wrap {
     word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
+.module_indicator {
+	margin: 5px 10px 20px;
+	text-align:center;
+}
 
 /* override gentalella defaults */
 .top_nav .navbar-right {
-  width: auto !important; 
+  width: auto !important;
+}
+
+.nav_title {
+	height:auto !important;
 }

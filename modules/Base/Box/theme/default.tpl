@@ -13,14 +13,8 @@
         <div class="clearfix"></div>
 
         <!-- menu profile quick info -->
-        <div class="profile">
-          <div class="profile_pic">
-            <img src="images/img.jpg" alt="..." class="img-circle profile_img">
-          </div>
-          <div class="profile_info">
-            <span>Welcome,</span>
-            <h2>John Doe</h2>
-          </div>
+        <div class="module_indicator">
+          <h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>
         </div>
         <!-- /menu profile quick info -->
 
@@ -34,6 +28,8 @@
 
         <!-- /menu footer buttons -->
         <div class="sidebar-footer hidden-small">
+        <div class="search" id="search_box">{$search}</div>
+        <div class="filter" id="filter_box">{$filter}</div>
         <a data-toggle="tooltip" data-placement="top" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
         </a>
@@ -65,21 +61,7 @@
 
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
-                  <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="images/img.jpg" alt="">John Doe
-                    <span class=" fa fa-angle-down"></span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-usermenu pull-right">
-                    <li><a href="javascript:;"> Profile</a></li>
-                    <li>
-                      <a href="javascript:;">
-                        <span class="badge bg-red pull-right">50%</span>
-                        <span>Settings</span>
-                      </a>
-                    </li>
-                    <li><a {$help}>{"Help"|t}</a></li>
-                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
-                  </ul>
+                  {$login}
                 </li>
 
                 <li role="presentation" class="dropdown">
@@ -157,35 +139,10 @@
 
 
 <div class="right_col" role="main">
-    <header class="row">
 
-        <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
-            <div class="panel panel-default">
-
-                <div class="panel-body">
-                        <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
-                        <div class="filter" id="filter_box">{$filter}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-7 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-heading vertical-align-middle">
-                    <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
-                    <div class="pull-right hidden-xs">
-                      {if isset($donate)}
-                        {$donate}
-                      {/if}
-                    </div>
-                </div>
-                <div class="panel-body">
-                </div>
-            </div>
-        </div>
-    </header>
     <!-- -->
     <div id="content">
-        <div id="content_body" style="top: 50px;">
+        <div id="content_body">
             {$main}
         </div>
     </div>
