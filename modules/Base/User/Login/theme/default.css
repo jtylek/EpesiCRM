@@ -6,3 +6,12 @@
 	margin-top: 0.75em;
 	text-align: center;
 }
+
+.top_nav .navbar-nav .user-profile {
+	padding: 10px 10px;
+	display:block;
+}
+.top_nav .navbar-nav .user-profile .fa-user {
+	vertical-align: middle;
+	margin-right:5px;
+}

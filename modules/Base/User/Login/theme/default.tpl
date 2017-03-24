@@ -1,9 +1,20 @@
 {if $is_logged_in}
-<div>
-    {$logged_as}
-    <button class="btn btn-warning pull-right" {$logout_href}>{$logout_label} <i
-                class="glyphicon glyphicon-log-out"></i></button>
-</div>
+
+<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+  <span class="fa fa-user fa-3x"></span>&nbsp;{$logged_as}
+  <span class=" fa fa-angle-down"></span>
+</a>
+<ul class="dropdown-menu dropdown-usermenu pull-right">
+  <li>{$profile}</li>
+  <li>
+    <a href="javascript:;">
+      <span class="badge bg-red pull-right">50%</span>
+      <span>Settings</span>
+    </a>
+  </li>
+  <li><a {$logout_href}><i class="fa fa-sign-out pull-right"></i> {$logout_label}</a></li>
+</ul>
+
 {else}
 <div id="login-screen" class="container">
     <div class="clearfix visible-md-block visible-lg-block" style="margin-top: 50px"></div>
