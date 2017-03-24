@@ -1,4 +1,5 @@
-{% macro menu_links(links) %}
+{% macro menu_links(links,level) %}
+  <ul class="nav {% if level==0 %}side{% else %}child{% endif %}-menu" {% if level>0 %}style="display:none"{% endif %}>
     {% for link in links %}
         {% if link.type == 'split' %}
             <li class="divider"></li>
@@ -10,9 +11,7 @@
                     <a tabindex="-1" href="javascript:void(0);">{{ link.label }} <span class="caret"></span></a>
                 {% endif %}
 
-                <ul id="submenu-{{ loop.index }}" class="dropdown-menu">
-                    {{ _self.menu_links(link.items) }}
-                </ul>
+                {{ _self.menu_links(link.items,level+1) }}
             </li>
         {% elseif link.type == 'item' %}
             {% if link.icon is not null %}
@@ -23,17 +22,13 @@
         {% endif %}
 
     {% endfor %}
+  </ul>
 {% endmacro %}
 
 {% import _self as macros %}
 
-<ul class="nav navbar-nav" style="margin:0px">
-  <li>
-    <a role="navigation" class="btn btn-primary" style="padding: 6px 12px;background-color:#337ab7">
-        {{ name }}&nbsp;<span class="caret hidden-xs"></span>
-    </a>
-    <ul class="dropdown-menu">
-        {{ macros.menu_links(menu) }}
-    </ul>
-  </li>
-</ul>
+
+<div class="menu_section">
+  <h3>{{ name }}</h3>
+  {{ macros.menu_links(menu,0) }}
+</div>

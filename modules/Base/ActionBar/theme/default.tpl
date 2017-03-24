@@ -1,12 +1,12 @@
 <div id="Base_ActionBar">
-<div class="pull-left">
+<div class="nav navbar-nav navbar-left">
     {foreach item=i from=$icons}
         {$i.open}
-        <div class="btn btn-default" helpID="{$i.helpID}">
+        <div class="btn toggle" helpID="{$i.helpID}">
             {if $i.icon_url}
-                <img src="{$i.icon_url}" style="height:3em">
+                <img src="{$i.icon_url}" style="height:2em">
             {else}
-                <i class="fa fa-{$i.icon} fa-3x"></i>
+                <i class="fa fa-{$i.icon} fa-2x"></i>
             {/if}
             <div>{$i.label}</div>
         </div>
@@ -14,14 +14,14 @@
     {/foreach}
 </div>
 
-<div class="pull-right">
+<div class="nav navbar-nav navbar-right">
 {foreach item=i from=$launcher}
     {$i.open}
-    <div class="btn btn-default">
+    <div class="btn toggle">
       {if $i.icon_url}
-          <img src="{$i.icon_url}" style="height:3em">
+          <img src="{$i.icon_url}" style="height:2em">
       {else}
-          <i class="fa fa-{$i.icon} fa-3x"></i>
+          <i class="fa fa-{$i.icon} fa-2x"></i>
       {/if}
       <div>{$i.label}</div>
     </div>

@@ -6,8 +6,8 @@
 {else}
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
-        <div class="navbar nav_title" style="border: 0;">
-            <a href="index.html" class="site_title"><i class="fa fa-paw"></i> <span>Gentellela Alela!</span></a>
+        <div class="navbar nav_title" style="border: 0; padding: 20px 15px 15px 5px">
+            {$logo}
         </div>
 
         <div class="clearfix"></div>
@@ -28,17 +28,21 @@
 
         <!-- sidebar menu -->
         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+          {$menu}
         </div>
         <!-- /sidebar menu -->
 
         <!-- /menu footer buttons -->
         <div class="sidebar-footer hidden-small">
+        <a data-toggle="tooltip" data-placement="top" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
+        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+        </a>
         <a data-toggle="tooltip" data-placement="top" title="Settings">
         <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
         </a>
-        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+<!--        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
         <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-        </a>
+      </a>-->
         <a data-toggle="tooltip" data-placement="top" title="Lock">
         <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
         </a>
@@ -73,7 +77,7 @@
                         <span>Settings</span>
                       </a>
                     </li>
-                    <li><a href="javascript:;">Help</a></li>
+                    <li><a {$help}>{"Help"|t}</a></li>
                     <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                   </ul>
                 </li>
@@ -143,6 +147,9 @@
                   </ul>
                 </li>
               </ul>
+
+              {$actionbar}
+
             </nav>
           </div>
         </div>
@@ -150,35 +157,11 @@
 
 
 <div class="right_col" role="main">
-
-    {php}
-        load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
-        load_js('vendor/bower-asset/gentelella/build/js/custom.min.js');
-        eval_js_once('document.body.id=null'); //pointer-events:none;
-    {/php}
     <header class="row">
-        <div class="col-lg-2 col-xs-12 col-sm-6">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
-                    <div class="pull-left">{$menu}</div>
-                    <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" {$home.href}>
-                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                        <span class="hidden-xs">
-                                {$home.label}
-                        </span>
-                    </button>
-                </div>
-                <div class="panel-body logo-container">
-                    {$logo}
-                </div>
-            </div>
-        </div>
+
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
             <div class="panel panel-default">
-                <div class="panel-heading clearfix">
-                  <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
-                    <div class="pull-right">{$indicator}</div>
-                </div>
+
                 <div class="panel-body">
                         <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
@@ -196,7 +179,6 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                  {$actionbar}
                 </div>
             </div>
         </div>
@@ -225,3 +207,8 @@
     {$status}
 
 {/if}
+
+{php}
+    load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
+    eval_js_once('document.body.id=null'); //pointer-events:none;
+{/php}

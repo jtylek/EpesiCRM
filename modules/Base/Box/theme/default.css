@@ -50,3 +50,8 @@ pre.wrap {
     word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
+
+/* override gentalella defaults */
+.top_nav .navbar-right {
+  width: auto !important; 
+}
