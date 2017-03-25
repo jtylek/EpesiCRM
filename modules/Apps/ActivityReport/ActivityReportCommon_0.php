@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Apps_ActivityReportCommon extends ModuleCommon {
 	public static function menu(){
 	    if (self::has_access_to_report())
-    		return array(_M('Reports')=>array_merge(array('__submenu__'=>1,_M('User Activity Report')=>array())));
+    		return array(_M('Reports')=>array_merge(array('__submenu__'=>1,'__icon__'=>'bar-chart',_M('User Activity Report')=>array())));
 	}
 
 	public static function contact_addon_label($r)
