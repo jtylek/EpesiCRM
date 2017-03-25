@@ -37,7 +37,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	
+
 	public static function crm_new_event($timestamp, $timeless, $id, $object, $cal_obj) {
 		$x = Base_BoxCommon::root();
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
@@ -56,13 +56,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$rb->view_entry('view', $id[0], isset($id[1])?array('day'=>$id[1]):array());
 		return true;
 	}
-	
+
 	public static function crm_edit_event($id, $cal_obj) {
 		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'crm_meeting');
 		$rb->view_entry('edit', $id);
 		return true;
 	}
-	
+
 	public static function applet_caption() {
 		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
 			return __('Meetings');
@@ -94,7 +94,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					__('Permission')=>$access[$r['permission']],
 					__('Priority')=>$priority[$r['priority']],
 					);
-		
+
 		$bg_color = '';
 		switch ($r['priority']) {
 			case 0: $bg_color = '#FFFFFF'; break; // low priority
@@ -264,7 +264,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$form->setDefaults(array('recurrence_end_checkbox'=>($default?'1':'0')));
 			}
 		} else {
-			if (!$default) 
+			if (!$default)
 				$form->addElement('checkbox', $field, __('Recurrence End Date'));
 			else {
 				$form->addElement('datepicker', $field, __('Recurrence End Date'));
@@ -291,7 +291,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('crm_meeting','browse'))
-			return array(_M('CRM')=>array('__submenu__'=>1,_M('Meetings')=>array()));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Meetings')=>array('__icon__'=>'calendar-plus-o')));
 		else
 			return array();
 	}
@@ -310,7 +310,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			array('label'=>__('Related'),'name'=>'related','type'=>'select','values'=>array(__('Employee'),__('Customer'),__('Both')),'default'=>'0')
 			));
 	}
-	
+
 	public static function employees_crits(){
 		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 	}
@@ -371,7 +371,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$values['title'] = __('Follow-up').': '.$values['title'];
 			$values['status'] = 0;
 
-			if ($action != 'none') {		
+			if ($action != 'none') {
 				$x = Base_BoxCommon::root();
 				$values['follow_up'] = array('meeting',$record['id'],$record['title']);
 				if ($action == 'new_meeting') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('crm_meeting'));
@@ -387,7 +387,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		}
 		return ' href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');"';
 	}
-	
+
 	public static function display_status($record, $nolink, $desc) {
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
@@ -503,7 +503,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			} else {
 				$values['time'] = '';
 			}
-			
+
 			break;
 		case 'adding':
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
@@ -565,7 +565,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$details
 			);
 	}
-	
+
 	public static function crm_event_update($id, $start, $duration, $timeless) {
 		$id = explode('_', $id);
 		$id = reset($id);
@@ -584,7 +584,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$values = self::submit_meeting($values, 'editing');
 		$values['recurrence_end'] = $r['recurrence_end'];
 		$values = Utils_RecordBrowserCommon::update_record('crm_meeting', $id, $values);
-		if ($r['recurrence_type']>0) 
+		if ($r['recurrence_type']>0)
 			print('Epesi.updateIndicatorText("Updating calendar");Epesi.request("");');
 		return true;
 	}
@@ -595,7 +595,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if (!Utils_RecordBrowserCommon::get_access('crm_meeting','delete', self::get_meeting($id))) return false;
 		Utils_RecordBrowserCommon::delete_record('crm_meeting',$id);
 		$r = Utils_RecordBrowserCommon::get_record('crm_meeting', $id);
-		if ($r['recurrence_type']>0) 
+		if ($r['recurrence_type']>0)
 			print('Epesi.updateIndicatorText("Updating calendar");Epesi.request("");');
 		return true;
 	}
@@ -729,7 +729,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$emps[] = $e;
 		}
 		$next['busy_label'] = $r['employees'];
-		
+
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
 			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
@@ -751,7 +751,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customers'] = $r['customers'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] = 
+		$next['custom_tooltip'] =
 									'<center><b>'.
 										__('Meeting').
 									'</b></center><br>'.
@@ -767,7 +767,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$f_array = explode(',',trim($filter,'()'));
 		if($filter!='()' && $filter)
 			$crits['('.'employees'] = $f_array;
-		if ($customers && !empty($customers)) 
+		if ($customers && !empty($customers))
 			$crits['|customers'] = $customers;
 		elseif($filter!='()' && $filter) {
 			$crits['|customers'] = $f_array;
@@ -775,11 +775,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$crits['|customers'][$k] = 'contact/'.$v;
 		}
 		$critsb = $crits;
-		
+
 		$crits['<=date'] = $end;
 		$crits['>=date'] = $start;
 		$crits['recurrence_type'] = '';
-		
+
 		$count = 0;
 		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array('date' => 'DESC', 'time' => 'DESC'), CRM_CalendarCommon::$events_limit);
 
@@ -796,7 +796,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$crits['|recurrence_end'] = '';
 		$crits['!recurrence_type'] = '';
 		$ret = Utils_RecordBrowserCommon::get_records('crm_meeting', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
-		
+
 		$day = strtotime($start);
 		$end = strtotime($end);
 		while ($day<=$end) {
@@ -838,7 +838,7 @@ class CRM_MeetingCommon extends ModuleCommon {
             $rss = DB::GetCol('SELECT f_recordset FROM crm_meeting_related_data_1 WHERE active=1');
             // remove currently selected value
             $key = array_search($default, $rss);
-            if ($key !== false) 
+            if ($key !== false)
                 unset($rss[$key]);
             $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s', array('%_related'));
             foreach ($tabs as $k => $v) {
@@ -846,7 +846,7 @@ class CRM_MeetingCommon extends ModuleCommon {
             }
             $form->addElement('select', $field, $label, $tabs, array('id' => $field));
             $form->addRule($field, 'Field required', 'required');
-            if ($mode == 'edit') 
+            if ($mode == 'edit')
                 $form->setDefaults(array($field => $default));
         } else {
             $form->addElement('static', $field, $label);
@@ -858,7 +858,7 @@ class CRM_MeetingCommon extends ModuleCommon {
         $caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
         return $caption . ' (' . $r['recordset'] . ')';
     }
-    
+
     public static function QFfield_related(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if(DB::GetOne('SELECT 1 FROM crm_meeting_related_data_1 WHERE active=1'))
             Utils_RecordBrowserCommon::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
@@ -869,7 +869,7 @@ class CRM_MeetingCommon extends ModuleCommon {
         $crits = array(
             '' => array(),
         );
-        foreach ($recordsets as $rec) 
+        foreach ($recordsets as $rec)
             $crits[$rec] = array();
         return $crits;
     }
