@@ -13,8 +13,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AboutCommon extends ModuleCommon {
 	public static function menu() {
-		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('About')=>array('__weight__'=>100,'__function__'=>'info')));
-	}	
+		return array(_M('Support')=>array('__submenu__'=>1,'__icon__'=>'life-ring','__weight__'=>1000,_M('About')=>array('__weight__'=>100,'__function__'=>'info')));
+	}
 }
 
 ?>
