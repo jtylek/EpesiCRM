@@ -28,7 +28,7 @@ class CRM_CommonCommon extends ModuleCommon {
 		}
 		return array();
 	}
-	
+
 	public static function get_dial_code($title, $number = null) {
 		$method = Base_User_SettingsCommon::get('CRM_Common','method');
 		if ($number === null) $number = $title;
@@ -57,5 +57,9 @@ class CRM_CommonCommon extends ModuleCommon {
     {
         return 1; // Medium
     }
+
+		public static function menu() {
+			return array(_M('CRM')=>array('__submenu__'=>1,'__icon__'=>'desktop'));
+		}
 }
 ?>
