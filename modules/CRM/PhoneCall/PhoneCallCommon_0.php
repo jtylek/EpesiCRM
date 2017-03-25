@@ -88,13 +88,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		// Select only main company contacts and only office staff employees
 		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 	}
-	
+
 	public static function company_crits(){
 		return array('_no_company_option'=>true);
 	}
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('phonecall','browse'))
-			return array(_M('CRM')=>array('__submenu__'=>1,_M('Phonecalls')=>array()));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Phonecalls')=>array('__icon__'=>'phone')));
 		else
 			return array();
 	}
@@ -305,7 +305,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				    $values['phone'] == '1';
 				elseif($values['customer']{0}=='C' && $values['phone']!='4')
 				    $values['phone'] == '4';
-			} 
+			}
 			if (isset($values['other_customer']) && $values['other_customer']) {
 				$values['other_phone']=1;
 				$values['customer']='';
@@ -328,7 +328,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				$details
 			);
 	}
-	
+
 	public static function search_format($id) {
 		$phone = self::get_phonecall($id);
 		if(!$phone) return false;
@@ -422,7 +422,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$f_array = explode(',',trim($filter,'()'));
 		if($filter!='()' && $filter)
 			$crits['('.'employees'] = $f_array;
-		if ($customers && !empty($customers)) 
+		if ($customers && !empty($customers))
 			$crits['|customer'] = $customers;
 		elseif($filter!='()' && $filter) {
 			$crits['|customer'] = $f_array;
@@ -431,7 +431,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		}
 		$crits['<=date_and_time'] = $end;
 		$crits['>=date_and_time'] = $start;
-		
+
 		$ret = Utils_RecordBrowserCommon::get_records('phonecall', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
 
 		$result = array();
@@ -454,7 +454,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
         }
 
 		$next = array('type'=>__('Phonecall'));
-		
+
 		$next['id'] = $r['id'];
 
 		$next['start'] = strtotime($r['date_and_time']);
@@ -526,7 +526,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customer'] = $r['customer'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] = 
+		$next['custom_tooltip'] =
 									'<center><b>'.
 										__('Phonecall').
 									'</b></center><br>'.
@@ -540,7 +540,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
             $rss = DB::GetCol('SELECT f_recordset FROM phonecall_related_data_1 WHERE active=1');
             // remove currently selected value
             $key = array_search($default, $rss);
-            if ($key !== false) 
+            if ($key !== false)
                 unset($rss[$key]);
             $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab NOT LIKE %s', array('%_related'));
             foreach ($tabs as $k => $v) {
@@ -548,7 +548,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
             }
             $form->addElement('select', $field, $label, $tabs, array('id' => $field));
             $form->addRule($field, 'Field required', 'required');
-            if ($mode == 'edit') 
+            if ($mode == 'edit')
                 $form->setDefaults(array($field => $default));
         } else {
             $form->addElement('static', $field, $label);
@@ -560,7 +560,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
         $caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
         return $caption . ' (' . $r['recordset'] . ')';
     }
-    
+
     public static function QFfield_related(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if(DB::GetOne('SELECT 1 FROM phonecall_related_data_1 WHERE active=1'))
             Utils_RecordBrowserCommon::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
@@ -571,7 +571,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
         $crits = array(
             '' => array(),
         );
-        foreach ($recordsets as $rec) 
+        foreach ($recordsets as $rec)
             $crits[$rec] = array();
         return $crits;
     }
