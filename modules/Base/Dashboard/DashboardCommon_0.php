@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_DashboardCommon extends ModuleCommon {
 	public static function menu() {
 		if(Base_AclCommon::check_permission('Dashboard'))
-			return array(_M('Dashboard')=>array());
+			return array(_M('Dashboard')=>array('__icon__'=>'dashboard'));
 		return array();
 	}
 
@@ -68,10 +68,10 @@ class Base_DashboardCommon extends ModuleCommon {
 		$color[0] = $color[Base_User_SettingsCommon::get('Base_Dashboard','default_color')];
 		return $color;
 	}
-	
+
 	public static function get_installed_applets_html() {
 		$colors = Base_DashboardCommon::get_available_colors();
-		
+
 		$app_cap = ModuleManager::call_common_methods('applet_caption');
 		asort($app_cap);
 		$app_info = ModuleManager::call_common_methods('applet_info');
@@ -107,7 +107,7 @@ class Base_DashboardCommon extends ModuleCommon {
 		}
 		return $html;
 	}
-	
+
 	public static function get_remove_applet_button($id, $default_dash) {
 		return '<a class="remove" id="dashboard_remove_applet_'.$id.'" '.(is_numeric($id)?'':'style="display:none;" ').Utils_TooltipCommon::open_tag_attrs(__('Remove')).' href="javascript:void(0);" onClick="if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.(is_numeric($id)?$id:-1).','.($default_dash?1:0).');">x</a>';
 	}
