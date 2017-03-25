@@ -17,7 +17,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 
 	public static function menu() {
 		if (Base_AclCommon::check_permission('Calendar'))
-			return array(_M('CRM')=>array('__submenu__'=>1,_M('Calendar')=>array()));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Calendar')=>array('__icon__'=>'calendar')));
 		else
 			return array();
 	}
@@ -87,22 +87,22 @@ class CRM_CalendarCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-	
+
 	public static function get_event_handlers() {
 		$custom_events = DB::GetAssoc('SELECT id, group_name FROM crm_calendar_custom_events_handlers ORDER BY group_name');
 		foreach ($custom_events as $k=>$v) $custom_events[$k] = _V($v); // ****** Calendar Custom handler label
 		return $custom_events;
 	}
-	
+
 	public static function watchdog_label($rid = null, $events = array()) {
 	    return null;
 	}
-	
+
 	public static function new_event_handler($name, $callback) {
 		if (DB::GetOne('SELECT group_name FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array($name))) return;
 		DB::Execute('INSERT INTO crm_calendar_custom_events_handlers(group_name, handler_callback) VALUES (%s, %s)', array($name, implode('::',$callback)));
 	}
-	
+
 	public static function delete_event_handler($name) {
 		DB::Execute('DELETE FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array($name));
 	}
