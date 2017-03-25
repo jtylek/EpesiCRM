@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse'))
-			return array(_M('E-mail')=>array());
+			return array(_M('E-mail')=>array('__icon__'=>'envelope'));
         return array();
     }
 
