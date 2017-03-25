@@ -17,7 +17,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 
 	public static function menu(){
 		if (Base_AclCommon::check_permission('Advanced User Settings'))
-			return array(_M('My settings')=>array('__weight__'=>10,'__submenu__'=>1,_M('Control panel')=>array()));
+			return array(_M('My settings')=>array('__weight__'=>10,'__submenu__'=>1, '__icon__'=>'cogs',_M('Control panel')=>array('__icon__'=>'cog')));
 		return array();
 	}
 
