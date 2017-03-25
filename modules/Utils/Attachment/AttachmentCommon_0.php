@@ -73,7 +73,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	        if(!$where) return;
 		$ret = DB::Execute('SELECT f.id, f.original, f.created_on, f.attach_id as aid, f.filestorage_id as fsid
 				    FROM utils_attachment_data_1 ual INNER JOIN utils_attachment_file f ON (f.attach_id=ual.id)
-				    WHERE ual.active=1 AND f.deleted=0 AND ual.id IN ('.implode(',',$where).')');
+				    WHERE ual.active=1 AND f.deleted=0 AND ual.id IN ('.implode(',',$where).') ORDER BY ual.f_sticky DESC, ual.created_on ASC, f.created_on ASC');
 		while($row = $ret->FetchRow()) {
 			$id = $row['id'];
 			$local = $row['aid'];
@@ -154,7 +154,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                ' (SELECT count(*) FROM utils_attachment_download uad WHERE uaf.id=uad.attach_file_id) as downloads ' .
                'FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 note' .
                ' ON uaf.attach_id=note.id ' .
-               'WHERE note.id IN (' . implode(',', $where) . ') AND note.active=1 AND uaf.deleted=0';
+               'WHERE note.id IN (' . implode(',', $where) . ') AND note.active=1 AND uaf.deleted=0 ORDER BY note.f_sticky DESC, note.created_on ASC, uaf.created_on ASC';
         return DB::GetAll($sql);
 	}
 
