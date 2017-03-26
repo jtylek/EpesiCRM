@@ -73,7 +73,12 @@ class CRM_Filters extends Module {
 		//Base_ActionBarCommon::add('folder',__('Filters'),'class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',__('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);
 		else $in_use = CRM_FiltersCommon::$in_use;
-		print('<a class="lbOn'.($in_use?'':' disabled').' btn btn-block" id="CRM_Filters_button" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><i class="glyphicon glyphicon-search" style="margin-left:5px"></i></a>');
+//		print('<a class="lbOn'.($in_use?'':' disabled').' btn btn-block" id="CRM_Filters_button" rel="crm_filters">'.__('Perspective').': '.'<b>'.$_SESSION['client']['filter_'.Acl::get_user()]['desc'].'</b><i class="glyphicon glyphicon-search" style="margin-left:5px"></i></a>');
+
+		$t = $this->pack_module(Base_Theme::module_name());
+		$t->assign('perspective',$_SESSION['client']['filter_'.Acl::get_user()]['desc']);
+		$t->assign('popup_activation_attributes','class="lbOn'.($in_use?'':' disabled').'" rel="crm_filters"');
+		$t->display('button');
 	}
 
 	public function manage_filters() {
