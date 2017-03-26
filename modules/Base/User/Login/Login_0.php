@@ -51,9 +51,13 @@ class Base_User_Login extends Module {
 				eval_js('document.location=\'index.php\';',false);
 			} else {
 				$this->theme->assign('logged_as', Base_UserCommon::get_my_user_label(1));
-				$this->theme->assign('profile', Base_UserCommon::get_my_user_label());
+				if(ModuleManager::is_installed('CRM_Contacts')>=0) {
+					$this->theme->assign('my_contact_href', Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('my_contact')));
+					if(CRM_ContactsCommon::get_main_company())
+						$this->theme->assign('main_company_href', Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('main_company')));
+				}
 				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
-				$this->theme->assign('logout_label',__('Logout'));
+				$this->theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
 				$this->theme->display();
 			}
 			return;
@@ -89,18 +93,18 @@ class Base_User_Login extends Module {
 		}
 
 		// Display warning about storing a cookie
-        if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
-    		$warning=__('Keep this box unchecked if using a public computer');
-	    	$form->addElement('static','warning',null,$warning);
-		    $form->addElement('checkbox', 'autologin', '',__('Remember me'));
-        }
+    if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+    	$warning=__('Keep this box unchecked if using a public computer');
+	  	$form->addElement('static','warning',null,$warning);
+		  $form->addElement('checkbox', 'autologin', '',__('Remember me'));
+    }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
 		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'btn btn-primary btn-block'));
 
-        // register and add a rule to check if user is banned
-        $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
-        $form->addRule('username', __('You have exceeded the number of allowed login attempts for this username. Try again later.'), 'check_user_banned');
+    // register and add a rule to check if user is banned
+    $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
+    $form->addRule('username', __('You have exceeded the number of allowed login attempts for this username. Try again later.'), 'check_user_banned');
 
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
@@ -111,13 +115,13 @@ class Base_User_Login extends Module {
 
 		if($form->isSubmitted() && $form->validate()) {
 			$user = $form->exportValue('username');
-            Base_User_LoginCommon::set_logged($user);
+    	Base_User_LoginCommon::set_logged($user);
 
-            if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
-                $autologin = $form->exportValue('autologin');
-                if($autologin)
-                    Base_User_LoginCommon::new_autologin_id();
-            }
+      if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+          $autologin = $form->exportValue('autologin');
+          if($autologin)
+              Base_User_LoginCommon::new_autologin_id();
+      }
 
 			location(array());
 		} else {

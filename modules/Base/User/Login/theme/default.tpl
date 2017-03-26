@@ -5,14 +5,24 @@
   <span class=" fa fa-angle-down"></span>
 </a>
 <ul class="dropdown-menu dropdown-usermenu pull-right">
-  <li>{$profile}</li>
   <li>
-    <a href="javascript:;">
-      <span class="badge bg-red pull-right">50%</span>
-      <span>Settings</span>
+    <a {$my_contact_href}>
+      <span><i class="fa fa-user pull-right"></i>{"My Contact"|t}</span>
     </a>
   </li>
-  <li><a {$logout_href}><i class="fa fa-sign-out pull-right"></i> {$logout_label}</a></li>
+  {if $main_company_href}
+  <li>
+    <a {$main_company_href}>
+      <span><i class="fa fa-building pull-right"></i>{"Main Company"|t}</span>
+    </a>
+  </li>
+  {/if}
+  <li>
+    <a {$settings_href}>
+      <span><i class="fa fa-cogs pull-right"></i>{"User Settings"|t}</span>
+    </a>
+  </li>
+  <li><a {$logout_href}><i class="fa fa-sign-out pull-right"></i>{"Logout"|t}</a></li>
 </ul>
 
 {else}
