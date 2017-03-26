@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
@@ -12,9 +12,71 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_Watchdog extends Module {
 	public function body() {
-		
+		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+		$conf = array('records_limit'=>'__all__');
+		if (!empty($methods)) {
+			foreach ($methods as $k=>$v) {
+				$method = explode('::',$v);
+				IF (!is_callable($method)) continue;
+				$methods[$k] = call_user_func($method);
+				$conf['category_'.$k] = true;
+			}
+		}
+		$opts = array();
+		$this->applet($conf, $opts);
+		if($opts['actions']) {
+			Base_ActionBarCommon::add('delete',__('Mark all entries as read'),$this->create_confirm_callback_href(__('This will mark all entries in selected categories as read, are you sure you want to continue?'),array($this,'purge_subscriptions_applet'), array($categories)));
+		}
 	}
-	
+
+	public function indicator() {
+		$categories = array();
+		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
+		foreach ($methods as $k=>$v) {
+			$methods[$k] = explode('::',$v);
+			$categories[] = $k;
+		}
+
+    $records_limit = 10;
+		$records = Utils_WatchdogCommon::get_records_with_new_notifications();
+		$ret = array();
+		foreach ($records as $rec_key => $w) {
+			$k = $w['internal_id'];
+			$v = $w['category_id'];
+			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
+			if (!is_array($changes)) $changes = array();
+			$data = call_user_func($methods[$v], $k, $changes);
+			if ($data == null) { // mark events as seen when user can't see them
+        Utils_WatchdogCommon::notified($v, $k);
+        unset($records[$rec_key]);
+      	continue;
+      }
+			$menu = array($methods[$v][0],'menu');
+			if(is_callable($menu)) {
+				$menu = call_user_func($menu);
+				$icon = '';
+				array_walk_recursive($menu,function($item,$key) use (&$icon){
+					if(!$icon && $key=='__icon__') $icon = $item;
+				});
+				$data['icon'] = $icon;
+			} else $data['icon'] = '';
+			$data['time'] = Base_RegionalSettingsCommon::time2reg($w['event_time']);
+			$ret[] = $data;
+			//$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Stop Watching',__('Click to stop watching this record for changes'), Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'watching_small_new_events.png'));
+			//$gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Mark as Read',__('Mark as read'),Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'mark_as_read.png'));
+
+      $something_to_purge = true;
+			$count++;
+			if ($records_limit && $count >= $records_limit) break;
+		}
+		$records_qty = count($records);
+		$theme = $this->pack_module(Base_Theme::module_name());
+		$theme->assign('events',$ret);
+		$theme->assign('href',Base_BoxCommon::create_href($this,'Utils_Watchdog'));
+		$theme->assign('status',__('Displaying %s of %s records', array($count, $records_qty)).(($records_limit && $count < $records_qty)?'<br />'.__('All'):''));
+		$theme->display();
+	}
+
 	public function purge_subscriptions_applet($cat_ids) {
 		foreach ($cat_ids as $cat_id) {
 			Utils_WatchdogCommon::purge_notifications($cat_id, $this->get_module_variable('display_at_time'));
@@ -22,17 +84,18 @@ class Utils_Watchdog extends Module {
 		location(array());
 		return false;
 	}
-	
+
 	public function notified($cat_id, $id) {
 		Utils_WatchdogCommon::notified($cat_id, $id);
 		location(array());
 		return false;
 	}
-	
+
 	public function applet($conf, & $opts) {
+		$opts['go']=1;
 		$categories = array();
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
-		foreach ($methods as $k=>$v) { 
+		foreach ($methods as $k=>$v) {
 			$methods[$k] = explode('::',$v);
 			if (isset($conf['category_'.$k]) && $conf['category_'.$k] && is_numeric($k)) $categories[] = $k;
 		}
@@ -79,9 +142,9 @@ class Utils_Watchdog extends Module {
 				$gb_row->add_data(
 					$data['title']
 				);
-			} else {  
+			} else {
 				$gb_row->add_data(
-					$data['category'], 
+					$data['category'],
 					$data['title']
 				);
 			}
