@@ -10,6 +10,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 require_once(EPESI_LOCAL_DIR.'/libs/php-fontawesome.php');
 class FontAwesome extends Smk_FontAwesome {
     public static function get($class_prefix = 'fa-'){
-        return parent::getArray(EPESI_LOCAL_DIR.'/vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.min.css',$class_prefix);
+        return parent::getArray(EPESI_LOCAL_DIR.'/vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.css',$class_prefix);
     }
 }
