@@ -8,7 +8,11 @@
 		<td>
 	    {$i.open}
 		<div class="btn btn-default btn-lg">
-            <div class="div_icon"><img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32"></div>
+            <div class="div_icon">{if $i.icon_url}
+			          <img src="{$i.icon_url}" style="height:2em">
+			      {else}
+			          <i class="fa fa-{$i.icon} fa-2x"></i>
+			      {/if}</div>
             <span>{$i.label}</span>
         </div>
 	    {$i.close}
