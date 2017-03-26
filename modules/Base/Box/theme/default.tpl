@@ -29,20 +29,14 @@
         <!-- /menu footer buttons -->
         <div class="sidebar-footer hidden-small">
         <div class="search" id="search_box">{$search}</div>
-        <div class="filter" id="filter_box">{$filter}</div>
         <a data-toggle="tooltip" data-placement="top" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
         </a>
-        <a data-toggle="tooltip" data-placement="top" title="Settings">
+        {$filter}
+        <a data-toggle="tooltip" data-placement="top" title="Settings" {$settings_href}>
         <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
         </a>
-<!--        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-        <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-      </a>-->
-        <a data-toggle="tooltip" data-placement="top" title="Lock">
-        <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-        </a>
-        <a data-toggle="tooltip" data-placement="top" title="Logout">
+        <a data-toggle="tooltip" data-placement="top" title="Logout" {$logout_href}>
         <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
         </a>
         </div>
@@ -65,13 +59,7 @@
                 </li>
 
                 <li role="presentation" class="dropdown">
-                  <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-bell fa-2x"></i>
-                    <span class="badge bg-green">6</span>
-                  </a>
-                  <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
                     {$watchdog}
-                  </ul>
                 </li>
               </ul>
 
