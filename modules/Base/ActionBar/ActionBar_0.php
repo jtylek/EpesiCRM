@@ -68,6 +68,7 @@ class Base_ActionBar extends Module {
 			//	$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}
 
+		$fa_icons = FontAwesome::get();
 
 		$launcher=array();
 		if(Base_AclCommon::is_user()) {
@@ -87,12 +88,20 @@ class Base_ActionBar extends Module {
 						else
 							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).'>';
 						$ii['close'] = '</a>';
-						if(isset($v['link']['__icon__']))
-							$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-						else
-							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon) $icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-						$ii['icon_url'] = $icon;
+
+						$icon = null;
+						$icon_url = null;
+						if(isset($v['link']['__icon__'])) {
+							if(array_key_exists('fa-'.$v['link']['__icon__'],$fa_icons))
+								$icon = $v['link']['__icon__'];
+							else
+								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+						} else
+							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						if (!$icon && !$icon_url) $icon_url = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						$ii['icon'] = $icon;
+						$ii['icon_url'] = $icon_url;
+
 						$launcher[] = $ii;
 					}
 					if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
@@ -108,13 +117,19 @@ class Base_ActionBar extends Module {
 						}
 						$ii['close'] = '</a>';
 
-						if(isset($v['link']['__icon__']))
-							$icon = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-						else
-							$icon = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon) $icon = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
-
+						$icon = null;
+						$icon_url = null;
+						if(isset($v['link']['__icon__'])) {
+							if(array_key_exists('fa-'.$v['link']['__icon__'],$fa_icons))
+								$icon = $v['link']['__icon__'];
+							else
+								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
+						} else
+							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
+						if (!$icon && !$icon_url) $icon_url = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
 						$ii['icon'] = $icon;
+						$ii['icon_url'] = $icon_url;
+
 						self::$launchpad[] = $ii;
 					}
 				}
