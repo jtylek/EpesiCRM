@@ -74,6 +74,7 @@ class Utils_Watchdog extends Module {
 		$theme->assign('events',$ret);
 		$theme->assign('href',Base_BoxCommon::create_href($this,'Utils_Watchdog'));
 		$theme->assign('status',__('Displaying %s of %s records', array($count, $records_qty)).(($records_limit && $count < $records_qty)?'<br />'.__('All'):''));
+		$theme->assign('records_qty',$records_qty);
 		$theme->display();
 	}
 

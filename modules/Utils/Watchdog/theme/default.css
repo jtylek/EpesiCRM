@@ -5,6 +5,9 @@
     display: block!important;
     font-size: 11px;
 }
+.top_nav ul.msg_list li .message a {
+  padding: 3px 0px !important;
+}
 .top_nav ul.msg_list li .time {
     font-size: 11px;
     font-style: italic;
@@ -12,8 +15,7 @@
     position: absolute;
     right: 35px;
 }
-ul.msg_list li .image span {
+.top_nav ul.msg_list li .image span {
     float: left;
     margin-right: 10px;
-    width: 11%;
 }

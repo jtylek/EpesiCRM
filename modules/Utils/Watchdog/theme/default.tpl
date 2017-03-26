@@ -1,3 +1,8 @@
+<a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+  <i class="fa fa-bell fa-2x"></i>
+  <span class="badge bg-green">{$records_qty}</span>
+</a>
+<ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
 {foreach item=event from=$events}
 <li>
     <a {$event.view_href}>
@@ -20,3 +25,4 @@
     </a>
   </div>
 </li>
+</ul>
