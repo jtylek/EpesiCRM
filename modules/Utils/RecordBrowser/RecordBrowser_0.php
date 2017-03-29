@@ -263,7 +263,7 @@ class Utils_RecordBrowser extends Module {
 
 	public function add_note_button($key=null) {
 		$href = $this->add_note_button_href($key);
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Note')).' '.$href.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'"></a>';
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Note')).' '.$href.'><i class="fa fa-fw fa-file"></i></a>';
 	}
     // BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
     public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
@@ -1126,7 +1126,7 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($mode!='add') {
-            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
+            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><i class="fa fa-fw fa-info"></i></a>');
             $row_data= array();
 
 			if ($mode!='history') {
@@ -1694,7 +1694,7 @@ class Utils_RecordBrowser extends Module {
         foreach($this->table_rows as $name=>$val) {
             $info .= '<b>'.$val['id'].'</b> - '.$name.', ';
         }
-        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info).'/> '.__('Pattern');
+        $label = '<i class="fa fa-fw fa-info" '.Utils_TooltipCommon::open_tag_attrs($info).'></i> '.__('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
         $textarea->setRows(12);
         $textarea->setCols(80);
