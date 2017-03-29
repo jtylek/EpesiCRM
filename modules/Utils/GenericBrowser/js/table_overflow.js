@@ -197,5 +197,5 @@ gb_expandable_adjust_action_column = function (table, actions) {
         actions = actions + 1;
     }
     var el = jq('#table_' + table + ' th.Utils_GenericBrowser__actions:first');
-    el.css('width', actions * 16 + 6);
+    el.css('width', ''+(actions * 1.28571429*1.34)+'em');
 };

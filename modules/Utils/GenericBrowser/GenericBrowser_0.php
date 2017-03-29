@@ -65,19 +65,19 @@ class Utils_GenericBrowser extends Module {
 		$this->custom_label = $arg;
 		$this->custom_label_args = $args;
 	}
-	
+
 	public function set_resizable_columns($arg = true){
 		$this->resizable_columns = $arg;
 	}
-	
+
 	public function set_fixed_columns_class($classes = array()){
 		if (!is_array($classes)) {
 			$classes = array($classes);
 		}
-		
+
 		$classes[] = 'Utils_GenericBrowser__actions';
-	
-		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);	
+
+		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
@@ -460,7 +460,7 @@ class Utils_GenericBrowser extends Module {
 		} else {
 			$where = array();
 		}
-		
+
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
@@ -893,8 +893,8 @@ class Utils_GenericBrowser extends Module {
 				}
 				if ($this_width > $max_actions) $max_actions = $this_width;
 			}
-			if ($actions_position == 0) $headers[-1] = array('label' => '<span>' . '&nbsp;' . '</span>', 'attrs' => 'style="width: ' . ($max_actions * 16 + 6) . 'px;" class="Utils_GenericBrowser__actions"');
-			else $headers[count($this->columns)] = array('label' => '<span>' . '&nbsp;' . '</span>', 'attrs' => 'style="width: ' . ($max_actions * 16 + 6) . 'px;" class="Utils_GenericBrowser__actions"');
+			if ($actions_position == 0) $headers[-1] = array('label' => '<span>' . '&nbsp;' . '</span>', 'attrs' => 'style="width: ' . ($max_actions * 1.28571429*1.34) . 'em;" class="Utils_GenericBrowser__actions"');
+			else $headers[count($this->columns)] = array('label' => '<span>' . '&nbsp;' . '</span>', 'attrs' => 'style="width: ' . ($max_actions * 1.28571429*1.34) . 'em;" class="Utils_GenericBrowser__actions"');
 		}
 
 		$all_width = 0;

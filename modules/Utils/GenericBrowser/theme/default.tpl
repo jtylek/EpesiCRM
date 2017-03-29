@@ -89,8 +89,10 @@
 {/php}
 
 				{$table_prefix}
+				<div class="Utils_GenericBrowser_overflow_container">
                 {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-bordered table-hover" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
-				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
+								{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
+				</div>
 				{$table_postfix}
 
 				{if isset($form_data_paging)}
