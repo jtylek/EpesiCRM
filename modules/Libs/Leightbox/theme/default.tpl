@@ -2,7 +2,7 @@
 	load_js($this->get_template_vars('theme_dir').'/Libs/Leightbox/default.js');
 {/php}
 
-<div class="panel panel-default" style="margin-bottom: 0px; height: 100%">
+<div class="panel panel-default" style="margin-bottom: 0px;">
 	<div class="panel-heading">
 		<span class="panel-title">{if $header}{$header}{else}&nbsp;{/if}</span>
 		<div class="pull-right action-buttons">
