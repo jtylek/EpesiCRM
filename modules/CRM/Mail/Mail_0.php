@@ -146,7 +146,8 @@ class CRM_Mail extends Module {
 			$show_related = $this->get_module_variable('include_related');
 			$form->setDefaults(array('include_related'=>$show_related));
 
-            $form->accept($renderer = new HTML_QuickForm_Renderer_TCMSArray());
+	    $renderer = new HTML_QuickForm_Renderer_TCMSArray();
+            $form->accept($renderer);
             $html = $this->twig_render('button.twig',[
                 'form' => $renderer->toArray()
             ]);
