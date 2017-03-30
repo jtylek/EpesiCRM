@@ -1,6 +1,6 @@
-<div class="navigation-menu">
-	<div id="{$trash_id}" class="trash">
-		<i class="fa fa-trash fa-2x" aria-hidden="true"></i>{$trash_label}
+<div class="well well-sm">
+	<div id="{$trash_id}" class="btn btn-warning">
+		<i class="fa fa-trash" aria-hidden="true"></i>{$trash_label}
 	</div>
 
 	<a class="btn btn-default" {$prev7_href}>{$prev7_label}&nbsp;<i class="fa fa-fast-backward" aria-hidden="true"></i></a>
@@ -9,11 +9,11 @@
 	<a class="btn btn-default" {$next_href}><i class="fa fa-forward" aria-hidden="true"></i>&nbsp;{$next_label}</a>
 	<a class="btn btn-default" {$next7_href}><i class="fa fa-fast-forward" aria-hidden="true"></i>&nbsp;{$next7_label}</a>
 	{$popup_calendar}
-	<div style="width: 130px; float: right">
+	<div class="pull-right">
 	{$navigation_bar_additions}
 	</div>
 </div>
- 
+
 <!-- SHADOW BEGIN -->
 <!-- -->
 

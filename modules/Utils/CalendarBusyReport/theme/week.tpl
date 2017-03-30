@@ -1,4 +1,4 @@
-<div class="navigation-menu">
+<div class="well well-sm">
 	<table border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="empty"></td>
 		<td class="button_cell"><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev2.png"></a></td>

@@ -305,7 +305,6 @@ class Utils_CalendarBusyReport extends Module {
 	// day
 	public function day() {
 		$theme = $this->pack_module(Base_Theme::module_name());
-		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
 		$theme->assign('next_label',__('Next day'));
@@ -466,7 +465,6 @@ class Utils_CalendarBusyReport extends Module {
 
 	public function week() {
 		$theme = $this->pack_module(Base_Theme::module_name());
-		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
 		$theme->assign('next7_label',__('Next week'));

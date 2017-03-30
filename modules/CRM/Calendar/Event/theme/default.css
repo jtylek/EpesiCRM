@@ -1,16 +1,5 @@
 @CHARSET "ISO-8859-1";
 
-/*
-#CRM_Calendar_Event_Personal .QForm_multiselect {
-	border: 1px solid #B3B3B3;
-}
-
-#CRM_Calendar_Event_Personal .QForm_multiselect_left {
-}
-
-#CRM_Calendar_Event_Personal .QForm_multiselect_right {
-}
-*/
 
 #CRM_Calendar_Event_Personal table.form {
 	background-color: #FFFFFF;
@@ -34,46 +23,6 @@
 #CRM_Calendar_Event_Personal table.form span.error {
 	color: red;
 }
-
-/* label */
-/*
-#CRM_Calendar_Event_Personal .label {
-	background-color: #336699;
-	color: #FFFFFF;
-	height: 20px;
-	vertical-align: middle;
-	padding-left: 5px;
-	padding-right: 5px;
-	text-align: left;
-	border-bottom: 1px solid #B3B3B3;
-	border-left: 1px solid #B3B3B3;
-	border-right: 1px solid #B3B3B3;
-}
-*/
-/* data */
-/*
-#CRM_Calendar_Event_Personal .data {
-	height: 20px;
-	vertical-align: middle;
-	background-color: #FFFFFF;
-	text-align: left;
-	border-bottom: 1px solid #B3B3B3;
-	border-right: 1px solid #B3B3B3;
-	padding-left: 1px;
-	padding-right: 1px;
-}
-
-#CRM_Calendar_Event_Personal .data a.button {
-	color: #FFFFFF;
-	background-color: #336699;
-	padding: 4px 5px 3px 5px;
-	border-bottom: 1px solid #B3B3B3;
-}
-
-#CRM_Calendar_Event_Personal .data a.button:hover {
-	background-color: #339933;
-}
-*/
 
 #CRM_Calendar_Event_Personal .arrows input {
 	border: 0px;
