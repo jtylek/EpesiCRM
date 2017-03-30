@@ -212,9 +212,7 @@ class CRM_Contacts_Activities extends Module {
 	}
 	
 	public function view_event($id) {
-		$x = Base_BoxCommon::root();
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('CRM_Calendar_Event','view',$id);
+		Base_BoxCommon::push_module(CRM_Calendar_Event::module_name(),'view',$id);
 	}
 
 	

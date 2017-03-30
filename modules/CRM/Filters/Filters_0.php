@@ -82,9 +82,7 @@ class CRM_Filters extends Module {
 	}
 
 	public function manage_filters() {
-		$x = Base_BoxCommon::root();
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main($this->get_type(),'edit', array(false));
+		Base_BoxCommon::push_module($this->get_type(),'edit', array(false));
 	}
 
 /*	public function get() {

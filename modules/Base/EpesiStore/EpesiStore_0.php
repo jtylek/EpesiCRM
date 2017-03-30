@@ -752,11 +752,7 @@ class Base_EpesiStore extends Module {
     }
 
     public function navigate($func, $params = array()) {
-        $x = Base_BoxCommon::root();
-        if (!$x)
-            trigger_error('There is no base box module instance', E_USER_ERROR);
-        $x->push_main($this->get_type(), $func, $params);
-        return false;
+        return Base_BoxCommon::push_module($this->get_type(), $func, $params);
     }
 
     public function pop_main($i = 1) {

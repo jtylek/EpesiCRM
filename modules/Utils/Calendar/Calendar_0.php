@@ -287,9 +287,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function push_event_action($action,$arg=null) {
-		$x = Base_BoxCommon::root();
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main($this->event_module,$action,$arg);
+		Base_BoxCommon::push_module($this->event_module,$action,$arg);
 	}
 
 	public function delete_event($id) {

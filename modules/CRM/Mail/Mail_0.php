@@ -244,8 +244,7 @@ class CRM_Mail extends Module {
 	public function open_mail_client($id) {
 		$mail_client = Variable::get('crm_mail_default_client','');
 		if(!$mail_client) return;
-		$x = Base_BoxCommon::root();
-		$x->push_main($mail_client,'body',array(array(),$id));
+		Base_BoxCommon::push_module($mail_client,'body',array(array(),$id));
 	}
 
 	public function applet($conf, & $opts) {
