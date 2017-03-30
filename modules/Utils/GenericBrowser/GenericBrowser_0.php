@@ -942,10 +942,8 @@ class Utils_GenericBrowser extends Module {
 			eval_js_once('gb_expandable["' . $md5_id . '"] = {};');
 			eval_js_once('gb_expanded["' . $md5_id . '"] = 0;');
 
-			eval_js_once('gb_expand_icon = "' . Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif') . '";');
-			eval_js_once('gb_collapse_icon = "' . Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif') . '";');
-			eval_js_once('gb_expand_icon_off = "' . Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand_gray.gif') . '";');
-			eval_js_once('gb_collapse_icon_off = "' . Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse_gray.gif') . '";');
+			eval_js_once('gb_expand_icon = "<i class=\"fa fa-caret-square-o-down\"></i>";');
+			eval_js_once('gb_collapse_icon = "<i class=\"fa fa-caret-square-o-up\"></i>";');
 		}
 
 		foreach ($this->rows as $i => $r) {
@@ -953,8 +951,8 @@ class Utils_GenericBrowser extends Module {
 
 			if ($this->expandable) {
 				$row_id = $md5_id . '_' . $i;
-				$this->__add_row_action($i, 'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\'' . $md5_id . '\',\'' . $i . '\')" id="gb_more_' . $row_id . '"', 'Expand', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'plus_gray.png'), 1001);
-				$this->__add_row_action($i, 'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\'' . $md5_id . '\',\'' . $i . '\')" id="gb_less_' . $row_id . '"', 'Collapse', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'minus_gray.png'), 1001, false, 0);
+				$this->__add_row_action($i, 'style="display:none;" href="javascript:void(0)" onClick="gb_expand(\'' . $md5_id . '\',\'' . $i . '\')" id="gb_more_' . $row_id . '"', 'Expand', null, 'plus-square', 1001);
+				$this->__add_row_action($i, 'style="display:none;" href="javascript:void(0)" onClick="gb_collapse(\'' . $md5_id . '\',\'' . $i . '\')" id="gb_less_' . $row_id . '"', 'Collapse', null, 'minus-square', 1001, false, 0);
 				$this->__add_row_js($i, 'gb_expandable_init("' . Epesi::escapeJS($md5_id, true, false) . '","' . Epesi::escapeJS($i, true, false) . '")');
 				if (!isset($this->row_attrs[$i])) $this->row_attrs[$i] = '';
 				$this->row_attrs[$i] .= 'id="gb_row_' . $row_id . '"';

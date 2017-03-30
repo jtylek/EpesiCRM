@@ -89,8 +89,8 @@ class CRM_Mail extends Module {
 			}
 			if($ok) {
 			$this->lp = $this->init_module('Utils_LeightboxPrompt');
-			$this->lp->add_option('cancel', __('Cancel'), Base_ThemeCommon::get_template_file('Base_ActionBar', 'icons/back.png'), null);
-			$this->lp->add_option('paste', __('Paste'), Base_ThemeCommon::get_template_file($this->get_type(), 'copy.png'), null);
+			$this->lp->add_option('cancel', __('Cancel'), 'arrow-left', null);
+			$this->lp->add_option('paste', __('Paste'), 'copy', null);
 			$content = '';
 			foreach($_SESSION['rc_mails_cp'] as $mid) {
 				$mail = Utils_RecordBrowserCommon::get_record('rc_mails',$mid);
@@ -102,7 +102,7 @@ class CRM_Mail extends Module {
 				if($vals['option']=='paste')
 					$this->paste($rs,$id);
 			}
-			Base_ActionBarCommon::add(Base_ThemeCommon::get_template_file($this->get_type(),'copy.png'),__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
+			Base_ActionBarCommon::add('copy',__('Paste mail'), $this->lp->get_href());//$this->create_confirm_callback_href(__('Paste following email?'),array($this,'paste'),array($rs,$id)));
 			}
 		}
 
@@ -232,9 +232,9 @@ class CRM_Mail extends Module {
 	}
 
 	public function actions_for_mails($r, $gb_row) {
-		$gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
-		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif'), 5);
-		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif'), 5);
+		$gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,'copy');
+		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, 'caret-square-o-down', 5);
+		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, 'caret-square-o-up', 5);
 	}
 
 	public function copy($id) {
@@ -279,7 +279,7 @@ class CRM_Mail extends Module {
 		$this->js($update_applet);
 
 		$href = $this->create_callback_href(array('Base_BoxCommon', 'push_module'), array($this->get_type(), 'account_manager', array(true)));
-		$img = '<img src="' . Base_ThemeCommon::get_template_file('Base_Dashboard', 'configure.png') . '" border="0">';
+		$img = '<i class="fa fa-cog fa-2x"></i>';
 		$tooltip = Utils_TooltipCommon::open_tag_attrs(__('Go to account settings'));
 		$opts['actions'][] = "<a $tooltip $href>$img</a>";
 	}

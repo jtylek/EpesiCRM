@@ -171,8 +171,8 @@ gb_expandable_init = function(table,id) {
     });
     gb_collapse(table,id);
     gb_expandable[table][id] = id;
-    jq("#gb_less_"+table+'_'+id).children('img').first().attr('src',gb_collapse_icon);
-    jq("#gb_more_"+table+'_'+id).children('img').first().attr('src', gb_expand_icon);
+    jq("#gb_less_"+table+'_'+id).children('i').replaceWith(gb_collapse_icon);
+    jq("#gb_more_"+table+'_'+id).children('i').replaceWith(gb_expand_icon);
     // handlers to expand on click in the empty space of the cell
     el.off('click').click(function (e) {
         if(!getSelection().toString()){

@@ -98,7 +98,7 @@ class Base_ActionBar extends Module {
 								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
 						} else
 							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon && !$icon_url) $icon_url = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						if (!$icon && !$icon_url) $icon_url = 'cog';
 						$ii['icon'] = $icon;
 						$ii['icon_url'] = $icon_url;
 
@@ -126,7 +126,7 @@ class Base_ActionBar extends Module {
 								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
 						} else
 							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon && !$icon_url) $icon_url = Base_ThemeCommon::get_template_file($this->get_type(),'default_icon.png');
+						if (!$icon && !$icon_url) $icon_url = 'cog';
 						$ii['icon'] = $icon;
 						$ii['icon_url'] = $icon_url;
 

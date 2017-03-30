@@ -86,3 +86,11 @@ pre.wrap {
 .nav>li>span>a:focus {
     color: #515356 !important;
 }
+
+td span {
+	line-height: inherit;
+}
+
+button, .buttons, .btn, .modal-footer .btn+.btn {
+	margin-bottom:0px;
+}

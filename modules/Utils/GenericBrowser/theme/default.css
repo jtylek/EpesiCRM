@@ -1,9 +1,10 @@
 .css3_content_shadow{
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 5px black;
-	-moz-box-shadow: 1px 1px 5px black;
-	box-shadow: 1px 1px 5px black;
+	-webkit-box-shadow: 0px 0px 1px black;
+	-moz-box-shadow: 0px 0px 1px black;
+	box-shadow: 0px 0px 1px black;
 	/* end css3 shadow border*/
+	padding:5px;
 }
 
 .Utils_GenericBrowser__td .direction {
@@ -20,9 +21,6 @@
 
 .GenericBrowser_letters {
 	background-color: white;
-	height: 22px;
-	padding-top: 2px;
-	padding-left: 2px;
 	margin: 3px auto auto 5px;
 }
 
@@ -199,6 +197,9 @@ table.Utils_GenericBrowser > thead > tr > th input:focus {
 
 table.Utils_GenericBrowser {
 		min-width:950px;
+}
+.applet table.Utils_GenericBrowser {
+		min-width:300px;
 }
 
 table.Utils_GenericBrowser > tbody {
