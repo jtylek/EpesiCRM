@@ -63,7 +63,7 @@ ob_start();
 		$bootstrap = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js' : 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js';
 		$select2 = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js' : 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.min.js';
 		$jquery_ui = DEBUG_JS ? 'libs/jquery-ui-1.12.1.custom.js':'libs/jquery-ui-1.12.1.custom.min.js';
-		$jses = array($jquery, $bootstrap, 'libs/jquery.clonePosition.js', 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js', $select2);
+		$jses = array($jquery, $bootstrap, 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','include/epesi.js', 'libs/jquery.clonePosition.js', $select2);
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
