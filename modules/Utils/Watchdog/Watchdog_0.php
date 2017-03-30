@@ -37,7 +37,8 @@ class Utils_Watchdog extends Module {
 			$categories[] = $k;
 		}
 
-    $records_limit = 10;
+		$records_limit = 10;
+		$count = 0;
 		$records = Utils_WatchdogCommon::get_records_with_new_notifications();
 		$ret = array();
 		foreach ($records as $rec_key => $w) {
