@@ -2997,13 +2997,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);
-<<<<<<< HEAD
-            $x = Base_BoxCommon::root();
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
-=======
             Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
->>>>>>> testing
             return true;
         }
         return false;

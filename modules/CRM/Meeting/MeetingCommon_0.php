@@ -369,12 +369,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$values['title'] = __('Follow-up').': '.$values['title'];
 			$values['status'] = 0;
 
-<<<<<<< HEAD
-			if ($action != 'none') {
-				$x = Base_BoxCommon::root();
-=======
 			if ($action != 'none') {		
->>>>>>> testing
 				$values['follow_up'] = array('meeting',$record['id'],$record['title']);
 				if ($action == 'new_meeting') Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('crm_meeting'));
 				if ($action == 'new_task') Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'deadline'=>date('Y-m-d H:i:s', strtotime('+1 day')),'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'follow_up'=>$values['follow_up'])), array('task'));
