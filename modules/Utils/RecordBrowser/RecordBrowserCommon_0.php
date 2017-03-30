@@ -3455,7 +3455,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     public static function timestamp_required($v) {
-        return $v['__datepicker'] !== '' && Base_RegionalSettingsCommon::reg2time($v['__datepicker'], false) !== false;
+        return $v !== '' && Base_RegionalSettingsCommon::reg2time($v, false) !== false;
     }
 
     public static function QFfield_timestamp(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

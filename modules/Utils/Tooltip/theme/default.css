@@ -34,5 +34,5 @@
 
 /* fix gentelella css */
 .tooltip {
-	z-index:99999;
+	z-index:99999 !important;
 }
