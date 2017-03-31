@@ -6,16 +6,32 @@
 {else}
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
-        <div class="navbar nav_title" style="border: 0; padding: 20px 15px 15px 5px">
-            {$logo}
-        </div>
+        <div class="navbar nav_title" style="border: 0">
+            {*{$logo}*}
+            <a data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+            </a>
+            {$filter}
+            <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="bottom" title="Logout" {$logout_href}>
+                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+            </a>
 
+
+        </div>
+        <div class="watchdog dropdown">
+            {$watchdog}
+        </div>
         <div class="clearfix"></div>
 
         <!-- menu profile quick info -->
-        <div class="module_indicator">
-          <h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>
-        </div>
+
+        {*<div class="module_indicator">*}
+          {*<h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>*}
+        {*</div>*}
+
         <!-- /menu profile quick info -->
 
         <br />
@@ -26,19 +42,9 @@
         </div>
         <!-- /sidebar menu -->
 
-        <!-- /menu footer buttons -->
+        <!-- /menu zbuttons -->
         <div class="sidebar-footer hidden-small">
-        <div class="search" id="search_box">{$search}</div>
-        <a data-toggle="tooltip" data-placement="top" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-        </a>
-        {$filter}
-        <a data-toggle="tooltip" data-placement="top" title="Settings" {$settings_href}>
-        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-        </a>
-        <a data-toggle="tooltip" data-placement="top" title="Logout" {$logout_href}>
-        <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-        </a>
+            {$logo}
         </div>
         <!-- /menu footer buttons -->
     </div>
@@ -54,13 +60,15 @@
               </div>
 
               <ul class="nav navbar-nav navbar-right">
+
                 <li class="">
                   {$login}
                 </li>
 
-                <li role="presentation" class="dropdown">
-                    {$watchdog}
-                </li>
+                  <li class="" style="width: 300px; padding: 1.1rem">
+                      {$search}
+                  </li>
+
               </ul>
 
               {$actionbar}

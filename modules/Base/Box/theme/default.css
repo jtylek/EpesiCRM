@@ -94,3 +94,56 @@ td span {
 button, .buttons, .btn, .modal-footer .btn+.btn {
 	margin-bottom:0px;
 }
+
+.nav-sm.nav_title a {
+	background: #2A3F54;
+}
+
+.nav_title {
+	position: fixed;
+	width: 230px;
+	background: #2A3F54;
+	z-index:999;
+	display: block;
+	clear: both;
+}
+
+.nav_title a {
+	padding: 7px 0 3px;
+	text-align: center;
+	width: 25%;
+	font-size: 17px;
+	display: block;
+	float: left;
+	background: #172D44;
+	cursor: pointer;
+}
+
+.nav_title a > span:hover,
+.nav_title a:hover > span {
+	color: #ffffff;
+}
+
+.sidebar-footer {
+	height: 76px;
+	background: #172D44;
+}
+
+.sidebar-footer a {
+	background: #172D44;
+	text-align: center;
+	width: 100%;
+	display: block;
+	float: left;
+	cursor: pointer;
+	padding: 1rem;
+}
+
+.watchdog {
+	/*padding-top: 5rem;*/
+	padding: 5rem 1rem 0 2.3rem;
+
+}
+.watchdog i {
+	color: #e1e1e2;
+}
