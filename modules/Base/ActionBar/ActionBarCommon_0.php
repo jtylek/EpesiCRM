@@ -20,6 +20,7 @@ class Base_ActionBarCommon extends ModuleCommon {
 	public static $available_icons = array(
 			'home'		=> 0,
 			'back'		=> 1,
+			'arrow-left'	=> 1,
 			'report'	=> 2,
 			'history'	=> 3,
 			'all'		=> 4,

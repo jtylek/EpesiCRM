@@ -46,6 +46,7 @@ class Base_ActionBar extends Module {
 		$this->help('ActionBar basics','main');
 
 		$icons = Base_ActionBarCommon::get();
+		$fa_icons = FontAwesome::get();
 
 		//sort
 		usort($icons, array($this,'compare'));
@@ -57,18 +58,16 @@ class Base_ActionBar extends Module {
                 $t = Utils_TooltipCommon::open_tag_attrs($description);
             else
                 $t = '';
-			$i['open'] = '<a '.$i['action'].' '.$t.'>';
+			$fa = array_key_exists('fa-'.$i['icon'],$fa_icons);
+			$i['open'] = '<a '.$i['action'].' '.$t.' class="icon-'.($fa?$i['icon']:md5($i['icon'])).'">';
 			$i['close'] = '</a>';
-			$i['helpID'] = 'ActionBar_'.$i['icon'];
-			if (strpos($i['icon'], '/')!==false && file_exists($i['icon'])) {
+			if(!$fa && strpos($i['icon'], '/')!==false && file_exists($i['icon'])) {
 				$i['icon_url'] = $i['icon'];
 				unset($i['icon']);
 			}
 			//if (isset(Base_ActionBarCommon::$available_icons[$i['icon']]))
 			//	$i['icon'] = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/'.$i['icon'].'.png');
 		}
-
-		$fa_icons = FontAwesome::get();
 
 		$launcher=array();
 		if(Base_AclCommon::is_user()) {
@@ -83,11 +82,6 @@ class Base_ActionBar extends Module {
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
-						if(isset($arr['__url__']))
-							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank">';
-						else
-							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).'>';
-						$ii['close'] = '</a>';
 
 						$icon = null;
 						$icon_url = null;
@@ -101,6 +95,12 @@ class Base_ActionBar extends Module {
 						if (!$icon && !$icon_url) $icon_url = 'cog';
 						$ii['icon'] = $icon;
 						$ii['icon_url'] = $icon_url;
+
+						if(isset($arr['__url__']))
+							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank" class="icon-'.($icon?$icon:md5($icon_url)).'">';
+						else
+							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).' class="icon-'.($icon?$icon:md5($icon_url)).'">';
+						$ii['close'] = '</a>';
 
 						$launcher[] = $ii;
 					}
