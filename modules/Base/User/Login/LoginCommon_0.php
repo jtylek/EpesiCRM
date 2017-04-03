@@ -235,7 +235,8 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
-		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+		$ssl = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 1 : 0;
+		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30, EPESI_DIR, '', $ssl);
 		$ip = get_client_ip_address();
 		if ($old_autologin_id) {
 			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
