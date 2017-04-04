@@ -141,8 +141,8 @@ class Utils_Wizard extends Module {
 				if(empty($this->history)) {
 					$this->form[$this->curr_page]->addElement('submit', 'button_next', __('Next'));
 				} else {
-					$button_prev = HTML_QuickForm::createElement('button', 'button_prev', __('Prev'), $this->create_back_href());
-					$button_next = HTML_QuickForm::createElement('submit', 'button_next', __('Next'));
+					$button_prev = $this->form[$this->curr_page]->createElement('button', 'button_prev', __('Prev'), $this->create_back_href());
+					$button_next = $this->form[$this->curr_page]->createElement('submit', 'button_next', __('Next'));
 					$this->form[$this->curr_page]->addGroup(array($button_prev, $button_next));
 				}
 				

@@ -18,14 +18,14 @@ class Utils_MessengerCommon extends ModuleCommon {
 	public static function applet_info() {
 		return __('Displays last alarms');
 	}
-	
+
 	public static function delete_by_parent_module($m) {
 		$ret = DB::Execute('SELECT id FROM utils_messenger_message WHERE parent_module=%s',array($m));
 		while($row = $ret->FetchRow())
 			DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($row['id']));
 		DB::Execute('DELETE FROM utils_messenger_message WHERE parent_module=%s',array($m));
 	}
-	
+
 	public static function delete_by_id($id) {
 		$mid = md5($id);
 		$ret = DB::Execute('SELECT id FROM utils_messenger_message WHERE page_id=\''.$mid.'\'');
@@ -34,15 +34,15 @@ class Utils_MessengerCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_messenger_message WHERE page_id=\''.$mid.'\'');
 
 	}
-	
+
 	public static function get_alarms($id) {
 		return DB::GetAssoc('SELECT id, alert_on FROM utils_messenger_message WHERE page_id=%s', array(md5($id)));
 	}
-	
+
 	public static function update_time($id, $time) {
 		DB::Execute('UPDATE utils_messenger_message SET alert_on=%T WHERE id=%s', array($time, $id));
 	}
-	
+
 	public static function add($id,$parent_type,$message,$alert_on, $callback_method,$callback_args=null,$users=null) {
 		$callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		if(!isset($users)) $users = Acl::get_user();
@@ -66,12 +66,12 @@ class Utils_MessengerCommon extends ModuleCommon {
 			$m = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			ob_clean();
 			$ret['messenger_'.$row['id']] = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."<br>".str_replace("\n",'<br>',$m).($row['message']?"<br>".__('Alarm comment: %s',array($row['message'])):'');
-			
-			$tray['messenger_'.$row['id']] = array('title'=>__('Messenger - %s', array($row['message'])), 'body'=>$m);
+
+			$tray['messenger_'.$row['id']] = array('title'=>__('Alert on %s: %s', array(Base_RegionalSettingsCommon::time2reg($row['alert_on']), $row['message'])), 'body'=>$m);
 		}
 		return array('alerts'=>$ret, 'tray'=>$tray);
 	}
-	
+
 	public static function user_settings(){
 		return array(__('Alerts')=>array(
 			array('name'=>'mail','label'=>__('E-mail'),'type'=>'text','default'=>'',
@@ -85,12 +85,12 @@ class Utils_MessengerCommon extends ModuleCommon {
 			array('name'=>'allow_other','label'=>__('Allow other users to set up alerts for me'),'type'=>'bool','default'=>0)
 			));
 	}
-	
+
 	public static function check_follow($v, $f) {
 		if(!$v) return true;
 		return $f->exportValue('Utils_Messenger__mail')!='';
 	}
-	
+
 	public static function cron() {
         return array('cron2'=>1); //run every 1 minute
     }
@@ -114,7 +114,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 			}
 			Acl::set_user();
 		}
-		
+
 		return '';
 	}
 
@@ -124,7 +124,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 				'__function__'=>'browse'));
 		return array();
 	}
-	
+
 	public static function turn_off($id) {
 	    DB::Execute('UPDATE utils_messenger_users SET done=1,done_on=%T WHERE user_login_id=%d AND message_id=%d',array(time(),Acl::get_user(),$id));
 	}

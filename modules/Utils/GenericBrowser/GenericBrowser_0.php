@@ -1003,8 +1003,12 @@ class Utils_GenericBrowser extends Module {
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
-				if ($all_width!=0 && is_numeric($this->columns[$k]['width']))
-        				$max_width = 130*$this->columns[$k]['width']/$all_width*(7+(isset($this->columns[$k]['fontsize'])?$this->columns[$k]['fontsize']:0));
+				if ($all_width!=0)
+					$max_width = 130*(substr($this->columns[$k]['width'],-2)=="px"
+							? (int)substr($this->columns[$k]['width'],0,-2)
+							: (int)$this->columns[$k]['width'])/$all_width*(7+(isset($this->columns[$k]['fontsize'])
+								? $this->columns[$k]['fontsize']
+								: 0));
         			else
         			        $max_width = 0;
 				if (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='cut'){

@@ -144,8 +144,8 @@ class Base_User_Login extends Module {
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
 		$form->addElement('text', 'username', __('Username'));
 		$form->addElement('text', 'mail', __('E-mail'));
-		$ok_b = & HTML_QuickForm::createElement('submit', 'submit_button', __('OK'));
-		$cancel_b = & HTML_QuickForm::createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
+		$ok_b = & $form->createElement('submit', 'submit_button', __('OK'));
+		$cancel_b = & $form->createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
 		// require a username

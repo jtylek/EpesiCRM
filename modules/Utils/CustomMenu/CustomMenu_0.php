@@ -100,8 +100,8 @@ class Utils_CustomMenu extends Module {
 		$f->registerRule('check_path', 'callback', 'check_path', $this);
 		$f->addRule('path',__('Specified path already exists'),'check_path');
 		
-		$save_b = & HTML_QuickForm::createElement('submit', null, __('OK'));
-		$back_b = & HTML_QuickForm::createElement('button', null, __('Cancel'), $this->create_back_href());
+		$save_b = & $f->createElement('submit', null, __('OK'));
+		$back_b = & $f->createElement('button', null, __('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
 		
 		if($f->validate()) {
