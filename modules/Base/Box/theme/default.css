@@ -171,3 +171,9 @@ div.login > span > a > span {
 div.login > span > a > i {
 	color: black;
 }
+
+.col-md-3.left_col {
+	position: fixed;
+	height: 100%;
+	overflow-y: scroll;
+}
