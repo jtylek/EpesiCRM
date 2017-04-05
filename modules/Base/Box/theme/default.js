@@ -43,7 +43,7 @@ var setContentHeight = function () {
   $RIGHT_COL = $('.right_col'),
   $NAV_MENU = $('.nav_menu'),
   $FOOTER = $('footer');
-  
+
   // reset height
   $RIGHT_COL.css('min-height', $(window).height());
 
@@ -89,7 +89,7 @@ $(window).on('e:load',function() {
   $SIDEBAR_MENU.find('li.current-page').removeClass('current-page');
   $SIDEBAR_MENU.find('li.current-page-next').addClass('current-page').removeClass('current-page-next');
 
-  $SIDEBAR_MENU.find('a').on('click', function(ev) {
+  $SIDEBAR_MENU.find('a').off('click').on('click', function(ev) {
       var $li = $(this).parent();
       if (!$li.is('.active') && !$li.is('.expanded')) {
           $SIDEBAR_MENU.find('li.'+$active_class)
