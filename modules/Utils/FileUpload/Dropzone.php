@@ -24,8 +24,10 @@ class Utils_FileUpload_Dropzone extends Module
         $identifier = 'dropzone_' . $identifier;
         $content = "<div id=\"{$identifier}\" class=\"dropzone\"></div>";
         $dir = 'modules/Utils/FileUpload/';
-        load_css($dir . 'lib/dropzone.css');
-        load_js($dir . 'lib/dropzone.js');
+        load_css($dir . 'theme/dropzone.css');
+        load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/basic.min.css');
+        load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.css');
+        load_js(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.js');
         $query = http_build_query(array('cid' => CID, 'path' => $this->get_path()));
         $files = $this->get_uploaded_files();
         $files_js = '';
@@ -59,6 +61,7 @@ class Utils_FileUpload_Dropzone extends Module
             'uploadMultiple' => true,
             'addRemoveLinks' => true,
             'maxFiles' => $this->maxFiles,
+            'dictDefaultMessage' => __('Drop files here or click to upload')
         ];
         eval_js('jq(".dz-hidden-input").remove(); if (!document.querySelector("#' . $identifier . '").dropzone) {
             var dz = new Dropzone("#' . $identifier . '", '.json_encode($options).');

@@ -1,7 +1,7 @@
-.dz-success-mark,.dz-error-mark{
+div.dz-success-mark,div.dz-error-mark{
     display:none;
 }
-.dropzone {
+div.dropzone {
     cursor: pointer;
     min-height: 50px;
     background: white none repeat scroll 0% 0%;
