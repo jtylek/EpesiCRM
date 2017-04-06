@@ -181,6 +181,9 @@ body.nav-md .container.body .col-md-3.left_col{
 	width: 100%;
 	overflow-y: scroll;
 	margin-top: 58px;
-	margin-bottom: 76px;
+	margin-bottom: 166px;
 	padding-top: 1rem;
+}
+.left_col.scroll-view #sidebar-menu .menu_section {
+	margin-bottom: 0px;
 }
