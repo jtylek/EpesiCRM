@@ -193,4 +193,10 @@ body.nav-md .container.body .col-md-3.left_col{
 
 .nav_menu {
 	opacity: 0.96;
+	height: 92px;
+	text-align: center;
+}
+.top-navigation {
+	margin-top: 15px;
+	display: block;
 }

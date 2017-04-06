@@ -68,7 +68,7 @@
         <div class="top_nav navbar-fixed-top">
 
           <div class="nav_menu">
-            <nav>
+            <nav class="top-navigation">
               <div class="nav toggle">
                 <a id="menu_toggle"><i class="fa fa-bars"></i></a>
               </div>
