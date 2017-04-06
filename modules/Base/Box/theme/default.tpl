@@ -65,7 +65,7 @@
 
 
 <!-- top navigation -->
-        <div class="top_nav">
+        <div class="top_nav navbar-fixed-top">
 
           <div class="nav_menu">
             <nav>
