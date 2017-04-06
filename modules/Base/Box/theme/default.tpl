@@ -58,7 +58,7 @@
 
         <!-- /menu footer buttons -->
     </div>
-    <div class="sidebar-footer hidden-small">
+    <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
         {$logo}
     </div>
 </div>
