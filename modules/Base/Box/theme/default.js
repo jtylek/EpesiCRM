@@ -113,7 +113,8 @@ $(window).on('e:load',function() {
               .removeClass('expanded')
               .find('ul:first').slideUp();
       } else if($li.is('.expanded')) {
-          $li.removeClass('expanded')
+          $li.removeClass('active')
+              .removeClass('expanded')
               .find('ul:first').slideUp();
       }
   });
