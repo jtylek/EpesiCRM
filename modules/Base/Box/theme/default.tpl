@@ -18,6 +18,12 @@
         <a data-toggle="tooltip" data-placement="bottom" title="Logout" {$logout_href}>
             <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
         </a>
+
+
+    </div>
+    <div class="search-bar">
+        {$search}
+
     </div>
 
     <div class="left_col scroll-view">
@@ -60,6 +66,7 @@
 
 <!-- top navigation -->
         <div class="top_nav">
+
           <div class="nav_menu">
             <nav>
               <div class="nav toggle">
@@ -67,14 +74,6 @@
               </div>
 
               <ul class="nav navbar-nav navbar-right">
-
-                <li class="">
-                  {*{$login}*}
-                </li>
-
-                  <li class="" style="width: 300px; padding: 1.1rem">
-                      {$search}
-                  </li>
 
               </ul>
 
