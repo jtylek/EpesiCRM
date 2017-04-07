@@ -11,7 +11,79 @@
 	padding: 10px 10px;
 	display:block;
 }
+
 .top_nav .navbar-nav .user-profile .fa-user {
 	vertical-align: middle;
 	margin-right:5px;
 }
+
+/* user container settings */
+
+#user-container-a {
+	padding: 0;
+	width: 100%;
+}
+
+#user-container-a div:hover {
+	color: #e1e1e2;
+}
+
+#user-container {
+	padding: 0;
+	margin: 0;
+	max-height: 57px;
+}
+
+#user-row {
+	padding: 0;
+	margin: 0;
+	display: flex;
+	color: #819ab7;
+}
+
+#user-div {
+	width: 15%;
+}
+
+#user {
+	font-size: 20px;
+	text-align: center;
+	margin-left: 5px;
+}
+
+#logged-as-div {
+	width: 70%
+}
+
+.logged-as {
+	font-size: 11px; padding: 0; margin: 0
+}
+
+#arrow-div {
+	width: 15%
+}
+
+#arrow {
+	font-size: 10px;
+	padding: 0;
+	margin: 0;
+}
+
+
+/* user menu */
+
+#user-menu > li > a {
+	background: white;
+	font-size: 14px;
+}
+
+#user-menu > li > a:hover {
+	color: black;
+}
+
+#user-menu > li > a > span > p {
+	margin: 0;
+	padding: 0 0 0 1rem;
+}
+
+

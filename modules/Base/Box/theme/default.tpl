@@ -4,96 +4,85 @@
         <div class="entry">{$login}</div>
     </div>
 {else}
-<div class="col-md-3 left_col">
+    <div class="col-md-3 left_col">
 
-    <div class="navbar nav_title" style="border: 0">
-        {*{$logo}*}
-        <a data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-        </a>
-        {$filter}
-        <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
-            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-        </a>
-        <a data-toggle="tooltip" data-placement="bottom" title="Logout" {$logout_href}>
-            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-        </a>
+        <div id="login-div" class="navbar nav_title" style="border: 0">
+            <a id="login-box" style="width: 75%; max-height: 57px">
+                {$login}
+            </a>
+            <a id="home-glyph-a" data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+            </a>
+        </div>
 
+        <div class="search-bar">
+            {$search}
+        </div>
 
-    </div>
-    <div class="search-bar">
-        {$search}
-
-    </div>
-
-    <div class="left_col scroll-view">
-
-
-        <div class="watchdog dropdown">
-            <div class="row">
-                <div class="login">
-                    {$login}{$watchdog}
+        <div class="left_col scroll-view">
+            <div class="watchdog dropdown">
+                <div class="row">
+                    <div class="login">
+                        {*{$login}*}
+                        {$watchdog}
+                    </div>
                 </div>
             </div>
+
+            <!-- menu profile quick info -->
+            {*<div class="module_indicator">*}
+            {*<h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>*}
+            {*</div>*}
+            <!-- /menu profile quick info -->
+
+            <br />
+
+            <!-- sidebar menu -->
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                {$menu}
+            </div>
+            <!-- /sidebar menu -->
+
+            <!-- /menu zbuttons -->
+
+            <!-- /menu footer buttons -->
         </div>
-        <div class="clearfix"></div>
-
-        <!-- menu profile quick info -->
-
-        {*<div class="module_indicator">*}
-          {*<h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>*}
-        {*</div>*}
-
-        <!-- /menu profile quick info -->
-
-        <br />
-
-        <!-- sidebar menu -->
-        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-          {$menu}
+        <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
+            {$logo}
         </div>
-        <!-- /sidebar menu -->
-
-        <!-- /menu zbuttons -->
-
-        <!-- /menu footer buttons -->
     </div>
-    <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
-        {$logo}
-    </div>
-</div>
 
 
-<!-- top navigation -->
-        <div class="top_nav navbar-fixed-top">
+    <!-- top navigation -->
+    <div class="top_nav navbar-fixed-top">
 
-          <div class="nav_menu">
+        <div class="nav_menu">
             <nav class="top-navigation">
-              <div class="nav toggle">
-                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-              </div>
+                <div class="nav toggle">
+                    <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                </div>
 
-              <ul class="nav navbar-nav navbar-right">
+                <ul class="nav navbar-nav navbar-right">
 
-              </ul>
+                </ul>
 
-              {$actionbar}
+                {$actionbar}
 
             </nav>
-          </div>
-        </div>
-<!-- /top navigation -->
-
-
-<div class="right_col" role="main">
-
-    <!-- -->
-    <div id="content">
-        <div id="content_body" style="padding-top: 110px">
-            {$main}
         </div>
     </div>
-</div>
+    <!-- /top navigation -->
+
+
+    <div class="right_col" role="main">
+
+        <!-- -->
+        <div id="content">
+            <div id="content_body" style="padding-top: 110px">
+                {$main}
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="pull-left">

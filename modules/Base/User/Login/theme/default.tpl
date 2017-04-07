@@ -1,28 +1,45 @@
 {if $is_logged_in}
 
-<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-  <span class="fa fa-user fa-3x"></span>&nbsp;{$logged_as}
-  <span class=" fa fa-angle-down"></span>
+<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="user-container-a">
+    <div class="container" id="user-container">
+        <div class="row" id="user-row">
+            <div id="user-div">
+                <span id="user" class="fa fa-user fa-3x"></span>
+            </div>
+            <div id="logged-as-div">
+                <div class="logged-as">{$logged_as}</div>
+            </div>
+            <div id="arrow-div">
+                <span id="arrow" class=" fa fa-angle-down"></span>
+            </div>
+        </div>
+    </div>
 </a>
-<ul class="dropdown-menu dropdown-usermenu pull-right">
-  <li>
-    <a {$my_contact_href}>
-      <span><i class="fa fa-user pull-right"></i>{"My Contact"|t}</span>
-    </a>
-  </li>
-  {if $main_company_href}
-  <li>
-    <a {$main_company_href}>
-      <span><i class="fa fa-building pull-right"></i>{"Main Company"|t}</span>
-    </a>
-  </li>
-  {/if}
-  <li>
-    <a {$settings_href}>
-      <span><i class="fa fa-cogs pull-right"></i>{"User Settings"|t}</span>
-    </a>
-  </li>
-  <li><a {$logout_href}><i class="fa fa-sign-out pull-right"></i>{"Logout"|t}</a></li>
+
+
+<ul class="dropdown-menu dropdown-usermenu pull-right" id="user-menu">
+    <li {$my_contact_href}>
+        <a>
+            <span><i class="fa fa-user pull-right"></i><p> {"My Contact"}</p></span>
+        </a>
+    </li>
+    {if $main_company_href}
+        <li>
+            <a {$main_company_href}>
+                <span><i class="fa fa-building pull-right"></i><p> {"Main Company"}</p></span>
+            </a>
+        </li>
+    {/if}
+    <li>
+        <a {$settings_href}>
+            <span><i class="fa fa-cogs pull-right"></i><p> {"User Settings"}</p></span>
+        </a>
+    </li>
+    <li>
+        <a {$logout_href}>
+            <span><i class="fa fa-sign-out pull-right"></i><p> {"Logout"}</p></span>
+        </a>
+    </li>
 </ul>
 
 {else}
@@ -83,7 +100,7 @@
                                 </div>
                             {/if}
                         {/if}
-                    <p>{$form_data.recover_password.html}</p>
+                        <p>{$form_data.recover_password.html}</p>
                     </form>
                 {/if}
                 {if isset($donation_note)}
@@ -96,8 +113,8 @@
                 <!-- Epesi Terms of Use require line below - do not remove it! -->
                 <p class="text-center"><a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></p>
                 <!-- Epesi Terms of Use require line above - do not remove it! -->
-            </p>
+                </p>
+            </div>
         </div>
     </div>
-</div>
-{/if}
+    {/if}
