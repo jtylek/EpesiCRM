@@ -35,6 +35,11 @@ class Utils_FileStorage_ActionHandler
         return get_epesi_url() . '/modules/Utils/FileStorage/file.php';
     }
 
+    protected function getRemoteScript()
+    {
+        return get_epesi_url() . '/modules/Utils/FileStorage/remote.php';
+    }
+
     public function getActionUrls($filestorageId, $params = [])
     {
         $urls = [];
@@ -118,6 +123,17 @@ class Utils_FileStorage_ActionHandler
 
     protected function createRemote(Request $request)
     {
-        return new Response('creating remote');
+        $params = $request->query->all();
+        $expires_on = time()+3600*24*7;
+        $token = md5($params['tab'].$params['id'].$params['field'].$expires_on.mt_rand());
+        DB::Execute('INSERT INTO utils_filestorage_remote(file_id,token,created_on,created_by,expires_on) VALUES (%d,%s,%T,%d,%T)',
+            [$params['id'],$token,time(),Acl::get_user(),$expires_on]);
+        $id = DB::Insert_ID('utils_filestorage_remote','id');
+        return new Response(
+            $this->getRemoteScript().'?'.
+            http_build_query(array('id'=>$id,'token'=>$token)),
+            Response::HTTP_OK,
+            ['content-type' => 'text/plain']
+        );
     }
 }
