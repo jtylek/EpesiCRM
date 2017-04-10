@@ -151,14 +151,18 @@ class Base_ActionBar extends Module {
 			}
 		}
 
-        $launcher[] = array(
-        	'label' => __('Back'),
-			'description' => __('Get back'),
-			'icon' => 'arrow-left',
-			'icon_url' => null,
-			'open' => '<a '.$this->create_back_href().'>',
-			'close' => '</a>'
-		);
+		$curr_hist = History::get_id();
+
+		if(null != $curr_hist) {
+			$launcher[] = array(
+				'label' => __('Back'),
+				'description' => __('Get back'),
+				'icon' => 'arrow-left',
+				'icon_url' => null,
+				'open' => '<a ' . $this->create_back_href() . '>',
+				'close' => '</a>'
+			);
+		}
 //        var_dump(array_reverse($launcher));
 
 //		$x = $this->create_back_href();
