@@ -85,7 +85,7 @@
 
 {foreach item=i from=$launcher}
     {$i.open}
-        {if $i.label != 'Launchpad'}
+        {if $i.label != 'Launchpad' && $i.label != 'Back'}
             <div class="btn toggle">
               {if $i.icon_url}
                   <img src="{$i.icon_url}" style="height:2em">

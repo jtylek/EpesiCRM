@@ -44,10 +44,6 @@ class Base_ActionBar extends Module {
 	 */
 	public function body() {
 
-//		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href(),__('Get back'),1);
-//		if($this->is_back()){
-//			Base_BoxCommon::pop_main();
-//		}
 		$this->help('ActionBar basics','main');
 
 		$icons = Base_ActionBarCommon::get();
