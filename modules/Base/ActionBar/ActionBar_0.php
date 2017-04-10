@@ -43,6 +43,11 @@ class Base_ActionBar extends Module {
 	 * Displays action bar.
 	 */
 	public function body() {
+
+//		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href(),__('Get back'),1);
+//		if($this->is_back()){
+//			Base_BoxCommon::pop_main();
+//		}
 		$this->help('ActionBar basics','main');
 
 		$icons = Base_ActionBarCommon::get();
@@ -149,7 +154,20 @@ class Base_ActionBar extends Module {
 			}
 		}
 
-		//display
+        $launcher[] = array(
+        	'label' => __('Back'),
+			'description' => __('Get back'),
+			'icon' => 'back',
+			'icon_url' => null,
+			'open' => '<a '.$this->create_back_href().'>',
+			'close' => '</a>'
+		);
+//        var_dump(array_reverse($launcher));
+
+//		$x = $this->create_back_href();
+//		var_dump($x);
+
+        //display
 		$th = $this->pack_module(Base_Theme::module_name());
 		$th->assign('icons',$icons);
 		$th->assign('launcher',array_reverse($launcher));

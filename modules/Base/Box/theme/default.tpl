@@ -24,7 +24,7 @@
                 <div class="row">
                     <div class="login">
                         {*{$login}*}
-                        {$watchdog}
+                        {*{$watchdog}*}
                     </div>
                 </div>
             </div>
