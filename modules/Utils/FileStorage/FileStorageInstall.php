@@ -43,6 +43,19 @@ class Utils_FileStorageInstall extends ModuleInstall {
             return false;
         }
 
+		$ret &= DB::CreateTable('utils_filestorage_remote', '
+			id I8 AUTO KEY,
+			token C(128) NOTNULL,
+            created_on T NOTNULL,
+            created_by I8 NOTNULL,
+            expires_on T,
+            times_downloaded I8',
+			['constraints' => ', FOREIGN KEY (id) REFERENCES utils_filestorage(id)']);
+		if (!$ret) {
+			print('Unable to create table utils_filestorage_files.<br>');
+			return false;
+		}
+
         $this->create_data_dir();
         file_put_contents($this->get_data_dir() . '.htaccess', 'deny from all');
         return $ret;
