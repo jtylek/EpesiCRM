@@ -1,7 +1,7 @@
 <center>
 
 <table id="Base_ActionBar__launchpad" cellspacing="0" cellpadding="0" style="margin: 10px;">
-	<tr">
+	<tr>
 	{assign var=x value=0}
     {foreach item=i from=$icons}
 	{assign var=x value=$x+1}
