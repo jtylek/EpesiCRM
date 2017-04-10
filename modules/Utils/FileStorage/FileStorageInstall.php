@@ -50,7 +50,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
             created_on T NOTNULL,
             created_by I8 NOTNULL,
             expires_on T,
-            times_downloaded I8',
+            times_downloaded I8 DEFAULT 0',
 			['constraints' => ', FOREIGN KEY (file_id) REFERENCES utils_filestorage(id)']);
 		if (!$ret) {
 			print('Unable to create table utils_filestorage_remote.<br>');
