@@ -161,7 +161,9 @@ class Base_ActionBar extends Module
 
         $curr_hist = History::get_id();
 
-        if (null != $curr_hist) {
+        $last_hist = $curr_hist == 1 ? $curr_hist : $this->get_module_variable('hist', 0);
+
+        if (0 !== $last_hist) {
             $launcher_left[] = array(
                 'label' => __('Back'),
                 'description' => __('Get back'),
@@ -171,6 +173,8 @@ class Base_ActionBar extends Module
                 'close' => '</a>'
             );
         }
+
+        $this->set_module_variable('hist', $curr_hist);
 
         if($this->is_back()){
             History::back();
