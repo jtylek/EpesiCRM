@@ -79,59 +79,60 @@ class Base_ActionBar extends Module {
 					if(Base_ActionBarCommon::$quick_access_shortcuts
                             && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_d')) {
 						$ii = array();
-						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
-						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
+						$trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
+						$ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
 						$ii['description'] = $v['label'];
 						$arr = $v['link'];
+						if ($ii['label'] == 'Launchpad') {
+							$icon = null;
+							$icon_url = null;
+							if (isset($v['link']['__icon__'])) {
+								if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
+									$icon = $v['link']['__icon__'];
+								else
+									$icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
+							} else
+								$icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
+							if (!$icon && !$icon_url) $icon_url = 'cog';
+							$ii['icon'] = $icon;
+							$ii['icon_url'] = $icon_url;
 
-						$icon = null;
-						$icon_url = null;
-						if(isset($v['link']['__icon__'])) {
-							if(array_key_exists('fa-'.$v['link']['__icon__'],$fa_icons))
-								$icon = $v['link']['__icon__'];
+							if (isset($arr['__url__']))
+								$ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
 							else
-								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-						} else
-							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon && !$icon_url) $icon_url = 'cog';
-						$ii['icon'] = $icon;
-						$ii['icon_url'] = $icon_url;
+								$ii['open'] = '<a ' . Base_MenuCommon::create_href($this, $arr) . ' class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
+							$ii['close'] = '</a>';
 
-						if(isset($arr['__url__']))
-							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank" class="icon-'.($icon?$icon:md5($icon_url)).'">';
-						else
-							$ii['open'] = '<a '.Base_MenuCommon::create_href($this,$arr).' class="icon-'.($icon?$icon:md5($icon_url)).'">';
-						$ii['close'] = '</a>';
-
-						$launcher[] = $ii;
-					}
-					if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
-						$ii = array();
-						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
-						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
-						$ii['description'] = $v['label'];
-						$arr = $v['link'];
-						if(isset($arr['__url__']))
-							$ii['open'] = '<a href="'.$arr['__url__'].'" target="_blank" onClick="actionbar_launchpad_deactivate()">';
-						else {
-							$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();'.Base_MenuCommon::create_href_js($this,$arr).'" href="javascript:void(0)">';
+							$launcher[] = $ii;
 						}
-						$ii['close'] = '</a>';
+						if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
+							$ii = array();
+							$trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
+							$ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
+							$ii['description'] = $v['label'];
+							$arr = $v['link'];
+							if (isset($arr['__url__']))
+								$ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" onClick="actionbar_launchpad_deactivate()">';
+							else {
+								$ii['open'] = '<a onClick="actionbar_launchpad_deactivate();' . Base_MenuCommon::create_href_js($this, $arr) . '" href="javascript:void(0)">';
+							}
+							$ii['close'] = '</a>';
 
-						$icon = null;
-						$icon_url = null;
-						if(isset($v['link']['__icon__'])) {
-							if(array_key_exists('fa-'.$v['link']['__icon__'],$fa_icons))
-								$icon = $v['link']['__icon__'];
-							else
-								$icon_url = Base_ThemeCommon::get_template_file($v['module'],$v['link']['__icon__']);
-						} else
-							$icon_url = Base_ThemeCommon::get_template_file($v['module'],'icon.png');
-						if (!$icon && !$icon_url) $icon_url = 'cog';
-						$ii['icon'] = $icon;
-						$ii['icon_url'] = $icon_url;
+							$icon = null;
+							$icon_url = null;
+							if (isset($v['link']['__icon__'])) {
+								if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
+									$icon = $v['link']['__icon__'];
+								else
+									$icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
+							} else
+								$icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
+							if (!$icon && !$icon_url) $icon_url = 'cog';
+							$ii['icon'] = $icon;
+							$ii['icon_url'] = $icon_url;
 
-						self::$launchpad[] = $ii;
+							self::$launchpad[] = $ii;
+						}
 					}
 				}
 				usort(self::$launchpad,array($this,'compare_launcher'));
@@ -153,7 +154,7 @@ class Base_ActionBar extends Module {
         $launcher[] = array(
         	'label' => __('Back'),
 			'description' => __('Get back'),
-			'icon' => 'back',
+			'icon' => 'arrow-left',
 			'icon_url' => null,
 			'open' => '<a '.$this->create_back_href().'>',
 			'close' => '</a>'

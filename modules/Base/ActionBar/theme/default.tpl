@@ -1,27 +1,8 @@
 <div id="Base_ActionBar">
 <div class="nav navbar-nav navbar-left">
 
-    {*{$icons|@var_dump}*}
-
-
     {foreach item=i from=$launcher}
         {$i.open}
-        {if $i.label == 'Back'}
-            <div class="btn toggle">
-                {if $i.icon_url}
-                    <img src="{$i.icon_url}" style="height:2em">
-                {else}
-                    <i class="fa fa-arrow-left fa-2x"></i>
-                {/if}
-                <div>{$i.label}</div>
-            </div>
-        {/if}
-        {$i.close}
-    {/foreach}
-
-    {foreach item=i from=$launcher}
-        {$i.open}
-        {if $i.label == 'Launchpad'}
             <div class="btn toggle">
                 {if $i.icon_url}
                     <img src="{$i.icon_url}" style="height:2em">
@@ -30,7 +11,6 @@
                 {/if}
                 <div>{$i.label}</div>
             </div>
-        {/if}
         {$i.close}
     {/foreach}
 
