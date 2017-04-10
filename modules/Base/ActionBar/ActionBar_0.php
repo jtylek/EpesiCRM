@@ -171,10 +171,10 @@ class Base_ActionBar extends Module
                 'close' => '</a>'
             );
         }
-//        var_dump(array_reverse($launcher));
 
-//		$x = $this->create_back_href();
-//		var_dump($x);
+        if($this->is_back()){
+            History::back();
+        }
 
         //display
         $th = $this->pack_module(Base_Theme::module_name());
