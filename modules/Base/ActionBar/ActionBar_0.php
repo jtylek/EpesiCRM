@@ -173,7 +173,12 @@ class Base_ActionBar extends Module
                 'close' => '</a>'
             );
         }
-
+	
+	if(!isset($_SESSION['client']['__history_id__'])){
+	    History::set();
+	    $_SESSION['client']['__history_id__'] = null;
+	}
+	
         $this->set_module_variable('hist', $curr_hist);
 
         if($this->is_back()){
