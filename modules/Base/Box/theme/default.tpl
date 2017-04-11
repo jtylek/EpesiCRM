@@ -41,11 +41,6 @@
             <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                 {$menu}
             </div>
-            <!-- /sidebar menu -->
-
-            <!-- /menu zbuttons -->
-
-            <!-- /menu footer buttons -->
         </div>
         <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
             {$logo}
