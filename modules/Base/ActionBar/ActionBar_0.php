@@ -159,6 +159,11 @@ class Base_ActionBar extends Module
             }
         }
 
+	if(!isset($_SESSION['client']['__history_id__'])){
+	    History::set();
+	    $_SESSION['client']['__history_id__'] = null;
+	}
+
         $curr_hist = History::get_id();
 
         $last_hist = $curr_hist == 1 ? $curr_hist : $this->get_module_variable('hist', 0);
@@ -173,12 +178,7 @@ class Base_ActionBar extends Module
                 'close' => '</a>'
             );
         }
-	
-	if(!isset($_SESSION['client']['__history_id__'])){
-	    History::set();
-	    $_SESSION['client']['__history_id__'] = null;
-	}
-	
+
         $this->set_module_variable('hist', $curr_hist);
 
         if($this->is_back()){
