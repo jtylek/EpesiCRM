@@ -19,7 +19,7 @@
             {$search}
         </div>
 
-        <div class="left_col scroll-view">
+        <div class="left_col scroll-view" id="leftside-menu">
             <div class="watchdog dropdown">
                 <div class="row">
                     <div class="login">

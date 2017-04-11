@@ -126,11 +126,14 @@ $(window).on('e:load',function() {
   			$SIDEBAR_MENU.find('li.active ul').hide();
   			$SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
   			$('.search-bar').hide();
+  			$('#leftside-menu').css('overflow-y','hidden');
   		} else {
   			$SIDEBAR_MENU.find('li.active-sm ul').show();
   			$SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
             $('.search-bar').show();
-  		}
+            $('#leftside-menu').css('overflow-y','scroll');
+
+        }
 
   	$BODY.toggleClass('nav-md nav-sm');
 
