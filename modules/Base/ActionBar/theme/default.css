@@ -4,3 +4,15 @@
 	min-width: 60px;
 	width: auto;
 }
+
+.nav.navbar-nav.navbar-left {
+	display: inline-flex;
+}
+
+.separating-line {
+	width: 1px;
+	height: 60px;
+	background: #5A738E;
+	margin-left: 25px;
+	margin-right: 25px;
+}
