@@ -1,4 +1,6 @@
 <div id="Base_ActionBar">
+    <div class="row">
+
     <div class="nav navbar-nav navbar-left">
 
         <div>
@@ -68,11 +70,7 @@
 
 
     </div>
-    <div class="nav navbar-nav navbar-right">
-
-        {*<div style="overflow: scroll">*}
-        {*{$launcher|@var_dump}*}
-        {*</div>*}
+    <div class="nav navbar-nav navbar-right" style="margin-right: 10px">
 
         {foreach item=i from=$launcher_right}
             {$i.open}
@@ -88,5 +86,11 @@
         {/foreach}
 
     </div>
+
+    </div>
+
+    <div id="gradient" class="row">
+    </div>
+
 </div>
 
