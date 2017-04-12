@@ -75,6 +75,16 @@ class Base_ActionBar extends Module
         }
 
         $launcher_left = [];
+
+        $launcher_left[] = array(
+            'label' => __('Watchdog'),
+            'description' => __('Watch your notifications'),
+            'icon' => 'bell',
+            'icon_url' => null,
+            'open' => '',
+            'close' => ''
+        );
+
         $launcher_right = [];
         if (Base_AclCommon::is_user()) {
             $opts = Base_Menu_QuickAccessCommon::get_options();
@@ -184,6 +194,19 @@ class Base_ActionBar extends Module
         if($this->is_back()){
             History::back();
         }
+
+        foreach ($launcher_left as $key => $value){
+            if($value['label'] == 'Watchdog'){
+                $watchdog_value = $value;
+            }
+            if($value['label'] == 'Launchpad'){
+                $launchpad_value = $value;
+            }
+        }
+
+        $launcher_left['0'] = $watchdog_value;
+        $launcher_left['1'] = $launchpad_value;
+        unset($launchpad_value,$watchdog_value);
 
         //display
         $th = $this->pack_module(Base_Theme::module_name());
