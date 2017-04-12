@@ -125,14 +125,30 @@ $(window).on('e:load',function() {
   		if ($BODY.hasClass('nav-md')) {
   			$SIDEBAR_MENU.find('li.active ul').hide();
   			$SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
+
   			$('.search-bar').hide();
-  			$('#leftside-menu').css('overflow-y','hidden');
+  			$('#login-box').hide();
+            $('#login-div').hide();
+            $('.sidebar-footer.hidden-small').hide();
+
+            $('#hidden-home-div').show();
+
+            $('#leftside-menu').css('overflow-y','hidden');
+            $('#sidebar-menu').css('margin-top','75px')
+
   		} else {
   			$SIDEBAR_MENU.find('li.active-sm ul').show();
   			$SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
-            $('.search-bar').show();
-            $('#leftside-menu').css('overflow-y','scroll');
 
+            $('.search-bar').show();
+            $('#login-box').show();
+            $('#login-div').show();
+            $('.sidebar-footer.hidden-small').show();
+
+            $('#hidden-home-div').hide();
+
+            $('#leftside-menu').css('overflow-y','scroll');
+            $('#sidebar-menu').css('margin-top','0px')
         }
 
   	$BODY.toggleClass('nav-md nav-sm');

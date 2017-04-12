@@ -207,3 +207,46 @@ body.nav-md .container.body .col-md-3.left_col{
 	margin-top: 15px;
 	display: block;
 }
+
+.search-bar {
+	background: #172D44;
+}
+
+#hidden-home-div {
+	display: none;
+	background: #172D44;
+	height: 92px;
+	position: fixed;
+	width: 5.2%;
+	z-index: 99;
+	cursor: pointer;
+}
+
+div#hidden-home-box:hover a > span {
+		color: white;
+	}
+
+#hidden-home-box {
+	height: 91px;
+	background: #172D44;
+	text-align: center;
+	font-size: 35px;
+	padding: 23px 0;
+
+}
+
+/*padding: 16px 0 16px 0;*/
+/*text-align: center;*/
+/*width: 25%;*/
+/*font-size: 17px;*/
+/*display: block;*/
+/*float: left;*/
+/*background: #172D44;*/
+/*cursor: pointer;*/
+
+#hidden-home-gradient {
+	height: 9px;
+	width: 100%;
+	opacity: 0.5;
+	background: linear-gradient(black,transparent);
+}

@@ -6,6 +6,15 @@
 {else}
     <div class="col-md-3 left_col">
 
+        <div id="hidden-home-div" data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
+            <div id="hidden-home-box">
+                <a id="home-glyph-a" >
+                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                </a>
+            </div>
+            <div id="hidden-home-gradient"></div>
+        </div>
+
         <div id="login-div" class="navbar nav_title" style="border: 0">
             <a id="login-box" style="width: 75%; max-height: 57px">
                 {$login}
