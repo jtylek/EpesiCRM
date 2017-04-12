@@ -60,7 +60,7 @@
     <!-- top navigation -->
     <div class="top_nav navbar-fixed-top">
 
-        <div class="nav_menu">
+        <div class="nav_menu" style="padding-top: 0; margin-top: 0">
             <nav class="top-navigation">
                 <div class="nav toggle">
                     <a id="menu_toggle"><i class="fa fa-bars"></i></a>
@@ -82,7 +82,7 @@
 
         <!-- -->
         <div id="content">
-            <div id="content_body" style="padding-top: 110px">
+            <div id="content_body" style="padding-top: 70px">
                 {$main}
             </div>
         </div>

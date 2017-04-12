@@ -200,11 +200,11 @@ body.nav-md .container.body .col-md-3.left_col{
 
 .nav_menu {
 	opacity: 0.96;
-	height: 92px;
+	height: 58px;
 	text-align: center;
 }
 .top-navigation {
-	margin-top: 15px;
+	margin-top: 0px;
 	display: block;
 }
 
@@ -215,7 +215,7 @@ body.nav-md .container.body .col-md-3.left_col{
 #hidden-home-div {
 	display: none;
 	background: #172D44;
-	height: 92px;
+	height: 56px;
 	position: fixed;
 	width: 5.2%;
 	z-index: 99;
@@ -227,22 +227,12 @@ div#hidden-home-box:hover a > span {
 	}
 
 #hidden-home-box {
-	height: 91px;
+	height: 56px;
 	background: #172D44;
 	text-align: center;
-	font-size: 35px;
-	padding: 23px 0;
-
+	font-size: 30px;
+	padding: 10px 0;
 }
-
-/*padding: 16px 0 16px 0;*/
-/*text-align: center;*/
-/*width: 25%;*/
-/*font-size: 17px;*/
-/*display: block;*/
-/*float: left;*/
-/*background: #172D44;*/
-/*cursor: pointer;*/
 
 #hidden-home-gradient {
 	height: 9px;

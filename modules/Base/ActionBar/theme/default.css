@@ -11,16 +11,14 @@
 
 .separating-line {
 	width: 1px;
-	height: 60px;
+	height: 43px;
 	background: #5A738E;
-	margin-left: 25px;
-	margin-right: 25px;
+	margin: 8px 9px 0;
 }
 
 #gradient {
 	height: 6px;
 	width: 100%;
-	margin-top: 17px;
 	margin-left: .1px;
 	opacity: 0.5 ;
 	background: linear-gradient(darkgrey,transparent);

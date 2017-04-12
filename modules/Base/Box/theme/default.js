@@ -134,7 +134,7 @@ $(window).on('e:load',function() {
             $('#hidden-home-div').show();
 
             $('#leftside-menu').css('overflow-y','hidden');
-            $('#sidebar-menu').css('margin-top','75px')
+            $('#sidebar-menu').css('margin-top','40px')
 
   		} else {
   			$SIDEBAR_MENU.find('li.active-sm ul').show();
