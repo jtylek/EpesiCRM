@@ -72,6 +72,10 @@
 
 /* user menu */
 
+#user-menu {
+	width: 100%;
+}
+
 #user-menu > li > a {
 	background: white;
 	font-size: 14px;
@@ -83,7 +87,7 @@
 
 #user-menu > li > a > span > p {
 	margin: 0;
-	padding: 0 0 0 1rem;
+	padding: 0 0 0 2rem;
 }
 
 
