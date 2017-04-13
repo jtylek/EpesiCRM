@@ -21,12 +21,15 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		print('<div id="'.$id.'" big="1" class="leightbox">');
 		print('<input type="hidden" id="'.$id.'_bigsize" value="'.($big?1:0).'" />');
 		if ($big) {
-			eval_js('s = jq(\'#'.$id.'\').get(0).style;'.
+			eval_js('
+			if(jq(\'#'.$id.'\').length) {
+			s = jq(\'#'.$id.'\').get(0).style;'.
 			's.top = \'5%\';'.
 			's.left = \'5%\';'.
 			's.width = \'90%\';'.
 			's.height = \'90%\';'.
-			's.padding = \'0px\';');
+			's.padding = \'0px\';
+			}');
 			
 		}
 		$smarty = Base_ThemeCommon::init_smarty();
