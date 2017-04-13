@@ -177,13 +177,15 @@ div.login > span > a > i {
 	color: black;
 }
 
-body.nav-md .container.body .col-md-3.left_col{
+.nav-sm .container.body .col-md-3.left_col,
+.nav-md .container.body .col-md-3.left_col{
 	position: fixed;
 	height: 100%;
 }
 
 .left_col.scroll-view {
 	width: 100%;
+	height: 100%;
 	overflow-y: scroll;
 	padding-top: 1rem;
 }
@@ -216,8 +218,6 @@ body.nav-md .container.body .col-md-3.left_col{
 	display: none;
 	background: #172D44;
 	height: 56px;
-	position: fixed;
-	width: 5.2%;
 	z-index: 99;
 	cursor: pointer;
 }

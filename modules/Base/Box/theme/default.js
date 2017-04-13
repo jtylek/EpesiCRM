@@ -132,8 +132,7 @@ $(window).on('e:load',function() {
             $('.sidebar-footer.hidden-small').hide();
 
             $('#hidden-home-div').show();
-
-            $('#leftside-menu').css('overflow-y','hidden');
+            
             $('#sidebar-menu').css('margin-top','40px')
 
   		} else {
@@ -146,8 +145,7 @@ $(window).on('e:load',function() {
             $('.sidebar-footer.hidden-small').show();
 
             $('#hidden-home-div').hide();
-
-            $('#leftside-menu').css('overflow-y','scroll');
+            
             $('#sidebar-menu').css('margin-top','0px')
         }
 
