@@ -195,6 +195,9 @@ class Base_ActionBar extends Module
             History::back();
         }
 
+        $watchdog_value = '';
+        $launchpad_value = '';
+
         foreach ($launcher_left as $key => $value){
             if($value['label'] == 'Watchdog'){
                 $watchdog_value = $value;
