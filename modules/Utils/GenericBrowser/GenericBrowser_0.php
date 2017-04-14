@@ -965,9 +965,11 @@ class Utils_GenericBrowser extends Module {
 				if (!empty($this->actions[$i])) {
 					$fa_icons = FontAwesome::get();
 					uasort($this->actions[$i], array($this, 'sort_actions'));
-					$actions = '';
+					$actions = '<div class="btn-group" onClick="gb_expand(\'' . $md5_id . '\',\'' . $i . '\')">'.
+  '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.
+    'Actions <span class="caret"></span></button><ul class="dropdown-menu">';
 					foreach ($this->actions[$i] as $icon => $arr) {
-						$actions .= '<a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . '>';
+						$actions .= '<li><a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . '>';
 						if(array_key_exists('fa-'.$icon,$fa_icons)) {
 							$actions .= "<i class='fa fa-$icon fa-lg fa-fw text-info'></i>";
 						} elseif ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
@@ -978,8 +980,9 @@ class Utils_GenericBrowser extends Module {
 						} else {
 							$actions .= $arr['label'];
 						}
-						$actions .= '</a>';
+						$actions .= '</a></li>';
 					}
+					$actions .= '</ul></div>';
 					$col[$column_no]['label'] = $actions;
 					$col[$column_no]['attrs'] .= ' class="Utils_GenericBrowser__actions Utils_GenericBrowser__td"';
 				} else {

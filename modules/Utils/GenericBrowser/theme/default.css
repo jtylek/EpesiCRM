@@ -677,3 +677,6 @@ div.expandable.collapsed p {
 div.expandable.expanded {
     white-space: normal;
 }
+ul.dropdown-menu {
+	position: relative;
+}
