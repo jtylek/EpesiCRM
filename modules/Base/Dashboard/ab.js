@@ -129,6 +129,6 @@ dashboard_filter_applets = function() {
     });
 }
 
-jq('.applet-actions-icon').on('click', function() {
+$(document).on('click','.applet-actions-icon',function(){
     $(this).parent().find('.applet-actions').toggle('slow');
 });
