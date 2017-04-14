@@ -966,21 +966,21 @@ class Utils_GenericBrowser extends Module {
 					$fa_icons = FontAwesome::get();
 					uasort($this->actions[$i], array($this, 'sort_actions'));
 					$actions = '<div class="btn-group" onClick="gb_expand(\'' . $md5_id . '\',\'' . $i . '\')">'.
-  '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.
-    'Actions <span class="caret"></span></button><ul class="dropdown-menu">';
+  '<button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 65px">'.
+    '<span class="glyphicon glyphicon-option-vertical"></span></button><ul class="dropdown-menu" style="padding: 5px 0">';
 					foreach ($this->actions[$i] as $icon => $arr) {
-						$actions .= '<li><a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . '>';
+						$actions .= '<div style="padding: 3px;" <li><a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . ' style="padding: 5px">';
 						if(array_key_exists('fa-'.$icon,$fa_icons)) {
-							$actions .= "<i class='fa fa-$icon fa-lg fa-fw text-info'></i>";
+							$actions .= "<i class='fa fa-$icon fa-lg fa-fw text-info' style='margin-right: 5px'></i>";
 						} elseif ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
 							$ico = $this->font_awesome_translate[$icon];
-							$actions .= "<i class='fa fa-$ico fa-lg fa-fw text-info'></i>";
+							$actions .= "<i class='fa fa-$ico fa-lg fa-fw text-info' style='margin-right: 5px'></i>";
 						} elseif (file_exists($icon)) {
-							$actions .= '<img class="action_button" src="' . $icon . '" border="0">';
+							$actions .= '<img class="action_button" src="' . $icon . '" border="0" style="margin-right: 1rem">';
 						} else {
 							$actions .= $arr['label'];
 						}
-						$actions .= '</a></li>';
+						$actions .= $arr['label'].'</a></li></div>';
 					}
 					$actions .= '</ul></div>';
 					$col[$column_no]['label'] = $actions;
