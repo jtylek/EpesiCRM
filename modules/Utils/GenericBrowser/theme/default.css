@@ -191,10 +191,6 @@ table.Utils_GenericBrowser > thead > tr > th input:focus {
     background-color: #ffffa5;
 }
 
-.Utils_GenericBrowser_overflow_container {
-	overflow:auto;
-}
-
 table.Utils_GenericBrowser {
 		min-width:950px;
 }
@@ -216,7 +212,6 @@ table.Utils_GenericBrowser > tbody {
     padding-top: 3px;
     padding-bottom: 2px;
 	vertical-align: top;
-	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	line-height: 14px;
@@ -677,6 +672,6 @@ div.expandable.collapsed p {
 div.expandable.expanded {
     white-space: normal;
 }
-ul.dropdown-menu {
-	position: relative;
+.Utils_GenericBrowser__td_data_rows {
+	overflow: hidden;
 }
