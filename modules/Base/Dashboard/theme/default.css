@@ -3,3 +3,9 @@
   width:auto;
   float:none;
 }
+.pull-right.action-buttons .applet-actions-icon {
+  position: relative;
+}
+.pull-right.action-buttons .applet-actions {
+  display: none;
+}
