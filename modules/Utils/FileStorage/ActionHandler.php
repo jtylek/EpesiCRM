@@ -12,6 +12,8 @@ class Utils_FileStorage_ActionHandler
      */
     protected $allowedActions = ['download', 'preview', 'remote'];
 
+    const actions = ['download'=>0, 'preview'=>1, 'remote'=>2];
+
     /**
      * You can override this variable to allow access for not logged in users
      *
@@ -87,13 +89,19 @@ class Utils_FileStorage_ActionHandler
         ) {
             return false;
         }
+        $method = $request->server->get('REQUEST_METHOD');
         switch ($action) {
             case 'download':
                 return $this->getFile($request, 'attachment');
             case 'preview':
                 return $this->getFile($request, 'inline');
             case 'remote':
-                return $this->createRemote($request);
+                switch($method) {
+                    case Request::METHOD_POST:
+                        return $this->createRemote($request);
+                    case Request::METHOD_GET:
+                        return $this->getFile($request, 'attachment');
+                }
         }
         return false;
     }
@@ -101,6 +109,7 @@ class Utils_FileStorage_ActionHandler
     protected function getFile(Request $request, $disposition)
     {
         $filestorageId = $request->get('id');
+        $type = $request->get('action');
         try {
             $meta = Utils_FileStorageCommon::meta($filestorageId);
             $buffer = Utils_FileStorageCommon::read_content($filestorageId);
@@ -110,6 +119,13 @@ class Utils_FileStorage_ActionHandler
             }
             return false;
         }
+        
+        $type = self::actions[$type];
+
+        $remote_address = get_client_ip_address();
+        $remote_host = gethostbyaddr($remote_address);
+        DB::Execute('INSERT INTO utils_filestorage_access(file_id,date_accessed,accessed_by,type,ip_address,host_name) '.
+            'VALUES (%d,%T,%d,%d,%s,%s)',array($filestorageId,time(),Acl::get_user()?Acl::get_user():0,$type,$remote_address,$remote_host));
 
         $mime = Utils_FileStorageCommon::get_mime_type($meta['file'], $meta['filename']);
 

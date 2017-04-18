@@ -89,4 +89,78 @@ class Utils_FileStorage extends Module
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         return false;
     }
+
+    /*
+    * Display history of views, downloads and remote access for record's file field's file.
+    *
+    * @param integer $filestorageId is the record's file field's file id (`utils_filestorage`.`id`)
+    *
+    * @return nothing
+    */
+    public static function getHistory($filestorageId)
+    {
+        Base_BoxCommon::push_module('Utils_FileStorage','file_history',[$filestorageId]);
+    }
+
+    public function file_history($id)
+    {
+        if($this->is_back()) {
+            return Base_BoxCommon::pop_main();
+        }
+
+        Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
+
+        $file_leightbox_href = array();
+        $file = '';
+
+        $tb = $this->init_module(Utils_TabbedBrowser::module_name());
+        $tb->start_tab('File history');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hua'.$id);
+        $gb->set_inline_display();
+        $gb->set_table_columns(array(
+            array('name'=>__('Deleted'), 'order'=>'deleted','width'=>10),
+            array('name'=>__('Date'), 'order'=>'upload_on','width'=>25),
+            array('name'=>__('Who'), 'order'=>'upload_by','width'=>25),
+            array('name'=>__('File'), 'order'=>'uaf.original')
+        ));
+        $gb->set_default_order(array(__('Date')=>'DESC'));
+
+        $file_history = DB::GetAssoc('SELECT * FROM utils_filestorage WHERE id=%d',[$id]);
+        foreach($file_history as $col) {
+            $r = $gb->get_new_row();
+            $meta = is_numeric($id) ? Utils_FileStorageCommon::meta($id) : $id;
+            $acion_handler = new Utils_FileStorage_ActionHandler();
+            $action_urls = $acion_handler->getActionUrls($meta['id']);
+            $file_leightbox_href[$col['id']] = Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls, true);
+            $file = '<a '.$file_leightbox_href[$col['id']].'>'.$col['filename'].'</a>';
+            $r->add_data($col['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($col['created_on']),Base_UserCommon::get_user_label($col['created_by']),$file);
+        }
+        $this->display_module($gb);
+        $tb->end_tab();
+        $tb->start_tab('File access history');
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'hda'.$id);
+        $gb->set_inline_display();
+        $gb->set_table_columns(array(
+            array('name'=>__('File'), 'order'=>'original','width'=>15),
+            array('name'=>__('Download Date'), 'order'=>'download_on','width'=>15),
+            array('name'=>__('Who'), 'order'=>'created_by','width'=>15),
+            array('name'=>__('IP Address'), 'order'=>'ip_address', 'width'=>15),
+            array('name'=>__('Host Name'), 'order'=>'host_name', 'width'=>15),
+            array('name'=>__('Accessed Using'), 'order'=>'description', 'width'=>20),
+        ));
+        $gb->set_default_order(array(__('Download Date')=>'DESC'));
+
+        $file_access_history = DB::GetAssoc('SELECT * FROM utils_filestorage_access WHERE file_id=%d',[$id]);
+        foreach($file_access_history as $col) {
+            $r = $gb->get_new_row();
+            $r->add_data($file,Base_RegionalSettingsCommon::time2reg($col['date_accessed']),Base_UserCommon::get_user_label($col['accessed_by']), $col['ip_address'], $col['host_name'],array_flip(Utils_FileStorage_ActionHandler::actions)[$col['type']]);
+        }
+        $this->display_module($gb);
+        $tb->end_tab();
+        $this->display_module($tb);
+
+        $this->caption = 'File history';
+
+        return true;
+    }
 }

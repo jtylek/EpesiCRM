@@ -42,6 +42,7 @@
 				{$__link.download.close}
 			</td>
 			<!-- HISTORY -->
+			{if $__link.history}
 			<td valign="top">
 				{$__link.history.open}
 					<div class="epesi_big_button">
@@ -50,6 +51,7 @@
 					</div>
 				{$__link.history.close}
 			</td>
+			{/if}
             {if isset($link)}
 			<!-- LINK -->
 			<td valign="top">

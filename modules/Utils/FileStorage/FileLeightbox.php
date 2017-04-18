@@ -18,7 +18,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileStorage_FileLeightbox
 {
 
-    public static function get_file_leightbox($meta, $action_urls = null)
+    public static function get_file_leightbox($meta, $action_urls = null, $is_history = false)
     {
         $theme = Base_ThemeCommon::init_smarty();
 
@@ -31,21 +31,22 @@ class Utils_FileStorage_FileLeightbox
 
 
         $file_history_key = md5(serialize($meta['id']));
-        if (isset($_GET['utils_attachment_file_history']) && $_GET['utils_attachment_file_history'] == $file_history_key) {
-            echo 'show file history ' . $meta['id'];
-//            self::navigate_to_file_history($meta['id']);
+        if (isset($_GET['utils_filestorage_file_history']) && $_GET['utils_filestorage_file_history'] == $file_history_key) {
+            Utils_FileStorage::getHistory($meta['id']);
         }
 
         if ($action_urls === null) {
             $default_action_handler = new Utils_FileStorage_ActionHandler();
             $action_urls = $default_action_handler->getActionUrls($meta['id']);
         }
-        $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_attachment_file_history' => $file_history_key)), true, false);
+        $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_filestorage_file_history' => $file_history_key)), true, false);
 
 
         $links['view'] = '<a href="' . $action_urls['preview'] . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
         $links['download'] = '<a href="' . $action_urls['download'] . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
-        $links['history'] = '<a onclick="' . $history_href_js . ';'.$close_leightbox_js.'">' . __('File History') . '</a><br>';
+        if(!$is_history) {
+            $links['history'] = '<a onclick="' . $history_href_js . ';' . $close_leightbox_js . '">' . __('File History') . '</a><br>';
+        }
         $links['link'] = '<a href="javascript:void(0)" onclick="utils_filestorage_get_remote_link(\''.$action_urls['remote'].'\');'.$close_leightbox_js.'">'.__('Get link').'</a><br>';
 
         load_js('modules/Utils/FileStorage/remote.js');
