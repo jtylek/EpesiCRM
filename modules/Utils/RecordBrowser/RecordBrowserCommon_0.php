@@ -2396,10 +2396,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function get_new_record_href($tab, $def, $id='none', $check_defaults=true){
         self::check_table_name($tab);
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
         if (class_exists('Utils_RecordBrowser') && Utils_RecordBrowser::$clone_result!==null) {
-            if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
+            if (is_numeric(Utils_RecordBrowser::$clone_result)) Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
  		$def_key = $def;
@@ -2417,7 +2415,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 unset($_REQUEST['__add_record_to_RB_table']);
                 unset($_REQUEST['__add_record_id']);
                 unset($_REQUEST['__add_record_def']);
-                $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $def), array($tab));
+                Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $def), array($tab));
                 return array();
         }
         return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
@@ -2455,9 +2453,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return array();
         }
         return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
@@ -3052,9 +3048,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return true;
         }
         return false;

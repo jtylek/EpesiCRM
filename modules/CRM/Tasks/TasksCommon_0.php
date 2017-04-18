@@ -192,11 +192,10 @@ class CRM_TasksCommon extends ModuleCommon {
 			$values['status'] = 0;
 
 			if ($action != 'none') {		
-				$x = ModuleManager::get_instance('/Base_Box|0');
 				$values['follow_up'] = array('task',$record['id'],$record['title']);
-				if ($action == 'new_task') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('task'));
-				if ($action == 'new_meeting') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'status'=>0,'employees'=>$values['employees'], 'customers'=>$values['customers'],'follow_up'=>$values['follow_up'])), array('crm_meeting'));
-				if ($action == 'new_phonecall') $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
+				if ($action == 'new_task') Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $values), array('task'));
+				if ($action == 'new_meeting') Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date'=>date('Y-m-d'),'time'=>date('H:i:s'),'duration'=>3600,'status'=>0,'employees'=>$values['employees'], 'customers'=>$values['customers'],'follow_up'=>$values['follow_up'])), array('crm_meeting'));
+				if ($action == 'new_phonecall') Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'],'status'=>0, 'customer'=>!empty($values['customers'])?array_pop($values['customers']):'','follow_up'=>$values['follow_up'])), array('phonecall'));
 				return false;
 			}
 
@@ -357,14 +356,12 @@ class CRM_TasksCommon extends ModuleCommon {
 		return true;
 	}
 	public static function crm_new_event($timestamp, $timeless, $id, $object, $cal_obj) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$me = CRM_ContactsCommon::get_my_record();
 		$defaults = array('employees'=>$me['id'], 'priority'=>CRM_CommonCommon::get_default_priority(), 'permission'=>0, 'status'=>0);
 		$defaults['timeless'] = ($timeless != false);
 		$defaults['deadline'] = $timestamp;
 		if($object) $defaults['employees'] = $object;
-		$x->push_main('Utils_RecordBrowser','view_entry',array('add', null, $defaults), 'task');
+		Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $defaults), 'task');
 	}
 
 	public static function crm_event_delete($id) {
