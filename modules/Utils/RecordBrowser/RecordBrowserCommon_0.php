@@ -404,8 +404,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     			$record_id = $kk[0];
     		} else return false;
     	} else {
-    		$tab = $kk[0];
-    		$record_id = $kk[1];
+    		$record_id = array_pop($kk);
+    		$tab = $single_tab?$single_tab:$kk[0];
     		if (!self::check_table_name($tab) || !is_numeric($record_id)) return false;
     	}
     	
