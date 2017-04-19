@@ -66,7 +66,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
 			host_name C(64)',
 			['constraints' => ', FOREIGN KEY (file_id) REFERENCES utils_filestorage(id)']);
 		if (!$ret) {
-			print('Unable to create table utils_filestorage_remote.<br>');
+			print('Unable to create table utils_filestorage_access.<br>');
 			return false;
 		}
 
@@ -79,6 +79,8 @@ class Utils_FileStorageInstall extends ModuleInstall {
 		$ret = true;
 		$ret &= DB::DropTable('utils_filestorage');
 		$ret &= DB::DropTable('utils_filestorage_files');
+		$ret &= DB::DropTable('utils_filestorage_remote');
+		$ret &= DB::DropTable('utils_filestorage_access');
 		return $ret;
 	}
 
