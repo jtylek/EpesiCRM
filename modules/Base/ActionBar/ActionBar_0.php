@@ -207,8 +207,12 @@ class Base_ActionBar extends Module
             }
         }
 
-        $launcher_left['0'] = $watchdog_value;
-        $launcher_left['1'] = $launchpad_value;
+        if(is_array($watchdog_value)) {
+            $launcher_left['0'] = $watchdog_value;
+        }
+        if(is_array($launchpad_value)) {
+            $launcher_left['1'] = $launchpad_value;
+        }
         unset($launchpad_value,$watchdog_value);
 
         //display
