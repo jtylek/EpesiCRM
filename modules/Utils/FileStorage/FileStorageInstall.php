@@ -13,6 +13,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_FileStorageInstall extends ModuleInstall {
 
 	public function install() {
+		Base_ThemeCommon::install_default_theme($this->get_type());
+		
 		$ret = true;
 
         $ret &= DB::CreateTable('utils_filestorage_files', '
