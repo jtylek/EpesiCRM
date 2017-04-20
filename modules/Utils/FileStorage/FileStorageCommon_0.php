@@ -78,14 +78,11 @@ class Utils_FileStorageCommon extends ModuleCommon {
     		$action_urls = self::get_default_action_urls($meta['id']);
     	}
 
-        $type = self::get_mime_type($meta['file'], $meta['filename']);
+        $type = self::get_mime_type($meta['file'], $meta['filename'], null, false);
     	switch ($type) {
 			// image
-            case 'image/jpeg; charset=binary':
-            case 'image/gif; charset=binary':
-            case 'image/png; charset=binary':
-            case 'image/bmp; charset=binary':
-            case 'image/jpg':
+            case 'image/jpeg;':
+            case 'image/jpg;':
             case 'image/gif':
             case 'image/png':
             case 'image/bmp':
@@ -590,7 +587,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
 
 
-    public static function get_mime_type($file, $original, $buffer = null)
+    public static function get_mime_type($file, $original, $buffer = null, $encoding = true)
     {
     	$return = null;
 
@@ -603,7 +600,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     			$return = $fff->buffer($buffer);
     		}
     		unset($fff);
-    		if ($return) {
+    		if ($return && $encoding) {
     			return $return;
     		}
     	}
@@ -623,7 +620,11 @@ class Utils_FileStorageCommon extends ModuleCommon {
     		// unix system
     		$ret = 0;
     		ob_start();
-    		@passthru("file -bi {$file}", $ret);
+            if($encoding) {
+                @passthru("file -bi {$file}", $ret);
+            } else {
+                @passthru("file -b --mime-type {$file}", $ret);
+            }
     		$output = ob_get_clean();
     		if ($ret == 0) {
     			$return = trim($output);
