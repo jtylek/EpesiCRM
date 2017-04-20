@@ -20,11 +20,13 @@ class Utils_FileStorage_FileLeightbox
 
     public static function get_file_leightbox($meta, $action_urls = null, $is_history = false)
     {
-    	$lid = 'get_file_' . md5(serialize($meta)) . md5(microtime(true));
-
-        $theme = Base_ThemeCommon::init_smarty();
-
-        $links = array();        
+    	  static $cache;
+    	
+    	  $lid = 'get_file_' . md5(serialize($meta)) . md5(microtime(true));
+    	
+    	  if (isset($cache[$lid])) return $cache[$lid];
+    	
+        $theme = Base_ThemeCommon::init_smarty();        
 
         $close_leightbox_js = 'leightbox_deactivate(\'' . $lid . '\');';
         $theme->assign('download_options_id', 'attachment_download_options_' . $meta['id']);
@@ -83,7 +85,7 @@ class Utils_FileStorage_FileLeightbox
         $c = ob_get_clean();
 
         Libs_LeightboxCommon::display($lid, $c, __('File'));
-        return Libs_LeightboxCommon::get_open_href($lid);
+        return $cache[$lid] = Libs_LeightboxCommon::get_open_href($lid);
     }
 
 }
