@@ -69,7 +69,36 @@ class Utils_FileStorageCommon extends ModuleCommon {
         }
         return '<div class="file_link"><a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a></div>';
     }
+    
+    public static function get_file_inline_node($id, $action_urls = null) 
+    {
+    	$meta = is_numeric($id) ? self::meta($id) : $id;
 
+    	if ($action_urls === null) {
+    		$action_urls = self::get_default_action_urls($meta['id']);
+    	}
+    	
+    	$ret = '';
+    	switch (true) {
+			// image
+			case preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i', $meta['filename']) :
+				$ret = '<a href="' . $action_urls['preview'] . '" target="_blank"><img src="' . $action_urls['preview'] . '" class="file_inline" style="max-width: 100%" /></a>';
+				break;
+
+    		default:
+    			break;
+    	}
+    	
+    	return $ret;
+    }
+    
+    public static function get_default_action_urls($meta) {
+    	$id = is_numeric($meta)? $meta: $meta['id'];
+    	
+    	$default_action_handler = new Utils_FileStorage_ActionHandler();
+    	return $default_action_handler->getActionUrls($id);
+    }
+    
     public static function get_storage_file_path($hash)
     {
         $dirs = str_split(substr($hash, 0, 5));
