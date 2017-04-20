@@ -77,15 +77,23 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	if ($action_urls === null) {
     		$action_urls = self::get_default_action_urls($meta['id']);
     	}
-    	
-    	$ret = '';
-    	switch (true) {
+
+        $type = self::get_mime_type($meta['file'], $meta['filename']);
+    	switch ($type) {
 			// image
-			case preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i', $meta['filename']) :
+            case 'image/jpeg; charset=binary':
+            case 'image/gif; charset=binary':
+            case 'image/png; charset=binary':
+            case 'image/bmp; charset=binary':
+            case 'image/jpg':
+            case 'image/gif':
+            case 'image/png':
+            case 'image/bmp':
 				$ret = '<a href="' . $action_urls['preview'] . '" target="_blank"><img src="' . $action_urls['preview'] . '" class="file_inline" style="max-width: 100%" /></a>';
 				break;
 
     		default:
+                $ret = '';
     			break;
     	}
     	
