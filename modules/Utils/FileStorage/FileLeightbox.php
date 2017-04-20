@@ -36,8 +36,7 @@ class Utils_FileStorage_FileLeightbox
         }
 
         if ($action_urls === null) {
-            $default_action_handler = new Utils_FileStorage_ActionHandler();
-            $action_urls = $default_action_handler->getActionUrls($meta['id']);
+        	$action_urls = Utils_FileStorageCommon::get_default_action_urls($meta['id']);
         }
         $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_filestorage_file_history' => $file_history_key)), true, false);
 
