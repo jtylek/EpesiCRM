@@ -20,15 +20,14 @@ class Utils_FileStorage_FileLeightbox
 
     public static function get_file_leightbox($meta, $action_urls = null, $is_history = false)
     {
+    	$lid = 'get_file_' . md5(serialize($meta)) . md5(microtime(true));
+
         $theme = Base_ThemeCommon::init_smarty();
 
-        $links = array();
-
-        $lid = 'get_file_' . md5(serialize($meta));
+        $links = array();        
 
         $close_leightbox_js = 'leightbox_deactivate(\'' . $lid . '\');';
         $theme->assign('download_options_id', 'attachment_download_options_' . $meta['id']);
-
 
         $file_history_key = md5(serialize($meta['id']));
         if (isset($_GET['utils_filestorage_file_history']) && $_GET['utils_filestorage_file_history'] == $file_history_key) {
@@ -40,7 +39,6 @@ class Utils_FileStorage_FileLeightbox
             $action_urls = $default_action_handler->getActionUrls($meta['id']);
         }
         $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_filestorage_file_history' => $file_history_key)), true, false);
-
 
         $links['view'] = '<a href="' . $action_urls['preview'] . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
         $links['download'] = '<a href="' . $action_urls['download'] . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
