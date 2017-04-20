@@ -17,6 +17,7 @@ class Utils_FileUpload_Dropzone extends Module
     public static $fileFields = [];
 
     public $maxFiles = null;
+    public $acceptedFiles = null;
 
     public function get_div($identifier = '')
     {
@@ -61,6 +62,7 @@ class Utils_FileUpload_Dropzone extends Module
             'uploadMultiple' => true,
             'addRemoveLinks' => true,
             'maxFiles' => $this->maxFiles,
+        	'acceptedFiles' => $this->acceptedFiles,
             'dictDefaultMessage' => __('Drop files here or click to upload')
         ];
         eval_js('jq(".dz-hidden-input").remove(); if (!document.querySelector("#' . $identifier . '").dropzone) {
@@ -100,6 +102,11 @@ class Utils_FileUpload_Dropzone extends Module
     public function set_max_files($maxFiles)
     {
         $this->maxFiles = $maxFiles;
+    }
+    
+    public function set_accepted_files($acceptedFiles)
+    {
+    	$this->acceptedFiles = $acceptedFiles;
     }
 
     public function add_to_form(Libs_QuickForm $form, $identifier, $label)
