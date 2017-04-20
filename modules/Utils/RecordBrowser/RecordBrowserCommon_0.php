@@ -3715,6 +3715,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (isset($desc['param']['max_files']) && $desc['param']['max_files'] !== false) {
             $dropzoneField->set_max_files($desc['param']['max_files']);
         }
+        if (isset($desc['param']['accepted_files']) && $desc['param']['accepted_files'] !== false) {
+        	$dropzoneField->set_accepted_files($desc['param']['accepted_files']);
+        }
 		$dropzoneField->add_to_form($form, $field, $label);
 	}
 	//endregion
