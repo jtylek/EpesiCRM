@@ -81,8 +81,8 @@ class Utils_FileStorageCommon extends ModuleCommon {
         $type = self::get_mime_type($meta['file'], $meta['filename'], null, false);
     	switch ($type) {
 			// image
-            case 'image/jpeg;':
-            case 'image/jpg;':
+            case 'image/jpeg':
+            case 'image/jpg':
             case 'image/gif':
             case 'image/png':
             case 'image/bmp':
