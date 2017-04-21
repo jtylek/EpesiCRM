@@ -6,16 +6,16 @@ base_setup__show_options = function (name) {
 	if (base_setup__last_options && base_setup__last_options!=name) {
 		base_setup__hide_options(base_setup__last_options);
 	}
-	jq('#show_options_'+name).hide();
-	jq('#hide_options_'+name).show();
-	jq('#options_'+name).fadeIn();
+	jq('[id="show_options_'+name+'"]').hide();
+	jq('[id="hide_options_'+name+'"]').show();
+	jq('[id="options_'+name+'"]').fadeIn();
 	base_setup__last_options = name;
 }
 
 base_setup__hide_options = function (name) {
-	jq('#show_options_'+name).show();
-	jq('#hide_options_'+name).hide();
-	jq('#options_'+name).fadeOut();
+	jq('[id="show_options_'+name+'"]').show();
+	jq('[id="hide_options_'+name+'"]').hide();
+	jq('[id="options_'+name+'"]').fadeOut();
 	base_setup__last_options = false;
 }
 
@@ -26,13 +26,13 @@ base_setup__show_actions = function (name, option) {
 	el_id = name;
 	if (option) {
 		el_id = el_id+'__'+option;
-		jq('#show_actions_button_'+name+'__'+option).hide();
-		jq('#hide_actions_button_'+name+'__'+option).show();
-		jq('#hide_actions_'+el_id).fadeIn();
+		jq('[id="show_actions_button_'+name+'__'+option+'"]').hide();
+		jq('[id="hide_actions_button_'+name+'__'+option+'"]').show();
+		jq('[id="hide_actions_'+el_id+'"]').fadeIn();
 	} else {
-        if (jq('#hide_actions_'+el_id).length>0) {
-		    jq('#hide_actions_'+el_id).fadeIn();
-        }
+		if (jq('[id="hide_actions_'+el_id+'"]').length>0) {
+			jq('[id="hide_actions_'+el_id+'"]').fadeIn();
+		}
 	}
 	base_setup__last_actions = name;
 	base_setup__last_actions_option = option;
@@ -42,13 +42,13 @@ base_setup__hide_actions = function (name, option) {
 	el_id = name;
 	if (option) {
 		el_id = el_id+'__'+option;
-		jq('#show_actions_button_'+name+'__'+option).show();
-		jq('#hide_actions_button_'+name+'__'+option).hide();
-		jq('#hide_actions_'+el_id).fadeOut();
+		jq('[id="show_actions_button_'+name+'__'+option+'"]').show();
+		jq('[id="hide_actions_button_'+name+'__'+option+'"]').hide();
+		jq('[id="hide_actions_'+el_id+'"]').fadeOut();
 	} else {
-        if (jq('#hide_actions_'+el_id).length>0) {
-		    jq('#hide_actions_'+el_id).fadeOut();
-        }
+		if (jq('[id="hide_actions_'+el_id+'"]').length>0) {
+			jq('[id="hide_actions_'+el_id+'"]').fadeOut();
+		}
 	}
 	base_setup__last_actions = false;
 	base_setup__last_actions_option = false;
@@ -56,7 +56,7 @@ base_setup__hide_actions = function (name, option) {
 
 base_setup__filter_by = function (attr) {
 	if (base_setup__last_options)div
-		base_setup__hide_options(base_setup__last_options);
+	base_setup__hide_options(base_setup__last_options);
 	if (base_setup__last_actions)
 		base_setup__hide_actions(base_setup__last_actions, base_setup__last_actions_option);
 	jq('#Base_Setup__filter_'+base_setup__last_filter).attr('class',"btn");
