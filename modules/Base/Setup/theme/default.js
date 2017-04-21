@@ -55,12 +55,12 @@ base_setup__hide_actions = function (name, option) {
 }
 
 base_setup__filter_by = function (attr) {
-	if (base_setup__last_options)
+	if (base_setup__last_options)div
 		base_setup__hide_options(base_setup__last_options);
 	if (base_setup__last_actions)
 		base_setup__hide_actions(base_setup__last_actions, base_setup__last_actions_option);
-	jq('#Base_Setup__filter_'+base_setup__last_filter).attr('class',"");
-	jq('#Base_Setup__filter_'+attr).attr('class',"selected");
+	jq('#Base_Setup__filter_'+base_setup__last_filter).attr('class',"btn");
+	jq('#Base_Setup__filter_'+attr).attr('class',"btn selected");
 	base_setup__last_filter = attr;
 	for (w in jq('#Base_Setup').get(0).childNodes) {
 		var div = jq('#Base_Setup').get(0).childNodes[w];
