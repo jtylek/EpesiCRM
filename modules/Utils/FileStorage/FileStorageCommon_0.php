@@ -82,7 +82,6 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	switch ($type) {
 			// image
             case 'image/jpeg':
-            case 'image/jpg':
             case 'image/gif':
             case 'image/png':
             case 'image/bmp':
@@ -655,7 +654,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     		case "jpg":
     		case "jpeg":
     		case "jpe":
-    			return "image/jpg";
+    			return "image/jpeg";
     		case "xlsx":
     		case "xls":
     			return "application/vnd.ms-excel";
