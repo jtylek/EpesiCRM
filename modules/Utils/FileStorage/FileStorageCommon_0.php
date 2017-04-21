@@ -592,7 +592,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	$return = null;
 
     	//new method, but not compiled in by default
-    	if (extension_loaded('fileinfo')) {
+    	if (extension_loaded('fileinfo') && $encoding) {
     		$fff = new finfo(FILEINFO_MIME);
     		if ($file) {
     			$return = $fff->file($file);
@@ -600,7 +600,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     			$return = $fff->buffer($buffer);
     		}
     		unset($fff);
-    		if ($return && $encoding) {
+    		if ($return) {
     			return $return;
     		}
     	}
