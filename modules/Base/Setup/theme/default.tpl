@@ -9,94 +9,109 @@
 <div class="Base_Setup">
 	<div class="filters">
 		{foreach key=label item=attr from=$filters}
-			<button id="Base_Setup__filter_{$attr.arg}" {if !$attr.arg}class="btn selected" {else} class="btn"{/if} {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');">{$label}</button>
+			<button id="Base_Setup__filter_{$attr.arg}" {if !$attr.arg}class="btn selected" {else} class="btn"{/if} {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');"><strong>{$label}</strong>&nbsp;<span id="qty-badge" class="badge">{$attr.qty}</span></button>
 		{/foreach}
 	</div>
 	
-	<div id="Base_Setup">
+	<div id="Base_Setup" class="container">
+		{*{$packages|@var_dump}*}
 		{foreach key=name item=package from=$packages}
-			<div class="big-button" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
-				{if $package.url}
-					<a href="{$package.url}" target="_blank">
-				{/if}
-					<div class="package_label">
-						{$package.name}
+			<div id="block" class="jumbotron" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
+				<div id="inner-container" class="container-fluid">
+					<div class="row-fluid" id="icon-row">
+						{if $package.icon}
+							<img class="package_icon" src="{$package.icon}">
+						{else}
+							<span class="package_icon glyphicon glyphicon-folder-close" style="font-size: 90px"></span>
+						{/if}
 					</div>
-					{if $package.icon}
-						<img class="package_icon" src="{$package.icon}">
-					{/if}
-				{if $package.url}
-					</a>
-				{/if}
-				{if $package.version}
-					<div class="version">
-						{$version_label}{$package.version}
-					</div>
-				{/if}
-				<div class="actions">
-					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="action {$package.style}" onclick="base_setup__show_actions('{$name}');">
-						{$package.status}{if !empty($package.buttons)}<img src="{$theme_dir}/Base/Setup/config.png">{/if}
-					</div>
-				{if !empty($package.buttons)}
-					<div class="action" id="hide_actions_{$name}" style="position: absolute; top:0px; left:12px; z-index: 5; display:none;">
-						<div class="subaction {$package.style}" onclick="base_setup__hide_actions('{$name}');">
-							{$package.status}<img src="{$theme_dir}/Base/Setup/config-up.png">
-						</div>
-						{foreach from=$package.buttons item=button}
-							<div {$button.href} class="subaction {$button.style}">
-								{$button.label}
+
+					<div class="row-fluid" id="title-row">
+							{if $package.url}
+								<a href="{$package.url}" target="_blank">
+							{/if}
+							<div id="module-name">
+								<strong>{$package.name}</strong>
 							</div>
-						{/foreach}
+							{if $package.url}
+								</a>
+							{/if}
 					</div>
-				{/if}
-				{if !empty($package.options)}
-					<div id="show_options_{$name}" class="action toggle_options" onclick="base_setup__show_options('{$name}');">
-						{$labels.options}<img src="{$theme_dir}/Base/Setup/config.png">
-					</div>
-					<div id="hide_options_{$name}" class="action toggle_options" onclick="base_setup__hide_options('{$name}');" style="display:none;">
-						{$labels.options}<img src="{$theme_dir}/Base/Setup/config-up.png">
-					</div>
-				{/if}
-				</div>
-				<div class="package_icon" style="display:none;">
-					<img src="{$package.icon}" border="1">
-				</div>
-				{if !empty($package.options)}
-					<div class="options" id="options_{$name}" style="display:none;">
-						<div class="options_cover" style="width:100%; height: 5px;"></div>
-						{foreach from=$package.options key=option item=action}
-							<div class="option_spacer"></div>
-							<div class="option">
-								<div class="option_action">
-									<div id="show_actions_button_{$name}__{$option}" class="action {$action.style}" onclick="base_setup__show_actions('{$name}','{$option}');">
-										{$action.status}{if !empty($action.buttons)}<img src="{$theme_dir}/Base/Setup/config.png">{/if}
-									</div>
-									{if !empty($action.buttons)}
-										<div id="hide_actions_button_{$name}__{$option}" class="action {$action.style}" onclick="base_setup__hide_actions('{$name}','{$option}');" style="display: none;">
-											{$action.status}<img src="{$theme_dir}/Base/Setup/config-up.png">
-										</div>
-									{/if}
-								</div>
-								<div class="option_label">
-									{$action.name}
-								</div>
+
+					<div class="row-fluid" id="version-row">
+                        {if $package.version}
+							<div class="version">
+                                {$version_label}{$package.version}
 							</div>
-							{if !empty($action.buttons)}
-								<div class="actions" id="hide_actions_{$name}__{$option}" style="display:none;">
-									{foreach from=$action.buttons item=button}
-										<div {$button.href} class="action {$button.style}" onclick="jq('#hide_actions_{$name}').fadeOut();">
-											{$button.label}
-										</div>
+						{else}
+							<div class="version">{$version_label} ---</div>
+                        {/if}
+					</div>
+
+
+					<div class="actions container-fluid">
+						<div class="row-fluid" id="actions-row">
+							<div class="btn-group" style="float: left">
+								<button type="button" class="btn action {$package.style}" {$package.buttons_tooltip}>{$package.status}</button>
+								{if !empty($package.buttons)}
+								<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="caret"></span>
+									<span class="sr-only"></span>
+								</button>
+								<ul class="dropdown-menu">
+									{foreach from=$package.buttons item=button}
+										<li><a id="status-a" {$button.href} class="{$button.style}">{$button.label}</a></li>
 									{/foreach}
+								</ul>
+								{/if}
+							</div>
+
+							<div style="float:right">
+							{if !empty($package.options)}
+								<div class="btn-group">
+									<button type="button" class="btn">{$labels.options}</button>
+									<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<span class="caret"></span>
+										<span class="sr-only">Toggle</span>
+									</button>
+									<ul class="dropdown-menu">
+										{foreach from=$package.options key=option item=action name=packs}
+											<a href="#">
+												<li id="option-li">
+													<div id="option-label">{$action.name}</div>
+													<div id="option-button">
+														<div class="btn-group">
+															<button type="button" class="btn">{$action.status}</button>
+															{if !empty($action.buttons)}
+																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+																	<span class="caret"></span>
+																	<span class="sr-only">Toggle</span>
+																</button>
+																<ul class="dropdown-menu">
+																	{foreach from=$action.buttons item=button name=actions}
+																		<li {$button.href} class="action {$button.style}">{$button.label}</li>
+																		{if !$smarty.foreach.actions.last}
+																			<li role="separator" class="divider"></li>
+																		{/if}
+																	{/foreach}
+																</ul>
+															{/if}
+														</div>
+													</div>
+												</li>
+											</a>
+											{if !$smarty.foreach.packs.last}
+												<li role="separator" class="divider" id="second-separator"></li>
+											{/if}
+										{/foreach}
+									</ul>
 								</div>
 							{/if}
-						{/foreach}
-						<!-- force space underneath options -->
-						<div style="height: 1px;width: 1px;position: absolute;bottom: -40px;"></div>
+							</div>
+						</div>
 					</div>
-				{/if}
+				</div>
 			</div>
 		{/foreach}
 	</div>
-
 </div>

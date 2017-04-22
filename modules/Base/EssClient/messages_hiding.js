@@ -15,7 +15,7 @@ function set_client_messages_frame_id(id) {
 
 function client_messages_add_discard_buttons() {
     var messages_frame = jq('#'+client_messages_frame_id + "_content").get(0);
-    var childs = messages_frame.childElements();
+    var childs = messages_frame.children;
     for(var i = 0; i < childs.length; i++) {
         if(!childs[i].hasClassName("popup_notice"))
             continue;
