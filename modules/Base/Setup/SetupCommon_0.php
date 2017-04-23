@@ -18,6 +18,7 @@ class Base_SetupCommon extends ModuleCommon {
 	    if(DEMO_MODE) return false;
 		if (Variable::get('anonymous_setup')) return true;
 		return Base_AclCommon::i_am_admin();
+
 	}
 
 	public static function admin_access_levels() {

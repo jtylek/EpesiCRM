@@ -49,6 +49,7 @@ class Base_SetupInstall extends ModuleInstall {
 			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
 			array('name'=>Libs_LeightboxInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TreeInstall::module_name(),'version'=>0)
+
 		);
 	}
 

@@ -403,14 +403,12 @@ class Base_Setup extends Module {
 //			var_dump($value['version']);
 		}
 
-//		var_dump($sorted);
 
         $t = $this->init_module(Base_Theme::module_name());
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));
 		$t->assign('labels', array('options'=>__('Optional')));
-		
 		$t->display();
 	}
     
