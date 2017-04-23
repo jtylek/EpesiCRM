@@ -74,30 +74,39 @@
 										<span class="caret"></span>
 										<span class="sr-only">Toggle</span>
 									</button>
-									<ul class="dropdown-menu">
+									<ul class="dropdown-menu" id="first-dropdown">
 										{foreach from=$package.options key=option item=action name=packs}
 											<a href="#">
-												<li id="option-li">
+												<li id="option-li" style="display: block">
 													<div id="option-label">{$action.name}</div>
+
+
+
+
 													<div id="option-button">
-														<div class="btn-group">
-															<button type="button" class="btn">{$action.status}</button>
-															{if !empty($action.buttons)}
-																<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+														{if !empty($action.buttons)}
+															<div class="btn-group">
+																<button type="button" class="btn">{$action.status}</button>
+																<button type="button" class="btn" id="toggle-button">
 																	<span class="caret"></span>
-																	<span class="sr-only">Toggle</span>
+																	<span class="sr-only"></span>
 																</button>
-																<ul class="dropdown-menu">
-																	{foreach from=$action.buttons item=button name=actions}
-																		<li {$button.href} class="action {$button.style}">{$button.label}</li>
-																		{if !$smarty.foreach.actions.last}
-																			<li role="separator" class="divider"></li>
-																		{/if}
-																	{/foreach}
-																</ul>
-															{/if}
-														</div>
+															</div>
+															<div id="options-ul">
+																{foreach from=$action.buttons item=button name=wtf}
+																	<a {$button.href} class="action {$button.style}">{$button.label}</a>
+																	{*{if !$smarty.foreach.wtf.last}*}
+																		{*<li role="separator" class="divider"></li>*}
+																	{*{/if}*}
+																{/foreach}
+															</div>
+                                                        {/if}
 													</div>
+
+
+
+
+
 												</li>
 											</a>
 											{if !$smarty.foreach.packs.last}

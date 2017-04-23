@@ -72,7 +72,7 @@
 
 #option-li {
 	width: 35rem;
-	height: 5rem;
+	height: 6rem;
 	padding: 10px;
 }
 
@@ -87,6 +87,14 @@ li#option-li:hover {
 
 #option-button {
 	float: right;
+}
+
+#options-ul {
+	display: none;
+}
+
+#pulldown-menu {
+	display: none;
 }
 
 #second-separator {
