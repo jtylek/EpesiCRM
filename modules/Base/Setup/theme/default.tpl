@@ -30,7 +30,7 @@
 								<a href="{$package.url}" target="_blank">
 							{/if}
 							<div id="module-name">
-								<strong>{$package.name}</strong>
+								{$package.name} {if $package.url}<span class="glyphicon glyphicon-info-sign"></span>{/if}
 							</div>
 							{if $package.url}
 								</a>
