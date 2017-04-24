@@ -74,23 +74,6 @@ base_setup__filter_by = function (attr) {
 		}
 	}
 }
-var toggled = 0;
-
-jq('button#toggle-button').click(function () {
-    jq('div#options-ul').toggle('display');
-    jq('div#options-ul').css('display','');
-    var ul_height = jq('div#options-ul').height();
-    var li_height = jq('li#option-li').height();
-
-    if (toggled == 0 ){
-        jq('li#option-li').css('height', '120px');
-        toggled = 1;
-    }
-    else {
-        jq('li#option-li').css('height', '60px');
-        toggled = 0;
-    }
-});
 
 jq(document).on('click','ul#first-dropdown', function (e) {
 	e.stopPropagation();

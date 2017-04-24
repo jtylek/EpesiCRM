@@ -14,7 +14,6 @@
 	</div>
 	
 	<div id="Base_Setup" class="container">
-		{*{$packages|@var_dump}*}
 		{foreach key=name item=package from=$packages}
 			<div id="block" class="jumbotron" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
 				<div id="inner-container" class="container-fluid">
@@ -60,7 +59,7 @@
 								</button>
 								<ul class="dropdown-menu">
 									{foreach from=$package.buttons item=button}
-										<li><a id="status-a" {$button.href} class="{$button.style}">{$button.label}</a></li>
+										<li style="height: 2.25rem"><a id="status-a" {$button.href} class="{$button.style}">{$button.label}</a></li>
 									{/foreach}
 								</ul>
 								{/if}
@@ -74,41 +73,27 @@
 										<span class="caret"></span>
 										<span class="sr-only">Toggle</span>
 									</button>
-									<ul class="dropdown-menu" id="first-dropdown">
+									<ul class="dropdown-menu multi-level" role="menu" id="first-dropdown" aria-labelledby="dropdownMenu">
 										{foreach from=$package.options key=option item=action name=packs}
-											<a href="#">
+											{if !empty($action.buttons)}
+												<li id="option-li" style="display: block" class="dropdown-submenu">
+													<div id="option-label">{$action.name}</div>
+											{else}
 												<li id="option-li" style="display: block">
 													<div id="option-label">{$action.name}</div>
-
-
-
-
-													<div id="option-button">
+											{/if}
 														{if !empty($action.buttons)}
-															<div class="btn-group">
-																<button type="button" class="btn">{$action.status}</button>
-																<button type="button" class="btn" id="toggle-button">
-																	<span class="caret"></span>
-																	<span class="sr-only"></span>
-																</button>
-															</div>
-															<div id="options-ul">
+															<div><span class="badge" id="qty-badge" style="float: right"><strong>{$action.status}</strong></span></div>
+															<ul class="dropdown-menu">
 																{foreach from=$action.buttons item=button name=wtf}
-																	<a {$button.href} class="action {$button.style}">{$button.label}</a>
-																	{*{if !$smarty.foreach.wtf.last}*}
-																		{*<li role="separator" class="divider"></li>*}
-																	{*{/if}*}
+																	<li style="height: 2.25rem"><a class="action {$button.style}" style="height: 100%; font-size: 13px" {$button.href}>{$button.label}</a></li>
+																	{if !$smarty.foreach.wtf.last}
+																		<li role="separator" class="divider"></li>
+																	{/if}
 																{/foreach}
-															</div>
+															</ul>
                                                         {/if}
-													</div>
-
-
-
-
-
 												</li>
-											</a>
 											{if !$smarty.foreach.packs.last}
 												<li role="separator" class="divider" id="second-separator"></li>
 											{/if}
