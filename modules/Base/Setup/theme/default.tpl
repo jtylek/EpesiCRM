@@ -50,14 +50,14 @@
 
 					<div class="actions container-fluid">
 						<div class="row-fluid" id="actions-row">
-							<div class="btn-group" style="float: left">
-								<button type="button" class="btn action {$package.style}" {$package.buttons_tooltip}>{$package.status}</button>
+							<div class="btn-group" style="float: left" id="btn-group">
+								<button type="button" class="btn action {$package.style}" {$package.buttons_tooltip} {if !empty($package.options)} style="width: 102px" {else} style="width: 238px"{/if}>{$package.status}</button>
 								{if !empty($package.buttons)}
 								<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									<span class="caret"></span>
 									<span class="sr-only"></span>
 								</button>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu" {if !empty($package.options)} style="width: 127px" {else} style="width: 263px"{/if}>
 									{foreach from=$package.buttons item=button}
 										<li style="height: 2.25rem"><a id="status-a" {$button.href} class="{$button.style}">{$button.label}</a></li>
 									{/foreach}
@@ -67,8 +67,8 @@
 
 							<div style="float:right">
 							{if !empty($package.options)}
-								<div class="btn-group">
-									<button type="button" class="btn">{$labels.options}</button>
+								<div class="btn-group" id="btn-group">
+									<button type="button" class="btn" style="width: 102px">{$labels.options}</button>
 									<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 										<span class="caret"></span>
 										<span class="sr-only">Toggle</span>

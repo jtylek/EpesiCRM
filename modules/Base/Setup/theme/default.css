@@ -62,7 +62,8 @@
 }
 
 #actions-row {
-	padding: 6px 1px;
+	padding: 6px 0px;
+	margin: 0 -15px;
 }
 
 
@@ -147,6 +148,15 @@ li#option-li:hover {
 	-webkit-border-radius: 6px 0 6px 6px;
 	-moz-border-radius: 6px 0 6px 6px;
 	border-radius: 6px 0 6px 6px;
+}
+
+#btn-group > button {
+	background: #748aaa;
+	color: white;
+}
+
+#btn-group > button:hover {
+	color: #cbcbcb;
 }
 
 /*#Base_Setup .big-button,*/
