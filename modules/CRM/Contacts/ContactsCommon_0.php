@@ -849,7 +849,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return;
 	}
     public static function QFfield_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-		$label = __('EPESI User');
+    	$label = __('%s User', array(EPESI));
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;

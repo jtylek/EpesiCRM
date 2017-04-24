@@ -289,9 +289,7 @@ class Utils_Calendar extends Module {
 	}
 
 	public function push_event_action($action,$arg=null) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main($this->event_module,$action,$arg);
+		Base_BoxCommon::push_module($this->event_module,$action,$arg);
 	}
 
 	public function delete_event($id) {
@@ -371,7 +369,7 @@ class Utils_Calendar extends Module {
 			$end = $data['end'];
 			$end = date('Y-m-d',strtotime($end)+86400);
 		}
-		$form->assign_theme('form', $theme, new HTML_QuickForm_Renderer_TCMSArraySmarty());
+        $form->assign_theme('form', $theme);
 
 		$navigation_bar_additions = '';
 		if (is_callable(array($this->event_module, 'get_navigation_bar_additions'))) {

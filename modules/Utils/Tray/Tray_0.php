@@ -270,7 +270,7 @@ class Utils_Tray extends Module {
 		
 		$rb->disable_browse_mode_switch();
 
-		$rb->set_filters_defaults($slot_defs[$tray_slot]['__filters__']);
+		$rb->set_filters($slot_defs[$tray_slot]['__filters__'], true, true);
 	}
 
 	public function get_tray_cols() {

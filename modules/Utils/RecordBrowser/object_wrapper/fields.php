@@ -240,8 +240,6 @@ class RBO_Field_Select extends RBO_FieldDefinition {
     private function _fill_param() {
         if (!is_string($this->linked_recordset))
             trigger_error("Linked recordset not set in select field", E_USER_ERROR);
-        if (!$this->linked_recordset_fields)
-            trigger_error("Fields from linked recordset not set", E_USER_ERROR);
         $param = $this->linked_recordset . "::" .
                 implode('|', $this->linked_recordset_fields);
         if ($this->crits_method)
@@ -421,5 +419,17 @@ class RBO_Field_Autonumber extends RBO_FieldDefinition {
             trigger_error('prefix cannot be comma');
         return Utils_RecordBrowserCommon::encode_autonumber_param($prefix, $pad_length, $pad_mask);
     }    
+}
+
+/**
+ * @author Norbert Nader <nnader@telaxus.com>
+ */
+class RBO_Field_File extends RBO_FieldDefinition {
+
+    const type = 'file';
+
+    public function __construct($display_name) {
+        parent::__construct($display_name, self::type);
+    }
 }
 ?>

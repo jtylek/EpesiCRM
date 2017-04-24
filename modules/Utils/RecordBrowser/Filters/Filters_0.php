@@ -256,7 +256,7 @@ class Utils_RecordBrowser_Filters extends Module {
 			print('<span style="display:none;">'.microtime(true).'</span>');
 		}
 
-		$this->form->setDefaults($this->get_saved_filters());
+		$this->form->setDefaults(self::get_filters_for_qf($this->get_saved_filters()));
 		
 		$this->values = $this->form->exportValues();	
 	}	
@@ -403,37 +403,54 @@ class Utils_RecordBrowser_Filters extends Module {
 	protected function get_filter_elements() {
 		return array_merge($this->standard_filter_elements, $this->external_filter_elements);
 	}
+
+    protected function save_filter_values()
+    {
+        $to_save = array();
+        foreach ($this->values as $k => $v) {
+            $c = preg_replace('/^filter__/', '', $k);
+            if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type'] == 'checkbox' && $v === self::$empty_value) {
+                unset($this->values[$k]);
+            } else {
+                $to_save[$c] = $v;
+            }
+        }
+
+        unset($to_save['submited']);
+        unset($to_save['submit']);
+
+        $this->save_filters($to_save);
+    }
 	
-	protected function save_filter_values() {
-		foreach ($this->values as $k=>$v) {
-			$c = str_replace('filter__','',$k);
-			if (isset($this->custom_filters[$c]) && $this->custom_filters[$c]['type']=='checkbox' && $v===self::$empty_value) 
-				unset($this->values[$k]);
-		}
-			
-		$permanent_save = isset($this->values['submited']) && $this->values['submited'];
-		unset($this->values['submited']);
-		unset($this->values['submit']);
-			
-		$this->save_filters($this->values, $permanent_save);
-	}
-	
-	protected function save_filters($def_filter, $permanent_save = true) {
+	protected function save_filters($def_filter) {
 		$this->rb_obj->set_filters($def_filter);
 	
 		if ($this->saving_filters_enabled()) {
 			Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $def_filter);
 		}
 	}
+
+    protected static function get_filters_for_qf($filters)
+    {
+        $ret = array();
+        foreach ($filters as $k => $v) {
+			$ret[self::get_element_id($k)] = $v;
+        }
+        return $ret;
+    }
 	
 	protected function get_saved_filters() {
-		$defaults = $this->rb_obj->get_filters();
+        $defaults = $this->rb_obj->get_filters();
 		if ($this->saving_filters_enabled()) {
 			$saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
 			if ($saved_filters) {
 				$defaults = $saved_filters;
 			}
 		}
+        foreach ($this->rb_obj->get_filters(true) as $k => $v) {
+			$defaults[$k] = $v;
+        }
+
 		return $defaults;
 	}
 	
@@ -460,6 +477,7 @@ class Utils_RecordBrowser_Filters extends Module {
 	}
 	
 	public static function get_element_id($filter_id) {
+		if (preg_match('/^filter__/', $filter_id)) return $filter_id;
 		return 'filter__' . $filter_id;
 	}
 	

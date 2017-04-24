@@ -45,11 +45,8 @@
 			<td class="epesi_label">
 				{$labels.fields}
 			</td>
-			<td colspan="2" class="epesi_data static_field">
-				{foreach from=$fields key=f item=v}
-					{assign var=f value="field_$f"} 
-					<div class="field">{$form_data.$f.html}{$form_data.$f.label}</div>
-				{/foreach}
+			<td class="epesi_data field_permissions">
+				{$form_data.blocked_fields.html}
 			</td>
 		</tr>
 	</table>

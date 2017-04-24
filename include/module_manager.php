@@ -3,7 +3,7 @@
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
  * @copyright Copyright &copy; 2007, Telaxus LLC
- * @license SPL
+ * @license MIT
  * @package epesi-base
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
@@ -228,7 +228,9 @@ class ModuleManager {
 
 	public static function create_module_mock($class)
 	{
-		eval ("class $class extends ModulePrimitive {} ");
+        if (!class_exists($class, false)) {
+            eval ("class $class extends ModulePrimitive {} ");
+        }
 	}
 
 	private static function satisfy_dependencies($module_to_install,$version,$check=null) {

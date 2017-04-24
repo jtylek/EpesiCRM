@@ -430,13 +430,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$ret = array();
 		$tray = array();
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
-		$only_new = ' AND last_seen_event<(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id)';
-		$records = DB::GetAll('SELECT internal_id,category_id FROM utils_watchdog_subscription AS uws WHERE user_id=%d '.$only_new, array(Acl::get_user()));
-		if(count($records)>500) {
-			DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id) WHERE user_id=%d', array(Acl::get_user()));
-			DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=-1 WHERE last_seen_event IS NULL');
-		}
+		$records = self::get_records_with_new_notifications();
 		foreach ($records as $rec_key => $w) {
+			echo "$rec_key<br>";
 			$k = $w['internal_id'];
 			$v = $w['category_id'];
 			$changes = Utils_WatchdogCommon::check_if_notified($v, $k);
@@ -458,15 +454,26 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!Utils_RecordBrowserCommon::check_table_name($tab, false, false)) {
 			return true;
 		}
+		$access = false;
+        $old_user = Base_AclCommon::get_user();
+        Base_AclCommon::set_user($user_id);
 		$record = Utils_RecordBrowserCommon::get_record($tab, $id);
-		if (!$record) {
-			return false;
-		}
-		$old_user = Base_AclCommon::get_user();
-		Base_AclCommon::set_user($user_id);
-		$access = Utils_RecordBrowserCommon::get_access($tab, 'view', $id);
+		if ($record) {
+            $access = Utils_RecordBrowserCommon::get_access($tab, 'view', $record);
+        }
 		Base_AclCommon::set_user($old_user);
 		return $access != false;
+	}
+
+	public static function get_records_with_new_notifications($user_id = null)
+	{
+		if (!$user_id) $user_id = Base_AclCommon::get_user();
+		$sql = 'SELECT sub.internal_id,sub.category_id FROM utils_watchdog_subscription AS sub 
+				LEFT JOIN (SELECT uwe.category_id, uwe.internal_id, MAX(id) as ev_id FROM utils_watchdog_event AS uwe GROUP BY uwe.internal_id,uwe.category_id) AS ev 
+				ON sub.internal_id=ev.internal_id AND sub.category_id=ev.category_id 
+				WHERE sub.user_id=%d AND sub.last_seen_event<ev.ev_id ORDER BY ev.ev_id DESC';
+		$records = DB::GetAll($sql, array($user_id));
+		return $records;
 	}
 }
 

@@ -133,6 +133,22 @@ class Utils_GenericBrowser extends Module {
 		$this->set_module_variable('default_order',$order);
 	}
 
+    public function set_column_display($name_or_numeric, $display)
+    {
+        $numeric = is_numeric($name_or_numeric);
+        foreach ($this->columns as $k => $column) {
+            if ($numeric) {
+                if ($k == $name_or_numeric) {
+                    $this->columns[$k]['display'] = $display;
+                }
+			} else {
+                if ($column['name'] == $name_or_numeric) {
+                    $this->columns[$k]['display'] = $display;
+                }
+            }
+        }
+    }
+
 	public function set_expandable($b) {
 		if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
 			return;

@@ -12,7 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_PHPExcelCommon extends ModuleCommon {
 	public static function load($file) {
-		require_once 'modules/Libs/PHPExcel/lib/PHPExcel/IOFactory.php';
 		return PHPExcel_IOFactory::load($file);
 	}
 }

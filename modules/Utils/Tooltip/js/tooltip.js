@@ -55,7 +55,6 @@ Utils_Tooltip = {
 	    Utils_Tooltip.show(o, my_event, max_width);
 		if (tooltip_id!='done' && Utils_Tooltip.timeout_obj == false) {
 	        Utils_Tooltip.timeout_obj = setTimeout(function () {
-	            o.setAttribute('tooltip_id','done');
 	            jq.ajax({
 	                type: 'POST',
 	                url: 'modules/Utils/Tooltip/req.php',
@@ -64,7 +63,9 @@ Utils_Tooltip = {
 	                    cid: Epesi.client_id
 	                },
 	                success:function(t) {
-	                    o.setAttribute('tip',t);
+	                	jq("[tooltip_id='"+ tooltip_id +"']")
+	                		.attr('tip', t)
+	                		.attr('tooltip_id', 'done');
 	                    if (t) {
 	                        jq('#tooltip_text').html(t);
 	                        if (jq('#tooltip_leightbox_mode_content').length) jq('#tooltip_leightbox_mode_content').html(t);

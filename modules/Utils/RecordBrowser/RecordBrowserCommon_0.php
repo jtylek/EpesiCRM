@@ -53,9 +53,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function call_display_callback($callback, $record, $links_not_recommended, $field, $tab)
     {
-        $callback_func = self::callback_check_function($callback);
+        $callback_func = self::callback_check_function($callback, true);
         if ($callback_func) {
-            $ret = call_user_func($callback_func, $record, $links_not_recommended, $field, $tab);
+            if (is_callable($callback_func)) {
+                $ret = call_user_func($callback_func, $record, $links_not_recommended, $field, $tab);
+            } else {
+                $callback_str = (is_array($callback_func) ? implode('::', $callback_func) : $callback_func);
+                trigger_error("Callback $callback_str for field: '$field[id]', recordset: '$tab' not found", E_USER_NOTICE);
+                $ret = $record[$field['id']];
+            }
         } else {
             ob_start();
             $ret = eval($callback);
@@ -72,9 +78,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($display_callback_table === null) {
             $display_callback_table = self::display_callback_cache($rb_obj->tab);
         }
-        $callback_func = self::callback_check_function($callback);
+        $callback_func = self::callback_check_function($callback, true);
         if ($callback_func) {
-            call_user_func_array($callback_func, array(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table));
+            if (is_callable($callback_func)) {
+                call_user_func_array($callback_func, array(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callback_table));
+            } else {
+                $callback_str = (is_array($callback_func) ? implode('::', $callback_func) : $callback_func);
+                trigger_error("Callback $callback_str for field: '$field', recordset: '{$rb_obj->tab}' not found", E_USER_NOTICE);
+            }
         } else {
             eval($callback);
         }
@@ -103,12 +114,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		} else {
 			$display_callback = self::get_default_display_callback($desc['type']);
 		}
-		
-		if (is_callable($display_callback))
-			$ret = self::call_display_callback($display_callback, $record, $links_not_recommended, $desc, $tab);
-	    else 
-	    	$ret = $val;
-        
+
+        if ($display_callback) {
+            $ret = self::call_display_callback($display_callback, $record, $links_not_recommended, $desc, $tab);
+        } else {
+		    $ret = $val;
+        }
+
         unset($recurrence_call_stack[$function_call_id]);
         return $ret;
     }
@@ -118,7 +130,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     public static function get_default_display_callback($type) {
     	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox', 
-    			'date', 'timestamp', 'time', 'long text');
+    			'date', 'timestamp', 'time', 'long text', 'file');
     	if (array_search($type, $types) !== false) {
     		return __CLASS__. '::display_' . self::get_field_id($type);
     	}
@@ -253,8 +265,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function display_time($record, $nolink, $desc=null) {
     	$ret = '';
-    	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
-    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds',false);
+    	if (isset($desc['id']) && isset($record[$desc['id']])) {
+            $ret = $record[$desc['id']] !== '' && $record[$desc['id']] !== false
+                ? Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds', false)
+                : '---';
     	}
     
     	return $ret;
@@ -383,7 +397,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function decode_record_token($token, $single_tab=false) {
-    	$kk = explode('/',$token,2);
+    	$kk = explode('/',$token);
     	if(count($kk)==1) {
     		if ($single_tab && is_numeric($kk[0])) {
     			$tab = $single_tab;
@@ -435,20 +449,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     			
     		$ret = $tab_crits;
     	}
-
+    	
     	foreach ($ret as $tab=>$crits) {
     		if (!$tab || !self::check_table_name($tab, false, false)) {
     			unset($ret[$tab]);
     			continue;
     		}
-    		$access = self::get_access($tab, 'selection', null, true);
-    		if ($access===false) unset($ret[$tab]);
-    		if ($access===true) continue;
-    		if (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface) {
+    		$access_crits = self::get_access_crits($tab, 'selection');
+    		if ($access_crits===false) unset($ret[$tab]);
+    		if ($access_crits===true) continue;
+    		if (is_array($access_crits) || $access_crits instanceof Utils_RecordBrowser_CritsInterface) {
     			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowser_CritsInterface)
-    				$ret[$tab] = self::merge_crits($crits, $access);
+    				$ret[$tab] = self::merge_crits($crits, $access_crits);
     			else
-    				$ret[$tab] = $access;
+    				$ret[$tab] = $access_crits;
     		}
     	}
 
@@ -610,6 +624,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $row['param'] = self::decode_commondata_param($row['param']);
 				$commondata = true;
 			}
+            if ($row['type'] == 'file') {
+                $row['param'] = json_decode($row['param'], true);
+                if (!is_array($row['param'])) $row['param'] = [];
+                if (!isset($row['param']['max_files'])) $row['param']['max_files'] = false;
+            }
             $next_field =
                 array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
@@ -921,6 +940,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($param)) {
             if ($definition['type']=='commondata') {
                 $param = self::encode_commondata_param($param);
+            } elseif($definition['type'] == 'file') {
+                $param = json_encode($param);
             } else {
                 $tmp = array();
                 foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
@@ -970,29 +991,37 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $new_id = self::get_field_id($new_name);
         self::check_table_name($tab);
 
+        $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
+        
+        $db_field_exists = !($type === 'calculated' && !$old_param);
+        
         DB::StartTrans();
-        if (DB::is_postgresql()) {
-            DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
-        } else {
-            $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-            DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        if ($db_field_exists) {
+        	if (DB::is_postgresql()) {
+        		DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
+        	} else {
+        		 
+        		DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
+        	}
+        	DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         }
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
-        DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
         
         $result = DB::Execute('SELECT * FROM ' . $tab . '_access');
         while ($row = $result->FetchRow()) {
         	$crits = self::unserialize_crits($row['crits']);
-        	
+        	 
+        	if (!$crits) continue;
+        	 
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
-        	
-        	foreach ($crits->find($id) as $c) $c->set_field($new_id);
-
-        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        
+        		foreach ($crits->find($id) as $c) $c->set_field($new_id);
+        
+        		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
         
         DB::CompleteTrans();
@@ -1065,6 +1094,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
             case 'autonumber': $len = strlen(self::format_autonumber_str($param, null));
                 $f = DB::dict()->ActualType('C') . "($len)"; break;
+	        case 'file': $f = DB::dict()->ActualType('X'); break;
         }
         return $f;
     }
@@ -1236,7 +1266,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $db_ret = DB::GetAssoc('SELECT tab, description_fields FROM recordbrowser_table_properties');
             foreach ($db_ret as $t => $fields) {
                 if ($fields) {
-                    $cache[$t] = array_filter(array_map('trim', explode(',', $fields)));
+                    $fields = str_replace('"', '\'"', $fields);
+                    $cache[$t] = array_filter(array_map('trim', str_getcsv($fields, ',', "'")));
                 }
             }
         }
@@ -1315,7 +1346,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
+	    $filestorageIds = [];
         foreach(self::$table_rows as $field => $desc) {
+
+	        if ($desc['type'] == 'file') {
+                $files = $values[$desc['id']];
+                if (is_string($files)) $files = self::decode_multi($files);
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds[$field] = Utils_FileStorageCommon::add_files($files);
+                $values[$desc['id']] = self::encode_multi($filestorageIds[$field]);
+	        }
+
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
 			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
@@ -1346,6 +1389,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $autonumber_value = self::format_autonumber_str($desc['param'], $id);
                 self::update_record($tab, $id, array($desc['id'] => $autonumber_value), false, null, true);
                 $values[$desc['id']] = $autonumber_value;
+            }
+			if ($desc['type'] === 'file') {
+			    // update backref
+			    Utils_FileStorageCommon::add_files($filestorageIds[$field], "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds[$field];
             }
         }
 		$values['id'] = $id;
@@ -1407,6 +1455,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
                 $v = self::encode_multi($values[$desc['id']]);
                 $old = self::encode_multi($record[$desc['id']]);
+            } elseif ($desc['type'] == 'file') {
+                $files = $values[$desc['id']];
+                if (is_string($files)) {
+                    $files = self::decode_multi($files);
+                }
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds = Utils_FileStorageCommon::add_files($files, "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds;
+                // Delete files not present in the field right now
+                $old = $record[$desc['id']];
+                sort($old);
+                if ($old == $filestorageIds) continue;
+                foreach ($record[$desc['id']] as $file) {
+                    if (!in_array($file, $filestorageIds)) {
+                        // delete file
+                        Utils_FileStorageCommon::delete($file);
+                    }
+                }
+                $v = self::encode_multi($filestorageIds);
+                $old = self::encode_multi($old);
             } else {
                 if ($record[$desc['id']]===$values[$desc['id']]) continue;
                 $v = $values[$desc['id']];
@@ -1494,10 +1564,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return $cache[$cache_key];
         }
 
-        $access = ($admin || in_array($tab, $stack)) ? true : self::get_access($tab, 'browse', null, true);
-        if ($access == false) return array();
-        elseif ($access !== true) {
-            $crits = self::merge_crits($crits, $access);
+        $access_crits = ($admin || in_array($tab, $stack)) ? true : self::get_access_crits($tab, 'browse');
+        if ($access_crits == false) return array();
+        elseif ($access_crits !== true) {
+            $crits = self::merge_crits($crits, $access_crits);
         }
 
         if ($admin) {
@@ -1590,7 +1660,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'created_on'=>$row['created_on']);
             foreach(self::$table_rows as $desc){
                 if (isset($row['f_'.$desc['id']])) {
-                    if ($desc['type']=='multiselect') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
+                    if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
                     elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
                     else $r[$desc['id']] = $row['f_'.$desc['id']];
                 } else {
@@ -1772,6 +1842,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			DB::Execute('INSERT INTO '.$tab.'_access_fields (rule_id, block_field) VALUES (%d, %s)', array($rule_id, $f));
 	}
 	public static function update_access($tab, $id, $action, $clearance, $crits=array(), $blocked_fields=array()) {
+		if(is_string($id) && in_array($id,array('grant','restrict'))) return;
+		elseif(!is_numeric($id)) throw new Exception('Utils_RecordBrowserCommon::update_access - id have to be a number');
+		
         $serialized = self::serialize_crits($crits);
         DB::Execute('UPDATE ' . $tab . '_access SET crits=%s, action=%s WHERE id=%d', array($serialized, $action, $id));
 		if (!is_array($clearance)) $clearance = array($clearance);
@@ -1824,135 +1897,252 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($tab === null) {
             return $custom_access_callbacks;
         }
-        $ret = isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
-        return $ret;
+        
+        return isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
     }
-
     public static function call_custom_access_callbacks($tab, $action, $record = null)
     {
         $callbacks = self::get_custom_access_callbacks($tab);
-        $crits = null;
+        $ret = array('grant'=>null, 'restrict'=>null);
         foreach ($callbacks as $callback) {
-            $ret = call_user_func($callback, $action, $record, $tab);
-            if ($ret === true) {
-                return true;
-            } elseif ($ret === false) {
-                return false;
-            } elseif ($ret !== null) {
-                if ($crits === null) {
-                    $crits = is_array($ret)? Utils_RecordBrowser_Crits::from_array($ret): $ret;
-                } else {
-                    $crits = self::merge_crits($crits, $ret);
-                }
+            $callback_crits = call_user_func($callback, $action, $record, $tab);
+            
+            if (is_bool($callback_crits)) {
+            	$ret[$callback_crits? 'grant': 'restrict'] = true;
+            	break;
             }
-        }
-        return $crits;
-    }
-	
-	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
-        if (!$return_crits && self::$admin_access && Base_AclCommon::i_am_admin()) {
-            $ret = true;
-        } elseif (isset($record[':active']) && !$record[':active'] && ($action=='edit' || $action=='delete' || $action=='clone')) {
-			return false;
-		} else {
-			static $cache = array();
-            $cache_key = "{$tab}__USER_" . Base_AclCommon::get_user();
-            $callback_ret = self::call_custom_access_callbacks($tab, $action, $record);
-			if (!isset($cache[$cache_key])) {
-				self::check_table_name($tab);
-				$user_clearance = Base_AclCommon::get_clearance();
+            
+            if ($callback_crits === null) continue;
 				
-				$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
-				$crits = array('view'=>null, 'edit'=>null, 'delete'=>null, 'add'=>null, 'print'=>null, 'export'=>null, 'selection'=>null);
-				$crits_raw = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array(),'selection'=>array());
-				$fields = array();
-				while ($row = $r->FetchRow()) {
-					$fields[$row['id']] = array();
-					$new = self::parse_access_crits($row['crits']);
-					$crits_raw[$row['action']][$row['id']] = $new;
-                    // if new or existing crit is empty, then we have access to all records
-                    if ($new->is_empty()) {
-                        $crits[$row['action']] = $new;
-                    }
-                    if ($crits[$row['action']] instanceof Utils_RecordBrowser_Crits
-                        && $crits[$row['action']]->is_empty()) {
-                        continue;
-                    }
-					$crits[$row['action']] = self::merge_crits($crits[$row['action']], $new, true);
-				}
-				$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
-				while ($row = $r->FetchRow()) {
-					$fields[$row['rule_id']][$row['block_field']] = $row['block_field'];
-				}
-				$cache[$cache_key]['crits'] = $crits;
-				$cache[$cache_key]['crits_raw'] = $crits_raw;
-				$cache[$cache_key]['fields'] = $fields;
-			} else {
-				$crits = $cache[$cache_key]['crits'];
-				$crits_raw = $cache[$cache_key]['crits_raw'];
-				$fields = $cache[$cache_key]['fields'];
+			// if callback return is crits or crits array use it by default in restrict mode for backward compatibility
+			$crits = array(
+				'grant' => null,
+				'restrict' => $callback_crits
+			);
+			
+			if (is_array($callback_crits) && (isset($callback_crits['grant']) || isset($callback_crits['restrict']))) {
+				// if restrict rules are not set make sure the restrict crits are clean
+				if (! isset($callback_crits['restrict'])) $callback_crits['restrict'] = null;
+				$crits = array_merge($crits, $callback_crits);
 			}
-            if ($callback_ret instanceof Utils_RecordBrowser_CritsInterface) {
-                $action2 = $action == 'browse' ? 'view' : $action;
-                $crits_raw[$action2]['callback'] = $callback_ret;
-                $crits[$action2] = self::merge_crits($crits[$action2], $callback_ret);
-            }
-			if ($return_crits) {
-                if ($action == 'browse') {
-                    $action = 'view';
-                }
-			    if($return_in_array) return $crits_raw[$action];
-                if (is_bool($callback_ret)) {
-                    return $callback_ret;
-                }
-			    return $crits[$action];
+			
+			if (!$crits['grant'])
+				$crits['grant'] = null;
+			
+			foreach ($crits as $mode => $c) {
+				$c = is_array($c) ? Utils_RecordBrowser_Crits::from_array($c): $c;
+				
+				if ($c instanceof Utils_RecordBrowser_Crits) 
+					$ret[$mode] = ($ret[$mode] !== null) ? self::merge_crits($ret[$mode], $c, $mode === 'grant'): $c;
+				elseif (is_bool($c))
+					$ret[$mode] = $c;
 			}
-			if ($action=='browse') {
-				return $crits['view']!==null ? true : false;
-			}
-            if (is_bool($callback_ret)) {
-                $ret = $callback_ret;
-            } else {
-                $ret = false;
-                $blocked_fields = null;
-                if ($action != 'browse' && $action != 'clone') {
-                    foreach ($crits_raw[$action] as $rule_id => $c) {
-                        if ($record != null && !self::check_record_against_crits($tab, $record, $c)) {
-                        	if ($rule_id == 'callback') {
-                        		$ret = false;
-                        		break;
-                        	}
-                        	else continue;
-                        }
-                        $ret = true;
-                        if ($rule_id == 'callback') continue;
-                        if ($blocked_fields === null) {
-                            $blocked_fields = $fields[$rule_id];
-                        } else {
-                            foreach ($blocked_fields as $f => $v) {
-                                if (!isset($fields[$rule_id][$f])) {
-                                    unset($blocked_fields[$f]);
-                                }
-                            }
-                        }
-                    }
-                }
-                if ($blocked_fields === null) $blocked_fields = array();
-            }
-        }
-        if ($action!=='browse' && $action!=='delete') {
-            self::init($tab);
-            if ($ret===false) return false;
-            if ($ret===true) $ret = array();
-            foreach (self::$table_rows as $field=>$desc)
-                if (!isset($ret[$desc['id']])) {
-					if (isset($blocked_fields[$desc['id']]))
-						$ret[$desc['id']] = false;
-					else
-						$ret[$desc['id']] = true;
-				}
-        }
+		}
+
         return $ret;
+    }
+
+	/**
+	 * 
+	 * Check if user has access to recordset, record or recordset fields based on action performed
+	 * 
+	 * @param string $tab
+	 * @param string $action
+	 * @param array $record
+	 * @param boolean $return_crits - deprecated, use method Utils_RecordBrowserCommon::get_access_crits instead
+	 * @param string $return_in_array - deprecated, use method Utils_RecordBrowserCommon::get_access_rule_crits instead
+	 * @return false - deny access | array - fields access array
+	 */
+	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
+		//start deprecated code - used for backward compatibility
+		if ($return_crits) {
+			if ($return_in_array)
+				return self::get_access_rule_crits($tab, $action, $record);
+			
+			return self::get_access_crits($tab, $action, $record);
+		}
+		//end deprecated code
+
+		//access inactive records only in admin mode
+		if (!self::get_record_inactive_access($record, $action) && !(self::$admin_access && Acl::i_am_admin())) 
+			return false;
+
+		$rule_crits = self::get_access_rule_crits($tab, $action, $record);
+		
+		if (self::get_access_full_deny($rule_crits)) 
+			return false;
+			
+		if ($action === 'browse') 
+			return self::get_access_crits_from_rules($rule_crits) !== null ? true: false;
+
+		$grant_rule_ids = self::get_access_active_grant_rules($tab, $action, $record, $rule_crits);
+
+		if ($grant_rule_ids===false) 
+			return false;
+
+		if ($action === 'delete') 
+			return true;	
+				
+       	return self::get_access_fields($tab, $grant_rule_ids);      
+    }
+    
+    /**
+     * @param string $tab
+     * @param string $action
+     * @param array $record
+     * @return null|boolean|Utils_RecordBrowser_Crits
+     */
+    public static function get_access_crits($tab, $action, $record=null) { 
+    	if(!self::get_record_inactive_access($record, $action)) return false;
+    	 
+    	$rule_crits = self::get_access_rule_crits($tab, $action, $record);    	
+    	
+    	return self::get_access_crits_from_rules($rule_crits);
+    }
+    
+    /**
+     * @param string $tab
+     * @param string $action
+     * @param array $record
+     * @return array - rule_id => rule
+     */
+    public static function get_access_rule_crits($tab, $action, $record=null) {
+    	static $cache = array();
+    	 
+    	$cache_key = "{$tab}__USER_" . Acl::get_user();
+    	 
+    	$action = ($action == 'browse')? 'view': $action;
+    	
+    	if (!isset($cache[$cache_key])) {
+    		self::check_table_name($tab);
+    
+    		$user_clearance = Acl::get_clearance();
+    
+    		$r = DB::Execute('SELECT * FROM '.$tab.'_access AS acs WHERE NOT EXISTS (SELECT * FROM '.$tab.'_access_clearance WHERE rule_id=acs.id AND '.implode(' AND ',array_fill(0, count($user_clearance), 'clearance!=%s')).')', array_values($user_clearance));
+    		$rule_crits = array('view'=>array(), 'edit'=>array(), 'delete'=>array(), 'add'=>array(), 'print'=>array(), 'export'=>array(),'selection'=>array());
+    		while ($row = $r->FetchRow())
+    			$rule_crits[$row['action']][$row['id']] = self::parse_access_crits($row['crits']);
+    
+    		$cache[$cache_key] = $rule_crits;
+    	}
+    	 
+    	$rule_crits = $cache[$cache_key];
+
+    	return $rule_crits[$action] + self::call_custom_access_callbacks($tab, $action, $record);
+    }
+    public static function get_access_full_grant($rule_crits) {
+    	return ($rule_crits['restrict']!==true && $rule_crits['grant']===true);
+    }
+    public static function get_access_full_deny($rule_crits) {
+    	return $rule_crits['restrict']===true;
+    }
+    private static function get_record_inactive_access($record, $action) {
+    	if(!self::is_record_active($record) && ($action=='edit' || $action=='delete'))
+    		return false;
+    		 
+    	return true;
+    }
+    public static function is_record_active($record) {
+    	if (isset($record[':active']) && !$record[':active'])
+    		return false;
+    	
+    	return true;
+    }
+    private static function get_access_crits_from_rules($rule_crits) {  
+    	if (self::get_access_full_deny($rule_crits))
+    		return null;
+    	
+    	if (self::get_access_full_grant($rule_crits))
+    		return true;
+    	
+    	$ret = null;
+
+    	foreach ($rule_crits as $rule_id=>$c) {
+    		if ($rule_id === 'restrict') continue;
+    		
+    		if (!$c instanceof Utils_RecordBrowser_CritsInterface)
+    			continue;
+    			    		
+    		// if crit is empty, then we have access to all records
+    		if ($c->is_empty())
+    			$ret = $c;
+  
+    		if ($ret instanceof Utils_RecordBrowser_Crits && $ret->is_empty())
+    			continue;
+
+    		$ret = self::merge_crits($ret, $c, true);
+    	}
+    	
+    	//if there is any access granted - limit it based on restrict crits
+    	if ($ret !== null && $rule_crits['restrict'] instanceof Utils_RecordBrowser_Crits)
+    		$ret = self::merge_crits($ret, $rule_crits['restrict']);
+    	
+    	return $ret;
+    }
+    private static function get_access_active_grant_rules($tab, $action, $record, $rule_crits) {
+    	if (self::get_access_full_deny($rule_crits))
+    		return false;
+    	
+    	if (self::get_access_full_grant($rule_crits))
+    		return array('grant');
+    	
+    	if ($record != null && $action !== 'add' &&
+    			$rule_crits['restrict'] instanceof Utils_RecordBrowser_CritsInterface &&
+    			!self::check_record_against_crits($tab, $record, $rule_crits['restrict'])) {
+    				
+    		return false;
+    	}
+    	
+    	$ret = array();  	
+		foreach ($rule_crits as $rule_id => $c) {
+			if ($rule_id === 'restrict') continue;
+			
+			if (!$c instanceof Utils_RecordBrowser_CritsInterface)
+				continue;
+
+			if ($record != null && !self::check_record_against_crits($tab, $record, $c))
+				continue;
+
+			$ret[] = $rule_id;
+		}
+
+		return $ret?: false;
+    }
+    private static function get_access_fields($tab, $grant_rule_ids) {
+    	$access_rule_blocked_fields = array();
+    	 
+    	foreach ($grant_rule_ids as $rule_id)
+    		$access_rule_blocked_fields[$rule_id] = self::get_access_rule_blocked_fields($tab, $rule_id);
+
+    	self::init($tab);
+    	
+    	$blocked_fields = count($access_rule_blocked_fields) > 1? call_user_func_array('array_intersect', $access_rule_blocked_fields): reset($access_rule_blocked_fields);
+    
+    	$full_field_access = array_fill_keys(array_keys(self::$hash), true);
+    
+    	$blocked_field_access = array();
+    	if ($blocked_fields)
+    		$blocked_field_access = array_fill_keys($blocked_fields, false);
+    		 
+    	return array_merge($full_field_access, $blocked_field_access);
+    }
+    private static function get_access_rule_blocked_fields($tab, $rule_id) {
+    	static $cache;
+    	 
+    	if (!is_numeric($rule_id)) return array();    	
+    	 
+    	if (!isset($cache[$tab])) {
+    		$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
+    		 
+    		$fields = array();
+    		while ($row = $r->FetchRow()) {
+    			$fields[$row['rule_id']][] = $row['block_field'];
+    		}
+    		 
+    		$cache[$tab] = $fields;
+    	}
+
+    	return isset($cache[$tab][$rule_id])? $cache[$tab][$rule_id]: array();
     }
     public static function get_record_info($tab, $id) {
         self::check_table_name($tab);
@@ -2026,7 +2216,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $record[$v] = $row[$v];
             $record[':active'] = $row['active'];
             foreach(self::$table_rows as $field=>$desc) {
-                if ($desc['type']==='multiselect') {
+                if ($desc['type']==='multiselect' || $desc['type'] === 'file') {
                     if (!isset($row['f_'.$desc['id']])) $r = array();
                     else $r = self::decode_multi($row['f_'.$desc['id']]);
                     $record[$desc['id']] = $r;
@@ -2206,10 +2396,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function get_new_record_href($tab, $def, $id='none', $check_defaults=true){
         self::check_table_name($tab);
-        $x = ModuleManager::get_instance('/Base_Box|0');
-        if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
         if (class_exists('Utils_RecordBrowser') && Utils_RecordBrowser::$clone_result!==null) {
-            if (is_numeric(Utils_RecordBrowser::$clone_result)) $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
+            if (is_numeric(Utils_RecordBrowser::$clone_result)) Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('view', Utils_RecordBrowser::$clone_result), array(Utils_RecordBrowser::$clone_tab));
             Utils_RecordBrowser::$clone_result = null;
         }
  		$def_key = $def;
@@ -2227,7 +2415,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 unset($_REQUEST['__add_record_to_RB_table']);
                 unset($_REQUEST['__add_record_id']);
                 unset($_REQUEST['__add_record_def']);
-                $x->push_main(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $def), array($tab));
+                Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry',array('add', null, $def), array($tab));
                 return array();
         }
         return array('__add_record_to_RB_table'=>$tab, '__add_record_id'=>$id, '__add_record_def'=>$def_md5);
@@ -2265,9 +2453,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return array();
         }
         return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
@@ -2298,9 +2484,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $tip = '';
             self::$del_or_a = '';
             $has_access = self::get_access($tab, 'view', $record);
-            $is_active = isset($record[':active']) ? $record[':active'] : true;
 
-            if (!$is_active) {
+            if (!self::is_record_active($record)) {
                 $tip = __('This record was deleted from the system, please edit current record or contact system administrator');
                 $ret = '<del>';
                 self::$del_or_a = '</del>';
@@ -2345,7 +2530,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function record_link_close_tag(){
         return self::$del_or_a;
     }
-	public static function create_linked_label($tab, $cols, $id, $nolink=false, $tooltip=false){
+	public static function create_linked_label($tab, $cols, $id, $nolink=false, $tooltip=false, $more=array()){
     	if (!is_numeric($id)) return '';
     	if (!is_array($cols))
     		$cols = explode('|', $cols);
@@ -2364,17 +2549,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!$record_label) $record_label = self::get_caption($tab) . ": " . sprintf("#%06d", $id);
         $text = self::create_record_tooltip($record_label, $tab, $id, $nolink, $tooltip);
 
-    	return self::record_link_open_tag_r($tab, $record, $nolink) .
+    	return self::record_link_open_tag_r($tab, $record, $nolink, 'view', $more) .
     			$text . self::record_link_close_tag();
     }
-	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true){
+	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true, $more=array()){
 		if ($nolink) return $text;
 		
     	if (!is_numeric($id)) return '';
     	
     	$text = self::create_record_tooltip($text, $tab, $id, $nolink, $tooltip);
     	
-    	return self::record_link_open_tag($tab, $id, $nolink) . 
+    	return self::record_link_open_tag($tab, $id, $nolink, 'view', $more) . 
     			$text . self::record_link_close_tag();
     }
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
@@ -2462,18 +2647,23 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $label = '';
         if ($access) {
             if ($description_fields) {
-                $labels_arr = array();
+                $put_space_before = false;
                 foreach ($description_fields as $field) {
                     if ($field[0] === '"') {
-                        $labels_arr[] = trim($field, '"');
+                        $label .= trim($field, '"');
+                        $put_space_before = false;
                     } else {
                         $field_id = self::get_field_id($field);
                         if ($access === true || (array_key_exists($field_id, $access) && $access[$field_id])) {
-                            $labels_arr[] = self::get_val($tab, $field, $record, true);
+                            $field_val = self::get_val($tab, $field, $record, true);
+                            if ($field_val) {
+                                if ($put_space_before) $label .= ' ';
+                                $label .= $field_val;
+                                $put_space_before = true;
+                            }
                         }
                     }
                 }
-                $label = implode(' ', $labels_arr);
             } elseif ($description_callback) {
                 $label = call_user_func($description_callback, $record, $nolink);
             } else {
@@ -2858,9 +3048,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             unset($_REQUEST['__jump_to_RB_record']);
             unset($_REQUEST['__jump_to_RB_table']);
             unset($_REQUEST['__jump_to_RB_action']);
-            $x = ModuleManager::get_instance('/Base_Box|0');
-            if (!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-            $x->push_main(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
+            Base_BoxCommon::push_module(Utils_RecordBrowser::module_name(),'view_entry_with_REQUEST',array($action, $id, array(), true, $_REQUEST),array($tab));
             return true;
         }
         return false;
@@ -3005,13 +3193,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($tabs as $t=>$caption) {
             if(!empty($tab_crits) && !isset($tab_crits[$t])) continue;
             
-            $access = self::get_access($t, 'selection', null, true);
-            if ($access===false) continue;
-            if ($access!==true && (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface)) {
+            $access_crits = self::get_access_crits($t, 'selection');
+            if ($access_crits===false) continue;
+            if ($access_crits!==true && (is_array($access_crits) || $access_crits instanceof Utils_RecordBrowser_CritsInterface)) {
             	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowser_CritsInterface)
-            		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access);
+            		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access_crits);
                 else 
-                	$tab_crits[$t] = $access;
+                	$tab_crits[$t] = $access_crits;
             }
            
             $fields = $param['cols'];
@@ -3196,7 +3384,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_default_QFfield_callback($type) {
         $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
-            'commondata', 'select', 'multiselect', 'autonumber');
+            'commondata', 'select', 'multiselect', 'autonumber', 'file');
         if (array_search($type, $types) !== false) {
             return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
@@ -3477,6 +3665,66 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $val = '<div class="static_field" id="' . $field_id . '">' . $value . '</div>';
         $form->setDefaults(array($field => $val));
     }
+
+	//region File
+	public static function display_file($r, $nolink=false, $desc=null, $tab=null)
+	{
+		$labels = [];
+		$inline_nodes = [];
+		$fileStorageIds = self::decode_multi($r[$desc['id']]);
+		$fileHandler = new Utils_RecordBrowser_FileActionHandler();
+		foreach($fileStorageIds as $fileStorageId) {
+			if(!empty($fileStorageId)) {
+				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
+				$labels[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
+				$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions);
+			}
+		}
+		$inline_nodes = array_filter($inline_nodes);
+		
+		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+	}
+
+	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
+	{
+		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+			return;
+		$record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : 'new';
+		$module_id = md5($rb_obj->tab . '/' . $record_id . '/' . $field);
+		/** @var Utils_FileUpload_Dropzone $dropzoneField */
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone', null, $module_id);
+        $default = self::decode_multi($default);
+		if ($default) {
+		    $files = [];
+            foreach ($default as $filestorageId) {
+                $meta = Utils_FileStorageCommon::meta($filestorageId);
+                $arr = [
+                    'filename' => $meta['filename'],
+                    'type' => $meta['type'],
+                    'size' => $meta['size'],
+                ];
+                $backref = substr($meta['backref'], 0, 3) == 'rb:' ? explode('/', substr($meta['backref'], 3)) : [];
+                if (count($backref) === 3) {
+                    list ($br_tab, $br_record, $br_field) = $backref;
+                    $file_handler = new Utils_RecordBrowser_FileActionHandler();
+                    $actions = $file_handler->getActionUrlsRB($filestorageId, $br_tab, $br_record, $br_field);
+                    if (isset($actions['preview'])) {
+                        $arr['file'] = $actions['preview'];
+                    }
+                }
+                $files[$filestorageId] = $arr;
+            }
+			$dropzoneField->set_defaults($files);
+		}
+        if (isset($desc['param']['max_files']) && $desc['param']['max_files'] !== false) {
+            $dropzoneField->set_max_files($desc['param']['max_files']);
+        }
+        if (isset($desc['param']['accepted_files']) && $desc['param']['accepted_files'] !== false) {
+        	$dropzoneField->set_accepted_files($desc['param']['accepted_files']);
+        }
+		$dropzoneField->add_to_form($form, $field, $label);
+	}
+	//endregion
     
     public static function cron() {
         return array('indexer' => 10);

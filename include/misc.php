@@ -7,7 +7,7 @@
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
  * @package epesi-base
- * @license SPL
+ * @license MIT
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -358,27 +358,6 @@ function filesize_hr($size) {
 		}
   	}
 	return number_format($size, 2)." ".$val;
-}
-
-if ( !function_exists('json_decode') ){
-	function json_decode($content, $assoc=false){
-		if((@include_once('Services/JSON.php'))===false)
-			trigger_error('Please install PEAR Services/JSON or upgrade PHP to version 5.2 or higher',E_USER_ERROR);
-		if ( $assoc ){
-			$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-		} else {
-			$json = new Services_JSON;
-		}
-		return $json->decode($content);
-	}
-}
-if ( !function_exists('json_encode') ){
-	function json_encode($content){
-		if((@include_once('Services/JSON.php'))===false)
-			trigger_error('Please install PEAR Services/JSON or upgrade PHP to version 5.2 or higher',E_USER_ERROR);
-		$json = new Services_JSON;
-		return $json->encode($content);
-	}
 }
 
 function create_html_form(& $form_name, $action_url, $variables, $target = null, $additional_properties = array(), $method = "POST") {

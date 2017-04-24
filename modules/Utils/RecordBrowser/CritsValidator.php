@@ -95,9 +95,12 @@ class Utils_RecordBrowser_CritsValidator
                 } else {
                     $first = $r_val;
                 }
-                if (preg_match('/[0-9]+/', $first)) {
+                if (preg_match('/^[0-9-]+$/', $first)) {
                     $crit_value = preg_replace('#.*/#', '', $crit_value); // remove prefix for select from single tab: contact/1 => 1
                 }
+            }
+            if ($field == 'id') {
+                $crit_value = preg_replace('/[^0-9-]/', '', $crit_value);
             }
             $vv = is_string($crit_value) ? explode('::',$crit_value,2) : null;
             if (isset($vv[1]) && is_callable($vv)) {
@@ -140,6 +143,7 @@ class Utils_RecordBrowser_CritsValidator
 
     public static function check_like_match($value, $pattern, $ignore_case = true)
     {
+        $pattern = preg_quote($pattern);
         $pattern = str_replace(array('_', '%'), array('.', '.*'), $pattern);
         $pattern = "/^$pattern\$/" . ($ignore_case ? "i" : "");
         return preg_match($pattern, $value) > 0;
