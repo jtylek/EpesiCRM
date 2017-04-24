@@ -40,10 +40,10 @@
 					<div class="row-fluid" id="version-row">
                         {if $package.version}
 							<div class="version">
-                                {$version_label}{$package.version}
+                                <strong>{$version_label} {$package.version}</strong>
 							</div>
 						{else}
-							<div class="version">{$version_label} ---</div>
+							<div class="version"><strong>{$version_label}  ---</strong></div>
                         {/if}
 					</div>
 
