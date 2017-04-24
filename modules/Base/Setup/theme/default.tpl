@@ -21,7 +21,7 @@
 						{if $package.icon}
 							<img class="package_icon" src="{$package.icon}">
 						{else}
-							<span class="package_icon glyphicon glyphicon-folder-close" style="font-size: 90px"></span>
+							<span class="package_icon glyphicon glyphicon-folder-close" style="font-size: 70px"></span>
 						{/if}
 					</div>
 
@@ -51,12 +51,8 @@
 					<div class="actions container-fluid">
 						<div class="row-fluid" id="actions-row">
 							<div class="btn-group" style="float: left" id="btn-group">
-								<button type="button" class="btn action {$package.style}" {$package.buttons_tooltip} {if !empty($package.options)} style="width: 102px" {else} style="width: 238px"{/if}>{$package.status}</button>
+								<button type="button" class="btn dropdown-toggle" action data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {$package.style}" {$package.buttons_tooltip} {if !empty($package.options)} style="width: 128px" {else} style="width: 264px"{/if}>{$package.status} <span class="caret"></span></button>
 								{if !empty($package.buttons)}
-								<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<span class="caret"></span>
-									<span class="sr-only"></span>
-								</button>
 								<ul class="dropdown-menu" {if !empty($package.options)} style="width: 127px" {else} style="width: 263px"{/if}>
 									{foreach from=$package.buttons item=button}
 										<li style="height: 2.25rem"><a id="status-a" {$button.href} class="{$button.style}">{$button.label}</a></li>
@@ -68,11 +64,8 @@
 							<div style="float:right">
 							{if !empty($package.options)}
 								<div class="btn-group" id="btn-group">
-									<button type="button" class="btn" style="width: 102px">{$labels.options}</button>
-									<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										<span class="caret"></span>
-										<span class="sr-only">Toggle</span>
-									</button>
+									<button type="button" class="btn dropdown-toggle" style="width: 128px"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{$labels.options} <span class="caret"></span></button>
+
 									<ul class="dropdown-menu multi-level" role="menu" id="first-dropdown" aria-labelledby="dropdownMenu">
 										{foreach from=$package.options key=option item=action name=packs}
 											{if !empty($action.buttons)}

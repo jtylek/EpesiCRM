@@ -48,17 +48,23 @@
 	/*width: 100%;*/
 }
 
-#module-name,
-#module-name div:hover {
+#module-name {
 	color: #ffffff;
+	height: 39px;
+	font-size: 15px;
+	vertical-align: middle;
+	padding-top: 0.8rem;
+}
+div#module-name:hover {
+	background: #92accd;
 }
 
 #Base_Setup .jumbotron .package_icon,
 #Base_Setup .jumbotron .package_icon span,
 #Base_Setup .jumbotron .package_icon img {
 	margin: 8px;
-	width: 100px;
-	height: 100px;
+	width: 80px;
+	height: 80px;
 }
 
 #actions-row {
@@ -151,12 +157,15 @@ li#option-li:hover {
 }
 
 #btn-group > button {
-	background: #748aaa;
+	background: #5cb85c;
 	color: white;
 }
 
-#btn-group > button:hover {
-	color: #cbcbcb;
+#btn-group > button:hover,
+#btn-group > button:hover:active {
+	background: #398439;
+	/*color: #cbcbcb;*/
+
 }
 
 /*#Base_Setup .big-button,*/
