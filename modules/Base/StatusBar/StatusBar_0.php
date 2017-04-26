@@ -29,6 +29,10 @@ class Base_StatusBar extends Module {
 
 	private function load_js() {
 		load_js('modules/Base/StatusBar/js/main.js');
+		load_js('modules/Base/StatusBar/js/nprogress.js');
+		load_css('modules/Base/StatusBar/theme/nprogress.css');
 	}
+
+
 }
 ?>

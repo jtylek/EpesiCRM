@@ -2,11 +2,14 @@ var statusbar_message_t='';
 statusbar_message=function(text){
 	statusbar_message_t=text;
 };
+
 statusbar_fade_count = 0;
 statusbar_fade=function(fade_count){
+    NProgress.configure({parent: '#nano-bar'});
+    NProgress.start();
 	if (fade_count && statusbar_fade_count!=fade_count) return;
 	var seconds = 0.2;
-	wait_while_null('jq(\'#Base_StatusBar\').get(0)','jq(\'#Base_StatusBar\').fadeOut();');
+	wait_while_null('jq(\'#Base_StatusBar\').get(0)','jq(\'#Base_StatusBar\').fadeOut();NProgress.done();');
 	jq('#Base_StatusBar').get(0).onclick = null;
 	setTimeout('statusbar_fade_double_check('+statusbar_fade_count+')',seconds*1000+50);
 };

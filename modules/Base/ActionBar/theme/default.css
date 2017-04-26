@@ -23,3 +23,10 @@
 	opacity: 0.5 ;
 	background: linear-gradient(darkgrey,transparent);
 }
+
+#nano-bar {
+	height: 6px;
+	width: 100%;
+	margin-left: .1px;
+	margin-top: -4px;
+}

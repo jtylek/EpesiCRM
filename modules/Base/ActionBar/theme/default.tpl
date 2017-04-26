@@ -91,6 +91,7 @@
 
     <div id="gradient" class="row">
     </div>
+    <div id="nano-bar" class="nano-bar"></div>
 
 </div>
 
