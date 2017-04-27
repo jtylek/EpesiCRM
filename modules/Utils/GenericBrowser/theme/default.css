@@ -711,6 +711,7 @@ div.expandable.expanded {
 	margin-left: 9px;
 	position: absolute;
 	z-index: 98;
+	transition: 0.2s ease-in-out;
 }
 
 button#search-button:hover {
@@ -719,7 +720,7 @@ button#search-button:hover {
 	/*margin-left: 0;*/
 	/*margin-top: 0;*/
 	transform: scale(1.43);
-	transition: 0.2s;
+	transition: 0.2s ease-in-out;
 }
 
 .Utils_GenericBrowser_overflow_container {
