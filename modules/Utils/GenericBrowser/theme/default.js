@@ -9,7 +9,6 @@ var toggled = 0;
 
 $(document).on('click','button#search-button', function () {
     var width = $('div.nonselectable.clearfix').css('width');
-    console.log(width);
 
     if(toggled == 0) {
         $(this).parent().parent().find('input#search-bar').css({display: 'block', width: '4%'});
