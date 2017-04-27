@@ -728,6 +728,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function body($template=null,$paging=true)
 	{
+		load_js('modules/Utils/GenericBrowser/default/default.js');
 		if (!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns', E_USER_ERROR);
 
@@ -1102,6 +1103,8 @@ class Utils_GenericBrowser extends Module {
 			$fixed_col_setting = !empty($this->fixed_columns_selector) ? ', skipColumnClass:"' . $this->fixed_columns_selector . '"' : '';
 			eval_js('jq("#table_' . $md5_id . '").colResizable({liveDrag:true, postbackSafe:true, partialRefresh:true' . $fixed_col_setting . '});');
 		}
+//		var_dump($template);
+
 
 		foreach($options as $key => $value)
 			$theme->assign($key, $value);

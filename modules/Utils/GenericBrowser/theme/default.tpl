@@ -11,34 +11,42 @@
 			{if (isset($custom_label) && $custom_label)}
 				<span {$custom_label_args}>
 				{$custom_label}
+					<div class="container" id="search-container">
+						<div class="row">
+								<span class="input-group-btn" id="search-span">
+									<button class="btn btn-large btn-primary" type="button" id="search-button"><span class="glyphicon glyphicon-search"></span></button>
+								</span>
+								<input type="text" class="form-control" placeholder="..." id="search-bar">
+						</div>
+					</div>
 				</span>
 			{/if}
 			<!-- QuickJump -->
-			{if isset($letter_links)}
-				<div class="letters" style="display: inline-block">
-					<button class="btn btn-warning" onclick="quick_jump_letters('{$id}');">ABC</button>
-					<div id="quick_jump_letters_{$id}" class="quick_jump_letters"
-						{if $quickjump_to==''}
-							style="display: none;"
-						{/if}
-						>
-						<div class="css3_content_shadow GenericBrowser_letters">
-								{if isset($letter_links)}
-								{foreach key=k item=letter from=$letter_links}
-									<a class="badge" {$letter.href}>{$letter.label}</a>
-								{/foreach}
-								{/if}
-						</div>
-					</div>
-				</div>
-			{/if}
+			{*{if isset($letter_links)}*}
+				{*<div class="letters" style="display: inline-block">*}
+					{*<button class="btn btn-warning" onclick="quick_jump_letters('{$id}');">ABC</button>*}
+					{*<div id="quick_jump_letters_{$id}" class="quick_jump_letters"*}
+						{*{if $quickjump_to==''}*}
+							{*style="display: none;"*}
+						{*{/if}*}
+						{*>*}
+						{*<div class="css3_content_shadow GenericBrowser_letters">*}
+								{*{if isset($letter_links)}*}
+								{*{foreach key=k item=letter from=$letter_links}*}
+									{*<a class="badge" {$letter.href}>{$letter.label}</a>*}
+								{*{/foreach}*}
+								{*{/if}*}
+						{*</div>*}
+					{*</div>*}
+				{*</div>*}
+			{*{/if}*}
             <!-- Expand/Collapse -->
-			<div class="expand_collapse" style="display: inline-block">
-				{if isset($expand_collapse)}
-					<a id="{$expand_collapse.e_id}" class="btn btn-success" {$expand_collapse.e_href}><i class="fa fa-caret-square-o-down"></i> {$expand_collapse.e_label} </a>
-					<a id="{$expand_collapse.c_id}" class="btn btn-success" {$expand_collapse.c_href}><i class="fa fa-caret-square-o-up"></i> {$expand_collapse.c_label} </a>
-				{/if}
-			</div>
+			{*<div class="expand_collapse" style="display: inline-block">*}
+				{*{if isset($expand_collapse)}*}
+					{*<a id="{$expand_collapse.e_id}" class="btn btn-success" {$expand_collapse.e_href}><i class="fa fa-caret-square-o-down"></i> {$expand_collapse.e_label} </a>*}
+					{*<a id="{$expand_collapse.c_id}" class="btn btn-success" {$expand_collapse.c_href}><i class="fa fa-caret-square-o-up"></i> {$expand_collapse.c_label} </a>*}
+				{*{/if}*}
+			{*</div>*}
 	</div>
 	<div class="pull-right">
 			<!-- Advanced / Simple Search -->
@@ -89,7 +97,7 @@
 {/php}
 
 				{$table_prefix}
-				<div class="Utils_GenericBrowser_overflow_container">
+				<div class="Utils_GenericBrowser_overflow_container" id="yolo">
                 {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-bordered table-hover" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;text-overflow:ellipsis;"{/capture}
 								{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 				</div>
