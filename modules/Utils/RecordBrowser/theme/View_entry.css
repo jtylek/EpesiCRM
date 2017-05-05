@@ -408,3 +408,7 @@
 .Utils_RecordBrowser__View_entry .right-column {
 	vertical-align: top;
 }
+
+.dz-file-preview {
+	z-index: 5;
+}
