@@ -726,3 +726,7 @@ button#search-button:hover {
 .Utils_GenericBrowser_overflow_container {
 	/*margin-top: 40px;*/
 }
+
+.btn-group:hover .dropdown-menu {
+	display: block;
+}

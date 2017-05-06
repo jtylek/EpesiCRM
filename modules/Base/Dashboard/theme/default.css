@@ -9,3 +9,6 @@
 .pull-right.action-buttons .applet-actions {
   display: none;
 }
+.btn-group:hover .dropdown-menu {
+  display: block;
+}
