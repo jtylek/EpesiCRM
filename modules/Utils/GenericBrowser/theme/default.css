@@ -729,4 +729,8 @@ button#search-button:hover {
 
 .btn-group:hover .dropdown-menu {
 	display: block;
+	margin-top: 0px;
+}
+.dropdown-menu-container {
+	position: absolute;
 }
