@@ -911,6 +911,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset($definition['filter'])) $definition['filter'] = false;
         if (!isset($definition['position'])) $definition['position'] = null;
         if (!isset($definition['template'])) $definition['template'] = '';
+        if (!isset($definition['help'])) $definition['help'] = '';
         $definition['template'] = is_array($definition['template'])? implode('::', $definition['template']): $definition['template'];
         if (isset(self::$datatypes[$definition['type']])) $definition = call_user_func(self::$datatypes[$definition['type']], $definition);
 
@@ -949,7 +950,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip, template) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %s)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0, $definition['template']));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip, template, help) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %s, %s)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0, $definition['template'], $definition['help']));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
