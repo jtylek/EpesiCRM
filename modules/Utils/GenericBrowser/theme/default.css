@@ -727,7 +727,7 @@ button#search-button:hover {
 	/*margin-top: 40px;*/
 }
 
-.btn-group:hover .dropdown-menu {
+.btn-group:hover #menu-icons {
 	display: block;
 	margin-top: 0px;
 }
