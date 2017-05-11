@@ -78,7 +78,7 @@
     <!-- /top navigation -->
 
 
-    <div class="right_col" role="main" style="display: inline-block">
+    <div class="right_col" role="main">
         <div id="left-gradient" style=""> </div>
         <!-- -->
         <div id="content">
