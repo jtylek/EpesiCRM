@@ -78,8 +78,8 @@
     <!-- /top navigation -->
 
 
-    <div class="right_col" role="main">
-
+    <div class="right_col" role="main" style="display: inline-block">
+        <div id="left-gradient" style=""> </div>
         <!-- -->
         <div id="content">
             <div id="content_body" style="padding-top: 70px">

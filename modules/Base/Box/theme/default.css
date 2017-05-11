@@ -244,3 +244,15 @@ div#hidden-home-box:hover a > span {
 	opacity: 0.5;
 	background: linear-gradient(black,transparent);
 }
+
+#left-gradient {
+	width: 6px;
+	background: linear-gradient(to right, black, transparent);
+	height: 100%;
+	position: fixed;
+	padding-left: 0;
+	margin-left: -20px;
+	z-index: 99;
+	margin-top: 47px;
+	opacity: 0.40;
+}

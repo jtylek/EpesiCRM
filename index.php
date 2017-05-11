@@ -37,6 +37,9 @@ if(epesi_requires_update()) {
     header('Location: update.php');
     exit();
 }
+
+
+
 $tables = DB::MetaTables();
 if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
 	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to EPESI documentation in order to perform database update.');
