@@ -39,24 +39,32 @@ class Utils_FileStorageCommon extends ModuleCommon {
      */
     public static function get_file_label($id, $nolink = false, $icon = true, $action_urls = null)
     {
-        $meta = is_numeric($id) ? self::meta($id) : $id;
-        $filename = $meta['filename'];
-        $filename = $filename ?: htmlspecialchars('<' . __('missing filename') . '>');
-
-        $file_exists = self::file_exists($meta);
-        if ($icon) {
-            $icon_file = $file_exists ? 'z-attach.png' : 'z-attach-off.png';
-            $img_src = Base_ThemeCommon::get_template_file(self::module_name(), $icon_file);
-            $icon_img = '<img src="' . $img_src . '" style="vertical-align:bottom">';
-        } else {
-            $icon_img = '';
-        }
-
-        if ($nolink) {
-            return $filename . ($file_exists ? '' : ' [' . __('missing file') . ']');
-        }
-
-        if ($file_exists) {
+    	$file_exists = self::file_exists($id, false);
+    	
+		if ($icon) {
+			$icon_file = $file_exists ? 'z-attach.png': 'z-attach-off.png';
+			$img_src = Base_ThemeCommon::get_template_file(self::module_name(), $icon_file);
+			$icon_img = '<img src="' . $img_src . '" style="vertical-align:bottom">';
+		}
+		else {
+			$icon_img = '';
+		}
+		
+		$filename = '';
+		try {
+			$meta = is_numeric($id) ? self::meta($id) : $id;
+			$filename = $meta['filename'];			
+		} catch (Exception $e) {
+		}
+    		
+		$filename = $filename ?: htmlspecialchars('<' . __('missing filename') . '>');
+		
+		if ($nolink) {
+			return $filename . ($file_exists ? '': ' [' . __('missing file') . ']');
+		}
+		
+		$link_href = '';
+		if ($file_exists) {
             $filesize = filesize_hr($meta['file']);
             $filetooltip = __('File size: %s', array($filesize)) . '<hr>' .
                            __('Uploaded by: %s', array(Base_UserCommon::get_user_label($meta['created_by'], true))) . '<br/>' .
@@ -64,14 +72,18 @@ class Utils_FileStorageCommon extends ModuleCommon {
             $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip) . ' '
                          . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls);
         } else {
-            $tooltip_text = __('Missing file: %s', array(substr($meta['hash'], 0, 32) . '...'));
-            $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
+        	if (isset($meta['hash'])) {
+	            $tooltip_text = __('Missing file: %s', array(substr($meta['hash'], 0, 32) . '...'));
+	            $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
+        	}
         }
         return '<div class="file_link"><a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a></div>';
     }
     
     public static function get_file_inline_node($id, $action_urls = null) 
     {
+    	if (!self::file_exists($id, false)) return '';
+    	
     	$meta = is_numeric($id) ? self::meta($id) : $id;
 
     	if ($action_urls === null) {
@@ -449,7 +461,15 @@ class Utils_FileStorageCommon extends ModuleCommon {
      */
     public static function file_exists($id, $throw_exception = false)
     {
-        $meta = is_numeric($id) ? self::meta($id) : $id;
+    	try {
+    		$meta = is_numeric($id) ? self::meta($id) : $id;
+    	} catch (Exception $e) {
+    		if ($throw_exception)
+    			throw $e;
+    		else 
+    			return false;
+    	}        
+        
         if (!file_exists($meta['file'])) {
             if ($throw_exception) {
                 throw new Utils_FileStorage_FileNotFound('Exception - file not found: ' . $meta['file']);
