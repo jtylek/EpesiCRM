@@ -584,7 +584,7 @@ class Utils_RecordBrowser extends Module {
             // add quickjump
             if ($gb->get_module_variable('quickjump') && $gb->get_module_variable('quickjump_to')) {
                 $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array(
-                    $gb->get_module_variable('quickjump') => $gb->get_module_variable('quickjump_to')
+                    $gb->get_module_variable('quickjump') => DB::qstr($gb->get_module_variable('quickjump_to').'%')
                 ));
             }
         }
