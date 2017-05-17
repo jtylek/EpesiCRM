@@ -169,6 +169,7 @@ class Base_MenuCommon extends ModuleCommon {
 				);
 			}
 		}
+		$x = Variable::get('user_settings',false);
 		return $menu_arr;
 	}
 }

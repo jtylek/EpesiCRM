@@ -256,3 +256,48 @@ div#hidden-home-box:hover a > span {
 	margin-top: 47px;
 	opacity: 0.40;
 }
+
+#menu-bookmarks {
+	width: 100%;
+	height: 50px;
+	background: white;
+	display: inline-flex;
+	text-align: center;
+	border-top: 1px solid darkgrey;
+	border-bottom: 1px solid darkgrey;
+
+}
+
+a#menu-bookmark {
+	width: 100%;
+	text-align: center;
+}
+
+#menu-bookmark {
+	background: #172D44;
+	height: 100%;
+	width: 50%;
+	display: inline-flex;
+	text-align: center;
+	/*border-left: 1px solid darkgrey;*/
+	/*border-right: 1px solid darkgrey;*/
+}
+
+#menu-bookmark-a {
+	text-align: center;
+	display: table;
+	background: #172D44;
+	height: 100%;
+	width: 100%;
+	display: block;
+	text-align: center;
+	font-size: 17px;
+	padding-top: 5%;
+	color: #8ca4c1;
+}
+
+a#menu-bookmark-a:hover {
+	background: #5d7286;
+	cursor: pointer;
+	color: #e1e1e2;
+}

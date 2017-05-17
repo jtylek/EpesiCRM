@@ -29,28 +29,38 @@
         </div>
 
         <div class="left_col scroll-view" id="leftside-menu">
-            <div class="watchdog dropdown">
-                <div class="row">
-                    <div class="login">
-                        {*{$login}*}
-                        {*{$watchdog}*}
-                    </div>
-                </div>
-            </div>
-
-            <!-- menu profile quick info -->
-            {*<div class="module_indicator">*}
-            {*<h2>{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</h2>*}
-            {*</div>*}
-            <!-- /menu profile quick info -->
-
-            <br />
-
+            <br/>
             <!-- sidebar menu -->
             <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                 {$menu}
             </div>
         </div>
+
+        <div id="menu-bookmarks">
+            <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[0]}" data-placement="top">
+                <a id="menu-bookmark-a" style="border-right: 1px solid darkgrey">
+                    <span class="glyphicon glyphicon-th"></span>
+                </a>
+            </div>
+
+            <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[1]}" data-placement="top">
+                <a id="menu-bookmark-a" {if $admin_access}style="border-right: 1px solid darkgrey"{/if}>
+                    <span class="glyphicon glyphicon-user"></span>
+                    <span class="glyphicon glyphicon-cog"></span>
+                </a>
+            </div>
+            {if $admin_access}
+                <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[2]}" data-placement="top">
+                    <a id="menu-bookmark-a">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="glyphicon glyphicon-cog"></span>
+                    </a>
+                </div>
+            {/if}
+
+
+        </div>
+
         <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
             {$logo}
         </div>
