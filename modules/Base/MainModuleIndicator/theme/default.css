@@ -2,3 +2,8 @@
     float: left;
     width: 271px;
 }
+
+a#company-logo-a:hover {
+    /*background: #172d44;*/
+    background: #5d7286;
+}

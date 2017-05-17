@@ -301,3 +301,8 @@ a#menu-bookmark-a:hover {
 	cursor: pointer;
 	color: #e1e1e2;
 }
+
+div.sidebar-footer.hidden-small:hover {
+	background: #5d7286;
+	z-index: 999999;
+}
