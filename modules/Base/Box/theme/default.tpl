@@ -61,6 +61,20 @@
 
         </div>
 
+        <div id="logo-button">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" id="logo-switch-text">
+                    {$logo_text}
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" id="logo-switch-button">
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
             {$logo}
         </div>

@@ -162,12 +162,13 @@ class Base_Box extends Module {
 
         $menu_tooltips = array(__('Modules menu'),__('User settings'),__('Administrator settings'));
         $admin_access = ACL::i_am_admin();
+        $logo = __('Display logo');
 
         $theme->assign('menu_tooltips',$menu_tooltips);
         $theme->assign('admin_access',$admin_access);
         $theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
         $theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
-
+        $theme->assign('logo_text',$logo);
         $theme->assign('version_no',$version_no);
         $theme->assign('help',Base_MainModuleIndicatorCommon::get_href());
         $theme->display();
