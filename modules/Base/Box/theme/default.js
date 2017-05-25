@@ -188,22 +188,3 @@ $(document).ready(function () {
     $('#debug_content').css('padding-left','240px');
     $('#error_box').css('width','100%');
 });
-
-
-var logo_check = 1;
-
-$(document).on('click','.slider',function () {
-
-    if(logo_check == 1) {
-        $('.sidebar-footer').animate({height: "toggle"}, 500, function () {
-            $('.sidebar-footer').css({display: "none"});
-            logo_check--;
-        });
-    }
-    else {
-        $('.sidebar-footer').animate({height: "toggle"},500, function () {
-            $('.sidebar-footer').css({display: "block"});
-            logo_check++;
-        })
-    }
-});

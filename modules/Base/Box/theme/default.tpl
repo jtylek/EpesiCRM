@@ -36,45 +36,6 @@
             </div>
         </div>
 
-        <div id="menu-bookmarks">
-            <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[0]}" data-placement="top">
-                <a id="menu-bookmark-a" style="border-right: 1px solid darkgrey">
-                    <span class="glyphicon glyphicon-th"></span>
-                </a>
-            </div>
-
-            <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[1]}" data-placement="top">
-                <a id="menu-bookmark-a" {if $admin_access}style="border-right: 1px solid darkgrey"{/if}>
-                    <span class="glyphicon glyphicon-user"></span>
-                    <span class="glyphicon glyphicon-cog"></span>
-                </a>
-            </div>
-            {if $admin_access}
-                <div id="menu-bookmark" data-toggle="tooltip" title="{$menu_tooltips[2]}" data-placement="top">
-                    <a id="menu-bookmark-a">
-                        <span class="glyphicon glyphicon-eye-open"></span>
-                        <span class="glyphicon glyphicon-cog"></span>
-                    </a>
-                </div>
-            {/if}
-
-
-        </div>
-
-        <div id="logo-button">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" id="logo-switch-text">
-                    {$logo_text}
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" id="logo-switch-button">
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <div class="slider round"></div>
-                    </label>
-                </div>
-            </div>
-        </div>
-
         <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
             {$logo}
         </div>
