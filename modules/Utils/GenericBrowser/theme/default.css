@@ -676,57 +676,6 @@ div.expandable.expanded {
 	overflow: hidden;
 }
 
-#search-input-group {
-	border-radius: 50px;
-	border: 1px solid black;
-	height: 50px;
-}
-
-#search-container {
-	padding: 12px;
-	width: 100%;
-	margin-bottom: 32px;
-	display: block;
-	/*border: 1px solid black;*/
-}
-
-#search-bar {
-	display: none;
-	border-radius: 50px;
-	position: absolute;
-	width: 75%;
-	border: 1px solid dimgrey;
-	height: 50px;
-	padding-left: 60px;
-	font-size: 20px;
-}
-
-#search-span {
-	position: relative;
-}
-
-#search-button {
-	margin-top: 8px;
-	border-radius: 50px;
-	margin-left: 9px;
-	position: absolute;
-	z-index: 98;
-	transition: 0.2s ease-in-out;
-}
-
-button#search-button:hover {
-	/*width: 100px;*/
-	/*transition: 0.5s;*/
-	/*margin-left: 0;*/
-	/*margin-top: 0;*/
-	transform: scale(1.43);
-	transition: 0.2s ease-in-out;
-}
-
-.Utils_GenericBrowser_overflow_container {
-	/*margin-top: 40px;*/
-}
-
 .btn-group:hover #menu-icons {
 	display: block;
 	margin-top: 0px;

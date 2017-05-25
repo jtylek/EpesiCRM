@@ -3,7 +3,6 @@
 {/php}
 
 <div>
-
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
 <div class="nonselectable clearfix" style="margin-bottom: 20px">
 	<div class="pull-left">
@@ -11,14 +10,6 @@
 			{if (isset($custom_label) && $custom_label)}
 				<span {$custom_label_args}>
 				{$custom_label}
-					<div class="container" id="search-container">
-						<div class="row">
-								<span class="input-group-btn" id="search-span">
-									<button class="btn btn-large btn-primary" type="button" id="search-button"><span class="glyphicon glyphicon-search"></span></button>
-								</span>
-								<input type="text" class="form-control" placeholder="..." id="search-bar">
-						</div>
-					</div>
 				</span>
 			{/if}
 			<!-- QuickJump -->
