@@ -1,0 +1,103 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "ContentTools",
+        "scope": null,
+        "escapedName": "ContentTools",
+        "name": "ContentTools",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/usr/local/var/www/htdocs/epesi-bootstrap-master/modules/Libs/ContentTools"
+    ]
+  ],
+  "_from": "ContentTools@latest",
+  "_id": "ContentTools@1.3.3",
+  "_inCache": true,
+  "_location": "/ContentTools",
+  "_nodeVersion": "4.0.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/ContentTools-1.3.3.tgz_1493043976547_0.6183938002213836"
+  },
+  "_npmUser": {
+    "name": "getmeuk",
+    "email": "devs@getme.co.uk"
+  },
+  "_npmVersion": "2.14.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "ContentTools",
+    "scope": null,
+    "escapedName": "ContentTools",
+    "name": "ContentTools",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ContentTools/-/ContentTools-1.3.3.tgz",
+  "_shasum": "aff8f7253ac30e9d68db3d6ea4fd579d85b96e14",
+  "_shrinkwrap": null,
+  "_spec": "ContentTools",
+  "_where": "/usr/local/var/www/htdocs/epesi-bootstrap-master/modules/Libs/ContentTools",
+  "author": {
+    "name": "Anthony Blackshaw",
+    "email": "ant@getme.co.uk",
+    "url": "https://github.com/anthonyjb"
+  },
+  "bugs": {
+    "url": "https://github.com/GetmeUK/FSM/issues"
+  },
+  "dependencies": {},
+  "description": "A JS library for building WYSIWYG editors for HTML content",
+  "devDependencies": {
+    "es6-promise": "^3.2.1",
+    "es6-require": "^0.2.1",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-coffee": "^0.11.1",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-jasmine": "^0.9.2",
+    "grunt-contrib-sass": "^0.8.1",
+    "grunt-contrib-uglify": "^0.7.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-cssnano": "^2.1.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "aff8f7253ac30e9d68db3d6ea4fd579d85b96e14",
+    "tarball": "https://registry.npmjs.org/ContentTools/-/ContentTools-1.3.3.tgz"
+  },
+  "gitHead": "50074b8f5c8e37fd32ad71d89ed497df8fbb30d8",
+  "homepage": "https://github.com/GetmeUK/FSM#readme",
+  "keywords": [
+    "wysiwyg",
+    "inline",
+    "html",
+    "editor"
+  ],
+  "main": "build/content-tools.js",
+  "maintainers": [
+    {
+      "name": "getmeuk",
+      "email": "ant@getme.co.uk"
+    }
+  ],
+  "name": "ContentTools",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GetmeUK/FSM.git"
+  },
+  "scripts": {
+    "test": "grunt jasmine --verbose"
+  },
+  "version": "1.3.3"
+}

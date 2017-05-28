@@ -1,0 +1,42 @@
+{
+  "name": "ContentTools",
+  "description": "A JS library for building WYSIWYG editors for HTML content",
+  "main": [
+    "build/content-tools.js",
+    "build/content-tools.min.css",
+    "build/icons.woff",
+    "build/images/drop-horz.svg",
+    "build/images/drop-vert-above.svg",
+    "build/images/drop-vert-below.svg",
+    "build/images/video.svg"
+  ],
+  "authors": [
+    {
+      "name": "Anthony Blackshaw",
+      "email": "ant@getme.co.uk",
+      "url": "https://github.com/anthonyjb"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "wysiwyg",
+    "inline",
+    "html",
+    "editor"
+  ],
+  "homepage": "http://getcontenttools.com/api/content-tools",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GetmeUK/ContentTools.git"
+  },
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
