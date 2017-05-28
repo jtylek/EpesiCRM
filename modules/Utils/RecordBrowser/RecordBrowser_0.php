@@ -886,9 +886,11 @@ class Utils_RecordBrowser extends Module {
 			$gb->absolute_width(true);
 			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
 		} else $args = array();
-        foreach ($column_access as $k => $access) {
-            if (!$access) {
-                $gb->set_column_display($k + $data_rows_offset, false);
+        if(!$this->add_in_table) {
+            foreach ($column_access as $k => $access) {
+                if (!$access) {
+                    $gb->set_column_display($k + $data_rows_offset, false);
+                }
             }
         }
 		$this->display_module($gb, $args);
