@@ -73,18 +73,18 @@
         </div>
     </div>
 
-    <footer>
-        <div class="pull-left">
-            <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>
-        </div>
-        <div class="pull-right">
-            <span style="float: right">{$version_no}</span>
-            {if isset($donate)}
-                <span style="float: right; margin-right: 30px">{$donate}</span>
-            {/if}
-        </div>
-        <div class="clearfix"></div>
-    </footer>
+    {*<footer>*}
+        {*<div class="pull-left">*}
+            {*<a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>*}
+        {*</div>*}
+        {*<div class="pull-right">*}
+            {*<span style="float: right">{$version_no}</span>*}
+            {*{if isset($donate)}*}
+                {*<span style="float: right; margin-right: 30px">{$donate}</span>*}
+            {*{/if}*}
+        {*</div>*}
+        {*<div class="clearfix"></div>*}
+    {*</footer>*}
 
     {$status}
 
