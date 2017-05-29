@@ -92,14 +92,14 @@ class Utils_CurrencyField extends Module {
 		if ($form->validate()) {
 			$vals = $form->exportValues();
 			if(isset($vals['default_currency']) && $vals['default_currency']) DB::Execute('UPDATE utils_currency SET default_currency=0');
-			$vals = array(	$vals['code'],
-							$vals['symbol'],
-							$vals['pos_before'],
-							$vals['decimal_sign'],
-							$vals['thousand_sign'],
-							$vals['decimals'],
-							$vals['active'],
-							isset($vals['default_currency'])?$vals['default_currency']:1);
+			$vals = array(	htmlspecialchars($vals['code']),
+							htmlspecialchars($vals['symbol']),
+							htmlspecialchars($vals['pos_before']),
+							htmlspecialchars($vals['decimal_sign']),
+							htmlspecialchars($vals['thousand_sign']),
+							htmlspecialchars($vals['decimals']),
+							htmlspecialchars($vals['active']),
+							isset($vals['default_currency'])?htmlspecialchars($vals['default_currency']):1);
 			if ($id!==null) {
 				$vals[] = $id;
 				$sql = 'UPDATE utils_currency SET '.
