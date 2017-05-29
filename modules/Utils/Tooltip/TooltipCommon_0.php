@@ -112,13 +112,13 @@ class Utils_TooltipCommon extends ModuleCommon {
 	*
 	* @param array keys are captions, values are values
 	*/
-	public static function format_info_tooltip( $arg) {
+	public static function format_info_tooltip($arg) {
 		if(!is_array($arg) || empty($arg)) return '';
 		$table='<table width="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
 			$table.='<tr><td width="90"><strong>';
 			$table.=$k.'</strong></td><td bgcolor="white" style="word-wrap: break-word;">';
-			$table.= htmlspecialchars($v); // Value
+			$table.= $v; // Value
 			$table.='</td></tr>';
 		}
 		$table.='</table>';
