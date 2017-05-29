@@ -118,7 +118,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		foreach ($arg as $k=>$v){
 			$table.='<tr><td width="90"><strong>';
 			$table.=$k.'</strong></td><td bgcolor="white" style="word-wrap: break-word;">';
-			$table.= $v; // Value
+			$table.= htmlspecialchars($v); // Value
 			$table.='</td></tr>';
 		}
 		$table.='</table>';
