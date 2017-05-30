@@ -265,7 +265,7 @@ class Utils_RecordBrowser_Filters extends Module {
 		$external_filters = array();
 		$filter_crits = array();
 	
-		$ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions WHERE tab=%s', array($this->tab));
+		$ret = DB::Execute('SELECT * FROM recordbrowser_browse_mode_definitions d INNER JOIN modules m ON m.name = d.module WHERE d.tab=%s ORDER BY m.priority ASC', array($this->tab));
 		while ($row = $ret->FetchRow()) {
 			$m = $this->init_module($row['module']);
 			$this->display_module($m, array(& $this->form, & $external_filters, & $this->values, & $filter_crits, $this->rb_obj), $row['func']);

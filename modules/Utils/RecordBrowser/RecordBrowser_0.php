@@ -584,7 +584,7 @@ class Utils_RecordBrowser extends Module {
             // add quickjump
             if ($gb->get_module_variable('quickjump') && $gb->get_module_variable('quickjump_to')) {
                 $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array(
-                    $gb->get_module_variable('quickjump') => $gb->get_module_variable('quickjump_to')
+                    $gb->get_module_variable('quickjump') => DB::qstr($gb->get_module_variable('quickjump_to').'%')
                 ));
             }
         }
@@ -715,6 +715,16 @@ class Utils_RecordBrowser extends Module {
         } else $form_name = '';
 
         $column_access = array_fill(0, count($query_cols), false);
+       	if (!$records) {
+        	$record_access_fields = $this->get_access('view');
+        	if (is_array($record_access_fields)) {
+        		$column_access = array_keys(array_merge(array_flip($query_cols), $record_access_fields));
+        	}
+        	elseif ($record_access_fields === true) {
+        		$column_access = array_fill(0, count($query_cols), true);
+        	}        	
+        }
+
         $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {

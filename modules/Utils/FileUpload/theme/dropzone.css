@@ -7,4 +7,5 @@ div.dropzone {
     background: white none repeat scroll 0% 0%;
     border: 2px dashed blue;
     padding: 10px;
+    overflow: auto;
 }
