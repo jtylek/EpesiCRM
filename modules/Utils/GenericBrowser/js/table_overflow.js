@@ -169,7 +169,7 @@ gb_expandable_init = function(table,id) {
             jq(this).addClass('exceedsHeight');
         }
     });
-    gb_collapse(table,id);
+    gb_expand(table,id);
     gb_expandable[table][id] = id;
     jq("#gb_less_"+table+'_'+id).children('i').replaceWith(gb_collapse_icon);
     jq("#gb_more_"+table+'_'+id).children('i').replaceWith(gb_expand_icon);

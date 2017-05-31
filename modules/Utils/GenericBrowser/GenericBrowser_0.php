@@ -966,7 +966,7 @@ class Utils_GenericBrowser extends Module {
 				if (!empty($this->actions[$i])) {
 					$fa_icons = FontAwesome::get();
 					uasort($this->actions[$i], array($this, 'sort_actions'));
-					$actions = '<div class="btn-group" onClick="gb_expand(\'' . $md5_id . '\',\'' . $i . '\')">'.
+					$actions = '<div class="btn-group">'.
   '<button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 65px">'.
     '<span class="glyphicon glyphicon-option-vertical"></span></button><div class="dropdown-menu-container"><ul class="dropdown-menu" style="padding: 5px 0" id="menu-icons">';
 					foreach ($this->actions[$i] as $icon => $arr) {
