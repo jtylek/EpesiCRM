@@ -60,7 +60,7 @@ class Base_Dashboard extends Module {
 			$f->display();
 			if ($f->validate()) {
 				$vals = $f->exportValues();
-				$name = $vals['tab_name'];
+				$name = htmlspecialchars($vals['tab_name']);
 				if ($name) {
 					$id = $vals['id'];
 					$table = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
