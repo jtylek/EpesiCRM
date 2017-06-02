@@ -1423,15 +1423,15 @@ class Utils_RecordBrowser extends Module {
 		$ret = array();
         if (is_array(Utils_RecordBrowser::$last_record))
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
-		$rule_crits = Utils_RecordBrowserCommon::get_access_rule_crits($this->tab,'add');
-		if (Utils_RecordBrowserCommon::get_access_full_grant($rule_crits)) return array();
-		if (Utils_RecordBrowserCommon::get_access_full_deny($rule_crits)) {
+		$access = Utils_RecordBrowser_Access::create($this->tab,'add');
+		if ($access->isFullGrant()) return array();
+		if ($access->isFullDeny()) {
 			$fields = array_keys($data);
 			$first_field = reset($fields);
 			return array($first_field=>__('Access denied'));
 		}
         $required_crits = array();
-		foreach($rule_crits as $crits) {
+		foreach($access->getRuleCrits() as $crits) {
 		    $problems = array();
             if (!Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems)) {
                 foreach ($problems as $c) {
