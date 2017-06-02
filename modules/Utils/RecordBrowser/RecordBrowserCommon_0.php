@@ -1721,7 +1721,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             	if($any && $access) return $r[$field];
             	$ret &= $access;
             }
-            return $field_is_empty ? false : ($ret ? true : false);
+            return $field_is_empty ? true : ($ret ? true : false);
 	}
 	public static function get_recursive_view_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'view',true);
