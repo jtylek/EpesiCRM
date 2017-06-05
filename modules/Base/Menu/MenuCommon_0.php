@@ -14,6 +14,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_MenuCommon extends ModuleCommon {
+
+
+
 	public static function add_default_menu(& $m, $name) {
 		foreach($m as $k=>$arr) {
 			if(is_array($arr)) {
@@ -169,9 +172,11 @@ class Base_MenuCommon extends ModuleCommon {
 				);
 			}
 		}
-		$x = Variable::get('user_settings',false);
+
+//		$x = Variable::get('user_settings',false);
 		return $menu_arr;
 	}
+
 }
 
 ?>

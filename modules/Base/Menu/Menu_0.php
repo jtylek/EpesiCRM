@@ -98,18 +98,18 @@ class Base_Menu extends Module {
 
 	public function body()
 	{
-		// preparing modules menu and tools menu
-		$modules_menu = array();
-		$menus = Base_MenuCommon::get_menus();
-		foreach ($menus as $name => $module_menu) {
-			Base_MenuCommon::add_default_menu($module_menu, $name);
-			self::add_menu($modules_menu, $module_menu);
-		}
-		if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
+        // preparing modules menu and tools menu
+        $modules_menu = array();
+        $menus = Base_MenuCommon::get_menus();
+        foreach ($menus as $name => $module_menu) {
+            Base_MenuCommon::add_default_menu($module_menu, $name);
+            self::add_menu($modules_menu, $module_menu);
+        }
+        if (!empty($modules_menu)) $modules_menu['__submenu__'] = 1;
 
-		self::sort_menus($modules_menu);
+        self::sort_menus($modules_menu);
 
-		Base_MenuCommon::generate_urls($this, $modules_menu);
+        Base_MenuCommon::generate_urls($this, $modules_menu);
 
 		return $this->twig_display('default.twig', array(
 			'menu' => Base_MenuCommon::build_menu($modules_menu),

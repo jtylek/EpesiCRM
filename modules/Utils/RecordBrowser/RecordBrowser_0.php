@@ -73,6 +73,7 @@ class Utils_RecordBrowser extends Module {
     public $grid = null;
     private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
     private $include_tab_in_id = false;
+    public $ctrl = false;
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
@@ -236,8 +237,23 @@ class Utils_RecordBrowser extends Module {
 
         //If Caption or icon not specified assign default values
         if ($this->caption=='') $this->caption='Record Browser';
-        if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
-        else $this->icon = Base_ThemeCommon::get_template_file($this->icon);
+//        if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
+//        else $this->icon = Base_ThemeCommon::get_template_file($this->icon);
+
+        $class = $this->get_parent_type().'Common';
+        $x = call_user_func([$class,'menu']);
+
+        foreach ($x[key($x)] as $k => $v) {
+
+            if(is_string($this->tab) && $this->tab == 'contact') {
+                $this->icon = 'users';
+            }
+
+            if(is_array($v)){
+                if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
+                else $this->icon = 'question-circle';
+            }
+        }
 
         $this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin, $force);
         $this->requires = array();
