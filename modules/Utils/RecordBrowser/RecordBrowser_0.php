@@ -73,7 +73,7 @@ class Utils_RecordBrowser extends Module {
     public $grid = null;
     private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
     private $include_tab_in_id = false;
-    public $ctrl = false;
+    public $ctrl = 0;
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
@@ -1344,6 +1344,45 @@ class Utils_RecordBrowser extends Module {
                 if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
             }
         }
+
+        switch($this->tab) {
+            case 'contact':
+                $this->icon = 'users';
+                break;
+            case 'company':
+                $this->icon = 'building';
+                break;
+            default:
+                if(substr($this->icon,-8) == 'icon.png'){
+                    $this->icon = str_replace('/','_',substr($this->icon,0,-9).'Common');
+                    $menu = call_user_func([$this->icon,'menu']);
+                    foreach ($menu as $key => $value ){
+                        foreach($value as $k => $v) {
+                            if($k == $this->caption) {
+                                if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
+                            }
+                        }
+                    }
+                }
+                else {
+                    $this->icon = 'question-circle';
+                    $ml = ModuleManager::list_modules();
+                    $lk = end(explode('_',$this->tab));
+                    $lk_c = -strlen($lk);
+                    foreach ($ml as $k=>$v){
+                        if(strtolower(substr($k,$lk_c)) == $lk) {
+                            $menu = call_user_func([$k.'Common','menu']);
+                            foreach ($menu as $key => $value ){
+                                foreach($value as $kk => $vv) {
+                                    if($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
+                                }
+                            }
+                        }
+                    }
+                }
+
+        }
+
         if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
@@ -1351,10 +1390,8 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
         $theme->assign('required_note', __('Indicates required fields.'));
-
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
-
         $theme->assign('main_page',$main_page);
 
         if ($main_page) {
