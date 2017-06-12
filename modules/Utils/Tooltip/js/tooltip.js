@@ -51,7 +51,7 @@ Utils_Tooltip = {
 		});
 	},
 	load_ajax: function(o,my_event,max_width) {
-		tooltip_id = o.getAttribute('tooltip_id');
+		var tooltip_id = o.getAttribute('tooltip_id');
 	    Utils_Tooltip.show(o, my_event, max_width);
 		if (tooltip_id!='done' && Utils_Tooltip.timeout_obj == false) {
 	        Utils_Tooltip.timeout_obj = setTimeout(function () {
