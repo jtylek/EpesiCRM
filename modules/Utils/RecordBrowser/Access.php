@@ -24,7 +24,7 @@ class Utils_RecordBrowser_Access
 		$this->setRecord($record);
 	}
 
-	public function setTab($tab) 
+	protected function setTab($tab) 
 	{
 		$this->tab = $tab;
 		return $this;
@@ -35,13 +35,13 @@ class Utils_RecordBrowser_Access
 		return $this->tab;
 	}
 
-	public function setAction($action) 
+	protected function setAction($action) 
 	{
 		$this->action = $action;
 		return $this;
 	}
 
-	public function setRecord($record) 
+	protected function setRecord($record) 
 	{
 		$this->record = is_numeric($record)? Utils_RecordBrowserCommon::get_record($this->getTab(), $record): $record;
 
