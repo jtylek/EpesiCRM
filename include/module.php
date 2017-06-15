@@ -840,7 +840,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else true
 	 */
-	public final function display_module(& $m, $args=null, $function_name = null) {
+	public final function display_module(& $m, $args=null, $function_name = null, $template = null) {
 		$ret = $this->get_html_of_module($m,$args,$function_name);
 		if($ret===false) return false;
 		print($ret);
@@ -873,7 +873,7 @@ abstract class Module extends ModulePrimitive {
 
 		if (!$m->check_access($function_name))
 			return false;
-			//we cannot trigger error here, couse logout doesn't work
+			//we cannot trigger error here, because logout doesn't work
 			//trigger_error('Method given as argument 2 for display_module inaccessible.<br>$'.$this->get_type().'->display_module(\''.$m->get_type().'\','.$args.',\''.$function_name.'\');',E_USER_ERROR);
 
 		$s = & $m->get_module_variable('__shared_unique_vars__',array());

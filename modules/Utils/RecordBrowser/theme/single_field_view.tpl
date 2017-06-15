@@ -1,4 +1,4 @@
-<dl class="dl-horizontal">
+<dl class="dl-horizontal" style="margin-bottom: 0">
     <dt>{$f.label}{if $f.required}*{/if}{$f.advanced}</dt>
     <dd>
         {if $f.error}{$f.error}{/if}
