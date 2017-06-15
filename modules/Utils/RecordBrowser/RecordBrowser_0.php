@@ -241,19 +241,22 @@ class Utils_RecordBrowser extends Module {
 //        else $this->icon = Base_ThemeCommon::get_template_file($this->icon);
 
         $class = $this->get_parent_type().'Common';
-        $x = call_user_func([$class,'menu']);
+        if (method_exists($class,'menu')) {
+            $x = call_user_func([$class,'menu']);
 
-        foreach ($x[key($x)] as $k => $v) {
+            foreach ($x[key($x)] as $k => $v) {
 
-            if(is_string($this->tab) && $this->tab == 'contact') {
-                $this->icon = 'users';
+                if(is_string($this->tab) && $this->tab == 'contact') {
+                    $this->icon = 'users';
+                }
+
+                if(is_array($v)){
+                    if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
+                    else $this->icon = 'question-circle';
+                }
             }
+        };
 
-            if(is_array($v)){
-                if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
-                else $this->icon = 'question-circle';
-            }
-        }
 
         $this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin, $force);
         $this->requires = array();
