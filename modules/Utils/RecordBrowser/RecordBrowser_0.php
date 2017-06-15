@@ -1370,14 +1370,17 @@ class Utils_RecordBrowser extends Module {
                 else {
                     $this->icon = 'question-circle';
                     $ml = ModuleManager::list_modules();
-                    $lk = end(explode('_',$this->tab));
-                    $lk_c = -strlen($lk);
-                    foreach ($ml as $k=>$v){
-                        if(strtolower(substr($k,$lk_c)) == $lk) {
-                            $menu = call_user_func([$k.'Common','menu']);
-                            foreach ($menu as $key => $value ){
-                                foreach($value as $kk => $vv) {
-                                    if($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
+                    $x = explode('_',$this->tab);
+                    $lk = end($x);
+                    if(is_array($x)) {
+                        $lk_c = -strlen($lk);
+                        foreach ($ml as $k=>$v){
+                            if(strtolower(substr($k,$lk_c)) == $lk) {
+                                $menu = call_user_func([$k.'Common','menu']);
+                                foreach ($menu as $key => $value ){
+                                    foreach($value as $kk => $vv) {
+                                        if($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
+                                    }
                                 }
                             }
                         }
