@@ -121,7 +121,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	
 	public static function add_file($note, $user, $oryg, $file) {
 		if($oryg===null) $oryg='';
-		$fsid = Utils_FileStorageCommon::write_file($oryg,$file);
+		$fsid = Utils_FileStorageCommon::write_file($oryg, $file, null, 'rb:utils_attachment/' . $note, null, $user);
 		DB::Execute('INSERT INTO utils_attachment_file(attach_id,original,created_by,filestorage_id) VALUES(%d,%s,%d,%d)',array($note,$oryg,$user,$fsid));
 		Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
         @unlink($file);
@@ -283,18 +283,27 @@ class Utils_AttachmentCommon extends ModuleCommon {
     const DECRYPT = 2;
 
     public static function crypt($input,$password,$mode,& $iv=null) {
-        $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
-        if(!$iv && $mode===self::ENCRYPT) $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
-        $iv2 = $iv;
-        $ks = mcrypt_enc_get_key_size($td);
-        $key = substr(sha1($password), 0, $ks);
-        mcrypt_generic_init($td, $key, $iv2);
-        if($mode==self::ENCRYPT)
-            $ret = mcrypt_generic($td, $input);
-        else
-            $ret = mdecrypt_generic($td, $input);
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
+        if(extension_loaded('mcrypt')) {
+            $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
+            if (!$iv && $mode === self::ENCRYPT) $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
+            $iv2 = $iv;
+            $ks = mcrypt_enc_get_key_size($td);
+            $key = substr(sha1($password), 0, $ks);
+            mcrypt_generic_init($td, $key, $iv2);
+            if ($mode == self::ENCRYPT)
+                $ret = mcrypt_generic($td, $input);
+            else
+                $ret = mdecrypt_generic($td, $input);
+            mcrypt_generic_deinit($td);
+            mcrypt_module_close($td);
+        } else {
+            if (!$iv && $mode === self::ENCRYPT) $iv = openssl_random_pseudo_bytes(16);
+            $key = openssl_pbkdf2($password, $iv, 16, 4096);
+            if ($mode == self::ENCRYPT)
+                $ret = openssl_encrypt($input, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+            else
+                $ret = openssl_decrypt($input, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        }
         return $ret;
     }
 
@@ -322,6 +331,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 }
                 try {
                     $meta = Utils_FileStorageCommon::meta($f['filestorage_id']);
+                    Utils_FileStorageCommon::file_exists($meta, true);
                     $f_filename = $meta['file'];
                     $filename = $f['original'];
                     $filetooltip = __('Filename: %s',array($filename)).'<br>'.__('File size: %s',array(filesize_hr($f_filename))).'<hr>'.
@@ -584,9 +594,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                         if($content===false) continue;
                         if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         if($content===false) continue;
-                        $fsid = Utils_FileStorageCommon::write_content($meta['filename'],$content);
-                        DB::Execute('UPDATE utils_attachment_file SET filestorage_id=%d WHERE id=%d',array($fsid,$id));
-                        Utils_FileStorageCommon::update_link('attachment_file/'.$id, $fsid);
+                        Utils_FileStorageCommon::set_content($fsid, $content);
                     }
                 }
 
@@ -693,7 +701,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                             $content = Utils_AttachmentCommon::decrypt($content,$_SESSION['client']['cp'.$values['clone_id']]);
                         if($values['crypted'])
                             $content = Utils_AttachmentCommon::encrypt($content,$values['note_password'],$new_values['note_password_hint']);
-                        $fsid = Utils_FileStorageCommon::write_content($fsid,$content);
+                        $fsid = Utils_FileStorageCommon::write_content($file['original'], $content, null, 'rb:utils_attachment/' . $note_id, $file['created_on'], $file['created_by']);
                         DB::Execute('INSERT INTO utils_attachment_file (attach_id,deleted,original,created_by,created_on,filestorage_id) VALUES(%d,0,%s,%d,%T,%d)',array($note_id,$file['original'],$file['created_by'],$file['created_on'],$fsid));
                         Utils_FileStorageCommon::add_link('attachment_file/'.DB::Insert_ID('utils_attachment_file','id'),$fsid);
                     }

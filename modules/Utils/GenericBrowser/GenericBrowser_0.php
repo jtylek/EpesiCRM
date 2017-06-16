@@ -65,19 +65,19 @@ class Utils_GenericBrowser extends Module {
 		$this->custom_label = $arg;
 		$this->custom_label_args = $args;
 	}
-
+	
 	public function set_resizable_columns($arg = true){
 		$this->resizable_columns = $arg;
 	}
-
+	
 	public function set_fixed_columns_class($classes = array()){
 		if (!is_array($classes)) {
 			$classes = array($classes);
 		}
-
+		
 		$classes[] = 'Utils_GenericBrowser__actions';
-
-		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);
+	
+		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
@@ -104,9 +104,9 @@ class Utils_GenericBrowser extends Module {
 		foreach($arg as $v) {
 			if (!is_array($v))
 				$v = array('name' => $v);
-
+			
 			$this->columns[] = $v;
-
+			
 			$col_names[] = isset($v['name'])? $v['name']: null;
 		}
 		$this->columns_width_id = md5(serialize($col_names));
@@ -460,7 +460,7 @@ class Utils_GenericBrowser extends Module {
 		} else {
 			$where = array();
 		}
-
+		
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
@@ -1025,6 +1025,14 @@ class Utils_GenericBrowser extends Module {
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode'] == 'nowrap') ? ' nowrap' : '';
 				if ($all_width != 0 && is_numeric($this->columns[$k]['width']))
 					$max_width = 130 * $this->columns[$k]['width'] / $all_width * (7 + (isset($this->columns[$k]['fontsize']) ? $this->columns[$k]['fontsize'] : 0));
+				//#merge - master version below
+//                if ($all_width!=0)
+//                    $max_width = 130*(substr($this->columns[$k]['width'],-2)=="px"
+//                            ? (int)substr($this->columns[$k]['width'],0,-2)
+//                            : (int)$this->columns[$k]['width'])/$all_width*(7+(isset($this->columns[$k]['fontsize'])
+//                                ? $this->columns[$k]['fontsize']
+//                                : 0));
+
 				else
 					$max_width = 0;
 				if (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode'] == 'cut') {

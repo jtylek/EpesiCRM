@@ -243,7 +243,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			break;
 		case 'add':
 		case 'edit':
-			if (isset($values['timeless']) && $values['timeless']) {
+			if (isset($values['timeless']) && $values['timeless'] && $values['deadline']) {
 				// if we set timeless event then, set certain time to database
 				$values['deadline'] = Base_RegionalSettingsCommon::time2reg($values['deadline'], false, true, true, false) . ' 12:00:00';
 			}

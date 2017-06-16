@@ -2,6 +2,7 @@ var Base_Notify = {
 	interval: 0,
 	disabled: 0,
 	disabled_message: 'Notifications disabled!',
+	working: 0,
 	
 	init: function(refresh_interval, disabled_message) {
 		this.set_interval(refresh_interval);
@@ -19,8 +20,13 @@ var Base_Notify = {
 	
 	refresh: function () {
 		if (!this.is_active()) return;
-		
+
+		if(this.working) return;
+		this.working = 1;
+
 		jq.getJSON('modules/Base/Notify/refresh.php', function(json){
+			this.working = 0;
+
 			if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
 			if (typeof json.disable !== 'undefined') {
 				Base_Notify.disable();

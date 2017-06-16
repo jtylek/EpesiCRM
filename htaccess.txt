@@ -13,4 +13,6 @@ php_value memory_limit "64M"
 <IfModule mod_alias.c>
 RedirectMatch 404 /\\.svn(/|$)
 RedirectMatch 404 /\\.git(/|$)
+Header always append X-Frame-Options SAMEORIGIN
+Header set X-XSS-Protection "1; mode=block"
 </IfModule>

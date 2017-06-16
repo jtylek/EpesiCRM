@@ -13,7 +13,8 @@
         "anahkiasen/underscore-php": "^2.0",
         "bower-asset/gentelella": "*",
         "moneyphp/money": "^3.0",
-        "nnnick/chartjs": "^2.5"
+        "nnnick/chartjs": "^2.5",
+        "enyo/dropzone": "@stable"
     },
     "scripts": {
         "post-install-cmd": [

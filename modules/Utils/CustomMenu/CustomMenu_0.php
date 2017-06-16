@@ -13,11 +13,11 @@ class Utils_CustomMenu extends Module {
 	private $mid = null;
 	private $function = null;
 	private $arguments = null;
-
+	
 	/**
 	 * Constructs new instance of CustomMenu module.
 	 * Key specifies group of menu entries that will be operated with this instance.
-	 *
+	 * 
 	 * @param string identifier of the menu entries group
 	 */
 	public function construct($id) {
@@ -25,9 +25,9 @@ class Utils_CustomMenu extends Module {
 			print(__('Menu Editor: no ID given - unable to edit menus'));
 			return;
 		}
-
+		
 		$this->mid = $id;
-
+		
 		if(!$this->isset_module_variable('data')) {
 			$ret = DB::Execute('SELECT path FROM utils_custommenu_entry WHERE page_id=\''.md5($this->mid).'\'');
 			$data = array();
@@ -36,7 +36,7 @@ class Utils_CustomMenu extends Module {
 			$this->set_module_variable('data',$data);
 		}
 	}
-
+	
 	/**
 	 * Menu entries from this group (specified in init_module) calls $function with $arguments.
 	 *
@@ -50,7 +50,7 @@ class Utils_CustomMenu extends Module {
 		DB::Execute('DELETE FROM utils_custommenu_entry WHERE page_id=%s',$id);
 		$data = $this->get_module_variable('data');
 		foreach($data as $row)
-			DB::Execute('INSERT INTO utils_custommenu_entry(page_id,path) VALUES(%s, %s)',array($id,$row));
+			DB::Execute('INSERT INTO utils_custommenu_entry(page_id,path) VALUES(%s, %s)',array($id,$row));		
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Utils_CustomMenu extends Module {
 	public function body() {
 		$edit = $this->get_module_variable_or_unique_href_variable('edit');
 		if(isset($edit)) return $this->edit($edit);
-
+		
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'custommenu');
 		$data = $this->get_module_variable('data');
 		$gb->set_table_columns(array(
@@ -72,10 +72,10 @@ class Utils_CustomMenu extends Module {
 			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_entry'),$row),'Delete');
 		}
 		$this->display_module($gb);
-
+		
 		Base_ActionBarCommon::add('add',__('New menu entry'),$this->create_unique_href(array('edit'=>false)));
 	}
-
+	
 	///////////////////////////////////////////////////////////////
 	////////////////////   private area   /////////////////////////
 	///////////////////////////////////////////////////////////////
@@ -88,9 +88,9 @@ class Utils_CustomMenu extends Module {
 			location(array());
 			return;
 		}
-
+		
 		$f = $this->init_module(Libs_QuickForm::module_name());
-
+		
 		if($path)
 			$f->setDefaults(array('path'=>$path));
 
@@ -99,11 +99,11 @@ class Utils_CustomMenu extends Module {
 		$f->addRule('path',__('Field too long, max 255 chars'),'maxlength',255);
 		$f->registerRule('check_path', 'callback', 'check_path', $this);
 		$f->addRule('path',__('Specified path already exists'),'check_path');
-
-		$save_b = $f->createElement('submit', null, __('OK'));
-		$back_b = $f->createElement('button', null, __('Cancel'), $this->create_back_href());
+		
+		$save_b = & $f->createElement('submit', null, __('OK'));
+		$back_b = & $f->createElement('button', null, __('Cancel'), $this->create_back_href());
 		$f->addGroup(array($save_b,$back_b),'submit_button');
-
+		
 		if($f->validate()) {
 			$ret = $f->exportValue('path');
 			$data = $this->get_module_variable('data');
@@ -121,7 +121,7 @@ class Utils_CustomMenu extends Module {
 		}
 		$f->display();
 	}
-
+	
 	/**
 	 * private function
 	 */
@@ -133,7 +133,7 @@ class Utils_CustomMenu extends Module {
 		if($ret->FetchRow()) return false;
 		return true;
 	}
-
+	
 	/**
 	 * private function
 	 */

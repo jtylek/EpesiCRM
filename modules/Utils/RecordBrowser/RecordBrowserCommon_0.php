@@ -20,7 +20,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static $admin_access = false;
     public static $cols_order = array();
     public static $options_limit = 50;
-
+	
     public static $display_callback_table = array();
     private static $clear_get_val_cache = false;
     public static function display_callback_cache($tab) {
@@ -90,7 +90,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             eval($callback);
         }
     }
-
+	
 	public static function get_val($tab, $field, $record, $links_not_recommended = false, $desc = null) {
         static $recurrence_call_stack = array();
         self::init($tab);
@@ -124,13 +124,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         unset($recurrence_call_stack[$function_call_id]);
         return $ret;
     }
-
+    
     ////////////////////////////
     // default display callbacks
-
+    
     public static function get_default_display_callback($type) {
-    	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox',
-    			'date', 'timestamp', 'time', 'long text');
+    	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox', 
+    			'date', 'timestamp', 'time', 'long text', 'file');
     	if (array_search($type, $types) !== false) {
     		return __CLASS__. '::display_' . self::get_field_id($type);
     	}
@@ -142,17 +142,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$val = $record[$desc['id']];
     		$commondata_sep = '/';
     		if ((is_array($val) && empty($val))) return $ret;
-
+    		
     		$param = self::decode_select_param($desc['param']);
-
+    		
     		if(!$param['array_id'] && $param['single_tab'] == '__COMMON__') return;
-
+    		
     		if (!is_array($val)) $val = array($val);
-
+    		
     		$ret = '';
     		foreach ($val as $v) {
     			$ret .= ($ret!=='')? '<br>': '';
-
+    			
     			if ($param['single_tab'] == '__COMMON__') {
     				$array_id = $param['array_id'];
     				$path = explode('/', $v);
@@ -173,14 +173,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     				}
     				$label = Utils_CommonDataCommon::get_value($array_id . '/' . $v, true);
     				if (!$label) continue;
-    				$res .= $label;
+    				$res .= $label;    				
     				$res = self::no_wrap($res);
     				if ($tooltip) $res = '<span '.Utils_TooltipCommon::open_tag_attrs($tooltip, false) . '>' . $res . '</span>';
     			} else {
     				$tab_id = self::decode_record_token($v, $param['single_tab']);
-
+    				
     				if (!$tab_id) continue;
-
+    					
     				list($select_tab, $id) = $tab_id;
 
     				if ($param['cols']) {
@@ -189,18 +189,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     					$res = self::create_default_linked_label($select_tab, $id, $nolink);
     				}
     			}
-
+    			
     			$ret .= $res;
     		}
     	}
-
+    	 
     	return $ret;
     }
     public static function display_multiselect($record, $nolink=false, $desc=null, $tab=null) {
     	return self::display_select($record, $nolink, $desc, $tab);
     }
     public static function display_commondata($record, $nolink=false, $desc=null, $tab=null) {
-    	$ret = '';
+    	$ret = '';    	
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
     		$arr = explode('::', $desc['param']['array_id']);
     		$path = array_shift($arr);
@@ -208,19 +208,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$path .= '/' . $record[$desc['id']];
     		$ret = Utils_CommonDataCommon::get_value($path, true);
     	}
-
+    	
     	return $ret;
     }
 	public static function display_autonumber($record, $nolink=false, $desc=null, $tab=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
     		$ret = $record[$desc['id']];
-
+    		
     		if (!$nolink && isset($record['id']) && $record['id'])
     			$ret = self::record_link_open_tag_r($tab, $record) . $ret . self::record_link_close_tag();
     	}
-
-    	return $ret;
+    	
+    	return $ret;    	
     }
     public static function display_currency($record, $nolink=false, $desc=null, $tab=null) {
     	$ret = '';
@@ -228,7 +228,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$val = Utils_CurrencyFieldCommon::get_values($record[$desc['id']]);
             $ret = Utils_CurrencyFieldCommon::format($val[0], $val[1]);
     	}
-
+    	 
     	return $ret;
     }
     public static function display_checkbox($record, $nolink=false, $desc=null, $tab=null) {
@@ -236,7 +236,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (isset($desc['id']) && array_key_exists($desc['id'], $record)) {
     		$ret = $record[$desc['id']]? __('Yes'): __('No');
     	}
-
+    	 
     	return $ret;
     }
 	public static function display_checkbox_icon($record, $nolink, $desc=null) {
@@ -244,7 +244,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
 			$ret = '<img src="'.Base_ThemeCommon::get_template_file('images', ($record[$desc['id']]? 'checkbox_on': 'checkbox_off') . '.png') .'">';;
 		}
-
+		
 		return $ret;
     }
     public static function display_date($record, $nolink, $desc=null) {
@@ -252,7 +252,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
     		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], false, true, false);
     	}
-
+    	 
     	return $ret;
     }
     public static function display_timestamp($record, $nolink, $desc=null) {
@@ -260,7 +260,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
     		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds');
     	}
-
+    
     	return $ret;
     }
     public static function display_time($record, $nolink, $desc=null) {
@@ -270,7 +270,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 ? Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds', false)
                 : '---';
     	}
-
+    
     	return $ret;
     }
     public static function display_long_text($record, $nolink, $desc=null) {
@@ -278,7 +278,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
     		$ret = self::format_long_text($record[$desc['id']]);
     	}
-
+    
     	return $ret;
     }
     public static function multiselect_from_common($arrid) {
@@ -315,24 +315,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $array_id = $param[1];
         } else {
         	$order = 'value';
-        	$array_id = $param[0];
+        	$array_id = $param[0];        	
         }
         return array('order'=>$order, 'order_by_key'=>$order, 'array_id'=>$array_id);
     }
     public static function encode_commondata_param($param) {
-    	if (!is_array($param))
+    	if (!is_array($param)) 
     		$param = array($param);
-
+               
     	$order = 'value';
         if (isset($param['order']) || isset($param['order_by_key'])) {
         	$order = Utils_CommonDataCommon::validate_order(isset($param['order'])? $param['order']: $param['order_by_key']);
-
+        	
         	unset($param['order']);
         	unset($param['order_by_key']);
         }
-
+        
         $array_id = implode('::', $param);
-
+         
         return implode('__', array($order, $array_id));
     }
     public static function decode_autonumber_param($param, &$prefix, &$pad_length, &$pad_mask) {
@@ -362,12 +362,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     public static function decode_select_param($param) {
     	if (is_array($param)) return $param;
-
+    	
     	$param = explode(';', $param);
     	$reference = explode('::', $param[0]);
     	$crits_callback = isset($param[1]) && $param[1] != '::' ? explode('::', $param[1]): null;
     	$adv_params_callback = isset($param[2]) && $param[2] != '::' ? explode('::', $param[2]): null;
-
+    	
     	//in case RB records select
     	$select_tab = $reference[0];
         $cols = isset($reference[1]) ? array_filter(explode('|', $reference[1])) : null;
@@ -384,7 +384,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$select_tabs = array_filter(explode(',',$select_tab));
     		$single_tab = count($select_tabs)==1? $select_tab: false;
     	}
-
+    	
     	return array(
     			'single_tab'=>$single_tab? $select_tab: false, //returns single tab name, __COMMON__ or false
     			'select_tabs'=>$select_tabs, //returns array of tab names
@@ -395,48 +395,49 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     			'adv_params_callback'=>$adv_params_callback //returns adv_params_callback (used in case RB records select)
     	);
     }
-
+    
     public static function decode_record_token($token, $single_tab=false) {
-    	$kk = explode('/',$token,2);
+    	//#merge, in bootstrap limit of explode = 2
+        $kk = explode('/',$token);
     	if(count($kk)==1) {
     		if ($single_tab && is_numeric($kk[0])) {
     			$tab = $single_tab;
     			$record_id = $kk[0];
     		} else return false;
     	} else {
-    		$record_id = array_pop($kk);
-    		$tab = $single_tab?$single_tab:$kk[0];
+    		$tab = $kk[0];
+    		$record_id = $kk[1];
     		if (!self::check_table_name($tab) || !is_numeric($record_id)) return false;
     	}
-
+    	
     	return array('tab'=>$tab, 'id'=>$record_id, $tab, $record_id);
     }
-
+    
     public static function call_select_adv_params_callback($callback, $record=null) {
     	$ret = array(
     		'order'=>array(),
     		'cols'=>array(),
     		'format_callback'=>array('Utils_RecordBrowserCommon', 'autoselect_label')
     	);
-
+    	
     	$adv_params = array();
     	if (is_callable($callback))
     		$adv_params = call_user_func($callback, $record);
-
+    	
     	if (!is_array($adv_params))
     		$adv_params = array();
-
+    		
     	return array_merge($ret, $adv_params);
     }
-
+    
     public static function get_select_tab_crits($param, $record=null) {
     	$param = self::decode_select_param($param);
-
+    	
    		$ret = array();
     	if (is_callable($param['crits_callback']))
     		$ret = call_user_func($param['crits_callback'], false, $record);
-
-    	$tabs = $param['select_tabs'];
+    	
+    	$tabs = $param['select_tabs'];    		
 
     	$ret = !empty($ret)? $ret: array();
     	if ($param['single_tab'] && (!is_array($ret) || !isset($ret[$param['single_tab']]))) {
@@ -446,10 +447,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$tab_crits = array();
     		foreach($tabs as $tab)
     			$tab_crits[$tab] = $ret;
-
+    			
     		$ret = $tab_crits;
     	}
-
+    	
     	foreach ($ret as $tab=>$crits) {
     		if (!$tab || !self::check_table_name($tab, false, false)) {
     			unset($ret[$tab]);
@@ -468,27 +469,27 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     	return $ret;
     }
-
+    
     public static function call_select_item_format_callback($callback, $tab_id, $args) {
 //     	$args = array($tab, $tab_crits, $format_callback, $params);
 
     	$param = self::decode_select_param($args[3]);
-
+    	
     	$val = self::decode_record_token($tab_id, $param['single_tab']);
-
+    	
     	if (!$val) return '';
-
+    	
     	list($tab, $record_id) = $val;
-
+    	
     	$tab_caption = '';
     	if (!$param['single_tab']) {
     		$tab_caption = self::get_caption($tab);
-
+    	
     		$tab_caption = '[' . ((!$tab_caption || $tab_caption == '---')? $tab: $tab_caption) . '] ';
     	}
-
+    	
     	$callback = is_callable($callback)? $callback: array('Utils_RecordBrowserCommon', 'autoselect_label');
-
+    	
     	return $tab_caption . call_user_func($callback, $tab_id, $args);
     }
 
@@ -624,6 +625,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $row['param'] = self::decode_commondata_param($row['param']);
 				$commondata = true;
 			}
+            if ($row['type'] == 'file') {
+                $row['param'] = json_decode($row['param'], true);
+                if (!is_array($row['param'])) $row['param'] = [];
+                if (!isset($row['param']['max_files'])) $row['param']['max_files'] = false;
+            }
             $next_field =
                 array(  'name'=>str_replace('%','%%',$row['caption']?$row['caption']:$row['field']),
                         'id'=>self::get_field_id($row['field']),
@@ -906,6 +912,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset($definition['filter'])) $definition['filter'] = false;
         if (!isset($definition['position'])) $definition['position'] = null;
         if (!isset($definition['template'])) $definition['template'] = '';
+        if (!isset($definition['help'])) $definition['help'] = '';
         $definition['template'] = is_array($definition['template'])? implode('::', $definition['template']): $definition['template'];
         if (isset(self::$datatypes[$definition['type']])) $definition = call_user_func(self::$datatypes[$definition['type']], $definition);
 
@@ -935,6 +942,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($param)) {
             if ($definition['type']=='commondata') {
                 $param = self::encode_commondata_param($param);
+            } elseif($definition['type'] == 'file') {
+                $param = json_encode($param);
             } else {
                 $tmp = array();
                 foreach ($param as $k=>$v) $tmp[] = $k.'::'.$v;
@@ -942,7 +951,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         }
         $f = self::actual_db_type($definition['type'], $param);
-        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip, template) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %s)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0, $definition['template']));
+        DB::Execute('INSERT INTO '.$tab.'_field(field, caption, type, visible, param, style, position, processing_order, extra, required, filter, export, tooltip, template, help) VALUES(%s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %s, %s)', array($definition['name'], $definition['caption'], $definition['type'], $definition['visible']?1:0, $param, $definition['style'], $definition['position'], $definition['processing_order'], $definition['extra']?1:0, $definition['required']?1:0, $definition['filter']?1:0, $definition['export']?1:0, $definition['tooltip']?1:0, $definition['template'], $definition['help']));
 		$column = 'f_'.self::get_field_id($definition['name']);
 		if ($alter) {
 			self::init($tab, false, true);
@@ -986,15 +995,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
-
+        
         $db_field_exists = !($type === 'calculated' && !$old_param);
-
+        
         DB::StartTrans();
         if ($db_field_exists) {
         	if (DB::is_postgresql()) {
         		DB::Execute('ALTER TABLE ' . $tab . '_data_1 RENAME COLUMN f_' . $id . ' TO f_' . $new_id);
         	} else {
-
+        		 
         		DB::RenameColumn($tab . '_data_1', 'f_' . $id, 'f_' . $new_id, self::actual_db_type($type, $old_param));
         	}
         	DB::Execute('UPDATE ' . $tab . '_edit_history_data SET field=%s WHERE field=%s', array($new_id, $id));
@@ -1002,31 +1011,31 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         DB::Execute('UPDATE ' . $tab . '_field SET field=%s WHERE field=%s', array($new_name, $old_name));
         DB::Execute('UPDATE ' . $tab . '_access_fields SET block_field=%s WHERE block_field=%s', array($new_id, $id));
         DB::Execute('UPDATE ' . $tab . '_callback SET field=%s WHERE field=%s', array($new_name, $old_name));
-
+        
         $result = DB::Execute('SELECT * FROM ' . $tab . '_access');
         while ($row = $result->FetchRow()) {
         	$crits = self::unserialize_crits($row['crits']);
-
+        	 
         	if (!$crits) continue;
-
+        	 
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
-
+        
         		foreach ($crits->find($id) as $c) $c->set_field($new_id);
-
+        
         		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
-
+        
         DB::CompleteTrans();
     }
-
+    
     public static function set_field_template($tab, $fields, $template)
     {
     	Utils_RecordBrowserCommon::check_table_name($tab);
     	$template = is_array($template)? implode('::', $template): $template;
     	$fields = is_array($fields)? $fields: array($fields);
     	$s = array_fill(0, count($fields), '%s');
-
+    	
     	DB::Execute('UPDATE ' . $tab . '_field SET template=%s WHERE field IN ('. implode(',', $s)  .')', array_merge(array($template), $fields));
     }
 
@@ -1068,7 +1077,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'page_split': $f = ''; break;
 
             case 'text': $f = DB::dict()->ActualType('C').'('.$param.')'; break;
-            case 'select':
+            case 'select': 
             	$param = self::decode_select_param($param);
                 if($param['single_tab']) $f = DB::dict()->ActualType('I4');
                 else $f = DB::dict()->ActualType('X');
@@ -1087,6 +1096,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'currency': $f = DB::dict()->ActualType('C').'(128)'; break;
             case 'autonumber': $len = strlen(self::format_autonumber_str($param, null));
                 $f = DB::dict()->ActualType('C') . "($len)"; break;
+	        case 'file': $f = DB::dict()->ActualType('X'); break;
         }
         return $f;
     }
@@ -1095,7 +1105,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(!DB::GetOne('SELECT 1 FROM recordbrowser_browse_mode_definitions WHERE tab=%s AND module=%s AND func=%s', array($tab, $mod, $func)))
             DB::Execute('INSERT INTO recordbrowser_browse_mode_definitions (tab, module, func) VALUES (%s, %s, %s)', array($tab, $mod, $func));
     }
-
+    
     public static function delete_browse_mode_details_callback($tab, $mod, $func) {
         self::check_table_name($tab);
         DB::Execute('DELETE FROM recordbrowser_browse_mode_definitions WHERE tab=%s AND module=%s AND func=%s', array($tab, $mod, $func));
@@ -1246,10 +1256,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		}
     		if(!is_callable($cache[$tab]))
     			$cache[$tab] = false;
-
+    		
     		return $cache[$tab];
     	}
-
+    	
     	return false;
     }
     public static function get_description_fields($tab) {
@@ -1309,7 +1319,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		else $result = $base;
 		if ($mode=='cloned') $current = array('original'=>$clone, 'clone'=>$current);
 		foreach ($cache[$tab] as $callback) {
-			$return = call_user_func($callback, $current, $mode);
+			$return = call_user_func($callback, $current, $mode, $tab);
 			if ($return===false) return false;
 			if ($return) {
 				if ($mode!='display') $current = $return;
@@ -1338,7 +1348,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $fields = 'created_on,created_by,active';
         $fields_types = '%T,%d,%d';
         $vals = array(date('Y-m-d H:i:s'), $user, 1);
+	    $filestorageIds = [];
         foreach(self::$table_rows as $field => $desc) {
+
+	        if ($desc['type'] == 'file') {
+                $files = $values[$desc['id']];
+                if (is_string($files)) $files = self::decode_multi($files);
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds[$field] = Utils_FileStorageCommon::add_files($files);
+                $values[$desc['id']] = self::encode_multi($filestorageIds[$field]);
+	        }
+
             if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
 			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
@@ -1369,6 +1391,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $autonumber_value = self::format_autonumber_str($desc['param'], $id);
                 self::update_record($tab, $id, array($desc['id'] => $autonumber_value), false, null, true);
                 $values[$desc['id']] = $autonumber_value;
+            }
+			if ($desc['type'] === 'file') {
+			    // update backref
+			    Utils_FileStorageCommon::add_files($filestorageIds[$field], "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds[$field];
             }
         }
 		$values['id'] = $id;
@@ -1430,6 +1457,28 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 }
                 $v = self::encode_multi($values[$desc['id']]);
                 $old = self::encode_multi($record[$desc['id']]);
+            } elseif ($desc['type'] == 'file') {
+                $files = $values[$desc['id']];
+                if (is_string($files)) {
+                    $files = self::decode_multi($files);
+                }
+                if ($desc['param']['max_files'] && count($files) > $desc['param']['max_files']) {
+                    throw new Exception('Too many files in field ' . $desc['id']);
+                }
+                $filestorageIds = Utils_FileStorageCommon::add_files($files, "rb:$tab/$id/$desc[pkey]");
+                $values[$desc['id']] = $filestorageIds;
+                // Delete files not present in the field right now
+                $old = $record[$desc['id']];
+                sort($old);
+                if ($old == $filestorageIds) continue;
+                foreach ($record[$desc['id']] as $file) {
+                    if (!in_array($file, $filestorageIds)) {
+                        // delete file
+                        Utils_FileStorageCommon::delete($file);
+                    }
+                }
+                $v = self::encode_multi($filestorageIds);
+                $old = self::encode_multi($old);
             } else {
                 if ($record[$desc['id']]===$values[$desc['id']]) continue;
                 $v = $values[$desc['id']];
@@ -1613,8 +1662,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'created_on'=>$row['created_on']);
             foreach(self::$table_rows as $desc){
                 if (isset($row['f_'.$desc['id']])) {
-                    if ($desc['type']=='multiselect') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
-                    elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
+                    if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
+                    elseif ($desc['type']=='text' || $desc['type']=='long text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
                     else $r[$desc['id']] = $row['f_'.$desc['id']];
                 } else {
                     if ($desc['type']=='multiselect') $r[$desc['id']] = array();
@@ -1656,7 +1705,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $param = self::decode_select_param($desc['param']);
 
             if($param['single_tab']=='__COMMON__') return $r[$field];
-
+            
             $ret = true;
             $field_is_empty = true;
         if (!isset($r[$field])) $values = array();
@@ -1692,7 +1741,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         public static function get_recursive_print_all_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'print',false);
-        }
+        }        
         public static function get_recursive_delete_access($tab,&$r,$field) {
             return self::get_recursive_access($tab,$r,$field,'delete',true);
         }
@@ -1729,7 +1778,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		Utils_RecordBrowserCommon::add_access($tab, 'edit', 'ACCESS:employee');
 		Utils_RecordBrowserCommon::add_access($tab, 'delete', 'ACCESS:employee');
 	}
-
+	
 	public static function field_deny_access($tab, $fields, $action='', $clearance=null) {
 		if (!self::check_table_name($tab, false, false)) return;
 		if (!is_array($fields)) $fields = array($fields);
@@ -1850,7 +1899,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($tab === null) {
             return $custom_access_callbacks;
         }
-
+        
         return isset($custom_access_callbacks[$tab]) ? $custom_access_callbacks[$tab] : array();
     }
     public static function call_custom_access_callbacks($tab, $action, $record = null)
@@ -1859,33 +1908,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = array('grant'=>null, 'restrict'=>null);
         foreach ($callbacks as $callback) {
             $callback_crits = call_user_func($callback, $action, $record, $tab);
-
+            
             if (is_bool($callback_crits)) {
             	$ret[$callback_crits? 'grant': 'restrict'] = true;
             	break;
             }
-
+            
             if ($callback_crits === null) continue;
-
+				
 			// if callback return is crits or crits array use it by default in restrict mode for backward compatibility
 			$crits = array(
 				'grant' => null,
 				'restrict' => $callback_crits
 			);
-
+			
 			if (is_array($callback_crits) && (isset($callback_crits['grant']) || isset($callback_crits['restrict']))) {
 				// if restrict rules are not set make sure the restrict crits are clean
 				if (! isset($callback_crits['restrict'])) $callback_crits['restrict'] = null;
 				$crits = array_merge($crits, $callback_crits);
 			}
-
+			
 			if (!$crits['grant'])
 				$crits['grant'] = null;
-
+			
 			foreach ($crits as $mode => $c) {
 				$c = is_array($c) ? Utils_RecordBrowser_Crits::from_array($c): $c;
-
-				if ($c instanceof Utils_RecordBrowser_Crits)
+				
+				if ($c instanceof Utils_RecordBrowser_Crits) 
 					$ret[$mode] = ($ret[$mode] !== null) ? self::merge_crits($ret[$mode], $c, $mode === 'grant'): $c;
 				elseif (is_bool($c))
 					$ret[$mode] = $c;
@@ -1896,9 +1945,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
 	/**
-	 *
+	 * 
 	 * Check if user has access to recordset, record or recordset fields based on action performed
-	 *
+	 * 
 	 * @param string $tab
 	 * @param string $action
 	 * @param array $record
@@ -1911,18 +1960,18 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		if ($return_crits) {
 			if ($return_in_array)
 				return self::get_access_rule_crits($tab, $action, $record);
-
+			
 			return self::get_access_crits($tab, $action, $record);
 		}
 		//end deprecated code
 
 		//access inactive records only in admin mode
-		if (!self::get_record_inactive_access($record, $action) && !(self::$admin_access && Acl::i_am_admin()))
+		if (!self::get_record_inactive_access($record, $action) && !(self::$admin_access && Acl::i_am_admin())) 
 			return false;
 
 		$rule_crits = self::get_access_rule_crits($tab, $action, $record);
-
-		if (self::get_access_full_deny($rule_crits))
+		
+		if (self::get_access_full_deny($rule_crits)) 
 			return false;
 
 		if ($action === 'browse')
@@ -1992,64 +2041,64 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     private static function get_record_inactive_access($record, $action) {
     	if(!self::is_record_active($record) && ($action=='edit' || $action=='delete'))
     		return false;
-
+    		 
     	return true;
     }
     public static function is_record_active($record) {
     	if (isset($record[':active']) && !$record[':active'])
     		return false;
-
+    	
     	return true;
     }
-    private static function get_access_crits_from_rules($rule_crits) {
+    private static function get_access_crits_from_rules($rule_crits) {  
     	if (self::get_access_full_deny($rule_crits))
     		return null;
-
+    	
     	if (self::get_access_full_grant($rule_crits))
     		return true;
-
+    	
     	$ret = null;
 
     	foreach ($rule_crits as $rule_id=>$c) {
     		if ($rule_id === 'restrict') continue;
-
+    		
     		if (!$c instanceof Utils_RecordBrowser_CritsInterface)
     			continue;
-
+    			    		
     		// if crit is empty, then we have access to all records
     		if ($c->is_empty())
     			$ret = $c;
-
+  
     		if ($ret instanceof Utils_RecordBrowser_Crits && $ret->is_empty())
     			continue;
 
     		$ret = self::merge_crits($ret, $c, true);
     	}
-
+    	
     	//if there is any access granted - limit it based on restrict crits
     	if ($ret !== null && $rule_crits['restrict'] instanceof Utils_RecordBrowser_Crits)
     		$ret = self::merge_crits($ret, $rule_crits['restrict']);
-
+    	
     	return $ret;
     }
     private static function get_access_active_grant_rules($tab, $action, $record, $rule_crits) {
     	if (self::get_access_full_deny($rule_crits))
     		return false;
-
+    	
     	if (self::get_access_full_grant($rule_crits))
     		return array('grant');
-
+    	
     	if ($record != null && $action !== 'add' &&
     			$rule_crits['restrict'] instanceof Utils_RecordBrowser_CritsInterface &&
     			!self::check_record_against_crits($tab, $record, $rule_crits['restrict'])) {
-
+    				
     		return false;
     	}
-
-    	$ret = array();
+    	
+    	$ret = array();  	
 		foreach ($rule_crits as $rule_id => $c) {
 			if ($rule_id === 'restrict') continue;
-
+			
 			if (!$c instanceof Utils_RecordBrowser_CritsInterface)
 				continue;
 
@@ -2063,35 +2112,35 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     private static function get_access_fields($tab, $grant_rule_ids) {
     	$access_rule_blocked_fields = array();
-
+    	 
     	foreach ($grant_rule_ids as $rule_id)
     		$access_rule_blocked_fields[$rule_id] = self::get_access_rule_blocked_fields($tab, $rule_id);
 
     	self::init($tab);
-
+    	
     	$blocked_fields = count($access_rule_blocked_fields) > 1? call_user_func_array('array_intersect', $access_rule_blocked_fields): reset($access_rule_blocked_fields);
-
+    
     	$full_field_access = array_fill_keys(array_keys(self::$hash), true);
-
+    
     	$blocked_field_access = array();
     	if ($blocked_fields)
     		$blocked_field_access = array_fill_keys($blocked_fields, false);
-
+    		 
     	return array_merge($full_field_access, $blocked_field_access);
     }
     private static function get_access_rule_blocked_fields($tab, $rule_id) {
     	static $cache;
-
-    	if (!is_numeric($rule_id)) return array();
-
+    	 
+    	if (!is_numeric($rule_id)) return array();    	
+    	 
     	if (!isset($cache[$tab])) {
     		$r = DB::Execute('SELECT * FROM '.$tab.'_access_fields');
-
+    		 
     		$fields = array();
     		while ($row = $r->FetchRow()) {
     			$fields[$row['rule_id']][] = $row['block_field'];
     		}
-
+    		 
     		$cache[$tab] = $fields;
     	}
 
@@ -2169,7 +2218,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $record[$v] = $row[$v];
             $record[':active'] = $row['active'];
             foreach(self::$table_rows as $field=>$desc) {
-                if ($desc['type']==='multiselect') {
+                if ($desc['type']==='multiselect' || $desc['type'] === 'file') {
                     if (!isset($row['f_'.$desc['id']])) $r = array();
                     else $r = self::decode_multi($row['f_'.$desc['id']]);
                     $record[$desc['id']] = $r;
@@ -2394,7 +2443,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             Libs_LeightboxCommon::display('actionbar_rb_new_record',$panel,__('New record'));
             $done = true;
             return Libs_LeightboxCommon::get_open_href('actionbar_rb_new_record');
-        } else
+        } else 
             return Module::create_href(self::get_new_record_href($tab,$def, $id, $check_defaults));
     }
     public static function get_record_href_array($tab, $id, $action='view'){
@@ -2483,12 +2532,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (!is_numeric($id)) return '';
     	if (!is_array($cols))
     		$cols = explode('|', $cols);
-
+    	
     	$record = self::get_record($tab, $id);
     	$fields = array_map(array('Utils_RecordBrowserCommon', 'get_field_id'), $cols);
     	$record_vals = self::get_record_vals($tab, $record, true, $fields, false);
     	if (empty($record_vals)) return '';
-
+    	
     	$vals = array();
     	foreach ($fields as $field) {
     		if (empty($record_vals[$field])) continue;
@@ -2503,9 +2552,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 	public static function create_linked_text($text, $tab, $id, $nolink=false, $tooltip=true, $more=array()){
 		if ($nolink) return $text;
-
+		
     	if (!is_numeric($id)) return '';
-
+    	
     	$text = self::create_record_tooltip($text, $tab, $id, $nolink, $tooltip);
 
     	return self::record_link_open_tag($tab, $id, $nolink, 'view', $more) .
@@ -2514,13 +2563,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
     	if (!$tooltip || $nolink || Utils_TooltipCommon::is_tooltip_code_in_str($text))
     		return $text;
-
+    	 
     	if (!is_array($tooltip))
     		return self::create_default_record_tooltip_ajax($text, $tab, $id);
-
+    
     	//args name => expected index (in case of numeric indexed array)
     	$tooltip_create_args = array('tip'=>0, 'args'=>1, 'help'=>1, 'max_width'=>2);
-
+    	 
     	foreach ($tooltip_create_args as $name=>&$key) {
     		switch (true) {
     			case isset($tooltip[$name]):
@@ -2534,50 +2583,50 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     				break;
     		}
     	}
-
+    	 
     	if (is_callable($tooltip_create_args['tip'])) {
     		unset($tooltip_create_args['help']);
-
+    		 
     		if (!is_array($tooltip_create_args['args']))
     			$tooltip_create_args['args'] = array($tooltip_create_args['args']);
-
+    		 
     		$tooltip_create_callback = array('Utils_TooltipCommon', 'ajax_create');
     	}
     	else {
     		unset($tooltip_create_args['args']);
     		$tooltip_create_callback = array('Utils_TooltipCommon', 'create');
     	}
-
+    	 
     	array_unshift($tooltip_create_args, $text);
-
+    	 
     	//remove null values from end of the create_tooltip_args to ensure default argument values are set in the callback
     	while (is_null(end($tooltip_create_args)))
     		array_pop($tooltip_create_args);
-
+    	 
     	return call_user_func_array($tooltip_create_callback, $tooltip_create_args);
     }
     public static function get_record_vals($tab, $record, $nolink=false, $fields = array(), $silent = true){
     	if (is_numeric($record)) $record = self::get_record($tab, $record);
     	if (!is_array($record)) return array();
-
+    	
     	self::init($tab);
     	if (empty($fields)) {
     		$fields = array_keys(self::$hash);
     	}
     	else {
     		$available_fields = array_intersect(array_keys(self::$hash), $fields);
-
+    		
     		if (!$silent && count($available_fields) != count($fields)) {
     			trigger_error('Unknown field names: ' . implode(', ', array_diff($fields, $available_fields)), E_USER_ERROR);
     		}
-
+    		
     		$fields = $available_fields;
     	}
 
     	$ret = array();
     	foreach ($fields as $field) {
     		if (!isset($record[$field])) continue;
-
+    		
     		$ret[$field] = self::get_val($tab, $field, $record, $nolink);
     	}
     	return $ret;
@@ -2682,9 +2731,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 trigger_error('Unknown column name: ' . $col, E_USER_ERROR);
             if ($r[$col])
                 $vals[] = $r[$col];
-        }
+        }        
         $text = self::create_record_tooltip(implode(' ', $vals), $tab, $r['id'], $nolink, $tooltip);
-
+        
         return $open_tag . $text . $close_tag;
     }
     public static function record_bbcode($tab, $fields, $text, $record_id, $opt, $tag = null) {
@@ -2784,7 +2833,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return $r;
 	}
-
+	
 	public static function get_edit_details($tab, $rid, $edit_id,$details=true) {
 		return self::get_edit_details_modify_record($tab, $rid, $edit_id,$details);
 	}
@@ -2851,7 +2900,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$ret = self::watchdog_label($tab, '', $rid, array('E_'.$edit_id), '', $details);
 		return $ret['events'];
 	}
-
+	
     public static function watchdog_label($tab, $cat, $rid, $events = array(), $label = null, $details = true) {
         $ret = array('category'=>$cat);
         if ($rid!==null) {
@@ -3087,7 +3136,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 //     	$args = array($tab, $tab_crits, $format_callback, $params);
 
         $param = self::decode_select_param($args[3]);
-
+        
         $val = self::decode_record_token($tab_id, $param['single_tab']);
 
         if (!$val) return '';
@@ -3099,7 +3148,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         else
         	return self::create_default_linked_label($tab, $record_id, true, false);
     }
-
+    
     private static $automulti_order_tabs;
     public static function automulti_order_by($a,$b) {
 	    $aa = _V($a);
@@ -3115,7 +3164,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function automulti_suggestbox($str, $tab, $tab_crits, $f_callback, $param) {
     	$param = self::decode_select_param($param);
-
+    	
 		$words = array_filter(explode(' ',$str));
 		$words_db = $words;
 		self::$automulti_order_tabs = array();
@@ -3128,9 +3177,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $tabs = $param['select_tabs'];
         foreach($tabs as & $t) $t = DB::qstr($t);
 	    $tabs = DB::GetAssoc('SELECT tab,caption FROM recordbrowser_table_properties WHERE tab IN ('.implode(',',$tabs).')');
-
+	    
         $single_tab = $param['single_tab'];
-
+	
 		uasort($tabs,array('Utils_RecordBrowserCommon','automulti_order_by'));
 
         $ret = array();
@@ -3141,16 +3190,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         foreach($tabs as $t=>$caption) {
             if(!empty($tab_crits) && !isset($tab_crits[$t])) continue;
-
+            
             $access_crits = self::get_access_crits($t, 'selection');
             if ($access_crits===false) continue;
             if ($access_crits!==true && (is_array($access_crits) || $access_crits instanceof Utils_RecordBrowser_CritsInterface)) {
             	if((is_array($tab_crits[$t]) && $tab_crits[$t]) || $tab_crits[$t] instanceof Utils_RecordBrowser_CritsInterface)
             		$tab_crits[$t] = self::merge_crits($tab_crits[$t], $access_crits);
-                else
+                else 
                 	$tab_crits[$t] = $access_crits;
             }
-
+           
             $fields = $param['cols'];
             if(!$fields) $fields = DB::GetCol("SELECT field FROM {$t}_field WHERE active=1 AND visible=1 AND (type NOT IN ('calculated','page_split','hidden') OR (type='calculated' AND param is not null AND param!=''))");
 
@@ -3193,7 +3242,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             	    !self::get_access($t,'view',$r)) continue;
                 $ret[($single_tab?'':$t.'/').$r['id']] = self::call_select_item_format_callback($f_callback, $t.'/'.$r['id'], array($tab, $crits3B, $f_callback, $param));
             }
-
+            
             if(count($ret)>=10) break;
         }
         return $ret;
@@ -3244,21 +3293,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
-
+	
 	public static function get_field_tooltip($label) {
 		if(strpos($label,'Utils_Tooltip')!==false) return $label;
 		$args = func_get_args();
 		array_shift($args);
 		return Utils_TooltipCommon::ajax_create($label, array('Utils_RecordBrowserCommon', 'ajax_get_field_tooltip'), $args);
 	}
-
+	
 	public static function ajax_get_field_tooltip() {
 		$args = func_get_args();
 		$type = array_shift($args);
 		switch ($type) {
             case 'autonumber':
 			case 'calculated':	return __('This field is not editable');
-			case 'integer':
+			case 'integer':		
 			case 'float':		return __('Enter a numeric value in the text field');
 			case 'checkbox':	return __('Click to switch between checked/unchecked state');
 			case 'currency':	return __('Enter the amount in text field and select currency');
@@ -3308,7 +3357,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 		return __('No additional information');
 	}
-
+	
 	public static $date_values = array('-1 year'=>'1 year back','-6 months'=>'6 months back','-3 months'=>'3 months back','-2 months'=>'2 months back','-1 month'=>'1 month back','-2 weeks'=>'2 weeks back','-1 week'=>'1 week back','-6 days'=>'6 days back','-5 days'=>'5 days back','-4 days'=>'4 days back','-3 days'=>'3 days back','-2 days'=>'2 days back','-1 days'=>'1 days back','today'=>'current day','+1 days'=>'1 days forward','+2 days'=>'2 days forward','+3 days'=>'3 days forward','+4 days'=>'4 days forward','+5 days'=>'5 days forward','+6 days'=>'6 days forward','+1 week'=>'1 week forward','+2 weeks'=>'2 weeks forward','+1 month'=>'1 month forward','+2 months'=>'2 months forward','+3 months'=>'3 months forward','+6 months'=>'6 months forward','+1 year'=>'1 year forward');
 	public static function crits_to_words($tab, $crits, $html_decoration=true) {
         if (!is_object($crits)) {
@@ -3329,17 +3378,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     ////////////////////////////
     // default QFfield callbacks
-
+    
     public static function get_default_QFfield_callback($type) {
         $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
-            'commondata', 'select', 'multiselect', 'autonumber');
+            'commondata', 'select', 'multiselect', 'autonumber', 'file');
         if (array_search($type, $types) !== false) {
             return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
         return null;
     }
-
+    
     public static function QFfield_static_display(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode !== 'add' && $mode !== 'edit') {
             if ($desc['type'] != 'checkbox' || isset($rb_obj->display_callback_table[$field])) {
@@ -3367,7 +3416,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_calculated(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
-
+        
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('static', $field, $label);
         if (!is_array($rb_obj->record))
@@ -3426,7 +3475,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_text(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
-
+        
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']);
         $form->addElement('text', $field, $label, array('id' => $field, 'maxlength' => $desc['param']));
         $form->addRule($field, __('Maximum length for this field is %s characters.', array($desc['param'])), 'maxlength', $desc['param']);
@@ -3437,7 +3486,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_long_text(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
-
+        
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('textarea', $field, $label, array('id' => $field));
         if ($mode !== 'add')
@@ -3447,7 +3496,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
-
+        
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
         $form->addElement('datepicker', $field, $label, array('id' => $field));
         if ($mode !== 'add')
@@ -3511,7 +3560,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_select(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
-
+        
         $record = $rb_obj->record;
         $comp = array();
         $param = self::decode_select_param($desc['param']);
@@ -3533,7 +3582,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         	foreach($tabs as $t) {
                 $rec_count += Utils_RecordBrowserCommon::get_records_count($t, $tab_crits[$t]);
-
+                
                 if ($rec_count > Utils_RecordBrowserCommon::$options_limit) break;
             }
             if ($rec_count <= Utils_RecordBrowserCommon::$options_limit) {
@@ -3546,7 +3595,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     }
                 }
             }
-
+            
             if (isset($record[$field])) {
             	if (!is_array($record[$field])) {
             		if ($record[$field] != '')
@@ -3562,7 +3611,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             		foreach ($default as $v)
             			$record[$field][$v] = $v;
             	}
-            }
+            }            
             if (isset($record[$field])) {
             	foreach ($record[$field] as $tab_id) {
             		if (isset($comp[$tab_id])) continue;
@@ -3602,7 +3651,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_multiselect(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         self::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
     }
-
+    
     public static function QFfield_autonumber(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
             return;
@@ -3615,6 +3664,66 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $form->setDefaults(array($field => $val));
     }
 
+	//region File
+	public static function display_file($r, $nolink=false, $desc=null, $tab=null)
+	{
+		$labels = [];
+		$inline_nodes = [];
+		$fileStorageIds = self::decode_multi($r[$desc['id']]);
+		$fileHandler = new Utils_RecordBrowser_FileActionHandler();
+		foreach($fileStorageIds as $fileStorageId) {
+			if(!empty($fileStorageId)) {
+				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
+				$labels[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
+				$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions);
+			}
+		}
+		$inline_nodes = array_filter($inline_nodes);
+
+		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+	}
+
+	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
+	{
+		if (self::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj))
+			return;
+		$record_id = isset($rb_obj->record['id']) ? $rb_obj->record['id'] : 'new';
+		$module_id = md5($rb_obj->tab . '/' . $record_id . '/' . $field);
+		/** @var Utils_FileUpload_Dropzone $dropzoneField */
+		$dropzoneField = Utils_RecordBrowser::$rb_obj->init_module('Utils_FileUpload#Dropzone', null, $module_id);
+        $default = self::decode_multi($default);
+		if ($default) {
+		    $files = [];
+            foreach ($default as $filestorageId) {
+                $meta = Utils_FileStorageCommon::meta($filestorageId);
+                $arr = [
+                    'filename' => $meta['filename'],
+                    'type' => $meta['type'],
+                    'size' => $meta['size'],
+                ];
+                $backref = substr($meta['backref'], 0, 3) == 'rb:' ? explode('/', substr($meta['backref'], 3)) : [];
+                if (count($backref) === 3) {
+                    list ($br_tab, $br_record, $br_field) = $backref;
+                    $file_handler = new Utils_RecordBrowser_FileActionHandler();
+                    $actions = $file_handler->getActionUrlsRB($filestorageId, $br_tab, $br_record, $br_field);
+                    if (isset($actions['preview'])) {
+                        $arr['file'] = $actions['preview'];
+                    }
+                }
+                $files[$filestorageId] = $arr;
+            }
+			$dropzoneField->set_defaults($files);
+		}
+        if (isset($desc['param']['max_files']) && $desc['param']['max_files'] !== false) {
+            $dropzoneField->set_max_files($desc['param']['max_files']);
+        }
+        if (isset($desc['param']['accepted_files']) && $desc['param']['accepted_files'] !== false) {
+        	$dropzoneField->set_accepted_files($desc['param']['accepted_files']);
+        }
+		$dropzoneField->add_to_form($form, $field, $label);
+	}
+	//endregion
+
     public static function cron() {
         return array('indexer' => 10);
     }
@@ -3622,7 +3731,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function index_record($tab,$record,$table_rows=null,$tab_id=null) {
         if($tab_id===null) $tab_id = DB::GetOne('SELECT id FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         if($table_rows===null) $table_rows = self::init($tab);
-
+        
         $record = self::record_processing($tab, $record, 'index');
         DB::StartTrans();
         if($record) {
@@ -3666,7 +3775,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return false;
     }
-
+    
     public static function indexer($limit=null,&$total=0) {
         $limit_sum = 0;
         $limit_file = DATA_DIR.'/Utils_RecordBrowser/limit';
@@ -3690,12 +3799,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         foreach($tabs as $tab_id=>$tab) {
             $lock = DATA_DIR.'/Utils_RecordBrowser/'.$tab_id.'.lock';
             if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
-
+    
             $table_rows = self::init($tab);
             self::$admin_filter = ' <tab>.indexed=0 AND <tab>.active=1 AND ';
             $ret = self::get_records($tab,array(),array(),array(),$limit,true);
             self::$admin_filter = '';
-
+            
             if(!$ret) continue;
 
             register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
@@ -3704,14 +3813,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
             foreach($ret as $row) {
                 self::index_record($tab,$row,$table_rows,$tab_id);
-
+                
                 $total++;
                 if($total>=$limit) break;
                 if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
             }
-
+            
             @unlink($lock);
-
+            
             if($total>=$limit) break;
             if(defined('RB_INDEXER_LIMIT_QUERIES') && RB_INDEXER_LIMIT_QUERIES<$limit_sum+DB::GetQueriesQty()) break;
         }
@@ -3719,7 +3828,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if(defined('RB_INDEXER_LIMIT_QUERIES')) {
             file_put_contents($limit_file,DB::GetQueriesQty()."\n",FILE_APPEND | LOCK_EX);
         }
-
+        
     }
 
     public static function search($search, $categories)
@@ -3728,7 +3837,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = $x->search_results($search);
         return $ret;
     }
-
+    
     public static function search_categories() {
         $tabs = DB::GetAssoc('SELECT t.id,t.tab,t.search_include FROM recordbrowser_table_properties t WHERE t.search_include>0 AND t.id IN (SELECT DISTINCT m.tab_id FROM recordbrowser_search_index m)');
         $ret = array();

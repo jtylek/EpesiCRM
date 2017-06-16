@@ -63,4 +63,4 @@ if (array_key_exists('delete', $_POST)) {
     }
 }
 
-Utils_FileUpload_Dropzone::remove_old_temp_files($module_data_dir);
+Utils_FileUpload_Dropzone::remove_old_temp_files();

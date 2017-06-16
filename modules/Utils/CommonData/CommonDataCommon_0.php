@@ -59,7 +59,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			$current_array .= '/';
 			if($id2===false || $id2===null) {
 				$pos=self::get_array_count($current_array) + 1;
-				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey,readonly,position) VALUES(%d,%s,%b,%d)',array($id,$v,$readonly,$pos));
+				DB::Execute('INSERT INTO utils_commondata_tree(parent_id,akey,readonly,position) VALUES(%d,%s,%b,%d)',array($id,htmlspecialchars($v),$readonly,$pos));
 				$id = DB::Insert_ID('utils_commondata_tree','id');
 			} else
 				$id=$id2;
@@ -83,7 +83,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		} else {
 			if (!$overwrite) return false;
 		}
-		DB::Execute('UPDATE utils_commondata_tree SET value=%s,readonly=%b WHERE id=%d',array($value,$readonly,$id));
+		DB::Execute('UPDATE utils_commondata_tree SET value=%s,readonly=%b WHERE id=%d',array(htmlspecialchars($value),$readonly,$id));
 		return true;
 	}
 
@@ -160,8 +160,8 @@ class Utils_CommonDataCommon extends ModuleCommon {
 			$pos=1;
 			foreach($array as $k=>$v) {
 				$qvals[] = $id;
-				$qvals[] = $k;
-				$qvals[] = $v;
+				$qvals[] = htmlspecialchars($k);
+				$qvals[] = htmlspecialchars($v);
 				$qvals[] = $readonly;
 				$qvals[] = $pos;
 				$pos++;

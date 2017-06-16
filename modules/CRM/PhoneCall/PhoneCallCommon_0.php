@@ -231,6 +231,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		return Utils_RecordBrowserCommon::record_bbcode('phonecall', array('subject'), $text, $param, $opt);
 	}
 
+	public static function subscribed_employees($v) {
+		if (!is_array($v)) return;
+		foreach ($v['employees'] as $k) {
+			$user = Utils_RecordBrowserCommon::get_value('contact',$k,'Login');
+			if ($user!==false && $user!==null && is_numeric($user) && $user>0) Utils_WatchdogCommon::user_subscribe($user, 'crm_meeting', $v['id']);
+		}
+	}
+
 	public static function submit_phonecall($values, $mode) {
 		switch ($mode) {
 		case 'display':
@@ -288,6 +296,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		case 'added':
 			if (isset($values['follow_up']))
 				CRM_FollowupCommon::add_tracing_notes($values['follow_up'][0], $values['follow_up'][1], $values['follow_up'][2], 'phonecall', $values['id'], $values['subject']);
+			self::subscribed_employees($values);
 			$related = $values['employees'];
 			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {

@@ -150,8 +150,16 @@ class Base_User_Login extends Module {
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
 		$form->addElement('text', 'username', __('Username'));
 		$form->addElement('text', 'mail', __('E-mail'));
-		$form->addElement('submit', 'submit_button', __('Recover Password'), array('class'=>'btn btn-primary btn-block'));
-		$this->theme->assign('back_href', $this->create_back_href());
+
+
+		//#merge, bootstrap version below
+//        $form->addElement('submit', 'submit_button', __('Recover Password'), array('class'=>'btn btn-primary btn-block'));
+//        $this->theme->assign('back_href', $this->create_back_href());
+
+        //#merge, 3 lines below come from master
+        $ok_b = & $form->createElement('submit', 'submit_button', __('OK'));
+		$cancel_b = & $form->createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
+		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
 		// require a username
 		$form->addRule('username', __('A username must be between 3 and 32 chars'), 'rangelength', array(3,32));
