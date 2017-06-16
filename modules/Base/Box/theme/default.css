@@ -265,3 +265,7 @@ div.sidebar-footer.hidden-small:hover {
 div.sidebar-footer.hidden-small {
 	padding: 0;
 }
+
+body.nav-md .container.body .right_col {
+	background: #fbfbfb;
+}

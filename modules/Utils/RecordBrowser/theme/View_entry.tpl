@@ -32,7 +32,7 @@
 				<span class="form-inline">{$caption}</span>
 			</div>
 			<div class="pull-right">
-					{$required_note}
+					{*{$required_note}*}
 					{if isset($subscription_tooltip)}
 						&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
 					{/if}

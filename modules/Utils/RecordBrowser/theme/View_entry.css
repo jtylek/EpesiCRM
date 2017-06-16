@@ -5,3 +5,18 @@
 	right: 22px;
 	top: 5px;
 }
+
+dl.dl-horizontal > dt > span {
+	color: #7c7c7c;
+	font-weight: normal;
+}
+
+dl.dl-horizontal > dd,
+dl.dl-horizontal > dd a {
+	color: black;
+	font-weight: 500;
+}
+
+dl.dl-horizontal > dd a:hover {
+	color: #373737;
+}

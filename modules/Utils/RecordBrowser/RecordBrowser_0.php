@@ -1395,7 +1395,7 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
-        $theme->assign('required_note', __('Indicates required fields.'));
+//        $theme->assign('required_note', __('Indicates required fields.'));
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
         $theme->assign('main_page',$main_page);
