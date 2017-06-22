@@ -1651,6 +1651,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $ret = DB::SelectLimit('SELECT '.$fields.' FROM'.$par['sql'].$par['order'], $limit['numrows'], $limit['offset'], $par['vals']);
         $records = array();
         self::init($tab);
+        $fields = self::$table_rows;
         while ($row = $ret->FetchRow()) {
             if (isset($records[$row['id']])) {
                 continue;
@@ -1659,7 +1660,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         ':active'=>$row['active'],
                         'created_by'=>$row['created_by'],
                         'created_on'=>$row['created_on']);
-            foreach(self::$table_rows as $desc){
+            foreach($fields as $desc){
                 if (isset($row['f_'.$desc['id']])) {
                     if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
                     elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
