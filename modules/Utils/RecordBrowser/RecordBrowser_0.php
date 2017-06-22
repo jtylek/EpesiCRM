@@ -118,6 +118,21 @@ class Utils_RecordBrowser extends Module {
     public function enable_export($arg) {
         $this->enable_export = $arg;
     }
+    
+    public function set_caption($caption) {
+    	$this->caption = $caption;
+    }
+    
+    public function set_icon($icon) {
+    	if (!$icon) return;
+    	
+    	if (is_array($icon)) {
+    		$icon = array_values($icon);
+    		$icon = Base_ThemeCommon::get_template_file($icon[0], isset($icon[1])? $icon[1]: null);
+    	}
+    	
+    	$this->icon = $icon;
+    }
 
     public function set_additional_caption($arg) {
         $this->additional_caption = $arg;
@@ -224,15 +239,14 @@ class Utils_RecordBrowser extends Module {
         if($this->tab=='__RECORDSETS__' || preg_match('/,/',$this->tab)) $params=array('','',0,0,0);
         else $params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
-        list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
+        list($caption,$icon,$this->recent,$this->favorites,$this->full_history) = $params;
         $this->favorites &= !$this->disabled['fav'];
         $this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
         $this->clipboard_pattern = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab);
 
         //If Caption or icon not specified assign default values
-        if ($this->caption=='') $this->caption='Record Browser';
-        if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
-        else $this->icon = Base_ThemeCommon::get_template_file($this->icon);
+        $this->caption = $this->caption?: $caption?: 'Record Browser';
+        $this->icon = $this->icon?: Base_ThemeCommon::get_template_file($icon)?: Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
 
         $this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin, $force);
         $this->requires = array();
