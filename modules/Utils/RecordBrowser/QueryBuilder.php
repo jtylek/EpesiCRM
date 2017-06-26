@@ -709,7 +709,9 @@ class Utils_RecordBrowser_QueryBuilder
         $field_sql_id = $this->get_field_sql($crit->get_field());
         $operator = $crit->get_operator();
         $raw_sql_val = $crit->get_raw_sql_value();
-        $value = $crit->get_value();
+        $value = is_string($crit->get_value()) && preg_match('/^[A-Za-z]$/',$crit->get_value())
+            ? "'%".$crit->get_value()."%'"
+            : $crit->get_value();
         $negation = $crit->get_negation();
         if ($operator == 'NOT LIKE') {
             $operator = 'LIKE';
