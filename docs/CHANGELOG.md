@@ -3,6 +3,27 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20170701
+----------------------
+
+### Fixed
+- column visibility if no records (georgehristov)
+- invalid "from" header in mails from epesi, missing name before email address
+- timeless tasks deadline
+- fixed xss vulnerabilities
+- file attachments display (georgehristov)
+- properly display overflow for dropzone file field (georgehristov)
+- quickjump error
+- avoid exception and display missing file text in case file hash not found
+- fixed quick new records
+
+
+### Changed
+- enable adding help with installation of field (georgehristov)
+- execute in order of module priority (georgehristov)
+- pass tab as argument on processing callback (georgehristov)
+
+
 RELEASE 1.8.2-20170430
 ----------------------
 
