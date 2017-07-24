@@ -1939,6 +1939,8 @@ class rcube_imap_generic
             }
         }
 
+        $index_field = $index_field == 'date' ? 'arrival' : $index_field;
+
         $index_field = empty($index_field) ? 'DATE' : strtoupper($index_field);
 
         $fields_a['DATE']         = 1;
