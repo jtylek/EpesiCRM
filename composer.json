@@ -10,7 +10,8 @@
         "ifsnop/mysqldump-php": "dev-master",
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
-        "enyo/dropzone": "@stable"
+        "enyo/dropzone": "@stable",
+        "ezyang/htmlpurifier": "^4.9"
     },
     "scripts": {
         "post-install-cmd": [
