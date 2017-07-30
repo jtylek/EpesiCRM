@@ -3,6 +3,15 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20170730
+----------------------
+
+### Fixed
+- fixed notes displaying html tags
+- added safe html class for clearing html from xss
+- introduced htmlpurifier to safe html class
+- fixed roundcube long sorting by date by changing to arrival
+
 RELEASE 1.8.2-20170701
 ----------------------
 
