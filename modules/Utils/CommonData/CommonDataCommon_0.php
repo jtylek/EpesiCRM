@@ -122,7 +122,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		$val = false;
 		$id = self::get_id($root);
 		if($id===false) return false;
-		$ret = DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode($names,'\' OR akey=\'').'\')',array($id));
+		$ret = DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode('\' OR akey=\'',array_map(array('DB','addq'),$names)).'\')',array($id));
 		$cache[$root][$uid] = $ret;
 		return $ret;
 	}
