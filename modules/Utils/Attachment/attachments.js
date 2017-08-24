@@ -66,7 +66,7 @@ Utils_Attachment__init_uploader = function (max_fs) {
 	});
 
 	uploader.bind('FilesAdded', function(up, files) {
-		files.each(function(s, i) { 
+		files.forEach(function(s, i) {
 			Utils_Attachment__add_file_to_list(s.name, s.size, s.id, s);
 		});
 	});
