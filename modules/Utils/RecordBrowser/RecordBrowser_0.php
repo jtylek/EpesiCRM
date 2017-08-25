@@ -1356,6 +1356,11 @@ class Utils_RecordBrowser extends Module {
         if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
+        if ($this->tab == 'utils_attachment' && $this->action == 'View record') {
+            Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
+            $longfields['note']['html'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($longfields['note']['html']);
+            $longfields['note']['full_field'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($longfields['note']['full_field']);
+        }
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
@@ -2490,10 +2495,15 @@ class Utils_RecordBrowser extends Module {
 					);
                 } else {
                     if (!isset($field_hash[$k])) continue;
-                    $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-                    if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
-                    $created[$k] = $v;
-                    $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                        $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                        if ($this->table_rows[$field_hash[$k]]['type'] == 'multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
+                        $created[$k] = $v;
+                        $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                    if ($this->tab == 'utils_attachment') {
+                        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
+                        $new = Utils_SafeHtml_SafeHtml::outputSafeHtml($new);
+                        $old = Utils_SafeHtml_SafeHtml::outputSafeHtml($old);
+                    }
 					$gb_row = $gb_cha->get_new_row();
 					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
                     $gb_row->add_data(
