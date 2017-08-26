@@ -3,6 +3,23 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20170826
+----------------------
+
+### Fixed
+- sql error in commondata
+- copy patch for csv export params array to commondata to RB install
+- csv exporting ascii translation
+- get old link if exists for attachments
+- sorting menu error if non array passed
+- limit xss protection to utils_attachment
+- add xss protection for notes in view and history mode
+- check if mod_rewrite supported for RC multiwin support
+
+### Feature
+- set watchdog applet title for better segregation
+- file field email actionbar in leightbox
+
 RELEASE 1.8.2-20170730
 ----------------------
 
