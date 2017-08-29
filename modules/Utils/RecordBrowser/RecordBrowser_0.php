@@ -1385,11 +1385,13 @@ class Utils_RecordBrowser extends Module {
             default:
                 if(substr($this->icon,-8) == 'icon.png'){
                     $this->icon = str_replace('/','_',substr($this->icon,0,-9).'Common');
-                    $menu = call_user_func([$this->icon,'menu']);
-                    foreach ($menu as $key => $value ){
-                        foreach($value as $k => $v) {
-                            if($k == $this->caption) {
-                                if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
+                    if(is_callable([$this->icon,'menu'])) {
+                        $menu = call_user_func([$this->icon, 'menu']);
+                        foreach ($menu as $key => $value) {
+                            foreach ($value as $k => $v) {
+                                if ($k == $this->caption) {
+                                    if (isset($v['__icon__'])) $this->icon = $v['__icon__'];
+                                }
                             }
                         }
                     }
@@ -1403,10 +1405,12 @@ class Utils_RecordBrowser extends Module {
                         $lk_c = -strlen($lk);
                         foreach ($ml as $k=>$v){
                             if(strtolower(substr($k,$lk_c)) == $lk) {
-                                $menu = call_user_func([$k.'Common','menu']);
-                                foreach ($menu as $key => $value ){
-                                    foreach($value as $kk => $vv) {
-                                        if($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
+                                if(is_callable([$k.'Common','menu'])) {
+                                    $menu = call_user_func([$k . 'Common', 'menu']);
+                                    foreach ($menu as $key => $value) {
+                                        foreach ($value as $kk => $vv) {
+                                            if ($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
+                                        }
                                     }
                                 }
                             }
