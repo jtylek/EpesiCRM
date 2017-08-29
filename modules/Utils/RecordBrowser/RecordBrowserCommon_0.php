@@ -857,11 +857,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::change_field_position($tab, $field, 16000);
         DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
         DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s', array($field));
-		$f_id = self::$table_rows[$field]['id'];
-        @DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.$f_id);
-		@DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE block_field=%s', array($f_id));
-        self::init($tab, false, true);
-        @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
+        
+        if (isset(self::$table_rows[$field]['id'])) {
+			$f_id = self::$table_rows[$field]['id'];
+	        @DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.$f_id);
+			@DB::Execute('DELETE FROM '.$tab.'_access_fields WHERE block_field=%s', array($f_id));
+	        self::init($tab, false, true);
+	        @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
+        }
     }
 
     private static $datatypes = null;
