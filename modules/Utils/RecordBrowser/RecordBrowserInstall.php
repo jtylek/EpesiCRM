@@ -66,6 +66,20 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::CreateTable('recordbrowser_search_index', 'tab_id I2 NOTNULL, record_id I NOTNULL, field_id I2 NOTNULL, text X', array('constraints' => ', PRIMARY KEY(tab_id, record_id, field_id)'));
 
 		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
+
+        Utils_CommonDataCommon::new_array('System',[],false,true);
+        Utils_CommonDataCommon::new_array('System/csv_export_params', [
+            'charset'               => 'UTF-8',
+            'field_separator'      => ',',
+            'decimal_separator'    => '.',
+            'end_line_type'        => 'UNIX',
+            'text_space_indicator' => 1,
+            'text_space_separator' => '"'
+        ],
+            true,
+            false
+        );
+
 		return true;
 	}
 	

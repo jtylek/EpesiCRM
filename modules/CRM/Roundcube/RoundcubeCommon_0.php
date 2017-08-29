@@ -55,6 +55,17 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
 	}
 
+    public static function file_field_getters() {
+        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
+        if($ret)
+            return array(_M('Mail')=>array('func'=>'mail_file_field','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
+    }
+
+    public static function mail_file_field($backref) {
+        $url = CRM_RoundCube_RemoteAttachment::getInstance()->callCreateRemote($backref);
+        Base_BoxCommon::push_module(CRM_Roundcube::module_name(),'new_mail',array('',__('File attachment, expires on: %s',array(Base_RegionalSettingsCommon::time2reg('+7 days'))),"<br /><br />".$url));
+    }
+
 	public static function mail_file($f,$d,$file_id) {
 		$t = time()+3600*24*7;
 		$url = Utils_AttachmentCommon::create_remote($file_id, 'mail', $t);
