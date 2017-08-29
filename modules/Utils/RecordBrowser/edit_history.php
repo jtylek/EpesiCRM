@@ -59,10 +59,6 @@ while ($row = $ret->FetchRow()) {
 foreach($table_rows as $field => $args) {
 	ob_start();
 	$val = @Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
-    if ($tab == 'utils_attachment') {
-        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
-        $val = Utils_SafeHtml_SafeHtml::outputSafeHtml($val);
-    }
 	if (!$val)
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, true, $args);
 	ob_end_clean();

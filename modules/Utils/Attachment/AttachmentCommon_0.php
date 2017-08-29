@@ -388,6 +388,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             self::$mark_as_read = array();
         }
 
+        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
+        $text = Utils_SafeHtml_SafeHtml::outputSafeHtml($text);
         $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':'').$text.$icon.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 

@@ -1664,12 +1664,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') {
                         $r[$desc['id']] = self::decode_multi($row['f_' . $desc['id']]);
                     } elseif ($desc['type']=='text' || $desc['type']=='long text') {
-                        if ($tab == 'utils_attachment') {
-                            Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
-                            $r[$desc['id']] = Utils_SafeHtml_SafeHtml::outputSafeHtml($row['f_' . $desc['id']]);
-                        } else {
-                            $r[$desc['id']] = $row['f_' . $desc['id']];
-                        }
+                        $r[$desc['id']] = $row['f_' . $desc['id']];
                     } else {
                         $r[$desc['id']] = $row['f_' . $desc['id']];
                     }
