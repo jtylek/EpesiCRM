@@ -3,6 +3,19 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20170830
+----------------------
+
+### Fixed
+- notes file leightbox in display and view
+- avoid error on deleting page splits (georgehristov)
+
+### Feature
+- Access class for RecordBrowser (georgehristov)
+- set caption for recordbrowser (georgehristov)
+- menu caching (georgehristov)
+- allow access for recursive permissions if set to empty (georgehristov)
+
 RELEASE 1.8.2-20170826
 ----------------------
 
