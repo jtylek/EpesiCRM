@@ -58,10 +58,16 @@ class Base_MenuCommon extends ModuleCommon {
 		static $menus;
 		static $user;
 		if(!isset($menus) || $user!=Acl::get_user()) {
-			$user = Acl::get_user();
-			$menus = ModuleManager::call_common_methods('menu',false);
-			foreach($menus as $m=>$r)
-				if(!is_array($r)) unset($menus[$m]);
+			$menus = Module::static_get_module_variable(self::Instance()->get_type(), 'menu', []);
+			
+			if (!$menus) {
+				$user = Acl::get_user();
+				$menus = ModuleManager::call_common_methods('menu',false);
+				foreach($menus as $m=>$r)
+					if(!is_array($r)) unset($menus[$m]);
+				
+				Module::static_set_module_variable(self::Instance()->get_type(), 'menu', $menus);
+			}			
 		}
 		return $menus;
 	}

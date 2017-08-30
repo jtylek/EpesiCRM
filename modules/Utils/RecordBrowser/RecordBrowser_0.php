@@ -125,6 +125,21 @@ class Utils_RecordBrowser extends Module {
         $this->enable_export = $arg;
     }
 
+    public function set_caption($caption) {
+    	$this->caption = $caption;
+    }
+
+    public function set_icon($icon) {
+    	if (!$icon) return;
+
+    	if (is_array($icon)) {
+    		$icon = array_values($icon);
+    		$icon = Base_ThemeCommon::get_template_file($icon[0], isset($icon[1])? $icon[1]: null);
+    	}
+
+    	$this->icon = $icon;
+    }
+
     public function set_additional_caption($arg) {
         $this->additional_caption = $arg;
     }
@@ -230,33 +245,14 @@ class Utils_RecordBrowser extends Module {
         if($this->tab=='__RECORDSETS__' || preg_match('/,/',$this->tab)) $params=array('','',0,0,0);
         else $params = DB::GetRow('SELECT caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         if ($params==false) trigger_error('There is no such recordSet as '.$this->tab.'.', E_USER_ERROR);
-        list($this->caption,$this->icon,$this->recent,$this->favorites,$this->full_history) = $params;
+        list($caption,$icon,$this->recent,$this->favorites,$this->full_history) = $params;
         $this->favorites &= !$this->disabled['fav'];
         $this->watchdog = Utils_WatchdogCommon::category_exists($this->tab) && !$this->disabled['watchdog'];
         $this->clipboard_pattern = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab);
 
         //If Caption or icon not specified assign default values
-        if ($this->caption=='') $this->caption='Record Browser';
-//        if ($this->icon=='') $this->icon = Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
-//        else $this->icon = Base_ThemeCommon::get_template_file($this->icon);
-
-        $class = $this->get_parent_type().'Common';
-        if (method_exists($class,'menu')) {
-            $x = call_user_func([$class,'menu']);
-
-            foreach ($x[key($x)] as $k => $v) {
-
-                if(is_string($this->tab) && $this->tab == 'contact') {
-                    $this->icon = 'users';
-                }
-
-                if(is_array($v)){
-                    if(isset($v['__icon__'])) $this->icon = $v['__icon__'];
-                    else $this->icon = 'question-circle';
-                }
-            }
-        };
-
+        $this->caption = $this->caption?: $caption?: 'Record Browser';
+        $this->icon = $this->icon?: Base_ThemeCommon::get_template_file($icon)?: Base_ThemeCommon::get_template_file('Base_ActionBar','icons/settings.png');
 
         $this->table_rows = Utils_RecordBrowserCommon::init($this->tab, $admin, $force);
         $this->requires = array();
@@ -1423,11 +1419,6 @@ class Utils_RecordBrowser extends Module {
         if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
-        if ($this->tab == 'utils_attachment' && $this->action == 'View record') {
-            Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
-            $longfields['note']['html'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($longfields['note']['html']);
-            $longfields['note']['full_field'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($longfields['note']['full_field']);
-        }
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
@@ -1499,15 +1490,15 @@ class Utils_RecordBrowser extends Module {
 		$ret = array();
         if (is_array(Utils_RecordBrowser::$last_record))
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
-		$rule_crits = Utils_RecordBrowserCommon::get_access_rule_crits($this->tab,'add');
-		if (Utils_RecordBrowserCommon::get_access_full_grant($rule_crits)) return array();
-		if (Utils_RecordBrowserCommon::get_access_full_deny($rule_crits)) {
+		$access = Utils_RecordBrowser_Access::create($this->tab,'add');
+		if ($access->isFullGrant()) return [];
+		if ($access->isFullDeny()) {
 			$fields = array_keys($data);
 			$first_field = reset($fields);
 			return array($first_field=>__('Access denied'));
 		}
         $required_crits = array();
-		foreach($rule_crits as $crits) {
+		foreach($access->getRuleCrits() as $crits) {
 		    $problems = array();
             if (!Utils_RecordBrowserCommon::check_record_against_crits($this->tab, $data, $crits, $problems)) {
                 foreach ($problems as $c) {
@@ -2568,14 +2559,9 @@ class Utils_RecordBrowser extends Module {
                         if ($this->table_rows[$field_hash[$k]]['type'] == 'multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
                         $created[$k] = $v;
                         $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-                    if ($this->tab == 'utils_attachment') {
-                        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
-                        $new = Utils_SafeHtml_SafeHtml::outputSafeHtml($new);
-                        $old = Utils_SafeHtml_SafeHtml::outputSafeHtml($old);
-                    }
-					$gb_row = $gb_cha->get_new_row();
-					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
-                    $gb_row->add_data(
+					    $gb_row = $gb_cha->get_new_row();
+					    $gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
+                        $gb_row->add_data(
                         $date_and_time,
                         $row['edited_by']!==null?$user:'',
                         _V($this->table_rows[$field_hash[$k]]['name']), // TRSL
