@@ -1440,7 +1440,7 @@ class Utils_RecordBrowser extends Module {
         if (is_array(Utils_RecordBrowser::$last_record))
 		    foreach (Utils_RecordBrowser::$last_record as $k=>$v) if (!isset($data[$k])) $data[$k] = $v;
 		$access = Utils_RecordBrowser_Access::create($this->tab,'add');
-		if ($access->isFullGrant()) return array();
+		if ($access->isFullGrant()) return [];
 		if ($access->isFullDeny()) {
 			$fields = array_keys($data);
 			$first_field = reset($fields);

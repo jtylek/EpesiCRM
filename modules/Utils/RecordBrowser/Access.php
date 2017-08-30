@@ -250,7 +250,7 @@ class Utils_RecordBrowser_Access
 		
 		$full_field_access = array_fill_keys(array_keys(Utils_RecordBrowserCommon::$hash), true);
 		
-		$blocked_field_access = array();
+		$blocked_field_access = [];
 		if ($blocked_fields) $blocked_field_access = array_fill_keys($blocked_fields, false);
 		
 		return array_merge($full_field_access, $blocked_field_access);
@@ -263,7 +263,7 @@ class Utils_RecordBrowser_Access
 		if (!isset(self::$ruleBlockedFieldsCache[$this->tab])) {
 			$r = DB::Execute('SELECT * FROM '.$this->tab.'_access_fields');
 			
-			$fields = array();
+			$fields = [];
 			while ($row = $r->FetchRow()) {
 				$fields[$row['rule_id']][] = $row['block_field'];
 			}
