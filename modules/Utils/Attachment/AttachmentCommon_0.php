@@ -234,7 +234,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	}
 
 	public static function create_remote($file_id, $description, $expires_on) {
-		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d AND created_on>'.DB::DBTimeStamp(time()-3600).' AND created_by=%d',array($file_id,Acl::get_user()));
+		$r = DB::GetRow('SELECT id, token FROM utils_attachment_download WHERE remote=1 AND attach_file_id=%d AND expires_on>%T AND created_by=%d',array($file_id,time(),Acl::get_user()));
 		if (!empty($r)) {
 			$id = $r['id'];
 			$token = $r['token'];
@@ -283,18 +283,27 @@ class Utils_AttachmentCommon extends ModuleCommon {
     const DECRYPT = 2;
 
     public static function crypt($input,$password,$mode,& $iv=null) {
-        $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
-        if(!$iv && $mode===self::ENCRYPT) $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
-        $iv2 = $iv;
-        $ks = mcrypt_enc_get_key_size($td);
-        $key = substr(sha1($password), 0, $ks);
-        mcrypt_generic_init($td, $key, $iv2);
-        if($mode==self::ENCRYPT)
-            $ret = mcrypt_generic($td, $input);
-        else
-            $ret = mdecrypt_generic($td, $input);
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
+        if(extension_loaded('mcrypt')) {
+            $td = mcrypt_module_open('rijndael-256', '', 'cbc', '');
+            if (!$iv && $mode === self::ENCRYPT) $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td));
+            $iv2 = $iv;
+            $ks = mcrypt_enc_get_key_size($td);
+            $key = substr(sha1($password), 0, $ks);
+            mcrypt_generic_init($td, $key, $iv2);
+            if ($mode == self::ENCRYPT)
+                $ret = mcrypt_generic($td, $input);
+            else
+                $ret = mdecrypt_generic($td, $input);
+            mcrypt_generic_deinit($td);
+            mcrypt_module_close($td);
+        } else {
+            if (!$iv && $mode === self::ENCRYPT) $iv = openssl_random_pseudo_bytes(16);
+            $key = openssl_pbkdf2($password, $iv, 16, 4096);
+            if ($mode == self::ENCRYPT)
+                $ret = openssl_encrypt($input, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+            else
+                $ret = openssl_decrypt($input, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        }
         return $ret;
     }
 
@@ -379,6 +388,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
             self::$mark_as_read = array();
         }
 
+        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
+        $text = Utils_SafeHtml_SafeHtml::outputSafeHtml($text);
         $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':'').$text.$icon.$inline_img;
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 

@@ -37,10 +37,14 @@ class CRM_Roundcube extends Module {
             return;
         }
         $params = array('_autologin_id'=>$def['id'])+$params2;
-        $multiwin = CRM_RoundcubeCommon::multiwin_supported();
-        $RC = $multiwin ? 'RCWIN_' . CID : 'RC';
-        if (!$multiwin) {
-            echo '<div style="color:red; padding-bottom: 1em;">' . __('Warning! Your hosting does not support multiple Roundcube sessions. Opening second Roundcube window may cause error in the previous one.') . '</div>';
+        if (function_exists('apache_get_modules') && in_array('mod_rewrite',apache_get_modules())) {
+            $multiwin = CRM_RoundcubeCommon::multiwin_supported();
+            $RC = $multiwin ? 'RCWIN_' . CID : 'RC';
+            if (!$multiwin) {
+                echo '<div style="color:red; padding-bottom: 1em;">' . __('Warning! Your hosting does not support multiple Roundcube sessions. Opening second Roundcube window may cause error in the previous one.') . '</div>';
+            }
+        } else {
+            $RC = 'RC';
         }
         print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/' . $RC . '/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');

@@ -31,6 +31,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function applet_settings() {
 		$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
 		$ret = array();
+		$ret[] = array('label'=>__('Title'),'name'=>'title','type'=>'text','default' => '');
         $ret[] = array('label'=>__('Records limit'),'name'=>'records_limit','type'=>'select', 'values' => array(/*'__all__' => __('All'), */'10' => '10', '15' => '15', '20' => '20', '30' => '30'), 'default' => '15');
 
 		if (!empty($methods)) {

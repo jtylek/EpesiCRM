@@ -3,6 +3,128 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20170826
+----------------------
+
+### Fixed
+- sql error in commondata
+- copy patch for csv export params array to commondata to RB install
+- csv exporting ascii translation
+- get old link if exists for attachments
+- sorting menu error if non array passed
+- limit xss protection to utils_attachment
+- add xss protection for notes in view and history mode
+- check if mod_rewrite supported for RC multiwin support
+
+### Feature
+- set watchdog applet title for better segregation
+- file field email actionbar in leightbox
+
+RELEASE 1.8.2-20170730
+----------------------
+
+### Fixed
+- fixed notes displaying html tags
+- added safe html class for clearing html from xss
+- introduced htmlpurifier to safe html class
+- fixed roundcube long sorting by date by changing to arrival
+
+RELEASE 1.8.2-20170701
+----------------------
+
+### Fixed
+- column visibility if no records (georgehristov)
+- invalid "from" header in mails from epesi, missing name before email address
+- timeless tasks deadline
+- fixed xss vulnerabilities
+- file attachments display (georgehristov)
+- properly display overflow for dropzone file field (georgehristov)
+- quickjump error
+- avoid exception and display missing file text in case file hash not found
+- fixed quick new records
+
+
+### Changed
+- enable adding help with installation of field (georgehristov)
+- execute in order of module priority (georgehristov)
+- pass tab as argument on processing callback (georgehristov)
+
+
+RELEASE 1.8.2-20170430
+----------------------
+
+### Added
+- File field available in RB   
+- Files panel for administrator
+- Codeception for unit testing (Dev) 
+- Psy shell (Dev)
+- Console command to create patch (Dev)
+
+### Fixed
+- Allow attachments to be encrypted using openssl if mcrypt not installed (Dev)
+- Notice for non well formated numeric values on php >= 7.0 (Dev)
+- Using $this in non object on php >= 7.0 (Dev)
+- Block cross-origin framing (Dev)
+- Watchdog notify employees about phone calls
+- Date display for empty value
+- RB filter issue after refresh (Dev)
+- Block the view of the record during add
+- Issue with crits validation 
+- Update composer.json to work on windows (Dev)
+- Checking add crits - restore original behavior 
+- Update get_element_by_array callback type - call with reference as argument (Dev)
+- JS currency calculation method - issue occured when value was smaller than 0.1
+- Update watchdog record access 
+- Update update_access - ignore 'grant' and 'restrict' ids - throw exception on non numeric id (Dev)
+- Extend login audit hostname col length 
+- Description fields to allow use comma in quoted string 
+- Check if method exists in update.php script - for older versions of epesi (Dev)
+- Renaming fields without DB entries (georgehristov)
+- Add possibility to open multiple roundcube accounts 
+- Logged out user was still in the whoisonline applet
+- Set default cache ttl to 24h (Dev)
+- Quickjump feature (Dev)
+- Improve RB search code (Dev)
+- Commondata crits - return empty set if records not matched
+- Set tray filters with fixed RB method 
+- Allow to override saved filter values 
+- Quickform row/column display templates 
+- Module create command - add version method to install (Dev)
+- Session locking issue (Dev)
+- Do not require linked fields in RBO select field (Dev)
+- Module uninstall console command - fix messages (Dev)
+- Display users online count (georgehristov)
+- Next CSV export modification based on AJB comments (praski)
+- Crits validation - add preg_quote
+- Display callbacks with PHP code not working (Dev)
+- QFfield callback with PHP code embedded calling (Dev)
+- Issue with bbcode when callback is not callable (Dev)
+- Issue with calendar when module with event handler has been disabled
+- Set order of watchdog notifications
+
+### Changed
+- Filestorage and db structure has been refactored (Dev)
+- Fileupload has been refactored - added Dropzone (Dev)
+- Attachments patch for new filestorage (Dev)
+- Update PHPExcel library (Dev)
+- Remove json encode/decode service lib (Dev)
+- Enable for custom field_id different than field name (georgehristov)
+- Use custom class to detect if field is auto-hidden (georgehristov)
+- Enable for custom icons not related to the parent module
+- Allow to use like special characters in commondata crits (Dev)
+- Establish get_mime_type as static method (georgehristov)
+- Introduce the "more" option to linked_label and linked_text (georgehristov)
+- Improve field access selection (georgehristov)
+- Load all similar tooltips at the same time (georgehristov)
+- Change method of tooltip_id generation (georgehristov)
+
+### Important
+
+Since adding the new file field to RB utils_filestorage and utils_fileupload have been heavily refactored .
+Any module that has been using them might have to write a patch to work with this update.
+I.e. Utils_FilestorageCommon::meta accepts the id from the new utils_filestorage table.
+
+
 RELEASE 1.8.1-20161121
 -------
 

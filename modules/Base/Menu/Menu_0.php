@@ -151,17 +151,17 @@ class Base_Menu extends Module {
 		return $aw-$bw;
 	}
 
-	private static function sort_menus(& $menu) {
-		self::$tmp_menu = $menu;
-		uksort($menu, array("Base_Menu","sort_menus_cmp"));
-		foreach($menu as &$m) {
-			if(is_array($m) && array_key_exists('__submenu__',$m))
-				self::sort_menus($m);
-			else
-				unset($m['__weight__']);
-		}
-		unset($menu['__weight__']);
-	}
+    private static function sort_menus(& $menu) {
+        self::$tmp_menu = $menu;
+        uksort($menu, array("Base_Menu","sort_menus_cmp"));
+        foreach($menu as &$m) {
+            if(is_array($m) && array_key_exists('__submenu__',$m))
+                self::sort_menus($m);
+			elseif(is_array($m))
+                unset($m['__weight__']);
+        }
+        unset($menu['__weight__']);
+    }
 
 	public function body() {
 		// preparing modules menu and tools menu

@@ -19,8 +19,8 @@ ModuleManager::load_modules();
 if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate'))
 	die('Unauthorized access');
 
-$original = $_POST['original'];
-$new = $_POST['new'];
+$original = htmlspecialchars($_POST['original']);
+$new = htmlspecialchars($_POST['new']);
 $lang = $_SESSION['client']['base_lang_administrator']['currently_translating'];
 
 Base_LangCommon::append_custom($lang, array($original => $new));

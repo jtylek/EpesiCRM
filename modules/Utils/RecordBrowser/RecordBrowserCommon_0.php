@@ -1665,9 +1665,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'created_on'=>$row['created_on']);
             foreach($fields as $desc){
                 if (isset($row['f_'.$desc['id']])) {
-                    if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') $r[$desc['id']] = self::decode_multi($row['f_'.$desc['id']]);
-                    elseif ($desc['type']=='text') $r[$desc['id']] = htmlspecialchars($row['f_'.$desc['id']]);
-                    else $r[$desc['id']] = $row['f_'.$desc['id']];
+                    if ($desc['type'] == 'multiselect' || $desc['type'] == 'file') {
+                        $r[$desc['id']] = self::decode_multi($row['f_' . $desc['id']]);
+                    } elseif ($desc['type']=='text' || $desc['type']=='long text') {
+                        $r[$desc['id']] = $row['f_' . $desc['id']];
+                    } else {
+                        $r[$desc['id']] = $row['f_' . $desc['id']];
+                    }
                 } else {
                     if ($desc['type']=='multiselect') $r[$desc['id']] = array();
                     else $r[$desc['id']] = '';

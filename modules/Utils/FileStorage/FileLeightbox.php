@@ -64,14 +64,14 @@ class Utils_FileStorage_FileLeightbox
         }
         $theme->assign('__link', $links);
 
-        $custom_getters = array();
-        $getters = ModuleManager::call_common_methods('attachment_getters');
+        $custom_getters = [];
+        $getters = ModuleManager::call_common_methods('file_field_getters');
         foreach ($getters as $mod => $arr) {
             if (is_array($arr)) {
                 foreach ($arr as $caption => $func) {
                     $cus_id = md5($mod . $caption . serialize($func) . $meta['id']);
                     if (isset($_GET['utils_attachment_custom_getter']) && $_GET['utils_attachment_custom_getter'] == $cus_id) {
-                        call_user_func_array(array($mod . 'Common', $func['func']), array($filepath, $meta['filename'], $meta['id']));
+                        call_user_func_array(array($mod . 'Common', $func['func']), array($meta['backref']));
                     }
                     $custom_getters[] = array('open' => '<a href="javascript:void(0)" onclick="' . Epesi::escapeJS(Module::create_href_js(array('utils_attachment_custom_getter' => $cus_id)), true, false) . ';' . $close_leightbox_js . '">', 'close' => '</a>', 'text' => $caption, 'icon' => $func['icon']);
                 }

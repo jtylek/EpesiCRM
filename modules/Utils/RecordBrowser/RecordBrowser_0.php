@@ -910,9 +910,11 @@ class Utils_RecordBrowser extends Module {
 			$gb->absolute_width(true);
 			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
 		} else $args = array();
-        foreach ($column_access as $k => $access) {
-            if (!$access) {
-                $gb->set_column_display($k + $data_rows_offset, false);
+        if(!$this->add_in_table) {
+            foreach ($column_access as $k => $access) {
+                if (!$access) {
+                    $gb->set_column_display($k + $data_rows_offset, false);
+                }
             }
         }
 		$this->display_module($gb, $args);
@@ -2502,13 +2504,13 @@ class Utils_RecordBrowser extends Module {
 					);
                 } else {
                     if (!isset($field_hash[$k])) continue;
-                    $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-                    if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
-                    $created[$k] = $v;
-                    $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-					$gb_row = $gb_cha->get_new_row();
-					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
-                    $gb_row->add_data(
+                        $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                        if ($this->table_rows[$field_hash[$k]]['type'] == 'multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
+                        $created[$k] = $v;
+                        $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+					    $gb_row = $gb_cha->get_new_row();
+					    $gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
+                        $gb_row->add_data(
                         $date_and_time,
                         $row['edited_by']!==null?$user:'',
                         _V($this->table_rows[$field_hash[$k]]['name']), // TRSL
