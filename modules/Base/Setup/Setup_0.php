@@ -399,6 +399,7 @@ class Base_Setup extends Module {
         }
 
         foreach ($sorted as $key => $value){
+			if(!isset($value['version'])) continue;
 			if ($value['version'] == null) $value['version'] = '---';
 //			var_dump($value['version']);
 		}
