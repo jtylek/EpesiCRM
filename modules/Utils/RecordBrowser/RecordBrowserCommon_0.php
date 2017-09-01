@@ -1023,9 +1023,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
         
-        		foreach ($crits->find($id) as $c) $c->set_field($new_id);
+        	foreach ($crits->find($id)?:[] as $c) $c->set_field($new_id);
         
-        		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
         
         DB::CompleteTrans();
