@@ -287,7 +287,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function format_long_text($text){
 		$ret = htmlspecialchars($text);
 		$ret = str_replace("\n",'<br>',$ret);
-		$ret = Utils_BBCodeCommon::parse($ret);
+		$ret = Utils_BBCodeCommon::parse(htmlspecialchars_decode($ret));
         return $ret;
     }
     public static function encode_multi($v) {
