@@ -139,6 +139,7 @@ function rcmail_contact_search()
 
     // Values matching mode
     $mode = (int) $RCMAIL->config->get('addressbook_search_mode');
+    $mode |= rcube_addressbook::SEARCH_GROUPS;
 
     // get sources list
     $sources    = $RCMAIL->get_address_sources();
@@ -229,13 +230,15 @@ function rcmail_contact_search()
     }
 
     // update message count display
-    $OUTPUT->command('set_env', 'search_request', $search_request);
-    $OUTPUT->command('set_env', 'pagecount', ceil($result->count / $PAGE_SIZE));
+    $OUTPUT->set_env('search_request', $search_request);
+    $OUTPUT->set_env('pagecount', ceil($result->count / $PAGE_SIZE));
     $OUTPUT->command('set_rowcount', rcmail_get_rowcount_text($result));
     // Re-set current source
-    $OUTPUT->command('set_env', 'search_id', $sid);
-    $OUTPUT->command('set_env', 'source', '');
-    $OUTPUT->command('set_env', 'group', '');
+    $OUTPUT->set_env('search_id', $sid);
+    $OUTPUT->set_env('source', '');
+    $OUTPUT->set_env('group', '');
+    // Re-set list header
+    $OUTPUT->command('set_group_prop', null);
 
     if (!$sid) {
         // unselect currently selected directory/group
@@ -246,7 +249,7 @@ function rcmail_contact_search()
     $OUTPUT->command('update_group_commands');
 
     // send response
-    $OUTPUT->send($adv ? 'iframe' : null);
+    $OUTPUT->send();
 }
 
 function rcmail_contact_search_form($attrib)

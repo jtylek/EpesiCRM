@@ -8,6 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     'Roundcube\\Composer' => array($vendorDir . '/roundcube/plugin-installer/src'),
     'PEAR' => array($vendorDir . '/pear/pear_exception'),
-    'Console' => array($vendorDir . '/pear/console_getopt'),
+    'Net' => array($vendorDir . '/pear/net_idna2', $vendorDir . '/pear/net_socket', $vendorDir . '/pear/net_smtp'),
+    'Mail' => array($vendorDir . '/pear/mail_mime'),
+    'Crypt' => array($vendorDir . '/pear/crypt_gpg'),
+    'Console' => array($vendorDir . '/pear/console_commandline', $vendorDir . '/pear/console_getopt'),
+    'Auth' => array($vendorDir . '/pear/auth_sasl'),
     '' => array($vendorDir . '/pear/pear-core-minimal/src'),
 );

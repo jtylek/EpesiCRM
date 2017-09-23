@@ -39,10 +39,10 @@ function rcube_text_editor(config, id)
     abs_url = location.href.replace(/[?#].*$/, '').replace(/\/$/, ''),
     conf = {
       selector: '#' + ($('#' + id).is('.mce_editor') ? id : 'fake-editor-id'),
-      cache_suffix: 's=4031300',
+      cache_suffix: 's=4050700',
       theme: 'modern',
       language: config.lang,
-      content_css: rcmail.assets_path('program/js/tinymce/roundcube/content.css'),
+      content_css: rcmail.assets_path('program/resources/tinymce/content.css'),
       menubar: false,
       statusbar: false,
       toolbar_items_size: 'small',
@@ -88,7 +88,7 @@ function rcube_text_editor(config, id)
   // full-featured editor
   else {
     $.extend(conf, {
-      plugins: 'autolink charmap code colorpicker directionality link image media nonbreaking'
+      plugins: 'autolink charmap code colorpicker directionality link lists image media nonbreaking'
         + ' paste table tabfocus textcolor searchreplace spellchecker',
       toolbar: 'bold italic underline | alignleft aligncenter alignright alignjustify'
         + ' | bullist numlist outdent indent ltr rtl blockquote | forecolor backcolor | fontselect fontsizeselect'
@@ -137,6 +137,8 @@ function rcube_text_editor(config, id)
       rcmail.compose_type_activity++;
     });
   };
+
+  rcmail.triggerEvent('editor-init', {config: conf, ref: ref});
 
   // textarea identifier
   this.id = id;
@@ -407,27 +409,47 @@ function rcube_text_editor(config, id)
   };
 
   // replace selection with text snippet
-  this.replace = function(text)
+  // input can be a string or object with 'text' and 'html' properties
+  this.replace = function(input)
   {
-    var ed = this.editor;
+    var format, ed = this.editor;
+
+    if (!input)
+      return false;
 
     // insert into tinymce editor
     if (ed) {
       ed.getWin().focus(); // correct focus in IE & Chrome
-      ed.selection.setContent(rcmail.quote_html(text).replace(/\r?\n/g, '<br/>'), { format:'text' });
+
+      if ($.type(input) == 'object' && ('html' in input)) {
+        input = input.html;
+        format = 'html';
+      }
+      else {
+        if ($.type(input) == 'object')
+          input = input.text || '';
+
+        input = rcmail.quote_html(input).replace(/\r?\n/g, '<br/>');
+        format = 'text';
+      }
+
+      ed.selection.setContent(input, {format: format});
     }
     // replace selection in compose textarea
     else if (ed = rcube_find_object(this.id)) {
-      var selection = $(ed).is(':focus') ? rcmail.get_input_selection(ed) : { start:0, end:0 },
-        inp_value = ed.value;
-        pre = inp_value.substring(0, selection.start),
-        end = inp_value.substring(selection.end, inp_value.length);
+      var selection = $(ed).is(':focus') ? rcmail.get_input_selection(ed) : {start: 0, end: 0},
+        value = ed.value;
+        pre = value.substring(0, selection.start),
+        end = value.substring(selection.end, value.length);
+
+      if ($.type(input) == 'object')
+        input = input.text || '';
 
       // insert response text
-      ed.value = pre + text + end;
+      ed.value = pre + input + end;
 
       // set caret after inserted text
-      rcmail.set_caret_pos(ed, selection.start + text.length);
+      rcmail.set_caret_pos(ed, selection.start + input.length);
       ed.focus();
     }
   };
@@ -731,7 +753,7 @@ function rcube_text_editor(config, id)
 
       case 'media':
         rx = /^video\//i;
-        img_src = 'program/js/tinymce/roundcube/video.png';
+        img_src = 'program/resources/tinymce/video.png';
         break;
 
       default:

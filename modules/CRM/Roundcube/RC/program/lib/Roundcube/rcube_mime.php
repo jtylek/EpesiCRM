@@ -3,8 +3,8 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2014, The Roundcube Dev Team                       |
- | Copyright (C) 2011-2014, Kolab Systems AG                             |
+ | Copyright (C) 2005-2016, The Roundcube Dev Team                       |
+ | Copyright (C) 2011-2016, Kolab Systems AG                             |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -42,7 +42,7 @@ class rcube_mime
     /**
      * Returns message/object character set name
      *
-     * @return string Characted set name
+     * @return string Character set name
      */
     public static function get_charset()
     {
@@ -84,16 +84,21 @@ class rcube_mime
     /**
      * Split an address list into a structured array list
      *
-     * @param string  $input    Input string
-     * @param int     $max      List only this number of addresses
-     * @param boolean $decode   Decode address strings
-     * @param string  $fallback Fallback charset if none specified
-     * @param boolean $addronly Return flat array with e-mail addresses only
+     * @param string|array $input    Input string (or list of strings)
+     * @param int          $max      List only this number of addresses
+     * @param boolean      $decode   Decode address strings
+     * @param string       $fallback Fallback charset if none specified
+     * @param boolean      $addronly Return flat array with e-mail addresses only
      *
      * @return array Indexed list of addresses
      */
     static function decode_address_list($input, $max = null, $decode = true, $fallback = null, $addronly = false)
     {
+        // A common case when the same header is used many times in a mail message
+        if (is_array($input)) {
+            $input = implode(', ', $input);
+        }
+
         $a   = self::parse_address_list($input, $decode, $fallback);
         $out = array();
         $j   = 0;
@@ -101,8 +106,9 @@ class rcube_mime
         // Special chars as defined by RFC 822 need to in quoted string (or escaped).
         $special_chars = '[\(\)\<\>\\\.\[\]@,;:"]';
 
-        if (!is_array($a))
+        if (!is_array($a)) {
             return $out;
+        }
 
         foreach ($a as $val) {
             $j++;
@@ -273,16 +279,17 @@ class rcube_mime
     public static function parse_headers($headers)
     {
         $a_headers = array();
-        $headers = preg_replace('/\r?\n(\t| )+/', ' ', $headers);
-        $lines = explode("\n", $headers);
-        $c = count($lines);
+        $headers   = preg_replace('/\r?\n(\t| )+/', ' ', $headers);
+        $lines     = explode("\n", $headers);
+        $count     = count($lines);
 
-        for ($i=0; $i<$c; $i++) {
+        for ($i=0; $i<$count; $i++) {
             if ($p = strpos($lines[$i], ': ')) {
                 $field = strtolower(substr($lines[$i], 0, $p));
                 $value = trim(substr($lines[$i], $p+1));
-                if (!empty($value))
+                if (!empty($value)) {
                     $a_headers[$field] = $value;
+                }
             }
         }
 
@@ -435,12 +442,13 @@ class rcube_mime
     /**
      * Interpret a format=flowed message body according to RFC 2646
      *
-     * @param string $text Raw body formatted as flowed text
-     * @param string $mark Mark each flowed line with specified character
+     * @param string  $text  Raw body formatted as flowed text
+     * @param string  $mark  Mark each flowed line with specified character
+     * @param boolean $delsp Remove the trailing space of each flowed line
      *
      * @return string Interpreted text with unwrapped lines and stuffed space removed
      */
-    public static function unfold_flowed($text, $mark = null)
+    public static function unfold_flowed($text, $mark = null, $delsp = false)
     {
         $text    = preg_split('/\r?\n/', $text);
         $last    = -1;
@@ -448,12 +456,11 @@ class rcube_mime
         $marks   = array();
 
         foreach ($text as $idx => $line) {
-            if (preg_match('/^(>+)/', $line, $m)) {
+            if ($q = strspn($line, '>')) {
                 // remove quote chars
-                $q    = strlen($m[1]);
-                $line = preg_replace('/^>+/', '', $line);
+                $line = substr($line, $q);
                 // remove (optional) space-staffing
-                $line = preg_replace('/^ /', '', $line);
+                if ($line[0] === ' ') $line = substr($line, 1);
 
                 // The same paragraph (We join current line with the previous one) when:
                 // - the same level of quoting
@@ -463,6 +470,9 @@ class rcube_mime
                     && isset($text[$last]) && $text[$last][strlen($text[$last])-1] == ' '
                     && !preg_match('/^>+ {0,1}$/', $text[$last])
                 ) {
+                    if ($delsp) {
+                        $text[$last] = substr($text[$last], 0, -1);
+                    }
                     $text[$last] .= $line;
                     unset($text[$idx]);
 
@@ -475,18 +485,20 @@ class rcube_mime
                 }
             }
             else {
-                $q = 0;
                 if ($line == '-- ') {
                     $last = $idx;
                 }
                 else {
                     // remove space-stuffing
-                    $line = preg_replace('/^ /', '', $line);
+                    if ($line[0] === ' ') $line = substr($line, 1);
 
                     if (isset($text[$last]) && $line && !$q_level
                         && $text[$last] != '-- '
                         && $text[$last][strlen($text[$last])-1] == ' '
                     ) {
+                        if ($delsp) {
+                            $text[$last] = substr($text[$last], 0, -1);
+                        }
                         $text[$last] .= $line;
                         unset($text[$idx]);
 
@@ -527,12 +539,13 @@ class rcube_mime
 
         foreach ($text as $idx => $line) {
             if ($line != '-- ') {
-                if (preg_match('/^(>+)/', $line, $m)) {
+                if ($level = strspn($line, '>')) {
                     // remove quote chars
-                    $level  = strlen($m[1]);
-                    $line   = preg_replace('/^>+/', '', $line);
+                    $line = substr($line, $level);
                     // remove (optional) space-staffing and spaces before the line end
-                    $line   = preg_replace('/(^ | +$)/', '', $line);
+                    $line = rtrim($line, ' ');
+                    if ($line[0] === ' ') $line = substr($line, 1);
+
                     $prefix = str_repeat('>', $level) . ' ';
                     $line   = $prefix . self::wordwrap($line, $length - $level - 2, " \r\n$prefix", false, $charset);
                 }
@@ -778,6 +791,7 @@ class rcube_mime
             $file_paths[] = '/etc/nginx/mime.types';
             $file_paths[] = '/usr/local/etc/httpd/conf/mime.types';
             $file_paths[] = '/usr/local/etc/apache/conf/mime.types';
+            $file_paths[] = '/usr/local/etc/apache24/mime.types';
         }
 
         foreach ($file_paths as $fp) {
@@ -789,7 +803,7 @@ class rcube_mime
 
         $mime_types = $mime_extensions = array();
         $regex = "/([\w\+\-\.\/]+)\s+([\w\s]+)/i";
-        foreach((array)$lines as $line) {
+        foreach ((array)$lines as $line) {
              // skip comments or mime types w/o any extensions
             if ($line[0] == '#' || !preg_match($regex, $line, $matches))
                 continue;

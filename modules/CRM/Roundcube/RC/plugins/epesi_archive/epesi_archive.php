@@ -108,8 +108,8 @@ class epesi_archive extends rcube_plugin
     }
 
     //archive button
-    $uids = get_input_value('_uid', RCUBE_INPUT_POST);
-    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $uids = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GPC);
+    $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_GPC);
     if($mbox==$this->archive_mbox || $mbox==$this->archive_sent_mbox || $mbox==$rcmail->config->get('drafts_mbox')) {
         $rcmail->output->show_message($this->gettext('invalidfolder'), 'error');
         return;

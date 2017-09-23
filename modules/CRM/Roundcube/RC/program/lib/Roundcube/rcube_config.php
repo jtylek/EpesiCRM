@@ -31,6 +31,7 @@ class rcube_config
     private $prop      = array();
     private $errors    = array();
     private $userprefs = array();
+    private $immutable = array();
 
 
     /**
@@ -46,13 +47,14 @@ class rcube_config
         'refresh_interval'     => 'keep_alive',
         'min_refresh_interval' => 'min_keep_alive',
         'messages_cache_ttl'   => 'message_cache_lifetime',
+        'mail_read_time'       => 'preview_pane_mark_read',
         'redundant_attachments_cache_ttl' => 'redundant_attachments_memcache_ttl',
     );
 
     /**
      * Object constructor
      *
-     * @param string Environment suffix for config files to load
+     * @param string $env Environment suffix for config files to load
      */
     public function __construct($env = '')
     {
@@ -98,7 +100,7 @@ class rcube_config
      *
      * Look inside the string to determine what type might be best as a container.
      *
-     * @param $value The value to inspect
+     * @param mixed $value The value to inspect
      *
      * @return The guess at the type.
      */
@@ -126,8 +128,8 @@ class rcube_config
      *
      * Perform an appropriate parsing of the string to create the desired PHP type.
      *
-     * @param $string String to parse into PHP type
-     * @param $type   Type of value to return
+     * @param string $string String to parse into PHP type
+     * @param string $type   Type of value to return
      *
      * @return Appropriately typed interpretation of $string.
      */
@@ -168,9 +170,9 @@ class rcube_config
      * Retrieve an environment variable's value or if it's not found, return the
      * provided default value.
      *
-     * @param $varname       Environment variable name
-     * @param $default_value Default value to return if necessary
-     * @param $type          Type of value to return
+     * @param string $varname       Environment variable name
+     * @param mixed  $default_value Default value to return if necessary
+     * @param string $type          Type of value to return
      *
      * @return Value of the environment variable or default if not found.
      */
@@ -190,8 +192,6 @@ class rcube_config
 
     /**
      * Load config from local config file
-     *
-     * @todo Remove global $CONFIG
      */
     private function load()
     {
@@ -261,9 +261,6 @@ class rcube_config
 
         // remove deprecated properties
         unset($this->prop['dst_active']);
-
-        // export config data
-        $GLOBALS['CONFIG'] = &$this->prop;
     }
 
     /**
@@ -302,6 +299,7 @@ class rcube_config
      * and merge with the already stored config values
      *
      * @param string $file Name of the config file to be loaded
+     *
      * @return booelan True on success, false on failure
      */
     public function load_from_file($file)
@@ -334,9 +332,10 @@ class rcube_config
      * Helper method to resolve absolute paths to the given config file.
      * This also takes the 'env' property into account.
      *
-     * @param string  Filename or absolute file path
-     * @param boolean Return -$env file path if exists
-     * @return array  List of candidates in config dir path(s)
+     * @param string  $file    Filename or absolute file path
+     * @param boolean $use_env Return -$env file path if exists
+     *
+     * @return array List of candidates in config dir path(s)
      */
     public function resolve_paths($file, $use_env = true)
     {
@@ -372,6 +371,7 @@ class rcube_config
      *
      * @param  string $name Parameter name
      * @param  mixed  $def  Default value if not set
+     *
      * @return mixed  The requested config value
      */
     public function get($name, $def = null)
@@ -393,7 +393,9 @@ class rcube_config
         }
         else if ($name == 'client_mimetypes') {
             if (!$result && !$def) {
-                $result = 'text/plain,text/html,text/xml,image/jpeg,image/gif,image/png,image/bmp,image/tiff,application/x-javascript,application/pdf,application/x-shockwave-flash';
+                $result = 'text/plain,text/html,text/xml'
+                    . ',image/jpeg,image/gif,image/png,image/bmp,image/tiff,image/webp'
+                    . ',application/x-javascript,application/pdf,application/x-shockwave-flash';
             }
             if ($result && is_string($result)) {
                 $result = explode(',', $result);
@@ -409,12 +411,17 @@ class rcube_config
     /**
      * Setter for a config parameter
      *
-     * @param string $name  Parameter name
-     * @param mixed  $value Parameter value
+     * @param string $name      Parameter name
+     * @param mixed  $value     Parameter value
+     * @param bool   $immutable Make the value immutable
      */
-    public function set($name, $value)
+    public function set($name, $value, $immutable = false)
     {
         $this->prop[$name] = $value;
+
+        if ($immutable) {
+            $this->immutable[$name] = $value;
+        }
     }
 
     /**
@@ -425,7 +432,7 @@ class rcube_config
     public function merge($prefs)
     {
         $prefs = $this->fix_legacy_props($prefs);
-        $this->prop = array_merge($this->prop, $prefs, $this->userprefs);
+        $this->prop = array_merge($this->prop, $prefs, $this->userprefs, $this->immutable);
     }
 
     /**
@@ -458,7 +465,7 @@ class rcube_config
     /**
      * Getter for all config options
      *
-     * @return array  Hash array containing all config properties
+     * @return array Hash array containing all config properties
      */
     public function all()
     {
@@ -478,7 +485,7 @@ class rcube_config
     /**
      * Special getter for user's timezone offset including DST
      *
-     * @return float  Timezone offset (in hours)
+     * @return float Timezone offset (in hours)
      * @deprecated
      */
     public function get_timezone()
@@ -530,6 +537,7 @@ class rcube_config
      * Try to autodetect operating system and find the correct line endings
      *
      * @return string The appropriate mail header delimiter
+     * @deprecated Since 1.3 we don't use mail()
      */
     public function header_delimiter()
     {
@@ -564,6 +572,7 @@ class rcube_config
      *
      * @param string  $host   IMAP host
      * @param boolean $encode If true, domain name will be converted to IDN ASCII
+     *
      * @return string Resolved SMTP host
      */
     public function mail_domain($host, $encode=true)
@@ -642,6 +651,12 @@ class rcube_config
             else {
                 unset($props['timezone']);
             }
+        }
+
+        // translate old `preview_pane` settings to `layout`
+        if (isset($props['preview_pane']) && !isset($props['layout'])) {
+            $props['layout'] = $props['preview_pane'] ? 'desktop' : 'list';
+            unset($props['preview_pane']);
         }
 
         return $props;

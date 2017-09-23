@@ -58,19 +58,15 @@ function roundcube_browser()
   this.dom = document.getElementById ? true : false;
   this.dom2 = document.addEventListener && document.removeEventListener;
 
-  this.webkit = this.agent_lc.indexOf('applewebkit') > 0;
+  this.edge = this.agent_lc.indexOf(' edge/') > 0;
+  this.webkit = !this.edge && this.agent_lc.indexOf('applewebkit') > 0;
   this.ie = (document.all && !window.opera) || (this.win && this.agent_lc.indexOf('trident/') > 0);
 
-  if (this.ie) {
-    this.ie7 = n.appVersion.indexOf('MSIE 7') > 0;
-    this.ie8 = n.appVersion.indexOf('MSIE 8') > 0;
-    this.ie9 = n.appVersion.indexOf('MSIE 9') > 0;
-  }
-  else if (window.opera) {
+  if (window.opera) {
     this.opera = true; // Opera < 15
     this.vendver = opera.version();
   }
-  else {
+  else if (!this.ie && !this.edge) {
     this.chrome = this.agent_lc.indexOf('chrome') > 0;
     this.opera = this.webkit && this.agent.indexOf(' OPR/') > 0; // Opera >= 15
     this.safari = !this.chrome && !this.opera && (this.webkit || this.agent_lc.indexOf('safari') > 0);
@@ -96,6 +92,7 @@ function roundcube_browser()
   this.tablet = /ipad|android|xoom|sch-i800|playbook|tablet|kindle/i.test(this.agent_lc);
   this.mobile = /iphone|ipod|blackberry|iemobile|opera mini|opera mobi|mobile/i.test(this.agent_lc);
   this.touch = this.mobile || this.tablet;
+  this.pointer = typeof window.PointerEvent == "function";
   this.cookies = n.cookieEnabled;
 
   // test for XMLHTTP support
@@ -113,7 +110,9 @@ function roundcube_browser()
     var classname = ' js';
 
     if (this.ie)
-      classname += ' ie ie'+parseInt(this.vendver);
+      classname += ' ms ie ie'+parseInt(this.vendver);
+    else if (this.edge)
+      classname += ' ms edge';
     else if (this.opera)
       classname += ' opera';
     else if (this.konq)
@@ -285,11 +284,8 @@ cancel: function(evt)
 is_keyboard: function(e)
 {
   return e && (
-      (e.pointerType !== undefined && e.pointerType !== 'mouse') ||       // IE 11+
-      (e.mozInputSource && e.mozInputSource == e.MOZ_SOURCE_KEYBOARD) ||  // Firefox
-      (e.offsetX === 0 && e.offsetY === 0) || // Opera
-      (!e.pageX && (e.pageY || 0) <= 0 && !e.clientX && (e.clientY || 0) <= 0) ||  // others
-      (bw.ie && rcube_event._last_keyboard_event && rcube_event._last_keyboard_event.target == e.target)  // hack for IE <= 10
+      (e.type && String(e.type).match(/^key/)) // DOM3-compatible
+      || (!e.pageX && (e.pageY || 0) <= 0 && !e.clientX && (e.clientY || 0) <= 0) // others
     );
 },
 
@@ -415,10 +411,14 @@ triggerEvent: function(evt, e)
 // check if input is a valid email address
 // By Cal Henderson <cal@iamcal.com>
 // http://code.iamcal.com/php/rfc822/
-function rcube_check_email(input, inline)
+function rcube_check_email(input, inline, count)
 {
-  if (input && window.RegExp) {
-    var qtext = '[^\\x0d\\x22\\x5c\\x80-\\xff]',
+  if (!input)
+    return count ? 0 : false;
+
+  if (count) inline = true;
+
+  var qtext = '[^\\x0d\\x22\\x5c\\x80-\\xff]',
       dtext = '[^\\x0d\\x5b-\\x5d\\x80-\\xff]',
       atom = '[^\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]+',
       quoted_pair = '\\x5c[\\x00-\\x7f]',
@@ -451,12 +451,13 @@ function rcube_check_email(input, inline)
       delim = '[,;\\s\\n]',
       local_part = word+'(\\x2e'+word+')*',
       addr_spec = '(('+local_part+'\\x40'+domain+')|('+icann_addr+'))',
-      reg1 = inline ? new RegExp('(^|<|'+delim+')'+addr_spec+'($|>|'+delim+')', 'i') : new RegExp('^'+addr_spec+'$', 'i');
+      rx_flag = count ? 'ig' : 'i',
+      rx = inline ? new RegExp('(^|<|'+delim+')'+addr_spec+'($|>|'+delim+')', rx_flag) : new RegExp('^'+addr_spec+'$', 'i');
 
-    return reg1.test(input) ? true : false;
-  }
+  if (count)
+    return input.match(rx).length;
 
-  return false;
+  return rx.test(input);
 };
 
 // recursively copy an object
@@ -613,49 +614,32 @@ if (!String.prototype.startsWith) {
   };
 }
 
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(searchString, position) {
+    var subjectString = this.toString();
+    if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+      position = subjectString.length;
+    }
+    position -= searchString.length;
+    var lastIndex = subjectString.lastIndexOf(searchString, position);
+    return lastIndex !== -1 && lastIndex === position;
+  };
+}
+
 // array utility function
 jQuery.last = function(arr) {
   return arr && arr.length ? arr[arr.length-1] : undefined;
 }
 
-// jQuery plugin to emulate HTML5 placeholder attributes on input elements
+// jQuery plugin to set HTML5 placeholder and title attributes on input elements
 jQuery.fn.placeholder = function(text) {
   return this.each(function() {
-    var active = false, elem = $(this);
-    this.title = text;
-
-    // Try HTML5 placeholder attribute first
-    if ('placeholder' in this) {
-      elem.attr('placeholder', text);
-    }
-    // Fallback to Javascript emulation of placeholder
-    else {
-      this._placeholder = text;
-      elem.blur(function(e) {
-        if ($.trim(elem.val()) == "")
-          elem.val(text);
-        elem.triggerHandler('change');
-      })
-      .focus(function(e) {
-        if ($.trim(elem.val()) == text)
-          elem.val("");
-        elem.triggerHandler('change');
-      })
-      .change(function(e) {
-        var active = elem.val() == text;
-        elem[(active ? 'addClass' : 'removeClass')]('placeholder').attr('spellcheck', active);
-      });
-
-      // Do not blur currently focused element (catch exception: #1489008)
-      try { active = this == document.activeElement; } catch(e) {}
-      if (!active)
-        elem.blur();
-    }
+    $(this).prop({title: text, placeholder: text});
   });
 };
 
 // function to parse query string into an object
-rcube_parse_query = function(query)
+var rcube_parse_query = function(query)
 {
   if (!query)
     return {};
@@ -714,7 +698,7 @@ var Base64 = (function () {
 
   // private method for UTF-8 decoding
   var utf8_decode = function (utftext) {
-    var i = 0, string = '', c = c2 = c3 = 0;
+    var i = 0, string = '', c = 0, c2 = 0, c3 = 0;
 
     while (i < utftext.length) {
       c = utftext.charCodeAt(i);

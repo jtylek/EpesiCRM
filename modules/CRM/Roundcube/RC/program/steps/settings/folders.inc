@@ -191,6 +191,7 @@ $OUTPUT->add_handlers(array(
     'folderframe'        => 'rcmail_folder_frame',
     'folderfilter'       => 'rcmail_folder_filter',
     'quotadisplay'       => array($RCMAIL, 'quota_display'),
+    'searchform'         => array($OUTPUT, 'search_form'),
 ));
 
 $OUTPUT->send('folders');
@@ -277,12 +278,13 @@ function rcmail_subscription_form($attrib)
     foreach ($list_folders as $i => $folder) {
         $sub_key    = array_search($folder['id'], $a_subscribed);
         $subscribed = $sub_key !== false;
-        $protected  = $folder['id'] == 'INBOX' || ($protect_default && isset($special_folders[$folder['id']]));
+        $special    = $folder['id'] == 'INBOX' || isset($special_folders[$folder['id']]);
+        $protected  = $folder['id'] == 'INBOX' || ($protect_default && $special);
         $noselect   = false;
         $classes    = array();
 
         $folder_utf8    = rcube_charset::convert($folder['id'], 'UTF7-IMAP');
-        $display_folder = rcube::Q($protected ? $RCMAIL->localize_foldername($folder['id']) : $folder['name']);
+        $display_folder = rcube::Q($special ? $RCMAIL->localize_foldername($folder['id'], false, true) : $folder['name']);
 
         if ($folder['virtual']) {
             $classes[] = 'virtual';
@@ -330,7 +332,7 @@ function rcmail_subscription_form($attrib)
             if (!$disabled) {
                 $tmp_ns = array_merge((array)$namespace['other'], (array)$namespace['shared']);
                 foreach ($tmp_ns as $item) {
-                    if (strpos($folder['id'], $item[0]) === 0) {
+                    if (strlen($item[0]) && strpos($folder['id'], $item[0]) === 0) {
                         $disabled = true;
                         break;
                     }

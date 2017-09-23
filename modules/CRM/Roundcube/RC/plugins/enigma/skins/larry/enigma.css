@@ -52,8 +52,6 @@ p.enigmaattachment {
   background: #f9f9f9;
   border: 1px solid #d3d3d3;
   border-radius: 4px;
-  box-shadow: 0 0 2px #ccc;
-  -webkit-box-shadow: 0 0 2px #ccc;
 }
 
 p.enigmaattachment a {
@@ -65,7 +63,9 @@ p.enigmaattachment a {
 /***** E-mail Compose Page *****/
 
 #messagetoolbar a.button.enigma {
-  background: url(enigma_icons.png) center -122px no-repeat;
+  background-image: url(enigma_icons.png);
+  background-position: center -122px;
+  background-repeat: no-repeat;
 }
 
 #enigmamenu {
@@ -139,6 +139,16 @@ p.enigmaattachment a {
 #keys-table td
 {
   text-overflow: ellipsis;
+}
+
+#keyimportform fieldset div
+{
+  background-color: #eee;
+  padding: 10px;
+}
+
+#keycreateform td > label {
+  display: block;
 }
 
 #keystoolbar

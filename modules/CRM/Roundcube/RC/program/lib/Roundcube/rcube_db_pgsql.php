@@ -3,7 +3,7 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2012, The Roundcube Dev Team                       |
+ | Copyright (C) 2005-2017, The Roundcube Dev Team                       |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -29,6 +29,21 @@ class rcube_db_pgsql extends rcube_db
     public $db_provider = 'postgres';
 
     /**
+     * Object constructor
+     *
+     * @param string $db_dsnw DSN for read/write operations
+     * @param string $db_dsnr Optional DSN for read only operations
+     * @param bool   $pconn   Enables persistent connections
+     */
+    public function __construct($db_dsnw, $db_dsnr = '', $pconn = false)
+    {
+        parent::__construct($db_dsnw, $db_dsnr, $pconn);
+
+        // use date/time input format with timezone spec.
+        $this->options['datetime_format'] = 'c';
+    }
+
+    /**
      * Driver-specific configuration of database connection
      *
      * @param array $dsn DSN for DB connections
@@ -37,6 +52,7 @@ class rcube_db_pgsql extends rcube_db
     protected function conn_configure($dsn, $dbh)
     {
         $dbh->query("SET NAMES 'utf8'");
+        $dbh->query("SET DATESTYLE TO ISO");
     }
 
     /**

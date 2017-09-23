@@ -1,11 +1,7 @@
-"use strict";
 /**
- * PublicKey.js
- * https://github.com/diafygi/publickeyjs
+ * PublicKey.js - v0e011cb
  *
- * A simple javascript library that allows you to search for PGP
- * public keys on SKS keyservers and Keybase. The API and results
- * are similar to specifications described in HTTP Keyserver Protocol.
+ * @source https://github.com/diafygi/publickeyjs/blob/master/publickey.js
  *
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
@@ -28,16 +24,16 @@
  *
  * @licend  The above is the entire license notice
  * for the JavaScript code in this file.
- *
- * @author Daniel Roesler (diafygi)
  */
+"use strict";
+
 (function(context){
     /*
         Default keyservers (HTTPS and CORS enabled)
     */
     var DEFAULT_KEYSERVERS = [
         "https://keys.fedoraproject.org/",
-        "https://keybase.io/"
+        "https://keybase.io/",
     ];
 
     /*
@@ -311,7 +307,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             }]
                         };
 
@@ -323,7 +319,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -337,7 +333,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -351,7 +347,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -365,7 +361,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -379,7 +375,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -393,7 +389,7 @@
                                 "expirationdate": null,
                                 "revoked": false,
                                 "disabled": false,
-                                "expired": false
+                                "expired": false,
                             });
                         }
 
@@ -406,7 +402,7 @@
                                     "expirationdate": null,
                                     "revoked": false,
                                     "disabled": false,
-                                    "expired": false
+                                    "expired": false,
                                 });
                             }
                         }
@@ -453,7 +449,7 @@
                                 "revoked": vals[6].indexOf("r") !== -1,
                                 "disabled": vals[6].indexOf("d") !== -1,
                                 "expired": vals[6].indexOf("e") !== -1,
-                                "uids": []
+                                "uids": [],
                             }
                         }
 
@@ -466,7 +462,7 @@
                                 "expirationdate": vals[3] === "" ? null : parseInt(vals[3]),
                                 "revoked": vals[4].indexOf("r") !== -1,
                                 "disabled": vals[4].indexOf("d") !== -1,
-                                "expired": vals[4].indexOf("e") !== -1
+                                "expired": vals[4].indexOf("e") !== -1,
                             });
                         }
                     }

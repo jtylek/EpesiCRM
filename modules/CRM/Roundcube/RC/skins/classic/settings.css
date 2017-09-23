@@ -12,7 +12,7 @@
 }
 
 #folderlist-title a.iconbutton.search {
-  background: url(images/icons/glass.png?v=6b06.406) no-repeat 0 0;
+  background: url(images/icons/glass.png) no-repeat 0 0;
   cursor: pointer;
   position: absolute;
   right: 4px;
@@ -192,7 +192,7 @@ div.readtext
 {
   min-height: 200px;
   padding-bottom: 2em;
-  background: url(images/watermark.gif?v=4094.9288) no-repeat center;
+  background: url(images/watermark.gif) no-repeat center;
 }
 
 #license .sysname

@@ -31,7 +31,8 @@ if ($caps = rcube_utils::get_input_value('_caps', rcube_utils::INPUT_GET)) {
     $_SESSION['browser_caps'] = $browser_caps;
 }
 
-$uid       = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+$msg_id    = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
+$uid       = preg_replace('/\.[0-9.]+$/', '', $msg_id);
 $mbox_name = $RCMAIL->storage->get_folder();
 
 // similar code as in program/steps/mail/get.inc
@@ -46,7 +47,7 @@ if ($uid) {
         $RCMAIL->config->set('prefer_html', $_SESSION['msg_formats'][$mbox_name.':'.$uid]);
     }
 
-    $MESSAGE = new rcube_message($uid, $mbox_name, intval($_GET['_safe']));
+    $MESSAGE = new rcube_message($msg_id, $mbox_name, intval($_GET['_safe']));
 
     // if message not found (wrong UID)...
     if (empty($MESSAGE->headers)) {
@@ -64,12 +65,13 @@ if ($uid) {
     $OUTPUT->set_pagetitle(abbreviate_string($MESSAGE->subject, 128, '...', true));
 
     // set message environment
-    $OUTPUT->set_env('uid', $MESSAGE->uid);
+    $OUTPUT->set_env('uid', $msg_id);
     $OUTPUT->set_env('safemode', $MESSAGE->is_safe);
+    $OUTPUT->set_env('message_context', $MESSAGE->context);
     $OUTPUT->set_env('sender', $MESSAGE->sender['string']);
     $OUTPUT->set_env('mailbox', $mbox_name);
     $OUTPUT->set_env('username', $RCMAIL->get_user_name());
-    $OUTPUT->set_env('permaurl', $RCMAIL->url(array('_action' => 'show', '_uid' => $MESSAGE->uid, '_mbox' => $mbox_name)));
+    $OUTPUT->set_env('permaurl', $RCMAIL->url(array('_action' => 'show', '_uid' => $msg_id, '_mbox' => $mbox_name)));
 
     if ($MESSAGE->headers->get('list-post', false)) {
         $OUTPUT->set_env('list_post', true);
@@ -77,6 +79,7 @@ if ($uid) {
 
     // set environment
     $OUTPUT->set_env('delimiter', $RCMAIL->storage->get_hierarchy_delimiter());
+    $OUTPUT->set_env('mimetypes', rcmail_supported_mimetypes());
 
     // set configuration
     $RCMAIL->set_env_config(array('delete_junk', 'flag_for_deletion', 'read_when_deleted',
@@ -88,26 +91,6 @@ if ($uid) {
             $OUTPUT->set_env($mbox . '_mailbox', $folder);
         }
     }
-
-    // mimetypes supported by the browser (default settings)
-    $mimetypes = (array)$RCMAIL->config->get('client_mimetypes');
-
-    // Remove unsupported types, which makes that attachment which cannot be
-    // displayed in a browser will be downloaded directly without displaying an overlay page
-    if (empty($_SESSION['browser_caps']['pdf']) && ($key = array_search('application/pdf', $mimetypes)) !== false) {
-        unset($mimetypes[$key]);
-    }
-    if (empty($_SESSION['browser_caps']['flash']) && ($key = array_search('application/x-shockwave-flash', $mimetypes)) !== false) {
-        unset($mimetypes[$key]);
-    }
-    if (empty($_SESSION['browser_caps']['tif']) && ($key = array_search('image/tiff', $mimetypes)) !== false) {
-        // we can convert tiff to jpeg
-        if (!rcube_image::is_convertable('image/tiff')) {
-            unset($mimetypes[$key]);
-        }
-    }
-
-    $OUTPUT->set_env('mimetypes', array_values($mimetypes));
 
     if ($MESSAGE->has_html_part()) {
         $prefer_html = $RCMAIL->config->get('prefer_html');
@@ -121,6 +104,7 @@ if ($uid) {
 
     // check for unset disposition notification
     if ($MESSAGE->headers->mdn_to
+        && $MESSAGE->context === null
         && empty($MESSAGE->headers->flags['MDNSENT'])
         && empty($MESSAGE->headers->flags['SEEN'])
         && ($RCMAIL->storage->check_permflag('MDNSENT') || $RCMAIL->storage->check_permflag('*'))
@@ -145,17 +129,21 @@ if ($uid) {
         }
     }
 
-    if (empty($MESSAGE->headers->flags['SEEN'])
-        && ($RCMAIL->action == 'show' || ($RCMAIL->action == 'preview' && intval($RCMAIL->config->get('preview_pane_mark_read')) == 0))
-    ) {
-        $RCMAIL->output->command('set_unread_message', $MESSAGE->uid, $mbox_name);
-        $RCMAIL->plugins->exec_hook('message_read', array(
-            'uid'     => $MESSAGE->uid,
-            'mailbox' => $mbox_name,
-            'message' => $MESSAGE,
-        ));
+    if (empty($MESSAGE->headers->flags['SEEN']) && $MESSAGE->context === null) {
+        $v = intval($RCMAIL->config->get('mail_read_time'));
+        if ($v > 0) {
+            $OUTPUT->set_env('mail_read_time', $v);
+        }
+        else if ($v == 0) {
+            $RCMAIL->output->command('set_unread_message', $MESSAGE->uid, $mbox_name);
+            $RCMAIL->plugins->exec_hook('message_read', array(
+                    'uid'     => $MESSAGE->uid,
+                    'mailbox' => $mbox_name,
+                    'message' => $MESSAGE,
+            ));
 
-        $set_seen_flag = true;
+            $set_seen_flag = true;
+        }
     }
 }
 
@@ -185,11 +173,6 @@ if (!empty($set_seen_flag)) {
     }
 }
 
-// Save preview_pane preference, if not set yet (#1490362)
-if ($RCMAIL->action == 'preview' && !$RCMAIL->config->get('preview_pane')) {
-    $RCMAIL->user->save_prefs(array('preview_pane' => true));
-}
-
 exit;
 
 
@@ -200,13 +183,14 @@ function rcmail_message_attachments($attrib)
     $out = $ol = '';
     $attachments = array();
 
-    if (sizeof($MESSAGE->attachments)) {
+    if (count($MESSAGE->attachments)) {
         foreach ($MESSAGE->attachments as $attach_prop) {
             $filename = rcmail_attachment_name($attach_prop, true);
             $filesize = $RCMAIL->message_part_size($attach_prop);
 
             if ($PRINT_MODE) {
-                $ol .= html::tag('li', null, rcube::Q(sprintf("%s (%s)", $filename, $filesize)));
+                $ol .= html::tag('li', array('id' => 'attach' . $attach_prop->mime_id),
+                    rcube::Q(sprintf("%s (%s)", $filename, $filesize)));
             }
             else {
                 if ($attrib['maxlength'] && mb_strlen($filename) > $attrib['maxlength']) {
@@ -217,10 +201,7 @@ function rcmail_message_attachments($attrib)
                     $title = '';
                 }
 
-                if ($attach_prop->size) {
-                    $size = ' ' . html::span('attachment-size', '(' . rcube::Q($filesize) . ')');
-                }
-
+                $size     = ' ' . html::span('attachment-size', '(' . rcube::Q($filesize) . ')');
                 $mimetype = rcmail_fix_mimetype($attach_prop->mimetype);
                 $class    = rcube_utils::file2class($mimetype, $filename);
                 $id       = 'attach' . $attach_prop->mime_id;
@@ -229,7 +210,7 @@ function rcmail_message_attachments($attrib)
                     'onclick'     => sprintf('return %s.command(\'load-attachment\',\'%s\',this)',
                         rcmail_output::JS_OBJECT_NAME, $attach_prop->mime_id),
                     'onmouseover' => $title ? '' : 'rcube_webmail.long_subject_title_ex(this, 0)',
-                    'title'       => rcube::Q($title),
+                    'title'       => $title,
                     ), rcube::Q($filename) . $size);
 
                 $ol .= html::tag('li', array('class' => $class, 'id' => $id), $link);
@@ -355,7 +336,7 @@ function rcmail_message_contactphoto($attrib)
             '_email'  => $MESSAGE->sender['mailto'],
         ));
 
-        $attrib['onerror'] = "this.src = '$placeholder'";
+        $attrib['onerror'] = "this.src = '$placeholder'; this.onerror = null";
     }
     else {
         $photo_img = $placeholder;

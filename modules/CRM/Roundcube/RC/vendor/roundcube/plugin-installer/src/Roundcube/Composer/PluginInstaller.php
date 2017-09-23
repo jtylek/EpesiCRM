@@ -46,9 +46,9 @@ class PluginInstaller extends LibraryInstaller
         // post-install: activate plugin in Roundcube config
         $config_file = $this->rcubeConfigFile();
         $extra = $package->getExtra();
+        $plugin_name = $this->getPluginName($package);
 
         if (is_writeable($config_file) && php_sapi_name() == 'cli') {
-            $plugin_name = $this->getPluginName($package);
             $answer = $this->io->askConfirmation("Do you want to activate the plugin $plugin_name? [N|y] ", false);
             if (true === $answer) {
                 $this->rcubeAlterConfig($plugin_name, true);
