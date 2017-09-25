@@ -11,7 +11,8 @@
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
         "enyo/dropzone": "@stable",
-        "ezyang/htmlpurifier": "^4.9"
+        "ezyang/htmlpurifier": "^4.9",
+        "moneyphp/money": "^3.0"
     },
     "scripts": {
         "post-install-cmd": [
