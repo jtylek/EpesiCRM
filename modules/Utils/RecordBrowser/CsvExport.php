@@ -151,7 +151,7 @@ class Utils_RecordBrowser_CsvExport
         ob_start(function($buffer) use ($end_line_type,$text_space_indicator,$text_space_separator) {
             return Utils_RecordBrowser_CsvExport::eol_conversion($buffer, $end_line_type,$text_space_indicator,$text_space_separator);
         });
-        fputcsv($f, $cols, $this->field_separator, chr($this->text_space_separator));
+        fputcsv($f, $cols, $this->field_separator, htmlspecialchars_decode($this->text_space_separator));
         $currency_codes = DB::GetAssoc('SELECT symbol, code FROM utils_currency');
 
         $records = true;
@@ -221,7 +221,7 @@ class Utils_RecordBrowser_CsvExport
                         $rec[] = $this->utf_to_charset(str_replace(array(\PHP_EOL,"&#8194;","&rArr;",$this->text_space_separator), array(' ','','',''),trim($val)));
                     }
                 }
-                fputcsv($f, $rec, $this->field_separator, chr($this->text_space_separator));
+                fputcsv($f, $rec, $this->field_separator, htmlspecialchars_decode($this->text_space_separator));
             }
         }
         if ($this->error_charset_conv){
