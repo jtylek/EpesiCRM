@@ -1,5 +1,5 @@
 import jQuery from '../vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js'
-
+import 'script-loader!../libs/HistoryKeeper.js';
 
 import Epesi from './epesi';
 

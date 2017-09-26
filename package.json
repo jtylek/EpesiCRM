@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/Telaxus/EPESI/issues"
   },
-  "homepage": "https://github.com/Telaxus/EPESI#readme"
+  "homepage": "https://github.com/Telaxus/EPESI#readme",
+  "devDependencies": {
+    "script-loader": "^0.7.1"
+  }
 }
