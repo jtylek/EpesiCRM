@@ -1,3 +1,6 @@
+import jQuery from '../vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js'
+
+
 import Epesi from './epesi';
 
 window.focus_by_id = (idd) => {
@@ -41,5 +44,7 @@ window.is_visible = function (element) {
     return true;
 };
 window.jq = jQuery;
+window.jQuery = jQuery;
+window.$ = jQuery;
 
 window.Epesi = Epesi;

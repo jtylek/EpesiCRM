@@ -62,11 +62,10 @@ ob_start();
 			<?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
-		$jquery = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js' : 'vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.min.js';
 		$bootstrap = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js' : 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js';
 		$select2 = DEBUG_JS ? 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js' : 'vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.min.js';
 		$jquery_ui = DEBUG_JS ? 'libs/jquery-ui-1.12.1.custom.js':'libs/jquery-ui-1.12.1.custom.min.js';
-		$jses = array($jquery, $bootstrap, 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/HistoryKeeper.js','dist/index.js', 'libs/jquery.clonePosition.js', $select2,'libs/Chart.js');
+		$jses = array('libs/HistoryKeeper.js','dist/index.js', $bootstrap, 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/jquery.clonePosition.js', $select2,'libs/Chart.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
