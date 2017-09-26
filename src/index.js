@@ -1,6 +1,7 @@
 import 'script-loader!../vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js'
 import 'script-loader!../libs/HistoryKeeper.js';
 import 'script-loader!../vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js';
+import 'script-loader!../vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js';
 
 import Epesi from './epesi';
 
