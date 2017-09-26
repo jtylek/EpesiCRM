@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "jquery": "^2.x.x"
+    "jquery": "^2.x.x",
+    "jquery-ui": "^1.12.1"
   }
 }

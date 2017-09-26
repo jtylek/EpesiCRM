@@ -61,7 +61,7 @@ ob_start();
         <meta name="robots" content="NOINDEX, NOARCHIVE">
             <script type='text/javascript' src='dist/index.js'></script>
 			<?php
-	$csses = array('libs/jquery-ui-1.12.1.custom.min.css', 'vendor/bower-asset/gentelella/build/css/custom.css','vendor/bower-asset/gentelella/vendors/select2/dist/css/select2.css','vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.min.css');
+	$csses = array('vendor/bower-asset/gentelella/build/css/custom.css','vendor/bower-asset/gentelella/vendors/select2/dist/css/select2.css','vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.min.css');
 	foreach($csses as $css) 
 		print('<link href="'.$css.'" rel="stylesheet" type="text/css">');
 ?>
