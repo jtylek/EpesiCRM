@@ -62,8 +62,7 @@ ob_start();
 			<?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
-		$jquery_ui = DEBUG_JS ? 'libs/jquery-ui-1.12.1.custom.js':'libs/jquery-ui-1.12.1.custom.min.js';
-		$jses = array('dist/index.js', 'libs/jquery-ui-1.12.1.custom.min.js', 'libs/jquery.clonePosition.js', 'libs/Chart.js');
+		$jses = array('dist/index.js', 'libs/jquery.clonePosition.js', 'libs/Chart.js');
 	if(!DEBUG_JS) {
 		$jsses_build = new Minify_Build($jses);
 		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
