@@ -1,0 +1,23 @@
+{
+  "name": "epesi",
+  "version": "1.0.0",
+  "description": "![Epesi Logo](/images/logo.png)\r =\r [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Telaxus/EPESI.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Telaxus/EPESI/issues"
+  },
+  "homepage": "https://github.com/Telaxus/EPESI#readme"
+}
