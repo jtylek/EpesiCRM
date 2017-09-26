@@ -1,7 +1,9 @@
 import jQuery from 'expose-loader?jq!expose-loader?jQuery!expose-loader?$!jquery';
 
+import 'bootstrap';
+import 'bootstrap/less/bootstrap.less';
+
 import 'script-loader!../libs/HistoryKeeper.js';
-import 'script-loader!../vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js';
 import 'script-loader!../vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js';
 import 'script-loader!../libs/jquery-ui-1.12.1.custom.min.js';
 import 'script-loader!../libs/jquery.clonePosition.js';
