@@ -5,20 +5,6 @@
  * @licence MIT
  */
 
-window.focus_by_id = (idd) => {
-    xx = document.getElementById(idd);
-    if(xx) setTimeout(function(){jq(xx).focus();},200);
-};
-
-window.addslashes = x => x.replace(/('|"|\\)/g,"\\$1")
-
-window.wait_while_null = (id, action) => {
-    if(eval('typeof('+id+')') != 'undefined')
-        eval(action);
-    else
-        setTimeout('wait_while_null(\''+addslashes(id)+'\', \''+addslashes(action)+'\')',200);
-};
-
 const Epesi = {
     default_indicator:'loading...',
     procOn:0,
@@ -242,15 +228,15 @@ const Epesi = {
             Epesi.to_append_jss.push(texti);
     },
     append_js_script:function(texti) {
-        fileref=document.createElement("script");
+        let fileref = document.createElement("script");
         fileref.setAttribute("type", "text/javascript");
         fileref.text = texti;
         document.getElementsByTagName("head").item(0).appendChild(fileref);
     },
     js_loader:function() {
-        file = Epesi.to_load_jss.shift();
+        let file = Epesi.to_load_jss.shift();
         if(typeof file != 'undefined') {
-            fileref=document.createElement("script")
+            let fileref=document.createElement("script")
             fileref.setAttribute("type", "text/javascript");
             fileref.setAttribute("src", file);
             fileref.onload=fileref.onreadystatechange=function() {
@@ -272,7 +258,7 @@ const Epesi = {
     loaded_csses:new Array(),
     load_css:function(file) {
         if (Epesi.loaded_csses.indexOf(file)!=-1) return false;
-        fileref=document.createElement("link")
+        let fileref = document.createElement("link")
         fileref.setAttribute("rel", "stylesheet");
         fileref.setAttribute("type", "text/css");
         fileref.setAttribute("href", file);
@@ -281,29 +267,5 @@ const Epesi = {
         return true;
     }
 };
-window._chj=Epesi.href;
-jQuery(document).ajaxSend(function(ev,xhr,settings){
-    xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
-});
 
-window.getTotalTopOffet = e => {
-    var ret=0;
-    while (e!=null) {
-        ret += e.offsetTop;
-        e = e.offsetParent;
-    }
-    return ret;
-};
-window.is_visible = function(element) {
-    if (!element) return false;
-    var display = jQuery(element).css('display');
-    if (display == "none") return false;
-    if (element.parentNode && element.parentNode.style) {
-        xxx = element.parentNode;
-        return is_visible(element.parentNode);
-    }
-    return true;
-};
-window.jq=jQuery;
-
-window.Epesi = Epesi;
+export default Epesi;
