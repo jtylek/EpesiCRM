@@ -59,18 +59,8 @@ ob_start();
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
+            <script type='text/javascript' src='dist/index.js'></script>
 			<?php
-		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
-		require_once('Minify/Build.php');
-		$jses = array('dist/index.js');
-	if(!DEBUG_JS) {
-		$jsses_build = new Minify_Build($jses);
-		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
-		echo("<script type='text/javascript' src='$jsses_src'></script>");
-	} else {
-		foreach($jses as $js)
-			print("<script type='text/javascript' src='$js'></script>");
-	}
 	$csses = array('libs/jquery-ui-1.12.1.custom.min.css', 'vendor/bower-asset/gentelella/vendors/bootstrap/dist/css/bootstrap.css', 'vendor/bower-asset/gentelella/build/css/custom.css','vendor/bower-asset/gentelella/vendors/select2/dist/css/select2.css','vendor/bower-asset/gentelella/vendors/font-awesome/css/font-awesome.min.css');
 	foreach($csses as $css) 
 		print('<link href="'.$css.'" rel="stylesheet" type="text/css">');
