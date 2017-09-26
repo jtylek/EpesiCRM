@@ -1,4 +1,5 @@
-import 'script-loader!../vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.js'
+import jQuery from 'expose-loader?jq!expose-loader?jQuery!expose-loader?$!jquery';
+
 import 'script-loader!../libs/HistoryKeeper.js';
 import 'script-loader!../vendor/bower-asset/gentelella/vendors/bootstrap/dist/js/bootstrap.js';
 import 'script-loader!../vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js';
@@ -48,8 +49,5 @@ window.is_visible = function (element) {
     }
     return true;
 };
-window.jq = jQuery;
-window.jQuery = jQuery;
-window.$ = jQuery;
 
 window.Epesi = Epesi;
