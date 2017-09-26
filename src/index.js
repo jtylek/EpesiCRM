@@ -4,7 +4,7 @@ import jQuery from '../vendor/bower-asset/gentelella/vendors/jquery/dist/jquery.
 import Epesi from './epesi';
 
 window.focus_by_id = (idd) => {
-    xx = document.getElementById(idd);
+    let xx = document.getElementById(idd);
     if (xx) setTimeout(function () {
         jq(xx).focus();
     }, 200);
@@ -26,7 +26,7 @@ jQuery(document).ajaxSend(function (ev, xhr, settings) {
 });
 
 window.getTotalTopOffet = e => {
-    var ret = 0;
+    let ret = 0;
     while (e != null) {
         ret += e.offsetTop;
         e = e.offsetParent;
@@ -35,7 +35,7 @@ window.getTotalTopOffet = e => {
 };
 window.is_visible = function (element) {
     if (!element) return false;
-    var display = jQuery(element).css('display');
+    let display = jQuery(element).css('display');
     if (display == "none") return false;
     if (element.parentNode && element.parentNode.style) {
         xxx = element.parentNode;
