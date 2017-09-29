@@ -198,7 +198,7 @@ class Utils_FileUpload_Dropzone extends Module
         $this->set_module_variable('hist', $curr_hist);
     }
     
-    public static function export_values($form) {
+    public static function export_values($form, $clear = true) {
     	$ret = [];
     	foreach (self::get_registered_file_fields($form) as $file_field => $file_module) {
     		$files = [];
@@ -214,7 +214,7 @@ class Utils_FileUpload_Dropzone extends Module
     			];
     		}
     		$ret[$file_field] = $files;
-    		$file_module->clear_uploaded_files();
+    		if ($clear) $file_module->clear_uploaded_files();
     	}
     	return $ret;
     }
