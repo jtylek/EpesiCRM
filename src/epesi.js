@@ -5,7 +5,10 @@
  * @licence MIT
  */
 
+import Loader from './loader';
+
 const Epesi = {
+    loader: new Loader(),
     default_indicator:'loading...',
     procOn:0,
     client_id:0,
@@ -208,51 +211,19 @@ const Epesi = {
         else if(type=='a')//append
             t.append(txt);
     },
-    //js loader
-    loaded_jss:new Array(),
-    to_load_jss:new Array(),
-    to_append_jss:new Array(),
-    js_loader_running:false,
     load_js:function(file) {
-        if (Epesi.loaded_jss.indexOf(file)!=-1) return;
-        Epesi.to_load_jss.push(file);
-        if(Epesi.js_loader_running==false) {
-            Epesi.js_loader_running=true;
-            Epesi.js_loader();
-        }
+        Epesi.loader.load_js(file);
     },
     append_js:function(texti) {
-        if(Epesi.js_loader_running==false) {
-            Epesi.append_js_script(texti);
-        } else
-            Epesi.to_append_jss.push(texti);
+        Epesi.loader.execute_js(texti);
     },
     append_js_script:function(texti) {
-        let fileref = document.createElement("script");
-        fileref.setAttribute("type", "text/javascript");
-        fileref.text = texti;
-        document.getElementsByTagName("head").item(0).appendChild(fileref);
+        console.warn('DEPRECATED: use Loader.execute_js instead');
+        Loader.insertScript(texti);
     },
     js_loader:function() {
-        let file = Epesi.to_load_jss.shift();
-        if(typeof file != 'undefined') {
-            let fileref=document.createElement("script")
-            fileref.setAttribute("type", "text/javascript");
-            fileref.setAttribute("src", file);
-            fileref.onload=fileref.onreadystatechange=function() {
-                if (fileref.readyState && fileref.readyState != 'loaded' && fileref.readyState != 'complete')
-                    return;
-                Epesi.loaded_jss.push(file);
-                Epesi.js_loader();
-            }
-            document.getElementsByTagName("head").item(0).appendChild(fileref);
-        } else {
-            jq(Epesi.to_append_jss).each(function(i,texti) {
-                Epesi.append_js_script(texti);
-            });
-            Epesi.to_append_jss.length=0;
-            Epesi.js_loader_running = false;
-        }
+        console.warn('DEPRECATED: load is invoked implicitly');
+        Epesi.loader.load();
     },
     //csses
     loaded_csses:new Array(),
