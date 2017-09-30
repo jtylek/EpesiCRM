@@ -48,8 +48,7 @@ class rcube_ldap_generic extends Net_LDAP3
     {
         // Net_LDAP3 does not support IDNA yet
         // also parse_host() here is very Roundcube specific
-        $host = rcube_utils::parse_host($host, $this->config['mail_domain']);
-        $host = rcube_utils::idn_to_ascii($host);
+        $host = rcube_utils::idn_to_ascii(rcube_utils::parse_host($host));
 
         return parent::connect($host);
     }
@@ -100,7 +99,7 @@ class rcube_ldap_generic extends Net_LDAP3
     /**
      * Returns the last LDAP error occurred
      *
-     * @return mixed Error message string or null if no error occurred
+     * @return mixed Error message string or null if no error occured
      */
     function get_error()
     {

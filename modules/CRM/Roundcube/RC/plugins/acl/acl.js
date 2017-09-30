@@ -1,5 +1,8 @@
 /**
  * ACL plugin script
+ *
+ * @version @package_version@
+ * @author Aleksander Machniak <alec@alec.pl>
  */
 
 if (window.rcmail) {
@@ -350,7 +353,7 @@ rcube_webmail.prototype.acl_init_form = function(id)
         id ? this.get_label('acl.editperms') : this.get_label('acl.newuser'),
         buttons,
         {
-            button_classes: ['mainaction submit'],
+            button_classes: ['mainaction'],
             modal: true,
             closeOnEscape: true,
             close: function(e, ui) {
@@ -368,7 +371,7 @@ rcube_webmail.prototype.acl_init_form = function(id)
         $('input:checked', type_list).focus();
 }
 
-// Returns class name according to ACL comparison result
+// Returns class name according to ACL comparision result
 rcube_webmail.prototype.acl_class = function(acl1, acl2)
 {
     var i, len, found = 0;

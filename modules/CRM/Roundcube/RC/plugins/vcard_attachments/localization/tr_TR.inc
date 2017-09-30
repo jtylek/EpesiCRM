@@ -15,8 +15,6 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-vcard_attachments/
 */
-$labels['addvcardmsg'] = 'Adres defterine vCard ekle';
+$labels['addvcardmsg'] = 'Vcard\'ı adres deferine ekle';
 $labels['vcardsavefailed'] = 'vCard kaydedilemedi';
-$labels['attachvcard'] = 'vCard Ekle';
-$labels['vcard'] = 'vCard';
 ?>

@@ -23,7 +23,7 @@
 /**
  * Roundcube utilities
  *
- * @package    Webmail
+ * @package Webmail
  * @subpackage Utils
  */
 class rcmail_utils
@@ -59,7 +59,7 @@ class rcmail_utils
     /**
      * Initialize database schema
      *
-     * @param string $dir Directory with sql files
+     * @param string Directory with sql files
      */
     public static function db_init($dir)
     {
@@ -93,10 +93,10 @@ class rcmail_utils
     /**
      * Update database schema
      *
-     * @param string $dir     Directory with sql files
-     * @param string $package Component name
-     * @param string $ver     Optional current version number
-     * @param array  $opts    Parameters (errors, quiet)
+     * @param string Directory with sql files
+     * @param string Component name
+     * @param string Optional current version number
+     * @param array  Parameters (errors, quiet)
      *
      * @return True on success, False on failure
      */
@@ -198,10 +198,7 @@ class rcmail_utils
                 echo "Updating database schema ($v)... ";
             }
 
-            // Ignore errors here to print the error only once
-            $db->set_option('ignore_errors', true);
             $error = self::db_update_schema($package, $v, "$dir/$v.sql");
-            $db->set_option('ignore_errors', false);
 
             if ($error) {
                 if (!$opts['quiet']) {
@@ -258,7 +255,7 @@ class rcmail_utils
     /**
      * Removes all deleted records older than X days
      *
-     * @param int $days Number of days
+     * @param int Number of days
      */
     public static function db_clean($days)
     {
@@ -327,10 +324,10 @@ class rcmail_utils
     /**
      * Modify user preferences
      *
-     * @param string $name   Option name
-     * @param string $value  Option value
-     * @param int    $userid Optional user identifier
-     * @param string $type   Optional value type (bool, int, string)
+     * @param string Option name
+     * @param string Option value
+     * @param int    Optional user identifier
+     * @param string Optional value type (bool, int, string)
      */
     public static function mod_pref($name, $value, $userid = null, $type = 'string')
     {

@@ -58,7 +58,7 @@
 #filtersetslist tbody tr.disabled td
 {
   color: #87A3AA;
-  text-decoration: line-through;
+	text-decoration: line-through;
 }
 
 #filtersetslist tbody td
@@ -93,7 +93,6 @@ body.iframe
 #filter-form legend, #filter-form label
 {
   color: #666666;
-  vertical-align: middle;
 }
 
 #rules, #actions
@@ -200,11 +199,6 @@ td.rowtargets div a {
   margin-left: 10px;
 }
 
-td.rowtargets div.adv input
-{
-  margin-bottom: 1px;
-}
-
 input.disabled, input.disabled:hover
 {
   color: #999999;
@@ -280,13 +274,13 @@ span.sieve.error
   background-color: #eee;
 }
 
-#filter-form a.button
+a.button
 {
   margin: 0;
   padding: 0;
 }
 
-#filter-form a.button.add
+a.button.add
 {
   background: url(images/add.png?v=a165.280) no-repeat;
   width: 30px;
@@ -295,7 +289,7 @@ span.sieve.error
   display: inline-block;
 }
 
-#filter-form a.button.del
+a.button.del
 {
   background: url(images/del.png?v=3c27.247) no-repeat;
   width: 30px;
@@ -303,7 +297,7 @@ span.sieve.error
   display: inline-block;
 }
 
-#filter-form a.button.disabled
+a.button.disabled
 {
   opacity: 0.35;
   filter: alpha(opacity=35);
@@ -314,9 +308,12 @@ span.sieve.error
 #filter-form input,
 #filter-form textarea
 {
+  font-size: 11px;
+  padding: 1px;
   vertical-align: middle;
   max-width: 280px;
 }
+
 /* revert larry style button */
 #filter-form input.button
 {
@@ -372,7 +369,6 @@ td.rowtargets > span.listarea
   border-top: none;
 }
 
-#vacationform .listelement input,
 #filter-form .listelement input
 {
   border: none;
@@ -419,8 +415,8 @@ body.iframe.mail #filter-form
 /* vacation form */
 #settings-sections .vacation a {
   background-image: url(images/vacation_icons.png?v=e738.767);
-  background-repeat: no-repeat;
-  background-position: 7px 1px;
+	background-repeat: no-repeat;
+	background-position: 7px 1px;
 }
 
 #settings-sections .vacation.selected a {
@@ -440,53 +436,25 @@ body.iframe.mail #filter-form
   max-height: 91px;
 }
 
+#vacationform .listelement,
+#vacationform .listelement .reset {
+  height: 22px;
+}
+
+#vacationform .listelement .reset {
+  background-position: -1px 3px;
+}
+
+#vacationform .listelement input {
+  vertical-align: top;
+  border: 0;
+  box-shadow: none;
+}
+
 #vacationform td.vacation {
   white-space: nowrap;
 }
 
 #vacationform input.button {
   margin-left: 10px;
-}
-
-/* RAW editor and CodeMirror overrides */
-
-.raweditor textarea {
-  border: none;
-  border-radius: 0;
-  max-width: none !important;
-  box-shadow: none;
-  font-family: monospace;
-  width: 99%;
-  min-height: 300px;
-}
-
-.raweditor textarea,
-.raweditor .CodeMirror {
-  position: absolute;
-  top: 34px;
-  bottom: 45px;
-  right: 0;
-  left: 0;
-  height: auto;
-  background-color: #fdfdfd;
-  border-bottom: 1px solid #eee;
-}
-
-.raweditor .CodeMirror-linebackground.line-error {
-  background-color: #f00;
-  opacity: 0.4;
-}
-
-.raweditor .errorGutter {
-  width: 0.8em;
-}
-
-.raweditor #footer {
-  position: absolute;
-  bottom: 5px;
-}
-
-body.iframe.raweditor {
-  min-width: 100px;
-  overflow: hidden;
 }

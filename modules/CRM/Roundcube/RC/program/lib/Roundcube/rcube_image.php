@@ -62,8 +62,8 @@ class rcube_image
         if (function_exists('getimagesize') && ($imsize = @getimagesize($this->image_file))) {
             $width   = $imsize[0];
             $height  = $imsize[1];
-            $gd_type = $imsize[2];
-            $type    = image_type_to_extension($gd_type, false);
+            $gd_type = $imsize['2'];
+            $type    = image_type_to_extension($imsize['2'], false);
             $channels = $imsize['channels'];
         }
 
@@ -166,16 +166,10 @@ class rcube_image
                     else {
                         try {
                             $image = new Imagick($this->image_file);
-
-                            try {
-                                // it throws exception on formats not supporting these features
-                                $image->setImageBackgroundColor('white');
-                                $image->setImageAlphaChannel(11);
-                                $image->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
-                            }
-                            catch (Exception $e) {
-                                // ignore errors
-                            }
+                            
+                            $image->setImageBackgroundColor('white');
+                            $image->setImageAlphaChannel(11);
+                            $image->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
 
                             $image->setImageColorspace(Imagick::COLORSPACE_SRGB);
                             $image->setImageCompressionQuality(75);
@@ -211,11 +205,11 @@ class rcube_image
                 $image = imagecreatefromjpeg($this->image_file);
                 $type  = 'jpg';
             }
-            else if ($props['gd_type'] == IMAGETYPE_GIF && function_exists('imagecreatefromgif')) {
+            else if($props['gd_type'] == IMAGETYPE_GIF && function_exists('imagecreatefromgif')) {
                 $image = imagecreatefromgif($this->image_file);
                 $type  = 'gif';
             }
-            else if ($props['gd_type'] == IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
+            else if($props['gd_type'] == IMAGETYPE_PNG && function_exists('imagecreatefrompng')) {
                 $image = imagecreatefrompng($this->image_file);
                 $type  = 'png';
             }
@@ -359,6 +353,7 @@ class rcube_image
         if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN' && !$this->mem_check($props)) {
             return false;
         }
+
 
         if ($props['gd_type']) {
             if ($props['gd_type'] == IMAGETYPE_JPEG && function_exists('imagecreatefromjpeg')) {

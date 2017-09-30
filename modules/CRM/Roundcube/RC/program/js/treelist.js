@@ -32,7 +32,7 @@
 
 /**
  * Roundcube Treelist widget class
- * @constructor
+ * @contructor
  */
 function rcube_treelist_widget(node, p)
 {
@@ -110,11 +110,6 @@ function rcube_treelist_widget(node, p)
   else
     update_data();
 
-  // scroll to the selected item
-  if (selection) {
-    scroll_to_node(id2dom(selection, true));
-  }
-
   container.attr('role', 'tree')
     .on('focusin', function(e) {
       // TODO: only accept focus on virtual nodes from keyboard events
@@ -191,10 +186,6 @@ function rcube_treelist_widget(node, p)
   // catch focus when clicking the list container area
   if (p.parent_focus) {
     container.parent(':not(body)').click(function(e) {
-      // click on a checkbox does not catch the focus
-      if ($(e.target).is('input'))
-        return true;
-
       if (!has_focus && selection) {
         $(get_item(selection)).find(':focusable').first().focus();
       }

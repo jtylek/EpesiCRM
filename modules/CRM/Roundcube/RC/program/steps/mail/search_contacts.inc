@@ -12,7 +12,7 @@
  | See the README file for a full license statement.                     |
  |                                                                       |
  | PURPOSE:                                                              |
- |   Search contacts from the address book widget                        |
+ |   Search contacts from the adress book widget                         |
  |                                                                       |
  +-----------------------------------------------------------------------+
  | Author: Thomas Bruederli <roundcube@gmail.com>                        |
@@ -28,7 +28,6 @@ $page_size     = $RCMAIL->config->get('addressbook_pagesize', $RCMAIL->config->g
 $records       = array();
 $search_set    = array();
 $jsresult      = array();
-$search_mode  |= rcube_addressbook::SEARCH_GROUPS;
 
 foreach ($sources as $s) {
     $source = $RCMAIL->get_address_book($s['id']);
@@ -76,9 +75,7 @@ $result->records = array_values($records);
 if (!empty($result) && $result->count > 0) {
     // create javascript list
     while ($row = $result->next()) {
-        $name      = rcube_addressbook::compose_list_name($row);
-        $classname = $row['_type'] == 'group' ? 'group' : 'person';
-        $keyname   = $row['_type'] == 'group' ? 'contactgroup' : 'contact';
+        $name = rcube_addressbook::compose_list_name($row);
 
         // add record for every email address of the contact
         // (same as in list_contacts.inc)
@@ -89,9 +86,9 @@ if (!empty($result) && $result->count > 0) {
             $title = rcube_addressbook::compose_search_name($row, $email, $name);
 
             $OUTPUT->command('add_contact_row', $row_id, array(
-                $keyname => html::a(array('title' => $title), rcube::Q($name ?: $email) .
+                'contact' => html::a(array('title' => $title), rcube::Q($name ?: $email) .
                     ($name && count($emails) > 1 ? '&nbsp;' . html::span('email', rcube::Q($email)) : '')
-                )), $classname);
+                )), 'person');
         }
     }
 
@@ -104,8 +101,8 @@ if (!empty($result) && $result->count > 0) {
 
     $OUTPUT->show_message('contactsearchsuccessful', 'confirmation', array('nr' => $result->count));
 
-    $OUTPUT->set_env('search_request', $search_request);
-    $OUTPUT->set_env('source', '');
+    $OUTPUT->command('set_env', 'search_request', $search_request);
+    $OUTPUT->command('set_env', 'source', '');
     $OUTPUT->command('unselect_directory');
 }
 else if (!$group_count) {

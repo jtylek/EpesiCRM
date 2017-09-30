@@ -8,6 +8,7 @@
  * addresses
  * $rcmail['virtuser_file'] = '';
  *
+ * @version @package_version@
  * @license GNU GPLv3+
  * @author Aleksander Machniak
  */

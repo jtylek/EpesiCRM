@@ -17,6 +17,4 @@
 */
 $labels['addvcardmsg'] = 'vCardをアドレス帳に追加';
 $labels['vcardsavefailed'] = 'vCardを保存できませんでした。';
-$labels['attachvcard'] = 'vCardを添付';
-$labels['vcard'] = 'vCard';
 ?>

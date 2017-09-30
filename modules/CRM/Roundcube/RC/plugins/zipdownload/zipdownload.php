@@ -4,10 +4,10 @@
  * ZipDownload
  *
  * Plugin to allow the download of all message attachments in one zip file
- * and also download of many messages in one go.
+ * and downloading of many messages in one go.
  *
+ * @version 3.1
  * @requires php_zip extension (including ZipArchive class)
- *
  * @author Philip Weir
  * @author Thomas Bruderli
  * @author Aleksander Machniak
@@ -15,13 +15,7 @@
 class zipdownload extends rcube_plugin
 {
     public $task = 'mail';
-
     private $charset = 'ASCII';
-
-    private $names = [];
-
-    // RFC4155: mbox date format
-    const MBOX_DATE_FORMAT = 'D M d H:i:s Y';
 
     /**
      * Plugin initialization
@@ -112,7 +106,6 @@ class zipdownload extends rcube_plugin
                     'command'  => "download-$type",
                     'label'    => "zipdownload.download$type",
                     'classact' => 'active',
-                    'type'     => 'link',
             )));
         }
 
@@ -144,8 +137,18 @@ class zipdownload extends rcube_plugin
         foreach ($message->attachments as $part) {
             $pid      = $part->mime_id;
             $part     = $message->mime_parts[$pid];
-            $disp_name = $this->_create_displayname($part);
+            $filename = $part->filename;
 
+            if ($filename === null || $filename === '') {
+                $ext      = (array) rcube_mime::get_mime_extensions($part->mimetype);
+                $ext      = array_shift($ext);
+                $filename = $rcmail->gettext('messagepart') . ' ' . $pid;
+                if ($ext) {
+                    $filename .= '.' . $ext;
+                }
+            }
+
+            $disp_name   = $this->_convert_filename($filename);
             $tmpfn       = tempnam($temp_dir, 'zipattach');
             $tmpfp       = fopen($tmpfn, 'w');
             $tempfiles[] = $tmpfn;
@@ -157,8 +160,7 @@ class zipdownload extends rcube_plugin
 
         $zip->close();
 
-        $filename = ($this->_filename_from_subject($message->subject) ?: 'attachments') . '.zip';
-
+        $filename = ($message->subject ?: 'roundcube') . '.zip';
         $this->_deliver_zipfile($tmpfname, $filename);
 
         // delete temporary files from disk
@@ -178,49 +180,10 @@ class zipdownload extends rcube_plugin
 
         if ($rcmail->config->get('zipdownload_selection') && !empty($_POST['_uid'])) {
             $messageset = rcmail::get_uids();
-            if (count($messageset)) {
+            if (sizeof($messageset)) {
                 $this->_download_messages($messageset);
             }
         }
-    }
-
-    /**
-     * Create and get display name of attachment part to add on zip file
-     *
-     * @param $part stdClass Part of attachment on message
-     *
-     * @return string Display name of attachment part
-     */
-    private function _create_displayname($part)
-    {
-        $rcmail    = rcmail::get_instance();
-        $filename = $part->filename;
-
-        if ($filename === null || $filename === '') {
-            $ext      = (array) rcube_mime::get_mime_extensions($part->mimetype);
-            $ext      = array_shift($ext);
-            $filename = $rcmail->gettext('messagepart') . ' ' . $part->mime_id;
-            if ($ext) {
-                $filename .= '.' . $ext;
-            }
-        }
-
-        $displayname = $this->_convert_filename($filename);
-
-        /**
-         * Adding a number before dot of extension on a name of file with same name on zip
-         * Ext: attach(1).txt on attach filename that has a attach.txt filename on same zip
-         */
-        if (isset($this->name[$displayname])) {
-            list($filename, $ext) = preg_split("/\.(?=[^\.]*$)/", $displayname);
-            $displayname = $filename . '(' . ($this->names[$displayname]++) . ').' . $ext;
-            $this->names[$displayname] = 1;
-        }
-        else {
-            $this->names[$displayname] = 1;
-        }
-
-        return $displayname;
     }
 
     /**
@@ -261,22 +224,17 @@ class zipdownload extends rcube_plugin
                 $headers = $imap->get_message_headers($uid);
 
                 if ($mode == 'mbox') {
-                    // Sender address
                     $from = rcube_mime::decode_address_list($headers->from, null, true, $headers->charset, true);
                     $from = array_shift($from);
-                    $from = preg_replace('/\s/', '-', $from);
 
-                    // Received (internal) date
-                    $date = rcube_utils::anytodatetime($headers->internaldate);
-                    if ($date) {
-                        $date->setTimezone(new DateTimeZone('UTC'));
-                        $date = $date->format(self::MBOX_DATE_FORMAT);
-                    }
-
-                    // Mbox format header (RFC4155)
+                    // Mbox format header
+                    // @FIXME: \r\n or \n
+                    // @FIXME: date format
                     $header = sprintf("From %s %s\r\n",
-                        $from ?: 'MAILER-DAEMON',
-                        $date ?: ''
+                        // replace spaces with hyphens
+                        $from ? preg_replace('/\s/', '-', $from) : 'MAILER-DAEMON',
+                        // internaldate
+                        $headers->internaldate
                     );
 
                     fwrite($tmpfp, $header);
@@ -289,11 +247,12 @@ class zipdownload extends rcube_plugin
                     fwrite($tmpfp, "\r\n");
                 }
                 else { // maildir
-                    $subject = rcube_mime::decode_header($headers->subject, $headers->charset);
-                    $subject = $this->_filename_from_subject(mb_substr($subject, 0, 16));
+                    $subject = rcube_mime::decode_mime_string((string)$headers->subject);
                     $subject = $this->_convert_filename($subject);
+                    $subject = substr($subject, 0, 16);
 
-                    $disp_name = $path . $uid . ($subject ? " $subject" : '') . '.eml';
+                    $disp_name = ($subject ?: 'message_rfc822') . ".eml";
+                    $disp_name = $path . $uid . "_" . $disp_name;
 
                     $tmpfn = tempnam($temp_dir, 'zipmessage');
                     $tmpfp = fopen($tmpfn, 'w');
@@ -330,10 +289,26 @@ class zipdownload extends rcube_plugin
      */
     private function _deliver_zipfile($tmpfname, $filename)
     {
-        $rcmail = rcmail::get_instance();
+        $browser = new rcube_browser;
+        $rcmail  = rcmail::get_instance();
 
-        $rcmail->output->download_headers($filename, array('length' => filesize($tmpfname)));
+        $rcmail->output->nocacheing_headers();
 
+        if ($browser->ie)
+            $filename = rawurlencode($filename);
+        else
+            $filename = addcslashes($filename, '"');
+
+        // send download headers
+        header("Content-Type: application/octet-stream");
+        if ($browser->ie) {
+            header("Content-Type: application/force-download");
+        }
+
+        // don't kill the connection if download takes more than 30 sec.
+        @set_time_limit(0);
+        header("Content-Disposition: attachment; filename=\"". $filename ."\"");
+        header("Content-length: " . filesize($tmpfname));
         readfile($tmpfname);
     }
 
@@ -342,19 +317,9 @@ class zipdownload extends rcube_plugin
      */
     private function _convert_filename($str)
     {
-        $str = strtr($str, array(':' => '', '/' => '-'));
+        $str = rcube_charset::convert($str, RCUBE_CHARSET, $this->charset);
 
-        return rcube_charset::convert($str, RCUBE_CHARSET, $this->charset);
-    }
-
-    /**
-     * Helper function to convert message subject into filename
-     */
-    private function _filename_from_subject($str)
-    {
-        $str = preg_replace('/[\t\n\r\0\x0B]+\s*/', ' ', $str);
-
-        return trim($str, " ./_");
+        return strtr($str, array(':' => '', '/' => '-'));
     }
 }
 

@@ -22,7 +22,7 @@
 /**
  * Class for output generation
  *
- * @package    Webmail
+ * @package Webmail
  * @subpackage View
  */
 abstract class rcmail_output extends rcube_output
@@ -36,7 +36,6 @@ abstract class rcmail_output extends rcube_output
 
     protected $pagetitle       = '';
     protected $object_handlers = array();
-    protected $devel_mode      = false;
 
 
     /**
@@ -45,8 +44,6 @@ abstract class rcmail_output extends rcube_output
     public function __construct($task = null, $framed = false)
     {
         parent::__construct();
-
-        $this->devel_mode = (bool) $this->config->get('devel_mode');
     }
 
     /**
@@ -94,25 +91,23 @@ abstract class rcmail_output extends rcube_output
     /**
      * Register a template object handler
      *
-     * @param string $name Object name
-     * @param string $func Function name to call
-     *
+     * @param  string Object name
+     * @param  string Function name to call
      * @return void
      */
-    public function add_handler($name, $func)
+    public function add_handler($obj, $func)
     {
-        $this->object_handlers[$name] = $func;
+        $this->object_handlers[$obj] = $func;
     }
 
     /**
      * Register a list of template object handlers
      *
-     * @param array $handlers Hash array with object=>handler pairs
-     *
+     * @param  array Hash array with object=>handler pairs
      * @return void
      */
-    public function add_handlers($handlers)
+    public function add_handlers($arr)
     {
-        $this->object_handlers = array_merge($this->object_handlers, $handlers);
+        $this->object_handlers = array_merge($this->object_handlers, $arr);
     }
 }

@@ -15,7 +15,6 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-hide_blockquote/
 */
-$labels['hide'] = 'Fshihe';
-$labels['show'] = 'Shfaqe';
-$labels['quotelimit'] = 'Fshihe citimin kur numri i rreshtave është më i madh se';
+$labels['hide'] = 'Fsheh';
+$labels['show'] = 'Shfaq';
 ?>

@@ -18,5 +18,4 @@
 $labels['help'] = 'Pomoč';
 $labels['about'] = 'Vizitka';
 $labels['license'] = 'Licenca';
-$labels['csrfinfo'] = 'Preberite več o CSRF in kako ste zaščiteni';
 ?>

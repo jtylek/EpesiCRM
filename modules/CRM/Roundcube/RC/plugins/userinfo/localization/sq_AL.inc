@@ -15,8 +15,7 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-userinfo/
 */
-$labels['userinfo'] = 'Të dhëna Përdoruesi';
-$labels['created'] = 'Krijuar më';
-$labels['lastlogin'] = 'Hyrja e Fundit';
-$labels['defaultidentity'] = 'Identitet Parazgjedhje';
+$labels['userinfo'] = 'Informacionet e përdoruesit';
+$labels['created'] = 'Krijuar';
+$labels['lastlogin'] = 'Hyrja e fundit';
 ?>

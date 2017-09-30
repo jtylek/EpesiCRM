@@ -20,19 +20,15 @@
 */
 
 // only process ajax requests
-if (!$OUTPUT->ajax_call) {
-    return;
-}
+if (!$OUTPUT->ajax_call)
+  return;
 
 // count messages before changing anything
 $threading = (bool) $RCMAIL->storage->get_threading();
-$trash     = $RCMAIL->config->get('trash_mbox');
+$old_count = $RCMAIL->storage->count(NULL, $threading ? 'THREADS' : 'ALL');
+$old_pages = ceil($old_count / $RCMAIL->storage->get_pagesize());
 $sources   = array();
-
-if ($_POST['_from'] != 'show') {
-    $old_count = $RCMAIL->storage->count(NULL, $threading ? 'THREADS' : 'ALL');
-    $old_pages = ceil($old_count / $RCMAIL->storage->get_pagesize());
-}
+$trash     = $RCMAIL->config->get('trash_mbox');
 
 // move messages
 if ($RCMAIL->action == 'move' && !empty($_POST['_uid']) && strlen($_POST['_target_mbox'])) {
@@ -60,11 +56,11 @@ if ($RCMAIL->action == 'move' && !empty($_POST['_uid']) && strlen($_POST['_targe
         $OUTPUT->send();
     }
     else {
-        $OUTPUT->show_message($target == $trash ? 'messagemovedtotrash' : 'messagemoved', 'confirmation');
+        $OUTPUT->show_message('messagemoved', 'confirmation');
     }
 
     if (!empty($_POST['_refresh'])) {
-        // FIXME: send updated message rows instead of reloading the entire list
+        // FIXME: send updated message rows instead of releading the entire list
         $OUTPUT->command('refresh_list');
     }
     else {

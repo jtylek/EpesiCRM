@@ -15,8 +15,4 @@
 
  For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-zipdownload/
 */
-$labels['downloadall'] = 'Alle taheaksels ynlade';
-$labels['download'] = 'Ynlade...';
-$labels['downloadmbox'] = 'Mbox formaat (.zip)';
-$labels['downloadmaildir'] = 'Maildir formaat (.zip)';
 $labels['downloademl'] = 'Boarne (.eml)';

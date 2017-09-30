@@ -36,7 +36,7 @@
   padding: 0;
   margin: 0 5px;
   overflow: hidden;
-  background: url(images/mail_toolbar.png) 0 0 no-repeat transparent;
+  background: url(images/mail_toolbar.png?v=2271.13035) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -203,7 +203,7 @@
 #messagemenu li a,
 #attachmentmenu li a
 {
-  background: url(images/messageactions.png) no-repeat 7px 0;
+  background: url(images/messageactions.png?v=d93e.3223) no-repeat 7px 0;
   background-position: 7px 20px;
 }
 
@@ -216,11 +216,6 @@
 #attachmentmenu li a.downloadlink
 {
   background-position: 7px -17px;
-}
-
-#attachmentmenu li a.renamelink
-{
-  background-position: 6px -69px;
 }
 
 #messagemenu li a.sourcelink
@@ -250,10 +245,9 @@
 }
 
 #markmessagemenu li a,
-#compose-attachments li a.delete,
-#compose-attachments li a.cancelupload
+#compose-attachments li a
 {
-  background: url(images/messageicons.png) no-repeat;
+  background: url(images/messageicons.png?v=16cb.2581) no-repeat;
 }
 
 #markmessagemenu li a.readlink
@@ -368,12 +362,11 @@
 #mailpreviewframe
 {
   position: absolute;
-  right: 0;
+  width: 100%;
   top: 205px;
   bottom: 0px;
   border: 1px solid #999999;
   background-color: #F9F9F9;
-  display: none;
 }
 
 #messagecontframe
@@ -468,7 +461,7 @@
   margin-top: 4px;
   margin-right: 2px;
   overflow: hidden;
-  background: url(images/mail_footer.png) 0 0 no-repeat transparent;
+  background: url(images/mail_footer.png?v=819f.977) 0 0 no-repeat transparent;
   opacity: 0.99; /* this is needed to make buttons appear correctly in Chrome */
 }
 
@@ -571,6 +564,7 @@ table.messagelist
   width: 100%;
   display: table;
   table-layout: fixed;
+  border-collapse: collapse;
   border-spacing: 0;
   z-index: 1;
 }
@@ -588,7 +582,7 @@ table.messagelist.fixedcopy
   vertical-align: middle;
   border-bottom: 1px solid #999999;
   color: #333333;
-  background: url(images/listheader.gif) top left repeat-x #CCC;
+  background: url(images/listheader.gif?v=ab42.314) top left repeat-x #CCC;
   font-size: 11px;
   font-weight: bold;
   text-align: left;
@@ -602,12 +596,12 @@ table.messagelist.fixedcopy
 
 .messagelist thead tr > .sortedASC a
 {
-  background: url(images/icons/sort.gif) right 0 no-repeat;
+  background: url(images/icons/sort.gif?v=92aa.144) right 0 no-repeat;
 }
 
 .messagelist thead tr > .sortedDESC a
 {
-  background: url(images/icons/sort.gif) right -14px no-repeat;
+  background: url(images/icons/sort.gif?v=92aa.144) right -14px no-repeat;
 }
 
 .messagelist thead tr a
@@ -668,10 +662,10 @@ table.messagelist.fixedcopy
   cursor: pointer;
 }
 
-.messagelist tr .flag span,
-.messagelist tr .status span,
-.messagelist tr .attachment span,
-.messagelist tr .priority span
+.messagelist tr > .flag span,
+.messagelist tr > .status span,
+.messagelist tr > .attachment span,
+.messagelist tr > .priority span
 {
   display: block;
   width: 15px;
@@ -682,18 +676,17 @@ table.messagelist.fixedcopy
 .messagelist tr td div.collapsed,
 .messagelist tr td div.expanded,
 .messagelist tr > .threads .listmenu,
-.messagelist tr .attachment span.attachment,
-.messagelist tr .attachment span.report,
-.messagelist tr .attachment span.encrypted,
+.messagelist tr > .attachment span.attachment,
+.messagelist tr > .attachment span.report,
 .messagelist tr > .priority span.priority,
 .messagelist tr > .priority span.prio1,
 .messagelist tr > .priority span.prio2,
 .messagelist tr > .priority span.prio3,
 .messagelist tr > .priority span.prio4,
 .messagelist tr > .priority span.prio5,
-.messagelist tr .flag span.flagged,
-.messagelist tr .flag span.unflagged,
-.messagelist tr:hover .flag span.unflagged,
+.messagelist tr > .flag span.flagged,
+.messagelist tr > .flag span.unflagged,
+.messagelist tr > .flag span.unflagged:hover,
 .messagelist tr > .status span.status,
 .messagelist tr > .status span.msgicon,
 .messagelist tr > .status span.deleted,
@@ -710,22 +703,17 @@ table.messagelist.fixedcopy
   vertical-align: middle;
   height: 17px;
   width: 15px;
-  background: url(images/messageicons.png) center no-repeat;
+  background: url(images/messageicons.png?v=16cb.2581) center no-repeat;
 }
 
-.messagelist tr .attachment span.attachment
+.messagelist tr > .attachment span.attachment
 {
   background-position: 0 -170px;
 }
 
-.messagelist tr .attachment span.report
+.messagelist tr > .attachment span.report
 {
   background-position: 0 -255px;
-}
-
-.messagelist tr .attachment span.encrypted
-{
-  background-position: 0 -418px;
 }
 
 .messagelist tr > .priority span.priority
@@ -758,18 +746,12 @@ table.messagelist.fixedcopy
   background-position: 0 -290px;
 }
 
-.messagelist tr .flag span.flagged
+.messagelist tr > .flag span.flagged
 {
   background-position: 0 -153px;
 }
 
-.messagelist tr:hover .flag span.unflagged
-{
-  background-position: 0 -136px;
-}
-
-.messagelist tr.flaggedroot .flag span,
-.messagelist tr.flaggedroot .flag span.unflagged
+.messagelist tr > .flag span.unflagged:hover
 {
   background-position: 0 -136px;
 }
@@ -797,10 +779,10 @@ table.messagelist.fixedcopy
 }
 
 .messagelist tr > .status span.msgicon,
-.messagelist tr .flag span.unflagged,
+.messagelist tr > .flag span.unflagged,
 .messagelist tr > .status span.unreadchildren
 {
-  background-position: 0 18px; /* no icon */
+  background-position: 0 17px; /* no icon */
 }
 
 .messagelist tr > .status span.msgicon:hover
@@ -929,7 +911,7 @@ table.messagelist.fixedcopy
 
 /* because of border-collapse, we make the left border twice what we want it to be - half will be hidden to the left */
 .messagelist tbody tr.focused > td:first-child {
-	border-left: 2px solid #d4d4d4;
+	border-left: 4px solid #d4d4d4;
 	padding-left: 4px;
 }
 
@@ -997,7 +979,7 @@ td span.branch div.tree
 {
   height: 17px;
   width: 15px;
-  background: url(images/tree.gif) 0px 0px no-repeat;
+  background: url(images/tree.gif?v=9b73.92) 0px 0px no-repeat;
 }
 
 td span.branch div.l1
@@ -1109,7 +1091,7 @@ table.headers-table tr td.header span
   min-height: 16px;
   list-style-image: none;
   list-style-type: none;
-  background: url(images/icons/attachment.png) 4px 2px no-repeat #DFDFDF;
+  background: url(images/icons/attachment.png?v=08f7.518) 4px 2px no-repeat #DFDFDF;
 }
 
 #messageframe #attachment-list
@@ -1152,14 +1134,13 @@ table.headers-table tr td.header span
 }
 
 #attachment-list li a.drop {
-  background: url(images/icons/down_small.gif) no-repeat center 6px;
+  background: url(images/icons/down_small.gif?v=f368.105) no-repeat center 6px;
   width: 12px;
-  height: 16px;
+  height: 7px;
   cursor: pointer;
-  padding: 0;
+  padding: 5px 0 0;
   margin-left: 3px;
   display: inline-block;
-  vertical-align: middle;
 }
 
 #messagebody
@@ -1358,12 +1339,12 @@ div.more-headers
 
 div.show-headers
 {
-  background: url(images/icons/down_small.gif) no-repeat center;
+  background: url(images/icons/down_small.gif?v=f368.105) no-repeat center;
 }
 
 div.hide-headers
 {
-  background: url(images/icons/up_small.gif) no-repeat center;
+  background: url(images/icons/up_small.gif?v=c56c.106) no-repeat center;
 }
 
 #headers-source
@@ -1555,11 +1536,10 @@ input.from_address
 
 #compose-attachments ul li
 {
-  position: relative;
   height: 18px;
   line-height: 16px;
   font-size: 11px;
-  padding: 2px 16px 1px 2px;
+  padding: 2px 2px 1px 2px;
   border-bottom: 1px solid #EBEBEB;
   white-space: nowrap;
   overflow: hidden;
@@ -1567,8 +1547,7 @@ input.from_address
   -o-text-overflow: ellipsis;
 }
 
-#compose-attachments li a.delete,
-#compose-attachments li a.cancelupload
+#compose-attachments li a
 {
   text-indent: -5000px;
   width: 17px;
@@ -1577,7 +1556,6 @@ input.from_address
   display: inline-block;
   text-decoration: none;
   vertical-align: middle;
-  background-position: 0px -392px;
 }
 
 #compose-attachments li img
@@ -1585,21 +1563,16 @@ input.from_address
   vertical-align: middle;
 }
 
+#compose-attachments li a.delete,
+#compose-attachments li a.cancelupload
+{
+  background-position: 0px -392px;
+}
+
 #compose-attachments li span
 {
   line-height: 18px;
   vertical-align: middle;
-}
-
-#compose-attachments li a.drop {
-  background: url(images/icons/down_small.gif) no-repeat center 8px;
-  width: 16px;
-  height: 22px;
-  cursor: pointer;
-  display: block;
-  position: absolute;
-  right: 0;
-  top: 0;
 }
 
 #upload-form,
@@ -1650,7 +1623,7 @@ input.from_address
 {
   display: block;
   font-size: 11px;
-  background: url(images/icons/folders.png) 5px -108px no-repeat;
+  background: url(images/icons/folders.png?v=d9d2.5356) 5px -108px no-repeat;
   border-bottom: 1px solid #EBEBEB;
   white-space: nowrap;
 }
@@ -1707,7 +1680,6 @@ input.from_address
   position: absolute;
   margin-right: 5px;
   right: 0;
-  top: 0;
 }
 
 #abookactions
@@ -1726,7 +1698,7 @@ input.from_address
   padding-left: 5px;
   padding-right: 5px;
   text-shadow: 1px 1px white;
-  background: url("images/icons/groupactions.png") no-repeat right -70px;
+  background: url(images/icons/groupactions.png?v=ace6.1092) no-repeat right -70px;
 }
 
 #abookactions a.disabled
@@ -1754,138 +1726,55 @@ input.from_address
   position: absolute;
 }
 
-/**** Styles for widescreen (3-column) view ****/
-
-.widescreen #mailview-top {
-  bottom: 0;
-  width: 400px;
-  height: auto;
+.mailvelopekeyimport div.key {
+  position: relative;
+  margin-bottom: 2px;
+  padding: 1em 1em 5px;
+  background-color: #ebebeb;
 }
 
-.widescreen #mailview-bottom {
-  left: 412px;
-  top:0;
-  border: 1px solid #a3a3a3;
+.mailvelopekeyimport div.key.revoked,
+.mailvelopekeyimport div.key.disabled {
+  color: #a0a0a0;
 }
 
-#messagelistheader,
-.widescreen #messagelistfooter #countcontrols,
-.widescreen .messagelist > thead,
-.widescreen .messagelist .branch,
-.widescreen table.fixedcopy {
-  display: none;
-}
-
-#messagelistcontainer {
-  top: 0;
-}
-
-.widescreen #messagelistcontainer {
-  top: 21px;
-  overflow-x: hidden;
-}
-
-.widescreen #mailpreviewframe {
-  top: 0;
-}
-
-.widescreen #messagelistheader {
-  display: block;
-  top: 0;
-  white-space: nowrap;
-  border-top: 0;
-  border-bottom: 1px solid #999;
-  height: 20px;
-}
-
-.widescreen #messagelistheader .listmenu {
+.mailvelopekeyimport div.key label {
   display: inline-block;
-  vertical-align: middle;
-  line-height: 16px;
-  width: 15px;
-  background: url(images/messageicons.png) 4px -236px no-repeat;
-  cursor: pointer;
-  overflow: hidden;
-  text-indent: -5000px;
-  padding: 2px 4px;
+  margin-right: 0.5em;
 }
 
-.widescreen .messagelist td {
-  border-left: 0;
-  vertical-align: top;
-  padding: 3px 1px 1px !important;
+.mailvelopekeyimport div.key label:after {
+  content: ":";
 }
 
-.widescreen .messagelist td.subject {
-  width: 99%;
-  white-space: wrap;
-  position: relative; /* for span.date positioning in Firefox */
+.mailvelopekeyimport div.key label + a,
+.mailvelopekeyimport div.key label + span {
+  display: inline-block;
+  margin-right: 2em;
+  white-space: nowrap;
 }
 
-.widescreen .messagelist td.threads {
-  width: 14px;
-  vertical-align: middle;
+.mailvelopekeyimport div.key label + a {
+  font-weight: bold;
 }
 
-.widescreen .messagelist td.flags {
-  width: 20px;
+.mailvelopekeyimport ul.uids {
+  margin: 5px 1em 0 1em;
+  padding: 0;
 }
 
-.widescreen .messagelist td.subject span {
-  line-height: 16px;
+.mailvelopekeyimport li.uid {
+  border: 0;
+  padding: 2px;
 }
 
-.widescreen .messagelist td.subject span.date {
-  right: 2px;
-  top: 3px;
+.mailvelopekeyimport div.key input.button.importkey {
   position: absolute;
-  color: #666;
+  top: 0.8em;
+  right: 0.8em;
+  padding: 2px 6px;
 }
 
-.widescreen .messagelist td.subject span.fromto {
-  padding-left: 18px;
-  display: block;
-  margin-right: 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #666;
-}
-
-.widescreen .messagelist tr.flagged td.subject span.date,
-.widescreen .messagelist tr.flagged td.subject span.fromto {
-  color: #ff0000;
-}
-
-.widescreen .messagelist tr.selected td.subject span.date,
-.widescreen .messagelist tr.selected td.subject span.fromto {
-  color: #fff;
-}
-
-.widescreen .messagelist tr.deleted td.subject span.date,
-.widescreen .messagelist tr.deleted td.subject span.fromto {
-  color: #ccc;
-}
-
-.widescreen .messagelist td.subject span.subject {
-  clear: both;
-  display: block;
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.widescreen .messagelist td.flags span {
-  width: 20px;
-  height: 18px;
-  display: block;
-}
-
-.widescreen .messagelist td.flags span.flag {
-  cursor: pointer;
-}
-
-.widescreen .messagelist tr td.subject span.msgicon,
-.widescreen .messagelist tr td.subject span.unreadchildren {
-  width: 18px;
-  margin: 0;
+.mailvelopekeyimport div.key input.button[disabled] {
+  display: none;
 }

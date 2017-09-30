@@ -25,12 +25,7 @@ if (!empty($_GET['_progress'])) {
 }
 
 $from = rcube_utils::get_input_value('_from', rcube_utils::INPUT_GET);
-$type = preg_replace('/(add|edit)-/', '', $from);
-
-// Plugins in Settings may use this file for some uploads (#5694)
-// Make sure it does not contain a dot, which is a special character
-// when using rcube_session::append() below
-$type = str_replace('.', '-', $type);
+$type = str_replace('edit-', '', $from);
 
 if ($RCMAIL->action == 'upload-display') {
     $id = 'undefined';
@@ -52,7 +47,7 @@ $IMAGE_TYPES = explode(',', 'jpeg,jpg,jp2,tiff,tif,bmp,eps,gif,png,png8,png24,pn
 $OUTPUT->reset();
 
 $max_size  = $RCMAIL->config->get($type . '_image_size', 64) * 1024;
-$post_size = $RCMAIL->show_bytes(rcube_utils::max_upload_size());
+$post_size = $RCMAIL->show_bytes(parse_bytes(ini_get('upload_max_filesize')));
 $uploadid  = rcube_utils::get_input_value('_uploadid', rcube_utils::INPUT_GET);
 
 

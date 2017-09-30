@@ -39,7 +39,7 @@ class rcube
     const DEBUG_LINE_LENGTH = 4096;
 
     /**
-     * Singleton instance of rcube
+     * Singleton instace of rcube
      *
      * @var rcube
      */
@@ -53,21 +53,21 @@ class rcube
     public $config;
 
     /**
-     * Instance of database class.
+     * Instace of database class.
      *
      * @var rcube_db
      */
     public $db;
 
     /**
-     * Instance of Memcache class.
+     * Instace of Memcache class.
      *
      * @var Memcache
      */
     public $memcache;
 
    /**
-     * Instance of rcube_session class.
+     * Instace of rcube_session class.
      *
      * @var rcube_session
      */
@@ -209,7 +209,25 @@ class rcube
             }
 
             $this->memcache     = new Memcache;
-            $this->memcache_init();
+            $this->mc_available = 0;
+
+            // add all configured hosts to pool
+            $pconnect       = $this->config->get('memcache_pconnect', true);
+            $timeout        = $this->config->get('memcache_timeout', 1);
+            $retry_interval = $this->config->get('memcache_retry_interval', 15);
+
+            foreach ($this->config->get('memcache_hosts', array()) as $host) {
+                if (substr($host, 0, 7) != 'unix://') {
+                    list($host, $port) = explode(':', $host);
+                    if (!$port) $port = 11211;
+                }
+                else {
+                    $port = 0;
+                }
+
+                $this->mc_available += intval($this->memcache->addServer(
+                    $host, $port, $pconnect, 1, $timeout, $retry_interval, false, array($this, 'memcache_failure')));
+            }
 
             // test connection and failover (will result in $this->mc_available == 0 on complete failure)
             $this->memcache->increment('__CONNECTIONTEST__', 1);  // NOP if key doesn't exist
@@ -220,34 +238,6 @@ class rcube
         }
 
         return $this->memcache;
-    }
-
-    /**
-     * Get global handle for memcache access
-     *
-     * @return object Memcache
-     */
-    protected function memcache_init()
-    {
-        $this->mc_available = 0;
-
-        // add all configured hosts to pool
-        $pconnect       = $this->config->get('memcache_pconnect', true);
-        $timeout        = $this->config->get('memcache_timeout', 1);
-        $retry_interval = $this->config->get('memcache_retry_interval', 15);
-
-        foreach ($this->config->get('memcache_hosts', array()) as $host) {
-            if (substr($host, 0, 7) != 'unix://') {
-                list($host, $port) = explode(':', $host);
-                if (!$port) $port = 11211;
-            }
-            else {
-                $port = 0;
-            }
-
-            $this->mc_available += intval($this->memcache->addServer(
-                $host, $port, $pconnect, 1, $timeout, $retry_interval, false, array($this, 'memcache_failure')));
-        }
     }
 
     /**
@@ -390,7 +380,6 @@ class rcube
         );
 
         if (!empty($_SESSION['storage_host'])) {
-            $options['language'] = $_SESSION['language'];
             $options['host']     = $_SESSION['storage_host'];
             $options['user']     = $_SESSION['username'];
             $options['port']     = $_SESSION['storage_port'];
@@ -595,12 +584,12 @@ class rcube
     /**
      * Get localized text in the desired language
      *
-     * @param mixed  $attrib Named parameters array or label name
-     * @param string $domain Label domain (plugin) name
+     * @param mixed   $attrib  Named parameters array or label name
+     * @param string  $domain  Label domain (plugin) name
      *
      * @return string Localized text
      */
-    public function gettext($attrib, $domain = null)
+    public function gettext($attrib, $domain=null)
     {
         // load localization files if not done yet
         if (empty($this->texts)) {
@@ -634,33 +623,26 @@ class rcube
             }
         }
 
-        // replace \n with real line break
-        $text = strtr($text, array('\n' => "\n"));
-
-        // case folding
-        if (($attrib['uppercase'] && strtolower($attrib['uppercase']) == 'first') || $attrib['ucfirst']) {
-            $case_mode = MB_CASE_TITLE;
+        // format output
+        if (($attrib['uppercase'] && strtolower($attrib['uppercase'] == 'first')) || $attrib['ucfirst']) {
+            return ucfirst($text);
         }
         else if ($attrib['uppercase']) {
-            $case_mode = MB_CASE_UPPER;
+            return mb_strtoupper($text);
         }
         else if ($attrib['lowercase']) {
-            $case_mode = MB_CASE_LOWER;
+            return mb_strtolower($text);
         }
 
-        if (isset($case_mode)) {
-            $text = mb_convert_case($text, $case_mode);
-        }
-
-        return $text;
+        return strtr($text, array('\n' => "\n"));
     }
 
     /**
      * Check if the given text label exists
      *
-     * @param string $name       Label name
-     * @param string $domain     Label domain (plugin) name or '*' for all domains
-     * @param string $ref_domain Sets domain name if label is found
+     * @param string  $name       Label name
+     * @param string  $domain     Label domain (plugin) name or '*' for all domains
+     * @param string  $ref_domain Sets domain name if label is found
      *
      * @return boolean True if text exists (either in the current language or in en_US)
      */
@@ -807,7 +789,7 @@ class rcube
     {
         static $sa_languages = array();
 
-        if (!count($sa_languages)) {
+        if (!sizeof($sa_languages)) {
             @include(RCUBE_LOCALIZATION_DIR . 'index.inc');
 
             if ($dh = @opendir(RCUBE_LOCALIZATION_DIR)) {
@@ -1032,45 +1014,11 @@ class rcube
      * The functions will be executed before destroying any
      * objects like smtp, imap, session, etc.
      *
-     * @param callback $function Function callback
+     * @param callback Function callback
      */
     public function add_shutdown_function($function)
     {
         $this->shutdown_functions[] = $function;
-    }
-
-    /**
-     * When you're going to sleep the script execution for a longer time
-     * it is good to close all external connections (sql, memcache, SMTP, IMAP).
-     *
-     * No action is required on wake up, all connections will be
-     * re-established automatically.
-     */
-    public function sleep()
-    {
-        foreach ($this->caches as $cache) {
-            if (is_object($cache)) {
-                $cache->close();
-            }
-        }
-
-        if ($this->storage) {
-            $this->storage->close();
-        }
-
-        if ($this->db) {
-            $this->db->closeConnection();
-        }
-
-        if ($this->memcache) {
-            $this->memcache->close();
-            // after close() need to re-init memcache
-            $this->memcache_init();
-        }
-
-        if ($this->smtp) {
-            $this->smtp->disconnect();
-        }
     }
 
     /**
@@ -1180,8 +1128,6 @@ class rcube
      *
      * @param string $name Name of the log file
      * @param mixed  $line Line to append
-     *
-     * @return bool True on success, False on failure
      */
     public static function write_log($name, $line)
     {
@@ -1219,24 +1165,19 @@ class rcube
 
         if ($log_driver == 'syslog') {
             $prio = $name == 'errors' ? LOG_ERR : LOG_INFO;
-            return syslog($prio, $line);
-        }
-
-        // write message with file name when configured to log to STDOUT
-        if ($log_driver == 'stdout') {
-            $stdout = "php://stdout";
-            $line = "$name: $line";
-            return file_put_contents($stdout, $line, FILE_APPEND) !== false;
+            syslog($prio, $line);
+            return true;
         }
 
         // log_driver == 'file' is assumed here
 
         $line = sprintf("[%s]: %s\n", $date, $line);
+        $log_dir = null;
 
         // per-user logging is activated
-        if (self::$instance && self::$instance->config->get('per_user_logging') && self::$instance->get_user_id()) {
+        if (self::$instance && self::$instance->config->get('per_user_logging', false) && self::$instance->get_user_id()) {
             $log_dir = self::$instance->get_user_log_dir();
-            if (empty($log_dir) && !in_array($name, array('errors', 'userlogins', 'sendmail'))) {
+            if (empty($log_dir) && $name != 'errors') {
                 return false;
             }
         }
@@ -1254,13 +1195,6 @@ class rcube
             $log_dir = RCUBE_INSTALL_PATH . 'logs';
         }
 
-        if (self::$instance) {
-            $name .= self::$instance->config->get('log_file_ext', '.log');
-        }
-        else {
-            $name .= '.log';
-        }
-
         return file_put_contents("$log_dir/$name", $line, FILE_APPEND) !== false;
     }
 
@@ -1269,7 +1203,7 @@ class rcube
      *
      * @param array $arg Named parameters
      *      - code:    Error code (required)
-     *      - type:    Error type [php|db|imap|javascript]
+     *      - type:    Error type [php|db|imap|javascript] (required)
      *      - message: Error message
      *      - file:    File where error occurred
      *      - line:    Line where error occurred
@@ -1295,14 +1229,14 @@ class rcube
             $arg['code'] = 500;
         }
 
-        $cli = php_sapi_name() == 'cli';
-
         // installer
-        if (!$cli && class_exists('rcmail_install', false)) {
+        if (class_exists('rcmail_install', false)) {
             $rci = rcmail_install::get_instance();
             $rci->raise_error($arg);
             return;
         }
+
+        $cli = php_sapi_name() == 'cli';
 
         if (($log || $terminate) && !$cli && $arg['message']) {
             $arg['fatal'] = $terminate;
@@ -1344,6 +1278,7 @@ class rcube
 
         // write error to local log file
         if (($level & 1) || !empty($arg_arr['fatal'])) {
+            $post_query = '';
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 foreach (array('_task', '_action') as $arg) {
                     if ($_POST[$arg] && !$_GET[$arg]) {
@@ -1528,8 +1463,8 @@ class rcube
      */
     protected function get_user_log_dir()
     {
-        $log_dir      = $this->config->get('log_dir', RCUBE_INSTALL_PATH . 'logs');
-        $user_name    = $this->get_user_name();
+        $log_dir = $this->config->get('log_dir', RCUBE_INSTALL_PATH . 'logs');
+        $user_name = $this->get_user_name();
         $user_log_dir = $log_dir . '/' . $user_name;
 
         return !empty($user_name) && is_writable($user_log_dir) ? $user_log_dir : false;
@@ -1553,24 +1488,15 @@ class rcube
     /**
      * Unique Message-ID generator.
      *
-     * @param string $sender Optional sender e-mail address
-     *
      * @return string Message-ID
      */
-    public function gen_message_id($sender = null)
+    public function gen_message_id()
     {
         $local_part  = md5(uniqid('rcube'.mt_rand(), true));
-        $domain_part = '';
-
-        if ($sender && preg_match('/@([^\s]+\.[a-z0-9-]+)/', $sender, $m)) {
-            $domain_part = $m[1];
-        }
-        else {
-            $domain_part = $this->user->get_username('domain');
-        }
+        $domain_part = $this->user->get_username('domain');
 
         // Try to find FQDN, some spamfilters doesn't like 'localhost' (#1486924)
-        if (!preg_match('/\.[a-z0-9-]+$/i', $domain_part)) {
+        if (!preg_match('/\.[a-z]+$/i', $domain_part)) {
             foreach (array($_SERVER['HTTP_HOST'], $_SERVER['SERVER_NAME']) as $host) {
                 $host = preg_replace('/:[0-9]+$/', '', $host);
                 if ($host && preg_match('/\.[a-z]+$/i', $host)) {
@@ -1593,12 +1519,10 @@ class rcube
      * @param string $body_file Location of file with saved message body (reference),
      *                          used when delay_file_io is enabled
      * @param array  $options   SMTP options (e.g. DSN request)
-     * @param bool   $disconnect Close SMTP connection ASAP
      *
      * @return boolean Send status.
      */
-    public function deliver_message(&$message, $from, $mailto, &$error,
-        &$body_file = null, $options = null, $disconnect = false)
+    public function deliver_message(&$message, $from, $mailto, &$error, &$body_file = null, $options = null)
     {
         $plugin = $this->plugins->exec_hook('message_before_send', array(
             'message' => $message,
@@ -1624,66 +1548,117 @@ class rcube
         $message = $plugin['message'];
         $headers = $message->headers();
 
-        // generate list of recipients
-        $a_recipients = (array) $mailto;
+        // send thru SMTP server using custom SMTP library
+        if ($this->config->get('smtp_server')) {
+            // generate list of recipients
+            $a_recipients = (array) $mailto;
 
-        if (strlen($headers['Cc'])) {
-            $a_recipients[] = $headers['Cc'];
-        }
-        if (strlen($headers['Bcc'])) {
-            $a_recipients[] = $headers['Bcc'];
-        }
+            if (strlen($headers['Cc']))
+                $a_recipients[] = $headers['Cc'];
+            if (strlen($headers['Bcc']))
+                $a_recipients[] = $headers['Bcc'];
 
-        // remove Bcc header and get the whole head of the message as string
-        $smtp_headers = $message->txtHeaders(array('Bcc' => null), true);
+            // remove Bcc header and get the whole head of the message as string
+            $smtp_headers = $this->message_head($message, array('Bcc'));
 
-        if ($message->getParam('delay_file_io')) {
-            // use common temp dir
-            $temp_dir    = $this->config->get('temp_dir');
-            $body_file   = tempnam($temp_dir, 'rcmMsg');
-            $mime_result = $message->saveMessageBody($body_file);
+            if ($message->getParam('delay_file_io')) {
+                // use common temp dir
+                $temp_dir    = $this->config->get('temp_dir');
+                $body_file   = tempnam($temp_dir, 'rcmMsg');
+                $mime_result = $message->saveMessageBody($body_file);
 
-            if (is_a($mime_result, 'PEAR_Error')) {
-                self::raise_error(array('code' => 650, 'type' => 'php',
-                    'file' => __FILE__, 'line' => __LINE__,
-                    'message' => "Could not create message: ".$mime_result->getMessage()),
-                    true, false);
-                return false;
+                if (is_a($mime_result, 'PEAR_Error')) {
+                    self::raise_error(array('code' => 650, 'type' => 'php',
+                        'file' => __FILE__, 'line' => __LINE__,
+                        'message' => "Could not create message: ".$mime_result->getMessage()),
+                        true, false);
+                    return false;
+                }
+
+                $msg_body = fopen($body_file, 'r');
+            }
+            else {
+                $msg_body = $message->get();
             }
 
-            $msg_body = fopen($body_file, 'r');
+            // send message
+            if (!is_object($this->smtp)) {
+                $this->smtp_init(true);
+            }
+
+            $sent     = $this->smtp->send_mail($from, $a_recipients, $smtp_headers, $msg_body, $options);
+            $response = $this->smtp->get_response();
+            $error    = $this->smtp->get_error();
+
+            // log error
+            if (!$sent) {
+                self::raise_error(array('code' => 800, 'type' => 'smtp',
+                    'line' => __LINE__, 'file' => __FILE__,
+                    'message' => join("\n", $response)), true, false);
+            }
         }
+        // send mail using PHP's mail() function
         else {
+            // unset To,Subject headers because they will be added by the mail() function
+            $header_str = $this->message_head($message, array('To', 'Subject'));
+
+            if (is_array($mailto)) {
+                $mailto = implode(', ', $mailto);
+            }
+
+            // #1485779
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                if (preg_match_all('/<([^@]+@[^>]+)>/', $mailto, $m)) {
+                    $mailto = implode(', ', $m[1]);
+                }
+            }
+
             $msg_body = $message->get();
+
+            if (is_a($msg_body, 'PEAR_Error')) {
+                self::raise_error(array('code' => 650, 'type' => 'php',
+                    'file' => __FILE__, 'line' => __LINE__,
+                    'message' => "Could not create message: ".$msg_body->getMessage()),
+                    true, false);
+            }
+            else {
+                $delim      = $this->config->header_delimiter();
+                $to         = $mailto;
+                $subject    = $headers['Subject'];
+                $header_str = rtrim($header_str);
+
+                if ($delim != "\r\n") {
+                    $header_str = str_replace("\r\n", $delim, $header_str);
+                    $msg_body   = str_replace("\r\n", $delim, $msg_body);
+                    $to         = str_replace("\r\n", $delim, $to);
+                    $subject    = str_replace("\r\n", $delim, $subject);
+                }
+
+                if (filter_var(ini_get('safe_mode'), FILTER_VALIDATE_BOOLEAN))
+                    $sent = mail($to, $subject, $msg_body, $header_str);
+                else
+                    $sent = mail($to, $subject, $msg_body, $header_str, "-f$from");
+            }
         }
 
-        // initialize SMTP connection
-        if (!is_object($this->smtp)) {
-            $this->smtp_init(true);
-        }
-
-        // send message
-        $sent     = $this->smtp->send_mail($from, $a_recipients, $smtp_headers, $msg_body, $options);
-        $response = $this->smtp->get_response();
-        $error    = $this->smtp->get_error();
-
-        if (!$sent) {
-            self::raise_error(array('code' => 800, 'type' => 'smtp',
-                'line' => __LINE__, 'file' => __FILE__,
-                'message' => join("\n", $response)), true, false);
-
-            // allow plugins to catch sending errors with the same parameters as in 'message_before_send'
-            $this->plugins->exec_hook('message_send_error', $plugin + array('error' => $error));
-        }
-        else {
-            $this->plugins->exec_hook('message_sent', array('headers' => $headers, 'body' => $msg_body, 'message' => $message));
+        if ($sent) {
+            $this->plugins->exec_hook('message_sent', array('headers' => $headers, 'body' => $msg_body));
 
             // remove MDN headers after sending
             unset($headers['Return-Receipt-To'], $headers['Disposition-Notification-To']);
 
             if ($this->config->get('smtp_log')) {
                 // get all recipient addresses
-                $mailto = implode(',', $a_recipients);
+                if (is_array($mailto)) {
+                    $mailto = implode(',', $mailto);
+                }
+                if ($headers['Cc']) {
+                    $mailto .= ',' . $headers['Cc'];
+                }
+                if ($headers['Bcc']) {
+                    $mailto .= ',' . $headers['Bcc'];
+                }
+
                 $mailto = rcube_mime::decode_address_list($mailto, null, false, null, true);
 
                 self::write_log('sendmail', sprintf("User %s [%s]; Message for %s; %s",
@@ -1693,18 +1668,32 @@ class rcube
                     !empty($response) ? join('; ', $response) : ''));
             }
         }
+        else {
+            // allow plugins to catch sending errors with the same parameters as in 'message_before_send'
+            $this->plugins->exec_hook('message_send_error', $plugin + array('error' => $error));
+        }
 
         if (is_resource($msg_body)) {
             fclose($msg_body);
         }
 
-        if ($disconnect) {
-            $this->smtp->disconnect();
-        }
-
         $message->headers($headers, true);
 
         return $sent;
+    }
+
+    /**
+     * Return message headers as a string
+     */
+    protected function message_head($message, $unset = array())
+    {
+        // requires Mail_mime >= 1.9.0
+        $headers = array();
+        foreach ((array) $unset as $header) {
+            $headers[$header] = null;
+        }
+
+        return $message->txtHeaders($headers, true);
     }
 }
 

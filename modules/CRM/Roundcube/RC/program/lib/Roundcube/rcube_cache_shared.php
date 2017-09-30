@@ -230,11 +230,7 @@ class rcube_cache_shared
         }
 
         // reset internal cache index, thanks to this we can force index reload
-        $this->index         = null;
-        $this->index_changed = false;
-        $this->cache         = array();
-        $this->cache_sums    = array();
-        $this->cache_changes = array();
+        $this->index = null;
     }
 
     /**
@@ -275,7 +271,7 @@ class rcube_cache_shared
                 }
             }
 
-            if ($data !== false) {
+            if ($data) {
                 $md5sum = md5($data);
                 $data   = $this->unserialize($data);
 
@@ -291,18 +287,20 @@ class rcube_cache_shared
             }
         }
         else {
-            $sql_result = $this->db->query(
-                "SELECT `data`, `cache_key` FROM {$this->table}"
-                . " WHERE `cache_key` = ?",
-                $this->prefix . '.' . $key);
+            $sql_result = $this->db->limitquery(
+                "SELECT `data`, `cache_key`".
+                " FROM {$this->table}" .
+                " WHERE `cache_key` = ?".
+                // for better performance we allow more records for one key
+                // get the newer one
+                " ORDER BY `created` DESC",
+                0, 1, $this->prefix . '.' . $key);
 
             if ($sql_arr = $this->db->fetch_assoc($sql_result)) {
-                if (strlen($sql_arr['data']) > 0) {
-                    $md5sum = md5($sql_arr['data']);
-                    $data   = $this->unserialize($sql_arr['data']);
+                $md5sum = $sql_arr['data'] ? md5($sql_arr['data']) : null;
+                if ($sql_arr['data']) {
+                    $data = $this->unserialize($sql_arr['data']);
                 }
-
-                $this->db->reset();
 
                 if ($nostore) {
                     return $data;
@@ -358,41 +356,37 @@ class rcube_cache_shared
             return $result;
         }
 
-        $db_key = $this->prefix . '.' . $key;
+        $key_exists = array_key_exists($key, $this->cache_sums);
+        $key        = $this->prefix . '.' . $key;
 
         // Remove NULL rows (here we don't need to check if the record exist)
         if ($data == 'N;') {
-            $result = $this->db->query("DELETE FROM {$this->table} WHERE `cache_key` = ?", $db_key);
-
-            return !$this->db->is_error($result);
+            $this->db->query("DELETE FROM {$this->table} WHERE `cache_key` = ?", $key);
+            return true;
         }
 
-        $key_exists = array_key_exists($key, $this->cache_sums);
-        $expires    = $this->ttl ? $this->db->now($this->ttl) : 'NULL';
-
-        if (!$key_exists) {
-            // Try INSERT temporarily ignoring "duplicate key" errors
-            $this->db->set_option('ignore_key_errors', true);
-
+        // update existing cache record
+        if ($key_exists) {
             $result = $this->db->query(
-                "INSERT INTO {$this->table} (`expires`, `cache_key`, `data`)"
-                . " VALUES ($expires, ?, ?)",
-                $db_key, $data);
-
-            $this->db->set_option('ignore_key_errors', false);
+                "UPDATE {$this->table}" .
+                " SET `created` = " . $this->db->now() .
+                    ", `expires` = " . ($this->ttl ? $this->db->now($this->ttl) : 'NULL') .
+                    ", `data` = ?".
+                " WHERE `cache_key` = ?",
+                $data, $key);
         }
-
-        // otherwise try UPDATE
-        if (!isset($result) || !($count = $this->db->affected_rows($result))) {
+        // add new cache record
+        else {
+            // for better performance we allow more records for one key
+            // so, no need to check if record exist (see rcube_cache::read_record())
             $result = $this->db->query(
-                "UPDATE {$this->table} SET `expires` = $expires, `data` = ?"
-                . " WHERE `cache_key` = ?",
-                $data, $db_key);
-
-            $count = $this->db->affected_rows($result);
+                "INSERT INTO {$this->table}".
+                " (`created`, `expires`, `cache_key`, `data`)".
+                " VALUES (".$this->db->now().", " . ($this->ttl ? $this->db->now($this->ttl) : 'NULL') . ", ?, ?)",
+                $key, $data);
         }
 
-        return $count > 0;
+        return $this->db->affected_rows($result);
     }
 
     /**
@@ -632,9 +626,14 @@ class rcube_cache_shared
                 }
                 $this->max_packet -= 2000;
             }
-            else {
-                $max_packet = rcube::get_instance()->config->get($this->type . '_max_allowed_packet');
-                $this->max_packet = parse_bytes($max_packet) ?: $this->max_packet;
+            else if ($this->type == 'memcache') {
+                $stats = $this->db->getStats();
+                $remaining = $stats['limit_maxbytes'] - $stats['bytes'];
+                $this->max_packet = min($remaining / 5, $this->max_packet);
+            }
+            else if ($this->type == 'apc' && function_exists('apc_sma_info')) {
+                $stats = apc_sma_info();
+                $this->max_packet = min($stats['avail_mem'] / 5, $this->max_packet);
             }
         }
 

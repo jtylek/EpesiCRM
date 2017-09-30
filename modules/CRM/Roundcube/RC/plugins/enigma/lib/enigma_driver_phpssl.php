@@ -67,15 +67,15 @@ class enigma_driver_phpssl extends enigma_driver
 
     }
 
-    function encrypt($text, $keys, $sign_key = null)
+    function encrypt($text, $keys)
     {
     }
 
-    function decrypt($text, $keys = array(), &$signature = null)
+    function decrypt($text, $keys = array())
     {
     }
 
-    function sign($text, $key, $mode = null)
+    function sign($text, $key, $passwd, $mode = null)
     {
     }
 
@@ -122,11 +122,11 @@ class enigma_driver_phpssl extends enigma_driver
         return $sig;
     }
 
-    public function import($content, $isfile = false, $passwords = array())
+    public function import($content, $isfile=false)
     {
     }
 
-    public function export($key, $with_private = false, $passwords = array())
+    public function export($key, $with_private = false)
     {
     }
 
@@ -146,13 +146,11 @@ class enigma_driver_phpssl extends enigma_driver
     {
     }
 
-    /**
-     * Returns a name of the hash algorithm used for the last
-     * signing operation.
-     *
-     * @return string Hash algorithm name e.g. sha1
-     */
-    public function signature_algorithm()
+    public function delete_privkey($keyid)
+    {
+    }
+
+    public function delete_pubkey($keyid)
     {
     }
 
@@ -231,4 +229,5 @@ class enigma_driver_phpssl extends enigma_driver
 
         return $data;
     }
+
 }

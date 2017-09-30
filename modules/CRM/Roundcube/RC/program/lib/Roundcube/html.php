@@ -32,7 +32,7 @@ class html
     public static $doctype = 'xhtml';
     public static $lc_tags = true;
     public static $common_attrib = array('id','class','style','title','align','unselectable','tabindex','role');
-    public static $containers    = array('iframe','div','span','p','h1','h2','h3','ul','form','textarea','table','thead','tbody','tr','th','td','style','script','a');
+    public static $containers    = array('iframe','div','span','p','h1','h2','h3','ul','form','textarea','table','thead','tbody','tr','th','td','style','script');
     public static $bool_attrib   = array('checked','multiple','disabled','selected','autofocus','readonly');
 
 
@@ -65,7 +65,7 @@ class html
      *
      * @param string $tagname Tag name
      * @param array  $attrib  Tag attributes as key/value pairs
-     * @param string $content Optional Tag content (creates a container tag)
+     * @param string $content Optinal Tag content (creates a container tag)
      * @param array  $allowed List with allowed attributes, omit to allow all
      *
      * @return string The XHTML tag
@@ -163,7 +163,7 @@ class html
         }
 
         return self::tag('img', $attr + array('alt' => ''), null, array_merge(self::$common_attrib,
-            array('src','alt','width','height','border','usemap','onclick','onerror','onload')));
+            array('src','alt','width','height','border','usemap','onclick','onerror')));
     }
 
     /**
@@ -218,8 +218,7 @@ class html
             $attr = array('for' => $attr);
         }
 
-        return self::tag('label', $attr, $cont, array_merge(self::$common_attrib,
-            array('for','onkeypress')));
+        return self::tag('label', $attr, $cont, array_merge(self::$common_attrib, array('for')));
     }
 
     /**
@@ -268,7 +267,7 @@ class html
     /**
      * Derrived method for line breaks
      *
-     * @param array $attrib Associative arry with tag attributes
+     * @param array $attrib  Associative arry with tag attributes
      *
      * @return string HTML code
      * @see html::tag()
@@ -323,12 +322,8 @@ class html
             // attributes with no value
             if (in_array($key, self::$bool_attrib)) {
                 if ($value) {
-                    $value = $key;
-                    if (self::$doctype == 'xhtml') {
-                        $value .= '="' . $value . '"';
-                    }
-
-                    $attrib_arr[] = $value;
+                    // @TODO: minimize attribute in non-xhtml mode
+                    $attrib_arr[] = $key . '="' . $key . '"';
                 }
             }
             else {
@@ -342,21 +337,21 @@ class html
     /**
      * Convert a HTML attribute string attributes to an associative array (name => value)
      *
-     * @param string $str Input string
+     * @param string Input string
      *
      * @return array Key-value pairs of parsed attributes
      */
     public static function parse_attrib_string($str)
     {
         $attrib = array();
-        $html   = '<html><body><div ' . rtrim($str, '/ ') . ' /></body></html>';
+        $regexp = '/\s*([-_a-z]+)=(["\'])??(?(2)([^\2]*)\2|(\S+?))/Ui';
 
-        $document = new DOMDocument('1.0', RCUBE_CHARSET);
-        @$document->loadHTML($html);
+        preg_match_all($regexp, stripslashes($str), $regs, PREG_SET_ORDER);
 
-        if ($node = $document->getElementsByTagName('div')->item(0)) {
-            foreach ($node->attributes as $name => $attr) {
-                $attrib[strtolower($name)] = $attr->nodeValue;
+        // convert attributes to an associative array (name => value)
+        if ($regs) {
+            foreach ($regs as $attr) {
+                $attrib[strtolower($attr[1])] = html_entity_decode($attr[3] . $attr[4]);
             }
         }
 
@@ -400,7 +395,7 @@ class html_inputfield extends html
         'type','name','value','size','tabindex','autocapitalize','required',
         'autocomplete','checked','onchange','onclick','disabled','readonly',
         'spellcheck','results','maxlength','src','multiple','accept',
-        'placeholder','autofocus','pattern',
+        'placeholder','autofocus','pattern'
     );
 
     /**
@@ -630,7 +625,7 @@ class html_textarea extends html
  * $select->add(array('Switzerland','Germany'), array('CH','DE'));
  *
  * // generate pulldown with selection 'Switzerland'  and return html-code
- * // as second argument the same attributes available to instantiate can be used
+ * // as second argument the same attributes available to instanciate can be used
  * print $select->show('CH');
  * </pre>
  *
@@ -778,12 +773,12 @@ class html_table extends html
      * Remove a column from a table
      * Useful for plugins making alterations
      *
-     * @param string $class Class name
+     * @param string $class
      */
     public function remove_column($class)
     {
         // Remove the header
-        foreach ($this->header as $index => $header){
+        foreach ($this->header as $index=>$header){
             if ($header->attrib['class'] == $class){
                 unset($this->header[$index]);
                 break;
@@ -791,8 +786,8 @@ class html_table extends html
         }
 
         // Remove cells from rows
-        foreach ($this->rows as $i => $row){
-            foreach ($row->cells as $j => $cell){
+        foreach ($this->rows as $i=>$row){
+            foreach ($row->cells as $j=>$cell){
                 if ($cell->attrib['class'] == $class){
                     unset($this->rows[$i]->cells[$j]);
                     break;

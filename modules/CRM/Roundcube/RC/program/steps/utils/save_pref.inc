@@ -26,6 +26,7 @@ $sessname = rcube_utils::get_input_value('_session', rcube_utils::INPUT_POST);
 // Whitelisted preferences and session variables, others
 // can be added by plugins
 $whitelist = array(
+    'preview_pane',
     'list_cols',
     'collapsed_folders',
     'collapsed_abooks',

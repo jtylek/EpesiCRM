@@ -3,7 +3,7 @@
 /**
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube PHP suite                          |
- | Copyright (C) 2005-2017, The Roundcube Dev Team                       |
+ | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -30,6 +30,8 @@ $config = array(
     // critical PHP settings here. Only these, which doesn't provide
     // an error/warning in the logs later. See (#1486307).
     'mbstring.func_overload'  => 0,
+    'magic_quotes_runtime'    => false,
+    'magic_quotes_sybase'     => false, // #1488506
 );
 
 // check these additional ini settings if not called via CLI
@@ -53,7 +55,7 @@ foreach ($config as $optname => $optval) {
 }
 
 // framework constants
-define('RCUBE_VERSION', '1.4-git');
+define('RCUBE_VERSION', '1.2.1');
 define('RCUBE_CHARSET', 'UTF-8');
 
 if (!defined('RCUBE_LIB_DIR')) {
@@ -439,11 +441,6 @@ function rcube_autoload($classname)
     else if (strpos($classname, 'Auth_') === 0) {
         $classname = 'Auth/' . substr($classname, 5);
     }
-
-    // Translate PHP namespaces into directories,
-    // i.e. use \Sabre\VObject; $vcf = VObject\Reader::read(...)
-    //      -> Sabre/VObject/Reader.php
-    $classname = str_replace('\\', '/', $classname);
 
     if ($fp = @fopen("$classname.php", 'r', true)) {
         fclose($fp);

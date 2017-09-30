@@ -48,8 +48,6 @@ class rcube_text2html
         'space' => "\xC2\xA0",
         // enables format=flowed parser
         'flowed' => false,
-        // enables delsp=yes parser
-        'delsp' => false,
         // enables wrapping for non-flowed text
         'wrap' => true,
         // line-break tag
@@ -152,8 +150,7 @@ class rcube_text2html
 
         if ($this->config['flowed']) {
             $flowed_char = 0x01;
-            $delsp       = $this->config['delsp'];
-            $text        = rcube_mime::unfold_flowed($text, chr($flowed_char), $delsp);
+            $text        = rcube_mime::unfold_flowed($text, chr($flowed_char));
         }
 
         // search for patterns like links and e-mail addresses and replace with tokens
@@ -273,10 +270,6 @@ class rcube_text2html
         if (empty($table)) {
             $table = get_html_translation_table(HTML_SPECIALCHARS);
             unset($table['?']);
-
-            // replace some whitespace characters
-            $table["\r"] = '';
-            $table["\t"] = '    ';
         }
 
         // skip signature separator
@@ -284,8 +277,11 @@ class rcube_text2html
             return '--' . $this->config['space'];
         }
 
-        // replace HTML special and whitespace characters
+        // replace HTML special characters
         $text = strtr($text, $table);
+
+        // replace some whitespace characters
+        $text = str_replace(array("\r", "\t"), array('', '    '), $text);
 
         $nbsp = $this->config['space'];
 

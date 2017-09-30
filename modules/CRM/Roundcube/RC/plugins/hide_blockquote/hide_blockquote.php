@@ -10,6 +10,7 @@
  * // 0 - no limit (no hidding).
  * $config['hide_blockquote_limit'] = 0;
  *
+ * @version @package_version@
  * @license GNU GPLv3+
  * @author Aleksander Machniak <alec@alec.pl>
  */

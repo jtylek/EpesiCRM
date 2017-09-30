@@ -6,6 +6,7 @@
  *
  * This plugin requires that a working public_ldap directory be configured.
  *
+ * @version @package_version@
  * @author Kris Steinhoff
  * @license GNU GPLv3+
  */

@@ -91,8 +91,7 @@ class rcube_user
     /**
      * Build a user name string (as e-mail address)
      *
-     * @param string $part Username part (empty or 'local' or 'domain', 'mail')
-     *
+     * @param  string $part Username part (empty or 'local' or 'domain', 'mail')
      * @return string Full user name or its part
      */
     function get_username($part = null)
@@ -118,12 +117,13 @@ class rcube_user
                 return $domain;
             }
 
-            if (!empty($domain)) {
+            if (!empty($domain))
                 return $local . '@' . $domain;
-            }
-
-            return $local;
+            else
+                return $local;
         }
+
+        return false;
     }
 
     /**
@@ -175,33 +175,27 @@ class rcube_user
      */
     function save_prefs($a_user_prefs, $no_session = false)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         $plugin = $this->rc->plugins->exec_hook('preferences_update', array(
-                'userid' => $this->ID,
-                'prefs'  => $a_user_prefs,
-                'old'    => (array)$this->get_prefs()
-        ));
+            'userid' => $this->ID, 'prefs' => $a_user_prefs, 'old' => (array)$this->get_prefs()));
 
         if (!empty($plugin['abort'])) {
-            return false;
+            return;
         }
 
         $a_user_prefs = $plugin['prefs'];
         $old_prefs    = $plugin['old'];
         $config       = $this->rc->config;
-        $defaults     = $config->all();
 
         // merge (partial) prefs array with existing settings
         $this->prefs = $save_prefs = $a_user_prefs + $old_prefs;
         unset($save_prefs['language']);
 
         // don't save prefs with default values if they haven't been changed yet
-        // Warning: we use result of rcube_config::all() here instead of just get() (#5782)
         foreach ($a_user_prefs as $key => $value) {
-            if ($value === null || (!isset($old_prefs[$key]) && $value === $defaults[$key])) {
+            if ($value === null || (!isset($old_prefs[$key]) && ($value == $config->get($key)))) {
                 unset($save_prefs[$key]);
             }
         }
@@ -258,7 +252,7 @@ class rcube_user
 
         // generate a random hash and store it in user prefs
         if (empty($prefs['client_hash'])) {
-            $prefs['client_hash'] = rcube_utils::random_bytes(16);
+            $prefs['client_hash'] = md5($this->data['username'] . mt_rand() . $this->data['mail_host']);
             $this->save_prefs(array('client_hash' => $prefs['client_hash']));
         }
 
@@ -268,7 +262,7 @@ class rcube_user
     /**
      * Return a list of all user emails (from identities)
      *
-     * @param bool $default Return only default identity
+     * @param bool Return only default identity
      *
      * @return array List of emails (identity_id, name, email)
      */
@@ -295,8 +289,7 @@ class rcube_user
     /**
      * Get default identity of this user
      *
-     * @param int $id Identity ID. If empty, the default identity is returned
-     *
+     * @param  int   $id Identity ID. If empty, the default identity is returned
      * @return array Hash array with all cols of the identity record
      */
     function get_identity($id = null)
@@ -349,16 +342,14 @@ class rcube_user
     /**
      * Update a specific identity record
      *
-     * @param int   $iid  Identity ID
-     * @param array $data Hash array with col->value pairs to save
-     *
+     * @param int    $iid  Identity ID
+     * @param array  $data Hash array with col->value pairs to save
      * @return boolean True if saved successfully, false if nothing changed
      */
     function update_identity($iid, $data)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         $query_cols = $query_params = array();
 
@@ -382,21 +373,19 @@ class rcube_user
         $this->identities = array();
         $this->emails     = null;
 
-        return $this->db->affected_rows() > 0;
+        return $this->db->affected_rows();
     }
 
     /**
      * Create a new identity record linked with this user
      *
      * @param array $data Hash array with col->value pairs to save
-     *
-     * @return int The inserted identity ID or false on error
+     * @return int  The inserted identity ID or false on error
      */
     function insert_identity($data)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         unset($data['user_id']);
 
@@ -410,7 +399,7 @@ class rcube_user
 
         $sql = "INSERT INTO ".$this->db->table_name('identities', true).
             " (`changed`, ".join(', ', $insert_cols).")".
-            " VALUES (".$this->db->now().", ".join(', ', array_pad(array(), count($insert_values), '?')).")";
+            " VALUES (".$this->db->now().", ".join(', ', array_pad(array(), sizeof($insert_values), '?')).")";
 
         call_user_func_array(array($this->db, 'query'),
             array_merge(array($sql), $insert_values));
@@ -419,21 +408,19 @@ class rcube_user
         $this->identities = array();
         $this->emails     = null;
 
-        return $this->db->insert_id('identities') ?: false;
+        return $this->db->insert_id('identities');
     }
 
     /**
      * Mark the given identity as deleted
      *
-     * @param int $iid Identity ID
-     *
+     * @param  int     $iid Identity ID
      * @return boolean True if deleted successfully, false if nothing changed
      */
     function delete_identity($iid)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         $sql_result = $this->db->query(
             "SELECT count(*) AS ident_count FROM ".$this->db->table_name('identities', true).
@@ -443,9 +430,8 @@ class rcube_user
         $sql_arr = $this->db->fetch_assoc($sql_result);
 
         // we'll not delete last identity
-        if ($sql_arr['ident_count'] <= 1) {
-            return false;
-        }
+        if ($sql_arr['ident_count'] <= 1)
+            return -1;
 
         $this->db->query(
             "UPDATE ".$this->db->table_name('identities', true).
@@ -459,7 +445,7 @@ class rcube_user
         $this->identities = array();
         $this->emails     = null;
 
-        return $this->db->affected_rows() > 0;
+        return $this->db->affected_rows();
     }
 
     /**
@@ -517,10 +503,10 @@ class rcube_user
 
             $this->db->query(
                 "UPDATE " . $this->db->table_name('users', true)
-                    . " SET `failed_login` = ?"
+                    . " SET `failed_login` = " . $this->db->fromunixtime($failed_login->format('U'))
                     . ", `failed_login_counter` = " . ($counter ?: "`failed_login_counter` + 1")
                 . " WHERE `user_id` = ?",
-                $failed_login, $this->ID);
+                $this->ID);
         }
     }
 
@@ -559,7 +545,6 @@ class rcube_user
      *
      * @param string $user IMAP user name
      * @param string $host IMAP host name
-     *
      * @return rcube_user New user instance
      */
     static function query($user, $host)
@@ -587,6 +572,8 @@ class rcube_user
         if ($sql_arr) {
             return new rcube_user($sql_arr['user_id'], $sql_arr);
         }
+
+        return false;
     }
 
     /**
@@ -594,7 +581,6 @@ class rcube_user
      *
      * @param string $user IMAP user name
      * @param string $host IMAP host
-     *
      * @return rcube_user New user instance
      */
     static function create($user, $host)
@@ -620,7 +606,7 @@ class rcube_user
 
         // plugin aborted this operation
         if ($data['abort']) {
-            return;
+            return false;
         }
 
         $dbh->query(
@@ -700,21 +686,20 @@ class rcube_user
                 'message' => "Failed to create new user"), true, false);
         }
 
-        return $user_id ? $user_instance : null;
+        return $user_id ? $user_instance : false;
     }
 
     /**
      * Resolve username using a virtuser plugins
      *
      * @param string $email E-mail address to resolve
-     *
      * @return string Resolved IMAP username
      */
     static function email2user($email)
     {
         $rcube = rcube::get_instance();
         $plugin = $rcube->plugins->exec_hook('email2user',
-            array('email' => $email, 'user' => null));
+            array('email' => $email, 'user' => NULL));
 
         return $plugin['user'];
     }
@@ -722,26 +707,25 @@ class rcube_user
     /**
      * Resolve e-mail address from virtuser plugins
      *
-     * @param string  $user     User name
-     * @param boolean $first    If true returns first found entry
+     * @param string $user User name
+     * @param boolean $first If true returns first found entry
      * @param boolean $extended If true returns email as array (email and name for identity)
-     *
      * @return mixed Resolved e-mail address string or array of strings
      */
     static function user2email($user, $first=true, $extended=false)
     {
         $rcube = rcube::get_instance();
         $plugin = $rcube->plugins->exec_hook('user2email',
-            array('email' => null, 'user' => $user,
+            array('email' => NULL, 'user' => $user,
                 'first' => $first, 'extended' => $extended));
 
-        return empty($plugin['email']) ? null : $plugin['email'];
+        return empty($plugin['email']) ? NULL : $plugin['email'];
     }
 
     /**
      * Return a list of saved searches linked with this user
      *
-     * @param int $type Search type
+     * @param int  $type  Search type
      *
      * @return array List of saved searches indexed by search ID
      */
@@ -773,7 +757,7 @@ class rcube_user
     /**
      * Return saved search data.
      *
-     * @param int $id Row identifier
+     * @param int  $id  Row identifier
      *
      * @return array Data
      */
@@ -800,20 +784,21 @@ class rcube_user
                 'data' => unserialize($sql_arr['data']),
             );
         }
+
+        return null;
     }
 
     /**
      * Deletes given saved search record
      *
-     * @param int $sid Search ID
+     * @param  int  $sid  Search ID
      *
      * @return boolean True if deleted successfully, false if nothing changed
      */
     function delete_search($sid)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         $this->db->query(
             "DELETE FROM ".$this->db->table_name('searches', true)
@@ -821,7 +806,7 @@ class rcube_user
                 ." AND `search_id` = ?",
             (int) $this->ID, $sid);
 
-        return $this->db->affected_rows() > 0;
+        return $this->db->affected_rows();
     }
 
     /**
@@ -829,13 +814,12 @@ class rcube_user
      *
      * @param array $data Hash array with col->value pairs to save
      *
-     * @return int The inserted search ID or false on error
+     * @return int  The inserted search ID or false on error
      */
     function insert_search($data)
     {
-        if (!$this->ID) {
+        if (!$this->ID)
             return false;
-        }
 
         $insert_cols[]   = 'user_id';
         $insert_values[] = (int) $this->ID;
@@ -848,11 +832,11 @@ class rcube_user
 
         $sql = "INSERT INTO ".$this->db->table_name('searches', true)
             ." (".join(', ', $insert_cols).")"
-            ." VALUES (".join(', ', array_pad(array(), count($insert_values), '?')).")";
+            ." VALUES (".join(', ', array_pad(array(), sizeof($insert_values), '?')).")";
 
         call_user_func_array(array($this->db, 'query'),
             array_merge(array($sql), $insert_values));
 
-        return $this->db->insert_id('searches') ?: false;
+        return $this->db->insert_id('searches');
     }
 }

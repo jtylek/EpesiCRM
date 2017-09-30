@@ -12,10 +12,7 @@
  * Enable the plugin in config.inc.php and add your desired headers:
  *   $config['identity_select_headers'] = array('Delivered-To');
  *
- * Note: 'Received' header is also supported, but has bigger impact
- *       on performance, as it's body is potentially much bigger
- *       than other headers used by Roundcube
- *
+ * @version @package_version@
  * @author Aleksander Machniak <alec@alec.pl>
  * @license GNU GPLv3+
  */
@@ -56,9 +53,9 @@ class identity_select extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         foreach ((array)$rcmail->config->get('identity_select_headers', array()) as $header) {
-            if ($emails = $this->get_email_from_header($p['message'], $header)) {
+            if ($header = $p['message']->headers->get($header, false)) {
                 foreach ($p['identities'] as $idx => $ident) {
-                    if (in_array($ident['email_ascii'], $emails)) {
+                    if (in_array($ident['email_ascii'], (array)$header)) {
                         $p['selected'] = $idx;
                         break 2;
                     }
@@ -67,28 +64,5 @@ class identity_select extends rcube_plugin
         }
 
         return $p;
-    }
-
-    /**
-     * Extract email address from specified message header
-     */
-    protected function get_email_from_header($message, $header)
-    {
-        $value = $message->headers->get($header, false);
-
-        if (strtolower($header) == 'received') {
-            // find first email address in all Received headers
-            $email = null;
-            foreach ((array) $value as $entry) {
-                if (preg_match('/[\s\t]+for[\s\t]+<([^>]+)>/', $entry, $matches)) {
-                    $email = $matches[1];
-                    break;
-                }
-            }
-
-            $value = $email;
-        }
-
-        return (array) $value;
     }
 }

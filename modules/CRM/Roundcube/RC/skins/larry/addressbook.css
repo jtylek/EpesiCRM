@@ -1,7 +1,7 @@
 /**
  * Roundcube webmail styles for the Address Book section
  *
- * Copyright (c) 2012-2017, The Roundcube Dev Team
+ * Copyright (c) 2012, The Roundcube Dev Team
  * Screendesign by FLINT / B�ro f�r Gestaltung, bueroflint.com
  *
  * The contents are subject to the Creative Commons Attribution-ShareAlike
@@ -68,7 +68,7 @@
 #directorylist li a,
 .treelist li.contactsearch a,
 #contacts-table .contact td.name {
-	background-image: url(images/listicons.png);
+	background-image: url(images/listicons.png?v=1877.13442);
 	background-position: -100px 0;
 	background-repeat: no-repeat;
 	overflow: hidden;
@@ -100,31 +100,31 @@
 }
 
 #directorylist li.contactgroup a {
-	background-position: 6px -1554px;
+	background-position: 6px -1555px;
 }
 
 #directorylist ul li.contactgroup a {
-	background-position: 32px -1554px;
+	background-position: 32px -1555px;
 }
 
 #directorylist ul ul li.contactgroup a {
-	background-position: 58px -1554px;
+	background-position: 58px -1555px;
 }
 
 #directorylist ul ul ul li.contactgroup a {
-	background-position: 84px -1554px;
+	background-position: 84px -1555px;
 }
 
 #directorylist li.contactgroup.selected a {
-	background-position: 32px -1578px;
+	background-position: 32px -1579px;
 }
 
 #directorylist ul ul li.contactgroup.selected a {
-	background-position: 58px -1578px;
+	background-position: 58px -1579px;
 }
 
 #directorylist ul ul ul li.contactgroup.selected a {
-	background-position: 84px -1578px;
+	background-position: 84px -1579px;
 }
 
 .treelist li.contactsearch a {
@@ -159,15 +159,15 @@
 	height: 14px;
 	text-indent: -5000px;
 	overflow: hidden;
-	background: url(images/listicons.png) -2px -1180px no-repeat;
+	background: url(images/listicons.png?v=1877.13442) -2px -1180px no-repeat;
 }
 
 #contacts-table .contact td.name {
-	background-position: 4px -1601px;
+	background-position: 4px -1603px;
 }
 
 #contacts-table .contact.selected td.name {
-	background-position: 4px -1625px;
+	background-position: 4px -1627px;
 	font-weight: bold;
 }
 
@@ -176,12 +176,12 @@
 }
 
 #contacts-table .group.selected td.name {
-	background-position: 4px -1578px;
+	background-position: 4px -1579px;
 	font-weight: bold;
 }
 
 #contacts-table.focus .group.selected.focused td.name {
-	background-position: 4px -1578px;
+	background-position: 4px -1579px;
 }
 
 #addresslist .boxtitle {
@@ -241,7 +241,7 @@
 }
 
 #contactpic.droptarget {
-	background-image: url(images/filedrop.png);
+	background-image: url(images/filedrop.png?v=ba79.421);
 	background-position: center;
 	background-repeat: no-repeat;
 }
@@ -249,6 +249,7 @@
 #contactpic.droptarget.hover {
 	background-color: #d9ecf4;
 	box-shadow: 0 0 5px 2px rgba(71,135,177, 0.9);
+	-webkit-box-shadow: 0 0 5px 2px rgba(71,135,177, 0.9);
 }
 
 #contactpic.droptarget.active img {
@@ -312,8 +313,13 @@ form #contacthead {
 
 .contactfieldgroup {
 	border: 0;
-	border-radius: 0;
+	border-radius: 5px;
 	background: #f7f7f7;
+	background: -moz-linear-gradient(top, #f7f7f7 0%, #eee 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#eee));
+	background: -o-linear-gradient(top, #f7f7f7 0%, #eee 100%);
+	background: -ms-linear-gradient(top, #f7f7f7 0%, #eee 100%);
+	background: linear-gradient(to bottom, #f7f7f7 0%, #eee 100%);
 	margin: 0 0 12px 0;
 	padding: 8px;
 }
@@ -323,10 +329,16 @@ form #contacthead {
 	margin: 0 -8px;
 	width: 100%;
 	font-weight: bold;
-	padding: 8px 8px 6px 8px;
-	background: #e9e9e9;
-	border-bottom: 1px solid #dfdfdf;
-	border-radius: 0;
+	text-shadow: 0px 1px 1px #fff;
+	padding: 6px 8px 3px 8px;
+	background: #f0f0f0;
+	background: -moz-linear-gradient(top, #f0f0f0 0%, #d6d6d6 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f0f0f0), color-stop(100%,#d6d6d6));
+	background: -o-linear-gradient(top, #f0f0f0 0%, #d6d6d6 100%);
+	background: -ms-linear-gradient(top, #f0f0f0 0%, #d6d6d6 100%);
+	background: linear-gradient(to bottom, #f0f0f0 0%, #d6d6d6 100%);
+	border-bottom: 1px solid #cfcfcf;
+	border-radius: 5px 5px 0 0;
 }
 
 .contactfieldgroup .row {
@@ -386,7 +398,7 @@ a.deletebutton {
 	height: 18px;
 	text-decoration: none;
 	text-indent: -5000px;
-	background: url(images/buttons.png) -7px -377px no-repeat;
+	background: url(images/buttons.png?v=32cf.15571) -7px -377px no-repeat;
 }
 
 #import-box {

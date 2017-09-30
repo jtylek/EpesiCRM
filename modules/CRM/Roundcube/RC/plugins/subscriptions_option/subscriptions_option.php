@@ -19,6 +19,7 @@
  * 'dont_override' list and the global option has changed, don't expect
  * to see the change until the folder list cache is refreshed.
  *
+ * @version @package_version@
  * @author Ziba Scott
  * @license GNU GPLv3+
  */
@@ -28,6 +29,7 @@ class subscriptions_option extends rcube_plugin
 
     function init()
     {
+        $this->add_texts('localization/', false);
         $dont_override = rcmail::get_instance()->config->get('dont_override', array());
         if (!in_array('use_subscriptions', $dont_override)) {
             $this->add_hook('preferences_list', array($this, 'settings_blocks'));
@@ -40,8 +42,7 @@ class subscriptions_option extends rcube_plugin
     function settings_blocks($args)
     {
         if ($args['section'] == 'server') {
-            $this->add_texts('localization/', false);
-            $use_subscriptions = rcmail::get_instance()->config->get('use_subscriptions', true);
+            $use_subscriptions = rcmail::get_instance()->config->get('use_subscriptions');
             $field_id = 'rcmfd_use_subscriptions';
             $checkbox = new html_checkbox(array('name' => '_use_subscriptions', 'id' => $field_id, 'value' => 1));
 
@@ -58,7 +59,7 @@ class subscriptions_option extends rcube_plugin
     {
         if ($args['section'] == 'server') {
             $rcmail = rcmail::get_instance();
-            $use_subscriptions = $rcmail->config->get('use_subscriptions', true);
+            $use_subscriptions = $rcmail->config->get('use_subscriptions');
 
             $args['prefs']['use_subscriptions'] = isset($_POST['_use_subscriptions']);
 
@@ -69,38 +70,26 @@ class subscriptions_option extends rcube_plugin
                     $storage->clear_cache('mailboxes');
             }
         }
-
         return $args;
     }
 
     function mailboxes_list($args)
     {
         $rcmail = rcmail::get_instance();
-
         if (!$rcmail->config->get('use_subscriptions', true)) {
-            $storage = $rcmail->get_storage();
-            $folders = $storage->list_folders_direct();
-            $folders = array_filter($folders, function($folder) use ($storage) {
-                $attrs = $storage->folder_attributes($folder);
-                return !in_array_nocase('\\Noselect', $attrs);
-            });
-
-            $args['folders'] = $folders;
+            $args['folders'] = $rcmail->get_storage()->list_folders_direct();
         }
-
         return $args;
     }
 
     function folders_list($args)
     {
         $rcmail = rcmail::get_instance();
-
         if (!$rcmail->config->get('use_subscriptions', true)) {
             foreach ($args['list'] as $idx => $data) {
                 $args['list'][$idx]['content'] = preg_replace('/<input [^>]+>/', '', $data['content']);
             }
         }
-
         return $args;
     }
 }

@@ -12,6 +12,7 @@
  *
  * @author Ziba Scott <ziba@umich.edu>
  * @author Aleksander Machniak <alec@alec.pl>
+ * @version @package_version@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
