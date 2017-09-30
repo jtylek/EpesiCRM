@@ -12,7 +12,9 @@ import 'script-loader!../libs/HistoryKeeper/EventManager.js';
 import 'script-loader!../libs/HistoryKeeper/History.js';
 
 import 'script-loader!../libs/jquery.clonePosition.js';
-import 'script-loader!../libs/Chart.js';
+import Chart from 'chart.js';
+
+window.Chart = Chart;
 
 import Epesi from './epesi';
 
