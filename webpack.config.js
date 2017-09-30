@@ -14,7 +14,18 @@ module.exports = {
             {test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=application/octet-stream" },
             {test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: "file-loader" },
             {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=image/svg+xml" },
-            {test: /\.(png|jpg|gif)$/, loader: "file-loader" }
+            {test: /\.(png|jpg|gif)$/, loader: "file-loader" },
+            {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components|libs)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['env'],
+                        plugins: ["transform-class-properties"]
+                    }
+                }
+            }
         ]
     }
 };
