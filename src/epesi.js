@@ -225,17 +225,8 @@ const Epesi = {
         console.warn('DEPRECATED: load is invoked implicitly');
         Epesi.loader.load();
     },
-    //csses
-    loaded_csses:new Array(),
     load_css:function(file) {
-        if (Epesi.loaded_csses.indexOf(file)!=-1) return false;
-        let fileref = document.createElement("link")
-        fileref.setAttribute("rel", "stylesheet");
-        fileref.setAttribute("type", "text/css");
-        fileref.setAttribute("href", file);
-        document.getElementsByTagName("head").item(0).appendChild(fileref);
-        Epesi.loaded_csses.push(file);
-        return true;
+        Epesi.loader.load_css(file);
     }
 };
 

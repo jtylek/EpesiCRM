@@ -5,6 +5,8 @@ class Loader {
     loaded_js = [];
     to_load_js = [];
     to_execute_js = [];
+    to_load_css = [];
+    loaded_css = [];
 
     static loadScript = file => {
         return new Promise(function (resolve, reject) {
@@ -26,6 +28,27 @@ class Loader {
         });
     };
 
+    static loadCss = file => {
+        return new Promise(function (resolve, reject) {
+            let link = document.createElement('link');
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.onerror = reject;
+            link.href = file;
+            link.onload = link.onreadystatechange = function (_, isAbort) {
+                if (isAbort || !link.readyState || /loaded|complete/.test(link.readyState)) {
+                    link.onload = link.onreadystatechange = null;
+                    link = undefined;
+
+                    if (!isAbort) {
+                        resolve();
+                    }
+                }
+            };
+            document.getElementsByTagName('head').item(0).appendChild(link);
+        });
+    };
+
     static insertScript = code => {
         return new Promise(function (resolve, reject) {
             let script = document.createElement('script');
@@ -39,6 +62,12 @@ class Loader {
     load_js = async file => {
         if (this.loaded_js.includes(file) || this.to_load_js.includes(file)) return;
         this.to_load_js.push(file);
+        await this.load();
+    };
+
+    load_css = async file => {
+        if (this.loaded_css.includes(file) || this.to_load_css.includes(file)) return;
+        this.to_load_css.push(file);
         await this.load();
     };
 
@@ -61,6 +90,12 @@ class Loader {
         let code;
         while (code = this.to_execute_js.shift()) {
             Loader.insertScript(code);
+        }
+
+        let css;
+        while (css = this.to_load_css.shift()) {
+            Loader.loadCss(css);
+            this.loaded_css.push(css);
         }
 
         this.loading = false;
