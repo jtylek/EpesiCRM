@@ -16,6 +16,8 @@ import 'script-loader!../libs/HistoryKeeper/History.js';
 import 'script-loader!../libs/jquery.clonePosition.js';
 import Chart from 'chart.js';
 
+import 'font-awesome/css/font-awesome.css';
+
 window.Chart = Chart;
 
 import Epesi from './epesi';
