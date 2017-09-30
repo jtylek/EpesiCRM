@@ -1,6 +1,7 @@
 module.exports = {
     context: __dirname + "/src",
     entry: "./index",
+    devtool: 'source-map',
     output: {
         path: __dirname + "/dist",
         filename: "index.js"
