@@ -6,7 +6,7 @@ import 'bootstrap/less/bootstrap.less';
 import 'jquery-ui';
 import 'jquery-ui/themes/base/all.css'
 
-import 'script-loader!../vendor/bower-asset/gentelella/vendors/select2/dist/js/select2.js';
+import 'select2';
 import 'script-loader!../libs/HistoryKeeper/EventManager.js';
 import 'script-loader!../libs/HistoryKeeper/History.js';
 
