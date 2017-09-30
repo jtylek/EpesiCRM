@@ -11,7 +11,11 @@ module.exports = {
     module: {
         loaders: [
             {test: /bootstrap\/js\//, loader: 'imports?jQuery=jquery' },
-            {test: /\.less$/, loader: 'style-loader!css-loader!less-loader'},
+            {test: /\.less$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: ["css-loader", "less-loader"]
+                })},
             {test: /\.css$/,
                 use: ExtractTextPlugin.extract({
                 fallback: "style-loader",
