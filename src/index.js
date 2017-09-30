@@ -8,6 +8,8 @@ import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/themes/base/all.css'
 
 import 'select2';
+import 'select2/dist/css/select2.css';
+
 import 'script-loader!../libs/HistoryKeeper/EventManager.js';
 import 'script-loader!../libs/HistoryKeeper/History.js';
 
