@@ -183,21 +183,25 @@ const Epesi = {
             jQuery(`#${keep_focus_field}:visible`).focus();
         }
     },
-    href: function(url,indicator,mode,disableConfirmLeave) {
-        if (typeof disableConfirmLeave == 'undefined' && !Epesi.confirmLeave.check()) return;
-        if(Epesi.procOn==0 || mode=='allow'){
-            if(indicator=='') indicator=Epesi.default_indicator;
-            Epesi.updateIndicatorText(indicator);
+    href: function(url, indicator, mode, disableConfirmLeave = false) {
+        if (!disableConfirmLeave && !Epesi.confirmLeave.check()) return;
+        if(Epesi.procOn === 0 || mode === 'allow'){
+            !indicator ? Epesi.updateIndicatorText(Epesi.default_indicator) : Epesi.updateIndicatorText(indicator);
             Epesi.request(url);
-        } else if(mode=='queue')
-            setTimeout('Epesi.href("'+url+'", "'+indicator+'", "'+mode+'")',500);
+        } else if(mode === 'queue') {
+            setTimeout(() => Epesi.href(url, indicator, mode), 500);
+        }
     },
     submit_form: function(formName, modulePath, indicator) {
-        action = jQuery.param({'__action_module__': encodeURIComponent(modulePath)});
         Epesi.confirmLeave.freeze(formName);
-        jQuery('form[name="' + formName + '"] input[name="submited"]').val(1);
-        _chj(jQuery('form[name="'+formName+'"]').serialize() +'&' + action, indicator, '');
-        jQuery('form[name="' + formName + '"] input[name="submited"]').val(0);
+        let formSubmited = jQuery(`form[name="${formName}"] input[name="submited"]`);
+        formSubmited.val(1);
+
+        let formData = jQuery(`form[name="${formName}"]`).serializeArray();
+        let url = qs.stringify(Object.assign(formData, {'__action_module__': encodeURIComponent(modulePath)}));
+        _chj(url, indicator, '');
+
+        formSubmited.val(0);
     },
     text: function(txt,idt,type) {
         var t=jq('#'+idt);
