@@ -16,6 +16,7 @@ import 'script-loader!../libs/HistoryKeeper/History.js';
 import 'script-loader!../libs/jquery.clonePosition.js';
 import Chart from 'chart.js';
 
+import 'gentelella/production/less/custom.css';
 import 'font-awesome/css/font-awesome.css';
 
 window.Chart = Chart;

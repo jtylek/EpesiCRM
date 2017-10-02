@@ -60,11 +60,7 @@ ob_start();
         <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
             <script type='text/javascript' src='dist/index.js'></script>
-			<?php
-	$csses = array('dist/styles.css', 'vendor/bower-asset/gentelella/build/css/custom.css');
-	foreach($csses as $css) 
-		print('<link href="'.$css.'" rel="stylesheet" type="text/css">');
-?>
+            <link href='dist/styles.css' rel="stylesheet" type="text/css">
             <style type="text/css">
 
                 #epesiStatus {
