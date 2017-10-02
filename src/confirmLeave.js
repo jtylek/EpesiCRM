@@ -37,8 +37,8 @@ class ConfirmLeave {
     activate = (form_id, message) => {
         this.message = message;
         // add form or restore from freezed state - form is freezed for submit
-        if (!(form_id in this.forms)) {
-            if (form_id in this.forms_freezed) {
+        if (!this.forms.hasOwnProperty(form_id)) {
+            if (this.forms_freezed.hasOwnProperty(form_id)) {
                 this.forms[form_id] = this.forms_freezed[form_id];
                 delete this.forms_freezed[form_id];
             } else {
