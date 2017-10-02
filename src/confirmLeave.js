@@ -42,20 +42,22 @@ class ConfirmLeave {
                 this.forms[form_id] = this.forms_freezed[form_id];
                 delete this.forms_freezed[form_id];
             } else {
-                this.forms[form_id] = {};
+                this.forms[form_id] = [];
             }
         }
+
+        let form_element = document.getElementById(form_id);
+
         // apply class to all changed inputs - required for validation failure
-        for (var key in this.forms[form_id]) {
-            jQuery('#' + form_id + ' [name="' + key + '"]').addClass('changed-input');
-        }
+        this.forms[form_id].forEach(input_name => jQuery(form_element).find(`[name="${input_name}"]`).addClass('changed-input'));
+
         // on change add changed-input class
-        jQuery('#' + form_id).on('change', 'input, textarea, select', function (e) {
+        jQuery(form_element).on('change', 'input, textarea, select', function (e) {
             if (e.originalEvent === undefined) return;
-            var el = jQuery(this);
-            el.addClass('changed-input');
-            var form = form_id in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[form_id] : Epesi.confirmLeave.forms_freezed[form_id];
-            form[el.attr('name')] = true;
+            let input = jQuery(this);
+            input.addClass('changed-input');
+            if(Epesi.confirmLeave.forms.hasOwnProperty(form_id)) Epesi.confirmLeave.forms[form_id].push(input.attr('name'));
+            if(Epesi.confirmLeave.forms_freezed.hasOwnProperty(form_id)) Epesi.confirmLeave.forms_freezed[form_id].push(input.attr('name'));
         });
         //take care if user refreshing or going to another page
         jQuery(window).unbind('beforeunload').on('beforeunload', function () {
@@ -78,7 +80,7 @@ class ConfirmLeave {
     };
 
     freeze = (form_id) => {
-        if (form_id in this.forms) {
+        if (this.forms.hasOwnProperty(form_id)) {
             this.forms_freezed[form_id] = this.forms[form_id];
             delete this.forms[form_id];
         }
