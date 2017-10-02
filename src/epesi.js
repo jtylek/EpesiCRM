@@ -122,28 +122,7 @@ const Epesi = {
         Epesi.history_on=-1;
         unFocus.History.addHistory(id);
     },
-    get_ie_version:function() {
-        var rv = -1; // Return value assumes failure.
-        if (navigator.appName == 'Microsoft Internet Explorer') {
-            var ua = navigator.userAgent;
-            var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-            if (re.exec(ua) != null)
-                rv = parseFloat(RegExp.$1);
-        }
-        return rv;
-    },
-    ie:false,
     init:function(cl_id,path,params) {
-        var ie_ver = Epesi.get_ie_version();
-        if (ie_ver!=-1) {
-            if(ie_ver<8.0) {
-                alert("Sorry but your version of Internet Explorer browser is not supported.\nYou should upgrade it or install Mozilla Firefox.");
-                window.location = "http://www.mozilla.com/firefox/";
-            } else {
-                Epesi.ie = true;
-            }
-        }
-
         Epesi.client_id=cl_id;
         Epesi.process_file=path;
 
