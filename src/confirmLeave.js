@@ -11,33 +11,25 @@ class ConfirmLeave {
     //checks if leaving the page is approved
     check = () => {
         //remove non-existent forms from the array
-        jQuery.each(this.forms, (f) => {
-            if (!jQuery('#' + f).length) this.deactivate(f);
-        });
-        jQuery.each(this.forms_freezed, (f) => {
-            if (!jQuery('#' + f).length) this.deactivate(f);
-        });
+        [...Object.keys(this.forms), ...Object.keys(this.forms_freezed)].filter(item => (document.getElementById(item) === null)).forEach(item => Epesi.confirmLeave.deactivate(item));
+
         //check if there is any not freezed form with changed values to confirm leave
-        var requires_confirmation = false;
-        if (Object.keys(this.forms).length) {
-            for (var form in this.forms) {
-                if (jQuery('#' + form + ' .changed-input').length) {
-                    requires_confirmation = true;
-                    break;
-                }
-            }
-        }
+        let requires_confirmation = Object.keys(this.forms).reduce((previous, form_id) => previous || document.querySelector(`#${form_id} .changed-input`) !== null, false);
+
         if (requires_confirmation) {
             //take care if user disabled alert messages
-            var openTime = new Date();
+            let openTime = new Date();
+            let confirmed = false;
             try {
-                var confirmed = confirm(this.message);
-            } catch (e) {
-                var confirmed = true;
+                confirmed = confirm(this.message);
+            } catch(e) {
+                confirmed = true;
             }
-            var closeTime = new Date();
-            if ((closeTime - openTime) > 350 && !confirmed) return false;
-            this.deactivate();
+            let closeTime = new Date();
+            if ((closeTime - openTime) < 350) confirmed = true;
+
+            if(!confirmed) return false;
+            else this.deactivate();
         }
         return true;
     };
