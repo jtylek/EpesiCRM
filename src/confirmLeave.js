@@ -34,27 +34,27 @@ class ConfirmLeave {
         return true;
     };
 
-    activate = (f, m) => {
-        this.message = m;
+    activate = (form_id, message) => {
+        this.message = message;
         // add form or restore from freezed state - form is freezed for submit
-        if (!(f in this.forms)) {
-            if (f in this.forms_freezed) {
-                this.forms[f] = this.forms_freezed[f];
-                delete this.forms_freezed[f];
+        if (!(form_id in this.forms)) {
+            if (form_id in this.forms_freezed) {
+                this.forms[form_id] = this.forms_freezed[form_id];
+                delete this.forms_freezed[form_id];
             } else {
-                this.forms[f] = {};
+                this.forms[form_id] = {};
             }
         }
         // apply class to all changed inputs - required for validation failure
-        for (var key in this.forms[f]) {
-            jQuery('#' + f + ' [name="' + key + '"]').addClass('changed-input');
+        for (var key in this.forms[form_id]) {
+            jQuery('#' + form_id + ' [name="' + key + '"]').addClass('changed-input');
         }
         // on change add changed-input class
-        jQuery('#' + f).on('change', 'input, textarea, select', function (e) {
+        jQuery('#' + form_id).on('change', 'input, textarea, select', function (e) {
             if (e.originalEvent === undefined) return;
             var el = jQuery(this);
             el.addClass('changed-input');
-            var form = f in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[f] : Epesi.confirmLeave.forms_freezed[f];
+            var form = form_id in Epesi.confirmLeave.forms ? Epesi.confirmLeave.forms[form_id] : Epesi.confirmLeave.forms_freezed[form_id];
             form[el.attr('name')] = true;
         });
         //take care if user refreshing or going to another page
@@ -65,10 +65,10 @@ class ConfirmLeave {
         });
     };
 
-    deactivate = (f) => {
-        if (arguments.length) {
-            delete this.forms[f];
-            delete this.forms_freezed[f];
+    deactivate = (form_id = null) => {
+        if (form_id !== null) {
+            delete this.forms[form_id];
+            delete this.forms_freezed[form_id];
         } else {
             this.forms = {};
             this.forms_freezed = {};
@@ -77,10 +77,10 @@ class ConfirmLeave {
         if (!Object.keys(this.forms).length) jQuery(window).unbind('beforeunload');
     };
 
-    freeze = (f) => {
-        if (f in this.forms) {
-            this.forms_freezed[f] = this.forms[f];
-            delete this.forms[f];
+    freeze = (form_id) => {
+        if (form_id in this.forms) {
+            this.forms_freezed[form_id] = this.forms[form_id];
+            delete this.forms[form_id];
         }
     }
 }
