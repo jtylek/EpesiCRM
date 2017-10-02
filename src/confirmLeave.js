@@ -1,21 +1,21 @@
 import jQuery from 'jquery';
 
-export default {
+class ConfirmLeave {
     // object of form ids which require confirmation for leaving the page
     // store changed fields to pass through submit state
-    forms: {},
+    forms = {};
     // store currently submitted form. If it'll fail to validate then we
     // have list of changed fields
-    forms_freezed: {},
-    message: 'Leave page?',
+    forms_freezed = {};
+    message = 'Leave page?';
     //checks if leaving the page is approved
-    check: function () {
+    check = () => {
         //remove non-existent forms from the array
-        jQuery.each(this.forms, function (f) {
-            if (!jQuery('#' + f).length) Epesi.confirmLeave.deactivate(f);
+        jQuery.each(this.forms, (f) => {
+            if (!jQuery('#' + f).length) this.deactivate(f);
         });
-        jQuery.each(this.forms_freezed, function (f) {
-            if (!jQuery('#' + f).length) Epesi.confirmLeave.deactivate(f);
+        jQuery.each(this.forms_freezed, (f) => {
+            if (!jQuery('#' + f).length) this.deactivate(f);
         });
         //check if there is any not freezed form with changed values to confirm leave
         var requires_confirmation = false;
@@ -40,8 +40,9 @@ export default {
             this.deactivate();
         }
         return true;
-    },
-    activate: function (f, m) {
+    };
+
+    activate = (f, m) => {
         this.message = m;
         // add form or restore from freezed state - form is freezed for submit
         if (!(f in this.forms)) {
@@ -70,8 +71,9 @@ export default {
                 return Epesi.confirmLeave.message;
             }
         });
-    },
-    deactivate: function (f) {
+    };
+
+    deactivate = (f) => {
         if (arguments.length) {
             delete this.forms[f];
             delete this.forms_freezed[f];
@@ -81,11 +83,14 @@ export default {
         }
 
         if (!Object.keys(this.forms).length) jQuery(window).unbind('beforeunload');
-    },
-    freeze: function (f) {
+    };
+
+    freeze = (f) => {
         if (f in this.forms) {
             this.forms_freezed[f] = this.forms[f];
             delete this.forms[f];
         }
     }
 }
+
+export default ConfirmLeave;

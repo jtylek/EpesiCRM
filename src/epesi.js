@@ -8,17 +8,17 @@
 import Loader from './loader';
 import axios from 'axios';
 import qs from 'qs';
-import confirmLeave from './confirmLeave';
+import ConfirmLeave from './confirmLeave';
 
 const Epesi = {
     loader: new Loader(),
+    confirmLeave: new ConfirmLeave(),
     default_indicator:'loading...',
     procOn:0,
     client_id:0,
     process_file:'process.php',
     indicator:'epesiStatus',
     indicator_text:'epesiStatusText',
-    confirmLeave: confirmLeave,
     updateIndicator: function() {
         var s = jq('#' + Epesi.indicator);
         if(s.length) {
