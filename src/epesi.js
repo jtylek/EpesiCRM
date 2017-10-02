@@ -6,6 +6,8 @@
  */
 
 import Loader from './loader';
+import axios from 'axios';
+import qs from 'qs';
 
 const Epesi = {
     loader: new Loader(),
@@ -145,6 +147,8 @@ const Epesi = {
         Epesi.client_id=cl_id;
         Epesi.process_file=path;
 
+        axios.defaults.headers.common['X-Client-ID'] = cl_id;
+
         Epesi.history_add(0);
         if(typeof params == 'undefined')
             params = '';
@@ -157,33 +161,27 @@ const Epesi = {
             }
         });
     },
-    request: function(url,history_id) {
+    request: async function (url, history) {
         Epesi.procOn++;
         Epesi.updateIndicator();
-        var keep_focus_field = null;
-        jQuery.ajax(Epesi.process_file, {
-            method: 'post',
-            data: {
-                history: history_id,
-                url: url
-            },
-            complete: function(xhr,t) {
-                Epesi.procOn--;
-                Epesi.append_js('jQuery(document).trigger(\'e:load\');Epesi.updateIndicator();');
-                if(keep_focus_field!=null) {
-                    Epesi.append_js('jQuery("#'+keep_focus_field+':visible").focus();');
-                }
-            },
-            success: function(t) {
-                if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
-                jQuery(document).trigger('e:loading');
-            },
-            error: function(t,type,error) {
-                //throw(type+": "+e);
-                alert(type+' ('+error+')');
-                Epesi.text(type+": "+error,'error_box','p');
-            }
-        });
+
+        let keep_focus_field = null;
+        if (typeof document.activeElement !== 'undefined') keep_focus_field = document.activeElement.getAttribute('id');
+
+        try {
+            let response = await axios.post(Epesi.process_file, qs.stringify({history, url}));
+            jQuery(document).trigger('e:loading');
+            eval(response.data);
+        } catch (err) {
+            Epesi.text(err.message, 'error_box', 'p')
+        }
+
+        Epesi.procOn--;
+        Epesi.updateIndicator();
+        Epesi.append_js("jQuery(document).trigger('e:load')");
+        if (keep_focus_field !== null) {
+            jQuery(`#${keep_focus_field}:visible`).focus();
+        }
     },
     href: function(url,indicator,mode,disableConfirmLeave) {
         if (typeof disableConfirmLeave == 'undefined' && !Epesi.confirmLeave.check()) return;
