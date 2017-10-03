@@ -20,22 +20,7 @@ class Epesi {
     indicator = 'epesiStatus';
     indicator_text = 'epesiStatusText';
 
-
-    updateIndicator = () => {
-        document.getElementById(this.indicator).style.display = this.procOn ? '' : 'none';
-        if (!this.procOn) document.getElementById('main_content').style.display = '';
-    };
-
-    updateIndicatorText = (text) => {
-        document.getElementById(this.indicator_text).innerHTML = text;
-        document.getElementById(this.indicator_text).innerHTML = text;
-    };
-
-    history_add = (id) => {
-        window.history.pushState({history_id: id}, '');
-    };
-
-    init = (client_id, process_file_path, params = '') => {
+    constructor(client_id, process_file_path, params = '') {
         this.client_id=client_id;
         this.process_file=process_file_path;
 
@@ -51,6 +36,21 @@ class Epesi {
         this.request(params,0);
 
         window.addEventListener('popstate', ({state: {history_id}}) => this.request('', history_id));
+        window._chj = this.href;
+    };
+
+    updateIndicator = () => {
+        document.getElementById(this.indicator).style.display = this.procOn ? '' : 'none';
+        if (!this.procOn) document.getElementById('main_content').style.display = '';
+    };
+
+    updateIndicatorText = (text) => {
+        document.getElementById(this.indicator_text).innerHTML = text;
+        document.getElementById(this.indicator_text).innerHTML = text;
+    };
+
+    history_add = (id) => {
+        window.history.pushState({history_id: id}, '');
     };
 
     request = async (url, history) => {

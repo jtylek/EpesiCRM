@@ -19,6 +19,7 @@ import 'font-awesome/css/font-awesome.css';
 window.Chart = Chart;
 
 import Epesi from './epesi';
+window.EpesiClass = Epesi;
 
 window.focus_by_id = (idd) => {
     let xx = document.getElementById(idd);
@@ -54,6 +55,3 @@ window.is_visible = function (element) {
     }
     return true;
 };
-
-window.Epesi = new Epesi();
-window._chj = window.Epesi.href;
