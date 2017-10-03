@@ -63,7 +63,8 @@ class Epesi {
         try {
             let response = await axios.post(this.process_file, qs.stringify({history, url}));
             jQuery(document).trigger('e:loading');
-            await this.loader.execute_js(response.data);
+            let func = new Function(response.data);
+            window::func();
         } catch (err) {
             this.text(err.message, 'error_box', 'p')
         }
