@@ -10,9 +10,6 @@ import 'jquery-ui/themes/base/all.css'
 import 'select2';
 import 'select2/dist/css/select2.css';
 
-import 'script-loader!../libs/HistoryKeeper/EventManager.js';
-import 'script-loader!../libs/HistoryKeeper/History.js';
-
 import 'script-loader!../libs/jquery.clonePosition.js';
 import Chart from 'chart.js';
 

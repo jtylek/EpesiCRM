@@ -26,10 +26,8 @@ const Epesi = {
     updateIndicatorText: function(text) {
         document.getElementById(Epesi.indicator_text).innerHTML = text;
     },
-    history_on:1,
     history_add:function(id){
-        Epesi.history_on=-1;
-        unFocus.History.addHistory(id);
+        window.history.pushState({history_id: id}, '');
     },
     init:function(cl_id,path,params) {
         Epesi.client_id=cl_id;
@@ -41,13 +39,8 @@ const Epesi = {
         if(typeof params == 'undefined')
             params = '';
         Epesi.request(params,0);
-        unFocus.History.addEventListener('historyChange',function(history_id){
-            switch(Epesi.history_on){
-                case -1: Epesi.history_on=1;
-                    return;
-                case 1: Epesi.request('',history_id);
-            }
-        });
+
+        window.addEventListener('popstate', ({state: {history_id}}) => Epesi.request('', history_id));
     },
     request: async function (url, history) {
         Epesi.procOn++;
