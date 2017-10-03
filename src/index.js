@@ -36,12 +36,6 @@ window.wait_while_null = (id, action) => {
         setTimeout('wait_while_null(\'' + addslashes(id) + '\', \'' + addslashes(action) + '\')', 200);
 };
 
-window._chj = Epesi.href;
-
-jQuery(document).ajaxSend(function (ev, xhr, settings) {
-    xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
-});
-
 window.getTotalTopOffet = e => {
     let ret = 0;
     while (e != null) {
@@ -61,4 +55,5 @@ window.is_visible = function (element) {
     return true;
 };
 
-window.Epesi = Epesi;
+window.Epesi = new Epesi();
+window._chj = window.Epesi.href;
