@@ -20,15 +20,11 @@ const Epesi = {
     indicator:'epesiStatus',
     indicator_text:'epesiStatusText',
     updateIndicator: function() {
-        var s = jq('#' + Epesi.indicator);
-        if(s.length) {
-            if(Epesi.procOn) s.show();
-            else s.hide();
-        }
-        if (!Epesi.procOn) jq('#main_content').show();
+        document.getElementById(Epesi.indicator).style.display = Epesi.procOn ? '' : 'none';
+        if (!Epesi.procOn) document.getElementById('main_content').style.display = '';
     },
     updateIndicatorText: function(text) {
-        jq('#' + Epesi.indicator_text).html(text);
+        document.getElementById(Epesi.indicator_text).innerHTML = text;
     },
     history_on:1,
     history_add:function(id){
@@ -58,7 +54,7 @@ const Epesi = {
         Epesi.updateIndicator();
 
         let keep_focus_field = null;
-        if (typeof document.activeElement !== 'undefined') keep_focus_field = document.activeElement.getAttribute('id');
+        if (document.activeElement) keep_focus_field = document.activeElement.getAttribute('id');
 
         try {
             let response = await axios.post(Epesi.process_file, qs.stringify({history, url}));
@@ -72,7 +68,8 @@ const Epesi = {
         Epesi.updateIndicator();
         Epesi.append_js("jQuery(document).trigger('e:load')");
         if (keep_focus_field !== null) {
-            jQuery(`#${keep_focus_field}:visible`).focus();
+            let element = document.getElementById(keep_focus_field);
+            if(element) element.focus();
         }
     },
     href: function(url, indicator, mode, disableConfirmLeave = false) {
@@ -86,24 +83,33 @@ const Epesi = {
     },
     submit_form: function(formName, modulePath, indicator) {
         Epesi.confirmLeave.freeze(formName);
-        let formSubmited = jQuery(`form[name="${formName}"] input[name="submited"]`);
-        formSubmited.val(1);
+        let form = document.querySelector(`form[name="${formName}"]`);
+        let submited = form.querySelector(`input[name="submited"]`);
 
-        let formData = jQuery(`form[name="${formName}"]`).serializeArray();
-        let url = qs.stringify(Object.assign(formData, {'__action_module__': encodeURIComponent(modulePath)}));
+
+        submited.value = 1;
+
+        let formData = new FormData(form);
+        let url = qs.stringify(Object.assign(formData.getAll(), {'__action_module__': encodeURIComponent(modulePath)}));
         _chj(url, indicator, '');
 
-        formSubmited.val(0);
+        submited.value = 0;
     },
-    text: function(txt,idt,type) {
-        var t=jq('#'+idt);
-        if(!t.length) return;
-        if(type=='i')//instead
-            t.html(txt);
-        else if(type=='p')//prepend
-            t.prepend(txt);
-        else if(type=='a')//append
-            t.append(txt);
+    text: function(html, element_id, type = 'i') {
+        let element = document.getElementById(element_id);
+        if(!element) return;
+
+        switch (type) {
+            case 'i':
+                element.innerHTML = html;
+                break;
+            case 'p':
+                element.insertAdjacentHTML('afterbegin', html);
+                break;
+            case 'a':
+                element.insertAdjacentHTML('beforeend', html);
+                break;
+        }
     },
     load_js:function(file) {
         Epesi.loader.load_js(file);
