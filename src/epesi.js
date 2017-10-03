@@ -35,19 +35,19 @@ class Epesi {
         window.history.pushState({history_id: id}, '');
     };
 
-    init = (cl_id, path, params) => {
-        this.client_id=cl_id;
-        this.process_file=path;
+    init = (client_id, process_file_path, params = '') => {
+        this.client_id=client_id;
+        this.process_file=process_file_path;
 
-        axios.defaults.headers.common['X-Client-ID'] = cl_id;
+        axios.defaults.headers.common['X-Client-ID'] = client_id;
 
         jQuery(document).ajaxSend((ev, xhr, settings) => {
             xhr.setRequestHeader('X-Client-ID', this.client_id);
         });
 
         this.history_add(0);
-        if(typeof params == 'undefined')
-            params = '';
+
+        if(!params) params = '';
         this.request(params,0);
 
         window.addEventListener('popstate', ({state: {history_id}}) => this.request('', history_id));
