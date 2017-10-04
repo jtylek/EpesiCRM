@@ -17,8 +17,8 @@ class Epesi {
     procOn = 0;
     client_id = 0;
     process_file = 'process.php';
-    indicator = null;
-    indicator_text = null;
+    indicator = 'Base_StatusBar';
+    indicator_text = 'statusbar_text';
 
     constructor(client_id, process_file_path, params = '') {
         this.client_id=client_id;
