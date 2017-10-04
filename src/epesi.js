@@ -50,17 +50,12 @@ class Epesi {
     };
 
     updateIndicator = () => {
-        if(this.procOn){
-            this.statusBar.fadeIn();
-        }else{
-            if(this.message) {
-                this.statusBar.showMessage(this.message);
-                this.message = null;
-                setTimeout(this.statusBar.fadeOut,5000);
-            }else{
-                this.statusBar.fadeOut()
-            };
-        };
+        if(this.procOn) this.statusBar.fadeIn();
+        else if(this.message) {
+            this.statusBar.showMessage(this.message);
+            this.message = null;
+        }
+        else this.statusBar.fadeOut()
     };
 
     updateIndicatorText = text => this.statusBar.setIndicatorText(text);

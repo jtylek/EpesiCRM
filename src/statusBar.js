@@ -20,6 +20,7 @@ class StatusBar {
 	showMessage = (message) => {
         document.getElementById('dismiss').style.display = '';
         this.setIndicatorText(message);
+        setTimeout(this.fadeOut, 5000);
 	};
 
 	setIndicatorText = text => document.getElementById(this.indicator_text).innerHTML = text;
