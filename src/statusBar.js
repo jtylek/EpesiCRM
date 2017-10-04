@@ -1,3 +1,6 @@
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+
 class StatusBar {
     indicator = 'Base_StatusBar';
     indicator_text = 'statusbar_text';
@@ -9,21 +12,21 @@ class StatusBar {
         let statbar = document.getElementById(this.indicator);
         jQuery(statbar).fadeOut();
         NProgress.done();
-	};
-
-	fadeIn = () => {
-        document.getElementById('dismiss').style.display = 'none';
-        let statbar = document.getElementById(this.indicator);
-		jQuery(statbar).fadeIn();
     };
 
-	showMessage = (message) => {
+    fadeIn = () => {
+        document.getElementById('dismiss').style.display = 'none';
+        let statbar = document.getElementById(this.indicator);
+        jQuery(statbar).fadeIn();
+    };
+
+    showMessage = (message) => {
         document.getElementById('dismiss').style.display = '';
         this.setIndicatorText(message);
         setTimeout(this.fadeOut, 5000);
-	};
+    };
 
-	setIndicatorText = text => document.getElementById(this.indicator_text).innerHTML = text;
+    setIndicatorText = text => document.getElementById(this.indicator_text).innerHTML = text;
 }
 
 export default StatusBar

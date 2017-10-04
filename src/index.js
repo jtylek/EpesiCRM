@@ -19,9 +19,6 @@ import 'gentelella/production/less/custom.css';
 
 import 'font-awesome/css/font-awesome.css';
 
-import 'script-loader!../libs/nprogress/nprogress';
-import '../libs/nprogress/nprogress.css';
-
 import Epesi from './epesi';
 
 window.EpesiClass = Epesi;
