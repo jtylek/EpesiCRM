@@ -33,6 +33,7 @@ class Epesi {
         this.history_add(0);
 
         if(!params) params = '';
+        setTimeout(updateEpesiIndicatorFunction);
         this.request(params,0).then(() => {
             document.getElementById('epesi_loader').style.display = 'none';
             document.getElementById('main_content').style.display = '';

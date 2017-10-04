@@ -11,14 +11,21 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 
 import 'script-loader!../libs/jquery.clonePosition.js';
+
 import Chart from 'chart.js';
-
-import 'gentelella/production/less/custom.css';
-import 'font-awesome/css/font-awesome.css';
-
 window.Chart = Chart;
 
+import 'gentelella/production/less/custom.css';
+
+import 'font-awesome/css/font-awesome.css';
+
+import 'script-loader!../libs/nprogress/nprogress';
+import '../libs/nprogress/nprogress.css';
+
+import 'script-loader!./StatusBar/main';
+
 import Epesi from './epesi';
+
 window.EpesiClass = Epesi;
 
 window.focus_by_id = (idd) => {
