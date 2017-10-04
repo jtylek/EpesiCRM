@@ -22,7 +22,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'script-loader!../libs/nprogress/nprogress';
 import '../libs/nprogress/nprogress.css';
 
-import 'script-loader!./StatusBar/main';
+import './StatusBar/main';
 
 import Epesi from './epesi';
 
