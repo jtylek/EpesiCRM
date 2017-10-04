@@ -9,6 +9,7 @@ import Loader from './loader';
 import axios from 'axios';
 import qs from 'qs';
 import ConfirmLeave from './confirmLeave';
+import StatusBar from './statusBar';
 
 class Epesi {
     loader = new Loader();
@@ -19,6 +20,8 @@ class Epesi {
     process_file = 'process.php';
     indicator = 'Base_StatusBar';
     indicator_text = 'statusbar_text';
+    statusBar = new StatusBar();
+    message = null;
 
     constructor(client_id, process_file_path, params = '') {
         this.client_id=client_id;
@@ -33,7 +36,12 @@ class Epesi {
         this.history_add(0);
 
         if(!params) params = '';
-        setTimeout(updateEpesiIndicatorFunction);
+
+        window.statusbar_message = message => this.message = message;
+        let statbar = document.getElementById('Base_StatusBar');
+        statbar.addEventListener('click', () => {if(!this.procOn)this.statusBar.fadeOut()});
+        statbar.style.display='none';
+
         this.request(params,0).then(() => {
             document.getElementById('epesi_loader').style.display = 'none';
             document.getElementById('main_content').style.display = '';
@@ -44,7 +52,17 @@ class Epesi {
     };
 
     updateIndicator = () => {
-        if(this.indicator) document.getElementById(this.indicator).style.display = this.procOn ? '' : 'none';
+        if(this.procOn){
+            this.statusBar.fadeIn();
+        }else{
+            if(this.message) {
+                this.statusBar.showMessage(this.message);
+                this.message = null;
+                setTimeout(this.statusBar.fadeOut,5000);
+            }else{
+                this.statusBar.fadeOut()
+            };
+        };
     };
 
     updateIndicatorText = (text) => {
