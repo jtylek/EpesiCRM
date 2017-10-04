@@ -17,8 +17,8 @@ class Epesi {
     procOn = 0;
     client_id = 0;
     process_file = 'process.php';
-    indicator = 'epesiStatus';
-    indicator_text = 'epesiStatusText';
+    indicator = null;
+    indicator_text = null;
 
     constructor(client_id, process_file_path, params = '') {
         this.client_id=client_id;
@@ -33,20 +33,21 @@ class Epesi {
         this.history_add(0);
 
         if(!params) params = '';
-        this.request(params,0);
+        this.request(params,0).then(() => {
+            document.getElementById('epesi_loader').style.display = 'none';
+            document.getElementById('main_content').style.display = '';
+        });
 
         window.addEventListener('popstate', ({state: {history_id}}) => this.request('', history_id));
         window._chj = this.href;
     };
 
     updateIndicator = () => {
-        document.getElementById(this.indicator).style.display = this.procOn ? '' : 'none';
-        if (!this.procOn) document.getElementById('main_content').style.display = '';
+        if(this.indicator) document.getElementById(this.indicator).style.display = this.procOn ? '' : 'none';
     };
 
     updateIndicatorText = (text) => {
-        document.getElementById(this.indicator_text).innerHTML = text;
-        document.getElementById(this.indicator_text).innerHTML = text;
+        if(this.indicator_text) document.getElementById(this.indicator_text).innerHTML = text;
     };
 
     history_add = (id) => {

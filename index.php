@@ -63,7 +63,7 @@ ob_start();
             <link href='dist/styles.css' rel="stylesheet" type="text/css">
             <style type="text/css">
 
-                #epesiStatus {
+                #epesi_loader {
                     font-weight: 300;
                     font-size: 15px;
                     background-color: white;
@@ -78,22 +78,22 @@ ob_start();
                     overflow: hidden;
                     padding-top: 20px;
                 }
-                #epesiStatus img {
+                #epesi_loader img {
                     padding: 15px;
                 }
 
-                #epesiStatus .text {
+                #epesi_loader .text {
                     margin-top: 10px;
                     margin-bottom: 25px;
                     font-size: 22px;
                 }
 
-                #epesiStatus .spinner {
+                #epesi_loader .spinner {
                     margin: 20px auto 20px;
                     text-align: center;
                 }
 
-                #epesiStatus .spinner > div {
+                #epesi_loader .spinner > div {
                     width: 18px;
                     height: 18px;
                     background-color: #333;
@@ -104,12 +104,12 @@ ob_start();
                     animation: sk-bouncedelay 1.4s infinite ease-in-out both;
                 }
 
-                #epesiStatus .spinner .bounce1 {
+                #epesi_loader .spinner .bounce1 {
                     -webkit-animation-delay: -0.32s;
                     animation-delay: -0.32s;
                 }
 
-                #epesiStatus .spinner .bounce2 {
+                #epesi_loader .spinner .bounce2 {
                     -webkit-animation-delay: -0.16s;
                     animation-delay: -0.16s;
                 }
@@ -142,7 +142,7 @@ ob_start();
 				<div id="error_box"></div>
 			</div>
 
-            <div id="epesiStatus" class="panel panel-default">
+            <div id="epesi_loader" class="panel panel-default">
                 <img src="images/epesi_logo_RGB_Solid.png">
                 <div class="lead text" id="epesiStatusText"><?php print(STARTING_MESSAGE);?></div>
                 <div class="spinner">
