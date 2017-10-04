@@ -14,25 +14,13 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_StatusBar extends Module {
 
 	public function body() {
-		$theme = $this->init_module("Base/Theme");
-		$theme->assign('statusbar_id','Base_StatusBar');
-		$theme->assign('text_id','statusbar_text');
-        $theme->assign('close_text', __('Click anywhere to dismiss'));
-		$theme->display();
-		$this->load_js();
+		$close_text = __('Click anywhere to dismiss');
+		eval_js("document.getElementById('dismiss').innerHTML = '{$close_text}'");
 		on_exit(array($this, 'messages'),null,false);
 	}
 
 	public function messages() {
 		eval_js("statusbar_message('".Epesi::escapeJS(Base_StatusBarCommon::$message,false)."')");
 	}
-
-	private function load_js() {
-		load_js('modules/Base/StatusBar/js/main.js');
-		load_js('modules/Base/StatusBar/js/nprogress.js');
-		load_css('modules/Base/StatusBar/theme/nprogress.css');
-	}
-
-
 }
 ?>
