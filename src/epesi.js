@@ -18,8 +18,6 @@ class Epesi {
     procOn = 0;
     client_id = 0;
     process_file = 'process.php';
-    indicator = 'Base_StatusBar';
-    indicator_text = 'statusbar_text';
     statusBar = new StatusBar();
     message = null;
 
@@ -65,9 +63,7 @@ class Epesi {
         };
     };
 
-    updateIndicatorText = (text) => {
-        if(this.indicator_text) document.getElementById(this.indicator_text).innerHTML = text;
-    };
+    updateIndicatorText = text => this.statusBar.setIndicatorText(text);
 
     history_add = (id) => {
         window.history.pushState({history_id: id}, '');

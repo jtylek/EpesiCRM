@@ -19,8 +19,10 @@ class StatusBar {
 
 	showMessage = (message) => {
         document.getElementById('dismiss').style.display = '';
-        document.getElementById(this.indicator_text).innerHTML = message;
-	}
+        this.setIndicatorText(message);
+	};
+
+	setIndicatorText = text => document.getElementById(this.indicator_text).innerHTML = text;
 }
 
 export default StatusBar
