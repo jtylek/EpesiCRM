@@ -21,7 +21,7 @@ window.updateEpesiIndicatorFunction=function(){
         let statbar = document.getElementById('Base_StatusBar');
 		if(Epesi.procOn){
             document.getElementById('dismiss').style.display = 'none';
-			statbar.style.display='block';
+			jQuery(statbar).fadeIn();
 		}else{
 			if(statusbar_message_t !== '') {
                 document.getElementById('dismiss').style.display = '';
