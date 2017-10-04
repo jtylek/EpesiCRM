@@ -11,9 +11,7 @@
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
         "anahkiasen/underscore-php": "^2.0",
-        "bower-asset/gentelella": "*",
         "moneyphp/money": "^3.0",
-        "nnnick/chartjs": "^2.5",
         "enyo/dropzone": "@stable",
         "ezyang/htmlpurifier": "^4.9"
     },

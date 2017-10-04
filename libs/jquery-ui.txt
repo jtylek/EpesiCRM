@@ -1,6 +1,0 @@
-custom package: 
-- all core
-- all interactions
-- widgets - only: accordion, autocomplete, menu, mouse
-
-Tooltip from jquery.ui conflicts with tooltip from bootstrap!
