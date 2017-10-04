@@ -42,7 +42,7 @@ window.updateEpesiIndicatorFunction=function(){
                 jq('#dismiss').show();
 				t=jq('#statusbar_text');
 				if(t.length>0)t.html(statusbar_message_t);
-				// statusbar_message('');
+				statusbar_message('');
 				setTimeout('statusbar_fade('+statusbar_fade_count+')',5000);
 			}else{
 				statusbar_fade();
