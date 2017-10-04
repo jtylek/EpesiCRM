@@ -10,9 +10,6 @@ import 'jquery-ui/themes/base/all.css'
 import 'select2';
 import 'select2/dist/css/select2.css';
 
-import 'script-loader!../libs/HistoryKeeper/EventManager.js';
-import 'script-loader!../libs/HistoryKeeper/History.js';
-
 import 'script-loader!../libs/jquery.clonePosition.js';
 import Chart from 'chart.js';
 
@@ -22,6 +19,7 @@ import 'font-awesome/css/font-awesome.css';
 window.Chart = Chart;
 
 import Epesi from './epesi';
+window.EpesiClass = Epesi;
 
 window.focus_by_id = (idd) => {
     let xx = document.getElementById(idd);
@@ -38,12 +36,6 @@ window.wait_while_null = (id, action) => {
     else
         setTimeout('wait_while_null(\'' + addslashes(id) + '\', \'' + addslashes(action) + '\')', 200);
 };
-
-window._chj = Epesi.href;
-
-jQuery(document).ajaxSend(function (ev, xhr, settings) {
-    xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
-});
 
 window.getTotalTopOffet = e => {
     let ret = 0;
@@ -63,5 +55,3 @@ window.is_visible = function (element) {
     }
     return true;
 };
-
-window.Epesi = Epesi;
