@@ -58,7 +58,7 @@ class Utils_FileUpload_Dropzone extends Module
             }
         }
         $options = [
-            'url' => get_epesi_url() . '/' . $dir . 'dropzoneupload.php?' . $query,
+            'url' => $dir . 'dropzoneupload.php?' . $query,
             'uploadMultiple' => true,
             'addRemoveLinks' => true,
             'maxFiles' => $this->maxFiles,
