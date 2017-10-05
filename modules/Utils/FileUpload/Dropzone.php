@@ -65,7 +65,7 @@ class Utils_FileUpload_Dropzone extends Module
         	'acceptedFiles' => $this->acceptedFiles,
             'dictDefaultMessage' => __('Drop files here or click to upload')
         ];
-        eval_js('jq(".dz-hidden-input").remove(); if (!document.querySelector("#' . $identifier . '").dropzone) {
+        eval_js('jq(".dz-hidden-input").remove(); if (document.querySelector("#' . $identifier . '") && !document.querySelector("#' . $identifier . '").dropzone) {
             var dz = new Dropzone("#' . $identifier . '", '.json_encode($options).');
             dz.on("removedfile", function(file) {
                    jq.ajax({
