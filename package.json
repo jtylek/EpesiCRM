@@ -10,6 +10,7 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
+    "lint": "eslint ./src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
