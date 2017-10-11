@@ -10,7 +10,7 @@ module.exports = {
     },
     module: {
         loaders: [
-            {test: /bootstrap\/js\//, loader: 'imports?jQuery=jquery' },
+            {test: /bootstrap\/js\//, loader: 'imports-loader?jQuery=jquery' },
             {test: /\.less$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
