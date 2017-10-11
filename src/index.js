@@ -10,7 +10,7 @@ import 'jquery-ui/themes/base/all.css'
 import 'select2';
 import 'select2/dist/css/select2.css';
 
-import 'script-loader!../libs/jquery.clonePosition.js';
+import '../libs/jquery.clonePosition.js';
 
 import Chart from 'chart.js';
 window.Chart = Chart;
