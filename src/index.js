@@ -9,26 +9,24 @@ import 'jquery-ui/themes/base/all.css';
 
 import 'select2';
 import 'select2/dist/css/select2.css';
-
-import '../libs/jquery.clonePosition.js';
-
 import Chart from 'chart.js';
 
-window.Chart = Chart;
-
 import 'gentelella/production/less/custom.css';
-
 import 'font-awesome/css/font-awesome.css';
+
+
+import '../libs/jquery.clonePosition';
 
 import Epesi from './epesi';
 
+window.Chart = Chart;
 window.EpesiClass = Epesi;
 
 window.focus_by_id = (idd) => {
-  const xx = document.getElementById(idd);
-  if (xx) {
+  const element = document.getElementById(idd);
+  if (element) {
     setTimeout(() => {
-      jq(xx).focus();
+      jQuery(element).focus();
     }, 200);
   }
 };
