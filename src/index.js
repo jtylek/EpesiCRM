@@ -1,4 +1,4 @@
-import jQuery from 'expose-loader?jq!expose-loader?jQuery!expose-loader?$!jquery';
+import jQuery from 'jquery';
 
 import 'bootstrap';
 import 'bootstrap/less/bootstrap.less';

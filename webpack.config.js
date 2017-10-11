@@ -26,6 +26,19 @@ module.exports = {
             {test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url-loader?limit=10000&mimetype=image/svg+xml" },
             {test: /\.(png|jpg|gif)$/, loader: "file-loader" },
             {
+                test: require.resolve('jquery'),
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'jQuery'
+                },{
+                    loader: 'expose-loader',
+                    options: '$'
+                },{
+                    loader: 'expose-loader',
+                    options: 'jq'
+                }]
+            },
+            {
                 test: /\.js$/,
                 exclude: /(node_modules|bower_components|libs)/,
                 use: {
