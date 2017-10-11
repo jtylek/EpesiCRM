@@ -32,26 +32,3 @@ window.focus_by_id = (idd) => {
 };
 
 window.addslashes = x => x.replace(/('|"|\\)/g, '\\$1');
-
-window.wait_while_null = (id, action) => {
-  if (eval(`typeof(${id})`) != 'undefined') { eval(action); } else { setTimeout(`wait_while_null('${addslashes(id)}', '${addslashes(action)}')`, 200); }
-};
-
-window.getTotalTopOffet = (e) => {
-  let ret = 0;
-  while (e != null) {
-    ret += e.offsetTop;
-    e = e.offsetParent;
-  }
-  return ret;
-};
-window.is_visible = function (element) {
-  if (!element) return false;
-  const display = jQuery(element).css('display');
-  if (display == 'none') return false;
-  if (element.parentNode && element.parentNode.style) {
-    xxx = element.parentNode;
-    return is_visible(element.parentNode);
-  }
-  return true;
-};
