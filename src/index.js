@@ -22,13 +22,9 @@ import Epesi from './epesi';
 window.Chart = Chart;
 window.EpesiClass = Epesi;
 
-window.focus_by_id = (idd) => {
-  const element = document.getElementById(idd);
-  if (element) {
-    setTimeout(() => {
-      jQuery(element).focus();
-    }, 200);
-  }
+window.focus_by_id = (id) => {
+  const element = document.getElementById(id);
+  if (element) setTimeout(() => element.focus(), 200);
 };
 
 window.addslashes = x => x.replace(/('|"|\\)/g, '\\$1');
