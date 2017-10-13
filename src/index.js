@@ -5,6 +5,7 @@ import 'bootstrap/less/bootstrap.less';
 
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/sortable';
+import 'jquery-ui/ui/disable-selection';
 import 'jquery-ui/themes/base/all.css';
 
 import 'select2';
