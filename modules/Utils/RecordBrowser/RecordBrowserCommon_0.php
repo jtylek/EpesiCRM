@@ -1377,6 +1377,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (is_bool($values[$desc['id']])) $values[$desc['id']] = $values[$desc['id']]?1:0;
             $vals[] = $values[$desc['id']];
         }
+        Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
+        foreach ($vals as $k => $v) {
+            $vals[$k] = Utils_SafeHtml_SafeHtml::outputSafeHtml($v);
+        }
         DB::Execute('INSERT INTO '.$tab.'_data_1 ('.$fields.') VALUES ('.$fields_types.')',$vals);
         $id = DB::Insert_ID($tab.'_data_1', 'id');
         if ($user) self::add_recent_entry($tab, $user, $id);
