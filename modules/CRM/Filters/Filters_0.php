@@ -114,7 +114,11 @@ class CRM_Filters extends Module {
 			$users = array();
 			foreach ($cids as $v)
 				$users[] = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact($v),true);
-			$gb_row->add_data($row['name'], $row['description'], implode(', ',$users));
+			Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
+			$gb_row->add_data(
+				Utils_SafeHtml_SafeHtml::outputSafeHtml($row['name']),
+                Utils_SafeHtml_SafeHtml::outputSafeHtml($row['description']),
+				implode(', ',$users));
 		}
 
 		$this->display_module($gb);
@@ -160,7 +164,11 @@ class CRM_Filters extends Module {
 		$form->addElement('automulti','contacts',__('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array(), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
 		if ($form->validate()) {
 			$v = $form->exportValues();
-			if(isset($id)) {
+            Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
+			foreach($v as $key => $value) {
+				$v[$key] = Utils_SafeHtml_SafeHtml::outputSafeHtml($value);
+			}
+            if(isset($id)) {
 				DB::Execute('UPDATE crm_filters_group SET name=%s,description=%s WHERE id=%d',array($v['name'],$v['description'],$id));
 				DB::Execute('DELETE FROM crm_filters_contacts WHERE group_id=%d',array($id));
 			} else {
