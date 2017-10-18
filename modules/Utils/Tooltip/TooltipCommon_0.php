@@ -122,7 +122,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 			$table.='</td></tr>';
 		}
 		$table.='</table>';
-		return $table;
+
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+        $return = $purifier->purify($table);
+
+		return $return;
 	}
 
 	public static function tooltip_leightbox_mode() {

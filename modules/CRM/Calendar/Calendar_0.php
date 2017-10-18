@@ -209,8 +209,14 @@ class CRM_Calendar extends Module {
 			
             ///////////////////
             // right column
+
+            $config = HTMLPurifier_Config::createDefault();
+            $config->set('HTML.AllowedElements','span');//            $config->set('HTML.AllowedElements','span');
+            $purifier = new HTMLPurifier($config);
+            $row['title'] = $purifier->purify($row['title']);
+
             $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
-			
+
 			$day = (isset($row['timeless']) && $row['timeless'])?$row['timeless']:Base_RegionalSettingsCommon::time2reg($row['start'], false, true, true, false);
 			if ($day<date('Y-m-d')) $class = 'past';
 			elseif ($day==date('Y-m-d')) $class = 'today';
