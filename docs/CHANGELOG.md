@@ -3,6 +3,18 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20171019
+----------------------
+
+### Fixed
+- fixed to use openssl if mcrypt is not loaded
+- fixed charset exporting
+- fixed XSS vulnerabilities in Attachments, Meetings, Calendar, Perspective - display
+- added XSS purifier on recordset update
+
+### Feature
+- added phpmoney library
+
 RELEASE 1.8.2-20170830
 ----------------------
 
