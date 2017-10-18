@@ -1,6 +1,6 @@
 <?php
 define("EPESI_VERSION", '1.8.2');
-define("EPESI_REVISION", 20170830);
+define("EPESI_REVISION", 20171019);
 
 function epesi_requires_update()
 {
