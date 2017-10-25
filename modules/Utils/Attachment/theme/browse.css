@@ -43,7 +43,7 @@ div .file_link {
     margin-right: 2em;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 15em;
+    /* max-width: 15em; */
     display: inline-block;
     white-space: nowrap;
 }

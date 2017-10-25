@@ -316,7 +316,7 @@ function recalculate_time($date,$time) {
 function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$double,$single);}
 
 function get_epesi_url() {
-    if(defined('EPESI_URL')) return rtrim(EPESI_URL,'/');
+    if(defined('EPESI_URL')) return rtrim(EPESI_URL,'/') . '/';
 	if(php_sapi_name() == 'cli')
 		return dirname(dirname(__FILE__));
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
@@ -327,7 +327,7 @@ function get_epesi_url() {
         $domain_name = $_SERVER['SERVER_NAME'];
     }
     $url = ($domain_name ? ($protocol . $domain_name) : '') . EPESI_DIR;
-    return trim($url);
+    return rtrim(trim($url), '/') . '/';
 }
 
 function get_client_ip_address()

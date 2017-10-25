@@ -119,22 +119,6 @@
                         </table>
                     </td>
                 </tr>
-                {if $action != 'view'}
-                <tr>
-                    <td colspan="3">
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="label">{'Files'|t}</td>
-                       <td class="data frozen">
-                           <div id="multiple_attachments"><div id="filelist"></div></div>
-                           {'Click here and press CTRL+V to paste your clipboard'|t}
-                           <a href="javascript:void(0)" id="pickfiles" class="button">{'Select files'|t}</a>
-                       </td>
-                        </tr>
-                        </table>
-                    </td>
-                </tr>
-                {/if}
                 </tbody>
             </table>
 
