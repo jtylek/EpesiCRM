@@ -114,7 +114,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	
 	public static function add_file($note, $user, $oryg, $file) {
 		if($oryg===null) $oryg='';
-		Utils_FileStorageCommon::write_file($oryg, $file, null, 'rb:utils_attachment/' . $note, null, $user);
+		$note = is_numeric($note)? Utils_RecordBrowserCommon::get_record('utils_attachment', $note): $note;
+		if ($note['crypted']) {
+			if  (isset($_SESSION['client']['cp'.$note['id']]))
+				file_put_contents($file,self::encrypt(file_get_contents($file),$_SESSION['client']['cp'.$note['id']]));
+			else trigger_error('Cannot add file to encrypted note', E_USER_ERROR);
+		}
+		$fsid = Utils_FileStorageCommon::write_file($oryg, $file, null, 'rb:utils_attachment/' . $note['id'], null, $user);
+		Utils_RecordBrowserCommon::update_record('utils_attachment', $note['id'], array('files' => array_merge($note['files'], array($fsid))));
         @unlink($file);
 	}
 
@@ -166,7 +173,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$notes = self::get_files($from_group);
 		$mapping = array();
 		foreach ($notes as $n) {
-			$mapping[$n['note_id']] = @Utils_AttachmentCommon::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$n['file']);
+			$mapping[$n['note_id']] = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$n['file']);
 		}
 		return $mapping;
 	}
@@ -227,7 +234,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = false;
             if(isset($_SESSION['client']['cp'.$row['id']])) {
                 $note_pass = $_SESSION['client']['cp'.$row['id']];
-                $decoded = Utils_AttachmentCommon::decrypt($row['note'],$note_pass);
+                $decoded = self::decrypt($row['note'],$note_pass);
                 if($decoded!==false) {
                     $text = $decoded;
                     Utils_WatchdogCommon::notified('utils_attachment', $row['id']); // notified only when decrypted
@@ -330,7 +337,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     $note_pass = $_SESSION['client']['cp'.$rb_obj->record['id']];
                 else
                     $note_pass = $_SESSION['client']['cp'.$rb_obj->record['clone_id']];
-                $decoded = Utils_AttachmentCommon::decrypt($default,$note_pass);
+                $decoded = self::decrypt($default,$note_pass);
                 if($decoded!==false) $default = $decoded;
                 else {
                     Epesi::alert(__('Note encrypted.'));
@@ -441,9 +448,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     //reencrypt old revisions
                     $old_notes = DB::GetAssoc('SELECT hd.edit_id,hd.old_value FROM utils_attachment_edit_history h INNER JOIN utils_attachment_edit_history_data hd ON h.id=hd.edit_id WHERE h.utils_attachment_id=%d AND hd.field="note"', array($values['id']));
                     foreach($old_notes as $old_id=>$old_note) {
-                        if($old_pass!=='') $old_note = Utils_AttachmentCommon::decrypt($old_note,$old_pass);
+                        if($old_pass!=='') $old_note = self::decrypt($old_note,$old_pass);
                         if($old_note===false) continue;
-                        if($crypted && $values['crypted']['note_password']) $old_note = Utils_AttachmentCommon::encrypt($old_note,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
+                        if($crypted && $values['crypted']['note_password']) $old_note = self::encrypt($old_note,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         if($old_note===false) continue;
                         DB::Execute('UPDATE utils_attachment_edit_history_data SET old_value=%s WHERE edit_id=%d AND field="note"',array($old_note,$old_id));
                     }
@@ -455,9 +462,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     	} catch(Exception $e) { continue; }
                     	$content = @file_get_contents($meta['file']);
                     	if($content===false) continue;
-                    	if($old_pass!=='') $content = Utils_AttachmentCommon::decrypt($content,$old_pass);
+                    	if($old_pass!=='') $content = self::decrypt($content,$old_pass);
                     	if($content===false) continue;
-                    	if($crypted && $values['crypted']['note_password']) $content = Utils_AttachmentCommon::encrypt($content,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
+                    	if($crypted && $values['crypted']['note_password']) $content = self::encrypt($content,$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                     	if($content===false) continue;
                     	Utils_FileStorageCommon::set_content($fsid, $content);
                     }
@@ -465,14 +472,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
                 if($crypted) {
                     if(is_array($values['crypted']) && isset($values['crypted']['note_password'])) {
-                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
+                        $values['note'] = self::encrypt($values['note'],$values['crypted']['note_password'],$values['crypted']['note_password_hint']);
                         $values['note_password']=$values['crypted']['note_password'];
                         $values['note_password_hint'] = $values['crypted']['note_password_hint'];
 
                         foreach ($values['files'] as $file) {
                         	//encrypt only newly uploaded files
                         	if (!isset($file['file'])) continue;
-                        	file_put_contents($file['file'],Utils_AttachmentCommon::encrypt(file_get_contents($file['file']),$values['note_password'], $values['note_password_hint']));
+                        	file_put_contents($file['file'],self::encrypt(file_get_contents($file['file']),$values['note_password'], $values['note_password_hint']));
                         }                        
                     }
                     $values['crypted'] = 1;
@@ -493,14 +500,14 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'edit_changes':
                 if(isset($values['note']) && isset($values['crypted']) && $new_values['crypted']!=$values['crypted']) {
                     if($new_values['crypted'] && isset($new_values['note_password'])) {
-                        $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password'], $new_values['note_password_hint']);
+                        $values['note'] = self::encrypt($values['note'],$new_values['note_password'], $new_values['note_password_hint']);
                     } elseif(!$new_values['crypted'] && isset($_SESSION['client']['cp'.$new_values['id']])) {
-                        $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$_SESSION['client']['cp'.$new_values['id']]);
+                        $values['note'] = self::decrypt($values['note'],$_SESSION['client']['cp'.$new_values['id']]);
                         unset($_SESSION['client']['cp'.$new_values['id']]);
                     }
                 } elseif(isset($new_values['note_password']) && isset($old_password) && $new_values['note_password']!=$old_password) {
-                    $values['note'] = Utils_AttachmentCommon::decrypt($values['note'],$old_password);
-                    $values['note'] = Utils_AttachmentCommon::encrypt($values['note'],$new_values['note_password'],$new_values['note_password_hint']);
+                    $values['note'] = self::decrypt($values['note'],$old_password);
+                    $values['note'] = self::encrypt($values['note'],$new_values['note_password'],$new_values['note_password_hint']);
                 }
                 unset($values['edited_on']);
                 break;
@@ -561,10 +568,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     	$meta = Utils_FileStorageCommon::meta($fsid);
                     	$content = Utils_FileStorageCommon::read_content($fsid);
                     	if(isset($_SESSION['client']['cp'.$values['clone_id']]) && $_SESSION['client']['cp'.$values['clone_id']])
-                    		$content = Utils_AttachmentCommon::decrypt($content,$_SESSION['client']['cp'.$values['clone_id']]);
+                    		$content = self::decrypt($content,$_SESSION['client']['cp'.$values['clone_id']]);
                     	
                     	if($values['crypted'])
-                    		$content = Utils_AttachmentCommon::encrypt($content,$values['note_password'],$new_values['note_password_hint']);
+                    		$content = self::encrypt($content,$values['note_password'],$new_values['note_password_hint']);
                     		
                     	Utils_FileStorageCommon::write_content($meta['filename'], $content, null, 'rb:utils_attachment/' . $note_id, $meta['created_on'], $meta['created_by']);
                     }
