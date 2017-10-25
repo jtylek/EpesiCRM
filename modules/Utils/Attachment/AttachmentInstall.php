@@ -59,10 +59,13 @@ class Utils_AttachmentInstall extends ModuleInstall {
                 'type' => 'checkbox',
                 'extra' => false,
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_crypted')),
-            array('name' => _M('Attached to'),
-                'type' => 'calculated',
-                'extra' => false,
-                'display_callback'=>array('Utils_AttachmentCommon','display_attached_to')),
+        	array('name' => _M('Attached to'),
+        		'type' => 'multiselect',
+        		'param' => '__RECORDSETS__::;',
+        		'required' => false,
+        		'extra' => false,
+        		'visible'=>false,
+        	),
         );
         Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
         Utils_RecordBrowserCommon::add_access('utils_attachment', 'view', 'ACCESS:employee', array('(!permission'=>2, '|:Created_by'=>'USER_ID'));
@@ -79,18 +82,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_jump_to_id('utils_attachment', false);
         Utils_RecordBrowserCommon::set_search('utils_attachment',1,0);
 
-        $ret &= DB::CreateTable('utils_attachment_local','
-			local C(255) NOTNULL,
-			attachment I4 NOTNULL,
-			func C(255),
-			args C(255)',
-            array('constraints'=>', FOREIGN KEY (attachment) REFERENCES utils_attachment_data_1(ID)'));
-        if(!$ret){
-            print('Unable to create table utils_attachment_local.<br>');
-            return false;
-        }
-        DB::CreateIndex('utils_attachment_local__idx', 'utils_attachment_local', 'local');
-
 		$this->create_data_dir();
 		file_put_contents($this->get_data_dir().'.htaccess','deny from all');
 		Base_ThemeCommon::install_default_theme($this->get_type());
@@ -103,7 +94,6 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		Base_AclCommon::delete_permission('Attachments - view full download history');
 		$ret = true;
 
-		$ret &= DB::DropTable('utils_attachment_local');
         Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;

@@ -39,9 +39,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function get_where($group,$group_starts_with=true) {
 		if($group_starts_with)
-			return DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local '.DB::like().' \''.DB::addq($group).'%\'');
+			return DB::GetCol('SELECT id FROM utils_attachment_data_1 WHERE f_attached_to '.DB::like().' \'\_\_'.DB::addq($group).'%\'');
 		else
-            return DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local='.DB::qstr($group));
+			return DB::GetCol('SELECT id FROM utils_attachment_data_1 WHERE f_attached_to='.DB::qstr('__' . $group. '__'));
 	}
 	/**
 	 * Example usage:
@@ -52,12 +52,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if(isset($selective) && !empty($selective))
             $ids = array_intersect($ids,$selective);
         foreach($ids as $id) {
-        	$note = Utils_RecordBrowserCommon::get_record('utils_attachment', $id);
+        	$note = self::get_note($id);
             DB::StartTrans();            
             foreach($note['files'] as $fsid) {
                 Utils_FileStorageCommon::delete($fsid);
             }
-            DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d',array($id));
             DB::CompleteTrans();
             Utils_RecordBrowserCommon::delete_record('utils_attachment',$id,true);
         }
@@ -67,7 +66,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$ids = self::get_where($group,$group_starts_with);
 		if(!$ids) return;
 		foreach($ids as $id) {
-			$note = Utils_RecordBrowserCommon::get_record('utils_attachment', $id);
+			$note = self::get_note($id);
 			
 			foreach($note['files'] as $fsid) {
 				try {
@@ -91,7 +90,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $details
         );
         if ($rid && $ret) {
-            $r = Utils_RecordBrowserCommon::get_record('utils_attachment', $rid);
+            $r = self::get_note($rid);
             $of = Utils_RecordBrowserCommon::get_val('utils_attachment', 'attached_to', $r);
             $ret['title'] .= " [ $of ]";
         }
@@ -114,7 +113,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	
 	public static function add_file($note, $user, $oryg, $file) {
 		if($oryg===null) $oryg='';
-		$note = is_numeric($note)? Utils_RecordBrowserCommon::get_record('utils_attachment', $note): $note;
+		$note = is_numeric($note)? self::get_note($note): $note;
 		if ($note['crypted']) {
 			if  (isset($_SESSION['client']['cp'.$note['id']]))
 				file_put_contents($file,self::encrypt(file_get_contents($file),$_SESSION['client']['cp'.$note['id']]));
@@ -146,7 +145,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if(!$ids) return array();
 		$files = array();
 	    foreach($ids as $id) {
-	    	$note = Utils_RecordBrowserCommon::get_record('utils_attachment', $id);
+	    	$note = self::get_note($id);
 	    	foreach($note['files'] as $fsid) {
 		    	$meta = Utils_FileStorageCommon::meta($fsid);
 		    	$files[] = array_merge($meta, $note, array(
@@ -165,8 +164,12 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return $files;
 	}
 
-	public static function move_notes($to_group, $from_group) {
-		DB::Execute('UPDATE utils_attachment_local SET local=%s WHERE local=%s', array($to_group, $from_group));
+	public static function move_notes($to_group, $from_group, $notes = []) {
+		$notes = $notes?: self::get_where($from_group, false);
+		foreach ($notes as $note) {
+			if (!self::detach_note($note, $from_group)) continue;
+			self::attach_note($note, $to_group);			
+		}
 	}
 
 	public static function copy_notes($from_group, $to_group) {
@@ -176,7 +179,25 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			$mapping[$n['note_id']] = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$n['file']);
 		}
 		return $mapping;
+	}	
+	
+	public static function detach_note($note, $group) {
+		$note = is_numeric($note)? self::get_note($note): $note;
+		if (($key = array_search($group, $note['attached_to'])) === false) return false;
+		unset($note['attached_to'][$key]);
+		DB::Execute('UPDATE utils_attachment_data_1 SET f_attached_to=%s WHERE id=%d',array(Utils_RecordBrowserCommon::encode_multi($note['attached_to']), $note['id']));
+		self::new_watchdog_event($group, '-', $note['id']);
+		return true;
 	}
+	
+	public static function attach_note($note, $group) {
+		$note = is_numeric($note)? self::get_note($note): $note;
+		if (array_search($group, $note['attached_to']) !== false) return false;
+		$note['attached_to'][] = $group;
+		DB::Execute('UPDATE utils_attachment_data_1 SET f_attached_to=%s WHERE id=%d',array(Utils_RecordBrowserCommon::encode_multi($note['attached_to']), $note['id']));
+		self::new_watchdog_event($group, '+', $note['id']);
+		return true;
+	}	
 	
 	public static function is_image($note) {
 		if (!is_string($note)) $note = $note['original'];
@@ -284,27 +305,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
     	return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
     }    		
 
-    public static function display_attached_to($row, $nolink = false, $a=null,$view=false) {
-        $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($row['id']));
-        $ret = array();
-        foreach ($locals as $local) {
-            $param = explode('/', $local);
-            if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                if(!Utils_RecordBrowserCommon::check_table_name($param[0], false, false)) {
-                    DB::Execute('DELETE FROM utils_attachment_local WHERE local=%s',array($local));
-                    continue;
-                }
-                $label = Utils_RecordBrowserCommon::create_default_linked_label($param[0],$param[1],true);
-                $link =
-                    Utils_RecordBrowserCommon::record_link_open_tag($param[0], $param[1], $nolink, 'view', array('switch_to_addon' => __('Notes')))
-                    . $label . Utils_RecordBrowserCommon::record_link_close_tag();
-                $link = Utils_RecordBrowserCommon::create_default_record_tooltip_ajax($link, $param[0], $param[1]);
-                $ret[] = $link;
-            }
-        }
-        return implode(', ',$ret);
-    }
-    
     public static function description_callback($row,$nolink=false) {
         if($row['title']) $ret = $row['title'];
         elseif($row['crypted']) $ret = $row['id'].' ('.__('encrypted note').')';
@@ -493,8 +493,6 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $values['clone_id']=$values['id'];
                 break;
             case 'added':
-                if(isset($values['local']))
-                    DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($values['id'],$values['local'],$values['func'],$values['args']));
                 $new_values = $values;
                 break;
             case 'edit_changes':
@@ -531,14 +529,9 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     Epesi::alert(__('Cannot delete encrypted note'));
                     return false;
                 }
-                $count_locals = DB::GetOne('SELECT count(DISTINCT local) FROM utils_attachment_local WHERE attachment=%d',array($values['id']));
-                if($count_locals>1) {
-                    $is_local = false;
-                    if(isset($_SESSION['client']['utils_attachment_group']))
-                        $is_local = DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
-                    if($is_local) {
-                        DB::Execute('DELETE FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($values['id'],$_SESSION['client']['utils_attachment_group']));
-                        self::new_watchdog_event($_SESSION['client']['utils_attachment_group'], '-', $values['id']);
+                if(count($values['attached_to'])>1) {
+                	if(isset($_SESSION['client']['utils_attachment_group'])) {
+                		self::detach_note($values, $_SESSION['client']['utils_attachment_group']);
                     } else
                         Epesi::alert(__('This note is attached to multiple records - please go to record and delete note there.'));
                     location(array());
@@ -559,11 +552,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $note_id = $values['id'];
 
                 if($mode=='added' && isset($values['clone_id'])) { //on cloning
-                    $locals = DB::Execute('SELECT local,func,args FROM utils_attachment_local WHERE attachment=%d',array($values['clone_id']));
-                    while($local = $locals->FetchRow())
-                        DB::Execute('INSERT INTO utils_attachment_local(attachment,local,func,args) VALUES(%d,%s,%s,%s)',array($note_id,$local['local'],$local['func'],$local['args']));
-
-					$clone = Utils_RecordBrowserCommon::get_record('utils_attachment', $values['clone_id']);
+					$clone = self::get_note($values['clone_id']);
                     foreach($clone['files'] as $fsid) {
                     	$meta = Utils_FileStorageCommon::meta($fsid);
                     	$content = Utils_FileStorageCommon::read_content($fsid);
@@ -577,14 +566,11 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     }
                 }
 
-                $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($note_id));
-                foreach ($locals as $local) {
-                    $param = explode('/', $local);
-                    if (count($param) == 2 && preg_match('/^[1-9][0-9]*$/', $param[1])) {
-                        $subscribers = Utils_WatchdogCommon::get_subscribers($param[0], $param[1]);
-                        foreach ($subscribers as $user_id) {
-                            Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $note_id);
-                        }
+                foreach ($values['attached_to'] as $token) {
+                	$token = Utils_RecordBrowserCommon::decode_record_token($token);
+                   	$subscribers = Utils_WatchdogCommon::get_subscribers($token['tab'], $token['id']);
+                    foreach ($subscribers as $user_id) {
+                        Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $note_id);
                     }
                 }
 
@@ -602,18 +588,25 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
     
     public static function get_access($id) {
-        $locals = DB::GetCol('SELECT local FROM utils_attachment_local WHERE attachment=%d',array($id));
+    	$note = self::get_note($id);
         $ret = false;
-        foreach($locals as $local) {
-            list($recordset,$key) = explode('/',$local,2);
-            if(!Utils_RecordBrowserCommon::check_table_name($recordset, false, false)
-               || !is_numeric($key)
-               || Utils_RecordBrowserCommon::get_access($recordset,'view',$key)) {
+        foreach($note['attached_to'] as $token) {
+        	$token = Utils_RecordBrowserCommon::decode_record_token($token);
+        	if(!Utils_RecordBrowserCommon::check_table_name($token['tab'], false, false)
+               || Utils_RecordBrowserCommon::get_access($token['tab'],'view',$token['id'])) {
                 $ret = true;
                 break;
             }
         }
         return $ret;
+    }
+    
+    public static function get_note($id) {
+    	static $cache;
+    	if (!isset($cache[$id])) {
+    		$cache[$id] = Utils_RecordBrowserCommon::get_record('utils_attachment', $id);
+    	}
+    	return $cache[$id];
     }
 
     /**

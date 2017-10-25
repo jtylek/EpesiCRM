@@ -68,13 +68,10 @@ class Utils_Attachment extends Module {
             'func' => serialize($this->func),
             'args' => serialize($this->args));
         $rb_cols = array();
-        $single_group = (is_string($this->group) || count($this->group) == 1);
-        if ($this->force_multiple) {
-            $single_group = false;
-        }
+        $single_group = (is_string($this->group) || count($this->group) == 1) && !$this->force_multiple;
         if ($single_group) {
             $group = is_string($this->group) ? $this->group : reset($this->group);
-            $defaults['local'] = $group;
+            $defaults['attached_to'] = array($group);
         } else {
             // force attached to display
             $rb_cols['attached_to'] = true;
@@ -94,7 +91,6 @@ class Utils_Attachment extends Module {
             $this->rb->disable_actions(array('delete'));
             $this->display_module($this->rb, array(array(':Created_by'=>$uid), $rb_cols, array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         } else {
-            $crits = array();
             if(!is_array($this->group)) $this->group = array($this->group);
 
             if(isset($_SESSION['attachment_copy']) && count($this->group)==1 && $_SESSION['attachment_copy']['group']!=$this->group) {
@@ -102,12 +98,11 @@ class Utils_Attachment extends Module {
                     Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
                 );
             }
+			$crits = array(
+					'attached_to' => $this->group ?: 0
+			);
 
-            if($this->group) {
-                $g = array_map(array('DB','qstr'),$this->group);
-                $crits['id'] = DB::GetCol('SELECT attachment FROM utils_attachment_local WHERE local IN ('.implode(',',$g).')');
-            } else $crits['id'] = 0;
-            $this->display_module($this->rb, array($crits, $rb_cols, array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
+           	$this->display_module($this->rb, array($crits, $rb_cols, array('sticky'=>'DESC', 'edited_on'=>'DESC')), 'show_data');
         }
 	}
 
@@ -133,17 +128,13 @@ class Utils_Attachment extends Module {
 	public function paste() {
         $group = reset($this->group);
 
-        if(DB::GetOne('SELECT 1 FROM utils_attachment_local WHERE attachment=%d AND local=%s',array($_SESSION['attachment_copy']['id'],$group))) return;
         if (isset($_SESSION['attachment_cut']) && $_SESSION['attachment_cut']) {
             $source_group = reset($_SESSION['attachment_copy']['group']);
-            DB::Execute('UPDATE utils_attachment_local SET local=%s,func=%s,args=%s WHERE attachment=%d AND local=%s', array($group, serialize($this->func), serialize($this->args), $_SESSION['attachment_copy']['id'], $source_group));
-            Utils_AttachmentCommon::new_watchdog_event($group, '+', $_SESSION['attachment_copy']['id']);
-            Utils_AttachmentCommon::new_watchdog_event($source_group, '-', $_SESSION['attachment_copy']['id']);
+            Utils_AttachmentCommon::move_notes($group, $source_group, [$_SESSION['attachment_copy']['id']]);
             unset($_SESSION['attachment_cut']);
             unset($_SESSION['attachment_copy']);
 		} else {
-            DB::Execute('INSERT INTO utils_attachment_local(local,attachment,func,args) VALUES(%s,%d,%s,%s)',array($group,$_SESSION['attachment_copy']['id'],serialize($this->func),serialize($this->args)));
-            Utils_AttachmentCommon::new_watchdog_event($group, '+', $_SESSION['attachment_copy']['id']);
+			Utils_AttachmentCommon::attach_note($_SESSION['attachment_copy']['id'], $group);
 		}
 	}
 

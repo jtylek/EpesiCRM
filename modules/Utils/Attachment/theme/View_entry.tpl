@@ -163,7 +163,7 @@
                         {assign var=y value=1}
                         {foreach key=k item=f from=$multiselects name=fields}
                             {if $y==1}
-                                <td class="column" style="width: {$cols_percent}%;">
+                                <td class="column" style="width: {$cols_percent}%;" colspan="2">
                                 <table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
                             {/if}
                             {$f.full_field}
