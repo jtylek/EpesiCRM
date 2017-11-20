@@ -57,7 +57,7 @@ var Base_Notify = {
 			n = new Notification(title, opts);
 		}
 
-		if (n && jq.isNumeric(timeout)) {
+		if (n && jq.isNumeric(timeout) && timeout > 5000) {
 			setInterval(n.close.bind(n), timeout);
 		}
 	},
