@@ -21,11 +21,11 @@ var Base_Notify = {
 	refresh: function () {
 		if (!this.is_active()) return;
 
-		if(this.working) return;
-		this.working = 1;
+		if(Base_Notify.working) return;
+		Base_Notify.working = 1;
 
 		jq.getJSON('modules/Base/Notify/refresh.php', function(json){
-			this.working = 0;
+			Base_Notify.working = 0;
 
 			if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
 			if (typeof json.disable !== 'undefined') {
