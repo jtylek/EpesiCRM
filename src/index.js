@@ -12,7 +12,7 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import Chart from 'chart.js';
 
-import 'gentelella/production/less/custom.css';
+import 'gentelella/build/css/custom.css';
 import 'font-awesome/css/font-awesome.css';
 
 
