@@ -14,18 +14,13 @@ use Memio\Model\Object;
 use Memio\Model\Method;
 use Memio\Model\Argument;
 
-class CreateModuleCommand extends Command
+class CreateTestModuleCommand extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('dev:module:create')
-            ->setDescription('Create EPESI empty module files')
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED,
-                'Module name'
-            )
+            ->setName('dev:module:test')
+            ->setDescription('Create EPESI Custom Test module files with menu and simple setup')
             ->addOption(
                 'require', 'r',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
@@ -35,13 +30,10 @@ class CreateModuleCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $module_name = $input->getArgument('name');
+        $module_name = 'Testing';
         $requires = $input->getOption('require');
 
-        $parts = explode('/', $module_name);
-        $core_name = end($parts);
-
-        $module_type = str_replace('/', '_', $module_name);
+        $module_type = 'Custom_'.$module_name;
 
         //region Add defined("_VALID_ACCESS") to file.twig if not found
         $current = file_get_contents(EPESI_LOCAL_DIR . '/vendor/memio/twig-template-engine/templates/file.twig');
@@ -60,7 +52,7 @@ class CreateModuleCommand extends Command
         $prettyPrinter = Build::prettyPrinter();
 
         //region Create module dir
-        $module_dir = EPESI_LOCAL_DIR . '/modules/' . $module_name;
+        $module_dir = EPESI_LOCAL_DIR . '/modules/Custom/' . $module_name;
         if (file_exists($module_dir)) {
             $msg = "File or directory: $module_dir already exists";
             $output->writeln($msg);
@@ -71,7 +63,7 @@ class CreateModuleCommand extends Command
         //endregion
 
         //region Main File
-        $file_main = $module_dir . '/' . $core_name . '_0.php';
+        $file_main = $module_dir . '/' . $module_name . '_0.php';
         $myFile = File::make($file_main)
                       ->setStructure(
                           Object::make($module_type)
@@ -88,13 +80,17 @@ class CreateModuleCommand extends Command
         //endregion
 
         //region Common File
-        $file_common = $module_dir . '/' . $core_name . 'Common_0.php';
+        $t = '    ';
+        $file_common = $module_dir . '/' . $module_name . 'Common_0.php';
         $myFile = File::make($file_common)
                       ->setStructure(
                           Object::make($module_type . 'Common')
                                 ->extend(
                                     Object::make('ModuleCommon')
                                 )
+                                ->addMethod(
+                                    Method::make('menu')
+                                        ->setBody("{$t}{$t}return ['_Testing' => []];"))
                       );
 
         if (file_put_contents($file_common, $prettyPrinter->generateCode($myFile)) !== false) {
@@ -103,13 +99,13 @@ class CreateModuleCommand extends Command
         //endregion
 
         //region Install File
-        $t = '    ';
+
         $closure = function ($m) use ($t) {
             $m = preg_replace('#^modules/#', '', $m);
             return "{$t}{$t}{$t}array('name' => '$m', 'version' => 0)";
         };
         $required_modules_str = implode(",\n", array_map($closure, $requires));
-        $file_install = $module_dir . '/' . $core_name . 'Install.php';
+        $file_install = $module_dir . '/' . $module_name . 'Install.php';
         $myFile = File::make($file_install)
                       ->setStructure(
                           Object::make($module_type . 'Install')
@@ -129,6 +125,10 @@ class CreateModuleCommand extends Command
                                 ->addMethod(
                                     Method::make('version')
                                           ->setBody("{$t}{$t}return ['0.1'];"))
+                                ->addMethod(
+                                    Method::make('simple_setup')
+                                          ->setBody("{$t}{$t}return ['package' => '_Test module'];")
+                                )
                       );
 
         if (file_put_contents($file_install, $prettyPrinter->generateCode($myFile)) !== false) {
