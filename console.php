@@ -42,4 +42,5 @@ $application->add(new \Epesi\Console\Demo\GenerateContactsCommand());
 $application->add(new \Epesi\Console\Develop\CreateModuleCommand());
 $application->add(new \Epesi\Console\Develop\CreatePatchCommand());
 $application->add(new \Epesi\Console\ShellCommand());
+$application->add(new \Epesi\Console\RebuildAllCommand());
 $application->run($input);
