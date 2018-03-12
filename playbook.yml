@@ -1,5 +1,5 @@
 - hosts: all
-  sudo: yes
+  become: true
   tasks:
     - apt_repository:
         repo: 'ppa:ondrej/php'
