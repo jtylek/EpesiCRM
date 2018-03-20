@@ -34,7 +34,7 @@ class Base_NotifyCommon extends ModuleCommon {
         load_js('modules/Base/Notify/js/desktop-notify.js');
 		load_js('modules/Base/Notify/js/main.js');
 
-		$disabled_message = __('Notifications disabled or not supported!').'\n'.__('Check your browser settings and allow notifications to use this feature...');
+		$disabled_message = __('Notifications disabled!')."\n".__('Check your browser settings and allow notifications to use this feature...');
         $disabled_message = json_encode($disabled_message);
 		eval_js_once("Base_Notify.init (".(self::refresh_rate*1000).", $disabled_message);");
 
