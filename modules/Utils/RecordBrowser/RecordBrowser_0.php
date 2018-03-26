@@ -212,6 +212,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
     public function disable_pagination($arg=true) {$this->disabled['pagination'] = $arg;}
+    public function disable_add_button() {$this->add_button = false;}
 
     public function set_button($arg, $arg2=''){
         $this->add_button = $arg;
