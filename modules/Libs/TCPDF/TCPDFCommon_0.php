@@ -17,6 +17,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 define('TCPDF_DIR', 'modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/');
+require_once 'modules/Libs/TCPDF/vendor/autoload.php';
 
 class Libs_TCPDFCommon extends ModuleCommon {
     public static $default_font = 'dejavusanscondensed';//'Helvetica';
