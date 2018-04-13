@@ -58,14 +58,14 @@ class Utils_FileUpload_Dropzone extends Module
             }
         }
         $options = [
-            'url' => get_epesi_url() . '/' . $dir . 'dropzoneupload.php?' . $query,
+            'url' => $dir . 'dropzoneupload.php?' . $query,
             'uploadMultiple' => true,
             'addRemoveLinks' => true,
             'maxFiles' => $this->maxFiles,
         	'acceptedFiles' => $this->acceptedFiles,
             'dictDefaultMessage' => __('Drop files here or click to upload')
         ];
-        eval_js('jq(".dz-hidden-input").remove(); if (!document.querySelector("#' . $identifier . '").dropzone) {
+        eval_js('jq(".dz-hidden-input").remove(); if (document.querySelector("#' . $identifier . '") && !document.querySelector("#' . $identifier . '").dropzone) {
             var dz = new Dropzone("#' . $identifier . '", '.json_encode($options).');
             dz.on("removedfile", function(file) {
                    jq.ajax({
@@ -196,5 +196,26 @@ class Utils_FileUpload_Dropzone extends Module
             $this->set_uploaded_files($files);
         }
         $this->set_module_variable('hist', $curr_hist);
+    }
+    
+    public static function export_values($form, $clear = true) {
+    	$ret = [];
+    	foreach (self::get_registered_file_fields($form) as $file_field => $file_module) {
+    		$files = [];
+    		$uploaded_files = $file_module->get_uploaded_files();
+    		foreach ($uploaded_files['existing'] as $file) {
+    			if (isset($uploaded_files['delete'][$file['file_id']])) continue;
+    			$files[] = $file['file_id'];
+    		}
+    		foreach ($uploaded_files['add'] as $file) {
+    			$files[] = [
+    					'filename' => $file['name'],
+    					'file' => $file['file']
+    			];
+    		}
+    		$ret[$file_field] = $files;
+    		if ($clear) $file_module->clear_uploaded_files();
+    	}
+    	return $ret;
     }
 }

@@ -287,7 +287,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function format_long_text($text){
 		$ret = htmlspecialchars($text);
 		$ret = str_replace("\n",'<br>',$ret);
-		$ret = Utils_BBCodeCommon::parse($ret);
+		$ret = Utils_BBCodeCommon::parse(htmlspecialchars_decode($ret));
         return $ret;
     }
     public static function encode_multi($v) {
@@ -998,7 +998,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         
-        $db_field_exists = !($type === 'calculated' && !$old_param);
+        $db_field_exists = !($type === 'calculated' && !$old_param) && $type!== 'page_split';
         
         DB::StartTrans();
         if ($db_field_exists) {
@@ -1023,9 +1023,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         	if (!is_object($crits))
         		$crits = Utils_RecordBrowser_Crits::from_array($crits);
         
-        		foreach ($crits->find($id) as $c) $c->set_field($new_id);
+        	foreach ($crits->find($id)?:[] as $c) $c->set_field($new_id);
         
-        		DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
+        	DB::Execute('UPDATE ' . $tab . '_access SET crits=%s WHERE id=%d', array(self::serialize_crits($crits), $row['id']));
         }
         
         DB::CompleteTrans();
