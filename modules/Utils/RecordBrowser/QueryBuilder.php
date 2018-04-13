@@ -22,7 +22,7 @@ class Utils_RecordBrowser_QueryBuilder
         $this->admin_mode = $admin_mode;
     }
 
-    public function build_query(Utils_RecordBrowser_Crits $crits, $order = array(), $admin_filter = '')
+    public function build_query(Utils_RecordBrowser_CritsInterface $crits, $order = array(), $admin_filter = '')
     {
         $crits = $crits->replace_special_values();
 
