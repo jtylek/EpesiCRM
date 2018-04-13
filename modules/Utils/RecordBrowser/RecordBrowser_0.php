@@ -1079,28 +1079,8 @@ class Utils_RecordBrowser extends Module {
                     $form->freeze($desc['id']);
             }
         if ($form->exportValue('submited') && $form->validate()) {
-            $values = $form->exportValues();
+        	$values = array_merge($form->exportValues(), Utils_FileUpload_Dropzone::export_values($form));
 
-            /**
-             * @var Utils_FileUpload_Dropzone $file_module
-             */
-            foreach (Utils_FileUpload_Dropzone::get_registered_file_fields($form) as $file_field => $file_module) {
-                $files = [];
-                $uploaded_files = $file_module->get_uploaded_files();
-                foreach ($uploaded_files['existing'] as $file) {
-                    if (isset($uploaded_files['delete'][$file['file_id']])) continue;
-                    $files[] = $file['file_id'];
-                }
-                foreach ($uploaded_files['add'] as $file) {
-                    $files[] = [
-                        'filename' => $file['name'],
-                        'file' => $file['file']
-                    ];
-                }
-                $values[$file_field] = $files;
-                $file_module->clear_uploaded_files();
-            }
-			
 			foreach ($defaults as $k=>$v) {
 				if (!isset($values[$k]) && ($this->view_fields_permission === false
                         || (isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]))) $values[$k] = $v;

@@ -197,4 +197,25 @@ class Utils_FileUpload_Dropzone extends Module
         }
         $this->set_module_variable('hist', $curr_hist);
     }
+    
+    public static function export_values($form, $clear = true) {
+    	$ret = [];
+    	foreach (self::get_registered_file_fields($form) as $file_field => $file_module) {
+    		$files = [];
+    		$uploaded_files = $file_module->get_uploaded_files();
+    		foreach ($uploaded_files['existing'] as $file) {
+    			if (isset($uploaded_files['delete'][$file['file_id']])) continue;
+    			$files[] = $file['file_id'];
+    		}
+    		foreach ($uploaded_files['add'] as $file) {
+    			$files[] = [
+    					'filename' => $file['name'],
+    					'file' => $file['file']
+    			];
+    		}
+    		$ret[$file_field] = $files;
+    		if ($clear) $file_module->clear_uploaded_files();
+    	}
+    	return $ret;
+    }
 }
