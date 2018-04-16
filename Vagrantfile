@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder ".", "/var/www/html", owner: "www-data", group: "www-data"
+  config.vm.synced_folder ".", "/var/www/epesi", owner: "www-data", group: "www-data"
   config.vm.synced_folder ".", "/vagrant"
 
   # Provider-specific configuration so you can fine-tune various
@@ -72,5 +72,12 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook = "playbook.yml"
+    ansible.compatibility_mode = "2.0"
   end
+
+  config.vm.provision "shell", privileged: false, inline: <<-EOF
+    echo "Congratulations! Vagrant machine is provisioned!"
+    echo "Now setup Your Epesi http://$(facter -p ipaddress_eth1)"
+    echo "Database credentials: admin:$(cat /vagrant/mysqlpassword)"
+  EOF
 end
