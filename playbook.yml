@@ -5,7 +5,7 @@
         repo: 'ppa:ondrej/php'
     - apt:
         update_cache: yes
-    - apt: name={{item}} state=installed
+    - apt: name={{item}} state=present
       with_items:
         - apache2
         - php5.6
@@ -17,11 +17,17 @@
         - php5.6-gd
         - php5.6-intl
         - php5.6-curl
+        - php5.6-zip
         - mysql-server
         - python-mysqldb
+    - lineinfile:
+        path: '/etc/apache2/sites-available/000-default.conf'
+        regexp: 'DocumentRoot'
+        line: '        DocumentRoot /var/www/epesi'
+    - service: name=apache2 state=restarted
     - mysql_db: name=epesi state=present
     - mysql_user:
         name: admin
-        password: 1234
+        password: "{{ lookup('password', './mysqlpassword length=8') }}"
         priv: 'epesi.*:ALL,GRANT'
         state: present
