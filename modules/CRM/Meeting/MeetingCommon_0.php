@@ -232,6 +232,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			8=>__('Customize week'),
 			9=>__('Every two weeks'),
 			10=>__('Every month'),
+			12=>__('Every month (the same day of the week, e.g. first monday every month)'),
 			11=>__('Every year')
 			);
 		if ($mode=='add' || $mode=='edit') {
@@ -645,6 +646,19 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$cday = date('d', $iday);
 				$tday = date('d', strtotime($r['date']));
 				if ($cday!=$tday && ($tday<=$numdays || $numdays!=$cday)) return null;
+			}
+			if ($r['recurrence_type']==12) {
+				$evdate = strtotime($r['date']);
+				$cday = date('l', $iday);
+				$tday = date('l', $evdate);
+				if($cday!=$tday) return null;
+				$cmonth = date('Y-m H:i:s',$iday);
+				$tmonth = date('Y-m H:i:s',$evdate);
+				if((strtotime('first '.$cday.' of '.$tmonth)==$evdate && strtotime('first '.$cday.' of '.$cmonth)!=$iday) ||
+				  (strtotime('second '.$cday.' of '.$tmonth)==$evdate && strtotime('second '.$cday.' of '.$cmonth)!=$iday) ||
+				  (strtotime('third '.$cday.' of '.$tmonth)==$evdate && strtotime('third '.$cday.' of '.$cmonth)!=$iday) ||
+				  (strtotime('fourth '.$cday.' of '.$tmonth)==$evdate && strtotime('fourth '.$cday.' of '.$cmonth)!=$iday) ||
+				  (strtotime('last '.$cday.' of '.$tmonth)==$evdate && strtotime('last '.$cday.' of '.$cmonth)!=$iday)) return null;
 			}
 			if ($r['recurrence_type']==11) {
 				$cmonth = date('m', $iday);
