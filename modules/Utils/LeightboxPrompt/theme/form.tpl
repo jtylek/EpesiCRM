@@ -1,6 +1,6 @@
 <br>
 {$form_open}
-<table id="Utils_LeightboxPrompt__form" style="border-spacing:3px;width:70%;" cellpadding="0">
+<table class="Utils_LeightboxPrompt__form" style="border-spacing:3px;width:70%;" cellpadding="0">
 	<tr>
 		<th style="width:30%;">
 		</th>

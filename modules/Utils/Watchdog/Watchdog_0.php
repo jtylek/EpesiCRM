@@ -48,9 +48,7 @@ class Utils_Watchdog extends Module {
 					array('name'=>__('Cat.'),'width'=>5),
 					array('name'=>__('Title'),'width'=>15)
 					);
-		if($conf['title']) {
-			$opts['title'] = __('Watchdog - %s',array($conf['title']));
-		} elseif (count($categories)==1) {
+		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);
 			$opts['title'] = __('Watchdog - %s', array($title['category']));
 			$header = array(array('name'=>__('Title')));
@@ -58,6 +56,9 @@ class Utils_Watchdog extends Module {
 			$opts['title'] = __('Watchdog - All');
 		} else {
 			$opts['title'] = __('Watchdog - Selection');
+		}
+		if($conf['title']) {
+			$opts['title'] = __('Watchdog - %s',array($conf['title']));
 		}
 		$records = Utils_WatchdogCommon::get_records_with_new_notifications();
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),'subscriptions','subscriptions');

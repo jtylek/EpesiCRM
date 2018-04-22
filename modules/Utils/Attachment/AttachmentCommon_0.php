@@ -271,6 +271,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         } else {
             $text = $row['note'];
             $text = Utils_BBCodeCommon::parse($text);
+	    Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
+            $text = Utils_SafeHtml_SafeHtml::outputSafeHtml($text);
             // mark as read all 'browsed' records
             foreach (self::$mark_as_read as $note_id) {
                 Utils_WatchdogCommon::notified('utils_attachment', $note_id);
@@ -370,7 +372,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function QFfield_crypted(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
-        if ($mode=='view' || !function_exists('mcrypt_module_open')) {
+        if ($mode=='view') {
             $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field));
             $form->setDefaults(array($field=>$default));
             $elem->freeze(1);

@@ -21,11 +21,11 @@ var Base_Notify = {
 	refresh: function () {
 		if (!this.is_active()) return;
 
-		if(this.working) return;
-		this.working = 1;
+		if(Base_Notify.working) return;
+		Base_Notify.working = 1;
 
 		jq.getJSON('modules/Base/Notify/refresh.php', function(json){
-			this.working = 0;
+			Base_Notify.working = 0;
 
 			if (typeof json === 'undefined' || jq.isEmptyObject(json)) return;
 			if (typeof json.disable !== 'undefined') {
@@ -37,47 +37,47 @@ var Base_Notify = {
 			
 			jq.each(json.messages, function(i, m) {
 				setTimeout(function(){
-					if (typeof m.timeout !== 'undefined') notify.config({pageVisibility: false, autoClose: m.timeout});
-					Base_Notify.notify(m.title, m.opts);			
+					Base_Notify.notify(m.title, m.opts, m.timeout);			
 				}, i*500);
 			});
 		});		
 	},
 	
-	notify: function (title, opts) {
+	notify: function (title, opts, timeout) {
 		if (!this.is_active(true)) return;
 		
-		if (notify.permissionLevel() === notify.PERMISSION_DEFAULT) {
-			notify.requestPermission(function (permission) {
-				if (permission === notify.PERMISSION_GRANTED) {
-					var n = notify.createNotification(title, opts);
-				}
+		var n;
+		
+		if (Notification.permission === 'default') {
+			Notification.requestPermission().then(function (permission) {
+				Base_Notify.notify(title, opts, timeout);
 			});
 		}
-		else if (notify.permissionLevel() === notify.PERMISSION_GRANTED) {
-			var n = notify.createNotification(title, opts);
+		else if (Notification.permission === 'granted') {
+			n = new Notification(title, opts);
+		}
+
+		if (n && jq.isNumeric(timeout) && timeout > 5000) {
+			setInterval(n.close.bind(n), timeout);
 		}
 	},
 	
-	is_active: function (alert) {
+	is_active: function (show_alert) {
 		if (this.disabled) return false;
+
+		if (Notification.permission === 'granted' || Notification.permission === 'default') return true;
 		
-		if (!this.is_supported(alert)) {
-			this.disable();
-			return false;
+		if (show_alert) {
+			var message = this.disabled_message
+			if (Notification.permission === 'notsupported') {
+				message = 'Notifications not supported';
+			}
+			alert(message);
 		}
 		
-		return true;
+		return false;
 	},
-	
-	is_supported: function (alert) {
-		supported = notify.isSupported && (notify.permissionLevel() !== notify.PERMISSION_DENIED);
-		
-		if (!supported && alert) alert(this.disabled_message);
-		
-		return supported;
-	},
-	
+
 	disable: function () {
 		clearInterval(this.interval);
 		this.interval = 0;

@@ -16,7 +16,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-define('TCPDF_DIR', 'modules/Libs/TCPDF/tcpdf5.9/');
+define('TCPDF_DIR', 'modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/');
+require_once 'modules/Libs/TCPDF/vendor/autoload.php';
 
 class Libs_TCPDFCommon extends ModuleCommon {
     public static $default_font = 'dejavusanscondensed';//'Helvetica';
@@ -61,7 +62,10 @@ class Libs_TCPDFCommon extends ModuleCommon {
 
     public static function new_pdf($orientation='P',$unit='mm',$format=null) {
         ini_set('memory_limit', '512M');
-        require_once(TCPDF_DIR.'tcpdf.php');
+
+        define('K_TCPDF_EXTERNAL_CONFIG', true);
+        
+        require_once(self::Instance()->get_module_dir() . 'tcpdf_config.php');
 
         self::$default_font = self::get_pdf_font();
         if ($format===null) $format = Base_User_SettingsCommon::get(Libs_TCPDF::module_name(),'page_format');
