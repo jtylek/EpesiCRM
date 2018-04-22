@@ -34,12 +34,12 @@ class Utils_FileStorage_ActionHandler
 
     protected function getHandlingScript()
     {
-        return get_epesi_url() . '/modules/Utils/FileStorage/file.php';
+        return 'modules/Utils/FileStorage/file.php';
     }
 
     protected function getRemoteScript()
     {
-        return get_epesi_url() . '/modules/Utils/FileStorage/remote.php';
+    	return get_epesi_url() . 'modules/Utils/FileStorage/remote.php';
     }
 
     public function getActionUrls($filestorageId, $params = [])
@@ -56,7 +56,7 @@ class Utils_FileStorage_ActionHandler
 
     protected function loadEpesi()
     {
-        define('CID', false);
+    	define('CID', isset($_REQUEST['cid'])? $_REQUEST['cid']: false);
         define('READ_ONLY_SESSION', true);
 
         require_once('../../../include.php');

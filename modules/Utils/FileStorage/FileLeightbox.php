@@ -41,6 +41,7 @@ class Utils_FileStorage_FileLeightbox
         }
         $history_href_js = Epesi::escapeJS(Module::create_href_js(array('utils_filestorage_file_history' => $file_history_key)), true, false);
 
+        $links = array();
         $links['view'] = '<a href="' . $action_urls['preview'] . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
         $links['download'] = '<a href="' . $action_urls['download'] . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
         if(!$is_history) {
