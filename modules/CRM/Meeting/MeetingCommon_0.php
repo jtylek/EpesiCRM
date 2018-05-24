@@ -655,14 +655,12 @@ class CRM_MeetingCommon extends ModuleCommon {
 				$cmonth = date('Y-m H:i:s',$iday);
 				$tmonth = date('Y-m H:i:s',$evdate);
 				$cfive = ($cmonth==date('Y-m H:i:s',strtotime('fifth '.$cday.' of '.$cmonth)));
-				$tfive = ($tmonth==date('Y-m H:i:s',strtotime('fifth '.$cday.' of '.$tmonth)));
 				//if first "monday" of event month is same as event date go and check first "monday" of currently selected month is same as current date - if not, skip
 				if((strtotime('first '.$cday.' of '.$tmonth)==$evdate && strtotime('first '.$cday.' of '.$cmonth)!=$iday) ||
 				  (strtotime('second '.$cday.' of '.$tmonth)==$evdate && strtotime('second '.$cday.' of '.$cmonth)!=$iday) ||
 				  (strtotime('third '.$cday.' of '.$tmonth)==$evdate && strtotime('third '.$cday.' of '.$cmonth)!=$iday) ||
 				  //for last week check if it's fivth "monday" of month and compare last week days only
-				  (!$tfive && strtotime('fourth '.$cday.' of '.$tmonth)==$evdate && ((!$cfive && strtotime('fourth '.$cday.' of '.$cmonth)!=$iday) || ($cfive && strtotime('fifth '.$cday.' of '.$cmonth)!=$iday))) ||
-				  ($tfive && strtotime('fifth '.$cday.' of '.$tmonth)==$evdate && ((!$cfive && strtotime('fourth '.$cday.' of '.$cmonth)!=$iday) || ($cfive && strtotime('fifth '.$cday.' of '.$cmonth)!=$iday)))) return null;
+				  ((strtotime('fourth '.$cday.' of '.$tmonth)==$evdate || strtotime('fifth '.$cday.' of '.$tmonth)==$evdate) && ((!$cfive && strtotime('fourth '.$cday.' of '.$cmonth)!=$iday) || ($cfive && strtotime('fifth '.$cday.' of '.$cmonth)!=$iday)))) return null;
 			}
 			if ($r['recurrence_type']==11) {
 				$cmonth = date('m', $iday);
