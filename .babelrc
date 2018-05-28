@@ -1,4 +1,4 @@
 {
   "presets": ["env"],
-  "plugins": ["transform-runtime", "transform-function-bind"]
+  "plugins": ["transform-runtime", "transform-function-bind", "transform-class-properties"]
 }
