@@ -1,7 +1,7 @@
 import 'jquery';
 
 import 'bootstrap';
-import 'bootstrap/less/bootstrap.less';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/sortable';
