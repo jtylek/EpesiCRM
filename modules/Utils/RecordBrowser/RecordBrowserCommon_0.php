@@ -1004,7 +1004,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         
-        $db_field_exists = !($type === 'calculated' && !$old_param) && $type!== 'page_split';
+        $db_field_exists = !(in_array($type, ['calculated', 'hidden'], true) && !$old_param) && $type!== 'page_split';
         
         DB::StartTrans();
         if ($db_field_exists) {
