@@ -64,33 +64,3 @@ pre.wrap {
 .nav_title {
 	height:auto !important;
 }
-
-.nav.navbar-nav>li>span>a {
-    color: #5A738E !important;
-}
-.navbar-brand, .navbar-nav>li>span>a {
-    font-weight: 500;
-    color: #ECF0F1 !important;
-    margin-left: 0 !important;
-    line-height: 32px;
-}
-.nav>li>span>a {
-    position: relative;
-    display: block;
-    padding: 13px 15px 12px;
-}
-.navbar-nav>li>span>a, .navbar-brand, .navbar-nav>li>span>a {
-    color: #fff !important;
-}
-.nav>li>span>a:hover,
-.nav>li>span>a:focus {
-    color: #515356 !important;
-}
-
-td span {
-	line-height: inherit;
-}
-
-button, .buttons, .btn, .modal-footer .btn+.btn {
-	margin-bottom:0px;
-}
