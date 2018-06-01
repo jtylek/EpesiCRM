@@ -5,24 +5,22 @@
     </div>
 {else}
 <div class="col-md-3 left_col">
-
-    <div class="navbar nav_title" style="border: 0">
-        {*{$logo}*}
-        <a data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-        </a>
-        {$filter}
-        <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
-            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-        </a>
-        <a data-toggle="tooltip" data-placement="bottom" title="Logout" {$logout_href}>
-            <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-        </a>
-    </div>
-
     <div class="left_col scroll-view">
+        <div class="navbar nav_title" style="border: 0">
+            {*{$logo}*}
+            <a data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+            </a>
+            {$filter}
+            <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+            </a>
+            <a data-toggle="tooltip" data-placement="bottom" title="Logout" {$logout_href}>
+                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+            </a>
 
 
+        </div>
         <div class="watchdog dropdown">
             <div class="row">
                 <div class="login">
@@ -49,11 +47,10 @@
         <!-- /sidebar menu -->
 
         <!-- /menu zbuttons -->
-
+        <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
+            {$logo}
+        </div>
         <!-- /menu footer buttons -->
-    </div>
-    <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
-        {$logo}
     </div>
 </div>
 
