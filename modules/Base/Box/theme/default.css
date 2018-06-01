@@ -44,11 +44,11 @@ table {
 }
 
 pre.wrap {
-	white-space: pre-wrap; /* css-3 */
-	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-	white-space: -pre-wrap; /* Opera 4-6 */
-	white-space: -o-pre-wrap; /* Opera 7 */
-	word-wrap: break-word; /* Internet Explorer 5.5+ */
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 .module_indicator {
@@ -58,7 +58,7 @@ pre.wrap {
 
 /* override gentalella defaults */
 .top_nav .navbar-right {
-	width: auto !important;
+  width: auto !important;
 }
 
 .nav_title {
@@ -66,25 +66,25 @@ pre.wrap {
 }
 
 .nav.navbar-nav>li>span>a {
-	color: #5A738E !important;
+    color: #5A738E !important;
 }
 .navbar-brand, .navbar-nav>li>span>a {
-	font-weight: 500;
-	color: #ECF0F1 !important;
-	margin-left: 0 !important;
-	line-height: 32px;
+    font-weight: 500;
+    color: #ECF0F1 !important;
+    margin-left: 0 !important;
+    line-height: 32px;
 }
 .nav>li>span>a {
-	position: relative;
-	display: block;
-	padding: 13px 15px 12px;
+    position: relative;
+    display: block;
+    padding: 13px 15px 12px;
 }
 .navbar-nav>li>span>a, .navbar-brand, .navbar-nav>li>span>a {
-	color: #fff !important;
+    color: #fff !important;
 }
 .nav>li>span>a:hover,
 .nav>li>span>a:focus {
-	color: #515356 !important;
+    color: #515356 !important;
 }
 
 td span {
@@ -97,22 +97,6 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 
 .nav-sm.nav_title a {
 	background: #2A3F54;
-}
-
-#home-glyph-a {
-	color: #819ab7;
-}
-
-#login-div a:hover {
-	color: #e1e1e2;
-}
-
-#login-div a > span > ul > li:hover {
-	color: black;
-}
-
-#home-glyph-a span:hover {
-	color: #e1e1e2;
 }
 
 .nav_title {
@@ -132,6 +116,11 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 	float: left;
 	background: #172D44;
 	cursor: pointer;
+}
+
+.nav_title a > span:hover,
+.nav_title a:hover > span {
+	color: #ffffff;
 }
 
 .sidebar-footer {
@@ -167,6 +156,10 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 	text-align: center;
 	padding: 0 1rem 0 1rem;
 	background: transparent;
+}
+
+.dropdown-menu.dropdown-usermenu.pull-right ul > li > a > span > i {
+	color: #172D44;
 }
 
 div.login > span > a > span {
