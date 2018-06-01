@@ -1,7 +1,7 @@
 {php}
 	load_js($this->get_template_vars('theme_dir').'/Utils/GenericBrowser/default.js');
 {/php}
-{*bbbbb*}
+
 <div>
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
 <div class="nonselectable clearfix" style="margin-bottom: 20px">

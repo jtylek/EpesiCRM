@@ -5,10 +5,6 @@
     </div>
 {else}
 
-    {php}
-        load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
-        eval_js_once('document.body.id=null'); //pointer-events:none;
-    {/php}
     <header class="row">
         <div class="col-lg-2 col-xs-12 col-sm-6">
             <div class="panel panel-default">
@@ -76,3 +72,8 @@
     {$status}
 
 {/if}
+
+{php}
+    load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
+    eval_js_once('document.body.id=null'); //pointer-events:none;
+{/php}

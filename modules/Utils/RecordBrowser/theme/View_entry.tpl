@@ -25,7 +25,7 @@
 
 {if $main_page}
 
-	{*<div class="panel panel-default">*}
+	<div class="panel panel-default">
 		<div class="panel-heading clearfix">
 			<div class="pull-left">
 				<i class="pull-left fa fa-{$icon} fa-2x"></i>
@@ -118,5 +118,5 @@
 
 {if $main_page}
 		</div>
-	{*</div>*}
+	</div>
 {/if}
