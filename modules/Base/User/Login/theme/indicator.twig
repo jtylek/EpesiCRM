@@ -1,0 +1,67 @@
+<div class="dropdown">
+    <a href="#" data-toggle="dropdown" class="btn btn-success" aria-expanded="false">
+        <i class="fa fa-user"></i>
+        <strong class="hidden-xs">&nbsp;{{ indicator.login }}</strong>
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-right">
+        <li>
+            <div class="navbar-login">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <p class="text-center">
+                            <span class="fa fa-user icon-size"></span>
+                        </p>
+                    </div>
+                    <div class="col-lg-8">
+                        <p class="text-left">
+                            <strong>{{ indicator.label | raw}}</strong>
+                        </p>
+
+                        {#Tu zamiast loginu email miał być#}
+                        <p class="text-left small">{{ indicator.login }}</p>
+
+                        {#Tu potrzebuję link do profilu wygenerować
+                        <p class="text-left">
+                            <a href="#" class="btn btn-primary btn-block btn-sm">Profile</a>
+                        </p>#}
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <div class="navbar-login navbar-login-session">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>
+                            <a {{ logout.href | raw }} class="btn btn-danger btn-block">{{ logout.text }}</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+<style>
+    .navbar-login
+    {
+        width: 305px;
+        padding: 10px;
+        padding-bottom: 0px;
+    }
+
+    .navbar-login-session
+    {
+        padding: 10px;
+        padding-bottom: 0px;
+        padding-top: 0px;
+    }
+
+    .icon-size
+    {
+        font-size: 87px;
+    }
+</style>
