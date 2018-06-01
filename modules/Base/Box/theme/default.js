@@ -125,31 +125,12 @@ $(window).on('e:load',function() {
   		if ($BODY.hasClass('nav-md')) {
   			$SIDEBAR_MENU.find('li.active ul').hide();
   			$SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
-
   			$('.search-bar').hide();
-  			$('#login-box').hide();
-            $('#login-div').hide();
-            $('.sidebar-footer.hidden-small').hide();
-
-            $('#hidden-home-div').show();
-            
-            $('#sidebar-menu').css('margin-top','40px');
-            $('#debug_content').css('padding-left','70px');
-
   		} else {
   			$SIDEBAR_MENU.find('li.active-sm ul').show();
   			$SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
-
             $('.search-bar').show();
-            $('#login-box').show();
-            $('#login-div').show();
-            $('.sidebar-footer.hidden-small').show();
-
-            $('#hidden-home-div').hide();
-            
-            $('#sidebar-menu').css('margin-top','0px');
-            $('#debug_content').css('padding-left','230px');
-        }
+  		}
 
   	$BODY.toggleClass('nav-md nav-sm');
 
