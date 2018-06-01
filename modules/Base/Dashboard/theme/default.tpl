@@ -11,10 +11,7 @@
 		{/if}
 
 		<div class="pull-right action-buttons">
-			<button type="button" class="btn btn-default dropdown-toggle btn-xs applet-actions-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 65px">
-				<span class="glyphicon glyphicon-option-vertical"></span>
-			</button>
-			<div class="pull-right applet-actions">
+			<div class="pull-right">
 				{if isset($href)}
 					{$__link.href.open}
 					<button class="btn btn-success btn-xs"><i class="fa fa-arrows-alt"></i></button>

@@ -128,7 +128,3 @@ dashboard_filter_applets = function() {
         if(node.attr('searchkey').indexOf(str)!=-1) node.show(); else node.hide();
     });
 }
-
-$(document).on('click','.applet-actions-icon',function(){
-    $(this).parent().find('.applet-actions').toggle('slow');
-});
