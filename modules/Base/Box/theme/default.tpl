@@ -22,11 +22,7 @@
 
         </div>
         <div class="watchdog dropdown">
-            <div class="row">
-                <div class="login">
-                    {$login}{$watchdog}
-                </div>
-            </div>
+            {$watchdog}
         </div>
         <div class="clearfix"></div>
 
@@ -66,7 +62,7 @@
               <ul class="nav navbar-nav navbar-right">
 
                 <li class="">
-                  {*{$login}*}
+                  {$login}
                 </li>
 
                   <li class="" style="width: 300px; padding: 1.1rem">
