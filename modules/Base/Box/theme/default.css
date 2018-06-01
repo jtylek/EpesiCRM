@@ -20,12 +20,49 @@ header .logo-container img {
 	user-select: none;
 }
 
+body {
+	padding: 0;
+	margin: 0;
+	font-family: "Open Sans";
+	font-weight: 300;
+	font-size: 15px;
+	background-color: #F0F0F0;
+	position: relative;
+	margin-bottom: 10px;
+}
+
 table {
 	table-layout: fixed;
 }
 
+
+
+/*** content body ***/
+
 #content_body {
-	padding-bottom:20px;
+/*    position: relative;*/
+   /* position: absolute; */
+    /*margin-top: 97px;*/
+    width: 100%;
+    padding: 0px;
+    border-top: 1px solid transparent;
+    /*text-align: center;*/
+}
+
+#body_content {
+    width: 100%;
+}
+
+@media print {
+    #body_content {
+        padding-top: 0;
+    }
+}
+
+#main_content {
+	position: relative;
+	margin-top: 10px;
+	/* width: 100%; */
 }
 
 #debug {
