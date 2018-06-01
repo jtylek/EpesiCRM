@@ -1,8 +1,5 @@
 #Base_ActionBar .btn {
-	padding:5px 5px 0px;
-	margin:0px;
-	min-width: 60px;
-	width: auto;
+	margin-bottom:4px;
 }
 
 .nav.navbar-nav.navbar-left {
