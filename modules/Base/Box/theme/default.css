@@ -100,6 +100,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 }
 
 .nav_title {
+	position: fixed;
 	width: 230px;
 	background: #2A3F54;
 	z-index:999;
@@ -139,6 +140,7 @@ button, .buttons, .btn, .modal-footer .btn+.btn {
 }
 
 .watchdog {
+	/*padding-top: 5rem;*/
 	padding: 0rem 1rem 0 2.3rem;
 	background: #2A3F54;
 
@@ -178,15 +180,10 @@ body.nav-md .container.body .col-md-3.left_col{
 .left_col.scroll-view {
 	width: 100%;
 	overflow-y: scroll;
+	margin-top: 58px;
+	margin-bottom: 166px;
 	padding-top: 1rem;
 }
 .left_col.scroll-view #sidebar-menu .menu_section {
 	margin-bottom: 0px;
-}
-.nav-md .container.body .col-md-3.left_col {
-	flex-direction: column;
-}
-
-.col-md-3.left_col .sidebar-footer {
-	position: relative;
 }
