@@ -62,7 +62,7 @@ pre.wrap {
 }
 
 .nav_title {
-	min-height: 57px;
+	height:auto !important;
 }
 
 .nav.navbar-nav>li>span>a {
