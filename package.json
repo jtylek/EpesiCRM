@@ -54,7 +54,6 @@
     "bootstrap": "^3.3.7",
     "chart.js": "^2.7.0",
     "font-awesome": "^4.7.0",
-    "gentelella": "^1.3.0",
     "jquery": "^2.x.x",
     "jquery-ui": "^1.12.1",
     "nprogress": "^0.2.0",
