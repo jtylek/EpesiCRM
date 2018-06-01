@@ -728,7 +728,7 @@ class Utils_GenericBrowser extends Module {
 	 */
 	public function body($template=null,$paging=true)
 	{
-		load_js('modules/Utils/GenericBrowser/default/default.js');
+		load_js('modules/Utils/GenericBrowser/theme/default.js');
 		if (!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns', E_USER_ERROR);
 
