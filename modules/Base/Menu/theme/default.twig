@@ -1,5 +1,5 @@
 {% macro menu_links(links,level) %}
-  <ul class="nav {% if level==0 %}side-{% else %}child_{% endif %}menu" {% if level>0 %}style="display:none"{% endif %}>
+  <ul class="nav {% if level==0 %}side{% else %}child{% endif %}-menu" {% if level>0 %}style="display:none"{% endif %}>
     {% for link in links %}
         {% if link.type == 'split' %}
             <li class="divider"></li>
