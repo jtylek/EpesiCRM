@@ -89,7 +89,7 @@
 
     <!-- -->
     <div id="content">
-        <div id="content_body" style="padding-top: 110px">
+        <div id="content_body">
             {$main}
         </div>
     </div>

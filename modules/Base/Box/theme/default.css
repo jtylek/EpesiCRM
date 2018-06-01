@@ -170,15 +170,13 @@ div.login > span > a > i {
 	color: black;
 }
 
-.nav-sm .container.body .col-md-3.left_col,
-.nav-md .container.body .col-md-3.left_col{
+body.nav-md .container.body .col-md-3.left_col{
 	position: fixed;
 	height: 100%;
 }
 
 .left_col.scroll-view {
 	width: 100%;
-	height: 100%;
 	overflow-y: scroll;
 	padding-top: 1rem;
 }
@@ -195,66 +193,10 @@ div.login > span > a > i {
 
 .nav_menu {
 	opacity: 0.96;
-	height: 58px;
+	height: 92px;
 	text-align: center;
 }
 .top-navigation {
-	margin-top: 0px;
+	margin-top: 15px;
 	display: block;
-}
-
-.search-bar {
-	background: #172D44;
-}
-
-#hidden-home-div {
-	display: none;
-	background: #172D44;
-	height: 56px;
-	z-index: 99;
-	cursor: pointer;
-}
-
-div#hidden-home-box:hover a > span {
-		color: white;
-	}
-
-#hidden-home-box {
-	height: 56px;
-	background: #172D44;
-	text-align: center;
-	font-size: 30px;
-	padding: 10px 0;
-}
-
-#hidden-home-gradient {
-	height: 9px;
-	width: 100%;
-	opacity: 0.5;
-	background: linear-gradient(black,transparent);
-}
-
-#left-gradient {
-	width: 6px;
-	background: linear-gradient(to right, black, transparent);
-	height: 100%;
-	position: fixed;
-	padding-left: 0;
-	margin-left: -20px;
-	z-index: 99;
-	margin-top: 47px;
-	opacity: 0.40;
-}
-
-div.sidebar-footer.hidden-small:hover {
-	/*background: #5d7286;*/
-	z-index: 999999;
-}
-
-div.sidebar-footer.hidden-small {
-	padding: 0;
-}
-
-body.nav-md .container.body .right_col {
-	background: #fbfbfb;
 }
