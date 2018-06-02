@@ -30,6 +30,23 @@
             </div>
         </li>
         <li class="divider"></li>
+        <li >
+            <a {{ contact.href |raw}}>
+                <span><i class="fa fa-user pull-right"></i><p> {{ contact.label }}</p></span>
+            </a>
+        </li>
+        <li>
+            <a {{ company.href |raw}}>
+                <span><i class="fa fa-building pull-right"></i><p> {{ company.label }}</p></span>
+            </a>
+        </li>
+        <li>
+            <a {{ settings.href |raw}}>
+                <span><i class="fa fa-cogs pull-right"></i><p> {{ settings.label }}</p></span>
+            </a>
+        </li>
+
+        <li class="divider"></li>
         <li>
             <div class="navbar-login navbar-login-session">
                 <div class="row">

@@ -48,20 +48,27 @@ class Base_User_Login extends Module {
 	public function indicator()
 	{
 		//todo-pj: Add profile link
-		$indicator = array(
-			'label' => Base_UserCommon::get_my_user_label(),
-			'login' => Base_UserCommon::get_my_user_login()
-		);
-
-
-		$logout = array(
-			'href' => $this->create_unique_href(array('logout'=>1)),
-			'text' => __('Logout')
-		);
-
-		return $this->twig_render('indicator.twig', array(
-				'indicator' => $indicator,
-				'logout' => $logout,
+        return $this->twig_render('indicator.twig', array(
+				'indicator' => array(
+					'label' => Base_UserCommon::get_my_user_label(),
+					'login' => Base_UserCommon::get_my_user_login()
+				),
+				'logout' => array(
+					'href' => $this->create_unique_href(array('logout'=>1)),
+					'text' => __('Logout')
+				),
+				'contact' => [
+					'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('my_contact')),
+					'label' => _('My Contact')
+				],
+                'company' => [
+                    'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('main_company')),
+                    'label' => _('Main Company')
+                ],
+                'settings' => [
+                    'href' => Base_BoxCommon::create_href($this,'Base_User_Settings'),
+                    'label' => _('User Settings')
+                ],
 			)
 		);
 
