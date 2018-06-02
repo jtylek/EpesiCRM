@@ -155,6 +155,13 @@ class Base_Box extends Module {
 		// Consider moving this code properly as initated module by *.ini file
 		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
 
+        if($this->get_unique_href_variable('logout')) {
+          Base_User_LoginCommon::logout();
+          eval_js('document.location=\'index.php\';',false);
+        }
+
+
+        $theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
         $theme->assign('version_no',$version_no);
         $theme->assign('indicator', $this->init_module(Base_User_Login::module_name())->indicator());
 

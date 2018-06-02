@@ -10,7 +10,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <div class="pull-left">{$menu}</div>
-                    <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" {$home.href}>
+                    <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
                         <span class="hidden-xs">
                                 {$home.label}
@@ -28,6 +28,9 @@
                   <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
                     {$watchdog}
                     <div class="pull-right">{$indicator}</div>
+                    <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
+                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                    </a>
                 </div>
                 <div class="panel-body">
                         <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
