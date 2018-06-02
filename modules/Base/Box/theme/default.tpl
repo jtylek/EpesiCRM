@@ -26,6 +26,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                   <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
+                    {$watchdog}
                     <div class="pull-right">{$indicator}</div>
                 </div>
                 <div class="panel-body">
