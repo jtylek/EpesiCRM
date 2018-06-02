@@ -39,11 +39,11 @@
 			{$contacts_close}
 </div>
 
-<div class="panel panel-default">
-	<div class="panel-heading">
+<div class="card ">
+	<div class="card-header">
 		{$saved_filters}
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		{foreach item=p key=k from=$filters}
 			{$p.open}
 			<div class="btn btn-default">

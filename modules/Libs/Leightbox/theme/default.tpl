@@ -2,9 +2,9 @@
 	load_js($this->get_template_vars('theme_dir').'/Libs/Leightbox/default.js');
 {/php}
 
-<div class="panel panel-default" style="margin-bottom: 0px;">
-	<div class="panel-heading">
-		<span class="panel-title">{if $header}{$header}{else}&nbsp;{/if}</span>
+<div class="card " style="margin-bottom: 0px;">
+	<div class="card-header">
+		<span class="card-title">{if $header}{$header}{else}&nbsp;{/if}</span>
 		<div class="pull-right action-buttons">
 			<a onClick="libs_leightbox_resize(this.parentNode.parentNode.parentNode.parentNode)" title="{$resize_label}">
 				<button class="btn btn-success btn-xs">
@@ -18,7 +18,7 @@
 			</a>
 		</div>
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		{$content}
 	</div>
 </div>

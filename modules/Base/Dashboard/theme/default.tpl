@@ -1,6 +1,6 @@
-<div class="panel panel-default">
-	<div class="handle panel-heading clearfix">
-		<span class="panel-title">{$caption}</span>
+<div class="card ">
+	<div class="handle card-header clearfix">
+		<span class="card-title">{$caption}</span>
 
 		{if !empty($actions)}
 			<div class="pull-left action-buttons">
@@ -36,7 +36,7 @@
 		</div>
 
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		{$content}
 	</div>
 </div>

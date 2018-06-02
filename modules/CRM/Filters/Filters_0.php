@@ -122,7 +122,7 @@ class CRM_Filters extends Module {
 			$gb_row->add_data($row['name'], $row['description'], implode(', ',$users));
 		}
 
-		print('<div class="panel panel-default"><div class="panel panel-body">');
+		print('<div class="card "><div class="card card-body">');
 		$this->display_module($gb);
 
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');

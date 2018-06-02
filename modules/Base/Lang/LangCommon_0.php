@@ -68,8 +68,8 @@ class Base_LangCommon extends ModuleCommon {
         $html = <<<HTML
 <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 clearfix">
 <a $href>
-    <div class="panel panel-default clearfix">
-        <div class="panel-heading" title="$label">
+    <div class="card  clearfix">
+        <div class="card-header" title="$label">
             {$label}
         </div>
         <img style="width: 100%" src="{$file}" alt="{$code}"/>

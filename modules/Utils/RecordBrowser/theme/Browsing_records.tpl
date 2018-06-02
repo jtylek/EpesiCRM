@@ -1,6 +1,6 @@
-<div class="panel panel-default">
+<div class="card ">
 	{if isset($caption)}
-		<div class="panel-heading clearfix">
+		<div class="card-header clearfix">
 			<i class="fa fa-{$icon} fa-2x pull-left" style="padding-top: 7px"></i>
             {*<img alt=" " class="icon pull-left" src="{$icon}" width="32" height="32" border="0">*}
 				<div class="pull-left form-inline" style="margin-top: 5px">
@@ -18,7 +18,7 @@
                 {/if}
 			</div>
 	{/if}
-	<div class="panel-body">
+	<div class="card-body">
         {if $filters.elements}
 		    <div>{$filters.elements}</div>
         {/if}

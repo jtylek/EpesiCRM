@@ -7,8 +7,8 @@
 
     <header class="row">
         <div class="col-lg-2 col-xs-12 col-sm-6">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
+            <div class="card ">
+                <div class="card-header clearfix">
                     <div class="pull-left">{$menu}</div>
                     <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
@@ -17,14 +17,14 @@
                         </span>
                     </button>
                 </div>
-                <div class="panel-body logo-container">
+                <div class="card-body logo-container">
                     {$logo}
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
+            <div class="card ">
+                <div class="card-header clearfix">
                   <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
                     {$watchdog}
                     <div class="pull-right">{$indicator}</div>
@@ -32,15 +32,15 @@
                         <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
                     </a>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                         <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
                 </div>
             </div>
         </div>
         <div class="col-lg-7 col-xs-12">
-            <div class="panel panel-default">
-                <div class="panel-heading vertical-align-middle">
+            <div class="card ">
+                <div class="card-header vertical-align-middle">
                     <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                     <div class="pull-right hidden-xs">
                       {if isset($donate)}
@@ -48,7 +48,7 @@
                       {/if}
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                   {$actionbar}
                 </div>
             </div>

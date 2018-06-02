@@ -23,8 +23,8 @@
 {/php}
 
 {if $main_page}
-<div class="panel panel-default">
-    <div class="panel-heading clearfix">
+<div class="card ">
+    <div class="card-header clearfix">
         <div class="pull-left">
             <img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span class="form-inline">{$caption}</span>
         </div>
@@ -52,7 +52,7 @@
             {/if}
         </div>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
 
     {if isset($click2fill)}
         {$click2fill}

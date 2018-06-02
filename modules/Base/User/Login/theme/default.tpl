@@ -8,8 +8,8 @@
 <div id="login-screen" class="container">
     <div class="clearfix visible-md-block visible-lg-block" style="margin-top: 50px"></div>
     <div class="row">
-        <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 panel panel-default">
-            <div class="panel-body">
+        <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 card ">
+            <div class="card-body">
                 <div class="logo img-responsive">{$logo}</div>
                 {if $banned}
                     <p class="alert alert-danger">{'You have exceeded the number of allowed login attempts.'|t}</p>
