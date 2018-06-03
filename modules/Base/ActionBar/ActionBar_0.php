@@ -90,52 +90,6 @@ class Base_ActionBar extends Module
             'close' => ''
         );
 
-        if (Base_AclCommon::is_user() && $opts = Base_Menu_QuickAccessCommon::get_options()) {
-            self::$launchpad = array();
-            foreach ($opts as $k => $v) {
-                if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
-                    $ii = array();
-                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
-                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
-                    $ii['description'] = $v['label'];
-                    $arr = $v['link'];
-                    if (isset($arr['__url__']))
-                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" onClick="actionbar_launchpad_deactivate()">';
-                    else {
-                        $ii['open'] = '<a onClick="actionbar_launchpad_deactivate();' . Base_MenuCommon::create_href_js($this, $arr) . '" href="javascript:void(0)">';
-                    }
-                    $ii['close'] = '</a>';
-
-                    $icon = null;
-                    $icon_url = null;
-                    if (isset($v['link']['__icon__'])) {
-                        if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
-                            $icon = $v['link']['__icon__'];
-                        else
-                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
-                    } else
-                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
-                    if (!$icon && !$icon_url) $icon_url = 'cog';
-                    $ii['icon'] = $icon;
-                    $ii['icon_url'] = $icon_url;
-
-                    self::$launchpad[] = $ii;
-                }
-            }
-            usort(self::$launchpad, array($this, 'compare_launcher'));
-            if (!empty(self::$launchpad)) {
-                $th = $this->pack_module(Base_Theme::module_name());
-                usort(self::$launchpad, array($this, 'compare_launcher'));
-                $th->assign('icons', self::$launchpad);
-                eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
-                ob_start();
-                $th->display('launchpad');
-                $lp_out = ob_get_clean();
-                $big = count(self::$launchpad) > 10;
-                Libs_LeightboxCommon::display('actionbar_launchpad', $lp_out, __('Launchpad'), $big);
-                array_unshift($launcher_left, array('label' => __('Launchpad'), 'description' => 'Quick modules launcher', 'open' => '<a ' . Libs_LeightboxCommon::get_open_href('actionbar_launchpad') . '>', 'close' => '</a>', 'icon' => 'th-large'));
-            }
-        }
 
 	if(!isset($_SESSION['client']['__history_id__'])){
 	    History::set();
@@ -211,6 +165,60 @@ class Base_ActionBar extends Module
         }, $items);
         return $this->twig_render('quickaccess.twig', ['items' => $items]);
 
+    }
+
+    public function launchpad()
+    {
+        if (Base_AclCommon::is_user() && $opts = Base_Menu_QuickAccessCommon::get_options()) {
+            self::$launchpad = array();
+            foreach ($opts as $k => $v) {
+                if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
+                    $ii = array();
+                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
+                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
+                    $ii['description'] = $v['label'];
+                    $arr = $v['link'];
+                    if (isset($arr['__url__']))
+                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" onClick="actionbar_launchpad_deactivate()">';
+                    else {
+                        $ii['open'] = '<a onClick="actionbar_launchpad_deactivate();' . Base_MenuCommon::create_href_js($this, $arr) . '" href="javascript:void(0)">';
+                    }
+                    $ii['close'] = '</a>';
+
+                    $icon = null;
+                    $icon_url = null;
+                    if (isset($v['link']['__icon__'])) {
+                        if (array_key_exists('fa-' . $v['link']['__icon__'], FontAwesome::get()))
+                            $icon = $v['link']['__icon__'];
+                        else
+                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
+                    } else
+                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
+                    if (!$icon && !$icon_url) $icon_url = 'cog';
+                    $ii['icon'] = $icon;
+                    $ii['icon_url'] = $icon_url;
+
+                    self::$launchpad[] = $ii;
+                }
+            }
+            usort(self::$launchpad, array($this, 'compare_launcher'));
+            if (!empty(self::$launchpad)) {
+                $th = $this->pack_module(Base_Theme::module_name());
+                usort(self::$launchpad, array($this, 'compare_launcher'));
+                $th->assign('icons', self::$launchpad);
+                eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
+                ob_start();
+                $th->display('launchpad');
+                $lp_out = ob_get_clean();
+                $big = count(self::$launchpad) > 10;
+                Libs_LeightboxCommon::display('actionbar_launchpad', $lp_out, __('Launchpad'), $big);
+                return Libs_LeightboxCommon::get_open_href('actionbar_launchpad');
+
+                array_unshift($launcher_left, array('label' => __('Launchpad'), 'description' => 'Quick modules launcher', 'open' => '<a ' . Libs_LeightboxCommon::get_open_href('actionbar_launchpad') . '>', 'close' => '</a>', 'icon' => 'th-large'));
+            }
+
+            return null;
+        }
     }
 
 }

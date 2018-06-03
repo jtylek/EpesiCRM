@@ -17,6 +17,11 @@
                             {$donate}
                         {/if}
                     </div>
+                    <div class="nav-item d-none d-md-flex">
+                        <a {$launchpad_href} title="{'Launchpad'|t}" class="nav-link icon">
+                            <i class="fa fa-th"></i>
+                        </a>
+                    </div>
                     {$watchdog}
                     {$quickaccess}
                     {$filter}

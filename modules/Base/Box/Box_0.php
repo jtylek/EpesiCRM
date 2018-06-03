@@ -166,6 +166,7 @@ class Base_Box extends Module {
         $theme->assign('watchdog', $this->init_module(Utils_Watchdog::module_name())->indicator());
         $theme->assign('filter', $this->init_module(CRM_Filters::module_name())->button());
         $theme->assign('quickaccess', $this->init_module(Base_ActionBar::module_name())->quickaccess());
+        $theme->assign('launchpad_href', $this->init_module(Base_ActionBar::module_name())->launchpad());
 
 
         $theme->assign('help',Base_MainModuleIndicatorCommon::get_href());
