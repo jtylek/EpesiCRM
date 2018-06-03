@@ -11,6 +11,7 @@
                     {$logo}
                 <div class="nav-item d-none d-md-flex"><a class="btn btn-sm btn-secondary" title="{$home.label|escape:html|escape:quotes}" {$home.href}><i class="fa fa-home"></i> {$home.label}</a></div>
                 <div class="nav-item d-none d-md-flex"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></div>
+                <div class="nav-item d-none d-md-flex">{$actionbar}</div>
                 <div class="d-flex order-lg-2 ml-auto">
                     <div class="nav-item d-none d-md-flex">
                         {if isset($donate)}
@@ -44,23 +45,6 @@
         </div>
     </header>
 
-
-
-    <header class="row">
-        <div class="col-lg-2 col-xs-12 col-sm-6">
-        </div>
-        <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
-        </div>
-        <div class="col-lg-7 col-xs-12">
-            <div class="card ">
-                <div class="card-header vertical-align-middle">
-                </div>
-                <div class="card-body">
-                  {$actionbar}
-                </div>
-            </div>
-        </div>
-    </header>
     <!-- -->
     <div id="content">
         <div id="content_body" style="top: 50px;">
