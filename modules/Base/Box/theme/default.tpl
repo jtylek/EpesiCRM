@@ -10,6 +10,7 @@
             <div class="d-flex">
                     {$logo}
                 <div class="nav-item d-none d-md-flex"><a class="btn btn-sm btn-secondary" title="{$home.label|escape:html|escape:quotes}" {$home.href}><i class="fa fa-home"></i> {$home.label}</a></div>
+                <div class="nav-item d-none d-md-flex"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></div>
                 <div class="d-flex order-lg-2 ml-auto">
                     <div class="nav-item d-none d-md-flex">
                         {if isset($donate)}
