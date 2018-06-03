@@ -9,6 +9,7 @@
         <div class="container-fluid">
             <div class="d-flex">
                     {$logo}
+                <div class="nav-item d-none d-md-flex"><a class="btn btn-sm btn-secondary" title="{$home.label|escape:html|escape:quotes}" {$home.href}><i class="fa fa-home"></i> {$home.label}</a></div>
                 <div class="d-flex order-lg-2 ml-auto">
                     <div class="nav-item d-none d-md-flex">
                         {if isset($donate)}
@@ -36,16 +37,6 @@
 
     <header class="row">
         <div class="col-lg-2 col-xs-12 col-sm-6">
-            <div class="card ">
-                <div class="card-header clearfix">
-                    <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                        <span class="hidden-xs">
-                                {$home.label}
-                        </span>
-                    </button>
-                </div>
-            </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
             <div class="card ">
