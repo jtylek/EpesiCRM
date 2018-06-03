@@ -10,6 +10,11 @@
             <div class="d-flex">
                     {$logo}
                 <div class="d-flex order-lg-2 ml-auto">
+                    <div class="nav-item d-none d-md-flex">
+                        {if isset($donate)}
+                            {$donate}
+                        {/if}
+                    </div>
                     {$watchdog}
                     {$indicator}
                 </div>
@@ -51,11 +56,6 @@
             <div class="card ">
                 <div class="card-header vertical-align-middle">
                     <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
-                    <div class="pull-right hidden-xs">
-                      {if isset($donate)}
-                        {$donate}
-                      {/if}
-                    </div>
                 </div>
                 <div class="card-body">
                   {$actionbar}
