@@ -5,6 +5,21 @@
     </div>
 {else}
 
+    <header class="header py-4">
+        <div class="container-fluid">
+            <div class="d-flex">
+                    {$logo}
+                <div class="d-flex order-lg-2 ml-auto">
+                    {$indicator}
+
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+
+
     <header class="row">
         <div class="col-lg-2 col-xs-12 col-sm-6">
             <div class="card ">
@@ -17,17 +32,12 @@
                         </span>
                     </button>
                 </div>
-                <div class="card-body logo-container">
-                    {$logo}
-                </div>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
             <div class="card ">
                 <div class="card-header clearfix">
-                  <div class="pull-left"><a {$help} class="btn btn-info">?</a></div>
                     {$watchdog}
-                    <div class="pull-right">{$indicator}</div>
                     <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
                         <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
                     </a>

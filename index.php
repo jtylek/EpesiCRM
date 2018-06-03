@@ -209,8 +209,8 @@ ob_start();
 	</head>
 	<body class="<?php if (DIRECTION_RTL) print(' epesi_rtl'); ?>" >
 
-		<div id="body_content" class="container-fluid">
-			<div id="main_content" class="main_container" style="display:none;"></div>
+		<div id="body_content" class="page">
+			<div id="main_content" class="page-main" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
 				<div class="button" onclick="jq('#error_box').html('');jq('#debug_content').hide();">Hide</div>
 				<div id="debug"></div>

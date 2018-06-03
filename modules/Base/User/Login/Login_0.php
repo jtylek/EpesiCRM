@@ -50,7 +50,7 @@ class Base_User_Login extends Module {
 		//todo-pj: Add profile link
         return $this->twig_render('indicator.twig', array(
 				'indicator' => array(
-					'label' => Base_UserCommon::get_my_user_label(),
+					'label' => Base_UserCommon::get_my_user_label(1),
 					'login' => Base_UserCommon::get_my_user_login()
 				),
 				'logout' => array(
@@ -69,6 +69,10 @@ class Base_User_Login extends Module {
                     'href' => Base_BoxCommon::create_href($this,'Base_User_Settings'),
                     'label' => _('User Settings')
                 ],
+				'help' => [
+					'href' => Base_MainModuleIndicatorCommon::get_href(),
+					'label' => _('Help')
+				]
 			)
 		);
 
