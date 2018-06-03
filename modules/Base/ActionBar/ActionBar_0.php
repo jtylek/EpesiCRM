@@ -90,43 +90,9 @@ class Base_ActionBar extends Module
             'close' => ''
         );
 
-        $launcher_right = [];
         if (Base_AclCommon::is_user() && $opts = Base_Menu_QuickAccessCommon::get_options()) {
             self::$launchpad = array();
             foreach ($opts as $k => $v) {
-                if (Base_ActionBarCommon::$quick_access_shortcuts
-                    && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_d')
-                ) {
-                    $ii = array();
-                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
-                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
-                    $ii['description'] = $v['label'];
-                    $arr = $v['link'];
-                    $icon = null;
-                    $icon_url = null;
-                    if (isset($v['link']['__icon__'])) {
-                        if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
-                            $icon = $v['link']['__icon__'];
-                        else
-                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
-                    } else
-                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
-                    if (!$icon && !$icon_url) $icon_url = 'cog';
-                    $ii['icon'] = $icon;
-                    $ii['icon_url'] = $icon_url;
-
-                    if (isset($arr['__url__']))
-                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
-                    else
-                        $ii['open'] = '<a ' . Base_MenuCommon::create_href($this, $arr) . ' class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
-                    $ii['close'] = '</a>';
-
-                    if ($ii['label'] == 'Launchpad') {
-                        $launcher_left[] = $ii;
-                    } else {
-                        $launcher_right[] = $ii;
-                    }
-                }
                 if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
                     $ii = array();
                     $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
@@ -220,9 +186,31 @@ class Base_ActionBar extends Module
         //display
         $th = $this->pack_module(Base_Theme::module_name());
         $th->assign('icons', $icons);
-        $th->assign('launcher_right', array_reverse($launcher_right));
         $th->assign('launcher_left', array_reverse($launcher_left));
         $th->display();
+    }
+
+
+    public function quickaccess()
+    {
+        if(!Base_AclCommon::is_user()) {
+            return [];
+        }
+
+        $items = array_filter(Base_Menu_QuickAccessCommon::get_options(), function($item) {
+            return Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $item['name'] . '_d');
+        });
+
+        $items = array_map(function($item) {
+            return [
+                'href' => Base_MenuCommon::create_href($this, $item['link']),
+                'icon' => (array_key_exists('fa-' . $item['link']['__icon__'], FontAwesome::get())) ? $item['link']['__icon__'] : null,
+                'label' => trim(substr(strrchr($item['label'], ':'), 1))?:$item['label'],
+                'description' => $item['label']
+            ];
+        }, $items);
+        return $this->twig_render('quickaccess.twig', ['items' => $items]);
+
     }
 
 }

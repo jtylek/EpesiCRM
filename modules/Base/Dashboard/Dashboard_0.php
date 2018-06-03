@@ -27,7 +27,6 @@ class Base_Dashboard extends Module {
 			if(Utils_RecordBrowserCommon::check_for_jump()) return;
 
 		$this->dashboard();
-        Base_ActionBarCommon::show_quick_access_shortcuts(true);
 	}
 
 	private function dashboard() {

@@ -18,6 +18,7 @@
                         {/if}
                     </div>
                     {$watchdog}
+                    {$quickaccess}
                     {$filter}
                     {$indicator}
                 </div>

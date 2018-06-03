@@ -27,19 +27,6 @@
     {/foreach}
 </div>
 
-<div class="pull-right">
-        {foreach item=i from=$launcher_right}
-    {$i.open}
-    <div class="btn btn-default">
-      {if $i.icon_url}
-          <img src="{$i.icon_url}" style="height:3em">
-      {else}
-          <i class="fa fa-{$i.icon} fa-3x"></i>
-      {/if}
-      <div>{$i.label}</div>
-    </div>
-    {$i.close}
-{/foreach}
-</div>
+
 </div>
 

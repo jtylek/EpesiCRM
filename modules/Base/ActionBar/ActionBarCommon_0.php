@@ -92,9 +92,6 @@ class Base_ActionBarCommon extends ModuleCommon {
 		self::$icons = array();
 	}
     
-    public static function show_quick_access_shortcuts($value = true) {
-        self::$quick_access_shortcuts = $value;
-    }
 }
 on_exit(array('Base_ActionBarCommon','clean'));
 ?>
