@@ -46,8 +46,8 @@
     </header>
 
     <!-- -->
-    <div id="content">
-        <div id="content_body" style="top: 50px;">
+    <div id="content" class="my-3 my-md-5">
+        <div id="content_body" class="container-fluid">
             {$main}
         </div>
     </div>
