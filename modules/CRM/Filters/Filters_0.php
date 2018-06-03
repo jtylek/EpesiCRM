@@ -81,6 +81,13 @@ class CRM_Filters extends Module {
 		$t->display('button');
 	}
 
+    public function button()
+    {
+        ob_start();
+        $this->body();
+        return ob_get_clean();
+	}
+
 	public function manage_filters() {
 		Base_BoxCommon::push_module($this->get_type(),'edit', array(false));
 	}

@@ -18,6 +18,7 @@
                         {/if}
                     </div>
                     {$watchdog}
+                    {$filter}
                     {$indicator}
                 </div>
 
@@ -43,11 +44,6 @@
         <div class="col-lg-2 col-xs-12 col-sm-6">
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
-            <div class="card ">
-                <div class="card-body">
-                        <div class="filter" id="filter_box">{$filter}</div>
-                </div>
-            </div>
         </div>
         <div class="col-lg-7 col-xs-12">
             <div class="card ">
