@@ -27,6 +27,9 @@
     <header class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
         <div class="container-fluid">
             <div class="row align-items-center">
+                <div class="col-lg-2 ml-auto">
+                    {$search}
+                </div>
                 <div class="col-lg order-lg-first">
                     {$menu}
                 </div>
@@ -47,7 +50,6 @@
                     </a>
                 </div>
                 <div class="card-body">
-                        <div class="search" id="search_box" style="margin-bottom: 8px;">{$search}</div>
                         <div class="filter" id="filter_box">{$filter}</div>
                 </div>
             </div>

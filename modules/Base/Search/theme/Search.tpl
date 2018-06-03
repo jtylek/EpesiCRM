@@ -5,10 +5,16 @@
     <!-- Display the fields -->
 		<div class="input-group" id="search_panel">
 			{$form_data.quick_search.html}
-			<span class="input-group-btn">
-				<button class="btn btn-success" type="button" {$submit_href}><span class="hidden-xs">{$submit_label}&nbsp;</span><i class="glyphicon glyphicon-search"></i></button>
-			</span>
+			<span class="input-group-append">
+                              <button class="btn btn-success" type="button" {$submit_href}><span class="hidden-xs">{$submit_label}&nbsp;</span><i class="fa fa-search"></i></button>
+                            </span>
 		</div>
+		{*<div class="input-group" >*}
+			{*{$form_data.quick_search.html}*}
+			{*<span class="input-group-btn">*}
+				{*<button class="btn btn-success" type="button" {$submit_href}><span class="hidden-xs">{$submit_label}&nbsp;</span><i class="fa fa-search"></i></button>*}
+			{*</span>*}
+		{*</div>*}
 	</form>
 {else}
 	{$form_data.javascript}
