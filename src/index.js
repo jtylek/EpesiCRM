@@ -1,7 +1,7 @@
 import 'jquery';
 
 import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'tabler-ui/src/assets/css/dashboard.css';
 
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/sortable';
