@@ -52,7 +52,6 @@
         <div class="col-lg-7 col-xs-12">
             <div class="card ">
                 <div class="card-header vertical-align-middle">
-                    <div id="module-indicator" class="pull-left">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
                 </div>
                 <div class="card-body">
                   {$actionbar}
