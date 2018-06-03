@@ -1,0 +1,19 @@
+<div class="dropdown d-none d-md-flex">
+    <a class="nav-link icon" data-toggle="dropdown">
+        <i class="fe fe-bell"></i>
+        {% if unread %}<span class="nav-unread"></span> {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+        {% for event in events %}
+            <a {{ event.view_href | raw }} class="dropdown-item d-flex">
+                <span class="mr-3 align-self-center"><span class="fa fa-{{ event.icon|default('home') }} fa-2x"></span></span>
+                <div>
+                    <strong>{{ event.category }}</strong> {{ event.title }}
+                    <div class="small text-muted">{{ event.time }}</div>
+                </div>
+            </a>
+        {% endfor %}
+        <div class="dropdown-divider"></div>
+        <a {{ href|raw }}class="dropdown-item text-center text-muted-dark">{{ status }}</a>
+    </div>
+</div>

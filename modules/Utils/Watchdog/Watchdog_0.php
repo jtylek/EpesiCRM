@@ -71,12 +71,13 @@ class Utils_Watchdog extends Module {
 			if ($records_limit && $count >= $records_limit) break;
 		}
 		$records_qty = count($records);
-		$theme = $this->pack_module(Base_Theme::module_name());
-		$theme->assign('events',$ret);
-		$theme->assign('href',Base_BoxCommon::create_href($this,'Utils_Watchdog'));
-		$theme->assign('status',__('Displaying %s of %s records', array($count, $records_qty)).(($records_limit && $count < $records_qty)?'<br />'.__('All'):''));
-		$theme->assign('records_qty',$records_qty);
-		$theme->display();
+
+		return $this->twig_render('indicator.twig', [
+			'events' => $ret,
+			'href' => Base_BoxCommon::create_href($this,'Utils_Watchdog'),
+			'status' => __('Displaying %s of %s records', array($count, $records_qty)).(($records_limit && $count < $records_qty)?'<br />'.__('All'):''),
+			'unread' => $records_qty > 0
+		]);
 	}
 
 	public function purge_subscriptions_applet($cat_ids) {
