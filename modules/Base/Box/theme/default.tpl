@@ -22,6 +22,15 @@
             </div>
         </div>
     </header>
+    <header class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg order-lg-first">
+                    {$menu}
+                </div>
+            </div>
+        </div>
+    </header>
 
 
 
@@ -29,7 +38,6 @@
         <div class="col-lg-2 col-xs-12 col-sm-6">
             <div class="card ">
                 <div class="card-header clearfix">
-                    <div class="pull-left">{$menu}</div>
                     <button class="btn btn-default pull-right" style="overflow: hidden;text-overflow: ellipsis;" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
                         <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
                         <span class="hidden-xs">
