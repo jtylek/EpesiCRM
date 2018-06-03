@@ -81,15 +81,6 @@ class Base_ActionBar extends Module
 
         $launcher_left = [];
 
-        $launcher_left[] = array(
-            'label' => __('Watchdog'),
-            'description' => __('Watch your notifications'),
-            'icon' => 'bell',
-            'icon_url' => null,
-            'open' => '',
-            'close' => ''
-        );
-
 
 	if(!isset($_SESSION['client']['__history_id__'])){
 	    History::set();
@@ -117,25 +108,6 @@ class Base_ActionBar extends Module
             History::back();
         }
 
-        $watchdog_value = '';
-        $launchpad_value = '';
-
-        foreach ($launcher_left as $key => $value){
-            if($value['label'] == 'Watchdog'){
-                $watchdog_value = $value;
-            }
-            if($value['label'] == 'Launchpad'){
-                $launchpad_value = $value;
-            }
-        }
-
-        if(is_array($watchdog_value)) {
-            $launcher_left['0'] = $watchdog_value;
-        }
-        if(is_array($launchpad_value)) {
-            $launcher_left['1'] = $launchpad_value;
-        }
-        unset($launchpad_value,$watchdog_value);
 
         //display
         $th = $this->pack_module(Base_Theme::module_name());
