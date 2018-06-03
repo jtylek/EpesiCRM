@@ -161,7 +161,6 @@ class Base_Box extends Module {
         }
 
 
-        $theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
         $theme->assign('version_no',$version_no);
         $theme->assign('indicator', $this->init_module(Base_User_Login::module_name())->indicator());
         $theme->assign('watchdog', $this->init_module(Utils_Watchdog::module_name())->indicator());

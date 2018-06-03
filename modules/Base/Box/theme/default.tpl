@@ -44,11 +44,6 @@
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12 pull-right">
             <div class="card ">
-                <div class="card-header clearfix">
-                    <a data-toggle="tooltip" data-placement="bottom" title="Settings" {$settings_href}>
-                        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                    </a>
-                </div>
                 <div class="card-body">
                         <div class="filter" id="filter_box">{$filter}</div>
                 </div>
