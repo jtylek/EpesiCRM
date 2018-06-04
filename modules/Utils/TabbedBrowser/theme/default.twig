@@ -1,14 +1,15 @@
-<div>
-    <ul class="nav nav-tabs">
-        {% for tab in captions %}
-            <li role="presentation" {% if tab.selected %}class="active"{% endif %}>
-                <a id="{{ tab.id }}" {{ tab.parent |raw }} {{ tab.href | raw }}>{{ tab.caption | raw}}</a>
-            </li>
-        {% endfor %}
-    </ul>
-    <div class="card ">
-        <div class="card card-body">
-            {{ body | raw }}
-        </div>
+<div class="card text-center">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            {% for tab in captions %}
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if tab.selected %}active{% endif %}"
+                       id="{{ tab.id }}" {{ tab.parent |raw }} {{ tab.href | raw }}>{{ tab.caption | raw }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="card-body">
+        {{ body | raw }}
     </div>
 </div>
