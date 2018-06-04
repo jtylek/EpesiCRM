@@ -964,30 +964,29 @@ class Utils_GenericBrowser extends Module {
 				else $column_no = count($this->columns);
 				$col[$column_no]['attrs'] = '';
 				if (!empty($this->actions[$i])) {
-					$fa_icons = FontAwesome::get();
-					uasort($this->actions[$i], array($this, 'sort_actions'));
-					$actions = '<div class="btn-group">'.
-  '<button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 65px">'.
-    '<span class="glyphicon glyphicon-option-vertical"></span></button><div class="dropdown-menu-container"><ul class="dropdown-menu" style="padding: 5px 0" id="menu-icons">';
-					foreach ($this->actions[$i] as $icon => $arr) {
-						$actions .= '<div style="padding: 3px;" <li><a ' . Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null) . ' ' . $arr['tag_attrs'] . ' style="padding: 5px">';
-						if(array_key_exists('fa-'.$icon,$fa_icons)) {
-							$actions .= "<i class='fa fa-$icon fa-lg fa-fw text-info' style='margin-right: 5px'></i>";
-						} elseif ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
-							$ico = $this->font_awesome_translate[$icon];
-							$actions .= "<i class='fa fa-$ico fa-lg fa-fw text-info' style='margin-right: 5px'></i>";
-						} elseif (file_exists($icon)) {
-							$actions .= '<img class="action_button" src="' . $icon . '" border="0" style="margin-right: 1rem">';
-						} else {
-							$actions .= $arr['label'];
-						}
-						$actions .= $arr['label'].'</a></li></div>';
-					}
-					$actions .= '</ul></div></div>';
+                    uasort($this->actions[$i], array($this, 'sort_actions'));
+
+					$actions_data = array_map(function($icon, $arr) {
+                        if(array_key_exists('fa-'.$icon, FontAwesome::get())) {
+                        } elseif (array_key_exists($icon,$this->font_awesome_translate)) {
+                            $icon = $this->font_awesome_translate[$icon];
+                        } else {
+                            //FIXME: Add warning about invalid icon
+                        }
+
+                        return [
+                            'tooltip' => Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] !== null ? $arr['tooltip'] : $arr['label'], $arr['tooltip'] === null),
+                            'attrs' => $arr['tag_attrs'],
+                            'label' => $arr['label'],
+                            'icon' => $icon
+                        ];
+                    }, array_keys($this->actions[$i]), array_values($this->actions[$i]));
+
+					$actions = $this->twig_render('actions.twig', ['actions' => $actions_data]);
 					$col[$column_no]['label'] = $actions;
 					$col[$column_no]['attrs'] .= ' class="Utils_GenericBrowser__actions Utils_GenericBrowser__td"';
 				} else {
-					$col[$column_no]['label'] = '&nbsp;';
+					$col[$column_no]['label'] = '';
 					$col[$column_no]['attrs'] .= 'nowrap="nowrap"' . ' class="Utils_GenericBrowser__td"';
 				}
 				if (isset($this->no_actions[$i]))

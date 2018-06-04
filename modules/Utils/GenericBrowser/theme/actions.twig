@@ -1,0 +1,12 @@
+<div class="item-action dropdown">
+    <a href="javascript:void(0)" data-toggle="dropdown" class="icon" aria-expanded="false"><i
+                class="fe fe-more-vertical"></i></a>
+    <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end"
+         style="position: absolute; transform: translate3d(-181px, 20px, 0px); top: 0px; left: 0px; will-change: transform;">
+        {% for action in actions %}
+            <a {{ action.tooltip | raw }} {{ action.attrs | raw }} class="dropdown-item">
+                <i class="dropdown-icon fa fa-{{ action.icon }}"></i> {{ action.label }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
