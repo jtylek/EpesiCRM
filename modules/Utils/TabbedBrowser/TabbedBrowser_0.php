@@ -109,6 +109,7 @@ class Utils_TabbedBrowser extends Module {
 		$options['captions_submenus'] = $captions_subs;
 		$options['body'] = $body;
         $this->twig_display('default.twig', $options);
+        load_css('modules/Utils/TabbedBrowser/theme/default.css');
 	}
 	
 	private function display_contents($val, $i, $selected) {
