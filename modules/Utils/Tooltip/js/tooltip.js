@@ -6,7 +6,7 @@ Utils_Tooltip = {
                 html: true,
                 trigger: "hover focus",
                 title: Utils_Tooltip.load_title, // use method to load title from attribute or ajax call
-                placement: "auto bottom",
+                placement: "auto",
                 container: "body" // attach to body to avoid issues with width
             })
             // remove all tooltips before showing next one
