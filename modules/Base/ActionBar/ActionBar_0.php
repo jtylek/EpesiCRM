@@ -130,7 +130,7 @@ class Base_ActionBar extends Module
         $items = array_map(function($item) {
             return [
                 'href' => Base_MenuCommon::create_href($this, $item['link']),
-                'icon' => (array_key_exists('fa-' . $item['link']['__icon__'], FontAwesome::get())) ? $item['link']['__icon__'] : null,
+                'icon' => isset($item['link']['__icon__']) ? (array_key_exists('fa-' . $item['link']['__icon__'], FontAwesome::get())) ? $item['link']['__icon__'] : null : null,
                 'label' => trim(substr(strrchr($item['label'], ':'), 1))?:$item['label'],
                 'description' => $item['label']
             ];
