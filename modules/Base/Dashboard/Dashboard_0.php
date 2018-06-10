@@ -16,7 +16,6 @@ class Base_Dashboard extends Module {
 
 	public function construct() {
 		$this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
-        on_init(array('Base_ActionBarCommon', 'show_quick_access_shortcuts'), array(false));
 	}
 
 	public function body() {
