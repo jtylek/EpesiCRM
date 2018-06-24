@@ -1,0 +1,28 @@
+<div class="dropdown">
+    <a href="#" class="nav-link pr-0 leading-none" data-toggle="dropdown">
+        <span class="avatar"></span>
+        {#<span class="avatar" style="background-image: url(./demo/faces/female/25.jpg)"></span>#}
+        <span class="ml-2 d-none d-lg-block">
+                      <span class="text-default">{{ indicator.label | raw}}</span>
+                      <small class="text-muted d-block mt-1">{{ indicator.login }}</small>
+                    </span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+        <a class="dropdown-item" {{ contact.href |raw}}>
+            <i class="dropdown-icon fe fe-user"></i> {{ contact.label }}
+        </a>
+        <a class="dropdown-item" {{ company.href |raw}}>
+            <i class="dropdown-icon fa fa-building"></i> {{ company.label }}
+        </a>
+        <a class="dropdown-item" {{ settings.href |raw}}>
+            <i class="dropdown-icon fa fa-cog"></i> {{ settings.label }}
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" {{ help.href |raw}}>
+            <i class="dropdown-icon fe fe-help-circle"></i> {{ help.label |raw}}
+        </a>
+        <a class="dropdown-item" {{ logout.href | raw }}>
+            <i class="dropdown-icon fe fe-log-out"></i> {{ logout.text }}
+        </a>
+    </div>
+</div>

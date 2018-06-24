@@ -42,11 +42,26 @@ foreach($arr as $row) {
 	$color = $color[$row['base_user_login_id'] % 6];
 
     $html = <<<HTML
-	<div class="bs-callout bs-callout-$color">
-		<h4>$user_label<span class="label label-default pull-right">$time</span></h4>
-    	<span class="shoutbox_textbox"style="color:$fcolor;">$message</span>
-    </div>
+        <li class="list-group-item py-5">
+            <div class="media">
+                <!--<div class="media-object avatar avatar-md mr-4" style="background-image: url(demo/faces/male/16.jpg)"></div>-->
+                <div class="media-body">
+                    <div class="media-heading">
+                        <small class="float-right text-muted">$time</small>
+                        <h5>$user_label</h5>
+                    </div>
+                    <div>
+                        $message
+                    </div>
+                </div>
+            </div>
+        </li>
 HTML;
+
+//    <div class="bs-callout bs-callout-$color">
+//		<h4>$user_label<span class="label label-default pull-right">$time</span></h4>
+//    	<span class="shoutbox_textbox"style="color:$fcolor;">$message</span>
+//    </div>
 
     print($html);
 }

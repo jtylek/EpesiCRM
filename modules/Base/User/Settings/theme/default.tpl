@@ -1,6 +1,6 @@
-<div id="Base_User_Settings" class="panel panel-default">
-    <div class="panel-heading">{$header}</div>
-    <div class="panel-body btn-toolbar">
+<div id="Base_User_Settings" class="card ">
+    <div class="card-header">{$header}</div>
+    <div class="card-body btn-toolbar">
         {foreach key=key item=button from=$buttons}
             <div class="btn btn-default col-xs-4 col-sm-3 col-md-2 col-lg-1">
                 {$__link.buttons.$key.link.open}

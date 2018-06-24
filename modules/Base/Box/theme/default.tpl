@@ -4,87 +4,81 @@
         <div class="entry">{$login}</div>
     </div>
 {else}
-    <div class="col-md-3 left_col">
 
-        <div id="hidden-home-div" data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-            <div id="hidden-home-box">
-                <a id="home-glyph-a" >
-                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                </a>
-            </div>
-            <div id="hidden-home-gradient"></div>
-        </div>
-
-        <div id="login-div" class="navbar nav_title" style="border: 0">
-            <a id="login-box" style="width: 75%; max-height: 57px">
-                {$login}
-            </a>
-            <a id="home-glyph-a" data-toggle="tooltip" data-placement="bottom" title="{$home.label|escape:html|escape:quotes}" {$home.href}>
-                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-            </a>
-        </div>
-
-        <div class="search-bar">
-            {$search}
-        </div>
-
-        <div class="left_col scroll-view" id="leftside-menu">
-            <br/>
-            <!-- sidebar menu -->
-            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-                {$menu}
-            </div>
-        </div>
-
-        <div class="sidebar-footer hidden-small" data-toggle="tooltip" data-placement="top" title="Soft-refresh">
-            {$logo}
-        </div>
-    </div>
-
-
-    <!-- top navigation -->
-    <div class="top_nav navbar-fixed-top">
-
-        <div class="nav_menu" style="padding-top: 0; margin-top: 0">
-            <nav class="top-navigation">
-                <div class="nav toggle">
-                    <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+    <header class="header py-4">
+        <div class="container-fluid">
+            <div class="d-flex">
+                {$logo}
+                <div class="nav-item d-none d-md-flex"><a class="btn btn-sm btn-secondary" title="{$home.label|escape:html|escape:quotes}" {$home.href}><i class="fa fa-home"></i> {$home.label}</a></div>
+                <div class="nav-item d-none d-md-flex"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></div>
+                <div class="nav-item d-none d-md-flex">{$actionbar}</div>
+                <div class="d-flex order-lg-2 ml-auto">
+                    <div class="nav-item d-none d-md-flex">
+                        {if isset($donate)}
+                            {$donate}
+                        {/if}
+                    </div>
+                    <div class="nav-item d-none d-md-flex">
+                        <a {$launchpad_href} title="{'Launchpad'|t}" class="nav-link icon">
+                            <i class="fa fa-th"></i>
+                        </a>
+                    </div>
+                    {$watchdog}
+                    {$quickaccess}
+                    {$filter}
+                    {$indicator}
                 </div>
 
-                <ul class="nav navbar-nav navbar-right">
-
-                </ul>
-
-                {$actionbar}
-
-            </nav>
-        </div>
-    </div>
-    <!-- /top navigation -->
-
-
-    <div class="right_col" role="main">
-        <div id="left-gradient" style=""> </div>
-        <!-- -->
-        <div id="content">
-            <div id="content_body" style="padding-top: 70px">
-                {$main}
             </div>
         </div>
+    </header>
+    <header class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-lg-2 ml-auto">
+                    {$search}
+                </div>
+                <div class="col-lg order-lg-first">
+                    {$menu}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- -->
+    <div id="content" class="my-3 my-md-5">
+        <div id="content_body" class="container-fluid">
+            {$main}
+        </div>
     </div>
 
-    {*<footer>*}
-        {*<div class="pull-left">*}
-            {*<a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>*}
-        {*</div>*}
-        {*<div class="pull-right">*}
-            {*<span style="float: right">{$version_no}</span>*}
-            {*{if isset($donate)}*}
-                {*<span style="float: right; margin-right: 30px">{$donate}</span>*}
-            {*{/if}*}
-        {*</div>*}
-        {*<div class="clearfix"></div>*}
-    {*</footer>*}
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row align-items-center flex-row-reverse">
+                <div class="col-auto ml-lg-auto">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <ul class="list-inline list-inline-dots mb-0">
+                                <li class="list-inline-item"><a href="https://forum.epesibim.com/">Forum</a></li>
+                                <li class="list-inline-item"><a href="http://epe.si/support/">Support</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-auto">
+                            {if isset($donate)}
+                                <span style="float: right; margin-right: 30px">{$donate}</span>
+                            {/if}
+                        </div>
+                        <div class="col-auto">
+                            <a href="https://github.com/Telaxus/EPESI" class="btn btn-outline-primary btn-sm">Source code</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
+                    <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a> {$version_no}
+                </div>
+            </div>
+        </div>
+    </footer>
 
     {$status}
 

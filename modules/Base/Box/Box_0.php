@@ -28,7 +28,7 @@ class Base_Box extends Module {
         }
 
         $theme = $this->pack_module(Base_Theme::module_name());
-		    $ini = Base_BoxCommon::get_ini_file();
+		$ini = Base_BoxCommon::get_ini_file();
 
         if (!$ini) {
             print(__('Unable to read Base/Box/default.ini file! Please create one, or change theme.'));
@@ -150,26 +150,25 @@ class Base_Box extends Module {
 		$version_no = Base_BoxCommon::update_version_check_indicator();
 
 		if (SUGGEST_DONATION)
-			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/donate/" class="btn btn-warning">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a %s.', array(__('donation'))).'<br/>'.__('Your funding will help to ensure continued development of this project.').'<br/>'.__('Click for details.').'</center>', false, 500));
+			$theme->assign('donate',Utils_TooltipCommon::create('<a target="_blank" href="http://epe.si/donate/" class="btn btn-sm btn-outline-warning">'.__('Support EPESI!').'</a>', '<center>'.__('If you find our software useful, please support us by making a %s.', array(__('donation'))).'<br/>'.__('Your funding will help to ensure continued development of this project.').'<br/>'.__('Click for details.').'</center>', false, 500));
 
-		    // Consider moving this code properly as initated module by *.ini file
-		    $theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
+		// Consider moving this code properly as initated module by *.ini file
+		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
 
         if($this->get_unique_href_variable('logout')) {
           Base_User_LoginCommon::logout();
           eval_js('document.location=\'index.php\';',false);
         }
 
-        $menu_tooltips = array(__('Modules menu'),__('User settings'),__('Administrator settings'));
-        $admin_access = ACL::i_am_admin();
-        $logo = __('Display logo');
 
-        $theme->assign('menu_tooltips',$menu_tooltips);
-        $theme->assign('admin_access',$admin_access);
-        $theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
-        $theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
-        $theme->assign('logo_text',$logo);
         $theme->assign('version_no',$version_no);
+        $theme->assign('indicator', $this->init_module(Base_User_Login::module_name())->indicator());
+        $theme->assign('watchdog', $this->init_module(Utils_Watchdog::module_name())->indicator());
+        $theme->assign('filter', $this->init_module(CRM_Filters::module_name())->button());
+        $theme->assign('quickaccess', $this->init_module(Base_ActionBar::module_name())->quickaccess());
+        $theme->assign('launchpad_href', $this->init_module(Base_ActionBar::module_name())->launchpad());
+
+
         $theme->assign('help',Base_MainModuleIndicatorCommon::get_href());
         $theme->display();
 

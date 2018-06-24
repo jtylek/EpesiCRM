@@ -3,9 +3,15 @@
   width:auto;
   float:none;
 }
-.pull-right.action-buttons .applet-actions-icon {
-  position: relative;
-}
-.pull-right.action-buttons .applet-actions {
-  display: none;
+
+.card-options-left {
+  margin-left: inherit;
+  /*display: -ms-flexbox;*/
+  /*display: flex;*/
+  /*-ms-flex-order: 100;*/
+  /*order: 100;*/
+  margin-right: -.5rem;
+  /*color: #9aa0ac;*/
+  /*-ms-flex-item-align: center;*/
+  /*align-self: center;*/
 }

@@ -269,7 +269,7 @@ class Apps_Shoutbox extends Module {
 			return;
 		}
 
-		$theme->assign('board',$big?'<div style=\'height: 500px\' id=\'shoutbox_board\'></div>':'<div id=\'shoutbox_board\'></div>');
+		$theme->assign('board',$big?'<div style=\'height: 500px\' id=\'shoutbox_board\'></div>':'<ul id="shoutbox_board" class="list-group card-list-group"></ul>');
 		$theme->assign('header', __('Shoutbox'));
    		$theme->display('chat_form');
 

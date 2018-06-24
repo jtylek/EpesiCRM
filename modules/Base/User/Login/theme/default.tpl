@@ -1,53 +1,15 @@
 {if $is_logged_in}
-
-<a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="user-container-a">
-    <div class="container" id="user-container">
-        <div class="row" id="user-row">
-            <div id="user-div">
-                <span id="user" class="fa fa-user fa-3x"></span>
-            </div>
-            <div id="logged-as-div">
-                <div class="logged-as">{$logged_as}</div>
-            </div>
-            <div id="arrow-div">
-                <span id="arrow" class=" fa fa-angle-down"></span>
-            </div>
-        </div>
-    </div>
-</a>
-
-
-<ul class="dropdown-menu dropdown-usermenu pull-right" id="user-menu">
-    <li {$my_contact_href}>
-        <a>
-            <span><i class="fa fa-user pull-right"></i><p> {"My Contact"}</p></span>
-        </a>
-    </li>
-    {if $main_company_href}
-        <li>
-            <a {$main_company_href}>
-                <span><i class="fa fa-building pull-right"></i><p> {"Main Company"}</p></span>
-            </a>
-        </li>
-    {/if}
-    <li>
-        <a {$settings_href}>
-            <span><i class="fa fa-cogs pull-right"></i><p> {"User Settings"}</p></span>
-        </a>
-    </li>
-    <li>
-        <a {$logout_href}>
-            <span><i class="fa fa-sign-out pull-right"></i><p> {"Logout"}</p></span>
-        </a>
-    </li>
-</ul>
-
+<div>
+    {$logged_as}
+    <button class="btn btn-warning pull-right" {$logout_href}>{$logout_label} <i
+                class="glyphicon glyphicon-log-out"></i></button>
+</div>
 {else}
 <div id="login-screen" class="container">
     <div class="clearfix visible-md-block visible-lg-block" style="margin-top: 50px"></div>
     <div class="row">
-        <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 panel panel-default">
-            <div class="panel-body">
+        <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 card ">
+            <div class="card-body">
                 <div class="logo img-responsive">{$logo}</div>
                 {if $banned}
                     <p class="alert alert-danger">{'You have exceeded the number of allowed login attempts.'|t}</p>
@@ -100,7 +62,7 @@
                                 </div>
                             {/if}
                         {/if}
-                        <p>{$form_data.recover_password.html}</p>
+                    <p>{$form_data.recover_password.html}</p>
                     </form>
                 {/if}
                 {if isset($donation_note)}
@@ -113,8 +75,8 @@
                 <!-- Epesi Terms of Use require line below - do not remove it! -->
                 <p class="text-center"><a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></p>
                 <!-- Epesi Terms of Use require line above - do not remove it! -->
-                </p>
-            </div>
+            </p>
         </div>
     </div>
-    {/if}
+</div>
+{/if}

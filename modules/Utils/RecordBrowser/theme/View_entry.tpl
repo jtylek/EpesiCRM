@@ -25,8 +25,8 @@
 
 {if $main_page}
 
-	{*<div class="panel panel-default">*}
-		<div class="panel-heading clearfix">
+	<div class="card ">
+		<div class="card-header clearfix">
 			<div class="pull-left">
 				<i class="pull-left fa fa-{$icon} fa-2x"></i>
 				<span class="form-inline">{$caption}</span>
@@ -55,7 +55,7 @@
 					{/if}
 			</div>
 		</div>
-		<div class="panel-body">
+		<div class="card-body">
 
 			{if isset($click2fill)}
 				{$click2fill}
@@ -118,5 +118,5 @@
 
 {if $main_page}
 		</div>
-	{*</div>*}
+	</div>
 {/if}

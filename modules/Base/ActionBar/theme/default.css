@@ -1,8 +1,5 @@
 #Base_ActionBar .btn {
-	padding:5px 5px 0px;
-	margin:0px;
-	min-width: 60px;
-	width: auto;
+	margin-bottom:4px;
 }
 
 .nav.navbar-nav.navbar-left {
@@ -16,17 +13,9 @@
 	margin: 8px 9px 0;
 }
 
-#gradient {
-	height: 6px;
-	width: 100%;
-	margin-left: .1px;
-	opacity: 0.40;
-	background: linear-gradient(black,transparent);
-}
-
 #nano-bar {
-	height: 6px;
-	width: 100%;
-	margin-left: .1px;
-	margin-top: -4px;
+    height: 6px;
+    width: 100%;
+    margin-left: .1px;
+    margin-top: -4px;
 }

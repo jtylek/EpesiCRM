@@ -2893,7 +2893,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function applet_new_record_button($tab, $defaults = array()) {
 		if (!self::get_access($tab, 'add')) return '';
-        return '<a class="btn btn-success btn-xs"'.Utils_TooltipCommon::open_tag_attrs(__('New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><i class="fa fa-plus"></i></a>';
+        return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><span class="card-options-collapse"><i class="fa fa-plus"></span></i></a>';
     }
 
     public static function get_calculated_id($tab, $field, $id) {

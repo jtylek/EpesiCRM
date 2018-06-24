@@ -17,16 +17,24 @@ class Base_User_Login extends Module {
 	public $theme;
 
 	public function construct() {
-				$this->theme = $this->pack_module(Base_Theme::module_name());
+		$this->theme = $this->pack_module(Base_Theme::module_name());
 
         $logo = $this->init_module(Base_MainModuleIndicator::module_name());
         $logo->set_inline_display();
         $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
-				$this->theme->assign('is_logged_in', Acl::is_user());
-				$this->theme->assign('is_demo', DEMO_MODE);
-				if (SUGGEST_DONATION) {
-					$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/cost" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
-				}
+		$this->theme->assign('is_logged_in', Acl::is_user());
+		$this->theme->assign('is_demo', DEMO_MODE);
+        $this->theme->assign('epesi_url', get_epesi_url());
+		if (SUGGEST_DONATION) {
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).' '.__('Your funding will help to ensure continued development of this project.'));
+		}
+
+		if(Acl::is_user()) {
+			if ($this->get_unique_href_variable('logout')) {
+				Base_User_LoginCommon::logout();
+				eval_js('document.location=\'index.php\';', false);
+			}
+		}
 	}
 
 	private function autologin() {
@@ -35,6 +43,39 @@ class Base_User_Login extends Module {
 	            return true;
 	        }
 		return false;
+	}
+
+	public function indicator()
+	{
+		//todo-pj: Add profile link
+        return $this->twig_render('indicator.twig', array(
+				'indicator' => array(
+					'label' => Base_UserCommon::get_my_user_label(1),
+					'login' => Base_UserCommon::get_my_user_login()
+				),
+				'logout' => array(
+					'href' => $this->create_unique_href(array('logout'=>1)),
+					'text' => __('Logout')
+				),
+				'contact' => [
+					'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('my_contact')),
+					'label' => _('My Contact')
+				],
+                'company' => [
+                    'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('main_company')),
+                    'label' => _('Main Company')
+                ],
+                'settings' => [
+                    'href' => Base_BoxCommon::create_href($this,'Base_User_Settings'),
+                    'label' => _('User Settings')
+                ],
+				'help' => [
+					'href' => Base_MainModuleIndicatorCommon::get_href(),
+					'label' => _('Help')
+				]
+			)
+		);
+
 	}
 
 	public function body($tpl=null) {
@@ -50,14 +91,9 @@ class Base_User_Login extends Module {
 			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$this->theme->assign('logged_as', Base_UserCommon::get_my_user_label(1));
-				if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-					$this->theme->assign('my_contact_href', Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('my_contact')));
-					if(CRM_ContactsCommon::get_main_company())
-						$this->theme->assign('main_company_href', Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('main_company')));
-				}
+				$this->theme->assign('logged_as', '<div class="pull-left">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
 				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
-				$this->theme->assign('settings_href', Base_BoxCommon::create_href($this,'Base_User_Settings'));
+				$this->theme->assign('logout_label',__('Logout'));
 				$this->theme->display();
 			}
 			return;
@@ -82,7 +118,7 @@ class Base_User_Login extends Module {
 		//else just login form
 		$form = $this->init_module(Libs_QuickForm::module_name(),__('Logging in'));
 		$form->addElement('header', 'login_header', __('Login'));
-
+		
 		if(DEMO_MODE) {
 			global $demo_users;
 			$form->addElement('select', 'username', __('Username'), $demo_users, array('class'=>'form-control', 'id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
@@ -93,19 +129,19 @@ class Base_User_Login extends Module {
 		}
 
 		// Display warning about storing a cookie
-    if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
-    	$warning=__('Keep this box unchecked if using a public computer');
-	  	$form->addElement('static','warning',null,$warning);
-		  $form->addElement('checkbox', 'autologin', '',__('Remember me'));
-    }
+        if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+    		$warning=__('Keep this box unchecked if using a public computer');
+	    	$form->addElement('static','warning',null,$warning);
+		    $form->addElement('checkbox', 'autologin', '',__('Remember me'));
+        }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
 		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'btn btn-primary btn-block'));
 
-    // register and add a rule to check if user is banned
-    $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
-    $form->addRule('username', __('You have exceeded the number of allowed login attempts for this username. Try again later.'), 'check_user_banned');
-
+        // register and add a rule to check if user is banned
+        $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
+        $form->addRule('username', __('You have exceeded the number of allowed login attempts for this username. Try again later.'), 'check_user_banned');
+        
 		// register and add a rule to check if a username and password is ok
 		$form->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
 		$form->addRule(array('username','password'), __('Login or password incorrect'), 'check_login');
@@ -115,13 +151,13 @@ class Base_User_Login extends Module {
 
 		if($form->isSubmitted() && $form->validate()) {
 			$user = $form->exportValue('username');
-    	Base_User_LoginCommon::set_logged($user);
+            Base_User_LoginCommon::set_logged($user);
 
-      if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
-          $autologin = $form->exportValue('autologin');
-          if($autologin)
-              Base_User_LoginCommon::new_autologin_id();
-      }
+            if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
+                $autologin = $form->exportValue('autologin');
+                if($autologin)
+                    Base_User_LoginCommon::new_autologin_id();
+            }
 
 			location(array());
 		} else {
@@ -196,20 +232,20 @@ class Base_User_Login extends Module {
 		$username = $data['username'];
 
  		if(DEMO_MODE && $username=='admin') {
- 			print('In demo you cannot recover \'admin\' user password. If you want to login please type \'admin\' as password.');
+ 			print('In demo you cannot recover \'admin\' user password. If you want to login please type \'admin\' as password.'); 
 			return false;
  		}
 
 		$user_id = Base_UserCommon::get_user_id($username);
 		DB::Execute('DELETE FROM user_reset_pass WHERE created_on<%T',array(time()-3600*2));
-
+		
 		if($user_id===false) {
 			print('No such user!');
 			return false;
 		}
 		$hash = md5($user_id.''.openssl_random_pseudo_bytes(100));
 		DB::Execute('INSERT INTO user_reset_pass(user_login_id,hash_id,created_on) VALUES (%d,%s,%T)',array($user_id, $hash,time()));
-
+		
 		$subject = __('Password recovery');
 		$message = __('A password recovery for the account with the e-mail address %s has been requested.',array($mail))."\n\n".
 				   __('If you want to reset your password, visit the following URL:')."\n".

@@ -81,6 +81,13 @@ class CRM_Filters extends Module {
 		$t->display('button');
 	}
 
+    public function button()
+    {
+        ob_start();
+        $this->body();
+        return ob_get_clean();
+	}
+
 	public function manage_filters() {
 		Base_BoxCommon::push_module($this->get_type(),'edit', array(false));
 	}
@@ -126,7 +133,7 @@ class CRM_Filters extends Module {
 				implode(', ',$users));
 		}
 
-		print('<div class="panel panel-default"><div class="panel panel-body">');
+		print('<div class="card "><div class="card card-body">');
 		$this->display_module($gb);
 
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');

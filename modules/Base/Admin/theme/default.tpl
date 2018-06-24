@@ -1,8 +1,8 @@
 <div id="Base_Admin">
 {foreach from=$sections key=sk item=s}
-	<div class="panel panel-default">
-		<div class="panel-heading" style="clear:both;">{$s.header}</div>
-		<div class="panel-body btn-toolbar">
+	<div class="card">
+		<div class="card-header" style="clear:both;">{$s.header}</div>
+		<div class="card-body btn-toolbar">
 			{foreach key=key item=button from=$s.buttons}
 				<div class="btn btn-default col-xs-4 col-sm-3 col-md-2 col-lg-1">
 					{$__link.sections.$sk.buttons.$key.link.open}

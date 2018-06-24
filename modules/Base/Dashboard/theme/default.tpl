@@ -1,45 +1,42 @@
-<div class="panel panel-default">
-	<div class="handle panel-heading clearfix">
-		<span class="panel-title">{$caption}</span>
+<div class="card">
+	<div class="handle card-header">
+
 
 		{if !empty($actions)}
-			<div class="pull-left action-buttons">
+			<div class="card-options card-options-left">
 				{foreach item=action from=$actions}
 					{$action}
 				{/foreach}
 			</div>
 		{/if}
 
-		<div class="pull-right action-buttons">
-			<button type="button" class="btn btn-default dropdown-toggle btn-xs applet-actions-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 65px">
-				<span class="glyphicon glyphicon-option-vertical"></span>
-			</button>
-			<div class="pull-right applet-actions">
-				{if isset($href)}
-					{$__link.href.open}
-					<button class="btn btn-success btn-xs"><i class="fa fa-arrows-alt"></i></button>
-					{$__link.href.close}
-				{/if}
-				{if isset($toggle)}
-					{$__link.toggle.open}
-					<button class="btn btn-info btn-xs"><i class="fa fa-caret-square-o-down"></i></button>
-					{$__link.toggle.close}
-				{/if}
-				{if isset($configure)}
-					{$__link.configure.open}
-					<button class="btn btn-warning btn-xs"><i class="fa fa-cog"></i></button>
-					{$__link.configure.close}
-				{/if}
-				{if isset($remove)}
-					{$__link.remove.open}
-					<button class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button>
-					{$__link.remove.close}
-				{/if}
-			</div>
+		<h3 class="card-title">{$caption}</h3>
+
+		<div class="card-options">
+			{if isset($href)}
+				{$__link.href.open}
+				<span class="card-options-fullscreen"><i class="fa fa-arrows-alt"></i></span>
+				{$__link.href.close}
+			{/if}
+			{if isset($toggle)}
+				{$__link.toggle.open}
+				<span class="card-options-collapse"><i class="fa fa-caret-square-o-down"></i></span>
+				{$__link.toggle.close}
+			{/if}
+			{if isset($configure)}
+				{$__link.configure.open}
+				<span class="card-options-collapse"><i class="fa fa-cog"></i></span>
+				{$__link.configure.close}
+			{/if}
+			{if isset($remove)}
+				{$__link.remove.open}
+				<span class="card-options-remove"><i class="fa fa-times"></i></span>
+				{$__link.remove.close}
+			{/if}
 		</div>
 
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		{$content}
 	</div>
 </div>

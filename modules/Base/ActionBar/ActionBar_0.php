@@ -81,95 +81,6 @@ class Base_ActionBar extends Module
 
         $launcher_left = [];
 
-        $launcher_left[] = array(
-            'label' => __('Watchdog'),
-            'description' => __('Watch your notifications'),
-            'icon' => 'bell',
-            'icon_url' => null,
-            'open' => '',
-            'close' => ''
-        );
-
-        $launcher_right = [];
-        if (Base_AclCommon::is_user() && $opts = Base_Menu_QuickAccessCommon::get_options()) {
-            self::$launchpad = array();
-            foreach ($opts as $k => $v) {
-                if (Base_ActionBarCommon::$quick_access_shortcuts
-                    && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_d')
-                ) {
-                    $ii = array();
-                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
-                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
-                    $ii['description'] = $v['label'];
-                    $arr = $v['link'];
-                    $icon = null;
-                    $icon_url = null;
-                    if (isset($v['link']['__icon__'])) {
-                        if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
-                            $icon = $v['link']['__icon__'];
-                        else
-                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
-                    } else
-                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
-                    if (!$icon && !$icon_url) $icon_url = 'cog';
-                    $ii['icon'] = $icon;
-                    $ii['icon_url'] = $icon_url;
-
-                    if (isset($arr['__url__']))
-                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
-                    else
-                        $ii['open'] = '<a ' . Base_MenuCommon::create_href($this, $arr) . ' class="icon-' . ($icon ? $icon : md5($icon_url)) . '">';
-                    $ii['close'] = '</a>';
-
-                    if ($ii['label'] == 'Launchpad') {
-                        $launcher_left[] = $ii;
-                    } else {
-                        $launcher_right[] = $ii;
-                    }
-                }
-                if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
-                    $ii = array();
-                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
-                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
-                    $ii['description'] = $v['label'];
-                    $arr = $v['link'];
-                    if (isset($arr['__url__']))
-                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" onClick="actionbar_launchpad_deactivate()">';
-                    else {
-                        $ii['open'] = '<a onClick="actionbar_launchpad_deactivate();' . Base_MenuCommon::create_href_js($this, $arr) . '" href="javascript:void(0)">';
-                    }
-                    $ii['close'] = '</a>';
-
-                    $icon = null;
-                    $icon_url = null;
-                    if (isset($v['link']['__icon__'])) {
-                        if (array_key_exists('fa-' . $v['link']['__icon__'], $fa_icons))
-                            $icon = $v['link']['__icon__'];
-                        else
-                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
-                    } else
-                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
-                    if (!$icon && !$icon_url) $icon_url = 'cog';
-                    $ii['icon'] = $icon;
-                    $ii['icon_url'] = $icon_url;
-
-                    self::$launchpad[] = $ii;
-                }
-            }
-            usort(self::$launchpad, array($this, 'compare_launcher'));
-            if (!empty(self::$launchpad)) {
-                $th = $this->pack_module(Base_Theme::module_name());
-                usort(self::$launchpad, array($this, 'compare_launcher'));
-                $th->assign('icons', self::$launchpad);
-                eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
-                ob_start();
-                $th->display('launchpad');
-                $lp_out = ob_get_clean();
-                $big = count(self::$launchpad) > 10;
-                Libs_LeightboxCommon::display('actionbar_launchpad', $lp_out, __('Launchpad'), $big);
-                array_unshift($launcher_left, array('label' => __('Launchpad'), 'description' => 'Quick modules launcher', 'open' => '<a ' . Libs_LeightboxCommon::get_open_href('actionbar_launchpad') . '>', 'close' => '</a>', 'icon' => 'th-large'));
-            }
-        }
 
 	if(!isset($_SESSION['client']['__history_id__'])){
 	    History::set();
@@ -197,32 +108,89 @@ class Base_ActionBar extends Module
             History::back();
         }
 
-        $watchdog_value = '';
-        $launchpad_value = '';
-
-        foreach ($launcher_left as $key => $value){
-            if($value['label'] == 'Watchdog'){
-                $watchdog_value = $value;
-            }
-            if($value['label'] == 'Launchpad'){
-                $launchpad_value = $value;
-            }
-        }
-
-        if(is_array($watchdog_value)) {
-            $launcher_left['0'] = $watchdog_value;
-        }
-        if(is_array($launchpad_value)) {
-            $launcher_left['1'] = $launchpad_value;
-        }
-        unset($launchpad_value,$watchdog_value);
 
         //display
         $th = $this->pack_module(Base_Theme::module_name());
         $th->assign('icons', $icons);
-        $th->assign('launcher_right', array_reverse($launcher_right));
         $th->assign('launcher_left', array_reverse($launcher_left));
         $th->display();
+    }
+
+
+    public function quickaccess()
+    {
+        if(!Base_AclCommon::is_user()) {
+            return [];
+        }
+
+        $items = array_filter(Base_Menu_QuickAccessCommon::get_options(), function($item) {
+            return Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $item['name'] . '_d');
+        });
+
+        $items = array_map(function($item) {
+            return [
+                'href' => Base_MenuCommon::create_href($this, $item['link']),
+                'icon' => isset($item['link']['__icon__']) ? (array_key_exists('fa-' . $item['link']['__icon__'], FontAwesome::get())) ? $item['link']['__icon__'] : null : null,
+                'label' => trim(substr(strrchr($item['label'], ':'), 1))?:$item['label'],
+                'description' => $item['label']
+            ];
+        }, $items);
+        return $this->twig_render('quickaccess.twig', ['items' => $items]);
+
+    }
+
+    public function launchpad()
+    {
+        if (Base_AclCommon::is_user() && $opts = Base_Menu_QuickAccessCommon::get_options()) {
+            self::$launchpad = array();
+            foreach ($opts as $k => $v) {
+                if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(), $v['name'] . '_l')) {
+                    $ii = array();
+                    $trimmed_label = trim(substr(strrchr($v['label'], ':'), 1));
+                    $ii['label'] = $trimmed_label ? $trimmed_label : $v['label'];
+                    $ii['description'] = $v['label'];
+                    $arr = $v['link'];
+                    if (isset($arr['__url__']))
+                        $ii['open'] = '<a href="' . $arr['__url__'] . '" target="_blank" onClick="actionbar_launchpad_deactivate()">';
+                    else {
+                        $ii['open'] = '<a onClick="actionbar_launchpad_deactivate();' . Base_MenuCommon::create_href_js($this, $arr) . '" href="javascript:void(0)">';
+                    }
+                    $ii['close'] = '</a>';
+
+                    $icon = null;
+                    $icon_url = null;
+                    if (isset($v['link']['__icon__'])) {
+                        if (array_key_exists('fa-' . $v['link']['__icon__'], FontAwesome::get()))
+                            $icon = $v['link']['__icon__'];
+                        else
+                            $icon_url = Base_ThemeCommon::get_template_file($v['module'], $v['link']['__icon__']);
+                    } else
+                        $icon_url = Base_ThemeCommon::get_template_file($v['module'], 'icon.png');
+                    if (!$icon && !$icon_url) $icon_url = 'cog';
+                    $ii['icon'] = $icon;
+                    $ii['icon_url'] = $icon_url;
+
+                    self::$launchpad[] = $ii;
+                }
+            }
+            usort(self::$launchpad, array($this, 'compare_launcher'));
+            if (!empty(self::$launchpad)) {
+                $th = $this->pack_module(Base_Theme::module_name());
+                usort(self::$launchpad, array($this, 'compare_launcher'));
+                $th->assign('icons', self::$launchpad);
+                eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
+                ob_start();
+                $th->display('launchpad');
+                $lp_out = ob_get_clean();
+                $big = count(self::$launchpad) > 10;
+                Libs_LeightboxCommon::display('actionbar_launchpad', $lp_out, __('Launchpad'), $big);
+                return Libs_LeightboxCommon::get_open_href('actionbar_launchpad');
+
+                array_unshift($launcher_left, array('label' => __('Launchpad'), 'description' => 'Quick modules launcher', 'open' => '<a ' . Libs_LeightboxCommon::get_open_href('actionbar_launchpad') . '>', 'close' => '</a>', 'icon' => 'th-large'));
+            }
+
+            return null;
+        }
     }
 
 }

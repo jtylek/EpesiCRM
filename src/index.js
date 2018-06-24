@@ -1,7 +1,7 @@
 import 'jquery';
 
 import 'bootstrap';
-import 'bootstrap/less/bootstrap.less';
+import 'tabler-ui/src/assets/css/dashboard.css';
 
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/sortable';
@@ -12,7 +12,6 @@ import 'select2';
 import 'select2/dist/css/select2.css';
 import Chart from 'chart.js';
 
-import 'gentelella/build/css/custom.css';
 import 'font-awesome/css/font-awesome.css';
 
 

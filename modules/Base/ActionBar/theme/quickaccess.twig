@@ -1,0 +1,12 @@
+<div class="dropdown d-none d-md-flex">
+    <a class="nav-link icon" data-toggle="dropdown">
+        <i class="fa fa-paper-plane"></i>
+    </a>
+    <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+        {% for item in items %}
+            <a {{ item.href | raw }} title="{{ item.description }}" class="dropdown-item d-flex">
+                <span class="mr-3 align-self-center"><span class="fa fa-{{ item.icon|default('home') }}"></span></span>{{ item.label }}
+            </a>
+        {% endfor %}
+    </div>
+</div>

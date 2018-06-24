@@ -31,9 +31,9 @@
         {{ macros.element(element) }}
     {% endfor %}
     {% for section in form.sections %}
-        <div class="panel panel-default">
-            <div class="panel-heading">{{ section.header }}</div>
-            <div class="panel-body">
+        <div class="card ">
+            <div class="card-header">{{ section.header }}</div>
+            <div class="card-body">
                 {% for element in section.elements %}
                     {{ macros.element(element) }}
                 {% endfor %}
