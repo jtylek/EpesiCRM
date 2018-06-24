@@ -218,6 +218,7 @@ class Utils_RecordBrowser extends Module {
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
     public function disable_pagination($arg=true) {$this->disabled['pagination'] = $arg;}
+    public function disable_add_button() {$this->add_button = false;}
 
     public function set_button($arg, $arg2=''){
         $this->add_button = $arg;
@@ -994,9 +995,9 @@ class Utils_RecordBrowser extends Module {
         if($mode=='add') {
             foreach ($defaults as $k=>$v)
                 $this->custom_defaults[$k] = $v;
-            foreach($this->table_rows as $field => $args)
-                if (!isset($this->custom_defaults[$args['id']]))
-					$this->custom_defaults[$args['id']] = $args['type'] == 'multiselect' ? array() : '';
+            foreach($this->table_rows as $field => $desc)
+                if (!isset($this->custom_defaults[$desc['id']]))
+					$this->custom_defaults[$desc['id']] = $desc['type'] == 'multiselect' ? array() : '';
 			$this->custom_defaults['created_by'] = Acl::get_user();
 		}
 
@@ -1076,40 +1077,20 @@ class Utils_RecordBrowser extends Module {
         $this->prepare_view_entry_details($this->record, $mode=='history'?'view':$mode, $id, $form);
 
         if ($mode==='edit' || $mode==='add')
-            foreach($this->table_rows as $field => $args) {
-                if (!$access[$args['id']])
-                    $form->freeze($args['id']);
+            foreach($this->table_rows as $desc) {
+                if (!$access[$desc['id']])
+                    $form->freeze($desc['id']);
             }
         if ($form->exportValue('submited') && $form->validate()) {
-            $values = $form->exportValues();
-
-            /**
-             * @var Utils_FileUpload_Dropzone $file_module
-             */
-            foreach (Utils_FileUpload_Dropzone::get_registered_file_fields($form) as $file_field => $file_module) {
-                $files = [];
-                $uploaded_files = $file_module->get_uploaded_files();
-                foreach ($uploaded_files['existing'] as $file) {
-                    if (isset($uploaded_files['delete'][$file['file_id']])) continue;
-                    $files[] = $file['file_id'];
-                }
-                foreach ($uploaded_files['add'] as $file) {
-                    $files[] = [
-                        'filename' => $file['name'],
-                        'file' => $file['file']
-                    ];
-                }
-                $values[$file_field] = $files;
-                $file_module->clear_uploaded_files();
-            }
+        	$values = array_merge($form->exportValues(), Utils_FileUpload_Dropzone::export_values($form));
 
 			foreach ($defaults as $k=>$v) {
 				if (!isset($values[$k]) && ($this->view_fields_permission === false
                         || (isset($this->view_fields_permission[$k]) && !$this->view_fields_permission[$k]))) $values[$k] = $v;
 				if (isset($access[$k]) && !$access[$k]) $values[$k] = $v;
 			}
-            foreach ($this->table_rows as $v) {
-                if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
+			foreach ($this->table_rows as $desc) {
+				if ($desc['type']=='checkbox' && !isset($values[$desc['id']])) $values[$desc['id']]=0;
             }
             $values['id'] = $id;
             foreach ($this->custom_defaults as $k=>$v)
@@ -1185,9 +1166,9 @@ class Utils_RecordBrowser extends Module {
 					$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 					/* for every field name store its value */
 					$data = array();
-					foreach($this->table_rows as $val) {
-						$fval = Utils_RecordBrowserCommon::get_val($this->tab, $val['id'], $record, true);
-						if(strlen($fval)) $data[$val['id']] = $fval;
+					foreach($this->table_rows as $desc) {
+						$fval = Utils_RecordBrowserCommon::get_val($this->tab, $desc['id'], $record, true);
+						if(strlen($fval)) $data[$desc['id']] = $fval;
 					}
 					/* some complicate preg match to find every occurence
 					 * of %{ .. {f_name} .. } pattern
@@ -1261,11 +1242,11 @@ class Utils_RecordBrowser extends Module {
 
             $valid_page = false;
 			$hide_page = ($mode=='view' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty'));
-            foreach($this->table_rows as $field => $args) {
-                if (!isset($data[$args['id']]) || $data[$args['id']]['type']=='hidden') continue;
-                if ($args['position'] >= $last_page && ($pos+1 == -1 || $args['position'] < $pos+1)) {
+            foreach($this->table_rows as $desc) {
+                if (!isset($data[$desc['id']]) || $data[$desc['id']]['type']=='hidden') continue;
+                if ($desc['position'] >= $last_page && ($pos+1 == -1 || $desc['position'] < $pos+1)) {
                     $valid_page = true;
-					if ($hide_page && !$this->field_is_empty($this->record, $args['id'])) $hide_page = false;
+					if ($hide_page && !$this->field_is_empty($this->record, $desc['id'])) $hide_page = false;
                     break;
                 }
             }
@@ -1358,7 +1339,7 @@ class Utils_RecordBrowser extends Module {
         $fields = array();
         $longfields = array();
 
-        foreach($this->table_rows as $field => $desc) {
+        foreach($this->table_rows as $desc) {
             if (!isset($form_data[$desc['id']]) || $form_data[$desc['id']]['type']=='hidden') continue;
             if ($desc['position'] >= $from && ($to == -1 || $desc['position'] < $to)) {
 				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $desc['id'];
@@ -1529,45 +1510,45 @@ class Utils_RecordBrowser extends Module {
 	    $form->addFormRule(array($this, 'check_new_record_access'));
         $fields_by_processing_order = $this->table_rows;
         uasort($fields_by_processing_order, array(__CLASS__, 'sort_by_processing_order'));
-        foreach($fields_by_processing_order as $field => $args){
+        foreach($fields_by_processing_order as $field => $desc){
             // check permissions
             if ($this->view_fields_permission === false ||
-                (isset($this->view_fields_permission[$args['id']])
-                 && !$this->view_fields_permission[$args['id']])) continue;
+                (isset($this->view_fields_permission[$desc['id']])
+                 && !$this->view_fields_permission[$desc['id']])) continue;
             // check visible cols
-            if ($visible_cols!==null && !isset($visible_cols[$args['id']])) continue;
+            if ($visible_cols!==null && !isset($visible_cols[$desc['id']])) continue;
             // set default value to '' if not set at all
-            if (!isset($record[$args['id']])) $record[$args['id']] = '';
+            if (!isset($record[$desc['id']])) $record[$desc['id']] = '';
             if ($for_grid) {
-                $nk = '__grid_'.$args['id'];
-                $record[$nk] = $record[$args['id']];
-                $args['id'] = $nk;
+                $nk = '__grid_'.$desc['id'];
+                $record[$nk] = $record[$desc['id']];
+                $desc['id'] = $nk;
             }
-            if ($args['type']=='hidden') {
-                $form->addElement('hidden', $args['id']);
-                $form->setDefaults(array($args['id']=>$record[$args['id']]));
+            if ($desc['type']=='hidden') {
+                $form->addElement('hidden', $desc['id']);
+                $form->setDefaults(array($desc['id']=>$record[$desc['id']]));
                 continue;
             }
             // is set then hide empty fields that are not checkboxes
-			if ($mode == 'view' && $args['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $args['id'])) {
-				eval_js('var e=jq("#_'.$args['id'].'__data");if(e.length)e.closest("tr").hide();');
+			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
+				eval_js('var e=jq("#_'.$desc['id'].'__data");if(e.length)e.closest("tr").hide();');
 			}
             // translate label and put it into span with id
-            $label = '<span id="_'.$args['id'].'__label">'._V($args['name']).'</span>'; // TRSL
+            $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL
             if (isset($this->QFfield_callback_table[$field])) {
 				//$label = Utils_RecordBrowserCommon::get_field_tooltip($label, $args['type']);
                 $ff = $this->QFfield_callback_table[$field];
             } else {
-                $ff = Utils_RecordBrowserCommon::get_default_QFfield_callback($args['type']);
+                $ff = Utils_RecordBrowserCommon::get_default_QFfield_callback($desc['type']);
             }
 
-            Utils_RecordBrowserCommon::call_QFfield_callback($ff,$form, $args['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$args['id']])?$this->custom_defaults[$args['id']]:''):$record[$args['id']], $args, $this, $this->display_callback_table);
+            Utils_RecordBrowserCommon::call_QFfield_callback($ff,$form, $desc['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$desc['id']])?$this->custom_defaults[$desc['id']]:''):$record[$desc['id']], $desc, $this, $this->display_callback_table);
 
-            if ($args['required']) {
-                $el = $form->getElement($args['id']);
+            if ($desc['required']) {
+                $el = $form->getElement($desc['id']);
                 if (!$form->isError($el)) {
                     if ($el->getType() != 'static') {
-                        $form->addRule($args['id'], __('Field required'), 'required');
+                        $form->addRule($desc['id'], __('Field required'), 'required');
                         $el->setAttribute('placeholder', __('Field required'));
                     }
                 }
@@ -1775,8 +1756,8 @@ class Utils_RecordBrowser extends Module {
         $r = Utils_RecordBrowserCommon::get_clipboard_pattern($this->tab, true);
         $form->addElement('select', 'enable', __('Enable'), array(__('No'), __('Yes')));
         $info = '<b>'.__('This is an html pattern. All html tags are allowed.').'<br/>'.__('Use &lt;pre&gt; some text &lt;/pre&gt; to generate text identical as you typed it.').'<br/><br/>'.__('Conditional use:').'<br/>'.__('%%{lorem {keyword} ipsum {keyword2}}').'<br/>'.__('lorem ipsum will be shown only when at least one of keywords has a value. Nested conditions are allowed.').'<br/><br/>'.__('Normal use:').'<br/>'.__('%%{{keyword}}').'<br/><br/>'.__('Keywords').':<br/></b>';
-        foreach($this->table_rows as $name=>$val) {
-            $info .= '<b>'.$val['id'].'</b> - '.$name.', ';
+        foreach($this->table_rows as $name=>$desc) {
+        	$info .= '<b>'.$desc['id'].'</b> - '.$name.', ';
         }
         $label = '<i class="fa fa-fw fa-info" '.Utils_TooltipCommon::open_tag_attrs($info).'></i> '.__('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
@@ -2448,8 +2429,8 @@ class Utils_RecordBrowser extends Module {
     public function check_if_column_exists($arg){
         $this->init(true);
         if (strtolower($arg)==strtolower($this->current_field)) return true;
-        foreach($this->table_rows as $field=>$args)
-            if (strtolower($args['name']) == strtolower($arg))
+        foreach($this->table_rows as $desc)
+        	if (strtolower($desc['name']) == strtolower($arg))
                 return false;
         return true;
     }
@@ -2465,8 +2446,8 @@ class Utils_RecordBrowser extends Module {
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $field_hash = array();
-        foreach($this->table_rows as $field => $args)
-            $field_hash[$args['id']] = $field;
+        foreach($this->table_rows as $field => $desc)
+        	$field_hash[$desc['id']] = $field;
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.edited_on>=%T AND c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($time_from,$id));
         while ($row = $ret->FetchRow()) {
             $changed = array();
@@ -2527,8 +2508,8 @@ class Utils_RecordBrowser extends Module {
         $access = $this->get_access('view', $created);
         $field_hash = array();
         $edited = DB::GetRow('SELECT ul.login, c.edited_on FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC',array($id));
-        foreach($this->table_rows as $field => $args)
-            $field_hash[$args['id']] = $field;
+        foreach($this->table_rows as $field => $desc)
+        	$field_hash[$desc['id']] = $field;
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
 		$dates_select = array();
@@ -2589,9 +2570,9 @@ class Utils_RecordBrowser extends Module {
 
 		$tb->start_tab(__('Record historical view'));
 		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
-        foreach($this->table_rows as $field => $args) {
-            if (!$access[$args['id']]) continue;
-            $val = $this->get_val($field, $created, false, $args);
+		foreach($this->table_rows as $field => $desc) {
+			if (!$access[$desc['id']]) continue;
+			$val = $this->get_val($field, $created, false, $desc);
         }
 		$form->addElement('select', 'historical_view_pick_date', __('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
 		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
@@ -2785,8 +2766,8 @@ class Utils_RecordBrowser extends Module {
         $this->init();
         $gb = $this->init_module(Utils_GenericBrowser::module_name(),$this->tab,$this->tab);
         $field_hash = array();
-        foreach($this->table_rows as $field => $args)
-            $field_hash[$args['id']] = $field;
+        foreach($this->table_rows as $field => $desc)
+        	$field_hash[$desc['id']] = $field;
         $header = array();
         $callbacks = array();
         foreach($cols as $k=>$v) {
@@ -2918,8 +2899,8 @@ class Utils_RecordBrowser extends Module {
 		
 		$all_clearances = array_flip(Base_AclCommon::get_clearance(true));
 		$all_fields = array();
-		foreach ($this->table_rows as $v)
-			$all_fields[$v['id']] = $v['name'];
+		foreach ($this->table_rows as $desc)
+			$all_fields[$desc['id']] = $desc['name'];
 		$actions = $this->get_permission_actions();
 		$rules = array();
 		while ($row = $ret->FetchRow()) {
@@ -3010,8 +2991,8 @@ class Utils_RecordBrowser extends Module {
 		$all_clearances = array(''=>'---')+array_flip(Base_AclCommon::get_clearance(true));
 		$all_fields = array();
 		$this->init();
-		foreach ($this->table_rows as $k=>$v)
-			$all_fields[$v['id']] = $k;
+		foreach ($this->table_rows as $k=>$desc)
+			$all_fields[$desc['id']] = $k;
 
 		$form = $this->init_module('Libs_QuickForm');
 		$theme = $this->init_module('Base_Theme');

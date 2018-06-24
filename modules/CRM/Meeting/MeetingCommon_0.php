@@ -320,6 +320,9 @@ class CRM_MeetingCommon extends ModuleCommon {
 		return CRM_ContactsCommon::display_contacts_with_notification('crm_meeting', $record, $nolink, $desc);
 	}
     public static function display_title($record, $nolink=false) {
+		Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
+		$record['title'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($record['title']);
+		$record['description'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($record['description']);
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('crm_meeting', 'Title', $record, $nolink);
 		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;

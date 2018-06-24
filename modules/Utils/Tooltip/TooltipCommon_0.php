@@ -135,8 +135,11 @@ class Utils_TooltipCommon extends ModuleCommon
             $table .= '</td></tr>';
         }
         $table .= '</table>';
-        return $table;
-    }
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+        $return = $purifier->purify($table);
+    return $return;
+	}
 
     /**
      * Add leightbox mode to tooltip. Use together with open_tag_attrs or ajax_open_tag_attrs.

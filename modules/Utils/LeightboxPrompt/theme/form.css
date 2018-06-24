@@ -1,14 +1,14 @@
 /* a */
 
-table#Utils_LeightboxPrompt__form a:hover {
+table.Utils_LeightboxPrompt__form a:hover {
 	color: #993333;
 }
 
-table#Utils_LeightboxPrompt__form .leightbox_note textarea {
+table.Utils_LeightboxPrompt__form .leightbox_note textarea {
 	width: 100%;
 }
 
-table#Utils_LeightboxPrompt__form .label {
+table.Utils_LeightboxPrompt__form .label {
 	height:17px;
 	width:100px;
 	background-color:#336699;

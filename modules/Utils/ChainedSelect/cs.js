@@ -1,7 +1,7 @@
-function ChainedSelect(dest_id,prev_ids,params,def_val) {
+function Utils_ChainedSelect(dest_id,prev_ids,params,def_val) {
     this.initialize(dest_id,prev_ids,params,def_val);
 }
-ChainedSelect.prototype = {
+Utils_ChainedSelect.prototype = {
 	prev_ids:null,
 	dest_id:null,
 	params:null,
@@ -79,6 +79,9 @@ ChainedSelect.prototype = {
 			success:function(t) {
 				var new_opts = jq.parseJSON(t);
 				var obj = jq('#'+dest_id);
+				if(!jq(obj).is('select')){
+				    return;
+				}
 				var opts = obj.get(0).options;
 				opts.length=0;
 				if(new_opts.length==0) {

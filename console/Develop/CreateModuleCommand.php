@@ -20,7 +20,7 @@ class CreateModuleCommand extends Command
     {
         $this
             ->setName('dev:module:create')
-            ->setDescription('Create EPESI module files')
+            ->setDescription('Create EPESI empty module files')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
@@ -125,10 +125,10 @@ class CreateModuleCommand extends Command
                                     Method::make('requires')
                                           ->addArgument(
                                               Argument::make('mixed', 'v'))
-                                          ->setBody("{$t}{$t}return array(\n$required_modules_str\n{$t}{$t});"))
+                                          ->setBody("{$t}{$t}return [\n$required_modules_str\n{$t}{$t}];"))
                                 ->addMethod(
                                     Method::make('version')
-                                          ->setBody("{$t}{$t}return array('0.1');"))
+                                          ->setBody("{$t}{$t}return ['0.1'];"))
                       );
 
         if (file_put_contents($file_install, $prettyPrinter->generateCode($myFile)) !== false) {

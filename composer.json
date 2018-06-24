@@ -13,12 +13,14 @@
         "anahkiasen/underscore-php": "^2.0",
         "moneyphp/money": "^3.0",
         "enyo/dropzone": "@stable",
-        "ezyang/htmlpurifier": "^4.9"
+        "ezyang/htmlpurifier": "^4.9",
+        "moneyphp/money": "^3.0"
     },
     "scripts": {
         "post-install-cmd": [
             "@composer -d=\"modules/CRM/Mail\" install",
-            "@composer -d=\"modules/Libs/PHPExcel\" install"
+            "@composer -d=\"modules/Libs/PHPExcel\" install",
+            "@composer -d=\"modules/Libs/TCPDF\" install"
         ]
     },
     "autoload": {

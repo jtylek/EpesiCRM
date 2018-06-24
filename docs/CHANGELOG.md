@@ -3,6 +3,36 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
+RELEASE 1.8.2-20180413
+----------------------
+
+### Fixed
+- Error: "Undefined index: name" in dashboard
+- BBcode display
+- watchdog applet caused epesi error
+
+### Feature
+- Double clock
+- HTML5 Notification
+- rebuild:all command
+- remove:all command
+- create test module command
+- possibility to set tooltip for leightbox buttons
+- TCPDF from composer (dev)
+
+
+RELEASE 1.8.2-20171019
+----------------------
+
+### Fixed
+- fixed to use openssl if mcrypt is not loaded
+- fixed charset exporting
+- fixed XSS vulnerabilities in Attachments, Meetings, Calendar, Perspective - display
+- added XSS purifier on recordset update
+
+### Feature
+- added phpmoney library
+
 RELEASE 1.8.2-20170830
 ----------------------
 
