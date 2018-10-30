@@ -247,6 +247,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		
 		return $ret;
     }
+    public static function display_checkbox_setting($record, $nolink=false, $desc=null, $tab=null) {
+    	$img = self::display_checkbox_icon($record, $nolink, $desc);
+    
+    	$rb_obj = Utils_RecordBrowser::$rb_obj;
+    
+    	if (!$img || $nolink || !$desc || !($rb_obj instanceof Utils_RecordBrowser)) return $img;
+    		
+    	$href = $rb_obj->create_callback_href(array('Utils_RecordBrowserCommon', 'set_checkbox_setting'), array($tab, $record['id'], $desc['id'], $record[$desc['id']]?0:1));
+    
+    	$tooltip_attrs = Utils_TooltipCommon::open_tag_attrs(__('Click to toggle'));
+    
+    	return "<a $href $tooltip_attrs>" . $img . '</a>';
+    }
+    public static function set_checkbox_setting($tab, $id, $field, $active=1) {
+    	self::update_record($tab, $id, array($field=>$active));
+    }
     public static function display_date($record, $nolink, $desc=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
@@ -931,7 +947,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 
         DB::StartTrans();
-        if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
+        if (is_string($definition['position'])) $definition['position'] = self::get_field_position($tab, $definition['position'])+1;
         if ($definition['position']===null || $definition['position']===false) {
             $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type=%s AND field!=%s', array('page_split', 'General')):0;
             $definition['position'] = $first_page_split?$first_page_split:DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
@@ -970,10 +986,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
     public static function change_field_position($tab, $field, $new_pos){
+    	$new_pos = is_string($new_pos)? (self::get_field_position($tab, $new_pos)+1): $new_pos;
+
         if ($new_pos <= 2) return; // make sure that no field is before "General" tab split
+        
         DB::StartTrans();
-        $pos = DB::GetOne('SELECT position FROM ' . $tab . '_field WHERE field=%s', array($field));
-        if ($pos) {
+        if ($pos = self::get_field_position($tab, $field)) {
             // move all following fields back
             DB::Execute('UPDATE '.$tab.'_field SET position=position-1 WHERE position>%d',array($pos));
             // make place for moved field
@@ -982,6 +1000,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             DB::Execute('UPDATE '.$tab.'_field SET position=%d WHERE field=%s',array($new_pos, $field));
         }
         DB::CompleteTrans();
+    }
+    
+    public static function get_field_position($tab, $field){    
+    	return DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($field));
     }
 
     /**
@@ -998,7 +1020,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         
-        $db_field_exists = !($type === 'calculated' && !$old_param) && $type!== 'page_split';
+        $db_field_exists = !(in_array($type, ['calculated', 'hidden'], true) && !$old_param) && $type!== 'page_split';
         
         DB::StartTrans();
         if ($db_field_exists) {
