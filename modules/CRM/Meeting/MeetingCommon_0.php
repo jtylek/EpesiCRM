@@ -233,7 +233,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			9=>__('Every two weeks'),
 			10=>__('Every month'),
 			12=>__('Every month (the same day of the week, e.g. last monday every month)'),
-			12=>__('Every month (the same day of the week, e.g. first monday every month)'),
+			13=>__('Every month (the same day of the week, e.g. first monday every month)'),
 			11=>__('Every year')
 			);
 		if ($mode=='add' || $mode=='edit') {
