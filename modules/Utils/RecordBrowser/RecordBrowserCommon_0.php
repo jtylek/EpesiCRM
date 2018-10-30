@@ -247,6 +247,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		
 		return $ret;
     }
+    public static function display_checkbox_setting($record, $nolink=false, $desc=null, $tab=null) {
+    	$img = self::display_checkbox_icon($record, $nolink, $desc);
+    
+    	$rb_obj = Utils_RecordBrowser::$rb_obj;
+    
+    	if (!$img || $nolink || !$desc || !($rb_obj instanceof Utils_RecordBrowser)) return $img;
+    		
+    	$href = $rb_obj->create_callback_href(array('Utils_RecordBrowserCommon', 'set_checkbox_setting'), array($tab, $record['id'], $desc['id'], $record[$desc['id']]?0:1));
+    
+    	$tooltip_attrs = Utils_TooltipCommon::open_tag_attrs(__('Click to toggle'));
+    
+    	return "<a $href $tooltip_attrs>" . $img . '</a>';
+    }
+    public static function set_checkbox_setting($tab, $id, $field, $active=1) {
+    	self::update_record($tab, $id, array($field=>$active));
+    }
     public static function display_date($record, $nolink, $desc=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
