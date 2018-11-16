@@ -68,7 +68,8 @@ class Utils_FileStorageCommon extends ModuleCommon {
             $filesize = filesize_hr($meta['file']);
             $filetooltip = __('File size: %s', array($filesize)) . '<hr>' .
                            __('Uploaded by: %s', array(Base_UserCommon::get_user_label($meta['created_by'], true))) . '<br/>' .
-                           __('Uploaded on: %s', array(Base_RegionalSettingsCommon::time2reg($meta['created_on'])));
+                           __('Uploaded on: %s', array(Base_RegionalSettingsCommon::time2reg($meta['created_on']))) . '<br/>' .
+                           __('Number of downloads: %d', array(self::get_downloads_count($id)));
             $link_href = Utils_TooltipCommon::open_tag_attrs($filetooltip) . ' '
                          . Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls);
         } else {
@@ -133,6 +134,12 @@ class Utils_FileStorageCommon extends ModuleCommon {
     {
         $hash = hash_file(self::HASH_METHOD, $file);
         return $hash;
+    }
+    
+    public static function get_downloads_count($meta) {
+    	$id = is_numeric($meta)? $meta: $meta['id'];
+    	
+    	return DB::GetOne('SELECT COUNT(*) FROM utils_filestorage_access WHERE file_id=%d', array($id))?: 0;
     }
 
     /**

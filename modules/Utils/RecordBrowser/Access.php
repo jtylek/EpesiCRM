@@ -55,7 +55,7 @@ class Utils_RecordBrowser_Access
 
 		if ($this->isFullDeny()) return false;
 		
-		if ($this->action === 'browse') return $this->getCritsRaw() !== null ? true: false;
+		if ($this->action === 'browse') return $this->getCritsRaw() !== null && $this->getCritsRaw() !== false ? true: false;
 
 		if ($this->getActiveGrantRules() === false) return false;
 		

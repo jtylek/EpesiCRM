@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Applets_Clock extends Module {
 	
-	public function body($skin, $size=200) {
+	public function body($skin, $size=200, $conf = []) {
 		print('<center'.($skin=='chunkySwissOnBlack'?' style="background-color:black; color:white;"':'').'>');
 		$browser = stripos($_SERVER['HTTP_USER_AGENT'],'msie');
 		if($browser!==false || $skin=='flash') {
@@ -32,7 +32,23 @@ class Applets_Clock extends Module {
 		} else {
 			load_js($this->get_module_dir().'coolclock.js');
 			eval_js('CoolClock.findAndCreateClocks()');
-			print('<canvas id="'.$this->get_path().'canvas" class="CoolClock:'.$skin.':'.$size.'"></canvas>');
+			
+			if ($conf && $conf['type'] == 'double') {
+				$timezone = $conf['second_clock_timezone'] ?: '0.0';
+				$label = $conf['second_clock_label'] ?: Applets_ClockCommon::get_timezones()[$timezone];
+				$offset = $timezone * 60 * 60;
+				
+				print('<table style="width: 100%"><tr><td style="width: 100px;text-align:center;"><canvas id="' . $this->get_path() . '1_canvas" class="CoolClock:' . $skin . ':' . $size . '"></canvas>');
+				print('<br>Local Time<br><span class="local_time">' . Base_RegionalSettingsCommon::time2reg(null, false) . '</span></td>');
+				print('<td style="width: 100px;text-align:center;"><canvas id="' . $this->get_path() . '2_canvas" class="CoolClock:' . $skin . ':' . $size . ':noSeconds:' . $timezone . '"></canvas>');
+				print('<br>' . $label . '<br>' . gmdate('d F Y', time() + $offset) . '</td></tr></table>');
+				eval_js('jq(".local_time").html(function() {return jq.datepicker.formatDate("d MM yy", new Date());});');
+				
+				print('</center>');
+				return;
+			}
+			else 
+				print('<canvas id="' . $this->get_path() . 'canvas" class="CoolClock:' . $skin . ':' . $size . '"></canvas>');
 		}
 		print('<BR>'.Base_RegionalSettingsCommon::time2reg(null,false).'</center>');
 	}
@@ -42,7 +58,10 @@ class Applets_Clock extends Module {
 		$opts['go'] = true;
 		$skin = isset($conf['skin'])?$conf['skin']:null;
 		$opts['go_arguments'] = array($skin);
-		$this->body($skin,100);
+		
+		$size = $conf['type'] == 'double'? 60: 100;
+		
+		$this->body($skin, $size, $conf);
 	}
 
 }

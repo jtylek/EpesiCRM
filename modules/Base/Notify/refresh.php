@@ -14,6 +14,7 @@ define('READ_ONLY_SESSION', true);
 require_once('../../../include.php');
 ModuleManager::load_modules();
 
+ob_start();
 $token = Base_NotifyCommon::get_session_token(); // will check is user logged
 
 if ($token === false) {
@@ -71,6 +72,8 @@ foreach ($notifications as $module => $module_new_notifications) {
 }
 
 Base_NotifyCommon::set_notified_cache($notified_cache, $token, $all_notified ? $refresh_time : Base_NotifyCommon::get_last_refresh($token));
+
+ob_end_clean();
 
 if (count($ret)) {
     echo json_encode(array('messages' => $ret));
