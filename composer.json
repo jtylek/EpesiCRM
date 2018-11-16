@@ -8,12 +8,12 @@
         "fzaninotto/faker": "^1.6",
         "phpFastCache/phpFastCache": "^5.0",
         "ifsnop/mysqldump-php": "dev-master",
-        "memio/memio": "^1.0",
         "psy/psysh": "@stable",
         "enyo/dropzone": "@stable",
         "ezyang/htmlpurifier": "^4.9",
         "moneyphp/money": "^3.0",
-        "tecnickcom/tcpdf": "^6.2"
+        "tecnickcom/tcpdf": "^6.2",
+        "memio/memio": "^2.0"
     },
     "scripts": {
         "post-install-cmd": [
