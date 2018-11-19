@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "536721a92a80b9777d28ddb68aab3aaf",
+    "content-hash": "8676a9b32f2f1489c0076b766aa13495",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -355,26 +355,26 @@
         },
         {
             "name": "memio/linter",
-            "version": "v1.0.2",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/linter.git",
-                "reference": "76286a4ea75c457946a2b5b68d793d6362d870b4"
+                "reference": "6f282955869cdf72332a096f80ebc2897835a8b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/linter/zipball/76286a4ea75c457946a2b5b68d793d6362d870b4",
-                "reference": "76286a4ea75c457946a2b5b68d793d6362d870b4",
+                "url": "https://api.github.com/repos/memio/linter/zipball/6f282955869cdf72332a096f80ebc2897835a8b9",
+                "reference": "6f282955869cdf72332a096f80ebc2897835a8b9",
                 "shasum": ""
             },
             "require": {
-                "memio/model": "^1.0",
-                "memio/validator": "^1.0",
-                "php": "^5.3|^7.0"
+                "memio/model": "^2.0",
+                "memio/validator": "^2.0",
+                "php": "^7.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.6",
-                "phpspec/phpspec": "^2.4"
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/phpspec": "^4.3"
             },
             "type": "library",
             "autoload": {
@@ -401,33 +401,33 @@
                 "generator",
                 "php"
             ],
-            "time": "2015-12-01T16:44:02+00:00"
+            "time": "2018-03-02T14:52:00+00:00"
         },
         {
             "name": "memio/memio",
-            "version": "v1.1.1",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/memio.git",
-                "reference": "370d1fc0568a8eb4bc4bf25f7114a590b2717cb9"
+                "reference": "47708e9f39e1cd70d832ab60fe1006290246d09b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/memio/zipball/370d1fc0568a8eb4bc4bf25f7114a590b2717cb9",
-                "reference": "370d1fc0568a8eb4bc4bf25f7114a590b2717cb9",
+                "url": "https://api.github.com/repos/memio/memio/zipball/47708e9f39e1cd70d832ab60fe1006290246d09b",
+                "reference": "47708e9f39e1cd70d832ab60fe1006290246d09b",
                 "shasum": ""
             },
             "require": {
-                "memio/linter": "^1.0",
-                "memio/model": "^1.3",
-                "memio/pretty-printer": "^1.0",
-                "memio/twig-template-engine": "^1.2",
-                "memio/validator": "^1.0",
-                "php": "^5.3|^7.0"
+                "memio/linter": "^2.0@alpha",
+                "memio/model": "^2.0@alpha",
+                "memio/pretty-printer": "^2.0@alpha",
+                "memio/twig-template-engine": "^2.0@alpha",
+                "memio/validator": "^2.0@alpha",
+                "php": "^7.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.6",
-                "phpunit/phpunit": "^4.6|^5.0"
+                "friendsofphp/php-cs-fixer": "^1.6",
+                "phpunit/phpunit": "^5.4"
             },
             "type": "library",
             "autoload": {
@@ -455,30 +455,35 @@
                 "generator",
                 "php"
             ],
-            "time": "2015-12-01T17:28:21+00:00"
+            "time": "2016-10-03T18:20:18+00:00"
         },
         {
             "name": "memio/model",
-            "version": "v1.4.1",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/model.git",
-                "reference": "fbf1a4e4f610424b0600ec0d58e8ab9b55ba53e7"
+                "reference": "1e4609e0df347e1b9ed0f12eb4db82f378a6c049"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/model/zipball/fbf1a4e4f610424b0600ec0d58e8ab9b55ba53e7",
-                "reference": "fbf1a4e4f610424b0600ec0d58e8ab9b55ba53e7",
+                "url": "https://api.github.com/repos/memio/model/zipball/1e4609e0df347e1b9ed0f12eb4db82f378a6c049",
+                "reference": "1e4609e0df347e1b9ed0f12eb4db82f378a6c049",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3|^7.0"
+                "php": "^7.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.6",
-                "phpspec/phpspec": "^2.4"
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/phpspec": "^4.3"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Memio\\Model\\": "src/Memio/Model"
@@ -503,29 +508,29 @@
                 "generator",
                 "php"
             ],
-            "time": "2015-12-01T17:21:08+00:00"
+            "time": "2018-06-13T10:27:07+00:00"
         },
         {
             "name": "memio/pretty-printer",
-            "version": "v1.0.3",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/pretty-printer.git",
-                "reference": "d0365eb3afbd1fd417698b89002e31afa9ce3174"
+                "reference": "8181fbc211135f12ec78a7c4adb3445342454e7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/pretty-printer/zipball/d0365eb3afbd1fd417698b89002e31afa9ce3174",
-                "reference": "d0365eb3afbd1fd417698b89002e31afa9ce3174",
+                "url": "https://api.github.com/repos/memio/pretty-printer/zipball/8181fbc211135f12ec78a7c4adb3445342454e7d",
+                "reference": "8181fbc211135f12ec78a7c4adb3445342454e7d",
                 "shasum": ""
             },
             "require": {
-                "memio/model": "^1.0",
-                "php": "^5.3|^7.0"
+                "memio/model": "^2.0",
+                "php": "^7.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.6",
-                "phpspec/phpspec": "^2.4"
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/phpspec": "^4.3"
             },
             "type": "library",
             "autoload": {
@@ -552,33 +557,38 @@
                 "generator",
                 "php"
             ],
-            "time": "2015-12-01T11:11:18+00:00"
+            "time": "2018-03-02T15:10:58+00:00"
         },
         {
             "name": "memio/twig-template-engine",
-            "version": "v1.2.7",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/twig-template-engine.git",
-                "reference": "661b1e560c68963dbe84727710bdfb0f5004965e"
+                "reference": "746f944440cb7c3bcfffefc80753ecc2e9604778"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/twig-template-engine/zipball/661b1e560c68963dbe84727710bdfb0f5004965e",
-                "reference": "661b1e560c68963dbe84727710bdfb0f5004965e",
+                "url": "https://api.github.com/repos/memio/twig-template-engine/zipball/746f944440cb7c3bcfffefc80753ecc2e9604778",
+                "reference": "746f944440cb7c3bcfffefc80753ecc2e9604778",
                 "shasum": ""
             },
             "require": {
-                "memio/model": "^1.3",
-                "memio/pretty-printer": "^1.0",
-                "php": "^5.3 || ^7.0",
+                "memio/model": "^2.0",
+                "memio/pretty-printer": "^2.0",
+                "php": "^7.0",
                 "twig/twig": "^1.18 || ^2.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^1.6",
-                "phpspec/phpspec": "^2.4 || ^3.0"
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/phpspec": "^4.3"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Memio\\TwigTemplateEngine\\": "src/Memio/TwigTemplateEngine",
@@ -606,29 +616,29 @@
                 "templates",
                 "twig"
             ],
-            "time": "2017-01-12T12:01:49+00:00"
+            "time": "2018-03-02T15:17:41+00:00"
         },
         {
             "name": "memio/validator",
-            "version": "v1.0.2",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/memio/validator.git",
-                "reference": "5424fd8b43c833bfa634551fc5cb46962124900d"
+                "reference": "ff524bd973e186c72fec654cce3c057997e4cfc9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/memio/validator/zipball/5424fd8b43c833bfa634551fc5cb46962124900d",
-                "reference": "5424fd8b43c833bfa634551fc5cb46962124900d",
+                "url": "https://api.github.com/repos/memio/validator/zipball/ff524bd973e186c72fec654cce3c057997e4cfc9",
+                "reference": "ff524bd973e186c72fec654cce3c057997e4cfc9",
                 "shasum": ""
             },
             "require": {
-                "memio/model": "^1.0",
-                "php": "^5.3|^7.0"
+                "memio/model": "^2.0",
+                "php": "^7.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.6",
-                "phpspec/phpspec": "^2.4"
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/phpspec": "^4.3"
             },
             "type": "library",
             "autoload": {
@@ -655,7 +665,7 @@
                 "generator",
                 "php"
             ],
-            "time": "2015-12-01T16:49:43+00:00"
+            "time": "2018-03-02T15:26:34+00:00"
         },
         {
             "name": "moneyphp/money",
