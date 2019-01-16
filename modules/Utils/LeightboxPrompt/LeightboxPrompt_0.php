@@ -33,7 +33,10 @@ class Utils_LeightboxPrompt extends Module {
     	
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label, 'tooltip'=>$tooltip);
         
-        if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
+        //calling open method causes lbp to not be opened by the links on the page in case of no form validation
+        //this way works because no init is called
+        if (isset($form) && $form->exportValue('submited') && !$form->validate()) Utils_LeightboxPromptCommon::open($this->group, $this->get_params([]));
+    }
     }
     
     public function set_selected_option($option) {
