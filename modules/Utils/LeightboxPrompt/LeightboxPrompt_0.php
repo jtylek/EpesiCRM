@@ -37,6 +37,32 @@ class Utils_LeightboxPrompt extends Module {
         //this way works because no init is called
         if (isset($form) && $form->exportValue('submited') && !$form->validate()) Utils_LeightboxPromptCommon::open($this->group, $this->get_params([]));
     }
+    
+    public function add_options($options) {
+    	foreach ($options as $option => $desc) {
+    		$desc['label'] = $desc['label']?? $option;
+    		
+    		$desc['active'] = $desc['active']?? true;
+    		
+    		$desc['active'] = is_array($desc['active'])? $desc['active']: [$desc['active']];
+    		
+    		if (!(bool) array_product($desc['active'])) continue;
+    		
+    		$form = null;
+    		if ($desc['elements']?? []) {
+    			$form = $this->init_module(Libs_QuickForm::module_name());
+    			
+    			$elements = array_filter($desc['elements'], function($element) {
+    				return $element['active']?? true;
+    			});
+    				
+    			$form->add_array($elements);
+    			
+    			$form->setDefaults($desc['defaults']?? []);
+    		}
+    		
+    		$this->add_option($option, $desc['label'], $desc['icon']?? null, $form, $desc['tip']?? null);
+    	}
     }
     
     public function set_selected_option($option) {
