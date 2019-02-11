@@ -254,8 +254,7 @@ class Utils_RecordBrowser_Access
 		
 		$full_field_access = array_fill_keys(array_column($fields, 'id'), true);
 		
-		$blocked_field_access = array();
-		if ($blocked_fields) $blocked_field_access = array_fill_keys($blocked_fields, false);
+		$blocked_field_access = $blocked_fields? array_fill_keys($blocked_fields, false):[];
 		
 		return array_merge($full_field_access, $blocked_field_access);
 	}
