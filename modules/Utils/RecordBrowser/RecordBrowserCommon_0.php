@@ -98,7 +98,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
             $field = self::$hash[$field];
         }
-        if ($desc===null) $desc = self::$table_rows[$field];
+      
+        $desc = array_merge(self::$table_rows[$field], $desc?: []);
         if(!array_key_exists('id',$record)) $record['id'] = null;
         if (!array_key_exists($desc['id'],$record)) trigger_error($desc['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$desc['id']];
