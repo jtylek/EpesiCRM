@@ -1595,7 +1595,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 
         $access_crits = ($admin || in_array($tab, $stack)) ? true : self::get_access_crits($tab, 'browse');
-        if ($access_crits == false) return array();
+        if ($access_crits === false) return array();
         elseif ($access_crits !== true) {
             $crits = self::merge_crits($crits, $access_crits);
         }
