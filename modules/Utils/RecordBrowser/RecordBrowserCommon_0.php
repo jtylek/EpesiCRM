@@ -1385,7 +1385,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $values[$desc['id']] = self::encode_multi($filestorageIds[$field]);
 	        }
 
-            if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
+	        if (($desc['type']=='calculated' || $desc['type']=='hidden') && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
 			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
             if ($desc['type']=='long text')
