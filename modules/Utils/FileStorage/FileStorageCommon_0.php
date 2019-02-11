@@ -37,7 +37,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
      *
      * @return string File label with link
      */
-    public static function get_file_label($id, $nolink = false, $icon = true, $action_urls = null)
+    public static function get_file_label($id, $nolink = false, $icon = true, $action_urls = null, $label = null, $inline = false)
     {
     	$file_exists = self::file_exists($id, false);
     	
@@ -50,16 +50,17 @@ class Utils_FileStorageCommon extends ModuleCommon {
 			$icon_img = '';
 		}
 		
-		$filename = '';
+		$meta = null;
 		try {
 			$meta = is_numeric($id) ? self::meta($id) : $id;
-			$filename = $meta['filename'];			
 		} catch (Exception $e) {
-		}
-    		
-		$filename = $filename ?: htmlspecialchars('<' . __('missing filename') . '>');
+		}		
 		
-		if ($nolink) {
+		if (!$filename = $label) {
+			$filename = ($meta['filename']?? '') ?: htmlspecialchars('<' . __('missing filename') . '>');
+		}
+		
+		if ($nolink || !$meta) {
 			return $filename . ($file_exists ? '': ' [' . __('missing file') . ']');
 		}
 		
@@ -78,10 +79,13 @@ class Utils_FileStorageCommon extends ModuleCommon {
 	            $link_href = Utils_TooltipCommon::open_tag_attrs($tooltip_text);
         	}
         }
-        return '<div class="file_link"><a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a></div>';
+        
+        $ret = '<a ' . $link_href . '>' . $icon_img . '<span class="file_name">' . $filename . '</span></a>';
+        
+        return $inline? $ret: '<div class="file_link">'.$ret.'</div>';
     }
     
-    public static function get_file_inline_node($id, $action_urls = null) 
+    public static function get_file_inline_node($id, $action_urls = null, $max_width = '200px') 
     {
     	if (!self::file_exists($id, false)) return '';
     	
@@ -90,15 +94,22 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	if ($action_urls === null) {
     		$action_urls = self::get_default_action_urls($meta['id']);
     	}
+    	
+    	$max_width .= is_numeric($max_width)? 'px': '';
 
         $type = self::get_mime_type($meta['file'], $meta['filename'], null, false);
     	switch ($type) {
+    		case 'application/pdf':
+    			if (!self::get_pdf_thumbnail_possible($meta)) {
+    				$ret = '';
+    				break;
+    			}
 			// image
             case 'image/jpeg':
             case 'image/gif':
             case 'image/png':
             case 'image/bmp':
-				$ret = '<a href="' . $action_urls['preview'] . '" target="_blank"><img src="' . $action_urls['preview'] . '" class="file_inline" style="max-width: 100%" /></a>';
+				$ret = '<a href="' . $action_urls['preview'] . '" target="_blank"><img src="' . $action_urls['inline'] . '" class="file_inline" style="max-width: ' . $max_width . '" /></a>';
 				break;
 
     		default:
@@ -107,6 +118,12 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	}
     	
     	return $ret;
+    }
+    
+    public static function get_pdf_thumbnail_possible($meta) {
+    	$mime = Utils_FileStorageCommon::get_mime_type($meta['file'], $meta['filename'], null, false);
+
+    	return $mime == 'application/pdf' && class_exists('Imagick');
     }
     
     public static function get_default_action_urls($meta) {

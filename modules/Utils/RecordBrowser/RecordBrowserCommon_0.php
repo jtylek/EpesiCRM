@@ -3574,12 +3574,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if(!empty($fileStorageId)) {
 				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
 				$labels[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
-				$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions);
+				if (!$desc['nopreview']?? false)
+					$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions, $desc['max-width']?? '200px');
 			}
 		}
 		$inline_nodes = array_filter($inline_nodes);
 		
-		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('&nbsp;', $inline_nodes);
 	}
 
 	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)

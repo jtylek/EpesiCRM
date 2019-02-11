@@ -279,10 +279,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
             self::$mark_as_read = array();
         }
 
-        $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':''). $text . self::display_files($row, $nolink);
+        $text = (!$view && $row['title']?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':''). $text;
+        
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
-        return $text;
+        $files = self::display_files($row, $nolink);
+        
+        return implode('<br><br>', array_filter([$text, $files]));
     }
     
     public static function display_files($row, $nolink = false, $desc = null, $tab = null) {
@@ -302,8 +305,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
     		}
     	}
     	$inline_nodes = array_filter($inline_nodes);
-    	
-    	return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+
+    	return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('&nbsp;', $inline_nodes);
     }    		
 
     public static function description_callback($row,$nolink=false) {
