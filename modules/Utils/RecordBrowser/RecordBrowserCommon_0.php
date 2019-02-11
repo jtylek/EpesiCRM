@@ -650,6 +650,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'id'=>self::get_field_id($row['field']),
                         'pkey'=>$row['id'],
                         'type'=>$row['type'],
+                        'caption'=>$row['caption'],
                         'visible'=>$row['visible'],
                         'required'=>($row['type']=='calculated'?false:$row['required']),
                         'extra'=>$row['extra'],
