@@ -1562,28 +1562,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						date('Y-m-d H:i:s')));
     }
     public static function merge_crits($a = array(), $b = array(), $or=false) {
-        if (is_array($a)) {
-            $a = Utils_RecordBrowser_Crits::from_array($a);
-        }
-        if (!($a instanceof Utils_RecordBrowser_Crits)) {
-            $a = new Utils_RecordBrowser_Crits($a);
-        }
-        if (is_array($b)) {
-            $b = Utils_RecordBrowser_Crits::from_array($b);
-        }
-        if (!($b instanceof Utils_RecordBrowser_Crits)) {
-            $b = new Utils_RecordBrowser_Crits($b);
-        }
-        if ($a->is_empty()) {
-            return clone $b;
-        }
-        if ($b->is_empty()) {
-            return clone $a;
-        }
-        $a = clone $a;
-        $b = clone $b;
-        $ret = $or ? $a->_or($b) : $a->_and($b);
-        return $ret;
+        return Utils_RecordBrowser_Crits::merge($a, $b, $or);
     }
     public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
         static $stack = array();
