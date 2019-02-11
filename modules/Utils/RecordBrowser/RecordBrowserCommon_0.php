@@ -3185,7 +3185,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
-	
+        
+    public static function replace_clipboard_pattern($text, $data) {
+    	/* some complicate preg match to find every occurence
+    	 * of %{ .. {f_name} .. } pattern
+    	 */
+    	$match = [];
+    	if (preg_match_all('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for all patterns %{...{..}...}
+    		foreach ($match[0] as $k => $matched_string) {
+    			$text_replace = $match[1][$k];
+    			$changed = false;
+    			$second_match = [];
+    			while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
+    				$replace_value = '';
+    				if(array_key_exists($second_match[1], $data)) {
+    					$replace_value = $data[$second_match[1]];
+    					$changed = true;
+    				}
+    				$text_replace = str_replace($second_match[0], $replace_value, $text_replace);
+    			}
+    			if(! $changed ) $text_replace = '';
+    			$text = str_replace($matched_string, $text_replace, $text);
+    		}
+    	}
+    	
+    	return $text;
+    }
+    	
 	public static function get_field_tooltip($label) {
 		if(strpos($label,'Utils_Tooltip')!==false) return $label;
 		$args = func_get_args();
