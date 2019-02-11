@@ -201,6 +201,10 @@ class Utils_LeightboxPrompt extends Module {
         if (!$this->init) print('<a style="display:none;" '.$this->get_href().'></a>');
         $this->init=true;
 	}
+	
+	public function get_options_count() {
+        return count($this->options);
+	}
 
     public function get_close_leightbox_href($reset_view = false) {
         return 'href="javascript:void(0)" onclick="' . $this->get_close_leightbox_href_js($reset_view) . '"';
