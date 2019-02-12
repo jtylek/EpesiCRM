@@ -3574,7 +3574,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if(!empty($fileStorageId)) {
 				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
 				$labels[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
-				if (!$desc['nopreview']?? false)
+				if (!($desc['nopreview']?? false))
 					$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions, $desc['max-width']?? '200px');
 			}
 		}
