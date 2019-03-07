@@ -14,6 +14,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Tray_Box {
 	protected $title;
 	protected $weight = 5;
+	/**
+	 * @var Utils_Tray_Slot[]
+	 */
 	protected $slots = [];
 	protected $slotsLimit = false;
 	protected $limitSlotsDisabled = false;
@@ -58,9 +61,12 @@ class Utils_Tray_Box {
 	public function getSlots() {
 		if (!$this->getSlotsLimit()) return $this->slots;
 		
-		$ret = [];		
-		foreach ($this->slots as $id=>$slot) {
-			if (!$slot->getIgnoreLimit() && $id >= $this->getSlotsLimit()) continue;
+		$ret = [];
+		$count = 0;
+		foreach ($this->slots as $slot) {
+			if ($count >= $this->getSlotsLimit() && !$slot->getIgnoreLimit()) continue;
+			
+			$count++;
 			
 			$ret[] = $slot;
 		}
@@ -76,7 +82,7 @@ class Utils_Tray_Box {
 			
 			$slot = new Utils_Tray_Slot($this, $slotModule, $tab, $definition, $transCallbacks);
 			
-			$this->slots[$slot->getId()] = $slot;
+			$this->slots[] = $slot;
 		}
 		
 		uasort($this->slots, function (Utils_Tray_Slot $a, Utils_Tray_Slot $b) {

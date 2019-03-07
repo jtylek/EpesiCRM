@@ -83,8 +83,7 @@ class Utils_Tray_Slot {
 	}
 
 	public function setName($name) {
-		$this->name = $name;
-		$this->setId($name);
+		$this->setId($this->name = $name);
 		
 		return $this;
 	}
