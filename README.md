@@ -6,12 +6,21 @@
 
 For more information visit http://epe.si
 
+## Setup
+
+- Clone repository
+- Run composer update
+- Create a database, note user and login
+- Run Epesi from the installation directory.
+
+The setup wizard will setup a user and first Company and Contact in the CRM.
+
 <b>Support</b><br />
 User forum https://forum.epe.si/<br />
 Documentation https://epesi.org/<br />
 
 MIT License<br />
-Copyright 2019 by Janusz Tylek<br />
+Copyright &copy; 2006-2019 by Janusz Tylek<br />
 
 Enjoy,  
 <b>EPESI Team</b>
