@@ -17,7 +17,10 @@ if(trim(ini_get("safe_mode")))
 	die('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 7.0.');
 
 define('_VALID_ACCESS',1);
-require_once('include/data_dir.php');
+define('DATA_DIR','data'); // added by J. Tylek to remove map.php
+// Default /data directory location is epesidir/data
+// Must be defined here to read config.php
+
 if(!file_exists(DATA_DIR.'/config.php')) {
 	header('Location: setup.php');
 	exit();
