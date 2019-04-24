@@ -11,7 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 require_once('database.php');
 
-class DBSession {
+class DBSession implements SessionHandlerInterface{
     const MAX_SESSION_ID_LENGTH = 128;
     private static $lifetime;
     private static $memcached;
@@ -28,7 +28,7 @@ class DBSession {
         return substr($session_id, 0, self::MAX_SESSION_ID_LENGTH);
     }
 
-    public static function open($path, $name) {
+    public function open($path, $name) {
         self::$lifetime = min(ini_get("session.gc_maxlifetime"),2592000-1); //less then 30 days
         switch(SESSION_TYPE) {
             case 'file':
@@ -57,12 +57,12 @@ class DBSession {
         return true;
     }
 
-    public static function close() {
+    public function close() {
         //self::gc(self::$lifetime);
         return true;
     }
 
-    public static function read($name) {
+    public function read($name) {
         $name = self::truncated_session_id($name);
         
         //main session
@@ -93,45 +93,44 @@ class DBSession {
         }
         if($ret) $_SESSION = unserialize($ret);
 
-        if(CID!==false) {
-            if(!is_numeric(CID))
-                trigger_error('Invalid client id.',E_USER_ERROR);
+        if(CID===false) return '';
+        
+        if(!is_numeric(CID))
+            trigger_error('Invalid client id.',E_USER_ERROR);
 
-            if(isset($_SESSION['session_destroyed'][CID])) return '';
+        if(isset($_SESSION['session_destroyed'][CID])) return '';
             
-            switch(self::$session_type) {
-                case 'file':
-                    $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
-                    if(!file_exists($sess_file)) file_put_contents($sess_file,'');
-                    self::$session_client_fp = fopen($sess_file,'r+');
-                    if(!READ_ONLY_SESSION && !flock(self::$session_client_fp,LOCK_EX)) 
-                        trigger_error('Unable to get lock on session file='.$sess_file,E_USER_ERROR);
-                    $ret = stream_get_contents(self::$session_client_fp);
-                    break;
-                case 'memcache':
-                    if(!READ_ONLY_SESSION && !self::$memcached->lock(MEMCACHE_SESSION_TOKEN.$name.'_'.CID,self::$memcached_lock_time))
-                        trigger_error('Unable to get lock on session mem='.$name.'_'.CID,E_USER_ERROR);
-                    $ret = '';
-                    for($i=0;; $i++) {
-                        $rr = self::$memcached->get(MEMCACHE_SESSION_TOKEN.$name.'_'.CID.'/'.$i);
-                        if($rr==='' || $rr===false || $rr===null) break;
-                        $ret .= $rr;
-                    }
-                    break;
-                case 'sql':
-                    $ret = DB::GetCol('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d'.(READ_ONLY_SESSION?'':' FOR UPDATE'), array($name, CID));
-                    if($ret) $ret = $ret[0];
-                    break;
-            }
-            if($ret) $_SESSION['client'] = unserialize($ret);
-
-            if(!isset($_SESSION['client']['__module_vars__']))
-                $_SESSION['client']['__module_vars__'] = array();
+        switch(self::$session_type) {
+            case 'file':
+                $sess_file = rtrim(FILE_SESSION_DIR,'\\/').'/'.FILE_SESSION_TOKEN.$name.'_'.CID;
+                if(!file_exists($sess_file)) file_put_contents($sess_file,'');
+                self::$session_client_fp = fopen($sess_file,'r+');
+                if(!READ_ONLY_SESSION && !flock(self::$session_client_fp,LOCK_EX)) 
+                    trigger_error('Unable to get lock on session file='.$sess_file,E_USER_ERROR);
+                $ret = stream_get_contents(self::$session_client_fp);
+                break;
+            case 'memcache':
+                if(!READ_ONLY_SESSION && !self::$memcached->lock(MEMCACHE_SESSION_TOKEN.$name.'_'.CID,self::$memcached_lock_time))
+                    trigger_error('Unable to get lock on session mem='.$name.'_'.CID,E_USER_ERROR);
+                $ret = '';
+                for($i=0;; $i++) {
+                    $rr = self::$memcached->get(MEMCACHE_SESSION_TOKEN.$name.'_'.CID.'/'.$i);
+                    if($rr==='' || $rr===false || $rr===null) break;
+                    $ret .= $rr;
+                }
+                break;
+            case 'sql':
+                $ret = DB::GetCol('SELECT data FROM session_client WHERE session_name = %s AND client_id=%d'.(READ_ONLY_SESSION?'':' FOR UPDATE'), array($name, CID));
+                if($ret) $ret = $ret[0];
+                break;
         }
-        return '';
+        if($ret) $_SESSION['client'] = unserialize($ret);
+
+        if(!isset($_SESSION['client']['__module_vars__']))
+            $_SESSION['client']['__module_vars__'] = array();
     }
 
-    public static function write($name, $data) {
+    public function write($name, $data) {
         if(READ_ONLY_SESSION) return true;
         $name = self::truncated_session_id($name);
         if(defined('SESSION_EXPIRED')) {
@@ -207,7 +206,7 @@ class DBSession {
                 break;
         }
 
-        return ($ret>0)?true:false;
+        return $ret > 0;
     }
     
     public static function destroy_client($name,$i) {
@@ -229,7 +228,7 @@ class DBSession {
         DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
     }
 
-    public static function destroy($name) {
+    public function destroy($name) {
         $name = self::truncated_session_id($name);
         $cids = DB::GetCol('SELECT DISTINCT client_id FROM history WHERE session_name=%s',array($name));
         foreach($cids as $i)
@@ -254,7 +253,7 @@ class DBSession {
         return true;
     }
 
-    public static function gc($lifetime) {
+    public function gc($lifetime) {
         $t = time()-$lifetime;
         $ret = DB::Execute('SELECT name FROM session WHERE expires <= %d',array($t));
         while($row = $ret->FetchRow()) {
@@ -323,7 +322,6 @@ class EpesiMemcache {
 
 // remember that even with SET_SESSION = false, class defined below is declared
 if(!SET_SESSION) {
-    global $_SESSION;
     if(!isset($_SESSION) || !is_array($_SESSION))
     	$_SESSION = array();
     return;
@@ -336,12 +334,7 @@ if(defined('EPESI_PROCESS')) {
     ini_set('session.gc_probability', 0);
 }
 
-session_set_save_handler(array('DBSession','open'),
-                             array('DBSession','close'),
-                             array('DBSession','read'),
-                             array('DBSession','write'),
-                             array('DBSession','destroy'),
-                             array('DBSession','gc'));
+session_set_save_handler(new DBSession());
 
 if(extension_loaded('apc') || extension_loaded('eaccelerator') || extension_loaded('xcache')) //fix for class DBSession not found
     register_shutdown_function('session_write_close');

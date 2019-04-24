@@ -10,8 +10,8 @@
  * @version 1.0 
  * @package epesi-base
  */
-if(version_compare(phpversion(), '5.5.0')==-1)
-	die("You are running an old version of PHP, php 5.5 required.");
+if(version_compare(phpversion(), '7.0.0')==-1)
+	die("You are running an old version of PHP, php 7.0 required.");
 
 if(trim(ini_get("safe_mode")))
 	die('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and will be removed in PHP 7.0.');

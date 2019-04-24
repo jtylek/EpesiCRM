@@ -98,7 +98,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if (!isset(self::$hash[$field])) trigger_error('Unknown field "'.$field.'" for recordset "'.$tab.'"',E_USER_ERROR);
             $field = self::$hash[$field];
         }
-        if ($desc===null) $desc = self::$table_rows[$field];
+      
+        $desc = array_merge(self::$table_rows[$field], $desc?: []);
         if(!array_key_exists('id',$record)) $record['id'] = null;
         if (!array_key_exists($desc['id'],$record)) trigger_error($desc['id'].' - unknown field for record '.serialize($record), E_USER_ERROR);
         $val = $record[$desc['id']];
@@ -650,6 +651,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         'id'=>self::get_field_id($row['field']),
                         'pkey'=>$row['id'],
                         'type'=>$row['type'],
+                        'caption'=>$row['caption'],
                         'visible'=>$row['visible'],
                         'required'=>($row['type']=='calculated'?false:$row['required']),
                         'extra'=>$row['extra'],
@@ -1385,7 +1387,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $values[$desc['id']] = self::encode_multi($filestorageIds[$field]);
 	        }
 
-            if ($desc['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
+	        if (($desc['type']=='calculated' || $desc['type']=='hidden') && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$desc['param'])===0) continue; // FIXME move DB definiton to *_field table
             if (!isset($values[$desc['id']]) || $values[$desc['id']]==='') continue;
 			if (!is_array($values[$desc['id']])) $values[$desc['id']] = trim($values[$desc['id']]);
             if ($desc['type']=='long text')
@@ -1560,28 +1562,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 						date('Y-m-d H:i:s')));
     }
     public static function merge_crits($a = array(), $b = array(), $or=false) {
-        if (is_array($a)) {
-            $a = Utils_RecordBrowser_Crits::from_array($a);
-        }
-        if (!($a instanceof Utils_RecordBrowser_Crits)) {
-            $a = new Utils_RecordBrowser_Crits($a);
-        }
-        if (is_array($b)) {
-            $b = Utils_RecordBrowser_Crits::from_array($b);
-        }
-        if (!($b instanceof Utils_RecordBrowser_Crits)) {
-            $b = new Utils_RecordBrowser_Crits($b);
-        }
-        if ($a->is_empty()) {
-            return clone $b;
-        }
-        if ($b->is_empty()) {
-            return clone $a;
-        }
-        $a = clone $a;
-        $b = clone $b;
-        $ret = $or ? $a->_or($b) : $a->_and($b);
-        return $ret;
+        return Utils_RecordBrowser_Crits::merge($a, $b, $or);
     }
     public static function build_query($tab, $crits = null, $admin = false, $order = array(), $tab_alias = 'r') {
         static $stack = array();
@@ -1595,7 +1576,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 
         $access_crits = ($admin || in_array($tab, $stack)) ? true : self::get_access_crits($tab, 'browse');
-        if ($access_crits == false) return array();
+        if ($access_crits === false) return array();
         elseif ($access_crits !== true) {
             $crits = self::merge_crits($crits, $access_crits);
         }
@@ -3185,7 +3166,33 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
         return DB::GetOne('SELECT pattern FROM recordbrowser_clipboard_pattern WHERE tab=%s AND enabled=1', array($tab));
     }
-	
+        
+    public static function replace_clipboard_pattern($text, $data) {
+    	/* some complicate preg match to find every occurence
+    	 * of %{ .. {f_name} .. } pattern
+    	 */
+    	$match = [];
+    	if (preg_match_all('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for all patterns %{...{..}...}
+    		foreach ($match[0] as $k => $matched_string) {
+    			$text_replace = $match[1][$k];
+    			$changed = false;
+    			$second_match = [];
+    			while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
+    				$replace_value = '';
+    				if(array_key_exists($second_match[1], $data)) {
+    					$replace_value = $data[$second_match[1]];
+    					$changed = true;
+    				}
+    				$text_replace = str_replace($second_match[0], $replace_value, $text_replace);
+    			}
+    			if(! $changed ) $text_replace = '';
+    			$text = str_replace($matched_string, $text_replace, $text);
+    		}
+    	}
+    	
+    	return $text;
+    }
+    	
 	public static function get_field_tooltip($label) {
 		if(strpos($label,'Utils_Tooltip')!==false) return $label;
 		$args = func_get_args();
@@ -3567,12 +3574,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			if(!empty($fileStorageId)) {
 				$actions = $fileHandler->getActionUrlsRB($fileStorageId, $tab, $r['id'], $desc['id']);
 				$labels[]= Utils_FileStorageCommon::get_file_label($fileStorageId, $nolink, true, $actions);
-				$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions);
+				if (!($desc['nopreview']?? false))
+					$inline_nodes[]= Utils_FileStorageCommon::get_file_inline_node($fileStorageId, $actions, $desc['max-width']?? '200px');
 			}
 		}
 		$inline_nodes = array_filter($inline_nodes);
 		
-		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('&nbsp;', $inline_nodes);
 	}
 
 	public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
