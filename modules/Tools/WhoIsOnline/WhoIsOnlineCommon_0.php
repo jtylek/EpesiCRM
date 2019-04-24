@@ -33,7 +33,7 @@ class Tools_WhoIsOnlineCommon extends ModuleCommon {
 if(!array_key_exists('tools_whoisonline', $_SESSION)
    || $_SESSION['tools_whoisonline'] != Base_AclCommon::get_user()) {
     $current_user = Base_AclCommon::get_user();
-    $session_id = DBSession::truncated_session_id();
+    $session_id = EpesiSession::truncated_id();
     if ($current_user && Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me')) {
         if (DB::GetOne('SELECT COUNT(*) FROM tools_whoisonline_users WHERE session_name=%s', array($session_id)) == 0) {
             @DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array($session_id, $current_user));

@@ -17,7 +17,7 @@ class History {
 
     private static function session_id()
     {
-        return DBSession::truncated_session_id();
+        return EpesiSession::truncated_id();
     }
 	
 	public static function back() {

@@ -30,7 +30,7 @@ $_SESSION['num_of_clients'] = $client_id_next;
 
 //DBSession::destroy_client(session_id(),$client_id);
 if($client_id-5>=0) {
-    DBSession::destroy_client(session_id(),$client_id-5);
+    EpesiSession::destroy_client(session_id(),$client_id-5);
     $_SESSION['session_destroyed'][$client_id-5] = 1;
 }
 session_commit();
