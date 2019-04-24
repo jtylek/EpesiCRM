@@ -6,12 +6,12 @@
 
 For more information visit http://epe.si
 
-<b>Support</b>
-User forum https://forum.epe.si/
-Documentation https://epesi.org/
+<b>Support</b><br />
+User forum https://forum.epe.si/<br />
+Documentation https://epesi.org/<br />
 
-MIT License
-Copyright 2019 by Janusz Tylek
+MIT License<br />
+Copyright 2019 by Janusz Tylek<br />
 
 Enjoy,  
 <b>EPESI Team</b>
