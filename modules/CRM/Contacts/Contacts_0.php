@@ -119,47 +119,28 @@ class CRM_Contacts extends Module {
 
     public function change_email_header() {
 		$adm = $this->init_module('Base_User_Administrator');
-		$back = $adm->is_back();
-		if ($back) {
-            Base_BoxCommon::pop_main();
-            return false;
+		if ($adm->is_back()) {
+            return Base_BoxCommon::pop_main();
         }
-		$result = $this->display_module($adm, array(), 'change_email_header');
+		$this->display_module($adm, array(), 'change_email_header');
 		print('<span style="display:none;">'.microtime(true).'</span>');
 		return true;
 	}
 	
-	public function user_actions($r, $gb_row) {
-        static $admin_levels = false;
-        static $my_level = false;
-        if ($admin_levels === false)
-            $admin_levels = DB::GetAssoc('SELECT id,admin FROM user_login');
-        if ($my_level === false)
-            $my_level = isset($admin_levels[Base_AclCommon::get_user()])
-                        ? $admin_levels[Base_AclCommon::get_user()] : 0;
-
-        $mod = 'Base_User_Administrator';
-        $log_as_user = Base_AdminCommon::get_access($mod, 'log_as_user');
-        $log_as_admin = Base_AdminCommon::get_access($mod, 'log_as_admin');
+	public function user_actions($contact, $gb_row) {
+        if (!Base_User_AdministratorCommon::get_log_as_user_access($contact['login'])) return;
         
-        $user_level = isset($admin_levels[$r['login']]) ? $admin_levels[$r['login']] : 0;
-        // 2 is superadmin, 1 admin, 0 user
-        if ($my_level == 2 ||      // i am super admin or...
-                $my_level == 1 &&  // i am admin and...
-                ($user_level == 0 && $log_as_user ||  // contact is user and I can login as user
-                $user_level == 1 && $log_as_admin)) { // contact is admin and I can login as admin
-            if (Base_UserCommon::is_active($r['login'])) {
-                $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($r['login'], false)), 'Deactivate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-on.png'));
-                $gb_row->add_action(Module::create_href(array('log_as_user' => $r['login'])), 'Log as user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'restore.png'));
-                // action!
-                if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user'] == $r['login']) {
-                    Acl::set_user($r['login'], true);
-                    Epesi::redirect();
-                    return;
-                }
-            } else {
-                $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($r['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-off.png'));
+        if (Base_UserCommon::is_active($contact['login'])) {
+        	$gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($contact['login'], false)), __('Deactivate user'), null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-on.png'));
+            $gb_row->add_action(Module::create_href(array('log_as_user' => $contact['login'])), __('Log as user'), null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'restore.png'));
+            // action!
+            if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user'] == $contact['login']) {
+            	Acl::set_user($contact['login'], true);
+                Epesi::redirect();
+                return;
             }
+        } else {
+            $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($contact['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-off.png'));
         }
     }
 	public function change_user_active_state($user, $state) {

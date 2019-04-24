@@ -10,13 +10,18 @@
  * 		- __title__ setting determines the tray that slots will be included in.
  * 		Make sure the title is defined using _M('title') function.
  * 	
- * 		- __slots__ setting defines the slot settings: __name__, __filters__, __weight__
+ * 		- __slots__ setting defines the slot settings: __name__, __filters__, __crits__, __weight__, __module__
  * 			= __name__ setting determines the tray display title. 
  * 			Make sure the name is defined using _M('name') function
  * 			= __weight__ setting defines the order in which the slots are displayed
  * 			= __filters__ setting defines the default filter values that represent the records contained in each slot
+ * 			= __crits__ setting is crits or a callback that defines crits for the slot
+ * 			= __module__ setting defines the module to jump to, default is the module where tray method was called from
+ * 			= __ignore_limit__ - boolean - the slot is displayed irrelevant of slot limit set - can be used for important slots
  * 
  * 		- __weight__ setting defines the order in which the trays are displayed
+ * 
+ * 		- __ignore_limit__ - boolean - the box is displayed irrelevant of box limit set - can be used for important boxes
  * 
  * 		- __trans_callbacks__ setting is the list of callback functions for each field that has custom filter defined
  * 
@@ -41,6 +46,15 @@
  *	}
  * 
  * 
+ * To initiate tray for a recordset use the Utils_TrayCommon::enable method. It makes sure the tray filters are set when navigating with tray slot click 
+ * 
+ * Sample (in the install() method of the module:
+ * 
+ * Utils_TrayCommon::enable('premium_projects'); * 
+ * 
+ * 
+ * ****** Below is the DEPRECATED method of initiating Tray ******
+ * 
  * Initiate the tray module in the body method of your module and call the set_filters method as per sample.
  * 
  * Sample:
@@ -58,9 +72,9 @@
  *	}
  * 
  * @author Georgi Hristov <ghristov@gmx.de>
- * @copyright Copyright &copy; 2014, Xoff Software GmbH
+ * @copyright Copyright &copy; 2019, Georgi Hristov
  * @license MIT
- * @version 1.0
+ * @version 2.0
  * @package epesi-tray
  * 
  */
@@ -70,12 +84,59 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Utils_Tray extends Module {
 	private $max_trays = '__NULL__';
 	private $max_slots = '__NULL__';
+	private $hide_empty_slots = 0;
+	
+	/**
+	 * @var Utils_Tray_Box[]
+	 */
+	private $boxes = [];
 	
 	public function body() {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
-		Base_ActionBarCommon::add('settings',__('Settings'), $this->create_callback_href(array($this, 'push_settings'), array('Tray settings')), __('Click to edit tray settings'));
+		Base_ActionBarCommon::add('settings',__('Settings'), $this->create_callback_href([$this, 'push_settings'], ['Tray settings']), __('Click to edit tray settings'));
 
 		$this->output();
+	}
+	
+	public function tray_tab_browse_details($form, & $external_filters, & $vals, & $filter_crits, $rb_obj) {
+		if (!Acl::check_permission('Dashboard')) return;
+
+		$this->navigate();
+		
+		$this->set_inline_display();
+
+		/**
+		 * @var Utils_Tray_Slot|boolean $slot
+		 */
+		$slot = $this->get_selected_slot($rb_obj);
+		
+		if (!$slot) return;
+
+		if ($slot->filtersMatch() || $slot->getCrits()) {
+			$rb_obj->set_additional_caption($slot->getName());			
+			
+			foreach ( $slot->getFilters() as $field => $value ) {
+				$vals['filter__' . $field] = $value;
+			}
+			
+			$form->setDefaults($vals);			
+		}
+		
+		if (!$slot->filtersExist() && $slot->getCrits())
+			$filter_crits = $slot->getCrits();
+	}
+	
+	public function navigate() {
+		$this->set_module_variable('navigated', false);
+		
+		if ($this->is_back())
+			return Base_BoxCommon::pop_main();
+
+		if (isset($_REQUEST['tray_slot'])) {
+			Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+			$this->set_module_variable('tray_slot', $_REQUEST['tray_slot']);
+			$this->set_module_variable('navigated', true);
+		}
 	}
 
 	public function applet($conf, & $opts) {
@@ -83,228 +144,187 @@ class Utils_Tray extends Module {
 		$opts['title'] = $conf['title'];
 		$this->max_trays = $conf['max_trays'];
 		$this->max_slots = $conf['max_slots'];
+		$this->hide_empty_slots = $conf['hide_empty_slots'];
 
 		$this->output(true);
 	}
 
 	private function output($applet = false) {
-		Base_ThemeCommon::load_css($this->get_type(), 'tray');
+		$this->init_boxes();
 
-		$tray_settings = Utils_TrayCommon::get_trays();
-
-		$tray_def = array();
-		$total_pending = 0;
-		$displayed = 0;
-
-		foreach ($tray_settings as $module=>$module_settings) {
-			foreach ($module_settings as $tab=>$tab_settings) {
-				if (!isset($tab_settings['__title__'])) continue;
-
-				$tray = Utils_TrayCommon::get_tray($tab, $tab_settings);
-
-				if (!isset($tray['__slots__']) || count($tray['__slots__'])==0) continue;
-
-				$tray_id = $this->get_type().'__'.Utils_RecordBrowserCommon::get_field_id($tray['__title__']);
-
-				$tray_def += array($tray_id =>array('__title__' => $tray['__title__'], '__weight__'=>isset($tray['__weight__'])?$tray['__weight__']:0));
-
-				foreach ($tray['__slots__'] as $slot_id=>$slot_def) {
-					$total_pending += $slot_def['__count__'];
-					$displayed += $slot_def['__count__'];
-
-					$tray_def[$tray_id]['__slots__'][$slot_id]['__weight__'] = isset($slot_def['__weight__'])? $slot_def['__weight__']: 0;
-
-					$icon = $this->get_icon($slot_def['__count__']);
-					$tray_count_width = ($slot_def['__count__']>99)? 'style="width:28px;"':'';
-
-					$tip_text = __('Click to view %s items from %s<br><br>%d item(s)', array(_V($slot_def['__name__']),_V($tray['__title__']), $slot_def['__count__']));
-
-					$tray_def[$tray_id]['__slots__'][$slot_id]['__html__'] = '<td><a '.$this->create_main_href($module, null, array($tab), null, array('tray_slot'=>$slot_id)).'><div class="Utils_Tray__slot">'.
-					Utils_TooltipCommon::create('<img src="'.$icon.'">
-					<div class="Utils_Tray__count" '.$tray_count_width.'>'.$slot_def['__count__'].'</div><div>'._V($slot_def['__name__']).'</div>',$tip_text).'</div></a></td>';				
-				}
-			}
-		}
-
-		Utils_TrayCommon::sort_trays($tray_def);
-
-		$trays = array();
-		$tray_slots_html = array();
-		$current_tray = 0;
-
-		$tray_cols = $applet? 2:$this->get_tray_cols();
-
-		foreach ($tray_def as $tray_id=>$def) {
-			$current_tray += 1;
-			$current_row = max(array(round($current_tray/$tray_cols), 1));
-			$current_col = $current_tray - $tray_cols*($current_row-1);
-
-			if (isset($this->max_trays) && $this->max_trays != '__NULL__') {
+		$boxes = [];
+		foreach ($this->boxes as $box) {
+			if (is_numeric($this->max_trays)) {
 				//allow only trays in applet mode as per setting
-				if (count($trays) >= $this->max_trays) 	break;
+				if (count($boxes) >= $this->max_trays && !$box->getIgnoreLimit()) continue;
 			}
 
-			if (self::get_tray_layout()=='checkered')
-			$class = (($current_row+$current_col) % 2)?'Utils_Tray__group_even':'Utils_Tray__group_odd';
-			else
-			$class = 'Utils_Tray__group_even';
-
-			$trays[] = array(
-			'class' => $class,
-			'col'=>$current_col,
-			'title'=>_V($def['__title__']),
-			'id'=>$tray_id);
-
-			foreach ($def['__slots__'] as $slot) {
-				$tray_slots_html[$tray_id][] = $slot['__html__'];
-
-				if (isset($this->max_slots) && $this->max_slots != '__NULL__') {
-					//allow slots in applet mode as per setting
-					if (count($tray_slots_html[$tray_id]) >= $this->max_slots) continue 2;
-				}
+			$slots = [];			
+			foreach ( $box->setSlotsLimit($this->max_slots)->getSlots() as $slot ) {
+				if (!$slot->isVisible($this->hide_empty_slots)) continue;
+				
+				$slots[] = $slot->getHtml();
 			}
+			
+			if (!$slots) continue;
+			
+			$boxes[] = [
+					'title' => _V($box->getTitle()),
+					'slots' => $slots
+			];
 		}
-
-		eval_js(
-		'function Utils_Tray__trays() {
-			var trays = '.json_encode($tray_slots_html).';
-			return trays;		
-		}
-		
-		jq( document ).ready(function() {
-			var resizeId;
-			jq(window).resize(function(){
-				clearTimeout(resizeId);
-				resizeId = setTimeout(Utils_Tray__resize, 300);
-			});	
-			Utils_Tray__resize();	
-		});');
-
-		load_js($this->get_module_dir().'tray.js');
-
+	
 		$theme = $this->init_module(Base_Theme::module_name());
-		$icon = Base_ThemeCommon::get_template_file($this->get_type(),'pile2.png');
 
 		$theme->assign('main_page', !$applet);
 		$theme->assign('caption', Utils_TrayCommon::caption());
-		$theme->assign('icon', $icon);
-		$theme->assign('trays', $trays);
-		$theme->assign('tray_cols', $tray_cols);
-
-		if ($total_pending!=$displayed) {
-			print (__('Displaying %d of %d pending', array($displayed, $total_pending)));
-		}
+		$theme->assign('icon', Base_ThemeCommon::get_template_file($this->get_type(),'pile2.png'));
+		$theme->assign('boxes', $boxes);
+		$theme->assign('box_cols', $applet? 2:$this->get_tray_cols());
 
 		$theme->display('tray');
 	}
+	
+	public function init_boxes() {
+		$tray_settings = Utils_TrayCommon::get_trays();
 
-	public function set_filters($rb, $display_tray_select = true, $filter_defaults = array()) {
-		if(!Base_AclCommon::check_permission('Dashboard')) return;
-		if($this->is_back()) {
-			$x = ModuleManager::get_instance('/Base_Box|0');
-			if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-			return $x->push_main('Utils_Tray');
-		}
-
-		if (isset($_REQUEST['tray_slot'])) {
-			Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-			$this->set_module_variable('tray_slot', $_REQUEST['tray_slot']);
-		}
-
-		$tray_func = $this->parent->get_type().'Common::tray';
-		if (!is_callable($tray_func)) return;
-
-		$settings = call_user_func($tray_func);
-
-		if (!isset($settings[$rb->tab])) return;
-
-		$slot_defs = Utils_TrayCommon::get_slots($rb->tab, $settings[$rb->tab]);
-		Utils_TrayCommon::sort_trays($slot_defs);
-
-		if ($display_tray_select) {
-			$tray_slot_select_options = array('__NULL__'=>'---');
-			foreach ($slot_defs as $slot_id=>$slot_def) {
-				$tray_slot_select_options[$slot_id] = _V($slot_def['__name__']);
-			}
-
-			$form = $this->init_module(Libs_QuickForm::module_name());
-			$form->addElement('select', 'tray_slot_select', __('Tray'), $tray_slot_select_options, array('style'=>'width: 130px','onchange'=>$form->get_submit_form_js()));
-			if ($form->validate()) {
-				$tray_slot = $form->exportValue('tray_slot_select');
-				$this->set_module_variable('tray_slot',$tray_slot);
+		foreach ($tray_settings as $module=>$module_settings) {
+			foreach ($module_settings as $tab=>$box_settings) {
+				if (!isset($box_settings['__title__'])) continue;
+				$box_id = $this->get_type() . '__' . Utils_RecordBrowserCommon::get_field_id($box_settings['__title__']);
 				
-				$rb->unset_module_variable('def_filter');
+				$slot_definitions = $box_settings['__slots__'];
+				unset($box_settings['__slots__']);
+				
+				if (!isset($this->boxes[$box_id]))
+					$this->boxes[$box_id] = new Utils_Tray_Box($box_settings);
+					
+				$this->boxes[$box_id]->setSlots($module, $tab, $slot_definitions, $box_settings['__trans_callbacks__']?? []);
 			}
 		}
-
-		$tray_slot = $this->get_module_variable('tray_slot');
 		
-		if (isset($slot_defs[$tray_slot]['__filters__'])) {
-			$filters_changed = Utils_TrayCommon::are_filters_changed($slot_defs[$tray_slot]['__filters__']);
-		}
-		else {
-			$filters_changed = true;
-		}
-
-		if (!isset($_REQUEST['__location']) && ($tray_slot!='__NULL__') && isset($tray_slot) && !$filters_changed){
-			$rb->set_additional_caption(_V($slot_defs[$tray_slot]['__name__']));
-		}
-		else {
-			$this->unset_module_variable('tray_slot');
-			$tray_slot='__NULL__';
-		}
-
-		if ($display_tray_select) {
-			$form->setDefaults(array('tray_slot_select'=>$tray_slot));
-
-			ob_start();
-			$form->display_as_row();
-			$html = ob_get_clean();
-			print('<div style="position: absolute;right:120px;">'.$html.'</div>');
+		uasort($this->boxes, function (Utils_Tray_Box $a, Utils_Tray_Box $b) {
+			return $a->getWeight() - $b->getWeight();
+		});
+	}
+	
+	public function get_tab_slots($tab) {
+		if (!$this->boxes) $this->init_boxes();
+		
+		$ret = [];
+		foreach ($this->boxes as $box) {
+			foreach ($box->getSlots() as $slot) {
+				if ($slot->getTab() == $tab) $ret[$slot->getId()] = $slot;
+			}
 		}
 		
-		if (is_null($tray_slot) || $tray_slot=='__NULL__') {
-			$rb->set_filters_defaults($filter_defaults);
-			return;
-		}
-		
-		$rb->disable_browse_mode_switch();
-
-		$rb->set_filters($slot_defs[$tray_slot]['__filters__'], true, true);
+		return $ret;
 	}
 
+	/**
+	 * @param Utils_RecordBrowser $rb_obj
+	 * @param string $display_tray_select
+	 * @param array $filter_defaults
+	 * 
+	 * Deprecated method, use Utils_TrayCommon::enable instead
+	 */
+	public function set_filters($rb_obj, $display_tray_select = true, $filter_defaults = array()) {
+		if(!Acl::check_permission('Dashboard')) return;
+		
+		$this->navigate();
+
+		$filter_defaults = $this->get_filter_values($rb_obj, $display_tray_select)?: $filter_defaults;
+		
+		$rb_obj->set_filters_defaults($filter_defaults);
+	}
+	
+	public function get_selected_slot($rb_obj) {
+		$this->init_boxes();
+		
+		$slots = $this->get_tab_slots($rb_obj->tab);
+		if (! $slots) return false;
+		
+		$tray_slot_select_options = [
+				'__NULL__' => '---'
+		];
+		foreach ( $slots as $slot_id => $slot ) {
+			$tray_slot_select_options[$slot_id] = _V($slot->getName());
+		}
+		
+		$form = $this->init_module(Libs_QuickForm::module_name());
+		$form->addElement('select', 'tray_slot_select', __('Tray'), $tray_slot_select_options, array(
+				'style' => 'width: 130px',
+				'onchange' => $form->get_submit_form_js()
+		));
+		
+		if ($form->validate()) {
+			$tray_slot = $form->exportValue('tray_slot_select');
+			$this->set_module_variable('tray_slot', $tray_slot);
+			$this->set_module_variable('navigated', true);
+			
+			$rb_obj->unset_module_variable('def_filter');
+		}
+		
+		$tray_slot = $this->get_module_variable('tray_slot');
+		
+		$form->setDefaults(array(
+				'tray_slot_select' => $tray_slot
+		));
+		
+		$ret = (! is_null($tray_slot) && ($tray_slot != '__NULL__') && isset($tray_slot)) ? $slots[$tray_slot]: false;
+		
+		if ($ret instanceof Utils_Tray_Slot && !$this->get_module_variable('navigated', false) && !$ret->filtersMatch()) {
+			$this->set_module_variable('tray_slot', '__NULL__');
+			$form->setDefaults([
+					'tray_slot_select' => '__NULL__'
+			]);
+			
+			$ret = false;
+		}
+		
+		ob_start();
+		$form->display_as_row();
+		$html = ob_get_clean();
+		print('<div style="position: absolute;right:120px;">' . $html . '</div>');
+		
+		return $ret;
+	}
+	
 	public function get_tray_cols() {
-		$tray_cols = Base_User_SettingsCommon::get('Utils/Tray','tray_cols');
+		$tray_cols = Base_User_SettingsCommon::get($this->module_name(),'tray_cols');
 		if (!isset(Utils_TrayCommon::$tray_cols[$tray_cols])) {
 			$tray_cols = 3;
-			Base_User_SettingsCommon::save('Utils/Tray','tray_cols', 3);
+			Base_User_SettingsCommon::save($this->module_name(),'tray_cols', 3);
 		}
 		return $tray_cols;
 	}
 
 	public function get_tray_layout() {
-		$tray_layout = Base_User_SettingsCommon::get('Utils/Tray','tray_layout');
+		$tray_layout = Base_User_SettingsCommon::get($this->module_name(),'tray_layout');
 		if (!isset(Utils_TrayCommon::$tray_layout[$tray_layout])) {
 			$tray_layout = 'checkered';
-			Base_User_SettingsCommon::save('Utils/Tray','tray_layout', 'checkered');
+			Base_User_SettingsCommon::save($this->module_name(),'tray_layout', 'checkered');
 		}
 		return $tray_layout;
 	}
 
 	private function get_icon($records_count) {
-		$limits = array(10=>'pile3', 5=>'pile2', 1=>'pile1', 0=>'pile0');
+		$limits = [
+				10 => 'pile3',
+				5 => 'pile2',
+				1 => 'pile1',
+				0 => 'pile0'
+		];
 
 		foreach ($limits as $limit=>$file) {
 			if ($records_count >= $limit) break;
 		}
 
-		return Base_ThemeCommon::get_template_file($this->get_type(),$file.'.png');
+		return Base_ThemeCommon::get_template_file($this->get_type(), $file.'.png');
 	}
 
 	public function push_settings($s) {
-		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('Base_User_Settings',null,array(_V($s)));
+		Base_BoxCommon::push_module('Base_User_Settings', null, [_V($s)]);
 	}
 	
 	public function caption() {

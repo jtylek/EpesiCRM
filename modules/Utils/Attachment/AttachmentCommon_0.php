@@ -142,25 +142,24 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
 	public static function get_files($group=null,$group_starts_with=false) {
 		$ids = self::get_where($group,$group_starts_with);
-		if(!$ids) return array();
-		$files = array();
-	    foreach($ids as $id) {
-	    	$note = self::get_note($id);
-	    	foreach($note['files'] as $fsid) {
-		    	$meta = Utils_FileStorageCommon::meta($fsid);
-		    	$files[] = array_merge($meta, $note, array(
-		    			'id' => $fsid,
-		    			'note_id' => $id,
-		    			'file_id' => null,
-		    			'upload_by' => $meta['created_by'],
-		    			'upload_on' => $meta['created_by'],
-		    			'original' => $meta['filename'],
-		    			'filestorage_id' => $fsid,
-		    			'downloads' => Utils_FileStorageCommon::get_downloads_count($fsid),		    			
-		    	));
-	    	}
-	    }
-	   	
+		if(!$ids) return [];
+		$files = [];
+		foreach (self::get_notes(['id' => $ids]) as $id => $note) {
+			foreach($note['files']?? [] as $fsid) {
+				$meta = Utils_FileStorageCommon::meta($fsid);
+				$files[] = array_merge($meta, $note, array(
+						'id' => $fsid,
+						'note_id' => $id,
+						'file_id' => null,
+						'upload_by' => $meta['created_by'],
+						'upload_on' => $meta['created_by'],
+						'original' => $meta['filename'],
+						'filestorage_id' => $fsid,
+						'downloads' => Utils_FileStorageCommon::get_downloads_count($fsid),
+				));
+			}
+		}
+	       	
         return $files;
 	}
 
@@ -280,10 +279,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
             self::$mark_as_read = array();
         }
 
-        $text = (!$view?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':''). $text . self::display_files($row, $nolink);
+        $text = (!$view && $row['title']?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':''). $text;
+        
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
-        return $text;
+        $files = self::display_files($row, $nolink);
+        
+        return implode('<br><br>', array_filter([$text, $files]));
     }
     
     public static function display_files($row, $nolink = false, $desc = null, $tab = null) {
@@ -303,8 +305,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
     		}
     	}
     	$inline_nodes = array_filter($inline_nodes);
-    	
-    	return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
+
+    	return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('&nbsp;', $inline_nodes);
     }    		
 
     public static function description_callback($row,$nolink=false) {
@@ -609,6 +611,10 @@ class Utils_AttachmentCommon extends ModuleCommon {
     		$cache[$id] = Utils_RecordBrowserCommon::get_record('utils_attachment', $id);
     	}
     	return $cache[$id];
+    }
+    
+    public static function get_notes($crits = array(), $cols = array(), $order = array(), $limit = array(), $admin = false) {
+    	return Utils_RecordBrowserCommon::get_records('utils_attachment', $crits, $cols, $order, $limit, $admin);
     }
 
     /**

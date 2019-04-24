@@ -81,8 +81,15 @@ class Utils_RecordBrowser_CritsToWords
     protected function build_raw_sql_crits_to_words(Utils_RecordBrowser_CritsRawSQL $crits)
     {
         $sql = $crits->get_negation() ? $crits->get_negation_sql() : $crits->get_sql();
-        $value = implode(', ', $crits->get_vals());
-        $ret = __('Raw SQL') . ': ' . "'{$sql}'" . __('with values') . ': ' . "({$value})";
+        $vals = [];
+        foreach ($crits->get_vals() as $value) {
+        	if (is_a($value, DateTime::class))
+        		$value = $value->format('Y-m-d H:i:s');
+        		
+        	$vals[] = $value;
+        }
+        $value = implode(', ', $vals);
+        $ret = __('Raw SQL') . ': ' . "'{$sql}' " . __('with values') . ': ' . "({$value})";
         return array('str' => $ret, 'multiple' => true);
     }
 

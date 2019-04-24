@@ -33,7 +33,36 @@ class Utils_LeightboxPrompt extends Module {
     	
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label, 'tooltip'=>$tooltip);
         
-        if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
+        //calling open method causes lbp to not be opened by the links on the page in case of no form validation
+        //this way works because no init is called
+        if (isset($form) && $form->exportValue('submited') && !$form->validate()) Utils_LeightboxPromptCommon::open($this->group, $this->get_params([]));
+    }
+    
+    public function add_options($options) {
+    	foreach ($options as $option => $desc) {
+    		$desc['label'] = $desc['label']?? $option;
+    		
+    		$desc['active'] = $desc['active']?? true;
+    		
+    		$desc['active'] = is_array($desc['active'])? $desc['active']: [$desc['active']];
+    		
+    		if (!(bool) array_product($desc['active'])) continue;
+    		
+    		$form = null;
+    		if ($desc['elements']?? []) {
+    			$form = $this->init_module(Libs_QuickForm::module_name());
+    			
+    			$elements = array_filter($desc['elements'], function($element) {
+    				return $element['active']?? true;
+    			});
+    				
+    			$form->add_array($elements);
+    			
+    			$form->setDefaults($desc['defaults']?? []);
+    		}
+    		
+    		$this->add_option($option, $desc['label'], $desc['icon']?? null, $form, $desc['tip']?? null);
+    	}
     }
     
     public function set_selected_option($option) {
@@ -172,6 +201,10 @@ class Utils_LeightboxPrompt extends Module {
         if (!$this->init) print('<a style="display:none;" '.$this->get_href().'></a>');
         $this->init=true;
 	}
+	
+	public function get_options_count() {
+        return count($this->options);
+	}
 
     public function get_close_leightbox_href($reset_view = false) {
         return 'href="javascript:void(0)" onclick="' . $this->get_close_leightbox_href_js($reset_view) . '"';
@@ -186,7 +219,7 @@ class Utils_LeightboxPrompt extends Module {
         foreach ($this->options as $option_key=>$option) {
             if ($option['form']!==null && $option['form']->validate()) {
                 $ret['option'] = $option_key;
-                $vals = $option['form']->exportValues();
+                $vals = array_merge($option['form']->exportValues(), Utils_FileUpload_Dropzone::export_values($option['form']));
                 if (is_array($this->params_list)) foreach ($this->params_list as $p) {
                     $ret['params'][$p] = $vals[$this->group.'_'.$p];
                     unset($vals[$this->group.'_'.$p]);

@@ -44,7 +44,7 @@ class Utils_Attachment_FileActionHandler
     protected function getFile(Request $request, $disposition)
     {
     	$filestorageId = $request->get('id');
-    	$type = $request->get('action');
+    	$action = $request->get('action');
     	$crypted = $request->get('crypted');
     	$recordId = $request->get('record');
     	$filePack = is_array($filestorageId);
@@ -64,50 +64,41 @@ class Utils_Attachment_FileActionHandler
     		$size = 0;
     		foreach ($filestorageIds as $filestorageId) {
     			$meta = Utils_FileStorageCommon::meta($filestorageId);
-    			$buffer = Utils_FileStorageCommon::read_content($filestorageId);
     			
-    			if($crypted) {
-    				$buffer = Utils_AttachmentCommon::decrypt($buffer, $_SESSION['client']['cp'.$recordId]);
+    			if (!$filePack && $action == 'inline' && ($thumbnail = $this->createThumbnail($meta))) {
+    				$mime = $thumbnail['mime'];
+    				$filename = $thumbnail['filename'];
+    				$buffer = $thumbnail['contents'];
+    			}
+    			else {
+    				$mime = Utils_FileStorageCommon::get_mime_type($meta['file'], $meta['filename']);
+    				$filename = $meta['filename'];
+    				$buffer = Utils_FileStorageCommon::read_content($filestorageId);
     				
-    				if ($buffer===false) throw new Utils_FileStorage_Exception('File decryption error');
+    				if($crypted) {
+    					$buffer = Utils_AttachmentCommon::decrypt($buffer, $_SESSION['client']['cp'.$recordId]);
+    					
+    					if ($buffer===false) throw new Utils_FileStorage_Exception('File decryption error');
+    				}    				
     			}
     			
     			$size += filesize($meta['file']);
     			@ini_set('memory_limit',ceil($size*2/1024/1024+64).'M');
     			
     			if ($filePack)
-    				$zip->addFromString($meta['filename'], $buffer);
+    				$zip->addFromString($filename, $buffer);
     		}
     		
     		if ($filePack)
     			$zip->close();
     		
     	} catch (Utils_FileStorage_Exception $ex) {
-    		if (Base_AclCommon::i_am_admin()) {
-    			return new Response($ex->getMessage(), 400);
-    		}
-    		return false;
+   			return Acl::i_am_admin()? new Response($ex->getMessage(), 400): false;
     	}    	
     	
-    	$type = self::actions[$type];
-    	$time = time();
-    	foreach ($filestorageIds as $filestorageId) {
-    		$remote_address = get_client_ip_address();
-    		$remote_host = gethostbyaddr($remote_address);
-    		DB::Execute('INSERT INTO utils_filestorage_access(file_id,date_accessed,accessed_by,type,ip_address,host_name) '.
-    				'VALUES (%d,%T,%d,%d,%s,%s)',array($filestorageId,$time,Acl::get_user()?Acl::get_user():0,$type,$remote_address,$remote_host));
-    	}
+    	$this->logFileAccessed($filestorageId, $action);
     	
-    	$response = new Response();
-    	if (!$filePack) {	    	
-	    	$mime = Utils_FileStorageCommon::get_mime_type($meta['file'], $meta['filename']);	    	
-	    	
-	    	$response->setContent($buffer);
-	    	$response->headers->set('Content-Type', $mime);
-	    	$response->headers->set('Content-Length', strlen($buffer));
-	    	$response->headers->set('Content-Disposition', "$disposition; filename=\"$meta[filename]\"");	    	
-    	}
-    	else {
+    	if ($filePack) {
     		ob_start();
     		$fp = fopen($zipFilename, 'rb');
     		while (!feof($fp)) {
@@ -117,13 +108,12 @@ class Utils_Attachment_FileActionHandler
     		@unlink($zipFilename);
     		$buffer = ob_get_clean();
     		
-    		$response->setContent($buffer);
-    		$response->headers->set('Content-Type', 'application/zip');
-    		$response->headers->set('Content-Length', strlen($buffer));
-    		$response->headers->set('Content-Disposition', "attachment; filename=note_".$recordId.'.zip');
-    		$response->headers->set('Pragma', 'no-cache');
-    		$response->headers->set('Expires', '0');
+    		$response = $this->createFileResponse($buffer, 'application/zip', 'attachment', "note_$recordId.zip", true);    		
     	}
+    	else {
+    		$response = $this->createFileResponse($buffer, $mime, $disposition, $filename);
+    	}
+    	
     	return $response;
     }
 }
