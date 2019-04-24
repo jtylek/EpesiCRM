@@ -233,7 +233,7 @@ class Utils_RecordBrowser extends Module {
 			self::$rb_obj = $this;
         $this->tab = & $this->get_module_variable('tab', $tab);
         if ($this->tab!==null) Utils_RecordBrowserCommon::check_table_name($this->tab);
-		load_js('modules/Utils/RecordBrowser/main.js');
+		load_js($this->get_module_dir() . 'main.js');
     }
 
     public function init($admin=false, $force=false) {
@@ -1147,7 +1147,6 @@ class Utils_RecordBrowser extends Module {
 
         if ($mode!='add') {
             $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
-            $row_data= array();
 
 			if ($mode!='history') {
 				if ($this->favorites)
@@ -1161,34 +1160,13 @@ class Utils_RecordBrowser extends Module {
 				}
 				if ($this->clipboard_pattern) {
 					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
-					$text = $this->clipboard_pattern;
 					$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 					/* for every field name store its value */
-					$data = array();
-					foreach($this->table_rows as $desc) {
-						$fval = Utils_RecordBrowserCommon::get_val($this->tab, $desc['id'], $record, true);
-						if(strlen($fval)) $data[$desc['id']] = $fval;
-					}
-					/* some complicate preg match to find every occurence
-					 * of %{ .. {f_name} .. } pattern
-					 */
-                    if (preg_match_all('/%\{(([^%\}\{]*?\{[^%\}\{]+?\}[^%\}\{]*?)+?)\}/', $text, $match)) { // match for all patterns %{...{..}...}
-                        foreach ($match[0] as $k => $matched_string) {
-                            $text_replace = $match[1][$k];
-                            $changed = false;
-                            while(preg_match('/\{(.+?)\}/', $text_replace, $second_match)) { // match for keys in braces {key}
-                                $replace_value = '';
-                                if(array_key_exists($second_match[1], $data)) {
-                                    $replace_value = $data[$second_match[1]];
-                                    $changed = true;
-                                }
-                                $text_replace = str_replace($second_match[0], $replace_value, $text_replace);
-                            }
-                            if(! $changed ) $text_replace = '';
-                            $text = str_replace($matched_string, $text_replace, $text);
-                        }
-                    }
-					load_js("modules/Utils/RecordBrowser/selecttext.js");
+					$data = Utils_RecordBrowserCommon::get_record_vals($this->tab, $record, true, array_column($this->table_rows, 'id'));
+
+					$text = Utils_RecordBrowserCommon::replace_clipboard_pattern($this->clipboard_pattern, array_filter($data));
+					
+					load_js($this->get_module_dir() . 'selecttext.js');
 					/* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
 					$ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
 					$flash_copy = '<object width="60" height="20">'.
@@ -2487,13 +2465,13 @@ class Utils_RecordBrowser extends Module {
 					);
                 } else {
                     if (!isset($field_hash[$k])) continue;
-                        $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-                        if ($this->table_rows[$field_hash[$k]]['type'] == 'multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
-                        $created[$k] = $v;
-                        $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
-					    $gb_row = $gb_cha->get_new_row();
-					    $gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
-                        $gb_row->add_data(
+                    $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                    if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
+                    $created[$k] = $v;
+                    $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+					$gb_row = $gb_cha->get_new_row();
+					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
+                    $gb_row->add_data(
                         $date_and_time,
                         $row['edited_by']!==null?$user:'',
                         _V($this->table_rows[$field_hash[$k]]['name']), // TRSL

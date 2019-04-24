@@ -853,7 +853,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!Base_AclCommon::i_am_admin()) return;
         if ($mode=='view') {
 			if (!$default) return;
-			if(Base_AclCommon::i_am_sa()) {
+			if(Base_User_AdministratorCommon::get_log_as_user_access($default)) {
 				Base_ActionBarCommon::add('settings', __('Log as user'), Module::create_href(array('log_as_user'=>$default)));
 				if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user']==$default) {
 					Acl::set_user($default, true); //tag who is logged
