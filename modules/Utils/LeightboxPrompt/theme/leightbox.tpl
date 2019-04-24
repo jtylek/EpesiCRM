@@ -7,7 +7,9 @@
         <td>
 			{$b.open}
 			<div class="epesi_big_button">
-				{$b.icon}
+				{if ($b.icon)}
+					<img src="{$b.icon}" alt="" align="middle" border="0" width="32" height="32">
+				{/if}
 				<span>{$b.label}</span>
 			</div>
 			{$b.close}

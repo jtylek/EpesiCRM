@@ -73,22 +73,16 @@ class Utils_RecordBrowser extends Module {
     public $grid = null;
     private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
     private $include_tab_in_id = false;
-    public $ctrl = 0;
 
 	public function new_button($type, $label, $href) {
 		if ($this->fullscreen_table)
 			Base_ActionBarCommon::add($type, $label, $href);
 		else {
 			if (!file_exists($type))
-			    if(array_key_exists($type, Base_ActionBarCommon::$translate)) {
-                    $type = Base_ActionBarCommon::$translate[$type];
-                    $this->more_add_button_stuff .= '<a '.$href.'><button class="btn btn-default" style="margin: 0 2px;">'.'<i class="fa fa-'.$type.'"></i> '.$label.'</button></a>';
-                } else {
-                    $type = Base_ThemeCommon::get_template_file(Base_ActionBar::module_name(), 'icons/'.$type.'.png');
-                    $this->more_add_button_stuff .= '<a '.$href.'><button class="btn btn-default" style="margin: 0 2px;">'.'<img src="'.$type.'">'.
-                        '<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
-                        '</button></a>';
-                }
+				$type = Base_ThemeCommon::get_template_file(Base_ActionBar::module_name(), 'icons/'.$type.'.png');
+			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.
+				'<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
+				'</a>';
 		}
 	}
 
@@ -124,19 +118,19 @@ class Utils_RecordBrowser extends Module {
     public function enable_export($arg) {
         $this->enable_export = $arg;
     }
-
+    
     public function set_caption($caption) {
     	$this->caption = $caption;
     }
-
+    
     public function set_icon($icon) {
     	if (!$icon) return;
-
+    	
     	if (is_array($icon)) {
     		$icon = array_values($icon);
     		$icon = Base_ThemeCommon::get_template_file($icon[0], isset($icon[1])? $icon[1]: null);
     	}
-
+    	
     	$this->icon = $icon;
     }
 
@@ -283,6 +277,7 @@ class Utils_RecordBrowser extends Module {
 	}
     // BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
     public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
+		Base_HelpCommon::screen_name('browse_'.$this->tab);
         unset($_SESSION['client']['recordbrowser']['admin_access']);
         if ($this->check_for_jump()) return;
         $this->fullscreen_table=true;
@@ -334,7 +329,7 @@ class Utils_RecordBrowser extends Module {
                 if (!$this->browse_mode) $this->browse_mode='all';
                 if (($this->browse_mode=='recent' && $this->recent==0) || ($this->browse_mode=='favorites' && !$this->favorites)) $this->set_module_variable('browse_mode', $this->browse_mode='all');
                 $form = $this->init_module(Libs_QuickForm::module_name());
-                $form->addElement('select', 'browse_mode', '', $opts, array('class'=>'form-control','onchange'=>$form->get_submit_form_js()));
+                $form->addElement('select', 'browse_mode', '', $opts, array('onchange'=>$form->get_submit_form_js()));
                 $form->setDefaults(array('browse_mode'=>$this->browse_mode));
                 if ($form->validate()) {
                     $vals = $form->exportValues();
@@ -443,12 +438,12 @@ class Utils_RecordBrowser extends Module {
         } else {
             $table_columns = array();
             if (!$pdf && !$admin && $this->favorites) {
-                $fav = array('name'=>'&nbsp;', 'width'=>'34px', 'attrs'=>'class="Utils_RecordBrowser__favs"');
+                $fav = array('name'=>'&nbsp;', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__favs"');
                 if (!isset($this->force_order)) $fav['order'] = ':Fav';
                 $table_columns[] = $fav;
             }
             if (!$pdf && !$admin && $this->watchdog)
-                $table_columns[] = array('name'=>'', 'width'=>'28px', 'attrs'=>'class="Utils_RecordBrowser__watchdog"');
+                $table_columns[] = array('name'=>'', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__watchdog"');
         }
         if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         else $quickjump = '';
@@ -697,10 +692,10 @@ class Utils_RecordBrowser extends Module {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
-            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><button style="margin: 0 2px;" class="btn btn-primary" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><i class="fa fa-plus-square"></i> '.__('Add new').'</button></a>';
+            if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
         }
         if ($this->more_add_button_stuff) {
-            if ($custom_label) $custom_label = '<span>'.$custom_label.'</span><span>'.$this->more_add_button_stuff.'</span>';
+            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
             else $custom_label = $this->more_add_button_stuff;
         }
         $gb->set_custom_label($custom_label);
@@ -742,7 +737,7 @@ class Utils_RecordBrowser extends Module {
         	}
         	elseif ($record_access_fields === true) {
         		$column_access = array_fill(0, count($query_cols), true);
-        	}
+        	}        	
         }
 
         $data_rows_offset = 0;
@@ -797,6 +792,7 @@ class Utils_RecordBrowser extends Module {
 
 
                     $attrs = 'onmouseover="if(typeof(mouse_over_grid)!=\'undefined\')mouse_over_grid(\''.$argsid.'\',\''.$row['id'].'\');" onmouseout="if(typeof(mouse_out_grid)!=\'undefined\')mouse_out_grid(\''.$argsid.'\',\''.$row['id'].'\');"';
+//                  $attrs = 'onmouseover="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'inline\'" onmouseout="$(\'grid_edit_'.$argsid.'_'.$row['id'].'\').style.display=\'none\'"';
                 } else {
                     $table = '';
                     $ed_icon = '';
@@ -954,11 +950,14 @@ class Utils_RecordBrowser extends Module {
     public function view_entry_with_REQUEST($mode='view', $id = null, $defaults = array(), $show_actions=true, $request=array()) {
         foreach ($request as $k=>$v)
             $_REQUEST[$k] = $v;
-        if(isset($_REQUEST['switch_to_addon']))
+        if(isset($_REQUEST['switch_to_addon'])) {
 	        $this->switch_to_addon = $this->get_module_variable('switch_to_addon',$_REQUEST['switch_to_addon']);
+	        unset($_REQUEST['switch_to_addon']);
+        }
         return $this->view_entry($mode, $id, $defaults, $show_actions);
     }
     public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
+		Base_HelpCommon::screen_name('rb_'.$mode.'_'.$this->tab);
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         self::$mode = $mode;
         if ($this->navigation_executed) {
@@ -983,11 +982,11 @@ class Utils_RecordBrowser extends Module {
 
         $this->init();
 		if (is_numeric($id)) {
-	                $id = intval($id);
+	                $id = intVal($id);
 			self::$last_record = $this->record = Utils_RecordBrowserCommon::get_record($this->tab, $id, $mode!=='edit');
 		} else {
 			self::$last_record = $this->record = $id;
-			$id = isset($this->record['id'])? intval($this->record['id']): null;
+			$id = isset($this->record['id'])? intVal($this->record['id']): null;
 		}
 		if ($id===0) $id = null;
         if ($id!==null && is_numeric($id)) Utils_WatchdogCommon::notified($this->tab,$id);
@@ -1147,7 +1146,7 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($mode!='add') {
-            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><i class="fa fa-fw fa-info"></i></a>');
+            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
             $row_data= array();
 
 			if ($mode!='history') {
@@ -1157,11 +1156,11 @@ class Utils_RecordBrowser extends Module {
 					$theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
 				if ($this->full_history) {
 					$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('This record was never edited')).'><i class="fa fa-clock-o text-muted"></i></a>');
-					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><i class="fa fa-clock-o text-success"></i></a>');
+					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
+					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 				}
 				if ($this->clipboard_pattern) {
-					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><i class="fa fa-clipboard text-info"></i></a>');
+					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
 					$text = $this->clipboard_pattern;
 					$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 					/* for every field name store its value */
@@ -1254,7 +1253,7 @@ class Utils_RecordBrowser extends Module {
                 $translated_label = _V($label);
                 $tb->set_tab($translated_label, array($this, 'view_entry_details'), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
 				if ($hide_page) {
-					eval_js('jq("#'.$tb->get_tab_id(_V($label)).'").hide();');
+					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
 				} else
 					$additional_tabs++;
@@ -1351,61 +1350,17 @@ class Utils_RecordBrowser extends Module {
                 if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
             }
         }
-
-        switch($this->tab) {
-            case 'contact':
-                $this->icon = 'users';
-                break;
-            case 'company':
-                $this->icon = 'building';
-                break;
-            default:
-                if(substr($this->icon,-8) == 'icon.png'){
-                    $this->icon = str_replace('/','_',substr($this->icon,0,-9).'Common');
-                    if(is_callable([$this->icon,'menu'])) {
-                        $menu = call_user_func([$this->icon, 'menu']);
-                        foreach ($menu as $key => $value) {
-                            foreach ($value as $k => $v) {
-                                if ($k == $this->caption) {
-                                    if (isset($v['__icon__'])) $this->icon = $v['__icon__'];
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    $this->icon = 'question-circle';
-                    $ml = ModuleManager::list_modules();
-                    $x = explode('_',$this->tab);
-                    $lk = end($x);
-                    if(is_array($x)) {
-                        $lk_c = -strlen($lk);
-                        foreach ($ml as $k=>$v){
-                            if(strtolower(substr($k,$lk_c)) == $lk) {
-                                if(is_callable([$k.'Common','menu'])) {
-                                    $menu = call_user_func([$k . 'Common', 'menu']);
-                                    foreach ($menu as $key => $value) {
-                                        foreach ($value as $kk => $vv) {
-                                            if ($kk != '__submenu__' && $kk != '__icon__' && isset($vv['__icon__'])) $this->icon = $vv['__icon__'];
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-        }
-
         if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
-//        $theme->assign('required_note', __('Indicates required fields.'));
+        $theme->assign('required_note', __('Indicates required fields.'));
+
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
+
         $theme->assign('main_page',$main_page);
 
         if ($main_page) {
@@ -1430,7 +1385,7 @@ class Utils_RecordBrowser extends Module {
     	$field_form_data = array_merge($default_field_form_data, $field_form_data);
     	
     	$help = isset($desc['help']) && $desc['help']? array(
-    			'icon' => Base_ThemeCommon::get_icon('info'),
+    			'icon' => Base_ThemeCommon::get_icon('info'), 
     			'text' => Utils_TooltipCommon::open_tag_attrs(_V($desc['help']), false))
     		: false;
     	
@@ -1450,14 +1405,10 @@ class Utils_RecordBrowser extends Module {
     	$ftheme->assign('f', $ret);
     	$ftheme->assign('form_data', $form_data);
     	$ftheme->assign('action', self::$mode);
-        if (self::$mode == 'history' or self::$mode == 'view') {
-            $default_field_template = self::module_name() . '/single_field_view';
-        } else {
-            $default_field_template = self::module_name() . '/single_field';
-        }
-
-
-    	$field_template = $desc['template']?: $default_field_template;
+    	
+    	$default_field_template = self::module_name() . '/single_field';
+    	
+    	$field_template = $desc['template']?: $default_field_template;    	
     	$field_template = is_callable($field_template)? call_user_func($field_template, $desc['id'], self::$mode): $field_template;
     	
     	if (!$field_template) return false;
@@ -1531,7 +1482,7 @@ class Utils_RecordBrowser extends Module {
             }
             // is set then hide empty fields that are not checkboxes
 			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
-				eval_js('var e=jq("#_'.$desc['id'].'__data");if(e.length)e.closest("tr").hide();');
+				eval_js('var e=$("_'.$desc['id'].'__data");if(e)e.up("tr").style.display="none";');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL
@@ -1759,7 +1710,7 @@ class Utils_RecordBrowser extends Module {
         foreach($this->table_rows as $name=>$desc) {
         	$info .= '<b>'.$desc['id'].'</b> - '.$name.', ';
         }
-        $label = '<i class="fa fa-fw fa-info" '.Utils_TooltipCommon::open_tag_attrs($info).'></i> '.__('Pattern');
+        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info).'/> '.__('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
         $textarea->setRows(12);
         $textarea->setCols(80);
@@ -2343,8 +2294,8 @@ class Utils_RecordBrowser extends Module {
 	
 	public function check_field_definitions($data) {
 		$ret = array();
-
-		if ($this->admin_field_mode=='edit')
+		
+		if ($this->admin_field_mode=='edit') 
 			$type = $this->admin_field_type;
 		else
 			$type = $data['select_data_type'];
@@ -2490,7 +2441,7 @@ class Utils_RecordBrowser extends Module {
         if ($this->is_back())
             return $this->back();
         $this->init();
-		$tb = $this->init_module('Utils_TabbedBrowser');
+		$tb = $this->init_module('Utils_TabbedBrowser');		
         $gb_cha = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab.'__changes');
 		$form = $this->init_module('Libs_QuickForm');
 
@@ -2741,7 +2692,7 @@ class Utils_RecordBrowser extends Module {
 
     public function enable_quick_new_records($button = true, $force_show = null) {
         $this->add_in_table = true;
-		    $href = 'href="javascript:void(0);" onclick="jq(\'#add_in_table_row\').css(\'display\',(jq(\'#add_in_table_row\').css(\'display\')==\'none\'?\'\':\'none\'));if(focus_on_field)if(jq(\'#\'+focus_on_field))focus_by_id(focus_on_field);"';
+		$href = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
         if ($button) $this->add_button = $href;
         if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
         else $this->show_add_in_table = $force_show;
@@ -2847,7 +2798,7 @@ class Utils_RecordBrowser extends Module {
 		$link = Module::create_href_js(Utils_RecordBrowserCommon::get_record_href_array($this->tab, '__ID__'));
 		if (isset($_REQUEST['__jump_to_RB_record'])) Base_StatusBarCommon::message(__('Record not found'), 'warning');
 		$link = str_replace('__ID__', '\'+this.value+\'', $link);
-		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><i class="fa fa-share text-success"></i></a><input type="text" id="jump_to_record_input" class="form-control" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
+		return ' <a '.Utils_TooltipCommon::open_tag_attrs(__('Jump to record by ID')).' href="javascript:void(0);" onclick="jump_to_record_id(\''.$this->tab.'\')"><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','jump_to.png').'"></a><input type="text" id="jump_to_record_input" style="display:none;width:50px;" onkeypress="if(event.keyCode==13)'.$link.'">';
 	}
 
     public function search_by_id_form($label) {
@@ -2925,9 +2876,9 @@ class Utils_RecordBrowser extends Module {
 			$fields_value = ($c_all_fields-$c_fields).' / '.$c_all_fields;
 			if ($props!=1) $fields_value = Utils_TooltipCommon::create($fields_value, '<b>'.__('Excluded fields').':</b><hr>'.implode('<br>',$fields[$row['id']]), false);
 			$rules[$row['action']][$row['id']] = array(
-				$action,
-				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.__('and').'</span><br>',$clearance[$row['id']]).'</span>',
-				array('value'=>'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 'overflow_box'=>false),
+				$action, 
+				'<span class="Utils_RecordBrowser__permissions_crits">'.implode(' <span class="joint">'.__('and').'</span><br>',$clearance[$row['id']]).'</span>', 
+				array('value'=>'<span class="Utils_RecordBrowser__permissions_crits">'.$crits_text.'</span>', 'overflow_box'=>false), 
 				array('style'=>'background-color:#'.$color, 'value'=>$fields_value)
 			);
 		}
@@ -2942,7 +2893,7 @@ class Utils_RecordBrowser extends Module {
 						$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
 				}
 		}
-		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2)
+		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
 			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
 		Base_ThemeCommon::load_css('Utils_RecordBrowser', 'edit_permissions');
 		$this->display_access_callback_descriptions();

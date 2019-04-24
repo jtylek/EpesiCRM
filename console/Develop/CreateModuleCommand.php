@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Memio\Memio\Config\Build;
 use Memio\Model\File;
-use Memio\Model\Object;
+use Memio\Model\Objekt;
 use Memio\Model\Method;
 use Memio\Model\Argument;
 
@@ -74,9 +74,9 @@ class CreateModuleCommand extends Command
         $file_main = $module_dir . '/' . $core_name . '_0.php';
         $myFile = File::make($file_main)
                       ->setStructure(
-                          Object::make($module_type)
+                          Objekt::make($module_type)
                                 ->extend(
-                                    Object::make('Module'))
+                                    Objekt::make('Module'))
                                 ->addMethod(
                                     Method::make('body')
                                 )
@@ -91,9 +91,9 @@ class CreateModuleCommand extends Command
         $file_common = $module_dir . '/' . $core_name . 'Common_0.php';
         $myFile = File::make($file_common)
                       ->setStructure(
-                          Object::make($module_type . 'Common')
+                          Objekt::make($module_type . 'Common')
                                 ->extend(
-                                    Object::make('ModuleCommon')
+                                    Objekt::make('ModuleCommon')
                                 )
                       );
 
@@ -112,9 +112,9 @@ class CreateModuleCommand extends Command
         $file_install = $module_dir . '/' . $core_name . 'Install.php';
         $myFile = File::make($file_install)
                       ->setStructure(
-                          Object::make($module_type . 'Install')
+                          Objekt::make($module_type . 'Install')
                                 ->extend(
-                                    Object::make('ModuleInstall'))
+                                    Objekt::make('ModuleInstall'))
                                 ->addMethod(
                                     Method::make('install')
                                           ->setBody("{$t}{$t}return true;"))

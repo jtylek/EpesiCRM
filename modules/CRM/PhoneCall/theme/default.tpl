@@ -19,262 +19,225 @@
 	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
-	$this->_tpl_vars['grid_cols'] = 12 / $this->_tpl_vars['cols'];
 {/php}
 
-{if $main_page}
+<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
+	<tbody>
+		<tr>
+			<td style="width:100px;">
+				<div class="name">
+					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+					<div class="label">{$caption}</div>
+				</div>
+			</td>
+			<td class="required_fav_info">
+				&nbsp;*&nbsp;{$required_note}
+				{if isset($subscription_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+				{/if}
+				{if isset($fav_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+				{/if}
+				{if isset($info_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$info_tooltip}
+				{/if}
+				{if isset($history_tooltip)}
+					&nbsp;&nbsp;&nbsp;{$history_tooltip}
+				{/if}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			</td>
+		</tr>
+	</tbody>
+</table>
 
-	<div class="card ">
-		<div class="card-header clearfix">
-			<div class="pull-left">
-				<i class="pull-left fa fa-{$icon} fa-2x" style="color: #73879c"></i>
-				<span class="form-inline">{$caption}</span>
-			</div>
-			<div class="pull-right">
-					&nbsp;*&nbsp;{$required_note}
-					{if isset($subscription_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-					{/if}
-					{if isset($fav_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-					{/if}
-					{if isset($info_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$info_tooltip}
-					{/if}
-					{if isset($clipboard_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-					{/if}
-					{if isset($history_tooltip)}
-						&nbsp;&nbsp;&nbsp;{$history_tooltip}
-					{/if}
-					{if isset($new)}
-						{foreach item=n from=$new}
-							&nbsp;&nbsp;&nbsp;{$n}
-						{/foreach}
-					{/if}
-			</div>
-		</div>
-		<div class="card-body">
 
-			{if isset($click2fill)}
-				{$click2fill}
-			{/if}
-
-			{/if}
+{if isset($click2fill)}
+    {$click2fill}
+{/if}
 
 <div id="CRM_PhoneCall">
 
-							<div class="row">
-								{assign var=x value=1}
-								{assign var=y value=1}
-								<div class="col col-md-{$grid_cols}">
+	<div class="layer" style="padding: 9px; width: 98%;">
+		<div class="css3_content_shadow">
 
-								{$fields.subject.full_field}
-								
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
+<div class="Utils_RecordBrowser__container">
+	<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+		<tbody>
+			<tr>
+				{* LEFT column *}
+				<td style="width: 50%; vertical-align: top;">
+					{* subject *}
+					<table style="table-layout:auto;" cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+						<tbody>
+							<tr>
+								<td class="label" align="left" style="width: 25%;">{$form_data.subject.label}{if $form_data.subject.required}*{/if}</td>
+								<td class="data" align="left" colspan="2" id="_subject__data">
+									<div style="position:relative;">
+										<span class="error">{$form_data.subject.error}</span>
+										{$form_data.subject.html}
 									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-								{if $action=='view'}
-
-<dl class="dl-horizontal">
-    <dt>{$form_data.customer.label}{if $form_data.customer.required}*{/if}{$form_data.customer.advanced}</dt>
-    <dd>
-        {if $form_data.customer.error}{$form_data.customer.error}{/if}
-        {if $form_data.customer.help}
-            <div class="help"><img src="{$form_data.customer.help.icon}" alt="help" {$form_data.customer.help.text}></div>
-        {/if}
-        {if $raw_data.other_customer}{$form_data.other_customer_name.html}{else}{$form_data.customer.html}{/if}&nbsp;
-    </dd>
-</dl>
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-
-<dl class="dl-horizontal">
-    <dt>{$form_data.phone.label}{if $form_data.phone.required}*{/if}{$form_data.phone.advanced}</dt>
-    <dd>
-        {if $form_data.phone.error}{$form_data.phone.error}{/if}
-        {if $form_data.phone.help}
-            <div class="help"><img src="{$form_data.phone.help.icon}" alt="help" {$form_data.phone.help.text}></div>
-        {/if}
-        {if $raw_data.other_phone}{$form_data.other_phone_number.html}{else}{$form_data.phone.html}{/if}&nbsp;
-    </dd>
-</dl>
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-{else}
-
-{$fields.customer.full_field}
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-<div class="form-group clearfix" id="_{$form_data.other_customer.element}__container">
-    <label class="control-label{if $form_data.other_customer.type != 'long text'} col-sm-2{/if}">{$form_data.other_customer.label}{if $form_data.other_customer.required}*{/if}{$form_data.other_customer.advanced}</label>
-    <span class="data {if $form_data.other_customer.type != 'long text'} col-sm-10{/if}" style="{$form_data.other_customer.style}" id="_{$form_data.other_customer.element}__data">
-        {if $form_data.other_customer.error}{$form_data.other_customer.error}{/if}
-        {if $form_data.other_customer_name.error}{$form_data.other_customer_name.error}{/if}
-        {if $form_data.other_customer.help}
-            <div class="help"><img src="{$form_data.other_customer.help.icon}" alt="help" {$form_data.other_customer.help.text}></div>
-        {/if}
-        <div class="col-sm-2">
-            {$form_data.other_customer.html}
-        </div>
-        <div class="col-sm-10">
-            {$form_data.other_customer_name.html}
-        </div>
-    </span>
-</div>
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-{$fields.phone.full_field}
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-<div class="form-group clearfix" id="_{$form_data.other_phone.element}__container">
-    <label class="control-label{if $form_data.other_phone.type != 'long text'} col-sm-2{/if}">{$form_data.other_phone.label}{if $form_data.other_phone.required}*{/if}{$form_data.other_phone.advanced}</label>
-    <span class="data {if $form_data.other_phone.type != 'long text'} col-sm-10{/if}" style="{$form_data.other_phone.style}" id="_{$form_data.other_phone.element}__data">
-        {if $form_data.other_phone.error}{$form_data.other_phone.error}{/if}
-        {if $form_data.other_phone_number.error}{$form_data.other_phone_number.error}{/if}
-        {if $form_data.other_phone.help}
-            <div class="help"><img src="{$form_data.other_phone.help.icon}" alt="help" {$form_data.other_phone.help.text}></div>
-        {/if}
-        <div class="col-sm-2">
-	    {$form_data.other_phone.html}
-        </div>
-        <div class="col-sm-10">
-            {$form_data.other_phone_number.html}
-        </div>
-    </span>
-</div>
-
-								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{assign var=y value=1}
-									{assign var=x value=$x+1}
-									</div>
-								{else}
-									{assign var=y value=$y+1}
-								{/if}
-								{if $y==1}
-									<div class="col col-md-{$grid_cols}">
-								{/if}
-
-{/if}
-								{foreach key=k item=f from=$fields name=fields}
-									{if (	$k!='subject' &&
+								</td>
+							</tr>
+							{if $action == 'view'}
+									<tr>
+										<td class="label" style="width: 20%;">{$form_data.customer.label}</td>
+										<td class="data" style="width: 80%;" colspan="2" id="_customer__data_mod">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.customer.error}
+												</span>
+												{if $raw_data.other_customer}{$form_data.other_customer_name.html}{else}{$form_data.customer.html}{/if}&nbsp;
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="label">{$form_data.phone.label}</td>
+										<td class="data" colspan="2" id="_phone__data_mod">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.phone.error}
+												</span>
+												{if $raw_data.other_phone}{$form_data.other_phone_number.html}{else}{$form_data.phone.html}{/if}&nbsp;
+											</div>
+										</td>
+									</tr>
+							{else}
+									<tr>
+										<td class="label" style="width: 20%;">{$form_data.customer.label}{if $form_data.customer.required}*{/if}</td>
+										<td class="data" style="width: 80%;" colspan="2" id="_customer__data">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.customer.error}
+												</span>
+												{$form_data.customer.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="label">{$form_data.other_customer.label}{if $form_data.other_customer.required}*{/if}</td>
+										<td style="width:1px;" id="_other_customer__data">
+											{$form_data.other_customer.html}
+										</td>
+										<td class="data" style="width:99%;" id="_other_customer_name__data">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.other_customer_name.error}
+												</span>
+												{$form_data.other_customer_name.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="label">{$form_data.phone.label}{if $form_data.phone.required}*{/if}</td>
+										<td class="data" colspan="2" id="_phone__data">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.phone.error}
+												</span>
+												{$form_data.phone.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="label">{$form_data.other_phone.label}{if $form_data.other_phone.required}*{/if}</td>
+										<td id="_other_phone__data">
+											{$form_data.other_phone.html}
+										</td>
+										<td class="data" id="_other_phone_number__data">
+											<div style="position:relative;">
+												<span class="error">
+													{$form_data.other_phone_number.error}
+												</span>
+												{$form_data.other_phone_number.html}{if $action == 'view'}&nbsp;{/if}
+											</div>
+										</td>
+									</tr>
+							{/if}
+						</tbody>
+					</table>
+				</td>
+				{* RIGHT column *}
+				<td style="width: 50%; vertical-align: top;">
+					<table cellpadding="0" cellspacing="0" border="0" class="form {if $action == 'view'}view{else}edit{/if}">
+						{$fields.date_and_time.full_field}
+						{$fields.status.full_field}
+						{$fields.permission.full_field}
+						{$fields.priority.full_field}
+						{foreach key=k item=f from=$fields name=fields}
+							{if (	$k!='subject' &&
+									$k!='company_name' &&
+									$k!='employees' &&
+									$k!='related_to' &&
+									$k!='status' &&
+									$k!='priority' &&
+									$k!='permission' &&
 									$k!='customer' &&
 									$k!='other_customer' &&
 									$k!='other_customer_name' &&
 									$k!='phone' &&
 									$k!='other_phone' &&
 									$k!='other_phone_number' &&
-									$f.type!="multiselect")}
-										{if $y==1}
-											<div class="col col-md-{$grid_cols}">
-										{/if}
-										{$f.full_field}
-										{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-													{assign var=y value=1}
-											{assign var=x value=$x+1}
-											</div>
-										{else}
-											{assign var=y value=$y+1}
-										{/if}
-									{/if}
-								{/foreach}
-								</div>
-							</div>
-							{if !empty($multiselects)}
-								<div class="row">
-									{assign var=x value=1}
-									{assign var=y value=1}
-									{foreach key=k item=f from=$multiselects name=fields}
-										{if $y==1}
-											<div class="col col-md-{$grid_cols}">
-										{/if}
-										{$f.full_field}
-										{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-											{assign var=y value=1}
-											{assign var=x value=$x+1}
-											</div>
-										{else}
-											{assign var=y value=$y+1}
-										{/if}
-									{/foreach}
-								</div>
+									$k!='date_and_time' &&
+                                    $f.type != 'multiselect')}
+								{$f.full_field}
 							{/if}
-							<div class="row">
-										{foreach key=k item=f from=$longfields name=fields}
-											<div class="col-md-12">{$f.full_field}</div>
-										{/foreach}
-							</div>
-
-
-
+						{/foreach}
+					</table>
+				</td>
+			</tr>
+			{if !empty($multiselects)}
+				<tr>
+					{assign var=x value=1}
+					{assign var=y value=1}
+					{foreach key=k item=f from=$multiselects name=fields}
+						{if $y==1}
+						<td class="column" style="width: {$cols_percent}%;">
+							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+						{/if}
+						{$f.full_field}
+						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+							{if $x>$mss_no_empty}
+								<tr style="display:none;">
+									<td class="label">&nbsp;</td>
+									<td class="data">&nbsp;</td>
+								</tr>
+							{/if}
+							{assign var=y value=1}
+							{assign var=x value=$x+1}
+							</table>
+						</td>
+						{else}
+							{assign var=y value=$y+1}
+						{/if}
+					{/foreach}
+				</tr>
+			{/if}
+			<tr>
+				<td colspan="2">
+				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+					{foreach key=k item=f from=$longfields name=fields}
+						{$f.full_field}
+					{/foreach}
+				</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
+
+
 
 
 {php}
 	eval_js('focus_by_id(\'subject\');');
 {/php}
 
+<!-- SHADOW END -->
+ 		</div>
+	</div>
+<!-- -->
+
 </div>
 
-		{if $main_page}
-	</div>
-</div>
-{/if}

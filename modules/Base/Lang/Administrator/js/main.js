@@ -4,33 +4,32 @@ translate_init = function() {
 }
 
 translate_add_id = function(id, org) {
-	if (jq('#'+id).length) missing_translations[id] = org;
+	if ($(id)) missing_translations[id] = org;
 }
 
 translate_first_on_the_list = function() {
 	for (var id in missing_translations) {
-		if (jq('#'+id).html()   ) continue;
+		if ($(id).innerHTML) continue;
 		lang_translate(missing_translations[id], id);
 		return;
 	}
-	jq(".nav_button").get(2).find("a").click();
+	document.querySelectorAll(".nav_button")[2].down("a").onclick(); // A bit lazy way
 }
 
 lang_translate = function (original, span_id) {
-        var span = jq('#'+span_id);
-	var ret = prompt("Translate: "+original, span.html());
+	var ret = prompt("Translate: "+original, $(span_id).innerHTML);
 	if (ret === null) return;
-	span.html(ret);
-	span.css('color','red');
-	jq.ajax('modules/Base/Lang/Administrator/update_translation.php', {
+	$(span_id).innerHTML = ret;
+	$(span_id).style.color = "red";
+	new Ajax.Request('modules/Base/Lang/Administrator/update_translation.php', {
 		method: 'post',
-		data:{
+		parameters:{
 			original: original,
 			new: ret,
 			cid: Epesi.client_id
 		},
-		success:function(t) {
-			if(span.length)span.css('color', "black");
+		onSuccess:function(t) {
+			if($(span_id))$(span_id).style.color = "black";
 		}
 	});
 }

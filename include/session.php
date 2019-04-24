@@ -335,7 +335,6 @@ if(defined('EPESI_PROCESS')) {
 } else {
     ini_set('session.gc_probability', 0);
 }
-ini_set('session.save_handler', 'user');
 
 session_set_save_handler(array('DBSession','open'),
                              array('DBSession','close'),

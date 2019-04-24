@@ -139,7 +139,7 @@ abstract class Module extends ModulePrimitive {
 			$this->children[$type] = array();
 		$this->children[$type][$instance] = & $ch;
 		if(DEBUG)
-			Epesi::debug('registering '.$this->get_path().'--'.$ch->get_node_id());
+			Epesi::debug('registering '.$this->get_path().'/'.$ch->get_node_id());
 	}
 
 	private final function get_new_child_instance_id($type) {
@@ -157,7 +157,7 @@ abstract class Module extends ModulePrimitive {
 			$x = false;
 			return $x;
 		}
-		$yy = explode('__',$id);
+		$yy = explode('|',$id);
 		return $this->children[$yy[0]][$yy[1]];
 	}
 
@@ -184,7 +184,7 @@ abstract class Module extends ModulePrimitive {
 		if($this->clear_child_vars) return;
 		$module_type = str_replace('/','_',$module_type);
 		if(!isset($name)) $name = $this->get_new_child_instance_id($module_type);
-		$this->frozen_modules[$module_type.'__'.$name] = 1;
+		$this->frozen_modules[$module_type.'|'.$name] = 1;
 	}
 
 	//endregion
@@ -840,7 +840,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else true
 	 */
-	public final function display_module(& $m, $args=null, $function_name = null, $template = null) {
+	public final function display_module(& $m, $args=null, $function_name = null) {
 		$ret = $this->get_html_of_module($m,$args,$function_name);
 		if($ret===false) return false;
 		print($ret);
@@ -873,7 +873,7 @@ abstract class Module extends ModulePrimitive {
 
 		if (!$m->check_access($function_name))
 			return false;
-			//we cannot trigger error here, because logout doesn't work
+			//we cannot trigger error here, couse logout doesn't work
 			//trigger_error('Method given as argument 2 for display_module inaccessible.<br>$'.$this->get_type().'->display_module(\''.$m->get_type().'\','.$args.',\''.$function_name.'\');',E_USER_ERROR);
 
 		$s = & $m->get_module_variable('__shared_unique_vars__',array());
@@ -887,7 +887,7 @@ abstract class Module extends ModulePrimitive {
 		$path = $m->get_path();
 		if($this->is_inline_display()) $m->set_inline_display();
 		if(!$m->is_inline_display()) {
-			Epesi::$content[$path]['span'] = $this_path.'__'.$this->children_count_display.'content';
+			Epesi::$content[$path]['span'] = $this_path.'|'.$this->children_count_display.'content';
 			$this->children_count_display++;
 		}
 		Epesi::$content[$path]['module'] = & $m;
@@ -1073,7 +1073,7 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function get_node_id()
 	{
-		return $this->type_with_submodule . '__' . $this->instance;
+		return $this->type_with_submodule . '|' . $this->instance;
 	}
 
 	/**
@@ -1084,13 +1084,13 @@ abstract class Module extends ModulePrimitive {
 	 *
 	 * Example:
 	 * Module named Base/Box, instance 1, without parents:
-	 * get_path returns '--Base_Box-1'
+	 * get_path returns '/Base_Box|1'
 	 *
 	 * @return string unique module name
 	 */
 	public final function get_path() {
 		if(!isset($this->path))
-			$this->path = $this->get_parent_path().'--'.$this->get_node_id();
+			$this->path = $this->get_parent_path().'/'.$this->get_node_id();
 		return $this->path;
 	}
 

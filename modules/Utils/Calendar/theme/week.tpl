@@ -1,21 +1,30 @@
-<div class="well well-sm">
-	<div id="{$trash_id}" class="btn btn-warning">
-		<i class="fa fa-trash" aria-hidden="true"></i>{$trash_label}
-	</div>
-
-	<a class="btn btn-default" {$prev7_href}>{$prev7_label}&nbsp;<i class="fa fa-fast-backward" aria-hidden="true"></i></a>
-	<a class="btn btn-default" {$prev_href}>{$prev_label}&nbsp;<i class="fa fa-backward" aria-hidden="true"></i></a>
-	<a class="btn btn-default" {$today_href}>{$today_label}&nbsp;<i class="fa fa-play fa-rotate-90" aria-hidden="true"></i></a>
-	<a class="btn btn-default" {$next_href}><i class="fa fa-forward" aria-hidden="true"></i>&nbsp;{$next_label}</a>
-	<a class="btn btn-default" {$next7_href}><i class="fa fa-fast-forward" aria-hidden="true"></i>&nbsp;{$next7_label}</a>
-	{$popup_calendar}
-	<div class="pull-right">
-	{$navigation_bar_additions}
-	</div>
+<div class="navigation-menu">
+	<table border="0" cellpadding="0" cellspacing="0"><tr>
+		<td class="trash_cell">
+			<div id="{$trash_id}" class="trash">
+				<div class="icon"><img border="0" width="32" height="32" src="{$theme_dir}/Utils/Calendar/trash.png"></div>
+				<div class="text">{$trash_label}</div>
+			</div>
+		</td>
+		<td class="empty"></td>
+		<td class="button_cell"><a class="button" {$prev7_href}>{$prev7_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev2.png"></a></td>
+		<td class="button_cell"><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
+		<td class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
+		<td class="button_cell"><a class="button" {$next_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
+		<td class="button_cell"><a class="button" {$next7_href}><img border="0" width="8" height="20" src="{$theme_dir}/Utils/Calendar/next2.png">&nbsp;&nbsp;{$next7_label}</a></td>
+		<td style="width: 10px;"></td>
+		<td class="button_cell">{$popup_calendar}</td>
+		<td class="empty"></td>
+		<td class="button_cell">{$navigation_bar_additions}</td>
+	</tr></table>
 </div>
-
+ 
 <!-- SHADOW BEGIN -->
+	<div class="layer" style="padding: 9px; width: 98%;">
+		<div class="css3_content_shadow">
 <!-- -->
+
+<div style="padding: 5px; background-color: #FFFFFF;">
 
 	<table cellspacing=0 id="Utils_Calendar__week">
 		<thead>
@@ -64,5 +73,9 @@
 			</tr>
 		{/foreach}
 	</table>
+
+</div>
+ 		</div>
+	</div>
 
 <div style="color: #777777; display: block; float: left; padding-left: 20px;">{$info}</div>

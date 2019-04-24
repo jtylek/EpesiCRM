@@ -36,34 +36,9 @@ foreach($arr as $row) {
 	if ($row['to_user_login_id'])
 		$user_label .= ' -> '.Apps_ShoutboxCommon::create_write_to_link($row['to_user_login_id']);
 
-    $message = (($row['to_user_login_id']==$myid && $uid===null)?'<b>':'').Utils_BBCodeCommon::parse($row['message']).(($row['to_user_login_id']==$myid && $uid===null)?'</b>':'');
-    $time = Base_RegionalSettingsCommon::time2reg($row['posted_on'],2);
-    $color = array('default','primary','success','danger','warning','info');
-	$color = $color[$row['base_user_login_id'] % 6];
-
-    $html = <<<HTML
-        <li class="list-group-item py-5">
-            <div class="media">
-                <!--<div class="media-object avatar avatar-md mr-4" style="background-image: url(demo/faces/male/16.jpg)"></div>-->
-                <div class="media-body">
-                    <div class="media-heading">
-                        <small class="float-right text-muted">$time</small>
-                        <h5>$user_label</h5>
-                    </div>
-                    <div>
-                        $message
-                    </div>
-                </div>
-            </div>
-        </li>
-HTML;
-
-//    <div class="bs-callout bs-callout-$color">
-//		<h4>$user_label<span class="label label-default pull-right">$time</span></h4>
-//    	<span class="shoutbox_textbox"style="color:$fcolor;">$message</span>
-//    </div>
-
-    print($html);
+	$strongify = $row['to_user_login_id'] == $myid && $uid===null;
+	$message = Apps_ShoutboxCommon::format_message($row, $strongify, $shoutbox_admin);
+	print('<span class="author border_radius_3px dark_blue_gradient">'.$user_label.'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><br/><span class="shoutbox_textbox"style="color:'.$fcolor.';">'.$message.'</span><hr/>');
 }
 
 $content = ob_get_contents();

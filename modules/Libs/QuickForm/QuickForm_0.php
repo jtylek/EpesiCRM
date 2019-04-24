@@ -9,12 +9,24 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('Renderer/TCMSArraySmarty.php');
+require_once('Renderer/TCMSDefault.php');
+
+$GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
+$GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
+
 /**
  * This class provides saving any page as homepage for each user.
+ *
+ * @mixin HTML_QuickForm
  */
 class Libs_QuickForm extends Module {
 	private $qf;
-
+	
 	public function construct($indicator = null, $action = '', $target = '', $on_submit = null, $form_name=null) {
 		if (!$form_name)
 			$form_name = 'libs_qf_'.md5($this->get_path());
@@ -23,25 +35,22 @@ class Libs_QuickForm extends Module {
 		if(!isset($on_submit))
 			$on_submit = $this->get_submit_form_js_by_name($form_name,true,$indicator,'')."return false;";
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
-
-        $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
-
 		$this->qf->addElement('hidden', 'submited', 0);
 		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
-		eval_js_once("set_qf_sub0 = function(fn){var x=jq('#'+fn);if(x.length)x.find('input[name=submited]').val(0)}");
+		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');
 	}
-
+	
 	public function body($arg=null) {
 		$this->qf->display($arg);
 	}
-
+	
 	public function get_name() {
 		$attrs = $this->qf->getAttributes();
 		return $attrs['name'];
 	}
-
+	
 	public function validate_with_message($success='', $failure=''){
 		$ret = $this->qf->validate();
 		if ($this->qf->isSubmitted()) {
@@ -52,7 +61,7 @@ class Libs_QuickForm extends Module {
 		}
 		return $ret;
 	}
-
+	
 	public function accept(&$r) {
 		$this->qf->accept($r);
 	}
@@ -64,13 +73,19 @@ class Libs_QuickForm extends Module {
 		else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
 	}
-
+	
 	public function & __call($func_name, array $args=array()) {
 		if ($func_name=='addElement' && isset($args[0])) {
 			if(is_string($args[0]))
 				$type = $args[0];
 			else
 				$type = $args[0]->getType();
+			if($type=='select' || $type=='commondata' || $type=='multiselect') {
+				load_js('modules/Libs/QuickForm/select.js');
+				if (!isset($args[4])) $args[4] = array('onkeydown'=>'typeAhead();');
+				if (is_array($args[4])) $args[4]['onkeydown'] = 'typeAhead();';
+				else $args[4] .= ' onkeydown="typeAhead();"';
+			}
 			if ($type == 'crits') {
 				// 0=type, 1=name, 2=label, 3=tab, 4=crits
 				if (isset ($args[3]) && Utils_RecordBrowserCommon::check_table_name($args[3], false, false)) {
@@ -84,22 +99,17 @@ class Libs_QuickForm extends Module {
 		}
 		if (is_object($this->qf)) {
 //			if($func_name==='accept') trigger_error(print_r($args,true));
-			try {
-                $ret = call_user_func_array(array(& $this->qf, $func_name), $args);
-                return $ret;
-            } catch (HTML_QuickForm_Error $e){
-            	//TODO: At least log it...
-				return $e;
-			}
+			$return = call_user_func_array(array(& $this->qf, $func_name), $args);
 		} else
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
+		return $return;
 	}
-
+	
 	public function get_submit_form_js($submited=true, $indicator=null, $queue=false) {
 		if (!is_object($this->qf))
 			throw new Exception("QuickFrom object doesn't exists");
 		$form_name = $this->qf->getAttribute('name');
-		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$queue);
+		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$queue); 
 	}
 	public function get_submit_form_href($submited=true, $indicator=null) {
 		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
@@ -108,35 +118,35 @@ class Libs_QuickForm extends Module {
 	public function get_submit_form_js_by_name($form_name, $submited, $indicator, $queue=false) {
 		if (!is_array($form_name)) $form_name = array($form_name);
 		if(!isset($indicator)) $indicator=__('Processing...');
-		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'";
+		$fast = "+'&".http_build_query(array('__action_module__'=>$this->get_parent_path()))."'"; 
 		$pre = '';
 		$chj = '';
 		$post = '';
 		foreach ($form_name as $f) {
             $pre .= 'Epesi.confirmLeave.freeze(\''.addslashes($f).'\');';
             if ($submited) {
-				$pre .= "jq('#".addslashes($f)." input[name=submited]').val(1);";
+				$pre .= "$('".addslashes($f)."').submited.value=1;";
 			}
-			$pre .= "jq(document).trigger('e:submit_form',['".$f."']);";
-			$pre .= str_replace('this',"jq('#".addslashes($f)."').get(0)",Libs_QuickFormCommon::get_on_submit_actions());
+			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
+			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
-			$chj .= "jq('#".addslashes($f)."').serialize()";
-			if ($submited) $post .= "jq('#".addslashes($f)." input[name=submited]').val(0);";
+			$chj .= "$('".addslashes($f)."').serialize()";
+			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
 		}
 		$s = $pre . Module::create_href_js_raw($chj.$fast, $indicator, $queue?'queue':'') . $post;
 		return $s;
 	}
 
-	public function assign_theme($name, & $theme, &$renderer=null){
-		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
-		$this->accept($renderer);
+	public function assign_theme($name, & $theme, &$renderer=null){ 
+		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+		$this->accept($renderer); 
 		$form_data = $renderer->toArray();
-		$theme->assign($name.'_name', $this->getAttribute('name'));
+		$theme->assign($name.'_name', $this->getAttribute('name')); 
 		$theme->assign($name.'_data', $form_data);
 		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']."\n");
 		$theme->assign($name.'_close', "</form>\n");
 	}
-
+	
 	public function get_element_by_array(array $v, & $default_js = null) {
 		$elem = null;
 		if(!isset($v['param'])) $v['param']=null;
@@ -144,12 +154,13 @@ class Libs_QuickForm extends Module {
 		switch($v['type']){
 			case 'select':
 				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
-				$default_js .= 'jq(\'#'.$this->getAttribute('name').' select[name='.$v['name'].']\').val(\''.$v['default'].'\').change();';
+				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;
 			case 'multiselect':
 				$elem = $this -> createElement('multiselect',$v['name'],$v['label'],$v['values'],$v['param']);
 				if (!is_array($v['default'])) $v['default'] = array($v['default']);
-				$default_js .= 'e = jq(\'#'.$this->getAttribute('name').'\').get(0).'.$v['name'].'__from;'.
+				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].'__from;'.
 				'ms_remove_all(\''.$v['name'].'\', \'__SEP__\');'.
 				$v['name'].'__default=[\''.implode('\',\'',$v['default']).'\'];'.
 				'for(i=0; i<e.length; i++) if('.$v['name'].'__default.indexOf(e.options[i].value)!=-1){e.options[i].selected=true;};'.
@@ -159,13 +170,13 @@ class Libs_QuickForm extends Module {
 			case 'header':
 				$elem = $this -> createElement($v['type'],isset($v['name'])?$v['name']:null,$v['label'],isset($v['values'])?$v['values']:'');
 				break;
-
+				
 			case 'bool':
 			case 'checkbox':
 				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$v['param']);
-				$default_js .= 'jq(\'#'.$this->getAttribute('name').' input[name='.$v['name'].']\').prop("checked",'.($v['default']?1:0).');';
+				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
 				break;
-
+			
 			case 'html':
                 if(! isset($v['text'])) {
                     if(isset($v['label'])) {
@@ -188,13 +199,13 @@ class Libs_QuickForm extends Module {
 			case 'hidden':
 			case 'textarea':
 				$elem = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
-				$default_js .= 'jq(\'#'.$this->getAttribute('name').'\').get(0).'.$v['name'].'.value = \''.$v['default'].'\';';
+				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 				break;
-
+						
 			case 'callback':
 				if(!isset($v['func']))
 					trigger_error('Callback function not defined in '.$v['name'],E_USER_ERROR);
-				$elem = call_user_func_array($v['func'], array($v['name'], $v, &$default_js, $this));
+				$elem = call_user_func_array($v['func'],array($v['name'], $v, &$default_js, $this));
 				break;
 			default:
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
@@ -203,7 +214,7 @@ class Libs_QuickForm extends Module {
 			trigger_error($elem->getMessage(),E_USER_ERROR);
 		return $elem;
 	}
-
+	
 	public function add_array($info, & $default_js=''){
 		foreach($info as $v){
 			if(!isset($v['param'])) $v['param']=null;
@@ -214,7 +225,7 @@ class Libs_QuickForm extends Module {
 					foreach($v['values'] as $k=>$x)
 						$radio[] = $this -> createElement('radio',$v['name'],null,$x,$k,$v['param']);
 					$this->addGroup($radio,null,$v['label']);
-					$default_js .= 'e = jq(\'#'.$this->getAttribute('name').'\').get(0).'.$v['name'].';'.
+					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
 					break;
 				case 'group':
@@ -233,7 +244,7 @@ class Libs_QuickForm extends Module {
 					$this->qf->addElement($this->get_element_by_array($v,$default_js));
 			}
 			if(isset($v['default'])) $this->setDefaults(array($v['name']=>$v['default']));
-
+			
 			if (isset($v['rule'])) {
 				$i = 0;
 				if(isset($v['rule']['message']) && isset($v['rule']['type'])) $v['rule'] = array($v['rule']);
@@ -251,7 +262,7 @@ class Libs_QuickForm extends Module {
 						if(isset($r['param']) && $r['param']=='__form__')
 							$r['param'] = &$this;
 //						print($v['name'].', '.$r['message'].', '.$r['type'].', '.(isset($r['param'])?$r['param']:'').'<br>');
-						$this->addRule($v['name'], $r['message'], $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null, $this);
+						$this->addRule($v['name'], $r['message'], $v['name'].$i.'_rule', isset($r['param'])?$r['param']:null);
 					} else {
 						if ($r['type']=='regex' && !isset($r['param'])) trigger_error('No regex defined for a rule for field '.$v['name'], E_USER_ERROR);
 //						print($v['name'].', '.$r['message'].', '.$r['type'].', '.(isset($r['param'])?$r['param']:'').'<br>');
@@ -266,7 +277,7 @@ class Libs_QuickForm extends Module {
 				}
 		}
 	}
-
+			
 	public function add_table($table_name, array $cols, &$js='') { //TODO: add group here?
 		$meta_table = DB::MetaColumns($table_name);
 		$arr = array();
@@ -290,7 +301,7 @@ class Libs_QuickForm extends Module {
 			$type = DB::dict()->MetaType($meta);
 			if(!isset($v['type']))
 				switch($type) {
-					case 'C':
+					case 'C': 
 						$v['type']='text';
 						break;
 					case 'X':
@@ -324,7 +335,7 @@ class Libs_QuickForm extends Module {
 		}
 		$this->add_array($arr,$js);
 	}
-
+	
 	public function add_error_closing_buttons() {
 		$elements = array_keys($this->getSubmitValues());
 		foreach ($elements as $e) {
@@ -334,21 +345,19 @@ class Libs_QuickForm extends Module {
 	}
 
 	public function display_as_column() {
+		$t = $this->init_module('Base_Theme');
 		$this->add_error_closing_buttons();
-		$renderer = new HTML_QuickForm_Renderer_TCMSArray();
-		$this->accept($renderer);
-		$form_data = $renderer->toArray();
-		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>false]);
+		$this->assign_theme('form', $t);
+		$t->display('column');
 	}
-
+	
 	public function display_as_row() {
+		$t = $this->init_module('Base_Theme');
 		$this->add_error_closing_buttons();
-		$renderer = new HTML_QuickForm_Renderer_TCMSArray();
-		$this->accept($renderer);
-		$form_data = $renderer->toArray();
-		$this->twig_display('simple_form.twig', ['form' => $form_data, 'inline'=>true]);
+		$this->assign_theme('form', $t);
+		$t->display('row');
 	}
-
+	
 	public function set_confirm_leave_page($activate = true, $message = null) {
 		if ($activate) {
 			$message = empty($message)? __('Leave page without saving changes?'): $message;
@@ -356,7 +365,7 @@ class Libs_QuickForm extends Module {
 		}
 		else eval_js('if (Epesi.hasOwnProperty(\'confirmLeave\')) Epesi.confirmLeave.deactivate(\''.addslashes($this->get_name()).'\');');
 	}
-
+	
 	/**
 	 * @param string $field
 	 * @param mixed $default
@@ -366,10 +375,10 @@ class Libs_QuickForm extends Module {
 		$field_obj = $this->getElement($field);
 		$field_type = $field_obj->getType();
 		$field_id = $field_id?: $field;
-
+	
 		$allowed_types = array('static', 'hidden', 'select', 'checkbox', 'commondata', 'text','automulti');
 		if (!in_array($field_type, $allowed_types)) throw new Exception('Cannot autohide on '.$field_type);
-
+	
 		if ($field_type == 'static') {
 			$field .= '__autohide';
 			$field_id .= '__autohide';
@@ -379,7 +388,7 @@ class Libs_QuickForm extends Module {
 		} elseif($field_type=='automulti') {
 			Libs_QuickFormCommon::autohide_fields($field_id.'__to', $hide_mapping);
 		}
-
+	
 		Libs_QuickFormCommon::autohide_fields($field_id, $hide_mapping);
 	}
 }

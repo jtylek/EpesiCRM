@@ -247,6 +247,22 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		
 		return $ret;
     }
+    public static function display_checkbox_setting($record, $nolink=false, $desc=null, $tab=null) {
+    	$img = self::display_checkbox_icon($record, $nolink, $desc);
+    
+    	$rb_obj = Utils_RecordBrowser::$rb_obj;
+    
+    	if (!$img || $nolink || !$desc || !($rb_obj instanceof Utils_RecordBrowser)) return $img;
+    		
+    	$href = $rb_obj->create_callback_href(array('Utils_RecordBrowserCommon', 'set_checkbox_setting'), array($tab, $record['id'], $desc['id'], $record[$desc['id']]?0:1));
+    
+    	$tooltip_attrs = Utils_TooltipCommon::open_tag_attrs(__('Click to toggle'));
+    
+    	return "<a $href $tooltip_attrs>" . $img . '</a>';
+    }
+    public static function set_checkbox_setting($tab, $id, $field, $active=1) {
+    	self::update_record($tab, $id, array($field=>$active));
+    }
     public static function display_date($record, $nolink, $desc=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
@@ -397,16 +413,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     
     public static function decode_record_token($token, $single_tab=false) {
-    	//#merge, in bootstrap limit of explode = 2
-        $kk = explode('/',$token);
+    	$kk = explode('/',$token);
     	if(count($kk)==1) {
     		if ($single_tab && is_numeric($kk[0])) {
     			$tab = $single_tab;
     			$record_id = $kk[0];
     		} else return false;
     	} else {
-    		$tab = $kk[0];
-    		$record_id = $kk[1];
+    		$record_id = array_pop($kk);
+    		$tab = $single_tab?$single_tab:$kk[0];
     		if (!self::check_table_name($tab) || !is_numeric($record_id)) return false;
     	}
     	
@@ -858,7 +873,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         self::change_field_position($tab, $field, 16000);
         DB::Execute('DELETE FROM '.$tab.'_field WHERE field=%s', array($field));
         DB::Execute('DELETE FROM '.$tab.'_callback WHERE field=%s', array($field));
-
+        
         if (isset(self::$table_rows[$field]['id'])) {
 			$f_id = self::$table_rows[$field]['id'];
 	        @DB::Execute('ALTER TABLE '.$tab.'_data_1 DROP COLUMN f_'.$f_id);
@@ -932,7 +947,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		}
 
         DB::StartTrans();
-        if (is_string($definition['position'])) $definition['position'] = DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($definition['position']))+1;
+        if (is_string($definition['position'])) $definition['position'] = self::get_field_position($tab, $definition['position'])+1;
         if ($definition['position']===null || $definition['position']===false) {
             $first_page_split = $set_empty_position_before_first_page_split?DB::GetOne('SELECT MIN(position) FROM '.$tab.'_field WHERE type=%s AND field!=%s', array('page_split', 'General')):0;
             $definition['position'] = $first_page_split?$first_page_split:DB::GetOne('SELECT MAX(position) FROM '.$tab.'_field')+1;
@@ -971,10 +986,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
     public static function change_field_position($tab, $field, $new_pos){
+    	$new_pos = is_string($new_pos)? (self::get_field_position($tab, $new_pos)+1): $new_pos;
+
         if ($new_pos <= 2) return; // make sure that no field is before "General" tab split
+        
         DB::StartTrans();
-        $pos = DB::GetOne('SELECT position FROM ' . $tab . '_field WHERE field=%s', array($field));
-        if ($pos) {
+        if ($pos = self::get_field_position($tab, $field)) {
             // move all following fields back
             DB::Execute('UPDATE '.$tab.'_field SET position=position-1 WHERE position>%d',array($pos));
             // make place for moved field
@@ -983,6 +1000,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             DB::Execute('UPDATE '.$tab.'_field SET position=%d WHERE field=%s',array($new_pos, $field));
         }
         DB::CompleteTrans();
+    }
+    
+    public static function get_field_position($tab, $field){    
+    	return DB::GetOne('SELECT position FROM '.$tab.'_field WHERE field=%s', array($field));
     }
 
     /**
@@ -999,7 +1020,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $type = DB::GetOne('SELECT type FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         $old_param = DB::GetOne('SELECT param FROM ' . $tab . '_field WHERE field=%s', array($old_name));
         
-        $db_field_exists = !($type === 'calculated' && !$old_param) && $type!== 'page_split';
+        $db_field_exists = !(in_array($type, ['calculated', 'hidden'], true) && !$old_param) && $type!== 'page_split';
         
         DB::StartTrans();
         if ($db_field_exists) {
@@ -1082,8 +1103,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             case 'text': $f = DB::dict()->ActualType('C').'('.$param.')'; break;
             case 'select': 
             	$param = self::decode_select_param($param);
-                if($param['single_tab']) $f = DB::dict()->ActualType('I4');
-                else $f = DB::dict()->ActualType('X');
+                if($param['single_tab']) $f = DB::dict()->ActualType('I4'); 
+                else $f = DB::dict()->ActualType('X'); 
                 break;
             case 'multiselect': $f = DB::dict()->ActualType('X'); break;
             case 'commondata': $f = DB::dict()->ActualType('C').'(128)'; break;
@@ -1637,7 +1658,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
      * @param array|Utils_RecordBrowser_Crits $crits
      * @param array $cols not used anymore
      * @param array $order
-     * @param int|array $limit nr of rows or array('offset'=>X, 'numrows'=>Y);
+     * @param int|array $limit nr of rows or array('offset'=>X, 'numrows'=>Y); 
      * @param bool  $admin
      *
      * @return array|bool
@@ -1969,17 +1990,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	 */
 	public static function get_access($tab, $action, $record=null, $return_crits=false, $return_in_array=false){
 		$access = Utils_RecordBrowser_Access::create($tab, $action, $record);
-
+		
 		//start deprecated code - used for backward compatibility
 		if ($return_crits) {
 			if ($return_in_array)
 				return $access->getRuleCrits();
-
+				
 			return $access->getCrits();;
 		}
 		//end deprecated code
 		
-		return $access->getUserAccess(self::$admin_access);
+		return $access->getUserAccess(self::$admin_access);  
     }
     
     /**
@@ -1990,7 +2011,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
      */
     public static function get_access_crits($tab, $action, $record=null) { 
     	$access = Utils_RecordBrowser_Access::create($tab, $action, $record);
-
+    	
     	return $access->getCrits();
     }
     
@@ -2002,7 +2023,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
      */
     public static function get_access_rule_crits($tab, $action, $record=null) {
     	$access = Utils_RecordBrowser_Access::create($tab, $action, $record);
-
+    	
     	return $access->getRuleCrits();
     }
 
@@ -2035,7 +2056,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		load_js('modules/Utils/RecordBrowser/favorites.js');
 		if ($isfav===null) $isfav = DB::GetOne('SELECT '.$tab.'_id FROM '.$tab.'_favorite WHERE user_id=%d AND '.$tab.'_id=%d', array(Acl::get_user(), $id));
 		$tag_id = 'rb_fav_button_'.$tab.'_'.$id;
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?__('This item is on your favorites list').'<br>'.__('Click to remove it from your favorites'):__('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><i class="fa fa-lg fa-fw '.($isfav==false?"fa-star-o text-muted":"fa-star text-warning").'"></i></a>';
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?__('This item is on your favorites list').'<br>'.__('Click to remove it from your favorites'):__('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><img style="width: 14px; height: 14px;" border="0" src="'.($isfav==false?$star_off:$star_on).'" /></a>';
 	}
     public static function set_favs($tab, $id, $state) {
         self::check_table_name($tab);
@@ -2328,6 +2349,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return array('__jump_to_RB_table'=>$tab, '__jump_to_RB_record'=>$id, '__jump_to_RB_action'=>$action);
     }
     public static function create_record_href($tab, $id, $action='view',$more=array()){
+        if(MOBILE_DEVICE) {
+            $cap = DB::GetOne('SELECT caption FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
+            return mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_view'),array($tab,$id),$cap);
+        }
         return Module::create_href(self::get_record_href_array($tab,$id,$action)+$more);
     }
     public static function record_link_open_tag_r($tab, $record, $nolink=false, $action='view', $more=array())
@@ -2423,12 +2448,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	if (!is_numeric($id)) return '';
     	
     	$text = self::create_record_tooltip($text, $tab, $id, $nolink, $tooltip);
-
-    	return self::record_link_open_tag($tab, $id, $nolink, 'view', $more) .
+    	
+    	return self::record_link_open_tag($tab, $id, $nolink, 'view', $more) . 
     			$text . self::record_link_close_tag();
     }
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
-    	if (!$tooltip || $nolink || Utils_TooltipCommon::is_tooltip_code_in_str($text))
+    	if (!$tooltip || $nolink || Utils_TooltipCommon::is_tooltip_code_in_str($text)) 
     		return $text;
     	 
     	if (!is_array($tooltip))
@@ -2893,7 +2918,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function applet_new_record_button($tab, $defaults = array()) {
 		if (!self::get_access($tab, 'add')) return '';
-        return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><span class="card-options-collapse"><i class="fa fa-plus"></span></i></a>';
+        return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New record')).' '.Utils_RecordBrowserCommon::create_new_record_href($tab,$defaults).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','add.png').'" border="0"></a>';
     }
 
     public static function get_calculated_id($tab, $field, $id) {
@@ -3013,7 +3038,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($param['cols'])
         	return self::create_linked_label($tab, $param['cols'], $record_id, true);
         else
-        	return self::create_default_linked_label($tab, $record_id, true, false);
+        	return self::create_default_linked_label($tab, $record_id, true, false);            
     }
     
     private static $automulti_order_tabs;
@@ -3371,7 +3396,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     public static function timestamp_required($v) {
-        return $v !== '' && Base_RegionalSettingsCommon::reg2time($v, false) !== false;
+        return $v['__datepicker'] !== '' && Base_RegionalSettingsCommon::reg2time($v['__datepicker'], false) !== false;
     }
 
     public static function QFfield_timestamp(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
@@ -3443,8 +3468,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $comp = $comp + $data;
             $label = Utils_RecordBrowserCommon::get_field_tooltip($label, 'commondata', $param['array_id']);
         } else {
-        	$tab_crits = self::get_select_tab_crits($param, $record);
-
+        	$tab_crits = self::get_select_tab_crits($param, $record);           
+                
         	$tabs = array_keys($tab_crits);
 
         	foreach($tabs as $t) {
@@ -3546,7 +3571,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
 		}
 		$inline_nodes = array_filter($inline_nodes);
-
+		
 		return implode('<br>', $labels) . ($inline_nodes? '<hr>': '') . implode('<hr>', $inline_nodes);
 	}
 
@@ -3590,7 +3615,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		$dropzoneField->add_to_form($form, $field, $label);
 	}
 	//endregion
-
+    
     public static function cron() {
         return array('indexer' => 10);
     }
@@ -3717,6 +3742,334 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $ret;
     }
 
+    ///////////////////////////////////////////
+    // mobile devices
+
+    public static function mobile_rb($table,array $crits=array(),array $sort=array(),$info=array(),$defaults=array()) {
+        $_SESSION['rb_'.$table.'_defaults'] = $defaults;
+        require_once('modules/Utils/RecordBrowser/mobile.php');
+    }
+
+    public static function mobile_rb_view($tab,$id) {
+        if (Utils_RecordBrowserCommon::get_access($tab, 'browse')===false) {
+            print(__('You are not authorised to browse this data.'));
+            return;
+        }
+        self::add_recent_entry($tab, Acl::get_user() ,$id);
+        $rec = self::get_record($tab,$id);
+
+        $access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);
+        if (is_array($access))
+            foreach ($access as $k=>$v)
+                if (!$v) $rec[$k] = '';
+
+        $cols = Utils_RecordBrowserCommon::init($tab);
+        if(IPHONE) {
+            print('<ul class="field">');
+            foreach($cols as $k=>$col) {
+                $val = Utils_RecordBrowserCommon::get_val($tab,$k,$rec,true,$col);
+                if($val==='') continue;
+                print('<li>'._V($col['name']).': '.$val.'</li>'); // TRSL
+            }
+            print('</ul>');
+        } else {
+            foreach($cols as $k=>$col) {
+                $val = Utils_RecordBrowserCommon::get_val($tab,$k,$rec,true,$col);
+                if($val==='') continue;
+                print(_V($col['name']).': '.$val.'<br>'); // TRSL
+            }
+        }
+
+        if(Utils_RecordBrowserCommon::get_access($tab, 'edit', $rec))
+            print('<a '.(IPHONE?'class="button blue" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_edit'), array($tab,$id),__('Record edition')).'>'.__('Edit').'</a>'.(IPHONE?'':'<br />'));
+
+        if(Utils_RecordBrowserCommon::get_access($tab, 'delete', $rec))
+            print('<a '.(IPHONE?'class="button red" ':'').mobile_stack_href(array('Utils_RecordBrowserCommon','mobile_rb_delete'), array($tab,$id),__('Record deletion')).'>'.__('Delete').'</a>'.(IPHONE?'':'<br />'));
+
+    }
+
+    public static function mobile_rb_edit($tab,$id) {
+        if($id===false)
+            $rec = array();
+        else
+            $rec = self::get_record($tab,$id);
+        $cols = Utils_RecordBrowserCommon::init($tab);
+
+        $defaults = array();
+        if($id===false) {
+            $mode = 'add';
+            $access = array();
+			$defaults = self::record_processing($tab, $defaults, 'adding');
+        } else {
+            $mode = 'edit';
+            $access = Utils_RecordBrowserCommon::get_access($tab, 'view',$rec);
+            if (is_array($access))
+                foreach ($access as $k=>$v)
+                    if (!$v) unset($rec[$k]);
+            $defaults = $rec = self::record_processing($tab, $rec, 'editing');
+        }
+
+        $QFfield_callback_table = array();
+        $ret = DB::Execute('SELECT * FROM '.$tab.'_callback WHERE freezed=0');
+        while ($row = $ret->FetchRow()) {
+            $QFfield_callback_table[$row['field']] = $row['callback'];
+        }
+        $defaults = array_merge($defaults,$_SESSION['rb_'.$tab.'_defaults']);
+
+        $qf = new HTML_QuickForm('rb_edit', 'post', 'mobile.php?'.http_build_query($_GET));
+        foreach($cols as $field=>$args) {
+            if(isset($access[$args['id']]) && !$access[$args['id']]) continue;
+
+            if(isset($rec[$args['id']]))
+                $val = $rec[$args['id']];
+            elseif(isset($defaults[$args['id']]))
+                $val = $defaults[$args['id']];
+            else
+                $val = null;
+            $label = _V($args['name']); // TRSL
+            if(isset($QFfield_callback_table[$field])) {
+                $mobile_rb = new Utils_RecordBrowserMobile($tab, $rec);
+                self::call_QFfield_callback($QFfield_callback_table[$field], $qf, $args['id'], $label, $mode, $val, $args, $mobile_rb, null);
+                if($mode=='edit')
+                    unset($defaults[$args['id']]);
+                continue;
+            }
+
+            switch ($args['type']) {
+                case 'calculated':
+                    $qf->addElement('static', $args['id'], $label);
+                    if (!is_array($rec))
+                        $values = $defaults;
+                    else {
+                        $values = $rec;
+                        if (is_array($defaults)) $values = $values + $defaults;
+                    }
+                    if(!isset($values[$args['id']])) $values[$args['id']] = '';
+                    $val = Utils_RecordBrowserCommon::get_val($tab, $field, $values, true, $args);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'integer':
+                case 'float':
+                    $qf->addElement('text', $args['id'], $label);
+                    if ($args['type'] == 'integer')
+                        $qf->addRule($args['id'], __('Only integer numbers are allowed.'), 'regex', '/^[0-9]*$/');
+                    else
+                        $qf->addRule($args['id'], __('Only numbers are allowed.'), 'numeric');
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'checkbox':
+                    $qf->addElement('checkbox', $args['id'], $label, '');
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'currency':
+                    $qf->addElement('currency', $args['id'], $label);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'text':
+                    $qf->addElement('text', $args['id'], $label, array('maxlength' => $args['param']));
+                    $qf->addRule($args['id'], __('Maximum length for this field is %s characters.', array($args['param'])), 'maxlength', $args['param']);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'long text':
+                    $qf->addElement('textarea', $args['id'], $label, array('maxlength' => 200));
+                    $qf->addRule($args['id'], __('Maximum length for this field in mobile edition is 200 chars.'), 'maxlengt', 200);
+                    if ($val !== null)
+                        $qf->setDefaults(array($args['id'] => $val));
+                    break;
+                case 'commondata':
+                    $param = explode('::', $args['param']['array_id']);
+                    foreach ($param as $k => $v) if ($k != 0) $param[$k] = self::get_field_id($v);
+                    if (count($param) == 1) {
+                        $qf->addElement($args['type'], $args['id'], $label, $param, array('empty_option' => true, 'id' => $args['id'], 'order' => $args['param']['order']));
+                        if ($val !== null)
+                            $qf->setDefaults(array($args['id'] => $val));
+                    }
+                    break;
+                case 'select':      $comp = array();
+                            $ref = explode(';',$args['param']);
+                            if (isset($ref[1])) $crits_callback = $ref[1];
+                                else $crits_callback = null;
+                            if (isset($ref[2])) $multi_adv_params = call_user_func(explode('::',$ref[2]));
+                                else $multi_adv_params = null;
+                            if (!isset($multi_adv_params) || !is_array($multi_adv_params)) $multi_adv_params = array();
+                            if (!isset($multi_adv_params['order'])) $multi_adv_params['order'] = array();
+                            if (!isset($multi_adv_params['cols'])) $multi_adv_params['cols'] = array();
+                            if (!isset($multi_adv_params['format_callback'])) $multi_adv_params['format_callback'] = array();
+                            $ref = $ref[0];
+                            @(list($tab2, $col) = explode('::',$ref));
+                            if (!isset($col)) trigger_error($field);
+                            if($tab2=='__RECORDSETS__') continue; //skip multi recordsets chained selector
+                            if ($tab2=='__COMMON__') {
+                                $data = Utils_CommonDataCommon::get_translated_tree($col);
+                                if (!is_array($data)) $data = array();
+                                $comp = $comp+$data;
+                            } else {
+                                if (isset($crits_callback)) {
+                                    $crit_callback = explode('::',$crits_callback);
+                                    if (is_callable($crit_callback)) {
+                                        $crits = call_user_func($crit_callback, false, $rec);
+                                        $adv_crits = call_user_func($crit_callback, true, $rec);
+                                    } else $crits = $adv_crits = array();
+                                    if ($adv_crits === $crits) $adv_crits = null;
+                                    if ($adv_crits !== null) {
+                                        continue; //skip record picker
+                                    }
+                                } else $crits = array();
+                                $col = explode('|',$col);
+                                $col_id = array();
+                                foreach ($col as $c) $col_id[] = self::get_field_id($c);
+                                $records = Utils_RecordBrowserCommon::get_records($tab2, $crits, empty($multi_adv_params['format_callback'])?$col_id:array(), !empty($multi_adv_params['order'])?$multi_adv_params['order']:array());
+                                $ext_rec = array();
+                                if (isset($rec[$args['id']])) {
+                                    if (!is_array($rec[$args['id']])) {
+                                        if ($rec[$args['id']]!='') $rec[$args['id']] = array($rec[$args['id']]=>$rec[$args['id']]); else $rec[$args['id']] = array();
+                                    }
+                                }
+                                if (isset($defaults[$args['id']])) {
+                                    if (!is_array($defaults[$args['id']]))
+                                        $rec[$args['id']][$defaults[$args['id']]] = $defaults[$args['id']];
+                                    else {
+                                        foreach ($defaults[$args['id']] as $v)
+                                            $rec[$args['id']][$v] = $v;
+                                    }
+                                }
+                                $single_column = (count($col_id)==1);
+                                if (isset($rec[$args['id']])) {
+                                    $ext_rec = array_flip($rec[$args['id']]);
+                                    foreach($ext_rec as $k=>$v) {
+                                        $c = Utils_RecordBrowserCommon::get_record($tab2, $k);
+                                        if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $c);
+                                        else {
+                                            if ($single_column) $n = $c[$col_id[0]];
+                                            else {
+                                                $n = array();
+                                                foreach ($col_id as $cid) $n[] = $c[$cid];
+                                                $n = implode(' ',$n);
+                                            }
+                                        }
+                                        $comp[$k] = $n;
+                                    }
+                                }
+                                if (!empty($multi_adv_params['order'])) natcasesort($comp);
+                                foreach ($records as $k=>$v) {
+                                    if (!empty($multi_adv_params['format_callback'])) $n = call_user_func($multi_adv_params['format_callback'], $v);
+                                    else {
+//                                      $n = $v[$col_id];
+                                        if ($single_column) $n = $v[$col_id[0]];
+                                        else {
+                                            $n = array();
+                                            foreach ($col_id as $cid) $n[] = $v[$cid];
+                                            $n = implode(' ',$n);
+                                        }
+                                    }
+                                    $comp[$k] = $n;
+                                    unset($ext_rec[$v['id']]);
+                                }
+                                if (empty($multi_adv_params['order'])) natcasesort($comp);
+                            }
+                            if ($args['type']==='select') $comp = array(''=>'---')+$comp;
+                            $qf->addElement($args['type'], $args['id'], $label, $comp, array('id'=>$args['id']));
+                            if($id!==false)
+                                $qf->setDefaults(array($args['id']=>$rec[$args['id']]));
+                            break;
+                case 'date':        $qf->addElement('date',$args['id'],$label,array('format'=>'d M Y', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
+                            if ($val)
+                                $qf->setDefaults(array($args['id'] => $val));
+                            break;
+                case 'timestamp':   $qf->addElement('date',$args['id'],$label,array('format'=>'d M Y H:i', 'minYear'=>date('Y')-95,'maxYear'=>date('Y')+5, 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
+                            if($val) {
+                                $default = Base_RegionalSettingsCommon::time2reg($val, true, true, true, false);
+                                $qf->setDefaults(array($args['id'] => $default));
+                            }
+                            break;
+                case 'time':        $qf->addElement('date',$args['id'],$label,array('format'=>'H:i', 'addEmptyOption'=>true, 'emptyOptionText'=>'--'));
+                            if($val) {
+                                $default = Base_RegionalSettingsCommon::time2reg($val, true, true, true, false);
+                                $qf->setDefaults(array($args['id'] => $default));
+                            }
+                            break;
+                case 'multiselect': //ignore
+                            if($id===false) continue;
+                            $val = Utils_RecordBrowserCommon::get_val($tab,$field,$rec,true,$args);
+                            if($val==='') continue;
+                            $qf->addElement('static',$args['id'],$label);
+                            $qf->setDefaults(array($args['id']=>$val));
+                            unset($defaults[$args['id']]);
+                            break;
+            }
+            if($args['required'])
+                $qf->addRule($args['id'],__('Field required'),'required');
+        }
+
+        $qf->addElement('submit', 'submit_button', __('Save'),IPHONE?'class="button white"':'');
+
+        if($qf->validate()) {
+            $values = $qf->exportValues();
+            foreach ($cols as $v) {
+                if ($v['type']=='checkbox' && !isset($values[$v['id']])) $values[$v['id']]=0;
+                elseif($v['type']=='date') {
+                    if(is_array($values[$v['id']]) && $values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='')
+                        $values[$v['id']] = sprintf("%d-%02d-%02d", $values[$v['id']]['Y'], $values[$v['id']]['M'], $values[$v['id']]['d']);
+                    else
+                        $values[$v['id']] = '';
+                } elseif($v['type']=='timestamp') {
+                    if($values[$v['id']]['Y']!=='' && $values[$v['id']]['M']!=='' && $values[$v['id']]['d']!=='' && $values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='') {
+                        $timestamp = $values[$v['id']]['Y'] . '-' . $values[$v['id']]['M'] . '-' . $values[$v['id']]['d'] . ' ' . $values[$v['id']]['H'] . ':' . $values[$v['id']]['i'];
+                        $values[$v['id']] = Base_RegionalSettingsCommon::reg2time($timestamp, true);
+                    } else
+                        $values[$v['id']] = '';
+                } elseif($v['type']=='time') {
+                    if($values[$v['id']]['H']!=='' && $values[$v['id']]['i']!=='') {
+                        $time = recalculate_time(date('Y-m-d'), $values[$v['id']]);
+                        $timestamp = Base_RegionalSettingsCommon::reg2time(date('1970-01-01 H:i:s', $time), true);
+                        $values[$v['id']] = date('1970-01-01 H:i:s', $timestamp);
+                    } else
+                        $values[$v['id']] = '';
+                }
+            }
+            foreach ($defaults as $k=>$v)
+                if (!isset($values[$k])) $values[$k] = $v;
+            if($id!==false) {
+                $values['id'] = $id;
+                Utils_RecordBrowserCommon::update_record($tab, $id, $values);
+            } else {
+                $id = Utils_RecordBrowserCommon::new_record($tab, $values);
+            }
+            return false;
+        }
+
+        $renderer =& $qf->defaultRenderer();
+        $qf->accept($renderer);
+        print($renderer->toHtml());
+    }
+
+    public static function mobile_rb_delete($tab, $id) {
+        if(!isset($_GET['del_ok'])) {
+            print('<a '.(IPHONE?'class="button green" ':'').' href="mobile.php?'.http_build_query($_GET).'&del_ok=0">'.__('Cancel deletion').'</a>');
+            print('<a '.(IPHONE?'class="button red" ':'').' href="mobile.php?'.http_build_query($_GET).'&del_ok=1">'.__('Delete').'</a>');
+        } else {
+            if($_GET['del_ok'])
+                Utils_RecordBrowserCommon::delete_record($tab, $id);
+                return 2;
+            return false;
+        }
+        return true;
+    }
+}
+
+class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO: consider passing tab and record as statics linked to RBCommon instead
+	public $tab;
+	public $record;
+	
+	public function __construct($tab, $record) {
+		$this->tab = $tab;
+		$this->record = $record;
+	}
 }
 
 function rb_or($crits, $_ = null)

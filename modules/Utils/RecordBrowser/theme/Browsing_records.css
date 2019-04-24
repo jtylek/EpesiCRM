@@ -31,7 +31,7 @@
     height: 24px;
     white-space: nowrap;
     vertical-align: top;
-
+	
 	margin-left: 10px;
 	margin-right: 10px;
 	padding: 3px 18px;
@@ -41,7 +41,7 @@
 	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
-
+	
 	/* gray v1 css3 background gradient */
 	background: #9c9c9c; /* Old browsers */
 	background: -moz-linear-gradient(top, #9c9c9c 0%, #858585 49%, #666666 51%, #939393 100%); /* FF3.6+ */

@@ -2,15 +2,15 @@ var RecordPicker_select_all = function(select,path,message) {
 	Epesi.updateIndicatorText(message);
 	Epesi.procOn++;
 	Epesi.updateIndicator();
-	jq.ajax('modules/Utils/RecordBrowser/RecordPickerFS/select_all.php', {
+	new Ajax.Request('modules/Utils/RecordBrowser/RecordPickerFS/select_all.php', {
 		method: 'post',
-		data:{
-			select: JSON.stringify(select),
-			path: JSON.stringify(path),
+		parameters:{
+			select: Object.toJSON(select),
+			path: Object.toJSON(path),
 			cid: Epesi.client_id
 		},
-		success:function(t) {
-			eval(t);
+		onSuccess:function(t) {
+			eval(t.responseText);
 		}
 	});
 }

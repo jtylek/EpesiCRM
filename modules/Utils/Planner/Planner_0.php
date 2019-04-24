@@ -14,40 +14,40 @@ class Utils_Planner extends Module {
 	private $grid = array();
 	private $form;
 	private $values = array();
-
+	
 	public function clear() {
 		unset($_SESSION['client']['utils_planner']);
 		$this->unset_module_variable('fixed_date');
 	}
-
+	
 	public function construct() {
 		$_SESSION['client']['utils_planner'] = array();
 		$_SESSION['client']['utils_planner']['resources'] = array();
 		$this->form = $this->init_module(Libs_QuickForm::module_name());
 		$this->form->addElement('hidden', 'grid_selected_frames', '', array('id'=>'grid_selected_frames'));
 	}
-
+	
 	public function set_fixed_week($date) {
 		if (!is_numeric($date)) $date = strtotime($date);
 		$this->date = $this->get_module_variable('fixed_date', $date);
 	}
-
+	
 	public function get_form() {
 		return $this->form;
 	}
-
+	
 	public function set_timeframe_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['timeframe_availability_check_callback'] = $callback;
 	}
-
+	
 	public function set_resource_availability_check_callback($callback) {
 		$_SESSION['client']['utils_planner']['resource_availability_check_callback'] = $callback;
 	}
-
+	
 	public function set_processing_callback($callback) {
 		$_SESSION['client']['utils_planner']['processing_callback'] = $callback;
 	}
-
+	
 	public function set_regular_grid($start_time='00:00', $end_time='23:59', $grid_size='01:00') {
 		foreach (array('start_time','end_time','grid_size') as $v)
 			if ($$v!=(string)intval($$v)) {
@@ -68,7 +68,7 @@ class Utils_Planner extends Module {
 	public function set_custom_grid($grid) {
 		$this->grid = $grid;
 	}
-
+	
 	public function add_resource($def, $prop=array()) {
 		if (isset($def[0])) $type = $def[0];
 		if (isset($def[1])) $name = $def[1];
@@ -86,31 +86,31 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 		if ($type=='checkbox'){
-			eval_js('jq("#'.$name.'").change(function(){'.'resource_changed("'.$name.'","checkbox");'.'});');
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","checkbox");'.'});');
 			$el = $this->form->addElement($type, $name, $label, null, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='datepicker'){
-			eval_js('jq("#'.$name.'").change(function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
-			eval_js('jq("#'.$name.'").on("native:change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
+			eval_js('Event.observe("'.$name.'", "native:change" , function(){'.'resource_changed("'.$name.'","datepicker");'.'});');
 			$el = $this->form->addElement($type, $name, $label, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='select'){
-			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'jq("#'.$name.'").attr("class",jq("#'.$name.'").get(0).options[jq("#'.$name.'").get(0).selectedIndex].className);});');
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
 			$el = $this->form->addElement($type, $name, $label, $param1, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='commondata'){
-			eval_js('jq("#'.$name.'").change(function(){'.$on_change.'jq("#'.$name.'").attr("class",jq("#'.$name.'").get(0).options[jq("#'.$name.'").get(0).selectedIndex].className);});');
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, array('id'=>$name));
 			return $el;
 		}
 		if ($type=='autoselect'){
-			$on_change .= 'jq(this).attr("class",jq(this).find(":selected").attr("class"));';
-			//eval_js('jq("#'.$name.'").change(function(){'.$on_change.'});');
+			$on_change .= '$("'.$name.'").className=$("'.$name.'").options[$("'.$name.'").selectedIndex].className;';
+			eval_js('Event.observe("'.$name.'", "change" , function(){'.$on_change.'});');
 			$el = $this->form->addElement($type, $name, $label, $param1, $param2, $param3, array('id'=>$name));
-			$el->on_select($on_change);
+			$el->on_hide_js($on_change);
 			return $el;
 		}
 		if ($type=='text'){
@@ -118,12 +118,12 @@ class Utils_Planner extends Module {
 			return $el;
 		}
 	}
-
+	
 	public function set_resource_default($k, $v) {
 		$this->form->setDefaults(array($k=>$v));
 		$this->values[$k] = $v;
 	}
-
+	
 	public function set_default_time_frames($day, $start, $end) {
 		$mark = false;
 		$base_unix_time = strtotime('1970-01-01 00:00');
@@ -141,15 +141,15 @@ class Utils_Planner extends Module {
 		}
 		eval_js('time_grid_mouse_up();');
 	}
-
+	
 	public function body(){
 		if (empty($this->grid)) {
 			print('Time grid not defined, aborting');
 			return;
 		}
 		load_js('modules/Utils/Planner/planner.js');
-		eval_js('disableSelection(jq("#Utils_Planner__grid").get(0))');
-		eval_js('jq(window).mouseup(time_grid_mouse_up)');
+		eval_js('disableSelection($("Utils_Planner__grid"))');
+		eval_js('Event.observe(window,"mouseup",time_grid_mouse_up)');
 		$theme = $this->init_module(Base_Theme::module_name());
 
 		/* HEADERS */
@@ -186,13 +186,13 @@ class Utils_Planner extends Module {
 				$select_all[$k1] .= ($select_all[$k1]?'time_grid_mouse_move':'time_grid_mouse_down').'('.$v.','.$k1.');';
 			$grid_legend[$v] = Utils_PlannerCommon::format_time($v*60);
 			$grid_legend[$v] .= ' - '.Utils_PlannerCommon::format_time($this->grid[$k+1]*60);
-			$grid_attrs[$v] = array();
+			$grid_attrs[$v] = array(); 
 			foreach ($headers as $k2=>$v2) $grid_attrs[$v][$k2] = 'class="noconflict unused" id="'.$k2.'__'.$v.'" onmousedown="time_grid_mouse_down('.$v.','.$k2.')" onmousemove="if(typeof(time_grid_mouse_move)!=\'undefined\')time_grid_mouse_move('.$v.','.$k2.')"';
 		}
 		foreach ($headers as $k1=>$v1)
 			$select_all[$k1] .= 'time_grid_mouse_up();';
 		/* GRID LEGEND END */
-
+		
 		$theme->assign('select_all',$select_all);
 		$theme->assign('select_all_label',__('Select all'));
 
@@ -204,15 +204,15 @@ class Utils_Planner extends Module {
 			'days'=>$headers,
 			);
 		if ($this->date!==null) {
-			$this->form->addElement('submit', 'next_day', __('Next day'), array('onclick'=>'jq("#planner_navigation").val("next_day");'));
-			$this->form->addElement('submit', 'prev_day', __('Previous day'), array('onclick'=>'jq("#planner_navigation").val("prev_day");'));
-			$this->form->addElement('submit', 'next_week', __('Next week'), array('onclick'=>'jq("#planner_navigation").val("next_week");'));
-			$this->form->addElement('submit', 'prev_week', __('Previous week'), array('onclick'=>'jq("#planner_navigation").val("prev_week");'));
-			$this->form->addElement('submit', 'today', __('Today'), array('onclick'=>'jq("#planner_navigation").val("today");'));
+			$this->form->addElement('submit', 'next_day', __('Next day'), array('onclick'=>'$("planner_navigation").value="next_day";'));
+			$this->form->addElement('submit', 'prev_day', __('Previous day'), array('onclick'=>'$("planner_navigation").value="prev_day";'));
+			$this->form->addElement('submit', 'next_week', __('Next week'), array('onclick'=>'$("planner_navigation").value="next_week";'));
+			$this->form->addElement('submit', 'prev_week', __('Previous week'), array('onclick'=>'$("planner_navigation").value="prev_week";'));
+			$this->form->addElement('submit', 'today', __('Today'), array('onclick'=>'$("planner_navigation").value="today";'));
 			$this->form->addElement('hidden', 'navigation', '', array('id'=>'planner_navigation'));
-			$link_text = 'jq(\'#planner_navigation\').val(\'__YEAR__-__MONTH__-__DAY__\');'.$this->form->get_submit_form_js().';';
+			$link_text = '$(\'planner_navigation\').value=\'__YEAR__-__MONTH__-__DAY__\';'.$this->form->get_submit_form_js().';';
 			$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'day',$fdow,null,null,$this->date));
-			eval_js('jq("#planner_navigation").val("");');
+			eval_js('$("planner_navigation").value="";');
 		}
 
 		$values = $this->get_module_variable('preserve_values', null);
@@ -228,12 +228,12 @@ class Utils_Planner extends Module {
 			foreach ($values as $k=>$v)
 				$this->values[$k] = $v;
 		}
-
+			
 		$this->form->assign_theme('form', $theme);
 		$theme->display();
 		Base_ActionBarCommon::add('save',__('Save'),$this->form->get_submit_form_href());
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-
+		
 		$time_frames = explode(';',$values['grid_selected_frames']);
 		if (!empty($time_frames) && $time_frames[0]) {
 			foreach ($time_frames as $k=>$v) {

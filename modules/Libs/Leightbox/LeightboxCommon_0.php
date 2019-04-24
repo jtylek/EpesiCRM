@@ -11,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_LeightboxCommon extends ModuleCommon {
 	public static function get($id,$content,$header='',$big=0) {
+		if(MOBILE_DEVICE) return '';
 		static $init = true;
 		if ($init) {
 			Base_ThemeCommon::load_css(Libs_LeightboxCommon::module_name(),'default',false);
@@ -21,15 +22,12 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		print('<div id="'.$id.'" big="1" class="leightbox">');
 		print('<input type="hidden" id="'.$id.'_bigsize" value="'.($big?1:0).'" />');
 		if ($big) {
-			eval_js('
-			if(jq(\'#'.$id.'\').length) {
-			s = jq(\'#'.$id.'\').get(0).style;'.
+			eval_js('s = $(\''.$id.'\').style;'.
 			's.top = \'5%\';'.
 			's.left = \'5%\';'.
 			's.width = \'90%\';'.
 			's.height = \'90%\';'.
-			's.padding = \'0px\';
-			}');
+			's.padding = \'0px\';');
 			
 		}
 		$smarty = Base_ThemeCommon::init_smarty();
@@ -49,6 +47,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 	}
 	
 	public static function get_open_href($id) {
+		if(MOBILE_DEVICE) return '';
 		return 'class="lbOn" rel="'.$id.'" href="javascript:void(0)"';
 	}
 	

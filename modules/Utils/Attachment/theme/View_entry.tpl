@@ -23,36 +23,41 @@
 {/php}
 
 {if $main_page}
-<div class="card ">
-    <div class="card-header clearfix">
-        <div class="pull-left">
-            <img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0"> <span class="form-inline">{$caption}</span>
-        </div>
-        <div class="pull-right">
-            {$required_note}
-            {if isset($subscription_tooltip)}
-                &nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-            {/if}
-            {if isset($fav_tooltip)}
-                &nbsp;&nbsp;&nbsp;{$fav_tooltip}
-            {/if}
-            {if isset($info_tooltip)}
-                &nbsp;&nbsp;&nbsp;{$info_tooltip}
-            {/if}
-            {if isset($clipboard_tooltip)}
-                &nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-            {/if}
-            {if isset($history_tooltip)}
-                &nbsp;&nbsp;&nbsp;{$history_tooltip}
-            {/if}
-            {if isset($new)}
-                {foreach item=n from=$new}
-                    &nbsp;&nbsp;&nbsp;{$n}
-                {/foreach}
-            {/if}
-        </div>
-    </div>
-    <div class="card-body">
+    <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+            <td style="width:100px;">
+                <div class="name">
+                    <img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+                    <div class="label">{$caption}</div>
+                </div>
+            </td>
+            <td class="required_fav_info">
+                &nbsp;*&nbsp;{$required_note}
+                {if isset($subscription_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+                {/if}
+                {if isset($fav_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$fav_tooltip}
+                {/if}
+                {if isset($info_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$info_tooltip}
+                {/if}
+                {if isset($clipboard_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+                {/if}
+                {if isset($history_tooltip)}
+                    &nbsp;&nbsp;&nbsp;{$history_tooltip}
+                {/if}
+                {if isset($new)}
+                    {foreach item=n from=$new}
+                        &nbsp;&nbsp;&nbsp;{$n}
+                    {/foreach}
+                {/if}
+            </td>
+        </tr>
+        </tbody>
+    </table>
 
     {if isset($click2fill)}
         {$click2fill}
@@ -60,81 +65,138 @@
 
 {/if}
 
-<div class="container-fluid" style="padding: 9px; width: 100%;">
+<div class="layer" style="padding: 9px; width: 98%;">
     <div class="css3_content_shadow">
-        {* first line *}
-        <div class="Utils_RecordBrowser__container container-fluid" style="padding-top: 20px">
-            <div class="row-fluid" style="padding: 5px 10px">
-                <div>
-                    {$fields.title.full_field}
-                </div>
-                <div>
-                    {$fields.edited_on.full_field}
-                </div>
-            </div>
-        </div>
-        {* note box *}
-        <div class="row">
-            <td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-                {if $longfields.note.error}{$longfields.note.error}{/if}
 
-                {if $longfields.note.help}
-                    <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+        <div class="Utils_RecordBrowser__container">
+
+            {* Outside table *}
+            <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+                <tbody>
+                <tr>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {$fields.title.full_field}
+                        </table>
+                    </td>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {$fields.edited_on.full_field}
+                        </table>
+                    </td>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {$fields.permission.full_field}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        <tr>
+                        <td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
+                            {if $longfields.note.error}{$longfields.note.error}{/if}
+                            {if $longfields.note.help}
+                                <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+                            {/if}
+                            <div>
+                                {$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {$fields.sticky.full_field}
+                        </table>
+                    </td>
+                    <td colspan="2">
+                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {$fields.crypted.full_field}
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+                <tbody>
+                <tr>
+                    {assign var=x value=1}
+                    {assign var=y value=1}
+                    {foreach key=k item=f from=$fields name=fields}
+                        {if $k!='title' && $k!='permission' && $k!='edited_on' && $k!='sticky' && $k!='crypted'}
+                        {if $f.type!="multiselect"}
+                            {if !isset($focus) && $f.type=="text"}
+                                {assign var=focus value=$f.element}
+                            {/if}
+
+                            {if $y==1}
+                                <td class="column" style="width: {$cols_percent}%;">
+                                <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                            {/if}
+                            {$f.full_field}
+                            {if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
+                                {if $x>$no_empty}
+                                    <tr style="display:none;">
+                                        <td class="label">&nbsp;</td>
+                                        <td class="data">&nbsp;</td>
+                                    </tr>
+                                {/if}
+                                {assign var=y value=1}
+                                {assign var=x value=$x+1}
+                                </table>
+                                </td>
+                            {else}
+                                {assign var=y value=$y+1}
+                            {/if}
+                        {/if}
+                        {/if}
+                    {/foreach}
+                </tr>
+                {if !empty($multiselects)}
+                    <tr>
+                        {assign var=x value=1}
+                        {assign var=y value=1}
+                        {foreach key=k item=f from=$multiselects name=fields}
+                            {if $y==1}
+                                <td class="column" style="width: {$cols_percent}%;" colspan="2">
+                                <table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+                            {/if}
+                            {$f.full_field}
+                            {if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+                                {if $x>$mss_no_empty}
+                                    <tr style="display:none;">
+                                        <td class="label">&nbsp;</td>
+                                        <td class="data">&nbsp;</td>
+                                    </tr>
+                                {/if}
+                                {assign var=y value=1}
+                                {assign var=x value=$x+1}
+                                </table>
+                                </td>
+                            {else}
+                                {assign var=y value=$y+1}
+                            {/if}
+                        {/foreach}
+                    </tr>
                 {/if}
-                <div class="container-fluid">
-                    {$longfields.note.html}
-                </div>
-            </td>
-        </div>
-        {* options *}
-        <div class="row" style="padding: 20px 40px">
-            <div class="container">
-                {$fields.permission.full_field}
-            </div>
-            <div class="container">
-                {$fields.sticky.full_field}
-            </div>
-            <div class="container">
-                {$fields.crypted.full_field}
-            </div>
-            <div class="container" style="text-align: center">
-                {if $action != 'view'}
-                    <br>
-                    <div id="multiple_attachments"><div id="filelist"></div></div>
-                    {'Click here and press CTRL+V to paste your clipboard'|t}
-                    <button type="button" class="btn" href="javascript:void(0)" id="pickfiles">{'Select files'|t}</button>
-                {/if}
-            </div>
-        </div>
-
-                    {*{$fields|@var_dump}*}
-
-                    {*{foreach key=k item=f from=$fields name=fields}*}
-                        {*{if $k!='title' && $k!='permission' && $k!='edited_on' && $k!='sticky' && $k!='crypted'}*}
-                            {*{if $f.type!="multiselect"}*}
-                                {*{if !isset($focus) && $f.type=="text"}*}
-                                    {*{assign var=focus value=$f.element}*}
-                                    {*{$focus|@var_dump}*}
-                                {*{/if}*}
-                                {*{$f.full_field}*}
-                            {*{/if}*}
-                        {*{/if}*}
-                    {*{/foreach}*}
-
-                    {*{if !empty($multiselects)}*}
-                        {*{foreach key=k item=f from=$multiselects name=fields}*}
-                            {*{$f.full_field}*}
-                        {*{/foreach}*}
-                    {*{/if}*}
-
-
-
-                    {*{foreach key=k item=f from=$longfields name=fields}*}
-                       {*{if $k!='note'}*}
-                           {*{$f.full_field}*}
-                       {*{/if}*}
-                    {*{/foreach}*}
-
+                <tr>
+                    <td colspan="{$cols}">
+                        <table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+                            {foreach key=k item=f from=$longfields name=fields}
+                                {if $k!='note'}
+                                    {$f.full_field}
+                                {/if}
+                            {/foreach}
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
             {if $main_page}
                 {php}
@@ -146,7 +208,3 @@
 
     </div>
 </div>
-        {if $main_page}
-    </div>
-</div>
-{/if}

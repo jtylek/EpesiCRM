@@ -18,14 +18,14 @@ class Utils_MessengerCommon extends ModuleCommon {
 	public static function applet_info() {
 		return __('Displays last alarms');
 	}
-	
+
 	public static function delete_by_parent_module($m) {
 		$ret = DB::Execute('SELECT id FROM utils_messenger_message WHERE parent_module=%s',array($m));
 		while($row = $ret->FetchRow())
 			DB::Execute('DELETE FROM utils_messenger_users WHERE message_id=%d',array($row['id']));
 		DB::Execute('DELETE FROM utils_messenger_message WHERE parent_module=%s',array($m));
 	}
-	
+
 	public static function delete_by_id($id) {
 		$mid = md5($id);
 		$ret = DB::Execute('SELECT id FROM utils_messenger_message WHERE page_id=\''.$mid.'\'');
@@ -34,15 +34,15 @@ class Utils_MessengerCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_messenger_message WHERE page_id=\''.$mid.'\'');
 
 	}
-	
+
 	public static function get_alarms($id) {
 		return DB::GetAssoc('SELECT id, alert_on FROM utils_messenger_message WHERE page_id=%s', array(md5($id)));
 	}
-	
+
 	public static function update_time($id, $time) {
 		DB::Execute('UPDATE utils_messenger_message SET alert_on=%T WHERE id=%s', array($time, $id));
 	}
-	
+
 	public static function add($id,$parent_type,$message,$alert_on, $callback_method,$callback_args=null,$users=null) {
 		$callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		if(!isset($users)) $users = Acl::get_user();
@@ -71,7 +71,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 		}
 		return array('alerts'=>$ret, 'tray'=>$tray);
 	}
-	
+
 	public static function user_settings(){
 		return array(__('Alerts')=>array(
 			array('name'=>'mail','label'=>__('E-mail'),'type'=>'text','default'=>'',
@@ -85,12 +85,12 @@ class Utils_MessengerCommon extends ModuleCommon {
 			array('name'=>'allow_other','label'=>__('Allow other users to set up alerts for me'),'type'=>'bool','default'=>0)
 			));
 	}
-	
+
 	public static function check_follow($v, $f) {
 		if(!$v) return true;
 		return $f->exportValue('Utils_Messenger__mail')!='';
 	}
-	
+
 	public static function cron() {
         return array('cron2'=>1); //run every 1 minute
     }
@@ -114,24 +114,24 @@ class Utils_MessengerCommon extends ModuleCommon {
 			}
 			Acl::set_user();
 		}
-		
+
 		return '';
 	}
 
     public static function menu() {
 		if (Base_AclCommon::check_permission('Messenger Alerts'))
-			return array(_M('Messenger Alerts')=>array( '__icon__'=>'exclamation-circle',
+			return array(_M('Messenger Alerts')=>array(
 				'__function__'=>'browse'));
 		return array();
 	}
-	
+
 	public static function turn_off($id) {
 	    DB::Execute('UPDATE utils_messenger_users SET done=1,done_on=%T WHERE user_login_id=%d AND message_id=%d',array(time(),Acl::get_user(),$id));
 	}
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.
-			'if(utils_messenger_on) jq.ajax(\'modules/Utils/Messenger/refresh.php\',{method:\'get\'});'.
+			'if(utils_messenger_on) new Ajax.Request(\'modules/Utils/Messenger/refresh.php\',{method:\'get\'});'.
 			'};setInterval(\'utils_messenger_refresh()\',180000);utils_messenger_refresh()');
 
 ?>

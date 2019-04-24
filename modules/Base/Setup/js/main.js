@@ -38,4 +38,3 @@ function show_alert(x, mod) {
 		el.selectedIndex=0;
 	}
 }
-

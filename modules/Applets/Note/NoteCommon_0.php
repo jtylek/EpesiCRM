@@ -37,6 +37,7 @@ class Applets_NoteCommon extends ModuleCommon {
 		$form = new HTML_QuickForm();
 		$obj = $form->createElement('ckeditor',$name,__('Text to display'));
 		$obj->setFCKProps('400','300',false);
+	//	$def_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 		return $obj;
 	}
 }

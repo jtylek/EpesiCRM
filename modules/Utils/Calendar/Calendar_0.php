@@ -263,6 +263,8 @@ class Utils_Calendar extends Module {
 		load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
 		load_js($this->get_module_dir().'calendar-jq.js');
 
+//		load_js($this->get_module_dir().'calendar.js');
+
 		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
 		if(isset($this->tb)) {
 			$this->display_module($this->tb);
@@ -346,6 +348,7 @@ class Utils_Calendar extends Module {
 	// agenda
 	public function agenda() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		/////////////// controls ////////////////////////
 		$start = & $this->get_module_variable('agenda_start',date('Y-m-d',$this->date));
@@ -435,6 +438,7 @@ class Utils_Calendar extends Module {
 	// day
 	public function day() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
@@ -597,6 +601,7 @@ class Utils_Calendar extends Module {
 
 	public function week() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
@@ -682,7 +687,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$dnd[] = $ii;
@@ -690,7 +695,7 @@ class Utils_Calendar extends Module {
 					if(isset($v['join_rows']))
 						$joins[] = array($ii,$v['join_rows'],0);
 					$time_ids[$i][] = 'UCcell_'.$ii;
-//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
 				}
 				$prev = $v;
 			}
@@ -818,6 +823,7 @@ class Utils_Calendar extends Module {
 
 	public function month() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('trash_label', __('Drag and drop to delete'));
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
@@ -908,6 +914,7 @@ class Utils_Calendar extends Module {
 
 	public function year() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_Calendar', 'common');
 
 		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>(date('Y',$this->date)+1).date('-m-d',$this->date))));
 		$theme->assign('nextyear_label',__('Next year'));

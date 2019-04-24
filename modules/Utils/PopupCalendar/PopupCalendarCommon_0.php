@@ -22,7 +22,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			}
 		}
 
-		return '<a class="btn btn-default" '.self::create_href($name,$function,$mode,$first_day_of_week,$pos_js,$default).'>' . $label . '&nbsp;<i class="fa fa-calendar" aria-hidden="true"></i>' . '</a>';
+		return '<a class="button" '.self::create_href($name,$function,$mode,$first_day_of_week,$pos_js,$default).'>' . $label . '&nbsp;&nbsp;<img style="vertical-align: middle;" src=' . Base_ThemeCommon::get_template_file('Utils_PopupCalendar', 'select.png').'>' . '</a>';
 	}
 
 	public static function create_href($name,$function = '',$mode=null,$first_day_of_week=null,$pos_js=null,$default=null,$id=null) {
@@ -58,11 +58,11 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$cal_out.
 			'</div>');
 
-		if(!isset($pos_js)) $pos_js = 'jq(popup).clonePosition(\'#'.$butt.'\',{cloneWidth:false,cloneHeight:false,offsetTop:jq(\'#'.$butt.'\').height()});';
-		eval_js('jq(\'#'.$entry.'\').absolutize();');
+		if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()});';
+		eval_js('if(Epesi.ie)$(\''.$entry.'\').style.position="fixed";else $(\''.$entry.'\').absolutize();');
 
-		$ret = 'onClick="var popup=jq(\'#'.$entry.'\');'.$pos_js.';jq(\'#'.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
-		$function .= ';jq(\'#'.$entry.'\').hide()';
+		$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
+		$function .= ';$(\''.$entry.'\').hide()';
 
 		if ($default) {
 			if (!is_numeric($default)) $default = strtotime($default);
@@ -76,7 +76,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		$js .= ');'.
 			'datepicker_'.$name.'.show('.$args.')';
 		eval_js($js);
-//		eval_js('jq(\'#'.$entry.'\').absolutize();');
+//		eval_js('$(\''.$entry.'\').absolutize();');
 		return $ret;
 	}
 

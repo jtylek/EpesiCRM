@@ -16,6 +16,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 	static $field = null;
 	static $rset = null;
 	static $rid = null;
+	
+	public static function help() {
+		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
+	}
 
 	public static function home_page() {
         return array(_M('My Contact') => array(CRM_Contacts::module_name(), 'body', array('my_contact')),
@@ -25,7 +29,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function crm_clearance($all = false) {
 		$clearance = array();
 		$all |= Base_AclCommon::i_am_sa();
-		$me = CRM_ContactsCommon::get_my_record();
+		$me = CRM_ContactsCommon::get_my_record(); 
 		//$mc = CRM_ContactsCommon::get_main_company();
 		if ($all || $me['id']!=-1) {
 			$access_vals = Utils_CommonDataCommon::get_array('Contacts/Access', 'key');
@@ -58,7 +62,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			else $cache[$user_id][$nolink] = CRM_ContactsCommon::contact_format_no_company($user, $nolink);
 		}
 		return $cache[$user_id][$nolink];
-
+		
 	}
     public static function get_contact_by_user_id($uid) {
         static $cache = array();
@@ -135,23 +139,23 @@ class CRM_ContactsCommon extends ModuleCommon {
                 else
                         $br_company = Utils_RecordBrowserCommon::get_access('company','browse');
 		if ($br_contact===true || (is_array($br_contact) && !isset($br_contact['login'])))
-			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'users');
+			$opts[_M('Contacts')] = array('mode'=>'contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
 		if ($br_company===true || (is_array($br_company) && !isset($br_company['id'])))
-			$opts[_M('Companies')] = array('mode'=>'company','__icon__'=>'building');
+			$opts[_M('Companies')] = array('mode'=>'company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
 		if (!empty($opts)) {
 			$opts['__submenu__'] = 1;
 			$ret[_M('CRM')] = $opts;
  		}
-
-        $ret[_M('My settings')]=array('__submenu__'=>1,'__icon__'=>'cogs');
+		
+        $ret[_M('My settings')]=array('__submenu__'=>1);
 
         $me = self::get_my_record();
         if($me['id']!=-1) {
-            $ret['My settings'][_M('My Contact')]=array('mode'=>'my_contact','__icon__'=>'user');
+            $ret['My settings'][_M('My Contact')]=array('mode'=>'my_contact','__icon__'=>'contacts.png','__icon_small__'=>'contacts-small.png');
         }
 		$me = CRM_ContactsCommon::get_main_company();
         if(!empty($me) && Utils_RecordBrowserCommon::get_access('company', 'view', self::get_company($me))) {
-			$ret['My settings'][_M('My Company')]=array('mode'=>'main_company','__icon__'=>'building');
+			$ret['My settings'][_M('My Company')]=array('mode'=>'main_company','__icon__'=>'companies.png','__icon_small__'=>'companies-small.png');
         }
         if(count($ret['My settings'])==1)
             unset($ret['My settings']);
@@ -201,10 +205,10 @@ class CRM_ContactsCommon extends ModuleCommon {
 
         $crits_callback = isset($field['param']['crits'])? $field['param']['crits']: array('', '');
         $crits_callback = is_array($crits_callback)? implode('::', $crits_callback): $crits_callback;
-
+        
         $format_callback = isset($field['param']['format'])? $field['param']['format']: array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
         $format_callback = is_array($format_callback)? implode('::', $format_callback): $format_callback;
-
+        
         $field['param'] = "company,contact::;$crits_callback;$format_callback";
         return $field;
     }
@@ -235,8 +239,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     	return self::company_contact_format_default($arg, $nolink);
     }
 	public static function company_contact_format_default($arg,$nolink=false) {
-    	$icon = array('company' => '<i class="fa fa-users"></i>',
-    			'contact' => '<i class="fa fa-person"></i>');
+    	$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
+    			'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
 
     	//backward compatibility
         $id = null;
@@ -247,13 +251,14 @@ class CRM_ContactsCommon extends ModuleCommon {
             $id = $arg['id'];
             $tab = "contact";
         }
-
+    	
     	if (!$id) return '---';
-
+    	
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
-
+    	
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
-    	$rindicator = isset($icon[$tab]) ? $icon[$tab] : "[$indicator_text] ";
+    	$rindicator = isset($icon[$tab]) ?
+    	'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
     	$val = $rindicator.$val;
     	if ($nolink)
     		return strip_tags($val);
@@ -363,8 +368,8 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function company_format_default($record,$nolink=false) {
         if (is_numeric($record)) $record = self::get_company($record);
         if (!$record || $record=='__NULL__') return null;
-
-        return Utils_RecordBrowserCommon::create_linked_text($record['company_name'], 'company', $record['id'], $nolink,
+        
+        return Utils_RecordBrowserCommon::create_linked_text($record['company_name'], 'company', $record['id'], $nolink, 
         					array(array('CRM_ContactsCommon','company_get_tooltip'), array($record)));
     }
     public static function contact_get_tooltip($record) {
@@ -402,9 +407,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
+        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
         					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
-
+        
         if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
             $first_comp = $record['company_name'];
             $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
@@ -420,7 +425,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-
+		
         return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
 				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
     }
@@ -489,12 +494,12 @@ class CRM_ContactsCommon extends ModuleCommon {
         if ($fcallback==null) $fcallback = array('CRM_ContactsCommon','contact_format_no_company');
         $rb->set_custom_filter($field, array('type'=>'autoselect','label'=>$label,'args'=>array(), 'args_2'=>array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback)), 'args_3'=>$fcallback, 'trans_callback'=>array('CRM_ContactsCommon','autoselect_contact_filter_trans')));
 	}
-
+	
 	public static function autoselect_contact_filter_trans($val, $field) {
         if ($val!='__NULL__' && $val) return array($field=>$val);
         else return array();
 	}
-
+	
 	public static function autoselect_company_filter_trans($val, $field) {
         if ($val!='__NULL__' && $val) return array($field=>$val);
         else return array();
@@ -610,16 +615,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$access = Utils_RecordBrowserCommon::get_access('contact', $mode, Utils_RecordBrowser::$last_record);
 				$c_access = Utils_RecordBrowserCommon::get_access('company', 'add');
 				if ($c_access && $access['company_name']) {
-					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onChange="jq(\'#company_name\').prop(\'disabled\',this.checked);jq(\'#create_company_name\').prop(\'disabled\',!this.checked);" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
-					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1,'id'=>'create_company_name'));
+					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onClick="document.getElementById(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
+					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
 					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-					eval_js('jq(\'#last_name\').change(update_create_company_name_field);'.
-							'jq(\'#first_name\').change(update_create_company_name_field);'.
+					eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
+							'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
 							'function update_create_company_name_field() {'.
 								'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 							'}');
-					eval_js('jq("#company_name").prop("disabled", document.getElementsByName("create_company")[0].checked);document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+					eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
@@ -635,13 +640,13 @@ class CRM_ContactsCommon extends ModuleCommon {
                     'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
                     'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
                     'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
-                    'var country = jq(\'#country\');'.
-                    'country.val(\''.$comp['country'].'\');'.
-//                    'var k = 0; while (k < opts.length) if (opts[k].val()==\''.$comp['country'].'\') break; else k++;'.
-//                    'country.selectedIndex = k;'.
-                    'country.trigger(\'e_u_cd:load\');'.
+                    'var country = $(\'country\');'.
+                    'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
+                    'country.selectedIndex = k;'.
+                    'country.fire(\'e_u_cd:load\');'.
                     'setTimeout(\''.
-                    'var zone = jq(\\\'#zone\\\'); zone.val(\\\''.$comp['zone'].'\\\');'.
+                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
+                    'zone.selectedIndex = k;'.
                     '\',900);'.
                     'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
                 Base_ActionBarCommon::add('add', __('Paste Company Info'), 'href="javascript:void(0);" onclick="'.$paste_company_info.'"');
@@ -711,7 +716,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label, $def);
         }
     }
-
+	
 	public static function display_admin($r, $nolink=false) {
 		if (!$r['login']) return '---';
 		$ret = Base_AclCommon::get_admin_level($r['login']);
@@ -859,7 +864,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $form->addElement('static', $field, $label);
             $form->setDefaults(array($field=>self::display_login(array('login'=>$default), true, array('id'=>'login'))));
             return;
-        }
+        } 
 		$ret = DB::Execute('SELECT id, login FROM user_login ORDER BY login');
 		$users = array(''=>'---', 'new'=>'['.__('Create new user').']');
 		while ($row=$ret->FetchRow()) {
@@ -872,31 +877,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
 		else {
-            $js = <<<'JS'
-new_user_textfield = function () {
-    if (jQuery("#crm_contacts_select_user").val() == "") {
-        jQuery('#_username__container').hide();
-        jQuery('#_username__container__container').hide();
-        jQuery('#_set_password__container').hide();
-        jQuery('#_confirm_password__container').hide();
-        jQuery('#_access__data__container').hide();
-        jQuery("#_admin__container").hide();
-    } else {
-        jQuery('#_username__container').show();
-        jQuery('#_username__container__container').show();
-        jQuery('#_set_password__container').show();
-        jQuery('#_confirm_password__container').show();
-        jQuery('#_access__data__container').show();
-        jQuery("#_admin__container").show();
-    }
-};
-JS;
-            eval_js($js);
+			eval_js('new_user_textfield = function(){'.
+					'($("crm_contacts_select_user").value=="new"?"":"none");'.
+					'$("username").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'if ($("contact_admin")) $("contact_admin").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'}');
 			eval_js('new_user_textfield();');
-			eval_js('jq("#crm_contacts_select_user").change(new_user_textfield);');
+			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
 		}
 		if ($default)
-			eval_js('jQuery("#_login__container").hide();');
+			eval_js('$("_login__data").up("tr").style.display = "none";');
 	}
 
 	public static function check_new_username($arg) {
@@ -915,11 +905,11 @@ JS;
 	}
 
 	public static function create_map_href($r) {
-		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
+		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['address_1'].' '.$r['address_2'].', '.$r['city'].', '.$r['postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['country']))).'" target="_blank"';
 	}
 
 	public static function create_home_map_href($r) {
-		return 'href="http://maps.google.com/maps?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
+		return 'href="http://maps.'.(IPHONE?'apple.com/':'google.com/maps').'?'.http_build_query(array('q'=>$r['home_address_1'].' '.$r['home_address_2'].', '.$r['home_city'].', '.$r['home_postal_code'].', '.Utils_CommonDataCommon::get_value('Countries/'.$r['home_country']))).'" target="_blank"';
 	}
 
 	public static function maplink($r,$nolink,$desc) {
@@ -937,6 +927,8 @@ JS;
             return $r[$desc['id']];
         }
 
+        if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
+            return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
         if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
             if(isset($r['country']) && $r['country']) {
@@ -984,9 +976,9 @@ JS;
 				$emp = array($me['id']);
 				$cus = array('company/'.$values['id']);
 				$ret = array();
-				if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><i class="fa fa-calendar fa-fw"></i></a>';
-				if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><i class="fa fa-tasks fa-fw"></i></a>';
-				if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'company/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><i class="fa fa-fw fa-phone"></i></a>';
+				if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+				if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+				if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'company/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',array('date_and_time')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('company/'.$values['id']);
 				return $ret;
 			case 'adding':
@@ -995,7 +987,7 @@ JS;
 		}
 		return $values;
 	}
-
+	
     public static function submit_contact($values, $mode) {
         switch ($mode) {
         case 'cloning':
@@ -1018,9 +1010,9 @@ JS;
 			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
 			if (isset($_REQUEST['set_crm_filter']))
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
-			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><i class="fa fa-calendar fa-fw"></i></a>';
-			if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><i class="fa fa-fw fa-tasks"></i></a>';
-			if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'contact/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><i class="fa fa-fw fa-phone"></i></a>';
+			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
+			if (CRM_TasksInstall::is_installed() && Utils_RecordBrowserCommon::get_access('task','add')) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+			if (CRM_PhoneCallInstall::is_installed() && Utils_RecordBrowserCommon::get_access('phonecall','add')) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('date_and_time'=>date('Y-m-d H:i:s'),'customer'=>'contact/'.$values['id'],'employees'=>$me['id'],'status'=>0, 'permission'=>0, 'priority'=>1),'none',false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('contact/'.$values['id']);
             return $ret;
         case 'adding':
@@ -1149,7 +1141,7 @@ JS;
 		if ($id) $htmlinfo[__('Record ID').':'] = $id;
 		$htmlinfo[__('Created by').':'] = $created_by;
 		$htmlinfo[__('Created on').':'] = Base_RegionalSettingsCommon::time2reg($created_on);
-
+        
 		if ($edited_by!=null) {
 			$htmlinfo=$htmlinfo+array(
 				__('Edited by').':'=>$edited_by,
@@ -1290,7 +1282,7 @@ JS;
         $ret = array('notes'=>Utils_TooltipCommon::format_info_tooltip($args));
         return $ret;
     }
-
+	
 	public static function add_rule_email_unique($form, $field, $rset=null, $rid=null) {
 		self::$field = $field;
 		self::$rset = $rset;
@@ -1306,7 +1298,7 @@ JS;
 		if ($rec == false) return array();
 		return array(self::$field=>__( 'E-mail address duplicate found: %s', array(Utils_RecordBrowserCommon::create_default_linked_label($rec[0], $rec[1]))));
 	}
-
+	
 	public static function get_record_by_email($email, $rset=null, $rid=null) {
 		if ($rid==null) $rset=null;
 		$cont = DB::GetRow('SELECT id, created_on, created_by FROM contact_data_1 WHERE active=1 AND f_email '.DB::like().' %s AND id!=%d', array($email, $rset=='contact'?$rid:-1));
@@ -1378,6 +1370,33 @@ JS;
         return $ret;
     }
 
+    //////////////////////////
+    // mobile devices
+    public static function mobile_menu() {
+        if(!Acl::is_user())
+            return array();
+        return array(__('Contacts')=>array('func'=>'mobile_contacts','color'=>'red'),__('Companies')=>array('func'=>'mobile_companies','color'=>'black'));
+    }
+
+    public static function mobile_contacts() {
+        $sort = array('last_name'=>'ASC', 'first_name'=>'ASC');
+        $info = array('company_name'=>0,'work_phone'=>1,'mobile_phone'=>1);
+        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+                        'permission'=>'0',
+                        'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+                        'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'));
+        Utils_RecordBrowserCommon::mobile_rb('contact',array(),$sort,$info,$defaults);
+    }
+
+    public static function mobile_companies() {
+        $info = array('phone'=>1);
+        $sort = array('company_name'=>'ASC');
+        $defaults = array('country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
+                        'zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
+                        'permission'=>'0');
+        Utils_RecordBrowserCommon::mobile_rb('company',array(),$sort,$info,$defaults);
+    }
 }
 
 Utils_RecordBrowser_Crits::register_special_value_callback(array('CRM_ContactsCommon', 'crits_special_values'));

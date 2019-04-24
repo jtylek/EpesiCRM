@@ -11,18 +11,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_QuickFormCommon extends ModuleCommon {
 	public static function autocomplete($arg) {
-		return array($arg=>'Works! Word: '.$arg);
+		return '<ul><li>Works! Word: '.$arg.'</ul></li>';
 	}
-
+	
 	public static function menu(){
 		return array('Tests'=>array('__submenu__'=>1,'__weight__'=>-10, 'QuickForm page'=>array()));
 	}
-
+	
 	public static function autoselect_search($arg=null, $id=null) {
 		$arr = array(5=>'Foo 1', 8=>'Test 2', 1=>1, 2=>2, 3=>3);
-		if (isset($arr[$arg])) return array($arg=>$arr[$arg]);
-		$s = array_search($arg,$arr);
-		if ($s) return array($s=>$arr[$s]);
+		if (isset($arr[$id])) return $arr[$id];
 		return $arr;
 	}
 

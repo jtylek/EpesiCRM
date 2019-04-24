@@ -5,7 +5,7 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 *}
 <div style="width: 900px;">
  
-<div class="well well-sm">
+<div class="navigation-menu">
 	<table border="0" cellpadding="0" cellspacing="0"><tr>
 		<td class="empty"></td>
 		<td class="button_cell"><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>

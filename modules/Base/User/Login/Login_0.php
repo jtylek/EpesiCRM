@@ -18,23 +18,6 @@ class Base_User_Login extends Module {
 
 	public function construct() {
 		$this->theme = $this->pack_module(Base_Theme::module_name());
-
-        $logo = $this->init_module(Base_MainModuleIndicator::module_name());
-        $logo->set_inline_display();
-        $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
-		$this->theme->assign('is_logged_in', Acl::is_user());
-		$this->theme->assign('is_demo', DEMO_MODE);
-        $this->theme->assign('epesi_url', get_epesi_url());
-		if (SUGGEST_DONATION) {
-			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).' '.__('Your funding will help to ensure continued development of this project.'));
-		}
-
-		if(Acl::is_user()) {
-			if ($this->get_unique_href_variable('logout')) {
-				Base_User_LoginCommon::logout();
-				eval_js('document.location=\'index.php\';', false);
-			}
-		}
 	}
 
 	private function autologin() {
@@ -45,55 +28,27 @@ class Base_User_Login extends Module {
 		return false;
 	}
 
-	public function indicator()
-	{
-		//todo-pj: Add profile link
-        return $this->twig_render('indicator.twig', array(
-				'indicator' => array(
-					'label' => Base_UserCommon::get_my_user_label(1),
-					'login' => Base_UserCommon::get_my_user_login()
-				),
-				'logout' => array(
-					'href' => $this->create_unique_href(array('logout'=>1)),
-					'text' => __('Logout')
-				),
-				'contact' => [
-					'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('my_contact')),
-					'label' => _('My Contact')
-				],
-                'company' => [
-                    'href' => Base_BoxCommon::create_href($this,'CRM_Contacts','body',array('main_company')),
-                    'label' => _('Main Company')
-                ],
-                'settings' => [
-                    'href' => Base_BoxCommon::create_href($this,'Base_User_Settings'),
-                    'label' => _('User Settings')
-                ],
-				'help' => [
-					'href' => Base_MainModuleIndicatorCommon::get_href(),
-					'label' => _('Help')
-				]
-			)
-		);
-
-	}
-
 	public function body($tpl=null) {
 		//check bans
         if (!Acl::is_user() && Base_User_LoginCommon::is_banned()) {
-        	$this->theme->assign('banned', true);
-        	$this->theme->display();
+            print __('You have exceeded the number of allowed login attempts.').'<br>';
+            print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
             return;
 		}
 
+		//if logged
+		$this->theme->assign('is_logged_in', Acl::is_user());
+		$this->theme->assign('is_demo', DEMO_MODE);
+		if (SUGGEST_DONATION) {
+			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
+		}
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$this->theme->assign('logged_as', '<div class="pull-left">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
-				$this->theme->assign('logout_label',__('Logout'));
+				$this->theme->assign('logged_as', '<div class="logged_as">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
+				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.__('Logout').'<div class="logout_icon_img"></div></a></div>');
 				$this->theme->display();
 			}
 			return;
@@ -108,8 +63,7 @@ class Base_User_Login extends Module {
 			return;
 		}
 		if (isset($_REQUEST['password_recovered'])) {
-			$this->theme->assign('message', __('An e-mail with a new password has been sent.'));
-            $this->theme->assign('message_action', '<a href="'.get_epesi_url().'">'.__('Login').'</a>');
+			$this->theme->assign('message', __('An e-mail with a new password has been sent.').'<br><a href="'.get_epesi_url().'">'.__('Login').'</a>');
 			$this->theme->display();
 			return;
 		}
@@ -121,11 +75,11 @@ class Base_User_Login extends Module {
 		
 		if(DEMO_MODE) {
 			global $demo_users;
-			$form->addElement('select', 'username', __('Username'), $demo_users, array('class'=>'form-control', 'id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+			$form->addElement('select', 'username', __('Username'), $demo_users, array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
 			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
 			$form->addElement('text', 'username', __('Username'),array('id'=>'username'));
-			$form->addElement('password', 'password', __('Password'), array('id' => 'password'));
+			$form->addElement('password', 'password', __('Password'));
 		}
 
 		// Display warning about storing a cookie
@@ -136,7 +90,7 @@ class Base_User_Login extends Module {
         }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'btn btn-primary btn-block'));
+		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit'));
 
         // register and add a rule to check if user is banned
         $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
@@ -164,6 +118,10 @@ class Base_User_Login extends Module {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
 
+            $logo = $this->init_module(Base_MainModuleIndicator::module_name());
+            $logo->set_inline_display();
+            $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
+
 			ob_start();
 			if (!$tpl) {
 			        $this->theme->set_inline_display();
@@ -186,14 +144,7 @@ class Base_User_Login extends Module {
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
 		$form->addElement('text', 'username', __('Username'));
 		$form->addElement('text', 'mail', __('E-mail'));
-
-
-		//#merge, bootstrap version below
-//        $form->addElement('submit', 'submit_button', __('Recover Password'), array('class'=>'btn btn-primary btn-block'));
-//        $this->theme->assign('back_href', $this->create_back_href());
-
-        //#merge, 3 lines below come from master
-        $ok_b = & $form->createElement('submit', 'submit_button', __('OK'));
+		$ok_b = & $form->createElement('submit', 'submit_button', __('OK'));
 		$cancel_b = & $form->createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
 		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
@@ -208,10 +159,8 @@ class Base_User_Login extends Module {
 		$form->addRule('mail', __('Invalid e-mail address'), 'email');
 
 		if($form->validate()) {
-            if ($form->process(array(&$this, 'submit_recover'))) {
-                $this->theme->assign('message', __('Password reset instructions were sent.'));
-                $this->theme->assign('message_action', '<a '.$this->create_back_href().'>'.__('Login').'</a>');
-            }
+			if($form->process(array(&$this, 'submit_recover')))
+				$this->theme->assign('message', __('Password reset instructions were sent.').'<br><a '.$this->create_back_href().'>'.__('Login').'</a>');
 		} else {
 			$this->theme->assign('mode', 'recover_pass');
 			$form->assign_theme('form', $this->theme);

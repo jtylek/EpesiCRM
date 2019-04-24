@@ -7,17 +7,17 @@
  * @package epesi-utils
  * @subpackage CurrencyField
  */
+require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
 
-	function __construct($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
-		parent::__construct($elementName, $elementLabel, $attributes);
+	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
+		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
 		$this->currency = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');
 		$this->filterCurrencies = is_array($filterCurrencies)?$filterCurrencies:array();
-		$this->addClass('form-control');
 	} //end constructor
 
 	function getFrozenHtml() {
@@ -36,16 +36,18 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$id = 'currency_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
-
+			
 			$this->dec_digits = DB::GetOne('SELECT MAX(decimals) FROM utils_currency');
 
-			$str .= '<div style="position: relative;">';
+			$str .= $this->_getTabs() . '<div style="position: relative;">';
 
-			$str .= '<div style="margin-right:65px;" class="currency_amount"><input ' . $this->_getAttrString($this->_attributes) . ' '.
+			$str .= $this->_getTabs() .
+					'<div style="margin-right:45px;" class="currency_amount"><input ' . $this->_getAttrString($this->_attributes) . ' '.
 					Utils_TooltipCommon::open_tag_attrs(__('Example value: %s',array('123'.Utils_CurrencyFieldCommon::get_decimal_point().implode('',range(4,3+$this->dec_digits)))), false ).
 					' /></div>';
 
-			$str .= '<div style="margin-right:5px; width:60px; position:absolute;top:0px;right:0px;"><select style="width:60px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency" class="form-control">';
+			$str .= $this->_getTabs() .
+					'<div style="margin-right:5px; width:40px; position:absolute;top:0px;right:0px;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
 
 			if(is_array($this->filterCurrencies) && $this->filterCurrencies)
 				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency WHERE id IN ('.implode(',',array_map('intval',$this->filterCurrencies)).') ORDER BY code');
@@ -59,10 +61,10 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			}
 			$str .= '</select></div>';
 
-			$str .= '</div>';
+			$str .= $this->_getTabs() . '</div>';
 
-			eval_js('jq(\'#'.$id.'\').keypress(Utils_CurrencyField.validate)');
-			eval_js('jq(\'#'.$id.'\').blur(Utils_CurrencyField.validate_blur)');
+			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_CurrencyField.validate.bindAsEventListener(Utils_CurrencyField))');
+			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_CurrencyField.validate_blur.bindAsEventListener(Utils_CurrencyField))');
 		}
 		return $str;
 	} //end func toHtml
