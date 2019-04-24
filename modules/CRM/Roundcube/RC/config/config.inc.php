@@ -18,11 +18,8 @@ global $E_SESSION,$E_SESSION_ID;
 $E_SESSION_ID = $_COOKIE[session_name()];
 if(!$E_SESSION_ID)
     $E_SESSION_ID = $_REQUEST[session_name()];
-$tmp = $_SESSION;
-DBSession::open('',$E_SESSION_ID);
-DBSession::read($E_SESSION_ID);
-$E_SESSION = $_SESSION;
-$_SESSION = $tmp;
+
+$E_SESSION = EpesiSession::get($E_SESSION_ID);
 
 chdir($d);
 $data_dir = EPESI_LOCAL_DIR.'/'.DATA_DIR.'/CRM_Roundcube/tmp/';

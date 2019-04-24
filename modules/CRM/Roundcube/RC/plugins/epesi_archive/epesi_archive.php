@@ -128,10 +128,8 @@ class epesi_archive extends rcube_plugin
         $rcmail->output->show_message($this->gettext('archived'), 'confirmation');
     }
     global $E_SESSION_ID,$E_SESSION;
-    $tmp = $_SESSION;
-    $_SESSION = $E_SESSION;
-    DBSession::write($E_SESSION_ID,'');
-    $_SESSION = $tmp;
+
+    EpesiSession::set($E_SESSION_ID, $E_SESSION);
   }
 
   private function archive($uids,$verbose=true) {
