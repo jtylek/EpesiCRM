@@ -2,9 +2,9 @@
 =
 [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
 
-<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
+<b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
 
-Thanks to its modular design it can be easily customized by simple installation of additional modules. Custom recordets can be created via Admin Panel using GUI tools with full support of __Record Browser CRUD__ engine, like lazy (soft) delete, full record history, dynamic recordsets (new fields can be added on the fly), __Advanced Permission__ access level and automatic view generation.
+Thanks to its modular design it can be easily customized by simple installation of additional modules. Custom recordsets can be created via Admin Panel using GUI tools with full support of __Record Browser CRUD__ engine, like lazy (soft) delete, full record history, dynamic recordsets (new fields can be added on the fly), __Advanced Permission__ access level and automatic view generation.
 
 ## Included Modules
 
@@ -43,11 +43,11 @@ For more information visit http://epe.si
 ## Setup
 
 - Clone repository
-- Run composer update
-- Create a database, note user and login
-- Run Epesi from the installation directory.
+- Run _composer update_
+- Create a database, note _user_ and _login_
+- Run Epesi from the installation url
 
-The setup wizard will create a _config.php_ file, a superadmin user and first Company and Contact in the CRM.
+The setup wizard will create a _config.php_ file, a _superadmin_ user and first _Company_ and _Contact_ in the CRM.
 
 <b>Support</b><br />
 User forum https://forum.epe.si/<br />
