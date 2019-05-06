@@ -1,7 +1,7 @@
 <?php
 /**
  * Wizard class.
- *
+ * 
  * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2006, Telaxus LLC
  * @version 1.0
@@ -23,12 +23,12 @@ class Utils_Wizard extends Module {
 	private $displayed;
 	private $captions = array();
 	private $to_del = array();
-
+	
 	/**
 	 * Module constructor.
 	 * You can choose starting page while creating new instance of this module.
-	 *
-	 * @param $start_page integer starting page number
+	 * 
+	 * @param integer starting page number 
 	 */
 	public function construct($start_page=0) {
 		$this->counter = 0;
@@ -41,29 +41,29 @@ class Utils_Wizard extends Module {
 			$this->set_module_variable('history',$this->history);
 		}
 	}
-
+	
 	public function set_caption($caption, $level=0) {
 		$this->captions[$this->counter]['caption'] = $caption;
 		$this->captions[$this->counter]['level'] = $level;
 	}
-
+	
 	/**
 	 * Starts new wizard step.
-	 * This method returns QuickForm object which you should use
+	 * This method returns QuickForm object which you should use 
 	 * to create wizard step.
-	 *
+	 * 
 	 * @param string alias for the page
 	 * @return object QuickForm object
 	 */
 	public function begin_page($name=null, $always_return_valid_form=true) {
 		if(isset($this->form[$this->counter])) $this->next_page();
-
+		
 		if(isset($name)) {
 			$this->r_aliases[$name] = $this->counter;
 			$this->aliases[$this->counter] = $name;
 			if(is_string($this->curr_page) && $this->curr_page==$name) $this->curr_page = $this->counter;
 		}
-
+		
 		if($always_return_valid_form || $this->curr_page===$this->counter) {
 			$args = func_get_args();
 			array_shift($args);
@@ -75,29 +75,29 @@ class Utils_Wizard extends Module {
 		ob_start();
 		return $this->form[$this->counter];
 	}
-
+	
 	public function callback_page($func,$name=null,array $begin_page_args=null,array $func_args=null) {
 		if(!isset($begin_page_args)) $begin_page_args=array();
 		if(!isset($func_args)) $func_args=array();
 		call_user_func_array(array($this,'begin_page'),array_merge(array($name,false),$begin_page_args));
-
-		if($this->curr_page===$this->counter)
+		
+		if($this->curr_page===$this->counter) 
 			call_user_func_array($func,array_merge(array($this->form[$this->counter],$this->get_data()),$func_args));
 	}
-
+	
 	/**
 	 * Sets renderer that will be used to display current step.
-	 *
+	 * 
 	 * @param object HTML QuickForm renderer object
 	 */
 	public function set_alternative_renderer(& $rend) {
 		$this->renderers[$this->counter] = & $rend;
 	}
-
+	
 	/**
 	 * Finishes current page.
 	 * You can also choose specific page (by number or alias).
-	 *
+	 * 
 	 * @param mixed next page
 	 */
 	public function next_page($func=null,array $func_args=null) {
@@ -108,8 +108,8 @@ class Utils_Wizard extends Module {
 		if($this->curr_page===$this->counter) {
 			//trigger_error($this->counter,E_USER_ERROR);
 			if($this->form[$this->curr_page]->getSubmitValue('submited') && $this->form[$this->curr_page]->validate()) {
-				$this->form[$this->curr_page]->process(array($this,'submit'));
-
+				$this->form[$this->curr_page]->process(array($this,'submit')); 
+	
 				$this->history[] = $this->curr_page;
 				if(is_int($func)) {
 					$this->curr_page = $func;
@@ -129,11 +129,11 @@ class Utils_Wizard extends Module {
 							if(!isset($this->r_aliases[$ret]))
 								$this->curr_page = $ret;
 							else
-								$this->curr_page = $this->r_aliases[$ret];
+								$this->curr_page = $this->r_aliases[$ret]; 
 						} else $this->curr_page++;
 					} else $this->curr_page++;
 				} else $this->curr_page++;
-
+					
 				$this->set_module_variable('curr_page',$this->curr_page);
 				$this->set_module_variable('history',$this->history);
 				if(!is_string($this->curr_page) && $this->curr_page<=$this->counter) location(array());
@@ -145,23 +145,22 @@ class Utils_Wizard extends Module {
 					$button_next = $this->form[$this->curr_page]->createElement('submit', 'button_next', __('Next'));
 					$this->form[$this->curr_page]->addGroup(array($button_prev, $button_next));
 				}
-
+				
 				if($cont)
 					$this->displayed = $cont;
 				ob_start();
-				if(isset($this->renderers[$this->curr_page])){
+				if(isset($this->renderers[$this->curr_page]))
 					$this->renderers[$this->curr_page]->display();
-				} else {
-					$this->form[$this->curr_page]->display_as_column();
-				}
+				else	
+					$this->form[$this->curr_page]->display();
 				$this->displayed .= ob_get_contents();
 				ob_end_clean();
 			}
-		}
-
+		} 
+		
 		$this->counter++;
 	}
-
+	
 	/**
 	 * Gets data submited till now.
 	 * @return array
@@ -169,7 +168,7 @@ class Utils_Wizard extends Module {
 	public function get_data() {
 		return $this->data;
 	}
-
+	
 	/**
 	 * For internal use only.
 	 */
@@ -177,15 +176,15 @@ class Utils_Wizard extends Module {
 		$this->data[$this->curr_page] = $d;
 		if(isset($this->aliases[$this->curr_page])) $this->data[$this->aliases[$this->curr_page]] = & $this->data[$this->curr_page];
 	}
-
+	
 	/**
 	 * Delete page
-	 * @param $x page name or number
+	 * @param page name or number
 	 */
 	public function delete_page($x) {
 		$this->to_del[] = $x;
 	}
-
+	
 	private function flush_deleted() {
 		foreach($this->to_del as $x) {
 			if(is_string($x)) {
@@ -199,7 +198,7 @@ class Utils_Wizard extends Module {
 				$id = $x;
 			} else
 				trigger_error('Invalid page id: '.$x,E_USER_ERROR);
-
+			
 			unset($this->data[$id]);
 			unset($this->captions[$id]);
 			if(isset($name))
@@ -210,11 +209,11 @@ class Utils_Wizard extends Module {
 			}
 		}
 	}
-
+	
 	/**
 	 * Displays wizard current step.
 	 * You can also specify function to process the data from all the pages.
-	 *
+	 * 
 	 * @param method method to process the data
 	 */
 	public function body($func) {
@@ -226,16 +225,16 @@ class Utils_Wizard extends Module {
 				$args = func_get_args();
 				$args[0] = $this->data;
 				if(!call_user_func_array($func, $args))
-					print('<br><input '.$this->create_back_href().' type="button" value="back">');
-			} else
+					print('<br><input '.$this->create_back_href().' type="button" value="back">'); 
+			} else 
 				print(__('Wizard complete! No more pages to display...'));
 		} else {
 			$t = $this->init_module(Base_Theme::module_name());
-
+			
 			$t->assign('page',$this->displayed);
 			$t->assign('captions',$this->captions);
 			$t->assign('curr_page',$this->curr_page);
-
+			
 			$keys = array_keys($this->captions);
 			$x=key($this->captions);
 			for($i=0; $i<count($keys);$i++)
@@ -249,3 +248,5 @@ class Utils_Wizard extends Module {
 	}
 }
 ?>
+
+

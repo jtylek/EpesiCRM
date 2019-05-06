@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * 
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
@@ -12,10 +12,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_WatchdogCommon extends ModuleCommon {
 	private static $log = false;
-
-	public static function menu() {
-		return array('Watchdog'=>array('__icon__'=>'bell'));
-	}
 
 	public static function user_settings() {
 		return array(
@@ -40,7 +36,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
 		if (!empty($methods)) {
 			$ret[] = array('label'=>__('Categories'),'name'=>'categories_header','type'=>'header');
-			foreach ($methods as $k=>$v) {
+			foreach ($methods as $k=>$v) { 
 				$method = explode('::',$v);
 				IF (!is_callable($method)) continue;
 				$methods[$k] = call_user_func($method);
@@ -76,12 +72,12 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function get_category_id($category_name, $report_error=true) {
 		static $cache = array();
 		if (isset($cache[$category_name])) return $cache[$category_name];
-		if (is_numeric($category_name)) return $category_name;
+		if (is_numeric($category_name)) return $category_name;  
 		$ret = DB::GetOne('SELECT id FROM utils_watchdog_category WHERE name=%s', array(md5($category_name)));
 		if ($ret===false || $ret===null) {
 //			if ($report_error) trigger_error('Invalid category given: '.$category_name.', category not found.');
 			return null;
-		}
+		}  
 		return $cache[$category_name] = $ret;
 	}
 	public static function category_exists($category_name) {
@@ -233,7 +229,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			else DB::Execute('INSERT INTO utils_watchdog_category_subscription (user_id, category_id) VALUES (%d,%d)',array($user_id,$category_id));
 		} else {
 			if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-			else {
+			else { 
 				DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
 				if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 			}
@@ -258,13 +254,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($last_event===false || $last_event===null) $last_event=-1;
 		if ($last_seen==$last_event || $last_event==-1) return true;
 		$ret = array();
-
+		
 		$missed_events = DB::Execute('SELECT id,message FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND id>%d ORDER BY id ASC', array($id,$category_id,$last_seen));
 		while ($row = $missed_events->FetchRow())
 			$ret[$row['id']] = $row['message'];
 		return $ret;
 	}
-
+	
 	public static function user_get_confirm_change_subscr_href($user, $category_name, $id=null) {
 		return Module::create_confirm_href(__('Are you sure you want to stop watching this record?'),self::user_get_change_subscr_href_array($user, $category_name, $id));
 	}
@@ -275,18 +271,18 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
 		if (isset($_REQUEST['utils_watchdog_category']) &&
-			isset($_REQUEST['utils_watchdog_user']) &&
+			isset($_REQUEST['utils_watchdog_user']) &&  
 			$_REQUEST['utils_watchdog_category']==$category_id &&
 			$_REQUEST['utils_watchdog_user']==$user &&
-			((isset($_REQUEST['utils_watchdog_id']) &&
-			$_REQUEST['utils_watchdog_id']==$id) ||
+			((isset($_REQUEST['utils_watchdog_id']) && 
+			$_REQUEST['utils_watchdog_id']==$id) || 
 			(!isset($_REQUEST['utils_watchdog_id']) &&
 			$id===null))) {
 			self::user_change_subscription($user, $category_name, $id);
 			unset($_REQUEST['utils_watchdog_category']);
 			unset($_REQUEST['utils_watchdog_user']);
 			unset($_REQUEST['utils_watchdog_id']);
-			location(array());
+			location(array());	
 		}
 		return array('utils_watchdog_category'=>$category_id, 'utils_watchdog_user'=>$user, 'utils_watchdog_id'=>$id);
 	}
@@ -348,19 +344,16 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
 		if ($last_seen===null) {
-			$icon = 'eye-slash';
-			$color = 'text-danger';
+			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
 		} else {
 			if ($last_seen===true) {
-				$icon = 'eye';
-				$color = 'text-success';
+				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
 			} else {
-				$icon = 'eye-slash';
-				$color = 'text-danger';
+				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 			}
 		}
 		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id));
-		return '<a '.$href.' '.$tooltip.'><i class="fa fa-'.$icon.' '.$color.'"></i></a>';
+		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	}
 
 	public static function ajax_subscription_tooltip($category_name, $id)
@@ -381,8 +374,8 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$subscribers = self::get_subscribers($category_name,$id);
 		$my_user = Base_AclCommon::get_user();
 		if ($subscribers) {
-			$icon_on = 'eye';
-			$icon_off = 'eye-slash';
+			$icon_on = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small.png') . '"';
+			$icon_off = ' src="' . Base_ThemeCommon::get_template_file('Utils_Watchdog', 'watching_small_new_events.png') . '"';
 			$other_subscribers = array();
 			foreach ($subscribers as $subscriber) {
 				if ($subscriber == $my_user) {
@@ -397,7 +390,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 
 				$notified = self::user_check_if_notified($subscriber, $category_name, $id);
 				$icon2 = $notified === true ? $icon_on : $icon_off;
-				$other_subscribers[] = '<i class="fa fa-lw fa-lg fa-'.$icon2.'"></i><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
+				$other_subscribers[] = '<img style="margin-right:4px;" ' . $icon2 . ' /><a>' . Utils_RecordBrowserCommon::no_wrap($contact) . '</a>';
 			}
 			if ($other_subscribers) {
 				$tooltip .= '<hr />' . implode('<br>', $other_subscribers);
@@ -405,10 +398,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}
 		return $tooltip;
 	}
-
+	
 	public static function notification() {
 		/*$methods = DB::GetAssoc('SELECT id,callback FROM utils_watchdog_category');
-		foreach ($methods as $k=>$v) {
+		foreach ($methods as $k=>$v) { 
 			$methods[$k] = explode('::',$v);
 		}
         $time_sql = $time ? ' AND uwe.event_time > %T' : '';
@@ -476,9 +469,9 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function get_records_with_new_notifications($user_id = null)
 	{
 		if (!$user_id) $user_id = Base_AclCommon::get_user();
-		$sql = 'SELECT sub.internal_id,sub.category_id, ev.event_time FROM utils_watchdog_subscription AS sub
-				LEFT JOIN (SELECT uwe.category_id, uwe.internal_id, MAX(id) as ev_id, MAX(uwe.event_time) as event_time FROM utils_watchdog_event AS uwe GROUP BY uwe.internal_id,uwe.category_id) AS ev
-				ON sub.internal_id=ev.internal_id AND sub.category_id=ev.category_id
+		$sql = 'SELECT sub.internal_id,sub.category_id FROM utils_watchdog_subscription AS sub 
+				LEFT JOIN (SELECT uwe.category_id, uwe.internal_id, MAX(id) as ev_id FROM utils_watchdog_event AS uwe GROUP BY uwe.internal_id,uwe.category_id) AS ev 
+				ON sub.internal_id=ev.internal_id AND sub.category_id=ev.category_id 
 				WHERE sub.user_id=%d AND sub.last_seen_event<ev.ev_id ORDER BY ev.ev_id DESC';
 		$records = DB::GetAll($sql, array($user_id));
 		return $records;

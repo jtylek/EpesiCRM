@@ -24,7 +24,7 @@ class Utils_Messenger extends Module {
 	}
 
 	public function push_box0($func,$args,$const_args) {
-		$x = Base_BoxCommon::root();
+		$x = ModuleManager::get_instance('/Base_Box|0');
 		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
 		$x->push_main('Utils/Messenger',$func,$args,$const_args);
 	}

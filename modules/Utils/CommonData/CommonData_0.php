@@ -107,6 +107,7 @@ class Utils_CommonData extends Module {
 						array('name'=>__('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
 
+		print('<h2>'.$name.'</h2><br>');
 		$ret = Utils_CommonDataCommon::get_translated_array($name,'position',true);
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
@@ -123,12 +124,7 @@ class Utils_CommonData extends Module {
 		
 		$gb->set_default_order(array(__('Position') => 'ASC'));
 		//$this->display_module($gb);
-		$gb_html = $this->get_html_of_module($gb,array(true),'automatic_display');
-
-		$this->twig_display('panel.twig',[
-			'name' => $name,
-			'body' => $gb_html
-		]);
+		$this->display_module($gb,array(true),'automatic_display');
 
 		// sorting
 		load_js($this->get_module_dir() . 'sort_nodes.js');

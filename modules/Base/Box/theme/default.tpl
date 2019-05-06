@@ -1,90 +1,107 @@
 {if !$logged}
-    <div id="Base_Box__login">
-        <div class="status">{$status}</div>
-        <div class="entry">{$login}</div>
-    </div>
+
+<div id="Base_Box__login">
+	<div class="status">{$status}</div>
+	<div class="entry">{$login}</div>
+</div>
+
 {else}
 
-    <header class="header py-4">
-        <div class="container-fluid">
-            <div class="d-flex">
-                {$logo}
-                <div class="nav-item d-none d-md-flex"><a class="btn btn-sm btn-secondary" title="{$home.label|escape:html|escape:quotes}" {$home.href}><i class="fa fa-home"></i> {$home.label}</a></div>
-                <div class="nav-item d-none d-md-flex"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></div>
-                <div class="nav-item d-none d-md-flex">{$actionbar}</div>
-                <div class="d-flex order-lg-2 ml-auto">
-                    <div class="nav-item d-none d-md-flex">
-                        {if isset($donate)}
-                            {$donate}
-                        {/if}
-                    </div>
-                    <div class="nav-item d-none d-md-flex">
-                        <a {$launchpad_href} title="{'Launchpad'|t}" class="nav-link icon">
-                            <i class="fa fa-th"></i>
-                        </a>
-                    </div>
-                    {$watchdog}
-                    {$quickaccess}
-                    {$filter}
-                    {$indicator}
-                </div>
+{php}
+	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
+	eval_js_once('document.body.id=null'); //pointer-events:none;
+{/php}
+	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;" id="help_canvas" width="3000px" height="3000px"></canvas>
+	<img class="Base_Help__tools" style="display: none;" id="Base_Help__help_arrow" src="{$theme_dir}/Base/Help/arrow.png" />
+	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div><div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
+	<div id="top_bar" class="nonselectable" style="width:100%">
+		<div id="MenuBar">
+		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td style="empty-cells: hide; width: 8px;"></td>
+				<td class="menu-bar">{$menu}</td>
+				<td style=" empty-cells: hide; width: 7px;"></td>
+				<td class="home-bar" {$home.href}>
+					<div id="home-bar1">
+						<div class="home-bar-icon"></div>
+						<div class="home-bar-text">
+							{$home.label}
+						</div>
+					</div>
+				</td>
+				<td style="empty-cells: hide; width: 6px;"></td>
+				{if $quick_access_menu}
+					<td class="quick-access-bar">{$quick_access_menu}</td>
+					<td style="empty-cells: hide; width: 6px;"></td>
+				{/if}
+				<td class="top_bar_black filler"></td>
+				<td class="top_bar_black powered" nowrap="1">
+					<div>
+						<a href="http://epe.si" target="_blank" style="color:white;"><b>EPESI</b> powered</a>&nbsp;
+					</div>
+					<div>{$version_no}</div>
+				</td>
+				{if isset($donate)}
+					<td class="top_bar_black donate" nowrap="1">{$donate}</td>
+				{/if}
+				<td style="empty-cells: hide; width: 6px;"></td>
+				<td class="top_bar_black top_bar_help">{$help}</td>
+				<td style="empty-cells: hide; width: 6px;"></td>				
+				<td class="top_bar_black module-indicator"><div id="module-indicator">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div></td>
+				<td style="empty-cells: hide; width: 8px;"></td>
+			</tr>
+		</tbody>
+		</table>
+		</div>
+		<div id="ShadowBar" style="display: none;"></div>
+		<div id="ActionBar">
+			<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
+			<tbody>
+				<tr>
+					<td style="empty-cells: hide; width: 8px;"></td>
+					<td class="logo"><div class="shadow_css3_logo_border">{$logo}</div></td>
+					<td style="empty-cells: hide; width: 6px;"></td>
+					<td class="icons">
+						<div class="shadow_css3_icons_border">
+							{$actionbar}
+						</div>
+					</td>
+					<td id="launchpad_button_section_spacing" style="empty-cells: hide; width: 6px; display:none;"></td>
+					<td class="icons_launchpad" id="launchpad_button_section" style="display:none;">
+						<div class="shadow_css3_icons_launchpad_border"> 
+							{$launchpad}
+						</div>
+					</td>
+					<td style="empty-cells: hide; width: 6px;"></td>
+					<td id="login-search-td">
+						<div class="shadow_css3_login-search-td_border">
+								<div class="login">{$login}</div>
+								<div class="search" id="search_box">{$search}</div>
+								<div class="filter" id="filter_box">{$filter}</div>
+						</div>	
+					</td>
+					<td style="empty-cells: hide; width: 8px;"></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+	</div>
+	<!-- -->
+	<div id="content">
+		<div id="content_body" style="top: 50px;">
+			<center>{$main}</center>
+		</div>
+	</div>
 
-            </div>
-        </div>
-    </header>
-    <header class="header collapse d-lg-flex p-0" id="headerMenuCollapse">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-lg-2 ml-auto">
-                    {$search}
-                </div>
-                <div class="col-lg order-lg-first">
-                    {$menu}
-                </div>
-            </div>
-        </div>
-    </header>
+{$status}
 
-    <!-- -->
-    <div id="content" class="my-3 my-md-5">
-        <div id="content_body" class="container-fluid">
-            {$main}
-        </div>
-    </div>
+{literal}
+<style type="text/css">
+div > div#top_bar { position: fixed;}
+div > div#bottom_bar { position: fixed;}
+</style>
 
-    <footer class="footer">
-        <div class="container-fluid">
-            <div class="row align-items-center flex-row-reverse">
-                <div class="col-auto ml-lg-auto">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <ul class="list-inline list-inline-dots mb-0">
-                                <li class="list-inline-item"><a href="https://forum.epesibim.com/">Forum</a></li>
-                                <li class="list-inline-item"><a href="http://epe.si/support/">Support</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-auto">
-                            {if isset($donate)}
-                                <span style="float: right; margin-right: 30px">{$donate}</span>
-                            {/if}
-                        </div>
-                        <div class="col-auto">
-                            <a href="https://github.com/Telaxus/EPESI" class="btn btn-outline-primary btn-sm">Source code</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                    <a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a> {$version_no}
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    {$status}
+{/literal}
 
 {/if}
-
-{php}
-    load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
-    eval_js_once('document.body.id=null'); //pointer-events:none;
-{/php}

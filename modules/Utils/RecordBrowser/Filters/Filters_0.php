@@ -67,6 +67,8 @@ class Utils_RecordBrowser_Filters extends Module {
 	
 		$theme->assign('filter_group', $filter_group);
 	
+		Base_ThemeCommon::load_css($this->get_type());
+		
 		return array(
 				'controls' => $theme->get_html('controls'),
 				'elements' => $theme->get_html('elements')
@@ -247,7 +249,7 @@ class Utils_RecordBrowser_Filters extends Module {
 					continue;
 			}
 		}
-		$this->form->addElement('submit', 'submit', __('Show'), array('class'=>'btn btn-warning'));
+		$this->form->addElement('submit', 'submit', __('Show'));
 		
 		if ($this->clear_filters) {
 			$this->save_filters(array());

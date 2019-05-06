@@ -11,6 +11,7 @@ header("Content-type: text/javascript");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT"); // date in the past
 
+
 if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID']))
 	die('alert(\'Invalid request\');');
 
@@ -32,7 +33,7 @@ if(!isset($_SESSION['num_of_clients'])) {
 	Epesi::redirect();
 	Epesi::send_output();
 	define('SESSION_EXPIRED',1);
-	DBSession::destroy_client(session_id(),CID);
+	EpesiSession::destroy_client(session_id(),CID);
 } else {
 	Epesi::process($_POST['url'],isset($_POST['history'])?$_POST['history']:false);
 }

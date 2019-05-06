@@ -21,13 +21,13 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
 
 	public static function applet_info_format($r){
-
+		
 		// Build array representing 2-column tooltip
 		// Format: array (Label,value)
 		$access = Utils_CommonDataCommon::get_translated_array('CRM/Access');
 		$priority = Utils_CommonDataCommon::get_translated_array('CRM/Priority');
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-
+		
 		$contacts = array();
 		$companies = array();
 		$customers = '';
@@ -47,7 +47,7 @@ class CRM_TasksCommon extends ModuleCommon {
 					__('Permission')=>$access[$r['permission']],
 					__('Priority')=>$priority[$r['priority']],
 					);
-
+		
 		$bg_color = '';
 		switch ($r['priority']) {
 			case 0: $bg_color = '#FFFFFF'; break; // low priority
@@ -66,7 +66,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
 	public static function menu() {
 		if (Utils_RecordBrowserCommon::get_access('task','browse'))
-			return array(_M('CRM')=>array('__submenu__'=>1,_M('Tasks')=>array('__icon__'=>'tasks')));
+			return array(_M('CRM')=>array('__submenu__'=>1,_M('Tasks')=>array()));
 		else
 			return array();
 	}
@@ -74,7 +74,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function task_bbcode($text, $param, $opt) {
 		return Utils_RecordBrowserCommon::record_bbcode('task', array('title'), $text, $param, $opt);
 	}
-
+	
 	public static function get_tasks($crits = array(), $cols = array(), $order = array()) {
 		return Utils_RecordBrowserCommon::get_records('task', $crits, $cols, $order);
 	}
@@ -123,7 +123,7 @@ class CRM_TasksCommon extends ModuleCommon {
 
         return Utils_RecordBrowserCommon::applet_settings($settings);
 	}
-
+	
 	public static function employees_crits(){
 		return array('(company_name'=>CRM_ContactsCommon::get_main_company(),'|related_companies'=>array(CRM_ContactsCommon::get_main_company()));
 	}
@@ -155,7 +155,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('task', 'Title', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
+		if (isset($record['description']) && $record['description']!='' && !MOBILE_DEVICE) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
     public static function display_title_with_mark($record) {
@@ -282,7 +282,7 @@ class CRM_TasksCommon extends ModuleCommon {
 				$details
 			);
 	}
-
+	
 	public static function search_format($id) {
 		if(!Utils_RecordBrowserCommon::get_access('task','browse')) return false;
 		$row = self::get_tasks(array('id'=>$id));
@@ -302,6 +302,21 @@ class CRM_TasksCommon extends ModuleCommon {
 			$date = __('Task without deadline');
 
 		return $date."\n".__('Title: %s',array($a['title']));
+	}
+
+	///////////////////////////////////
+	// mobile devices
+
+	public static function mobile_menu() {
+		if(!Utils_RecordBrowserCommon::get_access('task','browse'))
+			return array();
+		return array(__('Tasks')=>array('func'=>'mobile_tasks','color'=>'blue'));
+	}
+	
+	public static function mobile_tasks() {
+		$me = CRM_ContactsCommon::get_my_record();
+		$defaults = array('employees'=>array($me['id']),'status'=>0, 'permission'=>0, 'priority'=> CRM_CommonCommon::get_default_priority());
+		Utils_RecordBrowserCommon::mobile_rb('task',array('employees'=>array($me['id']),'status'=>array(0,1)),array('deadline'=>'ASC', 'priority'=>'DESC', 'title'=>'ASC'),array('priority'=>1, 'deadline'=>1,'longterm'=>1),$defaults);
 	}
 
 	public static function crm_calendar_handler($action) {
@@ -329,7 +344,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 		return $ret;
 	}
-
+	
 	public static function crm_view_event($id, $cal_obj) {
 		$rb = $cal_obj->init_module('Utils_RecordBrowser', 'task');
 		$rb->view_entry('view', $id);
@@ -368,7 +383,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$f_array = explode(',',trim($filter,'()'));
 		if($filter!='()' && $filter)
 			$crits['('.'employees'] = $f_array;
-		if ($customers && !empty($customers))
+		if ($customers && !empty($customers)) 
 			$crits['|customers'] = $customers;
 		elseif($filter!='()' && $filter) {
 			$crits['|customers'] = $f_array;
@@ -377,7 +392,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		}
 		$crits['<=deadline'] = $end;
 		$crits['>=deadline'] = $start;
-
+		
 		$ret = Utils_RecordBrowserCommon::get_records('task', $crits, array(), array(), CRM_CalendarCommon::$events_limit);
 
 		$result = array();
@@ -400,7 +415,7 @@ class CRM_TasksCommon extends ModuleCommon {
         }
 
 		$next = array('type'=>__('Task'));
-
+		
 		$deadline = $r['deadline'];
 		$iday = strtotime($deadline);
 		$next['id'] = $r['id'];
@@ -473,7 +488,7 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customers'] = $r['customers'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] =
+		$next['custom_tooltip'] = 
 									'<center><b>'.
 										__('Task').
 									'</b></center><br>'.
@@ -497,7 +512,7 @@ class CRM_TasksCommon extends ModuleCommon {
             $rss = DB::GetCol('SELECT f_recordset FROM task_related_data_1 WHERE active=1');
             // remove currently selected value
             $key = array_search($default, $rss);
-            if ($key !== false)
+            if ($key !== false) 
                 unset($rss[$key]);
             $tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s', array('%_related'));
             foreach ($tabs as $k => $v) {
@@ -505,7 +520,7 @@ class CRM_TasksCommon extends ModuleCommon {
             }
             $form->addElement('select', $field, $label, $tabs, array('id' => $field));
             $form->addRule($field, 'Field required', 'required');
-            if ($mode == 'edit')
+            if ($mode == 'edit') 
                 $form->setDefaults(array($field => $default));
         } else {
             $form->addElement('static', $field, $label);
@@ -517,7 +532,7 @@ class CRM_TasksCommon extends ModuleCommon {
         $caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
         return $caption . ' (' . $r['recordset'] . ')';
     }
-
+    
     public static function QFfield_related(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if(DB::GetOne('SELECT 1 FROM task_related_data_1 WHERE active=1'))
             Utils_RecordBrowserCommon::QFfield_select($form, $field, $label, $mode, $default, $desc, $rb_obj);
@@ -528,7 +543,7 @@ class CRM_TasksCommon extends ModuleCommon {
         $crits = array(
             '' => array(),
         );
-        foreach ($recordsets as $rec)
+        foreach ($recordsets as $rec) 
             $crits[$rec] = array();
         return $crits;
     }

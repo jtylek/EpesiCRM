@@ -43,7 +43,7 @@ round:function(val,currency) {
 	return all/prec;
 },
 validate: function(ev) {
-	var elem = ev.target;
+	var elem = Event.element(ev);
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	var val = elem.value;
 	var key = ev.which;
@@ -51,27 +51,26 @@ validate: function(ev) {
 	var Ecar = jq(elem).caret().end;
 	var Scar = jq(elem).caret().start;
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
-	Utils_CurrencyField.init_re(currency.regex);
-	if(!Utils_CurrencyField.re.test(val)) {
-		ev.preventDefault();
-	}
-	if(!Utils_CurrencyField.re.test(elem.value)) {
+	this.init_re(currency.regex);
+	if(!this.re.test(val))
+		Event.stop(ev);
+	if(!this.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 validate_blur: function(ev,f) {
-	var elem = ev.target;
+	var elem = Event.element(ev);
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
-	Utils_CurrencyField.init_re(currency.regex);
-	if(!Utils_CurrencyField.re.test(elem.value)) {
+	this.init_re(currency.regex);
+	if(!this.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 init_re: function(f) {
-	if(Utils_CurrencyField.format!=f) {
-		Utils_CurrencyField.re = new RegExp();
-		Utils_CurrencyField.re.compile('^'+f+'$');
-		Utils_CurrencyField.format=f;
+	if(this.format!=f) {
+		this.re = new RegExp();
+		this.re.compile('^'+f+'$');
+		this.format=f;
 	}
 },
 };
@@ -79,7 +78,7 @@ init_re: function(f) {
 
 (function($,len,createRange,duplicate){
 	$.fn.caret=function(options,opt2){
-		var start,end,t=this[0];
+		var start,end,t=this[0],browser=$.browser.msie;
 		if(typeof options==="object" && typeof options.start==="number" && typeof options.end==="number") {
 			start=options.start;
 			end=options.end;
@@ -96,15 +95,42 @@ init_re: function(f) {
 				end=start+re[0][len];
 			}
 		}
-
 		if(typeof start!="undefined"){
-			this[0].selectionStart=start;
-			this[0].selectionEnd=end;
+			if(browser){
+				var selRange = this[0].createTextRange();
+				selRange.collapse(true);
+				selRange.moveStart('character', start);
+				selRange.moveEnd('character', end-start);
+				selRange.select();
+			} else {
+				this[0].selectionStart=start;
+				this[0].selectionEnd=end;
+			}
 			this[0].focus();
 			return this
 		} else {
-			var s=t.selectionStart,
+           if(browser){
+				var selection=document.selection;
+                if (this[0].tagName.toLowerCase() != "textarea") {
+                    var val = this.val(),
+                    range = selection[createRange]()[duplicate]();
+                    range.moveEnd("character", val[len]);
+                    var s = (range.text == "" ? val[len]:val.lastIndexOf(range.text));
+                    range = selection[createRange]()[duplicate]();
+                    range.moveStart("character", -val[len]);
+                    var e = range.text[len];
+                } else {
+                    var range = selection[createRange](),
+                    stored_range = range[duplicate]();
+                    stored_range.moveToElementText(this[0]);
+                    stored_range.setEndPoint('EndToEnd', range);
+                    var s = stored_range.text[len] - range.text[len],
+                    e = s + range.text[len]
+                }
+            } else {
+				var s=t.selectionStart,
 					e=t.selectionEnd;
+			}
 			var te=t.value.substring(s,e);
 			return {start:s,end:e,text:te,replace:function(st){
 				return t.value.substring(0,s)+st+t.value.substring(e,t.value[len])

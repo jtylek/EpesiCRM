@@ -60,19 +60,16 @@ function checkIt(string) {
 
 /*-----------------------------------------------------------------------------------------------*/
 
-function leightbox(ctrl) {
-    this.initialize(ctrl);
-}
+var leightbox = Class.create();
 
 leightbox.prototype = {
 
     yPos : 0,
 
     initialize: function(ctrl) {
-        this.content = jq(ctrl).attr("rel");
-        var _this = this;
-	var exec = function(ev){ _this.activate.call(_this,ev); };
-        jq(ctrl).click(exec);
+        this.content = ctrl.getAttribute("rel");
+	var exec = this.activate.bindAsEventListener(this);
+        Event.observe(ctrl, 'click', exec, false);
 	jq(ctrl).on('touchstart',function(){jq(this).attr('last_touch_start',(new Date()).getTime());}).on('touchend',function(){ var a = (new Date()).getTime()-jq(this).attr('last_touch_start'); if(a>200 && a<1000) exec() });
 
         ctrl.onclick = function(){return false;};
@@ -125,17 +122,17 @@ leightbox.prototype = {
     },
 
     displayLeightbox: function(display){
-        var c = jq('#'+this.content).get(0);
-        var co = jq('#leightbox_overlay').get(0);
-        var ccont = jq('#leightbox_container').get(0);
+        var c = $(this.content);
+        var co = $('leightbox_overlay');
+        var ccont = $('leightbox_container');
         if(display == 'none') {
-            var tag = jq('#'+this.content+'__tag').get(0);
+            var tag = $(this.content+'__tag');
             if(tag) {
             tag.parentNode.insertBefore(c,tag);
             tag.parentNode.removeChild(tag);
             } else {
                 c.id = this.content+"__bak";
-            var c2 = jq('#'+this.content).get(0);
+            var c2 = $(this.content);
             if(c2) c2.parentNode.removeChild(c2);
                 c.id = this.content;
             }
@@ -162,9 +159,9 @@ leightbox.prototype = {
     // Search through new links within the lightbox, and attach click event
     actions: function(){
         lbActions = document.getElementsByClassName('lbAction');
-        var _this = this;
+
         for(i = 0; i < lbActions.length; i++) {
-            jq(lbActions[i]).click(function(e){_this[jq(lbActions[i]).attr("rel")].call(_this,e)});
+            Event.observe(lbActions[i], 'click', this[lbActions[i].getAttribute("rel")].bindAsEventListener(this), false);
             lbActions[i].onclick = function(){return false;};
         }
 
@@ -208,7 +205,7 @@ function addLeightboxMarkup() {
 leightbox_is_active = false;
 
 function leightbox_deactivate(name) {
-    for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
+for(i=0;i<leightboxes.length;i++)if(leightboxes[i].content==name){leightboxes[i].deactivate();break;}
 }
 
 function leightbox_activate(name) {
@@ -231,24 +228,24 @@ function leightbox_reload() {
     if(leightbox_is_active) {
         var lbs = jq('#leightbox_container .leightbox');
         if(lbs.length>0) {
-            var id = jq(lbs).attr('id')
+            var id = lbs.attr('id')
             leightbox_deactivate(id);
             leightbox_activate(id);
         }
         return;
     }
-    jq('#leightbox_container').html('');
+    $('leightbox_container').innerHTML = '';
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)
         delete(leightboxes[i]);
     for(i = 0; i < lbox.length; i++) {
-        jq(lbox[i]).off('click');
+        lbox[i].stopObserving('click');
         leightboxes[i] = new leightbox(lbox[i]);
-        if (leightbox_to_activate==jq(lbox[i]).attr("rel")) {
+        if (leightbox_to_activate==lbox[i].getAttribute("rel")) {
             leightboxes[i].activate();
             leightbox_to_activate='';
         }
     }
 }
 
-jq(document).on("e:load", leightbox_reload);
+document.observe("e:load", leightbox_reload);

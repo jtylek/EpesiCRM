@@ -5,18 +5,11 @@
 	{assign var=x value=0}
     {foreach item=i from=$icons}
 	{assign var=x value=$x+1}
-		<td style="padding: 5px;">
+		<td>
 	    {$i.open}
-		<div class="btn btn-default btn-lg" style="width: 15rem; height: 9rem">
-			<div style="padding: 5px">
-				<div class="div_icon">{if $i.icon_url}
-						<img src="{$i.icon_url}" style="height:2em">
-                    {else}
-						<i class="fa fa-{$i.icon} fa-2x"></i>
-                    {/if}
-				</div>
-				<span style="font-size: 13px">{$i.label}</span>
-			</div>
+		<div class="epesi_big_button">
+            <img src="{$i.icon}" alt="" align="middle" border="0" width="32" height="32">
+            <span>{$i.label}</span>
         </div>
 	    {$i.close}
 		</td>

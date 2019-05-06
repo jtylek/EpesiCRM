@@ -364,52 +364,13 @@ class Base_Setup extends Module {
         }
 		
 		uasort($sorted, array($this, 'simple_setup_sort'));
-//		var_dump($sorted);
-
-		$filters_qty = array (
-				'all' => array('num' => 1, 'qty' => 0),
-				'installed' => array('num' => 2, 'qty' => 0),
-				'available' => array('num' => 3, 'qty' => 0),
-				'updates' => array('num' => 4, 'qty' => 0),
-				'purchases' => array('num' => 5, 'qty' => 0),
-				'store' => array('num' => 6, 'qty' => 0)
-		);
-
-		$noinfo = "no info";
-		foreach ($sorted as $key => $value){
-			switch ($value['filter']['0']) {
-				case 'installed': $filters_qty['installed']['qty']++; break;
-				case 'available': $filters_qty['available']['qty']++; break;
-				case 'updates': $filters_qty['updates']['qty']++; break;
-				case 'purchases': $filters_qty['purchases']['qty']++; break;
-				case 'store': $filters_qty['store']['qty']++; break;
-			}
-			$filters_qty['all']['qty']++;
-			if(empty($value['version'])) $value['version'] = $noinfo;
-		}
-
-		$i = 1;
-		foreach ($filters as $key => $value) {
-			foreach ($filters_qty as $k => $v){
-				if ($v['num'] == $i) {
-					$filters[$key]['qty'] = $v['qty'];
-                }
-			}
-			$i++;
-        }
-
-        foreach ($sorted as $key => $value){
-			if(!isset($value['version'])) continue;
-			if ($value['version'] == null) $value['version'] = '---';
-//			var_dump($value['version']);
-		}
-
-
-        $t = $this->init_module(Base_Theme::module_name());
+		
+		$t = $this->init_module(Base_Theme::module_name());
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));
 		$t->assign('labels', array('options'=>__('Optional')));
+		
 		$t->display();
 	}
     

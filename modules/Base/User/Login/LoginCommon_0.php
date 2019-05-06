@@ -211,19 +211,27 @@ class Base_User_LoginCommon extends ModuleCommon {
         return null;
     }
 
-    public static function logout()
-    {
-        if (isset($_COOKIE['autologin_id'])) {
-            $arr = explode(' ', $_COOKIE['autologin_id']);
-            if (count($arr) == 2) {
-                list($user, $autologin_id) = $arr;
-                if ($user == Base_UserCommon::get_my_user_login())
-                    DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d', array($autologin_id, Acl::get_user()));
-            }
-        }
-        Acl::set_user(null, true);
-        return false;
-    }
+    ////////////////////////////////////////////////////
+	// mobile devices
+	
+	public static function mobile_menu() {
+		if(Acl::is_user())
+			return array(__('Logout')=>array('func'=>'logout','weight'=>100));
+		return array(__('Login')=>'mobile_login');
+	}
+	
+	public static function logout() {
+		if(isset($_COOKIE['autologin_id'])) {
+			$arr = explode(' ',$_COOKIE['autologin_id']);
+			if(count($arr)==2) {
+				list($user,$autologin_id) = $arr;
+				if($user==Base_UserCommon::get_my_user_login())
+                        		DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($autologin_id,Acl::get_user()));
+                        }
+                }
+		Acl::set_user(null, true);
+		return false;
+	}
 
 	public static function clean_old_autologins()
 	{
@@ -235,8 +243,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
-		$ssl = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 1 : 0;
-		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30, EPESI_DIR, '', $ssl);
+		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
 		$ip = get_client_ip_address();
 		if ($old_autologin_id) {
 			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
@@ -267,6 +274,37 @@ class Base_User_LoginCommon extends ModuleCommon {
 		return false;
 	}
 
+	public static function mobile_login() {
+		$t = Variable::get('host_ban_time');
+		if($t>0) {
+			$fails = DB::GetOne('SELECT count(*) FROM user_login_ban WHERE failed_on>%d AND from_addr=%s',array(time()-$t,get_client_ip_address()));
+			if($fails>=3) {
+				print(__('You have exceeded the number of allowed login attempts.').'<br>');
+				print('<a href="'.get_epesi_url().'">'.__('Host banned. Click here to refresh.').'</a>');
+				return;
+			}
+		}
+		
+
+		$qf = new HTML_QuickForm('login', 'post','mobile.php?'.http_build_query($_GET));
+
+		$qf->addElement('text', 'username', __('Login'));
+		$qf->addElement('password', 'password', __('Password'));
+		$qf->addElement('submit', 'submit_button', __('Login'));
+
+		$qf->registerRule('check_login', 'callback', 'submit_login', 'Base_User_LoginCommon');
+		$qf->addRule(array('username','password'), __('Login or password incorrect'), 'check_login');
+		$qf->addRule('username', __('Field required'), 'required');
+		$qf->addRule('password', __('Field required'), 'required');
+
+
+		if($qf->validate()) {
+			self::set_logged($qf->exportValue('username'));
+			self::new_autologin_id();
+			return false;
+		}
+		$qf->display();
+	}
 }
 
 if(!Acl::is_user())

@@ -4,24 +4,33 @@
 
 <div class="Utils_TabbedBrowser_div">
 
-			<ul class="nav nav-tabs">
+<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+	<tr>
+		<td>
+			<ul class="Utils_TabbedBrowser">
 			{foreach from=$captions key=cap item=link}
 				{if isset($captions_submenus[$cap])}
-					<li role="presentation" onmouseover="tabbedbrowser_show_submenu('{$cap}')" onmouseout="tabbedbrowser_hide_submenu('{$cap}')">
+					<li onmouseover="tabbedbrowser_show_submenu('{$cap}')" onmouseout="tabbedbrowser_hide_submenu('{$cap}')">
 						<div class="tabbedbrowser_submenu" id="tabbedbrowser_{$cap}_popup" style="display:none;position:absolute;">
 							{foreach from=$captions_submenus[$cap] key=s_cap item=s_link}
-								{$s_link.link}
+								{$s_link}
 							{/foreach}
 						</div>
 				{else}
-					<li role="presentation" {if $link.selected}class="active"{/if}>
+					<li>
 				{/if}
-				{$link.link}
+				{$link}
 				</li>&nbsp;
 			{/foreach}
 			</ul>
-			<div class="well">
-				{$body}
-			</div>
+		</td>
+	</tr>
+	<tr >
+		<td >
+		<div class="border_bottom"></div>
+			<center>{$body}</center>
+		</td>
+	</tr>
+</table>
 
 </div>

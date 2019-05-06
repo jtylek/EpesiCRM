@@ -305,6 +305,7 @@ class Utils_CalendarBusyReport extends Module {
 	// day
 	public function day() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+24*3600))));
 		$theme->assign('next_label',__('Next day'));
@@ -465,6 +466,7 @@ class Utils_CalendarBusyReport extends Module {
 
 	public function week() {
 		$theme = $this->pack_module(Base_Theme::module_name());
+		Base_ThemeCommon::load_css('Utils_CalendarBusyReport', 'common');
 
 		$theme->assign('next7_href', $this->create_unique_href(array('date'=>date('Y-m-d',$this->date+604800))));
 		$theme->assign('next7_label',__('Next week'));
@@ -545,12 +547,12 @@ class Utils_CalendarBusyReport extends Module {
 					$ii = $today_t_timeless.'_'.$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('jq("#UCcell_'.$ii.'").html("'.$ii.'");'); // *DEBUG*
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.$ii.'";'); // *DEBUG*
 				} else {
 					$ii = $today_t+$v['time'];
 					$time_ids[$i][] = $ii;
 					$report[$ii] = array();
-//					eval_js('jq("#UCcell_'.$ii.'").html("'.Base_RegionalSettingsCommon::time2reg($ii).'");'); // *DEBUG*
+//					eval_js('$("UCcell_'.$ii.'").innerHTML="'.Base_RegionalSettingsCommon::time2reg($ii).'";'); // *DEBUG*
 				}
 				$prev = $v;
 			}

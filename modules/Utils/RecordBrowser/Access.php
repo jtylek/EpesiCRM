@@ -55,7 +55,7 @@ class Utils_RecordBrowser_Access
 
 		if ($this->isFullDeny()) return false;
 		
-		if ($this->action === 'browse') return $this->getCritsRaw() !== null ? true: false;
+		if ($this->action === 'browse') return $this->getCritsRaw() !== null && $this->getCritsRaw() !== false ? true: false;
 
 		if ($this->getActiveGrantRules() === false) return false;
 		
@@ -73,7 +73,7 @@ class Utils_RecordBrowser_Access
 
 	protected function getCritsRaw() 
 	{
-		if ($this->isFullDeny()) return null;
+		if ($this->isFullDeny()) return false;
 		
 		if ($this->isFullGrant()) return true;
 		
@@ -96,8 +96,8 @@ class Utils_RecordBrowser_Access
 		
 		// if there is any access granted - limit it based on restrict crits
 		if ($ret !== null && $ruleCrits['restrict'] instanceof Utils_RecordBrowser_Crits) $ret = Utils_RecordBrowserCommon::merge_crits($ret, $ruleCrits['restrict']);
-		
-		return $ret;
+
+		return $ret?: false;
 	}
 	
 	protected function getRecordInactiveAccess() 
@@ -149,6 +149,8 @@ class Utils_RecordBrowser_Access
 			while ($row = $r->FetchRow())
 				$ruleCrits[$row['action']][$row['id']] = $this->parseAccessCrits($row['crits']);
 				
+			$ruleCrits['selection'] = $ruleCrits['selection']?: $ruleCrits['view'];
+				
 			self::$ruleCritsCache[$cache_key] = $ruleCrits;
 		}
 		
@@ -173,6 +175,8 @@ class Utils_RecordBrowser_Access
 				'restrict' => null
 		];
 		foreach ( Utils_RecordBrowserCommon::get_custom_access_callbacks($this->tab) as $callback ) {
+			if (!is_callable($callback)) continue;
+			
 			$callbackCrits = call_user_func($callback, $this->action, $this->record, $this->tab);
 			
 			if (is_bool($callbackCrits)) {
@@ -244,14 +248,13 @@ class Utils_RecordBrowser_Access
 		foreach ( $grant_rule_ids as $rule_id )
 			$access_rule_blocked_fields[$rule_id] = $this->getRuleBlockedFields($rule_id);
 		
-		Utils_RecordBrowserCommon::init($this->tab);
+		$fields = Utils_RecordBrowserCommon::init($this->tab);
 		
 		$blocked_fields = count($access_rule_blocked_fields) > 1 ? call_user_func_array('array_intersect', $access_rule_blocked_fields): reset($access_rule_blocked_fields);
 		
-		$full_field_access = array_fill_keys(array_keys(Utils_RecordBrowserCommon::$hash), true);
+		$full_field_access = array_fill_keys(array_column($fields, 'id'), true);
 		
-		$blocked_field_access = [];
-		if ($blocked_fields) $blocked_field_access = array_fill_keys($blocked_fields, false);
+		$blocked_field_access = $blocked_fields? array_fill_keys($blocked_fields, false):[];
 		
 		return array_merge($full_field_access, $blocked_field_access);
 	}
@@ -263,7 +266,7 @@ class Utils_RecordBrowser_Access
 		if (!isset(self::$ruleBlockedFieldsCache[$this->tab])) {
 			$r = DB::Execute('SELECT * FROM '.$this->tab.'_access_fields');
 			
-			$fields = [];
+			$fields = array();
 			while ($row = $r->FetchRow()) {
 				$fields[$row['rule_id']][] = $row['block_field'];
 			}

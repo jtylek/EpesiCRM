@@ -20,49 +20,72 @@ class Utils_LeightboxPrompt extends Module {
     public function construct() {
         $this->group = md5($this->get_path());
     }
-
+	
 	public function get_group_key() {
 		return $this->group;
 	}
 
     public function add_option($key, $label, $icon, $form=null, $tooltip=null) {
     	$key = $key?: 'default';
-if ($tooltip && !is_array($tooltip))
+    	
+    	if ($tooltip && !is_array($tooltip))
     		$tooltip = [$tooltip];
-
+    	
         $this->options[$key] = array('icon'=>$icon, 'form'=>$form, 'label'=>$label, 'tooltip'=>$tooltip);
-        if (isset($form) && $form->exportValue('submited') && !$form->validate()) $this->open();
+        
+        //calling open method causes lbp to not be opened by the links on the page in case of no form validation
+        //this way works because no init is called
+        if (isset($form) && $form->exportValue('submited') && !$form->validate()) Utils_LeightboxPromptCommon::open($this->group, $this->get_params([]));
     }
-
+    
+    public function add_options($options) {
+    	foreach ($options as $option => $desc) {
+    		$desc['label'] = $desc['label']?? $option;
+    		
+    		$desc['active'] = $desc['active']?? true;
+    		
+    		$desc['active'] = is_array($desc['active'])? $desc['active']: [$desc['active']];
+    		
+    		if (!(bool) array_product($desc['active'])) continue;
+    		
+    		$form = null;
+    		if ($desc['elements']?? []) {
+    			$form = $this->init_module(Libs_QuickForm::module_name());
+    			
+    			$elements = array_filter($desc['elements'], function($element) {
+    				return $element['active']?? true;
+    			});
+    				
+    			$form->add_array($elements);
+    			
+    			$form->setDefaults($desc['defaults']?? []);
+    		}
+    		
+    		$this->add_option($option, $desc['label'], $desc['icon']?? null, $form, $desc['tip']?? null);
+    	}
+    }
+    
     public function set_selected_option($option) {
     	$this->selected_option = $option;
     }
 
     public function body($header='', $params_list = array(), $additional_info='', $big=true) {
+        if (MOBILE_DEVICE) return;
         if (isset($_REQUEST['__location']) && $this->last_location!=$_REQUEST['__location']) {
             $this->last_location = $_REQUEST['__location'];
             $this->leightbox_ready = false;
         }
         if (!$this->leightbox_ready) {
             $this->leightbox_ready = true;
-
+            
             $this->params_list = $params_list;
 
             $active_option = $single_option = $this->get_single_option();
-            $fa_icons = FontAwesome::get();
-
+            
             $buttons = array();
             $sections = array();
             foreach ($this->options as $option_key=>$option) {
-            	$icon = $option['icon'];
-                if(array_key_exists('fa-'.$icon,$fa_icons)) {
-    							$icon = "<i class='fa fa-$icon fa-2x'></i>";
-    						} elseif (file_exists($icon)) {
-    							$icon = '<img alt="" align="middle" border="0" width="32" height="32" src="' . $icon . '" border="0">';
-                } else {
-                  $icon = "<i class='fa fa-cog fa-2x'></i>";
-                }
-                $next_button = array('icon'=>$icon, 'label'=>$option['label'], 'tooltip' => $option['tooltip']);
+            	$next_button = array('icon'=>$option['icon'], 'label'=>$option['label'], 'tooltip' => $option['tooltip']);
                 if ($option['form']!==null) $form = $option['form'];
                 else $form = $this->options[$option_key]['form'] = $this->init_module(Libs_QuickForm::module_name());
                 if (!empty($params_list)) {
@@ -79,15 +102,15 @@ if ($tooltip && !is_array($tooltip))
                     $th->assign('id', $this->get_instance_id());
                     $th->display('form');
                     $form_contents = ob_get_clean();
-
+                    
                     $next_button['open'] = '<a ' . $this->get_form_show_href($option_key) . ' ' . $tooltip . '>';
                     $sections[] = '<div id="'.$this->group.'_'.$option_key.'_form_section" class="'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
                     if ($this->selected_option ===  $option_key)
                     	$active_option = $option_key; // open this selection if selected_option set
-
-                    if ($option['form']->exportValue('submited') && !$option['form']->validate())
+                    
+                    if ($option['form']->exportValue('submited') && !$option['form']->validate())						
 						$active_option = $option_key; // open this selection if form submitted but not valid
-
+                    
                 } else {
                     $next_button['open'] = '<a href="javascript:void(0);" onmouseup="' . $this->get_close_leightbox_href_js() . $form->get_submit_form_js() . ';" ' . $tooltip . '>';
                     $form->display();
@@ -95,13 +118,13 @@ if ($tooltip && !is_array($tooltip))
                 $next_button['close'] = '</a>';
                 $buttons[] = $next_button;
             }
-
+            
             $active_option = $active_option?: '';
-
+			
             load_js($this->get_module_dir() . 'js/leightbox_prompt.js');
             load_js($this->get_module_dir() . 'js/jquery-deparam.js');
-            eval_js('Utils_LeightboxPrompt.init("' . $this->group . '", "' . $active_option . '");');
-
+            eval_js('Utils_LeightboxPrompt.init("' . $this->group . '", "' . $active_option . '");');           
+            
             $theme = $this->init_module(Base_Theme::module_name());
 
             $theme->assign('open_buttons_section','<div id="'.$this->group.'_buttons_section">');
@@ -112,12 +135,13 @@ if ($tooltip && !is_array($tooltip))
 
             ob_start();
             $theme->display('leightbox');
-            $profiles_out = ob_get_clean();
+            $profiles_out = ob_get_clean();            
 
             Libs_LeightboxCommon::display($this->group.'_prompt_leightbox', $profiles_out, $header, $big);
         }
     }
-private function button_tooltip_attrs($button) {
+    
+    private function button_tooltip_attrs($button) {
     	$ret = '';
     	if ($button['tooltip']) {
     		if (is_callable($button['tooltip'][0]))
@@ -127,27 +151,27 @@ private function button_tooltip_attrs($button) {
     	}
     	return $ret;
     }
-
+    
     private function get_single_option() {
-    	if (count($this->options) == 1) {
+    	if (count($this->options) == 1) {    	
 	    	$option_keys = array_keys($this->options);
-
-	    	return reset($option_keys);
+	    	
+	    	return reset($option_keys);	    	
 	    }
     	return false;
     }
-
+    
     private function get_form_show_href($option_key) {
     	return 'href="javascript:void(0);" onclick="'.$this->get_form_show_href_js($option_key).'"';
     }
-
+    
     private function get_form_show_href_js($option_key) {
     	return 'Utils_LeightboxPrompt.show_form(\''.$this->group.'\', \''.$option_key.'\');';
     }
-
+    
     private function get_params($params) {
     	if (empty($params)) return array();
-
+    	
     	$ret = $params;
     	if (count($this->params_list) != count(array_intersect($this->params_list, array_keys($params)))) {
     		$ret = array_combine($this->params_list, $params);
@@ -162,26 +186,30 @@ private function button_tooltip_attrs($button) {
 
     public function open($params=array()) {
     	$this->init_leightbox();
-
+    	
 		return Utils_LeightboxPromptCommon::open($this->group, $this->get_params($params));
     }
 
     private $init = false;
     public function get_href_js($params=array()) {
 		$this->init_leightbox();
-
+		
         return Utils_LeightboxPromptCommon::get_open_js($this->group, $this->get_params($params));
     }
-
+	
 	public function init_leightbox() {
         if (!$this->init) print('<a style="display:none;" '.$this->get_href().'></a>');
         $this->init=true;
+	}
+	
+	public function get_options_count() {
+        return count($this->options);
 	}
 
     public function get_close_leightbox_href($reset_view = false) {
         return 'href="javascript:void(0)" onclick="' . $this->get_close_leightbox_href_js($reset_view) . '"';
     }
-
+    
     public function get_close_leightbox_href_js($reset_view = false) {
     	return 'Utils_LeightboxPrompt.deactivate(\''.$this->group.'\', ' . ($reset_view?1:0) . ');';
     }
@@ -191,7 +219,7 @@ private function button_tooltip_attrs($button) {
         foreach ($this->options as $option_key=>$option) {
             if ($option['form']!==null && $option['form']->validate()) {
                 $ret['option'] = $option_key;
-                $vals = $option['form']->exportValues();
+                $vals = array_merge($option['form']->exportValues(), Utils_FileUpload_Dropzone::export_values($option['form']));
                 if (is_array($this->params_list)) foreach ($this->params_list as $p) {
                     $ret['params'][$p] = $vals[$this->group.'_'.$p];
                     unset($vals[$this->group.'_'.$p]);
