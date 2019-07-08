@@ -392,7 +392,7 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
             } else {           	
                 $this->component_crits[] = $crits;
             }
-            if (count($crits) > 1) {
+            if (is_array($crits) && count($crits) > 1) {
                 $this->join_operator = $or ? 'OR' : 'AND';
             }
         }
