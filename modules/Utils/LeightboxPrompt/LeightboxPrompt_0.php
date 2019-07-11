@@ -215,7 +215,7 @@ class Utils_LeightboxPrompt extends Module {
         foreach ($this->options as $option_key=>$option) {
             if ($option['form']!==null && $option['form']->validate()) {
                 $ret['option'] = $option_key;
-                $vals = $option['form']->exportValues();
+                $vals = array_merge($option['form']->exportValues(), Utils_FileUpload_Dropzone::export_values($option['form']));
                 if (is_array($this->params_list)) foreach ($this->params_list as $p) {
                     $ret['params'][$p] = $vals[$this->group.'_'.$p];
                     unset($vals[$this->group.'_'.$p]);
