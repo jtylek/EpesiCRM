@@ -48,7 +48,7 @@ It requires properly configured HTTP server with PHP and MySQL or PostgreSQL dat
 
 EPESI is released under the MIT License
 
-Copyright © 2006-2016 Telaxus LLC
+Copyright © 2006-2019 Telaxus LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -63,7 +63,7 @@ Telaxus LLC http://telaxus.com/
 - Telaxus LLC is a technology company specializing in developoment of CRM and ERP solutions for small and medium size businesses utilizing our own platform - EPESI Business Information Manager.
 
 
-<i>Copyright © 2006-2016 Telaxus LLC</i>
+<i>Copyright © 2006-2019 Telaxus LLC</i>
 
 Enjoy,  
 <b>EPESI Team</b>
