@@ -4,7 +4,7 @@
 
 <b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
 
-<b>About</b>
+<b>Attention</b>
 
 EPESI BIM is a result of many years of experience working with SMB businesses and addresses inefficiencies of current e-mail “collaboration” workflow and commonplace data management using inadequate spreadsheet applications. It is a completely web based application designed for small and medium-sized enterprises trying to optimize business processes, simplify office work and reduce administrative costs. It does not require any client to be installed - any modern browser on any operating system will work - drastically reducing the deployment cost.
 
