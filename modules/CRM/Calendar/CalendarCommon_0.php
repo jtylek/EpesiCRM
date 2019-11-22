@@ -51,6 +51,7 @@ class CRM_CalendarCommon extends ModuleCommon {
 				$start_day[$x.':00'] = Base_RegionalSettingsCommon::time2reg($x.':00',2,false,false);
 			$end_day = $start_day;
 
+			$color = array(1 => __('Green'), 2 => __('Yellow'), 3 => __('Red'), 4 => __('Blue'), 5=> __('Gray'), 6 => __('Cyan'), 7 =>__('Magenta'));
 			return array(
 				__('Calendar')=>array(
 					array('name'=>'default_view','label'=>__('Default view'), 'type'=>'select', 'values'=>array('agenda'=>__('Agenda'), 'day'=>__('Day'), 'week'=>__('Week'), 'month'=>__('Month'), 'year'=>__('Year')), 'default'=>'week'),

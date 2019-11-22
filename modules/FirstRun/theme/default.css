@@ -1,0 +1,96 @@
+body#FirstRun {
+    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+    font-size: 11px;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    background-color: #FFFFFF;
+}
+
+#FirstRun table {
+    font-size: 11px;
+}
+
+#FirstRun a {
+    color: #336699;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#FirstRun input[type="text"],
+#FirstRun input[type="password"],
+#FirstRun select,
+#FirstRun textarea {
+    border: 1px solid #B3B3B3;
+    font-size: 11px;
+}
+
+#FirstRun a.button {
+    color: #FFFFFF;
+    line-height: 20px;
+    display: block;
+    width: 100px;
+    background-image: url("images/button.gif");
+    text-align: center;
+}
+
+#FirstRun a.button:hover {
+    background-image: url("images/button-hover.gif");
+}
+
+#FirstRun .header {
+    font-weight: normal;
+}
+
+#FirstRun span.footer {
+    font-size: 10px;
+    color: #777777;
+}
+
+#FirstRun span.footer a {
+    color: #336699;
+}
+
+#FirstRun span.footer a:hover {
+    color: #993333;
+}
+
+/*** table banner ***/
+
+#FirstRun #banner {
+    width: 100%;
+    border-bottom: 4px solid #B3B3B3;
+}
+
+#FirstRun #banner .image {
+    background-image: url("images/logo-small.png");
+    background-repeat: repeat-x;
+    width: 193px;
+    height: 83px;
+}
+
+#FirstRun #banner .back {
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffffff 0%, #e0e0e0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#e0e0e0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e0e0e0',GradientType=0 ); /* IE6-9 */
+}
+
+/*** table main ***/
+
+#FirstRun #main {
+    border: 1px solid #B3B3B3;
+    background-color: #F0F0F0;
+    padding: 20px 20px 20px 20px;
+}
+
+#FirstRun div.licence {
+    overflow: auto;
+    height: 400px;
+    border: 1px solid #B3B3B3;
+    background-color: #FFFFFF;
+    padding: 10px 10px 10px 10px;
+}
