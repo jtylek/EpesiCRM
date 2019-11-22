@@ -45,15 +45,17 @@ class EpesiSession implements SessionHandlerInterface{
     	return self::storage()->write($name, $data);
     }    
     
-    public static function destroy_client($name, $i) {
+    public static function destroy_client($name, $i)
+    {
     	$name = self::truncated_id($name);
     	
-    	self::storage()->destroy($name . '_' . $i);
+    	self::storage()->clear($name . '_' . $i);
     	
     	DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
     }    
 
-    public function open($path, $name) {
+    public function open($path, $name)
+    {
     	self::storage();
     	
         return true;
@@ -62,7 +64,8 @@ class EpesiSession implements SessionHandlerInterface{
     /**
      * @return EpesiSessionStorage
      */
-    public static function storage() {
+    public static function storage()
+    {
     	$lifetime = min(ini_get('session.gc_maxlifetime'),2592000-1); //less then 30 days
     	
     	self::$storage = self::$storage?: EpesiSessionStorage::factory(self::getStorageClass(), $lifetime);
@@ -70,7 +73,8 @@ class EpesiSession implements SessionHandlerInterface{
     	return self::$storage;
     }
     
-    public static function getStorageClass() {
+    public static function getStorageClass()
+    {
     	$defaultClass = reset(self::$storageMap);
     	
     	$class = self::$storageMap[SESSION_TYPE]?? $defaultClass;
@@ -82,7 +86,8 @@ class EpesiSession implements SessionHandlerInterface{
         return true;
     }
 
-    public function read($name) {
+    public function read($name)
+    {
         $name = self::truncated_id($name);
         
         // ----- main session -----
@@ -101,9 +106,12 @@ class EpesiSession implements SessionHandlerInterface{
         	$_SESSION['client'] = $clientData;
 
         $_SESSION['client']['__module_vars__'] = $_SESSION['client']['__module_vars__']?? [];
+        
+        return '';
     }
 
-    public function write($name, $data) {
+    public function write($name, $data)
+    {
         if(READ_ONLY_SESSION) return true;
         
         $name = self::truncated_id($name);
@@ -136,13 +144,14 @@ class EpesiSession implements SessionHandlerInterface{
         return $ret > 0;
     }
     
-    public function destroy($name) {
+    public function destroy($name)
+    {
         $name = self::truncated_id($name);
         $cids = DB::GetCol('SELECT DISTINCT client_id FROM history WHERE session_name=%s',array($name));
         foreach($cids as $i)
             self::destroy_client($name,$i);
         
-        self::storage()->destroy($name);
+        self::storage()->clear($name);
         
         DB::BeginTrans();
         DB::Execute('DELETE FROM history WHERE session_name=%s',array($name));
@@ -151,11 +160,12 @@ class EpesiSession implements SessionHandlerInterface{
         return true;
     }
 
-    public function gc($lifetime) {
+    public function gc($lifetime)
+    {
         $before = time() - $lifetime;
         $ret = DB::Execute('SELECT name FROM session WHERE expires <= %d', [$before]);
         while($row = $ret->FetchRow()) {
-            self::destroy($row['name']);
+            $this->destroy($row['name']);
         }
         
         self::storage()->cleanup($before);
@@ -164,23 +174,29 @@ class EpesiSession implements SessionHandlerInterface{
     }
 }
 
-abstract class EpesiSessionStorage {
+abstract class EpesiSessionStorage
+{
+	protected static $token = '';
 	protected $lifetime;
 	
-	public static function factory($class, $lifetime) {
+	public static function factory($class, $lifetime)
+	{
 		return new $class($lifetime);
 	}
 	
-	public function __construct($lifetime) {
+	public function __construct($lifetime)
+	{
 		$this->setLifetime($lifetime);
 	}
 	
-	public static function active() {
+	public static function active()
+	{
 		return true;
 	}
 	
-	public static function tokenize($key) {
-		return $key;
+	public static function tokenize($key)
+	{
+		return self::$token . $key;
 	}
 	
 	/**
@@ -198,7 +214,7 @@ abstract class EpesiSessionStorage {
 	 */
 	abstract public function write($key, $value);
 	
-	abstract public function destroy($key);
+	abstract public function clear($key);
 	
 	public function lock($key) {}
 	
@@ -206,25 +222,26 @@ abstract class EpesiSessionStorage {
 	
 	public function cleanup($lifetime) {}
 	
-	public function getLifetime() {
+	public function getLifetime()
+	{
 		return $this->lifetime;
 	}
 
-	public function setLifetime($lifetime) {
+	public function setLifetime($lifetime)
+	{
 		$this->lifetime = $lifetime;
 		
 		return $this;
 	}
 }
 
-class EpesiSessionFileStorage extends EpesiSessionStorage {
-	protected static $filePointers;
+class EpesiSessionFileStorage extends EpesiSessionStorage 
+{
+	protected static $token = FILE_SESSION_TOKEN;
+	protected static $filePointers;	
 	
-	public static function tokenize($name) {
-		return FILE_SESSION_TOKEN . $name;
-	}
-	
-	public function read($name) {		
+	public function read($name)
+	{
 		$file = self::getFile($name);		
 		
 		$filePointer = self::getFilePointer($file);
@@ -237,7 +254,8 @@ class EpesiSessionFileStorage extends EpesiSessionStorage {
 		return $ret? unserialize($ret): '';
 	}
 	
-	public function write($name, $data) {
+	public function write($name, $data)
+	{
 		$filePointer = self::getFilePointer(self::getFile($name));
 		
 		ftruncate($filePointer, 0);      // truncate file
@@ -250,27 +268,31 @@ class EpesiSessionFileStorage extends EpesiSessionStorage {
 		return true;
 	}
 	
-	public function destroy($name) {
+	public function clear($name)
+	{
 		@unlink(self::getFile($name));
 	}
 	
-	public function cleanup($before) {
+	public function cleanup($before)
+	{
 		if(!FILE_SESSION_DIR) return;
 		
-		$files = @glob(rtrim(FILE_SESSION_DIR,'\\/'). DIRECTORY_SEPARATOR . FILE_SESSION_TOKEN . '*');
+		$files = @glob(rtrim(FILE_SESSION_DIR,'\\/'). DIRECTORY_SEPARATOR . self::$token . '*');
 		if(!$files) return true;
 		foreach($files as $file) {
 			if (filemtime($file) < $before) @unlink($file);
 		}
 	}
 
-	protected static function getFile($name) {
+	protected static function getFile($name)
+	{
 		if(!file_exists(FILE_SESSION_DIR)) mkdir(FILE_SESSION_DIR);
 		
 		return rtrim(FILE_SESSION_DIR,'\\/') . DIRECTORY_SEPARATOR . self::tokenize($name);
 	}
 	
-	protected static function getFilePointer($file) {
+	protected static function getFilePointer($file)
+	{
 		if(!file_exists($file)) file_put_contents($file, '');
 		
 		$key = md5($file);
@@ -281,8 +303,10 @@ class EpesiSessionFileStorage extends EpesiSessionStorage {
 	}
 }
 
-class EpesiSessionDBStorage extends EpesiSessionStorage {
-	public function read($name) {
+class EpesiSessionDBStorage extends EpesiSessionStorage 
+{
+	public function read($name)
+	{
 		$ret = DB::GetCol('SELECT 
 								data 
 							FROM 
@@ -294,7 +318,8 @@ class EpesiSessionDBStorage extends EpesiSessionStorage {
 		return $ret? unserialize($ret[0]): '';
 	}
 	
-	public function write($name, $data) {
+	public function write($name, $data)
+	{
 		$data = serialize($data);
 
 		return (bool) DB::Replace('session', [
@@ -304,25 +329,27 @@ class EpesiSessionDBStorage extends EpesiSessionStorage {
 		], 'name');
 	}
 	
-	public function destroy($name) {
+	public function clear($name)
+	{
 		DB::Execute('DELETE FROM session WHERE name=%s', [$name]);
 	}	
 }
 
-class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
+class EpesiSessionMemcachedStorage extends EpesiSessionStorage 
+{
+	protected static $token = MEMCACHE_SESSION_TOKEN;
+	
 	private $memcached;
 	private $mcd = false;
-	private $lockTime;
+	private $lockTime;	
 	
-	public static function active() {
+	public static function active()
+	{
 		return MEMCACHE_SESSION_SERVER? true: false;		
 	}
 	
-	public static function tokenize($name) {
-		return MEMCACHE_SESSION_TOKEN . $name;
-	}
-	
-	public function __construct($lifetime) {
+	public function __construct($lifetime)
+	{
 		parent::__construct($lifetime);
 		
 		if(extension_loaded('memcached')) {
@@ -342,7 +369,8 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 			trigger_error('Cannot connect to memcache server',E_USER_ERROR);
 	}
 	
-	public function read($name) {
+	public function read($name)
+	{
 		$key = self::tokenize($name);
 		
 		if(!READ_ONLY_SESSION && !$this->lock($key))
@@ -358,7 +386,8 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 		return $ret? unserialize($ret): '';
 	}
 	
-	public function write($name, $data) {
+	public function write($name, $data)
+	{
 		$key = self::tokenize($name);
 		
 		if (!$this->isLocked($key)) $this->lock($key);
@@ -374,7 +403,8 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 		return true;
 	}	
 	
-	public function destroy($name) {
+	public function clear($name)
+	{
 		for ($k=0;;$k++) {
 			if (!$this->memcached->delete(self::tokenize($name) . '/' . $k)) break;
 		}			
@@ -382,19 +412,22 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 		$this->unlock(self::tokenize($name));
 	}
 	
-	public function add($key, $var, $exp=null) {
+	public function add($key, $var, $exp=null)
+	{
 		if ($this->mcd) return $this->memcached->add($key, $var, $exp);
 		
 		return $this->memcached->add($key, $var, null, $exp);
 	}
 	
-	public function set($key, $var, $exp=null) {
+	public function set($key, $var, $exp=null)
+	{
 		if ($this->mcd) return $this->memcached->set($key, $var, $exp);
 		
 		return $this->memcached->set($key, $var, null, $exp);
 	}
 	
-	public function isLocked($key) {
+	public function isLocked($key)
+	{
 		$key .= '#lock';
 		$exp = $this->lockTime;
 		
@@ -403,11 +436,12 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 		return $v==$exp || ($exp===null && $v);
 	}
 	
-	public function lock($key) {
+	public function lock($key)
+	{
 		$key .= '#lock';
 		$exp = $this->lockTime;
 
-		while(!$this->add($key, $exp, $exp) || $this->memcached->get($key) != $exp) {
+		while(!$this->add($key, $exp, $exp)) { // || $this->memcached->get($key) != $exp) {
 			if(time() > $exp) return false;
 			usleep(100);
 		}
@@ -415,11 +449,13 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage {
 		return true;
 	}
 	
-	public function unlock($key) {
+	public function unlock($key)
+	{
 		$this->memcached->delete($key.'#lock');
 	}
 	
-	public function __call($method, $args) {
+	public function __call($method, $args)
+	{
 		return call_user_func_array([$this->memcached, $method], $args);
 	}
 }

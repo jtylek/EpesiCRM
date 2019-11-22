@@ -146,6 +146,17 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
         $this->negation = $negation;
         $this->raw_sql_value = $raw_sql_value;
     }
+    
+    public static function __set_state($array)
+    {
+    	$crits = new static();
+    	
+    	foreach ($array as $key => $value) {
+    		$crits->{$key} = $value;
+    	}
+    	
+    	return $crits;
+    }
 
     public static function parse_subfield($field)
     {
@@ -299,6 +310,17 @@ class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
         }
         $this->vals = $values;
     }
+    
+    public static function __set_state($array)
+    {
+    	$crits = new static();
+    	
+    	foreach ($array as $key => $value) {
+    		$crits->{$key} = $value;
+    	}
+    	
+    	return $crits;
+    }
 
     /**
      * @return mixed
@@ -392,10 +414,21 @@ class Utils_RecordBrowser_Crits extends Utils_RecordBrowser_CritsInterface
             } else {           	
                 $this->component_crits[] = $crits;
             }
-            if (count($crits) > 1) {
+            if (is_array($crits) && count($crits) > 1) {
                 $this->join_operator = $or ? 'OR' : 'AND';
             }
         }
+    }
+    
+    public static function __set_state($array)
+    {
+    	$crits = new static();
+    	
+    	foreach ($array as $key => $value) {
+    		$crits->{$key} = $value;
+    	}
+    	
+    	return $crits;
     }
 
     public function normalize()

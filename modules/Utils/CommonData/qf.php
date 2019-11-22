@@ -37,7 +37,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 		elseif (isset($options['order_by_key'])) //legacy check
 			$this->_order = Utils_CommonDataCommon::validate_order($options['order_by_key']);
 		
-		if(count($this->_cd)==1) {
+		if(is_array($this->_cd) && count($this->_cd)==1) {
 			$root_data = Utils_CommonDataCommon::get_translated_array($this->_cd[0],$this->_order);
 			if($this->_add_empty_fields)
 				$root_data = array(''=>'---')+$root_data;
