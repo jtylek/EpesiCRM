@@ -34,13 +34,13 @@ Telegram is a messaging app with a focus on speed and security, it’s super-fas
 <b>Support</b>
 - For users - please visit our forum http://forum.epe.si/ - to receive free technical assistance
 - For developers - please open issues here: https://github.com/jtylek/issues
-- For Premium Support - paid service provided by Epesi Dev Team - visit: https://epesi.cloud/submitticket.php?step=2&deptid=1
+- For Premium Support - paid service provided by Epesi Dev Team - visit:<br>https://epesi.cloud/submitticket.php?step=2&deptid=1
 
 <b>Automatic Setup:</b>
 
-- If you already have a hosting plan with cPanel then use Autoinstall via Softaculous: https://www.softaculous.com/apps/erp/EPESI
+- If you already have a hosting plan with cPanel then use Autoinstall via Softaculous:<br>https://www.softaculous.com/apps/erp/EPESI
 
-Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
+Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel<br>https://www.youtube.com/watch?v=FR4mQsHUNCY
 
 <b>DIY - Do It Yourself manual methods:</b>
 
@@ -79,7 +79,7 @@ https://epe.si
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-<b>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.<b>
+<b>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</b>
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
 
