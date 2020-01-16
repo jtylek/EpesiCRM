@@ -6,7 +6,7 @@
         "symfony/http-foundation": "^2.7",
         "phpdocumentor/reflection-docblock": "^2.0.4",
         "fzaninotto/faker": "^1.6",
-        "phpFastCache/phpFastCache": "^5.0",
+        "phpfastcache/phpfastcache": "^5.0",
         "ifsnop/mysqldump-php": "dev-master",
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
