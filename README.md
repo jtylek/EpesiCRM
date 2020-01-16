@@ -4,7 +4,7 @@
 
 <b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient. It runs on any xAMP stack on all operating systems including Raspberry Pi. It is small, fast and can easily handle millions of records and hundreds of users.
 
-Epesi has modular architecture and provides a great starting point for a full blown ERP system. It already includes:
+Epesi has modular architecture and provides a great starting point for a full blown ERP system. You can use it as a <b>kickstarter</b> for your project as it already includes:
 
 - Dashboard
 - Admin Panel
@@ -15,6 +15,8 @@ Epesi has modular architecture and provides a great starting point for a full bl
 - Advanced Permissions system
 - Unlimited users license
 - and more...
+
+As a developer you can control which files are installed by default using simple <i>distro.ini</i> file, where you specify which modules should be setup on the first try. This way you can create your own Epesi distro and complete web application, which can be very easily deployed in the cloud.
 
 <b>About</b>
 
@@ -35,10 +37,13 @@ Telegram is a messaging app with a focus on speed and security, it’s super-fas
 - For Premium Support - paid service provided by Epesi Dev Team - visit: https://epesi.cloud/submitticket.php?step=2&deptid=1
 
 <b>Automatic Setup:</b>
-- If you already have a hosting plan with cPanel then use Autoinstall using Softaculous: https://www.softaculous.com/apps/erp/EPESI
- Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
+
+- If you already have a hosting plan with cPanel then use Autoinstall via Softaculous: https://www.softaculous.com/apps/erp/EPESI
+
+Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
 
 <b>DIY - Do It Yourself manual methods:</b>
+
 For experienced users and server administrators:
 It requires properly configured HTTP server with PHP (ver 7.x) and MySQL/MariaDB database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
 
@@ -56,6 +61,14 @@ Make sure that you run composer update after every update from repository as dep
 <code>cd your_epesi_dir</code>
 
 <code>composer update</code>
+
+Enjoy,
+
+Janusz Tylek
+
+https://epe.si
+
+<HR>
 
 <p>
  <b>License:</b>
