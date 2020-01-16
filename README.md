@@ -2,7 +2,17 @@
 =
 [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
 
-<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
+<b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
+
+Epesi has modular architecture and provides a great starting point for a full blown ERP system. It already includes:
+
+- Dashboard
+- Admin Panel
+- User Management
+- Advanced CRUD engine
+- CRM functionality
+- Advanced Epesi File Storage
+- Advanced Permissions system
 
 <b>About</b>
 
@@ -17,16 +27,12 @@ Telegram is a messaging app with a focus on speed and security, it’s super-fas
 
 - Epesi is already integrated with Telegram messaging platform te receive notifications from the <b>Watchdog</b> module (free and included with the latest release) as well as with Time tracking and reporting module integrated with Premium module Timesheets  http://epe.si/modules/premium/timesheets/
 
-More information on epesi - description of functionality, demos and more visit: http://epe.si/free-crm/
-
 <b>Support</b>
-- For users - please visit our forum http://forum.epesibim.com/ - to receive free technical assistance
-- For developers - please open issues here: https://github.com/Telaxus/EPESI/issues
-- For Premium Support - paid service provided by Telaxus LLC - visit: http://telaxus.com/premium-support/
+- For users - please visit our forum http://forum.epe.si/ - to receive free technical assistance
+- For developers - please open issues here: https://github.com/jtylek/issues
+- For Premium Support - paid service provided by Epesi Dev Team - visit: https://epesi.cloud/submitticket.php?step=2&deptid=1
 
 <b>Setup:</b>
-- Online demo: http://demo.epesibim.com/
-- Automatic - no technical expertise needed - setup hosting at epesi Cloud (free 30-day trial): http://epe.si/hosting
 - Autoinstall via cPanel using Softaculous: https://www.softaculous.com/apps/erp/EPESI
 </br>
  Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
@@ -39,14 +45,25 @@ It requires properly configured HTTP server with PHP and MySQL or PostgreSQL dat
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
 - Github: https://github.com/jtylek/epesi
 
+If using a package from SourceForge all vendors libraries are already included. Just point your browser to location where your Epesi was installed and unpacked and the setup will start. You have to create a database and database user in a separate step. unless you have root access.
+
+If using Git repository then you must run <strong>composer update</strong> to download libraries into vendor directory.
+Make sure that you run composer update after every update from repository as dependencies may change.
+
+git clone https://github.com/x-systems/epesi-core.git your_epesi_dir
+cd your_epesi_dir
+composer update
+
 <b>License:</b>
 
 EPESI is released under the MIT License
 
-Copyright © 2006-2020 by Janusz Tylek
+<b>Copyright © 2006-2020 by Janusz Tylek</b>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
+
+By using this software you automatically agree with the licensing terms and included EULA (End User License Agreement)
