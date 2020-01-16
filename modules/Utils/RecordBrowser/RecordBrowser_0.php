@@ -859,10 +859,10 @@ class Utils_RecordBrowser extends Module {
             if ($form->isSubmitted()) {
                 $this->set_module_variable('force_add_in_table_after_submit', true);
                 if ($form->validate()) {
-                	$values = array_merge($form->exportValues(), Utils_FileUpload_Dropzone::export_values($form));
+                    $values = $form->exportValues();
                     foreach ($this->custom_defaults as $k=>$v)
                         if (!isset($values[$k])) $values[$k] = $v;
-                    Utils_RecordBrowserCommon::new_record($this->tab, $values);
+                    $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
                     location(array());
                 } else {
                     $this->show_add_in_table = true;

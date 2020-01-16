@@ -40,10 +40,6 @@ class Utils_LeightboxPrompt extends Module {
     
     public function add_options($options) {
     	foreach ($options as $option => $desc) {
-    		$desc = is_array($desc)? $desc: [
-    				'label' => $desc
-    		];
-    		
     		$desc['label'] = $desc['label']?? $option;
     		
     		$desc['active'] = $desc['active']?? true;
