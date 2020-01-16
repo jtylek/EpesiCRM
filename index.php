@@ -141,9 +141,9 @@ Please choose <?php print(EPESI);?> version:<ul>
 			}
 			#epesiStatus table {
 				color: #336699;
-				font-weight: bold;
+				font-weight: normal;
 				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-				font-size: 24px;
+				font-size: 28px;
 				/* border: 1px solid #FFFFFF; */
             }
 
