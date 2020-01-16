@@ -124,7 +124,7 @@ Please choose <?php print(EPESI);?> version:<ul>
   				/* all */
   				/*background-color: #e6ecf2;*/
   				background-color: white;
-				border: 5px solid #336699;
+				border: none;
 				visibility: hidden;
 				width: 560px;
 				text-align: center;
@@ -134,23 +134,17 @@ Please choose <?php print(EPESI);?> version:<ul>
 				overflow: hidden;
 				
 				/* css3 shadow border*/
-				-webkit-box-shadow: 1px 1px 15px black;
-				-moz-box-shadow: 1px 1px 15px black;
-				box-shadow: 1px 1px 15px black;
+				-webkit-box-shadow: 1px 1px 5px black;
+				-moz-box-shadow: 1px 1px 5px black;
+				box-shadow: 1px 1px 5px black;
 				/* end css3 shadow border*/
-				
-				/* border radius */
-				-webkit-border-radius: 6px;
-				-moz-border-radius: 6px;
-				border-radius: 6px;
-				/* end border radius */
 			}
 			#epesiStatus table {
 				color: #336699;
 				font-weight: bold;
 				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-				font-size: 11px;
-				border: 5px solid #FFFFFF;
+				font-size: 24px;
+				/* border: 1px solid #FFFFFF; */
             }
 
 		</style>
@@ -167,15 +161,15 @@ Please choose <?php print(EPESI);?> version:<ul>
 			</div>
 			
 			<div id="epesiStatus">
-				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+				<table cellspacing="10" cellpadding="10" border="0" style="width: 100%;">
 					<tr>
-						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
+						<td><img src="images/logo.png" alt="logo" width="275" height="100" border="0"></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
+						<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
+						<td style="text-align: center; vertical-align: middle; height: 20px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
 					</tr>
 				</table>
 			</div>	

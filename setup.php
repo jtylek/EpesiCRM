@@ -87,8 +87,8 @@ function footer() {
 		</center>
 		<br>
 		<center>
+		<span class="footer">MIT License  &bull; Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a></span>
 		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
-		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="https://epe.si">Janusz Tylek</a></span>
 		</center>
 </body>
 </html>
@@ -97,7 +97,9 @@ function footer() {
 register_shutdown_function('footer');
 
 // language selection form
+
 if (!isset($install_lang_code)) {
+	print('<h2>Select Language</h2>');
 	$complete = Base_LangCommon::get_complete_languages();
 	$labels = Base_LangCommon::get_base_languages();
 	$list = array();
@@ -124,7 +126,7 @@ if (!isset($install_lang_code)) {
 	}
 	print('</div>');
 	
-	set_header('Select Language');
+	set_header('Setup Wizard');
 	die();
 }
 
@@ -327,7 +329,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	}
 
 	$renderer =& $form->defaultRenderer();
-	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
+	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
 	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
 		$form->accept($renderer);
 		print($renderer->toHtml());
