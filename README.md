@@ -2,7 +2,7 @@
 =
 [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
 
-<b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
+<b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient. It runs on any xAMP stack on all operating systems including Raspberry Pi. It is small, fast and can easily handle millions of records and hundreds of users.
 
 Epesi has modular architecture and provides a great starting point for a full blown ERP system. It already includes:
 
@@ -13,6 +13,8 @@ Epesi has modular architecture and provides a great starting point for a full bl
 - CRM functionality
 - Advanced Epesi File Storage
 - Advanced Permissions system
+- Unlimited users license
+- and more...
 
 <b>About</b>
 
