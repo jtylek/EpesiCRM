@@ -52,10 +52,15 @@ If using a package from SourceForge all vendors libraries are already included. 
 If using Git repository then you must run <strong>composer update</strong> to download libraries into vendor directory.
 Make sure that you run composer update after every update from repository as dependencies may change.
 
+<code>
 git clone https://github.com/x-systems/epesi-core.git your_epesi_dir
-cd your_epesi_dir
-composer update
 
+cd your_epesi_dir
+
+composer update
+</code>
+
+<p>
 <b>License:</b>
 
 EPESI is released under the MIT License
@@ -68,4 +73,5 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
 
+</p>
 By using this software you automatically agree with the licensing terms and included EULA (End User License Agreement)
