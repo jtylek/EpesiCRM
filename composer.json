@@ -6,7 +6,7 @@
         "symfony/http-foundation": "^2.7",
         "phpdocumentor/reflection-docblock": "^2.0.4",
         "fzaninotto/faker": "^1.6",
-        "phpfastcache/phpfastcache": "^5.0",
+        "phpFastCache/phpFastCache": "^5.0",
         "ifsnop/mysqldump-php": "dev-master",
         "memio/memio": "^1.0",
         "psy/psysh": "@stable",
@@ -19,7 +19,11 @@
             "@composer -d=\"modules/CRM/Mail\" install",
             "@composer -d=\"modules/Libs/PHPExcel\" install",
             "@composer -d=\"modules/Libs/TCPDF\" install"
-        ]
+        ],
+        "post-update-cmd": [
+            "@composer -d\"modules/Libs/TCPDF\" install",
+            "@composer -d\"modules/Libs/TCPDF\" dump-autoload"
+      ]
     },
     "autoload": {
         "psr-4": {
