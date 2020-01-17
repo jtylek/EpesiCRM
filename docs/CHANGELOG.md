@@ -641,8 +641,8 @@ RELEASE 1.5.6-20140303
 
 RELEASE 1.5.5-20140113
 ----------------------
-- Fix recurrent meeting issue in Activities tab - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2023)
-- Fix "Paste company data" button - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2026)
+- Fix recurrent meeting issue in Activities tab - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=2023)
+- Fix "Paste company data" button - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=2026)
 - Add option to use "Reply-to" header in SMTP settings
 - Fix BBCode url matching
 - Remove ckeditor's internal save button, that wasn't used
@@ -651,11 +651,11 @@ RELEASE 1.5.5-20140113
 - Update RoundCube version to 0.9.5
 - Fix dashboard's tab management
 - Fix RecordBrowserReports column summary to not show last row doubled
-- Fix wrong time and date in mobile view - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1925)
+- Fix wrong time and date in mobile view - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=1925)
 - Add new possible Home Page - company of current user
 - Check access when copying company data into contact
 - Clean up include path
-- Fix creating new contact - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=2082)
+- Fix creating new contact - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=2082)
 - Fix calendar event with duration less than 1h
 - Several fixes for PostgreSQL engine
 - Fix broken Contact's template (#2)
@@ -679,12 +679,12 @@ RELEASE 1.5.4-rev11044 (20131014)
 - RoundCube imap cache fixes
 - fix RecordBrowser's field edit error when param is empty
 - use reply-to header as default when sending emails from EPESI
-- fix time issues in mobile view - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1925#p7132)
+- fix time issues in mobile view - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=1925#p7132)
 - improve CSV export
 
 RELEASE 1.5.3-rev10944 (20130709)
 ---------------------------------
-- fix calendar month view in certain timezone configuration - [forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1523&p=5959#p5959)
+- fix calendar month view in certain timezone configuration - [forum thread](http://forum.epe.si/viewtopic.php?f=6&t=1523&p=5959#p5959)
 - fix adding new record - rare issue
 - add patch to create one of the ban variables - sometimes after installation admin could get error "undefined variable"
 - fix template html for launchpad
@@ -695,15 +695,15 @@ RELEASE 1.5.3-rev10944 (20130709)
 - fix issues with field names in record's history
 - add filtering for currency field
 - RBO - add set_style method for field definition, add get_access method to recordset
-- fix add note from table view and record view - [forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1760)
+- fix add note from table view and record view - [forum thread](http://forum.epe.si/viewtopic.php?f=6&t=1760)
 - updated translations
 
 RELEASE 1.5.2-rev10766 (20130513)
 ---------------------------------
 - Full version of CKEditor included.
 - Fixed bugs:
-    - commondata field created by user was causing error during search - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1678)
-    - tooltips in calendar events were broken - [Polish forum thread](http://forum.epesibim.com/viewtopic.php?f=25&t=1685)
+    - commondata field created by user was causing error during search - [Forum thread](http://forum.epe.si/viewtopic.php?f=6&t=1678)
+    - tooltips in calendar events were broken - [Polish forum thread](http://forum.epe.si/viewtopic.php?f=25&t=1685)
     - print browse mode of company or contact field didn't indicate record type.
 - Icon of company or contact field has been changed to text indicator ([Company] / [Contact]) in some places. It's related to third bug listed above.
 

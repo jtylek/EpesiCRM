@@ -73,7 +73,7 @@ class Base_EssClient extends Module {
             }
         } catch (Exception $e) {
             print('<div class="important_notice">' . __('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
-            print(__('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
+            print(__('If the problem persists, please contact us at %s', array('<a href="http://forum.epe.si/" target="_blank">http://forum.epe.si/</a>')) . '<br>');
             print('<br>');
             print(__('Error message: ') . '<br>');
             print('<div class="important_notice_frame">' . $e->getMessage());

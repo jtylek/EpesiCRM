@@ -12,7 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
-	const translation_server_url = 'http://translate.epesibim.com';
+	const translation_server_url = 'http://translate.epe.si';
 
 	public static function admin_caption() {
 		return array('label'=>__('Language & Translations'), 'section'=>__('Regional Settings'));

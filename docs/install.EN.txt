@@ -65,7 +65,7 @@ Installation
     - Once update process is complete you will be redirected automatically to the new version of EPESI application.
 
 7. SUPPORT
-    Any questions, comments and bug reports should be posted on our forum: http://forum.epesibim.com/
+    Any questions, comments and bug reports should be posted on our forum: http://forum.epe.si/
 
 Enjoy,
 EPESI Team
