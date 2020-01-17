@@ -66,13 +66,7 @@ table#Utils_LeightboxPrompt a:hover {
 	-webkit-box-shadow: 0px 0px 3px gray;
 	-moz-box-shadow: 0px 0px 3px gray;
 	box-shadow: 0px 0px 3px gray;
-	/* end css3 shadow border*/
-	
-	/* border radius css3 */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius css3 */	
+	/* end css3 shadow border*/	
 }
 
 .leightbox_shadow_css3:hover {

@@ -38,20 +38,9 @@
 	min-height: 20px;
 	line-height: 20px;
 	padding: 25px 0 25px 60px;
-
-    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-	font-size: 14px;
+	font-size: 16px;
 	font-weight: bold;
 	color: #336699;
-	
-	text-shadow: 1px 1px 2px #bbb;
-	
-	background-repeat: no-repeat;
-	background-position: 15px 50%;
-
-	border-radius: 6px;
-	
-	box-shadow: inset 2px 2px 4px #777;
 }
 
 .Base_StatusBar .message .message {

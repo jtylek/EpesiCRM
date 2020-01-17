@@ -39,9 +39,6 @@ class Base_User_Login extends Module {
 		//if logged
 		$this->theme->assign('is_logged_in', Acl::is_user());
 		$this->theme->assign('is_demo', DEMO_MODE);
-		if (SUGGEST_DONATION) {
-			$this->theme->assign('donation_note', __('If you find our software useful, please support us by making a %s.', array('<a href="http://epe.si/donate/" target="_blank">'.__('donation').'</a>')).'<br>'.__('Your funding will help to ensure continued development of this project.'));
-		}
 		if(Acl::is_user()) {
 			if($this->get_unique_href_variable('logout')) {
 			        Base_User_LoginCommon::logout();
@@ -130,9 +127,9 @@ class Base_User_Login extends Module {
 			} else
 				Base_ThemeCommon::display_smarty($this->theme->get_smarty(),$tpl[0],$tpl[1]);
 			$ret = ob_get_clean();
-			if(stripos($ret,'<a href="https://epe.si">Janusz Tylek</a>')===false ||
+			/* if(stripos($ret,'<a href="https://epe.si">Janusz Tylek</a>')===false ||
 			    stripos($ret,'<a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>')===false
-			    ) trigger_error('Epesi terms of use have been violated',E_USER_ERROR);
+			    ) trigger_error('Epesi terms of use have been violated',E_USER_ERROR); */
 			print($ret);
 		}
 	}

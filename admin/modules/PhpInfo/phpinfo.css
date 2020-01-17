@@ -4,7 +4,8 @@ body, table {
 	margin: 0px 0px 0px 0px;
         padding: 0px 0px 0px 0px;
 	background-color: #e6e6e7;
-        table-layout: fixed;     
+        table-layout: fixed;
+        width: 90%;     
     }
 
 #phpinfo .pre{
@@ -50,7 +51,7 @@ body, table {
     border: 1px solid #000000;
     vertical-align: baseline;
     color: white;
-    width: 30%;
+    width: 50%;
     }
     
 #phpinfo h1 {
@@ -74,7 +75,7 @@ body, table {
     background-color: #1b8a1b;
     font-weight: bold;
     color: white;
-    width: 30%;
+    width: 50%;
     }
     
 #phpinfo .h {
