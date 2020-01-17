@@ -1,8 +1,8 @@
 <?php
 /**
  * Simple RSS Feed applet
- * @author jtylek@telaxus.com
- * @copyright 2008 Telaxus LLC
+ * @author j@epe.si
+ * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-applets
@@ -38,7 +38,7 @@ class Applets_RssFeedInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'RSS Feed',
-			'Author'=>'jtylek@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 	

@@ -4,7 +4,7 @@
  * Use this class to access already created recordset.
  * It will allow you to operate on recordset and records in objective manner.
  *
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_RecordsetAccessor extends RBO_Recordset {
 

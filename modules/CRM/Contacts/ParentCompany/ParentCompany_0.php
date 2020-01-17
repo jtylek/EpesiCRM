@@ -2,7 +2,7 @@
 /**
  * Adds parent company field to companies.
  * @author shacky@poczta.fm
- * @copyright Telaxus LLC
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
  * @package epesi-CRM/Contacts

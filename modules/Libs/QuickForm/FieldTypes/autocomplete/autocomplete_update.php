@@ -2,8 +2,8 @@
 /**
  * Autocomplete - update suggestbox
  *
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-libs
@@ -31,7 +31,8 @@ $callback = $params['callback'];
 if (is_callable($callback)) {
 /*	if (strlen($string)<2)
 		print('<ul><li class="informal">'.__('Minimum %d letters are required.',array(2)).'</li></ul>');
-	else {*/
+	else {
+*/
 		array_unshift($params['args'], $string);
 		print(call_user_func_array($callback, $params['args']));
 //	}

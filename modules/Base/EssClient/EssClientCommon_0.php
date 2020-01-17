@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Telaxus LLC
+ * @author  Janusz Tylek <j@epe.si>
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 20121207
  * @package epesi-Base
@@ -162,7 +162,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_support_email() {
-        $email = 'support@telaxus.com';
+        $email = 'support@epe.si';
         if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
             $email = CRM_RoundcubeCommon::get_mailto_link($email);
         } else {

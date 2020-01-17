@@ -1,7 +1,7 @@
 <?php
 /**
- * @author jtylek@telaxus.com
- * @copyright 2008 Telaxus LLC
+ * @author j@epe.si
+ * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-applets
@@ -37,7 +37,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 		$html.="<br>The contact has to be in your favorite list<br>and have a birthday date set.";
 		return array(
 			'Description'=>$html,
-			'Author'=>'jtylek@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 	

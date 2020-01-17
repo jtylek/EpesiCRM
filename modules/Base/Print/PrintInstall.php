@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @author     Adam Bukowski <abukowski@telaxus.com>
- * @copyright  Telaxus LLC
+ * @author      Janusz Tylek <j@epe.si>
+ * @copyright  Janusz Tylek
  * @license    MIT
  * @version    1.5.0
  * @package    epesi-base
@@ -51,7 +51,7 @@ class Base_PrintInstall extends ModuleInstall
     {
         return array(
             'Description' => 'Printing mechanism',
-            'Author'      => 'Adam Bukowski <abukowski@telaxus.com>',
+            'Author'      => ' Janusz Tylek <j@epe.si>',
             'License'     => 'MIT');
     }
 

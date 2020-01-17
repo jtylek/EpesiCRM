@@ -83,7 +83,7 @@
 					{/if}
                         <tr><td colspan="2" class="footer">
                         <!-- Epesi Terms of Use require line below - do not remove it! -->
-                        Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup>
+                        Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="https://epe.si">Janusz Tylek</a> &bull; Managing Business Your Way<sup>TM</sup>
                         <!-- Epesi Terms of Use require line above - do not remove it! -->
                         </td></tr>
                         </tbody>

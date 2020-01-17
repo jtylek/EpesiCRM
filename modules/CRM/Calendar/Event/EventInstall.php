@@ -1,8 +1,8 @@
 <?php
 /**
  * Example event module
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-crm
@@ -43,7 +43,7 @@ class CRM_Calendar_EventInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'CRM event module',
-			'Author'=>'pbukowski@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 

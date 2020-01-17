@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-utils
@@ -32,7 +32,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
+		return array('Author'=>'<a href="mailto:j@epe.si">Arkadiusz Bisaga</a> (<a href="https://epe.si">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
 	}
 
 	public function simple_setup() {

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Telaxus LLC
+ * @author  Janusz Tylek <j@epe.si>
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 20111207
  * @package epesi-Base
@@ -123,7 +123,7 @@ class Base_EssClient extends Module {
         print('<center><H1>');
         print(__('EPESI Registration'));
         print('</H1></center><br>');
-        print(__('Registration of your EPESI installation with %s will allow you to browse and make purchases in %sEPESI Store%s and receive notifications via e-mail about important updates.', array('<a href="http://www.telaxus.com" target="_blank">Telaxus LLC </a>', '<strong>','</strong>')));
+        print(__('Registration of your EPESI installation with %s will allow you to browse and make purchases in %sEPESI Store%s and receive notifications via e-mail about important updates.', array('<a href="https://epe.si" target="_blank">Janusz Tylek </a>', '<strong>','</strong>')));
 		print('<br>');
 		print(__('Once the registration is complete you will receive a %sLicense Key%s.', array('<strong>','</strong>')).' ');
         print(__('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that %sEPESI License Key%s can not be copied to any other EPESI installation.', array('<strong>','</strong>')).' ');

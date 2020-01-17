@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Kuba Sławiński
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-tests

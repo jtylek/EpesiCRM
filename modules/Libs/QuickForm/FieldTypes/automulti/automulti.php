@@ -2,7 +2,7 @@
 /**
  * HTML class for a autocomplete-multiselect combo
  *
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author Arkadiusz Bisaga, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-libs

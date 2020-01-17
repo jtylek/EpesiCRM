@@ -2,8 +2,8 @@
 
 /**
  * 
- * @author abukowski@telaxus.com
- * @copyright Telaxus LLC
+ * @author j@epe.si
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-Base
@@ -53,7 +53,7 @@ class Base_EpesiStoreInstall extends ModuleInstall {
     public static function info() {
         return array(
             'Description' => 'Epesi store allows administrator to buy and download additional modules and updates',
-            'Author' => 'abukowski@telaxus.com',
+            'Author' => 'j@epe.si',
             'License' => 'MIT');
     }
 

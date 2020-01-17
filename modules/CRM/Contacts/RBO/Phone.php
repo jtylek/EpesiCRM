@@ -3,7 +3,7 @@
 
 /**
  * RecordBrowser field type definition class for Phone
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class CRM_Contacts_RBO_Phone extends RBO_Field_Text {
 

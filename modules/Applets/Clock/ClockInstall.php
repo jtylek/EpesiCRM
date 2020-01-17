@@ -3,8 +3,8 @@
  * Flash clock
  * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
- * @author pbukowski@telaxus.com
- * @copyright 2008 Telaxus LLC
+ * @author j@epe.si
+ * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-applets
@@ -38,7 +38,7 @@ class Applets_ClockInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Flash clock',
-			'Author'=>'pbukowski@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 	

@@ -4,8 +4,8 @@
  * 
  * Provides module templating.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base

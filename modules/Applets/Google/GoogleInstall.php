@@ -1,7 +1,7 @@
 <?php
 /**
- * @author msteczkiewicz@telaxus.com
- * @copyright 2008 Telaxus LLC
+ * @author j@epe.si
+ * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.2
  * @package epesi-applets
@@ -35,7 +35,7 @@ class Applets_GoogleInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description' => 'Simple Google Search applet',
-			'Author' => 'msteczkiewicz@telaxus.com',
+			'Author' => 'j@epe.si',
 			'License' => 'MIT');
 	}
 

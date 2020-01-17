@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2006-2020 Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-utils

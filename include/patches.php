@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @author    Adam Bukowski <abukowski@telaxus.com>
+ * @author     Janusz Tylek <j@epe.si>
  * @version   0.2
- * @copyright Copyright &copy; 2012,2014 Telaxus LLC
+ * @copyright Copyright &copy; 2012,2014 Janusz Tylek
  * @license   MIT
  * @package   epesi-base
  */

@@ -1,8 +1,8 @@
 <?php
 /**
  * Core mail support - accounts, archive applet.
- * @author pbukowski@telaxus.com
- * @copyright Telaxus LLC
+ * @author j@epe.si
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
  * @package epesi-CRM
@@ -358,7 +358,7 @@ class CRM_MailInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Core mail support - accounts, archive applet.',
-			'Author'=>'pbukowski@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 

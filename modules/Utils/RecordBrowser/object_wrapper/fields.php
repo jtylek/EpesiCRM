@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Text extends RBO_FieldDefinition {
 
@@ -26,7 +26,7 @@ class RBO_Field_Text extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_LongText extends RBO_FieldDefinition {
 
@@ -39,7 +39,7 @@ class RBO_Field_LongText extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Integer extends RBO_FieldDefinition {
 
@@ -52,7 +52,7 @@ class RBO_Field_Integer extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Float extends RBO_FieldDefinition {
 
@@ -65,7 +65,7 @@ class RBO_Field_Float extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Checkbox extends RBO_FieldDefinition {
 
@@ -78,7 +78,7 @@ class RBO_Field_Checkbox extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Calculated extends RBO_FieldDefinition {
 
@@ -110,7 +110,7 @@ class RBO_Field_Calculated extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Date extends RBO_FieldDefinition {
 
@@ -123,7 +123,7 @@ class RBO_Field_Date extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Timestamp extends RBO_FieldDefinition {
 
@@ -136,7 +136,7 @@ class RBO_Field_Timestamp extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Time extends RBO_FieldDefinition {
 
@@ -149,7 +149,7 @@ class RBO_Field_Time extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Currency extends RBO_FieldDefinition {
 
@@ -162,7 +162,7 @@ class RBO_Field_Currency extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Select extends RBO_FieldDefinition {
 
@@ -257,7 +257,7 @@ class RBO_Field_Select extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_MultiSelect extends RBO_Field_Select {
 
@@ -271,7 +271,7 @@ class RBO_Field_MultiSelect extends RBO_Field_Select {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_CommonData extends RBO_FieldDefinition {
 
@@ -357,7 +357,7 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
 }
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_PageSplit extends RBO_FieldDefinition {
 
@@ -375,7 +375,7 @@ class RBO_Field_PageSplit extends RBO_FieldDefinition {
 
 
 /**
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class RBO_Field_Autonumber extends RBO_FieldDefinition {
     
@@ -422,7 +422,7 @@ class RBO_Field_Autonumber extends RBO_FieldDefinition {
 }
 
 /**
- * @author Norbert Nader <nnader@telaxus.com>
+ * @author Janusz Tylek <j@epe.si>
  */
 class RBO_Field_File extends RBO_FieldDefinition {
 

@@ -3,7 +3,7 @@
 /**
  * Simple admin module to display some html.
  * 
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 abstract class AdminModule {
 

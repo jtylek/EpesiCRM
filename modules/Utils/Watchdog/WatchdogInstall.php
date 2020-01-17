@@ -1,8 +1,8 @@
 <?php
 /**
  * 
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-utils
@@ -91,7 +91,7 @@ class Utils_WatchdogInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
+			'Author'=>'Arkadiusz Bisaga, Janusz Tylek',
 			'License'=>'MIT');
 	}
 	

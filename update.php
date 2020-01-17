@@ -2,9 +2,9 @@
 /**
  * EPESI Core updater.
  *
- * @author    Adam Bukowski <abukowski@telaxus.com> and Pawel Bukowski <pbukowski@telaxus.com>
+ * @author     Janusz Tylek <j@epe.si> and Janusz Tylek <j@epe.si>
  * @version   2.0
- * @copyright Copyright &copy; 2014, Telaxus LLC
+ * @copyright Copyright &copy; 2014, Janusz Tylek
  * @license   MIT
  * @package   epesi-base
  */
@@ -769,7 +769,7 @@ class EpesiUpdate
         <br>
         <center>
             <span class="footer">Copyright &copy; 2016 &bull; <a
-                    href="http://www.telaxus.com">Telaxus LLC</a></span>
+                    href="https://epe.si">Janusz Tylek</a></span>
             <br>
 
             <p><a href="http://www.epesi.org"><img

@@ -1,7 +1,7 @@
 <?php
 /**
- * @author msteczkiewicz@telaxus.com
- * @copyright 2009 Telaxus LLC
+ * @author j@epe.si
+ * @copyright 2009 Janusz Tylek
  * @license MIT
  * @version 0.1
  * @package epesi-applets
@@ -37,7 +37,7 @@ class Applets_WeatherInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Simple Weather applet',
-			'Author'=>'msteczkiewicz@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT'
 		);
 	}

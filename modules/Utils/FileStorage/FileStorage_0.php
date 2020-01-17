@@ -2,8 +2,8 @@
 /**
  * Filestorage
  *
- * @author     Adam Bukowski <abukowski@telaxus.com>
- * @copyright  Telaxus LLC
+ * @author      Janusz Tylek <j@epe.si>
+ * @copyright  Janusz Tylek
  * @license    MIT
  * @version    0.1
  * @package    epesi-Utils

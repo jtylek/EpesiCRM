@@ -2,8 +2,8 @@
 /**
  * RecordBrowserCommon class.
  *
- * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si> and Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-utils

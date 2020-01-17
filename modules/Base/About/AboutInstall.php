@@ -2,8 +2,8 @@
 /**
  * About Epesi
  *
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base
@@ -38,7 +38,7 @@ class Base_AboutInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'About Epesi',
-			'Author'=>'pbukowski@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 	

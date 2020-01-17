@@ -1,8 +1,8 @@
 <?php
 /**
  * Popup message to the user
- * @author pbukowski@telaxus.com
- * @copyright pbukowski@telaxus.com
+ * @author j@epe.si
+ * @copyright j@epe.si
  * @license MIT
  * @version 1.0
  * @package epesi-Utils

@@ -39,7 +39,7 @@
  * @author   Monte Ohrt <monte at ohrt dot com>
  * @author credit to Messju Mohr <messju at lammfellpuschen dot de>
  * @author credit to boots <boots dot smarty at yahoo dot com>
- * @author modified by Paul Bukowski <pbukowski@telaxus.com>
+ * @author modified by Janusz Tylek <j@epe.si>
  * @version  1.1
  * @link http://smarty.php.net/manual/en/language.function.html.table.php {html_table}
  *          (Smarty online manual)

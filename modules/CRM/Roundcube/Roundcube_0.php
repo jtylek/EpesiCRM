@@ -1,8 +1,8 @@
 <?php
 /**
  * Roundcube bindings
- * @author pbukowski@telaxus.com
- * @copyright Telaxus LLC
+ * @author j@epe.si
+ * @copyright Janusz Tylek
  * @license GPL
  * @version 0.1
  * @package epesi-CRM

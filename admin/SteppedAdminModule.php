@@ -4,7 +4,7 @@
  * This class provide two step admin module. Just implement abstract methods.
  * action method should return boolean success value.
  *
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 abstract class SteppedAdminModule extends AdminModule {
 

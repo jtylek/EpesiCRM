@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-crm
@@ -37,7 +37,7 @@ class CRM_FollowupInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'abisaga@telaxus.com',
+			'Author'=>'j@epe.si',
 			'License'=>'MIT');
 	}
 

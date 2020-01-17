@@ -9,7 +9,7 @@ load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
  * 
  * @category    HTML
  * @package     HTML_QuickForm
- * @author      Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author      Arkadiusz Bisaga, Janusz Tylek
  */
 class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 	private $more_opts_callback = null;

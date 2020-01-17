@@ -2,8 +2,8 @@
 
 /**
  * Use this interface to perform clients requests to Epesi Service Server.
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Copyright &copy; 2011, Telaxus LLC
+ * @author  Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2011, Janusz Tylek
  * @version 20121231
  */
 interface IClient {

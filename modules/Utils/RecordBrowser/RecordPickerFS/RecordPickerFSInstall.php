@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2010, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2010, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-utils
@@ -30,7 +30,7 @@ class Utils_RecordBrowser_RecordPickerFSInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)',
+			'Author'=>'<a href="mailto:j@epe.si">Janusz Tylek</a> (<a href="https://epe.si">Janusz Tylek</a>)',
 			'License'=>'TL');
 	}
 	

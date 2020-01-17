@@ -3,7 +3,7 @@
 /**
  * Description of ModuleLoader
  *
- * @author Adam Bukowski <abukowski@telaxus.com>
+ * @author  Janusz Tylek <j@epe.si>
  */
 class ModuleLoader {
     const all_modules = ':all:';

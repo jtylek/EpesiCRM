@@ -2,8 +2,8 @@
 
 /**
  * 
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Copyright &copy; 2011,2012 Telaxus LLC
+ * @author  Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2011,2012 Janusz Tylek
  * @license MIT
  * @version 20121013
  * @package epesi-Base

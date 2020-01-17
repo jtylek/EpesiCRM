@@ -2,9 +2,9 @@
 /**
  * SafeHtml Exception
  *
- * @author nnader@telaxus.com
- * @author Norbert Nader <nnader@telaxus.com>
- * @copyright Telaxus LLC
+ *
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
  */

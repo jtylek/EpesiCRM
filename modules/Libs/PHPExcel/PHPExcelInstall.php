@@ -2,7 +2,7 @@
 /**
  * Excel import/export library
  * @author shacky@poczta.fm
- * @copyright Telaxus LLC
+ * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
  * @package epesi-Libs

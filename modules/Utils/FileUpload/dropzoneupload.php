@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: norbert
- * Date: 13.09.16
- * Time: 11:59
- */
+
 if (!isset($_REQUEST['cid']) || !isset($_REQUEST['path'])) {
     die('Invalid usage');
 }

@@ -7,7 +7,7 @@ require_once 'HTML/QuickForm/text.php';
  * 
  * @category    HTML
  * @package     HTML_QuickForm
- * @author      Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @author      Arkadiusz Bisaga, Janusz Tylek
  */
 class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
     private $callback;

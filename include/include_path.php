@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Paul Bukowski <shacky7@gmail.com>
+ * @author Janusz Tylek <j@epe.si>
  * @version 1.0
  * @license MIT
  * @package epesi-base

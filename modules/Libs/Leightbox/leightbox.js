@@ -7,7 +7,7 @@ Adapted By: Simon de Haan
 Website: http://blog.eight.nl
 Date: 21/2/2006
 
-Adapted for epesi by: Paul Bukowski
+Adapted for epesi by: Janusz Tylek
 Date: 01/06/2007
 
 Inspired by the lightbox implementation found at http://www.huddletogether.com/projects/lightbox/

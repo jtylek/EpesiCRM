@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si> and Arkadiusz Bisaga, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-Utils
@@ -21,7 +21,7 @@ class Utils_CalendarInstall extends ModuleInstall {
 	}
 
 	public function info() {
-		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Telaxus LLC</a>)', 'License'=>'MIT', 'Description'=>'Abstract calendar.');
+		return array('Author'=>'<a href="mailto:j@epe.si">Arkadiusz Bisaga</a>, <a href="mailto:j@epe.si">Janusz Tylek</a> (<a href="https://epe.si">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'Abstract calendar.');
 	}
 
 	public function simple_setup() {

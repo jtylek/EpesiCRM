@@ -1,8 +1,8 @@
 <?php
 /**
  * 
- * @author Pawel Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2015, Telaxus LLC
+ * @author Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2015, Janusz Tylek
  * @license MIT
  * @version 2.0
  * @package epesi-notify

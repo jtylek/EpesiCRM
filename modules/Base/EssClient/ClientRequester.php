@@ -8,8 +8,8 @@ class SecureConnectionException extends Exception {
 
 /**
  * ClientRequester to perform Epesi Service Server clients requests.
- * @author Adam Bukowski <abukowski@telaxus.com>
- * @copyright Copyright &copy; 2011, Telaxus LLC
+ * @author  Janusz Tylek <j@epe.si>
+ * @copyright Copyright &copy; 2011, Janusz Tylek
  * @version 20121231
  */
 class ClientRequester implements IClient {
