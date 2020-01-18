@@ -1,4 +1,4 @@
-![Epesi Logo](/images/logo.png)
+![Epesi Logo](/images/epesi-setup_wiz.png)
 =
 [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi) SourceForge Repository
 
