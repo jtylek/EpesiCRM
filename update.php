@@ -2,9 +2,9 @@
 /**
  * EPESI Core updater.
  *
- * @author     Janusz Tylek <j@epe.si> and Janusz Tylek <j@epe.si>
+ * @author     Janusz Tylek <j@epe.si>
  * @version   2.0
- * @copyright Copyright &copy; 2014, Janusz Tylek
+ * @copyright Copyright &copy; 2006-2020, Janusz Tylek
  * @license   MIT
  * @package   epesi-base
  */
@@ -745,6 +745,8 @@ class EpesiUpdate
             <meta content="text/html; charset=utf-8" http-equiv="content-type">
             <title><?php print(EPESI); ?> update</title>
             <link href="setup.css" type="text/css" rel="stylesheet"/>
+			<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
+            <link href="./images/admintools.css" rel="stylesheet" type="text/css" />
             <meta name="robots" content="NOINDEX, NOARCHIVE">
         </head>
         <body>
@@ -767,15 +769,13 @@ class EpesiUpdate
             </table>
         </center>
         <br>
-        <center>
-            <span class="footer">Copyright &copy; 2016 &bull; <a
-                    href="https://epe.si">Janusz Tylek</a></span>
-            <br>
-
-            <p><a href="http://www.epesi.org"><img
-                        src="images/epesi-powered.png" alt="image"
-                        border="0"></a></p>
-        </center>
+      <div>
+				<br><center>
+                    <span class="footer"><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a></span>
+<br>
+					<span class="footer">Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a>  &bull; MIT License</span>
+				</center>
+				</div>
         </body>
         </html>
     <?php

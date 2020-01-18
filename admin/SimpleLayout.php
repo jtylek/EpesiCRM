@@ -76,7 +76,7 @@ class SimpleLayout {
                         <td class="image">&nbsp;</td>
                         <td class="header">Epesi Admin Tools</td>
 						<td><?php if ($this->show_action_links)
-							print('<div class="title">' . $this->format_action_links() . '</div>');
+							print('<div>' . $this->format_action_links() . '</div>');
 						?></td>
                     </tr>
                 </table>
