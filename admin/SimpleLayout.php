@@ -64,7 +64,7 @@ class SimpleLayout {
         <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                <title><?php $xx = $this->title ? $this->title . ' - ' : ''; print $xx; ?>Epesi Admin Tools</title>
+                <title><?php $xx = $this->title ? $this->title . ' - ' : ''; print $xx; ?>Epesi Admin Utilities</title>
 				<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
                 <link href="./images/admintools.css" rel="stylesheet" type="text/css" />
 
@@ -74,7 +74,7 @@ class SimpleLayout {
                 <table id="banner" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td class="image">&nbsp;</td>
-                        <td class="header">Epesi Admin Tools</td>
+                        <td class="header"><H1>ADMIN UTILITIES</H1></td>
 						<td><?php if ($this->show_action_links)
 							print('<div>' . $this->format_action_links() . '</div>');
 						?></td>

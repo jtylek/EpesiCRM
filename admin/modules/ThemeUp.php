@@ -29,7 +29,9 @@ class ThemeUp extends SteppedAdminModule {
     }
 
     public function success_text() {
-        return '<center><strong>Common Cache and Theme templates were successfully updated.</strong></center>';
+        $text = '<center><strong>Common Cache and Theme templates were successfully updated.</strong><br>'; 
+        $text .='<a href="./index.php"> MAIN MENU</a></center>';
+        return $text;
     }
 
     public function failure_text() {

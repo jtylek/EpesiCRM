@@ -10,7 +10,7 @@ class Patches extends SteppedAdminModule {
 
     public function header() {
         print ('<link href="modules/Patches/patches.css" rel="stylesheet" type="text/css" />');
-        return 'EPESI Patching utility';
+        return '<H1>EPESI Patching utility</H1>';
     }
 
     public function required_epesi_modules() {
@@ -39,8 +39,8 @@ class Patches extends SteppedAdminModule {
     public function start_text() {
         ob_start();
         $this->_print_patches_list();
-        $patches = '<br/><br/>' . ob_get_clean();
-        return '<center><b>This utility scans for available patches and applies them as necessary</b></center>' . $patches;
+        $patches = '<br/>' . ob_get_clean();
+        return '<H3>This utility scans for available patches and applies them as necessary</h3>' . $patches;
     }
 
     public function success_text() {
@@ -50,8 +50,9 @@ class Patches extends SteppedAdminModule {
                 $this->_print_ran_patches();
                 return ob_get_clean();
             case 2:
-                $txt = 'The installation was patched and cache files were updated.';
-                return "<center><strong>$txt</strong></center>";
+                $text = '<H1>Epesi was patched and cache files were updated.'; 
+                $text .='<a href="./index.php"> MAIN MENU</a></center>';
+                return $text;
         }
     }
 
@@ -91,13 +92,13 @@ class Patches extends SteppedAdminModule {
 
         if ($patched_failure) {
             $this->set_next_step(1);
-            $msg = 'Some errors occured. Try to fix them and rerun patch.';
+            $msg = '<H3>Some errors occured. Try to fix them and rerun patch.</H3>';
         } elseif ($patches_to_run) {
             $this->set_auto_run();
             $this->set_next_step(1);
-            $msg = 'Do not close this page. Browser should reload this page until all patches will be applied.';
+            $msg = '<H3>Do not close this page. Browser should reload this page until all patches will be applied.';
         } else {
-            $msg = 'Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...';
+            $msg = '<br><br>Press <stronger>NEXT</stronger> to rebuild common cache, theme files and base language files.<br>This operation can take a minute...';
         }
         print('<tr><td><div class="content infotext">' . $msg . '</div></td></tr>');
         print('</table>');

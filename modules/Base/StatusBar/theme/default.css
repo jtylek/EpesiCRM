@@ -1,11 +1,11 @@
 #statusbar_content {
-	background: white;
+	background: gray;
 	height: 100%;
 	padding: 5px;
-	border-radius: 10px;
 }
 
 .Base_StatusBar img {
+	background-image: url('Base/StatusBar/loader.gif');
 	position: absolute;
 	left: 30px;
 	top: 35px;
@@ -21,19 +21,29 @@
 	height: 100%;
 	text-align: center;
 	vertical-align: middle;
-	background-color: rgba(128, 128, 128, 0.3);
+	background-color: gray;
 }
 
 .Base_StatusBar div.layer {
   	position: fixed;
     padding: 10px;
-	width: 210px;
+	width: 300px;
 	left: 50%;
 	top: 30%;
 	margin-left: -110px;
 }
 
 .Base_StatusBar .message {
+	width: 140px;
+	min-height: 20px;
+	line-height: 20px;
+	padding: 25px 0 25px 60px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #336699;
+}
+
+.Base_StatusBar .span {
 	width: 140px;
 	min-height: 20px;
 	line-height: 20px;
@@ -50,7 +60,6 @@
 }
 
 .Base_StatusBar .loading.message {
-	background-image: url('Base/StatusBar/loader.gif');
 	width: 30px;
 	line-height: 5px;
 	height: 5px;

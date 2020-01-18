@@ -6,9 +6,9 @@ class Modules extends AdminModule {
         ob_start();
 
         //create default module form
-        print('<div class="title">Select modules to disable</div>');
+        print('<div class="title"><H1>Select modules to disable</H1></div>');
         print('Selected modules will be marked as not installed but uninstall methods will not be called. Any database tables and other modifications made by modules\' install methods will not be reverted.<br><br>');
-        print('To uninstall module please use Modules Administration in Application.');
+        print('<H2>To uninstall module please use Modules Administration & Store in Epesi Application.</H2>');
         print('<hr/><br/>');
         $form = new HTML_QuickForm('modulesform', 'post', $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET), '', null, true);
 
@@ -27,7 +27,7 @@ class Modules extends AdminModule {
             $form->setDefaults(array($name => $state));
         }
 
-        $form->addElement('button', 'submit_button', 'Save', array('class' => 'button', 'onclick' => 'if(confirm("Are you sure?")) document.modulesform.submit();'));
+        $form->addElement('button', 'submit_button', 'Update', array('class' => 'button', 'onclick' => 'if(confirm("Are you sure?")) document.modulesform.submit();'));
 
         //validation or display
         if ($form->validate()) {

@@ -1,4 +1,4 @@
-<div style="max-width:930px" id="Base_Admin">
+<div style="width:95%; background-color:#EDEDED;" id="Base_Admin">
 {foreach from=$sections key=sk item=s}
 	<div class="epesi_label header" style="clear:both;">{$s.header}</div>
     <div class="buttons_container">

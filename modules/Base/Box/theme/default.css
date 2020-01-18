@@ -92,6 +92,12 @@ h1, h2 {
   font-size: 16px;
   color: #043d5f;
 }
+
+h2 {
+	font-size: 12px;
+	text-align: center;
+	text-decoration: underline;
+}
 .nonselectable {
 	-moz-user-select: none;
 	-webkit-user-select: none;
@@ -776,6 +782,41 @@ hr.line {
     font-size: 80%;
 }
 
+
+/* .epesi_big_button styling - used in admin panel and Launchpad */
+
+.epesi_big_button {
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	font-size: 16px;
+	cursor: hand;
+	background-color: #FEFEFE;
+	color: #0A3C5C;
+	border: #0A3C5C;
+	border: solid;
+	border: 1px;
+	box-shadow: 1px 3px 1px #999;
+	display: inline-block;
+	padding: 10px;
+	cursor: hand;
+	text-align: center;
+	margin: 24px;
+ }
+
+ .epesi_big_button:active {
+		transform: translateY(2px);
+	 }
+
+.epesi_big_button:hover {
+	box-shadow: 0 0 1px 1px rgba(0, 140, 186, 0.5);
+}
+
+.epesi_big_button > img {
+	display: block;
+	margin: 2px auto 3px;
+}
+
 .epesi_big_button > span,
 .epesi_big_button > div {
 	height: 26px;
@@ -788,29 +829,6 @@ hr.line {
 .epesi_big_button > span:only-child,
 .epesi_big_button > div:only-child {
 	height: 55px;
-}
-
-.epesi_big_button {
-	font-family: 'Exo 2', sans-serif;
-	font-style: bold;
-	font-weight: 700;
-	font-size: 14px;
-	cursor: pointer;
-	padding: 10px 13px;
-	margin: 7px;
-	border: 1px solid #0A3C5C;
-	min-width: 50px;
-	text-align: center;
-	background-color: #FEFEFE;
-}
-
-.epesi_big_button:hover {
-	background-color: #9E9;
-}
-
-.epesi_big_button > img {
-	display: block;
-	margin: 2px auto 3px;
 }
 
 .epesi_big_button.bigger {
@@ -832,12 +850,16 @@ hr.line {
 }
 
 .epesi_label {
-    color: #DEB42F;
-    height: 19px;
+	font-family: 'Exo 2', sans-serif;
+  	font-style: bold;
+  	font-weight: 700;
+	font-size: 16px;
+	color: rgb(243, 234, 234);
+    height: 20px;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
-    width: 100px;
+    width: 100%;
     text-align: left;
 	white-space: nowrap;
 	overflow: hidden;
@@ -854,10 +876,11 @@ hr.line {
 	font-family: 'Exo 2', sans-serif;
 	font-style: bold;
 	font-weight: 700;
-	height: 26px;
+	height: 32px;
 	text-align: center;
-	width: 99%;
-    line-height: 26px;
+	vertical-align: middleS;
+	width: 100%;
+    line-height: 16px;
     font-size: 18px;
 }
 

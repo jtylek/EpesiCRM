@@ -149,6 +149,13 @@ Please choose <?php print(EPESI);?> version:<ul>
 				font-size: 28px;
             }
 
+			#epesiStatusText {
+				font-family: 'Exo 2', sans-serif;
+				font-style: bold;
+				font-weight: 700;
+				color: #0A3C5C;
+				font-size: 28px;
+            }
 		</style>
 		
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
@@ -166,15 +173,19 @@ Please choose <?php print(EPESI);?> version:<ul>
 			</div>
 			
 			<div id="epesiStatus" style="height: 300px;">
+
+			
 				<table cellspacing="5" cellpadding="5" border="0" style="width: 100%;">
 					<tr>
 						<td><img src="images/logo.png" alt="logo" width="80%" height="80%" border="0"></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 24px;"><img src="images/loader.gif" alt="loader" width="300" height="20" border="0"></td>
+					<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>	
+						
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>	
+					<td style="text-align: center; vertical-align: middle; height: 24px;"><img src="images/loader.gif" alt="loader" width="300" height="20" border="0"></td>
+
 					</tr>
 				</table>
 			</div>	

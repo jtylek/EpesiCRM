@@ -17,6 +17,7 @@ class EpesiShell extends AdminModule {
             print(__('This tool is currently disabled. Please edit file %s and add following line %s', array(DATA_DIR . '/config.php', "define('ALLOW_PHP_EMBEDDING', 1);")));
             print('<br/>');
             print(__("This tool allows you to execute any PHP code as it would be executed in EPESI application. It's intended mainly for developers. Don't leave it enabled on non-development installation."));
+            print('<center><a href="./index.php"> MAIN MENU</a></center>');
         } else {
             print('<p>Place "return" statement to see returned value</p>');
             $cmd = $this->cmd();
