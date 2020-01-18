@@ -874,30 +874,28 @@ hr.line {
 
 .epesi_label.header {
 	font-family: 'Exo 2', sans-serif;
-	font-style: bold;
+	font-style: normal;
 	font-weight: 700;
 	height: 32px;
 	text-align: center;
-	vertical-align: middleS;
-	width: 100%;
-    line-height: 16px;
+	vertical-align: middle;
+	width: 99%;
+    line-height: 32px;
     font-size: 18px;
 }
 
 .epesi_data {
 	text-align: left;
-	background-color: #0A3C5C;
+	background-color: #FEFEFE;
+	color: #0A3C5C;
 	width: 102px;
 	height: 20px;
-	padding: 0;
+	padding: 2px;
 	border-spacing: 0;
 }
-.epesi_data {
-}
-.epesi_rtl .epesi_data {
-}
+
 .epesi_data > div {
-	min-height: 30px;
+	min-height: 24px;
 }
 
 .epesi_data input[type='checkbox'] {
@@ -915,9 +913,9 @@ hr.line {
 .epesi_data select,
 .epesi_data textarea {
 	width: 97%;
-        min-width: 50px;
+    min-width: 50px;
 	height: 30px;
-    background-color: #0A3C5C;
+    background-color: #ACACAC;
     border: 1px;
 	padding: 3px 5px;
 }
@@ -926,7 +924,7 @@ hr.line {
         min-width: 20px;
 }
 .epesi_data textarea {
-	height: 63px;
+	height: 60px;
 }
 .epesi_data select {
 	height: 18px;
@@ -947,8 +945,8 @@ hr.line {
 .epesi_data textarea {
 }
 .epesi_data.static_field {
-    line-height: 22px;
-    padding-left: 5px;
+    line-height: 24px;
+    padding-left: 4px;
 }
 
 .epesi_data.static_field,
@@ -973,7 +971,7 @@ hr.line {
 /* currency END */
 /* automulti START */
 .epesi_data.automulti select {
-	height: 80px;
+	height: 96px;
 }
 .epesi_data.automulti td {
 	padding: 0;
@@ -985,7 +983,7 @@ hr.line {
 }
 .epesi_data.automulti input[type="button"]{
 	height: 100%;
-	width: 100%;
+	width: 99%;
 	padding: 0;
 }
 .epesi_data.automulti input::-webkit-input-placeholder,
@@ -1029,10 +1027,10 @@ hr.line {
 	padding: 2px 10px;
 }
 .epesi_grey_board > table {
-	width: 100%;
-	border-spacing: 3px;
+	width: 99%;
+	border-spacing: 2px;
 	background-color: #CCC;
-	border: 1px solid transparent;
+	border: 1px thin;
 }
 
 .epesi_caption img {
@@ -1041,12 +1039,12 @@ hr.line {
 }
 
 .epesi_caption .label {
-	margin-left: 40px;
-	margin-top: 3px;
+	margin-left: 20px;
+	margin-top: 4px;
 }
 .epesi_rtl .epesi_caption .label {
-	margin-left: 0px;
-	margin-right: 40px;
+	margin-left: 2px;
+	margin-right: 20px;
 }
 
 .epesi_caption {

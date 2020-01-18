@@ -1,6 +1,3 @@
-.css3_content_shadow{
-}
-
 .Utils_GenericBrowser__td .direction {
 	width: 20px;
 	margin: auto;
@@ -10,15 +7,15 @@
 }
 
 .GenericBrowser_letters {
-	background-color: white;
-	height: 22px;
+	background-color: #DEB42F;
+	height: 36px;
 	padding-top: 2px;
 	padding-left: 2px;
-	margin: 3px auto auto 5px;
+	margin: 2px auto auto 4px;
 }
 
 #generic_browser_search{
-	width: 364px;
+	width: 400px;
 }
 .Utils_GenericBrowser__quickjump {
 	font-weight: normal;
@@ -28,7 +25,7 @@
 
 .letters-search {
     width: 100%;
-	padding: 5px 8px;
+	padding: 4px 8px;
 }
 
 .letters-search img {
@@ -36,21 +33,20 @@
 }
 
 .letters-search .label {
-    background-color: #336699;
-    color: white;
-    padding-left: 10px;
-    padding-right: 10px;
+    background-color: #0A3C5C;
+    color: DEB42F;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .letters-search .search-box input {
     background-color: #e6ecf2;
-    background-color: white;
-    height: 28px;
-    padding-left: 5px;
+    height: 40px;
+    padding-left: 4px;
     padding-right: 2px;
     vertical-align: middle;
     width: 96px;
-    border: 1px solid #b3b3b3;
+    border: 2px solid #DEB42F;
 }
 
 .letters-search input:focus {
@@ -59,17 +55,17 @@
 
 .letters-search .submit input {
     width: 100px;
-    height: 30px;
+    height: 40px;
     border: none;
     vertical-align: middle;
     color: white;
 	padding-bottom: 3px;
-	margin-left: 3px;
-	background: #226622;
+	margin-left: 1px;
+	background: #1FAF53;
 }
 
 .letters-search .submit input:hover {
-	background: #226622;
+	background: #DEB42F;
 }
 
 .letters-search .advanced {
@@ -78,43 +74,33 @@
 
 .expand_collapse a.button,
 .letters-search .advanced a.button {
-	height: 23px;
+	height: 24px;
 	padding: 4px 0px 3px 0px;
     width: 150px;
-	background: #226622; 
+	background: #1FAF53; 
 }
 .expand_collapse a.button {
     width:120px;
 }
 
 .letters-search .advanced a.button:hover {
-	background: #226622;
+	background: #0A3C5C;
 }
 
 table.Utils_GenericBrowser {
-    background-color: #FFFFFF;
+    background-color: #FEFEFE;
     /*border-top: 1px solid #B3B3B3;*/
-    border-left: 1px solid #B3B3B3;
+    border-left: 1px solid #0A3C5C;
 }
 
-table.Utils_GenericBrowser > thead > tr > th:first-child {
-}
-
-table.Utils_GenericBrowser > thead > tr > th:last-child {
-}
-
-.applet table.Utils_GenericBrowser th:first-child,
-.applet table.Utils_GenericBrowser th:last-child,
-.applet table.Utils_GenericBrowser {
-}
 
 table.Utils_GenericBrowser input[type="text"],
 table.Utils_GenericBrowser select {
-	width: 95%;
+	width: 98%;
 }
 
 table.Utils_GenericBrowser a.button {
-	width: 20px;
+	width: 24px;
 	text-align:left;
 }
 
@@ -122,41 +108,41 @@ table.Utils_GenericBrowser > thead > tr > th {
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: left;
-    min-height: 25px;
+    min-height: 26px;
     /*border-top: 1px solid #B3B3B3;*/
     border-right: 1px solid #B3B3B3;
-    border-bottom: 1px solid #FFFFFF;
-	color: #FFFFFF;
+    border-bottom: 1px solid #0A3C5C;
+	color: #EDEDED;
     vertical-align: middle;
 
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	background: #3f6a8c;
+	background: #0A3C5C;
 }
 .epesi_rtl table.Utils_GenericBrowser > thead > tr > th {
     text-align: right;
 }
 
 table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
-	margin: 0px 40% auto 5px;
+	margin: 0px 40% auto 2px;
 }
 
 table.Utils_GenericBrowser > thead > tr > th > span {
-	color: #FFFFFF;
+	color: #EDEDED;
     display: block;
 	height: 100%;
-    line-height: 20px;
-    padding: 3px 10px 3px 3px;
+    line-height: 24px;
+    padding: 2px 10px 2px 2px;
 }
 table.Utils_GenericBrowser > thead > tr > th a {
 	color: #FFFFFF;
-	width: 120%;
+	width: 98%;
 	display: block;
 }
 
 table.Utils_GenericBrowser > thead > tr > th:hover {	
-	background: #5b8eb5;
+	background: #1FAF53;
 }
 .plus-minus,
 .plus-minus:hover {
@@ -168,50 +154,60 @@ table.Utils_GenericBrowser > thead > tr > th:hover {
 }
 
 table.Utils_GenericBrowser > thead > tr > th input {
-    display: block;
+	display: block;
+	border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
     width: 100%;
     border: 0px;
-	padding: 3px;
+	padding: 4px;
     background-color: #FFFFF9;
 }
 
 table.Utils_GenericBrowser > thead > tr > th input:focus {
-    background-color: #ffffa5;
+    background-color: #f0f0e6;
 }
 
 table.Utils_GenericBrowser > tbody {
+	border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
 	overflow: auto;
 }
 
 table.Utils_GenericBrowser > tbody > tr {
-	background-color: #FFFFFF;
+	background-color: #DEDEDE;
 }
 
 table.Utils_GenericBrowser > tbody > tr:hover {
-	background-color: #F0F0F0;
+	background-color: rgb(213, 230, 205);
 }
 
 .Utils_GenericBrowser__td {
     text-align: left;
     border-right: 1px solid #B3B3B3;
     border-bottom: 1px solid #B3B3B3;
-    height: 14px;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-top: 3px;
-    padding-bottom: 2px;
-	vertical-align: top;
+	border-left: 1px solid #B3B3B3;
+	border-top: 1px solid #B3B3B3;
+	height: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+	vertical-align: middle;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	line-height: 14px;
+	line-height: 16px;
 }
 .epesi_rtl .Utils_GenericBrowser__td {
     text-align: right;
 }
 
 .Utils_GenericBrowser__td a img {
-	margin: 0 1px;
+	margin: 0 2px;
 }
 
 table.Utils_GenericBrowser > tbody > td img {
@@ -223,7 +219,7 @@ table.Utils_GenericBrowser > tbody > td img {
 .record_browser_add_new {
 	display: block;
 	/*width: 67px;*/
-	height: 18px;
+	height: 24px;
 	color: white;
 	padding: 6px 10px;
 	background: #226622;
@@ -234,14 +230,14 @@ table.Utils_GenericBrowser > tbody > td img {
 	background: #226622;
 }
 .record_browser_button {
-	margin-right: 6px;
+	margin-right: 4px;
 	display: inline-block;
-	line-height: 16px;
+	line-height: 20px;
 }
 .record_browser_button img{
-	width: 25px;
-	height: 25px;
-	margin-right: 3px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
 	margin-top: -3px;
 }
 .record_browser_add_new img {
@@ -259,14 +255,14 @@ table.Utils_GenericBrowser > tbody > td img {
 
 .letters-search .letters {
     text-align: left;
-    padding: 0px 7px 0 0px;
+    padding: 0px 8px 0 0px;
     display: block;
 }
 
 .letters-search > tbody > tr > td {
     display: inline-block;
     float: left;
-    margin-top: 5px;
+    margin-top: 4px;
 }
 
 .letters-search .reset {
@@ -274,7 +270,7 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .letter_search_icon {
-    padding: 0px 7px 0 0px;
+    padding: 0px 4px 0 0px;
     color: white;
 }
 
@@ -287,41 +283,29 @@ table.Utils_GenericBrowser > tbody > td img {
     padding: 0px 5px 2px 7px;
 	color: white;
 	background: #226622;
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
 }
 .letters-search .letters .all:hover {
-	background: #226622;
+	background: #DEB42F;
 }
 .letters-search .letters .letter {
-    width: 16px;
+    width: 18px;
 }
 
 .letters-search .letters a,
 .letters-search .letters span {
-    margin: 2px 3px;
+    margin: 2px 2px;
     display: block;
     float: left;
-    line-height: 14px;
+    line-height: 16px;
     vertical-align: middle;
     text-align: center;
 	color: white;
 	padding:  0px 1px 2px 2px;
 	background: #226622;
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
 }
 .letters-search .letters a:hover,
 .letters-search .letters span:hover {
-	background: #226622;
+	background: #DEB42F;
 }
 /* */
 
@@ -333,25 +317,20 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .letters-search .letters .abc {
-    height: 19px;
-	padding: 4px 0px 7px 0px;
-    line-height: 20px;
-    width: 50px;
+    height: 40px;
+	padding: 2px 0px 8px 0px;
+    line-height: 32px;
+    width: 40px;
     text-align: center;
     vertical-align: middle;
-    color: white;
-    cursor: pointer;
+    color: #DEB42F;
+    cursor: hand;
     float: left;
 	background: #226622;
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
 }
 
 .letters-search .letters .abc:hover {
-	background: #226622;
+	background: #0A3C5C;
 }
 
 
@@ -362,8 +341,8 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .layer .margin2px {
-    padding: 2px;
-    background-color: #FFFFFF;
+    padding: 1px;
+    background-color: #EAEAEA;
 }
 
 .applet .layer .margin2px {
@@ -375,7 +354,7 @@ table.Utils_GenericBrowser > tbody > td img {
 
 /* bottom navigation */
 #Utils_GenericBrowser__navigation {
-	height: 23px;
+	height: 24px;
 	vertical-align: middle;
 	width:100%;
 	table-layout: auto;
@@ -383,18 +362,11 @@ table.Utils_GenericBrowser > tbody > td img {
 
 .nav_pagin select,
 .nav_per_page select {
-	font-size: 13px;
+	font-size: 14px;
 }
-#Utils_GenericBrowser__navigation .nav_shadow {
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px black;
-	-moz-box-shadow: 1px 1px 3px black;
-	box-shadow: 1px 1px 3px black;
-	/* end css3 shadow border*/
-}
+
 #Utils_GenericBrowser__navigation {
 	color: white;
-	font-size: 120%;
 	background: #9c9c9c;
 }
 
@@ -412,13 +384,9 @@ table.Utils_GenericBrowser > tbody > td img {
 	display: block;
 	color: white;
 	width: 82px;
-	height: 19px;
+	height: 24px;
 	padding: 4px 5px 2px 5px;
 	margin-right: 4px;
-	
-	-webkit-box-shadow: inset 1px 1px 1px #333;
-	-moz-box-shadow: inset 1px 1px 1px #333;
-	box-shadow: inset 1px 1px 1px #333;
 }
 
 #Utils_GenericBrowser__navigation .nav_button a:hover {
@@ -426,7 +394,7 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 #Utils_GenericBrowser__navigation .nav_button div {
-	margin: 0px 2px;
+	margin: 0px 1px;
 }
 
 #Utils_GenericBrowser__navigation .nav_button .nav_left_arrow {
@@ -434,7 +402,7 @@ table.Utils_GenericBrowser > tbody > td img {
 	margin-top: 1px;
 }
 #Utils_GenericBrowser__navigation .nav_button .nav_left_label {
-	margin-left: 20px;
+	margin-left: 40px;
 }
 
 #Utils_GenericBrowser__navigation .nav_button .nav_right_arrow {
@@ -450,7 +418,7 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 #Utils_GenericBrowser__navigation .nav_per_page {
-	padding-right: 10px;
+	padding-right: 2px;
 }
 
 .epesi_rtl #Utils_GenericBrowser__navigation img {
@@ -470,7 +438,7 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .Utils_GenericBrowser__overflow_div_content {
-	padding: 3px;
+	padding: 4px;
 	word-wrap: break-word;
 }
 
@@ -480,19 +448,19 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 .Utils_GenericBrowser__overflow_div_content img.action_button {
-	width: 28px;
-	height: 28px;
-	padding-right: 8px;
+	width: 16px;
+	height: 16px;
+	padding-right: 2px;
 }
 
 div.expandable.collapsed {
-    height: 18px;
+    height: 24px;
 }
 div.expandable {
 }
 div.expandable.collapsed.exceedsHeight {
-    height: 17px !important;
-    border-bottom: 1px dotted red;
+    height: 24px !important;
+    border-bottom: 2px dotted red;
 }
 div.expandable:not(.exceedsHeight) p {
     margin: 0;

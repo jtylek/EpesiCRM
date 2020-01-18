@@ -37,12 +37,12 @@
 			<td class="expand_collapse">
 				{if isset($expand_collapse)}
                     <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
-                        <div style="display:inline-block;position:relative;top:-4px">
+                        <div style="display:inline-block;position:relative;top:-8px">
                             {$expand_collapse.e_label}
                         </div>
                     </a>
                     <a id="{$expand_collapse.c_id}" class="button" {$expand_collapse.c_href}><img src="{$theme_dir}/Base/ActionBar/icons/collapse_big.png" />
-                        <div style="display:inline-block;position:relative;top:-4px">
+                        <div style="display:inline-block;position:relative;top:-8px">
                             {$expand_collapse.c_label}
                         </div>
                     </a>
@@ -99,7 +99,7 @@
 
 <div class="table">
 	<div class="layer">
-		<div class="css3_content_shadow">
+		<div>
 			<div class="margin2px">
 				{$table_prefix}
                 {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}

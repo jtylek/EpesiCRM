@@ -1,9 +1,9 @@
-	<div class="layer" style="padding: 10px 0px; width: 96%; min-height: 30px;">
+	<div class="layer" style="padding: 4px; width: 98%; min-height: 40px;">
 		<div class="content_shadow_css3_dashboard {$color}_dashboard">
             <table class="container {$color}_dashboard" cellpadding="0" cellspacing="0" border="0">
                 <tbody>
                 <tr class="nonselectable">
-                	<td width="3px" class="header actions {$color}_dashboard">
+                	<td width="10px" class="header actions {$color}_dashboard">
                 	</td>
                 	{if !empty($actions)}
 						{assign var=actions_width value=$actions|@count}
@@ -15,7 +15,7 @@
 		                	{/foreach}
 	                	</td>
 	                {else}
-	                	<td width="3px" class="header actions {$color}">
+	                	<td width="10px" class="header actions {$color}">
 	                	</td>
                 	{/if}
                 	{* 18px/icon + 2px base *}

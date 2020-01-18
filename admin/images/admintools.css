@@ -20,7 +20,7 @@ a {
 	font-style: bold;
 	font-weight: 700;
 	font-size: 16px;
-	color: #1FAF53;
+	color: #226622;
 	text-decoration: none;
 	vertical-align: top;
 }
@@ -61,7 +61,7 @@ table.listing td {
 }
 
 table.listing tr.even {
-    background-color: fafafa;
+    background-color: #ADADAD;
 }
 
 table.listing tr.odd {
@@ -75,11 +75,11 @@ table.listing tr.odd {
     display: block;
     width: 250px;
     text-align: center;
-	background-color: #1FAF53;
+	background-color: #226622;
 }
 
 .green {
-    color: #669933;
+    color: #226622;
 }
 
 .red {
@@ -151,8 +151,8 @@ span.footer {
     background-repeat: no-repeat;
     width: 193px;
     height: 83px;
-	padding-right: 50px;
-	padding-bottom: 5px;
+	padding-left: 50px;
+	padding-bottom: 2px;
 }
 
 #banner .header {
@@ -162,22 +162,22 @@ span.footer {
 /*** main box ***/
 
 #main {
-    border: 1px solid #0A3C5C;
+    border: 1px thin #226622;
     background-color: #EDEDED;
-    padding: 0px 0px 0px 0px;
-    font-size: 18px;
+    padding: 10px 10px 10px 10px;
+    font-size: 16px;
 	width: 60%;
     text-align: left;
 }
 
 .content {
-    padding: 30px 30px 30px 30px;
+    padding: 10px 10px 10px 10px;
 }
 
 .div-button {
 	background-color: #0A3C5C;
-    height: 64px;
-    padding-top: 20px;
+    height: 32px;
+    padding-top: 10px;
 }
 
 div.licence {
