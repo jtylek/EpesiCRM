@@ -53,6 +53,7 @@ if(IPHONE) {
     <meta name="robots" content="NOINDEX, NOARCHIVE">
 	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 	<title><?php print(EPESI);?></title>
+	<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
 	<script type="text/javascript" charset="utf-8">
@@ -112,7 +113,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 	$csses_build = new Minify_Build($csses);
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
-		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
+		
 
 		<style type="text/css">
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
@@ -127,10 +128,11 @@ Please choose <?php print(EPESI);?> version:<ul>
 				border: none;
 				visibility: hidden;
 				width: 560px;
+				height: 250px;
 				text-align: center;
 				vertical-align: middle;
 				z-index: 2002;
-                color: #336699;
+                color: #0A3C5C;
 				overflow: hidden;
 				
 				/* css3 shadow border*/
@@ -140,14 +142,17 @@ Please choose <?php print(EPESI);?> version:<ul>
 				/* end css3 shadow border*/
 			}
 			#epesiStatus table {
-				color: #336699;
-				font-weight: normal;
-				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+				font-family: 'Exo 2', sans-serif;
+				font-style: bold;
+				font-weight: 700;
+				color: #0A3C5C;
 				font-size: 28px;
-				/* border: 1px solid #FFFFFF; */
             }
 
 		</style>
+		
+		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
+		
 		<?php print(TRACKING_CODE); ?>
 	</head>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >

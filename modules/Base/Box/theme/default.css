@@ -1,65 +1,65 @@
-/* New Fonts introduced */
+/* New Fonts introduced 'Exo 2' and 'Titillium Web'
 
-/* exo-2-regular - latin */
+<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
+
+font-family: 'Exo 2', sans-serif;
+font-family: 'Titillium Web', sans-serif;
+
+Epesi colors:
+
+Navy Blue
+background: #0A3C5C;
+Dark Green
+background: #1FAF53;
+Yellow
+background: #DEB42F;
+
+ */
+
 @font-face {
-  font-family: 'Exo 2';
+  font-family: 'Exo 2', sans-serif;
   font-style: normal;
-  font-weight: 200;
-  src: local('Exo 2'), local('Exo2-Regular'),
-       url('.././fonts/exo-2-v5-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('.././fonts/exo-2-v5-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-}
-/* exo-2-600 - latin */
-@font-face {
-  font-family: 'Exo 2';
-  font-style: normal;
-  font-weight: 600;
-  src: local('Exo 2 Semi Bold'), local('Exo2-SemiBold'),
-       url('.././fonts/exo-2-v5-latin-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('.././fonts/exo-2-v5-latin-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  font-weight: 400;
 }
 
-/* titillium-web-regular - latin */
 @font-face {
-  font-family: 'Titillium Web';
+  font-family: 'Exo 2', sans-serif;
+  font-style: bold;
+  font-weight: 700;
+  }
+
+@font-face {
+  font-family: 'Titillium Web', sans-serif;
   font-style: normal;
-  font-weight: 200;
-  src: local('Titillium Web Regular'), local('TitilliumWeb-Regular'),
-       url('.././fonts/titillium-web-v7-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('.././fonts/titillium-web-v7-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  font-weight: 400;
 }
-/* titillium-web-600 - latin */
+
 @font-face {
-  font-family: 'Titillium Web';
-  font-style: normal;
-  font-weight: 600;
-  src: local('Titillium Web SemiBold'), local('TitilliumWeb-SemiBold'),
-       url('.././fonts/titillium-web-v7-latin-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-       url('.././fonts/titillium-web-v7-latin-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+  font-family: 'Titillium Web', sans-serif;
+  font-style: bold;
+  font-weight: 700;
 }
 
 body, p {
-    font-family: "Titillium Web", sans-serif;
-    font-style: normal;
-    font-weight: 200;
+	font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
     font-size: 12px;
     color: #001;
 }
 
 *, html {
-    font-family: "Titillium Web", sans-serif;
-    font-style: normal;
-    font-weight: 200;
+    font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
     font-size: 12px;
-    -webkit-text-size-adjust:100%;
-    -ms-text-size-adjust:100%
     color: #000;
 }
 
 a {
     font-family: 'Exo 2', sans-serif;
-    font-style: normal;
-	font-weight: 600;
+	font-style: bold;
+	font-weight: 700;
 	font-size: 12px;
 	color: #336699;
 	text-decoration: none;
@@ -68,8 +68,8 @@ a {
 
 ul, ol, li {
     font-family: 'Exo 2', sans-serif;
-    font-style: normal;
-	font-weight: 600;
+	font-style: normal;
+	font-weight: 400;
     font-size: 12px;
     color: #011;
 }
@@ -80,7 +80,7 @@ h5,
 h6 {
   font-family: 'Exo 2', sans-serif;
   font-style: bold;
-  font-weight: 200;
+  font-weight: 400;
   font-size: 14px;
   color: #043d5f;
 }
@@ -88,7 +88,7 @@ h6 {
 h1, h2 {
   font-family: 'Exo 2', sans-serif;
   font-style: bold;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
   color: #043d5f;
 }
@@ -108,7 +108,10 @@ div (
 */
 
 table {
-	font-size: 11px;
+	font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 10px;
 	table-layout: fixed;
 }
 
@@ -122,9 +125,9 @@ a:hover {
 }
 
 input, textarea, select {
-	font-family: "Titillium Web", sans-serif;
-    font-style: normal;
-    font-weight: 200;
+	font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
     font-size: 12px;
     color: #001;
 	border: 1px solid #B3B3B3;
@@ -146,6 +149,9 @@ textarea {
 .child_button > input,
 .child_button > div > input,
 .button {
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
 	cursor: pointer;
     font-weight: normal;
     color: #FFFFFF;
@@ -264,11 +270,11 @@ hr.line {
 }
 #ActionBar {
     overflow: hidden;
-    height: 90px;
+    height: 100px;
 }
 
 #ShadowBar {
-    height: 10px;
+    height: 20px;
     background-image: url('images/shadow/b.png');
     background-repeat: repeat-x;
     display: none;
@@ -342,7 +348,7 @@ hr.line {
 
 .home-bar-text {
 	font-family: 'Exo 2', sans-serif;
-    font-size: 12px;
+    font-size: 14px;
 	padding-top: 2px;
 	color: white;
 	font-weight: bold;
@@ -774,7 +780,7 @@ hr.line {
 .epesi_big_button > span,
 .epesi_big_button > div {
 	height: 26px;
-	width: 80px;
+	width: 90px;
 	display: table-cell;
 	vertical-align: middle;
 	text-align: ellipsis;
@@ -786,15 +792,16 @@ hr.line {
 }
 
 .epesi_big_button {
-	font-family: 'Exo';
-	font-size: 10px;
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	font-size: 14px;
 	cursor: pointer;
 	padding: 10px 13px;
 	margin: 7px;
-	border: 1px solid #999;
-	min-width: 60px;
+	border: 1px solid #0A3C5C;
+	min-width: 50px;
 	text-align: center;
-	font-variant-caps: all-petite-caps;
 	background-color: #FEFEFE;
 }
 
@@ -826,7 +833,7 @@ hr.line {
 }
 
 .epesi_label {
-    color: #FFFFFF;
+    color: #DEB42F;
     height: 19px;
     vertical-align: middle;
     padding-left: 5px;
@@ -836,7 +843,7 @@ hr.line {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	background: #3f6a8c;
+	background: #0A3C5C;
 }
 .epesi_label.top {
 }
@@ -845,17 +852,19 @@ hr.line {
 }
 
 .epesi_label.header {
-	font-weight: bold;
-	height: 32px;
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	height: 26px;
 	text-align: center;
-	width: 100%;
-    line-height: 35px;
-    font-size: 28px;
+	width: 99%;
+    line-height: 26px;
+    font-size: 18px;
 }
 
 .epesi_data {
 	text-align: left;
-	background-color: #FFFFF9;
+	background-color: #0A3C5C;
 	width: 102px;
 	height: 20px;
 	padding: 0;
@@ -878,7 +887,7 @@ hr.line {
 .epesi_data input:focus,
 .epesi_data select:focus,
 .epesi_data textarea:focus {
-    background-color: #ffffa5;
+    background-color: #ACACAC;
 }
 .epesi_data input,
 .epesi_data select,
@@ -886,7 +895,7 @@ hr.line {
 	width: 97%;
         min-width: 50px;
 	height: 30px;
-    background-color: #FFFFF9;
+    background-color: #0A3C5C;
     border: 1px;
 	padding: 3px 5px;
 }
@@ -1023,7 +1032,7 @@ hr.line {
     text-align: left;
     font-size: 24px;
     font-weight: bold;
-    color: #FFFFFF;
+    color: #DEB42F;
     height: 28px;
     white-space: nowrap;
     vertical-align: top;
@@ -1033,7 +1042,7 @@ hr.line {
 	padding: 5px 18px 0px;
 	display: inline-block;
 	margin-bottom: 7px;
-	background: #9c9c9c;
+	background: #0A3C5C;
 }
 
 pre.wrap {
