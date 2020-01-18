@@ -1,19 +1,59 @@
-body {
-    font-family: Geneva,Arial,Helvetica,sans-serif;
-    font-size: 10px;
-	margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
+body, p {
+	font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+    font-size: 16px;
+    color: #0A3C5C;
 	background-color: #FFFFFF;
 }
 
+*, html {
+    font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+    font-size: 16px;
+    color: #0A3C5C;
+}
+
 a {
-    color: #1d7dd1;
-    font-weight: bold;
-    text-decoration: none;
+    font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	font-size: 16px;
+	color: #1FAF53;
+	text-decoration: none;
+	vertical-align: top;
+}
+
+ul, ol, li {
+    font-family: 'Exo 2', sans-serif;
+	font-style: normal;
+	font-weight: 700;
+    font-size: 18px;
+    color: #0A3C5C;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Exo 2', sans-serif;
+  font-style: bold;
+  font-weight: 400;
+  font-size: 20px;
+  color: #0A3C5C;
+}
+
+h1, h2 {
+  font-family: 'Exo 2', sans-serif;
+  font-style: bold;
+  font-weight: 700;
+  font-size: 24px;
+  color: #0A3C5C;
 }
 
 table.listing {
-    width: 100%;
+    width: 95%;
 }
 
 table.listing td {
@@ -21,20 +61,21 @@ table.listing td {
 }
 
 table.listing tr.even {
-    background-color: white;
+    background-color: fafafa;
 }
 
 table.listing tr.odd {
-    background-color: #e5e5ff;
+    background-color: #FDFDFD;
 }
 
 .button {
-    color: #0d8120;
+    color: #FFFFFF;
     font-weight: bold;
     line-height: 30px;
     display: block;
-    width: 100px;
+    width: 250px;
     text-align: center;
+	background-color: #1FAF53;
 }
 
 .green {
@@ -61,16 +102,16 @@ table.listing tr.odd {
 
 .header {
     height: 30px;
-    padding-top: 5px;
-    padding-left: 30px;
-    color: #777777;
-    font-size: 24px;
+    padding-top: 0px;
+    padding-left: 50px;
+    color: #0A3C5C;
+    font-size: 32px;
     font-weight: bold;
 }
 
 .title {
     height: 30px;
-    color: #0A0A0A;
+    color: #0A3C5C;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
@@ -78,53 +119,63 @@ table.listing tr.odd {
 }
 
 span.footer {
-    font-size: 12px;
-    color: #777777;
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	font-size: 16px;
+	color: #0A3C5C;
+	background-color: #FFFFFF;
+	text-decoration: none;
+	vertical-align: bottom;
+	height: 50px;
 }
 
 .line {
-    height: 2px;
+    height: 1px;
     width: 100%;
-    background-color: #777777;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    background-color: #0A3C5C;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 /*** table banner ***/
 
 #banner {
     width: 100%;
-    border-bottom: 2px solid #777777;
+	padding-bottom: 5px;
+    border-bottom: 3px solid #0A3C5C;
 }
 
 #banner .image {
     background-image: url("logo-small.png");
-    background-repeat: repeat-x;
+    background-repeat: no-repeat;
     width: 193px;
     height: 83px;
+	padding-right: 50px;
+	padding-bottom: 5px;
 }
 
 #banner .header {
-	background: #ffffff; /* Old browsers */
+	background: #FFFFFF; /* Old browsers */
 }
 
 /*** main box ***/
 
 #main {
-    border: 1px solid #777777;
-    background-color: #EEEEEE;
+    border: 1px solid #0A3C5C;
+    background-color: #EDEDED;
     padding: 0px 0px 0px 0px;
-    font-size: 16px;
-	width: 90%;
+    font-size: 18px;
+	width: 60%;
     text-align: left;
-    margin:20px;
 }
 
 .content {
-    padding: 20px 20px 20px 20px;
+    padding: 30px 30px 30px 30px;
 }
 
 .div-button {
+	background-color: #0A3C5C;
     height: 64px;
     padding-top: 20px;
 }
@@ -132,13 +183,16 @@ span.footer {
 div.licence {
     overflow: auto;
     height: 300px;
-    border: 1px solid #B3B3B3;
-    background-color: #FFFFFF;
+    border: 1px solid #0A3C5C;
+    background-color: #FEFEFE;
     padding: 10px 10px 10px 10px;
 }
 
 input {
-    font-size: 14px;
-    border: 2px solid #777777;
-    background-color: #fefefe;
+	width: 200px;
+    font-size: 16px;
+	text-align: center;
+    border: 1px solid #0A3C5C;
+    background-color: #FAFAFA;
+	padding: 2px 2px 2px 2px;
 }

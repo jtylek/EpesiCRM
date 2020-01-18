@@ -201,7 +201,7 @@ hr.line {
 }
 
 #Base_Box__login .status {
-	height: 40px;
+	height: 20px;
 }
 
 #Base_Box__login .entry {
@@ -220,13 +220,13 @@ hr.line {
    /* position: absolute; */
     /*margin-top: 97px;*/
     width: 100%;
-    padding: 0px;
+    padding: 5px;
     border-top: 1px solid transparent;
     /*text-align: center;*/
 }
 
 #body_content {
-    padding-top: 123px;
+    padding-top: 120px;
     width: 100%;
 }
 
@@ -266,7 +266,7 @@ hr.line {
 }
 
 #MenuBar {
-	background-color: #F0F0F0;
+	background-color: #FEFEFE;
 }
 #ActionBar {
     overflow: hidden;
@@ -297,14 +297,14 @@ hr.line {
 
 #top_bar #top_bar_1 .menu-bar {
 	height: 20px;
-	width: 93px;
+	width: 40px;
 	text-align: left;
 	background: #226622;
 	
 	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
+	-webkit-box-shadow: 2px 2px 5px green;
+	-moz-box-shadow: 2px 2px 5px green;
+	box-shadow: 2px 2px 5px green;
 	/* end css3 shadow border*/
 }
 
@@ -474,9 +474,9 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator #quick-logout {
-    width: 20px;
-    height: 20px;
-    float: right;
+    width: 30px;
+    height: 30px;
+    float: left;
     border-left: 4px solid #b3b3b3;
     background-image: url('Base/Box/logout.png');
     background-repeat: no-repeat;
@@ -484,7 +484,6 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .module-indicator #quick-logout:hover {
-    background-image: url('Base/Box/logout-hover.png');
 }
 
 /*** top_bar_2 ***/

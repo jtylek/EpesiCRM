@@ -51,6 +51,9 @@
 
 .Base_StatusBar .loading.message {
 	background-image: url('Base/StatusBar/loader.gif');
+	width: 30px;
+	line-height: 5px;
+	height: 5px;
 	background-color: #EEEEFF;
 }
 .Base_StatusBar .normal.message {

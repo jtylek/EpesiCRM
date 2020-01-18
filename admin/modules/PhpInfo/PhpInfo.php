@@ -8,8 +8,9 @@ class PhpInfo extends AdminModule {
 
     public function body() {
         ob_start();
-        print('<link href="./modules/PhpInfo/phpinfo.css" rel="stylesheet" type="text/css" />');
-        print('<div id="phpinfo" style="height: 800px; overflow-y:auto;">');
+        // print('<link href="./modules/PhpInfo/phpinfo.css" rel="stylesheet" type="text/css" />');
+		print('<link href="./images/admintools.css" rel="stylesheet" type="text/css" />');
+        print('<div id="phpinfo" style="height: 800px; width: 98%; overflow-y:auto;">');
         ob_start();
         phpinfo();
         $pinfo = ob_get_contents();

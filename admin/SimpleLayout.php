@@ -65,6 +65,7 @@ class SimpleLayout {
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                 <title><?php $xx = $this->title ? $this->title . ' - ' : ''; print $xx; ?>Epesi Admin Tools</title>
+				<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
                 <link href="./images/admintools.css" rel="stylesheet" type="text/css" />
 
             </head>
@@ -74,6 +75,9 @@ class SimpleLayout {
                     <tr>
                         <td class="image">&nbsp;</td>
                         <td class="header">Epesi Admin Tools</td>
+						<td><?php if ($this->show_action_links)
+							print('<div class="title">' . $this->format_action_links() . '</div>');
+						?></td>
                     </tr>
                 </table>
                 <br/>
@@ -92,18 +96,13 @@ class SimpleLayout {
     <?php }
 
     function pagefooter() {
-        print '<br/><center>';
-        if ($this->show_action_links)
-            print('<div class="title">' . $this->format_action_links() . '</div>');
         ?>
-                    <hr/>
-                    <span class="footer">MIT License  &bull; Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a></span>
-		<p><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
-                </center>
+				<div>
+				<br>
+                    <span class="footer"><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a> &bull; copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a>  &bull; MIT License</span>
+				</div>
             </body>
-
         </html>
     <?php }
-
 }
 ?>

@@ -10,10 +10,10 @@
     <!-- Display the fields -->
 		<center>
 
-	<div class="layer" style="padding: 30px; width: 550px;">
+	<div class="layer" style="padding: 50px; width: 95%; background-color: #FEFEFE;">
 		<div>
 
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 400px;">
+	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 250px;">
             <tbody>
 	    	<tr>
 				<td colspan="2" class="header_tail">{$logo}</td>

@@ -7,18 +7,21 @@
 }
 
 table#Base_User_Login {
+	font-family: 'Exo 2', sans-serif;
+	font-style: normal;
+	font-weight: 700;
 	border: 1px solid #FFFFFF;
-	font-size: 14px;
+	font-size: 16px;
 	background-color: #E0E0E0;
 }
 
 table#Base_User_Login .gradient {
 	background-color: #ffffff;
-	background: #ffffff;
+	background: #0A3C5C;
 }
 
 table#Base_User_Login td.title {
-	color: #336699;
+	color: #0A3C5C;
 	font-size: 20px;
 	text-align: center;
 	height: 35px;
@@ -26,7 +29,7 @@ table#Base_User_Login td.title {
 
 table#Base_User_Login td.title span {
 	vertical-align: super;
-	font-size: 9px;
+	font-size: 10px;
 }
 
 table#Base_User_Login a {
@@ -70,7 +73,9 @@ table#Base_User_Login input.submit:hover {
 }
 
 table#Base_User_Login td.label {
-	font-weight: normal;
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
 	width: 225px;
 	height: 30px;
 	color: #000000;
@@ -192,12 +197,11 @@ table#Base_User_Login td.donation_notice a:hover {
 
 .logged_as {
 	float: left;
-	width: 154px;
-    height: 21px;
+    height: 30px;
 	padding-top: 0px;
-	margin-right: 6px;
-	text-align: center;
-	line-height: 12px;
+	margin-left: 6px;
+	text-align: left;
+	line-height: 30px;
 }
 
 .epesi_rtl .logged_as {

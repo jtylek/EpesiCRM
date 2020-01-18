@@ -1,14 +1,10 @@
 #Filters_header,
 .Filters_header {
-	color: #FFFFFF;
+	color: #FEFEFE;
 	height: 20px;
-	text-align: center;
+	text-align: left;
 	vertical-align: middle;
 	font-weight: bold;
-}
-
-.Filters_header {
-	font-weight: normal;
 }
 
 #Filters_header .left {
@@ -42,7 +38,7 @@ table#Utils_LeightboxPrompt a:hover {
 
 .icon_td_text {
 	width: 50px;
-	height: 29px;
+	height: 24px;
 	overflow: hidden;
 	text-align: center;
     vertical-align: middle;
@@ -57,9 +53,9 @@ table#Utils_LeightboxPrompt a:hover {
 	background-color: white; 
 	
 	/*Transition*/
-	-webkit-transition: all 0.4s ease-out;
-    -moz-transition: all 0.4s ease-out;
-    -o-transition: all 0.4s ease-out;	
+	-webkit-transition: all 0.5s ease-out;
+    -moz-transition: all 0.5s ease-out;
+    -o-transition: all 0.5s ease-out;	
 	/* end Transition*/
 	
 	/* css3 shadow border*/

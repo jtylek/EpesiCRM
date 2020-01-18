@@ -125,7 +125,7 @@ Please choose <?php print(EPESI);?> version:<ul>
   				/* all */
   				/*background-color: #e6ecf2;*/
   				background-color: white;
-				border: none;
+				border: 1px;
 				visibility: hidden;
 				width: 560px;
 				height: 250px;
@@ -158,23 +158,23 @@ Please choose <?php print(EPESI);?> version:<ul>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
 
 		<div id="body_content">
-			<div id="main_content" style="display:none;"></div>
+			<div id="main_content" style="display:none; background-color: #FEFEFE;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
 				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
 			
-			<div id="epesiStatus">
-				<table cellspacing="10" cellpadding="10" border="0" style="width: 100%;">
+			<div id="epesiStatus" style="height: 300px;">
+				<table cellspacing="5" cellpadding="5" border="0" style="width: 100%;">
 					<tr>
-						<td><img src="images/logo.png" alt="logo" width="275" height="100" border="0"></td>
+						<td><img src="images/logo.png" alt="logo" width="80%" height="80%" border="0"></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
+						<td style="text-align: center; vertical-align: middle; height: 24px;"><img src="images/loader.gif" alt="loader" width="300" height="20" border="0"></td>
 					</tr>
 					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 20px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
+						<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>	
 					</tr>
 				</table>
 			</div>	
@@ -190,7 +190,8 @@ Please choose <?php print(EPESI);?> version:<ul>
          * this is request for page and include init_js file which is faster.
          * If there is not 'html' in accept use script with src property.
          */
-        if(isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false) { ?>
+        
+		if(isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false) { ?>
 		<script type="text/javascript"><?php require_once 'init_js.php'; ?></script>
         <?php } else { ?>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>
