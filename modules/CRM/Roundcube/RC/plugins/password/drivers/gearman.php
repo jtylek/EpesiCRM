@@ -6,7 +6,7 @@
  * Payload is json string containing username, oldPassword and newPassword
  * Return value is a json string saying result: true if success.
  *
- * @version 1.0
+ * @version 1.9.0
  * @author Mohammad Anwari <mdamt@mdamt.net>
  *
  * Copyright (C) 2005-2014, The Roundcube Dev Team

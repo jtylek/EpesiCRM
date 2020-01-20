@@ -42,7 +42,7 @@
 *
 * @author  Jehan <jehan.marmottard@gmail.com>
 * @access  public
-* @version 1.0
+* @version 1.9.0
 * @package Auth_SASL
 */
 

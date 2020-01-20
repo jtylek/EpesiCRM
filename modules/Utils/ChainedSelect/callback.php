@@ -4,7 +4,7 @@
  * @author Georgi Hristov
  * @copyright Copyright 2016 Georgi Hristov
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package Utils/ChainedSelect
  */
 

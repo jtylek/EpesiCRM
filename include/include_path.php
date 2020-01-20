@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Janusz Tylek <j@epe.si>
- * @version 1.0
+ * @version 1.9.0
  * @license MIT
  * @package epesi-base
  */

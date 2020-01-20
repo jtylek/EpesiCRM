@@ -12,7 +12,7 @@
  *
  * For installation instructions please read the README file.
  *
- * @version 1.0
+ * @version 1.9.0
  *
  * Copyright (C) 2005-2013, The Roundcube Dev Team
  *

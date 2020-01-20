@@ -5,7 +5,7 @@
  * @author j@epe.si
  * @copyright Janusz Tylek
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-Base
  * @subpackage EpesiStore
  */
