@@ -19,6 +19,7 @@ modules/*
 
 # IDE dirs/files
 .idea
+.history
 
 Thumbs.db
 
