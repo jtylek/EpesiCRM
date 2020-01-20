@@ -4,7 +4,7 @@
  *
  * @author       Arkadiusz Bisaga, Janusz Tylek based on HTML_QuickForm select.php
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-libs
  * @subpackage QuickForm
  */

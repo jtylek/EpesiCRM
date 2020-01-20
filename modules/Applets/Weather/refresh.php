@@ -4,7 +4,7 @@
  * @author j@epe.si
  * @copyright 2008 Janusz Tylek
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-applets
  * @subpackage rssfeed
  */

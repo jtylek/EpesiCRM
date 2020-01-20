@@ -39,7 +39,7 @@
 *
 * @author  Christoph Schulz <develop@kristov.de>
 * @access  public
-* @version 1.0.3
+* @version 1.9.0.3
 * @package Auth_SASL
 */
 

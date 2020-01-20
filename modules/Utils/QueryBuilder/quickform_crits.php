@@ -3,7 +3,7 @@
  * @author  Janusz Tylek <j@epe.si>
  * @copyright Copyright &copy; 2016, Janusz Tylek
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-utils
  * @subpackage RecordBrowser
  */
