@@ -17,6 +17,9 @@ modules/*
 !modules/Tools
 !modules/Utils
 
+# node files
+node_modules
+
 # IDE dirs/files
 .idea
 .history
