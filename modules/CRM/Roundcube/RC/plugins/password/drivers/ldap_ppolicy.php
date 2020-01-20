@@ -6,7 +6,7 @@
  * Driver that adds functionality to change the user password via
  * the 'change_ldap_pass.pl' command respecting password policy (history) in LDAP.
  *
- * @version 1.0
+ * @version 1.9.0
  * @author Zbigniew Szmyd <zbigniew.szmyd@linseco.pl>
  *
  */

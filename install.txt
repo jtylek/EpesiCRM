@@ -1,0 +1,1 @@
+Installation instructions were moved to /docs directory.

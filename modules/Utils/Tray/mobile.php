@@ -5,7 +5,7 @@
  * @author Georgi Hristov <ghristov@gmx.de>
  * @copyright Copyright &copy; 2014, Xoff Software GmbH
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-tray
  */
 

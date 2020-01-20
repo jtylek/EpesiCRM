@@ -2,7 +2,7 @@
 /**
  * EPESI Compatibility check.
  * @author Arkadiusz Bisaga, Janusz Tylek
- * @version 1.0
+ * @version 1.9.0
  * @copyright Copyright &copy; 2006-2020 Janusz Tylek
  * @license MIT
  * @package epesi-base

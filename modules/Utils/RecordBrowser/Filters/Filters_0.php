@@ -3,7 +3,7 @@
  * @author Georgi Hristov <ghristov@gmx.de>
  * @copyright Copyright &copy; 2016, Georgi Hristov
  * @license MIT
- * @version 1.0
+ * @version 1.9.0
  * @package epesi-utils
  * @subpackage RecordBrowser-Filters
  */
