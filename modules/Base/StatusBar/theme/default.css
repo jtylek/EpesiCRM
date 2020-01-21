@@ -1,11 +1,10 @@
 #statusbar_content {
-	background: gray;
+	background: white;
 	height: 100%;
 	padding: 5px;
 }
 
 .Base_StatusBar img {
-	background-image: url('Base/StatusBar/loader.gif');
 	position: absolute;
 	left: 30px;
 	top: 35px;
@@ -21,7 +20,7 @@
 	height: 100%;
 	text-align: center;
 	vertical-align: middle;
-	background-color: gray;
+	background-color: rgba(128, 128, 128, 0.3);
 }
 
 .Base_StatusBar div.layer {
@@ -34,24 +33,18 @@
 }
 
 .Base_StatusBar .message {
-	width: 140px;
-	min-height: 20px;
-	line-height: 20px;
-	padding: 25px 0 25px 60px;
-	font-size: 16px;
-	font-weight: bold;
-	color: #336699;
-}
-
-.Base_StatusBar .span {
-	width: 140px;
-	min-height: 20px;
-	line-height: 20px;
-	padding: 25px 0 25px 60px;
-	font-size: 16px;
-	font-weight: bold;
-	color: #336699;
-}
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 400;
+	font-size: 14px;
+	color: #043d5f;
+	width: 200px;
+	min-height: 40px;
+	line-height: 40px;
+	padding: 25px 0 25px 60px;	
+	background-repeat: no-repeat;
+	background-position: 15px 50%;
+	}
 
 .Base_StatusBar .message .message {
 	margin-left: -60px;
@@ -60,9 +53,7 @@
 }
 
 .Base_StatusBar .loading.message {
-	width: 30px;
-	line-height: 5px;
-	height: 5px;
+	background-image: url('Base/StatusBar/loader.gif');
 	background-color: #EEEEFF;
 }
 .Base_StatusBar .normal.message {

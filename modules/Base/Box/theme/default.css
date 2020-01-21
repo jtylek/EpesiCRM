@@ -44,26 +44,22 @@ body, p {
 	font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 12px;
-    color: #001;
+    font-size: 14px;
 }
 
 *, html {
     font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 12px;
-    color: #000;
 }
 
 a {
     font-family: 'Exo 2', sans-serif;
 	font-style: bold;
 	font-weight: 700;
-	font-size: 12px;
+	font-size: 14px;
 	color: #336699;
 	text-decoration: none;
-	vertical-align: top;
 }
 
 ul, ol, li {
@@ -71,7 +67,6 @@ ul, ol, li {
 	font-style: normal;
 	font-weight: 400;
     font-size: 12px;
-    color: #011;
 }
 
 h3,
@@ -81,7 +76,7 @@ h6 {
   font-family: 'Exo 2', sans-serif;
   font-style: bold;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
   color: #043d5f;
 }
 
@@ -89,12 +84,12 @@ h1, h2 {
   font-family: 'Exo 2', sans-serif;
   font-style: bold;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   color: #043d5f;
 }
 
 h2 {
-	font-size: 12px;
+	font-size: 16px;
 	text-align: center;
 	text-decoration: underline;
 }
@@ -117,7 +112,7 @@ table {
 	font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-	font-size: 10px;
+	font-size: 14px;
 	table-layout: fixed;
 }
 
@@ -134,13 +129,14 @@ input, textarea, select {
 	font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 12px;
-    color: #001;
+    font-size: 16px;
+	height: 30px;
 	border: 1px solid #B3B3B3;
+	background-color: #AFAFAF;
 }
 
 textarea {
-	width:98%;
+	width:95%;
 }
 
 .red     { color: #993333; }
@@ -162,8 +158,8 @@ textarea {
     font-weight: normal;
     color: #FFFFFF;
     min-width: 100px;
-    line-height: 20px;
-    height: 20px;
+    line-height: 40px;
+    height: 40px;
     border: none;
     text-align: center;
     vertical-align: middle;
@@ -194,46 +190,58 @@ hr.line {
 	width: 100%;
 }
 
-/*** login ***/
 
-#Base_Box__login {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	top: -50px;
+#demo_mode {
+	font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 700;
+	cursor: pointer;
+    font-weight: bold;
+    color: white;
+	font-size: 20px;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+	padding: 10px 100px 10px 100px;
+	background: red;
+}
+
+#login_box {
 	text-align: center;
-	vertical-align: middle;
-	background-color: #F0F0F0;
+    vertical-align: middle;
+	/* position: relative; */
+	width: 575px
+	height: 250px;
+	top: -50px;
+	background-color: #FFFFFF;
 }
 
-#Base_Box__login .status {
-	height: 20px;
+#login_box .status {
+	height: 40px;
 }
 
-#Base_Box__login .entry {
+#login_box .entry {
+	text-align: center;
+    vertical-align: middle;
 }
 
-#Base_Box__login .starting {
-	height: 30px;
+#login_box .starting {
+	height: 40px;
 	padding-top: 15px;
     vertical-align: top;
 }
 
 /*** content body ***/
 
-#content_body {
+#body_content {
 /*    position: relative;*/
    /* position: absolute; */
     /*margin-top: 97px;*/
-    width: 100%;
-    padding: 5px;
+    width: 95%;
+    padding-top: 120px;
+	display: inline-block;
     border-top: 1px solid transparent;
     /*text-align: center;*/
-}
-
-#body_content {
-    padding-top: 120px;
-    width: 100%;
 }
 
 @media print {
@@ -248,14 +256,14 @@ hr.line {
 }
 
 #debug {
-	width: 90%;
+	width: 95%;
 	z-index: 99;
 	padding: 5px;
 	color: black;
 }
 
 #error_box {
-	width: 90%;
+	width: 95%;
 	z-index: 99;
 	padding: 5px;
 	color: black;
@@ -273,6 +281,7 @@ hr.line {
 
 #MenuBar {
 	background-color: #FEFEFE;
+	width: 150px;
 }
 #ActionBar {
     overflow: hidden;
@@ -281,8 +290,6 @@ hr.line {
 
 #ShadowBar {
     height: 20px;
-    background-image: url('images/shadow/b.png');
-    background-repeat: repeat-x;
     display: none;
 }
 
@@ -293,15 +300,15 @@ hr.line {
 }
 /*** top_bar_1 ***/
 
-#top_bar #top_bar_1 {
-	width: 100%;
+#top_bar {
+	width: 98%;
 	height: 20px;
 	border-bottom: 0px solid #b3b3b3;
 }
 
 /* menu bar */
 
-#top_bar #top_bar_1 .menu-bar {
+#top_bar .menu-bar {
 	height: 20px;
 	width: 40px;
 	text-align: left;
@@ -314,11 +321,11 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .menu-bar:hover { 
+#top_bar .menu-bar:hover { 
 	background: #226622;
 }
 
-#top_bar #top_bar_1 #home-bar1 {
+#top_bar {
 	width: 100%;
 	height: 22px;
 	padding-top: 4px;
@@ -326,8 +333,8 @@ hr.line {
 	margin: 0 0 0 auto;
 	}
 
-#top_bar #top_bar_1 .home-bar {
-	height: 30px;
+#top_bar .home-bar {
+	height: 40px;
 	width: 93px;
 	text-align: left;
 	cursor: pointer;
@@ -340,11 +347,11 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .home-bar:hover {
+#top_bar .home-bar:hover {
 	background: #226622;
 }
 
-#top_bar #top_bar_1 .home-bar .home-bar-icon {
+#top_bar .home-bar .home-bar-icon {
 	margin: auto 0px auto 5px ;
 	width: 20px; 
 	height: 20px; 
@@ -354,17 +361,17 @@ hr.line {
 
 .home-bar-text {
 	font-family: 'Exo 2', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
 	padding-top: 2px;
 	color: white;
 	font-weight: bold;
 	text-align: left;
 	overflow: auto;
 	float:right; 
-	width: 60px; 
+	width: 40px; 
 }
 
-#top_bar #top_bar_1 .quick-access-bar {
+#top_bar .quick-access-bar {
 	height: 20px;
 	width: 138px;
 	text-align: left;
@@ -378,7 +385,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .quick-access-bar:hover { 
+#top_bar .quick-access-bar:hover { 
 	background: #226622;
 }
 
@@ -386,7 +393,7 @@ hr.line {
 	background: #4c4c4c;
 }
 
-#top_bar #top_bar_1 .filler {
+#top_bar .filler {
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px #000000;
 	-moz-box-shadow: 0px 0px 3px #000000;
@@ -394,7 +401,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .powered {
+#top_bar .powered {
     vertical-align: bottom;
     font-size: 10px;
     color: white;
@@ -404,39 +411,19 @@ hr.line {
 	white-space: nowrap;
 }
 
-#top_bar #top_bar_1 .powered div {
+#top_bar .powered div {
     display:inline-block;
 	max-width:300px;
 	overflow:hidden;
 }
 
-#top_bar #top_bar_1 .powered a {
+#top_bar .powered a {
 	color: #FFFFFF;
     padding-left: 1px;
     padding-right: 1px;
 }
 
-#top_bar #top_bar_1 .powered a.version:hover {
-	color: gray;
-	background-color: #FFFFFF;
-}
-
-#top_bar #top_bar_1 .donate {
-	width: 100px;
-	color: white;
-	padding-right: 4px;
-	text-align: center;
-	font-size: 10px;
-}
-
-#top_bar #top_bar_1 .donate a {
-	color: #FFFFFF;
-    padding-left: 1px;
-    padding-right: 1px;
-	white-space: nowrap;
-}
-
-#top_bar #top_bar_1 .donate a:hover {
+#top_bar .powered a.version:hover {
 	color: gray;
 	background-color: #FFFFFF;
 }
@@ -453,7 +440,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .module-indicator {
+#top_bar .module-indicator {
 	width: 282px;
     height: auto;
 	font-weight: bold;
@@ -507,7 +494,7 @@ hr.line {
 	vertical-align: top;
 }
 
-.content_shadow_css3 {
+.actionbar_shadow {
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 5px #gray;
 	-moz-box-shadow: 1px 1px 5px #gray;
@@ -560,8 +547,8 @@ hr.line {
     height: auto ;
     vertical-align: top;
 }
-.shadow_css3_icons_launchpad_border {
-	width: 70px;
+.actionbar_shadow {
+	width: 100%;
 	height: 83px;
 	margin: 0px;
 	background-color: #fff;
@@ -571,7 +558,6 @@ hr.line {
 	-moz-box-shadow: 1px 1px 6px gray;
 	box-shadow: 1px 1px 6px gray;
 	/* end css3 shadow border*/
-	
 	background: #ffffff;
 }	
 	
@@ -665,7 +651,7 @@ hr.line {
 .layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
 
 .help_label {
-	margin-left: 17px;
+	margin-left: 10px;
 }
 
 .help {
@@ -709,18 +695,12 @@ hr.line {
 .important_notice_frame {
 	width: auto;
 	background-color: #EEE;
-	font-size: 14px;
-	line-height: 20px;
+	font-size: 16px;
+	line-height: 40px;
 	text-align: left;
 	padding: 5px 8px;
 	margin-top: 3px;
 	margin-bottom: 3px;
-	
-	border: 1px solid lightgray;
-
-	-webkit-box-shadow: inset 2px 2px 3px gray;
-	-moz-box-shadow: inset 2px 2px 3px gray;
-	box-shadow: inset 2px 2px 3px gray;
 }
 
 #client_messages_frame {
@@ -871,12 +851,12 @@ hr.line {
 
 .epesi_rtl .epesi_label {
 }
-
+.epesiStatusText,
 .epesi_label.header {
 	font-family: 'Exo 2', sans-serif;
 	font-style: normal;
 	font-weight: 700;
-	height: 32px;
+	height: 24px;
 	text-align: center;
 	vertical-align: middle;
 	width: 99%;
@@ -1071,4 +1051,18 @@ pre.wrap {
     white-space: -pre-wrap; /* Opera 4-6 */
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+.footer {
+	background-color: #FFFFFF;
+    font-size: 10px;
+    color: #B3B3B3;
+}
+
+.footer a {
+    color: #B3B3B3;
+}
+
+.footer a:hover {
+    color: #009a00;
 }

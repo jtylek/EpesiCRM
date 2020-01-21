@@ -4,29 +4,34 @@
 	{$logout}
 {else}
 	{$form_data.javascript}
-
+	
+	<center>
+	<div class="content">
 	<form {$form_data.attributes}>
 	{$form_data.hidden}
     <!-- Display the fields -->
-		<center>
 
-	<div class="layer" style="padding: 50px; width: 95%; background-color: #FEFEFE;">
+
 		<div>
-
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 250px;">
+	    <table id="Base_User_Login" class="login_box">
             <tbody>
 	    	<tr>
 				<td colspan="2" class="header_tail">{$logo}</td>
 			</tr>
             <tr>
-                <td class="gradient">
-                    <table cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout: auto;">
+			
+			
+            <td class="label">
+                    <table>
                         <tbody>
-{if $is_demo}
-   			<tr>
-   				<td colspan="2" align="center"><strong>EPESI DEMO APPLICATION</strong></td>
-   			</tr>
-{/if}
+						
+						
+					{if $is_demo}
+						<tr>
+							<td colspan="2" class="login_box"><strong>Demo mode</strong></td>
+						</tr>
+					{/if}
+					
 					{if isset($message)}
 						<tr>
 							<td class="message">
@@ -84,81 +89,24 @@
 
  		</div>
 	</div>
-            <!-- Epesi Terms of Use require line below - do not remove it! -->
-			<span class="footer">Copyright &copy; 2006-2020 by <a href="https://epe.si">Janusz Tylek</a>  &bull; MIT License</span>
-			<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
-            <!-- Epesi Terms of Use require line above - do not remove it! -->
-		</center>
 	</form>
+	</center>
+	</div>
 {/if}
 
 
-
-
-
+<div class="footer">
+			<br><center>
+			<!-- Epesi Terms of Use require line below - do not remove it! -->
+			<span class="footer">Copyright &copy; 2006-2020 by <a href="https://epe.si">Janusz Tylek</a></span><br>
+			<span><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></span>
+            <!-- Epesi Terms of Use require line above - do not remove it! -->
+		</center>
+</div>
+	
 {literal}
 <style type="text/css">
 div > div#top_bar { position: fixed;}
 div > div#bottom_bar { position: fixed;}
 </style>
-
-<!--[if gte IE 5.5]><![if lt IE 7]>
-
-<style type="text/css">
-#top_bar {
-	position: absolute;
-	width: expression( (body.offsetWidth-20)+'px');
-}
-#content_body {
-	width: expression( (body.offsetWidth-20)+'px');
-}
-
-#body_content {
-	display: block;
-	height: 100%;
-	max-height: 100%;
-	overflow-x: hidden;
-	overflow-y: auto;
-	position: relative;
-	z-index: 0;
-	width:100%;
-}
-
-html { height: 100%; max-height: 100%; padding: 0; margin: 0; border: 0; overflow:hidden; /*get rid of scroll bars in IE */ }
-body { height: 100%; max-height: 100%; border: 0; }
-
-
-
-
-.layer .left,
-.layer .right,
-.layer .center {
-	background: none !important;
-}
-
-.layer .shadow-middle div {
-	height: expression(
-		x = this.parentNode.parentNode.offsetHeight,
-		y = parseInt(this.currentStyle.top),
-		(x - ((x % 2) ? 1 : 0) - (y * 2)) + 'px'
-	)
-}
-
-.layer .shadow-top .center,
-.layer .shadow-bottom .center {
-	width: expression(
-		x = this.parentNode.parentNode.offsetWidth,
-		y = parseInt(this.currentStyle.left),
-		(x - ((x % 2) ? 1 : 0) - (y * 2)) + 'px'
-	)
-}
-
-.layer .shadow-top div.center {
-	top: -2px;
-}
-
-</style>
-
-<![endif]><![endif]-->
-
 {/literal}
