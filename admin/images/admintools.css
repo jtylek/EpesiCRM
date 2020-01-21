@@ -196,3 +196,37 @@ input {
     background-color: #FAFAFA;
 	padding: 2px 2px 2px 2px;
 }
+
+.flag_button {
+	display: inline-block;
+	margin: 30px;
+}
+
+.flag_button img.flag {
+	max-width: 100px;
+}
+
+.flag_button .label {
+	font: size 18px;
+	padding-top: 10px;
+	display: block;
+	text-align: center;
+}
+
+a.show_incomplete.button {
+	text-align: center;
+	display: block;
+	margin: 10px auto;
+	width: 300px;
+	font-size: 20px;
+	line-height: 40px;
+	white-space: nowrap;
+	height: 40px;
+}
+
+.error {
+	color: red;
+	font-weight: bold;
+	font-size: 18px;
+    text-align: center;
+}
