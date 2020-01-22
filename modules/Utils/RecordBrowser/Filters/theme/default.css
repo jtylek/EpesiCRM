@@ -19,8 +19,8 @@
 /* label */
 
 .Utils_RecordBrowser__Filter .label {
-    color: #FFFFFF;
-    height: 28px;
+    color: #EFEFEF;
+    height: 30px;
     vertical-align: middle;
     padding-left: 5px;
     padding-right: 5px;
@@ -37,23 +37,20 @@
 .Utils_RecordBrowser__Filter .data select {
     background-color: #FFFFF9;
     border: none;
-    width: 100px;
-	height: 24px;
-	font-size: 13px;
+    width: 120px;
+	height: 30px;
+	font-size: 16px;
 	margin-left: 2px;
 }
 .Utils_RecordBrowser__Filter .data select {
 	margin-right: 2px;
-	height: 26px;
-    width: 98px;
-}
-.Utils_RecordBrowser__Filter .data select {
+	height: 30px;
+    width: 120px;
 	padding: 4px 0;
 }
 
-
 .Utils_RecordBrowser__Filter .data input[type='checkbox'] {
-    width: auto;
+    width: 30px;
 }
 
 .Utils_RecordBrowser__Filter .data input:focus,
@@ -73,22 +70,22 @@
 	cursor: pointer;
 	display: block;
     float: right;
-    padding-right: 8px;
+    padding-right: 5px;
 }
 
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons,
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
-    padding-left: 8px;
+    padding-left: 5px;
     float: left;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,
 #Utils_RecordBrowser__Filter .buttons input {
-    color: #FFFFFF;
-    width: 100px;
+    color: #EFEFEF;
+    width: 120px;
     height: 30px;
     border: 0px;
-	padding-bottom: 3px;
+	padding-bottom: 5px;
 	cursor: pointer;
 }
 
@@ -96,14 +93,15 @@
 #Utils_RecordBrowser__Filter .buttons_disabled input {
     color: #FFFFFF;
     background-color: #336699;
-    width: 100px;
+    width: 120px;
     height: 30px;
     border: 0px;
-	padding-bottom: 3px;
+	padding-bottom: 5px;
 	cursor: pointer;
 }
 
 .Utils_RecordBrowser__Filter .buttons input:hover,
 #Utils_RecordBrowser__Filter .buttons input:hover {
-	padding-bottom: 3px;
+  padding-bottom: 3px;
+	padding-botom: 5px;
 }
