@@ -59,7 +59,7 @@ a {
 	font-weight: 700;
 	font-size: 14px;
 	color: #336699;
-	text-decoration: none;
+	text-decoration: underline;
 }
 
 ul, ol, li {
@@ -208,11 +208,12 @@ hr.line {
 #login_box {
 	text-align: center;
     vertical-align: middle;
-	/* position: relative; */
+	/* position: relative; 
 	width: 560px
 	height: 250px;
 	top: -50px;
 	background-color: #ADADAD;
+	*/
 }
 
 #login_box .status {
@@ -237,8 +238,7 @@ hr.line {
 /*    position: relative;*/
    /* position: absolute; */
     /*margin-top: 97px;*/
-    width: 95%;
-    padding-top: 120px;
+    padding-top: 50px;
 	display: block;
     border-top: 1px thin transparent;
 }
@@ -251,7 +251,7 @@ hr.line {
 
 #main_content {
 	position: relative;
-	/* width: 100%; */
+	width: 100%;
 }
 
 #debug {
