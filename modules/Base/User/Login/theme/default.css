@@ -1,9 +1,4 @@
 .css3_content_shadow {
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px black;
-	-moz-box-shadow: 1px 1px 3px black;
-	box-shadow: 1px 1px 3px black;
-	/* end css3 shadow border*/
 }
 
 table#Base_User_Login {
