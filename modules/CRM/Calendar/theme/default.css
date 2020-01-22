@@ -9,14 +9,6 @@
     white-space: nowrap;
 }
 
-/* only for IE */
-
-#CRM_Calendar__filter .shadow-top,
-#CRM_Calendar__filter .shadow-middle,
-#CRM_Calendar__filter .shadow-bottom {
-	_display: none;
-}
-
 #CRM_Calendar__filter .layer {
 	_padding: 0px;
 }

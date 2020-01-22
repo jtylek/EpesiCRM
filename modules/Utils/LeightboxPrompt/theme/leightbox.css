@@ -57,18 +57,7 @@ table#Utils_LeightboxPrompt a:hover {
     -moz-transition: all 0.5s ease-out;
     -o-transition: all 0.5s ease-out;	
 	/* end Transition*/
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 0px 0px 3px gray;
-	-moz-box-shadow: 0px 0px 3px gray;
-	box-shadow: 0px 0px 3px gray;
-	/* end css3 shadow border*/	
 }
 
 .leightbox_shadow_css3:hover {
-	/* css3 shadow border*/
-	-webkit-box-shadow: 0px 0px 10px #005100;
-	-moz-box-shadow: 0px 0px 10px #005100;
-	box-shadow: 0px 0px 10px #005100;
-	/* end css3 shadow border*/
 }
