@@ -129,18 +129,18 @@ input, textarea, select {
 	font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
 	height: 30px;
 	border: 1px solid #B3B3B3;
-	background-color: #AFAFAF;
+	background-color: #EEEEEE;
 }
 
 textarea {
-	width:95%;
+	width:98%;
 }
 
 .red     { color: #993333; }
-.green   { color: #339933; }
+.green   { color: #1FAF53; }
 .blue    { color: #336699; }
 .yellow  { color: #999933; }
 .gray    { color: #b3b3b3; }
@@ -164,8 +164,6 @@ textarea {
     text-align: center;
     vertical-align: middle;
 	background: #226622;
-}
-.button {
 	display: inline-block;
 	white-space: nowrap;
 	padding: 0 5px;
@@ -183,6 +181,7 @@ textarea {
 	background: #226622;
     color: white;
 }
+
 hr.line {
 	border: 0px;
 	background-color: #B3B3B3;
@@ -210,10 +209,10 @@ hr.line {
 	text-align: center;
     vertical-align: middle;
 	/* position: relative; */
-	width: 575px
+	width: 560px
 	height: 250px;
 	top: -50px;
-	background-color: #FFFFFF;
+	background-color: #ADADAD;
 }
 
 #login_box .status {
@@ -221,11 +220,12 @@ hr.line {
 }
 
 #login_box .entry {
-	text-align: center;
+	text-align: left;
     vertical-align: middle;
 }
 
 #login_box .starting {
+	
 	height: 40px;
 	padding-top: 15px;
     vertical-align: top;
@@ -239,9 +239,8 @@ hr.line {
     /*margin-top: 97px;*/
     width: 95%;
     padding-top: 120px;
-	display: inline-block;
-    border-top: 1px solid transparent;
-    /*text-align: center;*/
+	display: block;
+    border-top: 1px thin transparent;
 }
 
 @media print {
@@ -281,11 +280,16 @@ hr.line {
 
 #MenuBar {
 	background-color: #FEFEFE;
-	width: 150px;
+	width: 50px;
 }
 #ActionBar {
+	position: fixed;
+	left: 0px;
+	top: 20px;       
+	z-index: 10;
+	background-color: transparent;
     overflow: hidden;
-    height: 100px;
+    height: 40px;
 }
 
 #ShadowBar {
@@ -298,7 +302,6 @@ hr.line {
         display: none;
     }
 }
-/*** top_bar_1 ***/
 
 #top_bar {
 	width: 98%;
@@ -309,8 +312,8 @@ hr.line {
 /* menu bar */
 
 #top_bar .menu-bar {
-	height: 20px;
-	width: 40px;
+	height: 40px;
+	width: 80px;
 	text-align: left;
 	background: #226622;
 	
@@ -327,10 +330,9 @@ hr.line {
 
 #top_bar {
 	width: 100%;
-	height: 22px;
+	height: 40px;
 	padding-top: 4px;
 	padding-bottom: 4px;
-	margin: 0 0 0 auto;
 	}
 
 #top_bar .home-bar {
@@ -339,12 +341,6 @@ hr.line {
 	text-align: left;
 	cursor: pointer;
 	background: #226622;
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 0px 0px 3px #000000;
-	-moz-box-shadow: 0px 0px 3px #000000;
-	box-shadow: 0px 0px 3px #000000;
-	/* end css3 shadow border*/
 }
 
 #top_bar .home-bar:hover {
@@ -456,7 +452,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 
-#top_bar #top_bar_1 .module-indicator #module-indicator {
+#top_bar .module-indicator #module-indicator {
 	width: auto;
 	height: 22px;
     text-align: center;
@@ -466,8 +462,8 @@ hr.line {
 	margin: auto 4px auto 5px;
 }
 
-#top_bar #top_bar_1 .module-indicator #quick-logout {
-    width: 30px;
+#top_bar .module-indicator #quick-logout {
+    width: 60px;
     height: 30px;
     float: left;
     border-left: 4px solid #b3b3b3;
@@ -476,18 +472,19 @@ hr.line {
     background-position: 3px 3px;
 }
 
-#top_bar #top_bar_1 .module-indicator #quick-logout:hover {
+#top_bar .module-indicator #quick-logout:hover {
+
 }
 
 /*** top_bar_2 ***/
 
-#top_bar #top_bar_2 {
+#top_bar {
 	width: 100%;
 	height: auto;
 	background: #f0f0f0;
 }
 
-#top_bar #top_bar_2 .logo {
+#top_bar .logo {
 	width: 193px;
 	height: 80px;
 	text-align: left;
@@ -501,7 +498,7 @@ hr.line {
 	box-shadow: 1px 1px 5px #gray;
 	/* end css3 shadow border*/}
 	
-.shadow_css3_logo_border {
+.logo {
 	width: 193px;
 	height: 83px;
 	background-color: #fff;
@@ -514,13 +511,7 @@ hr.line {
 	/* end css3 shadow border*/
 }
 	
-	
-
-
-#top_bar #top_bar_2 .logo img {
-}
-
-#top_bar #top_bar_2 .icons {
+#top_bar .icons {
 	width: auto;
 	vertical-align: top;
 	height: auto;
@@ -769,7 +760,7 @@ hr.line {
 	font-family: 'Exo 2', sans-serif;
 	font-style: bold;
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 14px;
 	cursor: hand;
 	background-color: #FEFEFE;
 	color: #0A3C5C;
@@ -851,17 +842,20 @@ hr.line {
 
 .epesi_rtl .epesi_label {
 }
-.epesiStatusText,
-.epesi_label.header {
+
+#epesiStatusText,
+#epesi_label.header {
 	font-family: 'Exo 2', sans-serif;
 	font-style: normal;
-	font-weight: 700;
-	height: 24px;
+	font-weight: 400;
+	height: 16px;
 	text-align: center;
-	vertical-align: middle;
-	width: 99%;
-    line-height: 32px;
-    font-size: 18px;
+	vertical-align: bottom;
+	width: 95%;
+    line-height: 20px;
+    font-size: 14px;
+	color: 1FAF53;
+	background-color: #000000;
 }
 
 .epesi_data {
@@ -893,21 +887,21 @@ hr.line {
 .epesi_data select,
 .epesi_data textarea {
 	width: 97%;
-    min-width: 50px;
-	height: 30px;
-    background-color: #ACACAC;
+    min-width: 100px;
+	height: 40px;
+    background-color: #FCFCFC;
     border: 1px;
 	padding: 3px 5px;
 }
 .epesi_data input[type=checkbox],
 .epesi_data input[type=radio] {
-        min-width: 20px;
+        min-width: 30px;
 }
 .epesi_data textarea {
 	height: 60px;
 }
 .epesi_data select {
-	height: 18px;
+	height: 30px;
 	padding: 0;
 	margin-left: 2px;
 	margin-top: 2px;
@@ -925,14 +919,14 @@ hr.line {
 .epesi_data textarea {
 }
 .epesi_data.static_field {
-    line-height: 24px;
-    padding-left: 4px;
+    line-height: 30px;
+    padding-left: 5px;
 }
 
 .epesi_data.static_field,
 .epesi_data input,
 .epesi_data textarea {
-	padding-right: 0px;
+	padding-right: 2px;
 }
 /* timestamp START */
 .epesi_data.timestamp > div > div {
@@ -940,7 +934,7 @@ hr.line {
 }
 .epesi_data.timestamp > div > div:last-child {
 	float: none;
-	margin-right: 190px;
+	margin-right: 150px;
 }
 .epesi_data.timestamp > div > div:last-child input {
 }
@@ -951,10 +945,10 @@ hr.line {
 /* currency END */
 /* automulti START */
 .epesi_data.automulti select {
-	height: 96px;
+	height: 120px;
 }
 .epesi_data.automulti td {
-	padding: 0;
+	padding: 5px;
 }
 .epesi_data.automulti input[type="text"]{
 }
@@ -963,8 +957,8 @@ hr.line {
 }
 .epesi_data.automulti input[type="button"]{
 	height: 100%;
-	width: 99%;
-	padding: 0;
+	width: 98%;
+	padding: 2px;
 }
 .epesi_data.automulti input::-webkit-input-placeholder,
 .epesi_data.automulti input::-moz-placeholder {
@@ -1030,16 +1024,16 @@ hr.line {
 .epesi_caption {
 	width: auto;
     text-align: left;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     color: #DEB42F;
-    height: 28px;
+    height: 20px;
     white-space: nowrap;
     vertical-align: top;
 	
-	margin-left: 12px;
-	margin-right: 12px;
-	padding: 5px 18px 0px;
+	margin-left: 5px;
+	margin-right: 5px;
+	padding: 5px 5px 0px;
 	display: inline-block;
 	margin-bottom: 7px;
 	background: #0A3C5C;
@@ -1065,4 +1059,10 @@ pre.wrap {
 
 .footer a:hover {
     color: #009a00;
+}
+
+div > div#top_bar {
+    color: #B3B3B3;
+	background-color: #0A3C5C;
+	position: fixed;
 }
