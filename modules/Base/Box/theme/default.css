@@ -16,6 +16,15 @@ background: #DEB42F;
 
  */
 
+ .red     { color: #641010; }
+ .green   { color: rgb(18, 90, 44); }
+ .blue    { color: #0A3C5C; }
+ .yellow  { color: #2fde5b; }
+ .gray    { color: #ced1cc; }
+ .black   { color: #131313; }
+ .dark-gray { color: #444444; }
+ 
+
 @font-face {
   font-family: 'Exo 2', sans-serif;
   font-style: normal;
@@ -44,7 +53,10 @@ body, p {
 	font-family: 'Titillium Web', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 14px;
+	font-size: 14px;
+	background-color: #EEEEEE;
+	color: #0A3C5C;
+
 }
 
 *, html {
@@ -55,10 +67,10 @@ body, p {
 
 a {
     font-family: 'Exo 2', sans-serif;
-	font-style: bold;
-	font-weight: 700;
+	font-style: normal;
+	font-weight: 400;
 	font-size: 14px;
-	color: #336699;
+	color: .blue;
 	text-decoration: underline;
 }
 
@@ -66,7 +78,7 @@ ul, ol, li {
     font-family: 'Exo 2', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-    font-size: 12px;
+    font-size: 16px;
 }
 
 h3,
@@ -77,14 +89,15 @@ h6 {
   font-style: bold;
   font-weight: 400;
   font-size: 16px;
-  color: #043d5f;
+  color: .blue;
 }
 
 h1, h2 {
   font-family: 'Exo 2', sans-serif;
   font-style: bold;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
+  font-style: italic;
   color: #043d5f;
 }
 
@@ -118,11 +131,11 @@ table {
 
 
 a:hover {
-	color: #993333;
+	color: #8ddb94;
 }
 
 .button a:hover {
-	color: white;
+	color: #0ff022;
 }
 
 input, textarea, select {
@@ -130,23 +143,14 @@ input, textarea, select {
 	font-style: normal;
 	font-weight: 400;
     font-size: 14px;
-	height: 30px;
-	border: 1px solid #B3B3B3;
+	height: 25px;
+	border: 1px solid .dark-grey;
 	background-color: #EEEEEE;
 }
 
 textarea {
-	width:98%;
+	width:99%;
 }
-
-.red     { color: #993333; }
-.green   { color: #1FAF53; }
-.blue    { color: #336699; }
-.yellow  { color: #999933; }
-.gray    { color: #b3b3b3; }
-.black   { color: #000000; }
-.dark-gray { color: #777777; }
-
 
 .child_button > input,
 .child_button > div > input,
@@ -157,10 +161,10 @@ textarea {
 	cursor: pointer;
     font-weight: normal;
     color: #FFFFFF;
-    min-width: 100px;
-    line-height: 40px;
-    height: 40px;
-    border: none;
+    min-width: 60px;
+    line-height:60px;
+    height: 60px;
+    border: tan;
     text-align: center;
     vertical-align: middle;
 	background: #226622;
@@ -208,16 +212,15 @@ hr.line {
 #login_box {
 	text-align: center;
     vertical-align: middle;
-	/* position: relative; 
-	width: 560px
-	height: 250px;
-	top: -50px;
+	position: relative; 
+	width: 50%;
+	height: 300px;
+	margin-bottom: 50px;
 	background-color: #ADADAD;
-	*/
 }
 
 #login_box .status {
-	height: 40px;
+	height: 30px;
 }
 
 #login_box .entry {
@@ -227,7 +230,7 @@ hr.line {
 
 #login_box .starting {
 	
-	height: 40px;
+	height: 30px;
 	padding-top: 15px;
     vertical-align: top;
 }
@@ -239,8 +242,9 @@ hr.line {
    /* position: absolute; */
     /*margin-top: 97px;*/
     padding-top: 50px;
-	display: block;
-    border-top: 1px thin transparent;
+	display: contents;
+	border-top: 1px solid transparent;
+	border-color: black;
 }
 
 @media print {
@@ -264,7 +268,7 @@ hr.line {
 #error_box {
 	width: 95%;
 	z-index: 99;
-	padding: 5px;
+	padding: 50px;
 	color: black;
 }
 
@@ -278,22 +282,25 @@ hr.line {
 	background-color: transparent;
 }
 
-#MenuBar {
-	background-color: #FEFEFE;
+#menu {
+	background-color: rgb(28, 116, 54);
 	width: 50px;
 }
+
+#div {
+	border:solid 1px red;
+}
+
 #ActionBar {
-	position: fixed;
-	left: 0px;
-	top: 20px;       
+	position: relative;     
 	z-index: 10;
 	background-color: transparent;
     overflow: hidden;
-    height: 40px;
+	height: 48px;
 }
 
 #ShadowBar {
-    height: 20px;
+    height: 50px;
     display: none;
 }
 
@@ -304,50 +311,37 @@ hr.line {
 }
 
 #top_bar {
-	width: 98%;
+	width: 100%;
 	height: 20px;
-	border-bottom: 0px solid #b3b3b3;
+	border-bottom: 1px solid #b3b3b3;
 }
 
 /* menu bar */
 
-#top_bar .menu-bar {
-	height: 40px;
-	width: 80px;
+#top_bar .menu {
+	height: 20px;
+	width: 150px;
 	text-align: left;
+	color: .yellow;
 	background: #226622;
 }
 
-#top_bar .menu-bar:hover { 
-	background: #226622;
+#top_bar .menu:hover { 
+	background: #76e476;
 }
 
-#top_bar {
-	width: 100%;
-	height: 40px;
-	padding-top: 4px;
-	padding-bottom: 4px;
-	}
-
-#top_bar .home-bar {
-	height: 40px;
-	width: 93px;
+.home {
+	height: 20px;
+	width: 150px;
 	text-align: left;
 	cursor: pointer;
 	background: #226622;
 }
 
-#top_bar .home-bar:hover {
+.home:hover {
 	background: #226622;
 }
 
-#top_bar .home-bar .home-bar-icon {
-	margin: auto 0px auto 5px ;
-	width: 20px; 
-	height: 20px; 
-	float: left;
-	background-image: url("Base/Box/home-small.png");
-}
 
 .home-bar-text {
 	font-family: 'Exo 2', sans-serif;
@@ -358,38 +352,36 @@ hr.line {
 	text-align: left;
 	overflow: auto;
 	float:right; 
-	width: 40px; 
+	width: 120px; 
 }
 
 #top_bar .quick-access-bar {
 	height: 20px;
-	width: 138px;
+	width: 150px;
 	text-align: left;
 	overflow: hidden;
     background: #226622;
 }
 
 #top_bar .quick-access-bar:hover { 
-	background: #226622;
+	background: #44d644;
 }
 
 .top_bar_black {
-	background: #4c4c4c;
+	background: #02000e;
 }
 
 #top_bar .powered {
     vertical-align: bottom;
     font-size: 10px;
-    color: white;
-    text-align: right;
-	padding-right: 5px;
-	width: 250px;
+    color: .yellow;
+    text-align: left;
+	padding-left: 5px;
 	white-space: nowrap;
 }
 
 #top_bar .powered div {
     display:inline-block;
-	max-width:300px;
 	overflow:hidden;
 }
 
@@ -405,8 +397,8 @@ hr.line {
 }
 
 .top_bar_help {
-	width: 70px;
-	height: auto;
+	width: 100px;
+	height: 20px;
 	overflow: hidden;
 }
 
@@ -472,16 +464,6 @@ hr.line {
 	vertical-align: top;
 	height: auto;
 }
-
-.shadow_css3_icons_border {	
-	width: 100%;
-	height: 83px;
-	margin: 0px;
-	background-color: #fff;
-	padding: 0px;
-	overflow: hidden;
-	background: #ffffff;
-}
 	
 .icons_launchpad {
     width: 70px;
@@ -496,95 +478,6 @@ hr.line {
 	padding: 0px;
 	background: #ffffff;
 }	
-	
-#top_bar #top_bar_2 #login-search-td {
-	width: 282px;
-	height: auto;
-    vertical-align: top;
-}
-
-.shadow_css3_login-search-td_border  {
-	width: 277px;
-	height: 83px;
-	margin: 0px;
-	background-color: #fff;
-	padding-right: 5px;
-}
-
-
-#top_bar #top_bar_2 .search {
-	height: 30px;
-	vertical-align: top;
-	text-align: left;
-	padding-left: 3px;
-}
-
-#top_bar #top_bar_2 .search #Base_Search__Search {
-    width: 277px;
-}
-
-
-/*	=layer
----------------------------------------------------------------------------- */
-
-.layer {
-	margin: 0px;
-	padding: 2px 8px 10px 8px;
-	position: relative;
-}
-
-.layer .content_shadow {
-	z-index: 1;
-}
-
-/*	=shadow
----------------------------------------------------------------------------- */
-
-.layer .left,
-.layer .right,
-.layer .center {
-	position: absolute;
-}
-
-.layer .shadow-top .left,
-.layer .shadow-top .right,
-.layer .shadow-bottom .left,
-.layer .shadow-bottom .right {
-	width: 20px;
-	height: 20px;
-	background-repeat: no-repeat;
-	background-position: 0 0;
-}
-
-.layer .shadow-top .center,
-.layer .shadow-bottom .center {
-	height: 10px;
-	right: 20px;
-	left: 20px;
-	background-repeat: repeat-x;
-}
-
-.layer .shadow-middle div {
-	width: 10px;
-	bottom: 20px;
-	top: 20px;
-	background-repeat: repeat-y;
-}
-
-.layer .shadow-top div { top: 0; }
-.layer .shadow-bottom div { bottom: 0; }
-
-.layer .left { left: 0; }
-.layer .right { right: 0; }
-
-.layer .shadow-top		.left	{ background-image: url('images/shadow/tl.png'); }
-.layer .shadow-top		.right	{ background-image: url('images/shadow/tr.png'); }
-.layer .shadow-bottom	.left	{ background-image: url('images/shadow/bl.png'); }
-.layer .shadow-bottom	.right	{ background-image: url('images/shadow/br.png'); }
-.layer .shadow-top		.center	{ background-image: url('images/shadow/t.png' ); }
-.layer .shadow-bottom	.center	{ background-image: url('images/shadow/b.png' ); }
-.layer .shadow-middle	.left	{ background-image: url('images/shadow/l.png' ); }
-.layer .shadow-middle	.right	{ background-image: url('images/shadow/r.png' ); }
 
 .help_label {
 	margin-left: 10px;
@@ -775,21 +668,6 @@ hr.line {
 }
 
 .epesi_rtl .epesi_label {
-}
-
-#epesiStatusText,
-#epesi_label.header {
-	font-family: 'Exo 2', sans-serif;
-	font-style: normal;
-	font-weight: 400;
-	height: 16px;
-	text-align: center;
-	vertical-align: bottom;
-	width: 95%;
-    line-height: 20px;
-    font-size: 14px;
-	color: 1FAF53;
-	background-color: #000000;
 }
 
 .epesi_data {

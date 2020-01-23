@@ -1,53 +1,47 @@
 #Base_User_Login .main_content {
-	margin: 10px;
-	padding: 50px;
+	margin-top: 10px;
+	padding: 10px;
 	font-family: 'Exo 2', sans-serif;
 	font-style: normal;
 	font-weight: 400;
-	border: 1px solid #AFAFAF;
-	font-size: 14px;
-	height: 20px;
-	background-color: #E0E0E0;
+	font-size: 16px;
 	text-align: center;
 	align-items: center;
 	display: block;
-	width: 300px;
 	align: center;
 }
 
 #Base_Box__login {
-	width: 50%;
+	color: #0A3C5C;
+	font-size: 18px;
+	width: 95%;
 	text-align: center;
 	align-items: center;
 	background-color: #DADADA;
-}
-
-#Base_User_Login .gradient {
-	background-color: #ffffff;
-	background: #0A3C5C;
+	vertical-align: bottom;
 }
 
 #Base_User_Login .title {
-	color: #0A3C5C;
-	font-size: 18px;
+	background-color: #0A3C5C;
+	color: #DADADA;;
+	font-size: 22px;
 	text-align: center;
+	line-height: 30px;
 	height: 30px;
+	width: 300px;
 }
 
 #Base_User_Login .title span {
 	vertical-align: super;
-	font-size: 14px;
 }
 
 #Base_User_Login a {
 	color: #777777;
-	font-size: 14px;
 }
 
 #Base_User_Login span.error {
 	color: red;
-	font-size: 14px;
-}
+	
 
 #Base_User_Login .error {
 	text-align: center;

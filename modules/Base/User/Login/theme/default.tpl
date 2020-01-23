@@ -74,6 +74,7 @@
 			<span id="footer_text">Copyright &copy; 2006-2020 by Janusz Tylek</span>
             <!-- Epesi Terms of Use require line above - do not remove it! -->
 </div>
+{/if}
 
 {literal}
 
