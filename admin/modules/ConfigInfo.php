@@ -49,7 +49,7 @@ class ConfigInfo extends AdminModule {
         $this->printTD("Curl loaded", $curl_loaded, $color, $curl_ok);
         $this->closeTable();
 
-        print('<br/><br/><div class="title">EPESI config.php</div>');
+        print('<div class="title">EPESI config.php</div>');
 
         $this->startTable();
         $this->printTD('epesi version:', EPESI_VERSION);

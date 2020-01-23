@@ -51,7 +51,6 @@ class Patches extends SteppedAdminModule {
                 return ob_get_clean();
             case 2:
                 $text = '<H1>Epesi was patched and cache files were updated.'; 
-                $text .='<a href="./index.php"> MAIN MENU</a></center>';
                 return $text;
         }
     }

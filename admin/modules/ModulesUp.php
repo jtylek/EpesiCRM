@@ -22,8 +22,7 @@ class ModulesUp extends SteppedAdminModule {
     }
 
     public function success_text() {
-        $text = '<center><strong>Load priority array was successfully updated.</strong><br><br>';
-        $text .='<a href="./index.php"> MAIN MENU</a></center>';
+        $text = '<center><strong>Load priority array was successfully updated.</strong></center>';
         return $text;
     }
 

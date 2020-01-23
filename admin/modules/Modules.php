@@ -8,7 +8,7 @@ class Modules extends AdminModule {
         //create default module form
         print('<div class="title"><H1>Select modules to disable</H1></div>');
         print('Selected modules will be marked as not installed but uninstall methods will not be called. Any database tables and other modifications made by modules\' install methods will not be reverted.<br><br>');
-        print('<H2>To uninstall module please use Modules Administration & Store in Epesi Application.</H2>');
+        print('To uninstall module please use <strong>Modules Administration & Store</strong> in Epesi Application.<BR>');
         print('<hr/><br/>');
         $form = new HTML_QuickForm('modulesform', 'post', $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET), '', null, true);
 

@@ -1,4 +1,4 @@
-.epesiStatus {
+#epesiStatus {
     position: fixed;
     right: 5%;
     bottom: 5%;
@@ -15,7 +15,7 @@
     overflow: auto;
 }
 
-.epesiStatusText {
+#epesiStatusText {
     padding: 5px;
     font-family: 'Exo 2', sans-serif;
     font-weight: 400;
