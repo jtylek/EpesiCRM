@@ -18,11 +18,14 @@ body, p {
 a {
     font-family: 'Exo 2', sans-serif;
 	font-style: bold;
-	font-weight: 700;
-	font-size: 16px;
-	color: #226622;
+	font-weight: 400;
+	font-size: 18px;
+	color: #0A3C5C;
 	text-decoration: none;
-	vertical-align: top;
+}
+
+a :hover {
+    text-decoration: solid;
 }
 
 ul, ol, li {
@@ -120,20 +123,20 @@ table.listing tr.odd {
 
 span.footer {
 	font-family: 'Exo 2', sans-serif;
-	font-style: bold;
-	font-weight: 700;
-	font-size: 16px;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
 	color: #0A3C5C;
 	background-color: #FFFFFF;
 	text-decoration: none;
 	vertical-align: bottom;
-	height: 50px;
+	height: 100px;
 }
 
 .line {
     height: 1px;
     width: 100%;
-    background-color: #0A3C5C;
+    background-color: rgb(67, 59, 99);
     margin-top: 0px;
     margin-bottom: 0px;
 }
@@ -143,7 +146,7 @@ span.footer {
 #banner {
     width: 100%;
 	padding-bottom: 5px;
-    border-bottom: 3px solid #0A3C5C;
+    border-bottom: 3px solid rgb(67, 59, 99);
 }
 
 #banner .image {
@@ -190,9 +193,45 @@ div.licence {
 
 input {
 	width: 200px;
-    font-size: 16px;
+    font-size: 14px;
 	text-align: center;
     border: 1px solid #0A3C5C;
     background-color: #FAFAFA;
 	padding: 2px 2px 2px 2px;
+}
+
+.flag_button {
+	display: inline-block;
+	margin: 20px;
+}
+
+.flag_button img.flag {
+	max-width: 100px;
+}
+
+.flag_button .label {
+    font: size 18px;
+	padding: 5px;
+    display: block;
+    background-color: #ADADAD;
+    text-align: center;
+    height: 30px;
+}
+
+a.show_incomplete.button {
+	text-align: center;
+	display: block;
+	margin: 10px auto;
+	width: 300px;
+	font-size: 20px;
+	line-height: 40px;
+	white-space: nowrap;
+	height: 40px;
+}
+
+.error {
+	color: red;
+	font-weight: bold;
+	font-size: 18px;
+    text-align: center;
 }
