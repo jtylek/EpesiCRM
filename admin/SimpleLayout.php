@@ -71,17 +71,19 @@ class SimpleLayout {
             </head>
 
             <body>
-                <table id="banner" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td class="image">&nbsp;</td>
-                        <td class="header"><H1>ADMIN UTILITIES</H1></td>
-						<td><?php if ($this->show_action_links)
-							print('<div>' . $this->format_action_links() . '</div>');
-						?></td>
-                    </tr>
-                </table>
-                <br/>
-                <center>
+           
+                <div class="banner" id="banner">
+                        <div class="header">ADMIN UTILITIES</div>
+                 </div>
+                 
+                 <div class="links">
+                 <?php if ($this->show_action_links){
+                     print($this->format_action_links());
+                    }
+                 ?> 
+                 </div>
+
+                 
     <?php }
 
     function startframe() { ?>
@@ -98,8 +100,8 @@ class SimpleLayout {
     function pagefooter() {
         ?>
 
-		<div id="footer"
-                    <div class="footer"><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a></div>
+		<div class="footer" id="footer">
+			<div><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a></div>
 			<div>Copyright &copy; 2006-<?php echo date('Y'); ?> by Janusz Tylek</div>
 		    <div class="support">Support: <a href="https://epesi.org">https://epesi.org</a></div>
 		</div>
