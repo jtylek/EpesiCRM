@@ -32,7 +32,9 @@ $_SESSION['num_of_clients'] = $client_id_next;
 if($client_id-5>=0) {
     EpesiSession::destroy_client(session_id(),$client_id-5);
     $_SESSION['session_destroyed'][$client_id-5] = 1;
-}
-session_commit();
+    }
 
-?>Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>');
+session_commit();
+?>
+
+Epesi.init(<?php print($client_id); ?>,'<?php print(rtrim(str_replace('\\','/',dirname($_SERVER['PHP_SELF'])),'/').'/process.php'); ?>','<?php print(http_build_query($_GET));?>');

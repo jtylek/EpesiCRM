@@ -28,3 +28,4 @@ vendor
 !modules/CRM/Roundcube/RC/vendor
 
 tests/config.yml
+node_modules

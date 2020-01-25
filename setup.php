@@ -53,48 +53,22 @@ include "{$install_lang_dir}/{$install_lang_load}.php";
 // end translations load
 
 function set_header($str) {
-	print('<script type="text/javascript">document.getElementById("setup_page_header").innerHTML="'.$str.'";</script>');
-}
-
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-	  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-	  <title><?php echo __("EPESI setup"); ?></title>
-	  <link href="setup.css" type="text/css" rel="stylesheet"/>
-</head>
-<body>
-		<table id="banner" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td class="image">&nbsp;</td>
-				<td class="back" id="setup_page_header">&nbsp;</td>
-				<td class="image back">&nbsp;</td>
-			</tr>
-		</table>
-		<br>
-		<center>
-		<table id="main" border="0" cellpadding="0" cellspacing="0">
-			<tr>
-				<td>
-<?php
+		require_once('include/setup_header.inc');
+		print('<script type="text/javascript">document.getElementById("navbar_title").innerHTML="'.$str.'";</script>');
+		return;
+	}
 
 function footer() {
-?>
-				</td>
-			</tr>
-		</table>
-		</center>
-		<br>
-		<center>
-		<span class="footer">MIT License  &bull; Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a></span>
-		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
-		</center>
-</body>
-</html>
-<?php
-}
+	require_once('include/setup_footer.inc');
+	return;
+	}
+
 register_shutdown_function('footer');
+
+
+// Start to build a page
+
+set_header('<H1>Setup Wizard</H1>');
 
 // language selection form
 
@@ -121,12 +95,13 @@ if (!isset($install_lang_code)) {
 	print('</div>');
 	print('<a class="show_incomplete button" onclick="this.style.display=\'none\';document.getElementById(\'incomplete_translations\').style.display=\'\';">Show incomplete translations</a>');
 	print('<div id="incomplete_translations" style="display:none;">');
+	print('<div class="flag"');
 	foreach ($rest as $l=>$label) {
 		Base_LangCommon::print_flag($l, $label, 'href="?install_lang='.$l.'"');
 	}
-	print('</div>');
+	print('</div></div>');
 	
-	set_header('Setup Wizard');
+	
 	die();
 }
 

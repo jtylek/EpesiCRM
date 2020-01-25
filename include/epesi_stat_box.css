@@ -1,0 +1,27 @@
+#epesiStatus {
+    position: fixed;
+    right: 5%;
+    bottom: 5%;
+    /* margin-left: -280px; */
+    background-color: #cfe6ce;
+    /* border: 1px; */
+    visibility: hidden;
+    width: 300px;
+    height: 100px;
+    text-align: left;
+    vertical-align: middle;
+    z-index: 2002;
+    color: #0A3C5C;
+    overflow: auto;
+}
+
+#epesiStatusText {
+    padding: 5px;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 400;
+    color: #0A3C5C;
+    font-size: 24px;
+    position: relative;
+    left: 25px;
+    top: 25px;
+}

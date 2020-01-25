@@ -8,7 +8,8 @@
 }
 
 #Filters_header .left {
-	width: 20px;
+	width: 60px;
+	height: 60px;
 	display: block;
 	float: left;
 }
@@ -22,7 +23,7 @@
 }
 
 #Filters_header .right {
-	width: 17px;
+	width: 40px;
 	display: block;
 	float: right;
 	padding-top: 3px;
@@ -47,28 +48,11 @@ table#Utils_LeightboxPrompt a:hover {
 
 .leightbox_shadow_css3 {
 	margin: 8px; 
-	width: 56px;
-	height: 73px;
+	width: 50px;
+	height: 50px;
 	overflow: hidden;
 	background-color: white; 
-	
-	/*Transition*/
-	-webkit-transition: all 0.5s ease-out;
-    -moz-transition: all 0.5s ease-out;
-    -o-transition: all 0.5s ease-out;	
-	/* end Transition*/
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 0px 0px 3px gray;
-	-moz-box-shadow: 0px 0px 3px gray;
-	box-shadow: 0px 0px 3px gray;
-	/* end css3 shadow border*/	
 }
 
 .leightbox_shadow_css3:hover {
-	/* css3 shadow border*/
-	-webkit-box-shadow: 0px 0px 10px #005100;
-	-moz-box-shadow: 0px 0px 10px #005100;
-	box-shadow: 0px 0px 10px #005100;
-	/* end css3 shadow border*/
 }
