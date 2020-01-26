@@ -3,7 +3,7 @@
 class ThemeUp extends SteppedAdminModule {
 
     public function menu_entry() {
-        return "Rebuild common cache & default theme";
+        return "Theme Updater Utility";
     }
 
     public function required_epesi_modules() {
@@ -23,14 +23,13 @@ class ThemeUp extends SteppedAdminModule {
     }
 
     public function start_text() {
-        return '<center>This utility will rebuild Common Cache and refresh Theme files.<br/><br/>'
+        return '<center>This utility will rebuild Theme Cache files.<br/><br/>'
                 . 'After clicking Next button please wait...<br/>'
                 . 'Rebuilding theme files may take a while.</center>';
     }
 
     public function success_text() {
-        $text = '<center><strong>Common Cache and Theme templates were successfully updated.</strong><br>'; 
-        $text .='<a href="./index.php"> MAIN MENU</a></center>';
+        $text = '<center><strong>Theme templates cache was successfully updated.</strong><br>'; 
         return $text;
     }
 

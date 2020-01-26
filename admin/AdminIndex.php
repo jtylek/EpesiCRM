@@ -94,6 +94,7 @@ class AdminIndex {
     }
 
     private function show_menu() {
+        
         foreach ($this->admin_modules as $module_name => $module) {
             $href = '?' . http_build_query(array('module' => $module_name));
             $this->layout->add_menu_entry($href, $module->menu_entry());
@@ -142,7 +143,7 @@ class AdminIndex {
 
         $this->include_admin_modules();
         $this->create_admin_modules_instances();
-
+        
         $module = $this->selected_module();
         if ($module)
             $this->show_module($module);

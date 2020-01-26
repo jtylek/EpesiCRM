@@ -97,8 +97,9 @@ class SimpleLayout {
 
     function pagefooter() {
         ?>
-		<div id="footer"
-                    <div class="footer"><a href="https://epe.si"><img src="images/epesi-powered.png" border="0"></a></div>
+          
+          <div class="footer" style="margin-top: 10px;">
+            <div><a href="https://epe.si"><img src="images/epesi-powered.png"></a></div>
 			<div>Copyright &copy; 2006-<?php echo date('Y'); ?> by Janusz Tylek</div>
 		    <div class="support">Support: <a href="https://epesi.org">https://epesi.org</a></div>
 		</div>
