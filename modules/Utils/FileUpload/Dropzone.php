@@ -5,7 +5,7 @@
  *
  * @author  Janusz Tylek <j@epe.si>
  * @copyright Copyright &copy; 2016, Janusz Tylek
- * @version 1.9.0
+ * @version 1.0
  * @license MIT
  * @package epesi-utils
  * @subpackage file-uploader

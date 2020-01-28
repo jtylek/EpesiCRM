@@ -44,6 +44,12 @@ table.root td.separator {
 	display: none;
 	font-weight: normal;
 	background-color: #336699;
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px #2F4F4F;
+	-moz-box-shadow: 1px 1px 3px #2F4F4F;
+	box-shadow: 1px 1px 3px #2F4F4F;
+	/* end css3 shadow border*/
 }
 .item_sub .item_sub .submenu {
 	margin: 0px auto auto 0px;

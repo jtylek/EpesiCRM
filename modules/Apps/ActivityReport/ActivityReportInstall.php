@@ -3,7 +3,7 @@
  * @author Arkadiusz Bisaga, Janusz Tylek,  Janusz Tylek <j@epe.si>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
- * @version 1.9.0
+ * @version 1.0
  * @package epesi-apps
  * @subpackage activityreport
  */

@@ -244,7 +244,7 @@ hr.line {
 
 #main_content {
 	position: relative;
-	width: 100%;
+	/* width: 100%; */
 }
 
 #debug {
@@ -306,6 +306,12 @@ hr.line {
 	width: 40px;
 	text-align: left;
 	background: #226622;
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 2px 2px 5px green;
+	-moz-box-shadow: 2px 2px 5px green;
+	box-shadow: 2px 2px 5px green;
+	/* end css3 shadow border*/
 }
 
 #top_bar #top_bar_1 .menu-bar:hover { 
@@ -364,6 +370,12 @@ hr.line {
 	text-align: left;
 	overflow: hidden;
     background: #226622;
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px #gray;
+	-moz-box-shadow: 1px 1px 3px #gray;
+	box-shadow: 1px 1px 3px #gray;
+	/* end css3 shadow border*/
 }
 
 #top_bar #top_bar_1 .quick-access-bar:hover { 
@@ -375,6 +387,11 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .filler {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px #000000;
+	-moz-box-shadow: 0px 0px 3px #000000;
+	box-shadow: 0px 0px 3px #000000;
+	/* end css3 shadow border*/
 }
 
 #top_bar #top_bar_1 .powered {
@@ -428,6 +445,12 @@ hr.line {
 	width: 70px;
 	height: auto;
 	overflow: hidden;
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px #000000;
+	-moz-box-shadow: 0px 0px 3px #000000;
+	box-shadow: 0px 0px 3px #000000;
+	/* end css3 shadow border*/
 }
 
 #top_bar #top_bar_1 .module-indicator {
@@ -438,6 +461,12 @@ hr.line {
 	color: #FFFFFF;
     vertical-align: medium;
     text-align: center;
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px #000000;
+	-moz-box-shadow: 0px 0px 3px #000000;
+	box-shadow: 0px 0px 3px #000000;
+	/* end css3 shadow border*/
 }
 
 #top_bar #top_bar_1 .module-indicator #module-indicator {
@@ -479,14 +508,23 @@ hr.line {
 }
 
 .content_shadow_css3 {
-}
-
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 5px #gray;
+	-moz-box-shadow: 1px 1px 5px #gray;
+	box-shadow: 1px 1px 5px #gray;
+	/* end css3 shadow border*/}
+	
 .shadow_css3_logo_border {
 	width: 193px;
 	height: 83px;
 	background-color: #fff;
 	padding: 0px;
 	overflow: hidden;
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px gray;
+	-moz-box-shadow: 1px 1px 3px gray;
+	box-shadow: 1px 1px 3px gray;
+	/* end css3 shadow border*/
 }
 	
 	
@@ -508,6 +546,12 @@ hr.line {
 	background-color: #fff;
 	padding: 0px;
 	overflow: hidden;
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px gray;
+	-moz-box-shadow: 1px 1px 3px gray;
+	box-shadow: 1px 1px 3px gray;
+	/* end css3 shadow border*/
+	
 	background: #ffffff;
 }
 	
@@ -522,6 +566,12 @@ hr.line {
 	margin: 0px;
 	background-color: #fff;
 	padding: 0px;
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 6px gray;
+	-moz-box-shadow: 1px 1px 6px gray;
+	box-shadow: 1px 1px 6px gray;
+	/* end css3 shadow border*/
+	
 	background: #ffffff;
 }	
 	
@@ -650,6 +700,10 @@ hr.line {
 	margin: 20px;
 	
 	border: 1px solid gray;
+
+	-webkit-box-shadow: 2px 2px 6px black;
+	-moz-box-shadow: 2px 2px 6px black;
+	box-shadow: 2px 2px 6px black;
 }
 
 .important_notice_frame {
@@ -663,6 +717,10 @@ hr.line {
 	margin-bottom: 3px;
 	
 	border: 1px solid lightgray;
+
+	-webkit-box-shadow: inset 2px 2px 3px gray;
+	-moz-box-shadow: inset 2px 2px 3px gray;
+	box-shadow: inset 2px 2px 3px gray;
 }
 
 #client_messages_frame {
@@ -696,6 +754,10 @@ hr.line {
 	z-index: 1500;
     background-color: white;
     margin: 10px;
+
+	-webkit-box-shadow: 3px 3px 11px #444;
+	-moz-box-shadow: 3px 3px 11px #444;
+	box-shadow: 3px 3px 11px #444;
 }
 
 .popup_notice_frame {
@@ -705,6 +767,10 @@ hr.line {
 	margin: 3px -3px 0;
     position: relative;
     padding-bottom: 10px;
+
+	-webkit-box-shadow: 1px 1px 2px #999;
+	-moz-box-shadow: 1px 1px 2px #999;
+	box-shadow: 1px 1px 2px #999;
 }
 
 .popup_notice_frame_close_button {
@@ -1005,24 +1071,4 @@ pre.wrap {
     white-space: -pre-wrap; /* Opera 4-6 */
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
-}
-
-.footer {
-	background-color: #FFFFFF;
-    font-size: 10px;
-    color: #B3B3B3;
-}
-
-.footer a {
-    color: #B3B3B3;
-}
-
-.footer a:hover {
-    color: #009a00;
-}
-
-div > div#top_bar {
-    color: #B3B3B3;
-	background-color: #0A3C5C;
-	position: fixed;
 }

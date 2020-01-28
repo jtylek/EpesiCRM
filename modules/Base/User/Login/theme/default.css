@@ -1,181 +1,156 @@
-#Base_User_Login .main_content {
-	margin: 10px;
-	padding: 50px;
+.css3_content_shadow {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 3px black;
+	-moz-box-shadow: 1px 1px 3px black;
+	box-shadow: 1px 1px 3px black;
+	/* end css3 shadow border*/
+}
+
+table#Base_User_Login {
 	font-family: 'Exo 2', sans-serif;
 	font-style: normal;
-	font-weight: 400;
-	border: 1px solid #AFAFAF;
-	font-size: 14px;
-	height: 20px;
+	font-weight: 700;
+	border: 1px solid #FFFFFF;
+	font-size: 16px;
 	background-color: #E0E0E0;
-	text-align: center;
-	align-items: center;
-	display: block;
-	width: 300px;
-	align: center;
 }
 
-#Base_Box__login {
-	width: 50%;
-	text-align: center;
-	align-items: center;
-	background-color: #DADADA;
-}
-
-#Base_User_Login .gradient {
+table#Base_User_Login .gradient {
 	background-color: #ffffff;
 	background: #0A3C5C;
 }
 
-#Base_User_Login .title {
+table#Base_User_Login td.title {
 	color: #0A3C5C;
-	font-size: 18px;
+	font-size: 20px;
 	text-align: center;
-	height: 30px;
+	height: 35px;
 }
 
-#Base_User_Login .title span {
+table#Base_User_Login td.title span {
 	vertical-align: super;
-	font-size: 14px;
+	font-size: 10px;
 }
 
-#Base_User_Login a {
+table#Base_User_Login a {
 	color: #777777;
-	font-size: 14px;
+	font-size: 11px;
 }
 
-#Base_User_Login span.error {
+table#Base_User_Login span.error {
 	color: red;
-	font-size: 14px;
+	font-size: 11px;
 }
 
-#Base_User_Login .error {
+table#Base_User_Login td.error {
 	text-align: center;
-	height: 30px;
+	height: 20px;
 }
 
-#Base_User_Login .input input {
-	color: #0A3C5C;
+table#Base_User_Login td.input input {
+	color: #000000;
 	border: 1px solid #B3B3B3;
-	width: 150px;
-	padding: 2px 10px 2px 2px;
+	width: 160px;
+	padding: 2px 7px;
 }
 
-#Base_User_Login .input input:focus {
-	border: 2px solid #0A3C5C;
+table#Base_User_Login td.input input:focus {
 	background-color: #FFFFA5;
 }
 
-#Base_User_Login .button {
-	width: 200px;
-}
-
-#Base_User_Login .login {
-	width: 250px;
-}
-
-#Base_User_Login .submit_button input {
+table#Base_User_Login td.submit_button input {
 	color: #FFFFFF;
 	border: 0px;
-	width: 200px;
-	height: 30px;
+	width: 100px;
+	height: 25px;
 	vertical-align: middle;
 	cursor: pointer;
 	background: #226622;
 }
 
-#Base_User_Login input.submit:hover {
-	color: #FFFFA5;
-	width: 210px;
-	height: 35px;
+table#Base_User_Login input.submit:hover {
 	background: #226622;
 }
 
-#Base_User_Login .label {
+table#Base_User_Login td.label {
 	font-family: 'Exo 2', sans-serif;
 	font-style: bold;
-	font-weight: 400;
-	font-size: 14;
+	font-weight: 700;
+	width: 225px;
 	height: 30px;
+	color: #000000;
 	text-align: right;
 }
 
-#Base_User_Login .input {
+table#Base_User_Login td.input {
 	font-weight: normal;
-	width: 200px;
+	width: 325px;
 	height: 30px;
 	text-align: left;
 }
 
-.epesi_rtl #Base_User_Login .label {
+.epesi_rtl table#Base_User_Login td.label {
 	text-align: left;
 }
 
-.epesi_rtl #Base_User_Login .input {
+.epesi_rtl table#Base_User_Login td.input {
 	text-align: right;
 }
 
+table#Base_User_Login td.input input {
+	font-size: 16px;
+}
 
-#Base_User_Login .submit_button {
+table#Base_User_Login td.submit_button {
+	text-align: center;
+	height: 35px;
+}
+
+table#Base_User_Login td.header_tail {
+	width: 550px;
+	height: 200px;
+	background-color: #FFFFFF;
+}
+
+table#Base_User_Login td.footer {
+	color: #336699;
+	font-size: 11px;
 	text-align: center;
 	height: 40px;
-	width: 200px;
+	vertical-align: top;
 }
 
-#header_tail {
-	width: 300px;
-	margin: 20px;
-}
-
-#Base_User_Login .footer {
-		background-color: #FFFFFF;
-		font-size: 14px;
-		color: #758f82;
-		padding-top: 30px;
-		text-align: center;
-		align-items: center;
-		display: grid;
-}
-
-
-#Base_User_Login .footer a {
+table#Base_User_Login td.footer a {
 	font-weight: bold;
 	color: #336699;
 }
 
-#Base_User_Login .footer a:hover {
+table#Base_User_Login td.footer a:hover {
 	color: #993333;
 }
 
-#Base_User_Login .recover_password {
+table#Base_User_Login td.recover_password {
 	text-align: center;
 	color: #336699;
 	font-weight: bold;
 	height: 25px;
-	width: 250px;
 }
 
-#Base_User_Login .recover_password a {
+table#Base_User_Login td.recover_password a {
 	color: #777777;
-	font-size: 18px;
-	height: 50px;
-	width: 250px;
 }
 
-#Base_User_Login .recover_password a:hover {
-	color: #226622;
-	font-size: 20px;
-	background-color: #E0E0E0;
+table#Base_User_Login td.recover_password a:hover {
+	color: #000000;
 }
 
-#Base_User_Login .autologin {
+table#Base_User_Login td.autologin {
 	text-align: center;
-	height: 40px;
-	color: #226622;
-	background-color: #E0E0E0;
+	height: 30px;
+	color: #777777;
 }
 
-#Base_User_Login .donation_notice {
+table#Base_User_Login td.donation_notice {
 	text-align: center;
 	vertical-align: middle;
 	height: 30px; 
@@ -184,11 +159,11 @@
 	color: #888;
 }
 
-#Base_User_Login .donation_notice a {
+table#Base_User_Login td.donation_notice a {
 	color: #00F;
 }
 
-#Base_User_Login .donation_notice a:hover {
+table#Base_User_Login td.donation_notice a:hover {
 	color: #77F;
 	text-decoration: underline;
 }
@@ -204,9 +179,9 @@
 .logout_icon {
 	font-weight: normal;
     color: #FFFFFF;
-    width: 150px;
-    line-height: 30px;
-    height: 30px;
+    width: 110px;
+    line-height: 21px;
+    height: 22px;
     display: block;
     border: none;
     text-align: center;
@@ -221,13 +196,12 @@
 }
 
 .logged_as {
-	float: right;
+	float: left;
+    height: 30px;
 	padding-top: 0px;
 	margin-left: 6px;
 	text-align: left;
 	line-height: 30px;
-	background-color: #226622;
-	color: #E0E0E0;
 }
 
 .epesi_rtl .logged_as {
@@ -236,9 +210,9 @@
 
 .logout_css3_box {
     display: block;
-    height: 30px;
+    height: 21px;
     overflow: hidden;
-    width: 150px;
+    width: 108px;
 	float: right;
 }
 
@@ -246,12 +220,26 @@
 	float: left;
 }
 
-
-#Base_User_Login .message {
-	text-align: center;
-	line-height: 30px;
-	font-size: 16px;
+#top_bar #top_bar_2 .login {
+	height: 26px;
+    padding-top: 1px;
+	vertical-align: top;
+	text-align: left;
+    padding-left: 4px;
 }
-#Base_User_Login .message a {
-	font-variant: small-caps;
+
+.login .button {
+	width: 109px;
+}
+
+table#Base_User_Login .message {
+	text-align: center;
+	line-height: 22px;
+	font-size: 16px;
+	height: 135px;
+}
+table#Base_User_Login .message a {
+	text-align: center;
+	line-height: 22px;
+	font-size: 16px;
 }

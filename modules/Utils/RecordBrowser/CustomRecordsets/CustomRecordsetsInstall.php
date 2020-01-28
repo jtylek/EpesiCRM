@@ -4,7 +4,7 @@
  *          Janusz Tylek <j@epe.si>
  * @copyright Copyright &copy; 2008, 2014 Janusz Tylek
  * @license MIT
- * @version 1.9.0
+ * @version 1.0
  * @package epesi-utils
  * @subpackage RecordBrowser
  */

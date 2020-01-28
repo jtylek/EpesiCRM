@@ -134,6 +134,9 @@
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input,
 .Utils_RecordBrowser__View_entry .data textarea {
+	-webkit-box-shadow: inset 1px 1px 1px #777;
+	-moz-box-shadow: inset 1px 1px 1px #777;
+	box-shadow: inset 1px 1px 1px #777;
 }
 
 .Utils_RecordBrowser__View_entry table.edit .frozen,

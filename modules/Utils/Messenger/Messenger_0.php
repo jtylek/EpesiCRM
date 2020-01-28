@@ -4,7 +4,7 @@
  * @author j@epe.si
  * @copyright j@epe.si
  * @license MIT
- * @version 1.9.0
+ * @version 1.0
  * @package epesi-Utils
  * @subpackage Messenger
  */

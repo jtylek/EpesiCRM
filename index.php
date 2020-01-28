@@ -7,7 +7,7 @@
  * @author Janusz Tylek <j@epe.si>
  * @copyright Copyright &copy; 2006-2020 Janusz Tylek
  * @license MIT
- * @version 1.9.0 
+ * @version 1.0 
  * @package epesi-base
  */
 if(version_compare(phpversion(), '7.0.0')==-1)
