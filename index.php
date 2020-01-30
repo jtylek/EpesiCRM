@@ -43,45 +43,7 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 
 ob_start();
 
-if(IPHONE) {
-	if(!isset($_GET['force_desktop'])) {
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="robots" content="NOINDEX, NOARCHIVE">
-	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
-	<title><?php print(EPESI);?></title>
-	<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
-	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
-	<script type="text/javascript" charset="utf-8">
-		window.onload = function() {
-		  setTimeout(function(){window.scrollTo(0, 1);}, 100);
-		}
-	</script>
-</head>
 
-<body>
-<div id="header">
-		<h1><?php print(EPESI);?></h1>
-</div>
-
-Please choose <?php print(EPESI);?> version:<ul>
-<li><a href="mobile.php" class="white button">mobile</a><br>
-<li><a href="index.php?force_desktop=1" class="green button">desktop</a>
-</ul>
-
-</body>
-</html>
-<?php
-		exit();
-	}
-} elseif(detect_mobile_device()) {
-	header('Location: mobile.php');
-	exit();
-}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -89,12 +51,10 @@ Please choose <?php print(EPESI);?> version:<ul>
 
 		<head profile="http://www.w3.org/2005/11/profile">
 		<link rel="icon" type="image/png" href="images/favicon.png" />
-		<link rel="apple-touch-icon" href="images/apple-favicon.png" />
 		<title><?php print(EPESI);?></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
-        <meta name="robots" content="NOINDEX, NOARCHIVE">
+		<meta name="robots" content="NOINDEX, NOARCHIVE">
 <?php
 		ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 		require_once('Minify/Build.php');
@@ -114,50 +74,6 @@ Please choose <?php print(EPESI);?> version:<ul>
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
 		
-
-		<style type="text/css">
-			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
-			#epesiStatus {
-  				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
-  				position: fixed;
-  				left: 50%; top: 30%;
-                margin-left: -280px;
-  				/* all */
-  				/*background-color: #e6ecf2;*/
-  				background-color: white;
-				border: 1px;
-				visibility: hidden;
-				width: 560px;
-				height: 250px;
-				text-align: center;
-				vertical-align: middle;
-				z-index: 2002;
-                color: #0A3C5C;
-				overflow: hidden;
-				
-				/* css3 shadow border*/
-				-webkit-box-shadow: 1px 1px 5px black;
-				-moz-box-shadow: 1px 1px 5px black;
-				box-shadow: 1px 1px 5px black;
-				/* end css3 shadow border*/
-			}
-			#epesiStatus table {
-				font-family: 'Exo 2', sans-serif;
-				font-style: bold;
-				font-weight: 700;
-				color: #0A3C5C;
-				font-size: 28px;
-            }
-
-			#epesiStatusText {
-				font-family: 'Exo 2', sans-serif;
-				font-style: bold;
-				font-weight: 700;
-				color: #0A3C5C;
-				font-size: 28px;
-            }
-		</style>
-		
 		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 		
 		<?php print(TRACKING_CODE); ?>
@@ -165,31 +81,17 @@ Please choose <?php print(EPESI);?> version:<ul>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
 
 		<div id="body_content">
-			<div id="main_content" style="display:none; background-color: #FEFEFE;"></div>
+			
+			<div id="main_content"></div>
+			
 			<div id="debug_content" style="padding-top:97px;display:none;">
 				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
-			
-			<div id="epesiStatus" style="height: 300px;">
+		</div>	
+		
 
-			
-				<table cellspacing="5" cellpadding="5" border="0" style="width: 100%;">
-					<tr>
-						<td><img src="images/logo.png" alt="logo" width="80%" height="80%" border="0"></td>
-					</tr>
-					<tr>
-					<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>	
-						
-					</tr>
-					<tr>
-					<td style="text-align: center; vertical-align: middle; height: 24px;"><img src="images/loader.gif" alt="loader" width="300" height="20" border="0"></td>
-
-					</tr>
-				</table>
-			</div>	
-		</div>
         <?php 
         /*
          * init_js file allows only num_of_clients sessions. If there is image
