@@ -32,15 +32,15 @@ hideAllNow = function(menu, submenu) {
 selected_menu_item = function(menu, a_tag) {
 	new Effect.Morph(a_tag, {
 		style: 'background-color: #4FD64F;',
-		duration: 0.3
+		duration: 0.1
 	});
 	new Effect.Morph(a_tag, {
 		style: 'background-color: #4F864F;',
-		duration: 0.3,
-		delay: 0.3,
+		duration: 0.1,
+		delay: 0.1,
 		afterFinish: function() {a_tag.style.backgroundColor = "";}
 	});
-	setTimeout("hideAllNow(\'"+menu+"\', 0);", 600);
+	setTimeout("hideAllNow(\'"+menu+"\', 0);", 100);
 }
 
 custom_show = function(menu, submenu) {
@@ -85,7 +85,7 @@ custom_hide_f = function(menu, submenu, opacity) {
 }
 
 custom_hide = function(menu, submenu) {
-	timeout[menu][submenu] = setTimeout('custom_hide_f(\''+menu+'\', '+submenu+', 1)', 300);
+	timeout[menu][submenu] = setTimeout('custom_hide_f(\''+menu+'\', '+submenu+', 1)', 100);
 }
 //////////////////////////////////////////////////////////////////////////////
 CustomMenubar = function(id, _layout) {
