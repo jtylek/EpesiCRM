@@ -11,16 +11,14 @@
 	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
 	eval_js_once('document.body.id=null'); //pointer-events:none;
 {/php}
-	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;" id="help_canvas" width="3000px" height="3000px"></canvas>
-	<img class="Base_Help__tools" style="display: none;" id="Base_Help__help_arrow" src="{$theme_dir}/Base/Help/arrow.png" />
-	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div><div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
-	<div id="top_bar" class="nonselectable" style="width: auto;">
+
+	<div id="top_bar" class="nonselectable">
 		<div id="MenuBar">
-		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
+		<table id="top_bar_1">
 		<tbody>
 			<tr>
 				<td style="empty-cells: hide; width: 8px;"></td>
-				<td class="menu-bar" style="width: 193px;">{$menu}</td>
+				<td class="menu-bar">{$menu}</td>
 				<td style=" empty-cells: hide; width: 7px;"></td>
 				<td class="home-bar" {$home.href} style="width: 150px;">
 					<div id="home-bar1">
@@ -47,20 +45,13 @@
 		</div>
 		
 		<div id="ActionBar">
-			<table id="top_bar_2" cellspacing="0" cellpadding="0" border="0">
+			<table id="top_bar_2">
 			<tbody>
 				<tr>
 					<td style="empty-cells: hide; width: 8px;"></td>
 					<td class="logo"><div class="shadow_css3_logo_border">{$logo}</div></td>
 					<td style="empty-cells: hide; width: 6px;"></td>
 				
-					<td class="icons">
-						<!--<div class="login">{$login}</div>-->
-						<div class="shadow_css3_icons_border">
-							{$actionbar}
-						</div>
-					</td>
-
 					<td id="launchpad_button_section_spacing" style="empty-cells: hide; width: 6px; display:none;"></td>
 					<td class="icons_launchpad" id="launchpad_button_section" style="display: none;">
 						<div class="shadow_css3_icons_launchpad_border"> 
@@ -68,6 +59,12 @@
 						</div>
 					</td>
 
+					<td class="icons">
+						<!--<div class="login">{$login}</div>-->
+						<div class="shadow_css3_icons_border">
+							{$actionbar}
+						</div>
+					</td>
 					<td style="empty-cells: hide; width: 8px;"></td>
 				</tr>
 			</tbody>
@@ -76,8 +73,8 @@
 	</div>
 	<!-- -->
 	<div id="content">
-		<div id="content_body" style="top: 50px;">
-			<center>{$main}</center>
+		<div id="content_body">
+			{$main}
 		</div>
 	</div>
 

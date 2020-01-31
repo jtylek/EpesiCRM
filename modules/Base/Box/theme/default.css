@@ -234,7 +234,8 @@ hr.line {
     width: auto;
     padding: 2px;
     border-top: 1px solid transparent;
-    /*text-align: center;*/
+	/*text-align: center;*/
+	top: 50px;
 }
 
 #body_content {
