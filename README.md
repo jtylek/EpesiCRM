@@ -85,3 +85,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </p>
 <b>By installing and using this software you automatically agree with the licensing terms and included EULA</b> (End User License Agreement)
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjtylek%2Fepesi.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjtylek%2Fepesi?ref=badge_large)
