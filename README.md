@@ -1,4 +1,5 @@
 ![Epesi Logo](/images/epesi-setup_wiz.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjtylek%2Fepesi.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjtylek%2Fepesi?ref=badge_shield)
 =
 [![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi) SourceForge Repository
 
@@ -85,3 +86,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </p>
 <b>By installing and using this software you automatically agree with the licensing terms and included EULA</b> (End User License Agreement)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjtylek%2Fepesi.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjtylek%2Fepesi?ref=badge_large)
