@@ -1,0 +1,610 @@
+[
+    {
+        "name": "phpmd",
+        "enabled": true,
+        "config": {
+            "rules": [
+                {
+                    "ruleKey": "BooleanArgumentFlag",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "BooleanGetMethodName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CamelCaseClassName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CamelCaseMethodName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CamelCaseParameterName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CamelCasePropertyName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CamelCaseVariableName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ConstantNamingConventions",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ConstructorWithNameAsEnclosingClass",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CouplingBetweenObjects",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "CyclomaticComplexity",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "DepthOfInheritance",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "DevelopmentCodeFragment",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ElseExpression",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "EvalExpression",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ExcessiveClassComplexity",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ExcessiveParameterList",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ExcessivePublicCount",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ExitExpression",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "GotoStatement",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "LongVariable",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "NPathComplexity",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "NumberOfChildren",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ShortMethodName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "ShortVariable",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "StaticAccess",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Superglobals",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "TooManyFields",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "TooManyMethods",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "TooManyPublicMethods",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "UnusedFormalParameter",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "UnusedLocalVariable",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "UnusedPrivateField",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "UnusedPrivateMethod",
+                    "enabled": true
+                }
+            ]
+        },
+        "enabledRules": 34,
+        "disabledRules": 0
+    },
+    {
+        "name": "phpcs",
+        "enabled": true,
+        "config": {
+            "rules": [
+                {
+                    "ruleKey": "Generic.Arrays.ArrayIndent",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Arrays.DisallowLongArraySyntax",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.CodeAnalysis.EmptyStatement",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Commenting.Todo",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.ControlStructures.InlineControlStructure",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Debug.ClosureLinter",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Files.ByteOrderMark",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Formatting.DisallowMultipleStatements",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Formatting.MultipleStatementAlignment",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.Formatting.SpaceAfterCast",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Generic.Functions.OpeningFunctionBraceBsdAllman",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Generic.NamingConventions.ConstructorName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.NamingConventions.UpperCaseConstantName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Generic.PHP.DeprecatedFunctions",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.PHP.DisallowShortOpenTag",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.PHP.LowerCaseConstant",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Generic.PHP.LowerCaseKeyword",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Generic.Strings.UnnecessaryStringConcat",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Channels.DisallowSelfActions",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Channels.IncludeOwnSystem",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Channels.IncludeSystem",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Channels.UnusedSystem",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Commenting.FunctionComment",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.CSS.BrowserSpecificStyles",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Debug.DebugCode",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Debug.FirebugConsole",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Objects.AssignThis",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "MySource.Objects.CreateWidgetTypeCallback",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Objects.DisallowNewWidget",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.PHP.AjaxNullComparison",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "MySource.PHP.EvalObjectFactory",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "MySource.PHP.GetRequestData",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "MySource.PHP.ReturnFunctionValue",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PEAR.ControlStructures.ControlSignature",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.ControlStructures.MultiLineCondition",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Files.IncludingFile",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Formatting.MultiLineAssignment",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Functions.FunctionCallSignature",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Functions.FunctionDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Functions.ValidDefaultValue",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.NamingConventions.ValidClassName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.NamingConventions.ValidFunctionName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.NamingConventions.ValidVariableName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PSR1.Classes.ClassDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR1.Files.SideEffects",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR1.Methods.CamelCapsMethodName",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Classes.ClassDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Classes.PropertyDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.ControlStructures.ControlStructureSpacing",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.ControlStructures.ElseIfDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.ControlStructures.SwitchDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Files.ClosingTag",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Files.EndFileNewline",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Methods.FunctionCallSignature",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Methods.FunctionClosingBrace",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Methods.MethodDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Namespaces.NamespaceDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "PSR2.Namespaces.UseDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Arrays.ArrayBracketSpacing",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Arrays.ArrayDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Classes.ClassDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Classes.ClassFileName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Classes.DuplicateProperty",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Classes.LowercaseClassKeywords",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Classes.SelfMemberReference",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Classes.ValidClassName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.ControlSignature",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.ElseIfDeclaration",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.ForEachLoopDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.ForLoopDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.InlineIfDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.LowercaseDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.ControlStructures.SwitchDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Files.FileExtension",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Formatting.OperatorBracket",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Functions.FunctionDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Functions.FunctionDeclarationArgumentSpacing",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Functions.FunctionDuplicateArgument",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Functions.GlobalFunction",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Functions.LowercaseFunctionKeywords",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Functions.MultiLineFunctionDeclaration",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.NamingConventions.ValidFunctionName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.NamingConventions.ValidVariableName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Objects.DisallowObjectStringIndex",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Objects.ObjectInstantiation",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Objects.ObjectMemberComma",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Operators.ComparisonOperatorUsage",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Operators.IncrementDecrementUsage",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Operators.ValidLogicalOperators",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.PHP.CommentedOutCode",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DisallowBooleanStatement",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DisallowComparisonAssignment",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DisallowInlineIf",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DisallowMultipleAssignments",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DisallowSizeFunctionsInLoops",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.DiscouragedFunctions",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.PHP.EmbeddedPhp",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.PHP.Eval",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.PHP.GlobalKeyword",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.Heredoc",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.InnerFunctions",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.LowercasePHPFunctions",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.PHP.NonExecutableCode",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Scope.MemberVarScope",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Scope.MethodScope",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Scope.StaticThisUsage",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Squiz.Strings.ConcatenationSpacing",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Strings.DoubleQuoteUsage",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Squiz.Strings.EchoedStrings",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "Zend.Files.ClosingTag",
+                    "enabled": true
+                },
+                {
+                    "ruleKey": "Zend.NamingConventions.ValidVariableName",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "MySource.Strings.JoinStrings",
+                    "enabled": false
+                },
+                {
+                    "ruleKey": "PEAR.Classes.ClassDeclaration",
+                    "enabled": false
+                }
+            ]
+        },
+        "enabledRules": 49,
+        "disabledRules": 64
+    }
+]
