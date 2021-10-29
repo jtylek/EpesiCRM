@@ -741,11 +741,12 @@ class ModuleManager {
 	 */
 	public static final function new_instance($mod,$parent,$name,$clear_vars=false) {
 		$class = str_replace('#', '_', $mod);
-		if (!in_array('Module', class_parents($class))) {
-			trigger_error("Class $mod is not a subclass of Module", E_USER_ERROR);
+		
+		if (!is_a($class, Module::class, true)) {
+			trigger_error("Class $class is not a subclass of Module", E_USER_ERROR);
 		}
-		$m = new $class($mod,$parent,$name,$clear_vars, self::get_container());
-		return $m;
+		
+		return new $class($mod,$parent,$name,$clear_vars, self::get_container());
 	}
 
 	/**
