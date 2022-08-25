@@ -10,10 +10,10 @@
     <!-- Display the fields -->
 		<center>
 
-	<div class="layer" style="padding: 50px; width: 95%; background-color: #FEFEFE;">
-		<div>
+	<div class="layer" style="padding: 9px; width: 552px;">
+		<div class="css3_content_shadow">
 
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 250px;">
+	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 507px;">
             <tbody>
 	    	<tr>
 				<td colspan="2" class="header_tail">{$logo}</td>
@@ -75,6 +75,17 @@
 							<td colspan="2" class="autologin">{$form_data.warning.html}</td>
                         </tr>
                         <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
+                        <tr><td>&nbsp;</td></tr>
+					{if isset($donation_note)}
+						<tr>
+							<td colspan="2" class="donation_notice">{$donation_note}</td>
+						</tr>
+					{/if}
+                        <tr><td colspan="2" class="footer">
+                        <!-- Epesi Terms of Use require line below - do not remove it! -->
+                        Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup>
+                        <!-- Epesi Terms of Use require line above - do not remove it! -->
+                        </td></tr>
                         </tbody>
                     </table>
                 </td>
@@ -84,10 +95,11 @@
 
  		</div>
 	</div>
+
             <!-- Epesi Terms of Use require line below - do not remove it! -->
-			<span class="footer">Copyright &copy; 2006-2020 by <a href="https://epe.si">Janusz Tylek</a>  &bull; MIT License</span>
-			<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
+            <a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
             <!-- Epesi Terms of Use require line above - do not remove it! -->
+
 		</center>
 	</form>
 {/if}
@@ -151,6 +163,19 @@ body { height: 100%; max-height: 100%; border: 0; }
 		y = parseInt(this.currentStyle.left),
 		(x - ((x % 2) ? 1 : 0) - (y * 2)) + 'px'
 	)
+}
+																								/* POPRAWIC SCIEZKE ! */
+.layer .shadow-top .left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/tl.png", sizingMethod="crop");  }
+.layer .shadow-top .right		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/tr.png", sizingMethod="crop");  }
+.layer .shadow-bottom .left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/bl.png", sizingMethod="crop");  }
+.layer .shadow-bottom .right	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/br.png", sizingMethod="crop");  }
+.layer .shadow-top .center		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/t.png",  sizingMethod="scale"); }
+.layer .shadow-bottom .center	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/b.png",  sizingMethod="scale"); }
+.layer .shadow-middle .left		{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/l.png",  sizingMethod="scale"); }
+.layer .shadow-middle .right	{ filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="modules/Base/Theme/images/shadow/r.png",  sizingMethod="scale"); }
+
+.layer .shadow-bottom div.center {
+	bottom: -3px;
 }
 
 .layer .shadow-top div.center {

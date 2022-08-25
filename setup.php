@@ -2,7 +2,7 @@
 /**
  * @author Janusz Tylek <j@epe.si>
  * @version 1.1
- * @copyright Copyright &copy; 2019, Janusz Tylek
+ * @copyright Copyright &copy; 2022, Janusz Tylek
  * @license MIT
  * @package epesi-base
  */
@@ -87,7 +87,8 @@ function footer() {
 		</center>
 		<br>
 		<center>
-		<span class="footer">MIT License  &bull; Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a></span>
+		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+		<br>
 		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
 		</center>
 </body>
@@ -97,9 +98,7 @@ function footer() {
 register_shutdown_function('footer');
 
 // language selection form
-
 if (!isset($install_lang_code)) {
-	print('<h2>Select Language</h2>');
 	$complete = Base_LangCommon::get_complete_languages();
 	$labels = Base_LangCommon::get_base_languages();
 	$list = array();
@@ -126,7 +125,7 @@ if (!isset($install_lang_code)) {
 	}
 	print('</div>');
 	
-	set_header('Setup Wizard');
+	set_header('Select Language');
 	die();
 }
 
@@ -146,10 +145,6 @@ if (isset($_GET['check'])) {
 
 if(trim(ini_get("safe_mode")))
 	die(__('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and is removed in PHP 5.4.'));
-
-if (!file_exists(DATA_DIR)) {
-    mkdir("./" . 'data', 0777);
-}
 
 if(file_exists(DATA_DIR.'/config.php'))
 	die(__('Cannot write into %s file. Please delete this file.', array(DATA_DIR.'/config.php')));
@@ -172,11 +167,11 @@ if(!isset($_GET['license'])) {
 	print('</div>');
 	print('<div class="license agreement">');
 	$form = new HTML_QuickForm('licenceform','get');
-	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you automatically accept terms of the EULA and also agree that:').'</h3></td></tr>');
-	$form -> addElement('checkbox','tos1','',__('You will not remove the <strong>"Copyright by Janusz Tylek"</strong> notice as required by the MIT license.'));
-	$form -> addElement('checkbox','tos2','',__('You will not remove <strong>"made with epesi"</strong> logo and the link from the application login screen or other locations.'));
-	$form -> addElement('checkbox','tos3','',__('You will not remove <strong>"Support -> About Epesi"</strong> credit page from the application menu.'));
-	$form -> addElement('checkbox','tos4','',__('You will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
+	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
+	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"EPESI powered"</strong> logo and the link from the application login screen or the toolbar.'));
+	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
+	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
 	foreach($_GET as $f=>$v) {
         if (substr($f, 0, 3) != 'tos' && $f != 'submitted')
             $form->addElement('hidden',$f,$v);
@@ -329,7 +324,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 	}
 
 	$renderer =& $form->defaultRenderer();
-	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
+	$renderer->setHeaderTemplate("\n\t<tr>\n\t\t<td style=\"white-space: nowrap; height: 20px; vertical-align: middle; background-color: #336699; background-image: url('images/header-blue.png'); background-repeat: repeat-x; color: #FFFFFF; font-weight: normal; text-align: center;\" align=\"left\" valign=\"baseline\" colspan=\"2\">{header}</td>\n\t</tr>");
 	$renderer->setElementTemplate("\n\t<tr>\n\t\t<td align=\"right\" valign=\"baseline\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td valign=\"baseline\" align=\"left\"><!-- BEGIN error --><span style=\"color: #ff0000\">{error}</span><br /><!-- END error -->\t{element}</td>\n\t</tr>");
 		$form->accept($renderer);
 		print($renderer->toHtml());
@@ -419,7 +414,7 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
         $url = str_replace('\\', '/', $url);
         $other_conf .= "\n" . 'define(\'EPESI_URL\',\'' . addcslashes($url, '\'\\') . '\');';
     }
-	$c = & fopen(DATA_DIR.'/config.php', 'w');
+	$c = fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
 /**
  * Config file.

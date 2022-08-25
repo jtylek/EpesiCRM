@@ -13,14 +13,15 @@
 {/php}
 	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;" id="help_canvas" width="3000px" height="3000px"></canvas>
 	<img class="Base_Help__tools" style="display: none;" id="Base_Help__help_arrow" src="{$theme_dir}/Base/Help/arrow.png" />
-	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div>
-	<div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
+	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div><div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
 	<div id="top_bar" class="nonselectable" style="width:100%">
 		<div id="MenuBar">
-		<table id="top_bar_1" cellspacing="0" cellpadding="3" border="0">
+		<table id="top_bar_1" cellspacing="0" cellpadding="0" border="0">
 		<tbody>
 			<tr>
 				<td style="empty-cells: hide; width: 8px;"></td>
+				<td class="menu-bar">{$menu}</td>
+				<td style=" empty-cells: hide; width: 7px;"></td>
 				<td class="home-bar" {$home.href}>
 					<div id="home-bar1">
 						<div class="home-bar-icon"></div>
@@ -29,14 +30,12 @@
 						</div>
 					</div>
 				</td>
-				<td style=" empty-cells: hide; width: 7px;"></td>
-				<td class="menu-bar">{$menu}</td>
 				<td style="empty-cells: hide; width: 6px;"></td>
 				{if $quick_access_menu}
 					<td class="quick-access-bar">{$quick_access_menu}</td>
 					<td style="empty-cells: hide; width: 6px;"></td>
 				{/if}
-				<td class="top_bar_black filler"><div class="login">{$login}</div></td>
+				<td class="top_bar_black filler"></td>
 				<td class="top_bar_black powered" nowrap="1">
 					<div>
 						<a href="http://epe.si" target="_blank" style="color:white;"><b>EPESI</b> powered</a>&nbsp;

@@ -3,8 +3,8 @@
  * Flash clock
  * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
- * @author j@epe.si
- * @copyright 2008 Janusz Tylek
+ * @author pbukowski@telaxus.com
+ * @copyright 2008 Telaxus LLC
  * @license MIT
  * @version 1.0
  * @package epesi-applets

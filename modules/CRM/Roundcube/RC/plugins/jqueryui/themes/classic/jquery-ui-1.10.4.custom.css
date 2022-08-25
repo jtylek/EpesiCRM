@@ -228,6 +228,7 @@ button.ui-button-icons-only {
 
 button.ui-button-text-only,
 a.ui-button-text-only {
+	background-image: url("images/buttongradient.png") !important;
 }
 
 /* button text element */

@@ -4,8 +4,8 @@
  *
  * This class provides interactive help.
  *
- * @author Arkadiusz Bisaga, Janusz Tylek
- * @copyright Copyright &copy; 2012, Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2012, Telaxus LLC
  * @license MIT
  * @version 1.0
  * @package epesi-base
