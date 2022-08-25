@@ -83,7 +83,8 @@
 					{/if}
                         <tr><td colspan="2" class="footer">
                         <!-- Epesi Terms of Use require line below - do not remove it! -->
-                        Copyright &copy; {php}echo date("Y"){/php} &bull; <a href="http://www.telaxus.com">Telaxus LLC</a> &bull; Managing Business Your Way<sup>TM</sup>
+                        Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek</br>
+						<a href="http://www.epe.si">https://epe.si</a>
                         <!-- Epesi Terms of Use require line above - do not remove it! -->
                         </td></tr>
                         </tbody>
@@ -97,7 +98,7 @@
 	</div>
 
             <!-- Epesi Terms of Use require line below - do not remove it! -->
-            <a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
+            <a href="http://epesi.org/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
             <!-- Epesi Terms of Use require line above - do not remove it! -->
 
 		</center>

@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Mail_ContactUsCommon extends ModuleCommon {
 	public static function menu() {
-		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('EPESI Forum')=>array('__url__'=>'http://forum.epe.si')));
+		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('epesi.org')=>array('__url__'=>'https://epesi.org')));
 	}
 }
 ?>

@@ -143,18 +143,16 @@ Please choose <?php print(EPESI);?> version:<ul>
 			}
 			#epesiStatus table {
 				font-family: 'Exo 2', sans-serif;
-				font-style: bold;
 				font-weight: 700;
 				color: #0A3C5C;
-				font-size: 28px;
+				font-size: 16px;
             }
 
 			#epesiStatusText {
 				font-family: 'Exo 2', sans-serif;
-				font-style: bold;
 				font-weight: 700;
 				color: #0A3C5C;
-				font-size: 28px;
+				font-size: 16px;
             }
 		</style>
 		
