@@ -4,7 +4,7 @@
  *
  * This file defines abstract class Module whose provides basic modules functionality.
  * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base

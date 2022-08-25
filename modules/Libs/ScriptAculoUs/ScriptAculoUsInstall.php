@@ -4,7 +4,7 @@
  * Copyright (c) 2005, 2006 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
  *
  * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-libs

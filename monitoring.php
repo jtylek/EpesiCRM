@@ -4,7 +4,7 @@
  * Returns time of execution in ms
  * Available arguments: number (if defined and true script will return 999999 on any error), type (session, database, data_directory - run only one test)
  * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base

@@ -5,7 +5,7 @@
  * This file includes all 'include files', loads modules
  * and gets output of default module.
  * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @license MIT
  * @version 1.0 
  * @package epesi-base

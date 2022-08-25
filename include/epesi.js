@@ -1,7 +1,7 @@
 /*
  * @author Janusz Tylek <j@epe.si>
  * @version 1.0
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @licence MIT
  */
 jQuery.noConflict();

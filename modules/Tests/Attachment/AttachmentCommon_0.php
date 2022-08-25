@@ -1,7 +1,7 @@
 <?php
 /**
  * @author Arkadiusz Bisaga, Janusz Tylek
- * @copyright Copyright &copy; 2006-2020 Janusz TylekTylek
+ * @copyright Copyright &copy; 2006-2022 Janusz TylekTylek
  * @version 1.0
  * @license MIT
  * @package epesi-tests

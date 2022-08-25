@@ -3,7 +3,7 @@
  * Utils_ImageInstall class.
  * 
  * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2006-2022 Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-utils
