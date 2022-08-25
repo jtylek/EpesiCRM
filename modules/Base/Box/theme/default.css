@@ -12,7 +12,6 @@ body {
 	margin: 0;
 	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans, sans-serif;
 	font-size: 12px;
-	background-color: #F0F0F0;
 	position: relative; /* needed by prototype 1.7 for clone position */
 }
 

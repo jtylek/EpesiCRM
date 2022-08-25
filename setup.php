@@ -87,9 +87,9 @@ function footer() {
 		</center>
 		<br>
 		<center>
-		<span class="footer">Copyright &copy; 2006-<?php echo date('Y'); ?> by Janusz Tylek; <a href="https://epe.si">https://epe.si</a></span>
+		<span class="footer">Copyright &copy; 2006-<?php echo date('Y'); ?> by Janusz Tylek</span>
 		<br>
-		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
+		<p><a href="https://epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
 		</center>
 </body>
 </html>

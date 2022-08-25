@@ -21,8 +21,9 @@
 
 <center>
 
-<span class="footer">MIT License  &bull; Copyright &copy; 2006 - <?php echo date('Y'); ?> by <a href="https://epe.si">Janusz Tylek</a></span>
-		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
+<span class="footer">MIT License  &bull; Copyright &copy; 2006-2022 by Janusz Tylek</br>
+</span>
+		<p><a href="https://epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
 </center>
 {php}
 eval_js_once('document.body.id=\'FirstRun\'');

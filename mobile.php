@@ -274,7 +274,7 @@ if(IPHONE) {
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; <?php print(date('Y')); ?> &bull; <a href="https://epe.si">Janusz Tylek</a></span>
+        <span class="footer">Copyright &copy; 2006-<?php print(date('Y')); ?> by Janusz Tylek</span>
 		<br>
 		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>
