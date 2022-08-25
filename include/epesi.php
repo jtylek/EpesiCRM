@@ -125,7 +125,7 @@ class Epesi {
 	}
 
 	public final static function text($txt,$id,$type='instead') {
-		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
+		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type[0],false).'\');';
 	}
 
 	public final static function alert($txt,$del = false) {
