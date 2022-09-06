@@ -19,7 +19,6 @@ modules/*
 
 # IDE dirs/files
 .idea
-.history
 
 Thumbs.db
 
@@ -28,3 +27,4 @@ vendor
 !modules/CRM/Roundcube/RC/vendor
 
 tests/config.yml
+.history/
