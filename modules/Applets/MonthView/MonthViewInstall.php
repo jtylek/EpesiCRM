@@ -1,6 +1,6 @@
 <?php
 /**
- * @author j@epe.si
+ * @author abisaga@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -35,7 +35,7 @@ class Applets_MonthViewInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Applet showing monthly calendar',
-			'Author'=>'j@epe.si',
+			'Author'=>'abisaga@telaxus.com',
 			'License'=>'MIT');
 	}
 	

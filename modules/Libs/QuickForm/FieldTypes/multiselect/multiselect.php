@@ -2,7 +2,7 @@
 /**
  * HTML class for a multiselect
  *
- * @author       Arkadiusz Bisaga, Janusz Tylek based on HTML_QuickForm select.php
+ * @author       Arkadiusz Bisaga <abisaga@telaxus.com> based on HTML_QuickForm select.php
  * @license MIT
  * @version 1.0
  * @package epesi-libs

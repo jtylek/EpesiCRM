@@ -3,7 +3,7 @@
 
 /**
  * RecordBrowser field type definition class for Email
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  */
 class CRM_Contacts_RBO_Email extends RBO_FieldDefinition {
 

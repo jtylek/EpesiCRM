@@ -1,7 +1,7 @@
 <?php
 /**
  * Core mail support - accounts, archive applet.
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
@@ -298,7 +298,7 @@ class CRM_MailInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::new_addon('contact', CRM_MailInstall::module_name(), 'mail_addresses_addon', _M('E-mail addresses'));
 		Utils_RecordBrowserCommon::new_addon('company', CRM_MailInstall::module_name(), 'mail_addresses_addon', _M('E-mail addresses'));
 
-        Variable::set('crm_mail_global_signature',"Message sent with EPESI - managing business your way!<br /><a href=\"http://epe.si\">http://epe.si</a>");
+        Variable::set('crm_mail_global_signature',"Message sent with EPESI BIM!<br /><a href=\"http://epe.si\">http://epe.si</a>");
 
 		Utils_RecordBrowserCommon::add_access('rc_accounts', 'view', 'ACCESS:employee', array('epesi_user'=>'USER_ID'));
 		Utils_RecordBrowserCommon::add_access('rc_accounts', 'add', 'ACCESS:employee');
@@ -358,7 +358,7 @@ class CRM_MailInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Core mail support - accounts, archive applet.',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 

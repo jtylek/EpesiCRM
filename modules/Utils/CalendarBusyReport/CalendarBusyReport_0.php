@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays busy report of employees
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license Commercial
  * @version 0.1

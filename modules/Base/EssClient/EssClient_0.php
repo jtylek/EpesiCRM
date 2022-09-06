@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Janusz Tylek
  * @license MIT
  * @version 20111207
@@ -73,7 +73,7 @@ class Base_EssClient extends Module {
             }
         } catch (Exception $e) {
             print('<div class="important_notice">' . __('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
-            print(__('If the problem persists, please contact us at %s', array('<a href="http://forum.epe.si/" target="_blank">http://forum.epe.si/</a>')) . '<br>');
+            print(__('If the problem persists, please contact us at %s', array('<a href="http://forum.epesibim.com/" target="_blank">http://forum.epesibim.com/</a>')) . '<br>');
             print('<br>');
             print(__('Error message: ') . '<br>');
             print('<div class="important_notice_frame">' . $e->getMessage());
@@ -123,7 +123,7 @@ class Base_EssClient extends Module {
         print('<center><H1>');
         print(__('EPESI Registration'));
         print('</H1></center><br>');
-        print(__('Registration of your EPESI installation with %s will allow you to browse and make purchases in %sEPESI Store%s and receive notifications via e-mail about important updates.', array('<a href="https://epe.si" target="_blank">Janusz Tylek </a>', '<strong>','</strong>')));
+        print(__('Registration of your EPESI installation with %s will allow you to browse and make purchases in %sEPESI Store%s and receive notifications via e-mail about important updates.', array('<a href="http://www.telaxus.com" target="_blank">Janusz Tylek </a>', '<strong>','</strong>')));
 		print('<br>');
 		print(__('Once the registration is complete you will receive a %sLicense Key%s.', array('<strong>','</strong>')).' ');
         print(__('This unique License Key will be used to identify your installation and allow you to download and use modules you purchase. Please note that %sEPESI License Key%s can not be copied to any other EPESI installation.', array('<strong>','</strong>')).' ');

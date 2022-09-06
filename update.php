@@ -768,10 +768,11 @@ class EpesiUpdate
         </center>
         <br>
         <center>
-            <span class="footer">Copyright &copy; 2006-2022 by Janusz Tylek</span>
+            <span class="footer">Copyright &copy; 2016 &bull; <a
+                    href="http://www.telaxus.com">Telaxus LLC</a></span>
             <br>
 
-            <p><a href="https://www.epesi.org"><img
+            <p><a href="http://www.epesi.org"><img
                         src="images/epesi-powered.png" alt="image"
                         border="0"></a></p>
         </center>

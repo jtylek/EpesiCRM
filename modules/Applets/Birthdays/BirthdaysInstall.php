@@ -1,6 +1,6 @@
 <?php
 /**
- * @author j@epe.si
+ * @author jtylek@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -37,7 +37,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 		$html.="<br>The contact has to be in your favorite list<br>and have a birthday date set.";
 		return array(
 			'Description'=>$html,
-			'Author'=>'j@epe.si',
+			'Author'=>'jtylek@telaxus.com',
 			'License'=>'MIT');
 	}
 	

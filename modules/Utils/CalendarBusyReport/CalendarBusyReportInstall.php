@@ -1,7 +1,7 @@
 <?php
 /**
  * Displays busy report of employees
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license Commercial
  * @version 0.1
@@ -36,7 +36,7 @@ class Utils_CalendarBusyReportInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Utility module to display calendar busy report',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'Commercial');
 	}
 	

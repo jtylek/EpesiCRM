@@ -4,8 +4,8 @@
  *
  * This file includes all 'include files', loads modules
  * and gets output of default module.
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2022 Janusz Tylek
+ * @author Paul Bukowski
+ * @copyright Copyright &copy; 2006-2022 by Janusz Tylek
  * @license MIT
  * @version 1.0 
  * @package epesi-base
@@ -53,7 +53,6 @@ if(IPHONE) {
     <meta name="robots" content="NOINDEX, NOARCHIVE">
 	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
 	<title><?php print(EPESI);?></title>
-	<link href="https://fonts.googleapis.com/css?family=Exo+2:400,700|Titillium+Web:400,700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
 	<script type="text/javascript" charset="utf-8">
@@ -113,7 +112,7 @@ Please choose <?php print(EPESI);?> version:<ul>
 	$csses_build = new Minify_Build($csses);
 	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 ?>
-		
+		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
 
 		<style type="text/css">
 			<?php if (DIRECTION_RTL) print('body { direction: rtl; }'); ?>
@@ -125,65 +124,58 @@ Please choose <?php print(EPESI);?> version:<ul>
   				/* all */
   				/*background-color: #e6ecf2;*/
   				background-color: white;
-				border: 1px;
+				border: 5px solid #336699;
 				visibility: hidden;
 				width: 560px;
-				height: 250px;
 				text-align: center;
 				vertical-align: middle;
 				z-index: 2002;
-                color: #0A3C5C;
+                color: #336699;
 				overflow: hidden;
 				
 				/* css3 shadow border*/
-				-webkit-box-shadow: 1px 1px 5px black;
-				-moz-box-shadow: 1px 1px 5px black;
-				box-shadow: 1px 1px 5px black;
+				-webkit-box-shadow: 1px 1px 15px black;
+				-moz-box-shadow: 1px 1px 15px black;
+				box-shadow: 1px 1px 15px black;
 				/* end css3 shadow border*/
+				
+				/* border radius */
+				-webkit-border-radius: 6px;
+				-moz-border-radius: 6px;
+				border-radius: 6px;
+				/* end border radius */
 			}
 			#epesiStatus table {
-				font-family: 'Exo 2', sans-serif;
-				font-weight: 700;
-				color: #0A3C5C;
-				font-size: 16px;
+				color: #336699;
+				font-weight: bold;
+				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+				font-size: 11px;
+				border: 5px solid #FFFFFF;
             }
 
-			#epesiStatusText {
-				font-family: 'Exo 2', sans-serif;
-				font-weight: 700;
-				color: #0A3C5C;
-				font-size: 16px;
-            }
 		</style>
-		
-		<link type="text/css" href="<?php print($csses_src)?>" rel="stylesheet"></link>
-		
 		<?php print(TRACKING_CODE); ?>
 	</head>
 	<body <?php if (DIRECTION_RTL) print('class="epesi_rtl"'); ?> >
 
 		<div id="body_content">
-			<div id="main_content" style="display:none; background-color: #FEFEFE;"></div>
+			<div id="main_content" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
 				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
 			
-			<div id="epesiStatus" style="height: 300px;">
-
-			
-				<table cellspacing="5" cellpadding="5" border="0" style="width: 100%;">
+			<div id="epesiStatus">
+				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 					<tr>
-						<td><img src="images/logo.png" alt="logo" width="80%" height="80%" border="0"></td>
+						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
 					</tr>
 					<tr>
-					<td style="text-align: center; vertical-align: middle; height: 20px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>	
-						
+						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText"><?php print(STARTING_MESSAGE);?></span></td>
 					</tr>
 					<tr>
-					<td style="text-align: center; vertical-align: middle; height: 24px;"><img src="images/loader.gif" alt="loader" width="300" height="20" border="0"></td>
-
+						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
 					</tr>
 				</table>
 			</div>	
@@ -199,8 +191,7 @@ Please choose <?php print(EPESI);?> version:<ul>
          * this is request for page and include init_js file which is faster.
          * If there is not 'html' in accept use script with src property.
          */
-        
-		if(isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false) { ?>
+        if(isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false) { ?>
 		<script type="text/javascript"><?php require_once 'init_js.php'; ?></script>
         <?php } else { ?>
 		<script type="text/javascript" src="init_js.php?<?php print(http_build_query($_GET));?>"></script>

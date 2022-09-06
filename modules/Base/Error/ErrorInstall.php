@@ -2,7 +2,7 @@
 /**
  * Provides error to mail handling.
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -32,7 +32,7 @@ class Base_ErrorInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Error Reporting',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 

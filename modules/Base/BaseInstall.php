@@ -4,7 +4,7 @@
  *
  * This class initialization data for Base pack of module.
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -24,7 +24,7 @@ class BaseInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:j@epe.si">Janusz Tylek</a> and <a href="mailto:j@epe.si">Arkadiusz Bisaga</a> (<a href="https://epe.si">Janusz Tylek</a>)', 'License'=>'TL', 'Description'=>'Base EPESI modules pack');
+		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'TL', 'Description'=>'Base EPESI modules pack');
 	}
 
 	public static function simple_setup() {

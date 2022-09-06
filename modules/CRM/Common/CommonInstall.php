@@ -1,7 +1,7 @@
 <?php
 /**
  * common data used by CRM modules
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
@@ -38,7 +38,7 @@ class CRM_CommonInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'common data used by CRM modules',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

@@ -1,7 +1,7 @@
 /*
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
- * @copyright Copyright &copy; 2006-2022 Janusz Tylek
+ * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence MIT
  */
 jQuery.noConflict();

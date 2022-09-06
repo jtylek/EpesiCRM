@@ -3,7 +3,7 @@
 /**
  * Field definition of RB wrapper
  *
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  */
 class RBO_FieldDefinition {
 

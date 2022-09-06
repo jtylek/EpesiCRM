@@ -2,7 +2,7 @@
 /**
  * Keeps epesi user logged in.
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -33,7 +33,7 @@ class Tools_SessionKeeperInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Keep epesi logged in.',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

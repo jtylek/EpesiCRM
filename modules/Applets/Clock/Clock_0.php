@@ -4,7 +4,7 @@
  * (clock taken from http://www.kirupa.com/developer/actionscript/clock.htm)
  *
  * @author pbukowski@telaxus.com
- * @copyright 2008 Telaxus LLC
+ * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-applets

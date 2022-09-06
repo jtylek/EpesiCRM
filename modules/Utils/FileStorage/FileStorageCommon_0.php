@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @author j@epe.si
- * @author  Janusz Tylek <j@epe.si>
+ * @author pbukowski@telaxus.com
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1

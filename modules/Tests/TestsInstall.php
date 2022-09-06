@@ -2,8 +2,8 @@
 /**
  * TestsInstall class.
  * 
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2022 Janusz Tylek
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-tests
@@ -21,7 +21,7 @@ class TestsInstall extends ModuleInstall {
 	}
 	
 	public static function info() {
-		return array('Author'=>'<a href="mailto:j@epe.si">Janusz Tylek</a>, <a href="mailto:j@epe.si">Janusz Tylek</a> and <a href="mailto:j@epe.si">Arkadiusz Bisaga</a> (<a href="https://epe.si">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'Module examples pack');
+		return array('Author'=>'<a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a>, <a href="mailto:kslawinski@telaxus.com">Kuba Slawinski</a> and <a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'Module examples pack');
 	}
 	
 	public static function simple_setup() {

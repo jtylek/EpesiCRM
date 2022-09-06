@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Arkadiusz Bisaga, Janusz Tylek,  Janusz Tylek <j@epe.si>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>, Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -25,7 +25,7 @@ class Apps_ActivityReportInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:j@epe.si">Arkadiusz Bisaga</a> (<a href="https://epe.si">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'User Activity Report');
+		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'User Activity Report');
 	}
 	
 	public static function simple_setup() {

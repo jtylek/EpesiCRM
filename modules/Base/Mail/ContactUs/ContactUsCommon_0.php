@@ -2,7 +2,7 @@
 /**
  * Mail_ContactUs class.
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -13,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Mail_ContactUsCommon extends ModuleCommon {
 	public static function menu() {
-		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('epesi.org')=>array('__url__'=>'https://epesi.org')));
+		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('EPESI Forum')=>array('__url__'=>'https://epesi.org')));
 	}
 }
 ?>

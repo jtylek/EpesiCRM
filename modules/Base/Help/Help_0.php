@@ -5,7 +5,7 @@
  * This class provides interactive help.
  * Mouse click icon based on an icon by FatCow Web Hosting (http://www.fatcow.com/free-icons/) [CC-BY-3.0-us (http://creativecommons.org/licenses/by/3.0/us/deed.en)], via Wikimedia Commons
  *
- * @author Arkadiusz Bisaga, Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2012, Janusz Tylek
  * @license MIT
  * @version 1.0

@@ -1,6 +1,6 @@
 <?php
 /**
- * @author j@epe.si
+ * @author msteczkiewicz@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -35,7 +35,7 @@ class Applets_CalcInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description' => 'Calculator',
-			'Author' => 'j@epe.si',
+			'Author' => 'msteczkiewicz@telaxus.com',
 			'License' => 'MIT');
 	}
 

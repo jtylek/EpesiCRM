@@ -3,8 +3,8 @@
  * This module uses scriptaculous.js released under MIT license
  * Copyright (c) 2005, 2006 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
  *
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2022 Janusz Tylek
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2007, Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-libs

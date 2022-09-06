@@ -3,7 +3,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
  * Remove old tables created by phpgacl - no longer needed
- * j@epe.si
+ * jtylek@telaxus.com
  */
 @DB::DropTable('acl');
 @DB::DropTable('acl_sections');

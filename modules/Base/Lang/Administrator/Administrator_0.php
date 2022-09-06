@@ -2,7 +2,7 @@
 /**
  * Lang_Administrator class.
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -209,7 +209,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 	public function new_lang_pack(){
 		if ($this->is_back()) return false;
 
-		$url = 'http://forum.epe.si/';
+		$url = 'http://forum.epesibim.com/';
 		$forum_link = "<a target=\"_blank\" href=\"$url\">$url</a>";
 		$info_msg = __('If you wish to add other language or dialect of existing language, then please contact us via forum: %s', array($forum_link));
 		print "<div class=\"important_notice\">$info_msg</div>";

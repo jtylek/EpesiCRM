@@ -2,7 +2,7 @@
 
 /**
  * 
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -39,7 +39,7 @@ class Base_EssClientInstall extends ModuleInstall {
     public static function info() {
         return array(
             'Description' => 'Perform requests to Epesi Services Servers. Allows installation registration.',
-            'Author' => 'j@epe.si',
+            'Author' => 'abukowski@telaxus.com',
             'License' => 'MIT');
     }
 

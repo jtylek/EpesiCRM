@@ -2,7 +2,7 @@
 
 /**
  * Use this interface to perform clients requests to Epesi Service Server.
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2011, Janusz Tylek
  * @version 20121231
  */

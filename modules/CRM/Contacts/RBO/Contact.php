@@ -2,7 +2,7 @@
 
 /**
  * RecordBrowser field type definition class for Contact
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  */
 class CRM_Contacts_RBO_Contact extends CRM_Contacts_RBO_Company {
 

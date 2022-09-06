@@ -6,8 +6,8 @@
  * Copyright (C) 2007 John Glazebrook
  * distributed under the terms of the GNU General Public License version 2 or later
  *
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2022 Janusz Tylek
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-libs

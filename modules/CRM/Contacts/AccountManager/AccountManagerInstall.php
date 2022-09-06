@@ -2,7 +2,7 @@
 /**
  * Activities history for Company and Contacts
  *
- * @author Arkadiusz Bisaga, Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -42,7 +42,7 @@ class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Account Manager field for Companies',
-			'Author'=>'Arkadiusz Bisaga, Janusz Tylek',
+			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
 			'License'=>'MIT');
 	}
 	

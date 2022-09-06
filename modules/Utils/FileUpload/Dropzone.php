@@ -3,7 +3,7 @@
 /**
  * Submodule to upload files
  *
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2016, Janusz Tylek
  * @version 1.0
  * @license MIT

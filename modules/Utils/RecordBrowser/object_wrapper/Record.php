@@ -3,7 +3,7 @@
 /**
  * Single RB Record base class
  *
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  */
 class RBO_Record implements ArrayAccess {
 
