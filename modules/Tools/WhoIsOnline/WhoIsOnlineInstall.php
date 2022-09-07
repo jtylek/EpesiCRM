@@ -2,7 +2,7 @@
 /**
  * Shows who is logged to epesi.
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -47,7 +47,7 @@ class Tools_WhoIsOnlineInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Shows who is logged to epesi.',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

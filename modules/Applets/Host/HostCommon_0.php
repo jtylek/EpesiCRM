@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets host ip or domain
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0

@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga, Janusz Tylek
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2007, Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-tests
@@ -32,7 +32,7 @@ class Tests_ReportInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'Arkadiusz Bisaga, Janusz Tylek',
+			'Author'=>'Arkadiusz Bisaga <abisaga@telaxus.com>',
 			'License'=>'MIT');
 	}
 	

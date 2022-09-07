@@ -34,7 +34,7 @@
  *  										_M('Label 3')=>array('variable3'=>'value4'),
  *  										'__submenu__'=>1));
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com> and Kuba Slawinski <kslawinski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0

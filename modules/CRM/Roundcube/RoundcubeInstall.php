@@ -1,7 +1,7 @@
 <?php
 /**
  * Roundcube bindings
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license GPL
  * @version 0.1
@@ -83,7 +83,7 @@ class CRM_RoundcubeInstall extends ModuleInstall {
     public static function info() {
         return array(
             'Description'=>'Roundcube bindings',
-            'Author'=>'j@epe.si',
+            'Author'=>'pbukowski@telaxus.com',
             'License'=>'GPL');
     }
 

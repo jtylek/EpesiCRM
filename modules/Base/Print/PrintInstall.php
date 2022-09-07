@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @author      Janusz Tylek <j@epe.si>
+ * @author     Adam Bukowski <abukowski@telaxus.com>
  * @copyright  Janusz Tylek
  * @license    MIT
  * @version    1.5.0
@@ -51,7 +51,7 @@ class Base_PrintInstall extends ModuleInstall
     {
         return array(
             'Description' => 'Printing mechanism',
-            'Author'      => ' Janusz Tylek <j@epe.si>',
+            'Author'      => 'Adam Bukowski <abukowski@telaxus.com>',
             'License'     => 'MIT');
     }
 

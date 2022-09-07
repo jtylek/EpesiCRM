@@ -2,7 +2,7 @@
 /**
  * Cron Epesi
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -39,7 +39,7 @@ class Base_CronInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Cron Epesi',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

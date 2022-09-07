@@ -5,7 +5,7 @@
  *
  * This one just holds a static list of address records
  *
- * @author Janusz Tylek
+ * @author Paul Bukowski
  */
 class epesi_companies_addressbook_backend extends rcube_addressbook
 {

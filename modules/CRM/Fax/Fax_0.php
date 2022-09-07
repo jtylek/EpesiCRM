@@ -1,7 +1,7 @@
 <?php
 /**
  * Fax abstraction layer module
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1

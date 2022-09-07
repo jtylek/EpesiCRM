@@ -1,7 +1,7 @@
 <?php
 /**
  * Fax abstraction layer module
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
@@ -41,7 +41,7 @@ class CRM_FaxInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Fax abstraction layer module',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

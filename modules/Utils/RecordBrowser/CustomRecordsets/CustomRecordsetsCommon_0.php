@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga, Janusz Tylek
- *          Janusz Tylek <j@epe.si>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ *         Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, 2014 Janusz Tylek
  * @license MIT
  * @version 1.0

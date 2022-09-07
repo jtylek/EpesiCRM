@@ -1,6 +1,6 @@
 <?php
 /**
- * @author j@epe.si
+ * @author jtylek@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0

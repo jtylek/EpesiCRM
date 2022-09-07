@@ -4,8 +4,8 @@
  *
  * This class provides translations manipulation.
  *
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2008, Janusz Tylek
+ * @author Paul Bukowski
+ * @copyright Copyright &copy; 2006-2022 by Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base

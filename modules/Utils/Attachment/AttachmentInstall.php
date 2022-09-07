@@ -1,7 +1,7 @@
 <?php
 /**
  * Use this module if you want to add attachments to some page.
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -125,7 +125,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Use this module if you want to add attachments to some page.',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 

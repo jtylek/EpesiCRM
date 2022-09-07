@@ -2,7 +2,7 @@
 /**
  * Lang_Administrator class.
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -12,7 +12,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_Lang_AdministratorCommon extends Base_AdminModuleCommon {
-	const translation_server_url = 'http://translate.epe.si';
+	const translation_server_url = 'http://translate.epesibim.com';
 
 	public static function admin_caption() {
 		return array('label'=>__('Language & Translations'), 'section'=>__('Regional Settings'));

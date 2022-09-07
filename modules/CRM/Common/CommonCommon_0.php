@@ -2,7 +2,7 @@
 /**
  * CRM Common class.
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2009, Janusz Tylek
  * @license MIT
  * @version 1.0

@@ -5,7 +5,7 @@
  * This class provides interactive help.
  *
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2012, Telaxus LLC
+ * @copyright Copyright &copy; 2012, Janusz Tylek
  * @license MIT
  * @version 1.0
  * @package epesi-base

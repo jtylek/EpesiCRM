@@ -2,8 +2,8 @@
 /**
  * HtmlPurifier Factory
  *
- *
- * @author Janusz Tylek <j@epe.si>
+ * @author nnader@telaxus.com
+ * @author Norbert Nader <nnader@telaxus.com>
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1

@@ -1,9 +1,9 @@
 <?php
 /**
  * EPESI Compatibility check.
- * @author Arkadiusz Bisaga, Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @version 1.0
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2007, Telaxus LLC
  * @license MIT
  * @package epesi-base
  */
@@ -87,7 +87,7 @@ if ($config) {
 	$db_tests[] = array('label'=>'DELETE permission', 'status'=>$delete?'OK':'Failed', 'severity'=>$delete?0:2);
 	$db_tests[] = array('label'=>'DROP permission', 'status'=>$drop?'OK':'Failed', 'severity'=>$drop?0:2);
 
-	$checks[] = array('label'=>'Database permissions', 'tests'=>$db_tests, 'solution'=>'http://forum.epe.si');
+	$checks[] = array('label'=>'Database permissions', 'tests'=>$db_tests, 'solution'=>'http://forum.epesibim.com');
 } else {
 	
 }
@@ -100,7 +100,7 @@ $desired_version = '5.4';
 $php_version_ok = version_compare($php_version, $desired_version, '>=');
 $status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least ' . $desired_version;
 $system_tests[] = array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2);
-$checks[] = array('label' => 'System', 'tests' => $system_tests, 'solution' => 'http://forum.epe.si');
+$checks[] = array('label' => 'System', 'tests' => $system_tests, 'solution' => 'http://forum.epesibim.com');
 // ********************* SYSTEM ***********************
 
 // ********************* ERRORS ***********************
@@ -112,7 +112,7 @@ $error_tests = array();
 $error_tests[] = array('label'=>'Strict errors reporting', 'status'=>!$strict?'Disabled':'Enabled', 'severity'=>!$strict?0:2);
 $error_tests[] = array('label'=>'Error display', 'status'=>$display?'On':'Off', 'severity'=>$display?0:1);
 
-$checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=>'http://forum.epe.si');
+$checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* ERRORS ***********************
 
 // ********************* EXECUTION SETTINGS ***********************
@@ -183,7 +183,7 @@ $tests[] = array('label'=>'POST max size', 'status'=>$post_size, 'severity'=>$po
 $tests[] = array('label'=>'Locale settings', 'status'=>$loc, 'severity'=>$loc_s);
 $tests[] = array('label'=>'SSL enabled', 'status'=>$ssl, 'severity'=>$ssl_s);
 
-$checks[] = array('label'=>'Script execution', 'tests'=>$tests, 'solution'=>'http://forum.epe.si');
+$checks[] = array('label'=>'Script execution', 'tests'=>$tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* EXECUTION SETTINGS ***********************
 
 // ********************* FEATURES ***********************
@@ -202,7 +202,7 @@ $error_tests[] = array('label'=>'Modules directory writable', 'status'=>$modules
 $error_tests[] = array('label'=>'PHP GD extension - image processing', 'status'=>$imagegd?'Yes':'No', 'severity'=>$imagegd?0:2);
 
 
-$checks[] = array('label'=>'Features', 'tests'=>$error_tests, 'solution'=>'http://forum.epe.si');
+$checks[] = array('label'=>'Features', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* FEATURES ***********************
 
 foreach ($checks as $c) {

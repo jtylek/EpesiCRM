@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Janusz Tylek <j@epe.si>
- * @version 1.1
+ * @author Paul Bukowski
+ * @version 1.0
  * @copyright Copyright &copy; 2022, Janusz Tylek
  * @license MIT
  * @package epesi-base
@@ -87,7 +87,7 @@ function footer() {
 		</center>
 		<br>
 		<center>
-		<span class="footer">Copyright &copy; <?php echo date('Y'); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
+		<span class="footer">Copyright &copy;  2006-<?php echo date('Y'); ?>  by Janusz Tylek</span>
 		<br>
 		<p><a href="http://www.epe.si"><img src="images/epesi-powered.png" border="0"></a></p>
 		</center>
@@ -168,8 +168,8 @@ if(!isset($_GET['license'])) {
 	print('<div class="license agreement">');
 	$form = new HTML_QuickForm('licenceform','get');
 	$form -> addElement('html', '<tr><td colspan=2><h3>'.__('By installing and using this software you agree to the MIT license and following terms:').'</h3></td></tr>');
-	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Telaxus LLC"</strong> notice as required by the MIT license.'));
-	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"EPESI powered"</strong> logo and the link from the application login screen or the toolbar.'));
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz Tylek"</strong> notice as required by the MIT license.'));
+	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"Made with EPESI"</strong> logo and the link from the application login screen or the toolbar.'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
 	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
 	foreach($_GET as $f=>$v) {

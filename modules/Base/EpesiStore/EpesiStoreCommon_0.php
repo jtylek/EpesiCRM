@@ -2,7 +2,7 @@
 
 /**
  * 
- * @author  Janusz Tylek <j@epe.si>
+ * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1

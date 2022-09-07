@@ -19,11 +19,7 @@
             "@composer -d=\"modules/CRM/Mail\" install",
             "@composer -d=\"modules/Libs/PHPExcel\" install",
             "@composer -d=\"modules/Libs/TCPDF\" install"
-        ],
-        "post-update-cmd": [
-            "@composer -d\"modules/Libs/TCPDF\" install",
-            "@composer -d\"modules/Libs/TCPDF\" dump-autoload"
-      ]
+        ]
     },
     "autoload": {
         "psr-4": {

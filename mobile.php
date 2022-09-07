@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Janusz Tylek <j@epe.si>
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @author Paul Bukowski <pbukowski@telaxus.com>
+ * @copyright Copyright &copy; 2006, Telaxus LLC
  * @license MIT
  * @version 1.0
  * @package epesi-base
@@ -274,7 +274,7 @@ if(IPHONE) {
         </center>
         <br>
         <center>
-        <span class="footer">Copyright &copy; <?php print(date('Y')); ?> &bull; <a href="https://epe.si">Janusz Tylek</a></span>
+        <span class="footer">Copyright &copy; <?php print(date('Y')); ?> &bull; <a href="http://www.telaxus.com">Telaxus LLC</a></span>
 		<br>
 		<p><a href="http://www.epesi.org"><img src="images/epesi-powered.png" border="0"></a></p>
         </center>

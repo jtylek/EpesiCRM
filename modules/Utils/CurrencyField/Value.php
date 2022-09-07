@@ -1,6 +1,6 @@
 <?php
 /**
- * @author      Janusz Tylek <j@epe.si>
+ * @author     Adam Bukowski <abukowski@telaxus.com>
  * @copyright  Copyright &copy; 2014, Janusz Tylek
  * @license    MIT
  * @version    1.0

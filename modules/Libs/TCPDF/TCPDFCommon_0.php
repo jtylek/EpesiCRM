@@ -7,8 +7,8 @@
  * Author: Nicola Asuni
  * Copyright (c) 2001-2008: Nicola Asuni
  *
- * @author Arkadiusz Bisaga, Janusz Tylek
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ * @copyright Copyright &copy; 2006, Janusz Tylek
  * @version 1.0
  * @license MIT
  * @package epesi-libs

@@ -1,6 +1,6 @@
 <?php
 /**
- * @author  Janusz Tylek <j@epe.si>
+ * @author Olga Chlebus <ochlebus@telaxus.com>
  * @copyright Copyright &copy; 2013, Janusz Tylek
  * @version 1.0
  * @license MIT

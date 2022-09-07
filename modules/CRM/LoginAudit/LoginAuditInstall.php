@@ -1,7 +1,7 @@
 <?php
 /**
  * Provides login audit log
- * @author Janusz Tylek <j@epe.si> & Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com> & Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -40,8 +40,8 @@ class CRM_LoginAuditInstall extends ModuleInstall {
 	}
 
 	public static function info() {
-		return array('Author'=>'<a href="mailto:j@epe.si">Janusz Tylek</a> and <a href="mailto:j@epe.si">Janusz Tylek</a>
-					 (<a href="https://epe.si">Janusz Tylek</a>)',
+		return array('Author'=>'<a href="mailto:jtylek@telaxus.com">Janusz Tylek</a> and <a href="mailto:pbukowski@telaxus.com">Pawel Bukowski</a>
+					 (<a href="http://www.telaxus.com">Janusz Tylek</a>)',
 					 'License'=>'MIT', 'Description'=>'Provides login audit log.');
 	}
 

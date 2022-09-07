@@ -2,7 +2,7 @@
 /**
  * RecordBrowserCommon class.
  *
- * @author Arkadiusz Bisaga, Janusz Tylek
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -3911,7 +3911,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $ref = $ref[0];
                             @(list($tab2, $col) = explode('::',$ref));
                             if (!isset($col)) trigger_error($field);
-                            if($tab2=='__RECORDSETS__') continue; //skip multi recordsets chained selector
+                            if($tab2=='__RECORDSETS__') break; //skip multi recordsets chained selector
                             if ($tab2=='__COMMON__') {
                                 $data = Utils_CommonDataCommon::get_translated_tree($col);
                                 if (!is_array($data)) $data = array();
@@ -3925,7 +3925,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                     } else $crits = $adv_crits = array();
                                     if ($adv_crits === $crits) $adv_crits = null;
                                     if ($adv_crits !== null) {
-                                        continue; //skip record picker
+                                        break; //skip record picker
                                     }
                                 } else $crits = array();
                                 $col = explode('|',$col);
@@ -4002,9 +4002,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             }
                             break;
                 case 'multiselect': //ignore
-                            if($id===false) continue;
+                            if($id===false) break;
                             $val = Utils_RecordBrowserCommon::get_val($tab,$field,$rec,true,$args);
-                            if($val==='') continue;
+                            if($val==='') break;
                             $qf->addElement('static',$args['id'],$label);
                             $qf->setDefaults(array($args['id']=>$val));
                             unset($defaults[$args['id']]);

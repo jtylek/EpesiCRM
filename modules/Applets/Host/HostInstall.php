@@ -1,7 +1,7 @@
 <?php
 /**
  * Gets host ip or domain
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -35,7 +35,7 @@ class Applets_HostInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Gets host ip or domain',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

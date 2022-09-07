@@ -1,8 +1,8 @@
 <?php
 /**
  * Popup message to the user
- * @author j@epe.si
- * @copyright j@epe.si
+ * @author pbukowski@telaxus.com
+ * @copyright pbukowski@telaxus.com
  * @license MIT
  * @version 1.0
  * @package epesi-Utils
@@ -72,7 +72,7 @@ class Utils_MessengerInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Popup message to the user',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

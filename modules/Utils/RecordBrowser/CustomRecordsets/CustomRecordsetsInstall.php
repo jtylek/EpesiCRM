@@ -1,7 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga, Janusz Tylek
- *          Janusz Tylek <j@epe.si>
+ * @author Arkadiusz Bisaga <abisaga@telaxus.com>
+ *         Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, 2014 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -47,7 +47,7 @@ class Utils_RecordBrowser_CustomRecordsetsInstall extends ModuleInstall
     {
         return array(
             'Description' => 'Custom Recordsets Creator',
-            'Author' => 'Janusz Tylek, Arkadiusz Bisaga',
+            'Author' => 'Adam Bukowski, Arkadiusz Bisaga',
             'License' => 'MIT');
     }
 

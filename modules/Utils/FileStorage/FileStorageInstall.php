@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license MIT
  * @version 0.1
@@ -97,7 +97,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 

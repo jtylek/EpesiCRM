@@ -1,8 +1,8 @@
 <?php
 /**
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2007, Telaxus LLC
  * @license MIT
  * @package epesi-base
  */
@@ -125,7 +125,7 @@ class Epesi {
 	}
 
 	public final static function text($txt,$id,$type='instead') {
-		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type{0},false).'\');';
+		self::$txts .= 'Epesi.text(\''.self::escapeJS($txt,false).'\',\''.self::escapeJS($id,false).'\',\''.self::escapeJS($type[0],false).'\');';
 	}
 
 	public final static function alert($txt,$del = false) {

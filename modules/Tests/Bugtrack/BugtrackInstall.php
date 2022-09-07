@@ -2,7 +2,7 @@
 /**
  * Software Development - Bug Tracking
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -66,7 +66,7 @@ class Tests_BugtrackInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>' Software Development - Bug Tracking',
-			'Author'=>'j@epe.si',
+			'Author'=>'jtylek@telaxus.com',
 			'License'=>'MIT');
 	}
 	

@@ -1,7 +1,7 @@
 <?php
 /**
  * Provides login audit log
- * @author Janusz Tylek <j@epe.si> & Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com> & Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0

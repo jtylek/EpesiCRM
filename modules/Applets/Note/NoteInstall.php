@@ -1,6 +1,6 @@
 <?php
 /**
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.1
@@ -35,7 +35,7 @@ class Applets_NoteInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Post it like applet',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 	

@@ -4,9 +4,9 @@
  * 
  * Maintain history array.
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @version 1.0
- * @copyright Copyright &copy; 2006-2020 Janusz Tylek
+ * @copyright Copyright &copy; 2007, Telaxus LLC
  * @license MIT
  * @package epesi-base
  */

@@ -2,7 +2,7 @@
 /**
  * Download file
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @version 1.0
  * @license MIT

@@ -2,7 +2,7 @@
 /**
  * Software Development - Bug Tracking
  *
- * @author Janusz Tylek <j@epe.si>
+ * @author Janusz Tylek <jtylek@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0

@@ -1,22 +1,8 @@
-![Epesi Logo](/images/epesi-setup_wiz.png)
+![Epesi Logo](/images/logo.png)
 =
-[![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi) SourceForge Repository
+[![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
 
-<b>Epesi BIM</b> (Business Information Manager) is a fully functional web CRM application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient. It runs on any xAMP stack on all operating systems including Raspberry Pi. It is small, fast and can easily handle millions of records and hundreds of users.
-
-Epesi has modular architecture and provides a great starting point for a full blown ERP system. You can use it as a <b>kickstarter</b> for your project as it already includes:
-
-- Dashboard
-- Admin Panel
-- User Management
-- Advanced CRUD engine
-- CRM functionality
-- Advanced Epesi File Storage
-- Advanced Permissions system
-- Unlimited users license
-- and more...
-
-As a developer you can control which files are installed by default using simple <i>distro.ini</i> file, where you specify which modules should be setup on the first try. This way you can create your own Epesi distro and complete web application, which can be very easily deployed in the cloud.
+<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
 
 <b>About</b>
 
@@ -29,59 +15,55 @@ Our software can make your organization more efficient, better organized and mor
 
 Telegram is a messaging app with a focus on speed and security, it’s super-fast, simple and free. You can use Telegram on all your devices at the same time — your messages sync seamlessly across any number of your phones, tablets or computers.
 
-- Epesi is already integrated with Telegram messaging platform te receive notifications from the <b>Watchdog</b> module (free and included with the latest release) as well as with Time tracking and reporting module integrated with Premium module Timesheets.
+- Epesi is already integrated with Telegram messaging platform te receive notifications from the <b>Watchdog</b> module (free and included with the latest release) as well as with Time tracking and reporting module integrated with Premium module Timesheets  http://epe.si/modules/premium/timesheets/
+
+More information on epesi - description of functionality, demos and more visit: http://epe.si/free-crm/
 
 <b>Support</b>
-- For users - please visit our forum http://forum.epe.si/ - to receive free technical assistance
-- For developers - please open issues here: https://github.com/jtylek/issues
-- For Premium Support - paid service provided by Epesi Dev Team - visit:<br>https://epesi.cloud/submitticket.php?step=2&deptid=1
+- For users - please visit our forum http://forum.epesibim.com/ - to receive free technical assistance
+- For developers - please open issues here: https://github.com/Telaxus/EPESI/issues
+- For Premium Support - paid service provided by Telaxus LLC - visit: http://telaxus.com/premium-support/
 
-<b>Automatic Setup:</b>
-
-- If you already have a hosting plan with cPanel then use Autoinstall via Softaculous:<br>https://www.softaculous.com/apps/erp/EPESI
-
-Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel<br>https://www.youtube.com/watch?v=FR4mQsHUNCY
+<b>Setup:</b>
+- Online demo: http://demo.epesibim.com/
+- Automatic - no technical expertise needed - setup hosting at epesi Cloud (free 30-day trial): http://epe.si/hosting
+- Autoinstall via cPanel using Softaculous: https://www.softaculous.com/apps/erp/EPESI
+</br>
+ Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
 
 <b>DIY - Do It Yourself manual methods:</b>
-
 For experienced users and server administrators:
-It requires properly configured HTTP server with PHP (ver 7.x) and MySQL/MariaDB database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
+It requires properly configured HTTP server with PHP and MySQL or PostgreSQL database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
 
-- Download ready to run package from Sourceforge: http://sourceforge.net/projects/epesi
+- Download from Sourceforge: http://sourceforge.net/projects/epesi
 - Use Easy Install Script: http://sourceforge.net/projects/epesi/files/easy%20installer/
-- Use git and clone this repository: https://github.com/jtylek/epesi
+- Github: https://github.com/Telaxus/epesi
 
-If using a package from SourceForge all vendors libraries are already included. Just point your browser to location where your Epesi was installed and unpacked and the setup will start. You have to create a database and database user in a separate step. unless you have root access.
+<b>Reviews</b>
+- Users reviews collected from our support forum: http://epe.si/reviews/
+- Sourceforge: https://sourceforge.net/projects/epesi/reviews/
+- Review from September 19, 2016: "Top 10 Open Source CRM" by http://www.datamation.com/open-source/top-10-open-source-crm.html
 
-If using Git repository then you must run <strong>composer update</strong> to download libraries into vendor directory.
-Make sure that you run composer update after every update from repository as dependencies may change.
+<b>License:</b>
 
-<code>git clone https://github.com/jtylek/epesi.git your_epesi_dir</code>
+EPESI is released under the MIT License
 
-<code>cd your_epesi_dir</code>
-
-<code>composer update</code>
-
-Enjoy,
-
-Janusz Tylek
-
-https://epe.si
-
-<HR>
-
-<p>
- <b>License:</b>
-
- EPESI is released under the MIT License
-
- <b>Copyright © 2006-2020 by Janusz Tylek</b></center>
+Copyright © 2006-2016 Telaxus LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-<b>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</b>
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
 
-</p>
-<b>By installing and using this software you automatically agree with the licensing terms and included EULA</b> (End User License Agreement)
+<b>Credits:</b>
+
+Telaxus LLC http://telaxus.com/
+
+- Telaxus LLC is a technology company specializing in developoment of CRM and ERP solutions for small and medium size businesses utilizing our own platform - EPESI Business Information Manager.
+
+
+<i>Copyright © 2006-2016 Telaxus LLC</i>
+
+Enjoy,  
+<b>EPESI Team</b>

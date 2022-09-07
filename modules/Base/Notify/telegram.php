@@ -1,7 +1,7 @@
 <?php
 /**
  * 
- * @author Janusz Tylek <j@epe.si>
+ * @author Pawel Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2015, Janusz Tylek
  * @license MIT
  * @version 2.0

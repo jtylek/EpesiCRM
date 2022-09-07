@@ -1,7 +1,7 @@
 <?php
 /**
  * Roundcube bindings
- * @author j@epe.si
+ * @author pbukowski@telaxus.com
  * @copyright Janusz Tylek
  * @license GPL
  * @version 0.1

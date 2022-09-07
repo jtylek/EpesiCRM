@@ -1,7 +1,7 @@
 <?php
 /**
  * Simple RSS Feed applet
- * @author j@epe.si
+ * @author jtylek@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -38,7 +38,7 @@ class Applets_RssFeedInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'RSS Feed',
-			'Author'=>'j@epe.si',
+			'Author'=>'jtylek@telaxus.com',
 			'License'=>'MIT');
 	}
 	

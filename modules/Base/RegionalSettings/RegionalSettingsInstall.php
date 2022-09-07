@@ -1,7 +1,7 @@
 <?php
 /**
  * Regional settings like currency, time...
- * @author Janusz Tylek <j@epe.si>
+ * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
  * @license MIT
  * @version 1.0
@@ -38,7 +38,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 	public static function info() {
 		return array(
 			'Description'=>'Regional settings like currency, time...',
-			'Author'=>'j@epe.si',
+			'Author'=>'pbukowski@telaxus.com',
 			'License'=>'MIT');
 	}
 
