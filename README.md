@@ -32,9 +32,10 @@ More information on epesi - description of functionality, demos and more visit: 
 
 <b>DIY - Do It Yourself manual methods:</b>
 For experienced users and server administrators:
-It requires properly configured HTTP server with PHP and MySQL or PostgreSQL database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
+It requires properly configured HTTP server with PHP and MySQL database server = LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
 
 - Download from Sourceforge: http://sourceforge.net/projects/epesi
+- Clone this repository. Make sure to run composer update
 
 <b>Reviews</b>
 - Users testimonials https://epe.si/about-us
