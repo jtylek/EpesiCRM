@@ -9,8 +9,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if (defined('DATA_DIR')) return;
+define('DATA_DIR','data');
+return;
 
-$ret = @include_once('map.php');
+
+//$ret = @include_once('map.php');
 if($ret===false)
     define('DATA_DIR','data');
 else {

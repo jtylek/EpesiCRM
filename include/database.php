@@ -11,10 +11,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * Include AdoDB.
- */
 require_once('misc.php');
+require_once('vendor/autoload.php');
 
 /**
  * This class maintains database connection.
