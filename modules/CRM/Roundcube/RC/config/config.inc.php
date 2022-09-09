@@ -115,6 +115,9 @@ $config['imap_cache'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'m
 // For example %n = mail.domain.tld, %t = domain.tld
 $config['smtp_server'] = ($account['f_smtp_security']?$account['f_smtp_security'].'://':'').$account['f_smtp_server'];
 
+// Log sent messages to <log_dir>/sendmail.log or to syslog
+$config['smtp_log'] = true;
+
 // SMTP port (default is 25; use 587 for STARTTLS or 465 for the
 // deprecated SSL over SMTP (aka SMTPS))
 $config['smtp_port'] = $account['f_smtp_security']=='ssl'?465:25;
@@ -129,7 +132,7 @@ $config['smtp_pass'] = $account['f_smtp_auth']?$account['f_smtp_password']:'';
 
 // provide an URL where a user can get support for this Roundcube installation
 // PLEASE DO NOT LINK TO THE ROUNDCUBE.NET WEBSITE HERE!
-$config['support_url'] =  (EPESI == 'EPESI') ? 'http://epesi.org' : Variable::get('whitelabel_url',false);
+$config['support_url'] =  (EPESI == 'EPESI') ? 'https://epesi.org/emailmanagement' : Variable::get('whitelabel_url',false);
 
 // Name your service. This is displayed on the login screen and in the window title
 $config['product_name'] = EPESI . ' Mail';
