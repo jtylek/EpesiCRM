@@ -116,7 +116,7 @@ $config['imap_cache'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'m
 $config['smtp_server'] = ($account['f_smtp_security']?$account['f_smtp_security'].'://':'').$account['f_smtp_server'];
 
 // Log sent messages to <log_dir>/sendmail.log or to syslog
-$config['smtp_log'] = true;
+$config['smtp_log'] = false;
 
 // SMTP port (default is 25; use 587 for STARTTLS or 465 for the
 // deprecated SSL over SMTP (aka SMTPS))
