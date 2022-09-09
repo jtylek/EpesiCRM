@@ -4,7 +4,7 @@
 
 <div class="Utils_TabbedBrowser_div">
 
-<table class="tabbed_browser">
+<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 	<tr>
 		<td>
 			<ul class="Utils_TabbedBrowser">
@@ -28,7 +28,7 @@
 	<tr >
 		<td >
 		<div class="border_bottom"></div>
-			{$body}
+			<center>{$body}</center>
 		</td>
 	</tr>
 </table>
