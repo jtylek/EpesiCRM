@@ -1,37 +1,42 @@
 {
-    "require": {
-        "pimple/pimple": "^3.0",
-        "twig/twig": "^1.24",
-        "symfony/console": "^2.7",
-        "symfony/http-foundation": "^2.7",
-        "phpdocumentor/reflection-docblock": "^2.0.4",
-        "fzaninotto/faker": "^1.6",
-        "phpfastcache/phpfastcache": "^5.0",
-        "ifsnop/mysqldump-php": "dev-master",
-        "memio/memio": "^1.0",
-        "psy/psysh": "@stable",
-        "enyo/dropzone": "@stable",
-        "ezyang/htmlpurifier": "^4.9",
-        "moneyphp/money": "^3.0"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "@composer -d=\"modules/CRM/Mail\" install",
-            "@composer -d=\"modules/Libs/PHPExcel\" install",
-            "@composer -d=\"modules/Libs/TCPDF\" install"
-        ]
-    },
-    "autoload": {
-        "psr-4": {
-            "Epesi\\Console\\": "console/",
-            "Epesi\\Module\\": "modules/"
-        },
-        "psr-0": {
-            "": "modules/"
-        }
-    },
-    "require-dev": {
-        "codeception/codeception": "*",
-        "codeception/aspect-mock": "*"
-    }
+	"require" : {
+		"pimple/pimple" : "^3.0",
+		"twig/twig" : "^1.24",
+		"symfony/console" : "^2.7",
+		"symfony/http-foundation" : "^2.7",
+		"phpdocumentor/reflection-docblock" : "^2.0.4",
+		"fzaninotto/faker" : "^1.6",
+		"phpfastcache/phpfastcache" : "^5.0",
+		"ifsnop/mysqldump-php" : "dev-master",
+		"memio/memio" : "^1.0",
+		"psy/psysh" : "@stable",
+		"enyo/dropzone" : "@stable",
+		"ezyang/htmlpurifier" : "^4.9",
+		"moneyphp/money" : "^3.0",
+		"adodb/adodb-php" : "^5.21"
+	},
+	"scripts" : {
+		"post-install-cmd" : [
+			"@composer -d=\"modules/CRM/Mail\" install",
+			"@composer -d=\"modules/Libs/PHPExcel\" install",
+			"@composer -d=\"modules/Libs/TCPDF\" install"
+		],
+		"post-update-cmd" : [
+			"@composer -d\"modules/Libs/TCPDF\" install",
+			"@composer -d\"modules/Libs/TCPDF\" dump-autoload"
+		]
+	},
+	"autoload" : {
+		"psr-4" : {
+			"Epesi\\Console\\" : "console/",
+			"Epesi\\Module\\" : "modules/"
+		},
+		"psr-0" : {
+			"" : "modules/"
+		}
+	},
+	"require-dev" : {
+		"codeception/codeception" : "*",
+		"codeception/aspect-mock" : "*"
+	}
 }
