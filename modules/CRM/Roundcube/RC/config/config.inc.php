@@ -6,6 +6,7 @@ define('SET_SESSION',false);
 $CID = isset($_GET['ECID']) ? $_GET['ECID'] : false;
 define('CID', $CID);
 define('READ_ONLY_SESSION',isset($_GET['_action']) && $_GET['_action']=='plugin.epesi_archive'?false:true);
+//error_reporting(E_ALL & ~(E_STRICT | E_NOTICE | E_DEPRECATED));
 error_reporting(E_ALL & ~(E_STRICT | E_NOTICE | E_DEPRECATED | E_WARNING));
 
 require_once('vendor/autoload.php');
