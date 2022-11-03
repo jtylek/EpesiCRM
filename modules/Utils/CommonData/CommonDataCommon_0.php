@@ -385,7 +385,10 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
+include_once 'modules/Utils/CommonData/qf.php';
+include_once 'modules/Utils/CommonData/qf_group.php';
+
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = HTML_QuickForm_commondata::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = HTML_QuickForm_commondata_group::class;
 
 ?>

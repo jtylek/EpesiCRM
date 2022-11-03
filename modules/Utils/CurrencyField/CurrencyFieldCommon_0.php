@@ -203,6 +203,8 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
     }
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
+include_once 'modules/Utils/CurrencyField/currency.php';
+
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = HTML_QuickForm_currency::class;
 on_init(array('Utils_CurrencyFieldCommon','load_js'));
 ?>

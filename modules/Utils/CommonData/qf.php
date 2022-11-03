@@ -9,15 +9,14 @@
  * @package epesi-utils
  * @subpackage CommonData
  */
-require_once('HTML/QuickForm/select.php');
 
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_cd = null;
 	var $_add_empty_fields = false;
 	var $_order = 'value';
 
-	function HTML_QuickForm_commondata($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
-		$this->HTML_QuickForm_select($elementName, $elementLabel, array(), $attributes);
+	function __construct($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
+		parent::__construct($elementName, $elementLabel, array(), $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'commondata';
 		$this->_appendName = true;

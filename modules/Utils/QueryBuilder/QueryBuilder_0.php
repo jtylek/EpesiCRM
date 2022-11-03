@@ -163,8 +163,10 @@ class Utils_QueryBuilder extends Module
     protected function load_libs()
     {
         $m = $this->get_module_dir();
+        
+        include_once $m . 'quickform_crits.php';
 
-        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = array($m . 'quickform_crits.php', 'HTML_QuickForm_crits');
+        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = HTML_QuickForm_crits::class;
 
         load_css($m . 'bootstrap-compat.css');
         load_css($m . 'query-builder.default.css');

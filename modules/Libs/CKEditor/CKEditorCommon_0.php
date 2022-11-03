@@ -15,31 +15,25 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
-	HTML_Quickform::registerElementType('ckeditor','modules/Libs/CKEditor/ckeditor.php'
-                                            ,'HTML_Quickform_ckeditor');
-/*	load_js('modules/Libs/CKEditor/onsubmit.js');*/
+	include_once 'modules/Libs/CKEditor/ckeditor.php';
+	
+	$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['ckeditor'] = HTML_Quickform_ckeditor::class;
+	
 	load_css('modules/Libs/CKEditor/frontend.css');
 /*	Libs_QuickFormCommon::add_on_submit_action("if(typeof(ckeditor_onsubmit)!='undefined')ckeditor_onsubmit(this)");*/
 }
+
 class Libs_CKEditorCommon extends ModuleCommon {
 	public static function QFfield_cb(&$form, $field, $label, $mode, $default, $desc, $rb_obj, $display_callbacks) {
+		if (Utils_RecordBrowserCommon::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj)) return;
+		
         if ($mode=='add' || $mode=='edit') {
-            $fck = $form->addElement('ckeditor', $field, $label);
-            $fck->setFCKProps('99%','300',true);
-            if ($mode=='edit') $form->setDefaults(array($field=>$default));
-        } else {
-        	if (isset($display_callbacks[$desc['name']]))
-        		$callback = $display_callbacks[$desc['name']];
-        	else
-        		$callback = array('Libs_CKEditorCommon','display_cb');
-        		
-        	$form->addElement('static', $field, $label, call_user_func($callback, $rb_obj->record, false, $desc));
+        	$form->addElement('ckeditor', $field, $label)->setFCKProps('99%','300',true);
+
+            if ($mode=='edit') $form->setDefaults([$field=>$default]);
         }
     }
-
-    public static function display_cb($r, $nolink=false, $desc=null) {
-        return $r[$desc['id']];
-    }
-
 }
+
+
 ?> 

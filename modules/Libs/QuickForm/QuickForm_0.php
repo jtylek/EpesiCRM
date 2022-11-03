@@ -9,15 +9,12 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('Renderer/TCMSArraySmarty.php');
-require_once('Renderer/TCMSDefault.php');
-
 $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
-$GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = HTML_QuickForm_multiselect::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = HTML_QuickForm_autocomplete::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = HTML_QuickForm_automulti::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = HTML_QuickForm_autoselect::class;
+$GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = HTML_QuickForm_Rule_CompareString::class;
 
 /**
  * This class provides saving any page as homepage for each user.
@@ -143,7 +140,7 @@ class Libs_QuickForm extends Module {
 		$form_data = $renderer->toArray();
 		$theme->assign($name.'_name', $this->getAttribute('name')); 
 		$theme->assign($name.'_data', $form_data);
-		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']."\n");
+		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.($form_data['hidden'] ?? '')."\n");
 		$theme->assign($name.'_close', "</form>\n");
 	}
 	
@@ -237,8 +234,7 @@ class Libs_QuickForm extends Module {
 					$this->addGroup($elems,null,$v['label']);
 					break;
 				case 'crits':
-					$default_crits = isset($v['default']) ? $v['default'] : array();
-					$this->addElement('crits', $v['name'], $v['label'], $v['param'], $default_crits);
+					$this->addElement('crits', $v['name'], $v['label'], $v['param'], $v['default']?? []);
 					break;
 				default:
 					$this->qf->addElement($this->get_element_by_array($v,$default_js));

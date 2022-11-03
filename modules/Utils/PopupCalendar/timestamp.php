@@ -21,15 +21,7 @@
  * @link		http://pear.php.net/package/HTML_QuickForm
  */
 
-/**
- * Class for a group of form elements
- */
-require_once 'HTML/QuickForm/group.php';
-/**
- * Class for <select></select> elements
- */
 require_once 'datepicker.php';
-require_once 'HTML/QuickForm/date.php';
 
 /**
  * Class for a group of elements used to input dates (and times).

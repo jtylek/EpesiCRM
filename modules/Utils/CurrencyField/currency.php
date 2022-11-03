@@ -7,13 +7,12 @@
  * @package epesi-utils
  * @subpackage CurrencyField
  */
-require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
 
 	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
-		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
 		$this->currency = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');

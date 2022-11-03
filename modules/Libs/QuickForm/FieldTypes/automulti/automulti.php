@@ -8,7 +8,6 @@
  * @package epesi-libs
  * @subpackage QuickForm
  */
-require_once('HTML/QuickForm/select.php');
 require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
 
 class HTML_QuickForm_automulti extends HTML_QuickForm_element {
@@ -68,9 +67,9 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
      * @access    public
      * @return    void
      */
-    function HTML_QuickForm_automulti($elementName=null, $elementLabel=null, $options_callback=null, $options_callback_args=null, $format_callback=null, $attributes=null)
+    function __construct($elementName=null, $elementLabel=null, $options_callback=null, $options_callback_args=null, $format_callback=null, $attributes=null)
     {
-        HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'automulti';
         if ($options_callback) $this->_options_callback = $options_callback;
