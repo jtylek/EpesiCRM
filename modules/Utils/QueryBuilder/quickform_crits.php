@@ -11,7 +11,7 @@ require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_crits extends HTML_QuickForm_input {
 
-    function HTML_QuickForm_crits($elementName = null, $elementLabel = null, $attributes=null) {
+    function __construct($elementName = null, $elementLabel = null, $attributes=null) {
         parent::__construct($elementName, $elementLabel, $attributes);
         if ($this->_caller instanceof HTML_QuickForm) {
             $this->_caller->addFormRule(array($this, 'check_for_error'));

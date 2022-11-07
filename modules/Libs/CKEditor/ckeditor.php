@@ -4,11 +4,11 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
     private $_value = null;
 //    private $e2module;
 
-    function HTML_QuickForm_ckeditor($elementName=null, $elementLabel=null, $attributes=null) {
+    function __construct($elementName=null, $elementLabel=null, $attributes=null) {
         load_js('modules/Libs/CKEditor/ckeditor/ckeditor.js','');
         load_js('modules/Libs/CKEditor/ck.js','');
         static $num = 0;
-        HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'text';
         $this->config = array();

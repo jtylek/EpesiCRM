@@ -11,7 +11,7 @@
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
 
-	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
+	function __construct($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
 		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
