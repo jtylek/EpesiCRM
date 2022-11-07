@@ -1,4 +1,7 @@
 <?php
+
+use Epesi\Module\Libs\CKEditor\CKEditorQuickFormElement;
+
 /**
  * This module uses CKeditor editor released under
  * GNU Lesser General Public License Version 2.1 or later (the "LGPL")
@@ -15,9 +18,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
-	include_once 'modules/Libs/CKEditor/ckeditor.php';
-	
-	$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['ckeditor'] = HTML_Quickform_ckeditor::class;
+	$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['ckeditor'] = CKEditorQuickFormElement::class;
 	
 	load_css('modules/Libs/CKEditor/frontend.css');
 /*	Libs_QuickFormCommon::add_on_submit_action("if(typeof(ckeditor_onsubmit)!='undefined')ckeditor_onsubmit(this)");*/

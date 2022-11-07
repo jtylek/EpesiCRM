@@ -1,5 +1,8 @@
 <?php
-class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
+
+namespace Epesi\Module\Libs\CKEditor;
+
+class CKEditorQuickFormElement extends \HTML_QuickForm_element {
     private $config;
     private $_value = null;
 //    private $e2module;
@@ -116,9 +119,9 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
             return $this->getFrozenHtml();
         } else {
             if(!isset($this->config['language']))
-            	$this->config['language'] = substr(Base_LangCommon::get_lang_code(),0,2);
+            	$this->config['language'] = substr(\Base_LangCommon::get_lang_code(),0,2);
             if(!isset($this->config['scayt_sLang']))
-                $this->config['scayt_sLang'] = Base_LangCommon::get_lang_code();
+                $this->config['scayt_sLang'] = \Base_LangCommon::get_lang_code();
             if(!isset($this->config['scayt_autoStartup']))
                 $this->config['scayt_autoStartup'] = 0;
       	    eval_js('ckeditors_hib["'.$this->_attributes['id'].'"]='.json_encode($this->config));

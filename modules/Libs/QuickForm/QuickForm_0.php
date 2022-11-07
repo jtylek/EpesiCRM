@@ -92,6 +92,7 @@ class Libs_QuickForm extends Module {
 					$qb = $qbi->get_builder_module($this, $default_crits);
 					$qb->add_to_form($this, $args[1], $args[2]);
 				}
+				return;
 			}
 		}
 		if (is_object($this->qf)) {
