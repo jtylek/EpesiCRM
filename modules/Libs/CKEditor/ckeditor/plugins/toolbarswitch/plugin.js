@@ -28,14 +28,47 @@
  */
 
 
-function switchMe(editor) {
-	if (editor.config.toolbar == editor.config.smallToolbar) {
-		editor.config.toolbar = editor.config.maximizedToolbar;
-	} else {
-		editor.config.toolbar = editor.config.smallToolbar;
-	}
+function switchMe(editor, callback) {
 
-	ckeditor_reload(editor.name); // function from EPESI ck.js
+	var origCustomConfig = editor.config.customConfig;
+	var origContentCss = editor.config.contentsCss;
+	var origExtraPlugins = editor.config.extraPlugins;
+
+	var origToolbar =  editor.config.toolbar;
+	var origSmallToolbar = editor.config.smallToolbar;
+	var origMaximizedToolbar = editor.config.maximizedToolbar;
+	var newToolbar;
+	if (origToolbar == origSmallToolbar) {
+		newToolbar = origMaximizedToolbar;
+	} else {
+		newToolbar = origSmallToolbar;
+	}
+	
+	// Copy data to original text element before getting rid of the old editor
+	var data = editor.getData();
+	var domTextElement = editor.element.$;
+	jQuery(domTextElement).val(data);
+	
+	// Remove old editor and the DOM elements, else you get two editors
+	var id = domTextElement.id;
+	editor.destroy(true);
+
+	CKEDITOR.replace(id, {
+		customConfig : origCustomConfig,
+		contentsCss : origContentCss,
+		toolbar : newToolbar,
+		smallToolbar: origSmallToolbar,
+		maximizedToolbar: origMaximizedToolbar,
+		extraPlugins : origExtraPlugins,
+		on: {
+			instanceReady: function(e) {
+				CKeditor_OnComplete(e.editor);
+				if (callback) {
+					callback.call(null, e);
+				}
+			}
+		}
+	});
 }
 
 CKEDITOR.plugins.add('toolbarswitch', {
@@ -49,12 +82,17 @@ CKEDITOR.plugins.add('toolbarswitch', {
 			exec: function( editor ) {
 				if ( editor.config.toolbar == editor.config.maximizedToolbar ) {
 					// For switching to the small toolbar first minimize
-                    if (editor.commands.maximize.state == CKEDITOR.TRISTATE_ON) {
-					    editor.commands.maximize.exec();
-                    }
-					switchMe(editor);
+					editor.commands.maximize.exec();
+					switchMe(editor, function(e){
+						var newEditor = e.editor;
+						newEditor.fire('triggerResize');
+					});
 				} else {
-					switchMe(editor);
+					switchMe(editor, function(e){
+						var newEditor = e.editor;
+						newEditor.commands.maximize.exec();
+						newEditor.fire('triggerResize');
+					});
 				}
 			}
 		}

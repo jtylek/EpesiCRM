@@ -58,3 +58,6 @@ function ckeditor_reload_all() {
         }
 	}
 }
+
+// used by the switch toolbar plugin
+function CKeditor_OnComplete(ckEditorInstance){}
