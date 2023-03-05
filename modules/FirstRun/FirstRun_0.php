@@ -135,6 +135,8 @@ class FirstRun extends Module {
 		print('</center>');
 		$th->assign('wizard',ob_get_clean());
 		$th->display();
+		
+		eval_js_once('document.body.id=\'FirstRun\'');
 	}
 
 	public function choose_mail_method($d) {

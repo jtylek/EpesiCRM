@@ -1,7 +1,3 @@
-{php}
-	load_js($this->get_template_vars('theme_dir').'/Utils/GenericBrowser/default.js');
-{/php}
-
 <div>
 
 {if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
@@ -65,15 +61,6 @@
 							<span class="submit" style="float:right;">{$form_data_search.show_all.html}</span>
 						{/if}
 					{else}
-						{php}
-							$cols = $this->get_template_vars('cols');
-							$search_fields = $this->get_template_vars('search_fields');
-							foreach($cols as $k=>$v){
-								if(isset($search_fields[$k]))
-									$cols[$k]['label'] = $cols[$k]['label'].$search_fields[$k];
-							}
-							$this->assign('cols',$cols);
-						{/php}
 						{if isset($form_data_search.submit_search)}
 							<span class="advanced" style="float:right;">{$adv_search}</span>
 							<span class="submit" style="float:right;">{$form_data_search.submit_search.html}</span>
@@ -90,20 +77,13 @@
 </table>
 {/if}
 
-{php}
-	$cols = $this->get_template_vars('cols');
-	foreach($cols as $k=>$v)
-		$cols[$k]['label'] = '<span>'.$cols[$k]['label'].'</span>';
-	$this->assign('cols',$cols);
-{/php}
-
 <div class="table">
 	<div class="layer">
 		<div class="css3_content_shadow">
 			<div class="margin2px">
 				{$table_prefix}
                 {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
-				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
+				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$headers row_attrs=$row_attrs}
 				{$table_postfix}
 
 				{if isset($form_data_paging)}
@@ -112,7 +92,7 @@
 				<form {$form_data_paging.attributes}>
 				{$form_data_paging.hidden}
 				{/if}
-				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
+				{if isset($order) || !empty($first) || !empty($prev) || !empty($summary) || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
 					<table id="Utils_GenericBrowser__navigation" class="nonselectable" border="0" cellspacing="0" cellpadding="0">
 						<tr class="nav_background">
 							<td style="text-align: left; width: 1px; white-space: nowrap;">

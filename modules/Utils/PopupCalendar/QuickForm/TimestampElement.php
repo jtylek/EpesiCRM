@@ -94,7 +94,6 @@ class TimestampElement extends \HTML_QuickForm_group
 	// {{{ toHtml()
 
 	function toHtml() {
-		include_once('HTML/QuickForm/Renderer/Default.php');
 		$renderer = new \HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);

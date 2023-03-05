@@ -182,7 +182,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 //			$form->addElement('checkbox','messenger_on',__('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
 			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
 			$form->registerRule('check_my_user', 'callback', array('CRM_MeetingCommon','check_my_user'));
-			$form->addRule(array('messenger_on','emp_id'), __('You have to select your contact to set alarm on it'), 'check_my_user');
+			$form->addRule(['messenger_on'], __('You have to select your contact to set alarm on it'), 'check_my_user');
 		}
 	}
 
@@ -457,6 +457,13 @@ class CRM_MeetingCommon extends ModuleCommon {
 			if (CRM_TasksInstall::is_installed()) $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', array('title'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'employees'=>$values['employees'], 'customers'=>$values['customers'],'status'=>0,'deadline'=>date('Y-m-d', strtotime('+1 day')))).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
 			if (CRM_PhoneCallInstall::is_installed()) $ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', array('subject'=>$values['title'],'permission'=>$values['permission'],'priority'=>$values['priority'],'description'=>$values['description'],'date_and_time'=>date('Y-m-d H:i:s'),'employees'=>$values['employees'], 'customer'=>$cus,'status'=>0), 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'" /></a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('crm_meeting/'.$values['id']);
+			
+			$ret['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week() - 1;
+			
+			if ($ret['fdow'] < 0) {
+				$ret['fdow'] += 7;
+			}
+			
 			return $ret;
 		case 'edit':
 			self::subscribed_employees($values);

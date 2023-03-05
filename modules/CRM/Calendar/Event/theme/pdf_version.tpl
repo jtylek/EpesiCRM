@@ -147,21 +147,12 @@
 		{assign var=count value=0}
 		{foreach item=c from=$customers_companies.data}
 			{assign var=count value=$count+1}
-			{php}
-				$this->_tpl_vars['address'] = '';
-				$tmp = '';
-				foreach (array('address_1','address_2','city','zone','postal_code') as $v)
-					if (isset($this->_tpl_vars['c'][$v]) && $this->_tpl_vars['c'][$v]!='') {
-						$this->_tpl_vars['address'] .= $tmp.$this->_tpl_vars['c'][$v];
-						$tmp = ', ';
-					}
-			{/php}
 			<tr>
 				<td width="30%" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">&nbsp;{$c.company_name}</font>
 				</td>
 				<td width="50%" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
-					<font size="-1">&nbsp;{$address}</font>
+					<font size="-1">&nbsp;{$c.address}</font>
 				</td>
 				<td width="20%" {if $count%2==0}bgcolor="#F7F7F7"{/if}>
 					<font size="-1">&nbsp;{$c.phone}</font>

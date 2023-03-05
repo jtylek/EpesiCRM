@@ -63,6 +63,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 
 		$th->assign('handle_class','handle');
 		$th->assign('custom_actions',$ev['actions']);
+		
+		load_js('modules/Utils/Calendar/theme/event_.js');
+		
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event'.($mode?'_'.$mode:''));
 	}
 

@@ -708,7 +708,7 @@ class Utils_GenericBrowser extends Module {
 	 * @param string template file that should be used to display the table, use Base_ThemeCommon::get_template_filename() for proper filename
 	 * @param bool enabling paging, true by default
 	 */
-	public function body($template=null,$paging=true){
+	public function body($template=null,$paging=true,$summary=true){
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
@@ -766,6 +766,8 @@ class Utils_GenericBrowser extends Module {
 			$pager_on = true;
 		}
 		$search_on=false;
+		$search_fields = array();
+		$search_fields_hidden = '';
 		if(!$this->is_adv_search_on()) {
 			foreach($this->columns as $k=>$v)
 				if (isset($v['search'])) {
@@ -776,8 +778,7 @@ class Utils_GenericBrowser extends Module {
 					break;
 				}
 		} else {
-			$search_fields = array();
-			$search_fields_hidden = '';
+			
 			if ($this->en_actions && $actions_position==0) $mov = 1;
 			else $mov=0;
 			foreach($this->columns as $k=>$v) {
@@ -799,9 +800,9 @@ class Utils_GenericBrowser extends Module {
 					$search_on=true;
 				}
 			}
-			$theme->assign('search_fields', $search_fields);
-			$theme->assign('search_fields_hidden', $search_fields_hidden);
 		}
+
+		$theme->assign('search_fields_hidden', $search_fields_hidden);
 		if ($search_on) {
 			$this->form_s->addElement('submit','submit_search',__('Search'), array('id'=>'gb_search_button'));
 			if (Base_User_SettingsCommon::get($this->get_type(), 'show_all_button')) {
@@ -897,7 +898,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
-			if ($v['name'] && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
+			if ($v['name'] && $v['name']==($order[0]['column']?? null)) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
 			else $label = $v['name'];
 			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).(isset($v['append'])?$v['append']:'');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
@@ -1050,10 +1051,16 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('letter_links', $letter_links);
 			$theme->assign('quickjump_to', $quickjump_to);
 		}
-
+		
+		foreach($out_headers as $k=>$v) {
+			if ($search_on && !isset($form_array['search']) && isset($search_fields[$k])) {
+				$v['label'] .= $search_fields[$k];
+			}
+			$out_headers[$k]['label'] = '<span>'.$v['label'].'</span>';
+		}
+		
 		$theme->assign('data', $out_data);
-		$theme->assign('cols', $out_headers);
-
+		$theme->assign('headers', $out_headers);			
 		$theme->assign('row_attrs', $this->row_attrs);
 
         $theme->assign('table_id','table_'.$md5_id);
@@ -1064,11 +1071,16 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('table_prefix', $this->table_prefix);
 		$theme->assign('table_postfix', $this->table_postfix);
 
-		$theme->assign('summary', $this->summary());
-		$theme->assign('first', $this->gb_first());
-		$theme->assign('prev', $this->gb_prev());
-		$theme->assign('next', $this->gb_next());
-		$theme->assign('last', $this->gb_last());
+		if ($summary) {
+			$theme->assign('summary', $this->summary());
+		}
+
+		if ($pager_on) {
+			$theme->assign('first', $this->gb_first());
+			$theme->assign('prev', $this->gb_prev());
+			$theme->assign('next', $this->gb_next());
+			$theme->assign('last', $this->gb_last());
+		}
 		$theme->assign('custom_label', $this->custom_label);
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
@@ -1101,6 +1113,8 @@ class Utils_GenericBrowser extends Module {
 			$fixed_col_setting = !empty($this->fixed_columns_selector)? ', skipColumnClass:"'.$this->fixed_columns_selector.'"':'';
 			eval_js('jq("#table_'.$md5_id.'").colResizable({liveDrag:true, postbackSafe:true, partialRefresh:true'.$fixed_col_setting.'});');
 		}
+		
+		load_js($this->get_module_dir() . 'default.js');
 		
 		if(isset($template))
 			$theme->display($template,true);

@@ -14,6 +14,8 @@ $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = HTML_QuickForm_multise
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = HTML_QuickForm_autocomplete::class;
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = HTML_QuickForm_automulti::class;
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = HTML_QuickForm_autoselect::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['checkbox'] = Epesi_QuickForm_checkbox::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['advcheckbox'] = Epesi_QuickForm_advcheckbox::class;
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = HTML_QuickForm_Rule_CompareString::class;
 
 /**
@@ -149,6 +151,7 @@ class Libs_QuickForm extends Module {
 		$elem = null;
 		if(!isset($v['param'])) $v['param']=null;
 		if(!isset($v['values'])) $v['values']=null;
+		if(!isset($v['default'])) $v['default']=null;
 		switch($v['type']){
 			case 'select':
 				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
@@ -209,7 +212,7 @@ class Libs_QuickForm extends Module {
 				trigger_error('Invalid type: '.$v['type'],E_USER_ERROR);
 		}
 		if($this->isError($elem))
-			trigger_error($elem->getMessage(),E_USER_ERROR);
+			trigger_error($elem->getMessage() . ': ' . $elem->getDebugInfo(),E_USER_ERROR);
 		return $elem;
 	}
 	

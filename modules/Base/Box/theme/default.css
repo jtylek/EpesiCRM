@@ -578,7 +578,8 @@ hr.line {
 	margin: 0px;
 	background-color: #fff;
 	padding: 0px;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 6px gray;
 	-moz-box-shadow: 1px 1px 6px gray;

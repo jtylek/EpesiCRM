@@ -1,11 +1,7 @@
 <div style="text-align:left;padding-left:6px;">
 {$form_open}
 
-{foreach from=$form_data.header item=h}
-	<div class="epesi_label header" style="width:700px;">
-		{$h}
-	</div>
-{/foreach}
+
 <div style="margin:5px; line-height: 200%">
 		{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && isset($f.html) && isset($f.label) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}

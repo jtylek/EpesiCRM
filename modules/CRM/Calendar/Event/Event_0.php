@@ -137,6 +137,11 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 				
 			}
 		}
+		
+		foreach ($cus_cmps as $i => $customer) {
+			$cus_cmps[$i]['address'] = implode(', ', array_intersect_key($customer, array_flip(['address_1','address_2','city','zone','postal_code'])));
+		}
+
 		$pdf_theme->assign('employees', array(	'main_label'=>__('Employees'),
 												'name_label'=>__('Name'),
 												'mphone_label'=>__('Mobile Phone'),
@@ -267,11 +272,12 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		eval_js('calendar_event_handlers_message_confirm="'.__('Save selection').'";');
 
 		$form->assign_theme('form', $theme);
+		
 		ob_start();
-		$theme->display('custom_event_handlers_form');
-		$handlers_form = ob_get_clean();
-
-		return $handlers_form;
+		eval_js('var_hide_calendar_event_handlers_popup=1;');
+		$theme->display('custom_event_handlers_form');		
+		
+		return ob_get_clean();
 	}
 }
 

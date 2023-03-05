@@ -1,7 +1,3 @@
-{php}
-	load_js('modules/Utils/Calendar/theme/event_.js');
-{/php}
-
 <span class="event_menu" id="event_menu_{$event_id}" style="display:none;z-index:999;position:absolute;">
 	<!-- SHADIW BEGIN -->
 	{assign var=x value=$custom_actions|@count}

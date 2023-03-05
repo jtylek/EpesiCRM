@@ -2476,7 +2476,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	while (is_null(end($tooltip_create_args)))
     		array_pop($tooltip_create_args);
     	 
-    	return call_user_func_array($tooltip_create_callback, $tooltip_create_args);
+    	return call_user_func_array($tooltip_create_callback, array_values($tooltip_create_args));
     }
     public static function get_record_vals($tab, $record, $nolink=false, $fields = array(), $silent = true){
     	if (is_numeric($record)) $record = self::get_record($tab, $record);

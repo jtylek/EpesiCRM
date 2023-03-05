@@ -256,41 +256,44 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			$values['date_and_time'] = date('Y-m-d H:i:s');
 			$values['subject'] = __('Follow-up').': '.$values['subject'];
 			$values['status'] = 0;
-			$ret = array();
-            $related_id = 'phonecall/' . $values['id'];
-			if (CRM_MeetingInstall::is_installed()) {
-                $meeting_defaults = array(
-                    'title'       => $values['subject'],
-                    'permission'  => $values['permission'],
-                    'priority'    => $values['priority'],
-                    'description' => $values['description'],
-                    'date'        => date('Y-m-d'),
-                    'time'        => date('H:i:s'),
-                    'duration'    => 3600,
-                    'employees'   => $values['employees'],
-                    'customers'   => $values['customer'],
-                    'status'      => 0,
-                    'related'     => $related_id
-                );
-                $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', $meeting_defaults, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
-            }
-			if (CRM_TasksInstall::is_installed()) {
-                $task_defaults = array(
-                    'title'       => $values['subject'],
-                    'permission'  => $values['permission'],
-                    'priority'    => $values['priority'],
-                    'description' => $values['description'],
-                    'employees'   => $values['employees'],
-                    'customers'   => $values['customer'],
-                    'status'      => 0,
-                    'deadline'    => date('Y-m-d', strtotime('+1 day')),
-                    'related'     => $related_id
-                );
-                $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $task_defaults).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
-            }
-            $values['related'] = $related_id;
-			$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
-			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('phonecall/'.$values['id']);
+			$ret = ['new' => []];
+
+			if (isset($values['id'])) {
+            	$related_id = 'phonecall/' . $values['id'];
+				if (CRM_MeetingInstall::is_installed()) {
+	                $meeting_defaults = array(
+	                    'title'       => $values['subject'],
+	                    'permission'  => $values['permission'],
+	                    'priority'    => $values['priority'],
+	                    'description' => $values['description'],
+	                    'date'        => date('Y-m-d'),
+	                    'time'        => date('H:i:s'),
+	                    'duration'    => 3600,
+	                    'employees'   => $values['employees'],
+	                    'customers'   => $values['customer'],
+	                    'status'      => 0,
+	                    'related'     => $related_id
+	                );
+	                $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', $meeting_defaults, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+	            }
+				if (CRM_TasksInstall::is_installed()) {
+	                $task_defaults = array(
+	                    'title'       => $values['subject'],
+	                    'permission'  => $values['permission'],
+	                    'priority'    => $values['priority'],
+	                    'description' => $values['description'],
+	                    'employees'   => $values['employees'],
+	                    'customers'   => $values['customer'],
+	                    'status'      => 0,
+	                    'deadline'    => date('Y-m-d', strtotime('+1 day')),
+	                    'related'     => $related_id
+	                );
+	                $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $task_defaults).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+	            }
+	            $values['related'] = $related_id;
+				$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+				$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('phonecall/'.$values['id']);
+			}
 			return $ret;
 		case 'adding':
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
@@ -320,9 +323,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if ($mode=='added') break;
 		case 'add':
 			if(isset($values['phone']) && $values['phone']) {
-				if($values['customer']{0}=='P' && $values['phone']=='4')
+				if($values['customer'][0]=='P' && $values['phone']=='4')
 				    $values['phone'] == '1';
-				elseif($values['customer']{0}=='C' && $values['phone']!='4')
+				elseif($values['customer'][0]=='C' && $values['phone']!='4')
 				    $values['phone'] == '4';
 			} 
 			if (isset($values['other_customer']) && $values['other_customer']) {

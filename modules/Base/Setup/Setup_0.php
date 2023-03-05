@@ -370,7 +370,13 @@ class Base_Setup extends Module {
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));
 		$t->assign('labels', array('options'=>__('Optional')));
-		
+
+		eval_js('var base_setup__last_filter;');
+		eval_js('base_setup__preprocess_filter = base_setup__last_filter;');
+		eval_js('base_setup__last_filter = "";');
+		load_js($t->get_template_vars('theme_dir').'/Base/Setup/default.js');
+		eval_js('if(base_setup__preprocess_filter!=null)base_setup__filter_by(base_setup__preprocess_filter);');
+
 		$t->display();
 	}
     

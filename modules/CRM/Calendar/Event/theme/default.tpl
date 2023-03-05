@@ -1,7 +1,3 @@
-{php}
-	$theme_dir = $this->get_template_vars('theme_dir');
-{/php}
-
 <table class="CRM_Calendar_Event__header" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
@@ -208,11 +204,6 @@
         </tbody>
     </table>
 </div>
-
-
-{php}
-	eval_js('focus_by_id(\'event_title\');');
-{/php}
 
 <!-- SHADOW END-->
  		</div>

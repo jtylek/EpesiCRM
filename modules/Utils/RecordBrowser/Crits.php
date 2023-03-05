@@ -149,7 +149,7 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
     
     public static function __set_state($array)
     {
-    	$crits = new static();
+    	$crits = new static(null, null, null);
     	
     	foreach ($array as $key => $value) {
     		$crits->{$key} = $value;
@@ -664,23 +664,25 @@ class Utils_RecordBrowser_CritsBuilder
             // default operator
             $operator = '=';
 
-            // parse and remove modifiers
-            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
-                if ($k[0]=='!') $negative = true;
-                if ($k[0]=='"') $noquotes = true;
-                if ($k[0]=='(') $or_start = true;
-                if ($k[0]=='|') $or = true;
-                if ($k[0]=='<') $operator = '<';
-                if ($k[0]=='>') $operator = '>';
-                if ($k[0]=='~') $operator = 'LIKE';
-                if ($k[0]=='^') $group_or_start = true;
-                // parse >= and <=
-                if ($k[1]=='=' && $operator != 'LIKE') {
-                    $operator .= '=';
-                    $k = substr($k, 2);
-                } else $k = substr($k, 1);
-
-                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
+            if (is_string($k)) {
+	            // parse and remove modifiers
+	            while (($k[0]<'a' || $k[0]>'z') && ($k[0]<'A' || $k[0]>'Z') && $k[0]!=':') {
+	                if ($k[0]=='!') $negative = true;
+	                if ($k[0]=='"') $noquotes = true;
+	                if ($k[0]=='(') $or_start = true;
+	                if ($k[0]=='|') $or = true;
+	                if ($k[0]=='<') $operator = '<';
+	                if ($k[0]=='>') $operator = '>';
+	                if ($k[0]=='~') $operator = 'LIKE';
+	                if ($k[0]=='^') $group_or_start = true;
+	                // parse >= and <=
+	                if ($k[1]=='=' && $operator != 'LIKE') {
+	                    $operator .= '=';
+	                    $k = substr($k, 2);
+	                } else $k = substr($k, 1);
+	
+	                if (!isset($k[0])) trigger_error('Invalid criteria in build query: missing word. Crits:'.print_r($crits,true), E_USER_ERROR);
+	            }
             }
 
             $new_crit = new Utils_RecordBrowser_CritsSingle($k, $operator, $v);

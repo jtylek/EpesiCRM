@@ -40,6 +40,10 @@ class Utils_LeightboxPrompt extends Module {
     
     public function add_options($options) {
     	foreach ($options as $option => $desc) {
+    		$desc = is_array($desc)? $desc: [
+    				'label' => $desc
+    		];
+    		
     		$desc['label'] = $desc['label']?? $option;
     		
     		$desc['active'] = $desc['active']?? true;
@@ -215,7 +219,7 @@ class Utils_LeightboxPrompt extends Module {
     }
 
     public function export_values() {
-        $ret = array();
+        $ret = [];
         foreach ($this->options as $option_key=>$option) {
             if ($option['form']!==null && $option['form']->validate()) {
                 $ret['option'] = $option_key;
@@ -231,8 +235,8 @@ class Utils_LeightboxPrompt extends Module {
                 break;
             }
         }
-        if (empty($ret)) return null;
-        return $ret;
+
+        return $ret ?: null;
     }
 }
 
