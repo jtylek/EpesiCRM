@@ -1,29 +1,31 @@
 <?php
 
-namespace Epesi\Module\Utils\CurrencyField;
+namespace Epesi\Module\Utils\CurrencyField\QuickForm;
 
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2008, Janusz Tylek
+ * @copyright Copyright &copy; 2008, Telaxus LLC
  * @license MIT
  * @version 1.0
  * @package epesi-utils
  * @subpackage CurrencyField
  */
-class CurrencyQuickFormElement extends \HTML_QuickForm_input {
+
+class CurrencyElement extends \HTML_QuickForm_input {
 	private $currency = null;
+	protected $filterCurrencies = [];
 
 	function __construct($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
 		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
 		$this->currency = \Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');
-		$this->filterCurrencies = is_array($filterCurrencies)?$filterCurrencies:array();
+		$this->filterCurrencies = is_array($filterCurrencies)?$filterCurrencies:[];
 	} //end constructor
 
 	function getFrozenHtml() {
 		$val = \Utils_CurrencyFieldCommon::get_values(str_replace(\Utils_CurrencyFieldCommon::get_decimal_point($this->currency), '.', $this->getValue()));
-		return \Utils_CurrencyFieldCommon::format($val[0], isset($this->currency)?$this->currency:1);
+		return \Utils_CurrencyFieldCommon::format($val[0], $this->currency ?? 1);
 	}
 
 	function toHtml() {

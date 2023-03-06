@@ -1734,7 +1734,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             	$access = self::get_access($tab, $action, $rr);
             	$field_is_empty = false;
             	if($any && $access) return $r[$field];
-            	$ret &= $access;
+            	$ret &= (bool) $access;
             }
             return $field_is_empty ? true : ($ret ? true : false);
 	}
@@ -3911,7 +3911,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             $ref = $ref[0];
                             @(list($tab2, $col) = explode('::',$ref));
                             if (!isset($col)) trigger_error($field);
-                            if($tab2=='__RECORDSETS__') break; //skip multi recordsets chained selector
+                            if($tab2=='__RECORDSETS__') continue 2; //skip multi recordsets chained selector
                             if ($tab2=='__COMMON__') {
                                 $data = Utils_CommonDataCommon::get_translated_tree($col);
                                 if (!is_array($data)) $data = array();
@@ -3925,7 +3925,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                                     } else $crits = $adv_crits = array();
                                     if ($adv_crits === $crits) $adv_crits = null;
                                     if ($adv_crits !== null) {
-                                        break; //skip record picker
+                                        continue 2; //skip record picker
                                     }
                                 } else $crits = array();
                                 $col = explode('|',$col);
@@ -4002,9 +4002,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                             }
                             break;
                 case 'multiselect': //ignore
-                            if($id===false) break;
+                            if($id===false) continue 2;
                             $val = Utils_RecordBrowserCommon::get_val($tab,$field,$rec,true,$args);
-                            if($val==='') break;
+                            if($val==='') continue 2;
                             $qf->addElement('static',$args['id'],$label);
                             $qf->setDefaults(array($args['id']=>$val));
                             unset($defaults[$args['id']]);
