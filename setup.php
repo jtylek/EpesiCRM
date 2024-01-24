@@ -16,8 +16,9 @@ ini_set('arg_separator.output','&');
 date_default_timezone_set(SYSTEM_TIMEZONE);
 
 define('_VALID_ACCESS',1);
+require_once('vendor/autoload.php');
 require_once('include/data_dir.php');
-require_once('modules/Libs/QuickForm/vendor/autoload.php');
+// require_once('modules/Libs/QuickForm/vendor/autoload.php');
 
 /* You can predefine user, password, database name, etc in file defined by var below.
 Example installation_config.php file:
