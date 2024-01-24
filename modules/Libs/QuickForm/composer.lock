@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "openpsa/quickform",
-            "version": "v3.4",
+            "version": "v3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/openpsa/quickform.git",
-                "reference": "4a979f322aed0dacfb9716d1a768afd9ea9bb5eb"
+                "reference": "5e31c1c9b45b8101a8ff370b8f5abbbf71d9daf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/openpsa/quickform/zipball/4a979f322aed0dacfb9716d1a768afd9ea9bb5eb",
-                "reference": "4a979f322aed0dacfb9716d1a768afd9ea9bb5eb",
+                "url": "https://api.github.com/repos/openpsa/quickform/zipball/5e31c1c9b45b8101a8ff370b8f5abbbf71d9daf1",
+                "reference": "5e31c1c9b45b8101a8ff370b8f5abbbf71d9daf1",
                 "shasum": ""
             },
             "require": {
@@ -52,9 +52,9 @@
             ],
             "support": {
                 "issues": "https://github.com/openpsa/quickform/issues",
-                "source": "https://github.com/openpsa/quickform/tree/v3.4"
+                "source": "https://github.com/openpsa/quickform/tree/v3.4.1"
             },
-            "time": "2022-09-20T08:47:45+00:00"
+            "time": "2023-04-20T08:24:29+00:00"
         }
     ],
     "packages-dev": [],
@@ -65,5 +65,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.6.0"
 }

@@ -12,7 +12,8 @@
         "psy/psysh": "@stable",
         "enyo/dropzone": "@stable",
         "ezyang/htmlpurifier": "^4.9",
-        "moneyphp/money": "^3.0"
+        "moneyphp/money": "^3.0",
+        "smarty/smarty": "^4.3"
     },
     "scripts": {
         "post-install-cmd": [
