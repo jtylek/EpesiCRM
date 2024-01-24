@@ -29,3 +29,5 @@ vendor
 tests/config.yml
 .history/
 composer.lock
+.vscode
+out
