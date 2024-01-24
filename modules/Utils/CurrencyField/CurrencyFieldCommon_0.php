@@ -1,7 +1,4 @@
 <?php
-
-use Epesi\Module\Utils\CurrencyField\CurrencyQuickFormElement;
-
 /**
  * @author Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
@@ -206,8 +203,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
     }
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = CurrencyQuickFormElement::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = Epesi\Module\Utils\CurrencyField\QuickForm\CurrencyElement::class;
 
-on_init([Utils_CurrencyFieldCommon::class, 'load_js']);
-
+on_init(['Utils_CurrencyFieldCommon','load_js']);
 ?>

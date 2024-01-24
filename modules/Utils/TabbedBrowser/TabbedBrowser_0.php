@@ -45,7 +45,8 @@ class Utils_TabbedBrowser extends Module {
 		if (empty($this->tabs)) return;
 		$theme = $this->init_module(Base_Theme::module_name());
 		
-		load_js($this->get_module_dir().'tb_.js');
+		load_js($this->get_module_dir().'tb_.js');		
+		load_js($this->get_module_dir().'default.js');
 				
 		$i = 0;
 		$this->check_valid_page();
@@ -101,7 +102,7 @@ class Utils_TabbedBrowser extends Module {
 				$subs[] = $this->get_link($i, $val, $caption, $group);
 				$i++;
 			}
-			$final_captions[$group] = '<span id="tabbed_browser_submenu_'.$group.'"'.$selected_c.'>'.$group.'&nbsp;'.'<img src="'.Base_ThemeCommon::get_template_file('Utils_TabbedBrowser','submenu.png').'">'.'</span>';
+			$final_captions[$group] = '<span id="tabbed_browser_submenu_'.$group.'"'.$selected_c.'>'.$group.'&nbsp;'.'<img src="'.Base_ThemeCommon::get_template_file('Utils_TabbedBrowser','submenu.png').'" helpid="">'.'</span>';
 			$captions_subs[$group] = $subs;
 		}
 		$this->tag = md5($body.$this->page); 
@@ -113,18 +114,16 @@ class Utils_TabbedBrowser extends Module {
 	}
 	
 	private function display_contents($val, $i, $selected) {
-		$body = '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($selected?'':'style="display:none"').'>';
 		if (isset($val['func'])){
-			ob_start();
-			if (!is_array($val['args'])) $val['args'] = array($val['args']);
-			call_user_func_array($val['func'],$val['args']);
-			$body .= ob_get_contents();
-			ob_end_clean();
-		} else {
-			$body .= $val['body'];
+			$val['args'] = is_array($val['args'])? $val['args']: [$val['args']];
+
+			ob_start();			
+			call_user_func_array($val['func'],$val['args']);			
+			$val['body'] = ob_get_clean();
 		}
-		$body .= '</div>';
-		return $body;
+
+		return '<div id="'.escapeJS($this->get_path(),true,false).'_d'.$i.'" '.($selected?'':'style="display:none"').'>' . 
+			$val['body'] . '</div>';
 	}
 	
 	public function tab_icon($caption, $icon=false) {
@@ -147,12 +146,14 @@ class Utils_TabbedBrowser extends Module {
 		if($this->page === $i || (is_string($this->page) && $this->page == $caption)) $selected = ' class="tabbed_browser_selected"';
 			else $selected = ' class="tabbed_browser_unselected"';
 		$icon = '<img class="tab_icon" id="'.$this->get_tab_id($caption).'_icon" src="" style="display:none;">';
+		$helpid = 'helpid="Tab_' . $caption . '"';
+		
 		if (isset($val['href']) && $val['href'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href'].'>'.$caption.$icon.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' '.$val['href']. ' ' . $helpid . '>'.$caption.$icon.'</span>';
 		elseif ($val['js'])
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.'>'.$caption.$icon.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected. ' ' . $helpid .'>'.$caption.$icon.'</span>';
 		else
-			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected.' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.$icon.'</span>';
+			$link = '<span id="'.$this->get_tab_id($caption).'"'.$parent.' href="javascript:void(0)" onClick="tabbed_browser_switch('.$i.','.$this->max.',this,\''.$path.'\')"'.$selected. ' ' . $helpid . ' original_action="'.$this->create_unique_href_js(array('page'=>$i)).'">'.$caption.$icon.'</span>';
 		return $link;
 	}
 	

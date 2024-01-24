@@ -132,7 +132,7 @@ abstract class Module extends ModulePrimitive {
 
 	//endregion
 	//region Children
-	private final function register_child($ch) {
+	private function register_child($ch) {
 		$type = $ch->type_with_submodule;
 		$instance = $ch->get_instance_id();
 		if(!isset($this->children[$type]))
@@ -142,7 +142,7 @@ abstract class Module extends ModulePrimitive {
 			Epesi::debug('registering '.$this->get_path().'/'.$ch->get_node_id());
 	}
 
-	private final function get_new_child_instance_id($type) {
+	private function get_new_child_instance_id($type) {
 		return isset($this->children[$type])?count($this->children[$type]):0;
 	}
 
@@ -601,7 +601,7 @@ abstract class Module extends ModulePrimitive {
 		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>CID));
 	}
 
-	private final function create_callback_name($func, $args) {
+	private function create_callback_name($func, $args) {
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
 		if(!is_array($func) || count($func)!=2)
@@ -683,7 +683,7 @@ abstract class Module extends ModulePrimitive {
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
 	}
 
-	private final function set_callback($name,$func,$args) {
+	private function set_callback($name,$func,$args) {
 		if(!is_string($func)) {
 			if(is_array($func) && count($func)==2 && is_string($func[1]) &&
 				(is_string($func[0]) || $func[0] instanceof Module)) {

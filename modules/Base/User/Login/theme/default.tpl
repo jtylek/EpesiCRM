@@ -24,7 +24,7 @@
                         <tbody>
 {if $is_demo}
    			<tr>
-   				<td colspan="2" align="center"><strong>EPESI DEMO APPLICATION</strong></td>
+   				<td colspan="2" align="center"><strong>{$EPESI} DEMO APPLICATION</strong></td>
    			</tr>
 {/if}
 					{if isset($message)}
@@ -83,7 +83,7 @@
 					{/if}
                         <tr><td colspan="2" class="footer">
                         <!-- Epesi Terms of Use require line below - do not remove it! -->
-                        Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek
+                        Copyright &copy; 2006-{$date} by Janusz Tylek
                         <!-- Epesi Terms of Use require line above - do not remove it! -->
                         </td></tr>
                         </tbody>

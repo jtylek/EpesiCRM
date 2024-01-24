@@ -1,7 +1,3 @@
-{php}
-	load_js($this->get_template_vars('theme_dir').'/Libs/Leightbox/default.js');
-{/php}
-
 <div id="Leightbox_header">
     <table border="0" cellpadding="0" cellspacing="0">
         <tbody>

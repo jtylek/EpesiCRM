@@ -1,30 +1,3 @@
-{assign var=count value=0}
-{php}
-	$this->_tpl_vars['multiselects'] = array();
-{/php}
-{foreach key=k item=f from=$fields name=fields}
-	{if $f.type!="multiselect"}
-		{assign var=count value=$count+1}
-	{else}
-		{php}
-			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-		{/php}
-	{/if}
-{/foreach}
-{php}
-	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
-{/php}
-{php}
-	$this->_tpl_vars['fdow'] = Utils_PopupCalendarCommon::get_first_day_of_week();
-	$this->_tpl_vars['fdow']--;
-	if ($this->_tpl_vars['fdow']<0) $this->_tpl_vars['fdow']+=7;
-{/php}
 <table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
@@ -343,11 +316,6 @@
         </tbody>
     </table>
 </div>
-
-
-{php}
-	eval_js('focus_by_id(\'event_title\');');
-{/php}
 
 <!-- SHADOW END-->
  		</div>

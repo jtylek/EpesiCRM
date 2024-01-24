@@ -156,6 +156,12 @@ class Base_Box extends Module {
 		$theme->assign('home', array('href'=>Base_HomePageCommon::get_href(), 'label'=>__('Home')));
 		
         $theme->assign('version_no',$version_no);
+        
+        if ($logged) {
+        	load_js($theme->getTemplateVars('theme_dir')  .'/Base/Box/default.js');
+        	eval_js_once('document.body.id=null'); //pointer-events:none;
+        }
+        
         $theme->display();
 
     }

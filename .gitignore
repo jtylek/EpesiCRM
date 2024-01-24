@@ -28,3 +28,4 @@ vendor
 
 tests/config.yml
 .history/
+composer.lock

@@ -22,13 +22,6 @@
 			</td>
 		</tr>
 	</table>
-	{php}
-	unset($this->_tpl_vars['form_data']['prev_week']);
-	unset($this->_tpl_vars['form_data']['prev_day']);
-	unset($this->_tpl_vars['form_data']['today']);
-	unset($this->_tpl_vars['form_data']['next_day']);
-	unset($this->_tpl_vars['form_data']['next_week']);
-	{/php}
 {/if}
 
 
@@ -64,6 +57,9 @@
 					<td style="vertical-align:top;margin:5px;width:250px;min-width:250px;">
 						<table id="Utils_Planner__resource_table" class="border-spacing" cellpadding="0" cellspacing="0" border="0">
 							{foreach item=e key=k from=$form_data}
+								{if in_array($k, ['prev_week', 'prev_day', 'today', 'next_day', 'next_week'])}
+									{continue}
+								{/if}
 								{if is_array($e) && isset($e.label)}
 									{if ($e.type=='automulti')}
 										<tr>

@@ -22,7 +22,6 @@ try {
     require_once('include/maintenance_mode.php');
     require_once('include/epesi.php');
     require_once('include/error.php');
-    require_once('include/magicquotes.php');
     require_once('include/database.php');
     require_once('include/cache.php');
     require_once('include/misc.php');

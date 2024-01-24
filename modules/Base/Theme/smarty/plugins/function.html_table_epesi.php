@@ -53,7 +53,8 @@ function smarty_function_html_table_epesi($params, &$smarty)
     $tr_attr = '';
     $th_attr = '';
     $td_attr = '';
-    $cols = $cols_count = 3;
+    $cols = [];
+    $cols_count = 3;
     $rows = 3;
     $trailpad = '&nbsp;';
     $vdir = 'down';
@@ -71,9 +72,9 @@ function smarty_function_html_table_epesi($params, &$smarty)
             case 'loop':
             	$loop = array();
             	$td_attr = array();
-            	foreach($_value as $k=>$v){
+            	foreach($_value as $v){
             		$loop[] = $v['label'];
-            		$td_attr[] = $v['attrs'];
+            		$td_attr[] = $v['attrs'] ?? [];
             	}
                 break;
 
@@ -81,9 +82,9 @@ function smarty_function_html_table_epesi($params, &$smarty)
                 if (is_array($_value) && !empty($_value)) {
                 	$cols = array();
                 	$th_attr = array();
-	            	foreach($_value as $k=>$v){
+	            	foreach($_value as $v){
 	            		$cols[] = $v['label'];
-	            		$th_attr[] = $v['attrs'];
+	            		$th_attr[] = $v['attrs'] ?? [];
 	            	}
                     $cols_count = count($cols);
                 } elseif (!is_numeric($_value) && is_string($_value) && !empty($_value)) {
@@ -91,9 +92,10 @@ function smarty_function_html_table_epesi($params, &$smarty)
                     $cols_count = count($cols);
                 } elseif (!empty($_value)) {
                     $cols_count = (int)$_value;
-                } else {
-                    $cols_count = $cols;
-                }
+                } 
+//                 else {
+//                     $cols_count = $cols;
+//                 }
                 break;
 
             case 'rows':
@@ -132,7 +134,7 @@ function smarty_function_html_table_epesi($params, &$smarty)
         $output .= '<caption>' . $caption . "</caption>\n";
     }
 
-    if (is_array($cols)) {
+    if ($cols) {
         $cols = ($hdir == 'right') ? $cols : array_reverse($cols);
         $output .= "<thead><tr class=\"nonselectable\">\n";
 

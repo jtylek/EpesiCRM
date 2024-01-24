@@ -223,7 +223,7 @@ class Utils_RecordBrowser_QueryBuilder
         $value = $crit->get_value();
         $negation = $crit->get_negation();
 
-        $special = $field[0] == ':' || $field == 'id';
+        $special = is_string($field) && ($field[0] == ':' || $field == 'id');
         if ($special) {
             $sql = '';
             $vals = array();

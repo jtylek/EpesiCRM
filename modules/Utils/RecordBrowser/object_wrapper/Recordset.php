@@ -175,7 +175,7 @@ abstract class RBO_Recordset {
         trigger_error("Method $callback_name does not exist in recordset, nor record class", E_USER_ERROR);
     }
 
-    private static final function _callback_recordset($recordset_class, $callback_name, $args, &$return_value) {
+    private static function _callback_recordset($recordset_class, $callback_name, $args, &$return_value) {
         $recordset = self::recordset_instance($recordset_class);
         // check for qffield callback in Recordset class
         if (method_exists($recordset, $callback_name)) {
@@ -185,7 +185,7 @@ abstract class RBO_Recordset {
         return false;
     }
 
-    private static final function _callback_record($recordset_class, $record, $callback_name, $args, &$return_value) {
+    private static function _callback_record($recordset_class, $record, $callback_name, $args, &$return_value) {
         $recordset = self::recordset_instance($recordset_class);
         $record_class = $recordset->class_name();
         if (method_exists($record_class, $callback_name)) {

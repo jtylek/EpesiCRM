@@ -679,13 +679,13 @@ class Utils_RecordBrowser extends Module {
                 $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
             }
         }
-        $this->set_module_variable('last_offset',$limit['offset']);
+        $this->set_module_variable('last_offset',$limit ? $limit['offset']: 0);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
             $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
 
-        $this->set_module_variable('crits_stuff',$crits?$crits:array());
-        $this->set_module_variable('order_stuff',$order?$order:array());
+        $this->set_module_variable('crits_stuff', $crits?: []);
+        $this->set_module_variable('order_stuff', $order?: []);
 
         $custom_label = '';
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
@@ -1182,7 +1182,7 @@ class Utils_RecordBrowser extends Module {
 			}
         }
 
-		if ($mode=='view') {
+        if (in_array($mode, ['view', 'edit', 'add'])) {
 			$dp = Utils_RecordBrowserCommon::record_processing($this->tab, $this->record, 'display');
 			if ($dp && is_array($dp))
 				foreach ($dp as $k=>$v)
@@ -1238,7 +1238,7 @@ class Utils_RecordBrowser extends Module {
 
 				$tab_counter++;
 			}
-            $cols = $row['param'];
+            $cols = $row['param'] ?? false;
             $last_page = $pos;
             if ($row) $label = $row['field'];
         }
@@ -1312,8 +1312,7 @@ class Utils_RecordBrowser extends Module {
     }
 
     public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
-        if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
-        $fields = array();
+    	$fields = array();
         $longfields = array();
 
         foreach($this->table_rows as $desc) {
@@ -1325,10 +1324,17 @@ class Utils_RecordBrowser extends Module {
 				
 				if (!$opts) continue;
 				
-                if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
+				if (in_array($desc['type'], ['long text', 'file']))
+					$longfields[$desc['id']] = $opts; 
+				else 
+					$fields[$desc['id']] = $opts;
             }
         }
-        if ($cols==0) $cols=2;
+        
+        $theme = $theme?: $this->init_module(Base_Theme::module_name());
+        
+        $cols = $cols ?: 2;
+        
         $theme->assign('fields', $fields);
         $theme->assign('cols', $cols);
         $theme->assign('longfields', $longfields);
@@ -1340,17 +1346,44 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('icon',$this->icon);
 
         $theme->assign('main_page',$main_page);
+        
+        $multiselects = [];
+        $count = 0;
+        $focus = null;
+        foreach ($fields as $field) {        	
+        	if ($field['type'] == 'multiselect') {
+        		$multiselects[] = $field;
+        	}
+        	else {
+        		if (!isset($focus) && $field['type']=='text') {
+        			$focus = $field['element'];
+        		}
+        		$count++;
+        	}
+        }
 
+        $theme->assign('rows', ceil($count/$cols));
+        $theme->assign('multiselects', $multiselects);
+        $theme->assign('mss_rows', ceil(count($multiselects)/$cols));
+        $theme->assign('no_empty', ($count-floor($count/$cols)*$cols) ?: ($cols + 1));
+        $theme->assign('mss_no_empty', (count($multiselects)-floor(count($multiselects)/$cols)*$cols) ?: ($cols + 1));
+        $theme->assign('cols_percent', 100 / $cols);
+
+        $add_form = false;
         if ($main_page) {
             $tpl = DB::GetOne('SELECT tpl FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
             $theme->assign('raw_data',$this->record);
+            Base_ThemeCommon::load_css(self::module_name(), 'View_entry');
         } else {
             $tpl = '';
-            if (self::$mode=='view') print('<form>');
+            $add_form = self::$mode=='view';
         }
-		if ($tpl) Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
-        $theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
-        if (!$main_page && self::$mode=='view') print('</form>');
+        
+        if ($add_form) print('<form>');
+        $theme->display($tpl?: 'View_entry', ($tpl!==''));
+        if ($add_form) print('</form>');
+        
+        if ($main_page && isset($focus)) eval_js('focus_by_id(\''.$focus.'\');');
     }
     
     public function get_field_display_options($desc, $form_data = array()) {

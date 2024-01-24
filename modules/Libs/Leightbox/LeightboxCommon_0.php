@@ -37,6 +37,9 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		$smarty->assign('close_label',__('Close'));
 		$smarty->assign('resize_label',__('Resize'));
 		$smarty->assign('close_href','href="javascript:leightbox_deactivate(\''.$id.'\')"');
+		
+		load_js($smarty->getTemplateVars('theme_dir').'/Libs/Leightbox/default.js');
+		
 		Base_ThemeCommon::display_smarty($smarty,'Libs_Leightbox');
 		print('</div>');
 		return ob_get_clean();

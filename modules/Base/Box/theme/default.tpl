@@ -6,12 +6,7 @@
 </div>
 
 {else}
-
-{php}
-	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
-	eval_js_once('document.body.id=null'); //pointer-events:none;
-{/php}
-	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;" id="help_canvas" width="3000px" height="3000px"></canvas>
+	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;display:none;" id="help_canvas" width="3000px" height="3000px"></canvas>
 	<img class="Base_Help__tools" style="display: none;" id="Base_Help__help_arrow" src="{$theme_dir}/Base/Help/arrow.png" />
 	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div><div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
 	<div id="top_bar" class="nonselectable" style="width:100%">

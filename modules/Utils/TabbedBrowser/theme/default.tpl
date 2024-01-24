@@ -1,7 +1,3 @@
-{php}
-	load_js($this->get_template_vars('theme_dir').'/Utils/TabbedBrowser/default.js');
-{/php}
-
 <div class="Utils_TabbedBrowser_div">
 
 <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">

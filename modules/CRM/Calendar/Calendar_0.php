@@ -67,8 +67,8 @@ class CRM_Calendar extends Module {
 			$this->lp = null;
 		} else {
 			$this->display_module($this->lp, array(__('New Event'), array('timestamp','timeless'), '', false));
-			$vals = $this->lp->export_values();
-			if ($vals) {
+
+			if ($vals = $this->lp->export_values()) {
 				$this->jump_to_new_event($vals['option'],$vals['params']['timestamp'],$vals['params']['timeless']);
 				return;
 			}

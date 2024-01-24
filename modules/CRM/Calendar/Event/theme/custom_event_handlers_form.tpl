@@ -1,6 +1,3 @@
-{php}
-	eval_js('var_hide_calendar_event_handlers_popup=1;');
-{/php}
 {literal}
 <div class="button" style="width:100%;" id="calendar_event_handlers_trigger" onmouseover="var_hide_calendar_event_handlers_popup=0;show_calendar_event_handlers_popup();" onmouseout="var_hide_calendar_event_handlers_popup=1;setTimeout('hide_calendar_event_handlers_popup();',1000);" onclick="if(var_hide_calendar_event_handlers_popup==0){var_hide_calendar_event_handlers_popup=1;hide_calendar_event_handlers_popup();}else{var_hide_calendar_event_handlers_popup=0;show_calendar_event_handlers_popup();}">
 {/literal}

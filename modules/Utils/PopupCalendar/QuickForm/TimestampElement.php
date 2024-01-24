@@ -43,8 +43,10 @@ class TimestampElement extends \HTML_QuickForm_group
 	// }}}
 	// {{{ constructor
 
-	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		parent::__construct($elementName, $elementLabel, $attributes);
+	function __construct($elementName = null, $elementLabel = null, $options = [], $attributes = []) {
+		
+		parent::__construct($elementName, $elementLabel);
+		$this->_attributes = $attributes;		
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
@@ -63,7 +65,10 @@ class TimestampElement extends \HTML_QuickForm_group
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['__date'] = new \HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
+		$this->_elements['__date'] = new \HTML_QuickForm_date('__date', null, $this->_options, array_merge([
+				'style' => 'width: auto;',
+		], $this->getAttributes()));
+		
 		if ($this->_options['date'])
 			$this->_elements['__datepicker'] = new DatepickerElement('__datepicker', null, $this->getAttributes());
 	}
@@ -94,7 +99,6 @@ class TimestampElement extends \HTML_QuickForm_group
 	// {{{ toHtml()
 
 	function toHtml() {
-		include_once('HTML/QuickForm/Renderer/Default.php');
 		$renderer = new \HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);

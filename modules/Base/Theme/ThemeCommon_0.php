@@ -13,14 +13,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-/**
- * load Smarty library
- */
-define('SMARTY_DIR', 'modules/Base/Theme/smarty/');
-
-require_once(SMARTY_DIR.'Smarty.class.php');
-
-
 class Base_ThemeCommon extends ModuleCommon {
 	public static function init_smarty() {
 		$smarty = new Smarty();
@@ -32,8 +24,10 @@ class Base_ThemeCommon extends ModuleCommon {
 		$smarty->compile_id = $theme;
 		$smarty->config_dir = DATA_DIR.'/Base_Theme/config/';
 		$smarty->cache_dir = DATA_DIR.'/Base_Theme/cache/';
+		
+		$smarty->addPluginsDir(self::Instance()->get_module_dir() . 'smarty/plugins');
         
-        $smarty->register_modifier('t', array(__CLASS__, 'smarty_modifier_translate'));
+		$smarty->registerPlugin('modifier', 't', array(__CLASS__, 'smarty_modifier_translate'));
 		return $smarty;
 	}
 	
@@ -47,7 +41,7 @@ class Base_ThemeCommon extends ModuleCommon {
 		return $theme;
 	}
 	
-	public static function display_smarty($smarty, $module_name, $user_template=null, $fullname=false) {
+	public static function display_smarty(Smarty $smarty, $module_name, $user_template=null, $fullname=false) {
 		$module_name = str_replace('_','/',$module_name);
 		if(isset($user_template)) {
 			if (!$fullname)
@@ -66,36 +60,35 @@ class Base_ThemeCommon extends ModuleCommon {
 			$tpl = $module_name.'.tpl';
 			$css = $module_name.'.css';
 		}
-		
 
-		if($smarty->template_exists($tpl)) {
-			$smarty->assign('theme_dir',$smarty->template_dir);
+		if($smarty->templateExists($tpl)) {
+			$smarty->assign('theme_dir',DATA_DIR.'/Base_Theme/templates/default');
 			$smarty->display($tpl);
 			if(isset($css)) {
-				$cssf = $smarty->template_dir.'/'.$css;
+				$cssf = $smarty->getTemplateDir(0).'/'.$css;
 				if(file_exists($cssf))
-			    	load_css($cssf,$smarty->template_dir.'/__css.php');
+					load_css($cssf,DATA_DIR.'/Base_Theme/templates/default/__css.php');
 			}
 		} else {
-			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/default';
-			$smarty->compile_id = 'default';
+			$smarty->setTemplateDir(DATA_DIR.'/Base_Theme/templates/default');
+			$smarty->setCompileId('default');
 
-			if(!$smarty->template_exists($tpl)) {
+			if(!$smarty->templateExists($tpl)) {
 			$tpl = '../../../'.$tpl;
 				//trigger_error('Template not found: '.$tpl,E_USER_ERROR);
 			}
 
-			$smarty->assign('theme_dir',$smarty->template_dir);
+			$smarty->assign('theme_dir',DATA_DIR.'/Base_Theme/templates/default');
 			$smarty->display($tpl);
 			if(isset($css)) {
-				$cssf = $smarty->template_dir.'/'.$css;
+				$cssf = $smarty->getTemplateDir(0).'/'.$css;
 				if(file_exists($cssf))
-					load_css($cssf,$smarty->template_dir.'/__css.php');
+					load_css($cssf,DATA_DIR.'/Base_Theme/templates/default/__css.php');
 			}
 
 			$dt = self::get_default_template();
-			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$dt;
-			$smarty->compile_id = $dt;
+			$smarty->setTemplateDir(DATA_DIR.'/Base_Theme/templates/'.$dt);
+			$smarty->setCompileId($dt);
 		}
 	}
 
@@ -341,23 +334,23 @@ class Base_ThemeCommon extends ModuleCommon {
 			$text="";
 			$close="";
 			$len = strlen($val);
-			if ($len>2 && $val{0}==='<' && $val{1}==='a')
+			if ($len>2 && $val[0]==='<' && $val[1]==='a')
 				while ($i<$len-1) {
-					if ($val{$i}==='<') {
-						if ($val{$i+1}==='a') {
+					if ($val[$i]==='<') {
+						if ($val[$i+1]==='a') {
 							if ($count===0) {
-								while ($i<$len-1 && $val{$i}!=='>') {
-									$open .= $val{$i};
+								while ($i<$len-1 && $val[$i]!=='>') {
+									$open .= $val[$i];
 									$i++;
-									if ($val{$i}==='"') {
+									if ($val[$i]==='"') {
 										do {
-											$open .= $val{$i};
+											$open .= $val[$i];
 											$i++;
-										} while ($i<$len && $val{$i}!=='"');
+										} while ($i<$len && $val[$i]!=='"');
 									}
 								}
 								$open .= '>';
-							} else $text .= $val{$i};
+							} else $text .= $val[$i];
 							$count++;
 						} else if (substr($val,$i+1,3)==='/a>') {
 							$count--;
@@ -366,9 +359,9 @@ class Base_ThemeCommon extends ModuleCommon {
 								return array(	'open' => $open,
 												'text' => $text,
 												'close' => '</a>');
-							} else $text .= $val{$i};
-						} else $text .= $val{$i};
-					} else $text .= $val{$i};
+							} else $text .= $val[$i];
+						} else $text .= $val[$i];
+					} else $text .= $val[$i];
 					$i++;
 				}
 			return array();

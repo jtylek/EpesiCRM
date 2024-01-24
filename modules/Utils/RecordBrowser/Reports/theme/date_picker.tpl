@@ -1,6 +1,3 @@
-{*		{php}
-		print_r($this->_tpl_vars['form_data']);
-		{/php}*}
 
 {$form_open}
 <div style="text-align:left; padding-left: 10px; padding-right: 10px;">
