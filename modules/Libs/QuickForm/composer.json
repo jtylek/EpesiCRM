@@ -1,9 +1,0 @@
-{
-	"require" : {
-		"openpsa/quickform" : "^3.4"
-	},
-	"autoload": {
-		"exclude-from-classmap": ["vendor/openpsa/quickform/lib/HTML/QuickForm/autocomplete.php"],
-        "classmap": ["FieldTypes/", "Renderer/"]
-    }
-}
