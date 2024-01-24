@@ -27,7 +27,6 @@
 //
 // $Id$
 
-require_once('HTML/QuickForm/Renderer.php');
 
 /**
  * A concrete renderer for HTML_QuickForm,
@@ -142,16 +141,6 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access   private
     */
     var $_hiddenHtml = '';
-
-   /**
-    * Constructor
-    *
-    * @access public
-    */
-    function HTML_QuickForm_Renderer_Default()
-    {
-        $this->HTML_QuickForm_Renderer();
-    } // end constructor
 
    /**
     * returns the HTML generated for the form
@@ -358,7 +347,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access public
     * @return void
     */
-    function renderHidden(&$element)
+    function renderHidden(&$element, $required, $error)
     {
 		$this->_prepareValue($element);
         $this->_hiddenHtml .= $element->toHtml() . "\n";

@@ -27,7 +27,6 @@
 //
 // $Id: Array.php,v 1.9 2004/10/15 20:00:48 ths Exp $
 
-require_once 'HTML/QuickForm/Renderer.php';
 
 /**
  * A concrete renderer for HTML_QuickForm, makes an array of form contents
@@ -154,9 +153,8 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
     * @access public
     */
-    function HTML_QuickForm_Renderer_TCMSArray($collectHidden = false, $staticLabels = false)
+    function __construct($collectHidden = false, $staticLabels = false)
     {
-        $this->HTML_QuickForm_Renderer();
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
@@ -179,6 +177,10 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         return $this->_ary;
     }
 
+    public function renderHtml(&$data)
+    {
+    	
+    }
 
     function startForm(&$form)
     {
@@ -199,6 +201,10 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 	load_js('modules/Libs/QuickForm/Renderer/TCMSDefault.js');
     } // end func startForm
 
+    
+    public function finishForm(&$form)
+    {
+    }
 
     function renderHeader(&$header)
     {
@@ -221,7 +227,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     } // end func renderElement
 
 
-    function renderHidden(&$element)
+    function renderHidden(&$element, $required, $error)
     {
 		$this->_prepareValue($element);
         if ($this->_collectHidden) {

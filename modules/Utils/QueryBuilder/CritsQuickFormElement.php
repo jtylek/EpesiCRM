@@ -1,4 +1,7 @@
 <?php
+
+namespace Epesi\Module\Utils\QueryBuilder;
+
 /**
  * @author Adam Bukowski <abukowski@telaxus.com>
  * @copyright Copyright &copy; 2016, Janusz Tylek
@@ -7,13 +10,11 @@
  * @package epesi-utils
  * @subpackage RecordBrowser
  */
-require_once("HTML/QuickForm/input.php");
+class CritsQuickFormElement extends \HTML_QuickForm_input {
 
-class HTML_QuickForm_crits extends HTML_QuickForm_input {
-
-    function HTML_QuickForm_crits($elementName = null, $elementLabel = null, $attributes=null) {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
-        if ($this->_caller instanceof HTML_QuickForm) {
+    function __construct($elementName = null, $elementLabel = null, $attributes=null) {
+        parent::__construct($elementName, $elementLabel, $attributes);
+        if ($this->_caller instanceof \HTML_QuickForm) {
             $this->_caller->addFormRule(array($this, 'check_for_error'));
         }
     } //end constructor
@@ -46,10 +47,10 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
     function setValue($value)
     {
         if (is_array($value)) {
-            $value = Utils_RecordBrowser_Crits::from_array($value);
+            $value = \Utils_RecordBrowser_Crits::from_array($value);
         }
-        if (is_object($value) && $value instanceof Utils_RecordBrowser_CritsInterface) {
-            $value = Utils_RecordBrowser_QueryBuilderIntegration::crits_to_json($value);
+        if (is_object($value) && $value instanceof \Utils_RecordBrowser_CritsInterface) {
+            $value = \Utils_RecordBrowser_QueryBuilderIntegration::crits_to_json($value);
             $value = json_encode($value);
         }
         parent::setValue($value);
@@ -59,9 +60,9 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
     {
         $value = parent::exportValue($submitValues, $assoc);
         if ($assoc) {
-            $value[$this->getName()] = Utils_RecordBrowser_QueryBuilderIntegration::json_to_crits($value[$this->getName()]);
+            $value[$this->getName()] = \Utils_RecordBrowser_QueryBuilderIntegration::json_to_crits($value[$this->getName()]);
         } else {
-            $value = Utils_RecordBrowser_QueryBuilderIntegration::json_to_crits($value);
+            $value = \Utils_RecordBrowser_QueryBuilderIntegration::json_to_crits($value);
         }
         return $value;
     }

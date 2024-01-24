@@ -1,4 +1,7 @@
 <?php
+
+namespace Epesi\Module\Utils\PopupCalendar\QuickForm;
+
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
@@ -22,16 +25,6 @@
  */
 
 /**
- * Class for a group of form elements
- */
-require_once 'HTML/QuickForm/group.php';
-/**
- * Class for <select></select> elements
- */
-require_once 'datepicker.php';
-require_once 'HTML/QuickForm/date.php';
-
-/**
  * Class for a group of elements used to input dates (and times).
  * 
  * Inspired by original 'date' element but reimplemented as a subclass
@@ -43,15 +36,15 @@ require_once 'HTML/QuickForm/date.php';
  * @version	 Release: 3.2.9
  * @since	   3.1
  */
-class HTML_QuickForm_timestamp extends HTML_QuickForm_group
+class TimestampElement extends \HTML_QuickForm_group
 {
 	private $_elementName;
 	
 	// }}}
 	// {{{ constructor
 
-	function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
+		parent::__construct($elementName, $elementLabel, $attributes);
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
@@ -63,16 +56,16 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ _createElements()
 
 	function _createElements() {
-		$time_format = Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
-		$lang_code = Base_LangCommon::get_lang_code();
+		$time_format = \Base_RegionalSettingsCommon::time_12h()?'h:i a':'H:i';
+		$lang_code = \Base_LangCommon::get_lang_code();
 		$this->_options['format'] = $time_format;
 		if (!isset($this->_options['optionIncrement'])) $this->_options['optionIncrement'] = array('i' => 5);
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
+		$this->_elements['__date'] = new \HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 		if ($this->_options['date'])
-			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
+			$this->_elements['__datepicker'] = new DatepickerElement('__datepicker', null, $this->getAttributes());
 	}
 
 	// }}}
@@ -102,7 +95,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 
 	function toHtml() {
 		include_once('HTML/QuickForm/Renderer/Default.php');
-		$renderer = new HTML_QuickForm_Renderer_Default();
+		$renderer = new \HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);
 		parent::accept($renderer);
@@ -114,7 +107,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 				// we need to call setValue(), 'cause the default/constant value
 				// may be in fact a timestamp, not an array
 			$this->_createElementsIfNotExist();
-			return HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
+			return \HTML_QuickForm_element::onQuickFormEvent($event, $arg, $caller);
 		} else {
 			return parent::onQuickFormEvent($event, $arg, $caller);
 		}
@@ -126,11 +119,11 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 			if ($dpv=='') return $this->_prepareValue('', $assoc);
 			$dv = $this->_elements['__date']->exportValue($submitValues);
 			$result = recalculate_time(date('Y-m-d'),$dv);
-			$cleanValue = date('Y-m-d H:i:s',Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+			$cleanValue = date('Y-m-d H:i:s',\Base_RegionalSettingsCommon::reg2time($dpv.' '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
 		} else {
 			$dv = $this->_elements['__date']->exportValue($submitValues);
 			$result = recalculate_time(date('Y-m-d'),$dv);
-			$cleanValue = date('1970-01-01 H:i:s',Base_RegionalSettingsCommon::reg2time('1970-01-01 '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
+			$cleanValue = date('1970-01-01 H:i:s',\Base_RegionalSettingsCommon::reg2time('1970-01-01 '.date('H:i:s', $result),!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)); //tz trans - last arg changed from false...
 		}
 		return $this->_prepareValue($cleanValue, $assoc);
 	}
@@ -148,17 +141,17 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		if(is_array($value)) {
 			if ($this->_options['date']) {
 				if($value['__datepicker']!=='')
-					$value['__datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['__datepicker'],false));
+					$value['__datepicker'] = strftime('%Y-%m-%d',\Base_RegionalSettingsCommon::reg2time($value['__datepicker'],false));
 				$this->_elements['__datepicker']->setValue($value['__datepicker']);
 			}
 			$this->_elements['__date']->setValue(isset($value['__date'])?$value['__date']:'');
 		} else {
 			if (!$value) return;
-			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);
+			if (!is_numeric($value)) $value = \Base_RegionalSettingsCommon::reg2time($value,false);
 			$value -= (date('i',$value) % $this->_options['optionIncrement']['i'])*60;
 			//tz trans begin
 			if(!isset($this->_options['regional_settings_tz']) || $this->_options['regional_settings_tz']==true)
-				$value = Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
+				$value = \Base_RegionalSettingsCommon::time2reg($value,true,true,true,false);
 			//tz trans end
 			foreach ($this->_elements as & $v)
 				$v->setValue($value);

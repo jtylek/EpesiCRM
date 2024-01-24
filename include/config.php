@@ -66,7 +66,7 @@ mb_internal_encoding("UTF-8");
 $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
 define('EPESI_LOCAL_DIR',$local_dir);
 $script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
-$detection_failed = strcmp($local_dir,substr($script_filename,0,strlen($local_dir)));
+$detection_failed = strcmp(strtolower($local_dir),substr(strtolower($script_filename),0,strlen($local_dir)));
 if(!defined('EPESI_DIR')) {
 	if(!$detection_failed) {
 		$file_url = substr($script_filename,strlen($local_dir));

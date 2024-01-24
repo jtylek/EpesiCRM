@@ -9,6 +9,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+use Epesi\Module\Utils\CommonData\QuickForm;
+
 class Utils_CommonDataCommon extends ModuleCommon {
 
 	public static $allowed_order = array('key', 'value', 'position');
@@ -385,7 +387,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = QuickForm\SingleSelectElement::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = QuickForm\GroupSelectElement::class;
 
 ?>

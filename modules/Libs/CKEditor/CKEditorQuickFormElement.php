@@ -1,14 +1,17 @@
 <?php
-class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
+
+namespace Epesi\Module\Libs\CKEditor;
+
+class CKEditorQuickFormElement extends \HTML_QuickForm_element {
     private $config;
     private $_value = null;
 //    private $e2module;
 
-    function HTML_QuickForm_ckeditor($elementName=null, $elementLabel=null, $attributes=null) {
+    function __construct($elementName=null, $elementLabel=null, $attributes=null) {
         load_js('modules/Libs/CKEditor/ckeditor/ckeditor.js','');
         load_js('modules/Libs/CKEditor/ck.js','');
         static $num = 0;
-        HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'text';
         $this->config = array();
@@ -116,9 +119,9 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
             return $this->getFrozenHtml();
         } else {
             if(!isset($this->config['language']))
-            	$this->config['language'] = substr(Base_LangCommon::get_lang_code(),0,2);
+            	$this->config['language'] = substr(\Base_LangCommon::get_lang_code(),0,2);
             if(!isset($this->config['scayt_sLang']))
-                $this->config['scayt_sLang'] = Base_LangCommon::get_lang_code();
+                $this->config['scayt_sLang'] = \Base_LangCommon::get_lang_code();
             if(!isset($this->config['scayt_autoStartup']))
                 $this->config['scayt_autoStartup'] = 0;
       	    eval_js('ckeditors_hib["'.$this->_attributes['id'].'"]='.json_encode($this->config));

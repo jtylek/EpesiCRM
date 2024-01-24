@@ -1,6 +1,5 @@
 <?php
 
-require_once 'HTML/QuickForm/text.php';
 
 /**
  * HTML class for an autocomplete field
@@ -24,8 +23,8 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
      *                                      or an associative array
      * @return void
      */
-    function HTML_QuickForm_autocomplete($elementName=null, $elementLabel=null, $callback=null, $args=null, $attributes=null) {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+    function __construct($elementName=null, $elementLabel=null, $callback=null, $args=null, $attributes=null) {
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->callback = $callback;
         if (!$args || !is_array($args)) $args = array();
         $this->args = $args;
@@ -51,7 +50,7 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
 			$_SESSION['client']['quickform']['autocomplete'][$key] = array('callback'=>$this->callback, 'field'=>$name, 'args'=>$this->args);
 			eval_js('var epesi_autocompleter = new Ajax.Autocompleter(\''.$id.'\', \''.$id.'_suggestbox\', \'modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php?'.http_build_query(array('cid'=>CID, 'key'=>$key)).'\', {frequency: 0.6});');
 
-			// TODO: not really neat, need to extend the function automatically
+			//TODO: not really neat, need to extend the function automatically
 			if ($this->on_hide_js_code) eval_js('epesi_autocompleter.hide=function(){'.
 					'this.stopIndicator();'.
 				    'if (Element.getStyle(this.update, "display") != "none") {'.

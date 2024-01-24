@@ -1,4 +1,8 @@
 <?php
+
+use Epesi\Module\Utils\PopupCalendar\QuickForm;
+
+
 /**
  * @author Paul Bukowski <pbukowski@telaxus.com> and Arkadiusz Bisaga <abisaga@telaxus.com>
  * @copyright Copyright &copy; 2008, Janusz Tylek
@@ -98,7 +102,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['timestamp'] = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = QuickForm\DatepickerElement::class;
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['timestamp'] = QuickForm\TimestampElement::class;
 
 ?>

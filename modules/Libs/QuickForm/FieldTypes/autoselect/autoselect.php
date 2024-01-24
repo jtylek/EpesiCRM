@@ -1,6 +1,5 @@
 <?php
 
-require_once 'HTML/QuickForm/select.php';
 require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
 load_js('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.js');
 
@@ -29,16 +28,16 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
      * @access    public
      * @return    void
      */
-    function HTML_QuickForm_autoselect($elementName=null, $elementLabel=null, $options=null, $more_opts_callback=null, $format=null, $attributes=null) {
-        HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+    function __construct($elementName=null, $elementLabel=null, $options=null, $more_opts_callback=null, $format=null, $attributes=null) {
+        parent::__construct($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'select';
         if (isset($options)) {
 			$this->load($options);
 			$this->__options = $options;
         }
-		$this->more_opts_callback = $more_opts_callback[0];
-		$this->more_opts_args = $more_opts_callback[1];
+		$this->more_opts_callback = $more_opts_callback[0] ?? null;
+		$this->more_opts_args = $more_opts_callback[1] ?? [];
 		$this->more_opts_format = $format;
     } //end constructor
 

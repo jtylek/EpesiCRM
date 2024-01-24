@@ -9,9 +9,10 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('modules/Libs/QuickForm/requires.php');
-require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
-require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
+require_once('modules/Libs/QuickForm/vendor/autoload.php');
+
+// fake autoload HTML_QuickForm so we can set HTML_QUICKFORM_ELEMENT_TYPES
+$z = new HTML_QuickForm();
 
 class Libs_QuickFormCommon extends ModuleCommon {
 	private static $on_submit = array();
@@ -43,6 +44,8 @@ class Libs_QuickFormCommon extends ModuleCommon {
 		$groups = array();
 		foreach ($hide_mapping as $map) {
 			if (!isset($map['fields']) || !isset($map['values'])) continue;
+			
+			$map['autoReverse'] = $map['autoReverse']?? true;
 	
 			$map['mode'] = isset($map['mode'])? $map['mode']: reset($allowed_modes);
 			if (!in_array($map['mode'], $allowed_modes)) continue;
