@@ -3978,8 +3978,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             
             if(!$ret) continue;
 
-            register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
-            if(file_exists($lock) && filemtime($lock)>time()-1200) continue;
+            register_shutdown_function(function() use ($lock) {
+                @unlink($lock);
+            });
+            if(file_exists($lock) && filemtime($lock) > time() - 1200) continue;
             file_put_contents($lock,'');
 
             foreach($ret as $row) {
@@ -4017,7 +4019,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if(!$caption) continue;
             $ret[$tab_id] = array('caption'=>$caption,'checked'=>$tab['search_include']==1);
         }
-        uasort($ret,create_function('$a,$b','return strnatcasecmp($a["caption"],$b["caption"]);'));
+        uasort($ret, function($a,$b) {
+            return strnatcasecmp($a["caption"], $b["caption"]);
+        });
         return $ret;
     }
 
