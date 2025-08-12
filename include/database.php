@@ -52,6 +52,7 @@ class DB {
         if (self::is_mysql()) {
 			// For MySQL
     		$new->Execute('SET NAMES "utf8"');
+    		$new->Execute('SET SESSION sql_mode = "TRADITIONAL"');
 		} elseif (self::is_postgresql()) {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
@@ -986,8 +987,6 @@ return $ret;
 
 }
 
-if (version_compare(PHP_VERSION, "5.3") == -1)
-    @set_magic_quotes_runtime(false); // DEPRECATED since php 5.3
 DB::connect();
 
 class DBRetryQueryException extends Exception {}

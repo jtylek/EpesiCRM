@@ -21,7 +21,6 @@ if(!MOBILE_DEVICE && class_exists('HTML_Quickform')) {
 	$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['ckeditor'] = CKEditorQuickFormElement::class;
 	
 	load_css('modules/Libs/CKEditor/frontend.css');
-/*	Libs_QuickFormCommon::add_on_submit_action("if(typeof(ckeditor_onsubmit)!='undefined')ckeditor_onsubmit(this)");*/
 }
 
 class Libs_CKEditorCommon extends ModuleCommon {

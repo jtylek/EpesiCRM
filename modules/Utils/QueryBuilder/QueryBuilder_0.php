@@ -1,7 +1,4 @@
 <?php
-
-use Epesi\Module\Utils\QueryBuilder\CritsQuickFormElement;
-
 /**
  * @author     Adam Bukowski <abukowski@telaxus.com>
  * @copyright  Copyright &copy; 2015, Janusz Tylek
@@ -165,18 +162,20 @@ class Utils_QueryBuilder extends Module
 
     protected function load_libs()
     {
-        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = CritsQuickFormElement::class;
-
-        $module_dir = $this->get_module_dir();
+        $m = $this->get_module_dir();
         
-        load_css($module_dir . 'bootstrap-compat.css');
-        load_css($module_dir . 'query-builder.default.css');
-        load_js($module_dir . 'query-builder.standalone.js');
-        load_js($module_dir . 'helper.js');
+        include_once $m . 'quickform_crits.php';
+
+        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = HTML_QuickForm_crits::class;
+
+        load_css($m . 'bootstrap-compat.css');
+        load_css($m . 'query-builder.default.css');
+        load_js($m . 'query-builder.standalone.js');
+        load_js($m . 'helper.js');
 
         $lang_code = Base_LangCommon::get_lang_code();
         if ($lang_code) {
-            $lang_file = $module_dir . 'i18n/query-builder.' . $lang_code . '.js';
+            $lang_file = $this->get_module_dir() . 'i18n/query-builder.' . $lang_code . '.js';
             if (file_exists($lang_file)) {
                 load_js($lang_file);
             }

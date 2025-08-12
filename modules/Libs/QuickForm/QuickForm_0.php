@@ -159,6 +159,7 @@ class Libs_QuickForm extends Module {
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;
 			case 'multiselect':
+				print ('<style>#multiselect {width:500px;}</style>');
 				$elem = $this -> createElement('multiselect',$v['name'],$v['label'],$v['values'],$v['param']);
 				if (!is_array($v['default'])) $v['default'] = array($v['default']);
 				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].'__from;'.
@@ -198,7 +199,11 @@ class Libs_QuickForm extends Module {
 			case 'password':
 			case 'text':
 			case 'hidden':
+			case 'button':
+			case 'submit':
+			case 'datepicker':
 			case 'textarea':
+			case 'timestamp':
 				$elem = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
 				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 				break;

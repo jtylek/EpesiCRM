@@ -25,14 +25,15 @@ class Base_ActionBar extends Module {
 	 * @return int comparison result
 	 */
 	public function compare($a, $b) {
-		if (!isset(Base_ActionBarCommon::$available_icons[$a['icon']])) return 1;
-		if (!isset(Base_ActionBarCommon::$available_icons[$b['icon']])) return -1;
-		if (!isset($a['position'])) $a['position'] = 0;
-		if (!isset($b['position'])) $b['position'] = 0;
-		$ret = $a['position'] - $b['position'];
-		if($ret==0) $ret = Base_ActionBarCommon::$available_icons[$a['icon']]-Base_ActionBarCommon::$available_icons[$b['icon']];
-		if($ret==0) $ret = strcmp(strip_tags($a['label']),strip_tags($b['label']));
-		return $ret;
+		$icons = Base_ActionBarCommon::$available_icons;
+		if (!isset($a['position'])) {
+			$a['position'] = $icons[$a['icon']]?? (max($icons) + 1);
+		}
+		if (!isset($b['position'])) {
+			$b['position'] = $icons[$b['icon']]?? (max($icons) + 1);
+		}
+		
+		return $a['position'] - $b['position']?: strcmp(strip_tags($a['label']),strip_tags($b['label']));
 	}
 
 	public function compare_launcher($a, $b) {

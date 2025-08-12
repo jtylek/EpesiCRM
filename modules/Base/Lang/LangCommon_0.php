@@ -56,9 +56,13 @@ class Base_LangCommon extends ModuleCommon {
                 Base_LangCommon::append_custom(null, array($original => ''));
             }
 		}
+        
+        try {
+		    $translated = @vsprintf($translated,$arg);
+        } catch (ValueError $e) {
+        }
 
-		$translated = @vsprintf($translated,$arg);
-		if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
+        if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
 		
 		return $translated;
 	}

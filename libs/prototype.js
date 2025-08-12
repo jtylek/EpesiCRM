@@ -1078,7 +1078,7 @@ function $w(string) {
   return string ? string.split(/\s+/) : [];
 }
 
-Array.from = $A;
+Array.from = Array.from || $A;
 
 
 (function() {
@@ -1937,12 +1937,13 @@ Element.Methods = {
     element.style.display = '';
     return element;
   },
-
-  remove: function(element) {
-    element = $(element);
-    element.parentNode.removeChild(element);
-    return element;
-  },
+  
+  // GH Remove because of conflict with Vanilla JS Method
+  // remove: function(element) {
+  //   element = $(element);
+  //   element.parentNode.removeChild(element);
+  //   return element;
+  // },
 
   update: (function(){
 

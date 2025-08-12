@@ -91,7 +91,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::DropTable('recordbrowser_addon');
 		DB::DropTable('recordbrowser_table_properties');
 		DB::DropTable('recordbrowser_datatype');
-		DB::DropTable('recordbrowser_access_methods');
         Base_PrintCommon::unregister_printer('Utils_RecordBrowser_RecordPrinter');
 		Base_ThemeCommon::uninstall_default_theme(Utils_RecordBrowserInstall::module_name());
 		return true;

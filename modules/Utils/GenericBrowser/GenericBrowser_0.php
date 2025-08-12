@@ -863,7 +863,7 @@ class Utils_GenericBrowser extends Module {
 				return;
 			}
 		}
-
+		$max_actions = 0;
 		$headers = array();
 		if ($this->en_actions) {
 			$max_actions = 0; // Possibly improve it to calculate it during adding actions
@@ -874,8 +874,8 @@ class Utils_GenericBrowser extends Module {
 				}
 				if ($this_width>$max_actions) $max_actions = $this_width;
 			}
-			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;" class="Utils_GenericBrowser__actions"');
-			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+6).'px;" class="Utils_GenericBrowser__actions"');
+			if ($actions_position==0) $headers[-1] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+10).'px;" class="Utils_GenericBrowser__actions"');
+			else $headers[count($this->columns)] = array('label'=>'<span>'.'&nbsp;'.'</span>','attrs'=>'style="width: '.($max_actions*16+10).'px;" class="Utils_GenericBrowser__actions"');
 		}
 
 		$all_width = 0;
@@ -907,7 +907,7 @@ class Utils_GenericBrowser extends Module {
             } elseif (!is_numeric($v['width'])) {
                 $headers[$i]['attrs'] = 'style="width:'.$v['width'].'" ';
             } else {
-                $headers[$i]['attrs'] = 'width="'.intval(100*$v['width']/$all_width).'%" ';
+            	$headers[$i]['attrs'] = 'width="'.intval((100 - $max_actions*2)*$v['width']/$all_width).'%" ';
             }
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
 			if (isset($v['attrs'])) $headers[$i]['attrs'] .= $v['attrs'].' ';

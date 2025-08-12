@@ -16,6 +16,7 @@ ini_set('arg_separator.output','&');
 date_default_timezone_set(SYSTEM_TIMEZONE);
 
 define('_VALID_ACCESS',1);
+require_once('vendor/autoload.php');
 require_once('include/data_dir.php');
 require_once('modules/Libs/QuickForm/vendor/autoload.php');
 
@@ -295,7 +296,12 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 					if ($port) {
 						$host .= ':' . $port;
 					}
-                    $link = new mysqli($host, $user, $pass);
+                    try {
+						$link = new mysqli($host, $user, $pass);
+					}
+					catch (Exception $e) {
+						echo 'MySQL Error: ' . $e->getMessage();
+					}
                     if ($link->connect_errno) {
                         echo(__('Could not connect') . "(Errno: {$link->connect_errno}): " . $link->connect_error);
                     } else {
@@ -528,18 +534,24 @@ define(\'INSTALLATION_ID\',\''.md5(__FILE__ . strval(microtime(true))).'\');
 ?>');
 	fclose($c);
 
-	ob_start();
-	ob_start('rm_config');
+	try {
+		ob_start();
+		ob_start('rm_config');
 
-	//fill database
-	clean_database();
-	install_base();
+		//fill database
+		clean_database();
+		install_base();
 
-	ob_end_flush();
+		ob_end_flush();
 
-	if(file_exists(DATA_DIR.'/config.php'))
-		header("Location: setup.php?install_lang={$install_lang_load}&check=1");
-	ob_end_flush();
+		if(file_exists(DATA_DIR.'/config.php')) {
+			header("Location: setup.php?install_lang={$install_lang_load}&check=1");
+		}
+			
+		ob_end_flush();
+	} catch (\Throwable $th) {
+		print $th->getMessage();
+	}
 }
 
 

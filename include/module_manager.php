@@ -582,7 +582,7 @@ class ModuleManager {
 
 		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_class_name);
 		if (!$ret) {
-			print ('<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
+			print ('<b>' . $module_class_name . '</b>' . ' module installation failed: ' . DB::ErrorMsg() . '<br>');
 			return false;
 		}
 

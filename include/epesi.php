@@ -280,7 +280,7 @@ class Epesi {
 		    History::set_id($history_call);
 
 		//on init call methods...
-		$ret = on_init(null,null,null,true);
+		$ret = on_init(null,null,true,true);
 		foreach($ret as $k) {
 			call_user_func_array($k['func'],$k['args']);
 		}
@@ -292,7 +292,7 @@ class Epesi {
 		$loc = location(null,true);
 
 		//on exit call methods...
-		$ret = on_exit(null,null,null,true,$loc===false);
+		$ret = on_exit(null,null,true,true,$loc===false);
 		foreach($ret as $k)
 			call_user_func_array($k['func'],$k['args']);
 

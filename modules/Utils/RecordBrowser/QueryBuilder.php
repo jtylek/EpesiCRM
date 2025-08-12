@@ -530,7 +530,7 @@ class Utils_RecordBrowser_QueryBuilder
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
-        if ($operator == DB::like() && isset($field_def['ref_field'])) {
+        if ($operator == DB::like() && isset($field_def['ref_field']) && !$sub_field) {
             $sub_field = $field_def['ref_field'];
         }
 

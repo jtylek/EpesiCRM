@@ -16,6 +16,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 	private $more_opts_format = null;
     private $on_hide_js_code = '';
 	private $__options = array();
+	private $search_button = '';
 	
     /**
      * Class constructor
@@ -124,7 +125,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 				$mode=1;
 			
             return 	'<span id="__'.$myName.'_select_span"'.($mode==0?' style="display:none;"':'').'>'.
-						$strHtml.
+						($this->search_button? '<table style="width: 100%"><tr><td>' .$strHtml . '</td><td style="width: 30px">' . $this->search_button . '</td></tr></table>': $strHtml).
 					'</span>'.
 					'<span id="__'.$myName.'_autocomplete_span"'.($mode==1?' style="display:none;"':'').'>'.
 						$search->toHtml().
@@ -146,6 +147,10 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
         } else {
             return $this->_prepareValue($cleanValue, $assoc);
         }
+	}
+	
+	public function set_search_button($html) {
+		$this->search_button = $html;
 	}
 }
 

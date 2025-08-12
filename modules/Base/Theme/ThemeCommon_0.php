@@ -27,7 +27,8 @@ class Base_ThemeCommon extends ModuleCommon {
 		
 		$smarty->addPluginsDir(self::Instance()->get_module_dir() . 'smarty/plugins');
         
-		$smarty->registerPlugin('modifier', 't', array(__CLASS__, 'smarty_modifier_translate'));
+		$smarty->registerPlugin('modifier', 't', [self::class, 'smarty_modifier_translate']);
+		
 		return $smarty;
 	}
 	

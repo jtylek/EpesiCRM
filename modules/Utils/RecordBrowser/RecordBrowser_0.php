@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die();
 class Utils_RecordBrowser extends Module {
     private $table_rows = array();
     private $browse_mode;
-    private $display_callback_table = array();
+    public $display_callback_table = array();
     private $QFfield_callback_table = array();
     private $requires = array();
     private $recent = 0;
@@ -40,6 +40,7 @@ class Utils_RecordBrowser extends Module {
     private $additional_caption = '';
     private $enable_export = false;
 	private $search_calculated_callback = false;
+	private $additional_search_fields = false;
 	private $fields_in_tabs = array();
 	private $hide_tab = array();
     private $jump_to_new_record = false;
@@ -62,7 +63,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_methods = array();
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false, 'jump_to_id' => false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -74,13 +75,16 @@ class Utils_RecordBrowser extends Module {
     private $fixed_columns_class = array('Utils_RecordBrowser__favs', 'Utils_RecordBrowser__watchdog');
     private $include_tab_in_id = false;
 
-	public function new_button($type, $label, $href) {
+	public function new_button($type, $label, $href, $description = null) {
 		if ($this->fullscreen_table)
-			Base_ActionBarCommon::add($type, $label, $href);
+			Base_ActionBarCommon::add($type, $label, $href, $description);
 		else {
 			if (!file_exists($type))
 				$type = Base_ThemeCommon::get_template_file(Base_ActionBar::module_name(), 'icons/'.$type.'.png');
-			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.'>'.'<img src="'.$type.'">'.
+			
+			$tooltip = $description? Utils_TooltipCommon::open_tag_attrs($description): '';
+				
+			$this->more_add_button_stuff .= '<a class="record_browser_button" id="Base_ActionBar" '.$href.' '.$tooltip.'>'.'<img src="'.$type.'">'.
 				'<div style="display:inline-block;position: relative;top:-8px;">'.$label.'</div>'.
 				'</a>';
 		}
@@ -191,6 +195,10 @@ class Utils_RecordBrowser extends Module {
 	public function set_search_calculated_callback($callback) {
 		$this->search_calculated_callback = $callback;
 	}
+	
+	public function set_additional_search_fields($fields) {
+		$this->additional_search_fields = $fields;
+	}
 
     public function get_val($field, $record, $links_not_recommended = false, $args = null) {
         return Utils_RecordBrowserCommon::get_val($this->tab, $field, $record, $links_not_recommended, $args);
@@ -201,6 +209,18 @@ class Utils_RecordBrowser extends Module {
         $this->expandable_rows = $bool;
     }
 
+    public function disable($options = []) {
+    	$options = is_array($options)? $options: [$options];
+    	
+    	foreach ($options as $option => $value) {
+    		if (!isset($this->disabled[$option])) {
+    			$option = $value;
+    			$value = true;
+    		}
+    		
+    		$this->disabled[$option] = $value;
+    	}
+    }
     public function disable_search(){$this->disabled['search'] = true;}
     public function disable_browse_mode_switch(){$this->disabled['browse_mode'] = true;}
     public function disable_watchdog(){$this->disabled['watchdog'] = true;}
@@ -209,10 +229,12 @@ class Utils_RecordBrowser extends Module {
     public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
     public function disable_pdf() {$this->disabled['pdf'] = true;}
+    public function disable_print() {$this->disabled['pdf'] = true;}
     public function disable_export() {$this->disabled['export'] = true;}
     public function disable_actions($arg=true) {$this->disabled['actions'] = $arg;}
     public function disable_pagination($arg=true) {$this->disabled['pagination'] = $arg;}
     public function disable_add_button() {$this->add_button = false;}
+    public function disable_jump_to_id() {$this->disabled['jump_to_id'] = true;}
 
     public function set_button($arg, $arg2=''){
         $this->add_button = $arg;
@@ -407,7 +429,7 @@ class Utils_RecordBrowser extends Module {
             print(__('You don\'t have permission to access this data.'));
         }
         if ($this->data_gb!==null) $gb = $this->data_gb;
-        else $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
+        else $this->data_gb = $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
 
         if(!$pdf) $gb->set_expandable($this->expandable_rows);
         
@@ -483,7 +505,8 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !$this->disabled['search']) $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || $args['type'] == 'autonumber' || $args['type'] == 'date' || ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])!==0)) $arr[$e] = $args['id'];
-                if ($args['type'] == 'long text' && $gb->is_adv_search_on()) $arr[$e] = $args['id'];
+                // COMMENTED OUT BY GEORGI HRISTOV
+                if ($args['type'] == 'long text'/*  && $gb->is_adv_search_on() */) $arr[$e] = $args['id'];
                 if ($args['type'] == 'date') $arr['search_type'] = 'datepicker';
                 if (isset($args['ref_field']) && $args['ref_field']) $arr[$e] = $args['id'];
                 if ($args['commondata'] && (!is_array($args['param']) || strpos($args['param']['array_id'],':')===false)) {
@@ -570,6 +593,10 @@ class Utils_RecordBrowser extends Module {
 				}
             }
         } else {
+        	if ($this->additional_search_fields) {
+        		$search = array_merge($search, array_flip($this->additional_search_fields));
+        	}
+        	
             // New experimental search using search index!
             /*
             $isearch = $gb->get_module_variable('search');
@@ -679,7 +706,8 @@ class Utils_RecordBrowser extends Module {
                 $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
             }
         }
-        $this->set_module_variable('last_offset',$limit ? $limit['offset']: 0);
+        
+        $this->set_module_variable('last_offset', $limit['offset'] ?? 0);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
             $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
@@ -859,10 +887,10 @@ class Utils_RecordBrowser extends Module {
             if ($form->isSubmitted()) {
                 $this->set_module_variable('force_add_in_table_after_submit', true);
                 if ($form->validate()) {
-                    $values = $form->exportValues();
+                	$values = array_merge($form->exportValues(), Utils_FileUpload_Dropzone::export_values($form));
                     foreach ($this->custom_defaults as $k=>$v)
                         if (!isset($values[$k])) $values[$k] = $v;
-                    $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+                    Utils_RecordBrowserCommon::new_record($this->tab, $values);
                     location(array());
                 } else {
                     $this->show_add_in_table = true;
@@ -911,14 +939,15 @@ class Utils_RecordBrowser extends Module {
 			$gb->absolute_width(true);
 			$args = array(Base_ThemeCommon::get_template_filename('Utils_GenericBrowser','pdf'));
 		} else $args = array();
-        if(!$this->add_in_table) {
-            foreach ($column_access as $k => $access) {
-                if (!$access) {
-                    $gb->set_column_display($k + $data_rows_offset, false);
-                }
+        foreach ($column_access as $k => $access) {
+            if (!$access) {
+                $gb->set_column_display($k + $data_rows_offset, false);
             }
         }
 		$this->display_module($gb, $args);
+    }
+    public function get_gb() {
+    	return $this->data_gb;
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function delete_record($id, $pop_main = true) {
@@ -951,12 +980,14 @@ class Utils_RecordBrowser extends Module {
         foreach ($request as $k=>$v)
             $_REQUEST[$k] = $v;
         if(isset($_REQUEST['switch_to_addon'])) {
-	        $this->switch_to_addon = $this->get_module_variable('switch_to_addon',$_REQUEST['switch_to_addon']);
+	       	$this->switch_to_addon = $this->get_module_variable('switch_to_addon',$_REQUEST['switch_to_addon']);
 	        unset($_REQUEST['switch_to_addon']);
         }
         return $this->view_entry($mode, $id, $defaults, $show_actions);
     }
     public function view_entry($mode='view', $id = null, $defaults = array(), $show_actions=true) {
+    	$this->set_module_variable('show_actions', $show_actions);
+    	
 		Base_HelpCommon::screen_name('rb_'.$mode.'_'.$this->tab);
         if (isset($_SESSION['client']['recordbrowser']['admin_access'])) Utils_RecordBrowserCommon::$admin_access = true;
         self::$mode = $mode;
@@ -1039,7 +1070,7 @@ class Utils_RecordBrowser extends Module {
             $theme -> assign('click2fill', '<div id="c2fBox"></div>');
             load_js('modules/Utils/RecordBrowser/click2fill.js');
             eval_js('initc2f("'.__('Scan/Edit').'","'.__('Paste data here with Ctrl-v, click button below, then click on separated words in specific order and click in text field where you want put those words. They will replace text in that field.').'")');
-            Base_ActionBarCommon::add('clone', __('Click 2 Fill'), 'href="javascript:void(0)" onclick="c2f()"');
+            Base_ActionBarCommon::add('clone', __('Click 2 Fill'), 'href="javascript:void(0)" onclick="c2f()"', null, 25);
         }
 
 //        if ($mode!='add' && !$this->record[':active'] && !Base_AclCommon::i_am_admin()) return $this->back();
@@ -1400,15 +1431,17 @@ class Utils_RecordBrowser extends Module {
     			'text' => Utils_TooltipCommon::open_tag_attrs(_V($desc['help']), false))
     		: false;
     	
-    	$ret = array('label'=>$field_form_data['label'],
-    			'element'=>$desc['id'],
-    			'advanced'=>isset($this->advanced[$desc['id']])?$this->advanced[$desc['id']]:'',
-    			'html'=>$field_form_data['html'],
-    			'style'=>$desc['style'].($field_form_data['frozen']?' frozen':''),
-    			'error'=>$field_form_data['error'],
-    			'required'=>isset($desc['required'])? $desc['required']: null,
-    			'type'=>$desc['type'],
-    			'help' => $help);
+    	$ret = [
+                'label' => $field_form_data['label'],
+    			'element' => $desc['id'],
+    			'advanced' => $this->advanced[$desc['id']] ?? '',
+    			'html' => $field_form_data['html'],
+    			'style' => $desc['style'].($field_form_data['frozen']?' frozen':''),
+    			'error' => $field_form_data['error'],
+    			'required' => $desc['required'] ?? null,
+    			'type' => $desc['type'],
+    			'help' => $help
+        ];
     	
     	if (!$ftheme)
     		$ftheme = $this->init_module(Base_Theme::module_name());
@@ -1486,13 +1519,8 @@ class Utils_RecordBrowser extends Module {
                 $record[$nk] = $record[$desc['id']];
                 $desc['id'] = $nk;
             }
-            if ($desc['type']=='hidden') {
-                $form->addElement('hidden', $desc['id']);
-                $form->setDefaults(array($desc['id']=>$record[$desc['id']]));
-                continue;
-            }
             // is set then hide empty fields that are not checkboxes
-			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
+            if ($mode == 'view' && $desc['type'] != 'checkbox' && $desc['type'] != 'hidden' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
 				eval_js('var e=$("_'.$desc['id'].'__data");if(e)e.up("tr").style.display="none";');
 			}
             // translate label and put it into span with id
@@ -1506,7 +1534,7 @@ class Utils_RecordBrowser extends Module {
 
             Utils_RecordBrowserCommon::call_QFfield_callback($ff,$form, $desc['id'], $label, $mode, $mode=='add'?(isset($this->custom_defaults[$desc['id']])?$this->custom_defaults[$desc['id']]:''):$record[$desc['id']], $desc, $this, $this->display_callback_table);
 
-            if ($desc['required']) {
+            if ($desc['required'] && !$desc['type'] != 'hidden') {
                 $el = $form->getElement($desc['id']);
                 if (!$form->isError($el)) {
                     if ($el->getType() != 'static') {
@@ -2560,7 +2588,7 @@ class Utils_RecordBrowser extends Module {
             $this->custom_defaults[$k] = $v;
         if ($multiple) $this->multiple_defaults = true;
     }
-	public function crm_perspective_default() {
+	public static function crm_perspective_default() {
 		return '__PERSPECTIVE__';
 	}
     public function set_filters_defaults($arg, $merge = false, $overwrite = false) {
@@ -2802,6 +2830,8 @@ class Utils_RecordBrowser extends Module {
     }
 	
 	public function get_jump_to_id_button() {
+		if ($this->disabled['jump_to_id']) return '';
+		
         $jump_to_id = DB::GetOne('SELECT jump_to_id FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
         if (!$jump_to_id) {
             return '';
@@ -2926,7 +2956,8 @@ class Utils_RecordBrowser extends Module {
 				list($class_name, $method_name) = explode('::', $callback);
 					
 				$class = new ReflectionClass($class_name);
-				$docblock  = new \phpDocumentor\Reflection\DocBlock($class->getMethod($method_name));
+
+				$docblock = \phpDocumentor\Reflection\DocBlockFactory::createInstance()->create($class->getMethod($method_name)->getDocComment());
 					
 				$output .= '<span class="description">' . $docblock->getShortDescription() . '<br />' . $docblock->getLongDescription()->getContents() . '</span>';
 			} catch (Exception $e) {

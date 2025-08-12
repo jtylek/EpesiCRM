@@ -27,6 +27,7 @@ if(!is_writable(DATA_DIR))
 	die('Cannot write into "'.DATA_DIR.'" directory. Please fix privileges.');
 
 // require_once('include/include_path.php');
+require_once('vendor/autoload.php');
 require_once('include/config.php');
 require_once('include/maintenance_mode.php');
 require_once('include/error.php');
