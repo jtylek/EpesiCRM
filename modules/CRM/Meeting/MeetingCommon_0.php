@@ -413,7 +413,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			break;
 		case 'display':
 			$pdf = Utils_RecordBrowser::$rb_obj->pack_module(Libs_TCPDF::module_name(), 'L');
-			if ($pdf->prepare()) {
+			if ($pdf->prepare() && isset($values['id'])) {
 				$pdf->set_title($values['title']);
 				$pdf->set_subject('');
 				$pdf->prepare_header();
