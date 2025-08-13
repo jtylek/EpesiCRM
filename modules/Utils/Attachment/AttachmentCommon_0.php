@@ -518,7 +518,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 if(!$ret) print(__('Access denied'));
                 return $ret;
             case 'display':
-                if(self::get_all_files($values['id'])) {
+                if(isset ($values['id']) && self::get_all_files($values['id'])) {
                     $ret = array();
                     $ret['new'] = array();
                     $ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('File history')).' '.Module::create_href(array('file_history'=>1)).'>F</a>';
