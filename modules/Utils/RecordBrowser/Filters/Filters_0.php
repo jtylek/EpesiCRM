@@ -186,7 +186,7 @@ class Utils_RecordBrowser_Filters extends Module {
 					$format_callback = $multi_adv_params['format_callback'];
 		
 					if ($param['single_tab'] == '__COMMON__') {
-						if (empty($param['array_id'])) continue;
+						if (empty($param['array_id'])) break;
 						$select_options = Utils_CommonDataCommon::get_translated_tree($param['array_id'], $param['order']);
 					} else {
 						$crits = array();
@@ -246,7 +246,7 @@ class Utils_RecordBrowser_Filters extends Module {
 					$this->standard_filter_elements[] = $element_id;
 					break;
 				default:
-					continue;
+					break;
 			}
 		}
 		$this->form->addElement('submit', 'submit', __('Show'));
