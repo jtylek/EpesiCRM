@@ -1025,8 +1025,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 			$values['permission'] = Base_User_SettingsCommon::get('CRM_Common','default_record_permission');
 			break;
         case 'add':
-            if (isset($values['email']) && $values['email']=='' && $values['login']!=0 && $mode=='add')
-                $values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
+            if (isset($values['email']) && $values['email']=='' && (int) $values['login']!=0 && $mode=='add')
+                $values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array((int) $values['login']));
         case 'edit':
             if (isset($values['create_company'])) {
                 $comp_id = Utils_RecordBrowserCommon::new_record('company',
