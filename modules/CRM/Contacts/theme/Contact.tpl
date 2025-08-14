@@ -49,7 +49,7 @@
 <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 	<tbody>
 		<tr>
-			<td class="left-column">
+			<td>
 				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
 						{* create new company *}
 						{if isset($form_data.create_company)}
@@ -92,7 +92,7 @@
 
 									{assign var=y value=1}
 									{assign var=x value=$x+1}
-									
+
 										</table>
 									</td>
 								{else}
