@@ -11,7 +11,7 @@
  * See http://creativecommons.org/licenses/by-sa/3.0/ for details.
  */
 
-ini_set('error_reporting', E_ALL &~ (E_NOTICE | E_STRICT));
+ini_set('error_reporting', E_ALL &~ (E_NOTICE | E_DEPRECATED));
 
 header('Content-Type: image/svg+xml');
 header("Expires: ".gmdate("D, d M Y H:i:s", time()+864000)." GMT");

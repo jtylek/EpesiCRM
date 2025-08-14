@@ -96,7 +96,7 @@ if ($config) {
 // ********************* SYSTEM ***********************
 $system_tests = array();
 $php_version = phpversion();
-$desired_version = '5.4';
+$desired_version = '8.0.0';
 $php_version_ok = version_compare($php_version, $desired_version, '>=');
 $status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least ' . $desired_version;
 $system_tests[] = array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2);
@@ -105,11 +105,11 @@ $checks[] = array('label' => 'System', 'tests' => $system_tests, 'solution' => '
 
 // ********************* ERRORS ***********************
 $err = error_reporting();
-$strict = (($err | E_STRICT) == $err);
+$strict = (($err | E_DEPRECATED) == $err);
 $display = ini_get('display_errors');
 
 $error_tests = array();
-$error_tests[] = array('label'=>'Strict errors reporting', 'status'=>!$strict?'Disabled':'Enabled', 'severity'=>!$strict?0:2);
+$error_tests[] = array('label'=>'Deprecated errors reporting', 'status'=>!$strict?'Disabled':'Enabled', 'severity'=>!$strict?0:2);
 $error_tests[] = array('label'=>'Error display', 'status'=>$display?'On':'Off', 'severity'=>$display?0:1);
 
 $checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
