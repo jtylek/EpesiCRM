@@ -2,20 +2,13 @@
 	"require" : {
 		"pimple/pimple" : "^3.0",
 		"twig/twig" : "^1.24",
-		"symfony/console" : "^2.7",
-		"symfony/http-foundation" : "^2.7",
+		"symfony/console" : "^3",
+		"symfony/http-foundation" : "^3",
 		"phpdocumentor/reflection-docblock" : "~5",
-<<<<<<< HEAD
 		"phpfastcache/phpfastcache" : "^5.0",
 		"ifsnop/mysqldump-php" : "dev-master",
 		"memio/memio" : "^3.0",
-=======
-		"fzaninotto/faker" : "^1.6",
-		"phpfastcache/phpfastcache" : "^5.0",
-		"ifsnop/mysqldump-php" : "dev-master",
-		"memio/memio" : "^2.0",
->>>>>>> 391289fe6269c8db2623f1279be727deac36ac2c
-		"psy/psysh" : "@stable",
+		"psy/psysh" : "^0.12",
 		"enyo/dropzone" : "@stable",
 		"ezyang/htmlpurifier" : "^4.10",
 		"moneyphp/money" : "^3.0",
@@ -24,18 +17,11 @@
 	},
 	"scripts" : {
 		"post-install-cmd" : [
-<<<<<<< HEAD
 			"@composer -d \"modules/CRM/Mail\" update",
 			"@composer -d \"modules/Libs/PHPExcel\" update",
             "@composer -d \"modules/Libs/TCPDF\" update",
             "@composer -d \"modules/Libs/QuickForm\" update",
 			"@composer -d modules/Base/Theme update"
-=======
-			"@composer -d=\"modules/CRM/Mail\" install",
-			"@composer -d=\"modules/Libs/PHPExcel\" install",
-            		"@composer -d=\"modules/Libs/TCPDF\" install",
-            		"@composer -d=\"modules/Libs/QuickForm\" install"
->>>>>>> 391289fe6269c8db2623f1279be727deac36ac2c
         	]
 	},
 	"autoload" : {
@@ -46,9 +32,5 @@
 		"psr-0" : {
 			"" : "modules/"
 		}
-	},
-	"require-dev" : {
-		"codeception/codeception" : "*",
-		"codeception/aspect-mock" : "*"
 	}
 }
