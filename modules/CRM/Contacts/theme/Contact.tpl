@@ -51,7 +51,6 @@
 		<tr>
 			<td class="left-column">
 				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tbody>
 						{* create new company *}
 						{if isset($form_data.create_company)}
 						<tr>
@@ -69,22 +68,20 @@
 						</tr>
 						{/if}
 						{assign var=x value=1}
-						{if $action=='view'}
-							{assign var=y value=1}
-						{else}
-							{assign var=y value=2}
-						{/if}
+						{assign var=y value=1}
 						{foreach key=k item=f from=$fields name=fields}
 							{if $f.type!="multiselect"}
 								{if !isset($focus) && $f.type=="text"}
 									{assign var=focus value=$f.element}
 								{/if}
 
-								{if $y == 1 && $x >= 2}
-								<td class="column" style="width: {$cols_percent}%;">
-									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+								{if $y == 1 && $x > 1}
+									<td class="column" style="width: {$cols_percent}%;">
+										<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
+							
 								{$f.full_field}
+								
 								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 									{if $x>$no_empty}
 										<tr style="display:none;">
@@ -92,10 +89,12 @@
 											<td colspan="2" class="data">&nbsp;</td>
 										</tr>
 									{/if}
+
 									{assign var=y value=1}
 									{assign var=x value=$x+1}
-									</table>
-								</td>
+									
+										</table>
+									</td>
 								{else}
 									{assign var=y value=$y+1}
 								{/if}
@@ -131,11 +130,11 @@
 		{/if}
 		<tr>
 			<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{$f.full_field}
-				{/foreach}
-			</table>
+				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+					{foreach key=k item=f from=$longfields name=fields}
+						{$f.full_field}
+					{/foreach}
+				</table>
 			</td>
 		</tr>
 	</tbody>
