@@ -8,7 +8,7 @@
 		</th>
 	</tr>
 	{foreach item=e from=$form_data}
-		{if isset($e.label) && !is_string($e) && $e.type!='hidden' && $e.name!='submit' && $e.name!='cancel'}
+		{if isset($e.label) && isset($e.name) && $e.type!='hidden' && $e.name!='submit' && $e.name!='cancel'}
 			<tr>
 			    <td class="epesi_label" style="width:30%;" nowrap="1">
 					{$e.label}
