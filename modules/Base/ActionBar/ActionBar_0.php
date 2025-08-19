@@ -23,17 +23,24 @@ class Base_ActionBar extends Module {
 	 * @param mixed action bar entry
 	 * @param mixed action bar entry
 	 * @return int comparison result
+	 * Output order: 
+	 * 1. position (if defined) 
+	 * 2. position (if not defined) by label (without translations) if  defined in Base_ActionBarCommon::$available_icons (value is an order index)
+	 * 3. label's order (without translations)
+	 * $a['icon] 	=> label without translation
+	 * $a['label'] 	=> label with translation 
+	 * 
 	 */
 	public function compare($a, $b) {
 		$icons = Base_ActionBarCommon::$available_icons;
-		if (!isset($a['position'])) {
+		if (!isset($a['position']) || $a['position'] == 0) {
 			$a['position'] = $icons[$a['icon']]?? (max($icons) + 1);
 		}
-		if (!isset($b['position'])) {
+		if (!isset($b['position']) || $b['position'] == 0) {
 			$b['position'] = $icons[$b['icon']]?? (max($icons) + 1);
-		}
-		
-		return $a['position'] - $b['position']?: strcmp(strip_tags($a['label']),strip_tags($b['label']));
+		}		
+		$ret =  ($a['position'] - $b['position'])?: strcmp(strip_tags($a['label']),strip_tags($b['label']));
+		return $ret;
 	}
 
 	public function compare_launcher($a, $b) {
