@@ -1,4 +1,4 @@
-ms_remove_selected = function(myName, list_sep){
+ms_remove_selected = function(myName, mod, list_sep){
 	var tolist = document.getElementsByName(myName+"to[]")[0];
 	var fromlist = document.getElementsByName(myName+"from[]")[0];
 	var list_result = "";
@@ -29,7 +29,7 @@ ms_remove_selected = function(myName, list_sep){
 	document.getElementsByName(myName)[0].value=list_result;
 };
 
-ms_add_selected = function(myName, list_sep){ 
+ms_add_selected = function(myName, mod, list_sep){ 
 	var tolist = document.getElementsByName(myName+"to[]")[0];
 	var fromlist = document.getElementsByName(myName+"from[]")[0];
 	var list_result = "";
@@ -63,7 +63,7 @@ ms_add_selected = function(myName, list_sep){
 	document.getElementsByName(myName)[0].value=list_result; 
 };
 
-ms_remove_all = function(myName, list_sep){ 
+ms_remove_all = function(myName, mod, list_sep){ 
 	var tolist = document.getElementsByName(myName+"to[]")[0];
 	var fromlist = document.getElementsByName(myName+"from[]")[0];
 	var list_result = "";
@@ -92,7 +92,7 @@ ms_remove_all = function(myName, list_sep){
 	document.getElementsByName(myName)[0].value=list_result;
 };
 
-ms_add_all = function(myName, list_sep){ 
+ms_add_all = function(myName, mod, list_sep){ 
 	var tolist = document.getElementsByName(myName+"to[]")[0];
 	var fromlist = document.getElementsByName(myName+"from[]")[0];
 	var k = 0;
