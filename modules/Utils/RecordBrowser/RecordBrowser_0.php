@@ -695,7 +695,7 @@ class Utils_RecordBrowser extends Module {
         $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
         if(!$records) {
             $last_offset = $this->get_module_variable('last_offset');
-            while(!$records) {
+            while(!$records && isset($limit['offset'])) {
                 if($last_offset>$limit['offset'] && ($limit['offset']-$limit['numrows'])>=0)
                     $limit['offset'] -= $limit['numrows'];
                 elseif(($limit['offset']+$limit['numrows'])<$this->amount_of_records)
