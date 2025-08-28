@@ -17,6 +17,7 @@ class Utils_FileUpload extends Module {
 	private $form = null;
 	private $upload_button_caption;
 	private $submit_button = true;
+	private $added_upload_elem = false;
 
 	/**
 	 * Module constructor.

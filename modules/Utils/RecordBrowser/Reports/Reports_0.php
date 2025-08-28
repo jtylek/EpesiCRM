@@ -26,7 +26,6 @@ class Utils_RecordBrowser_Reports extends Module {
 	private $date_range;
 	private $pdf = false;
 	private $csv = false;
-	private $charts = false;
 	private $pdf_ob = null;
 	private $csv_ob = array();
 	private $widths = array();
@@ -627,405 +626,6 @@ class Utils_RecordBrowser_Reports extends Module {
 		}
 	}
 
-	public function draw_chart($r,$ref_rec,$gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name());
-			$f2 = $this->init_module(Libs_OpenFlashChart::module_name());
-			$results = call_user_func($this->display_cell_callback, $r);
-
-			$title = new OFC_Elements_Title( $ref_rec );
-			$f->set_title( $title );
-			$f2->set_title( $title );
-			$labels = array();
-			foreach($gb_captions as $cap)
-				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$f->set_x_axis($x_ax);
-			$f2->set_x_axis($x_ax);
-			$max = 5;
-			$max2 = 5;
-			$curr = false;
-			$num = false;
-			
-			if (empty($this->categories)) {
-				$arr = array();
-				$bar = new OFC_Charts_Line();
-				$bar->set_colour(self::$colours[0]);
-				foreach ($results as & $res_ref) {
-					if (is_array($res_ref))
-						$res_ref = array_pop($res_ref);
-					$val = (float)strip_tags($res_ref);
-					$arr[] = $val;
-					if($this->format=='currency') {
-						if($max2<$val) $max2=$val;
-					} else {
-						if($max<$val) $max=$val;
-					}
-				}
-				$bar->set_values( $arr );
-				if($this->format=='currency') {
-					$f2->add_element( $bar );
-					$curr = true;
-				} else {
-					$f->add_element( $bar );
-					$num = true;
-				}
-			} else {
-			    $color = 0;
-				foreach ($this->categories as $q=>$c) {
-					$bar = new OFC_Charts_Line();
-					$bar->set_colour(self::$colours[$color%count(self::$colours)]);
-					$color++;
-					$bar->set_key(strip_tags($c),10);
-					$arr = array();
-					foreach ($results as $v) {
-						if (is_array($v[$c])) $v[$c] = reset($v[$c]);
-						$val = (float)strip_tags($v[$c]);
-						$arr[] = $val;
-						if($this->format[$c]=='currency') {
-							if($max2<$val) $max2=$val;
-						} else {
-							if($max<$val) $max=$val;
-						}
-					}
-					$bar->set_values( $arr );
-					if($this->format[$c]=='currency') {
-						$f2->add_element( $bar );
-						$curr = true;
-					} else {
-						$f->add_element( $bar );
-						$num = true;
-					}
-				}
-			}
-
-			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max);
-				$y_ax->set_steps($max/10);
-				$f->set_y_axis($y_ax);
-
-				$f->set_width(950);
-				$f->set_height(400);
-
-				$this->display_module($f);
-				print('<br>');
-			}
-
-			if($curr) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max2);
-				$y_ax->set_steps($max2/10);
-				$f2->set_y_axis($y_ax);
-
-				$f2->set_width(950);
-				$f2->set_height(400);
-
-				$this->display_module($f2);
-				print('<br>');
-			}
-
-	}
-
-	public function draw_summary_chart($gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary numeric
-			$f2 = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary currency
-			$fc = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary numeric
-			$fc2 = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary currency
-
-			$title = new OFC_Elements_Title( "Summary by row" );
-			$f->set_title( $title );
-			$f2->set_title( $title );
-			if(!empty($this->categories)) {
-				$labels = array();
-				$labels_c = array();
-				foreach ($this->categories as $q=>$c) {
-					if($this->format[$c]=='currency') {
-						$labels_c[] = strip_tags($c);
-					} else {
-						$labels[] = strip_tags($c);
-					}
-				}
-				$x_ax = new OFC_Elements_Axis_X();
-				$x_ax->set_labels_from_array($labels);
-				$f->set_x_axis($x_ax);
-				$x_ax = new OFC_Elements_Axis_X();
-				$x_ax->set_labels_from_array($labels_c);
-				$f2->set_x_axis($x_ax);
-			}
-
-			$title = new OFC_Elements_Title( "Summary by column" );
-			$fc->set_title( $title );
-			$fc2->set_title( $title );
-			$labels = array();
-			foreach($gb_captions as $cap)
-				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$fc->set_x_axis($x_ax);
-			$fc2->set_x_axis($x_ax);
-			$max = 5;
-			$max2 = 5;
-			$maxc = 5;
-			$maxc2 = 5;
-			$curr = false;
-			$num = false;
-			$col_total=array();
-
-            $color = 0;
-			foreach($this->ref_records as $k=>$r) {
-				$results = call_user_func($this->display_cell_callback, $r);
-
-				$ref_rec = call_user_func($this->ref_record_display_callback, $r,true);
-
-				$bar = new OFC_Charts_Bar_Glass();
-				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
-				$color++;
-				$bar->set_key(strip_tags($ref_rec),10);
-
-				if(empty($this->categories)) {
-					$total = 0;
-					$i = 0;
-					foreach ($results as & $res_ref) {
-						if (is_array($res_ref))
-							$res_ref = array_pop($res_ref);
-						$val = strip_tags($res_ref);
-							$total += $val;
-						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = array();
-						$this->cols_total[$i][0] += $val;
-						$i++;
-					}
-					$bar->set_values(array($total));
-					if($this->format=='currency') {
-                        if ($total > $max2)
-    						$max2 = $total;
-						$f2->add_element( $bar );
-						$curr = true;
-					} else {
-                        if ($total > $max)
-						    $max = $total;
-						$f->add_element( $bar );
-						$num = true;
-					}
-				} else {
-					$bar_c = new OFC_Charts_Bar_Glass();
-					$bar_c->set_colour(self::$colours[$color%count(self::$colours)]);
-					$bar_c->set_key(strip_tags($ref_rec),10);
-					$arr = array();
-					$arr_c = array();
-					foreach ($this->categories as $q=>$c) {
-						$total = 0;
-						if(!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
-						$i=0;
-						foreach ($results as $v) {
-							if (is_array($v[$c])) $v[$c] = reset($v[$c]);
-							$val = (float)strip_tags($v[$c]);
-							$total += $val;
-							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = 0;
-							$this->cols_total[$c][$i] += $val;
-							$i++;
-						}
-						if($this->format[$c]=='currency') {
-							$arr_c[] = $total;
-							if($max2<$total) $max2 = $total;
-						} else {
-							$arr[] = $total;
-							if($max<$total) $max = $total;
-						}
-					}
-					if(!empty($arr)) {
-						$bar->set_values( $arr );
-						$f->add_element( $bar );
-						$num = true;
-					}
-					if(!empty($arr_c)) {
-						$bar_c->set_values( $arr_c );
-						$f2->add_element( $bar_c );
-						$curr = true;
-					}
-				}
-			}
-
-
-			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max);
-				$y_ax->set_steps($max/10);
-				$f->set_y_axis($y_ax);
-
-				$f->set_width(950);
-				$f->set_height(400);
-
-				$this->display_module($f);
-				print('<br>');
-			}
-
-			if($curr) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max2);
-				$y_ax->set_steps($max2/10);
-				$f2->set_y_axis($y_ax);
-
-				$f2->set_width(950);
-				$f2->set_height(400);
-
-				$this->display_module($f2);
-				print('<br>');
-			}
-
-			if(empty($this->categories)) {
-				$bar = new OFC_Charts_Bar_Glass();
-				$bar->set_colour(self::$colours[0]);
-				$bar->set_key('Total',10);
-				$mm = 5;
-                $values = array();
-				foreach($this->cols_total as $val) {
-                    $rval = $val[0];
-					if($mm < $rval) $mm = $rval;
-                    $values[] = $rval;
-                }
-				$bar->set_values($values);
-				if($this->format=='currency') {
-					$maxc2 = $mm;
-					$fc2->add_element( $bar );
-				} else {
-					$maxc = $mm;
-					$fc->add_element( $bar );
-				}
-			} else {
-				$i = 0;
-				foreach($this->cols_total as $k=>$arr) {
-					$bar = new OFC_Charts_Bar_Glass();
-					$bar->set_colour(self::$colours[$i%count(self::$colours)]);
-					$bar->set_key(strip_tags($k),10);
-					$bar->set_values($arr);
-					$mm = 5;
-					foreach($arr as $val)
-						if($mm<$val) $mm=$val;
-					if($this->format[$k]=='currency') {
-						if($mm>$maxc2) $maxc2 = $mm;
-						$fc2->add_element( $bar );
-					} else {
-						if($mm>$maxc) $maxc = $mm;
-						$fc->add_element( $bar );
-					}
-					$i++;
-				}
-			}
-
-
-			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$maxc);
-				$y_ax->set_steps($maxc/10);
-				$fc->set_y_axis($y_ax);
-
-				$fc->set_width(950);
-				$fc->set_height(400);
-
-				$this->display_module($fc);
-				print('<br>');
-			}
-
-			if($curr) {
-				$y_ax = new OFC_Elements_Axis_X();
-				$y_ax->set_range(0,$maxc2);
-				$y_ax->set_steps($maxc2/10);
-				$fc2->set_y_axis($y_ax);
-
-				$fc2->set_width(950);
-				$fc2->set_height(400);
-
-				$this->display_module($fc2);
-				print('<br>');
-			}
-
-	}
-
-	public function draw_category_chart($ref_rec,$gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name());
-
-			$title = new OFC_Elements_Title( $ref_rec );
-			$f->set_title( $title );
-			$labels = array();
-			foreach($gb_captions as $cap)
-				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$f->set_x_axis($x_ax);
-			$max = 5;
-
-            $color = 0;
-			foreach($this->ref_records as $q=>$r) {
-				$results = call_user_func($this->display_cell_callback, $r);
-
-				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
-				$bar = new OFC_Charts_Line();
-				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
-				$color++;
-				$bar->set_key($title2,10);
-				$arr = array();
-				foreach ($results as $v) {
-					if($ref_rec) {
-						if (is_array($v[$ref_rec]))
-							$v[$ref_rec] = array_pop($v[$ref_rec]);
-						$val = (float)strip_tags($v[$ref_rec]);
-					} else {
-						if (is_array($v))
-							$v = array_pop($v);
-						$val = (float)strip_tags($v);
-					}
-					$arr[] = $val;
-					if($max<$val) $max=$val;
-				}
-				$bar->set_values( $arr );
-				$f->add_element( $bar );
-			}
-
-			$y_ax = new OFC_Elements_Axis_Y();
-			$y_ax->set_range(0,$max);
-			$y_ax->set_steps($max/10);
-			$f->set_y_axis($y_ax);
-
-			$f->set_width(950);
-			$f->set_height(400);
-
-			$this->display_module($f);
-	}
-
-	public function make_charts() {
-		if (empty($this->ref_records)) {
-			print('There were no records to display report for.');
-			return;
-		}
-
-
-		$this->cols_total = array();
-		/***** MAIN TABLE *****/
-		$row_count = 1;
-		$gb_captions = $this->gb_captions;
-		array_shift($gb_captions);
-		if (!empty($this->categories)) array_shift($gb_captions);
-
-		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		foreach($this->ref_records as $k=>$r) {
-			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
-			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
-		}
-		if (empty($this->categories)) {
-			$title = 'All';
-			$tb->set_tab($title, array($this,'draw_category_chart'),array('',$gb_captions));
-		} else {
-			foreach ($this->categories as $q=>$c) {
-				$title = strip_tags($c);
-				$tb->set_tab($title, array($this,'draw_category_chart'),array($c,$gb_captions));
-			}
-		}
-		$tb->set_tab('Summary', array($this,'draw_summary_chart'),array($gb_captions));
-		$this->display_module($tb);
-		$this->tag();
-	}
-
 	public function from_to_date() {
 		$start = $this->date_range['from_'.$this->date_range['date_range_type']];
 		$end = $this->date_range['to_'.$this->date_range['date_range_type']];
@@ -1064,57 +664,44 @@ class Utils_RecordBrowser_Reports extends Module {
 		$this->pdf_filename = $arg;
 	}
 
-	public function body($pdf=false, $charts=false) {
+	public function body($pdf=false) {
 		if ($this->is_back()) return false;
 		if ($this->date_range=='error') return;
 		Base_ThemeCommon::load_css('Utils/RecordBrowser/Reports');
 		$this->pdf = $pdf || isset($_REQUEST['rb_reports_enable_pdf']);
 		$this->csv = isset($_REQUEST['rb_reports_enable_csv']);
 		unset($_REQUEST['rb_reports_enable_pdf']);
-		$this->charts = $charts;
 		if ($this->pdf) {
 			$this->pdf_ob = $this->init_module(Libs_TCPDF::module_name(), 'L');
 			$this->pdf_ob->set_title($this->pdf_title);
 			$this->pdf_ob->set_subject($this->pdf_subject);
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
-		} elseif (!$this->charts && !$this->csv) {
-			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href(array($this, 'body'), array(false,true)));
 		}
 
-		if($this->charts)
-			$this->make_charts();
-		else
-			$this->make_table();
+		$this->make_table();
 		if($this->csv) {
 			$this->set_module_variable('csv',$this->csv_ob);
 		}
-
-		if($charts) {
-			Base_ActionBarCommon::add('report',__('Table'),$this->create_back_href());
-			return true;
-		} else {
-			if(!$this->csv) {
-				if ($this->pdf){
-					Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
-					self::$pdf_ready = 1;
-				} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
-					if (count($this->gb_captions)<20)
-						Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
-					else
-						Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
-				}
-			}
-			if($this->pdf_filename && !$this->pdf) {
-				if ($this->csv)
-					Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>CID,'filename'=>$this->pdf_filename)).'"');
-				else 
-					Base_ActionBarCommon::add('print',__('Create CSV'),$this->create_href(array('rb_reports_enable_csv'=>1)));
+		if(!$this->csv) {
+			if ($this->pdf){
+				Base_ActionBarCommon::add('save',__('Download PDF'),'target="_blank" href="'.$this->pdf_ob->get_href($this->pdf_filename).'"');
+				self::$pdf_ready = 1;
+			} elseif ($this->pdf_title!='' && self::$pdf_ready == 0) {
+				if (count($this->gb_captions)<20)
+					Base_ActionBarCommon::add('print',__('Create PDF'),$this->create_href(array('rb_reports_enable_pdf'=>1)));
+				else
+					Base_ActionBarCommon::add('print',__('Create PDF'),'',__('Too many columns to prepare printable version - please limit number of columns'));
 			}
 		}
-		return false;
+		if($this->pdf_filename && !$this->pdf) {
+			if ($this->csv)
+				Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>CID,'filename'=>$this->pdf_filename)).'"');
+			else 
+				Base_ActionBarCommon::add('print',__('Create CSV'),$this->create_href(array('rb_reports_enable_csv'=>1)));
+		}
+	return false;
 	}
-
 }
 
 ?>
