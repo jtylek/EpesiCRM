@@ -18,6 +18,7 @@ class Utils_Messenger extends Module {
 	private $def_date;
 	private $real_id;
 	private $parent_type;
+	private $lp;
 
 	public function pop_box0() {
 		Base_BoxCommon::pop_main();
@@ -25,8 +26,11 @@ class Utils_Messenger extends Module {
 
 	public function push_box0($func,$args,$const_args) {
 		$x = ModuleManager::get_instance('/Base_Box|0');
-		if(!$x) trigger_error('There is no base box module instance',E_USER_ERROR);
-		$x->push_main('Utils/Messenger',$func,$args,$const_args);
+		if(!$x){
+			trigger_error('There is no base box module instance',E_USER_ERROR);
+		}else{
+			$x->push_main('Utils/Messenger',$func,$args,$const_args);
+		}
 	}
 
 	public function construct($id=null,$callback_method=null,$callback_args=null,$def_date=null,$users=null,$parent=null) {
