@@ -1,7 +1,7 @@
 
 {$form_open}
 <div style="text-align:left; padding-left: 10px; padding-right: 10px;">
-
+{assign var=counter value=1}
 <table cellpadding="0" cellspacing="0" class="Utils_RecordBrowser_Reports__date_picker">
 	<tr>
 		{assign var=block value=0}
@@ -13,14 +13,24 @@
 				<td class="epesi_label">
 					{$e.label}
 				</td>
-				<td {if is_array($e.value)}style="width:314px" {/if}class="epesi_data">
+				<td {if is_array($e.value)}style="width:25%" {/if}class="epesi_data">
 					{$e.html}
 				</td>
+                                {assign var=counter value=$counter+1}
+                                {if $counter > 4}
+                                    {assign var=counter value=1}                                    
+                                    </tr>
+                                    <tr>    
+                                        <td> <br> </td>
+                                    </tr>
+                                    <tr>
+                                {/if}                                
 			{/if}
 		{/foreach}
 {if $show_dates}
 	</tr>
 </table>
+<br>        
 <table cellpadding="0" cellspacing="0" class="Utils_RecordBrowser_Reports__date_picker">
 	<tr>
 		<td style="text-align:center;font-weight:bold" colspan="7">
