@@ -38,22 +38,21 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 		$GLOBALS['rpfs_old_sel'] = $this->get_module_variable('old_selected',array());
 		Base_BoxCommon::pop_main();
 	}
-	
-	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$filters_defaults=array(),$path=null,$caption=null) {
+	/* Add additionals $rb_params (partial compatibility with RB)
+     * $rb_params are identical as at $rb
+	 */
+	public function show($tab, $crits=array(), $cols=array(), $order=array(), $filters=array(),$filters_defaults=array(),$path=null,$caption=null,$custom_filters=array(),$rb_params = array()) {
 		$this->caption = $caption;
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(), $tab, $tab.'_picker');
-		foreach ($filters as $field => $filter) {
-			if (!is_array($filter)) continue;
-			
-			$rb->set_custom_filter($field, $filter);
-		}
 		if($filters_defaults) $rb->set_filters_defaults($filters_defaults);
-//		$rb->adv_search = true;
-		$rb->disable_actions();
-
+		//add custom filters
+		foreach($custom_filters as $field=>$arr)
+			$rb->set_custom_filter($field,$arr);
+		//end
+		foreach ($rb_params as $k=>$v){
+			$rb->$k($v);
+		}
 		$this->display_module($rb, array($crits, $cols, $order, $filters, $path), 'recordpicker_fs');
-	        Base_ActionBarCommon::add('save', __('Commit Selection'), $this->create_callback_href(array($this,'back')));
-	        Base_ActionBarCommon::add('back', __('Cancel'), $this->create_callback_href(array($this,'cancel')));
 	}
 
 	public function create_open_link($label,$form = null,$select = null) {

@@ -23,13 +23,15 @@
 			</td>
 			<td>
 			</td>
+			{if isset($filters.controls) && $filters.controls}
 			<td class="filters">
                 {if $filters.controls}
 	                {$filters.controls}
                 {/if}
 			</td>
+			{/if}
 		</tr>
-		{if $filters.elements}
+		{if isset($filters.elements) && $filters.elements}
         <tr>
             <td colspan="3" class="filters">
             {$filters.elements}
