@@ -7,7 +7,7 @@
  * @package epesi-utils
  * @subpackage RecordBrowser
  */
-require_once("HTML/QuickForm/input.php");
+//require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_crits extends HTML_QuickForm_input {
 

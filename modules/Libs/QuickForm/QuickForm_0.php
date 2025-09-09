@@ -73,7 +73,7 @@ class Libs_QuickForm extends Module {
 			trigger_error("QuickFrom object doesn't exists", E_USER_ERROR);
 	}
 	
-	public function & __call($func_name, array $args=array()) {
+	public function &__call($func_name, array $args=array()) {
 		if ($func_name=='addElement' && isset($args[0])) {
 			if(is_string($args[0]))
 				$type = $args[0];
@@ -94,7 +94,8 @@ class Libs_QuickForm extends Module {
 					$qb = $qbi->get_builder_module($this, $default_crits);
 					$qb->add_to_form($this, $args[1], $args[2]);
 				}
-				return;
+				$return = null;
+				return $return;
 			}
 		}
 		if (is_object($this->qf)) {
