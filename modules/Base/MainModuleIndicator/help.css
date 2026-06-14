@@ -1,0 +1,106 @@
+body {
+    font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
+    font-size: 11px;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+}
+
+table {
+    font-size: 11px;
+}
+
+a {
+    color: #336699;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+h1 {
+    color: #336699;
+}
+
+input, select, textarea {
+    border: 1px solid #B3B3B3;
+    font-size: 11px;
+}
+
+input[type="submit"],
+a.button {
+    font-weight: normal;
+    color: #FFFFFF;
+    width: 100px;
+    line-height: 20px;
+    height: 20px;
+    display: block;
+    background-image: url("../../../images/header-blue.gif");
+    border: 0px;
+    text-align: center;
+}
+
+input[type="submit"]:hover,
+a.button:hover {
+    background-image: url("../../../images/header-blue-hover.gif");
+}
+
+span.footer {
+    font-size: 10px;
+    color: #777777;
+}
+
+span.footer a {
+    color: #336699;
+}
+
+span.footer a:hover {
+    color: #993333;
+}
+
+/*** table banner ***/
+
+#banner {
+    width: 100%;
+    border-bottom: 4px solid #B3B3B3;
+}
+
+#banner .image {
+    background-image: url("../../../images/logo-small.png");
+    background-repeat: repeat-x;
+    width: 193px;
+    height: 83px;
+}
+
+#banner .back {
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ffffff 0%, #e0e0e0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#e0e0e0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffffff 0%,#e0e0e0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e0e0e0',GradientType=0 ); /* IE6-9 */
+}
+
+/*** table main ***/
+
+#main {
+    border: 1px solid #B3B3B3;
+    background-color: #F0F0F0;
+    padding: 20px 20px 20px 20px;
+}
+
+div.license {
+    overflow: auto;
+    height: 200px;
+    border: 1px solid #B3B3B3;
+    background-color: #FFFFFF;
+    padding: 10px 10px 10px 10px;
+}
+
+span.required_note,
+span.required_note_star {
+    font-size: 9px;
+}
+
+span.required_note_star {
+    color: #FF0000;
+}

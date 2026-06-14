@@ -1,0 +1,26 @@
+{
+    "name": "memio/model",
+    "license": "MIT",
+    "type": "library",
+    "description": "Memio's models, used to describe the code to generate",
+    "keywords": ["generator", "PHP", "code"],
+    "homepage": "http://memio.github.io/memio",
+    "authors": [
+        {
+            "name": "Loïc Faugeron",
+            "email": "faugeron.loic@gmail.com",
+            "homepage": "http://gnugat.github.io",
+            "role": "Developer"
+        }
+    ],
+    "autoload": { "psr-4": {
+        "Memio\\Model\\": "src/Memio/Model"
+    }},
+    "require": {
+        "php": "^5.3|^7.0"
+    },
+    "require-dev": {
+        "fabpot/php-cs-fixer": "^1.6",
+        "phpspec/phpspec": "^2.4"
+    }
+}

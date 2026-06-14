@@ -1,0 +1,4 @@
+{% for throw_tag in throw_tag_collection -%}
+    {% include 'phpdoc/throw_tag.twig' with {'throw_tag': throw_tag} only -%}
+    {{ not loop.last ? "\n" }}
+{%- endfor -%}

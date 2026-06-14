@@ -1,0 +1,21 @@
+.Utils_RecordBrowser__View_entry .photo img {
+	padding: 2px;
+	margin: 6px;
+	max-width:108px;
+	max-height:150px;
+	border: none;
+}
+
+.Utils_RecordBrowser__View_entry .photo {
+	display: block;
+	position: relative;
+}
+
+.Utils_RecordBrowser__View_entry .photo .photo_note {
+	position: absolute;
+	color: white;
+	font-size: 15px;
+	bottom: 20px;
+	width: 98%;
+	text-align: center;
+}

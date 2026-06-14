@@ -1,0 +1,27 @@
+{
+    "name": "memio/validator",
+    "license": "MIT",
+    "type": "library",
+    "description": "Memio's validator, used to check built models again a pre-defined set of rules",
+    "keywords": ["generator", "PHP", "code"],
+    "homepage": "http://memio.github.io/memio",
+    "authors": [
+        {
+            "name": "Loïc Faugeron",
+            "email": "faugeron.loic@gmail.com",
+            "homepage": "http://gnugat.github.io",
+            "role": "Developer"
+        }
+    ],
+    "autoload": { "psr-4": {
+        "Memio\\Validator\\": "src/Memio/Validator"
+    }},
+    "require": {
+        "php": "^5.3|^7.0",
+        "memio/model": "^1.0"
+    },
+    "require-dev": {
+        "fabpot/php-cs-fixer": "^1.6",
+        "phpspec/phpspec": "^2.4"
+    }
+}

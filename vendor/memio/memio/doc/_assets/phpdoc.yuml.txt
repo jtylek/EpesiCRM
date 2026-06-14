@@ -1,0 +1,26 @@
+// PHPdoc: http://yuml.me/b8570257
+
+// Classes
+[ApiTag|since]
+[DeprecationTag|version;description]
+[Description|lines]
+[LicensePhpdoc|projectName;authorName;authorEmail]
+[MethodPhpdoc|isEmpty()]
+[ParameterTag|type;name;description]
+[PropertyPhpdoc|isEmpty()]
+[StructurePhpdoc|isEmpty()]
+[VariableTag|type]
+
+// Relationship
+[File]->[LicensePhpdoc]
+[Property]->[PropertyPhpdoc]
+[PropertyPhpdoc]->[VariableTag]
+[<<Structure>>]->[StructurePhpdoc]
+[StructurePhpdoc]->[ApiTag]
+[StructurePhpdoc]->[Description]
+[StructurePhpdoc]->[DeprecationTag]
+[Method]->[MethodPhpdoc]
+[MethodPhpdoc]->[ApiTag]
+[MethodPhpdoc]->[DeprecationTag]
+[MethodPhpdoc]->[Description]
+[MethodPhpdoc]<>-0..*>[ParameterTag]

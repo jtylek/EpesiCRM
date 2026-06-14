@@ -1,0 +1,762 @@
+<html>
+<head>
+</head>
+<body>
+Calendar is one of the CRM modules. Using this tool you can create, change and view events. You can use it as a planner, organizer and reminder.
+<ol>
+ <li>
+  <a href="#display">Displaying schedules</a>
+  <ol>
+   <li>
+    <a href="#display_agenda">Agenda</a>
+   </li>
+   <li>
+    <a href="#display_gridviews">Grid views</a>
+	<ol>
+	 <li>
+	  <a href="#display_gridviews_event">Event frame</a>
+	 </li>
+	 <li>
+	  <a href="#display_gridviews_dayview">Day View</a>
+	 </li>
+	 <li>
+	  <a href="#display_gridviews_weekview">Week View</a>
+	 </li>
+	 <li>
+	  <a href="#display_gridviews_monthview">Month View</a>
+	 </li>
+	</ol>
+   </li>
+   <li>
+    <a href="#display_yearview">Year View</a>
+   </li>
+   <li>
+   <a href="#display_options">Options</a>
+   </li>
+  </ol>
+ </li>
+ <li>
+  <a href="#view">Displaying event's details</a>
+  <ol>
+   <li>
+    <a href="#view_eventtooltip">Event Tooltip</a>
+   </li>
+   <li>
+    <a href="#view_viewevent">View Event interface</a>
+   </li>
+   <li>
+    <a href="#view_attributes">Event's attributes</a>
+   </li>
+   <li>
+    <a href="#view_recurrence">Recurrence</a>
+   </li>
+<!--
+   <li>
+    <a href="#view_notes">Notes</a>
+   </li>
+-->
+<!--   <li>
+    <a href="#view_alerts">Alerts</a>
+   </li> -->
+  </ol>
+ </li>
+ <li>
+  <a href="#addandedit">Adding and editing events</a>
+  <ol>
+   <li>
+    <a href="#addandedit_add">Adding</a>
+   </li>
+   <li>
+    <a href="#addandedit_edit">Editing</a>
+   </li>
+   <li>
+    <a href="#addandedit_clone">Cloning</a>
+   </li>
+   <li>
+    <a href="#addandedit_fill">Filling data form</a>
+   </li>
+   <li>
+    <a href="#addandedit_move">Moving</a>
+   </li>
+   <li>
+    <a href="#addandedit_close">Closing / cancelling</a>
+   </li>
+<!--
+   <li>
+    <a href="#addandedit_note">Attaching notes</a>
+   </li>
+-->
+<!--   <li>
+    <a href="#addandedit_alert">Adding </a>
+   </li> -->
+  </ol>
+ </li>
+ <li>
+  <a href="#delete">Deleting events</a>
+ </li>
+ <li>
+  <a href="#details">Interface details</a>
+ </li>
+</ol>
+<!-- -----------------------------------------------SCHEDULES--------------------------------------------------- -->
+<h1><a name="display">Displaying schedules</a></h1>
+Calendar can display events in a few different ways. These are: <a href="#display_agenda">Agenda</a>, <a href="#display_gridviews_dayview">Day View</a>, <a href="#display_gridviews_weekview">Week View</a>, <a href="#display_gridviews_monthview">Month View</a> and <a href="#display_yearview">Year View</a>. You can switch between them by clicking on the respective tabs while in Calendar module.
+<br /><img src="calendar_views.png" />
+<!-- -----------------------------------------------Agenda--------------------------------------------------- -->
+<h2><a name="display_agenda">Agenda</a></h2>
+<br />Agenda puts events in a list, one under another. It gives you posibillity to view events in a few useful orders, for example chronologically.
+<br /><img src="calendar_agenda.png" />
+<ol>
+ <li>
+  This panel determines time range for which events are displayed. You can set this range by determinig From and To dates. To do this write the proper dates in fields "From" and "To" or choose them using <a href="#details_smallcalendar">"Select date"</a> buttons. After that click "Show" button and the right events will be displayed.
+ </li>
+ <li>
+  This bar, apart from obvious informational usage, serves as the sorting tool. All fields here, except "Actions", work as sorting buttons. When you click them, you choose the value by which the events are sorted and also toggle ascending/descending order.
+ </li>
+ <li>
+  This icon idicates, that the event is repeatable. Such an event can occur with one of the few different frequencies, for instance once a week on Monday.
+ </li>
+ <li>
+  These buttons serve as shortcuts to the common <a href="#details_actions">actions</a> you might want to perform on the events.
+ </li>
+</ol>
+<!-- -----------------------------------------------Grid views--------------------------------------------------- -->
+<h2><a name="display_gridviews">Grid views</a></h2>
+<a href="#display_gridviews_dayview">Day View</a>, <a href="#display_gridviews_weekview">Week View</a> and <a href="#display_gridviews_monthview">Month View</a> display events by showing them on time grids. <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a> focus on showing the starting dates, duration and overlaping of events. <a href="#display_gridviews_monthview">Month View</a> is more general and display events on the right days, without further details, but in a larger scope.
+<!-- -----------------------------------------------event frame--------------------------------------------------- -->
+<h3><a name="display_gridviews_event">Event frame</a></h3>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_eventframe.png" />
+  </td>
+  <td>
+   In all grid views events are displayed as a small, color frames. In <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a> their size depends on their duration as well as the precision of the times on grid. In the <a href="#display_gridviews_monthview">Month View</a> the size is fixed. You can see here some basic information, like the starting time of the event and usually shortened version of event's title. There is a small icon <img src="calendar_i.png" /> in the top left corner of the frame. When you hover mouse over it, <a href="#view_eventtooltip">details of the event</a> will be displayed. When you click on this icon, then menu with <a href="#details_actions">actions</a> will be displayed.
+   There can be sometimes this icon <img src="calendar_recurrence.png" /> on the event frame. It means that the event is <a href="#view_recurrence">repeatable</a>.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------day view--------------------------------------------------- -->
+<h3><a name="display_gridviews_dayview">Day View</a></h3>
+ Day View displays all events of the selected day.
+<br /><img src="calendar_dayview.png" />
+<ol>
+ <li>
+  This panel helps you navigate through the dates, either by going through consecutive days ("Previous day" and "Next day") or by skipping right to the day of your interest (<a href="#details_smallcalendar">"Select date"</a>).
+ </li>
+ <li>
+  This space is used to delete events. <a href="#details_deletionarea">More...</a>
+ </li>
+ <li>
+  This header gives information, what day is displayed. In addition, signs of month and year serve as buttons to corresponding <a href="#display_gridviews_monthview">Month View</a> and <a href="#display_yearview">Year View</a>.
+ </li>
+ <li>
+  This panel contain labels that inform about exact time the cells stand for. <a href="#details_timepanel">More...</a>
+ </li>
+ <li>
+  A cell is a basic component of the day grid. Double click on it will start a creation of a new event.
+ </li>
+ <li>
+  This is an event. It is displayed in a form of <a href="#display_gridviews_event"> event frame</a>. 
+ </li>
+</ol>
+<!-- -----------------------------------------------week view--------------------------------------------------- -->
+<h3><a name="display_gridviews_weekview">Week View</a></h3>
+ Week View is similar to <a href="#display_gridviews_dayview">Day View</a>. There are, however, two differences - events from seven, not only one, consecutive days are displayed and the navigating panel is slightly different, as it allows also navigating with the week leaps.
+<br /><img src="calendar_weekview.png" />
+<ol>
+ <li>
+  Navigating panel helps you navigate through days nad weeks. You can move by one day ("Previous day", "Next day") or week ("Previous week","Next week"). There is always possibility to move right to the week of some other date (<a href="#details_smallcalendar">"Select date"</a>).
+ </li>
+ <li>
+  An easy way to delete events. <a href="#details_deletionarea">More...</a>
+ </li>
+ <li>
+  This time header informs about the month and year of the displayed week. There might be two such headers, when the week is at the edge of two months. The two labels - of month and year, both serve as buttons to <a href="#display_gridviews_monthview">Month View</a> and <a href="#display_yearview">Year View</a>.
+ </li>
+ <li>
+  Day headers mark consecutive days of the week. All events in the column beneath this header are of the same day. It also serves as a button to a <a href="#display_gridviews_dayview">Day View</a>.
+ </li>
+ <li>
+  Time panel marks rows with times they refer to. <a href="#details_timepanel">More...</a>
+ </li>
+ <li>
+  A single event, displayed as <a href="#display_gridviews_event"> event frame</a>.
+ </li>
+ <li>
+  Cell - basic component of the grid. Double click on it will start the process of adding new event with starting date and time same as these of the cell.
+ </li>
+</ol>
+<!-- -----------------------------------------------month view--------------------------------------------------- -->
+<h3><a name="display_gridviews_monthview">Month View</a></h3>
+ Month View displays events from selected month. It shows more events, but with fewer details.
+<br /><img src="calendar_monthview.png" />
+<ol>
+ <li>
+  Buttons in this panel serve as tools to navigate through months and years, either one after the other ("Previous mont", "Next month" and "Previous year","Next year") or directly to the month of interest (<a href="#details_smallcalendar">"Select month"</a>).
+ </li>
+ <li>
+  This area is used to delete events. <a href="#details_deletionarea">More...</a>
+ </li>
+ <li>
+  Header of the month. The sign of year serves also as a button redirecting to <a href="#display_yearview">Year View</a>.
+ </li>
+ <li>
+  Numbers on this panel refer to weeks. Each of these labels redirects to proper <a href="#display_gridviews_weekview">Week View</a>.
+ </li>
+ <li>
+  The events in this view are also represented by <a href="#display_gridviews_event"> event frames</a>, however all of them have the same size.
+ </li>
+ <li>
+  A day cell - basic component of Month View's grid. Double click on it will add a new event.
+ </li>
+ <li>
+  A day label. Redirects to the <a href="#display_gridviews_dayview">Day View</a>.
+ </li>
+</ol> 
+<!-- -----------------------------------------------Year view--------------------------------------------------- -->
+<h2><a name="display_yearview">Year View</a></h2>
+ Year View is not that much precise as the prior views. It focuses on showing the days that have some events planned in the context of the whole year. You can use it also as navigating tool, as it has buttons which direct to all kinds of grid views.
+<br /><img src="calendar_yearview.png" />
+<ol>
+ <li>
+  Navigating panel, when you want to go through consecutive years ("Previous year" and "Next year" button) or just skip to another year (<a href="#details_smallcalendar">"Select year"</a>).
+ </li>
+ <li>
+  A month header. It works as a button redirecting to the <a href="#display_gridviews_monthview">Month View</a> of the chosen month.
+ </li>
+ <li>
+  Headers of the weeks. Each of them, when pressed, redirects to <a href="#display_gridviews_weekview">Week View</a> of the chosen week.
+ </li>
+ <li>
+  A cell of a day without any events. Stil can be used to redirect to <a href="#display_gridviews_dayview">Day View</a> of this day.
+ </li>
+ <li>
+  A cell of a day with some events planned (the font is bold and the background color is the same as the one of the first event of this day). It also redirects to <a href="#display_gridviews_dayview">Day View</a>.
+ </li>
+</ol>
+<!-- -----------------------------------------------Options--------------------------------------------------- -->
+<h2><a name="display_options">Options</a></h2>
+   There are a few options that can be changed here. You can access them by Menu -> My settings -> Control panel and then choosing Calendar. Click button "Save" on ActionBar to save chosen settings.
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_options.png" />
+  </td>
+  <td>
+   <ol>
+    <li>
+	 The day of the week you want to be displayed as the first one. This option is used not only in <a href="#display_gridviews_weekview">Week View</a> and <a href="#display_gridviews_monthview">Month View</a>, but also in <a href="#display_yearview">Year View</a>.
+	</li>
+    <li>
+	 The view that will be displayed, when you access calendar.
+	</li>
+    <li>
+	 The hour at which you start your day. The earlier hours will be displayed all in one row. This applies to <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a>.
+	</li>
+    <li>
+	 The ending hour of your day. The time after that till the end of the day will be seen in one row. This applies to <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a>.
+	</li>
+    <li>
+	 The precision, with wchich the grid will be displayed. The interval determines the duration that corresponds with each row. It is used in <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a>.
+	</li>
+    <li>
+	 The color of frames of events that have "Default" color chosen as the one to be displayed. <a href="#view_attributes_color">More...</a>
+	</li>
+   </ol>
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------EVENT'S DETAILS--------------------------------------------------- -->
+<h1><a name="view">Displaying event's details</a></h1>
+All events have a variety of settings and additional information that isn't shown while displaying schedules. You can access these details in two ways - by View Event interface or by Event Tooltip.
+<!-- -----------------------------------------------Event tooltip--------------------------------------------------- -->
+<h2><a name="view_eventtooltip">Event Tooltip</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_eventtooltip.png">
+  </td>
+  <td>
+   This tooltip is visible when you hover mouse over the <img src="calendar_i.png" /> icon on <a href="#display_gridviews_event">event frame</a> in any of <a href="#display_gridviews">grid views</a>.
+   <br /><span style="font-weight:bold;">Date</span> - the day the event is scheduled for 
+   <br /><span style="font-weight:bold;">Time</span> - the exact hours of the start and the end of the event
+   <br /><span style="font-weight:bold;">Duration</span> - the amount of time between starting and ending hour of the event
+   <br /><span style="font-weight:bold;">Event</span> - the title of the event; an outline
+   <br /><span style="font-weight:bold;">Description</span> - more information about the event (text)
+   <br /><span style="font-weight:bold;">Assigned to</span> - people from your company directly involved in the event progress
+   <br /><span style="font-weight:bold;">Contacts</span> - customers, contractors or other people who take part in the event or are interested in it.
+   <br /><span style="font-weight:bold;">Status</span> - informs about the stage in which event is. <a href="#view_attributes_status">More... </a>
+   <br /><span style="font-weight:bold;">Access</span> - how and by whom the event might be accessed. <a href="#view_attributes_access">More... </a>
+   <br /><span style="font-weight:bold;">Priority</span> - tells how important the event is. <a href="#view_attributes_priority">More... </a>
+   <br /><span style="font-weight:bold;">Notes</span> - the number of notes that are attached to this event
+   <br /><span style="font-weight:bold;">Created by</span> - the date and time of event's creation
+   <br /><span style="font-weight:bold;">Created on</span> - person who created the event
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------View event--------------------------------------------------- -->
+<h2><a name="view_viewevent">View Event interface</a></h2>
+You can access this interface in a few ways. From <a href="#display_agenda">Agenda</a> - by clicking on the title of the event's title. From <a href="#display_gridviews">grid views</a> - by using <a href="#display_gridviews_event">event frame</a>, either by clicking on the time panel or by choosing "view" from actions.
+<br /><img src="calendar_viewevent.png" />
+<ol>
+ <li>
+  This panel contains a few usefull <a href="#details_actions">actions</a>.
+ </li>
+ <li>
+  Title - an outline of an event, its definition.
+ </li>
+ <li>
+  Description - contains more detailed information about the event.
+ </li>
+ <li>
+  Employees - people who are directly and actively involved in the event from the side of company.
+ </li>
+ <li>
+  Timeless - gives information whether event is timeless or not.
+ </li>
+ <li>
+  Access - the way the event can be accessed across the system. <a href="#view_attributes_access">More... </a>
+ </li>
+ <li>
+  Priority - tells how important the event is. <a href="#view_attributes_priority">More... </a>
+ </li>
+ <li>
+  Color - the color connected with the event. This color is used to display event frame in grid views. <a href="#view_attributes_color">More...</a>
+ </li>
+ <li>
+  Status - the information about in which state the event is (<a href="#view_attributes_status">More... </a>). This interface allows changing of status by simply clicking on it. Clicking on "Open" will change it to "In Progress" and clicking on "In Progress" will change it to "Closed" or "Canceled" (depending on user's choice).
+ </li>
+ <li>
+  Customers - the list of people who are conected with the event, but don't take active role in it or are from outside of the company.
+ </li>
+ <li>
+  Recurrence - informs whether event is repeatable. On the picture above - it is not. <a href="#view_recurrence">More...</a>
+ </li>
+ <li>
+  <a href="#view_notes">Notes</a> and <a href="#view_alerts">Alerts</a>.
+ </li>
+</ol>
+<!-- -----------------------------------------------Attributes--------------------------------------------------- -->
+<h2><a name="view_attributes">Event's attributes</a></h2>
+There are a few attributes of events that require detailed description. These are: Access, Priority, Color and Status.
+<!-- -----------------------------------------------access--------------------------------------------------- -->
+<h3><a name="view_attributes_access">Access</a></h3>
+ Access indicates the type of permission to view and change the event. There are a few options possible: 
+  <ul>
+   <li>
+    <img src="calendar_access01.png"> "Public" - everyone may see the event, read and change the event's details.
+   </li>
+   <li>
+    <img src="calendar_access02.png"> "Public, Read-Only" - everyone may see event and it's details, but only users assigned to the event may change it.
+   </li>
+   <li>
+    <img src="calendar_access03.png"> "Private" - only users assigned to the event may see or change it.
+   </li>
+  </ul>
+<!-- -----------------------------------------------priority--------------------------------------------------- -->
+<h3><a name="view_attributes_priority">Priority</a></h3>
+ This attribute says how important the event is. The priority might be set to three different values:
+ <ul>
+  <li>
+   <img src="calendar_priority01.png"> Low
+  </li>
+  <li>
+   <img src="calendar_priority02.png"> Medium
+  </li>
+  <li>
+   <img src="calendar_priority03.png"> High
+  </li> 
+ </ul>
+<!-- -----------------------------------------------color--------------------------------------------------- -->
+<h3><a name="view_attributes_color">Color</a></h3>
+Color is a basic attribute of every event. Is is used mainly by grid views while displaying event frame. It also influences the color of the day in <a href="#display_yearview">Year View</a>. You can use it as a tool to mark different types of events. Recuring events have the same color for every ocurrence.
+<br>There is a variety of colors the event can take: <span style="color: #339933;">green</span>, <span style="color:#999933;">yellow</span>, <span style="color:#993333;">red</span>, <span style="color:#336699;">blue</span>, <span style="color:#808080;">gray</span>, <span style="color:#339999;">cyan</span> and <span style="color:#993399;">magenta</span>. Event can also have "default" color chosen. "Default" color is set per user (this can be set in <a href="#display_options">Options</a>). All events that have "default" as a color will be displayed for you with the color you choose as your "default".
+<!-- -----------------------------------------------status--------------------------------------------------- -->
+<h3><a name="view_attributes_status">Status</a></h3>
+This attribute informs about the progress of the event. There are four possible stages:
+ <ul>
+  <li>
+   <img src="calendar_status01.png"> "Open" - the event hasn't started yet
+  </li>
+  <li>
+   <img src="calendar_status02.png"> "In Progress" - the event has already started and is still running
+  </li>
+  <li>
+   <img src="calendar_status03.png"> "Closed" - the event has ended
+  </li> 
+  <li>
+   <img src="calendar_status04.png"> "Canceled" - the event has been canceled
+  </li>
+ </ul>
+
+<!-- -----------------------------------------------Recurrence--------------------------------------------------- -->
+<h2><a name="view_recurrence">Recurrence</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_recurrence01.png"/>
+  </td>
+  <td> 
+   This icon displayed on an <a href="#display_gridviews_event">event frame</a> or near the event's title in <a href="#display_agenda">Agenda</a> means that the event is repeatable. It is scheduled to recur once in some certain time, for example - on Mondays or every 14th day of the month.
+  </td>
+ </tr>
+</table>
+In the <a href="#view_viewevent">View Event</a> interface you can find more detailed information about the recurrence of particular event.
+<br /><img src="calendar_recurrence02.png" />
+<ol>
+ <li>
+  This field displays the information whether event is recurring or not.
+ </li>
+ <li>
+  The recurrence interval. Possible options are:
+  <ul>
+   <li>
+    everyday
+   </li>
+   <li>
+    every second/third/fourth/fifth/sith day
+   </li>
+   <li>
+    once every week
+   </li>
+   <li>
+    few times every week (for example on Mondays, Tuesdays and Thursdays)
+   </li>
+   <li>
+    every two weeks
+   </li>
+   <li>
+    every month
+   </li>
+   <li>
+    every year
+   </li>
+  </ul>
+ </li>
+ <li>
+  Indicates if there is an end date for this recurring event
+ </li>
+ <li>
+  The end date for the recurrence.
+ </li>
+</ol>
+<!-- -----------------------------------------------Notes--------------------------------------------------- -
+<h2><a name="view_notes" />Notes</h2>
+-->
+<!-- -----------------------------------------------Alerts--------------------------------------------------- -->
+<!-- <h2><a name="view_alerts">Alerts</a></h2>
+TO DO LATER -->
+<!-- -----------------------------------------------ADD & EDIT--------------------------------------------------- -->
+<h1><a name="addandedit">Adding and editing events</a></h1>
+<!-- -----------------------------------------------Add--------------------------------------------------- -->
+<h2><a name="addandedit_add">Adding</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_add01.png" />
+  </td>
+  <td>
+   To add a new event you can simply click "Add event" button (on the picture) and then <a href="#addandedit_fill">fill the data</a>.
+   <br />Other way of starting event creation is by using <a href="#display_gridviews">Grid Views</a>. Double clicking on a cell in <a href="#display_gridviews_dayview">Day View</a> or <a href="#display_gridviews_weekview">Week View</a> will direct you to <a href="#addandedit_fill">filling form</a> with date and time filled with the data based on the time and date of the cell. Clicking on a cell in the <a href="#display_gridviews_monthview">Month View</a> will give simillar effect - the date of the new event will be the same as the one of the cell.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Edit--------------------------------------------------- -->
+<h2><a name="addandedit_edit">Editing</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_edit01.png" />
+  </td>
+  <td>
+   To edit an event you need to access the <a href="#addandedit_fill"> filling form</a> and change there the fields of interest. There are a few ways to access this form:
+   <ul>
+    <li>
+	 From <a href="#display_agenda">Agenda</a> - choose the "Edit" option from <a href="#details_actions">actions</a> available for the event.
+    </li>
+    <li>
+	 From <a href="#display_gridviews">Grid Views</a> - click <img src="calendar_i.png" /> icon on the right <a href="#display_gridviews_event">event frame</a>, and choose "Edit" from available <a href="#details_actions">actions</a>.
+    </li>
+    <li>
+	 From <a href="#view_viewevent">View Event</a> interface - while viewing the event use "Edit" button from Action Bar (on the picture)
+    </li>
+   </ul>
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Clone--------------------------------------------------- -->
+<h2><a name="addandedit_clone">Cloning</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_clone01.png" />
+  </td>
+  <td>
+   If you want to create an event very similar to the one that already exists, you can use cloning function. To do this, enter a <a href="#view_viewevent">view</a> of the event you want to copy, and click "Clone" button from <!-- link here -->Action Bar (on the picture). It will redirect you to a <a href="#addandedit_fill">form</a> filled with the cloned event's data. To proceed enter and save the changes. 
+   <br />Note: the original event won't be changed during cloning.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Fill--------------------------------------------------- -->
+<h2><a name="addandedit_fill">Filling data form</a></h2>
+ <img src="calendar_fillingform01.png" />
+ <ol>
+  <li>
+   The name of the event, may contain a short information regarding the event.
+  </li>
+  <li>
+   Description of the event, containing more detailed information, for example a short list or agenda.
+  </li>
+  <li>
+   List of people directly involved in the event, in a form of <!-- link here -->multiselect.
+  </li>
+  <li>
+   Recurrence options. *TO DO LATER*
+  </li>
+  <li>
+   Time options. Here you set detailed information about the event start, end or duration. 
+   <div style="min-height:50">
+    <img src="calendar_fillingform02.png" style="float:left;margin:5" />
+    In the first part you choose the start date and time. You can set the date by filling the field to the left or by clicking "Select date" button and displaying <a href="#details_smallcalendar">small calendar</a>. On the right side you can change the start time, by selecting right options from three selects (or two, if you use 24 hour time display).
+   </div>
+   <div style="min-height:50">
+    <img src="calendar_fillingform03.png" style="float:left;margin:5" />
+    In the second part you choose duration or end time of the event. To set a duration, choose one of the options available in select to the left (5, 15, 30 or 45 minutes; 1, 2, 4 or 8 hours). If you want to determine the end time instead of duration, clicking "Toggle" will let you do so.
+   </div>
+   <div style="min-height:51">
+    <img src="calendar_fillingform04.png" style="float:left;margin:5" />
+    To determine end time, choose the desired options from three selects available to the right (or two, if you use 24 hour time display). If you want to go back to setting duration from this point, click "Toggle" button.
+   </div>
+   <div style="min-height:50">
+    <img src="calendar_fillingform05.png" style="margin:3"/>
+	If you don't want to determine the exact time of the event you are creating or editing, check "Timeless" option for it.
+   </div>
+  </li>
+  <li>
+   Here you can set event's attributes: access, priority, color and status. More detailed information about these fields you will find <a href="#view_attributes">here</a>.
+  </li>
+  <li>
+   Customers' selection. Here you can choose all customers that are connected with the event by using <!-- link here -->auto-multi.
+  </li>
+  <li>
+   Setting alerts. <a href="#view_alerts">More...</a>
+  </li>
+ </ol>
+ When you fill the data you can see two buttons on the <!-- link here??? -->Action Bar: Save and Back.
+ <table>
+  <tr style="vertical-align:top;">
+   <td>
+    <img src="calendar_savebutton.png" />
+   </td>
+   <td>
+    If you want to save the changes you've made (or the new event), click "Save" button to confirm them.
+   </td>
+  </tr>
+  <tr style="vertical-align:top;">
+   <td>
+    <img src="calendar_backbutton.png" />
+   </td>
+   <td>
+    If you want to abandon the changes you've made (or the new event), click "Back" to reverse them.
+   </td>
+  </tr>
+ </table>
+
+<!-- -----------------------------------------------Move--------------------------------------------------- -->
+<h2><a name="addandedit_move">Moving</a></h2>
+If the only thing you want to change in the event is its time or date (but not duration), you can do this by moving the event. You can do this from any <a href="#display_gridviews">Grid View</a>.
+<ul>
+ <li>
+  In a <a href="#display_gridviews_dayview">Day View</a> you can change only the start time of the event. To do this, drag and drop the <a href="#display_gridviews_event">event frame</a> on the right cell.
+ </li>
+ <li>
+  In a <a href="#display_gridviews_weekview">Week View</a> you can change both start time and date of the event. However it has its limitations - you can choose only the date from the same week event already is. To do this, drag and drop the <a href="#display_gridviews_event">event frame</a> on the right cell.
+ </li>
+ <li>
+  In a <a href="#display_gridviews_monthview">Month View</a> you can change only the date of the event and only if it is in the same month the event already is in. To do this, drag and drop the <a href="#display_gridviews_event">event frame</a> on the right cell.
+ </li>
+</ul>
+<table>
+ <tr>
+  <td>
+   <img src="calendar_move01.png" style="margin:0 15 0 15"/>
+  </td>
+  <td>
+   <img src="calendar_move02.png" style="margin:0 15 0 15"/>
+  </td>
+  <td>
+   <img src="calendar_move03.png" style="margin:0 15 0 15"/>
+  </td>
+ </tr>
+</table>
+<!--
+<h2><a name="addandedit_note">Attaching notes</a></h2>
+-->
+<!-- -----------------------------------------------Add alert--------------------------------------------------- -->
+<!-- <h2><a name="addandedit_alert">Adding alerts</a></h2>
+TO DO LATER -->
+
+<!-- -----------------------------------------------Close--------------------------------------------------- -->
+<h2><a name="addandedit_close">Closing / cancelling</a></h2>
+When the event is over and you finished working on it, you may want to mark this event as "closed". If the event didn't happen or was called off, you may want this event marked as "canceled". Both these status changes you can do in a few similar ways:
+<ul>
+ <li>
+  While in a one of <a href="#display_gridviews">Grid Views</a> - click on the <img src="calendar_i.png" /> icon on the chosen <a href="#display_gridviews_event">event frame</a> then click on the action button "close" (<img src="calendar_action05.png" />). This will direct you to a leightbox (described below).
+ </li>
+ <li>
+  From the <a href="#view_viewevent">View Event</a> interface. To change the status from "Open" to "Closed" or "Canceled", first change the status to "In Progress" by clicking "Open" sign in "Status" field. To change status from "In Progress" to "Closed" or "Canceled", click "In Progress" sign in "Status" field. This will result in displaying a leightbox (described below).
+ </li>
+ <li>
+  By <a href="#addandedit_edit">editing</a> the event - change value of "Status" field to "Closed" or "Canceled" (choose the right option from the select).
+ </li>
+</ul>
+ First two methods described above are using a leightbox for the final phase of changing the status.
+ <br /><img src="calendar_close01.png" />
+ <ol>
+  <li>
+   Status selection - here you choose whether you want to close or cancel the event.
+  </li>
+  <li>
+   Note - here you can write some comments.
+  </li>
+  <li>
+   Follow ups - in order to continue you have to click one ot these. The default value is "No follow up" - click this button if you only want to close/cancel the event. Other options allow you creation of a new event, task or phone call using the data of the event being closed/canceled.
+  </li>
+ </ol>
+<!-- -----------------------------------------------DELETE--------------------------------------------------- -->
+<h1><a name="delete">Deleting events</a></h1>
+To delete an event you need first to display it, either in <a href="#display_agenda">Agenda</a> or in one of the <a href="#display_gridviews">Grid Views</a> and then:
+<ul>
+ <li>
+  From <a href="#display_agenda">Agenda</a> - click <img src="calendar_action03.png" /> icon form the "Actions" field corresponding with the event.
+ </li>
+ <li>
+  From any of <a href="#display_gridviews">Grid Views</a> - click <img src="calendar_i.png" /> icon on the <a href="#display_gridviews_event">event frame</a>, then click <img src="calendar_action03.png" />.
+ </li>
+</ul>
+After that you will see a confirmation box. Click "OK" to succesfully finish deleting process.
+<!-- -----------------------------------------------INTERFACE--------------------------------------------------- -->
+<h1><a name="details">Interface details</a></h1>
+<!-- -----------------------------------------------Actions--------------------------------------------------- -->
+<h2><a name="details_actions">Actions</a></h2>
+Actions are as follows:
+ <ul>
+  <li>
+   <img src="calendar_action01.png" /> View event's details
+  </li>
+  <li>
+   <img src="calendar_action02.png" /> Edit event's details
+  </li>
+  <li>
+   <img src="calendar_action03.png" /> Delete event
+  </li>
+  <li>
+   <img src="calendar_action04.png" /> Change the date of the event - clicking on this will display a <a href="#details_smallcalendar">small calendar</a>, where you can choose any date.
+  </li>
+  <li>
+   <img src="calendar_action05.png" /> Close event - you can use this to mark that the event has ended or was cancelled.
+  </li>
+  <li>
+   <img src="calendar_action06a.png" />/<img src="calendar_action06b.png" /> These icons indicate whether or not the event is subscribed, i.e. whether you will be noticed if the event is changed. Green one means, that you subscribe the event and clicking on it will unsubscribe the event. Opposite, gray one says that event isn't subsribed and clicking on it will start subscription.
+  </li>
+  <li>
+   <img src="calendar_action07.png" /> This is an information icon. By hovering mouse over it you will see additional information about the event, like time of creation and last edition and who created and edited it.
+  </li>
+  <li>
+   <img src="calendar_action08.png" /> Adding a new event - follow up to the displayed one.
+  </li>
+  <li>
+   <img src="calendar_action09.png" /> Creation of a new task - follow up to the displayed event. Appears only if the "Tasks" module is installed.
+  </li>
+  <li>
+   <img src="calendar_action10.png" /> Creation of a new phone call - follow up to the displayed event. Appears only if the "Phone Call" module is installed.
+  </li>
+ </ul>
+<!-- -----------------------------------------------Deletion area--------------------------------------------------- -->
+<h2><a name="details_deletionarea">Deletion area</a></h2>
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_deletionarea.png" />
+  </td>
+  <td>
+   This area, marked with the icon of dust bin, serves as a simple method of deleting events. It is used in all views with event frames: <a href="#display_gridviews_dayview">Day View</a>, <a href="#display_gridviews_weekview">Week View</a> and <a href="#display_gridviews_monthview">Month View</a>. To delete particular event, just drag and drop event frame on this spot. 
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Time panel--------------------------------------------------- -->
+<h2><a name="details_timepanel">Time panel</a></h2>
+<table>
+ <tr style="vertical-align:top;" height="1px">
+  <td rowspan=5>
+   <img src="calendar_timepanel.png" />
+  </td>
+  <td colspan=2>
+   This panel contains labels that indicate the time of the day which is represented by the cells next to them. It is used in <a href="#display_gridviews_dayview">Day View</a> and <a href="#display_gridviews_weekview">Week View</a>. There are several types of labels here, each of them should be interpreted in a slightly different manner. 
+  </td>
+ </tr>
+ <tr style="vertical-align:top;" height="1px">
+  <td>
+   <img src="calendar_timepanel_timeless.png">
+  </td>
+  <td>
+   This label marks that events in the same row are "timeless". This means that there is not specific time of their start and end. It appears only once for one time panel, always on top of it.
+  </td>
+ </tr>
+ <tr style="vertical-align:top;" height="1px">
+  <td>
+   <img src="calendar_timepanel_before.png">
+  </td>
+  <td>
+   This label, which is always right after "Timeless", marks the row that contains all the events that happen before the "start of the day". The time of this start may be changed in <a href="#display_options">Options</a>. There is always only one such label for a time panel. It is placed between "timeless" label and the standard ones.
+  </td>
+ </tr>
+ <tr style="vertical-align:top;" height="1px">
+  <td>
+   <img src="calendar_timepanel_normal.png">
+  </td>
+  <td>
+   This is typical label of time panel. All of them have the same time span. Here it is one hour, but this can be changed to different values in <a href="#display_options">Options</a>. The duration of the event might be, of course, longer than the duration of one of such labels. <a href="#display_gridviews_event">Event frame</a> is then situated in more than one cell.
+  </td>
+ </tr>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_timepanel_after.png">
+  </td>
+  <td>
+   This label is next to the row, which contains all the events that happen after the "end of the day". Exact time of this "end" can be set in <a href="#display_options">Options</a>. This label is always at the end of time panel. There could be only one such label in one time panel.
+  </td>
+ </tr>
+</table>
+<!-- -----------------------------------------------Small calendar--------------------------------------------------- -->
+<h2><a name="details_smallcalendar">Small calendar</a></h2>
+   This tool is very usefull when selecting date, month or year, which is not near the current or currently displayed one.
+<table>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_smallcalendar01.png">
+  </td>
+  <td>
+   This is <span style="font-weight: bold;">view of the month</span>. It is used to choose the day. From here you can select the date, by clicking on a proper number. You can also choose a day from another month. To do so, you need to change view to the month of interest. Simply navigate with the arrows located in the to right and top left corner of the small calendar frame. There is also another method - using view of the year you can directly choose the month from the displayed year. To go to that view - click on the name of the month.
+  </td>
+ </tr>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_smallcalendar02.png">
+  </td>
+  <td>
+   The <span style="font-weight:bold;">view of the year</span> serves to select months. To do so, click on the name of the right month. If you need month from another year, you can navigate through years by using arrows located in top left and top right corner. You can also display wider range of the years to choose from by clicking on the name of the year. It will redirect you to view of decade.
+  </td>
+ </tr>
+ <tr style="vertical-align:top;">
+  <td>
+   <img src="calendar_smallcalendar03.png">
+  </td>
+  <td>
+   <span style="font-weight:bold;">View of the decade</span> shows ten consecutive years. You can choose a year by clicking on the proper number. If the year of interest is not in the displayed decade, you can navigate to next and previous decades by using arrows from the top panel.
+  </td>
+ </tr>
+</table>
+</body>
+</html>

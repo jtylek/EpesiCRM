@@ -1,0 +1,41 @@
+table#Utils_Comment__Reply {
+	width: 950px;
+}
+
+table#Utils_Comment__Reply td.post_label {
+	width: 100px;
+	padding-top: 5px;
+}
+
+table#Utils_Comment__Reply td.post_input {
+	width: 850px;
+	padding-top: 5px;
+}
+
+table#Utils_Comment__Reply td.post_input textarea {
+	width: 850px;
+	height: 200px;
+}
+
+table#Utils_Comment__Reply input {
+	font-size: 11px;
+}
+
+table#Utils_Comment__Reply select {
+	font-size: 11px;
+}
+
+table#Utils_Comment__Reply td.submit input {
+	color: #FFFFFF;
+	border: 0px;
+	width: 100px;
+	height: 20px;
+	text-align: center;
+	vertical-align: middle;
+	background-image: url("images/header-blue.gif");
+	font-size: 11px;
+}
+
+table#Utils_Comment__Reply td.submit input:hover {
+	background-image: url("images/header-blue-hover.gif");
+}

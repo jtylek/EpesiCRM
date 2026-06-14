@@ -1,0 +1,217 @@
+#Utils_Calendar__event {
+    display: block;
+    width: 80px;
+    height: 100%;
+    margin: 1px;
+    background-repeat: repeat-x;
+    overflow: hidden;
+}
+
+#Utils_Calendar__event .handle {
+    cursor: move;
+}
+
+#Utils_Calendar__event div.row {
+    display: block;
+}
+
+#Utils_Calendar__event #event_info {
+    display: block;
+    float: left;
+    cursor: help;
+    padding-top: 1px;
+    padding-right: 1px;
+    font-size: 11px;
+}
+
+#Utils_Calendar__event #event_time {
+    display: block;
+	padding-left: 5px;
+	vertical-align: middle;
+	max-width: 50px;
+	overflow: hidden;
+    color: black;
+    font-size: 11px;
+	white-space: nowrap;
+	text-align: center;
+}
+
+#Utils_Calendar__event #event_title {
+    display: block;
+	padding-left: 5px;
+	vertical-align: middle;
+	width: 100%;
+	overflow: hidden;
+    color: black;
+    font-size: 11px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+#Utils_Calendar__event #event_title a {
+    display: block;
+    line-height: 11px;
+    vertical-align: middle;
+}
+
+#Utils_Calendar__event #event_title a:hover {
+    background-repeat: repeat-x;
+}
+
+#Utils_Calendar__event .event_menu {
+    display: block;
+    width: 120px;
+    height: 40px;
+    z-index: 6;
+}
+
+#Utils_Calendar__event_images img {
+    padding: 3px;
+}
+
+#Utils_Calendar__event_images img:hover {
+    background-color: white;
+}
+
+
+#Utils_Calendar__event #event_info:hover {
+}
+
+/* COLORS */
+
+.event_blue    #event_time a,
+.event_red     #event_time a,
+.event_yellow  #event_time a,
+.event_green   #event_time a,
+.event_gray    #event_time a,
+.event_cyan    #event_time a,
+.event_magenta #event_time a {
+    color: black;
+}
+
+/* blue */
+
+.event_blue {
+	border: 1px solid #336699;
+	background-color: #cfdbe6;
+	/*background-image: url('images/header-blue-light.png');*/
+}
+
+.event_blue #event_grab,
+.event_blue #event_info {
+    background-color: #336699;
+}
+
+.event_blue #event_time a:hover {
+    color: #336699;
+    /*background-image: url('images/header-blue-light-hover.png');*/
+}
+
+/* red */
+
+.event_red {
+	border: 1px solid #993333;
+	background-color: #e6cfcf;
+	/*background-image: url('images/header-red-light.png');*/
+}
+
+.event_red #event_grab,
+.event_red #event_info {
+    background-color: #993333;
+}
+
+.event_red #event_time a:hover {
+    color: #993333;
+    /*background-image: url('images/header-red-light-hover.png');*/
+}
+
+/* yellow */
+
+.event_yellow {
+	border: 1px solid #999933;
+	background-color: #ffffa5;
+	/*background-image: url('images/header-yellow-light.png');*/
+}
+
+.event_yellow #event_grab,
+.event_yellow #event_info {
+    background-color: #999933;
+}
+
+.event_yellow #event_time a:hover {
+    color: #999933;
+    /*background-image: url('images/header-yellow-light-hover.png');*/
+}
+
+/* green */
+
+.event_green {
+	border: 1px solid #339933;
+	background-color: #cfe6cf;
+	/*background-image: url('images/header-green-light.png');*/
+}
+
+.event_green #event_grab,
+.event_green #event_info {
+    background-color: #339933;
+}
+
+.event_green #event_time a:hover {
+    color: #339933;
+    /*background-image: url('images/header-green-light-hover.png');*/
+}
+
+/* gray */
+
+.event_gray {
+	border: 1px solid #808080;
+	background-color: #f0f0f0;
+	/*background-image: url('images/header-gray-light.png');*/
+}
+
+.event_gray #event_grab,
+.event_gray #event_info {
+    background-color: #808080;
+}
+
+.event_gray #event_time a:hover {
+    color: #808080;
+    /*background-image: url('images/header-gray-light-hover.png');*/
+}
+
+/* cyan */
+
+.event_cyan {
+	border: 1px solid #339999;
+	background-color: #cfe6e6;
+	/*background-image: url('images/header-cyan-light.png');*/
+}
+
+.event_cyan #event_grab,
+.event_cyan #event_info {
+    background-color: #339999;
+}
+
+.event_cyan #event_time a:hover {
+    color: #339999;
+    /*background-image: url('images/header-cyan-light-hover.png');*/
+}
+
+/* magenta */
+
+.event_magenta {
+	border: 1px solid #993399;
+	background-color: #e6cfe6;
+	/*background-image: url('images/header-magenta-light.png');*/
+}
+
+.event_magenta #event_grab,
+.event_magenta #event_info {
+    background-color: #993399;
+}
+
+.event_magenta #event_time a:hover {
+    color: #993399;
+    /*background-image: url('images/header-magenta-light-hover.png');*/
+}

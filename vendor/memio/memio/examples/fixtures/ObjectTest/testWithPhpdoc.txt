@@ -1,0 +1,13 @@
+/**
+ * Short description
+ *
+ * Longer description
+ *
+ * @deprecated v2.1 Use Object instead
+ *
+ * @api v2.0
+ */
+class MyClass
+{
+}
+

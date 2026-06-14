@@ -1,0 +1,11 @@
+div.dz-success-mark,div.dz-error-mark{
+    display:none;
+}
+div.dropzone {
+    cursor: pointer;
+    min-height: 50px;
+    background: white none repeat scroll 0% 0%;
+    border: 2px dashed blue;
+    padding: 10px;
+    overflow: auto;
+}

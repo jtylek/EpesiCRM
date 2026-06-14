@@ -1,0 +1,169 @@
+#dashboard .css3_content_shadow { /* removing shadows from GenericBrowser */
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 0px black;
+	-moz-box-shadow: 0px 0px 0px black;
+	box-shadow: 0px 0px 0px black;
+	/* end css3 shadow border*/
+}
+
+#dashboard .Utils_GenericBrowser th {
+	height: 20px;
+}
+#dashboard .Utils_GenericBrowser th a,
+#dashboard .Utils_GenericBrowser th span {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+#dashboard .applet {
+}
+
+#dashboard .handle {
+	cursor: move;
+}
+
+#dashboard .handle.fixed {
+	cursor: default;
+}
+
+#dashboard .handle .toggle,
+#dashboard .handle .remove,
+#dashboard .handle .href,
+#dashboard .handle .configure {
+	cursor: pointer;
+}
+
+#dashboard .content_td {
+	background-color: #FFFFFF;
+	text-align: left;
+	vertical-align: top;
+}
+
+#dashboard .container {
+	width: 100%;
+	border: none;
+	table-layout: fixed;
+	background-color: #FFFFFF;
+}
+
+
+#dashboard .controls {
+	text-align: right;
+}
+
+#dashboard .actions {
+	text-align: left;
+}
+
+#dashboard .title {
+	text-align: left;
+	vertical-align: middle;
+	padding-bottom: 3px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.epesi_rtl #dashboard .controls {
+	text-align: left;
+}
+.epesi_rtl #dashboard .actions {
+	text-align: right;
+}
+.epesi_rtl #dashboard .title {
+	text-align: right;
+}
+
+#dashboard .controls a {
+	color: #FFFFFF;
+	padding-left: 1px;
+}
+
+#dashboard .actions a {
+	color: #FFFFFF;
+}
+
+#dashboard .header {
+	color: #FFFFFF;
+	font-weight: bold;
+	height: 20px;
+	/* css3 dark-gray gradient */
+	background: #8c8c8c; /* Old browsers */
+	background: -moz-linear-gradient(top, #8c8c8c 0%, #6f6f6f 50%, #4d4d4d 51%, #8c8c8c 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#8c8c8c), color-stop(50%,#6f6f6f), color-stop(51%,#4d4d4d), color-stop(100%,#8c8c8c)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #8c8c8c 0%,#6f6f6f 50%,#4d4d4d 51%,#8c8c8c 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #8c8c8c 0%,#6f6f6f 50%,#4d4d4d 51%,#8c8c8c 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #8c8c8c 0%,#6f6f6f 50%,#4d4d4d 51%,#8c8c8c 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#8c8c8c', endColorstr='#8c8c8c',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #8c8c8c 0%,#6f6f6f 50%,#4d4d4d 51%,#8c8c8c 100%); /* W3C */
+	/* end css3  gradient */
+}
+
+
+.content_shadow_css3_dashboard  {
+	/* css3 border radius */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* css3border radius */
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 1px 1px 2px black;
+	-moz-box-shadow: 1px 1px 2px black;
+	box-shadow: 1px 1px 2px black;
+	/* end css3 shadow border*/
+}
+
+.content_shadow_css3_dashboard.black_dashboard { border: 4px solid #5B5B5B;}
+.content_shadow_css3_dashboard.blue_dashboard { border: 4px solid #7B9CBD;}
+.content_shadow_css3_dashboard.dark-blue_dashboard { border: 4px solid #346799;}
+.content_shadow_css3_dashboard.dark-gray_dashboard { border: 4px solid #8C8C8C;}
+.content_shadow_css3_dashboard.green_dashboard { border: 4px solid #A8CC8E;}
+.content_shadow_css3_dashboard.dark-green_dashboard { border: 4px solid #4A7C2A;}
+.content_shadow_css3_dashboard.red_dashboard { border: 4px solid #BD7B7B;}
+.content_shadow_css3_dashboard.dark-red_dashboard { border: 4px solid #990033;}
+.content_shadow_css3_dashboard.yellow_dashboard { border: 4px solid #F2F2A2;}
+.content_shadow_css3_dashboard.dark-yellow_dashboard { border: 4px solid #CCCC33;}
+
+
+/* no shadow in tables */
+#dashboard .content_td .shadow-top,
+#dashboard .content_td .shadow-middle,
+#dashboard .content_td .shadow-bottom {
+	display: none;
+}
+
+#dashboard .content_td .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#dashboard .content_td .layer .margin2px {
+	padding: 0px;
+	border: 1px solid #B3B3B3;
+}
+
+/* */
+#dashboard_applets_margin {
+	margin-top: 5px;}
+	
+#dashboard #letters-search	{
+	padding: 0px;
+}
+
+#dashboard #Utils_GenericBrowser__navigation {
+	height: 15px;
+	background: white;
+	font-size: 100%;
+	color: black;
+}
+
+#dashboard_applets_filter {
+    border: 1px solid #B3B3B3;
+    border-radius: 6px 6px 6px 6px;
+    color: #000000;
+    font-size: 11px;
+    height: 16px;
+    padding-left: 5px;
+	margin-left: 9px;
+    width: 95%;
+}

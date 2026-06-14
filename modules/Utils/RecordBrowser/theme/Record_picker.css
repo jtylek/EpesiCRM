@@ -1,0 +1,32 @@
+table#Base_ActionBar .label {
+}
+
+table#Base_ActionBar .button {
+	/*width: 200px;*/
+	height: 60px;
+	background-color: #F0F0F0;
+	border: 1px solid #FFFFFF;
+	background-image: url("images/big-button.png");
+	background-repeat: repeat-x;
+	vertical-align: middle;
+	text-align: center;
+	font-size: 11px;
+	display: block;
+	padding-top: 10px;
+	cursor: pointer;
+}
+
+table#Base_ActionBar .button:hover {
+	background-color: #FFFFFF;
+	background-image: url("images/big-button-hover.png");
+	background-repeat: repeat-x;
+}
+
+table#Base_ActionBar a {
+	color: #336699;
+	/*font-weight: bold;*/
+}
+
+table#Base_ActionBar a:hover {
+	color: #993333;
+}

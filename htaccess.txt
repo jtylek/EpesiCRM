@@ -1,0 +1,18 @@
+Options -Indexes
+#SecFilterEngine Off
+
+#if your server is running php as apache module:
+<IfModule mod_php5.c>
+php_value memory_limit "64M"
+php_flag magic_quotes_gpc off
+</IfModule>
+<IfModule mod_php7.c>
+php_value memory_limit "64M"
+</IfModule>
+
+<IfModule mod_alias.c>
+RedirectMatch 404 /\\.svn(/|$)
+RedirectMatch 404 /\\.git(/|$)
+Header always append X-Frame-Options SAMEORIGIN
+Header set X-XSS-Protection "1; mode=block"
+</IfModule>

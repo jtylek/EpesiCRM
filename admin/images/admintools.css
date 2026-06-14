@@ -1,0 +1,238 @@
+body, p {
+	font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+    font-size: 16px;
+    color: #0A3C5C;
+	background-color: #FFFFFF;
+}
+
+*, html {
+    font-family: 'Titillium Web', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+    font-size: 16px;
+    color: #0A3C5C;
+}
+
+a {
+    font-family: 'Exo 2', sans-serif;
+	font-style: bold;
+	font-weight: 400;
+	font-size: 18px;
+	color: #226622;
+	text-decoration: none;
+}
+
+a :hover {
+    text-decoration: solid;
+}
+
+ul, ol, li {
+    font-family: 'Exo 2', sans-serif;
+	font-style: normal;
+	font-weight: 700;
+    font-size: 18px;
+    color: #0A3C5C;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Exo 2', sans-serif;
+  font-style: bold;
+  font-weight: 400;
+  font-size: 20px;
+  color: #0A3C5C;
+}
+
+h1, h2 {
+  font-family: 'Exo 2', sans-serif;
+  font-style: bold;
+  font-weight: 700;
+  font-size: 24px;
+  color: #0A3C5C;
+}
+
+table.listing {
+    width: 95%;
+}
+
+table.listing td {
+    width: 50%;
+}
+
+table.listing tr.even {
+    background-color: #ADADAD;
+}
+
+table.listing tr.odd {
+    background-color: #FDFDFD;
+}
+
+.button {
+    color: #FFFFFF;
+    font-weight: bold;
+    line-height: 30px;
+    display: block;
+    width: 250px;
+    text-align: center;
+	background-color: #226622;
+}
+
+.green {
+    color: #226622;
+}
+
+.red {
+    color: #993333;
+}
+
+.blue {
+    color: #336699;
+}
+
+.left {
+    float: left;
+    width: 50%;
+}
+
+.right {
+    float: right;
+    width: 50%;
+}
+
+.header {
+    height: 30px;
+    padding-top: 0px;
+    padding-left: 50px;
+    color: #0A3C5C;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.title {
+    height: 30px;
+    color: #0A3C5C;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.footer {
+    margin-top: 10px;
+    font-family: 'Exo 2', sans-serif;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	color: #0A3C5C;
+	background-color: #FFFFFF;
+	text-decoration: none;
+	vertical-align: bottom;
+}
+
+.line {
+    height: 1px;
+    width: 100%;
+    background-color: #0A3C5C;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/*** table banner ***/
+
+#banner {
+    width: 100%;
+	padding-bottom: 5px;
+    border-bottom: 3px solid #0A3C5C;
+}
+
+#banner .image {
+    background-image: url("logo-small.png");
+    background-repeat: no-repeat;
+    width: 193px;
+    height: 83px;
+	padding-left: 50px;
+	padding-bottom: 2px;
+}
+
+#banner .header {
+	background: #FFFFFF; /* Old browsers */
+}
+
+/*** main box ***/
+
+#main {
+    border: 1px thin #226622;
+    background-color: #EDEDED;
+    padding: 10px 10px 10px 10px;
+    font-size: 16px;
+	width: 60%;
+    text-align: left;
+}
+
+.content {
+    padding: 10px 10px 10px 10px;
+}
+
+.div-button {
+	background-color: #0A3C5C;
+    height: 32px;
+    padding-top: 10px;
+}
+
+
+div.licence {
+    overflow: auto;
+    height: 300px;
+    border: 1px solid #0A3C5C;
+    background-color: #FEFEFE;
+    padding: 10px 10px 10px 10px;
+}
+
+input {
+	width: 200px;
+    font-size: 16px;
+	text-align: center;
+    border: 1px solid #0A3C5C;
+    background-color: #FAFAFA;
+	padding: 2px 2px 2px 2px;
+}
+
+.flag_button {
+	display: inline-block;
+	margin: 20px;
+}
+
+.flag_button img.flag {
+	max-width: 100px;
+}
+
+.flag_button .label {
+    font: size 18px;
+	padding: 5px;
+    display: block;
+    background-color: #ADADAD;
+    text-align: center;
+    height: 30px;
+}
+
+a.show_incomplete.button {
+	text-align: center;
+	display: block;
+	margin: 10px auto;
+	width: 300px;
+	font-size: 20px;
+	line-height: 40px;
+	white-space: nowrap;
+	height: 40px;
+}
+
+.error {
+	color: red;
+	font-weight: bold;
+	font-size: 18px;
+    text-align: center;
+}

@@ -1,0 +1,44 @@
+# This workflow is triggered when a new Dropzone version has been released.
+name: New Dropzone Release
+
+on:
+  repository_dispatch:
+    types: [new-release]
+     
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout packagist repo
+        uses: actions/checkout@v2
+      - name: Checkout Dropzone source repo
+        uses: actions/checkout@v2
+        with:
+          repository: dropzone/dropzone
+          path: source
+          ref: ${{ github.event.client_payload.releaseTag }}
+      - name: Download Dropzone release
+        uses: Legion2/download-release-action@v2.1.0
+        with:
+          repository: dropzone/dropzone
+          tag: ${{ github.event.client_payload.releaseTag }}
+          path: "."
+          file: dist.zip
+      - name: Delete old dist directory
+        run: rm -r dist
+      - name: Unzip dist files
+        run: |
+          unzip dist.zip
+          rm dist.zip
+      - name: Copy relevant source files and delete source
+        run: |
+          cp source/package.json .
+          cp source/CHANGELOG.md .
+          rm -rf source
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: master
+          commit_message: ${{ github.event.client_payload.releaseTag }} Release
+          tagging_message: ${{ github.event.client_payload.releaseTag }}
+          commit_user_name: Dropzone Drone
+          commit_user_email: drone@dropzone.dev

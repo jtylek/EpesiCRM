@@ -1,0 +1,10 @@
+#tooltip_leightbox_mode_content td {
+	width: 30%;
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+}
+
+#tooltip_leightbox_mode_content table {
+	margin-top: 10px;
+	width: 90%;
+}

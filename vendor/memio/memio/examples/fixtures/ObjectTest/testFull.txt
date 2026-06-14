@@ -1,0 +1,18 @@
+class MyClass extends MyParent implements FirstContract, SecondContract
+{
+    const FIRST_CONSTANT = 0;
+    const SECOND_CONSTANT = 'meh';
+
+    private $firstProperty;
+
+    private $secondProperty;
+
+    public function firstMethod(DateTime $firstArgument, array $secondArgument, $thirdArgument)
+    {
+    }
+
+    public function secondMethod()
+    {
+    }
+}
+

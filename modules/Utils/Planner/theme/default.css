@@ -1,0 +1,112 @@
+#Utils_Planner__grid .header {
+	vertical-align: middle;
+	border: 1px solid #B3B3B3;
+	width: 14%;
+	padding: 0px;
+
+	/* css3 gray gradient - calendar */
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #b7b7b7 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#b7b7b7)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%,#b7b7b7 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%,#b7b7b7 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%,#b7b7b7 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b7b7b7',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 0%,#b7b7b7 100%); /* W3C */
+	/* end css3 gray gradient - calendar */
+}
+
+#Utils_Planner__grid,
+#Utils_Planner__resource_table,
+#Utils_Planner__table {
+	table-layout: auto;
+}
+
+
+#Utils_Planner__grid .header > div {
+	color: #336699;
+	display: block;
+	font-weight: bold;
+	font-size: 11px;
+	padding: 5px;
+	text-align: center;
+	
+}
+
+#Utils_Planner__grid .header > div > input {
+	width: 80%;
+	min-width: 0px;
+	height: auto;
+	margin:  2px auto auto auto;
+}
+
+#Utils_Planner__grid .epesi_label.grid_legend {
+	padding: 0px 4px;
+	height: 29px;
+	text-align: center;
+	vertical-align: middle;
+	width: auto;
+}
+
+#Utils_Planner__grid .used {
+	border: 1px solid;
+}
+
+#Utils_Planner__grid .noconflict.used {
+	background-color: #8DE88D;
+	cursor: pointer;
+}
+#Utils_Planner__grid .noconflict.unused {
+	background-color: #E0EDE0;
+	cursor: pointer;
+}
+
+#Utils_Planner__grid .conflict.used {
+	background-color: #FF4444;
+}
+#Utils_Planner__grid .conflict.unused {
+	background-color: #FFBBBB;
+}
+
+#Utils_Planner__resource_table {
+	border-spacing: 3px;
+	width: 100%;
+}
+#Utils_Planner__resource_table .epesi_label {
+	width: 100px;;
+}
+#Utils_Planner__resource_table .epesi_data {
+    width: 150px;
+}
+#Utils_Planner__resource_table .epesi_data input[type="text"],
+#Utils_Planner__resource_table .epesi_data select {
+    width: 97%;
+}
+#Utils_Planner__resource_table option.conflict,
+#Utils_Planner__resource_table select.conflict {
+	background-color: #FFBBBB;
+}
+
+#Utils_Planner__resource_table option.noconflict,
+#Utils_Planner__resource_table select.noconflict {
+    background-color: #FFFFFF;
+}
+#Utils_Planner__time_frames table {
+	width: 100%;
+}
+
+
+#Utils_Planner__time_frames .time_frames {
+    background-color: #F2F2F2;
+    /* border radius */
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    /* end border radius */
+}
+
+
+#Utils_Planner__time_frames .time_frames tr td {
+    border-right: 1px solid gray;
+    text-align: center;
+}

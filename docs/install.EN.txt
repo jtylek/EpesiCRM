@@ -1,0 +1,71 @@
+Installation
+
+1. REQUIREMENTS
+2. CHOOSE INSTALLATION METHOD
+3. NEW INSTALLATION USING COMPRESSED FILE
+4. NEW INSTALLATION USING EASYINSTALL.PHP SCRIPT
+5. REINSTALLATION
+6. UPDATE
+7. SUPPORT
+
+--- 
+
+1. REQUIREMENTS
+    - Using RoundCube client requires PHP Version 5.2.1 or greater (Note: MySQL database driver requires PHP 5.3 or newer)
+        See more informations in file: *modules/CRM/Roundcube/RC/INSTALL*
+    - HTTP web server (apache, IIS) with PHP 5.1.3 support. If possible install the latest PHP version due to several bugs in older versions.
+    - PHP 5.2.0 is not supported due to bug in json_decode function. (PHP >= 5.2.1 works)
+    - HTTP server should be configured with index.php as one of default documents.
+    - HTTP server has to support local .htaccess files to prevent security issues
+        If your server doesn't support .htaccess files then you have to deny access to certain directories
+        and files in data directory. From basic installation you should forbid to ready any file from:
+        *data/CRM_Roundcube* and *data/Utils_Attachment* directory.
+    - PEAR installed with valid include_path in PHP config.ini.
+    - MySQL 4+ or PostgreSQL 7+ database server.
+    - FTP or local/shell access to the server.
+    - A web browser (Chrome or Firefox recommended).
+
+2. CHOOSE INSTALLATION METHOD
+    - New installation or update. For update see Update section (6).
+    - Installation from compressed file via FTP or local access (shell etc.) - section 3.
+    - Easy installation using easyinstall script (preferred method) - section 4.
+
+3. NEW INSTALLATION USING COMPRESSED FILE
+    - Download the latest version of EPESI from http://sourceforge.net/projects/epesi/
+    - Decompress all files and place them in the directory from which EPESI will be run. You will need to setup /data directory with read/write access.
+    - Create a database, note the username, password and database name. Make sure that the user has full rights to the database (read, write, create tables etc.)
+    - Point your browser to the location from which EPESI will be run, for example: http://www.yourcompany.com/epesi
+    - EPESI setup should start automatically. Accept license agreement and the setup wizard will guide you through all steps which includes creation of the configuration file config.php, necessary directories within /data directory, tables, superadmin user account and password, default data and settings, etc.
+    - Finally the setup scans all available modules and you will be greeted with the default dashboard. The installation is complete.
+    - Create new users as new contacts and explore the application.
+ 
+4. NEW INSTALLATION USING EASYINSTALL.PHP SCRIPT
+    - Create a database, note the username, password and database name. Make sure that the user has full rights to the database (read, write, create tables etc.)
+    - Download the latest version of easyinstall script from http://sourceforge.net/projects/epesi/
+    - Place the file in the directory from which EPESI will be run. Make sure that the directory has a read/write access. Start the script in a web browser.
+    - There is no need to download the entire EPESI application as a compressed file. This easy install script automatically connects to SourceForge server, downloads the latest version, verifies it, decompresses files on the server, sets proper directory permissions and starts EPESI setup.
+    - Accept license agreement and the setup wizard will guide you through all steps which includes creation of the configuration file config.php, necessary directories within data directory, tables, superadmin user account and password, default data and settings, etc.
+    - Finally the setup scans all available modules and you will be greeted with the default dashboard. The installation is complete.
+    - Create new users as new contacts and explore the application.
+
+5. REINSTALLATION
+    - By reinstallation we mean complete, new installation of the application without preserving any of the old data. 
+    - Open config.php located in /data directory and note the database name, user and the password. You will need to enter the same data during the setup.
+    - Delete the entire content of /data directory with the exception of index.html file (which is needed for security reasons).
+    - Point your browser to the location from which EPESI was running, for example: http://www.yourcompany.com/epesi
+    - During the setup follow instruction above as if it was a new installation.
+
+6. UPDATE
+    - Before updating the application backup the entire application directory and especially data directory.
+    - Backup the database.
+    - Download the new version of EPESI and overwrite all files.
+    - Point your browser to the location from which EPESI was running, for example: http://www.yourcompany.com/epesi
+    - If the database schema did not change you will be already running new version.
+    - If the database schema did change the update process will start automatically during which tables will be altered to this new database schema.
+    - Once update process is complete you will be redirected automatically to the new version of EPESI application.
+
+7. SUPPORT
+    Any questions, comments and bug reports should be posted on our forum: http://forum.epesibim.com/
+
+Enjoy,
+EPESI Team

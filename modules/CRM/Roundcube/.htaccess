@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} (.*/modules/CRM/Roundcube)/ [NC]
+    RewriteRule RCWIN_([0-9]+)/(.*) %1/RC/$2?ECID=$1 [PT,QSA]
+</IfModule>

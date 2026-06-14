@@ -1,0 +1,81 @@
+#Base_ActionBar table.ActionBar {
+	width: 100%;
+}
+
+#Base_ActionBar .panel_div_left.epesi_big_button {
+	margin-right: 5px;
+	float: left;
+}
+#Base_ActionBar .panel_div_right.epesi_big_button {
+	margin-left: 5px;
+	float: right;
+}
+.epesi_rtl #Base_ActionBar .panel_div_left.epesi_big_button {
+	margin-left: 5px;
+	margin-right: 0px;
+	float: right;
+}
+.epesi_rtl #Base_ActionBar .panel_div_right.epesi_big_button {
+	margin-right: 5px;
+	margin-left: 0px;
+	float: left;
+}
+
+#Base_ActionBar .epesi_big_button {
+	padding: 0px;
+	margin: 0px 0px 4px;
+	height: 74px;
+	width: auto;
+	min-width: 64px;
+}
+
+#launchpad_button_section #Base_ActionBar .panel_div_right.epesi_big_button {
+	margin-left: 0px;
+	margin-right: 0px;
+	width: 63px; 
+}
+.epesi_rtl #launchpad_button_section #Base_ActionBar .panel_div_right.epesi_big_button {
+	margin-left: -2px;
+}
+
+#Base_ActionBar .epesi_big_button > span {
+	font-weight: normal;
+	padding: 0px 2px 0px;
+	width: 56px;
+	height: 34px;
+	line-height: 11px;
+}
+
+#Base_ActionBar .epesi_big_button > img,
+#Base_ActionBar .epesi_big_button > .div_icon {
+	margin: 5px auto 1px;
+}
+
+#Base_ActionBar .div_icon { display: block; width: 32px;height: 32px; background-image: url('Base/ActionBar/icons.png'); margin: auto;}
+
+#Base_ActionBar .icon_add       { background-position:   0px    0px; margin: auto;}
+#Base_ActionBar .icon_all       { background-position: -32px    0px; margin: auto;}
+#Base_ActionBar .icon_attach    { background-position: -64px    0px; margin: auto;}
+#Base_ActionBar .icon_back      { background-position: -96px    0px; margin: auto;}
+#Base_ActionBar .icon_calendar  { background-position:   0px  -32px; margin: auto;}
+#Base_ActionBar .icon_clone     { background-position: -32px  -32px; margin: auto;}
+#Base_ActionBar .icon_delete    { background-position: -64px  -32px; margin: auto;}
+#Base_ActionBar .icon_edit      { background-position: -96px  -32px; margin: auto;}
+#Base_ActionBar .icon_exit      { background-position:   0px  -64px; margin: auto;}
+#Base_ActionBar .icon_favorites { background-position: -32px  -64px; margin: auto;}
+#Base_ActionBar .icon_filter    { background-position: -64px  -64px; margin: auto;}
+#Base_ActionBar .icon_folder    { background-position: -96px  -64px; margin: auto;}
+#Base_ActionBar .icon_forward   { background-position:   0px  -96px; margin: auto;}
+#Base_ActionBar .icon_history   { background-position: -32px  -96px; margin: auto;}
+#Base_ActionBar .icon_home      { background-position: -64px  -96px; margin: auto;}
+#Base_ActionBar .icon_new-mail  { background-position: -96px  -96px; margin: auto;}
+#Base_ActionBar .icon_print     { background-position:   0px -128px; margin: auto;}
+#Base_ActionBar .icon_reply     { background-position: -32px -128px; margin: auto;}
+#Base_ActionBar .icon_report    { background-position: -64px -128px; margin: auto;}
+#Base_ActionBar .icon_retry     { background-position: -32px -160px; margin: auto;} /* FIXME */
+#Base_ActionBar .icon_save      { background-position: -96px -128px; margin: auto;}
+#Base_ActionBar .icon_scan      { background-position:   0px -160px; margin: auto;}
+#Base_ActionBar .icon_search    { background-position: -32px -160px; margin: auto;}
+#Base_ActionBar .icon_send      { background-position: -64px -160px; margin: auto;}
+#Base_ActionBar .icon_settings  { background-position: -96px -160px; margin: auto;}
+#Base_ActionBar .icon_view      { background-position:   0px -192px; margin: auto;}

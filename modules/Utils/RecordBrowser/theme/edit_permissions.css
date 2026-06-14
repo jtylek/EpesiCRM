@@ -1,0 +1,71 @@
+.Utils_RecordBrowser__permissions_crits {
+	line-height: 16px;
+}
+
+.Utils_RecordBrowser__permissions_crits .joint,
+.RecordBrowser__edit_permissions .joint {
+	color: #999;
+	display: inline-block;
+	margin: 0 6px;
+}
+
+.RecordBrowser__edit_permissions select,
+.RecordBrowser__edit_permissions input {
+	width: auto;
+}
+
+.RecordBrowser__edit_permissions_crits {
+	overflow-x: scroll;
+}
+
+.RecordBrowser__edit_permissions .field {
+	display: inline-block;
+	height: 20px;
+	width: 120px;
+	line-height: 20px;
+}
+.RecordBrowser__edit_permissions .field input{
+	float: left;
+	margin: 0 5px 0 0;
+}
+
+.RecordBrowser__edit_permissions .button {
+	margin: 2px;
+}
+
+div.crits_callback_info {
+	width: 98%;
+	color:firebrick;
+	text-align:left;
+}
+
+div.crits_callback_info .description {
+	color: #585858;
+	font-style: italic;
+}
+
+select#blocked_fields__from {
+	background-color: #5CB85C; 
+}
+
+select#blocked_fields__to {
+	background-color: rgba(217, 83, 79, 0.8);
+}
+
+.field_permissions option {
+	color: white;
+}
+
+.permissions_option_title {
+	font-size: 14px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#blocked_fields__from .permissions_option_title {
+	color: #004200;
+}
+
+#blocked_fields__to .permissions_option_title {	
+	color: #6b1919;
+}

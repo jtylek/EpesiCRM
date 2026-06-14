@@ -1,0 +1,366 @@
+diff -rup 3.2.11.orig/HTML/QuickForm/advcheckbox.php 3.2.11/HTML/QuickForm/advcheckbox.php
+--- 3.2.11.orig/HTML/QuickForm/advcheckbox.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/advcheckbox.php	2010-09-20 19:29:17.283106311 +0200
+@@ -249,7 +249,10 @@ class HTML_QuickForm_advcheckbox extends
+                 // default values are overriden by submitted
+                 $value = $this->_findValue($caller->_constantValues);
+                 if (null === $value) {
+-                    $value = $this->_findValue($caller->_submitValues);
++					if($this->_flagFrozen) 
++						$this->_removeValue($caller->_submitValues);
++					else
++	                    $value = $this->_findValue($caller->_submitValues);
+                     if (null === $value) {
+                         $value = $this->_findValue($caller->_defaultValues);
+                     }
+diff -rup 3.2.11.orig/HTML/QuickForm/checkbox.php 3.2.11/HTML/QuickForm/checkbox.php
+--- 3.2.11.orig/HTML/QuickForm/checkbox.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/checkbox.php	2010-09-20 19:29:17.299098705 +0200
+@@ -146,10 +146,10 @@ class HTML_QuickForm_checkbox extends HT
+     function getFrozenHtml()
+     {
+         if ($this->getChecked()) {
+-            return '<tt>[x]</tt>' .
++            return '<div class="checkbox_on"></div>' .
+                    $this->_getPersistantData();
+         } else {
+-            return '<tt>[ ]</tt>';
++            return '<div class="checkbox_off"></div>';
+         }
+     } //end func getFrozenHtml
+ 
+@@ -239,7 +239,11 @@ class HTML_QuickForm_checkbox extends HT
+                     // if no boxes were checked, then there is no value in the array
+                     // yet we don't want to display default value in this case
+                     if ($caller->isSubmitted()) {
+-                        $value = $this->_findValue($caller->_submitValues);
++						if($this->_flagFrozen) {
++							$this->_removeValue($caller->_submitValues);
++							$value = $this->_findValue($caller->_defaultValues);
++						} else
++            	            $value = $this->_findValue($caller->_submitValues);
+                     } else {
+                         $value = $this->_findValue($caller->_defaultValues);
+                     }
+diff -rup 3.2.11.orig/HTML/QuickForm/date.php 3.2.11/HTML/QuickForm/date.php
+--- 3.2.11.orig/HTML/QuickForm/date.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/date.php	2010-09-20 19:29:17.323086179 +0200
+@@ -55,8 +55,8 @@ class HTML_QuickForm_date extends HTML_Q
+     var $_options = array(
+         'language'         => 'en',
+         'format'           => 'dMY',
+-        'minYear'          => 2001,
+-        'maxYear'          => 2010,
++        'minYear'          => 2005,
++        'maxYear'          => 2014,
+         'addEmptyOption'   => false,
+         'emptyOptionValue' => '',
+         'emptyOptionText'  => '&nbsp;',
+@@ -407,7 +407,8 @@ class HTML_QuickForm_date extends HTML_Q
+                             $options = array($this->_options['emptyOptionValue'] => $this->_options['emptyOptionText']) + $options;
+                         }
+                     }
+-                    $this->_elements[] =& new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
++					$this->updateAttributes(array('style'=>'width:auto;'));
++                    $this->_elements[] = new HTML_QuickForm_select($sign, null, $options, $this->getAttributes());
+                 }
+             }
+         }
+@@ -495,7 +496,7 @@ class HTML_QuickForm_date extends HTML_Q
+     function toHtml()
+     {
+         include_once('HTML/QuickForm/Renderer/Default.php');
+-        $renderer =& new HTML_QuickForm_Renderer_Default();
++        $renderer = new HTML_QuickForm_Renderer_Default();
+         $renderer->setElementTemplate('{element}');
+         parent::accept($renderer);
+         return $this->_wrap[0] . $renderer->toHtml() . $this->_wrap[1];
+diff -rup 3.2.11.orig/HTML/QuickForm/element.php 3.2.11/HTML/QuickForm/element.php
+--- 3.2.11.orig/HTML/QuickForm/element.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/element.php	2010-09-20 19:29:17.331087825 +0200
+@@ -76,6 +76,14 @@ class HTML_QuickForm_element extends HTM
+      */
+     var $_persistantFreeze = false;
+     
++	/**
++	 * Used by freeze to remove submit values.
++     * @var       object
++     * @since     epesi
++     * @access    private
++	 */
++	var $_caller = null;
++	
+     // }}}
+     // {{{ constructor
+     
+@@ -205,6 +213,10 @@ class HTML_QuickForm_element extends HTM
+     function freeze()
+     {
+         $this->_flagFrozen = true;
++		if($this->_caller!==null) {
++			$this->_removeValue($this->_caller->_submitValues);
++			$this->onQuickFormEvent('updateValue',null,$this->_caller);
++		}
+     } //end func freeze
+ 
+     // }}}
+@@ -353,6 +365,30 @@ class HTML_QuickForm_element extends HTM
+             return null;
+         }
+     } //end func _findValue
++
++    /**
++     * Tries to remove the element value from the values array
++     * 
++     * @since     2.7
++     * @access    private
++     * @return    mixed
++     */
++    function _removeValue(&$values)
++    {
++        if (empty($values)) {
++            return null;
++        }
++        $elementName = $this->getName();
++        if (isset($values[$elementName])) {
++            unset($values[$elementName]);
++        } elseif (strpos($elementName, '[')) {
++            $myVar = "['" . str_replace(
++                         array('\\', '\'', ']', '['), array('\\\\', '\\\'', '', "']['"), 
++                         $elementName
++                     ) . "']";
++            eval("if(isset(\$values$myVar)) unset(\$values$myVar);");
++        } 
++    } //end func _findValue
+ 
+     // }}}
+     // {{{ onQuickFormEvent()
+@@ -369,10 +405,12 @@ class HTML_QuickForm_element extends HTM
+      */
+     function onQuickFormEvent($event, $arg, &$caller)
+     {
++		$this->_caller = & $caller;
+         switch ($event) {
+             case 'createElement':
+                 $className = get_class($this);
+-                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
++				call_user_func_array(array($this, $className), $arg);
++//                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
+                 break;
+             case 'addElement':
+                 $this->onQuickFormEvent('createElement', $arg, $caller);
+@@ -383,7 +421,10 @@ class HTML_QuickForm_element extends HTM
+                 // default values are overriden by submitted
+                 $value = $this->_findValue($caller->_constantValues);
+                 if (null === $value) {
+-                    $value = $this->_findValue($caller->_submitValues);
++					if($this->_flagFrozen) 
++						$this->_removeValue($caller->_submitValues);
++					else
++	                    $value = $this->_findValue($caller->_submitValues);
+                     if (null === $value) {
+                         $value = $this->_findValue($caller->_defaultValues);
+                     }
+@@ -432,7 +473,7 @@ class HTML_QuickForm_element extends HTM
+         static $idx = 1;
+ 
+         if (!$this->getAttribute('id')) {
+-            $this->updateAttributes(array('id' => 'qf_' . substr(md5(microtime() . $idx++), 0, 6)));
++            $this->updateAttributes(array('id' => 'qf_'.$idx));// . substr(md5($idx++), 0, 6)));
+         }
+     } // end func _generateId
+ 
+diff -rup 3.2.11.orig/HTML/QuickForm/group.php 3.2.11/HTML/QuickForm/group.php
+--- 3.2.11.orig/HTML/QuickForm/group.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/group.php	2010-09-20 19:29:17.331087825 +0200
+@@ -299,7 +299,7 @@ class HTML_QuickForm_group extends HTML_
+     function toHtml()
+     {
+         include_once('HTML/QuickForm/Renderer/Default.php');
+-        $renderer =& new HTML_QuickForm_Renderer_Default();
++        $renderer = new HTML_QuickForm_Renderer_Default();
+         $renderer->setElementTemplate('{element}');
+         $this->accept($renderer);
+         return $renderer->toHtml();
+diff -rup 3.2.11.orig/HTML/QuickForm/hierselect.php 3.2.11/HTML/QuickForm/hierselect.php
+--- 3.2.11.orig/HTML/QuickForm/hierselect.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/hierselect.php	2010-09-20 19:29:17.335099647 +0200
+@@ -164,7 +164,7 @@ class HTML_QuickForm_hierselect extends
+             // check if all elements have been created
+             $totalNbElements = count($this->_options);
+             for ($i = $this->_nbElements; $i < $totalNbElements; $i ++) {
+-                $this->_elements[] =& new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
++                $this->_elements[] = new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
+                 $this->_nbElements++;
+             }
+         }
+@@ -219,7 +219,7 @@ class HTML_QuickForm_hierselect extends
+             // check if all elements have been created
+             $totalNbElements = 2;
+             for ($i = $this->_nbElements; $i < $totalNbElements; $i ++) {
+-                $this->_elements[] =& new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
++                $this->_elements[] = new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
+                 $this->_nbElements++;
+             }
+         }
+@@ -286,7 +286,7 @@ class HTML_QuickForm_hierselect extends
+     function _createElements()
+     {
+         for ($i = 0; $i < $this->_nbElements; $i++) {
+-            $this->_elements[] =& new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
++            $this->_elements[] = new HTML_QuickForm_select($i, null, array(), $this->getAttributes());
+         }
+     } // end func _createElements
+ 
+@@ -462,7 +462,7 @@ JAVASCRIPT;
+                           $this->_convertArrayToJavascript($values, false) . ";\n";
+         }
+         include_once('HTML/QuickForm/Renderer/Default.php');
+-        $renderer =& new HTML_QuickForm_Renderer_Default();
++        $renderer = new HTML_QuickForm_Renderer_Default();
+         $renderer->setElementTemplate('{element}');
+         parent::accept($renderer);
+ 
+diff -rup 3.2.11.orig/HTML/QuickForm/radio.php 3.2.11/HTML/QuickForm/radio.php
+--- 3.2.11.orig/HTML/QuickForm/radio.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/radio.php	2010-09-20 19:29:17.335099647 +0200
+@@ -146,10 +146,10 @@ class HTML_QuickForm_radio extends HTML_
+     function getFrozenHtml()
+     {
+         if ($this->getChecked()) {
+-            return '<tt>(x)</tt>' .
++            return '<div class="radio_on"></div>' .
+                    $this->_getPersistantData();
+         } else {
+-            return '<tt>( )</tt>';
++            return '<div class="radio_off"></div>';
+         }
+     } //end func getFrozenHtml
+ 
+@@ -205,7 +205,10 @@ class HTML_QuickForm_radio extends HTML_
+                 // default values are overriden by submitted
+                 $value = $this->_findValue($caller->_constantValues);
+                 if (null === $value) {
+-                    $value = $this->_findValue($caller->_submitValues);
++					if($this->_flagFrozen) 
++						$this->_removeValue($caller->_submitValues);
++					else
++	                    $value = $this->_findValue($caller->_submitValues);
+                     if (null === $value) {
+                         $value = $this->_findValue($caller->_defaultValues);
+                     }
+diff -rup 3.2.11.orig/HTML/QuickForm/Renderer/ObjectFlexy.php 3.2.11/HTML/QuickForm/Renderer/ObjectFlexy.php
+--- 3.2.11.orig/HTML/QuickForm/Renderer/ObjectFlexy.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/Renderer/ObjectFlexy.php	2010-09-20 19:29:17.335099647 +0200
+@@ -34,9 +34,9 @@ require_once 'HTML/QuickForm/Renderer/Ob
+  *
+  * Usage:
+  * <code>
+- * $form =& new HTML_QuickForm('form', 'POST');
+- * $template =& new HTML_Template_Flexy();
+- * $renderer =& new HTML_QuickForm_Renderer_ObjectFlexy(&$template);
++ * $form = new HTML_QuickForm('form', 'POST');
++ * $template = new HTML_Template_Flexy();
++ * $renderer = new HTML_QuickForm_Renderer_ObjectFlexy(&$template);
+  * $renderer->setHtmlTemplate("html.html");
+  * $renderer->setLabelTemplate("label.html");
+  * $form->accept($renderer);
+Tylko w 3.2.11/HTML/QuickForm/Renderer: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm/Rule/Required.php 3.2.11/HTML/QuickForm/Rule/Required.php
+--- 3.2.11.orig/HTML/QuickForm/Rule/Required.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/Rule/Required.php	2010-09-20 19:29:17.335099647 +0200
+@@ -47,6 +47,7 @@ class HTML_QuickForm_Rule_Required exten
+      */
+     function validate($value, $options = null)
+     {
++    	if (is_string($value)) $value=trim($value);
+         if ((string)$value == '') {
+             return false;
+         }
+Tylko w 3.2.11/HTML/QuickForm/Rule: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm/RuleRegistry.php 3.2.11/HTML/QuickForm/RuleRegistry.php
+--- 3.2.11.orig/HTML/QuickForm/RuleRegistry.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/RuleRegistry.php	2010-09-20 19:29:17.340089737 +0200
+@@ -125,7 +125,7 @@ class HTML_QuickForm_RuleRegistry
+             if (!empty($path)) {
+                 include_once($path);
+             }
+-            $this->_rules[$class] =& new $class();
++            $this->_rules[$class] = new $class();
+         }
+         $this->_rules[$class]->setName($ruleName);
+         return $this->_rules[$class];
+diff -rup 3.2.11.orig/HTML/QuickForm/select.php 3.2.11/HTML/QuickForm/select.php
+--- 3.2.11.orig/HTML/QuickForm/select.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm/select.php	2010-09-20 19:29:17.340089737 +0200
+@@ -593,10 +593,13 @@ class HTML_QuickForm_select extends HTML
+         if ('updateValue' == $event) {
+             $value = $this->_findValue($caller->_constantValues);
+             if (null === $value) {
+-                $value = $this->_findValue($caller->_submitValues);
++				if($this->_flagFrozen) 
++					$this->_removeValue($caller->_submitValues);
++				else
++	                $value = $this->_findValue($caller->_submitValues);
+                 // Fix for bug #4465 & #5269
+                 // XXX: should we push this to element::onQuickFormEvent()?
+-                if (null === $value && (!$caller->isSubmitted() || !$this->getMultiple())) {
++                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || (is_callable(array($this,'getMultiple')) && !$this->getMultiple()))) {
+                     $value = $this->_findValue($caller->_defaultValues);
+                 }
+             }
+Tylko w 3.2.11/HTML/QuickForm: .svn
+diff -rup 3.2.11.orig/HTML/QuickForm.php 3.2.11/HTML/QuickForm.php
+--- 3.2.11.orig/HTML/QuickForm.php	2009-04-07 12:08:40.000000000 +0200
++++ 3.2.11/HTML/QuickForm.php	2010-09-20 19:29:17.363089098 +0200
+@@ -593,8 +593,10 @@ class HTML_QuickForm extends HTML_Common
+         }
+         $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][1];
+         $includeFile = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type][0];
+-        include_once($includeFile);
+-        $elementObject =& new $className();
++        static $cache=array();
++        if (!isset($cache[$includeFile])) include_once($includeFile);
++        $cache[$includeFile] = true;
++        $elementObject = new $className();
+         for ($i = 0; $i < 5; $i++) {
+             if (!isset($args[$i])) {
+                 $args[$i] = null;
+@@ -1518,6 +1520,7 @@ class HTML_QuickForm extends HTML_Common
+         $registry =& HTML_QuickForm_RuleRegistry::singleton();
+ 
+         foreach ($this->_rules as $target => $rules) {
++			if($this->isElementFrozen($target)) continue;
+             $submitValue = $this->getSubmitValue($target);
+ 
+             foreach ($rules as $rule) {
+@@ -1662,7 +1665,8 @@ class HTML_QuickForm extends HTML_Common
+         if (!is_callable($callback)) {
+             return PEAR::raiseError(null, QUICKFORM_INVALID_PROCESS, null, E_USER_WARNING, "Callback function does not exist in QuickForm::process()", 'HTML_QuickForm_Error', true);
+         }
+-        $values = ($mergeFiles === true) ? HTML_QuickForm::arrayMerge($this->_submitValues, $this->_submitFiles) : $this->_submitValues;
++//        $values = ($mergeFiles === true) ? HTML_QuickForm::arrayMerge($this->_submitValues, $this->_submitFiles) : $this->_submitValues;
++		$values = $this->exportValues();
+         return call_user_func($callback, $values);
+     } // end func process
+ 
+@@ -1704,7 +1708,7 @@ class HTML_QuickForm extends HTML_Common
+     {
+         if (!isset($GLOBALS['_HTML_QuickForm_default_renderer'])) {
+             include_once('HTML/QuickForm/Renderer/Default.php');
+-            $GLOBALS['_HTML_QuickForm_default_renderer'] =& new HTML_QuickForm_Renderer_Default();
++            $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_Default();
+         }
+         return $GLOBALS['_HTML_QuickForm_default_renderer'];
+     } // end func defaultRenderer
+@@ -1861,7 +1865,7 @@ class HTML_QuickForm extends HTML_Common
+     function toArray($collectHidden = false)
+     {
+         include_once 'HTML/QuickForm/Renderer/Array.php';
+-        $renderer =& new HTML_QuickForm_Renderer_Array($collectHidden);
++        $renderer = new HTML_QuickForm_Renderer_Array($collectHidden);
+         $this->accept($renderer);
+         return $renderer->toArray();
+      } // end func toArray
+Tylko w 3.2.11/HTML: .svn
+Tylko w 3.2.11: .svn

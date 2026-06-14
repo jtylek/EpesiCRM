@@ -1,0 +1,79 @@
+﻿Installatie
+
+1.	BENODIGDHEDEN
+2.	KIES INSTALLATIE METHODE
+3.	NIEUWE INSTALLATIE DOOR GEBRUIK VAN GECOMPRESSEERD BESTAND
+4.	NIEUWE INSTALLATIE DOOR GEBRUIK VAN EASYINSTALL.PHP SCRIPT
+5.	HERINSTALLATIE
+6.	UPDATE
+7.	ONDERSTEUNING
+
+
+1.	BENODIGDHEDEN
+
+(en - please translate if you can and send us your translation)
+
+•	(en) Using RoundCube client requires PHP Version 5.2.1 or greater (Note: MySQL database driver requires PHP 5.3 or newer)
+        See more informations in file: *modules/CRM/Roundcube/RC/INSTALL*
+•	HTTP web server (apache, IIS) met PHP 5.1.3 ondersteuning. Als het mogelijk is installeer de laatste PHP versie wegens diverse fouten in oudere versies.
+•	HTTP server zou geconfigureerd moeten zijn met index.php als één van de standaard documenten.
+•	(en) HTTP server has to support local .htaccess files to prevent security issues
+        If your server doesn't support .htaccess files then you have to deny access to certain directories
+        and files in data directory. From basic installation you should forbid to ready any file from:
+        *data/CRM_Roundcube* and *data/Utils_Attachment* directory.
+•	PEAR geïnstalleerd met geldig include_path in PHP config.ini.
+•	MySQL 4+ or PostgreSQL 7+ database server.
+•	FTP or local/shell access to the server.
+•	Een web browser (Chrome of Firefox aangeraden).
+
+2.	KIES INSTALLATIE METHODE
+
+•	Nieuwe installatie of update. Voor updates bekijk update sectie (6).
+•	Installatie vanaf gecompresseerd bestand via FTP of lokale toegang (shell enz.) - sectie 3.
+•	Gemakkelijke installatie door gebruik te maken van het easyinstall script (aangeraden methode) - sectie 4.
+
+3.	NIEUWE INSTALLATIE DOOR GEBRUIK VAN GECOMPRESSEERD BESTAND
+
+•	Download de nieuwste versie van EPESI van http://sourceforge.net/projects/epesi/
+•	Pak alle bestanden uit en plaats ze in de map van waar EPESI gedraaid zal worden. Je zal de mappen /data en /write schrijf- en leesrechten moeten geven.
+•	Maak een database aan, noteer de gebruikersnaam, het wachtwoord en de database naam. Zorg er voor dat de gebruiker alle rechten heeft op de database (lezen,schrijven,tabellen aanmaken enz.)
+•	Wijs jouw browser naar de locatie van waar EPESI gedraaid zal worden, bijvoorbeeld: http://www.yourcompany.com/epesi
+•	EPESI installatie zou automatisch moeten starten. Ga akkoord met de licentie overeenkomsten en de installatie wizzard zal je door alle stappen begeleiden wat inhoud het aanmaken van het configuratie bestand config.php, de nodige mappen in de /data map, tabellen, superadministrator gebruikers account en wachtwoord, standaard gegevens en instellingen, enz.
+•	Als laatste scant de installatie alle beschikbare modules en zal je verwelkomen met het standaard dashboard. De installatie is compleet.
+•	Maak nieuwe gebruikers aan als nieuwe contacten en verken de toepassing.
+ 
+4.	NIEUWE INSTALLATIE DOOR GEBRUIK VAN EASYINSTALL.PHP SCRIPT
+
+•	Maak een database aan, noteer de gebruikersnaam, het wachtwoord en de database naam. Zorg er voor dat de gebruiker alle rechten heeft op de database (lezen,schrijven,tabellen aanmaken enz.)
+•	Download de nieuwste versie van het easyinstall script van http://sourceforge.net/projects/epesi/
+•	Plaats het bestand in de map van waar epesi gedraaid zal worden. Zorg er voor dat deze map lees en schrijfrechten heeft. Start het script in een web browser.
+•	Het is niet nodig om de hele EPESI toepassing te downloaden als een gecompresseerd bestand. Dit gemakkelijke installatie script verbind automatisch met de SourceForge server en download de nieuwste versie, bevestigd het, pakt de bestanden uit op de server, stelt de juiste map toestemmingen in en start de EPESI installatie wizard.
+•	Accept license agreement and the setup wizard will guide you through all steps which includes creation of the configuration file config.php, necessary directories within data directory, tables, superadmin user account and password, default data and settings, etc.
+•	Ga akkoord met de licentie overeenkomsten en de installatie wizzard zal je door alle stappen begeleiden wat inhoud het aanmaken van het configuratie bestand config.php, de nodige mappen in de /data map, tabellen, superadministrator gebruikers account en wachtwoord, standaard gegevens en instellingen, enz.
+•	Als laatste scant de installatie alle beschikbare modules en zal je verwelkomen met het standaard dashboard. De installatie is compleet.
+•	Maak nieuwe gebruikers aan als nieuwe contacten en verken de toepassing.
+
+5.	REINSTALLATION
+
+•	Met herinstallatie bedoelen we een compleet nieuwe installatie van de toepassing zonder het behouden van oude gegevens.
+•	Open config.php gelegen in de /data map en noteer de database naam, gebruiker en het wachtwoor. Je zal dezelfde data moeten invoeren tijdens de installatie.
+•	Verwijder de volledige inhoud van de /data directory met uitzondering van het index.html bestand (dat nodig is uit veiligheidsredenen).
+•	Wijs uw browser naar de locatie waar EPESI draaide, bijvoorbeeld: http://www.yourcompany.com/epesi
+•	Volg tijdens de installatie de instructies bovenaan alsof het een nieuwe installatie is.
+
+6.	UPDATE
+
+•	Maak een backup van de gehele toepassing map en vooral de /data map.
+•	Maak een backup van de database.
+•	Download de nieuwste versie van EPESI en overschrijf alle bestanden.
+•	Wijs uw browser naar de locatie waar EPESI draaide, bijvoorbeeld: http://www.yourcompany.com/epesi
+•	Als het database schema niet veranderde zal je al een nieuwe versie draaiend hebben.
+•	Als het database schema veranderde zal het update proces automatisch starten gedurende welke tabellen zullen worden gewijzigd aan dit nieuwe database schema.
+•	Eens het update proces klaar is zal je automatisch naar de nieuwe versie van de EPESI toepassing gestuurd worden.
+
+7.	ONDERSTEUNING
+
+Elke vragen, commentaar en foutenrapporten zouden gepost moeten worden op ons forum: http://forum.epesibim.com/
+
+Geniet ervan,
+het EPESI Team

@@ -1,0 +1,35 @@
+template:
+    url: https://github.com/CouscousPHP/Template-Light.git
+
+baseUrl: http://memio.github.io/memio
+
+title: Memio
+subTitle: A highly opinionated PHP code generator library
+
+github:
+    user: memio
+    repo: memio
+
+menu:
+    items:
+        home:
+            text: Home
+            relativeUrl:
+        model_tutorial:
+            text: Model Tutorial
+            relativeUrl: doc/01-model-tutorial.html
+        phpdoc_tutorial:
+            text: PHPDoc Tutorial
+            relativeUrl: doc/02-phpdoc-tutorial.html
+        validation_tutorial:
+            text: Validation Tutorial
+            relativeUrl: doc/03-validation-tutorial.html
+        examples:
+            text: Examples
+            relativeUrl: doc/04-examples.html
+        templates:
+            text: Templates
+            relativeUrl: doc/05-templates.html
+        packages:
+            text: Packages
+            relativeUrl: doc/06-packages.html

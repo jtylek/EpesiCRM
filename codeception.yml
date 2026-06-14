@@ -1,0 +1,27 @@
+actor: Tester
+paths:
+    tests: tests
+    log: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
+settings:
+    bootstrap: _bootstrap.php
+    colors: true
+    memory_limit: 1024M
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+params:
+    - env
+    - tests/config.yml
+modules:
+    config:
+        Db:
+            dsn: '%DB_DRIVER%:host=%DB_HOST%;dbname=%DB_NAME%'
+            user: '%DB_USER%'
+            password: '%DB_PASSWORD%'
+            dump: tests/_data/dump.sql
+            populate: false
+            cleanup: false
+            reconnect: false

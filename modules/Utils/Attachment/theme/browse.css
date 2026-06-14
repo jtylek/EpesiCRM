@@ -1,0 +1,49 @@
+#multiple_attachments .button {
+	text-align: center;
+}
+
+#multiple_attachments #filelist .file.deleted {
+	opacity: 0.4;
+}
+
+#multiple_attachments #filelist .file {
+	height: 20px;
+	font-size: 13px;
+	overflow: hidden;
+	border: 1px solid #999;
+	margin-top: 4px;
+	background-color: white;
+	line-height: 20px;
+	padding-left: 4px;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+
+	-webkit-box-shadow: inset 1px 1px 3px #999;
+	-moz-box-shadow: inset 1px 1px 3px #999;
+	box-shadow: inset 1px 1px 3px #999;
+}
+
+#multiple_attachments #filelist .file .indicator {
+	float: right;
+	margin-right: 4px;
+}
+
+#multiple_attachments #filelist .file .indicator img {
+	margin-top: 3px;
+}
+
+#multiple_attachments #filelist .file .filename {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div .file_link {
+    margin-right: 2em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    /* max-width: 15em; */
+    display: inline-block;
+    white-space: nowrap;
+}

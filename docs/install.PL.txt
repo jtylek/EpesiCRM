@@ -1,0 +1,75 @@
+﻿Instalacja
+
+1.	WYMAGANIA
+2.	WYBIERZ SPOSÓB INSTALACJI
+3.	NOWA INSTALACJA PRZY UŻYCIU SKOMPRESOWANEGO PLIKU
+4.	NOWA INSTALACJA PRZY UŻYCIU SKRYPTU EASYINSTALL.PHP
+5.	PONOWNA INSTALACJA
+6.	AKTUALIZACJA
+7.	WSPARCIE TECHNICZNE
+
+
+1.	WYMAGANIA
+
+-   Korzystanie z klienta poczty RoundCube wymaga wersji PHP 5.2.1 lub wyższej (Uwaga: Sterownik bazy MySQL wymaga PHP 5.3 lub nowsze)
+        Więcej informacji odnośnie wymagań RoundCube w pliku: modules/CRM/RoundCube/RC/INSTALL
+-	Serwer HTTP (apache, IIS) ze wsparciem PHP 5.1.3. Jeśli to możliwe, zainstaluj najnowszą wersję PHP ze względu na błędy w wersjach wcześniejszych.
+-   PHP w wersji 5.2.0 nie obsługuje poprawnie EPESI ze względu na błąd w implementacji json_decode. W wersji 5.2.1 zostało to poprawione.
+-	Serwer HTTP powinien być skonfigurowany tak, by index.php był jednym z domyślnych dokumentów.
+-   Serwer HTTP musi wspierać lokalne pliki .htaccess
+        Jeśli serwer nie wspiera plików .htaccess, należy zabronić odczytu niektórych plików i katalogów z katalogu /data.
+-	Zainstalowany PEAR z poprawnym include_path w PHP config.ini.
+-	Serwer bazodanowy MySQL 4+ lub PostgreSQL 7+.
+-	Dostęp do serwera przez FTP lub lokalnie/przez shell'a.
+-	Przeglądarka internetowa (rekomendowane są Chrome i Firefox).
+
+2.	WYBIERZ SPOSÓB INSTALACJI
+
+-	Nowa instalacja czy aktualizacja. Jeśli aktualizacja, przejdź do sekcji szóstej.
+-	Instalacja przy użyciu skompresowanego pliku przez FTP lub dostęp lokalny (shell itp.) - sekcja trzecia.
+-	Prosta instalacja przy użyciu skryptu easyinstall (sposób zalecany) - sekcja czwarta.
+
+3.	NOWA INASTALACJA PRZY UŻYCIU SKOMPRESOWANEGO PLIKU
+
+-	Pobierz najnowszą wersję EPESI z http://sourceforge.net/projects/epesi/
+-	Rozpakuj wszystkie pliki i umieść je w katalogu, z którego EPESI ma być uruchamiane. Katalog /data wymaga ustawienia uprawnień do odczytu i zapisu.
+-	Stwórz bazę danych, zapamiętaj nazwę użytkownika, hasło i nazwę bazy danych. Upewnij się, że użytkownik ma pełne uprawnienia do bazy danych (odczyt, zapis, tworzenie tabel, itp.)
+-	Wpisz w przeglądarce adres, pod którym EPESI będzie pracowało, np.: http://www.twojafirma.com/epesi
+-	Konfiguracja EPESI powinna rozpocząć się automatycznie. Zaakceptuj umowę licencyjną, a kreator konfiguracji przeprowadzi Cię przez wszystkie kroki, w tym utworzenie pliku konfiguracyjnego config.php, niezbędnych podkatalogów katalogu /data, tabel, konta super administratora, danych i ustawień domyślnych, itd.
+-	Na koniec kreator przejrzy dostępne moduły i przywita Cię domyślnym pulpitem. Instalacja jest zakończona.
+-	Utwórz nowych użytkowników jako nowe kontakty i odkrywaj możliwości aplikacji.
+ 
+4.	NOWA INSTALACJA PRZY UŻYCIU SKRYPTU EASYINSTALL.PHP
+
+-	Stwórz bazę danych, zapamiętaj nazwę użytkownika, hasło i nazwę bazy danych. Upewnij się, że użytkownik ma pełne uprawnienia do bazy danych (odczyt, zapis, tworzenie tabel, itp.)
+-	Pobierz najnowszą wersję skryptu easyinstall z http://sourceforge.net/projects/epesi/
+-	Umieść ten plik w katalogu, z którego EPESI ma być uruchamiane. Upwenij się, że katalog posiada uprawnienia do odczytu/zapisu. Uruchom skrypt w przeglądarce internetowej.
+-	Nie ma potrzeby ściągać całej aplikacji EPESI w fromie skompresowanego pliku. Skrypt automatycznie połączy się z serwerem SourceForge, ściągnie najnowszą wersję, sprawdzi ją, rozpakuje pliki na serwer, ustawi odpowiednie uprawnienia i rozpocznie konfigurację EPESI.
+-	Zaakceptuj umowę licencyjną, a kreator konfiguracji przeprowadzi Cię przez wszystkie kroki, w tym utworzenie pliku konfiguracyjnego config.php, niezbędnych podkatalogów katalogu /data, tabel, konta super administratora, danych i ustawień domyślnych, itd.
+-	Na koniec kreator przejrzy dostępne moduły i przywita Cię domyślnym pulpitem. Instalacja jest zakończona.
+-	Utwórz nowych użytkowników jako nowe kontakty i odkrywaj możliwości aplikacji.
+
+5.	PONOWNA INSTALACJA
+
+-	Przez ponowną instalację rozumiemy całkowicie nową instalację aplikacji, bez zachowywania starych danych.
+-	Otwórz plik config.php, znajdujący się w katalogu /data i zapamiętaj podane tam nazwę bazy danych, użytkownika i hasło. Będziesz potrzebować wpisać te dane przy konfiguracji.
+-	Usuń całą zawartość katalogu /data, oprócz pliku index.html (który jest wymagany z powodów bezpieczeństwa).
+-	Wpisz w przeglądarce adres, pod którym działało dotychczasowe EPESI, np.: http://www.twojafirma.com/epesi
+-	Przy konfiguracji kieruj się instrukcjami powyżej, jak gdyby była to nowa instalacja.
+
+6.	AKTUALIZACJA
+
+-	Przed uaktualnianiem aplikacji, zrób kopię zapasową całego folderu z aplikacją, ze szczególnym uwzględnieniem podkatalogu /data.
+-	Zrób kopię zapasową bazy danych.
+-	Pobierz nową wersję EPESI i nadpisz wszystkie pliki.
+-	Wpisz w przeglądarce adres, pod którym EPESI pracuje, np.: http://www.twojafirma.com/epesi
+-	Jeśli schemat bazy danych nie uległ zmianie, od razu możesz pracować na nowej wersji.
+-	Jeśli schemat bazy danych się zmienił, automatycznie rozpocznie się proces aktualizacji, w czasie którego tabele zostaną dostosowane do tego nowego schematu.
+-	Gdy proces aktualizacji się zakończy, nastąpi automatyczne przekierowanie do nowej wersji EPESI.
+
+7.	WSPARCIE TECHNICZNE
+
+Wszelkie pytania, komentarze i zgłaszane błędy prosimy umieszczać na naszym forum: http://forum.epesibim.com/
+
+Życzymy przyjemnego korzystania z aplikacji,
+Zespół EPESI

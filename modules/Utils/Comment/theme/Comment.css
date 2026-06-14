@@ -1,0 +1,35 @@
+table#Utils_Comment__Comment td.contents {
+	padding: 4px;
+	vertical-align: top;
+	height: 60px;
+	text-align: left;
+    border: 1px solid #B3B3B3;
+}
+
+table#Utils_Comment__Comment td.user {
+	padding: 4px;
+	width: 100px;
+	vertical-align: top;
+	font-weight: bold;
+    background-color: #F8F8F8;
+    border-left: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    border-top: 1px solid #B3B3B3;
+}
+
+table#Utils_Comment__Comment td.date {
+	padding: 2px;
+    background-color: #F8F8F8;
+    border-left: 1px solid #B3B3B3;
+    border-top: 1px solid #B3B3B3;
+}
+
+table#Utils_Comment__Comment td.action {
+	padding: 2px;
+	width: 200px;
+	white-space: nowrap;
+    background-color: #F8F8F8;
+	text-align: right;
+    border-top: 1px solid #B3B3B3;
+    border-right: 1px solid #B3B3B3;
+}

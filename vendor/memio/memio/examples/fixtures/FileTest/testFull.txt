@@ -1,0 +1,24 @@
+<?php
+
+namespace Vendor\Project;
+
+use DateTime;
+
+class MyClass
+{
+    const FIRST_CONSTANT = 0;
+    const SECOND_CONSTANT = 'meh';
+
+    private $firstProperty;
+
+    private $secondProperty;
+
+    public function firstMethod(DateTime $firstArgument, array $secondArgument, $thirdArgument)
+    {
+    }
+
+    public function secondMethod()
+    {
+    }
+}
+

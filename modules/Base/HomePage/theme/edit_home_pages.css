@@ -1,0 +1,29 @@
+.Base_HomePage__permissions_clearance .joint {
+	color: #999;
+	display: inline-block;
+	margin: 0 6px;
+}
+
+.Base_HomePage__edit_home_pages select,
+.Base_HomePage__edit_home_pages input {
+	width: auto;
+}
+
+.Base_HomePage__edit_home_pages_crits {
+	overflow-x: scroll;
+}
+
+.Base_HomePage__edit_home_pages .field {
+	display: inline-block;
+	height: 20px;
+	width: 120px;
+	line-height: 20px;
+}
+.Base_HomePage__edit_home_pages .field input{
+	float: left;
+	margin: 0 5px 0 0;
+}
+
+.Base_HomePage__edit_home_pages .button {
+	margin: 2px;
+}

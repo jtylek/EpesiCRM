@@ -1,0 +1,84 @@
+#Filters_header,
+.Filters_header {
+	color: #FFFFFF;
+	height: 20px;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+.Filters_header {
+	font-weight: normal;
+}
+
+#Filters_header .left {
+	width: 20px;
+	display: block;
+	float: left;
+}
+
+#Filters_header .center {
+	display: block;
+	float: left;
+	padding-top: 3px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#Filters_header .right {
+	width: 17px;
+	display: block;
+	float: right;
+	padding-top: 3px;
+	padding-right: 3px;
+}
+
+
+/* a */
+
+table#Utils_LeightboxPrompt a:hover {
+	color: #993333;
+}
+
+.icon_td_text {
+	width: 50px;
+	height: 29px;
+	overflow: hidden;
+	text-align: center;
+    vertical-align: middle;
+	font-weight: normal;
+}
+
+.leightbox_shadow_css3 {
+	margin: 8px; 
+	width: 56px;
+	height: 73px;
+	overflow: hidden;
+	background-color: white; 
+	
+	/*Transition*/
+	-webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    -o-transition: all 0.4s ease-out;	
+	/* end Transition*/
+	
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 3px gray;
+	-moz-box-shadow: 0px 0px 3px gray;
+	box-shadow: 0px 0px 3px gray;
+	/* end css3 shadow border*/
+	
+	/* border radius css3 */
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	/* end border radius css3 */	
+}
+
+.leightbox_shadow_css3:hover {
+	/* css3 shadow border*/
+	-webkit-box-shadow: 0px 0px 10px #005100;
+	-moz-box-shadow: 0px 0px 10px #005100;
+	box-shadow: 0px 0px 10px #005100;
+	/* end css3 shadow border*/
+}
