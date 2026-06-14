@@ -45,8 +45,7 @@ abstract class SteppedAdminModule extends AdminModule {
         if (isset($_GET[self::$step_var]) && $_GET[self::$step_var]) {
             $_SESSION[self::$step_var] = $_GET[self::$step_var];
         }
-        $this->step = isset($_SESSION[self::$step_var])
-                ? $_SESSION[self::$step_var] : false;
+        $this->step = $_SESSION[self::$step_var] ?? false;
         // set next step if we are in first page
         if (!$this->step && !$this->next_step)
             $this->set_next_step(1);

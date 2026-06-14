@@ -19,7 +19,7 @@ class Modules extends AdminModule {
 
         foreach ($modules as $m) {
             $name = $m['name'];
-            $state = isset($m['state']) ? $m['state'] : ModuleManager::MODULE_ENABLED;
+            $state = $m['state'] ?? ModuleManager::MODULE_ENABLED;
             if ($state == ModuleManager::MODULE_NOT_FOUND) {
                 $state = ModuleManager::MODULE_DISABLED;
             }

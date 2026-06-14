@@ -34,7 +34,7 @@ class EpesiShell extends AdminModule {
     }
 
     private function cmd() {
-        return isset($_POST['cmd']) ? $_POST['cmd'] : null;
+        return $_POST['cmd'] ?? null;
     }
 
     private function output($output) {

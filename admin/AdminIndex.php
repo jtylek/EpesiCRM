@@ -83,8 +83,8 @@ class AdminIndex {
     }
 
     private function selected_module() {
-        $module_param = isset($_GET['module']) ? $_GET['module'] : null;
-        return isset($this->admin_modules[$module_param]) ? $this->admin_modules[$module_param] : null;
+        $module_param = $_GET['module'] ?? null;
+        return $this->admin_modules[$module_param] ?? null;
     }
 
     private function show_module($module) {
@@ -120,7 +120,7 @@ class AdminIndex {
     
     private function start_epesi_action() {
         $admin_index = $_SERVER['PHP_SELF'];
-        $epesi_dir = rtrim(dirname(dirname($admin_index)), '/') . '/';
+        $epesi_dir = rtrim(dirname($admin_index, 2), '/') . '/';
         $this->layout->add_action_link($epesi_dir, 'Start EPESI');
     }
 

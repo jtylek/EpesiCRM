@@ -8,7 +8,12 @@ use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/include',
+        __DIR__ . '/admin',
+        __DIR__ . '/console',
+    ])
+    ->withSkip([
+        __DIR__ . '/modules/Libs',
+        __DIR__ . '/vendor',
     ])
     ->withPhpVersion(PhpVersion::PHP_70)
     ->withSets([
