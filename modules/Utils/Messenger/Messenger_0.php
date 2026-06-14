@@ -42,7 +42,7 @@ class Utils_Messenger extends Module {
 		$this->callback_method = $callback_method;
 		$this->callback_args = isset($callback_args)?((is_array($callback_args))?$callback_args:array($callback_args)):array();
 		$this->def_date = ($def_date!=null)?$def_date:time();
-		$this->parent_type = ($parent!==null)?$parent:$this->parent->get_type();
+		$this->parent_type = $parent ?? $this->parent->get_type();
 	}
 	
 	public function edit($row) {

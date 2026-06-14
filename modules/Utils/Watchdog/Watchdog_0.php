@@ -40,7 +40,7 @@ class Utils_Watchdog extends Module {
 			print(__('No category selected'));
 			return;
 		}
-        $records_limit = isset($conf['records_limit']) ? $conf['records_limit'] : 15;
+        $records_limit = $conf['records_limit'] ?? 15;
         if ($records_limit == '__all__') {
             $records_limit = null;
         }

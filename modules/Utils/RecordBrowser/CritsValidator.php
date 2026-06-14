@@ -34,15 +34,15 @@ class Utils_RecordBrowser_CritsValidator
 
     protected function validate_single(Utils_RecordBrowser_CritsSingle $crits, $record)
     {
-        $id = isset($record['id']) ? $record['id'] : '';
-        list($field, $subfield) = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
+        $id = $record['id'] ?? '';
+        [$field, $subfield] = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
         $field = ltrim(Utils_RecordBrowserCommon::get_field_id($field), '_');
         $subfield = ltrim(Utils_RecordBrowserCommon::get_field_id($subfield), '_');
-        $r_val = isset($record[$field]) ? $record[$field] : '';
+        $r_val = $record[$field] ?? '';
         $crit_value_raw = $crits->get_value();
         $field_definition = $this->get_field_definition($field);
         if ($subfield && $field_definition) {
-            $sub_tab = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
+            $sub_tab = $field_definition['ref_table'] ?? false;
             if ($sub_tab) {
                 if (is_array($r_val)) {
                     $orig_values = $r_val;
@@ -158,7 +158,7 @@ class Utils_RecordBrowser_CritsValidator
         $success = $or ? false : true;
         $all_issues = array();
         foreach ($crits->get_component_crits() as $c) {
-            list($satisfied, $issues) = $this->validate($c, $record);
+            [$satisfied, $issues] = $this->validate($c, $record);
             $all_issues = array_merge($all_issues, $issues);
             if ($or) {
                 if ($satisfied) {

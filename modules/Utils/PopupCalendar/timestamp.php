@@ -50,7 +50,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// }}}
 	// {{{ constructor
 
-	function HTML_QuickForm_timestamp($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
+	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
 		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
@@ -151,7 +151,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 					$value['__datepicker'] = strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value['__datepicker'],false));
 				$this->_elements['__datepicker']->setValue($value['__datepicker']);
 			}
-			$this->_elements['__date']->setValue(isset($value['__date'])?$value['__date']:'');
+			$this->_elements['__date']->setValue($value['__date'] ?? '');
 		} else {
 			if (!$value) return;
 			if (!is_numeric($value)) $value = Base_RegionalSettingsCommon::reg2time($value,false);

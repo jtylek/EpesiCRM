@@ -156,7 +156,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             $crits = \Utils_RecordBrowser_Crits::from_array($crits);
         }
         /** @var Utils_RecordBrowser_Crits $crits */
-        $ret = $this->crits_to_json($crits);
+        $ret = static::crits_to_json($crits);
         return $ret;
     }
 
@@ -328,7 +328,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             }
             $ret = array();
             foreach ($values as $value) {
-                list($operator, $value) = self::map_crits_operator_to_query_builder($crits->get_operator(), $value);
+                [$operator, $value] = self::map_crits_operator_to_query_builder($crits->get_operator(), $value);
                 $ret[] = array(
                     'id'       => $crits->get_field(),
                     'field'    => $crits->get_field(),
@@ -375,7 +375,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
             }
         } elseif (isset($arr['field']) && isset($arr['operator']) && array_key_exists('value', $arr)) {
             $field = $arr['field'];
-            list($operator, $value) = self::map_query_builder_operator_to_crits($arr['operator'], $arr['value']);
+            [$operator, $value] = self::map_query_builder_operator_to_crits($arr['operator'], $arr['value']);
             $ret = new Utils_RecordBrowser_CritsSingle($field, $operator, $value);
         }
         return $ret;

@@ -59,7 +59,7 @@ class Utils_GenericBrowser extends Module {
 		
 		$classes[] = 'Utils_GenericBrowser__actions';
 	
-		$classes = array_map(function($c){return (substr($c,0,1)=='.')? $c: '.'.$c;}, $classes);	
+		$classes = array_map(fn($c) => (substr($c,0,1)=='.')? $c: '.'.$c, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
@@ -89,7 +89,7 @@ class Utils_GenericBrowser extends Module {
 			
 			$this->columns[] = $v;
 			
-			$col_names[] = isset($v['name'])? $v['name']: null;
+			$col_names[] = $v['name'] ?? null;
 		}
 		$this->columns_width_id = md5(serialize($col_names));
 	}
@@ -540,13 +540,13 @@ class Utils_GenericBrowser extends Module {
 				if (isset($v['search']) && isset($search['__keyword__'])) {
 					$ret = false;
 					if (is_array($row[$k])) $row[$k] = $row[$k]['value'];
-					if (stripos(strip_tags($row[$k]),$search['__keyword__'])!==false) return true;
+					if (stripos(strip_tags($row[$k]),(string) $search['__keyword__'])!==false) return true;
 				}
 			}
 			return $ret;
 		} else {
 			foreach($this->columns as $k=>$v){
-				if (isset($v['search']) && isset($search[$v['search']]) && stripos(strip_tags(is_array($row[$k])?$row[$k]['value']:$row[$k]),$search[$v['search']])===false) return false;
+				if (isset($v['search']) && isset($search[$v['search']]) && stripos(strip_tags(is_array($row[$k])?$row[$k]['value']:$row[$k]),(string) $search[$v['search']])===false) return false;
 			}
 			return true;
 		}
@@ -568,7 +568,7 @@ class Utils_GenericBrowser extends Module {
 						if(isset($this->columns[$i]['order_preg'])) {
 							$ret = array();
 							preg_match($this->columns[$i]['order_preg'],$xxx, $ret);
-							$xxx = isset($ret[1])?$ret[1]:'';
+							$xxx = $ret[1] ?? '';
 						}
 						$xxx = strip_tags(strtolower($xxx));
 						$col[$j] = $xxx;
@@ -649,9 +649,9 @@ class Utils_GenericBrowser extends Module {
 		foreach($this->rows as $k=>$v){
 			if ($this->check_if_row_fits_array($v,$this->is_adv_search_on())) {
 				$rows[] = $v;
-				$js[] = isset($this->rows_jses[$k])?$this->rows_jses[$k]:'';
-				$actions[] = isset($this->actions[$k])?$this->actions[$k]:array();
-				$row_attrs[] = isset($this->row_attrs[$k])?$this->row_attrs[$k]:'';
+				$js[] = $this->rows_jses[$k] ?? '';
+				$actions[] = $this->actions[$k] ?? array();
+				$row_attrs[] = $this->row_attrs[$k] ?? '';
 			}
 		}
 		$this->sort_data($rows, $js, $actions, $row_attrs);
@@ -771,7 +771,7 @@ class Utils_GenericBrowser extends Module {
 				if (isset($v['search'])) {
 					$this->form_s->addElement('text','search',__('Keyword'), array('id'=>'gb_search_field', 'placeholder'=>__('search keyword...'), 'x-webkit-speech'=>'x-webkit-speech', 'lang'=>Base_LangCommon::get_lang_code(), 'onwebkitspeechchange'=>$this->form_s->get_submit_form_js()));
 					eval_js('jq("#gb_search_field").focus()');
-					$this->form_s->setDefaults(array('search'=>isset($search['__keyword__'])?$search['__keyword__']:''));
+					$this->form_s->setDefaults(array('search'=>$search['__keyword__'] ?? ''));
 					$search_on=true;
 					break;
 				}
@@ -786,11 +786,11 @@ class Utils_GenericBrowser extends Module {
 					continue;
 				}
 				if (isset($v['search'])) {
-					$type = isset($v['search_type']) ? $v['search_type'] : 'text';
+					$type = $v['search_type'] ?? 'text';
 					// quickform element to perform proper export
 					$this->form_s->addElement($type, 'search__' . $v['search'], '');
 					// hidden element to pass data during submit
-					$default = isset($search[$v['search']]) ? $search[$v['search']] : '';
+					$default = $search[$v['search']] ?? '';
 					$search_fields_hidden .= '<input type="hidden" name="search__' . $v['search'] . '" value="' . $default . '">';
 					$this->form_s->setDefaults(array('search__' . $v['search'] => $default));
 					// outside form input element to update input hidden with value
@@ -899,7 +899,7 @@ class Utils_GenericBrowser extends Module {
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
 			if ($v['name'] && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
 			else $label = $v['name'];
-			$headers[$i]['label'] .= (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).(isset($v['append'])?$v['append']:'');
+			$headers[$i]['label'] .= ($v['preppend'] ?? '').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).($v['append'] ?? '');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
             if ($this->absolute_width) {
                  $headers[$i]['attrs'] = 'width="'.$v['width'].'" ';
@@ -948,7 +948,7 @@ class Utils_GenericBrowser extends Module {
 					uasort($this->actions[$i], array($this,'sort_actions'));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
-						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip']!==null?$arr['tooltip']:$arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
+						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
 							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
 					    } elseif(file_exists($icon)) {
@@ -998,7 +998,7 @@ class Utils_GenericBrowser extends Module {
 					if (!isset($v['style'])) $v['style'] = '';
 					$v['style'] .= 'white-space: normal;';
 				}
-				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td '.(isset($v['class'])?$v['class']:'').'"';
+				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td '.($v['class'] ?? '').'"';
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
 				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
@@ -1006,9 +1006,7 @@ class Utils_GenericBrowser extends Module {
 				if ($all_width!=0)
 					$max_width = 130*(substr($this->columns[$k]['width'],-2)=="px"
 							? (int)substr($this->columns[$k]['width'],0,-2)
-							: (int)$this->columns[$k]['width'])/$all_width*(7+(isset($this->columns[$k]['fontsize'])
-								? $this->columns[$k]['fontsize']
-								: 0));
+							: (int)$this->columns[$k]['width'])/$all_width*(7+($this->columns[$k]['fontsize'] ?? 0));
         			else
         			        $max_width = 0;
 				if (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='cut'){
@@ -1081,7 +1079,7 @@ class Utils_GenericBrowser extends Module {
                 'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
                 'c_id'=>'collapse_all_button_'.$md5_id
             ));
-            $max_actions = isset($max_actions) ? $max_actions : 0;
+            $max_actions ??= 0;
             eval_js('gb_expandable_adjust_action_column("'.$md5_id.'", ' . $max_actions . ')');
             eval_js('gb_show_hide_buttons("'.$md5_id.'")');
         }

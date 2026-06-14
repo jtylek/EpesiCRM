@@ -85,9 +85,7 @@ class Utils_Tray_Box {
 			$this->slots[] = $slot;
 		}
 		
-		uasort($this->slots, function (Utils_Tray_Slot $a, Utils_Tray_Slot $b) {
-			return $a->getWeight() - $b->getWeight();
-		});
+		uasort($this->slots, fn(Utils_Tray_Slot $a, Utils_Tray_Slot $b) => $a->getWeight() - $b->getWeight());
 
 		return $this;
 	}	

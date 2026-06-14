@@ -152,7 +152,7 @@ class Utils_QueryBuilder extends Module
 
     public function get_option($option_name, $default = null)
     {
-        return isset($this->options[$option_name]) ? $this->options[$option_name] : $default;
+        return $this->options[$option_name] ?? $default;
     }
 
     public function get_options()

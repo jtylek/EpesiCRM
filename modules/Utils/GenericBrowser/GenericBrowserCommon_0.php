@@ -57,7 +57,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 				$sort = '';
 				$sort_direction = 'asc';
 			}
-			$headers[$i]['label'] = (isset($v['preppend'])?$v['preppend']:'').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').(isset($v['append'])?$v['append']:'');
+			$headers[$i]['label'] = ($v['preppend'] ?? '').(isset($v['order'])?'<a href="mobile.php?'.http_build_query(array_merge($_GET,array('order'=>$i,'order_dir'=>$sort_direction))).'">' . '<span '.$sort.'>' . $v['name'] . '</span></a>':'<span>'.$v['name'].'</span>').($v['append'] ?? '');
 			$headers[$i]['attrs'] = '';
 			if ($all_width && isset($v['width'])) $headers[$i]['attrs'] .= 'style="width: '.intval(100*$v['width']/$all_width).'%" ';
 			$headers[$i]['attrs'] .= 'nowrap="1" ';
@@ -79,7 +79,7 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 							if(isset($cols[$i]['order_preg'])) {
 								$ret = array();
 								preg_match($cols[$i]['order_preg'],$xxx, $ret);
-								$xxx = isset($ret[1])?$ret[1]:'';
+								$xxx = $ret[1] ?? '';
 							}
 							$xxx = strip_tags(strtolower($xxx));
 							$col[$j] = $xxx;

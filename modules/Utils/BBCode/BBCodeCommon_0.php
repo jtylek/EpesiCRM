@@ -43,7 +43,7 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	}
 	
 	public static function cutout($match) {
-		$text = self::strip($match[4], self::$optimize_only);
+		$text = self::strip($match[4]);
 		return $text;
 		// optional (more precise) method:
 /*		$tag = strtolower($match[1]);

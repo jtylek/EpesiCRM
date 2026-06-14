@@ -17,8 +17,8 @@ foreach($_POST['parameters'] as $k=>$v) {
 	$params[$k] = $v;
 }
 
-$field = isset($params['__field__'])? $params['__field__']: '';
-$callback_hash = isset($params['__callback__'])? $params['__callback__']: '';
+$field = $params['__field__'] ?? '';
+$callback_hash = $params['__callback__'] ?? '';
 
 $callback = array();
 if (isset($_SESSION['client']['utils_chainedselect'][$callback_hash]))

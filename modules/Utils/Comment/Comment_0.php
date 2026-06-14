@@ -181,8 +181,8 @@ class Utils_Comment extends Module{
 		$comments[] = array('text'=>$row['text'],
 							'user'=>$row['login'],
 							'date'=>date('G:i, d M Y',strtotime($row['created_on'])),
-							'report'=>isset($report)?$report:null,
-							'delete'=>isset($delete)?$delete:null,
+							'report'=>$report ?? null,
+							'delete'=>$delete ?? null,
 							'reply'=>$reply_link,
 							'tabs'=>$tab);
 		if ($row['parent']!=-1){

@@ -27,7 +27,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		
 		if (!$val) $val = '0';
 		$val = str_replace(array('.',','),$dec_delimiter,$val);
-		if (!strrchr($val,$dec_delimiter)) $val .= $dec_delimiter; 
+		if (!strrchr($val,(string) $dec_delimiter)) $val .= $dec_delimiter; 
 		$cur = explode($dec_delimiter, $val);
 		if (!isset($cur[1])) $cur[1] = ''; 
 		$cur[1] = str_pad($cur[1], $dec_digits, '0');
@@ -148,12 +148,12 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
             $symbol_pos_before = Utils_CurrencyFieldCommon::get_symbol_position($cur_id);
             // check for symbol
             if ($symbol_pos_before) {
-                if (strpos($string, $symbol) === 0) {
+                if (strpos($string, (string) $symbol) === 0) {
                     $string = substr($string, strlen($symbol));
                 } else continue;
             } else {
                 $pos_of_sym = strlen($string) - strlen($symbol);
-                if (strrpos($string, $symbol) == $pos_of_sym) {
+                if (strrpos($string, (string) $symbol) == $pos_of_sym) {
                     $string = substr($string, 0, $pos_of_sym);
                 } else continue;
             }

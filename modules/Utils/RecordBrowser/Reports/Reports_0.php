@@ -509,7 +509,7 @@ class Utils_RecordBrowser_Reports extends Module {
 				$first = '';
 				foreach($ggrow as $grow) {
 					$csv_row = array();
-					foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",isset($elem['value'])?$elem['value']:(!is_array($elem)?$elem:'?'))));
+					foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",$elem['value'] ?? (!is_array($elem)?$elem:'?'))));
 					if(!$first && $csv_row[0]) $first = $csv_row[0];
 					elseif(!$csv_row[0]) $csv_row[0] = $first;
 					$this->csv_ob[] = $csv_row;
@@ -611,13 +611,13 @@ class Utils_RecordBrowser_Reports extends Module {
 			$first = '';
 			foreach($ggrow as $grow) {
 				$csv_row = array();
-				foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",isset($elem['value'])?$elem['value']:(!is_array($elem)?$elem:'?'))));
+				foreach($grow as $elem) $csv_row[] = html_entity_decode(strip_tags(preg_replace('/<(h|b)r\s*\/?>/i',"\n",$elem['value'] ?? (!is_array($elem)?$elem:'?'))));
 				if(!$first && $csv_row[0]) $first = $csv_row[0];
 				elseif(!$csv_row[0]) $csv_row[0] = $first;
 				$this->csv_ob[] = $csv_row;
 			}
 		} elseif ($this->pdf) {
-			$this->display_pdf_row($ggrow,true);
+			$this->display_pdf_row($ggrow);
 		} else {
 			foreach ($ggrow as $grow) {
 				$gb_row = $this->gb->get_new_row();

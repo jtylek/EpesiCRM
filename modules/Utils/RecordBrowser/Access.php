@@ -274,6 +274,6 @@ class Utils_RecordBrowser_Access
 			self::$ruleBlockedFieldsCache[$this->tab] = $fields;
 		}
 		
-		return isset(self::$ruleBlockedFieldsCache[$this->tab][$ruleId])? self::$ruleBlockedFieldsCache[$this->tab][$ruleId]: [];
+		return self::$ruleBlockedFieldsCache[$this->tab][$ruleId] ?? [];
 	}
 }

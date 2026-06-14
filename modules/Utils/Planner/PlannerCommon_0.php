@@ -90,7 +90,7 @@ class Utils_PlannerCommon extends ModuleCommon {
 
 	public static function timeframe_changed($timeframes) {
 		foreach ($timeframes as $k=>$v) {
-			list($day, $s, $e) = explode('::', $v);
+			[$day, $s, $e] = explode('::', $v);
 			$timeframes[$k] = array('day'=>$day, 'start'=>$s*60, 'end'=>$e*60);
 		}
 		$js = '';

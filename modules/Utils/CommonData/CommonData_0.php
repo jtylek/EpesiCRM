@@ -94,7 +94,7 @@ class Utils_CommonData extends Module {
 		if($this->is_back()) return false;
 		
 		if (isset($_REQUEST['node_position'])) {
-			list($node_id, $position) = $_REQUEST['node_position'];
+			[$node_id, $position] = $_REQUEST['node_position'];
 
 			Utils_CommonDataCommon::change_node_position($node_id, $position);
 		}

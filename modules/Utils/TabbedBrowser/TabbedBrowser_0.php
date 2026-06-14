@@ -54,7 +54,7 @@ class Utils_TabbedBrowser extends Module {
 		$submenus = array();
 		foreach($this->tabs as $caption=>$val) {
 			if (substr_count($caption, '#')==1) {
-				list($group, $s_caption) = explode('#', $caption);
+				[$group, $s_caption] = explode('#', $caption);
 				if (!isset($submenus[$group]))
 					$submenus[$group] = array();
 				$submenus[$group][$s_caption] = $val;

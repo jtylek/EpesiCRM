@@ -45,7 +45,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
 
 		$entry = 'datepicker_'.$name.'_calendar';
-		$butt = $id===null?'datepicker_'.$name.'_button':$id;
+		$butt = $id ?? 'datepicker_' . $name . '_button';
 
 		$smarty = Base_ThemeCommon::init_smarty();
 		$smarty->assign('calendar',$calendar);

@@ -26,18 +26,18 @@ foreach ($tray_settings as $module=>$module_settings) {
 
 		$tray_id = Utils_RecordBrowserCommon::get_field_id($tray['__title__']);
 
-		$tray_def += array($tray_id =>array('__title__' => $tray['__title__'], '__weight__'=>isset($tray['__weight__'])?$tray['__weight__']:0));
+		$tray_def += array($tray_id =>array('__title__' => $tray['__title__'], '__weight__'=>$tray['__weight__'] ?? 0));
 
 		foreach ($tray['__slots__'] as $slot_id=>$slot_def) {
 			$cap = _V($tray['__title__']).' - '._V($slot_def['__name__']);
 
-			$sort = isset($tab_settings['__mobile__']['sort'])? $tab_settings['__mobile__']['sort']: array();
-			$cols = isset($tab_settings['__mobile__']['cols'])? $tab_settings['__mobile__']['cols']: array();
+			$sort = $tab_settings['__mobile__']['sort'] ?? array();
+			$cols = $tab_settings['__mobile__']['cols'] ?? array();
 
 			$open = '<a '.mobile_stack_href(array('Utils_TrayCommon', 'mobile_tray_rb'),array($tab, $slot_def['__crits__'], $sort, $cols),$cap).'>';
 			$close = '</a>';
 
-			$tray_def[$tray_id]['__slots__'][$slot_id]['__weight__'] = isset($slot_def['__weight__'])? $slot_def['__weight__']: 0;
+			$tray_def[$tray_id]['__slots__'][$slot_id]['__weight__'] = $slot_def['__weight__'] ?? 0;
 
 			if(IPHONE) {
 				$row_info = '';

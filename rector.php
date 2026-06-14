@@ -8,17 +8,17 @@ use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/modules/FirstRun',
-        __DIR__ . '/modules/Data',
-        __DIR__ . '/modules/Tools',
-        __DIR__ . '/modules/Apps',
-        __DIR__ . '/modules/Applets',
+        __DIR__ . '/modules/Utils',
     ])
     ->withSkip([
         __DIR__ . '/modules/Libs',
         __DIR__ . '/vendor',
     ])
-    ->withPhpVersion(PhpVersion::PHP_70)
+    ->withPhpVersion(PhpVersion::PHP_74)
     ->withSets([
         SetList::PHP_70,
+        SetList::PHP_71,
+        SetList::PHP_72,
+        SetList::PHP_73,
+        SetList::PHP_74,
     ]);

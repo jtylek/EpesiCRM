@@ -123,7 +123,7 @@ class Utils_RecordBrowser_Search
     {
         $texts = array_unique(array_filter(preg_split('/\p{Z}/u', $search)));
         $ret = array_combine($texts, $texts);
-        $ret = array_map(function ($txt) { return "%$txt%"; }, $ret);
+        $ret = array_map(fn($txt) => "%$txt%", $ret);
         return $ret;
     }
 
@@ -276,7 +276,7 @@ class Utils_RecordBrowser_Search
         $ret = array();
         $count = 0;
         foreach ($sorted_results as $r_token => $row) {
-            list($tab, $id) = Utils_RecordBrowserCommon::decode_record_token($r_token);
+            [$tab, $id] = Utils_RecordBrowserCommon::decode_record_token($r_token);
 
             $search_details = $this->format_search_details($tab, $row);
             //create link with default label

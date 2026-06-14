@@ -97,13 +97,13 @@ class Utils_RecordBrowser_CritsToWords
     {
         $value = $crits->get_value();
         $operator = $crits->get_operator();
-        list($field, $subfield) = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
+        [$field, $subfield] = Utils_RecordBrowser_CritsSingle::parse_subfield($crits->get_field());
         $negation = $crits->get_negation();
         $field_definition = $this->get_field_definition($field);
         $subquery_generated = false;
 
         if ($subfield) {
-            $tab2 = isset($field_definition['ref_table']) ? $field_definition['ref_table'] : false;
+            $tab2 = $field_definition['ref_table'] ?? false;
             $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
             if ($tab2 && $single_tab) {
                 $cb = new self($tab2);

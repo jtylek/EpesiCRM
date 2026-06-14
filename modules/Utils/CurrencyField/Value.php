@@ -36,7 +36,7 @@ class Utils_CurrencyField_Value
 
     public static function from_string($string)
     {
-        list($amount, $currency) = Utils_CurrencyFieldCommon::get_values($string);
+        [$amount, $currency] = Utils_CurrencyFieldCommon::get_values($string);
         return new self($amount, $currency);
     }
 

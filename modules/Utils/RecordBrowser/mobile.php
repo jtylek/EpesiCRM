@@ -18,7 +18,7 @@ $ret = DB::GetRow('SELECT caption, recent, favorites FROM recordbrowser_table_pr
 if(isset($_GET['search']) && $_GET['search']!=="Search" && $_GET['search']!=="")
 	$type = 'all';
 else
-	$type = isset($_GET['type'])?$_GET['type']:Base_User_SettingsCommon::get('Utils_RecordBrowser',$table.'_default_view');
+	$type = $_GET['type'] ?? Base_User_SettingsCommon::get('Utils_RecordBrowser',$table.'_default_view');
 $order_num = (isset($_GET['order']) && isset($_GET['order_dir']))?$_GET['order']:-1;
 $order = false;
 
@@ -55,7 +55,7 @@ if(IPHONE)
 	print('<ul class="form">');
 print('<input type="hidden" name="rb_offset" value="0">');
 print((IPHONE?'<li>':'').'<select onchange="form.elements[\'search\'].value=\'Search\';form.submit()" name="type"><option value="all"'.($type=='all'?' selected=1':'').'>'.__('All').'</option><option value="recent"'.($type=='recent'?' selected=1':'').'>'.__('Recent').'</option><option value="favorites"'.($type=='favorites'?' selected=1':'').'>'.__('Favorites').'</option></select>'.(IPHONE?'</li>':''));
-print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.(isset($_GET['search'])?$_GET['search']:'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':''));
+print((IPHONE?'<li>':'').'<input type="text" name="search" value="'.($_GET['search'] ?? 'Search').'" onclick="clickclear(this, \'Search\')" onblur="clickrecall(this,\'Search\')" />'.(IPHONE?'</li>':''));
 if(IPHONE)
 	print('</ul>');
 else
@@ -109,7 +109,7 @@ switch($type) {
 if(!IPHONE && $type!='recent' && $order && ($_GET['order_dir']=='asc' || $_GET['order_dir']=='desc')) {
 	$sort = array($order => strtoupper($_GET['order_dir']));
 }
-$offset = isset($_GET['rb_offset'])?$_GET['rb_offset']:0;
+$offset = $_GET['rb_offset'] ?? 0;
 if(IPHONE)
 	$num_rows = 20;
 else
@@ -135,8 +135,8 @@ foreach($data as $v) {
 		$val = Utils_RecordBrowserCommon::get_val($table,$col['key'],$v,IPHONE,$col['record']);
 		if(IPHONE) {
 			if($val==='') continue;
-			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val{0}) {
-				$letter=$val{0};
+			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val[0]) {
+				$letter=$val[0];
 				print('</ul><h4>'.$letter.'</h4><ul>');
 			}
 			if($i)

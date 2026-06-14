@@ -73,7 +73,7 @@ class Utils_RecordBrowser_RecordPickerFS extends Module {
 				    $selected = $form->exportValue($select);
 				    if($prepend)
 				        foreach($selected as $k=>$v)
-				            if(strpos($v,$prepend)===0)
+				            if(strpos($v,(string) $prepend)===0)
 				                $selected[$k] = substr($v,strlen($prepend));
 				            else
 				                unset($selected[$k]);

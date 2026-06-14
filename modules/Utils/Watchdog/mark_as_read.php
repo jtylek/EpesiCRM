@@ -18,7 +18,7 @@ ModuleManager::load_modules();
 
 if (!Acl::is_user()) die('Unauthorized access');
 
-list($cat_id, $id) = explode('__',$_POST['key']);
+[$cat_id, $id] = explode('__',$_POST['key']);
 if (!is_numeric($cat_id) || !is_numeric($id)) die('Invalid use');
 
 Utils_WatchdogCommon::notified($cat_id, $id);

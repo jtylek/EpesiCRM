@@ -68,7 +68,7 @@ class Utils_Wizard extends Module {
 			$args = func_get_args();
 			array_shift($args);
 			array_shift($args);
-			$this->form[$this->counter] =  $this->init_module(Libs_QuickForm::module_name(),$args,isset($name)?$name:$this->counter);
+			$this->form[$this->counter] =  $this->init_module(Libs_QuickForm::module_name(),$args,$name ?? $this->counter);
 			if(isset($this->data[$this->counter]) && is_array($this->data[$this->counter]))
 				$this->form[$this->counter]->setDefaults($this->data[$this->counter]);
 		} else $this->form[$this->counter] = false;

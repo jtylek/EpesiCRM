@@ -223,9 +223,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
     public static function add_data_from_file($file, $filename = '')
     {
         $hash = self::hash_file($file);
-        $store_closure = function ($path) use ($file) {
-            return copy($file, $path);
-        };
+        $store_closure = (fn($path) => copy($file, $path));
         return self::add_data($hash, $store_closure, $filename);
     }
 
@@ -363,9 +361,9 @@ class Utils_FileStorageCommon extends ModuleCommon {
         foreach ($files as $file) {
             if (is_array($file)) {
                 $filename = $file['filename'];
-                $created_by = isset($file['created_by']) ? $file['created_by'] : null;
-                $created_on = isset($file['created_on']) ? $file['created_on'] : null;
-                $link = isset($file['link']) ? $file['link'] : null;
+                $created_by = $file['created_by'] ?? null;
+                $created_on = $file['created_on'] ?? null;
+                $link = $file['link'] ?? null;
                 if (isset($file['file'])) {
                     $filestorageIds[] = self::write_file($filename, $file['file'],
                                                          $link, $backref,

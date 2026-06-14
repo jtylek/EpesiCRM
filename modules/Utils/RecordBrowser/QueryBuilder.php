@@ -29,7 +29,7 @@ class Utils_RecordBrowser_QueryBuilder
         $tab_with_as = $this->tab.'_data_1 AS ' . $this->tab_alias;
         $this->final_tab = $tab_with_as;
 
-        list($having, $vals) = $this->to_sql($crits);
+        [$having, $vals] = $this->to_sql($crits);
 
         if (!$having) $having = 'true';
 
@@ -53,7 +53,7 @@ class Utils_RecordBrowser_QueryBuilder
             $vals = array();
             $sql = array();
             foreach ($crits->get_component_crits() as $c) {
-                list($s, $v) = $this->to_sql($c);
+                [$s, $v] = $this->to_sql($c);
                 if ($s) {
                     $vals = array_merge($vals, $v);
                     $sql[] = "($s)";
@@ -91,11 +91,7 @@ class Utils_RecordBrowser_QueryBuilder
             if ($k[0] == ':') {
                 $order[] = array('column' => $k, 'order' => $k, 'direction' => $v);
             } else {
-                $field_label = isset($this->fields_by_id[$k])
-                    ?
-                    $this->fields_by_id[$k]
-                    :
-                    $k;
+                $field_label = $this->fields_by_id[$k] ?? $k;
                 if (isset($this->fields[$field_label])) {
                     $order[] = array('column' => $field_label, 'order' => $field_label, 'direction' => $v);
                 }
@@ -204,14 +200,14 @@ class Utils_RecordBrowser_QueryBuilder
             return $special_ret;
         }
 
-        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($crit->get_field());
+        [$field, $sub_field] = Utils_RecordBrowser_CritsSingle::parse_subfield($crit->get_field());
 
         $field_def = $this->get_field_definition($field);
         if (!$field_def) {
             return array('', array());
         }
 
-        list($sql, $value) = $this->handle_normal_field_crit($field_def, $crit);
+        [$sql, $value] = $this->handle_normal_field_crit($field_def, $crit);
         if (!is_array($value)) $value = array($value);
         return array($sql, $value);
     }
@@ -524,9 +520,9 @@ class Utils_RecordBrowser_QueryBuilder
 
         $sql = '';
         $vals = array();
-        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
+        [$field, $sub_field] = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
         $multiselect = ($field_def['type'] == 'multiselect');
-        $tab2 = isset($field_def['ref_table']) ? $field_def['ref_table'] : false;
+        $tab2 = $field_def['ref_table'] ?? false;
 
         $single_tab = !($tab2 == '__RECORDSETS__' || count(explode(',', $tab2)) > 1);
 
@@ -632,7 +628,7 @@ class Utils_RecordBrowser_QueryBuilder
 
     protected function hf_commondata($field, $operator, $value, $raw_sql_val, $field_def)
     {
-        list($field, $sub_field) = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
+        [$field, $sub_field] = Utils_RecordBrowser_CritsSingle::parse_subfield($field);
         if ($raw_sql_val) {
             return array("$field $operator $value", array());
         }
@@ -680,7 +676,7 @@ class Utils_RecordBrowser_QueryBuilder
 
     protected function hf_calculated($field, $operator, $value, $raw_sql_val, $field_def)
     {
-        $param = isset($field_def['param']) ? $field_def['param'] : '';
+        $param = $field_def['param'] ?? '';
         if (!$param) {
             return array('false', array());
         }
@@ -729,7 +725,7 @@ class Utils_RecordBrowser_QueryBuilder
         }
         foreach ($value as $w) {
             $args = array($field_sql_id, $operator, $w, $raw_sql_val, $field_def);
-            list($sql2, $vals2) = call_user_func_array($callback, $args);
+            [$sql2, $vals2] = call_user_func_array($callback, $args);
             if ($sql2) {
                 $sql[] = $sql2;
                 $vals = array_merge($vals, $vals2);

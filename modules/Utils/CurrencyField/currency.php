@@ -12,7 +12,7 @@ require_once("HTML/QuickForm/input.php");
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
 
-	function HTML_QuickForm_currency($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
+	function __construct($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
 		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
 		$this->_persistantFreeze = true;
 		$this->setType('text');
@@ -22,7 +22,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 
 	function getFrozenHtml() {
 		$val = Utils_CurrencyFieldCommon::get_values(str_replace(Utils_CurrencyFieldCommon::get_decimal_point($this->currency), '.', $this->getValue()));
-		return Utils_CurrencyFieldCommon::format($val[0], isset($this->currency)?$this->currency:1);
+		return Utils_CurrencyFieldCommon::format($val[0], $this->currency ?? 1);
 	}
 
 	function toHtml() {
@@ -83,7 +83,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 		}
 		$tmp = explode('__', $val);
         if(count($tmp)!=2) return null; //invalid value - ignore...
-        list($val, $currency) = $tmp;
+        [$val, $currency] = $tmp;
 		$cur = explode(Utils_CurrencyFieldCommon::get_decimal_point($currency), $val);
 		if (!isset($cur[1])) $ret = $cur[0]; else {
 			$this->dec_digits = DB::GetOne('SELECT decimals FROM utils_currency WHERE id=%d', array($currency));

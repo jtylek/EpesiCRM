@@ -40,9 +40,9 @@ class Utils_LeightboxPrompt extends Module {
     
     public function add_options($options) {
     	foreach ($options as $option => $desc) {
-    		$desc['label'] = $desc['label']?? $option;
+    		$desc['label'] ??= $option;
     		
-    		$desc['active'] = $desc['active']?? true;
+    		$desc['active'] ??= true;
     		
     		$desc['active'] = is_array($desc['active'])? $desc['active']: [$desc['active']];
     		
@@ -52,9 +52,7 @@ class Utils_LeightboxPrompt extends Module {
     		if ($desc['elements']?? []) {
     			$form = $this->init_module(Libs_QuickForm::module_name());
     			
-    			$elements = array_filter($desc['elements'], function($element) {
-    				return $element['active']?? true;
-    			});
+    			$elements = array_filter($desc['elements'], fn($element) => $element['active']?? true);
     				
     			$form->add_array($elements);
     			

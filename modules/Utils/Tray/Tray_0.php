@@ -203,9 +203,7 @@ class Utils_Tray extends Module {
 			}
 		}
 		
-		uasort($this->boxes, function (Utils_Tray_Box $a, Utils_Tray_Box $b) {
-			return $a->getWeight() - $b->getWeight();
-		});
+		uasort($this->boxes, fn(Utils_Tray_Box $a, Utils_Tray_Box $b) => $a->getWeight() - $b->getWeight());
 	}
 	
 	public function get_tab_slots($tab) {

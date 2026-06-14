@@ -211,7 +211,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
     }
 
     public static function decrypt($input,$password) {
-        list($note,$iv) = explode("\n",$input);
+        [$note, $iv] = explode("\n",$input);
         $iv1 = base64_decode($iv);
         $ret = rtrim(self::crypt(base64_decode($note), $password, self::DECRYPT, $iv1), "\0"); //we can trim, because on the end there is md5 sum (100% text character is last char in file)
         $md5 = substr($ret,-32);
@@ -548,8 +548,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             case 'edit':
             case 'added':
                 if(isset($values['note_password'])) {
-                    $old_password = isset($_SESSION['client']['cp' . $values['id']])
-                        ? $_SESSION['client']['cp' . $values['id']] : '';
+                    $old_password = $_SESSION['client']['cp' . $values['id']] ?? '';
                     $_SESSION['client']['cp'.$values['id']] = $values['note_password'];
                 }
 

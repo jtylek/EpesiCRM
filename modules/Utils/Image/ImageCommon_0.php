@@ -29,7 +29,7 @@ class Utils_ImageCommon extends ModuleCommon {
 			$img = Base_ThemeCommon::get_template_file(Utils_ImageInstall::module_name(),'error_image_not_found.gif');
 		} 
 		
-		list($width,$height,$type,$attr) = getimagesize($img);
+		[$width, $height, $type, $attr] = getimagesize($img);
 		
 		$max_dim = 100;
 		if( is_numeric($attr_x) )
@@ -60,7 +60,7 @@ class Utils_ImageCommon extends ModuleCommon {
 		$thumb_real = ModuleManager::get_data_dir(Utils_ImageInstall::module_name()).$thumb;
 		if( is_file($thumb_real) && filemtime($img)<filemtime($thumb_real) && filectime($img)<filectime($thumb_real)) {
 			//print ModuleManager::get_data_dir('Utils/Image').$thumb." exists<br>";
-			list($thumb_width, $thumb_height, $type, $attr) = getimagesize($thumb_real);
+			[$thumb_width, $thumb_height, $type, $attr] = getimagesize($thumb_real);
 		// 2) it does not
 		} else { // create thumb
 			//$old_err = error_reporting(0);

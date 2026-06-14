@@ -140,7 +140,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
         }
         if (strlen($data['caption']) > 32) $ret['caption'] = __('Maximum length for this field is %s characters.', array(32));
         foreach ($data['menu'] as $menu_label) {
-            if (strpos($menu_label, Utils_RecordBrowser_CustomRecordsetsCommon::$sep) !== false) {
+            if (strpos($menu_label, (string) Utils_RecordBrowser_CustomRecordsetsCommon::$sep) !== false) {
                 $ret['menu'] = __('Menu label cannot contain %s', array(Utils_RecordBrowser_CustomRecordsetsCommon::$sep));
             }
         }

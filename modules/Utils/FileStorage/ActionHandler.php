@@ -56,7 +56,7 @@ class Utils_FileStorage_ActionHandler
 
     protected function loadEpesi()
     {
-    	define('CID', isset($_REQUEST['cid'])? $_REQUEST['cid']: false);
+    	define('CID', $_REQUEST['cid'] ?? false);
         define('READ_ONLY_SESSION', true);
 
         require_once('../../../include.php');

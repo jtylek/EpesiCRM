@@ -16,8 +16,8 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_add_empty_fields = false;
 	var $_order = 'value';
 
-	function HTML_QuickForm_commondata($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
-		$this->HTML_QuickForm_select($elementName, $elementLabel, array(), $attributes);
+	function __construct($elementName=null, $elementLabel=null, $commondata=null, $options=null, $attributes=null) {
+		\HTML_QuickForm_select::__construct($elementName, $elementLabel, array(), $attributes);
 		$this->_persistantFreeze = true;
 		$this->_type = 'commondata';
 		$this->_appendName = true;

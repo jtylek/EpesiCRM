@@ -50,9 +50,9 @@ class Utils_Planner extends Module {
 	
 	public function set_regular_grid($start_time='00:00', $end_time='23:59', $grid_size='01:00') {
 		foreach (array('start_time','end_time','grid_size') as $v)
-			if ($$v!=(string)intval($$v)) {
-				$e = explode(':',$$v);
-				$$v = $e[0]*60+$e[1];
+			if (${$v}!=(string)intval(${$v})) {
+				$e = explode(':',${$v});
+				${$v} = $e[0]*60+$e[1];
 			}
 		$this->grid = array();
 		$time = $start_time;
@@ -239,7 +239,7 @@ class Utils_Planner extends Module {
 			foreach ($time_frames as $k=>$v) {
 				$x = explode('::',$v);
 				if (!isset($x[2])) trigger_error(print_r($time_frames, true));
-				list($day, $s, $e) = explode('::',$v);
+				[$day, $s, $e] = explode('::',$v);
 				foreach ($this->grid as $v) {
 					if ($v>=$s && $v<$e) {
 						eval_js('time_grid_mouse_down('.$v.','.$day.',"used");');
@@ -272,7 +272,7 @@ class Utils_Planner extends Module {
 					unset($time_frames[$k]);
 					break;
 				}
-				list($day, $s, $e) = explode('::',$v);
+				[$day, $s, $e] = explode('::',$v);
 				$time_frames[$k] = array('day'=>$day, 'start'=>$s, 'end'=>$e);
 			}
 			call_user_func($_SESSION['client']['utils_planner']['processing_callback'], $values, $time_frames);

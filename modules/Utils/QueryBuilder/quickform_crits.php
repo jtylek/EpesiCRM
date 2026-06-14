@@ -11,7 +11,7 @@ require_once("HTML/QuickForm/input.php");
 
 class HTML_QuickForm_crits extends HTML_QuickForm_input {
 
-    function HTML_QuickForm_crits($elementName = null, $elementLabel = null, $attributes=null) {
+    function __construct($elementName = null, $elementLabel = null, $attributes=null) {
         HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
         if ($this->_caller instanceof HTML_QuickForm) {
             $this->_caller->addFormRule(array($this, 'check_for_error'));
@@ -24,7 +24,7 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
         $str = "<div id=\"{$name}_qb_editor\"></div>";
         $attrs = $this->getAttributes(true);
         $str .= "<input type=\"hidden\" $attrs>";
-        $last_value = isset($this->_caller->_submitValues["{$name}_last_valid"]) ? $this->_caller->_submitValues["{$name}_last_valid"] : null;
+        $last_value = $this->_caller->_submitValues["{$name}_last_valid"] ?? null;
         if ($last_value) {
             $last_value = htmlspecialchars($last_value);
             $last_value = " value=\"{$last_value}\"";

@@ -148,9 +148,7 @@ class Utils_RecordBrowser_CsvExport
         $end_line_type          = $this->end_line_type;
         $text_space_separator   = $this->text_space_separator;
         $text_space_indicator   = $this->text_space_indicator;        
-        ob_start(function($buffer) use ($end_line_type,$text_space_indicator,$text_space_separator) {
-            return Utils_RecordBrowser_CsvExport::eol_conversion($buffer, $end_line_type,$text_space_indicator,$text_space_separator);
-        });
+        ob_start(fn($buffer) => $this->eol_conversion($buffer, $end_line_type, $text_space_indicator, $text_space_separator));
         fputcsv($f, $cols, $this->field_separator, htmlspecialchars_decode($this->text_space_separator));
         $currency_codes = DB::GetAssoc('SELECT symbol, code FROM utils_currency');
 

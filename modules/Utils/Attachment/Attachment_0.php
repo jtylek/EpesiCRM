@@ -28,9 +28,9 @@ class Utils_Attachment extends Module {
 
 
 	public function construct($group=null,$watchdog_cat=null,$watchdog_id=null,$func=null,$args=null) {
-		$this->group = & $this->get_module_variable('group',isset($group)?$group:null);
-		$this->func = & $this->get_module_variable('func',isset($func)?$func:null);
-		$this->args = & $this->get_module_variable('args',isset($args)?$args:null);
+		$this->group = & $this->get_module_variable('group',$group ?? null);
+		$this->func = & $this->get_module_variable('func',$func ?? null);
+		$this->args = & $this->get_module_variable('args',$args ?? null);
 
 		if(isset($watchdog_cat)) $this->watchdog_category = $watchdog_cat;
 		if(isset($watchdog_id)) $this->watchdog_id = $watchdog_id;
