@@ -8,8 +8,11 @@ use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/admin',
-        __DIR__ . '/console',
+        __DIR__ . '/modules/FirstRun',
+        __DIR__ . '/modules/Data',
+        __DIR__ . '/modules/Tools',
+        __DIR__ . '/modules/Apps',
+        __DIR__ . '/modules/Applets',
     ])
     ->withSkip([
         __DIR__ . '/modules/Libs',

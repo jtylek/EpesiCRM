@@ -148,7 +148,7 @@ class FirstRun extends Module {
 			$pkgs = reset($this->ini);
 			$pkgs = $pkgs['package'];
 		} else
-			$pkgs = isset($this->ini[$d[0]['setup_type']]['package'])?$this->ini[$d[0]['setup_type']]['package']:array();
+			$pkgs = $this->ini[$d[0]['setup_type']]['package'] ?? array();
 		
 		$t = microtime(true);
 		epesi_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",'firstrun.log');

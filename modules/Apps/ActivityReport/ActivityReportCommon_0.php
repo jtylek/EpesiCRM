@@ -33,7 +33,7 @@ class Apps_ActivityReportCommon extends ModuleCommon {
 			if ($has_permission) {
 				return true;
 			}
-			$id = (isset($contact_record['id']) ? $contact_record['id'] : false);
+			$id = ($contact_record['id'] ?? false);
 			if (!$id) {
 				return false;
 			}

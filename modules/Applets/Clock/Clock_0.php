@@ -56,7 +56,7 @@ class Applets_Clock extends Module {
 	public function applet($conf, & $opts) { //available applet options: toggle,href,title,go,go_function,go_arguments,go_contruct_arguments
 		$opts['toggle'] = false;
 		$opts['go'] = true;
-		$skin = isset($conf['skin'])?$conf['skin']:null;
+		$skin = $conf['skin'] ?? null;
 		$opts['go_arguments'] = array($skin);
 		
 		$size = $conf['type'] == 'double'? 60: 100;
