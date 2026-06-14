@@ -123,7 +123,7 @@ class CRM_Contacts_Activities extends Module {
 			$this->display = $form->exportValues();
 			foreach(array('events', 'tasks', 'phonecalls', 'closed', 'activities_date') as $v) if (!isset($this->display[$v])) $this->display[$v] = false;
 		} else $this->display = $old_display;
-		$this->activities_date = isset($this->display['activities_date'])?$this->display['activities_date']:0;
+		$this->activities_date = $this->display['activities_date'] ?? 0;
 		$this->set_module_variable('display_options', $this->display);
 	}
 	

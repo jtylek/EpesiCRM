@@ -14,7 +14,7 @@ class CRM_Calendar extends Module {
 	
 	public function new_event($type, $timestamp, $timeless) {
 		if ($type!==null) {
-			list($label,$id,$int_id) = explode('__',$type);
+			[$label, $id, $int_id] = explode('__',$type);
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
 		} else {
 			$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers');
@@ -27,7 +27,7 @@ class CRM_Calendar extends Module {
 	}
 
 	public function jump_to_new_event($option, $timestamp, $timeless) {
-		list($label,$id,$int_id) = explode('__',$option);
+		[$label, $id, $int_id] = explode('__',$option);
 		$callback = DB::GetOne('SELECT handler_callback FROM crm_calendar_custom_events_handlers WHERE id=%d',$id);
 		$callback = explode('::', $callback);
 		call_user_func($callback, 'new_event', $timestamp, $timeless, $int_id, null, $this);

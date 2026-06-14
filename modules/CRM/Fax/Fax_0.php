@@ -15,7 +15,7 @@ class CRM_Fax extends Module {
 	public function body() {
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'provider');
 		
-		list($providers,$providers_arr) = self::get_providers();
+		[$providers, $providers_arr] = self::get_providers();
 
 		if(empty($providers)) {
 			print(__('No fax providers installed or configured.'));
@@ -307,7 +307,7 @@ class CRM_Fax extends Module {
 		}
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'send_fax');
 		
-		list($providers,$providers_arr) = self::get_providers($file);
+		[$providers, $providers_arr] = self::get_providers($file);
 		if(empty($providers)) {
 			$this->go_back($file);
 			Epesi::alert(__('No fax providers installed or configured for this type of file.'));

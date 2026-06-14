@@ -531,7 +531,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			self::subscribed_employees($values);
 			$related = array_merge($values['employees'],$values['customers']);
 			foreach ($related as $v) {
-				list ($t, $id) = CRM_ContactsCommon::decode_record_token($v);
+				[$t, $id] = CRM_ContactsCommon::decode_record_token($v);
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'crm_meeting',$values['id']);

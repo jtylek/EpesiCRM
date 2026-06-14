@@ -91,7 +91,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             return array('contact', $token);
         }
         $exploded = explode($delimiter, $token);
-        list($tab, $id) = $exploded;
+        [$tab, $id] = $exploded;
         if ($delimiter == ':') {
             if ($tab == 'P') $tab = 'contact';
             if ($tab == 'C') $tab = 'company';
@@ -100,7 +100,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     }
     public static function get_record($token)
     {
-        list($tab, $id) = self::decode_record_token($token);
+        [$tab, $id] = self::decode_record_token($token);
         return Utils_RecordBrowserCommon::get_record($tab, $id);
     }
     public static function get_contact($id) {
@@ -203,10 +203,10 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_company_contact');
         $field['type'] = $field['param']['field_type'];
 
-        $crits_callback = isset($field['param']['crits'])? $field['param']['crits']: array('', '');
+        $crits_callback = $field['param']['crits'] ?? array('', '');
         $crits_callback = is_array($crits_callback)? implode('::', $crits_callback): $crits_callback;
         
-        $format_callback = isset($field['param']['format'])? $field['param']['format']: array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
+        $format_callback = $field['param']['format'] ?? array('CRM_ContactsCommon', 'crm_company_contact_select_list_options');
         $format_callback = is_array($format_callback)? implode('::', $format_callback): $format_callback;
         
         $field['param'] = "company,contact::;$crits_callback;$format_callback";
@@ -246,7 +246,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $id = null;
 
         if(!is_array($arg)) {
-            list($tab, $id) = self::decode_record_token($arg);
+            [$tab, $id] = self::decode_record_token($arg);
         } else {
             $id = $arg['id'];
             $tab = "contact";
@@ -569,7 +569,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                     $form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
             } else {
                 if ($adv_crits !== null || is_numeric($limit)) {
-                    $form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($adv_crits!==null?$adv_crits:$crits, $callback), $callback);
+                    $form->addElement('automulti', $field, $label, array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($adv_crits ?? $crits, $callback), $callback);
                 } else {
                     $form->addElement($desc['type'], $field, $label, $cont, array('id'=>$field));
                 }
@@ -655,7 +655,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         $comp = array();
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
-            if (isset($param[1]) && $param[1] != '::') $crits = call_user_func(explode('::',$param[1]),false,isset($rb->record)?$rb->record:null);
+            if (isset($param[1]) && $param[1] != '::') $crits = call_user_func(explode('::',$param[1]),false,$rb->record ?? null);
             else $crits = array();
             if (isset($crits['_no_company_option'])) {
                 $no_company_option = true;
@@ -736,7 +736,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function QFfield_tax_id(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         Utils_RecordBrowserCommon::QFfield_text($form, $field, $label, $mode, $default, $desc, $rb_obj);
         if ($mode=='add' || $mode=='edit') {
-            self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
+            self::$rid = $rb_obj->record['id'] ?? null;
             $form->addFormRule(array('CRM_ContactsCommon','check_tax_id_unique'));
         }
     }
@@ -756,7 +756,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function QFfield_cname(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='add' || $mode=='edit') {
             $form->addElement('text', $field, $label, array('id'=>$field));
-            self::$rid = isset($rb_obj->record['id'])?$rb_obj->record['id']:null;
+            self::$rid = $rb_obj->record['id'] ?? null;
             $form->addFormRule(array('CRM_ContactsCommon','check_cname_unique'));
             if ($mode=='edit') $form->setDefaults(array($field=>$default));
         } else {
@@ -790,7 +790,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function QFfield_unique_email(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
 		$ret = self::QFfield_email($form, $field, $label, $mode, $default, $desc, $rb_obj);
         if ($mode=='add' || $mode=='edit')
-			self::add_rule_email_unique($form, $field, $rb_obj->tab, isset($rb_obj->record['id'])?$rb_obj->record['id']:null);
+			self::add_rule_email_unique($form, $field, $rb_obj->tab, $rb_obj->record['id'] ?? null);
 		return $ret;
 	}
     public static function check_new_company_name($data){
@@ -1029,7 +1029,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                             'address_2'=>$values['address_2'],
                             'country'=>$values['country'],
                             'city'=>$values['city'],
-                            'zone'=>isset($values['zone'])?$values['zone']:'',
+                            'zone'=>$values['zone'] ?? '',
                             'postal_code'=>$values['postal_code'],
                             'phone'=>$values['work_phone'],
                             'fax'=>$values['fax'],
@@ -1051,7 +1051,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$values['login'] = Base_UserCommon::get_user_id($values['username']);
 				} else {
 					if ($values['login']) {
-						Base_User_LoginCommon::change_user_preferences($values['login'], isset($values['email'])?$values['email']:'', isset($values['set_password'])?$values['set_password']:null);
+						Base_User_LoginCommon::change_user_preferences($values['login'], $values['email'] ?? '', $values['set_password'] ?? null);
 						if (isset($values['username']) && $values['username']) Base_UserCommon::rename_user($values['login'], $values['username']);
 					}
 				}

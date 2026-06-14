@@ -75,7 +75,7 @@ class CRM_MailCommon extends ModuleCommon {
             $subscribers = array();
             foreach ($new_related as $rel) {
                 if (in_array($rel, $old_related)) continue;
-                list($recordset, $record_id) = explode('/', $rel);
+                [$recordset, $record_id] = explode('/', $rel);
                 $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($recordset, $record_id));
             }
             foreach (array_unique($subscribers) as $user_id) {
@@ -122,7 +122,7 @@ class CRM_MailCommon extends ModuleCommon {
     public static function QFfield_account_name(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('text', $field, $label,array('id'=>$field));
         $form->registerRule($field,'function','check_account_name','CRM_MailCommon');
-        $form->addRule($field,__('Account Name already in use'),$field,isset($rb->record['id'])?$rb->record['id']:null);
+        $form->addRule($field,__('Account Name already in use'),$field,$rb->record['id'] ?? null);
         $form->setDefaults(array($field=>$default));
         if ($mode == 'add' || $mode == 'edit') {
             load_js('modules/CRM/Mail/utils.js');
@@ -268,7 +268,7 @@ class CRM_MailCommon extends ModuleCommon {
 		foreach($to as $k=>$t) {
 			$to[$k] = trim($t);
 			foreach($mails as $m) {
-				if(strpos($t,$m['email'])!==false) {
+				if(strpos($t,(string) $m['email'])!==false) {
 				    unset($to[$k]);
 				    break;
 				}
@@ -361,7 +361,7 @@ class CRM_MailCommon extends ModuleCommon {
         $contacts = $record['contacts'];
         $subscribers = $employee ? Utils_WatchdogCommon::get_subscribers('contact', $employee) : array();
         foreach ($contacts as $c) {
-            list($rs_full, $con_id) = CRM_ContactsCommon::decode_record_token($c);
+            [$rs_full, $con_id] = CRM_ContactsCommon::decode_record_token($c);
             $subscribers = array_merge($subscribers, Utils_WatchdogCommon::get_subscribers($rs_full, $con_id));
         }
         foreach (array_unique($subscribers) as $user_id) {
@@ -483,7 +483,7 @@ class CRM_MailCommon extends ModuleCommon {
                         foreach ($l as $msg) {
                             $from = isset($msg->from) ? imap_utf8($msg->from) : '<unknown>';
                             $subject = isset($msg->subject) ? imap_utf8($msg->subject) : '<no subject>';
-                            $date = isset($msg->date) ? $msg->date : '';
+                            $date = $msg->date ?? '';
                             $unseen[] = array('from' => $from, 'subject' => $subject, 'id' => $msg->uid, 'date' => $date, 'unix_timestamp' => $msg->udate);
                         }
                     }

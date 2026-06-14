@@ -13,7 +13,7 @@ ModuleManager::load_modules();
 //if(!Acl::is_user()) die('Not logged in');
 if(!DB::GetOne('SELECT 1 FROM rc_mails_attachments_download WHERE created_on>%T AND hash=%s AND mail_id=%d',array(strtotime('-30 days'),$_GET['hash'],$_GET['mail_id']))) die(__('File expired. Please contact your correspondent to get new link.'));
 
-list($mimetype,$name,$attachment) = DB::GetRow('SELECT type,name,attachment FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
+[$mimetype, $name, $attachment] = DB::GetRow('SELECT type,name,attachment FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
 
 $disposition = $attachment?'attachment':'inline';
 

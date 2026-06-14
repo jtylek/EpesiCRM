@@ -117,7 +117,7 @@ class CRM_Calendar_Event extends Utils_Calendar_Event {
 		}
 		if (isset($ev['customers']) && !empty($ev['customers'])) {
 			foreach ($ev['customers'] as $v) {
-				list ($tab, $rec_id) = CRM_ContactsCommon::decode_record_token($v);
+				[$tab, $rec_id] = CRM_ContactsCommon::decode_record_token($v);
 				if ($tab == 'contact') {
 					$c = CRM_ContactsCommon::get_contact($rec_id);
 					$company_name = isset($c['company_name']) && is_numeric($c['company_name'])

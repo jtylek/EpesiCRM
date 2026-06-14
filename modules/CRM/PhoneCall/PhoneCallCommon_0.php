@@ -38,7 +38,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 					case 3: $id = 'home_phone'; 	$nr = 'Home Phone'; break;
 					case 4: $id = 'phone'; 			$nr = 'Phone'; break;
 				}
-				$phone = $nr.': '.(isset($cus[$id])?$cus[$id]:'error');
+				$phone = $nr.': '.($cus[$id] ?? 'error');
 			} else $phone = __('Other').': '.$r['other_phone_number'];
 		} else {
 			$customer = $r['other_customer_name'];
@@ -312,7 +312,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if (!isset($values['other_customer'])) $related[] = $values['customer'];
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
-				list($t, $id) = CRM_ContactsCommon::decode_record_token($v);
+				[$t, $id] = CRM_ContactsCommon::decode_record_token($v);
 				$subs = Utils_WatchdogCommon::get_subscribers($t,$id);
 				foreach($subs as $s)
 					Utils_WatchdogCommon::user_subscribe($s, 'phonecall',$values['id']);
@@ -320,9 +320,9 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 			if ($mode=='added') break;
 		case 'add':
 			if(isset($values['phone']) && $values['phone']) {
-				if($values['customer']{0}=='P' && $values['phone']=='4')
+				if($values['customer'][0]=='P' && $values['phone']=='4')
 				    $values['phone'] == '1';
-				elseif($values['customer']{0}=='C' && $values['phone']!='4')
+				elseif($values['customer'][0]=='C' && $values['phone']!='4')
 				    $values['phone'] == '4';
 			} 
 			if (isset($values['other_customer']) && $values['other_customer']) {
@@ -363,7 +363,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if($a['other_customer'])
 			$contact = $a['other_customer_name'];
 		else {
-			list($r,$id) = CRM_ContactsCommon::decode_record_token($a['customer']);
+			[$r, $id] = CRM_ContactsCommon::decode_record_token($a['customer']);
 			if ($r=='contact')
 				$contact = CRM_ContactsCommon::contact_format_default($id,true);
 			else {

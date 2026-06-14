@@ -23,7 +23,7 @@ foreach ($values as $v) {
 
 $res = array();
 if ($ret !== '') {
-    list ($r, $id) = CRM_ContactsCommon::decode_record_token($ret);
+    [$r, $id] = CRM_ContactsCommon::decode_record_token($ret);
     if ($id) {
         if ($r == 'contact') {
             $contact = CRM_ContactsCommon::get_contact($id);

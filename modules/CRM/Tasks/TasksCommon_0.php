@@ -141,7 +141,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			return '';
 		}
 		$deadline = strtotime($record['deadline']);
-		$timeless = isset($record['timeless']) ? $record['timeless'] : false;
+		$timeless = $record['timeless'] ?? false;
 		$show_time = !$timeless;
 		$time2reg = $show_time;
 		$ret = Base_RegionalSettingsCommon::time2reg($deadline, $show_time, true, $time2reg);
@@ -259,7 +259,7 @@ class CRM_TasksCommon extends ModuleCommon {
 			foreach ($related as $v) {
 				if ($mode==='edit' && in_array($v, $old_related)) continue;
 				if (!is_numeric($v)) {
-					list($t, $id) = explode('/', $v);
+					[$t, $id] = explode('/', $v);
 				} else {
 					$t = 'contact';
 					$id = $v;
