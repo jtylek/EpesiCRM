@@ -105,7 +105,7 @@ class EpesiSession implements SessionHandlerInterface{
         if ($clientData = self::storage()->read($name . '_' . CID))
         	$_SESSION['client'] = $clientData;
 
-        $_SESSION['client']['__module_vars__'] = $_SESSION['client']['__module_vars__']?? [];
+        $_SESSION['client']['__module_vars__'] ??= [];
         
         return '';
     }
@@ -297,7 +297,7 @@ class EpesiSessionFileStorage extends EpesiSessionStorage
 		
 		$key = md5($file);
 		
-		self::$filePointers[$key] = self::$filePointers[$key]?? fopen($file, 'r+');
+		self::$filePointers[$key] ??= fopen($file, 'r+');
 		
 		return self::$filePointers[$key];
 	}

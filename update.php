@@ -138,17 +138,17 @@ class EpesiPackageDownloader
 
     public static function get_public_key()
     {
-        $PUBLIC_KEY = <<<KEY
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvWFAZMVAGr3fPNK0v9Vt
-IErRSpl4I3wIWTr1kybpY8/+j9IX/t9qLvOPY4OVrkzURmKvS+VbSU8MSYZz9QIL
-TJUmNYkkyqJieSpQCq/7x5J2it+i1TeGKk8m3sOpL17+NUa/1e8a4W6FmLl9hwLd
-8TQnlVQJIva3JXA46S1E3BNPbaWdQrwABs5xGUterE890+rW63/pgD1pT1qEbmif
-oiTuG+dyhCo+REcjo8YWIpi+8BNJoo3Nn7Xxi71yA2Ps8DElIjjNRa/ca5A6SE61
-euoJaHtTSc7OsuDug2Rv0aQkvR7OmFyfIJAdAasZHWePWeuezlKJAAcvNFdjZ0Zw
-KwIDAQAB
------END PUBLIC KEY-----
-KEY;
+        $PUBLIC_KEY = <<<KEY_WRAP
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvWFAZMVAGr3fPNK0v9Vt
+        IErRSpl4I3wIWTr1kybpY8/+j9IX/t9qLvOPY4OVrkzURmKvS+VbSU8MSYZz9QIL
+        TJUmNYkkyqJieSpQCq/7x5J2it+i1TeGKk8m3sOpL17+NUa/1e8a4W6FmLl9hwLd
+        8TQnlVQJIva3JXA46S1E3BNPbaWdQrwABs5xGUterE890+rW63/pgD1pT1qEbmif
+        oiTuG+dyhCo+REcjo8YWIpi+8BNJoo3Nn7Xxi71yA2Ps8DElIjjNRa/ca5A6SE61
+        euoJaHtTSc7OsuDug2Rv0aQkvR7OmFyfIJAdAasZHWePWeuezlKJAAcvNFdjZ0Zw
+        KwIDAQAB
+        -----END PUBLIC KEY-----
+        KEY_WRAP;
         return $PUBLIC_KEY;
     }
 
@@ -404,7 +404,7 @@ class EpesiUpdate
             $this->redirect(array());
         }
 
-        uasort($files, function(Backup $a, Backup $b) { return $a->get_date() > $b->get_date();});
+        uasort($files, fn(Backup $a, Backup $b) => $a->get_date() > $b->get_date());
         $backups = '';
         foreach ($files as $file => $backup) {
             $download_url = urlencode($file);

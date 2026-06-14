@@ -60,8 +60,8 @@ function mobile_stack_href($func,$args = array(),$caption=null) {
 
 function sort_menus_cmp($a, $b) {
 	global $menus_out_tmp;
-	$aw = isset($menus_out_tmp[$a][2]) ? $menus_out_tmp[$a][2]:0;
-	$bw = isset($menus_out_tmp[$b][2]) ? $menus_out_tmp[$b][2]:0;
+	$aw = $menus_out_tmp[$a][2] ?? 0;
+	$bw = $menus_out_tmp[$b][2] ?? 0;
 	if(!isset($aw) || !is_numeric($aw)) $aw=0;
 	if(!isset($bw) || !is_numeric($bw)) $bw=0;
 	if($aw==$bw)
@@ -80,9 +80,9 @@ function mobile_menu() {
 			if(is_array($met)) {
 				if(!isset($met['func'])) continue;
 				$method = array($m.'Common',$met['func']);
-				$args = isset($met['args'])?$met['args']:array();				
-				$weight = isset($met['weight'])?$met['weight']:0;
-				$color = isset($met['color'])?$met['color']:'white';
+				$args = $met['args'] ?? array();				
+				$weight = $met['weight'] ?? 0;
+				$color = $met['color'] ?? 'white';
 			} else {
 				$method = array($m.'Common',$met);
 				$args = array();

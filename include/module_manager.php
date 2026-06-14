@@ -242,7 +242,7 @@ class ModuleManager {
 				if(isset(self::$processing[$m['name']]))
 					throw new Exception('Cross dependencies: '.$module_to_install);
 
-				if (!self :: exists($m['name'],$m['version']))
+				if (!self :: exists($m['name']))
 					throw new Exception('Module not found: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version']);
 
 				print('Inst/Up required module: ' . '<b>' . $m['name'] . '</b>' . ' version='.$m['version'].' by ' . '<b>' . $module_to_install . '</b>' . '<br>');
@@ -395,7 +395,7 @@ class ModuleManager {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': module is not installed, please install it first.<br>');
 			return false;
 		}
-		if (!self :: exists($module,$to_version)) {
+		if (!self :: exists($module)) {
 			print('Upgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
@@ -453,7 +453,7 @@ class ModuleManager {
 			print('Downgrading module \''.$module.'\' to version '.$to_version.': module not installed.<br>');
 			return false;
 		}
-		if (!self :: exists($module,$to_version)) {
+		if (!self :: exists($module)) {
 			print('Downgrading module \''.$module.'\' to version '.$to_version.': specified version of module is missing, please download it first.<br>');
 			return false;
 		}
@@ -551,7 +551,7 @@ class ModuleManager {
 		if(self::is_installed($module_class_name)>=$version)
 			return true;
 
-		if (!self :: exists($module_class_name,$version))
+		if (!self :: exists($module_class_name))
 			return false;
 
 		//check dependecies

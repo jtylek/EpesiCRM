@@ -46,8 +46,7 @@ require 'include/module_primitive.php';
 require 'include/module.php';
 require 'include/module_common.php';
 require 'modules/Base/Lang/LangCommon_0.php';
-$install_lang_load = isset($langs[$install_lang_code])
-    ? $langs[$install_lang_code] : 'en'; // fallback to english
+$install_lang_load = $langs[$install_lang_code] ?? 'en'; // fallback to english
 define('FORCE_LANG_CODE', $install_lang_load);
 include "{$install_lang_dir}/{$install_lang_load}.php";
 // end translations load
@@ -103,11 +102,11 @@ if (!isset($install_lang_code)) {
 	$labels = Base_LangCommon::get_base_languages();
 	$list = array();
 	foreach ($complete as $l) {
-		$list[$l] = isset($labels[$l])?$labels[$l]:$l;
+		$list[$l] = $labels[$l] ?? $l;
 	}
 	$rest = array();
 	foreach ($langs as $l) {
-		$rest[$l] = isset($labels[$l])?$labels[$l]:$l;
+		$rest[$l] = $labels[$l] ?? $l;
 	}
 	asort($list);
 	asort($rest);
@@ -393,7 +392,7 @@ function check_htaccess() {
 
 function write_config($host, $user, $pass, $dbname, $engine, $other) {
     global $install_lang_load;
-	$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
+	$local_dir = dirname(str_replace('\\','/',__FILE__), 2);
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
 	if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) {

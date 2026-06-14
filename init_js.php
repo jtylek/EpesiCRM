@@ -24,7 +24,7 @@ require_once('include/session.php');
 if (isset($_SERVER['SCRIPT_FILENAME']) && $_SERVER['SCRIPT_FILENAME'] == __FILE__)
     header("Content-type: text/javascript");
 
-$client_id = isset($_SESSION['num_of_clients'])?$_SESSION['num_of_clients']:0;
+$client_id = $_SESSION['num_of_clients'] ?? 0;
 $client_id_next = $client_id+1;
 $_SESSION['num_of_clients'] = $client_id_next;
 

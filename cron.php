@@ -32,7 +32,9 @@ if (file_exists(DATA_DIR . '/maintenance_mode.php')) die();
 
 $lock = DATA_DIR.'/cron.lock';
 if(file_exists($lock) && filemtime($lock)>time()-6*3600) die();
-register_shutdown_function(create_function('','@unlink("'.$lock.'");'));
+register_shutdown_function(function () use ($lock) {
+    @unlink("{$lock}");
+});
 file_put_contents($lock,'');
 
 set_time_limit(0);
