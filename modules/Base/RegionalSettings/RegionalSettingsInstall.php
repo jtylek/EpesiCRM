@@ -109,7 +109,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
-				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
+				self::$countries[$lang_code] ?? null);//win32
 
 		$ret = ($t == strtotime('2010-01-01 '.strftime($v,$t)));
 		setlocale(LC_TIME,$curr_locale);
@@ -121,7 +121,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','time',$val['time']);
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','tz',$val['tz']);
 		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_country',$val['default_country']);
-		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_state',isset($val['default_state'])?$val['default_state']:'');
+		Base_User_SettingsCommon::save_admin('Base_RegionalSettings','default_state',$val['default_state'] ?? '');
 	}
 
 }

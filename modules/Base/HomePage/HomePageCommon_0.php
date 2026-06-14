@@ -71,7 +71,7 @@ class Base_HomePageCommon extends ModuleCommon {
 		$sql .= ' ORDER BY priority';
 		$page = DB::GetOne($sql, $vals);
 		$pages = self::get_home_pages();
-		return isset($pages[$page])?$pages[$page]:array();
+		return $pages[$page] ?? array();
 	}
 	
 	public static function get_href() {

@@ -76,7 +76,7 @@ class Base_Search extends Module {
 				if ($categories_tmp) {
 					foreach ($categories_tmp as $cat => $val) {
 						if (!$val) continue;
-						list($mod,$cat_id) = explode('#',$cat,2);
+						[$mod, $cat_id] = explode('#',$cat,2);
 						if(!isset($categories[$mod])) $categories[$mod] = array();
 						$categories[$mod][]=$cat_id;
 					}
@@ -85,7 +85,7 @@ class Base_Search extends Module {
 				$this->set_module_variable('quick_search',$keyword);
 				$count = 0;
 				foreach($modules_with_search as $k) {
-					$results = call_user_func(array($k.'Common','search'),$keyword,isset($categories[$k])?$categories[$k]:array());
+					$results = call_user_func(array($k.'Common','search'),$keyword,$categories[$k] ?? array());
 					if (!empty($results))
 						foreach ($results as $rk => $rv) {
 							$count++;
@@ -99,7 +99,7 @@ class Base_Search extends Module {
 				$qs_theme = $this->pack_module(Base_Theme::module_name());
 				$qs_theme->assign('header', __('Search results'));
 				$qs_theme->assign('links', $links);
-				$qs_theme->assign('warning', isset($warning)?$warning:null);
+				$qs_theme->assign('warning', $warning ?? null);
 				$qs_theme->display('Results');
 				return;
 			}

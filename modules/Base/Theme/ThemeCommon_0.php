@@ -341,23 +341,23 @@ class Base_ThemeCommon extends ModuleCommon {
 			$text="";
 			$close="";
 			$len = strlen($val);
-			if ($len>2 && $val{0}==='<' && $val{1}==='a')
+			if ($len>2 && $val[0]==='<' && $val[1]==='a')
 				while ($i<$len-1) {
-					if ($val{$i}==='<') {
-						if ($val{$i+1}==='a') {
+					if ($val[$i]==='<') {
+						if ($val[$i+1]==='a') {
 							if ($count===0) {
-								while ($i<$len-1 && $val{$i}!=='>') {
-									$open .= $val{$i};
+								while ($i<$len-1 && $val[$i]!=='>') {
+									$open .= $val[$i];
 									$i++;
-									if ($val{$i}==='"') {
+									if ($val[$i]==='"') {
 										do {
-											$open .= $val{$i};
+											$open .= $val[$i];
 											$i++;
-										} while ($i<$len && $val{$i}!=='"');
+										} while ($i<$len && $val[$i]!=='"');
 									}
 								}
 								$open .= '>';
-							} else $text .= $val{$i};
+							} else $text .= $val[$i];
 							$count++;
 						} else if (substr($val,$i+1,3)==='/a>') {
 							$count--;
@@ -366,9 +366,9 @@ class Base_ThemeCommon extends ModuleCommon {
 								return array(	'open' => $open,
 												'text' => $text,
 												'close' => '</a>');
-							} else $text .= $val{$i};
-						} else $text .= $val{$i};
-					} else $text .= $val{$i};
+							} else $text .= $val[$i];
+						} else $text .= $val[$i];
+					} else $text .= $val[$i];
 					$i++;
 				}
 			return array();

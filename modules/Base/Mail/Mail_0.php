@@ -116,7 +116,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
 				Variable::set('mail_password', $data['mail_password']);
 			}
             
-            $security = isset($data['mail_security']) ? $data['mail_security'] : '';
+            $security = $data['mail_security'] ?? '';
             Variable::set('mail_security', $security);
 		}
 		return true;

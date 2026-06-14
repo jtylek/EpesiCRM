@@ -41,7 +41,7 @@ class Base_Print extends Module
                 foreach ($printer->default_templates() as $tpl_name => $tpl) {
                     $field_id = "$class_name::$tpl_name";
                     $field_id = preg_replace('/[^A-Za-z0-9_:]/', '_', $field_id);
-                    $active = isset($values[$field_id]) ? $values[$field_id] : false;
+                    $active = $values[$field_id] ?? false;
                     Base_PrintCommon::set_template_disabled($class_name, $tpl_name, $active);
                 }
             }

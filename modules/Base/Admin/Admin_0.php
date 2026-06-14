@@ -155,7 +155,7 @@ class Base_Admin extends Module {
 				if (is_array($raws))
 					foreach ($raws as $s=>$v) {
 						$type = isset($v['values'])?'select':'checkbox';
-						$vals = isset($v['values'])?$v['values']:null;
+						$vals = $v['values'] ?? null;
 						$s_field = $name.'__'.$s.'__switch';
 						$form->addElement($type, $s_field, $v['label'], $vals);
 						$form->setDefaults(array($s_field=>Base_AdminCommon::get_access($name, $s, true)));
@@ -180,7 +180,7 @@ class Base_Admin extends Module {
 				foreach ($bs as $name=>$b) {
 					DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, '', (isset($vals[$b['enable_switch']]) && $vals[$b['enable_switch']])?1:0 ));
 					foreach ($b['sections'] as $s=>$f)
-						DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, isset($vals[$f])?$vals[$f]:0 ));
+						DB::Execute('INSERT INTO base_admin_access (module, section, allow) VALUES (%s, %s, %d)', array($name, $s, $vals[$f] ?? 0 ));
 				}
 			$this->parent->reset();
 			return;

@@ -147,7 +147,7 @@ class Base_EpesiStore extends Module {
         // 'per_page' (numrows) value, then again get_limit to set proper
         // total amount value.
         $total = $this->get_module_variable('modules_total');
-        $x = $gb->get_limit($total === null ? 500 : $total);
+        $x = $gb->get_limit($total ?? 500);
         // fetch data
         $ret = Base_EpesiStoreCommon::modules_list($x['offset'], $x['numrows']);
         if ($total === null)
@@ -199,7 +199,7 @@ class Base_EpesiStore extends Module {
         $downloaded = $this->_get_downloaded_modules_versions();
         foreach ($module_licenses as & $ml) {
             $modinfo = Base_EpesiStoreCommon::get_module_info($ml['module']);
-            $ml['downloaded_version'] = isset($downloaded[$ml['module']]) ? $downloaded[$ml['module']] : '';
+            $ml['downloaded_version'] = $downloaded[$ml['module']] ?? '';
             $ml['current_version'] = $modinfo['version'];
         }
     }

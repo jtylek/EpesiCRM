@@ -80,7 +80,7 @@ class Base_Box extends Module {
                 $containers['main'] = & $main;
             foreach($mains as $k=>$m)
                 if(ModuleManager::is_installed($m['module'])>=0) {
-                    $this->freeze_module($m['module'],(isset($m['name'])?$m['name']:null));
+                    $this->freeze_module($m['module'],($m['name'] ?? null));
                 }
         } else $mains = array();
 
@@ -127,15 +127,15 @@ class Base_Box extends Module {
                 if (!isset($v['name'])) $v['name'] = null;
 
                 if(isset($href) && $k=='main')
-                    $this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name'],true);
+                    $this->modules[$k] = $this->init_module($module_type,($v['constructor_arguments'] ?? null),$v['name'],true);
                 else
-                    $this->modules[$k] = $this->init_module($module_type,(isset($v['constructor_arguments'])?$v['constructor_arguments']:null),$v['name']);
+                    $this->modules[$k] = $this->init_module($module_type,($v['constructor_arguments'] ?? null),$v['name']);
 
                 if($k=='main' && $pop_main)
                     $this->modules[$k]->set_reload(true);
 
                 if(isset($v['function']))
-                    $this->display_module($this->modules[$k],isset($v['arguments'])?$v['arguments']:null,$v['function']);
+                    $this->display_module($this->modules[$k],$v['arguments'] ?? null,$v['function']);
                 elseif(isset($v['arguments']))
                     $this->display_module($this->modules[$k],$v['arguments']);
                 else
@@ -161,7 +161,7 @@ class Base_Box extends Module {
     }
 
     public function get_main_module() {
-        return isset($this->modules['main'])?$this->modules['main']:null;
+        return $this->modules['main'] ?? null;
     }
 
     public function push_main($module=null,$func=null,$args=null,$constr_args=null,$name=null,$replace=false) {

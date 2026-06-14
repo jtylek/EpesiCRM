@@ -44,7 +44,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		$module = str_replace('/','_',$module);
 		static $variables;
 		if ($variables === null) {
-			$variables = isset($_SESSION['default_user_settings']) ? $_SESSION['default_user_settings'] : null;
+			$variables = $_SESSION['default_user_settings'] ?? null;
 		}
 		if (!isset($variables[$module])) {
 			if (class_exists($module . 'Common') && method_exists($module . 'Common', 'user_settings')) {
@@ -72,9 +72,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 			}
 			$_SESSION['default_user_settings'] = $variables;
 		}
-		if(isset($variables[$module][$name]))
-			return $variables[$module][$name];
-		return null;
+		return $variables[$module][$name] ?? null;
 	}
 
 	/**
@@ -95,9 +93,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 					self::$admin_variables[$row['module']][$row['variable']] = $val;
 			}
 		}
-		if (isset(self::$admin_variables[$module][$name]))
-			return self::$admin_variables[$module][$name];
-		return self::$admin_variables[$module][$name] = self::get_default($module,$name);
+		return self::$admin_variables[$module][$name] ?? self::$admin_variables[$module][$name] = self::get_default($module,$name);
 	}
 
 	/**
@@ -123,9 +119,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 					self::$user_variables[$user][$row['module']][$row['variable']] = $val;
 			}
 		}
-		if (isset(self::$user_variables[$user][$module][$name]))
-			return self::$user_variables[$user][$module][$name];
-		return self::$user_variables[$user][$module][$name] = self::get_admin($module,$name);
+		return self::$user_variables[$user][$module][$name] ?? self::$user_variables[$user][$module][$name] = self::get_admin($module,$name);
 	}
 
 	public static function get_users_settings($module,$name){

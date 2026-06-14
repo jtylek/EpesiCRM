@@ -224,7 +224,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if(isset($_COOKIE['autologin_id'])) {
 			$arr = explode(' ',$_COOKIE['autologin_id']);
 			if(count($arr)==2) {
-				list($user,$autologin_id) = $arr;
+				[$user, $autologin_id] = $arr;
 				if($user==Base_UserCommon::get_my_user_login())
                         		DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($autologin_id,Acl::get_user()));
                         }
@@ -243,7 +243,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$uid = Acl::get_user();
 		$user = Base_UserCommon::get_my_user_login();
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
-		setcookie('autologin_id',$user.' '.$autologin_id,time()+60*60*24*30);
+		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
 		$ip = get_client_ip_address();
 		if ($old_autologin_id) {
 			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
@@ -262,7 +262,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if(isset($_COOKIE['autologin_id'])) {
 			$arr = explode(' ',$_COOKIE['autologin_id']);
 			if(count($arr)==2) {
-				list($user,$autologin_id) = $arr;
+				[$user, $autologin_id] = $arr;
 				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
 				if($ret) {
 					Base_User_LoginCommon::set_logged($user);

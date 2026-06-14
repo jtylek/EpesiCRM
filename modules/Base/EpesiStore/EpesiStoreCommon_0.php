@@ -61,7 +61,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         if (self::$module_cache === null) {
             self::get_modules_all_available();
         }
-        return isset(self::$module_cache[$module_id]) ? self::$module_cache[$module_id] : null;
+        return self::$module_cache[$module_id] ?? null;
     }
 
     private static function next_possible_action($module, $downloaded_modules = null) {
@@ -121,7 +121,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 'name' => $v,
                 'label' => _V(ucwords(str_replace('_', ' ', $v))),
                 'type' => 'text',
-                'default' => isset($my_contact[$k]) ? $my_contact[$k] : '');
+                'default' => $my_contact[$k] ?? '');
             if ($k == 'country') {
                 $x['type'] = 'select';
                 $x['values'] = Utils_CommonDataCommon::get_translated_array('Countries');
@@ -358,8 +358,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                             ($response['order_id'] !== null) : false;
                 if ($return !== true)
                     break;
-                $needs_payment = isset($response['needs_payment']) ?
-                                    $response['needs_payment'] : false;
+                $needs_payment = $response['needs_payment'] ?? false;
                 if (!$needs_payment)
                     break;
                 $return = self::_display_payments_for_order($response['order_id']);

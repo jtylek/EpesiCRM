@@ -66,8 +66,8 @@ class Base_NotifyCommon extends ModuleCommon {
 
         $ret = array();
 		foreach ($modules as $m) {
-			$saved_ids = isset($saved_cache[$m])? $saved_cache[$m]:array();
-			$new_ids = isset($cache[$m])? $cache[$m]:array();
+			$saved_ids = $saved_cache[$m] ?? array();
+			$new_ids = $cache[$m] ?? array();
 	
 			$ret[$m] = array_unique(array_merge($saved_ids, $new_ids));
 		}
@@ -225,8 +225,8 @@ class Base_NotifyCommon extends ModuleCommon {
 	}	
 
 	public static function get_icon($module, $message = null) {
-		$icon = Base_ThemeCommon::get_template_file($module, isset($message['icon']) ? $message['icon']:'icon.png');
-		return isset($icon)? $icon: Base_ThemeCommon::get_template_file('Base_Notify', 'icon.png');
+		$icon = Base_ThemeCommon::get_template_file($module, $message['icon'] ?? 'icon.png');
+		return $icon ?? Base_ThemeCommon::get_template_file('Base_Notify', 'icon.png');
 	}
 	
 	public static function strip_html ($text) {

@@ -26,7 +26,7 @@ class Base_AclCommon extends ModuleCommon {
 		if ($user === null) $user = self::get_user();
 		$admin = @DB::GetRow('SELECT * FROM user_login WHERE id=%d', array($user));
 		if ($admin && !empty($admin) && !isset($admin['admin'])) return 2;
-		else $admin = isset($admin['admin'])?$admin['admin']:0;
+		else $admin = $admin['admin'] ?? 0;
 		return $admin;
 	}
 
@@ -75,7 +75,7 @@ class Base_AclCommon extends ModuleCommon {
 	 */
 	private static $cached_user = false;
 	public static function get_user() {
-		if (self::$cached_user==false) self::$cached_user = isset($_SESSION['user'])?$_SESSION['user']:null;
+		if (self::$cached_user==false) self::$cached_user = $_SESSION['user'] ?? null;
 		return self::$cached_user;
 	}
     

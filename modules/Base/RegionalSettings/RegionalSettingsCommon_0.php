@@ -120,7 +120,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
-				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
+				self::$countries[$lang_code] ?? null);//win32
 
 		$ret = ($t == strtotime('2010-01-01 '.strftime($v,$t)));
 		/*print($v.': '.$t.'<br>');
@@ -171,7 +171,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			elseif($date)
 				$format = '%Y-%m-%d';
 			else
-				$format = '';
+				$format = [];
 			if($time===2 || strcasecmp($time,'without_seconds')==0)
 				$format = str_replace(':%S','',$format);
 			if($date===2 || strcasecmp($date,'without_year')==0)
@@ -215,7 +215,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				$lang_code.'_'.strtoupper($lang_code).'.UTF-8',
 				$lang_code.'.utf8',
 				$lang_code.'.UTF-8',
-				isset(self::$countries[$lang_code])?self::$countries[$lang_code]:null);//win32
+				self::$countries[$lang_code] ?? null);//win32
 		setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
 		
 		// detect turkish issues - fixed in php 5.5

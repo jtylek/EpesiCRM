@@ -60,9 +60,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			Base_MenuCommon::add_default_menu($ret, $name);
 			$modules_menu = array_merge($modules_menu,self::check_for_links('',$ret,$name));
 		}
-		usort($modules_menu,function($a, $b) {
-		    return strcmp($a['label'],$b['label']);
-		});
+		usort($modules_menu,fn($a, $b) => strcmp($a['label'],$b['label']));
 		self::$options = & $modules_menu;
 		return self::$options;
 	}

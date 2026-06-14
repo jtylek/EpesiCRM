@@ -206,7 +206,9 @@ class ClientRequester implements IClient {
         $http['content'] = $post_data;
         $http['timeout'] = $this->connection_timeout;
 
-        set_error_handler(create_function('$code, $message', 'throw new ErrorException($message);'));
+        set_error_handler(function ($code, $message) {
+            throw new ErrorException($message);
+        });
         $exception = null;
         $output = false;
         try {

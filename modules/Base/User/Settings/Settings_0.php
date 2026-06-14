@@ -88,10 +88,10 @@ class Base_User_Settings extends Module {
     public function submit_settings($values) {
         $reload = false;
         foreach($this->settings_fields as $k) {
-            $v = isset($values[$k])?$values[$k]:0;
+            $v = $values[$k] ?? 0;
             $x = explode(self::$sep,$k);
             if(count($x)!=2) continue;
-            list($module_name,$module_part) = $x;
+            [$module_name, $module_part] = $x;
             //print($module_name.':'.$module_part.'=>'.$v.'<br>');
             if($this->get_module_variable('admin_settings')) {
                 Base_User_SettingsCommon::save_admin($module_name,$module_part,$v);

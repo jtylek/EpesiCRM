@@ -899,7 +899,7 @@ class PHPMailer
             }
             return false;
         }
-        if (!$this->validateAddress($address)) {
+        if (!static::validateAddress($address)) {
             $error_message = $this->lang('invalid_address') . $address;
             $this->setError($error_message);
             $this->edebug($error_message);
@@ -941,7 +941,7 @@ class PHPMailer
             $list = imap_rfc822_parse_adrlist($addrstr, '');
             foreach ($list as $address) {
                 if ($address->host != '.SYNTAX-ERROR.') {
-                    if ($this->validateAddress($address->mailbox . '@' . $address->host)) {
+                    if (static::validateAddress($address->mailbox . '@' . $address->host)) {
                         $addresses[] = array(
                             'name' => (property_exists($address, 'personal') ? $address->personal : ''),
                             'address' => $address->mailbox . '@' . $address->host
@@ -957,16 +957,16 @@ class PHPMailer
                 //Is there a separate name part?
                 if (strpos($address, '<') === false) {
                     //No separate name, just use the whole thing
-                    if ($this->validateAddress($address)) {
+                    if (static::validateAddress($address)) {
                         $addresses[] = array(
                             'name' => '',
                             'address' => $address
                         );
                     }
                 } else {
-                    list($name, $email) = explode('<', $address);
+                    [$name, $email] = explode('<', $address);
                     $email = trim(str_replace('>', '', $email));
-                    if ($this->validateAddress($email)) {
+                    if (static::validateAddress($email)) {
                         $addresses[] = array(
                             'name' => trim(str_replace(array('"', "'"), '', $name)),
                             'address' => $email
@@ -993,7 +993,7 @@ class PHPMailer
         // Don't validate now addresses with IDN. Will be done in send().
         if (($pos = strrpos($address, '@')) === false or
             (!$this->has8bitChars(substr($address, ++$pos)) or !$this->idnSupported()) and
-            !$this->validateAddress($address)) {
+            !static::validateAddress($address)) {
             $error_message = $this->lang('invalid_address') . $address;
             $this->setError($error_message);
             $this->edebug($error_message);
@@ -1215,7 +1215,7 @@ class PHPMailer
                     continue;
                 }
                 $this->$address_kind = $this->punyencodeAddress($this->$address_kind);
-                if (!$this->validateAddress($this->$address_kind)) {
+                if (!static::validateAddress($this->$address_kind)) {
                     $error_message = $this->lang('invalid_address') . $this->$address_kind;
                     $this->setError($error_message);
                     $this->edebug($error_message);
@@ -3330,8 +3330,8 @@ class PHPMailer
         }
         $this->isHTML(true);
         // Convert all message body line breaks to CRLF, makes quoted-printable encoding work much better
-        $this->Body = $this->normalizeBreaks($message);
-        $this->AltBody = $this->normalizeBreaks($this->html2text($message, $advanced));
+        $this->Body = static::normalizeBreaks($message);
+        $this->AltBody = static::normalizeBreaks($this->html2text($message, $advanced));
         if (empty($this->AltBody)) {
             $this->AltBody = 'To view this email message, open it in a program that understands HTML!' .
                 self::CRLF . self::CRLF;
@@ -3676,7 +3676,7 @@ class PHPMailer
         $signHeader = preg_replace('/\r\n\s+/', ' ', $signHeader);
         $lines = explode("\r\n", $signHeader);
         foreach ($lines as $key => $line) {
-            list($heading, $value) = explode(':', $line, 2);
+            [$heading, $value] = explode(':', $line, 2);
             $heading = strtolower($heading);
             $value = preg_replace('/\s+/', ' ', $value); // Compress useless spaces
             $lines[$key] = $heading . ':' . trim($value); // Don't forget to remove WSP around the value
@@ -3733,8 +3733,8 @@ class PHPMailer
                 $to_header = $header;
                 $current = 'to_header';
             } else {
-                if (!empty($$current) && strpos($header, ' =?') === 0) {
-                    $$current .= $header;
+                if (!empty(${$current}) && strpos($header, ' =?') === 0) {
+                    ${$current} .= $header;
                 } else {
                     $current = '';
                 }
