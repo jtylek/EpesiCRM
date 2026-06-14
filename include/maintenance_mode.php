@@ -106,9 +106,7 @@ if (!MaintenanceMode::can_access()) {
         die ('window.location = "index.php";');
     } else {
         global $maintenance_mode_message;
-        $msg = isset($maintenance_mode_message)
-            ? $maintenance_mode_message
-            : "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
+        $msg = $maintenance_mode_message ?? "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
         die ($msg);
     }
 }

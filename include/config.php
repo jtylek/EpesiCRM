@@ -63,7 +63,7 @@ if(!defined('EPESI')) define('EPESI','EPESI');
 date_default_timezone_set(SYSTEM_TIMEZONE);
 mb_internal_encoding("UTF-8");
 
-$local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
+$local_dir = dirname(str_replace('\\','/',__FILE__), 2);
 define('EPESI_LOCAL_DIR',$local_dir);
 $script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 $detection_failed = strcmp($local_dir,substr($script_filename,0,strlen($local_dir)));

@@ -516,7 +516,7 @@ abstract class Module extends ModulePrimitive {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_href($uvars,$indicator,$mode);
+		return static::create_href($uvars, $indicator, $mode);
 	}
 	/**
 	 * Create onClick action string destined for js code.
@@ -532,7 +532,7 @@ abstract class Module extends ModulePrimitive {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_href_js($uvars,$indicator,$mode);
+		return static::create_href_js($uvars, $indicator, $mode);
 	}
 	/**
 	 * Similar to create_href, but variables passed to this function will only be accessible in module that called this function.
@@ -550,7 +550,7 @@ abstract class Module extends ModulePrimitive {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return $this->create_confirm_href($confirm, $uvars,$indicator,$mode);
+		return static::create_confirm_href($confirm, $uvars, $indicator, $mode);
 	}
 
 	/**
@@ -561,8 +561,7 @@ abstract class Module extends ModulePrimitive {
 	 */
 	public final function get_unique_href_variable($key) {
 		$rkey = $this->create_unique_key($key);
-		if(isset($_REQUEST[$rkey])) return $_REQUEST[$rkey];
-		return null;
+		return $_REQUEST[$rkey] ?? null;
 	}
 
 	/**
@@ -958,14 +957,14 @@ abstract class Module extends ModulePrimitive {
 	 * @return true if this module instance was aready displayed, false otherwise
 	 */
 	public final function displayed() {
-		return $this->displayed===(isset($_REQUEST['__location'])?$_REQUEST['__location']:null);
+		return $this->displayed===($_REQUEST['__location'] ?? null);
 	}
 
 	/**
 	 * Marks this module instance as it was displayed.
 	 */
 	public final function mark_displayed() {
-		$this->displayed = isset($_REQUEST['__location'])?$_REQUEST['__location']:null;;
+		$this->displayed = $_REQUEST['__location'] ?? null;;
 	}
 
 	//region Twig

@@ -24,7 +24,7 @@ class Cache
         );
         if(MEMCACHE_SESSION_SERVER) {
             $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
-            $phpfastcache_config['memcache'] = array(array($srv[0],isset($srv[1])?$srv[1]:11211));
+            $phpfastcache_config['memcache'] = array(array($srv[0],$srv[1] ?? 11211));
 
             if (class_exists('Memcached')) {
                 $drivers[] = 'Memcached';

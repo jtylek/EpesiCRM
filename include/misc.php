@@ -318,7 +318,7 @@ function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$
 function get_epesi_url() {
     if(defined('EPESI_URL')) return rtrim(EPESI_URL,'/') . '/';
 	if(php_sapi_name() == 'cli')
-		return dirname(dirname(__FILE__));
+		return dirname(__FILE__, 2);
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
     $domain_name = '';
     if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']) {

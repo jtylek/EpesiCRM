@@ -25,7 +25,7 @@ else {
         $req = trim($input);
     } else {
         $protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
-        $local_dir = dirname(dirname(str_replace('\\','/',__FILE__)));
+        $local_dir = dirname(str_replace('\\','/',__FILE__), 2);
         $script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
         if(strcmp($local_dir,substr($script_filename,0,strlen($local_dir)))) {
             $dir = '';

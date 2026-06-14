@@ -24,7 +24,7 @@ class ErrorHandler {
         epesi_log("$buffer\n\n",'php_errors.log');
 
 		if(JS_OUTPUT && class_exists('Epesi')) {
-			chdir(dirname(dirname(__FILE__)));
+			chdir(dirname(__FILE__, 2));
 			Epesi::clean();
 			if(DISPLAY_ERRORS) {
 				Epesi::js("$('debug_content').style.display='block';");
