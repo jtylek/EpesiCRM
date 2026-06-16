@@ -930,7 +930,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if(MOBILE_DEVICE && IPHONE && preg_match('/^([0-9\t\+-]+)/',$r[$desc['id']],$args))
             return '<a href="tel:'.$args[1].'">'.$r[$desc['id']].'</a>';
         $num = $r[$desc['id']];
-        if($num && strpos($num,'+')===false && substr(preg_replace('/[^0-9]/', '', $num), 0, 2) !== '00') {
+        if($num && !str_contains($num,'+') && !str_starts_with(preg_replace('/[^0-9]/', '', $num), '00')) {
             if(isset($r['country']) && $r['country']) {
                 $calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$r['country']);
                 if($calling_code)
@@ -944,8 +944,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         if ($nolink) return $v;
         $v = trim($v, ' ');
         if ($v=='') return '';
-        if (strpos(strtolower($v), 'http://')===false &&
-            strpos(strtolower($v), 'https://')===false &&
+        if (!str_contains(strtolower($v), 'http://') &&
+            !str_contains(strtolower($v), 'https://') &&
             $v) $v = 'http://'.$v;
         return '<a href="'.$v.'" target="_blank">'.$v.'</a>';
     }

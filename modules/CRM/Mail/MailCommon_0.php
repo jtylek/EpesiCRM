@@ -268,7 +268,7 @@ class CRM_MailCommon extends ModuleCommon {
 		foreach($to as $k=>$t) {
 			$to[$k] = trim($t);
 			foreach($mails as $m) {
-				if(strpos($t,(string) $m['email'])!==false) {
+				if(str_contains($t,(string) $m['email'])) {
 				    unset($to[$k]);
 				    break;
 				}
@@ -509,7 +509,7 @@ class CRM_MailCommon extends ModuleCommon {
         foreach (self::get_accounts() as $account) {
             try {
                 $unread_messages = self::get_unread_messages($account['id'], true);
-            } catch (Exception $ex) {
+            } catch (Exception) {
                 return array();
             }
             if (!$unread_messages) {

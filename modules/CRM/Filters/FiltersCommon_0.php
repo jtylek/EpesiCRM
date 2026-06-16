@@ -47,7 +47,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 	public static function set_profile($prof) {
 		if(preg_match('/^c([0-9,]+)$/',$prof,$reqs)) {
 			$ret = $reqs[1];
-			if(strpos($ret,',')===false)
+			if(!str_contains($ret,','))
 				$desc = CRM_ContactsCommon::contact_format_no_company($ret,true);
 			else
 				$desc = __('Custom filter');

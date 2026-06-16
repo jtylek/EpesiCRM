@@ -175,7 +175,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 		if(!isset($contact[$id])) return '---';
 		$number = $contact[$id];
-		if($number && strpos($number,'+')===false) {
+		if($number && !str_contains($number,'+')) {
 			if($contact['country']) {
 				$calling_code = Utils_CommonDataCommon::get_value('Calling_Codes/'.$contact['country']);
 				if($calling_code)

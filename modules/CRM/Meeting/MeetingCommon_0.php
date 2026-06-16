@@ -15,26 +15,18 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$args = func_get_args();
 		array_shift($args);
 		$ret = null;
-		switch ($action) {
-			case 'get_all': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_event_get_all'), $args);
-							break;
-			case 'update': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_event_update'), $args);
-							break;
-			case 'get': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_event_get'), $args);
-							break;
-			case 'delete': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_event_delete'), $args);
-							break;
-			case 'new_event_types': $ret = array(array('label'=>__('Meeting'),'icon'=>Base_ThemeCommon::get_template_file('CRM_Meeting','icon.png')));
-							break;
-			case 'new_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_new_event'), $args);
-							break;
-			case 'view_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_view_event'), $args);
-							break;
-			case 'edit_event': $ret = call_user_func_array(array('CRM_MeetingCommon','crm_edit_event'), $args);
-							break;
-			case 'recordset': $ret = 'crm_meeting';
-							break;
-		}
+		$ret = match ($action) {
+            'get_all' => call_user_func_array(array('CRM_MeetingCommon','crm_event_get_all'), $args),
+            'update' => call_user_func_array(array('CRM_MeetingCommon','crm_event_update'), $args),
+            'get' => call_user_func_array(array('CRM_MeetingCommon','crm_event_get'), $args),
+            'delete' => call_user_func_array(array('CRM_MeetingCommon','crm_event_delete'), $args),
+            'new_event_types' => array(array('label'=>__('Meeting'),'icon'=>Base_ThemeCommon::get_template_file('CRM_Meeting','icon.png'))),
+            'new_event' => call_user_func_array(array('CRM_MeetingCommon','crm_new_event'), $args),
+            'view_event' => call_user_func_array(array('CRM_MeetingCommon','crm_view_event'), $args),
+            'edit_event' => call_user_func_array(array('CRM_MeetingCommon','crm_edit_event'), $args),
+            'recordset' => 'crm_meeting',
+            default => $ret,
+        };
 		return $ret;
 	}
 	
