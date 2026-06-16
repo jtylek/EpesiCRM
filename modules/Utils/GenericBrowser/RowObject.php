@@ -14,7 +14,7 @@ class Utils_GenericBrowser_RowObject {
      * @param Utils_GenericBrowser $GBobj
      * @param $num
      */
-    public function __construct(private Utils_GenericBrowser $GBobj, private $num)
+    public function __construct(private readonly Utils_GenericBrowser $GBobj, private $num)
     {
     }
 

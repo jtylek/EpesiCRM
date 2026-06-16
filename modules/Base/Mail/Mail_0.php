@@ -77,10 +77,10 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		if (ModuleManager::is_installed('CRM_Contacts')>=0) {
 			$me = CRM_ContactsCommon::get_my_record();
 			$email = $me['email'];
-			Base_ActionBarCommon::add('search', __('Test'), $this->create_callback_href(array($this, 'test_mail_config'), array($email)), __('E-mail will be sent to %s to test the configuration', array('<b>'.$email.'</b>')));
+			Base_ActionBarCommon::add('search', __('Test'), $this->create_callback_href($this->test_mail_config(...), array($email)), __('E-mail will be sent to %s to test the configuration', array('<b>'.$email.'</b>')));
 		}
 		
-		if($form->getSubmitValue('submited') && $form->validate() && $form->process(array(&$this,'submit_admin'))) {
+		if($form->getSubmitValue('submited') && $form->validate() && $form->process($this->submit_admin(...))) {
 			Base_StatusBarCommon::message(__('Settings saved'));
 		}
 		$form->display();					

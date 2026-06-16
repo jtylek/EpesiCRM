@@ -60,7 +60,7 @@ class Base_EssClient extends Module {
                             '</span>' . $status_description . '</div>');
                     print('<div style="margin: 5px">' . $verbose_description . '</div>');
                     print('</div>');
-                    Base_ActionBarCommon::add('edit', __('Edit company details'), $this->create_callback_href(array($this, 'register_form'), array($data)));
+                    Base_ActionBarCommon::add('edit', __('Edit company details'), $this->create_callback_href($this->register_form(...), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
 
@@ -69,7 +69,7 @@ class Base_EssClient extends Module {
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
                 Base_ActionBarCommon::add('search', __('Terms & Conditions'), 'target="_blank" href="' . $url . '"');
-                Base_ActionBarCommon::add('settings', __('Edit license key'), $this->create_callback_href(array($this, 'license_key_form')));
+                Base_ActionBarCommon::add('settings', __('Edit license key'), $this->create_callback_href($this->license_key_form(...)));
             }
         } catch (Exception $e) {
             print('<div class="important_notice">' . __('There was an error while trying to connect to Epesi Store Server. Please try again later.') . '<br>');
@@ -132,7 +132,7 @@ class Base_EssClient extends Module {
         print(__('If necessary, you can move your installation to another server and keep your EPESI License Key, but at any given time no two installations can use the same EPESI License Key.').' ');
         print(__('Sharing your License Key with unauthorized users is a violation of this agreement and will result in revoking the License Key.'));
         print('<br><br>');
-        print('<strong>'.__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href(array($this, 'license_key_form')) . '>' . __('enter License Key') . '</a></strong>');
+        print('<strong>'.__('If you already have a License Key for this installation, you can enter it here:') . ' <a ' . $this->create_callback_href($this->license_key_form(...)) . '>' . __('enter License Key') . '</a></strong>');
         print('<br><br>');
         print(__('Full Terms and Conditions are available here:'));
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';

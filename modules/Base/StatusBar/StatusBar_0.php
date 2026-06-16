@@ -20,7 +20,7 @@ class Base_StatusBar extends Module {
         $theme->assign('close_text', __('Click anywhere to dismiss'));
 		$theme->display();
 		$this->load_js();
-		on_exit(array($this, 'messages'),null,false);
+		on_exit($this->messages(...),null,false);
 	}
 
 	public function messages() {

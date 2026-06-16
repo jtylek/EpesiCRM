@@ -1295,7 +1295,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             foreach ($db_ret as $t => $fields) {
                 if ($fields) {
                     $fields = str_replace('"', '\'"', $fields);
-                    $cache[$t] = array_filter(array_map('trim', str_getcsv($fields, ',', "'")));
+                    $cache[$t] = array_filter(array_map(trim(...), str_getcsv($fields, ',', "'")));
                 }
             }
         }

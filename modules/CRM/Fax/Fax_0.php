@@ -39,15 +39,15 @@ class CRM_Fax extends Module {
 		set_time_limit(0);
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		if(isset($providers_arr[$provider]['get_received_count_func']) && isset($providers_arr[$provider]['get_received_func']))
-			$tb->set_tab('Received', array($this,'received_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_received_count_func']),array($provider.'Common',$providers_arr[$provider]['get_received_func'])));
+			$tb->set_tab('Received', $this->received_tab(...),array(array($provider.'Common',$providers_arr[$provider]['get_received_count_func']),array($provider.'Common',$providers_arr[$provider]['get_received_func'])));
 		if(isset($providers_arr[$provider]['get_queue_count_func']) && isset($providers_arr[$provider]['get_queue_func']) && isset($providers_arr[$provider]['queue_statuses']))
-			$tb->set_tab('Current Queue', array($this,'queue_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_queue_count_func']),array($provider.'Common',$providers_arr[$provider]['get_queue_func']),$providers_arr[$provider]['queue_statuses']));
+			$tb->set_tab('Current Queue', $this->queue_tab(...),array(array($provider.'Common',$providers_arr[$provider]['get_queue_count_func']),array($provider.'Common',$providers_arr[$provider]['get_queue_func']),$providers_arr[$provider]['queue_statuses']));
 		if(isset($providers_arr[$provider]['get_sent_count_func']) && isset($providers_arr[$provider]['get_sent_func']) && isset($providers_arr[$provider]['sent_statuses']))
-			$tb->set_tab('Sent', array($this,'sent_tab'),array(array($provider.'Common',$providers_arr[$provider]['get_sent_count_func']),array($provider.'Common',$providers_arr[$provider]['get_sent_func']),$providers_arr[$provider]['sent_statuses']));
+			$tb->set_tab('Sent', $this->sent_tab(...),array(array($provider.'Common',$providers_arr[$provider]['get_sent_count_func']),array($provider.'Common',$providers_arr[$provider]['get_sent_func']),$providers_arr[$provider]['sent_statuses']));
 		$this->display_module($tb);
 		$tb->tag();
 		
-		Base_ActionBarCommon::add('send',__('Send file'),$this->create_callback_href(array($this,'send_file_tab')));
+		Base_ActionBarCommon::add('send',__('Send file'),$this->create_callback_href($this->send_file_tab(...)));
 	}
 	
 	public function received_tab($count_f,$get_f) {
@@ -278,7 +278,7 @@ class CRM_Fax extends Module {
 		$c = $form->createElement('button',null,__('Cancel'),$this->create_back_href());
 		$form->addGroup(array($s,$c));
 
-		$this->display_module($form, array( array($this,'submit_fax_file') ));
+		$this->display_module($form, array( $this->submit_fax_file(...) ));
 		if($this->back_from_send_file) return false;
 		return true;
 	}
@@ -339,7 +339,7 @@ class CRM_Fax extends Module {
 		$qf->addElement('header',null,__('Other'));
 		$qf->addElement('text','dest_other',__('Other fax numbers (comma separated)'));
 
-		$qf->addFormRule(array($this,'check_numbers'));
+		$qf->addFormRule($this->check_numbers(...));
 		
 		if($qf->validate()) {
 			$data = $qf->exportValues();

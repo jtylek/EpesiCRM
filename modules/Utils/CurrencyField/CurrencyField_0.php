@@ -53,9 +53,9 @@ class Utils_CurrencyField extends Module {
 					self::$active[$row['default_currency']],
 					self::$active[$row['active']]
 				));
-			$gb_row->add_action($this->create_callback_href(array($this, 'edit_currency'),array($row['id'])),'edit');
+			$gb_row->add_action($this->create_callback_href($this->edit_currency(...),array($row['id'])),'edit');
 		}
-		Base_ActionBarCommon::add('add', __('New'), $this->create_callback_href(array($this, 'edit_currency'), array(null)));
+		Base_ActionBarCommon::add('add', __('New'), $this->create_callback_href($this->edit_currency(...), array(null)));
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		$this->display_module($gb);
 	}

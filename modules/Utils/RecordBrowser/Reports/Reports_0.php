@@ -1010,18 +1010,18 @@ class Utils_RecordBrowser_Reports extends Module {
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		foreach($this->ref_records as $k=>$r) {
 			$title = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
-			$tb->set_tab($title, array($this,'draw_chart'),array($r,$title,$gb_captions));
+			$tb->set_tab($title, $this->draw_chart(...),array($r,$title,$gb_captions));
 		}
 		if (empty($this->categories)) {
 			$title = 'All';
-			$tb->set_tab($title, array($this,'draw_category_chart'),array('',$gb_captions));
+			$tb->set_tab($title, $this->draw_category_chart(...),array('',$gb_captions));
 		} else {
 			foreach ($this->categories as $q=>$c) {
 				$title = strip_tags($c);
-				$tb->set_tab($title, array($this,'draw_category_chart'),array($c,$gb_captions));
+				$tb->set_tab($title, $this->draw_category_chart(...),array($c,$gb_captions));
 			}
 		}
-		$tb->set_tab('Summary', array($this,'draw_summary_chart'),array($gb_captions));
+		$tb->set_tab('Summary', $this->draw_summary_chart(...),array($gb_captions));
 		$this->display_module($tb);
 		$this->tag();
 	}
@@ -1079,7 +1079,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$this->pdf_ob->prepare_header();
 			$this->pdf_ob->AddPage();
 		} elseif (!$this->charts && !$this->csv) {
-			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href(array($this, 'body'), array(false,true)));
+			Base_ActionBarCommon::add('report',__('Charts'),$this->create_callback_href($this->body(...), array(false,true)));
 		}
 
 		if($this->charts)

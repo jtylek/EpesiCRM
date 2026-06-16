@@ -108,7 +108,7 @@ class FirstRun extends Module {
 			$f->addElement('select','mail_method', __('Choose method'), array('smtp'=>__('remote smtp server'), 'mail'=>__('local php.ini settings')));
 			$f->setDefaults(array('mail_method'=>'mail'));
 
-			$wizard->next_page(array($this,'choose_mail_method'));
+			$wizard->next_page($this->choose_mail_method(...));
 
 			//////////////////////
 			$f = $wizard->begin_page('simple_mail_smtp');
@@ -130,7 +130,7 @@ class FirstRun extends Module {
 			$wizard->next_page();
 
 			/////////////////////////////////////////
-			$this->display_module($wizard, array(array($this,'done')));
+			$this->display_module($wizard, array($this->done(...)));
 		}
 		print('</center>');
 		$th->assign('wizard',ob_get_clean());

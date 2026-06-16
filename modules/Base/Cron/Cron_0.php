@@ -21,7 +21,7 @@ class Base_Cron extends Module {
 
         $theme = $this->init_module(Base_Theme::module_name());
 
-        $new_token_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'new_token'));
+        $new_token_href = $this->create_confirm_callback_href(__('Are you sure?'), $this->new_token(...));
         $theme->assign('new_token_href', $new_token_href);
         $theme->assign('wiki_url', 'http://www.epesi.org/Cron');
         $theme->assign('cron_url', Base_CronCommon::get_cron_url());

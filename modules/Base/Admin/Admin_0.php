@@ -71,7 +71,7 @@ class Base_Admin extends Module {
 			$mod_ok[$name] = $caption;
 		}
 		if (Base_AclCommon::i_am_sa()) {
-			Base_ActionBarCommon::add('settings', __('Admin Panel Access'), $this->create_callback_href(array($this, 'set_module'), array('Base_Admin')));
+			Base_ActionBarCommon::add('settings', __('Admin Panel Access'), $this->create_callback_href($this->set_module(...), array('Base_Admin')));
             if (!DEMO_MODE && !HOSTING_MODE) {
        			$admin_tools_url = rtrim(get_epesi_url(), '/') . '/admin/';
 	    		Base_ActionBarCommon::add('settings', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
@@ -86,7 +86,7 @@ class Base_Admin extends Module {
 				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
-			$buttons[$caption['section']][] = array('link'=>'<a '.$this->create_callback_href(array($this, 'set_module'), array($name)).'>'.$caption['label'].'</a>',
+			$buttons[$caption['section']][] = array('link'=>'<a '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
 						'icon'=>$icon);
 		}
 
@@ -127,7 +127,7 @@ class Base_Admin extends Module {
 			if (!isset($caption['section'])) $caption['section'] = __('Misc');
 			$mod_ok[$name] = $caption;
 		}
-		uksort($mod_ok,'strcasecmp');
+		uksort($mod_ok,strcasecmp(...));
 		
 		$form = $this->init_module('Libs_QuickForm');
 		

@@ -159,7 +159,7 @@ class Base_User_Login extends Module {
 		$form->addRule('mail', __('Invalid e-mail address'), 'email');
 
 		if($form->validate()) {
-			if($form->process(array(&$this, 'submit_recover')))
+			if($form->process($this->submit_recover(...)))
 				$this->theme->assign('message', __('Password reset instructions were sent.').'<br><a '.$this->create_back_href().'>'.__('Login').'</a>');
 		} else {
 			$this->theme->assign('mode', 'recover_pass');

@@ -94,7 +94,7 @@ function footer() {
 </html>
 <?php
 }
-register_shutdown_function('footer');
+register_shutdown_function(footer(...));
 
 // language selection form
 if (!isset($install_lang_code)) {

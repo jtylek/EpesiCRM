@@ -24,7 +24,7 @@ class CRM_Filters extends Module {
 		/*$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');*/
 
-		$th->assign('manage','<a '.$this->create_callback_href(array($this,'manage_filters')).' id="crm_filters_manage">'.__('Manage presets').'</a>');
+		$th->assign('manage','<a '.$this->create_callback_href($this->manage_filters(...)).' id="crm_filters_manage">'.__('Manage presets').'</a>');
 		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
@@ -95,7 +95,7 @@ class CRM_Filters extends Module {
 		if ($user_settings_nav)
 			Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
 
-		Base_ActionBarCommon::add('add',__('Add preset'),$this->create_callback_href(array($this,'edit_group')));
+		Base_ActionBarCommon::add('add',__('Add preset'),$this->create_callback_href($this->edit_group(...)));
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'edit');
 
@@ -109,7 +109,7 @@ class CRM_Filters extends Module {
 		while($row = $ret->FetchRow()) {
 			$gb_row = & $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href(__('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
-			$gb_row->add_action($this->create_callback_href(array($this,'edit_group'),$row['id']),'Edit');
+			$gb_row->add_action($this->create_callback_href($this->edit_group(...),$row['id']),'Edit');
 			$cids = DB::GetAssoc('SELECT c.contact_id, c.contact_id FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));
 			$users = array();
 			foreach ($cids as $v)
@@ -160,7 +160,7 @@ class CRM_Filters extends Module {
 		$form->addRule('name',__('Field required'),'required');
 		$form->registerRule('unique','callback','check_group_name_exists', 'CRM_Filters');
 		$form->addRule('name',__('Group with this name already exists'),'unique',$id);
-		$form->addFormRule(array($this, 'check_amount_of_records'));
+		$form->addFormRule($this->check_amount_of_records(...));
 		$form->addElement('automulti','contacts',__('Records of'),array('CRM_ContactsCommon','automulti_contact_suggestbox'), array(array(), array('CRM_ContactsCommon', 'contact_format_no_company')), array('CRM_ContactsCommon', 'contact_format_no_company'));
 		if ($form->validate()) {
 			$v = $form->exportValues();

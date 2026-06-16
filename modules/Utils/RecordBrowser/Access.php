@@ -250,7 +250,7 @@ class Utils_RecordBrowser_Access
 		
 		$fields = Utils_RecordBrowserCommon::init($this->tab);
 		
-		$blocked_fields = count($access_rule_blocked_fields) > 1 ? call_user_func_array('array_intersect', $access_rule_blocked_fields): reset($access_rule_blocked_fields);
+		$blocked_fields = count($access_rule_blocked_fields) > 1 ? call_user_func_array(array_intersect(...), $access_rule_blocked_fields): reset($access_rule_blocked_fields);
 		
 		$full_field_access = array_fill_keys(array_column($fields, 'id'), true);
 		

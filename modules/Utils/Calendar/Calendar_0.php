@@ -330,7 +330,7 @@ class Utils_Calendar extends Module {
 		$ret = call_user_func(array($this->event_module.'Common','get_all'),$start,$end);
 		if(!is_array($ret))
 			trigger_error('Invalid return of event method: get_all (not an array)',E_USER_ERROR);
-		usort($ret,array($this,'sort_events'));
+		usort($ret,$this->sort_events(...));
 		return $ret;
 	}
 
@@ -396,9 +396,9 @@ class Utils_Calendar extends Module {
 		foreach($ret as $row) {
 			$r = $gb->get_new_row();
 			if (isset($row['status']) && $row['status']=='closed') continue;
-			$view_h = $this->create_callback_href(array($this,'push_event_action'),array('view',$row['id']));
-			$edit_h = $this->create_callback_href(array($this,'push_event_action'),array('edit',$row['id']));
-			$del_h = $this->create_confirm_callback_href(__('Delete this event?'),array($this,'delete_event'),$row['id']);
+			$view_h = $this->create_callback_href($this->push_event_action(...),array('view',$row['id']));
+			$edit_h = $this->create_callback_href($this->push_event_action(...),array('edit',$row['id']));
+			$del_h = $this->create_confirm_callback_href(__('Delete this event?'),$this->delete_event(...),$row['id']);
 			if (isset($row['view_action'])) $view_h = $row['view_action'];
 			if (isset($row['edit_action'])) $edit_h = $row['edit_action'];
 			if (isset($row['delete_action'])) $del_h = $row['delete_action'];

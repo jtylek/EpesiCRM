@@ -93,7 +93,7 @@ class Utils_Tray extends Module {
 	
 	public function body() {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
-		Base_ActionBarCommon::add('settings',__('Settings'), $this->create_callback_href([$this, 'push_settings'], ['Tray settings']), __('Click to edit tray settings'));
+		Base_ActionBarCommon::add('settings',__('Settings'), $this->create_callback_href($this->push_settings(...), ['Tray settings']), __('Click to edit tray settings'));
 
 		$this->output();
 	}

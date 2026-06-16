@@ -9,7 +9,7 @@ if (!Acl::i_am_admin()) {
     die("Access forbidden");
 }
 
-function ret($val)
+function ret($val): never
 {
     print($val);
     exit();

@@ -96,7 +96,7 @@ class CRM_Calendar extends Module {
 		}
 
 		$theme = $this->init_module(Base_Theme::module_name());
-		$c = $this->init_module(Utils_Calendar::module_name(),array(CRM_Calendar_Event::module_name(),$args,array($this, 'get_new_event_href_js')));
+		$c = $this->init_module(Utils_Calendar::module_name(),array(CRM_Calendar_Event::module_name(),$args,$this->get_new_event_href_js(...)));
 		$view_type = $c->get_current_view();
 		CRM_CalendarCommon::$mode = $view_type;
 		$theme->assign('calendar',$this->get_html_of_module($c));
@@ -195,7 +195,7 @@ class CRM_Calendar extends Module {
 			if (isset($row['status']) && $row['status']=='closed') continue;
 			if (!isset($row['view_action'])) {
 				$ex = Utils_CalendarCommon::process_event($row);
-				$view_action = '<a '.$this->create_callback_href(array($this,'view_event'),$row['id']).'>';
+				$view_action = '<a '.$this->create_callback_href($this->view_event(...),$row['id']).'>';
 			} else {
 				$tmp = Utils_CalendarCommon::process_event($row);
 				$ex = $row;

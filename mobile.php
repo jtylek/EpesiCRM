@@ -87,7 +87,7 @@ function mobile_menu() {
 		}
 	}
 	$menus_out_tmp = $menus_out;
-	uksort($menus_out,'sort_menus_cmp');
+	uksort($menus_out,sort_menus_cmp(...));
 	foreach($menus_out as $cap=>$met) {
 		print('<a '.mobile_stack_href($met[0],$met[1],$cap).' '.(IPHONE?' class="button '.$met[3].'"':'').'>'.$cap.'</a>'.(IPHONE?'':'<br>'));
 	}

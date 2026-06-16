@@ -729,18 +729,18 @@ class Utils_RecordBrowser_QueryBuilder
         $ret = array('', array());
 
         $ret = match ($field_def['type']) {
-            'autonumber', 'text', 'long text' => $this->hf_multiple($crit, array($this, 'hf_text')),
-            'integer' => $this->hf_multiple($crit, array($this, 'hf_integer')),
-            'float' => $this->hf_multiple($crit, array($this, 'hf_float')),
-            'checkbox' => $this->hf_multiple($crit, array($this, 'hf_boolean')),
-            'select', 'multiselect' => $this->hf_multiple($crit, array($this, 'hf_select'), $field_def),
-            'commondata' => $this->hf_multiple($crit, array($this, 'hf_commondata'), $field_def),
-            'currency' => $this->hf_multiple($crit, array($this, 'hf_currency')),
-            'date' => $this->hf_multiple($crit, array($this, 'hf_date')),
-            'timestamp' => $this->hf_multiple($crit, array($this, 'hf_timestamp')),
-            'time' => $this->hf_multiple($crit, array($this, 'hf_time')),
-            'calculated' => $this->hf_multiple($crit, array($this, 'hf_calculated'), $field_def),
-            default => $this->hf_multiple($crit, array($this, 'hf_text')),
+            'autonumber', 'text', 'long text' => $this->hf_multiple($crit, $this->hf_text(...)),
+            'integer' => $this->hf_multiple($crit, $this->hf_integer(...)),
+            'float' => $this->hf_multiple($crit, $this->hf_float(...)),
+            'checkbox' => $this->hf_multiple($crit, $this->hf_boolean(...)),
+            'select', 'multiselect' => $this->hf_multiple($crit, $this->hf_select(...), $field_def),
+            'commondata' => $this->hf_multiple($crit, $this->hf_commondata(...), $field_def),
+            'currency' => $this->hf_multiple($crit, $this->hf_currency(...)),
+            'date' => $this->hf_multiple($crit, $this->hf_date(...)),
+            'timestamp' => $this->hf_multiple($crit, $this->hf_timestamp(...)),
+            'time' => $this->hf_multiple($crit, $this->hf_time(...)),
+            'calculated' => $this->hf_multiple($crit, $this->hf_calculated(...), $field_def),
+            default => $this->hf_multiple($crit, $this->hf_text(...)),
         };
 
         return $ret;

@@ -191,11 +191,11 @@ class Base_Setup extends Module {
 		}
 		$form->display();
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		if (!$store) Base_ActionBarCommon::add('settings', __('Simple view'),$this->create_callback_href(array($this,'switch_simple'),true));
+		if (!$store) Base_ActionBarCommon::add('settings', __('Simple view'),$this->create_callback_href($this->switch_simple(...),true));
 	}
 
 	public function simple_setup() {
-		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href(__('Switch to advanced view?'),array($this,'switch_simple'),false));
+		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href(__('Switch to advanced view?'),$this->switch_simple(...),false));
 
 		$module_dirs = $this->get_module_dirs();
 		$is_required = ModuleManager::required_modules(true);
@@ -288,7 +288,7 @@ class Base_Setup extends Module {
 								$mods = array_merge($mods,$pp['modules']);
 							}
 					}
-					$buttons[] = array('label'=>__('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href(__('Are you sure you want to uninstall this package and remove all associated data?'),array($this, 'simple_uninstall'), array($mods)));
+					$buttons[] = array('label'=>__('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href(__('Are you sure you want to uninstall this package and remove all associated data?'),$this->simple_uninstall(...), array($mods)));
 				} else {
 					if ($p['core']) $message = __('EPESI Core can not be uninstalled');
 					elseif (empty($p['is_required'])) $message = __('This package can not be uninstalled');
@@ -301,7 +301,7 @@ class Base_Setup extends Module {
 				}
 			}
 			if ($p['installed']===false || $p['installed']==='partial') {
-				$buttons[] = array('label'=>__('Install'),'style'=>'install','href'=>$this->create_callback_href(array($this, 'simple_install'), array($p['modules'])));
+				$buttons[] = array('label'=>__('Install'),'style'=>'install','href'=>$this->create_callback_href($this->simple_install(...), array($p['modules'])));
 			}
 			switch (true) {
 				case $p['installed']===false:
@@ -363,7 +363,7 @@ class Base_Setup extends Module {
             $buttons_tooltip = $buttons_tooltip ? Utils_TooltipCommon::open_tag_attrs($buttons_tooltip, false) : '';
         }
 		
-		uasort($sorted, array($this, 'simple_setup_sort'));
+		uasort($sorted, $this->simple_setup_sort(...));
 		
 		$t = $this->init_module(Base_Theme::module_name());
 		$t->assign('packages', $sorted);
@@ -416,7 +416,7 @@ class Base_Setup extends Module {
 				$filters_attrs = 'href="javascript:void(0);" onclick="alert(\''.$msg.'\');"';
 			} else {
 				$msg = __('To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?');
-				$filters_attrs = $this->create_confirm_callback_href($msg, array($this, 'jump_to_epesi_registration'));
+				$filters_attrs = $this->create_confirm_callback_href($msg, $this->jump_to_epesi_registration(...));
 			}
 		}
 		$filters[__('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);

@@ -32,7 +32,7 @@ class Base_HomePage extends Module {
 			$this->parent->reset();
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-		Base_ActionBarCommon::add('add', __('Add Home Page'), $this->create_callback_href(array($this, 'edit_home_page')));
+		Base_ActionBarCommon::add('add', __('Add Home Page'), $this->create_callback_href($this->edit_home_page(...)));
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'home_page_admin');
 		$gb->set_table_columns(array(
@@ -45,10 +45,10 @@ class Base_HomePage extends Module {
 			$gbr = $gb->get_new_row();
 			$clearances = DB::GetAssoc('SELECT id, clearance FROM base_home_page_clearance WHERE home_page_id=%d', array($row['id']));
 			$gbr->add_data($row['home_page'], Base_AclCommon::display_clearances($clearances));
-			if ($next) $next->add_action($this->create_callback_href(array($this, 'change_priority'),array($last_row['id'],$last_row['priority'], +1)),'Move down', null, 'move-down');
-            if ($row['priority']>1) $gbr->add_action($this->create_callback_href(array($this, 'change_priority'),array($row['id'],$row['priority'], -1)),'Move up', null, 'move-up');
-			$gbr->add_action($this->create_callback_href(array($this, 'delete_home_page'),array($row['id'])),'Delete');
-			$gbr->add_action($this->create_callback_href(array($this, 'edit_home_page'),array($row['id'])),'Edit');
+			if ($next) $next->add_action($this->create_callback_href($this->change_priority(...),array($last_row['id'],$last_row['priority'], +1)),'Move down', null, 'move-down');
+            if ($row['priority']>1) $gbr->add_action($this->create_callback_href($this->change_priority(...),array($row['id'],$row['priority'], -1)),'Move up', null, 'move-up');
+			$gbr->add_action($this->create_callback_href($this->delete_home_page(...),array($row['id'])),'Delete');
+			$gbr->add_action($this->create_callback_href($this->edit_home_page(...),array($row['id'])),'Edit');
 			$next = $gbr;
 			$last_row = $row;
 		}

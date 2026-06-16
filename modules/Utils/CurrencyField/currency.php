@@ -50,7 +50,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 					'<div style="margin-right:5px; width:40px; position:absolute;top:0px;right:0px;"><select style="width:40px;" name="__'.str_replace(array('[',']'),'',$name).'__currency" id="__'.$id.'__currency">';
 
 			if(is_array($this->filterCurrencies) && $this->filterCurrencies)
-				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency WHERE id IN ('.implode(',',array_map('intval',$this->filterCurrencies)).') ORDER BY code');
+				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency WHERE id IN ('.implode(',',array_map(intval(...),$this->filterCurrencies)).') ORDER BY code');
 			else
 				$curs = DB::GetAll('SELECT id, symbol, active FROM utils_currency ORDER BY code');
 			foreach ($curs as $v) {

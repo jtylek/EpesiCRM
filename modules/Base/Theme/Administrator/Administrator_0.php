@@ -39,12 +39,12 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			));
 		
 		if($form->validate()) {
-			$form->process(array(& $this, 'submit_admin'));
+			$form->process($this->submit_admin(...));
 		} else {
 			$form->display();
 			
 			if(class_exists('ZipArchive')) {
-				$this->pack_module(Utils_FileUpload::module_name(),array(array($this,'upload_template'),__('Upload template')));
+				$this->pack_module(Utils_FileUpload::module_name(),array($this->upload_template(...),__('Upload template')));
 //				Base_ActionBarCommon::add('edit',__('Manage templates'),$this->create_callback_href(array($this,'download_template')));
 			}
 		}
@@ -77,7 +77,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		if(!file_exists($ld)) return $this->download_templates_list();
 		if($this->is_back()) return false;
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-		Base_ActionBarCommon::add('search',__('Update templates list'),$this->create_callback_href(array($this,'download_templates_list')));
+		Base_ActionBarCommon::add('search',__('Update templates list'),$this->create_callback_href($this->download_templates_list(...)));
 		
 		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'new_templates');
  		$m->set_table_columns(array(array('name'=>'Name','search'=>1),array('name'=>'Version'),array('name'=>'Screenshot'),array('name'=>'Author','search'=>1),array('name'=>'Info','search'=>1),array('name'=>'Compatible')));
@@ -104,11 +104,11 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 			$r = $m->get_new_row();
 			$r->add_data($template_name,$ini['version'],$thumb,$ini['author'],$ini['info'],($compatible)?'<font color="green">yes</font>':'<font color="red">NO</font> epesi '.$ini['epesi_version'].' required');
 			if($compatible && !$installed)
-				$r->add_action($this->create_callback_href(array($this,'install_template'),$template_name),'Install');
+				$r->add_action($this->create_callback_href($this->install_template(...),$template_name),'Install');
 			if($installed) {
-				$r->add_action($this->create_callback_href(array($this,'delete_template'),$template_name),'Delete');
+				$r->add_action($this->create_callback_href($this->delete_template(...),$template_name),'Delete');
 				if($ini['version']>$installed_ini['version'])
-					$r->add_action($this->create_callback_href(array($this,'update_template'),$template_name),'Update');
+					$r->add_action($this->create_callback_href($this->update_template(...),$template_name),'Update');
 			}
 		}
 		
@@ -119,7 +119,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function download_templates_list() {
 		if($this->is_back()) return false;
-		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes_repo/index.php?list',array($this,'on_download_list')));
+		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes_repo/index.php?list',$this->on_download_list(...)));
 		return true;
 	}
 	
@@ -135,7 +135,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 	
 	public function install_template($template_name) {
 		if($this->is_back()) return false;
-		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes_repo/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
+		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes_repo/index.php?'.http_build_query(array('get'=>$template_name)),$this->on_download_template(...)));
 		return true;
 	}
 
@@ -160,7 +160,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		if(!$del)
 			recursive_rmdir(DATA_DIR.'/Base_Theme/templates/'.$template_name);
 		
-		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes/themes/index.php?'.http_build_query(array('get'=>$template_name)),array($this,'on_download_template')));
+		$this->pack_module(Utils_FileDownload::module_name(),array('http://www.epesi.org/themes/themes/index.php?'.http_build_query(array('get'=>$template_name)),$this->on_download_template(...)));
 		return true;
 	}
 	

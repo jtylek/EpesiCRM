@@ -14,7 +14,7 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
     function __construct($elementName = null, $elementLabel = null, $attributes=null) {
         HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
         if ($this->_caller instanceof HTML_QuickForm) {
-            $this->_caller->addFormRule(array($this, 'check_for_error'));
+            $this->_caller->addFormRule($this->check_for_error(...));
         }
     } //end constructor
 

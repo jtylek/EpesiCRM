@@ -23,8 +23,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab('Translations', array($this, 'translations'));
-		$tb->set_tab('Settings', array($this, 'settings'));
+		$tb->set_tab('Translations', $this->translations(...));
+		$tb->set_tab('Settings', $this->settings(...));
 		$this->display_module($tb);
 		$tb->tag();
 	}
@@ -44,7 +44,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$form->setDefaults(array('lang_code'=>Variable::get('default_lang'),'allow_lang_change'=>Variable::get('allow_lang_change')));
 		
 		if($form->validate()) {
-			$form->process(array($this,'submit_admin'));
+			$form->process($this->submit_admin(...));
 		}
 		$form->display_as_column();
 	}
@@ -107,7 +107,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$this->display_module($lp, array(__('Translations Contributions settings')));
 
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'new_langpack'))
-			Base_ActionBarCommon::add('add',__('New langpack'),$this->create_callback_href(array($this,'new_lang_pack')));
+			Base_ActionBarCommon::add('add',__('New langpack'),$this->create_callback_href($this->new_lang_pack(...)));
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			Base_ActionBarCommon::add('refresh',__('Refresh languages'),$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 
@@ -129,7 +129,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$_SESSION['client']['base_lang_administrator']['currently_translating'] = Base_LangCommon::get_lang_code();
 		}
 		if (!isset($_SESSION['client']['base_lang_administrator']['notice'])) {
-			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').' <a style="float:right;" '.$this->create_callback_href(array($this, 'hide_notice')).'>'.__('Discard').'</a>'.'</span>');
+			print('<span class="important_notice">'.__('Please make sure the correct language is selected in the box below before you start translating').' <a style="float:right;" '.$this->create_callback_href($this->hide_notice(...)).'>'.__('Discard').'</a>'.'</span>');
 		}
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'translate')) {
 			$langs = Base_LangCommon::get_installed_langs();
@@ -139,7 +139,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 			$form->setDefaults(array('lang_code'=>$currently_translating));
 			
 			if($form->validate()) {
-				$form->process(array($this,'submit_language_select'));
+				$form->process($this->submit_language_select(...));
 			}
             if ($allow_sending) {
                 $warning_mgs = __('All custom translations will be sent to our server right after you will input them. Use this mode only, if you wish to contribute your translations. If you are going to change meaning of any string, then please disable sending translations.');
@@ -150,7 +150,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
             }
             $form->display_as_column();
             if ($allow_sending) {
-                $href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'send_lang_ajax'), array($currently_translating));
+                $href = $this->create_confirm_callback_href(__('Are you sure?'), $this->send_lang_ajax(...), array($currently_translating));
                 print "<h4><a $href>" . __('Send all your custom translations for language %s', array($langs[$currently_translating])) . "</a></h4>";
             }
             $help_msg = __('You can open next string to translate with space button');

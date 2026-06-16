@@ -366,7 +366,7 @@ class Patch
     private $apply_error;
     private $user_message;
 
-    function __construct(private $file, private PatchesDB $DB, private $legacy = false)
+    function __construct(private $file, private readonly PatchesDB $DB, private $legacy = false)
     {
         $this->_parse_module();
         $this->_parse_filename();
@@ -449,7 +449,7 @@ class Patch
 
         $this->init_checkpoints();
         set_error_handler(array('Patch', 'error_handler'));
-        ob_start(array($this, 'output_bufferring_interrupted'));
+        ob_start($this->output_bufferring_interrupted(...));
         try {
             PatchUtil::require_time(1);
             include $this->file;

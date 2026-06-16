@@ -41,9 +41,9 @@ class Base_EpesiStore extends Module {
 		Base_ActionBarCommon::add(
                 Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'),
                 $button_label,
-                $this->create_callback_href(array($this,'display_registration_form')));
+                $this->create_callback_href($this->display_registration_form(...)));
 
-		Base_ActionBarCommon::add('view', __('Invoices'), $this->create_callback_href(array($this,'display_invoices')));
+		Base_ActionBarCommon::add('view', __('Invoices'), $this->create_callback_href($this->display_invoices(...)));
 
         $setup = $this->init_module('Base_Setup');
         $setup->set_inline_display();
@@ -56,10 +56,10 @@ class Base_EpesiStore extends Module {
             return;
         }
 
-        Base_ActionBarCommon::add('settings', __('Simple view'), $this->create_callback_href(array($this, 'switch_simple'), true));
+        Base_ActionBarCommon::add('settings', __('Simple view'), $this->create_callback_href($this->switch_simple(...), true));
         $tb = $this->init_module('Utils_TabbedBrowser');
-        $tb->set_tab('Modules Setup', array($this, 'setup_admin'), array($setup));
-		$tb->set_tab('Epesi Store', array($this, 'form_main_store'), array());
+        $tb->set_tab('Modules Setup', $this->setup_admin(...), array($setup));
+		$tb->set_tab('Epesi Store', $this->form_main_store(...), array());
         $tb->tag();
         $this->display_module($tb);
     }
@@ -156,7 +156,7 @@ class Base_EpesiStore extends Module {
         if (!$ret['total'])
             print(__('Unfortunately there are no modules available for you.'));
         else {
-            $gb = $this->GB_module($gb, $ret['modules'], array($this, 'GB_row_additional_actions_store'));
+            $gb = $this->GB_module($gb, $ret['modules'], $this->GB_row_additional_actions_store(...));
             $this->display_module($gb);
         }
     }
@@ -189,9 +189,9 @@ class Base_EpesiStore extends Module {
         $this->_module_licenses_add_module_versions($module_licenses);
         $to_download = $this->_modules_to_download_and_update($module_licenses);
         if ($to_download)
-            Base_ActionBarCommon::add('favorites', __('Download newer'), $this->create_callback_href(array($this, 'download_modules'), array($to_download)));
+            Base_ActionBarCommon::add('favorites', __('Download newer'), $this->create_callback_href($this->download_modules(...), array($to_download)));
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'mymoduleslist');
-        $gb = $this->GB_module_licenses($gb, $module_licenses, array($this, 'GB_row_additional_actions_your_modules'));
+        $gb = $this->GB_module_licenses($gb, $module_licenses, $this->GB_row_additional_actions_your_modules(...));
         $this->display_module($gb);
     }
 
@@ -242,7 +242,7 @@ class Base_EpesiStore extends Module {
     private function display_cart_items($items) {
         Base_ActionBarCommon::add('delete', __('Clear cart'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_cart')));
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'cartlist');
-        $gb = $this->GB_module($gb, $items, array($this, 'GB_row_additional_actions_cart'));
+        $gb = $this->GB_module($gb, $items, $this->GB_row_additional_actions_cart(...));
         $this->display_module($gb);
     }
 
@@ -405,7 +405,7 @@ class Base_EpesiStore extends Module {
     }
 
     private function navigation_button_process_downloading() {
-        Base_ActionBarCommon::add('clone', __('Proceed with download'), $this->create_callback_href(array($this, 'process_downloading')));
+        Base_ActionBarCommon::add('clone', __('Proceed with download'), $this->create_callback_href($this->process_downloading(...)));
     }
 
     private function display_downloads($download_items) {
@@ -415,7 +415,7 @@ class Base_EpesiStore extends Module {
         }
         Base_ActionBarCommon::add('delete', __('Clear list'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_download_queue')));
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'downloadslist');
-        $gb = $this->GB_module_licenses($gb, $download_items, array($this, 'GB_row_additional_actions_downloads'));
+        $gb = $this->GB_module_licenses($gb, $download_items, $this->GB_row_additional_actions_downloads(...));
         $this->display_module($gb);
     }
 
@@ -517,7 +517,7 @@ class Base_EpesiStore extends Module {
 
     private function display_module_entry($module) {
         $installed = (ModuleManager::is_installed($module) >= 0);
-        $install_href = $installed ? '' : $this->create_callback_href(array($this, '_install_module'), array($module));
+        $install_href = $installed ? '' : $this->create_callback_href($this->_install_module(...), array($module));
         $install_link = " - " . ($install_href ? "<a $install_href>" . __('Install module') . "</a>" : 'Module already installed');
         print(htmlspecialchars($module) . "$install_link<br/>");
     }
@@ -538,7 +538,7 @@ class Base_EpesiStore extends Module {
     }
 
     private function payments_data_button() {
-        $href = $this->create_callback_href(array($this, 'navigate'), array('payments_show_user_settings'));
+        $href = $this->create_callback_href($this->navigate(...), array('payments_show_user_settings'));
         Base_ActionBarCommon::add('settings', __('Payment data'), $href, __('Here you can edit your default credentials used to payments'));
     }
 
@@ -582,15 +582,15 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
-        return $this->GB_generic($gb, $items, $this->banned_columns_module, array($this, 'GB_row_data_transform_module'), $row_additional_actions_callback);
+        return $this->GB_generic($gb, $items, $this->banned_columns_module, $this->GB_row_data_transform_module(...), $row_additional_actions_callback);
     }
 
     protected function GB_order(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback = null) {
-        return $this->GB_generic($gb, $items, $this->banned_columns_order, array($this, 'GB_row_data_transform_order'), $row_additional_actions_callback);
+        return $this->GB_generic($gb, $items, $this->banned_columns_order, $this->GB_row_data_transform_order(...), $row_additional_actions_callback);
     }
 
     protected function GB_module_licenses(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
-        return $this->GB_generic($gb, $items, array('installation_id', 'id'), array($this, 'GB_row_data_transform_module_licenses'), $row_additional_actions_callback);
+        return $this->GB_generic($gb, $items, array('installation_id', 'id'), $this->GB_row_data_transform_module_licenses(...), $row_additional_actions_callback);
     }
 
     protected function GB_row_data_transform_order(array $data) {
@@ -691,22 +691,22 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_store($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'cart_add_item'), array($data)), '+', __('Add to cart'));
+        $row->add_action($this->create_callback_href($this->cart_add_item(...), array($data)), '+', __('Add to cart'));
     }
 
     protected function GB_row_additional_actions_cart($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'cart_remove_item'), array($data)), 'delete', __('Remove from cart'));
+        $row->add_action($this->create_callback_href($this->cart_remove_item(...), array($data)), 'delete', __('Remove from cart'));
     }
 
     protected function GB_row_additional_actions_your_modules($row, $data) {
         if ($data['paid'] && $data['active'] && $this->_module_is_active($data['module'])
                 && $this->_module_license_needs_download_or_update($data))
-            $row->add_action($this->create_callback_href(array($this, 'download_queue_item'), array($data)), '+', __('Queue download'));
+            $row->add_action($this->create_callback_href($this->download_queue_item(...), array($data)), '+', __('Queue download'));
     }
 
     protected function GB_row_additional_actions_downloads($row, $data) {
-        $row->add_action($this->create_callback_href(array($this, 'download_dequeue_item'), array($data)), 'delete');
-        $row->add_action($this->create_callback_href(array($this, 'download_as_zip'), array($data)), 'append data', 'Download as zip file');
+        $row->add_action($this->create_callback_href($this->download_dequeue_item(...), array($data)), 'delete');
+        $row->add_action($this->create_callback_href($this->download_as_zip(...), array($data)), 'append data', 'Download as zip file');
     }
 
     protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null) {
@@ -748,7 +748,7 @@ class Base_EpesiStore extends Module {
         $func = array_shift($args);
         if (!$func)
             throw new ErrorException("Function to navigate not defined.");
-        return $this->create_callback_href(array($this, 'navigate'), array($func, $args));
+        return $this->create_callback_href($this->navigate(...), array($func, $args));
     }
 
     public function navigate($func, $params = array()) {

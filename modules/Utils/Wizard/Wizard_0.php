@@ -79,7 +79,7 @@ class Utils_Wizard extends Module {
 	public function callback_page($func,$name=null,array $begin_page_args=null,array $func_args=null) {
 		if(!isset($begin_page_args)) $begin_page_args=array();
 		if(!isset($func_args)) $func_args=array();
-		call_user_func_array(array($this,'begin_page'),array_merge(array($name,false),$begin_page_args));
+		call_user_func_array($this->begin_page(...),array_merge(array($name,false),$begin_page_args));
 		
 		if($this->curr_page===$this->counter) 
 			call_user_func_array($func,array_merge(array($this->form[$this->counter],$this->get_data()),$func_args));
@@ -108,7 +108,7 @@ class Utils_Wizard extends Module {
 		if($this->curr_page===$this->counter) {
 			//trigger_error($this->counter,E_USER_ERROR);
 			if($this->form[$this->curr_page]->getSubmitValue('submited') && $this->form[$this->curr_page]->validate()) {
-				$this->form[$this->curr_page]->process(array($this,'submit')); 
+				$this->form[$this->curr_page]->process($this->submit(...)); 
 	
 				$this->history[] = $this->curr_page;
 				if(is_int($func)) {

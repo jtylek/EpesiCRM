@@ -257,6 +257,6 @@ else
 	$error_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
 
 error_reporting($error_reporting_level);
-register_shutdown_function( "check_for_fatal" );
-set_error_handler('handle_epesi_error', $error_reporting_level);
-set_exception_handler('handle_epesi_exception');
+register_shutdown_function( check_for_fatal(...) );
+set_error_handler(handle_epesi_error(...), $error_reporting_level);
+set_exception_handler(handle_epesi_exception(...));

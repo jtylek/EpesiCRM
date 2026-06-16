@@ -24,10 +24,10 @@ class CRM_Contacts_Photo extends Module {
         Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         if(CRM_Contacts_PhotoCommon::get_photo($record['id'])) {
-            Base_ActionBarCommon::add('delete', __('Clear'), $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clear_photo'), array($record['id'])));
+            Base_ActionBarCommon::add('delete', __('Clear'), $this->create_confirm_callback_href(__('Are you sure?'), $this->clear_photo(...), array($record['id'])));
         }
 
-        $this->display_module($form, array( array($this,'submit_attach'), $record));
+        $this->display_module($form, array( $this->submit_attach(...), $record));
 
         if ($this->is_back() || $this->submitted) {
         	return Base_BoxCommon::pop_main();

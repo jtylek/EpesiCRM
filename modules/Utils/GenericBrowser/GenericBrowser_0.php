@@ -945,7 +945,7 @@ class Utils_GenericBrowser extends Module {
 				else $column_no = count($this->columns);
 				$col[$column_no]['attrs'] = '';
 				if (!empty($this->actions[$i])) {
-					uasort($this->actions[$i], array($this,'sort_actions'));
+					uasort($this->actions[$i], $this->sort_actions(...));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';

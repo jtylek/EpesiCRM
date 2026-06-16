@@ -26,11 +26,11 @@ class ModulesAutoloader {
     }
 
     private function __construct() {
-        spl_autoload_register(array($this, 'autoload'));
+        spl_autoload_register($this->autoload(...));
     }
 
     public function __destruct() {
-        spl_autoload_unregister(array($this, 'autoload'));
+        spl_autoload_unregister($this->autoload(...));
     }
 
     private function autoload($class_name) {

@@ -66,10 +66,10 @@ class CRM_Contacts extends Module {
 			$this->rb->set_defaults(array(	'home_country'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_country'),
 											'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state')));
 			$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
-			$this->rb->set_additional_actions_method(array($this, 'contacts_actions'));
+			$this->rb->set_additional_actions_method($this->contacts_actions(...));
 		} else {
 			$this->rb->set_default_order(array('company_name'=>'ASC'));
-			$this->rb->set_additional_actions_method(array($this, 'companies_actions'));
+			$this->rb->set_additional_actions_method($this->companies_actions(...));
 		}
 		$this->display_module($this->rb);
 	}
@@ -108,7 +108,7 @@ class CRM_Contacts extends Module {
 										'home_zone'=>Base_User_SettingsCommon::get('Base_RegionalSettings','default_state'),
 										'login'=>'new'));
 		$this->rb->set_default_order(array('last_name'=>'ASC', 'first_name'=>'ASC'));
-		$this->rb->set_additional_actions_method(array($this, 'user_actions'));
+		$this->rb->set_additional_actions_method($this->user_actions(...));
 		$this->rb->set_additional_caption(__('Users'));
 		$this->rb->disable_pdf();
 		$this->rb->disable_export();
@@ -131,7 +131,7 @@ class CRM_Contacts extends Module {
         if (!Base_User_AdministratorCommon::get_log_as_user_access($contact['login'])) return;
         
         if (Base_UserCommon::is_active($contact['login'])) {
-        	$gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($contact['login'], false)), __('Deactivate user'), null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-on.png'));
+        	$gb_row->add_action($this->create_callback_href($this->change_user_active_state(...), array($contact['login'], false)), __('Deactivate user'), null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-on.png'));
             $gb_row->add_action(Module::create_href(array('log_as_user' => $contact['login'])), __('Log as user'), null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'restore.png'));
             // action!
             if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user'] == $contact['login']) {
@@ -140,7 +140,7 @@ class CRM_Contacts extends Module {
                 return;
             }
         } else {
-            $gb_row->add_action($this->create_callback_href(array($this, 'change_user_active_state'), array($contact['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-off.png'));
+            $gb_row->add_action($this->create_callback_href($this->change_user_active_state(...), array($contact['login'], true)), 'Activate user', null, Base_ThemeCommon::get_template_file('Utils_GenericBrowser', 'active-off.png'));
         }
     }
 	public function change_user_active_state($user, $state) {
@@ -150,10 +150,10 @@ class CRM_Contacts extends Module {
 	
 	public function company_addon($arg){
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'contact','contact_addon');
-		$rb->set_additional_actions_method(array($this, 'contacts_actions'));
+		$rb->set_additional_actions_method($this->contacts_actions(...));
 		if(Utils_RecordBrowserCommon::get_access('contact','add'))
-			Base_ActionBarCommon::add('add',__('Add contact'), $this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
-		$rb->set_button($this->create_callback_href(array($this, 'company_addon_new_contact'), array($arg['id'])));
+			Base_ActionBarCommon::add('add',__('Add contact'), $this->create_callback_href($this->company_addon_new_contact(...), array($arg['id'])));
+		$rb->set_button($this->create_callback_href($this->company_addon_new_contact(...), array($arg['id'])));
 		$this->add_associate_button($rb, 'add', $arg['id']);
 		$this->add_associate_button($rb, 'remove', $arg['id']);
 		$rb->set_defaults(array('company_name'=>$arg['id']));

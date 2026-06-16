@@ -132,12 +132,12 @@ class Utils_Messenger extends Module {
 				$us = Base_UserCommon::get_user_login($this->users);
 				
 			$r->add_data(Base_RegionalSettingsCommon::time2reg($row['alert_on']),$row['message'],$us);
-			$r->add_action($this->create_callback_href(array($this,'push_box0'),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))),'Edit');
-			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_callback_href($this->push_box0(...),array('edit',array($row),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))),'Edit');
+			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),$this->delete_entry(...),$row['id']),'Delete');
 		}
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add('add',__('New alert'),$this->create_callback_href(array($this,'push_box0'),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))));	
+		Base_ActionBarCommon::add('add',__('New alert'),$this->create_callback_href($this->push_box0(...),array('edit',array(false),array($this->real_id,$this->callback_method,$this->callback_args,$this->def_date,$this->users))));	
 	}
 
 	public function purge_old() {
@@ -173,12 +173,12 @@ class Utils_Messenger extends Module {
 			$info = str_replace("\n",'<br>',$info);
 			$r = & $gb->get_new_row();
 			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?__('Alarm comment: %s',array($row['message'])):''));
-			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),array($this,'delete_user_entry'),$row['id']),'Delete');
+			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),$this->delete_user_entry(...),$row['id']),'Delete');
 		}
 
 		$this->display_module($gb);
 		
-		Base_ActionBarCommon::add('delete',__('Purge old alerts'),$this->create_confirm_callback_href(__('Purge all done alerts?'),array($this,'purge_old')));	
+		Base_ActionBarCommon::add('delete',__('Purge old alerts'),$this->create_confirm_callback_href(__('Purge all done alerts?'),$this->purge_old(...)));	
 	}
 
 	/////////////////////////////////////////////////////////////

@@ -45,7 +45,7 @@ class Base_Acl extends Module {
         }
         $sql .= ' ORDER BY name ASC';
         $perms = DB::GetAssoc($sql, $args);
-		Base_ActionBarCommon::add('add', __('Add rule'), $this->create_callback_href(array($this, 'edit_rule'), array(null, $perm_id)));
+		Base_ActionBarCommon::add('add', __('Add rule'), $this->create_callback_href($this->edit_rule(...), array(null, $perm_id)));
 		foreach ($perms as $p_id=>$p_name) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data(
@@ -57,8 +57,8 @@ class Base_Acl extends Module {
 				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
 
 				$gb_row = $gb->get_new_row();
-				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_rule'), array($r_id)), 'delete', __('Delete Rule'));
-				$gb_row->add_action($this->create_callback_href(array($this, 'edit_rule'), array($r_id, $p_id)), 'edit', __('Edit Rule'));
+				$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), $this->delete_rule(...), array($r_id)), 'delete', __('Delete Rule'));
+				$gb_row->add_action($this->create_callback_href($this->edit_rule(...), array($r_id, $p_id)), 'edit', __('Edit Rule'));
 				$gb_row->add_data(
 					Base_AclCommon::display_clearances($clearances)
 				);

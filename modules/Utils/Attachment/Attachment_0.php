@@ -78,7 +78,7 @@ class Utils_Attachment extends Module {
             $this->rb->set_button(false);
         }
         $this->rb->set_defaults($defaults);
-        $this->rb->set_additional_actions_method(array($this,'add_actions'));
+        $this->rb->set_additional_actions_method($this->add_actions(...));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
             'attached_to' => array('width'=>"16em"),
@@ -95,7 +95,7 @@ class Utils_Attachment extends Module {
 
             if(isset($_SESSION['attachment_copy']) && count($this->group)==1 && $_SESSION['attachment_copy']['group']!=$this->group) {
                 $this->rb->new_button(Base_ThemeCommon::get_template_file(Utils_Attachment::module_name(), 'link.png'),__('Paste'),
-                    Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href(array($this,'paste'))
+                    Utils_TooltipCommon::open_tag_attrs($_SESSION['attachment_copy']['text']).' '.$this->create_callback_href($this->paste(...))
                 );
             }
 			$crits = array(
@@ -111,8 +111,8 @@ class Utils_Attachment extends Module {
         $text = $row['note'];
         if($row['crypted'])
             $text = Utils_AttachmentCommon::decrypt($text,$_SESSION['client']['cp'.$row['id']]);
-        $r->add_action($this->create_callback_href(array($this,'copy'),array($row['id'],$text, $this->group)),__('Copy link'),null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
-        $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), array($this, 'cut'), array($row['id'], $text, $this->group)), __('Cut'), null, Base_ThemeCommon::get_template_file($this->get_type(), 'cut_small.png'), 4);
+        $r->add_action($this->create_callback_href($this->copy(...),array($row['id'],$text, $this->group)),__('Copy link'),null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'), 3);
+        $r->add_action($this->create_confirm_callback_href(__('Are you sure you want to cut this note?'), $this->cut(...), array($row['id'], $text, $this->group)), __('Cut'), null, Base_ThemeCommon::get_template_file($this->get_type(), 'cut_small.png'), 4);
     }
 
 	public function copy($id, $text, $group) {

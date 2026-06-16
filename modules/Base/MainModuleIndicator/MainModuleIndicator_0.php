@@ -65,7 +65,7 @@ class Base_MainModuleIndicator extends Module {
         $form->addElement('submit', 'button', __('Save'), $form->get_submit_form_href());
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         if($form->validate()) {
-            $form->process(array($this,'submit_config'));
+            $form->process($this->submit_config(...));
         } else
             $this->display_module($form);
 
@@ -79,7 +79,7 @@ class Base_MainModuleIndicator extends Module {
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         //$form->addElement('submit', 'button', __('Upload'), $form->get_submit_form_href());
 
-		$this->display_module($form, array( array($this,'submit_logo') ));
+		$this->display_module($form, array( $this->submit_logo(...) ));
 
         $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
         $form->addElement('header', 'upload', __('Login Logo'));
@@ -91,9 +91,9 @@ class Base_MainModuleIndicator extends Module {
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         //$form->addElement('submit', 'button', __('Upload'), $form->get_submit_form_href());
 
-        $this->display_module($form, array( array($this,'submit_logo') ));
+        $this->display_module($form, array( $this->submit_logo(...) ));
 
-        Base_ActionBarCommon::add('delete',__('Delete logo'),$this->create_callback_href(array($this,'delete_logo')));
+        Base_ActionBarCommon::add('delete',__('Delete logo'),$this->create_callback_href($this->delete_logo(...)));
         Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
     }
 	

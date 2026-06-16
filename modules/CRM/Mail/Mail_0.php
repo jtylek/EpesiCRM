@@ -25,8 +25,8 @@ class CRM_Mail extends Module {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab(__('Global Signature'),array($this,'admin_signature'));
-		$tb->set_tab(__('Related'),array($this,'admin_related'));
+		$tb->set_tab(__('Global Signature'),$this->admin_signature(...));
+		$tb->set_tab(__('Related'),$this->admin_related(...));
 		$this->display_module($tb);
 	}
 
@@ -107,8 +107,8 @@ class CRM_Mail extends Module {
 		}
 
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab(__('Threaded'),array($this,'addon_threaded'),array($rs,$id));
-		$tb->set_tab(__('Flat'),array($this,'addon_flat'),array($rs,$id));
+		$tb->set_tab(__('Threaded'),$this->addon_threaded(...),array($rs,$id));
+		$tb->set_tab(__('Flat'),$this->addon_flat(...),array($rs,$id));
 		$this->display_module($tb);
 	}
 
@@ -172,7 +172,7 @@ class CRM_Mail extends Module {
 			'subject'=>array('name'=>__('Message'),'width'=>40),
 			'attachments'=>array('width'=>5)
 		));
-		$rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+		$rb->set_additional_actions_method($this->actions_for_mails(...));
 
 		if($rs=='contact') {
 			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
@@ -211,7 +211,7 @@ class CRM_Mail extends Module {
 			'subject'=>array('name'=>__('Message'),'width'=>40),
 			'attachments'=>array('width'=>5)
 		));
-		$rb->set_additional_actions_method(array($this, 'actions_for_mails'));
+		$rb->set_additional_actions_method($this->actions_for_mails(...));
 
 		$this->display_module($rb, array(array('thread'=>$arg['id']), array(), array('date'=>'DESC')), 'show_data');
 	}
@@ -230,7 +230,7 @@ class CRM_Mail extends Module {
 	}
 
 	public function actions_for_mails($r, $gb_row) {
-		$gb_row->add_action($this->create_callback_href(array($this,'copy'),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
+		$gb_row->add_action($this->create_callback_href($this->copy(...),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
 		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="expand"','Expand', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif'), 5);
 		$gb_row->add_action('style="display:none;" href="javascript:void(0)" class="collapse"','Collapse', null, Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif'), 5);
 	}
@@ -270,7 +270,7 @@ class CRM_Mail extends Module {
 
 			//and now
 			$update_applet .= 'CRM_Mail.update_msg_num('.$opts['id'].' ,'.$row['id'].' ,1);';
-			print('<li><i><a'.$this->create_callback_href(array($this,'open_mail_client'),$row['id']).'>'.$mail.'</a></i> - <span id="'.$cell_id.'"></span></li>');
+			print('<li><i><a'.$this->create_callback_href($this->open_mail_client(...),$row['id']).'>'.$mail.'</a></i> - <span id="'.$cell_id.'"></span></li>');
 		}
 		print('</ul>');
 		$this->js($update_applet);

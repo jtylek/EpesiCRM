@@ -298,8 +298,8 @@ class Utils_RecordBrowser extends Module {
         if ($this->get_access('add',$this->custom_defaults)!==false && $this->add_button!==false) {
             if (!$this->multiple_defaults) {
                 if ($this->add_button===null) {
-                    Base_ActionBarCommon::add('add',__('New'), $this->create_callback_href(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)));
-                    Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'),array('view_entry', 'add', null, $this->custom_defaults)).'}');
+                    Base_ActionBarCommon::add('add',__('New'), $this->create_callback_href($this->navigate(...),array('view_entry', 'add', null, $this->custom_defaults)));
+                    Utils_ShortcutCommon::add(array('Ctrl','N'), 'function(){'.$this->create_callback_href_js($this->navigate(...),array('view_entry', 'add', null, $this->custom_defaults)).'}');
                 } elseif($this->add_button!=='') {
                     Base_ActionBarCommon::add('add',__('New'), $this->add_button);
                 }
@@ -690,7 +690,7 @@ class Utils_RecordBrowser extends Module {
         $custom_label = '';
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
             if ($this->add_button!==null) $label = $this->add_button;
-            elseif (!$this->multiple_defaults) $label = $this->create_callback_href(array($this, 'navigate'), array('view_entry', 'add', null, $this->custom_defaults));
+            elseif (!$this->multiple_defaults) $label = $this->create_callback_href($this->navigate(...), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
             if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
         }
@@ -820,20 +820,20 @@ class Utils_RecordBrowser extends Module {
                 if ($this->disabled['actions']===false) $da = array();
                 else $da = array_flip($this->disabled['actions']);
                 if (!$special) {
-                    if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view', $row['id'])),__('View'), null, 'view');
+                    if (!isset($da['view'])) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'view', $row['id'])),__('View'), null, 'view');
 					if (!isset($da['edit'])) {
-						if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$row['id'])),__('Edit'), null, 'edit');
+						if ($this->get_access('edit',$row)) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'edit',$row['id'])),__('Edit'), null, 'edit');
 						else $gb_row->add_action('',__('Edit'),__('You don\'t have permission to edit this record.'),'edit',0,true);
 					}
                     if ($admin) {
-                        if (!$row[':active']) $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],true)),__('Activate'), null, 'active-off');
-                        else $gb_row->add_action($this->create_callback_href(array($this,'set_active'),array($row['id'],false)),__('Deactivate'), null, 'active-on');
+                        if (!$row[':active']) $gb_row->add_action($this->create_callback_href($this->set_active(...),array($row['id'],true)),__('Activate'), null, 'active-off');
+                        else $gb_row->add_action($this->create_callback_href($this->set_active(...),array($row['id'],false)),__('Deactivate'), null, 'active-on');
                         $info = Utils_RecordBrowserCommon::get_record_info($this->tab, $row['id']);
                         if ($info['edited_on']===null) $gb_row->add_action('',__('This record was never edited'),null,'history_inactive');
-                        else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $row['id'])),__('View edit history'),null,'history');
+                        else $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_edit_history', $row['id'])),__('View edit history'),null,'history');
                     } else {
 						if (!isset($da['delete'])) {
-                            if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),array($this,'delete_record'),array($row['id'], false)),__('Delete'), null, 'delete');
+                            if ($this->get_access('delete',$row)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),$this->delete_record(...),array($row['id'], false)),__('Delete'), null, 'delete');
                             else $gb_row->add_action('',__('Delete'),__('You don\'t have permission to delete this record'),'delete',0,true);
                         }
 					}
@@ -1120,14 +1120,14 @@ class Utils_RecordBrowser extends Module {
         if ($show_actions!==false) {
             if ($mode=='view') {
                 if ($this->get_access('edit',$this->record)) {
-                    Base_ActionBarCommon::add('edit', __('Edit'), $this->create_callback_href(array($this,'navigate'), array('view_entry','edit',$id)));
-                    Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js(array($this,'navigate'), array('view_entry','edit',$id)).'}');
+                    Base_ActionBarCommon::add('edit', __('Edit'), $this->create_callback_href($this->navigate(...), array('view_entry','edit',$id)));
+                    Utils_ShortcutCommon::add(array('Ctrl','E'), 'function(){'.$this->create_callback_href_js($this->navigate(...), array('view_entry','edit',$id)).'}');
                 }
                 if ($this->get_access('delete',$this->record)) {
-                    Base_ActionBarCommon::add('delete', __('Delete'), $this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),array($this,'delete_record'),array($id)));
+                    Base_ActionBarCommon::add('delete', __('Delete'), $this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),$this->delete_record(...),array($id)));
                 }
                 if ($this->get_access('add',$this->record)) {
-                    Base_ActionBarCommon::add('clone',__('Clone'), $this->create_confirm_callback_href(__('You are about to create a copy of this record. Do you want to continue?'),array($this,'clone_record'),array($id)));
+                    Base_ActionBarCommon::add('clone',__('Clone'), $this->create_confirm_callback_href(__('You are about to create a copy of this record. Do you want to continue?'),$this->clone_record(...),array($id)));
                 }
                 if($this->get_access('print',$this->record)) {
                     /** @var Base_Print_Printer $printer */
@@ -1156,7 +1156,7 @@ class Utils_RecordBrowser extends Module {
 				if ($this->full_history) {
 					$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
 					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
-					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href(array($this,'navigate'), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
+					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href($this->navigate(...), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
 				}
 				if ($this->clipboard_pattern) {
 					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
@@ -1229,7 +1229,7 @@ class Utils_RecordBrowser extends Module {
             }
             if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
                 $translated_label = _V($label);
-                $tb->set_tab($translated_label, array($this, 'view_entry_details'), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
+                $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
@@ -1266,9 +1266,9 @@ class Utils_RecordBrowser extends Module {
                 $mod_id = md5(serialize($row));
 				if (method_exists($row['module'].'Common',$row['func'].'_access') && !call_user_func(array($row['module'].'Common',$row['func'].'_access'), $this->record, $this)) continue;
                 $addons_mod[$mod_id] = $this->init_module($row['module']);
-                if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],array($this, 'broken_addon'), array(), $js);
+                if (!method_exists($addons_mod[$mod_id],$row['func'])) $tb->set_tab($row['label'],$this->broken_addon(...), array(), $js);
                 else {
-                	$tb->set_tab($row['label'],array($this, 'display_module'), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
+                	$tb->set_tab($row['label'],$this->display_module(...), array(& $addons_mod[$mod_id], array($this->record, $this), $row['func']), $js);
                 	if (isset($row['icon']) && $row['icon']) $tb->tab_icon($row['label'], $row['icon']);
                 }                
                 $tab_counter++;
@@ -1436,7 +1436,7 @@ class Utils_RecordBrowser extends Module {
     }
     public function prepare_view_entry_details($record, $mode, $id, $form, $visible_cols = null, $for_grid=false){
 	if ($mode == 'add')
-	    $form->addFormRule(array($this, 'check_new_record_access'));
+	    $form->addFormRule($this->check_new_record_access(...));
         $fields_by_processing_order = $this->table_rows;
         uasort($fields_by_processing_order, array(__CLASS__, 'sort_by_processing_order'));
         foreach($fields_by_processing_order as $field => $desc){
@@ -1497,37 +1497,37 @@ class Utils_RecordBrowser extends Module {
 		$tabs = array(
 		array(
 			'access'=>'fields',
-			'func'=>array($this, 'setup_loader'),
+			'func'=>$this->setup_loader(...),
 			'label'=>__('Manage Fields'),
 			'args'=>array()
 		),
         array(
             'access'=>'records',
-            'func'=>array($this, 'show_data'),
+            'func'=>$this->show_data(...),
             'label'=>__('Manage Records'),
             'args'=>array(array(), array(), array(), Base_AdminCommon::get_access('Utils_RecordBrowser', 'records')==2)
         ),
 		array(
 			'access'=>'addons',
-			'func'=>array($this, 'manage_addons'),
+			'func'=>$this->manage_addons(...),
 			'label'=>__('Manage Addons'),
 			'args'=>array()
 		),
 		array(
 			'access'=>'permissions',
-			'func'=>array($this, 'manage_permissions'),
+			'func'=>$this->manage_permissions(...),
 			'label'=>__('Permissions'),
 			'args'=>array()
 		),
 		array(
 			'access'=>'settings',
-			'func'=>array($this, 'settings'),
+			'func'=>$this->settings(...),
 			'label'=>__('Settings'),
 			'args'=>array()
 		),
 		array(
 			'access'=>'pattern',
-			'func'=>array($this, 'setup_clipboard_pattern'),
+			'func'=>$this->setup_clipboard_pattern(...),
 			'label'=>__('Clipboard Pattern'),
 			'args'=>array()
 		)
@@ -1585,7 +1585,7 @@ class Utils_RecordBrowser extends Module {
         if($r) $form->setDefaults($r);
         $form->display_as_column();
         if ($full_access) {
-            $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), array($this, 'clear_search_index'), array($this->tab));
+            $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), $this->clear_search_index(...), array($this->tab));
             echo "<a $clear_index_href>" . __('Clear search index') . "</a>";
             if ($form->validate()) {
                 DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,description_fields=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
@@ -1613,13 +1613,13 @@ class Utils_RecordBrowser extends Module {
         $add = DB::GetAll('SELECT * FROM recordbrowser_addon WHERE tab=%s ORDER BY pos',array($this->tab));
         $first = true;
         foreach ($add as $v) {
-            if (isset($gb_row) && $full_access) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos']-1, +1)),'Move down', null, 'move-down');
+            if (isset($gb_row) && $full_access) $gb_row->add_action($this->create_callback_href($this->move_addon(...),array($v['tab'],$v['pos']-1, +1)),'Move down', null, 'move-down');
             $gb_row = $gb->get_new_row();
             $gb_row->add_data($v['label'], $v['module'].' -> '.$v['func'].'()');
 			if ($full_access) {
-				$gb_row->add_action($this->create_callback_href(array($this, 'set_addon_active'), array($v['tab'],$v['pos'],!$v['enabled'])), ($v['enabled']?'Dea':'A').'ctivate', null, 'active-'.($v['enabled']?'on':'off'));
+				$gb_row->add_action($this->create_callback_href($this->set_addon_active(...), array($v['tab'],$v['pos'],!$v['enabled'])), ($v['enabled']?'Dea':'A').'ctivate', null, 'active-'.($v['enabled']?'on':'off'));
 
-				if (!$first) $gb_row->add_action($this->create_callback_href(array($this, 'move_addon'),array($v['tab'],$v['pos'], -1)),'Move up', null, 'move-up');
+				if (!$first) $gb_row->add_action($this->create_callback_href($this->move_addon(...),array($v['tab'],$v['pos'], -1)),'Move up', null, 'move-up');
 				$first = false;
 			}
         }
@@ -1720,8 +1720,8 @@ class Utils_RecordBrowser extends Module {
 		$full_access = Base_AdminCommon::get_access('Utils_RecordBrowser', 'fields')==2;
 
 		if ($full_access) {
-			Base_ActionBarCommon::add('add',__('New field'),$this->create_callback_href(array($this, 'view_field')));
-			Base_ActionBarCommon::add('add',__('New page'),$this->create_callback_href(array($this, 'new_page')));
+			Base_ActionBarCommon::add('add',__('New field'),$this->create_callback_href($this->view_field(...)));
+			Base_ActionBarCommon::add('add',__('New page'),$this->create_callback_href($this->new_page(...)));
 		}
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'fields');
         $gb->set_table_columns(array(
@@ -1749,14 +1749,14 @@ class Utils_RecordBrowser extends Module {
             $gb_row = $gb->get_new_row();
 			if ($full_access) {
 				if ($args['type'] != 'page_split') {
-					$gb_row->add_action($this->create_callback_href(array($this, 'view_field'),array('edit',$field)),'Edit');
+					$gb_row->add_action($this->create_callback_href($this->view_field(...),array('edit',$field)),'Edit');
 				} elseif ($field!='General') {
-					$gb_row->add_action($this->create_callback_href(array($this, 'delete_page'),array($field)),'Delete');
-					$gb_row->add_action($this->create_callback_href(array($this, 'edit_page'),array($field)),'Edit');
+					$gb_row->add_action($this->create_callback_href($this->delete_page(...),array($field)),'Delete');
+					$gb_row->add_action($this->create_callback_href($this->edit_page(...),array($field)),'Edit');
 				}
 				if ($args['type']!=='page_split' && $args['extra']){
-					if ($args['active']) $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, false)),'Deactivate', null, 'active-on');
-					else $gb_row->add_action($this->create_callback_href(array($this, 'set_field_active'),array($field, true)),'Activate', null, 'active-off');
+					if ($args['active']) $gb_row->add_action($this->create_callback_href($this->set_field_active(...),array($field, false)),'Deactivate', null, 'active-on');
+					else $gb_row->add_action($this->create_callback_href($this->set_field_active(...),array($field, true)),'Activate', null, 'active-off');
 				}
                 if ($field != 'General') {
                     $gb_row->add_action('class="move-handle"','Move', __('Drag to change field position'), 'move-up-down');
@@ -2013,7 +2013,7 @@ class Utils_RecordBrowser extends Module {
 		$form->addElement('multiselect', 'rset', '<span id="rset_label">'.__('Recordset').'</span>', $tables, array('id'=>'rset'));
 		$form->addElement('text', 'label_field', __('Related field(s)'), array('id'=>'label_field'));
 
-		$form->addFormRule(array($this, 'check_field_definitions'));
+		$form->addFormRule($this->check_field_definitions(...));
 
 		$form->addElement('checkbox', 'visible', __('Table view'));
 		$form->addElement('checkbox', 'tooltip', __('Tooltip view'));
@@ -2730,11 +2730,11 @@ class Utils_RecordBrowser extends Module {
             $records_qty = Utils_RecordBrowserCommon::get_records_count($this->tab, $crits);
             if ($records_qty>$limit['numrows']) {
                 if ($this->get_module_variable('no_limit_in_mini_view',false)) {
-                    $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Display first %d records', array($limit['numrows']))).' '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view'), array(false)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_some.png').'" border="0"></a>';
+                    $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Display first %d records', array($limit['numrows']))).' '.$this->create_callback_href($this->set_no_limit_in_mini_view(...), array(false)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_some.png').'" border="0"></a>';
                     $limit = null;
                 } else {
                     print(__('Displaying %s of %s records', array($limit['numrows'], $records_qty)));
-                    $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Display all records')).' '.$this->create_callback_href(array($this, 'set_no_limit_in_mini_view'), array(true)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_all.png').'" border="0"></a>';
+                    $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Display all records')).' '.$this->create_callback_href($this->set_no_limit_in_mini_view(...), array(true)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','show_all.png').'" border="0"></a>';
                 }
             }
         }
@@ -2755,13 +2755,13 @@ class Utils_RecordBrowser extends Module {
             if (isset($additional_info['notes'])) $additional_info['notes'] = $additional_info['notes'].'<hr />';
             if (isset($additional_info['row_attrs'])) $gb_row->set_attrs($additional_info['row_attrs']);
             if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info['notes'].Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
-            if (isset($conf['actions_view']) && $conf['actions_view']) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'view',$v['id'])),'View');
-            if (isset($conf['actions_edit']) && $conf['actions_edit']) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_entry', 'edit',$v['id'])),'Edit');
-            if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),array($this,'delete_record'),array($v['id'], false)),'Delete');
+            if (isset($conf['actions_view']) && $conf['actions_view']) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'view',$v['id'])),'View');
+            if (isset($conf['actions_edit']) && $conf['actions_edit']) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'edit',$v['id'])),'Edit');
+            if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),$this->delete_record(...),array($v['id'], false)),'Delete');
             if (isset($conf['actions_history']) && $conf['actions_history']) {
                 $r_info = Utils_RecordBrowserCommon::get_record_info($this->tab, $v['id']);
                 if ($r_info['edited_on']===null) $gb_row->add_action('','This record was never edited',null,'history_inactive');
-                else $gb_row->add_action($this->create_callback_href(array($this,'navigate'),array('view_edit_history', $v['id'])),'View edit history',null,'history');
+                else $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_edit_history', $v['id'])),'View edit history',null,'history');
             }
             $this->call_additional_actions_methods($v, $gb_row);
         }
@@ -2866,13 +2866,13 @@ class Utils_RecordBrowser extends Module {
 					$gb_row = $gb->get_new_row();
 					$gb_row->add_data_array($vals);
 					if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) {
-						$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id)), 'edit', 'Edit');
-						$gb_row->add_action($this->create_callback_href(array($this, 'edit_permissions_rule'), array($id, true)), 'copy', __('Clone rule'), Base_ThemeCommon::get_template_file(Utils_Attachment::module_name(),'copy_small.png'));
-						$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), array($this, 'delete_permissions_rule'), array($id)), 'delete', 'Delete');
+						$gb_row->add_action($this->create_callback_href($this->edit_permissions_rule(...), array($id)), 'edit', 'Edit');
+						$gb_row->add_action($this->create_callback_href($this->edit_permissions_rule(...), array($id, true)), 'copy', __('Clone rule'), Base_ThemeCommon::get_template_file(Utils_Attachment::module_name(),'copy_small.png'));
+						$gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this rule?'), $this->delete_permissions_rule(...), array($id)), 'delete', 'Delete');
 				}
 		}
 		if (Base_AdminCommon::get_access('Utils_RecordBrowser', 'permissions')==2) 
-			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href(array($this, 'edit_permissions_rule'), array(null)));
+			Base_ActionBarCommon::add('add',__('Add new rule'), $this->create_callback_href($this->edit_permissions_rule(...), array(null)));
 		Base_ThemeCommon::load_css('Utils_RecordBrowser', 'edit_permissions');
 		$this->display_access_callback_descriptions();
 		$this->display_module($gb);

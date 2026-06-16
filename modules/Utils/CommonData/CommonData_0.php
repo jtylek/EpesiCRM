@@ -50,10 +50,10 @@ class Utils_CommonData extends Module {
                             'label'=>__('Key'),
 							'rule'=>array(
                                 array('type'=>'callback','param'=>array($parent,$key),
-									'func'=>array($this,'check_key'),
+									'func'=>$this->check_key(...),
 									'message'=>__('Specified key already exists')),
 							    array('type'=>'callback','param'=>array($parent,$key),
-									'func'=>array($this,'check_key2'),
+									'func'=>$this->check_key2(...),
 									'message'=>__('Specified contains invalid character "/"'))
                             )
 						),
@@ -112,9 +112,9 @@ class Utils_CommonData extends Module {
 		foreach($ret as $k=>$v) {
 			$gb_row = $gb->get_new_row();
 			$gb_row->add_data($v['position'],$k,$v['value']); // ****** CommonData value translation
-			$gb_row->add_action($this->create_callback_href(array($this,'browse'),array($name.'/'.$k,false)),'View');
+			$gb_row->add_action($this->create_callback_href($this->browse(...),array($name.'/'.$k,false)),'View');
 			if(!$v['readonly']) {
-				$gb_row->add_action($this->create_callback_href(array($this,'edit'),array($name,$k)),'Edit');
+				$gb_row->add_action($this->create_callback_href($this->edit(...),array($name,$k)),'Edit');
 				$gb_row->add_action($this->create_confirm_callback_href(__('Delete array').' \''.Epesi::escapeJS($name.'/'.$k,false).'\'?',array('Utils_CommonData','remove_array'), array($name.'/'.$k)),'Delete');
 			}
 			$node_id = $v['id'];
@@ -132,7 +132,7 @@ class Utils_CommonData extends Module {
 		eval_js("utils_commondata_sort_nodes_init(\"$table_md5\")");
 		
 		Base_ActionBarCommon::add('settings',__('Reset Order By Key'),$this->create_callback_href(array('Utils_CommonDataCommon','reset_array_positions'),$name));
-		Base_ActionBarCommon::add('add',__('Add array'),$this->create_callback_href(array($this,'edit'),$name));
+		Base_ActionBarCommon::add('add',__('Add array'),$this->create_callback_href($this->edit(...),$name));
 		if(!$root)
 			Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		return true;

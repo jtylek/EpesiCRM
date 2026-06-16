@@ -167,7 +167,7 @@ class CRM_Contacts_Activities extends Module {
 				$v = array_shift($events);
 				if($i>=$limit['offset'] && $v) {
 					if (isset($v['view_action'])) $view_href = $v['view_action'];
-					else $view_href = $this->create_callback_href(array($this, 'view_event'), array($v['id']));
+					else $view_href = $this->create_callback_href($this->view_event(...), array($v['id']));
 					$title = '<a '.$view_href.'>'.$v['title'].'</a>';
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('crm_meeting', $v['id']));

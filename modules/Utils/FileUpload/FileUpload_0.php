@@ -130,7 +130,7 @@ class Utils_FileUpload extends Module {
 	public function body($on_sub = null) {
 		if(isset($on_sub)) {
 			$args = func_get_args();
-			call_user_func_array(array($this,'set_submit_callback'),$args);
+			call_user_func_array($this->set_submit_callback(...),$args);
 		}
 		if(!isset($this->on_submit)) trigger_error('You have to specify "on submit" method',E_USER_ERROR);
 
@@ -140,7 +140,7 @@ class Utils_FileUpload extends Module {
 			$this->form->addElement('submit', 'button', $this->upload_button_caption, $this->get_submit_form_href());
 
 		if($this->form->validate()) {
-			$this->form->process(array($this,'submit_parent'));
+			$this->form->process($this->submit_parent(...));
 		} else
 			$this->form->display();
 	}

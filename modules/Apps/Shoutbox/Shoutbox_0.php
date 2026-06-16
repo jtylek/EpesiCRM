@@ -24,8 +24,8 @@ class Apps_Shoutbox extends Module {
 		}
 		
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab(__('Chat'), array($this,'chat'),true,null);
-		$tb->set_tab(__('History'), array($this,'history'),null);
+		$tb->set_tab(__('Chat'), $this->chat(...),true,null);
+		$tb->set_tab(__('History'), $this->history(...),null);
 		$this->display_module($tb);
     }
 	
@@ -148,9 +148,9 @@ class Apps_Shoutbox extends Module {
 				);
 				if (Apps_ShoutboxCommon::can_delete_msg($row)) {
 					if (!$row['deleted']) {
-						$gb_row->add_action($this->create_callback_href(array($this,'delete_msg'),array($row)), __('Mark message as deleted'), null, 'delete');
+						$gb_row->add_action($this->create_callback_href($this->delete_msg(...),array($row)), __('Mark message as deleted'), null, 'delete');
 					} else {
-						$gb_row->add_action($this->create_callback_href(array($this,'restore_msg'),array($row)), __('Restore message'), null, 'active-off');
+						$gb_row->add_action($this->create_callback_href($this->restore_msg(...),array($row)), __('Restore message'), null, 'active-off');
 					}
 				}
 			}

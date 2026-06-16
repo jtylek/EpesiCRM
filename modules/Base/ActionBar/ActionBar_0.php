@@ -48,7 +48,7 @@ class Base_ActionBar extends Module {
 		$icons = Base_ActionBarCommon::get();
 
 		//sort
-		usort($icons, array($this,'compare'));
+		usort($icons, $this->compare(...));
 
 		//translate
 		foreach($icons as &$i) {
@@ -132,11 +132,11 @@ class Base_ActionBar extends Module {
 		if (self::$launchpad==null) return;
 
 		$launcher = array();
-		usort(self::$launchpad,array($this,'compare_launcher'));
+		usort(self::$launchpad,$this->compare_launcher(...));
 		if(!empty(self::$launchpad)) {
 			$icon = Base_ThemeCommon::get_template_file($this->get_type(),'launcher.png');
 			$th = $this->pack_module(Base_Theme::module_name());
-			usort(self::$launchpad,array($this,'compare_launcher'));
+			usort(self::$launchpad,$this->compare_launcher(...));
 			$th->assign('icons',self::$launchpad);
 			eval_js_once('actionbar_launchpad_deactivate = function(){leightbox_deactivate(\'actionbar_launchpad\');}');
 			ob_start();

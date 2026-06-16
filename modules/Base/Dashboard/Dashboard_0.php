@@ -36,9 +36,9 @@ class Base_Dashboard extends Module {
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if ($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()) {
 			if ($config_mode) {
-				Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href(array($this,'switch_config_mode')));
+				Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href($this->switch_config_mode(...)));
 			} else {
-				Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href(array($this,'switch_config_mode')));
+				Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href($this->switch_config_mode(...)));
 			}
 		}
 
@@ -94,13 +94,13 @@ class Base_Dashboard extends Module {
 				if ($config_mode) {
 					$label .= '&nbsp;';
 					if($tab['pos']>$tabs[0]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
 					if($tab['pos']<$tabs[count($tabs)-1]['pos'])
-						$label .= '<a '.$this->create_callback_href(array($this,'move_tab'),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
 					$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),array($this,'delete_tab'),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),$this->delete_tab(...),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
 				}
-				$this->tb->set_tab($label, array($this,'display_dashboard'),$tab['id'], $config_mode, $buttons);
+				$this->tb->set_tab($label, $this->display_dashboard(...),$tab['id'], $config_mode, $buttons);
 				$init_tabs_js[] = $tab['id'];
 			}
 			if ($config_mode) {
@@ -212,7 +212,7 @@ class Base_Dashboard extends Module {
 				if ($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()) {
 					$th->assign('remove',Base_DashboardCommon::get_remove_applet_button($row['id'], $default_dash));
 					if (!$config_mode) {
-						$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs(__('Configure')).' '.$this->create_callback_href(array($this,'configure_applet'),array($row['id'],$row['module_name'])).'>c</a>');
+						$th->assign('configure','<a class="configure" '.Utils_TooltipCommon::open_tag_attrs(__('Configure')).' '.$this->create_callback_href($this->configure_applet(...),array($row['id'],$row['module_name'])).'>c</a>');
 					}
 				}
 

@@ -8,7 +8,7 @@
  */
 class RBO_RecordsetAccessor extends RBO_Recordset {
 
-    public function fields() {
+    public function fields(): never {
         trigger_error('RBO_RecordsetAccessor has not defined fields. Please implement your own implementation of RBO_Recordset.', E_USER_ERROR);
     }
 

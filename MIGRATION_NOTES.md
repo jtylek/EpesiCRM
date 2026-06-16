@@ -108,6 +108,13 @@ These block a clean `composer install` under PHP 8.2 (require `--ignore-platform
 - `switch($row['admin'])` with integer cases (1 = Administrator, 2 = Super Administrator). DB values may arrive as strings ("1"/"2") depending on ADOdb fetch mode. `switch` uses loose `==` (matches), `match` uses strict `===` (would NOT match string "2" against int 2 → admins would fall through to "User"). Affects admin role display in the user list UI.
 - **Decision:** left as `switch` (safe under any type). `switch→match` is excluded for this file in `rector.php`. Revisit when DB fetch types are verified — if `$row['admin']` is reliably int, the conversion is safe.
 
+### PHP 8.1: null→string deprecation NOT addressed (NullToStrictStringFuncCallArgRector)
+- **Scope:** ~199 files would get `(string)` casts wrapping args to built-in string functions (strlen, preg_match, str_contains, etc.)
+- **Why:** PHP 8.1 deprecates passing `null` to non-nullable string params of internal functions (fatal in PHP 9.0).
+- **Why skipped:** (1) it's a deprecation, not a fatal — code runs fine on 8.2; (2) our target is 8.2, this is PHP 9 prep; (3) Rector's auto-fix blindly wraps everything in `(string)`, mostly unnecessary (vars are rarely null) and potentially masking real null-bugs instead of surfacing them.
+- **Recommendation:** review the actual null-prone call sites individually and fix meaningfully (default values, proper null handling) rather than mass-casting. Revisit when targeting PHP 9.
+- Rule excluded globally in `rector.php` (`NullToStrictStringFuncCallArgRector::class` in withSkip).
+
 ---
 
 ## 6. Rector setup (for reproducing)

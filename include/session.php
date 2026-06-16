@@ -477,7 +477,7 @@ if(defined('EPESI_PROCESS')) {
 session_set_save_handler(EpesiSession::create());
 
 if(extension_loaded('apc') || extension_loaded('eaccelerator') || extension_loaded('xcache')) //fix for class DBSession not found
-    register_shutdown_function('session_write_close');
+    register_shutdown_function(session_write_close(...));
 
 if(!defined('CID')) {
     if(isset($_SERVER['HTTP_X_CLIENT_ID']) && is_numeric($_SERVER['HTTP_X_CLIENT_ID']))

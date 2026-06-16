@@ -42,14 +42,14 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
         $tabs = DB::GetAll('SELECT * FROM recordbrowser_custom_recordsets ORDER BY tab ASC');
         foreach ($tabs as $t) {
             $gbr = $gb->get_new_row();
-            if (!$t['active']) $gbr->add_action($this->create_callback_href(array($this, 'set_active'), array($t['id'], true)), 'Activate', null, 'active-off');
-            else $gbr->add_action($this->create_callback_href(array($this, 'set_active'), array($t['id'], false)), 'Deactivate', null, 'active-on');
-            $gbr->add_action($this->create_callback_href(array($this, 'edit_rset'), array($t['id'])), 'edit');
+            if (!$t['active']) $gbr->add_action($this->create_callback_href($this->set_active(...), array($t['id'], true)), 'Activate', null, 'active-off');
+            else $gbr->add_action($this->create_callback_href($this->set_active(...), array($t['id'], false)), 'Deactivate', null, 'active-on');
+            $gbr->add_action($this->create_callback_href($this->edit_rset(...), array($t['id'])), 'edit');
             $table_name = $t['tab'];
-            $table_href = $this->create_callback_href(array($this, 'manage_recordset'), array($table_name));
+            $table_href = $this->create_callback_href($this->manage_recordset(...), array($table_name));
             $gbr->add_data("<a $table_href>$table_name</a>", Utils_RecordBrowserCommon::get_caption($t['tab']), str_replace(Utils_RecordBrowser_CustomRecordsetsCommon::$sep, ' -> ', $t['menu']));
         }
-        Base_ActionBarCommon::add('new', __('Create new'), $this->create_callback_href(array($this, 'edit_rset')));
+        Base_ActionBarCommon::add('new', __('Create new'), $this->create_callback_href($this->edit_rset(...)));
         $this->display_module($gb);
     }
 
@@ -88,7 +88,7 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
         $form->addElement('checkbox', 'favs', __('Enable Favorites'));
         $form->addRule('tab', __('Field required'), 'required');
         $form->addRule('caption', __('Field required'), 'required');
-        $form->addFormRule(array($this, 'check_form'));
+        $form->addFormRule($this->check_form(...));
 
         if ($id !== null) {
             $tab = DB::GetOne('SELECT tab FROM recordbrowser_custom_recordsets WHERE id=%d', array($id));
