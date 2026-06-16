@@ -39,7 +39,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	}
 
     public static function is_empty($p) {
-        return strpos($p,'__') === 0;
+        return str_starts_with($p, '__');
     }
 	
 	public static function get_values($p) {
@@ -148,7 +148,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
             $symbol_pos_before = Utils_CurrencyFieldCommon::get_symbol_position($cur_id);
             // check for symbol
             if ($symbol_pos_before) {
-                if (strpos($string, (string) $symbol) === 0) {
+                if (str_starts_with($string, (string) $symbol)) {
                     $string = substr($string, strlen($symbol));
                 } else continue;
             } else {

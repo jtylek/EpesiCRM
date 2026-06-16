@@ -3,12 +3,10 @@
 class Utils_RecordBrowser_QueryBuilderIntegration
 {
 
-    protected $tab;
     protected $fields;
 
-    function __construct($tab, $limit_access = true)
+    function __construct(protected $tab, $limit_access = true)
     {
-        $this->tab = $tab;
         $this->fields = Utils_RecordBrowserCommon::init($this->tab);
         if ($limit_access) {
             $access = Utils_RecordBrowserCommon::get_access($this->tab, 'view');
@@ -212,7 +210,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 $input = 'select';
                 $array_id = is_array($desc['param']) ? $desc['param']['array_id'] : $desc['ref_table'];
                 $values = array('' => '['.__('Empty').']');
-                if (strpos($array_id, '::') === false) {
+                if (!str_contains($array_id, '::')) {
                     $values = $values + Utils_CommonDataCommon::get_translated_array($array_id, is_array($desc['param']) ? $desc['param']['order'] : false);
                 }
                 break;
@@ -271,7 +269,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
                 break;
             case $desc['commondata']:
                 $array_id = is_array($desc['param']) ? $desc['param']['array_id'] : $desc['ref_table'];
-                if (strpos($array_id, '::')===false)
+                if (!str_contains($array_id, '::'))
                     $arr = $arr + Utils_CommonDataCommon::get_translated_array($array_id, is_array($desc['param'])?$desc['param']['order']:false);
                 break;
             case $tab=='contact' && $field=='login' ||
@@ -345,7 +343,7 @@ class Utils_RecordBrowser_QueryBuilderIntegration
         } elseif ($crits instanceof Utils_RecordBrowser_CritsRawSQL) {
 
         } else {
-            throw new Exception("crits to json exporter: unsupported class: " . get_class($crits));
+            throw new Exception("crits to json exporter: unsupported class: " . $crits::class);
         }
     }
 

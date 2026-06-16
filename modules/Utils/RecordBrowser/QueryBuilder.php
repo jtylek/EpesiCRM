@@ -4,22 +4,16 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_QueryBuilder
 {
-    protected $tab;
     protected $fields;
     protected $fields_by_id;
 
     protected $applied_joins = array();
     protected $final_tab;
-    protected $tab_alias;
-    protected $admin_mode = false;
 
-    function __construct($tab, $tab_alias = 'rest', $admin_mode = false)
+    function __construct(protected $tab, protected $tab_alias = 'rest', protected $admin_mode = false)
     {
-        $this->tab = $tab;
-        $this->fields = Utils_RecordBrowserCommon::init($tab);
+        $this->fields = Utils_RecordBrowserCommon::init($this->tab);
         $this->fields_by_id = Utils_RecordBrowserCommon::$hash;
-        $this->tab_alias = $tab_alias;
-        $this->admin_mode = $admin_mode;
     }
 
     public function build_query(Utils_RecordBrowser_CritsInterface $crits, $order = array(), $admin_filter = '')
@@ -105,22 +99,13 @@ class Utils_RecordBrowser_QueryBuilder
         foreach ($order as $v) {
             if ($v['order'][0] != ':' && !isset($this->fields[$v['order']])) continue;
             if ($v['order'][0] == ':') {
-                switch ($v['order']) {
-                    case ':id':
-                        $orderby[] = ' id ' . $v['direction'];
-                        break;
-                    case ':Fav' :
-                        $orderby[] = ' (SELECT COUNT(*) FROM '.$this->tab.'_favorite WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
-                        break;
-                    case ':Visited_on'  :
-                        $orderby[] = ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'];
-                        break;
-                    case ':Edited_on'   :
-                        $orderby[] = ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE ' . $this->tab_alias . '.created_on END) '.$v['direction'];
-                        break;
-                    default     :
-                        $orderby[] = ' '.substr($v['order'], 1).' ' . $v['direction'];
-                }
+                $orderby[] = match ($v['order']) {
+                    ':id' => ' id ' . $v['direction'],
+                    ':Fav' => ' (SELECT COUNT(*) FROM '.$this->tab.'_favorite WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'],
+                    ':Visited_on' => ' (SELECT MAX(visited_on) FROM '.$this->tab.'_recent WHERE '.$this->tab.'_id='.$this->tab_alias.'.id AND user_id='.$user_id.') '.$v['direction'],
+                    ':Edited_on' => ' (CASE WHEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) IS NOT NULL THEN (SELECT MAX(edited_on) FROM '.$this->tab.'_edit_history WHERE '.$this->tab.'_id='.$this->tab_alias.'.id) ELSE ' . $this->tab_alias . '.created_on END) '.$v['direction'],
+                    default => ' '.substr($v['order'], 1).' ' . $v['direction'],
+                };
             } else {
                 $field_def = $this->get_field_definition($v['order']);
                 $field_sql_id = $this->tab_alias . '.f_' . $field_def['id'];
@@ -543,7 +528,7 @@ class Utils_RecordBrowser_QueryBuilder
             );
             $action = null;
             foreach ($callbacks as $act => $c) {
-                if (strpos($value, $c) !== false) {
+                if (str_contains($value, $c)) {
                     $action = $act;
                     break;
                 }
@@ -743,57 +728,20 @@ class Utils_RecordBrowser_QueryBuilder
     {
         $ret = array('', array());
 
-        switch ($field_def['type']) {
-            case 'autonumber':
-            case 'text':
-            case 'long text':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_text'));
-                break;
-
-            case 'integer':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_integer'));
-                break;
-
-            case 'float':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_float'));
-                break;
-
-            case 'checkbox':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_boolean'));
-                break;
-
-            case 'select':
-            case 'multiselect':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_select'), $field_def);
-                break;
-
-            case 'commondata':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_commondata'), $field_def);
-                break;
-
-            case 'currency':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_currency'));
-                break;
-
-            case 'date':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_date'));
-                break;
-
-            case 'timestamp':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_timestamp'));
-                break;
-
-            case 'time':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_time'));
-                break;
-
-            case 'calculated':
-                $ret = $this->hf_multiple($crit, array($this, 'hf_calculated'), $field_def);
-                break;
-
-            default:
-                $ret = $this->hf_multiple($crit, array($this, 'hf_text'));
-        }
+        $ret = match ($field_def['type']) {
+            'autonumber', 'text', 'long text' => $this->hf_multiple($crit, array($this, 'hf_text')),
+            'integer' => $this->hf_multiple($crit, array($this, 'hf_integer')),
+            'float' => $this->hf_multiple($crit, array($this, 'hf_float')),
+            'checkbox' => $this->hf_multiple($crit, array($this, 'hf_boolean')),
+            'select', 'multiselect' => $this->hf_multiple($crit, array($this, 'hf_select'), $field_def),
+            'commondata' => $this->hf_multiple($crit, array($this, 'hf_commondata'), $field_def),
+            'currency' => $this->hf_multiple($crit, array($this, 'hf_currency')),
+            'date' => $this->hf_multiple($crit, array($this, 'hf_date')),
+            'timestamp' => $this->hf_multiple($crit, array($this, 'hf_timestamp')),
+            'time' => $this->hf_multiple($crit, array($this, 'hf_time')),
+            'calculated' => $this->hf_multiple($crit, array($this, 'hf_calculated'), $field_def),
+            default => $this->hf_multiple($crit, array($this, 'hf_text')),
+        };
 
         return $ret;
     }

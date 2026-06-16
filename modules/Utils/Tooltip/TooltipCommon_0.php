@@ -104,7 +104,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 
     public static function is_tooltip_code_in_str($str)
     {
-        return strpos($str, 'Utils_Toltip.show(') !== false || strpos($str, 'Utils_Tooltip.load_ajax(') !== false;
+        return str_contains($str, 'Utils_Toltip.show(') || str_contains($str, 'Utils_Tooltip.load_ajax(');
     }
 
 	/**

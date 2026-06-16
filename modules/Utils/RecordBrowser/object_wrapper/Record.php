@@ -7,8 +7,6 @@
  */
 class RBO_Record implements ArrayAccess {
 
-    /** @var RBO_Recordset */
-    private $__recordset;
     private $__records_id;
 
     /**
@@ -41,12 +39,11 @@ class RBO_Record implements ArrayAccess {
      * Create object of record.
      * To perform any operation during object construction
      * please override init() function. It's called at the end of __construct
-     * 
-     * @param RBO_Recordset $recordset Recordset object
+     *
+     * @param RBO_Recordset $__recordset Recordset object
      * @param array $array data of record
      */
-    public final function __construct(RBO_Recordset & $recordset, array $array) {
-        $this->__recordset = $recordset;
+    public final function __construct(private RBO_Recordset & $__recordset, array $array) {
         if (isset($array[':active'])) {
             $array['_active'] = $array[':active'];
             unset($array[':active']);

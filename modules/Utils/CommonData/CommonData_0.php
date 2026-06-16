@@ -84,7 +84,7 @@ class Utils_CommonData extends Module {
 	}
 
 	public function check_key2($new_key,$arr) {
-	    return strpos($new_key,'/')===false;
+	    return !str_contains($new_key,'/');
 	}
 
 	/**

@@ -7,27 +7,15 @@
  */
 class RBO_FieldDefinition {
 
-    public $name;
-    public $type;
-    public $param;
-    public $extra;
-    public $required;
-    public $visible;
-    public $filter;
-    public $display_callback;
-    public $QFfield_callback;
-    public $position;
-    public $style;
-
     private $_magic_callbacks = true;
 
     /**
      * Creates new generic FieldDefinition object.
      * Check if there is specific class for field type and use it, as it's
      * simpler to use, more readable and flexible. Look for RBO_Field_*
-     * 
+     *
      * @link http://www.epesi.org/index.php?title=Utils/RecordBrowser#Field_Properties
-     * @param string $display_name field name
+     * @param string $name field name
      * @param string $type field type
      * @param string|array $param parameters specific to field type
      * @param bool $extra extra field
@@ -39,18 +27,8 @@ class RBO_FieldDefinition {
      * @param numeric|string $position position - use only to alter existing RecordSet
      * @param string $style style definition
      */
-    function __construct($display_name, $type, $param = null, $extra = false, $required = false, $visible = false, $filter = false, $display_callback = null, $QFfield_callback = null, $position = null, $style = null) {
-        $this->name = $display_name;
-        $this->type = $type;
-        $this->param = $param;
-        $this->extra = $extra;
-        $this->required = $required;
-        $this->visible = $visible;
-        $this->filter = $filter;
-        $this->display_callback = $display_callback;
-        $this->QFfield_callback = $QFfield_callback;
-        $this->position = $position;
-        $this->style = $style;
+    function __construct(public $name, public $type, public $param = null, public $extra = false, public $required = false, public $visible = false, public $filter = false, public $display_callback = null, public $QFfield_callback = null, public $position = null, public $style = null)
+    {
     }
     
     /**

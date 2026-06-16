@@ -59,7 +59,7 @@ class Utils_GenericBrowser extends Module {
 		
 		$classes[] = 'Utils_GenericBrowser__actions';
 	
-		$classes = array_map(fn($c) => (substr($c,0,1)=='.')? $c: '.'.$c, $classes);	
+		$classes = array_map(fn($c) => (str_starts_with($c, '.'))? $c: '.'.$c, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
 
@@ -852,7 +852,7 @@ class Utils_GenericBrowser extends Module {
 							$search['__keyword__'] = $v;
 						break;
 					}
-					if (substr($k,0,8)=='search__') {
+					if (str_starts_with($k, 'search__')) {
 						$val = substr($k,8);
 						if ($v!=__('search keyword...') && $v!='') $search[$val] = $v;
 					}
@@ -1004,7 +1004,7 @@ class Utils_GenericBrowser extends Module {
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
 				if ($all_width!=0)
-					$max_width = 130*(substr($this->columns[$k]['width'],-2)=="px"
+					$max_width = 130*(str_ends_with($this->columns[$k]['width'], "px")
 							? (int)substr($this->columns[$k]['width'],0,-2)
 							: (int)$this->columns[$k]['width'])/$all_width*(7+($this->columns[$k]['fontsize'] ?? 0));
         			else

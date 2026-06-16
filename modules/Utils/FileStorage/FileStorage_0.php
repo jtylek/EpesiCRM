@@ -66,7 +66,7 @@ class Utils_FileStorage extends Module
 
     private function create_backref_link($backref)
     {
-        if (substr($backref, 0, 3) == 'rb:') {
+        if (str_starts_with($backref, 'rb:')) {
             $backref = substr($backref, 3);
         }
         $recordToken = Utils_RecordBrowserCommon::decode_record_token($backref);

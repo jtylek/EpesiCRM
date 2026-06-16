@@ -4,7 +4,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_CritsToWords
 {
-    protected $tab;
     protected $fields;
     protected $fields_by_id;
 
@@ -12,10 +11,9 @@ class Utils_RecordBrowser_CritsToWords
     protected static $empty_c = array('str' => '');
 
 
-    function __construct($tab)
+    function __construct(protected $tab)
     {
-        $this->tab = $tab;
-        $this->fields = Utils_RecordBrowserCommon::init($tab);
+        $this->fields = Utils_RecordBrowserCommon::init($this->tab);
         $this->fields_by_id = Utils_RecordBrowserCommon::$hash;
     }
 
@@ -172,16 +170,15 @@ class Utils_RecordBrowser_CritsToWords
         if ($subquery_generated) {
             $operand = __('is set to record where');
         } else {
-            switch ($operator) {
-                case '<' : $operand = $negation ? __('is not smaller than') : __('is smaller than'); break;
-                case '<=' : $operand = $negation ? __('is not smaller or equal to') : __('is smaller or equal to'); break;
-                case '>' : $operand = $negation ? __('is not greater than') : __('is greater than'); break;
-                case '>=' : $operand = $negation ? __('is not greater than') : __('is greater or equal to'); break;
-                case 'LIKE' : $operand = $negation ? __('is not like') : __('is like'); break;
-                case 'NOT LIKE' : $operand = $negation ? __('is like') : __('is not like'); break;
-                default:
-                    $operand = $negation ? __('is not equal to') : __('is equal to');
-            }
+            $operand = match ($operator) {
+                '<' => $negation ? __('is not smaller than') : __('is smaller than'),
+                '<=' => $negation ? __('is not smaller or equal to') : __('is smaller or equal to'),
+                '>' => $negation ? __('is not greater than') : __('is greater than'),
+                '>=' => $negation ? __('is not greater than') : __('is greater or equal to'),
+                'LIKE' => $negation ? __('is not like') : __('is like'),
+                'NOT LIKE' => $negation ? __('is like') : __('is not like'),
+                default => $negation ? __('is not equal to') : __('is equal to'),
+            };
         }
 
         $value_str = implode(' ' . __('or') . ' ', $value);

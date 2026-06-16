@@ -53,7 +53,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
 		$meta = null;
 		try {
 			$meta = is_numeric($id) ? self::meta($id) : $id;
-		} catch (Exception $e) {
+		} catch (Exception) {
 		}		
 		
 		if (!$filename = $label) {
@@ -531,7 +531,7 @@ class Utils_FileStorageCommon extends ModuleCommon {
             if ($id2 != $id) {
                 throw new Utils_FileStorage_LinkDuplicate($link);
             }
-        } catch (Utils_FileStorage_LinkNotFound $e) {
+        } catch (Utils_FileStorage_LinkNotFound) {
             DB::Execute('UPDATE utils_filestorage SET link=%s WHERE id=%d', array($link, $id));
         }
     }
@@ -690,36 +690,16 @@ class Utils_FileStorageCommon extends ModuleCommon {
     	if (!isset($m[1])) {
     		return "application/octet-stream";
     	}
-    	switch (strtolower($m[1])) {
-    		// case "js": return "application/javascript";
-    		// case "json": return "application/json";
-    		case "jpg":
-    		case "jpeg":
-    		case "jpe":
-    			return "image/jpeg";
-    		case "xlsx":
-    		case "xls":
-    			return "application/vnd.ms-excel";
-    		case "docx":
-    		case "txt":
-    			return "text/plain";
-    		case "doc":
-    			return "application/msword";
-    		case "pdf":
-    			return "application/pdf";
-    		case "png":
-    		case "gif":
-    		case "bmp":
-    			return "image/" . strtolower($m[1]);
-    			// case "css": return "text/css";
-    			// case "xml": return "application/xml";
-    		case "html":
-    		case "htm":
-    		case "php":
-    			return "text/html";
-    		default:
-    			return "application/octet-stream";
-    	}
+    	return match (strtolower($m[1])) {
+            "jpg", "jpeg", "jpe" => "image/jpeg",
+            "xlsx", "xls" => "application/vnd.ms-excel",
+            "docx", "txt" => "text/plain",
+            "doc" => "application/msword",
+            "pdf" => "application/pdf",
+            "png", "gif", "bmp" => "image/" . strtolower($m[1]),
+            "html", "htm", "php" => "text/html",
+            default => "application/octet-stream",
+        };
     }
 }
 
@@ -731,9 +711,8 @@ class Utils_FileStorage_FileNotFound extends Utils_FileStorage_Exception {}
 class Utils_FileStorage_WriteError extends Utils_FileStorage_Exception {}
 
 class Utils_FileStorage_Object {
-    private $id;
-    public function __construct($id) {
-        $this->id = $id;
+    public function __construct(private $id)
+    {
     }
 
     public function fp() {

@@ -72,7 +72,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 				try {
 					$meta = Utils_FileStorageCommon::meta($fsid);
 					call_user_func($func,$id,$meta['file'],$meta['filename'],$add_args,$meta['created_on']);
-				} catch(Exception $e) {}
+				} catch(Exception) {}
 			}			
 		}
 	}
@@ -463,7 +463,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                     foreach($old_files as $fsid) {
                     	try {
                     		$meta = Utils_FileStorageCommon::meta($fsid);
-                    	} catch(Exception $e) { continue; }
+                    	} catch(Exception) { continue; }
                     	$content = @file_get_contents($meta['file']);
                     	if($content===false) continue;
                     	if($old_pass!=='') $content = self::decrypt($content,$old_pass);

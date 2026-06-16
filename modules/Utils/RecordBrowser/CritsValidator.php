@@ -4,14 +4,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_CritsValidator
 {
-    protected $tab;
     protected $fields;
     protected $fields_by_id;
 
-    function __construct($tab)
+    function __construct(protected $tab)
     {
-        $this->tab = $tab;
-        $this->fields = Utils_RecordBrowserCommon::init($tab);
+        $this->fields = Utils_RecordBrowserCommon::init($this->tab);
         $this->fields_by_id = Utils_RecordBrowserCommon::$hash;
     }
 
@@ -49,14 +47,14 @@ class Utils_RecordBrowser_CritsValidator
                     $r_val = array();
                     foreach ($orig_values as $k => $v) {
                         $nested_val = Utils_RecordBrowserCommon::get_value($sub_tab, $v, $subfield);
-                        if (substr($nested_val, 0, 2)=='__') $nested_val = Utils_RecordBrowserCommon::decode_multi($nested_val); // FIXME need better check
+                        if (str_starts_with($nested_val, '__')) $nested_val = Utils_RecordBrowserCommon::decode_multi($nested_val); // FIXME need better check
                         if (is_array($nested_val)) $r_val = array_merge($r_val, $nested_val);
                         else $r_val[] = $nested_val;
                     }
                 } else {
                     if ($r_val) $r_val = Utils_RecordBrowserCommon::get_value($sub_tab, $r_val, $subfield);
                     else $r_val = '';
-                    if (substr($r_val, 0, 2)=='__') $r_val = Utils_RecordBrowserCommon::decode_multi($r_val); // FIXME need better check
+                    if (str_starts_with($r_val, '__')) $r_val = Utils_RecordBrowserCommon::decode_multi($r_val); // FIXME need better check
                 }
             }
         }

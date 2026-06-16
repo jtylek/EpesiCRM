@@ -90,7 +90,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 			$cur[1] = str_pad($cur[1], $this->dec_digits, '0');
 			$cur[1] = substr($cur[1], 0, $this->dec_digits);
 			$ret = $cur[0] + (($cur[0]<0?-1:1)*$cur[1]/pow(10,$this->dec_digits));
-			if (strpos(trim($cur[0]), '-') === 0 && $ret > 0) $ret = -$ret;
+			if (str_starts_with(trim($cur[0]), '-') && $ret > 0) $ret = -$ret;
 		}
 		$ret .= '__'.$currency;
 		if($assoc) {
@@ -114,7 +114,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	function _findValue(& $value) {
 		$val = parent::_findValue($value);
 		if($val===null) return null;
-		if(strpos($val,'__')!==false) return str_replace(',','.',$val);
+		if(str_contains($val,'__')) return str_replace(',','.',$val);
 		$name = $this->getName();
 		$curr_field = '__'.str_replace(array('[',']'),'',$name).'__currency';
 		if(!isset($value[$curr_field])) return null;

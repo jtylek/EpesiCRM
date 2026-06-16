@@ -940,7 +940,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (isset($definition['QFfield_callback'])) self::set_QFfield_callback($tab, $definition['name'], $definition['QFfield_callback']);
 //      $field, $type, $visible, $required, $param='', $style='', $extra = true, $filter = false, $pos = null
 
-		if (strpos($definition['name'],'|')!==false) trigger_error('Invalid field name (character | is not allowed):'.$definition['name'], E_USER_ERROR);
+		if (str_contains($definition['name'],'|')) trigger_error('Invalid field name (character | is not allowed):'.$definition['name'], E_USER_ERROR);
         self::check_table_name($tab);
         self::$clear_get_val_cache = true;
 		if ($alter) {
@@ -1306,16 +1306,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         return false;
     }
-    public static function get_sql_type($type) {
-        switch ($type) {
-            case 'checkbox': return '%d';
-            case 'select': return '%s';
-            case 'float': return '%f';
-            case 'integer': return '%d';
-            case 'date': return '%D';
-            case 'timestamp': return '%T';
-        }
-        return '%s';
+    public static function get_sql_type($type)
+    {
+        return match ($type) {
+            'checkbox' => '%d',
+            'select' => '%s',
+            'float' => '%f',
+            'integer' => '%d',
+            'date' => '%D',
+            'timestamp' => '%T',
+            default => '%s',
+        };
     }
     public static function set_record_properties( $tab, $id, $info = array()) {
         self::check_table_name($tab);
@@ -2444,17 +2445,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	$tooltip_create_args = array('tip'=>0, 'args'=>1, 'help'=>1, 'max_width'=>2);
     	 
     	foreach ($tooltip_create_args as $name=>&$key) {
-    		switch (true) {
-    			case isset($tooltip[$name]):
-    				$key = $tooltip[$name];
-    				break;
-    			case isset($tooltip[$key]):
-    				$key = $tooltip[$key];
-    				break;
-    			default:
-    				$key = null;
-    				break;
-    		}
+    		$key = match (true) {
+                isset($tooltip[$name]) => $tooltip[$name],
+                isset($tooltip[$key]) => $tooltip[$key],
+                default => null,
+            };
     	}
     	 
     	if (is_callable($tooltip_create_args['tip'])) {
@@ -3194,7 +3189,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
     	
 	public static function get_field_tooltip($label) {
-		if(strpos($label,'Utils_Tooltip')!==false) return $label;
+		if(str_contains($label,'Utils_Tooltip')) return $label;
 		$args = func_get_args();
 		array_shift($args);
 		return Utils_TooltipCommon::ajax_create($label, array('Utils_RecordBrowserCommon', 'ajax_get_field_tooltip'), $args);
@@ -3601,7 +3596,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     'type' => $meta['type'],
                     'size' => $meta['size'],
                 ];
-                $backref = substr($meta['backref'], 0, 3) == 'rb:' ? explode('/', substr($meta['backref'], 3)) : [];
+                $backref = str_starts_with($meta['backref'], 'rb:') ? explode('/', substr($meta['backref'], 3)) : [];
                 if (count($backref) === 3) {
                     [$br_tab, $br_record, $br_field] = $backref;
                     $file_handler = new Utils_RecordBrowser_FileActionHandler();
@@ -4072,14 +4067,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 }
 
-class Utils_RecordBrowserMobile { // mini class to simulate full RB object, TODO: consider passing tab and record as statics linked to RBCommon instead
-	public $tab;
-	public $record;
-	
-	public function __construct($tab, $record) {
-		$this->tab = $tab;
-		$this->record = $record;
-	}
+class Utils_RecordBrowserMobile { public function __construct(public $tab, public $record)
+    {
+    }
 }
 
 function rb_or($crits, $_ = null)

@@ -35,7 +35,7 @@ class Utils_FileUpload_Dropzone extends Module
         if (isset($files['add'])) {
             foreach ($files['add'] as $file) {
                 $js_file = json_encode(array('name' => $file['name'], 'size' => $file['size']));
-                $thumbnail = strpos($file['type'], 'image/') === 0 ? 'dz.emit("thumbnail", mockFile, ' . json_encode(strval($file['file'])) . ');' : '';
+                $thumbnail = str_starts_with($file['type'], 'image/') ? 'dz.emit("thumbnail", mockFile, ' . json_encode(strval($file['file'])) . ');' : '';
                 $files_js .= '(function(dz) {
                     var mockFile = ' . $js_file . ';
                     dz.emit("addedfile", mockFile);
@@ -48,7 +48,7 @@ class Utils_FileUpload_Dropzone extends Module
             foreach ($files['existing'] as $file) {
                 if (isset($files['delete'][$file['file_id']])) continue;
                 $js_file = json_encode(array('name' => $file['name'], 'size' => $file['size']));
-                $thumbnail = isset($file['file']) && strpos($file['type'], 'image/') === 0 ? 'dz.createThumbnailFromUrl(mockFile, ' . json_encode(strval($file['file'])) . ');' : '';
+                $thumbnail = isset($file['file']) && str_starts_with($file['type'], 'image/') ? 'dz.createThumbnailFromUrl(mockFile, ' . json_encode(strval($file['file'])) . ');' : '';
                 $files_js .= '(function(dz) {
                     var mockFile = ' . $js_file . ';
                     dz.emit("addedfile", mockFile);

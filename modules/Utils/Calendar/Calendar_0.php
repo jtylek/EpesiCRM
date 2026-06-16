@@ -156,27 +156,21 @@ class Utils_Calendar extends Module {
 	}
 
 	public function get_start_time() {
-		switch($this->get_view()) {
-			case 'Day':
-				return $this->get_day_start_time();
-			case 'Week':
-				return $this->get_week_start_time();
-			case 'Month':
-				return $this->get_month_start_time();
-			default: return 0;
-		}
+		return match ($this->get_view()) {
+            'Day' => $this->get_day_start_time(),
+            'Week' => $this->get_week_start_time(),
+            'Month' => $this->get_month_start_time(),
+            default => 0,
+        };
 	}
 
 	public function get_end_time() {
-		switch($this->get_view()) {
-			case 'Day':
-				return $this->get_day_end_time();
-			case 'Week':
-				return $this->get_week_end_time();
-			case 'Month':
-				return $this->get_month_end_time();
-			default: return 0;
-		}
+		return match ($this->get_view()) {
+            'Day' => $this->get_day_end_time(),
+            'Week' => $this->get_week_end_time(),
+            'Month' => $this->get_month_end_time(),
+            default => 0,
+        };
 	}
 
 	public function set_date($d) {

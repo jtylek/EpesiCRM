@@ -132,19 +132,10 @@ abstract class Utils_RecordBrowser_CritsInterface
 
 class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
 {
-    protected $field;
-    protected $value;
-    protected $operator;
-    protected $negation = false;
-    protected $raw_sql_value = false; // noquotes
+    // noquotes
 
-    function __construct($field, $operator, $value, $negation = false, $raw_sql_value = false)
+    function __construct(protected $field, protected $operator, protected $value, protected $negation = false, protected $raw_sql_value = false)
     {
-        $this->field = $field;
-        $this->operator = $operator;
-        $this->value = $value;
-        $this->negation = $negation;
-        $this->raw_sql_value = $raw_sql_value;
     }
     
     public static function __set_state($array)
@@ -297,14 +288,10 @@ class Utils_RecordBrowser_CritsSingle extends Utils_RecordBrowser_CritsInterface
 
 class Utils_RecordBrowser_CritsRawSQL extends Utils_RecordBrowser_CritsInterface
 {
-    protected $sql;
-    protected $negation_sql;
     protected $vals;
 
-    function __construct($sql, $negation_sql = false, $values = array())
+    function __construct(protected $sql, protected $negation_sql = false, $values = array())
     {
-        $this->sql = $sql;
-        $this->negation_sql = $negation_sql;
         if (!is_array($values)) {
             $values = array($values);
         }

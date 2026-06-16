@@ -486,7 +486,7 @@ class Utils_RecordBrowser extends Module {
                 if ($args['type'] == 'long text' && $gb->is_adv_search_on()) $arr[$e] = $args['id'];
                 if ($args['type'] == 'date') $arr['search_type'] = 'datepicker';
                 if (isset($args['ref_field']) && $args['ref_field']) $arr[$e] = $args['id'];
-                if ($args['commondata'] && (!is_array($args['param']) || strpos($args['param']['array_id'],':')===false)) {
+                if ($args['commondata'] && (!is_array($args['param']) || !str_contains($args['param']['array_id'],':'))) {
                     $arr[$e] = $args['id'];
                 }
             }
@@ -2267,7 +2267,7 @@ class Utils_RecordBrowser extends Module {
     }
     
     public static function qf_rule_without_double_underscore($str) {
-        return strpos($str, '__') === false;
+        return !str_contains($str, '__');
     }
 	
 	public function check_field_definitions($data) {
@@ -2896,7 +2896,7 @@ class Utils_RecordBrowser extends Module {
 				$docblock  = new \phpDocumentor\Reflection\DocBlock($class->getMethod($method_name));
 					
 				$output .= '<span class="description">' . $docblock->getShortDescription() . '<br />' . $docblock->getLongDescription()->getContents() . '</span>';
-			} catch (Exception $e) {
+			} catch (Exception) {
 			}
 				
 			$output .= '</li>';

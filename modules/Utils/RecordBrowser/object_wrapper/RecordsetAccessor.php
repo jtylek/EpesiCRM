@@ -8,8 +8,6 @@
  */
 class RBO_RecordsetAccessor extends RBO_Recordset {
 
-    private $tab;
-
     public function fields() {
         trigger_error('RBO_RecordsetAccessor has not defined fields. Please implement your own implementation of RBO_Recordset.', E_USER_ERROR);
     }
@@ -18,9 +16,7 @@ class RBO_RecordsetAccessor extends RBO_Recordset {
         return $this->tab;
     }
 
-    public function __construct($tab) {
-        $this->tab = $tab;
-
+    public function __construct(private $tab) {
         parent::__construct();
     }
 

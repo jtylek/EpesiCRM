@@ -2,12 +2,6 @@
 
 class Utils_RecordBrowser_ReplaceValue
 {
-    protected $value;
-    protected $human_readable;
-    protected $replace;
-    protected $deactivate;
-    protected $priority;
-
     /**
      * Utils_RecordBrowser_ReplaceValue constructor.
      *
@@ -17,13 +11,8 @@ class Utils_RecordBrowser_ReplaceValue
      * @param bool   $deactivate     Do not use this crit at all if $replace is null
      * @param int    $priority       You may override some system default replacements using higher priority
      */
-    public function __construct($value, $human_readable, $replace, $deactivate = false, $priority = 1)
+    public function __construct(protected $value, protected $human_readable, protected $replace, protected $deactivate = false, protected $priority = 1)
     {
-        $this->value = $value;
-        $this->human_readable = $human_readable;
-        $this->replace = $replace;
-        $this->deactivate = $deactivate;
-        $this->priority = $priority;
     }
 
     /**

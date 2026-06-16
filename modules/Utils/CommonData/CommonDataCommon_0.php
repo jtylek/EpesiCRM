@@ -138,7 +138,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 */
 	public static function new_array($name,$array,$overwrite=false,$readonly=false,$default_order_by_key=false){
 		foreach($array as $k=>$v)
-		    if(strpos($k,'/')!==false)
+		    if(str_contains($k,'/'))
 		        trigger_error('Invalid common data key: '.$k,E_USER_ERROR);
 
 		$id = self::get_id($name);
@@ -183,7 +183,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 */
 	public static function extend_array($name,$array,$overwrite=false,$readonly=false){
 		foreach($array as $k=>$v)
-		    if(strpos($k,'/')!==false)
+		    if(str_contains($k,'/'))
 		        trigger_error('Invalid common data key: '.$k,E_USER_ERROR);
 
 		$id = self::get_id($name);
@@ -251,17 +251,11 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		if($id===false)
 			if ($silent) return null;
 		else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
-		switch ($order) {
-			case 'key':
-				$order_by = 'akey ASC';
-				break;			
-			case 'position':
-				$order_by = 'position ASC';
-				break;			
-			default:
-				$order_by = 'value ASC';
-			break;
-		}
+		$order_by = match ($order) {
+            'key' => 'akey ASC',
+            'position' => 'position ASC',
+            default => 'value ASC',
+        };
 		if($readinfo)
 			$ret = DB::GetAssoc('SELECT akey, value, readonly, position, id FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
 		else
@@ -325,7 +319,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 
 	public static function rename_key($parent,$old,$new) {
-	    if(strpos($new,'/')!==false)
+	    if(str_contains($new,'/'))
 	        trigger_error('Invalid common data key: '.$new,E_USER_ERROR);
 
 

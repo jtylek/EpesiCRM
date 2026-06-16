@@ -169,14 +169,10 @@ class RBO_Field_Select extends RBO_FieldDefinition {
     const type = 'select';
 
     public $type = self::type;
-    private $linked_recordset;
-    private $linked_recordset_fields = array();
     private $crits_method;
     private $advanced_properties_method;
 
-    public function __construct($display_name, $linked_recordset = null, $linked_recordset_fields = array(), $crits_callback = null, $advanced_properties_callback = null) {
-        $this->linked_recordset = $linked_recordset;
-        $this->linked_recordset_fields = $linked_recordset_fields;
+    public function __construct($display_name, private $linked_recordset = null, private $linked_recordset_fields = array(), $crits_callback = null, $advanced_properties_callback = null) {
         $this->set_crits_callback($crits_callback);
         $this->set_advanced_properties_callback($advanced_properties_callback);
         parent::__construct($display_name, $this->type);
@@ -278,13 +274,9 @@ class RBO_Field_CommonData extends RBO_FieldDefinition {
     const type = 'commondata';
 
     private $chained_select_fields = array();
-    private $commondata_array_name;
-    private $order_by_key;
     private $multiple = false;
 
-    public function __construct($display_name, $commondata_array_name = null, $order_by_key = false) {
-        $this->commondata_array_name = $commondata_array_name;
-        $this->order_by_key = $order_by_key;
+    public function __construct($display_name, private $commondata_array_name = null, private $order_by_key = false) {
         parent::__construct($display_name, self::type);
     }
 

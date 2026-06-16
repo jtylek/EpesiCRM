@@ -7,10 +7,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Utils_RecordBrowser_CsvExport
 {
-    private $tab;
-    private $crits;
-    private $order;
-    private $admin;
     private $charset;
     private $field_separator;
     private $decimal_separator;
@@ -26,13 +22,8 @@ class Utils_RecordBrowser_CsvExport
      * @param array                           $order Order
      * @param bool                            $admin RB Admin mode - list inactive records
      */
-    public function __construct($tab, $crits = array(), $order = array(), $admin = false, $config = array())
+    public function __construct(private $tab, private $crits = array(), private $order = array(), private $admin = false, $config = array())
     {
-        $this->tab = $tab;
-        $this->crits = $crits;
-        $this->order = $order;
-        $this->admin = $admin;
-        
         $def_config = Utils_CommonDataCommon::get_array('System/csv_export_params');
         foreach ($def_config as $ck => $cv) {
             if (!array_key_exists($ck,$config)) $config[$ck] = $cv;
@@ -42,25 +33,12 @@ class Utils_RecordBrowser_CsvExport
         $this->field_separator  = $config['field_separator'];
         $this->decimal_separator= $config['decimal_separator'];
         
-        switch (strtoupper($config['end_line_type'])){
-            case ('LIN'):
-            case ('LINUX'):
-            case ('UNI'):
-            case ('UNIX'):
-                $end_line_type = "\n";
-                break;
-            case ('WIN'):                
-            case ('WINDOWS'):
-                $end_line_type = "\r\n";
-                break;
-            case ('MAC'):
-            case ('MACINTOSH'):
-                $end_line_type = "\r";
-                break;
-            default:
-                $end_line_type = "\n";
-                break;
-        }
+        $end_line_type = match (strtoupper($config['end_line_type'])) {
+            'LIN', 'LINUX', 'UNI', 'UNIX' => "\n",
+            'WIN', 'WINDOWS' => "\r\n",
+            'MAC', 'MACINTOSH' => "\r",
+            default => "\n",
+        };
         $this->end_line_type         = $end_line_type;
         $this->text_space_indicator  = $config['text_space_indicator'];
         $this->text_space_separator  = $config['text_space_separator'];

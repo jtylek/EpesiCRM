@@ -109,7 +109,7 @@ abstract class RBO_Recordset {
             if (!$field->QFfield_callback) {
                 $qffield_callback = 'QFfield_' . $field_id;
                 if (method_exists($this, $qffield_callback) || method_exists($this->class, $qffield_callback))
-                    Utils_RecordBrowserCommon::set_QFfield_callback($this->tab, $field->name, get_class($this) . '::__QFfield_magic_callback');
+                    Utils_RecordBrowserCommon::set_QFfield_callback($this->tab, $field->name, static::class . '::__QFfield_magic_callback');
                 else
                     Utils_RecordBrowserCommon::unset_QFfield_callback($this->tab, $field->name);
             }
@@ -117,7 +117,7 @@ abstract class RBO_Recordset {
             if (!$field->display_callback) {
                 $display_callback = 'display_' . $field_id;
                 if (method_exists($this, $display_callback) || method_exists($this->class, $display_callback))
-                    Utils_RecordBrowserCommon::set_display_callback($this->tab, $field->name, get_class($this) . '::__display_magic_callback');
+                    Utils_RecordBrowserCommon::set_display_callback($this->tab, $field->name, static::class . '::__display_magic_callback');
                 else
                     Utils_RecordBrowserCommon::unset_display_callback($this->tab, $field->name);
             }
@@ -175,7 +175,7 @@ abstract class RBO_Recordset {
         trigger_error("Method $callback_name does not exist in recordset, nor record class", E_USER_ERROR);
     }
 
-    private static final function _callback_recordset($recordset_class, $callback_name, $args, &$return_value) {
+    private static function _callback_recordset($recordset_class, $callback_name, $args, &$return_value) {
         $recordset = self::recordset_instance($recordset_class);
         // check for qffield callback in Recordset class
         if (method_exists($recordset, $callback_name)) {
@@ -185,7 +185,7 @@ abstract class RBO_Recordset {
         return false;
     }
 
-    private static final function _callback_record($recordset_class, $record, $callback_name, $args, &$return_value) {
+    private static function _callback_record($recordset_class, $record, $callback_name, $args, &$return_value) {
         $recordset = self::recordset_instance($recordset_class);
         $record_class = $recordset->class_name();
         if (method_exists($record_class, $callback_name)) {

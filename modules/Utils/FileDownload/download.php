@@ -20,8 +20,8 @@ require_once('../../../include.php');
 $download_id = Module::static_get_module_variable($path,'download_id',null);
 $file = DB::GetOne('SELECT path FROM utils_filedownload_files WHERE id=%d',array($download_id));
 
-$headers = array_change_key_case(get_headers($file, 1),CASE_LOWER);
-if(strpos($headers[0],'404')!==false) {
+$headers = array_change_key_case(get_headers($file, true),CASE_LOWER);
+if(str_contains($headers[0],'404')) {
 	DB::Execute('UPDATE utils_filedownload_files SET size=-2 WHERE id=%d',array($download_id));
 	print('File not found: '.$headers[0]);
 	exit();

@@ -249,14 +249,14 @@ class Utils_Planner extends Module {
 			eval_js('time_grid_mouse_up();');
 		}
 		if (isset($values['navigation']) && $values['navigation']) {
-			switch ($values['navigation']) {
-				case 'next_day': $ch = strtotime('+1 day', $this->date); break;
-				case 'prev_day': $ch = strtotime('-1 day', $this->date); break;
-				case 'next_week': $ch = strtotime('+7 days', $this->date); break;
-				case 'prev_week': $ch = strtotime('-7 days', $this->date); break;
-				case 'today': $ch = strtotime(date('Y-m-d')); break;
-				default: $ch = strtotime($values['navigation']);
-			}
+			$ch = match ($values['navigation']) {
+                'next_day' => strtotime('+1 day', $this->date),
+                'prev_day' => strtotime('-1 day', $this->date),
+                'next_week' => strtotime('+7 days', $this->date),
+                'prev_week' => strtotime('-7 days', $this->date),
+                'today' => strtotime(date('Y-m-d')),
+                default => strtotime($values['navigation']),
+            };
 			if ($ch) {
 				$values['navigation'] = '';
 				$this->set_module_variable('fixed_date', $ch);

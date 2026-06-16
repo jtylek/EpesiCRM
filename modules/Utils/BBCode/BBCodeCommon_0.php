@@ -119,8 +119,8 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	public static function tag_url($text, $param=null, $optimize_only=false) {
 		if ($optimize_only) return null;
 		$url = trim($param?$param:$text, ' ');
-		if (strpos(strtolower($url), 'http://')===false && 
-			strpos(strtolower($url), 'https://')===false && 
+		if (!str_contains(strtolower($url), 'http://') && 
+			!str_contains(strtolower($url), 'https://') && 
 			$url) $url = 'http://'.$url;
 		return '<a href="'.$url.'" target="_blank">'.$text.'</a>';
 	}
