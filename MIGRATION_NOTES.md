@@ -9,6 +9,26 @@ Kept in-repo so findings survive and stay versioned with the code.
 
 ---
 
+## ✅ STATUS: Rector ladder complete
+
+The full Rector migration ladder has been applied to all Core code (own code, excluding bundled libraries):
+
+- **PHP 7.0 → 7.4** — applied to all directories
+- **PHP 8.0** — applied (switch→match reviewed individually; one skipped in Administrator_0.php, see §5)
+- **PHP 8.1** — applied (first-class callable, readonly, never; null→string cast rule deferred, see §5)
+- **PHP 8.2** — verified: 685 files scanned, **zero changes** — code is already 8.2 syntax-clean
+
+**Core is now PHP 8.2 syntax-compatible.** Verified via `php -l` (zero fatals) on all migrated code.
+
+**NOT yet done** (separate efforts, mostly composer/architecture — Jasiek's domain):
+- Composer dependency migration (QuickForm, Smarty, Roundcube, Memio) — blocks installer & full app test
+- Deferred decisions documented in §5 below
+- modules/Tests (220 files, low priority)
+- 50 premium modules beyond Core
+- Full runtime app testing (blocked by installer loop until QuickForm is migrated)
+
+---
+
 ## 1. Fixes already applied (committed to `main`)
 
 ### PEAR::isError() made static
