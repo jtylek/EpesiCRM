@@ -3,12 +3,9 @@
 class AdminIndex {
 
     private $admin_modules = array();
-    private $layout;
-    private $module_loader;
 
-    function __construct($layout, $module_loader) {
-        $this->layout = $layout;
-        $this->module_loader = $module_loader;
+    function __construct(private $layout, private $module_loader)
+    {
     }
 
     private function include_epesi() {

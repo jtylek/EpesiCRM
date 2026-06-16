@@ -117,7 +117,7 @@ $checks[] = array('label'=>'Error reporting', 'tests'=>$error_tests, 'solution'=
 
 // ********************* EXECUTION SETTINGS ***********************
 $mem = ini_get('memory_limit');
-if (strpos($mem, 'M')===false) $mem_s = 2;
+if (!str_contains($mem, 'M')) $mem_s = 2;
 else {
 	$mem = str_replace('M', '', $mem);
 	if ($mem<32) $mem_s = 2;
@@ -127,7 +127,7 @@ else {
 }
 
 $upload_size = ini_get('upload_max_filesize');
-if (strpos($upload_size, 'M')===false) $upload_size_s = 2;
+if (!str_contains($upload_size, 'M')) $upload_size_s = 2;
 else {
 	$upload_size = str_replace('M', '', $upload_size);
 	if ($upload_size<8) $upload_size_s = 2;
@@ -137,7 +137,7 @@ else {
 }
 
 $post_size = ini_get('post_max_size');
-if (strpos($post_size, 'M')===false) $post_size_s = 2;
+if (!str_contains($post_size, 'M')) $post_size_s = 2;
 else {
 	$post_size = str_replace('M', '', $post_size);
 	if ($post_size<16) $post_size_s = 2;
@@ -159,7 +159,7 @@ setlocale(LC_ALL,$lang_code.'_'.strtoupper($lang_code).'.utf8',
 setlocale(LC_NUMERIC,'en_EN.utf8','en_EN.UTF-8','en_US.utf8','en_US.UTF-8','C','POSIX','en_EN','en_US','en','en.utf8','en.UTF-8','english');
 $str = print_r(1.1,true);
 
-if (strpos($str,'.') === false) {
+if (!str_contains($str,'.')) {
 	$loc = 'ERROR';
 	$loc_s = 1;
 } else {

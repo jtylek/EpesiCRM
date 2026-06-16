@@ -172,7 +172,7 @@ if(!isset($_GET['license'])) {
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'));
 	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'));
 	foreach($_GET as $f=>$v) {
-        if (substr($f, 0, 3) != 'tos' && $f != 'submitted')
+        if (!str_starts_with($f, 'tos') && $f != 'submitted')
             $form->addElement('hidden',$f,$v);
     }
 	$form->addElement('hidden','submitted',1);
@@ -558,7 +558,7 @@ function clean_database() {
 	$tables = array();
 	if(DB::is_mysql())
 		DB::Execute('SET FOREIGN_KEY_CHECKS=0');
-	if(DB::is_postgresql() && strpos(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')!==false) {
+	if(DB::is_postgresql() && str_contains(DB::GetOne('SELECT version()'),'PostgreSQL 8.2')) {
     	    foreach ($tables_db as $t) {
 	            $idxs = DB::Execute('SELECT t.tgargs as args FROM pg_trigger t,pg_class c,pg_proc p WHERE t.tgenabled AND t.tgrelid = c.oid AND t.tgfoid = p.oid AND p.proname = \'RI_FKey_check_ins\' AND c.relname = \''.strtolower($t).'\' ORDER BY t.tgrelid');
 		    $matches = array(1=>array());

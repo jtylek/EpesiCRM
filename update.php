@@ -195,14 +195,12 @@ class EpesiPackageDownloader
 
 class EpesiUpdatePackage
 {
-    private $file;
     private $zip;
 
-    public function __construct($file)
+    public function __construct(private $file)
     {
-        $this->file = $file;
         $this->zip = new ZipArchive();
-        $status = $this->zip->open($file);
+        $status = $this->zip->open($this->file);
         if ($status !== true) {
             throw new ErrorException(__('Zip %s open error: %s', array($this->file,$status)));
         }

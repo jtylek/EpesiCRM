@@ -67,9 +67,8 @@ foreach($ret as $name=>$obj) {
 
 function adodb_error() {}
 class CronErrorObserver extends ErrorObserver {
-    private $func_md5;
-    public function __construct($func_md5) {
-        $this->func_md5 = $func_md5;
+    public function __construct(private $func_md5)
+    {
     }
     
     public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace) {
@@ -87,7 +86,7 @@ class CronErrorObserver extends ErrorObserver {
                 $connection = null;
                 try {
                     $connection = DB::Connect(); //reconnect database as new connection
-                } catch(Exception $e) {
+                } catch(Exception) {
                     continue; //no connection - wait
                 }
                 if($connection->Execute($query,$query_args)) {  //if ok then break and exit

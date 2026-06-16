@@ -26,12 +26,12 @@ $arr = DB::GetAll('SELECT * FROM apps_shoutbox_messages WHERE '.($uid?'(base_use
 //print it out
 foreach($arr as $row) {
 	$daydiff = floor((time()-strtotime($row['posted_on']))/86400);
-	switch (true) {
-		case ($daydiff<1): $fcolor = '#000000'; break;
-		case ($daydiff<3): $fcolor = '#444444'; break;
-		case ($daydiff<7): $fcolor = '#888888'; break;
-		default : $fcolor = '#AAAAAA';
-	}
+	$fcolor = match (true) {
+        $daydiff<1 => '#000000',
+        $daydiff<3 => '#444444',
+        $daydiff<7 => '#888888',
+        default => '#AAAAAA',
+    };
 	$user_label = Apps_ShoutboxCommon::create_write_to_link($row['base_user_login_id']);
 	if ($row['to_user_login_id'])
 		$user_label .= ' -> '.Apps_ShoutboxCommon::create_write_to_link($row['to_user_login_id']);

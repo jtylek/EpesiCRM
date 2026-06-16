@@ -33,7 +33,7 @@ try {
 
     ModuleManager::load_modules();
     Base_AclCommon::set_sa_user();
-} catch(Exception $e) {
+} catch(Exception) {
     if(isset($_GET['number']) && $_GET['number']) die('999999');
     die('error: init');
 }

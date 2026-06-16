@@ -15,15 +15,9 @@ require_once('include.php');
 ModuleManager::load_modules();
 
 class LinkEntry {
-	public $func = null;
-	public $args = array();
-	public $caption = null;
-	
-	public function __construct($f,$a=array(),$c) {
-		$this->caption = $c;
-		$this->func = $f;
-		$this->args = $a;
-	}
+	public function __construct(public $func, public $args=array(), public $caption = null)
+    {
+    }
 }
 
 class StackEntry {
@@ -174,7 +168,7 @@ if(IPHONE) {
 	}
 	$back_id = $last_back_id;
 //	array_pop($cap); //don't display current breadthumb
-	$caption = implode($cap,' > ');
+	$caption = implode(' > ', $cap);
 }
 if(isset($ret) && ($ret===false || is_numeric($ret))) {
 	if(is_numeric($ret))
