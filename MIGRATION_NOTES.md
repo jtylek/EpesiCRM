@@ -98,6 +98,11 @@ These block a clean `composer install` under PHP 8.2 (require `--ignore-platform
   `self::strip($match[4], self::$optimize_only)` → `self::strip($match[4])`
 - **Why flagged:** `strip()` only accepts one parameter, so `self::$optimize_only` was ALWAYS ignored. Someone may have *intended* the optimize-only behavior to apply — but it never did. Possible latent logic bug worth a look. (Rector's removal is behavior-preserving; the arg was dead either way.)
 
+### continue inside switch — Filters_0.php
+- **File:** `modules/Utils/RecordBrowser/Filters/Filters_0.php` lines 189, 249
+- **Warning:** `"continue" targeting switch is equivalent to "break". Did you mean "continue 2"?`
+- PHP 7.3+ warns that `continue` inside a `switch` acts like `break` — it does NOT skip to the next iteration of the enclosing loop. May be intentional, or a latent bug (author may have meant `continue 2`). Pre-existing, not migration-caused. Needs the author's intent to resolve.
+
 ---
 
 ## 6. Rector setup (for reproducing)
