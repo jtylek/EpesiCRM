@@ -85,15 +85,12 @@ class Base_MenuCommon extends ModuleCommon {
 		} else {
 			$constr_args = null;
 		}
-		switch($ret) {
-			case 'js':
-				return $mod->create_main_href_js($main_mod,$main_func,$main_args,$constr_args,$arr);
-			case 'href':
-				return $mod->create_main_href($main_mod,$main_func,$main_args,$constr_args,$arr);
-			case 'array':
-				return array_merge($arr,Base_BoxCommon::create_href_array($mod,$main_mod,$main_func,$main_args,$constr_args));
-		}
-		return '';
+        return match ($ret) {
+            'js' => $mod->create_main_href_js($main_mod,$main_func,$main_args,$constr_args,$arr),
+            'href' => $mod->create_main_href($main_mod,$main_func,$main_args,$constr_args,$arr),
+            'array' => array_merge($arr,Base_BoxCommon::create_href_array($mod,$main_mod,$main_func,$main_args,$constr_args)),
+            default => '',
+        };
 	}
 	
 	public static function create_href($mod,$arr) {

@@ -321,7 +321,7 @@ class Base_LangCommon extends ModuleCommon {
 	public static function append_custom($lang, $arr) {
 		self::append('custom', $lang, $arr);
 	}
-	private static function append($to='base', $lang, $arr) {
+	private static function append($to='base', $lang = null, $arr = null) {
 		if ($to!=='base') $to = 'custom';
 		if ($lang===null) $lang = self::get_lang_code();
 		if (!$lang) return;

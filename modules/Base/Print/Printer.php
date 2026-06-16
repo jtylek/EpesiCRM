@@ -70,7 +70,7 @@ abstract class Base_Print_Printer
      */
     public function get_href($data)
     {
-        $printer = get_class($this);
+        $printer = static::class;
         $href = Base_PrintCommon::get_print_href($data, $printer);
         return $href;
     }

@@ -72,7 +72,7 @@ class Base_Print_PrintingHandler
     public function set_printer(Base_Print_Printer $printer)
     {
         $this->printer = $printer;
-        $this->printer_classname = get_class($printer);
+        $this->printer_classname = $printer::class;
     }
 
     /**

@@ -68,7 +68,7 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	private static function check_for_links($prefix,$array,$mod,$prefixt=''){
 		$result = array();
 		foreach($array as $k=>$v){
-			if (substr($k,0,2)=='__') continue;
+			if (str_starts_with($k, '__')) continue;
 			$c_pre = $prefixt._V($k); // ****** Menu options label
 			if (is_array($v) && array_key_exists('__submenu__',$v)) $result = array_merge($result,self::check_for_links($prefix.$k.': ',$v,$mod,$c_pre.': '));
 			elseif(is_array($v)) {

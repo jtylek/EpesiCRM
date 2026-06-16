@@ -24,11 +24,11 @@ foreach($helps as $m=>$tutorials) {
 		$match = 0;
 		$l = strtolower($tut['label']);
 		foreach ($words as $w)
-			if (strpos($l, $w)!==false)
+			if (str_contains($l, $w))
 				$match++;
 		$l = strtolower($tut['keywords']);
 		foreach ($words as $w)
-			if (strpos($l, $w)!==false)
+			if (str_contains($l, $w))
 				$match++;
 		if ($match) $results[$match][] = $tut;
 	}

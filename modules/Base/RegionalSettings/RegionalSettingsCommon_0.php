@@ -272,7 +272,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		if($tz)
 			self::set_tz();
 		static $dt_B;
-		if(!isset($dt_B)) $dt_B = (strpos($datef,'%B')!==false);
+		if(!isset($dt_B)) $dt_B = (str_contains($datef,'%B'));
 		if($dt_B) {
 			static $months_B;
 			if(!isset($months_B)) {
@@ -284,7 +284,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 		}
 
 		static $dt_sb;
-		if(!isset($dt_sb)) $dt_sb = (strpos($datef,'%b')!==false);
+		if(!isset($dt_sb)) $dt_sb = (str_contains($datef,'%b'));
 		if($dt_sb) {
 			static $months_sb;
 			if(!isset($months_sb)) {

@@ -955,7 +955,7 @@ class PHPMailer
             foreach ($list as $address) {
                 $address = trim($address);
                 //Is there a separate name part?
-                if (strpos($address, '<') === false) {
+                if (!str_contains($address, '<')) {
                     //No separate name, just use the whole thing
                     if (static::validateAddress($address)) {
                         $addresses[] = array(
@@ -1041,7 +1041,7 @@ class PHPMailer
     public static function validateAddress($address, $patternselect = 'auto')
     {
         //Reject line breaks in addresses; it's valid RFC5322, but not RFC5321
-        if (strpos($address, "\n") !== false or strpos($address, "\r") !== false) {
+        if (str_contains($address, "\n") or str_contains($address, "\r")) {
             return false;
         }
         if (!$patternselect or $patternselect == 'auto') {
@@ -1066,61 +1066,55 @@ class PHPMailer
                 }
             }
         }
-        switch ($patternselect) {
-            case 'pcre8':
-                /**
-                 * Uses the same RFC5322 regex on which FILTER_VALIDATE_EMAIL is based, but allows dotless domains.
-                 * @link http://squiloople.com/2009/12/20/email-address-validation/
-                 * @copyright 2009-2010 Michael Rushton
-                 * Feel free to use and redistribute this code. But please keep this copyright notice.
-                 */
-                return (boolean)preg_match(
-                    '/^(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){255,})(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){65,}@)' .
-                    '((?>(?>(?>((?>(?>(?>\x0D\x0A)?[\t ])+|(?>[\t ]*\x0D\x0A)?[\t ]+)?)(\((?>(?2)' .
-                    '(?>[\x01-\x08\x0B\x0C\x0E-\'*-\[\]-\x7F]|\\\[\x00-\x7F]|(?3)))*(?2)\)))+(?2))|(?2))?)' .
-                    '([!#-\'*+\/-9=?^-~-]+|"(?>(?2)(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\x7F]))*' .
-                    '(?2)")(?>(?1)\.(?1)(?4))*(?1)@(?!(?1)[a-z0-9-]{64,})(?1)(?>([a-z0-9](?>[a-z0-9-]*[a-z0-9])?)' .
-                    '(?>(?1)\.(?!(?1)[a-z0-9-]{64,})(?1)(?5)){0,126}|\[(?:(?>IPv6:(?>([a-f0-9]{1,4})(?>:(?6)){7}' .
-                    '|(?!(?:.*[a-f0-9][:\]]){8,})((?6)(?>:(?6)){0,6})?::(?7)?))|(?>(?>IPv6:(?>(?6)(?>:(?6)){5}:' .
-                    '|(?!(?:.*[a-f0-9]:){6,})(?8)?::(?>((?6)(?>:(?6)){0,4}):)?))?(25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
-                    '|[1-9]?[0-9])(?>\.(?9)){3}))\])(?1)$/isD',
-                    $address
-                );
-            case 'pcre':
-                //An older regex that doesn't need a recent PCRE
-                return (boolean)preg_match(
-                    '/^(?!(?>"?(?>\\\[ -~]|[^"])"?){255,})(?!(?>"?(?>\\\[ -~]|[^"])"?){65,}@)(?>' .
-                    '[!#-\'*+\/-9=?^-~-]+|"(?>(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*")' .
-                    '(?>\.(?>[!#-\'*+\/-9=?^-~-]+|"(?>(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*"))*' .
-                    '@(?>(?![a-z0-9-]{64,})(?>[a-z0-9](?>[a-z0-9-]*[a-z0-9])?)(?>\.(?![a-z0-9-]{64,})' .
-                    '(?>[a-z0-9](?>[a-z0-9-]*[a-z0-9])?)){0,126}|\[(?:(?>IPv6:(?>(?>[a-f0-9]{1,4})(?>:' .
-                    '[a-f0-9]{1,4}){7}|(?!(?:.*[a-f0-9][:\]]){8,})(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,6})?' .
-                    '::(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,6})?))|(?>(?>IPv6:(?>[a-f0-9]{1,4}(?>:' .
-                    '[a-f0-9]{1,4}){5}:|(?!(?:.*[a-f0-9]:){6,})(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,4})?' .
-                    '::(?>(?:[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,4}):)?))?(?>25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
-                    '|[1-9]?[0-9])(?>\.(?>25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}))\])$/isD',
-                    $address
-                );
-            case 'html5':
-                /**
-                 * This is the pattern used in the HTML5 spec for validation of 'email' type form input elements.
-                 * @link http://www.whatwg.org/specs/web-apps/current-work/#e-mail-state-(type=email)
-                 */
-                return (boolean)preg_match(
-                    '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}' .
-                    '[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/sD',
-                    $address
-                );
-            case 'noregex':
-                //No PCRE! Do something _very_ approximate!
-                //Check the address is 3 chars or longer and contains an @ that's not the first or last char
-                return (strlen($address) >= 3
-                    and strpos($address, '@') >= 1
-                    and strpos($address, '@') != strlen($address) - 1);
-            case 'php':
-            default:
-                return (boolean)filter_var($address, FILTER_VALIDATE_EMAIL);
-        }
+        return match ($patternselect) {
+            /**
+             * Uses the same RFC5322 regex on which FILTER_VALIDATE_EMAIL is based, but allows dotless domains.
+             * @link http://squiloople.com/2009/12/20/email-address-validation/
+             * @copyright 2009-2010 Michael Rushton
+             * Feel free to use and redistribute this code. But please keep this copyright notice.
+             */
+            'pcre8' => (boolean)preg_match(
+                '/^(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){255,})(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){65,}@)' .
+                '((?>(?>(?>((?>(?>(?>\x0D\x0A)?[\t ])+|(?>[\t ]*\x0D\x0A)?[\t ]+)?)(\((?>(?2)' .
+                '(?>[\x01-\x08\x0B\x0C\x0E-\'*-\[\]-\x7F]|\\\[\x00-\x7F]|(?3)))*(?2)\)))+(?2))|(?2))?)' .
+                '([!#-\'*+\/-9=?^-~-]+|"(?>(?2)(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\x7F]))*' .
+                '(?2)")(?>(?1)\.(?1)(?4))*(?1)@(?!(?1)[a-z0-9-]{64,})(?1)(?>([a-z0-9](?>[a-z0-9-]*[a-z0-9])?)' .
+                '(?>(?1)\.(?!(?1)[a-z0-9-]{64,})(?1)(?5)){0,126}|\[(?:(?>IPv6:(?>([a-f0-9]{1,4})(?>:(?6)){7}' .
+                '|(?!(?:.*[a-f0-9][:\]]){8,})((?6)(?>:(?6)){0,6})?::(?7)?))|(?>(?>IPv6:(?>(?6)(?>:(?6)){5}:' .
+                '|(?!(?:.*[a-f0-9]:){6,})(?8)?::(?>((?6)(?>:(?6)){0,4}):)?))?(25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
+                '|[1-9]?[0-9])(?>\.(?9)){3}))\])(?1)$/isD',
+                $address
+            ),
+            //An older regex that doesn't need a recent PCRE
+            'pcre' => (boolean)preg_match(
+                '/^(?!(?>"?(?>\\\[ -~]|[^"])"?){255,})(?!(?>"?(?>\\\[ -~]|[^"])"?){65,}@)(?>' .
+                '[!#-\'*+\/-9=?^-~-]+|"(?>(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*")' .
+                '(?>\.(?>[!#-\'*+\/-9=?^-~-]+|"(?>(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\xFF]))*"))*' .
+                '@(?>(?![a-z0-9-]{64,})(?>[a-z0-9](?>[a-z0-9-]*[a-z0-9])?)(?>\.(?![a-z0-9-]{64,})' .
+                '(?>[a-z0-9](?>[a-z0-9-]*[a-z0-9])?)){0,126}|\[(?:(?>IPv6:(?>(?>[a-f0-9]{1,4})(?>:' .
+                '[a-f0-9]{1,4}){7}|(?!(?:.*[a-f0-9][:\]]){8,})(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,6})?' .
+                '::(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,6})?))|(?>(?>IPv6:(?>[a-f0-9]{1,4}(?>:' .
+                '[a-f0-9]{1,4}){5}:|(?!(?:.*[a-f0-9]:){6,})(?>[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,4})?' .
+                '::(?>(?:[a-f0-9]{1,4}(?>:[a-f0-9]{1,4}){0,4}):)?))?(?>25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
+                '|[1-9]?[0-9])(?>\.(?>25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}))\])$/isD',
+                $address
+            ),
+            /**
+             * This is the pattern used in the HTML5 spec for validation of 'email' type form input elements.
+             * @link http://www.whatwg.org/specs/web-apps/current-work/#e-mail-state-(type=email)
+             */
+            'html5' => (boolean)preg_match(
+                '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}' .
+                '[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/sD',
+                $address
+            ),
+            //No PCRE! Do something _very_ approximate!
+            //Check the address is 3 chars or longer and contains an @ that's not the first or last char
+            'noregex' => strlen($address) >= 3
+                and strpos($address, '@') >= 1
+                and strpos($address, '@') != strlen($address) - 1,
+            default => (boolean)filter_var($address, FILTER_VALIDATE_EMAIL),
+        };
     }
 
     /**
@@ -2621,7 +2615,7 @@ class PHPMailer
             case '8bit':
                 $encoded = $this->fixEOL($str);
                 // Make sure it ends with a line break
-                if (substr($encoded, -(strlen($this->LE))) != $this->LE) {
+                if (!str_ends_with($encoded, $this->LE)) {
                     $encoded .= $this->LE;
                 }
                 break;
@@ -3296,7 +3290,7 @@ class PHPMailer
                             $message
                         );
                     }
-                } elseif (substr($url, 0, 4) !== 'cid:' && !preg_match('#^[A-z]+://#', $url)) {
+                } elseif (!str_starts_with($url, 'cid:') && !preg_match('#^[A-z]+://#', $url)) {
                     // Do not change urls for absolute images (thanks to corvuscorax)
                     // Do not change urls that are already inline images
                     $filename = basename($url);
@@ -3305,10 +3299,10 @@ class PHPMailer
                         $directory = '';
                     }
                     $cid = md5($url) . '@phpmailer.0'; // RFC2392 S 2
-                    if (strlen($basedir) > 1 && substr($basedir, -1) != '/') {
+                    if (strlen($basedir) > 1 && !str_ends_with($basedir, '/')) {
                         $basedir .= '/';
                     }
-                    if (strlen($directory) > 1 && substr($directory, -1) != '/') {
+                    if (strlen($directory) > 1 && !str_ends_with($directory, '/')) {
                         $directory .= '/';
                     }
                     if ($this->addEmbeddedImage(
@@ -3726,14 +3720,14 @@ class PHPMailer
         $to_header = '';
         $current = '';
         foreach ($headers as $header) {
-            if (strpos($header, 'From:') === 0) {
+            if (str_starts_with($header, 'From:')) {
                 $from_header = $header;
                 $current = 'from_header';
-            } elseif (strpos($header, 'To:') === 0) {
+            } elseif (str_starts_with($header, 'To:')) {
                 $to_header = $header;
                 $current = 'to_header';
             } else {
-                if (!empty(${$current}) && strpos($header, ' =?') === 0) {
+                if (!empty(${$current}) && str_starts_with($header, ' =?')) {
                     ${$current} .= $header;
                 } else {
                     $current = '';

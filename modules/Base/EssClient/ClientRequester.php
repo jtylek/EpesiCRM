@@ -15,13 +15,12 @@ class SecureConnectionException extends Exception {
 class ClientRequester implements IClient {
 
     static private $request_log = array();
-    protected $server;
     protected $license_key;
     private $secure = true;
     private $connection_timeout = 300;
 
-    public function __construct($server) {
-        $this->server = $server;
+    public function __construct(protected $server)
+    {
     }
 
     public function set_client_license_key($license_key) {

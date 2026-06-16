@@ -60,7 +60,7 @@ class Base_ActionBar extends Module {
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			$i['helpID'] = 'ActionBar_'.$i['icon'];
-			if (strpos($i['icon'], '/')!==false && file_exists($i['icon'])) {
+			if (str_contains($i['icon'], '/') && file_exists($i['icon'])) {
 				$i['icon_url'] = $i['icon'];
 				unset($i['icon']);
 			}

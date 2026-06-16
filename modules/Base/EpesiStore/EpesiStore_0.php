@@ -497,7 +497,7 @@ class Base_EpesiStore extends Module {
         foreach ($modules as $mod) {
             $modxx = $module_prefix . $mod;
             foreach ($all_files as $k => $v) {
-                if (strpos($v, $modxx) === 0) {
+                if (str_starts_with($v, $modxx)) {
                     unset($all_files[$k]);
                 }
             }

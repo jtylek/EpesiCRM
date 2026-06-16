@@ -55,7 +55,7 @@ if(is_numeric($_POST['col']) && $_POST['col']<3 && $_POST['col']>=0) {
 			$vals = array($pos,$_POST['col'],$id);
 			if ($val) $vals[] = $val;
 			DB::Execute('UPDATE '.$table.' SET pos=%d, col=%d WHERE id=%d'.($val?' AND user_login_id=%d':''),$vals);
-		} elseif(strpos($id,'new_')===0) {
+		} elseif(str_starts_with($id, 'new_')) {
             $id = substr($id,4);
 			$cleanId = str_replace('-','_',$id);
 			$vals = array($cleanId,$tab,$_POST['col'],$pos);

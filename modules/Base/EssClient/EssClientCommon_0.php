@@ -80,7 +80,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
 
     public static function is_registered() {
         $status = self::get_installation_status();
-        if (strpos($status, 'confirmed') !== false
+        if (str_contains($status, 'confirmed')
                 || $status == 'validated')
             return true;
         return false;

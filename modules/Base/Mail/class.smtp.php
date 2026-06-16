@@ -312,7 +312,7 @@ class SMTP
         $this->edebug('Connection: opened', self::DEBUG_CONNECTION);
         // SMTP server can take longer to respond, give longer timeout for first read
         // Windows does not have support for this timeout function
-        if (substr(PHP_OS, 0, 3) != 'WIN') {
+        if (!str_starts_with(PHP_OS, 'WIN')) {
             $max = ini_get('max_execution_time');
             // Don't bother if unlimited
             if ($max != 0 && $timeout > $max) {
@@ -636,7 +636,7 @@ class SMTP
 
         $field = substr($lines[0], 0, strpos($lines[0], ':'));
         $in_headers = false;
-        if (!empty($field) && strpos($field, ' ') === false) {
+        if (!empty($field) && !str_contains($field, ' ')) {
             $in_headers = true;
         }
 
@@ -854,7 +854,7 @@ class SMTP
             return false;
         }
         //Reject line breaks in all commands
-        if (strpos($commandstring, "\n") !== false or strpos($commandstring, "\r") !== false) {
+        if (str_contains($commandstring, "\n") or str_contains($commandstring, "\r")) {
             $this->setError("Command '$command' contained line breaks");
             return false;
         }

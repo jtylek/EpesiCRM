@@ -262,7 +262,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function is_url($string) {
-        return false !== strpos($string, "://");
+        return str_contains($string, "://");
     }
 
     private static function make_temp_filename() {

@@ -25,7 +25,7 @@ class Base_HelpCommon extends ModuleCommon {
 		$i = 0;
 		while (!feof($f)) {
 			$line = '';
-			while (!feof($f) && substr($line, -1, 1)!=']') {
+			while (!feof($f) && !str_ends_with($line, ']')) {
 				$line .= ($line?'##':'').fgets($f);
 				$line = trim($line);
 			}

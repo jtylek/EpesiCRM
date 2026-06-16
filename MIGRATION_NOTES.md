@@ -103,6 +103,11 @@ These block a clean `composer install` under PHP 8.2 (require `--ignore-platform
 - **Warning:** `"continue" targeting switch is equivalent to "break". Did you mean "continue 2"?`
 - PHP 7.3+ warns that `continue` inside a `switch` acts like `break` — it does NOT skip to the next iteration of the enclosing loop. May be intentional, or a latent bug (author may have meant `continue 2`). Pre-existing, not migration-caused. Needs the author's intent to resolve.
 
+### switch→match skipped — Administrator_0.php ($row['admin'] type risk)
+- **File:** `modules/Base/User/Administrator/Administrator_0.php`
+- `switch($row['admin'])` with integer cases (1 = Administrator, 2 = Super Administrator). DB values may arrive as strings ("1"/"2") depending on ADOdb fetch mode. `switch` uses loose `==` (matches), `match` uses strict `===` (would NOT match string "2" against int 2 → admins would fall through to "User"). Affects admin role display in the user list UI.
+- **Decision:** left as `switch` (safe under any type). `switch→match` is excluded for this file in `rector.php`. Revisit when DB fetch types are verified — if `$row['admin']` is reliably int, the conversion is safe.
+
 ---
 
 ## 6. Rector setup (for reproducing)

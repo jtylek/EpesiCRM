@@ -231,7 +231,7 @@ class Base_PrintCommon extends ModuleCommon
     public static function register_printer(Base_Print_Printer $obj)
     {
         $registered_printers = self::get_registered_printers();
-        $registered_printers[get_class($obj)] = $obj->document_name();
+        $registered_printers[$obj::class] = $obj->document_name();
         self::set_registered_printers($registered_printers);
     }
 
@@ -244,7 +244,7 @@ class Base_PrintCommon extends ModuleCommon
     public static function unregister_printer($string_or_obj)
     {
         if (!is_string($string_or_obj)) {
-            $string_or_obj = get_class($string_or_obj);
+            $string_or_obj = $string_or_obj::class;
         }
         $registered_printers = self::get_registered_printers();
         unset($registered_printers[$string_or_obj]);
@@ -293,7 +293,7 @@ class Base_PrintCommon extends ModuleCommon
     public static function register_document_type(Base_Print_Document_Document $obj)
     {
         $document_types = self::get_registered_document_types();
-        $document_types[get_class($obj)] = $obj->document_type_name();
+        $document_types[$obj::class] = $obj->document_type_name();
         self::set_registered_document_types($document_types);
     }
 
@@ -305,7 +305,7 @@ class Base_PrintCommon extends ModuleCommon
     public static function unregister_document_type($string_or_obj)
     {
         if (is_object($string_or_obj)) {
-            $string_or_obj = get_class($string_or_obj);
+            $string_or_obj = $string_or_obj::class;
         }
         $document_types = self::get_registered_document_types();
         unset($document_types[$string_or_obj]);
