@@ -39,7 +39,7 @@ class Cache
             try {
                 self::$cache_object = CacheManager::getInstance($driver);
                 break;
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
         if (!self::$cache_object) {

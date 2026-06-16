@@ -361,21 +361,15 @@ class Patch
     private $creation_date;
     private $module;
     private $short_description;
-    private $file;
-    private $DB;
-    private $legacy;
     private $apply_log;
     private $apply_status;
     private $apply_error;
     private $user_message;
 
-    function __construct($file, PatchesDB $db, $is_legacy = false)
+    function __construct(private $file, private PatchesDB $DB, private $legacy = false)
     {
-        $this->file = $file;
         $this->_parse_module();
         $this->_parse_filename();
-        $this->DB = $db;
-        $this->legacy = $is_legacy;
 
         $this->apply_status = $this->was_applied()
             ? self::STATUS_OLD : self::STATUS_NEW;
@@ -460,7 +454,7 @@ class Patch
             PatchUtil::require_time(1);
             include $this->file;
             $this->apply_status = self::STATUS_SUCCESS;
-        } catch (NotEnoughExecutionTimeException $ex) {
+        } catch (NotEnoughExecutionTimeException) {
             $this->apply_status = self::STATUS_TIMEOUT;
         } catch (PatchException $e) {
             $this->apply_status = self::STATUS_ERROR;
@@ -538,7 +532,7 @@ class Patch
     {
         $dirname = pathinfo($this->file, PATHINFO_DIRNAME);
         $modules_dir = 'modules/';
-        if (strpos($dirname, $modules_dir) === 0) {
+        if (str_starts_with($dirname, $modules_dir)) {
             $this->module = substr($dirname, strlen($modules_dir), -strlen('/patches'));
         }
     }
@@ -554,7 +548,7 @@ class Patch
         try {
             $this->set_creation_date(substr($filename, 0, $sep_pos));
             $this->set_short_description(substr($filename, $sep_pos + 1));
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->set_short_description($filename);
         }
     }
@@ -720,9 +714,8 @@ class PatchCheckpoint
      *
      * @param string $file Filename to store serialized object
      */
-    public function __construct($file)
+    public function __construct(private $file)
     {
-        $this->file = $file;
     }
 
     private function save_data()
@@ -827,5 +820,4 @@ class PatchCheckpoint
 
     private $done = false;
     private $data = array();
-    private $file;
 }

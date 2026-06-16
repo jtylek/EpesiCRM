@@ -30,7 +30,6 @@ abstract class Module extends ModulePrimitive {
 	private $inline_display = false;
 	private $displayed = false;
 	private $clear_child_vars = false;
-	private $container;
 	public $display_func = false;
 	public static $disable_confirm_leave = false;
 
@@ -56,8 +55,7 @@ abstract class Module extends ModulePrimitive {
 	 * @param \Pimple\Container $container
 	 * @throws Exception
 	 */
-	public final function __construct($type,$parent,$name,$clear_vars, Pimple\Container $container) {
-		$this->container = $container;
+	public final function __construct($type,$parent,$name,$clear_vars, private Pimple\Container $container) {
 		$submodule_delimiter = strpos($type, '#');
 		$this->type_with_submodule = $main_module = $type;
 		if ($submodule_delimiter !== false) {
@@ -94,7 +92,7 @@ abstract class Module extends ModulePrimitive {
 	 * @return mixed if access denied returns null, else child module object
 	 */
 	public final function init_module($module_type, $args = null, $name=null,$clear_vars=false) {
-		if (strpos($module_type, '#') === 0) {
+		if (str_starts_with($module_type, '#')) {
 			$module_type = $this->get_type() . $module_type;
 		}
 		$module_type = str_replace('/','_',$module_type);
@@ -132,7 +130,7 @@ abstract class Module extends ModulePrimitive {
 
 	//endregion
 	//region Children
-	private final function register_child($ch) {
+	private function register_child($ch) {
 		$type = $ch->type_with_submodule;
 		$instance = $ch->get_instance_id();
 		if(!isset($this->children[$type]))
@@ -142,7 +140,7 @@ abstract class Module extends ModulePrimitive {
 			Epesi::debug('registering '.$this->get_path().'/'.$ch->get_node_id());
 	}
 
-	private final function get_new_child_instance_id($type) {
+	private function get_new_child_instance_id($type) {
 		return isset($this->children[$type])?count($this->children[$type]):0;
 	}
 
@@ -600,7 +598,7 @@ abstract class Module extends ModulePrimitive {
 		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>CID));
 	}
 
-	private final function create_callback_name($func, $args) {
+	private function create_callback_name($func, $args) {
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
 		if(!is_array($func) || count($func)!=2)
@@ -682,7 +680,7 @@ abstract class Module extends ModulePrimitive {
 		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
 	}
 
-	private final function set_callback($name,$func,$args) {
+	private function set_callback($name,$func,$args) {
 		if(!is_string($func)) {
 			if(is_array($func) && count($func)==2 && is_string($func[1]) &&
 				(is_string($func[0]) || $func[0] instanceof Module)) {
@@ -865,7 +863,7 @@ abstract class Module extends ModulePrimitive {
 
 		if(!isset($function_name)) $function_name = 'body';
 		if (!method_exists($m, $function_name))
-			trigger_error('Invalid method name ('.get_class($m).'::'.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
+			trigger_error('Invalid method name ('.$m::class.'::'.$function_name.') given as argument 2 for display_module.',E_USER_ERROR);
 
 		if($m->displayed())
 			trigger_error('You can\'t display the same module twice, path:'.$m->get_path().'.',E_USER_ERROR);
@@ -892,7 +890,7 @@ abstract class Module extends ModulePrimitive {
 		Epesi::$content[$path]['module'] = & $m;
 
 		if(!REDUCING_TRANSFER || 
-			(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && strpos($_REQUEST['__action_module__'],$path)===0) || !isset($_SESSION['client']['__module_content__'][$path]))) {
+			(!$m->is_fast_process() || (isset($_REQUEST['__action_module__']) && str_starts_with($_REQUEST['__action_module__'], $path)) || !isset($_SESSION['client']['__module_content__'][$path]))) {
 			if($args===null) $args = array();
 			elseif(!is_array($args)) $args = array($args);
 

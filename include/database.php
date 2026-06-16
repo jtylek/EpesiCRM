@@ -212,7 +212,7 @@ class DB {
             try {
                 $ret = call_user_func_array(array(self::$ado,$method), $args);
                 break;
-            } catch(DBRetryQueryException $ex) {
+            } catch(DBRetryQueryException) {
                 if($timeout_count==0) throw new Exception('DB gone away');
             }
         }
@@ -1003,7 +1003,7 @@ if (class_exists('ErrorHandler', false)) {
 					DB::$ado = DB::Connect();
 					throw new DBRetryQueryException();
 					return false;
-				} catch (Exeption $e) {
+				} catch (Exeption) {
 					return true;
 				}
 			}

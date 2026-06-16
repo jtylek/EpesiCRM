@@ -9,11 +9,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 abstract class ModulePrimitive {
-	private $type;
-	
-	public function __construct($type) {
-		$this->type = $type;
-	}
+	public function __construct(private $type)
+    {
+    }
 
 	/**
 	 * Returns name(type) of module that called this function.
@@ -97,11 +95,11 @@ abstract class ModulePrimitive {
 	public final static function module_name()
 	{
         $class_name = get_called_class();
-        if (substr($class_name, -6) == 'Common') {
+        if (str_ends_with($class_name, 'Common')) {
             $class_name = substr($class_name, 0, -6);
         }
 
-        if (substr($class_name, -7) == 'Install') {
+        if (str_ends_with($class_name, 'Install')) {
             $class_name = substr($class_name, 0, -7);
         }
 

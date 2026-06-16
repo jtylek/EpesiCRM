@@ -47,7 +47,7 @@ class ModulesAutoloader {
     }
 
     private function module_common($class_name) {
-        if (substr($class_name, -6) != 'Common')
+        if (!str_ends_with($class_name, 'Common'))
             return false;
 
         $module_name = substr($class_name, 0, -6);
@@ -61,7 +61,7 @@ class ModulesAutoloader {
 
     private function module_install($class_name)
     {
-        if (substr($class_name, -7) != 'Install') {
+        if (!str_ends_with($class_name, 'Install')) {
             return false;
         }
 

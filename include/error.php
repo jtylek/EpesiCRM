@@ -58,7 +58,7 @@ class ErrorHandler {
     {
         $backtrace = self::debug_backtrace($exception->getTrace());
         while (@ob_end_clean());
-        $msg = get_class($exception) . "\nMessage: "
+        $msg = $exception::class . "\nMessage: "
                . $exception->getMessage() . "\nFile: " .
                $exception->getFile() . "\nLine=" . $exception->getLine() .
                $backtrace . "\n\n";
@@ -119,7 +119,7 @@ class ErrorHandler {
 				            continue;
 				        }
 				        if(is_object($arg)) {
-				            $arg = 'Object ('.get_class($arg).')';
+				            $arg = 'Object ('.$arg::class.')';
 				            continue;
 				        }
 				        if(is_array($arg)) {
@@ -140,7 +140,7 @@ class ErrorHandler {
 				                        continue;
             				        }
 				                    if(is_object($a)) {
-				                        $a = 'Object ('.get_class($a).')';
+				                        $a = 'Object ('.$a::class.')';
 				                        continue;
 				                    }
 				                    if(is_array($a)) {
@@ -222,7 +222,7 @@ function handle_epesi_exception($exception)
     if (class_exists('ErrorHandler')) {
         ErrorHandler::handle_exception($exception);
     } else {
-        $msg = get_class($exception) . ': ' . $exception->getMessage()
+        $msg = $exception::class . ': ' . $exception->getMessage()
                . '<br/>' . $exception->getTraceAsString();
         echo $msg;
     }

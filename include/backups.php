@@ -4,15 +4,11 @@ use Ifsnop\Mysqldump\Mysqldump;
 
 class BackupUtil {
 
-    private $_backup_dir;
     private $_backup_store;
-    private $_epesi_dir;
     private $_prev_dir;
 
-    public function __construct($epesi_dir, $backup_dir) {
-        $this->_epesi_dir = $epesi_dir;
-        $this->_backup_dir = $backup_dir;
-        $this->_backup_store = new BackupStore($backup_dir);
+    public function __construct(private $_epesi_dir, private $_backup_dir) {
+        $this->_backup_store = new BackupStore($this->_backup_dir);
     }
 
     public static function backup_db($file = null)
@@ -99,20 +95,18 @@ class BackupUtil {
 class BackupStore {
 
     private $_extension = 'bkp.zip';
-    private $_dir;
 
-    public function __construct($dir) {
-        $this->_dir = $dir;
-        if (file_exists($dir) && !is_dir($dir))
-            throw new ErrorException("Backup path '$dir' is not directory");
-        if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
-            file_put_contents($dir . '/index.html', '');
+    public function __construct(private $_dir) {
+        if (file_exists($this->_dir) && !is_dir($this->_dir))
+            throw new ErrorException("Backup path '{$this->_dir}' is not directory");
+        if (!file_exists($this->_dir)) {
+            mkdir($this->_dir, 0777, true);
+            file_put_contents($this->_dir . '/index.html', '');
         }
-        if (!is_dir($dir))
-            throw new ErrorException("Backup directory($dir) doesn't exist");
-        if (!is_writable($dir))
-            throw new ErrorException("Backup directory($dir) is not writable");
+        if (!is_dir($this->_dir))
+            throw new ErrorException("Backup directory({$this->_dir}) doesn't exist");
+        if (!is_writable($this->_dir))
+            throw new ErrorException("Backup directory({$this->_dir}) is not writable");
     }
 
     public function new_backup_file() {
@@ -143,16 +137,12 @@ class Backup {
     private static $__properties_in_metadata = array('date', 'description');
     private $date;
     private $description;
-    private $file;
-    private $overwrite;
 
     /** @var BackupArchive */
     private $archive;
 
-    public function __construct($backup_file, $overwrite = false) {
-        $this->file = $backup_file;
-        $this->overwrite = $overwrite;
-        $this->archive = new BackupArchive($backup_file);
+    public function __construct(private $file, private $overwrite = false) {
+        $this->archive = new BackupArchive($this->file);
         $this->_read_metadata();
     }
 
@@ -241,11 +231,10 @@ class Backup {
 
 class BackupArchive extends ZipArchive {
 
-    private $_file;
     private $_exclude = array();
 
-    public function __construct($file) {
-        $this->_file = $file;
+    public function __construct(private $_file)
+    {
     }
 
     private function _open_create() {

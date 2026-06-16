@@ -212,7 +212,7 @@ class ModuleManager {
 	 * @param array table with loaded modules
 	 * @return array
 	 */
-	private static final function check_dependencies($module_to_check, $version, & $module_table) {
+	private static function check_dependencies($module_to_check, $version, & $module_table) {
 		$req_mod = self::get_required_modules($module_to_check, $version);
 
 		$ret = array();
@@ -965,7 +965,7 @@ class ModuleManager {
 		try {
 			$default_module = Variable::get('default_module');
 			self::$root = ModuleManager :: new_instance($default_module,null,'0');
-		} catch (Exception $e) {
+		} catch (Exception) {
 			self::$root = ModuleManager :: new_instance(FIRST_RUN,null,'0');
 		}
 		$ret = trim(ob_get_contents());

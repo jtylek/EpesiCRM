@@ -16,15 +16,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  */
 class Dependency {
 
-    private $module_name;
-    private $version_min;
-    private $version_max;
     private $compare_max;
 
-    private function __construct($module_name, $version_min, $version_max, $version_max_is_ok = true) {
-        $this->module_name = $module_name;
-        $this->version_min = $version_min;
-        $this->version_max = $version_max;
+    private function __construct(private $module_name, private $version_min, private $version_max, $version_max_is_ok = true) {
         $this->compare_max = $version_max_is_ok ? '<=' : '<';
     }
 
