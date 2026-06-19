@@ -211,3 +211,62 @@ All findings below are READ-ONLY recon — nothing was changed yet.
 2. Tackle QuickForm (vendored, main installer blocker) — replace with an 8.2-compatible version, ideally via composer (e.g. pear/html_quickform2) to consolidate under composer where possible.
 3. Run the app, see what breaks NEXT (expect a cascade: Smarty, possibly others). Fix iteratively, driven by real errors, not bulk.
 4. Goal: get the installer to complete so the migrated code can finally be tested at runtime (the whole point — php -l proves syntax, not behavior).
+
+---
+
+## 10. QuickForm fix-once experiment (branch: experiment/composer-deps) — findings
+
+Goal was "fix once": quickly patch QuickForm to see if the installer runs and whether
+the Rector-migrated Core code actually works. NOT a long-term fix — QuickForm will be replaced.
+
+### Result: hypothesis PARTIALLY confirmed
+Got the installer from "fatal on every load" all the way to "license form renders, checkboxes
+work, values submit". CRUCIAL: every single blocker was inside QuickForm/PEAR (vendored libs) —
+NOT ONE was in the Rector-migrated Core code. Strong evidence Rector broke nothing. BUT: full
+confirmation needs a RUNNING app (past the installer), which is why we're moving to the drop-in
+replacement rather than finishing the manual patching.
+
+### The QuickForm blocker chain (5 layers, each uncovered by fixing the previous)
+1. **PHP4 constructors** — `function HTML_QuickForm()` etc. not recognized on 8.2 → caused the
+   original installer loop. Fixed by Rector's Php4ConstructorRector (on the sandbox branch).
+2. **get_magic_quotes_gpc()** — removed in PHP 8.0. QuickForm.php:292. Patched to `false`
+   (the call was inside dead magic-quotes logic that never runs on modern PHP anyway).
+3. **Constructor call sites** — element.php:411 and file.php:188 called constructors the old
+   PHP4 way (`call_user_func_array(array($this,$className),...)` / `$this->$className(...)`).
+   Patched to call `__construct` directly.
+4. **PEAR::raiseError() called statically** — PEAR.php:511, non-static method called statically
+   (same class of bug as PEAR::isError fixed earlier). Made `static`. Note: raiseError has
+   dual-mode `isset($this)` branches that become dead under static — fine in practice (all Epesi
+   calls are static) but worth a proper rewrite in fix-twice.
+5. **RemoveParentCallWithoutParentRector REMOVED needed parent::__construct calls** ⚠️ CRITICAL
+   — this Rector rule stripped `parent::__construct($elementName,...)` from element constructors.
+   Result: `name` attribute never set → form elements rendered as `<input>` with NO name →
+   browser submits empty data → installer loops back to language select. Confirmed by fixing
+   checkbox.php (added parent::__construct) → `name="tos1"` appeared, values started submitting.
+   27 element files in QuickForm/3.2.14-php7/HTML/QuickForm/ are affected (grep -L parent::__construct).
+
+### LESSON for any future Rector run on PHP4-era code
+**EXCLUDE `RemoveParentCallWithoutParentRector`** when migrating old PHP4-constructor code.
+When Php4ConstructorRector and RemoveParentCallWithoutParentRector run together, the latter can
+wrongly decide a parent "has no constructor" (because it's mid-conversion) and delete a needed
+parent call. This silently breaks behavior (php -l stays clean — it's a logic bug, not syntax).
+
+### Decision: replace QuickForm (fix-twice), don't finish manual patching
+Patching all 27 elements by hand = throwaway work. Instead, replace the whole vendored QuickForm.
+
+### Replacement candidates (researched)
+- **openpsa/quickform** ← BEST CANDIDATE. Explicit drop-in replacement for the OLD HTML_QuickForm
+  API (keeps `addElement('checkbox','tos1',...)` style → minimal Epesi code changes). Bundles its
+  own HTML_Common, replaces PEAR_Errors with exceptions, composer autoloading. Caveat: may still
+  need some static→nonstatic call adjustments.
+- pear/HTML_QuickForm2 (2.3.2, tested on PHP 8.2/8.3) — but it's a REWRITE with a DIFFERENT API
+  (chainable, HTML_QuickForm2_* classes). Would require rewriting all QuickForm usage in Epesi. Big.
+- mistralys/html_quickform2 — modernized fork of QuickForm2 (strict typing). Same different-API issue.
+
+### Next step
+Try openpsa/quickform as a composer drop-in on a fresh branch. Goal: get the installer to COMPLETE
+and the app to RUN, so the Rector migration can be tested end-to-end on a live application.
+
+### Cleanup note
+The fix-once patches (this branch, uncommitted) were reverted after capturing these findings.
+The knowledge lives here in the notes; the code stays clean.
