@@ -55,3 +55,7 @@ $custom_translations['(GMT+11:00) Magadan, Solomon Islands, New Caledonia']='';
 $custom_translations['(GMT+12:00) Auckland, Wellington, Fiji, Kamchatka']='';
 $custom_translations['Second clock label']='';
 $custom_translations['Singapore / China']='';
+$custom_translations['2026']='';
+$custom_translations['Browse']='';
+$custom_translations['Roundcube settings']='';
+$custom_translations['%s User']='';
