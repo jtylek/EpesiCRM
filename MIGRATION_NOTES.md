@@ -445,3 +445,76 @@ automulti, autoselect). openpsa expects a STRING (classname only) and instantiat
 if array → require_once($reg[0]) then use $reg[1]; else use string. (Vendor edit — fix-twice candidate.)
 BUT current blocker is EARLIER: `isTypeRegistered()` (QuickForm.php:1128) checks the global and throws
 at line 476 BEFORE reaching the format handler — meaning 'commondata' isn't
+
+---
+
+## 13. QUICK-FIXES TO RESOLVE PROPERLY (fix-twice checklist)
+
+All of these got Epesi running on PHP 8.2 but are temporary. Each needs a permanent solution.
+
+### VENDOR EDITS (lost on `composer update` — highest priority to relocate)
+1. **openpsa registerElementType() made static** — vendor/openpsa/quickform/lib/HTML/QuickForm.php:296
+   Proper fix: revert vendor; rewrite the 2 Epesi callers (CKEditor CKEditorCommon_0.php:18,
+   Codepress CodepressCommon_0.php:16) to write $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] directly.
+
+2. **openpsa _loadElement() dual-format patch** — vendor/openpsa/quickform/lib/HTML/QuickForm.php:477
+   Added array-format handling (Epesi uses array('file','Class'); openpsa expects string).
+   Proper fix: either fork openpsa, or convert all Epesi type registrations to openpsa's string format
+   + ensure those classes are autoloadable.
+
+### EPESI CODE FIXES (survive composer update, but some are band-aids)
+3. **Relative require_once of old QuickForm classes** — these load STALE classes via include_path
+   (old 3.2.14-php7 OR system PEAR /opt/lampp/lib/php/HTML/). Disabled in:
+     Renderer/TCMSArray.php:30, Renderer/TCMSDefault.php:30 (Renderer.php)
+     FieldTypes/{autoselect,automulti,multiselect}/*.php (select.php), autocomplete (text.php)
+     Utils/CommonData/qf.php:12 (select.php), qf_group.php:2 (group.php)
+     Utils/PopupCalendar/timestamp.php:27,32 (group.php, date.php)
+   Proper fix: SYSTEMATIC sweep — grep ALL modules for `require.*'HTML/QuickForm|require.*'HTML/Common`
+   (excluding 3.2.14, Roundcube) and remove them all; openpsa autoload provides every class.
+   ALSO consider removing /opt/lampp/lib/php (system PEAR) from include_path so stale HTML_Common
+   can never load (caused "Cannot declare HTML_Common, already in use").
+
+4. **commondata type registered directly in ContactsInstall.php:222** (country_element) —
+   band-aid for timing: CommonData module not loaded when Contacts uses 'commondata' during FirstRun.
+   Proper fix: eager-register ALL custom element types before FirstRun/module install, OR ensure
+   custom-type modules load before dependent modules. (include_common didn't work — module not
+   installed yet at that point.)
+
+5. **Core PHP8 fixes** (these are legit, keep — not band-aids): error.php:207 ($errcontext=null),
+   get_magic_quotes_gpc→false in 5 files, magicquotes.php, QuickForm extension __construct fixes (7 files),
+   renderHidden signatures, TCMSArray finishForm/renderHtml.
+
+### SMARTY (replace, don't patch — Smarty 5 is PHP 8-native)
+6. create_function + each() patched in Smarty_Compiler.class.php (265, 566). Replace whole Smarty later.
+
+### ADODB / OPENPSA (drop-ins — keep, but clean up)
+7. Old libs/adodb/ and old modules/Libs/QuickForm/3.2.14-php7/ now UNUSED → delete AFTER proving dead
+   (grep whole codebase). Keeping them risks more include_path stale-loads (see #3).
+
+### COMPOSER
+8. --ignore-platform-reqs still needed (dev pkgs faker/memio/aspect-mock/psysh pin old PHP). Clean up.
+
+---
+
+## 14. Rector first-class callable → Closure breaks Epesi's callback handlers (FIXED)
+
+Rector (PHP 8.1 pass) converted `array($this,'method')` → `$this->method(...)` (first-class callable
+syntax) in places like Dashboard_0.php:39-41. This creates a **Closure**. But Epesi's callback
+machinery in include/module.php was written for the old string / array($Module,'method') contract and
+REJECTED closures ("Invalid function passed", "Invalid callback function").
+
+Fixed by decomposing the Closure back into array($Module, 'methodName') via Reflection, at the entry
+of each handler:
+- **create_callback_name()** include/module.php:~600 — added Closure branch using
+  ReflectionFunction::getClosureThis() + getName().
+- **set_callback()** include/module.php:~692 — same decomposition at entry, so the closure is stored
+  as array($obj,'method') and can be replayed via AJAX.
+
+Why array($obj,'method') and not the raw closure: Epesi serializes callbacks (md5 of path+method) and
+replays them on AJAX requests by calling method on the module. A closure can't be serialized/replayed;
+the decomposed array reproduces exactly what the pre-Rector code stored.
+
+LESSON for Jasiek: this is a SYSTEMIC consequence of Rector's first-class-callable conversion. Any
+Epesi mechanism that inspects/validates/stores a callback by structure (string vs array) may choke on
+closures. Either (a) handle Closure everywhere callbacks are validated/stored, or (b) reconsider the
+first-class-callable Rector rule for code that feeds Epesi's callback system.

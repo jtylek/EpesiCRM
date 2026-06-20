@@ -224,9 +224,14 @@ class Epesi {
 	/**
 	 * @param $m Module
      */
+	
 	private static function go($m) {
+		self::register_custom_qf_types(); // PHP 8.2 migration: ensure custom QF element types are registered before any form renders (REVERSIBLE — see function def)
 		//define key so it's first in array
 		$path = $m->get_path();
+	/*private static function go($m) {
+		//define key so it's first in array
+		$path = $m->get_path();*/
 
 		if(method_exists($m,'construct')) {
 			ob_start();
@@ -258,6 +263,28 @@ class Epesi {
 		return $msgs;
 	}
 
+	// === BEGIN custom-type eager-load (PHP 8.2 migration / openpsa QuickForm drop-in) ===
+	// openpsa throws on unregistered element types. Epesi registers custom types (autoselect,
+	// multiselect, commondata, datepicker, currency, ...) lazily inside module Common files, which
+	// load too late for dashboard applets. Eager-load those modules once, before rendering.
+	// REVERSIBLE: delete this whole function + its single call site to restore lazy behavior.
+	private static function register_custom_qf_types() {
+		static $done = false;
+		if ($done) return;
+		$done = true;
+		class_exists('HTML_QuickForm'); // force openpsa autoload first — its QuickForm.php line 17 RESETS the global to built-in types; our custom types must be added AFTER
+		$t = &$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'];
+		$t['multiselect']      = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
+		$t['autocomplete']     = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
+		$t['automulti']        = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
+		$t['autoselect']       = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
+		$t['commondata']       = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
+		$t['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
+		$t['datepicker']       = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
+		$t['timestamp']        = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
+		$t['currency']         = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
+	}
+	// === END custom-type eager-load ===
 
 	public static function process($url, $history_call=false,$refresh=false) {
 		if(MODULE_TIMES)

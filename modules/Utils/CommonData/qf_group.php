@@ -1,5 +1,5 @@
 <?php
-require_once('HTML/QuickForm/group.php');
+// require_once disabled — openpsa via autoload
 require_once('qf.php');
 
 /**

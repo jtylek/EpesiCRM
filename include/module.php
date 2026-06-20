@@ -599,8 +599,18 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	private function create_callback_name($func, $args) {
+		if($func instanceof Closure) {  // PHP 8.1 first-class callable (Rector converted array($this,'m') → $this->m(...))
+			$r = new ReflectionFunction($func);
+			$obj = $r->getClosureThis();
+			if($obj instanceof Module)
+				return md5(serialize(array(array($obj->get_path(), $r->getName()), $args)));
+			return md5(serialize(array($r->getName(), $args)));
+		}
 		if(is_string($func))
 			return md5(serialize(array($func,$args)));
+	/*private function create_callback_name($func, $args) {
+		if(is_string($func))
+			return md5(serialize(array($func,$args)));*/
 		if(!is_array($func) || count($func)!=2)
 			trigger_error('Invalid function passed to create_callback_{*}.',E_USER_ERROR);
 		if(is_string($func[0]))
@@ -681,7 +691,14 @@ abstract class Module extends ModulePrimitive {
 	}
 
 	private function set_callback($name,$func,$args) {
+		if($func instanceof Closure) {  // PHP 8.1 first-class callable (Rector converted array($this,'m') → $this->m(...)); decompose so it can be stored/replayed via AJAX
+			$r = new ReflectionFunction($func);
+			$obj = $r->getClosureThis();
+			if($obj instanceof Module) $func = array($obj, $r->getName());
+		}
 		if(!is_string($func)) {
+	/*private function set_callback($name,$func,$args) {
+		if(!is_string($func)) {*/
 			if(is_array($func) && count($func)==2 && is_string($func[1]) &&
 				(is_string($func[0]) || $func[0] instanceof Module)) {
 					if(!is_callable($func))

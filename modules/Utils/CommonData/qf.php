@@ -9,7 +9,7 @@
  * @package epesi-utils
  * @subpackage CommonData
  */
-require_once('HTML/QuickForm/select.php');
+// require_once disabled — openpsa provides HTML_QuickForm_select via autoload
 
 class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 	var $_cd = null;

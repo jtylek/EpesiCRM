@@ -24,12 +24,12 @@
 /**
  * Class for a group of form elements
  */
-require_once 'HTML/QuickForm/group.php';
+// require_once disabled — openpsa via autoload
 /**
  * Class for <select></select> elements
  */
 require_once 'datepicker.php';
-require_once 'HTML/QuickForm/date.php';
+// require_once disabled — openpsa via autoload
 
 /**
  * Class for a group of elements used to input dates (and times).

@@ -1,0 +1,1 @@
+a:3:{s:1:"d";a:3:{i:0;s:10:"Base_Admin";i:1;s:14:"Base_Dashboard";i:2;s:12:"CRM_Contacts";}s:1:"t";O:8:"DateTime":3:{s:4:"date";s:26:"2026-06-21 20:09:08.380097";s:13:"timezone_type";i:3;s:8:"timezone";s:13:"Europe/Berlin";}s:1:"g";a:0:{}}
