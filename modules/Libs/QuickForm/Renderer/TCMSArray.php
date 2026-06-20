@@ -27,7 +27,7 @@
 //
 // $Id: Array.php,v 1.9 2004/10/15 20:00:48 ths Exp $
 
-require_once 'HTML/QuickForm/Renderer.php';
+// require_once disabled — openpsa provides HTML_QuickForm_Renderer via autoload
 
 /**
  * A concrete renderer for HTML_QuickForm, makes an array of form contents
@@ -154,9 +154,9 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     * @param  bool    true: render an array of labels to many labels, $key 0 to 'label' and the oterh to "label_$key"
     * @access public
     */
-    function HTML_QuickForm_Renderer_TCMSArray($collectHidden = false, $staticLabels = false)
+    function __construct($collectHidden = false, $staticLabels = false)
     {
-        $this->HTML_QuickForm_Renderer();
+        // openpsa HTML_QuickForm_Renderer is abstract, no parent ctor to call
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
@@ -221,7 +221,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     } // end func renderElement
 
 
-    function renderHidden(&$element)
+    function renderHidden(&$element, $required = false, $error = null)
     {
 		$this->_prepareValue($element);
         if ($this->_collectHidden) {
@@ -383,5 +383,8 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
 		}
 	}
    
+    function finishForm(&$form) { } // openpsa abstract: array-renderer has no form finalization
+    function renderHtml(&$data) { }  // openpsa abstract: array-renderer doesn't emit raw html
+
 }
 ?>

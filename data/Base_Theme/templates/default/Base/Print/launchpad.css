@@ -1,0 +1,38 @@
+table#Base_Print .label {
+}
+
+table#Base_Print .big-button {
+    width: 150px;
+    background-color: #F0F0F0;
+    border: 1px solid #FFFFFF;
+    background-image: url("images/big-button.png");
+    background-repeat: repeat-x;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 11px;
+    display: block;
+    padding: 20px;
+    margin: 40px;
+    cursor: pointer;
+    color: #336699;
+    font-weight: bold;
+    -webkit-box-shadow: 0px 0px 11px 2px #222;
+    -moz-box-shadow: 0px 0px 11px 2px #222;
+    box-shadow: 0px 0px 11px 2px #222;
+}
+
+table#Base_Print .big-button:hover {
+    background-color: #FFFFFF;
+    background-image: url("images/big-button-hover.png");
+    background-repeat: repeat-x;
+    color: #993333;
+}
+
+table#Base_Print a {
+    color: #336699;
+    font-weight: bold;
+}
+
+table#Base_Print a:hover {
+    color: #993333;
+}

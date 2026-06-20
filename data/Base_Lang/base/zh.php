@@ -1,5 +1,10 @@
 <?php
-global $custom_translations;
+/**
+ * Translation file.
+ * @package epesi-translations
+ * @subpackage zh
+ */
+global $translations;
 $translations['PHP environment check']='';
 $translations['PHP environment & config.php']='PHP 環境與設定 (config.php)';
 $translations['Run PHP command']='執行 PHP 指令';

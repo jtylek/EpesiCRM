@@ -1,0 +1,1 @@
+{$email.headers_data}

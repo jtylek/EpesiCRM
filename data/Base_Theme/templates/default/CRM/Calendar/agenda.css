@@ -1,0 +1,15 @@
+.CRM_Calendar_applet__past td {
+    background-color: #FFD5D5;
+}
+
+.CRM_Calendar_applet__today td {
+    background-color: #FFD5D5;
+}
+
+.CRM_Calendar_applet__tomorrow td {
+    background-color: #FFFFD5;
+/*    background-color: #D5FFD5;*/
+}
+
+.CRM_Calendar_applet__other td {
+}

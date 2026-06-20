@@ -27,7 +27,7 @@
 //
 // $Id$
 
-require_once('HTML/QuickForm/Renderer.php');
+// require_once disabled — openpsa provides HTML_QuickForm_Renderer via autoload
 
 /**
  * A concrete renderer for HTML_QuickForm,
@@ -362,7 +362,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @access public
     * @return void
     */
-    function renderHidden(&$element)
+    function renderHidden(&$element, $required = false, $error = null)
     {
 		$this->_prepareValue($element);
         $this->_hiddenHtml .= $element->toHtml() . "\n";

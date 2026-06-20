@@ -1,0 +1,116 @@
+#Utils_PopupCalendar .button {
+	cursor: pointer;
+	width: 40px;
+}
+
+/* menu */
+
+#Utils_PopupCalendar table.menu {
+	background-color: #336699;
+	color: #FFFFFF;
+}
+
+#Utils_PopupCalendar table.menu a {
+	color: #FFFFFF;
+	display: block;
+	line-height: 20px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#Utils_PopupCalendar table.menu a:hover {
+	background-color: #339933;
+}
+
+#Utils_PopupCalendar table.menu .prev {
+	text-align: center;
+	width: 25px;
+}
+
+#Utils_PopupCalendar table.menu .label {
+	text-align: center;
+}
+
+#Utils_PopupCalendar table.menu .next {
+	text-align: center;
+	width: 25px;
+}
+
+#Utils_PopupCalendar table.menu .close {
+	text-align: center;
+	width: 25px;
+}
+
+/* calendar */
+
+#Utils_PopupCalendar div.day {
+	color: blue;
+	display: block;
+	text-decoration: none;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Utils_PopupCalendar div.month {
+	color: blue;
+	display: block;
+	text-decoration: none;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Utils_PopupCalendar table.small {
+	/*border: 1px solid #336699;*/
+	width: 100%;
+	background-color: white;
+}
+
+#Utils_PopupCalendar table.small td {
+	border: 0px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#Utils_PopupCalendar table.small td a {
+	display: block;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 20px;
+}
+
+#Utils_PopupCalendar table.small td a:hover {
+	background-color: #e6cfcf;
+}
+
+#Utils_PopupCalendar table.small td.daysHeader {
+	color: #FFFFFF;
+	background-color: #336699;
+	background-image: url('images/header-blue.gif');
+	background-repeat: repeat-x;
+	border-bottom: #336699;
+	height: 20px;
+}
+
+#Utils_PopupCalendar table.small td.empty {
+	background-color: white;
+	border: none;
+}
+
+#Utils_PopupCalendar table.small td.today {
+	font-weight: bold;
+}
+
+#Utils_PopupCalendar table.small td.weekend {
+	background-color: #E6ECF2;
+}
+
+#Utils_PopupCalendar table.small td.selected {
+	border: 1px solid;
+}
+
+#Utils_PopupCalendar table.small td.spacerTop {
+}
+
+#Utils_PopupCalendar table {
+	width: 100%;
+}

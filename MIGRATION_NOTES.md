@@ -369,3 +369,79 @@ DB/user/pass all `epesi82_test`. Reset between full retries:
   /opt/lampp/bin/mysql -u root -e "DROP DATABASE IF EXISTS epesi82_test; CREATE DATABASE epesi82_test CHARACTER SET utf8 COLLATE utf8_general_ci;"
   rm -f data/config.php
 Installer DB form: localhost / epesi82_test ×3 / Create new database: No.
+
+---
+
+## 12. Drop-in continued: openpsa QuickForm extensions + ADOdb + live app reached (branch: experiment/composer-deps)
+
+MAJOR MILESTONE: Epesi RUNS on PHP 8.2. The installer completes, FirstRun wizard renders,
+admin account created, mail config passed, MODULES INSTALLED (Base, Dashboard, CKEditor, Codepress…).
+Currently in the final FirstRun step (Contacts install) on a custom-element-type registration issue.
+This is the live-app proof the whole migration was aiming for — Rector's work runs end-to-end.
+
+### 12.1 ADOdb v5.20.2 → adodb/adodb-php v5.22.11 (recap, done in §11)
+Old `libs/adodb/` (2015) used `each()` (removed PHP 8.0). Installed adodb/adodb-php via composer,
+repointed include/database.php:17-18 to vendor/, disabled adodb-errorhandler (it triggers E_USER_ERROR
+on every sql error, breaking Epesi's @-suppressed checks). Same library, same API — clean drop-in.
+
+### 12.2 openpsa QuickForm — Epesi extension subclasses fixed (PHP4 ctors → __construct)
+Epesi's renderer + field-type subclasses had PHP4-style constructors that Rector didn't convert
+(out of scope, or ctor name ≠ class name). Each: renamed `function HTML_QuickForm_X(...)` →
+`function __construct(...)`, and rewrote the inner PHP4 parent call `$this->HTML_QuickForm_Y(...)`
+or `HTML_QuickForm_element::HTML_QuickForm_element(...)` → `parent::__construct(...)`:
+  Renderer/TCMSDefault.php   (dead mis-named ctor → empty __construct; parent is abstract, no call)
+  Renderer/TCMSArray.php     (ctor + removed call to abstract parent; ALSO added 2 missing abstract
+                              methods finishForm()/renderHtml() openpsa requires)
+  Renderer/TCMSArraySmarty.php (ctor → __construct, inner call → parent::__construct)
+  FieldTypes/autoselect, automulti, autocomplete, multiselect (ctor → __construct + parent::__construct)
+
+### 12.3 openpsa — the REAL "Cannot call constructor" cause: stale class via include_path (CRITICAL)
+The persistent "Cannot call constructor" was NOT the ctors above (those were real PHP4 relics, needed
+fixing anyway, but weren't the cause). Root cause found by ReflectionClass diagnostics + error_log:
+Epesi's renderer/field-type files load their QuickForm parents via RELATIVE require_once that resolves
+through include_path to the OLD 3.2.14-php7 copy:
+  TCMSArray.php:30 / TCMSDefault.php:30  →  require_once 'HTML/QuickForm/Renderer.php'
+  FieldTypes/*/*.php                     →  require_once 'HTML/QuickForm/select.php' (or text.php)
+This pulled the OLD HTML_QuickForm_element (accept() WITHOUT type) into memory, then openpsa's
+HTML_QuickForm_hidden (accept() WITH type HTML_QuickForm_Renderer) → E_COMPILE_ERROR "must be compatible".
+The error surfaced as "Cannot call constructor" because the compile failure happened inside the
+openpsa ctor's addElement('hidden') call.
+FIX: commented out ALL those relative require_once lines (6 files). openpsa provides every QuickForm
+class via composer autoload, so the old 3.2.14-php7 files must never be loaded. After this, all
+classes resolve consistently to openpsa → signatures compatible → form builds.
+KEY LESSON: with a composer drop-in, hunt down EVERY relative require_once of the old lib — include_path
+will otherwise silently load stale classes that conflict with the new ones.
+
+### 12.4 openpsa — renderHidden signature mismatch
+TCMSArray/TCMSDefault `renderHidden(&$element)` (1 arg) incompatible with openpsa abstract
+`renderHidden(&$element, $required, $error)` (3 args). Added `$required = false, $error = null`
+to both (defaults keep existing 1-arg calls working). Body unchanged.
+
+### 12.5 Smarty (template engine) — 2 PHP-8-removed functions patched
+Old vendored Smarty (~2005) in modules/Base/Theme/smarty/. Only 2 real relics (rest of grep hits
+were preg_split, which is fine):
+  Smarty_Compiler.class.php:265  create_function(...) → anonymous function (PHP 8.0 removed it)
+  Smarty_Compiler.class.php:566  list(,$block)=each(...) → $block=current(...); next(...);
+Note: Smarty WILL be replaced long-term (Smarty 5 is PHP 8-native). Only 2 micro-patches needed to
+pass it for now → don't deep-patch, replace later (fix-twice).
+
+### 12.6 openpsa — registerElementType() called statically (CKEditor, Codepress)
+modules/Libs/CKEditor/CKEditorCommon_0.php:18 and modules/Libs/Codepress/CodepressCommon_0.php:16 call
+`HTML_Quickform::registerElementType(...)` statically; openpsa declares it non-static → fatal.
+The method only writes to $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] (no $this), so made it `static` in
+vendor (QuickForm.php:296). This unblocked module installation (modules then installed successfully).
+⚠️ VENDOR EDIT (lost on composer update). FIX-TWICE plan (user's decision): move the change OUT of
+vendor by rewriting the 2 Epesi calls to write the global directly, like Epesi does everywhere else:
+  $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['ckeditor'] = 'HTML_Quickform_ckeditor';  // + codepress
+Then revert the vendor `static` edit. (Not yet done — verify-first approach: confirmed static works,
+trad-off change pending.)
+
+### 12.7 openpsa — custom element type registration format mismatch (IN PROGRESS, current blocker)
+Epesi registers ~8 custom element types as ARRAY: 
+  $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('file.php', 'ClassName');
+(commondata, commondata_group, datepicker, timestamp, critsvalue, currency, multiselect, autocomplete,
+automulti, autoselect). openpsa expects a STRING (classname only) and instantiates via ReflectionClass
+(autoload, no file include). Patched openpsa `_loadElement` (QuickForm.php:477) to accept BOTH formats:
+if array → require_once($reg[0]) then use $reg[1]; else use string. (Vendor edit — fix-twice candidate.)
+BUT current blocker is EARLIER: `isTypeRegistered()` (QuickForm.php:1128) checks the global and throws
+at line 476 BEFORE reaching the format handler — meaning 'commondata' isn't

@@ -1,0 +1,15 @@
+#Base_Admin .buttons_container {
+    text-align: start;
+    width: 100%;
+    padding: 0;
+    margin: 5px 0px;
+}
+
+#Base_Admin epesi_label.header {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#Base_Admin .epesi_big_button {
+    margin: 5px;
+}

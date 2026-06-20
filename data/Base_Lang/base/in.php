@@ -1,5 +1,10 @@
 <?php
-global $custom_translations;
+/**
+ * Translation file.
+ * @package epesi-translations
+ * @subpackage in
+ */
+global $translations;
 $translations['Birthdays']='Ulang Tahun Kelahiran';
 $translations['Displays upcoming Birthdays of your favorite contacts.']='Paparkan ulang tahun kelahiran yang akan datang pada ruangan kenalan yang disukai';
 $translations['Number of days']='Bilangan hari';

@@ -1,0 +1,26 @@
+#CRM_Calendar__filter {
+    z-index: 9;
+    position: absolute;
+    top: 98px; /*149px;*/
+    right: 20px;
+    display: block;
+    text-align: right;
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+/* only for IE */
+
+#CRM_Calendar__filter .shadow-top,
+#CRM_Calendar__filter .shadow-middle,
+#CRM_Calendar__filter .shadow-bottom {
+	_display: none;
+}
+
+#CRM_Calendar__filter .layer {
+	_padding: 0px;
+}
+
+#CRM_Calendar__filter div.filter {
+    _border: 1px solid #336699;
+}

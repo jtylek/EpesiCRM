@@ -1,0 +1,260 @@
+.CRM_Calendar_Event_Personal #time_s select,
+.CRM_Calendar_Event_Personal #time_e select {
+	width: auto;
+}
+
+.CRM_Calendar_Event_Personal div.toggle_button {
+	float: right; 
+	border-left: 4px solid #E0E0E0;
+	height: 100%;
+}
+
+.CRM_Calendar_Event_Personal .toggle_button input {
+	width: 98px;
+	height: 20px;
+	padding: 0px;
+}
+
+.CRM_Calendar_Event_Personal .status   select option[value="0"],
+.CRM_Calendar_Event_Personal .status   select option[value="1"],
+.CRM_Calendar_Event_Personal .status   select option[value="2"],
+.CRM_Calendar_Event_Personal .status   select option[value="3"],
+.CRM_Calendar_Event_Personal .priority select option[value="0"],
+.CRM_Calendar_Event_Personal .priority select option[value="1"],
+.CRM_Calendar_Event_Personal .priority select option[value="2"],
+.CRM_Calendar_Event_Personal .access   select option[value="0"],
+.CRM_Calendar_Event_Personal .access   select option[value="1"],
+.CRM_Calendar_Event_Personal .access   select option[value="2"] {
+	background-color: white;
+	padding-left: 30px;
+	background-repeat: no-repeat;
+	background-position: 1px 0px;
+}
+
+.CRM_Calendar_Event_Personal .status select option[value="3"] { background-image: url('CRM/Calendar/Event/status-canceled.png');    }
+.CRM_Calendar_Event_Personal .status select option[value="2"] { background-image: url('CRM/Calendar/Event/status-closed.png');      }
+.CRM_Calendar_Event_Personal .status select option[value="1"] { background-image: url('CRM/Calendar/Event/status-in-progress.png'); }
+.CRM_Calendar_Event_Personal .status select option[value="0"] { background-image: url('CRM/Calendar/Event/status-open.png');        }
+
+.CRM_Calendar_Event_Personal .status_3 { background-image: url('CRM/Calendar/Event/status-canceled.png');    }
+.CRM_Calendar_Event_Personal .status_2 { background-image: url('CRM/Calendar/Event/status-closed.png');      }
+.CRM_Calendar_Event_Personal .status_1 { background-image: url('CRM/Calendar/Event/status-in-progress.png'); }
+.CRM_Calendar_Event_Personal .status_0 { background-image: url('CRM/Calendar/Event/status-open.png');        }
+
+.CRM_Calendar_Event_Personal .priority select option[value="0"] { background-image: url('CRM/Calendar/Event/priority-low.png');    }
+.CRM_Calendar_Event_Personal .priority select option[value="1"] { background-image: url('CRM/Calendar/Event/priority-medium.png'); }
+.CRM_Calendar_Event_Personal .priority select option[value="2"] { background-image: url('CRM/Calendar/Event/priority-high.png');   }
+
+.CRM_Calendar_Event_Personal .priority_0 { background-image: url('CRM/Calendar/Event/priority-low.png');    }
+.CRM_Calendar_Event_Personal .priority_1 { background-image: url('CRM/Calendar/Event/priority-medium.png'); }
+.CRM_Calendar_Event_Personal .priority_2 { background-image: url('CRM/Calendar/Event/priority-high.png');   }
+
+.CRM_Calendar_Event_Personal .access select option[value="0"] { background-image: url('CRM/Calendar/Event/access-public.png');    }
+.CRM_Calendar_Event_Personal .access select option[value="1"] { background-image: url('CRM/Calendar/Event/access-read-only.png'); }
+.CRM_Calendar_Event_Personal .access select option[value="2"] { background-image: url('CRM/Calendar/Event/access-private.png');   }
+
+.CRM_Calendar_Event_Personal .access_0 { background-image: url('CRM/Calendar/Event/access-public.png');    }
+.CRM_Calendar_Event_Personal .access_1 { background-image: url('CRM/Calendar/Event/access-read-only.png'); }
+.CRM_Calendar_Event_Personal .access_2 { background-image: url('CRM/Calendar/Event/access-private.png');   }
+
+.CRM_Calendar_Event_Personal .access .icon,
+.CRM_Calendar_Event_Personal .priority .icon,
+.CRM_Calendar_Event_Personal .status .icon {
+	height: 12px;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 6px;
+	display: block;
+	float: left;
+	background-repeat: no-repeat;
+}
+
+.CRM_Calendar_Event_Personal .access .icon,
+.CRM_Calendar_Event_Personal .status .icon {
+	width: 12px;
+}
+
+.CRM_Calendar_Event_Personal .priority .icon {
+	width: 24px;
+}
+
+/* colors select */
+
+select[name="color"] option[value="0"] { color: #339933; background-color: white; }
+select[name="color"] option[value="1"] { color: #339933; background-color: white; }
+select[name="color"] option[value="2"] { color: #999933; background-color: white; }
+select[name="color"] option[value="3"] { color: #993333; background-color: white; }
+select[name="color"] option[value="4"] { color: #336699; background-color: white; }
+select[name="color"] option[value="5"] { color: #808080; background-color: white; }
+select[name="color"] option[value="6"] { color: #339999; background-color: white; }
+select[name="color"] option[value="7"] { color: #993399; background-color: white; }
+
+.CRM_Calendar_Event_Personal .color_0 { color: #339933; }
+.CRM_Calendar_Event_Personal .color_1 { color: #339933; }
+.CRM_Calendar_Event_Personal .color_2 { color: #999933; }
+.CRM_Calendar_Event_Personal .color_3 { color: #993333; }
+.CRM_Calendar_Event_Personal .color_4 { color: #336699; }
+.CRM_Calendar_Event_Personal .color_5 { color: #808080; }
+.CRM_Calendar_Event_Personal .color_6 { color: #339999; }
+.CRM_Calendar_Event_Personal .color_7 { color: #993399; }
+
+/* header day */
+
+#CRM_Calendar_Event_Personal .header-day {
+	height: 50px;
+	text-align: center;
+	background-color: white;
+	/*background-color: #B3B3B3;
+	background-image: url('images/day-header.png');
+	background-repeat: repeat-x;*/
+	padding-left: 5px;
+	padding-right: 5px;
+	font-weight: bold;
+	font-size: 18px;
+	color: black;
+	vertical-align: middle;
+}
+
+/* header new */
+
+.CRM_Calendar_Event_Personal .header-new {
+	margin: 3px;
+	padding: 4px;
+	width: 97%;
+	background-color: #F9F9F9;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+    border-radius: 10px;
+	-webkit-box-shadow: inset 1px 1px 1px black;
+	-moz-box-shadow: inset 1px 1px 1px black;
+	box-shadow: inset 1px 1px 1px black;
+}
+
+.CRM_Calendar_Event_Personal .header-new td {
+	white-space: nowrap;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.CRM_Calendar_Event_Personal .header-new .weekday,
+.CRM_Calendar_Event_Personal .header-new .day,
+.CRM_Calendar_Event_Personal .header-new .month,
+.CRM_Calendar_Event_Personal .header-new .time,
+.CRM_Calendar_Event_Personal .header-new .duration {
+	font-weight: bold;
+}
+
+.CRM_Calendar_Event_Personal .header-new a {
+	color: inherit;
+}
+
+.CRM_Calendar_Event_Personal .header-new a:hover {
+	color: #993333;
+}
+
+.CRM_Calendar_Event_Personal .header-new .weekday,
+.CRM_Calendar_Event_Personal .header-new .month {
+	font-size: 13px;
+}
+
+.CRM_Calendar_Event_Personal .header-new .day {
+	font-size: 50px;
+}
+
+/* no shadow in tables */
+
+.CRM_Calendar_Event_Personal .attachments_messages .shadow-top,
+.CRM_Calendar_Event_Personal .attachments_messages .shadow-middle,
+.CRM_Calendar_Event_Personal .attachments_messages .shadow-bottom {
+	display: none;
+}
+
+.CRM_Calendar_Event_Personal .attachments_messages .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+.CRM_Calendar_Event_Personal .attachments_messages .layer .margin2px {
+	padding: 0px;
+}
+
+/* header */
+
+.CRM_Calendar_Event__header .arrow {
+    width: 32px;
+    height: 31px;
+    vertical-align: top;
+    text-align: center;
+    background-color: #666666;
+}
+
+.CRM_Calendar_Event__header {
+    width: 100%;
+    vertical-align: middle;
+    height: 31px;
+}
+
+.CRM_Calendar_Event__header .icon {
+    width: 32px;
+    height: 27px;
+    text-align: left;
+    padding-left: 20px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: top;
+    background-color: #666666;
+}
+
+.CRM_Calendar_Event__header .icon img {
+    position: absolute;
+    clip: rect(0px 32px 28px 0px);
+}
+
+.CRM_Calendar_Event__header .name {
+    width: 290px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: bold;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 7px;
+    height: 24px;
+    vertical-align: top;
+	/* css3 horizontal gray gradient */
+	background: #666666; /* Old browsers */
+	background: -moz-linear-gradient(left, #666666 0%, #F0F0F0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#666666), color-stop(100%,#F0F0F0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(left, #666666 0%,#F0F0F0 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#666666', endColorstr='#F0F0F0',GradientType=1 ); /* IE6-9 */
+	background: linear-gradient(left, #666666 0%,#F0F0F0 100%); /* W3C */
+	/* end css3 horizontal gray gradient */
+}
+
+.CRM_Calendar_Event__header .required_fav_info {
+    color: #777777;
+    text-align: right;
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.CRM_Calendar_Event__header .required_fav_info img {
+    vertical-align: middle;
+}
+
+/* multiselect 100% width */
+
+.CRM_Calendar_Event_Personal #multiselect .form-element select,
+.CRM_Calendar_Event_Personal #multiselect .to-element select {
+	width: 100%;
+}
+
+.employees {
+	border-right: 1px solid #b3b3b3;
+}
+
+.CRM_Calendar_Event_Personal .smalltext textarea {
+	height: 16px;
+}

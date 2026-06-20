@@ -1,0 +1,53 @@
+#CRM_PhoneCall .status 		select option[value="0"],
+#CRM_PhoneCall .status 		select option[value="1"],
+#CRM_PhoneCall .status 		select option[value="2"],
+#CRM_PhoneCall .priority 	select option[value="0"],
+#CRM_PhoneCall .priority 	select option[value="1"],
+#CRM_PhoneCall .priority 	select option[value="2"],
+#CRM_PhoneCall .permission	select option[value="0"],
+#CRM_PhoneCall .permission  select option[value="1"],
+#CRM_PhoneCall .permission  select option[value="2"],
+#CRM_PhoneCall .priority 	select option[value="3"] {
+	background-color: white;
+	padding-left: 30px;
+	background-repeat: no-repeat;
+	background-position: 1px 0px;
+}
+
+#CRM_PhoneCall .priority select option[value="0"] { background-image: url('CRM/PhoneCall/priority-low.png');    }
+#CRM_PhoneCall .priority select option[value="1"] { background-image: url('CRM/PhoneCall/priority-medium.png'); }
+#CRM_PhoneCall .priority select option[value="2"] { background-image: url('CRM/PhoneCall/priority-high.png');   }
+#CRM_PhoneCall .priority_0 { background-image: url('CRM/PhoneCall/priority-low.png');    }
+#CRM_PhoneCall .priority_1 { background-image: url('CRM/PhoneCall/priority-medium.png'); }
+#CRM_PhoneCall .priority_2 { background-image: url('CRM/PhoneCall/priority-high.png');   }
+
+#CRM_PhoneCall .permission select option[value="0"] { background-image: url('CRM/PhoneCall/access-public.png');    }
+#CRM_PhoneCall .permission select option[value="1"] { background-image: url('CRM/PhoneCall/access-read-only.png'); }
+#CRM_PhoneCall .permission select option[value="2"] { background-image: url('CRM/PhoneCall/access-private.png');   }
+#CRM_PhoneCall .permission_0 { background-image: url('CRM/PhoneCall/access-public.png');    }
+#CRM_PhoneCall .permission_1 { background-image: url('CRM/PhoneCall/access-read-only.png'); }
+#CRM_PhoneCall .permission_2 { background-image: url('CRM/PhoneCall/access-private.png');   }
+
+#CRM_PhoneCall .status select option[value="0"] { background-image: url('CRM/PhoneCall/status-open.png');    }
+#CRM_PhoneCall .status select option[value="1"] { background-image: url('CRM/PhoneCall/status-in-progress.png');   }
+#CRM_PhoneCall .status select option[value="2"] { background-image: url('CRM/PhoneCall/status-closed.png');   }
+#CRM_PhoneCall .status select_0 { background-image: url('CRM/PhoneCall/status-open.png');    }
+#CRM_PhoneCall .status select_1 { background-image: url('CRM/PhoneCall/status-in-progress.png');   }
+#CRM_PhoneCall .status select_2 { background-image: url('CRM/PhoneCall/status-closed.png');   }
+
+#CRM_PhoneCall .status .icon,
+#CRM_PhoneCall .permission .icon,
+#CRM_PhoneCall .priority .icon {
+	width: 12px;
+	height: 12px;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 6px;
+	display: block;
+	float: left;
+    background-repeat: no-repeat;
+}
+
+#CRM_PhoneCall .priority .icon {
+	width: 24px;
+}
