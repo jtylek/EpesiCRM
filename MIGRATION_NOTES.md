@@ -518,3 +518,67 @@ LESSON for Jasiek: this is a SYSTEMIC consequence of Rector's first-class-callab
 Epesi mechanism that inspects/validates/stores a callback by structure (string vs array) may choke on
 closures. Either (a) handle Closure everywhere callbacks are validated/stored, or (b) reconsider the
 first-class-callable Rector rule for code that feeds Epesi's callback system.
+
+---
+
+## 15. MILESTONE: Epesi 1.9.1 fully runs on PHP 8.2 — dashboard renders, user logged in
+
+Reached a complete, logged-in dashboard ("Congratulations! You've just installed EPESI!!") on
+PHP 8.2.12. Full install → FirstRun → modules installed → Contacts → HomePage → Dashboard with all
+applets rendering (Watchdog, Tasks, Phonecalls, Agenda, Clock, Shoutbox, Welcome). Commit 82a3333
+on branch experiment/composer-deps.
+
+### 15.1 The custom QF element-type registration saga — ROOT CAUSE + final fix
+Symptom: "unregistered element: Element 'autoselect' does not exist" when the Shoutbox applet rendered,
+even though Epesi registers autoselect (and 8 other custom types) in $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'].
+
+Diagnosis (via error_log in both our code and openpsa):
+- Our eager-registration function set the types correctly (autoselect = YES).
+- But at point-of-use openpsa saw only its 23 BUILT-IN types — none of our 9 custom ones.
+- ROOT CAUSE: vendor/openpsa/quickform/lib/HTML/QuickForm.php **line 17** does a wholesale
+  `$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] = array(...23 built-ins...)` at FILE-LOAD time (outside the
+  class). When openpsa autoloads (on first `new HTML_QuickForm`), this RESETS the global, wiping any
+  custom types registered earlier.
+
+FINAL FIX (no vendor edit — survives composer update): in our eager-registration function
+`Base_Epesi::register_custom_qf_types()` (include/epesi.php), call `class_exists('HTML_QuickForm')`
+FIRST. This forces openpsa's autoload (and its line-17 reset) to happen BEFORE we write our 9 types,
+so ours are added AFTER the reset and survive. openpsa's line 17 runs once (file-level), so later
+`new HTML_QuickForm` calls don't re-reset.
+
+### 15.2 register_custom_qf_types() — the eager registration (include/epesi.php)
+Reversible function (BEGIN/END comments, `static $done` guard) called at the top of `go($m)`.
+Forces openpsa autoload, then directly writes 9 custom types to the global (array format
+'file.php','ClassName' — handled by our _loadElement dual-format patch §12.7):
+  multiselect, autocomplete, automulti, autoselect (Libs_QuickForm)
+  commondata, commondata_group (Utils_CommonData)
+  datepicker, timestamp (Utils_PopupCalendar)
+  currency (Utils_CurrencyField)
+NOTE: include_common() did NOT work here — it loads <Module>Common_0.php, but the type registrations
+live in QuickForm_0.php (the main module file, not Common). Direct global writes are the reliable path.
+
+### 15.3 Closure callbacks (recap of §14, both confirmed working)
+Rector's first-class-callable (`$this->m(...)`) created Closures that Epesi's callback machinery
+rejected. Fixed in include/module.php: create_callback_name() (~600) and set_callback() (~692), both
+decomposing the Closure → array($Module,'method') via ReflectionFunction::getClosureThis()+getName().
+
+### 15.4 Relative require_once sweep (recap of §12.3 + extended)
+More stale-class-via-include_path culprits found + disabled while reaching the dashboard:
+  Utils/CommonData/qf.php:12 (select.php), qf_group.php:2 (group.php)
+  Utils/PopupCalendar/timestamp.php:27,32 (group.php, date.php)
+These loaded old/system-PEAR HTML_* classes, causing "Cannot declare HTML_Common, already in use"
+(system PEAR at /opt/lampp/lib/php/HTML/). Same fix pattern as the renderers/field-types.
+
+### State of play — WORKING
+- Epesi installs, runs, logs in, renders full dashboard on PHP 8.2.12. ✓
+- Branch experiment/composer-deps, commit 82a3333, pushed.
+- All diagnostic error_log lines removed from epesi.php + openpsa QuickForm.php (php -l clean).
+
+### Next steps (no rush — core is proven)
+1. Test individual modules (Contacts, Companies, Calendar, CRM) — may surface more per-module relics.
+2. FIX-TWICE (§13) when ready: relocate the 3 remaining vendor edits out of openpsa
+   (registerElementType static, _loadElement dual-format — line 17 reset fix is already non-vendor);
+   systematic relative-require sweep across ALL modules; remove /opt/lampp/lib/php from include_path;
+   replace Smarty (Smarty 5); delete dead libs/adodb + 3.2.14-php7 after grep-proving unused;
+   clean dev composer pkgs so --ignore-platform-reqs isn't needed.
+3. Revert the point commondata
