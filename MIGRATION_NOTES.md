@@ -582,3 +582,82 @@ These loaded old/system-PEAR HTML_* classes, causing "Cannot declare HTML_Common
    replace Smarty (Smarty 5); delete dead libs/adodb + 3.2.14-php7 after grep-proving unused;
    clean dev composer pkgs so --ignore-platform-reqs isn't needed.
 3. Revert the point commondata
+
+---
+
+## 16. Module testing — where we stopped (PHP 8 type/named-arg relics in RecordBrowser + Smarty)
+
+After the dashboard worked, started testing modules. Two findings:
+
+### 16.1 FIXED — call_user_func_array named-args (RecordBrowser tooltips)
+RecordBrowserCommon_0.php:2474 create_record_tooltip → call_user_func_array($cb, $args) where $args has
+STRING keys ('tip','args','help'). PHP 8 turns string keys into NAMED arguments → "Unknown named
+parameter $tip". Fix: wrap in array_values() to force positional. This unblocked record LISTS in all
+CRM modules (Contacts/Companies/Tasks/Agenda all share RecordBrowser display).
+SYSTEMIC: grep `call_user_func_array` across modules — any call passing an assoc array hits this on
+PHP 8. Likely more occurrences.
+
+### 16.2 NOT FIXED (deferred — Smarty is being replaced) — record DETAIL view
+Opening a single record (Contacts → view a contact) throws:
+  TypeError: Unsupported operand types: int / string
+  data/Base_Theme/compiled/...View_entry.tpl.php:21  (compiled from Utils/RecordBrowser/View_entry.tpl)
+PHP 8 forbids arithmetic on non-numeric strings (PHP 7 silently coerced). The division is in a Smarty
+template (layout/column math). DEFERRED ON PURPOSE: the old Smarty 2 engine is slated for replacement
+(Smarty 5), so patching compiled templates is throwaway work. Revisit as part of the Smarty migration.
+To resume: sed -n '18,24p' the compiled .tpl.php + find the View_entry.tpl source; the fix is either a
+template guard/int-cast or (better) the Smarty replacement.
+
+### Module test status (branch experiment/composer-deps)
+- Dashboard: WORKS (all applets).
+- Record LISTS (Contacts etc.): WORK after 16.1.
+- Record DETAIL view: blocked by 16.2 (Smarty int/string) — deferred to Smarty replacement.
+- Not
+
+---
+
+## 17. Strategiczna decyzja: Smarty — łatać teraz, wymienić później (NIE teraz)
+
+Po analizie (z wyszukiwaniem): wymiana Smarty 2.6 → Smarty 4/5 NIE jest drop-inem.
+- Smarty 4/5 USUWA bloki {php} — Epesi ma ich 25 w szablonach → każdy do przepisania.
+- Brak utrzymywanego nowoczesnego silnika czytającego składnię Smarty 2 .tpl z {php}.
+  (Dwoo — stary/niemaintainowany; Twig/Blade/Plates — inna składnia = pełne przepisanie.)
+- Epesi ma własną warstwę integracji na wnętrznościach Smarty 2 (ThemeCommon, display_smarty,
+  modyfikacje Smarty_Compiler) — też do przepisania przy wymianie.
+
+DECYZJA: łatać vendored Smarty 2.6 punktowo, wypuścić Epesi na PHP 8.2 ASAP. Wymiana silnika =
+osobny późniejszy projekt, ZBUNDLOWANY z redesignem (nowy wygląd — reguły już zbudowane z Claude
+Designer) + usunięciem {php}. Powód: wszystkie trzy dotykają szablonów; robienie wymiany teraz =
+przepisywanie 25 szablonów dwa razy (raz pod usunięcie {php}, raz pod nowy wygląd).
+Bloki {php} to zresztą naruszenie zasady separacji logika/prezentacja → ich usunięcie należy do
+redesignu, nie do migracji. Silnik (17 reliktów) i szablony (25 {php}) to ROZŁĄCZNE zbiory plików —
+łatanie silnika nie rusza szablonów, więc praca nad wyglądem zostaje nietknięta.
+
+### 17.1 Triage 17 "reliktów" silnika Smarty — w większości NIE-blokujące
+- 1× create_function (Smarty_Compiler:265) — już zakomentowane (nasza naprawa). Szum.
+- 16× strftime() — DEPRECATED od PHP 8.1, ale DZIAŁA na 8.2 (notice, nie fatal). Pęknie dopiero
+  na PHP 9. Część błaha (data w komentarzu nagłówka skompilowanego pliku); reszta w widżetach
+  html_select_date/time. NIE łatać teraz — throwaway (zniknie z wymianą Smarty), nie blokuje 8.2.
+  (Do sprawdzenia kiedyś: czy error handler nie eskaluje E_DEPRECATED na ekran — dotąd na ekranie
+  błędu były tylko fatale, więc strftime po cichu działa.)
+
+### 17.2 REALNY ship-blocker (wraca do zakresu) — int/string w View_entry
+Wejście w pojedynczy rekord (Contacts → podgląd kontaktu) rzuca:
+  TypeError: Unsupported operand types: int / string
+  data/Base_Theme/compiled/default^%%FD^FDC^FDC465EC%%View_entry.tpl.php:21
+  (skompilowany z Utils/RecordBrowser/View_entry.tpl)
+PHP 8 zabrania arytmetyki na nie-liczbowym stringu (PHP 7 cicho konwertował). To TWARDY fatal i
+blokuje podstawową funkcję (podgląd rekordu) → mimo że to Smarty, trzeba OBEJŚĆ pod 8.2 (niekoniecznie
+elegancko). Wcześniej odłożone jako "Smarty=wymiana", ale dla wypuszczalnej 8.2 wraca do zakresu.
+
+### Następna sesja — START TUTAJ
+1. Naprawić int/string w View_entry (§17.2). Pierwsze polecenia:
+   sed -n '18,24p' "data/Base_Theme/compiled/default^%%FD^FDC^FDC465EC%%View_entry.tpl.php"
+   find modules -name "View_entry.tpl" -path "*RecordBrowser*"
+   (po naprawie źródła: sudo rm -f data/Base_Theme/compiled/*View_entry* — przekompilować)
+2. Dokończyć testy modułów, łapiąc FATALE (nie deprecation): Companies, Tasks, Agenda,
+   Administrator, formularze add/edit. Wzorce już znane: Closure-callback (Reflection), named-args
+   w call_user_func_array (array_values), custom QF typy (register_custom_qf_types), względne
+   require HTML/*, each/create_function.
+3. Otagować wydanie PHP 8.2 gdy moduły przechodzą.
+
+### Stan działania (bez zmian od §16): dashboard OK, listy rekordów OK, podgląd rekordu = §17.2.
