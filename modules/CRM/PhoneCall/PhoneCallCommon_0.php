@@ -206,7 +206,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 			$note = $_REQUEST['note'];
 			if ($note) {
-				if (get_magic_quotes_gpc())
+				if (false)
 					$note = stripslashes($note);
 				$note = str_replace("\n",'<br />',$note);
 				Utils_AttachmentCommon::add('phonecall/'.$record['id'],0,Acl::get_user(),$note);

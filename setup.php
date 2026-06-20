@@ -17,6 +17,8 @@ date_default_timezone_set(SYSTEM_TIMEZONE);
 
 define('_VALID_ACCESS',1);
 require_once('include/data_dir.php');
+require_once('vendor/autoload.php');
+//added for new openpsa/quickform installation, kt June 19, 2026
 require_once('modules/Libs/QuickForm/requires.php');
 
 /* You can predefine user, password, database name, etc in file defined by var below.

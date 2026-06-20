@@ -204,7 +204,8 @@ class ErrorHandler {
 }
 
 //sometimes set_error_handler doesn't work with classes
-function handle_epesi_error($type, $message, $errfile, $errline, $errcontext)
+//function handle_epesi_error($type, $message, $errfile, $errline, $errcontext)
+function handle_epesi_error($type, $message, $errfile, $errline, $errcontext = null)
 {
     if (($type & error_reporting()) > 0) {
         if (class_exists('ErrorHandler')) {

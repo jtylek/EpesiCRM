@@ -1,0 +1,25 @@
+{
+    "name": "openpsa/quickform",
+    "type": "library",
+    "description": "PHP 5.4 compatible fork of HTML_QuickForm",
+    "keywords": ["form", "quickform"],
+    "license": "PHP-3.01",
+    "authors": [
+        {
+            "name": "Andreas Flack",
+            "email": "flack@contentcontrol-berlin.de",
+            "homepage": "http://www.contentcontrol-berlin.de/"
+        }
+    ],
+    "require": {
+        "php": ">5.4"
+    },
+    "autoload": {
+        "classmap": ["lib"]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.4.x-dev"
+        }
+    }
+}

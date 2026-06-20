@@ -9,7 +9,8 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 //strip slashes!!!
-if (get_magic_quotes_gpc()) {
+//if (get_magic_quotes_gpc()) {
+if (false) { // get_magic_quotes_gpc() removed in PHP 8.0 — magic quotes never enabled, block is dead
     function undoMagicQuotes($array, $topLevel=true) {
         $newArray = array();
         foreach($array as $key => $value) {

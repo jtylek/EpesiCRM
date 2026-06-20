@@ -12,7 +12,9 @@
         "psy/psysh": "@stable",
         "enyo/dropzone": "@stable",
         "ezyang/htmlpurifier": "^4.9",
-        "moneyphp/money": "^3.0"
+        "moneyphp/money": "^3.0",
+        "openpsa/quickform": "^3.4",
+        "adodb/adodb-php": "^5.22"
     },
     "scripts": {
         "post-install-cmd": [

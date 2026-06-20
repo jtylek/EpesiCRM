@@ -1,0 +1,36 @@
+{
+  "name": "goaop/parser-reflection",
+  "description": "Provides reflection information, based on raw source",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alexander Lisachenko",
+      "email": "lisachenko.it@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Go\\ParserReflection\\": "src"
+    },
+    "files": ["src/bootstrap.php"],
+    "exclude-from-classmap": ["/tests/"]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Go\\ParserReflection\\": "tests"
+    }
+  },
+  "require": {
+    "php": ">=7.1",
+    "nikic/php-parser": "^4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.x-dev"
+    }
+  }
+}

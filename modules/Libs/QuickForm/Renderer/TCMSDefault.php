@@ -148,10 +148,14 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     *
     * @access public
     */
-    function HTML_QuickForm_Renderer_Default()
+    function __construct()
     {
-        $this->HTML_QuickForm_Renderer();
+        // openpsa's HTML_QuickForm_Renderer is an abstract base class with no constructor — nothing to call. (was PHP4-style ctor with wrong name, calling now-nonexistent parent ctor)
     } // end constructor
+//    function HTML_QuickForm_Renderer_Default()
+//    {
+//        $this->HTML_QuickForm_Renderer();
+//    } // end constructor
 
    /**
     * returns the HTML generated for the form

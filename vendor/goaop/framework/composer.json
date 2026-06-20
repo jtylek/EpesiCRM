@@ -1,0 +1,65 @@
+{
+    "name": "goaop/framework",
+    "description": "Framework for aspect-oriented programming in PHP.",
+
+    "type": "library",
+    "keywords": ["library", "aop", "php", "aspect"],
+    "homepage": "http://go.aopphp.com/",
+    "license": "MIT",
+
+    "require": {
+        "php": "~7.0",
+        "jakubledl/dissect": "~1.0",
+        "doctrine/annotations": "^1.2.3",
+        "goaop/parser-reflection": "~2.0",
+        "doctrine/cache": "^1.5",
+        "symfony/finder": "^3.4|^4.2|^5.0"
+    },
+
+    "require-dev": {
+        "symfony/console": "^2.7|^3.0",
+        "adlawson/vfs": "^0.12",
+        "phpunit/phpunit": "^5.7",
+        "doctrine/orm": "^2.5",
+        "symfony/filesystem": "^3.3",
+        "symfony/process": "^3.3",
+        "webmozart/glob": "^4.1"
+    },
+
+    "suggest": {
+        "symfony/console": "Enables the usage of the command-line tool."
+    },
+
+    "bin": ["bin/aspect"],
+    "authors": [
+        {
+            "name": "Lisachenko Alexander",
+            "homepage": "https://github.com/lisachenko"
+        }
+    ],
+
+    "autoload": {
+        "psr-4": {
+            "Go\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Demo\\": "demos/"
+        },
+        "psr-4": {
+            "Go\\": "tests/Go/",
+            "Go\\Tests\\TestProject\\": "tests/Fixtures/project/src/"
+        },
+        "files": [
+            "tests/functions.php"
+        ]
+    },
+
+    "minimum-stability": "stable",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    }
+}

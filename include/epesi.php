@@ -268,7 +268,7 @@ class Epesi {
 		if($url) {
 			$_POST = array();
 			parse_str($url, $_POST);
-			if (get_magic_quotes_gpc())
+			if (false)
 			        $_POST = undoMagicQuotes($_POST);
 			$_GET = $_REQUEST = & $_POST;
 		}

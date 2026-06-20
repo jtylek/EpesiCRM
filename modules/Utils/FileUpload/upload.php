@@ -99,7 +99,7 @@ if (isset($_FILES['file'])) {
 <?php
 	if(isset($ok) && $ok) {
 		$sjs = stripslashes($_REQUEST['submit_js']);
-		if(get_magic_quotes_gpc())
+		if(false)
 			$sjs = stripslashes($sjs);
 		print('parent.Epesi.append_js(\''.addcslashes($sjs,"\\'").'\');'."\n");
 	}

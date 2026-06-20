@@ -9,6 +9,10 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+/* DROP-IN EXPERIMENT: old vendored QuickForm (3.2.14-php7) disabled.
+ HTML_QuickForm is now provided by openpsa/quickform via composer autoload.
+ Original loading logic below, commented out:
+
 $dir = dirname(__FILE__);
 ob_start();
 $ret = @readfile('HTML/QuickForm.php',true);
@@ -20,3 +24,4 @@ else
 
 require_once('HTML/QuickForm.php');
 ?>
+*/

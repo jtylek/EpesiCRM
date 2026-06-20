@@ -1,0 +1,27 @@
+{
+    "name": "codeception/aspect-mock",
+    "description": "Experimental Mocking Framework powered by Aspects",
+    "authors": [
+        {
+            "name": "Michael Bodnarchuk",
+            "email": "davert@codeception.com"
+        }
+    ],
+    "autoload": {
+           "psr-0": {
+               "AspectMock": "src/"
+           }
+       },
+    "require": {
+        "php": "^7.0",
+        "goaop/framework": "^2.2.0",
+        "phpunit/phpunit": "> 6.0.0",
+        "symfony/finder": ">=2.4 <6.0"
+    },
+    "require-dev": {
+        "codeception/codeception": "^4.0",
+        "codeception/verify": "^1.2",
+        "codeception/specify": "^1.0"
+    },
+    "license": "MIT"
+}

@@ -270,3 +270,102 @@ and the app to RUN, so the Rector migration can be tested end-to-end on a live a
 ### Cleanup note
 The fix-once patches (this branch, uncommitted) were reverted after capturing these findings.
 The knowledge lives here in the notes; the code stays clean.
+
+---
+
+## 11. Drop-in replacement: QuickForm → openpsa, ADOdb → composer (branch: experiment/composer-deps)
+
+Decision from §10: instead of patching 27 vendored QuickForm elements by hand (throwaway work),
+replace the vendored libs with composer packages. This is the "fix twice" approach. Goal: get the
+installer to COMPLETE and the app to RUN, proving the Rector migration works end-to-end on a live app.
+
+### 11.1 QuickForm → openpsa/quickform v3.4.2
+- Installed: `composer require openpsa/quickform --ignore-platform-reqs`
+  (--ignore-platform-reqs needed because old dev pkgs faker/memio/aspect-mock/psysh still pin PHP ≤7.x;
+   they're dev-only, unused at runtime — cleanup is a separate task.)
+- openpsa is a TRUE drop-in: defines the same `class HTML_QuickForm extends HTML_Common`, same old API
+  (`addElement('checkbox','tos1',...)`), bundles its own HTML_Common, replaces PEAR_Errors with
+  exceptions, uses composer classmap autoload. No PEAR dependency.
+- **Disabled old loading**: `modules/Libs/QuickForm/requires.php` — wrapped the entire original
+  loading logic (include_path manipulation + `require_once('HTML/QuickForm.php')`) in a /* */ comment.
+  Now the old 3.2.14-php7 class never loads; openpsa is provided via autoload. Verified with
+  `ReflectionClass('HTML_QuickForm')->getFileName()` → confirms openpsa path loads, not the old one.
+- **setup.php didn't load composer autoload** (it's a lightweight entrypoint, separate from the main
+  include.php bootstrap). Added `require_once('vendor/autoload.php')` near line 19, before QuickForm use.
+  Without this: "Class HTML_QuickForm not found" even though classmap was correct.
+
+### 11.2 ADOdb v5.20.2 (2015) → adodb/adodb-php v5.22.11 (2025)
+- Old vendored `libs/adodb/` was v5.20.2 from Dec-2015, used `each()` (removed in PHP 8.0) → fatal in
+  clean_database() during install. 6 `each()` occurrences across the old lib.
+- Installed: `composer require adodb/adodb-php --ignore-platform-reqs` → vendor/adodb/adodb-php/.
+  Same library (not a rewrite), so same API (`NewADOConnection()`), php: ^7.0||^8.0, officially 8.2+.
+- **Repointed includes** in `include/database.php` lines 17-18 from `libs/adodb/` to
+  `vendor/adodb/adodb-php/` (both adodb-errorhandler.inc.php and adodb.inc.php).
+- **Then DISABLED the errorhandler** (database.php line 20, commented out): new ADOdb's
+  adodb-errorhandler.inc.php does `trigger_error($s, E_USER_ERROR)` on EVERY sql error. Epesi handles DB
+  errors via `@` suppression + return values (e.g. check.php probes for a 'test' table existence and
+  expects a soft failure). `@` does NOT suppress E_USER_ERROR → fatal. Not loading the errorhandler
+  returns ADOdb to its default quiet mode (errors return false), which is what Epesi's `@`+return-value
+  pattern expects. This is the correct architectural choice — Epesi has its own error handling.
+
+### 11.3 Core PHP 8 fixes surfaced by running the live installer (NOT Rector's fault — PHP 8 changes)
+These are real PHP 8 incompatibilities that php -l can't catch — only running the app revealed them.
+This validates insisting on a live-app test, not just Rector + php -l.
+
+- **handle_epesi_error() arg count** (`include/error.php:207`): PHP 8.0 calls error handlers with 4 args,
+  not 5 (dropped $errcontext). Signature required 5 → ArgumentCountError on the first DB error. Fixed:
+  added ` = null` to 5th param → `function handle_epesi_error($type,$message,$errfile,$errline,$errcontext=null)`.
+  NOTE for Jasiek: other handlers may have the same 5-arg contract — audit all set_error_handler targets.
+
+- **get_magic_quotes_gpc()** removed in PHP 8.0, scattered in Core. Found via grep, fixed in 5 Core files
+  (all the `if(get_magic_quotes_gpc()) {...undoMagicQuotes...}` dead-block pattern → replaced call with
+  `false` so the block is dead, matching PHP 8.2 behavior where magic quotes never exist):
+    include/epesi.php:271, modules/Utils/FileUpload/upload.php:102, modules/CRM/Tasks/TasksCommon_0.php:179,
+    modules/CRM/Meeting/MeetingCommon_0.php:352, modules/CRM/PhoneCall/PhoneCallCommon_0.php:209
+  (also earlier: include/magicquotes.php:11). DELIBERATELY EXCLUDED: include/database.php:953 (it's a
+  docblock comment) and 3 Roundcube files (vendored webmail — never touch). Bulk sed was applied ONLY to
+  the explicitly-listed Core files, never a blind tree-wide sed — analysis first, then targeted fix.
+
+### 11.4 Epesi's own QuickForm extensions need PHP4→PHP8 constructor fixes for openpsa (IN PROGRESS)
+After the installer COMPLETED (license→htaccess→db config→system check all green) and entered the app
+(process.php → FirstRun wizard), hit "Cannot call constructor" at QuickForm_0.php:37 (`new HTML_QuickForm`).
+Root cause: NOT openpsa (isolated `new HTML_QuickForm(...)` test → SUCCESS). It's Epesi's OWN renderer/
+field-type subclasses (loaded by QuickForm_0.php lines 15-20) which still have PHP4-style constructors
+calling now-nonexistent parent constructors. openpsa's HTML_QuickForm_Renderer is `abstract` with no
+constructor, so the old `$this->HTML_QuickForm_Renderer()` call fails.
+
+- **FIXED** `modules/Libs/QuickForm/Renderer/TCMSDefault.php:150` — had a DEAD php4 ctor mis-named
+  `HTML_QuickForm_Renderer_Default()` (parent's name, not this class — Rector missed it because the name
+  ≠ class name). It only called the nonexistent parent ctor. Replaced with empty `__construct()` (class
+  properties are initialized at declaration, no ctor logic needed).
+
+- **STILL TO FIX** (same family, found via grep — these have name == own class, so they're REAL php4
+  ctors that DO initialize, need rename to __construct + fix internal parent call to parent::__construct):
+    Renderer/TCMSArray.php:157         (calls $this->HTML_QuickForm_Renderer())
+    Renderer/TCMSArraySmarty.php:123   (calls $this->HTML_QuickForm_Renderer_TCMSArray(...))
+    FieldTypes/autoselect/autoselect.php:32
+    FieldTypes/automulti/automulti.php:71
+    FieldTypes/autocomplete/autocomplete.php:27
+    FieldTypes/multiselect/multiselect.php:60
+  Each must be inspected individually (different ctor args, different parents) — NOT a blind sed.
+  Plan: rename `function HTML_QuickForm_X(...)` → `function __construct(...)`, and rewrite inner
+  `$this->HTML_QuickForm_Y(...)` → `parent::__construct(...)` mapping the args.
+
+### LESSON for Jasiek / fix-twice
+Epesi's QuickForm renderer + field-type subclasses (Renderer/, FieldTypes/) carry PHP4 constructors that
+Rector did NOT convert — either out of scope (modules/Libs excluded) or because the ctor name didn't match
+the class name. When moving to openpsa these must become proper `__construct` with `parent::__construct`.
+
+### State of play
+- Installer runs end-to-end on PHP 8.2, DB schema starts building, app reaches FirstRun wizard.
+- Remaining blocker: the 6 extension constructors above. Once fixed, FirstRun should render → login → live app.
+- Open flags: "Modules dir writable: No" (yellow on system-check; may matter for module install — chmod
+  modules/ if needed). Old libs/adodb/ + old modules/Libs/QuickForm/3.2.14-php7/ now unused → cleanup
+  candidates AFTER proving they're dead (grep whole codebase first, same discipline as before).
+- --ignore-platform-reqs still needed for composer ops until dev pkgs (faker/memio/aspect-mock/psysh) cleaned.
+
+### Test DB (for resuming)
+DB/user/pass all `epesi82_test`. Reset between full retries:
+  /opt/lampp/bin/mysql -u root -e "DROP DATABASE IF EXISTS epesi82_test; CREATE DATABASE epesi82_test CHARACTER SET utf8 COLLATE utf8_general_ci;"
+  rm -f data/config.php
+Installer DB form: localhost / epesi82_test ×3 / Create new database: No.
