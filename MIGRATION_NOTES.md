@@ -661,3 +661,17 @@ elegancko). Wcześniej odłożone jako "Smarty=wymiana", ale dla wypuszczalnej 8
 3. Otagować wydanie PHP 8.2 gdy moduły przechodzą.
 
 ### Stan działania (bez zmian od §16): dashboard OK, listy rekordów OK, podgląd rekordu = §17.2.
+
+## 18. View_entry int/string FIXED + ważna lekcja o ścieżkach szablonów
+
+Podgląd rekordu (Contacts → view) rzucał int/string w {php} bloku View_entry.tpl (cols dzielone jako
+string). Fix: (int)$cols + guard <1→1 przed pierwszym dzieleniem.
+
+KLUCZOWA LEKCJA (kosztowała kilka prób):
+- Smarty template_dir = data/Base_Theme/templates/default (ThemeCommon_0.php:30), NIE modules/.
+- Epesi kopiuje szablony z modules/<M>/theme/ → data/Base_Theme/templates/ przy instalacji theme.
+- data/Base_Theme/ należy do daemon/Apache → edycje wymagają SUDO (bez sudo: "Permission denied",
+  które python/sed zgłaszały cicho jako "0 zmian").
+- Dla obejść 8.2: edytuj data/ z sudo + sudo rm compiled cache. Dla trwałości: edytuj też
+  modules/.../theme/ (źródło, własność usera).
+- 8 szablonów ma arytmetykę w {php} (potencjalne kolejne int/string) — naprawiać tym samym wzorcem.
