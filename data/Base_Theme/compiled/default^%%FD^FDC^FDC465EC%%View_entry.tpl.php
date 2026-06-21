@@ -1,4 +1,4 @@
-<?php /* Smarty version 2.6.29, created on 2026-06-20 21:29:25
+<?php /* Smarty version 2.6.29, created on 2026-06-21 21:20:54
          compiled from Utils/RecordBrowser/View_entry.tpl */ ?>
 <?php $this->assign('count', 0); ?>
 <?php 
@@ -18,7 +18,7 @@ if ($this->_foreach['fields']['total'] > 0):
 	<?php endif; ?>
 <?php endforeach; endif; unset($_from); ?>
 <?php 
-	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
+	$this->_tpl_vars['cols'] = (int)$this->_tpl_vars['cols']; if ($this->_tpl_vars['cols'] < 1) $this->_tpl_vars['cols'] = 1; $this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
 	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;

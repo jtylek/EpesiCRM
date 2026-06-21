@@ -13,6 +13,7 @@
 	{/if}
 {/foreach}
 {php}
+	$this->_tpl_vars['cols'] = (int)$this->_tpl_vars['cols']; if ($this->_tpl_vars['cols'] < 1) $this->_tpl_vars['cols'] = 1; // PHP 8: cols may arrive as string/empty; cast to int + guard against div-by-zero
 	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
 	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
