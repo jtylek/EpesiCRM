@@ -675,3 +675,75 @@ KLUCZOWA LEKCJA (kosztowała kilka prób):
 - Dla obejść 8.2: edytuj data/ z sudo + sudo rm compiled cache. Dla trwałości: edytuj też
   modules/.../theme/ (źródło, własność usera).
 - 8 szablonów ma arytmetykę w {php} (potencjalne kolejne int/string) — naprawiać tym samym wzorcem.
+
+## 19. Custom QF field types — relative HTML requires + PHP4 ctors (portable fix)
+Custom QF types (datepicker, timestamp, currency, crits) padały dwojako na openpsa+PHP8:
+1. require_once('HTML/QuickForm/input.php' itp.) — względny, przez include_path trafiał do
+   SYSTEMOWEGO PEAR (/opt/lampp/lib/php/HTML/) → "Cannot declare HTML_Common". 
+   UWAGA PRZENOŚNOŚCI: include_path.php:10 dokleja ini_get('include_path') = systemowy PEAR danej
+   MASZYNY. Naprawa NIE może usuwać konkretnej ścieżki (różna per maszyna) — zamiast tego
+   zakomentowano względne require (openpsa dostarcza klasy przez autoload). Przenośne, działa
+   niezależnie od systemowego include_path. Pliki: datepicker.php, timestamp.php:104, currency.php,
+   quickform_crits.php (+ wcześniej qf.php, qf_group.php).
+2. PHP4 ctor: HTML_QuickForm_input::HTML_QuickForm_input(...) / $this->HTML_QuickForm_element(...)
+   → parent::__construct(...). Pliki: datepicker:15, currency:16, quickform_crits:15, timestamp:54.
+ZASADA NACZELNA (potwierdzona z userem): naprawiać dla OGÓŁU/przenośnie, nie pod jedną maszynę.
+User będzie testować na innych maszynach po doprowadzeniu tej do działania.
+
+---
+
+## 20. DLA JAŚKA — bug storage plików (DIAGNOZA, BEZ ZMIAN — wrażliwy obszar)
+
+OBJAW: zapisany załącznik (notatka kontaktu) → view/download rzuca
+"file not found: data/CRM_Roundcube/<hash-split>". Plik FIZYCZNIE istnieje, ale w
+data/CRM_Tasks/<ten-sam-hash-split>. Hash i podział katalogów identyczne — różni się TYLKO prefiks.
+
+ŁAŃCUCH PRZYCZYNOWY (zdiagnozowany, nie ruszany):
+1. Utils_FileStorageCommon::get_storage_file_path($hash) (FileStorageCommon_0.php:136):
+   $path = self::Instance()->get_data_dir() . <hash split na podkatalogi>
+2. get_data_dir() (module_primitive.php:31): return DATA_DIR.'/'.$this->type.'/';
+   → prefiks = $this->type (nazwa modułu instancji)
+3. Instance() (module_common.php:28): ma JEDEN współdzielony `static $obj`. Wywołanie z argumentem
+   NADPISUJE go globalnie; bez argumentu zwraca OSTATNIO ustawiony moduł.
+   => get_data_dir() zwraca prefiks "ktokolwiek ostatnio ustawił Instance()", nie konkretnie FileStorage.
+
+MECHANIZM: zapis notatki ustawia Instance na Tasks (→ data/CRM_Tasks/), ale przy odczycie/view wcześniej
+w żądaniu Roundcube ustawił Instance na CRM_Roundcube (→ data/CRM_Roundcube/). Singleton z mutowalnym
+stanem globalnym: prefiks zależy od KOLEJNOŚCI wywołań Instance() w danym żądaniu.
+
+PRAWDOPODOBNIE NIE czysty PHP8-relikt, lecz krucha architektura (global mutable singleton) ujawniona
+przez zmienioną kolejność ładowania/wywołań po migracji (Closure-callbacki, eager-rejestracje, inny
+timing modułów). Na PHP7 kolejność dawała spójny prefiks "przypadkiem".
+
+PYTANIE DO JAŚKA: czy get_storage_file_path powinno używać USTALONEGO backendu FileStorage (np.
+Instance('Utils_FileStorage') albo stała ścieżka data/Utils_FileStorage/), zamiast polegać na
+"ostatnio ustawionym" module? To zmiana w sercu storage — decyzja autora.
+
+NIE RUSZAMY (dane użytkownika, integralność). Pliki są bezpieczne (w data/CRM_Tasks/), tylko odczyt
+patrzy w zły prefiks.
+
+---
+
+## 21. Znaleziska do śledzenia (niefatalne / odłożone)
+
+### 21.1 Off-by-one w klikalności załączników (UI, niefatalne — na później)
+W liście plików załączonych do rekordu: OSTATNIO dodany plik NIE jest klikalnym linkiem (kursor jak na
+tekście, nie na linku). Poprzednie pliki stają się linkami dopiero PO dodaniu kolejnego. Klasyczny
+off-by-one — link/href generowany z opóźnieniem o jeden (ostatni plik nie ma jeszcze ID/ścieżki w
+momencie renderowania listy, albo pętla renderuje linki dla wszystkich oprócz ostatniego).
+Niefatalne, kosmetyczne. Do naprawy po wypuszczalnej 8.2.
+
+### 21.2 view/download załącznika "file not found" — patrz §20 (DLA JAŚKA)
+To samo znalezisko co §20 (storage prefix Tasks vs Roundcube). Realny bug, ale wrażliwy obszar
+(storage) → diagnoza zrobiona, zmiana należy do Jaśka. NIE blokujemy na tym wypuszczenia rdzenia;
+oznaczone do konsultacji z Architektem.
+DODATKOWA WSKAZÓWKA: user NIE korzystał z Roundcube ani Tasks — te moduły ładują się automatycznie
+w tle (start/render kontaktu) i ustawiają współdzielony Instance() singleton. Potwierdza, że prefiks
+zależy od KOLEJNOŚCI ŁADOWANIA modułów, nie od akcji użytkownika.
+
+### 21.3 Loader/spinner zostaje na wierzchu po AJAX — znika po kliknięciu (niefatalne, JS)
+Stała warstwa loadera nie chowa się sama po zakończeniu AJAX — trzeba kliknąć. POTWIERDZONE że to NIE
+PHP: php_error_log całkowicie czysty od ostatniej naprawy (21:36 HTML_Common) mimo intensywnego
+klikania/testowania — backend nie rzuca błędów podczas tych akcji. Problem czysto JS/frontend (handler
+"ukryj loader po zakończeniu requestu" nie odpala automatycznie). Niefatalne. Debug JS (DevTools
+Console/Network) w osobnej sesji polish. Możliwe że tak było też na PHP7 — do weryfikacji.

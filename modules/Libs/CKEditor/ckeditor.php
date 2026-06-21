@@ -24,7 +24,8 @@ class HTML_QuickForm_ckeditor extends HTML_QuickForm_element {
     }
     
     function setConfig(array $conf) {
-    	$this->config = array_merge($this->config,$conf);
+    $this->config = array_merge($this->config ?? array(), $conf); // PHP 8: array_merge rejects null; config may be uninitialized
+    //	$this->config = array_merge($this->config,$conf);
     }
     
     /**
