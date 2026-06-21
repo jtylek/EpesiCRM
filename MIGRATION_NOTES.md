@@ -747,3 +747,22 @@ PHP: php_error_log całkowicie czysty od ostatniej naprawy (21:36 HTML_Common) m
 klikania/testowania — backend nie rzuca błędów podczas tych akcji. Problem czysto JS/frontend (handler
 "ukryj loader po zakończeniu requestu" nie odpala automatycznie). Niefatalne. Debug JS (DevTools
 Console/Network) w osobnej sesji polish. Możliwe że tak było też na PHP7 — do weryfikacji.
+
+Przy teście klonowania mojego kontaktu do kontaktu Jaśka, klonuj user najpierw do kontaktu, nie usera 
+
+### 21.4 PHP 8 "" != 0 quirk — guard login_id w ContactsCommon
+MECHANIKA (do naprawy — blocker): ContactsCommon_0.php:1022, zapis kontaktu bez emaila. Warunek
+`$values['login']!=0` miał POMIJAĆ dogrywanie emaila gdy brak konta user. PHP 8 zmienił "" == 0
+(true→false) → "" != 0 teraz TRUE → warunek wchodzi z pustym login → DB::GetOne(%d,"") → fatal.
+FIX: `!empty($values['login']) && is_numeric($values['login'])` — pusty login pomijany (kontakt bez
+konta zapisuje się; zgodne z contact≠user).
+
+PYTANIE PROJEKTOWE DLA JAŚKA (intencja, NIE ruszane): czy logika "gdy kontakt MA konto user i brak
+emaila → skopiuj email z user_password" jest poprawna wobec unikalności emaila? Karina wskazuje, że
+email jest unikalny per contact/user i kopiowanie może być podejrzane. Możliwa intencja: contact z
+kontem = ta sama osoba (1:1), więc email konta = email kontaktu (nie duplikat). Do potwierdzenia przez
+autora — czy relacja contact↔user jest 1:1 i czy to dogrywanie jest zamierzone. Zostawione jak było.
+
+SYSTEMOWE: PHP 8 "" == 0 → false. Każdy guard $x!=0 / $x==0 na polu mogącym być "" odwraca działanie.
+Szukać podobnych: grep "!=0"/"==0" na wartościach z formularzy.
+
