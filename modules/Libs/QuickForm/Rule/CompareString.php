@@ -18,7 +18,7 @@
 //
 // $Id: Compare.php,v 1.3 2003/11/03 16:08:24 avb Exp $
 
-require_once 'HTML/QuickForm/Rule.php';
+// require_once disabled — openpsa provides HTML_QuickForm_Rule via autoload
 
 /**
  * Rule to compare two form fields

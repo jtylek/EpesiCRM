@@ -51,7 +51,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ constructor
 
 	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		$this->HTML_QuickForm_element($elementName, $elementLabel, $attributes);
+		parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;
@@ -101,7 +101,7 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ toHtml()
 
 	function toHtml() {
-		include_once('HTML/QuickForm/Renderer/Default.php');
+		// include_once disabled — openpsa provides renderer via autoload
 		$renderer = new HTML_QuickForm_Renderer_Default();
 		$renderer->setElementTemplate('{element}');
 		$renderer->setGroupElementTemplate('<div>{element}</div>', $this->_elementName);

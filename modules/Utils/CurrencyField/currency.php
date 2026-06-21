@@ -7,13 +7,13 @@
  * @package epesi-utils
  * @subpackage CurrencyField
  */
-require_once("HTML/QuickForm/input.php");
+// require_once disabled — openpsa provides HTML_QuickForm_input via autoload
 
 class HTML_QuickForm_currency extends HTML_QuickForm_input {
 	private $currency = null;
 
 	function __construct($elementName=null, $elementLabel=null, $filterCurrencies = array(), $attributes=null) {
-		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+		parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
 		$this->_persistantFreeze = true;
 		$this->setType('text');
 		$this->currency = Base_User_SettingsCommon::get('Utils_CurrencyField', 'default_currency');

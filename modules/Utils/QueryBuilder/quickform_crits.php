@@ -7,12 +7,12 @@
  * @package epesi-utils
  * @subpackage RecordBrowser
  */
-require_once("HTML/QuickForm/input.php");
+// require_once disabled — openpsa provides HTML_QuickForm_input via autoload
 
 class HTML_QuickForm_crits extends HTML_QuickForm_input {
 
     function __construct($elementName = null, $elementLabel = null, $attributes=null) {
-        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+        parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
         if ($this->_caller instanceof HTML_QuickForm) {
             $this->_caller->addFormRule($this->check_for_error(...));
         }

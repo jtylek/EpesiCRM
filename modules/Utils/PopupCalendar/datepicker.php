@@ -7,12 +7,12 @@
  * @package epesi-Utils
  * @subpackage PopupCalendar
  */
-require_once("HTML/QuickForm/input.php");
+// require_once disabled — openpsa provides HTML_QuickForm_input via autoload (avoids system PEAR HTML_Common conflict)
 
 class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 
 	function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-		HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
+		parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
 		$this->_persistantFreeze = true;
 		$this->setType('datepicker');
 //		$this->updateAttributes(array('readonly'=>1));
