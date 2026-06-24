@@ -1002,3 +1002,12 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 **Cause:** Pattern used nested `%{%{{city} }%{{zone} }{postal_code}<BR>}`. The regex in `replace_clipboard_pattern` excludes `%` from block content, so inner blocks process but outer wrapper never matches and stays literal. Pre-existing, not PHP 8.
 **Fix:** Simplified to `%{{city} {zone} {postal_code}<BR>}` — one block, all three fields optional (empty → empty string, clean output). Fixed in `ContactsInstall.php:92,103` (both `company` and `contact`) and in DB (`UPDATE recordbrowser_clipboard_pattern`).
 
+
+---
+
+## 26. ODŁOŻONE — Timestamp field layout broken (PhoneCall, Meeting, inne)
+
+**Symptom:** W edycji rekordu pole Date and Time: data po lewej, godzina/minuty rozjechane na osobne rzędy zamiast jednego wiersza.
+**Cause:** `modules/Utils/PopupCalendar/timestamp.php:107` używa `<div>{element}</div>` jako szablonu grupy. Na PHP 7 ze starym QuickForm działało inline; openpsa renderer wstawia każdy sub-element w blokowy `<div>`, co łamie układ.
+**Opcje naprawy:** (1) `<span>` zamiast `<div>` — inline z natury, bez CSS; (2) usunięcie `setGroupElementTemplate` — naturalne renderowanie grupy; (3) CSS w motywie + `<span class>` — pełne rozdzielenie logiki i wyglądu.
+**Decyzja:** odłożone — wymaga uzgodnienia podejścia (logika vs wygląd). Niefatalne, kosmetyczne.
