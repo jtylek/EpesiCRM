@@ -1011,3 +1011,27 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 **Cause:** `modules/Utils/PopupCalendar/timestamp.php:107` używa `<div>{element}</div>` jako szablonu grupy. Na PHP 7 ze starym QuickForm działało inline; openpsa renderer wstawia każdy sub-element w blokowy `<div>`, co łamie układ.
 **Opcje naprawy:** (1) `<span>` zamiast `<div>` — inline z natury, bez CSS; (2) usunięcie `setGroupElementTemplate` — naturalne renderowanie grupy; (3) CSS w motywie + `<span class>` — pełne rozdzielenie logiki i wyglądu.
 **Decyzja:** odłożone — wymaga uzgodnienia podejścia (logika vs wygląd). Niefatalne, kosmetyczne.
+
+---
+
+## MERGE CHECKLIST — experiment/composer-deps → main
+
+### ✅ Done
+- Rector PHP 7→8.2 ladder applied to all own code
+- Runtime fixes: Contacts, Companies, Tasks — full CRUD tested, no fatals
+- PHP 8 relic fixes committed: login_id guard, TCPDF __DIR__, Meeting addFormRule, checkboxes, attached_to, Flash button, clipboard pattern
+
+### 🔲 Must do before merge
+- [ ] **Calendar/Agenda** — full CRUD untested
+- [ ] **Administrator** — untested
+- [ ] **PhoneCall** — full CRUD untested (new from contact tested only)
+- [ ] **Meeting** — full CRUD untested (new from contact tested only)
+- [ ] **Filters/search (critsvalue)** — untested across modules
+- [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
+- [ ] **§20 storage prefix bug (Jasiek)** — file view/download broken due to mutable Instance() singleton; decision on fix needed.
+
+### 🔲 Can merge with open ticket (non-fatal)
+- [ ] §26 timestamp field layout — cosmetic, PhoneCall/Meeting date+time display
+- [ ] §21.1 off-by-one attachment link — cosmetic
+- [ ] §21.3 loader/spinner JS — cosmetic
+- [ ] §21.4 login_id design question — code fix applied, design intent to confirm with Jasiek
