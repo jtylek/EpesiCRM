@@ -985,3 +985,20 @@ return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment', arr
 this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still show
 "Access denied". They can be deleted from the Notes TAB or left as test artifacts.
 
+---
+
+## 24. FIXED — Flash clipboard button dead (RecordBrowser_0.php)
+
+**Symptom:** "Copy to clipboard" box shows gray puzzle icon instead of Copy button; description says "Click Copy under the box" but nothing to click.
+**Cause:** `copyButton.swf` (Flash) — removed from all browsers ~2020. Pre-existing, not PHP 8.
+**Fix:** Replaced Flash `<object>` block with HTML button using `navigator.clipboard.writeText()`. Updated `<h3>` instruction text. `selecttext.js` (mouseover + Ctrl-C) kept.
+**File:** `RecordBrowser_0.php:1178`
+
+---
+
+## 25. FIXED — Clipboard pattern nested `%{}` bug (ContactsInstall.php + DB)
+
+**Symptom:** Copied address shows literal `%{Springfield Pennsylvania {postal_code}}` — `%` sign and `{postal_code}` placeholder visible in output.
+**Cause:** Pattern used nested `%{%{{city} }%{{zone} }{postal_code}<BR>}`. The regex in `replace_clipboard_pattern` excludes `%` from block content, so inner blocks process but outer wrapper never matches and stays literal. Pre-existing, not PHP 8.
+**Fix:** Simplified to `%{{city} {zone} {postal_code}<BR>}` — one block, all three fields optional (empty → empty string, clean output). Fixed in `ContactsInstall.php:92,103` (both `company` and `contact`) and in DB (`UPDATE recordbrowser_clipboard_pattern`).
+

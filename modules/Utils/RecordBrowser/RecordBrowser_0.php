@@ -1173,15 +1173,9 @@ class Utils_RecordBrowser extends Module {
 					$text = Utils_RecordBrowserCommon::replace_clipboard_pattern($this->clipboard_pattern, array_filter($data));
 					
 					load_js($this->get_module_dir() . 'selecttext.js');
-					/* remove all php new lines, replace <br>|<br/> to new lines and quote all special chars */
-					$ftext = htmlspecialchars(preg_replace('#<[bB][rR]/?>#', "\n", str_replace("\n", '', $text)));
-					$flash_copy = '<object width="60" height="20">'.
-								'<param name="FlashVars" value="txtToCopy='.$ftext.'">'.
-								'<param name="movie" value="'.$this->get_module_dir().'copyButton.swf">'.
-								'<embed src="'.$this->get_module_dir().'copyButton.swf" flashvars="txtToCopy='.$ftext.'" width="60" height="20">'.
-								'</embed>'.
-								'</object>';
-					$text = '<h3>'.__('Click Copy under the box or move mouse over box below to select text and hit Ctrl-c to copy it.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$flash_copy;
+					$plain = strip_tags(preg_replace('#<[bB][rR]/?>#', "\n", $text));
+					$copy_btn = '<br><button onclick="var b=this;navigator.clipboard.writeText('.json_encode($plain).').then(function(){b.textContent=\''.addslashes(__('Copied!')).'\';});">'.__('Copy').'</button>';
+					$text = '<h3>'.__('Move mouse over box below to select text and hit Ctrl-c, or click Copy.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$copy_btn;
 
 					Libs_LeightboxCommon::display('clipboard',$text,__('Copy'));
 				}
