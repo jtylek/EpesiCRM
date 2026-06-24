@@ -274,6 +274,8 @@ class Epesi {
 		$done = true;
 		class_exists('HTML_QuickForm'); // force openpsa autoload first — its QuickForm.php line 17 RESETS the global to built-in types; our custom types must be added AFTER
 		$t = &$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'];
+		$t['checkbox']         = array('modules/Libs/QuickForm/FieldTypes/epesi_checkbox/epesi_checkbox.php','HTML_QuickForm_epesi_checkbox');
+		$t['advcheckbox']      = array('modules/Libs/QuickForm/FieldTypes/epesi_advcheckbox/epesi_advcheckbox.php','HTML_QuickForm_epesi_advcheckbox');
 		$t['multiselect']      = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
 		$t['autocomplete']     = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
 		$t['automulti']        = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');

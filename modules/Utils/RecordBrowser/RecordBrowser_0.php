@@ -268,7 +268,13 @@ class Utils_RecordBrowser extends Module {
     }
 	
 	public function add_note_button_href($key=null) {
-        return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment',array('permission'=>'0','local'=>$key,'func'=>serialize(array('Utils_RecordBrowserCommon','create_default_linked_label')),'args'=>serialize(explode('/',$key))));
+        return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment',array(
+            'permission'=>'0',
+            'local'=>$key,
+            'attached_to'=>$key !== null ? array($key) : array(),
+            'func'=>serialize(array('Utils_RecordBrowserCommon','create_default_linked_label')),
+            'args'=>serialize(explode('/',$key))
+        ));
 	}
 	
 	public function add_note_button($key=null) {

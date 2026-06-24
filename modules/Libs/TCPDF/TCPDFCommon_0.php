@@ -65,7 +65,7 @@ class Libs_TCPDFCommon extends ModuleCommon {
 
         define('K_TCPDF_EXTERNAL_CONFIG', true);
         
-        require_once(self::Instance()->get_module_dir() . 'tcpdf_config.php');
+        require_once(__DIR__ . '/tcpdf_config.php');
 
         self::$default_font = self::get_pdf_font();
         if ($format===null) $format = Base_User_SettingsCommon::get(Libs_TCPDF::module_name(),'page_format');

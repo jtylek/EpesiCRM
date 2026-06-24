@@ -766,3 +766,50 @@ autora — czy relacja contact↔user jest 1:1 i czy to dogrywanie jest zamierzo
 SYSTEMOWE: PHP 8 "" == 0 → false. Każdy guard $x!=0 / $x==0 na polu mogącym być "" odwraca działanie.
 Szukać podobnych: grep "!=0"/"==0" na wartościach z formularzy.
 
+---
+
+## 22. DLA JAŚKA — mcrypt usunięty w PHP 7.2 → zaszyfrowane notatki nie działają (DECYZJA ARCHITEKTONICZNA)
+
+**Plik:** `modules/Utils/Attachment/AttachmentCommon_0.php:225-238`
+**Symptom:** Fatal przy zapisie notatki z hasłem: `Call to undefined function mcrypt_module_open()`
+**Kiedy:** Każda operacja na zaszyfrowanych notatkach (zapis, odczyt, zmiana hasła, zaszyfrowanie pliku).
+
+### Co robi kod
+
+`crypt()` (linia 225) używa `rijndael-256` w trybie CBC przez `mcrypt_*`. Przechowywany format:
+`base64($ciphertext) . "\n" . base64($iv) . "\n" . $hint`
+
+Parametry mcrypt:
+- Algorytm: rijndael-256 (blok 256-bit, klucz 256-bit)
+- IV: 32 bajty (= rozmiar bloku rijndael-256)
+- Klucz: `substr(sha1($password), 0, 32)` (pierwsze 32 znaki hex SHA1)
+
+### Dlaczego to jest decyzja dla Jaśka
+
+Każda ścieżka migracji wymaga decyzji architektonicznej:
+
+**Opcja A — `phpseclib/mcrypt_compat` (composer):**
+Drop-in polyfill emulujący mcrypt w czystym PHP. Zero zmian w kodzie Epesi — stare notatki
+zaszyfrowane na PHP 7.x **nadal działają**. Dodaje zależność composera.
+`composer require phpseclib/mcrypt_compat`
+
+**Opcja B — Zamiana na openssl (zmiana kodu, ŁAMIE WSTECZNĄ KOMPATYBILNOŚĆ):**
+Zastąpić `crypt()` przez `openssl_encrypt/decrypt` z `AES-256-CBC`. Zero nowych zależności.
+AES-256-CBC używa IV 16 bajtów zamiast 32 → stare notatki zaszyfrowane na PHP 7.x
+**nigdy się nie otworzą** po upgrade (inny rozmiar bloku i IV).
+
+Można połączyć: mcrypt_compat tymczasowo + jednorazowy skrypt re-szyfrowania starych notatek
+(openssl decrypt wymaga mcrypt_compat do etapu migracji danych).
+
+### Tymczasowy workaround do momentu decyzji
+Nie ma — funkcja jest zwykłym `fatal`. Instrukcja dla użytkowników: **nie używać szyfrowanych notatek
+do czasu naprawy.** Nieszyfrowane notatki działają normalnie.
+
+### Zakres w kodzie
+- `crypt()` linia 225-238 — główna funkcja
+- Wywołana przez `encrypt()` (linia 209) i `decrypt()` (linia 216)
+- `decrypt()` linia 216 ma `rtrim($ret, "\0")` — to jest usuwanie paddingu NUL z mcrypt (openssl
+  usuwa padding PKCS#7 sam, więc przy opcji B to `rtrim` trzeba by usunąć)
+- Szyfrowanie plików: `submit_attachment` linia 486 (`file_put_contents(..., self::encrypt(...))`)
+  — dotyczy też plików, nie tylko tekstu notatki
+

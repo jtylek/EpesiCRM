@@ -173,8 +173,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$form->addElement('select','messenger_on',__('Alert'),array('none'=>__('None'),'me'=>__('me'),'all'=>__('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");$("messenger_message").value=$("title").value;'));
 //			$form->addElement('checkbox','messenger_on',__('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
 			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
-			$form->registerRule('check_my_user', 'callback', array('CRM_MeetingCommon','check_my_user'));
-			$form->addRule(array('messenger_on','emp_id'), __('You have to select your contact to set alarm on it'), 'check_my_user');
+			$form->addFormRule(array('CRM_MeetingCommon', 'check_my_user_form'));
 		}
 	}
 
@@ -183,6 +182,16 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$sub = array_filter(explode('__SEP__',$arg[1]));
 		$me = CRM_ContactsCommon::get_my_record();
 		return in_array($me['id'],$sub);
+	}
+
+	public static function check_my_user_form($values) {
+		if (empty($values['messenger_on']) || $values['messenger_on'] !== 'me') return true;
+		$emp = $values['employees'] ?? '';
+		$sub = array_filter(explode('__SEP__', $emp));
+		$me = CRM_ContactsCommon::get_my_record();
+		if (!in_array($me['id'], $sub))
+			return array('messenger_on' => __('You have to select your contact to set alarm on it'));
+		return true;
 	}
 
 	public static function check_date_and_time($data) {
