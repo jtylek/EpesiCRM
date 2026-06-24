@@ -813,3 +813,175 @@ do czasu naprawy.** Nieszyfrowane notatki działają normalnie.
 - Szyfrowanie plików: `submit_attachment` linia 486 (`file_put_contents(..., self::encrypt(...))`)
   — dotyczy też plików, nie tylko tekstu notatki
 
+---
+
+## 23. Runtime testing session — fixes applied (Contacts + Companies)
+
+Session: first full CRUD run-through of Contacts and Companies on PHP 8.2.
+All fixes below are confirmed working (tested in browser, no fatal in php_error_log).
+Commit: `b58f439` on branch `experiment/composer-deps`.
+
+---
+
+### 23.1 FIXED — PHP 8 `"" != 0` quirk in login_id guard (ContactsCommon_0.php:1022)
+
+**Symptom:** Fatal when cloning a contact that has no email and no user account:
+`Argument 0 is not number(%d): SELECT mail FROM user_password WHERE user_login_id=%d Array([0] => '')`
+
+**Root cause:** PHP 7: `"" == 0` was `true` (loose comparison coerced empty string to 0).
+PHP 8: `"" == 0` is `false`. The guard `$values['login'] != 0` was meant to skip the
+email-copy logic when there is no user account (login = 0). On PHP 8 an empty string
+`""` is no longer equal to `0`, so `"" != 0` is now `true` — the guard fires with an
+empty login, DB::GetOne receives `""` for a `%d` placeholder → fatal.
+
+**Fix:** `modules/CRM/Contacts/ContactsCommon_0.php:1022`
+```php
+// Before:
+if (isset($values['email']) && $values['email']=='' && $values['login']!=0 && $mode=='add')
+// After:
+if (isset($values['email']) && $values['email']=='' && !empty($values['login']) && is_numeric($values['login']) && $mode=='add')
+```
+
+**Systemic note:** Any `$x != 0` / `$x == 0` guard on a field that can hold an empty
+string `""` silently inverted its logic in PHP 8. Worth grepping for similar patterns
+across the codebase.
+
+**Design question FOR JASIEK (not touched):** Is the logic "if a contact has a user
+account and no email, copy the email from user_password" actually correct? The email
+field is unique per contact/user; copying it from the user account may or may not be
+intentional (1:1 contact↔user assumption). See §21.4.
+
+---
+
+### 23.2 FIXED — Wrong module directory from mutable singleton (TCPDFCommon_0.php:68)
+
+**Symptom:** Print PDF → fatal: `Failed opening required 'modules/Base/Print/tcpdf_config.php'`
+(the Base_Print module directory was returned instead of Libs_TCPDF's directory).
+
+**Root cause:** `self::Instance()->get_module_dir()` — `Instance()` (module_common.php:28)
+holds one shared `static $obj`. The last caller that passed an argument overwrites it
+globally. By the time PDF printing ran, another module had overwritten the singleton,
+so `get_module_dir()` returned the wrong path.
+
+**Fix:** `modules/Libs/TCPDF/TCPDFCommon_0.php:68`
+```php
+// Before:
+require_once(self::Instance()->get_module_dir() . 'tcpdf_config.php');
+// After:
+require_once(__DIR__ . '/tcpdf_config.php');
+```
+
+**General rule:** Any `self::Instance()->get_module_dir()` or `get_data_dir()` call
+inside a static method is unreliable because of the mutable singleton. Use `__DIR__`
+for paths relative to the current file. (See also §20 — the same singleton causes the
+storage-prefix bug in FileStorage.)
+
+---
+
+### 23.3 FIXED — New Meeting: wrong field name + addRule timing error (MeetingCommon_0.php)
+
+Two bugs hit in sequence when opening "New Meeting" from a contact's action bar.
+
+**Bug A — typo:** Field `emp_id` referenced in `addRule` — the actual field name is
+`employees`. Would have thrown `HTML_QuickForm_Error: nonexistent html element: emp_id`.
+
+**Bug B — timing (PHP 8 / openpsa QuickForm):** After fixing the typo, the next error:
+`HTML_QuickForm_Error: nonexistent html element: Element 'employees' does not exist`
+openpsa QuickForm validates `addRule` immediately at call time (strict). `employees`
+is added to the form later (its QFfield callback fires during a `duration` field callback
+at a specific processing-order step), so it does not yet exist when `addRule` runs.
+Old QuickForm 3.2.14 silently ignored nonexistent elements.
+
+**Fix:** `modules/CRM/Meeting/MeetingCommon_0.php` — replaced `addRule` with
+`addFormRule` (validates after all elements are built) + new callback method:
+```php
+// Removed:
+$form->registerRule('check_my_user', 'callback', array('CRM_MeetingCommon','check_my_user'));
+$form->addRule(array('messenger_on','emp_id'), __('...'), 'check_my_user');
+
+// Added (after the existing check_my_user static method):
+$form->addFormRule(array('CRM_MeetingCommon', 'check_my_user_form'));
+
+public static function check_my_user_form($values) {
+    if (empty($values['messenger_on']) || $values['messenger_on'] !== 'me') return true;
+    $emp = $values['employees'] ?? '';
+    $sub = array_filter(explode('__SEP__', $emp));
+    $me = CRM_ContactsCommon::get_my_record();
+    if (!in_array($me['id'], $sub))
+        return array('messenger_on' => __('You have to select your contact to set alarm on it'));
+    return true;
+}
+```
+
+---
+
+### 23.4 FIXED — Frozen checkboxes show `[ ]` / `[x]` instead of images
+
+**Symptom:** Checkboxes in frozen (view) mode display plain text `[ ]` / `[x]` instead
+of the `checkbox_on.png` / `checkbox_off.png` images from the active theme.
+
+**Root cause:** openpsa QuickForm uses plain-text `getFrozenHtml()`. The original Epesi
+used a custom QF build that had image-based frozen display.
+
+**Two field types affected:**
+- `checkbox` — used in custom forms (e.g. Meeting's "Timeless" field)
+- `advcheckbox` — used by RecordBrowser standard boolean fields (e.g. Task's
+  "Timeless", "Longterm"); always appends `_getPersistantData()` in both states
+
+**Fix:** Two new QF type subclasses created:
+- `modules/Libs/QuickForm/FieldTypes/epesi_checkbox/epesi_checkbox.php`
+  — extends `HTML_QuickForm_checkbox`, overrides `getFrozenHtml()`
+- `modules/Libs/QuickForm/FieldTypes/epesi_advcheckbox/epesi_advcheckbox.php`
+  — extends `HTML_QuickForm_advcheckbox`, overrides `getFrozenHtml()` (keeps `_getPersistantData()`)
+
+Registered in `include/epesi.php` → `register_custom_qf_types()` under the built-in
+type names `checkbox` and `advcheckbox`, so all existing field definitions pick them up
+automatically without any per-module changes.
+
+---
+
+### 23.5 FIXED — "Access denied" on notes created from the contact/company action bar
+
+**Symptom:** Clicking the "New Note" icon in the top-right action bar of a contact or
+company detail view → save → immediate "Access denied" when trying to open the note.
+
+**Root cause:** `Utils_AttachmentCommon::get_access($id)` iterates over the note's
+`attached_to` tokens and returns `false` if the array is empty. The custom access
+callback `rb_access` then denies the 'view' action.
+
+Notes created via the **Notes TAB** work correctly because `Attachment_0.php:body()`
+explicitly sets `$defaults['attached_to'] = array($group)` (e.g. `'contact/4'`).
+
+Notes created via the **action bar** went through `RecordBrowser_0.php:add_note_button_href()`,
+which passed `local`, `func`, `args` to the new-record defaults but **never set
+`attached_to`**. The `local` field is deprecated (overwritten to `''` in `get()`).
+The `func`/`args` fields are display-label callbacks stored in the DB — they are NOT
+related to access control. So `attached_to` defaulted to `[]` → saved as NULL.
+
+This was a **pre-existing bug** (not a PHP 8 regression): the action bar New Note
+button always created unattached notes. The "Access denied" symptom was always there
+but may not have been noticed before.
+
+**Fix:** `modules/Utils/RecordBrowser/RecordBrowser_0.php:270`
+```php
+// Before (single line, no attached_to):
+return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment',
+    array('permission'=>'0','local'=>$key,'func'=>...,'args'=>...));
+
+// After:
+return Utils_RecordBrowserCommon::create_new_record_href('utils_attachment', array(
+    'permission'=>'0',
+    'local'=>$key,
+    'attached_to' => $key !== null ? array($key) : array(),
+    'func'=>serialize(array('Utils_RecordBrowserCommon','create_default_linked_label')),
+    'args'=>serialize(explode('/',$key))
+));
+```
+
+**Affects:** all modules that use `add_note_button_href()` — currently Contacts
+(list view + detail view) and Companies (list view + detail view).
+
+**Note on pre-existing orphaned notes:** any notes created via the action bar before
+this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still show
+"Access denied". They can be deleted from the Notes TAB or left as test artifacts.
+
