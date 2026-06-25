@@ -246,7 +246,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		if (!is_array($v)) return;
 		foreach ($v['employees'] as $k) {
 			$user = Utils_RecordBrowserCommon::get_value('contact',$k,'Login');
-			if ($user!==false && $user!==null && is_numeric($user) && $user>0) Utils_WatchdogCommon::user_subscribe($user, 'crm_meeting', $v['id']);
+			if ($user!==false && $user!==null && is_numeric($user) && $user>0) Utils_WatchdogCommon::user_subscribe($user, 'phonecall', $v['id']);
 		}
 	}
 

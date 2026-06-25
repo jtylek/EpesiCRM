@@ -1014,6 +1014,14 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 27. FIXED — PhoneCall Watchdog: employees not subscribed (pre-existing Epesi bug)
+
+- **Symptom:** Adding/editing a PhoneCall — assigned employees don't see it in Watchdog applet.
+- **Cause:** `PhoneCallCommon_0.php:249` `subscribed_employees()` copy-pasted from Meeting; `'crm_meeting'` never changed to `'phonecall'`. Present in vanilla Epesi 1.9.1, not a PHP 8 regression.
+- **Fix:** `PhoneCallCommon_0.php:249` — `'crm_meeting'` → `'phonecall'`.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
