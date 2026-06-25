@@ -1129,6 +1129,14 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 33. FIXED — EpesiStore crashes: ClientRequester.php not found
+
+- **Symptom:** Clicking "EPESI Store" → `Failed opening required 'modules/Base/Setup/ClientRequester.php'`.
+- **Cause:** `EssClientCommon_0.php:150` used `self::Instance()->get_module_dir()` to locate `ClientRequester.php`. When called from within `Base_Setup`'s display context, the shared mutable `Instance()` singleton had been overwritten by `Base_Setup`, returning the wrong directory. Same root cause as §20.
+- **Fix:** Replaced `self::Instance()->get_module_dir() . 'ClientRequester.php'` with `__DIR__ . '/ClientRequester.php'` — always resolves to `modules/Base/EssClient/` regardless of call context.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
