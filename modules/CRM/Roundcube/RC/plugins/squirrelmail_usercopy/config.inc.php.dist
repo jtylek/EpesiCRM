@@ -1,11 +1,16 @@
 <?php
 
+$config = [];
+
 // Driver - 'file' or 'sql'
 $config['squirrelmail_driver'] = 'sql';
 
 // full path to the squirrelmail data directory
 $config['squirrelmail_data_dir'] = '';
 $config['squirrelmail_data_dir_hash_level'] = 0;
+
+// file charset - e.g. 'EUC-JP'. Leave empty for ASCII.
+$config['squirrelmail_file_charset'] = '';
 
 // 'mysql://dbuser:dbpass@localhost/database'
 $config['squirrelmail_dsn'] = 'mysql://user:password@localhost/webmail';

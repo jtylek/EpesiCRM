@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'დაფიქსირდა შეცდომა!';
 $messages['loginfailed']  = 'შესვლა შეუძლებელია';
 $messages['cookiesdisabled'] = 'თქვენი ბროუზერი კუკიებს არ პასუხობს';
@@ -33,7 +30,6 @@ $messages['erroroverquotadelete'] = 'დისკზე არ დარჩა �
 $messages['invalidrequest'] = 'არასწორი მოთხოვნა! მონაცემების შენახვა არ მოხერხდა.';
 $messages['invalidhost'] = 'არასწორი სერვერის სახელი';
 $messages['nomessagesfound'] = 'არ არის ახალი შეტყობინება';
-$messages['loggedout'] = 'წარმატებით დაიხურა თქვენი სესია';
 $messages['mailboxempty'] = 'საფოსტო ყუთი ცარიელია';
 $messages['nomessages'] = 'არ არის შეტყობინებები';
 $messages['refreshing'] = 'განახლება...';
@@ -62,6 +58,7 @@ $messages['errormoving'] = 'შეტყობინების გადატ
 $messages['errorcopying'] = 'შეტყობინების კოპირება შეუძლებელია.';
 $messages['errordeleting'] = 'შეტყობინების წაშლა შეუძლებელია';
 $messages['errormarking'] = 'შეტყობინების მონიშვნა შეუძლებელია';
+$messages['alerttitle'] = 'ყურადღება';
 $messages['deletecontactconfirm']  = 'ნამდვილად გსურთ მონიშნული კონტაქტების წაშლა?';
 $messages['deletegroupconfirm']  = 'ნამდვილად გსურთ მონიშნული ჯგუფის წაშლა?';
 $messages['deletemessagesconfirm'] = 'ნამდვილად გსურთ მონიშნული შეტყობინებების წაშლა?';
@@ -80,8 +77,6 @@ $messages['nopagesizewarning'] = 'მიუთითეთ ფურცლის
 $messages['norecipientwarning'] = 'მიუთითეთ მიმღები';
 $messages['nosubjectwarning']  = 'გსურთ თუ არა შეტყობინების გაგზავნა უსათაუროდ?';
 $messages['nobodywarning'] = 'გსურთ თუ არა შეტყობინების გაგზავნა უტექსტოდ?';
-$messages['notsentwarning'] = 'შეტყობინება ვერ იქნა გაგზავნილი. გსურთ თუ არა გზავნილის გაუქმება?';
-$messages['noldapserver'] = 'მიუთითეთ LDAP სერვერი ძიებისთვის';
 $messages['nosearchname'] = 'მიუთითეთ სახელი ან ელ–ფოსტის მისამართი';
 $messages['notuploadedwarning'] = 'ჯერ არ ატვირთულა ყველა მიმაგრებული ფაილი. დაელოდეთ ან გააუქმეთ ატვირთვა.';
 $messages['searchsuccessful'] = '$nr შეტყობინეა მოიძებნა';
@@ -94,8 +89,6 @@ $messages['nospellerrors'] = 'ორთოგრაფიული შეცდ�
 $messages['folderdeleted'] = 'საქაღალდე წარმატებით წაიშალა';
 $messages['foldersubscribed'] = 'საქაღალდე წარმატებით გამოწერილია.';
 $messages['folderunsubscribed'] = 'საქაღალდის გამოწერა წარმატებით გაუქმებულია.';
-$messages['folderpurged'] = 'საქაღალდის წარმატებით გაცარიელებულია.';
-$messages['folderexpunged'] = 'საქაღალდის წარმატებით შეკუმშულია.';
 $messages['deletedsuccessfully'] = 'წარმატებით წაიშალა';
 $messages['converting'] = 'შეტყობინების ფორმატირების გაუქმება...';
 $messages['messageopenerror'] = 'შეტყობინება ვერ ჩაიტვირთა სერვერიდან';

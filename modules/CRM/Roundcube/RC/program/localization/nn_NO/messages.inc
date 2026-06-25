@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Noko gjekk feil.';
 $messages['loginfailed']  = 'Feil ved innlogging.';
 $messages['cookiesdisabled'] = 'Nettlesaren din tillet ikkje informasjonskapslar (cookies).';
@@ -29,7 +26,6 @@ $messages['errornoperm'] = 'Klarte ikkje utføra handlinga. Nekta tilgang.';
 $messages['invalidrequest'] = 'Eg forstår ingen ting! Ingen data lagra.';
 $messages['invalidhost'] = 'Ugyldig tenarnamn.';
 $messages['nomessagesfound'] = 'Ingen meldingar i denne postkassa.';
-$messages['loggedout'] = 'Du har avslutta økta. Ha det bra!';
 $messages['refreshing'] = 'Oppdaterer …';
 $messages['loading'] = 'Hentar …';
 $messages['uploading'] = 'Lastar opp fil …';
@@ -47,7 +43,6 @@ $messages['blockedimages'] = 'Av omsyn til personvernet ditt er eksterne bilete 
 $messages['encryptedmessage'] = 'Dette er ei kryptert melding og kan ikkje visast. Orsak!';
 $messages['nocontactsfound'] = 'Fann ingen kontaktar.';
 $messages['contactnotfound'] = 'Fann ikkje kontakten du såg etter.';
-$messages['contactsearchonly'] = 'Skriv søkeord for å finna kontaktar';
 $messages['sendingfailed'] = 'Klarte ikkje senda meldinga.';
 $messages['senttooquickly'] = 'Du må venta $sec sekund for å senda meldinga.';
 $messages['errormoving'] = 'Klarte ikkje flytte meldinga(r).';
@@ -72,8 +67,6 @@ $messages['nopagesizewarning'] = 'Oppgje sidestorleik.';
 $messages['norecipientwarning'] = 'Skriv minst ein mottakar.';
 $messages['nosubjectwarning']  = 'Emnefeltet er tomt. Vil du skriva eitt emne no?';
 $messages['nobodywarning'] = 'Senda meldinga utan tekst?';
-$messages['notsentwarning'] = 'Meldinga er ikkje sendt. Vil du kasta ho?';
-$messages['noldapserver'] = 'Vel LDAP-tenar å søkja i.';
 $messages['nosearchname'] = 'Skriv kontaktnamn eller epostadresse.';
 $messages['notuploadedwarning'] = 'Ikkje alle vedlegga er ferdig opplasta enno. Vent litt til, eller avbryt opplastinga.';
 $messages['searchsuccessful'] = 'Fann $nr meldingar.';
@@ -85,8 +78,6 @@ $messages['nospellerrors'] = 'Fann ingen skrivefeil.';
 $messages['folderdeleted'] = 'Mappe sletta.';
 $messages['foldersubscribed'] = 'Abonnerte på mappa.';
 $messages['folderunsubscribed'] = 'Avslutta mappeabonnement.';
-$messages['folderpurged'] = 'Mappa vart tømt utan feil.';
-$messages['folderexpunged'] = 'Mappa vart komprimert utan feil.';
 $messages['deletedsuccessfully'] = 'Sletta.';
 $messages['converting'] = 'Fjernar formatering frå meldinga …';
 $messages['messageopenerror'] = 'Klarte ikkje lasta meldinga frå tenaren.';
@@ -114,7 +105,6 @@ $messages['nogroupassignmentschanged'] = 'Endra ikkje gruppetilordningane.';
 $messages['importwait'] = 'Importerer, vent …';
 $messages['importformaterror'] = 'Importering feila. Den opplasta fila er i feil format.';
 $messages['importconfirm'] = '<b>Importerte $inserted kontaktar</b>';
-$messages['importconfirmskipped'] = '<b>Hoppa over $skipped oppføringar som fanst frå før</b>';
 $messages['opnotpermitted'] = 'Ulovleg operasjon.';
 $messages['httpreceivedencrypterror'] = 'En uopprettelig feil oppstod knytta til innstillingane. Kontakt systemansvarleg umiddelbart. <b>Meldinga kunne ikkje sendast.</b>';
 $messages['smtpconnerror'] = 'SMTP-feil ($code): Tilkopling til tenar feila.';
@@ -150,5 +140,4 @@ $messages['invalidimageformat'] = 'Ikke et gyldig bileteformat.';
 $messages['mispellingsfound'] = 'Fann stavefeil i meldinga.';
 $messages['parentnotwritable'] = 'Klarte ikkje laga/flytte mappa i vald overordna mappe. Ingen tilgangsrettar.';
 $messages['messagetoobig'] = 'Meldingsdelen er for stor til å prosesserast.';
-$messages['attachmentvalidationerror'] = 'ÅTVARING: Dette vedlegget er mistenkjeleg fordi det er av ein  type som ikkje stemmer med det som er deklarert i meldinga. Viss du ikkje stolar på avsendaren bør du ikkje opna det i nettlesaren. Det kan ha skadeleg innhald.<br/><br/><em>Venta: $expected; fann: $detected</em>';
 $messages['noscriptwarning'] = 'NB: Denne webmail-klienten krev JavaScript. Skru på JavaScript i nettlesaren din for å kunna bruka klienten.';

@@ -46,7 +46,7 @@ class CRM_Roundcube extends Module {
         } else {
             $RC = 'RC';
         }
-        print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/' . $RC . '/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
+        print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/' . $RC . '/public_html/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
         $epesi_mail_name = EPESI . ' - ' . get_epesi_url();

@@ -1,23 +1,20 @@
 <?php
 
-/**
+/*
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = 'Шифрование';
 $labels['enigmacerts'] = 'Сертификаты S/MIME';
-$labels['enigmakeys'] = 'Клюючи PGP';
+$labels['enigmakeys'] = 'Ключи PGP';
 $labels['keysfromto'] = 'Ключи с $from по $to из $count';
 $labels['keyname'] = 'Имя';
 $labels['keyid'] = 'ID ключа';
@@ -25,6 +22,7 @@ $labels['keyuserid'] = 'ID пользователя';
 $labels['keytype'] = 'Тип ключа';
 $labels['fingerprint'] = 'Отпечаток';
 $labels['subkeys'] = 'Подключи';
+$labels['keyprops'] = 'Свойства ключа';
 $labels['basicinfo'] = 'Базовая информация';
 $labels['userids'] = 'Дополнительные ключи';
 $labels['typepublickey'] = 'открытый ключ';
@@ -63,24 +61,34 @@ $labels['keydisable'] = 'Отключить';
 $labels['keyrevoke'] = 'Отозвать';
 $labels['keysend'] = 'Отправить открытый ключ в сообщении';
 $labels['keychpass'] = 'Изменить пароль';
-$labels['newkeyident'] = 'Профиль:';
-$labels['newkeypass'] = 'Пароль:';
-$labels['newkeypassconfirm'] = 'Подтвердите пароль:';
-$labels['newkeysize'] = 'Размер ключа:';
-$labels['key2048'] = '2048 бит - по умолчанию';
-$labels['key4096'] = '4096 бит - более безопасный';
+$labels['keyadd'] = 'Добавить ключ';
+$labels['newkeyident'] = 'Профиль';
+$labels['newkeypass'] = 'Пароль';
+$labels['newkeypassconfirm'] = 'Подтвердите пароль';
+$labels['newkeytype'] = 'Тип ключа';
+$labels['rsa2048'] = 'RSA - 2048 бит';
+$labels['rsa4096'] = 'RSA - 4096 бит';
+$labels['ecckeypair'] = 'ECC (эллиптическая кривая)';
 $labels['keygenerating'] = 'Создание ключей...';
 $labels['encryptionoptions'] = 'Настройки шифрования...';
 $labels['encryptmsg'] = 'Зашифровать это сообщение';
 $labels['signmsg'] = 'Подписать это сообщение';
+$labels['sendunencrypted'] = 'Отправить незашифрованным';
 $labels['enterkeypasstitle'] = 'Введите фразу-пароль ключа';
 $labels['enterkeypass'] = 'Фраза-пароль нужна для разблокировки секретного ключа ($keyid) пользователя: $user.';
-$labels['arialabelkeyexportoptions'] = 'Параметры экспорта ключей';
 $labels['attachpubkeymsg'] = 'Прикрепить мой открытый ключ';
 $labels['keyexportprompt'] = 'Вы хотите включить закрытые ключи в файл сохранения ключей OpenPGP?';
 $labels['onlypubkeys'] = 'Экспортировать только открытые ключи';
 $labels['withprivkeys'] = 'Экспортировать закрытые ключи';
 $labels['findkey'] = 'Поиск на сервере(-ах) ключей';
+$labels['keyimportlabel'] = 'Импортировать из файла';
+$labels['keyimportsearchlabel'] = 'Поиск на сервере(-ах) ключей';
+$labels['managekeys'] = 'Управление ключами PGP';
+$labels['identitymatchingprivkeys'] = 'У вас есть $nr подходящих закрытых PGP ключей, хранящиеся на вашей связке ключей:';
+$labels['identitynoprivkeys'] = 'У этого идентификатора отправителя еще нет закрытого ключа PGP, хранящегося в вашей связке ключей.';
+$labels['arialabelkeyexportoptions'] = 'Параметры экспорта ключей';
+$labels['arialabelkeysearchform'] = 'Форма поиска ключей';
+$labels['arialabelkeyoptions'] = 'Параметры ключа';
 $messages['sigvalid'] = 'Проверенная подпись $sender.';
 $messages['sigvalidpartial'] = 'Проверенная подпись $sender, но часть сообщения не подписана.';
 $messages['siginvalid'] = 'Недействительная подпись $sender.';
@@ -90,6 +98,7 @@ $messages['sigerror'] = 'Непроверенная подпись. Внутре
 $messages['decryptok'] = 'Сообщение расшифровано.';
 $messages['decrypterror'] = 'Сбой расшифровки.';
 $messages['decryptnokey'] = 'Сбой расшифровки. Закрытый ключ не найден. ID ключа: $keyid.';
+$messages['decryptnomdc'] = 'Сообщение не расшифровано. Нарушена целостность сообщения.';
 $messages['decryptbadpass'] = 'Сбой расшифровки. Неверный пароль.';
 $messages['decryptnopass'] = 'Сбой расшифровки. Требуется ключ пароля.';
 $messages['decryptpartial'] = 'Сообщение расшифровано, но часть сообщения не была зашифрована.';
@@ -99,6 +108,7 @@ $messages['signbadpass'] = 'Сбой подписания. Неверный па
 $messages['signnopass'] = 'Сбой подписания. Требуется ключ пароля.';
 $messages['encrypterror'] = 'Сбой шифрования.';
 $messages['encryptnokey'] = 'Сбой шифрования. Не найден открытый ключ для $email.';
+$messages['encryptnoprivkey'] = 'Сбой шифрования. Не найден закрытый ключ.';
 $messages['nokeysfound'] = 'Ключи не найдены';
 $messages['keynotfound'] = 'Ключ не найден!';
 $messages['keyopenerror'] = 'Невозможно получить информацию о ключе! Внутренняя ошибка.';
@@ -110,10 +120,15 @@ $messages['keyremoveconfirm'] = 'Вы уверенны, что хотите уд
 $messages['keyremovesuccess'] = 'Ключ(и) успешно удален(ы)';
 $messages['keyremoveerror'] = 'Невозможно удалить выделенный(е) ключ(и).';
 $messages['keyimporttext'] = 'Вы можете импортировать закрытый и открытый ключ(и) или подписи отзыва в формате ASCII-Armor.';
+$messages['keyimportsearchtext'] = 'Вы можете искать открытые ключи по идентификатору ключа, имени пользователя или адресу электронной почты, а затем импортировать их напрямую.';
+$messages['keystoragenotice'] = 'Все открытые и закрытые ключи сохранены на сервере.';
 $messages['formerror'] = 'Заполните форму. Все поля обязательны!';
 $messages['passwordsdiffer'] = 'Пароли не совпадают!';
-$messages['nonameident'] = 'У профиля должно быть определено имя пользователя!';
 $messages['keygenerateerror'] = 'Не удалось создать пару ключей';
 $messages['keygeneratesuccess'] = 'Пара ключей создана и успешно импортирована.';
 $messages['keygennosupport'] = 'Ваш браузер не поддерживает шифрование. Невозможно создать пару ключей!';
-?>
+$messages['noidentselected'] = 'Вы должны выбрать по крайней мере один профиль для ключа!';
+$messages['nonameident'] = 'У профиля должно быть определено имя пользователя!';
+$labels['newkeysize'] = 'Длина ключа';
+$labels['key2048'] = '2048 бит - по умолчанию';
+$labels['key4096'] = '4096 бит - более безопасный';

@@ -1,5 +1,0 @@
-tests/config.php
-# composer related
-composer.lock
-composer.phar
-vendor

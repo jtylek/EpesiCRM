@@ -3,20 +3,13 @@
 /**
  * cPanel Password Driver
  *
- * Driver that adds functionality to change the users cPanel password.
- * Originally written by Fulvio Venturelli <fulvio@venturelli.org>
+ * It uses Cpanel's Webmail UAPI to change the users password.
  *
- * Completely rewritten using the cPanel API2 call Email::passwdpop
- * as opposed to the original coding against the UI, which is a fragile method that
- * makes the driver to always return a failure message for any language other than English
- * see http://trac.roundcube.net/ticket/1487015
+ * This driver has been tested successfully with Digital Pacific hosting.
  *
- * This driver has been tested with o2switch hosting and seems to work fine.
+ * @author Maikel Linke <maikel@email.org.au>
  *
- * @version 3.0
- * @author Christian Chech <christian@chech.fr>
- *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,61 +22,91 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_cpanel_password
 {
-    public function save($curpas, $newpass)
+    /**
+     * Changes the user's password. It is called by password.php.
+     * See "Driver API" README and password.php for the interface details.
+     *
+     * @param string $curpass  Current (old) password
+     * @param string $newpass  New password
+     * @param string $username Current username
+     *
+     * @return int|array Error code or assoc array with 'code' and 'message', see
+     *                   "Driver API" README and password.php
+     */
+    public function save($curpass, $newpass, $username)
     {
-        require_once 'xmlapi.php';
+        $client = password::get_http_client();
 
-        $rcmail = rcmail::get_instance();
+        $url = self::url();
 
-        $this->cuser = $rcmail->config->get('password_cpanel_username');
+        $options = [
+            'auth' => [$username, $curpass],
+            'form_params' => [
+                'email' => password::username('%l'),
+                'password' => $newpass,
+            ],
+            'http_errors' => true,
+        ];
 
-        // Setup the xmlapi connection
-        $this->xmlapi = new xmlapi($rcmail->config->get('password_cpanel_host'));
-        $this->xmlapi->set_port($rcmail->config->get('password_cpanel_port'));
-        $this->xmlapi->password_auth($this->cuser, $rcmail->config->get('password_cpanel_password'));
-        $this->xmlapi->set_output('json');
-        $this->xmlapi->set_debug(0);
+        try {
+            $response = $client->post($url, $options);
+            $response = $response->getBody()->getContents();
+        } catch (\Exception $e) {
+            rcube::raise_error("Password plugin: Failed to post to {$url}: {$e->getMessage()}", true);
 
-        return $this->setPassword($_SESSION['username'], $newpass);
+            return PASSWORD_ERROR;
+        }
+
+        return self::decode_response($response);
     }
 
     /**
-     * Change email account password
+     * Provides the UAPI URL of the Email::passwd_pop function.
      *
-     * @param string $address  Email address/username
-     * @param string $password Email account password
-     *
-     * @return int|array Operation status
+     * @return string HTTPS URL
      */
-    function setPassword($address, $password)
+    public static function url()
     {
-        if (strpos($address, '@')) {
-            list($data['email'], $data['domain']) = explode('@', $address);
+        $config = rcmail::get_instance()->config;
+        $storage_host = $_SESSION['storage_host'];
+
+        $host = $config->get('password_cpanel_host', $storage_host);
+        $port = $config->get('password_cpanel_port', 2096);
+
+        return "https://{$host}:{$port}/execute/Email/passwd_pop";
+    }
+
+    /**
+     * Converts a UAPI response to a password driver response.
+     *
+     * @param string $response JSON response by the Cpanel UAPI
+     *
+     * @return mixed Response code or array, see <code>save</code>
+     */
+    public static function decode_response($response)
+    {
+        if (!$response) {
+            return PASSWORD_CONNECT_ERROR;
         }
-        else {
-            list($data['email'], $data['domain']) = array($address, '');
-        }
 
-        $data['password'] = $password;
+        // $result should be `null` or `stdClass` object
+        $result = json_decode($response);
 
-        $query  = $this->xmlapi->api2_query($this->cuser, 'Email', 'passwdpop', $data);
-        $query  = json_decode($query, true);
-        $result = $query['cpanelresult']['data'][0];
-
-        if ($result['result'] == 1) {
+        // The UAPI may return HTML instead of JSON on missing authentication
+        if ($result && isset($result->status) && $result->status === 1) {
             return PASSWORD_SUCCESS;
         }
 
-        if ($result['reason']) {
-            return array(
-                'code'    => PASSWORD_ERROR,
-                'message' => $result['reason'],
-            );
+        if ($result && !empty($result->errors) && is_array($result->errors)) {
+            return [
+                'code' => PASSWORD_ERROR,
+                'message' => $result->errors[0],
+            ];
         }
 
         return PASSWORD_ERROR;

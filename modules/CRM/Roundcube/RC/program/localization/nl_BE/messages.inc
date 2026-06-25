@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Er is een fout opgetreden!';
 $messages['loginfailed']  = 'Aanmelden mislukt.';
 $messages['cookiesdisabled'] = 'Uw browser accepteert geen cookies.';
@@ -34,7 +31,6 @@ $messages['erroroverquotadelete'] = 'Geen vrije schijfruimte. Gebruik SHIFT+DEL 
 $messages['invalidrequest'] = 'Ongeldige aanvraag! Er zijn geen gegevens opgeslagen.';
 $messages['invalidhost'] = 'Ongeldige server.';
 $messages['nomessagesfound'] = 'Er zijn geen berichten in deze map...';
-$messages['loggedout'] = 'U bent nu afgemeld. Tot ziens!';
 $messages['mailboxempty'] = 'Mailbox is leeg';
 $messages['nomessages'] = 'Geen berichten';
 $messages['refreshing'] = 'Bezig met vernieuwen...';
@@ -60,7 +56,6 @@ $messages['nopubkeyfor'] = 'Geen geldige publieke sleutel gevonden voor $email';
 $messages['encryptpubkeysfound'] = 'De volgende publieke sleutels werden gevonden:';
 $messages['nocontactsfound'] = 'Geen contactpersonen gevonden.';
 $messages['contactnotfound'] = 'De gevraagde contactpersoon was niet gevonden.';
-$messages['contactsearchonly'] = 'Voer enkele zoektermen in om de contactpersonen te zoeken.';
 $messages['sendingfailed'] = 'Kon het bericht niet versturen.';
 $messages['senttooquickly'] = 'U moet $sec second(en) wachten om het bericht te versturen.';
 $messages['errorsavingsent'] = 'Er is een fout opgetreden tijdens het opslaan van het verzonden bericht.';
@@ -87,8 +82,6 @@ $messages['nopagesizewarning'] = 'Geef een geldig aantal berichten per pagina op
 $messages['norecipientwarning'] = 'Geef minstens één bestemmeling op.';
 $messages['nosubjectwarning']  = 'Geen onderwerp opgegeven. Wenst u alsnog een onderwerp te geven?';
 $messages['nobodywarning'] = 'Wilt u dit lege bericht versturen?';
-$messages['notsentwarning'] = 'Het bericht is niet verzonden. Wilt u het bericht verwijderen?';
-$messages['noldapserver'] = 'Kies een LDAP server waarop gezocht moet worden.';
 $messages['nosearchname'] = 'Geen een contacpersoon of e-mailadres op.';
 $messages['notuploadedwarning'] = 'Nog niet alle bijlagen zijn geüpload. Wacht even of annuleer de upload.';
 $messages['searchsuccessful'] = '$nr berichten gevonden.';
@@ -101,8 +94,6 @@ $messages['nospellerrors'] = 'Geen spelfouten gevonden.';
 $messages['folderdeleted'] = 'Map met succes verwijderd.';
 $messages['foldersubscribed'] = 'Folder succesvol geabonneerd.';
 $messages['folderunsubscribed'] = 'Folder succesvol uitgeschreven.';
-$messages['folderpurged'] = 'Folder met succes geleegd.';
-$messages['folderexpunged'] = 'Map met succes geleegd.';
 $messages['deletedsuccessfully'] = 'Succesvol verwijderd.';
 $messages['converting'] = 'Opmaak van het bericht wordt gewist...';
 $messages['messageopenerror'] = 'Kon het bericht niet ophalen van de server.';
@@ -136,7 +127,6 @@ $messages['nogroupassignmentschanged'] = 'Geen groepslidmaatschap gewijzigd.';
 $messages['importwait'] = 'Bezig met importeren, even geduld...';
 $messages['importformaterror'] = 'Importeren mislukt! Het geüploade bestand is geen importeerbaar bestand.';
 $messages['importconfirm'] = '<b>Er zijn $inserted contactpersonen succesvol geïmporteerd</b>';
-$messages['importconfirmskipped'] = '<b>$skipped bestaande contactpersonen overgeslagen</b>';
 $messages['importmessagesuccess'] = '$nr adressen met succes geïmporteerd.';
 $messages['importmessageerror'] = 'Importeren mislukt! Het geüploade bestand is geen geldig bericht of mailbox bestand.';
 $messages['opnotpermitted'] = 'Deze actie is niet toegestaan!';
@@ -176,7 +166,6 @@ $messages['invalidimageformat'] = 'Geen geldig afbeeldingsformaat.';
 $messages['mispellingsfound'] = 'Spellingsfouten gedetecteerd in bericht.';
 $messages['parentnotwritable'] = 'U heeft niet voldoende rechten een map te maken / verplaatsen in deze map.';
 $messages['messagetoobig'] = 'Dit deel van uw bericht is te groot om het te verwerken.';
-$messages['attachmentvalidationerror'] = 'OPGELET! Deze bijlage is verdacht omdat het aangetroffen bestandstype niet overeenkomt met het verwachte type. Indien u de afzender niet vertrouwd open deze bijlage in geen geval in uw browser aangezien deze schadelijk data kan bevatten.<br /><br /><em>Verwacht: $expected; Aangetroffen: $detected</em>';
 $messages['noscriptwarning'] = 'Opgelet: deze webmail service vereist JavaScript! Om deze service te kunnen gebruiken dient u JavaScript toe te staan in de instellingen van uw browser.';
 $messages['messageissent'] = 'Het bericht werd reeds verzonden, maar nog niet  bewaard. Wil je het nu bewaren?';
 $messages['errnotfound'] = 'Bestand niet gevonden';

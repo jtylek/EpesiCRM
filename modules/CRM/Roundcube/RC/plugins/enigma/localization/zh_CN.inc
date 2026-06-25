@@ -1,20 +1,17 @@
 <?php
 
-/**
+/*
  +-----------------------------------------------------------------------+
- | plugins/enigma/localization/<lang>.inc                                |
+ | Localization file of the Roundcube Webmail Enigma plugin              |
  |                                                                       |
- | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2016, The Roundcube Dev Team                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/roundcube/roundcube-webmail/plugin-enigma/
 */
+
 $labels['encryption'] = '加密';
 $labels['enigmacerts'] = 'S/MIME 证书';
 $labels['enigmakeys'] = 'PGP 密钥';
@@ -25,6 +22,7 @@ $labels['keyuserid'] = '用户 ID';
 $labels['keytype'] = '密钥类型';
 $labels['fingerprint'] = '指纹';
 $labels['subkeys'] = '子密钥';
+$labels['keyprops'] = '密钥属性';
 $labels['basicinfo'] = '基本信息';
 $labels['userids'] = '其他用户';
 $labels['typepublickey'] = '公钥';
@@ -63,24 +61,37 @@ $labels['keydisable'] = '禁用';
 $labels['keyrevoke'] = '废除';
 $labels['keysend'] = '在邮件中发送公钥';
 $labels['keychpass'] = '修改密码';
-$labels['newkeyident'] = '身份：';
-$labels['newkeypass'] = '密码：';
-$labels['newkeypassconfirm'] = '确认密码：';
-$labels['newkeysize'] = '密钥大小：';
-$labels['key2048'] = '2048 位 - 默认';
-$labels['key4096'] = '4096 位 - 更安全';
+$labels['keyadd'] = '添加密钥';
+$labels['newkeyident'] = '标识';
+$labels['newkeypass'] = '密码';
+$labels['newkeypassconfirm'] = '确认密码';
+$labels['newkeytype'] = '密钥类型';
+$labels['rsa2048'] = 'RSA - 2048位';
+$labels['rsa4096'] = 'RSA - 4096位
+ ';
+$labels['ecckeypair'] = 'ECC (椭圆曲线)';
 $labels['keygenerating'] = '正在生成密钥...';
 $labels['encryptionoptions'] = '加密选项...';
 $labels['encryptmsg'] = '加密此邮件';
 $labels['signmsg'] = '数字签名此邮件';
+$labels['sendunencrypted'] = '不加密发送';
 $labels['enterkeypasstitle'] = '请输入密钥口令';
 $labels['enterkeypass'] = '需要口令解锁私钥 ($keyid)，用户：$user。';
-$labels['arialabelkeyexportoptions'] = '密钥导出选项';
 $labels['attachpubkeymsg'] = '附加我的公钥';
 $labels['keyexportprompt'] = '您要在保存的 OpenPGP 密钥文件中包含私钥吗？';
 $labels['onlypubkeys'] = '仅导出公钥';
 $labels['withprivkeys'] = '导出私钥';
 $labels['findkey'] = '搜索密钥服务器';
+$labels['keyimportlabel'] = '从文件导入';
+$labels['keyimportsearchlabel'] = '在密钥服务器上搜索';
+$labels['managekeys'] = '管理 PGP 密钥';
+$labels['identitymatchingprivkeys'] = '你的钥匙环中有 $nr 项符合条件的 PGP 私钥：';
+$labels['identitynoprivkeys'] = '你的钥匙环中没有符合此发件人身份的 PGP 私钥';
+$labels['arialabelkeyexportoptions'] = '密钥导出选项';
+$labels['arialabelkeysearchform'] = '密钥搜索表单
+ ';
+$labels['arialabelkeyoptions'] = '密钥选项
+ ';
 $messages['sigvalid'] = '已验证来自 $sender 的签名。';
 $messages['sigvalidpartial'] = '已验证来自 $sender 的签名，但主体部分未被签名。';
 $messages['siginvalid'] = '无效的来自 $sender 的签名。';
@@ -90,15 +101,17 @@ $messages['sigerror'] = '未验证签名。内部错误。';
 $messages['decryptok'] = '邮件已解密';
 $messages['decrypterror'] = '解密失败。';
 $messages['decryptnokey'] = '解密失败。私钥未找到。密钥 ID: $keyid。';
-$messages['decryptbadpass'] = '解密失败。密码错误。';
+$messages['decryptnomdc'] = '解密跳过。信息未受完整性保护。';
+$messages['decryptbadpass'] = '解密失败。密码无效。';
 $messages['decryptnopass'] = '解密失败。需要密钥密码。';
 $messages['decryptpartial'] = '邮件已解密，但主体部分未被加密。';
 $messages['signerror'] = '签名失败。';
 $messages['signnokey'] = '签名失败。私钥未找到。';
-$messages['signbadpass'] = '签名失败。密码错误。';
+$messages['signbadpass'] = '签名失败。密码无效。';
 $messages['signnopass'] = '签名失败。需要密钥密码。';
 $messages['encrypterror'] = '加密失败。';
 $messages['encryptnokey'] = '加密失败。用于 $email 的公钥未找到。';
+$messages['encryptnoprivkey'] = '加密失败，找不到私钥。';
 $messages['nokeysfound'] = '没有找到密钥';
 $messages['keynotfound'] = '密钥未找到！';
 $messages['keyopenerror'] = '无法获取密钥信息！内部错误。';
@@ -110,10 +123,15 @@ $messages['keyremoveconfirm'] = '您确定吗，确定删除选定密钥？';
 $messages['keyremovesuccess'] = '密钥删除成功';
 $messages['keyremoveerror'] = '无法删除选定密钥。';
 $messages['keyimporttext'] = '您可以导入私钥和公钥或废除 ASCII-Armor 格式的签名。';
+$messages['keyimportsearchtext'] = '您可以根据密钥标识符、用户名或电子邮件地址搜索公钥和直接导入它们。';
+$messages['keystoragenotice'] = '所有公钥和私钥均存储在服务器上。';
 $messages['formerror'] = '请填写表单。所有字段都为必填！';
 $messages['passwordsdiffer'] = '密码不匹配！';
-$messages['nonameident'] = '身份必须有一个用户名！';
 $messages['keygenerateerror'] = '生成密钥对失败';
 $messages['keygeneratesuccess'] = '密钥对生成和导入成功。';
 $messages['keygennosupport'] = '您的网页浏览器不支持加密。无法生成密钥对！';
-?>
+$messages['noidentselected'] = '您必须为该密钥选择至少一个身份！';
+$messages['nonameident'] = '身份必须有一个用户名！';
+$labels['newkeysize'] = '密钥长度';
+$labels['key2048'] = '2048 位 - 默认';
+$labels['key4096'] = '4096 位 - 更安全';

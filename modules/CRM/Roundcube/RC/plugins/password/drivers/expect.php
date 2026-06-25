@@ -9,6 +9,7 @@
  * For installation instructions please read the README file.
  *
  * @version 2.0
+ *
  * @author Andy Theuninck <gohanman@gmail.com)
  *
  * Based on chpasswd roundcubemail password driver by
@@ -22,9 +23,9 @@
  * password_expect_params => arguments for the expect script
  *   see the password-expect file for details. This is probably
  *   a good starting default:
- *   -telent -host localhost -output /tmp/passwd.log -log /tmp/passwd.log
+ *   -telnet -host localhost -output /tmp/passwd.log -log /tmp/passwd.log
  *
- * Copyright (C) 2005-2014, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,36 +38,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_expect_password
 {
-    public function save($currpass, $newpass)
+    public function save($currpass, $newpass, $username)
     {
-        $rcmail   = rcmail::get_instance();
-        $bin      = $rcmail->config->get('password_expect_bin');
-        $script   = $rcmail->config->get('password_expect_script');
-        $params   = $rcmail->config->get('password_expect_params');
-        $username = $_SESSION['username'];
+        $rcmail = rcmail::get_instance();
+        $bin = $rcmail->config->get('password_expect_bin');
+        $script = $rcmail->config->get('password_expect_script');
+        $params = $rcmail->config->get('password_expect_params');
 
         $cmd = $bin . ' -f ' . $script . ' -- ' . $params;
-        $handle = popen($cmd, "w");
-        fwrite($handle, "$username\n");
-        fwrite($handle, "$currpass\n");
-        fwrite($handle, "$newpass\n");
+        $handle = popen($cmd, 'w');
+        fwrite($handle, "{$username}\n");
+        fwrite($handle, "{$currpass}\n");
+        fwrite($handle, "{$newpass}\n");
 
         if (pclose($handle) == 0) {
             return PASSWORD_SUCCESS;
         }
-        else {
-            rcube::raise_error(array(
-                'code' => 600,
-                'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Password plugin: Unable to execute $cmd"
-                ), true, false);
-        }
+
+        rcube::raise_error("Password plugin: Unable to execute {$cmd}", true);
 
         return PASSWORD_ERROR;
     }

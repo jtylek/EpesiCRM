@@ -2,20 +2,22 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/markasjunk/localization/<lang>.inc                            |
- |                                                                       |
  | Localization file of the Roundcube Webmail Mark-As-Junk plugin        |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-markasjunk/
 */
-$labels['buttontext'] = 'Correo lixo';
-$labels['buttontitle'] = 'Marcar como correo lixo';
-$labels['reportedasjunk'] = 'Mensaxe marcada como correo lixo';
-?>
+
+$labels['buttonjunk'] = 'Esta mensaxe é lixo';
+$labels['asjunk'] = 'Como lixo';
+$labels['markasjunk'] = 'Marcar como lixo';
+$labels['buttonnotjunk'] = 'Esta mensaxe non é lixo';
+$labels['asnotjunk'] = 'Como non lixo';
+$labels['markasnotjunk'] = 'Marcar como non lixo';
+$labels['notjunk'] = 'Non lixo';
+$messages['reportedasjunk'] = 'Declarado correctamente como lixo';
+$messages['reportedasnotjunk'] = 'Declarado correctamente como non lixo';

@@ -3,15 +3,33 @@
 // +----------------------------------------------------------------------+
 // | PHP Version 5 and 7                                                  |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2015 Jon Parise and Chuck Hagenbuch               |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 3.01 of the PHP license,      |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available at through the world-wide-web at                           |
-// | http://www.php.net/license/3_01.txt.                                 |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
+// | Copyright (c) 1997-2021 Jon Parise and Chuck Hagenbuch               |
+// | All rights reserved.                                                 |
+// |                                                                      |
+// | Redistribution and use in source and binary forms, with or without   |
+// | modification, are permitted provided that the following conditions   |
+// | are met:                                                             |
+// |                                                                      |
+// | 1. Redistributions of source code must retain the above copyright    |
+// |    notice, this list of conditions and the following disclaimer.     |
+// |                                                                      |
+// | 2. Redistributions in binary form must reproduce the above copyright |
+// |    notice, this list of conditions and the following disclaimer in   |
+// |    the documentation and/or other materials provided with the        |
+// |    distribution.                                                     |
+// |                                                                      |
+// | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS  |
+// | "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT    |
+// | LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS    |
+// | FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE       |
+// | COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, |
+// | INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, |
+// | BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
+// | LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER     |
+// | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT   |
+// | LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN    |
+// | ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE      |
+// | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Chuck Hagenbuch <chuck@horde.org>                           |
 // |          Jon Parise <jon@php.net>                                    |
@@ -29,6 +47,7 @@ require_once 'Net/Socket.php';
  * @author  Chuck Hagenbuch <chuck@horde.org>
  * @author  Jon Parise <jon@php.net>
  * @author  Damian Alejandro Fernandez Sosa <damlists@cnba.uba.ar>
+ * @license http://opensource.org/licenses/bsd-license.php BSD-2-Clause
  *
  * @example basic.php A basic implementation of the Net_SMTP package.
  */
@@ -132,6 +151,25 @@ class Net_SMTP
     protected $esmtp = array();
 
     /**
+     * GSSAPI principal.
+     * @var string
+     */
+    protected $gssapi_principal = null;
+
+    /**
+     * GSSAPI principal.
+     * @var string
+     */
+    protected $gssapi_cname = null;
+
+    /**
+     * SCRAM SHA-Hash algorithm.
+     *
+     * @var string
+     */
+    protected $scram_sha_hash_algorithm = null;
+
+    /**
      * Instantiates a new Net_SMTP object, overriding any defaults
      * with parameters that are passed in.
      *
@@ -142,17 +180,20 @@ class Net_SMTP
      *   $smtp = new Net_SMTP('ssl://mail.host.com', 465);
      *   $smtp->connect();
      *
-     * @param string  $host           The server to connect to.
-     * @param integer $port           The port to connect to.
-     * @param string  $localhost      The value to give when sending EHLO or HELO.
-     * @param boolean $pipelining     Use SMTP command pipelining
-     * @param integer $timeout        Socket I/O timeout in seconds.
-     * @param array   $socket_options Socket stream_context_create() options.
+     * @param string  $host             The server to connect to.
+     * @param integer $port             The port to connect to.
+     * @param string  $localhost        The value to give when sending EHLO or HELO.
+     * @param boolean $pipelining       Use SMTP command pipelining
+     * @param integer $timeout          Socket I/O timeout in seconds.
+     * @param array   $socket_options   Socket stream_context_create() options.
+     * @param string  $gssapi_principal GSSAPI service principal name
+     * @param string  $gssapi_cname     GSSAPI credentials cache
      *
      * @since 1.0
      */
     public function __construct($host = null, $port = null, $localhost = null,
-        $pipelining = false, $timeout = 0, $socket_options = null
+        $pipelining = false, $timeout = 0, $socket_options = null,
+        $gssapi_principal = null, $gssapi_cname = null
     ) {
         if (isset($host)) {
             $this->host = $host;
@@ -164,21 +205,35 @@ class Net_SMTP
             $this->localhost = $localhost;
         }
 
-        $this->pipelining      = $pipelining;
-        $this->socket         = new Net_Socket();
-        $this->socket_options = $socket_options;
-        $this->timeout        = $timeout;
+        $this->pipelining       = $pipelining;
+        $this->socket           = new Net_Socket();
+        $this->socket_options   = $socket_options;
+        $this->timeout          = $timeout;
+        $this->gssapi_principal = $gssapi_principal;
+        $this->gssapi_cname     = $gssapi_cname;
+
+        /* If PHP krb5 extension is loaded, we enable GSSAPI method. */
+        if (isset($gssapi_principal) && extension_loaded('krb5')) {
+            $this->setAuthMethod('GSSAPI', array($this, 'authGSSAPI'));
+        }
 
         /* Include the Auth_SASL package.  If the package is available, we
          * enable the authentication methods that depend upon it. */
         if (@include_once 'Auth/SASL.php') {
             $this->setAuthMethod('CRAM-MD5', array($this, 'authCramMD5'));
             $this->setAuthMethod('DIGEST-MD5', array($this, 'authDigestMD5'));
+            $this->setAuthMethod('SCRAM-SHA-1', array($this, 'authScramSHA1'));
+            $this->setAuthMethod('SCRAM-SHA-224', array($this, 'authScramSHA224'));
+            $this->setAuthMethod('SCRAM-SHA-256', array($this, 'authScramSHA256'));
+            $this->setAuthMethod('SCRAM-SHA-384', array($this, 'authScramSHA384'));
+            $this->setAuthMethod('SCRAM-SHA-512', array($this, 'authScramSHA512'));
         }
 
         /* These standard authentication methods are always available. */
         $this->setAuthMethod('LOGIN', array($this, 'authLogin'), false);
         $this->setAuthMethod('PLAIN', array($this, 'authPlain'), false);
+        $this->setAuthMethod('XOAUTH2', array($this, 'authXOAuth2'), false);
+        $this->setAuthMethod('OAUTHBEARER', array($this, 'authOAuthBearer'), false);
     }
 
     /**
@@ -384,7 +439,7 @@ class Net_SMTP
      */
     public function getResponse()
     {
-        return array($this->code, join("\n", $this->arguments));
+        return array($this->code, implode("\n", $this->arguments));
     }
 
     /**
@@ -455,22 +510,32 @@ class Net_SMTP
     /**
      * Attempt to disconnect from the SMTP server.
      *
+     * @param bool $force Forces a disconnection of the socket even if
+     *                    the QUIT command fails
+     *
      * @return mixed Returns a PEAR_Error with an error message on any
      *               kind of failure, or true on success.
      * @since 1.0
      */
-    public function disconnect()
+    public function disconnect($force = false)
     {
-        if (PEAR::isError($error = $this->put('QUIT'))) {
-            return $error;
+        /* parseResponse is only needed if put QUIT is successful */
+        if (!PEAR::isError($error = $this->put('QUIT'))) {
+            $error = $this->parseResponse(221);
         }
-        if (PEAR::isError($error = $this->parseResponse(221))) {
-            return $error;
+
+        /* disconnecting socket if there is no error on the QUIT
+         * command or force disconnecting is requested */
+        if (!PEAR::isError($error) || $force) {
+            if (PEAR::isError($error_socket = $this->socket->disconnect())) {
+                return PEAR::raiseError(
+                    'Failed to disconnect socket: ' . $error_socket->getMessage()
+                );
+            }
         }
-        if (PEAR::isError($error = $this->socket->disconnect())) {
-            return PEAR::raiseError(
-                'Failed to disconnect socket: ' . $error->getMessage()
-            );
+
+        if (PEAR::isError($error)) {
+            return $error;
         }
 
         return true;
@@ -538,14 +603,123 @@ class Net_SMTP
 
         return PEAR::raiseError('No supported authentication methods');
     }
+    
+    /**
+     * Establish STARTTLS Connection.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, true on success, or false if SSL/TLS
+     *               isn't available.
+     * @since 1.10.0
+     */
+    public function starttls()
+    {
+        /* We can only attempt a TLS connection if one has been requested,
+         * we're running PHP 5.1.0 or later, have access to the OpenSSL
+         * extension, are connected to an SMTP server which supports the
+         * STARTTLS extension, and aren't already connected over a secure
+         * (SSL) socket connection. */
+        if (version_compare(PHP_VERSION, '5.1.0', '>=')
+            && extension_loaded('openssl') && isset($this->esmtp['STARTTLS'])
+            && strncasecmp($this->host, 'ssl://', 6) !== 0
+            ) {
+                /* Start the TLS connection attempt. */
+                if (PEAR::isError($result = $this->put('STARTTLS'))) {
+                    return $result;
+                }
+                if (PEAR::isError($result = $this->parseResponse(220))) {
+                    return $result;
+                }
+                if (isset($this->socket_options['ssl']['crypto_method'])) {
+                    $crypto_method = $this->socket_options['ssl']['crypto_method'];
+                } else {
+                    /* STREAM_CRYPTO_METHOD_TLS_ANY_CLIENT constant does not exist
+                     * and STREAM_CRYPTO_METHOD_SSLv23_CLIENT constant is
+                     * inconsistent across PHP versions. */
+                    $crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+
+                    if (defined('STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT')) {
+                        $crypto_method |= @STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
+                    }
+
+                    if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+                        $crypto_method |= @STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+                    }
+
+                    if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) {
+                        $crypto_method |= @STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
+                    }
+                }
+
+                for ($attempts = 1; $attempts < 15; $attempts++) {
+                    if(PEAR::isError(
+                            $result = $this->socket->enableCrypto(
+                                true, $crypto_method)
+                        )
+                    ) {
+                        return $result;
+                    }
+                    if ($this->socket->isBlocking() !== true) {
+                        usleep($attempts);
+                    }
+                    if ($result !== 0) {
+                        break;
+                    }
+                }
+
+                if ($result !== true) {
+                    $last_error = error_get_last();
+                    $crypto_types_arr = $this->getDefinedConstantsKeyFilter(
+                        'STREAM_CRYPTO_METHOD_'
+                    );
+                    $error_types_arr = $this->getDefinedConstantsKeyFilter(
+                        'E_'
+                    );
+
+                    $resultErrorString = "STARTTLS failed ";
+                    //{enableCrypto: false;
+                    $resultErrorString .= "{enableCrypto: %s; ";
+                    //crypto_method: STREAM_CRYPTO_METHOD_TLS_CLIENT (3);
+                    $resultErrorString .= "crypto_method: %s (%s); ";
+                    //attempts: 1;
+                    $resultErrorString .= "attempts: %d; ";
+                    //E_ERROR (1): ErrorMessage}
+                    $resultErrorString .= "%s (%s): %s}";
+
+                    return PEAR::raiseError(
+                        sprintf(
+                            $resultErrorString,
+                            var_export($result, true),
+                            array_search($crypto_method, $crypto_types_arr),
+                            var_export($crypto_method, true),
+                            $attempts,
+                            array_search($last_error['type'], $error_types_arr),
+                            $last_error['type'],
+                            $last_error['message']
+                        )
+                    );
+                }
+
+                /* Send EHLO again to recieve the AUTH string from the
+                 * SMTP server. */
+                $this->negotiate();
+            } else {
+                return false;
+            }
+
+            return true;
+    }
 
     /**
      * Attempt to do SMTP authentication.
      *
      * @param string $uid    The userid to authenticate as.
      * @param string $pwd    The password to authenticate with.
-     * @param string $method The requested authentication method.  If none is
+     * @param string $method The requested authentication method. If none is
      *                       specified, the best supported method will be used.
+     *                       If you use the special method `OAUTH`, library
+     *                       will choose between OAUTHBEARER or XOAUTH2
+     *                       according the server's capabilities.
      * @param bool   $tls    Flag indicating whether or not TLS should be attempted.
      * @param string $authz  An optional authorization identifier.  If specified, this
      *                       identifier will be used as the authorization proxy.
@@ -561,36 +735,11 @@ class Net_SMTP
          * extension, are connected to an SMTP server which supports the
          * STARTTLS extension, and aren't already connected over a secure
          * (SSL) socket connection. */
-        if ($tls && version_compare(PHP_VERSION, '5.1.0', '>=')
-            && extension_loaded('openssl') && isset($this->esmtp['STARTTLS'])
-            && strncasecmp($this->host, 'ssl://', 6) !== 0
-        ) {
+        if ($tls) {
             /* Start the TLS connection attempt. */
-            if (PEAR::isError($result = $this->put('STARTTLS'))) {
-                return $result;
+            if (PEAR::isError($starttls = $this->starttls())) {
+                return $starttls;
             }
-            if (PEAR::isError($result = $this->parseResponse(220))) {
-                return $result;
-            }
-            if (isset($this->socket_options['ssl']['crypto_method'])) {
-                $crypto_method = $this->socket_options['ssl']['crypto_method'];
-            } else {
-                /* STREAM_CRYPTO_METHOD_TLS_ANY_CLIENT constant does not exist
-                 * and STREAM_CRYPTO_METHOD_SSLv23_CLIENT constant is
-                 * inconsistent across PHP versions. */
-                $crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT
-                                 | @STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT
-                                 | @STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-            }
-            if (PEAR::isError($result = $this->socket->enableCrypto(true, $crypto_method))) {
-                return $result;
-            } elseif ($result !== true) {
-                return PEAR::raiseError('STARTTLS failed');
-            }
-
-            /* Send EHLO again to recieve the AUTH string from the
-             * SMTP server. */
-            $this->negotiate();
         }
 
         if (empty($this->esmtp['AUTH'])) {
@@ -603,6 +752,19 @@ class Net_SMTP
             if (PEAR::isError($method = $this->getBestAuthMethod())) {
                 /* Return the PEAR_Error object from _getBestAuthMethod(). */
                 return $method;
+            }
+        } elseif ($method === 'OAUTH') {
+            // special case of OAUTH, use the supported method
+            $found = false;
+            $available_methods = explode(' ', $this->esmtp['AUTH']);
+            foreach (['OAUTHBEARER', 'XOAUTH2'] as $method) {
+                if (in_array($method, $available_methods)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                return PEAR::raiseError("neither OAUTHBEARER nor XOAUTH2 is a supported authentication method");
             }
         } else {
             $method = strtoupper($method);
@@ -686,9 +848,15 @@ class Net_SMTP
      * @return mixed Returns a PEAR_Error with an error message on any
      *               kind of failure, or true on success.
      * @since 1.1.0
+     * @deprecated 1.11.0
      */
     protected function authDigestMD5($uid, $pwd, $authz = '')
     {
+        /* TODO trigger deprecation error in 2.0.0 and remove authDigestMD5() in 3.0.0
+        trigger_error(__CLASS__ . ' (' . $this->host . '): Authentication method DIGEST-MD5' .
+            ' is no longer secure and should be avoided.', E_USER_DEPRECATED);
+        */
+
         if (PEAR::isError($error = $this->put('AUTH', 'DIGEST-MD5'))) {
             return $error;
         }
@@ -701,8 +869,7 @@ class Net_SMTP
             return $error;
         }
 
-        $auth_sasl = new Auth_SASL;
-        $digest    = $auth_sasl->factory('digest-md5');
+        $digest    = Auth_SASL::factory('digest-md5');
         $challenge = base64_decode($this->arguments[0]);
         $auth_str  = base64_encode(
             $digest->getResponse($uid, $pwd, $challenge, $this->host, "smtp", $authz)
@@ -738,9 +905,15 @@ class Net_SMTP
      * @return mixed Returns a PEAR_Error with an error message on any
      *               kind of failure, or true on success.
      * @since 1.1.0
+     * @deprecated 1.11.0
      */
     protected function authCRAMMD5($uid, $pwd, $authz = '')
     {
+        /* TODO trigger deprecation error in 2.0.0 and remove authCRAMMD5() in 3.0.0
+        trigger_error(__CLASS__ . ' (' . $this->host . '): Authentication method CRAM-MD5' .
+            ' is no longer secure and should be avoided.', E_USER_DEPRECATED);
+        */
+
         if (PEAR::isError($error = $this->put('AUTH', 'CRAM-MD5'))) {
             return $error;
         }
@@ -753,9 +926,8 @@ class Net_SMTP
             return $error;
         }
 
-        $auth_sasl = new Auth_SASL;
         $challenge = base64_decode($this->arguments[0]);
-        $cram      = $auth_sasl->factory('cram-md5');
+        $cram      = Auth_SASL::factory('cram-md5');
         $auth_str  = base64_encode($cram->getResponse($uid, $pwd, $challenge));
 
         if (PEAR::isError($error = $this->put($auth_str))) {
@@ -778,9 +950,15 @@ class Net_SMTP
      * @return mixed Returns a PEAR_Error with an error message on any
      *               kind of failure, or true on success.
      * @since 1.1.0
+     * @deprecated 1.11.0
      */
     protected function authLogin($uid, $pwd, $authz = '')
     {
+        /* TODO trigger deprecation error in 2.0.0 and remove authLogin() in 3.0.0
+        trigger_error(__CLASS__ . ' (' . $this->host . '): Authentication method LOGIN' .
+            ' is no longer secure and should be avoided.', E_USER_DEPRECATED);
+        */
+
         if (PEAR::isError($error = $this->put('AUTH', 'LOGIN'))) {
             return $error;
         }
@@ -850,6 +1028,341 @@ class Net_SMTP
         }
 
         return true;
+    }
+
+     /**
+     * Authenticates the user using the GSSAPI method.
+     *
+     * PHP krb5 extension is required,
+     * service principal and credentials cache must be set.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     */
+    protected function authGSSAPI($uid, $pwd, $authz = '')
+    {
+        if (PEAR::isError($error = $this->put('AUTH', 'GSSAPI'))) {
+            return $error;
+        }
+        /* 334: Continue authentication request */
+        if (PEAR::isError($error = $this->parseResponse(334))) {
+            /* 503: Error: already authenticated */
+            if ($this->code === 503) {
+                return true;
+            }
+            return $error;
+        }
+
+        if (!$this->gssapi_principal) {
+            return PEAR::raiseError('No Kerberos service principal set', 2);
+        }
+
+        if (!empty($this->gssapi_cname)) {
+            putenv('KRB5CCNAME=' . $this->gssapi_cname);
+        }
+
+        try {
+            $ccache = new KRB5CCache();
+            if (!empty($this->gssapi_cname)) {
+                $ccache->open($this->gssapi_cname);
+            }
+            
+            $gssapicontext = new GSSAPIContext();
+            $gssapicontext->acquireCredentials($ccache);
+
+            $token   = '';
+            $success = $gssapicontext->initSecContext($this->gssapi_principal, null, null, null, $token);
+            $token   = base64_encode($token);
+        }
+        catch (Exception $e) {
+            return PEAR::raiseError('GSSAPI authentication failed: ' . $e->getMessage());
+        }
+
+        if (PEAR::isError($error = $this->put($token))) {
+            return $error;
+        }
+
+        /* 334: Continue authentication request */
+        if (PEAR::isError($error = $this->parseResponse(334))) {
+            return $error;
+        }
+
+        $response = $this->arguments[0];
+
+        try {
+            $challenge = base64_decode($response);
+            $gssapicontext->unwrap($challenge, $challenge);
+            $gssapicontext->wrap($challenge, $challenge, true);
+        }
+        catch (Exception $e) {
+            return PEAR::raiseError('GSSAPI authentication failed: ' . $e->getMessage());
+        }
+
+        if (PEAR::isError($error = $this->put(base64_encode($challenge)))) {
+            return $error;
+        }
+
+        /* 235: Authentication successful */
+        if (PEAR::isError($error = $this->parseResponse(235))) {
+            return $error;
+        }
+
+        return true;
+    }
+
+    /**
+     * Authenticates the user using the XOAUTH2 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $token The access token prefixed by it's type
+     *                      example: "Bearer $access_token".
+     * @param string $authz The optional authorization proxy identifier.
+     * @param object $conn  The current object
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since 1.9.0
+     */
+    //FIXME: to switch into protected method on next major release
+    public function authXOAuth2($uid, $token, $authz, $conn)
+    {
+        $auth = base64_encode("user=$uid\1auth=$token\1\1");
+        return $this->authenticateOAuth('XOAUTH2', $auth, $authz, $conn);
+    }
+
+    /**
+     * Authenticates the user using the OAUTHBEARER method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $token The access token prefixed by it's type
+     *                      example: "Bearer $access_token".
+     * @param string $authz The optional authorization proxy identifier.
+     * @param object $conn  The current object
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since 1.9.3
+     * @see https://www.rfc-editor.org/rfc/rfc7628.html
+     */
+    protected function authOAuthBearer($uid, $token, $authz, $conn)
+    {
+        $auth = base64_encode("n,a=$uid,\1auth=$token\1\1");
+        return $this->authenticateOAuth('OAUTHBEARER', $auth, $authz, $conn);
+    }
+
+    /**
+     * Authenticates the user using the OAUTHBEARER or XOAUTH2 method.
+     *
+     * @param string $method The method (OAUTHBEARER or XOAUTH2)
+     * @param string $auth   The authentication string (base64 coded)
+     * @param string $authz  The optional authorization proxy identifier.
+     * @param object $conn   The current object
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     */
+    protected function authenticateOAuth( $method, $auth, $authz, $conn)
+    {
+        // Maximum length of the base64-encoded token to be sent in the initial response is 504 - strlen($method) bytes,
+        // according to RFC 4954 (https://datatracker.ietf.org/doc/html/rfc4954); for longer tokens an empty initial
+        // response MUST be sent and the token must be sent separately
+        // (504 bytes = /SMTP command length limit/ - 6 bytes /"AUTH "/ -strlen($method) - 1 byte /" "/ - 2 bytes /CRLF/)
+        if (strlen($auth) <= (504-strlen($method))) {
+            if (PEAR::isError($error = $this->put('AUTH', $method . ' ' . $auth))) {
+                return $error;
+            }
+        } else {
+            if (PEAR::isError($error = $this->put('AUTH', $method))) {
+                return $error;
+            }
+
+            // server is expected to respond with 334
+            if (PEAR::isError($error = $this->parseResponse(334))) {
+                return $error;
+            }
+
+            // then follows the token
+            if (PEAR::isError($error = $this->put($auth))) {
+                return $error;
+            }
+        }
+
+        /* 235: Authentication successful or 334: Continue authentication */
+        if (PEAR::isError($error = $this->parseResponse([235, 334]))) {
+            return $error;
+        }
+
+        /* 334: Continue authentication request */
+        if ($this->code === 334) {
+            /* Send an empty line as response to 334 */
+            if (PEAR::isError($error = $this->put(''))) {
+                return $error;
+            }
+
+            /* Expect 235: Authentication successful */
+            if (PEAR::isError($error = $this->parseResponse(235))) {
+                return $error;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA-1 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA1($uid, $pwd, $authz = '')
+    {
+        $this->scram_sha_hash_algorithm = 'SCRAM-SHA-1';
+        return $this->authScramSHA($uid, $pwd, $authz);
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA-224 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA224($uid, $pwd, $authz = '')
+    {
+        $this->scram_sha_hash_algorithm = 'SCRAM-SHA-224';
+        return $this->authScramSHA($uid, $pwd, $authz);
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA-256 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA256($uid, $pwd, $authz = '')
+    {
+        $this->scram_sha_hash_algorithm = 'SCRAM-SHA-256';
+        return $this->authScramSHA($uid, $pwd, $authz);
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA-384 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA384($uid, $pwd, $authz = '')
+    {
+        $this->scram_sha_hash_algorithm = 'SCRAM-SHA-384';
+        return $this->authScramSHA($uid, $pwd, $authz);
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA-512 method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA512($uid, $pwd, $authz = '')
+    {
+        $this->scram_sha_hash_algorithm = 'SCRAM-SHA-512';
+        return $this->authScramSHA($uid, $pwd, $authz);
+    }
+
+    /**
+     * Authenticates the user using the SCRAM-SHA method.
+     *
+     * @param string $uid   The userid to authenticate as.
+     * @param string $pwd   The password to authenticate with.
+     * @param string $authz The optional authorization proxy identifier.
+     *
+     * @return mixed Returns a PEAR_Error with an error message on any
+     *               kind of failure, or true on success.
+     * @since  1.11.0
+     */
+    protected function authScramSHA($uid, $pwd, $authz = '')
+    {
+        if (PEAR::isError($error = $this->put('AUTH', $this->scram_sha_hash_algorithm))) {
+            return $error;
+        }
+        /* 334: Continue authentication request */
+        if (PEAR::isError($error = $this->parseResponse(334))) {
+            /* 503: Error: already authenticated */
+            if ($this->code === 503) {
+                return true;
+            }
+            return $error;
+        }
+
+        $cram      = Auth_SASL::factory($this->scram_sha_hash_algorithm);
+        $auth_str  = base64_encode($cram->getResponse($uid, $pwd));
+
+        /* Step 1: Send first authentication request */
+        if (PEAR::isError($error = $this->put($auth_str))) {
+            return $error;
+        }
+
+        /* 334: Continue authentication request with password salt */
+        if (PEAR::isError($error = $this->parseResponse(334))) {
+            return $error;
+        }
+
+        $challenge = base64_decode($this->arguments[0]);
+        $auth_str  = base64_encode($cram->getResponse($uid, $pwd, $challenge));
+
+        /* Step 2: Send salted authentication request */
+        if (PEAR::isError($error = $this->put($auth_str))) {
+            return $error;
+        }
+
+        /* 334: Continue authentication request with password salt */
+        if (PEAR::isError($error = $this->parseResponse(334))) {
+            return $error;
+        }
+
+        /* Verify server signature */
+        $verification = $cram->processOutcome(base64_decode($this->arguments[0]));
+        if ($verification == false) {
+            return PEAR::raiseError("SCRAM Server verification on step 3 not successful");
+        }
+
+        /* Step 3: Send a request to acknowledge verification */
+        if (PEAR::isError($error = $this->put("NOOP"))) {
+            return $error;
+        }
+
+        /* 235: Authentication successful */
+        if (PEAR::isError($error = $this->parseResponse(235))) {
+            return $error;
+        }
     }
 
     /**
@@ -1018,7 +1531,6 @@ class Net_SMTP
          * about the server's fixed maximum message size". */
         $limit = (isset($this->esmtp['SIZE'])) ? $this->esmtp['SIZE'] : 0;
         if ($limit > 0 && $size >= $limit) {
-            $this->disconnect();
             return PEAR::raiseError('Message size exceeds server limit');
         }
 
@@ -1252,5 +1764,26 @@ class Net_SMTP
     public function identifySender()
     {
         return true;
+    }
+
+    /**
+     * Backwards-compatibility method.
+     * array_filter alternative in PHP5.4 for using
+     * key filter because array_filter mode parameter
+     * is only available since PHP5.6.
+     *
+     * @param string $filter The string to filter
+     * @return array Filtered constants array.
+     */
+    private function getDefinedConstantsKeyFilter($filter) {
+        $constants_filtered = array();
+        $filter_length = strlen($filter);
+        $constants = get_defined_constants();
+        foreach ($constants as $key=>$value){
+            if (substr($key, 0, $filter_length) == $filter) {
+                $constants_filtered[$key] = $value;
+            }
+        }
+        return $constants_filtered;
     }
 }

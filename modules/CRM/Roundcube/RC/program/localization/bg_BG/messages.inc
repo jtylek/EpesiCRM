@@ -2,29 +2,28 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Възникна грешка!';
 $messages['loginfailed']  = 'Неуспешно установяване на самоличност.';
 $messages['cookiesdisabled'] = 'Вашият браузър не приема cookies.';
 $messages['sessionerror'] = 'Невалидна или изтекла сесия.';
+$messages['cookiesmismatch'] = 'Открито е несъответствие с „бисквитките“. Моля, изчистете „бисквитките“ на браузъра си.';
 $messages['storageerror'] = 'Неуспешно свързване към сървър с данни.';
 $messages['servererror'] = 'Сървърна грешка!';
 $messages['servererrormsg'] = 'Сървърна грешка: $msg';
 $messages['accountlocked'] = 'Твърде много неуспешни опити за установяване на самоличност. Моля изчакайте временното заключване на профила Ви преди да опитате отново.';
 $messages['connerror'] = 'Неуспешно свързване (Сървърът не е намерен)';
 $messages['dberror'] = 'Грешка в база данни!';
+$messages['dbconnerror'] = 'Неуспешно свързване с базата данни!';
 $messages['windowopenerror'] = 'Изскачащият прозорец беше блокиран!';
 $messages['requesttimedout'] = 'Изтекло време за изпълнение на заявката';
 $messages['errorreadonly'] = 'Невъзможно изпълнение на операцията. Папката е с права само за четене.';
@@ -34,7 +33,7 @@ $messages['erroroverquotadelete'] = 'Няма достатъчно свобод�
 $messages['invalidrequest'] = 'Невалидна заявка! Данните не са съхранени.';
 $messages['invalidhost'] = 'Невалидно име на сървър.';
 $messages['nomessagesfound'] = 'Няма намерени писма в тази папка.';
-$messages['loggedout'] = 'Сесията е прекратена успешно. Довиждане до следващия път!';
+$messages['loggedout'] = 'Сесията е прекратена успешно. Довиждане!';
 $messages['mailboxempty'] = 'Пощенската кутия е празна';
 $messages['nomessages'] = 'Няма писма';
 $messages['refreshing'] = 'Обновяване...';
@@ -51,10 +50,15 @@ $messages['messagesaved'] = 'Писмото е записано в Чернов�
 $messages['successfullysaved'] = 'Успешен запис.';
 $messages['savingresponse'] = 'Записване текст на отговор...';
 $messages['deleteresponseconfirm'] = 'Желаете ли да изтриете текст за отговор?';
+$messages['nocontactselected'] = 'Все още не сте избрали контакт.';
 $messages['addedsuccessfully'] = 'Контактът е добавен в адресната книга.';
 $messages['contactexists'] = 'Вече съществува контакт с този адрес на ел. поща.';
 $messages['contactnameexists'] = 'Вече съществува контакт с това име.';
 $messages['blockedimages'] = 'С оглед на Вашата сигурност, изображенията в това писмо са блокирани.';
+$messages['blockedresources'] = 'С оглед на Вашата сигурност, отдалечените ресурси са блокирани.';
+$messages['suspiciousemail'] = 'Това писмо съдържа подозрителни имейл адреси, които може да са подправени.';
+$messages['bccemail'] = 'Препратените писма съдържат поверителни получатели (Ск).';
+$messages['bouncehint'] = 'Писмото ще бъде изпратено без никакви модификации, т.е. използвайки оригиналните тяло, заглавки и получатели.';
 $messages['encryptedmessage'] = 'Това е кодирано писмо и не може да бъде показано. Съжаляваме!';
 $messages['externalmessagedecryption'] = 'Това е кодирано писмо и може да бъде декодирано с разширение на браузъра.';
 $messages['nopubkeyfor'] = 'Не е намерен валиден публичен ключ за $email';
@@ -62,11 +66,11 @@ $messages['nopubkeyforsender'] = 'Не е намерен валиден публ
 $messages['encryptnoattachments'] = 'Невъзможно кодиране на вече прикачени файлове. Моля качете ги отново през редактора за кодиране.';
 $messages['searchpubkeyservers'] = 'Желаете ли да потърсите на сървъри за публични ключове за липсващите ключове?';
 $messages['encryptpubkeysfound'] = 'Следващите публични ключове са намерени:';
-$messages['keyservererror'] = 'Невъзможно получаване на ключ от сървъра';
-$messages['keyimportsuccess'] = 'Публичният ключ $key е импортиран във Вашия key ring успешно';
+$messages['keyservererror'] = 'Невъзможно получаване на ключ от сървъра.';
+$messages['keyimportsuccess'] = 'Публичният ключ $key е импортиран във Вашия ключодържател успешно.';
 $messages['nocontactsfound'] = 'Няма намерени контакти.';
 $messages['contactnotfound'] = 'Търсеният контакт не е намерен.';
-$messages['contactsearchonly'] = 'Използвайте полето за да търсите контакти';
+$messages['contactsearchonly'] = 'Трябва да използвате формата за търсене, за да видите контактите от избраната адресна книга.';
 $messages['sendingfailed'] = 'Неуспешно изпращане на писмо.';
 $messages['senttooquickly'] = 'Моля изчакайте $sec секунди преди да изпратите писмото.';
 $messages['errorsavingsent'] = 'Възникна грешка при записване на изпратеното писмо.';
@@ -75,10 +79,13 @@ $messages['errormoving'] = 'Писмото не може да бъде прем�
 $messages['errorcopying'] = 'Писмото не може да бъде копирано.';
 $messages['errordeleting'] = 'Писмото не може да бъде изтрито.';
 $messages['errormarking'] = 'Писмото не може да бъде маркирано.';
+$messages['alerttitle'] = 'Внимание';
+$messages['confirmationtitle'] = 'Сигурни ли сте...';
 $messages['deletecontactconfirm']  = 'Желаете ли да изтриете маркираните контакти?';
 $messages['deletegroupconfirm']  = 'Желаете ли да изтриете избраната група?';
 $messages['deletemessagesconfirm'] = 'Желаете ли да изтриете маркираните писма?';
 $messages['deletefolderconfirm']  = 'Желаете ли да изтриете тази папка?';
+$messages['movefolderconfirm']  = 'Желаете ли да преместите тази папка?';
 $messages['purgefolderconfirm']  = 'Желаете ли да изтриете всички писма в тази папка?';
 $messages['contactdeleting'] = 'Изтриване на контакти...';
 $messages['groupdeleting'] = 'Изтриване на група...';
@@ -91,12 +98,15 @@ $messages['noemailwarning'] = 'Моля въведете валиден адре
 $messages['nonamewarning']  = 'Моля въведете име.';
 $messages['nopagesizewarning'] = 'Въведете брой редове на страница.';
 $messages['nosenderwarning'] = 'Моля въведете валиден адрес на ел. поща на подателя.';
+$messages['recipientsadded'] = 'Получателят е добавен успешно.';
 $messages['norecipientwarning'] = 'Моля въведете поне един получател.';
+$messages['disclosedrecipwarning'] = 'Всички получатели ще виждат взаимно имейл адресите си. За да предотвратите това и да защитите тяхната поверителност, можете да използвате полето Скрито копие до.';
+$messages['disclosedreciptitle'] = 'Твърде много публични получатели';
 $messages['nosubjectwarning']  = 'Полето "Заглавие" е празно. Желаете ли да въведете заглавие сега?';
+$messages['nosubjecttitle']  = 'Няма Заглавие';
 $messages['nobodywarning'] = 'Изпрати това писмо без текст?';
-$messages['notsentwarning'] = 'Писмото не е изпратено. Желаете ли да бъде унищожено?';
+$messages['notsentwarning'] = 'Писмото не е изпратено и съдържа незапазени промени. Желаете ли да бъде унищожено?';
 $messages['restoresavedcomposedata'] = 'Намерено е неизпратено писмо, което е било в процес на създаване.\n\nОтносно: $subject\nЗапазено на: $date\n\nЖелаете ли да възстановите писмото?';
-$messages['noldapserver'] = 'Изберете LDAP сървър за търсене.';
 $messages['nosearchname'] = 'Моля въведете име на контакта или адрес на ел. поща.';
 $messages['notuploadedwarning'] = 'Все още не са качени всички прикачени файлове. Моля изчакайте или откажете качването.';
 $messages['searchsuccessful'] = '$nr писма намерени.';
@@ -110,13 +120,17 @@ $messages['folderdeleted'] = 'Папката е изтрита успешно.';
 $messages['foldersubscribed'] = 'Абонирането за папката е успешно.';
 $messages['folderunsubscribed'] = 'Отписването от папката е успешно.';
 $messages['folderpurged'] = 'Папката е изпразнена успешно.';
-$messages['folderexpunged'] = 'Уплътняване данни на папката е успешно.';
+$messages['folderexpunged'] = 'Папката е уплътнена успешно.';
 $messages['deletedsuccessfully'] = 'Изтриването е успешно.';
 $messages['converting'] = 'Премахване форматиране на писмото...';
 $messages['messageopenerror'] = 'Невъзможно зареждане на писмото от сървъра.';
 $messages['filelinkerror'] = 'Грешка при качване на файл.';
 $messages['fileuploaderror'] = 'Грешка при качване на файл.';
+$messages['csvfilemismatch'] = 'Импортирането на множество CSV файлове с различни полета не се поддържа.';
 $messages['filesizeerror'] = 'Прикаченият файл надвишава лимита от $size.';
+$messages['filecounterror'] = 'Можете да качите не повече от $count файла едновременно';
+$messages['msgsizeerror'] = 'Грешка при качване на прикачен файл. Макс. допустим размер на писмо от ($size) e надвишен.';
+$messages['msgsizeerrorfwd'] = 'Максималният размер на писмо ($size) е превишен. $num писма не са прикачени.';
 $messages['copysuccess'] = 'Успешно копирани $nr контакта.';
 $messages['movesuccess'] = 'Успешно преместени $nr контакта.';
 $messages['copyerror'] = 'Невъзможно копиране на контакти.';
@@ -145,6 +159,8 @@ $messages['importwait'] = 'Импортиране, моля изчакайте..
 $messages['importformaterror'] = 'Неуспешен импорт! Данните в каченият файл не са във валиден формат.';
 $messages['importconfirm'] = '<b>Успешно са импортирани $inserted контакта, вече съществуващите $skipped контакта са пропуснати</b>:<p><em>$names</em></p>';
 $messages['importconfirmskipped'] = '<b>Пропуснати са $skipped съществуващи записи</b>';
+$messages['importconfirminvalid'] = '<b>Пропуснати са $skipped невалидни записи</b>';
+$messages['importconfirmerrors'] = '<b>Невъзмоно импортиране на $errors валидни записи</b>';
 $messages['importmessagesuccess'] = 'Успешно импортирани $nr писма';
 $messages['importmessageerror'] = 'Неуспешен импорт! Каченият файл не е валиден файл на писма или пощенска кутия';
 $messages['opnotpermitted'] = 'Непозволена операция!';
@@ -156,6 +172,8 @@ $messages['smtpautherror'] = 'SMTP грешка ($code): Грешни потре
 $messages['smtpfromerror'] = 'SMTP грешка ($code): Не може да бъде изпратено писмо от "$from" ($msg).';
 $messages['smtptoerror'] = 'SMTP грешка ($code): Не може да бъде изпратено писмо до "$to" ($msg).';
 $messages['smtprecipientserror'] = 'SMTP грешка: Не може да бъде обработен списъка с получатели.';
+$messages['smtputf8error'] = 'SMTP грешка: Сървърът не поддържа Unicode в имейл адреса.';
+$messages['smtpsizeerror'] = 'SMTP грешка: Размерът на писмото надвишава ограничението на сървъра ($limit)';
 $messages['smtperror'] = 'SMTP грешка: $msg';
 $messages['emailformaterror'] = 'Невалиден адрес на ел. поща: $email';
 $messages['toomanyrecipients'] = 'Прекалено много адреси за изпращане (максимум: $max).';
@@ -188,7 +206,7 @@ $messages['invalidimageformat'] = 'Невалиден формат на изоб
 $messages['mispellingsfound'] = 'В писмото са намерени правописни грешки.';
 $messages['parentnotwritable'] = 'Неуспешно създаването/преместването на папка в избраната основна папка. Няма права за достъп.';
 $messages['messagetoobig'] = 'Писмото е прекалено голямо, за да бъде обработено.';
-$messages['attachmentvalidationerror'] = 'ВНИМАНИЕ! Прикаченият файл е опасен, защото типът му не съвпада с този, който е деклариран в писмото.<br/><br/><em>Очакван тип: $expected; открит тип: $detected</em>';
+$messages['attachmentvalidationerror'] = 'Прикаченият файл е подозрителен, защото типът му не съвпада с този, който е деклариран в писмото. Ако не се доверявате на подателя, не трябва да го отваряте в браузъра, защото може да съдържа зловредно съдържание.<br/><br/><em>Очакван тип: $expected; открит тип: $detected</em>';
 $messages['noscriptwarning'] = 'ВНИМАНИЕ! Тази пощенска услуга изисква JavaScript за да функционира коректно. Моля включете поддръжката на JavaScript в настройките на текущия браузър.';
 $messages['messageissent'] = 'Писмото беше изпратено, но все още не е запазено. Желаете ли да го запазите сега?';
 $messages['errnotfound'] = 'Файлът не е намерен';
@@ -196,10 +214,21 @@ $messages['errnotfoundexplain'] = 'Търсеният ресурс не е на�
 $messages['errfailedrequest'] = 'Грешка при обръщение';
 $messages['errauthorizationfailed'] = 'Грешка при установяване на права';
 $messages['errunauthorizedexplain'] = 'Невъзможно установяване на права за достъп до тази услуга!';
-$messages['errrequestcheckfailed'] = 'Грешка при проверка на обръщение';
+$messages['errrequestcheckfailed'] = 'Грешка при проверка на заявка';
 $messages['errcsrfprotectionexplain'] = "С цел повишаване нивото на сигурност достъпът да този ресурс е защитен против CSRF.\nАко виждате това съобщение, значи вероятно не сте излезли от системата преди да напуснете страницата на самото приложение.\n\nЗа да продължите по-нататък се изисква човешка намеса.";
 $messages['errcontactserveradmin'] = 'Моля свържете се с администратор на сървъра.';
 $messages['clicktoresumesession'] = 'Щракнете тук за да възстановите предишната си сесия.';
 $messages['errcomposesession'] = 'Грешка при сесията за писане';
 $messages['errcomposesessionexplain'] = 'Заявената сесия за писане не е намерена.';
 $messages['clicktocompose'] = 'Натисни тук, за да започнеш ново писмо';
+$messages['nosupporterror'] = 'Тази функция не се поддържа от уеб браузъра ви.';
+$messages['siginserted'] = 'Подписът е вмъкнат успешно.';
+$messages['responseinserted'] = 'Отговорът е вмъкнат успешно.';
+$messages['noresponsesavailable'] = 'Няма налични отговори';
+$messages['listempty'] = 'Списъкът е празен.';
+$messages['listusebutton'] = 'Използвайте бутона Създай, за да добавите нов запис.';
+$messages['keypaircreatesuccess'] = 'Успешно е създадена нова двойка ключове за $identity.';
+$messages['emptyattachment'] = 'Изглежда, че този прикачен файл е празен.<br>Моля, консултирайте се с лицето, което го е изпратило.';
+$messages['oauthloginfailed'] = 'OAuth автентикацията не бе успешна. Моля опитайте отново.';
+$messages['oauthinvalidrequest'] = 'Заявката за оторизация е невалидна или непълна';
+$messages['oauthaccessdenied'] = 'Оторизационният сървър или потребителят отказаха заявката';

@@ -16,17 +16,20 @@ tasks:
 - VCard parsing and writing
 
 
+REQUIREMENTS
+------------
+PHP Version 8.1 or greater including:
+   - PCRE, DOM, JSON, Session, Sockets, OpenSSL, Mbstring, Filter, Ctype, Intl (required)
+   - PHP PDO with driver for either MySQL, PostgreSQL, or SQLite (required)
+   - Iconv, Zip, Fileinfo, Exif (recommended)
+   - LDAP for LDAP addressbook support (optional)
+
+
 INSTALLATION
 ------------
 Copy all files of this directory to your project or install it in the default
 include_path directory of your webserver. Some classes of the framework require
-one or multiple of the following [PEAR][pear] libraries:
-
-- Mail_Mime 1.8.1 or newer
-- Net_SMTP 1.7.1 or newer
-- Net_Socket 1.0.12 or newer
-- Net_IDNA2 0.1.1 or newer
-- Auth_SASL 1.0.6 or newer
+external libraries. See composer.json for the list of required packages.
 
 
 USAGE

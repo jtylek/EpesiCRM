@@ -2,26 +2,24 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/acl/localization/<lang>.inc                                   |
- |                                                                       |
  | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-acl/
 */
+
 $labels['sharing'] = 'Uso in commun';
 $labels['myrights'] = 'Derectos de accesso';
 $labels['username'] = 'Usator:';
 $labels['advanced'] = 'Modo avantiate';
+$labels['add'] = 'Adder';
 $labels['newuser'] = 'Adder entrata';
 $labels['editperms'] = 'Modificar permissiones';
-$labels['actions'] = 'Actiones de derecto de accesso...';
+$labels['actions'] = 'Actiones de derecto de accesso…';
 $labels['anyone'] = 'Tote le usatores (non importa qui)';
 $labels['anonymous'] = 'Hospites (anonyme)';
 $labels['identifier'] = 'Identificator';
@@ -84,15 +82,14 @@ $labels['longaclother'] = 'Altere derectos de accesso';
 $labels['ariasummaryacltable'] = 'Lista de derectos de accesso';
 $labels['arialabelaclactions'] = 'Listar actiones';
 $labels['arialabelaclform'] = 'Formulario de derectos de accesso';
-$messages['deleting'] = 'A deler derectos de accesso...';
-$messages['saving'] = 'A salveguardar derectos de accesso...';
+$messages['deleting'] = 'Delente derectos de accesso…';
+$messages['saving'] = 'Salveguardante derectos de accesso…';
 $messages['updatesuccess'] = 'Le derectos de accesso ha essite cambiate';
 $messages['deletesuccess'] = 'Le derectos de accesso ha essite delite';
 $messages['createsuccess'] = 'Le derectos de accesso ha essite addite';
 $messages['updateerror'] = 'Impossibile actualisar le derectos de accesso';
 $messages['deleteerror'] = 'Impossibile deler derectos de accesso';
 $messages['createerror'] = 'Impossibile adder derectos de accesso';
-$messages['deleteconfirm'] = 'Es vos secur de voler remover le derectos de accesso del usator(es) seligite?';
+$messages['deleteconfirm'] = 'Es tu secur de voler remover le derectos de accesso del usator(es) seligite?';
 $messages['norights'] = 'Nulle derecto ha essite specificate.';
 $messages['nouser'] = 'Nulle nomine de usator ha essite specificate.';
-?>

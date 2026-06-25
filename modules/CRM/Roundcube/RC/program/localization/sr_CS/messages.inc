@@ -2,26 +2,25 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Дошло је до грешке!';
 $messages['loginfailed']  = 'Неуспешно пријављивање';
 $messages['cookiesdisabled'] = 'Ваш прегледач не прихвата колачиће.';
 $messages['sessionerror'] = 'Сесија није важећа или је истекла.';
+$messages['cookiesmismatch'] = 'Откривено је неслагање колачића. Очистите колачиће из прегледача.';
 $messages['storageerror'] = 'Неуспешно повезивање на складишни сервер.';
 $messages['servererror'] = 'Грешка на серверу!';
 $messages['servererrormsg'] = 'Грешка на серверу: $msg';
+$messages['accountlocked'] = 'Превише погрешних покушаја. Покушајте касније.';
 $messages['connerror'] = 'Грешка везе (нисам приступио серверу)';
 $messages['dberror'] = 'Грешка базе података!';
 $messages['windowopenerror'] = 'Искачући прозор је блокиран!';
@@ -50,13 +49,24 @@ $messages['messagesaved'] = 'Порука сачувана у нацрте.';
 $messages['successfullysaved'] = 'Успешно сачувано.';
 $messages['savingresponse'] = 'Снимам текст одговора...';
 $messages['deleteresponseconfirm'] = 'Заиста желите да обришете овај текст одговора?';
+$messages['nocontactselected'] = 'Још увек нисте изабрали контакт.';
 $messages['addedsuccessfully'] = 'Контакт успешно додат у адресар.';
+$messages['contactexists'] = 'Контакт са истом адресом већ постоји.';
 $messages['contactnameexists'] = 'Контакт са истим именом већ постоји.';
 $messages['blockedimages'] = 'Због заштите приватности, слике са удаљених сервера су блокиране у овој поруци.';
+$messages['blockedresources'] = 'Због заштите приватности, удаљени ресурси су блокирани.';
 $messages['encryptedmessage'] = 'Ова порука је шифрована и не може се приказати. Жао нам је!';
+$messages['externalmessagedecryption'] = 'Ово је шифрована порука и може се дешифровати са проширењем вашег прегледача.';
+$messages['nopubkeyfor'] = 'Нема исправног јавног кључа за $email';
+$messages['nopubkeyforsender'] = 'Нема исправног јавног кључа за ваш идентитет пошиљаоца. Желите ли да поруку шифрујете само за примаоце?';
+$messages['encryptnoattachments'] = 'Већ одаслат прилог не може се шифровати. Додајте га поново у уређивач шифровања.';
+$messages['searchpubkeyservers'] = 'Желите ли да недостајуће кључеве потражите на серверима јавних кључева?';
+$messages['encryptpubkeysfound'] = 'Нађени су следећи јавни кључеви:';
+$messages['keyservererror'] = 'Неуспело добављање кључа са сервера.';
+$messages['keyimportsuccess'] = 'Јавни кључ $key успешно увезен.';
 $messages['nocontactsfound'] = 'Нема контаката.';
 $messages['contactnotfound'] = 'Тражени контакт није нађен.';
-$messages['contactsearchonly'] = 'Унесите термин за претрагу контаката';
+$messages['contactsearchonly'] = 'Користите форму претраге да видите контакте из изабраног адресара.';
 $messages['sendingfailed'] = 'Грешка при слању поруке.';
 $messages['senttooquickly'] = 'Сачекајте $sec сек. пре слања ове поруке.';
 $messages['errorsavingsent'] = 'Десила се грешка при упису послате поруке.';
@@ -65,10 +75,13 @@ $messages['errormoving'] = 'Не могу да преместим поруке.'
 $messages['errorcopying'] = 'Не могу да копирам поруке.';
 $messages['errordeleting'] = 'Не могу да обришем поруке.';
 $messages['errormarking'] = 'Не могу да означим поруке.';
+$messages['alerttitle'] = 'Пажња';
+$messages['confirmationtitle'] = 'Јесте ли сигурни...';
 $messages['deletecontactconfirm']  = 'Да ли заиста желите да обришете изабране контакте?';
 $messages['deletegroupconfirm']  = 'Да ли заиста желите да обришете изабрану групу?';
 $messages['deletemessagesconfirm'] = 'Да ли заиста желите да обришете изабране поруке?';
 $messages['deletefolderconfirm']  = 'Да ли заиста желите да обришете ову фасциклу?';
+$messages['movefolderconfirm']  = 'Да ли заиста желите да преместите ову фасциклу?';
 $messages['purgefolderconfirm']  = 'Да ли заиста желите да обришете све поруке у фасцикли?';
 $messages['contactdeleting'] = 'Бришем контакте...';
 $messages['groupdeleting'] = 'Бришем групу...';
@@ -80,12 +93,15 @@ $messages['formincomplete'] = 'Образац није у целости поп�
 $messages['noemailwarning'] = 'Унесите исправну адресу е-поште.';
 $messages['nonamewarning']  = 'Унесите име.';
 $messages['nopagesizewarning'] = 'Унесите величину странице.';
+$messages['nosenderwarning'] = 'Унесите е-адресу пошиљаоца.';
+$messages['recipientsadded'] = 'Примаоци успешно додати.';
 $messages['norecipientwarning'] = 'Унесите бар једног примаоца.';
+$messages['disclosedreciptitle'] = 'Превише јавних корисика';
 $messages['nosubjectwarning']  = 'Поље „Наслов“ је празно. Желите ли да унесете наслов?';
+$messages['nosubjecttitle']  = 'Нема теме';
 $messages['nobodywarning'] = 'Да ли желите да пошаљете поруку без текста?';
-$messages['notsentwarning'] = 'Порука није послата. Да ли желите да одбаците ову поруку?';
+$messages['notsentwarning'] = 'Порука није послата и има несачуване измене. Желите ли да одбаците измене?';
 $messages['restoresavedcomposedata'] = 'Нађена је порука претходно састављена али није послата.\n\nПредмет: $subject\nСачувана: $date\n\nЖелите ли да вратите ову поруку?';
-$messages['noldapserver'] = 'Унесите ЛДАП сервер за претрагу';
 $messages['nosearchname'] = 'Унесите име контакта или е-адресу.';
 $messages['notuploadedwarning'] = 'Нису сви прилози отпремљени. Сачекајте или откажите отпремање.';
 $messages['searchsuccessful'] = 'Пронађених порука: $nr';
@@ -98,18 +114,20 @@ $messages['nospellerrors'] = 'Нису нађене правописне гре�
 $messages['folderdeleted'] = 'Фасцикла успешно обрисана.';
 $messages['foldersubscribed'] = 'Фасцикла успешно претплаћена.';
 $messages['folderunsubscribed'] = 'Фасцикла успешно одјављена са претплате.';
-$messages['folderpurged'] = 'Фасцикла успешно испражњена.';
-$messages['folderexpunged'] = 'Фасцикла успешно сажета.';
 $messages['deletedsuccessfully'] = 'Успешно обрисано.';
 $messages['converting'] = 'Уклањам форматирања...';
 $messages['messageopenerror'] = 'Порука се не може учитати са сервера.';
 $messages['filelinkerror'] = 'Прилагање фајла није успело.';
 $messages['fileuploaderror'] = 'Неуспешно отпремање фајла.';
+$messages['csvfilemismatch'] = 'Увоз више ЦСВ фајлова са различитим пољима није подржано.';
 $messages['filesizeerror'] = 'Отпремљени фајл превазилази максимум од $size.';
+$messages['filecounterror'] = 'Највише фајлова које можете послати одједном је $count';
+$messages['msgsizeerror'] = 'Не могу да приложим фајл. Максимална величина поруке од ($size) је прекорачена.';
+$messages['msgsizeerrorfwd'] = 'Ограничење величине поруке ($size) прекорачено. Број порука које нису приложене: $num.';
 $messages['copysuccess'] = 'Успешно копирано $nr контаката.';
 $messages['movesuccess'] = 'Успешно премештено $nr контаката.';
-$messages['copyerror'] = 'Не могох да копирам ниједан контакт.';
-$messages['moveerror'] = 'Не могох да преместим ниједан контакт.';
+$messages['copyerror'] = 'Нисам могао да копирам ниједан контакт.';
+$messages['moveerror'] = 'Нисам могао да преместим ниједан контакт.';
 $messages['sourceisreadonly'] = 'Овај извор адресе је само за читање.';
 $messages['errorsavingcontact'] = 'Не могу да сачувам адресу контакта.';
 $messages['movingmessage'] = 'Премештам поруке...';
@@ -133,10 +151,10 @@ $messages['nogroupassignmentschanged'] = 'Нису измењена задуже
 $messages['importwait'] = 'Увозим, сачекајте...';
 $messages['importformaterror'] = 'Увоз није успео! Отпремљени фајл није исправан фајл увоза података.';
 $messages['importconfirm'] = '<b>Успешно увезено контаката: $inserted</b>';
-$messages['importconfirmskipped'] = '<b>Прескочено постојећих уноса: $skipped</b>';
 $messages['importmessagesuccess'] = 'Успешно увезено $nr порука';
-$messages['importmessageerror'] = 'Увоз није успео! Отпремљени фајл није исправан фајл порука или поштанског сандучета';
+$messages['importmessageerror'] = 'Увоз није успео! Отпремљени фајл није исправан фајл поруке или сандучета';
 $messages['opnotpermitted'] = 'Радња није дозвољена!';
+$messages['nofromaddress'] = 'У изабраном идентитету недостаје е-адреса.';
 $messages['editorwarning'] = 'Пребацивање типа уређивача може узроковати губитак форматирања текста. Желите ли да наставите?';
 $messages['httpreceivedencrypterror'] = 'Кобна грешка у постави. Контактирајте одмах вашег администратора. <b>Ваша порука се не може послати.</b>';
 $messages['smtpconnerror'] = 'СМТП грешка ($code): неуспешно повезивање на сервер.';
@@ -144,10 +162,13 @@ $messages['smtpautherror'] = 'СМТП грешка ($code): неуспешна 
 $messages['smtpfromerror'] = 'СМТП грешка ($code): неуспешно постављање пошиљаоца "$from" ($msg)';
 $messages['smtptoerror'] = 'СМТП грешка ($code): неуспешно додавање примаоца "$to" ($msg)';
 $messages['smtprecipientserror'] = 'СМТП грешка ($code): није могуће рашчланити листу прималаца.';
+$messages['smtputf8error'] = 'СМТП грешка: сервер не подржава Уникод у адресама е-поште.';
+$messages['smtpsizeerror'] = 'СМТП грешка: порука прекорачује ограничење величине ($limit)';
 $messages['smtperror'] = 'СМТП грешка ($code): $msg';
+$messages['emailformaterror'] = 'Неисправна е-адреса: $email';
 $messages['toomanyrecipients'] = 'Превише прималаца. Смањите број прималаца на $max.';
 $messages['maxgroupmembersreached'] = 'Број чланова групе прелази максимум од $max.';
-$messages['internalerror'] = 'Десила се унутрашња грешка. ';
+$messages['internalerror'] = 'Десила се унутрашња грешка. Покушајте поново.';
 $messages['contactdelerror'] = 'Не могу да обришем контакте.';
 $messages['contactdeleted'] = 'Брисање контаката успешно.';
 $messages['contactrestoreerror'] = 'Не могу да вратим обрисане контакте.';
@@ -161,6 +182,7 @@ $messages['savedsearchcreated'] = 'Успешно је сачувана прет
 $messages['savedsearchcreateerror'] = 'Не могу да сачувам претрагу.';
 $messages['messagedeleted'] = 'Поруке су успешно обрисане.';
 $messages['messagemoved'] = 'Поруке су успешно премештене.';
+$messages['messagemovedtotrash'] = 'Поруке успешно премештене у Смеће.';
 $messages['messagecopied'] = 'Поруке су успешно копиране.';
 $messages['messagemarked'] = 'Поруке су успешно означене.';
 $messages['autocompletechars'] = 'За аутоматско довршавање унесите бар $min знака.';
@@ -174,16 +196,25 @@ $messages['invalidimageformat'] = 'Није исправан формат сли
 $messages['mispellingsfound'] = 'Уочене су правописне грешке у поруци.';
 $messages['parentnotwritable'] = 'Не могу да направим/преместим фасциклу у изабрану фасциклу. Нема дозволе приступа.';
 $messages['messagetoobig'] = 'Део са поруком је превелик за обраду.';
-$messages['attachmentvalidationerror'] = 'УПОЗОРЕЊЕ! Овај прилог је сумњив зато што се његов тип не поклапа са типом објављеним у поруци. Уколико немате поверења у пошиљаоца, не отварајте је у прегледачу зато што може садржати злонамерни садржај.<br/><br/><em>Очекивао: $expected; нашао: $detected</em>';
+$messages['attachmentvalidationerror'] = 'Овај прилог је сумњив јер се његов тип не поклапа са типом наведеним у поруци. Ако не верујете пошиљаоцу, не би требало да га отварате у прегледачу јер може имати малициозан садржај.<br/><br/><em>Очекивано: $expected; откривено: $detected</em>';
 $messages['noscriptwarning'] = 'Упозорење: ова поштанска услуга захтева Јава скрипт! Да бисте је користили, укључите Јава скрипт у поставкама вашег прегледача.';
 $messages['messageissent'] = 'Порука је већ послата али није још сачувана. Желите ли да је сачувате сада?';
 $messages['errnotfound'] = 'Фајл није нађен';
 $messages['errnotfoundexplain'] = 'Захтевани ресурс није нађен!';
 $messages['errfailedrequest'] = 'Неуспешан захтев';
 $messages['errauthorizationfailed'] = 'Овлашћење није успело';
-$messages['errunauthorizedexplain'] = 'Не могох да оверим ваше овлашћење за приступ овом сервису!';
+$messages['errunauthorizedexplain'] = 'Нисам могао да проверим ваше овлашћење за приступ овом сервису!';
 $messages['errrequestcheckfailed'] = 'Захтев за провером није успео';
 $messages['errcsrfprotectionexplain'] = "Због ваше заштите, приступ овом ресурсу је обезбјеђен против ЦСРФ-а.\nАко видите ово, вероватно се нисте одјавили пре напуштања веб апликације.\n\nСада је потребна интеракција човека за наставак.";
 $messages['errcontactserveradmin'] = 'Контактирајте администратора вашег сервера.';
 $messages['clicktoresumesession'] = 'Кликните овде да бисте наставили вашу претходну сесију';
+$messages['errcomposesession'] = 'Грешка сесије састављача';
+$messages['errcomposesessionexplain'] = 'Тражена сесија састављача није нађена.';
 $messages['clicktocompose'] = 'Кликните овде да саставите нову поруку';
+$messages['nosupporterror'] = 'Ваш прегледач не подржава ову могућност.';
+$messages['siginserted'] = 'Потпис успешно убачен.';
+$messages['responseinserted'] = 'Одговор успешно убачен.';
+$messages['listempty'] = 'Списак је празан.';
+$messages['listusebutton'] = 'Користите дугме Направи да додате нови запис.';
+$messages['keypaircreatesuccess'] = 'Нови пар кључева је успешно креиран за $identity.';
+$messages['emptyattachment'] = 'Овај прилог делује празно.<br>Проверите са особом која га је послала.';

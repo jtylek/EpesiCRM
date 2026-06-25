@@ -1,0 +1,21 @@
+<?php
+
+/*
+ +-----------------------------------------------------------------------+
+ | Localization file of the Roundcube Webmail Enigma plugin              |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ |                                                                       |
+ | Licensed under the GNU General Public License version 3 or            |
+ | any later version with exceptions for skins & plugins.                |
+ | See the README file for a full license statement.                     |
+ +-----------------------------------------------------------------------+
+*/
+
+$labels['keyname'] = 'Ad';
+$labels['keyid'] = 'Açar ID';
+$labels['typeencrypt'] = 'Şifrələ';
+$labels['subkeycreated'] = 'Yaradılma tarixi';
+$labels['expiresnever'] = 'heç vaxt';
+$labels['unknown'] = 'naməlum';
+$labels['newkeypass'] = 'Şifrə';

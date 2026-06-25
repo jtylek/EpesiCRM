@@ -147,7 +147,7 @@ $config['plugins'] = array(
 );
 
 // skin name: folder from skins/
-$config['skin'] = 'classic';
+$config['skin'] = 'elastic';
 
 $config['log_dir'] = $log_dir;
 $config['temp_dir'] = $data_dir;

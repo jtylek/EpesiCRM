@@ -41,25 +41,30 @@ require_once __DIR__ . '/LDAP3/Result.php';
  */
 class Net_LDAP3
 {
+    const CONTROL_EFFECTIVE_RIGHTS = '1.3.6.1.4.1.42.2.27.9.5.2';
+    const CONTROL_SORT_REQUEST     = '1.2.840.113556.1.4.473';
+    const CONTROL_VLV_REQUEST      = '2.16.840.1.113730.3.4.9';
+    const CONTROL_VLV_RESPONSE     = '2.16.840.1.113730.3.4.10';
+
     public $conn;
     public $vlv_active = false;
 
-    private $attribute_level_rights_map = array(
-        "r" => "read",
-        "s" => "search",
-        "w" => "write",
-        "o" => "delete",
-        "c" => "compare",
-        "W" => "write",
-        "O" => "delete"
-    );
+    private $attribute_level_rights_map = [
+        'r' => 'read',
+        's' => 'search',
+        'w' => 'write',
+        'o' => 'delete',
+        'c' => 'compare',
+        'W' => 'write',
+        'O' => 'delete'
+    ];
 
-    private $entry_level_rights_map = array(
-        "a" => "add",
-        "d" => "delete",
-        "n" => "modrdn",
-        "v" => "read"
-    );
+    private $entry_level_rights_map = [
+        'a' => 'add',
+        'd' => 'delete',
+        'n' => 'modrdn',
+        'v' => 'read'
+    ];
 
     /*
      * Manipulate configuration through the config_set and config_get methods.
@@ -70,6 +75,7 @@ class Net_LDAP3
      *       'use_tls'         => false,
      *       'ldap_version'    => 3,        // using LDAPv3
      *       'auth_method'     => '',       // SASL authentication method (for proxy auth), e.g. DIGEST-MD5
+     *       'gssapi_cn'       => null      // Kerberos cache name (KRB5CCNAME) for SASL GSSAPI authentication
      *       'numsub_filter'   => '(objectClass=organizationalUnit)', // with VLV, we also use numSubOrdinates to query the total number of records. Set this filter to get all numSubOrdinates attributes for counting
      *       'referrals'       => false,    // Sets the LDAP_OPT_REFERRALS option. Mostly used in multi-domain Active Directory setups
      *       'network_timeout' => 10,       // The timeout (in seconds) for connect + bind arrempts. This is only supported in PHP >= 5.3.0 with OpenLDAP 2.x
@@ -81,15 +87,17 @@ class Net_LDAP3
      *       'service_bind_pw' => 'Welcome2KolabSystems',
      *       'root_dn'         => 'dc=example,dc=org',
      */
-    protected $config = array(
-        'sizelimit' => 0,
-        'timelimit' => 0,
-    );
+    protected $config = [
+        'sizelimit'      => 0,
+        'timelimit'      => 0,
+        'config_root_dn' => 'cn=config',
+        'vlv'            => null,
+    ];
 
     protected $debug_level = false;
     protected $list_page   = 1;
     protected $page_size   = 10;
-    protected $icache      = array();
+    protected $icache      = [];
     protected $cache;
 
     // Use public method config_set('log_hook', $callback) to have $callback be
@@ -112,32 +120,29 @@ class Net_LDAP3
     protected $_current_bind_dn;
     protected $_current_bind_pw;
     protected $_current_host;
-    protected $_supported_control = array();
+    protected $_metadata;
     protected $_vlv_indexes_and_searches;
+
 
     /**
      * Constructor
      *
-     * @param array $config Configuration parameters that have not already
-     *                      been initialized. For configuration parameters
-     *                      that have in fact been set, use the config_set()
-     *                      method after initialization.
+     * @param array $config Configuration parameters. After initialization use
+     *                      the config_set() method.
      */
-    public function __construct($config = array())
+    public function __construct($config = [])
     {
         if (!empty($config) && is_array($config)) {
             foreach ($config as $key => $value) {
-                if (empty($this->config[$key])) {
-                    $setter = 'config_set_' . $key;
-                    if (method_exists($this, $setter)) {
-                        $this->$setter($value);
-                    }
-                    else if (isset($this->$key)) {
-                        $this->$key = $value;
-                    }
-                    else {
-                        $this->config[$key] = $value;
-                    }
+                $setter = 'config_set_' . $key;
+                if (method_exists($this, $setter)) {
+                    $this->$setter($value);
+                }
+                else if (isset($this->$key)) {
+                    $this->$key = $value;
+                }
+                else {
+                    $this->config[$key] = $value;
                 }
             }
         }
@@ -146,7 +151,7 @@ class Net_LDAP3
     /**
      *  Add multiple entries to the directory information tree in one go.
      */
-    public function add_entries($entries, $attributes = array())
+    public function add_entries($entries, $attributes = [])
     {
         // If $entries is an associative array, it's keys are DNs and its
         // values are the attributes for that DN.
@@ -154,7 +159,7 @@ class Net_LDAP3
         // If $entries is a non-associative array, the attributes are expected
         // to be positional in $attributes.
 
-        $result_set = array();
+        $result_set = [];
 
         if (array_keys($entries) == range(0, count($entries) - 1)) {
             // $entries is sequential
@@ -270,24 +275,28 @@ class Net_LDAP3
         // Then add the replication agreements
         foreach ($replica_hosts as $num => $replica_host) {
             $ldap = new Net_LDAP3($this->config);
-            $ldap->config_set('hosts', array($replica_host));
+            $ldap->config_set('hosts', [$replica_host]);
             $ldap->connect();
             $ldap->bind($this->_current_bind_dn, $this->_current_bind_pw);
 
-            $replica_attrs = array(
+            $attrs = [
+                'nsDS5ReplicaBindDN',
+                'nsDS5ReplicaType',
+                'nsds5ReplicaPurgeDelay',
+                'nsDS5Flags'
+            ];
+
+            $replica_attrs = $ldap->get_entry_attributes($replica_dn, $attrs);
+            $replica_attrs = array_merge((array) $replica_attrs, [
                 'cn' => 'replica',
-                'objectclass' => array(
+                'objectclass' => [
                     'top',
                     'nsds5replica',
                     'extensibleobject',
-                ),
-                'nsDS5ReplicaBindDN'     => $ldap->get_entry_attribute($replica_dn, "nsDS5ReplicaBindDN"),
-                'nsDS5ReplicaId'         => ($max_repl_id + $num + 1),
-                'nsDS5ReplicaRoot'       => $domain_root_dn,
-                'nsDS5ReplicaType'       => $ldap->get_entry_attribute($replica_dn, "nsDS5ReplicaType"),
-                'nsds5ReplicaPurgeDelay' => $ldap->get_entry_attribute($replica_dn, "nsds5ReplicaPurgeDelay"),
-                'nsDS5Flags'             => $ldap->get_entry_attribute($replica_dn, "nsDS5Flags")
-            );
+                ],
+                'nsDS5ReplicaId'   => $max_repl_id + $num + 1,
+                'nsDS5ReplicaRoot' => $domain_root_dn,
+            ]);
 
             $new_replica_dn = 'cn=replica,cn="' . $domain_root_dn . '",cn=mapping tree,cn=config';
 
@@ -320,19 +329,21 @@ class Net_LDAP3
 
                 $this->_debug("Adding a replication agreement for $domain_root_dn to $replicate_to_host on " . $replica_host);
 
-                $attrs = array(
+                $attrs = [
                     'objectclass',
                     'nsDS5ReplicaBindDN',
                     'nsDS5ReplicaCredentials',
                     'nsDS5ReplicaTransportInfo',
-                    'nsDS5ReplicaBindMethod',
-                    'nsDS5ReplicaHost',
-                    'nsDS5ReplicaPort'
-                );
+                    'nsDS5ReplicaBindMethod'
+                ];
+
+                list($host, $port) = strpos($replicate_to_host, ':') !== false ? explode(':', $replicate_to_host) : [$replicate_to_host, 389];
 
                 $replica_agreement_attrs = $ldap->get_entry_attributes($replica_agreement_tpl_dn, $attrs);
-                $replica_agreement_attrs['cn'] = array_shift(explode('.', $replicate_to_host)) . str_replace(array('dc=',','), array('_',''), $domain_root_dn);
+                $replica_agreement_attrs['cn'] = array_shift(explode('.', $replicate_to_host)) . str_replace(['dc=', ','], ['_', ''], $domain_root_dn);
                 $replica_agreement_attrs['nsDS5ReplicaRoot'] = $domain_root_dn;
+                $replica_agreement_attrs['nsDS5ReplicaHost'] = $host;
+                $replica_agreement_attrs['nsDS5ReplicaPort'] = $port;
                 $replica_agreement_dn = "cn=" . $replica_agreement_attrs['cn'] . "," . $new_replica_dn;
 
                 $this->_debug("Adding $replica_agreement_dn to $replica_host with attributes: " . var_export($replica_agreement_attrs, true));
@@ -355,27 +366,27 @@ class Net_LDAP3
             foreach ($result->entries(true) as $agreement_dn => $agreement_attrs) {
                 $this->modify_entry_attributes(
                     $agreement_dn,
-                    array(
-                        'replace' => array(
+                    [
+                        'replace' => [
                             'nsds5BeginReplicaRefresh' => 'start',
-                        ),
-                    )
+                        ],
+                    ]
                 );
             }
         }
     }
 
-    public function attribute_details($attributes = array())
+    public function attribute_details($attributes = [])
     {
         $schema = $this->init_schema();
 
         if (!$schema) {
-            return array();
+            return [];
         }
 
         $attribs = $schema->getAll('attributes');
 
-        $attributes_details = array();
+        $attributes_details = [];
 
         foreach ($attributes as $attribute) {
             if (array_key_exists($attribute, $attribs)) {
@@ -407,18 +418,18 @@ class Net_LDAP3
             }
 
             // The relevant parts only, please
-            $attributes_details[$attribute] = array(
+            $attributes_details[$attribute] = [
                 'type'        => !empty($attrib_details['single-value']) ? 'text' : 'list',
                 'description' => $attrib_details['desc'],
                 'syntax'      => $attrib_details['syntax'],
                 'max-length'  => $attrib_details['max-length'] ?: false,
-            );
+            ];
         }
 
         return $attributes_details;
     }
 
-    public function attributes_allowed($objectclasses = array())
+    public function attributes_allowed($objectclasses = [])
     {
         $this->_debug("Listing allowed_attributes for objectclasses", $objectclasses);
 
@@ -431,9 +442,9 @@ class Net_LDAP3
             return false;
         }
 
-        $may          = array();
-        $must         = array();
-        $superclasses = array();
+        $may          = [];
+        $must         = [];
+        $superclasses = [];
 
         foreach ($objectclasses as $objectclass) {
             $superclass = $schema->superclass($objectclass);
@@ -456,7 +467,7 @@ class Net_LDAP3
         $must         = array_unique($must);
         $superclasses = array_unique($superclasses);
 
-        return array('may' => $may, 'must' => $must, 'super' => $superclasses);
+        return ['may' => $may, 'must' => $must, 'super' => $superclasses];
     }
 
     public function classes_allowed()
@@ -467,7 +478,7 @@ class Net_LDAP3
         }
 
         $list    = $schema->getAll('objectclasses');
-        $classes = array();
+        $classes = [];
 
         foreach ($list as $class) {
             $classes[] = $class['name'];
@@ -534,17 +545,18 @@ class Net_LDAP3
     public function config_get($key, $default = null)
     {
         if (!empty($this->_config_get_hook)) {
-            return call_user_func_array($this->_config_get_hook, array($key, $value));
+            return call_user_func_array($this->_config_get_hook, [$key, $value]);
         }
-        else if (method_exists($this, "config_get_{$key}")) {
-            return call_user_func(array($this, "config_get_$key"), $value);
+
+        if (method_exists($this, "config_get_{$key}")) {
+            return call_user_func([$this, "config_get_{$key}"], $value);
         }
-        else if (!isset($this->config[$key])) {
+
+        if (!isset($this->config[$key])) {
             return $default;
         }
-        else {
-            return $this->config[$key];
-        }
+
+        return $this->config[$key];
     }
 
     /**
@@ -563,10 +575,10 @@ class Net_LDAP3
         }
 
         if (!empty($this->_config_set_hook)) {
-            call_user_func($this->_config_set_hook, array($key, $value));
+            call_user_func($this->_config_set_hook, [$key, $value]);
         }
         else if (method_exists($this, "config_set_{$key}")) {
-            call_user_func_array(array($this, "config_set_$key"), array($value));
+            call_user_func_array([$this, "config_set_{$key}"], [$value]);
         }
         else if (property_exists($this, $key)) {
             $this->$key = $value;
@@ -592,18 +604,19 @@ class Net_LDAP3
             return false;
         }
 
-        if (is_resource($this->conn)) {
+        if (isset($this->conn) && $this->conn !== false) {
             $this->_debug("Connection already exists");
             return true;
         }
 
-        $hosts = !empty($host) ? $host : $this->config_get('hosts', array());
+        $hosts = !empty($host) ? $host : $this->config_get('hosts', []);
         $port  = $this->config_get('port', 389);
 
         foreach ((array) $hosts as $host) {
-            $this->_debug("C: Connect [$host:$port]");
+            $ldap_uri = $this->_host2uri($host, $port);
+            $this->_debug("C: Connect [{$ldap_uri}]");
 
-            if ($lc = @ldap_connect($host, $port)) {
+            if ($lc = @ldap_connect($ldap_uri)) {
                 if ($this->config_get('use_tls', false) === true) {
                     if (!ldap_start_tls($lc)) {
                         $this->_debug("S: Could not start TLS. " . ldap_error($lc));
@@ -627,7 +640,7 @@ class Net_LDAP3
                     ldap_set_option($lc, LDAP_OPT_REFERRALS, (bool) $referrals);
                 }
 
-                $this->_current_host = $host;
+                $this->_current_host = $ldap_uri;
                 $this->conn          = $lc;
 
                 break;
@@ -636,7 +649,7 @@ class Net_LDAP3
             $this->_debug("S: NOT OK");
         }
 
-        if (!is_resource($this->conn)) {
+        if (!isset($this->conn) || $this->conn === false) {
             $this->_error("Could not connect to LDAP");
             return false;
         }
@@ -687,21 +700,15 @@ class Net_LDAP3
         return true;
     }
 
+    /**
+     * Gets effective rights of an ldap entry
+     */
     public function effective_rights($subject)
     {
-        $effective_rights_control_oid = "1.3.6.1.4.1.42.2.27.9.5.2";
-
-        $supported_controls = $this->supported_controls();
-
-        if (!in_array($effective_rights_control_oid, $supported_controls)) {
+        if (!in_array(self::CONTROL_EFFECTIVE_RIGHTS, $this->supported_controls())) {
             $this->_debug("LDAP: No getEffectiveRights control in supportedControls");
             return false;
         }
-
-        $attributes = array(
-            'attributeLevelRights' => array(),
-            'entryLevelRights' => array(),
-        );
 
         $entry_dn = $this->entry_dn($subject);
 
@@ -719,67 +726,108 @@ class Net_LDAP3
 
         $this->_debug("effective_rights for subject $subject resolves to entry dn $entry_dn");
 
+        if (PHP_VERSION_ID >= 70300) {
+            // Note: This get_entry() have to request all attributes to be working
+            $result = $this->get_entry($entry_dn, ['*'], [
+                    [
+                        'oid'        => self::CONTROL_EFFECTIVE_RIGHTS,
+                        'value'      => 'dn:' . $this->_current_bind_dn,
+                        'iscritical' => true,
+                    ],
+                ]);
+
+            if (!empty($result)) {
+                $attributes = [
+                    'dn'                   => $entry_dn,
+                    'attributelevelrights' => [],
+                    'entrylevelrights'     => [],
+                ];
+
+                foreach (['aclrights', 'attributelevelrights', 'entrylevelrights'] as $attr_name) {
+                    if (!empty($result[$attr_name])) {
+                        $attr_value = $result[$attr_name];
+
+                        switch ($attr_name) {
+                        case 'aclrights':
+                            $this->parse_aclrights($attributes, $attr_value);
+                            break;
+                        case 'attributelevelrights':
+                            $attributes[$attr_name] = $this->parse_attribute_level_rights($attr_value);
+                            break;
+                        case 'entrylevelrights':
+                            $attributes[$attr_name] = $this->parse_entry_level_rights($attr_value);
+                            break;
+                        }
+                    }
+                }
+
+                $this->_debug("LDAP: Effective rights:" . var_export($attributes, true));
+
+                return $attributes;
+            }
+
+            return false;
+        }
+
+        // Use ldapsearch command
+        return $this->effective_rights_mozldap($entry_dn);
+    }
+
+    protected function effective_rights_mozldap($entry_dn)
+    {
         $moz_ldapsearch = "/usr/lib64/mozldap/ldapsearch";
         if (!is_file($moz_ldapsearch)) {
             $moz_ldapsearch = "/usr/lib/mozldap/ldapsearch";
+        }
+        if (!is_file($moz_ldapsearch)) {
+            $moz_ldapsearch = "/usr/bin/ldapsearch";
         }
         if (!is_file($moz_ldapsearch)) {
             $moz_ldapsearch = null;
         }
 
         if (empty($moz_ldapsearch)) {
-            $this->_error("Mozilla LDAP C SDK binary ldapsearch not found, cannot get effective rights on subject $subject");
+            $this->_error("Mozilla LDAP C SDK binary ldapsearch not found, cannot get effective rights");
             return null;
         }
 
-        $output = array();
-        $command = Array(
-                $moz_ldapsearch,
-                '-x',
-                '-h',
-                $this->_current_host,
-                '-p',
-                $this->config_get('port', 389),
-                '-b',
-                escapeshellarg($entry_dn),
-                '-s',
-                'base',
-                '-D',
-                escapeshellarg($this->_current_bind_dn),
-                '-w',
-                escapeshellarg($this->_current_bind_pw)
-            );
+        $output = [];
+        $command = [
+            $moz_ldapsearch,
+            '-x',
+            '-h',
+            parse_url($this->_current_host, PHP_URL_HOST),
+            '-b',
+            escapeshellarg($entry_dn),
+            '-s',
+            'base',
+            '-D',
+            escapeshellarg($this->_current_bind_dn),
+            '-w',
+            escapeshellarg($this->_current_bind_pw)
+        ];
+
+        if ($moz_ldapsearch != "/usr/bin/ldapsearch") {
+            $command[] = '-p';
+            $command[] = parse_url($this->_current_host, PHP_URL_PORT);
+        }
+
+        // TODO: Can we use -H instead of -h and -p?
 
         if ($this->vendor_name() == "Oracle Corporation") {
             // For Oracle DSEE
             $command[] = "-J";
-            $command[] = escapeshellarg(
-                    implode(
-                            ':',
-                            Array(
-                                    $effective_rights_control_oid,          // OID
-                                    'true'                                  // Criticality
-                                )
-                        )
-                );
+            $command[] = escapeshellarg(self::CONTROL_EFFECTIVE_RIGHTS . ':true');
             $command[] = "-c";
-            $command[] = escapeshellarg(
-                    'dn:' . $this->_current_bind_dn
-                );
-
+            $command[] = escapeshellarg('dn:' . $this->_current_bind_dn);
+        } else if ($moz_ldapsearch == "/usr/bin/ldapsearch") {
+            // Modern 389 DS:
+            $command[] = "-E";
+            $command[] = escapeshellarg("!" . self::CONTROL_EFFECTIVE_RIGHTS . '=:dn:' . $this->_current_bind_dn);
         } else {
             // For 389 DS:
             $command[] = "-J";
-            $command[] = escapeshellarg(
-                    implode(
-                            ':',
-                            Array(
-                                    $effective_rights_control_oid,          // OID
-                                    'true',                                 // Criticality
-                                    'dn:' . $this->_current_bind_dn         // User DN
-                                )
-                        )
-                );
+            $command[] = escapeshellarg(self::CONTROL_EFFECTIVE_RIGHTS . ':true:dn:' . $this->_current_bind_dn);
         }
 
         // For both
@@ -810,7 +858,7 @@ class Net_LDAP3
             return null;
         }
 
-        $lines = array();
+        $lines = [];
         foreach ($output as $line_num => $line) {
             if (substr($line, 0, 1) == " ") {
                 $lines[count($lines)-1] .= trim($line);
@@ -820,6 +868,12 @@ class Net_LDAP3
             }
         }
 
+        $attributes = [
+            'dn'                   => $subject_dn,
+            'attributelevelrights' => [],
+            'entrylevelrights'     => [],
+        ];
+
         if ($this->vendor_name() == "Oracle Corporation") {
             // Example for attribute level rights:
             // aclRights;attributeLevel;$attr:$right:$bool,$right:$bool
@@ -827,20 +881,12 @@ class Net_LDAP3
             // aclRights;entryLevel: add:1,delete:1,read:1,write:1,proxy:1
             foreach ($lines as $line) {
                 $line_components = explode(':', $line);
-                $attribute_name = explode(';', array_shift($line_components));
+                $attribute_name  = explode(';', array_shift($line_components));
 
-                switch ($attribute_name[0]) {
-                    case "aclRights":
-                        $this->parse_aclrights($attributes, $line);
-                        break;
-                    case "dn":
-                        $attributes[$attribute_name[0]] = trim(implode(';', $line_components));
-                        break;
-                    default:
-                        break;
+                if ($attribute_name[0] === "aclRights") {
+                    $this->parse_aclrights($attributes, $line);
                 }
             }
-
         } else {
             foreach ($lines as $line) {
                 $line_components = explode(':', $line);
@@ -848,17 +894,12 @@ class Net_LDAP3
                 $attribute_value = trim(implode(':', $line_components));
 
                 switch ($attribute_name) {
-                    case "attributeLevelRights":
-                        $attributes[$attribute_name] = $this->parse_attribute_level_rights($attribute_value);
-                        break;
-                    case "dn":
-                        $attributes[$attribute_name] = $attribute_value;
-                        break;
-                    case "entryLevelRights":
-                        $attributes[$attribute_name] = $this->parse_entry_level_rights($attribute_value);
-                        break;
-                    default:
-                        break;
+                case "attributeLevelRights":
+                    $attributes['attributelevelrights'] = $this->parse_attribute_level_rights($attribute_value);
+                    break;
+                case "entryLevelRights":
+                    $attributes['entrylevelrights'] = $this->parse_entry_level_rights($attribute_value);
+                    break;
                 }
             }
         }
@@ -875,7 +916,7 @@ class Net_LDAP3
      *
      * @return string Entry DN string
      */
-    public function entry_dn($subject, $attributes = array(), $base_dn = null)
+    public function entry_dn($subject, $attributes = [], $base_dn = null)
     {
         $this->_debug("Net_LDAP3::entry_dn($subject)");
         $is_dn = ldap_explode_dn($subject, 1);
@@ -896,7 +937,7 @@ class Net_LDAP3
 
         $this->_debug("Using unique_attribute " . var_export($unique_attr, true) . " at " . __FILE__ . ":" . __LINE__);
 
-        $attributes  = array_merge(array($unique_attr => $subject), (array)$attributes);
+        $attributes  = array_merge([$unique_attr => $subject], (array) $attributes);
         $subject     = $this->entry_find_by_attribute($attributes, $base_dn);
 
         if (!empty($subject)) {
@@ -943,7 +984,7 @@ class Net_LDAP3
 
     public function find_user_groups($member_dn)
     {
-        $groups  = array();
+        $groups  = [];
         $root_dn = $this->config_get('root_dn');
 
         // TODO: Do not query for both, it's either one or the other
@@ -967,20 +1008,28 @@ class Net_LDAP3
         return $entry[strtolower($attribute)];
     }
 
+    /**
+     * Get a specific LDAP entry attributes
+     *
+     * @param string $dn         Record identifier
+     * @param array  $attributes Attributes to return
+     *
+     * @return array Hash array (keys in lower case)
+     */
     public function get_entry_attributes($subject_dn, $attributes)
     {
-        // @TODO: use get_entry?
-        $result = $this->search($subject_dn, '(objectclass=*)', 'base', $attributes);
+        $result = $this->get_entry($subject_dn, $attributes);
 
         if (!$result) {
-            return array();
+            return [];
         }
 
-        $entries  = $result->entries(true);
-        $entry_dn = key($entries);
-        $entry    = $entries[$entry_dn];
+        if (!in_array('*', $attributes) && !in_array('dn', $attributes)) {
+            unset($result['dn']);
+        }
 
-        return $entry;
+        // change keys case for historical reasons
+        return array_change_key_case($result, CASE_LOWER);
     }
 
     /**
@@ -988,17 +1037,25 @@ class Net_LDAP3
      *
      * @param string $dn         Record identifier
      * @param array  $attributes Attributes to return
+     * @param array  $controls   LDAP Controls
      *
-     * @return array Hash array
+     * @return array Hash array (keys in original case)
      */
-    public function get_entry($dn, $attributes = array())
+    public function get_entry($dn, $attributes = ["*"], $controls = [])
     {
         $rec = null;
 
-        if ($this->conn && $dn) {
+        if ($this->conn) {
             $this->_debug("C: Read [dn: $dn] [(objectclass=*)]");
 
-            if ($ldap_result = @ldap_read($this->conn, $dn, '(objectclass=*)', $attributes)) {
+            if (!empty($controls)) {
+                $ldap_result = @ldap_read($this->conn, $dn, '(objectclass=*)', $attributes, 0, -1, -1, LDAP_DEREF_NEVER, $controls);
+            }
+            else {
+                $ldap_result = @ldap_read($this->conn, $dn, '(objectclass=*)', $attributes);
+            }
+
+            if ($ldap_result) {
                 $this->_debug("S: OK");
 
                 if ($entry = ldap_first_entry($this->conn, $ldap_result)) {
@@ -1011,7 +1068,10 @@ class Net_LDAP3
             }
 
             if (!empty($rec)) {
-                $rec['dn'] = $dn; // Add in the dn for the entry.
+                $rec = self::normalize_entry($rec, true);
+                if ($dn) {
+                    $rec['dn'] = $dn; // Add in the dn for the entry.
+                }
             }
         }
 
@@ -1023,7 +1083,7 @@ class Net_LDAP3
         $this->_debug("Finding replicas for this server.");
 
         // Search any host that is a replica for the current host
-        $replica_hosts = $this->config_get('replica_hosts', array());
+        $replica_hosts = $this->config_get('replica_hosts', []);
         $root_dn       = $this->config_get('config_root_dn');
 
         if (!empty($replica_hosts)) {
@@ -1034,7 +1094,9 @@ class Net_LDAP3
         $ldap->connect();
         $ldap->bind($this->_current_bind_dn, $this->_current_bind_pw);
 
-        $result = $ldap->search($root_dn, '(objectclass=nsds5replicationagreement)', 'sub', array('nsds5replicahost'));
+        $host_attrs = ['nsds5replicahost', 'nsds5replicaport'];
+
+        $result = $ldap->search($root_dn, '(objectclass=nsds5replicationagreement)', 'sub', $host_attrs);
 
         if (!$result) {
             $this->_debug("No replicas configured");
@@ -1044,8 +1106,9 @@ class Net_LDAP3
         $this->_debug("Replication agreements found: " . var_export($result->entries(true), true));
 
         foreach ($result->entries(true) as $dn => $attrs) {
-            if (!in_array($attrs['nsds5replicahost'], $replica_hosts)) {
-                $replica_hosts[] = $attrs['nsds5replicahost'];
+            $host = $attrs['nsds5replicahost'] . ':' . !empty($attrs['nsds5replicaport']) ? $attrs['nsds5replicaport'] : 389;
+            if (!in_array($host, $replica_hosts)) {
+                $replica_hosts[] = $host;
             }
         }
 
@@ -1058,11 +1121,11 @@ class Net_LDAP3
         $ldap->close();
 
         foreach ($replica_hosts as $replica_host) {
-            $ldap->config_set('hosts', array($replica_host));
+            $ldap->config_set('hosts', [$replica_host]);
             $ldap->connect();
             $ldap->bind($this->_current_bind_dn, $this->_current_bind_pw);
 
-            $result = $ldap->search($root_dn, '(objectclass=nsds5replicationagreement)', 'sub', array('nsds5replicahost'));
+            $result = $ldap->search($root_dn, '(objectclass=nsds5replicationagreement)', 'sub', $host_attrs);
             if (!$result) {
                 $this->_debug("No replicas configured on $replica_host");
                 $ldap->close();
@@ -1070,8 +1133,9 @@ class Net_LDAP3
             }
 
             foreach ($result->entries(true) as $dn => $attrs) {
-                if (!in_array($attrs['nsds5replicahost'], $replica_hosts)) {
-                    $replica_hosts[] = $attrs['nsds5replicahost'];
+                $host = $attrs['nsds5replicahost'] . ':' . !empty($attrs['nsds5replicaport']) ? $attrs['nsds5replicaport'] : 389;
+                if (!in_array($host, $replica_hosts)) {
+                    $replica_hosts[] = $host;
                 }
             }
 
@@ -1120,7 +1184,6 @@ class Net_LDAP3
             // fetch user attributes if requested
             if (!empty($attributes)) {
                 $attributes = $this->get_entry($entry_dn, $attributes);
-                $attributes = self::normalize_entry($attributes, true);
             }
 
             return $entry_dn;
@@ -1159,12 +1222,12 @@ class Net_LDAP3
 
         $this->_debug("Net::LDAP3::login() original filter: " . $filter);
 
-        $replace_patterns = array(
+        $replace_patterns = [
             '/%s/' => $username,
             '/%d/' => $domain,
             '/%U/' => $localpart,
             '/%r/' => $realm
-        );
+        ];
 
         $filter = preg_replace(array_keys($replace_patterns), array_values($replace_patterns), $filter);
 
@@ -1209,20 +1272,20 @@ class Net_LDAP3
         $this->_debug("Net_LDAP3::list_group_members($dn)");
 
         if (is_array($entry) && in_array('objectclass', $entry)) {
-            if (!in_array(array('groupofnames', 'groupofuniquenames', 'groupofurls'), $entry['objectclass'])) {
+            if (!in_array(['groupofnames', 'groupofuniquenames', 'groupofurls'], $entry['objectclass'])) {
                 $this->_debug("Called list_group_members on a non-group!");
-                return array();
+                return [];
             }
         }
         else {
-            $entry = $this->get_entry($dn, array('member', 'uniquemember', 'memberurl', 'objectclass'));
+            $entry = $this->get_entry_attributes($dn, ['member', 'uniquemember', 'memberurl', 'objectclass']);
 
             if (!$entry) {
-                return array();
+                return [];
             }
         }
 
-        $group_members = array();
+        $group_members = [];
 
         foreach ((array)$entry['objectclass'] as $objectclass) {
             switch (strtolower($objectclass)) {
@@ -1255,17 +1318,19 @@ class Net_LDAP3
 
         $this->_debug("Net_LDAP3::modify_entry() using rdn attribute: " . $rdn_attr);
 
-        $mod_array = array(
-            'add'       => array(), // For use with ldap_mod_add()
-            'del'       => array(), // For use with ldap_mod_del()
-            'replace'   => array(), // For use with ldap_mod_replace()
-            'rename'    => array(), // For use with ldap_rename()
-        );
+        $mod_array = [
+            'add'       => [], // For use with ldap_mod_add()
+            'del'       => [], // For use with ldap_mod_del()
+            'replace'   => [], // For use with ldap_mod_replace()
+            'rename'    => [], // For use with ldap_rename()
+        ];
 
         // This is me cheating. Remove this special attribute.
         if (array_key_exists('ou', $old_attrs) || array_key_exists('ou', $new_attrs)) {
-            $old_ou = is_array($old_attrs['ou']) ? array_shift($old_attrs['ou']) : $old_attrs['ou'];
-            $new_ou = is_array($new_attrs['ou']) ? array_shift($new_attrs['ou']) : $new_attrs['ou'];
+            $old_ou = isset($old_attrs['ou']) && is_array($old_attrs['ou'])
+                ? array_shift($old_attrs['ou']) : (isset($old_attrs['ou']) ? $old_attrs['ou'] : null);
+            $new_ou = isset($new_attrs['ou']) && is_array($new_attrs['ou'])
+                ? array_shift($new_attrs['ou']) : (isset($new_attrs['ou']) ? $new_attrs['ou'] : null);
             unset($old_attrs['ou']);
             unset($new_attrs['ou']);
         }
@@ -1314,7 +1379,7 @@ class Net_LDAP3
                                     $this->_debug("old attrs. is array, new attrs. is not array. new attr. exists in old attrs.");
 
                                     $rdn_attr_value  = array_shift($old_attrs[$attr]);
-                                    $_attr_to_remove = array();
+                                    $_attr_to_remove = [];
 
                                     foreach ($old_attrs[$attr] as $value) {
                                         if (strtolower($value) != strtolower($new_attrs[$attr])) {
@@ -1513,7 +1578,7 @@ class Net_LDAP3
      *
      * @return boolean True on success, False on error
      */
-    public function sasl_bind($authc, $pass, $authz=null)
+    public function sasl_bind($authc = '', $pass = '', $authz = null)
     {
         if (!$this->conn) {
             return false;
@@ -1528,12 +1593,18 @@ class Net_LDAP3
             $authz = 'u:' . $authz;
         }
 
+        $gssapi = $this->config_get('gssapi_cn');
         $method = $this->config_get('auth_method');
+
         if (empty($method)) {
             $method = 'DIGEST-MD5';
         }
 
-        $this->_debug("C: Bind [mech: $method, authc: $authc, authz: $authz]");
+        if ($gssapi && strcasecmp($method, 'GSSAPI') == 0) {
+            putenv("KRB5CCNAME=$gssapi");
+        }
+
+        $this->_debug("C: Bind [mech: $method, authc: $authc, authz: $authz, gssapi: $gssapi]");
 
         if (ldap_sasl_bind($this->conn, null, $pass, $method, null, $authc, $authz)) {
             $this->_debug("S: OK");
@@ -1560,8 +1631,14 @@ class Net_LDAP3
      *
      * @return mixed Net_LDAP3_Result object or number of entries (if $count_only=true) or False on failure
      */
-    public function search($base_dn, $filter = '(objectclass=*)', $scope = 'sub', $attrs = array('dn'), $props = array(), $count_only = false)
+    public function search($base_dn, $filter = '(objectclass=*)', $scope = 'sub', $attrs = ['dn'], $props = [], $count_only = false)
     {
+        $controls = null;
+
+        if (!array_key_exists('sort', $props)) {
+            $props['sort'] = false;
+        }
+
         if (!$this->conn) {
             $this->_debug("No active connection for " . __CLASS__ . "::" . __FUNCTION__);
             return false;
@@ -1569,7 +1646,7 @@ class Net_LDAP3
 
         // make sure attributes list is not empty
         if (empty($attrs)) {
-            $attrs = array('dn');
+            $attrs = ['dn'];
         }
         // make sure filter is not empty
         if (empty($filter)) {
@@ -1584,7 +1661,7 @@ class Net_LDAP3
             // when using VLV, we get the total count by...
             // ...either reading numSubOrdinates attribute
             if (($sub_filter = $this->config_get('numsub_filter')) &&
-                ($result_count = @$ns_function($this->conn, $base_dn, $sub_filter, array('numSubOrdinates'), 0, 0, 0))
+                ($result_count = @$ns_function($this->conn, $base_dn, $sub_filter, ['numSubOrdinates'], 0, 0, 0))
             ) {
                 $counts = ldap_get_entries($this->conn, $result_count);
                 for ($vlv_count = $j = 0; $j < $counts['count']; $j++) {
@@ -1592,14 +1669,17 @@ class Net_LDAP3
                 }
                 $this->_debug("D: total numsubordinates = " . $vlv_count);
             }
-            // ...or by fetching all records dn and count them
-            else if (!function_exists('ldap_parse_virtuallist_control')) {
+            // ...or by parsing the controls in the response, and if that's not supported
+            // by fetching all records dn and counting them
+            else if (PHP_VERSION_ID < 70305 && !function_exists('ldap_parse_virtuallist_control')) {
                 // @FIXME: this search will ignore $props['search']
-                $vlv_count = $this->search($base_dn, $filter, $scope, array('dn'), $props, true);
+                $vlv_count = $this->search($base_dn, $filter, $scope, ['dn'], $props, true);
             }
 
-            $this->vlv_active = $this->_vlv_set_controls($sort, $this->list_page, $this->page_size,
+            $controls = $this->_vlv_set_controls($sort, $this->list_page, $this->page_size,
                 $this->_vlv_search($sort, $props['search']));
+
+            $this->vlv_active = (bool) $controls;
         }
         else {
             $this->vlv_active = false;
@@ -1635,18 +1715,32 @@ class Net_LDAP3
 
         $this->_debug("Executing search with return attributes: " . var_export($attrs, true));
 
-        $ldap_result = @$function($this->conn, $base_dn, $filter, $attrs, 0, $sizelimit, $timelimit);
+        if (is_array($controls)) {
+            $ldap_result = $function($this->conn, $base_dn, $filter, $attrs, 0, $sizelimit, $timelimit, LDAP_DEREF_NEVER, $controls);
+        }
+        else {
+            $ldap_result = @$function($this->conn, $base_dn, $filter, $attrs, 0, $sizelimit, $timelimit);
+        }
 
         if (!$ldap_result) {
             $this->_warning("LDAP: $function failed for dn=$base_dn. " . ldap_error($this->conn));
             return false;
         }
 
-        // when running on a patched PHP we can use the extended functions
-        // to retrieve the total count from the LDAP search result
-        if ($this->vlv_active && function_exists('ldap_parse_virtuallist_control')) {
+        // when running on a PHP with server controls support we can
+        // retrieve the total count from the LDAP search result
+        if ($this->vlv_active && (is_array($controls) || function_exists('ldap_parse_virtuallist_control'))) {
             if (ldap_parse_result($this->conn, $ldap_result, $errcode, $matcheddn, $errmsg, $referrals, $serverctrls)) {
-                ldap_parse_virtuallist_control($this->conn, $serverctrls, $last_offset, $vlv_count, $vresult);
+                if (PHP_VERSION_ID >= 70300) {
+                    $vlv_count   = (int) $serverctrls[self::CONTROL_VLV_RESPONSE]['value']['count'];
+                    // FIXME: I don't know this is the same offset value as in ldap_parse_virtuallist_control() below
+                    //        but anyway it looks like we do not use that value for anything
+                    $last_offset = (int) $serverctrls[self::CONTROL_VLV_RESPONSE]['value']['target'];
+                }
+                else {
+                    ldap_parse_virtuallist_control($this->conn, $serverctrls, $last_offset, $vlv_count, $vresult);
+                }
+
                 $this->_debug("S: VLV result: last_offset=$last_offset; content_count=$vlv_count");
             }
             else {
@@ -1678,7 +1772,7 @@ class Net_LDAP3
      *
      * @see Net_LDAP3::search()
      */
-    public function search_entries($base_dn, $filter = '(objectclass=*)', $scope = 'sub', $attrs = array('dn'), $props = array())
+    public function search_entries($base_dn, $filter = '(objectclass=*)', $scope = 'sub', $attrs = ['dn'], $props = [])
     {
         $this->_debug("Net_LDAP3::search_entries with search " . var_export($props, true));
 
@@ -1723,13 +1817,14 @@ class Net_LDAP3
             return null;
         }
 
-        $operators = array('=', '~=', '>=', '<=');
+        $operators = ['=', '~=', '>=', '<='];
         $filter    = '';
 
         foreach ((array) $search['params'] as $field => $param) {
             $value = (array) $param['value'];
+            $type = isset($param['type']) ? strval($param['type']) : null;
 
-            switch ((string)$param['type']) {
+            switch ($type) {
                 case 'prefix':
                     $prefix = '';
                     $suffix = '*';
@@ -1751,7 +1846,7 @@ class Net_LDAP3
                     // this is a common query to find entry by DN, make sure
                     // it is a unified DN so special characters are handled correctly
                     if ($field == 'entrydn') {
-                        $value = array_map(array('Net_LDAP3', 'unified_dn'), $value);
+                        $value = array_map(['Net_LDAP3', 'unified_dn'], $value);
                     }
 
                     break;
@@ -1769,19 +1864,19 @@ class Net_LDAP3
                     break;
             }
 
-            $operator = $param['type'] && in_array($param['type'], $operators) ? $param['type'] : '=';
+            $operator = $type && in_array($type, $operators) ? $type : '=';
 
             if (count($value) < 2) {
                 $value = array_pop($value);
             }
 
             if (is_array($value)) {
-                $val_filter = array();
+                $val_filter = [];
                 foreach ($value as $val) {
                     $val          = self::quote_string($val);
                     $val_filter[] = "(" . $field . $operator . $prefix . $val . $suffix . ")";
                 }
-                $filter .= "(|" . implode($val_filter, '') . ")";
+                $filter .= "(|" . implode($val_filter) . ")";
             }
             else {
                 $value = self::quote_string($value);
@@ -1790,8 +1885,9 @@ class Net_LDAP3
         }
 
         // join search parameters with specified operator ('OR' or 'AND')
-        if (count($search['params']) > 1) {
-            $filter = '(' . ($search['operator'] == 'AND' ? '&' : '|') . $filter . ')';
+        if (!empty($search['params']) && count($search['params']) > 1) {
+            $operator = !empty($search['operator']) && $search['operator'] == 'AND' ? '&' : '|';
+            $filter = '(' . $operator . $filter . ')';
         }
 
         return $filter;
@@ -1819,15 +1915,18 @@ class Net_LDAP3
      */
     public static function normalize_entry($entry, $flat = false)
     {
-        $rec = array();
+        $rec = [];
+
         for ($i=0; $i < $entry['count']; $i++) {
             $attr = $entry[$i];
+            $_attr = strtolower($attr);
+
             for ($j=0; $j < $entry[$attr]['count']; $j++) {
-                $rec[$attr][$j] = $entry[$attr][$j];
+                $rec[$_attr][$j] = $entry[$attr][$j];
             }
 
-            if ($flat && count($rec[$attr]) == 1) {
-                $rec[$attr] = $rec[$attr][0];
+            if ($flat && count($rec[$_attr]) == 1) {
+                $rec[$_attr] = $rec[$_attr][0];
             }
         }
 
@@ -1840,10 +1939,10 @@ class Net_LDAP3
     public static function normalize_result($_result)
     {
         if (!is_array($_result)) {
-            return array();
+            return [];
         }
 
-        $result = array();
+        $result = [];
 
         for ($x = 0; $x < $_result['count']; $x++) {
             $dn    = $_result[$x]['dn'];
@@ -2048,12 +2147,12 @@ class Net_LDAP3
             return $this->_vlv_indexes_and_searches;
         }
 
-        $this->_vlv_indexes_and_searches = array();
+        $this->_vlv_indexes_and_searches = [];
 
         $config_root_dn = $this->config_get('config_root_dn');
 
         if (empty($config_root_dn)) {
-            return array();
+            return [];
         }
 
         if ($cached_config = $this->get_cache_data('vlvconfig')) {
@@ -2061,24 +2160,25 @@ class Net_LDAP3
             return $this->_vlv_indexes_and_searches;
         }
 
-        $this->_debug("No VLV information available yet, refreshing");
-
         $search_filter = '(objectclass=vlvsearch)';
-        $search_result = ldap_search($this->conn, $config_root_dn, $search_filter, array('*'), 0, 0, 0);
+        $index_filter  = '(objectclass=vlvindex)';
+
+        $this->_debug("C: Search base dn: [$config_root_dn] scope [sub] with filter [$search_filter]");
+
+        $search_result = ldap_search($this->conn, $config_root_dn, $search_filter, ['*'], 0, 0, 0);
 
         if ($search_result === false) {
-            $this->_debug("Search for '$search_filter' on '$config_root_dn' failed:".ldap_error($this->conn));
-            return;
+            $this->_debug("S: " . ldap_error($this->conn));
+            return [];
         }
+
+        $this->_debug("S: " . ldap_count_entries($this->conn, $search_result) . " record(s) found");
 
         $vlv_searches = new Net_LDAP3_Result($this->conn, $config_root_dn, $search_filter, 'sub', $search_result);
 
         if ($vlv_searches->count() < 1) {
-            $this->_debug("Empty result from search for '(objectclass=vlvsearch)' on '$config_root_dn'");
-            return;
+            return [];
         }
-
-        $index_filter = '(objectclass=vlvindex)';
 
         foreach ($vlv_searches->entries(true) as $vlv_search_dn => $vlv_search_attrs) {
             // The attributes we are interested in are as follows:
@@ -2086,31 +2186,35 @@ class Net_LDAP3
             $_vlv_scope   = $vlv_search_attrs['vlvscope'];
             $_vlv_filter  = $vlv_search_attrs['vlvfilter'];
 
+            $this->_debug("C: Search base dn: [$vlv_search_dn] scope [sub] with filter [$index_filter]");
+
             // Multiple indexes may exist
-            $index_result = ldap_search($this->conn, $vlv_search_dn, $index_filter, array('*'), 0, 0, 0);
+            $index_result = ldap_search($this->conn, $vlv_search_dn, $index_filter, ['*'], 0, 0, 0);
 
             if ($index_result === false) {
-                $this->_debug("Search for '$index_filter' on '$vlv_search_dn' failed:".ldap_error($this->conn));
+                $this->_debug("S: " . ldap_error($this->conn));
                 continue;
             }
+
+            $this->_debug("S: " . ldap_count_entries($this->conn, $index_result) . " record(s) found");
 
             $vlv_indexes = new Net_LDAP3_Result($this->conn, $vlv_search_dn, $index_filter, 'sub', $index_result);
             $vlv_indexes = $vlv_indexes->entries(true);
 
             // Reset this one for each VLV search.
-            $_vlv_sort = array();
+            $_vlv_sort = [];
 
             foreach ($vlv_indexes as $vlv_index_dn => $vlv_index_attrs) {
                 $_vlv_sort[] = explode(' ', trim($vlv_index_attrs['vlvsort']));
             }
 
-            $this->_vlv_indexes_and_searches[] = array(
-                    $_vlv_base_dn => array(
-                            'scope'  => self::scopeint2str($_vlv_scope),
-                            'filter' => strtolower($_vlv_filter),
-                            'sort'   => $_vlv_sort,
-                        ),
-                );
+            $this->_vlv_indexes_and_searches[] = [
+                $_vlv_base_dn => [
+                    'scope'  => self::scopeint2str($_vlv_scope),
+                    'filter' => strtolower($_vlv_filter),
+                    'sort'   => $_vlv_sort,
+                ],
+            ];
         }
 
         // cache this
@@ -2130,21 +2234,26 @@ class Net_LDAP3
         $tls  = $this->config_get('use_tls', false);
 
         foreach ((array) $this->config_get('hosts') as $host) {
-            $this->_debug("C: Connect [$host:$port]");
+            $ldap_uri = $this->_host2uri($host, $port);
+            $this->_debug("C: Connect [{$ldap_uri}]");
 
-            $_ldap_cfg = array(
+            $_ldap_cfg = [
                 'host'   => $host,
                 'port'   => $port,
                 'tls'    => $tls,
                 'version' => 3,
                 'binddn' => $this->config_get('service_bind_dn'),
                 'bindpw' => $this->config_get('service_bind_pw')
-            );
+            ];
 
-            $_ldap_schema_cache_cfg = array(
-                'path' => "/tmp/" . $host . ":" . ($port ? $port : '389') . "-Net_LDAP2_Schema.cache",
+            $_ldap_schema_cache_cfg = [
                 'max_age' => 86400,
-            );
+                'path' => sprintf(
+                    '%s/%s-Net_LDAP2_Schema.cache',
+                    sys_get_temp_dir() ?: '/tmp',
+                    str_replace(['://', '/'], ':', $ldap_uri)
+                ),
+            ];
 
             $_ldap = Net_LDAP2::connect($_ldap_cfg);
 
@@ -2176,12 +2285,12 @@ class Net_LDAP3
         return $_schema;
     }
 
-    private function list_group_member($dn, $members, $recurse = true)
+    protected function list_group_member($dn, $members, $recurse = true)
     {
         $this->_debug("Net_LDAP3::list_group_member($dn)");
 
         $members       = (array) $members;
-        $group_members = array();
+        $group_members = [];
 
         // remove possible 'count' item
         unset($members['count']);
@@ -2189,7 +2298,7 @@ class Net_LDAP3
         // Use the member attributes to return an array of member ldap objects
         // NOTE that the member attribute is supposed to contain a DN
         foreach ($members as $member) {
-            $member_entry = $this->get_entry($member, array('member', 'uniquemember', 'memberurl', 'objectclass'));
+            $member_entry = $this->get_entry_attributes($member, ['member', 'uniquemember', 'memberurl', 'objectclass']);
 
             if (empty($member_entry)) {
                 continue;
@@ -2209,18 +2318,18 @@ class Net_LDAP3
         return array_filter($group_members);
     }
 
-    private function list_group_uniquemember($dn, $uniquemembers, $recurse = true)
+    protected function list_group_uniquemember($dn, $uniquemembers, $recurse = true)
     {
         $this->_debug("Net_LDAP3::list_group_uniquemember($dn)", $entry);
 
-        $uniquemembers = (array)($uniquemembers);
-        $group_members = array();
+        $uniquemembers = (array) $uniquemembers;
+        $group_members = [];
 
         // remove possible 'count' item
         unset($uniquemembers['count']);
 
         foreach ($uniquemembers as $member) {
-            $member_entry = $this->get_entry($member, array('member', 'uniquemember', 'memberurl', 'objectclass'));
+            $member_entry = $this->get_entry_attributes($member, ['member', 'uniquemember', 'memberurl', 'objectclass']);
 
             if (empty($member_entry)) {
                 continue;
@@ -2240,13 +2349,13 @@ class Net_LDAP3
         return array_filter($group_members);
     }
 
-    private function list_group_memberurl($dn, $memberurls, $recurse = true)
+    protected function list_group_memberurl($dn, $memberurls, $recurse = true)
     {
         $this->_debug("Net_LDAP3::list_group_memberurl($dn)");
 
-        $group_members = array();
+        $group_members = [];
         $memberurls    = (array) $memberurls;
-        $attributes    = array('member', 'uniquemember', 'memberurl', 'objectclass');
+        $attributes    = ['member', 'uniquemember', 'memberurl', 'objectclass'];
 
         // remove possible 'count' item
         unset($memberurls['count']);
@@ -2261,7 +2370,7 @@ class Net_LDAP3
 
             foreach ($result->entries(true) as $entry_dn => $_entry) {
                 $group_members[$entry_dn] = $entry_dn;
-                $this->_debug("Found " . $entry_dn);
+                $this->_debug("Found {$entry_dn}");
 
                 if ($recurse) {
                     // Nested group
@@ -2283,18 +2392,18 @@ class Net_LDAP3
      *
      * @return array URL elements
      */
-    private function parse_memberurl($url)
+    protected function parse_memberurl($url)
     {
         preg_match('/(.*):\/\/(.*)\/(.*)\?(.*)\?(.*)\?(.*)/', $url, $matches);
         return $matches;
     }
 
-    private function modify_entry_attributes($subject_dn, $attributes)
+    protected function modify_entry_attributes($subject_dn, $attributes)
     {
         if (is_array($attributes['rename']) && !empty($attributes['rename'])) {
             $olddn      = $attributes['rename']['dn'];
             $newrdn     = $attributes['rename']['new_rdn'];
-            $new_parent = $attributes['rename']['new_parent'];
+            $new_parent = isset($attributes['rename']['new_parent']) ? $attributes['rename']['new_parent'] : null;
 
             $this->_debug("C: Rename $olddn to $newrdn,$new_parent");
 
@@ -2317,9 +2426,9 @@ class Net_LDAP3
                 }
                 else {
                     $old_parent_dn_components = ldap_explode_dn($olddn, 0);
-                    unset($old_parent_dn_components["count"]);
+                    unset($old_parent_dn_components['count']);
                     $old_rdn       = array_shift($old_parent_dn_components);
-                    $old_parent_dn = implode(",", $old_parent_dn_components);
+                    $old_parent_dn = implode(',', $old_parent_dn_components);
                     $subject_dn    = $newrdn . ',' . $old_parent_dn;
                 }
 
@@ -2346,7 +2455,7 @@ class Net_LDAP3
             }
             else {
                 $this->_debug("S: " . ldap_error($this->conn));
-                $this->_warning("LDAP: Failed to replace attributes on $subject_dn: " . json_encode($attributes['replace']));
+                $this->_warning("LDAP: Failed to replace attributes on $subject_dn: " . $this->_encode_attrs($attributes['replace']));
                 return false;
             }
         }
@@ -2361,7 +2470,7 @@ class Net_LDAP3
             }
             else {
                 $this->_debug("S: " . ldap_error($this->conn));
-                $this->_warning("LDAP: Failed to delete attributes on $subject_dn: " . json_encode($attributes['del']));
+                $this->_warning("LDAP: Failed to delete attributes on $subject_dn: " . $this->_encode_attrs($attributes['del']));
                 return false;
             }
         }
@@ -2376,7 +2485,7 @@ class Net_LDAP3
             }
             else {
                 $this->_debug("S: " . ldap_error($this->conn));
-                $this->_warning("LDAP: Failed to add attributes on $subject_dn: " . json_encode($attributes['add']));
+                $this->_warning("LDAP: Failed to add attributes on $subject_dn: " . $this->_encode_attrs($attributes['add']));
                 return false;
             }
         }
@@ -2384,36 +2493,35 @@ class Net_LDAP3
         return true;
     }
 
-    private function parse_aclrights(&$attributes, $attribute_value)
+    protected function parse_aclrights(&$attributes, $attribute_value)
     {
-        $components = explode(':', $attribute_value);
-        $_acl_target = array_shift($components);
-        $_acl_value = trim(implode(':', $components));
-
+        $components      = explode(':', $attribute_value);
+        $_acl_target     = array_shift($components);
+        $_acl_value      = trim(implode(':', $components));
         $_acl_components = explode(';', $_acl_target);
 
         switch ($_acl_components[1]) {
             case "entryLevel":
-                $attributes['entryLevelRights'] = Array();
+                $attributes['entrylevelrights'] = [];
                 $_acl_value = explode(',', $_acl_value);
 
                 foreach ($_acl_value as $right) {
                     list($method, $bool) = explode(':', $right);
-                    if ($bool == "1" && !in_array($method, $attributes['entryLevelRights'])) {
-                        $attributes['entryLevelRights'][] = $method;
+                    if ($bool == "1" && !in_array($method, $attributes['entrylevelrights'])) {
+                        $attributes['entrylevelrights'][] = $method;
                     }
                 }
 
                 break;
 
             case "attributeLevel":
-                $attributes['attributeLevelRights'][$_acl_components[2]] = Array();
+                $attributes['attributelevelrights'][$_acl_components[2]] = [];
                 $_acl_value = explode(',', $_acl_value);
 
                 foreach ($_acl_value as $right) {
                     list($method, $bool) = explode(':', $right);
-                    if ($bool == "1" && !in_array($method, $attributes['attributeLevelRights'][$_acl_components[2]])) {
-                        $attributes['attributeLevelRights'][$_acl_components[2]][] = $method;
+                    if ($bool == "1" && !in_array($method, $attributes['attributelevelrights'][$_acl_components[2]])) {
+                        $attributes['attributelevelrights'][$_acl_components[2]][] = $method;
                     }
                 }
 
@@ -2424,18 +2532,18 @@ class Net_LDAP3
         }
     }
 
-    private function parse_attribute_level_rights($attribute_value)
+    protected function parse_attribute_level_rights($attribute_value)
     {
         $attribute_value  = str_replace(", ", ",", $attribute_value);
         $attribute_values = explode(",", $attribute_value);
-        $attribute_value  = array();
+        $attribute_value  = [];
 
         foreach ($attribute_values as $access_right) {
             $access_right_components = explode(":", $access_right);
             $access_attribute        = strtolower(array_shift($access_right_components));
             $access_value            = array_shift($access_right_components);
 
-            $attribute_value[$access_attribute] = array();
+            $attribute_value[$access_attribute] = [];
 
             for ($i = 0; $i < strlen($access_value); $i++) {
                 $method = $this->attribute_level_rights_map[substr($access_value, $i, 1)];
@@ -2449,9 +2557,9 @@ class Net_LDAP3
         return $attribute_value;
     }
 
-    private function parse_entry_level_rights($attribute_value)
+    protected function parse_entry_level_rights($attribute_value)
     {
-        $_attribute_value = array();
+        $_attribute_value = [];
 
         for ($i = 0; $i < strlen($attribute_value); $i++) {
             $method = $this->entry_level_rights_map[substr($attribute_value, $i, 1)];
@@ -2464,53 +2572,38 @@ class Net_LDAP3
         return $_attribute_value;
     }
 
-    private function supported_controls()
+    protected function supported_controls()
     {
-        if (!empty($this->supported_controls)) {
-            return $this->supported_controls;
-        }
+        $metadata = $this->server_metadata();
 
-        $this->_info("Obtaining supported controls");
-
-        if ($result = $this->search('', '(objectclass=*)', 'base', array('supportedcontrol'))) {
-            $result  = $result->entries(true);
-            $control = $result['']['supportedcontrol'];
-        }
-        else {
-            $control = array();
-        }
-
-        $this->_info("Obtained " . count($control) . " supported controls");
-        $this->supported_controls = $control;
-
-        return $control;
+        return (array) $metadata['supportedcontrol'];
     }
 
-    private function vendor_name()
+    protected function vendor_name()
     {
-        if (!empty($this->vendor_name)) {
-            return $this->vendor_name;
+        $metadata = $this->server_metadata();
+
+        return (string) $metadata['vendorname'];
+    }
+
+    protected function server_metadata()
+    {
+        if ($this->_metadata === null) {
+            $this->_debug("Obtaining LDAP server metadata");
+
+            $result = $this->get_entry('', ['vendorname', 'supportedcontrol']);
+
+            if ($result) {
+                $this->_metadata = $result;
+                $this->_debug("LDAP Server metadata: " . var_export($result, true));
+            }
+            else {
+                $this->_metadata = [];
+                $this->_warning("LDAP: Failed to get server metadata");
+            }
         }
 
-        $this->_info("Obtaining LDAP server vendor name");
-
-        if ($result = $this->search('', '(objectclass=*)', 'base', array('vendorname'))) {
-            $result  = $result->entries(true);
-            $name = $result['']['vendorname'];
-        }
-        else {
-            $name = false;
-        }
-
-        if ($name !== false) {
-            $this->_info("Vendor name is $name");
-        } else {
-            $this->_info("No vendor name!");
-        }
-
-        $this->vendor = $name;
-
-        return $name;
+        return $this->_metadata;
     }
 
     protected function _alert()
@@ -2558,14 +2651,14 @@ class Net_LDAP3
      */
     private function __log($level, $args)
     {
-        $msg = array();
+        $msg = [];
 
         foreach ($args as $arg) {
             $msg[] = !is_string($arg) ? var_export($arg, true) : $arg;
         }
 
         if (!empty($this->_log_hook)) {
-            call_user_func_array($this->_log_hook, array($level, $msg));
+            call_user_func_array($this->_log_hook, [$level, $msg]);
             return;
         }
 
@@ -2575,36 +2668,16 @@ class Net_LDAP3
     }
 
     /**
-     * Add BER sequence with correct length and the given identifier
+     * Convert attributes array into a string for logging
+     * Remove plain text passwords
      */
-    private static function _ber_addseq($str, $identifier)
+    private function _encode_attrs($attributes)
     {
-        $len = dechex(strlen($str)/2);
-        if (strlen($len) % 2 != 0) {
-            $len = '0'.$len;
+        if (isset($attributes['userpassword'])) {
+            $attributes['userpassword'] = '*';
         }
 
-        return $identifier . $len . $str;
-    }
-
-    /**
-     * Returns BER encoded integer value in hex format
-     */
-    private static function _ber_encode_int($offset)
-    {
-        $val    = dechex($offset);
-        $prefix = '';
-
-        // check if bit 8 of high byte is 1
-        if (preg_match('/^[89abcdef]/', $val)) {
-            $prefix = '00';
-        }
-
-        if (strlen($val)%2 != 0) {
-            $prefix .= '0';
-        }
-
-        return $prefix . $val;
+        return json_encode($attributes);
     }
 
     /**
@@ -2624,7 +2697,7 @@ class Net_LDAP3
         }
 
         if ($is_dn) {
-            $replace = array(
+            $replace = [
                 ',' => '\2c',
                 '=' => '\3d',
                 '+' => '\2b',
@@ -2634,16 +2707,16 @@ class Net_LDAP3
                 "\\"=> '\5c',
                 '"' => '\22',
                 '#' => '\23'
-            );
+            ];
         }
         else {
-            $replace = array(
+            $replace = [
                 '*' => '\2a',
                 '(' => '\28',
                 ')' => '\29',
                 "\\" => '\5c',
                 '/' => '\2f'
-            );
+            ];
         }
 
         if ($reverse) {
@@ -2662,10 +2735,10 @@ class Net_LDAP3
      */
     public static function unified_dn($str)
     {
-        $result = array();
+        $result = [];
 
         foreach (explode(',', $str) as $token) {
-            list($attr, $value) = explode('=', $token, 2);
+            list($attr, $value) = strpos($token, '=') !== false ? explode('=', $token, 2) : [$token, ''];
 
             $pos = 0;
             while (preg_match('/\\\\[0-9a-fA-F]{2}/', $value, $matches, PREG_OFFSET_CAPTURE, $pos)) {
@@ -2679,104 +2752,6 @@ class Net_LDAP3
         }
 
         return implode(',', $result);
-    }
-
-    /**
-     * create ber encoding for sort control
-     *
-     * @param array List of cols to sort by
-     * @return string BER encoded option value
-     */
-    private static function _sort_ber_encode($sortcols)
-    {
-        $str = '';
-        foreach (array_reverse((array)$sortcols) as $col) {
-            $ber_val = self::_string2hex($col);
-
-            // 30 = ber sequence with a length of octet value
-            // 04 = octet string with a length of the ascii value
-            $oct = self::_ber_addseq($ber_val, '04');
-            $str = self::_ber_addseq($oct, '30') . $str;
-        }
-
-        // now tack on sequence identifier and length
-        $str = self::_ber_addseq($str, '30');
-
-        return pack('H'.strlen($str), $str);
-    }
-
-    /**
-     * Returns ascii string encoded in hex
-     */
-    private static function _string2hex($str)
-    {
-        $hex = '';
-        for ($i=0; $i < strlen($str); $i++)
-            $hex .= dechex(ord($str[$i]));
-
-        return $hex;
-    }
-
-    /**
-     * Generate BER encoded string for Virtual List View option
-     *
-     * @param integer List offset (first record)
-     * @param integer Records per page
-     * @return string BER encoded option value
-     */
-    private static function _vlv_ber_encode($offset, $rpp, $search = '')
-    {
-        // This string is ber-encoded, php will prefix this value with:
-        // 04 (octet string) and 10 (length of 16 bytes)
-        // the code behind this string is broken down as follows:
-        // 30 = ber sequence with a length of 0e (14) bytes following
-        // 02 = type integer (in two's complement form) with 2 bytes following (beforeCount): 01 00 (ie 0)
-        // 02 = type integer (in two's complement form) with 2 bytes following (afterCount):  01 18 (ie 25-1=24)
-        // a0 = type context-specific/constructed with a length of 06 (6) bytes following
-        // 02 = type integer with 2 bytes following (offset): 01 01 (ie 1)
-        // 02 = type integer with 2 bytes following (contentCount):  01 00
-
-        // whith a search string present:
-        // 81 = type context-specific/constructed with a length of 04 (4) bytes following (the length will change here)
-        // 81 indicates a user string is present where as a a0 indicates just a offset search
-        // 81 = type context-specific/constructed with a length of 06 (6) bytes following
-
-        // the following info was taken from the ISO/IEC 8825-1:2003 x.690 standard re: the
-        // encoding of integer values (note: these values are in
-        // two-complement form so since offset will never be negative bit 8 of the
-        // leftmost octet should never by set to 1):
-        // 8.3.2: If the contents octets of an integer value encoding consist
-        // of more than one octet, then the bits of the first octet (rightmost) and bit 8
-        // of the second (to the left of first octet) octet:
-        // a) shall not all be ones; and
-        // b) shall not all be zero
-
-        if ($search) {
-            $search  = preg_replace('/[^-[:alpha:] ,.()0-9]+/', '', $search);
-            $ber_val = self::_string2hex($search);
-            $str     = self::_ber_addseq($ber_val, '81');
-        }
-        else {
-            // construct the string from right to left
-            $str = "020100"; # contentCount
-
-            // returns encoded integer value in hex format
-            $ber_val = self::_ber_encode_int($offset);
-
-            // calculate octet length of $ber_val
-            $str = self::_ber_addseq($ber_val, '02') . $str;
-
-            // now compute length over $str
-            $str = self::_ber_addseq($str, 'a0');
-        }
-
-        // now tack on records per page
-        $str = "020100" . self::_ber_addseq(self::_ber_encode_int($rpp-1), '02') . $str;
-
-        // now tack on sequence identifier and length
-        $str = self::_ber_addseq($str, '30');
-
-        return pack('H'.strlen($str), $str);
     }
 
     private function _fuzzy_search_prefix()
@@ -2843,37 +2818,188 @@ class Net_LDAP3
      */
     private function _vlv_set_controls($sort, $list_page, $page_size, $search = null)
     {
-        $sort_ctrl = array(
-            'oid'   => "1.2.840.113556.1.4.473",
+        $sort_ctrl = [
+            'oid'   => self::CONTROL_SORT_REQUEST,
             'value' => self::_sort_ber_encode($sort)
-        );
+        ];
 
         if (!empty($search)) {
             $this->_debug("_vlv_set_controls to include search: " . var_export($search, true));
         }
 
-        $vlv_ctrl  = array(
-            'oid' => "2.16.840.1.113730.3.4.9",
+        $vlv_ctrl  = [
+            'oid' => self::CONTROL_VLV_REQUEST,
             'value' => self::_vlv_ber_encode(
                     $offset = ($list_page-1) * $page_size + 1,
                     $page_size,
                     $search
             ),
             'iscritical' => true
-        );
+        ];
 
         $this->_debug("C: set controls sort=" . join(' ', unpack('H'.(strlen($sort_ctrl['value'])*2), $sort_ctrl['value']))
             . " (" . implode(',', (array) $sort) . ");"
             . " vlv=" . join(' ', (unpack('H'.(strlen($vlv_ctrl['value'])*2), $vlv_ctrl['value']))) . " ($offset/$page_size)");
 
-        if (!ldap_set_option($this->conn, LDAP_OPT_SERVER_CONTROLS, array($sort_ctrl, $vlv_ctrl))) {
-            $this->_debug("S: ".ldap_error($this->conn));
-            $this->set_error(self::ERROR_SEARCH, 'vlvnotsupported');
+        $controls = [$sort_ctrl, $vlv_ctrl];
 
+        if (PHP_VERSION_ID >= 70305) {
+            return $controls;
+        }
+
+        if (!ldap_set_option($this->conn, LDAP_OPT_SERVER_CONTROLS, $controls)) {
+            $this->_debug("S: ".ldap_error($this->conn));
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * create ber encoding for sort control
+     *
+     * @param array List of cols to sort by
+     * @return string BER encoded option value
+     */
+    private static function _sort_ber_encode($sortcols)
+    {
+        $str = '';
+        foreach (array_reverse((array)$sortcols) as $col) {
+            $ber_val = self::_string2hex($col);
+
+            // 30 = ber sequence with a length of octet value
+            // 04 = octet string with a length of the ascii value
+            $oct = self::_ber_addseq($ber_val, '04');
+            $str = self::_ber_addseq($oct, '30') . $str;
+        }
+
+        // now tack on sequence identifier and length
+        $str = self::_ber_addseq($str, '30');
+
+        return pack('H'.strlen($str), $str);
+    }
+
+    /**
+     * Generate BER encoded string for Virtual List View option
+     *
+     * @param integer List offset (first record)
+     * @param integer Records per page
+     * @return string BER encoded option value
+     */
+    private static function _vlv_ber_encode($offset, $rpp, $search = '')
+    {
+        // This string is ber-encoded, php will prefix this value with:
+        // 04 (octet string) and 10 (length of 16 bytes)
+        // the code behind this string is broken down as follows:
+        // 30 = ber sequence with a length of 0e (14) bytes following
+        // 02 = type integer (in two's complement form) with 2 bytes following (beforeCount): 01 00 (ie 0)
+        // 02 = type integer (in two's complement form) with 2 bytes following (afterCount):  01 18 (ie 25-1=24)
+        // a0 = type context-specific/constructed with a length of 06 (6) bytes following
+        // 02 = type integer with 2 bytes following (offset): 01 01 (ie 1)
+        // 02 = type integer with 2 bytes following (contentCount):  01 00
+
+        // whith a search string present:
+        // 81 = type context-specific/constructed with a length of 04 (4) bytes following (the length will change here)
+        // 81 indicates a user string is present where as a a0 indicates just a offset search
+        // 81 = type context-specific/constructed with a length of 06 (6) bytes following
+
+        // the following info was taken from the ISO/IEC 8825-1:2003 x.690 standard re: the
+        // encoding of integer values (note: these values are in
+        // two-complement form so since offset will never be negative bit 8 of the
+        // leftmost octet should never by set to 1):
+        // 8.3.2: If the contents octets of an integer value encoding consist
+        // of more than one octet, then the bits of the first octet (rightmost) and bit 8
+        // of the second (to the left of first octet) octet:
+        // a) shall not all be ones; and
+        // b) shall not all be zero
+
+        if ($search) {
+            $search  = preg_replace('/[^-[:alpha:] ,.()0-9]+/', '', $search);
+            $ber_val = self::_string2hex($search);
+            $str     = self::_ber_addseq($ber_val, '81');
+        }
+        else {
+            // construct the string from right to left
+            $str = "020100"; # contentCount
+
+            // returns encoded integer value in hex format
+            $ber_val = self::_ber_encode_int($offset);
+
+            // calculate octet length of $ber_val
+            $str = self::_ber_addseq($ber_val, '02') . $str;
+
+            // now compute length over $str
+            $str = self::_ber_addseq($str, 'a0');
+        }
+
+        // now tack on records per page
+        $str = "020100" . self::_ber_addseq(self::_ber_encode_int($rpp-1), '02') . $str;
+
+        // now tack on sequence identifier and length
+        $str = self::_ber_addseq($str, '30');
+
+        return pack('H'.strlen($str), $str);
+    }
+
+    /**
+     * Add BER sequence with correct length and the given identifier
+     */
+    private static function _ber_addseq($str, $identifier)
+    {
+        $len = dechex(strlen($str)/2);
+        if (strlen($len) % 2 != 0) {
+            $len = '0'.$len;
+        }
+
+        return $identifier . $len . $str;
+    }
+
+    /**
+     * Returns BER encoded integer value in hex format
+     */
+    private static function _ber_encode_int($offset)
+    {
+        $val    = dechex($offset);
+        $prefix = '';
+
+        // check if bit 8 of high byte is 1
+        if (preg_match('/^[89abcdef]/', $val)) {
+            $prefix = '00';
+        }
+
+        if (strlen($val)%2 != 0) {
+            $prefix .= '0';
+        }
+
+        return $prefix . $val;
+    }
+
+    /**
+     * Returns ascii string encoded in hex
+     */
+    private static function _string2hex($str)
+    {
+        return implode(unpack("H*", $str));
+    }
+
+    /**
+     * Convert LDAP host/port into URI
+     */
+    private static function _host2uri($host, $port = null)
+    {
+        if (stripos($host, 'ldapi://') === 0) {
+            return $host;
+        }
+
+        if (strpos($host, '://') === false) {
+            $host = ($port == 636 ? 'ldaps' : 'ldap') . '://' . $host;
+        }
+
+        if ($port && !preg_match('/:[0-9]+$/', $host)) {
+            $host .= ':' . $port;
+        }
+
+        return $host;
     }
 
     /**
@@ -2910,7 +3036,7 @@ class Net_LDAP3
                     }
 
                     $this->mc_available += intval($this->cache->addServer(
-                        $host, $port, $pconnect, 1, 1, 15, false, array($this, 'memcache_failure')));
+                        $host, $port, $pconnect, 1, 1, 15, false, [$this, 'memcache_failure']));
                 }
 
                 // test connection and failover (will result in $this->mc_available == 0 on complete failure)
@@ -2930,7 +3056,7 @@ class Net_LDAP3
      */
     public function memcache_failure($host, $port)
     {
-        static $seen = array();
+        static $seen = [];
 
         // only report once
         if (!$seen["$host:$port"]++) {
@@ -2965,8 +3091,9 @@ class Net_LDAP3
     public function set_cache_data($key, $data, $ttl = 3600)
     {
         if ($cache = $this->get_cache()) {
-            if (!method_exists($cache, 'replace') || !$cache->replace($key, $data, MEMCACHE_COMPRESSED, $ttl)) {
-                return $cache->set($key, $data, MEMCACHE_COMPRESSED, $ttl);
+            $flags = defined('MEMCACHE_COMPRESSED') ? MEMCACHE_COMPRESSED : 0;
+            if (!method_exists($cache, 'replace') || !$cache->replace($key, $data, $flags, $ttl)) {
+                return $cache->set($key, $data, $flags, $ttl);
             }
             else {
                 return true;
@@ -2990,8 +3117,8 @@ class Net_LDAP3
         }
 
         $ckey = 'domain.root::' . $domain;
-        if ($result = $this->icache[$ckey]) {
-            return $result;
+        if (array_key_exists($ckey, $this->icache)) {
+            return $this->icache[$ckey];
         }
 
         $this->_debug("Net_LDAP3::domain_root_dn($domain)");
@@ -3035,7 +3162,7 @@ class Net_LDAP3
      *
      * @return array|bool Domain attributes (plus 'dn' attribute) or False if not found
      */
-    public function find_domain($domain, $attributes = array('*'))
+    public function find_domain($domain, $attributes = ['*'])
     {
         if (empty($domain)) {
             return false;
@@ -3044,7 +3171,7 @@ class Net_LDAP3
         $ckey  = 'domain::' . $domain;
         $ickey = $ckey . '::' . md5(implode(',', $attributes));
 
-        if (isset($this->icache[$ickey])) {
+        if (array_key_exists($ickey, $this->icache)) {
             return $this->icache[$ickey];
         }
 
@@ -3055,6 +3182,7 @@ class Net_LDAP3
 
         if ($domain_dn) {
             $result = $this->get_entry_attributes($domain_dn, $attributes);
+
             if (!empty($result)) {
                 $result['dn'] = $domain_dn;
             }

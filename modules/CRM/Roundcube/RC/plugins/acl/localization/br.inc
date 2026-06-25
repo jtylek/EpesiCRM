@@ -2,23 +2,21 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/acl/localization/<lang>.inc                                   |
- |                                                                       |
  | Localization file of the Roundcube Webmail ACL plugin                 |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-acl/
 */
+
 $labels['sharing'] = 'Rannañ';
 $labels['myrights'] = 'Aotreoù mont e-barzh';
 $labels['username'] = 'Implijer:';
 $labels['advanced'] = 'Mod kempleshoc\'h';
+$labels['add'] = 'Ouzhpennañ';
 $labels['newuser'] = 'Ouzhpennañ un elfenn';
 $labels['editperms'] = 'Embann an aotreoù';
 $labels['actions'] = 'Aotreoù mont e-barzh';
@@ -95,4 +93,3 @@ $messages['createerror'] = 'N\'haller ket ouzhpennañ aotreoù haeziñ';
 $messages['deleteconfirm'] = 'Sur oc\'h e fell deoc\'h dilemel aotreoù haeziñ an arveriaded diuzet?';
 $messages['norights'] = 'Aotre ebet erspizet!';
 $messages['nouser'] = 'Anv arveriad ebet erspizet!';
-?>

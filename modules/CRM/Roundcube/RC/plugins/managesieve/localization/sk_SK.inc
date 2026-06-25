@@ -2,25 +2,25 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/managesieve/localization/<lang>.inc                           |
- |                                                                       |
  | Localization file of the Roundcube Webmail Managesieve plugin         |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-managesieve/
 */
+
 $labels['filters'] = 'Filtre';
 $labels['managefilters'] = 'Správa filtrov prichádzajúcej pošty';
 $labels['filtername'] = 'Názov filtra';
 $labels['newfilter'] = 'Nový filter';
 $labels['filteradd'] = 'Pridať filter';
 $labels['filterdel'] = 'Vymazať filter';
+$labels['rules'] = 'Pravidlá';
+$labels['actions'] = 'Akcie';
+$labels['scope'] = 'Rozsah';
 $labels['moveup'] = 'Presunúť nahor';
 $labels['movedown'] = 'Presunúť nadol';
 $labels['filterallof'] = 'vyhovujúca všetkým z nasledujúcich pravidiel';
@@ -38,6 +38,14 @@ $labels['filterregex'] = 'vyhovuje regulárnemu výrazu';
 $labels['filternotregex'] = 'nevyhovuje regulárnemu výrazu';
 $labels['filterunder'] = 'pod';
 $labels['filterover'] = 'nad';
+$labels['mime'] = 'MIME:';
+$labels['mimepart'] = 'Časť MIME:';
+$labels['mime-message'] = 'správa';
+$labels['mime-anychild'] = 'akékoľvek';
+$labels['mime-type'] = 'typ';
+$labels['mime-subtype'] = 'pod-typ';
+$labels['mime-contenttype'] = 'typ obsahu';
+$labels['mime-param'] = 'parameter';
 $labels['addrule'] = 'Pridať pravidlo';
 $labels['delrule'] = 'Vymazať pravidlo';
 $labels['messagemoveto'] = 'Presunúť správu do';
@@ -46,7 +54,7 @@ $labels['messagecopyto'] = 'Kopírovať správu do';
 $labels['messagesendcopy'] = 'Poslať kópiu správy na adresu';
 $labels['messagereply'] = 'Odpovedať správou';
 $labels['messagedelete'] = 'Vymazať správu';
-$labels['messagediscard'] = 'Vymazať a poslať správu na';
+$labels['messagediscard'] = 'Vymazať a informovať odosielateľa';
 $labels['messagekeep'] = 'Ponechať správu v Doručenej pošte';
 $labels['messagesrules'] = 'Pre prichádzajúcu poštu:';
 $labels['messagesactions'] = '...vykonať tieto akcie:';
@@ -67,9 +75,11 @@ $labels['enable'] = 'Zapnúť/vypnúť';
 $labels['filterset'] = 'Súprava filtrov';
 $labels['filtersets'] = 'Súpravy filtrov';
 $labels['filtersetadd'] = 'Pridať súpravu filtrov';
-$labels['filtersetdel'] = 'Vymazať aktuálnu súpravu filtrov';
+$labels['filtersetdel'] = 'Vymazať súpravu filtrov';
 $labels['filtersetact'] = 'Aktivovať aktuálnu súpravu filtrov';
 $labels['filtersetdeact'] = 'Deaktivovať aktuálnu súpravu filtrov';
+$labels['filterseteditraw'] = 'Upraviť súpravu filtrov';
+$labels['filtersetswitch'] = 'Zapnúť/vypnúť súpravu filtrov';
 $labels['filterdef'] = 'Definícia filtra';
 $labels['filtersetname'] = 'Názov súpravy filtrov';
 $labels['newfilterset'] = 'Nová súprava filtrov';
@@ -78,6 +88,7 @@ $labels['none'] = 'žiadne';
 $labels['fromset'] = 'zo súpravy';
 $labels['fromfile'] = 'zo súboru';
 $labels['filterdisabled'] = 'Filter vypnutý';
+$labels['filterenabled'] = 'Filter zapnutý';
 $labels['countisgreaterthan'] = 'počet je väčší ako';
 $labels['countisgreaterthanequal'] = 'počet je väčší alebo rovný ako';
 $labels['countislessthan'] = 'počet je menší ako';
@@ -98,6 +109,18 @@ $labels['flagdeleted'] = 'Vymazané';
 $labels['flaganswered'] = 'Odpovedané';
 $labels['flagflagged'] = 'Označené príznakom';
 $labels['flagdraft'] = 'Koncept';
+$labels['addheader'] = 'Pridať hlavičku do správy';
+$labels['deleteheader'] = 'Odstrániť hlavičku zo správy';
+$labels['headername'] = 'Názov hlavičky';
+$labels['headervalue'] = 'Hodnota hlavičky';
+$labels['headerpos'] = 'Pozícia hlavičky';
+$labels['headeratstart'] = 'na začiatku';
+$labels['headeratend'] = 'na konci';
+$labels['headeroccurrence'] = 'Výskyt/pozícia hlavičky';
+$labels['headerfromstart'] = 'od začiatku';
+$labels['headerfromend'] = 'od konca';
+$labels['headerpatterns'] = 'Vzory pre hodnotu hlavičky';
+$labels['headermatchtype'] = 'typ zhody:';
 $labels['setvariable'] = 'Nastaviť premennú';
 $labels['setvarname'] = 'Názov premennej:';
 $labels['setvarvalue'] = 'Hodnota premennej:';
@@ -108,6 +131,7 @@ $labels['varlowerfirst'] = 'prvé písmeno malé';
 $labels['varupperfirst'] = 'prvé písmeno veľké';
 $labels['varquotewildcard'] = 'k špeciálnym znakom pridať úvodzovky';
 $labels['varlength'] = 'dĺžka';
+$labels['varencodeurl'] = 'percentá - kódovane (pre adresy URL)';
 $labels['notify'] = 'Odoslať oznámenie';
 $labels['notifytarget'] = 'Cieľ notifikácie:';
 $labels['notifymessage'] = 'Notifikačná správa (voliteľne):';
@@ -162,26 +186,42 @@ $labels['asciicasemap'] = 'nerozlišuje veľké a malé písmená (ascii tabuľk
 $labels['asciinumeric'] = 'numerické (ascii čísla)';
 $labels['index'] = 'index:';
 $labels['indexlast'] = 'dozadu';
-$labels['vacation'] = 'Dovolenka';
+$labels['spamtest'] = 'Úroveň pre nevyžiadanú poštu';
+$labels['spamtestisgreaterthan'] = 'je viac ako';
+$labels['spamtestisgreaterthanequal'] = 'je viac alebo sa rovná ako';
+$labels['spamtestislessthan'] = 'je menej ako';
+$labels['spamtestislessthanequal'] = 'je menej alebo sa rovná ako';
+$labels['spamtestequals'] = 'sa rovná';
+$labels['spamtestnotequals'] = 'sa nerovná';
+$labels['spamtestisunknown'] = 'nie je známa';
+$labels['vacation'] = 'Mimo kancelárie';
 $labels['vacation.reply'] = 'Odpoveď na správu';
 $labels['vacation.advanced'] = 'Pokročilé nastavenia';
 $labels['vacation.from'] = 'Adresa odosielateľa pre odpoveď';
 $labels['vacation.subject'] = 'Predmet';
 $labels['vacation.body'] = 'Telo';
-$labels['vacation.start'] = 'Začiatok dovolenky';
-$labels['vacation.end'] = 'Koniec dovolenky';
+$labels['vacation.start'] = 'Čas začiatku';
+$labels['vacation.end'] = 'Čas ukončenia';
 $labels['vacation.status'] = 'Stav';
 $labels['vacation.on'] = 'Zap.';
 $labels['vacation.off'] = 'Vyp.';
 $labels['vacation.addresses'] = 'Moje e-mailové adresy';
 $labels['vacation.interval'] = 'Interval odpovedania';
-$labels['vacation.after'] = 'Nastaviť pravidlo pre dovolenku po';
+$labels['vacation.after'] = 'Aplikovať pravidlo "mimo kancelárie" po';
 $labels['vacation.saving'] = 'Ukladanie údajov...';
 $labels['vacation.action'] = 'Akcia pre prichádzajúcu správu';
 $labels['vacation.keep'] = 'Zachovať';
 $labels['vacation.discard'] = 'Vyhodiť do koša';
 $labels['vacation.redirect'] = 'Presmerovať na';
 $labels['vacation.copy'] = 'Poslať kópiu na';
+$labels['forward'] = 'Preposlanie';
+$labels['forward.redirect'] = 'Presmerovať na';
+$labels['forward.copy'] = 'Poslať kópiu na';
+$labels['forward.on'] = 'Zap.';
+$labels['forward.off'] = 'Vyp.';
+$labels['forward.status'] = 'Stav:';
+$labels['forward.action'] = 'Pre prichádzajúce e-maily vykonať nasledujúcu akciu:';
+$labels['forward.saving'] = 'Ukladanie údajov...';
 $labels['filladdresses'] = 'Vyplniť všetko mojimi adresami';
 $labels['arialabelfiltersetactions'] = 'Akcie zo súpravy filtrov';
 $labels['arialabelfilteractions'] = 'Akcie filtra';
@@ -190,6 +230,7 @@ $labels['ariasummaryfilterslist'] = 'Zoznam filtrov';
 $labels['ariasummaryfiltersetslist'] = 'Zoznam súprav s filtrami';
 $labels['filterstitle'] = 'Upraviť filtre prichádzajúcich e-mailov';
 $labels['vacationtitle'] = 'Upraviť pravidlo pre čas mimo kancelárie';
+$labels['forwardtitle'] = 'Upraviť pravidlo preposielania správy';
 $labels['message'] = 'Správa';
 $labels['duplicate'] = 'je duplikátom';
 $labels['notduplicate'] = 'nie je duplikátom';
@@ -217,6 +258,7 @@ $messages['setdeleteerror'] = 'Nemožno vymazať vybranú súpravu filtrov. Nast
 $messages['setactivated'] = 'Súprava filtrov bola úspešne aktivovaná.';
 $messages['setdeactivated'] = 'Súprava filtrov bola úspešne deaktivovaná.';
 $messages['setdeleted'] = 'Súprava filtrov bola úspešne vymazaná.';
+$messages['setupdated'] = 'Súprava filtrov bola úspešne aktualizovaná.';
 $messages['setdeleteconfirm'] = 'Naozaj chcete vymazať vybranú súpravu filtrov?';
 $messages['setcreateerror'] = 'Nemožno vytvoriť súpravu filtrov. Nastala chyba servera.';
 $messages['setcreated'] = 'Súprava filtrov bola úspešne vytvorená.';
@@ -232,7 +274,11 @@ $messages['setexist'] = 'Súprava už existuje.';
 $messages['nodata'] = 'Aspoň jedna pozícia musí byť zvolená!';
 $messages['invaliddateformat'] = 'Neplatný formát dátumu alebo časti dátumu';
 $messages['saveerror'] = 'Údaje nemožno uložiť. Nastala chyba servera.';
-$messages['vacationsaved'] = 'Údaje o dovolenke boli úspešne uložené.';
+$messages['vacationsaved'] = 'Údaje pre čas mimo kancelárie boli úspešne uložené.';
+$messages['forwardsaved'] = 'Údaje o preposlaní boli úspešne uložené.';
 $messages['emptyvacationbody'] = 'Musíte zadať telo správy, zobrazovanej v čase neprítomnosti!';
 $messages['duplicate.conflict.err'] = 'Hlavička a aj unikátny identifikátor nie sú povolené.';
-?>
+$messages['disabledaction'] = 'Akcia nie je povolená.';
+$messages['lastindexempty'] = 'Index sa vyžaduje pri počítaní od konca';
+$messages['noflagset'] = 'Musí byť vybraný aspoň jeden príznak.';
+$messages['saving.actionordererror'] = 'Akcia \'$previous\' musí nasledovať po akcii \'$current\'.';

@@ -2,25 +2,25 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/managesieve/localization/<lang>.inc                           |
- |                                                                       |
  | Localization file of the Roundcube Webmail Managesieve plugin         |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-managesieve/
 */
+
 $labels['filters'] = 'Filtry';
 $labels['managefilters'] = 'Zarządzanie filtrami poczty przychodzącej';
 $labels['filtername'] = 'Nazwa filtru';
 $labels['newfilter'] = 'Nowy filtr';
 $labels['filteradd'] = 'Dodaj filtr';
 $labels['filterdel'] = 'Usuń filtr';
+$labels['rules'] = 'Reguły';
+$labels['actions'] = 'Akcje';
+$labels['scope'] = 'Zakres';
 $labels['moveup'] = 'W górę';
 $labels['movedown'] = 'W dół';
 $labels['filterallof'] = 'spełniających wszystkie poniższe kryteria';
@@ -38,6 +38,14 @@ $labels['filterregex'] = 'pasuje do wyrażenia regularnego';
 $labels['filternotregex'] = 'nie pasuje do wyrażenia regularnego';
 $labels['filterunder'] = 'poniżej';
 $labels['filterover'] = 'ponad';
+$labels['mime'] = 'MIME:';
+$labels['mimepart'] = 'Część MIME:';
+$labels['mime-message'] = 'wiadomość';
+$labels['mime-anychild'] = 'dowolne';
+$labels['mime-type'] = 'typ';
+$labels['mime-subtype'] = 'podtyp';
+$labels['mime-contenttype'] = 'typ treści';
+$labels['mime-param'] = 'parametr';
 $labels['addrule'] = 'Dodaj regułę';
 $labels['delrule'] = 'Usuń regułę';
 $labels['messagemoveto'] = 'Przenieś wiadomość do';
@@ -64,12 +72,14 @@ $labels['days'] = 'dni';
 $labels['seconds'] = 'sekundy';
 $labels['rulestop'] = 'Przerwij przetwarzanie reguł';
 $labels['enable'] = 'Włącz/Wyłącz';
-$labels['filterset'] = 'Zbiór filtrów';
+$labels['filterset'] = 'Zbiory fitrów';
 $labels['filtersets'] = 'Zbiory fitrów';
 $labels['filtersetadd'] = 'Dodaj zbiór filtrów';
-$labels['filtersetdel'] = 'Usuń bieżący zbiór filtrów';
+$labels['filtersetdel'] = 'Usuń zbiór filtrów';
 $labels['filtersetact'] = 'Aktywuj bieżący zbiór filtrów';
 $labels['filtersetdeact'] = 'Deaktywuj bieżący zbiór filtrów';
+$labels['filterseteditraw'] = 'Edytuj zbiór filtrów';
+$labels['filtersetswitch'] = 'Włącz/Wyłącz zbiór filtrów';
 $labels['filterdef'] = 'Definicja filtra';
 $labels['filtersetname'] = 'Nazwa zbioru';
 $labels['newfilterset'] = 'Nowy zbiór filtrów';
@@ -78,6 +88,7 @@ $labels['none'] = 'brak';
 $labels['fromset'] = 'ze zbioru';
 $labels['fromfile'] = 'z pliku';
 $labels['filterdisabled'] = 'Filtr wyłączony';
+$labels['filterenabled'] = 'Filtr włączony';
 $labels['countisgreaterthan'] = 'ilość jest większa od';
 $labels['countisgreaterthanequal'] = 'ilość jest równa lub większa od';
 $labels['countislessthan'] = 'ilość jest mniejsza od';
@@ -98,6 +109,18 @@ $labels['flagdeleted'] = 'Usunięta';
 $labels['flaganswered'] = 'Z odpowiedzią';
 $labels['flagflagged'] = 'Oflagowana';
 $labels['flagdraft'] = 'Szkic';
+$labels['addheader'] = 'Dodaj nagłówek do wiadomości';
+$labels['deleteheader'] = 'Usuń nagłówek z wiadomości';
+$labels['headername'] = 'Nazwa nagłówka';
+$labels['headervalue'] = 'Treść nagłówka';
+$labels['headerpos'] = 'Pozycja nagłówka';
+$labels['headeratstart'] = 'na początku';
+$labels['headeratend'] = 'na końcu';
+$labels['headeroccurrence'] = 'Wystąpienie/pozycja nagłówka';
+$labels['headerfromstart'] = 'od początku';
+$labels['headerfromend'] = 'od końca';
+$labels['headerpatterns'] = 'Wzorce treści nagłówka';
+$labels['headermatchtype'] = 'typ dopasowania:';
 $labels['setvariable'] = 'Ustaw zmienną';
 $labels['setvarname'] = 'Nazwa zmiennej:';
 $labels['setvarvalue'] = 'Wartość zmiennej:';
@@ -108,6 +131,7 @@ $labels['varlowerfirst'] = 'pierwsza mała litera';
 $labels['varupperfirst'] = 'pierwsza wielka litera';
 $labels['varquotewildcard'] = 'zamień znaki specjalne';
 $labels['varlength'] = 'długość';
+$labels['varencodeurl'] = 'zakodowane (dla URLi)';
 $labels['notify'] = 'Wyślij powiadomienie';
 $labels['notifytarget'] = 'Odbiorca powiadomienia:';
 $labels['notifymessage'] = 'Wiadomość powiadomienia (opcjonalne):';
@@ -147,7 +171,7 @@ $labels['address'] = 'adres';
 $labels['envelope'] = 'koperta (envelope)';
 $labels['modifier'] = 'modyfikator:';
 $labels['text'] = 'tekst';
-$labels['undecoded'] = 'nie (raw)';
+$labels['undecoded'] = 'nieprzetworzony (raw)';
 $labels['contenttype'] = 'typ części (content type)';
 $labels['modtype'] = 'typ:';
 $labels['allparts'] = 'wszystkie';
@@ -162,6 +186,14 @@ $labels['asciicasemap'] = 'nierozróżniający wielkości liter (ascii-casemap)'
 $labels['asciinumeric'] = 'numeryczny (ascii-numeric)';
 $labels['index'] = 'indeks:';
 $labels['indexlast'] = 'wstecz';
+$labels['spamtest'] = 'Poziom spamu';
+$labels['spamtestisgreaterthan'] = 'jest większy od';
+$labels['spamtestisgreaterthanequal'] = 'jest równy lub większy od';
+$labels['spamtestislessthan'] = 'jest mniejszy od';
+$labels['spamtestislessthanequal'] = 'jest równy lub mniejszy od';
+$labels['spamtestequals'] = 'jest równe';
+$labels['spamtestnotequals'] = 'nie jest równe';
+$labels['spamtestisunknown'] = 'jest nieokreślony';
 $labels['vacation'] = 'Nieobecność';
 $labels['vacation.reply'] = 'Odpowiedź';
 $labels['vacation.advanced'] = 'Ustawienia zaawansowane';
@@ -182,6 +214,14 @@ $labels['vacation.keep'] = 'Zachowaj';
 $labels['vacation.discard'] = 'Odrzuć';
 $labels['vacation.redirect'] = 'Przekaż do';
 $labels['vacation.copy'] = 'Wyślij kopię do';
+$labels['forward'] = 'Przekierowania';
+$labels['forward.redirect'] = 'Przekaż do';
+$labels['forward.copy'] = 'Wyślij kopię do';
+$labels['forward.on'] = 'włączone';
+$labels['forward.off'] = 'wyłączone';
+$labels['forward.status'] = 'Status:';
+$labels['forward.action'] = 'Dla wiadomości przychodzących wykonaj następującą akcję:';
+$labels['forward.saving'] = 'Zapisywanie danych...';
 $labels['filladdresses'] = 'Wypełnij wszystkimi moimi adresami';
 $labels['arialabelfiltersetactions'] = 'Zbiór filtrów akcji';
 $labels['arialabelfilteractions'] = 'Akcje filtrów';
@@ -190,6 +230,7 @@ $labels['ariasummaryfilterslist'] = 'Spis filtrów';
 $labels['ariasummaryfiltersetslist'] = 'Lista zbiorów filtrów';
 $labels['filterstitle'] = 'Zarządzaj filtrami wiadomości przychodzących';
 $labels['vacationtitle'] = 'Zarządzaj asystentem nieobecności';
+$labels['forwardtitle'] = 'Edycja reguł przekierowań poczty';
 $labels['message'] = 'Wiadomość';
 $labels['duplicate'] = 'jest duplikatem';
 $labels['notduplicate'] = 'nie jest duplikatem';
@@ -217,13 +258,14 @@ $messages['setdeleteerror'] = 'Nie można usunąć wybranego zbioru filtrów. B�
 $messages['setactivated'] = 'Zbiór filtrów został aktywowany pomyślnie.';
 $messages['setdeactivated'] = 'Zbiór filtrów został deaktywowany pomyślnie.';
 $messages['setdeleted'] = 'Zbiór filtrów został usunięty pomyślnie.';
+$messages['setupdated'] = 'Zbiór filtrów został zaktualizowany pomyślnie.';
 $messages['setdeleteconfirm'] = 'Czy na pewno chcesz usunąć wybrany zbiór filtrów?';
 $messages['setcreateerror'] = 'Nie można utworzyć zbioru filtrów. Błąd serwera.';
 $messages['setcreated'] = 'Zbiór filtrów został utworzony pomyślnie.';
 $messages['activateerror'] = 'Nie można włączyć wybranych filtrów. Błąd serwera.';
 $messages['deactivateerror'] = 'Nie można wyłączyć wybranych filtrów. Błąd serwera.';
-$messages['deactivated'] = 'Filtr(y) włączono pomyślnie.';
-$messages['activated'] = 'Filtr(y) wyłączono pomyślnie.';
+$messages['deactivated'] = 'Filtr(y) wyłączono pomyślnie.';
+$messages['activated'] = 'Filtr(y) włączono pomyślnie.';
 $messages['moved'] = 'Filter został przeniesiony pomyślnie.';
 $messages['moveerror'] = 'Nie można przenieść wybranego filtra. Błąd serwera.';
 $messages['nametoolong'] = 'Zbyt długa nazwa.';
@@ -233,6 +275,10 @@ $messages['nodata'] = 'Należy wybrać co najmniej jedną pozycję!';
 $messages['invaliddateformat'] = 'Nieprawidłowy format daty lub fragmentu daty';
 $messages['saveerror'] = 'Nie można zapisać danych. Wystąpił błąd serwera.';
 $messages['vacationsaved'] = 'Dane nieobecności zapisano pomyślnie.';
+$messages['forwardsaved'] = 'Dane przekierowania zostały zapisane pomyślnie.';
 $messages['emptyvacationbody'] = 'Treść wiadomości jest wymagana!';
 $messages['duplicate.conflict.err'] = 'Nagłówek i identyfikator nie mogą być używane równocześnie.';
-?>
+$messages['disabledaction'] = 'Niedozwolona akcja';
+$messages['lastindexempty'] = 'Number pozycji jest wymagany przy odliczaniu od końca';
+$messages['noflagset'] = 'Przynajmniej jedna flaga musi być zaznaczona.';
+$messages['saving.actionordererror'] = 'Akcja \'$previous\' musi być wykonana po akcji \'$current\'.';

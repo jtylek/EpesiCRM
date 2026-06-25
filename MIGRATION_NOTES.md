@@ -1038,6 +1038,40 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 30. UPGRADE — Roundcube 1.2.1 → 1.7.1 (branch: experiment/rc-upgrade)
+
+- **Symptom (old):** RC 1.2.1 (2016) incompatible with PHP 8. Three classes of warnings broke the UI: `$GLOBALS['env']` undefined, `$rcmail_config` undefined, `$aliases[$from] ?: $from` needed `??`.
+- **Decision:** Patch-fix of 1.2.1 was impractical. Upgraded to RC 1.7.1 (current stable, 2025).
+- **Branch:** `experiment/rc-upgrade` (sub-branch of `experiment/composer-deps`).
+
+### What was replaced
+- `RC/program/`, `RC/vendor/`, `RC/skins/`, `RC/SQL/`, `RC/plugins/` — full replacement with 1.7.1 files.
+- `RC/index.php` — replaced (1.7.1 root index just redirects to `public_html/`).
+- `RC/public_html/`, `RC/bin/` — new directories from 1.7.1.
+
+### What was kept
+- `RC/config/config.inc.php` — Epesi custom config, already used `$config = []` format (compatible with 1.7.1 without changes).
+- `RC/plugins/epesi_addressbook`, `epesi_archive`, `epesi_autologon`, `epesi_autorelogon`, `epesi_init`, `epesi_mailto` — 6 Epesi plugins restored after core replacement. All use standard RC `rcube_plugin` API, compatible with 1.7.x.
+
+### Epesi integration change
+- **File:** `modules/CRM/Roundcube/Roundcube_0.php:49`
+- **Change:** iframe `src` updated from `RC/index.php` to `RC/public_html/index.php` (1.7.1 moved the web entry point).
+
+### Config change
+- `$config['skin']` changed `'classic'` → `'elastic'` (`classic` skin removed in RC 1.5+; `elastic` is the only skin in 1.7.1 complete package).
+
+### DB migration
+- RC schema was at `2015030800`. Applied all migrations through `2025092300` (16 files).
+- RC CLI `bin/updatedb.sh` could not run (XAMPP PHP missing `libcrypt.so.1`). Migration applied manually via MySQL with `rc_` prefix substituted in SQL.
+- New tables created: `rc_filestore`, `rc_collected_addresses`, `rc_responses`, `rc_uploads`.
+- `rc_session.changed` renamed to `rc_session.expires_at` (2025092300 migration).
+- Schema version updated to `2025092300` in `rc_system`.
+
+### Test status
+- Browser test pending (Karina to test — open Email in CRM menu and verify UI loads).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

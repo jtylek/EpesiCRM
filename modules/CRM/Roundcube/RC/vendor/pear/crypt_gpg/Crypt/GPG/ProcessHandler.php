@@ -7,8 +7,6 @@
  *
  * This file contains handler for status and error pipes of GPG process.
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -46,8 +44,6 @@ require_once 'Crypt/GPG/Exceptions.php';
  */
 require_once 'Crypt/GPG/Signature.php';
 
-// {{{ class Crypt_GPG_ProcessHandler
-
 /**
  * Status/Error handler for GPG process pipes.
  *
@@ -66,8 +62,6 @@ require_once 'Crypt/GPG/Signature.php';
  */
 class Crypt_GPG_ProcessHandler
 {
-    // {{{ protected class properties
-
     /**
      * Engine used to control the GPG subprocess
      *
@@ -78,7 +72,7 @@ class Crypt_GPG_ProcessHandler
     /**
      * The error code of the current operation
      *
-     * @var integer
+     * @var int
      */
     protected $errorCode = Crypt_GPG::ERROR_NONE;
 
@@ -88,7 +82,7 @@ class Crypt_GPG_ProcessHandler
      * If this is not zero when the GPG command is completed, the error code is
      * set to {@link Crypt_GPG::ERROR_MISSING_PASSPHRASE}.
      *
-     * @var integer
+     * @var int
      */
     protected $needPassphrase = 0;
 
@@ -100,7 +94,7 @@ class Crypt_GPG_ProcessHandler
      * @see self::setData()
      * @see self::getData()
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * The name of the current operation
@@ -118,9 +112,6 @@ class Crypt_GPG_ProcessHandler
      */
     protected $operationArg = null;
 
-    // }}}
-    // {{{ __construct()
-
     /**
      * Creates a new instance
      *
@@ -130,9 +121,6 @@ class Crypt_GPG_ProcessHandler
     {
         $this->engine = $engine;
     }
-
-    // }}}
-    // {{{ setOperation()
 
     /**
      * Sets the operation that is being performed by the engine.
@@ -167,12 +155,10 @@ class Crypt_GPG_ProcessHandler
             }
         }
 
-        $this->operation    = $op;
-        $this->operationArg = $opArg;
+        $this->operation        = $op;
+        $this->operationArg     = $opArg;
+        $this->data['Warnings'] = [];
     }
-
-    // }}}
-    // {{{ handleStatus()
 
     /**
      * Handles error values in the status output from GPG
@@ -214,7 +200,7 @@ class Crypt_GPG_ProcessHandler
             $this->data['Import']['fingerprint'] = $tokens[2];
 
             if (empty($this->data['Import']['fingerprints'])) {
-                $this->data['Import']['fingerprints'] = array($tokens[2]);
+                $this->data['Import']['fingerprints'] = [$tokens[2]];
             } else if (!in_array($tokens[2], $this->data['Import']['fingerprints'])) {
                 $this->data['Import']['fingerprints'][] = $tokens[2];
             }
@@ -234,6 +220,11 @@ class Crypt_GPG_ProcessHandler
 
             if ($this->errorCode != Crypt_GPG::ERROR_MISSING_PASSPHRASE
                 && $this->errorCode != Crypt_GPG::ERROR_BAD_PASSPHRASE
+                && !(
+                    $this->operation == 'decrypt'
+                    && $tokens[0] == 'NO_PUBKEY'
+                    && !empty($this->data['IgnoreVerifyErrors'])
+                )
             ) {
                 $this->errorCode = Crypt_GPG::ERROR_KEY_NOT_FOUND;
             }
@@ -260,7 +251,7 @@ class Crypt_GPG_ProcessHandler
             // remember the user id for pretty exception messages
             // GnuPG 2.1.15 gives me: "USERID_HINT 0000000000000000 [?]"
             $keyId = $tokens[1];
-            if (strcspn($keyId, '0')) {
+            if (preg_match('/[1-9A-F]/', $keyId)) {
                 $username = implode(' ', array_splice($tokens, 2));
                 $this->data['BadPassphrases'][$keyId] = $username;
             }
@@ -280,7 +271,7 @@ class Crypt_GPG_ProcessHandler
             if (!empty($_ENV['PINENTRY_USER_DATA'])) {
                 $passphrases = json_decode($_ENV['PINENTRY_USER_DATA'], true);
             } else {
-                $passphrases = array();
+                $passphrases = [];
             }
 
             // @TODO: Get user name/email
@@ -450,9 +441,6 @@ class Crypt_GPG_ProcessHandler
         }
     }
 
-    // }}}
-    // {{{ handleError()
-
     /**
      * Handles error values in the error output from GPG
      *
@@ -465,59 +453,66 @@ class Crypt_GPG_ProcessHandler
      */
     public function handleError($line)
     {
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
-            $pattern = '/no valid OpenPGP data found/';
-            if (preg_match($pattern, $line) === 1) {
-                $this->errorCode = Crypt_GPG::ERROR_NO_DATA;
-            }
+        if (stripos($line, 'gpg: WARNING: ') !== false) {
+            $this->data['Warnings'][] = substr($line, 14);
         }
 
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
-            $pattern = '/No secret key|secret key not available/';
-            if (preg_match($pattern, $line) === 1) {
-                $this->errorCode = Crypt_GPG::ERROR_KEY_NOT_FOUND;
-            }
+        if ($this->errorCode !== Crypt_GPG::ERROR_NONE) {
+            return;
         }
 
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
-            $pattern = '/No public key|public key not found/';
-            if (preg_match($pattern, $line) === 1) {
-                $this->errorCode = Crypt_GPG::ERROR_KEY_NOT_FOUND;
-            }
+        $pattern = '/no valid OpenPGP data found/';
+        if (preg_match($pattern, $line) === 1) {
+            $this->errorCode = Crypt_GPG::ERROR_NO_DATA;
+            return;
         }
 
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
-            $matches = array();
-            $pattern = '/can\'t (?:access|open) `(.*?)\'/';
-            if (preg_match($pattern, $line, $matches) === 1) {
-                $this->data['ErrorFilename'] = $matches[1];
-                $this->errorCode = Crypt_GPG::ERROR_FILE_PERMISSIONS;
+        $pattern = '/No secret key|secret key not available/';
+        if (preg_match($pattern, $line) === 1) {
+            $this->errorCode = Crypt_GPG::ERROR_KEY_NOT_FOUND;
+            return;
+        }
+
+        $pattern = '/No public key|public key not found/';
+        if (preg_match($pattern, $line) === 1) {
+            if ($this->operation == 'decrypt' && !empty($this->data['IgnoreVerifyErrors'])) {
+                return;
             }
+
+            $this->errorCode = Crypt_GPG::ERROR_KEY_NOT_FOUND;
+            return;
+        }
+
+        $pattern = '/can\'t (?:access|open) `(.*?)\'/';
+        if (preg_match($pattern, $line, $matches) === 1) {
+            $this->data['ErrorFilename'] = $matches[1];
+            $this->errorCode = Crypt_GPG::ERROR_FILE_PERMISSIONS;
+            return;
         }
 
         // GnuPG 2.1: It should return MISSING_PASSPHRASE, but it does not
         // we have to detect it this way. This happens e.g. on private key import
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
-            $matches = array();
-            $pattern = '/key ([0-9A-F]+).* (Bad|No) passphrase/';
-            if (preg_match($pattern, $line, $matches) === 1) {
-                $keyId = $matches[1];
-                // @TODO: Get user name/email
-                if (empty($this->data['BadPassphrases'][$keyId])) {
-                    $this->data['BadPassphrases'][$keyId] = $keyId;
-                }
-                if ($matches[2] == 'Bad') {
-                    $this->errorCode = Crypt_GPG::ERROR_BAD_PASSPHRASE;
-                } else {
-                    $this->errorCode = Crypt_GPG::ERROR_MISSING_PASSPHRASE;
-                    if (empty($this->data['MissingPassphrases'][$keyId])) {
-                        $this->data['MissingPassphrases'][$keyId] = $keyId;
-                    }
+        $pattern = '/key ([0-9A-F]+).* (Bad|No) passphrase/';
+        if (preg_match($pattern, $line, $matches) === 1) {
+            $keyId = $matches[1];
+            // @TODO: Get user name/email
+            if (empty($this->data['BadPassphrases'][$keyId])) {
+                $this->data['BadPassphrases'][$keyId] = $keyId;
+            }
+
+            if ($matches[2] == 'Bad') {
+                $this->errorCode = Crypt_GPG::ERROR_BAD_PASSPHRASE;
+            } else {
+                $this->errorCode = Crypt_GPG::ERROR_MISSING_PASSPHRASE;
+                if (empty($this->data['MissingPassphrases'][$keyId])) {
+                    $this->data['MissingPassphrases'][$keyId] = $keyId;
                 }
             }
+
+            return;
         }
 
-        if ($this->errorCode === Crypt_GPG::ERROR_NONE && $this->operation == 'gen-key') {
+        if ($this->operation == 'gen-key') {
             $pattern = '/:([0-9]+): invalid algorithm$/';
             if (preg_match($pattern, $line, $matches) === 1) {
                 $this->errorCode          = Crypt_GPG::ERROR_BAD_KEY_PARAMS;
@@ -525,9 +520,6 @@ class Crypt_GPG_ProcessHandler
             }
         }
     }
-
-    // }}}
-    // {{{ throwException()
 
     /**
      * On error throws exception
@@ -540,11 +532,7 @@ class Crypt_GPG_ProcessHandler
     public function throwException($exitcode = 0)
     {
         if ($exitcode > 0 && $this->errorCode === Crypt_GPG::ERROR_NONE) {
-            if ($this->needPassphrase > 0) {
-                $this->errorCode = Crypt_GPG::ERROR_MISSING_PASSPHRASE;
-            } else if ($this->operation != 'import') {
-                $this->errorCode = Crypt_GPG::ERROR_UNKNOWN;
-            }
+            $this->errorCode = $this->setErrorCode($exitcode);
         }
 
         if ($this->errorCode === Crypt_GPG::ERROR_NONE) {
@@ -618,7 +606,7 @@ class Crypt_GPG_ProcessHandler
                     'Unknown error deleting key. ' . $note, $code
                 );
             }
-            break;
+            break; // @phpstan-ignore-line
 
         case 'import':
             switch ($code) {
@@ -636,7 +624,7 @@ class Crypt_GPG_ProcessHandler
                     'Unknown error importing GPG key. ' . $note, $code
                 );
             }
-            break;
+            break; // @phpstan-ignore-line
 
         case 'export':
         case 'export-secret-keys':
@@ -650,7 +638,7 @@ class Crypt_GPG_ProcessHandler
                     'Unknown error exporting a key. ' . $note, $code
                 );
             }
-            break;
+            break; // @phpstan-ignore-line
 
         case 'encrypt':
         case 'sign':
@@ -680,7 +668,7 @@ class Crypt_GPG_ProcessHandler
                     "Unknown error {$this->operation}ing data. $note", $code
                 );
             }
-            break;
+            break; // @phpstan-ignore-line
 
         case 'verify':
             switch ($code) {
@@ -762,19 +750,46 @@ class Crypt_GPG_ProcessHandler
         }
     }
 
-    // }}}
-    // {{{ getData()
+    /**
+     * Check exit code of the GPG operation.
+     *
+     * @param int $exitcode GPG process exit code
+     *
+     * @return int Internal error code
+     */
+    protected function setErrorCode($exitcode)
+    {
+        if ($this->needPassphrase > 0) {
+            return Crypt_GPG::ERROR_MISSING_PASSPHRASE;
+        }
+
+        if ($this->operation == 'import') {
+            return Crypt_GPG::ERROR_NONE;
+        }
+
+        if ($this->operation == 'decrypt' && !empty($this->data['DecryptionOkay'])) {
+            if (!empty($this->data['IgnoreVerifyErrors'])) {
+                return Crypt_GPG::ERROR_NONE;
+            }
+            if (!empty($this->data['MissingKeys'])) {
+                return Crypt_GPG::ERROR_KEY_NOT_FOUND;
+            }
+        }
+
+        return Crypt_GPG::ERROR_UNKNOWN;
+    }
 
     /**
      * Get data from the last process execution.
      *
      * @param string $name Data element name:
-     *               - SigCreated: The last SIG_CREATED status.
-     *               - KeyConsidered: The last KEY_CONSIDERED status identifier.
-     *               - KeyCreated: The KEY_CREATED status (for specified Handle).
-     *               - Signatures: Signatures data from verification process.
-     *               - LineNumber: Number of the gen-key error line.
-     *               - Import: Result of IMPORT_OK/IMPORT_RES
+     *                     - SigCreated: The last SIG_CREATED status.
+     *                     - KeyConsidered: The last KEY_CONSIDERED status identifier.
+     *                     - KeyCreated: The KEY_CREATED status (for specified Handle).
+     *                     - Signatures: Signatures data from verification process.
+     *                     - LineNumber: Number of the gen-key error line.
+     *                     - Import: Result of IMPORT_OK/IMPORT_RES
+     *                     - Warnings: An array of all collected GnuPG warnings
      *
      * @return mixed
      */
@@ -783,17 +798,17 @@ class Crypt_GPG_ProcessHandler
         return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
-    // }}}
-    // {{{ setData()
-
     /**
      * Set data for the process execution.
      *
      * @param string $name  Data element name:
-     *               - Handle: The unique key handle used by this handler
-     *                         The key handle is used to track GPG status output
-     *                         for a particular key on --gen-key command before
-     *                         the key has its own identifier.
+     *                      - Handle: The unique key handle used by this handler
+     *                      The key handle is used to track GPG status output
+     *                      for a particular key on --gen-key command before
+     *                      the key has its own identifier.
+     *                      - IgnoreVerifyErrors: Do not throw exceptions
+     *                      when signature verification failes because
+     *                      of a missing public key.
      * @param mixed  $value Data element value
      *
      * @return void
@@ -804,11 +819,12 @@ class Crypt_GPG_ProcessHandler
         case 'Handle':
             $this->data[$name] = strval($value);
             break;
+
+        case 'IgnoreVerifyErrors':
+            $this->data[$name] = (bool) $value;
+            break;
         }
     }
-
-    // }}}
-    // {{{ setData()
 
     /**
      * Create Crypt_GPG_BadPassphraseException from operation data.
@@ -821,13 +837,13 @@ class Crypt_GPG_ProcessHandler
     protected function badPassException($code, $message)
     {
         $badPassphrases = array_diff_key(
-            isset($this->data['BadPassphrases']) ? $this->data['BadPassphrases'] : array(),
-            isset($this->data['MissingPassphrases']) ? $this->data['MissingPassphrases'] : array()
+            isset($this->data['BadPassphrases']) ? $this->data['BadPassphrases'] : [],
+            isset($this->data['MissingPassphrases']) ? $this->data['MissingPassphrases'] : []
         );
 
         $missingPassphrases = array_intersect_key(
-            isset($this->data['BadPassphrases']) ? $this->data['BadPassphrases'] : array(),
-            isset($this->data['MissingPassphrases']) ? $this->data['MissingPassphrases'] : array()
+            isset($this->data['BadPassphrases']) ? $this->data['BadPassphrases'] : [],
+            isset($this->data['MissingPassphrases']) ? $this->data['MissingPassphrases'] : []
         );
 
         if (count($badPassphrases) > 0) {
@@ -846,9 +862,6 @@ class Crypt_GPG_ProcessHandler
             $missingPassphrases
         );
     }
-
-    // }}}
-    // {{{ getPin()
 
     /**
      * Get registered passphrase for specified key.
@@ -884,10 +897,4 @@ class Crypt_GPG_ProcessHandler
 
         return $passphrase;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>
