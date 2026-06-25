@@ -1125,12 +1125,14 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - Rector PHP 7→8.2 ladder applied to all own code
 - Runtime fixes: Contacts, Companies, Tasks — full CRUD tested, no fatals
 - PHP 8 relic fixes committed: login_id guard, TCPDF __DIR__, Meeting addFormRule, checkboxes, attached_to, Flash button, clipboard pattern
+- PhoneCall — full CRUD tested, no fatals (§27 watchdog fix applied)
+- Meeting — full CRUD tested, no fatals
+- User Settings — tested, no fatals
+- Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 
 ### 🔲 Must do before merge
 - [ ] **Calendar/Agenda** — full CRUD untested
 - [ ] **Administrator** — untested
-- [ ] **PhoneCall** — full CRUD untested (new from contact tested only)
-- [ ] **Meeting** — full CRUD untested (new from contact tested only)
 - [ ] **Filters/search (critsvalue)** — untested across modules
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
 - [ ] **§20 storage prefix bug (Jasiek)** — file view/download broken due to mutable Instance() singleton; decision on fix needed.
