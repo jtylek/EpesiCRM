@@ -1030,6 +1030,14 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 29. FIXED — Activity Report Files checkbox: FetchRow on bool (pre-existing Epesi bug)
+
+- **Symptom:** Checking "Files" in User Activity Report → fatal `Call to a member function FetchRow() on bool`.
+- **Cause:** `ActivityReport_0.php` file query joined `utils_attachment_file` + `utils_attachment_local`, both dropped in Epesi's own 2017 patch (`20171024_use_generic_file_field.php`). ActivityReport never updated. Not a PHP 8 regression.
+- **Fix:** Rewrote file query to use `utils_attachment_data_1` directly (`f_files`, `f_attached_to`). Changed `$af_where` aliases from `ual`/`uaf` → `ua`.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

@@ -89,7 +89,7 @@ class Apps_ActivityReport extends Module {
 
 		$af_where = array();
 		foreach($recordsets as $k) {
-			$af_where[] = 'ual.local '.DB::like().' '.DB::Concat(DB::qstr($k.'/'),DB::qstr('%'));
+			$af_where[] = 'ua.f_attached_to '.DB::like().' '.DB::Concat(DB::qstr('%__'.$k.'/'),DB::qstr('%'));
 		}
 		$af_where = count($af_where) ?' ('.implode(' OR ',$af_where).')' : 'TRUE ';
 
@@ -98,7 +98,7 @@ class Apps_ActivityReport extends Module {
 		if ($filters['user']) {
 			$e_where[] = ' edited_by = '.$filters['user'];
 			$c_where = ' created_by = '.$filters['user'];
-			$af_where .= ' AND uaf.created_by = '.$filters['user'];
+			$af_where .= ' AND ua.created_by = '.$filters['user'];
 		}
 		if (isset($filters['edit'])) {
 			if (!isset($filters['delete_restore'])) {
@@ -111,13 +111,13 @@ class Apps_ActivityReport extends Module {
 		}
 		if ($filters['start_date']) {
 			$date = DB::qstr(date('Y-m-d', strtotime($filters['start_date'])));
-			$af_where .= ' AND uaf.created_on >= '.$date;
+			$af_where .= ' AND ua.created_on >= '.$date;
 			$c_where .= ($c_where?' AND':'').' created_on >= '.$date;
 			$e_where[] = ' edited_on >= '.$date;
 		}
 		if ($filters['end_date']) {
 			$date = DB::qstr(date('Y-m-d 23:59:59', strtotime($filters['end_date'])));
-			$af_where .= ' AND uaf.created_on <= '.$date;
+			$af_where .= ' AND ua.created_on <= '.$date;
 			$c_where .= ($c_where?' AND':'').' created_on <= '.$date;
 			$e_where[] = ' edited_on <= '.$date;
 		}
@@ -129,7 +129,7 @@ class Apps_ActivityReport extends Module {
 		$postgre_cast_type = DB::is_postgresql() ? '::varchar' : '';
 		// **** files ****
 		if (isset($filters['file']))
-			$tables[] = 'SELECT uaf.id AS id,uaf.created_on AS edited_on,uaf.created_by AS edited_by, ual.local AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_file uaf INNER JOIN utils_attachment_data_1 ua ON uaf.attach_id=ua.id INNER JOIN utils_attachment_local ual ON ua.id=ual.attachment WHERE original!='.DB::qstr('').' AND '.$af_where;
+			$tables[] = 'SELECT ua.id AS id, ua.created_on AS edited_on, ua.created_by AS edited_by, SUBSTRING_INDEX(SUBSTRING(ua.f_attached_to, 3), \'__\', 1) AS r_id, '.DB::qstr('').' AS tab, '.DB::qstr('file').' AS action FROM utils_attachment_data_1 ua WHERE ua.f_files IS NOT NULL AND ua.f_files != '.DB::qstr('').' AND ua.f_attached_to IS NOT NULL AND ua.f_attached_to != '.DB::qstr('').' AND '.$af_where;
 		// **** edit ****
 		if (isset($filters['edit']) || isset($filters['delete_restore']))
 			foreach($recordsets as $k)
