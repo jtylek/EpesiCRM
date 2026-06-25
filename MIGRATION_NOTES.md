@@ -1104,6 +1104,21 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 31. DEAD EXTERNAL SERVICE — Telegram bot notifications broken (post-upgrade task)
+
+- **Symptom:** User connects to `@EpesiBot` in Telegram desktop app, but bot never responds.
+- **Root cause:** Not a PHP 8 issue. The integration relies on two Telaxus-hosted services that are no longer live:
+  - `https://telegram.epesicrm.com/` — relay server (confirmed dead)
+  - `@EpesiBot` — Telaxus-managed Telegram bot
+- **How it works (current code):** Cron calls `Base_NotifyCommon::telegram()` every 5 minutes → POSTs pending notifications to `telegram.epesicrm.com` → relay forwards to `@EpesiBot` → bot sends message to user. Code is in `modules/Base/Notify/NotifyCommon_0.php:252`.
+- **Status:** Non-fatal — rest of the app works fine. Telegram simply never delivers.
+
+### Fix options (post-upgrade, FOR JASIEK decision)
+1. **Replace relay with direct Telegram Bot API** — create own bot via `@BotFather`, rewrite `telegram()` to POST directly to `https://api.telegram.org/bot{TOKEN}/sendMessage`. No external dependency.
+2. **Restore the relay** — only if Jasiek can bring `telegram.epesicrm.com` back up.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
