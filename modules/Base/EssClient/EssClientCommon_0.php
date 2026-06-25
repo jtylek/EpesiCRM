@@ -146,9 +146,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
      */
     public static function server($recreate_object = false) {
         if (self::$client_requester == null || $recreate_object == true) {
-            // include php file
-            $dir = self::Instance()->get_module_dir();
-            require_once $dir . 'ClientRequester.php';
+            require_once __DIR__ . '/ClientRequester.php';
             // create object
             self::$client_requester = new ClientRequester(self::get_server_url());
             self::$client_requester->set_client_license_key(self::get_license_key());
