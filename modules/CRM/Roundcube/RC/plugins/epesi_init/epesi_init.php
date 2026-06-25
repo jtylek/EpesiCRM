@@ -18,7 +18,7 @@ class epesi_init extends rcube_plugin
   public function init()
   {
     $d = getcwd();
-    chdir('../../../../');
+    chdir(dirname(__DIR__, 6));
     require_once('vendor/autoload.php');
     require_once('include/epesi.php');
     require_once('include/cache.php');
