@@ -1119,6 +1119,16 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 32. FIXED — EssClient registration form: addRule on nonexistent element
+
+- **Symptom:** Entering Epesi Store registration → `HTML_QuickForm_Error: nonexistent html element: Element 'admin_email' does not exist`.
+- **Cause:** Pre-existing Epesi 1.9.1 copy-paste bug in `EssClient_0.php:203` — `addRule('admin_email', ...)` called before `admin_email` was added to the form (line 213). The rule was intended for `tax_id` (added on line 202). PEAR QuickForm swallowed this silently; openpsa QuickForm throws visibly.
+- **Fix:** `addRule('admin_email', ...)` → `addRule('tax_id', ...)` on line 203.
+- **Status:** Registration form works and Epesi was successfully registered.
+- **TODO:** Registration success/status page layout is messy — needs cosmetic cleanup (non-fatal, post-upgrade task).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
