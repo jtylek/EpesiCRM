@@ -1022,6 +1022,14 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 28. FIXED — Activity Report: User dropdown shows "front-end user" (PHP 8 + MySQLi)
+
+- **Symptom:** User Activity Report search bar User dropdown shows "front-end user" for all users instead of contact names.
+- **Cause:** `ActivityReport_0.php:29` — `SELECT id, id FROM user_login` selects same column twice. PHP 8 MySQLi collapses duplicate assoc keys, leaving the value column empty → `get_user_label("")` → "front-end user".
+- **Fix:** `SELECT id, id AS uid FROM user_login` — aliasing second column avoids duplicate name collision.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

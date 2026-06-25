@@ -26,7 +26,7 @@ class Apps_ActivityReport extends Module {
 				$fcallback = array('CRM_ContactsCommon','contact_format_no_company');
 				$form->addElement('autoselect', 'user', __('User'), array(), array(array('CRM_ContactsCommon','autoselect_contact_suggestbox'), array($crits, $fcallback)), $fcallback);
 			} else {
-				$users = DB::GetAssoc('SELECT id, id FROM user_login');
+				$users = DB::GetAssoc('SELECT id, id AS uid FROM user_login');
 				foreach ($users as $k=>$u)
 					$users[$k] = Base_UserCommon::get_user_label($u, true);
 				asort($users);
