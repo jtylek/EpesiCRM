@@ -1069,28 +1069,38 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ### Post-upgrade fixes required (found during browser testing)
 
-**epesi_init chdir path** (`RC/plugins/epesi_init/epesi_init.php`):
-- Old `chdir('../../../../')` assumed cwd = RC root. In 1.7.1 entry point is `public_html/`, so cwd = `RC/public_html/` — chdir landed in `modules/` not Epesi root.
-- Fix: `chdir(dirname(__DIR__, 6))` — absolute, derived from `__FILE__`.
-
-**epesi addressbook PHP 8 incompatible signatures** (`epesi_contacts/companies_addressbook_backend.php`):
-- RC 1.7.1 added `: void` to `rcube_addressbook::set_search_set()` and `reset()`.
-- PHP 8 fatal on every autocomplete/addressbook request (composing email triggered it).
-- Fix: added `: void` to both methods in both backends.
-
-**IMAP SSL certificate hostname mismatch** (`RC/config/config.inc.php`):
-- Hosting uses shared cert (`dade1.hostypanel.com`) but IMAP host is `mail.mrf.epesi.cloud`.
-- PHP 8 separated `verify_peer` and `verify_peer_name`; old config only had `verify_peer => false`.
-- Fix: added `'verify_peer_name' => false` to both `imap_conn_options` and `smtp_conn_options`.
-
-**Session cron query** (`RoundcubeCommon_0.php`):
-- `DELETE FROM rc_session WHERE changed < ...` — column renamed to `expires_at` in 2025092300 migration.
-- Fix: updated column name.
+| Fix | Cause |
+|-----|-------|
+| `dirname(__DIR__, 6)` in epesi_init | Entry point moved from `RC/` to `RC/public_html/` — cwd shifted one level |
+| `: void` on `set_search_set()` + `reset()` | RC 1.7.1 added void return types to abstract parent; PHP 8 enforces child compatibility |
+| `verify_peer_name => false` in conn options | PHP 8 made peer name check independent; shared hosting cert CN didn't match |
+| `changed` → `expires_at` in cron query | DB column renamed in 2025092300 migration |
 
 ### Test status — DONE
 - Email UI opens, IMAP connects (SSL), inbox loads.
 - Compose + send to `test@mrf.epesi.cloud` confirmed working.
 - Address book autocomplete works (no more server error on To: field).
+
+### Future RC upgrades — what is safe and what needs attention
+
+**Safe — user data is never at risk:**
+- All emails and folders live on the IMAP server; RC is just a client, it never owns the messages.
+- Email account credentials are in `rc_accounts_data_1` (Epesi RecordBrowser) — RC core does not touch this table.
+- Archived emails (`rc_mails_data_1`, `rc_mail_threads_data_1`) are Epesi's own records.
+
+**Needs attention on each RC upgrade:**
+1. **6 Epesi plugins** — check for abstract method signature changes in `rcube_addressbook` and other RC base classes; PHP 8 enforces child compatibility strictly.
+2. **`config.inc.php`** — check for renamed or removed config keys in the new RC version.
+3. **DB migrations** — apply new SQL files from `SQL/mysql/` with `rc_` prefix substituted on all table names (RC CLI `bin/updatedb.sh` requires `libcrypt.so.1` missing on XAMPP; apply manually via MySQL).
+4. **Skin** — verify `elastic` skin still exists; RC has dropped skins before (`classic` was removed in 1.5).
+
+**Recipe for future RC upgrades:**
+1. Replace `RC/program/`, `RC/vendor/`, `RC/skins/`, `RC/SQL/`, `RC/plugins/` with new RC core.
+2. Restore the 6 `epesi_*` plugins from backup.
+3. Keep `RC/config/config.inc.php` — check for config key changes.
+4. Apply new DB migration files with `rc_` prefix.
+5. Check plugin method signatures against updated RC base classes.
+6. Test: open Email, confirm IMAP connects, send a test message.
 
 ---
 
