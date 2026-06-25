@@ -1,0 +1,20 @@
+<?php
+
+/*
+ +-----------------------------------------------------------------------+
+ | Localization file of the Roundcube Webmail MarkdownEditor plugin      |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ |                                                                       |
+ | Licensed under the GNU General Public License version 3 or            |
+ | any later version with exceptions for skins & plugins.                |
+ | See the README file for a full license statement.                     |
+ +-----------------------------------------------------------------------+
+*/
+
+$labels['toolbar_button_bold'] = 'Qalind';
+$labels['toolbar_button_italic'] = 'Xwar';
+$labels['toolbar_button_link'] = 'Girêdan';
+$labels['toolbar_button_image'] = 'Wêne';
+$labels['toolbar_button_undo'] = 'Vegere';
+$labels['toolbar_button_redo'] = 'Dûbare bike';

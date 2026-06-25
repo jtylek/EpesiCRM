@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Виникла помилка!';
 $messages['loginfailed']  = 'Невдала спроба входу';
 $messages['cookiesdisabled'] = 'Ваш переглядач не приймає cookie';
@@ -25,16 +22,16 @@ $messages['servererrormsg'] = 'Помилка сервера: $msg';
 $messages['accountlocked'] = 'Забагато невдалих спроб входу в систему. Спробуйте пізніше. ';
 $messages['connerror'] = 'Помилка з\'єднання (не вдалося зв\'язатися з сервером)!';
 $messages['dberror'] = 'Помилка бази даних!';
+$messages['dbconnerror'] = 'Неможливо підключитися до бази даних!';
 $messages['windowopenerror'] = 'Спливне вікно було заблоковано!';
 $messages['requesttimedout'] = 'Час запиту вийшов';
-$messages['errorreadonly'] = 'Неможливо виконати операцію. Папка доступна тільки для читання.';
+$messages['errorreadonly'] = 'Неможливо виконати операцію. Тека доступна тільки для читання.';
 $messages['errornoperm'] = 'Неможливо виконати операцію. Доступ заборонено';
 $messages['erroroverquota'] = 'Неможливо виконати операцію. Немає вільного місця на диску.';
 $messages['erroroverquotadelete'] = 'Недостатньо вільного місця на диску. Скористайтесь  SHIFT+DEL для видалення повідомлення.';
 $messages['invalidrequest'] = 'Недійсний запит! Дані не збережено.';
 $messages['invalidhost'] = 'Недійсне ім\'я сервера.';
 $messages['nomessagesfound'] = 'Листів не знайдено';
-$messages['loggedout'] = 'Вашу сесію завершено. Всього найкращого!';
 $messages['mailboxempty'] = 'Поштова скринька порожня';
 $messages['nomessages'] = 'Повідомлень немає';
 $messages['refreshing'] = 'Оновлення...';
@@ -54,7 +51,8 @@ $messages['deleteresponseconfirm'] = 'Справді бажаєте видали
 $messages['addedsuccessfully'] = 'Контакт успішно доданий до адресної книги.';
 $messages['contactexists'] = 'Контакт з такою самою адресою електронної пошти вже існує.';
 $messages['contactnameexists'] = 'Контакт з таким самим іменем вже існує.';
-$messages['blockedimages'] = 'Задля захисту Вашої приватності, зображення з зовнішніх джерел заблоковано у цьому листі.';
+$messages['blockedimages'] = 'Для захисту вашої конфіденційності зображення з зовнішніх джерел було заблоковано.';
+$messages['blockedresources'] = 'Для захисту вашої конфіденційності ресурси з зовнішніх джерел було заблоковано.';
 $messages['encryptedmessage'] = 'Лист зашифровано і не може бути відображено. Перепрошуємо!';
 $messages['externalmessagedecryption'] = 'Лист зашифровано і не може бути розшифровано розширенням Вашого браузера.';
 $messages['nopubkeyfor'] = 'Не знайдено дійсного публічного ключа для $email';
@@ -62,11 +60,8 @@ $messages['nopubkeyforsender'] = 'Не знайдено дійсного пуб�
 $messages['encryptnoattachments'] = 'Уже завантажені прикріплення не можна зашифрувати. Будь ласка, додайте їх заново у редакторі шифрування.';
 $messages['searchpubkeyservers'] = 'Хочете пошукати ключі, яких бракує, на серверах публічних ключів?';
 $messages['encryptpubkeysfound'] = 'Було знайдено такі публічні ключі: ';
-$messages['keyservererror'] = 'Не вдалося отримати ключ із сервера ключів';
-$messages['keyimportsuccess'] = 'Публічний ключ $key успішно імпортовано у Ваше кільце ключів';
 $messages['nocontactsfound'] = 'Контакти не знайдені';
 $messages['contactnotfound'] = 'Запитаний контакт не знайдений';
-$messages['contactsearchonly'] = 'Введіть деякі критерії пошуку, щоб знайти контакти';
 $messages['sendingfailed'] = 'Не вдалося відправити листа';
 $messages['senttooquickly'] = 'Будь ласка, зачекайте $sec секунд для відправки листа';
 $messages['errorsavingsent'] = 'Помилка при збереженні відправленого повідомлення.';
@@ -75,17 +70,20 @@ $messages['errormoving'] = 'Не вдалося перемістити лист(
 $messages['errorcopying'] = 'Не вдалося скопіювати лист(и).';
 $messages['errordeleting'] = 'Не вдалося видалити лист(и).';
 $messages['errormarking'] = 'Не вдалося позначити лист(и).';
+$messages['alerttitle'] = 'Увага!';
+$messages['confirmationtitle'] = 'Ви впевнені...';
 $messages['deletecontactconfirm']  = 'Ви дійсно бажаєте видалити вибрані контакти?';
 $messages['deletegroupconfirm']  = 'Ви дійсно хочете видалити обрану групу?';
 $messages['deletemessagesconfirm'] = 'Ви дійсно бажаєте видалити вибрані листи?';
-$messages['deletefolderconfirm']  = 'Ви дійсно бажаєте видалити цю папку?';
-$messages['purgefolderconfirm']  = 'Ви дійсно бажаєте видалити всі листи у цій папці?';
+$messages['deletefolderconfirm']  = 'Ви дійсно бажаєте видалити цю теку?';
+$messages['movefolderconfirm']  = 'Ви дійсно бажаєте перемістити цю теку?';
+$messages['purgefolderconfirm']  = 'Справді бажаєте видалити усі листи у цій теці?';
 $messages['contactdeleting'] = 'Видалення контакту(ів)...';
 $messages['groupdeleting'] = 'Видалення групи...';
-$messages['folderdeleting'] = 'Видалення папки...';
-$messages['foldermoving'] = 'Переміщення папки...';
-$messages['foldersubscribing'] = 'Підписати папку...';
-$messages['folderunsubscribing'] = 'Відписати папку...';
+$messages['folderdeleting'] = 'Видалення теки...';
+$messages['foldermoving'] = 'Переміщення теки...';
+$messages['foldersubscribing'] = 'Підписати теку...';
+$messages['folderunsubscribing'] = 'Відписати теку...';
 $messages['formincomplete'] = 'Заповнено не всі поля';
 $messages['noemailwarning'] = 'Будь ласка, введіть коректну адресу електронної пошти';
 $messages['nonamewarning']  = 'Будь ласка, введіть ім\'я';
@@ -94,9 +92,7 @@ $messages['nosenderwarning'] = 'Будь ласка, введіть адресу
 $messages['norecipientwarning'] = 'Будь ласка, вкажіть принаймні одного отримувача';
 $messages['nosubjectwarning']  = 'Не вказано тему листа. Бажаєте вказати її зараз?';
 $messages['nobodywarning'] = 'Відправити листа без тексту?';
-$messages['notsentwarning'] = 'Лист не було відправлено. Ви бажаєте відхилити відправку?';
 $messages['restoresavedcomposedata'] = 'Знайдено написаного раніше, але не надісланого листа.\n\nТема: $subject\nЗбережено: $date\n\nХочете відновити це повідомлення?';
-$messages['noldapserver'] = 'Будь ласка, виберіть LDAP сервер для пошуку';
 $messages['nosearchname'] = 'Будь ласка, введіть ім\'я чи електронну адресу';
 $messages['notuploadedwarning'] = 'Деякі вкладення не було завантажено. Будь ласка, зачекайте або скасуйте завантаження.';
 $messages['searchsuccessful'] = 'Зайдено $nr листів';
@@ -106,17 +102,16 @@ $messages['searching'] = 'Пошук...';
 $messages['checking'] = 'Перевірка...';
 $messages['stillsearching'] = 'Пошук триває…';
 $messages['nospellerrors'] = 'Орфографічних помилок не знайдено';
-$messages['folderdeleted'] = 'Папка видалена';
-$messages['foldersubscribed'] = 'Папка підписана';
-$messages['folderunsubscribed'] = 'Папка відписана';
-$messages['folderpurged'] = 'Папка видалена';
-$messages['folderexpunged'] = 'Папка очищена';
+$messages['folderdeleted'] = 'Тека видалена';
+$messages['foldersubscribed'] = 'Тека підписана';
+$messages['folderunsubscribed'] = 'Тека відписана';
 $messages['deletedsuccessfully'] = 'Видалено успішно';
 $messages['converting'] = 'Видалення форматування...';
 $messages['messageopenerror'] = 'Не вдалося завантажити повідомлення з сервера';
 $messages['filelinkerror'] = 'Не вдалося прикріпити файл.';
 $messages['fileuploaderror'] = 'Не вдалося вкласти файл';
 $messages['filesizeerror'] = 'Розмір вибраного файлу перевищує максимально дозволений ($size)';
+$messages['msgsizeerror'] = 'Помилка при додаванні вкладення. Максимальний розмір повідомлення файлу ($size).';
 $messages['copysuccess'] = 'Успішно скопійовано $nr контактів';
 $messages['movesuccess'] = 'Успішно переміщено $nr контактів';
 $messages['copyerror'] = 'Не вдалося скопіювати жодного контакту.';
@@ -135,7 +130,7 @@ $messages['receiptsent'] = 'Повідомлення про прочитання
 $messages['errorsendingreceipt'] = 'Не вдалося відправити повідомлення про прочитання';
 $messages['deleteidentityconfirm'] = 'Ви дійсно бажаєте видалити цей профіль?';
 $messages['nodeletelastidentity'] = 'Ви не можете видалити цей профіль, він у Вас останній.';
-$messages['forbiddencharacter'] = 'Назва папки містить заборонені символи';
+$messages['forbiddencharacter'] = 'Назва теки містить заборонені символи';
 $messages['selectimportfile'] = 'Виберіть файл для завантаження';
 $messages['addresswriterror'] = 'Обрана адресна книга недоступна для запису';
 $messages['contactaddedtogroup'] = 'Контакти успішно додано до цієї групи';
@@ -144,7 +139,6 @@ $messages['nogroupassignmentschanged'] = 'Розподіл за групами �
 $messages['importwait'] = 'Імпортування, будь ласка, зачекайте...';
 $messages['importformaterror'] = 'Помилка імпорту! Завантажений файл має невідомий формат даних.';
 $messages['importconfirm'] = '<b>Успішно імпортовано $inserted контактів</b>';
-$messages['importconfirmskipped'] = '<b>Пропущені $skipped наявні записи</b>';
 $messages['importmessagesuccess'] = 'Успішно імпортовано $nr повідомлень';
 $messages['importmessageerror'] = 'Імпорт не вдався! Завантажений файл не є припустимим повідомленням чи файлом поштової скриньки';
 $messages['opnotpermitted'] = 'Дія заборонена!';
@@ -156,6 +150,8 @@ $messages['smtpautherror'] = 'Помилка SMTP-сервера ($code): Нев
 $messages['smtpfromerror'] = 'Помилка SMTP-сервера ($code): Не вдалося вказати відправника "$from" ($msg)';
 $messages['smtptoerror'] = 'Помилка SMTP-сервера ($code): Не вдалося додати отримувача "$to" ($msg)';
 $messages['smtprecipientserror'] = 'Помилка SMTP: Не вдалося обробити список отримувачів';
+$messages['smtputf8error'] = 'Помилка SMTP: Сервер не підтримує Юнікод в адресі електронної пошти.';
+$messages['smtpsizeerror'] = 'Помилка SMTP: Розмір листа перевищує ліміт сервера ($limit)';
 $messages['smtperror'] = 'Помилка SMTP: $msg';
 $messages['emailformaterror'] = 'Некоректна адреса електронної пошти: $email';
 $messages['toomanyrecipients'] = 'Забагато отримувачів. Зменшіть їх число до $max.';
@@ -181,14 +177,13 @@ $messages['autocompletechars'] = 'Введіть щонайменше $min си�
 $messages['autocompletemore'] = 'Знайдено багато відповідних записів. Будь ласка, введіть більше символів.';
 $messages['namecannotbeempty'] = 'Ім\'я не може бути пустим';
 $messages['nametoolong'] = 'Занадто довге ім\'я';
-$messages['namedotforbidden'] = 'Назва папки не може починатися з крапки.';
-$messages['folderupdated'] = 'Папка успішно оновлена';
-$messages['foldercreated'] = 'Папка створена';
+$messages['namedotforbidden'] = 'Назва теки не може починатися з крапки.';
+$messages['folderupdated'] = 'Тека успішно оновлена';
+$messages['foldercreated'] = 'Тека створена';
 $messages['invalidimageformat'] = 'Недійсний формат зображення';
 $messages['mispellingsfound'] = 'Знайдено орфографічні помилки у повідомленні.';
-$messages['parentnotwritable'] = 'Неможливо створити/перемістити папку до обраної батьківської папки. Нема прав доступу.';
+$messages['parentnotwritable'] = 'Неможливо створити/перемістити теку до обраної батьківської теки. Нема прав доступу.';
 $messages['messagetoobig'] = 'Частина повідомлення занадто велика для опрацювання.';
-$messages['attachmentvalidationerror'] = 'УВАГА! Це вкладення є підозрілим, тому що його тип не збігається з типом, оголошеним у повідомленні. Якщо Ви не довіряєте відправнику, Ви не повинні відкривати його в браузері, оскільки його вміст може бути шкідливим.<br/><br/><em>Очікуване: $expected; знайдене: $detected </em>';
 $messages['noscriptwarning'] = 'Увага: Даний клієнт електронної пошти потрібує Javascript! Щоб використовувати його, необхідно включити підтримку Javascript у налаштуваннях Вашого браузера.';
 $messages['messageissent'] = 'Повідомлення уже надіслане, але ще не збережене. Хочете зберегти його зараз?';
 $messages['errnotfound'] = 'Файл не знайдено';

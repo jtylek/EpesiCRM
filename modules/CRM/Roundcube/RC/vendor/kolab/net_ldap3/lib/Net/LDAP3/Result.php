@@ -42,6 +42,7 @@ class Net_LDAP3_Result implements Iterator
     protected $base_dn;
     protected $filter;
     protected $scope;
+    protected $result;
 
     private $count;
     private $current;
@@ -146,6 +147,7 @@ class Net_LDAP3_Result implements Iterator
 
     /***  Implement PHP 5 Iterator interface to make foreach work  ***/
 
+    #[ReturnTypeWillChange]
     function current()
     {
         $attrib       = ldap_get_attributes($this->conn, $this->current);
@@ -154,25 +156,29 @@ class Net_LDAP3_Result implements Iterator
         return $attrib;
     }
 
+    #[ReturnTypeWillChange]
     function key()
     {
         return $this->iteratorkey;
     }
 
+    #[ReturnTypeWillChange]
     function rewind()
     {
         $this->iteratorkey = 0;
         $this->current = ldap_first_entry($this->conn, $this->result);
     }
 
+    #[ReturnTypeWillChange]
     function next()
     {
         $this->iteratorkey++;
         $this->current = ldap_next_entry($this->conn, $this->current);
     }
 
+    #[ReturnTypeWillChange]
     function valid()
     {
-        return (bool)$this->current;
+        return (bool) $this->current;
     }
 }

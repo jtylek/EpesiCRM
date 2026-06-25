@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = '¡Hebo un fallu!';
 $messages['loginfailed']  = 'Contraseña o nome d\'usuariu incorreutu.';
 $messages['cookiesdisabled'] = 'El to restolador nun aceuta cookies.';
@@ -33,7 +30,6 @@ $messages['erroroverquotadelete'] = 'Nun queda espaciu nel discu. Usa Shift+Supr
 $messages['invalidrequest'] = 'Fallu de la solicitú. Nun se guardaron datos.';
 $messages['invalidhost'] = 'Nome de sirvidor inválidu.';
 $messages['nomessagesfound'] = 'Nun s\'atoparon mensaxes na bandexa';
-$messages['loggedout'] = 'Zarrasti la sesión. Ta llueu!';
 $messages['mailboxempty'] = 'La bandexa de corréu ta balera';
 $messages['nomessages'] = 'Nun hai mensaxes';
 $messages['refreshing'] = 'Anovando...';
@@ -55,7 +51,6 @@ $messages['blockedimages'] = 'Pa protexer la to privacidá, torgáronse les imá
 $messages['encryptedmessage'] = 'Esti ye un mensaxe cifráu y nun soi a amosalu. ¡Sentímoslo!';
 $messages['nocontactsfound'] = 'Nun doi con dengún contautu';
 $messages['contactnotfound'] = 'Nun s\'atopa\'l contautu solicitáu.';
-$messages['contactsearchonly'] = 'Introduz dalgún criteriu pa guetar contautos';
 $messages['sendingfailed'] = 'Falló l\'unviu del mensaxe';
 $messages['senttooquickly'] = 'Por favor espera $sec segundu/os enantes d\'unviar esti mensaxe.';
 $messages['errorsavingsent'] = 'Hebo un fallu al guardar el mensaxe unviáu.';
@@ -82,9 +77,7 @@ $messages['nopagesizewarning'] = 'Por favor, introduz un tamañu de páxina.';
 $messages['norecipientwarning'] = 'Por favor, introduz polo menos un destinatariu';
 $messages['nosubjectwarning']  = 'El campo "Asuntu" ta vacíu. ¿Quies rellenalu agora?';
 $messages['nobodywarning'] = '¿Quies unviar esti mensaxe ensin testu?';
-$messages['notsentwarning'] = 'Nun s\'unvió\'l mensaxe. ¿Quies desanicialu?';
 $messages['restoresavedcomposedata'] = 'Alcontróse un mensaxe redactáu anterior ensin unviar.n\nAsuntu: $subject\nGuardáu: $date\n\n¿Quies restaurar esti mensaxe?';
-$messages['noldapserver'] = 'Por favor, escueyi un sirvidor LDAP pa buscar.';
 $messages['nosearchname'] = 'Por favor, introduz un nome o una direición de corréu-e.';
 $messages['notuploadedwarning'] = 'Entá nun se xubieron tolos axuntos. Por favor, espera o encaboxa la xuba.';
 $messages['searchsuccessful'] = 'Atopáronse $nr mensaxes.';
@@ -97,8 +90,6 @@ $messages['nospellerrors'] = 'Nun s\'atoparon errores ortográficos';
 $messages['folderdeleted'] = 'Desanicióse la bandexa correchamente';
 $messages['foldersubscribed'] = 'Soscritu a bandexa correchamente.';
 $messages['folderunsubscribed'] = 'Soscripción a bandexa anulada correchamente.';
-$messages['folderpurged'] = 'Bandexa purgada correutamente.';
-$messages['folderexpunged'] = 'Bandexa compautada correutamente.';
 $messages['deletedsuccessfully'] = 'Desanicióse correchamente';
 $messages['converting'] = 'Desaniciando\'l formatu del mensaxe...';
 $messages['messageopenerror'] = 'Nun pue descargase\'l mensaxe del sirvidor.';
@@ -131,7 +122,6 @@ $messages['nogroupassignmentschanged'] = 'Nun hai cambeos n\'asignación de grup
 $messages['importwait'] = 'Importando, dame un minutín...';
 $messages['importformaterror'] = '¡La importación falló! El ficheru unviáu nun ye un ficheru válidu d\'importación.';
 $messages['importconfirm'] = '<b>Importáronse correchamente $inserted contautos</b>';
-$messages['importconfirmskipped'] = '<b>Inoraes $skipped entraes esistentes</b>';
 $messages['importmessagesuccess'] = '$nr mensaxes importaos con éxitu';
 $messages['importmessageerror'] = '¡Falló la importación! El ficheru xubíu nun ye un ficheru válidu de mensaxe o buzón de corréu';
 $messages['opnotpermitted'] = '¡Nun tienes permisu pa facelo!';
@@ -171,5 +161,4 @@ $messages['invalidimageformat'] = 'Nun ye un formatu d\'imaxe válidu.';
 $messages['mispellingsfound'] = 'Deteutáronse fallos ortográficos nel mensaxe.';
 $messages['parentnotwritable'] = 'Nun puede crease/movese la carpeta a la carpeta superior elexida. Nun tienes permisos d\'accesu.';
 $messages['messagetoobig'] = 'Esta parte del mensaxe ye enforma grande pa procesala';
-$messages['attachmentvalidationerror'] = '¡ATENCIÓN! Esti axuntu ye sospechosu porque\'l so tipu nun concasa col tipu declaráu nel mensaxe. Si nun confíes nel so remitente, nun tendríes d\'abrilu nel to navegador porque podría tener conteníu maliciosu.<br/<br/> <em>Esperábase: $expected; atopóse: $detected</em>';
 $messages['noscriptwarning'] = 'Avisu: ¡esti serviciu de webmail necesita Javascript! Pa poder usalu, habilita\'l soporte de Javascript nel to navegador, por favor.';

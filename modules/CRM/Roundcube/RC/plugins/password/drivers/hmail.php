@@ -4,9 +4,10 @@
  * hMailserver password driver
  *
  * @version 2.0
+ *
  * @author Roland 'rosali' Liebl <myroundcube@mail4us.net>
  *
- * Copyright (C) 2005-2014, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,57 +20,53 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_hmail_password
 {
-    public function save($curpass, $passwd)
+    public function save($curpass, $passwd, $username)
     {
         $rcmail = rcmail::get_instance();
 
-        if ($curpass == '' || $passwd == '') {
-            return PASSWORD_ERROR;
-        }
-
         try {
             $remote = $rcmail->config->get('hmailserver_remote_dcom', false);
-            if ($remote)
-                $obApp = new COM("hMailServer.Application", $rcmail->config->get('hmailserver_server'));
-            else
-                $obApp = new COM("hMailServer.Application");
-        }
-        catch (Exception $e) {
-            rcube::write_log('errors', "Plugin password (hmail driver): " . trim(strip_tags($e->getMessage())));
-            rcube::write_log('errors', "Plugin password (hmail driver): This problem is often caused by DCOM permissions not being set.");
+            if ($remote) {
+                $obApp = new \COM('hMailServer.Application', $rcmail->config->get('hmailserver_server'));
+            } else {
+                $obApp = new \COM('hMailServer.Application');
+            }
+        } catch (\Exception $e) {
+            rcube::raise_error('Password plugin: hMail error: ' . trim(strip_tags($e->getMessage())), true);
+            rcube::raise_error('Password plugin: This problem is often caused by DCOM permissions not being set.', true);
+
             return PASSWORD_ERROR;
         }
 
-        $username = $rcmail->user->data['username'];
-        if (strstr($username,'@')){
-            $temparr = explode('@', $username);
-            $domain = $temparr[1];
-        }
-        else {
-            $domain = $rcmail->config->get('username_domain',false);
+        if (strstr($username, '@')) {
+            [, $domain] = explode('@', $username);
+        } else {
+            $domain = $rcmail->config->get('username_domain', false);
             if (!$domain) {
-                rcube::write_log('errors','Plugin password (hmail driver): $config[\'username_domain\'] is not defined.');
+                rcube::raise_error('Password plugin: $config[\'username_domain\'] is not defined.', true);
                 return PASSWORD_ERROR;
             }
-            $username = $username . "@" . $domain;
+            $username = $username . '@' . $domain;
         }
 
-        $obApp->Authenticate($username, $curpass);
         try {
-            $obDomain = $obApp->Domains->ItemByName($domain);
+            $obApp->Authenticate($username, $curpass); // @phpstan-ignore-line
+
+            $obDomain = $obApp->Domains->ItemByName($domain); // @phpstan-ignore-line
             $obAccount = $obDomain->Accounts->ItemByAddress($username);
             $obAccount->Password = $passwd;
             $obAccount->Save();
+
             return PASSWORD_SUCCESS;
-        }
-        catch (Exception $e) {
-            rcube::write_log('errors', "Plugin password (hmail driver): " . trim(strip_tags($e->getMessage())));
-            rcube::write_log('errors', "Plugin password (hmail driver): This problem is often caused by DCOM permissions not being set.");
+        } catch (\Exception $e) {
+            rcube::raise_error('Password plugin: hMail error: ' . trim(strip_tags($e->getMessage())));
+            rcube::raise_error('Password plugin: This problem is often caused by DCOM permissions not being set.', true);
+
             return PASSWORD_ERROR;
         }
     }

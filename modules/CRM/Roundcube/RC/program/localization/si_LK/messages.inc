@@ -2,26 +2,22 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'දෝෂයක් මතුවිය!';
 $messages['loginfailed']  = 'ඇතුල්වීම අසාර්ථකයි.';
 $messages['cookiesdisabled'] = 'ඔබේ බෞසරය කුකී බාර ගන්නේ නැත';
 $messages['sessionerror'] = 'ඔබේ වාරය අවලංගු හෝ කාලය ඉකුත් වී ඇත';
 $messages['dberror'] = 'දත්ත ගබඩාවේ දෝෂය!';
 $messages['nomessagesfound'] = 'ලියුම් පෙට්ටියේ පනිවුඩ නැත';
-$messages['loggedout'] = 'ඔබගේ වාරය සාර්ථකව අවසන් විය. අයුබොවන්!';
 $messages['loading'] = 'පූරනය...';
 $messages['loadingdata'] = 'දත්ත පූරනය...';
 $messages['checkingmail'] = 'අලුත් පණිවිඩ පරීක්ෂා කරමින්...';
@@ -53,8 +49,6 @@ $messages['nopagesizewarning'] = 'කරුණාකර පිටුවේ ප�
 $messages['norecipientwarning'] = 'කරුණාකර යටත් පිරිසෙයින් එක් ලබන්නෙකු හෝ ඇතුලත් කරන්න';
 $messages['nosubjectwarning']  = '"මාතෘකාව" හිස්. මාතෘකාවක් ඇතුලත් කිරීමට ඔබ කැමතිද?';
 $messages['nobodywarning'] = 'මෙම හිස් පනිවුඩය යවන්නද?';
-$messages['notsentwarning'] = 'පණිවිඩය යැවීමට නොහැකි විය. ඔබට එය බැහැර කිරීමට වුවමනාද?';
-$messages['noldapserver'] = 'සෙවුම සඳහා කරුණාකර ldap සම්බන්ධතාවයක් තෝරා ගන්න';
 $messages['nosearchname'] = 'කරුණාකර ලිපිනයෙහි නම හෝ විද්යුත් තැපැල් ලිපිනය ඇතුලත් කරන්න';
 $messages['searchsuccessful'] = '$nr පනිවුඩය හමු විය';
 $messages['searchnomatch'] = 'සෙවුමට අදාල ගැලපීමක් නොමැත.';

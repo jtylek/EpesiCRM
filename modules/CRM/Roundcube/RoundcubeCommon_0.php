@@ -77,7 +77,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function cron_cleanup_session() {
-        DB::Execute('DELETE FROM rc_session WHERE changed<%T',array(time()-3600*24));
+        DB::Execute('DELETE FROM rc_session WHERE expires_at<%T',array(time()-3600*24));
     }
 
     public static function multiwin_supported()

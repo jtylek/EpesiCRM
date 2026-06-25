@@ -147,7 +147,7 @@ $config['plugins'] = array(
 );
 
 // skin name: folder from skins/
-$config['skin'] = 'classic';
+$config['skin'] = 'elastic';
 
 $config['log_dir'] = $log_dir;
 $config['temp_dir'] = $data_dir;
@@ -163,12 +163,14 @@ $config['reply_mode'] = 1;
 $config['zipdownload_charset'] = 'UTF-8';
 
 $config['smtp_conn_options'] = array(
-  'ssl'         => array(
-     'verify_peer'  => false
-   ),
- );
+  'ssl' => array(
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+  ),
+);
 $config['imap_conn_options'] = array(
-  'ssl'         => array(
-     'verify_peer'  => false
-   ),
- );
+  'ssl' => array(
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+  ),
+);

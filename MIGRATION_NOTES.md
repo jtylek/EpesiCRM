@@ -1038,18 +1038,119 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 30. UPGRADE — Roundcube 1.2.1 → 1.7.1 (branch: experiment/rc-upgrade)
+
+- **Symptom (old):** RC 1.2.1 (2016) incompatible with PHP 8. Three classes of warnings broke the UI: `$GLOBALS['env']` undefined, `$rcmail_config` undefined, `$aliases[$from] ?: $from` needed `??`.
+- **Decision:** Patch-fix of 1.2.1 was impractical. Upgraded to RC 1.7.1 (current stable, 2025).
+- **Branch:** `experiment/rc-upgrade` (sub-branch of `experiment/composer-deps`).
+
+### What was replaced
+- `RC/program/`, `RC/vendor/`, `RC/skins/`, `RC/SQL/`, `RC/plugins/` — full replacement with 1.7.1 files.
+- `RC/index.php` — replaced (1.7.1 root index just redirects to `public_html/`).
+- `RC/public_html/`, `RC/bin/` — new directories from 1.7.1.
+
+### What was kept
+- `RC/config/config.inc.php` — Epesi custom config, already used `$config = []` format (compatible with 1.7.1 without changes).
+- `RC/plugins/epesi_addressbook`, `epesi_archive`, `epesi_autologon`, `epesi_autorelogon`, `epesi_init`, `epesi_mailto` — 6 Epesi plugins restored after core replacement. All use standard RC `rcube_plugin` API, compatible with 1.7.x.
+
+### Epesi integration change
+- **File:** `modules/CRM/Roundcube/Roundcube_0.php:49`
+- **Change:** iframe `src` updated from `RC/index.php` to `RC/public_html/index.php` (1.7.1 moved the web entry point).
+
+### Config change
+- `$config['skin']` changed `'classic'` → `'elastic'` (`classic` skin removed in RC 1.5+; `elastic` is the only skin in 1.7.1 complete package).
+
+### DB migration
+- RC schema was at `2015030800`. Applied all migrations through `2025092300` (16 files).
+- RC CLI `bin/updatedb.sh` could not run (XAMPP PHP missing `libcrypt.so.1`). Migration applied manually via MySQL with `rc_` prefix substituted in SQL.
+- New tables created: `rc_filestore`, `rc_collected_addresses`, `rc_responses`, `rc_uploads`.
+- `rc_session.changed` renamed to `rc_session.expires_at` (2025092300 migration).
+- Schema version updated to `2025092300` in `rc_system`.
+
+### Post-upgrade fixes required (found during browser testing)
+
+| Fix | Cause |
+|-----|-------|
+| `dirname(__DIR__, 6)` in epesi_init | Entry point moved from `RC/` to `RC/public_html/` — cwd shifted one level |
+| `: void` on `set_search_set()` + `reset()` | RC 1.7.1 added void return types to abstract parent; PHP 8 enforces child compatibility |
+| `verify_peer_name => false` in conn options | PHP 8 made peer name check independent; shared hosting cert CN didn't match |
+| `changed` → `expires_at` in cron query | DB column renamed in 2025092300 migration |
+
+### Test status — DONE
+- Email UI opens, IMAP connects (SSL), inbox loads.
+- Compose + send to `test@mrf.epesi.cloud` confirmed working.
+- Address book autocomplete works (no more server error on To: field).
+
+### Future RC upgrades — what is safe and what needs attention
+
+**Safe — user data is never at risk:**
+- All emails and folders live on the IMAP server; RC is just a client, it never owns the messages.
+- Email account credentials are in `rc_accounts_data_1` (Epesi RecordBrowser) — RC core does not touch this table.
+- Archived emails (`rc_mails_data_1`, `rc_mail_threads_data_1`) are Epesi's own records.
+
+**Needs attention on each RC upgrade:**
+1. **6 Epesi plugins** — check for abstract method signature changes in `rcube_addressbook` and other RC base classes; PHP 8 enforces child compatibility strictly.
+2. **`config.inc.php`** — check for renamed or removed config keys in the new RC version.
+3. **DB migrations** — apply new SQL files from `SQL/mysql/` with `rc_` prefix substituted on all table names (RC CLI `bin/updatedb.sh` requires `libcrypt.so.1` missing on XAMPP; apply manually via MySQL).
+4. **Skin** — verify `elastic` skin still exists; RC has dropped skins before (`classic` was removed in 1.5).
+
+**Recipe for future RC upgrades:**
+1. Replace `RC/program/`, `RC/vendor/`, `RC/skins/`, `RC/SQL/`, `RC/plugins/` with new RC core.
+2. Restore the 6 `epesi_*` plugins from backup.
+3. Keep `RC/config/config.inc.php` — check for config key changes.
+4. Apply new DB migration files with `rc_` prefix.
+5. Check plugin method signatures against updated RC base classes.
+6. Test: open Email, confirm IMAP connects, send a test message.
+
+---
+
+## 31. DEAD EXTERNAL SERVICE — Telegram bot notifications broken (post-upgrade task)
+
+- **Symptom:** User connects to `@EpesiBot` in Telegram desktop app, but bot never responds.
+- **Root cause:** Not a PHP 8 issue. The integration relies on two Telaxus-hosted services that are no longer live:
+  - `https://telegram.epesicrm.com/` — relay server (confirmed dead)
+  - `@EpesiBot` — Telaxus-managed Telegram bot
+- **How it works (current code):** Cron calls `Base_NotifyCommon::telegram()` every 5 minutes → POSTs pending notifications to `telegram.epesicrm.com` → relay forwards to `@EpesiBot` → bot sends message to user. Code is in `modules/Base/Notify/NotifyCommon_0.php:252`.
+- **Status:** Non-fatal — rest of the app works fine. Telegram simply never delivers.
+
+### Fix options (post-upgrade, FOR JASIEK decision)
+1. **Replace relay with direct Telegram Bot API** — create own bot via `@BotFather`, rewrite `telegram()` to POST directly to `https://api.telegram.org/bot{TOKEN}/sendMessage`. No external dependency.
+2. **Restore the relay** — only if Jasiek can bring `telegram.epesicrm.com` back up.
+
+---
+
+## 32. FIXED — EssClient registration form: addRule on nonexistent element
+
+- **Symptom:** Entering Epesi Store registration → `HTML_QuickForm_Error: nonexistent html element: Element 'admin_email' does not exist`.
+- **Cause:** Pre-existing Epesi 1.9.1 copy-paste bug in `EssClient_0.php:203` — `addRule('admin_email', ...)` called before `admin_email` was added to the form (line 213). The rule was intended for `tax_id` (added on line 202). PEAR QuickForm swallowed this silently; openpsa QuickForm throws visibly.
+- **Fix:** `addRule('admin_email', ...)` → `addRule('tax_id', ...)` on line 203.
+- **Status:** Registration form works and Epesi was successfully registered.
+- **TODO:** Registration success/status page layout is messy — needs cosmetic cleanup (non-fatal, post-upgrade task).
+
+---
+
+## 33. FIXED — EpesiStore crashes: ClientRequester.php not found
+
+- **Symptom:** Clicking "EPESI Store" → `Failed opening required 'modules/Base/Setup/ClientRequester.php'`.
+- **Cause:** `EssClientCommon_0.php:150` used `self::Instance()->get_module_dir()` to locate `ClientRequester.php`. When called from within `Base_Setup`'s display context, the shared mutable `Instance()` singleton had been overwritten by `Base_Setup`, returning the wrong directory. Same root cause as §20.
+- **Fix:** Replaced `self::Instance()->get_module_dir() . 'ClientRequester.php'` with `__DIR__ . '/ClientRequester.php'` — always resolves to `modules/Base/EssClient/` regardless of call context.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
 - Rector PHP 7→8.2 ladder applied to all own code
 - Runtime fixes: Contacts, Companies, Tasks — full CRUD tested, no fatals
 - PHP 8 relic fixes committed: login_id guard, TCPDF __DIR__, Meeting addFormRule, checkboxes, attached_to, Flash button, clipboard pattern
+- PhoneCall — full CRUD tested, no fatals (§27 watchdog fix applied)
+- Meeting — full CRUD tested, no fatals
+- User Settings — tested, no fatals
+- Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 
 ### 🔲 Must do before merge
 - [ ] **Calendar/Agenda** — full CRUD untested
 - [ ] **Administrator** — untested
-- [ ] **PhoneCall** — full CRUD untested (new from contact tested only)
-- [ ] **Meeting** — full CRUD untested (new from contact tested only)
 - [ ] **Filters/search (critsvalue)** — untested across modules
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
 - [ ] **§20 storage prefix bug (Jasiek)** — file view/download broken due to mutable Instance() singleton; decision on fix needed.

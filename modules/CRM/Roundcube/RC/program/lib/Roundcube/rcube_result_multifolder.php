@@ -1,10 +1,11 @@
 <?php
 
-/**
+/*
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2011, The Roundcube Dev Team                       |
- | Copyright (C) 2011, Kolab Systems AG                                  |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
+ | Copyright (C) Kolab Systems AG                                        |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -20,38 +21,36 @@
 /**
  * Class holding a set of rcube_result_index instances that together form a
  * result set of a multi-folder search
- *
- * @package    Framework
- * @subpackage Storage
  */
 class rcube_result_multifolder
 {
-    public $multi      = true;
-    public $sets       = array();
+    public $multi = true;
+    public $sets = [];
     public $incomplete = false;
     public $folder;
 
-    protected $meta    = array();
-    protected $index   = array();
-    protected $folders = array();
-    protected $sdata   = array();
-    protected $order   = 'ASC';
+    protected $meta = [];
+    protected $index = [];
+    protected $folders = [];
+    protected $sdata = [];
+    protected $order = 'ASC';
     protected $sorting;
-
 
     /**
      * Object constructor.
+     *
+     * @param array $folders List of IMAP folders
      */
-    public function __construct($folders = array())
+    public function __construct($folders = [])
     {
         $this->folders = $folders;
-        $this->meta    = array('count' => 0);
+        $this->meta = ['count' => 0];
     }
 
     /**
      * Initializes object with SORT command response
      *
-     * @param string $data IMAP response string
+     * @param rcube_result_index|rcube_result_thread $result Search result
      */
     public function add($result)
     {
@@ -59,14 +58,15 @@ class rcube_result_multifolder
 
         if ($result->count()) {
             $this->append_result($result);
-        }
-        else if ($result->incomplete) {
+        } elseif ($result->incomplete) {
             $this->incomplete = true;
         }
     }
 
     /**
      * Append message UIDs from the given result to our index
+     *
+     * @param rcube_result_index|rcube_result_thread $result Search result
      */
     protected function append_result($result)
     {
@@ -74,23 +74,29 @@ class rcube_result_multifolder
 
         // append UIDs to global index
         $folder = $result->get_parameters('MAILBOX');
-        $index  = array_map(function($uid) use ($folder) { return $uid . '-' . $folder; }, $result->get());
+        $index = array_map(static function ($uid) use ($folder) {
+            return $uid . '-' . $folder;
+        }, $result->get());
 
         $this->index = array_merge($this->index, $index);
     }
 
     /**
      * Store a global index of (sorted) message UIDs
+     *
+     * @param rcube_message_header[] $headers    Messages in the index
+     * @param string                 $sort_field Header field to sort by
+     * @param string                 $sort_order Sort order
      */
     public function set_message_index($headers, $sort_field, $sort_order)
     {
-        $this->index = array();
+        $this->sorting = $sort_field;
+        $this->order = $sort_order;
+        $this->index = [];
+
         foreach ($headers as $header) {
             $this->index[] = $header->uid . '-' . $header->folder;
         }
-
-        $this->sorting = $sort_field;
-        $this->order   = $sort_order;
     }
 
     /**
@@ -156,6 +162,7 @@ class rcube_result_multifolder
      * @param int  $msgid     Message ID
      * @param bool $get_index When enabled element's index will be returned.
      *                        Elements are indexed starting with 0
+     *
      * @return mixed False if message ID doesn't exist, True if exists or
      *               index of the element if $get_index=true
      */
@@ -165,16 +172,22 @@ class rcube_result_multifolder
             $msgid .= '-' . $this->folder;
         }
 
-        return array_search($msgid, $this->index);
+        $idx = array_search($msgid, $this->index);
+
+        if ($get_index) {
+            return $idx;
+        }
+
+        return $idx !== false;
     }
 
     /**
      * Filters data set. Removes elements listed in $ids list.
      *
-     * @param array  $ids    List of IDs to remove.
+     * @param array  $ids    list of IDs to remove
      * @param string $folder IMAP folder
      */
-    public function filter($ids = array(), $folder = null)
+    public function filter($ids = [], $folder = null)
     {
         $this->meta['count'] = 0;
         foreach ($this->sets as $set) {
@@ -203,9 +216,9 @@ class rcube_result_multifolder
     /**
      * Filters data set. Removes elements not listed in $ids list.
      *
-     * @param array $ids List of IDs to keep.
+     * @param array $ids list of IDs to keep
      */
-    public function intersect($ids = array())
+    public function intersect($ids = [])
     {
         // not implemented
     }
@@ -233,16 +246,16 @@ class rcube_result_multifolder
     /**
      * Return result element at specified index
      *
-     * @param int|string $index Element's index or "FIRST" or "LAST"
+     * @param int|string $idx Element's index or "FIRST" or "LAST"
      *
      * @return int Element value
      */
     public function get_element($idx)
     {
         switch ($idx) {
-            case 'FIRST': return $this->index[0];
-            case 'LAST':  return end($this->index);
-            default:      return $this->index[$idx];
+            case 'FIRST': return $this->index[0] ?? null;
+            case 'LAST':  return array_last($this->index);
+            default:      return $this->index[$idx] ?? null;
         }
     }
 
@@ -254,13 +267,13 @@ class rcube_result_multifolder
      *
      * @return array|string Response parameters or parameter value
      */
-    public function get_parameters($param=null)
+    public function get_parameters($param = null)
     {
-        $params = array(
-            'SORT'    => $this->sorting,
-            'ORDER'   => $this->order,
+        $params = [
+            'SORT' => $this->sorting,
+            'ORDER' => $this->order,
             'MAILBOX' => $this->folders,
-        );
+        ];
 
         if ($param !== null) {
             return $params[$param];
@@ -274,7 +287,7 @@ class rcube_result_multifolder
      *
      * @param string $folder Folder name
      *
-     * @return false|object rcube_result_* instance of false if none found
+     * @return false|rcube_result_index|rcube_result_thread A result set or false if none found
      */
     public function get_set($folder)
     {
@@ -297,48 +310,62 @@ class rcube_result_multifolder
         return $this->count();
     }
 
-
-    /* Serialize magic methods */
-
-    public function __sleep()
+    /**
+     * Serialization handler
+     *
+     * @return array An associative array of key/value pairs that represent the serialized form of the object
+     */
+    public function __serialize(): array
     {
-        $this->sdata = array('incomplete' => array(), 'error' => array());
+        $result = [];
+        foreach (['index', 'folders', 'sorting', 'order'] as $key) {
+            $result[$key] = $this->{$key};
+        }
+
+        $result['sdata'] = ['incomplete' => [], 'error' => []];
 
         foreach ($this->sets as $set) {
             if ($set->incomplete) {
-                $this->sdata['incomplete'][] = $set->get_parameters('MAILBOX');
-            }
-            else if ($set->is_error()) {
-                $this->sdata['error'][] = $set->get_parameters('MAILBOX');
+                $result['sdata']['incomplete'][] = $set->get_parameters('MAILBOX');
+            } elseif ($set->is_error()) {
+                $result['sdata']['error'][] = $set->get_parameters('MAILBOX');
             }
         }
 
-        return array('sdata', 'index', 'folders', 'sorting', 'order');
+        return $result;
     }
 
-    public function __wakeup()
+    /**
+     * Un-serialization handler
+     *
+     * @param array $data An associative array of key/value pairs that represent the serialized form of the object
+     */
+    public function __unserialize(array $data): void
     {
-        $this->meta       = array('count' => count($this->index));
-        $this->incomplete = count($this->sdata['incomplete']) > 0;
+        foreach (['index', 'folders', 'sorting', 'order'] as $key) {
+            $this->{$key} = $data[$key];
+        }
+
+        $this->meta = ['count' => count($this->index)];
+        $this->incomplete = count($data['sdata']['incomplete']) > 0;
 
         // restore result sets from saved index
-        $data = array();
+        $folder_data = [];
         foreach ($this->index as $item) {
-            list($uid, $folder) = explode('-', $item, 2);
-            $data[$folder] .= ' ' . $uid;
+            [$uid, $folder] = explode('-', $item, 2);
+            $folder_data[$folder] = ($folder_data[$folder] ?? '') . ' ' . $uid;
         }
 
         foreach ($this->folders as $folder) {
-            if (in_array($folder, $this->sdata['error'])) {
+            if (in_array($folder, $data['sdata']['error'])) {
                 $data_str = null;
-            }
-            else {
-                $data_str = '* SORT' . $data[$folder];
+            } else {
+                $data_str = '* SORT' . ($folder_data[$folder] ?? '');
             }
 
             $set = new rcube_result_index($folder, $data_str, strtoupper($this->order));
 
-            if (in_array($folder, $this->sdata['incomplete'])) {
+            if (in_array($folder, $data['sdata']['incomplete'])) {
                 $set->incomplete = true;
             }
 

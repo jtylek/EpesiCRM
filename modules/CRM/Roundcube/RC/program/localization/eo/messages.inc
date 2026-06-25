@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'Eraro okazis!';
 $messages['loginfailed']  = 'Malsukcesis ensaluti';
 $messages['cookiesdisabled'] = 'Via foliumilo ne akceptas kuketojn';
@@ -26,9 +23,12 @@ $messages['dberror'] = 'Datumbaz-eraro!';
 $messages['errorreadonly'] = 'Ne povis fari agon. Dosierujo estas nurlega';
 $messages['errornoperm'] = 'Ne povis fari agon. Ne havas permeson.';
 $messages['invalidrequest'] = 'Nevalida peto';
+$messages['invalidhost'] = 'Nevalida servilo-nomo';
 $messages['nomessagesfound'] = 'Neniu mesaĝo en ĉi tiu dosierujo';
-$messages['loggedout'] = 'Vi sukcese finis la seancon. Ĝis!';
+$messages['nomessages'] = 'Neniu mesaĝo';
 $messages['loading'] = 'Ŝarganta...';
+$messages['uploading'] = 'Alŝutanta dosieron...';
+$messages['uploadingmany'] = 'Alŝutanta dosierojn...';
 $messages['loadingdata'] = 'Ŝarganta datumojn...';
 $messages['checkingmail'] = 'Kontrolanta, ĉu  novaj mesaĝoj...';
 $messages['sendingmessage'] = 'Sedanta mesaĝon...';
@@ -55,8 +55,6 @@ $messages['nopagesizewarning'] = 'Bonvolu enmeti paĝ-grando';
 $messages['norecipientwarning'] = 'Bonvolu enmeti minumume unu ricevonto';
 $messages['nosubjectwarning']  = 'La temkampo estas malplena. Ĉu vi volas skribi temon nun?';
 $messages['nobodywarning'] = 'Ĉu sendi ĉi tiun mesaĝon sen teksto?';
-$messages['notsentwarning'] = 'Mesaĝo ne estas sendita. Ĉu vi volas forigi vian mesaĝon?';
-$messages['noldapserver'] = 'Bonvolu elekti ldap-servilon por serĉado';
 $messages['nosearchname'] = 'Bonvolu enmeti kontakt-nomon aŭ retpoŝt-adreson.';
 $messages['searchsuccessful'] = 'trovis $nr mesaĝojn';
 $messages['searchnomatch'] = 'Serĉo donis nenion';

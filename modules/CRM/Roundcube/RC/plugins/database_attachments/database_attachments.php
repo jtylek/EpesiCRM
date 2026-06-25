@@ -1,6 +1,6 @@
 <?php
 
-/**
+/*
  * Database Attachments
  *
  * This plugin which provides database backed storage for temporary
@@ -12,7 +12,8 @@
  *
  * @author Ziba Scott <ziba@umich.edu>
  * @author Aleksander Machniak <alec@alec.pl>
- * @version @package_version@
+ *
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2
@@ -28,10 +29,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-if (class_exists('filesystem_attachments', false) && !defined('TESTS_DIR')) {
-    die("Configuration issue. There can be only one enabled plugin for attachments handling");
-}
-
 require_once INSTALL_PATH . 'plugins/filesystem_attachments/filesystem_attachments.php';
 
 class database_attachments extends filesystem_attachments
@@ -40,30 +37,31 @@ class database_attachments extends filesystem_attachments
     protected $cache;
 
     // A prefix for the cache key used in the session and in the key field of the cache table
-    const PREFIX = "ATTACH";
+    public const PREFIX = 'ATTACH';
 
     /**
      * Save a newly uploaded attachment
      */
-    function upload($args)
+    #[\Override]
+    public function upload($args)
     {
         $args['status'] = false;
 
         $cache = $this->get_cache();
-        $key   = $this->_key($args);
-        $data  = file_get_contents($args['path']);
+        $key = $this->_key($args);
+        $data = file_get_contents($args['path']);
 
         if ($data === false) {
             return $args;
         }
 
-        $data   = base64_encode($data);
-        $status = $cache->write($key, $data);
+        $data = base64_encode($data);
+        $status = $cache->set($key, $data);
 
         if ($status) {
-            $args['id']     = $key;
+            $args['id'] = $key;
             $args['status'] = true;
-            $args['path']   = null;
+            $args['path'] = null;
         }
 
         return $args;
@@ -72,23 +70,26 @@ class database_attachments extends filesystem_attachments
     /**
      * Save an attachment from a non-upload source (draft or forward)
      */
-    function save($args)
+    #[\Override]
+    public function save($args)
     {
         $args['status'] = false;
 
         $cache = $this->get_cache();
-        $key   = $this->_key($args);
+        $key = $this->_key($args);
 
-        if ($args['path']) {
+        if (!empty($args['path'])) {
             $args['data'] = file_get_contents($args['path']);
 
             if ($args['data'] === false) {
                 return $args;
             }
+
+            $args['path'] = null;
         }
 
-        $data   = base64_encode($args['data']);
-        $status = $cache->write($key, $data);
+        $data = base64_encode($args['data']);
+        $status = $cache->set($key, $data);
 
         if ($status) {
             $args['id'] = $key;
@@ -102,9 +103,10 @@ class database_attachments extends filesystem_attachments
      * Remove an attachment from storage
      * This is triggered by the remove attachment button on the compose screen
      */
-    function remove($args)
+    #[\Override]
+    public function remove($args)
     {
-        $cache  = $this->get_cache();
+        $cache = $this->get_cache();
         $status = $cache->remove($args['id']);
 
         $args['status'] = true;
@@ -117,7 +119,8 @@ class database_attachments extends filesystem_attachments
      * For this plugin, $this->get() will check the file and
      * return it's contents
      */
-    function display($args)
+    #[\Override]
+    public function display($args)
     {
         return $this->get($args);
     }
@@ -126,14 +129,17 @@ class database_attachments extends filesystem_attachments
      * When displaying or sending the attachment the file contents are fetched
      * using this method. This is also called by the attachment_display hook.
      */
-    function get($args)
+    #[\Override]
+    public function get($args)
     {
         $cache = $this->get_cache();
-        $data  = $cache->read($args['id']);
+        $data = $cache->get($args['id']);
 
-        if ($data) {
+        if ($data !== null && $data !== false) {
             $args['data'] = base64_decode($data);
             $args['status'] = true;
+        } else {
+            $args['status'] = false;
         }
 
         return $args;
@@ -142,11 +148,12 @@ class database_attachments extends filesystem_attachments
     /**
      * Delete all temp files associated with this user
      */
-    function cleanup($args)
+    #[\Override]
+    public function cleanup($args)
     {
         // check if cache object exist, it may be empty on session_destroy (#1489726)
         if ($cache = $this->get_cache()) {
-            $cache->remove($args['group'], true);
+            $cache->remove($args['group'] ?? null, true);
         }
     }
 
@@ -155,8 +162,8 @@ class database_attachments extends filesystem_attachments
      */
     protected function _key($args)
     {
-        $uname = $args['path'] ?: $args['name'];
-        return $args['group'] . md5(time() . $uname . $_SESSION['user_id']);
+        $uname = !empty($args['path']) ? $args['path'] : $args['name'];
+        return $args['group'] . md5(microtime() . $uname . $_SESSION['user_id']);
     }
 
     /**
@@ -168,9 +175,9 @@ class database_attachments extends filesystem_attachments
             $this->load_config();
 
             $rcmail = rcube::get_instance();
-            $ttl    = 12 * 60 * 60; // default: 12 hours
-            $ttl    = $rcmail->config->get('database_attachments_cache_ttl', $ttl);
-            $type   = $rcmail->config->get('database_attachments_cache', 'db');
+            $ttl = 12 * 60 * 60; // default: 12 hours
+            $ttl = $rcmail->config->get('database_attachments_cache_ttl', $ttl);
+            $type = $rcmail->config->get('database_attachments_cache', 'db');
             $prefix = self::PREFIX;
 
             // Add session identifier to the prefix to prevent from removing attachments
@@ -180,7 +187,7 @@ class database_attachments extends filesystem_attachments
             }
 
             // Init SQL cache (disable cache data serialization)
-            $this->cache = $rcmail->get_cache($prefix, $type, $ttl, false);
+            $this->cache = $rcmail->get_cache($prefix, $type, $ttl, false, true);
         }
 
         return $this->cache;

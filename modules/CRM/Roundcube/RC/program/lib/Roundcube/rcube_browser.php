@@ -1,9 +1,10 @@
 <?php
 
-/**
+/*
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2007-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -18,52 +19,78 @@
 
 /**
  * Provide details about the client's browser based on the User-Agent header
- *
- * @package    Framework
- * @subpackage Utils
  */
 class rcube_browser
 {
-    function __construct()
+    /** @var float Browser version */
+    public $ver = 0;
+
+    /** @var bool Browser OS is Windows */
+    public $win = false;
+
+    /** @var bool Browser OS is Mac */
+    public $mac = false;
+
+    /** @var bool Browser OS is Linux */
+    public $linux = false;
+
+    /** @var bool Browser OS is Unix */
+    public $unix = false;
+
+    /** @var bool Browser uses WebKit engine */
+    public $webkit = false;
+
+    /** @var bool Browser is Opera */
+    public $opera = false;
+
+    /** @var bool Browser is Chrome */
+    public $chrome = false;
+
+    /** @var bool Browser is Internet Explorer */
+    public $ie = false;
+
+    /** @var bool Browser is Edge */
+    public $edge = false;
+
+    /** @var bool Browser is Safari */
+    public $safari = false;
+
+    /** @var bool Browser is Mozilla Firefox */
+    public $mz = false;
+
+    /**
+     * Object constructor
+     */
+    public function __construct()
     {
-        $HTTP_USER_AGENT = strtolower($_SERVER['HTTP_USER_AGENT']);
+        $HTTP_USER_AGENT = !empty($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
 
-        $this->ver   = 0;
-        $this->win   = strpos($HTTP_USER_AGENT, 'win') != false;
-        $this->mac   = strpos($HTTP_USER_AGENT, 'mac') != false;
+        // Operating system detection
+        $this->win = strpos($HTTP_USER_AGENT, 'win') != false;
+        $this->mac = strpos($HTTP_USER_AGENT, 'mac') != false;
         $this->linux = strpos($HTTP_USER_AGENT, 'linux') != false;
-        $this->unix  = strpos($HTTP_USER_AGENT, 'unix') != false;
+        $this->unix = strpos($HTTP_USER_AGENT, 'unix') != false;
 
-        $this->webkit = strpos($HTTP_USER_AGENT, 'applewebkit') !== false;
-        $this->opera  = strpos($HTTP_USER_AGENT, 'opera') !== false || ($this->webkit && strpos($HTTP_USER_AGENT, 'opr/') !== false);
-        $this->ns     = strpos($HTTP_USER_AGENT, 'netscape') !== false;
-        $this->chrome = !$this->opera && strpos($HTTP_USER_AGENT, 'chrome') !== false;
-        $this->ie     = !$this->opera && (strpos($HTTP_USER_AGENT, 'compatible; msie') !== false || strpos($HTTP_USER_AGENT, 'trident/') !== false);
-        $this->safari = !$this->opera && !$this->chrome && ($this->webkit || strpos($HTTP_USER_AGENT, 'safari') !== false);
-        $this->mz     = !$this->ie && !$this->safari && !$this->chrome && !$this->ns && !$this->opera && strpos($HTTP_USER_AGENT, 'mozilla') !== false;
+        // Engine detection
+        $this->webkit = str_contains($HTTP_USER_AGENT, 'applewebkit');
+        $this->opera = str_contains($HTTP_USER_AGENT, 'opera') || ($this->webkit && str_contains($HTTP_USER_AGENT, 'opr/'));
+        $this->edge = str_contains($HTTP_USER_AGENT, 'edge/');
+        $this->ie = !$this->opera && !$this->edge && (str_contains($HTTP_USER_AGENT, 'compatible; msie') || str_contains($HTTP_USER_AGENT, 'trident/'));
+        $this->chrome = !$this->opera && !$this->edge && str_contains($HTTP_USER_AGENT, 'chrome');
+        $this->safari = !$this->opera && !$this->chrome && !$this->edge
+                        && ($this->webkit || str_contains($HTTP_USER_AGENT, 'safari'));
+        $this->mz = !$this->ie && !$this->edge && !$this->safari && !$this->chrome && !$this->opera
+                        && str_contains($HTTP_USER_AGENT, 'mozilla');
 
-        if ($this->opera) {
-            if (preg_match('/(opera|opr)\/([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
-                $this->ver = (float) $regs[2];
-            }
-        }
-        else if (preg_match('/(chrome|msie|version|khtml)(\s*|\/)([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
+        // Version detection
+        if ($this->edge && preg_match('/edge\/([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
+            $this->ver = (float) $regs[1];
+        } elseif ($this->opera && preg_match('/(opera|opr)(\s*|\/)([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
+            $this->ver = (float) $regs[3];
+        } elseif ($this->safari && preg_match('/(version|safari)\/([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
+            $this->ver = (float) $regs[1];
+        } elseif (preg_match('/(chrome|khtml|version|msie|rv:)(\s*|\/)([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
             $this->ver = (float) $regs[3];
         }
-        else if (preg_match('/rv:([0-9.]+)/', $HTTP_USER_AGENT, $regs)) {
-            $this->ver = (float) $regs[1];
-        }
-
-        if (preg_match('/ ([a-z]{2})-([a-z]{2})/', $HTTP_USER_AGENT, $regs)) {
-            $this->lang =  $regs[1];
-        }
-        else {
-            $this->lang =  'en';
-        }
-
-        $this->dom      = $this->mz || $this->safari || ($this->ie && $this->ver>=5) || ($this->opera && $this->ver>=7);
-        $this->pngalpha = $this->mz || $this->safari || ($this->ie && $this->ver>=5.5) ||
-            ($this->ie && $this->ver>=5 && $this->mac) || ($this->opera && $this->ver>=7);
-        $this->imgdata  = !$this->ie;
     }
 }

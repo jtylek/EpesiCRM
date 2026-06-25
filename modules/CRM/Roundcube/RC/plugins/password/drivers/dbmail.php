@@ -4,7 +4,7 @@
  * DBMail Password Driver
  *
  * Driver that adds functionality to change the users DBMail password.
- * The code is derrived from the Squirrelmail "Change SASL Password" Plugin
+ * The code is derived from the Squirrelmail "Change SASL Password" Plugin
  * by Galen Johnson.
  *
  * It only works with dbmail-users on the same host where Roundcube runs
@@ -14,7 +14,7 @@
  *
  * @version 1.0
  *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,32 +27,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_dbmail_password
 {
-    function save($currpass, $newpass)
+    public function save($currpass, $newpass, $username)
     {
-        $curdir   = RCUBE_PLUGINS_DIR . 'password/helpers';
-        $username = escapeshellarg($_SESSION['username']);
+        $curdir = RCUBE_PLUGINS_DIR . 'password/helpers';
+        $username = escapeshellarg($username);
         $password = escapeshellarg($newpass);
-        $args     = rcmail::get_instance()->config->get('password_dbmail_args', '');
-        $command  = "$curdir/chgdbmailusers -c $username -w $password $args";
+        $args = rcmail::get_instance()->config->get('password_dbmail_args', '');
+        $command = "{$curdir}/chgdbmailusers -c {$username} -w {$password} {$args}";
 
         exec($command, $output, $return_value);
 
         if ($return_value == 0) {
             return PASSWORD_SUCCESS;
         }
-        else {
-            rcube::raise_error(array(
-                'code' => 600,
-                'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Password plugin: Unable to execute $curdir/chgdbmailusers"
-                ), true, false);
-        }
+
+        rcube::raise_error("Password plugin: Unable to execute {$curdir}/chgdbmailusers", true);
 
         return PASSWORD_ERROR;
     }

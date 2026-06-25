@@ -2,25 +2,24 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/managesieve/localization/<lang>.inc                           |
- |                                                                       |
  | Localization file of the Roundcube Webmail Managesieve plugin         |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-managesieve/
 */
+
 $labels['filters'] = 'Filtur';
 $labels['managefilters'] = 'Umsit mótakandi teldupost filtur';
 $labels['filtername'] = 'Navn á filtri';
 $labels['newfilter'] = 'Nýtt filtur';
 $labels['filteradd'] = 'Nýtt filtur';
 $labels['filterdel'] = 'Strika filtur';
+$labels['actions'] = 'Gerðir';
+$labels['scope'] = 'Leita frá';
 $labels['moveup'] = 'Flyt upp';
 $labels['movedown'] = 'Flyt niður';
 $labels['filterallof'] = 'samsvarar allar fylgjandi reglur';
@@ -52,26 +51,20 @@ $labels['messagesrules'] = 'Fyri móttiknan post:';
 $labels['messagesactions'] = '...koyr fylgjandi gerðir';
 $labels['add'] = 'Legg aftrat';
 $labels['del'] = 'Strika';
-$labels['sender'] = 'Avsendari';
+$labels['sender'] = 'Sendari';
 $labels['recipient'] = 'Móttakari';
+$labels['vacationaddr'] = 'Mínir teldupost bústaðir:';
 $labels['vacationdays'] = 'Hvussu ofta skal sendast (í døgum):';
 $labels['vacationinterval'] = 'Hvussu ofta skulu boðini sendast:';
-$labels['vacationreason'] = 'Boð innihald (feriu orsøk):';
+$labels['vacationreason'] = 'Breyðtekstur (feriu orsøk):';
 $labels['vacationfrom'] = 'Svara sendara bústaði:';
 $labels['vacationsubject'] = 'Evni á boðum:';
 $labels['days'] = 'dagar';
 $labels['seconds'] = 'sekund';
 $labels['rulestop'] = 'Steðga við at eftirmeta reglur';
 $labels['enable'] = 'Tendra/Sløkk';
-$labels['filterset'] = 'Sílu set';
 $labels['filtersets'] = 'Sílu sett';
-$labels['filtersetadd'] = 'Stovna sílu sett';
-$labels['filtersetdel'] = 'Strika verandi sílu sett';
-$labels['filtersetact'] = 'Tendra verandi sílu sett';
-$labels['filtersetdeact'] = 'Sløkk verandi sílu sett';
 $labels['filterdef'] = 'Sílu avmarking ';
-$labels['filtersetname'] = 'Navn á sílu sett';
-$labels['newfilterset'] = 'Nýtt sílu sett';
 $labels['active'] = 'tendra';
 $labels['none'] = 'einki';
 $labels['fromset'] = 'frá sett';
@@ -97,7 +90,7 @@ $labels['flagdeleted'] = 'Strika';
 $labels['flaganswered'] = 'Svara';
 $labels['flagflagged'] = 'Markera';
 $labels['flagdraft'] = 'Kladda';
-$labels['setvariable'] = 'Set variabu';
+$labels['setvariable'] = 'Set variabul';
 $labels['setvarname'] = 'Navn á variabli';
 $labels['setvarvalue'] = 'Virði á variabli';
 $labels['setvarmodifiers'] = 'Avmarkari:';
@@ -140,7 +133,7 @@ $labels['std11'] = 'dato (RFC2822)';
 $labels['zone'] = 'tíðarøki';
 $labels['weekday'] = 'vikudagur (0-6)';
 $labels['advancedopts'] = 'Víðkaðir valmøguleikar';
-$labels['body'] = 'Innihald';
+$labels['body'] = 'Breyðtekstur';
 $labels['address'] = 'Bústaður';
 $labels['envelope'] = 'brævbjálvi ';
 $labels['modifier'] = 'Broytari:';
@@ -156,29 +149,33 @@ $labels['detail'] = 'detaljur';
 $labels['comparator'] = 'Comparator:';
 $labels['default'] = 'vanligt';
 $labels['octet'] = 'strangt (octet)';
-$labels['asciicasemap'] = 'stavbundin (asciii-casemap)';
+$labels['asciicasemap'] = 'óstavbundin (asciii-casemap)';
 $labels['asciinumeric'] = 'tøl (ascii-numeric)';
 $labels['index'] = 'skrá:';
 $labels['indexlast'] = 'aftureftir';
-$labels['vacation'] = 'Feriu';
+$labels['spamtestequals'] = 'er tað sama sum';
+$labels['spamtestnotequals'] = 'er ikki tað sama sum';
 $labels['vacation.reply'] = 'Svar innihald';
 $labels['vacation.advanced'] = 'Víðkaðir valmøguleikar';
 $labels['vacation.from'] = 'Svara sendara bústaði';
 $labels['vacation.subject'] = 'Evni';
-$labels['vacation.body'] = 'Innihald';
-$labels['vacation.start'] = 'Feriu byrjan';
-$labels['vacation.end'] = 'Feriu endi';
+$labels['vacation.body'] = 'Breyðtekstur';
 $labels['vacation.status'] = 'Støða';
 $labels['vacation.on'] = 'Tendra';
 $labels['vacation.off'] = 'Sløkt';
+$labels['vacation.addresses'] = 'Mín teldupost bústaður';
 $labels['vacation.interval'] = 'Svar millumbil';
-$labels['vacation.after'] = 'Tendra feriu reglar eftir';
 $labels['vacation.saving'] = 'Goymur dáta...';
 $labels['vacation.action'] = 'Ger fyri móttikin boð';
 $labels['vacation.keep'] = 'Goym';
 $labels['vacation.discard'] = 'Strika';
 $labels['vacation.redirect'] = 'Leið ti';
 $labels['vacation.copy'] = 'Send avrit ti';
+$labels['forward.redirect'] = 'Leið ti';
+$labels['forward.copy'] = 'Send avrit ti';
+$labels['forward.on'] = 'Tendra';
+$labels['forward.off'] = 'Sløkt';
+$labels['forward.saving'] = 'Goymur dátur...';
 $labels['filladdresses'] = 'Fyll við øllum mínum bústaðum';
 $labels['arialabelfiltersetactions'] = 'Sílu sett gerðir';
 $labels['arialabelfilteractions'] = 'Sílu gerðir';
@@ -187,6 +184,7 @@ $labels['ariasummaryfilterslist'] = 'Listi yvir sílur';
 $labels['ariasummaryfiltersetslist'] = 'Skrá av sílu sett';
 $labels['filterstitle'] = 'Broyt mótakandi sílur fyri móttiknan post';
 $labels['vacationtitle'] = 'Broyt out-of-office regul';
+$labels['duplicate.header'] = 'Teksthøvd ';
 $messages['filterunknownerror'] = 'Ókendur ambætara feilur';
 $messages['filterconnerror'] = 'Einki samband við ambætara.';
 $messages['filterdeleteerror'] = 'Tað bar ikki til at strika sílu. Ambætara feilur kom fyri';
@@ -199,15 +197,6 @@ $messages['actiondeleteconfirm'] = 'Ert tú vísur í, at tú vilt strika valdu 
 $messages['forbiddenchars'] = 'Óloyvd tekin í feltinum.';
 $messages['cannotbeempty'] = 'Felt kann ikki verða tómt';
 $messages['ruleexist'] = 'Síla við givna navni er longu til';
-$messages['setactivateerror'] = 'Tað bar ikki til at tendra valdu sílu sett. Ambætara feilur kom fyri.';
-$messages['setdeactivateerror'] = 'Tað bar ikki til at sløkkja valdu sílu sett. Ambætara feilur kom fyri';
-$messages['setdeleteerror'] = 'Tað bar ikki til at strika valdu sílu sett. Ambætara feilur kom fyri.';
-$messages['setactivated'] = 'Síiu sett tendra.';
-$messages['setdeactivated'] = 'Sílu sett sløkt';
-$messages['setdeleted'] = 'Sílu sett var strika';
-$messages['setdeleteconfirm'] = 'Ert tú vísur í, at tú vilt strika valdu sílu sett?';
-$messages['setcreateerror'] = 'Tað ber ikki til at stovna sílu sett. Ambætara feilur kom fyri.';
-$messages['setcreated'] = 'Set av sílu stovna.';
 $messages['activateerror'] = 'Tað ber ikki til at tendra valdu sílur. Ambætara feilur kom fyri.';
 $messages['deactivateerror'] = 'Tað ber ikki til at sløkkja valdu sílur. Ambætara feilur kom fyri.';
 $messages['deactivated'] = 'Filtur sløkt';
@@ -220,6 +209,4 @@ $messages['setexist'] = 'Sett er longu til';
 $messages['nodata'] = 'Minst eitt stað má verða valt!';
 $messages['invaliddateformat'] = 'Ógildugt dato ella formulering av dato';
 $messages['saveerror'] = 'Tað bar ikki til at goyma dáta. Ambætara feilur kom fyri.';
-$messages['vacationsaved'] = 'Feriu dáta goymd.';
-$messages['emptyvacationbody'] = 'Innihaldi í feriu boðinum er kraft!';
-?>
+$messages['emptyvacationbody'] = 'Breyðtekstur er kravdur í feriuboðum!';

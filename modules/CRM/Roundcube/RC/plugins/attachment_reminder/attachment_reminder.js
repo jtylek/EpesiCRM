@@ -4,7 +4,7 @@
  * @licstart  The following is the entire license notice for the
  * JavaScript code in this file.
  *
- * Copyright (c) 2013, The Roundcube Dev Team
+ * Copyright (c) The Roundcube Dev Team
  *
  * The JavaScript code in this page is free software: you can redistribute it
  * and/or modify it under the terms of the GNU General Public License
@@ -15,69 +15,70 @@
  * for the JavaScript code in this file.
  */
 
-function rcmail_get_compose_message()
-{
-  var msg;
+function rcmail_get_compose_message() {
+    var msg = rcmail.editor.get_content({ nosig: true });
 
-  if (window.tinyMCE && (ed = tinyMCE.get(rcmail.env.composebody))) {
-    msg = ed.getContent();
-    msg = msg.replace(/<blockquote[^>]*>(.|[\r\n])*<\/blockquote>/gmi, '');
-  }
-  else {
-    msg = $('#' + rcmail.env.composebody).val();
-    msg = msg.replace(/^>.*$/gmi, '');
-  }
+    if (rcmail.editor.is_html()) {
+    // Remove quoted content, all HTML tags, and some entities
+        msg = msg.replace(/<blockquote[^>]*>(.|[\r\n])*<\/blockquote>/gmi, '')
+            .replace(/<[^>]+>/gm, ' ')
+            .replace(/&nbsp;/g, ' ');
+    } else {
+    // Remove quoted content
+        msg = msg.replace(/^>.*$/gmi, '');
+    }
 
-  return msg;
-};
+    return msg;
+}
 
-function rcmail_check_message(msg)
-{
-  var i, rx, keywords = rcmail.get_label('keywords', 'attachment_reminder').split(",").concat([".doc", ".pdf"]);
+function rcmail_check_message(msg) {
+    var i, rx, keywords = rcmail.get_label('keywords', 'attachment_reminder').split(',').concat(['.doc', '.pdf']);
 
-  keywords = $.map(keywords, function(n) { return RegExp.escape(n); });
-  rx = new RegExp('(' + keywords.join('|') + ')', 'i');
+    keywords = $.map(keywords, function (n) {
+        return RegExp.escape(n);
+    });
+    rx = new RegExp('(' + keywords.join('|') + ')', 'i');
 
-  return msg.search(rx) != -1;
-};
+    return msg.search(rx) != -1;
+}
 
-function rcmail_have_attachments()
-{
-  return rcmail.env.attachments && $('li', rcmail.gui_objects.attachmentlist).length;
-};
+function rcmail_have_attachments() {
+    return rcmail.env.attachments && $('li', rcmail.gui_objects.attachmentlist).length;
+}
 
-function rcmail_attachment_reminder_dialog()
-{
-  var buttons = {};
+function rcmail_attachment_reminder_dialog() {
+    var buttons = {};
 
-  buttons[rcmail.get_label('addattachment')] = function() {
-    $(this).remove();
-    if (window.UI && UI.show_uploadform) // Larry skin
-      UI.show_uploadform();
-    else if (window.rcmail_ui && rcmail_ui.show_popup) // classic skin
-      rcmail_ui.show_popup('uploadmenu', true);
-  };
-  buttons[rcmail.get_label('send')] = function(e) {
-    $(this).remove();
-    rcmail.env.attachment_reminder = true;
-    rcmail.command('send', '', e);
-  };
+    buttons[rcmail.get_label('addattachment')] = function () {
+        $(this).remove();
+        $('#messagetoolbar a.attach, .toolbar a.attach').first().click();
+    };
+    buttons[rcmail.get_label('send')] = function (e) {
+        $(this).remove();
+        rcmail.env.attachment_reminder = true;
+        rcmail.command('send', '', e);
+    };
 
-  rcmail.env.attachment_reminder = false;
-  rcmail.show_popup_dialog(rcmail.get_label('attachment_reminder.forgotattachment'), '', buttons);
-};
+    rcmail.env.attachment_reminder = false;
+    rcmail.show_popup_dialog(
+        rcmail.get_label('attachment_reminder.forgotattachment'),
+        rcmail.get_label('attachment_reminder.missingattachment'),
+        buttons,
+        { button_classes: ['mainaction attach', 'send'] }
+    );
+}
 
 
 if (window.rcmail) {
-  rcmail.addEventListener('beforesend', function(evt) {
-    var msg = rcmail_get_compose_message(),
-      subject = $('#compose-subject').val();
+    rcmail.addEventListener('beforesend', function (evt) {
+        var msg = rcmail_get_compose_message(),
+            subject = $('#compose-subject').val();
 
-    if (!rcmail.env.attachment_reminder && !rcmail_have_attachments()
-      && (rcmail_check_message(msg) || rcmail_check_message(subject))
-    ) {
-      rcmail_attachment_reminder_dialog();
-      return false;
-    }
-  });
+        if (!rcmail.env.attachment_reminder && !rcmail_have_attachments()
+            && (rcmail_check_message(msg) || rcmail_check_message(subject))
+        ) {
+            rcmail_attachment_reminder_dialog();
+            return false;
+        }
+    });
 }

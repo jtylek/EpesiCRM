@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'خطا رخ داد';
 $messages['loginfailed']  = 'ورود با شکست همراه بود';
 $messages['cookiesdisabled'] = 'جستجوگر شما  cookies را قبول نميکند';
@@ -32,7 +29,6 @@ $messages['erroroverquotadelete'] = 'فضای خالی دیسک کافی نیس�
 $messages['invalidrequest'] = 'درخواست نامعتبر. هیچ داده‌ای ذخیره نشد.';
 $messages['invalidhost'] = 'نام سرور نامعتبر است';
 $messages['nomessagesfound'] = 'هيچ پيغامی در اين صندوق پستي دريافت نه شد';
-$messages['loggedout'] = 'جلسه شما بصورت مکمل فسخ شده است  خدا حافظ';
 $messages['mailboxempty'] = 'میل باکس خالی است';
 $messages['nomessages'] = 'پیامی وجود ندارد';
 $messages['refreshing'] = 'دوباره سازی....';
@@ -81,8 +77,6 @@ $messages['nopagesizewarning'] = 'لطفاً اندازه يک صفحه را د�
 $messages['norecipientwarning'] = 'لطفاً کم از کم يک آدرس گيرينده را نوشته / داخل کنيد';
 $messages['nosubjectwarning']  = 'بخش مضمون خالي است  آیا میخواهید که حالا یکی آنها را درج نمایید؟.';
 $messages['nobodywarning'] = 'اين پيغام را بدون متن بفرستیم؟';
-$messages['notsentwarning'] = 'پيغام ارسال نه شده است   آیا میخواهید که از این نامه صرف نظر نمایید';
-$messages['noldapserver'] = 'لطفاً يک ايل دپ سرور را بخاطر جستجو انتخاب کنيد';
 $messages['nosearchname'] = 'لطفاً يک نام تماس و يا هم يک ايميل ادرس را داخل کنيد';
 $messages['searchsuccessful'] = '$nr پیام یافت شد';
 $messages['contactsearchsuccessful'] = '$nr حساب کاربری یافت شد';
@@ -94,8 +88,6 @@ $messages['nospellerrors'] = 'هيچ اشتباه املايي را دريافت
 $messages['folderdeleted'] = 'پوشه موفقانه از بين رفت/ حذف گرديد';
 $messages['foldersubscribed'] = 'پوشه با موفقیت مشترک شد.';
 $messages['folderunsubscribed'] = 'پوشه با موفقیت لغو اشتراک شد.';
-$messages['folderpurged'] = 'محتوای پوشه ها با موفقیت پاک شدند';
-$messages['folderexpunged'] = 'پوشه با موفقیت فشرده شد.';
 $messages['deletedsuccessfully'] = 'با موفقیت حذف شد';
 $messages['converting'] = 'در حال پاک کردن ساختار';
 $messages['messageopenerror'] = 'پيغام از سرور جريان کرده نتوانست';

@@ -200,7 +200,7 @@ class Base_EssClient extends Module {
         $f->addRule('postal_code', __('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'tax_id', $tax_id_tooltip . __('Tax ID'), array('maxlength' => 64));
-        $f->addRule('admin_email', __('Max length exceeded'), 'maxlength', 64);
+        $f->addRule('tax_id', __('Max length exceeded'), 'maxlength', 64);
 
         $f->addElement('text', 'admin_first_name', __('Administrator\'s first name'), array('maxlength' => 64));
         $f->addRule('admin_first_name', __('Field required'), 'required');

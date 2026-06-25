@@ -1,15 +1,14 @@
 <?php
 
-/**
+/*
  +-------------------------------------------------------------------------+
  | S/MIME driver for the Enigma Plugin                                     |
  |                                                                         |
- | Copyright (C) 2010-2015 The Roundcube Dev Team                          |
+ | Copyright (C) The Roundcube Dev Team                                    |
  |                                                                         |
  | Licensed under the GNU General Public License version 3 or              |
  | any later version with exceptions for skins & plugins.                  |
  | See the README file for a full license statement.                       |
- |                                                                         |
  +-------------------------------------------------------------------------+
  | Author: Aleksander Machniak <alec@alec.pl>                              |
  +-------------------------------------------------------------------------+
@@ -18,13 +17,14 @@
 class enigma_driver_phpssl extends enigma_driver
 {
     private $rc;
-    private $homedir;
+    private $homedir; // @phpstan-ignore-line
     private $user;
 
-    function __construct($user)
+    #[\Override]
+    public function __construct($user)
     {
         $rcmail = rcmail::get_instance();
-        $this->rc   = $rcmail;
+        $this->rc = $rcmail;
         $this->user = $user;
     }
 
@@ -32,65 +32,79 @@ class enigma_driver_phpssl extends enigma_driver
      * Driver initialization and environment checking.
      * Should only return critical errors.
      *
-     * @return mixed NULL on success, enigma_error on failure
+     * @return enigma_error|null NULL on success, enigma_error on failure
      */
-    function init()
+    #[\Override]
+    public function init()
     {
         $homedir = $this->rc->config->get('enigma_smime_homedir', INSTALL_PATH . '/plugins/enigma/home');
 
-        if (!$homedir)
+        if (!$homedir) {
             return new enigma_error(enigma_error::INTERNAL,
                 "Option 'enigma_smime_homedir' not specified");
+        }
 
         // check if homedir exists (create it if not) and is readable
-        if (!file_exists($homedir))
+        if (!file_exists($homedir)) {
             return new enigma_error(enigma_error::INTERNAL,
-                "Keys directory doesn't exists: $homedir");
-        if (!is_writable($homedir))
+                "Keys directory doesn't exists: {$homedir}");
+        }
+        if (!is_writable($homedir)) {
             return new enigma_error(enigma_error::INTERNAL,
-                "Keys directory isn't writeable: $homedir");
+                "Keys directory isn't writeable: {$homedir}");
+        }
 
         $homedir = $homedir . '/' . $this->user;
 
         // check if user's homedir exists (create it if not) and is readable
-        if (!file_exists($homedir))
+        if (!file_exists($homedir)) {
             mkdir($homedir, 0700);
+        }
 
-        if (!file_exists($homedir))
+        if (!file_exists($homedir)) {
             return new enigma_error(enigma_error::INTERNAL,
-                "Unable to create keys directory: $homedir");
-        if (!is_writable($homedir))
+                "Unable to create keys directory: {$homedir}");
+        }
+        if (!is_writable($homedir)) {
             return new enigma_error(enigma_error::INTERNAL,
-                "Unable to write to keys directory: $homedir");
+                "Unable to write to keys directory: {$homedir}");
+        }
 
         $this->homedir = $homedir;
 
+        return null;
     }
 
-    function encrypt($text, $keys)
+    #[\Override]
+    public function encrypt($text, $keys, $sign_key = null)
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    function decrypt($text, $keys = array())
+    #[\Override]
+    public function decrypt($text, $keys = [], &$signature = null)
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    function sign($text, $key, $passwd, $mode = null)
+    #[\Override]
+    public function sign($text, $key, $mode = null)
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    function verify($struct, $message)
+    #[\Override]
+    public function verify($struct, $message)
     {
+        /*
         // use common temp dir
-        $temp_dir  = $this->rc->config->get('temp_dir');
-        $msg_file  = tempnam($temp_dir, 'rcmMsg');
-        $cert_file = tempnam($temp_dir, 'rcmCert');
+        $msg_file  = rcube_utils::temp_filename('enigmsg');
+        $cert_file = rcube_utils::temp_filename('enigcrt');
 
-        $fh = fopen($msg_file, "w");
+        $fh = fopen($msg_file, 'w');
         if ($struct->mime_id) {
             $message->get_part_body($struct->mime_id, false, 0, $fh);
-        }
-        else {
+        } else {
             $this->rc->storage->get_raw_body($message->uid, $fh);
         }
         fclose($fh);
@@ -103,14 +117,13 @@ class enigma_driver_phpssl extends enigma_driver
 
         if ($sig !== true) {
             // try without certificate verification
-            $sig      = openssl_pkcs7_verify($msg_file, PKCS7_NOVERIFY, $cert_file);
+            $sig      = openssl_pkcs7_verify($msg_file, \PKCS7_NOVERIFY, $cert_file);
             $validity = enigma_error::UNVERIFIED;
         }
 
         if ($sig === true) {
             $sig = $this->parse_sig_cert($cert_file, $validity);
-        }
-        else {
+        } else {
             $errorstr = $this->get_openssl_error();
             $sig = new enigma_error(enigma_error::INTERNAL, $errorstr);
         }
@@ -120,93 +133,69 @@ class enigma_driver_phpssl extends enigma_driver
         @unlink($cert_file);
 
         return $sig;
+        */
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    public function import($content, $isfile=false)
+    #[\Override]
+    public function import($content, $isfile = false, $passwords = [])
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    public function export($key, $with_private = false)
+    #[\Override]
+    public function export($key, $with_private = false, $passwords = [])
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
-    public function list_keys($pattern='')
+    #[\Override]
+    public function list_keys($pattern = '')
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
+    #[\Override]
     public function get_key($keyid)
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
+    #[\Override]
     public function gen_key($data)
     {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
+    #[\Override]
     public function delete_key($keyid)
     {
-    }
-
-    public function delete_privkey($keyid)
-    {
-    }
-
-    public function delete_pubkey($keyid)
-    {
+        return new enigma_error(enigma_error::INTERNAL, 'Not implemented');
     }
 
     /**
-     * Converts Crypt_GPG_Key object into Enigma's key object
+     * Returns a name of the hash algorithm used for the last
+     * signing operation.
      *
-     * @param Crypt_GPG_Key Key object
-     *
-     * @return enigma_key Key object
+     * @return string Hash algorithm name e.g. sha1
      */
-    private function parse_key($key)
+    #[\Override]
+    public function signature_algorithm()
     {
-/*
-        $ekey = new enigma_key();
-
-        foreach ($key->getUserIds() as $idx => $user) {
-            $id = new enigma_userid();
-            $id->name    = $user->getName();
-            $id->comment = $user->getComment();
-            $id->email   = $user->getEmail();
-            $id->valid   = $user->isValid();
-            $id->revoked = $user->isRevoked();
-
-            $ekey->users[$idx] = $id;
-        }
-        
-        $ekey->name = trim($ekey->users[0]->name . ' <' . $ekey->users[0]->email . '>');
-
-        foreach ($key->getSubKeys() as $idx => $subkey) {
-                $skey = new enigma_subkey();
-                $skey->id          = $subkey->getId();
-                $skey->revoked     = $subkey->isRevoked();
-                $skey->created     = $subkey->getCreationDate();
-                $skey->expires     = $subkey->getExpirationDate();
-                $skey->fingerprint = $subkey->getFingerprint();
-                $skey->has_private = $subkey->hasPrivate();
-
-                $ekey->subkeys[$idx] = $skey;
-        };
-        
-        $ekey->id = $ekey->subkeys[0]->id;
-        
-        return $ekey;
-*/
+        return ''; // TODO
     }
 
     private function get_openssl_error()
     {
-        $tmp = array();
+        $tmp = [];
         while ($errorstr = openssl_error_string()) {
             $tmp[] = $errorstr;
         }
 
-        return join("\n", array_values($tmp));
+        return implode("\n", array_values($tmp));
     }
 
+    // @phpstan-ignore-next-line
     private function parse_sig_cert($file, $validity)
     {
         $cert = openssl_x509_parse(file_get_contents($file));
@@ -218,16 +207,15 @@ class enigma_driver_phpssl extends enigma_driver
 
         $data = new enigma_signature();
 
-        $data->id          = $cert['hash']; //?
-        $data->valid       = $validity;
+        $data->id = $cert['hash']; // ?
+        $data->valid = $validity;
         $data->fingerprint = $cert['serialNumber'];
-        $data->created     = $cert['validFrom_time_t'];
-        $data->expires     = $cert['validTo_time_t'];
-        $data->name        = $cert['subject']['CN'];
-//        $data->comment     = '';
-        $data->email       = $cert['subject']['emailAddress'];
+        $data->created = $cert['validFrom_time_t'];
+        $data->expires = $cert['validTo_time_t'];
+        $data->name = $cert['subject']['CN'];
+        // $data->comment     = '';
+        $data->email = $cert['subject']['emailAddress'];
 
         return $data;
     }
-
 }

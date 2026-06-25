@@ -2,25 +2,25 @@
 
 /*
  +-----------------------------------------------------------------------+
- | plugins/managesieve/localization/<lang>.inc                           |
- |                                                                       |
  | Localization file of the Roundcube Webmail Managesieve plugin         |
- | Copyright (C) 2012-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/plugin-managesieve/
 */
+
 $labels['filters'] = 'Фильтры';
 $labels['managefilters'] = 'Управление фильтрами для входящей почты';
 $labels['filtername'] = 'Название фильтра';
 $labels['newfilter'] = 'Новый фильтр';
 $labels['filteradd'] = 'Добавить фильтр';
 $labels['filterdel'] = 'Удалить фильтр';
+$labels['rules'] = 'Правила';
+$labels['actions'] = 'Действия';
+$labels['scope'] = 'Область';
 $labels['moveup'] = 'Сдвинуть вверх';
 $labels['movedown'] = 'Сдвинуть вниз';
 $labels['filterallof'] = 'соответствует всем указанным правилам';
@@ -38,6 +38,14 @@ $labels['filterregex'] = 'совпадает с регулярным выраж�
 $labels['filternotregex'] = 'не совпадает с регулярным выражением';
 $labels['filterunder'] = 'меньше';
 $labels['filterover'] = 'больше';
+$labels['mime'] = 'MIME:';
+$labels['mimepart'] = 'MIME часть:';
+$labels['mime-message'] = 'сообщение';
+$labels['mime-anychild'] = 'любой';
+$labels['mime-type'] = 'тип';
+$labels['mime-subtype'] = 'подтип';
+$labels['mime-contenttype'] = 'тип содержимого';
+$labels['mime-param'] = 'параметр';
 $labels['addrule'] = 'Добавить правило';
 $labels['delrule'] = 'Удалить правило';
 $labels['messagemoveto'] = 'Переместить сообщение в';
@@ -46,7 +54,7 @@ $labels['messagecopyto'] = 'Скопировать сообщение в';
 $labels['messagesendcopy'] = 'Отправить копию сообщения на';
 $labels['messagereply'] = 'Ответить с сообщением';
 $labels['messagedelete'] = 'Удалить сообщение';
-$labels['messagediscard'] = 'Отбросить с сообщением';
+$labels['messagediscard'] = 'Не принимать и ответить:';
 $labels['messagekeep'] = 'Оставить сообщение во Входящих';
 $labels['messagesrules'] = 'Для входящей почты:';
 $labels['messagesactions'] = '...выполнить следующие действия:';
@@ -67,9 +75,11 @@ $labels['enable'] = 'Включить/Выключить';
 $labels['filterset'] = 'Набор фильтров';
 $labels['filtersets'] = 'Наборы фильтров';
 $labels['filtersetadd'] = 'Добавить набор фильтров';
-$labels['filtersetdel'] = 'Удалить текущий набор фильтров';
+$labels['filtersetdel'] = 'Удалить набор фильтров';
 $labels['filtersetact'] = 'Включить текущий набор фильтров';
 $labels['filtersetdeact'] = 'Отключить текущий набор фильтров';
+$labels['filterseteditraw'] = 'Изменить набор фильтров';
+$labels['filtersetswitch'] = 'Включить/выключить набор фильтров';
 $labels['filterdef'] = 'Описание фильтра';
 $labels['filtersetname'] = 'Название набора фильтров';
 $labels['newfilterset'] = 'Новый набор фильтров';
@@ -78,6 +88,7 @@ $labels['none'] = 'нет';
 $labels['fromset'] = 'из набора';
 $labels['fromfile'] = 'из файла';
 $labels['filterdisabled'] = 'Отключить фильтр';
+$labels['filterenabled'] = 'Фильтр включен';
 $labels['countisgreaterthan'] = 'количество больше, чем';
 $labels['countisgreaterthanequal'] = 'количество больше или равно';
 $labels['countislessthan'] = 'количество меньше, чем';
@@ -98,6 +109,18 @@ $labels['flagdeleted'] = 'Удалено';
 $labels['flaganswered'] = 'Отвечено';
 $labels['flagflagged'] = 'Помечено';
 $labels['flagdraft'] = 'Черновик';
+$labels['addheader'] = 'Добавить заголовок к сообщению';
+$labels['deleteheader'] = 'Удалить заголовок из сообщения';
+$labels['headername'] = 'Название заголовка';
+$labels['headervalue'] = 'Значение заголовка';
+$labels['headerpos'] = 'Положение заголовка';
+$labels['headeratstart'] = 'в начале';
+$labels['headeratend'] = 'в конце';
+$labels['headeroccurrence'] = 'Появление/положение заголовка';
+$labels['headerfromstart'] = 'с конца';
+$labels['headerfromend'] = 'с начала';
+$labels['headerpatterns'] = 'Шаблоны значений заголовков';
+$labels['headermatchtype'] = 'тип соответствия:';
 $labels['setvariable'] = 'Задать переменную';
 $labels['setvarname'] = 'Имя переменной:';
 $labels['setvarvalue'] = 'Значение переменной:';
@@ -124,6 +147,7 @@ $labels['filtercreate'] = 'Создать фильтр';
 $labels['usedata'] = 'Использовать следующие данные в фильтре:';
 $labels['nextstep'] = 'Далее';
 $labels['...'] = '...';
+$labels['string'] = 'Строка';
 $labels['currdate'] = 'Текущая дата';
 $labels['datetest'] = 'Дата';
 $labels['dateheader'] = 'заголовок:';
@@ -161,26 +185,42 @@ $labels['asciicasemap'] = 'Регистронезависимый (ascii-casemap
 $labels['asciinumeric'] = 'Числовой (ascii-numeric)';
 $labels['index'] = 'индекс:';
 $labels['indexlast'] = 'наоборот';
-$labels['vacation'] = 'Отпуск';
+$labels['spamtest'] = 'Уровень спама';
+$labels['spamtestisgreaterthan'] = 'больше, чем';
+$labels['spamtestisgreaterthanequal'] = 'больше или равно';
+$labels['spamtestislessthan'] = 'меньше чем';
+$labels['spamtestislessthanequal'] = 'меньше или равно';
+$labels['spamtestequals'] = 'соответствует';
+$labels['spamtestnotequals'] = 'не соответствует';
+$labels['spamtestisunknown'] = 'неизвестно';
+$labels['vacation'] = 'Вне офиса';
 $labels['vacation.reply'] = 'Ответное сообщение';
 $labels['vacation.advanced'] = 'Дополнительные настройки';
 $labels['vacation.from'] = 'Обратный адрес отправителя';
 $labels['vacation.subject'] = 'Тема';
 $labels['vacation.body'] = 'Тело письма';
-$labels['vacation.start'] = 'Начало отпуска';
-$labels['vacation.end'] = 'Конец отпуска';
+$labels['vacation.start'] = 'Время начала';
+$labels['vacation.end'] = 'Время окончания';
 $labels['vacation.status'] = 'Состояние';
 $labels['vacation.on'] = 'Вкл.';
 $labels['vacation.off'] = 'Выкл.';
 $labels['vacation.addresses'] = 'Мои адреса эл. почты';
 $labels['vacation.interval'] = 'Интервал ответа';
-$labels['vacation.after'] = 'Поместить правило отпуска после';
+$labels['vacation.after'] = 'Поместить правило отсутствия в офисе после';
 $labels['vacation.saving'] = 'Сохранение данных...';
 $labels['vacation.action'] = 'Действия с входящим сообщением';
 $labels['vacation.keep'] = 'Оставить';
 $labels['vacation.discard'] = 'Отменить';
 $labels['vacation.redirect'] = 'Перенаправить на';
 $labels['vacation.copy'] = 'Отправить копию на';
+$labels['forward'] = 'Пересылка';
+$labels['forward.redirect'] = 'Перенаправить на';
+$labels['forward.copy'] = 'Отправить копию на';
+$labels['forward.on'] = 'Вкл.';
+$labels['forward.off'] = 'Выкл.';
+$labels['forward.status'] = 'Статус:';
+$labels['forward.action'] = 'Выполнить следующее действие для входящих сообщений:';
+$labels['forward.saving'] = 'Сохранение данных...';
 $labels['filladdresses'] = 'Заполнить всеми моими адресами';
 $labels['arialabelfiltersetactions'] = 'Действия набора фильтров';
 $labels['arialabelfilteractions'] = 'Действия фильтра';
@@ -189,6 +229,7 @@ $labels['ariasummaryfilterslist'] = 'Список фильтров';
 $labels['ariasummaryfiltersetslist'] = 'Список набора фильтров';
 $labels['filterstitle'] = 'Редактировать фильтры для входящей почты';
 $labels['vacationtitle'] = 'Изменить правило "Не в офисе"';
+$labels['forwardtitle'] = 'Изменить правило пересылки';
 $labels['message'] = 'Сообщение';
 $labels['duplicate'] = 'дублируется';
 $labels['notduplicate'] = 'не дублируется';
@@ -216,6 +257,7 @@ $messages['setdeleteerror'] = 'Невозможно удалить выбран�
 $messages['setactivated'] = 'Набор фильтров успешно включён.';
 $messages['setdeactivated'] = 'Набор фильтров успешно отключён.';
 $messages['setdeleted'] = 'Набор фильтров успешно удалён.';
+$messages['setupdated'] = 'Набор фильтров успешно обновлён.';
 $messages['setdeleteconfirm'] = 'Вы уверены в том, что хотите удалить выбранный набор фильтров?';
 $messages['setcreateerror'] = 'Невозможно создать набор фильтров. Ошибка сервера.';
 $messages['setcreated'] = 'Набор фильтров успешно создан.';
@@ -231,7 +273,10 @@ $messages['setexist'] = 'Набор уже существует.';
 $messages['nodata'] = 'Нужно выбрать хотя бы одну позицию!';
 $messages['invaliddateformat'] = 'Неверная дата или формат части даты';
 $messages['saveerror'] = 'Невозможно сохранить данные. Ошибка сервера.';
-$messages['vacationsaved'] = 'Данные об отпуске успешно сохранены.';
+$messages['vacationsaved'] = 'Данные об отсутствии успешно сохранены.';
+$messages['forwardsaved'] = 'Данные о пересылке успешно сохранены.';
 $messages['emptyvacationbody'] = 'Сообщение о причине отсутствия не может быть пустым!';
 $messages['duplicate.conflict.err'] = 'Не разрешено использовать заголовок и уникальный идентификатор вместе.';
-?>
+$messages['disabledaction'] = 'Действие не разрешено.';
+$messages['lastindexempty'] = 'Индекс необходим при подсчете с конца';
+$messages['noflagset'] = 'Нужно выбрать хотя бы один флаг.';

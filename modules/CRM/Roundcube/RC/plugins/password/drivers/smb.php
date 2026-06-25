@@ -9,6 +9,7 @@
  * For installation instructions please read the README file.
  *
  * @version 2.0
+ *
  * @author Andy Theuninck <gohanman@gmail.com)
  *
  * Based on chpasswd roundcubemail password driver by
@@ -20,7 +21,7 @@
  * password_smb_host    => samba host (default: localhost)
  * password_smb_cmd => smbpasswd binary (default: /usr/bin/smbpasswd)
  *
- * Copyright (C) 2005-2013, The Roundcube Dev Team
+ * Copyright (C) The Roundcube Dev Team
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,26 +34,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://www.gnu.org/licenses/.
+ * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
 class rcube_smb_password
 {
-
-    public function save($currpass, $newpass)
+    public function save($currpass, $newpass, $username)
     {
-        $host     = rcmail::get_instance()->config->get('password_smb_host','localhost');
-        $bin      = rcmail::get_instance()->config->get('password_smb_cmd','/usr/bin/smbpasswd');
-        $username = $_SESSION['username'];
+        $host = rcmail::get_instance()->config->get('password_smb_host', 'localhost');
+        $bin = rcmail::get_instance()->config->get('password_smb_cmd', '/usr/bin/smbpasswd');
+        $host = rcube_utils::parse_host($host);
+        $tmpfile = tempnam(sys_get_temp_dir(), 'smb');
+        $cmd = $bin . ' -r ' . escapeshellarg($host) . ' -s -U ' . escapeshellarg($username) . ' > ' . $tmpfile . ' 2>&1';
+        $handle = @popen($cmd, 'w');
 
-        $host     = rcube_utils::parse_host($host);
-        $tmpfile  = tempnam(sys_get_temp_dir(),'smb');
-        $cmd      = $bin . ' -r ' . $host . ' -s -U "' . $username . '" > ' . $tmpfile . ' 2>&1';
-        $handle   = @popen($cmd, 'w');
-
-        fputs($handle, $currpass."\n");
-        fputs($handle, $newpass."\n");
-        fputs($handle, $newpass."\n");
+        fwrite($handle, $currpass . "\n");
+        fwrite($handle, $newpass . "\n");
+        fwrite($handle, $newpass . "\n");
         @pclose($handle);
         $res = file($tmpfile);
         unlink($tmpfile);
@@ -60,14 +58,8 @@ class rcube_smb_password
         if (strstr($res[count($res) - 1], 'Password changed for user') !== false) {
             return PASSWORD_SUCCESS;
         }
-        else {
-            rcube::raise_error(array(
-                'code' => 600,
-                'type' => 'php',
-                'file' => __FILE__, 'line' => __LINE__,
-                'message' => "Password plugin: Unable to execute $cmd"
-                ), true, false);
-        }
+
+        rcube::raise_error("Password plugin: Unable to execute {$cmd}", true);
 
         return PASSWORD_ERROR;
     }

@@ -1,9 +1,10 @@
 <?php
 
-/**
+/*
  +-----------------------------------------------------------------------+
  | This file is part of the Roundcube Webmail client                     |
- | Copyright (C) 2006-2013, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
@@ -20,98 +21,130 @@
  * Roundcube result set class
  *
  * Representing an address directory result set.
- * Implenets Iterator and thus be used in foreach() loops.
- *
- * @package    Framework
- * @subpackage Addressbook
+ * Implements Iterator and can thus be used in foreach() loops.
  */
-class rcube_result_set implements Iterator, ArrayAccess
+class rcube_result_set implements \Iterator, \ArrayAccess
 {
+    /**
+     * @var int The number of total records. Note that when only a subset of records is requested,
+     *          this number may be higher than the number of data records in this result set.
+     */
     public $count = 0;
+
+    /**
+     * @var int When a subset of the total records is requested, this property gives the index into the total record
+     *          set from that the data records in this result set start. This is normally a multiple of the
+     *          user-configured page size.
+     */
     public $first = 0;
+
+    /**
+     * @var bool true if the results are from an addressbook that does not support listing all records but
+     *           requires the search function to be used
+     */
     public $searchonly = false;
-    public $records = array();
+
+    /**
+     * @var array The data records of the result set. May be a subset of the total records, e.g. for one page.
+     */
+    public $records = [];
 
     private $current = 0;
 
-    function __construct($c=0, $f=0)
+    public function __construct($count = 0, $first = 0)
     {
-        $this->count = (int)$c;
-        $this->first = (int)$f;
+        $this->count = (int) $count;
+        $this->first = (int) $first;
     }
 
-    function add($rec)
+    public function add($rec)
     {
         $this->records[] = $rec;
     }
 
-    function iterate()
+    public function iterate()
     {
-        return $this->records[$this->current++];
+        $current = $this->current();
+
+        $this->current++;
+
+        return $current;
     }
 
-    function first()
+    public function first()
     {
         $this->current = 0;
-        return $this->records[$this->current];
+        return $this->current();
     }
 
-    function seek($i)
+    public function seek($i): void
     {
         $this->current = $i;
     }
 
-    /*** Implement PHP ArrayAccess interface ***/
+    // Implement PHP ArrayAccess interface
 
-    public function offsetSet($offset, $value)
+    #[\Override]
+    public function offsetSet($offset, $value): void
     {
-        if (is_null($offset)) {
+        if ($offset === null) {
             $offset = count($this->records);
             $this->records[] = $value;
-        }
-        else {
+        } else {
             $this->records[$offset] = $value;
         }
     }
 
-    public function offsetExists($offset)
+    #[\Override]
+    public function offsetExists($offset): bool
     {
         return isset($this->records[$offset]);
     }
 
-    public function offsetUnset($offset)
+    #[\Override]
+    public function offsetUnset($offset): void
     {
         unset($this->records[$offset]);
     }
 
+    #[\Override]
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->records[$offset];
     }
 
-    /***  PHP 5 Iterator interface  ***/
+    // PHP 5 Iterator interface
 
-    function rewind()
+    #[\Override]
+    public function rewind(): void
     {
         $this->current = 0;
     }
 
-    function current()
+    #[\Override]
+    #[\ReturnTypeWillChange]
+    public function current()
     {
-        return $this->records[$this->current];
+        return $this->records[$this->current] ?? null;
     }
 
-    function key()
+    #[\Override]
+    #[\ReturnTypeWillChange]
+    public function key()
     {
         return $this->current;
     }
 
-    function next()
+    #[\Override]
+    #[\ReturnTypeWillChange]
+    public function next()
     {
-        return $this->iterate();
+        $this->current++;
     }
 
-    function valid()
+    #[\Override]
+    public function valid(): bool
     {
         return isset($this->records[$this->current]);
     }

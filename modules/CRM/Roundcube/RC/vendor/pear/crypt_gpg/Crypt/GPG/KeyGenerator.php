@@ -7,8 +7,6 @@
  *
  * This file contains an object that handles GnuPG key generation.
  *
- * PHP version 5
- *
  * LICENSE:
  *
  * This library is free software; you can redistribute it and/or modify
@@ -38,8 +36,6 @@
  * Base class for GPG methods
  */
 require_once 'Crypt/GPGAbstract.php';
-
-// {{{ class Crypt_GPG_KeyGenerator
 
 /**
  * GnuPG key generator
@@ -71,12 +67,10 @@ require_once 'Crypt/GPGAbstract.php';
  */
 class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 {
-    // {{{ protected properties
-
     /**
      * The expiration date of generated keys
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setExpirationDate()
      */
@@ -94,7 +88,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
     /**
      * The algorithm for generated primary keys
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setKeyParams()
      */
@@ -103,7 +97,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
     /**
      * The size of generated primary keys
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setKeyParams()
      */
@@ -115,7 +109,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
      * This is a bitwise combination of the usage constants in
      * {@link Crypt_GPG_SubKey}.
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setKeyParams()
      */
@@ -124,7 +118,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
     /**
      * The algorithm for generated sub-keys
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setSubKeyParams()
      */
@@ -133,7 +127,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
     /**
      * The size of generated sub-keys
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setSubKeyParams()
      */
@@ -145,81 +139,18 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
      * This is a bitwise combination of the usage constants in
      * {@link Crypt_GPG_SubKey}.
      *
-     * @var integer
+     * @var int
      *
      * @see Crypt_GPG_KeyGenerator::setSubKeyParams()
      */
     protected $subKeyUsage = Crypt_GPG_SubKey::USAGE_ENCRYPT;
 
-    // }}}
-    // {{{ __construct()
-
     /**
      * Creates a new GnuPG key generator
      *
-     * Available options are:
-     *
-     * - <kbd>string  homedir</kbd>        - the directory where the GPG
-     *                                       keyring files are stored. If not
-     *                                       specified, Crypt_GPG uses the
-     *                                       default of <kbd>~/.gnupg</kbd>.
-     * - <kbd>string  publicKeyring</kbd>  - the file path of the public
-     *                                       keyring. Use this if the public
-     *                                       keyring is not in the homedir, or
-     *                                       if the keyring is in a directory
-     *                                       not writable by the process
-     *                                       invoking GPG (like Apache). Then
-     *                                       you can specify the path to the
-     *                                       keyring with this option
-     *                                       (/foo/bar/pubring.gpg), and specify
-     *                                       a writable directory (like /tmp)
-     *                                       using the <i>homedir</i> option.
-     * - <kbd>string  privateKeyring</kbd> - the file path of the private
-     *                                       keyring. Use this if the private
-     *                                       keyring is not in the homedir, or
-     *                                       if the keyring is in a directory
-     *                                       not writable by the process
-     *                                       invoking GPG (like Apache). Then
-     *                                       you can specify the path to the
-     *                                       keyring with this option
-     *                                       (/foo/bar/secring.gpg), and specify
-     *                                       a writable directory (like /tmp)
-     *                                       using the <i>homedir</i> option.
-     * - <kbd>string  trustDb</kbd>        - the file path of the web-of-trust
-     *                                       database. Use this if the trust
-     *                                       database is not in the homedir, or
-     *                                       if the database is in a directory
-     *                                       not writable by the process
-     *                                       invoking GPG (like Apache). Then
-     *                                       you can specify the path to the
-     *                                       trust database with this option
-     *                                       (/foo/bar/trustdb.gpg), and specify
-     *                                       a writable directory (like /tmp)
-     *                                       using the <i>homedir</i> option.
-     * - <kbd>string  binary</kbd>         - the location of the GPG binary. If
-     *                                       not specified, the driver attempts
-     *                                       to auto-detect the GPG binary
-     *                                       location using a list of known
-     *                                       default locations for the current
-     *                                       operating system. The option
-     *                                       <kbd>gpgBinary</kbd> is a
-     *                                       deprecated alias for this option.
-     * - <kbd>string  agent</kbd>          - the location of the GnuPG agent
-     *                                       binary. The gpg-agent is only
-     *                                       used for GnuPG 2.x. If not
-     *                                       specified, the engine attempts
-     *                                       to auto-detect the gpg-agent
-     *                                       binary location using a list of
-     *                                       know default locations for the
-     *                                       current operating system.
-     * - <kbd>mixed debug</kbd>            - whether or not to use debug mode.
-     *                                       When debug mode is on, all
-     *                                       communication to and from the GPG
-     *                                       subprocess is logged. This can be
-     *
-     * @param array $options optional. An array of options used to create the
-     *                       GPG object. All options are optional and are
-     *                       represented as key-value pairs.
+     * @param array $options An array of options used to create the object.
+     *                       All options are optional and are represented as key-value
+     *                       pairs. See Crypt_GPGAbstract::__construct() for more info.
      *
      * @throws Crypt_GPG_FileException if the <kbd>homedir</kbd> does not exist
      *         and cannot be created. This can happen if <kbd>homedir</kbd> is
@@ -238,34 +169,31 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
      *
      * @throws PEAR_Exception if the provided <kbd>agent</kbd> is invalid, or
      *         if no <kbd>agent</kbd> is provided and no suitable gpg-agent
-     *         cound be found.
+     *         could be found.
      */
-    public function __construct(array $options = array())
+    public function __construct(array $options = [])
     {
         parent::__construct($options);
     }
 
-    // }}}
-    // {{{ setExpirationDate()
-
     /**
      * Sets the expiration date of generated keys
      *
-     * @param string|integer $date either a string that may be parsed by
-     *                             PHP's strtotime() function, or an integer
-     *                             timestamp representing the number of seconds
-     *                             since the UNIX epoch. This date must be at
-     *                             least one date in the future. Keys that
-     *                             expire in the past may not be generated. Use
-     *                             an expiration date of 0 for keys that do not
-     *                             expire.
+     * @param string|int $date Either a string that may be parsed by
+     *                         PHP's strtotime() function, or an integer
+     *                         timestamp representing the number of seconds
+     *                         since the UNIX epoch. This date must be at
+     *                         least one date in the future. Keys that
+     *                         expire in the past may not be generated. Use
+     *                         an expiration date of 0 for keys that do not
+     *                         expire.
      *
-     * @throws InvalidArgumentException if the date is not a valid format, or
+     * @throws InvalidArgumentException If the date is not a valid format, or
      *                                  if the date is not at least one day in
      *                                  the future, or if the date is greater
      *                                  than 2038-01-19T03:14:07.
      *
-     * @return Crypt_GPG_KeyGenerator the current object, for fluent interface.
+     * @return Crypt_GPG_KeyGenerator The current object, for fluent interface.
      */
     public function setExpirationDate($date)
     {
@@ -303,9 +231,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ setPassphrase()
-
     /**
      * Sets the passphrase of generated keys
      *
@@ -320,28 +245,25 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ setKeyParams()
-
     /**
      * Sets the parameters for the primary key of generated key-pairs
      *
-     * @param integer $algorithm the algorithm used by the key. This should be
-     *                           one of the Crypt_GPG_SubKey::ALGORITHM_*
-     *                           constants.
-     * @param integer $size      optional. The size of the key. Different
-     *                           algorithms have different size requirements.
-     *                           If not specified, the default size for the
-     *                           specified algorithm will be used. If an
-     *                           invalid key size is used, GnuPG will do its
-     *                           best to round it to a valid size.
-     * @param integer $usage     optional. A bitwise combination of key usages.
-     *                           If not specified, the primary key will be used
-     *                           only to sign and certify. This is the default
-     *                           behavior of GnuPG in interactive mode. Use
-     *                           the Crypt_GPG_SubKey::USAGE_* constants here.
-     *                           The primary key may be used to certify even
-     *                           if the certify usage is not specified.
+     * @param int $algorithm the algorithm used by the key. This should be
+     *                       one of the Crypt_GPG_SubKey::ALGORITHM_*
+     *                       constants.
+     * @param int $size      optional. The size of the key. Different
+     *                       algorithms have different size requirements.
+     *                       If not specified, the default size for the
+     *                       specified algorithm will be used. If an
+     *                       invalid key size is used, GnuPG will do its
+     *                       best to round it to a valid size.
+     * @param int $usage     optional. A bitwise combination of key usages.
+     *                       If not specified, the primary key will be used
+     *                       only to sign and certify. This is the default
+     *                       behavior of GnuPG in interactive mode. Use
+     *                       the Crypt_GPG_SubKey::USAGE_* constants here.
+     *                       The primary key may be used to certify even
+     *                       if the certify usage is not specified.
      *
      * @return Crypt_GPG_KeyGenerator the current object, for fluent interface.
      */
@@ -397,30 +319,27 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ setSubKeyParams()
-
     /**
      * Sets the parameters for the sub-key of generated key-pairs
      *
-     * @param integer $algorithm the algorithm used by the key. This should be
-     *                           one of the Crypt_GPG_SubKey::ALGORITHM_*
-     *                           constants.
-     * @param integer $size      optional. The size of the key. Different
-     *                           algorithms have different size requirements.
-     *                           If not specified, the default size for the
-     *                           specified algorithm will be used. If an
-     *                           invalid key size is used, GnuPG will do its
-     *                           best to round it to a valid size.
-     * @param integer $usage     optional. A bitwise combination of key usages.
-     *                           If not specified, the sub-key will be used
-     *                           only to encrypt. This is the default behavior
-     *                           of GnuPG in interactive mode. Use the
-     *                           Crypt_GPG_SubKey::USAGE_* constants here.
+     * @param int $algorithm The algorithm used by the key. This should be
+     *                       one of the Crypt_GPG_SubKey::ALGORITHM_*
+     *                       constants.
+     * @param int $size      Optional size of the key. Different
+     *                       algorithms have different size requirements.
+     *                       If not specified, the default size for the
+     *                       specified algorithm will be used. If an
+     *                       invalid key size is used, GnuPG will do its
+     *                       best to round it to a valid size.
+     * @param int $usage     Optional bitwise combination of key usages.
+     *                       If not specified, the sub-key will be used
+     *                       only to encrypt. This is the default behavior
+     *                       of GnuPG in interactive mode. Use the
+     *                       Crypt_GPG_SubKey::USAGE_* constants here.
      *
-     * @return Crypt_GPG_KeyGenerator the current object, for fluent interface.
+     * @return Crypt_GPG_KeyGenerator The current object, for fluent interface.
      */
-    public function setSubKeyParams($algorithm, $size = '', $usage = 0)
+    public function setSubKeyParams($algorithm, $size = 0, $usage = 0)
     {
         $algorithm = intval($algorithm);
 
@@ -477,9 +396,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $this;
     }
 
-    // }}}
-    // {{{ generateKey()
-
     /**
      * Generates a new key-pair in the current keyring
      *
@@ -518,16 +434,15 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 
         $userId = $this->getUserId($name, $email, $comment);
 
-        $keyParams = array(
+        $keyParams = [
             'Key-Type'      => $this->keyAlgorithm,
             'Key-Length'    => $this->keySize,
             'Key-Usage'     => $this->getUsage($this->keyUsage),
             'Subkey-Type'   => $this->subKeyAlgorithm,
             'Subkey-Length' => $this->subKeySize,
             'Subkey-Usage'  => $this->getUsage($this->subKeyUsage),
-            'Name-Real'     => $userId->getName(),
             'Handle'        => $handle,
-        );
+        ];
 
         if ($this->expirationDate != 0) {
             // GnuPG only accepts granularity of days
@@ -539,15 +454,23 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
             $keyParams['Passphrase'] = $this->passphrase;
         }
 
-        if ($userId->getEmail() != '') {
-            $keyParams['Name-Email'] = $userId->getEmail();
+        $name    = $userId->getName();
+        $email   = $userId->getEmail();
+        $comment = $userId->getComment();
+
+        if (strlen($name) > 0) {
+            $keyParams['Name-Real'] = $name;
         }
 
-        if ($userId->getComment() != '') {
-            $keyParams['Name-Comment'] = $userId->getComment();
+        if (strlen($email) > 0) {
+            $keyParams['Name-Email'] = $email;
         }
 
-        $keyParamsFormatted = array();
+        if (strlen($comment) > 0) {
+            $keyParams['Name-Comment'] = $comment;
+        }
+
+        $keyParamsFormatted = [];
         foreach ($keyParams as $name => $value) {
             $keyParamsFormatted[] = $name . ': ' . $value;
         }
@@ -563,7 +486,7 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         $this->engine->setProcessData('Handle', $handle);
         $this->engine->setInput($input);
         $this->engine->setOutput($output);
-        $this->engine->setOperation('--gen-key', array('--batch'));
+        $this->engine->setOperation('--gen-key', ['--batch']);
 
         try {
             $this->engine->run();
@@ -605,9 +528,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
         return $keys[0];
     }
 
-    // }}}
-    // {{{ getUsage()
-
     /**
      * Builds a GnuPG key usage string suitable for key generation
      *
@@ -615,26 +535,26 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
      * {@link http://www.gnupg.org/download/ GPG distribution} for detailed
      * information on the key usage format.
      *
-     * @param integer $usage a bitwise combination of the key usages. This is
-     *                       a combination of the Crypt_GPG_SubKey::USAGE_*
-     *                       constants.
+     * @param int $usage A bitwise combination of the key usages. This is
+     *                   a combination of the Crypt_GPG_SubKey::USAGE_*
+     *                   constants.
      *
-     * @return string the key usage string.
+     * @return string The key usage string.
      */
     protected function getUsage($usage)
     {
-        $map = array(
+        $map = [
             Crypt_GPG_SubKey::USAGE_ENCRYPT        => 'encrypt',
             Crypt_GPG_SubKey::USAGE_SIGN           => 'sign',
             Crypt_GPG_SubKey::USAGE_CERTIFY        => 'cert',
             Crypt_GPG_SubKey::USAGE_AUTHENTICATION => 'auth',
-        );
+        ];
 
         // cert is always used for primary keys and does not need to be
         // specified
         $usage &= ~Crypt_GPG_SubKey::USAGE_CERTIFY;
 
-        $usageArray = array();
+        $usageArray = [];
 
         foreach ($map as $key => $value) {
             if (($usage & $key) === $key) {
@@ -644,9 +564,6 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 
         return implode(',', $usageArray);
     }
-
-    // }}}
-    // {{{ getUserId()
 
     /**
      * Gets a user id object from parameters
@@ -674,10 +591,4 @@ class Crypt_GPG_KeyGenerator extends Crypt_GPGAbstract
 
         return $userId;
     }
-
-    // }}}
 }
-
-// }}}
-
-?>

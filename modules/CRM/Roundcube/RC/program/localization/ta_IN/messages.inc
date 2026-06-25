@@ -2,19 +2,16 @@
 
 /*
  +-----------------------------------------------------------------------+
- | localization/<lang>/messages.inc                                      |
- |                                                                       |
  | Localization file of the Roundcube Webmail client                     |
- | Copyright (C) 2005-2015, The Roundcube Dev Team                       |
+ |                                                                       |
+ | Copyright (C) The Roundcube Dev Team                                  |
  |                                                                       |
  | Licensed under the GNU General Public License version 3 or            |
  | any later version with exceptions for skins & plugins.                |
  | See the README file for a full license statement.                     |
- |                                                                       |
  +-----------------------------------------------------------------------+
-
- For translation see https://www.transifex.com/projects/p/roundcube-webmail/resource/messages/
 */
+
 $messages['errortitle']  = 'பிழை ஏற்பட்டது!';
 $messages['loginfailed']  = 'நுழைவு தோல்வியடைந்தது';
 $messages['cookiesdisabled'] = 'உங்கள் உலாவி நினைவிகளை அனுமதிப்பதில்லை';
@@ -24,7 +21,6 @@ $messages['servererror'] = 'சேவையக பிழை!';
 $messages['servererrormsg'] = 'சேவையக பிழை: $msg';
 $messages['invalidrequest'] = 'செல்லாத வேண்டுகோள்! எந்த தரவும் சேமிக்கப்படவில்லை.';
 $messages['nomessagesfound'] = 'இந்த தபால் பெட்டியில் எந்த தரவும் சேமிக்கப்படவில்லை';
-$messages['loggedout'] = 'நீங்கள் அமர்வை வெற்றிகரமாக முடித்தீர்கள். வணக்கம்';
 $messages['mailboxempty'] = 'தபால் பெட்டி காலியாக உள்ளது';
 $messages['loading'] = 'ஏற்றுகிறது...';
 $messages['uploading'] = 'கோப்பை ஏற்றுகிறது...';
@@ -58,8 +54,6 @@ $messages['nopagesizewarning'] = 'தயவு செய்து தாழி�
 $messages['norecipientwarning'] = 'தயவு செய்து ஒரு பெறுனரையாவது எழுதுங்கள்';
 $messages['nosubjectwarning']  = 'தலைப்பு காலியாக உள்ளது. இப்போது எழுத விரும்புகிறீர்களா?';
 $messages['nobodywarning'] = 'உரையில்லாமல் இந்த செய்தியை அனுப்ப வேண்டுமா?';
-$messages['notsentwarning'] = 'செய்தி அனுப்பப்படவில்லை. உங்கள் செய்தியை நிராகரிக்க விரும்புகிறீர்களா?';
-$messages['noldapserver'] = 'தயவு செய்து தேடுவதற்கு Idap சேவையகத்தை தேர்ந்தெடுங்கள்';
 $messages['nosearchname'] = 'தயவு செய்து தொடர்பின் பெயரோ மின்னஞ்சல் முகவரியோ எழுதுங்கள்';
 $messages['notuploadedwarning'] = 'எல்லா இணைப்புகளும் ஏற்றப்படவில்லை. தயவு செய்து காத்திருங்கள் அல்லது ஏற்றத்தை ரத்து செய்யுங்கள்.';
 $messages['searchsuccessful'] = '$nr செய்திகள் கண்டுபிடிக்கப்பட்டது';
