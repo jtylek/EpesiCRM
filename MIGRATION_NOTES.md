@@ -1067,8 +1067,30 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - `rc_session.changed` renamed to `rc_session.expires_at` (2025092300 migration).
 - Schema version updated to `2025092300` in `rc_system`.
 
-### Test status
-- Browser test pending (Karina to test — open Email in CRM menu and verify UI loads).
+### Post-upgrade fixes required (found during browser testing)
+
+**epesi_init chdir path** (`RC/plugins/epesi_init/epesi_init.php`):
+- Old `chdir('../../../../')` assumed cwd = RC root. In 1.7.1 entry point is `public_html/`, so cwd = `RC/public_html/` — chdir landed in `modules/` not Epesi root.
+- Fix: `chdir(dirname(__DIR__, 6))` — absolute, derived from `__FILE__`.
+
+**epesi addressbook PHP 8 incompatible signatures** (`epesi_contacts/companies_addressbook_backend.php`):
+- RC 1.7.1 added `: void` to `rcube_addressbook::set_search_set()` and `reset()`.
+- PHP 8 fatal on every autocomplete/addressbook request (composing email triggered it).
+- Fix: added `: void` to both methods in both backends.
+
+**IMAP SSL certificate hostname mismatch** (`RC/config/config.inc.php`):
+- Hosting uses shared cert (`dade1.hostypanel.com`) but IMAP host is `mail.mrf.epesi.cloud`.
+- PHP 8 separated `verify_peer` and `verify_peer_name`; old config only had `verify_peer => false`.
+- Fix: added `'verify_peer_name' => false` to both `imap_conn_options` and `smtp_conn_options`.
+
+**Session cron query** (`RoundcubeCommon_0.php`):
+- `DELETE FROM rc_session WHERE changed < ...` — column renamed to `expires_at` in 2025092300 migration.
+- Fix: updated column name.
+
+### Test status — DONE
+- Email UI opens, IMAP connects (SSL), inbox loads.
+- Compose + send to `test@mrf.epesi.cloud` confirmed working.
+- Address book autocomplete works (no more server error on To: field).
 
 ---
 
