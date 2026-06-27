@@ -696,6 +696,13 @@ User będzie testować na innych maszynach po doprowadzeniu tej do działania.
 
 > **ROOT CAUSE ZIDENTYFIKOWANY I ZWERYFIKOWANY — patrz §36.** To jest objaw zmiany semantyki `static`
 > w dziedziczonej metodzie `ModuleCommon::Instance()` na PHP 8.x. Fix zweryfikowany empirycznie.
+>
+> **WĄSKI FIX-TWICE ZASTOSOWANY** (gałąź `experiment/filestorage-prefix-fix`): `get_storage_file_path()`
+> liczy teraz ścieżkę deterministycznie przez `DATA_DIR.'/'.self::module_name().'/'` zamiast
+> `self::Instance()->get_data_dir()`. To odblokowuje §20 bez ruszania serca frameworka. Gdy wejdzie
+> root fix §36, ten workaround (i `__DIR__` z §33) należy cofnąć do idiomu `Instance()` — patrz komentarz
+> FIX-TWICE w kodzie. Pozostałe 7 min (EpesiStore, Theme, Fax, Print, Attachment, MainModuleIndicator)
+> NIE tknięte — uśpione do czasu root fixu.
 
 OBJAW: zapisany załącznik (notatka kontaktu) → view/download rzuca
 "file not found: data/CRM_Roundcube/<hash-split>". Plik FIZYCZNIE istnieje, ale w
