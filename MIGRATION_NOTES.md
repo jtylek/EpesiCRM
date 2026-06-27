@@ -1291,6 +1291,16 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 42. FIXED — Add note to Task: empty crits_callback segment → `array('')` breaks Crits
+
+- **Symptom:** Task → Add note → `E_USER_ERROR: Invalid criteria in build query: missing word. Crits: Array([0] => '')` (`Crits.php:670`), via the "Attached to" recordpicker.
+- **Cause:** The `utils_attachment.attached_to` field param is the string `__RECORDSETS__::;`. `decode_select_param()` does `explode(';', …)` → `$param[1] = ''` (empty crits_callback segment). The guard `isset($param[1]) && $param[1] != '::'` lets the empty string through, so `explode('::', '')` returns `array('')` — an empty crit "word". Passed as `$param['crits_callback'] ?: $tab_crits` to the recordpicker → `Utils_RecordBrowser_Crits::build_from_array(array(''))` → "missing word".
+- **Pre-existing, not the Instance work:** verified the identical error on `experiment/composer-deps` without the §36 branch — independent of the Instance fix. `decode_select_param` is vanilla-identical; the newer Crits-object system rejects the empty crit more strictly than the old array-crits path did.
+- **Fix:** Treat an empty segment like the `'::'` case → `null` (no callback). Added `$param[1] !== ''` (and same for `$param[2]`) to the guard in `decode_select_param`. Downstream already handles `null` crits_callback (the `'::'` path always produced `null`).
+- **File:** `modules/Utils/RecordBrowser/RecordBrowserCommon_0.php` — `decode_select_param()`.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
