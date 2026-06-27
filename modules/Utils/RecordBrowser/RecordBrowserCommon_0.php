@@ -382,8 +382,11 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	
     	$param = explode(';', $param);
     	$reference = explode('::', $param[0]);
-    	$crits_callback = isset($param[1]) && $param[1] != '::' ? explode('::', $param[1]): null;
-    	$adv_params_callback = isset($param[2]) && $param[2] != '::' ? explode('::', $param[2]): null;
+    	// §42: an empty segment (e.g. param "__RECORDSETS__::;") must mean "no callback" => null.
+    	// Without the '' guard, explode('::', '') yields array('') — an empty crit word that
+    	// later trips Crits::build_from_array ("missing word"). Treat '' like the '::' case.
+    	$crits_callback = isset($param[1]) && $param[1] !== '' && $param[1] != '::' ? explode('::', $param[1]): null;
+    	$adv_params_callback = isset($param[2]) && $param[2] !== '' && $param[2] != '::' ? explode('::', $param[2]): null;
     	
     	//in case RB records select
     	$select_tab = $reference[0];
