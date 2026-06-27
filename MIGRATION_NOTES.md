@@ -1263,12 +1263,13 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 - Calendar/Agenda — tested, no fatals
 - Filters/search (critsvalue) — tested across modules, no fatals
 - Password recovery — mail-failure now reported instead of silent success (§34)
+- Filestorage view/download/get-link — fixed via §20 narrow fix (deterministic path, fix-twice for §36)
 - Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 
 ### 🔲 Must do before merge
-- [ ] **Administrator** — untested
+- [ ] **Administrator — PARTIAL** (RESUME HERE). Tested OK: Access restriction (§35 fix), Files (§20 fix; Mail option §37a fixed, §37b dormant bug FOR JASIEK). Still untested: user/clearance management, other admin sections.
+- [ ] **§36 Instance() root fix (Jasiek)** — PHP 8.x static-in-inherited-method broke `ModuleCommon::Instance()`; verified fix ready, to be applied + re-tested on a separate review branch. Root cause of §20 + §33. §20 currently has a narrow fix-twice patch in place.
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
-- [ ] **§20 storage prefix bug (Jasiek)** — file view/download broken due to mutable Instance() singleton; decision on fix needed.
 
 ### 🔲 Can merge with open ticket (non-fatal)
 - [ ] §26 timestamp field layout — cosmetic, PhoneCall/Meeting date+time display
