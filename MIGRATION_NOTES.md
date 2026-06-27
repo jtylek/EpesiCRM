@@ -1280,6 +1280,16 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 41. FIXED — RSS/Weather applet: set_error_handler callback 5th arg removed in PHP 8
+
+- **Symptom:** Dashboard with Weather/RssFeed applet → when a feed can't be fetched → `Uncaught ArgumentCountError: Too few arguments to function handle_rss_error(), 4 passed and exactly 5 expected` (`Applets/Weather/refresh.php:22`, same in `Applets/RssFeed/refresh.php`).
+- **Cause:** `handle_rss_error($type, $message, $errfile, $errline, $errcontext): never` is registered via `set_error_handler()`. PHP 8.0 **removed the 5th `$errcontext`** argument passed to error-handler callbacks, so PHP calls it with 4 args; the required 5th param → `ArgumentCountError`. Result: instead of the intended graceful `die('Error getting RSS')`, the applet fatals on any feed error.
+- **Fix:** Made the 5th param optional — `$errcontext=null` — in both `Applets/Weather/refresh.php` and `Applets/RssFeed/refresh.php`.
+- **Verified:** applet now degrades gracefully to "Error getting RSS" (feeds don't load on this offline localhost — a network limitation, not a code issue).
+- **Pattern:** any `set_error_handler` callback declared with a required 5th `$errcontext` param breaks on PHP 8 — make it optional or drop it.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

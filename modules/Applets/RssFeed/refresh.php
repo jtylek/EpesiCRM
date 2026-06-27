@@ -19,7 +19,7 @@ ModuleManager::load_modules();
 
 require_once("rsslib.php");
 
-function handle_rss_error($type, $message,$errfile,$errline,$errcontext): never {
+function handle_rss_error($type, $message,$errfile,$errline,$errcontext=null): never {
 	die(__('Error getting RSS: %s',array($message)));
 }
 set_error_handler(handle_rss_error(...));
