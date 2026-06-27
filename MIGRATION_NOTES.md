@@ -1294,13 +1294,14 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 - Password recovery — mail-failure now reported instead of silent success (§34)
 - Filestorage view/download/get-link — fixed via §20 narrow fix (deterministic path, fix-twice for §36)
 - Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
+- Administrator — tested OK: Access restriction (§35), Files (§20; Mail §37a), Common data (§38), RecordBrowser add-field (§39) + Permissions edit (§40) + custom recordset (RAD) create, Currencies, Language & translations. Modules Administration & Store deferred (see below).
 
 ### 🔲 Must do before merge
-- [ ] **Administrator — PARTIAL** (RESUME HERE). Tested OK: Access restriction (§35 fix), Files (§20 fix; Mail option §37a fixed, §37b dormant bug FOR JASIEK). Still untested: user/clearance management, other admin sections.
 - [ ] **§36 Instance() root fix (Jasiek)** — PHP 8.x static-in-inherited-method broke `ModuleCommon::Instance()`; verified fix ready, to be applied + re-tested on a separate review branch. Root cause of §20 + §33. §20 currently has a narrow fix-twice patch in place.
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
 
 ### 🔲 Can merge with open ticket (non-fatal)
+- [ ] **Modules Administration & Store** — page opens, but lots to fix; **deferred to the future** (it's effectively a separate application / Telaxus store integration, related to §32/§33 EssClient). Not a migration blocker — decision by Karina 2026-06-27.
 - [ ] §26 timestamp field layout — cosmetic, PhoneCall/Meeting date+time display
 - [ ] §21.1 off-by-one attachment link — cosmetic
 - [ ] §21.3 loader/spinner JS — cosmetic
