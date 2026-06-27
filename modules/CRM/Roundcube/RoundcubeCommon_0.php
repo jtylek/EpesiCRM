@@ -62,7 +62,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     }
 
     public static function mail_file_field($backref) {
-        $url = CRM_RoundCube_RemoteAttachment::getInstance()->callCreateRemote($backref);
+        $url = CRM_Roundcube_RemoteAttachment::getInstance()->callCreateRemote($backref);
         Base_BoxCommon::push_module(CRM_Roundcube::module_name(),'new_mail',array('',__('File attachment, expires on: %s',array(Base_RegionalSettingsCommon::time2reg('+7 days'))),"<br /><br />".$url));
     }
 

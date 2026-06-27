@@ -2,7 +2,7 @@
 
 use Symfony\Component\HttpFoundation\Request;
 
-class CRM_RoundCube_RemoteAttachment extends Utils_FileStorage_ActionHandler
+class CRM_Roundcube_RemoteAttachment extends Utils_FileStorage_ActionHandler
 {
     private static $instance = null;
 
@@ -15,7 +15,7 @@ class CRM_RoundCube_RemoteAttachment extends Utils_FileStorage_ActionHandler
     {
         if (self::$instance == null)
         {
-            self::$instance = new CRM_RoundCube_RemoteAttachment();
+            self::$instance = new CRM_Roundcube_RemoteAttachment();
         }
 
         return self::$instance;

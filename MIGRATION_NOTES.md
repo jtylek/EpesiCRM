@@ -1231,6 +1231,26 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 37. FIXED — "Mail" file option: class name casing broke PSR-0 autoload (+ FOR JASIEK: dormant remote-attach id bug)
+
+### 37a. FIXED — `Class "CRM_RoundCube_RemoteAttachment" not found`
+
+- **Symptom:** File leightbox → "Mail" option → `Class "CRM_RoundCube_RemoteAttachment" not found` (`RoundcubeCommon_0.php:65`).
+- **Cause:** The class is named `CRM_Round**C**ube_RemoteAttachment` (capital C), but the module/dir is `CRM/Roundcube` (lowercase c), and all other module classes are `CRM_Roundcube*`. composer's PSR-0 autoload (`"": "modules/"`) maps the class name to a path by `_`→`/`, i.e. `modules/CRM/RoundCube/RemoteAttachment.php`. On a case-sensitive FS (Linux) that ≠ the real `modules/CRM/Roundcube/RemoteAttachment.php` → file not found → class not loaded. (The Epesi autoloader only handles `*Common`/`*Install`/registered modules, so it never loaded this helper either.)
+- **Fix:** Renamed the class `CRM_RoundCube_RemoteAttachment` → `CRM_Roundcube_RemoteAttachment` in 3 spots (`RemoteAttachment.php:5`, `:18`, `RoundcubeCommon_0.php:65`). PSR-0 now resolves it; the base `Utils_FileStorage_ActionHandler` already has correct casing and autoloads fine.
+- **Note:** This feature was effectively **dormant in vanilla 1.9.1** — without composer PSR-0 the class could never autoload, so "Mail" would have thrown class-not-found there too. We revived it (PSR-0 + casing fix).
+
+### 37b. FOR JASIEK — dormant remote-attach passes wrong id (RB record id vs filestorage id)
+
+- **Symptom (after 37a):** "Mail" now composes a message with a remote link `remote.php?id=0&token=...`; opening it → "File has expired".
+- **Cause:** `mail_file_field($backref)` (`RoundcubeCommon_0.php`) → `callCreateRemote("rb:utils_attachment/14/6")` parses tab/id/field and the base `createRemote` (`ActionHandler.php:188`) inserts `file_id = $params['id']` = **14** — the **RecordBrowser record id**, NOT a `utils_filestorage.id` (max 7 here). `utils_filestorage_remote.file_id` has a **FOREIGN KEY** → `utils_filestorage(id)`, so the INSERT violates the FK and silently fails (`DB::Execute` return value is not checked). `DB::Insert_ID()` then returns **0** → URL `id=0` → `remote.php` finds no row → `strtotime(null) < time()` → "File has expired".
+- **Contrast:** the "Get link" option works because it passes the real filestorage id (`$meta['id']` = 7) via `getActionUrls`. The remote rows that exist (file_id=7) all came from "Get link".
+- **Not a PHP 8 regression:** code is vanilla-identical (only our rename). This is a pre-existing logic bug in a feature that never ran in vanilla. Touches RB↔FileStorage id mapping (data model) → author's call.
+- **Candidate direction (NOT applied):** the Mail path should resolve to a real `utils_filestorage.id` before `createRemote` — e.g. use `$meta['id']` (available at the `FileLeightbox.php:75` call site) instead of re-deriving from the RB backref, or have `createRemote` map backref→filestorage id. Also `createRemote` should check the `DB::Execute` return and not build a URL on a failed INSERT.
+- **Priority:** low — dormant feature, not a migration blocker.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
