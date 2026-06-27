@@ -52,8 +52,8 @@ class Base_Acl extends Module {
 				array('value'=>_V($p_name), 'class'=>'Base_Acl__permission', 'attrs'=>'colspan="2"')
 			);
 			$gb_row->no_actions();
-			$perms = DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d', array($p_id));
-			foreach ($perms as $r_id) {
+			$rule_ids = DB::GetCol('SELECT id FROM base_acl_rules WHERE permission_id=%d', array($p_id));
+			foreach ($rule_ids as $r_id) {
 				$clearances = DB::GetAssoc('SELECT id, clearance FROM base_acl_rules_clearance WHERE rule_id=%d', array($r_id));
 
 				$gb_row = $gb->get_new_row();

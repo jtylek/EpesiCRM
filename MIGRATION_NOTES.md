@@ -1148,6 +1148,18 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 35. FIXED — Administrator → Access restriction: rule clearances render blank
+
+- **Symptom:** In Administrator → Access restriction, every rule row appeared empty — only permission titles (e.g. "Calendar", "Dashboard - manage applets") showed, with no clearance text ("Admin", "Superadmin") underneath. Affected ALL rules, including install defaults — not just newly added ones. Rendered HTML showed `<span class="Base_Acl__permissions_clearance"></span>` (empty).
+- **Diagnosis (via temporary error_log):** `display_clearances()` received an **empty** `$clearances` array, while `get_clearance(true)` returned the correct full map. The rule-id lookup one level up was returning `null` values.
+- **Root cause:** `Acl_0.php:55` ran `DB::GetAssoc('SELECT id, id FROM base_acl_rules WHERE permission_id=%d')` — selecting the `id` column **twice**. `GetAssoc` builds `key => value` from the two columns. On PHP 7.4 + old ADOdb (numeric fetch) both `$row[0]` and `$row[1]` resolved to the id, yielding `[id => id]`. On PHP 8 + current ADOdb (mysqli associative fetch) two columns with the same name `id` **collapse** into a single key — the second becomes `null` — yielding `[id => null]`. The code then did `foreach ($perms as $r_id)`, iterating the **values** (all `null`), so the clearance query ran `WHERE rule_id=null` → empty → blank rows.
+- **Fix:** Replaced with `DB::GetCol('SELECT id FROM base_acl_rules WHERE permission_id=%d')` — returns a flat list of ids `[3, 14]`, so `$r_id` is the real rule id. Also renamed the local var to `$rule_ids` (the old code reused `$perms`, clobbering the outer loop variable — harmless due to PHP foreach-copy semantics, but now cleaner).
+- **File:** `modules/Base/Acl/Acl_0.php` — `edit_permissions()`, 2 lines.
+- **Important:** Only the **display** was broken. Rules were always saved and enforced correctly (`base_acl_rules` + `base_acl_rules_clearance` were intact). Verified: no other `SELECT col, col` + `GetAssoc` duplicate-column pattern exists in `modules/`.
+- **Pattern for the relic table:** `SELECT col, col` + `GetAssoc` → `null` values on PHP 8 mysqli; use `GetCol` when you only need a flat list of one column.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
@@ -1158,11 +1170,12 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - Meeting — full CRUD tested, no fatals
 - User Settings — tested, no fatals
 - Calendar/Agenda — tested, no fatals
+- Filters/search (critsvalue) — tested across modules, no fatals
+- Password recovery — mail-failure now reported instead of silent success (§34)
 - Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 
 ### 🔲 Must do before merge
 - [ ] **Administrator** — untested
-- [ ] **Filters/search (critsvalue)** — untested across modules
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
 - [ ] **§20 storage prefix bug (Jasiek)** — file view/download broken due to mutable Instance() singleton; decision on fix needed.
 
