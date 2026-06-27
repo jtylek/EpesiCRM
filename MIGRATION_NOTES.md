@@ -1261,6 +1261,15 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 39. FIXED — RecordBrowser add field: exportValue on not-yet-added element
+
+- **Symptom:** Administrator → RecordBrowser → any recordset (e.g. Companies) → Add new field → `HTML_QuickForm_Error: nonexistent html element: Element 'select_data_type' does not exist` (`QuickForm.php:1576`, via `RecordBrowser_0.php:1991`).
+- **Cause:** In `view_field()` the "add" branch calls `$form->exportValue('select_data_type')` at line 1991, but that element is only added later (~line 2000). openpsa QuickForm's `exportValue()` **throws** when the element isn't registered; PEAR returned null silently. Code is vanilla-identical — pure PEAR→openpsa behavior difference. The variable `$selected_data` is in fact **dead** (assigned at 1987/1991, never read).
+- **Fix:** Guarded the export with `elementExists()`: `$selected_data = $form->elementExists('select_data_type') ? $form->exportValue('select_data_type') : null;`. On the add path the element isn't registered yet → `null`, matching the old PEAR behavior. (`elementExists` is proxied to openpsa via `Libs_QuickForm::__call`.)
+- **Pattern (openpsa vs PEAR, same family as §32):** openpsa throws on nonexistent-element access (`exportValue`, `addRule`, etc.) where PEAR was silent — guard with `elementExists()` / add the element first.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

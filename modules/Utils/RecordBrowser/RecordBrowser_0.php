@@ -1988,7 +1988,9 @@ class Utils_RecordBrowser extends Module {
 			$this->admin_field_type = $row['select_data_type'];
 			$this->admin_field = $row;
         } else {
-            $selected_data = $form->exportValue('select_data_type');
+            // openpsa QuickForm throws on a nonexistent element (PEAR returned null);
+            // 'select_data_type' is added below (~line 2000), so guard the export.
+            $selected_data = $form->elementExists('select_data_type') ? $form->exportValue('select_data_type') : null;
             $form->setDefaults(array('visible'=>1,
                 'autonumber_prefix'=>'#',
                 'autonumber_pad_length'=>'6',
