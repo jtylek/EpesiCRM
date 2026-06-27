@@ -1227,6 +1227,7 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 - This touches the **heart of the framework** (`Instance()` is used everywhere) → author's call to apply.
 - **Plan agreed with Karina:** document now (this section); apply + test on a **separate review branch** (revertable), NOT on `experiment/composer-deps` directly, then full module re-test before any merge.
+- **STATUS 2026-06-28:** root fix APPLIED on branch `experiment/instance-singleton-fix` (`module_common.php` — per-class keying via `static::class`). This is a PROPOSAL for Jasiek, NOT merged. Testing in two steps: (1) re-test Core with §20/§33 workarounds still in place → confirm the Instance change introduces no regressions; (2) revert the §20 narrow fix + §33 `__DIR__` workaround → confirm the root fix alone covers them.
 - **Data caveat:** on a clean production 7.4→8.2 migration, files are already correctly in `data/Utils_FileStorage/`, so the code fix alone is enough. On THIS test instance, files written while the bug was live got scattered to `data/CRM_Tasks/` etc. — those would need a one-time move into `data/Utils_FileStorage/` (separate data step, handle with care).
 
 ---
