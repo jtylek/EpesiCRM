@@ -95,6 +95,12 @@ class Libs_QuickForm extends Module {
 					$qb = $qbi->get_builder_module($this, $default_crits);
 					$qb->add_to_form($this, $args[1], $args[2]);
 				}
+				// 'crits' is NOT a registered QF element type — the QueryBuilder integration
+				// above already adds the real 'critsvalue' element to this form. Do not forward
+				// the raw 'crits' addElement to openpsa QuickForm: it throws on unregistered
+				// types (PEAR returned a silently-ignored PEAR_Error). See §40.
+				$return = null;
+				return $return;
 			}
 		}
 		if (is_object($this->qf)) {

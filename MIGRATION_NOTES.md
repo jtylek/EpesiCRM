@@ -1270,6 +1270,16 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 40. FIXED — RecordBrowser Permissions edit: addElement('crits') on unregistered type
+
+- **Symptom:** Administrator → RecordBrowser → any recordset → Permissions → Edit rule → `HTML_QuickForm_Error: unregistered element: Element 'crits' does not exist` (`QuickForm.php:476`, via `RecordBrowser_0.php:2976` `addElement('crits', ...)`).
+- **Cause:** `'crits'` is **not** a registered QF element type — only `'critsvalue'` is (eager list `epesi.php:290`, and `QueryBuilder_0.php:167`). `Libs_QuickForm::__call` intercepts `addElement('crits', name, label, tab, crits)` and runs the QueryBuilder integration (`add_to_form` → `init_form` → `addElement('critsvalue', name, ...)`), which adds the REAL element. But `__call` then **still forwarded** the raw `addElement('crits', ...)` to the underlying QuickForm (line 100-102). openpsa throws on the unregistered `'crits'` type; PEAR returned a silently-ignored `PEAR_Error`, so the redundant forward was harmless there.
+- **Fix:** In `QuickForm_0.php::__call`, after the `type=='crits'` integration block, `return` early so the raw `'crits'` addElement is not forwarded to openpsa. The real `'critsvalue'` element was already added by the integration. (`$selected`/return value of `addElement('crits',…)` is unused by callers.)
+- **Scope:** affects every `addElement('crits', …)` caller — RecordBrowser Permissions form (`:2976`), `add_array` crits case (`QuickForm_0.php:241`), Tasks `crits` field. The filters/search path tested earlier uses `'critsvalue'` directly, so it was unaffected.
+- **Pattern (openpsa vs PEAR):** openpsa throws on `addElement` of an unregistered type where PEAR returned an ignored `PEAR_Error`. Where a wrapper adds the real element via a side path and then redundantly forwards the pseudo-type, stop forwarding it.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
