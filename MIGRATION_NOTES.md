@@ -722,6 +722,15 @@ Instance('Utils_FileStorage') albo stała ścieżka data/Utils_FileStorage/), za
 NIE RUSZAMY (dane użytkownika, integralność). Pliki są bezpieczne (w data/CRM_Tasks/), tylko odczyt
 patrzy w zły prefiks.
 
+KOLEJNY OBJAW (2026-06-27): ten sam bug widać też w **Administrator → Files**. Lista plików renderowana
+przez Utils_FileStorageCommon::get_file_label() → file_exists() zwraca false (zły prefiks) → link
+dostaje pusty href, tylko tooltip "Missing file: <hash>" (FileStorageCommon_0.php:76-80). Stąd objaw
+zgłoszony przez użytkownika: link nieklikalny (kursor-tekst zamiast rączki), dymek "missing: <długi hash>".
+Potwierdzone na dysku read-only: pliki hash-split leżą w data/CRM_Tasks/, data/CRM_Mail/,
+data/CRM_Roundcube/ — NIE w data/Utils_FileStorage/. Ten sam hash (d/5/0/2/5/babea2dd...) występuje
+jednocześnie w CRM_Tasks/ i CRM_Mail/ — potwierdza, że prefiks zależy od ostatniego Instance().
+To NIE osobny bug — to ten sam §20. Nieklikalny link to objaw, nie przyczyna.
+
 ---
 
 ## 21. Znaleziska do śledzenia (niefatalne / odłożone)
