@@ -1251,6 +1251,16 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 38. FIXED — Common data edit: first-class callable rejected by QuickForm rule (Rector over-applied)
+
+- **Symptom:** Administrator → Common data → e.g. Contacts_Groups → add/edit node → `E_USER_ERROR: Invalid parameter specified for rule definition for field akey` (`QuickForm_0.php:261`).
+- **Cause:** Rector converted the QuickForm callback-rule funcs in `CommonData_0.php` from array callables `array($this,'check_key')` to **first-class callables** `$this->check_key(...)` (PHP 8.1 syntax → `Closure`). But `Libs_QuickForm::add_array()` only recognizes `is_string()` or `is_array()` for a rule's `func` (QuickForm_0.php:256-261); a `Closure` falls through to the `else` → `trigger_error`.
+- **Fix:** Reverted the two funcs back to array callables `array($this,'check_key')` / `array($this,'check_key2')` — the form the `is_array($r['func'])` branch handles and what vanilla used.
+- **Scope:** verified this is the ONLY first-class-callable in a QuickForm rule `func` (grep). The 6 similar `$this->method(...)` in `RecordBrowser_0.php:1500-1530` are **Utils_TabbedBrowser tab defs**, a different mechanism that handles closures fine (clipboard pattern already tested) — left untouched.
+- **Pattern:** Rector's first-class-callable rule can break APIs that type-check callbacks as `string|array`. When a `*(...)` callable feeds an old QuickForm/PEAR-style consumer, revert to `array($obj,'method')`.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done

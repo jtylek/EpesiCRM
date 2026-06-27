@@ -50,10 +50,10 @@ class Utils_CommonData extends Module {
                             'label'=>__('Key'),
 							'rule'=>array(
                                 array('type'=>'callback','param'=>array($parent,$key),
-									'func'=>$this->check_key(...),
+									'func'=>array($this,'check_key'),
 									'message'=>__('Specified key already exists')),
 							    array('type'=>'callback','param'=>array($parent,$key),
-									'func'=>$this->check_key2(...),
+									'func'=>array($this,'check_key2'),
 									'message'=>__('Specified contains invalid character "/"'))
                             )
 						),
