@@ -694,6 +694,9 @@ User będzie testować na innych maszynach po doprowadzeniu tej do działania.
 
 ## 20. DLA JAŚKA — bug storage plików (DIAGNOZA, BEZ ZMIAN — wrażliwy obszar)
 
+> **ROOT CAUSE ZIDENTYFIKOWANY I ZWERYFIKOWANY — patrz §36.** To jest objaw zmiany semantyki `static`
+> w dziedziczonej metodzie `ModuleCommon::Instance()` na PHP 8.x. Fix zweryfikowany empirycznie.
+
 OBJAW: zapisany załącznik (notatka kontaktu) → view/download rzuca
 "file not found: data/CRM_Roundcube/<hash-split>". Plik FIZYCZNIE istnieje, ale w
 data/CRM_Tasks/<ten-sam-hash-split>. Hash i podział katalogów identyczne — różni się TYLKO prefiks.
@@ -1143,6 +1146,7 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - **Symptom:** Clicking "EPESI Store" → `Failed opening required 'modules/Base/Setup/ClientRequester.php'`.
 - **Cause:** `EssClientCommon_0.php:150` used `self::Instance()->get_module_dir()` to locate `ClientRequester.php`. When called from within `Base_Setup`'s display context, the shared mutable `Instance()` singleton had been overwritten by `Base_Setup`, returning the wrong directory. Same root cause as §20.
 - **Fix:** Replaced `self::Instance()->get_module_dir() . 'ClientRequester.php'` with `__DIR__ . '/ClientRequester.php'` — always resolves to `modules/Base/EssClient/` regardless of call context.
+- **Note:** This `__DIR__` fix was a local workaround for the **same root cause now identified in §36** (Instance() singleton broken by PHP 8.x static-variable semantics). If the §36 root fix is applied, this workaround could be reverted.
 
 ---
 
@@ -1166,6 +1170,57 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - **File:** `modules/Base/Acl/Acl_0.php` — `edit_permissions()`, 2 lines.
 - **Important:** Only the **display** was broken. Rules were always saved and enforced correctly (`base_acl_rules` + `base_acl_rules_clearance` were intact). Verified: no other `SELECT col, col` + `GetAssoc` duplicate-column pattern exists in `modules/`.
 - **Pattern for the relic table:** `SELECT col, col` + `GetAssoc` → `null` values on PHP 8 mysqli; use `GetCol` when you only need a flat list of one column.
+
+---
+
+## 36. ROOT CAUSE — `ModuleCommon::Instance()` broken by PHP 8.x static-variable change (covers §20 + §33) — FOR JASIEK
+
+This is the shared root cause behind **§20** (file storage wrong prefix) and **§33** (EssClient `ClientRequester.php` not found), and potentially any other use of `SomeModuleCommon::Instance()`.
+
+### The mechanism
+
+`ModuleCommon::Instance()` (`include/module_common.php:28`) is a `final` static method with a `static $obj` local:
+```php
+public static final function Instance($arg=null) {
+    static $obj;
+    if(isset($arg)) $obj = $arg;
+    elseif(is_string($obj)) { $cl = $obj.'Common'; $obj = new $cl($obj); }
+    return $obj;
+}
+```
+`module_manager.php:100` seeds it on **every module load**: `call_user_func(array($x, 'Instance'), $class_name)` → e.g. `CRM_TasksCommon::Instance('CRM_Tasks')`, setting `$obj = 'CRM_Tasks'`.
+
+The whole pattern assumes **each subclass has its own `$obj`** (a per-module singleton). That was true on PHP 7.4. **PHP 8.x changed the semantics of `static` locals in inherited (not overridden) methods: they are now SHARED across all inheriting classes.** So on 8.x there is ONE `$obj` for every module — whichever module was loaded/seeded **last** wins. `Utils_FileStorageCommon::Instance()` then returns whatever module was last loaded, so `get_data_dir()` / `get_module_dir()` return the wrong module's path.
+
+This is why it depends on call/load order, why files scatter across `data/CRM_Tasks/`, `data/CRM_Mail/`, `data/CRM_Roundcube/`, and why PHP 7.4 works but 8.2 does not. The code is byte-identical to vanilla 1.9.1 — only the language semantics changed.
+
+### Empirically verified (PHP 8.2.12, standalone, no Epesi)
+
+A 2-class reproduction (`Base` with `static $obj`, `ChildA`/`ChildB` inheriting) showed:
+- `ChildA::Instance('Utils_FileStorage')` then `ChildB::Instance('CRM_Tasks')` → **`ChildA::Instance()` returns `'CRM_Tasks'`** (clobbered). Confirms SHARED storage.
+- The proposed fix (below) made `ChildA::Instance()` return `'Utils_FileStorage'` again. Confirms per-class restored.
+
+### Verified fix (key the static per-class via late static binding)
+
+```php
+public static final function Instance($arg=null) {
+    static $objs = [];
+    $cls = static::class;                       // the actual subclass
+    if(isset($arg)) $objs[$cls] = $arg;
+    elseif(isset($objs[$cls]) && is_string($objs[$cls])) {
+        $name = $objs[$cls];
+        $objs[$cls] = new ($name.'Common')($name);
+    }
+    return $objs[$cls] ?? null;
+}
+```
+Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data model. Fixes §20 + §33 (and the §33 `__DIR__` workaround could then be reverted) at the root.
+
+### FOR JASIEK — decision + sequencing
+
+- This touches the **heart of the framework** (`Instance()` is used everywhere) → author's call to apply.
+- **Plan agreed with Karina:** document now (this section); apply + test on a **separate review branch** (revertable), NOT on `experiment/composer-deps` directly, then full module re-test before any merge.
+- **Data caveat:** on a clean production 7.4→8.2 migration, files are already correctly in `data/Utils_FileStorage/`, so the code fix alone is enough. On THIS test instance, files written while the bug was live got scattered to `data/CRM_Tasks/` etc. — those would need a one-time move into `data/Utils_FileStorage/` (separate data step, handle with care).
 
 ---
 
