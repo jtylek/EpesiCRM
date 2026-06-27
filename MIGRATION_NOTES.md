@@ -1292,6 +1292,8 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
+> **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
+
 ### ✅ Done
 - Rector PHP 7→8.2 ladder applied to all own code
 - Runtime fixes: Contacts, Companies, Tasks — full CRUD tested, no fatals
