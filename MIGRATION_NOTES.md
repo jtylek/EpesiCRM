@@ -1137,6 +1137,17 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
+## 34. FIXED — Password recovery: silent mail failure
+
+- **Symptom:** User submits password recovery form → sees no error even if email is never sent; hash IS inserted in `user_reset_pass` table but email never arrives.
+- **Cause:** Pre-existing Epesi 1.9.1 bug in `Login_0.php:submit_recover()` — `$sendMail = Base_MailCommon::send_critical(...)` result was computed but never checked. Function always returned `true`, so the UI always showed "Password reset instructions were sent." even on SMTP failure.
+- **Affected:** All environments where SMTP is misconfigured or `mail_method = mail` on a system without a local MTA (e.g., XAMPP dev). On production with correct SMTP this is silent but can mask outages.
+- **Fix:** Return `$sendMail` instead of `true`; print a user-visible error when sending fails.
+- **File:** `modules/Base/User/Login/Login_0.php` — `submit_recover()` method.
+- **Note:** `mail_method = mail` on XAMPP/LAMPP (no local MTA) → emails silently fail. Fix via Epesi Admin → Server Configuration → Mail server settings → switch to SMTP with real credentials.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 ### ✅ Done
@@ -1146,10 +1157,10 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 - PhoneCall — full CRUD tested, no fatals (§27 watchdog fix applied)
 - Meeting — full CRUD tested, no fatals
 - User Settings — tested, no fatals
+- Calendar/Agenda — tested, no fatals
 - Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 
 ### 🔲 Must do before merge
-- [ ] **Calendar/Agenda** — full CRUD untested
 - [ ] **Administrator** — untested
 - [ ] **Filters/search (critsvalue)** — untested across modules
 - [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.

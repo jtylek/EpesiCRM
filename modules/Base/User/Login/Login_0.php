@@ -203,8 +203,10 @@ class Base_User_Login extends Module {
 				   __('If you did not use the Password Recovery form, inform your administrator about a potential unauthorized attempt to login using your credentials.')."\n\n".
 				   __('This e-mail was generated automatically and you do not need to respond to it.');
 		$sendMail = Base_MailCommon::send_critical($mail, $subject, $message);
-
-		return true;
+		if (!$sendMail) {
+			print(__('Unable to send recovery e-mail. Please contact your administrator.'));
+		}
+		return $sendMail;
 	}
 
 }
