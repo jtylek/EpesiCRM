@@ -14,7 +14,8 @@
         "ezyang/htmlpurifier": "^4.9",
         "moneyphp/money": "^3.0",
         "openpsa/quickform": "^3.4",
-        "adodb/adodb-php": "^5.22"
+        "adodb/adodb-php": "^5.22",
+        "phpseclib/mcrypt_compat": "^2.0"
     },
     "scripts": {
         "post-install-cmd": [

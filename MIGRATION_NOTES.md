@@ -832,6 +832,38 @@ do czasu naprawy.** Nieszyfrowane notatki działają normalnie.
 - Szyfrowanie plików: `submit_attachment` linia 486 (`file_put_contents(..., self::encrypt(...))`)
   — dotyczy też plików, nie tylko tekstu notatki
 
+### RESOLUTION 2026-06-28 — Option A (mcrypt_compat), on branch `experiment/mcrypt-compat`
+
+**Decision: Option A.** Deeper analysis made it the ONLY viable choice for preserving old data:
+- `rijndael-256` means **256-bit BLOCK** Rijndael — NOT AES. **openssl cannot decrypt it** (openssl
+  only implements AES = 128-bit block). So Option B (openssl/AES) can never read existing notes.
+- The note password is **not stored server-side** (`$_SESSION['client']['cp'.$id]` only), so a bulk
+  server-side re-encryption migration is **impossible** — you can't decrypt without each user's
+  password. (Correction to the earlier "combine A+B migration" idea — not feasible in bulk.)
+- → mcrypt_compat is the only path that keeps users' old encrypted data readable.
+
+**Implemented:** `composer require phpseclib/mcrypt_compat` → installed `mcrypt_compat 2.0.8`,
+`phpseclib/phpseclib 3.0.55`, `paragonie/constant_time_encoding`, `paragonie/random_compat`.
+**Zero Epesi code changes** — drop-in. The `mcrypt_*` functions are defined by
+`vendor/phpseclib/mcrypt_compat/lib/mcrypt.php` via composer `files` autoload (loaded with
+`vendor/autoload.php`), guarded by `if (!function_exists('mcrypt_list_algorithms'))` so a native
+ext/mcrypt (where present) still takes precedence. `rijndael-256` is supported.
+
+**Verified (Level 1):** roundtrip encrypt→decrypt works on BOTH php7.4 and php8.2.12 via the
+polyfill — same deterministic ciphertext on both (`9D58dj…`), rijndael-256, key/iv = 32 bytes,
+UTF-8 preserved. **The fatal blocker is resolved — encrypted notes function again on PHP 8.2.**
+
+**NOT yet verified (residual):** byte-compatibility with **native ext/mcrypt** — neither PHP on the
+test Dell has the native extension, so both runs used the polyfill (proves consistency, not
+native-compat). Assurance rests on mcrypt_compat being purpose-built + CI-tested byte-identical to
+ext/mcrypt.
+
+**HARD GATE before any production upgrade (Karina's call, option B of verification):** on a
+**staging copy of a real instance that has old encrypted notes**, confirm those exact notes decrypt
+with the user's password — and/or, on a host that has native mcrypt (e.g. the cPanel/old-hosting
+portability phase), compare the ciphertext. Do NOT upgrade a production instance with encrypted
+notes until this passes. FOR JASIEK: sign-off on adopting mcrypt_compat.
+
 ---
 
 ## 23. Runtime testing session — fixes applied (Contacts + Companies)
