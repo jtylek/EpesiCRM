@@ -19,18 +19,21 @@ $access_fields = Utils_RecordBrowserCommon::get_access('rc_mails', 'view', $rec)
 if (!isset($access_fields['body']) || !$access_fields['body'])
     die('Access forbidden');
 
-[$mimetype, $name, $attachment] = DB::GetRow('SELECT type,name,attachment FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
+[$mimetype, $name, $attachment, $file_id] = DB::GetRow('SELECT type,name,attachment,file_id FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
 
 $disposition = $attachment?'attachment':'inline';
-
-$filename = DATA_DIR.'/CRM_Mail/attachments/'.$_GET['mail_id'].'/'.$_GET['mime_id'];
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send file');
 
-if(!file_exists($filename))
-    die('File doesn\'t exists');
-$buffer = file_get_contents($filename);
+if($file_id && Utils_FileStorageCommon::file_exists($file_id)) {
+    $buffer = Utils_FileStorageCommon::read_content($file_id);
+} else { // legacy attachment not yet migrated to Utils_FileStorage
+    $filename = DATA_DIR.'/CRM_Mail/attachments/'.$_GET['mail_id'].'/'.$_GET['mime_id'];
+    if(!file_exists($filename))
+        die('File doesn\'t exists');
+    $buffer = file_get_contents($filename);
+}
 header('Content-Type: '.$mimetype);
 header('Content-Length: '.strlen($buffer));
 header('Content-disposition: '.$disposition.'; filename="'.$name.'"');

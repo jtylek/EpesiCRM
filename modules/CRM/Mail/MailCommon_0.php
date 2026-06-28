@@ -584,14 +584,13 @@ class CRM_MailCommon extends ModuleCommon {
         $data = array('message_id'=>$message_id,'references'=>$references,'contacts'=>$contacts,'date'=>$date,'subject'=>substr($subject,0,256),'body'=>$body,'headers_data'=>$headers,'from'=>$from,'to'=>$to,'employee'=>$employee);
         $id = Utils_RecordBrowserCommon::new_record('rc_mails',$data);
 
-        $attachments_dir = DATA_DIR.'/CRM_Mail/attachments/';
-        if(!file_exists($attachments_dir)) mkdir($attachments_dir);
-
         if(is_array($attachments))
             foreach($attachments as $m) {
-                DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment) VALUES(%d,%s,%s,%s,%b)',array($id,$m['type'],$m['filename'],$m['mime_id'],$m['attachment']));
-                if(!file_exists($attachments_dir.$id)) mkdir($attachments_dir.$id);
-                file_put_contents($attachments_dir.$id.'/'.$m['mime_id'],$m['content']);
+                // Store the attachment in the central, deduplicated Utils_FileStorage
+                // (content-addressed) instead of a raw file in data/CRM_Mail/attachments/.
+                $content = $m['content'];
+                $file_id = Utils_FileStorageCommon::add_data_from_content($content, $m['filename']);
+                DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment,file_id) VALUES(%d,%s,%s,%s,%b,%d)',array($id,$m['type'],$m['filename'],$m['mime_id'],$m['attachment'],$file_id));
             }
         return $id;
     }

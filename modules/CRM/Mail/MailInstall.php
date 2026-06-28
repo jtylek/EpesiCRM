@@ -270,7 +270,8 @@ class CRM_MailInstall extends ModuleInstall {
             type C(32),
             name C(255),
             mime_id C(32),
-            attachment I1 DEFAULT 1',
+            attachment I1 DEFAULT 1,
+            file_id I8',
             array('constraints'=>', FOREIGN KEY (mail_id) REFERENCES rc_mails_data_1(ID)'));
         DB::CreateTable('rc_mails_attachments_download','
             mail_id I4 NOTNULL,
