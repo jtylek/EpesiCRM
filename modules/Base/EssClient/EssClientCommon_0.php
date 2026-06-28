@@ -146,7 +146,8 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
      */
     public static function server($recreate_object = false) {
         if (self::$client_requester == null || $recreate_object == true) {
-            require_once __DIR__ . '/ClientRequester.php';
+            // §36 STEP 2: §33 __DIR__ workaround REMOVED — relying on the root Instance() fix.
+            require_once self::Instance()->get_module_dir() . 'ClientRequester.php';
             // create object
             self::$client_requester = new ClientRequester(self::get_server_url());
             self::$client_requester->set_client_license_key(self::get_license_key());

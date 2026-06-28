@@ -136,14 +136,9 @@ class Utils_FileStorageCommon extends ModuleCommon {
     public static function get_storage_file_path($hash)
     {
         $dirs = str_split(substr($hash, 0, 5));
-        // FIX-TWICE (revert when §36 root Instance() fix lands): PHP 8.x broke
-        // self::Instance() (shared static across subclasses, see §36) — it can return the
-        // wrong module's data dir depending on load order, scattering/looking-up files under
-        // the wrong prefix (§20). Resolve the FileStorage data dir deterministically instead.
-        // self::module_name() uses get_called_class() (late static binding), so it always
-        // yields 'Utils_FileStorage'. Once Instance() is fixed at the root, restore:
-        //   $path = self::Instance()->get_data_dir() . implode(DIRECTORY_SEPARATOR, $dirs);
-        $path = DATA_DIR . '/' . self::module_name() . '/' . implode(DIRECTORY_SEPARATOR, $dirs);
+        // §36 STEP 2: §20 narrow workaround REMOVED — relying on the root Instance() fix
+        // (per-class static). With it, self::Instance() correctly returns Utils_FileStorage.
+        $path = self::Instance()->get_data_dir() . implode(DIRECTORY_SEPARATOR, $dirs);
         @mkdir($path, 0770, true);
         return $path . DIRECTORY_SEPARATOR . substr($hash, 5);
     }
