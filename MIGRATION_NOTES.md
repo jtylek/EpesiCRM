@@ -1343,6 +1343,18 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 44. DONE (branch `experiment/mail-attachments-filestorage`) — archived e-mail attachments → Utils_FileStorage (Jasiek request)
+
+Requested by Jasiek (2026-06-29). Full design in `PROPOSAL_mail_attachments_filestorage.md`.
+
+- **Before:** `archive_message()` wrote attachment bytes raw to `data/CRM_Mail/attachments/<mail_id>/<mime_id>` (no dedup, bypassing the central store); `get.php`/`get_remote.php` read straight from there.
+- **Change:** `rc_mails_attachments` gains `file_id` (install + idempotent patch); write path uses `Utils_FileStorageCommon::add_data_from_content()` (content-addressed, deduplicated); read paths serve from FileStorage when `file_id` is set, else **fall back** to the legacy folder; a patch (`modules/CRM/Mail/patches/20260629_mail_attachments_to_filestorage.php`) backfills `file_id` for legacy rows by copying the old files into FileStorage.
+- **Legacy files KEPT** — physical cleanup of `data/CRM_Mail/attachments/` is a separate, deliberate step (pending Jasiek's delete-vs-keep decision).
+- **Validated on the client copy:** all 39 legacy attachments migrated; dedup confirmed (197 vs 160 physical files = only 37 new for 39 attachments → 2 reused existing content); a migrated PDF serves correctly via `get.php`/FileStorage. Required the §43 patch-handler fix to run.
+- **Status:** code + migration done and validated; **own branch, not yet merged** to composer-deps. Open item for Jasiek: keep vs delete legacy files (Karina to ask).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
