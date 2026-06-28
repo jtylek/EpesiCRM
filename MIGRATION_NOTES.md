@@ -1334,6 +1334,15 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 43. FIXED — Patch system error handler: 5th arg ($errcontext) required (PHP 8) — blocks any patch that warns
+
+- **Symptom:** Running `runpatches.php`/`update.php` → `Uncaught ArgumentCountError: Too few arguments to function Patch::error_handler(), 4 passed and exactly 5 expected` (`include/patches.php:411`). Surfaced during the real-upgrade test the moment a patch emitted a warning (e.g. an `ob_end_clean()` notice).
+- **Cause:** Same family as §41. `Patch::error_handler($errno,$errstr,$errfile,$errline,$errcontext)` is installed via `set_error_handler()`; PHP 8.0 dropped the 5th `$errcontext` arg, so PHP calls it with 4 → fatal. This **blocks any patch run that triggers a warning** — important because the upgrade procedure relies on `runpatches.php`.
+- **Fix:** `$errcontext = null` (made the 5th param optional). `include/patches.php:411`.
+- **Why it matters for upgrades:** the real 7.4→8.2 upgrade (validated on a client copy) requires `runpatches.php`; this made the patch runner robust to warnings.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.

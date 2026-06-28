@@ -408,7 +408,7 @@ class Patch
         return $this->short_description;
     }
 
-    static function error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+    static function error_handler($errno, $errstr, $errfile, $errline, $errcontext = null)
     {
         if (!(error_reporting() & $errno)) {
             return;
