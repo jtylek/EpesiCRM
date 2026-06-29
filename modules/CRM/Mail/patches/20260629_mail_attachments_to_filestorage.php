@@ -21,7 +21,9 @@ foreach ($rows as $r) {
     if (!$file_id) {
         if (!file_exists($path)) continue; // nothing on disk to migrate
         $content = file_get_contents($path);
-        $file_id = Utils_FileStorageCommon::add_data_from_content($content, $r['name']);
+        // write_content() returns the FILESTORAGE (storage-object) id used by read_content()/
+        // file_exists()/meta() — NOT the low-level content id from add_data_from_content().
+        $file_id = Utils_FileStorageCommon::write_content($r['name'], $content, null, 'rb:rc_mails/'.$r['mail_id']);
         DB::Execute('UPDATE rc_mails_attachments SET file_id=%d WHERE mail_id=%d AND mime_id=%s',
             array($file_id, $r['mail_id'], $r['mime_id']));
     }

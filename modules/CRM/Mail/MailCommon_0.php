@@ -586,10 +586,12 @@ class CRM_MailCommon extends ModuleCommon {
 
         if(is_array($attachments))
             foreach($attachments as $m) {
-                // Store the attachment in the central, deduplicated Utils_FileStorage
-                // (content-addressed) instead of a raw file in data/CRM_Mail/attachments/.
+                // Store the attachment in the central, deduplicated Utils_FileStorage.
+                // write_content() returns the FILESTORAGE (storage-object) id — the id that
+                // read_content()/file_exists()/meta() expect (NOT the low-level content id from
+                // add_data_from_content()).
                 $content = $m['content'];
-                $file_id = Utils_FileStorageCommon::add_data_from_content($content, $m['filename']);
+                $file_id = Utils_FileStorageCommon::write_content($m['filename'], $content, null, 'rb:rc_mails/'.$id);
                 DB::Execute('INSERT INTO rc_mails_attachments(mail_id,type,name,mime_id,attachment,file_id) VALUES(%d,%s,%s,%s,%b,%d)',array($id,$m['type'],$m['filename'],$m['mime_id'],$m['attachment'],$file_id));
             }
         return $id;
