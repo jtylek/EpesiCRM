@@ -1174,7 +1174,12 @@ class Utils_RecordBrowser extends Module {
 					
 					load_js($this->get_module_dir() . 'selecttext.js');
 					$plain = strip_tags(preg_replace('#<[bB][rR]/?>#', "\n", $text));
-					$copy_btn = '<br><button onclick="var b=this;navigator.clipboard.writeText('.json_encode($plain).').then(function(){b.textContent=\''.addslashes(__('Copied!')).'\';});">'.__('Copy').'</button>';
+					// json_encode yields double-quoted JS strings; htmlspecialchars the whole
+					// handler so those quotes don't break the double-quoted onclick attribute
+					// (the old code did — the button silently did nothing). On success the button
+					// label flips to "Copied!" as a calm confirmation.
+					$copy_js = 'var b=this;navigator.clipboard.writeText('.json_encode($plain).').then(function(){b.textContent='.json_encode(__('Copied!')).';});';
+					$copy_btn = '<br><button type="button" onclick="'.htmlspecialchars($copy_js, ENT_QUOTES).'">'.__('Copy').'</button>';
 					$text = '<h3>'.__('Move mouse over box below to select text and hit Ctrl-c, or click Copy.').'</h3><div onmouseover="fnSelect(this)" style="border: 1px solid gray; margin: 15px; padding: 20px;">'.$text.'</div>'.$copy_btn;
 
 					Libs_LeightboxCommon::display('clipboard',$text,__('Copy'));

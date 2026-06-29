@@ -1343,6 +1343,18 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ---
 
+## 45. FIXED — Clipboard pattern garbled on upgrade (§25 was dev-only) + Copy button didn't copy (§24)
+
+Found on the real client upgrade: "Copy to clipboard" showed literal `%{{postal_code}}` and the Copy button did nothing.
+
+- **Cause A (the §25 upgrade gap):** §25 fixed the nested-`%{}` clipboard pattern only for **fresh installs** (`ContactsInstall.php`) and via a one-off `UPDATE` on the **dev** DB. **Existing** databases (the client) still hold the old nested `%{%{{city} }%{{zone} }{postal_code}<BR>}`, which `replace_clipboard_pattern()` can't render (its regex excludes `%` from a block's content, so the outer `%{…}` stays literal — pre-existing limitation). That's why it was clean on `epesi82_test` but broken on the client copy.
+- **Fix A:** migration patch `modules/Utils/RecordBrowser/patches/20260630_fix_nested_clipboard_pattern.php` — surgically rewrites the broken nested block to the §25 simplified form (`%{{city} {zone} {postal_code}<BR>}`) in any existing `recordbrowser_clipboard_pattern` row that contains it (custom patterns untouched; idempotent). Runs via `runpatches.php` on upgrade.
+- **Cause B (the Copy button):** §24's button built `onclick="…writeText(<json_encode>)…"` — `json_encode` emits a **double-quoted** JS string inside the **double-quoted** `onclick` attribute, breaking it, so the click silently did nothing (the mouseover-select + Ctrl-C still worked, which is why it seemed fine).
+- **Fix B:** `htmlspecialchars($handler, ENT_QUOTES)` the whole onclick (and `json_encode` the "Copied!" label); the button now copies and flips to **"Copied!"** as a calm confirmation. `RecordBrowser_0.php` ~1177.
+- **Lesson:** data-only fixes (like §25's dev-DB `UPDATE`) don't reach existing installs — upgrade fixes that touch data need a **patch**.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
