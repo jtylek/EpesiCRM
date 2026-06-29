@@ -66,9 +66,11 @@ if ($file_id) {
 Fallback keeps every instance working **before/while** the migration runs.
 
 ### 2d. Data migration (an Epesi patch, runs via `runpatches.php`/update)
-For each `rc_mails_attachments` row with `file_id IS NULL` whose legacy file exists:
-read it → `add_data_from_content()` → set `file_id`. Leave the legacy file in place until verified;
-a later cleanup pass can delete `data/CRM_Mail/attachments/*` once all rows have `file_id`.
+For each `rc_mails_attachments` row: ensure `file_id` (read legacy file → `add_data_from_content()`
+→ set `file_id`), then **once the content is confirmed in FileStorage** (`file_exists($file_id)`),
+**delete** the legacy `data/CRM_Mail/attachments/<mail_id>/<mime_id>` and remove the now-empty
+per-mail dir. **Jasiek decided this is a MOVE** (2026-06-29) — legacy files are removed after
+verification, not kept. Verify-before-delete keeps it safe; idempotent.
 
 ---
 
@@ -84,9 +86,11 @@ Files affected: `modules/CRM/Mail/MailCommon_0.php` (write), `modules/CRM/Mail/g
 
 ## 4. Backward compatibility & data safety
 - The read fallback means **nothing breaks** before the migration patch runs.
-- The migration **copies** into FileStorage and only sets `file_id`; it does **not** delete legacy
-  files. Deletion is a separate, later, opt-in cleanup after verifying all rows migrated.
-- Content-addressing means re-storing is idempotent (same bytes → same hash → same file).
+- The migration **moves** each attachment: it stores the bytes in FileStorage and sets `file_id`,
+  then deletes the legacy file **only after** `file_exists($file_id)` confirms the content is stored
+  (Jasiek's decision, 2026-06-29). Verify-before-delete = no data loss window.
+- Content-addressing means re-storing is idempotent (same bytes → same hash → same file); after the
+  move the canonical copy lives only in FileStorage (backed up with the rest of `data/`).
 
 ---
 
