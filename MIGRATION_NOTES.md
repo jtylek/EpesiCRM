@@ -29,6 +29,38 @@ The full Rector migration ladder has been applied to all Core code (own code, ex
 
 ---
 
+## ⚠️ UPGRADE-GAP DISCIPLINE (critical — read before "fixing" data)
+
+The real 7.4→8.2 upgrade is **not just deploying code**. A fix only reaches real users if it ships in a form that
+runs on their **existing** database/files. Classify every fix:
+
+- **CODE fix** (PHP logic in `.php`) → applies automatically on upgrade (deploy the code). ✅ No gap.
+- **DATA fix** (edited `*Install.php` defaults, a one-off `UPDATE` on the dev DB, or changed `data/` files) →
+  reaches **fresh installs + the dev DB only**. Existing/upgraded DBs keep the OLD data. ❌ **Upgrade gap** unless
+  it also ships as a **patch**.
+
+**Rule: a data fix MUST ship a patch** (`modules/<M>/patches/<YYYYMMDD>_<name>.php`) — it runs on existing
+instances via `runpatches.php`/`update.php`. Example: §25 fixed the clipboard pattern only in `ContactsInstall.php`
++ dev DB → worked on `epesi82_test`, **broke on the real client** → fixed by the §45 patch.
+
+**Detection (the catch-all) — fresh-vs-upgraded DB diff:**
+1. Build a **clean fresh 8.2 install** (installer on an empty DB) → reference DB + `data/`.
+2. Run the **full upgrade** on a real copy (deploy code + `runpatches.php` + Roundcube DB migration).
+3. **Diff** the two:
+   - **Schema** (tables/columns/indexes) → differences = missing schema migrations.
+   - **Seed/config data** (`recordbrowser_*` field defs, `recordbrowser_clipboard_pattern`, `commondata` arrays,
+     access rules, default settings) → differences = default-data gaps where fresh got fixes the upgrade didn't.
+4. Each difference → write a patch. (Mechanical; finds gaps clicking never will.)
+
+**Make the upgrade complete + automatic:** the full upgrade = code + `runpatches.php` (themeup/translations/caches/
+patches) + RC DB migration. Bump `EPESI_VERSION` so `update.php` auto-runs it on first load → real users upgrade by
+*deploy code → open app → done*.
+
+**Open task:** run the fresh-vs-upgraded diff across the whole DB, and audit §23–§45 for any other DATA fix lacking
+a patch. See also GOLDEN_RULES §11.
+
+---
+
 ## 1. Fixes already applied (committed to `main`)
 
 ### PEAR::isError() made static
