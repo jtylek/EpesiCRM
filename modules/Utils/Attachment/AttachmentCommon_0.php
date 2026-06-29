@@ -361,7 +361,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             if(class_exists('ZipArchive')) {
             	if($rb_obj->record['files']) {
             		$fileHandler = new Utils_Attachment_FileActionHandler();
-            		$urls = $fileHandler->getActionUrlsAttachment(Utils_RecordBrowserCommon::decode_multi($rb_obj->record['files']), $rb_obj->tab, $rb_obj->record['id'], $field, $rb_obj->record['crypted']);
+            		$urls = $fileHandler->getActionUrlsAttachment(Utils_RecordBrowserCommon::decode_multi($rb_obj->record['files']), $rb_obj->tab, $rb_obj->record['id'], 'files', $rb_obj->record['crypted']);
             		Base_ActionBarCommon::add('download', __('Download all attachments'), 'href="'.$urls['download'].'" target="_blank"');
             	}
             }

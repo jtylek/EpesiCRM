@@ -1393,6 +1393,18 @@ Found on the real client upgrade: "Copy to clipboard" showed literal `%{{postal_
 
 ---
 
+## 46. FIXED — "Download all attachments": `in_array()` on non-array + wrong field (vanilla 1.9.1, fatal on PHP 8)
+
+Found on the client upgrade: opening a note's **Download all attachments** → `TypeError: in_array(): Argument #2 ($haystack) must be of type array, string given` (`Utils/RecordBrowser/FileActionHandler.php:49`).
+
+- **Cause (two vanilla 1.9.1 bugs, surfaced by PHP 8):**
+  1. `AttachmentCommon_0.php:364` (download-all) passes `$field` (the **note text** field, e.g. `'note'`) to the access check instead of `'files'` — so it tested the requested file ids against the note's text. (Single-file download at :302 correctly passes `'files'`, which is why single worked.)
+  2. `checkRecordAccess()` did `in_array($filestorageId, $record[$fieldId])` — and for download-all `$filestorageId` is an **array** of ids while the haystack was the note **string**. On PHP 7.4 this was a silent warning → `null` → access denied (download-all never actually worked); on PHP 8 it's fatal.
+- **Fix:** (a) `:364` pass `'files'`; (b) `checkRecordAccess()` normalises the haystack with the idempotent `decode_multi()` and accepts a scalar **or** array `$filestorageId`, granting only when **every** requested id belongs to the field (`array_diff` subset check). Both files vanilla baseline.
+- **Result:** download-all now zips the record's files; single download unchanged.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.

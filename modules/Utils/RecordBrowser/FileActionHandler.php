@@ -44,10 +44,14 @@ class Utils_RecordBrowser_FileActionHandler
     {
         $record = Utils_RecordBrowserCommon::get_record_respecting_access($tab, $recordId);
         $fieldId = $this->getFieldId($tab, $field);
-        $access = $fieldId && $record
-            && isset($record[$fieldId]) && !is_null($record[$fieldId])
-            && in_array($filestorageId, $record[$fieldId]);
-        return $access;
+        if (!$fieldId || !$record || !isset($record[$fieldId]) || is_null($record[$fieldId]))
+            return false;
+        // file/multi fields decode to an array of allowed filestorage ids (idempotent on arrays).
+        // $filestorageId is a scalar (single download) or an array ("download all") — require every
+        // requested id to belong to the field. (in_array on a non-array haystack is fatal on PHP 8.)
+        $allowed = Utils_RecordBrowserCommon::decode_multi($record[$fieldId]);
+        $requested = is_array($filestorageId) ? $filestorageId : array($filestorageId);
+        return count(array_diff($requested, $allowed)) === 0;
     }
 
     private function getFieldId($tab, $field)
