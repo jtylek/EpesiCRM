@@ -56,8 +56,14 @@ instances via `runpatches.php`/`update.php`. Example: §25 fixed the clipboard p
 patches) + RC DB migration. Bump `EPESI_VERSION` so `update.php` auto-runs it on first load → real users upgrade by
 *deploy code → open app → done*.
 
-**Open task:** run the fresh-vs-upgraded diff across the whole DB, and audit §23–§45 for any other DATA fix lacking
-a patch. See also GOLDEN_RULES §11.
+**Result (gap hunt 2026-06-30, fresh `epesi82_test` vs upgraded client `epesi_upgrade_test`):**
+- **Schema diff CLEAN** — 222 common tables; every column fresh has, the upgrade also has. Only reverse-direction
+  difference is `rc_mails_attachments.file_id` (the §44 mail column). The patch system handles schema correctly.
+- **§23–§45 classified:** the *only* DATA fixes are **§25** (clipboard pattern) → shipped as the **§45 patch**
+  (verified: zero broken nested patterns remain on the client; `clipboard_pattern` matches fresh exactly) and §45
+  itself. **All other fixes are CODE** → auto-apply on deploy. §30 = separate Roundcube DB migration. No other gap.
+- **Conclusion:** no outstanding upgrade gaps. Keep the diff as a regression check before each release; keep applying
+  GOLDEN_RULES §11 (any new data fix ⇒ patch).
 
 ---
 
