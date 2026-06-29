@@ -174,3 +174,10 @@ $config['imap_conn_options'] = array(
     'verify_peer_name' => false,
   ),
 );
+
+// §47: disable the spellchecker. The only bundled engine is 'googie', which POSTs to a defunct
+// external Google spell service; the RC 1.7.1 vendor's guzzle/psr7 mismatch then turns that failed
+// HTTP call into a fatal (GuzzleHttp\Psr7\Utils::redactUserInfo() undefined), which ABORTS "send"
+// for any user who has "check spelling before send" enabled (a stored RC preference). No local
+// engine (pspell/enchant) is guaranteed present. Disabling loses nothing that currently works.
+$config['enable_spellcheck'] = false;

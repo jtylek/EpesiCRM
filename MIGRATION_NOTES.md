@@ -1405,6 +1405,16 @@ Found on the client upgrade: opening a note's **Download all attachments** → `
 
 ---
 
+## 47. FIXED — Sending mail aborts when "check spelling before send" is on (dead googie + guzzle/psr7 fatal)
+
+Found on the client upgrade: composing and sending `k.tylek@euroleader.com → k.tylek@euroleader.com` failed; browser showed "Connection error, failed to reach the server" (the send request 500'd).
+
+- **Cause:** the user's RC preference `spellcheck_before_send` is `true` (stored in `rc_users.preferences`). On send, `send.php` runs `rcube_spellchecker` with the default `spellcheck_engine='googie'`, which POSTs to a **defunct external Google spell service**. The failed HTTP then hits a **guzzle/psr7 version mismatch** in the RC 1.7.1 vendor — `GuzzleHttp\Exception\RequestException::create()` calls `GuzzleHttp\Psr7\Utils::redactUserInfo()`, which doesn't exist in the bundled psr7 → `Uncaught Error: Call to undefined method` → fatal, send aborts. (`send.php:144` gate needs both `spellcheck_before_send` AND `enable_spellcheck`.)
+- **Fix:** `modules/CRM/Roundcube/RC/config/config.inc.php` — `$config['enable_spellcheck'] = false;`. The before-send gate is now false → no spell HTTP call → send works for everyone, regardless of the per-user pref. The only bundled engine is the dead googie service, so nothing functional is lost. Portable (shipped config, reaches all upgrades).
+- **FOR JASIEK / latent:** the underlying guzzle↔psr7 mismatch in the RC vendor makes *any* failed external HTTP via guzzle fatal (not just spellcheck). Worth a `composer` re-pin of the RC bundle's guzzle/psr7 later; for now no other path uses it on the hot routes.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
