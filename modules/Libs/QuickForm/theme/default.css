@@ -75,15 +75,19 @@
    (nowrap + inline selects) and give the date picker a sensible width. The two sub-divs stay
    block-level, so the time and the date sit on their own compact lines — no horizontal overflow
    in narrow popup forms. */
-.data.timestamp > div > div {
+.epesi_main_module td.data.timestamp > div > div,
+td.data.timestamp > div > div {
+	float: none;
+	display: block;
 	white-space: nowrap;
+	margin-right: 0;
 }
-.data.timestamp select {
+td.data.timestamp select {
 	display: inline-block;
 	width: auto;
 	vertical-align: middle;
 }
-.data.timestamp > div > div:last-child input {
+td.data.timestamp > div > div:last-child input {
 	width: 150px;
 }
 
