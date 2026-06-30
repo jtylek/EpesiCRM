@@ -23,8 +23,8 @@ class epesi_archive extends rcube_plugin
         $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
     $this->include_script('archive.js');
-    $skin_path = $rcmail->config->get('skin_path');
-    if (is_file($this->home . "/$skin_path/archive.css"))
+    $skin_path = $this->local_skin_path();
+    if (is_file(slashify($this->home) . "$skin_path/archive.css"))
         $this->include_stylesheet("$skin_path/archive.css");
     $this->add_texts('localization', true);
 
@@ -34,10 +34,14 @@ class epesi_archive extends rcube_plugin
         $this->add_button(
         array(
             'command' => 'plugin.epesi_auto_archive',
-            'imageact' => $skin_path.'/archive_'.($_SESSION['epesi_auto_archive']?'act':'pas').'.png',
+            'class' => 'button archive'.($_SESSION['epesi_auto_archive']?' pressed':''),
+            'classact' => 'button archive',
+            'innerclass' => 'inner',
+            'label' => 'buttontitle_compose',
             'title' => 'buttontitle_compose',
             'domain' => $this->ID,
-            'id'=>'epesi_auto_archive_button'
+            'id'=>'epesi_auto_archive_button',
+            'imageact' => $skin_path.'/archive_'.($_SESSION['epesi_auto_archive']?'act':'pas').'.png'
         ),
         'toolbar');
     }
@@ -46,10 +50,14 @@ class epesi_archive extends rcube_plugin
       $this->add_button(
         array(
             'command' => 'plugin.epesi_archive',
-            'imagepas' => $skin_path.'/archive_pas.png',
-            'imageact' => $skin_path.'/archive_act.png',
+            'class' => 'button archive',
+            'classact' => 'button archive',
+            'innerclass' => 'inner',
+            'label' => 'buttontitle',
             'title' => 'buttontitle',
             'domain' => $this->ID,
+            'imagepas' => $skin_path.'/archive_pas.png',
+            'imageact' => $skin_path.'/archive_act.png',
         ),
         'toolbar');
 
@@ -103,13 +111,13 @@ class epesi_archive extends rcube_plugin
     $rcmail = rcmail::get_instance();
 
     if (isset($_POST['_enabled_auto_archive'])) { //auto archive toggle
-        $_SESSION['epesi_auto_archive'] = get_input_value('_enabled_auto_archive', RCUBE_INPUT_POST);
+        $_SESSION['epesi_auto_archive'] = rcube_utils::get_input_value('_enabled_auto_archive', rcube_utils::INPUT_POST);
         return;
     }
 
     //archive button
-    $uids = get_input_value('_uid', RCUBE_INPUT_POST);
-    $mbox = get_input_value('_mbox', RCUBE_INPUT_POST);
+    $uids = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_POST);
+    $mbox = rcube_utils::get_input_value('_mbox', rcube_utils::INPUT_POST);
     if($mbox==$this->archive_mbox || $mbox==$this->archive_sent_mbox || $mbox==$rcmail->config->get('drafts_mbox')) {
         $rcmail->output->show_message($this->gettext('invalidfolder'), 'error');
         return;
@@ -209,7 +217,7 @@ class epesi_archive extends rcube_plugin
                     unset($cid_map[$kk]);
                 }
             }
-            $body = rcmail_wash_html($body,array('safe'=>true,'inline_html'=>true),$cid_map);
+            $body = rcmail_action_mail_index::wash_html($body,array('safe'=>true,'inline_html'=>true),$cid_map);
         } else {
             $body = '<pre>'.$msg->first_text_part().'</pre>';
         }

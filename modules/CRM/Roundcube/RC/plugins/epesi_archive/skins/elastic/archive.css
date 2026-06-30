@@ -1,0 +1,13 @@
+/* §48: Elastic-skin icon for the "Archive to CRM" toolbar button.
+   RC 1.7.1 ships only the Elastic skin (Larry/Classic removed), so the plugin's old PNG
+   buttons no longer render. Elastic bundles its icons as the "Icons" font; glyph \f187 is the
+   archive-box (already used by Elastic's own .menu a.archive:before and .folderlist li.archive).
+   The main message toolbar has no archive rule of its own, so we add one here. The button is
+   placed in the 'toolbar' container and, because epesi_archive loads before markasjunk, it lands
+   between the core Delete button and markasjunk's Junk button. */
+#mailtoolbar a.button.archive:before,
+a.button.archive:before {
+    content: "\f187";
+    font-family: "Icons";
+    font-weight: 900;
+}

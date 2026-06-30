@@ -1415,6 +1415,19 @@ Found on the client upgrade: composing and sending `k.tylek@euroleader.com → k
 
 ---
 
+## 48. FIXED — "Archive to CRM" button vanished after RC 1.2.1→1.7.1 (Larry/Classic dropped → Elastic-only)
+
+Found on the client upgrade: the message-view **Archive** button (archives an e-mail into a CRM record) disappeared.
+
+- **Cause:** RC 1.7.1 ships **only the `elastic` skin** (Larry/Classic removed in 1.6+); the user's `larry` pref silently falls back to elastic. The `epesi_archive` plugin was written for the old skins/API: (1) old **PNG image buttons** (`imageact`/`imagepas` under `skins/larry|classic`) that Elastic doesn't render; (2) the action handler used **removed** helpers `get_input_value()/RCUBE_INPUT_POST` and the global `rcmail_wash_html()` — so even if shown, clicking it would fatal.
+- **Fix (port to Elastic):**
+  - Buttons → Elastic CSS-class style (`'class'=>'button archive'`, `innerclass`, `label`) like the bundled `markasjunk`; kept in the `toolbar` container. Because `epesi_archive` loads before `markasjunk` in the plugins list, the button lands **between the core Delete button and the Junk button** (its original spot).
+  - New `skins/elastic/archive.css`: `#mailtoolbar a.button.archive:before{content:"\f187";font-family:"Icons";font-weight:900}` — reuses Elastic's bundled `Icons` font / archive-box glyph. CSS now included via `$this->local_skin_path()`.
+  - API: `get_input_value(x,RCUBE_INPUT_POST)` → `rcube_utils::get_input_value(x,rcube_utils::INPUT_POST)` (×3); `rcmail_wash_html(...)` → `rcmail_action_mail_index::wash_html(...)`.
+- **Files:** `modules/CRM/Roundcube/RC/plugins/epesi_archive/epesi_archive.php` + new `skins/elastic/archive.css`. Epesi's own plugin (in the RC bundle), so in-scope & portable.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
