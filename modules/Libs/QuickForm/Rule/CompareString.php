@@ -71,13 +71,18 @@ class HTML_QuickForm_Rule_CompareString extends HTML_QuickForm_Rule
     function validate($values, $operator = null)
     {
         $operator = $this->_findOperator($operator);
-        if ('==' != $operator && '!=' != $operator) {
-            $compareFn = create_function('$a, $b', 'return strcmp($a, $b) ' . $operator . ' 0;');
-        } else {
-            $compareFn = create_function('$a, $b', 'return strcmp($a, $b) ' . $operator . ' 0;');
+        // §49: create_function() removed in PHP 8 — compare the strcmp() result directly.
+        $cmp = strcmp((string) $values[0], (string) $values[1]);
+        switch ($operator) {
+            case '<':  return $cmp <  0;
+            case '<=': return $cmp <= 0;
+            case '>':  return $cmp >  0;
+            case '>=': return $cmp >= 0;
+            case '!=':
+            case '<>': return $cmp != 0;
+            case '==':
+            default:   return $cmp == 0;
         }
-        
-        return $compareFn($values[0], $values[1]);
     }
 
 
