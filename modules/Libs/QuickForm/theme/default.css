@@ -73,20 +73,20 @@
 /* §26: timestamp edit field (deadline, event/meeting alert time, etc.) — keep the date picker
    and the time selects (hour : minute am/pm) on one compact line instead of stacking them into
    separate rows. */
-#quickform .timestamp > div {
+.data.timestamp > div {
 	white-space: nowrap;
 }
-#quickform .timestamp > div > div {
+.data.timestamp > div > div {
 	display: inline-block;
 	vertical-align: middle;
 	white-space: nowrap;
 }
-#quickform .timestamp select {
+.data.timestamp select {
 	display: inline-block;
 	width: auto;
 	vertical-align: middle;
 }
-#quickform .timestamp > div > div:last-child input {
+.data.timestamp > div > div:last-child input {
 	width: 150px;
 }
 
