@@ -36,8 +36,8 @@ class epesi_archive extends rcube_plugin
         $this->add_button(
         array(
             'command' => 'plugin.epesi_auto_archive',
-            'class' => 'button archive'.($_SESSION['epesi_auto_archive']?' pressed':''),
-            'classact' => 'button archive',
+            'class' => 'button archive toolbar-button'.($_SESSION['epesi_auto_archive']?' pressed':''),
+            'classact' => 'button archive toolbar-button',
             'innerclass' => 'inner',
             'label' => 'buttontitle_compose',
             'title' => 'buttontitle_compose',
@@ -51,8 +51,8 @@ class epesi_archive extends rcube_plugin
       $this->add_button(
         array(
             'command' => 'plugin.epesi_archive',
-            'class' => 'button archive',
-            'classact' => 'button archive',
+            'class' => 'button archive toolbar-button',
+            'classact' => 'button archive toolbar-button',
             'innerclass' => 'inner',
             'label' => 'buttontitle',
             'title' => 'buttontitle',
