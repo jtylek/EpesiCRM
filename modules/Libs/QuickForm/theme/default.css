@@ -92,9 +92,16 @@ td.data.timestamp > div > div {
 td.data.timestamp > div > div:last-child {
 	order: -1;
 }
-td.data.timestamp select {
+/* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
+   in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
+   inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into
+   rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell. */
+td select[name$="[h]"],
+td select[name$="[i]"],
+td select[name$="[a]"] {
 	display: inline-block;
 	width: auto;
+	min-width: 0;
 	vertical-align: middle;
 }
 td.data.timestamp > div > div:last-child input {
