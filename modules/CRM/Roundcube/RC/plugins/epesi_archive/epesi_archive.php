@@ -18,7 +18,7 @@ class epesi_archive extends rcube_plugin
     $this->register_action('plugin.epesi_archive', array($this, 'request_action'));
 
     //register hook to archive just sent mail
-    $this->add_hook('attachments_cleanup', array($this, 'auto_archive'));
+    $this->add_hook('message_sent', array($this, 'auto_archive_on_send'));
     if(!isset($_SESSION['epesi_auto_archive']))
         $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
@@ -290,37 +290,53 @@ class epesi_archive extends rcube_plugin
     }
   }
 
-  //on message sending
-  function auto_archive() {
-    if(!$_SESSION['epesi_auto_archive']) return;
-    unset($_SESSION['epesi_auto_archive']);
-
-    global $store_folder,$saved,$message_id,$store_target;
-    $IMAP = $imap = rcmail::get_instance()->storage;
-    if(!$store_folder || !$saved) return;
-    $rcmail = rcmail::get_instance();
-
-    $msgid = strtr($message_id, array('>' => '', '<' => ''));
-    $old_mbox = $IMAP->get_folder();
-
-    $IMAP->set_folder($store_target);
-    $uids = $IMAP->search_once('', 'HEADER Message-ID '.$msgid, true);
-    if($uids->is_empty()) return;
-
-    $archived = $this->archive($uids,false);
+  // Auto-archive on send (RC 1.7.1). The old approach hooked 'attachments_cleanup' and read
+  // $store_folder/$saved/$store_target as globals — but in 1.7.1 those are locals in send.php and
+  // that hook now fires from upload cleanup, so it was a no-op. There is no post-store hook either.
+  // Instead we hook 'message_sent' (fires during delivery, BEFORE save_message reads
+  // $_POST['_store_target']): redirect the sent copy straight into CRM Archive Sent, then create the
+  // Epesi record at shutdown (which runs before the IMAP connection is closed), once it is stored.
+  function auto_archive_on_send($args) {
+    if (empty($_SESSION['epesi_auto_archive'])) return $args;
+    if (!empty($_POST['_draft'])) return $args; // real sends only, not drafts
+    unset($_SESSION['epesi_auto_archive']); // one-shot per send
 
     global $account;
-    if($archived && isset($account['f_use_epesi_archive_directories']) && $account['f_use_epesi_archive_directories']) {
-        $rcmail->output->command('set_env', 'uid', $uids->get_element(0));
-        $rcmail->output->command('set_env', 'mailbox',$store_target);
-        $rcmail->output->command('move_messages', $this->archive_sent_mbox);
-    }
+    $use_dirs = !empty($account['f_use_epesi_archive_directories']);
+    $rcmail = rcmail::get_instance();
 
-    $IMAP->set_folder($old_mbox);
+    // File the sent copy in CRM Archive Sent (overrides reply_same_folder). save_message() reads
+    // $_POST['_store_target'] later in this same request.
+    if ($use_dirs)
+        $_POST['_store_target'] = $this->archive_sent_mbox;
 
-    if($archived) {
-        $rcmail->output->show_message($this->gettext('archived'), 'confirmation');
+    // Message-ID from the just-sent headers; used to locate the stored copy at shutdown.
+    $headers = isset($args['headers']) ? $args['headers'] : array();
+    $msgid = '';
+    foreach ($headers as $k => $v) {
+        if (strcasecmp($k, 'Message-ID') === 0) { $msgid = $v; break; }
     }
+    if (!$msgid) return $args;
+
+    $folder = $use_dirs ? $this->archive_sent_mbox : $rcmail->config->get('sent_mbox');
+    $self = $this;
+    $rcmail->add_shutdown_function(function() use ($self, $msgid, $folder) {
+        $self->finish_auto_archive($msgid, $folder);
+    });
+
+    return $args;
+  }
+
+  // Runs at shutdown (IMAP still open): find the stored sent message by Message-ID and archive it.
+  public function finish_auto_archive($msgid, $folder) {
+    if (!$folder) return;
+    $rcmail = rcmail::get_instance();
+    $storage = $rcmail->get_storage();
+    $msgid = strtr($msgid, array('>' => '', '<' => ''));
+    $storage->set_folder($folder);
+    $uids = $storage->search_once($folder, 'HEADER Message-ID '.$msgid);
+    if (!$uids || $uids->is_empty()) return;
+    $this->archive($uids, false);
   }
 
   function list_messages($p) {
