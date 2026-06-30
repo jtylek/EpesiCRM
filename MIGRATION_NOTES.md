@@ -1451,6 +1451,21 @@ Found on the client upgrade: the message-view **Archive** button (archives an e-
 
 ---
 
+# PHASE 5 — PHP hardening (branch `experiment/php8-hardening`, post-release)
+
+## 49. FIXED — PHP-8-removed functions surviving in live cold paths
+
+After the v1.9.2-php8.2 release, a hardening sweep for functions **removed in PHP 8.0** (fatal only if the code path is hit — so missed during runtime testing). Scope: `modules/` + `include/` minus vendor, RC bundle, and the dead `3.2.14-php7/` dir.
+
+- **`Base/Mail/class.phpmailer.php` `encodeFile()`** — `get_magic_quotes_runtime()` (removed in 8.0) would fatal when **Base_Mail sends a mail with an attachment** (recovery/system mail without attachment never hit it). Always `false` on PHP 7+ → set to `false`.
+- **`Libs/QuickForm/Rule/CompareString.php` `validate()`** — `create_function()` (removed in 8.0) for the registered `comparestring` rule → replaced with a direct `strcmp()` + `switch`.
+- **Dead, left as-is:** `modules/Libs/QuickForm/3.2.14-php7/**` (old vendored QuickForm — `requires.php` disables it, openpsa/composer is loaded instead) still contains `create_function`/`get_magic_quotes_gpc`, but is never included.
+- **Clean:** broader removed-function scan (money_format, convert_cyr_string, ezmlm_hash, image2wbmp, read_exif_data, call_user_method, reversed `implode` args, …) found nothing else live.
+
+**Still open in Phase 5 (need tooling Karina runs — sandbox has no PHP CLI):** Rector PHP 8.1/8.2 *deprecation* sets (dynamic properties = the big one; null→non-nullable internal args), optional PHPStan/Psalm pass, and the §47 guzzle/psr7 RC-vendor re-pin. Dynamic properties are only E_DEPRECATED on 8.2 (suppressed), so low-urgency for shipping; matters for 8.3/9.0.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
