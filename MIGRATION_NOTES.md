@@ -1094,12 +1094,16 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ---
 
-## 26. ODŁOŻONE — Timestamp field layout broken (PhoneCall, Meeting, inne)
+## 26. FIXED — Timestamp / time-picker field layout broken (Deadline, Alert time, PhoneCall, Meeting…)
 
-**Symptom:** W edycji rekordu pole Date and Time: data po lewej, godzina/minuty rozjechane na osobne rzędy zamiast jednego wiersza.
-**Cause:** `modules/Utils/PopupCalendar/timestamp.php:107` używa `<div>{element}</div>` jako szablonu grupy. Na PHP 7 ze starym QuickForm działało inline; openpsa renderer wstawia każdy sub-element w blokowy `<div>`, co łamie układ.
-**Opcje naprawy:** (1) `<span>` zamiast `<div>` — inline z natury, bez CSS; (2) usunięcie `setGroupElementTemplate` — naturalne renderowanie grupy; (3) CSS w motywie + `<span class>` — pełne rozdzielenie logiki i wyglądu.
-**Decyzja:** odłożone — wymaga uzgodnienia podejścia (logika vs wygląd). Niefatalne, kosmetyczne.
+**Symptom:** In edit forms the time selects (hour : minute am/pm) stacked into separate rows; the timestamp field also had the date floated apart with the time running off-screen in narrow popups.
+**Causes (two, both PHP-8-era CSS, surfaced after the openpsa QuickForm/theme migration):**
+1. **Time selects wrap into rows** — `.epesi_data input,select,textarea { width: 97% }` (Base/Box theme) gives each select 97% of the cell, so three can't share a line.
+2. **Timestamp date/time split + overflow** — `.Utils_RecordBrowser__View_entry .timestamp > div > div { float: right }` (equal specificity) wins over the edit cell, floating the time off-screen.
+**Fix (CSS only, in the Epesi module theme — chose option 3, logic/appearance separated, no renderer change):** `modules/Libs/QuickForm/theme/default.css`:
+- Universal — target time selects by their `[h]/[i]/[a]` field names with `width:auto; display:inline-block` (higher specificity than `.epesi_data select`) → fixes **every** time picker regardless of cell class.
+- Timestamp cell — `td.data.timestamp > div` as `display:flex` (date first, wraps when narrow); `float:none` on the sub-divs to override the View_entry float; date input `width:150px`.
+**Delivery:** Epesi-side theme CSS → reaches users via `runpatches.php` → `Base_ThemeCommon::themeup()` (rebuilds `data/Base_Theme`). Validated live: Deadline + meeting Alert time render inline.
 
 ---
 
