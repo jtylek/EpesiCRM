@@ -35,7 +35,6 @@
         }
     },
     "require-dev": {
-        "codeception/codeception": "*",
-        "codeception/aspect-mock": "*"
+        "codeception/codeception": "*"
     }
 }

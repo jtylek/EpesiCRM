@@ -8,12 +8,11 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
-        '950e8c5ec01dc90f029c243f73011631' => __DIR__ . '/..' . '/goaop/parser-reflection/src/bootstrap.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
@@ -83,8 +82,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
         'G' =>
         array (
             'GuzzleHttp\\Psr7\\' => 16,
-            'Go\\ParserReflection\\' => 20,
-            'Go\\' => 3,
         ),
         'F' =>
         array (
@@ -98,9 +95,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
         'D' =>
         array (
             'Doctrine\\Instantiator\\' => 22,
-            'Doctrine\\Common\\Lexer\\' => 22,
-            'Doctrine\\Common\\Cache\\' => 22,
-            'Doctrine\\Common\\Annotations\\' => 28,
             'DeepCopy\\' => 9,
         ),
         'C' =>
@@ -261,14 +255,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
-        'Go\\ParserReflection\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/goaop/parser-reflection/src',
-        ),
-        'Go\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/goaop/framework/src',
-        ),
         'Faker\\' =>
         array (
             0 => __DIR__ . '/..' . '/fzaninotto/faker/src/Faker',
@@ -284,18 +270,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
         'Doctrine\\Instantiator\\' =>
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
-        ),
-        'Doctrine\\Common\\Lexer\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/doctrine/lexer/lib/Doctrine/Common/Lexer',
-        ),
-        'Doctrine\\Common\\Cache\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
-        ),
-        'Doctrine\\Common\\Annotations\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/doctrine/annotations/lib/Doctrine/Common/Annotations',
         ),
         'DeepCopy\\' =>
         array (
@@ -345,25 +319,11 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
                 0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
             ),
         ),
-        'D' =>
-        array (
-            'Dissect' =>
-            array (
-                0 => __DIR__ . '/..' . '/jakubledl/dissect/src',
-            ),
-        ),
         'B' =>
         array (
             'Behat\\Gherkin' =>
             array (
                 0 => __DIR__ . '/..' . '/behat/gherkin/src',
-            ),
-        ),
-        'A' =>
-        array (
-            'AspectMock' =>
-            array (
-                0 => __DIR__ . '/..' . '/codeception/aspect-mock/src',
             ),
         ),
     );

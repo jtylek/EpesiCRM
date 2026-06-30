@@ -10,8 +10,6 @@ return array(
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Pimple' => array($vendorDir . '/pimple/pimple/src'),
     'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
-    'Dissect' => array($vendorDir . '/jakubledl/dissect/src'),
     'Behat\\Gherkin' => array($vendorDir . '/behat/gherkin/src'),
-    'AspectMock' => array($vendorDir . '/codeception/aspect-mock/src'),
     '' => array($baseDir . '/modules'),
 );
