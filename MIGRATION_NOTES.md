@@ -1428,7 +1428,7 @@ Found on the client upgrade: composing and sending `user@example.com → user@ex
 
 - **Cause:** the user's RC preference `spellcheck_before_send` is `true` (stored in `rc_users.preferences`). On send, `send.php` runs `rcube_spellchecker` with the default `spellcheck_engine='googie'`, which POSTs to a **defunct external Google spell service**. The failed HTTP then hits a **guzzle/psr7 version mismatch** in the RC 1.7.1 vendor — `GuzzleHttp\Exception\RequestException::create()` calls `GuzzleHttp\Psr7\Utils::redactUserInfo()`, which doesn't exist in the bundled psr7 → `Uncaught Error: Call to undefined method` → fatal, send aborts. (`send.php:144` gate needs both `spellcheck_before_send` AND `enable_spellcheck`.)
 - **Fix:** `modules/CRM/Roundcube/RC/config/config.inc.php` — `$config['enable_spellcheck'] = false;`. The before-send gate is now false → no spell HTTP call → send works for everyone, regardless of the per-user pref. The only bundled engine is the dead googie service, so nothing functional is lost. Portable (shipped config, reaches all upgrades).
-- **FOR JASIEK / latent:** the underlying guzzle↔psr7 mismatch in the RC vendor makes *any* failed external HTTP via guzzle fatal (not just spellcheck). Worth a `composer` re-pin of the RC bundle's guzzle/psr7 later; for now no other path uses it on the hot routes.
+- **RESOLVED (Phase 5):** the underlying guzzle↔psr7 mismatch made *any* failed external HTTP via guzzle fatal (not just spellcheck). Root cause: Epesi's main `vendor/` carried an **old psr7 (1.x, no `Utils::redactUserInfo`)** as a transitive dep, shadowing the RC bundle's psr7 2.x via the autoloader. Fixed by `composer require guzzlehttp/psr7:^2.7 -W` (→ psr7 2.12.3 + psr/http-factory, psr/http-message, symfony/http-foundation). No Epesi code uses guzzle directly, so low-risk. Spellcheck stays disabled regardless. (Test after: file download/upload via `Symfony\…\HttpFoundation\Request`, since http-foundation also bumped.)
 
 ---
 
@@ -1462,7 +1462,8 @@ After the v1.9.2-php8.2 release, a hardening sweep for functions **removed in PH
 - **Dead, left as-is:** `modules/Libs/QuickForm/3.2.14-php7/**` (old vendored QuickForm — `requires.php` disables it, openpsa/composer is loaded instead) still contains `create_function`/`get_magic_quotes_gpc`, but is never included.
 - **Clean:** broader removed-function scan (money_format, convert_cyr_string, ezmlm_hash, image2wbmp, read_exif_data, call_user_method, reversed `implode` args, …) found nothing else live.
 
-**Still open in Phase 5 (need tooling Karina runs — sandbox has no PHP CLI):** Rector PHP 8.1/8.2 *deprecation* sets (dynamic properties = the big one; null→non-nullable internal args), optional PHPStan/Psalm pass, and the §47 guzzle/psr7 RC-vendor re-pin. Dynamic properties are only E_DEPRECATED on 8.2 (suppressed), so low-urgency for shipping; matters for 8.3/9.0.
+**Done in Phase 5:** §49 (removed-function landmines), §50 (drop dead 3.2.14-php7), §47 psr7 re-pin.
+**Still open in Phase 5 (need tooling Karina runs — sandbox has no PHP CLI, planned via CI):** Rector PHP 8.1/8.2 *deprecation* sets (dynamic properties = the big one; null→non-nullable internal args) + optional PHPStan/Psalm pass. Dynamic properties are only E_DEPRECATED on 8.2 (suppressed), so low-urgency for shipping; matters for 8.3/9.0.
 
 ---
 
