@@ -1,13 +1,11 @@
 /* §48: archive-box icon for the "Archive to CRM" toolbar button on the Elastic skin.
    RC 1.7.1 ships only Elastic (Larry/Classic removed), so the plugin's old PNG buttons don't
-   render. Elastic's master rule already assigns the bundled "Icons" font (Font Awesome solid)
-   to ".toolbar a:before", so a toolbar anchor only needs the glyph. \f187 is the archive box
-   (the same glyph Elastic uses for .menu a.archive and .folderlist li.archive). font-family is
-   restated for safety in case the button is rendered outside a .toolbar container. */
+   render. The button uses the standard toolbar classes ('archive toolbar-button'), so it inherits
+   Elastic's normal toolbar sizing via '.toolbar a:before' (Icons font, 1.25em) — we only supply the
+   glyph. \f187 is the archive box (same glyph Elastic uses for .menu a.archive and .folderlist
+   li.archive). NB: do NOT add the 'button' class — '#layout>div>.header a.button:before' forces a
+   1.75rem icon, which made the button look oversized vs the rest of the toolbar. */
 .toolbar a.archive:before,
-#mailtoolbar a.archive:before,
-a.button.archive:before {
+#mailtoolbar a.archive:before {
     content: "\f187";
-    font-family: Icons;
-    font-weight: 900;
 }
