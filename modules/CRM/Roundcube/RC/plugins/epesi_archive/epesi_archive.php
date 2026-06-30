@@ -23,9 +23,11 @@ class epesi_archive extends rcube_plugin
         $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
     $this->include_script('archive.js');
-    $skin_path = $this->local_skin_path();
-    if (is_file(slashify($this->home) . "$skin_path/archive.css"))
-        $this->include_stylesheet("$skin_path/archive.css");
+    // RC 1.7.1 ships only the Elastic skin, so load the Elastic icon CSS directly. (Don't use
+    // local_skin_path() here: the user's stored skin pref may still be 'larry', which would make
+    // it resolve to the plugin's legacy skins/larry dir and load the wrong, PNG-based stylesheet.)
+    if (is_file(slashify($this->home) . 'skins/elastic/archive.css'))
+        $this->include_stylesheet('skins/elastic/archive.css');
     $this->add_texts('localization', true);
 
     $this->add_hook('messages_list', array($this, 'list_messages'));
@@ -40,8 +42,7 @@ class epesi_archive extends rcube_plugin
             'label' => 'buttontitle_compose',
             'title' => 'buttontitle_compose',
             'domain' => $this->ID,
-            'id'=>'epesi_auto_archive_button',
-            'imageact' => $skin_path.'/archive_'.($_SESSION['epesi_auto_archive']?'act':'pas').'.png'
+            'id'=>'epesi_auto_archive_button'
         ),
         'toolbar');
     }
@@ -56,8 +57,6 @@ class epesi_archive extends rcube_plugin
             'label' => 'buttontitle',
             'title' => 'buttontitle',
             'domain' => $this->ID,
-            'imagepas' => $skin_path.'/archive_pas.png',
-            'imageact' => $skin_path.'/archive_act.png',
         ),
         'toolbar');
 
@@ -217,7 +216,19 @@ class epesi_archive extends rcube_plugin
                     unset($cid_map[$kk]);
                 }
             }
-            $body = rcmail_action_mail_index::wash_html($body,array('safe'=>true,'inline_html'=>true),$cid_map);
+            // Sanitize the HTML body before storing it in the CRM record. We can't use
+            // rcmail_action_mail_index::wash_html() here: it calls $rcmail->output->asset_url(),
+            // which only exists on the HTML output object — this archive action runs as an
+            // AJAX/JSON request (rcmail_output_json), so that fatals. Wash with rcube_washtml
+            // directly (what the old rcmail_wash_html wrapper did); safe context = user-initiated.
+            $washer = new rcube_washtml(array(
+                'show_washed'   => false,
+                'allow_remote'  => true,
+                'cid_map'       => $cid_map,
+                'html_elements' => array('body'),
+                'html_attribs'  => array('rel','type'),
+            ));
+            $body = $washer->wash($body);
         } else {
             $body = '<pre>'.$msg->first_text_part().'</pre>';
         }

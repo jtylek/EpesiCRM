@@ -1,7 +1,7 @@
 <?php
 
 $labels = array();
-$labels['buttontitle'] = 'Archive this message';
+$labels['buttontitle'] = 'Archive';
 $labels['buttontitle_compose'] = 'Archive this message after sending';
 $labels['archived'] = 'Successfully archived';
 $labels['archived_duplicate'] = 'Message already archived';
