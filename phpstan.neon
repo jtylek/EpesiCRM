@@ -1,0 +1,20 @@
+parameters:
+    # Start low: Epesi has no PSR-4 autoload for its own classes (custom module loader), so higher
+    # levels flood with "unknown class/method". Level 0 catches the high-value stuff (undefined
+    # functions/classes/methods, wrong arg counts). Raise gradually once a baseline exists.
+    level: 0
+    phpVersion: 80200
+    paths:
+        - include
+        - modules
+    # let PHPStan discover Epesi + vendor class definitions even without an autoloader
+    scanDirectories:
+        - vendor
+    excludePaths:
+        - modules/CRM/Roundcube/RC/program/*
+        - modules/CRM/Roundcube/RC/vendor/*
+        - modules/CRM/Roundcube/RC/plugins/*
+        - modules/Tests/*
+        - modules/Base/Theme/smarty/*
+    # third-party/legacy noise we don't own
+    reportUnmatchedIgnoredErrors: false
