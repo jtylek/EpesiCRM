@@ -8,3 +8,19 @@ data/Base_Theme/compiled/
 data/Base_Theme/templates/
 data/tmp/
 data/config.php
+
+# Secrets / per-instance tokens
+data/cron_token.php
+
+# Instance/runtime data (user content, uploads, stored files, logs — never ship these)
+data/Base_Error/*.txt
+data/Utils_FileStorage/
+data/Utils_FileUpload/
+data/Utils/
+data/CRM_Mail/d/
+data/CRM_Mail/attachments/
+data/CRM_Tasks/d/
+data/CRM_Roundcube/log/
+data/CRM_Roundcube/tmp/
+data/CRM_Roundcube/company_logo.png
+data/Libs_TCPDF/*.pdf
