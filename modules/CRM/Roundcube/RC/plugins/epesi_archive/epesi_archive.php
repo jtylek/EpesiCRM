@@ -23,11 +23,6 @@ class epesi_archive extends rcube_plugin
         $_SESSION['epesi_auto_archive'] = isset($account['f_archive_on_sending']) && $account['f_archive_on_sending']?1:0;
 
     $this->include_script('archive.js');
-    // RC 1.7.1 ships only the Elastic skin, so load the Elastic icon CSS directly. (Don't use
-    // local_skin_path() here: the user's stored skin pref may still be 'larry', which would make
-    // it resolve to the plugin's legacy skins/larry dir and load the wrong, PNG-based stylesheet.)
-    if (is_file(slashify($this->home) . 'skins/elastic/archive.css'))
-        $this->include_stylesheet('skins/elastic/archive.css');
     $this->add_texts('localization', true);
 
     $this->add_hook('messages_list', array($this, 'list_messages'));
@@ -36,8 +31,8 @@ class epesi_archive extends rcube_plugin
         $this->add_button(
         array(
             'command' => 'plugin.epesi_auto_archive',
-            'class' => 'archive toolbar-button'.($_SESSION['epesi_auto_archive']?' pressed':''),
-            'classact' => 'archive toolbar-button',
+            'class' => 'button archive'.($_SESSION['epesi_auto_archive']?' pressed':''),
+            'classact' => 'button archive',
             'innerclass' => 'inner',
             'label' => 'buttontitle_compose',
             'title' => 'buttontitle_compose',
@@ -51,8 +46,9 @@ class epesi_archive extends rcube_plugin
       $this->add_button(
         array(
             'command' => 'plugin.epesi_archive',
-            'class' => 'archive toolbar-button',
-            'classact' => 'archive toolbar-button',
+            'class' => 'button buttonPas archive disabled',
+            'classact' => 'button archive',
+            'classsel' => 'button archive pressed',
             'innerclass' => 'inner',
             'label' => 'buttontitle',
             'title' => 'buttontitle',
