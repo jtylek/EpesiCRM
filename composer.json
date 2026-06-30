@@ -15,7 +15,8 @@
         "moneyphp/money": "^3.0",
         "openpsa/quickform": "^3.4",
         "adodb/adodb-php": "^5.22",
-        "phpseclib/mcrypt_compat": "^2.0"
+        "phpseclib/mcrypt_compat": "^2.0",
+        "guzzlehttp/psr7": "^2.7"
     },
     "scripts": {
         "post-install-cmd": [
