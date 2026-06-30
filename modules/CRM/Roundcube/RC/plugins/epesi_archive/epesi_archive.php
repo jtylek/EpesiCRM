@@ -143,7 +143,10 @@ class epesi_archive extends rcube_plugin
     global $E_SESSION;
     $rcmail = rcmail::get_instance();
     $path = getcwd();
-    chdir(str_replace(array('/modules/CRM/Roundcube/RC','\\modules\\CRM\\Roundcube\\RC'),'',$path));
+    // chdir to the Epesi root so FileStorage's relative 'data/...' paths resolve. The old
+    // str_replace(getcwd()) trick assumed a CWD the RC 1.7.1 bundle no longer uses, so it failed
+    // and the attachment write (archive_message → FileStorage) hit "No such file or directory".
+    chdir(EPESI_LOCAL_DIR);
 
     $msgs = array();
     if (!is_array($uids)) $uids = $uids->get();
