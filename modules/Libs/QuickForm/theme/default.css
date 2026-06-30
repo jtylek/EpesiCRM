@@ -75,12 +75,22 @@
    (nowrap + inline selects) and give the date picker a sensible width. The two sub-divs stay
    block-level, so the time and the date sit on their own compact lines — no horizontal overflow
    in narrow popup forms. */
-.epesi_main_module td.data.timestamp > div > div,
+/* Lay the date picker and the time (hour : minute am/pm) side by side on one line (flex; date
+   picker first), wrapping to two lines only when the form is too narrow. Flex items ignore float,
+   so this also neutralises the View_entry float that used to push the time off-screen. */
+td.data.timestamp > div {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
 td.data.timestamp > div > div {
 	float: none;
-	display: block;
 	white-space: nowrap;
-	margin-right: 0;
+	margin: 0;
+}
+td.data.timestamp > div > div:last-child {
+	order: -1;
 }
 td.data.timestamp select {
 	display: inline-block;
