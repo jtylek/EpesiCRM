@@ -1459,11 +1459,34 @@ After the v1.9.2-php8.2 release, a hardening sweep for functions **removed in PH
 
 - **`Base/Mail/class.phpmailer.php` `encodeFile()`** — `get_magic_quotes_runtime()` (removed in 8.0) would fatal when **Base_Mail sends a mail with an attachment** (recovery/system mail without attachment never hit it). Always `false` on PHP 7+ → set to `false`.
 - **`Libs/QuickForm/Rule/CompareString.php` `validate()`** — `create_function()` (removed in 8.0) for the registered `comparestring` rule → replaced with a direct `strcmp()` + `switch`.
-- **Dead, left as-is:** `modules/Libs/QuickForm/3.2.14-php7/**` (old vendored QuickForm — `requires.php` disables it, openpsa/composer is loaded instead) still contains `create_function`/`get_magic_quotes_gpc`, but is never included.
+- **Dead, since removed (§50):** `modules/Libs/QuickForm/3.2.14-php7/**` (old vendored QuickForm — `requires.php` disabled it, openpsa/composer is loaded instead) still contained `create_function`/`get_magic_quotes_gpc`, but was never included.
 - **Clean:** broader removed-function scan (money_format, convert_cyr_string, ezmlm_hash, image2wbmp, read_exif_data, call_user_method, reversed `implode` args, …) found nothing else live.
 
-**Done in Phase 5:** §49 (removed-function landmines), §50 (drop dead 3.2.14-php7), §47 psr7 re-pin.
-**Still open in Phase 5 (need tooling Karina runs — sandbox has no PHP CLI, planned via CI):** Rector PHP 8.1/8.2 *deprecation* sets (dynamic properties = the big one; null→non-nullable internal args) + optional PHPStan/Psalm pass. Dynamic properties are only E_DEPRECATED on 8.2 (suppressed), so low-urgency for shipping; matters for 8.3/9.0.
+---
+
+## 50. DONE — Remove the dead vendored QuickForm `3.2.14-php7/` (46 files)
+
+Disabled in `requires.php` (openpsa/quickform via composer is loaded instead) and referenced nowhere else, but still carried PHP-8-removed functions (`create_function`, `get_magic_quotes_gpc`) that polluted the §49 scans. Removed the dir; `requires.php` reduced to a no-op note. Premium modules use the QuickForm **API** (`QuickForm_0.php` → openpsa), not these internal files.
+
+---
+
+## 51. DONE — Drop stale dev dependency `codeception/aspect-mock` (§4 cleanup)
+
+`composer remove --dev codeception/aspect-mock` pruned **7 PHP-7-only packages** (aspect-mock, goaop/framework, goaop/parser-reflection, doctrine annotations/cache/lexer, dissect — ~527 vendor files). This was the §4 stale-dev-dep **and** the cause of the Rector `ParserFactory::create()` fatal (goaop's bootstrap ran on `vendor/autoload.php`). `modules/Tests` doesn't use aspect-mock directly. (`codeception/codeception` still in require-dev — removable later with the Tests-exclusion decision.)
+
+---
+
+## PHASE 5 STATUS (as of 2026-07-01)
+
+**Done:**
+- Release renamed to CalVer **`20260701-rc1`** (Jasiek's date scheme; supersedes the interim `1.9.2`). `EPESI_VERSION` is `version_compare`-safe: `> 1.9.1` (auto-update triggers) and `< final 20260701`.
+- Repo hygiene: `.gitignore` covers runtime `data/` + `cron_token.php`; client email anonymized in the current notes.
+- **§47** psr7 2.x re-pin · **§49** removed-function landmines · **§50** dead 3.2.14 removed · **§51** aspect-mock/goaop dev-dep cleanup.
+- **Rector PHP 8.2 dry-run (`rector-php82.php`): CLEAN — 636 files, zero changes.** The code is solid for 8.2.
+
+**Open — low urgency:** PHPStan/Psalm pass; dynamic properties (`AddAllowDynamicPropertiesAttributeRector` — *not* in the default 8.2 set, opinionated; only `E_DEPRECATED` on 8.2, matters for 8.3/9.0); CI workflow (`.github/workflows/php-checks.yml` — pushing it needs the token's `workflow` scope; Rector also runs locally).
+
+**Open — pre-public:** `composer audit` (composer flagged ~23 advisories in 6 old packages — likely the legacy symfony/twig stack); history scrub of email/client name/personal names (`git filter-repo --replace-text`, keeps commits); `README.md` / `UPGRADE.md`.
 
 ---
 
