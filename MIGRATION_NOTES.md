@@ -1422,9 +1422,14 @@ Found on the client upgrade: the message-view **Archive** button (archives an e-
 - **Cause:** RC 1.7.1 ships **only the `elastic` skin** (Larry/Classic removed in 1.6+); the user's `larry` pref silently falls back to elastic. The `epesi_archive` plugin was written for the old skins/API: (1) old **PNG image buttons** (`imageact`/`imagepas` under `skins/larry|classic`) that Elastic doesn't render; (2) the action handler used **removed** helpers `get_input_value()/RCUBE_INPUT_POST` and the global `rcmail_wash_html()` — so even if shown, clicking it would fatal.
 - **Fix (port to Elastic):**
   - Buttons → Elastic CSS-class style (`'class'=>'button archive'`, `innerclass`, `label`) like the bundled `markasjunk`; kept in the `toolbar` container. Because `epesi_archive` loads before `markasjunk` in the plugins list, the button lands **between the core Delete button and the Junk button** (its original spot).
-  - New `skins/elastic/archive.css`: `#mailtoolbar a.button.archive:before{content:"\f187";font-family:"Icons";font-weight:900}` — reuses Elastic's bundled `Icons` font / archive-box glyph. CSS now included via `$this->local_skin_path()`.
-  - API: `get_input_value(x,RCUBE_INPUT_POST)` → `rcube_utils::get_input_value(x,rcube_utils::INPUT_POST)` (×3); `rcmail_wash_html(...)` → `rcmail_action_mail_index::wash_html(...)`.
-- **Files:** `modules/CRM/Roundcube/RC/plugins/epesi_archive/epesi_archive.php` + new `skins/elastic/archive.css`. Epesi's own plugin (in the RC bundle), so in-scope & portable.
+  - New `skins/elastic/archive.css` (`.toolbar a.archive:before{content:"\f187";font-family:Icons;font-weight:900}`) — reuses Elastic's bundled `Icons` font / archive-box glyph (`.toolbar a:before` already assigns the font, we add the glyph). Label shortened to `Archive`.
+  - API: `get_input_value(x,RCUBE_INPUT_POST)` → `rcube_utils::get_input_value(x,rcube_utils::INPUT_POST)` (×3).
+- **Runtime fixes found in live testing (the button only renders + works after all of these):**
+  - **Wash:** `rcmail_action_mail_index::wash_html()` fatals here — it calls `$rcmail->output->asset_url()`, which exists only on the HTML output; the archive action runs as an AJAX/JSON request (`rcmail_output_json`). Use `rcube_washtml` directly (what the old `rcmail_wash_html` wrapper did).
+  - **CSS load:** must include `skins/elastic/archive.css` **explicitly** — `local_skin_path()` resolved to the plugin's legacy `skins/larry` dir under the user's stored `larry` pref, loading the wrong (PNG) stylesheet → no icon.
+  - **Attachment write:** `archive()` chdir'd to the Epesi root via a fragile `str_replace(getcwd())` that the RC 1.7.1 bundle's CWD broke → FileStorage's relative `data/…` path threw `Utils_FileStorage_WriteError`. Use `chdir(EPESI_LOCAL_DIR)`.
+- **Validated live on the client copy:** archives to the CRM record, attachment stored in FileStorage (downloadable), and the mail moves to `INBOX.CRM Archive` (`f_use_epesi_archive_directories=1`). Note: a *partial* failure leaves an `rc_mails` record with no attachment, and the `message_id` duplicate-guard then blocks retry ("Message already archived") — pre-existing, not migration-caused.
+- **Files:** `modules/CRM/Roundcube/RC/plugins/epesi_archive/epesi_archive.php`, new `skins/elastic/archive.css`, `localization/en_US.inc`. Epesi's own plugin (in the RC bundle), so in-scope & portable.
 
 ---
 
