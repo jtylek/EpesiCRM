@@ -31,6 +31,7 @@ class epesi_archive extends rcube_plugin
         $this->add_button(
         array(
             'command' => 'plugin.epesi_auto_archive',
+            'type' => 'link',
             'class' => 'button archive'.($_SESSION['epesi_auto_archive']?' pressed':''),
             'classact' => 'button archive',
             'innerclass' => 'inner',
@@ -46,6 +47,7 @@ class epesi_archive extends rcube_plugin
       $this->add_button(
         array(
             'command' => 'plugin.epesi_archive',
+            'type' => 'link',
             'class' => 'button buttonPas archive disabled',
             'classact' => 'button archive',
             'classsel' => 'button archive pressed',
