@@ -68,13 +68,14 @@ jobs:
         run: |
           if [ -f phpstan-baseline.neon ]; then
             # baseline committed → enforce: only NEW issues fail the build
-            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress
+            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=3G --no-progress
           else
-            # no baseline yet → generate one (never fails); download the artifact + commit it,
-            # then add `includes: [phpstan-baseline.neon]` to phpstan.neon and CI starts enforcing.
-            echo "No phpstan-baseline.neon yet — generating one as an artifact."
-            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress --generate-baseline phpstan-baseline.neon || true
-          fi
+            # no baseline yet → generate one (download the artifact + commit it, then add
+            # `includes: [phpstan-baseline.neon]` to phpstan.neon and CI starts enforcing).
+            # No `|| true` here — if PHPStan crashes we want the job red + the crash in the log.
+            echo "No phpstan-baseline.neon yet — generating one..."
+            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=3G --no-progress --generate-baseline phpstan-baseline.neon
+            echo "Baseline generated:"; ls -la phpstan-baseline.neon; wc -l phpstan-baseline.neon
       - name: Upload generated baseline (first run only)
         if: always()
         uses: actions/upload-artifact@v4
