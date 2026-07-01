@@ -21,20 +21,21 @@ jobs:
       - name: Lint our PHP (skip vendor / RC third-party / Tests)
         run: |
           fail=0
-          lint() {
-            while IFS= read -r f; do
-              if ! out=$(php -l "$f" 2>&1); then
-                echo "::error file=$f::${out}"
-                fail=1
-              fi
-            done
-          }
-          { find include modules admin console -name '*.php' \
+          # NB: process substitution (not `find | while`) so `fail` propagates — a piped
+          # while runs in a subshell and the parent never sees fail=1.
+          while IFS= read -r f; do
+            if ! out=$(php -l "$f" 2>&1); then
+              echo "::error file=$f::${out}"
+              fail=1
+            fi
+          done < <(
+            find include modules admin console -name '*.php' \
               ! -path 'modules/CRM/Roundcube/RC/program/*' \
               ! -path 'modules/CRM/Roundcube/RC/vendor/*' \
+              ! -path 'console/Develop/*' \
               ! -path 'modules/Tests/*'
             find . -maxdepth 1 -name '*.php'
-          } | lint
+          )
           exit $fail
 
   rector:
