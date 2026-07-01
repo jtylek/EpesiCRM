@@ -75,7 +75,8 @@ jobs:
             # No `|| true` here — if PHPStan crashes we want the job red + the crash in the log.
             echo "No phpstan-baseline.neon yet — generating one..."
             /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=3G --no-progress --generate-baseline phpstan-baseline.neon
-            echo "Baseline generated:"; ls -la phpstan-baseline.neon; wc -l phpstan-baseline.neon
+            ls -la phpstan-baseline.neon
+          fi
       - name: Upload generated baseline (first run only)
         if: always()
         uses: actions/upload-artifact@v4
