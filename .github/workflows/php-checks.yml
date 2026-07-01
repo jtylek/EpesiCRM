@@ -1,0 +1,53 @@
+name: PHP checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    name: php -l (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Lint our PHP (skip vendor / RC third-party / Tests)
+        run: |
+          fail=0
+          lint() {
+            while IFS= read -r f; do
+              if ! out=$(php -l "$f" 2>&1); then
+                echo "::error file=$f::${out}"
+                fail=1
+              fi
+            done
+          }
+          { find include modules admin console -name '*.php' \
+              ! -path 'modules/CRM/Roundcube/RC/program/*' \
+              ! -path 'modules/CRM/Roundcube/RC/vendor/*' \
+              ! -path 'modules/Tests/*'
+            find . -maxdepth 1 -name '*.php'
+          } | lint
+          exit $fail
+
+  rector:
+    name: Rector dry-run (PHP 8.2 deprecations — advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install Rector (isolated — avoids Epesi's php-parser conflict)
+        run: composer --working-dir=/tmp/rector require rector/rector:^2 --no-progress --no-interaction
+      - name: Rector --dry-run (reports suggested 8.2 changes, never fails the build)
+        run: /tmp/rector/vendor/bin/rector process --dry-run --config rector-php82.php --no-progress-bar || true
