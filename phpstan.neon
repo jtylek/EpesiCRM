@@ -18,3 +18,11 @@ parameters:
         - modules/Base/Theme/smarty/*
     # third-party/legacy noise we don't own
     reportUnmatchedIgnoredErrors: false
+    # keep parallel workers from timing out on the full codebase (PHPStan default is 600s; a
+    # single worker on a large legacy tree can exceed it). Modest process count for stability.
+    parallel:
+        maximumNumberOfProcesses: 2
+        processTimeout: 1200.0
+    # once the first CI run generates it (uploaded as an artifact) and it is committed, uncomment:
+    # includes:
+    #     - phpstan-baseline.neon

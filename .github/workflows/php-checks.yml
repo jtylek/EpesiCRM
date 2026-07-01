@@ -13,7 +13,7 @@ jobs:
       matrix:
         php: ['8.2', '8.3']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -43,12 +43,42 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
       - name: Install Rector (isolated — avoids Epesi's php-parser conflict)
-        run: composer --working-dir=/tmp/rector require rector/rector:^2 --no-progress --no-interaction
+        run: mkdir -p /tmp/rector && composer --working-dir=/tmp/rector require rector/rector:^2 --no-progress --no-interaction
       - name: Rector --dry-run (reports suggested 8.2 changes, never fails the build)
         run: /tmp/rector/vendor/bin/rector process --dry-run --config rector-php82.php --no-progress-bar || true
+
+  phpstan:
+    name: PHPStan (offloaded from Karina's 4GB box; full analysis + baseline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - name: Install PHPStan (isolated)
+        run: mkdir -p /tmp/phpstan && composer --working-dir=/tmp/phpstan require phpstan/phpstan:^2 --no-progress --no-interaction
+      - name: PHPStan
+        run: |
+          if [ -f phpstan-baseline.neon ]; then
+            # baseline committed → enforce: only NEW issues fail the build
+            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress
+          else
+            # no baseline yet → generate one (never fails); download the artifact + commit it,
+            # then add `includes: [phpstan-baseline.neon]` to phpstan.neon and CI starts enforcing.
+            echo "No phpstan-baseline.neon yet — generating one as an artifact."
+            /tmp/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit=1G --no-progress --generate-baseline phpstan-baseline.neon || true
+          fi
+      - name: Upload generated baseline (first run only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-baseline
+          path: phpstan-baseline.neon
+          if-no-files-found: ignore
