@@ -1,3 +1,9 @@
+# Baseline captures the ~316 pre-existing findings (mostly no-PSR-4-autoload noise); with it included,
+# CI flags only NEW issues (regressions). Regenerate it from the phpstan CI job's artifact as we clear
+# real bugs, so it shrinks over time.
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     # Start low: Epesi has no PSR-4 autoload for its own classes (custom module loader), so higher
     # levels flood with "unknown class/method". Level 0 catches the high-value stuff (undefined
@@ -23,6 +29,3 @@ parameters:
     parallel:
         maximumNumberOfProcesses: 2
         processTimeout: 1200.0
-    # once the first CI run generates it (uploaded as an artifact) and it is committed, uncomment:
-    # includes:
-    #     - phpstan-baseline.neon
