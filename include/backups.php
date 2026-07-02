@@ -261,6 +261,7 @@ class BackupArchive extends ZipArchive {
         return $this->close();
     }
     
+    #[\ReturnTypeWillChange]
     public function extractTo($destination, $entries = null) {
         $this->_open();
         return parent::extractTo($destination, $entries);

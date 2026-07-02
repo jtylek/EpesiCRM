@@ -1034,15 +1034,15 @@ class Utils_GenericBrowser extends Module {
 			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.__('All').'</a>';
 			$letter_links = array(0 => $all);
 			if ($quickjump_to != '0')
-				$letter_links[] .= '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'0')).'>'.'123'.'</a>';
+				$letter_links[] = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'0')).'>'.'123'.'</a>';
 			else
-				$letter_links[] .= '<span class="all">' . '123' . '</span>';
+				$letter_links[] = '<span class="all">' . '123' . '</span>';
 			$letter = 'A';
 			while ($letter<='Z') {
 				if ($quickjump_to != $letter)
-					$letter_links[] .= '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
+					$letter_links[] = '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
 				else
-					$letter_links[] .= '<span class="letter">' . $letter . '</span>';
+					$letter_links[] = '<span class="letter">' . $letter . '</span>';
 				$letter = chr(ord($letter)+1);
 			}
 			$theme->assign('letter_links', $letter_links);

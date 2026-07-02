@@ -1520,6 +1520,23 @@ OFC / TCPDF classes PHPStan can't scan, include-scope "undefined variable". Not 
   `CRM_RoundcubeCommon`. A **fresh 8.2 install was validated OK**, so it is either unreachable there or resolves
   another way — not touching historical patches on unverified behaviour. Documented; baselined.
 
+**Non-baselineable errors — the enforce run surfaced 10 that `--generate-baseline` had silently DROPPED.**
+Key lesson: PHPStan marks certain errors as **non-ignorable** (`canBeIgnored: false`) → `--generate-baseline`
+excludes them, so they were never in the 316, yet the enforce run reports them and fails. They can only be
+**fixed**, not baselined — and they were all real:
+- **`include/session.php` (6):** `EpesiSession` implements `SessionHandlerInterface`; `open/close/read/write/`
+  `destroy/gc` returned `mixed`, not covariant with the interface's *tentative* return types (PHP 8.1+).
+  Added `#[\ReturnTypeWillChange]` to each (zero runtime change; `gc()` returns `true` while the interface
+  wants `int|false`, so the attribute is safer than declaring a type).
+- **`include/backups.php:264` (1):** `BackupArchive::extractTo()` vs `ZipArchive::extractTo()` tentative
+  return type → `#[\ReturnTypeWillChange]`.
+- **`modules/Utils/GenericBrowser/GenericBrowser_0.php` (2 flagged, 4 fixed):** the A–Z quick-jump built
+  links with `$letter_links[] .= '…'` — `$arr[] .=` **reads** `$arr[]` ("Cannot use [] for reading"), a real
+  runtime fatal (passes `php -l`, so lint missed it). Corrected all four to `$letter_links[] = '…'` (append).
+  Fixed all four, not just the 2 PHPStan flagged, because fixing the first 2 would expose the other 2 next run.
+- **`modules/Libs/OpenFlashChart/OpenFlashChart_0.php:35` (1):** `__call($func_name, $args)` made `$args`
+  **required**, breaking LSP vs `Module::__call($name, $args = …)`; defaulted `$args = array()`.
+
 After the fixes the matching baseline entries go stale, but `reportUnmatchedIgnoredErrors: false` keeps CI
 green; regenerate the baseline from the CI artifact on the next convenient run to shrink it.
 

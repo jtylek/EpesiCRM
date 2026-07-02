@@ -54,6 +54,7 @@ class EpesiSession implements SessionHandlerInterface{
     	DB::Execute('DELETE FROM history WHERE session_name=%s AND client_id=%d',array($name,$i));
     }    
 
+    #[\ReturnTypeWillChange]
     public function open($path, $name)
     {
     	self::storage();
@@ -82,10 +83,12 @@ class EpesiSession implements SessionHandlerInterface{
     	return $class::active()? $class: $defaultClass;
     }
     
+    #[\ReturnTypeWillChange]
     public function close() {
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function read($name)
     {
         $name = self::truncated_id($name);
@@ -110,6 +113,7 @@ class EpesiSession implements SessionHandlerInterface{
         return '';
     }
 
+    #[\ReturnTypeWillChange]
     public function write($name, $data)
     {
         if(READ_ONLY_SESSION) return true;
@@ -144,6 +148,7 @@ class EpesiSession implements SessionHandlerInterface{
         return $ret > 0;
     }
     
+    #[\ReturnTypeWillChange]
     public function destroy($name)
     {
         $name = self::truncated_id($name);
@@ -160,6 +165,7 @@ class EpesiSession implements SessionHandlerInterface{
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($lifetime)
     {
         $before = time() - $lifetime;
