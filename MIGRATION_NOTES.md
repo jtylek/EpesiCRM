@@ -1490,6 +1490,41 @@ Disabled in `requires.php` (openpsa/quickform via composer is loaded instead) an
 
 ---
 
+### §53 — PHPStan baseline committed + CI enforcement on; benign findings fixed (2026-07-02)
+
+The CI `phpstan` job's first run generated **`phpstan-baseline.neon` (316 findings)**; it is now committed
+and `phpstan.neon` carries a top-level `includes: [phpstan-baseline.neon]`, so **CI fails only on NEW issues
+(regressions)** — the pre-existing noise is frozen. `actions/upload-artifact` bumped v4→v5.
+
+**~95 % of the 316 is no-PSR-4-autoload noise** (Epesi uses a custom module loader, not PSR-4): 51× OFC
+`require_once` "path not found", class case-mismatches (PHP is case-insensitive → they work), PEAR / Minify /
+OFC / TCPDF classes PHPStan can't scan, include-scope "undefined variable". Not bugs.
+
+**Genuine findings triaged:**
+- **Duplicate array keys — FIXED (4).** Removed benign copy-paste dups where key **and value** were identical
+  (zero behaviour change): `'visible'=>true` twice in the *Status* field def of `CRM/Meeting/MeetingInstall.php`
+  and `CRM/Tasks/TasksInstall.php`; `'russian'=>'CP1251'` twice in
+  `Base/RegionalSettings/RegionalSettingsCommon_0.php`; `'winw'=>'winw'` twice in `include/misc.php`. The
+  identical dup in the already-applied 2012 patch `Base/Acl/patches/20120626_new_permission.php` was left as-is
+  (historical patch, harmless).
+- **Dead `set_magic_quotes_runtime` — FIXED.** In `Base/Mail/class.phpmailer.php::encodeFile()`, §49 had set
+  `$magic_quotes = false` but left the now-unreachable `if ($magic_quotes) { set_magic_quotes_runtime(…) }`
+  save/restore blocks (PHPStan-flagged, removed in PHP 8). Removed the dead blocks — read + encode directly.
+- **`mobile_stack_href()` undefined — LEFT BASELINED.** Called at 5 sites in the **mobile UI**
+  (`Utils/RecordBrowser/mobile.php`, `Utils/RecordBrowser/RecordBrowserCommon_0.php`, `Utils/Tray/mobile.php`,
+  `Utils/Calendar/CalendarCommon_0.php`, `CRM/Calendar/CalendarCommon_0.php`) but **defined nowhere** —
+  pre-existing (undefined before PHP 8 too), *not* a migration regression. The mobile UI is vestigial and
+  defining the helper blind is risky → flagged for a **separate mobile-UI assessment**, frozen in the baseline.
+- **`CRM_RoundcubeCommon::create_thread()` wrong class — LEFT BASELINED.** The method lives in
+  `CRM_MailCommon::create_thread` (`CRM/Mail/MailCommon_0.php:344`); three 2013 Roundcube patches call it on
+  `CRM_RoundcubeCommon`. A **fresh 8.2 install was validated OK**, so it is either unreachable there or resolves
+  another way — not touching historical patches on unverified behaviour. Documented; baselined.
+
+After the fixes the matching baseline entries go stale, but `reportUnmatchedIgnoredErrors: false` keeps CI
+green; regenerate the baseline from the CI artifact on the next convenient run to shrink it.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.

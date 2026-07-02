@@ -59,7 +59,6 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				'slovak'=>'CP1250',
 				'spanish'=>'CP1252',
 				'swedish'=>'CP1252',
-				'russian'=>'CP1251',
 				'turkish'=>'CP1254',
 				'greek'=>'CP1253');
 

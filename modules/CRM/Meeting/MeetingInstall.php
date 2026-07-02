@@ -137,7 +137,6 @@ class CRM_MeetingInstall extends ModuleInstall {
                     'CRM/Status',
                 ),
                 'extra' => false,
-                'visible' => true,
                 'display_callback' => array(
                     'CRM_MeetingCommon',
                     'display_status',

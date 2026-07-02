@@ -496,7 +496,6 @@ function detect_mobile_device(){
                     'wapr'=>'wapr',
                     'webc'=>'webc',
                     'winw'=>'winw',
-                    'winw'=>'winw',
                     'xda-'=>'xda-'
                   );
   // check if the first four characters of the current user agent are set as a key in the array

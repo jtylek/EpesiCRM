@@ -2569,26 +2569,10 @@ class PHPMailer
             if (!is_readable($path)) {
                 throw new phpmailerException($this->lang('file_open') . $path, self::STOP_CONTINUE);
             }
-            $magic_quotes = false; // §49: get_magic_quotes_runtime() removed in PHP 8 (always false on 7+)
-            if ($magic_quotes) {
-                if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-                    set_magic_quotes_runtime(false);
-                } else {
-                    //Doesn't exist in PHP 5.4, but we don't need to check because
-                    //get_magic_quotes_runtime always returns false in 5.4+
-                    //so it will never get here
-                    ini_set('magic_quotes_runtime', false);
-                }
-            }
+            // §49/§53: magic_quotes_runtime is gone in PHP 8 (always off since PHP 5.4), so the old
+            // save/restore dance around file_get_contents is dead code — read + encode directly.
             $file_buffer = file_get_contents($path);
             $file_buffer = $this->encodeString($file_buffer, $encoding);
-            if ($magic_quotes) {
-                if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-                    set_magic_quotes_runtime($magic_quotes);
-                } else {
-                    ini_set('magic_quotes_runtime', $magic_quotes);
-                }
-            }
             return $file_buffer;
         } catch (Exception $exc) {
             $this->setError($exc->getMessage());
