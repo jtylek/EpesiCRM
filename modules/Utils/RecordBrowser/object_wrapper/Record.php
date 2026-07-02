@@ -192,6 +192,7 @@ class RBO_Record implements ArrayAccess {
 
     // ArrayAccess interface members
 
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset) {
         $offset = self::_get_field_id($offset);
         if (!self::_is_private_property($offset))
@@ -199,6 +200,7 @@ class RBO_Record implements ArrayAccess {
         return false;
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset) {
         $offset = self::_get_field_id($offset);
         if (!self::_is_private_property($offset))
@@ -206,6 +208,7 @@ class RBO_Record implements ArrayAccess {
         return null;
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value) {
         $offset = self::_get_field_id($offset);
         if (self::_is_private_property($offset))
@@ -213,6 +216,7 @@ class RBO_Record implements ArrayAccess {
         $this->$offset = $value;
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset) {
         $offset = self::_get_field_id($offset);
         if (!self::_is_private_property($offset))

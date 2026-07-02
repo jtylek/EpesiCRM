@@ -1520,14 +1520,21 @@ OFC / TCPDF classes PHPStan can't scan, include-scope "undefined variable". Not 
   `CRM_RoundcubeCommon`. A **fresh 8.2 install was validated OK**, so it is either unreachable there or resolves
   another way — not touching historical patches on unverified behaviour. Documented; baselined.
 
-**Non-baselineable errors — the enforce run surfaced 10 that `--generate-baseline` had silently DROPPED.**
-Key lesson: PHPStan marks certain errors as **non-ignorable** (`canBeIgnored: false`) → `--generate-baseline`
-excludes them, so they were never in the 316, yet the enforce run reports them and fails. They can only be
-**fixed**, not baselined — and they were all real:
+**Non-baselineable errors — the enforce run surfaced them in waves (10, then 4) that `--generate-baseline`
+had silently DROPPED.** Key lesson: PHPStan marks certain errors as **non-ignorable** (`canBeIgnored: false`)
+→ `--generate-baseline` excludes them, so they were never in the 316, yet the enforce run reports them and
+fails; and because PHPStan re-analyses after each fix, clearing one wave can reveal the next. They can only be
+**fixed**, not baselined — and they were all real. Covariance was the main category; a preemptive grep
+(`implements (ArrayAccess|Iterator|Countable|…)` + `extends ArrayObject|…`) confirmed only two of our classes
+are affected, both now done:
 - **`include/session.php` (6):** `EpesiSession` implements `SessionHandlerInterface`; `open/close/read/write/`
   `destroy/gc` returned `mixed`, not covariant with the interface's *tentative* return types (PHP 8.1+).
   Added `#[\ReturnTypeWillChange]` to each (zero runtime change; `gc()` returns `true` while the interface
   wants `int|false`, so the attribute is safer than declaring a type).
+- **`modules/Utils/RecordBrowser/object_wrapper/Record.php` (4):** `RBO_Record implements ArrayAccess`;
+  `offsetExists/offsetGet/offsetSet/offsetUnset` returned `mixed` vs the tentative `bool/mixed/void/void`.
+  Same `#[\ReturnTypeWillChange]` fix. RBO_Record is the array-style wrapper around RecordBrowser rows —
+  used widely, so this is core, but the attribute changes nothing at runtime.
 - **`include/backups.php:264` (1):** `BackupArchive::extractTo()` vs `ZipArchive::extractTo()` tentative
   return type → `#[\ReturnTypeWillChange]`.
 - **`modules/Utils/GenericBrowser/GenericBrowser_0.php` (2 flagged, 4 fixed):** the A–Z quick-jump built
