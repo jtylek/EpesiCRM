@@ -67,12 +67,15 @@ Copy the block below per platform as you go. Record the PHP version, extensions,
   Sent copies + the `CRM Archive` / `CRM Archive Sent` IMAP folders were empty because the account's
   **`f_imap_root`** was blank; the server (`mail.mrf.epesi.cloud`) uses the `INBOX.` namespace, so folder names
   must be `INBOX.CRM Archive` etc. (`epesi_archive.php:12-14` prefixes with `f_imap_root`; `config.inc.php:103`
-  sets `imap_ns_personal` from it). Setting `f_imap_root='INBOX.'` (SQL, since the field is `visible=false` in
-  `MailInstall.php:78`) fixed it — mails now archive. **NOT a migration bug** (pre-existing config), but a real
-  **pre-public usability gap: the field is hidden and undocumented**. Fix options: (a) **auto-detect** the personal
-  namespace via IMAP `NAMESPACE` on account save and store it in `f_imap_root` (best — zero user knowledge,
-  correct per-server); (b) make `IMAP Root` visible with a hint. Do NOT hardcode `INBOX.` — flat-namespace servers
-  (Gmail/Office365/modern dovecot) would break in reverse.
+  sets `imap_ns_personal` from it). Setting `f_imap_root='INBOX.'` fixed it — mails now archive. The **`IMAP Root`
+  field IS editable in the mail-account form** (Karina set it there; `visible=false` in `MailInstall.php:78` only
+  hides the *list column*, not the edit field). **NOT a migration bug** (pre-existing config). **DECISION (Karina,
+  2026-07-07): fix by DOCUMENTATION**, not code — the mail-account setup guide must tell users to set **IMAP Root**
+  to their server's IMAP *personal namespace*: **`INBOX.`** for Courier / some Dovecot (e.g. the epesi.cloud
+  hosting), **empty** for flat-namespace servers (Gmail / Office365 / modern Dovecot). Do NOT hardcode `INBOX.`
+  (breaks flat-namespace servers in reverse). Auto-detect via IMAP `NAMESPACE` was considered but documentation
+  was chosen (field already exposed). Cosmetic leftover: empty bare `CRM Archive`/`CRM Archive Sent` folders from
+  pre-`imap_root` attempts — deletable in RC Settings→Folders.
 - ✅ MySQL user must exist first (create + GRANT incl. the DB); DB permissions incl. **LOCK** all OK on Windows.
 - ✅ PHP 8.2.12; `data/` writable; admin creation, module install, CRM post-install, **dashboard** all worked.
 - ✅ Installer is **resumable** — after enabling GD, re-accessing continued the install (no clean reset needed).
