@@ -1549,6 +1549,31 @@ green; regenerate the baseline from the CI artifact on the next convenient run t
 
 ---
 
+### §54 — Roundcube fresh-install: restore `rc_` table prefix in `mysql.initial.sql` (2026-07-06)
+
+**Found by the Windows cross-platform test (first real FRESH install of Roundcube).** Opening Mail on Windows
+gave RC's generic "Oops"; the real error was in the *correct* RC log (`data/CRM_Roundcube/log/errors`, NOT
+`modules/CRM/Roundcube/RC/logs/` — Epesi overrides `log_dir` in `RC/config/config.inc.php:26`):
+`DB Error: [1146] Table 'epesi82.rc_session' doesn't exist … INSERT INTO rc_session …`.
+
+**Root cause — a regression introduced by our own §30 RC 1.2.1→1.7.1 upgrade.** `CRM_RoundcubeInstall::install()`
+runs `RC/SQL/mysql.initial.sql` **raw** (no prefix substitution), and everything else expects the `rc_` prefix
+(`db_prefix='rc_'`; `drop_all_rc_tables()` drops `rc_session`/`rc_users`/…; RC queries `rc_*`). The pre-upgrade
+baseline `mysql.initial.sql` created **`rc_`-prefixed** tables. The §30 upgrade replaced it with the **stock
+Roundcube** file, which creates **unprefixed** tables (`session`, `users`, …) → on a fresh install the `rc_*`
+tables are never created (and `CREATE TABLE session` even collides with Epesi's own `session` table) → RC fatals.
+Never caught before because mail was only ever validated via **upgrade** (manual `rc_` SQL migration), never a
+fresh install.
+
+**Fix:** re-add the `rc_` prefix to `mysql.initial.sql` — all 18 `CREATE TABLE`, all 14 `REFERENCES` (FKs), and
+the final `INSERT INTO rc_system` (roundcube-version). Column names untouched. Platform-independent fix (fresh
+install was broken on Linux too; Windows is just where we first ran one). Verify: fresh install → `rc_*` tables
+exist → Mail opens past "Oops". Secondary/known: `drop_all_rc_tables()` still lists only the old subset (misses
+`rc_cache_shared`/`rc_collected_addresses`/`rc_responses`/`rc_filestore`/`rc_uploads`) → harmless for a first
+install, but a clean *reinstall* would hit "table exists"; worth updating that drop list later.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
