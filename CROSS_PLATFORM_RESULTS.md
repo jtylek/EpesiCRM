@@ -15,15 +15,20 @@ Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).
 | A. DB LOCK permission | ✅ | ⬜ | ⬜ | ⬜ |
 | A. `data/` writable | ✅ | ⬜ | ⬜ | ⬜ |
 | B. Fresh install (`setup.php`) | ✅ | ⬜ | ⬜ | ⬜ |
-| C1. Login / logout | ⬜ | ⬜ | ⬜ | ⬜ |
-| C2. Contact CRUD | ⬜ | ⬜ | ⬜ | ⬜ |
-| C3. A–Z quick-jump | ⬜ | ⬜ | ⬜ | ⬜ |
-| C4. File upload + view/download | ⬜ | ⬜ | ⬜ | ⬜ |
-| C5. Print / PDF | ⬜ | ⬜ | ⬜ | ⬜ |
-| C6. Roundcube mail opens | ⬜ | ⬜ | ⬜ | ⬜ |
-| C7. §22 encrypted note roundtrip | ⬜ | ⬜ | ⬜ | ⬜ |
-| C8. Search / filter | ⬜ | ⬜ | ⬜ | ⬜ |
-| **Verdict** | ⬜ | ⬜ | ⬜ | ⬜ |
+| C1. Login / logout | ✅ | ⬜ | ⬜ | ⬜ |
+| C2. Contact CRUD | ✅ | ⬜ | ⬜ | ⬜ |
+| C3. A–Z quick-jump | ✅ | ⬜ | ⬜ | ⬜ |
+| C4. File upload + view/download | ✅ | ⬜ | ⬜ | ⬜ |
+| C5. Print / PDF | ✅ | ⬜ | ⬜ | ⬜ |
+| C6. Roundcube mail opens | ⚠️† | ⬜ | ⬜ | ⬜ |
+| C7. §22 encrypted note roundtrip | ✅ | ⬜ | ⬜ | ⬜ |
+| C8. Search / filter | ✅ | ⬜ | ⬜ | ⬜ |
+| **Verdict** | ✅ core | ⬜ | ⬜ | ⬜ |
+
+`†` C6 (Roundcube webmail) — see Windows findings: not a mail-server/extension/PDO issue (pdo_mysql present,
+account valid, works on Linux); the only error is Apache autoindex on `data/Base_Theme/templates/default/`
+requested as a URL during the Mail page load. Bundled-RC theme-asset-URL quirk on Windows — parked for a
+separate focused look. Does **not** affect the core PHP 8.2 migration, which passes (install + C1–C5 + C7 + C8).
 
 `⚠️*` = `check.php` green **only after** enabling `zip` + `gd` in php.ini (see Windows findings below).
 
