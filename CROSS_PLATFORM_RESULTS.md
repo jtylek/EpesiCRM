@@ -63,6 +63,16 @@ Copy the block below per platform as you go. Record the PHP version, extensions,
   (`mysql.initial.sql` lost the `rc_` table prefix in the §30 RC 1.7.1 upgrade → `Table 'rc_session' doesn't exist`)
   and enabling **`intl`**. The real RC log is `data/CRM_Roundcube/log/errors` (Epesi overrides `log_dir`), NOT
   `RC/logs/`. main now carries §54, so the default ZIP installs clean.
+- ⚠️ **Mail archiving needs the account's IMAP namespace set** (Karina recalled this from PHP-7.4 installs).
+  Sent copies + the `CRM Archive` / `CRM Archive Sent` IMAP folders were empty because the account's
+  **`f_imap_root`** was blank; the server (`mail.mrf.epesi.cloud`) uses the `INBOX.` namespace, so folder names
+  must be `INBOX.CRM Archive` etc. (`epesi_archive.php:12-14` prefixes with `f_imap_root`; `config.inc.php:103`
+  sets `imap_ns_personal` from it). Setting `f_imap_root='INBOX.'` (SQL, since the field is `visible=false` in
+  `MailInstall.php:78`) fixed it — mails now archive. **NOT a migration bug** (pre-existing config), but a real
+  **pre-public usability gap: the field is hidden and undocumented**. Fix options: (a) **auto-detect** the personal
+  namespace via IMAP `NAMESPACE` on account save and store it in `f_imap_root` (best — zero user knowledge,
+  correct per-server); (b) make `IMAP Root` visible with a hint. Do NOT hardcode `INBOX.` — flat-namespace servers
+  (Gmail/Office365/modern dovecot) would break in reverse.
 - ✅ MySQL user must exist first (create + GRANT incl. the DB); DB permissions incl. **LOCK** all OK on Windows.
 - ✅ PHP 8.2.12; `data/` writable; admin creation, module install, CRM post-install, **dashboard** all worked.
 - ✅ Installer is **resumable** — after enabling GD, re-accessing continued the install (no clean reset needed).
