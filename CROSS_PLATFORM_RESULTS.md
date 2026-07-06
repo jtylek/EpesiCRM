@@ -10,8 +10,8 @@ Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).
 |---|:--:|:--:|:--:|:--:|
 | A. Prerequisites (`check.php` green) | ⚠️* | ⬜ | ⬜ | ⬜ |
 | A. PHP is 8.2 | ✅ 8.2.12 | ⬜ | ⬜ | ⬜ |
-| A. mbstring/intl/xml/fileinfo/imap | ⬜ | ⬜ | ⬜ | ⬜ |
-| A. mcrypt native OR polyfill | ⬜ | ⬜ | ⬜ | ⬜ |
+| A. mbstring/intl/xml/fileinfo/imap | ✅‡ | ⬜ | ⬜ | ⬜ |
+| A. mcrypt native OR polyfill | ✅ polyfill | ⬜ | ⬜ | ⬜ |
 | A. DB LOCK permission | ✅ | ⬜ | ⬜ | ⬜ |
 | A. `data/` writable | ✅ | ⬜ | ⬜ | ⬜ |
 | B. Fresh install (`setup.php`) | ✅ | ⬜ | ⬜ | ⬜ |
@@ -20,17 +20,21 @@ Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).
 | C3. A–Z quick-jump | ✅ | ⬜ | ⬜ | ⬜ |
 | C4. File upload + view/download | ✅ | ⬜ | ⬜ | ⬜ |
 | C5. Print / PDF | ✅ | ⬜ | ⬜ | ⬜ |
-| C6. Roundcube mail opens | ⚠️† | ⬜ | ⬜ | ⬜ |
+| C6. Roundcube mail opens | ✅ | ⬜ | ⬜ | ⬜ |
 | C7. §22 encrypted note roundtrip | ✅ | ⬜ | ⬜ | ⬜ |
 | C8. Search / filter | ✅ | ⬜ | ⬜ | ⬜ |
-| **Verdict** | ✅ core | ⬜ | ⬜ | ⬜ |
+| **Verdict** | ✅ FULL | ⬜ | ⬜ | ⬜ |
 
-`†` C6 (Roundcube webmail) — see Windows findings: not a mail-server/extension/PDO issue (pdo_mysql present,
-account valid, works on Linux); the only error is Apache autoindex on `data/Base_Theme/templates/default/`
-requested as a URL during the Mail page load. Bundled-RC theme-asset-URL quirk on Windows — parked for a
-separate focused look. Does **not** affect the core PHP 8.2 migration, which passes (install + C1–C5 + C7 + C8).
+`✅‡` Windows XAMPP ships several needed extensions **disabled** — enable ALL of these in `php.ini` + restart
+Apache: **`zip`, `gd`, `imap`, `pdo_mysql`, `intl`** (see Windows findings for what each breaks). `check.php`
+only tests zip/gd, so imap/pdo_mysql/intl must be verified manually (phpinfo).
 
-`⚠️*` = `check.php` green **only after** enabling `zip` + `gd` in php.ini (see Windows findings below).
+`†` C6 **RESOLVED (2026-07-07): Roundcube opens.** Root cause was **not** the earlier autoindex red-herring — it
+was (a) the missing `rc_` table prefix on fresh install (fixed in **§54**) and (b) the **`intl`** extension being
+disabled (`INTL_IDNA_VARIANT_UTS46` undefined during RC login). With §54 + intl, the mailbox opens. The Apache
+autoindex on `data/Base_Theme/templates/default/` is a separate cosmetic theme-asset quirk, still open (low prio).
+
+`⚠️*` = `check.php` (which only checks zip/gd) is green after enabling those; full 5-extension set above.
 
 Priority: **Windows + one panel (cPanel or DirectAdmin)** first; macOS + the second panel are follow-ups.
 
@@ -40,16 +44,25 @@ Priority: **Windows + one panel (cPanel or DirectAdmin)** first; macOS + the sec
 
 Copy the block below per platform as you go. Record the PHP version, extensions, and any error-log lines.
 
-### Platform: Windows + XAMPP (PHP 8.2.12) — INSTALL ✅ (dashboard reached 2026-07-06)
+### Platform: Windows + XAMPP (PHP 8.2.12) — FULLY VALIDATED ✅ incl. mail (2026-07-06/07)
 
-**Install-phase findings (recorded):**
-- ⚠️ **Windows XAMPP ships `zip` AND `gd` disabled** — both must be enabled in the Apache php.ini
-  (`extension=zip`, `extension=gd`; DLLs `php_zip.dll`/`php_gd.dll` live in `php/ext`), then restart Apache:
-  - **no `zip`** → `class BackupArchive extends ZipArchive` (`include/backups.php`) fatals when loaded →
-    **blank page** on install (setup.php buffers output, so the fatal is hidden).
-  - **no `gd`** → `Utils_Image`'s `php5-gd` dependency is unmet → the **entire Base module pack fails to
-    install** (cascade: Utils_Image → Base_Theme_Administrator → Base_Box → Base_HomePage → Base_Dashboard →
-    Base). **GD is a hard install requirement**, not optional.
+**Findings (recorded):**
+- ⚠️ **Windows XAMPP ships 5 needed extensions DISABLED — enable ALL in the Apache php.ini + restart Apache:**
+  **`extension=zip`, `extension=gd`, `extension=imap`, `extension=pdo_mysql`, `extension=intl`** (DLLs in `php/ext`).
+  What each breaks if missing:
+  - **`zip`** → `class BackupArchive extends ZipArchive` (`include/backups.php`) fatals → **blank page** on install.
+  - **`gd`** → `Utils_Image`'s `php5-gd` dep unmet → the **entire Base module pack fails to install** (cascade
+    Utils_Image → Base_Theme_Administrator → … → Base). Hard install requirement.
+  - **`imap`** → Roundcube can't start (hard RC requirement).
+  - **`pdo_mysql`** → Roundcube can't connect to its DB.
+  - **`intl`** → RC login fatals `Undefined constant INTL_IDNA_VARIANT_UTS46` (IDN host conversion).
+  `check.php` only tests zip/gd → verify imap/pdo_mysql/intl via phpinfo. **Recommend adding all five to check.php
+  + a pre-flight install gate (pre-public).** Perf tip: enable **OPcache** (`zend_extension=opcache`,
+  `opcache.enable=1`, `opcache.max_accelerated_files=100000`) — Epesi loads hundreds of files/request, big speedup on Windows.
+- ✅ **C6 mail RESOLVED (2026-07-07):** Roundcube opens. Two real fresh-install fixes were needed: **§54**
+  (`mysql.initial.sql` lost the `rc_` table prefix in the §30 RC 1.7.1 upgrade → `Table 'rc_session' doesn't exist`)
+  and enabling **`intl`**. The real RC log is `data/CRM_Roundcube/log/errors` (Epesi overrides `log_dir`), NOT
+  `RC/logs/`. main now carries §54, so the default ZIP installs clean.
 - ✅ MySQL user must exist first (create + GRANT incl. the DB); DB permissions incl. **LOCK** all OK on Windows.
 - ✅ PHP 8.2.12; `data/` writable; admin creation, module install, CRM post-install, **dashboard** all worked.
 - ✅ Installer is **resumable** — after enabling GD, re-accessing continued the install (no clean reset needed).
