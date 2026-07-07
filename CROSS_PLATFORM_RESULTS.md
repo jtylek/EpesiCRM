@@ -8,22 +8,22 @@ Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).
 
 | Check | Win (XAMPP) | cPanel | DirectAdmin | macOS |
 |---|:--:|:--:|:--:|:--:|
-| A. Prerequisites (`check.php` green) | ⚠️* | ⬜ | ⬜ | ⬜ |
-| A. PHP is 8.2 | ✅ 8.2.12 | ⬜ | ⬜ | ⬜ |
-| A. mbstring/intl/xml/fileinfo/imap | ✅‡ | ⬜ | ⬜ | ⬜ |
-| A. mcrypt native OR polyfill | ✅ polyfill | ⬜ | ⬜ | ⬜ |
-| A. DB LOCK permission | ✅ | ⬜ | ⬜ | ⬜ |
-| A. `data/` writable | ✅ | ⬜ | ⬜ | ⬜ |
-| B. Fresh install (`setup.php`) | ✅ | ⬜ | ⬜ | ⬜ |
-| C1. Login / logout | ✅ | ⬜ | ⬜ | ⬜ |
-| C2. Contact CRUD | ✅ | ⬜ | ⬜ | ⬜ |
-| C3. A–Z quick-jump | ✅ | ⬜ | ⬜ | ⬜ |
-| C4. File upload + view/download | ✅ | ⬜ | ⬜ | ⬜ |
-| C5. Print / PDF | ✅ | ⬜ | ⬜ | ⬜ |
-| C6. Roundcube mail opens | ✅ | ⬜ | ⬜ | ⬜ |
-| C7. §22 encrypted note roundtrip | ✅ | ⬜ | ⬜ | ⬜ |
-| C8. Search / filter | ✅ | ⬜ | ⬜ | ⬜ |
-| **Verdict** | ✅ FULL | ⬜ | ⬜ | ⬜ |
+| A. Prerequisites (`check.php` green) | ⚠️* | ✅ | ⬜ | ⬜ |
+| A. PHP is 8.2 | ✅ 8.2.12 | ✅ 8.2.31 | ⬜ | ⬜ |
+| A. mbstring/intl/xml/fileinfo/imap | ✅‡ | ✅‡ | ⬜ | ⬜ |
+| A. mcrypt native OR polyfill | ✅ polyfill | ✅ polyfill | ⬜ | ⬜ |
+| A. DB LOCK permission | ✅ | ✅ | ⬜ | ⬜ |
+| A. `data/` writable | ✅ | ✅ | ⬜ | ⬜ |
+| B. Fresh install (`setup.php`) | ✅ | ✅ | ⬜ | ⬜ |
+| C1. Login / logout | ✅ | ✅ | ⬜ | ⬜ |
+| C2. Contact CRUD | ✅ | ✅ | ⬜ | ⬜ |
+| C3. A–Z quick-jump | ✅ | ✅ | ⬜ | ⬜ |
+| C4. File upload + view/download | ✅ | ✅§ | ⬜ | ⬜ |
+| C5. Print / PDF | ✅ | ✅ | ⬜ | ⬜ |
+| C6. Roundcube mail opens | ✅ | ✅ | ⬜ | ⬜ |
+| C7. §22 encrypted note roundtrip | ✅ | ✅ | ⬜ | ⬜ |
+| C8. Search / filter | ✅ | ✅ | ⬜ | ⬜ |
+| **Verdict** | ✅ FULL | ✅ FULL | ⬜ | ⬜ |
 
 `✅‡` Windows XAMPP ships several needed extensions **disabled** — enable ALL of these in `php.ini` + restart
 Apache: **`zip`, `gd`, `imap`, `pdo_mysql`, `intl`** (see Windows findings for what each breaks). `check.php`
@@ -33,6 +33,19 @@ only tests zip/gd, so imap/pdo_mysql/intl must be verified manually (phpinfo).
 was (a) the missing `rc_` table prefix on fresh install (fixed in **§54**) and (b) the **`intl`** extension being
 disabled (`INTL_IDNA_VARIANT_UTS46` undefined during RC login). With §54 + intl, the mailbox opens. The Apache
 autoindex on `data/Base_Theme/templates/default/` is a separate cosmetic theme-asset quirk, still open (low prio).
+
+`✅§` **cPanel C4:** file upload (5.8 MB presentation), save, download-all, and **get-link for PDF** all work;
+**get-link for a `.png` downloaded an empty/unopenable file** ("system doesn't recognise the extension") — minor,
+possibly a one-off; re-test with a known-good PNG to confirm reproducible vs one-off. Low priority, not blocking.
+
+**cPanel (`test.epesibim.com`, PHP 8.2.31) — FULLY VALIDATED ✅ (2026-07-07).** Smoother than Windows: extensions
+via the panel (Select PHP Version → Extensions), not php.ini. **Same 5 extensions required** (`zip/gd/imap/pdo_mysql/
+intl`) — **`intl` was OFF despite `check.php` all-green** (identical to Windows → confirms the check.php gap on TWO
+platforms; strong case for the pre-public check.php fix). Also had to raise `upload_max_filesize`/`post_max_size`/
+`memory_limit` via **MultiPHP INI Editor** (host defaults 2M/8M/64M too low — 64M memory risks OOM at install; set
+32M/32M/256M). Mail account was an **external server** (not the host's own) with `IMAP Root='INBOX.'` set proactively
+→ mail send/receive + `INBOX.CRM Archive`/`INBOX.CRM Archive Sent` work. All C1–C8 + §22 + 5.8 MB upload + watchdog +
+agenda pass. Deploy = `main` ZIP + File Manager server-side Extract; DB via cPanel MySQL panel (account prefix).
 
 `⚠️*` = `check.php` (which only checks zip/gd) is green after enabling those; full 5-extension set above.
 
