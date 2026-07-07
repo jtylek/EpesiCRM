@@ -40,8 +40,14 @@ class CRM_Roundcube extends Module {
         if (function_exists('apache_get_modules') && in_array('mod_rewrite',apache_get_modules())) {
             $multiwin = CRM_RoundcubeCommon::multiwin_supported();
             $RC = $multiwin ? 'RCWIN_' . CID : 'RC';
-            if (!$multiwin) {
-                echo '<div style="color:red; padding-bottom: 1em;">' . __('Warning! Your hosting does not support multiple Roundcube sessions. Opening second Roundcube window may cause error in the previous one.') . '</div>';
+            // §57: soften the old red alarm — the single-window limit only bites if you open a
+            // SECOND mail window, so show a calm note once per session instead of scaring users
+            // on every mail open.
+            if (!$multiwin && !$this->get_module_variable('multiwin_notice_shown')) {
+                $this->set_module_variable('multiwin_notice_shown', 1);
+                echo '<div style="color:#888; font-size:0.85em; padding-bottom:0.5em;">'
+                    . __('Note: this hosting supports only one open mail window — please avoid opening the mailbox in a second browser window at the same time.')
+                    . '</div>';
             }
         } else {
             $RC = 'RC';
