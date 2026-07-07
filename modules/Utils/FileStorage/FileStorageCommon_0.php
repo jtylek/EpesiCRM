@@ -634,9 +634,11 @@ class Utils_FileStorageCommon extends ModuleCommon {
     {
     	$return = null;
 
-    	//new method, but not compiled in by default
-    	if (extension_loaded('fileinfo') && $encoding) {
-    		$fff = new finfo(FILEINFO_MIME);
+    	// Preferred: PHP fileinfo (portable — no shell-out). Handles BOTH the mime-type case and
+    	// the mime+charset ($encoding) case. Many shared hosts disable passthru/exec, so MIME
+    	// detection must not depend on the `file` command used further down.
+    	if (extension_loaded('fileinfo')) {
+    		$fff = new finfo($encoding ? FILEINFO_MIME : FILEINFO_MIME_TYPE);
     		if ($file) {
     			$return = $fff->file($file);
     		} elseif ($buffer) {
@@ -660,17 +662,21 @@ class Utils_FileStorageCommon extends ModuleCommon {
 
     	if ($file) {
 
-    		// unix system
+    		// Legacy fallback: the unix `file` command via passthru — ONLY if it's available.
+    		// On PHP 8 a disabled function (common on shared hosting) is treated as UNDEFINED and
+    		// would FATAL here, so guard it; mime_content_type below (also fileinfo) covers the rest.
     		$ret = 0;
-    		ob_start();
-            if($encoding) {
-                @passthru("file -bi {$file}", $ret);
-            } else {
-                @passthru("file -b --mime-type {$file}", $ret);
-            }
-    		$output = ob_get_clean();
-    		if ($ret == 0) {
-    			$return = trim($output);
+    		if (function_exists('passthru')) {
+    			ob_start();
+                if($encoding) {
+                    @passthru("file -bi {$file}", $ret);
+                } else {
+                    @passthru("file -b --mime-type {$file}", $ret);
+                }
+    			$output = ob_get_clean();
+    			if ($ret == 0) {
+    				$return = trim($output);
+    			}
     		}
 
     		// mime_content_type

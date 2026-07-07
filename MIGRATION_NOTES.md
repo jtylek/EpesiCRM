@@ -1596,6 +1596,22 @@ real shipped-template defect that breaks the setup compat-check on non-`mod_head
 
 ---
 
+### §56 — file MIME detection: don't hard-depend on `passthru()` (disabled on shared hosting) (2026-07-07)
+
+**Found by the DirectAdmin test** (attaching a file to a note): `Call to undefined function passthru()` at
+`modules/Utils/FileStorage/FileStorageCommon_0.php:669`, in `get_mime_type()` → breaks file attachments entirely.
+Root cause: `get_mime_type()` **first** shells out to the unix `file` command via `@passthru("file …")`, and only
+falls back to PHP's fileinfo (`mime_content_type`) *after*. Shared hosts routinely put `passthru`/`exec`/`shell_exec`
+in `disable_functions`; on **PHP 8 a disabled function is treated as UNDEFINED** (not a suppressible warning), so the
+`@passthru(...)` throws a fatal `Error` *before* the fallback is reached — the `@` can't catch it. (The mime+charset
+`$encoding` path already used `finfo` — only the plain mime-type path shelled out.) **Fix:** make **PHP `fileinfo`
+the primary method for BOTH cases** — `new finfo($encoding ? FILEINFO_MIME : FILEINFO_MIME_TYPE)` (portable, no
+shell-out) — and **guard the legacy `passthru` fallback with `function_exists('passthru')`** so it can never fatal.
+`fileinfo` is on by default in PHP, so real hosts get correct MIME detection with zero shell-out. Genuine
+portability bug (would break attachments on any host that disables passthru — very common); real fix on `main`.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
