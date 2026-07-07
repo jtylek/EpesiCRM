@@ -1,18 +1,22 @@
 Options -Indexes
 #SecFilterEngine Off
 
-#if your server is running php as apache module:
-<IfModule mod_php5.c>
-php_value memory_limit "64M"
-php_flag magic_quotes_gpc off
-</IfModule>
+# The php_value lines below apply ONLY when PHP runs as an Apache module (mod_php).
+# On PHP-FPM / CGI / LiteSpeed they are ignored — prefer setting memory_limit via php.ini
+# or your hosting panel. magic_quotes_gpc was removed in PHP 8, so it is no longer set here.
 <IfModule mod_php7.c>
-php_value memory_limit "64M"
+php_value memory_limit "256M"
+</IfModule>
+<IfModule mod_php.c>
+php_value memory_limit "256M"
 </IfModule>
 
 <IfModule mod_alias.c>
-RedirectMatch 404 /\\.svn(/|$)
-RedirectMatch 404 /\\.git(/|$)
+RedirectMatch 404 /\.svn(/|$)
+RedirectMatch 404 /\.git(/|$)
+</IfModule>
+
+<IfModule mod_headers.c>
 Header always append X-Frame-Options SAMEORIGIN
 Header set X-XSS-Protection "1; mode=block"
 </IfModule>

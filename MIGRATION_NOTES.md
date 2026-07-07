@@ -1574,6 +1574,28 @@ install, but a clean *reinstall* would hit "table exists"; worth updating that d
 
 ---
 
+### §55 — default root `.htaccess` template: fix mis-guarded `Header` directives (2026-07-07)
+
+**Found by the DirectAdmin cross-platform test.** On DA, `setup.php` showed *"Your hosting is not compatible with
+default EPESI root .htaccess file"* — a warning cPanel never showed. Cause: in `htaccess.txt` the security-header
+lines were wrapped in the **wrong** `<IfModule>` guard:
+```
+<IfModule mod_alias.c>
+  RedirectMatch 404 /\.svn(/|$)      ← mod_alias  (correct)
+  Header always append X-Frame-Options SAMEORIGIN   ← needs mod_headers, WRONG guard
+```
+`Header` is a **mod_headers** directive. On a host that has `mod_alias` but **not `mod_headers`** (DA), Apache
+enters the `mod_alias` block, hits `Header`, and 500s (*"Invalid command 'Header'"*) → `check_htaccess()` in
+`setup.php` (which copies the template and HTTP-tests it) correctly reports incompatible. cPanel had `mod_headers`
+loaded, so it passed. **Fix:** split the `Header` lines into their own `<IfModule mod_headers.c>` block (so they're
+skipped, not errored, when mod_headers is absent). Also cleaned up while here: dropped the PHP-5 `magic_quotes_gpc`
+line (removed in PHP 8), bumped the mod_php `memory_limit` 64M→256M and added a PHP-8 `<IfModule mod_php.c>` guard,
+and fixed the `\\.` → `\.` regex escaping in the VCS-dir RedirectMatch. `.htaccess` is security hardening, not
+required to run — Epesi installs fine without it (Karina clicked "Ok" to proceed on DA). Not a migration bug, but a
+real shipped-template defect that breaks the setup compat-check on non-`mod_headers` hosting.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
