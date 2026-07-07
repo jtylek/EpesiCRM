@@ -1612,6 +1612,45 @@ portability bug (would break attachments on any host that disables passthru — 
 
 ---
 
+### §57 — soften the multi-window Roundcube warning (2026-07-07)
+
+The red *"your hosting does not support multiple Roundcube sessions"* alarm showed on **every** mail open when the
+`RCWIN_` URL-rewrite (multiwin) is unavailable (mod_rewrite/AllowOverride — e.g. DirectAdmin), which is scary for a
+non-problem (the limit only bites if a user opens a *second* mail window). Softened to a calm muted note shown
+**once per session** (module variable) in Epesi's `modules/CRM/Roundcube/Roundcube_0.php` (the wrapper, NOT the RC
+vendor). On `main`.
+
+---
+
+### §58 — Roundcube schema migration on UPGRADE is not automated (TODO — build the patch) (2026-07-07)
+
+**Found by the DirectAdmin upgrade test** (old Epesi 1.9.1/PHP-7.4 → 8.2): opening Mail after the auto-update gave
+`DB Error [1054] Unknown column 'expires_at' in 'rc_session'`. Root cause: Epesi's Roundcube schema-migration
+patches (`modules/CRM/Roundcube/patches/*_update_*.php`) **stop at ~2016** (last one `20160816_update_121` → sets
+`rc_system` roundcube-version to 2015111100), but the §30 RC 1.2.1→1.7.1 upgrade bundled RC whose schema is
+**2025092300** (35 migration files in `RC/SQL/mysql/`). **No patch bridges 2016→2025**, so on upgrade the `rc_*`
+schema stays old and the new RC 1.7.1 code queries columns (`expires_at`, …) that don't exist. Worse: the old
+patches applied the *unprefixed* stock update SQL via `@DB::Execute` (the `@` silently swallows the "no such table
+`users`" errors on the `rc_`-prefixed DB), so they were partly no-ops anyway. **This hits EVERY real upgrade**, not
+just the test — Phase-2 (Linux, client data) only worked because the RC migration was done **manually**. This is the
+upgrade-path counterpart of §54 (which fixed *fresh* install).
+
+**Design for the fix (build deliberately + test on the upgrade instance BEFORE `main`):** a `CRM/Roundcube` patch
+that migrates the `rc_` schema from the stored `rc_system` version → 2025092300. Two options —
+**(A, preferred)** pure Epesi patch: read `rc_system` roundcube-version, then for each `RC/SQL/mysql/<ver>.sql` newer
+than it (in order) apply the statements with the **`rc_` prefix added** to table names, then set `rc_system`. First
+scan all 35 files for the statement types present (ALTER TABLE / CREATE TABLE / CREATE|DROP INDEX … ON / INSERT INTO
+/ TRUNCATE / RENAME TABLE / REFERENCES) and build a complete prefixer. No RC bootstrap → robust. **(B)** invoke RC's
+native `rcmail_utils::db_update(RC/SQL, 'roundcube', <ver>)` which handles the prefix itself — but its bootstrap
+(`bin/.bootstrap.php`) is **CLI-only** (`exit if PHP_SAPI != 'cli'`) and Epesi's RC `config.inc.php` has auth `die()`
+logic, so calling it from a *web* upgrade patch needs a careful minimal RC bootstrap. Idempotent either way (guarded
+by the stored version). **Core Epesi 7.4→8.2 upgrade itself is validated** (patches ran, login + app work); this is
+the RC-webmail piece. Also noted during the test: `config.php` hard-codes `define('EPESI_URL', …)` (from
+`setup.php` write_config) — when *moving/cloning* an instance to a new URL you must update it (or delete the line to
+auto-detect); a real *in-place* upgrade keeps the same URL so this doesn't arise.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
