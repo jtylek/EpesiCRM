@@ -8,22 +8,22 @@ Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).
 
 | Check | Win (XAMPP) | cPanel | DirectAdmin | macOS |
 |---|:--:|:--:|:--:|:--:|
-| A. Prerequisites (`check.php` green) | ⚠️* | ✅ | ⬜ | ⬜ |
-| A. PHP is 8.2 | ✅ 8.2.12 | ✅ 8.2.31 | ⬜ | ⬜ |
-| A. mbstring/intl/xml/fileinfo/imap | ✅‡ | ✅‡ | ⬜ | ⬜ |
-| A. mcrypt native OR polyfill | ✅ polyfill | ✅ polyfill | ⬜ | ⬜ |
-| A. DB LOCK permission | ✅ | ✅ | ⬜ | ⬜ |
-| A. `data/` writable | ✅ | ✅ | ⬜ | ⬜ |
-| B. Fresh install (`setup.php`) | ✅ | ✅ | ⬜ | ⬜ |
-| C1. Login / logout | ✅ | ✅ | ⬜ | ⬜ |
-| C2. Contact CRUD | ✅ | ✅ | ⬜ | ⬜ |
-| C3. A–Z quick-jump | ✅ | ✅ | ⬜ | ⬜ |
-| C4. File upload + view/download | ✅ | ✅§ | ⬜ | ⬜ |
-| C5. Print / PDF | ✅ | ✅ | ⬜ | ⬜ |
-| C6. Roundcube mail opens | ✅ | ✅ | ⬜ | ⬜ |
-| C7. §22 encrypted note roundtrip | ✅ | ✅ | ⬜ | ⬜ |
-| C8. Search / filter | ✅ | ✅ | ⬜ | ⬜ |
-| **Verdict** | ✅ FULL | ✅ FULL | ⬜ | ⬜ |
+| A. Prerequisites (`check.php` green) | ⚠️* | ✅ | ✅ | ⬜ |
+| A. PHP is 8.2 | ✅ 8.2.12 | ✅ 8.2.31 | ✅ 8.3 ¤ | ⬜ |
+| A. mbstring/intl/xml/fileinfo/imap | ✅‡ | ✅‡ | ✅‡ | ⬜ |
+| A. mcrypt native OR polyfill | ✅ polyfill | ✅ polyfill | ✅ polyfill | ⬜ |
+| A. DB LOCK permission | ✅ | ✅ | ✅ | ⬜ |
+| A. `data/` writable | ✅ | ✅ | ✅ | ⬜ |
+| B. Fresh install (`setup.php`) | ✅ | ✅ | ✅¤¤ | ⬜ |
+| C1. Login / logout | ✅ | ✅ | ✅ | ⬜ |
+| C2. Contact CRUD | ✅ | ✅ | ✅ | ⬜ |
+| C3. A–Z quick-jump | ✅ | ✅ | ✅ | ⬜ |
+| C4. File upload + view/download | ✅ | ✅§ | ✅¶ | ⬜ |
+| C5. Print / PDF | ✅ | ✅ | ✅ | ⬜ |
+| C6. Roundcube mail opens | ✅ | ✅ | ✅ | ⬜ |
+| C7. §22 encrypted note roundtrip | ✅ | ✅ | ✅ | ⬜ |
+| C8. Search / filter | ✅ | ✅ | ✅ | ⬜ |
+| **Verdict** | ✅ FULL | ✅ FULL | ✅ FULL | ⬜ |
 
 `✅‡` Windows XAMPP ships several needed extensions **disabled** — enable ALL of these in `php.ini` + restart
 Apache: **`zip`, `gd`, `imap`, `pdo_mysql`, `intl`** (see Windows findings for what each breaks). `check.php`
@@ -46,6 +46,23 @@ platforms; strong case for the pre-public check.php fix). Also had to raise `upl
 32M/32M/256M). Mail account was an **external server** (not the host's own) with `IMAP Root='INBOX.'` set proactively
 → mail send/receive + `INBOX.CRM Archive`/`INBOX.CRM Archive Sent` work. All C1–C8 + §22 + 5.8 MB upload + watchdog +
 agenda pass. Deploy = `main` ZIP + File Manager server-side Extract; DB via cPanel MySQL panel (account prefix).
+
+**DirectAdmin (`test.epesibim.com`, PHP 8.3) — FULLY VALIDATED ✅ (2026-07-07).** DA is a **stricter host** than
+cPanel/Windows and surfaced **3 real portability bugs the others hid** (all fixed on `main`):
+`¤¤` **§55** — setup's `.htaccess` compat-check flagged the default template incompatible: the `Header` directives
+were guarded by `<IfModule mod_alias.c>` instead of `<IfModule mod_headers.c>`; DA has mod_alias but not mod_headers
+→ 500. Fixed the guard (+ dropped PHP-5 magic_quotes, memory 64→256M). Install proceeds via "Ok" (.htaccess is
+hardening, not required to run).
+`¶` **§56** — attaching a file fataled `Call to undefined function passthru()`: `get_mime_type()` shelled out to the
+`file` command first; DA disables `passthru` (shared-hosting `disable_functions`), and on PHP 8 a disabled function is
+*undefined* → fatal before the fallback. Fixed: PHP `fileinfo` primary + guarded passthru.
+**§57** — the red "multiple Roundcube sessions not supported" alarm (shown when the `RCWIN_` rewrite is unavailable,
+as on DA) softened to a calm once-per-session note (Epesi's `Roundcube_0.php`, not the RC vendor).
+`¤` Tested on **PHP 8.3** (host offered 8.1/8.3, not 8.2) — bonus real runtime validation on 8.3 (previously only
+CI-linted). All C1–C8 + §22 + mail send/receive + `INBOX.CRM Archive`/`Sent` archiving pass. Same INI bumps as cPanel
+(upload/post/memory) + the 5 extensions (`intl` was off despite `check.php` green — **3rd platform confirming that
+gap**). Perf: RC noticeably slower than cPanel → enable **OPcache** (no LiteSpeed/FPM tuning here). Multiwin
+unsupported (RCWIN_ rewrite needs mod_rewrite + AllowOverride) → single mail window only, graceful.
 
 `⚠️*` = `check.php` (which only checks zip/gd) is green after enabling those; full 5-extension set above.
 
