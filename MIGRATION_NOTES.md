@@ -1657,6 +1657,38 @@ auto-detect); a real *in-place* upgrade keeps the same URL so this doesn't arise
 
 ---
 
+### §59 — pre-public: premium/custom-module upgrade GATE (design; TODO build) (2026-07-08)
+
+**Why.** The PHP 8.2 upgrade is all-or-nothing per instance: you can't run old 7.4 premium-module code
+alongside the new 8.2 Core (one PHP version). So a client who has premium/custom modules (e.g. Timesheet,
+Premium_Projects) and self-upgrades Core will either (a) *lose* those modules from the UI if they deployed
+Core-only (code gone; **data is safe** in the DB), or (b) hit fatals if they kept the old 7.4 module code
+(`each()` etc.). Either way → support tickets. The distribution plan is therefore: **public release
+(SourceForge/GitHub/Softaculous/Store) = new installs + Core-only instances**; **existing premium clients =
+coordinated migration (Core + their premium modules together), as a service, NOT self-serve**. This gate is
+the technical safety net so a premium client can't break their instance by accident.
+
+**Design (like §58 — build deliberately, on hardening, before public).** A pre-upgrade check that lists
+installed modules that are **not part of this Core build**, and warns/blocks with a clear message + the list
+("These modules aren't in this release: … — upgrading breaks them until they're migrated to PHP 8.2. Contact
+your provider."). Two detection signals:
+- **Code-missing (orphaned), no manifest needed:** every module in the `modules` table (`SELECT name FROM
+  modules`) whose code dir is absent — check via `ModuleManager::get_module_dir_path($name)` +
+  `file_exists('modules/'.$path.'/'.<file>.'Install.php')` (the pattern already at `include/module_manager.php:334`).
+  Catches scenario (a).
+- **Non-Core (needs a shipped Core manifest):** a build-time-generated list of Core module names (e.g.
+  `include/core_modules.php`); any installed module not in it = premium/custom. Catches (a) **and** (b)
+  (old code kept). More robust; the manifest is the extra piece to generate at release.
+- **Hook:** `update.php` in `EpesiUpdate::run()` before `perform_update_patches()` (the run() flow is at
+  `update.php:~298`) → show the gate + require an explicit "I understand, proceed" (so an informed admin can
+  override, but nobody breaks it by accident); and mirror it as an advisory line in `check.php`.
+- **Reuse:** `SELECT name FROM modules ORDER BY priority` (`module_manager.php:153`),
+  `ModuleManager::get_module_dir_path()` (`:272`), the Install.php-existence pattern (`:334`).
+Not built yet — recorded as a pre-public deliverable (alongside the check.php 5-extension gate and the IMAP-Root
+/ README docs).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
