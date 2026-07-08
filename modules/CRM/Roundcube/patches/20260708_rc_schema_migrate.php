@@ -77,9 +77,11 @@ foreach ($files as $file) {
         try {
             DB::Execute($q);
         } catch (Exception $e) {
-            // Surface real failures (unlike the old @-swallow), but keep going so an already-
-            // applied statement on a partially-migrated schema doesn't abort the whole run.
-            trigger_error('§58 RC schema migrate [' . $ver . ']: ' . $e->getMessage(), E_USER_WARNING);
+            // Log and keep going so an already-applied statement on a partially-migrated schema
+            // doesn't abort the whole run. Use error_log (never re-throws) rather than
+            // trigger_error — Epesi converts warnings to ErrorException during patch runs, which
+            // PatchUtil::apply_new() would catch and abort on.
+            error_log('EPESI §58 RC schema migrate [' . $ver . '] skipped a statement: ' . $e->getMessage());
         }
     }
 }
