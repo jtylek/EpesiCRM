@@ -1657,7 +1657,7 @@ auto-detect); a real *in-place* upgrade keeps the same URL so this doesn't arise
 
 ---
 
-### §59 — pre-public: premium/custom-module upgrade GATE (design; TODO build) (2026-07-08)
+### §59 — pre-public: premium/custom-module upgrade GATE (Signal-1 BUILT, pending validation; manifest TODO) (2026-07-08)
 
 **Why.** The PHP 8.2 upgrade is all-or-nothing per instance: you can't run old 7.4 premium-module code
 alongside the new 8.2 Core (one PHP version). So a client who has premium/custom modules (e.g. Timesheet,
@@ -1686,6 +1686,31 @@ your provider."). Two detection signals:
   `ModuleManager::get_module_dir_path()` (`:272`), the Install.php-existence pattern (`:334`).
 Not built yet — recorded as a pre-public deliverable (alongside the check.php 5-extension gate and the IMAP-Root
 / README docs).
+
+**BUILT (2026-07-08, on `experiment/php8-hardening`) — Signal-1 (code-missing/orphaned), manifest-free:**
+- **Detector:** `ModuleManager::get_orphaned_modules()` (`include/module_manager.php`, right after `exists()`).
+  `SELECT name FROM modules`, keep each whose `ModuleManager::exists($name)` is false (no `<Module>Install.php`
+  on disk). Reuses Epesi's own canonical existence check → no separate "official-modules" list needed.
+- **Gate:** `EpesiUpdate::orphaned_modules_gate()` in `update.php`, called at the **top of `update_process()`**
+  (before any `perform_update_patches`). **Fails open** — empty list (normal Core-only instance) is a complete
+  no-op, so ordinary upgrades are untouched; only instances that actually have orphaned modules hit the new code.
+  Browser: warning page listing the modules + "Your data is not deleted — it stays in the DB… contact your
+  provider" + an explicit **"I understand — continue anyway"** link (`?confirm_orphaned=1`; sets a session flag,
+  reloads clean). CLI: prints the same warning but **proceeds** (expert/automated context — never trap a script).
+  Guarded by `method_exists('ModuleManager','get_orphaned_modules')` so the script can still update an older
+  codebase that lacks the helper.
+- **Advisory:** read-only list in `check.php` (yellow "Code missing" rows) — blocks nothing; informational.
+- **VALIDATION (before ff → main, §58 discipline — DB/upgrade path, never ship untested):** run on the **DA
+  premium upgrade instance** (it has real premium modules, e.g. Timesheet, whose code isn't in this Core build):
+  (1) `check.php` → the premium modules appear under "Additional modules / Code missing"; (2) `update.php` (or a
+  version-differing upgrade) → the gate page lists them and stops before patches; clicking "continue anyway"
+  proceeds normally; (3) a Core-only instance (e.g. cPanel fresh) shows an empty list → gate is a silent no-op,
+  `check.php` shows nothing extra. Then ff `main`.
+
+**Still TODO (Signal-2, the manifest):** a build-time `include/core_modules.php` (list of official Core module
+names) to also flag modules whose code IS present but isn't official Core (scenario (b) — old 7.4 premium code
+kept). Lower priority: that case fails visibly on its own (PHP-8 fatals), whereas Signal-1 (silent disappearance)
+is the quiet data-safety risk this gate primarily addresses.
 
 ---
 

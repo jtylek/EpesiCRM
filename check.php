@@ -225,6 +225,21 @@ foreach ($checks as $c) {
 	$html .= '<br>';
 }
 
+// §59 — advisory: modules recorded in the DB whose code is missing from this build
+// (premium/custom). Read-only; blocks nothing here — the real gate is in update.php.
+if ($config && class_exists('ModuleManager') && method_exists('ModuleManager', 'get_orphaned_modules')) {
+	$orphaned = ModuleManager::get_orphaned_modules();
+	if ($orphaned) {
+		$html .= '<strong>Additional modules</strong><br>';
+		foreach ($orphaned as $m) {
+			$html .= '<span style="font-weight:bold;float:right;margin-right:100px;color:#CCAA00;">Code missing</span>';
+			$html .= '<span style="margin-left:40px;">' . htmlspecialchars($m) . '</span><br>';
+		}
+		$html .= '<span style="margin-left:40px;font-size:0.85em;color:#888;">These modules are installed but their code is not in this build (most likely premium/custom). '
+			. 'Their data stays in the database; migrate them to this version to restore them.</span><br><br>';
+	}
+}
+
 $html .= '<br><br>';
 $html .= '<font size=-2>';
 $html .= 'Legend:<br>';

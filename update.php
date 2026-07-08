@@ -563,6 +563,11 @@ class EpesiUpdate
     {
         @set_time_limit(0);
 
+        // §59 — before running any patches, warn if the database references modules
+        // whose code is not in this build (premium/custom left behind by a Core-only
+        // package). No-op on a normal Core-only instance (empty list).
+        $this->orphaned_modules_gate();
+
         // console
         if ($this->CLI) {
             PatchUtil::disable_time_management();
@@ -594,6 +599,56 @@ class EpesiUpdate
         } else {
             $this->update_body();
         }
+    }
+
+    /**
+     * §59 — premium/custom-module upgrade gate. If the database lists modules whose
+     * code is missing from this build, warn the admin BEFORE any patch runs and make
+     * them confirm. Fails open: an empty list (a normal Core-only instance) is a
+     * complete no-op, so ordinary upgrades are untouched. CLI warns but proceeds
+     * (expert/automated context — never trap a script). Their data is not deleted by
+     * a Core update; it waits in the DB until the matching module is restored.
+     */
+    protected function orphaned_modules_gate()
+    {
+        if (!method_exists('ModuleManager', 'get_orphaned_modules')) {
+            return; // older codebase being updated by this script
+        }
+        $orphaned = ModuleManager::get_orphaned_modules();
+        if (!$orphaned) {
+            return; // common case: Core-only instance
+        }
+
+        // Admin already acknowledged in this session (or via the confirm link).
+        if (isset($_GET['confirm_orphaned'])) {
+            $_SESSION['epesi_orphaned_confirmed'] = 1;
+            if (!$this->CLI) {
+                $this->redirect(array()); // reload clean, then fall through next time
+            }
+            return;
+        }
+        if (!empty($_SESSION['epesi_orphaned_confirmed'])) {
+            return;
+        }
+
+        if ($this->CLI) {
+            $this->cli_msg('WARNING: the database lists modules with no code in this build:');
+            foreach ($orphaned as $m) $this->cli_msg('   - ' . $m);
+            $this->cli_msg('These are most likely premium/custom modules. Migrate them to this');
+            $this->cli_msg('version together with the core. Their data stays in the database.');
+            $this->cli_msg('Continuing update...');
+            return;
+        }
+
+        $list = '<ul><li>' . implode('</li><li>', array_map('htmlspecialchars', $orphaned)) . '</li></ul>';
+        $msg  = '<h2>' . __('Additional modules detected') . '</h2>';
+        $msg .= '<p>' . __('The following modules are installed on this system but their code is not part of this %s package:', array(EPESI)) . '</p>';
+        $msg .= $list;
+        $msg .= '<p><strong>' . __('These are most likely premium or custom modules. Updating the core on its own may leave them non-functional until they are migrated to this version as well.') . '</strong></p>';
+        $msg .= '<p>' . __('Your data is not deleted — it stays in the database until the matching module is restored. If you are not sure, please contact your %s provider before continuing.', array(EPESI)) . '</p>';
+        $proceed = '?' . http_build_query(array('confirm_orphaned' => 1));
+        $msg .= '<p><a href="' . $proceed . '">[' . __('I understand — continue the update anyway') . ']</a></p>';
+        $this->quit($msg);
     }
 
     protected function redirect($url_or_get)

@@ -335,6 +335,31 @@ class ModuleManager {
 	}
 
 	/**
+	 * §59 — list modules recorded as installed in the database whose code is NOT
+	 * present in this build (no <Module>Install.php on disk). These are almost
+	 * always premium/custom modules left behind when someone unpacks a Core-only
+	 * package over an existing instance. Manifest-free: uses Epesi's own exists()
+	 * check, so it needs no separate list of "official" modules. Their DATA is not
+	 * touched by a Core update — it stays in the database until the matching module
+	 * code is restored. Used by update.php (pre-patch gate) and check.php (advisory).
+	 *
+	 * @return array sorted list of installed-but-code-missing module names
+	 */
+	public static final function get_orphaned_modules() {
+		$ret = array();
+		$res = DB::Execute('SELECT name FROM modules');
+		if ($res === false) return $ret;
+		while (($row = $res->FetchRow())) {
+			$name = $row['name'];
+			if ($name !== null && $name !== '' && !self::exists($name)) {
+				$ret[] = $name;
+			}
+		}
+		sort($ret);
+		return $ret;
+	}
+
+	/**
 	 * Registers module passed as first parameter in array passed as third parameter.
 	 * It is used to mark in an array that module is loaded and provides some external modules.
 	 *
