@@ -821,8 +821,8 @@ class EpesiUpdate
         </center>
         <br>
         <center>
-            <span class="footer">Copyright &copy; 2016 &bull; <a
-                    href="http://www.telaxus.com">Telaxus LLC</a></span>
+            <span class="footer">Copyright &copy; 2006 - <?php echo date('Y'); ?> &bull; <a
+                    href="http://www.telaxus.com">Janusz Tylek</a></span>
             <br>
 
             <p><a href="http://www.epesi.org"><img
