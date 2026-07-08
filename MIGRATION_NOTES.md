@@ -1622,7 +1622,13 @@ vendor). On `main`.
 
 ---
 
-### §58 — Roundcube schema migration on UPGRADE is not automated (TODO — build the patch) (2026-07-07)
+### §58 — Roundcube schema migration on UPGRADE — RESOLVED with a migration patch (2026-07-07/08)
+
+**RESOLVED (2026-07-08):** built `modules/CRM/Roundcube/patches/20260708_rc_schema_migrate.php` (approach A) and
+**validated on Karina's real DA upgrade instance** — `runpatches.php` returned `1` (clean, no skipped statements),
+`rc_session.expires_at` now exists, `rc_system` = `2025092300`, and Mail **send + receive + archiving** all work.
+Applied via `modules/Base/EpesiStore/runpatches.php` (`PatchUtil::apply_new()`) because `update.php` short-circuits
+when the version is already current. On `main`.
 
 **Found by the DirectAdmin upgrade test** (old Epesi 1.9.1/PHP-7.4 → 8.2): opening Mail after the auto-update gave
 `DB Error [1054] Unknown column 'expires_at' in 'rc_session'`. Root cause: Epesi's Roundcube schema-migration
