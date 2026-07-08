@@ -1714,6 +1714,34 @@ is the quiet data-safety risk this gate primarily addresses.
 
 ---
 
+### §60 — pre-public: consolidate outdated URLs to one current link (TODO) (2026-07-08)
+
+**Ask (Karina, 2026-07-08):** replace all outdated links — `telaxus.com`, `epe.si`, `epesibim.com` — with **one
+current link**. **Target URL still TBD** (likely `epesi.org` — the product site already used in the footers'
+"epesi-powered" image link; confirm with Karina/Jasiek before doing it).
+
+**NOT a blind find-replace** — the scan (own code, excl. vendor/ + RC bundle) splits into categories that must be
+handled differently:
+- **`@author …@telaxus.com` e-mails — 471 files. LEAVE.** Historical authorship (pbukowski@, abisaga@, etc.), same
+  rule as Georgi Hristov's attribution (§ copyright work). Not links.
+- **Marketing links → swap to the canonical URL:** `http://www.telaxus.com` (~19 files, e.g. the footers already
+  changed in the copyright work), `http://epe.si` / `www.epe.si` / `epe.si/donate`, `http://www.epesibim.com`.
+- **⚠️ SERVICE endpoints → do NOT point at a marketing page; map to the CURRENT live host or they break:**
+  - `http://ess.epe.si/update.json` — the **auto-update / EPESI Store check endpoint** (swapping this to a
+    marketing URL breaks update.php's package check).
+  - `https://ess.epe.si/` , `ess.epe.si/payments/` , `ess.epe.si/invoice/` , `ess.epesibim.com/` — EPESI Store /
+    subscription / payments service.
+  - `http://forum.epesibim.com` (community forum), `http://translate.epesibim.com` (translation server).
+  Each of these needs its **actual current host** confirmed, not the marketing link.
+- **Dead manual images:** `http://www.epesibim.com/manual/images/*.png` (in help content) — old manual host,
+  probably 404 now → replace with current docs or drop.
+
+**Where the constants live (for the service/store ones):** the ESS/store base is defined centrally (EssClient /
+EpesiStore config) — change it in one place, not per-file. Confirm before public release. Recorded as a pre-public
+deliverable alongside §59, the check.php 5-ext gate, and the IMAP-Root / README docs.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
