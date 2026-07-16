@@ -25,7 +25,7 @@ class Base_User_LoginInstall extends ModuleInstall {
 			print('Invalid SQL query - user_autologin table install');
 			return false;
 		}
-		$ret = DB::CreateTable('user_login_ban',"failed_on I4, from_addr C(32)");
+		$ret = DB::CreateTable('user_login_ban',"failed_on I4, from_addr C(45)");
 		if($ret===false) {
 			print('Invalid SQL query - user_login_ban table install');
 			return false;

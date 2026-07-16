@@ -64,7 +64,7 @@ class Utils_FileStorageInstall extends ModuleInstall {
 			date_accessed T NOTNULL,
 			accessed_by I8 NOTNULL,
             type I8 NOTNULL,
-            ip_address C(32),
+            ip_address C(45),
 			host_name C(64)',
 			['constraints' => ', FOREIGN KEY (file_id) REFERENCES utils_filestorage(id)']);
 		if (!$ret) {

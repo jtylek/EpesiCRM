@@ -1742,6 +1742,34 @@ deliverable alongside §59, the check.php 5-ext gate, and the IMAP-Root / README
 
 ---
 
+### §61 — widen IP-address columns C(32) → C(45) for full IPv6 (2026-07-16)
+
+**Why (Jasiek).** `base_login_audit.ip_address` was `C(32)` — too short for an IPv6 address (max textual form
+`::ffff:255.255.255.255` = 45 chars), so IPv6 client addresses were silently truncated. `get_client_ip_address()`
+([include/misc.php:333](include/misc.php)) already returns the full address; the narrow column was the only place
+it was lost. Systemic — the same `C(32)` truncation existed in **3 IP columns across 3 core tables**.
+
+**Fix — per table: the fresh-install schema line + a one-line ALTER patch** (mirrors the module's own precedent
+`modules/CRM/LoginAudit/patches/20170123_extend_hostname_length.php`; `PatchUtil::db_alter_column` is guarded —
+no-op if the column is absent, idempotent, re-set-to-C(45) on re-run):
+
+| Table | Column | Install.php line → C(45) | New ALTER patch |
+|---|---|---|---|
+| `base_login_audit` | `ip_address` | LoginAuditInstall.php:17 | CRM/LoginAudit/patches/20260716_extend_ip_length.php |
+| `user_login_ban` | `from_addr` | LoginInstall.php:28 | Base/User/Login/patches/20260716_extend_ip_length.php |
+| `utils_filestorage_access` | `ip_address` | FileStorageInstall.php:67 | Utils/FileStorage/patches/20260716_extend_ip_length.php |
+
+`host_name` columns left alone (already `C(255)`/`C(64)`). The historical **applied** patch
+`Utils/FileStorage/patches/20170419_create_remote_and_access.php` still shows `C(32)` for that column but is
+intentionally NOT edited (editing an applied patch is a no-op for existing DBs; the new ALTER patch + Install.php
+fix cover both fresh and upgrade paths).
+
+**Verify:** after `update.php`/runpatches, `SHOW COLUMNS` shows each IP column as `varchar(45)`; a 45-char IPv6
+stores whole (no truncation); fresh install creates the tables at `C(45)`; re-running the patches is a no-op.
+**STATUS: code done on `experiment/php8-hardening`; pending in-app verification (login from IPv6 / SHOW COLUMNS).**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
