@@ -25,3 +25,16 @@ fill:browse_contact->#gb_search_field // Enter keyword here
 click:browse_contact->#gb_search_button
 finish:browse_contact->#gb_search_button // Results are shown in the table
 ]
+
+[LABEL:Create new company]
+[KEYWORDS:add business organization]
+[CONTEXT:true]
+[STEPS:
+hover:Menu
+hover:Menu_CRM
+click:Menu_CRM_Companies
+click:browse_company->ActionBar_add
+fill:rb_add_company->#company_name // Enter company name
+click:rb_add_company->ActionBar_save
+finish:rb_view_company->ActionBar_edit // A new company has been created
+]
