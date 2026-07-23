@@ -15,6 +15,11 @@ class Utils_SafeHtml_HtmlPurifier
     public function output($html)
     {
         $config = HTMLPurifier_Config::createDefault();
+        // allow data: URIs so pasted clipboard images (base64 <img>) survive purification
+        $config->set('URI.AllowedSchemes', array(
+            'http' => true, 'https' => true, 'mailto' => true, 'ftp' => true,
+            'nntp' => true, 'news' => true, 'tel' => true, 'data' => true,
+        ));
         $purifier = new HTMLPurifier($config);
         return $purifier->purify($html);
     }
