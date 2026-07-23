@@ -1815,6 +1815,33 @@ correctly. **STATUS: fixed and verified working on `experiment/php8-hardening` (
 
 ---
 
+### §63 — Login Audit: cache users/contacts instead of per-row lookups (2026-07-24)
+
+**Why (Jasiek).** `CRM_LoginAudit::admin()` ([modules/CRM/LoginAudit/LoginAudit_0.php](modules/CRM/LoginAudit/LoginAudit_0.php))
+rendered each displayed audit-log row by calling `CRM_ContactsCommon::get_contact_by_user_id()` (itself 2 queries:
+`Utils_RecordBrowserCommon::get_id('contact','login',$uid)` + `get_contact($cid)`) and the uncached
+`Base_UserCommon::get_user_login()` — up to 3 queries per row, so a page of N rows with N distinct users ran up to
+3N queries just to resolve login/contact names. Not a SQL JOIN in the code, but functionally the same N+1 pattern,
+done row-by-row in PHP instead.
+
+**Fix.** Build two lookup caches once, before the row loop, instead of per-row: `$logins` (all `user_login` rows,
+one query) and `$contacts` (all contacts with a linked login, one query — reusing the exact batched-fetch pattern
+the file already used for its filter dropdown, `CRM_ContactsCommon::get_contacts(array('!login'=>''))`). The
+row-rendering loop now does plain array lookups (`$logins[$uid_num]`, `$contacts[$uid_num]`) instead of querying
+per row. The now-redundant duplicate query inside the dropdown's "few users" branch was removed — dropdown and
+row rendering share the same cache. One narrow fallback to `Base_UserCommon::get_user_login()` is kept for the
+edge case of an audit row whose `user_login` was since deleted (not in the cache) — same graceful degradation as
+before, just no longer the common path.
+
+**Result:** audit log page load goes from **O(rows displayed)** queries down to **2 fixed queries**, regardless
+of page size or how many distinct users appear in the log.
+
+**Verify:** Login Audit page displays correctly (logins, contact names, Duration) both filtered to a single user
+and unfiltered; filter dropdown/autocomplete still populates correctly. **STATUS: fixed and verified working on
+`experiment/php8-hardening`.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.

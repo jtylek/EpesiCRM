@@ -37,30 +37,39 @@ class CRM_LoginAudit extends Module {
         $user = $this->get_module_variable('filter_user','');
         $form = $this->init_module(Libs_QuickForm::module_name(),null,'filter');
         $form->setDefaults(array('users'=>$user));
-		$count = DB::GetOne('SELECT COUNT(*) FROM user_login');
+
+		// Cache of all users + their linked contacts, built with two queries total
+		// instead of looking each one up per audit-log row (was: 2 queries x every
+		// displayed row via get_contact_by_user_id()/get_user_login()).
+		$logins = array();
+		$ret = DB::Execute('SELECT id, login, active FROM user_login ORDER BY active DESC, login ASC');
+		while($row = $ret->FetchRow()) {
+			$logins[$row['id']] = $row;
+		}
+		$contacts_raw = CRM_ContactsCommon::get_contacts(array('!login'=>''));
+		$contacts = array();
+		foreach ($contacts_raw as $c) {
+			$contacts[$c['login']] = $c;
+		}
+
+		$count = count($logins);
 		if ($count > Base_User_SettingsCommon::get('Utils_RecordBrowser','enable_autocomplete')) {
 			$f_callback = array('CRM_LoginAuditCommon', 'user_label');
 			$form->addElement('autoselect', 'users', __('Select user'), array(), array(array('CRM_LoginAuditCommon','user_suggestbox'), array($f_callback)), $f_callback, array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
 		} else {
-			$ret = DB::Execute('SELECT id, active FROM user_login ORDER BY active DESC, login ASC');
 			$el = $form->addElement('select','users',__('Select user'), array(), array('onChange'=>$form->get_submit_form_js(), 'style'=>'width:200px'));
 			$el->addOption(__('All'),'');
-			$contacts_raw = CRM_ContactsCommon::get_contacts(array('!login'=>''));
-			$contacts = array();
-			foreach ($contacts_raw as $c) {
-				$contacts[$c['login']] = $c;
-			}
 			$active = array();
 			$inactive = array();
-			while($row = $ret->FetchRow()) {
-				$label = '['.Base_UserCommon::get_user_login($row['id']).']';
-				if (isset($contacts[$row['id']])) {
-					$label = CRM_ContactsCommon::contact_format_no_company($contacts[$row['id']], true).' '.$label;
+			foreach ($logins as $id=>$row) {
+				$label = '['.$row['login'].']';
+				if (isset($contacts[$id])) {
+					$label = CRM_ContactsCommon::contact_format_no_company($contacts[$id], true).' '.$label;
 				}
 				if ($row['active'])
-					$active[$row['id']] = $label;
+					$active[$id] = $label;
 				else
-					$inactive[$row['id']] = $label;
+					$inactive[$id] = $label;
 			}
 			asort($active);
 			asort($inactive);
@@ -97,15 +106,19 @@ class CRM_LoginAudit extends Module {
 
         if($ret)
 			while(($row=$ret->FetchRow())) {
-				$c = CRM_ContactsCommon::get_contact_by_user_id($row['user_login_id']);
-                $ulogin = Base_UserCommon::get_user_login($row['user_login_id']);
+				$uid_num = $row['user_login_id'];
+				// Look up from the caches built above; fall back to a direct query
+				// only for the rare case of a login audit row whose user_login was
+				// since deleted (not present in the cache).
+				$ulogin = isset($logins[$uid_num]) ? $logins[$uid_num]['login'] : Base_UserCommon::get_user_login($uid_num);
                 $uid = __('Contact not set');
-                if($c) {
+                if(isset($contacts[$uid_num])) {
+                        $c = $contacts[$uid_num];
                         $uid = $c['first_name'].' '.$c['last_name'];
                         }
                 $offset=strtotime("1970-01-01 00:00:00");
                 $sess_time=date("G:i:s",strtotime($row['end_time'])-strtotime($row['start_time'])+$offset);
-                $gb->add_row('<b>'.$ulogin.' ['.$row['user_login_id'].']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name']);
+                $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name']);
 			}
 
 		$this->display_module($gb);
