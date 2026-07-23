@@ -1842,6 +1842,36 @@ and unfiltered; filter dropdown/autocomplete still populates correctly. **STATUS
 
 ---
 
+### §64 — "Invalid date - clearing" popup on optional, untouched date fields (2026-07-24)
+
+**Why (Jasiek).** Creating a contact triggered a JS `alert('Invalid date - clearing')` just from clicking into (or
+tabbing through) the optional "Birth Date" field without typing anything — no server round-trip involved.
+Initially suspected the PHP 8 migration (`strftime()` is deprecated since 8.1, and
+[modules/Base/RegionalSettings/RegionalSettingsCommon_0.php:194](modules/Base/RegionalSettings/RegionalSettingsCommon_0.php)
+calls it directly), but that was ruled out empirically: `error.php` already excludes `E_DEPRECATED` from
+`error_reporting()` project-wide, and testing `Base_RegionalSettingsCommon::time2reg()` with a real authenticated
+user (not a CLI/no-session artifact, which misleadingly returns `null`) confirmed it correctly returns e.g.
+`'07/24/2026'`. The backend date formatting is fine.
+
+**Real root cause — pure client-side, pre-existing (not migration-related).**
+[modules/Utils/PopupCalendar/datepicker.js](modules/Utils/PopupCalendar/datepicker.js)'s `format2regexp()` builds a
+validation regex from the configured date format (`%m/%d/%Y` default) by recursively wrapping *separators* in
+optional groups so partial typing doesn't fail immediately — but tracing its regex transforms by hand shows it
+only ever wraps the **last** separator (before the year) in an optional group; the first separator (between month
+and day) stays a mandatory literal `/` in the final compiled regex: `^[0-1]?[0-9]?/[0-3]?[0-9]?(/[0-9]{0,4})?$`.
+That pattern requires at least one `/` character, so an **empty** value fails it. Since Birth Date is optional and
+normally left blank, simply focusing then blurring it (`validate_blur` in the same file) with no input fires this
+regex against an empty string → fails → the alert, even though the user never intended to set a date.
+
+**Fix:** wrap the whole compiled pattern in an optional group so an empty/untouched field always passes —
+`init_re()` changed from `'^'+this.format2regexp(f)+'$'` to `'^('+this.format2regexp(f)+')?$'`. Minimal, one-line,
+doesn't touch the separator-optionality logic itself. Verified: alert no longer fires on an untouched Birth Date
+field; typing an actual valid date still validates correctly.
+
+**STATUS: fixed and verified working on `experiment/php8-hardening`.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
