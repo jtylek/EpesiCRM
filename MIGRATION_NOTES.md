@@ -1770,6 +1770,51 @@ stores whole (no truncation); fresh install creates the tables at `C(45)`; re-ru
 
 ---
 
+### §62 — Notes/CKEditor: three stacked PHP 8 bugs killed rich-text editing + image paste entirely (2026-07-23)
+
+**Why (Jasiek, local hardening testing).** Reported as "CKEditor doesn't load in Notes (Utils_Attachment)"; after
+the first fix, "paste stopped saving multiple images." Turned out to be three independent, stacked bugs —
+CKEditor had never actually worked end-to-end in this migrated codebase until all three were found, since the
+constructor bug alone silently degraded the editor to a plain `<textarea>` (no JS error, nothing to notice).
+
+**Bug 1 — dead PHP4-style constructor.** [modules/Libs/CKEditor/ckeditor.php:7](modules/Libs/CKEditor/ckeditor.php)
+declared `function HTML_QuickForm_ckeditor(...)` (class-name method) with no `__construct`. Same bug family as
+11.4/12.2/19 (`Renderer/TCMSDefault.php`, `TCMSArray.php`, `TCMSArraySmarty.php`,
+`FieldTypes/{autoselect,automulti,autocomplete,multiselect}.php`, `datepicker.php`, `timestamp.php`,
+`currency.php`, `quickform_crits.php`) — `ckeditor.php` was simply missed back then. On PHP 8, object creation
+silently fell through to the parent's real `__construct()`, so the `load_js()` calls for `ckeditor.js`/`ck.js`
+never ran. Fix: renamed to `__construct()`, inner call → `parent::__construct(...)` — identical pattern to the
+others.
+
+**Bug 2 — HtmlPurifier stripping pasted images.** Once the editor actually loaded, pasting a clipboard image
+produces a `data:` URI `<img>` (plain browser contenteditable paste — this CKEditor 4 build has no custom
+upload/plugin.js in `plugins/clipboard/`, confirmed by grep).
+[modules/Utils/SafeHtml/HtmlPurifier.php](modules/Utils/SafeHtml/HtmlPurifier.php), called on every note display
+via [AttachmentCommon_0.php:273](modules/Utils/Attachment/AttachmentCommon_0.php), used
+`HTMLPurifier_Config::createDefault()` with zero customization; HTMLPurifier's default `URI.AllowedSchemes`
+excludes `data:` (XSS/phishing hardening), so the whole `<img>` was silently dropped on render. `git log -L`
+confirms both the class and the `AttachmentCommon_0.php` call site are unchanged since the vanilla 1.9.1
+baseline — not a migration regression, just unreachable until Bug 1 was fixed. **Decision (Jasiek):** allow
+`data:` globally in this purifier instance rather than build a proper paste→file-attachment pipeline; accepted
+tradeoff — any URI-bearing attribute through this purifier (not just `img src`) can now carry a `data:` URI, low
+real-world risk for an internal CRM.
+
+**Bug 3 — note column silently truncated.** RecordBrowser's `'long text'` field type maps to ADODB meta-type
+`'X'` ([RecordBrowserCommon_0.php:1121](modules/Utils/RecordBrowser/RecordBrowserCommon_0.php)) →
+`ActualType('X')` = plain MySQL **`TEXT`** (64KB cap), not `LONGTEXT`, despite the field-type's name. Base64
+inflates ~33% over binary size, so two-plus pasted images routinely exceeded 64KB combined; with `sql_mode`
+lacking `STRICT_TRANS_TABLES` (see MySQL tuning, same session), MySQL/MariaDB **silently truncated** the excess
+on save instead of erroring — exact match for "first image saves, second is gone." Fix — scoped to this one
+field only, NOT the global `'long text'`→`X` mapping (used by many other modules, out of scope here):
+[modules/Utils/Attachment/patches/20260723_note_longtext.php](modules/Utils/Attachment/patches/20260723_note_longtext.php)
+widens `utils_attachment_data_1.f_note` from `TEXT` to `LONGTEXT` via `DB::dict()->alterColumnSQL(...)`
+(non-destructive; confirmed via `SHOW CREATE TABLE` before/after).
+
+**Verify:** CKEditor loads in Notes; single and multiple pasted clipboard images both save and redisplay
+correctly. **STATUS: fixed and verified working on `experiment/php8-hardening` (commit `d880cb43`).**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
