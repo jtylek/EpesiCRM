@@ -32,7 +32,7 @@ class SearchIndexCommand extends Command
             $st->error('Invalid recordset.');
             $st->writeln('Use one of the following:');
             $st->listing($recordsets);
-            return;
+            return Command::FAILURE;
         }
         if ($recordset) {
             $recordsets = array($recordset);
@@ -42,7 +42,7 @@ class SearchIndexCommand extends Command
         $total = $this->getTotal($recordsets);
         if (!$total) {
             $st->writeln('Nothing to index!');
-            return;
+            return Command::SUCCESS;
         }
         $st->writeln("Records count: $total");
         $st->writeln("Indexing...");
@@ -54,6 +54,8 @@ class SearchIndexCommand extends Command
         } while ($indexed);
         $st->progressFinish();
         $st->writeln("done!");
+
+        return Command::SUCCESS;
     }
 
     private function getTotal($recordsets)

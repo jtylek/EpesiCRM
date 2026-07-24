@@ -26,5 +26,7 @@ class ListBackupsCommand extends Command
         foreach ($util->list_backups() as $backup) {
             $st->writeln(sprintf("<fg=yellow>[%s]</> <fg=green>%s</> (File: %s)", $backup->get_date('Y-m-d H:i:s'), $backup->get_description(), $backup->get_file()));
         }
+
+        return Command::SUCCESS;
     }
 }

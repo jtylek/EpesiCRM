@@ -17,5 +17,7 @@ class MaintenanceOffCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output) {
         MaintenanceMode::turn_off();
         $output->writeln("Turned off");
+
+        return Command::SUCCESS;
     }
 }

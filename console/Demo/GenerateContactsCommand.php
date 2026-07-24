@@ -105,5 +105,7 @@ class GenerateContactsCommand extends Command
         $progress->finish();
         $output->write('', true);
         $table->render();
+
+        return Command::SUCCESS;
     }
 }

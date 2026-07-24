@@ -114,7 +114,7 @@ $dump = new IMysqldump\Mysqldump(
     "mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=test011",
     "travis",
     "",
-    array('complete-insert' =>  false));
+    array('complete-insert' =>  false, 'hex-blob' => false));
 $dump->start("mysqldump-php_test011a.sql");
 
 print "starting mysql-php_test011b.sql" . PHP_EOL;
@@ -161,5 +161,18 @@ $dump = new IMysqldump\Mysqldump(
         "extended-insert" => false
     ));
 $dump->start("mysqldump-php_test013.sql");
+
+print "starting mysql-php_test014.sql" . PHP_EOL;
+$dump = new IMysqldump\Mysqldump(
+    "mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=test014",
+    "travis",
+    "",
+    array(
+        "insert-ignore" => true,
+        "extended-insert" => true,
+    ));
+$timer=microtime(true);
+$dump->start("mysqldump-php_test014.sql");
+print round(microtime(true) - $timer,3) . " seconds" . PHP_EOL;
 
 exit(0);

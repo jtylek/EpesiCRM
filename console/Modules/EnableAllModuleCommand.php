@@ -35,5 +35,7 @@ class EnableAllModuleCommand extends Command
             $cnt = ModuleManager::enable_modules();
         }
         $output->writeln('Modules enabled: ' . $cnt);
+
+        return Command::SUCCESS;
     }
 }

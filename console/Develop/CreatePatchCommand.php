@@ -52,9 +52,12 @@ class CreatePatchCommand extends Command
         $filepath = "$path/$filename";
         if (file_exists($filepath)) {
             $st->error("Patch already exists: $filepath");
-        } else {
-            file_put_contents($filepath, "<?php\n\ndefined(\"_VALID_ACCESS\") || die('Direct access forbidden');\n\n");
-            $st->success("Patch created: $filepath");
+            return Command::FAILURE;
         }
+
+        file_put_contents($filepath, "<?php\n\ndefined(\"_VALID_ACCESS\") || die('Direct access forbidden');\n\n");
+        $st->success("Patch created: $filepath");
+
+        return Command::SUCCESS;
     }
 }

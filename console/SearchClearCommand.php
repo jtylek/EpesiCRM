@@ -31,7 +31,7 @@ class SearchClearCommand extends Command
             $st->error('Invalid recordset.');
             $st->writeln('Use one of the following:');
             $st->listing($recordsets);
-            return;
+            return Command::FAILURE;
         }
         $st->writeln("Clearing search index...");
         if ($recordset) {
@@ -45,5 +45,7 @@ class SearchClearCommand extends Command
             $st->progressFinish();
         }
         $st->writeln("done!");
+
+        return Command::SUCCESS;
     }
 }

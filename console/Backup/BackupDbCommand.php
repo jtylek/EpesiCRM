@@ -29,5 +29,7 @@ class BackupDbCommand extends Command
         require_once 'include/backups.php';
         \BackupUtil::backup_db($file);
         $st->writeln('done');
+
+        return Command::SUCCESS;
     }
 }

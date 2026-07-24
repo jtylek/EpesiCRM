@@ -24,5 +24,7 @@ class ThemeRebuildCommand extends Command
         $output->writeln('Rebuilding themes...');
         Base_ThemeCommon::themeup();
         $output->writeln('Theme rebuilded!');
+
+        return Command::SUCCESS;
     }
 }

@@ -35,13 +35,15 @@ class UninstallModuleCommand extends Command
 
         if (ModuleManager::is_installed($module['name']) < 0) {
             $output->writeln('<fg=yellow>Module ' . $module_name . ' not installed</fg=yellow>');
-            return;
+            return Command::SUCCESS;
         }
 
         if (ModuleManager::uninstall($module['name'])) {
             $output->writeln('<fg=green>Module ' . $module_name . ' uninstalled</fg=green>');
-        } else {
-            $output->writeln('<fg=red>Module ' . $module_name . ' uninstalling error</fg=red>');
+            return Command::SUCCESS;
         }
+
+        $output->writeln('<fg=red>Module ' . $module_name . ' uninstalling error</fg=red>');
+        return Command::FAILURE;
     }
 }

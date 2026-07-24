@@ -8,12 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-use Memio\Memio\Config\Build;
-use Memio\Model\File;
-use Memio\Model\Object;
-use Memio\Model\Method;
-use Memio\Model\Argument;
-
 class CreateModuleCommand extends Command
 {
     protected function configure()
@@ -43,22 +37,6 @@ class CreateModuleCommand extends Command
 
         $module_type = str_replace('/', '_', $module_name);
 
-        //region Add defined("_VALID_ACCESS") to file.twig if not found
-        $current = file_get_contents(EPESI_LOCAL_DIR . '/vendor/memio/twig-template-engine/templates/file.twig');
-        if (!preg_match('/defined\(\"\_VALID\_ACCESS\"\)/', $current)) {
-            file_put_contents(
-                EPESI_LOCAL_DIR . '/vendor/memio/twig-template-engine/templates/file.twig',
-                str_replace(
-                    '<?php',
-                    '<?php' . PHP_EOL . 'defined("_VALID_ACCESS") || die(\'Direct access forbidden\');' . PHP_EOL,
-                    $current
-                )
-            );
-        }
-        //endregion
-
-        $prettyPrinter = Build::prettyPrinter();
-
         //region Create module dir
         $module_dir = EPESI_LOCAL_DIR . '/modules/' . $module_name;
         if (file_exists($module_dir)) {
@@ -72,69 +50,63 @@ class CreateModuleCommand extends Command
 
         //region Main File
         $file_main = $module_dir . '/' . $core_name . '_0.php';
-        $myFile = File::make($file_main)
-                      ->setStructure(
-                          Object::make($module_type)
-                                ->extend(
-                                    Object::make('Module'))
-                                ->addMethod(
-                                    Method::make('body')
-                                )
-                      );
+        $code = "<?php\n"
+              . "defined(\"_VALID_ACCESS\") || die('Direct access forbidden');\n\n"
+              . "class {$module_type} extends Module {\n"
+              . "\tpublic function body() {\n"
+              . "\t}\n"
+              . "}\n"
+              . "?>\n";
 
-        if (file_put_contents($file_main, $prettyPrinter->generateCode($myFile)) !== false) {
+        if (file_put_contents($file_main, $code) !== false) {
             $output->writeln("Created file: $file_main");
         }
         //endregion
 
         //region Common File
         $file_common = $module_dir . '/' . $core_name . 'Common_0.php';
-        $myFile = File::make($file_common)
-                      ->setStructure(
-                          Object::make($module_type . 'Common')
-                                ->extend(
-                                    Object::make('ModuleCommon')
-                                )
-                      );
+        $code = "<?php\n"
+              . "defined(\"_VALID_ACCESS\") || die('Direct access forbidden');\n\n"
+              . "class {$module_type}Common extends ModuleCommon {\n"
+              . "}\n"
+              . "?>\n";
 
-        if (file_put_contents($file_common, $prettyPrinter->generateCode($myFile)) !== false) {
+        if (file_put_contents($file_common, $code) !== false) {
             $output->writeln("Created file: $file_common");
         }
         //endregion
 
         //region Install File
-        $t = '    ';
+        $t = "\t";
         $closure = function ($m) use ($t) {
             $m = preg_replace('#^modules/#', '', $m);
             return "{$t}{$t}{$t}array('name' => '$m', 'version' => 0)";
         };
         $required_modules_str = implode(",\n", array_map($closure, $requires));
         $file_install = $module_dir . '/' . $core_name . 'Install.php';
-        $myFile = File::make($file_install)
-                      ->setStructure(
-                          Object::make($module_type . 'Install')
-                                ->extend(
-                                    Object::make('ModuleInstall'))
-                                ->addMethod(
-                                    Method::make('install')
-                                          ->setBody("{$t}{$t}return true;"))
-                                ->addMethod(
-                                    Method::make('uninstall')
-                                          ->setBody("{$t}{$t}return true;"))
-                                ->addMethod(
-                                    Method::make('requires')
-                                          ->addArgument(
-                                              Argument::make('mixed', 'v'))
-                                          ->setBody("{$t}{$t}return [\n$required_modules_str\n{$t}{$t}];"))
-                                ->addMethod(
-                                    Method::make('version')
-                                          ->setBody("{$t}{$t}return ['0.1'];"))
-                      );
+        $code = "<?php\n"
+              . "defined(\"_VALID_ACCESS\") || die('Direct access forbidden');\n\n"
+              . "class {$module_type}Install extends ModuleInstall {\n"
+              . "\tpublic function install() {\n"
+              . "\t\treturn true;\n"
+              . "\t}\n\n"
+              . "\tpublic function uninstall() {\n"
+              . "\t\treturn true;\n"
+              . "\t}\n\n"
+              . "\tpublic function requires(\$v) {\n"
+              . "\t\treturn [\n{$required_modules_str}\n\t\t];\n"
+              . "\t}\n\n"
+              . "\tpublic function version() {\n"
+              . "\t\treturn ['0.1'];\n"
+              . "\t}\n"
+              . "}\n"
+              . "?>\n";
 
-        if (file_put_contents($file_install, $prettyPrinter->generateCode($myFile)) !== false) {
+        if (file_put_contents($file_install, $code) !== false) {
             $output->writeln("Created file: $file_install");
         }
         //endregion
 
+        return Command::SUCCESS;
     }
 }

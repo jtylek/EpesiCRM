@@ -21,73 +21,58 @@ use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 interface FlashBagInterface extends SessionBagInterface
 {
     /**
-     * Adds a flash message for type.
+     * Adds a flash message for the given type.
      *
-     * @param string $type
-     * @param mixed  $message
+     * @return void
      */
-    public function add($type, $message);
+    public function add(string $type, mixed $message);
 
     /**
-     * Registers a message for a given type.
+     * Registers one or more messages for a given type.
      *
-     * @param string       $type
-     * @param string|array $message
+     * @return void
      */
-    public function set($type, $message);
+    public function set(string $type, string|array $messages);
 
     /**
      * Gets flash messages for a given type.
      *
      * @param string $type    Message category type
      * @param array  $default Default value if $type does not exist
-     *
-     * @return array
      */
-    public function peek($type, array $default = array());
+    public function peek(string $type, array $default = []): array;
 
     /**
      * Gets all flash messages.
-     *
-     * @return array
      */
-    public function peekAll();
+    public function peekAll(): array;
 
     /**
      * Gets and clears flash from the stack.
      *
-     * @param string $type
-     * @param array  $default Default value if $type does not exist
-     *
-     * @return array
+     * @param array $default Default value if $type does not exist
      */
-    public function get($type, array $default = array());
+    public function get(string $type, array $default = []): array;
 
     /**
      * Gets and clears flashes from the stack.
-     *
-     * @return array
      */
-    public function all();
+    public function all(): array;
 
     /**
      * Sets all flash messages.
+     *
+     * @return void
      */
     public function setAll(array $messages);
 
     /**
      * Has flash messages for a given type?
-     *
-     * @param string $type
-     *
-     * @return bool
      */
-    public function has($type);
+    public function has(string $type): bool;
 
     /**
      * Returns a list of all defined types.
-     *
-     * @return array
      */
-    public function keys();
+    public function keys(): array;
 }

@@ -1,8 +1,0 @@
-    /**
-     * @param Request $request
-     * @param int     $type
-     * @param bool    $catch
-     */
-    public function handle(Request $request, $type, $catch)
-    {
-    }

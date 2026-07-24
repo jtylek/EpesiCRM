@@ -13,9 +13,6 @@ namespace Symfony\Component\Console\Tester;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * Eases the testing of console applications.
@@ -29,10 +26,9 @@ use Symfony\Component\Console\Output\StreamOutput;
  */
 class ApplicationTester
 {
-    private $application;
-    private $input;
-    private $output;
-    private $statusCode;
+    use TesterTrait;
+
+    private Application $application;
 
     public function __construct(Application $application)
     {
@@ -44,80 +40,59 @@ class ApplicationTester
      *
      * Available options:
      *
-     *  * interactive: Sets the input interactive flag
-     *  * decorated:   Sets the output decorated flag
-     *  * verbosity:   Sets the output verbosity flag
-     *
-     * @param array $input   An array of arguments and options
-     * @param array $options An array of options
+     *  * interactive:               Sets the input interactive flag
+     *  * decorated:                 Sets the output decorated flag
+     *  * verbosity:                 Sets the output verbosity flag
+     *  * capture_stderr_separately: Make output of stdOut and stdErr separately available
      *
      * @return int The command exit code
      */
-    public function run(array $input, $options = array())
+    public function run(array $input, array $options = []): int
     {
-        $this->input = new ArrayInput($input);
-        if (isset($options['interactive'])) {
-            $this->input->setInteractive($options['interactive']);
+        $prevShellVerbosity = [getenv('SHELL_VERBOSITY'), $_ENV['SHELL_VERBOSITY'] ?? false, $_SERVER['SHELL_VERBOSITY'] ?? false];
+
+        try {
+            $this->input = new ArrayInput($input);
+            if (isset($options['interactive'])) {
+                $this->input->setInteractive($options['interactive']);
+            }
+
+            if ($this->inputs) {
+                $this->input->setStream(self::createStream($this->inputs));
+            }
+
+            $this->initOutput($options);
+
+            // Temporarily clear SHELL_VERBOSITY to prevent Application::configureIO
+            // from overriding the interactive and verbosity settings set above
+            if (\function_exists('putenv')) {
+                @putenv('SHELL_VERBOSITY');
+            }
+            unset($_ENV['SHELL_VERBOSITY'], $_SERVER['SHELL_VERBOSITY']);
+
+            return $this->statusCode = $this->application->run($this->input, $this->output);
+        } finally {
+            // SHELL_VERBOSITY is set by Application::configureIO so we need to unset/reset it
+            // to its previous value to avoid one test's verbosity to spread to the following tests
+            if (false === $prevShellVerbosity[0]) {
+                if (\function_exists('putenv')) {
+                    @putenv('SHELL_VERBOSITY');
+                }
+            } else {
+                if (\function_exists('putenv')) {
+                    @putenv('SHELL_VERBOSITY='.$prevShellVerbosity[0]);
+                }
+            }
+            if (false === $prevShellVerbosity[1]) {
+                unset($_ENV['SHELL_VERBOSITY']);
+            } else {
+                $_ENV['SHELL_VERBOSITY'] = $prevShellVerbosity[1];
+            }
+            if (false === $prevShellVerbosity[2]) {
+                unset($_SERVER['SHELL_VERBOSITY']);
+            } else {
+                $_SERVER['SHELL_VERBOSITY'] = $prevShellVerbosity[2];
+            }
         }
-
-        $this->output = new StreamOutput(fopen('php://memory', 'w', false));
-        if (isset($options['decorated'])) {
-            $this->output->setDecorated($options['decorated']);
-        }
-        if (isset($options['verbosity'])) {
-            $this->output->setVerbosity($options['verbosity']);
-        }
-
-        return $this->statusCode = $this->application->run($this->input, $this->output);
-    }
-
-    /**
-     * Gets the display returned by the last execution of the application.
-     *
-     * @param bool $normalize Whether to normalize end of lines to \n or not
-     *
-     * @return string The display
-     */
-    public function getDisplay($normalize = false)
-    {
-        rewind($this->output->getStream());
-
-        $display = stream_get_contents($this->output->getStream());
-
-        if ($normalize) {
-            $display = str_replace(PHP_EOL, "\n", $display);
-        }
-
-        return $display;
-    }
-
-    /**
-     * Gets the input instance used by the last execution of the application.
-     *
-     * @return InputInterface The current input instance
-     */
-    public function getInput()
-    {
-        return $this->input;
-    }
-
-    /**
-     * Gets the output instance used by the last execution of the application.
-     *
-     * @return OutputInterface The current output instance
-     */
-    public function getOutput()
-    {
-        return $this->output;
-    }
-
-    /**
-     * Gets the status code returned by the last execution of the application.
-     *
-     * @return int The status code
-     */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
     }
 }

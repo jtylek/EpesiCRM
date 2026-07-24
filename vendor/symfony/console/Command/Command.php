@@ -12,17 +12,19 @@
 namespace Symfony\Component\Console\Command;
 
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Descriptor\TextDescriptor;
-use Symfony\Component\Console\Descriptor\XmlDescriptor;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Completion\CompletionInput;
+use Symfony\Component\Console\Completion\CompletionSuggestions;
+use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\LogicException;
+use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -32,61 +34,142 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Command
 {
-    private $application;
-    private $name;
-    private $processTitle;
-    private $aliases = array();
-    private $definition;
-    private $help;
-    private $description;
-    private $ignoreValidationErrors = false;
-    private $applicationDefinitionMerged = false;
-    private $applicationDefinitionMergedWithArgs = false;
-    private $code;
-    private $synopsis = array();
-    private $usages = array();
-    private $helperSet;
+    // see https://tldp.org/LDP/abs/html/exitcodes.html
+    public const SUCCESS = 0;
+    public const FAILURE = 1;
+    public const INVALID = 2;
+
+    /**
+     * @var string|null The default command name
+     *
+     * @deprecated since Symfony 6.1, use the AsCommand attribute instead
+     */
+    protected static $defaultName;
+
+    /**
+     * @var string|null The default command description
+     *
+     * @deprecated since Symfony 6.1, use the AsCommand attribute instead
+     */
+    protected static $defaultDescription;
+
+    private ?Application $application = null;
+    private ?string $name = null;
+    private ?string $processTitle = null;
+    private array $aliases = [];
+    private InputDefinition $definition;
+    private bool $hidden = false;
+    private string $help = '';
+    private string $description = '';
+    private ?InputDefinition $fullDefinition = null;
+    private bool $ignoreValidationErrors = false;
+    private ?\Closure $code = null;
+    private array $synopsis = [];
+    private array $usages = [];
+    private ?HelperSet $helperSet = null;
+
+    public static function getDefaultName(): ?string
+    {
+        $class = static::class;
+
+        if ($attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class)) {
+            return $attribute[0]->newInstance()->name;
+        }
+
+        $r = new \ReflectionProperty($class, 'defaultName');
+
+        if ($class !== $r->class || null === static::$defaultName) {
+            return null;
+        }
+
+        trigger_deprecation('symfony/console', '6.1', 'Relying on the static property "$defaultName" for setting a command name is deprecated. Add the "%s" attribute to the "%s" class instead.', AsCommand::class, static::class);
+
+        return static::$defaultName;
+    }
+
+    public static function getDefaultDescription(): ?string
+    {
+        $class = static::class;
+
+        if ($attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class)) {
+            return $attribute[0]->newInstance()->description;
+        }
+
+        $r = new \ReflectionProperty($class, 'defaultDescription');
+
+        if ($class !== $r->class || null === static::$defaultDescription) {
+            return null;
+        }
+
+        trigger_deprecation('symfony/console', '6.1', 'Relying on the static property "$defaultDescription" for setting a command description is deprecated. Add the "%s" attribute to the "%s" class instead.', AsCommand::class, static::class);
+
+        return static::$defaultDescription;
+    }
 
     /**
      * @param string|null $name The name of the command; passing null means it must be set in configure()
      *
      * @throws LogicException When the command name is empty
      */
-    public function __construct($name = null)
+    public function __construct(?string $name = null)
     {
         $this->definition = new InputDefinition();
+
+        if (null === $name && null !== $name = static::getDefaultName()) {
+            $aliases = explode('|', $name);
+
+            if ('' === $name = array_shift($aliases)) {
+                $this->setHidden(true);
+                $name = array_shift($aliases);
+            }
+
+            $this->setAliases($aliases);
+        }
 
         if (null !== $name) {
             $this->setName($name);
         }
 
-        $this->configure();
-
-        if (!$this->name) {
-            throw new LogicException(sprintf('The command defined in "%s" cannot have an empty name.', \get_class($this)));
+        if ('' === $this->description) {
+            $this->setDescription(static::getDefaultDescription() ?? '');
         }
+
+        $this->configure();
     }
 
     /**
      * Ignores validation errors.
      *
      * This is mainly useful for the help command.
+     *
+     * @return void
      */
     public function ignoreValidationErrors()
     {
         $this->ignoreValidationErrors = true;
     }
 
-    public function setApplication(Application $application = null)
+    /**
+     * @return void
+     */
+    public function setApplication(?Application $application = null)
     {
+        if (1 > \func_num_args()) {
+            trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
+        }
         $this->application = $application;
         if ($application) {
             $this->setHelperSet($application->getHelperSet());
         } else {
             $this->helperSet = null;
         }
+
+        $this->fullDefinition = null;
     }
 
+    /**
+     * @return void
+     */
     public function setHelperSet(HelperSet $helperSet)
     {
         $this->helperSet = $helperSet;
@@ -94,20 +177,16 @@ class Command
 
     /**
      * Gets the helper set.
-     *
-     * @return HelperSet A HelperSet instance
      */
-    public function getHelperSet()
+    public function getHelperSet(): ?HelperSet
     {
         return $this->helperSet;
     }
 
     /**
      * Gets the application instance for this command.
-     *
-     * @return Application An Application instance
      */
-    public function getApplication()
+    public function getApplication(): ?Application
     {
         return $this->application;
     }
@@ -115,7 +194,7 @@ class Command
     /**
      * Checks whether the command is enabled or not in the current environment.
      *
-     * Override this to check for x or y and return false if the command can not
+     * Override this to check for x or y and return false if the command cannot
      * run properly under the current conditions.
      *
      * @return bool
@@ -127,6 +206,8 @@ class Command
 
     /**
      * Configures the current command.
+     *
+     * @return void
      */
     protected function configure()
     {
@@ -140,7 +221,7 @@ class Command
      * execute() method, you set the code to execute by passing
      * a Closure to the setCode() method.
      *
-     * @return int|null null or 0 if everything went fine, or an error code
+     * @return int 0 if everything went fine, or an exit code
      *
      * @throws LogicException When this abstract method is not implemented
      *
@@ -157,6 +238,8 @@ class Command
      * This method is executed before the InputDefinition is validated.
      * This means that this is the only place where the command can
      * interactively ask for values of missing required arguments.
+     *
+     * @return void
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
@@ -171,6 +254,8 @@ class Command
      *
      * @see InputInterface::bind()
      * @see InputInterface::validate()
+     *
+     * @return void
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -185,23 +270,19 @@ class Command
      *
      * @return int The command exit code
      *
-     * @throws \Exception When binding input fails. Bypass this by calling {@link ignoreValidationErrors()}.
+     * @throws ExceptionInterface When input binding fails. Bypass this by calling {@link ignoreValidationErrors()}.
      *
      * @see setCode()
      * @see execute()
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output): int
     {
-        // force the creation of the synopsis before the merge with the app definition
-        $this->getSynopsis(true);
-        $this->getSynopsis(false);
-
         // add the application arguments and options
         $this->mergeApplicationDefinition();
 
         // bind the input against the command specific arguments/options
         try {
-            $input->bind($this->definition);
+            $input->bind($this->getDefinition());
         } catch (ExceptionInterface $e) {
             if (!$this->ignoreValidationErrors) {
                 throw $e;
@@ -213,7 +294,7 @@ class Command
         if (null !== $this->processTitle) {
             if (\function_exists('cli_set_process_title')) {
                 if (!@cli_set_process_title($this->processTitle)) {
-                    if ('Darwin' === PHP_OS) {
+                    if ('Darwin' === \PHP_OS) {
                         $output->writeln('<comment>Running "cli_set_process_title" as an unprivileged user is not supported on MacOS.</comment>', OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
                         cli_set_process_title($this->processTitle);
@@ -240,12 +321,29 @@ class Command
         $input->validate();
 
         if ($this->code) {
-            $statusCode = \call_user_func($this->code, $input, $output);
+            $statusCode = ($this->code)($input, $output);
         } else {
             $statusCode = $this->execute($input, $output);
+
+            if (!\is_int($statusCode)) {
+                throw new \TypeError(\sprintf('Return value of "%s::execute()" must be of the type int, "%s" returned.', static::class, get_debug_type($statusCode)));
+            }
         }
 
         return is_numeric($statusCode) ? (int) $statusCode : 0;
+    }
+
+    /**
+     * Adds suggestions to $suggestions for the current completion input (e.g. option or argument).
+     */
+    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
+    {
+        $definition = $this->getDefinition();
+        if (CompletionInput::TYPE_OPTION_VALUE === $input->getCompletionType() && $definition->hasOption($input->getCompletionName())) {
+            $definition->getOption($input->getCompletionName())->complete($input, $suggestions);
+        } elseif (CompletionInput::TYPE_ARGUMENT_VALUE === $input->getCompletionType() && $definition->hasArgument($input->getCompletionName())) {
+            $definition->getArgument($input->getCompletionName())->complete($input, $suggestions);
+        }
     }
 
     /**
@@ -262,25 +360,22 @@ class Command
      *
      * @see execute()
      */
-    public function setCode($code)
+    public function setCode(callable $code): static
     {
-        if (!\is_callable($code)) {
-            throw new InvalidArgumentException('Invalid callable provided to Command::setCode.');
-        }
-
-        if (\PHP_VERSION_ID >= 50400 && $code instanceof \Closure) {
+        if ($code instanceof \Closure) {
             $r = new \ReflectionFunction($code);
             if (null === $r->getClosureThis()) {
-                if (\PHP_VERSION_ID < 70000) {
-                    // Bug in PHP5: https://bugs.php.net/bug.php?id=64761
-                    // This means that we cannot bind static closures and therefore we must
-                    // ignore any errors here.  There is no way to test if the closure is
-                    // bindable.
-                    $code = @\Closure::bind($code, $this);
-                } else {
-                    $code = \Closure::bind($code, $this);
+                set_error_handler(static function () {});
+                try {
+                    if ($c = \Closure::bind($code, $this)) {
+                        $code = $c;
+                    }
+                } finally {
+                    restore_error_handler();
                 }
             }
+        } else {
+            $code = $code(...);
         }
 
         $this->code = $code;
@@ -294,34 +389,33 @@ class Command
      * This method is not part of public API and should not be used directly.
      *
      * @param bool $mergeArgs Whether to merge or not the Application definition arguments to Command definition arguments
+     *
+     * @internal
      */
-    public function mergeApplicationDefinition($mergeArgs = true)
+    public function mergeApplicationDefinition(bool $mergeArgs = true): void
     {
-        if (null === $this->application || (true === $this->applicationDefinitionMerged && ($this->applicationDefinitionMergedWithArgs || !$mergeArgs))) {
+        if (null === $this->application) {
             return;
         }
 
-        $this->definition->addOptions($this->application->getDefinition()->getOptions());
-
-        $this->applicationDefinitionMerged = true;
+        $this->fullDefinition = new InputDefinition();
+        $this->fullDefinition->setOptions($this->definition->getOptions());
+        $this->fullDefinition->addOptions($this->application->getDefinition()->getOptions());
 
         if ($mergeArgs) {
-            $currentArguments = $this->definition->getArguments();
-            $this->definition->setArguments($this->application->getDefinition()->getArguments());
-            $this->definition->addArguments($currentArguments);
-
-            $this->applicationDefinitionMergedWithArgs = true;
+            $this->fullDefinition->setArguments($this->application->getDefinition()->getArguments());
+            $this->fullDefinition->addArguments($this->definition->getArguments());
+        } else {
+            $this->fullDefinition->setArguments($this->definition->getArguments());
         }
     }
 
     /**
      * Sets an array of argument and option instances.
      *
-     * @param array|InputDefinition $definition An array of argument and option instances or a definition instance
-     *
      * @return $this
      */
-    public function setDefinition($definition)
+    public function setDefinition(array|InputDefinition $definition): static
     {
         if ($definition instanceof InputDefinition) {
             $this->definition = $definition;
@@ -329,51 +423,51 @@ class Command
             $this->definition->setDefinition($definition);
         }
 
-        $this->applicationDefinitionMerged = false;
+        $this->fullDefinition = null;
 
         return $this;
     }
 
     /**
      * Gets the InputDefinition attached to this Command.
-     *
-     * @return InputDefinition An InputDefinition instance
      */
-    public function getDefinition()
+    public function getDefinition(): InputDefinition
     {
-        return $this->definition;
+        return $this->fullDefinition ?? $this->getNativeDefinition();
     }
 
     /**
-     * Gets the InputDefinition to be used to create XML and Text representations of this Command.
+     * Gets the InputDefinition to be used to create representations of this Command.
      *
      * Can be overridden to provide the original command representation when it would otherwise
      * be changed by merging with the application InputDefinition.
      *
      * This method is not part of public API and should not be used directly.
-     *
-     * @return InputDefinition An InputDefinition instance
      */
-    public function getNativeDefinition()
+    public function getNativeDefinition(): InputDefinition
     {
-        return $this->getDefinition();
+        return $this->definition ?? throw new LogicException(\sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', static::class));
     }
 
     /**
      * Adds an argument.
      *
-     * @param string               $name        The argument name
-     * @param int|null             $mode        The argument mode: self::REQUIRED or self::OPTIONAL
-     * @param string               $description A description text
-     * @param string|string[]|null $default     The default value (for self::OPTIONAL mode only)
-     *
-     * @throws InvalidArgumentException When argument mode is not valid
+     * @param $mode    The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
+     * @param $default The default value (for InputArgument::OPTIONAL mode only)
+     * @param array|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion> $suggestedValues The values used for input completion
      *
      * @return $this
+     *
+     * @throws InvalidArgumentException When argument mode is not valid
      */
-    public function addArgument($name, $mode = null, $description = '', $default = null)
+    public function addArgument(string $name, ?int $mode = null, string $description = '', mixed $default = null /* array|\Closure $suggestedValues = null */): static
     {
-        $this->definition->addArgument(new InputArgument($name, $mode, $description, $default));
+        $suggestedValues = 5 <= \func_num_args() ? func_get_arg(4) : [];
+        if (!\is_array($suggestedValues) && !$suggestedValues instanceof \Closure) {
+            throw new \TypeError(\sprintf('Argument 5 passed to "%s()" must be array or \Closure, "%s" given.', __METHOD__, get_debug_type($suggestedValues)));
+        }
+        $this->definition->addArgument(new InputArgument($name, $mode, $description, $default, $suggestedValues));
+        $this->fullDefinition?->addArgument(new InputArgument($name, $mode, $description, $default, $suggestedValues));
 
         return $this;
     }
@@ -381,19 +475,23 @@ class Command
     /**
      * Adds an option.
      *
-     * @param string                        $name        The option name
-     * @param string|array                  $shortcut    The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param int|null                      $mode        The option mode: One of the VALUE_* constants
-     * @param string                        $description A description text
-     * @param string|string[]|int|bool|null $default     The default value (must be null for self::VALUE_NONE)
-     *
-     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     * @param $shortcut The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param $mode     The option mode: One of the InputOption::VALUE_* constants
+     * @param $default  The default value (must be null for InputOption::VALUE_NONE)
+     * @param array|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion> $suggestedValues The values used for input completion
      *
      * @return $this
+     *
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
-    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    public function addOption(string $name, string|array|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null /* array|\Closure $suggestedValues = [] */): static
     {
-        $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
+        $suggestedValues = 6 <= \func_num_args() ? func_get_arg(5) : [];
+        if (!\is_array($suggestedValues) && !$suggestedValues instanceof \Closure) {
+            throw new \TypeError(\sprintf('Argument 5 passed to "%s()" must be array or \Closure, "%s" given.', __METHOD__, get_debug_type($suggestedValues)));
+        }
+        $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default, $suggestedValues));
+        $this->fullDefinition?->addOption(new InputOption($name, $shortcut, $mode, $description, $default, $suggestedValues));
 
         return $this;
     }
@@ -406,13 +504,11 @@ class Command
      *
      *     $command->setName('foo:bar');
      *
-     * @param string $name The command name
-     *
      * @return $this
      *
      * @throws InvalidArgumentException When the name is invalid
      */
-    public function setName($name)
+    public function setName(string $name): static
     {
         $this->validateName($name);
 
@@ -427,13 +523,9 @@ class Command
      * This feature should be used only when creating a long process command,
      * like a daemon.
      *
-     * PHP 5.5+ or the proctitle PECL library is required
-     *
-     * @param string $title The process title
-     *
      * @return $this
      */
-    public function setProcessTitle($title)
+    public function setProcessTitle(string $title): static
     {
         $this->processTitle = $title;
 
@@ -442,22 +534,38 @@ class Command
 
     /**
      * Returns the command name.
-     *
-     * @return string The command name
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * Sets the description for the command.
-     *
-     * @param string $description The description for the command
+     * @param bool $hidden Whether or not the command should be hidden from the list of commands
      *
      * @return $this
      */
-    public function setDescription($description)
+    public function setHidden(bool $hidden = true): static
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * @return bool whether the command should be publicly shown or not
+     */
+    public function isHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    /**
+     * Sets the description for the command.
+     *
+     * @return $this
+     */
+    public function setDescription(string $description): static
     {
         $this->description = $description;
 
@@ -466,10 +574,8 @@ class Command
 
     /**
      * Returns the description for the command.
-     *
-     * @return string The description for the command
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -477,11 +583,9 @@ class Command
     /**
      * Sets the help for the command.
      *
-     * @param string $help The help for the command
-     *
      * @return $this
      */
-    public function setHelp($help)
+    public function setHelp(string $help): static
     {
         $this->help = $help;
 
@@ -490,10 +594,8 @@ class Command
 
     /**
      * Returns the help for the command.
-     *
-     * @return string The help for the command
      */
-    public function getHelp()
+    public function getHelp(): string
     {
         return $this->help;
     }
@@ -501,21 +603,20 @@ class Command
     /**
      * Returns the processed help for the command replacing the %command.name% and
      * %command.full_name% patterns with the real values dynamically.
-     *
-     * @return string The processed help for the command
      */
-    public function getProcessedHelp()
+    public function getProcessedHelp(): string
     {
         $name = $this->name;
+        $isSingleCommand = $this->application?->isSingleCommand();
 
-        $placeholders = array(
+        $placeholders = [
             '%command.name%',
             '%command.full_name%',
-        );
-        $replacements = array(
+        ];
+        $replacements = [
             $name,
-            $_SERVER['PHP_SELF'].' '.$name,
-        );
+            $isSingleCommand ? $_SERVER['PHP_SELF'] : $_SERVER['PHP_SELF'].' '.$name,
+        ];
 
         return str_replace($placeholders, $replacements, $this->getHelp() ?: $this->getDescription());
     }
@@ -529,27 +630,24 @@ class Command
      *
      * @throws InvalidArgumentException When an alias is invalid
      */
-    public function setAliases($aliases)
+    public function setAliases(iterable $aliases): static
     {
-        if (!\is_array($aliases) && !$aliases instanceof \Traversable) {
-            throw new InvalidArgumentException('$aliases must be an array or an instance of \Traversable');
-        }
+        $list = [];
 
         foreach ($aliases as $alias) {
             $this->validateName($alias);
+            $list[] = $alias;
         }
 
-        $this->aliases = $aliases;
+        $this->aliases = \is_array($aliases) ? $aliases : $list;
 
         return $this;
     }
 
     /**
      * Returns the aliases for the command.
-     *
-     * @return array An array of aliases for the command
      */
-    public function getAliases()
+    public function getAliases(): array
     {
         return $this->aliases;
     }
@@ -558,31 +656,27 @@ class Command
      * Returns the synopsis for the command.
      *
      * @param bool $short Whether to show the short version of the synopsis (with options folded) or not
-     *
-     * @return string The synopsis
      */
-    public function getSynopsis($short = false)
+    public function getSynopsis(bool $short = false): string
     {
         $key = $short ? 'short' : 'long';
 
         if (!isset($this->synopsis[$key])) {
-            $this->synopsis[$key] = trim(sprintf('%s %s', $this->name, $this->definition->getSynopsis($short)));
+            $this->synopsis[$key] = trim(\sprintf('%s %s', $this->name, $this->definition->getSynopsis($short)));
         }
 
         return $this->synopsis[$key];
     }
 
     /**
-     * Add a command usage example.
-     *
-     * @param string $usage The usage, it'll be prefixed with the command name
+     * Add a command usage example, it'll be prefixed with the command name.
      *
      * @return $this
      */
-    public function addUsage($usage)
+    public function addUsage(string $usage): static
     {
-        if (0 !== strpos($usage, $this->name)) {
-            $usage = sprintf('%s %s', $this->name, $usage);
+        if (!str_starts_with($usage, $this->name)) {
+            $usage = \sprintf('%s %s', $this->name, $usage);
         }
 
         $this->usages[] = $usage;
@@ -592,10 +686,8 @@ class Command
 
     /**
      * Returns alternative usages of the command.
-     *
-     * @return array
      */
-    public function getUsages()
+    public function getUsages(): array
     {
         return $this->usages;
     }
@@ -603,63 +695,18 @@ class Command
     /**
      * Gets a helper instance by name.
      *
-     * @param string $name The helper name
-     *
-     * @return mixed The helper value
+     * @return HelperInterface
      *
      * @throws LogicException           if no HelperSet is defined
      * @throws InvalidArgumentException if the helper is not defined
      */
-    public function getHelper($name)
+    public function getHelper(string $name): mixed
     {
         if (null === $this->helperSet) {
-            throw new LogicException(sprintf('Cannot retrieve helper "%s" because there is no HelperSet defined. Did you forget to add your command to the application or to set the application on the command using the setApplication() method? You can also set the HelperSet directly using the setHelperSet() method.', $name));
+            throw new LogicException(\sprintf('Cannot retrieve helper "%s" because there is no HelperSet defined. Did you forget to add your command to the application or to set the application on the command using the setApplication() method? You can also set the HelperSet directly using the setHelperSet() method.', $name));
         }
 
         return $this->helperSet->get($name);
-    }
-
-    /**
-     * Returns a text representation of the command.
-     *
-     * @return string A string representing the command
-     *
-     * @deprecated since version 2.3, to be removed in 3.0.
-     */
-    public function asText()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
-
-        $descriptor = new TextDescriptor();
-        $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
-        $descriptor->describe($output, $this, array('raw_output' => true));
-
-        return $output->fetch();
-    }
-
-    /**
-     * Returns an XML representation of the command.
-     *
-     * @param bool $asDom Whether to return a DOM or an XML string
-     *
-     * @return string|\DOMDocument An XML string representing the command
-     *
-     * @deprecated since version 2.3, to be removed in 3.0.
-     */
-    public function asXml($asDom = false)
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.3 and will be removed in 3.0.', E_USER_DEPRECATED);
-
-        $descriptor = new XmlDescriptor();
-
-        if ($asDom) {
-            return $descriptor->getCommandDocument($this);
-        }
-
-        $output = new BufferedOutput();
-        $descriptor->describe($output, $this);
-
-        return $output->fetch();
     }
 
     /**
@@ -667,14 +714,12 @@ class Command
      *
      * It must be non-empty and parts can optionally be separated by ":".
      *
-     * @param string $name
-     *
      * @throws InvalidArgumentException When the name is invalid
      */
-    private function validateName($name)
+    private function validateName(string $name): void
     {
         if (!preg_match('/^[^\:]++(\:[^\:]++)*$/', $name)) {
-            throw new InvalidArgumentException(sprintf('Command name "%s" is invalid.', $name));
+            throw new InvalidArgumentException(\sprintf('Command name "%s" is invalid.', $name));
         }
     }
 }

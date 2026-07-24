@@ -21,5 +21,7 @@ class ShellCommand extends Command
         \Psy\Shell::debug(get_defined_vars());
         // below not working in PHP >= 7.1
 //        eval(\Psy\sh());
+
+        return Command::SUCCESS;
     }
 }

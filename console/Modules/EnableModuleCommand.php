@@ -37,10 +37,12 @@ class EnableModuleCommand extends Command
 
         if ($module['state'] == ModuleManager::MODULE_ENABLED){
             $output->writeln('<fg=yellow>Module ' . $module_name . ' already enabled</fg=yellow>');
-            return;
+            return Command::SUCCESS;
         }
 
         ModuleManager::set_module_state($module['name'], ModuleManager::MODULE_ENABLED);
         $output->writeln('<fg=green>Module ' . $module_name . ' enabled</fg=green>');
+
+        return Command::SUCCESS;
     }
 }

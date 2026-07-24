@@ -24,5 +24,7 @@ class MaintenanceOnCommand extends Command
         $message = $input->getArgument('message');
         MaintenanceMode::turn_on($message);
         $output->writeln("Turned on " . ($message ? "with message: $message" : "with default message"));
+
+        return Command::SUCCESS;
     }
 }

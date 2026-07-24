@@ -24,5 +24,7 @@ class CacheRebuildCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output) {
         Cache::clear();
         ModuleManager::create_common_cache();
+
+        return Command::SUCCESS;
     }
 }

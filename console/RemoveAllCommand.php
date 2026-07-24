@@ -30,6 +30,8 @@ class RemoveAllCommand extends Command
         }
         $this->truncateDb($output);
         $output->writeln('EPESI removed. Please install application again');
+
+        return Command::SUCCESS;
     }
 
     private function truncateDir($output, $dir) {

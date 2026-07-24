@@ -11,10 +11,15 @@
 
 namespace Symfony\Component\HttpFoundation;
 
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\Exception\UnexpectedValueException;
+
 /**
  * ParameterBag is a container for key/value pairs.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @implements \IteratorAggregate<string, mixed>
  */
 class ParameterBag implements \IteratorAggregate, \Countable
 {
@@ -23,10 +28,7 @@ class ParameterBag implements \IteratorAggregate, \Countable
      */
     protected $parameters;
 
-    /**
-     * @param array $parameters An array of parameters
-     */
-    public function __construct(array $parameters = array())
+    public function __construct(array $parameters = [])
     {
         $this->parameters = $parameters;
     }
@@ -34,19 +36,25 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Returns the parameters.
      *
-     * @return array An array of parameters
+     * @param string|null $key The name of the parameter to return or null to get them all
      */
-    public function all()
+    public function all(?string $key = null): array
     {
-        return $this->parameters;
+        if (null === $key) {
+            return $this->parameters;
+        }
+
+        if (!\is_array($value = $this->parameters[$key] ?? [])) {
+            throw new BadRequestException(\sprintf('Unexpected value for parameter "%s": expecting "array", got "%s".', $key, get_debug_type($value)));
+        }
+
+        return $value;
     }
 
     /**
      * Returns the parameter keys.
-     *
-     * @return array An array of parameter keys
      */
-    public function keys()
+    public function keys(): array
     {
         return array_keys($this->parameters);
     }
@@ -54,9 +62,9 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Replaces the current parameters by a new set.
      *
-     * @param array $parameters An array of parameters
+     * @return void
      */
-    public function replace(array $parameters = array())
+    public function replace(array $parameters = [])
     {
         $this->parameters = $parameters;
     }
@@ -64,244 +72,186 @@ class ParameterBag implements \IteratorAggregate, \Countable
     /**
      * Adds parameters.
      *
-     * @param array $parameters An array of parameters
+     * @return void
      */
-    public function add(array $parameters = array())
+    public function add(array $parameters = [])
     {
         $this->parameters = array_replace($this->parameters, $parameters);
     }
 
-    /**
-     * Returns a parameter by name.
-     *
-     * Note: Finding deep items is deprecated since version 2.8, to be removed in 3.0.
-     *
-     * @param string $key     The key
-     * @param mixed  $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return mixed
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function get($key, $default = null, $deep = false)
+    public function get(string $key, mixed $default = null): mixed
     {
-        if ($deep) {
-            @trigger_error('Using paths to find deeper items in '.__METHOD__.' is deprecated since Symfony 2.8 and will be removed in 3.0. Filter the returned value in your own code instead.', E_USER_DEPRECATED);
-        }
-
-        if (!$deep || false === $pos = strpos($key, '[')) {
-            return array_key_exists($key, $this->parameters) ? $this->parameters[$key] : $default;
-        }
-
-        $root = substr($key, 0, $pos);
-        if (!array_key_exists($root, $this->parameters)) {
-            return $default;
-        }
-
-        $value = $this->parameters[$root];
-        $currentKey = null;
-        for ($i = $pos, $c = \strlen($key); $i < $c; ++$i) {
-            $char = $key[$i];
-
-            if ('[' === $char) {
-                if (null !== $currentKey) {
-                    throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "[" at position %d.', $i));
-                }
-
-                $currentKey = '';
-            } elseif (']' === $char) {
-                if (null === $currentKey) {
-                    throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "]" at position %d.', $i));
-                }
-
-                if (!\is_array($value) || !array_key_exists($currentKey, $value)) {
-                    return $default;
-                }
-
-                $value = $value[$currentKey];
-                $currentKey = null;
-            } else {
-                if (null === $currentKey) {
-                    throw new \InvalidArgumentException(sprintf('Malformed path. Unexpected "%s" at position %d.', $char, $i));
-                }
-
-                $currentKey .= $char;
-            }
-        }
-
-        if (null !== $currentKey) {
-            throw new \InvalidArgumentException('Malformed path. Path must end with "]".');
-        }
-
-        return $value;
+        return \array_key_exists($key, $this->parameters) ? $this->parameters[$key] : $default;
     }
 
     /**
-     * Sets a parameter by name.
-     *
-     * @param string $key   The key
-     * @param mixed  $value The value
+     * @return void
      */
-    public function set($key, $value)
+    public function set(string $key, mixed $value)
     {
         $this->parameters[$key] = $value;
     }
 
     /**
      * Returns true if the parameter is defined.
-     *
-     * @param string $key The key
-     *
-     * @return bool true if the parameter exists, false otherwise
      */
-    public function has($key)
+    public function has(string $key): bool
     {
-        return array_key_exists($key, $this->parameters);
+        return \array_key_exists($key, $this->parameters);
     }
 
     /**
      * Removes a parameter.
      *
-     * @param string $key The key
+     * @return void
      */
-    public function remove($key)
+    public function remove(string $key)
     {
         unset($this->parameters[$key]);
     }
 
     /**
      * Returns the alphabetic characters of the parameter value.
-     *
-     * @param string $key     The parameter key
-     * @param string $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return string The filtered value
      */
-    public function getAlpha($key, $default = '', $deep = false)
+    public function getAlpha(string $key, string $default = ''): string
     {
-        return preg_replace('/[^[:alpha:]]/', '', $this->get($key, $default, $deep));
+        return preg_replace('/[^[:alpha:]]/', '', $this->getString($key, $default));
     }
 
     /**
      * Returns the alphabetic characters and digits of the parameter value.
-     *
-     * @param string $key     The parameter key
-     * @param string $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return string The filtered value
      */
-    public function getAlnum($key, $default = '', $deep = false)
+    public function getAlnum(string $key, string $default = ''): string
     {
-        return preg_replace('/[^[:alnum:]]/', '', $this->get($key, $default, $deep));
+        return preg_replace('/[^[:alnum:]]/', '', $this->getString($key, $default));
     }
 
     /**
      * Returns the digits of the parameter value.
-     *
-     * @param string $key     The parameter key
-     * @param string $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return string The filtered value
      */
-    public function getDigits($key, $default = '', $deep = false)
+    public function getDigits(string $key, string $default = ''): string
     {
-        // we need to remove - and + because they're allowed in the filter
-        return str_replace(array('-', '+'), '', $this->filter($key, $default, FILTER_SANITIZE_NUMBER_INT, array(), $deep));
+        return preg_replace('/[^[:digit:]]/', '', $this->getString($key, $default));
+    }
+
+    /**
+     * Returns the parameter as string.
+     */
+    public function getString(string $key, string $default = ''): string
+    {
+        $value = $this->get($key, $default);
+        if (!\is_scalar($value) && !$value instanceof \Stringable) {
+            throw new UnexpectedValueException(\sprintf('Parameter value "%s" cannot be converted to "string".', $key));
+        }
+
+        return (string) $value;
     }
 
     /**
      * Returns the parameter value converted to integer.
-     *
-     * @param string $key     The parameter key
-     * @param int    $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return int The filtered value
      */
-    public function getInt($key, $default = 0, $deep = false)
+    public function getInt(string $key, int $default = 0): int
     {
-        return (int) $this->get($key, $default, $deep);
+        // In 7.0 remove the fallback to 0, in case of failure an exception will be thrown
+        return $this->filter($key, $default, \FILTER_VALIDATE_INT, ['flags' => \FILTER_REQUIRE_SCALAR]) ?: 0;
     }
 
     /**
      * Returns the parameter value converted to boolean.
-     *
-     * @param string $key     The parameter key
-     * @param bool   $default The default value if the parameter key does not exist
-     * @param bool   $deep    If true, a path like foo[bar] will find deeper items
-     *
-     * @return bool The filtered value
      */
-    public function getBoolean($key, $default = false, $deep = false)
+    public function getBoolean(string $key, bool $default = false): bool
     {
-        return $this->filter($key, $default, FILTER_VALIDATE_BOOLEAN, array(), $deep);
+        return $this->filter($key, $default, \FILTER_VALIDATE_BOOL, ['flags' => \FILTER_REQUIRE_SCALAR]);
+    }
+
+    /**
+     * Returns the parameter value converted to an enum.
+     *
+     * @template T of \BackedEnum
+     *
+     * @param class-string<T> $class
+     * @param ?T              $default
+     *
+     * @return ?T
+     */
+    public function getEnum(string $key, string $class, ?\BackedEnum $default = null): ?\BackedEnum
+    {
+        $value = $this->get($key);
+
+        if (null === $value) {
+            return $default;
+        }
+
+        try {
+            return $class::from($value);
+        } catch (\ValueError|\TypeError $e) {
+            throw new UnexpectedValueException(\sprintf('Parameter "%s" cannot be converted to enum: %s.', $key, $e->getMessage()), $e->getCode(), $e);
+        }
     }
 
     /**
      * Filter key.
      *
-     * @param string $key     Key
-     * @param mixed  $default Default = null
-     * @param int    $filter  FILTER_* constant
-     * @param mixed  $options Filter options
-     * @param bool   $deep    Default = false
+     * @param int                                     $filter  FILTER_* constant
+     * @param int|array{flags?: int, options?: array} $options Flags from FILTER_* constants
      *
-     * @see http://php.net/manual/en/function.filter-var.php
-     *
-     * @return mixed
+     * @see https://php.net/filter-var
      */
-    public function filter($key, $default = null, $filter = FILTER_DEFAULT, $options = array(), $deep = false)
+    public function filter(string $key, mixed $default = null, int $filter = \FILTER_DEFAULT, mixed $options = []): mixed
     {
-        static $filters = null;
-
-        if (null === $filters) {
-            foreach (filter_list() as $tmp) {
-                $filters[filter_id($tmp)] = 1;
-            }
-        }
-        if (\is_bool($filter) || !isset($filters[$filter]) || \is_array($deep)) {
-            @trigger_error('Passing the $deep boolean as 3rd argument to the '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0. Remove it altogether as the $deep argument will be removed in 3.0.', E_USER_DEPRECATED);
-            $tmp = $deep;
-            $deep = $filter;
-            $filter = $options;
-            $options = $tmp;
-        }
-
-        $value = $this->get($key, $default, $deep);
+        $value = $this->get($key, $default);
 
         // Always turn $options into an array - this allows filter_var option shortcuts.
         if (!\is_array($options) && $options) {
-            $options = array('flags' => $options);
+            $options = ['flags' => $options];
         }
 
         // Add a convenience check for arrays.
         if (\is_array($value) && !isset($options['flags'])) {
-            $options['flags'] = FILTER_REQUIRE_ARRAY;
+            $options['flags'] = \FILTER_REQUIRE_ARRAY;
         }
 
-        return filter_var($value, $filter, $options);
+        if (\is_object($value) && !$value instanceof \Stringable) {
+            throw new UnexpectedValueException(\sprintf('Parameter value "%s" cannot be filtered.', $key));
+        }
+
+        if ((\FILTER_CALLBACK & $filter) && !(($options['options'] ?? null) instanceof \Closure)) {
+            throw new \InvalidArgumentException(\sprintf('A Closure must be passed to "%s()" when FILTER_CALLBACK is used, "%s" given.', __METHOD__, get_debug_type($options['options'] ?? null)));
+        }
+
+        $options['flags'] ??= 0;
+        $nullOnFailure = $options['flags'] & \FILTER_NULL_ON_FAILURE;
+        $options['flags'] |= \FILTER_NULL_ON_FAILURE;
+
+        $value = filter_var($value, $filter, $options);
+
+        if (null !== $value || $nullOnFailure) {
+            return $value;
+        }
+
+        $method = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS | \DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+        $method = ($method['object'] ?? null) === $this ? $method['function'] : 'filter';
+        $hint = 'filter' === $method ? 'pass' : 'use method "filter()" with';
+
+        trigger_deprecation('symfony/http-foundation', '6.3', 'Ignoring invalid values when using "%s::%s(\'%s\')" is deprecated and will throw an "%s" in 7.0; '.$hint.' flag "FILTER_NULL_ON_FAILURE" to keep ignoring them.', $this::class, $method, $key, UnexpectedValueException::class);
+
+        return false;
     }
 
     /**
      * Returns an iterator for parameters.
      *
-     * @return \ArrayIterator An \ArrayIterator instance
+     * @return \ArrayIterator<string, mixed>
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->parameters);
     }
 
     /**
      * Returns the number of parameters.
-     *
-     * @return int The number of parameters
      */
-    public function count()
+    public function count(): int
     {
         return \count($this->parameters);
     }

@@ -31,5 +31,7 @@ class MaintenanceStatusCommand extends Command
             $output->writeln("\tkey: $maintenance_mode_key");
             $output->writeln("\tmessage: $maintenance_mode_message");
         }
+
+        return Command::SUCCESS;
     }
 }

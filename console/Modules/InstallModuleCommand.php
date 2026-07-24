@@ -36,13 +36,15 @@ class InstallModuleCommand extends Command
 
         if (ModuleManager::is_installed($module['name']) !== -1) {
             $output->writeln('<fg=yellow>Module ' . $module_name . ' already installed</fg=yellow>');
-            return;
+            return Command::SUCCESS;
         }
 
         if (ModuleManager::install($module['name'])) {
             $output->writeln('<fg=green>Module ' . $module_name . ' installed</fg=green>');
-        } else {
-            $output->writeln('<fg=red>Module ' . $module_name . ' installing error</fg=red>');
+            return Command::SUCCESS;
         }
+
+        $output->writeln('<fg=red>Module ' . $module_name . ' installing error</fg=red>');
+        return Command::FAILURE;
     }
 }

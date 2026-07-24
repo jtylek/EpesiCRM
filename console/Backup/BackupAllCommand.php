@@ -53,5 +53,7 @@ class BackupAllCommand extends Command
         $util->addDbBackup($backup);
         $st->writeln('Created backup:');
         $st->writeln(sprintf("<fg=yellow>[%s]</> <fg=green>%s</> (File: %s)", $backup->get_date('Y-m-d H:i:s'), $backup->get_description(), $backup->get_file()));
+
+        return Command::SUCCESS;
     }
 }

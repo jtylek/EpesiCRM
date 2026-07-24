@@ -49,5 +49,7 @@ class ListModulesCommand extends Command
         }
 
         $table->render();
+
+        return Command::SUCCESS;
     }
 }

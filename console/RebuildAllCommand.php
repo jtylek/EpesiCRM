@@ -29,5 +29,7 @@ class RebuildAllCommand extends Command
         Cache::clear();
         ModuleManager::create_common_cache();
         $output->writeln('Cache rebuilt!');
+
+        return Command::SUCCESS;
     }
 }

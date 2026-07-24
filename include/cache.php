@@ -8,7 +8,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-use phpFastCache\CacheManager;
+use Phpfastcache\CacheManager;
+use Phpfastcache\Config\ConfigurationOption;
 
 class Cache
 {
@@ -17,33 +18,53 @@ class Cache
     public static function init()
     {
         $drivers = array();
-        $phpfastcache_config = array(
-            "path" => EPESI_LOCAL_DIR . '/' . DATA_DIR.'/cache',
-            "securityKey" => INSTALLATION_ID,
-            "defaultTtl" => 86400, // 24h
-        );
         if(MEMCACHE_SESSION_SERVER) {
-            $srv = explode(':',MEMCACHE_SESSION_SERVER,2);
-            $phpfastcache_config['memcache'] = array(array($srv[0],$srv[1] ?? 11211));
-
             if (class_exists('Memcached')) {
                 $drivers[] = 'Memcached';
             } elseif (class_exists('Memcache')) {
                 $drivers[] = 'Memcache';
             }
         }
-        CacheManager::setDefaultConfig($phpfastcache_config);
+        // Apc/Xcache no longer exist as of phpfastcache 9.x (both extensions are long dead).
+        $drivers = array_merge($drivers, array('Apcu', 'Zendshm', 'Files'));
 
-        $drivers = array_merge($drivers, array('Apc', 'Apcu', 'Xcache', 'Zendshm', 'files'));
         foreach ($drivers as $driver) {
             try {
-                self::$cache_object = CacheManager::getInstance($driver);
+                self::$cache_object = CacheManager::getInstance($driver, self::config_for($driver));
                 break;
             } catch (Exception) {
             }
         }
         if (!self::$cache_object) {
             throw new Exception('No valid cache driver');
+        }
+    }
+
+    // Each driver's Config class only accepts its own specific set of properties
+    // (e.g. Memcache(d)'s "servers", Files' "path"/"securityKey"), so build the
+    // exact class per driver rather than a single shared config array.
+    protected static function config_for($driver)
+    {
+        $defaultTtl = 86400; // 24h
+        switch ($driver) {
+            case 'Memcached':
+            case 'Memcache':
+                $srv = explode(':', MEMCACHE_SESSION_SERVER, 2);
+                $configClass = $driver === 'Memcached'
+                    ? \Phpfastcache\Drivers\Memcached\Config::class
+                    : \Phpfastcache\Drivers\Memcache\Config::class;
+                return new $configClass([
+                    'defaultTtl' => $defaultTtl,
+                    'servers' => [['host' => $srv[0], 'port' => (int)($srv[1] ?? 11211)]],
+                ]);
+            case 'Files':
+                return new \Phpfastcache\Drivers\Files\Config([
+                    'path' => EPESI_LOCAL_DIR . '/' . DATA_DIR . '/cache',
+                    'securityKey' => INSTALLATION_ID,
+                    'defaultTtl' => $defaultTtl,
+                ]);
+            default:
+                return new ConfigurationOption(['defaultTtl' => $defaultTtl]);
         }
     }
 
@@ -71,10 +92,6 @@ class Cache
             self::$cache_object->deleteItem($name);
         } else {
             self::$cache_object->clear();
-            $class_uses = class_uses(self::$cache_object);
-            if (in_array('phpFastCache\Core\PathSeekerTrait', $class_uses)) {
-                self::$cache_object->tmp = array();
-            }
         }
     }
 
