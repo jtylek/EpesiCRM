@@ -298,7 +298,14 @@ class BackupArchive extends ZipArchive {
             $counter = 0;
         }
 
-        $path = $this->_remove_first_dot($file_info->getPathname());
+        // Zip entry names must use "/" per the ZIP spec, regardless of the
+        // host OS - RecursiveDirectoryIterator returns "\"-separated paths on
+        // Windows, which third-party zip tools then can't recognize as
+        // directory separators (everything shows up flat with a literal
+        // backslash in the name). Windows accepts "/" in filesystem paths
+        // just as well as "\", so this is safe for the addFile()/addEmptyDir()
+        // read side too, not just for the entry name.
+        $path = str_replace('\\', '/', $this->_remove_first_dot($file_info->getPathname()));
         if ($this->_is_excluded($path))
             return true;
         if ($file_info->isLink())

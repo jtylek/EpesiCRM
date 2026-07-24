@@ -18,7 +18,7 @@ class CreateDistCommand extends Command
             ->addArgument(
                 'file',
                 InputArgument::OPTIONAL,
-                'Output zip file path'
+                'Full path to the output zip file'
             );
     }
 
@@ -28,8 +28,8 @@ class CreateDistCommand extends Command
 
         $file = $input->getArgument('file');
         if (!$file) {
-            $default = '../epesi-' . EPESI_VERSION . '-r' . EPESI_REVISION . '.zip';
-            $file = $st->ask('Output zip file name', $default);
+            $default = dirname(getcwd()) . DIRECTORY_SEPARATOR . 'epesi-' . EPESI_VERSION . '-r' . EPESI_REVISION . '.zip';
+            $file = $st->ask('Full path to output zip file (missing directories will be created)', $default);
         }
         if (!preg_match('/\.zip$/i', $file)) {
             $file .= '.zip';
@@ -50,13 +50,20 @@ class CreateDistCommand extends Command
 
         // RecursiveDirectoryIterator returns backslash-separated paths on Windows,
         // so the exclude regexes must match either separator, not just "/".
+        // $sep is a complete alternative ("...(sep|$)"); $sep_chars is just the
+        // characters, for embedding inside a [^...] class - nesting $sep's own
+        // brackets inside another [^...] produces a malformed, silently-never-
+        // matching regex.
         $sep = '[\\\\/]';
+        $sep_chars = '\\\\/';
         $exclude = array(
             '^\.git(' . $sep . '|$)',
             '^\.claude(' . $sep . '|$)',
             '^\.github(' . $sep . '|$)',
             '^\.history(' . $sep . '|$)',
             '^data' . $sep . '.+', // keep the data/ directory entry itself, drop everything inside it
+            '^[^' . $sep_chars . ']+\.zip$', // any leftover distribution/test zip sitting at the project root
+            '^(?!README\.md$)[^' . $sep_chars . ']+\.md$', // root-level docs other than README.md
         );
         // Guard against the output file landing inside the tree being archived
         // (e.g. a bare filename with no path) and trying to zip itself.
