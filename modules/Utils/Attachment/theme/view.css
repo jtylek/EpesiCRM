@@ -39,7 +39,7 @@
 #Utils_Attachment__view .header {
     color: #ffffff;
     height: 40px;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: bold;
     vertical-align: middle;
     text-align: center;
@@ -57,7 +57,7 @@
 #Utils_Attachment__view .file {
     vertical-align: top;
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     height: 40px;
     width: 50px;
     vertical-align: middle;
@@ -136,7 +136,7 @@
 .Utils_Attachment__table .name {
     width: 290px;
     text-align: left;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: bold;
     color: #FFFFFF;
     padding-left: 10px;

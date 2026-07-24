@@ -11,7 +11,7 @@ body {
 	padding: 0;
 	margin: 0;
 	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans, sans-serif;
-	font-size: 11px;
+	font-size: 13px;
 	background-color: #F0F0F0;
 	position: relative; /* needed by prototype 1.7 for clone position */
 }
@@ -24,7 +24,7 @@ div (
 */
 
 table {
-	font-size: 11px;
+	font-size: 13px;
 	table-layout: fixed;
 }
 
@@ -44,7 +44,7 @@ a:hover {
 
 input, textarea, select {
 	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans, sans-serif;
-	font-size: 11px;
+	font-size: 13px;
 	border: 1px solid #B3B3B3;
 }
 
@@ -286,7 +286,7 @@ hr.line {
 }
 
 .home-bar-text {
-	font-size: 11px;
+	font-size: 13px;
 	padding-top: 4px;
 	color: white;
 	font-weight: bold;
@@ -335,7 +335,7 @@ hr.line {
 
 #top_bar #top_bar_1 .powered {
     vertical-align: middle;
-    font-size: 9px;
+    font-size: 11px;
     color: white;
     text-align: right;
 	padding-right: 5px;
@@ -365,7 +365,7 @@ hr.line {
 	color: white;
 	padding-right: 4px;
 	text-align: center;
-	font-size: 9px;
+	font-size: 11px;
 
 	/* css3 shadow border*/
 /*	-webkit-box-shadow: 0px 0px 3px #000000;
@@ -770,7 +770,7 @@ hr.line {
 	width: 750px;
 	background-color: #E0E0E0;
 	display: block;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 20px;
 	text-align: left;
 	padding: 5px 8px;
@@ -790,7 +790,7 @@ hr.line {
 .important_notice_frame {
 	width: auto;
 	background-color: #EEE;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 20px;
 	text-align: left;
 	padding: 5px 8px;
@@ -835,7 +835,7 @@ hr.line {
 	border: 1px solid gray;
 	text-align: left;
 	padding: 8px;
-	font-size: 13px;
+	font-size: 15px;
 	z-index: 1500;
     background-color: white;
     margin: 10px;
@@ -981,7 +981,7 @@ hr.line {
 	text-align: center;
 	width: 100%;
     line-height: 25px;
-    font-size: 13px;
+    font-size: 15px;
 
 	/* border radius */
 	-webkit-border-radius: 6px;
@@ -1208,7 +1208,7 @@ hr.line {
 .epesi_caption {
 	width: auto;
     text-align: left;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: bold;
     color: #FFFFFF;
     height: 24px;

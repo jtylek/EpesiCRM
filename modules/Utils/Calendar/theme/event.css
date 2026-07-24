@@ -21,7 +21,7 @@
     cursor: help;
     padding-top: 1px;
     padding-right: 1px;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 #Utils_Calendar__event #event_time {
@@ -31,7 +31,7 @@
 	max-width: 50px;
 	overflow: hidden;
     color: black;
-    font-size: 11px;
+    font-size: 13px;
 	white-space: nowrap;
 	text-align: center;
 }
@@ -43,7 +43,7 @@
 	width: 100%;
 	overflow: hidden;
     color: black;
-    font-size: 11px;
+    font-size: 13px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	text-align: left;

@@ -504,7 +504,7 @@ table.Utils_GenericBrowser > tbody > td img {
 
 .nav_pagin select,
 .nav_per_page select {
-	font-size: 13px;
+	font-size: 15px;
 }
 #Utils_GenericBrowser__navigation .nav_shadow {
 	/* css3 shadow border*/

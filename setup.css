@@ -1,12 +1,12 @@
 body {
 	font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-    font-size: 14px;
+    font-size: 17px;
     margin: 0px 0px 0px 0px;
     padding: 0px 5px 30px 5px;
 }
 
 table {
-    font-size: 14px;
+    font-size: 17px;
 }
 
 a {
@@ -17,17 +17,17 @@ a {
 
 h1 {
     color: #030303;
-    font-size: 24px;
+    font-size: 28px;
 }
 
 h2 {
-    font-size: 18px;
+    font-size: 21px;
     color: #030303;
 }
 
 input, select, textarea {
     border: 1px solid #030303;
-    font-size: 14px;
+    font-size: 17px;
 }
 
 input[type="submit"],
@@ -51,7 +51,7 @@ a.button:hover {
 }
 
 span.footer {
-    font-size: 10px;
+    font-size: 12px;
     color: #B3B3B3;
 }
 
@@ -78,7 +78,7 @@ span.footer a:hover {
 }
 
 #banner .back {
-    font-size: 28px;
+    font-size: 33px;
     font-weight: bold;
     color: #030303;
     text-align: center;
@@ -109,7 +109,7 @@ div.license {
 
 span.required_note,
 span.required_note_star {
-    font-size: 9px;
+    font-size: 11px;
 }
 
 span.required_note_star {
@@ -137,7 +137,7 @@ a.show_incomplete.button {
 	display: block;
 	margin: 10px auto;
 	width: 400px;
-	font-size: 20px;
+	font-size: 24px;
 	line-height: 30px;
 	white-space: nowrap;
 	height: 30px;
@@ -146,6 +146,6 @@ a.show_incomplete.button {
 .error {
 	color: red;
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 21px;
     text-align: center;
 }

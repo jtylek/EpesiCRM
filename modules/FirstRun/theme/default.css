@@ -1,13 +1,13 @@
 body#FirstRun {
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-    font-size: 11px;
+    font-size: 13px;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
     background-color: #FFFFFF;
 }
 
 #FirstRun table {
-    font-size: 11px;
+    font-size: 13px;
 }
 
 #FirstRun a {
@@ -21,7 +21,7 @@ body#FirstRun {
 #FirstRun select,
 #FirstRun textarea {
     border: 1px solid #B3B3B3;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 #FirstRun a.button {
@@ -42,7 +42,7 @@ body#FirstRun {
 }
 
 #FirstRun span.footer {
-    font-size: 10px;
+    font-size: 12px;
     color: #777777;
 }
 

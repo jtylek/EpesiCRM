@@ -1,12 +1,12 @@
 body {
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-    font-size: 11px;
+    font-size: 13px;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
 }
 
 table {
-    font-size: 11px;
+    font-size: 13px;
 }
 
 a {
@@ -21,7 +21,7 @@ h1 {
 
 input, select, textarea {
     border: 1px solid #B3B3B3;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 input[type="submit"],
@@ -43,7 +43,7 @@ a.button:hover {
 }
 
 span.footer {
-    font-size: 10px;
+    font-size: 12px;
     color: #777777;
 }
 
@@ -91,7 +91,7 @@ div.license {
 
 span.required_note,
 span.required_note_star {
-    font-size: 9px;
+    font-size: 11px;
 }
 
 span.required_note_star {

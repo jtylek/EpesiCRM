@@ -1,12 +1,12 @@
 body {
     font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
-    font-size: 11px;
+    font-size: 13px;
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
 }
 
 table {
-    font-size: 11px;
+    font-size: 13px;
 }
 
 a {
@@ -27,11 +27,11 @@ h1 {
 input, select, textarea {
 	margin: 10px 7px;
     border: 1px solid #B3B3B3;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 span.footer {
-    font-size: 10px;
+    font-size: 12px;
     color: #777777;
 }
 
@@ -57,7 +57,7 @@ span.footer a:hover {
 }
 
 #banner .page_header {
-    font-size: 30px;
+    font-size: 35px;
     text-shadow: 1px 1px 2px gray;
     font-weight: bold;
     color: #339;
@@ -73,7 +73,7 @@ span.footer a:hover {
     border-radius: 10px;
     white-space: nowrap;
     height: 25px;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: bold;
     vertical-align: middle;
     color: #FFFFFF;
@@ -91,7 +91,7 @@ a.button {
     border-radius: 10px;
     white-space: nowrap;
     height: 25px;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: bold;
     vertical-align: middle;
     color: white;
@@ -122,7 +122,7 @@ background: #64931d; /* Old browsers */
     background-color: #F9F9F9;
     padding: 14px;
     vertical-align: top;
-    font-size: 15px;
+    font-size: 18px;
     float: left;
     
 background: #ffffff; /* Old browsers */
@@ -143,7 +143,7 @@ background: #f2f6f8; /* Old browsers */
     background-color: #F9F9F9;
     padding: 20px 20px 30px 20px;
     vertical-align: top;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .warning {
@@ -153,12 +153,12 @@ background: #f2f6f8; /* Old browsers */
     background-color: #F9E9E9;
     padding: 5px;
     vertical-align: top;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
 }
 
 .info {
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .main {
@@ -176,25 +176,25 @@ background: #f2f6f8; /* Old browsers */
 .data {
     padding-top: 5px;
     padding-bottom: 7px;
-    font-size: 14px;
+    font-size: 17px;
     padding-left: 8px;
 }
 
 .label {
     padding-top: 6px;
     padding-bottom: 8px;
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .error {
     font-weight: bold;
-    font-size: 11px;
+    font-size: 13px;
     color: #FF0000;
 }
 
 .data input,
 .data select {
-    font-size: 13px;
+    font-size: 15px;
     width: 70%;
 }
 
@@ -213,7 +213,7 @@ div.license {
 
 span.required_note,
 span.required_note_star {
-    font-size: 9px;
+    font-size: 11px;
 }
 
 span.required_note_star {

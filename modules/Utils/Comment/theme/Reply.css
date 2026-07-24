@@ -18,11 +18,11 @@ table#Utils_Comment__Reply td.post_input textarea {
 }
 
 table#Utils_Comment__Reply input {
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Utils_Comment__Reply select {
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Utils_Comment__Reply td.submit input {
@@ -33,7 +33,7 @@ table#Utils_Comment__Reply td.submit input {
 	text-align: center;
 	vertical-align: middle;
 	background-image: url("images/header-blue.gif");
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Utils_Comment__Reply td.submit input:hover {

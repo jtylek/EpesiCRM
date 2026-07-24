@@ -297,7 +297,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	padding-left: 5px;
 	padding-right: 5px;
 	font-weight: bold;
-	font-size: 18px;
+	font-size: 21px;
 	color: black;
 	vertical-align: middle;
 }
@@ -324,11 +324,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 #CRM_Calendar_Event_Personal .header-new .weekday,
 #CRM_Calendar_Event_Personal .header-new .month {
-	font-size: 13px;
+	font-size: 15px;
 }
 
 #CRM_Calendar_Event_Personal .header-new .day {
-	font-size: 50px;
+	font-size: 59px;
 }
 
 /* Additional Info Button */
@@ -403,7 +403,7 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 .CRM_Calendar_Event__header .name {
     width: 290px;
     text-align: left;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: bold;
     color: #FFFFFF;
     padding-left: 10px;

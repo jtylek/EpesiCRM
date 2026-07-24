@@ -14,7 +14,7 @@
 
 table#Base_User_Login {
 	border: 1px solid #FFFFFF;
-	font-size: 11px;
+	font-size: 13px;
 	background-color: #E0E0E0;
 	/* border radius */
 	-webkit-border-radius: 6px;
@@ -32,24 +32,24 @@ table#Base_User_Login .gradient {
 
 table#Base_User_Login td.title {
 	color: #336699;
-	font-size: 20px;
+	font-size: 24px;
 	text-align: center;
 	height: 35px;
 }
 
 table#Base_User_Login td.title span {
 	vertical-align: super;
-	font-size: 9px;
+	font-size: 11px;
 }
 
 table#Base_User_Login a {
 	color: #777777;
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Base_User_Login span.error {
 	color: red;
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Base_User_Login td.error {
@@ -80,7 +80,7 @@ table#Base_User_Login td.input input:focus {
 }
 
 table#Base_User_Login td.submit_button input {
-	font-size: 11px;
+	font-size: 13px;
 	color: #FFFFFF;
 	border: 0px;
 	width: 100px;
@@ -115,7 +115,7 @@ table#Base_User_Login td.label {
 	font-weight: normal;
 	width: 225px;
 	height: 30px;
-	font-size: 11px;
+	font-size: 13px;
 	color: #000000;
 	text-align: right;
 }
@@ -136,7 +136,7 @@ table#Base_User_Login td.input {
 }
 
 table#Base_User_Login td.input input {
-	font-size: 11px;
+	font-size: 13px;
 }
 
 table#Base_User_Login td.submit_button {
@@ -152,7 +152,7 @@ table#Base_User_Login td.header_tail {
 
 table#Base_User_Login td.footer {
 	color: #336699;
-	font-size: 11px;
+	font-size: 13px;
 	text-align: center;
 	height: 40px;
 	vertical-align: top;
@@ -290,11 +290,11 @@ table#Base_User_Login td.donation_notice a:hover {
 table#Base_User_Login .message {
 	text-align: center;
 	line-height: 22px;
-	font-size: 16px;
+	font-size: 19px;
 	height: 135px;
 }
 table#Base_User_Login .message a {
 	text-align: center;
 	line-height: 22px;
-	font-size: 16px;
+	font-size: 19px;
 }

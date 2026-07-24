@@ -21,7 +21,7 @@
 	vertical-align: middle;
 	overflow: hidden;
     color: black;
-    font-size: 11px;
+    font-size: 13px;
 	white-space: nowrap;
 	text-align: center;
 }
@@ -33,7 +33,7 @@
 	width: 100%;
 	overflow: hidden;
     color: black;
-    font-size: 11px;
+    font-size: 13px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	text-align: left;

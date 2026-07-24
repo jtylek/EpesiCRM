@@ -54,12 +54,12 @@
 
 #quickform select {
 	font-weight: normal;
-	font-size: 11px;
+	font-size: 13px;
 }
 
 #quickform input {
 	font-weight: normal;
-	font-size: 11px;
+	font-size: 13px;
 	padding: 1px 3px;
 }
 
@@ -111,7 +111,7 @@ td.data.timestamp > div > div:last-child input {
 
 #quickform .element_submit input, .element_button input {
 	color: #FFFFFF;
-	font-size: 11px;
+	font-size: 13px;
 	height: 20px;
 	text-align: center;
 	vertical-align: middle;

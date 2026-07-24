@@ -40,7 +40,7 @@
 #Utils_Calendar__week td.header_day_other a {
 	display: block;
 	font-weight: bold;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 50px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -71,7 +71,7 @@
 	display: block;
 	color: #226630;
 	font-weight: bold;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 50px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -91,7 +91,7 @@
 
 #Utils_Calendar__week td.header_day_today {
 	vertical-align: middle;
-	font-size: 14px;
+	font-size: 17px;
 	width: 14%;
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
@@ -101,7 +101,7 @@
 #Utils_Calendar__week td.header_day_today a {
 	display: block;
 	font-weight: bold;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 50px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -121,7 +121,7 @@
 
 #Utils_Calendar__week td.header_day_today_weekend {
 	vertical-align: middle;
-	font-size: 14px;
+	font-size: 17px;
 	width: 14%;
 	border-left: 2px solid #336699;
 	border-right: 2px solid #336699;
@@ -132,7 +132,7 @@
 	display: block;
 	color: #226630;
 	font-weight: bold;
-	font-size: 14px;
+	font-size: 17px;
 	line-height: 50px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -156,7 +156,7 @@
 	height: 30px;
 	border-right: 1px solid #FFFFFF;
 	padding-left: 10px;
-	font-size: 14px;
+	font-size: 17px;
 	font-weight: bold;
 	text-align: center;
 	

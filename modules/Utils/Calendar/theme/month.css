@@ -36,7 +36,7 @@ table#Utils_Calendar__month td.day {
 }
 
 table#Utils_Calendar__month a.day_link {
-	font-size: 14px;
+	font-size: 17px;
 	font-weight: bold;
 	padding-left: 2px;
 	padding-top: 2px;
@@ -131,7 +131,7 @@ table#Utils_Calendar__month td.current:hover {
 table#Utils_Calendar__month td.day_header {
 	color: #336699;
 	font-weight: bold;
-	font-size: 12px;
+	font-size: 14px;
 	height: 30px;
 	vertical-align: middle;
 	padding-left: 5px;
@@ -147,7 +147,7 @@ table#Utils_Calendar__month td.day_header {
 table#Utils_Calendar__month td.weekend_day_header {
 	color: #005505;
 	font-weight: bold;
-	font-size: 12px;
+	font-size: 14px;
 	height: 30px;
 	vertical-align: middle;
 	padding-left: 5px;
@@ -235,7 +235,7 @@ table#Utils_Calendar__month .month-header {
 	height: 30px;
 	padding-left: 10px;
 	border-bottom: 1px solid #FFFFFF;
-	font-size: 14px;
+	font-size: 17px;
 	font-weight: bold;
 	text-align: center;
 	

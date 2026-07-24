@@ -17,7 +17,7 @@
 	padding: 9px 18px;
 	border: 1px solid #666;
 	margin-right: 10px;
-	font-size: 17px;
+	font-size: 20px;
 	font-weight: bold;
 	color: #666;
 	
@@ -73,7 +73,7 @@
 }
 
 #Base_Setup .big-button .package_label {
-	font-size: 14px;
+	font-size: 17px;
 	font-weight: bold;
 	padding-top: 10px;
 	padding-bottom: 5px;
