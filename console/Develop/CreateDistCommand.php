@@ -64,6 +64,13 @@ class CreateDistCommand extends Command
             '^data' . $sep . '.+', // keep the data/ directory entry itself, drop everything inside it
             '^[^' . $sep_chars . ']+\.zip$', // any leftover distribution/test zip sitting at the project root
             '^(?!README\.md$)[^' . $sep_chars . ']+\.md$', // root-level docs other than README.md
+            // root-level dev/CI tooling that has no business in a runtime distribution.
+            // NOTE: htaccess.txt is intentionally NOT excluded - setup.php's own
+            // check_htaccess() copies it to build data/.htaccess during install
+            // (copy('htaccess.txt','data/.htaccess')), so removing it would break
+            // that step. .htaccess itself (this dev instance's own, already-tuned
+            // copy) IS excluded, since setup.php generates the real one fresh.
+            '^(\.htaccess|\.gitignore|codeception\.yml|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
         );
         // Guard against the output file landing inside the tree being archived
         // (e.g. a bare filename with no path) and trying to zip itself.
