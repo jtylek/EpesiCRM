@@ -16,11 +16,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_ThemeInstall extends ModuleInstall {
 	public function install() {
 		$this->create_data_dir();
-		mkdir(DATA_DIR.'/Base_Theme/templates');
-		mkdir(DATA_DIR.'/Base_Theme/templates/default');
-		mkdir(DATA_DIR.'/Base_Theme/compiled');
-		mkdir(DATA_DIR.'/Base_Theme/cache');
-		mkdir(DATA_DIR.'/Base_Theme/config');
+		foreach (array('templates', 'templates/default', 'compiled', 'cache', 'config') as $d) {
+			$dir = DATA_DIR.'/Base_Theme/'.$d;
+			if (!is_dir($dir))
+				mkdir($dir);
+		}
 		$this->install_default_theme_common_files('modules/Base/Theme/','images');
 		Variable::set('default_theme','default');
 		return true;

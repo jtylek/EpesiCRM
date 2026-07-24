@@ -529,6 +529,16 @@ define(\'INSTALLATION_ID\',\''.md5(__FILE__ . strval(microtime(true))).'\');
 ?>');
 	fclose($c);
 
+	// index.php's own Smarty instance (rendering the outer page shell) needs
+	// this directory the moment config.php exists, but Base_Theme's own
+	// module install - which normally creates it - hasn't run yet at this
+	// point in the flow (it happens later, during module installation).
+	// On a completely fresh data/ directory (matching what .gitignore
+	// excludes, or a from-scratch distribution package) this crashes with
+	// a Smarty fatal before the user ever reaches that step.
+	if (!is_dir(DATA_DIR.'/Base_Theme/compiled'))
+		mkdir(DATA_DIR.'/Base_Theme/compiled', 0777, true);
+
 	ob_start();
 	ob_start('rm_config');
 
