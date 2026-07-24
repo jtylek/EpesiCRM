@@ -11,8 +11,10 @@ function rcmail_epesi_auto_archive(prop)
   var enabled = !btn.hasClass('pressed');
   btn.toggleClass('pressed', enabled);
 
-  var msgid = rcmail.set_busy(true, 'loading');
-  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(enabled?1:0), msgid);
+  // Fire-and-forget: just persist the toggle in the session. No busy/'loading' lock — this
+  // is a lightweight state save, and locking the UI made rapid toggles hang on "loading"
+  // (the server toggle branch returns no AJAX payload to release the lock).
+  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(enabled?1:0));
 }
 
 function rcmail_epesi_archive(prop)

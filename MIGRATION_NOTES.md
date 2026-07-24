@@ -1894,8 +1894,12 @@ no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
 - NEW `RC/plugins/epesi_archive/skins/elastic/archive.css` — OFF = `opacity:.35 + grayscale`; `.pressed` = full
   colour. Server-side seed of the `pressed` class (`epesi_archive.php` compose button) already sets the initial state.
 - `RC/plugins/epesi_archive/epesi_archive.php` — `include_stylesheet(local_skin_path().'/archive.css')` on compose.
+- **Follow-up:** the first toggle version kept the old `rcmail.set_busy(true,'loading')` + passed the msgid as the
+  `http_post` lock. The server toggle branch just sets the session and `return`s (no AJAX payload to release the
+  lock), so **rapid toggling stacked locks and hung on "loading"**. Fixed by making it fire-and-forget (drop
+  `set_busy`/lock) — the toggle only needs to persist the session state; the class is toggled client-side already.
 
-**STATUS: default-OFF done; toggle-icon done — pending Karina's visual confirm (hard-refresh) on `experiment/php8-hardening`.**
+**STATUS: default-OFF done; toggle-icon (state + rapid-toggle) verified working on `experiment/php8-hardening`.**
 
 ---
 
