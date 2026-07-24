@@ -27,12 +27,6 @@
 	border-radius: 6px;
 	cursor: pointer;
 	background: #b8b8b8; /* Old browsers */
-	background: -moz-linear-gradient(top,  #b8b8b8 0%, #a7a7a7 49%, #919191 51%, #b1b1b1 100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b8b8b8), color-stop(49%,#a7a7a7), color-stop(51%,#919191), color-stop(100%,#b1b1b1)); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top,  #b8b8b8 0%,#a7a7a7 49%,#919191 51%,#b1b1b1 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top,  #b8b8b8 0%,#a7a7a7 49%,#919191 51%,#b1b1b1 100%); /* Opera 11.10+ */
-	background: -ms-linear-gradient(top,  #b8b8b8 0%,#a7a7a7 49%,#919191 51%,#b1b1b1 100%); /* IE10+ */
-	background: linear-gradient(to bottom,  #b8b8b8 0%,#a7a7a7 49%,#919191 51%,#b1b1b1 100%); /* W3C */
 }
 
 #Base_Help__overlay {
