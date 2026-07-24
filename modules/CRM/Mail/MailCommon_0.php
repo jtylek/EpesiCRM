@@ -46,7 +46,7 @@ class CRM_MailCommon extends ModuleCommon {
         if($mode=='edit')
             $acc = Utils_RecordBrowserCommon::get_record('rc_accounts',$param['id']);
         if($mode=='adding') {
-            $param['archive_on_sending']=1;
+            $param['archive_on_sending']=0; // default OFF: auto-archiving SENT mail is opt-in (per-account / compose toggle)
             $param['use_epesi_archive_directories']=1;
         }
         if($mode=='add' || (isset($acc['default_account']) && !$acc['default_account'])) {

@@ -1,0 +1,14 @@
+/*
+ * epesi_archive — "Archive this message after sending" compose toggle (Elastic).
+ * One icon, two visual states via CSS: dimmed/grey when OFF, full colour when ON.
+ * The 'pressed' class is toggled by archive.js and seeded server-side on page load.
+ */
+a.button.archive#epesi_auto_archive_button {
+    opacity: 0.35;
+    filter: grayscale(100%);
+}
+
+a.button.archive#epesi_auto_archive_button.pressed {
+    opacity: 1;
+    filter: none;
+}

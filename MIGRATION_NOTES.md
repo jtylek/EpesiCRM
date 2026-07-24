@@ -1872,6 +1872,33 @@ field; typing an actual valid date still validates correctly.
 
 ---
 
+### §65 — RC: auto-archive-on-send default OFF + Elastic toggle-icon state (2026-07-25)
+
+**Why (Jasiek).** Two related issues with the "Archive this message after sending" feature in the mail composer:
+1. **Auto-archiving of SENT mail was ON by default** — Jasiek judged that wrong; it should be opt-in.
+2. The compose **toggle icon didn't reflect its state** (no colour change on click) — in the previous Epesi the icon
+   was coloured when enabled, grey when disabled.
+
+**Fix 1 — default OFF.** [modules/CRM/Mail/MailCommon_0.php:49](modules/CRM/Mail/MailCommon_0.php) `submit_account()`
+set `$param['archive_on_sending']=1` on account **adding** (the only place this default is set — verified repo-wide).
+Changed to `0`. Pure CODE fix → applies on upgrade automatically; **no data patch** (Karina's call: existing accounts
+keep their value; users can uncheck manually; `use_epesi_archive_directories` stays `1`). The feature, the manual
+Archive button and the archive folders are untouched — only the per-account default flips to opt-in.
+
+**Fix 2 — toggle icon state (Elastic).** The active RC skin is **elastic** (`RC/config/config.inc.php:150`), but the
+plugin only shipped `larry`/`classic` skins, and `archive.js` toggled the state by swapping an `<img>.src`
+(`archive_pas.png`↔`archive_act.png`) — the button is `type=>'link'` → an `<a>` with no `.src`, so the swap was a
+no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
+- `RC/plugins/epesi_archive/archive.js` — `rcmail_epesi_auto_archive()` now toggles the `pressed` class on
+  `#epesi_auto_archive_button` (via jQuery) and POSTs the new state.
+- NEW `RC/plugins/epesi_archive/skins/elastic/archive.css` — OFF = `opacity:.35 + grayscale`; `.pressed` = full
+  colour. Server-side seed of the `pressed` class (`epesi_archive.php` compose button) already sets the initial state.
+- `RC/plugins/epesi_archive/epesi_archive.php` — `include_stylesheet(local_skin_path().'/archive.css')` on compose.
+
+**STATUS: default-OFF done; toggle-icon done — pending Karina's visual confirm (hard-refresh) on `experiment/php8-hardening`.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.

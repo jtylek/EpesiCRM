@@ -5,16 +5,14 @@
 
 function rcmail_epesi_auto_archive(prop)
 {
-  var x = document.getElementById('epesi_auto_archive_button');
-  var rcmail_epesi_auto_archive_enabled = (x.src.search('archive_act.png')<0);
-  if(rcmail_epesi_auto_archive_enabled) {
-    x.src = x.src.replace('archive_pas.png','archive_act.png');
-  } else {
-    x.src = x.src.replace('archive_act.png','archive_pas.png');  
-  }
+  // Elastic renders this toolbar button as an <a> (no .src image to swap, which is why
+  // the old code was a no-op). Toggle a CSS class instead; archive.css dims it when OFF.
+  var btn = $('#epesi_auto_archive_button');
+  var enabled = !btn.hasClass('pressed');
+  btn.toggleClass('pressed', enabled);
 
   var msgid = rcmail.set_busy(true, 'loading');
-  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(rcmail_epesi_auto_archive_enabled?1:0), msgid);
+  rcmail.http_post('plugin.epesi_archive', '_enabled_auto_archive='+(enabled?1:0), msgid);
 }
 
 function rcmail_epesi_archive(prop)

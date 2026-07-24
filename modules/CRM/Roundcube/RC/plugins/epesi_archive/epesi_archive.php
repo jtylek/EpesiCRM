@@ -41,6 +41,11 @@ class epesi_archive extends rcube_plugin
             'id'=>'epesi_auto_archive_button'
         ),
         'toolbar');
+
+        // Elastic: style the toggle's on/off state (dim/grey when OFF, colour when ON).
+        $skin_path = $this->local_skin_path();
+        if (is_file($this->home . "/$skin_path/archive.css"))
+            $this->include_stylesheet("$skin_path/archive.css");
     }
 
     if ($rcmail->action == '' || $rcmail->action == 'show') {
