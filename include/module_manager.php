@@ -36,11 +36,6 @@ class ModuleManager {
 		static $container;
 		if (!$container) {
 			$container = new Pimple\Container();
-			$container['twig'] = function ($c) {
-				$loader = new Twig_Loader_Filesystem(EPESI_LOCAL_DIR);
-				$twig = new Twig_Environment($loader, array('translation_domain' => false));
-				return $twig;
-			};
 		}
 		return $container;
 	}
