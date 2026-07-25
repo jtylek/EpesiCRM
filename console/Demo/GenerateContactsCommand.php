@@ -27,6 +27,11 @@ class GenerateContactsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         \Variable::set('anonymous_setup', 1);
+        // Utils_RecordBrowserCommon::new_record() stamps created_by with
+        // Acl::get_user(), which reads $_SESSION['user'] - always empty in a
+        // CLI context, which then fails to bind to the created_by column's
+        // %d placeholder. Run as the first superadmin (user id 1).
+        \Acl::set_user(1);
         $count = $input->getOption('count') ?: 1;
 
         $progress = new ProgressBar($output, $count);
