@@ -34,7 +34,7 @@ class ListModulesCommand extends Command
 
         $table = new Table($output);
         $table->setHeaders(array('<fg=white;options=bold>Name</fg=white;options=bold>', '<fg=white;options=bold>Version</fg=white;options=bold>', '<fg=white;options=bold>State</fg=white;options=bold>'));
-        foreach ($modules as $module) {
+        foreach ($modules as $name => $module) {
 
             if ($module['state'] === (string)ModuleManager::MODULE_ENABLED)
                 $state = "<fg=green>Active</fg=green>";
@@ -45,7 +45,7 @@ class ListModulesCommand extends Command
             if ($module['state'] === null)
                 $state = "<fg=red>Not installed</fg=red>";
 
-            $table->addRow(array($module['name'], $module['version'], $state));
+            $table->addRow(array($name, $module['version'], $state));
         }
 
         $table->render();

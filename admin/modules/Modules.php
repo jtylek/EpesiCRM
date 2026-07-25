@@ -17,8 +17,7 @@ class Modules extends AdminModule {
 
         $modules = DB::GetAssoc('SELECT * FROM modules ORDER BY state, name');
 
-        foreach ($modules as $m) {
-            $name = $m['name'];
+        foreach ($modules as $name => $m) {
             $state = $m['state'] ?? ModuleManager::MODULE_ENABLED;
             if ($state == ModuleManager::MODULE_NOT_FOUND) {
                 $state = ModuleManager::MODULE_DISABLED;
