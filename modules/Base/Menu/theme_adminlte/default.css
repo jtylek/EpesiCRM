@@ -60,20 +60,27 @@
 	transform: rotate(90deg);
 }
 
+/* Submenu visibility belongs to the wrapping .collapse and nothing else.
+   AdminLTE hides its own .nav-treeview unless the parent has .menu-open, which
+   is why this markup avoids that class name - this is the belt to that braces. */
+.epesi-adminlte #MenuBar .epesi-submenu {
+	display: block;
+}
+
 /* Each nesting level indents; the tree can go several deep. */
-.epesi-adminlte #MenuBar .nav-treeview .nav-link {
+.epesi-adminlte #MenuBar .epesi-submenu .nav-link {
 	padding-left: calc(0.9rem + var(--epesi-menu-indent));
 }
 
-.epesi-adminlte #MenuBar .nav-treeview .nav-treeview .nav-link {
+.epesi-adminlte #MenuBar .epesi-submenu .epesi-submenu .nav-link {
 	padding-left: calc(0.9rem + 2 * var(--epesi-menu-indent));
 }
 
-.epesi-adminlte #MenuBar .nav-treeview .nav-treeview .nav-treeview .nav-link {
+.epesi-adminlte #MenuBar .epesi-submenu .epesi-submenu .epesi-submenu .nav-link {
 	padding-left: calc(0.9rem + 3 * var(--epesi-menu-indent));
 }
 
-.epesi-adminlte #MenuBar .nav-treeview .nav-link {
+.epesi-adminlte #MenuBar .epesi-submenu .nav-link {
 	font-size: 13px;
 	min-height: 40px;
 }

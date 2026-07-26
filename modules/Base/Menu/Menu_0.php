@@ -69,7 +69,11 @@ class Base_Menu extends Module {
 	 * @return string HTML
 	 */
 	private function build_menu_html(& $m, $prefix = '', $depth = 0) {
-		$out = '<ul class="nav flex-column' . ($depth ? ' nav-treeview' : ' sidebar-menu') . '">';
+		// Deliberately NOT AdminLTE's sidebar-menu/nav-treeview classes: it hides
+		// .nav-treeview unless the parent carries its own .menu-open class, which
+		// would fight the Bootstrap collapse used here. Own class names keep that
+		// stylesheet out of it entirely.
+		$out = '<ul class="nav flex-column' . ($depth ? ' epesi-submenu' : ' epesi-menu') . '">';
 		foreach ($m as $k => $arr) {
 			if ($k == '__split__') {
 				$out .= '<li class="nav-item"><hr class="menu-split"></li>';
