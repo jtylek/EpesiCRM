@@ -13,7 +13,7 @@
 	<div class="layer" style="padding: 9px; width: 552px;">
 		<div class="css3_content_shadow">
 
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: 507px;">
+	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: auto;">
             <tbody>
 	    	<tr>
 				<td colspan="2" class="header_tail">{$logo}</td>
@@ -76,11 +76,6 @@
                         </tr>
                         <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
                         <tr><td>&nbsp;</td></tr>
-					{if isset($donation_note)}
-						<tr>
-							<td colspan="2" class="donation_notice">{$donation_note}</td>
-						</tr>
-					{/if}
                         <tr><td colspan="2" class="footer">
                         <!-- Epesi Terms of Use require line below - do not remove it! -->
                         Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek
