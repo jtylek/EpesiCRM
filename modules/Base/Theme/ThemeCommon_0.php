@@ -38,6 +38,29 @@ class Base_ThemeCommon extends ModuleCommon {
 	}
 
 	/**
+	 * Loads the CSS/JS framework the active theme is built on.
+	 *
+	 * Called from Base_Box, which renders on every page (including the anonymous
+	 * login screen), and from Base_User_Login so that module stays self-contained.
+	 * Epesi::load_css()/load_js() de-duplicate per session, so calling it more than
+	 * once is harmless. No-op for themes that need no framework, which keeps the
+	 * default theme's page weight unchanged.
+	 */
+	public static function load_theme_assets() {
+		if (self::get_default_template() !== 'adminlte') return;
+		load_css('libs/bootstrap-5.3.8/css/bootstrap.min.css');
+		// Served through its own loader so the @font-face url("fonts/...")
+		// references in the vendored CSS resolve against the icon package's
+		// directory rather than the project root - see that file's comment.
+		load_css('libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css',
+		         'libs/bootstrap-icons-1.13.1/__css.php');
+		load_css('libs/adminlte-4.1.0/css/adminlte.min.css');
+		load_js('libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js');
+		// drives the sidebar toggle (data-lte-toggle="sidebar") in the shell
+		load_js('libs/adminlte-4.1.0/js/adminlte.min.js');
+	}
+
+	/**
 	 * Base URL that flattened theme paths get appended to in templates
 	 * ({$theme_dir}/Utils/Calendar/next.png). There is no longer a directory
 	 * holding that layout, so this points at the asset handler which maps each

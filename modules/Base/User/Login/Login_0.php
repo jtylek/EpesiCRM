@@ -35,18 +35,9 @@ class Base_User_Login extends Module {
 	}
 
 	public function body($tpl=null) {
-		// AdminLTE theme's login page is Bootstrap-based; load the framework
-		// only when that theme is active so the default theme is unaffected.
-		if (Base_ThemeCommon::get_default_template()=='adminlte') {
-			load_css('libs/bootstrap-5.3.8/css/bootstrap.min.css');
-			// Served through its own loader so the @font-face url("fonts/...")
-			// references in the vendored CSS resolve against the icon package's
-			// directory rather than the project root - see that file's comment.
-			load_css('libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css',
-			         'libs/bootstrap-icons-1.13.1/__css.php');
-			load_css('libs/adminlte-4.1.0/css/adminlte.min.css');
-			load_js('libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js');
-		}
+		// The login page is Bootstrap-based under adminlte; this is a no-op for
+		// themes that need no framework, so the default theme is unaffected.
+		Base_ThemeCommon::load_theme_assets();
 
 		//check bans
         if (!Acl::is_user() && Base_User_LoginCommon::is_banned()) {

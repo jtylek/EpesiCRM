@@ -183,7 +183,12 @@ class Base_Menu extends Module {
 		$menu = $home_menu;
 
 		// preparing menu string
-		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
+		// adminlte puts the main menu in a sidebar, so it needs Utils/Menu's
+		// vertical layout; every other theme keeps the horizontal menu bar.
+		// quick_access_menu() below deliberately stays horizontal - it lives in
+		// the top navbar under both layouts.
+		$layout = Base_ThemeCommon::get_default_template() == 'adminlte' ? 'vertical' : 'horizontal';
+		$menu_mod = $this->init_module("Utils/Menu", $layout);
 		$this->build_menu($menu_mod,$menu);
 
 		$theme = $this->init_module(Base_Theme::module_name());

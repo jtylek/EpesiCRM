@@ -1,0 +1,201 @@
+/* AdminLTE structural shell for Base_Box.
+ *
+ * Replaces the fixed-pixel <table> layout of the default theme with a
+ * navbar + off-canvas sidebar + content column. The default theme's own
+ * default.css is NOT loaded alongside this (per-file theme resolution picks one
+ * or the other), so everything the shell needs is defined here.
+ */
+
+/* Epesi's global body{font-size:13px} would shrink all of Bootstrap's rem-based
+   sizing; restore a normal base so the app reads at its intended scale. */
+body {
+	font-size: 14px;
+	background-color: #f4f6f9;
+}
+
+.epesi-adminlte {
+	--epesi-sidebar-width: 250px;
+	--epesi-header-height: 3.5rem;
+}
+
+/* ---- header ---- */
+
+.epesi-adminlte .app-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1038;
+	min-height: var(--epesi-header-height);
+	background-color: #fff;
+	border-bottom: 1px solid #dee2e6;
+	padding: 0;
+}
+
+.epesi-adminlte .app-header .nav-link {
+	color: #495057;
+	padding: 0.5rem 0.75rem;
+	/* comfortable tap target on touch screens */
+	min-width: 44px;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.epesi-adminlte .app-header .nav-link:hover {
+	color: #0d6efd;
+}
+
+.epesi-adminlte .app-header .bi {
+	font-size: 1.15rem;
+}
+
+.epesi-adminlte #module-indicator {
+	font-weight: 600;
+	color: #212529;
+	max-width: 40vw;
+}
+
+/* The shell's own widgets (search/filter/login/help) come from modules that
+   still emit the default theme's markup; keep them from inheriting odd sizing
+   and let them sit inline in the navbar. */
+.epesi-adminlte .app-header .nav-item > * {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.epesi-adminlte .app-header .nav-item img {
+	max-height: 24px;
+	width: auto;
+}
+
+/* ---- sidebar ---- */
+
+.epesi-adminlte .app-sidebar {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: var(--epesi-sidebar-width);
+	z-index: 1040;
+	display: flex;
+	flex-direction: column;
+	/* Light sidebar, to keep the visual jump from the current UI small. */
+	background-color: #fff;
+	border-right: 1px solid #dee2e6;
+	overflow-y: auto;
+	overflow-x: hidden;
+	transition: margin-left 0.25s ease-in-out;
+}
+
+.epesi-adminlte .sidebar-brand {
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid #dee2e6;
+	min-height: var(--epesi-header-height);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+
+.epesi-adminlte .sidebar-brand img {
+	max-width: 100%;
+	height: auto;
+	max-height: 40px;
+}
+
+.epesi-adminlte .sidebar-wrapper {
+	flex: 1 1 auto;
+	padding: 0.5rem 0;
+	overflow-y: auto;
+}
+
+.epesi-adminlte .sidebar-footer {
+	flex: 0 0 auto;
+	padding: 0.5rem;
+	border-top: 1px solid #dee2e6;
+	color: #6c757d;
+}
+
+.epesi-adminlte .sidebar-footer a {
+	color: #6c757d;
+	text-decoration: none;
+}
+
+/* ---- main column ---- */
+
+.epesi-adminlte .app-main {
+	margin-left: var(--epesi-sidebar-width);
+	padding-top: var(--epesi-header-height);
+	min-height: 100vh;
+	transition: margin-left 0.25s ease-in-out;
+}
+
+.epesi-adminlte .app-content-header {
+	background-color: #fff;
+	border-bottom: 1px solid #dee2e6;
+	padding: 0.4rem 0;
+}
+
+.epesi-adminlte .app-content {
+	padding: 1rem 0;
+}
+
+/* The default theme centred content in a fixed-width table; content is now
+   full-width and must never force the page to scroll sideways. */
+.epesi-adminlte #content,
+.epesi-adminlte #content_body {
+	width: 100%;
+}
+
+.epesi-adminlte #content_body > .container-fluid {
+	overflow-x: auto;
+}
+
+/* ---- collapsed / mobile ---- */
+
+/* Sidebar is off-canvas below lg and toggled by AdminLTE's data-lte-toggle. */
+@media (max-width: 991.98px) {
+	.epesi-adminlte .app-sidebar {
+		margin-left: calc(-1 * var(--epesi-sidebar-width));
+	}
+	.epesi-adminlte .app-main {
+		margin-left: 0;
+	}
+	body.sidebar-open .epesi-adminlte .app-sidebar {
+		margin-left: 0;
+	}
+}
+
+/* On large screens the same toggle collapses the sidebar away. */
+@media (min-width: 992px) {
+	body.sidebar-collapse .epesi-adminlte .app-sidebar {
+		margin-left: calc(-1 * var(--epesi-sidebar-width));
+	}
+	body.sidebar-collapse .epesi-adminlte .app-main {
+		margin-left: 0;
+	}
+}
+
+/* ---- anonymous (not logged in) ---- */
+
+#Base_Box__login .status {
+	text-align: center;
+}
+
+/* ---- print ---- */
+
+/* The default theme carried an equivalent rule; without it the navbar and
+   sidebar would be printed on every page. */
+@media print {
+	.epesi-adminlte .app-header,
+	.epesi-adminlte .app-sidebar,
+	.epesi-adminlte .app-content-header {
+		display: none !important;
+	}
+	.epesi-adminlte .app-main {
+		margin-left: 0;
+		padding-top: 0;
+	}
+}

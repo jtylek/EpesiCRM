@@ -27,6 +27,10 @@ class Base_Box extends Module {
             return;
         }
 
+        // Base_Box renders on every page, logged in or not, so this is the one
+        // place a theme's framework assets need requesting.
+        Base_ThemeCommon::load_theme_assets();
+
         $theme = $this->pack_module(Base_Theme::module_name());
 		$ini = Base_BoxCommon::get_ini_file();
 		

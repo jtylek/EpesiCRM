@@ -39,6 +39,11 @@ Please choose {$EPESI} version:<ul>
 		<title>{$EPESI}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		{* Without this a phone renders the page at a ~980px virtual width and
+		   scales it down, which defeats any responsive layout. Theme-independent
+		   and harmless for the fixed-width default theme. Zoom is deliberately
+		   left enabled - no maximum-scale/user-scalable. *}
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
 {$js_tags_html}

@@ -1,0 +1,111 @@
+/* Sidebar skin for Utils_Menu's vertical layout.
+ *
+ * menu.js generates the DOM (table.root of tr/td.item rows, with nested
+ * table.custom_opener + table.submenu for fly-out submenus) and is shared with
+ * every other theme, so this is purely a re-skin of that generated markup - no
+ * markup or JS changes. Class names therefore look nothing like AdminLTE's;
+ * they are menu.js's own.
+ */
+
+.epesi-adminlte #MenuBar table.root {
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.epesi-adminlte #MenuBar table.root td.item {
+	display: block;
+	width: 100%;
+}
+
+/* Top-level entries and fly-out entries share these link classes. */
+.epesi-adminlte #MenuBar a.root_item_link,
+.epesi-adminlte #MenuBar a.root_item_link_none,
+.epesi-adminlte #MenuBar a.root_item_link_right {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.55rem 0.9rem;
+	color: #343a40;
+	text-decoration: none;
+	white-space: nowrap;
+	/* comfortable tap target */
+	min-height: 44px;
+	cursor: pointer;
+}
+
+.epesi-adminlte #MenuBar a.root_item_link:hover,
+.epesi-adminlte #MenuBar a.root_item_link_none:hover,
+.epesi-adminlte #MenuBar a.root_item_link_right:hover {
+	background-color: #e9ecef;
+	color: #0d6efd;
+}
+
+.epesi-adminlte #MenuBar .link_icon_box {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	flex: 0 0 20px;
+}
+
+.epesi-adminlte #MenuBar img.link_icon {
+	max-width: 16px;
+	max-height: 16px;
+}
+
+/* Separator rows. */
+.epesi-adminlte #MenuBar td.splitter {
+	display: block;
+	height: 1px;
+	margin: 0.35rem 0.75rem;
+	background-color: #dee2e6;
+}
+
+/* A parent item: menu.js wraps it in its own table with the fly-out beside it. */
+.epesi-adminlte #MenuBar table.custom_opener {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.epesi-adminlte #MenuBar .root_item_link_right_arrow {
+	flex: 1 1 auto;
+	position: relative;
+	padding-right: 1rem;
+}
+
+/* Chevron marking an item that opens a submenu. */
+.epesi-adminlte #MenuBar .root_item_link_right_arrow::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	margin-top: -4px;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	border-left: 5px solid #adb5bd;
+}
+
+/* Fly-out submenus. menu.js positions and shows/hides these itself, so only
+   their appearance is set here - never their display or position. */
+.epesi-adminlte #MenuBar table.submenu {
+	background-color: #fff;
+	border: 1px solid #dee2e6;
+	border-radius: 0.375rem;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	padding: 0.25rem 0;
+	border-collapse: separate;
+	z-index: 1050;
+}
+
+.epesi-adminlte #MenuBar table.submenu td.item {
+	display: block;
+	min-width: 180px;
+}
+
+.epesi-adminlte #MenuBar td.item_sub {
+	padding: 0;
+}
