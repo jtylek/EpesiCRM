@@ -17,13 +17,13 @@ class ThemeRebuildCommand extends Command
     protected function configure(){
         $this
             ->setName('theme:rebuild')
-            ->setDescription('Rebuild EPESI default theme')
+            ->setDescription('Deprecated - themes are served from modules/ and need no rebuild')
         ;
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
-        $output->writeln('Rebuilding themes...');
-        Base_ThemeCommon::themeup();
-        $output->writeln('Theme rebuilded!');
+        $output->writeln('Nothing to rebuild: templates, CSS and images are now read');
+        $output->writeln('directly from modules/*/theme[_<theme>]/, so an edit is live');
+        $output->writeln('immediately and there is no generated copy to refresh.');
 
         return Command::SUCCESS;
     }

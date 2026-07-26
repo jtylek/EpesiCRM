@@ -87,12 +87,28 @@ class Base_Theme extends Module {
 	 * @param array list of available themes
 	 */
 	public static function list_themes() {
-		$themes = array();
-		$inc = dir(DATA_DIR.'/Base_Theme/templates/');
-		while (false != ($entry = $inc->read())) {
-			if (is_dir(DATA_DIR.'/Base_Theme/templates/'.$entry) && $entry!='.' && $entry!='..')
-				$themes[$entry] = $entry;
-		}
+		static $themes = null;
+		if (isset($themes)) return $themes;
+
+		// 'default' is the module's own theme/ directory - it has no directory of
+		// its own anywhere and is always available.
+		$themes = array('default' => 'default');
+
+		// A theme now ships as modules/<Mod>/theme_<name>/ directories alongside
+		// the modules it restyles, so collect every suffix that appears.
+		foreach (glob('modules/*/*/theme_*', GLOB_ONLYDIR) ?: array() as $dir)
+			$themes[substr(basename($dir), 6)] = substr(basename($dir), 6);
+		foreach (glob('modules/*/*/*/theme_*', GLOB_ONLYDIR) ?: array() as $dir)
+			$themes[substr(basename($dir), 6)] = substr(basename($dir), 6);
+
+		// Themes installed the old way, as a tree under data/, still count.
+		$data_themes = DATA_DIR.'/Base_Theme/templates/';
+		if (is_dir($data_themes))
+			foreach (scandir($data_themes) as $entry) {
+				if ($entry === '.' || $entry === '..') continue;
+				if (is_dir($data_themes.$entry)) $themes[$entry] = $entry;
+			}
+
 		asort($themes);
 		return $themes;
 	}

@@ -22,6 +22,31 @@ require_once(SMARTY_DIR.'Smarty.class.php');
 
 
 class Base_ThemeCommon extends ModuleCommon {
+
+	/**
+	 * Maps a flattened theme-root path (e.g. "Base/Box/default.css",
+	 * "images/icons/save.png") onto the modules/ file that backs it.
+	 * Implemented in Base_ThemeResolver so the standalone asset.php /
+	 * theme_css.php entry points can share it without bootstrapping Epesi.
+	 *
+	 * @return string|null path relative to the project root, or null if unknown
+	 */
+	public static function resolve_theme_file($rel, $theme = null) {
+		require_once('modules/Base/Theme/resolver.php');
+		if (!isset($theme)) $theme = self::get_default_template();
+		return Base_ThemeResolver::resolve($rel, $theme);
+	}
+
+	/**
+	 * Base URL that flattened theme paths get appended to in templates
+	 * ({$theme_dir}/Utils/Calendar/next.png). There is no longer a directory
+	 * holding that layout, so this points at the asset handler which maps each
+	 * path back onto modules/ - see modules/Base/Theme/asset.php.
+	 */
+	public static function get_theme_dir_url() {
+		return 'modules/Base/Theme/asset.php?t=' . rawurlencode(self::get_default_template()) . '&f=';
+	}
+
 	public static function init_smarty() {
 		$smarty = new Smarty();
 		
@@ -42,7 +67,14 @@ class Base_ThemeCommon extends ModuleCommon {
 		static $theme;
 		if(!isset($theme)) {
 			$theme = Variable::get('default_theme');
-			if(!is_dir(DATA_DIR.'/Base_Theme/templates/'.$theme))
+			// A theme no longer needs a directory under data/ to be valid - it can
+			// live entirely in modules/<Mod>/theme_<name>/. Checked directly rather
+			// than via Base_Theme::list_themes() because this runs early enough in
+			// bootstrap that the Base_Theme class may not be loaded yet.
+			if($theme !== 'default'
+			   && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$theme)
+			   && !glob('modules/*/*/theme_'.$theme, GLOB_ONLYDIR)
+			   && !glob('modules/*/*/*/theme_'.$theme, GLOB_ONLYDIR))
 				$theme = 'default';
 		}
 		return $theme;
@@ -68,117 +100,65 @@ class Base_ThemeCommon extends ModuleCommon {
 			$css = $module_name.'.css';
 		}
 
-		// adminlte theme only (deliberately narrow rollout while this theme is
-		// under active development): serve straight from modules/<path>/theme_adminlte/
-		// when that module has an override there, bypassing the data/Base_Theme/templates/
-		// copy entirely so template/CSS edits take effect immediately - no "Theme
-		// update" run needed. Falls through to the unchanged data/-based resolution
-		// below for any module without an adminlte-specific override, and this
-		// block is a complete no-op for every other theme.
-		if (self::get_default_template() === 'adminlte') {
-			// theme_dir / load_css() need a project-root-relative path (they end up
-			// in the browser as a URL served via serve.php), but Smarty 2.x's file:
-			// resource handler only special-cases genuinely absolute paths
-			// (regex-checked against a leading "/" or a Windows drive letter) - a
-			// relative "modules/..." string gets resolved against template_dir
-			// instead of cwd, so display() specifically needs the absolute form.
-			$adminlte_tpl_rel = 'modules/'.dirname($tpl).'/theme_adminlte/'.basename($tpl);
-			$adminlte_tpl_abs = EPESI_LOCAL_DIR.'/'.$adminlte_tpl_rel;
-			if (is_readable($adminlte_tpl_abs)) {
-				$smarty->assign('theme_dir', dirname($adminlte_tpl_rel));
-				$smarty->display('file:'.$adminlte_tpl_abs);
-				if (isset($css)) {
-					$adminlte_css_rel = 'modules/'.dirname($css).'/theme_adminlte/'.basename($css);
-					if (is_readable(EPESI_LOCAL_DIR.'/'.$adminlte_css_rel))
-						// The data/-theme __css.php "loader" scripts (see the fallback
-						// path below) only chdir to the project root and require
-						// serve.php - that's exactly the default loader load_css()
-						// already uses when none is given, so no custom loader script
-						// needs to exist under theme_adminlte/ for this to work.
-						load_css($adminlte_css_rel);
-				}
-				return;
-			}
+		// Templates and their CSS are served straight from modules/ - the
+		// data/Base_Theme/templates/ copy that "Theme update" used to build is gone.
+		// resolve_theme_file() applies the installed-theme override first, so a
+		// custom theme in data/ or a modules/<Mod>/theme_<name>/ override still wins
+		// over the module's base template.
+		$tpl_file = self::resolve_theme_file($tpl);
+		if($tpl_file === null) {
+			trigger_error('Template not found: '.$tpl,E_USER_WARNING);
+			return;
 		}
 
-		if($smarty->template_exists($tpl)) {
-			$smarty->assign('theme_dir',$smarty->template_dir);
-			$smarty->display($tpl);
-			if(isset($css)) {
-				$cssf = $smarty->template_dir.'/'.$css;
-				if(file_exists($cssf))
-			    	load_css($cssf,$smarty->template_dir.'/__css.php');
-			}
-		} else {
-			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/default';
-			$smarty->compile_id = 'default';
+		// {$theme_dir}/Some/Module/x.png in templates addresses the old flattened
+		// theme root, which no longer exists as a directory - point it at the
+		// handler that maps those paths back onto modules/.
+		$smarty->assign('theme_dir', self::get_theme_dir_url());
 
-			if(!$smarty->template_exists($tpl)) {
-			$tpl = '../../../'.$tpl;
-				//trigger_error('Template not found: '.$tpl,E_USER_ERROR);
-			}
+		// Smarty 2.x's file: resource only treats a path as absolute when it
+		// matches a leading "/" or a drive letter; anything else is resolved
+		// against template_dir rather than the cwd, so this must be absolute.
+		$smarty->display('file:'.EPESI_LOCAL_DIR.'/'.$tpl_file);
 
-			$smarty->assign('theme_dir',$smarty->template_dir);
-			$smarty->display($tpl);
-			if(isset($css)) {
-				$cssf = $smarty->template_dir.'/'.$css;
-				if(file_exists($cssf))
-					load_css($cssf,$smarty->template_dir.'/__css.php');
-			}
-
-			$dt = self::get_default_template();
-			$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$dt;
-			$smarty->compile_id = $dt;
+		if(isset($css)) {
+			$css_file = self::resolve_theme_file($css);
+			if($css_file !== null)
+				load_css($css_file, self::css_loader());
 		}
+	}
+
+	/**
+	 * Loader script used for module CSS. It rewrites the stylesheet's
+	 * theme-root-relative url() references onto modules/ as it serves - see
+	 * modules/Base/Theme/theme_css.php.
+	 *
+	 * No query string here: Epesi::prepare_minified_files() builds the final URL
+	 * as $loader.'?'.http_build_query(...), so anything already carrying a "?"
+	 * would produce a malformed one. The loader resolves the active theme itself.
+	 */
+	private static function css_loader() {
+		return 'modules/Base/Theme/theme_css.php';
 	}
 
 
 	/**
-	 * Performs installation of default theme files for a module.
-	 * 
-	 * Notice: the path should not contain / on the beginning nor on the end of string
-	 * 
-	 * @param string module name
-	 * @param string directory in which default theme data for the module is hold (path relative to specified module)
+	 * No-op, kept because every module's install script calls it.
+	 *
+	 * This used to copy modules/<Mod>/theme/ into data/Base_Theme/templates/default/,
+	 * which is what made a "Theme update" necessary whenever a template changed.
+	 * Templates and CSS are now read straight from modules/, so there is nothing
+	 * left to install and nothing to keep in sync.
 	 */
 	public static function install_default_theme($mod_name,$version=0) {
-		$directory = 'modules/'.str_replace('_','/',$mod_name).'/theme_'.$version;
-		if (!is_dir($directory)) $directory = 'modules/'.str_replace('_','/',$mod_name).'/theme';
-		if (!is_dir($directory)) return;
-		$mod_name = str_replace('_','/',$mod_name);
-		$data_dir = DATA_DIR.'/Base_Theme/templates/default';
-		$content = scandir($directory);
-		$mod_path = explode('/',$mod_name);
-		$sum = '';
-		foreach ($mod_path as $p) {
-			$sum .= '/'.$p;
-			@mkdir($data_dir.$sum);
-		}
-		foreach ($content as $name){
-			if($name == '.' || $name == '..' || preg_match('/^[\.~]/i',$name)) continue;
-			recursive_copy($directory.'/'.$name,$data_dir.'/'.$mod_name.'/'.$name);
-		}
 	}
-	
+
 	/**
-	 * Removes default theme files for a module.
-	 * 
-	 * @param string module name
+	 * No-op counterpart of install_default_theme() - see above. Removing a module
+	 * now removes its templates with it, since they only ever lived in modules/.
 	 */
 	public static function uninstall_default_theme($mod_name) {
-		$directory = str_replace('_','/',$mod_name);
-		$mod_name = str_replace('/','_',$mod_name);
-		$data_dir = DATA_DIR.'/Base_Theme/templates/default/';
-
-		$content = scandir($data_dir);
-		foreach ($content as $name) {
-			if($name == '.' || $name == '..' || preg_match('/^'.addcslashes($mod_name,'/').'/',$name)==0) continue;
-			$name = $data_dir.'/'.$name;
-			recursive_rmdir($name);
-//			if (!is_dir($name))
-//				unlink($name);
-		}
-	}	
+	}
 	
 	/**
 	 * Returns path to currently selected theme.
@@ -225,17 +205,14 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * @return mixed path and name of a file, false if no such file was found
 	 */
 	public static function get_template_file($modulename,$filename=null) {
-		if(!isset($filename)) 
+		if(!isset($filename))
 			$filename = $modulename;
 		else
 			$filename = self::get_template_filename($modulename,$filename);
-		$f = self::get_template_dir().$filename;
-		if(!is_readable($f)) {
-			$f = DATA_DIR.'/Base_Theme/templates/default/'.$filename;
-			if(!is_readable($f))
-				return null;
-		}
-		return $f;
+		// Resolves onto modules/ (or an installed theme's override) - the returned
+		// path stays relative to the project root, so callers can keep using it
+		// both as a filesystem path and directly as an <img src> URL.
+		return self::resolve_theme_file($filename);
 	}
 
 	/**
@@ -250,22 +227,9 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!isset($module_name))
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
 
-		// adminlte theme only - same reasoning as display_smarty() above: prefer
-		// modules/<path>/theme_adminlte/<css> directly when it exists, so CSS
-		// loaded independently of a template render (e.g. via a raw
-		// Base_ThemeCommon::load_css('Module') call) also skips the data/ copy.
-		if (self::get_default_template() === 'adminlte') {
-			$path = str_replace('_','/',$module_name);
-			$adminlte_css = 'modules/'.$path.'/theme_adminlte/'.$css_name.'.css';
-			if (is_readable($adminlte_css)) {
-				load_css($adminlte_css, self::get_template_dir().'__css.php');
-				return true;
-			}
-		}
-
 		$css = self::get_template_file($module_name,$css_name.'.css');
 		if ($css) {
-			load_css($css,self::get_template_dir().'__css.php');
+			load_css($css,self::css_loader());
 			return true;
 		} else {
 			if($trig_error) trigger_error('Invalid css specified: '.$module_name.'/'.$css_name.'.css',E_USER_ERROR);
@@ -304,75 +268,29 @@ class Base_ThemeCommon extends ModuleCommon {
 	}
 
 	/**
-	 * For internal use only.
+	 * No-op. Used to drop a __css.php loader into each theme directory so that
+	 * relative url() references inside module CSS resolved against the flattened
+	 * theme root. That rewriting is now done while the stylesheet is served - see
+	 * modules/Base/Theme/theme_css.php - so there is no per-theme file to cache.
 	 */
 	public static function create_cache() {
-		//css
-		$themes_dir = DATA_DIR.'/Base_Theme/templates/';
-		$def_theme = Variable::get('default_theme');
-		$tdir = $themes_dir.$def_theme.'/';
-		copy('modules/Base/Theme/css.php',$themes_dir.'default/__css.php');
-		if($def_theme!='default')
-			copy('modules/Base/Theme/css.php',$tdir.'/__css.php');
 	}
 
-
+	/**
+	 * No-op. The shared images this used to unpack into the theme root are read
+	 * straight from modules/Base/Theme/images/ now.
+	 */
 	public static function install_default_theme_common_files($dir,$f) {
-		if(class_exists('ZipArchive')) {
-			$zip = new ZipArchive;
-			if ($zip->open($dir.$f.'.zip') == 1) {
-    			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/default/');
-    			return;
-			}
-		}
-		@mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
-		$content = scandir($dir.$f);
-		foreach ($content as $name){
-			if ($name == '.' || $name == '..') continue;
-			$path = $dir.$f.'/'.$name;
-			if (is_dir($path))
-				self::install_default_theme_common_files($dir,$f.'/'.$name);
-			else
-				@copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
-		}
 	}
 
+    /**
+     * No-op. "Theme update" existed only to rebuild the flattened copy of every
+     * module's theme/ directory under data/, which templates and CSS were then
+     * read from - so any template edit needed a rebuild to become visible.
+     * Everything is read from modules/ directly now, so there is nothing to
+     * update; kept as a no-op for callers and old bookmarks.
+     */
     public static function themeup() {
-        $data_dir = self::Instance()->get_data_dir() . 'templates/default/';
-        $content = scandir($data_dir);
-        foreach ($content as $name) {
-            if ($name == '.' || $name == '..')
-                continue;
-            recursive_rmdir($data_dir . $name);
-        }
-
-        $ret = DB::Execute('SELECT * FROM modules');
-        while ($row = $ret->FetchRow()) {
-            $directory = 'modules/' . str_replace('_', '/', $row[0]) . '/theme_' . $row['version'];
-            if (!is_dir($directory))
-                $directory = 'modules/' . str_replace('_', '/', $row[0]) . '/theme';
-            $mod_name = $row[0];
-            $data_dir = DATA_DIR . '/Base_Theme/templates/default';
-            if (!is_dir($directory))
-                continue;
-            $content = scandir($directory);
-
-            $mod_name = str_replace('_', '/', $mod_name);
-            $mod_path = explode('/', $mod_name);
-            $sum = '';
-            foreach ($mod_path as $p) {
-                $sum .= '/' . $p;
-                @mkdir($data_dir . $sum);
-            }
-            foreach ($content as $name) {
-                if ($name == '.' || $name == '..' || preg_match('/^[\.~]/', $name))
-                    continue;
-                recursive_copy($directory . '/' . $name, $data_dir . '/' . $mod_name . '/' . $name);
-            }
-        }
-
-        self::install_default_theme_common_files('modules/Base/Theme/', 'images');
-        self::create_cache();
     }
 
     /**
