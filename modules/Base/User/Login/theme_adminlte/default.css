@@ -1,0 +1,59 @@
+/* AdminLTE-styled login page. Renders inside #main_content (not a full <body>
+   replacement), so login-page centering is done on a wrapper div here rather
+   than relying on AdminLTE's own body.login-page rules. */
+
+.login-page-adminlte {
+	min-height: calc(100vh - 20px);
+	padding: 2rem 1rem;
+	background-color: #ffffff;
+	/* Epesi's global body{font-size:13px} would otherwise shrink all of
+	   Bootstrap/AdminLTE's rem-based sizing on this page; restore a normal
+	   base size so the login page reads at its intended scale. */
+	font-size: 16px;
+}
+
+/* This login screen replaces the whole page, so hide the app's own top bar
+   shell (Base_Box) behind it - but only while the login page is actually
+   showing (:has() scopes this to when .login-page-adminlte is in the DOM),
+   not when this same module renders its small logged-in-as widget instead. */
+body:has(.login-page-adminlte) #top_bar {
+	display: none !important;
+}
+body:has(.login-page-adminlte) #body_content {
+	padding-top: 0 !important;
+}
+
+.login-page-adminlte .login-box {
+	width: 100%;
+	max-width: 600px;
+}
+
+.login-page-adminlte .login-logo {
+	text-align: center;
+	margin-bottom: 0.5rem;
+}
+
+.login-page-adminlte .login-logo img {
+	/* height:auto (with only max-width/max-height as caps, no fixed width)
+	   keeps the image's original 550:200 aspect ratio - it can only shrink
+	   uniformly, never stretch/distort. */
+	max-width: 100%;
+	width: auto;
+	height: auto;
+	max-height: 120px;
+}
+
+.login-page-adminlte .login-box-msg {
+	text-align: center;
+	margin-bottom: 1rem;
+	color: #6c757d;
+}
+
+.login-page-adminlte .card {
+	border-top: none !important;
+	background-color: #f4f6f9;
+}
+
+.login-page-adminlte .form-check {
+	padding-top: 0.3rem;
+}

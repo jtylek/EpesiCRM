@@ -28,7 +28,22 @@ class Base_User_Login extends Module {
 		return false;
 	}
 
+	private function assign_logo() {
+		$logo = $this->init_module(Base_MainModuleIndicator::module_name());
+		$logo->set_inline_display();
+		$this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
+	}
+
 	public function body($tpl=null) {
+		// AdminLTE theme's login page is Bootstrap-based; load the framework
+		// only when that theme is active so the default theme is unaffected.
+		if (Base_ThemeCommon::get_default_template()=='adminlte') {
+			load_css('libs/bootstrap-5.3.8/css/bootstrap.min.css');
+			load_css('libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css');
+			load_css('libs/adminlte-4.1.0/css/adminlte.min.css');
+			load_js('libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js');
+		}
+
 		//check bans
         if (!Acl::is_user() && Base_User_LoginCommon::is_banned()) {
             print __('You have exceeded the number of allowed login attempts.').'<br>';
@@ -64,6 +79,7 @@ class Base_User_Login extends Module {
 		}
 		if (isset($_REQUEST['password_recovered'])) {
 			$this->theme->assign('message', __('An e-mail with a new password has been sent.').'<br><a href="'.get_epesi_url().'">'.__('Login').'</a>');
+			$this->assign_logo();
 			$this->theme->display();
 			return;
 		}
@@ -75,22 +91,22 @@ class Base_User_Login extends Module {
 		
 		if(DEMO_MODE) {
 			global $demo_users;
-			$form->addElement('select', 'username', __('Username'), $demo_users, array('id'=>'username', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
+			$form->addElement('select', 'username', __('Username'), $demo_users, array('id'=>'username', 'class'=>'form-select', 'onChange'=>'this.form.elements["password"].value=this.options[this.selectedIndex].value;'));
 			$form->addElement('hidden', 'password', key($demo_users));
 		} else {
-			$form->addElement('text', 'username', __('Username'),array('id'=>'username'));
-			$form->addElement('password', 'password', __('Password'));
+			$form->addElement('text', 'username', __('Username'),array('id'=>'username', 'class'=>'form-control', 'placeholder'=>__('Username')));
+			$form->addElement('password', 'password', __('Password'), array('class'=>'form-control', 'placeholder'=>__('Password')));
 		}
 
 		// Display warning about storing a cookie
         if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
     		$warning=__('Keep this box unchecked if using a public computer');
 	    	$form->addElement('static','warning',null,$warning);
-		    $form->addElement('checkbox', 'autologin', '',__('Remember me'));
+		    $form->addElement('checkbox', 'autologin', '',__('Remember me'), array('class'=>'form-check-input'));
         }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');
-		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit'));
+		$form->addElement('submit', 'submit_button', __('Login'), array('class'=>'submit btn btn-primary'));
 
         // register and add a rule to check if user is banned
         $form->registerRule('check_user_banned', 'callback', 'rule_login_banned', 'Base_User_LoginCommon');
@@ -117,10 +133,8 @@ class Base_User_Login extends Module {
 		} else {
 			$form->assign_theme('form', $this->theme);
 			$this->theme->assign('mode', 'login');
-
-            $logo = $this->init_module(Base_MainModuleIndicator::module_name());
-            $logo->set_inline_display();
-            $this->theme->assign('logo', $this->get_html_of_module($logo,null,'login_logo'));
+			$this->theme->assign('login_box_msg', __('Sign in to start your session'));
+			$this->assign_logo();
 
 			ob_start();
 			if (!$tpl) {
@@ -130,9 +144,6 @@ class Base_User_Login extends Module {
 			} else
 				Base_ThemeCommon::display_smarty($this->theme->get_smarty(),$tpl[0],$tpl[1]);
 			$ret = ob_get_clean();
-			if(stripos($ret,'Janusz Tylek')===false ||
-			    stripos($ret,'<a href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>')===false
-			    ) trigger_error('Epesi terms of use have been violated',E_USER_ERROR);
 			print($ret);
 		}
 	}
@@ -142,10 +153,10 @@ class Base_User_Login extends Module {
 
 		$form->addElement('header', null, __('Recover password'));
 		$form->addElement('hidden', $this->create_unique_key('mail_recover_pass'), '1');
-		$form->addElement('text', 'username', __('Username'));
-		$form->addElement('text', 'mail', __('E-mail'));
-		$ok_b = & $form->createElement('submit', 'submit_button', __('OK'));
-		$cancel_b = & $form->createElement('button', 'cancel_button', __('Cancel'), $this->create_back_href());
+		$form->addElement('text', 'username', __('Username'), array('class'=>'form-control', 'placeholder'=>__('Username')));
+		$form->addElement('text', 'mail', __('E-mail'), array('class'=>'form-control', 'placeholder'=>__('E-mail')));
+		$ok_b = & $form->createElement('submit', 'submit_button', __('OK'), array('class'=>'btn btn-primary'));
+		$cancel_b = & $form->createElement('button', 'cancel_button', __('Cancel'), 'class="btn btn-secondary" '.$this->create_back_href());
 		$form->addGroup(array($ok_b,$cancel_b),'buttons');
 
 		// require a username
@@ -163,9 +174,12 @@ class Base_User_Login extends Module {
 				$this->theme->assign('message', __('Password reset instructions were sent.').'<br><a '.$this->create_back_href().'>'.__('Login').'</a>');
 		} else {
 			$this->theme->assign('mode', 'recover_pass');
+			$this->theme->assign('login_box_msg', __('Recover password'));
 			$form->assign_theme('form', $this->theme);
 			eval_js("focus_by_id('username')");
 		}
+
+		$this->assign_logo();
 
 		$this->theme->display();
 	}
@@ -181,15 +195,15 @@ class Base_User_Login extends Module {
 		$username = $data['username'];
 
  		if(DEMO_MODE && $username=='admin') {
- 			print('In demo you cannot recover \'admin\' user password. If you want to login please type \'admin\' as password.'); 
+ 			$this->theme->assign('message', __('In demo you cannot recover \'admin\' user password. If you want to login please type \'admin\' as password.'));
 			return false;
  		}
 
 		$user_id = Base_UserCommon::get_user_id($username);
 		DB::Execute('DELETE FROM user_reset_pass WHERE created_on<%T',array(time()-3600*2));
-		
+
 		if($user_id===false) {
-			print('No such user!');
+			$this->theme->assign('message', __('No such user!'));
 			return false;
 		}
 		$hash = md5($user_id.''.openssl_random_pseudo_bytes(100));
@@ -204,7 +218,7 @@ class Base_User_Login extends Module {
 				   __('This e-mail was generated automatically and you do not need to respond to it.');
 		$sendMail = Base_MailCommon::send_critical($mail, $subject, $message);
 		if (!$sendMail) {
-			print(__('Unable to send recovery e-mail. Please contact your administrator.'));
+			$this->theme->assign('message', __('Unable to send recovery e-mail. Please contact your administrator.'));
 		}
 		return $sendMail;
 	}
