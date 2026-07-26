@@ -87,6 +87,25 @@ body {
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: margin-left 0.25s ease-in-out;
+
+	/* AdminLTE ships a light and a dark value for each of these and defaults to
+	   the dark set, which is near-invisible on a light sidebar - labels look
+	   washed out and disappear entirely on hover. Pinning the light values here
+	   fixes AdminLTE's own rules at the source rather than out-specifying every
+	   one of them. */
+	--lte-sidebar-color: #343a40;
+	--lte-sidebar-hover-color: #212529;
+	--lte-sidebar-hover-bg: rgba(0, 0, 0, 0.075);
+	--lte-sidebar-active-color: #000;
+	--lte-sidebar-header-color: #6c757d;
+	--lte-sidebar-menu-active-color: #000;
+	--lte-sidebar-menu-active-bg: rgba(0, 0, 0, 0.075);
+	--lte-sidebar-submenu-bg: transparent;
+	--lte-sidebar-submenu-color: #495057;
+	--lte-sidebar-submenu-hover-color: #212529;
+	--lte-sidebar-submenu-hover-bg: rgba(0, 0, 0, 0.075);
+	--lte-sidebar-submenu-active-color: #212529;
+	--lte-sidebar-submenu-active-bg: rgba(0, 0, 0, 0.075);
 }
 
 .epesi-adminlte .sidebar-brand {
