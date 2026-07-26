@@ -50,6 +50,101 @@ class Base_Menu extends Module {
 	private static $tmp_menu;
 	private $duplicate = false;
 
+	/**
+	 * Renders the menu tree as a static Bootstrap collapse ("accordion") nav.
+	 *
+	 * Utils_Menu's vertical mode is built for a floating menu: submenus are
+	 * hover-triggered fly-outs that menu.js positions with absolute coordinates.
+	 * In a scrolling sidebar that is unusable - and on touch there is no hover at
+	 * all - so adminlte renders its own markup here instead. Nothing else uses
+	 * this path, and Utils_Menu is untouched.
+	 *
+	 * Mirrors build_menu()'s handling of icons, __url__, __split__ and the
+	 * unset() sequence that turns an entry into its own submenu contents, and
+	 * emits the same helpID values so the Base_Help tutorials keep working.
+	 *
+	 * @param array $m menu tree
+	 * @param string $prefix helpID prefix, matching build_menu()
+	 * @param int $depth nesting level, 0 at the top
+	 * @return string HTML
+	 */
+	private function build_menu_html(& $m, $prefix = '', $depth = 0) {
+		$out = '<ul class="nav flex-column' . ($depth ? ' nav-treeview' : ' sidebar-menu') . '">';
+		foreach ($m as $k => $arr) {
+			if ($k == '__split__') {
+				$out .= '<li class="nav-item"><hr class="menu-split"></li>';
+				continue;
+			}
+
+			$icon = null;
+			if (array_key_exists('__icon_small__', $arr)) {
+				$icon = is_readable($arr['__icon_small__'])
+					? $arr['__icon_small__']
+					: Base_ThemeCommon::get_template_file($arr['parent_module'] ?? '', $arr['__icon_small__']);
+				unset($arr['__icon_small__'], $arr['__icon__']);
+			} elseif (array_key_exists('__icon__', $arr)) {
+				$icon = is_readable($arr['__icon__'])
+					? $arr['__icon__']
+					: Base_ThemeCommon::get_template_file($arr['parent_module'] ?? '', $arr['__icon__']);
+				unset($arr['__icon__']);
+			} elseif (isset($arr['parent_module']) && is_string($arr['parent_module'])) {
+				$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
+			}
+			unset($arr['parent_module']);
+
+			$is_sub = array_key_exists('__submenu__', $arr);
+			if (!$icon)
+				$icon = Base_ThemeCommon::get_template_file('Base_Menu', $is_sub ? 'folder.png' : 'element.png');
+
+			$tip = '';
+			if (array_key_exists('__description__', $arr)) {
+				$tip = ' title="' . htmlspecialchars($arr['__description__'], ENT_QUOTES) . '"';
+				unset($arr['__description__']);
+			}
+
+			$target = '';
+			$url = null;
+			if (array_key_exists('__url__', $arr)) {
+				$url = $arr['__url__'];
+				unset($arr['__url__']);
+				if (array_key_exists('__target__', $arr)) {
+					$target = $arr['__target__'];
+					unset($arr['__target__']);
+				} else {
+					$target = '_blank';
+				}
+			}
+
+			$label = htmlspecialchars(_V($k)); // ****** Menu - translate labels
+			$help_id = $prefix . $k;
+			$img = $icon ? '<img class="nav-icon" src="' . htmlspecialchars($icon) . '" alt="">' : '';
+
+			if ($is_sub) {
+				unset($arr['__submenu__']);
+				// ids must be unique and valid, and menu labels are arbitrary text
+				$id = 'epesi_menu_' . md5($help_id);
+				$out .= '<li class="nav-item">'
+					. '<a href="#" class="nav-link menu-parent collapsed" data-bs-toggle="collapse"'
+					. ' data-bs-target="#' . $id . '" aria-expanded="false" aria-controls="' . $id . '"'
+					. ' helpID="' . htmlspecialchars($help_id, ENT_QUOTES) . '"' . $tip . '>'
+					. $img . '<span class="nav-label">' . $label . '</span>'
+					. '<i class="bi bi-chevron-right nav-arrow"></i></a>'
+					. '<div class="collapse" id="' . $id . '">'
+					. $this->build_menu_html($arr, $prefix . $k . '_', $depth + 1)
+					. '</div></li>';
+			} else {
+				$href = $url !== null
+					? $url
+					: 'javascript:' . Base_MenuCommon::create_href_js($this, $arr);
+				$out .= '<li class="nav-item"><a class="nav-link" href="' . htmlspecialchars($href, ENT_QUOTES) . '"'
+					. ($target ? ' target="' . htmlspecialchars($target, ENT_QUOTES) . '"' : '')
+					. ' helpID="' . htmlspecialchars($help_id, ENT_QUOTES) . '"' . $tip . '>'
+					. $img . '<span class="nav-label">' . $label . '</span></a></li>';
+			}
+		}
+		return $out . '</ul>';
+	}
+
 	private function build_menu(& $menu, & $m, $prefix='') {
 		foreach($m as $k=>$arr) {
 			if($k=='__split__')
@@ -182,19 +277,25 @@ class Base_Menu extends Module {
 		// putting all menus into menu array
 		$menu = $home_menu;
 
-		// preparing menu string
-		// adminlte puts the main menu in a sidebar, so it needs Utils/Menu's
-		// vertical layout; every other theme keeps the horizontal menu bar.
-		// quick_access_menu() below deliberately stays horizontal - it lives in
-		// the top navbar under both layouts.
-		$layout = Base_ThemeCommon::get_default_template() == 'adminlte' ? 'vertical' : 'horizontal';
-		$menu_mod = $this->init_module("Utils/Menu", $layout);
-		$this->build_menu($menu_mod,$menu);
-
 		$theme = $this->init_module(Base_Theme::module_name());
 
-		$menu_mod->set_inline_display();
-		$theme->assign('menu', $this->get_html_of_module($menu_mod));
+		if (Base_ThemeCommon::get_default_template() == 'adminlte') {
+			// The whole tree normally hangs off a single "Menu" root, which suits a
+			// top-bar dropdown but collapses an entire sidebar into one row - so the
+			// sidebar is built from $modules_menu directly, putting each top-level
+			// group on screen. Rendered server-side as a Bootstrap accordion rather
+			// than through Utils/Menu, whose submenus are hover fly-outs (see
+			// build_menu_html()). quick_access_menu() below stays horizontal either
+			// way - it lives in the top navbar under both layouts.
+			$sidebar = $modules_menu;
+			unset($sidebar['__submenu__']);
+			$theme->assign('menu', $this->build_menu_html($sidebar, 'Menu_'));
+		} else {
+			$menu_mod = $this->init_module("Utils/Menu", "horizontal");
+			$this->build_menu($menu_mod,$menu);
+			$menu_mod->set_inline_display();
+			$theme->assign('menu', $this->get_html_of_module($menu_mod));
+		}
 
 		$theme->display();
 

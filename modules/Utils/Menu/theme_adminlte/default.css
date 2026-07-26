@@ -1,111 +1,85 @@
-/* Sidebar skin for Utils_Menu's vertical layout.
+/* Sidebar navigation for the adminlte theme.
  *
- * menu.js generates the DOM (table.root of tr/td.item rows, with nested
- * table.custom_opener + table.submenu for fly-out submenus) and is shared with
- * every other theme, so this is purely a re-skin of that generated markup - no
- * markup or JS changes. Class names therefore look nothing like AdminLTE's;
- * they are menu.js's own.
+ * Styles the accordion markup Base_Menu::build_menu_html() emits (nested
+ * ul.nav > li.nav-item with Bootstrap collapse for submenus), not Utils_Menu's
+ * JS-generated fly-outs. It lives under Utils/Menu because that is the module
+ * whose CSS the shell loads for the menu region.
  */
 
-.epesi-adminlte #MenuBar table.root {
-	width: 100%;
-	table-layout: auto;
-	border-collapse: collapse;
-	font-size: 14px;
+.epesi-adminlte #MenuBar .nav {
+	--epesi-menu-indent: 0.9rem;
+	flex-wrap: nowrap;
 }
 
-.epesi-adminlte #MenuBar table.root td.item {
-	display: block;
-	width: 100%;
-}
-
-/* Top-level entries and fly-out entries share these link classes. */
-.epesi-adminlte #MenuBar a.root_item_link,
-.epesi-adminlte #MenuBar a.root_item_link_none,
-.epesi-adminlte #MenuBar a.root_item_link_right {
+.epesi-adminlte #MenuBar .nav-link {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding: 0.55rem 0.9rem;
+	padding: 0.5rem 0.9rem;
 	color: #343a40;
-	text-decoration: none;
-	white-space: nowrap;
+	font-size: 14px;
+	border-radius: 0;
 	/* comfortable tap target */
 	min-height: 44px;
-	cursor: pointer;
 }
 
-.epesi-adminlte #MenuBar a.root_item_link:hover,
-.epesi-adminlte #MenuBar a.root_item_link_none:hover,
-.epesi-adminlte #MenuBar a.root_item_link_right:hover {
+.epesi-adminlte #MenuBar .nav-link:hover,
+.epesi-adminlte #MenuBar .nav-link:focus {
 	background-color: #e9ecef;
 	color: #0d6efd;
 }
 
-.epesi-adminlte #MenuBar .link_icon_box {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 20px;
-	flex: 0 0 20px;
+.epesi-adminlte #MenuBar .nav-link[aria-expanded="true"] {
+	background-color: #f1f3f5;
+	color: #0d6efd;
 }
 
-.epesi-adminlte #MenuBar img.link_icon {
-	max-width: 16px;
-	max-height: 16px;
+.epesi-adminlte #MenuBar .nav-icon {
+	width: 16px;
+	height: 16px;
+	object-fit: contain;
+	flex: 0 0 16px;
 }
 
-/* Separator rows. */
-.epesi-adminlte #MenuBar td.splitter {
-	display: block;
-	height: 1px;
-	margin: 0.35rem 0.75rem;
-	background-color: #dee2e6;
-}
-
-/* A parent item: menu.js wraps it in its own table with the fly-out beside it. */
-.epesi-adminlte #MenuBar table.custom_opener {
-	width: 100%;
-	border-collapse: collapse;
-}
-
-.epesi-adminlte #MenuBar .root_item_link_right_arrow {
+/* Labels wrap rather than overflow a narrow sidebar. */
+.epesi-adminlte #MenuBar .nav-label {
 	flex: 1 1 auto;
-	position: relative;
-	padding-right: 1rem;
+	min-width: 0;
+	overflow-wrap: anywhere;
 }
 
-/* Chevron marking an item that opens a submenu. */
-.epesi-adminlte #MenuBar .root_item_link_right_arrow::after {
-	content: "";
-	position: absolute;
-	right: 0;
-	top: 50%;
-	width: 0;
-	height: 0;
-	margin-top: -4px;
-	border-top: 4px solid transparent;
-	border-bottom: 4px solid transparent;
-	border-left: 5px solid #adb5bd;
+/* Chevron turns down while its section is open. */
+.epesi-adminlte #MenuBar .nav-arrow {
+	flex: 0 0 auto;
+	font-size: 0.7rem;
+	color: #adb5bd;
+	transition: transform 0.2s ease-in-out;
 }
 
-/* Fly-out submenus. menu.js positions and shows/hides these itself, so only
-   their appearance is set here - never their display or position. */
-.epesi-adminlte #MenuBar table.submenu {
-	background-color: #fff;
-	border: 1px solid #dee2e6;
-	border-radius: 0.375rem;
-	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-	padding: 0.25rem 0;
-	border-collapse: separate;
-	z-index: 1050;
+.epesi-adminlte #MenuBar .nav-link[aria-expanded="true"] .nav-arrow {
+	transform: rotate(90deg);
 }
 
-.epesi-adminlte #MenuBar table.submenu td.item {
-	display: block;
-	min-width: 180px;
+/* Each nesting level indents; the tree can go several deep. */
+.epesi-adminlte #MenuBar .nav-treeview .nav-link {
+	padding-left: calc(0.9rem + var(--epesi-menu-indent));
 }
 
-.epesi-adminlte #MenuBar td.item_sub {
-	padding: 0;
+.epesi-adminlte #MenuBar .nav-treeview .nav-treeview .nav-link {
+	padding-left: calc(0.9rem + 2 * var(--epesi-menu-indent));
+}
+
+.epesi-adminlte #MenuBar .nav-treeview .nav-treeview .nav-treeview .nav-link {
+	padding-left: calc(0.9rem + 3 * var(--epesi-menu-indent));
+}
+
+.epesi-adminlte #MenuBar .nav-treeview .nav-link {
+	font-size: 13px;
+	min-height: 40px;
+}
+
+.epesi-adminlte #MenuBar hr.menu-split {
+	margin: 0.35rem 0.9rem;
+	border-top: 1px solid #dee2e6;
+	opacity: 1;
 }
