@@ -1,6 +1,6 @@
 <?php
 /* CSS loader for the vendored Bootstrap Icons stylesheet - same trick Epesi
-   already uses for theme CSS (see modules/Base/Theme/css.php).
+   uses for module CSS (see modules/Base/Theme/theme_css.php).
 
    bootstrap-icons.min.css declares its @font-face sources as url("fonts/..."),
    which the browser resolves relative to the stylesheet's own URL. Served
