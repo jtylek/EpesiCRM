@@ -90,7 +90,12 @@ class Base_ThemeCommon extends ModuleCommon {
 				if (isset($css)) {
 					$adminlte_css_rel = 'modules/'.dirname($css).'/theme_adminlte/'.basename($css);
 					if (is_readable(EPESI_LOCAL_DIR.'/'.$adminlte_css_rel))
-						load_css($adminlte_css_rel, dirname($adminlte_tpl_rel).'/__css.php');
+						// The data/-theme __css.php "loader" scripts (see the fallback
+						// path below) only chdir to the project root and require
+						// serve.php - that's exactly the default loader load_css()
+						// already uses when none is given, so no custom loader script
+						// needs to exist under theme_adminlte/ for this to work.
+						load_css($adminlte_css_rel);
 				}
 				return;
 			}

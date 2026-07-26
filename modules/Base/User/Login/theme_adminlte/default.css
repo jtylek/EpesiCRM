@@ -3,8 +3,8 @@
    than relying on AdminLTE's own body.login-page rules. */
 
 .login-page-adminlte {
-	min-height: calc(100vh - 20px);
-	padding: 2rem 1rem;
+	min-height: 100vh;
+	padding: 0;
 	background-color: #ffffff;
 	/* Epesi's global body{font-size:13px} would otherwise shrink all of
 	   Bootstrap/AdminLTE's rem-based sizing on this page; restore a normal
@@ -25,33 +25,56 @@ body:has(.login-page-adminlte) #body_content {
 
 .login-page-adminlte .login-box {
 	width: 100%;
-	max-width: 600px;
+	max-width: 650px;
 }
 
 .login-page-adminlte .login-logo {
 	text-align: center;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.25rem;
 }
 
 .login-page-adminlte .login-logo img {
-	/* height:auto (with only max-width/max-height as caps, no fixed width)
-	   keeps the image's original 550:200 aspect ratio - it can only shrink
-	   uniformly, never stretch/distort. */
+	/* Displayed at its native 550x200 size (matches the img tag's own
+	   width/height attributes) - max-width:100% is only a responsive
+	   safety net so it shrinks instead of overflowing on narrow viewports,
+	   it never enlarges or otherwise alters the original dimensions. */
 	max-width: 100%;
-	width: auto;
 	height: auto;
-	max-height: 120px;
 }
 
 .login-page-adminlte .login-box-msg {
 	text-align: center;
-	margin-bottom: 1rem;
+	margin-bottom: 0.5rem;
 	color: #6c757d;
+}
+
+/* Each field carries an always-present error line that QuickForm only fills in
+   client-side, so until then it sits there as an empty row padding out the gap
+   above every field. Collapse it while its .form_error span has no content; it
+   reappears on its own the moment an error is written into it. */
+.login-page-adminlte .text-danger:has(.form_error:empty) {
+	display: none;
+}
+
+/* Input rows (username/password, and username/mail on the recover screen)
+   take up half the card width instead of spanning it edge to edge. Centered
+   to match the rest of the card's centered content, with the error line above
+   each field centered too so the two stay visually tied together. */
+.login-page-adminlte .input-group {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.login-page-adminlte .text-danger {
+	text-align: center;
 }
 
 .login-page-adminlte .card {
 	border-top: none !important;
 	background-color: #f4f6f9;
+	overflow: hidden;
+	box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.25);
 }
 
 .login-page-adminlte .form-check {

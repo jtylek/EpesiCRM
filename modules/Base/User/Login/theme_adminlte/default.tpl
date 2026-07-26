@@ -5,11 +5,11 @@
 {$form_data.javascript}
 <div class="login-page-adminlte d-flex align-items-center justify-content-center">
 	<div class="login-box">
-		<div class="login-logo">
-			{$logo}
-		</div>
 		<div class="card">
 			<div class="card-body login-card-body">
+				<div class="login-logo">
+					{$logo}
+				</div>
 {if $is_demo}
 				<div class="alert alert-warning text-center py-1 mb-3"><strong>EPESI DEMO APPLICATION</strong></div>
 {/if}
@@ -30,7 +30,7 @@
 					{$form_data.mail.html}
 					<div class="input-group-text"><i class="bi bi-envelope"></i></div>
 				</div>
-				<div class="d-flex gap-2">
+				<div class="d-flex justify-content-center gap-2">
 					{$form_data.buttons.html}
 				</div>
 	{else}
@@ -45,7 +45,7 @@
 					{$form_data.password.html}
 					<div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
 				</div>
-				<div class="d-flex justify-content-end align-items-center gap-3">
+				<div class="d-flex justify-content-center align-items-center gap-3">
 {if isset($form_data.autologin)}
 					<div class="form-check mb-0">
 						{$form_data.autologin.html}
@@ -54,21 +54,19 @@
 					{$form_data.submit_button.html}
 				</div>
 {if isset($form_data.warning)}
-				<div class="form-text text-muted small mt-1">{$form_data.warning.html}</div>
+				<div class="form-text text-muted small mt-1 text-center">{$form_data.warning.html}</div>
 {/if}
 	{/if}
 	</form>
 				<p class="mt-3 mb-1 text-center">{$form_data.recover_password.html}</p>
 {/if}
-{if isset($donation_note)}
-				<p class="text-center text-muted small mt-2 mb-0">{$donation_note}</p>
-{/if}
 			</div>
 		</div>
 		<p class="text-center text-muted small mt-3 mb-0">
-			Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek
-			&middot;
-			<a class="text-muted" href="http://epe.si/"><img src="images/epesi-powered.png" alt="EPESI powered" height="14"></a>
+			Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek & Karina Tylek
+		</p>
+		<p class="text-center mt-1 mb-0">
+			<a href="http://epesibim.com/"><img src="images/epesi-powered.png" alt="EPESI powered" height="14"></a>
 		</p>
 	</div>
 </div>
