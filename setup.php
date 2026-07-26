@@ -536,8 +536,11 @@ define(\'INSTALLATION_ID\',\''.md5(__FILE__ . strval(microtime(true))).'\');
 	// On a completely fresh data/ directory (matching what .gitignore
 	// excludes, or a from-scratch distribution package) this crashes with
 	// a Smarty fatal before the user ever reaches that step.
-	if (!is_dir(DATA_DIR.'/Base_Theme/compiled'))
-		mkdir(DATA_DIR.'/Base_Theme/compiled', 0777, true);
+	// include/config.php (which defines TEMP_DIR) isn't require'd until later
+	// in this script (see below) - inline the same 'temp/'.DATA_DIR formula.
+	$temp_dir = defined('TEMP_DIR') ? TEMP_DIR : 'temp/'.DATA_DIR;
+	if (!is_dir($temp_dir.'/Base_Theme/compiled'))
+		mkdir($temp_dir.'/Base_Theme/compiled', 0777, true);
 
 	ob_start();
 	ob_start('rm_config');

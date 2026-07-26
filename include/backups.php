@@ -67,7 +67,9 @@ class BackupUtil {
 
     private function _create_backup($files, $description, Backup $backup) {
         $this->_chdir_to_epesi();
-        $exclude = array($this->_backup_dir, DATA_DIR . '/cache');
+        // '^temp/' is anchored: _is_excluded() does a bare substring preg_match,
+        // and an unanchored 'temp' would also match e.g. data/Base_Theme/templates/.
+        $exclude = array($this->_backup_dir, DATA_DIR . '/cache', '^temp/');
         $success = $backup->create($files, $description, $exclude);
         $this->_chdir_back();
         return $success ? $backup : false;

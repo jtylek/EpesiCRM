@@ -55,8 +55,9 @@ if(IPHONE && !isset($_GET['force_desktop'])) {
 require_once('modules/Base/Theme/smarty/Smarty.class.php');
 $smarty = new Smarty();
 $smarty->template_dir = 'theme';
-$smarty->compile_dir = DATA_DIR.'/Base_Theme/compiled/';
+$smarty->compile_dir = TEMP_DIR.'/Base_Theme/compiled/';
 $smarty->compile_id = 'root';
+if (!is_dir($smarty->compile_dir)) mkdir($smarty->compile_dir, 0777, true);
 
 $smarty->assign('EPESI', EPESI);
 $smarty->assign('IPHONE', (bool)IPHONE);

@@ -65,6 +65,13 @@ mb_internal_encoding("UTF-8");
 
 $local_dir = dirname(str_replace('\\','/',__FILE__), 2);
 define('EPESI_LOCAL_DIR',$local_dir);
+
+// Runtime-generated files (Smarty compile/cache/config) don't belong in
+// DATA_DIR: kept in a separate top-level temp/ tree instead, nested by
+// DATA_DIR so multi-tenant installs sharing one codebase (see
+// include/data_dir.php) don't collide, and excludable from data backups
+// (BackupUtil - see include/backups.php) in one shot.
+if(!defined('TEMP_DIR')) define('TEMP_DIR','temp/'.DATA_DIR);
 $script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 $detection_failed = strcmp($local_dir,substr($script_filename,0,strlen($local_dir)));
 if(!defined('EPESI_DIR')) {

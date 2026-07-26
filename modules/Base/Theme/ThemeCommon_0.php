@@ -28,10 +28,11 @@ class Base_ThemeCommon extends ModuleCommon {
 		$theme = self::get_default_template();
 
 		$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$theme;
-		$smarty->compile_dir = DATA_DIR.'/Base_Theme/compiled/';
+		$smarty->compile_dir = TEMP_DIR.'/Base_Theme/compiled/';
 		$smarty->compile_id = $theme;
-		$smarty->config_dir = DATA_DIR.'/Base_Theme/config/';
-		$smarty->cache_dir = DATA_DIR.'/Base_Theme/cache/';
+		$smarty->config_dir = TEMP_DIR.'/Base_Theme/config/';
+		$smarty->cache_dir = TEMP_DIR.'/Base_Theme/cache/';
+		if (!is_dir($smarty->compile_dir)) mkdir($smarty->compile_dir, 0777, true);
         
         $smarty->register_modifier('t', array(__CLASS__, 'smarty_modifier_translate'));
 		return $smarty;
@@ -66,7 +67,34 @@ class Base_ThemeCommon extends ModuleCommon {
 			$tpl = $module_name.'.tpl';
 			$css = $module_name.'.css';
 		}
-		
+
+		// adminlte theme only (deliberately narrow rollout while this theme is
+		// under active development): serve straight from modules/<path>/theme_adminlte/
+		// when that module has an override there, bypassing the data/Base_Theme/templates/
+		// copy entirely so template/CSS edits take effect immediately - no "Theme
+		// update" run needed. Falls through to the unchanged data/-based resolution
+		// below for any module without an adminlte-specific override, and this
+		// block is a complete no-op for every other theme.
+		if (self::get_default_template() === 'adminlte') {
+			// theme_dir / load_css() need a project-root-relative path (they end up
+			// in the browser as a URL served via serve.php), but Smarty 2.x's file:
+			// resource handler only special-cases genuinely absolute paths
+			// (regex-checked against a leading "/" or a Windows drive letter) - a
+			// relative "modules/..." string gets resolved against template_dir
+			// instead of cwd, so display() specifically needs the absolute form.
+			$adminlte_tpl_rel = 'modules/'.dirname($tpl).'/theme_adminlte/'.basename($tpl);
+			$adminlte_tpl_abs = EPESI_LOCAL_DIR.'/'.$adminlte_tpl_rel;
+			if (is_readable($adminlte_tpl_abs)) {
+				$smarty->assign('theme_dir', dirname($adminlte_tpl_rel));
+				$smarty->display('file:'.$adminlte_tpl_abs);
+				if (isset($css)) {
+					$adminlte_css_rel = 'modules/'.dirname($css).'/theme_adminlte/'.basename($css);
+					if (is_readable(EPESI_LOCAL_DIR.'/'.$adminlte_css_rel))
+						load_css($adminlte_css_rel, dirname($adminlte_tpl_rel).'/__css.php');
+				}
+				return;
+			}
+		}
 
 		if($smarty->template_exists($tpl)) {
 			$smarty->assign('theme_dir',$smarty->template_dir);
@@ -214,9 +242,22 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * @return bool true on success, false otherwise
 	 */
 	public static function load_css($module_name,$css_name = 'default',$trig_error=true) {
-		if(!isset($module_name)) 
+		if(!isset($module_name))
 			trigger_error('Invalid argument for load_css, no module was specified.',E_USER_ERROR);
-		
+
+		// adminlte theme only - same reasoning as display_smarty() above: prefer
+		// modules/<path>/theme_adminlte/<css> directly when it exists, so CSS
+		// loaded independently of a template render (e.g. via a raw
+		// Base_ThemeCommon::load_css('Module') call) also skips the data/ copy.
+		if (self::get_default_template() === 'adminlte') {
+			$path = str_replace('_','/',$module_name);
+			$adminlte_css = 'modules/'.$path.'/theme_adminlte/'.$css_name.'.css';
+			if (is_readable($adminlte_css)) {
+				load_css($adminlte_css, self::get_template_dir().'__css.php');
+				return true;
+			}
+		}
+
 		$css = self::get_template_file($module_name,$css_name.'.css');
 		if ($css) {
 			load_css($css,self::get_template_dir().'__css.php');

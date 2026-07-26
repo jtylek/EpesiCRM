@@ -62,6 +62,7 @@ class CreateDistCommand extends Command
             '^\.github(' . $sep . '|$)',
             '^\.history(' . $sep . '|$)',
             '^data' . $sep . '.+', // keep the data/ directory entry itself, drop everything inside it
+            '^temp(' . $sep . '|$)', // Smarty compile/cache/config output (see TEMP_DIR) - regenerated on first request
             '^[^' . $sep_chars . ']+\.zip$', // any leftover distribution/test zip sitting at the project root
             '^(?!README\.md$)[^' . $sep_chars . ']+\.md$', // root-level docs other than README.md
             // root-level dev/CI tooling that has no business in a runtime distribution.
