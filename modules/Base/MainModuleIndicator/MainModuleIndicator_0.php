@@ -43,7 +43,19 @@ class Base_MainModuleIndicator extends Module {
 				$t->assign('text', '');
 				eval_js('document.title=\''.addslashes(Variable::get('base_page_title')).'\'');
 		}
-		
+
+		// Only consumed by the adminlte theme (a Bootstrap Icon next to the
+		// caption) - the default theme's own default.tpl doesn't reference it.
+		// module_icon mirrors the caption()-delegation pattern above (a module
+		// like CRM_Contacts or Base_HomePage can expose an icon() method that
+		// points at the actual active table/page's own icon, e.g. Companies vs
+		// Contacts) - it takes priority in Base_AdminlteIcons::resolve() over
+		// module_type, the same order Base_Menu's build_menu_html() already
+		// uses (per-link icon first, module fallback second), so this bar's
+		// icon can't disagree with the sidebar's for the same screen.
+		$t->assign('module_icon', ($active_module && is_callable(array($active_module,'icon'))) ? $active_module->icon() : null);
+		$t->assign('module_type', (isset($active_module) && $active_module) ? $active_module->get_type() : null);
+
 		$t->display();
 	}
 	

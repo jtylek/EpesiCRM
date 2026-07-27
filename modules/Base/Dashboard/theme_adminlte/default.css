@@ -9,12 +9,24 @@
 
 .epesi-applet-card {
 	overflow: hidden;
+	/* !important: Bootstrap's .card rule (equal specificity, single class)
+	   sets the whole border as one shorthand (width+style+color from
+	   --bs-card-border-width/--bs-border-color), which - same load-order
+	   problem as .epesi-applet-header's padding above - can silently win over
+	   plain border-width/border-color longhands here and elsewhere below. */
+	border-width: 2px !important;
+	box-shadow: 0 0 6px rgba(0, 0, 0, 0.12);
 }
 
 .epesi-applet-header {
 	background-color: #f8f9fa;
 	border-bottom: 1px solid #dee2e6;
-	padding: 0.05rem 0.5rem;
+	/* !important: Bootstrap's own .card-header rule (equal specificity, single
+	   class) sets padding from --bs-card-cap-padding-y/-x (0.5rem/1rem by
+	   default) - without this, load order between this file and
+	   bootstrap.min.css decides which wins, so the header's height would be
+	   at the mercy of that instead of always matching this theme's design. */
+	padding: 4px 0.5rem !important;
 	font-size: 1rem;
 	line-height: 1;
 }
@@ -99,44 +111,65 @@
 }
 
 .epesi-applet-body {
-	background-color: #fff;
+	background-color: #f8f9fa;
+	/* !important: the .tpl's own "p-2" utility class (Bootstrap, !important
+	   already) would otherwise still leave 0.5rem on every side - zeroed here
+	   instead so table-based applet content (GenericBrowser etc.) can run
+	   edge-to-edge inside the card, matching the card's own rounded corners. */
+	padding: 0 !important;
 }
 
 /* Colour accent (was a 4px border around the whole card in the default
    theme) - kept as the same hex values, applied to the header instead so it
-   reads as a normal Bootstrap card-header rather than a coloured frame. */
+   reads as a normal Bootstrap card-header rather than a coloured frame. The
+   card's own border is set to that same colour (not just the header) so the
+   whole box reads as one coloured unit instead of a coloured cap on an
+   otherwise neutral-gray card - and its box-shadow (overriding .epesi-applet-
+   card's default neutral one, same specificity/load-order reasoning as
+   border-color above) is tinted to match, rather than a plain gray shadow
+   under a coloured frame. */
+.epesi-applet-black { border-color: #5B5B5B !important; box-shadow: 0 0 6px rgba(91, 91, 91, 0.5) !important; }
 .epesi-applet-black .epesi-applet-header { background-color: #5B5B5B; color: #fff; }
 .epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-black .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-blue { border-color: #7B9CBD !important; box-shadow: 0 0 6px rgba(123, 156, 189, 0.5) !important; }
 .epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD; color: #fff; }
 .epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-blue .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-dark-blue { border-color: #346799 !important; box-shadow: 0 0 6px rgba(52, 103, 153, 0.5) !important; }
 .epesi-applet-dark-blue .epesi-applet-header { background-color: #346799; color: #fff; }
 .epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-dark-gray { border-color: #8C8C8C !important; box-shadow: 0 0 6px rgba(140, 140, 140, 0.5) !important; }
 .epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C; color: #fff; }
 .epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-green { border-color: #A8CC8E !important; box-shadow: 0 0 6px rgba(168, 204, 142, 0.5) !important; }
 .epesi-applet-green .epesi-applet-header { background-color: #A8CC8E; color: #212529; }
 
+.epesi-applet-dark-green { border-color: #4A7C2A !important; box-shadow: 0 0 6px rgba(74, 124, 42, 0.5) !important; }
 .epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A; color: #fff; }
 .epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-red { border-color: #BD7B7B !important; box-shadow: 0 0 6px rgba(189, 123, 123, 0.5) !important; }
 .epesi-applet-red .epesi-applet-header { background-color: #BD7B7B; color: #fff; }
 .epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-red .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-dark-red { border-color: #990033 !important; box-shadow: 0 0 6px rgba(153, 0, 51, 0.5) !important; }
 .epesi-applet-dark-red .epesi-applet-header { background-color: #990033; color: #fff; }
 .epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
 .epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff; }
 
+.epesi-applet-yellow { border-color: #F2F2A2 !important; box-shadow: 0 0 6px rgba(242, 242, 162, 0.5) !important; }
 .epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2; color: #212529; }
 
+.epesi-applet-dark-yellow { border-color: #CCCC33 !important; box-shadow: 0 0 6px rgba(204, 204, 51, 0.5) !important; }
 .epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33; color: #212529; }
 
 /* carried forward from the default theme (unchanged) - strips decorative
@@ -162,6 +195,7 @@
 
 #dashboard {
 	padding-top: 0.25rem;
+	background-color: #f4f6f9;
 }
 
 /* Dashboard_0.php prints exactly 3 sibling column divs directly inside

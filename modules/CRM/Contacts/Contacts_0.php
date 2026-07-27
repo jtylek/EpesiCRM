@@ -317,5 +317,8 @@ class CRM_Contacts extends Module {
 	public function caption(){
 		if (isset($this->rb)) return $this->rb->caption();
 	}
+	public function icon(){
+		if (isset($this->rb)) return $this->rb->icon();
+	}
 }
 ?>

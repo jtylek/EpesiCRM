@@ -1,0 +1,27 @@
+/* AdminLTE re-skin for Utils_RecordBrowser's Browsing_records - the header
+ * strip printed above every record-list table. Icon+caption removed per
+ * request (see Browsing_records.tpl); what's left is just the view-mode
+ * picker (left) and the Utils_RecordBrowser_Filters show/hide controls
+ * (right) - that module has its own adminlte theme for the filter form
+ * itself (modules/Utils/RecordBrowser/Filters/theme_adminlte/).
+ */
+
+.epesi-br-top {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-br-viewmode {
+	margin-right: auto;
+}
+
+.epesi-br-viewmode select {
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	padding: 0.2rem 0.4rem;
+	font-size: 0.8rem;
+}

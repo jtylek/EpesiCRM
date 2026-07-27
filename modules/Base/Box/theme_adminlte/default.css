@@ -241,6 +241,13 @@ body {
 	padding-top: calc(var(--epesi-header-height) + var(--epesi-actionbar-height));
 	min-height: 100vh;
 	transition: margin-left 0.25s ease-in-out;
+	/* .app-main is the element guaranteed to be at least one viewport tall
+	   (min-height:100vh above) - set directly here rather than relying on it
+	   inheriting from body, so a short screen's leftover space below
+	   .app-content (itself only as tall as that screen's own content) can't
+	   show through as white regardless of how tall body's own box ends up
+	   being computed. */
+	background-color: #f4f6f9;
 }
 
 /* Docked under the navbar rather than scrolling away with the page content -
@@ -261,12 +268,22 @@ body {
 	z-index: 1030;
 	background-color: #fff;
 	border-bottom: 1px solid #dee2e6;
+	/* The default theme dropped a shadow band under its fixed bars (actual
+	   gradient PNGs - images/shadow/b.png - repeated across the width); a
+	   plain CSS drop shadow gets the same "floating above the content"
+	   effect without needing image assets. */
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 	padding: 0.15rem 0;
 	transition: left 0.25s ease-in-out;
 }
 
 .epesi-adminlte .app-content {
 	padding: 1rem 0;
+	/* Matches body's own background - without it, this column showed as
+	   white in the gap above/around content that isn't covered by whatever
+	   the current screen's own module CSS fills in (e.g. Dashboard's
+	   #dashboard only covers its own box, not the content column around it). */
+	background-color: #f4f6f9;
 }
 
 /* The default theme centred content in a fixed-width table; content is now

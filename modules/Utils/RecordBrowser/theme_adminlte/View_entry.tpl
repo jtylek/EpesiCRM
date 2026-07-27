@@ -34,10 +34,11 @@
    screens). *}
 {if $main_page}
 <div class="epesi-rv-header">
-	<div class="epesi-rv-title">
-		<img alt="" class="epesi-rv-icon" src="{$icon}">
-		<span class="epesi-rv-caption">{$caption}</span>
-	</div>
+	{* Per request: module icon + caption ("Contacts") dropped from this
+	   header, same as Browsing_records.tpl - $icon/$caption are still
+	   assigned by RecordBrowser_0.php (shared with the default theme), just
+	   not rendered here. The required-note/tooltips row is unrelated chrome
+	   and stays. *}
 	<div class="epesi-rv-tools">
 		*&nbsp;{$required_note}
 		{if isset($subscription_tooltip)}

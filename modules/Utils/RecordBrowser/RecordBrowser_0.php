@@ -674,7 +674,13 @@ class Utils_RecordBrowser extends Module {
         $this->set_module_variable('order_stuff',$order?$order:array());
 
         $custom_label = '';
-        if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false) {
+        // Skipped under adminlte: that theme already shows an equivalent "New"
+        // ActionBar button (Base_ActionBarCommon::add('add', ...) above, same
+        // get_access('add', ...) guard) for this exact case, so this icon+
+        // "Add new" link above the table would be a pure duplicate there. The
+        // default theme still renders it as before.
+        if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false
+                && Base_ThemeCommon::get_default_template() !== 'adminlte') {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href($this->navigate(...), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
@@ -2552,6 +2558,14 @@ class Utils_RecordBrowser extends Module {
     }
     public function caption(){
         return $this->caption . ': ' . _V($this->action);
+    }
+    // Exposes the per-table icon (recordbrowser_table_properties.icon, e.g.
+    // "companies.png" vs "icon.png" for the same module's different tables)
+    // so callers outside this module - MainModuleIndicator's adminlte theme -
+    // can tell tables apart the same way Base_Menu's per-link __icon__
+    // override does, instead of only knowing the wrapping module's type.
+    public function icon(){
+        return $this->icon;
     }
     public function recordpicker($element, $format, $crits=array(), $cols=array(), $order=array(), $filters=array(), $select_form = '') {
         $this->init();

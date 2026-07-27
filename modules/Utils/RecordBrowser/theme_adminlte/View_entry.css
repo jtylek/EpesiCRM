@@ -21,24 +21,6 @@
 	margin-bottom: 0.75rem;
 }
 
-.epesi-rv-title {
-	display: flex;
-	align-items: center;
-	gap: 0.6rem;
-}
-
-.epesi-rv-icon {
-	width: 32px;
-	height: 32px;
-	object-fit: contain;
-}
-
-.epesi-rv-caption {
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #212529;
-}
-
 .epesi-rv-tools {
 	display: flex;
 	align-items: center;

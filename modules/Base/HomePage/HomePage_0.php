@@ -26,6 +26,9 @@ class Base_HomePage extends Module {
 	public function caption() {
 		if (isset($this->m)) return $this->m->caption();
 	}
+	public function icon() {
+		if (isset($this->m) && is_callable(array($this->m,'icon'))) return $this->m->icon();
+	}
 
 	public function admin() {
 		if ($this->is_back()) {
