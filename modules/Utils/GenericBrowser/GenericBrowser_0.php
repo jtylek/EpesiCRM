@@ -76,7 +76,6 @@ class Utils_GenericBrowser extends Module {
 	 * width - width of the column (percentage of the whole table)
 	 * search - sql column by which search should be performed
 	 * order - sql column by which order should be deterined
-	 * quickjump - sql column by which quickjump should be navigated
 	 * wrapmode - what wrap method should be used (nowrap, wrap, cut)
 	 *
 	 * @param array $arg columns definiton
@@ -432,11 +431,6 @@ class Utils_GenericBrowser extends Module {
 	public function get_search_query( $array = false, $separate=false){
 		$search = $this->get_module_variable('search');
 
-		$this->get_module_variable_or_unique_href_variable('quickjump_to');
-		$quickjump = $this->get_module_variable('quickjump');
-		$quickjump_to = $this->get_module_variable('quickjump_to');
-		$this->set_module_variable('quickjump_to',$quickjump_to);
-
 		if (!$array) {
 			$where = '';
 		} else {
@@ -475,33 +469,6 @@ class Utils_GenericBrowser extends Module {
 						$where[$v['search']][] = $search[$v['search']];
 				}
 		}
- 		if (isset($quickjump) && $quickjump_to!='') {
- 			if ($quickjump_to=='0') {
-	 			if (!$array) {
-					$where = ($where?'('.$where.') AND':'').' (false';
-					foreach(range(0,9) as $v)
-						$where .= 	' OR '
-									.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr($v)),'\'%\'');
-					$where .= 	')';
-					if ($where) $where = ' ('.$where.')';
-	 			} else {
-					$where[$quickjump] = array();
-					foreach(range(0,9) as $v)
-						$where[$quickjump][] = DB::qstr($v.'%');
-	 			}
- 			} else {
-	 			if (!$array) {
-					$where = ($where?'('.$where.') AND':'').' ('
-								.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr($quickjump_to)),'\'%\'')
-								.' OR '
-								.$quickjump.' '.DB::like().' '.DB::Concat(sprintf('%s',DB::qstr(strtolower($quickjump_to))),'\'%\'').
-								')';
-					if ($where) $where = ' ('.$where.')';
-	 			} else {
-					$where[$quickjump] = array(DB::Concat(DB::qstr($quickjump_to),DB::qstr('%')),DB::Concat(DB::qstr(strtolower($quickjump_to)),DB::qstr('%')));
-	 			}
- 			}
-		}
 		return $where;
 	}
 
@@ -514,25 +481,10 @@ class Utils_GenericBrowser extends Module {
 
 	private function check_if_row_fits_array($row,$adv){
 		$search = $this->get_module_variable('search');
-		$this->get_module_variable_or_unique_href_variable('quickjump_to');
-		$quickjump = $this->get_module_variable('quickjump');
-		$quickjump_to = $this->get_module_variable('quickjump_to');
-		$this->set_module_variable('quickjump_to',$quickjump_to);
 
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
- 		if (isset($quickjump) && $quickjump_to!='') {
-			foreach($this->columns as $k=>$v){
-				if (isset($v['quickjump'])){
-					$r = strip_tags($row[$k]);
-	 				if (!isset($r[0]) ||
-	 					($quickjump_to != $r[0] &&
-	 					strtolower($quickjump_to) != $r[0]))
-	 					return false;
-				}
-			}
- 		}
 		if (!$adv){
 			if (!isset($search['__keyword__']) || $search['__keyword__']=='') return true;
 			$ret = true;
@@ -882,10 +834,6 @@ class Utils_GenericBrowser extends Module {
 			if (!isset($this->columns[$k]['width'])) $this->columns[$k]['width'] = 100;
 			if (!is_numeric($this->columns[$k]['width'])) continue;
 			$all_width += $this->columns[$k]['width'];
-			if (isset($v['quickjump'])) {
-				$quickjump = $this->set_module_variable('quickjump',$v['quickjump']);
-				$quickjump_col = $k;
-			}
 		}
 		$i = 0;
 		$is_order = false;
@@ -1000,7 +948,6 @@ class Utils_GenericBrowser extends Module {
 				}
 				$col[$k]['attrs'] .= ' class="Utils_GenericBrowser__td '.($v['class'] ?? '').'"';
 				$col[$k]['attrs'] .= isset($v['style'])? ' style="'.$v['style'].'"':'';
-				if (isset($quickjump_col) && $k==$quickjump_col) $col[$k]['attrs'] .= ' class="Utils_GenericBrowser__quickjump"';
 				if ((!isset($this->columns[$k]['wrapmode']) || $this->columns[$k]['wrapmode']!='cut') && isset($v['hint'])) $col[$k]['attrs'] .= ' title="'.$v['hint'].'"';
 				$col[$k]['attrs'] .= (isset($this->columns[$k]['wrapmode']) && $this->columns[$k]['wrapmode']=='nowrap')?' nowrap':'';
 				if ($all_width!=0)
@@ -1028,27 +975,6 @@ class Utils_GenericBrowser extends Module {
 			if(isset($this->rows_jses[$i]))
 				eval_js($this->rows_jses[$i]);
 		}
-		if (isset($quickjump)) {
-			$quickjump_to = $this->get_module_variable('quickjump_to');
-			$all = '<span class="all">'.__('All').'</span>';
-			if (isset($quickjump_to) && $quickjump_to != '') $all = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'')).'>'.__('All').'</a>';
-			$letter_links = array(0 => $all);
-			if ($quickjump_to != '0')
-				$letter_links[] = '<a class="all" '.$this->create_unique_href(array('quickjump_to'=>'0')).'>'.'123'.'</a>';
-			else
-				$letter_links[] = '<span class="all">' . '123' . '</span>';
-			$letter = 'A';
-			while ($letter<='Z') {
-				if ($quickjump_to != $letter)
-					$letter_links[] = '<a class="letter" '.$this->create_unique_href(array('quickjump_to'=>$letter)).'>'.$letter.'</a>';
-				else
-					$letter_links[] = '<span class="letter">' . $letter . '</span>';
-				$letter = chr(ord($letter)+1);
-			}
-			$theme->assign('letter_links', $letter_links);
-			$theme->assign('quickjump_to', $quickjump_to);
-		}
-
 		$theme->assign('data', $out_data);
 		$theme->assign('cols', $out_headers);
 

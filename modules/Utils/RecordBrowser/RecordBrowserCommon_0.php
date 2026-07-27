@@ -1193,9 +1193,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (is_array($callback)) $callback = implode('::',$callback);
         DB::Execute('DELETE FROM recordbrowser_processing_methods WHERE tab=%s AND func=%s', array($tab, $callback));
     }
-    public static function set_quickjump($tab, $col_name) {
-        DB::Execute('UPDATE recordbrowser_table_properties SET quickjump=%s WHERE tab=%s', array($col_name, $tab));
-    }
     public static function set_tpl($tab, $filename) {
         DB::Execute('UPDATE recordbrowser_table_properties SET tpl=%s WHERE tab=%s', array($filename, $tab));
     }

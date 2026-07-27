@@ -103,7 +103,7 @@ class Utils_CommonData extends Module {
 
 		$gb->set_table_columns(array(
 						array('name'=>__('Position'),'width'=>5, 'order'=>'position'),
-						array('name'=>__('Key'),'width'=>20, 'order'=>'akey','search'=>1,'quickjump'=>'akey'),
+						array('name'=>__('Key'),'width'=>20, 'order'=>'akey','search'=>1),
 						array('name'=>__('Value'),'width'=>20, 'order'=>'value','search'=>1)
 					));
 

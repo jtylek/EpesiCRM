@@ -1,0 +1,154 @@
+/* AdminLTE re-skin for Utils_GenericBrowser (the record-list/audit-log table
+ * widget used all over the app, e.g. CRM_LoginAudit). Only the chrome around
+ * the table changes here - the <table class="Utils_GenericBrowser"> markup
+ * itself is emitted identically to the default theme by {html_table_epesi},
+ * so js/col_resizable.js and js/table_overflow.js need no changes.
+ */
+
+.epesi-gb {
+	overflow: visible;
+}
+
+.epesi-gb .card-header,
+.epesi-gb .card-footer {
+	background-color: #f8f9fa;
+}
+
+.epesi-gb-label {
+	font-weight: 600;
+	color: #343a40;
+}
+
+/* ---- search ---- */
+
+.epesi-gb-search input[type="text"],
+.epesi-gb-search select {
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.85rem;
+}
+
+.epesi-gb-search input[type="text"]:focus,
+.epesi-gb-search select:focus {
+	border-color: #86b7fe;
+	outline: 0;
+}
+
+.epesi-gb-search input[type="submit"],
+.epesi-gb-search input[type="button"],
+.epesi-gb-adv .button {
+	border: 1px solid #6c757d;
+	border-radius: 0.25rem;
+	background-color: #fff;
+	color: #495057;
+	padding: 0.25rem 0.6rem;
+	font-size: 0.85rem;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.epesi-gb-search input[type="submit"]:hover,
+.epesi-gb-search input[type="button"]:hover,
+.epesi-gb-adv .button:hover {
+	background-color: #e9ecef;
+}
+
+/* ---- table ---- */
+
+.epesi-gb table.Utils_GenericBrowser {
+	background-color: #fff;
+	border: none;
+}
+
+.epesi-gb table.Utils_GenericBrowser > thead > tr > th {
+	background: #212529;
+	color: #fff;
+	font-weight: 600;
+	vertical-align: middle;
+	border: none;
+	border-right: 1px solid rgba(255, 255, 255, 0.15);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.epesi-gb table.Utils_GenericBrowser > thead > tr > th > span {
+	color: inherit;
+	display: block;
+}
+
+.epesi-gb table.Utils_GenericBrowser > thead > tr > th a {
+	color: inherit;
+}
+
+.epesi-gb table.Utils_GenericBrowser > thead > tr > th input {
+	width: 100%;
+	border: 0;
+	border-radius: 0.2rem;
+	padding: 2px 4px;
+}
+
+.epesi-gb table.Utils_GenericBrowser > tbody > tr {
+	background-color: #fff;
+}
+
+.epesi-gb table.Utils_GenericBrowser > tbody > tr:hover {
+	background-color: #f1f3f5;
+}
+
+.epesi-gb .Utils_GenericBrowser__td {
+	border-bottom: 1px solid #e9ecef;
+	padding: 0.35rem 0.5rem;
+	vertical-align: top;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ---- pagination footer ---- */
+
+.epesi-gb-pager a {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.6rem;
+	border: 1px solid #ced4da;
+	color: #343a40;
+	text-decoration: none;
+	font-size: 0.85rem;
+}
+
+.epesi-gb-pager a:hover {
+	background-color: #e9ecef;
+}
+
+.epesi-gb-pager:first-child a:first-child,
+.epesi-gb-pager a:first-child {
+	border-top-left-radius: 0.25rem;
+	border-bottom-left-radius: 0.25rem;
+}
+
+.epesi-gb-pager a:last-child {
+	border-top-right-radius: 0.25rem;
+	border-bottom-right-radius: 0.25rem;
+	border-left: none;
+}
+
+.epesi-gb-page select,
+.epesi-gb-per-page select {
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	padding: 0.15rem 0.4rem;
+	font-size: 0.85rem;
+}
+
+@media (max-width: 575.98px) {
+	.epesi-gb-nav {
+		justify-content: center;
+	}
+	.epesi-gb-summary {
+		order: -1;
+		flex: 1 1 100%;
+	}
+}

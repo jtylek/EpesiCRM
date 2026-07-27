@@ -24,7 +24,6 @@ class Tests_BugtrackInstall extends ModuleInstall {
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('bugtrack', $fields);
 		Utils_RecordBrowserCommon::new_filter('bugtrack', 'Company Name');
-		Utils_RecordBrowserCommon::set_quickjump('bugtrack', 'Project Name');
 		Utils_RecordBrowserCommon::set_favorites('bugtrack', true);
 		Utils_RecordBrowserCommon::set_recent('bugtrack', 15);
 		Utils_RecordBrowserCommon::set_caption('bugtrack', _M('Bugtrack'));

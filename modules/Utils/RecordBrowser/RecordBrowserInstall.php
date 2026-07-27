@@ -20,7 +20,6 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		DB::CreateTable('recordbrowser_table_properties',
 						'id I2 AUTO KEY,'.
 						'tab C(64),'.
-						'quickjump C(64) DEFAULT \'\','.
 						'tpl C(255) DEFAULT \'\','.
 						'favorites I1 DEFAULT 0,'.
 						'recent I2 DEFAULT 0,'.

@@ -58,6 +58,22 @@ class Base_ThemeCommon extends ModuleCommon {
 		load_js('libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js');
 		// drives the sidebar toggle (data-lte-toggle="sidebar") in the shell
 		load_js('libs/adminlte-4.1.0/js/adminlte.min.js');
+		// adminlte.min.js ships a color-mode toggler that auto-detects the OS's
+		// prefers-color-scheme and sets data-bs-theme="dark" directly on <html> the
+		// moment it runs. Several of AdminLTE's own CSS rules key off that ancestor
+		// attribute directly - e.g. "[data-bs-theme=dark] .app-sidebar" - which
+		// still matches through a lower data-bs-theme="light" pin (a descendant
+		// combinator doesn't care that a closer ancestor overrides it), so those
+		// components went dark regardless of the pins on .app-wrapper/
+		// .login-page-adminlte. The theme is light-only for now (no user-facing
+		// switch yet), so force <html> itself back to light instead of chasing
+		// every such rule individually. Epesi.append_js only runs once every
+		// queued load_js() script has finished loading (see Epesi.js_loader() in
+		// include/epesi.js), so this always executes after adminlte.min.js's own
+		// auto-detection, not in a race with it.
+		eval_js_once("try{localStorage.setItem('lte-theme','light');}catch(e){}"
+			."document.documentElement.setAttribute('data-bs-theme','light');"
+			."document.documentElement.style.colorScheme='light';");
 	}
 
 	/**

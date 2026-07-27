@@ -1,10 +1,6 @@
-{php}
-	load_js($this->get_template_vars('theme_dir').'/Utils/GenericBrowser/default.js');
-{/php}
-
 <div>
 
-{if (isset($custom_label) && $custom_label) || isset($letter_links) || isset($form_data_search) || isset($expand_collapse)}
+{if (isset($custom_label) && $custom_label) || isset($form_data_search) || isset($expand_collapse)}
 <table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0">
 	<tbody>
 		<tr>
@@ -12,25 +8,6 @@
 			{if (isset($custom_label) && $custom_label)}
 				<td class="letter_search_icon" {$custom_label_args}>
 				<nobr>{$custom_label}</nobr>
-				</td>
-			{/if}
-			<!-- QuickJump -->
-			{if isset($letter_links)}
-				<td class="letters">
-					<div class="abc" onclick="quick_jump_letters('{$id}');">ABC</div>
-					<div id="quick_jump_letters_{$id}" class="quick_jump_letters" 
-						{if $quickjump_to==''} 
-							style="display: none;"
-						{/if}
-						>
-						<div class="css3_content_shadow GenericBrowser_letters">
-								{if isset($letter_links)}
-								{foreach key=k item=link from=$letter_links}
-								{$link}
-								{/foreach}
-								{/if}
-						</div>
-					</div>
 				</td>
 			{/if}
             <!-- Expand/Collapse -->

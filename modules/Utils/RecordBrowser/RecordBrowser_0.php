@@ -62,7 +62,7 @@ class Utils_RecordBrowser extends Module {
     private $current_field = null;
     private $additional_actions_methods = array();
     private $filter_crits = array();
-    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'quickjump'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
+    private $disabled = array('search'=>false, 'browse_mode'=>false, 'watchdog'=>false, 'filters'=>false, 'headline'=>false, 'actions'=>false, 'fav'=>false, 'pdf'=>false, 'export'=>false, 'pagination'=>false);
     private $force_order;
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
@@ -206,7 +206,6 @@ class Utils_RecordBrowser extends Module {
     public function disable_watchdog(){$this->disabled['watchdog'] = true;}
     public function disable_fav(){$this->disabled['fav'] = true;}
     public function disable_filters(){$this->disabled['filters'] = true;}
-    public function disable_quickjump(){$this->disabled['quickjump'] = true;}
     public function disable_headline() {$this->disabled['headline'] = true;}
     public function disable_pdf() {$this->disabled['pdf'] = true;}
     public function disable_export() {$this->disabled['export'] = true;}
@@ -428,11 +427,8 @@ class Utils_RecordBrowser extends Module {
             $gb->is_adv_search_on();
             $is_searching = $gb->get_module_variable('search','');
             if (!empty($is_searching)) {
-                if ($this->get_module_variable('browse_mode')!='all'
-//                  || $gb->get_module_variable('quickjump_to')!=null
-                    ) {
+                if ($this->get_module_variable('browse_mode')!='all') {
                     $this->set_module_variable('browse_mode','all');
-//                  $gb->set_module_variable('quickjump_to',null);
                     location(array());
                     return;
                 }
@@ -451,9 +447,6 @@ class Utils_RecordBrowser extends Module {
             if (!$pdf && !$admin && $this->watchdog)
                 $table_columns[] = array('name'=>'', 'width'=>'24px', 'attrs'=>'class="Utils_RecordBrowser__watchdog"');
         }
-        if (!$this->disabled['quickjump']) $quickjump = DB::GetOne('SELECT quickjump FROM recordbrowser_table_properties WHERE tab=%s', array($this->tab));
-        else $quickjump = '';
-
         $hash = array();
         $query_cols = array();
         foreach($this->table_rows as $field => $args) {
@@ -485,7 +478,6 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             $each = array();
-            if (!$pdf && $quickjump!=='' && $args['name']===$quickjump) $each[] = 'quickjump';
             if (!$pdf && !$this->disabled['search']) $each[] = 'search';
             foreach ($each as $e) {
                 if ($args['type']=='text' || $args['type']=='currency' || $args['type'] == 'autonumber' || $args['type'] == 'date' || ($args['type']=='calculated' && preg_match('/^[a-z]+(\([0-9]+\))?$/i',$args['param'])!==0)) $arr[$e] = $args['id'];
@@ -496,7 +488,6 @@ class Utils_RecordBrowser extends Module {
                     $arr[$e] = $args['id'];
                 }
             }
-            if (isset($arr['quickjump'])) $arr['quickjump'] = '"~'.$arr['quickjump'];
 			if ($pdf) {
 				$arr['attrs'] = 'style="border:1px solid black;font-weight:bold;text-align:center;color:white;background-color:gray"';
 				if (!isset($arr['width'])) $arr['width'] = 100;
@@ -560,14 +551,10 @@ class Utils_RecordBrowser extends Module {
 		}
         if ($gb->is_adv_search_on()) {
             foreach ($search as $k=>$v) {
-				$f_id = str_replace(array('"','~'),'',$k);
+				$f_id = str_replace('~','',$k);
 				$args = $this->table_rows[$hash[$f_id]];
 				if ($args['commondata']) $k = $k.'[]';
 				elseif (isset($args['ref_field']) && $args['ref_field']) $k = $k.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
-                if ($k[0]=='"') { // quickjump case
-                    $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array('~' . $k => $v));
-                    continue;
-                }
                 if (is_array($v)) $v = $v[0];
                 $v = explode(' ', $v);
                 foreach ($v as $w) {
@@ -594,19 +581,12 @@ class Utils_RecordBrowser extends Module {
                 if ($word === '') continue;
                 $search_part = new Utils_RecordBrowser_Crits();
                 foreach ($search as $search_col => $search_col_val) {
-                    if ($search_col[0] == '"') continue; // remove quickjump
                     $args = $this->table_rows[$hash[trim($search_col, '(|')]];
                     if ($args['commondata']) $search_col = $search_col.'[]';
                     elseif (isset($args['ref_field']) && $args['ref_field']) $search_col = $search_col.'['.Utils_RecordBrowserCommon::get_field_id($args['ref_field']).']';
                     $search_part = Utils_RecordBrowserCommon::merge_crits($search_part, array('~'.$search_col =>"%$word%"), true);
                 }
                 $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, $search_part);
-            }
-            // add quickjump
-            if ($gb->get_module_variable('quickjump') && $gb->get_module_variable('quickjump_to')) {
-                $search_res = Utils_RecordBrowserCommon::merge_crits($search_res, array(
-                    $gb->get_module_variable('quickjump') => DB::qstr($gb->get_module_variable('quickjump_to').'%')
-                ));
             }
         }
 

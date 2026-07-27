@@ -82,7 +82,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 
 // ************ company settings ************** //
 		Utils_RecordBrowserCommon::register_processing_callback('company', array('CRM_ContactsCommon', 'submit_company'));
-		Utils_RecordBrowserCommon::set_quickjump('company', 'Company Name');
 		Utils_RecordBrowserCommon::set_favorites('company', true);
 		Utils_RecordBrowserCommon::set_recent('company', 15);
 		Utils_RecordBrowserCommon::set_caption('company', _M('Companies'));
@@ -93,7 +92,6 @@ class CRM_ContactsInstall extends ModuleInstall {
 // ************ contacts settings ************** //
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename(CRM_ContactsInstall::module_name(), 'Contact'));
 		Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_ContactsCommon', 'submit_contact'));
-		Utils_RecordBrowserCommon::set_quickjump('contact', 'Last Name');
 		Utils_RecordBrowserCommon::set_favorites('contact', true);
 		Utils_RecordBrowserCommon::set_recent('contact', 15);
 		Utils_RecordBrowserCommon::set_caption('contact', _M('Contacts'));

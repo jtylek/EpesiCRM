@@ -14,19 +14,8 @@
 	padding: 0px 0px 2px 0px;
 }
 
-.GenericBrowser_letters {
-	background-color: white;
-	height: 22px;
-	padding-top: 2px;
-	padding-left: 2px;
-	margin: 3px auto auto 5px;
-}
-
 #generic_browser_search{
 	width: 364px;
-}
-.Utils_GenericBrowser__quickjump {
-	font-weight: normal;
 }
 
 /* search */
@@ -336,14 +325,6 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 
-/* letter links */
-
-.letters-search .letters {
-    text-align: left;
-    padding: 0px 7px 0 0px;
-    display: block;
-}
-
 .letters-search > tbody > tr > td {
     display: inline-block;
     float: left;
@@ -362,114 +343,6 @@ table.Utils_GenericBrowser > tbody > td img {
 .letter_search_icon form {
     display: inline-block;
 }
-
-.letters-search .letters .all {
-    width: auto;
-    padding: 0px 5px 2px 7px;
-	color: white;
-	
-	/*dark css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end dark css3 green background gradient */
-	
-	/* border radius */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	/* end border radius */
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
-}
-.letters-search .letters .all:hover {
-	/*light css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end light css3 green background gradient */
-}
-.letters-search .letters .letter {
-    width: 14px;
-}
-
-.letters-search .letters a,
-.letters-search .letters span {
-    margin: 2px 3px;
-    display: block;
-    float: left;
-    line-height: 14px;
-    vertical-align: middle;
-    text-align: center;
-	color: white;
-	padding:  0px 1px 2px 2px;
-	
-	/*dark css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end dark css3 green background gradient */
-	
-	/* border radius */
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
-	/* end border radius */
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
-}
-.letters-search .letters a:hover,
-.letters-search .letters span:hover {
-	/*light css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end light css3 green background gradient */
-}
-/* */
-
-.quick_jump_letters {
-    z-index: 1005;
-    position: absolute;
-    margin-right: 50px;
-    margin-left: 50px;
-}
-
-.letters-search .letters .abc {
-    height: 19px;
-	padding: 4px 0px 7px 0px;
-    line-height: 20px;
-    width: 50px;
-    text-align: center;
-    vertical-align: middle;
-    color: white;
-    cursor: pointer;
-    float: left;
-	
-	/*dark css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end dark css3 green background gradient */
-	
-	/* border radius */
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-	/* end border radius */
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px gray;
-	-moz-box-shadow: 1px 1px 3px gray;
-	box-shadow: 1px 1px 3px gray;
-	/* end css3 shadow border*/
-}
-
-.letters-search .letters .abc:hover {
-	/*light css3 green background gradient */
-	background: #226622; /* Old browsers */
-	/* end light css3 green background gradient */
-}
-
-
 
 .layer {
     padding: 8px;

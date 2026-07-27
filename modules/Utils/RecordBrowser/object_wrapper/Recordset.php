@@ -446,15 +446,6 @@ abstract class RBO_Recordset {
     }
 
     /**
-     * Enable quickjump feature for RecordSet. You will be able to jump to
-     * records that supplied here field starts with selected letter.
-     * @param string $column_name
-     */
-    public function set_quickjump($column_name) {
-        Utils_RecordBrowserCommon::set_quickjump($this->tab, $column_name);
-    }
-
-    /**
      * Set recent entries amount.
      * @param int $amount Number of records to store as recent
      */
