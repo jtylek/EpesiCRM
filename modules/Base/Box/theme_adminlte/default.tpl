@@ -17,7 +17,11 @@
 	<img class="Base_Help__tools" style="display: none;" id="Base_Help__help_arrow" src="{$theme_dir}/Base/Help/arrow.png" />
 	<div class="Base_Help__tools comment" style="display: none;" id="Base_Help__help_comment"><div id="Base_Help__help_comment_contents"></div><div class="button_next" id="Base_Help__button_next">{'Next'|t}</div><div class="button_next" id="Base_Help__button_finish">{'Finish'|t}</div></div>
 
-<div class="epesi-adminlte app-wrapper">
+{* data-bs-theme is pinned because AdminLTE's JS follows the OS
+   prefers-color-scheme and would otherwise flip Bootstrap to its dark palette.
+   The theme is designed light throughout; dark support would need the whole
+   shell (and the module screens inside it) styled for it. *}
+<div class="epesi-adminlte app-wrapper" data-bs-theme="light">
 
 	<nav id="top_bar" class="app-header navbar navbar-expand nonselectable">
 		<div class="container-fluid">

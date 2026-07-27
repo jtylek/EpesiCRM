@@ -3,7 +3,10 @@
 	{$logout}
 {else}
 {$form_data.javascript}
-<div class="login-page-adminlte d-flex align-items-center justify-content-center">
+{* data-bs-theme is pinned because AdminLTE's JS follows the OS
+   prefers-color-scheme and would otherwise flip Bootstrap to its dark palette,
+   turning this card black. Scoped here rather than fought in CSS. *}
+<div class="login-page-adminlte d-flex align-items-center justify-content-center" data-bs-theme="light">
 	<div class="login-box">
 		<div class="card">
 			<div class="card-body login-card-body">
