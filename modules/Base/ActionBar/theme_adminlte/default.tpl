@@ -47,32 +47,16 @@
 
 	// Quick-access launcher items carry a module-provided icon.png (or a
 	// link-specific override, e.g. CRM_Contacts's companies.png/contacts.png)
-	// as an already-resolved file path, not a name from the fixed list above -
-	// there's no shared enum to map from. Two lookup layers: the icon file's
-	// own basename (covers link-level overrides - the only signal that tells
-	// sibling links under the same module apart), then the module directory
-	// extracted from the resolved path itself (covers a module's own generic
-	// icon.png). No inline function declared here - launchpad() re-displays
-	// this same template a second time in one request (for the "Launchpad"
-	// trigger button), which would fatal on a redeclare.
-	$launcher_file_map = array(
-		'companies' => 'bi-building',
-		'contacts'  => 'bi-person-vcard-fill',
-		'launcher'  => 'bi-grid-3x3-gap-fill',
-	);
-	$launcher_module_map = array(
-		'CRM/Calendar'   => 'bi-calendar3',
-		'CRM/Contacts'   => 'bi-person-vcard-fill',
-		'CRM/Tasks'      => 'bi-list-task',
-		'Tests/Bugtrack' => 'bi-bug-fill',
-	);
+	// as an already-resolved file path, not a name from the fixed list above.
+	// Base_AdminlteIcons is the single shared map for this (also used by
+	// Base_Menu::build_menu_html()'s sidebar icons, so a module's icon reads
+	// the same in both places); a null fallback here means an unmatched
+	// module keeps its own original image rather than a generic glyph -
+	// unlike the named icons above, these can be genuinely meaningful custom
+	// artwork worth keeping.
+	require_once('modules/Base/Theme/adminlte_icons.php');
 	foreach ($launcher as $k=>$i) {
-		$stem = strtolower(pathinfo($i['icon'] ?? '', PATHINFO_FILENAME));
-		if (isset($launcher_file_map[$stem])) {
-			$launcher[$k]['bi_icon'] = $launcher_file_map[$stem];
-		} elseif (preg_match('#modules/([^/]+/[^/]+)/#', $i['icon'] ?? '', $m) && isset($launcher_module_map[$m[1]])) {
-			$launcher[$k]['bi_icon'] = $launcher_module_map[$m[1]];
-		}
+		$launcher[$k]['bi_icon'] = Base_AdminlteIcons::resolve($i['icon'] ?? null, null, null);
 	}
 	$this->assign('launcher', $launcher);
 {/php}

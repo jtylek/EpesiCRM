@@ -82,37 +82,19 @@ class Base_Menu extends Module {
 
 			// Menu entries carry an arbitrary module-provided icon filename (or
 			// none at all - falling back to the module's own icon-small.png),
-			// not a name from a fixed enum - the same problem Base_ActionBar's
-			// adminlte theme has with its quick-access launcher icons, and the
-			// same two-layer answer: the icon filename's own basename first
-			// (distinguishes sibling entries under one module, e.g. CRM_Contacts'
-			// companies.png/contacts.png), then the owning module, then a plain
-			// folder/dot for anything still unmatched. static persists across
-			// this method's recursive calls without recomputing per call.
-			static $file_map = array(
-				'companies' => 'bi-building',
-				'contacts'  => 'bi-person-vcard-fill',
-			);
-			static $module_map = array(
-				'CRM/Calendar'   => 'bi-calendar3',
-				'CRM/Contacts'   => 'bi-person-vcard-fill',
-				'CRM/Tasks'      => 'bi-list-task',
-				'Tests/Bugtrack' => 'bi-bug-fill',
-				'Base/Admin'     => 'bi-gear-fill',
-			);
+			// not a name from a fixed enum. Base_AdminlteIcons is the single
+			// shared map for this (also used by the ActionBar's quick-access
+			// launcher/launchpad icons, so a module's icon reads the same in
+			// both places); an unmatched entry falls back to a plain
+			// folder/dot rather than Base_AdminlteIcons's own generic default,
+			// since menu icons are mostly filler art to begin with.
+			require_once('modules/Base/Theme/adminlte_icons.php');
 			$icon_raw = $arr['__icon_small__'] ?? $arr['__icon__'] ?? null;
 			$parent_module = $arr['parent_module'] ?? null;
 			unset($arr['__icon_small__'], $arr['__icon__'], $arr['parent_module']);
 
 			$is_sub = array_key_exists('__submenu__', $arr);
-			$stem = $icon_raw ? strtolower(pathinfo($icon_raw, PATHINFO_FILENAME)) : null;
-			$module_key = $parent_module ? str_replace('_', '/', $parent_module) : null;
-			if ($stem !== null && isset($file_map[$stem]))
-				$bi_icon = $file_map[$stem];
-			elseif ($module_key !== null && isset($module_map[$module_key]))
-				$bi_icon = $module_map[$module_key];
-			else
-				$bi_icon = $is_sub ? 'bi-folder2' : 'bi-dot';
+			$bi_icon = Base_AdminlteIcons::resolve($icon_raw, $parent_module, $is_sub ? 'bi-folder2' : 'bi-dot');
 
 			$tip = '';
 			if (array_key_exists('__description__', $arr)) {

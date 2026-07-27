@@ -13,7 +13,13 @@ body {
 	background-color: #f4f6f9;
 }
 
-.epesi-adminlte {
+/* :root, not .epesi-adminlte - Leightbox popups (modules/Libs/Leightbox/
+   leightbox.js) append themselves directly to <body>, as siblings of
+   .epesi-adminlte rather than descendants, so they need these variables to
+   reach them by inheritance from a common ancestor. The ResizeObserver in
+   this theme's default.tpl writes to document.documentElement (:root) for
+   the same reason. */
+:root {
 	--epesi-sidebar-width: 250px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
@@ -255,7 +261,7 @@ body {
 	z-index: 1030;
 	background-color: #fff;
 	border-bottom: 1px solid #dee2e6;
-	padding: 0.4rem 0;
+	padding: 0.15rem 0;
 	transition: left 0.25s ease-in-out;
 }
 

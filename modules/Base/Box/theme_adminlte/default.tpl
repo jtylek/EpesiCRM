@@ -22,10 +22,17 @@
 	// in sync continuously, not just once at load, since either element's
 	// content can change size after an AJAX navigation without the shell
 	// itself (this template) re-rendering.
+	//
+	// Set on document.documentElement (:root), not .epesi-adminlte - Leightbox
+	// popups (modules/Libs/Leightbox/leightbox.js) append themselves directly
+	// to <body>, as siblings of .epesi-adminlte rather than descendants, so a
+	// var written only on that wrapper would never reach them by inheritance.
+	// :root sees every element in the document, .epesi-adminlte's descendants
+	// included, so declaring the variables there (see this theme's default.css)
+	// instead costs nothing for the shell itself.
 	eval_js_once(
 		"(function(){".
-			"var wrap=document.querySelector('.epesi-adminlte');".
-			"if(!wrap)return;".
+			"var wrap=document.documentElement;".
 			"function watch(el,prop){".
 				"if(!el)return;".
 				"var sync=function(){wrap.style.setProperty(prop,el.offsetHeight+'px');};".
