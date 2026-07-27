@@ -88,7 +88,15 @@
 }
 
 .epesi-gb table.Utils_GenericBrowser > thead > tr > th input {
+	/* Per-column search input is concatenated onto the column label's own
+	   inline text/link (GenericBrowser_0.php/default.tpl build
+	   "$cols[$k]['label'] .= $search_fields[$k]" then wrap the whole thing in
+	   one <span>) - without display:block here, like the default theme's
+	   equivalent rule, the input stays inline right next to the label instead
+	   of dropping to its own line below it. */
+	display: block;
 	width: 100%;
+	margin-top: 0.25rem;
 	border: 0;
 	border-radius: 0.2rem;
 	padding: 2px 4px;
