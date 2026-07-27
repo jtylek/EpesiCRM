@@ -1,0 +1,381 @@
+/* AdminLTE re-skin for Utils_RecordBrowser's single-record view/edit screen.
+ * Only the header (icon/caption/tooltips row, previously a
+ * .Utils_RecordBrowser__table) and the outer container (a plain rounded gray
+ * box, now a Bootstrap card) are structurally different - see View_entry.tpl.
+ * Everything below is the SAME field-grid CSS as the default theme with
+ * colours/shadows softened, not rewritten: the column-balancing table and
+ * per-field-type markup ($f.full_field - automulti/timestamp/currency/frozen/
+ * multiselect) are built elsewhere and shared with the default theme, so
+ * their positioning/sizing rules are kept exactly as before and only
+ * backgrounds/box-shadows/border-radius were touched, to avoid quietly
+ * breaking some field type's layout by rewriting a rule believed to be purely
+ * cosmetic.
+ */
+
+.epesi-rv-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.epesi-rv-title {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.epesi-rv-icon {
+	width: 32px;
+	height: 32px;
+	object-fit: contain;
+}
+
+.epesi-rv-caption {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #212529;
+}
+
+.epesi-rv-tools {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	color: #6c757d;
+	font-size: 0.85rem;
+}
+
+.epesi-rv-card {
+	border: 1px solid #dee2e6;
+	box-shadow: 0 0.05rem 0.25rem rgba(0, 0, 0, 0.06);
+}
+
+.Utils_RecordBrowser__View_entry {
+    width: 100%;
+}
+
+.Utils_RecordBrowser__container {
+	background-color: transparent;
+	padding: 0;
+}
+
+.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
+
+.Utils_RecordBrowser__View_entry table.view {
+    width: 100%;
+}
+
+.Utils_RecordBrowser__View_entry table.edit {
+    border-top: none;
+    width: 100%;
+}
+
+.Utils_RecordBrowser__View_entry table.edit,
+.Utils_RecordBrowser__View_entry table.view {
+    width: 100%;
+	border-spacing: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .label {
+	background: #f1f3f5;
+    color: #495057;
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+    height: 20px;
+	white-space: nowrap;
+	overflow:hidden;
+    vertical-align: middle;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 150px;
+    text-align: left;
+	box-shadow: none;
+	font-size: 0.85rem;
+}
+.epesi_rtl .Utils_RecordBrowser__View_entry .label {
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+    text-align: right;
+}
+.Utils_RecordBrowser__View_entry .label_top{
+	-webkit-border-radius: 4px 4px 0 0;
+	-moz-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+}
+
+.Utils_RecordBrowser__View_entry .long_label {
+    text-align: left;
+    width: 20%;
+}
+
+.Utils_RecordBrowser__View_entry .data {
+    text-align: left;
+	word-wrap: break-word;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	border: 1px solid #dee2e6;
+	border-left: none;
+	box-shadow: none;
+	position: relative;
+	font-size: 0.85rem;
+}
+.epesi_rtl .Utils_RecordBrowser__View_entry .data {
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+    text-align: right;
+}
+.Utils_RecordBrowser__View_entry .currency {
+    text-align: right;
+}
+
+.Utils_RecordBrowser__View_entry .number {
+    text-align: right;
+}
+
+.Utils_RecordBrowser__View_entry .help {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	right: 2px;
+	top: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .help + div {
+	margin-right: 14px;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .help  + div {
+	margin-right: 22px;
+}
+
+.Utils_RecordBrowser__View_entry table.view .data {
+    padding: 3px 5px;
+	background-color: #f8f9fa;
+}
+
+.Utils_RecordBrowser__View_entry table.view .data img {
+    vertical-align: middle;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .data {
+    border-bottom: none;
+	background-color: #fff;
+}
+
+.Utils_RecordBrowser__View_entry .long_data {
+    width: 80%;
+}
+
+.Utils_RecordBrowser__View_entry table.view .long_data {
+    border-right: 1px solid #B3B3B3;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .long_data {
+    border-right: none;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input:not([type=button]),
+.Utils_RecordBrowser__View_entry .data select,
+.Utils_RecordBrowser__View_entry .data textarea {
+	width: 99%;
+	height: 14px;
+    background-color: #fff;
+    border: 0px;
+	padding: 3px 5px;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.Utils_RecordBrowser__View_entry .data textarea {
+	height: 63px;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input[disabled],
+.Utils_RecordBrowser__View_entry .data select[disabled],
+.Utils_RecordBrowser__View_entry .data textarea[disabled] {
+    background-color: #f1f3f5;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input,
+.Utils_RecordBrowser__View_entry .data textarea {
+	box-shadow: none;
+}
+
+.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input {
+	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
+}
+
+.Utils_RecordBrowser__View_entry .frozen .static_field {
+	padding: 0px;
+	margin: 0px;
+	background: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry table.view .frozen .static_field {
+	width: 100%;
+}
+
+.Utils_RecordBrowser__View_entry .data input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data input::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-moz-placeholder {
+    color: #FF4429;
+}
+
+.Utils_RecordBrowser__View_entry .data select {
+	height: 18px;
+	padding: 0;
+	margin-left: 2px;
+	margin-top: 2px;
+}
+
+.Utils_RecordBrowser__View_entry .form_error img {
+	margin-left: 5px;
+	border: none;
+	position: absolute;
+	right:3px;
+}
+.Utils_RecordBrowser__View_entry .form_error a {
+	color: white;
+	text-decoration: underline;
+}
+.Utils_RecordBrowser__View_entry .form_error a:hover {
+	color: #CCCCCC;
+}
+.Utils_RecordBrowser__View_entry .form_error:not(:empty) {
+	color: white !important;
+	position: absolute;
+	right: 0px;
+	display: block;
+	height: 15px;
+	margin: 0;
+	padding: 3px 15px 2px 15px;
+	font-weight: bold;
+	z-index: 5;
+	white-space: nowrap;
+	vertical-align: top;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	box-shadow: none;
+
+	background: #dc3545;
+
+	max-width:50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Utils_RecordBrowser__View_entry .longfields .form_error,
+.Utils_RecordBrowser__View_entry .multiselects .form_error {
+	-webkit-border-radius: 0 4px 0 4px;
+	-moz-border-radius: 0 4px 0 4px;
+    border-radius: 0 4px 0 4px;
+}
+
+/* currency END */
+.Utils_RecordBrowser__View_entry .currency_amount input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* currency START */
+
+/* automulti START */
+
+.Utils_RecordBrowser__View_entry table.edit .automulti {
+	background-color: #f1f3f5;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti select {
+	height: 80px;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti td {
+	padding: 0;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.Utils_RecordBrowser__View_entry table.edit .automulti input[type="button"]{
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+    border-radius: 6px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry .data .automulti input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data .automulti input::-moz-placeholder {
+    color: #AAAAAA;
+}
+/* automulti END */
+/* timestamp START */
+.Utils_RecordBrowser__View_entry .timestamp > div > div {
+	float: right;
+}
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
+	float: none;
+	margin-right: 130px;
+}
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* timestamp END */
+
+.Utils_RecordBrowser__View_entry .data input[type="checkbox"],
+.Utils_RecordBrowser__View_entry .data input[type="radio"] {
+    width: auto;
+}
+
+.Utils_RecordBrowser__View_entry .data input:focus,
+.Utils_RecordBrowser__View_entry .data select:focus,
+.Utils_RecordBrowser__View_entry .data textarea:focus {
+    background-color: #eaf2ff;
+}
+
+.Utils_RecordBrowser__View_entry #multiselect .form-element select,
+.Utils_RecordBrowser__View_entry #multiselect .to-element select {
+    width: 100%;
+    height: 100px;
+}
+
+.Utils_RecordBrowser__View_entry .data a.button {
+    height: 20px;
+    display: block;
+    float: right;
+}
+
+.Utils_RecordBrowser__View_entry .left-column,
+.Utils_RecordBrowser__View_entry .right-column {
+	vertical-align: top;
+}
+
+.dz-file-preview {
+	z-index: 5;
+}
