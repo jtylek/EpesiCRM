@@ -13,7 +13,15 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_About extends Module {
 	private function get_info() {
-		$credits = str_replace('__VERSION__',EPESI_VERSION.' rev'.EPESI_REVISION,@file_get_contents($this->get_module_dir().'/credits.html'));
+		// credits_adminlte.html drops the default theme's inline
+		// background-color/padding/font-size styling (meant for that theme's
+		// own popup chrome) in favour of class hooks styled by
+		// theme_adminlte/credits.css, so it reads cleanly inside this
+		// theme's own Leightbox popup instead of fighting it.
+		$is_adminlte = Base_ThemeCommon::get_default_template() === 'adminlte';
+		if ($is_adminlte) Base_ThemeCommon::load_css($this->get_type(), 'credits', false);
+		$file = $is_adminlte ? 'credits_adminlte.html' : 'credits.html';
+		$credits = str_replace(array('__VERSION__','__YEAR__'),array(EPESI_VERSION.' rev'.EPESI_REVISION,date('Y')),@file_get_contents($this->get_module_dir().'/'.$file));
 		$trans_credits = @file_get_contents($this->get_module_dir().'/translations_credits.html');
 		$credits = str_replace('<!-- ** TRANSLATIONS CREDITS ** -->', $trans_credits, $credits);
 		return $credits;

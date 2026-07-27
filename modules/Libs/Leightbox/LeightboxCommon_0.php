@@ -19,16 +19,23 @@ class Libs_LeightboxCommon extends ModuleCommon {
 			$init = false;
 		}
 		ob_start();
-		print('<div id="'.$id.'" big="1" class="leightbox">');
+		print('<div id="'.$id.'" big="'.($big?1:0).'" class="leightbox">');
 		print('<input type="hidden" id="'.$id.'_bigsize" value="'.($big?1:0).'" />');
-		if ($big) {
+		// This inline top/left/width/height override assumes the default
+		// theme's plain-percentage centering - under adminlte, centering is
+		// done with left:50%+transform (see theme_adminlte/default.css), and
+		// this would leave the transform applying on top of the wrong "left",
+		// pushing the popup mostly off-screen (same reason that theme's own
+		// resize button is omitted). adminlte's CSS handles the "big" case
+		// itself via the big="1" attribute just printed above.
+		if ($big && Base_ThemeCommon::get_default_template() !== 'adminlte') {
 			eval_js('s = $(\''.$id.'\').style;'.
 			's.top = \'5%\';'.
 			's.left = \'5%\';'.
 			's.width = \'90%\';'.
 			's.height = \'90%\';'.
 			's.padding = \'0px\';');
-			
+
 		}
 		$smarty = Base_ThemeCommon::init_smarty();
 		$smarty->assign('close_href','href="javascript:leightbox_deactivate(\''.$id.'\')"');

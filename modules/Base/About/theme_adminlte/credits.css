@@ -1,0 +1,119 @@
+/* AdminLTE re-skin for Base_About's EULA/credits popup content
+ * (credits_adminlte.html, loaded instead of the default theme's credits.html
+ * - see About_0.php::get_info()). The old file was full of inline
+ * background-color/padding/font-size meant for the default theme's own
+ * popup chrome; credits_adminlte.html drops all of that in favour of the
+ * class hooks styled here, so the text reads cleanly inside this theme's
+ * already-styled Leightbox popup (#Leightbox_content) instead of fighting it.
+ */
+
+.epesi-about {
+	text-align: center;
+}
+
+.epesi-about-logo {
+	margin-bottom: 1rem;
+}
+
+.epesi-about-logo img {
+	max-width: 220px;
+}
+
+.epesi-about-title {
+	font-size: 1.4rem;
+	font-weight: 700;
+	margin-bottom: 0.25rem;
+}
+
+.epesi-about-subtitle {
+	color: #6c757d;
+	margin-bottom: 0.25rem;
+}
+
+.epesi-about-version {
+	font-size: 0.85rem;
+	color: #6c757d;
+	margin-bottom: 1rem;
+}
+
+.epesi-about-lead {
+	font-weight: 600;
+	margin-bottom: 1rem;
+}
+
+.epesi-about-license-link {
+	margin-bottom: 0.25rem;
+}
+
+.epesi-about-copyright {
+	font-weight: 600;
+	margin-bottom: 1rem;
+}
+
+.epesi-about-license-text {
+	text-align: left;
+	background-color: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	font-size: 0.85rem;
+	color: #495057;
+}
+
+.epesi-about-license-text p:last-child {
+	margin-bottom: 0;
+}
+
+.epesi-about-note {
+	font-size: 0.85rem;
+	color: #6c757d;
+	margin-bottom: 1.5rem;
+}
+
+.epesi-about h2 {
+	font-size: 1.1rem;
+	font-weight: 700;
+	text-align: left;
+	margin-top: 1.5rem;
+	margin-bottom: 0.5rem;
+	border-bottom: 1px solid #e9ecef;
+	padding-bottom: 0.35rem;
+}
+
+.epesi-about h3 {
+	font-size: 0.95rem;
+	font-weight: 600;
+	text-align: left;
+	margin-top: 1rem;
+	margin-bottom: 0.4rem;
+	color: #495057;
+}
+
+.epesi-about ul {
+	text-align: left;
+	padding-left: 1.25rem;
+	margin-bottom: 0.75rem;
+	font-size: 0.9rem;
+}
+
+.epesi-about ul li {
+	margin-bottom: 0.2rem;
+}
+
+.epesi-about-footer {
+	margin-top: 1.5rem;
+	padding-top: 1rem;
+	border-top: 1px solid #e9ecef;
+}
+
+.epesi-about-footer img {
+	max-width: 160px;
+}
+
+.epesi-about-footer p {
+	font-size: 0.8rem;
+	color: #6c757d;
+	margin-top: 0.5rem;
+	margin-bottom: 0;
+}

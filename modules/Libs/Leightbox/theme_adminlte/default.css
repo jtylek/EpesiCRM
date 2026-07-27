@@ -52,6 +52,19 @@
 	box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
 }
 
+/* Libs_LeightboxCommon::get($id, $content, $header, $big=true) - a wider/
+   taller popup for content that doesn't fit the normal 70%/900px cap (e.g.
+   CRM_Filters' "manage perspectives" screen). The default theme achieves
+   this via an inline top/left/width/height override fired unconditionally
+   from PHP; that's skipped under adminlte (see LeightboxCommon_0.php) since
+   it conflicts with the transform-based centering above, so this attribute
+   selector is this theme's own equivalent. */
+.leightbox[big="1"] {
+	width: 90%;
+	max-width: none;
+	max-height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height) - 1rem);
+}
+
 #Leightbox_header {
 	position: sticky;
 	top: 0;
