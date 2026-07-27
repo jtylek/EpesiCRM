@@ -1,0 +1,139 @@
+/* AdminLTE re-skin for the Dashboard applet "box" - the frame shared by every
+ * widget on the dashboard grid and by the config-mode "add new applet"
+ * picker panel (both render through default.tpl). The 3-column grid and the
+ * config-mode 2-pane layout themselves are printed directly by Dashboard_0.php
+ * with inline widths (shared with the default theme), so only light,
+ * id/class-scoped touch-ups for those are added here - not a structural
+ * rewrite.
+ */
+
+.epesi-applet-card {
+	overflow: hidden;
+}
+
+.epesi-applet-header {
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #dee2e6;
+	padding: 0.4rem 0.6rem;
+}
+
+.epesi-applet-title {
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.epesi-applet-title.handle {
+	cursor: move;
+}
+
+.epesi-applet-title.handle.fixed {
+	cursor: default;
+}
+
+.epesi-applet-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 0 0 auto;
+}
+
+.epesi-applet-actions a {
+	color: #6c757d;
+	cursor: pointer;
+}
+
+.epesi-applet-actions a:hover {
+	color: #0d6efd;
+}
+
+.epesi-applet-body {
+	background-color: #fff;
+}
+
+/* Colour accent (was a 4px border around the whole card in the default
+   theme) - kept as the same hex values, applied to the header instead so it
+   reads as a normal Bootstrap card-header rather than a coloured frame. */
+.epesi-applet-black .epesi-applet-header { background-color: #5B5B5B; color: #fff; }
+.epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-black .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD; color: #fff; }
+.epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-blue .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-dark-blue .epesi-applet-header { background-color: #346799; color: #fff; }
+.epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C; color: #fff; }
+.epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-green .epesi-applet-header { background-color: #A8CC8E; color: #212529; }
+
+.epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A; color: #fff; }
+.epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-red .epesi-applet-header { background-color: #BD7B7B; color: #fff; }
+.epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-red .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-dark-red .epesi-applet-header { background-color: #990033; color: #fff; }
+.epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
+.epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff; }
+
+.epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2; color: #212529; }
+
+.epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33; color: #212529; }
+
+/* carried forward from the default theme (unchanged) - strips decorative
+   shadow/padding wrappers that older, not-yet-adminlte-themed applet content
+   (GenericBrowser tables etc.) may still render inside the card body. */
+#dashboard .epesi-applet-body .shadow-top,
+#dashboard .epesi-applet-body .shadow-middle,
+#dashboard .epesi-applet-body .shadow-bottom {
+	display: none;
+}
+
+#dashboard .epesi-applet-body .layer {
+	padding: 0;
+	width: 100%;
+}
+
+#dashboard .epesi-applet-body .layer .margin2px {
+	padding: 0;
+}
+
+/* ---- grid / picker panel touch-ups (structure stays as Dashboard_0.php
+   prints it - inline widths shared with the default theme) ---- */
+
+#dashboard {
+	padding-top: 0.25rem;
+}
+
+/* Dashboard_0.php prints exactly 3 sibling column divs directly inside
+   #dashboard (id="dashboard_applets_<tab>_<col>", inline width:33% each,
+   no gap of their own) - a gutter between them via padding rather than
+   touching the inline width, so the 33%+33%+33% layout is untouched. */
+#dashboard > div {
+	padding: 0 0.5rem;
+	box-sizing: border-box;
+}
+
+/* Belt and suspenders alongside default.tpl's own .card.mb-3 - guarantees
+   vertical separation between stacked applets regardless of what the card
+   itself does, since .applet (the outer wrapper) is what Dashboard_0.php
+   and the picker panel both actually print one after another. */
+#dashboard .applet {
+	margin-bottom: 1rem;
+}
+
+#dashboard_applets_filter {
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	padding: 0.3rem 0.6rem;
+	font-size: 0.85rem;
+}
