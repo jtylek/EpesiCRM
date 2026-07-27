@@ -39,6 +39,29 @@ class Utils_TooltipCommon extends ModuleCommon {
 		eval_js('Utils_Tooltip.hide()');
 	}
 
+	// Bootstrap's own JS Tooltip component was tried here first and, across
+	// three separate rounds, kept conflicting with other hover-driven
+	// scripts already present in this app in ways that were hard to pin
+	// down precisely and broke real functionality each time (see
+	// adminlte-css-conflicts.md's "e:load"/tooltip entries for the history).
+	// Reverted by request to a plain native browser tooltip instead - just
+	// the title="..." attribute, no JS component at all - which trades
+	// visual polish for a guarantee that this feature can never again
+	// conflict with anything else on the page, since there is nothing left
+	// for it to conflict with.
+	private static function to_plain_text($tip) {
+		// Native tooltips only ever show plain text, so block-ish
+		// boundaries are turned into separators (title="" does render \n)
+		// before stripping the rest, so e.g. format_info_tooltip()'s table
+		// still reads as "Label: value" one per line instead of one run-on
+		// wall of text.
+		$plain = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
+		$plain = preg_replace('#</(tr|div|p|li)>|<br\s*/?>#i', "\n", $plain);
+		$plain = trim(html_entity_decode(strip_tags($plain), ENT_QUOTES));
+		$plain = preg_replace('/[ \t]{2,}/', ' ', $plain);
+		return preg_replace("/\n{2,}/", "\n", $plain);
+	}
+
 	/**
 	 * Returns string that when placed as tag attribute
 	 * will enable tooltip when placing mouse over that element.
@@ -51,6 +74,9 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
+		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+			return ' data-epesi-tooltip="1" title="'.htmlspecialchars(self::to_plain_text($tip)).'" ';
+		}
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.show(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}
 
@@ -64,12 +90,23 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 */
 	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
 		if(MOBILE_DEVICE) return '';
-		
+
 		$tooltip_settings = array('callback'=>$callback, 'args'=>$args);
 		$tooltip_id = md5(serialize($tooltip_settings));
-		
+
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
-		
+
+		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+			// Content isn't known yet - theme_adminlte/tooltip.js's
+			// epesi_tooltip_ajax_load(), wired via plain onmouseenter (no
+			// Bootstrap/Popper involved, see open_tag_attrs() above), POSTs
+			// to the same modules/Utils/Tooltip/req.php the default theme
+			// uses on first hover and rewrites the title attribute in
+			// place. Native tooltips don't refresh mid-display, so the
+			// very first hover on a given element still shows "Loading..."
+			// once; the fetched content shows from the next hover onward.
+			return ' data-epesi-tooltip="1" title="'.htmlspecialchars(__('Loading...')).'" onmouseenter="epesi_tooltip_ajax_load(this,\''.$tooltip_id.'\')" ';
+		}
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}
@@ -104,7 +141,8 @@ class Utils_TooltipCommon extends ModuleCommon {
 
     public static function is_tooltip_code_in_str($str)
     {
-        return str_contains($str, 'Utils_Toltip.show(') || str_contains($str, 'Utils_Tooltip.load_ajax(');
+        return str_contains($str, 'Utils_Toltip.show(') || str_contains($str, 'Utils_Tooltip.load_ajax(')
+            || str_contains($str, 'data-epesi-tooltip="1"');
     }
 
 	/**
@@ -139,12 +177,27 @@ class Utils_TooltipCommon extends ModuleCommon {
 			Libs_LeightboxCommon::display('tooltip_leightbox_mode', '<center><span id="tooltip_leightbox_mode_content" /></center>');
 			$init = $loc;
 		}
-		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="Utils_Tooltip.leightbox_mode(this)" ';
+		// typeof-guarded like open_tag_attrs()/ajax_open_tag_attrs() above -
+		// js/tooltip.js (and its Utils_Tooltip global) isn't loaded under
+		// adminlte (see the bottom of this file), so this would otherwise
+		// throw on click there; the leightbox itself still opens via
+		// get_open_href()'s own href, just without this tooltip content
+		// pre-populating it.
+		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.leightbox_mode(this)" ';
 	}
 	
 }
 
-load_js('modules/Utils/Tooltip/js/tooltip.js');
-Utils_TooltipCommon::init_tooltip_div();
+// The default theme's custom mouse-tracking #tooltip_div is unused under
+// adminlte (plain native title="..." tooltips instead, see open_tag_attrs())
+// - loading it too would be dead weight, and init_tooltip_div() would inject
+// a floating div nothing ever shows. theme_adminlte/tooltip.js is still
+// needed for the ajax_open_tag_attrs() variant's on-hover content fetch.
+if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+	load_js('modules/Utils/Tooltip/theme_adminlte/tooltip.js');
+} else {
+	load_js('modules/Utils/Tooltip/js/tooltip.js');
+	Utils_TooltipCommon::init_tooltip_div();
+}
 
 ?>
