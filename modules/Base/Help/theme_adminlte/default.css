@@ -1,0 +1,136 @@
+/* AdminLTE re-skin for Base_Help's navbar toggle. Per-file theme resolution
+ * replaces the whole stylesheet, not just the rules that changed, so the
+ * fixed-position overlay/menu/tutorial-highlight rules below are carried
+ * forward unchanged from theme/default.css - only the .epesi-help-* toggle
+ * rules are new. */
+
+.epesi-help {
+	display: inline-flex;
+}
+
+.epesi-help-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	color: #495057;
+	text-decoration: none;
+	font-size: 0.85rem;
+	padding: 0.3rem 0.5rem;
+	border-radius: 0.375rem;
+}
+
+.epesi-help-toggle:hover {
+	background-color: #e9ecef;
+	color: #0d6efd;
+}
+
+.epesi-help-toggle .bi {
+	font-size: 1.15rem;
+}
+
+/* ---- carried forward from the default theme (unchanged) ---- */
+
+.Base_Help__tools {
+	z-index:9001;
+	background:none;
+	position:fixed;
+	top:0px;
+}
+
+.Base_Help__tools.comment {
+	font-size: 24px;
+	background-color: rgba(128, 70, 70, 0.9);
+	padding: 10px;
+	border: 6px solid #900;
+	color: white;
+	text-shadow: 1px 1px 2px black;
+	max-width: 300px;
+	border-radius: 10px;
+	box-shadow: 1px 1px 2px black inset, 2px 2px 4px black;
+}
+
+.Base_Help__tools.comment .button_next {
+	float: right;
+	background-color: #EEE;
+	font-size: 21px;
+	margin: 6px 4px 2px;
+	padding: 4px;
+	border: 1px solid #333;
+	border-radius: 6px;
+	cursor: pointer;
+	background: #b8b8b8;
+}
+
+#Base_Help__overlay {
+	position: fixed;
+	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	background-color: #333;
+	-moz-opacity: 0.9;
+	opacity: .90;
+	filter: alpha(opacity=90);
+}
+.tutorial_links a {
+	display: block;
+	font-size: 22px;
+	padding: 3px 10px;
+}
+
+.tutorial_links {
+	height: 290px;
+	overflow: hidden;
+}
+
+#Base_Help__menu {
+	position: fixed;
+	top: 20px;
+	right: 40px;
+	width: 470px;
+	height: 370px;
+	z-index: 1001;
+	background-color: #F7F7BA;
+
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-shadow: 2px 2px 7px -1px black;
+	-moz-box-shadow: 2px 2px 7px -1px black;
+	box-shadow: 2px 2px 7px -1px black;
+}
+
+#Base_Help__search {
+	width: 442px;
+	margin: 10px;
+	padding: 4px;
+	font-size: 24px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: 2px 2px 7px -1px black;
+	-moz-box-shadow: 2px 2px 7px -1px black;
+	box-shadow: 2px 2px 7px -1px black;
+}
+
+#Base_Help__click_icon {
+	position: fixed;
+	z-index: 9002;
+}
+
+#Base_Help__help_close_menu {
+	position: absolute;
+	cursor: pointer;
+	bottom: 5px;
+	right: 5px;
+	font-size: 19px;
+	font-weight: bold;
+	height: 20px;
+}
+
+#Base_Help__help_close_menu img {
+	margin-left: 4px;
+	float: right;
+}

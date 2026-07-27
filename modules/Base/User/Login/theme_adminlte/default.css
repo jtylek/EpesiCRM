@@ -80,3 +80,65 @@ body:has(.login-page-adminlte) #body_content {
 .login-page-adminlte .form-check {
 	padding-top: 0.3rem;
 }
+
+/* ---- logged-in-as / logout (rendered in the shell's top navbar) ----
+ * Login_0.php builds these as pre-rendered HTML strings shared with the
+ * default theme (a <br> inside .logged_as, a background-image sprite inside
+ * .logout_icon_img) - restyled here via CSS only, nothing in Login_0.php
+ * changed. Base_Box's own adminlte CSS also neutralizes float/hides this
+ * <br> generically for every navbar widget; the rules below just make this
+ * one look intentional rather than merely un-broken. */
+
+#top_bar .logged_as {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 0.85rem;
+	color: #495057;
+}
+
+#top_bar .logged_as::before {
+	font-family: "bootstrap-icons";
+	content: "\f4d7";
+	font-size: 1.1rem;
+	color: #6c757d;
+}
+
+#top_bar .logged_as b.green {
+	color: #212529;
+}
+
+#top_bar .logout_css3_box {
+	box-shadow: none;
+}
+
+#top_bar .logout_icon {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	color: #495057;
+	background: none;
+	padding: 0.3rem 0.5rem;
+	border-radius: 0.375rem;
+	font-size: 0.85rem;
+	text-decoration: none;
+}
+
+#top_bar .logout_icon:hover,
+#top_bar .logout_icon:focus {
+	background-color: #e9ecef;
+	color: #dc3545;
+}
+
+/* The default theme's sprite icon - dropped in favour of the Bootstrap Icons
+   glyph below, added via ::before so it sits ahead of the "Logout" text
+   despite the icon div coming after it in Login_0.php's markup. */
+#top_bar .logout_icon_img {
+	display: none;
+}
+
+#top_bar .logout_icon::before {
+	font-family: "bootstrap-icons";
+	content: "\f1c3";
+	font-size: 1rem;
+}

@@ -9,6 +9,34 @@
 
 {php}
 	eval_js_once('document.body.id=null'); //pointer-events:none;
+
+	// --epesi-header-height (padding-top on .app-main, min-height on the
+	// sidebar brand box) is a static guess. The navbar can grow taller than it
+	// whenever the still-default-themed search/filter/help/login widgets it
+	// hosts wrap onto another row (see the .navbar-nav comment in this theme's
+	// default.css) - without this, .app-main's fixed offset falls short and
+	// the (now taller) fixed navbar overlaps the page's own content. Likewise
+	// --epesi-actionbar-height (the ActionBar is now docked fixed under the
+	// navbar, always visible - see the .app-content-header comment) varies
+	// with however many actions the current screen registers. Both are kept
+	// in sync continuously, not just once at load, since either element's
+	// content can change size after an AJAX navigation without the shell
+	// itself (this template) re-rendering.
+	eval_js_once(
+		"(function(){".
+			"var wrap=document.querySelector('.epesi-adminlte');".
+			"if(!wrap)return;".
+			"function watch(el,prop){".
+				"if(!el)return;".
+				"var sync=function(){wrap.style.setProperty(prop,el.offsetHeight+'px');};".
+				"sync();".
+				"if(window.ResizeObserver)new ResizeObserver(sync).observe(el);".
+				"else window.addEventListener('resize',sync);".
+			"}".
+			"watch(document.getElementById('top_bar'),'--epesi-header-height');".
+			"watch(document.getElementById('ActionBar'),'--epesi-actionbar-height');".
+		"})();"
+	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part
 	   of the shell being replaced - carried over unchanged so the tutorials keep
@@ -50,9 +78,9 @@
 				<li class="nav-item" id="search_box">{$search}</li>
 				<li class="nav-item" id="filter_box">{$filter}</li>
 				<li class="nav-item top_bar_help">{$help}</li>
-				{if isset($donate)}
-					<li class="nav-item donate d-none d-md-block">{$donate}</li>
-				{/if}
+				{* $donate ("Support EPESI!") dropped from this theme's navbar to
+				   keep the row to one line - Box_0.php still assigns it (shared
+				   with the default theme), it's just not rendered here. *}
 				<li class="nav-item login">{$login}</li>
 			</ul>
 		</div>

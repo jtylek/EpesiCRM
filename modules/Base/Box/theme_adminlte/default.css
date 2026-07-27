@@ -16,6 +16,7 @@ body {
 .epesi-adminlte {
 	--epesi-sidebar-width: 250px;
 	--epesi-header-height: 3.5rem;
+	--epesi-actionbar-height: 3rem;
 }
 
 /* ---- header ---- */
@@ -26,10 +27,36 @@ body {
 	left: 0;
 	right: 0;
 	z-index: 1038;
-	min-height: var(--epesi-header-height);
+	/* A literal value, not var(--epesi-header-height) - that variable is
+	   written FROM this element's own measured offsetHeight (see the
+	   ResizeObserver in default.tpl), so using it here too would create a
+	   one-way ratchet: any transient over-height moment (a slow-loading
+	   webfont/image reflowing something taller, or just the first measurement
+	   landing before layout settles) gets fed back in as a new min-height,
+	   which can then never shrink back down, since offsetHeight can never
+	   measure below the min-height that same value now enforces. Every
+	   reported "too much blank space in the navbar" case traced back to this
+	   growing once and sticking. */
+	min-height: 3.5rem;
 	background-color: #fff;
 	border-bottom: 1px solid #dee2e6;
 	padding: 0;
+}
+
+/* The navbar's own background spans the full width (left:0) so it reads as
+   one continuous bar with the sidebar-brand box next to it, but the sidebar
+   is a separate fixed element stacked above it (z-index 1040 > 1038) over
+   that same left stretch - so the navbar's actual content (toggle/home,
+   module indicator, search/filter/help/login) has to start after the
+   sidebar's width, or the sidebar draws over it. Left unoffset, the toggle
+   and home links were entirely hidden behind the sidebar (unclickable, not
+   just invisible) and the module indicator's text got cut off mid-word right
+   at the sidebar's edge. Same responsive behaviour as .app-main: collapses
+   to 0 whenever the sidebar itself does (off-canvas below lg, or toggled
+   away on larger screens). */
+.epesi-adminlte .app-header .container-fluid {
+	margin-left: var(--epesi-sidebar-width);
+	transition: margin-left 0.25s ease-in-out;
 }
 
 .epesi-adminlte .app-header .nav-link {
@@ -57,17 +84,69 @@ body {
 	max-width: 40vw;
 }
 
-/* The shell's own widgets (search/filter/login/help) come from modules that
-   still emit the default theme's markup; keep them from inheriting odd sizing
-   and let them sit inline in the navbar. */
+/* The shell's own widgets (search/filter/help/login) come from modules that
+   still emit the default theme's markup - fixed pixel widths/heights, float,
+   and position:relative offsets sized for the old <table> navbar, plus (for
+   the logged-in-as widget) a literal <br> forcing "Logged as" onto its own
+   line. None of that composes with a flex navbar: floats escape the item's
+   flex sizing and stack unpredictably, and mismatched internal line counts
+   between items throw off vertical alignment even with align-items:center.
+   Reset broadly here rather than chasing each module's specific class names -
+   float is purely presentational leftover for all of these, so neutralizing
+   it is safe (unlike position, which real components like Utils_Tooltip's
+   popup still need, so that is left alone). */
+.epesi-adminlte .app-header .nav-item {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.epesi-adminlte .app-header .nav-item * {
+	float: none !important;
+}
+
+/* Only the logged-in-as widget's own <br> - other widgets in this row (e.g.
+   the donate tooltip's popup body) use <br> for real multi-line content that
+   should stay intact. */
+.epesi-adminlte .app-header .nav-item .logged_as br {
+	display: none;
+}
+
 .epesi-adminlte .app-header .nav-item > * {
-	display: inline-block;
-	vertical-align: middle;
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
 }
 
 .epesi-adminlte .app-header .nav-item img {
 	max-height: 24px;
 	width: auto;
+}
+
+/* The row must stay on one line - wrapping either whole items or (worse,
+   Bootstrap's flex-wrap:nowrap default) squeezing an item's own text onto a
+   second line both grow the navbar unpredictably (see point 4/5 in this
+   theme's own notes on why that fed back into --epesi-header-height). With
+   Support EPESI dropped and every widget's internal float/<br> quirks reset
+   above, the remaining items fit at ordinary desktop widths; flex-shrink:0
+   stops the browser from squeezing one anyway on a narrower one, and
+   overflow-x:auto lets the row scroll horizontally as a last resort instead
+   of wrapping or corrupting layout if it still doesn't fit. */
+.epesi-adminlte .app-header .navbar-nav {
+	flex-wrap: nowrap;
+	/* Tight by default - the left cluster is just the sidebar toggle and home
+	   link, sitting right next to each other with a 1rem gap read as a large
+	   empty box between two small icons. The right-hand cluster (several
+	   distinct widgets: search/filter/help/login) gets its own wider gap
+	   below, where that separation is actually useful. */
+	gap: 0.35rem 0.35rem;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+.epesi-adminlte .app-header .navbar-nav.ms-auto {
+	justify-content: flex-end;
+	gap: 0.35rem 1rem;
 }
 
 /* ---- sidebar ---- */
@@ -119,6 +198,13 @@ body {
 }
 
 .epesi-adminlte .sidebar-brand img {
+	/* logo.tpl hardcodes width="193" height="83" (HTML attributes, sized for
+	   the default theme's own header) - those act like a low-priority
+	   width/height in CSS terms, so overriding height alone left width
+	   pinned at 193px while max-height squashed it down to 40px, stretching
+	   the aspect ratio. width:auto removes that pinned width too, so the
+	   image scales proportionally from max-height instead. */
+	width: auto;
 	max-width: 100%;
 	height: auto;
 	max-height: 40px;
@@ -146,15 +232,31 @@ body {
 
 .epesi-adminlte .app-main {
 	margin-left: var(--epesi-sidebar-width);
-	padding-top: var(--epesi-header-height);
+	padding-top: calc(var(--epesi-header-height) + var(--epesi-actionbar-height));
 	min-height: 100vh;
 	transition: margin-left 0.25s ease-in-out;
 }
 
+/* Docked under the navbar rather than scrolling away with the page content -
+   the ActionBar carries the current screen's actions (add/edit/delete/...),
+   so it needs to stay reachable without scrolling back up. Fixed to the
+   viewport like the navbar/sidebar, offset by the navbar's real height and
+   confined to the content column (left starts after the sidebar) so it
+   doesn't run underneath it. Both --epesi-header-height and
+   --epesi-actionbar-height are kept in sync with the actual rendered
+   elements by the ResizeObserver in Base_Box/theme_adminlte/default.tpl -
+   this bar's own height is content-dependent (a screen's action list varies),
+   so it can't be a fixed guess any more than the navbar's height could. */
 .epesi-adminlte .app-content-header {
+	position: fixed;
+	top: var(--epesi-header-height);
+	left: var(--epesi-sidebar-width);
+	right: 0;
+	z-index: 1030;
 	background-color: #fff;
 	border-bottom: 1px solid #dee2e6;
 	padding: 0.4rem 0;
+	transition: left 0.25s ease-in-out;
 }
 
 .epesi-adminlte .app-content {
@@ -182,6 +284,12 @@ body {
 	.epesi-adminlte .app-main {
 		margin-left: 0;
 	}
+	.epesi-adminlte .app-content-header {
+		left: 0;
+	}
+	.epesi-adminlte .app-header .container-fluid {
+		margin-left: 0;
+	}
 	body.sidebar-open .epesi-adminlte .app-sidebar {
 		margin-left: 0;
 	}
@@ -193,6 +301,12 @@ body {
 		margin-left: calc(-1 * var(--epesi-sidebar-width));
 	}
 	body.sidebar-collapse .epesi-adminlte .app-main {
+		margin-left: 0;
+	}
+	body.sidebar-collapse .epesi-adminlte .app-content-header {
+		left: 0;
+	}
+	body.sidebar-collapse .epesi-adminlte .app-header .container-fluid {
 		margin-left: 0;
 	}
 }

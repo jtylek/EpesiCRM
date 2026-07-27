@@ -80,25 +80,39 @@ class Base_Menu extends Module {
 				continue;
 			}
 
-			$icon = null;
-			if (array_key_exists('__icon_small__', $arr)) {
-				$icon = is_readable($arr['__icon_small__'])
-					? $arr['__icon_small__']
-					: Base_ThemeCommon::get_template_file($arr['parent_module'] ?? '', $arr['__icon_small__']);
-				unset($arr['__icon_small__'], $arr['__icon__']);
-			} elseif (array_key_exists('__icon__', $arr)) {
-				$icon = is_readable($arr['__icon__'])
-					? $arr['__icon__']
-					: Base_ThemeCommon::get_template_file($arr['parent_module'] ?? '', $arr['__icon__']);
-				unset($arr['__icon__']);
-			} elseif (isset($arr['parent_module']) && is_string($arr['parent_module'])) {
-				$icon = Base_ThemeCommon::get_template_file($arr['parent_module'], 'icon-small.png');
-			}
-			unset($arr['parent_module']);
+			// Menu entries carry an arbitrary module-provided icon filename (or
+			// none at all - falling back to the module's own icon-small.png),
+			// not a name from a fixed enum - the same problem Base_ActionBar's
+			// adminlte theme has with its quick-access launcher icons, and the
+			// same two-layer answer: the icon filename's own basename first
+			// (distinguishes sibling entries under one module, e.g. CRM_Contacts'
+			// companies.png/contacts.png), then the owning module, then a plain
+			// folder/dot for anything still unmatched. static persists across
+			// this method's recursive calls without recomputing per call.
+			static $file_map = array(
+				'companies' => 'bi-building',
+				'contacts'  => 'bi-person-vcard-fill',
+			);
+			static $module_map = array(
+				'CRM/Calendar'   => 'bi-calendar3',
+				'CRM/Contacts'   => 'bi-person-vcard-fill',
+				'CRM/Tasks'      => 'bi-list-task',
+				'Tests/Bugtrack' => 'bi-bug-fill',
+				'Base/Admin'     => 'bi-gear-fill',
+			);
+			$icon_raw = $arr['__icon_small__'] ?? $arr['__icon__'] ?? null;
+			$parent_module = $arr['parent_module'] ?? null;
+			unset($arr['__icon_small__'], $arr['__icon__'], $arr['parent_module']);
 
 			$is_sub = array_key_exists('__submenu__', $arr);
-			if (!$icon)
-				$icon = Base_ThemeCommon::get_template_file('Base_Menu', $is_sub ? 'folder.png' : 'element.png');
+			$stem = $icon_raw ? strtolower(pathinfo($icon_raw, PATHINFO_FILENAME)) : null;
+			$module_key = $parent_module ? str_replace('_', '/', $parent_module) : null;
+			if ($stem !== null && isset($file_map[$stem]))
+				$bi_icon = $file_map[$stem];
+			elseif ($module_key !== null && isset($module_map[$module_key]))
+				$bi_icon = $module_map[$module_key];
+			else
+				$bi_icon = $is_sub ? 'bi-folder2' : 'bi-dot';
 
 			$tip = '';
 			if (array_key_exists('__description__', $arr)) {
@@ -121,7 +135,7 @@ class Base_Menu extends Module {
 
 			$label = htmlspecialchars(_V($k)); // ****** Menu - translate labels
 			$help_id = $prefix . $k;
-			$img = $icon ? '<img class="nav-icon" src="' . htmlspecialchars($icon) . '" alt="">' : '';
+			$img = '<i class="bi ' . htmlspecialchars($bi_icon, ENT_QUOTES) . ' nav-icon"></i>';
 
 			if ($is_sub) {
 				unset($arr['__submenu__']);
