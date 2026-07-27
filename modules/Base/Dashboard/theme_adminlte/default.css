@@ -14,14 +14,24 @@
 .epesi-applet-header {
 	background-color: #f8f9fa;
 	border-bottom: 1px solid #dee2e6;
-	padding: 0.4rem 0.6rem;
+	padding: 0.05rem 0.5rem;
+	font-size: 1rem;
+	line-height: 1;
 }
 
 .epesi-applet-title {
 	font-weight: 600;
+	font-size: 1rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	/* Grow to fill the header, rather than leaving justify-content:between to
+	   place the actions cluster purely via the gap it computes - guarantees
+	   the actions end up flush against the header's true right edge even if
+	   an item from $actions (arbitrary per-applet HTML, e.g. Tasks' "add"
+	   button) brings along old float/positioning of its own. */
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .epesi-applet-title.handle {
@@ -35,13 +45,53 @@
 .epesi-applet-actions {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 0.35rem;
 	flex: 0 0 auto;
+	/* Independent of the parent's justify-content:space-between - margin:auto
+	   on a flex item unconditionally eats all free space to its own side, so
+	   this stays pinned to the header's right edge even if something about
+	   $actions' own markup (see .epesi-applet-title's comment) disrupts the
+	   parent's distribution. */
+	margin-left: auto;
+}
+
+.epesi-applet-actions * {
+	float: none !important;
+	line-height: 1 !important;
+}
+
+/* $actions (foreach'd in from arbitrary per-applet code) can carry its own
+   padding/border/background sized for a normal button - overridden here so
+   it doesn't set the whole row's height the way .href/.toggle/.configure/
+   .remove's plain glyphs don't. */
+.epesi-applet-actions > * {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: none !important;
+	min-height: 0 !important;
+	height: auto !important;
+}
+
+/* e.g. Tasks' own "add new record" action (Utils_RecordBrowserCommon::
+   applet_new_record_button()) is a raw <img src="add.png"> with no class,
+   sized to the PNG's own pixel dimensions - capped to match the Bootstrap
+   Icons glyphs around it instead of dictating the row's height. */
+.epesi-applet-actions img {
+	width: 0.9em;
+	height: 0.9em;
+	object-fit: contain;
+}
+
+.epesi-applet-actions .bi {
+	font-size: 0.85em;
 }
 
 .epesi-applet-actions a {
 	color: #6c757d;
 	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
 }
 
 .epesi-applet-actions a:hover {
