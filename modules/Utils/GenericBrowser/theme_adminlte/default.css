@@ -7,6 +7,11 @@
 
 .epesi-gb {
 	overflow: visible;
+	/* Cascades to the table cells, toolbar and pagination below (none of
+	   which set their own font-size/line-height except where noted) for a
+	   denser table overall. */
+	font-size: 0.8rem;
+	line-height: 1.25;
 }
 
 .epesi-gb .card-header,
@@ -26,7 +31,7 @@
 	border: 1px solid #ced4da;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
-	font-size: 0.85rem;
+	font-size: 0.8rem;
 }
 
 .epesi-gb-search input[type="text"]:focus,
@@ -43,7 +48,7 @@
 	background-color: #fff;
 	color: #495057;
 	padding: 0.25rem 0.6rem;
-	font-size: 0.85rem;
+	font-size: 0.8rem;
 	text-decoration: none;
 	display: inline-block;
 }
@@ -116,7 +121,7 @@
 	border: 1px solid #ced4da;
 	color: #343a40;
 	text-decoration: none;
-	font-size: 0.85rem;
+	font-size: 0.8rem;
 }
 
 .epesi-gb-pager a:hover {
@@ -140,7 +145,7 @@
 	border: 1px solid #ced4da;
 	border-radius: 0.25rem;
 	padding: 0.15rem 0.4rem;
-	font-size: 0.85rem;
+	font-size: 0.8rem;
 }
 
 @media (max-width: 575.98px) {
