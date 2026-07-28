@@ -11,10 +11,19 @@ validate: function(ev,f) {
 	this.init_re(f);
 	if(!this.re.test(val))
 		Event.stop(ev);
-	if(!this.re.test(elem.value)) {
-		alert('Invalid date - clearing');
-		elem.value='';
-	}
+	// The redundant elem.value re-check that used to live here (alert()+
+	// clear the whole field whenever the value-so-far didn't fully match)
+	// fired on every single keystroke of a still-incomplete date - e.g.
+	// typing "0" for the month before reaching the "/" separator, which
+	// alone never matches - not just on genuinely invalid input. Event.stop()
+	// above already blocks this keystroke outright whenever the prospective
+	// value doesn't match, so elem.value only ever holds characters this same
+	// regex already accepted a keystroke earlier via that same guard;
+	// re-testing it here just re-flagged an in-progress, not-yet-complete
+	// date as "invalid" - reported as the "Invalid date - clearing" alert
+	// reappearing while creating a contact. Validating the settled value
+	// belongs in validate_blur() (on leaving the field), not interrupting
+	// every keystroke while the user is still mid-entry.
 },
 validate_blur: function(ev,f) {
 	var elem = Event.element(ev);
