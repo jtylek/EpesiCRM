@@ -123,43 +123,8 @@ class CRM_LoginAudit extends Module {
 
 		$this->display_module($gb);
 
-	if(!DEMO_MODE)
-	        Base_ActionBarCommon::add('settings',__('Maintenance'),$this->create_callback_href($this->purge_log(...)));
         return true;
 	}
-
-    public function purge_log(){
-
-        # Return to main body
-        if($this->is_back()) return false;
-
-        $form = $this->init_module(Libs_QuickForm::module_name(),null,'purge_date');
-
-        $form->addElement('header',null,__('Audit Log Maintenance'));
-        $form -> addElement('html','<tr><td colspan=2><br />'.__('Purge log with records older than specified number of days:').'</td></tr>');
-        $form->addElement('select','purge_date',__('Select number of days'), array(30=>30,90=>90,365=>365,1=>'All'));
-		$purge_date = $form->exportValue('purge_date');
-        $form->display();
-
-        if (!$purge_date==null){
-            $del_date=strtotime("-".$purge_date." days",time());
-            $sql_date=date('Y-m-d H:i:s',$del_date);
-            # print ('<br/> date: '.$sql_date.'<br />');
-            if ($purge_date==1) {
-                $sql_query = 'Delete FROM base_login_audit';
-                $ret = DB::Execute($sql_query);
-                print (__('Entire log was purged!'));
-            } else {
-                $sql_query = 'Delete FROM base_login_audit where start_time < \''.$sql_date.'\'';
-                $ret = DB::Execute($sql_query);
-                print (__('Records older than %s days (%s) were purged.', array($purge_date, date('Y-m-d',$del_date))));
-            }
-        }
-
-        Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
-        Base_ActionBarCommon::add('delete',__('Purge Log File'),'href="javascript:void(0)" onClick="if(confirm(\''.Epesi::escapeJS(__('Log will be purged!')).'\')){'.$form->get_submit_form_js().'}"');
-        return true;
-    }
 }
 
 ?>
