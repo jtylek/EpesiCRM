@@ -61,6 +61,17 @@
 	max-width: 76px;
 	overflow-wrap: anywhere;
 	white-space: normal;
+	/* Reserve room for 2 lines of label text at all times, not just when a
+	   label actually wraps that far - the ActionBar's real height is driven
+	   by --epesi-actionbar-height, a live ResizeObserver reading (Base_Box/
+	   theme_adminlte/default.tpl) that keeps .app-main's offset in sync with
+	   #ActionBar's actual rendered height, so navigating from a screen with
+	   short one-line labels to one with a longer wrapped label visibly grew
+	   the bar - and shifted everything below it - on every navigation.
+	   min-height here keeps every button's label box, and so the whole bar
+	   (every button stretches to match, via .epesi-actionbar's own
+	   align-items:stretch), a constant height regardless of content. */
+	min-height: calc(1.15em * 2);
 }
 
 /* Below the label breakpoint icons stay tappable but text drops, matching how
