@@ -44,7 +44,26 @@
 	padding: 0;
 }
 
-.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
+/* Gap between the left/right field columns (each td.column is its own inner
+   table.edit/view). border-spacing on the outer table doesn't work here -
+   Bootstrap's global "table { border-collapse: collapse }" reset applies to
+   every <table> on the page regardless of class, and border-spacing has no
+   effect at all once border-collapse is collapse - so this uses padding
+   instead, which isn't affected by that reset. Left/right (not just one
+   side) so adjacent columns' padding adds up to the full gap between them. */
+.Utils_RecordBrowser__View_entry td.column {
+	vertical-align: top;
+	padding-left: 24px;
+	padding-right: 24px;
+}
+
+.Utils_RecordBrowser__View_entry td.column:first-child {
+	padding-left: 0;
+}
+
+.Utils_RecordBrowser__View_entry td.column:last-child {
+	padding-right: 0;
+}
 
 .Utils_RecordBrowser__View_entry table.view {
     width: 100%;
@@ -168,8 +187,13 @@
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
-	width: 99%;
-	height: 14px;
+	/* 100%/box-sizing so the field (and so its :focus background) fills the
+	   whole .data cell - was 99%/14px (a sliver short both ways), leaving a
+	   visible gap around the focus highlight between the field and the
+	   cell's own edges. */
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
     background-color: #fff;
     border: 0px;
 	padding: 3px 5px;
@@ -225,10 +249,9 @@
 }
 
 .Utils_RecordBrowser__View_entry .data select {
-	height: 18px;
-	padding: 0;
-	margin-left: 2px;
-	margin-top: 2px;
+	height: 100%;
+	padding: 0 5px;
+	margin: 0;
 }
 
 .Utils_RecordBrowser__View_entry .form_error img {
@@ -339,6 +362,11 @@
 .Utils_RecordBrowser__View_entry .data select:focus,
 .Utils_RecordBrowser__View_entry .data textarea:focus {
     background-color: #eaf2ff;
+    /* The browser's own default focus ring (rounded, inset-looking) was
+       never overridden here, so it rendered on top of this background
+       highlight - the light-blue background alone is the intended cue. */
+    outline: none;
+    box-shadow: none;
 }
 
 .Utils_RecordBrowser__View_entry #multiselect .form-element select,
