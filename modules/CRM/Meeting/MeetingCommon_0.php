@@ -11,6 +11,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_MeetingCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-calendar-event'; }
+
 	public static function crm_calendar_handler($action) {
 		$args = func_get_args();
 		array_shift($args);

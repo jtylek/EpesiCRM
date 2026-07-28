@@ -11,6 +11,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_LoginAuditCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-door-open'; }
 
 	public static function user_label($id) {
 		$label = Base_UserCommon::get_user_login($id);

@@ -10,6 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Apps_ActivityReportCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-graph-up'; }
+
 	public static function menu(){
 	    if (self::has_access_to_report())
     		return array(_M('Reports')=>array_merge(array('__submenu__'=>1,_M('User Activity Report')=>array())));

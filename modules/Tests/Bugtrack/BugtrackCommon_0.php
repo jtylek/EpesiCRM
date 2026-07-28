@@ -12,6 +12,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_BugtrackCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-bug-fill'; }
+
 /*
     public static function get_bugtrack($id) {
 		return Utils_RecordBrowserCommon::get_record('bugtrack', $id);

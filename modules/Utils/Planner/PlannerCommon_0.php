@@ -10,6 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PlannerCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-kanban'; }
+
 	public static function user_settings(){
 		return array(__('Planners')=>array(
 //			array('name'=>'per_page','label'=>'Records per page','type'=>'select','values'=>array(5=>5,10=>10,20=>20,50=>50,100=>100),'default'=>20),

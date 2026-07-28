@@ -14,6 +14,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_AttachmentCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-paperclip'; }
 
 	public static function new_addon($table, $caption = 'Notes') {
 		Utils_RecordBrowserCommon::new_addon($table, Utils_Attachment::module_name(), 'body', $caption);

@@ -12,6 +12,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_Contacts_NotesAggregateCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-journal-text'; }
+
 	public static function user_settings() {
 		return array(__('Notes Aggregate')=>array(
 				array('name'=>'show_all_notes','label'=>__('Include Record Notes in Aggregate'),'type'=>'checkbox','default'=>false)

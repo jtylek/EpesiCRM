@@ -11,6 +11,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_FaxCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-printer'; }
+
 	public static function attachment_getters() {
 		if(Base_AclCommon::check_permission('Fax - Send'))
 			return array(_M('Fax')=>array('func'=>'fax_file','icon'=>null));

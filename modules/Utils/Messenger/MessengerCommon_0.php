@@ -11,6 +11,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_MessengerCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-envelope'; }
+
 	public static function applet_caption() {
 		return __('Messenger alarms');
 	}

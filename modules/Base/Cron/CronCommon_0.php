@@ -13,6 +13,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_CronCommon extends ModuleCommon
 {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-clock'; }
+
     public static function admin_caption()
     {
         return array('label' => __('Cron'), 'section' => __('Server Configuration'));

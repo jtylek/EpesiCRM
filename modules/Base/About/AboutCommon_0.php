@@ -12,6 +12,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_AboutCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-info-circle'; }
+
 	public static function menu() {
 		return array(_M('Support')=>array('__submenu__'=>1,'__weight__'=>1000,_M('About')=>array('__weight__'=>100,'__function__'=>'info')));
 	}	

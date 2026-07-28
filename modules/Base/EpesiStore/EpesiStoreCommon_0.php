@@ -12,6 +12,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-box-seam'; }
 
     const ACTION_BUY = 'buy';    // __('Buy')
     const ACTION_DOWNLOAD = 'download'; // __('Download')

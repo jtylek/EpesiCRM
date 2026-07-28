@@ -10,6 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_QuickFormCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-ui-checks'; }
+
 	public static function autocomplete($arg) {
 		return '<ul><li>Works! Word: '.$arg.'</ul></li>';
 	}

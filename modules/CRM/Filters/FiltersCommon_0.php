@@ -10,6 +10,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_FiltersCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-funnel'; }
+
 	public static $in_use = false;
 	
 	public static function get_profile_desc() {

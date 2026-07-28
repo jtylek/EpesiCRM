@@ -12,6 +12,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tools_SessionKeeperCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-hourglass-split'; }
+
     public static function user_settings(){
         $time = ini_get("session.gc_maxlifetime");
         $def = array('default'=>__('default server time (%s minutes)', array($time/60)));

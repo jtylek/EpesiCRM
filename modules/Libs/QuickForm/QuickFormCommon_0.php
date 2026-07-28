@@ -14,6 +14,12 @@ require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
 require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
 
 class Libs_QuickFormCommon extends ModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-input-cursor-text'; }
+
 	private static $on_submit = array();
 	
 	public static function add_on_submit_action($action) {

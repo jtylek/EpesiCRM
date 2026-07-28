@@ -18,6 +18,12 @@ require_once ('modules/Base/Mail/class.pop3.php');
 require_once ('modules/Base/Mail/class.phpmailer.php');
 
 class Base_MailCommon extends Base_AdminModuleCommon {
+	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/adminlte_icons.php.
+	public static function adminlte_icon() { return 'bi-envelope-at'; }
+
 	/**
 	 * For internal use only.
 	 */
