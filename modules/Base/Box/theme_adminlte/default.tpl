@@ -1,3 +1,13 @@
+{* Portrait-mode block for phone-width screens - see default.css for the
+   media query. A fixed, full-viewport overlay rather than hiding sibling
+   elements: renders once here, ahead of both branches below, so it covers
+   the login screen too without needing to know anything about how deep
+   either branch's markup ends up nested by the time it reaches <body>. *}
+<div id="epesi-rotate-prompt">
+	<i class="bi bi-phone-landscape"></i>
+	<p>{'Please rotate your device to landscape mode.'|t}</p>
+</div>
+
 {if !$logged}
 
 <div id="Base_Box__login">
@@ -42,6 +52,28 @@
 			"}".
 			"watch(document.getElementById('top_bar'),'--epesi-header-height');".
 			"watch(document.getElementById('ActionBar'),'--epesi-actionbar-height');".
+		"})();"
+	);
+
+	// Below lg, the sidebar is an off-canvas overlay (see default.css) that
+	// stays open (body.sidebar-open) across a menu-driven navigation until
+	// the user explicitly closes it - since navigating IS what they were
+	// trying to do, closing it automatically here saves that extra tap.
+	// Delegated on #MenuBar (Base_Menu::build_menu_html()'s own wrapper, not
+	// re-rendered by ordinary AJAX navigation) rather than bound per-link, so
+	// this doesn't need to be re-attached after anything. Excludes
+	// a.menu-parent (data-bs-toggle="collapse" submenu headers - clicking one
+	// only expands/collapses a submenu, no navigation happens, so the sidebar
+	// shouldn't close).
+	eval_js_once(
+		"(function(){".
+			"var bar=document.getElementById('MenuBar');".
+			"if(!bar)return;".
+			"bar.addEventListener('click',function(e){".
+				"var a=e.target.closest('a.nav-link:not(.menu-parent)');".
+				"if(!a)return;".
+				"if(window.innerWidth<992)document.body.classList.remove('sidebar-open');".
+			"});".
 		"})();"
 	);
 {/php}
@@ -96,6 +128,17 @@
 	<aside class="app-sidebar shadow" id="epesi_sidebar">
 		<div class="sidebar-brand">
 			<div class="brand-logo">{$logo}</div>
+			{* Duplicate of the navbar's own data-lte-toggle (line ~65) - below the
+			   lg breakpoint the open sidebar is a same-z-index-stack, higher-
+			   priority overlay (z-index 1040) sitting on top of the navbar
+			   (z-index 1038, see Base_Box/theme_adminlte/default.css), covering
+			   the only other toggle and leaving no way to close the menu again.
+			   d-lg-none: desktop never has this problem (the sidebar there pushes
+			   .app-main over rather than overlaying the navbar), so hidden there
+			   to avoid a redundant second button. *}
+			<a class="sidebar-toggle-inline d-lg-none" data-lte-toggle="sidebar" href="#" role="button" aria-label="{'Toggle navigation'|t}">
+				<i class="bi bi-list"></i>
+			</a>
 		</div>
 		<div class="sidebar-wrapper" id="MenuBar">
 			{$menu}

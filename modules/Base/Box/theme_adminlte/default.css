@@ -199,8 +199,29 @@ body {
 	min-height: var(--epesi-header-height);
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	/* space-between with a d-lg-none second child (.sidebar-toggle-inline)
+	   still centers .brand-logo alone on desktop, where that child is
+	   display:none - only pushes the two apart once the toggle button is
+	   actually visible (below lg). */
+	justify-content: space-between;
 	flex: 0 0 auto;
+}
+
+.epesi-adminlte .sidebar-toggle-inline {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.375rem;
+	color: #495057;
+	font-size: 1.25rem;
+	flex: 0 0 auto;
+}
+
+.epesi-adminlte .sidebar-toggle-inline:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: #212529;
 }
 
 .epesi-adminlte .sidebar-brand img {
@@ -338,6 +359,51 @@ body {
 
 #Base_Box__login .status {
 	text-align: center;
+}
+
+/* ---- portrait lock (phone-width only) ---- */
+
+/* Hidden by default; only ever shown by the media query below. A fixed,
+   full-viewport overlay (very high z-index - above Leightbox's 1050, the
+   tallest other z-index in this theme) rather than hiding sibling elements,
+   so it works regardless of exactly how deep either of default.tpl's two
+   top-level branches (login screen vs. the logged-in shell) end up nested
+   by the time they reach <body> - no selector here needs to know that. */
+#epesi-rotate-prompt {
+	display: none;
+}
+
+@media (max-width: 767.98px) and (orientation: portrait) {
+	#epesi-rotate-prompt {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		position: fixed;
+		inset: 0;
+		z-index: 2000;
+		padding: 2rem;
+		text-align: center;
+		background-color: #212529;
+		color: #fff;
+	}
+
+	#epesi-rotate-prompt i {
+		font-size: 3.5rem;
+		animation: epesi-rotate-hint 1.6s ease-in-out infinite;
+	}
+
+	#epesi-rotate-prompt p {
+		margin: 0;
+		max-width: 20rem;
+		font-size: 1.1rem;
+	}
+
+	@keyframes epesi-rotate-hint {
+		0%, 100% { transform: rotate(0deg); }
+		50% { transform: rotate(90deg); }
+	}
 }
 
 /* ---- print ---- */
