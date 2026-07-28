@@ -143,3 +143,52 @@
 	cursor: not-allowed;
 	background-color: #ced4da;
 }
+
+/* ---- autocomplete/autoselect suggestion dropdown ----
+ * Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php prints
+ * <div id="..._suggestbox" class="autocomplete">&nbsp;</div> right after
+ * the text input, populated/shown by script.aculo.us's Ajax.Autocompleter
+ * (modules/Libs/ScriptAculoUs/1.8.0/controls.js) - no .tpl, shared with the
+ * default theme. This adminlte default.css already existed for #multiselect
+ * before this widget needed theming, so the default theme's own matching
+ * rules (theme/default.css) never got a chance to apply here at all - only
+ * per-file resolution, and this file already "wins" for this exact
+ * filename regardless of what it does or doesn't cover. Ported forward
+ * with modern colours instead of the old theme's #FFFFCC background.
+ * z-index kept very high (matches the old theme's own 2010 - this menu
+ * needs to sit above literally everything, including an open Leightbox). */
+.autocomplete {
+	z-index: 2010;
+}
+
+.autocomplete ul {
+	min-width: 300px;
+	max-width: 100%;
+	max-height: 260px;
+	overflow-y: auto;
+	background-color: #fff;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+	list-style-type: none;
+	text-align: left;
+	margin: 0.15rem 0 0;
+	padding: 0.25rem;
+	font-size: 0.85rem;
+}
+
+.autocomplete ul li {
+	display: block;
+	padding: 0.3rem 0.5rem;
+	border-radius: 0.25rem;
+	max-height: 48px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.autocomplete ul li.selected {
+	background-color: #e7f1ff;
+	color: #0d6efd;
+}

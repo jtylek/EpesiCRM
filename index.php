@@ -43,15 +43,6 @@ if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('
 
 ob_start();
 
-if(IPHONE && !isset($_GET['force_desktop'])) {
-	$show_iphone_prompt = true;
-} elseif(!IPHONE && detect_mobile_device()) {
-	header('Location: mobile.php');
-	exit();
-} else {
-	$show_iphone_prompt = false;
-}
-
 require_once('modules/Base/Theme/smarty/Smarty.class.php');
 $smarty = new Smarty();
 $smarty->template_dir = 'theme';
@@ -60,62 +51,60 @@ $smarty->compile_id = 'root';
 if (!is_dir($smarty->compile_dir)) mkdir($smarty->compile_dir, 0777, true);
 
 $smarty->assign('EPESI', EPESI);
+// IPHONE (detect_iphone(), include/misc.php) is unrelated to the retired
+// mobile/desktop chooser below - still drives its own, separate behaviour
+// (theme/index.tpl's iphone JS flag, tap-to-call links, calendar rendering
+// tweaks elsewhere), so kept as-is.
 $smarty->assign('IPHONE', (bool)IPHONE);
-$smarty->assign('show_iphone_prompt', $show_iphone_prompt);
 
-if(!$show_iphone_prompt) {
-	ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
-	require_once('Minify/Build.php');
-	$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
-	$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.2.1.js' : 'libs/jquery-migrate-1.2.1.min.js';
-	$jses = array('libs/prototype.js', $jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
-	if(!DEBUG_JS) {
-		$jsses_build = new Minify_Build($jses);
-		$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
-		$js_tags_html = "<script type='text/javascript' src='$jsses_src'></script>";
-	} else {
-		$js_tags_html = '';
-		foreach($jses as $js)
-			$js_tags_html .= "<script type='text/javascript' src='$js'></script>";
-	}
-	$csses = array('libs/jquery-ui-1.10.1.custom.min.css');
-	$csses_build = new Minify_Build($csses);
-	$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
+ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
+require_once('Minify/Build.php');
+$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
+$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.2.1.js' : 'libs/jquery-migrate-1.2.1.min.js';
+$jses = array('libs/prototype.js', $jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
+if(!DEBUG_JS) {
+	$jsses_build = new Minify_Build($jses);
+	$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
+	$js_tags_html = "<script type='text/javascript' src='$jsses_src'></script>";
+} else {
+	$js_tags_html = '';
+	foreach($jses as $js)
+		$js_tags_html .= "<script type='text/javascript' src='$js'></script>";
+}
+$csses = array('libs/jquery-ui-1.10.1.custom.min.css');
+$csses_build = new Minify_Build($csses);
+$csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 
-	$accepts_html = isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false;
-	$init_js_inline = '';
-	if($accepts_html) {
-		ob_start();
-		require_once 'init_js.php';
-		$init_js_inline = ob_get_clean();
-	}
-
-	$smarty->assign('js_tags_html', $js_tags_html);
-	$smarty->assign('csses_src', $csses_src);
-	$smarty->assign('DIRECTION_RTL', (bool)DIRECTION_RTL);
-	$smarty->assign('TRACKING_CODE', TRACKING_CODE);
-	$smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
-	// Which theme styles the "Starting epesi..." splash below - inlined
-	// rather than calling Base_ThemeCommon::get_default_template() (that
-	// class extends ModuleCommon, which isn't required by this file's own,
-	// much smaller bootstrap chain - only include.php's full one loads it).
-	// Same Variable::get() + directory/glob check that method itself uses.
-	$default_theme = Variable::get('default_theme');
-	if ($default_theme !== 'default'
-	        && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
-	        && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
-	        && !glob('modules/*/*/*/theme_'.$default_theme, GLOB_ONLYDIR))
-		$default_theme = 'default';
-	$smarty->assign('theme_name', $default_theme);
-	$smarty->assign('accepts_html', $accepts_html);
-	$smarty->assign('init_js_inline', $init_js_inline);
-	$smarty->assign('get_query_string', http_build_query($_GET));
+$accepts_html = isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false;
+$init_js_inline = '';
+if($accepts_html) {
+	ob_start();
+	require_once 'init_js.php';
+	$init_js_inline = ob_get_clean();
 }
 
-$smarty->display('index.tpl');
+$smarty->assign('js_tags_html', $js_tags_html);
+$smarty->assign('csses_src', $csses_src);
+$smarty->assign('DIRECTION_RTL', (bool)DIRECTION_RTL);
+$smarty->assign('TRACKING_CODE', TRACKING_CODE);
+$smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
+// Which theme styles the "Starting epesi..." splash below - inlined
+// rather than calling Base_ThemeCommon::get_default_template() (that
+// class extends ModuleCommon, which isn't required by this file's own,
+// much smaller bootstrap chain - only include.php's full one loads it).
+// Same Variable::get() + directory/glob check that method itself uses.
+$default_theme = Variable::get('default_theme');
+if ($default_theme !== 'default'
+        && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
+        && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
+        && !glob('modules/*/*/*/theme_'.$default_theme, GLOB_ONLYDIR))
+	$default_theme = 'default';
+$smarty->assign('theme_name', $default_theme);
+$smarty->assign('accepts_html', $accepts_html);
+$smarty->assign('init_js_inline', $init_js_inline);
+$smarty->assign('get_query_string', http_build_query($_GET));
 
-if($show_iphone_prompt)
-	exit();
+$smarty->display('index.tpl');
 
 $content = ob_get_contents();
 ob_end_clean();

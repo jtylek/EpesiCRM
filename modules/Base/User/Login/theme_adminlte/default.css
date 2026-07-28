@@ -81,7 +81,7 @@ body:has(.login-page-adminlte) #body_content {
 	padding-top: 0.3rem;
 }
 
-/* ---- logged-in-as / logout (rendered in the shell's top navbar) ----
+/* ---- logged-in-as (stays in the shell's top navbar) ----
  * Login_0.php builds these as pre-rendered HTML strings shared with the
  * default theme (a <br> inside .logged_as, a background-image sprite inside
  * .logout_icon_img) - restyled here via CSS only, nothing in Login_0.php
@@ -108,13 +108,27 @@ body:has(.login-page-adminlte) #body_content {
 	color: #212529;
 }
 
-#top_bar .logout_css3_box {
+/* ---- logout (relocated into the sidebar footer by Base_Box's own
+   theme_adminlte/default.tpl - a DOM move, not a template split, since
+   Login_0.php hands Base_Box logged_as+logout as one combined blob; see
+   that file's comment) - not #top_bar-scoped any more, since it no longer
+   lives there. Styled as a full-width row of its own - now the only thing
+   in .sidebar-footer (the "EPESI powered"/version lines that used to sit
+   below it were dropped per a later request). */
+
+.sidebar-footer .logout_css3_box {
+	/* Was a separator above the "EPESI powered"/version line that used to
+	   sit below Logout in this same box - that line is gone (per request,
+	   already reachable from About), and Logout is now the only/last thing
+	   here, so no more border-bottom/padding-bottom to separate it from. */
 	box-shadow: none;
+	display: block;
 }
 
-#top_bar .logout_icon {
-	display: inline-flex;
+.logout_icon {
+	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 0.3rem;
 	color: #495057;
 	background: none;
@@ -124,8 +138,8 @@ body:has(.login-page-adminlte) #body_content {
 	text-decoration: none;
 }
 
-#top_bar .logout_icon:hover,
-#top_bar .logout_icon:focus {
+.logout_icon:hover,
+.logout_icon:focus {
 	background-color: #e9ecef;
 	color: #dc3545;
 }
@@ -133,11 +147,11 @@ body:has(.login-page-adminlte) #body_content {
 /* The default theme's sprite icon - dropped in favour of the Bootstrap Icons
    glyph below, added via ::before so it sits ahead of the "Logout" text
    despite the icon div coming after it in Login_0.php's markup. */
-#top_bar .logout_icon_img {
+.logout_icon_img {
 	display: none;
 }
 
-#top_bar .logout_icon::before {
+.logout_icon::before {
 	font-family: "bootstrap-icons";
 	content: "\f1c3";
 	font-size: 1rem;

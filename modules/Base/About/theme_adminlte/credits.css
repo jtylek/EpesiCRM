@@ -9,6 +9,17 @@
 
 .epesi-about {
 	text-align: center;
+	/* Belt-and-braces: .leightbox itself already sets a white background
+	   (Libs/Leightbox/theme_adminlte/default.css), but forcing it here too,
+	   directly on this content's own outermost element, guarantees a white
+	   background regardless of what's actually happening one level up in
+	   the Leightbox chrome. */
+	background-color: #fff;
+	/* #Leightbox_content already has its own 1rem padding, but this popup's
+	   text runs right up to the edges regardless (visible on a wide/"big"
+	   render) - added directly here too, per request. */
+	padding-left: 1.5rem;
+	padding-right: 1.5rem;
 }
 
 .epesi-about-logo {
@@ -52,7 +63,7 @@
 
 .epesi-about-license-text {
 	text-align: left;
-	background-color: #f8f9fa;
+	background-color: #fff;
 	border: 1px solid #e9ecef;
 	border-radius: 0.375rem;
 	padding: 1rem;

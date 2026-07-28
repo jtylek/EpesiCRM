@@ -1,6 +1,6 @@
 {if $is_logged_in}
-	{$logged_as}
-	{$logout}
+	<div class="logged_as">{$logged_as_text}</div>
+	<div class="logout_css3_box"><a class="logout_icon" {$logout_href}>{$logout_label}<div class="logout_icon_img"></div></a></div>
 {else}
 {$form_data.javascript}
 {* data-bs-theme is pinned because AdminLTE's JS follows the OS
@@ -65,11 +65,8 @@
 {/if}
 			</div>
 		</div>
-		<p class="text-center text-muted small mt-3 mb-0">
-			Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek & Karina Tylek
-		</p>
 		<p class="text-center mt-1 mb-0">
-			<a href="http://epesibim.com/"><img src="images/epesi-powered.png" alt="EPESI powered" height="14"></a>
+			<a href="http://epesibim.com/" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered"></a>
 		</p>
 	</div>
 </div>

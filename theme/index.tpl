@@ -1,41 +1,15 @@
-{if $show_iphone_prompt}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <meta name="robots" content="NOINDEX, NOARCHIVE">
-	<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
-	<title>{$EPESI}</title>
-	<link rel="stylesheet" href="libs/UiUIKit/stylesheets/iphone.css" />
-	<link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
-	{literal}
-	<script type="text/javascript" charset="utf-8">
-		window.onload = function() {
-		  setTimeout(function(){window.scrollTo(0, 1);}, 100);
-		}
-	</script>
-	{/literal}
-</head>
-
-<body>
-<div id="header">
-		<h1>{$EPESI}</h1>
-</div>
-
-Please choose {$EPESI} version:<ul>
-<li><a href="mobile.php" class="white button">mobile</a><br>
-<li><a href="index.php?force_desktop=1" class="green button">desktop</a>
-</ul>
-
-</body>
-</html>
-{else}
+{* The mobile/desktop chooser (IPHONE UA -> a "choose mobile or desktop"
+   page linking to mobile.php or here with ?force_desktop=1; other mobile
+   UAs -> an automatic redirect to mobile.php) was retired 2026-07-28 - the
+   adminlte Base_Theme is responsive and handles mobile devices directly,
+   so every device now renders this one body unconditionally. See
+   [[legacy-mobile-removed]] memory for the full removal. *}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 		<head profile="http://www.w3.org/2005/11/profile">
 		<link rel="icon" type="image/png" href="images/favicon.png" />
-		<link rel="apple-touch-icon" href="images/apple-favicon.png" />
+		<link rel="apple-touch-icon" href="images/pwa/apple-touch-icon.png" />
 		<title>{$EPESI}</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -46,6 +20,21 @@ Please choose {$EPESI} version:<ul>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
         <meta name="robots" content="NOINDEX, NOARCHIVE">
+		{* "Add to Home Screen" support - manifest.json declares display:standalone
+		   (launches with no browser chrome, incl. the address bar, once added -
+		   the only way a page can actually make that disappear, unlike a normal
+		   browser tab) and orientation:landscape (reinforces the adminlte theme's
+		   own CSS portrait-lock overlay at the OS/browser level, for whichever
+		   browsers honour it - Android Chrome does, iOS Safari doesn't yet).
+		   Theme-independent and harmless for the default theme, same reasoning
+		   as the viewport meta tag above. The apple-mobile-web-app-* meta tags
+		   are iOS Safari's own pre-manifest-support mechanism - it still doesn't
+		   read display/orientation from manifest.json, only these. *}
+		<link rel="manifest" href="manifest.json" />
+		<meta name="theme-color" content="#0d6efd" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content="EPESI" />
 {$js_tags_html}
 		<link type="text/css" href="{$csses_src}" rel="stylesheet"></link>
 
@@ -212,4 +201,3 @@ Please choose {$EPESI} version:<ul>
 		{/if}
 	</body>
 </html>
-{/if}

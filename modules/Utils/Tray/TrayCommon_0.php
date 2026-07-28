@@ -133,21 +133,6 @@ class Utils_TrayCommon extends ModuleCommon {
 		);
 	}
 
-	//////////////////////////
-	// mobile devices
-	public static function mobile_menu() {
-		if(!Acl::is_user())
-		return array();
-		return array(__('Tray')=>array('func'=>'mobile_tray','color'=>'blue'));
-	}
-
-	public static function mobile_tray() {
-		require_once('modules/Utils/Tray/mobile.php');
-	}
-
-	public static function mobile_tray_rb($tab, $crits=array(), $sort = array(), $cols = array()) {
-		Utils_RecordBrowserCommon::mobile_rb($tab, $crits, $sort, $cols);
-	}
 }
 
 ?>

@@ -76,6 +76,112 @@
 			"});".
 		"})();"
 	);
+
+	// Moves the Logout link (.logout_css3_box - Login_0.php now hands both
+	// themes plain data, not pre-built HTML, but its own default.tpl still
+	// assembles logged_as+logout into ONE combined string before Base_Box
+	// ever sees it as {$login} - that's a container-system boundary, not
+	// something Login_0.php's own markup controls) from the navbar's
+	// {$login} slot into the sidebar footer, per request. A DOM relocation
+	// since Base_Box can't address the logout half separately through the
+	// container system - moving the actual node post-render is the only way
+	// to send just it somewhere else. Runs once - the
+	// navbar/sidebar footer are shell chrome, not re-rendered by ordinary
+	// AJAX navigation (only #main_content swaps), so the moved node stays
+	// moved. See default.css for this element's now-generic (not #top_bar-
+	// scoped) styling, restyled for its new spot.
+	eval_js_once(
+		"(function(){".
+			"var logout=document.querySelector('.logout_css3_box');".
+			"var footer=document.querySelector('.sidebar-footer');".
+			"if(logout&&footer)footer.insertBefore(logout,footer.firstChild);".
+		"})();"
+	);
+
+	// Hides the navbar+ActionBar on scroll below lg, reclaiming vertical
+	// space on a phone/small-tablet screen, per request - reappearing only
+	// once scrolled back to the very top (not on scroll-up generally, which
+	// is the more common pattern for this kind of UI, but not what was
+	// asked for here). body.epesi-topbar-hidden (default.css) transforms
+	// both bars off-screen; .app-content-header's own transform distance
+	// reads --epesi-header-height/--epesi-actionbar-height (the same two
+	// variables the ResizeObserver above keeps in sync) rather than a fixed
+	// guess, so it stays exactly off-screen regardless of how tall either
+	// bar actually renders. window.innerWidth is re-checked on every
+	// scroll event (not just once at load) so this still behaves correctly
+	// if the viewport crosses the breakpoint later (e.g. a device rotation
+	// - see the portrait-lock overlay above, which already forces phones
+	// back to this width range anyway).
+	eval_js_once(
+		"(function(){".
+			"var hidden=false;".
+			"window.addEventListener('scroll',function(){".
+				"if(window.innerWidth>=992){".
+					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
+					"return;".
+				"}".
+				"var y=window.scrollY||document.documentElement.scrollTop;".
+				"if(y<=0){".
+					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
+				"}else if(!hidden){".
+					"document.body.classList.add('epesi-topbar-hidden');hidden=true;".
+				"}".
+			"},{passive:true});".
+		"})();"
+	);
+
+	// Fixes the autocomplete/autoselect suggestion dropdown
+	// (Libs/QuickForm/FieldTypes/autocomplete, e.g. a Contact's "Company
+	// Name" field) rendering far off its input - reported as appearing
+	// below the whole table. Root cause: script.aculo.us's
+	// Ajax.Autocompleter (controls.js) makes its suggestion <div>
+	// position:absolute and sets its top/left via Position.clone(), which
+	// computes the *page-relative* offset of the input field - correct only
+	// if the suggestion div's own containing block is the page/body itself.
+	// But the suggestion div is printed as a plain sibling of the input,
+	// inside RecordBrowser's .data cell, which is position:relative (for
+	// its own unrelated .help icon overlay - View_entry.css) - CSS
+	// position:relative on ANY ancestor establishes a new containing block,
+	// so the computed page-relative top/left ends up applied relative to
+	// that .data cell's own edge instead, landing the dropdown wherever
+	// .data happens to sit on the page (usually far below, deep in a table
+	// row) rather than under the input. Not something a plain CSS override
+	// can fix without breaking .data's own need for position:relative
+	// elsewhere - relocating the suggestion div itself to <body> (this
+	// theme's second use of that technique - see the Logout-relocation
+	// script above) removes the offending ancestor from its containing-
+	// block chain entirely, so Position.clone()'s page-relative math
+	// resolves correctly again. Patches Autocompleter.Base.prototype.show
+	// (not Ajax.Autocompleter's own prototype - Prototype.js's Class.create
+	// does real prototypal inheritance via `new subclass`, not a method
+	// copy, so patching the shared base reaches every subclass, including
+	// Ajax.Autocompleter, without needing to know every place this widget
+	// gets instantiated) to move the update <div> to <body> immediately
+	// before its normal positioning logic runs, wrapping - not replacing -
+	// the original method so its IE-fix/effects logic is untouched.
+	// controls.js loads lazily (only pages with an autocomplete field ever
+	// load_js() it, and possibly after this shell script has already run),
+	// so this waits on the shared wait_while_null() helper (include/
+	// epesi.js) already used elsewhere in this codebase for the same
+	// "patch a class once it exists" need - checked as the bare identifier
+	// "Autocompleter" (safe to typeof-check even if undefined; the dotted
+	// "Autocompleter.Base" is not, if Autocompleter itself doesn't exist
+	// yet).
+	eval_js_once(
+		"wait_while_null('Autocompleter',".
+			"\"(function(){".
+				"if(!Autocompleter.Base||Autocompleter.Base.__epesiPatched)return;".
+				"var origShow=Autocompleter.Base.prototype.show;".
+				"Autocompleter.Base.prototype.show=function(){".
+					"if(this.update&&this.update.parentNode&&this.update.parentNode!==document.body){".
+						"document.body.appendChild(this.update);".
+					"}".
+					"return origShow.apply(this,arguments);".
+				"};".
+				"Autocompleter.Base.__epesiPatched=true;".
+			"})();\"".
+		");"
+	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part
 	   of the shell being replaced - carried over unchanged so the tutorials keep
@@ -115,8 +221,12 @@
 					<li class="nav-item quick-access-bar d-none d-lg-block">{$quick_access_menu}</li>
 				{/if}
 				<li class="nav-item" id="search_box">{$search}</li>
-				<li class="nav-item" id="filter_box">{$filter}</li>
-				<li class="nav-item top_bar_help">{$help}</li>
+				{* Dropped below lg (same breakpoint quick-access-bar already uses
+				   above) per request - mobile has much less navbar width to spend,
+				   and Perspective/Help are the two least essential items in this
+				   row (the sidebar's own menu/search stay reachable regardless). *}
+				<li class="nav-item d-none d-lg-block" id="filter_box">{$filter}</li>
+				<li class="nav-item top_bar_help d-none d-lg-block">{$help}</li>
 				{* $donate ("Support EPESI!") dropped from this theme's navbar to
 				   keep the row to one line - Box_0.php still assigns it (shared
 				   with the default theme), it's just not rendered here. *}
@@ -143,10 +253,13 @@
 		<div class="sidebar-wrapper" id="MenuBar">
 			{$menu}
 		</div>
-		<div class="sidebar-footer text-center small">
-			<a href="http://epe.si" target="_blank"><b>EPESI</b> powered</a>
-			<div class="version">{$version_no}</div>
-		</div>
+		{* "EPESI powered"/version dropped from here per request - already
+		   reachable from the About section (Base_About's credits/EULA
+		   popup). Base_Box_0.php still assigns $version_no (shared with the
+		   default theme), just unused here now. The Logout link (relocated
+		   here by the eval_js_once above) is the only, and so last, thing
+		   left in the sidebar footer. *}
+		<div class="sidebar-footer text-center small"></div>
 	</aside>
 
 	<main class="app-main">

@@ -1,7 +1,7 @@
 
 {if $is_logged_in}
-	{$logged_as}
-	{$logout}
+	<div class="logged_as">{$logged_as_text}</div>
+	<div class="logout_css3_box"><a class="logout_icon" {$logout_href}>{$logout_label}<div class="logout_icon_img"></div></a></div>
 {else}
 	{$form_data.javascript}
 

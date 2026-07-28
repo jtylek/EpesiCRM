@@ -538,6 +538,17 @@
        highlight - the light-blue background alone is the intended cue. */
     outline: none;
     box-shadow: none;
+    /* Some fields (e.g. the autocomplete/autoselect text input -
+       Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php) render with
+       class="form-control", picking up Bootstrap's own :focus styling
+       (blue border-color + rounded corners) on top of this rule's
+       background tint. All !important - Bootstrap's own rule carries the
+       same .form-control specificity this selector already has to beat
+       regardless of load order. */
+    border-color: #dee2e6 !important;
+    border-radius: 0 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
 }
 
 .Utils_RecordBrowser__View_entry #multiselect .form-element select,

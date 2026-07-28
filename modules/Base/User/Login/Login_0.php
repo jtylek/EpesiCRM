@@ -57,8 +57,17 @@ class Base_User_Login extends Module {
 			        Base_User_LoginCommon::logout();
 				eval_js('document.location=\'index.php\';',false);
 			} else {
-				$this->theme->assign('logged_as', '<div class="logged_as">'.__('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')).'</div>');
-				$this->theme->assign('logout', '<div class="logout_css3_box"><a class="logout_icon" '.$this->create_unique_href(array('logout'=>1)).'>'.__('Logout').'<div class="logout_icon_img"></div></a></div>');
+				// Data only - the markup around these (the .logged_as/
+				// .logout_css3_box wrapper divs) lives in each theme's own
+				// default.tpl now, not pre-rendered here, so a theme can
+				// place/restructure them without needing to reach into an
+				// opaque pre-built HTML string (see theme_adminlte's own
+				// default.tpl, which relocates just the logout half into the
+				// sidebar footer - that needed real, separately addressable
+				// elements to target, not one fused blob).
+				$this->theme->assign('logged_as_text', __('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')));
+				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
+				$this->theme->assign('logout_label', __('Logout'));
 				$this->theme->display();
 			}
 			return;

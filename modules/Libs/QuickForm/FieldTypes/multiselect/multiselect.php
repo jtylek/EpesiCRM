@@ -368,19 +368,7 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
 
             $myName = $this->getName();
 			$mod = $myName;
-			if (detect_mobile_device()) {
-				$this->setName($myName . '[]');
-				$attrString = $this->_getAttrString($this->_attributes);
-				
-				$strHtml = '<select' . $attrString . 'name="' . $myName . '" style="height:100%;" >'."\n";
-
-				foreach ($this->_options as $k=>$option) {
-					$selected = (is_array($this->_values) && in_array((string)$this->_options[$k]['attr']['value'], $this->_values))?'selected="1" ':'';
-					$strHtml .= $tabs . '<option ' . $selected . $this->_getAttrString($this->_options[$k]['attr']) . '>' . $this->_options[$k]['text'] . '</option>'."\n";
-				}
-
-				$strHtml .= '</select>';
-			} else {
+			{
 				$this->setName($myName . 'from[]');
 				$this->_attributes['id'] = $myName . '__from';
 				$attrString = $this->_getAttrString($this->_attributes);

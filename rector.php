@@ -21,7 +21,6 @@ return RectorConfig::configure()
         __DIR__ . '/include.php',
         __DIR__ . '/index.php',
         __DIR__ . '/init_js.php',
-        __DIR__ . '/mobile.php',
         __DIR__ . '/monitoring.php',
         __DIR__ . '/process.php',
         __DIR__ . '/serve.php',
