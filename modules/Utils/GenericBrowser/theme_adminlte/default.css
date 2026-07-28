@@ -24,6 +24,88 @@
 	color: #343a40;
 }
 
+/* RecordBrowser_0.php prints "Add new"/Print/Export as raw HTML with <img>
+   sprite icons (no .tpl backs any of this - show_data(), shared with the
+   default theme) whenever this listing renders outside the fullscreen
+   ActionBar-driven flow (embedded as a tab - Notes/Journal/Activities etc).
+   Restyled to match Base_ActionBar's own button look exactly (icon on top,
+   label below, same colours/sizing) per request - reuses the identical
+   recipe as .epesi-actionbar-btn/.epesi-actionbar-label
+   (Base/ActionBar/theme_adminlte/default.css) applied to this markup's own
+   elements instead (the <a>/<span class="record_browser_add_new"> stand in
+   for .epesi-actionbar-btn, their <div> label for .epesi-actionbar-label).
+   Icon technique unchanged from the first pass: hide the <img>, add a
+   Bootstrap Icons glyph via ::before - codepoints match Base_ActionBar's own
+   icon map ('add'=>bi-plus-lg, 'save'=>bi-check2-square, 'print'=>bi-printer)
+   so the same action looks identical whether it renders here or in the real
+   ActionBar. Print and Export share one class (record_browser_button) with
+   no other distinguishing hook, told apart via :has() on each one's own
+   icon filename. */
+
+.epesi-gb-label .record_browser_add_new img,
+.epesi-gb-label a.record_browser_button img {
+	display: none;
+}
+
+.epesi-gb-label a,
+.epesi-gb-label .record_browser_add_new {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.1rem;
+	min-width: 56px;
+	padding: 0.1rem 0.4rem;
+	border-radius: 0.375rem;
+	color: #495057 !important;
+	text-decoration: none;
+	font-size: 0.7rem;
+	line-height: 1.15;
+	text-align: center;
+}
+
+.epesi-gb-label a:hover,
+.epesi-gb-label .record_browser_add_new:hover {
+	background-color: #e9ecef;
+	color: #0d6efd !important;
+}
+
+.epesi-gb-label .record_browser_add_new::before,
+.epesi-gb-label a.record_browser_button::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.epesi-gb-label .record_browser_add_new::before {
+	content: "\f64d";
+}
+
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/print.png"])::before {
+	content: "\f501";
+}
+
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/save.png"])::before {
+	content: "\f271";
+}
+
+/* Print/Export's own label div carries an inline style="...;top:-8px" (a
+   default-theme hack to vertically-align text next to the old horizontal
+   <img> sprite) - meaningless now that this is a vertical icon-over-label
+   button; override the inline style (needs !important, nothing weaker beats
+   a `style=` attribute). */
+.epesi-gb-label a.record_browser_button div {
+	top: 0 !important;
+	position: static !important;
+}
+
+.epesi-gb-label .add_new,
+.epesi-gb-label a.record_browser_button div {
+	max-width: 76px;
+	overflow-wrap: anywhere;
+	white-space: normal;
+}
+
 /* ---- search ---- */
 
 .epesi-gb-search input[type="text"],

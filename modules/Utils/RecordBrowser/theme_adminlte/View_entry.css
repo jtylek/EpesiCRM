@@ -15,7 +15,7 @@
 .epesi-rv-header {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-end;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin-bottom: 0.75rem;
@@ -30,13 +30,37 @@
 	font-size: 0.85rem;
 }
 
+/* Matches the app's own page background (.app-content/.app-main/#dashboard)
+   rather than Bootstrap's default white --bs-card-bg, in both the standalone
+   ($main_page, .card present) and nested-in-a-tab cases - a plain white card
+   didn't match the grey used everywhere else in this theme. !important:
+   Bootstrap's own .card rule (equal specificity, single class) sets this
+   same property, and - same load-order problem documented elsewhere in this
+   theme (see Base/Dashboard/theme_adminlte/default.css) - was winning over
+   this plain declaration, so the card stayed white despite this rule. */
 .epesi-rv-card {
+	background-color: #f4f6f9 !important;
+}
+
+/* Scoped to .card too (only present when $main_page - see View_entry.tpl)
+   so the nested-in-a-tab case gets no border/shadow at all, just a plain
+   div that blends into the tab body's own background instead of floating
+   as a separate box inside it. */
+.epesi-rv-card.card {
 	border: 1px solid #dee2e6;
 	box-shadow: 0 0.05rem 0.25rem rgba(0, 0, 0, 0.06);
 }
 
 .Utils_RecordBrowser__View_entry {
     width: 100%;
+	/* Without this (table-layout defaults to auto), each row's td.column is
+	   free to size itself from its own row's content instead of sharing one
+	   consistent column width across every row - a short value like "---"
+	   in a multiselect/longfield row could end up narrower than a regular
+	   field row's column right next to it, even though both specify the
+	   same width:{$cols_percent}% inline. Fixed layout makes every row
+	   honour that shared percentage instead. */
+	table-layout: fixed;
 }
 
 .Utils_RecordBrowser__container {
@@ -78,14 +102,32 @@
 .Utils_RecordBrowser__View_entry table.view {
     width: 100%;
 	border-spacing: 3px;
+	/* Every real row here is exactly 2 cells (single_field.tpl: one .label +
+	   one .data td, always - confirmed via RecordBrowser_0.php's $fields/
+	   $longfields split, "long text" rows never mix with regular rows in the
+	   same table instance, and each field-grid "column" is always its own
+	   separate <table> element, so this never couples column counts across
+	   differently-shaped rows). Tried once already this same day and
+	   reverted - back then the multiselect widget itself (#multiselect,
+	   Libs/QuickForm/theme_adminlte/default.css) could genuinely overflow
+	   its own internal math, and giving its ancestor .data cell a definite
+	   width just exposed that overflow instead of absorbing it. Now that
+	   #multiselect is display:block/flex (rewritten same day - it no longer
+	   has any internal sizing ambiguity of its own), this is safe: it gives
+	   .data a concrete width (100% minus .label's fixed 150px) so a lone-row
+	   table (e.g. the separate "multiselects" table for a single multiselect
+	   field) doesn't fall back to sizing its data column from its own
+	   sparse row's min-content instead of matching its sibling column's
+	   width the way a many-row regular-fields table naturally does. */
+	table-layout: fixed;
 }
 
 .Utils_RecordBrowser__View_entry .label {
-	background: #f1f3f5;
-    color: #495057;
-	-webkit-border-radius: 4px 0 0 4px;
-	-moz-border-radius: 4px 0 0 4px;
-    border-radius: 4px 0 0 4px;
+	background: #6c757d;
+    color: #fff;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
     height: 20px;
 	white-space: nowrap;
 	overflow:hidden;
@@ -96,17 +138,16 @@
     text-align: left;
 	box-shadow: none;
 	font-size: 0.85rem;
+	/* Subtle row-to-row separation - the page's own background grey, not a
+	   dark line, so adjacent label rows read as distinct without looking
+	   like a harsh divider. */
+	border-bottom: 1px solid #f4f6f9;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .label {
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
     text-align: right;
 }
 .Utils_RecordBrowser__View_entry .label_top{
-	-webkit-border-radius: 4px 4px 0 0;
-	-moz-border-radius: 4px 4px 0 0;
-    border-radius: 4px 4px 0 0;
+    border-radius: 0;
 }
 
 .Utils_RecordBrowser__View_entry .long_label {
@@ -117,19 +158,18 @@
 .Utils_RecordBrowser__View_entry .data {
     text-align: left;
 	word-wrap: break-word;
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
 	border: 1px solid #dee2e6;
-	border-left: none;
+	/* Was "none" - a visible separator between the label and data columns,
+	   per request, instead of them sitting flush against each other. */
+	border-left: 1px solid #dee2e6;
 	box-shadow: none;
 	position: relative;
 	font-size: 0.85rem;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .data {
-	-webkit-border-radius: 4px 0 0 4px;
-	-moz-border-radius: 4px 0 0 4px;
-    border-radius: 4px 0 0 4px;
     text-align: right;
 }
 .Utils_RecordBrowser__View_entry .currency {
@@ -197,9 +237,9 @@
     background-color: #fff;
     border: 0px;
 	padding: 3px 5px;
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
 }
 
 .Utils_RecordBrowser__View_entry .data textarea {

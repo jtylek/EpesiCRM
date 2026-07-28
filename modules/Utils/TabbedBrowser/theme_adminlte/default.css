@@ -6,6 +6,10 @@
  * module that calls Utils_TabbedBrowser::set_tab().
  */
 
+.epesi-tb {
+	margin-top: 1rem;
+}
+
 .epesi-tb-nav {
 	display: flex;
 	flex-wrap: wrap;
@@ -36,11 +40,13 @@
 
 .epesi-tb-nav .tabbed_browser_unselected {
 	color: #495057;
-	background-color: #f1f3f5;
+	/* Was #f1f3f5 - too close to the page's own background (#f4f6f9) to read
+	   as a tab at all, per request. */
+	background-color: #dee2e6;
 }
 
 .epesi-tb-nav .tabbed_browser_unselected:hover {
-	background-color: #e9ecef;
+	background-color: #ced4da;
 	color: #0d6efd;
 	text-decoration: none;
 }

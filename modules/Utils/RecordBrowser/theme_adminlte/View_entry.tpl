@@ -70,8 +70,15 @@
 
 {/if}
 
-<div class="epesi-rv-card card">
-	<div class="card-body p-2">
+{* Bootstrap's .card (white background/border/shadow) is only appropriate
+   when this is the standalone record-view page ($main_page) - the same
+   View_entry.tpl also renders as one tab's content inside
+   Utils_TabbedBrowser (e.g. a "Details" tab alongside Notes/E-mails/...),
+   where the surrounding tab body already sits on the page's own grey
+   background; keeping the card there left a white box with its own border
+   floating inside that grey area instead of blending into it. *}
+<div class="epesi-rv-card{if $main_page} card{/if}">
+	<div class="card-body p-0">
 
 <div class="Utils_RecordBrowser__container">
 

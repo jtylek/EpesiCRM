@@ -6,16 +6,32 @@
  * locates every element purely by its `name` attribute (getElementsByName),
  * not id/class - so this file only reskins colours/spacing, keeping every
  * id/class selector identical to the default theme's own default.css.
+ *
+ * 2026-07-28: #multiselect is a genuinely separate, nested <table> sitting
+ * inside a RecordBrowser field's .data cell (itself inside yet another
+ * table.edit/table.view) - not a row of that outer table. A *percentage*
+ * width on a nested table (#multiselect's own width:100%, and its children's
+ * old width:calc(50% - 29px)) has no reliable size to resolve against under
+ * the ancestor's default table-layout:auto: depending on what else is in the
+ * surrounding grid, the browser was seen sizing the whole widget by its own
+ * min-content (too narrow, gap on the right) in one record and overflowing
+ * past the .data cell's actual rendered width (too wide) in another - two
+ * different symptoms from the same underlying cause. Fixed by taking
+ * #multiselect out of table layout for sizing purposes entirely: it's
+ * display:block (a plain block box, whose width:100%/height:100% always
+ * resolves unambiguously against its parent's content box, in a table cell
+ * or anywhere else), and its <tbody>/<tr>/<td> structure - kept as real
+ * table markup, since multiselect.php is shared with the default theme and
+ * can't be touched - is reduced to a single flex row via display:contents
+ * (unwraps <tbody> so its <td>s become direct flex items of <tr>) instead of
+ * being rendered as a genuine nested table. This is a purely visual/layout
+ * reinterpretation - multiselect.js still finds every element by `name`,
+ * untouched.
  */
 
 #multiselect {
+	display: block;
 	width: 100%;
-	/* Without this, the two <td>s auto-size to their own content - the empty
-	   (or near-empty) side shrinks to almost nothing while the fuller side
-	   stretches wide, per the screenshot. Fixed layout + equal widths below
-	   forces both list columns to match regardless of how many options are
-	   in each at the moment. */
-	table-layout: fixed;
 	/* Referenced by both the buttons themselves and the select boxes' own
 	   min-height below, so the two stay tied together instead of two
 	   separately-hand-tuned numbers drifting apart later. */
@@ -23,15 +39,32 @@
 	--epesi-ms-btn-gap: 0.2rem;
 }
 
+/* Unwraps the browser-inserted <tbody> so <tr> is the direct child #multiselect
+   sees - <tr> itself becomes the actual flex row below. */
+#multiselect tbody {
+	display: contents;
+}
+
+#multiselect tr {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+}
+
 #multiselect td {
 	text-align: center;
-	vertical-align: middle;
 }
 
 #multiselect .form-element,
 #multiselect .to-element {
-	width: 45%;
-	height: 100%;
+	display: block;
+	/* Equal, definite shares of the row's real width - no percentage handed
+	   down through another nested table, so nothing left to mis-resolve. */
+	flex: 1 1 0;
+	/* Without this, a flex item's default min-width:auto lets a <select>'s
+	   own longest option text push it wider than its flex-basis share,
+	   re-introducing the exact overflow this whole rewrite is fixing. */
+	min-width: 0;
 }
 
 #multiselect .form-element select,
@@ -57,8 +90,16 @@
 }
 
 #multiselect .buttons-cell {
-	width: 58px;
+	display: flex;
+	flex: 0 0 58px;
+	flex-direction: column;
+	/* Replaces the old vertical-align:middle (meaningless now that this is a
+	   flex item, not a table-cell) - centers the buttons' own inner table
+	   within the full row height (set by the taller selects next to it). */
+	justify-content: center;
+	align-items: center;
 	padding: 0 0.5rem;
+	box-sizing: border-box;
 }
 
 /* .buttons .button is the default theme's selector too, but the current

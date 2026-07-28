@@ -674,13 +674,19 @@ class Utils_RecordBrowser extends Module {
         $this->set_module_variable('order_stuff',$order?$order:array());
 
         $custom_label = '';
-        // Skipped under adminlte: that theme already shows an equivalent "New"
-        // ActionBar button (Base_ActionBarCommon::add('add', ...) above, same
-        // get_access('add', ...) guard) for this exact case, so this icon+
-        // "Add new" link above the table would be a pure duplicate there. The
-        // default theme still renders it as before.
+        // Skipped under adminlte only when $this->fullscreen_table (set by
+        // body() before it calls show_data()) - that flow already shows an
+        // equivalent "New" ActionBar button (Base_ActionBarCommon::add('add',
+        // ...) in body(), same get_access('add', ...) guard) for this exact
+        // case, so this icon+"Add new" link above the table would be a pure
+        // duplicate there. But show_data() is also called directly, bypassing
+        // body() entirely (e.g. Utils_Attachment's Notes/Journal tabs call
+        // display_module($rb, ..., 'show_data')) - fullscreen_table then stays
+        // false, body()'s ActionBar button never runs, and there is no
+        // substitute at all under adminlte, so this must still render there
+        // too. The default theme always renders it regardless.
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false
-                && Base_ThemeCommon::get_default_template() !== 'adminlte') {
+                && (!$this->fullscreen_table || Base_ThemeCommon::get_default_template() !== 'adminlte')) {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href($this->navigate(...), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);
