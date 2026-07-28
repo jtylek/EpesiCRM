@@ -182,6 +182,180 @@
 			"})();\"".
 		");"
 	);
+
+	// Sizes GenericBrowser's Actions column (view/edit/delete/... icons) to
+	// fit whatever icons a given table actually has, per request - a flat
+	// CSS width was previously tried and reverted (too narrow for tables
+	// with many actions, too wide - dead space - for tables with few), and
+	// no single CSS value can be right for every table, since the actual
+	// icon count varies per table and only PHP knows it
+	// (GenericBrowser_0.php's $max_actions - itself computed for the
+	// default theme's differently-sized <img> sprite icons, not this
+	// theme's Bootstrap Icons glyphs, which is what started this whole
+	// problem). Measures each table's own actions cells directly instead of
+	// guessing a per-icon pixel value: cell.scrollWidth reports the full
+	// natural (unwrapped) content width regardless of the column's current,
+	// possibly too-narrow allocated width or the table's own inline
+	// overflow:hidden clipping it - .Utils_GenericBrowser__td already sets
+	// white-space:nowrap (Utils/GenericBrowser/theme_adminlte/default.css),
+	// so no extra style toggling is needed for an accurate reading. Sets
+	// the *header* cell's width (table-layout:fixed takes column widths
+	// from the first row, so this is what actually resizes the column) via
+	// direct inline style, matching how GenericBrowser_0.php's own
+	// PHP-computed width is set today - CSS must not add width/min-width
+	// !important overrides for this column any more, that would fight this
+	// script's inline value the same way it fought PHP's.
+	//
+	// Once the actions column has its own pixel width, the OTHER columns'
+	// widths (GenericBrowser_0.php's own inline width="X%" attributes,
+	// computed as a percentage of the non-actions columns only - see
+	// function.html_table_epesi.php) sum to 100% of the table's own width on
+	// top of that extra pixel column, so table-layout:fixed renders the
+	// table wider than its ".table-responsive" wrapper and the wrapper's own
+	// overflow-x:auto shows a horizontal scrollbar. Fixed by also rescaling
+	// every other header cell's width in px so the whole row - actions
+	// column plus the rest - sums to exactly the wrapper's own clientWidth.
+	// Each column's ORIGINAL percentage is cached in a data attribute the
+	// first time this runs (so re-running on "e:load" rescales from the
+	// true original ratio, not from an already-rescaled px value).
+	//
+	// Not every non-actions column is a percentage column, though - e.g.
+	// Utils_RecordBrowser's favourite/watchdog icon columns
+	// (RecordBrowser_0.php: 'width'=>'24px') carry a non-numeric width, which
+	// GenericBrowser_0.php's own header-building loop (its
+	// "!is_numeric($v['width'])" branch) renders as a literal
+	// style="width:24px" instead of a width="X%" attribute, and excludes
+	// from its own $all_width percentage-weight total entirely. Tables using
+	// those (RecordBrowser's Contacts/Companies, etc.) broke this rescale
+	// the first time it was written: treating that "24" as if it were a
+	// percentage share, alongside real percentages that already summed to
+	// ~100 on their own, wildly overstated the demanded total and defeated
+	// the whole fit-to-container calculation again.
+	//
+	// First attempt at classifying "other" headers checked whether their
+	// width="X%" attribute was actually a percentage - reverted, it broke
+	// EVERY table, not just Contacts/Companies. Root cause: GenericBrowser's
+	// own js/col_resizable.js (the column-drag-resize plugin, active on
+	// every one of these tables - see Utils/GenericBrowser/theme_adminlte/
+	// default.tpl's own comment on it) runs its init immediately after the
+	// table renders and, for every header cell regardless of column type,
+	// converts its width="X%" attribute into a plain pixel jq(...).width()
+	// - removing the width ATTRIBUTE entirely (col_resizable.js's own
+	// createGrips(), "c.width(c.w).removeAttr('width')"). By the time this
+	// script runs (on "e:load", after that init already executed), no
+	// column's width attribute contains "%" any more, so checking for one
+	// misclassified every real percentage column as "fixed" too, and each
+	// got blown out to its own full unwrapped text width instead of a
+	// proportional share - hence the universal overflow. Classify by CSS
+	// class instead - Utils_RecordBrowser__favs/__watchdog (RecordBrowser_0.php's
+	// column 'attrs') are the only actual fixed-icon columns, and col_resizable
+	// only touches width/style, never class, so this survives its rewrite.
+	// Every other "other" column goes back through the original ratio-based
+	// share (this never actually needed the value to be a true percentage -
+	// dividing by totalPercent normalizes away the unit, so it works
+	// whether the cached number came from a real width="X%" or from
+	// col_resizable's own hardened pixel value).
+	//
+	// The 24px itself is also wrong, for the same reason the old flat
+	// Actions-column width was: it's sized for the default theme's 16x16
+	// <img> sprite icon, not this theme's larger Bootstrap Icons glyph, so
+	// favourite/watchdog icons were left cramped. These two columns are
+	// therefore measured the same way the actions column is above - not
+	// trusted at their PHP-declared px value at all - by walking each body
+	// row's cell at the SAME column position (th.cellIndex; these columns'
+	// <td>s carry no distinguishing class, unlike .Utils_GenericBrowser__actions)
+	// and taking the largest scrollWidth, falling back to the declared
+	// width only if a table somehow has no body rows yet. The measured
+	// width becomes both the column's own style.width (so its icon isn't
+	// cramped) and its contribution to fixedWidth (so the percentage
+	// columns still share only the space that's actually left over).
+	//
+	// All the widths above are rounded deliberately (Math.floor for
+	// actionsWidth and each percent column's share, Math.ceil for a fixed
+	// column's own measured width, plus a 2px buffer subtracted from
+	// availableWidth) rather than left as exact floats, because Chrome and
+	// Firefox don't sub-pixel-round table column layout identically -
+	// unrounded math that summed to exactly containerWidth in Chrome still
+	// left Firefox 1-2px over, just enough to trigger ".table-responsive"'s
+	// own scrollbar even though the table visually looked like it fit.
+	// Rounding every piece down (ceiling only for the one value working
+	// against the total, a fixed column's own footprint) guarantees the
+	// real sum is always a little UNDER containerWidth, never over, in
+	// either browser's rounding behaviour.
+	//
+	// Re-run on "e:load" (Epesi's own "AJAX content patch just finished"
+	// event, main.js/index.js - the entire content of a GenericBrowser
+	// table can be replaced by paging/sorting/filtering without a full page
+	// reload) and on window resize (sidebar toggle/orientation change alter
+	// the wrapper's clientWidth), not just once at initial load - wrapped in
+	// try/catch per this theme's own established rule (see
+	// adminlte-css-conflicts memory, point 8) that an uncaught exception in
+	// any one "e:load" observer aborts the whole shared script line it runs
+	// in, including the StatusBar-hiding call right after it.
+	eval_js_once(
+		"(function(){".
+			"function epesiSizeGbActions(){".
+				"try{".
+					"document.querySelectorAll('table.Utils_GenericBrowser').forEach(function(table){".
+						"var headerCell=table.querySelector('th.Utils_GenericBrowser__actions, thead td.Utils_GenericBrowser__actions');".
+						"if(!headerCell)return;".
+						"var maxWidth=0;".
+						"table.querySelectorAll('tbody td.Utils_GenericBrowser__actions').forEach(function(cell){".
+							"if(cell.scrollWidth>maxWidth)maxWidth=cell.scrollWidth;".
+						"});".
+						"if(maxWidth<=0)return;".
+						"var actionsWidth=Math.floor(maxWidth+8);".
+						"headerCell.style.width=actionsWidth+'px';".
+						"headerCell.style.minWidth=actionsWidth+'px';".
+						"var container=table.closest('.table-responsive')||table.parentElement;".
+						"if(!container)return;".
+						"var containerWidth=container.clientWidth;".
+						"if(containerWidth<=0)return;".
+						"var others=table.querySelectorAll('thead > tr > th:not(.Utils_GenericBrowser__actions), thead > tr > td:not(.Utils_GenericBrowser__actions)');".
+						"var percentCols=[];".
+						"var percents=[];".
+						"var totalPercent=0;".
+						"var fixedWidth=0;".
+						"others.forEach(function(th){".
+							"var isFixedIcon=th.classList.contains('Utils_RecordBrowser__favs')||th.classList.contains('Utils_RecordBrowser__watchdog');".
+							"if(!isFixedIcon){".
+								"var stored=th.getAttribute('data-epesi-orig-percent');".
+								"var p=stored!==null?parseFloat(stored):(parseFloat(th.getAttribute('width')||th.style.width||'0')||0);".
+								"if(stored===null)th.setAttribute('data-epesi-orig-percent',p);".
+								"percentCols.push(th);".
+								"percents.push(p);".
+								"totalPercent+=p;".
+							"}else{".
+								"var idx=th.cellIndex;".
+								"var fw=0;".
+								"table.querySelectorAll('tbody > tr').forEach(function(row){".
+									"var cell=row.cells[idx];".
+									"if(cell&&cell.scrollWidth>fw)fw=cell.scrollWidth;".
+								"});".
+								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
+								"th.style.width=fw+'px';".
+								"fixedWidth+=fw;".
+							"}".
+						"});".
+						"if(totalPercent<=0)return;".
+						"var availableWidth=containerWidth-actionsWidth-fixedWidth-2;".
+						"if(availableWidth<0)availableWidth=0;".
+						"percentCols.forEach(function(th,i){".
+							"var px=Math.floor((percents[i]/totalPercent)*availableWidth);".
+							"th.style.width=px+'px';".
+						"});".
+					"});".
+				"}catch(e){}".
+			"}".
+			"epesiSizeGbActions();".
+			"if(typeof document.observe==='function')document.observe('e:load',epesiSizeGbActions);".
+			"var epesiGbResizeTimer=null;".
+			"window.addEventListener('resize',function(){".
+				"if(epesiGbResizeTimer)clearTimeout(epesiGbResizeTimer);".
+				"epesiGbResizeTimer=setTimeout(epesiSizeGbActions,150);".
+			"});".
+		"})();"
+	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part
 	   of the shell being replaced - carried over unchanged so the tutorials keep

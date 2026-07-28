@@ -221,6 +221,59 @@
 	white-space: nowrap;
 }
 
+/* The actions cell's own content is just a row of icon glyphs (no text line
+   to align with the other columns), so it doesn't need the same vertical
+   padding as a text cell - and the icon anchors below inherit Bootstrap's
+   body line-height (1.5), which adds extra line-box height above/below the
+   glyph on top of that padding. Both together made this column visibly
+   taller than it needs to be.
+
+   left/right need !important: AdminLTE's own adminlte.min.css carries
+   ".card-body.p-0 .table tbody > tr > td:first-of-type { padding-left:
+   1.5rem }" (and the mirror :last-of-type rule for padding-right) - a
+   built-in compensation for tables sitting directly in a zero-padding card
+   body - which matches here since GenericBrowser's card uses .card-body.p-0
+   and the actions column is usually first (or last). Same specificity as
+   this rule, so without !important it's a load-order coin flip. The same
+   AdminLTE rule also targets thead th:first-of-type/:last-of-type, so the
+   header cell needs the same override or the JS-measured width (based on
+   the now-tighter body cells) would sit under a padded, wider header cell. */
+.epesi-gb table.Utils_GenericBrowser > tbody > tr > td.Utils_GenericBrowser__actions {
+	padding-top: 0.25rem;
+	padding-bottom: 0.1rem;
+	padding-left: 0.25rem !important;
+	padding-right: 0.25rem !important;
+}
+
+.epesi-gb table.Utils_GenericBrowser > thead > tr > th.Utils_GenericBrowser__actions {
+	padding-left: 0.25rem !important;
+	padding-right: 0.25rem !important;
+}
+
+/* GenericBrowser_0.php computes this column's own width inline
+   (style="width: {max icons in any row}*16px + 6px") - correct for the
+   default theme's 16x16 <img> sprite icons, but the Bootstrap Icons glyphs
+   this theme uses instead need more like ~20px per icon, so a table with
+   several actions per row (view/edit/delete/history + a module's own
+   "New X" shortcuts - up to ~8 on some tables, e.g. Phone Calls) overflowed
+   that PHP-computed width - and {html_table_epesi}'s own <table> carries an
+   inline overflow:hidden (Utils/GenericBrowser/theme_adminlte/default.tpl,
+   needed for other columns' text-overflow:ellipsis), which silently
+   clipped the extra icons rather than wrapping them.
+
+   First fix here was a flat width:200px!important - wrong in the other
+   direction for tables with fewer actions (e.g. just view/edit/delete/info
+   - 4 icons), leaving a lot of dead space. A single CSS rule can't get this
+   right for every table, since the actual icon *count* varies per table
+   and only PHP knows it (via $max_actions) - not a value CSS can read. Real
+   fix is JS-based: a script in Base_Box/theme_adminlte/default.tpl
+   (epesi_gb_size_actions(), re-run on "e:load" so it re-measures after any
+   AJAX-swapped table) counts each table's own actual icon links and sets
+   this column's width directly, per table - so nothing here should
+   override width/min-width with !important any more, that would fight the
+   JS-set inline value the exact same way it fought PHP's own inline value
+   before. */
+
 /* Per-row action icons (view/edit/delete/history/... + favourite/watching +
    every module's "New X" shortcut) - all raw <img> markup built directly in
    PHP (GenericBrowser_0.php's __add_row_action()/add_row_action() for the
@@ -254,6 +307,7 @@
 	display: inline-flex;
 	align-items: center;
 	margin-right: 0.15rem;
+	line-height: 1;
 }
 
 .epesi-gb table.Utils_GenericBrowser a::before {
