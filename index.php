@@ -95,6 +95,18 @@ if(!$show_iphone_prompt) {
 	$smarty->assign('DIRECTION_RTL', (bool)DIRECTION_RTL);
 	$smarty->assign('TRACKING_CODE', TRACKING_CODE);
 	$smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
+	// Which theme styles the "Starting epesi..." splash below - inlined
+	// rather than calling Base_ThemeCommon::get_default_template() (that
+	// class extends ModuleCommon, which isn't required by this file's own,
+	// much smaller bootstrap chain - only include.php's full one loads it).
+	// Same Variable::get() + directory/glob check that method itself uses.
+	$default_theme = Variable::get('default_theme');
+	if ($default_theme !== 'default'
+	        && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
+	        && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
+	        && !glob('modules/*/*/*/theme_'.$default_theme, GLOB_ONLYDIR))
+		$default_theme = 'default';
+	$smarty->assign('theme_name', $default_theme);
 	$smarty->assign('accepts_html', $accepts_html);
 	$smarty->assign('init_js_inline', $init_js_inline);
 	$smarty->assign('get_query_string', http_build_query($_GET));

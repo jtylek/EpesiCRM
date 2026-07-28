@@ -51,6 +51,63 @@ Please choose {$EPESI} version:<ul>
 
 		<style type="text/css">
 			{if $DIRECTION_RTL}body {ldelim} direction: rtl; {rdelim}{/if}
+			{if $theme_name == 'adminlte'}
+			{literal}
+			/* This splash prints before any per-module theme CSS loads (that
+			   only happens once Base_Box itself renders, well after this) -
+			   so, same reasoning as this session's Utils_Tooltip/e:load
+			   incident, it can't assume Bootstrap/AdminLTE's stylesheets are
+			   attached yet and has to be fully self-contained plain CSS. */
+			#epesiStatus {
+				position: fixed;
+				left: 50%; top: 30%;
+				transform: translateX(-50%);
+				background-color: #fff;
+				border: none;
+				visibility: hidden;
+				width: 400px;
+				max-width: 90vw;
+				text-align: center;
+				z-index: 2002;
+				color: #212529;
+				overflow: hidden;
+				padding: 1.75rem 1.5rem 1.5rem;
+				border-radius: 0.5rem;
+				box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+				font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+			}
+			#epesiStatus img {
+				max-width: 100%;
+				height: auto;
+			}
+			#epesiStatus table {
+				color: inherit;
+				font-weight: normal;
+				font-family: inherit;
+				font-size: 0.95rem;
+				border: none;
+				width: 100%;
+			}
+			.epesi-boot-progress {
+				width: 100%;
+				height: 0.35rem;
+				background-color: #dee2e6;
+				border-radius: 999px;
+				overflow: hidden;
+			}
+			.epesi-boot-progress-bar {
+				width: 40%;
+				height: 100%;
+				background-color: #0d6efd;
+				border-radius: 999px;
+				animation: epesi-boot-progress-slide 1.1s ease-in-out infinite;
+			}
+			@keyframes epesi-boot-progress-slide {
+				0% { transform: translateX(-100%); }
+				100% { transform: translateX(250%); }
+			}
+			{/literal}
+			{else}
 			{literal}
 			#epesiStatus {
   				/* Netscape 4, IE 4.x-5.0/Win and other lesser browsers will use this */
@@ -90,6 +147,7 @@ Please choose {$EPESI} version:<ul>
             }
 
 			{/literal}
+			{/if}
 		</style>
 		{$TRACKING_CODE}
 	</head>
@@ -104,6 +162,21 @@ Please choose {$EPESI} version:<ul>
 			</div>
 
 			<div id="epesiStatus">
+				{if $theme_name == 'adminlte'}
+				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+					<tr>
+						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
+					</tr>
+					<tr>
+						<td style="text-align: center; vertical-align: middle; padding-top: 0.5rem;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></td>
+					</tr>
+					<tr>
+						<td style="padding-top: 0.75rem;">
+							<div class="epesi-boot-progress"><div class="epesi-boot-progress-bar"></div></div>
+						</td>
+					</tr>
+				</table>
+				{else}
 				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 					<tr>
 						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
@@ -115,6 +188,7 @@ Please choose {$EPESI} version:<ul>
 						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
 					</tr>
 				</table>
+				{/if}
 			</div>
 		</div>
         {*
