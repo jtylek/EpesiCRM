@@ -155,18 +155,27 @@ class Base_Dashboard extends Module {
 
 		$default_dash = $this->get_module_variable('default');
 		$colors = Base_DashboardCommon::get_available_colors();
-		$applets = array(0=>array(),1=>array(),2=>array());
+		// adminlte's applet cards need more width per column than a 3-column
+		// desktop grid leaves them (tables/wide content scrolling internally
+		// instead of showing full content), per request - the default theme's
+		// own 3-column layout (and the "col" 0/1/2 data model applets are
+		// stored under) is untouched; a 3rd-column applet just folds into
+		// column 0/1 (col % $col_count) here at display time only, so nothing
+		// needs migrating and switching back to the default theme would show
+		// it in its original column again.
+		$col_count = Base_ThemeCommon::get_default_template() === 'adminlte' ? 2 : 3;
+		$applets = array_fill(0, $col_count, array());
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_default_applets WHERE tab=%d ORDER BY col,pos',array($tab_id));
 		else
 			$ret = DB::Execute('SELECT col,id,module_name,color FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d ORDER BY pos',array(Base_AclCommon::get_user(),$tab_id));
 		while($row = $ret->FetchRow())
-			$applets[$row['col']][] = $row;
+			$applets[$row['col'] % $col_count][] = $row;
 
 		print('<div id="dashboard" style="width: 100%;">');
-		for($j=0; $j<3; $j++) {
-			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:33%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+		for($j=0; $j<$col_count; $j++) {
+			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:'.(int)(100/$col_count).'%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
 
 			foreach($applets[$j] as $row) {
 				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;
@@ -268,18 +277,21 @@ class Base_Dashboard extends Module {
 		if (!$default_dash && !Base_DashboardCommon::has_permission_to_manage_applets()) return;
 
 		$pos = 0;
+		// keep new applets within the columns display_dashboard() actually
+		// renders under this theme (2 for adminlte, 3 for the default theme).
+		$col_count = Base_ThemeCommon::get_default_template() === 'adminlte' ? 2 : 3;
 		DB::StartTrans();
 		if($default_dash) {
 			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_default_applets WHERE tab=%d GROUP BY col ORDER BY col',array($tab_id));
-			for($col=0; $col<3 && isset($cols[$col]); $col++);
-			if($col==3) $col=0;
+			for($col=0; $col<$col_count && isset($cols[$col]); $col++);
+			if($col==$col_count) $col=0;
 			if(isset($cols[$col]))
 				$pos = $cols[$col];
 			DB::Execute('INSERT INTO base_dashboard_default_applets(module_name,tab,col,pos) VALUES (%s,%d,%d,%d)',array($mod,$tab_id,$col,$pos));
 		} else {
 			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_applets WHERE user_login_id=%d AND tab=%d GROUP BY col ORDER BY col',array(Base_AclCommon::get_user(),$tab_id));
-			for($col=0; $col<3 && isset($cols[$col]); $col++);
-			if($col==3) $col=0;
+			for($col=0; $col<$col_count && isset($cols[$col]); $col++);
+			if($col==$col_count) $col=0;
 			if(isset($cols[$col]))
 				$pos = $cols[$col];
 			DB::Execute('INSERT INTO base_dashboard_applets(user_login_id,module_name,tab,col,pos) VALUES (%d,%s,%d,%d,%d)',array(Base_AclCommon::get_user(),$mod,$tab_id,$col,$pos));

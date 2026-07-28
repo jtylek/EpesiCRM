@@ -198,10 +198,16 @@
 	background-color: #f4f6f9;
 }
 
-/* Dashboard_0.php prints exactly 3 sibling column divs directly inside
-   #dashboard (id="dashboard_applets_<tab>_<col>", inline width:33% each,
-   no gap of their own) - a gutter between them via padding rather than
-   touching the inline width, so the 33%+33%+33% layout is untouched. */
+/* Dashboard_0.php prints sibling column divs directly inside #dashboard
+   (id="dashboard_applets_<tab>_<col>", inline width% each, no gap of their
+   own) - a gutter between them via padding rather than touching the inline
+   width. 2026-07-28: Dashboard_0.php/add_applet() now print 2 columns
+   (width:50% each) instead of the default theme's 3 - a 3-column desktop
+   grid left this theme's wider applet cards (tables especially) too narrow
+   to show their content without scrolling, per request. A 3rd-column
+   applet (from switching themes, or a default-dashboard copy) just folds
+   into column 0/1 at display time, PHP-side - nothing here needs to know
+   the actual column count, this rule works the same either way. */
 #dashboard > div {
 	padding: 0 0.5rem;
 	box-sizing: border-box;
