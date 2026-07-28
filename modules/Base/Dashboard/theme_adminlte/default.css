@@ -119,6 +119,19 @@
 	padding: 0 !important;
 }
 
+/* An applet whose content is a full RecordBrowser/GenericBrowser table
+   (e.g. the Tasks/Phone Calls dashboard applets - CRM_Tasks::applet() etc.
+   render the same Utils_RecordBrowser instance the full browse page uses)
+   embeds GenericBrowser's own card (.epesi-gb, "card mb-3" in Utils/
+   GenericBrowser/theme_adminlte/default.tpl) as the last thing inside this
+   already-padding-0 body - its own Bootstrap mb-3 (1rem) margin then reads
+   as a band of unexplained white space between the table/pager and the
+   applet card's own bottom edge, since there's no sibling content below it
+   to justify the gap here. Zeroed the same way padding was above. */
+#dashboard .epesi-applet-body .epesi-gb.card {
+	margin-bottom: 0 !important;
+}
+
 /* Colour accent (was a 4px border around the whole card in the default
    theme) - kept as the same hex values, applied to the header instead so it
    reads as a normal Bootstrap card-header rather than a coloured frame. The
