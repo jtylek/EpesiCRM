@@ -19,6 +19,14 @@
 	background-color: #f8f9fa;
 }
 
+/* Bootstrap's default .card-header padding (~0.5rem 1rem) left too much
+   air above/below this toolbar row, per request. Scoped to .epesi-gb-toolbar
+   specifically, not .card-footer (the pagination row below the table),
+   which wasn't part of the complaint. */
+.epesi-gb .card-header.epesi-gb-toolbar {
+	padding: 0.35rem 0.75rem;
+}
+
 .epesi-gb-label {
 	font-weight: 600;
 	color: #343a40;
@@ -211,6 +219,142 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+/* Per-row action icons (view/edit/delete/history/... + favourite/watching +
+   every module's "New X" shortcut) - all raw <img> markup built directly in
+   PHP (GenericBrowser_0.php's __add_row_action()/add_row_action() for the
+   "known keyword" ones, always class="action_button"; RecordBrowser_0.php
+   ~755-760 add favourite/watching as their OWN separate row cells though -
+   RecordBrowserCommon_0.php's get_fav_button()/WatchdogCommon_0.php's
+   get_change_subscription_icon() build their <img> with no class at all,
+   not inside .Utils_GenericBrowser__actions - CRM_Contacts_0.php's New
+   Meeting/Task/Phonecall/Note DO go through add_action() like
+   view/edit/delete). First pass at this scoped every rule under
+   .Utils_GenericBrowser__actions, which silently missed favourite/watching
+   entirely (correctly fixed elsewhere, per user report) since their <img>
+   isn't in that cell or class at all. Scoped to the whole table instead
+   (.epesi-gb table.Utils_GenericBrowser) so both cases are covered by the
+   same rules - safe to broaden since each :has() selector is still keyed to
+   one specific icon's own src, not just any <img> in the table. Shared with
+   the default theme, no .tpl for any of it. Same technique as
+   Utils/RecordBrowser/theme_adminlte/View_entry.css's tools row: hide each
+   <img>, add a Bootstrap Icons glyph via ::before on its <a>, told apart by
+   TWO independent [src*=...] conditions (module folder, filename) since
+   get_template_file() resolves onto ".../<Module>/theme/<filename>" - a
+   single contiguous "module/filename" substring never matches (see that
+   file's own comment for how this was first gotten wrong, then fixed, in
+   this exact codebase). */
+
+.epesi-gb table.Utils_GenericBrowser img {
+	display: none;
+}
+
+.epesi-gb table.Utils_GenericBrowser a {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 0.15rem;
+}
+
+.epesi-gb table.Utils_GenericBrowser a::before {
+	font-family: "bootstrap-icons";
+	font-size: 1rem;
+	color: #6c757d;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/view.png"])::before {
+	content: "\f341";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/edit.png"])::before {
+	content: "\f4ca";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/delete.png"])::before {
+	content: "\f5de";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/info.png"])::before {
+	content: "\f430";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/print.png"])::before {
+	content: "\f501";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/restore.png"])::before {
+	content: "\f117";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {
+	content: "\f5d6";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/active-off.png"])::before {
+	content: "\f5d5";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/move-up.png"])::before {
+	content: "\f148";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/move-down.png"])::before {
+	content: "\f128";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/move-up-down.png"])::before {
+	content: "\f127";
+}
+
+/* Same glyph both states (history.png/history_inactive.png), inactive just
+   dimmed - matches the identical rule in View_entry.css for this same icon
+   pair used elsewhere. */
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/history.png"])::before,
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
+	content: "\f292";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
+	opacity: 0.4;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="RecordBrowser"][src*="/star_fav.png"])::before {
+	content: "\f586";
+	color: #ffc107;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="RecordBrowser"][src*="/star_nofav.png"])::before {
+	content: "\f588";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Watchdog"][src*="/not_watching_small.png"])::before {
+	content: "\f340";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Watchdog"][src*="/watching_small.png"])::before {
+	content: "\f33e";
+	color: #198754;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Watchdog"][src*="/watching_small_new_events.png"])::before {
+	content: "\f33e";
+	color: #fd7e14;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
+	content: "\f1e8";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Tasks"][src*="/icon-small.png"])::before {
+	content: "\f477";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="PhoneCall"][src*="/icon-small.png"])::before {
+	content: "\f5b4";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
+	content: "\f4b3";
 }
 
 /* ---- pagination footer ---- */
