@@ -30,6 +30,137 @@
 	font-size: 0.85rem;
 }
 
+/* The tools row's icons (favourite/subscription/info/clipboard/history
+   tooltips, plus every module's "New X" quick-create shortcut - New
+   Meeting/Task/Phonecall/Note) are all built as plain <img>-based HTML
+   strings directly in PHP (RecordBrowserCommon_0.php/WatchdogCommon_0.php/
+   RecordBrowser_0.php for the fixed ones; CRM_Contacts/CRM_Meeting/
+   CRM_PhoneCall/CRM_Tasks/Utils_Attachment's own Common_0.php files each
+   contribute their own "New X" <a> the same way) - none of it goes through
+   a .tpl, shared with the default theme, so same technique as elsewhere in
+   this theme: hide each <img>, add a Bootstrap Icons glyph via ::before on
+   its <a> instead. None of these anchors carry a distinguishing class, so
+   they're told apart purely by their own icon's src via :has(). This is
+   loaded alongside every custom per-table $tpl (RecordBrowser_0.php's own
+   load_css() call), so one set of rules here covers the generic
+   View_entry.tpl and every per-table override (Contact, Contact/Photo,
+   PhoneCall, Mail, Meeting, Attachment) without touching any of them
+   individually. The "New X" glyphs reuse the exact same per-module icon
+   already declared for Menu/ActionBar/Admin panels elsewhere in this theme
+   (Base_AdminlteIcons - see Base/Theme/adminlte_icons.php's
+   <Module>Common::adminlte_icon()), for consistency. Not covered:
+   CRM_Contacts'/Utils_Attachment's "crm_filter" entry ('Set CRM Filter'/
+   'File history') - a bare-text "F" link with no <img> at all, and no other
+   reliable hook to key off; a rare, low-traffic feature, left as plain text
+   for now.
+
+   IMPORTANT: Base_ThemeCommon::get_template_file() resolves onto
+   "modules/<Module>/<Path>/theme/<filename>" (confirmed via
+   Base_ThemeResolver::resolve(), e.g. get_template_file('Utils_Watchdog',
+   'watching_small.png') -> "modules/Utils/Watchdog/theme/watching_small.png")
+   - note the "theme/" segment between the module path and the filename.
+   A single [src*="Module/filename"] substring (assuming they're adjacent)
+   silently never matches anything, hiding every <img> via the blanket rule
+   below with no ::before to replace it - first attempt at this file did
+   exactly that (every icon in this row vanished, "F" was the only one left
+   since it has no <img> to hide in the first place). Fixed by using TWO
+   independent [src*=...] conditions per selector (module folder, filename)
+   instead of one contiguous path - each tests the same src attribute
+   separately, so "theme/" (or "theme_adminlte/", if ever overridden)
+   sitting between them doesn't matter. */
+
+.epesi-rv-tools img {
+	display: none;
+}
+
+.epesi-rv-tools a {
+	display: inline-flex;
+	align-items: center;
+}
+
+.epesi-rv-tools a::before {
+	font-family: "bootstrap-icons";
+	font-size: 1rem;
+	color: #6c757d;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/info.png"])::before {
+	content: "\f430";
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/clipboard.png"])::before {
+	content: "\f290";
+}
+
+/* Same glyph both states (history.png/history_inactive.png - "never edited"
+   just has no href and a dimmed icon, not a different icon). */
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history.png"])::before,
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history_inactive.png"])::before {
+	content: "\f292";
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history_inactive.png"])::before {
+	opacity: 0.4;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/star_fav.png"])::before {
+	content: "\f586";
+	color: #ffc107;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/star_nofav.png"])::before {
+	content: "\f588";
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/not_watching_small.png"])::before {
+	content: "\f340";
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/watching_small.png"])::before {
+	content: "\f33e";
+	color: #198754;
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/watching_small_new_events.png"])::before {
+	content: "\f33e";
+	color: #fd7e14;
+}
+
+.epesi-rv-tools a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
+	content: "\f1e8";
+}
+
+.epesi-rv-tools a:has(img[src*="Tasks"][src*="/icon-small.png"])::before {
+	content: "\f477";
+}
+
+.epesi-rv-tools a:has(img[src*="PhoneCall"][src*="/icon-small.png"])::before {
+	content: "\f5b4";
+}
+
+.epesi-rv-tools a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
+	content: "\f4b3";
+}
+
+/* CRM_Contacts'/Utils_Attachment's "crm_filter" new-shortcut ("Set CRM
+   Filter"/"File history") is a bare <a title="...">F</a> - no <img> at all
+   (see the comment above), so unlike every other icon in this row it can't
+   be told apart by src. It's the only anchor in this row with no <img>
+   child at all, though, which is a reliable enough hook on its own - hide
+   its literal "F" text (font-size:0 - it's the only content, so nothing
+   else to preserve) and add a funnel glyph, same family as CRM_Filters'
+   own navbar "Perspective" link (Base/Theme/adminlte_icons.php isn't
+   involved here, but reusing the same glyph keeps "filter" reading the
+   same everywhere in this theme). */
+.epesi-rv-tools a:not(:has(img)) {
+	font-size: 0;
+}
+
+.epesi-rv-tools a:not(:has(img))::before {
+	font-size: 1rem;
+	content: "\f3e1";
+}
+
 /* Matches the app's own page background (.app-content/.app-main/#dashboard)
    rather than Bootstrap's default white --bs-card-bg, in both the standalone
    ($main_page, .card present) and nested-in-a-tab cases - a plain white card

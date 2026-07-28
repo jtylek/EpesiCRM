@@ -81,6 +81,18 @@
 	content: "\f64d";
 }
 
+/* "Add new" is the same generic markup/icon (Utils/RecordBrowser/add.png)
+   for every RecordBrowser table, so a plain bi-plus-lg is the right default
+   - but a table-specific icon reads better where one obviously fits, e.g. a
+   note icon for Notes/Journal (both the same underlying 'utils_attachment'
+   table, just different $crits - see Utils_Attachment::body()). Keyed off
+   data-rb-tab (RecordBrowser_0.php's show_data(), added purely as a styling
+   hook - inert for the default theme) since the icon/class are identical
+   across every table otherwise, with no other selector to key off. */
+.epesi-gb-label .record_browser_add_new[data-rb-tab="utils_attachment"]::before {
+	content: "\f442";
+}
+
 .epesi-gb-label a.record_browser_button:has(img[src*="/icons/print.png"])::before {
 	content: "\f501";
 }
