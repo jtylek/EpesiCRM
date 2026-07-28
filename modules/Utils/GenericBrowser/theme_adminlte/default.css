@@ -297,9 +297,25 @@
    get_template_file() resolves onto ".../<Module>/theme/<filename>" - a
    single contiguous "module/filename" substring never matches (see that
    file's own comment for how this was first gotten wrong, then fixed, in
-   this exact codebase). */
+   this exact codebase).
 
-.epesi-gb table.Utils_GenericBrowser img {
+   The display:none rule itself was NOT given that same "safe to broaden"
+   protection, though - it was a bare "table.Utils_GenericBrowser img",
+   matching literally every <img> anywhere in the table, not just the ones
+   inside an <a> (view/edit/delete/favourite/watchdog/module icons are all
+   wrapped in <a> - confirmed via GenericBrowser_0.php's __add_row_action(),
+   RecordBrowserCommon_0.php's get_fav_button_tags(), WatchdogCommon_0.php's
+   get_change_subscription_icon_tags()). This silently hid every OTHER
+   image too - e.g. Utils_Attachment notes with an embedded pasted image
+   (CRM_ContactsCommon::display_note()/company_contact_format_default()-style
+   content, a bare <img src="data:..."> with no surrounding <a>) rendered
+   completely invisible, not merely clipped - no CSS fix for the cell's own
+   overflow/height could ever have shown it, since it was display:none the
+   entire time. Scoped to "a img" instead, matching what's actually true:
+   every icon this file replaces is always inside an <a>; plain embedded
+   content images never are. */
+
+.epesi-gb table.Utils_GenericBrowser a img {
 	display: none;
 }
 
@@ -409,6 +425,74 @@
 
 .epesi-gb table.Utils_GenericBrowser a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
 	content: "\f4b3";
+}
+
+/* Per-row "more"/"less" expand/collapse toggles (GenericBrowser_0.php's
+   __add_row_action() with plus_gray.png/minus_gray.png - not one of the
+   "known keyword" action icons above, so without these two rules they'd
+   render as blank links (hidden <img>, no ::before glyph). Same visual
+   language as the "Expand All"/"Collapse All" buttons above the table
+   (bi-arrows-expand/bi-arrows-collapse). */
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/plus_gray.png"])::before {
+	content: "\f64d";
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(img[src*="GenericBrowser"][src*="/minus_gray.png"])::before {
+	content: "\f63b";
+}
+
+/* ---- expandable cells (Utils_RecordBrowser/Utils_Attachment notes with
+   long/rich content - e.g. embedded images - use this so a browse row shows
+   a short one-line preview by default, with "Expand All"/a per-row toggle
+   revealing the full content) ----
+
+   Ported from the default theme's theme/default.css, which this file
+   otherwise never inherits from (per-file theme resolution replaces the
+   whole stylesheet, not just the rules that changed - see
+   [[adminlte-css-conflicts]]). Missing entirely here left js/table_overflow.js's
+   gb_expand()/gb_expand_all() toggling the "expanded" class with no CSS
+   watching for it, so nothing visually changed on click - and more
+   importantly, .Utils_GenericBrowser__td's own white-space:nowrap (inherited
+   by this div, kept nowrap even while "expanded") kept forcing wide content
+   like an embedded <img> onto one unbroken line and clipping it via the
+   cell's overflow:hidden, with no way to ever see it. The one property that
+   actually matters is div.expandable.expanded{white-space:normal} below -
+   that's what lets a click on "Expand All" un-clip an image at all. */
+.epesi-gb div.expandable.collapsed {
+	height: 18px;
+	overflow: hidden;
+}
+
+.epesi-gb div.expandable.collapsed.exceedsHeight {
+	cursor: pointer;
+}
+
+.epesi-gb div.expandable.expanded {
+	white-space: normal;
+	height: auto !important;
+}
+
+.epesi-gb div.expandable:not(.exceedsHeight) p,
+.epesi-gb div.expandable.collapsed p {
+	margin: 0;
+}
+
+/* The hover-preview overlay (table_overflow.js's table_overflow_show() -
+   temporarily relocates an overflowing cell's content, images included,
+   into this floating box). Also entirely unstyled here before - it would
+   render zero-size/unpositioned with no background, indistinguishable from
+   not working at all. */
+.Utils_GenericBrowser__overflow_div {
+	background-color: #fff;
+	border: 1px solid #ced4da;
+	border-radius: 0 0.375rem 0.375rem 0.375rem;
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+}
+
+.Utils_GenericBrowser__overflow_div_content {
+	padding: 0.35rem 0.5rem;
+	word-wrap: break-word;
+	white-space: normal;
 }
 
 /* ---- pagination footer ---- */

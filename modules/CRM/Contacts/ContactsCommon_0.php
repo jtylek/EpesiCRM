@@ -245,9 +245,6 @@ class CRM_ContactsCommon extends ModuleCommon {
     	return self::company_contact_format_default($arg, $nolink);
     }
 	public static function company_contact_format_default($arg,$nolink=false) {
-    	$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
-    			'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
-
     	//backward compatibility
         $id = null;
 
@@ -257,14 +254,29 @@ class CRM_ContactsCommon extends ModuleCommon {
             $id = $arg['id'];
             $tab = "contact";
         }
-    	
+
     	if (!$id) return '---';
-    	
+
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
-    	
+
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
-    	$rindicator = isset($icon[$tab]) ?
-    	'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+
+    	if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+    		// Bootstrap Icons glyph instead of the default theme's sprite
+    		// background-image - bi-building matches Base_AdminlteIcons's own
+    		// choice for "companies" by filename, for consistency with the
+    		// sidebar/launcher icons. Hidden text kept for the same
+    		// accessibility purpose the default theme's own hidden span served.
+    		$bs_icon = array('company' => array('bi-building', '#fd7e14'), 'contact' => array('bi-person-fill', '#0d6efd'));
+    		$bi = $bs_icon[$tab] ?? null;
+    		$rindicator = $bi ?
+    		'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i><span style="display:none">['.$indicator_text.'] </span>' : "[$indicator_text] ";
+    	} else {
+    		$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
+    				'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
+    		$rindicator = isset($icon[$tab]) ?
+    		'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    	}
     	$val = $rindicator.$val;
     	if ($nolink)
     		return strip_tags($val);
