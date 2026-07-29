@@ -5,21 +5,20 @@
    (see ../../../CRM/Contacts/theme_adminlte/Contact.tpl and
    [[adminlte-theme-incomplete]] memory).
 
-   Correction (2026-07-28): the previous version of this file was built from
-   the wrong source - it matched CRM_Mail's mails.tpl structure (a single
-   generic field loop with an "email"-styled longfield row), not this
-   module's own default-theme View_entry.tpl, which gives title/edited_on/
-   permission a dedicated 3-column header row, the note a full-width
-   longfield row of its own, and sticky/crypted a 2-column row (crypted's
-   own <td colspan="2"> giving its multi-part QuickForm group - checkbox +
-   Confirm/Password/Password Hint - a full column-and-a-half of width
-   instead of being crammed into one regular-width cell). That structural
-   loss is what made the "Add new Note" popup's Encryption row look
-   cramped/misaligned. Fixed by porting the real structure below - kept
-   byte-for-byte identical to the default theme's own layout math, only the
-   header/wrapper chrome is adminlte-specific, same as every other template
-   in this family. Already has its own {if $main_page} guard around the
-   header - kept, mirroring the generic View_entry.tpl's own pattern.
+   Layout (2026-07-29): Title stands alone in its own big/bold row (no
+   "Title:" label - it reads as a heading, not a field), then Edited
+   by/Edited on/Permission/Sticky share one row, then Encryption (the
+   'crypted' field) gets a full-width row of its own - its edit-mode
+   QuickForm group (checkbox + Password + Confirm Password + Password Hint)
+   needs the whole row's width to lay out in one line; cramped into a
+   regular 1/3 or 1/4 column it wraps and the row balloons to match its
+   height, dragging Permission/Sticky's cells tall along with it since they
+   share the same <tr>. Then Attached to, then the note body.
+   'Edited by' and 'Edited on' split the single 'edited_on' field's combined
+   display_date() text (see AttachmentCommon_0.php's $last_editor_info) into
+   two columns - only available in 'view' mode, since 'add'/'edit' render
+   that field via QFfield_date (a frozen static, not display_date())
+   instead; those modes fall back to a single 'Edited on' cell.
    View_entry.css (loaded alongside any custom $tpl by RecordBrowser_0.php)
    already covers .label/.data/.column/etc, so no separate CSS needed here. *}
 {* Get total number of fields to display *}
@@ -44,7 +43,26 @@
     $this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
     if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
     $this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
+    $this->assign('edited_by_caption', __('Edited by'));
+    $this->assign('editor_label', Utils_AttachmentCommon::display_editor_label());
+    $this->assign('edited_date_label', Utils_AttachmentCommon::display_edited_date_label());
 {/php}
+
+{literal}
+<style>
+.epesi-attachment-title { font-size: 1.4em; font-weight: 600; padding: 10px 14px; }
+.epesi-attachment-title input[type=text] { font-size: 1em; font-weight: 600; width: 100%; }
+/* QFfield_crypted's Password/Confirm Password/Password Hint inputs (see
+   AttachmentCommon_0.php) start disabled and are enabled by the Encryption
+   checkbox's onChange JS, which only ever toggles the disabled property -
+   whatever makes them render white-on-white once enabled, force readable
+   text explicitly rather than chase it through inherited/global rules. */
+#note_password, #note_password2, #note_password_hint {
+	color: #212529 !important;
+	background-color: #fff !important;
+}
+</style>
+{/literal}
 
 {if $main_page}
 <div class="epesi-rv-header">
@@ -84,58 +102,95 @@
 
 		<div class="Utils_RecordBrowser__container">
 
-			{* Outside table *}
+			{* Row 1: Title alone, styled as a heading *}
+			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
+				<tr>
+					<td class="epesi-attachment-title">
+						{$fields.title.html}
+					</td>
+				</tr>
+				</tbody>
+			</table>
+
+			{if $action == 'view'}
+			{* Row 2 (view): Edited by / Edited on / Permission / Sticky *}
 			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 				<tbody>
 				<tr>
 					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.title.full_field}
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.edited_on.full_field}
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.permission.full_field}
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+						<table cellpadding="0" cellspacing="0" border="0" class="view">
 						<tr>
-						<td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-							{if $longfields.note.error}{$longfields.note.error}{/if}
-							{if $longfields.note.help}
-								<div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
-							{/if}
-							<div>
-								{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
-							</div>
-						</td>
+							<td class="label">{$edited_by_caption}</td>
+							<td class="data">{$editor_label}</td>
 						</tr>
 						</table>
 					</td>
-				</tr>
-				<tr>
 					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.sticky.full_field}
+						<table cellpadding="0" cellspacing="0" border="0" class="view">
+						<tr>
+							<td class="label">{$fields.edited_on.label}</td>
+							<td class="data">{$edited_date_label}</td>
+						</tr>
 						</table>
 					</td>
-					<td colspan="2">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.crypted.full_field}
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="view">
+							{$fields.permission.full_field}
+						</table>
+					</td>
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="view">
+							{$fields.sticky.full_field}
 						</table>
 					</td>
 				</tr>
 				</tbody>
 			</table>
 
+			{* Row 3 (view): Encryption, full width so its edit-mode group fits on one line *}
+			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
+				<tr>
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="view">
+							{$fields.crypted.full_field}
+						</table>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			{else}
+			{* Row 2 (add/edit): no 'Edited on' - it's always frozen/system-managed,
+			   not something to edit here. Permission / Sticky / Encryption share
+			   one row instead - natural (non-percentage) column widths let
+			   Encryption's group take however much of the row it needs for its
+			   checkbox + Password + Confirm Password + Password Hint fields to
+			   stay on one line, while Permission/Sticky stay their normal size. *}
+			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
+				<tr>
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+							{$fields.permission.full_field}
+						</table>
+					</td>
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+							{$fields.sticky.full_field}
+						</table>
+					</td>
+					<td>
+						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+							{$fields.crypted.full_field}
+						</table>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			{/if}
+
+			{* Any other generic fields this recordset gains in future (none currently), then Row 4: Attached to *}
 			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
 				<tbody>
 				<tr>
@@ -198,6 +253,33 @@
 						{/foreach}
 					</tr>
 				{/if}
+				</tbody>
+			</table>
+
+			{* Row 5: body of the note (and any other longfields, none currently) *}
+			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
+				<tr>
+					<td colspan="3">
+						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+						<tr>
+						<td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
+							{if $longfields.note.error}{$longfields.note.error}{/if}
+							{if $longfields.note.help}
+								<div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+							{/if}
+							<div>
+								{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+							</div>
+						</td>
+						</tr>
+						</table>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+				<tbody>
 				<tr>
 					<td colspan="{$cols}">
 						<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">

@@ -576,6 +576,13 @@
 	overflow: hidden;
 }
 
+/* Click-anywhere-to-toggle affordance (table_overflow.js's gb_expandable_init) -
+   only shown once exceedsHeight confirms the row actually has something to
+   toggle; a short row with nothing to expand isn't given a pointer cursor. */
+.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__tallpreview div.expandable.exceedsHeight {
+	cursor: pointer;
+}
+
 .epesi-gb div.expandable:not(.exceedsHeight) p,
 .epesi-gb div.expandable.collapsed p {
 	margin: 0;

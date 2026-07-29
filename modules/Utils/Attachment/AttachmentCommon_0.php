@@ -243,11 +243,28 @@ class Utils_AttachmentCommon extends ModuleCommon {
         return $ret;
     }
 
+    // Populated as a side effect of display_date() (below) so the adminlte
+    // theme's View_entry.tpl can show editor and date/time in their own
+    // columns without re-deriving them - the browse-grid column still uses
+    // display_date()'s combined, admin-configurable 'edited_on_format' return
+    // value unchanged. Only populated in 'view' mode (QFfield_date, not this
+    // function, renders the frozen field shown in 'add'/'edit' mode).
+    private static $last_editor_info = [];
+
+    public static function display_editor_label() {
+        return self::$last_editor_info['by'] ?? '';
+    }
+
+    public static function display_edited_date_label() {
+        return self::$last_editor_info['date_time'] ?? '';
+    }
+
     public static function display_date($row, $nolink = false, $a=null,$view=false) {
         $date = Base_RegionalSettingsCommon::time2reg($row['edited_on'], false);
         $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], 2, false);
         $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
         $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by'], $nolink);
+        self::$last_editor_info = ['by' => $by, 'date_time' => $date.' '.$time];
         $format = Base_User_SettingsCommon::get(Utils_Attachment::module_name(), 'edited_on_format');
         return str_replace(array('%D', '%T', '%U'), array($date, $time, $by), $format);
     }
@@ -287,25 +304,35 @@ class Utils_AttachmentCommon extends ModuleCommon {
         // Browse/mini-view rendering (not the single-record view, which shows
         // title in its own dedicated column - see View_entry.tpl): show the
         // title followed by the full body, same idea as the default theme.
-        // An embedded image (pasted screenshot etc) rendered at full size
-        // right next to/after the title wrecked the row's layout (this column
-        // is exempt from the generic row-height clipping - see
-        // AttachmentInstall.php's 'style'=>'noexpand' comment - so there's no
-        // collapsed preview to hide behind either), so every <img> is swapped
-        // for a lightweight placeholder badge instead - full content (the
-        // real images) is still reachable via the row's own View action.
+        // An embedded image (pasted screenshot etc) rendered at its original
+        // size can be wider than the Note column, so every <img> is forced to
+        // scale down to the column width (preserving aspect ratio) instead of
+        // overflowing the row.
         if (!$view && $row['title']) {
-            $body = preg_replace('/<img\b[^>]*>/i', '<span class="badge text-bg-secondary"><i class="bi bi-image"></i> '.__('image').'</span>', $text);
+            $body = preg_replace_callback('/<img\b[^>]*>/i', [self::class, 'constrain_image_size'], $text);
             $text = '<b>'.$row['title'].'</b><br>'.$body;
         }
         
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 
         $files = self::display_files($row, $nolink);
-        
+
         return implode('<br><br>', array_filter([$text, $files]));
     }
-    
+
+    // Appends max-width:100%;height:auto to the <img>'s style attribute (creating
+    // one if absent) so it scales down to fit its container; a later declaration
+    // of the same property wins, so this overrides any width/height baked into
+    // the tag by the original paste without needing to strip them.
+    public static function constrain_image_size($match) {
+        $tag = $match[0];
+        $style = 'max-width:100%;height:auto;';
+        if (preg_match('/style\s*=\s*"([^"]*)"/i', $tag, $m)) {
+            return str_replace($m[0], 'style="'.$m[1].';'.$style.'"', $tag);
+        }
+        return substr($tag, 0, -1).' style="'.$style.'">';
+    }
+
     public static function display_files($row, $nolink = false, $desc = null, $tab = null) {
     	$crypted = Utils_RecordBrowserCommon::get_value('utils_attachment',$row['id'],'crypted');
     	
@@ -421,6 +448,15 @@ class Utils_AttachmentCommon extends ModuleCommon {
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $form->addElement('static', $field, $label)->freeze();
         $form->setDefaults(array($field=>Base_RegionalSettingsCommon::time2reg($default,false,true,false)));
+        // View_entry.tpl (adminlte theme) can land back on 'view' mode reusing
+        // a $fields array built while this callback ran (not display_date()) -
+        // e.g. right after submitting an edit - which left $last_editor_info
+        // never populated, showing blank 'Edited by'/'Edited on' cells. Keep
+        // it populated from here too whenever a real record row is available,
+        // so whichever callback actually ran, the split cells have data.
+        if (isset($rb_obj->record['id'], $rb_obj->record['edited_on'])) {
+            self::display_date($rb_obj->record);
+        }
     }
 
     public static function crypted_rules($a) {

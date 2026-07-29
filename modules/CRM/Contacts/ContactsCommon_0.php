@@ -1284,7 +1284,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 				array('name'=>'contact_format','label'=>__('Contact format'),'type'=>'select','values'=>$opts,'default'=>'##l## ##f##')
 					),
 					__('Filters')=>array( // Until there's an option to define user_settings variables and redirect the display to custom method at the same time, it's the only solution to have this part here
-				array('name'=>'show_all_contacts_in_filters','label'=>__('Show All Contacts in Filters'),'type'=>'hidden','default'=>1)
+				array('name'=>'show_all_contacts_in_filters','label'=>__('Show All Contacts in Filters'),'type'=>'hidden','default'=>0),
+				array('name'=>'show_only_users_in_filters','label'=>__('Show Only Users in Filters'),'type'=>'hidden','default'=>1)
 					));
 	}
 
@@ -1345,9 +1346,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 		return false;
 	}
 	public static function display_contacts_with_notification($recordset, $record, $nolink, $desc) {
-		$icon_on = Utils_TooltipCommon::open_tag_attrs(__('This person is up to date with all changes made to this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png').'"';
-		$icon_off = Utils_TooltipCommon::open_tag_attrs(__('This person has notifications pending about changes made to this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png').'"';
-		$icon_none = Utils_TooltipCommon::open_tag_attrs(__('This person is not watching this record.')).' src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png').'"';
+		// Bootstrap glyphs instead of Utils_Watchdog's old watching_small/
+		// watching_small_new_events/not_watching_small.png files - same 3
+		// notification states, just an <i class="bi-eye..."> instead of an <img>.
+		$icon_on = array(Utils_TooltipCommon::open_tag_attrs(__('This person is up to date with all changes made to this record.')), 'bi-eye-fill', '#198754');
+		$icon_off = array(Utils_TooltipCommon::open_tag_attrs(__('This person has notifications pending about changes made to this record.')), 'bi-eye-fill', '#fd7e14');
+		$icon_none = array(Utils_TooltipCommon::open_tag_attrs(__('This person is not watching this record.')), 'bi-eye-slash', '#adb5bd');
 		$v = $record[$desc['id']];
 		$def = '';
 		$first = true;
@@ -1369,7 +1373,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 					elseif ($icon===true) $icon = $icon_on;
 					else $icon = $icon_off;
 				}
-				$def .= '<img style="margin-right:4px;" '.$icon.' />';
+				list($tooltip_attrs, $icon_class, $icon_color) = $icon;
+				$def .= '<i class="bi '.$icon_class.'" style="margin-right:4px;color:'.$icon_color.';" '.$tooltip_attrs.'></i>';
 			}
 			$def .= Utils_RecordBrowserCommon::no_wrap(call_user_func($callback, $contact, $nolink));
 		}

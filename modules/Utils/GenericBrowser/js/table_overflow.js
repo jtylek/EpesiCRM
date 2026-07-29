@@ -183,14 +183,24 @@ gb_expandable_init = function(table,id) {
     gb_expandable[table][id] = id;
     $("gb_less_"+table+'_'+id).childNodes[0].src = gb_collapse_icon;
     $("gb_more_"+table+'_'+id).childNodes[0].src = gb_expand_icon;
-    // handlers to expand on click in the empty space of the cell
-    el.unbind().click(function (e) {
-        if(!getSelection().toString()){
-            if (e.target == this) {
+    // handlers to expand on click in the empty space of the cell - for a
+    // 'tall_preview' column (e.g. Utils_Attachment's Note field - see
+    // AttachmentInstall.php), click-to-toggle instead works from anywhere in
+    // the cell (except real links/buttons), not just empty padding: it's the
+    // only expand/collapse control on mobile, where there's no room for the
+    // per-row action icons (they only surface inside the "more actions"
+    // kebab there) or the Expand All/Collapse All buttons.
+    el.unbind().each(function() {
+        var tallPreview = jq(this).closest('td').hasClass('Utils_RecordBrowser__tallpreview');
+        jq(this).click(function (e) {
+            if(getSelection().toString()) return;
+            var onSelf = (e.target == this);
+            var onTallPreviewContent = tallPreview && !jq(e.target).is('a,button,input,textarea,select') && !jq(e.target).closest('a,button').length;
+            if (onSelf || onTallPreviewContent) {
                 if (jq(this).hasClass("collapsed")) gb_expand(table, id);
                 else if (jq(this).hasClass("expanded")) gb_collapse(table, id);
             }
-        }
+        });
     });
     el.parent("td").unbind().click(function (e) {
         if (e.target == this) {

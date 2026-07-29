@@ -4,6 +4,10 @@
 .claude/
 .history/
 
+# Each module here is a separately purchased/installed premium add-on,
+# managed by its own git repository - not part of this one.
+modules/Premium/
+
 # Build output of console/Develop/CreateDistCommand.php (dev:dist:create)
 /epesi-*.zip
 

@@ -39,7 +39,16 @@ class InstallModuleCommand extends Command
             return Command::SUCCESS;
         }
 
-        if (ModuleManager::install($module['name'])) {
+        // Batches the translation-cache rescan for this module and any
+        // dependencies it pulls in - see Base_LangCommon::begin_bulk_install().
+        \Base_LangCommon::begin_bulk_install();
+        try {
+            $installed = ModuleManager::install($module['name']);
+        } finally {
+            \Base_LangCommon::end_bulk_install();
+        }
+
+        if ($installed) {
             $output->writeln('<fg=green>Module ' . $module_name . ' installed</fg=green>');
             return Command::SUCCESS;
         }

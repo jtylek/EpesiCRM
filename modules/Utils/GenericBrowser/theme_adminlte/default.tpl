@@ -23,7 +23,7 @@
 			{$form_data_search.javascript}
 			<form {$form_data_search.attributes} class="d-flex flex-wrap align-items-center gap-2">
 			{$form_data_search.hidden}
-			{$search_fields_hidden}
+			{if isset($search_fields_hidden)}{$search_fields_hidden}{/if}
 			{if isset($form_data_search.search)}
 				<span class="epesi-gb-adv">{$adv_search}</span>
 				{$form_data_search.search.html}

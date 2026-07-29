@@ -1001,12 +1001,12 @@ if (class_exists('ErrorHandler', false)) {
 	{
 		public function update_observer($type, $message, $errfile, $errline, $errcontext, $backtrace)
 		{
-			if (DB::is_mysql() && preg_match('/mysql.+\[2006\:/', $message) || preg_match('/server closed the connection/', $message)) {
+			if (DB::is_mysql() && preg_match('/\b2006\b|gone away/i', $message) || preg_match('/server closed the connection/', $message)) {
 				try {
 					DB::$ado = DB::Connect();
 					throw new DBRetryQueryException();
 					return false;
-				} catch (Exeption) {
+				} catch (Exception $e) {
 					return true;
 				}
 			}

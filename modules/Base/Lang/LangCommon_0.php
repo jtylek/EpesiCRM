@@ -420,6 +420,27 @@ class Base_LangCommon extends ModuleCommon {
 		return self::$lang_code;
 	}
 
+	// Set for the duration of a multi-module install/upgrade batch (see
+	// begin_bulk_install()/end_bulk_install()) so install_translations()'s
+	// full update_translations() rescan - O(every installed module) x
+	// O(every lang file in each) - runs once at the end of the batch instead
+	// of once per module installed. A module cascade (e.g. installing one
+	// module that pulls in several required dependencies) was re-running
+	// that full rescan for every single one of them.
+	private static $bulk_install = false;
+
+	public static function begin_bulk_install() {
+		self::$bulk_install = true;
+	}
+
+	// Safe to call even if begin_bulk_install() was never called (e.g. a
+	// single standalone module install) - just runs the rescan once, same
+	// as install_translations() would have done inline.
+	public static function end_bulk_install() {
+		self::$bulk_install = false;
+		self::update_translations();
+	}
+
 	/**
 	 * For internal use only.
 	 */
@@ -429,7 +450,7 @@ class Base_LangCommon extends ModuleCommon {
 		if (!is_dir($directory)) return;
 		$content = scandir($directory);
 		$trans_backup = $translations;
-		self::update_translations(); // cleanup translations file
+		if (!self::$bulk_install) self::update_translations(); // cleanup translations file
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
@@ -438,7 +459,7 @@ class Base_LangCommon extends ModuleCommon {
 			Base_LangCommon::append_base($langcode, $translations); // extend base translations
 		}
 		$translations = $trans_backup;
-		self::refresh_cache();
+		if (!self::$bulk_install) self::refresh_cache();
 	}
 
 	/**

@@ -29,9 +29,6 @@ class Patches extends SteppedAdminModule {
                 $this->set_next_step(2);
                 break;
             case 2:
-                ModuleManager::create_common_cache();
-                Base_ThemeCommon::themeup();
-                Base_LangCommon::update_translations();
                 Cache::clear();
                 break;
         }
@@ -118,7 +115,7 @@ class Patches extends SteppedAdminModule {
             $this->set_next_step(1);
             $message = 'Do not close this page. Browser should reload this page until all patches will be applied.';
         } else {
-            $message = 'Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...';
+            $message = 'Press NEXT to clear cache...';
         }
 
         return $this->render('Patches.tpl', array(
