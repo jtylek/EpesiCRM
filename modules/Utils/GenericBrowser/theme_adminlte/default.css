@@ -324,6 +324,7 @@
 	align-items: center;
 	margin-right: 0.15rem;
 	line-height: 1;
+	text-decoration: none;
 }
 
 .epesi-gb table.Utils_GenericBrowser a::before {
@@ -540,4 +541,101 @@
 		order: -1;
 		flex: 1 1 100%;
 	}
+}
+
+/* ---- mobile actions menu ----
+
+   Below the same 991.98px breakpoint the sidebar itself goes off-canvas
+   (Base_Box/theme_adminlte/default.css), the per-row action icons (view/
+   edit/delete/... - real <a> siblings inside .Utils_GenericBrowser__actions,
+   built by GenericBrowser_0.php) are hidden and replaced by a single
+   "epesi-gb-actions-toggle" kebab button that a script injected as that
+   cell's first child (see Base_Box/theme_adminlte/default.tpl). Clicking it
+   clones the hidden <a>s into the one shared #epesi-gb-actions-menu panel
+   below, appended straight to <body> - not nested in the table - so it
+   can't be clipped by {html_table_epesi}'s own inline overflow:hidden on
+   the <table> (see adminlte-css-conflicts memory, point 9) the way an
+   absolutely-positioned child of the cell itself would be. Desktop is
+   untouched: the toggle stays display:none there and the real <a>s render
+   exactly as before. */
+.epesi-gb-actions-toggle {
+	display: none;
+}
+
+@media (max-width: 991.98px) {
+	.epesi-gb table.Utils_GenericBrowser td.Utils_GenericBrowser__actions > a,
+	.epesi-gb table.Utils_GenericBrowser th.Utils_GenericBrowser__actions > a {
+		display: none !important;
+	}
+
+	.epesi-gb-actions-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: #6c757d;
+		cursor: pointer;
+	}
+
+	.epesi-gb-actions-toggle::before {
+		font-family: "bootstrap-icons";
+		font-size: 1.1rem;
+		content: "\f5d3";
+	}
+
+	.epesi-gb-actions-toggle.epesi-gb-actions-open {
+		color: #0d6efd;
+		background-color: #e9ecef;
+		border-radius: 0.25rem;
+	}
+}
+
+#epesi-gb-actions-menu {
+	display: none;
+	position: fixed;
+	z-index: 1055;
+	min-width: 160px;
+	max-height: 60vh;
+	overflow-y: auto;
+	background-color: #fff;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+	padding: 0.25rem 0;
+}
+
+#epesi-gb-actions-menu.show {
+	display: block;
+}
+
+#epesi-gb-actions-menu a {
+	display: flex !important;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.85rem;
+	color: #343a40;
+	text-decoration: none;
+	white-space: nowrap;
+	font-size: 0.85rem;
+}
+
+#epesi-gb-actions-menu a:hover {
+	background-color: #f1f3f5;
+}
+
+/* The icon glyphs used elsewhere in this table (::before content keyed off
+   :has(img[src*=...]), see the "---- table ----" section above) are all
+   scoped to ".epesi-gb table.Utils_GenericBrowser a" - this menu's cloned
+   <a>s live outside that table (see the section comment above), so those
+   rules don't reach them and the original hidden <img> sprite (view.png,
+   edit.png, ...) shows instead. Left as-is rather than duplicating every
+   :has() selector here - a plain 16x16 sprite icon next to the label text
+   is perfectly legible in a dropdown, just not re-skinned to match. */
+#epesi-gb-actions-menu a img {
+	width: 16px;
+	height: 16px;
 }

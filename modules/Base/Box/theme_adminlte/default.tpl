@@ -183,6 +183,99 @@
 		");"
 	);
 
+	// Below the same 991.98px breakpoint the sidebar itself goes off-canvas
+	// (Base_Box/theme_adminlte/default.css), per request: collapse every
+	// GenericBrowser/RecordBrowser row's own row of action icons (view/edit/
+	// delete/favourite/watchdog/...) into a single kebab (bi-three-dots-
+	// vertical) toggle button, to give that screen space back to the table's
+	// other columns instead. The CSS half of this (Utils/GenericBrowser/
+	// theme_adminlte/default.css, "---- mobile actions menu ----") hides the
+	// real <a> icons and the toggle button below that breakpoint, and styles
+	// #epesi-gb-actions-menu, the one shared floating panel this script
+	// populates and positions on click.
+	//
+	// The panel gets a CLONE of each hidden <a> (not the real node moved out
+	// and back, unlike this same file's older table_overflow.js/
+	// Utils_GenericBrowser__overflow_div pattern for a similar clipping
+	// problem) - simpler here since there's nothing to restore afterwards,
+	// and every one of these actions is a plain HTML href/onclick attribute
+	// (GenericBrowser_0.php's own tag_attrs strings), which cloneNode
+	// preserves and re-fires exactly like the original on click. Each
+	// action's own accessible label - already present as a title attribute
+	// via Utils_TooltipCommon::open_tag_attrs() for every one of these icons
+	// - is appended as visible text next to its icon, since a touch user has
+	// no hover to reveal a title tooltip the way a desktop one would.
+	//
+	// Appended straight to <body>, not nested anywhere in the table, so
+	// position:fixed places it over the row regardless of the table's own
+	// inline overflow:hidden (see adminlte-css-conflicts memory, point 9) -
+	// the same reason table_overflow.js's own floating box lives at the body
+	// level. Toggle injection re-runs on "e:load" (a table's rows can be
+	// wholesale replaced by paging/sorting/filtering) and is idempotent per
+	// cell (skips any cell that already has one), same guard style as this
+	// file's other "e:load" observers.
+	eval_js_once(
+		"(function(){".
+			"var MENU_ID='epesi-gb-actions-menu';".
+			"function getMenu(){".
+				"var m=document.getElementById(MENU_ID);".
+				"if(!m){m=document.createElement('div');m.id=MENU_ID;document.body.appendChild(m);}".
+				"return m;".
+			"}".
+			"function closeMenu(){".
+				"var m=document.getElementById(MENU_ID);".
+				"if(m)m.classList.remove('show');".
+				"var b=document.querySelector('.epesi-gb-actions-toggle.epesi-gb-actions-open');".
+				"if(b)b.classList.remove('epesi-gb-actions-open');".
+			"}".
+			"function openMenuFor(btn,cell){".
+				"var wasOpen=btn.classList.contains('epesi-gb-actions-open');".
+				"closeMenu();".
+				"if(wasOpen)return;".
+				"var actions=cell.querySelectorAll('a');".
+				"if(!actions.length)return;".
+				"var m=getMenu();".
+				"m.innerHTML='';".
+				"actions.forEach(function(a){".
+					"var clone=a.cloneNode(true);".
+					"var label=a.getAttribute('title');".
+					"if(label){var span=document.createElement('span');span.textContent=label;clone.appendChild(span);}".
+					"m.appendChild(clone);".
+				"});".
+				"m.classList.add('show');".
+				"var r=btn.getBoundingClientRect();".
+				"m.style.top=(r.bottom+4)+'px';".
+				"var left=r.right-m.offsetWidth;".
+				"if(left<4)left=4;".
+				"m.style.left=left+'px';".
+				"btn.classList.add('epesi-gb-actions-open');".
+			"}".
+			"function ensureToggles(){".
+				"document.querySelectorAll('table.Utils_GenericBrowser td.Utils_GenericBrowser__actions').forEach(function(cell){".
+					"if(cell.querySelector('.epesi-gb-actions-toggle'))return;".
+					"if(!cell.querySelector('a'))return;".
+					"var btn=document.createElement('button');".
+					"btn.type='button';".
+					"btn.className='epesi-gb-actions-toggle';".
+					"btn.setAttribute('aria-label','Actions');".
+					"btn.addEventListener('click',function(e){".
+						"e.stopPropagation();".
+						"openMenuFor(btn,cell);".
+					"});".
+					"cell.insertBefore(btn,cell.firstChild);".
+				"});".
+			"}".
+			"document.addEventListener('click',function(e){".
+				"var menu=document.getElementById(MENU_ID);".
+				"if(menu&&menu.classList.contains('show')&&!menu.contains(e.target)&&!e.target.closest('.epesi-gb-actions-toggle'))closeMenu();".
+			"});".
+			"document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});".
+			"window.addEventListener('resize',closeMenu);".
+			"try{ensureToggles();}catch(e){}".
+			"if(typeof document.observe==='function')document.observe('e:load',function(){try{closeMenu();ensureToggles();}catch(e){}});".
+		"})();"
+	);
+
 	// Sizes GenericBrowser's Actions column (view/edit/delete/... icons) to
 	// fit whatever icons a given table actually has, per request - a flat
 	// CSS width was previously tried and reverted (too narrow for tables
