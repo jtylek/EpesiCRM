@@ -108,7 +108,7 @@ class Utils_RecordBrowser_CritsValidator
                     if ($crit_value) $result = in_array($crit_value, $r_val);
                     else $result = empty($r_val);
                     if ($crits->get_operator() == '!=') $result = !$result;
-                } elseif ($field_definition['type'] == 'text' || $field_definition['type'] == 'long text') {
+                } elseif ($field_definition && ($field_definition['type'] == 'text' || $field_definition['type'] == 'long text')) {
                     $str_cmp = strcasecmp($r_val, $crit_value);
                     switch ($crits->get_operator()) {
                         case '>': $result = ($str_cmp > 0); break;

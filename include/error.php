@@ -36,6 +36,13 @@ class ErrorHandler {
 		return $buffer;
 	}
 	
+	// Types that can legitimately mean "this can't continue" (E_ERROR/E_PARSE/
+	// E_CORE_*/E_COMPILE_* never reach a user error handler at all, but
+	// E_USER_ERROR and E_RECOVERABLE_ERROR do) - these stay fatal everywhere,
+	// including inside a compiled template, unlike the soft/non-fatal set
+	// below.
+	const SOFT_ERROR_TYPES = E_WARNING | E_NOTICE | E_STRICT | E_DEPRECATED | E_USER_WARNING | E_USER_NOTICE | E_USER_DEPRECATED;
+
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
     	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
@@ -44,6 +51,23 @@ class ErrorHandler {
 
 				if ( ! self::notify_observers($type, $message,$errfile,$errline,$errcontext,$backtrace)) {
 					return false;
+				}
+
+				// Smarty compiles dot-notation ({$i.key}) straight to $arr['key']
+				// with no isset guard, so a template using {if $var.optional_key}
+				// for a key that's legitimately sometimes absent (a widespread,
+				// pre-existing idiom across Epesi's templates - see
+				// [[report-all-errors-exits-on-warning]]) raises a plain
+				// PHP warning/notice there under REPORT_ALL_ERRORS even though
+				// nothing is actually broken. Log it like any other error, but
+				// don't blank out the whole module over it - only for the
+				// non-fatal type set, and only for files under a "compiled"
+				// directory (Smarty's own compile-cache layout, e.g.
+				// temp/data/<Module>/compiled/<mangled-name>.tpl.php); a real
+				// PHP-source warning anywhere else still aborts as before.
+				if (($type & self::SOFT_ERROR_TYPES) && preg_match('#[\\\\/]compiled[\\\\/][^\\\\/]+\.tpl\.php$#', $errfile)) {
+					epesi_log("$message\n\n",'php_errors.log');
+					return true;
 				}
 
 				while(@ob_end_clean());

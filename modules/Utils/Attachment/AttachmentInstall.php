@@ -41,6 +41,17 @@ class Utils_AttachmentInstall extends ModuleInstall {
                 'required' => false,
                 'extra' => false,
                 'visible'=>true,
+                // display_note() renders title<br>body for the browse/mini-view
+                // preview - the generic single-line "expandable" grid collapse
+                // (18px = one line) clipped it after just the title. Unlike
+                // 'Edited on' (always exactly 3 fixed lines, so fully exempted
+                // via 'noexpand'), this field's body is open-ended user text,
+                // so it should stay collapsible - just with a taller collapsed
+                // height that fits title + a couple of body lines instead of
+                // one. See RecordBrowser_0.php's $args['style']=='tall_preview'
+                // check and the matching CSS in
+                // GenericBrowser/theme_adminlte/default.css.
+                'style' => 'tall_preview',
                 'display_callback'=>array('Utils_AttachmentCommon','display_note'),
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_note'),
             ),

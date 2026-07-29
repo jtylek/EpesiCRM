@@ -284,7 +284,20 @@ class Utils_AttachmentCommon extends ModuleCommon {
             self::$mark_as_read = array();
         }
 
-        $text = (!$view && $row['title']?'<b style="float:left;margin-right:30px;">'.$row['title'].'</b> ':''). $text;
+        // Browse/mini-view rendering (not the single-record view, which shows
+        // title in its own dedicated column - see View_entry.tpl): show the
+        // title followed by the full body, same idea as the default theme.
+        // An embedded image (pasted screenshot etc) rendered at full size
+        // right next to/after the title wrecked the row's layout (this column
+        // is exempt from the generic row-height clipping - see
+        // AttachmentInstall.php's 'style'=>'noexpand' comment - so there's no
+        // collapsed preview to hide behind either), so every <img> is swapped
+        // for a lightweight placeholder badge instead - full content (the
+        // real images) is still reachable via the row's own View action.
+        if (!$view && $row['title']) {
+            $body = preg_replace('/<img\b[^>]*>/i', '<span class="badge text-bg-secondary"><i class="bi bi-image"></i> '.__('image').'</span>', $text);
+            $text = '<b>'.$row['title'].'</b><br>'.$body;
+        }
         
         if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
 

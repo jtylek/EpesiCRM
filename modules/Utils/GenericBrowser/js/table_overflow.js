@@ -139,6 +139,16 @@ gb_collapse = function(table,id) {
     table_overflow_hide(utils_genericbrowser__hide_current);
     var e = jq("#gb_row_"+table+'_'+id+' div.expandable')
     if(e.length>0) {
+        // gb_expand() sets an inline height:auto (e.height("auto")) so the
+        // "expanded" state always shows full content regardless of any
+        // per-column collapsed-height override (e.g. Utils_RecordBrowser__tallpreview's
+        // 72px) - an inline style beats any external stylesheet rule
+        // outright, no matter its specificity. Once a row had ever been
+        // expanded, re-collapsing it left that inline style in place forever
+        // (only the class was toggled back), permanently defeating whatever
+        // height the .collapsed CSS was supposed to apply. Clear it back to
+        // the stylesheet-driven height on every collapse.
+        e.css('height', '');
         e.removeClass('expanded').addClass('collapsed');
         $("gb_more_"+table+'_'+id).show();
         $("gb_less_"+table+'_'+id).hide();

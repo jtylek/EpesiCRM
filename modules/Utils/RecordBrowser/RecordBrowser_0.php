@@ -780,7 +780,8 @@ class Utils_RecordBrowser extends Module {
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
                 if (strip_tags($value)=='') $value .= '&nbsp;';
                 if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
-                elseif ($args['style']=='noexpand') $value = array('class'=>'Utils_RecordBrowser__noexpand','value'=>$value);
+                elseif ($args['style']=='noexpand') $value = array('class'=>'Utils_RecordBrowser__noexpand','value'=>$value,'overflow_box'=>false);
+                elseif ($args['style']=='tall_preview') $value = array('class'=>'Utils_RecordBrowser__tallpreview','value'=>$value,'overflow_box'=>false);
                 if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect','commondata'))) {
                     $table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
                     $ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;">'.
@@ -1240,7 +1241,7 @@ class Utils_RecordBrowser extends Module {
 
 				$tab_counter++;
 			}
-            $cols = $row['param'];
+            if ($row) $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
         }

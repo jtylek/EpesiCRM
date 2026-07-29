@@ -844,7 +844,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
-			if ($v['name'] && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
+			if ($v['name'] && isset($order[0]['column']) && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
 			else $label = $v['name'];
 			$headers[$i]['label'] .= ($v['preppend'] ?? '').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).($v['append'] ?? '');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];

@@ -559,6 +559,23 @@
 	overflow: visible;
 }
 
+/* Utils_RecordBrowser__tallpreview (RecordBrowser_0.php's $args['style']==
+   'tall_preview' check, e.g. Utils_Attachment's "Note" column) - unlike
+   __noexpand above, this column's content (title + open-ended user text,
+   BBCode formatting/images-as-badges included per display_note()) SHOULD
+   still collapse/expand via the normal per-row toggle, just not down to the
+   generic single line - 18px barely fits the title, cutting the body off
+   mid-word right after it. Only overrides the .collapsed height; .expanded
+   is untouched, so it still falls through to the plain
+   div.expandable.expanded rule above (height:auto!important) when toggled
+   open. Same specificity trick as __noexpand (extra class + element on both
+   the td and the div beats the plain .collapsed rule's 3-classes-1-element
+   without needing !important). */
+.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__tallpreview div.expandable.collapsed {
+	height: 72px;
+	overflow: hidden;
+}
+
 .epesi-gb div.expandable:not(.exceedsHeight) p,
 .epesi-gb div.expandable.collapsed p {
 	margin: 0;

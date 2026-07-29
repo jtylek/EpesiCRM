@@ -36,6 +36,15 @@
 	foreach ($icons as $k=>$i) {
 		if (empty($i['icon_url']))
 			$icons[$k]['bi_icon'] = $icon_map[$i['icon']] ?? 'bi-app-indicator';
+		// ActionBar_0.php's body() only ever sets 'icon_url' for icons using a
+		// file-path icon, leaving it entirely absent (not just falsy) for the
+		// named/mapped ones - {if $i.icon_url} below then dereferences a
+		// missing array key directly (Smarty compiles dot-notation straight to
+		// $i['icon_url'], no isset check), which is silent under normal
+		// error_reporting but fatal (exit()) under REPORT_ALL_ERRORS - see
+		// [[report-all-errors-exits-on-warning]]. Guarantee the key exists
+		// instead of touching the template's {if} syntax.
+		$icons[$k]['icon_url'] ??= null;
 	}
 	$this->assign('icons', $icons);
 
