@@ -15,10 +15,14 @@
 .epesi-rv-header {
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin-bottom: 0.75rem;
+}
+
+.epesi-rv-required {
+	color: #6c757d;
+	font-size: 0.85rem;
 }
 
 .epesi-rv-tools {
@@ -28,6 +32,14 @@
 	gap: 0.5rem;
 	color: #6c757d;
 	font-size: 0.85rem;
+	/* Pushes this row to the far right of .epesi-rv-header regardless of
+	   .epesi-rv-required's own width, by consuming all free space on the
+	   main axis as margin instead of relying on the parent's
+	   justify-content - a previous attempt used justify-content:space-between
+	   on the parent for this and it didn't actually right-justify the icons
+	   (reported: still sitting immediately after the required-note text,
+	   with unused space to the right instead of the icons moving into it). */
+	margin-left: auto;
 }
 
 /* The tools row's icons (favourite/subscription/info/clipboard/history
@@ -76,11 +88,17 @@
 .epesi-rv-tools a {
 	display: inline-flex;
 	align-items: center;
+	text-decoration: none;
 }
 
 .epesi-rv-tools a::before {
 	font-family: "bootstrap-icons";
-	font-size: 1rem;
+	/* 2rem (per an earlier round of this same request) read too big -
+	   settled on 1.5rem, still noticeably larger than this file's other
+	   icon glyphs (favourite/subscription/info/clipboard/history + each
+	   module's "New X" shortcuts are this screen's primary action row, not
+	   incidental decoration) without dominating the header. */
+	font-size: 1.5rem;
 	color: #6c757d;
 }
 
@@ -521,6 +539,20 @@
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
+}
+/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a group of an hour/minute/am-pm <select> trio plus a separate date
+   <input>) predates the ".data select{width:100%}" rule higher up in this
+   file, which - added later, for ordinary single-select fields - forces
+   every one of these hour/minute/am-pm selects onto its own full-width
+   line, breaking the float:right layout above entirely (each select ends
+   up stacked instead of sitting compact and side by side). The date
+   <input> is unaffected by this override and correctly keeps width:100% -
+   it's the non-floated sibling the "margin-right:130px" rule above already
+   reserves space against, so it's meant to fill what's left of the row. */
+.Utils_RecordBrowser__View_entry .data .timestamp select {
+	width: auto;
+	height: auto;
 }
 /* timestamp END */
 

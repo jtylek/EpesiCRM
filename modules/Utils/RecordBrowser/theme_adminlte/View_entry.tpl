@@ -38,9 +38,14 @@
 	   header, same as Browsing_records.tpl - $icon/$caption are still
 	   assigned by RecordBrowser_0.php (shared with the default theme), just
 	   not rendered here. The required-note/tooltips row is unrelated chrome
-	   and stays. *}
-	<div class="epesi-rv-tools">
+	   and stays. Required-note split into its own left-aligned element, per
+	   request - it was sharing .epesi-rv-tools' right-aligned flex row with
+	   the icon tooltips, so it always ended up glued to the icons instead of
+	   acting as an independent page note. *}
+	<div class="epesi-rv-required">
 		*&nbsp;{$required_note}
+	</div>
+	<div class="epesi-rv-tools">
 		{if isset($subscription_tooltip)}
 			{$subscription_tooltip}
 		{/if}
