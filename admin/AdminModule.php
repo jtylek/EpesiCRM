@@ -21,6 +21,14 @@ abstract class AdminModule {
         return 'bi-tools';
     }
 
+    // Overridden by a module whose sidebar/dashboard entry should link
+    // straight to some other URL instead of the normal ?module=<name>
+    // in-page routing - e.g. UpdateEpesi, which launches the separate
+    // update.php script rather than rendering inside this page's own card.
+    function href() {
+        return null;
+    }
+
     function required_epesi_modules() {
         return array();
     }

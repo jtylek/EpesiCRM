@@ -41,6 +41,22 @@ class AdminIndex {
             $this->layout->display_html($auth);
             return false;
         }
+        // SimpleLogin::form() (and Base_AclCommon::i_am_sa()/i_am_admin(),
+        // which every AdminModule::access_admin()/access_user() check below
+        // ultimately relies on) intentionally treat ANY visitor as fully
+        // privileged whenever the site's "anonymous_setup" convenience mode
+        // is on - no session, no login form, nothing to gate. That's a
+        // reasonable default for browsing the app, but Admin Utilities holds
+        // destructive tools (arbitrary PHP eval, disabling modules, applying
+        // patches) that must never be reachable by an unauthenticated
+        // visitor just because the rest of the site is configured wide-open.
+        // SimpleLogin::force_login_form() is the same login form, minus that
+        // bypass - update.php/check.php use it for the same reason.
+        if (!Base_AclCommon::is_user()) {
+            $this->layout->hide_action_links();
+            $this->layout->display_html(SimpleLogin::force_login_form());
+            return false;
+        }
         return true;
     }
 
@@ -63,13 +79,23 @@ class AdminIndex {
     }
 
     private function create_admin_modules_instances() {
+        // Base_AclCommon::i_am_sa()/i_am_admin() unconditionally return true
+        // under the site's "anonymous_setup" convenience mode, regardless of
+        // the actual logged-in user's real privilege level (see authorized()
+        // above) - using get_admin_level() directly here instead means this
+        // tool's own per-module visibility can't be widened by that site-wide
+        // mode either. Queried once (it hits the DB every call, unlike
+        // i_am_sa()/i_am_admin()'s own static caching) since it's the same
+        // user for every module in this loop. i_am_user() is untouched - it
+        // has no such bypass (just "is a real session user set").
+        $admin_level = Base_AclCommon::get_admin_level();
         foreach (get_declared_classes() as $class) {
             $rclass = new ReflectionClass($class);
             if ($rclass->isSubclassOf("AdminModule") && !$rclass->isAbstract()) {
                 $module = new $class;
                 if (
-                        (Base_AclCommon::i_am_sa()) ||
-                        (Base_AclCommon::i_am_admin() && $module->access_admin()) ||
+                        ($admin_level >= 2) ||
+                        ($admin_level >= 1 && $module->access_admin()) ||
                         (Base_AclCommon::i_am_user() && $module->access_user())
                 ) {
                     $this->admin_modules[$class] = $module;
@@ -90,7 +116,7 @@ class AdminIndex {
     // before branching to show_module()/show_menu() below, not inside either.
     private function build_sidebar_menu() {
         foreach ($this->admin_modules as $module_name => $module) {
-            $href = '?' . http_build_query(array('module' => $module_name));
+            $href = $module->href() ?? ('?' . http_build_query(array('module' => $module_name)));
             $this->layout->add_menu_entry($href, $module->menu_entry(), $module_name, $module->icon());
         }
     }

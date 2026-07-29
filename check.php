@@ -18,12 +18,20 @@ if ($config) {
     ModuleManager::load_modules();
 }
 if ($config && class_exists('Base_AclCommon')) {
-    if (Base_AclCommon::i_am_user()) {
-        if (!Base_AclCommon::i_am_sa()) {
+    // Base_AclCommon::i_am_sa() unconditionally returns true whenever the
+    // site's "anonymous_setup" convenience mode is on, for ANY visitor -
+    // logged in or not - which both silently let a real non-admin account
+    // through below and let SimpleLogin::form() skip the login form
+    // entirely for an anonymous one, exposing this diagnostic page (DB
+    // permissions, PHP settings, etc) with no gate at all. get_admin_level()
+    // hits the DB directly with no such bypass, and force_login_form() is
+    // the same login form minus it.
+    if (Base_AclCommon::is_user()) {
+        if (Base_AclCommon::get_admin_level() < 2) {
             die('Only super admin can access this page');
         }
     } else {
-        $auth = SimpleLogin::form();
+        $auth = SimpleLogin::force_login_form();
         if ($auth) {
             print($auth);
             die();

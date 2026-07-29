@@ -371,8 +371,15 @@ class EpesiUpdate
             if (!Base_AclCommon::i_am_sa()) {
                 $this->quit('No proper admin user.');
             }
+            return true;
         }
-        return Base_AclCommon::i_am_sa();
+        // Base_AclCommon::i_am_sa() unconditionally returns true whenever
+        // the site's "anonymous_setup" convenience mode is on, regardless of
+        // whether anyone is actually logged in - fine for browsing the app,
+        // but this script can wipe and replace every core file, so it must
+        // always require a REAL super-admin session, independent of that
+        // mode. get_admin_level() hits the DB directly with no such bypass.
+        return Base_AclCommon::is_user() && Base_AclCommon::get_admin_level() >= 2;
     }
 
     public function version_up_to_date()
@@ -428,10 +435,15 @@ class EpesiUpdate
 
     protected function login_form()
     {
-        if (Base_AclCommon::i_am_user() && !Base_AclCommon::i_am_sa()) {
+        // Real admin level, not i_am_sa() (see check_user() above) - under
+        // anonymous_setup that always reads as "already super admin," which
+        // would never log a real non-admin account out here.
+        if (Base_AclCommon::is_user() && Base_AclCommon::get_admin_level() < 2) {
             Base_User_LoginCommon::logout();
         }
-        $form = SimpleLogin::form();
+        // force_login_form(), not form(): form() can't produce a login form
+        // at all once anonymous_setup is on (see check_user() above).
+        $form = SimpleLogin::force_login_form();
         return "<p>$form</p>";
     }
 

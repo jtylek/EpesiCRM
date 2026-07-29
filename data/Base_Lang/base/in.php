@@ -1973,3 +1973,6 @@ $translations['Mark as read']='';
 $translations['Mark all entries as read']='';
 $translations['This will mark all entries in selected categories as read, are you sure you want to continue?']='';
 $translations['Wizard complete! No more pages to display...']='';
+$translations['This text can be translated.']='';
+$translations['Here you can have some numbers: %d, %d, %d but you can still translate whole text.']='';
+$translations['Hello world!']='';

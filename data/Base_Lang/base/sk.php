@@ -2125,3 +2125,6 @@ $translations['Patches to apply']='';
 $translations['Last refresh']='';
 $translations['Patch']='';
 $translations['pending']='';
+$translations['This text can be translated.']='';
+$translations['Here you can have some numbers: %d, %d, %d but you can still translate whole text.']='';
+$translations['Hello world!']='';
