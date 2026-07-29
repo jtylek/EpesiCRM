@@ -107,6 +107,31 @@ if (!MaintenanceMode::can_access()) {
     } else {
         global $maintenance_mode_message;
         $msg = $maintenance_mode_message ?? "System is in the maintenance mode. Please wait until your system administrator will turn it off.";
-        die ($msg);
+        // This can fire for ANY entry point (root index.php, admin/index.php,
+        // ...) before Smarty/the module system/DB are even loaded (see this
+        // file's own require order in include.php) - so, same reasoning as
+        // theme/index.tpl's #epesiStatus boot splash, this is fully self-
+        // contained inline CSS with no external stylesheet/webfont dependency
+        // (no reliable relative path to libs/ exists from an unknown depth,
+        // and no reliable app context to link one from). $msg is admin-
+        // supplied (MaintenanceMode::turn_on()'s $message, persisted via
+        // var_export()) but now rendered inside real HTML instead of as bare
+        // text, so it's escaped here rather than trusted raw.
+        die('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" />'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1" />'
+            . '<title>Maintenance Mode</title><style>'
+            . 'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;'
+            . 'background-color:#f4f6f9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#212529;}'
+            . '.card{background:#fff;border-radius:0.5rem;box-shadow:0 0.5rem 1.5rem rgba(0,0,0,0.15);'
+            . 'padding:2.5rem 2rem;max-width:26rem;width:90%;text-align:center;}'
+            . '.icon{width:4rem;height:4rem;margin:0 auto 1.25rem;border-radius:50%;background-color:#e7f1ff;'
+            . 'display:flex;align-items:center;justify-content:center;font-size:1.75rem;line-height:1;}'
+            . 'h1{font-size:1.35rem;font-weight:600;margin:0 0 0.75rem;}'
+            . 'p{margin:0;line-height:1.5;color:#495057;}'
+            . '</style></head><body><div class="card">'
+            . '<div class="icon">&#128295;</div>'
+            . '<h1>Under maintenance</h1>'
+            . '<p>' . htmlspecialchars($msg) . '</p>'
+            . '</div></body></html>');
     }
 }
