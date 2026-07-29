@@ -420,25 +420,30 @@ class Base_LangCommon extends ModuleCommon {
 		return self::$lang_code;
 	}
 
-	// Set for the duration of a multi-module install/upgrade batch (see
+	// Nesting depth of the current install/upgrade batch (see
 	// begin_bulk_install()/end_bulk_install()) so install_translations()'s
-	// full update_translations() rescan - O(every installed module) x
-	// O(every lang file in each) - runs once at the end of the batch instead
-	// of once per module installed. A module cascade (e.g. installing one
-	// module that pulls in several required dependencies) was re-running
-	// that full rescan for every single one of them.
-	private static $bulk_install = false;
+	// full update_translations() rescan - already limited to installed
+	// modules (it reads the 'modules' DB table), but still O(installed
+	// modules) x O(every lang file in each) - runs once when the outermost
+	// batch finishes instead of once per module installed. A depth counter
+	// (not a bool) is required because ModuleManager::install() wraps itself
+	// in begin/end_bulk_install() and calls itself recursively for each
+	// unsatisfied dependency (see satisfy_dependencies()): a bool would have
+	// the first-finishing dependency's end_bulk_install() fire the rescan
+	// and reset the flag while sibling/outer installs are still in
+	// progress, right back to one rescan per module.
+	private static $bulk_install_depth = 0;
 
 	public static function begin_bulk_install() {
-		self::$bulk_install = true;
+		self::$bulk_install_depth++;
 	}
 
 	// Safe to call even if begin_bulk_install() was never called (e.g. a
 	// single standalone module install) - just runs the rescan once, same
 	// as install_translations() would have done inline.
 	public static function end_bulk_install() {
-		self::$bulk_install = false;
-		self::update_translations();
+		if (self::$bulk_install_depth > 0) self::$bulk_install_depth--;
+		if (self::$bulk_install_depth === 0) self::update_translations();
 	}
 
 	/**
@@ -450,7 +455,7 @@ class Base_LangCommon extends ModuleCommon {
 		if (!is_dir($directory)) return;
 		$content = scandir($directory);
 		$trans_backup = $translations;
-		if (!self::$bulk_install) self::update_translations(); // cleanup translations file
+		if (self::$bulk_install_depth === 0) self::update_translations(); // cleanup translations file
 		foreach ($content as $name){
 			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
 			$langcode = substr($name,0,strpos($name,'.'));
@@ -459,7 +464,7 @@ class Base_LangCommon extends ModuleCommon {
 			Base_LangCommon::append_base($langcode, $translations); // extend base translations
 		}
 		$translations = $trans_backup;
-		if (!self::$bulk_install) self::refresh_cache();
+		if (self::$bulk_install_depth === 0) self::refresh_cache();
 	}
 
 	/**

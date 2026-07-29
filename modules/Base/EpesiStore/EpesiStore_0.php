@@ -524,22 +524,10 @@ class Base_EpesiStore extends Module {
 
     public function _install_module($module) {
         $module = str_replace('/', '_', $module);
-        // A single module can cascade into installing many not-yet-installed
-        // dependencies (ModuleManager::install() -> satisfy_dependencies()).
-        // Without batching, each one runs Base_LangCommon's full
-        // update_translations() rescan - O(every installed module) x O(every
-        // lang file in each) - on its own; see begin_bulk_install()'s own
-        // comment. That's what made installing Premium/Projects/Tickets look
-        // like it hung Apache: no single step errored or looped forever, the
-        // cascade was just doing the full rescan a dozen-plus times in a row,
-        // and update_translations() calls set_time_limit(0) internally so
-        // nothing ever cut the request off.
-        Base_LangCommon::begin_bulk_install();
-        try {
-            ModuleManager::install($module);
-        } finally {
-            Base_LangCommon::end_bulk_install();
-        }
+        // ModuleManager::install() batches its own dependency cascade's
+        // translation-rescan internally now - see its begin_bulk_install()
+        // comment - so a plain call is enough here.
+        ModuleManager::install($module);
     }
 
     private function _print_other_files_list($other_files) {
