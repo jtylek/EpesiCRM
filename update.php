@@ -294,6 +294,47 @@ class EpesiUpdatePackage
 
 }
 
+// Standalone Smarty bootstrap for update.php - deliberately independent of
+// the module/theme rendering pipeline, same reasoning as admin/AdminSmarty.php
+// and SimpleLogin::render() (both docblocks explain why: this script must
+// still work before the app is fully configured or logged in).
+class UpdateSmarty
+{
+    private static $smarty;
+
+    private static function instance()
+    {
+        if (!self::$smarty) {
+            require_once('modules/Base/Theme/smarty/Smarty.class.php');
+            $smarty = new Smarty();
+            $smarty->template_dir = 'include/templates';
+            $smarty->compile_dir = TEMP_DIR . '/Update/compiled/';
+            $smarty->compile_id = 'update';
+            if (!is_dir($smarty->compile_dir))
+                mkdir($smarty->compile_dir, 0777, true);
+            // Array callable, not a closure - see AdminSmarty::instance()'s
+            // identical comment (Smarty 2 embeds this into the compiled
+            // template file it caches to disk).
+            $smarty->register_modifier('t', array(__CLASS__, 'translate'));
+            self::$smarty = $smarty;
+        }
+        return self::$smarty;
+    }
+
+    static function translate($s)
+    {
+        return __($s);
+    }
+
+    static function render($template, array $vars = array())
+    {
+        $smarty = self::instance();
+        foreach ($vars as $key => $value)
+            $smarty->assign($key, $value);
+        return $smarty->fetch($template);
+    }
+}
+
 class EpesiUpdate
 {
     public function run()
@@ -311,7 +352,7 @@ class EpesiUpdate
                 $this->require_admin_login();
             }
         } catch (Exception $ex) {
-            $this->quit('Exception occured: ' . $ex->getMessage());
+            $this->quit($this->render_message('Exception occured: ' . $ex->getMessage()));
         }
     }
 
@@ -385,20 +426,28 @@ class EpesiUpdate
     public function version_up_to_date()
     {
         $net_blocked = $this->net_update_blocked();
-        $net_blocked_msg = __('Network update has been blocked.');
-        $msg = __('Your %s does not require update', array(EPESI));
         if ($this->CLI) {
-            if ($net_blocked) print ($net_blocked_msg . "\n");
-            print ($msg . "\n");
+            if ($net_blocked) print (__('Network update has been blocked.') . "\n");
+            print (__('Your %s does not require update', array(EPESI)) . "\n");
             print (__('Update procedure forced') . "\n");
         } else {
-            if ($net_blocked) $msg .= '<br><br>' . $net_blocked_msg;
-            $msg .= $this->saved_backups_list();
-            $this->quit($msg);
+            $html = UpdateSmarty::render('update/up_to_date.tpl', array(
+                'message' => __('Your %s does not require update', array(EPESI)),
+                'net_blocked' => $net_blocked,
+                'net_blocked_msg' => __('Network update has been blocked.'),
+                'backups' => $this->backups_data(),
+                'backups_label' => __('Backups'),
+                'download_label' => __('Download'),
+                'delete_label' => __('Delete'),
+            ));
+            $this->quit($html);
         }
     }
 
-    public function saved_backups_list()
+    // Returns backup rows for update/up_to_date.tpl - a delete request (?delete=)
+    // is still handled here rather than in the template, since it's a
+    // side-effecting action (unlink + redirect), not a view concern.
+    protected function backups_data()
     {
         $files = array();
         foreach (glob('*.bkp.zip') as $f) $files[$f] = new Backup($f);
@@ -410,30 +459,48 @@ class EpesiUpdate
         }
 
         uasort($files, fn(Backup $a, Backup $b) => $a->get_date() > $b->get_date());
-        $backups = '';
+        $rows = array();
         foreach ($files as $file => $backup) {
-            $download_url = urlencode($file);
-            $download = "<a target=\"_blank\" href=\"$download_url\">[" . __('Download') . "]</a>";
-            $delete_href = '?' . http_build_query(array('delete' => $file));
-            $delete = "<a href=\"$delete_href\">[" . __('Delete') . "]</a>";
-            $description = date("Y-m-d H:i:s", $backup->get_date()) . " - $file $download $delete";
-            $backups .= "$description<br>";
+            $rows[] = array(
+                'file' => $file,
+                'date' => date('Y-m-d H:i:s', $backup->get_date()),
+                'download_url' => urlencode($file),
+                'delete_url' => '?' . http_build_query(array('delete' => $file)),
+            );
         }
-        $ret = '';
-        if ($backups) {
-            $ret = "<h3>" . __('Backups') . "</h3><p>$backups</p>";
-        }
-        return $ret;
+        return $rows;
     }
 
-    protected function require_admin_login()
+    // Renders update/message.tpl - the generic single-message view used by
+    // most quit() call sites below (plain text, an optional bold heading
+    // line, an optional follow-up button).
+    protected function render_message($message, $link_href = null, $link_text = null, $heading = null)
     {
-        $msg = '<p><strong>' . __("You need to be logged in as super admin use this script.") . '</strong></p>';
-        $msg .= $this->login_form();
-        $this->quit($msg);
+        return UpdateSmarty::render('update/message.tpl', array(
+            'heading' => $heading,
+            'message' => $message,
+            'link_href' => $link_href,
+            'link_text' => $link_text,
+        ));
     }
 
-    protected function login_form()
+    // Renders update/file_list.tpl - shared by both "files not writable" quit()
+    // sites in handle_update_package() below and its "custom modifications" one.
+    protected function render_file_list($heading, array $files, $link_href = null, $link_text = null)
+    {
+        return UpdateSmarty::render('update/file_list.tpl', array(
+            'heading' => $heading,
+            'files' => $files,
+            'link_href' => $link_href,
+            'link_text' => $link_text,
+        ));
+    }
+
+    // Prints its own full standalone page (SimpleLogin::force_login_page(),
+    // not this class's own body()/update_shell.tpl - that shell is for
+    // already-authenticated update-progress screens) and exits directly,
+    // rather than going through quit()/body().
+    protected function require_admin_login()
     {
         // Real admin level, not i_am_sa() (see check_user() above) - under
         // anonymous_setup that always reads as "already super admin," which
@@ -441,10 +508,10 @@ class EpesiUpdate
         if (Base_AclCommon::is_user() && Base_AclCommon::get_admin_level() < 2) {
             Base_User_LoginCommon::logout();
         }
-        // force_login_form(), not form(): form() can't produce a login form
+        // force_login_page(), not form(): form() can't produce a login form
         // at all once anonymous_setup is on (see check_user() above).
-        $form = SimpleLogin::force_login_form();
-        return "<p>$form</p>";
+        print(SimpleLogin::force_login_page(EPESI . ' Update'));
+        die();
     }
 
     protected function cli_msg($msg)
@@ -472,7 +539,7 @@ class EpesiUpdate
         $update_package_info = $this->get_update_package();
         if ($update_package_info) {
             if (!$this->CLI && (TRIAL_MODE || DEMO_MODE)) {
-                $this->quit(__('There is an update, but you don\'t have permissions to perform it. Please contact system administrator.'));
+                $this->quit($this->render_message(__('There is an update, but you don\'t have permissions to perform it. Please contact system administrator.')));
             }
             $latest_package_info = EpesiPackageDownloader::instance()->get_latest_package_info();
             $latest_version = $update_package_info['revision'] == $latest_package_info['revision'];
@@ -486,7 +553,7 @@ class EpesiUpdate
 
                 $problems = $update_package->files_not_writable();
                 if ($problems) {
-                    $this->quit('<p><strong>' . __('Files not writable (please fix permissions)') . ':</strong></p>'."\n" . implode("<br>\n", $problems));
+                    $this->quit($this->render_file_list(__('Files not writable (please fix permissions)'), $problems));
                 }
 
                 $this->cli_msg("Downloading current release package...");
@@ -498,7 +565,7 @@ class EpesiUpdate
                 $this->cli_msg("Looking for changes or permissions problems...");
                 $problems = $current_package->files_not_writable();
                 if ($problems) {
-                    $this->quit('<p><strong>' . __('Files not writable (please fix permissions)') . ':</strong></p>'."\n" . implode("<br>\n", $problems));
+                    $this->quit($this->render_file_list(__('Files not writable (please fix permissions)'), $problems));
                 }
 
                 if ($this->CLI) {
@@ -522,16 +589,17 @@ class EpesiUpdate
                         // do nothing
                     } elseif ($action == 'backup') {
                         $backup_file = $current_package->create_backup_of_modified_files();
-                        $backup_msg = '<p><strong>' . __('Backup has been made') . '</strong></p>' . "\n";
-                        $backup_msg .= '<br>' . '<p>' . __('Your backup is in the file: %s', array($backup_file)) . "</p>\n";
-                        $backup_msg .= '<br>' . '<p><a class="button" href="?action=update">' . __('Update!') . '</a></p>';
-                        $this->quit($backup_msg);
+                        $this->quit($this->render_message(
+                            __('Your backup is in the file: %s', array($backup_file)),
+                            '?action=update', __('Update!'), __('Backup has been made')
+                        ));
                     } else {
                         $problems = $current_package->files_modified();
                         if ($problems) {
-                            $create_backup_msg = '<p><strong>' . __('Files with custom modifications') . ':</strong></p>' . "\n" . implode("<br>\n", $problems);
-                            $create_backup_msg .= '<br>' . '<p><a class="button" href="?action=backup">' . __('Backup modified files!') . '</a></p>';
-                            $this->quit($create_backup_msg);
+                            $this->quit($this->render_file_list(
+                                __('Files with custom modifications'), $problems,
+                                '?action=backup', __('Backup modified files!')
+                            ));
                         }
                     }
                 }
@@ -550,22 +618,21 @@ class EpesiUpdate
                     $this->redirect(array());
                 } else {
                     $current_package->extract();
-                    $this->quit(__('Extract error occured'));
+                    $this->quit($this->render_message(__('Extract error occured')));
                 }
             } else {
-                $header = __('Update package available to download!');
-                $version_with_revision = "$this->current_version-$this->current_revision";
-                $update_info = "$update_package_info[version]-$update_package_info[revision]";
-                $current_ver = __('Your current %s version', array(EPESI)) . ': <strong>' . $version_with_revision . '</strong>';
-                $text_p = __('Update Package') . ': <strong>' . $update_info . '</strong>';
-                $warning_message = __('All core files will be replaced!') . '<br/><br/>'
-                                   . __('If you have changed any of those files, then we will backup them first.');
-                $info_message = __('Custom modules and your data will be preserved.');
-                $msg = "<p><strong>$header</strong></p><p>$current_ver</p><p>$text_p</p>";
-                $msg .= "<p style=\"color: red; font-weight: bold\">$warning_message</p>";
-                $msg .= "<p style=\"font-weight: bold\">$info_message</p>";
-                $msg .= '<p><a class="button" href="?action=get">' . __('Download!') . '</a></p>';
-                $this->quit($msg);
+                $html = UpdateSmarty::render('update/update_available.tpl', array(
+                    'header' => __('Update package available to download!'),
+                    'current_ver_label' => __('Your current %s version', array(EPESI)),
+                    'version_with_revision' => "$this->current_version-$this->current_revision",
+                    'package_label' => __('Update Package'),
+                    'update_info' => "$update_package_info[version]-$update_package_info[revision]",
+                    'warning_line1' => __('All core files will be replaced!'),
+                    'warning_line2' => __('If you have changed any of those files, then we will backup them first.'),
+                    'info_message' => __('Custom modules and your data will be preserved.'),
+                    'download_label' => __('Download!'),
+                ));
+                $this->quit($html);
             }
         }
         return false;
@@ -652,15 +719,16 @@ class EpesiUpdate
             return;
         }
 
-        $list = '<ul><li>' . implode('</li><li>', array_map('htmlspecialchars', $orphaned)) . '</li></ul>';
-        $msg  = '<h2>' . __('Additional modules detected') . '</h2>';
-        $msg .= '<p>' . __('The following modules are installed on this system but their code is not part of this %s package:', array(EPESI)) . '</p>';
-        $msg .= $list;
-        $msg .= '<p><strong>' . __('These are most likely premium or custom modules. Updating the core on its own may leave them non-functional until they are migrated to this version as well.') . '</strong></p>';
-        $msg .= '<p>' . __('Your data is not deleted — it stays in the database until the matching module is restored. If you are not sure, please contact your %s provider before continuing.', array(EPESI)) . '</p>';
-        $proceed = '?' . http_build_query(array('confirm_orphaned' => 1));
-        $msg .= '<p><a href="' . $proceed . '">[' . __('I understand — continue the update anyway') . ']</a></p>';
-        $this->quit($msg);
+        $html = UpdateSmarty::render('update/orphaned_modules.tpl', array(
+            'heading' => __('Additional modules detected'),
+            'intro' => __('The following modules are installed on this system but their code is not part of this %s package:', array(EPESI)),
+            'modules' => $orphaned,
+            'warning' => __('These are most likely premium or custom modules. Updating the core on its own may leave them non-functional until they are migrated to this version as well.'),
+            'data_note' => __('Your data is not deleted — it stays in the database until the matching module is restored. If you are not sure, please contact your %s provider before continuing.', array(EPESI)),
+            'proceed_url' => '?' . http_build_query(array('confirm_orphaned' => 1)),
+            'confirm_label' => __('I understand — continue the update anyway'),
+        ));
+        $this->quit($html);
     }
 
     protected function redirect($url_or_get)
@@ -685,31 +753,17 @@ class EpesiUpdate
         die();
     }
 
-    protected function update_msg()
-    {
-        $msg = __('Update %s from version %s to %s.', array(EPESI, $this->system_version, $this->current_version));
-        return "<p>$msg</p>";
-    }
-
-    protected function update_process_info_msg()
-    {
-        $do_not_close = __('Please do not close this window until process will be fully finished.');
-        $url_text = __('help file');
-        $url = get_epesi_url() . '/docs/UPDATE.md';
-        $url = htmlspecialchars($url);
-        $link = "<a href=\"$url\" target=\"_blank\">$url_text</a>";
-        $info = __('Your browser drives update process. For more information read %s', array($link));
-
-        $msg = "<p><strong>$do_not_close</strong></p><p>$info</p>";
-        return "$msg";
-    }
-
     protected function update_body()
     {
-        $msg = $this->update_msg();
-        $msg .= $this->update_process_info_msg();
-        $msg .= ' <a class="button" href="?up=start">' . __('Update!') . '</a>';
-        $this->quit($msg);
+        $help_url = htmlspecialchars(get_epesi_url() . '/docs/UPDATE.md');
+        $help_link = '<a href="' . $help_url . '" target="_blank">' . __('help file') . '</a>';
+        $html = UpdateSmarty::render('update/update_prompt.tpl', array(
+            'update_msg' => __('Update %s from version %s to %s.', array(EPESI, $this->system_version, $this->current_version)),
+            'do_not_close' => __('Please do not close this window until process will be fully finished.'),
+            'info' => __('Your browser drives update process. For more information read %s', array($help_link)),
+            'update_label' => __('Update!'),
+        ));
+        $this->quit($html);
     }
 
     protected function turn_on_maintenance_mode()
@@ -759,32 +813,30 @@ class EpesiUpdate
 
     protected function format_patches_msg($patches)
     {
-        $msg = "<h1>" . __('Patches to apply') . ":</h1>";
-        $msg .= "<p>" . __('Last refresh') . ' - ' . date('Y-m-d H:i:s') . "</p>";
-        $msg .= '<table>';
-        // table header
-        $format = "<tr><th>%s</th><th>%s</th><th>%s</th></tr>\n";
-        $msg .= sprintf($format, __('Module'), __('Patch'), __('Status'));
-
-        $format = "<tr><td>%s</td><td>%s</td><td style=\"text-align: center; font-size: 0.8em; color: gray\">%s</td></tr>\n";
+        $rows = array();
         /** @var Patch $patch */
         foreach ($patches as $patch) {
             // show only awaiting or processed one
             if ($patch->get_apply_status() == Patch::STATUS_SUCCESS) {
                 continue;
             }
-            $status = __('pending');
-            if ($patch->get_apply_status() == Patch::STATUS_TIMEOUT) {
-                $status = '<img src="images/loader.gif" alt="Processing..." width="128" height="5" border="0">';
-            }
-            if (($user_message = $patch->get_user_message()) != null) {
-                $status .= "<div>$user_message</div>";
-            }
-            $msg .= sprintf($format, $patch->get_module(), $patch->get_short_description(), $status);
+            $rows[] = array(
+                'module' => $patch->get_module(),
+                'description' => $patch->get_short_description(),
+                'timeout' => $patch->get_apply_status() == Patch::STATUS_TIMEOUT,
+                'user_message' => $patch->get_user_message(),
+            );
         }
-        $msg .= '</table>';
-        $msg .= '<script type="text/javascript">location.reload(true)</script>';
-        return $msg;
+        return UpdateSmarty::render('update/patches_progress.tpl', array(
+            'heading' => __('Patches to apply'),
+            'last_refresh_label' => __('Last refresh'),
+            'last_refresh' => date('Y-m-d H:i:s'),
+            'module_label' => __('Module'),
+            'patch_label' => __('Patch'),
+            'status_label' => __('Status'),
+            'pending_label' => __('pending'),
+            'rows' => $rows,
+        ));
     }
 
     protected function perform_update_end()
@@ -803,47 +855,10 @@ class EpesiUpdate
 
     protected function body($html)
     {
-        ?>
-        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-        <html>
-        <head>
-            <meta content="text/html; charset=utf-8" http-equiv="content-type">
-            <title><?php print(EPESI); ?> update</title>
-            <link href="setup.css" type="text/css" rel="stylesheet"/>
-            <meta name="robots" content="NOINDEX, NOARCHIVE">
-        </head>
-        <body>
-        <table id="banner" border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="image">&nbsp;</td>
-                <td class="back">&nbsp;</td>
-            </tr>
-        </table>
-        <br>
-        <center>
-            <table id="main" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td>
-                        <center>
-                        <?php print $html; ?>
-                        </center>
-                    </td>
-                </tr>
-            </table>
-        </center>
-        <br>
-        <center>
-            <span class="footer">Copyright &copy; 2006 - <?php echo date('Y'); ?> &bull; <a
-                    href="http://www.telaxus.com">Janusz Tylek</a></span>
-            <br>
-
-            <p><a href="http://www.epesi.org"><img
-                        src="images/epesi-powered.png" alt="image"
-                        border="0"></a></p>
-        </center>
-        </body>
-        </html>
-    <?php
+        print(UpdateSmarty::render('update_shell.tpl', array(
+            'title' => EPESI . ' Update',
+            'body' => $html,
+        )));
     }
 
     protected $CLI;

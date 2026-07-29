@@ -18,7 +18,13 @@ class SimpleLogin {
         require_once('modules/Libs/QuickForm/requires.php');
 
         if ((!Base_AclCommon::is_user()) && !$anonymous) {
-            return self::build_form();
+            $form_data = self::build_form_data();
+            if ($form_data) {
+                return self::render('login_form.tpl', array(
+                    'form_data' => $form_data,
+                    'login_box_msg' => self::t('Admin login only'),
+                ));
+            }
         }
     }
 
@@ -37,22 +43,60 @@ class SimpleLogin {
         require_once('modules/Libs/QuickForm/requires.php');
 
         if (!Base_AclCommon::is_user()) {
-            return self::build_form();
+            $form_data = self::build_form_data();
+            if ($form_data) {
+                return self::render('login_form.tpl', array(
+                    'form_data' => $form_data,
+                    'login_box_msg' => self::t('Admin login only'),
+                ));
+            }
         }
     }
 
-    private static function build_form() {
+    // Same as force_login_form(), but rendered as a full standalone HTML
+    // page (doctype, Bootstrap/AdminLTE CSS, the same login-box/card chrome
+    // Base_User_Login's own adminlte theme uses) rather than a bare form
+    // fragment. update.php and check.php run standalone, before any page
+    // shell exists to embed a fragment into (unlike admin/AdminIndex.php,
+    // which has its own layout.tpl card - see force_login_form() above).
+    static function force_login_page($title) {
+        if (!Base_AclCommon::is_user() && Base_User_LoginCommon::is_banned()) {
+            return self::render('login_page.tpl', array(
+                'title' => $title,
+                'message' => self::t('You have exceeded the number of allowed login attempts.'),
+            ));
+        }
+
+        require_once('modules/Libs/QuickForm/requires.php');
+
+        if (!Base_AclCommon::is_user()) {
+            $form_data = self::build_form_data();
+            if ($form_data) {
+                return self::render('login_page.tpl', array(
+                    'title' => $title,
+                    'form_data' => $form_data,
+                    'login_box_msg' => self::t('Admin login only'),
+                ));
+            }
+        }
+    }
+
+    // Builds/validates the login form and returns the rendered field data
+    // (TCMSArraySmarty's array form) for a caller to drop into whichever
+    // template fits its own page shell - null if there's nothing to show
+    // (already logged in, or the successful-login redirect below fired).
+    private static function build_form_data() {
         Base_User_LoginCommon::autologin();
         if (Base_AclCommon::is_user()) return;
 
         $get = count($_GET) ? '?' . http_build_query($_GET) : '';
         $form = new HTML_QuickForm('loginform', 'post', $_SERVER['PHP_SELF'] . $get);
-        $form->setRequiredNote('<span style="font-size:80%; color:#ff0000;">*</span><span style="font-size:80%;">'.self::t('denotes required field').'</span>');
         // 'class'=>'form-control' matches Base_User_Login's own adminlte
         // form (Login_0.php) - the array renderer below just returns each
         // element's toHtml() as-is, so the input-group styling in
-        // login_form.tpl depends on the element itself already carrying
-        // this class, not something the template can add after the fact.
+        // login_form.tpl/login_page.tpl depends on the element itself
+        // already carrying this class, not something the template can add
+        // after the fact.
         $form->addElement('text', 'username', self::t('Username'), array('class' => 'form-control', 'placeholder' => self::t('Username')));
         $form->addRule('username', 'Field required', 'required');
         $form->addElement('password', 'password', self::t('Password'), array('class' => 'form-control', 'placeholder' => self::t('Password')));
@@ -84,10 +128,7 @@ class SimpleLogin {
         $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
         $form->accept($renderer);
 
-        return self::render('login_form.tpl', array(
-            'form_data' => $renderer->toArray(),
-            'login_box_msg' => self::t('Admin login only'),
-        ));
+        return $renderer->toArray();
     }
 
     // Standalone, deliberately independent of the module/theme rendering

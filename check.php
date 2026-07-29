@@ -31,21 +31,13 @@ if ($config && class_exists('Base_AclCommon')) {
             die('Only super admin can access this page');
         }
     } else {
-        $auth = SimpleLogin::force_login_form();
+        $auth = SimpleLogin::force_login_page('EPESI Compatibility Check');
         if ($auth) {
             print($auth);
             die();
         }
     }
 }
-
-if (class_exists('Base_LangCommon'))
-	Base_LangCommon::update_translations();
-if (class_exists('Base_ThemeCommon'))
-	Base_ThemeCommon::create_cache();
-if (class_exists('ModuleManager'))
-	ModuleManager::create_load_priority_array();
-
 
 $html = '';
 $checks = array();

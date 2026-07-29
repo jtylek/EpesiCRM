@@ -33,7 +33,6 @@
 	{$form_data.password.html}
 	<div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
 </div>
-<div class="text-muted small mb-3">{$form_data.requirednote}</div>
 <div class="d-flex justify-content-center">
 	{$form_data.submit_button.html}
 </div>
