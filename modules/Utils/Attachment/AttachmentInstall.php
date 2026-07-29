@@ -22,6 +22,11 @@ class Utils_AttachmentInstall extends ModuleInstall {
                 'extra'=>false,
                 'visible'=>true,
                 'required' => false,
+                // Rendered as 3 lines (date/time/user - see display_date()), so
+                // it must never get the generic single-line "expandable" grid
+                // collapse (RecordBrowser_0.php's $args['style']=='noexpand'
+                // check) that clips any other cell taller than one line.
+                'style' => 'noexpand',
                 'display_callback'=>array('Utils_AttachmentCommon','display_date'),
                 'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_date')
             ),

@@ -141,13 +141,13 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * Convert local time to client format and timezone(optional)
 	 *
 	 * @param mixed string-strtotime recognizable string, null-current time, int-unix time
-	 * @param mixed {0,false,null,''}-no time (you probably don't want to set it!),{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds
+	 * @param mixed {0,false,null,''}-no time (you probably don't want to set it!),{1,true,'with_seconds'}-time with seconds,{2,'without_seconds'}-time without seconds (default - seconds are noise in the UI; pass true explicitly if you need them)
 	 * @param mixed {0,false,null,''}-no date,{1,true}-with date,{2,'without_year'}-date without year, {3,'with_weekday'}-date with weekday
 	 * @param boolean convert to client time
 	 * @param boolean use regional user format
 	 * @return string
 	 */
-	public static function time2reg($t=null,$time=true,$date=true,$tz=true,$reg_format=true) {
+	public static function time2reg($t=null,$time=2,$date=true,$tz=true,$reg_format=true) {
 		if(!isset($t)) $t = time();
 		elseif(!is_numeric($t) && is_string($t)) $t = strtotime($t);
 		if($reg_format) {
@@ -194,6 +194,18 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			self::restore_tz();
 
 		return $ret;
+	}
+
+	/**
+	 * Same as time2reg(), but for tooltip/info-panel style display where date
+	 * and time should sit on separate lines instead of being crammed into one.
+	 *
+	 * @param mixed same as time2reg()'s $t
+	 * @param boolean convert to client time
+	 * @return string date and time (no seconds), joined by <br>
+	 */
+	public static function time2reg_multiline($t=null,$tz=true) {
+		return self::time2reg($t,false,true,$tz).'<br>'.self::time2reg($t,true,false,$tz);
 	}
 
 	public static function strftime($format,$timestamp) {

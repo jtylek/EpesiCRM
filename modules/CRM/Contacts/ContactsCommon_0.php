@@ -1158,12 +1158,12 @@ class CRM_ContactsCommon extends ModuleCommon {
         $htmlinfo=array();
 		if ($id) $htmlinfo[__('Record ID').':'] = $id;
 		$htmlinfo[__('Created by').':'] = $created_by;
-		$htmlinfo[__('Created on').':'] = Base_RegionalSettingsCommon::time2reg($created_on);
-        
+		$htmlinfo[__('Created on').':'] = Base_RegionalSettingsCommon::time2reg_multiline($created_on);
+
 		if ($edited_by!=null) {
 			$htmlinfo=$htmlinfo+array(
 				__('Edited by').':'=>$edited_by,
-				__('Edited on').':'=>Base_RegionalSettingsCommon::time2reg($edited_on)
+				__('Edited on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($edited_on)
 				);
         }
         return  Utils_TooltipCommon::format_info_tooltip($htmlinfo);

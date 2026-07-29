@@ -2071,12 +2071,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $htmlinfo=array(
                     __('Record ID').':'=>$id,
                     __('Created by').':'=>$created_by,
-                    __('Created on').':'=>Base_RegionalSettingsCommon::time2reg($info['created_on'])
+                    __('Created on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['created_on'])
                         );
         if ($info['edited_on']!==null) {
             $htmlinfo=$htmlinfo+array(
                     __('Edited by').':'=>$info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'',
-                    __('Edited on').':'=>Base_RegionalSettingsCommon::time2reg($info['edited_on'])
+                    __('Edited on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['edited_on'])
                         );
         }
 

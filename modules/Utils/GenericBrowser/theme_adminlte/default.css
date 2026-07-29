@@ -543,6 +543,22 @@
 	height: auto !important;
 }
 
+/* Utils_RecordBrowser__noexpand (RecordBrowser_0.php's $args['style']=='noexpand'
+   check, e.g. Utils_Attachment's "Edited on" column - see AttachmentInstall.php)
+   marks a column whose content is fixed-shape (date/time/user, always exactly
+   3 lines) rather than open-ended user text - it must never get the generic
+   single-line collapse above, which is per-ROW: gb_expandable_init() (js/table_overflow.js)
+   measures every expandable div in the row and collapses them all together the
+   moment ANY of them exceeds 18px, so a long "Note" next to this column would
+   otherwise still clip the date/time/user cell down to its first line even
+   though this cell's own content never varies in height. More specific than
+   the plain .collapsed rule above (an extra class + element on both the td and
+   the div), so this wins on cascade order alone without needing !important. */
+.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__noexpand div.expandable {
+	height: auto;
+	overflow: visible;
+}
+
 .epesi-gb div.expandable:not(.exceedsHeight) p,
 .epesi-gb div.expandable.collapsed p {
 	margin: 0;

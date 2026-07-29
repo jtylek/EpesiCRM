@@ -35,7 +35,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 			return array(
 				__('Notes')=>array(
 					array('name'=>'editor','label'=>__('Editor'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Simple'),__('Advanced'))),
-                    array('name' => 'edited_on_format', 'label' => __('Edited on format') . $help, 'type' => 'text', 'default' => '%D<br><br>%T<br><br>%U')
+                    array('name' => 'edited_on_format', 'label' => __('Edited on format') . $help, 'type' => 'text', 'default' => '%D<br>%T<br>%U')
 				)
 			);
 		}
@@ -245,7 +245,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function display_date($row, $nolink = false, $a=null,$view=false) {
         $date = Base_RegionalSettingsCommon::time2reg($row['edited_on'], false);
-        $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true, false);
+        $time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], 2, false);
         $info = Utils_RecordBrowserCommon::get_record_info('utils_attachment',$row['id']);
         $by = Base_UserCommon::get_user_label($info['edited_by']?$info['edited_by']:$info['created_by'], $nolink);
         $format = Base_User_SettingsCommon::get(Utils_Attachment::module_name(), 'edited_on_format');
