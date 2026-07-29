@@ -296,12 +296,46 @@
 		"(function(){".
 			"function epesiSizeGbActions(){".
 				"try{".
+					"function naturalWidth(cell){".
+						// cell.scrollWidth can't be used directly here: col_resizable.js
+						// forces table-layout:fixed on every one of these tables, which
+						// makes a body cell's rendered box (and therefore its scrollWidth,
+						// since that's never less than the box itself) track the COLUMN'S
+						// current width, not the content's - including whatever width THIS
+						// very function assigned last time it ran. Measuring that and
+						// adding a buffer on top of it compounds every call (every resize,
+						// and every debounced repeat while a window is still being
+						// dragged) into an unbounded feedback loop - reproduced as a
+						// column growing by a fixed ~10px per call with NO actual resize
+						// at all. Cloning the cell into a detached, auto-layout table
+						// (kept under the same .epesi-gb/table.Utils_GenericBrowser
+						// classes so the icon ::before/hidden-<img> rules in this theme's
+						// own default.css still apply) measures the content alone,
+						// independent of whatever width the live column currently has.
+						"var holder=document.createElement('div');".
+						"holder.className='epesi-gb';".
+						"holder.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:-9999px;';".
+						"var mt=document.createElement('table');".
+						"mt.className='Utils_GenericBrowser';".
+						"mt.style.cssText='table-layout:auto;width:auto;';".
+						"var tb=document.createElement('tbody');".
+						"var tr=document.createElement('tr');".
+						"tr.appendChild(cell.cloneNode(true));".
+						"tb.appendChild(tr);".
+						"mt.appendChild(tb);".
+						"holder.appendChild(mt);".
+						"document.body.appendChild(holder);".
+						"var w=tr.firstChild.scrollWidth;".
+						"document.body.removeChild(holder);".
+						"return w;".
+					"}".
 					"document.querySelectorAll('table.Utils_GenericBrowser').forEach(function(table){".
 						"var headerCell=table.querySelector('th.Utils_GenericBrowser__actions, thead td.Utils_GenericBrowser__actions');".
 						"if(!headerCell)return;".
 						"var maxWidth=0;".
 						"table.querySelectorAll('tbody td.Utils_GenericBrowser__actions').forEach(function(cell){".
-							"if(cell.scrollWidth>maxWidth)maxWidth=cell.scrollWidth;".
+							"var w=naturalWidth(cell);".
+							"if(w>maxWidth)maxWidth=w;".
 						"});".
 						"if(maxWidth<=0)return;".
 						"var actionsWidth=Math.floor(maxWidth+8);".
@@ -330,7 +364,7 @@
 								"var fw=0;".
 								"table.querySelectorAll('tbody > tr').forEach(function(row){".
 									"var cell=row.cells[idx];".
-									"if(cell&&cell.scrollWidth>fw)fw=cell.scrollWidth;".
+									"if(cell){var w2=naturalWidth(cell);if(w2>fw)fw=w2;}".
 								"});".
 								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
 								"th.style.width=fw+'px';".
