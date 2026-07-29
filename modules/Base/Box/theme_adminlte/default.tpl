@@ -665,6 +665,43 @@
 			"});".
 		"})();"
 	);
+
+	// "Expand All" (gb_expand_all(), js/table_overflow.js) uncollapses every
+	// row's tall/rich cell content at once, which can grow the page past the
+	// viewport and bring in the browser's own vertical scrollbar - eating
+	// ~15-17px of width that no CSS media query or resize event fires for.
+	// epesiSizeGbActions() above already recomputes each table's column
+	// widths to fit its container's CURRENT clientWidth, but only runs on
+	// load/e:load/window resize - none of which gb_expand_all() itself
+	// triggers, since it only toggles classes on already-rendered rows. Left
+	// unpatched, the table's pixel column widths stay sized for the
+	// pre-scrollbar container width, overflowing the now-narrower
+	// .table-responsive by exactly the scrollbar's width - reported as a
+	// horizontal scrollbar appearing under the table (alongside the page's
+	// own new vertical one) right after clicking Expand All. Patches
+	// gb_expand/gb_collapse/gb_expand_all/gb_collapse_all (table_overflow.js,
+	// loaded by GenericBrowserCommon_0.php - not guaranteed loaded by the
+	// time this shell script runs, hence wait_while_null rather than a
+	// direct patch like the Autocompleter.Base one above) to dispatch a real
+	// 'resize' event after the original runs, reusing that same listener's
+	// existing 150ms debounce instead of calling epesiSizeGbActions()
+	// directly - it isn't exposed outside its own closure.
+	eval_js_once(
+		"wait_while_null('gb_expand_all',".
+			"\"(function(){".
+				"if(window.__epesiGbExpandPatched)return;".
+				"window.__epesiGbExpandPatched=true;".
+				"['gb_expand','gb_collapse','gb_expand_all','gb_collapse_all'].forEach(function(name){".
+					"var orig=window[name];".
+					"window[name]=function(){".
+						"var r=orig.apply(this,arguments);".
+						"window.dispatchEvent(new Event('resize'));".
+						"return r;".
+					"};".
+				"});".
+			"})();\"".
+		");"
+	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part
 	   of the shell being replaced - carried over unchanged so the tutorials keep
