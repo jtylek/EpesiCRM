@@ -495,7 +495,8 @@
 	// in, including the StatusBar-hiding call right after it.
 	eval_js_once(
 		"(function(){".
-			"function epesiSizeGbActions(){".
+			"function epesiSizeGbActions(forceCollapse){".
+				"if(forceCollapse===undefined)forceCollapse=true;".
 				"try{".
 					"function naturalWidth(cell){".
 						// cell.scrollWidth can't be used directly here: col_resizable.js
@@ -617,7 +618,23 @@
 						// the totalPercent<=0 bailout below, so it always runs), measured after
 						// the width pass above so it's at each column's real, final width, not
 						// a transient narrower one.
-						"table.querySelectorAll('div.expandable.expanded').forEach(function(div){".
+						//
+						// Only wanted on a genuinely fresh render (this function's own initial
+						// call, the one-off document.fonts.ready re-check, and e:load - a
+						// table's rows can be wholesale replaced by paging/sorting/filtering),
+						// gated behind forceCollapse for exactly that reason - the resize
+						// listener further down now also calls this function (both on a real
+						// window resize and, via gb_expand_all()'s own patched dispatch below,
+						// right after Expand All/a single row's own expand toggle runs) purely
+						// to redo the WIDTH math against the container's current clientWidth,
+						// not to touch row state. Without this guard, that resize-triggered
+						// call ran this same block unconditionally and found the very
+						// div.expandable the user had just clicked "expand" on still
+						// legitimately taller than 18px - exactly the condition this block
+						// treats as "never got collapsed by default, force it" - and
+						// re-collapsed it a moment later, reported as "expands then snaps
+						// back to collapsed" for both the per-row toggle and Expand All.
+						"if(forceCollapse)table.querySelectorAll('div.expandable.expanded').forEach(function(div){".
 							"if(div.scrollHeight>18){".
 								"div.classList.remove('expanded');".
 								"div.classList.add('collapsed');".
@@ -661,7 +678,7 @@
 			"var epesiGbResizeTimer=null;".
 			"window.addEventListener('resize',function(){".
 				"if(epesiGbResizeTimer)clearTimeout(epesiGbResizeTimer);".
-				"epesiGbResizeTimer=setTimeout(epesiSizeGbActions,150);".
+				"epesiGbResizeTimer=setTimeout(function(){epesiSizeGbActions(false);},150);".
 			"});".
 		"})();"
 	);
