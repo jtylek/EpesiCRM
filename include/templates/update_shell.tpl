@@ -8,6 +8,31 @@
 	<link href="libs/bootstrap-5.3.8/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet" />
 	<link href="libs/adminlte-4.1.0/css/adminlte.min.css" rel="stylesheet" />
+	<style>
+	{literal}
+	/* Neither this shell nor its data-bs-theme="light" wrapper below set an
+	   explicit background, so a dark-mode browser was free to substitute its
+	   own auto-dark page background (pure black) around the still-white
+	   .card - login_page.tpl/admin/layout.tpl avoid this the same way, by
+	   giving body/the header an explicit color instead of leaving it unset. */
+	body {
+		background-color: #f4f6f9;
+	}
+	.app-header {
+		background-color: #fff;
+		border-bottom: 1px solid #dee2e6;
+	}
+	.update-card {
+		max-width: 50%;
+		margin: 0 auto;
+	}
+	@media (max-width: 767.98px) {
+		.update-card {
+			max-width: 100%;
+		}
+	}
+	{/literal}
+	</style>
 </head>
 <body>
 <div class="epesi-adminlte app-wrapper" data-bs-theme="light">
@@ -21,7 +46,7 @@
 	<main class="app-main">
 		<div class="app-content">
 			<div class="container-fluid">
-				<div class="card shadow-sm">
+				<div class="card shadow-sm update-card">
 					<div class="card-body">
 						{$body}
 					</div>

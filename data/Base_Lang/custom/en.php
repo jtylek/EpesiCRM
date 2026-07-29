@@ -407,3 +407,6 @@ $custom_translations['MAIN MENU']='';
 $custom_translations['Network update has been blocked.']='';
 $custom_translations['Sign in to continue']='';
 $custom_translations['Admin login only']='';
+$custom_translations['This utility will check for %s update. If new update is available it will download it and your instance will be updated automatically. Make sure you have a recent backup of your files and the database before proceeding further.']='';
+$custom_translations['Check for updates']='';
+$custom_translations['Exit']='';

@@ -342,6 +342,8 @@ class EpesiUpdate
         try {
             $this->load_epesi();
             if ($this->check_user()) {
+                $this->handle_logout();
+                $this->confirm_gate();
                 if (!epesi_requires_update()) {
                     if ($this->handle_update_package() == false) {
                         $this->version_up_to_date();
@@ -512,6 +514,44 @@ class EpesiUpdate
         // at all once anonymous_setup is on (see check_user() above).
         print(SimpleLogin::force_login_page(EPESI . ' Update'));
         die();
+    }
+
+    // "Exit" on the confirm screen below - logs the current admin out and
+    // redirects back to this same URL, so the next load shows the login form
+    // again instead of re-running anything. CLI has no such button/session.
+    protected function handle_logout()
+    {
+        if ($this->CLI || !isset($_GET['logout'])) {
+            return;
+        }
+        Base_User_LoginCommon::logout();
+        $this->redirect(array());
+    }
+
+    // One-time confirmation screen shown right after login, before this
+    // script checks anything or touches a single file - the CLI is
+    // unattended/automated by design and always skips it, same as
+    // orphaned_modules_gate() below skips its own confirm step for CLI.
+    // Persisted in $_SESSION (not a query param) so it isn't lost across the
+    // rest of this class's own internal redirects/links.
+    protected function confirm_gate()
+    {
+        if ($this->CLI || !empty($_SESSION['epesi_update_confirmed'])) {
+            return;
+        }
+        if (isset($_GET['confirm'])) {
+            $_SESSION['epesi_update_confirmed'] = 1;
+            $this->redirect(array());
+        }
+
+        $html = UpdateSmarty::render('update/confirm.tpl', array(
+            'message' => __('This utility will check for %s update. If new update is available it will download it and your instance will be updated automatically. Make sure you have a recent backup of your files and the database before proceeding further.', array(EPESI)),
+            'check_url' => '?' . http_build_query(array('confirm' => 1)),
+            'check_label' => __('Check for updates'),
+            'exit_url' => '?' . http_build_query(array('logout' => 1)),
+            'exit_label' => __('Exit'),
+        ));
+        $this->quit($html);
     }
 
     protected function cli_msg($msg)
