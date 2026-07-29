@@ -7,93 +7,80 @@
  */
 class ConfigInfo extends AdminModule {
 
-    private function startTable() {
-        print('<table class="listing">');
+    private function row($label, $value, $ok = true, $strong = true) {
+        // Mirrors the original printTD()'s override: any row whose value is
+        // literally "NO" always renders red, regardless of the passed $ok -
+        // several config rows below pass a bare YES/NO string with no
+        // separate ok flag of their own.
+        $class = ($value === 'NO' || !$ok) ? 'text-danger' : 'text-success';
+        return array('label' => $label, 'value' => $value, 'class' => $class, 'strong' => $strong);
     }
 
-    private function closeTable() {
-        print('</table>');
-    }
+    private function env_rows() {
+        $rows = array();
 
-// Print 2 columns
-    private function printTD($left = '&nbsp;', $right = '&nbsp;', $color = 'green', $strong = true) {
-        static $rowclass = null;
-        if ($rowclass != 'odd')
-            $rowclass = 'odd';
-        else
-            $rowclass = 'even';
-        if ($right == "NO") {
-            $color = 'red';
-        }
-        $tag = $strong ? 'strong' : 'span';
-        print("<tr class=\"$rowclass\"><td>$left</td><td><$tag class=\"$color\">$right</$tag></td></tr>");
-    }
-
-    private function print_info() {
-        print('<div class="title">' . __('PHP environment check') . '</div>');
-
-        $this->startTable();
         $data_dir_ok = is_writable('data');
-        $data_writable = $data_dir_ok ? "OK" : '<strong>WARNING!</strong> Please fix privileges for data directory.';
-        $color = $data_dir_ok ? 'green' : 'red';
-        $this->printTD("Data directory is writeable", $data_writable, $color, $data_dir_ok);
+        $data_writable = $data_dir_ok ? 'OK' : '<strong>WARNING!</strong> Please fix privileges for data directory.';
+        $rows[] = $this->row('Data directory is writeable', $data_writable, $data_dir_ok, $data_dir_ok);
 
         $version_ok = version_compare(phpversion(), '7.1.0') >= 0;
-        $text = $version_ok ? 'OK' : '<strong>WARNING!</strong> You are running an old version of PHP, minimum version 7.1 required.';
-        $color = $version_ok ? 'green' : 'red';
-        $this->printTD('PHP version: ' . phpversion(), $text, $color, $version_ok);
+        $version_text = $version_ok ? 'OK' : '<strong>WARNING!</strong> You are running an old version of PHP, minimum version 7.1 required.';
+        $rows[] = $this->row('PHP version: ' . phpversion(), $version_text, $version_ok, $version_ok);
 
         $curl_ok = extension_loaded('curl');
-        $curl_loaded = $curl_ok ? 'OK' : 'Curl extension not found - Please uncomment <pre><strong>;extension=php_curl.dll</strong></pre> line in your php.ini';
-        $color = $curl_ok ? 'green' : 'red';
-        $this->printTD("Curl loaded", $curl_loaded, $color, $curl_ok);
-        $this->closeTable();
+        $curl_text = $curl_ok ? 'OK' : 'Curl extension not found - Please uncomment <pre><strong>;extension=php_curl.dll</strong></pre> line in your php.ini';
+        $rows[] = $this->row('Curl loaded', $curl_text, $curl_ok, $curl_ok);
 
-        print('<br/><br/><div class="title">EPESI config.php</div>');
+        return $rows;
+    }
 
-        $this->startTable();
-        $this->printTD('epesi version:', EPESI_VERSION);
-        $this->printTD('epesi revison:', EPESI_REVISION);
-        $this->printTD('Database Name:', DATABASE_NAME);
-        $this->printTD('Database Driver:', DATABASE_DRIVER);
-        $this->printTD('epesi Local Dir:', EPESI_LOCAL_DIR);
-        $this->printTD('epesi Dir:', EPESI_DIR);
-        $this->printTD('epesi URL:', get_epesi_url());
-        $this->printTD('System Timezone:', SYSTEM_TIMEZONE);
-
-        $this->printTD('Debug:', (DEBUG ? 'YES' : 'NO'));
-        $this->printTD('Module Times:', (MODULE_TIMES ? 'YES' : 'NO'));
-        $this->printTD('Display sql queries processing times: ', (SQL_TIMES ? 'YES' : 'NO'));
-        $this->printTD('Strip output html from comments: ', (STRIP_OUTPUT ? 'YES' : 'NO'));
-        $this->printTD('Display additional error info: ', (DISPLAY_ERRORS ? 'YES' : 'NO'));
-        $this->printTD('Report all errors (E_ALL): ', (REPORT_ALL_ERRORS ? 'YES' : 'NO'));
-        $this->printTD('GZIP client web browser history: ', (GZIP_HISTORY ? 'YES' : 'NO'));
-
-        $this->printTD('Reducing Transfer: ', (REDUCING_TRANSFER ? 'YES' : 'NO'));
-        $this->printTD('Minify Encode: ', (MINIFY_ENCODE ? 'YES' : 'NO'));
-        $this->printTD('Minify sources: ', (MINIFY_SOURCES ? 'YES' : 'NO'));
-        $this->printTD('Suggest Donation: ', (SUGGEST_DONATION ? 'YES' : 'NO'));
-        $this->printTD('Check epesi version: ', (CHECK_VERSION ? 'YES' : 'NO'));
-        $this->printTD('JS Output: ', (JS_OUTPUT ? 'YES' : 'NO'));
-        $this->printTD('Set Session: ', (SET_SESSION ? 'YES' : 'NO'));
-
-        $this->printTD('Read Only Session: ', (READ_ONLY_SESSION ? 'YES' : 'NO'));
-        $this->printTD('Mobile Device: ', (MOBILE_DEVICE ? 'YES' : 'NO'));
-        $this->printTD('First Run: ', (FIRST_RUN ? 'YES' : 'NO'));
-        $this->printTD('Hosting Mode: ', (HOSTING_MODE ? 'YES' : 'NO'));
-        $this->printTD('Trial Mode: ', (TRIAL_MODE ? 'YES' : 'NO'));
-        $this->printTD('Demo Mode: ', (DEMO_MODE ? 'YES' : 'NO'));
-        $this->closeTable();
+    private function config_rows() {
+        $yn = function($v) { return $v ? 'YES' : 'NO'; };
+        return array(
+            $this->row('epesi version:', EPESI_VERSION),
+            $this->row('epesi revison:', EPESI_REVISION),
+            $this->row('Database Name:', DATABASE_NAME),
+            $this->row('Database Driver:', DATABASE_DRIVER),
+            $this->row('epesi Local Dir:', EPESI_LOCAL_DIR),
+            $this->row('epesi Dir:', EPESI_DIR),
+            $this->row('epesi URL:', get_epesi_url()),
+            $this->row('System Timezone:', SYSTEM_TIMEZONE),
+            $this->row('Debug:', $yn(DEBUG)),
+            $this->row('Module Times:', $yn(MODULE_TIMES)),
+            $this->row('Display sql queries processing times: ', $yn(SQL_TIMES)),
+            $this->row('Strip output html from comments: ', $yn(STRIP_OUTPUT)),
+            $this->row('Display additional error info: ', $yn(DISPLAY_ERRORS)),
+            $this->row('Report all errors (E_ALL): ', $yn(REPORT_ALL_ERRORS)),
+            $this->row('GZIP client web browser history: ', $yn(GZIP_HISTORY)),
+            $this->row('Reducing Transfer: ', $yn(REDUCING_TRANSFER)),
+            $this->row('Minify Encode: ', $yn(MINIFY_ENCODE)),
+            $this->row('Minify sources: ', $yn(MINIFY_SOURCES)),
+            $this->row('Suggest Donation: ', $yn(SUGGEST_DONATION)),
+            $this->row('Check epesi version: ', $yn(CHECK_VERSION)),
+            $this->row('JS Output: ', $yn(JS_OUTPUT)),
+            $this->row('Set Session: ', $yn(SET_SESSION)),
+            $this->row('Read Only Session: ', $yn(READ_ONLY_SESSION)),
+            $this->row('Mobile Device: ', $yn(MOBILE_DEVICE)),
+            $this->row('First Run: ', $yn(FIRST_RUN)),
+            $this->row('Hosting Mode: ', $yn(HOSTING_MODE)),
+            $this->row('Trial Mode: ', $yn(TRIAL_MODE)),
+            $this->row('Demo Mode: ', $yn(DEMO_MODE)),
+        );
     }
 
     public function body() {
-        ob_start();
-        $this->print_info();
-        return ob_get_clean();
+        return $this->render('ConfigInfo.tpl', array(
+            'env_rows' => $this->env_rows(),
+            'config_rows' => $this->config_rows(),
+        ));
     }
 
     public function menu_entry() {
         return __("PHP Environment & config.php");
+    }
+
+    public function icon() {
+        return 'bi-clipboard-data';
     }
 
 }

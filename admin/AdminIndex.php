@@ -84,17 +84,25 @@ class AdminIndex {
         return $this->admin_modules[$module_param] ?? null;
     }
 
+    // Populates the layout's (persistent) sidebar - unlike the old frame-per-
+    // screen design, the sidebar needs the full module list on EVERY request,
+    // not just the "no module selected" menu screen, so this has to run
+    // before branching to show_module()/show_menu() below, not inside either.
+    private function build_sidebar_menu() {
+        foreach ($this->admin_modules as $module_name => $module) {
+            $href = '?' . http_build_query(array('module' => $module_name));
+            $this->layout->add_menu_entry($href, $module->menu_entry(), $module_name, $module->icon());
+        }
+    }
+
     private function show_module($module) {
         $this->module_loader->load($module->required_epesi_modules());
         $this->layout->set_title($module->menu_entry());
+        $this->layout->set_current_module($_GET['module'] ?? null);
         $this->layout->display_html($module->body());
     }
 
     private function show_menu() {
-        foreach ($this->admin_modules as $module_name => $module) {
-            $href = '?' . http_build_query(array('module' => $module_name));
-            $this->layout->add_menu_entry($href, $module->menu_entry());
-        }
         $this->layout->display_menu();
     }
 
@@ -139,6 +147,7 @@ class AdminIndex {
 
         $this->include_admin_modules();
         $this->create_admin_modules_instances();
+        $this->build_sidebar_menu();
 
         $module = $this->selected_module();
         if ($module)

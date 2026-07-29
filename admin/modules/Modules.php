@@ -2,14 +2,11 @@
 
 class Modules extends AdminModule {
 
-    public function body() {
-        ob_start();
+    public function icon() {
+        return 'bi-toggles';
+    }
 
-        //create default module form
-        print('<div class="title"><H1>Select modules to disable</H1></div>');
-        print('Selected modules will be marked as not installed but uninstall methods will not be called. Any database tables and other modifications made by modules\' install methods will not be reverted.<br><br>');
-        print('<H2>To uninstall module please use Modules Administration & Store in Epesi Application.</H2>');
-        print('<hr/><br/>');
+    public function body() {
         $form = new HTML_QuickForm('modulesform', 'post', $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET), '', null, true);
 
         $states = array(ModuleManager::MODULE_ENABLED => 'Active',
@@ -26,7 +23,7 @@ class Modules extends AdminModule {
             $form->setDefaults(array($name => $state));
         }
 
-        $form->addElement('button', 'submit_button', 'Update', array('class' => 'button', 'onclick' => 'if(confirm("Are you sure?")) document.modulesform.submit();'));
+        $form->addElement('button', 'submit_button', 'Update', array('class' => 'btn btn-primary', 'onclick' => 'if(confirm("Are you sure?")) document.modulesform.submit();'));
 
         //validation or display
         if ($form->validate()) {
@@ -38,9 +35,12 @@ class Modules extends AdminModule {
                 }
             }
         }
-        $form->display();
 
-        return ob_get_clean();
+        ob_start();
+        $form->display();
+        $form_html = ob_get_clean();
+
+        return $this->render('Modules.tpl', array('form_html' => $form_html));
     }
 
     public function menu_entry() {

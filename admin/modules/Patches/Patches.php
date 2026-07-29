@@ -8,9 +8,12 @@ class Patches extends SteppedAdminModule {
         return 'Patches';
     }
 
+    public function icon() {
+        return 'bi-bandaid';
+    }
+
     public function header() {
-        print ('<link href="modules/Patches/patches.css" rel="stylesheet" type="text/css" />');
-        return '<H1>EPESI Patching utility</H1>';
+        return __('EPESI Patching utility');
     }
 
     public function required_epesi_modules() {
@@ -18,8 +21,7 @@ class Patches extends SteppedAdminModule {
     }
 
     public function action() {
-        $success = true;
-        ini_set('display_errors',true);
+        ini_set('display_errors', true);
         set_time_limit(0);
         switch ($this->get_step()) {
             case 1:
@@ -33,134 +35,113 @@ class Patches extends SteppedAdminModule {
                 Cache::clear();
                 break;
         }
-        return $success;
+        return true;
     }
 
     public function start_text() {
-        ob_start();
-        $this->_print_patches_list();
-        $patches = '<br/>' . ob_get_clean();
-        return '<H3>This utility scans for available patches and applies them as necessary</h3>' . $patches;
+        $patches = PatchUtil::list_patches(false);
+        $rows = array();
+        $new_count = 0;
+        $installed_count = 0;
+
+        foreach ($patches as $patch) {
+            if ($patch->was_applied()) {
+                $rows[] = $this->row($patch, 'installed', 'text-bg-success');
+                $installed_count++;
+            } else {
+                $rows[] = $this->row($patch, 'new patch', 'text-bg-danger', true);
+                $new_count++;
+            }
+        }
+
+        if ($new_count == 0) {
+            $this->set_next_step(2);
+            $message = 'No new patches were found. Press NEXT to rebuild common cache and theme files. This operation can take a minute...';
+        } else {
+            $this->set_next_step(1);
+            $message = 'New patches were found. Press NEXT to apply them. This operation can take a minute...';
+        }
+
+        return $this->render('Patches.tpl', array(
+            'mode' => 'list',
+            'rows' => $rows,
+            'new_count' => $new_count,
+            'installed_count' => $installed_count,
+            'patched_success' => 0,
+            'patched_failure' => 0,
+            'patches_to_run' => 0,
+            'message' => $message,
+        ));
     }
 
     public function success_text() {
-        switch ($this->get_step()) {
-            case 1:
-                ob_start();
-                $this->_print_ran_patches();
-                return ob_get_clean();
-            case 2:
-                $text = '<H1>Epesi was patched and cache files were updated.'; 
-                $text .='<a href="./index.php"> MAIN MENU</a></center>';
-                return $text;
-        }
+        if ($this->get_step() == 1)
+            return $this->ran_patches_view();
+
+        return $this->render('Patches.tpl', array('mode' => 'done'));
     }
 
     public function failure_text() {
-        
+        return '';
     }
 
-    private function _print_ran_patches() {
+    private function ran_patches_view() {
+        $rows = array();
         $patched_success = 0;
         $patched_failure = 0;
         $patches_to_run = 0;
-        print('<table id="patches">');
+
         /** @var Patch $patch */
         foreach ($this->_patches_ran as $patch) {
-            $apply_status = $patch->get_apply_status();
-            if ($apply_status === Patch::STATUS_SUCCESS) {
-                $this->print_row_install_success($patch);
+            $status = $patch->get_apply_status();
+            if ($status === Patch::STATUS_SUCCESS) {
+                $rows[] = $this->row($patch, 'patch installed', 'text-bg-success');
                 $patched_success++;
-            } elseif ($apply_status === Patch::STATUS_ERROR) {
-                $this->print_row_install_failure($patch);
+            } elseif ($status === Patch::STATUS_ERROR) {
+                $extra = "File: {$patch->get_file()}\n{$patch->get_apply_error_msg()}";
+                $rows[] = $this->row($patch, 'install error', 'text-bg-danger', true, $extra);
                 $patched_failure++;
-            } elseif ($apply_status === Patch::STATUS_TIMEOUT) {
-                $this->print_row_install_in_progress($patch);
+            } elseif ($status === Patch::STATUS_TIMEOUT) {
+                $rows[] = $this->row($patch, 'in progress...', 'text-bg-info', false, $patch->get_user_message());
                 $patches_to_run++;
-            } elseif ($apply_status === Patch::STATUS_NEW) {
-                $this->print_row_install_no_run($patch);
+            } elseif ($status === Patch::STATUS_NEW) {
+                $rows[] = $this->row($patch, 'patch not applied', 'text-bg-secondary');
                 $patches_to_run++;
             }
-        }
-        if ($patched_success)
-            print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches successfully installed: </div><div class="right green strong">' . $patched_success . '</div></td></tr>');
-        if ($patched_failure)
-            print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches with errors: </div><div class="right red strong">' . $patched_failure . '</div></td></tr>');
-        if ($patches_to_run) {
-            print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches to run: </div><div class="right gray strong">' . $patches_to_run . '</div></td></tr>');
         }
 
         if ($patched_failure) {
             $this->set_next_step(1);
-            $msg = '<H3>Some errors occured. Try to fix them and rerun patch.</H3>';
+            $message = 'Some errors occured. Try to fix them and rerun patch.';
         } elseif ($patches_to_run) {
             $this->set_auto_run();
             $this->set_next_step(1);
-            $msg = '<H3>Do not close this page. Browser should reload this page until all patches will be applied.';
+            $message = 'Do not close this page. Browser should reload this page until all patches will be applied.';
         } else {
-            $msg = '<br><br>Press <stronger>NEXT</stronger> to rebuild common cache, theme files and base language files.<br>This operation can take a minute...';
+            $message = 'Press NEXT to rebuild common cache, theme files and base language files. This operation can take a minute...';
         }
-        print('<tr><td><div class="content infotext">' . $msg . '</div></td></tr>');
-        print('</table>');
+
+        return $this->render('Patches.tpl', array(
+            'mode' => 'ran',
+            'rows' => $rows,
+            'new_count' => 0,
+            'installed_count' => 0,
+            'patched_success' => $patched_success,
+            'patched_failure' => $patched_failure,
+            'patches_to_run' => $patches_to_run,
+            'message' => $message,
+        ));
     }
 
-    private function _print_patches_list() {
-        $counter = 0;
-        $counterpatched = 0;
-        $patches = PatchUtil::list_patches(false);
-        print('<table id="patches">');
-        foreach ($patches as $patch) {
-            if ($patch->was_applied()) {
-                $this->print_row_old_patch($patch);
-                $counterpatched++;
-            } else {
-                $this->print_row_new_patch($patch);
-                $counter++;
-            }
-        }
-        print('<tr><td>&nbsp;</td></tr>');
-        if ($counter)
-            print('<tr><td><div class="left">&nbsp;</div><div class="center strong">New patches found: </div><div class="right red strong">' . $counter . '</div></td></tr>');
-        if ($counterpatched)
-            print('<tr><td><div class="left">&nbsp;</div><div class="center strong">Patches already installed: </div><div class="right green">' . $counterpatched . '</div></td></tr>');
-        if ($counter == 0) {
-            print('<tr><td><div class="content infotext">No new patches were found. Press NEXT to rebuild common cache and theme files. This operation can take a minute...</div></td></tr>');
-            $this->set_next_step(2);
-        } else {
-            print('<tr><td><div class="content infotext">New patches were found. Press NEXT to apply them. This operation can take a minute...</div></td></tr>');
-            $this->set_next_step(1);
-        }
-        print('</table>');
-    }
-
-    private function print_row_new_patch(Patch $patch) {
-        print("<tr><td><div class=\"left strong\">{$patch->get_module()}</div><div class=\"center strong\"><b>{$patch->get_short_description()}</b></div><div class=\"right red strong\">new patch</div></td></tr>");
-    }
-
-    private function print_row_old_patch(Patch $patch) {
-        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right green\">installed</div></td></tr>");
-    }
-
-    private function print_row_install_success(Patch $patch) {
-        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right green strong\">patch installed</div></td></tr>");
-    }
-
-    private function print_row_install_no_run(Patch $patch) {
-        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right gray strong\">patch not applied</div></td></tr>");
-    }
-
-    private function print_row_install_in_progress(Patch $patch) {
-        $user_message = $patch->get_user_message();
-        if ($user_message) {
-            $user_message = "<div class=\"gray\">$user_message</div>";
-        }
-        print("<tr><td><div class=\"left\">{$patch->get_module()}</div><div class=\"center\">{$patch->get_short_description()}</div><div class=\"right blue strong\">in progress...$user_message</div></td></tr>");
-    }
-
-    private function print_row_install_failure(Patch $patch) {
-        print("<tr><td><div class=\"left strong\">{$patch->get_module()}</div><div class=\"center strong\">{$patch->get_short_description()}</div><div class=\"right red strong\">install error</div></td></tr>");
-        $errormsg = "File: {$patch->get_file()}\n{$patch->get_apply_error_msg()}";
-        print("<tr><td><pre class=\"errorbox\">$errormsg</pre></td></tr>");
+    private function row(Patch $patch, $status_text, $badge_class, $strong = false, $extra = null) {
+        return array(
+            'module' => $patch->get_module(),
+            'description' => $patch->get_short_description(),
+            'status_text' => $status_text,
+            'badge_class' => $badge_class,
+            'strong' => $strong,
+            'extra' => $extra,
+        );
     }
 
 }

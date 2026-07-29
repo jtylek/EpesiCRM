@@ -6,6 +6,10 @@ class MaintenanceModeSwitch extends SteppedAdminModule {
         return "Maintenance Mode";
     }
 
+    public function icon() {
+        return 'bi-cone-striped';
+    }
+
     public function required_epesi_modules() {
         return array();
     }

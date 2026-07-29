@@ -6,6 +6,10 @@ class ModulesUp extends SteppedAdminModule {
         return "Update load priority array";
     }
 
+    public function icon() {
+        return 'bi-arrow-repeat';
+    }
+
     public function header() {
         return 'Update load priority array';
     }
@@ -22,8 +26,8 @@ class ModulesUp extends SteppedAdminModule {
     }
 
     public function success_text() {
-        $text = '<center><strong>Load priority array was successfully updated.</strong></center>';
-        $text .='<a href="./index.php"> MAIN MENU</a></center>';
+        $text = '<p class="text-center"><strong>Load priority array was successfully updated.</strong></p>';
+        $text .= '<div class="text-center"><a href="./index.php" class="btn btn-outline-secondary btn-sm">MAIN MENU</a></div>';
         return $text;
     }
 

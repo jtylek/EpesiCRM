@@ -6,6 +6,10 @@ class LangUp extends SteppedAdminModule {
         return "Rebuild language files";
     }
 
+    public function icon() {
+        return 'bi-translate';
+    }
+
     public function required_epesi_modules() {
         return array('Base_Lang');
     }

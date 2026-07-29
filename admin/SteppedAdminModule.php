@@ -25,15 +25,25 @@ abstract class SteppedAdminModule extends AdminModule {
     abstract function failure_text();
 
     public function body() {
-        ob_start();
         $this->_get_step();
-        $this->_print_header();
-        if ($this->step)
-            $this->_run_action();
-        else
-            $this->_print_starting_page();
-        $this->_print_action_button();
-        return ob_get_clean();
+        $header = $this->header();
+
+        if ($this->step) {
+            $content = $this->action() ? $this->success_text() : $this->failure_text();
+            unset($_SESSION[self::$step_var]);
+        } else {
+            $content = $this->start_text();
+        }
+
+        return $this->render('stepped_module.tpl', array(
+            'header' => $header,
+            'content' => $content,
+            'show_button' => $this->next_step !== null,
+            'auto_run' => $this->auto_run,
+            'button_text' => $this->button_text,
+            'step_var' => self::$step_var,
+            'next_step' => $this->next_step,
+        ));
     }
 
     private function _get_step() {
@@ -50,50 +60,15 @@ abstract class SteppedAdminModule extends AdminModule {
         if (!$this->step && !$this->next_step)
             $this->set_next_step(1);
     }
-    
+
     protected function get_step() {
         return $this->step;
     }
 
-    private function _print_header() {
-        print('<div class="title">' . $this->header() . '</div><br/>');
-    }
-
-    private function _run_action() {
-        print( $this->action() ?
-                        $this->success_text() :
-                        $this->failure_text()
-        );
-        unset($_SESSION[self::$step_var]);
-    }
-
-    private function _print_starting_page() {
-        print($this->start_text());
-    }
-    
-    private function _print_action_button() {
-        if ($this->next_step != null)
-            print("<br/><br/><center>{$this->_run_button()}</center>");
-    }
-
-    private function _run_button() {
-        $ret = '<form method="post" name="action_button">
-            <input type="hidden" name="' . self::$step_var . '" value="' . 
-                htmlspecialchars($this->next_step) . '" />';
-        if ($this->auto_run) {
-            $ret .= '</form>';
-            $ret .= '<script type="text/javascript">document.action_button.submit()</script>';
-        } else {
-            $ret .= '<input type="submit" class="button" value="' .
-                    htmlspecialchars($this->button_text) . '" /></form>';
-        }
-        return $ret;
-    }
-    
     protected function set_button_text($text) {
         $this->button_text = $text;
     }
-    
+
     protected function set_next_step($value) {
         $this->next_step = $value;
     }
