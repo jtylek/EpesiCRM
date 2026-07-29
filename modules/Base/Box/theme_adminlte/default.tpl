@@ -188,14 +188,22 @@
 	// GenericBrowser/RecordBrowser row's own row of action icons (view/edit/
 	// delete/favourite/watchdog/...) into a single kebab (bi-three-dots-
 	// vertical) toggle button, to give that screen space back to the table's
-	// other columns instead. The CSS half of this (Utils/GenericBrowser/
-	// theme_adminlte/default.css, "---- mobile actions menu ----") hides the
-	// real <a> icons and the toggle button below that breakpoint, and styles
-	// #epesi-gb-actions-menu, the one shared floating panel this script
-	// populates and positions on click.
+	// other columns instead. ensureToggles() below moves the row's real <a>
+	// icons into a "epesi-gb-actions-icons" wrapper span it creates itself
+	// and inserts the toggle button next to - both are this script's own
+	// classes, not selectors matched against GenericBrowser_0.php's
+	// server-rendered markup (an earlier version tried hiding
+	// "td.Utils_GenericBrowser__actions > a" directly by CSS selector and
+	// it silently failed to match in production for reasons never fully
+	// pinned down - owning both ends of the class name here removes that
+	// whole class of mismatch). The CSS half (Utils/GenericBrowser/
+	// theme_adminlte/default.css, "---- mobile actions menu ----") hides
+	// .epesi-gb-actions-icons and shows the toggle button below that
+	// breakpoint, and styles #epesi-gb-actions-menu, the one shared
+	// floating panel this script populates and positions on click.
 	//
-	// The panel gets a CLONE of each hidden <a> (not the real node moved out
-	// and back, unlike this same file's older table_overflow.js/
+	// The panel gets a CLONE of each wrapped <a> (not the real node moved
+	// out and back, unlike this same file's older table_overflow.js/
 	// Utils_GenericBrowser__overflow_div pattern for a similar clipping
 	// problem) - simpler here since there's nothing to restore afterwards,
 	// and every one of these actions is a plain HTML href/onclick attribute
@@ -225,44 +233,144 @@
 			"function closeMenu(){".
 				"var m=document.getElementById(MENU_ID);".
 				"if(m)m.classList.remove('show');".
-				"var b=document.querySelector('.epesi-gb-actions-toggle.epesi-gb-actions-open');".
+				// Was scoped to ".epesi-gb-actions-toggle.epesi-gb-actions-open" only -
+				// the "More actions" toggle (.epesi-gb-more-toggle, added for the
+				// desktop extra-actions grouping) opens the exact same shared menu and
+				// gets the exact same "epesi-gb-actions-open" class, but this selector
+				// never matched it, so closing the menu never cleared ITS open state.
+				// openMenuFor()'s own "if already open, just close" toggle logic reads
+				// that leftover class on the next click and short-circuits before ever
+				// reopening the menu - reported as "activates once, then does nothing"
+				// on repeat clicks of the More actions button specifically (the mobile
+				// kebab was never affected, since it IS a .epesi-gb-actions-toggle).
+				// Any element can only ever carry this state class while it's the one
+				// open toggle, so matching on the state class alone is enough - no need
+				// to also name every toggle class that might carry it.
+				"var b=document.querySelector('.epesi-gb-actions-open');".
 				"if(b)b.classList.remove('epesi-gb-actions-open');".
 			"}".
-			"function openMenuFor(btn,cell){".
+			"function openMenuFor(btn,wrap){".
 				"var wasOpen=btn.classList.contains('epesi-gb-actions-open');".
 				"closeMenu();".
 				"if(wasOpen)return;".
-				"var actions=cell.querySelectorAll('a');".
+				"var actions=wrap.querySelectorAll('a');".
 				"if(!actions.length)return;".
 				"var m=getMenu();".
 				"m.innerHTML='';".
 				"actions.forEach(function(a){".
 					"var clone=a.cloneNode(true);".
-					"var label=a.getAttribute('title');".
+					// data-epesi-mobile-label (RowObject.php's add_info(), Record ID
+					// only) stands in for the full title text where one is present -
+					// today that's just the info icon, whose title is a whole "Record
+					// ID / Created by / Edited by / ..." dump meant for a hover
+					// tooltip, not a menu item label.
+					"var label=a.getAttribute('data-epesi-mobile-label')||a.getAttribute('title');".
 					"if(label){var span=document.createElement('span');span.textContent=label;clone.appendChild(span);}".
 					"m.appendChild(clone);".
 				"});".
 				"m.classList.add('show');".
 				"var r=btn.getBoundingClientRect();".
-				"m.style.top=(r.bottom+4)+'px';".
+				// A row near the bottom of the viewport (last few rows of a long
+				// table, small phone screen) left the menu opening downward
+				// unconditionally, running off the bottom of the screen with no
+				// way to reach the actions past whatever happened to fit above the
+				// fold. Flip to open upward instead whenever there isn't enough
+				// room below AND there IS enough room above; if neither direction
+				// fits (a very long action list on a very short viewport), keep
+				// opening downward and let #epesi-gb-actions-menu's own
+				// max-height:60vh + overflow-y:auto (default.css) make it
+				// scrollable instead of clipped.
+				"var menuHeight=m.offsetHeight;".
+				"var spaceBelow=window.innerHeight-r.bottom;".
+				"var top;".
+				"if(spaceBelow>=menuHeight+4||r.top<menuHeight+4){".
+					"top=r.bottom+4;".
+				"}else{".
+					"top=r.top-menuHeight-4;".
+				"}".
+				"if(top<4)top=4;".
+				"m.style.top=top+'px';".
 				"var left=r.right-m.offsetWidth;".
 				"if(left<4)left=4;".
 				"m.style.left=left+'px';".
 				"btn.classList.add('epesi-gb-actions-open');".
 			"}".
+			// A row's action <a>s fall into two groups: the "core" ones every
+			// RecordBrowser table has (view/edit/delete/info/expand/collapse -
+			// GenericBrowser_0.php's own view/edit/delete/history + RowObject's
+			// add_info() + the plus_gray/minus_gray expandable pair, all built
+			// straight into GenericBrowser_0.php and RecordBrowser_0.php
+			// regardless of module), and whatever a specific module bolts on
+			// top via its own add_action() calls (CRM_Contacts' "New Meeting"/
+			// "New Task"/"New Phonecall"/"New Note", CRM_Companies' equivalents,
+			// etc - genuinely open-ended, one module at a time). Classified by
+			// icon filename rather than a list of known module actions, since
+			// that list can never be complete - anything NOT recognized as core
+			// is treated as an "extra" action, so a future module's own icon
+			// groups correctly without this file needing to know about it.
+			"function isCoreAction(a){".
+				"var img=a.querySelector('img');".
+				"var src=img?(img.getAttribute('src')||''):'';".
+				"return /\\/(view|edit|delete|info|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
+			"}".
 			"function ensureToggles(){".
 				"document.querySelectorAll('table.Utils_GenericBrowser td.Utils_GenericBrowser__actions').forEach(function(cell){".
 					"if(cell.querySelector('.epesi-gb-actions-toggle'))return;".
-					"if(!cell.querySelector('a'))return;".
+					"var links=Array.prototype.slice.call(cell.querySelectorAll('a'));".
+					"if(!links.length)return;".
+					// The "extra" actions (per request) group into their own
+					// "More actions" toggle FIRST, independent of screen width - a
+					// module-heavy table (Contacts/Companies) stays down to the
+					// same core icon set as every other table on desktop too, not
+					// just on mobile. Reuses openMenuFor()/the one shared floating
+					// menu - the only difference from the mobile case below is
+					// which wrapper's <a>s it's asked to clone.
+					"var extra=links.filter(function(a){return !isCoreAction(a);});".
+					"if(extra.length){".
+						"var extraWrap=document.createElement('span');".
+						"extraWrap.className='epesi-gb-actions-extra';".
+						"extra.forEach(function(a){extraWrap.appendChild(a);});".
+						"var moreBtn=document.createElement('button');".
+						"moreBtn.type='button';".
+						"moreBtn.className='epesi-gb-more-toggle';".
+						"moreBtn.setAttribute('aria-label','More actions');".
+						"moreBtn.addEventListener('click',function(e){".
+							"e.stopPropagation();".
+							"openMenuFor(moreBtn,extraWrap);".
+						"});".
+						"cell.appendChild(moreBtn);".
+						"cell.appendChild(extraWrap);".
+					"}".
+					// Moving the real <a>s (now just the core ones, plus the "More
+					// actions" toggle and its own extras wrapper if either exists)
+					// into a wrapper this script owns end to end - rather than
+					// hiding them in place via a CSS selector matched against
+					// GenericBrowser_0.php's own class list - means the CSS half
+					// only ever has to say ".epesi-gb-actions-icons{display:none}"
+					// with nothing else to get right: no assumption about which
+					// classes the <td> carries, whether the <a>s are direct
+					// children, or any specificity contest with a rule elsewhere.
+					// The wrapper still holds the exact same live nodes (moved,
+					// not cloned), so their href/onclick/tooltip attributes and
+					// any state carry over untouched. On mobile this wrapper
+					// (including the "More actions" toggle nested inside it) is
+					// hidden as a whole and this cell's OWN kebab takes over -
+					// openMenuFor(btn,wrap) still finds every <a>, core and extra
+					// alike, via querySelectorAll('a') reaching into the nested
+					// .epesi-gb-actions-extra span regardless of depth.
+					"var wrap=document.createElement('span');".
+					"wrap.className='epesi-gb-actions-icons';".
+					"while(cell.firstChild)wrap.appendChild(cell.firstChild);".
 					"var btn=document.createElement('button');".
 					"btn.type='button';".
 					"btn.className='epesi-gb-actions-toggle';".
 					"btn.setAttribute('aria-label','Actions');".
 					"btn.addEventListener('click',function(e){".
 						"e.stopPropagation();".
-						"openMenuFor(btn,cell);".
+						"openMenuFor(btn,wrap);".
 					"});".
-					"cell.insertBefore(btn,cell.firstChild);".
+					"cell.appendChild(btn);".
+					"cell.appendChild(wrap);".
 				"});".
 			"}".
 			"document.addEventListener('click',function(e){".
@@ -457,11 +565,69 @@
 								"var fw=0;".
 								"table.querySelectorAll('tbody > tr').forEach(function(row){".
 									"var cell=row.cells[idx];".
-									"if(cell){var w2=naturalWidth(cell);if(w2>fw)fw=w2;}".
+									// This <td> has no class or attribute of its own (RecordBrowserCommon_0.php's
+									// get_fav_button()/WatchdogCommon_0.php's get_change_subscription_icon() build
+									// it bare - the th.cellIndex walk above is already working around exactly
+									// that), so default.css has no selector that could tighten its padding the
+									// way the Actions column's own td.Utils_GenericBrowser__actions rule does -
+									// Bootstrap's default ".table" cell padding (.5rem each side) was left in
+									// full around a single small icon, reported as "extra white space" around
+									// the star/eye columns. Set inline here instead, before naturalWidth()
+									// clones this same cell, so the measurement and the applied padding always
+									// agree with each other.
+									"if(cell){".
+										"cell.style.padding='0.25rem 0.25rem 0.1rem';".
+										"cell.style.textAlign='center';".
+										// Same reasoning as the Actions column's own vertical-align:top override
+										// (Utils/GenericBrowser/theme_adminlte/default.css) - this cell has no
+										// class of its own for that CSS rule to reach, so it's set inline here
+										// instead. Without it this icon defaults to vertical-align:middle and
+										// visibly floats below the row's top edge on any row where another
+										// column wraps to more than one line, out of line with both the text
+										// columns and the Actions column right next to it.
+										"cell.style.verticalAlign='top';".
+										"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
+									"}".
 								"});".
 								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
 								"th.style.width=fw+'px';".
 								"fixedWidth+=fw;".
+							"}".
+						"});".
+						// RecordBrowser tables default to $expandable_rows=true (RecordBrowser_0.php),
+						// so every data cell renders server-side as <div class="expandable
+						// expanded"> (GenericBrowser_0.php) - meant to be a transient starting
+						// point that js/table_overflow.js's gb_expandable_init() (called per
+						// row via GenericBrowser_0.php's own eval_js()) immediately measures and
+						// either leaves alone (content already <=18px) or swaps to "collapsed"
+						// (clamped to one line, overflow hidden) for. Reported by request as
+						// "Browse renders one line per contact only after clicking Collapse
+						// All" - i.e. that swap wasn't happening by default, leaving every row
+						// at its full unclamped height. Rather than chase why that per-row init
+						// isn't taking effect (gb_expandable[] is seeded by an eval_js_once()
+						// call keyed on this table's own md5 path - a value stable across an
+						// entire login session, so - unlike the per-row gb_expandable_init()
+						// calls themselves, plain eval_js() and unaffected - that one-time seed
+						// never re-sends after this table's first render in a session, a
+						// plausible culprit but not one worth fully re-deriving GenericBrowser's
+						// legacy state machine to confirm), this does the same clamp directly:
+						// anything still "expanded" wider than one line gets force-collapsed,
+						// independent of whatever state gb_expandable[] itself is in and of
+						// whether this table even has any percentage columns to size (ahead of
+						// the totalPercent<=0 bailout below, so it always runs), measured after
+						// the width pass above so it's at each column's real, final width, not
+						// a transient narrower one.
+						"table.querySelectorAll('div.expandable.expanded').forEach(function(div){".
+							"if(div.scrollHeight>18){".
+								"div.classList.remove('expanded');".
+								"div.classList.add('collapsed');".
+								"var row=div.closest('tr');".
+								"if(row){".
+									"var more=row.querySelector(\"a[id^='gb_more_']\");".
+									"var less=row.querySelector(\"a[id^='gb_less_']\");".
+									"if(more)more.style.display='';".
+									"if(less)less.style.display='none';".
+								"}".
 							"}".
 						"});".
 						"if(totalPercent<=0)return;".
@@ -475,6 +641,22 @@
 				"}catch(e){}".
 			"}".
 			"epesiSizeGbActions();".
+			// The very first call above can run before the bootstrap-icons webfont
+			// has finished loading - measured directly (see font_timing_test in
+			// this fix's own investigation): an icon glyph's ::before content
+			// renders in a fallback font at first (12-13px), only reaching its
+			// real ~16px once the icon font is actually ready, and the shortfall
+			// compounds per icon. On a table with only 2-3 actions that's a few
+			// px, invisible; on one with 7-8 (RecordBrowser tables that add "New
+			// Meeting"/"New Task"/etc via add_action()) it was enough for the
+			// column epesiSizeGbActions() had just measured too narrow to still
+			// fit them, wrapping the icons onto a second line and making every
+			// row in the table visibly taller - "looks expanded" even though
+			// nothing about row content actually was. Re-running once
+			// document.fonts.ready resolves re-measures with the icon font's
+			// real metrics and corrects it without needing a window resize to
+			// accidentally trigger the same recovery.
+			"if(document.fonts&&document.fonts.ready)document.fonts.ready.then(epesiSizeGbActions);".
 			"if(typeof document.observe==='function')document.observe('e:load',epesiSizeGbActions);".
 			"var epesiGbResizeTimer=null;".
 			"window.addEventListener('resize',function(){".

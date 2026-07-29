@@ -91,9 +91,17 @@ class Utils_GenericBrowser_RowObject {
      * Adds an info icon to the Generic Browser.
      *
      * @param string tooltip
+     * @param bool $leightbox
+     * @param string|null $mobile_label short label shown instead of $tooltip
+     *   in the adminlte theme's mobile actions menu (Base_Box/theme_adminlte/
+     *   default.tpl), where $tooltip's full "Record ID / Created by / Edited
+     *   by / ..." dump would otherwise be the only text available - that
+     *   tooltip is meant to be read on hover, not as a menu item label.
      */
-    public function add_info($tooltip, $leightbox = false){
-        $this->GBobj->__add_row_action($this->num, $leightbox?Utils_TooltipCommon::tooltip_leightbox_mode():'','info',$tooltip,null);
+    public function add_info($tooltip, $leightbox = false, $mobile_label = null){
+        $tag_attrs = $leightbox?Utils_TooltipCommon::tooltip_leightbox_mode():'';
+        if ($mobile_label !== null) $tag_attrs .= ' data-epesi-mobile-label="'.htmlspecialchars($mobile_label).'"';
+        $this->GBobj->__add_row_action($this->num, $tag_attrs,'info',$tooltip,null);
     }
 
     /**

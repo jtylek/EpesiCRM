@@ -840,7 +840,7 @@ class Utils_RecordBrowser extends Module {
                         }
 					}
                 }
-                if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.__('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, $info ?? $row['id']));
+                if (!isset($da['info'])) $gb_row->add_info(($this->browse_mode=='recent'?'<b>'.__('Visited on: %s', array($row['visited_on'])).'</b><br>':'').Utils_RecordBrowserCommon::get_html_record_info($this->tab, $info ?? $row['id']), false, __('Record ID').': '.$row['id']);
                 $this->call_additional_actions_methods($row, $gb_row);
             }
         }
@@ -2765,7 +2765,7 @@ class Utils_RecordBrowser extends Module {
             if (!is_array($additional_info) && isset($additional_info)) $additional_info = array('notes'=>$additional_info);
             if (isset($additional_info['notes'])) $additional_info['notes'] = $additional_info['notes'].'<hr />';
             if (isset($additional_info['row_attrs'])) $gb_row->set_attrs($additional_info['row_attrs']);
-            if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info['notes'].Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']));
+            if (isset($conf['actions_info']) && $conf['actions_info']) $gb_row->add_info($additional_info['notes'].Utils_RecordBrowserCommon::get_html_record_info($this->tab, $v['id']), false, __('Record ID').': '.$v['id']);
             if (isset($conf['actions_view']) && $conf['actions_view']) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'view',$v['id'])),'View');
             if (isset($conf['actions_edit']) && $conf['actions_edit']) if ($this->get_access('edit',$v)) $gb_row->add_action($this->create_callback_href($this->navigate(...),array('view_entry', 'edit',$v['id'])),'Edit');
             if (isset($conf['actions_delete']) && $conf['actions_delete']) if ($this->get_access('delete',$v)) $gb_row->add_action($this->create_confirm_callback_href(__('Are you sure you want to delete this record?'),$this->delete_record(...),array($v['id'], false)),'Delete');
