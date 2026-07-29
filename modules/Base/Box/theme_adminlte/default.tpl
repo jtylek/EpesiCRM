@@ -400,7 +400,6 @@
 				   and Perspective/Help are the two least essential items in this
 				   row (the sidebar's own menu/search stay reachable regardless). *}
 				<li class="nav-item d-none d-lg-block" id="filter_box">{$filter}</li>
-				<li class="nav-item top_bar_help d-none d-lg-block">{$help}</li>
 				{* $donate ("Support EPESI!") dropped from this theme's navbar to
 				   keep the row to one line - Box_0.php still assigns it (shared
 				   with the default theme), it's just not rendered here. *}
@@ -426,6 +425,14 @@
 		</div>
 		<div class="sidebar-wrapper" id="MenuBar">
 			{$menu}
+			{* Help's actual clickable entry is a real item in {$menu} now
+			   (Base_HelpCommon::menu(), merged into the sidebar's existing
+			   "Support" submenu) - {$help} here renders nothing visible any
+			   more, just Base_Help's overlay/search-popup markup, which is
+			   position:fixed regardless of where in the DOM it sits. Kept here
+			   rather than moved back to the navbar purely so both pieces of
+			   Base_Help's own template output stay in one predictable place. *}
+			{$help}
 		</div>
 		{* "EPESI powered"/version dropped from here per request - already
 		   reachable from the About section (Base_About's credits/EULA
