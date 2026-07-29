@@ -510,6 +510,17 @@ class Base_Dashboard extends Module {
 		return __('Dashboard');
 	}
 
+	// Lets Base_HomePage::icon()'s delegation (caption() is delegated the
+	// same way already) reach Dashboard's own icon when Dashboard is set as
+	// someone's home page - without this, MainModuleIndicator's adminlte
+	// icon fell back to Base_HomePage's own icon instead (get_type() names
+	// the wrapper, not Dashboard - same gap the caption()/icon() delegation
+	// pattern already exists to close for CRM_Contacts/Utils_RecordBrowser),
+	// so "Dashboard" in the navbar showed the same house glyph as "Home".
+	public function icon() {
+		return Base_ThemeCommon::get_template_file(self::module_name(), 'icon.png');
+	}
+
 	//////////////////////////////////////////////////////////
 	//default dashboard
 	public function admin() {
