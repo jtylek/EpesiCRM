@@ -33,7 +33,15 @@ class CRM_Roundcube extends Module {
             Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?-1:0);
         }
         if($def===null) {
-			print('<h1><a '.$this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts'))).'>Please set your e-mail account</a></h1>');
+			$href = $this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts')));
+			if (Base_ThemeCommon::get_default_template() == 'adminlte') {
+				print('<div class="text-center text-muted" style="padding:4rem 1rem;">'
+					.'<i class="bi bi-envelope-plus" style="font-size:3rem;"></i>'
+					.'<p class="mt-3 mb-3" style="font-size:1.1rem;">'.__('Please set your e-mail account').'</p>'
+					.'<a class="btn btn-primary" '.$href.'><i class="bi bi-gear me-1"></i>'.__('E-mail Accounts').'</a>'
+					.'</div>');
+			} else
+				print('<h1><a '.$href.'>Please set your e-mail account</a></h1>');
             return;
         }
         $params = array('_autologin_id'=>$def['id'])+$params2;
