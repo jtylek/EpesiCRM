@@ -16,8 +16,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Base_BoxInstall extends ModuleInstall {
 
 	public function install() {
-		Base_ThemeCommon::install_default_theme(Base_BoxInstall::module_name());
-
 		return true;
 	}
 
