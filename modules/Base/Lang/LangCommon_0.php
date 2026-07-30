@@ -301,10 +301,7 @@ class Base_LangCommon extends ModuleCommon {
 	 * lang/<code>_custom.php (overrides) for the given language, the same
 	 * way module code itself is merged per request via
 	 * ModuleManager::get_load_priority_array() - no build step, no on-disk
-	 * cache file. The legacy single-file data/Base_Lang/custom/<code>.php
-	 * from before per-module custom files existed is still merged in, at
-	 * lower precedence than the per-module files, so translations made
-	 * before this change aren't lost; it is never written to again.
+	 * cache file.
 	 *
 	 * @return array [$translations, $custom_translations, $translation_module]
 	 */
@@ -343,15 +340,6 @@ class Base_LangCommon extends ModuleCommon {
 				foreach ($custom_translations as $k=>$v)
 					$merged_custom[$k] = $v;
 			}
-		}
-
-		$legacy_file = DATA_DIR.'/Base_Lang/custom/'.$lang_code.'.php';
-		if (file_exists($legacy_file)) {
-			$custom_translations = array();
-			include($legacy_file);
-			foreach ($custom_translations as $k=>$v)
-				if (!isset($merged_custom[$k]) || (!$merged_custom[$k] && $v))
-					$merged_custom[$k] = $v;
 		}
 
 		$translations = $translations_backup;
