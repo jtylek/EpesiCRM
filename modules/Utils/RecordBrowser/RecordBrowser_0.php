@@ -873,7 +873,7 @@ class Utils_RecordBrowser extends Module {
                 }
             }
             $form->addElement('submit', 'submit_qanr', __('Save'), array('style'=>'width:100%;height:19px;', 'class'=>'button'));
-            $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+            $renderer = new EpesiSmartyRenderer();
             $form->accept($renderer);
             $data = $renderer->toArray();
 
@@ -1193,7 +1193,7 @@ class Utils_RecordBrowser extends Module {
 		}
 
         if ($mode=='view' || $mode=='history') $form->freeze();
-        $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+        $renderer = new EpesiSmartyRenderer();
         $form->accept($renderer);
         $data = $renderer->toArray();
 

@@ -694,7 +694,7 @@ class Utils_GenericBrowser extends Module {
 
 		$search = $this->get_module_variable('search');
 
-		$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+		$renderer = new EpesiSmartyRenderer();
 		$form_p = $this->init_module(Libs_QuickForm::module_name());
 		$pager_on = false;
 		if(isset($this->rows_qty) && $paging) {

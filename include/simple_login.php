@@ -82,7 +82,7 @@ class SimpleLogin {
     }
 
     // Builds/validates the login form and returns the rendered field data
-    // (TCMSArraySmarty's array form) for a caller to drop into whichever
+    // (EpesiSmartyRenderer's array form) for a caller to drop into whichever
     // template fits its own page shell - null if there's nothing to show
     // (already logged in, or the successful-login redirect below fired).
     private static function build_form_data() {
@@ -124,8 +124,8 @@ class SimpleLogin {
         // - $form here is a plain HTML_QuickForm though (SimpleLogin predates
         // and doesn't go through the epesi module/QuickForm_0 wrapper), so
         // the renderer is invoked directly rather than through that helper.
-        require_once('modules/Libs/QuickForm/Renderer/TCMSArraySmarty.php');
-        $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+        require_once('include/EpesiSmartyRenderer.php');
+        $renderer = new EpesiSmartyRenderer();
         $form->accept($renderer);
 
         return $renderer->toArray();

@@ -77,7 +77,7 @@ if ($mode=='submit') {// && $form->validate()) {
 	$rb->view_fields_permission = $rb->get_access('view', $record);
 	$rb->prepare_view_entry_details($record, 'view', $id, $form, array($element=>true));
 
-	$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+	$renderer = new EpesiSmartyRenderer();
 	$form->accept($renderer);
 	$data = $renderer->toArray();
 
@@ -91,7 +91,7 @@ if ($mode=='submit') {// && $form->validate()) {
 }
 ob_start();
 
-$renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty();
+$renderer = new EpesiSmartyRenderer();
 $form->accept($renderer);
 $data = $renderer->toArray();
 $html = $data['__grid_'.$element]['error'].$data['__grid_'.$element]['html'];
