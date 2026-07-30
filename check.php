@@ -39,7 +39,8 @@ if ($config && class_exists('Base_AclCommon')) {
     }
 }
 
-$html = '';
+require_once('setuptheme/SetupSmarty.php');
+
 $checks = array();
 
 // checking:
@@ -194,65 +195,58 @@ $remote_fgc = ini_get('allow_url_fopen');
 $modules_writable = is_writable('modules');
 $imagegd = function_exists('imagecreatefromjpeg');
 
+// Optional: session storage uses it when reachable (see setup.php's
+// memcached_session_available() / EpesiSessionMemcachedStorage in
+// include/session.php) - falls back to file-based sessions otherwise, so
+// this is advisory (severity 1), not a hard requirement (severity 2).
+$memcached_ext = extension_loaded('memcached') || extension_loaded('memcache');
+$memcached_server = false;
+if ($memcached_ext) {
+	$sock = @fsockopen('127.0.0.1', 11211, $errno, $errstr, 1);
+	if ($sock) {
+		$memcached_server = true;
+		fclose($sock);
+	}
+}
+if (!$memcached_ext)
+	$memcached_status = 'Extension not loaded';
+elseif (!$memcached_server)
+	$memcached_status = 'Extension loaded, server not reachable';
+else
+	$memcached_status = 'Available';
+
 $error_tests = array();
 $error_tests[] = array('label'=>'Remote file_get_contents()', 'status'=>$remote_fgc?'Enabled':'Disabled', 'severity'=>$remote_fgc?0:2);
 $error_tests[] = array('label'=>'ZIPArchive library loaded', 'status'=>$zip?'Loaded':'Not found', 'severity'=>$zip?0:2);
 $error_tests[] = array('label'=>'cURL library loaded', 'status'=>$curl?'Loaded':'Not found', 'severity'=>$curl?0:1);
 $error_tests[] = array('label'=>'Modules directory writable', 'status'=>$modules_writable?'Yes':'No', 'severity'=>$modules_writable?0:1);
 $error_tests[] = array('label'=>'PHP GD extension - image processing', 'status'=>$imagegd?'Yes':'No', 'severity'=>$imagegd?0:2);
+$error_tests[] = array('label'=>'Memcached (optional session storage)', 'status'=>$memcached_status, 'severity'=>$memcached_server?0:1);
 
 
 $checks[] = array('label'=>'Features', 'tests'=>$error_tests, 'solution'=>'http://forum.epesibim.com');
 // ********************* FEATURES ***********************
 
-foreach ($checks as $c) {
-	$html .= '<strong>'.$c['label'].'</strong><br>';
-	$solution = false;
-	foreach ($c['tests'] as $t) {
-		switch ($t['severity']) {
-			case 0: $color = '#00CC00'; break;
-			case 1: $color = '#CCAA00'; $solution = true; break;
-			case 2: $color = 'red'; $solution = true; break;
-		}
-		$html .= '<span style="font-weight:bold;float:right;margin-right:100px;color:'.$color.'">'.$t['status'].'</span>';
-		$html .= '<span style="margin-left:40px;">'.$t['label'].'</span>';
-		$html .= '<br>';
-	}
-	if ($solution) {
-		//$html .= 'Solution available here: <a target="_blank" href="'.$c['solution'].'">'.$c['solution'].'</a>';
-		//$html .= '<br>';
-	}
-	$html .= '<br>';
-}
-
 // §59 — advisory: modules recorded in the DB whose code is missing from this build
 // (premium/custom). Read-only; blocks nothing here — the real gate is in update.php.
+$orphaned = array();
 if ($config && class_exists('ModuleManager') && method_exists('ModuleManager', 'get_orphaned_modules')) {
 	$orphaned = ModuleManager::get_orphaned_modules();
-	if ($orphaned) {
-		$html .= '<strong>Additional modules</strong><br>';
-		foreach ($orphaned as $m) {
-			$html .= '<span style="font-weight:bold;float:right;margin-right:100px;color:#CCAA00;">Code missing</span>';
-			$html .= '<span style="margin-left:40px;">' . htmlspecialchars($m) . '</span><br>';
-		}
-		$html .= '<span style="margin-left:40px;font-size:0.85em;color:#888;">These modules are installed but their code is not in this build (most likely premium/custom). '
-			. 'Their data stays in the database; migrate them to this version to restore them.</span><br><br>';
-	}
 }
 
-$html .= '<br><br>';
-$html .= '<font size=-2>';
-$html .= 'Legend:<br>';
-$html .= '<span style="color:#00CC00;">Green</span> - matches EPESI requirements<br>';
-$html .= '<span style="color:#CCAA00;">Yellow</span> - shouldn\'t prevent EPESI from running, but it\'s recommended to change the settings<br>';
-$html .= '<span style="color:red;">Red</span> - check failed, it\'s necessary to change the settings<br>';
-$html .= '</font>';
+$html = SetupSmarty::render('check_results.tpl', array(
+	'checks' => $checks,
+	'orphaned' => $orphaned,
+));
 
 if ($fullscreen) {
 	if (class_exists('Utils_FrontPageCommon'))
 		Utils_FrontPageCommon::display('EPESI Compatibility check', $html);
 	else
-		print('<div style="width:600px;margin:0 auto;">'.$html.'</div>');
+		// $config is false here (app not installed yet) - __() isn't guaranteed
+		// defined this early unless a caller (setup.php) already required
+		// LangCommon_0.php itself, so this stays a plain literal.
+		print(SetupSmarty::render_page('EPESI Compatibility check', $html));
 } else {
 	print($html);
 }

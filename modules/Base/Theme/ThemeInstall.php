@@ -22,7 +22,7 @@ class Base_ThemeInstall extends ModuleInstall {
 				mkdir($dir);
 		}
 		$this->install_default_theme_common_files('modules/Base/Theme/','images');
-		Variable::set('default_theme','default');
+		Variable::set('default_theme','adminlte');
 		return true;
 	}
 	

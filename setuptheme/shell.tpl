@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="robots" content="NOINDEX, NOARCHIVE" />
+	<title>{if $title}{$title} - {/if}{'EPESI setup'|t}</title>
+	<link href="libs/bootstrap-5.3.8/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet" />
+	<link href="libs/adminlte-4.1.0/css/adminlte.min.css" rel="stylesheet" />
+	<style>
+	{literal}
+	/* Same reasoning as update_shell.tpl/login_page.tpl: give body/header an
+	   explicit background so a dark-mode browser doesn't substitute its own
+	   auto-dark page background around the still-white .card. */
+	body {
+		background-color: #f4f6f9;
+	}
+	.app-header {
+		background-color: #fff;
+		border-bottom: 1px solid #dee2e6;
+	}
+	.setup-card {
+		max-width: 960px;
+		margin: 0 auto;
+	}
+	.setup-steps {
+		max-width: 960px;
+		margin: 0 auto 1rem;
+	}
+	.setup-steps .step {
+		flex: 1;
+		text-align: center;
+		font-size: 0.8rem;
+		color: #adb5bd;
+		border-top: 3px solid #dee2e6;
+		padding-top: 0.5rem;
+	}
+	.setup-steps .step.done {
+		color: #198754;
+		border-top-color: #198754;
+	}
+	.setup-steps .step.current {
+		color: #0d6efd;
+		font-weight: 600;
+		border-top-color: #0d6efd;
+	}
+	.setup-license-text {
+		max-height: 260px;
+		overflow-y: auto;
+		background-color: #fff;
+		border: 1px solid #dee2e6;
+		border-radius: 0.375rem;
+		padding: 1rem;
+	}
+	/* Smaller text/controls throughout the setup wizard, per request - most
+	   Bootstrap components (.form-control/.form-select/.btn) size themselves
+	   off rem (root <html> size), not the nearest ancestor's font-size, so
+	   plain inheritance from .setup-card alone wouldn't shrink them; this
+	   page is a standalone document used only by setup.php/check.php, so
+	   these overrides can't leak into the main app. */
+	.setup-card {
+		font-size: 0.875rem;
+	}
+	.setup-card .card-header h5 {
+		font-size: 1rem;
+	}
+	.setup-card h6 {
+		font-size: 0.9rem;
+	}
+	.setup-card .form-control,
+	.setup-card .form-select {
+		font-size: 0.85rem;
+		padding: 0.3rem 0.6rem;
+	}
+	.setup-card .btn {
+		font-size: 0.85rem;
+		padding: 0.3rem 0.9rem;
+	}
+	.setup-card .form-check-label,
+	.setup-card .col-form-label {
+		font-size: 0.85rem;
+	}
+	.setup-card .col-form-label {
+		padding-top: 0.3rem;
+		padding-bottom: 0.3rem;
+	}
+	@media (max-width: 767.98px) {
+		.setup-card, .setup-steps {
+			max-width: 100%;
+		}
+	}
+	{/literal}
+	</style>
+</head>
+<body>
+<div class="epesi-adminlte app-wrapper" data-bs-theme="light">
+
+	<nav class="app-header navbar navbar-expand">
+		<div class="container-fluid">
+			<span class="navbar-brand"><i class="bi bi-gear-fill me-1"></i>{'EPESI setup'|t}</span>
+		</div>
+	</nav>
+
+	<main class="app-main">
+		<div class="app-content">
+			<div class="container-fluid">
+{if $steps}
+				<div class="setup-steps d-flex gap-2 mt-3">
+{foreach from=$steps item=step}
+					<div class="step{if $step.done} done{elseif $step.current} current{/if}">
+						<i class="bi {if $step.done}bi-check-circle-fill{else}{$step.icon}{/if}"></i>
+						<div>{$step.label}</div>
+					</div>
+{/foreach}
+				</div>
+{/if}
+				<div class="card shadow-sm setup-card">
+{if $title}
+					<div class="card-header">
+						<h5 class="mb-0">{$title}</h5>
+					</div>
+{/if}
+					<div class="card-body">
+						{$body}
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<footer class="app-footer text-center py-3">
+		<div><a href="https://epe.si" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
+		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz Tylek</div>
+	</footer>
+
+</div>
+<script src="libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js"></script>
+<script src="libs/adminlte-4.1.0/js/adminlte.min.js"></script>
+</body>
+</html>
