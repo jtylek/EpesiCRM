@@ -105,7 +105,9 @@ class Base_ThemeCommon extends ModuleCommon {
 	public static function get_default_template() {
 		static $theme;
 		if(!isset($theme)) {
-			$theme = Variable::get('default_theme');
+			// Base_Theme may not be installed yet (e.g. this runs during the
+			// pre-module-install splash on a brand new setup).
+			$theme = Variable::get('default_theme', false) ?: 'default';
 			// A theme no longer needs a directory under data/ to be valid - it can
 			// live entirely in modules/<Mod>/theme_<name>/. Checked directly rather
 			// than via Base_Theme::list_themes() because this runs early enough in
@@ -210,8 +212,8 @@ class Base_ThemeCommon extends ModuleCommon {
 		if(!isset($themes_dir))
 			$themes_dir = DATA_DIR.'/Base_Theme/templates/';
 		if(!isset($theme)) {
-			$theme = Variable::get('default_theme');
-		
+			$theme = Variable::get('default_theme', false) ?: 'default';
+
 			if(!is_dir($themes_dir.$theme))
 				$theme = 'default';
 		}

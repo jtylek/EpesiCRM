@@ -93,7 +93,9 @@ $smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
 // class extends ModuleCommon, which isn't required by this file's own,
 // much smaller bootstrap chain - only include.php's full one loads it).
 // Same Variable::get() + directory/glob check that method itself uses.
-$default_theme = Variable::get('default_theme');
+// Variable::get(..., false) doesn't throw - Base_Theme may not be installed
+// yet (e.g. this splash renders before any module does, on a brand new setup).
+$default_theme = Variable::get('default_theme', false) ?: 'default';
 if ($default_theme !== 'default'
         && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
         && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
