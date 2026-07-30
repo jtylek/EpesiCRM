@@ -1,5 +1,5 @@
 {php}
-	load_js($this->get_template_vars('theme_dir').'/Utils/TabbedBrowser/default.js');
+	load_js('modules/Utils/TabbedBrowser/theme/default.js');
 {/php}
 
 <div class="Utils_TabbedBrowser_div">

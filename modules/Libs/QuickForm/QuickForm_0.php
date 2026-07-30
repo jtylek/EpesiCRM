@@ -147,7 +147,12 @@ class Libs_QuickForm extends Module {
 		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
 		$this->accept($renderer); 
 		$form_data = $renderer->toArray();
-		$theme->assign($name.'_name', $this->getAttribute('name')); 
+		// column.tpl/row.tpl do {foreach from=$form_data.header} with no isset
+		// guard (Smarty dot-notation compiles straight to $form_data['header'],
+		// see [[report-all-errors-exits-on-warning]]) - toArray() only sets this
+		// key when the form actually has header-type elements.
+		$form_data['header'] ??= array();
+		$theme->assign($name.'_name', $this->getAttribute('name'));
 		$theme->assign($name.'_data', $form_data);
 		$theme->assign($name.'_open', $form_data['javascript'].'<form '.$form_data['attributes'].'>'.$form_data['hidden']."\n");
 		$theme->assign($name.'_close', "</form>\n");

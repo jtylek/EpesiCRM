@@ -104,6 +104,11 @@ class Base_DashboardCommon extends ModuleCommon {
 			$th->assign('actions',array());
 
 			$th->assign('config_mode',true);
+			// theme_adminlte/default.tpl's {if $fixed} has no isset guard
+			// (Smarty tpl var access, undefined here since a picker item isn't
+			// on the dashboard yet to be pinned) - display_dashboard() assigns
+			// this for the real grid, this path never did.
+			$th->assign('fixed', false);
 
 			$html .= '<div class="applet" searchkey="'.strtolower($cap?$cap:$name).';'.strtolower($app_info[$name]).'" id="ab_item_'.'new_'.$id.'">';
 			ob_start();

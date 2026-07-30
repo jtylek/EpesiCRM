@@ -1,5 +1,5 @@
 {php}
-	load_js($this->get_template_vars('theme_dir').'/Utils/TabbedBrowser/default.js');
+	load_js('modules/Utils/TabbedBrowser/theme/default.js');
 {/php}
 
 {* $link/$s_link are full <span id="..." class="tabbed_browser_selected|

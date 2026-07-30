@@ -20,28 +20,3 @@ RedirectMatch 404 /\.git(/|$)
 Header always append X-Frame-Options SAMEORIGIN
 Header set X-XSS-Protection "1; mode=block"
 </IfModule>
-
-# Compress text-based responses (HTML, the app's own JS/CSS bundles, JSON, SVG).
-# Images/fonts are already-compressed formats and are skipped.
-<IfModule mod_deflate.c>
-AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
-AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
-AddOutputFilterByType DEFLATE image/svg+xml application/xml
-</IfModule>
-
-# Let browsers cache static, rarely-changing assets instead of re-requesting
-# them on every navigation. Dynamic pages (index.php, process.php, *.tpl-driven
-# output) are untouched since they're not matched by these extensions.
-<IfModule mod_expires.c>
-ExpiresActive On
-ExpiresByType image/png "access plus 1 month"
-ExpiresByType image/jpeg "access plus 1 month"
-ExpiresByType image/gif "access plus 1 month"
-ExpiresByType image/svg+xml "access plus 1 month"
-ExpiresByType image/x-icon "access plus 1 month"
-ExpiresByType font/woff2 "access plus 1 month"
-ExpiresByType font/woff "access plus 1 month"
-ExpiresByType text/css "access plus 1 week"
-ExpiresByType application/javascript "access plus 1 week"
-ExpiresByType text/javascript "access plus 1 week"
-</IfModule>

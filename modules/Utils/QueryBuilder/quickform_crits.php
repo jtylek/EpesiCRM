@@ -13,7 +13,12 @@ class HTML_QuickForm_crits extends HTML_QuickForm_input {
 
     function __construct($elementName = null, $elementLabel = null, $attributes=null) {
         parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
-        if ($this->_caller instanceof HTML_QuickForm) {
+        // openpsa/quickform assigns $_caller onto the element after
+        // _createElement() returns it, not before - it doesn't exist yet at
+        // this point in the constructor. isset() guard only silences the
+        // PHP 8.2 undefined-property warning; behavior is unchanged since an
+        // unset property was never going to satisfy instanceof anyway.
+        if (isset($this->_caller) && $this->_caller instanceof HTML_QuickForm) {
             $this->_caller->addFormRule($this->check_for_error(...));
         }
     } //end constructor

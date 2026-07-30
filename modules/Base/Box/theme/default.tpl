@@ -8,7 +8,7 @@
 {else}
 
 {php}
-	load_js($this->get_template_vars('theme_dir').'/Base/Box/default.js');
+	load_js('modules/Base/Box/theme/default.js');
 	eval_js_once('document.body.id=null'); //pointer-events:none;
 {/php}
 	<canvas class="Base_Help__tools" style="height:3000px;width:3000px;" id="help_canvas" width="3000px" height="3000px"></canvas>
