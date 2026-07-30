@@ -441,7 +441,25 @@ class Base_LangCommon extends ModuleCommon {
 	}
 
 	private static function get_installed_lang_codes() {
-		$codes = explode(',', Variable::get('installed_langs', ''));
+		$raw = Variable::get('installed_langs', '');
+		if ($raw === '') {
+			// Installations that already had Base_Lang installed before this
+			// per-module rewrite never ran the new install() seeding step -
+			// self-heal once from the legacy base/ cache directory listing
+			// (same signal the old refresh_cache() used), falling back to
+			// Base's own bundled languages if even that is missing.
+			$codes = array();
+			if (is_dir(DATA_DIR.'/Base_Lang/base')) {
+				foreach (scandir(DATA_DIR.'/Base_Lang/base') as $entry)
+					if (pathinfo($entry, PATHINFO_EXTENSION) == 'php')
+						$codes[] = basename($entry, '.php');
+			} else {
+				$codes = array_keys(self::get_base_languages());
+			}
+			$raw = implode(',', $codes);
+			Variable::set('installed_langs', $raw);
+		}
+		$codes = explode(',', $raw);
 		return array_values(array_filter($codes, fn($c) => $c !== ''));
 	}
 }
