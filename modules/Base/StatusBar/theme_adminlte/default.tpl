@@ -1,8 +1,8 @@
 {* #Base_StatusBar (root), #statusbar_text and #dismiss are all targeted
    directly by id from modules/Base/StatusBar/js/main.js - display toggling,
-   Prototype's Effect.Fade, and Epesi.updateIndicator's own hook into this
-   markup (see updateEpesiIndicatorFunction()) - kept exactly as in the
-   default theme, only the box/colours are reskinned.
+   a CSS-transition fade (statusbar_fade_out()), and Epesi.updateIndicator's
+   own hook into this markup (see updateEpesiIndicatorFunction()) - kept
+   exactly as in the default theme, only the box/colours are reskinned.
 
    Base_StatusBarCommon::message() builds a full
    "<div class='message TYPE'>TEXT</div>" string server-side, and js/main.js

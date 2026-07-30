@@ -3,17 +3,28 @@ statusbar_message=function(text){
 	statusbar_message_t=text;
 };
 statusbar_fade_count = 0;
+function statusbar_fade_out(el, seconds) {
+	if (!el) { setTimeout(function(){ statusbar_fade_out(document.getElementById('Base_StatusBar'), seconds); }, 200); return; }
+	var oldOpacity = el.style.opacity;
+	el.style.transition = 'opacity ' + seconds + 's';
+	el.style.opacity = '0';
+	setTimeout(function(){
+		el.style.display = 'none';
+		el.style.opacity = oldOpacity;
+		el.style.transition = '';
+	}, seconds*1000);
+}
 statusbar_fade=function(fade_count){
 	if (fade_count && statusbar_fade_count!=fade_count) return;
 	var seconds = 0.2;
-	wait_while_null('$(\'Base_StatusBar\')','Effect.Fade(\'Base_StatusBar\',{duration:'+seconds+'});');
-	$('Base_StatusBar').onclick = null;
+	statusbar_fade_out(document.getElementById('Base_StatusBar'), seconds);
+	document.getElementById('Base_StatusBar').onclick = null;
 	statusbar_hide_selects('visible');
 	setTimeout('statusbar_fade_double_check('+statusbar_fade_count+')',seconds*1000+50);
 };
 statusbar_fade_double_check = function(fade_count) {
-	if (fade_count && statusbar_fade_count!=fade_count) $('Base_StatusBar').style.display='block';
-	else $('Base_StatusBar').onclick = Function("if(!Epesi.procOn)statusbar_fade();");
+	if (fade_count && statusbar_fade_count!=fade_count) document.getElementById('Base_StatusBar').style.display='block';
+	else document.getElementById('Base_StatusBar').onclick = Function("if(!Epesi.procOn)statusbar_fade();");
 };
 statusbar_hide_selects=function(visibility){
 	if(navigator.userAgent.toLowerCase().indexOf('msie')>=0){
@@ -25,27 +36,27 @@ statusbar_hide_selects=function(visibility){
 updateEpesiIndicatorFunction=function(){
 	Epesi.indicator_text='statusbar_text';
 	Epesi.indicator='Base_StatusBar';
-	statbar = $('Base_StatusBar');
+	statbar = document.getElementById('Base_StatusBar');
 	if (!statbar) {
 		setTimeout('updateEpesiIndicatorFunction();',3000);
 		return;
 	}
-	$('epesiStatus').style.visibility='hidden';
-	$('main_content').style.display='';
+	document.getElementById('epesiStatus').style.visibility='hidden';
+	document.getElementById('main_content').style.display='';
 	statbar.onclick = Function("if(!Epesi.procOn)statusbar_fade();");
 	statbar.style.display='none';
 	Epesi.updateIndicator=function(){
-		statbar = $('Base_StatusBar');
+		statbar = document.getElementById('Base_StatusBar');
 		statusbar_fade_count++;
 		if(Epesi.procOn){
-            $('dismiss').hide();
+            document.getElementById('dismiss').style.display='none';
 			statbar.style.display='block';
 			cache_pause=true;
 			statusbar_hide_selects('hidden');
 		}else{
 			if(statusbar_message_t!='') {
-                $('dismiss').show();
-				t=$('statusbar_text');
+                document.getElementById('dismiss').style.display='';
+				t=document.getElementById('statusbar_text');
 				if(t)t.innerHTML=statusbar_message_t;
 				statusbar_message('');
 				setTimeout('statusbar_fade('+statusbar_fade_count+')',5000);

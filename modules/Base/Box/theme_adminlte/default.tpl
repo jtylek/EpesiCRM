@@ -130,59 +130,6 @@
 		"})();"
 	);
 
-	// Fixes the autocomplete/autoselect suggestion dropdown
-	// (Libs/QuickForm/FieldTypes/autocomplete, e.g. a Contact's "Company
-	// Name" field) rendering far off its input - reported as appearing
-	// below the whole table. Root cause: script.aculo.us's
-	// Ajax.Autocompleter (controls.js) makes its suggestion <div>
-	// position:absolute and sets its top/left via Position.clone(), which
-	// computes the *page-relative* offset of the input field - correct only
-	// if the suggestion div's own containing block is the page/body itself.
-	// But the suggestion div is printed as a plain sibling of the input,
-	// inside RecordBrowser's .data cell, which is position:relative (for
-	// its own unrelated .help icon overlay - View_entry.css) - CSS
-	// position:relative on ANY ancestor establishes a new containing block,
-	// so the computed page-relative top/left ends up applied relative to
-	// that .data cell's own edge instead, landing the dropdown wherever
-	// .data happens to sit on the page (usually far below, deep in a table
-	// row) rather than under the input. Not something a plain CSS override
-	// can fix without breaking .data's own need for position:relative
-	// elsewhere - relocating the suggestion div itself to <body> (this
-	// theme's second use of that technique - see the Logout-relocation
-	// script above) removes the offending ancestor from its containing-
-	// block chain entirely, so Position.clone()'s page-relative math
-	// resolves correctly again. Patches Autocompleter.Base.prototype.show
-	// (not Ajax.Autocompleter's own prototype - Prototype.js's Class.create
-	// does real prototypal inheritance via `new subclass`, not a method
-	// copy, so patching the shared base reaches every subclass, including
-	// Ajax.Autocompleter, without needing to know every place this widget
-	// gets instantiated) to move the update <div> to <body> immediately
-	// before its normal positioning logic runs, wrapping - not replacing -
-	// the original method so its IE-fix/effects logic is untouched.
-	// controls.js loads lazily (only pages with an autocomplete field ever
-	// load_js() it, and possibly after this shell script has already run),
-	// so this waits on the shared wait_while_null() helper (include/
-	// epesi.js) already used elsewhere in this codebase for the same
-	// "patch a class once it exists" need - checked as the bare identifier
-	// "Autocompleter" (safe to typeof-check even if undefined; the dotted
-	// "Autocompleter.Base" is not, if Autocompleter itself doesn't exist
-	// yet).
-	eval_js_once(
-		"wait_while_null('Autocompleter',".
-			"\"(function(){".
-				"if(!Autocompleter.Base||Autocompleter.Base.__epesiPatched)return;".
-				"var origShow=Autocompleter.Base.prototype.show;".
-				"Autocompleter.Base.prototype.show=function(){".
-					"if(this.update&&this.update.parentNode&&this.update.parentNode!==document.body){".
-						"document.body.appendChild(this.update);".
-					"}".
-					"return origShow.apply(this,arguments);".
-				"};".
-				"Autocompleter.Base.__epesiPatched=true;".
-			"})();\"".
-		");"
-	);
-
 	// Below the same 991.98px breakpoint the sidebar itself goes off-canvas
 	// (Base_Box/theme_adminlte/default.css), per request: collapse every
 	// GenericBrowser/RecordBrowser row's own row of action icons (view/edit/

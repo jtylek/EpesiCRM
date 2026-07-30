@@ -21,8 +21,8 @@ hideAllNow = function(menu, submenu) {
 	var tmp_id;
 	for(i = 0; i < a_submenu_number[menu]; i++ ) {
 		tmp_id = sub_name(menu, i);
-		if( is_over[menu][i] == 0 && $(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
-			$(tmp_id).style.display = "none";
+		if( is_over[menu][i] == 0 && document.getElementById(tmp_id) && level[menu][submenu] <= level[menu][i] ) {
+			document.getElementById(tmp_id).style.display = "none";
 			clearTimeout(timeout[menu][i]);
 		}
 	}
@@ -30,16 +30,15 @@ hideAllNow = function(menu, submenu) {
 }
 
 selected_menu_item = function(menu, a_tag) {
-	new Effect.Morph(a_tag, {
-		style: 'background-color: #4FD64F;',
-		duration: 0.3
-	});
-	new Effect.Morph(a_tag, {
-		style: 'background-color: #4F864F;',
-		duration: 0.3,
-		delay: 0.3,
-		afterFinish: function() {a_tag.style.backgroundColor = "";}
-	});
+	a_tag.style.transition = 'background-color 0.3s';
+	a_tag.style.backgroundColor = '#4FD64F';
+	setTimeout(function(){
+		a_tag.style.backgroundColor = '#4F864F';
+		setTimeout(function(){
+			a_tag.style.backgroundColor = '';
+			a_tag.style.transition = '';
+		}, 300);
+	}, 300);
 	setTimeout("hideAllNow(\'"+menu+"\', 0);", 600);
 }
 
@@ -53,7 +52,7 @@ custom_show = function(menu, submenu) {
 	}
 	var id = sub_name(menu, submenu);
 	var opener = opener_name(menu, submenu);
-	var elem = $(id);
+	var elem = document.getElementById(id);
 
 	elem.style.opacity = 1;
 	elem.style.display  = "block";
@@ -71,14 +70,14 @@ custom_show = function(menu, submenu) {
 
 custom_hide_f = function(menu, submenu, opacity) {
 	var id = sub_name(menu, submenu);
-	if( $(id) ) {
+	if( document.getElementById(id) ) {
 		if(opacity <= 0) {
 			clearTimeout(timeout[menu][submenu]);
-			$(id).className = "submenu";
-			$(id).style.opacity = 1;
-			$(id).style.display = "none";
+			document.getElementById(id).className = "submenu";
+			document.getElementById(id).style.opacity = 1;
+			document.getElementById(id).style.display = "none";
 		} else {
-			$(id).style.opacity = opacity;
+			document.getElementById(id).style.opacity = opacity;
 			timeout[menu][submenu] = setTimeout('custom_hide_f(\''+menu+'\', '+submenu+', '+eval(opacity-0.10)+')', 15);
 		}
 	}
@@ -219,5 +218,5 @@ writeOut = function(menu) {
 	if( layout[menu] == 'horizontal' ) {
 		menu_string[menu] += '</tr>';
 	}
-	$('menu_contener_' + menu).innerHTML = menu_string[menu] + '</table>' ;
+	document.getElementById('menu_contener_' + menu).innerHTML = menu_string[menu] + '</table>' ;
 }

@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-require_once('Renderer/TCMSArraySmarty.php');
+require_once('include/EpesiSmartyRenderer.php');
 require_once('Renderer/TCMSDefault.php');
 
 $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
@@ -144,7 +144,7 @@ class Libs_QuickForm extends Module {
 	}
 
 	public function assign_theme($name, & $theme, &$renderer=null){ 
-		if(!isset($renderer)) $renderer = new HTML_QuickForm_Renderer_TCMSArraySmarty(); 
+		if(!isset($renderer)) $renderer = new EpesiSmartyRenderer();
 		$this->accept($renderer); 
 		$form_data = $renderer->toArray();
 		// column.tpl/row.tpl do {foreach from=$form_data.header} with no isset

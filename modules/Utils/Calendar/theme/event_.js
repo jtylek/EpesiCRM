@@ -8,5 +8,15 @@ function event_menu(event_id) {
 	}
 	menu.clonePosition(ev,{setHeight: false, setWidth: false, offsetLeft: 20});
 
-	Effect.toggle(menu, 'appear', {duration:0.3});
+	if (menu.style.display === 'none') {
+		menu.style.display = '';
+		menu.style.opacity = '0';
+		menu.style.transition = 'opacity 0.3s';
+		requestAnimationFrame(function(){ menu.style.opacity = '1'; });
+		setTimeout(function(){ menu.style.transition=''; }, 300);
+	} else {
+		menu.style.transition = 'opacity 0.3s';
+		menu.style.opacity = '0';
+		setTimeout(function(){ menu.style.display='none'; menu.style.opacity=''; menu.style.transition=''; }, 300);
+	}
 }

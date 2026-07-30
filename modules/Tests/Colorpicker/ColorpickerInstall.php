@@ -25,8 +25,7 @@ class Tests_ColorpickerInstall extends ModuleInstall {
 	}
 	
 	public function requires($v) {
-		return array(
-			array('name'=>Libs_ScriptAculoUsInstall::module_name(),'version'=>0));
+		return array();
 	}
 	
 	public static function info() {

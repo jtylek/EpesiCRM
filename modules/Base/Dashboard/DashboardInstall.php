@@ -115,7 +115,6 @@ class Base_DashboardInstall extends ModuleInstall {
 			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
 			array('name'=>Libs_CKEditorInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
-			array('name'=>Libs_ScriptAculoUsInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0));
 	}
 
