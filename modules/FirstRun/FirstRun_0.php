@@ -24,7 +24,12 @@ class FirstRun extends Module {
             return;
         }
         Base_LangCommon::load();
-        
+
+        // FirstRun renders directly via Base_Theme, bypassing Base_Box (the
+        // usual call site for this) since no box/menu chrome exists yet -
+        // so it has to ask for the adminlte CSS/JS itself.
+        Base_ThemeCommon::load_theme_assets();
+
 		$th = $this->init_module(Base_Theme::module_name());
 		ob_start();
 		print('<center>');

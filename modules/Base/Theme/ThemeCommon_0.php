@@ -106,8 +106,10 @@ class Base_ThemeCommon extends ModuleCommon {
 		static $theme;
 		if(!isset($theme)) {
 			// Base_Theme may not be installed yet (e.g. this runs during the
-			// pre-module-install splash on a brand new setup).
-			$theme = Variable::get('default_theme', false) ?: 'default';
+			// pre-module-install splash on a brand new setup, or FirstRun's
+			// admin-creation wizard, which both run before ThemeInstall.php
+			// has had a chance to persist 'adminlte' as default_theme).
+			$theme = Variable::get('default_theme', false) ?: 'adminlte';
 			// A theme no longer needs a directory under data/ to be valid - it can
 			// live entirely in modules/<Mod>/theme_<name>/. Checked directly rather
 			// than via Base_Theme::list_themes() because this runs early enough in

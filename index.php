@@ -95,7 +95,7 @@ $smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
 // Same Variable::get() + directory/glob check that method itself uses.
 // Variable::get(..., false) doesn't throw - Base_Theme may not be installed
 // yet (e.g. this splash renders before any module does, on a brand new setup).
-$default_theme = Variable::get('default_theme', false) ?: 'default';
+$default_theme = Variable::get('default_theme', false) ?: 'adminlte';
 if ($default_theme !== 'default'
         && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
         && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
