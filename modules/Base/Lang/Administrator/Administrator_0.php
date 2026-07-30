@@ -108,8 +108,6 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 
 		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'new_langpack'))
 			Base_ActionBarCommon::add('add',__('New langpack'),$this->create_callback_href($this->new_lang_pack(...)));
-		if (Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
-			Base_ActionBarCommon::add('refresh',__('Refresh languages'),$this->create_callback_href(array('Base_LangCommon','refresh_cache')));
 
 		$form2 = $this->init_module(Libs_QuickForm::module_name(),null,'translaction_filter');
 		$form2->addElement('select','lang_filter',__('Filter'),array(__('Show all'), __('Show with custom translation'), __('Show with translation'), __('Show without translation')), array('onchange'=>$form2->get_submit_form_js()));

@@ -667,24 +667,15 @@ class Base_Setup extends Module {
 			}
 
         //install
-		// Batches the whole loop's translation-cache rebuild into one pass
-		// at the end (see Base_LangCommon::begin_bulk_install()) instead of
-		// once per module - a single module with several uninstalled
-		// dependencies otherwise re-ran that full rescan once per install.
-		Base_LangCommon::begin_bulk_install();
-		try {
-			foreach($install as $i=>$v) {
-				$post_install[$i] = $v;
-	            if(isset($uninstall[$i])) {
-	                if (!ModuleManager::install($i,$v,true,false))
-	                    return false;
-	            } else {
-	                if (!ModuleManager::install($i,$v))
-	                    return false;
-	            }
-			}
-		} finally {
-			Base_LangCommon::end_bulk_install();
+		foreach($install as $i=>$v) {
+			$post_install[$i] = $v;
+            if(isset($uninstall[$i])) {
+                if (!ModuleManager::install($i,$v,true,false))
+                    return false;
+            } else {
+                if (!ModuleManager::install($i,$v))
+                    return false;
+            }
 		}
 		$processed = ModuleManager::get_processed_modules();
 		$this->set_module_variable('post-install',$processed['install']);

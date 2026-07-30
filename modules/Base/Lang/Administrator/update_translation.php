@@ -23,7 +23,11 @@ $original = htmlspecialchars($_POST['original']);
 $new = htmlspecialchars($_POST['new']);
 $lang = $_SESSION['client']['base_lang_administrator']['currently_translating'];
 
-Base_LangCommon::append_custom($lang, array($original => $new));
-Base_Lang_AdministratorCommon::send_translation($lang, $original, $new);
+Base_LangCommon::load($lang);
+$module = Base_LangCommon::get_translation_module($original);
+if ($module) {
+	Base_LangCommon::append_custom($module, $lang, array($original => $new));
+	Base_Lang_AdministratorCommon::send_translation($lang, $original, $new);
+}
 
 ?>

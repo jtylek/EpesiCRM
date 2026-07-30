@@ -574,77 +574,64 @@ class ModuleManager {
 		if (!self :: exists($module_class_name))
 			return false;
 
-		// Installing this module can cascade into installing several
-		// not-yet-satisfied dependencies below (satisfy_dependencies() calls
-		// this same install() recursively), each of which would otherwise
-		// run Base_LangCommon's full update_translations() rescan on its
-		// own. begin_bulk_install()/end_bulk_install() use a nesting-depth
-		// counter (see LangCommon_0.php), so it's safe that nested install()
-		// calls wrap themselves the same way: the rescan only actually runs
-		// once, when the outermost install() call in the cascade finishes.
-		Base_LangCommon::begin_bulk_install();
-		try {
-			//check dependecies
-			if(!self::satisfy_dependencies($module_class_name,$version,$check)) {
-				print('<b>' . $module_class_name . '</b>' . ': dependencies not satisfied.<br>');
-				return false;
-			}
+		//check dependecies
+		if(!self::satisfy_dependencies($module_class_name,$version,$check)) {
+			print('<b>' . $module_class_name . '</b>' . ': dependencies not satisfied.<br>');
+			return false;
+		}
 
-			if(DB::is_mysql())
-				DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
-			//call install script and fill database
-			if(!call_user_func(array (
+		if(DB::is_mysql())
+			DB::Execute('SET FOREIGN_KEY_CHECKS = 0');
+		//call install script and fill database
+		if(!call_user_func(array (
+			self::$modules_install[$module_class_name],
+			'install'
+		))) {
+			call_user_func(array (
 				self::$modules_install[$module_class_name],
-				'install'
-			))) {
-				call_user_func(array (
-					self::$modules_install[$module_class_name],
-					'uninstall'
-				));
-				self::remove_data_dir($module_class_name);
-				print('<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
-				if(DB::is_mysql())
-					DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
-				return false;
-			}
+				'uninstall'
+			));
+			self::remove_data_dir($module_class_name);
+			print('<b>' . $module_class_name . '</b>' . ': uninstalled<br>');
 			if(DB::is_mysql())
 				DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
+			return false;
+		}
+		if(DB::is_mysql())
+			DB::Execute('SET FOREIGN_KEY_CHECKS = 1');
 
-			$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_class_name);
-			if (!$ret) {
-				print ('<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
+		$ret = DB::Execute('insert into modules(name, version) values(%s,0)', $module_class_name);
+		if (!$ret) {
+			print ('<b>' . $module_class_name . '</b>' . ' module installation failed: database<br>');
+			return false;
+		}
+
+		self::register($module_class_name, $version, self::$modules);
+
+		PatchUtil::mark_applied($module_class_name);
+
+		if ($check) {
+			self::create_load_priority_array();
+		}
+
+		print ('<b>' . $module_class_name . '</b>' . ' module installed!<br>');
+
+		if($version!=0) {
+			$up = self::upgrade($module_class_name, $version);
+			if(!$up) {
 				return false;
 			}
-
-			self::register($module_class_name, $version, self::$modules);
-
-			PatchUtil::mark_applied($module_class_name);
-
-			if ($check) {
-				self::create_load_priority_array();
-			}
-
-			print ('<b>' . $module_class_name . '</b>' . ' module installed!<br>');
-
-			if($version!=0) {
-				$up = self::upgrade($module_class_name, $version);
-				if(!$up) {
-					return false;
-				}
-			}
-
-			if($include_common) {
-				self::include_common($module_class_name,$version);
-	//    		self::create_common_cache();
-			}
-			if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
-			Cache::clear();
-
-			self::$processed_modules['install'][$module_class_name] = $version;
-			return true;
-		} finally {
-			Base_LangCommon::end_bulk_install();
 		}
+
+		if($include_common) {
+			self::include_common($module_class_name,$version);
+	//    		self::create_common_cache();
+		}
+		if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
+		Cache::clear();
+
+		self::$processed_modules['install'][$module_class_name] = $version;
+		return true;
 	}
 
 	public static function get_required_modules($name,$version)

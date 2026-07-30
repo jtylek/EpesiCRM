@@ -884,7 +884,6 @@ class EpesiUpdate
         $this->turn_on_maintenance_mode();
 
         Base_ThemeCommon::themeup();
-        Base_LangCommon::update_translations();
         ModuleManager::create_load_priority_array();
 
         Variable::set('version', EPESI_VERSION);

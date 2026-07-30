@@ -231,11 +231,6 @@ class FirstRun extends Module {
 		Base_ThemeCommon::create_cache();
 		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
-		$t = microtime(true);
-		epesi_log(date('Y-m-d H:i:s').': Updating translation files ...'."\n",'firstrun.log');
-		Base_LangCommon::update_translations();
-		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
-
 		$processed = ModuleManager::get_processed_modules();
 
         $_SESSION['first-run_post-install'] = $processed['install'];

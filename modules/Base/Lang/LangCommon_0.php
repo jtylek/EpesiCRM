@@ -46,16 +46,9 @@ class Base_LangCommon extends ModuleCommon {
 			$translated = $translations[$original];
 		else
 			$translated = $original;
-		
+
 		if (isset($custom_translations[$original]) && $custom_translations[$original] && $translate)
 			$translated = $custom_translations[$original];
-			
-		if (!isset($translations[$original]) && !isset($custom_translations[$original])) {
-			$custom_translations[$original] = '';
-            if (self::$loaded) {
-                Base_LangCommon::append_custom(null, array($original => ''));
-            }
-		}
 
 		$translated = @vsprintf($translated,$arg);
 		if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
@@ -279,86 +272,92 @@ class Base_LangCommon extends ModuleCommon {
     }
 
 	/**
-	 * For internal use only.
+	 * Writes a custom translation override into the owning module's own
+	 * lang/<code>_custom.php file (created on first write). Clears that
+	 * language's merged cache so the edit is visible on the next request.
 	 */
-	public static function update_translations() {
-		global $translations;
-		set_time_limit(0);
-		$ret = DB::Execute('SELECT * FROM modules');
-		$trans_backup = $translations;
-		$trans = array();
-		while($row = $ret->FetchRow()) {
-			$mod_name = $row['name'];
-			if ($mod_name=='Base') continue;
-			if ($mod_name=='Tests') continue;
-			$directory = 'modules/'.str_replace('_','/',$mod_name).'/lang';
-			if (!is_dir($directory)) continue;
-			$content = scandir($directory);
-			foreach ($content as $name){
-				if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
-				$dot = strpos($name,'.');
-				$langcode = substr($name,0,$dot);
-				if (strtolower(substr($name,$dot+1))!='php') continue;
-				if(!isset($trans[$langcode]))
-					$trans[$langcode] = array();
-				$translations = $trans[$langcode];
-				ob_start();
-				include($directory.'/'.$name);
-				ob_get_clean();
-				$trans[$langcode] = $translations;
-			}
-		}	
-		foreach($trans as $langcode=>$ttt) {
-			Base_LangCommon::save_base($langcode, $ttt);
-		}
-		$translations = $trans_backup;
-        self::refresh_cache();
-	}
-	
-	public static function append_base($lang, $arr) {
-		self::append('base', $lang, $arr);
-	}
-	public static function append_custom($lang, $arr) {
-		self::append('custom', $lang, $arr);
-	}
-	private static function append($to='base', $lang = null, $arr = null) {
-		if ($to!=='base') $to = 'custom';
-		if ($lang===null) $lang = self::get_lang_code();
-		if (!$lang) return;
-		$exists = file_exists(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php');
-		$f = @fopen(DATA_DIR.'/Base_Lang/'.$to.'/'.$lang.'.php', 'a');
+	public static function append_custom($module, $lang, $arr) {
+		if (!$module || !$lang) return false;
+		$dir = 'modules/'.str_replace('_','/',$module).'/lang';
+		if (!is_dir($dir)) return false;
+		$file = $dir.'/'.$lang.'_custom.php';
+		$exists = file_exists($file);
+		$f = @fopen($file, 'a');
 		if(!$f)	return false;
 		if(!$exists) fwrite($f,"<?php\n".'global $custom_translations;'."\n");
 		if (flock($f, LOCK_EX)) {
 			foreach($arr as $k=>$v)
-				fwrite($f, '$'.($to=='custom'?'custom_':'').'translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+				fwrite($f, '$custom_translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
 
 			flock($f, LOCK_UN);
 			fclose($f);
 		}
+		Cache::clear('lang_merged_'.$lang);
 		return true;
 	}
 
 	/**
-	 * For internal use only.
+	 * Merges every installed module's lang/<code>.php (defaults) and
+	 * lang/<code>_custom.php (overrides) for the given language, the same
+	 * way module code itself is merged per request via
+	 * ModuleManager::get_load_priority_array() - no build step, no on-disk
+	 * cache file. The legacy single-file data/Base_Lang/custom/<code>.php
+	 * from before per-module custom files existed is still merged in, at
+	 * lower precedence than the per-module files, so translations made
+	 * before this change aren't lost; it is never written to again.
+	 *
+	 * @return array [$translations, $custom_translations, $translation_module]
 	 */
-	public static function save_base($lang = null, $arr = array()) {
-		global $translations;
-		//save translations file
-		if (!isset($lang)) $lang = self::get_lang_code();
-		$f = @fopen(DATA_DIR.'/Base_Lang/base/'.$lang.'.php', 'w');
-		if(!$f)	return false;
+	private static function build_merge($lang_code) {
+		global $translations, $custom_translations;
+		$translations_backup = $translations;
+		$custom_backup = $custom_translations;
 
-		fwrite($f, "<?php\n");
-		fwrite($f, "/**\n * Translation file.\n * @package epesi-translations\n * @subpackage $lang\n */\n");
-		fwrite($f, 'global $translations;'."\n");
-		foreach($arr as $k=>$v) {
-		        if(is_array($v) || is_array($k)) continue;
-			fwrite($f, '$translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+		$merged_translations = array();
+		$merged_custom = array();
+		$translation_module = array();
+
+		$modules = ModuleManager::get_load_priority_array();
+		if ($modules) foreach ($modules as $row) {
+			$module = $row['name'];
+			$dir = 'modules/'.str_replace('_','/',$module).'/lang';
+
+			$file = $dir.'/'.$lang_code.'.php';
+			if (file_exists($file)) {
+				$translations = array();
+				ob_start();
+				include($file);
+				ob_get_clean();
+				foreach ($translations as $k=>$v) {
+					$merged_translations[$k] = $v;
+					$translation_module[$k] = $module;
+				}
+			}
+
+			$custom_file = $dir.'/'.$lang_code.'_custom.php';
+			if (file_exists($custom_file)) {
+				$custom_translations = array();
+				ob_start();
+				include($custom_file);
+				ob_get_clean();
+				foreach ($custom_translations as $k=>$v)
+					$merged_custom[$k] = $v;
+			}
 		}
 
-		fclose($f);
-		return true;
+		$legacy_file = DATA_DIR.'/Base_Lang/custom/'.$lang_code.'.php';
+		if (file_exists($legacy_file)) {
+			$custom_translations = array();
+			include($legacy_file);
+			foreach ($custom_translations as $k=>$v)
+				if (!isset($merged_custom[$k]) || (!$merged_custom[$k] && $v))
+					$merged_custom[$k] = $v;
+		}
+
+		$translations = $translations_backup;
+		$custom_translations = $custom_backup;
+
+		return array($merged_translations, $merged_custom, $translation_module);
 	}
 
 	/**
@@ -372,27 +371,28 @@ class Base_LangCommon extends ModuleCommon {
             $lang_code = self::get_lang_code();
 		if (!$lang_code) return;
 
-		$translations = array();
-		$custom_translations = array();
+		$cached = Cache::get('lang_merged_'.$lang_code);
+		if ($cached === null) {
+			$cached = self::build_merge($lang_code);
+			Cache::set('lang_merged_'.$lang_code, $cached);
+		}
+		list($translations, $custom_translations, self::$translation_module) = $cached;
 
-        $file = DATA_DIR . '/Base_Lang/base/' . $lang_code . '.php';
-        if (file_exists($file)) {
-            include($file);
-        }
-		if(!is_array($translations))
-			$translations=array();
-
-        $file = DATA_DIR . '/Base_Lang/custom/' . $lang_code . '.php';
-        if (file_exists($file)) {
-            include($file);
-        }
-		if(!is_array($custom_translations))
-			$custom_translations=array();
-		
 		self::$loaded = true;
 		eval_js_once('Epesi.default_indicator="'.__('Loading...').'";');
 	}
-	
+
+	/**
+	 * Returns the module that owns the given original string in the
+	 * currently loaded language, or null if unknown - used by the
+	 * translation admin UI to know which module's lang/<code>_custom.php
+	 * an edit belongs in.
+	 */
+	public static function get_translation_module($original) {
+		return self::$translation_module[$original] ?? null;
+	}
+
+	private static $translation_module = array();
 	private static $lang_code;
 	private static $loaded = false;
 
@@ -420,106 +420,41 @@ class Base_LangCommon extends ModuleCommon {
 		return self::$lang_code;
 	}
 
-	// Nesting depth of the current install/upgrade batch (see
-	// begin_bulk_install()/end_bulk_install()) so install_translations()'s
-	// full update_translations() rescan - already limited to installed
-	// modules (it reads the 'modules' DB table), but still O(installed
-	// modules) x O(every lang file in each) - runs once when the outermost
-	// batch finishes instead of once per module installed. A depth counter
-	// (not a bool) is required because ModuleManager::install() wraps itself
-	// in begin/end_bulk_install() and calls itself recursively for each
-	// unsatisfied dependency (see satisfy_dependencies()): a bool would have
-	// the first-finishing dependency's end_bulk_install() fire the rescan
-	// and reset the flag while sibling/outer installs are still in
-	// progress, right back to one rescan per module.
-	private static $bulk_install_depth = 0;
-
-	public static function begin_bulk_install() {
-		self::$bulk_install_depth++;
-	}
-
-	// Safe to call even if begin_bulk_install() was never called (e.g. a
-	// single standalone module install) - just runs the rescan once, same
-	// as install_translations() would have done inline.
-	public static function end_bulk_install() {
-		if (self::$bulk_install_depth > 0) self::$bulk_install_depth--;
-		if (self::$bulk_install_depth === 0) self::update_translations();
-	}
-
 	/**
-	 * For internal use only.
-	 */
-	public static function install_translations($mod_name,$lang_dir='lang') {
-		global $translations;
-		$directory = 'modules/'.str_replace('_','/',$mod_name).'/'.$lang_dir;
-		if (!is_dir($directory)) return;
-		$content = scandir($directory);
-		$trans_backup = $translations;
-		if (self::$bulk_install_depth === 0) self::update_translations(); // cleanup translations file
-		foreach ($content as $name){
-			if($name == '.' || $name == '..' || preg_match('/^[\.~]/',$name)) continue;
-			$langcode = substr($name,0,strpos($name,'.'));
-			$translations = array(); // prepare to receive translations
-			include($directory.'/'.$name); // read translations
-			Base_LangCommon::append_base($langcode, $translations); // extend base translations
-		}
-		$translations = $trans_backup;
-		if (self::$bulk_install_depth === 0) self::refresh_cache();
-	}
-
-	/**
-	 * For internal use only.
+	 * Registers a new language code as installed. There's nothing to seed
+	 * on disk for it - a language with no per-module custom files yet is
+	 * already valid, it just falls back to defaults everywhere.
 	 */
 	public static function new_langpack($code) {
-		file_put_contents(DATA_DIR.'/Base_Lang/base/'.$code.'.php',file_get_contents(DATA_DIR.'/Base_Lang/base/en.php'));
-		file_put_contents(DATA_DIR.'/Base_Lang/custom/'.$code.'.php','<?php'."\n".'global $custom_translations;'."\n");
-		self::refresh_cache();
+		$codes = self::get_installed_lang_codes();
+		if (!in_array($code, $codes)) {
+			$codes[] = $code;
+			Variable::set('installed_langs', implode(',', $codes));
+		}
 	}
 
 	/**
 	 * For internal use only.
 	 */
 	public static function get_langpack($code, $s='base') {
-		if (!is_file(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php')) return array();
-		global $translations;
-		global $custom_translations;
-		if ($s=='base')
-			$translations = array();
-		else
-			$custom_translations = array();
-		include(DATA_DIR.'/Base_Lang/'.$s.'/'.$code.'.php');
-		if ($s=='base') {
-			$langpack = $translations;
-			$translations = array();
-		} else {
-			$langpack = $custom_translations;
-			$custom_translations = array();
-		}
-		include_once(DATA_DIR.'/Base_Lang/'.$s.'/'.self::get_lang_code().'.php');
-		return $langpack;
-	}
-
-	public static function refresh_cache() {
-        if (!file_exists(DATA_DIR.'/Base_Lang/base')) return;
-		$ls_langs = scandir(DATA_DIR.'/Base_Lang/base');
-		$langs = array();
-		foreach ($ls_langs as $entry)
-			if (pathinfo($entry, PATHINFO_EXTENSION) == 'php') {
-				$lang = basename($entry, '.php');
-				$langs[] = $lang;
-			}
-		file_put_contents(DATA_DIR.'/Base_Lang/cache',implode(',',$langs));
+		if (!in_array($code, self::get_installed_lang_codes())) return array();
+		$merged = self::build_merge($code);
+		return $s === 'base' ? $merged[0] : $merged[1];
 	}
 
 	public static function get_installed_langs() {
-		$ls_langs = explode(',',@file_get_contents(DATA_DIR.'/Base_Lang/cache'));
         $all_langs = self::get_all_languages();
         $ret = array();
-        foreach ($ls_langs as $lang_code) {
+        foreach (self::get_installed_lang_codes() as $lang_code) {
             if (isset($all_langs[$lang_code]))
                 $ret[$lang_code] = $all_langs[$lang_code] . " ($lang_code)";
         }
 		return $ret;
+	}
+
+	private static function get_installed_lang_codes() {
+		$codes = explode(',', Variable::get('installed_langs', ''));
+		return array_values(array_filter($codes, fn($c) => $c !== ''));
 	}
 }
 

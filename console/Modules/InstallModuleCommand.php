@@ -39,8 +39,6 @@ class InstallModuleCommand extends Command
             return Command::SUCCESS;
         }
 
-        // ModuleManager::install() batches its own dependency cascade's
-        // translation-rescan internally - see its begin_bulk_install() comment.
         $installed = ModuleManager::install($module['name']);
 
         if ($installed) {

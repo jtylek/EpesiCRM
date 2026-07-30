@@ -524,9 +524,6 @@ class Base_EpesiStore extends Module {
 
     public function _install_module($module) {
         $module = str_replace('/', '_', $module);
-        // ModuleManager::install() batches its own dependency cascade's
-        // translation-rescan internally now - see its begin_bulk_install()
-        // comment - so a plain call is enough here.
         ModuleManager::install($module);
     }
 
