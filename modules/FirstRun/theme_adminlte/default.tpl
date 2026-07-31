@@ -10,10 +10,15 @@
 		</div>
 	</div>
 	<div class="text-center firstrun-footer">
-		<a href="https://epe.si" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
-		<div class="text-muted small mt-2">Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek</div>
+		<a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
+		<div class="text-muted small mt-2">Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek and Karina Tylek</div>
 	</div>
 </div>
 {php}
 eval_js_once('document.body.id=\'FirstRun\'');
+// Runs fresh on every step (unlike the once-only call above) since each
+// wizard page swaps in different fields - without this, focus is left
+// wherever the previous step's submit left it, so the caret (see
+// theme_adminlte/default.css) appears to be floating over the wrong control.
+eval_js('var el=document.querySelector(\'#FirstRun table#quickform input[type="text"], #FirstRun table#quickform input[type="password"], #FirstRun table#quickform select, #FirstRun table#quickform textarea\'); if(el) el.focus();');
 {/php}

@@ -7,7 +7,7 @@
    than by changing the renderer. */
 
 body#FirstRun {
-	background-color: #f4f6f9;
+	background-color: #fff;
 	font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 	font-size: 0.875rem;
 }
@@ -21,6 +21,19 @@ body#FirstRun {
 #FirstRun .firstrun-card {
 	border-radius: 0.5rem;
 	border: 1px solid #dee2e6;
+	background-color: #f1f3f5;
+	box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .15) !important;
+}
+
+/* Bold, block-shaped caret so it's obvious which field has focus - default.tpl
+   autofocuses the page's first input/select on load, so this caret is the
+   one landing there, not a stray leftover from a previous step. caret-shape
+   is Safari-only today; unsupported browsers just keep the normal thin bar. */
+#FirstRun table#quickform input,
+#FirstRun table#quickform select,
+#FirstRun table#quickform textarea {
+	caret-color: #0d6efd;
+	caret-shape: block;
 }
 
 #FirstRun .firstrun-footer {
