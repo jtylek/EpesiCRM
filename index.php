@@ -33,13 +33,33 @@ require_once('include/error.php');
 require_once('include/misc.php');
 require_once('include/database.php');
 require_once('include/variables.php');
+$tables = DB::MetaTables();
+if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
+	// Same reasoning/self-contained styling as maintenance_mode.php's die()
+	// page just above this in the require chain: Smarty/the theme system
+	// aren't loaded yet at this point, so this can't link an external
+	// stylesheet - everything needed is inlined here instead.
+	die('<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" />'
+		. '<meta name="viewport" content="width=device-width, initial-scale=1" />'
+		. '<title>Database Not Ready</title><style>'
+		. 'body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;'
+		. 'background-color:#f4f6f9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:#212529;}'
+		. '.card{background:#fff;border-radius:0.5rem;box-shadow:0 0.5rem 1.5rem rgba(0,0,0,0.15);'
+		. 'padding:2.5rem 2rem;max-width:28rem;width:90%;text-align:center;}'
+		. '.icon{width:4rem;height:4rem;margin:0 auto 1.25rem;border-radius:50%;background-color:#fdecea;'
+		. 'display:flex;align-items:center;justify-content:center;font-size:1.75rem;line-height:1;}'
+		. 'h1{font-size:1.35rem;font-weight:600;margin:0 0 0.75rem;}'
+		. 'p{margin:0;line-height:1.5;color:#495057;}'
+		. '</style></head><body><div class="card">'
+		. '<div class="icon">&#9888;</div>'
+		. '<h1>Database structure out of date or damaged</h1>'
+		. '<p>If you didn\'t perform an application update recently, you should try to restore the database. '
+		. 'Otherwise, please refer to the EPESI documentation to perform a database update.</p>'
+		. '</div></body></html>');
 if(epesi_requires_update()) {
     header('Location: update.php');
     exit();
 }
-$tables = DB::MetaTables();
-if(!in_array('modules',$tables) || !in_array('variables',$tables) || !in_array('session',$tables))
-	die('Database structure you are using is apparently out of date or damaged. If you didn\'t perform application update recently you should try to restore the database. Otherwise, please refer to EPESI documentation in order to perform database update.');
 
 ob_start();
 
@@ -97,7 +117,6 @@ $smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
 // yet (e.g. this splash renders before any module does, on a brand new setup).
 $default_theme = Variable::get('default_theme', false) ?: 'adminlte';
 if ($default_theme !== 'default'
-        && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$default_theme)
         && !glob('modules/*/*/theme_'.$default_theme, GLOB_ONLYDIR)
         && !glob('modules/*/*/*/theme_'.$default_theme, GLOB_ONLYDIR))
 	$default_theme = 'default';
