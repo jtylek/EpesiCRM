@@ -238,15 +238,49 @@ class Apps_Shoutbox extends Module {
     		$theme = $this->init_module(Base_Theme::module_name());
 		    $qf->assign_theme('form', $theme);
 
-		    //confirm when sending messages to all
-		   eval_js("jq('#shoutbox_button, #shoutbox_button_big').click(function() {
-      					var submit = true;
-		    			if (jq('#shoutbox_to').val() == 'all' && !confirm('".__('Send message to all?')."')) {
-         					submit = false;
-      					}
-		    
-		    			return submit;		    			
-					});");
+		    //confirm when sending messages to all: an AdminLTE-styled Bootstrap
+		    //modal, injected once and shared by both the small (applet) and big
+		    //(Chat tab) forms. bootstrap is only ever loaded for the adminlte
+		    //theme (Base_ThemeCommon::load_theme_assets()), so its absence is
+		    //exactly the signal to fall back to plain confirm() for the default
+		    //theme.
+		    $confirm_modal_html = '<div class="modal fade" id="Apps_Shoutbox__confirm_all_modal" tabindex="-1" aria-hidden="true">'
+		    		.'<div class="modal-dialog modal-dialog-centered">'
+		    			.'<div class="modal-content">'
+		    				.'<div class="modal-header">'
+		    					.'<h5 class="modal-title"><i class="bi bi-megaphone-fill me-2"></i>'.__('Shoutbox').'</h5>'
+		    					.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+		    				.'</div>'
+		    				.'<div class="modal-body">'
+		    					.'<p class="mb-0">'.__('Send message to all?').'</p>'
+		    				.'</div>'
+		    				.'<div class="modal-footer">'
+		    					.'<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">'.__('Cancel').'</button>'
+		    					.'<button type="button" class="btn btn-primary" id="Apps_Shoutbox__confirm_all_send"><i class="bi bi-send-fill me-1"></i>'.__('Send').'</button>'
+		    				.'</div>'
+		    			.'</div>'
+		    		.'</div>'
+		    	.'</div>';
+		    eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
+		    		.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
+		    		.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
+		    			.'var m=bootstrap.Modal.getInstance(document.getElementById(\'Apps_Shoutbox__confirm_all_modal\'));'
+		    			.'if(m)m.hide();'
+		    			.'if(window.Apps_Shoutbox__pendingForm)window.Apps_Shoutbox__pendingForm.onsubmit();'
+		    		.'});'
+		    	.'}');
+		    //bound with a namespaced handler (rather than the plain .click() the
+		    //original used) so re-running this eval_js on a re-render can't stack
+		    //duplicate listeners onto elements the DOM replace didn't actually swap.
+		    eval_js('jq("#shoutbox_button, #shoutbox_button_big").off("click.Apps_Shoutbox_confirmAll").on("click.Apps_Shoutbox_confirmAll",function(){'
+		    		.'var toId=(this.id==="shoutbox_button_big")?"shoutbox_to_big":"shoutbox_to";'
+		    		.'if(jq("#"+toId).val()!=="all")return true;'
+		    		.'var modalEl=document.getElementById("Apps_Shoutbox__confirm_all_modal");'
+		    		.'if(!modalEl||typeof bootstrap==="undefined")return confirm('.json_encode(__('Send message to all?')).');'
+		    		.'window.Apps_Shoutbox__pendingForm=this.form;'
+		    		.'bootstrap.Modal.getOrCreateInstance(modalEl).show();'
+		    		.'return false;'
+		    	.'});');
 		   
 			//if submited
 			if($qf->validate()) {
