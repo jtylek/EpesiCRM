@@ -16,6 +16,14 @@ class Base_User_Settings extends Module {
     private $set_default_js;
     private static $sep = "__";
     private $indicator = '';
+    // One entry per add_module_settings_to_form() call (a branch can be fed
+    // by several modules), each the module's final $info array in original
+    // definition order (header/group/field markers, post the hidden-field
+    // unset()) - display_adminlte() needs this because EpesiSmartyRenderer's
+    // renderHeader() buckets every header into one shared $raw['header']
+    // out of sequence, so it's the only place header-to-field position
+    // survives at all.
+    private $adminlte_infos = array();
 
     public function admin() {
         $this->body(null,true);
@@ -57,6 +65,7 @@ class Base_User_Settings extends Module {
         $this->indicator = ': '.$branch;
         $this->settings_fields = array();
         $this->set_default_js = '';
+        $this->adminlte_infos = array();
 
         $us = ModuleManager::call_common_methods('user_settings');
         foreach($us as $name=>$menu) {
@@ -90,17 +99,39 @@ class Base_User_Settings extends Module {
     /**
      * AdminLTE rendering of the generic settings-branch form built above -
      * shared by every "My settings"/admin settings screen (Base_User_Settings
-     * is the one module behind all of them). PEAR QuickForm's own group
-     * rendering (used for radio groups and for the multi-checkbox rows built
-     * by Base_Menu_QuickAccessCommon::user_settings()) concatenates each
-     * child element's rendered html into one string with no per-child
-     * breakdown available from EpesiSmartyRenderer's array form - so a group
-     * that turns out to be nothing but a uniform row of checkboxes (only
-     * Quick Access does this today) is detected and re-split back into
-     * individual cells by regex, letting it be shown as a real table with one
-     * shared header row instead of repeating each column's caption on every
-     * row. Any group that doesn't match that exact shape (or any plain
-     * field) just falls back to an ordinary label/value row.
+     * is the one module behind all of them).
+     *
+     * Two things this reconstructs that EpesiSmartyRenderer::toArray() loses:
+     *
+     * 1. Header position. renderHeader() buckets every header element into
+     *    one shared $raw['header'] array instead of leaving it in sequence
+     *    with the fields around it, so which fields a given header actually
+     *    precedes can't be read back from $raw at all - it has to come from
+     *    $this->adminlte_infos (the original user_settings() definitions,
+     *    still in their original order, captured in
+     *    add_module_settings_to_form()). $header_positions below records,
+     *    for each header, how many non-header fields/groups came before it;
+     *    walking $raw's own (otherwise-correct) element order and splicing
+     *    a header in wherever its count is reached reunites the two.
+     *
+     * 2. Column identity across sections. PEAR QuickForm's own group
+     *    rendering (used for radio groups and for the multi-checkbox rows
+     *    built by Base_Menu_QuickAccessCommon::user_settings()) concatenates
+     *    each child element's rendered html into one string with no
+     *    per-child breakdown available - so a group that turns out to be
+     *    nothing but a uniform row of checkboxes is detected and re-split
+     *    back into individual cells by regex, shown as a table with one
+     *    shared header row instead of repeating each column's caption on
+     *    every row (only Quick Access does this today). Separately, plain
+     *    (non-group) per-row selects that repeat the exact same option list
+     *    across consecutive header sections - e.g. Utils_RecordBrowserCommon's
+     *    "Automatically add to favorites"/"Automatically watch" - are merged
+     *    the same way: one row per module (union of labels, first-seen
+     *    order), one value column per section, instead of listing every
+     *    module's name again under each header. Any group that doesn't match
+     *    the checkbox shape, and any select section that doesn't share an
+     *    identical option list with an adjacent one, just falls back to an
+     *    ordinary label/value row.
      */
     private function display_adminlte($f,$branch) {
         require_once('include/EpesiSmartyRenderer.php');
@@ -115,47 +146,171 @@ class Base_User_Settings extends Module {
         // an ordinary single row, not get matrix-ified into bare cells.
         $cell_re = '/(<input\b(?=[^>]*\btype=["\']checkbox["\'])[^>]*>)(?:<label\b[^>]*>(.*?)<\/label>)?/is';
 
-        $matrix = array();
-        $captions = null;
-        $rows = array();
-        foreach ($raw as $key=>$el) {
-            if (isset($skip[$key]) || !is_array($el) || !isset($el['type'])) continue;
-            if ($el['type']=='group') {
-                preg_match_all($cell_re,$el['html'],$m,PREG_SET_ORDER);
-                // HTML_QuickForm_group::toHtml() joins its children with its
-                // own default separator ('&nbsp;', see vendor/openpsa's
-                // Renderer/Default.php::finishGroup()) when none was passed
-                // to addGroup() - harmless leftover once every real element
-                // has been matched out, so it doesn't disqualify the group.
-                $rest = preg_replace($cell_re,'',$el['html']);
-                $rest = trim(str_ireplace('&nbsp;','',strip_tags($rest)));
-                if ($m && $rest==='') {
-                    $cells = array();
-                    $caps = array();
-                    foreach ($m as $one) {
-                        $cells[] = $one[1];
-                        $caps[] = trim($one[2] ?? '');
-                    }
-                    if ($captions===null) $captions = $caps;
-                    if ($caps===$captions) {
-                        $matrix[] = array('label'=>$el['label'],'cells'=>$cells);
-                        continue;
-                    }
+        // Where each header falls: 'count' = how many non-header elements
+        // (each group counts as 1, matching $raw's single entry per group)
+        // preceded it, across every module contributing to this branch.
+        $header_positions = array();
+        $source_defs = array();
+        $count = 0;
+        foreach ($this->adminlte_infos as $info) {
+            foreach ($info as $v) {
+                if ($v['type']=='header') {
+                    $header_positions[] = array('count'=>$count,'label'=>$v['label']);
+                } else {
+                    $source_defs[$count] = array('type'=>$v['type'],'values'=>$v['values'] ?? null);
+                    $count++;
                 }
             }
-            $el['error'] = $el['error'] ?? '';
-            $rows[] = $el;
         }
 
-        $extra_headers = array();
-        foreach (($raw['header'] ?? array()) as $hkey=>$hval)
-            if ($hkey!==0) $extra_headers[] = $hval;
+        $sequence = array();
+        foreach ($raw as $key=>$el) {
+            if (isset($skip[$key]) || !is_array($el) || !isset($el['type'])) continue;
+            $sequence[] = $el;
+        }
+
+        $sections = array();
+        $current = array('header'=>null,'elements'=>array(),'defs'=>array());
+        $hp_idx = 0;
+        foreach ($sequence as $i=>$el) {
+            while ($hp_idx < count($header_positions) && $header_positions[$hp_idx]['count']===$i) {
+                $sections[] = $current;
+                $current = array('header'=>$header_positions[$hp_idx]['label'],'elements'=>array(),'defs'=>array());
+                $hp_idx++;
+            }
+            $current['elements'][] = $el;
+            $current['defs'][] = $source_defs[$i] ?? array('type'=>$el['type'],'values'=>null);
+        }
+        // Trailing headers with nothing after them (e.g. "Automatically
+        // watch" when no table on this install has a watchdog category) -
+        // keep the section anyway, just empty; skipped below at render time.
+        while ($hp_idx < count($header_positions)) {
+            $sections[] = $current;
+            $current = array('header'=>$header_positions[$hp_idx]['label'],'elements'=>array(),'defs'=>array());
+            $hp_idx++;
+        }
+        $sections[] = $current;
+
+        $built = array();
+        foreach ($sections as $sec) {
+            if (!$sec['elements']) continue;
+            $matrix = array();
+            $captions = null;
+            $plain = array();
+            foreach ($sec['elements'] as $idx=>$el) {
+                if ($el['type']=='group') {
+                    preg_match_all($cell_re,$el['html'],$m,PREG_SET_ORDER);
+                    // HTML_QuickForm_group::toHtml() joins its children with
+                    // its own default separator ('&nbsp;', see vendor/openpsa's
+                    // Renderer/Default.php::finishGroup()) when none was
+                    // passed to addGroup() - harmless leftover once every
+                    // real element has been matched out, so it doesn't
+                    // disqualify the group.
+                    $rest = preg_replace($cell_re,'',$el['html']);
+                    $rest = trim(str_ireplace('&nbsp;','',strip_tags($rest)));
+                    if ($m && $rest==='') {
+                        $cells = array();
+                        $caps = array();
+                        foreach ($m as $one) {
+                            $cells[] = $one[1];
+                            $caps[] = trim($one[2] ?? '');
+                        }
+                        if ($captions===null) $captions = $caps;
+                        if ($caps===$captions) {
+                            $matrix[] = array('label'=>$el['label'],'cells'=>$cells);
+                            continue;
+                        }
+                    }
+                }
+                $plain[] = array('el'=>$el,'def'=>$sec['defs'][$idx]);
+            }
+
+            // Eligible for cross-section merging only if there's no checkbox
+            // matrix/mixed content and every remaining row is a plain
+            // (non-group) select sharing one identical option list.
+            $select_sig = null;
+            $is_select_only = !$matrix && $plain;
+            foreach ($plain as $p) {
+                if ($is_select_only && $p['el']['type']=='select' && is_array($p['def']['values'])) {
+                    $sig = serialize(array_values($p['def']['values']));
+                    if ($select_sig===null) $select_sig = $sig;
+                    if ($sig===$select_sig) continue;
+                }
+                $is_select_only = false;
+                break;
+            }
+
+            $rows = array();
+            $select_rows = array();
+            foreach ($plain as $p) {
+                $el = $p['el'];
+                if ($is_select_only) {
+                    $select_rows[] = $el;
+                    continue;
+                }
+                $el['error'] = $el['error'] ?? '';
+                $rows[] = $el;
+            }
+
+            $built[] = array(
+                'select_matrix'=>false,
+                'header'=>$sec['header'],
+                'matrix_captions'=>$captions?:array(),
+                'matrix_rows'=>$matrix,
+                'rows'=>$rows,
+                'select_rows'=>$select_rows,
+                'is_select_only'=>$is_select_only,
+                'select_sig'=>$select_sig,
+            );
+        }
+
+        // Merge consecutive is_select_only sections sharing the identical
+        // option signature into one combined matrix.
+        $final = array();
+        $i = 0;
+        $n = count($built);
+        while ($i < $n) {
+            $sec = $built[$i];
+            if (!$sec['is_select_only']) { $final[] = $sec; $i++; continue; }
+            $group = array($sec);
+            $j = $i+1;
+            while ($j < $n && $built[$j]['is_select_only'] && $built[$j]['select_sig']===$sec['select_sig']) {
+                $group[] = $built[$j];
+                $j++;
+            }
+            if (count($group) < 2) {
+                // no merge partner - render its select rows as ordinary rows
+                foreach ($sec['select_rows'] as $el) {
+                    $el['error'] = $el['error'] ?? '';
+                    $sec['rows'][] = $el;
+                }
+                $sec['select_rows'] = array();
+                $final[] = $sec;
+                $i++;
+                continue;
+            }
+            $labels = array();
+            foreach ($group as $g) foreach ($g['select_rows'] as $r) if (!in_array($r['label'],$labels,true)) $labels[] = $r['label'];
+            $matrix_rows = array();
+            foreach ($labels as $label) {
+                $cells = array();
+                foreach ($group as $g) {
+                    $html = null;
+                    foreach ($g['select_rows'] as $r) if ($r['label']===$label) { $html = $r['html']; break; }
+                    $cells[] = $html;
+                }
+                $matrix_rows[] = array('label'=>$label,'cells'=>$cells);
+            }
+            $final[] = array(
+                'select_matrix'=>true,
+                'headers'=>array_map(function($g){return $g['header'];},$group),
+                'matrix_rows'=>$matrix_rows,
+            );
+            $i = $j;
+        }
 
         $theme->assign('branch',$branch);
-        $theme->assign('extra_headers',$extra_headers);
-        $theme->assign('matrix_captions',$captions?:array());
-        $theme->assign('matrix_rows',$matrix);
-        $theme->assign('rows',$rows);
+        $theme->assign('sections',$final);
         $theme->display('settings_form');
     }
 
@@ -244,7 +399,7 @@ class Base_User_Settings extends Module {
         }
         $f -> add_array($info, $this->set_default_js);
         $f -> setDefaults($defaults);
-
+        $this->adminlte_infos[] = $info;
     }
 
     public function main_page(){
