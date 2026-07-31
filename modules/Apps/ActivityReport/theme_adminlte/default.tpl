@@ -39,7 +39,7 @@
 						{$form_data.file.html} <span>{$form_data.file.label}</span>
 					</div>
 				</div>
-				{if $form_data.user}
+				{if isset($form_data.user)}
 					<div class="row g-3 mt-1">
 						<div class="col-12">
 							<label class="form-label">{$form_data.user.label}</label>
@@ -49,7 +49,7 @@
 				{/if}
 			</div>
 		</div>
-		{if $form_data.submit}
+		{if isset($form_data.submit)}
 			<div class="text-center mt-3">
 				{$form_data.submit.html}
 			</div>
