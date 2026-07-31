@@ -24,52 +24,8 @@
 	border-bottom: 1px solid #dee2e6;
 }
 
-.epesi-admin-grid {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-}
-
-.epesi-admin-grid a {
-	text-decoration: none;
-}
-
-.epesi-admin-card {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	width: 110px;
-	padding: 0.9rem 0.5rem;
-	background-color: #fff;
-	border: 1px solid #dee2e6;
-	border-radius: 0.5rem;
-	text-align: center;
-	transition: box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out;
-}
-
-.epesi-admin-grid a:hover .epesi-admin-card {
-	border-color: #0d6efd;
-	box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.08);
-}
-
-.epesi-admin-card .bi {
-	font-size: 1.75rem;
-	color: #495057;
-}
-
-.epesi-admin-grid a:hover .epesi-admin-card .bi {
-	color: #0d6efd;
-}
-
-.epesi-admin-card-label {
-	font-size: 0.8rem;
-	color: #212529;
-	line-height: 1.25;
-	overflow-wrap: anywhere;
-}
-
-.epesi-admin-grid a:hover .epesi-admin-card-label {
-	color: #0d6efd;
-}
+/* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
+ * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
+ * menu exactly so both admin listings read as the same size/weight of
+ * button - no bespoke .epesi-admin-card sizing needed here.
+ */

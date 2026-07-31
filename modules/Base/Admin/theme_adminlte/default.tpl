@@ -26,14 +26,16 @@
 {foreach from=$sections key=sk item=s}
 	<div class="epesi-admin-section">
 		<h6 class="epesi-admin-section-title">{$s.header}</h6>
-		<div class="epesi-admin-grid">
+		<div class="row g-3">
 			{foreach key=key item=button from=$s.buttons}
-				{$__link.sections.$sk.buttons.$key.link.open}
-					<div class="epesi-admin-card">
-						<i class="bi {$button.bi_icon}"></i>
-						<span class="epesi-admin-card-label">{$__link.sections.$sk.buttons.$key.link.text}</span>
-					</div>
-				{$__link.sections.$sk.buttons.$key.link.close}
+				<div class="col-sm-6 col-lg-4">
+					{$__link.sections.$sk.buttons.$key.link.open}
+						<div class="card-body d-flex align-items-center gap-3">
+							<i class="bi {$button.bi_icon} fs-2 text-secondary"></i>
+							<span class="fw-semibold text-body">{$__link.sections.$sk.buttons.$key.link.text}</span>
+						</div>
+					{$__link.sections.$sk.buttons.$key.link.close}
+				</div>
 			{/foreach}
 		</div>
 	</div>

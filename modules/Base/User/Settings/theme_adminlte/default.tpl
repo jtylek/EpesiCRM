@@ -22,14 +22,16 @@
    own shape down to each button's link. *}
 <div class="epesi-user-settings" id="Base_User_Settings">
 	<h6 class="epesi-user-settings-title">{$header}</h6>
-	<div class="epesi-user-settings-grid">
+	<div class="row g-3">
 		{foreach key=key item=button from=$buttons}
-			{$__link.buttons.$key.link.open}
-				<div class="epesi-user-settings-card">
-					<i class="bi {$button.bi_icon}"></i>
-					<span class="epesi-user-settings-card-label">{$__link.buttons.$key.link.text}</span>
-				</div>
-			{$__link.buttons.$key.link.close}
+			<div class="col-sm-6 col-lg-4">
+				{$__link.buttons.$key.link.open}
+					<div class="card-body d-flex align-items-center gap-3">
+						<i class="bi {$button.bi_icon} fs-2 text-secondary"></i>
+						<span class="fw-semibold text-body">{$__link.buttons.$key.link.text}</span>
+					</div>
+				{$__link.buttons.$key.link.close}
+			</div>
 		{/foreach}
 	</div>
 </div>

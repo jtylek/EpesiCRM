@@ -217,7 +217,7 @@ class Base_User_Settings extends Module {
                     $new = Base_ThemeCommon::get_template_file($m,'icon.png');
 					if ($new) $icon = $new;
 				}
-            $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+            $buttons[]= array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
         $theme = $this->pack_module(Base_Theme::module_name());
         $theme->assign('header', __('User Settings'));

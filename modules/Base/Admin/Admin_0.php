@@ -86,7 +86,7 @@ class Base_Admin extends Module {
 				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
-			$buttons[$caption['section']][] = array('link'=>'<a '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
+			$buttons[$caption['section']][] = array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
 						'icon'=>$icon);
 		}
 
