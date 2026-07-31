@@ -71,7 +71,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 
 	public static function user_settings() {
 		$now = strtotime('2008-02-15');
-		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
+		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d/%m/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = self::strftime($f,$now);
