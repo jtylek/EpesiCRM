@@ -185,8 +185,70 @@ class Apps_Shoutbox extends Module {
 
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
+		// The dashboard applet card is the only place Shoutbox actually shows
+		// a title bar (the "big" Chat-tab form drops its own header - see
+		// chat_form_big.tpl's comment - relying on the tab strip instead), so
+		// this is the one spot to add a help icon to it. Bootstrap-modal
+		// only (data-bs-toggle, no custom JS) - gated to adminlte like the
+		// "send to all" confirm modal in chat(), since that's the only theme
+		// bootstrap.js loads for.
+		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+			$opts['actions'][] = '<a href="#" data-bs-toggle="modal" data-bs-target="#Apps_Shoutbox__bbcode_help_modal" '.Utils_TooltipCommon::open_tag_attrs(__('Formatting help')).'><i class="bi bi-question-circle"></i></a>';
+		}
 		$this->chat();
     }
+
+	/**
+	 * Every tag currently registered in utils_bbcode (Utils_BBCodeCommon::
+	 * get_registered_codes(), module-added ones included), paired with
+	 * enough presentation metadata for both the help modal and the "/"
+	 * autocomplete dropdown below. 'open'/'close' are the literal tags to
+	 * insert - for a parameterized tag 'open' already carries a filled-in
+	 * placeholder value (e.g. '[color="red"]', not bare '[color]') per
+	 * request: pasting the bare form left people hand-typing the
+	 * '="..."' themselves, error-prone versus just replacing an
+	 * already-correct placeholder. 'placeholder', when set, is that exact
+	 * substring of 'open' so the autocomplete can select it (ready to be
+	 * typed over) instead of just placing the cursor. A code with no entry
+	 * here (some future module's own tag) still gets listed, just
+	 * generically, with no placeholder to select.
+	 */
+	private static function bbcode_reference() {
+		$known = array(
+			'b'       => array('label'=>__('Bold'),            'open'=>'[b]',                                 'close'=>'[/b]',       'inner'=>'text',                 'placeholder'=>null),
+			'i'       => array('label'=>__('Italic'),          'open'=>'[i]',                                 'close'=>'[/i]',       'inner'=>'text',                 'placeholder'=>null),
+			'u'       => array('label'=>__('Underline'),       'open'=>'[u]',                                 'close'=>'[/u]',       'inner'=>'text',                 'placeholder'=>null),
+			's'       => array('label'=>__('Strikethrough'),   'open'=>'[s]',                                 'close'=>'[/s]',       'inner'=>'text',                 'placeholder'=>null),
+			'url'     => array('label'=>__('Link'),            'open'=>'[url]',                               'close'=>'[/url]',     'inner'=>'https://example.com',  'placeholder'=>null),
+			'color'   => array('label'=>__('Color'),           'open'=>'[color="red"]',                       'close'=>'[/color]',   'inner'=>'text',                 'placeholder'=>'red'),
+			'img'     => array('label'=>__('Image'),           'open'=>'[img="https://example.com/pic.png"]', 'close'=>'[/img]',     'inner'=>'',                     'placeholder'=>'https://example.com/pic.png'),
+			'task'    => array('label'=>__('Task link'),       'open'=>'[task="123"]',                        'close'=>'[/task]',    'inner'=>'title',                'placeholder'=>'123'),
+			'meeting' => array('label'=>__('Meeting link'),    'open'=>'[meeting="123"]',                     'close'=>'[/meeting]', 'inner'=>'title',                'placeholder'=>'123'),
+			'contact' => array('label'=>__('Contact link'),    'open'=>'[contact="123"]',                     'close'=>'[/contact]', 'inner'=>'name',                 'placeholder'=>'123'),
+			'company' => array('label'=>__('Company link'),    'open'=>'[company="123"]',                     'close'=>'[/company]', 'inner'=>'name',                 'placeholder'=>'123'),
+			'phone'   => array('label'=>__('Phone call link'), 'open'=>'[phone="123"]',                       'close'=>'[/phone]',   'inner'=>'subject',              'placeholder'=>'123'),
+			// Both of these are record-link tags exactly like task/meeting/
+			// contact/company/phone above (Premium_Projects_TicketsCommon::
+			// ticket_bbcode()/Premium_ProjectsCommon::project_bbcode(), both
+			// just Utils_RecordBrowserCommon::record_bbcode() under a
+			// different table) - omitting them here previously left them
+			// falling through to the generic no-param fallback below
+			// ('[ticket]text[/ticket]', missing the required ="id"), which
+			// is wrong for a tag whose whole point is looking up one
+			// specific record by id.
+			'ticket'  => array('label'=>__('Ticket link'),     'open'=>'[ticket="123"]',                      'close'=>'[/ticket]',  'inner'=>'title',                'placeholder'=>'123'),
+			'project' => array('label'=>__('Project link'),    'open'=>'[project="123"]',                     'close'=>'[/project]', 'inner'=>'name',                 'placeholder'=>'123'),
+		);
+		$codes = Utils_BBCodeCommon::get_registered_codes();
+		sort($codes);
+		$ret = array();
+		foreach ($codes as $code) {
+			$meta = $known[$code] ?? array('label'=>ucfirst($code), 'open'=>'['.$code.']', 'close'=>'[/'.$code.']', 'inner'=>'text', 'placeholder'=>null);
+			$meta['example'] = $meta['open'].$meta['inner'].$meta['close'];
+			$ret[$code] = $meta;
+		}
+		return $ret;
+	}
     
     public function chat($big=false,$uid=null) {
 		$to = & $this->get_module_variable('to',"all");
@@ -256,11 +318,27 @@ class Apps_Shoutbox extends Module {
 		    				.'</div>'
 		    				.'<div class="modal-footer">'
 		    					.'<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">'.__('Cancel').'</button>'
-		    					.'<button type="button" class="btn btn-primary" id="Apps_Shoutbox__confirm_all_send"><i class="bi bi-send-fill me-1"></i>'.__('Send').'</button>'
+		    					// autofocus (not a custom "shown.bs.modal" focus() call - tried
+		    					// and abandoned, see below) so Enter confirm-sends by default,
+		    					// matching a native confirm()'s Enter-to-OK behaviour.
+		    					.'<button type="button" class="btn btn-primary" id="Apps_Shoutbox__confirm_all_send" autofocus><i class="bi bi-send-fill me-1"></i>'.__('Send').'</button>'
 		    				.'</div>'
 		    			.'</div>'
 		    		.'</div>'
 		    	.'</div>';
+		    // A custom "shown.bs.modal" listener calling .focus() on Send
+		    // directly was tried first and abandoned: adminlte.min.js's own
+		    // initModalFocusManagement() adds its own document-level
+		    // "shown.bs.modal" listener (independent of, and unaffected by,
+		    // Bootstrap's own {focus:true/false} Modal option) that
+		    // auto-focuses the modal's [autofocus] element if present, else
+		    // falls back to the first focusable element in DOM order - the
+		    // header's .btn-close here, since it comes before the footer
+		    // buttons. A same-event listener of our own raced that fallback
+		    // and lost more often than not when confirmed live with actual
+		    // focus()-call tracing. The autofocus attribute above feeds
+		    // exactly the input that script already looks for first, so this
+		    // needs no JS of our own at all.
 		    eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
 		    		.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
 		    		.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
@@ -281,7 +359,181 @@ class Apps_Shoutbox extends Module {
 		    		.'bootstrap.Modal.getOrCreateInstance(modalEl).show();'
 		    		.'return false;'
 		    	.'});');
-		   
+
+		    //BBCode reference: built once per request from whatever's actually
+		    //registered (bbcode_reference(), backed by Utils_BBCodeCommon::
+		    //get_registered_codes()) so a module installed later shows up here
+		    //without touching this file. Two ways in: the "?" title-bar icon
+		    //added in applet() (adminlte only, opens this modal via Bootstrap's
+		    //own data-bs-toggle) and, regardless of theme, typing "/" in
+		    //either message box.
+		    $bbcode_ref = self::bbcode_reference();
+		    $bbcode_rows = '';
+		    foreach ($bbcode_ref as $code => $meta) {
+		    	$bbcode_rows .= '<tr><td><code>['.htmlspecialchars($code).']</code></td><td>'.htmlspecialchars($meta['label']).'</td><td><code>'.htmlspecialchars($meta['example']).'</code></td></tr>';
+		    }
+		    if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+			    $help_modal_html = '<div class="modal fade" id="Apps_Shoutbox__bbcode_help_modal" tabindex="-1" aria-hidden="true">'
+			    		.'<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">'
+			    			.'<div class="modal-content">'
+			    				.'<div class="modal-header">'
+			    					.'<h5 class="modal-title"><i class="bi bi-question-circle-fill me-2"></i>'.__('Formatting help (BBCode)').'</h5>'
+			    					.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+			    				.'</div>'
+			    				.'<div class="modal-body">'
+			    					.'<table class="table table-sm table-borderless mb-0"><thead><tr><th>'.__('Tag').'</th><th>'.__('Purpose').'</th><th>'.__('Example').'</th></tr></thead><tbody>'
+			    					.$bbcode_rows
+			    					.'</tbody></table>'
+			    					.'<p class="text-muted small mb-0 mt-2">'.__('Tip: type "/" in the message box to insert a tag automatically.').'</p>'
+			    				.'</div>'
+			    				.'<div class="modal-footer">'
+			    					.'<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">'.__('Close').'</button>'
+			    				.'</div>'
+			    			.'</div>'
+			    		.'</div>'
+			    	.'</div>';
+			    eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__bbcode_help_modal\')){'
+			    		.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($help_modal_html).');'
+			    	.'}');
+		    }
+
+		    //"/" autocomplete: typing "/" at the start of a word (start of the
+		    //message, or right after whitespace - so it doesn't fire mid-URL,
+		    //e.g. "https://") in #shoutbox_text or #shoutbox_text_big shows a
+		    //filterable dropdown of the same tags; picking one (click, Enter or
+		    //Tab) replaces "/<filter>" with the tag's full open+close pair -
+		    //per request, a parameterized tag's opening half already carries
+		    //its placeholder value (e.g. [color="red"], not bare [color]),
+		    //with that placeholder pre-selected so typing immediately
+		    //replaces it instead of the user hand-typing '="..."' themselves.
+		    //Plain CSS/DOM, no Bootstrap dependency, so unlike the modal
+		    //above this runs on every theme. document-level delegated
+		    //listeners (not bound to the textarea itself) so this doesn't need
+		    //rebinding when the form re-renders after a validation error, the
+		    //way the confirm-all click handler above does.
+		    $bbcode_list_json = json_encode(array_map(fn($code, $meta) => array('code'=>$code, 'label'=>$meta['label'], 'open'=>$meta['open'], 'close'=>$meta['close'], 'placeholder'=>$meta['placeholder']), array_keys($bbcode_ref), array_values($bbcode_ref)));
+		    // Built as a plain PHP string (hardcoded id, not the JS MENU_ID
+		    // variable below) and embedded via json_encode - same safe
+		    // string-into-JS approach as $confirm_modal_html/$help_modal_html
+		    // above, rather than hand-splicing quotes around a JS "+" concat.
+		    $menu_css = '#Apps_Shoutbox__bbcode_menu{display:none;position:fixed;z-index:1060;max-height:220px;overflow-y:auto;background:#fff;border:1px solid #ced4da;border-radius:0.375rem;box-shadow:0 0.25rem 0.75rem rgba(0,0,0,0.25);padding:0.25rem 0;font-size:0.85rem;font-family:inherit;}'
+		    		.'#Apps_Shoutbox__bbcode_menu.show{display:block;}'
+		    		.'#Apps_Shoutbox__bbcode_menu div{display:flex;gap:0.5rem;padding:0.3rem 0.75rem;cursor:pointer;white-space:nowrap;color:#343a40;}'
+		    		.'#Apps_Shoutbox__bbcode_menu div.active,#Apps_Shoutbox__bbcode_menu div:hover{background-color:#e9ecef;}'
+		    		.'#Apps_Shoutbox__bbcode_menu div code{color:#0d6efd;}';
+		    eval_js_once('(function(){'
+		    		// eval_js_once dedups by hash of this exact string, which
+		    		// embeds $bbcode_list_json - so it only guards against
+		    		// re-sending the IDENTICAL script twice. If that content
+		    		// ever changes within one browser session that started
+		    		// before the change (a module install/uninstall changing
+		    		// get_registered_codes(), or simply this file being edited
+		    		// and the page never fully reloaded, as happened live
+		    		// while developing this feature), the OLD version's
+		    		// document-level "input"/"keydown" listeners are still
+		    		// attached - nothing ever removes them - so a NEW version
+		    		// sent afterward stacks a second, independent set instead
+		    		// of replacing the first. Both then fire on the same
+		    		// keydown, each inserting its own copy from its own
+		    		// closure state, corrupting the result (confirmed live:
+		    		// picking [contact] produced
+		    		// [contact="123"][/contact][/contact] - the second
+		    		// listener\'s insert landing after the first\'s, using a
+		    		// slashPos captured before the first one had mutated
+		    		// anything). This flag makes the listener registration
+		    		// itself idempotent regardless of how many times - or how
+		    		// many different versions of - this IIFE actually runs.
+		    		.'if(window.__Apps_Shoutbox_bbcode_ac__)return;'
+		    		.'window.__Apps_Shoutbox_bbcode_ac__=true;'
+		    		.'var LIST='.$bbcode_list_json.';'
+		    		.'var MENU_ID="Apps_Shoutbox__bbcode_menu";'
+		    		.'var state=null;'
+		    		.'function getMenu(){'
+		    			.'var m=document.getElementById(MENU_ID);'
+		    			.'if(!m){'
+		    				.'m=document.createElement("div");'
+		    				.'m.id=MENU_ID;'
+		    				.'document.body.appendChild(m);'
+		    				.'var css=document.createElement("style");'
+		    				.'css.textContent='.json_encode($menu_css).';'
+		    				.'document.head.appendChild(css);'
+		    			.'}'
+		    			.'return m;'
+		    		.'}'
+		    		.'function closeMenu(){'
+		    			.'var m=document.getElementById(MENU_ID);'
+		    			.'if(m)m.classList.remove("show");'
+		    			.'state=null;'
+		    		.'}'
+		    		.'function renderMenu(){'
+		    			.'var m=getMenu();'
+		    			.'m.innerHTML="";'
+		    			.'state.items.forEach(function(item,idx){'
+		    				.'var row=document.createElement("div");'
+		    				.'if(idx===state.active)row.className="active";'
+		    				.'var code=document.createElement("code");'
+		    				.'code.textContent="["+item.code+"]";'
+		    				.'var label=document.createElement("span");'
+		    				.'label.textContent=item.label;'
+		    				.'row.appendChild(code);'
+		    				.'row.appendChild(label);'
+		    				.'row.addEventListener("mousedown",function(e){e.preventDefault();selectItem(item);});'
+		    				.'m.appendChild(row);'
+		    			.'});'
+		    			.'var r=state.textarea.getBoundingClientRect();'
+		    			.'m.style.left=r.left+"px";'
+		    			.'m.style.top=(r.bottom+4)+"px";'
+		    			.'m.style.minWidth=Math.min(r.width,260)+"px";'
+		    			.'m.classList.add("show");'
+		    		.'}'
+		    		.'function selectItem(item){'
+		    			.'var textarea=state.textarea, slashPos=state.slashPos;'
+		    			.'var val=textarea.value, pos=textarea.selectionStart;'
+		    			.'var before=val.substring(0,slashPos), after=val.substring(pos);'
+		    			.'textarea.value=before+item.open+item.close+after;'
+		    			.'if(item.placeholder){'
+		    				// Select the placeholder value inside the already-
+		    				// filled-in opening tag (e.g. "red" in [color="red"])
+		    				// so typing replaces it directly, instead of just
+		    				// landing the cursor and making the user type the
+		    				// whole '="..."' themselves.
+		    				.'var phStart=before.length+item.open.indexOf(item.placeholder);'
+		    				.'textarea.setSelectionRange(phStart,phStart+item.placeholder.length);'
+		    			.'}else{'
+		    				.'var caret=before.length+item.open.length;'
+		    				.'textarea.setSelectionRange(caret,caret);'
+		    			.'}'
+		    			.'textarea.focus();'
+		    			.'closeMenu();'
+		    		.'}'
+		    		.'function updateMenu(textarea){'
+		    			.'var val=textarea.value, pos=textarea.selectionStart;'
+		    			.'var i=pos-1;'
+		    			.'while(i>=0&&!/\\s/.test(val[i])&&val[i]!=="/")i--;'
+		    			.'if(i<0||val[i]!=="/"||(i>0&&!/\\s/.test(val[i-1]))){closeMenu();return;}'
+		    			.'var slashPos=i;'
+		    			.'var filter=val.substring(slashPos+1,pos).toLowerCase();'
+		    			.'var items=LIST.filter(function(t){return t.code.indexOf(filter)===0;});'
+		    			.'if(!items.length){closeMenu();return;}'
+		    			.'state={textarea:textarea,slashPos:slashPos,items:items,active:0};'
+		    			.'renderMenu();'
+		    		.'}'
+		    		.'document.addEventListener("input",function(e){'
+		    			.'if(e.target&&(e.target.id==="shoutbox_text"||e.target.id==="shoutbox_text_big"))updateMenu(e.target);'
+		    		.'});'
+		    		.'document.addEventListener("keydown",function(e){'
+		    			.'if(!state||e.target!==state.textarea)return;'
+		    			.'if(e.key==="ArrowDown"){e.preventDefault();state.active=(state.active+1)%state.items.length;renderMenu();}'
+		    			.'else if(e.key==="ArrowUp"){e.preventDefault();state.active=(state.active-1+state.items.length)%state.items.length;renderMenu();}'
+		    			.'else if(e.key==="Enter"||e.key==="Tab"){e.preventDefault();selectItem(state.items[state.active]);}'
+		    			.'else if(e.key==="Escape"){e.preventDefault();closeMenu();}'
+		    		.'});'
+		    		.'document.addEventListener("click",function(e){'
+		    			.'var m=document.getElementById(MENU_ID);'
+		    			.'if(m&&m.classList.contains("show")&&!m.contains(e.target)&&e.target.id!=="shoutbox_text"&&e.target.id!=="shoutbox_text_big")closeMenu();'
+		    		.'});'
+		    	.'})();');
+
 			//if submited
 			if($qf->validate()) {
 				 //get post group

@@ -28,6 +28,18 @@ class Utils_BBCodeCommon extends ModuleCommon {
 	public static function optimize($text) {
 		return self::parse($text, true);
 	}
+
+	/**
+	 * Returns every tag currently registered in utils_bbcode (module-added
+	 * ones included - see new_bbcode()), for callers building a formatting
+	 * reference/autocomplete rather than parsing a message. Does not include
+	 * 'rb', which is a hardcoded special case in replace() rather than a row
+	 * in the table.
+	 */
+	public static function get_registered_codes() {
+		if (self::$bbcodes === null) self::init();
+		return array_keys(self::$bbcodes);
+	}
 	
 	public static function parse($text, $optimize_only=false) {
 		self::$optimize_only = $optimize_only;
