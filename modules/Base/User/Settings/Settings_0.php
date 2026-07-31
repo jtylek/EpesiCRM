@@ -80,9 +80,83 @@ class Base_User_Settings extends Module {
         if($f->validate()) {
             $this->submit_settings($f->exportValues());
             $this->set_back_location();
+        } elseif (Base_ThemeCommon::get_default_template()=='adminlte') {
+            $this->display_adminlte($f,$branch);
         } else
             $f->display();
         return;
+    }
+
+    /**
+     * AdminLTE rendering of the generic settings-branch form built above -
+     * shared by every "My settings"/admin settings screen (Base_User_Settings
+     * is the one module behind all of them). PEAR QuickForm's own group
+     * rendering (used for radio groups and for the multi-checkbox rows built
+     * by Base_Menu_QuickAccessCommon::user_settings()) concatenates each
+     * child element's rendered html into one string with no per-child
+     * breakdown available from EpesiSmartyRenderer's array form - so a group
+     * that turns out to be nothing but a uniform row of checkboxes (only
+     * Quick Access does this today) is detected and re-split back into
+     * individual cells by regex, letting it be shown as a real table with one
+     * shared header row instead of repeating each column's caption on every
+     * row. Any group that doesn't match that exact shape (or any plain
+     * field) just falls back to an ordinary label/value row.
+     */
+    private function display_adminlte($f,$branch) {
+        require_once('include/EpesiSmartyRenderer.php');
+        $renderer = new EpesiSmartyRenderer();
+        $theme = $this->pack_module(Base_Theme::module_name());
+        $f->assign_theme('form',$theme,$renderer);
+        $raw = $renderer->toArray();
+
+        $skip = array('frozen'=>1,'javascript'=>1,'attributes'=>1,'hidden'=>1,'requirednote'=>1,'errors'=>1,'header'=>1);
+        // Deliberately checkbox-only: GenericBrowser/Planner build radio
+        // groups the same way (addGroup()), and those must keep rendering as
+        // an ordinary single row, not get matrix-ified into bare cells.
+        $cell_re = '/(<input\b(?=[^>]*\btype=["\']checkbox["\'])[^>]*>)(?:<label\b[^>]*>(.*?)<\/label>)?/is';
+
+        $matrix = array();
+        $captions = null;
+        $rows = array();
+        foreach ($raw as $key=>$el) {
+            if (isset($skip[$key]) || !is_array($el) || !isset($el['type'])) continue;
+            if ($el['type']=='group') {
+                preg_match_all($cell_re,$el['html'],$m,PREG_SET_ORDER);
+                // HTML_QuickForm_group::toHtml() joins its children with its
+                // own default separator ('&nbsp;', see vendor/openpsa's
+                // Renderer/Default.php::finishGroup()) when none was passed
+                // to addGroup() - harmless leftover once every real element
+                // has been matched out, so it doesn't disqualify the group.
+                $rest = preg_replace($cell_re,'',$el['html']);
+                $rest = trim(str_ireplace('&nbsp;','',strip_tags($rest)));
+                if ($m && $rest==='') {
+                    $cells = array();
+                    $caps = array();
+                    foreach ($m as $one) {
+                        $cells[] = $one[1];
+                        $caps[] = trim($one[2] ?? '');
+                    }
+                    if ($captions===null) $captions = $caps;
+                    if ($caps===$captions) {
+                        $matrix[] = array('label'=>$el['label'],'cells'=>$cells);
+                        continue;
+                    }
+                }
+            }
+            $el['error'] = $el['error'] ?? '';
+            $rows[] = $el;
+        }
+
+        $extra_headers = array();
+        foreach (($raw['header'] ?? array()) as $hkey=>$hval)
+            if ($hkey!==0) $extra_headers[] = $hval;
+
+        $theme->assign('branch',$branch);
+        $theme->assign('extra_headers',$extra_headers);
+        $theme->assign('matrix_captions',$captions?:array());
+        $theme->assign('matrix_rows',$matrix);
+        $theme->assign('rows',$rows);
+        $theme->display('settings_form');
     }
 
     public function submit_settings($values) {
