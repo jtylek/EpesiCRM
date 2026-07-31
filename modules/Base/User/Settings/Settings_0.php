@@ -209,8 +209,23 @@ class Base_User_Settings extends Module {
         }
         if($admin_settings)
             $value = Base_User_SettingsCommon::get_admin($module,$old_name);
-        else
+        else {
             $value = Base_User_SettingsCommon::get($module,$old_name);
+            // "Restore Defaults" (the ActionBar button built from
+            // $this->set_default_js in body()) is driven by $v['default'],
+            // which Libs_QuickForm's add_array()/get_element_by_array() bake
+            // straight into that reset JS. Left as this field's own
+            // hardcoded literal (whatever user_settings() declared), it
+            // ignored any site-wide default an administrator configured via
+            // the "Default settings" screen (admin_settings=true, this same
+            // method's own get_admin()/save_admin() branch above) -
+            // regular users' "Restore Defaults" ought to reset to that
+            // admin-configured value, not silently bypass it. get_admin()
+            // already falls back to the hardcoded literal itself
+            // (get_default()) when nothing's been admin-configured, so this
+            // is a strict superset of the old behaviour, never a narrower one.
+            $v['default'] = Base_User_SettingsCommon::get_admin($module,$old_name);
+        }
         $defaults = array_merge($defaults,array($v['name']=>$value));
     }
 
