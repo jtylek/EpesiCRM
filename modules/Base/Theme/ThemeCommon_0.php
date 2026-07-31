@@ -88,10 +88,15 @@ class Base_ThemeCommon extends ModuleCommon {
 
 	public static function init_smarty() {
 		$smarty = new Smarty();
-		
+
 		$theme = self::get_default_template();
 
-		$smarty->template_dir = DATA_DIR.'/Base_Theme/templates/'.$theme;
+		// Unused for resolution - display_smarty() below always passes an
+		// absolute 'file:'.EPESI_LOCAL_DIR.'/'.$tpl_file path instead, since
+		// templates are resolved via resolve_theme_file()/the resolver, not
+		// looked up relative to this directory. Smarty still requires some
+		// value here, so this just points at the project root.
+		$smarty->template_dir = EPESI_LOCAL_DIR;
 		$smarty->compile_dir = TEMP_DIR.'/Base_Theme/compiled/';
 		$smarty->compile_id = $theme;
 		$smarty->config_dir = TEMP_DIR.'/Base_Theme/config/';
@@ -110,12 +115,11 @@ class Base_ThemeCommon extends ModuleCommon {
 			// admin-creation wizard, which both run before ThemeInstall.php
 			// has had a chance to persist 'adminlte' as default_theme).
 			$theme = Variable::get('default_theme', false) ?: 'adminlte';
-			// A theme no longer needs a directory under data/ to be valid - it can
-			// live entirely in modules/<Mod>/theme_<name>/. Checked directly rather
-			// than via Base_Theme::list_themes() because this runs early enough in
-			// bootstrap that the Base_Theme class may not be loaded yet.
+			// A theme lives entirely in modules/<Mod>/theme_<name>/ - checked
+			// directly rather than via Base_Theme::list_themes() because this
+			// runs early enough in bootstrap that the Base_Theme class may not
+			// be loaded yet.
 			if($theme !== 'default'
-			   && !is_dir(DATA_DIR.'/Base_Theme/templates/'.$theme)
 			   && !glob('modules/*/*/theme_'.$theme, GLOB_ONLYDIR)
 			   && !glob('modules/*/*/*/theme_'.$theme, GLOB_ONLYDIR))
 				$theme = 'default';
@@ -203,26 +207,6 @@ class Base_ThemeCommon extends ModuleCommon {
 	public static function uninstall_default_theme($mod_name) {
 	}
 	
-	/**
-	 * Returns path to currently selected theme.
-	 * 
-	 * @return string directory in which currently selected theme is placed 
-	 */
-	public static function get_template_dir() {
-		static $theme = null;
-		static $themes_dir;
-		if(!isset($themes_dir))
-			$themes_dir = DATA_DIR.'/Base_Theme/templates/';
-		if(!isset($theme)) {
-			$theme = Variable::get('default_theme', false) ?: 'default';
-
-			if(!is_dir($themes_dir.$theme))
-				$theme = 'default';
-		}
-		
-		return $themes_dir.$theme.'/';
-	}
-
 	/**
 	 * Returns path and filename of a template file.
 	 * 

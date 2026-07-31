@@ -101,14 +101,6 @@ class Base_Theme extends Module {
 		foreach (glob('modules/*/*/*/theme_*', GLOB_ONLYDIR) ?: array() as $dir)
 			$themes[substr(basename($dir), 6)] = substr(basename($dir), 6);
 
-		// Themes installed the old way, as a tree under data/, still count.
-		$data_themes = DATA_DIR.'/Base_Theme/templates/';
-		if (is_dir($data_themes))
-			foreach (scandir($data_themes) as $entry) {
-				if ($entry === '.' || $entry === '..') continue;
-				if (is_dir($data_themes.$entry)) $themes[$entry] = $entry;
-			}
-
 		asort($themes);
 		return $themes;
 	}

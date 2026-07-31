@@ -7,7 +7,7 @@
  * theme_css.php - can resolve paths without bootstrapping the application on
  * every image or stylesheet request. Base_ThemeCommon delegates here.
  *
- * Requires only the DATA_DIR constant and a working directory at the project root.
+ * Requires only a working directory at the project root.
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
@@ -20,14 +20,13 @@ class Base_ThemeResolver {
 	 * way the retired "Theme update" step laid them out under
 	 * data/Base_Theme/templates/<theme>/ - either "<module path>/<rest>"
 	 * (Base/Box/default.css, Utils/Calendar/next.png) or "images/<rest>" for the
-	 * assets shared by every module. Nothing copies files there any more, so those
-	 * paths resolve back to their source under modules/ instead:
+	 * assets shared by every module. Nothing copies files there any more, and a
+	 * theme is never installed as a data/ tree any more either, so those paths
+	 * resolve back to their source under modules/ instead:
 	 *
-	 *   1. an installed theme's own override in data/ still wins, so downloaded
-	 *      or hand-edited themes keep working exactly as before;
-	 *   2. modules/<module path>/theme_<theme>/<rest> - a theme's per-module
+	 *   1. modules/<module path>/theme_<theme>/<rest> - a theme's per-module
 	 *      override shipped alongside the module itself;
-	 *   3. modules/<module path>/theme/<rest> - the module's own base version,
+	 *   2. modules/<module path>/theme/<rest> - the module's own base version,
 	 *      or modules/Base/Theme/images/<rest> for the shared assets.
 	 *
 	 * Module names nest (Base_User_Login -> Base/User/Login), so the module prefix
@@ -51,11 +50,6 @@ class Base_ThemeResolver {
 		// reject traversal outright - this feeds a web-facing asset handler
 		if ($rel === '' || strpos($rel, '..') !== false || strpos($rel, "\0") !== false)
 			return null;
-
-		if ($theme !== 'default' && defined('DATA_DIR')) {
-			$f = DATA_DIR . '/Base_Theme/templates/' . $theme . '/' . $rel;
-			if (is_readable($f)) return $f;
-		}
 
 		// assets shared by every module, historically copied to the theme root
 		if (strpos($rel, 'images/') === 0) {

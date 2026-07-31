@@ -19,9 +19,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Http server user should have write access to those files.
  */
 class Base_LangCommon extends ModuleCommon {
-	public static function get_complete_languages() {
-		return explode(',', file_get_contents('modules/Base/Lang/complete'));
-	}
 	/**
 	 * Don not use this function to translate, use the __() call instead.
 	 */
@@ -445,18 +442,8 @@ class Base_LangCommon extends ModuleCommon {
 		if ($raw === '') {
 			// Installations that already had Base_Lang installed before this
 			// per-module rewrite never ran the new install() seeding step -
-			// self-heal once from the legacy base/ cache directory listing
-			// (same signal the old refresh_cache() used), falling back to
-			// Base's own bundled languages if even that is missing.
-			$codes = array();
-			if (is_dir(DATA_DIR.'/Base_Lang/base')) {
-				foreach (scandir(DATA_DIR.'/Base_Lang/base') as $entry)
-					if (pathinfo($entry, PATHINFO_EXTENSION) == 'php')
-						$codes[] = basename($entry, '.php');
-			} else {
-				$codes = array_keys(self::get_base_languages());
-			}
-			$raw = implode(',', $codes);
+			// self-heal once by seeding from Base's own bundled languages.
+			$raw = implode(',', array_keys(self::get_base_languages()));
 			Variable::set('installed_langs', $raw);
 		}
 		$codes = explode(',', $raw);

@@ -15,46 +15,19 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeInstall extends ModuleInstall {
 	public function install() {
-		$this->create_data_dir();
-		foreach (array('templates', 'templates/default', 'compiled', 'cache', 'config') as $d) {
-			$dir = DATA_DIR.'/Base_Theme/'.$d;
-			if (!is_dir($dir))
-				mkdir($dir);
-		}
-		$this->install_default_theme_common_files('modules/Base/Theme/','images');
 		Variable::set('default_theme','adminlte');
 		return true;
 	}
-	
+
 	public function uninstall() {
-		recursive_rmdir(DATA_DIR.'/Base_Theme/templates/default/images');
 		Variable::delete('default_theme');
 		return true;
 	}
-	
+
 	public function version() {
 		return array('1.0.0');
 	}
-	
-	public function install_default_theme_common_files($dir,$f) {
-		if(class_exists('ZipArchive')) {
-			$zip = new ZipArchive;
-			if ($zip->open($dir.$f.'.zip') == 1) {
-    			$zip->extractTo(DATA_DIR.'/Base_Theme/templates/default/');
-    			return;
-			}
-		}
-		mkdir(DATA_DIR.'/Base_Theme/templates/default/'.$f);
-		$content = scandir($dir.$f);
-		foreach ($content as $name){
-			if ($name == '.' || $name == '..') continue;
-			$path = $dir.$f.'/'.$name;
-			if (is_dir($path))
-				$this->install_default_theme_common_files($dir,$f.'/'.$name);
-			else
-				copy($path,DATA_DIR.'/Base_Theme/templates/default/'.$f.'/'.$name);
-		}
-	}
+
 	public function requires($v) {
 		return array();
 	}
