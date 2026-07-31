@@ -56,8 +56,8 @@
 	</main>
 
 	<footer class="app-footer text-center py-3">
-		<div><a href="http://www.epesi.org" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
-		<div class="text-muted small">Copyright &copy; 2006 - {$smarty.now|date_format:"%Y"} &bull; <a href="http://www.telaxus.com">Janusz Tylek</a></div>
+		<div><a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
+		<div class="text-muted small">Copyright &copy; 2006 - {$smarty.now|date_format:"%Y"} &bull; <a href="http://www.telaxus.com">Janusz Tylek</a> and Karina Tylek</div>
 	</footer>
 
 </div>

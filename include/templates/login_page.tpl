@@ -46,7 +46,7 @@
 			</div>
 		</div>
 		<p class="text-center mt-1 mb-0">
-			<a href="https://epe.si" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered"></a>
+			<a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered"></a>
 		</p>
 	</div>
 </div>
