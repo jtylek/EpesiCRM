@@ -63,7 +63,20 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 	}
 
 	public static function init() {
-		if((!isset($_SESSION['base_login_audit']) || !isset($_SESSION['base_login_audit_user']) || $_SESSION['base_login_audit_user']!=Acl::get_user()) && Acl::is_user()) {
+		if (!Acl::is_user()) return;
+		$tracked = isset($_SESSION['base_login_audit']) && isset($_SESSION['base_login_audit_user']) && $_SESSION['base_login_audit_user']==Acl::get_user();
+		// The session (memcache/file - independent of the SQL database) can
+		// easily outlive a base_login_audit row it's already pointed at: any
+		// reset/reinstall of the database while this login's session is
+		// still alive leaves $_SESSION thinking it's tracked, so this always
+		// skipped the INSERT and update()'s UPDATE silently affected 0 rows
+		// forever after - the whole session tracked nothing again until
+		// logging out. Confirming the row is actually still there before
+		// trusting the session flag makes this self-heal on the very next
+		// request instead.
+		if ($tracked && !DB::GetOne('SELECT id FROM base_login_audit WHERE id=%d',array($_SESSION['base_login_audit'])))
+			$tracked = false;
+		if (!$tracked) {
 			$now = time();
             $remote_address = get_client_ip_address();
 			$remote_host = gethostbyaddr($remote_address);
