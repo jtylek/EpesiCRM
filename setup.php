@@ -1,8 +1,8 @@
 <?php
 /**
- * @author Paul Bukowski
- * @version 1.0
- * @copyright Copyright &copy; 2022, Janusz Tylek
+ * @author Janusz Tylek
+ * @version 2.0
+ * @copyright Copyright &copy; 2026, Janusz Tylek
  * @license MIT
  * @package epesi-base
  */
@@ -83,12 +83,12 @@ include "{$install_lang_dir}/{$install_lang_load}.php";
 // in $steps (if any) gets the "current"/"done" marker in the wizard's progress bar.
 function setup_page($title, $body, $step = null) {
     global $install_lang_load;
-    $order = array('language', 'license', 'compat', 'database');
+    $order = array('language', 'license', 'database' , 'compat');
     $labels = array(
         'language' => array('label' => __('Language'), 'icon' => 'bi-translate'),
         'license'  => array('label' => __('License'), 'icon' => 'bi-file-earmark-text'),
-        'compat'   => array('label' => __('Compatibility'), 'icon' => 'bi-check2-square'),
         'database' => array('label' => __('Database'), 'icon' => 'bi-database'),
+		'compat'   => array('label' => __('Compatibility'), 'icon' => 'bi-check2-square'),
     );
     $steps = array();
     if (isset($install_lang_load)) {
@@ -122,33 +122,22 @@ if(file_exists('easyinstall.php')){
 
 // language selection form
 if (!isset($install_lang_code)) {
-	$complete = Base_LangCommon::get_complete_languages();
 	$labels = Base_LangCommon::get_base_languages();
 	$list = array();
-	foreach ($complete as $l) {
+	foreach ($langs as $l) {
+		if ($l === 'en') continue;
 		$list[$l] = $labels[$l] ?? $l;
 	}
-	$rest = array();
-	foreach ($langs as $l) {
-		$rest[$l] = $labels[$l] ?? $l;
-	}
 	asort($list);
-	asort($rest);
 	$list = array_merge(array('en'=>$labels['en']), $list);
-	foreach ($list as $l => $label) unset($rest[$l]);
 
-	$complete_langs = array();
+	$langs_list = array();
 	foreach ($list as $l => $label) {
-		$complete_langs[] = array('href' => '?install_lang='.$l, 'label' => $label, 'flag' => lang_flag_file($l));
-	}
-	$incomplete_langs = array();
-	foreach ($rest as $l => $label) {
-		$incomplete_langs[] = array('href' => '?install_lang='.$l, 'label' => $label, 'flag' => lang_flag_file($l));
+		$langs_list[] = array('href' => '?install_lang='.$l, 'label' => $label, 'flag' => lang_flag_file($l));
 	}
 
 	$body = SetupSmarty::render('language_select.tpl', array(
-		'complete_langs' => $complete_langs,
-		'incomplete_langs' => $incomplete_langs,
+		'langs_list' => $langs_list,
 	));
 	setup_page(__('Select Language'), $body, 'language');
 }
@@ -186,10 +175,10 @@ if (isset($_GET['tos1']) && $_GET['tos1'] && isset($_GET['tos2']) && $_GET['tos2
 }
 
 if(!isset($_GET['license'])) {
-	$license_html = read_doc_file('license');
+	$license_html = str_replace('{YEAR}', date('Y'), read_doc_file('license'));
 
 	$form = new HTML_QuickForm('licenceform','get');
-	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz Tylek and Karina Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"Made with EPESI"</strong> logo and the link from the application login screen or the toolbar.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'), array('class'=>'form-check-input'));
@@ -235,7 +224,7 @@ if(!isset($_GET['license'])) {
 			'link_href' => $continue_url,
 			'link_text' => __('Ok'),
 		));
-		setup_page(__('Welcome to EPESI setup!'), $body, 'compat');
+		setup_page(__('Welcome to EPESI setup!'), $body, 'database');
 	}
 }
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
@@ -323,33 +312,61 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 				}
 			break;
             case 'mysqli':
-                if (!class_exists('mysqli')) {
-                    $db_error = __('Please enable mysql extension in php.ini.');
-                } else {
-					if ($port) {
-						$host .= ':' . $port;
-					}
-                    $link = new mysqli($host, $user, $pass);
+                $mysqli_loaded = class_exists('mysqli');
+				if ($port) {
+					$host .= ':' . $port;
+				}
+                $connect_ok = false;
+                $driver_error = null;
+                if ($mysqli_loaded) {
+                    // PHP 8.1+ changed mysqli's default report mode to throw
+                    // mysqli_sql_exception on connect failure instead of just
+                    // setting connect_errno - without this, an unreachable host
+                    // or bad credentials fatals here with a raw PHP exception
+                    // dump instead of ever reaching the connect_errno check below.
+                    // With reporting off, a failed connect instead falls back
+                    // to a plain E_WARNING (visible as raw text above the
+                    // themed page) - @ suppresses it since connect_errno below
+                    // already surfaces the same failure through db_connect_error.tpl.
+                    mysqli_report(MYSQLI_REPORT_OFF);
+                    $link = @new mysqli($host, $user, $pass);
                     if ($link->connect_errno) {
-                        $db_error = __('Could not connect') . "(Errno: {$link->connect_errno}): " . $link->connect_error;
+                        $driver_error = __('Could not connect') . " (Errno: {$link->connect_errno}): " . $link->connect_error;
                     } else {
-                        if ($new_db == 1) {
-                            $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-                            if ($link->query($sql)) {
-                                write_config($host, $user, $pass, $dbname, $engine, $other);
-                            } else {
-                                $db_error = __('Error creating database: ') . $link->error;
-                            }
-                            $link->close();
-                        } else {
-                            $result = $link->select_db($dbname);
-                            if (!$result) {
-                                $db_error = __('Database does not exist') . ': ' . $link->error . '<br />' . __('Please create the database first or select option')
-                                . ':<br /><b>' . __('Create new database') . '</b>';
-                            } else {
-                                write_config($host, $user, $pass, $dbname, $engine, $other);
-                            }
-                        }
+                        $connect_ok = true;
+                    }
+                }
+                if (!$connect_ok) {
+                    // Distinguishes "server unreachable/down" from "driver
+                    // missing" from "reachable but auth/credentials wrong" -
+                    // the raw driver error alone doesn't tell a first-time
+                    // installer which of those they're looking at.
+                    $diag = mysql_connect_diagnostics($host);
+                    $body = SetupSmarty::render('db_connect_error.tpl', array(
+                        'mysqli_loaded'    => $mysqli_loaded,
+                        'server_reachable' => $diag['reachable'],
+                        'diag_host'        => $diag['host'],
+                        'diag_port'        => $diag['port'],
+                        'driver_error'     => $driver_error,
+                        'retry_url'        => $_SERVER['PHP_SELF'] . '?' . http_build_query(array('license' => 1, 'htaccess' => 1, 'install_lang' => $install_lang_load)),
+                    ));
+                    setup_page(__('Database connection failed'), $body, 'database');
+                }
+                if ($new_db == 1) {
+                    $sql = 'CREATE DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_unicode_ci';
+                    if ($link->query($sql)) {
+                        write_config($host, $user, $pass, $dbname, $engine, $other);
+                    } else {
+                        $db_error = __('Error creating database: ') . $link->error;
+                    }
+                    $link->close();
+                } else {
+                    $result = $link->select_db($dbname);
+                    if (!$result) {
+                        $db_error = __('Database does not exist') . ': ' . $link->error . '<br />' . __('Please create the database first or select option')
+                        . ':<br /><b>' . __('Create new database') . '</b>';
+                    } else {
+                        write_config($host, $user, $pass, $dbname, $engine, $other);
                     }
                 }
                 break;
@@ -431,6 +448,21 @@ function check_htaccess() {
 	unlink('data/test.php');
 	rename('data/.htaccess','.htaccess');
 	return array('ok'=>true);
+}
+
+// Reachability probe used by the mysqli "could not connect" screen - separate
+// from the actual mysqli connect attempt so it still runs even when the
+// mysqli extension itself isn't loaded (a plain TCP socket needs no driver).
+function mysql_connect_diagnostics($host) {
+    $port = 3306;
+    if (str_contains($host, ':')) {
+        list($host, $maybe_port) = explode(':', $host, 2);
+        if (ctype_digit($maybe_port)) $port = (int)$maybe_port;
+    }
+    $sock = @fsockopen($host, $port, $errno, $errstr, 3);
+    $reachable = (bool)$sock;
+    if ($sock) fclose($sock);
+    return array('host' => $host, 'port' => $port, 'reachable' => $reachable);
 }
 
 function write_config($host, $user, $pass, $dbname, $engine, $other) {

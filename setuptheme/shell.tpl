@@ -36,14 +36,35 @@
 		border-top: 3px solid #dee2e6;
 		padding-top: 0.5rem;
 	}
+	.setup-steps .step .bi {
+		display: inline-block;
+		width: 1.6em;
+		height: 1.6em;
+		line-height: 1.6em;
+		border-radius: 50%;
+	}
+	/* Done steps are deliberately muted (gray, not green) - a saturated
+	   success-green checkmark reads as "active/go" at a glance and, with
+	   three of them in a row, visually outweighs the single current-step
+	   badge even when that one is blue. Only .current gets a strong color,
+	   so there's exactly one loud element in the bar: the step you're on. */
 	.setup-steps .step.done {
-		color: #198754;
-		border-top-color: #198754;
+		color: #6c757d;
+		border-top-color: #6c757d;
+	}
+	.setup-steps .step.done .bi {
+		background-color: #6c757d;
+		color: #fff;
 	}
 	.setup-steps .step.current {
 		color: #0d6efd;
 		font-weight: 600;
 		border-top-color: #0d6efd;
+	}
+	.setup-steps .step.current .bi {
+		background-color: #0d6efd;
+		color: #fff;
+		box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
 	}
 	.setup-license-text {
 		max-height: 260px;
@@ -52,6 +73,17 @@
 		border: 1px solid #dee2e6;
 		border-radius: 0.375rem;
 		padding: 1rem;
+	}
+	/* Bootstrap's heading sizes are rem-based (root <html> size), so they
+	   don't shrink from .setup-card's own font-size alone - same reason
+	   .form-control/.btn need their own overrides above. */
+	.setup-license-text h3 {
+		font-size: 1.1rem;
+		margin-bottom: 0.5rem;
+	}
+	.setup-license-text h4 {
+		font-size: 0.95rem;
+		margin-bottom: 0.75rem;
 	}
 	/* Smaller text/controls throughout the setup wizard, per request - most
 	   Bootstrap components (.form-control/.form-select/.btn) size themselves
@@ -130,8 +162,8 @@
 	</main>
 
 	<footer class="app-footer text-center py-3">
-		<div><a href="https://epe.si" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
-		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz Tylek</div>
+		<div><a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
+		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz Tylek and Karina Tylek</div>
 	</footer>
 
 </div>
