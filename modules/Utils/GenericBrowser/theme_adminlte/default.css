@@ -789,6 +789,21 @@
 	}
 }
 
+/* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
+   see Admin_0.php::body()) opts every table it contains out of the mobile
+   kebab collapse above, at any viewport width: administrators need every
+   row action (view/edit/delete/move-up/move-down/...) visible at a glance,
+   never behind an extra tap. Selector specificity alone (0,2,0 vs the media
+   query's 0,1,0) is enough to win regardless of source order, but the
+   !important matches the rule it's overriding so this can't be re-broken by
+   an unrelated specificity bump there later. */
+.epesi-admin-panel .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-admin-panel .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
 #epesi-gb-actions-menu {
 	display: none;
 	position: fixed;
