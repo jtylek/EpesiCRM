@@ -242,23 +242,26 @@
 				"m.style.left=left+'px';".
 				"btn.classList.add('epesi-gb-actions-open');".
 			"}".
-			// A row's action <a>s fall into two groups: the "core" ones every
-			// RecordBrowser table has (view/edit/delete/info/expand/collapse -
-			// GenericBrowser_0.php's own view/edit/delete/history + RowObject's
-			// add_info() + the plus_gray/minus_gray expandable pair, all built
-			// straight into GenericBrowser_0.php and RecordBrowser_0.php
-			// regardless of module), and whatever a specific module bolts on
-			// top via its own add_action() calls (CRM_Contacts' "New Meeting"/
-			// "New Task"/"New Phonecall"/"New Note", CRM_Companies' equivalents,
-			// etc - genuinely open-ended, one module at a time). Classified by
-			// icon filename rather than a list of known module actions, since
-			// that list can never be complete - anything NOT recognized as core
-			// is treated as an "extra" action, so a future module's own icon
-			// groups correctly without this file needing to know about it.
+			// A row's action <a>s fall into two groups: the "core" ones built
+			// straight into RecordBrowser_0.php/GenericBrowser_0.php and used
+			// across the app regardless of module (view/edit/delete/info/
+			// print/history, the plus_gray/minus_gray expandable pair, and -
+			// per request, since these were missing here and are exactly what
+			// admin screens like Home Page ordering or Field management lean
+			// on most - active-on/active-off, move-up/move-down/move-up-down),
+			// and whatever a specific module bolts on top via its own
+			// add_action() calls with the module's OWN icon (CRM_Contacts'
+			// "New Meeting"/"New Task"/"New Phonecall"/"New Note",
+			// CRM_Companies' equivalents, etc - genuinely open-ended, one
+			// module at a time). Classified by icon filename rather than a
+			// list of known module actions, since that list can never be
+			// complete - anything NOT recognized as core is treated as an
+			// "extra" action, so a future module's own icon groups correctly
+			// without this file needing to know about it.
 			"function isCoreAction(a){".
 				"var img=a.querySelector('img');".
 				"var src=img?(img.getAttribute('src')||''):'';".
-				"return /\\/(view|edit|delete|info|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
+				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
 			"}".
 			"function ensureToggles(){".
 				"document.querySelectorAll('table.Utils_GenericBrowser td.Utils_GenericBrowser__actions').forEach(function(cell){".
@@ -701,14 +704,11 @@
 			<div id="module-indicator" class="navbar-text mx-2 text-truncate">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
 
 			<ul class="navbar-nav ms-auto align-items-center">
-				{if $quick_access_menu}
-					<li class="nav-item quick-access-bar d-none d-lg-block">{$quick_access_menu}</li>
-				{/if}
 				<li class="nav-item" id="search_box">{$search}</li>
-				{* Dropped below lg (same breakpoint quick-access-bar already uses
-				   above) per request - mobile has much less navbar width to spend,
-				   and Perspective/Help are the two least essential items in this
-				   row (the sidebar's own menu/search stay reachable regardless). *}
+				{* Dropped below lg per request - mobile has much less navbar width
+				   to spend, and Perspective/Help are the two least essential items
+				   in this row (the sidebar's own menu/search stay reachable
+				   regardless). *}
 				<li class="nav-item d-none d-lg-block" id="filter_box">{$filter}</li>
 				{* $donate ("Support EPESI!") dropped from this theme's navbar to
 				   keep the row to one line - Box_0.php still assigns it (shared

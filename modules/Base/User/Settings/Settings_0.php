@@ -80,9 +80,83 @@ class Base_User_Settings extends Module {
         if($f->validate()) {
             $this->submit_settings($f->exportValues());
             $this->set_back_location();
+        } elseif (Base_ThemeCommon::get_default_template()=='adminlte') {
+            $this->display_adminlte($f,$branch);
         } else
             $f->display();
         return;
+    }
+
+    /**
+     * AdminLTE rendering of the generic settings-branch form built above -
+     * shared by every "My settings"/admin settings screen (Base_User_Settings
+     * is the one module behind all of them). PEAR QuickForm's own group
+     * rendering (used for radio groups and for the multi-checkbox rows built
+     * by Base_Menu_QuickAccessCommon::user_settings()) concatenates each
+     * child element's rendered html into one string with no per-child
+     * breakdown available from EpesiSmartyRenderer's array form - so a group
+     * that turns out to be nothing but a uniform row of checkboxes (only
+     * Quick Access does this today) is detected and re-split back into
+     * individual cells by regex, letting it be shown as a real table with one
+     * shared header row instead of repeating each column's caption on every
+     * row. Any group that doesn't match that exact shape (or any plain
+     * field) just falls back to an ordinary label/value row.
+     */
+    private function display_adminlte($f,$branch) {
+        require_once('include/EpesiSmartyRenderer.php');
+        $renderer = new EpesiSmartyRenderer();
+        $theme = $this->pack_module(Base_Theme::module_name());
+        $f->assign_theme('form',$theme,$renderer);
+        $raw = $renderer->toArray();
+
+        $skip = array('frozen'=>1,'javascript'=>1,'attributes'=>1,'hidden'=>1,'requirednote'=>1,'errors'=>1,'header'=>1);
+        // Deliberately checkbox-only: GenericBrowser/Planner build radio
+        // groups the same way (addGroup()), and those must keep rendering as
+        // an ordinary single row, not get matrix-ified into bare cells.
+        $cell_re = '/(<input\b(?=[^>]*\btype=["\']checkbox["\'])[^>]*>)(?:<label\b[^>]*>(.*?)<\/label>)?/is';
+
+        $matrix = array();
+        $captions = null;
+        $rows = array();
+        foreach ($raw as $key=>$el) {
+            if (isset($skip[$key]) || !is_array($el) || !isset($el['type'])) continue;
+            if ($el['type']=='group') {
+                preg_match_all($cell_re,$el['html'],$m,PREG_SET_ORDER);
+                // HTML_QuickForm_group::toHtml() joins its children with its
+                // own default separator ('&nbsp;', see vendor/openpsa's
+                // Renderer/Default.php::finishGroup()) when none was passed
+                // to addGroup() - harmless leftover once every real element
+                // has been matched out, so it doesn't disqualify the group.
+                $rest = preg_replace($cell_re,'',$el['html']);
+                $rest = trim(str_ireplace('&nbsp;','',strip_tags($rest)));
+                if ($m && $rest==='') {
+                    $cells = array();
+                    $caps = array();
+                    foreach ($m as $one) {
+                        $cells[] = $one[1];
+                        $caps[] = trim($one[2] ?? '');
+                    }
+                    if ($captions===null) $captions = $caps;
+                    if ($caps===$captions) {
+                        $matrix[] = array('label'=>$el['label'],'cells'=>$cells);
+                        continue;
+                    }
+                }
+            }
+            $el['error'] = $el['error'] ?? '';
+            $rows[] = $el;
+        }
+
+        $extra_headers = array();
+        foreach (($raw['header'] ?? array()) as $hkey=>$hval)
+            if ($hkey!==0) $extra_headers[] = $hval;
+
+        $theme->assign('branch',$branch);
+        $theme->assign('extra_headers',$extra_headers);
+        $theme->assign('matrix_captions',$captions?:array());
+        $theme->assign('matrix_rows',$matrix);
+        $theme->assign('rows',$rows);
+        $theme->display('settings_form');
     }
 
     public function submit_settings($values) {
@@ -135,8 +209,23 @@ class Base_User_Settings extends Module {
         }
         if($admin_settings)
             $value = Base_User_SettingsCommon::get_admin($module,$old_name);
-        else
+        else {
             $value = Base_User_SettingsCommon::get($module,$old_name);
+            // "Restore Defaults" (the ActionBar button built from
+            // $this->set_default_js in body()) is driven by $v['default'],
+            // which Libs_QuickForm's add_array()/get_element_by_array() bake
+            // straight into that reset JS. Left as this field's own
+            // hardcoded literal (whatever user_settings() declared), it
+            // ignored any site-wide default an administrator configured via
+            // the "Default settings" screen (admin_settings=true, this same
+            // method's own get_admin()/save_admin() branch above) -
+            // regular users' "Restore Defaults" ought to reset to that
+            // admin-configured value, not silently bypass it. get_admin()
+            // already falls back to the hardcoded literal itself
+            // (get_default()) when nothing's been admin-configured, so this
+            // is a strict superset of the old behaviour, never a narrower one.
+            $v['default'] = Base_User_SettingsCommon::get_admin($module,$old_name);
+        }
         $defaults = array_merge($defaults,array($v['name']=>$value));
     }
 
@@ -217,7 +306,7 @@ class Base_User_Settings extends Module {
                     $new = Base_ThemeCommon::get_template_file($m,'icon.png');
 					if ($new) $icon = $new;
 				}
-            $buttons[]= array('link'=>'<a '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+            $buttons[]= array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
         $theme = $this->pack_module(Base_Theme::module_name());
         $theme->assign('header', __('User Settings'));

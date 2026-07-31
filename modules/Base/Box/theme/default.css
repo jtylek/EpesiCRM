@@ -296,29 +296,6 @@ hr.line {
 	width: 60px; 
 }
 
-#top_bar #top_bar_1 .quick-access-bar {
-	height: 20px;
-	width: 138px;
-	text-align: left;
-	overflow: hidden;
-	
-	/*dark css3 green background gradient */
-/*	background: #226622; IE 9 conflict/* Old browsers */
-	/* end dark css3 green background gradient */
-	
-	/* css3 shadow border*/
-	-webkit-box-shadow: 1px 1px 3px #gray;
-	-moz-box-shadow: 1px 1px 3px #gray;
-	box-shadow: 1px 1px 3px #gray;
-	/* end css3 shadow border*/
-}
-
-#top_bar #top_bar_1 .quick-access-bar:hover { 
-	/*light css3 green background gradient */
-/*	background: #226622; IE 9 conflict/* Old browsers */
-	/* end light css3 green background gradient */
-}
-
 .top_bar_black {
 	/* black css3 background gradient */
 	background: #4c4c4c; /* Old browsers */

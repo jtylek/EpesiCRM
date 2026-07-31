@@ -75,7 +75,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 
 	public static function post_install() {
 		$now = time();
-		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
+		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d/%m/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = strftime($f,$now);

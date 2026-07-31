@@ -1081,7 +1081,13 @@ class Utils_RecordBrowser extends Module {
 
         if ($mode==='edit' || $mode==='add')
             foreach($this->table_rows as $desc) {
-                if (!$access[$desc['id']])
+                // A field's own QFfield_* builder can decide not to add an
+                // element at all for the current viewer (e.g. Contacts'
+                // QFfield_login() skips 'login' entirely for a non-admin),
+                // independently of this generic $access check - freezing a
+                // name the form never got throws HTML_QuickForm_Error
+                // ("Nonexistent element(s)") instead of just leaving it be.
+                if (!$access[$desc['id']] && $form->elementExists($desc['id']))
                     $form->freeze($desc['id']);
             }
         if ($form->exportValue('submited') && $form->validate()) {

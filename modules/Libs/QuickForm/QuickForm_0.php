@@ -184,7 +184,15 @@ class Libs_QuickForm extends Module {
 				
 			case 'bool':
 			case 'checkbox':
-				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$v['param']);
+				// Every settings checkbox (user_settings()/admin_settings() across
+				// all modules) gets this class so a single shared CSS rule
+				// (theme_adminlte/default.css) can re-skin it as an on/off switch,
+				// without every caller having to opt in via its own 'param'.
+				$attr = $v['param'];
+				if (is_array($attr)) $attr['class'] = trim(($attr['class'] ?? '').' epesi-switch');
+				elseif (is_string($attr) && $attr !== '') $attr .= ' class="epesi-switch"';
+				else $attr = array('class'=>'epesi-switch');
+				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$attr);
 				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
 				break;
 			

@@ -27,13 +27,25 @@ class Base_Admin extends Module {
 	public function body() {
 		$module = $this->get_module_variable('selected_module', false);
 
+		// Wrapping div lives inside this module's own echoed output (not in
+		// Base_Box's shell template) so it's always part of whatever HTML
+		// actually gets patched into the page on AJAX navigation between
+		// admin sections - Base_Admin stays the 'main' box container the
+		// whole time (selected_module just changes what it embeds), and
+		// Epesi.text()'s innerHTML patching never refreshes an ancestor
+		// element's own attributes, only what's inside it. theme_adminlte's
+		// GenericBrowser CSS (default.css, "mobile actions menu") uses this
+		// class to keep every row's action icons visible here even under
+		// the 991.98px breakpoint that collapses them into a kebab
+		// elsewhere: admins need full access to actions without an extra tap.
+		echo '<div class="epesi-admin-panel">';
 		if($module) {
 			$this->pack_module($module,null,'admin');
 		} else {
 			$this->list_admin_modules();
 		}
-		
-	} 
+		echo '</div>';
+	}
 		
 	public function reset() {
 		$this->unset_module_variable('selected_module');
@@ -86,7 +98,7 @@ class Base_Admin extends Module {
 				$icon = Base_ThemeCommon::get_template_file($name,'icon.png');
 				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
-			$buttons[$caption['section']][] = array('link'=>'<a '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
+			$buttons[$caption['section']][] = array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
 						'icon'=>$icon);
 		}
 

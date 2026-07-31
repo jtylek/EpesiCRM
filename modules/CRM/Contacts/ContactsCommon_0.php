@@ -827,14 +827,24 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		$form->addFormRule(array('CRM_ContactsCommon','check_new_username'));
 	}
+	/**
+	 * True while editing the contact linked to the currently logged-in
+	 * user's own account - lets a user with no Employee/Manager access
+	 * (limited to editing their own contact only) still change their own
+	 * password, without opening up any of the rest of the admin-only user
+	 * management fields (username, access level, admin level).
+	 */
+	private static function editing_own_login() {
+		return class_exists('Utils_RecordBrowser') && isset(Utils_RecordBrowser::$last_record['login']) && Utils_RecordBrowser::$last_record['login']==Acl::get_user();
+	}
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
-        if (!Base_AclCommon::i_am_admin()) return;
+        if (!Base_AclCommon::i_am_admin() && !self::editing_own_login()) return;
 		$form->addElement('password', $field, $label, array('id'=>$field, 'autocomplete' => 'off'));
 	}
     public static function QFfield_repassword(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         if ($mode=='view') return;
-        if (!Base_AclCommon::i_am_admin()) return;
+        if (!Base_AclCommon::i_am_admin() && !self::editing_own_login()) return;
 		$form->addElement('password', $field, $label, array('id'=>$field, 'autocomplete' => 'off'));
 		$form->addFormRule(array('CRM_ContactsCommon', 'check_pass'));
 	}
@@ -1081,6 +1091,16 @@ class CRM_ContactsCommon extends ModuleCommon {
                             Utils_RecordBrowserCommon::new_record_history('contact',$values['id'],'Admin set from "'.$admin_arr[$old_admin].'" to "'.$admin_arr[$values['admin']]);
                     }
 				}
+			} elseif (!empty($values['set_password']) && self::editing_own_login()) {
+				// Non-admins can't manage user accounts (create/rename/set
+				// admin level), but per request can set their OWN password
+				// while editing their own contact - QFfield_password/
+				// QFfield_repassword now render for this case too. Acl::get_user()
+				// (not $values['login'], which a non-admin's form never even
+				// exposes) is both the check inside editing_own_login() and
+				// the target here, so this can only ever act on the
+				// submitter's own account.
+				Base_User_LoginCommon::change_user_preferences(Acl::get_user(), $values['email'] ?? '', $values['set_password']);
 			}
 			unset($values['admin']);
 			unset($values['username']);

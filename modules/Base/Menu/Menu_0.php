@@ -285,8 +285,7 @@ class Base_Menu extends Module {
 			// sidebar is built from $modules_menu directly, putting each top-level
 			// group on screen. Rendered server-side as a Bootstrap accordion rather
 			// than through Utils/Menu, whose submenus are hover fly-outs (see
-			// build_menu_html()). quick_access_menu() below stays horizontal either
-			// way - it lives in the top navbar under both layouts.
+			// build_menu_html()).
 			$sidebar = $modules_menu;
 			unset($sidebar['__submenu__']);
 			$theme->assign('menu', $this->build_menu_html($sidebar, 'Menu_'));
@@ -296,30 +295,6 @@ class Base_Menu extends Module {
 			$menu_mod->set_inline_display();
 			$theme->assign('menu', $this->get_html_of_module($menu_mod));
 		}
-
-		$theme->display();
-
-	}
-	
-	public function quick_access_menu() {
-		$this->set_inline_display(true);
-		// preparing quick access menu
-		if (ModuleManager::is_installed(Base_Menu_QuickAccessCommon::module_name())>=0){
-			$qaccess_menu = Base_Menu_QuickAccessCommon::quick_access_menu();
-			if(is_array($qaccess_menu)) {
-				Base_MenuCommon::add_default_menu($qaccess_menu, Base_Menu_QuickAccessCommon::module_name());
-			} else $qaccess_menu = array();
-		} else $qaccess_menu = array();
-
-		if (empty($qaccess_menu)) return;
-
-		$menu_mod = $this->init_module("Utils/Menu", "horizontal");
-		$this->build_menu($menu_mod,$qaccess_menu,false);
-
-		$theme = $this->init_module(Base_Theme::module_name());
-
-		$menu_mod->set_inline_display();
-		$theme->assign('menu', $this->get_html_of_module($menu_mod));
 
 		$theme->display();
 

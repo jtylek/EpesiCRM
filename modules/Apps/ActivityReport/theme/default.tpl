@@ -52,7 +52,7 @@
 			{$form_data.file.html}
 		</td>
 	</tr>
-	{if $form_data.user}
+	{if isset($form_data.user)}
 		<tr>
 			<td class="epesi_label">
 				{$form_data.user.label}
@@ -62,7 +62,7 @@
 			</td>
 		</tr>
 	{/if}
-	{if $form_data.submit}
+	{if isset($form_data.submit)}
 		<tr>
 			<td class="child_button" style="text-align:center" colspan="4">
 				{$form_data.submit.html}

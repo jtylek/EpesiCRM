@@ -192,3 +192,49 @@
 	background-color: #e7f1ff;
 	color: #0d6efd;
 }
+
+/* ---- settings checkboxes rendered as on/off switches ----
+ * QuickForm_0.php::get_element_by_array() tags every 'bool'/'checkbox'
+ * array-declared field (user_settings()/admin_settings() hooks, Base_Setup,
+ * FirstRun, Utils_CommonData, ...) with this class, so it's the one place
+ * that needs to reskin them - the raw <input type="checkbox"> markup itself
+ * comes from PEAR QuickForm (vendor/openpsa/quickform/lib/HTML/QuickForm/
+ * checkbox.php's toHtml()) and can't carry Bootstrap's own .form-check/
+ * .form-switch wrapper divs, so this reproduces the same pill-track/sliding-
+ * knob visual as a Bootstrap switch directly on the bare input, using an
+ * inline SVG knob exactly like Bootstrap's own .form-switch .form-check-input
+ * background-image approach. */
+input.epesi-switch[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 2.25em;
+	height: 1.25em;
+	vertical-align: middle;
+	margin: 0;
+	background-color: rgba(0, 0, 0, 0.25);
+	border: 1px solid rgba(0, 0, 0, 0.25);
+	border-radius: 2em;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+	background-position: left center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+input.epesi-switch[type="checkbox"]:checked {
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	background-position: right center;
+}
+
+input.epesi-switch[type="checkbox"]:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+input.epesi-switch[type="checkbox"] + label {
+	cursor: pointer;
+	margin-left: 0.4rem;
+}

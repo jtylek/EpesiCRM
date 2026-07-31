@@ -13,7 +13,7 @@ class Apps_ActivityReport extends Module {
 
 	public function body($contact = null) {
 	    if (!Apps_ActivityReportCommon::has_access_to_report($contact)) return;
-		$fixed_user_id = $contact['login'];
+		$fixed_user_id = $contact['login'] ?? null;
 		$rb_tabs = Utils_RecordBrowserCommon::list_installed_recordsets();
 		asort($rb_tabs);
 

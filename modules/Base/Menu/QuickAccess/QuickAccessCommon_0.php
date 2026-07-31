@@ -32,17 +32,24 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			$opt = array_merge($opt,array(
 						'type'=>'bool',
 						'reload'=>true,
-						'default'=>0
+						'default'=>1
 						));
+			// Default on for both columns, except the Dashboard module's own
+			// entry: showing a "Dashboard" widget on the Dashboard itself is
+			// circular/pointless, so only its Launchpad default stays on.
+			$dashboard_default = ($opt['module']==Base_Dashboard::module_name())?0:1;
+			// Both elems share the group's own 'label' (the module item's name,
+			// used as the row header) - each elem's own 'values' is its column
+			// caption, shown inline by non-adminlte themes and used to build the
+			// "Dashboard"/"Launchpad" column headers in the adminlte theme (see
+			// Base_User_Settings::body()).
 			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
 						array_merge($opt,array(
-							'values'=>'',
-							'name'=>$name.'_m')),
-						array_merge($opt,array(
-							'values'=>'',
+							'values'=>__('Dashboard'),
+							'default'=>$dashboard_default,
 							'name'=>$name.'_d')),
 						array_merge($opt,array(
-							'values'=>__('Menu').' &bull; '.__('Dashboard').' &bull; '.__('Launchpad'),
+							'values'=>__('Launchpad'),
 							'name'=>$name.'_l'))
 					));
 		}
@@ -85,18 +92,6 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			}
 		}
 		return $result;
-	}
-
-	public static function quick_access_menu() {
-		if (!Base_AclCommon::i_am_user()) return array();
-		self::get_options();
-		$qa_menu = array('__submenu__'=>1);
-		foreach (self::$options as $v)
-			if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_m'))
-				$qa_menu[$v['label']] = $v['link'];
-
-		if ($qa_menu == array('__submenu__'=>1)) return array();
-		return array(__('Quick Access')=>$qa_menu);
 	}
 }
 
