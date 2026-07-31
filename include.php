@@ -18,6 +18,13 @@ try {
     require_once('vendor/autoload.php');
     require_once('include/include_path.php');
     require_once('include/data_dir.php');
+    // Entry points that pull in the full app this way (ajax/refresh-style
+    // module scripts like Base_Notify/refresh.php) don't check for an
+    // installed app themselves the way index.php does before ever reaching
+    // here - without this, a request arriving between wiping data/config.php
+    // and finishing setup again (e.g. a stale tab's background poller)
+    // fatals raw instead of just quietly doing nothing.
+    if (!file_exists(DATA_DIR.'/config.php')) exit();
     require_once('include/config.php');
     require_once('include/maintenance_mode.php');
     require_once('include/epesi.php');
