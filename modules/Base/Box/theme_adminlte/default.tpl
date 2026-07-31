@@ -701,14 +701,11 @@
 			<div id="module-indicator" class="navbar-text mx-2 text-truncate">{if $moduleindicator}{$moduleindicator}{else}&nbsp;{/if}</div>
 
 			<ul class="navbar-nav ms-auto align-items-center">
-				{if $quick_access_menu}
-					<li class="nav-item quick-access-bar d-none d-lg-block">{$quick_access_menu}</li>
-				{/if}
 				<li class="nav-item" id="search_box">{$search}</li>
-				{* Dropped below lg (same breakpoint quick-access-bar already uses
-				   above) per request - mobile has much less navbar width to spend,
-				   and Perspective/Help are the two least essential items in this
-				   row (the sidebar's own menu/search stay reachable regardless). *}
+				{* Dropped below lg per request - mobile has much less navbar width
+				   to spend, and Perspective/Help are the two least essential items
+				   in this row (the sidebar's own menu/search stay reachable
+				   regardless). *}
 				<li class="nav-item d-none d-lg-block" id="filter_box">{$filter}</li>
 				{* $donate ("Support EPESI!") dropped from this theme's navbar to
 				   keep the row to one line - Box_0.php still assigns it (shared
