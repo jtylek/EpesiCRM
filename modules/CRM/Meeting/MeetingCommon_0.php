@@ -450,7 +450,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 				'year'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'year', 'default_date'=>strtotime($values['date']))), array()).'>'.date('Y', $start_disp).'</a>',
 				'weekday'=>'<a '.Base_BoxCommon::create_href(null, CRM_Calendar::module_name(), 'body', array(array('default_view'=>'week', 'default_date'=>strtotime($values['date']))), array()).'>'.__date('l', $start_disp).'</a>'
 			));
-			if (!isset($values['timeless']) || !$values['timeless'])
+			// $values here is the raw stored record (this 'display' case runs on $this->record,
+			// not a form submission), which never has a 'timeless' key - that's a checkbox that
+			// only exists on the add/edit form. The real persisted timeless flag is
+			// duration==-1 (set at add/edit time, see the 'add' case above), the same sentinel
+			// every other timeless check in this file uses. Checking the nonexistent 'timeless'
+			// key here always evaluated true, so this row rendered for timeless meetings too -
+			// showing a bogus "00:00 - 00:00" (duration -1 second math off an arbitrary start).
+			if ($values['duration'] != -1)
 				$ret['event_info'] = array('start_time'=>Base_RegionalSettingsCommon::time2reg($start,2,false), 'end_time'=>Base_RegionalSettingsCommon::time2reg($end,2,false), 'duration'=>Base_RegionalSettingsCommon::seconds_to_words($values['duration']), 'start_date'=>'-', 'end_date'=>'-');
 			$ret['form_data']['timeless'] = array('label'=>__('Timeless'), 'html'=>'value');
 			$ret['toggle_duration'] = 'tog';
