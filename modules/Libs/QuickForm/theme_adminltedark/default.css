@@ -1,0 +1,240 @@
+/* AdminLTE re-skin for Libs_QuickForm's "multiselect" element - two <select>
+ * boxes with 4 move buttons between them (e.g. RecordBrowser's linked-
+ * recordsets picker). The markup is built entirely in PHP
+ * (modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php::toHtml(),
+ * non-mobile branch) - there's no .tpl to override, and multiselect.js
+ * locates every element purely by its `name` attribute (getElementsByName),
+ * not id/class - so this file only reskins colours/spacing, keeping every
+ * id/class selector identical to the default theme's own default.css.
+ *
+ * 2026-07-28: #multiselect is a genuinely separate, nested <table> sitting
+ * inside a RecordBrowser field's .data cell (itself inside yet another
+ * table.edit/table.view) - not a row of that outer table. A *percentage*
+ * width on a nested table (#multiselect's own width:100%, and its children's
+ * old width:calc(50% - 29px)) has no reliable size to resolve against under
+ * the ancestor's default table-layout:auto: depending on what else is in the
+ * surrounding grid, the browser was seen sizing the whole widget by its own
+ * min-content (too narrow, gap on the right) in one record and overflowing
+ * past the .data cell's actual rendered width (too wide) in another - two
+ * different symptoms from the same underlying cause. Fixed by taking
+ * #multiselect out of table layout for sizing purposes entirely: it's
+ * display:block (a plain block box, whose width:100%/height:100% always
+ * resolves unambiguously against its parent's content box, in a table cell
+ * or anywhere else), and its <tbody>/<tr>/<td> structure - kept as real
+ * table markup, since multiselect.php is shared with the default theme and
+ * can't be touched - is reduced to a single flex row via display:contents
+ * (unwraps <tbody> so its <td>s become direct flex items of <tr>) instead of
+ * being rendered as a genuine nested table. This is a purely visual/layout
+ * reinterpretation - multiselect.js still finds every element by `name`,
+ * untouched.
+ */
+
+#multiselect {
+	display: block;
+	width: 100%;
+	/* Referenced by both the buttons themselves and the select boxes' own
+	   min-height below, so the two stay tied together instead of two
+	   separately-hand-tuned numbers drifting apart later. */
+	--epesi-ms-btn-height: 30px;
+	--epesi-ms-btn-gap: 0.2rem;
+}
+
+/* Unwraps the browser-inserted <tbody> so <tr> is the direct child #multiselect
+   sees - <tr> itself becomes the actual flex row below. */
+#multiselect tbody {
+	display: contents;
+}
+
+#multiselect tr {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+}
+
+#multiselect td {
+	text-align: center;
+}
+
+#multiselect .form-element,
+#multiselect .to-element {
+	display: block;
+	/* Equal, definite shares of the row's real width - no percentage handed
+	   down through another nested table, so nothing left to mis-resolve. */
+	flex: 1 1 0;
+	/* Without this, a flex item's default min-width:auto lets a <select>'s
+	   own longest option text push it wider than its flex-basis share,
+	   re-introducing the exact overflow this whole rewrite is fixing. */
+	min-width: 0;
+}
+
+#multiselect .form-element select,
+#multiselect .to-element select {
+	width: 100%;
+	/* At least as tall as the 4 move buttons stacked together, so the list
+	   never looks shorter than the button column next to it - and taller
+	   still by default, per request. */
+	min-height: calc(4 * var(--epesi-ms-btn-height) + 3 * var(--epesi-ms-btn-gap));
+	height: 160px;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.25rem;
+	font-size: 0.9rem;
+	background-color: #2b3035;
+}
+
+#multiselect .form-element select:focus,
+#multiselect .to-element select:focus {
+	outline: none;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+#multiselect .buttons-cell {
+	display: flex;
+	flex: 0 0 58px;
+	flex-direction: column;
+	/* Replaces the old vertical-align:middle (meaningless now that this is a
+	   flex item, not a table-cell) - centers the buttons' own inner table
+	   within the full row height (set by the taller selects next to it). */
+	justify-content: center;
+	align-items: center;
+	padding: 0 0.5rem;
+	box-sizing: border-box;
+}
+
+/* .buttons .button is the default theme's selector too, but the current
+   toHtml() output never emits those classes (verified by reading the PHP) -
+   kept here anyway, alongside .buttons-cell td > input, in case some other,
+   not-yet-found caller of this element still produces that markup. */
+#multiselect .buttons-cell td > input,
+#multiselect .buttons .button input {
+	display: block;
+	width: 42px !important;
+	height: var(--epesi-ms-btn-height);
+	margin: 0 auto var(--epesi-ms-btn-gap);
+	cursor: pointer;
+	font-weight: 600;
+	line-height: 1;
+	color: #fff;
+	border: none;
+	border-radius: 0.375rem;
+	background-color: #8b929a;
+	box-shadow: none;
+	transition: background-color 0.15s ease-in-out;
+}
+
+#multiselect .buttons-cell td > input:hover,
+#multiselect .buttons-cell td > input:focus,
+#multiselect .buttons .button input:hover,
+#multiselect .buttons .button input:focus {
+	background-color: #0d6efd;
+}
+
+#multiselect .buttons .button,
+#multiselect .buttons .button:hover {
+	background-image: none;
+	width: auto;
+}
+
+#multiselect .buttons-cell td > input[disabled],
+#multiselect .buttons-cell td > input[readonly],
+#multiselect .buttons .button input[disabled],
+#multiselect .buttons .button input[readonly] {
+	cursor: not-allowed;
+	background-color: #495057;
+}
+
+/* ---- autocomplete/autoselect suggestion dropdown ----
+ * Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php prints
+ * <div id="..._suggestbox" class="autocomplete">&nbsp;</div> right after
+ * the text input, populated/shown by script.aculo.us's Ajax.Autocompleter
+ * (modules/Libs/ScriptAculoUs/1.8.0/controls.js) - no .tpl, shared with the
+ * default theme. This adminlte default.css already existed for #multiselect
+ * before this widget needed theming, so the default theme's own matching
+ * rules (theme/default.css) never got a chance to apply here at all - only
+ * per-file resolution, and this file already "wins" for this exact
+ * filename regardless of what it does or doesn't cover. Ported forward
+ * with modern colours instead of the old theme's #FFFFCC background.
+ * z-index kept very high (matches the old theme's own 2010 - this menu
+ * needs to sit above literally everything, including an open Leightbox). */
+.autocomplete {
+	z-index: 2010;
+}
+
+.autocomplete ul {
+	min-width: 300px;
+	max-width: 100%;
+	max-height: 260px;
+	overflow-y: auto;
+	background-color: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+	list-style-type: none;
+	text-align: left;
+	margin: 0.15rem 0 0;
+	padding: 0.25rem;
+	font-size: 0.85rem;
+}
+
+.autocomplete ul li {
+	display: block;
+	padding: 0.3rem 0.5rem;
+	border-radius: 0.25rem;
+	max-height: 48px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.autocomplete ul li.selected {
+	background-color: #e7f1ff;
+	color: #0d6efd;
+}
+
+/* ---- settings checkboxes rendered as on/off switches ----
+ * QuickForm_0.php::get_element_by_array() tags every 'bool'/'checkbox'
+ * array-declared field (user_settings()/admin_settings() hooks, Base_Setup,
+ * FirstRun, Utils_CommonData, ...) with this class, so it's the one place
+ * that needs to reskin them - the raw <input type="checkbox"> markup itself
+ * comes from PEAR QuickForm (vendor/openpsa/quickform/lib/HTML/QuickForm/
+ * checkbox.php's toHtml()) and can't carry Bootstrap's own .form-check/
+ * .form-switch wrapper divs, so this reproduces the same pill-track/sliding-
+ * knob visual as a Bootstrap switch directly on the bare input, using an
+ * inline SVG knob exactly like Bootstrap's own .form-switch .form-check-input
+ * background-image approach. */
+input.epesi-switch[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 2.25em;
+	height: 1.25em;
+	vertical-align: middle;
+	margin: 0;
+	background-color: rgba(255, 255, 255, 0.25);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	border-radius: 2em;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+	background-position: left center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+input.epesi-switch[type="checkbox"]:checked {
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	background-position: right center;
+}
+
+input.epesi-switch[type="checkbox"]:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+input.epesi-switch[type="checkbox"] + label {
+	cursor: pointer;
+	margin-left: 0.4rem;
+}

@@ -1,0 +1,169 @@
+/* AdminLTE re-skin for Libs_Leightbox - the generic modal popup system behind
+ * every ".lbOn" trigger app-wide (the ActionBar Launchpad, CRM_Filters'
+ * "manage perspectives" screen, and others), not just one specific popup.
+ *
+ * Positioning fix: the default theme centred this with plain top/left
+ * percentages (25%/15%, or 5%/5% "big") that took no account of a fixed
+ * header - fine for the default theme's non-fixed layout, but under adminlte
+ * that put the popup's top edge under the fixed navbar+ActionBar rather than
+ * below them. Centred with left:50%+transform instead, with top computed
+ * from --epesi-header-height/--epesi-actionbar-height (see this theme's
+ * Base_Box default.tpl for why those are declared on :root, not just
+ * .epesi-adminlte - this popup is appended straight to <body> by
+ * leightbox.js, as a sibling of the shell, not a descendant of it).
+ *
+ * No resize button in this theme's header (default.tpl) - the shared
+ * libs_leightbox_resize() sets top/left/width/height as plain inline
+ * percentages, which don't account for the transform-based centering here
+ * and would jump the popup to the old-style positioning.
+ */
+
+#leightbox_overlay,
+.leightbox_overlay {
+	position: fixed;
+	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1045;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.leightbox {
+	/* JS toggles this inline between 'block' and 'none' - a flex display here
+	   would just be discarded the moment the popup is shown. */
+	position: fixed;
+	display: none;
+	top: calc(var(--epesi-header-height) + var(--epesi-actionbar-height) + 1rem);
+	left: 50%;
+	transform: translateX(-50%);
+	width: 70%;
+	max-width: 900px;
+	max-height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height) - 2rem);
+	color: #dee2e6;
+	background-color: #2b3035;
+	text-align: left;
+	z-index: 1050;
+	padding: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-radius: 0.5rem;
+	box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.3);
+}
+
+/* Libs_LeightboxCommon::get($id, $content, $header, $big=true) - a wider/
+   taller popup for content that doesn't fit the normal 70%/900px cap (e.g.
+   CRM_Filters' "manage perspectives" screen). The default theme achieves
+   this via an inline top/left/width/height override fired unconditionally
+   from PHP; that's skipped under adminlte (see LeightboxCommon_0.php) since
+   it conflicts with the transform-based centering above, so this attribute
+   selector is this theme's own equivalent. */
+.leightbox[big="1"] {
+	width: 90%;
+	max-width: none;
+	max-height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height) - 1rem);
+}
+
+#Leightbox_header {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.6rem 1rem;
+	background-color: #dee2e6;
+	color: #fff;
+	border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.epesi-leightbox-title {
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.epesi-leightbox-actions {
+	display: flex;
+	gap: 0.25rem;
+	flex: 0 0 auto;
+}
+
+.epesi-leightbox-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.375rem;
+	color: #fff;
+	text-decoration: none;
+}
+
+.epesi-leightbox-btn:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+#Leightbox_content {
+	padding: 1rem;
+}
+
+/* RecordBrowser_0.php's "export values to copy" popup
+   (Libs_LeightboxCommon::display('clipboard', ...)) - raw PHP-built content
+   (an <h3> instruction, a bordered box, a plain <button>), shared with the
+   default theme, no .tpl of its own. The <h3> rendered at full browser
+   heading size read as oversized instructional text, per request.
+   #clipboard is the popup's own id (Libs_LeightboxCommon::get($id,...) sets
+   id="{$id}" on the outer .leightbox div), so this only touches this one
+   popup's content, not any other feature reusing the same generic Leightbox
+   chrome. */
+#clipboard h3 {
+	margin: 0 0 0.75rem;
+	font-size: 0.95rem;
+	font-weight: 400;
+	color: #8b929a;
+}
+
+/* The box's border is an inline style="border:1px solid gray;..." -
+   !important needed to win over that. */
+#clipboard div[onmouseover] {
+	border: 1px solid #495057 !important;
+	border-radius: 0.375rem;
+	background-color: #24272b;
+}
+
+#clipboard button {
+	margin-top: 0.75rem;
+	padding: 0.375rem 1rem;
+	border: none;
+	border-radius: 0.375rem;
+	background-color: #0d6efd;
+	color: #fff;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+#clipboard button:hover {
+	background-color: #0b5ed7;
+}
+
+/* carried forward from the default theme (unchanged) - strips decorative
+   shadow/padding wrappers that older, not-yet-adminlte-themed widgets may
+   still render inside a leightbox's content. */
+#Leightbox_content .table .shadow-top,
+#Leightbox_content .table .shadow-middle,
+#Leightbox_content .table .shadow-bottom {
+	display: none;
+}
+
+#Leightbox_content .table .layer {
+	padding: 0px;
+	width: 100%;
+}
+
+#Leightbox_content .table .layer .margin2px {
+	padding: 0px;
+}

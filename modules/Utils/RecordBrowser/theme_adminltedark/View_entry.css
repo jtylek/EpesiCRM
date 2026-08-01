@@ -1,0 +1,650 @@
+/* AdminLTE re-skin for Utils_RecordBrowser's single-record view/edit screen.
+ * The header (icon/caption/tooltips row) and outer container (a Bootstrap
+ * card) are structurally different from the default theme, and the field
+ * grid itself (.epesi-rv-columns/.column/.view/.edit/.epesi-rv-row/.label/
+ * .data) is flexbox, replacing the default theme's column-balancing
+ * <table>-of-<table>s - see View_entry.tpl and single_field.tpl. The
+ * column-balancing *math* (which field lands in which column) is unchanged,
+ * only the markup. Per-field-type widget internals ($f.full_field -
+ * automulti/timestamp/currency/frozen/multiselect) are built elsewhere and
+ * shared with the default theme and are untouched here beyond
+ * backgrounds/box-shadows/border-radius, since none of them depend on their
+ * ancestor .data being a table cell specifically.
+ */
+
+.epesi-rv-header {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.epesi-rv-required {
+	color: #8b929a;
+	font-size: 0.85rem;
+}
+
+.epesi-rv-tools {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	color: #8b929a;
+	font-size: 0.85rem;
+	/* Pushes this row to the far right of .epesi-rv-header regardless of
+	   .epesi-rv-required's own width, by consuming all free space on the
+	   main axis as margin instead of relying on the parent's
+	   justify-content - a previous attempt used justify-content:space-between
+	   on the parent for this and it didn't actually right-justify the icons
+	   (reported: still sitting immediately after the required-note text,
+	   with unused space to the right instead of the icons moving into it). */
+	margin-left: auto;
+}
+
+/* The tools row's icons (favourite/subscription/info/clipboard/history
+   tooltips, plus every module's "New X" quick-create shortcut - New
+   Meeting/Task/Phonecall/Note) are all built as plain <img>-based HTML
+   strings directly in PHP (RecordBrowserCommon_0.php/WatchdogCommon_0.php/
+   RecordBrowser_0.php for the fixed ones; CRM_Contacts/CRM_Meeting/
+   CRM_PhoneCall/CRM_Tasks/Utils_Attachment's own Common_0.php files each
+   contribute their own "New X" <a> the same way) - none of it goes through
+   a .tpl, shared with the default theme, so same technique as elsewhere in
+   this theme: hide each <img>, add a Bootstrap Icons glyph via ::before on
+   its <a> instead. None of these anchors carry a distinguishing class, so
+   they're told apart purely by their own icon's src via :has(). This is
+   loaded alongside every custom per-table $tpl (RecordBrowser_0.php's own
+   load_css() call), so one set of rules here covers the generic
+   View_entry.tpl and every per-table override (Contact, Contact/Photo,
+   PhoneCall, Mail, Meeting, Attachment) without touching any of them
+   individually. The "New X" glyphs reuse the exact same per-module icon
+   already declared for Menu/ActionBar/Admin panels elsewhere in this theme
+   (Base_AdminlteIcons - see Base/Theme/adminlte_icons.php's
+   <Module>Common::adminlte_icon()), for consistency. Not covered:
+   CRM_Contacts'/Utils_Attachment's "crm_filter" entry ('Set CRM Filter'/
+   'File history') - a bare-text "F" link with no <img> at all, and no other
+   reliable hook to key off; a rare, low-traffic feature, left as plain text
+   for now.
+
+   IMPORTANT: Base_ThemeCommon::get_template_file() resolves onto
+   "modules/<Module>/<Path>/theme/<filename>" (confirmed via
+   Base_ThemeResolver::resolve(), e.g. get_template_file('Utils_Watchdog',
+   'watching_small.png') -> "modules/Utils/Watchdog/theme/watching_small.png")
+   - note the "theme/" segment between the module path and the filename.
+   A single [src*="Module/filename"] substring (assuming they're adjacent)
+   silently never matches anything, hiding every <img> via the blanket rule
+   below with no ::before to replace it - first attempt at this file did
+   exactly that (every icon in this row vanished, "F" was the only one left
+   since it has no <img> to hide in the first place). Fixed by using TWO
+   independent [src*=...] conditions per selector (module folder, filename)
+   instead of one contiguous path - each tests the same src attribute
+   separately, so "theme/" (or "theme_adminlte/", if ever overridden)
+   sitting between them doesn't matter. */
+
+.epesi-rv-tools img {
+	display: none;
+}
+
+.epesi-rv-tools a {
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+}
+
+.epesi-rv-tools a::before {
+	font-family: "bootstrap-icons";
+	/* 2rem (per an earlier round of this same request) read too big -
+	   settled on 1.5rem, still noticeably larger than this file's other
+	   icon glyphs (favourite/subscription/info/clipboard/history + each
+	   module's "New X" shortcuts are this screen's primary action row, not
+	   incidental decoration) without dominating the header. */
+	font-size: 1.5rem;
+	color: #8b929a;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/info.png"])::before {
+	content: "\f430";
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/clipboard.png"])::before {
+	content: "\f290";
+}
+
+/* Same glyph both states (history.png/history_inactive.png - "never edited"
+   just has no href and a dimmed icon, not a different icon). */
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history.png"])::before,
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history_inactive.png"])::before {
+	content: "\f292";
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/history_inactive.png"])::before {
+	opacity: 0.4;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/star_fav.png"])::before {
+	content: "\f586";
+	color: #ffc107;
+}
+
+.epesi-rv-tools a:has(img[src*="RecordBrowser"][src*="/star_nofav.png"])::before {
+	content: "\f588";
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/not_watching_small.png"])::before {
+	content: "\f340";
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/watching_small.png"])::before {
+	content: "\f33e";
+	color: #198754;
+}
+
+.epesi-rv-tools a:has(img[src*="Watchdog"][src*="/watching_small_new_events.png"])::before {
+	content: "\f33e";
+	color: #fd7e14;
+}
+
+.epesi-rv-tools a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
+	content: "\f1e8";
+}
+
+.epesi-rv-tools a:has(img[src*="Tasks"][src*="/icon-small.png"])::before {
+	content: "\f477";
+}
+
+.epesi-rv-tools a:has(img[src*="PhoneCall"][src*="/icon-small.png"])::before {
+	content: "\f5b4";
+}
+
+.epesi-rv-tools a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
+	content: "\f4b3";
+}
+
+/* CRM_Contacts'/Utils_Attachment's "crm_filter" new-shortcut ("Set CRM
+   Filter"/"File history") is a bare <a title="...">F</a> - no <img> at all
+   (see the comment above), so unlike every other icon in this row it can't
+   be told apart by src. It's the only anchor in this row with no <img>
+   child at all, though, which is a reliable enough hook on its own - hide
+   its literal "F" text (font-size:0 - it's the only content, so nothing
+   else to preserve) and add a funnel glyph, same family as CRM_Filters'
+   own navbar "Perspective" link (Base/Theme/adminlte_icons.php isn't
+   involved here, but reusing the same glyph keeps "filter" reading the
+   same everywhere in this theme). */
+.epesi-rv-tools a:not(:has(img)) {
+	font-size: 0;
+}
+
+.epesi-rv-tools a:not(:has(img))::before {
+	font-size: 1rem;
+	content: "\f3e1";
+}
+
+/* Matches the app's own page background (.app-content/.app-main/#dashboard)
+   rather than Bootstrap's default white --bs-card-bg, in both the standalone
+   ($main_page, .card present) and nested-in-a-tab cases - a plain white card
+   didn't match the grey used everywhere else in this theme. !important:
+   Bootstrap's own .card rule (equal specificity, single class) sets this
+   same property, and - same load-order problem documented elsewhere in this
+   theme (see Base/Dashboard/theme_adminlte/default.css) - was winning over
+   this plain declaration, so the card stayed white despite this rule. */
+.epesi-rv-card {
+	background-color: #1a1d20 !important;
+}
+
+/* Scoped to .card too (only present when $main_page - see View_entry.tpl)
+   so the nested-in-a-tab case gets no border/shadow at all, just a plain
+   div that blends into the tab body's own background instead of floating
+   as a separate box inside it. */
+.epesi-rv-card.card {
+	border: 1px solid #495057;
+	box-shadow: 0 0.05rem 0.25rem rgba(0, 0, 0, 0.06);
+}
+
+.Utils_RecordBrowser__View_entry {
+    width: 100%;
+}
+
+.Utils_RecordBrowser__container {
+	background-color: transparent;
+	padding: 0;
+}
+
+/* Was a <table> of <table>s (see View_entry.tpl) - .epesi-rv-columns lays
+   out each .column div side by side, replacing the outer table/tr; there
+   can be more than one (regular fields, then a separate one for
+   multiselects) stacked as ordinary block siblings. */
+.epesi-rv-columns {
+	display: flex;
+}
+
+/* Gap between the left/right field columns (each .column is its own inner
+   .view/.edit flex column). Left/right (not just one side) so adjacent
+   columns' padding adds up to the full gap between them. */
+.Utils_RecordBrowser__View_entry .column {
+	padding-left: 24px;
+	padding-right: 24px;
+	/* Every .column carries its own inline width:{$cols_percent}% - this
+	   keeps it from also flex-growing/shrinking away from that explicit
+	   share when a sibling column's content is a different height. */
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+.Utils_RecordBrowser__View_entry .column:first-child {
+	padding-left: 0;
+}
+
+.Utils_RecordBrowser__View_entry .column:last-child {
+	padding-right: 0;
+}
+
+.Utils_RecordBrowser__View_entry .view,
+.Utils_RecordBrowser__View_entry .edit {
+	/* Was a <table>; each field is now an .epesi-rv-row flex row (see
+	   below) stacked here instead of a <tbody>'s <tr>s. */
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+	width: 100%;
+}
+
+.Utils_RecordBrowser__View_entry .edit {
+	border-top: none;
+}
+
+/* Was a <tr> (single_field.tpl) - lays its .label/.data children
+   side by side, replacing the pair of <td>s. column-gap replaces the
+   outer <table>'s old border-spacing:3px (which gapped both rows and
+   columns of cells; row-gap above now covers the row side of that). */
+.Utils_RecordBrowser__View_entry .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .label {
+	/* Light label / dark text - matches the Filters box's already-converted
+	   label style (Filters/theme_adminlte/default.css), reverting the
+	   earlier dark-label/white-text choice for this screen. #343a40 reads as
+	   a distinct "header" tone against both the view-mode data cell (#24272b)
+	   and the edit-mode one (#fff), without needing a background this dark. */
+	background: #343a40;
+    color: #adb5bd;
+	font-weight: 600;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+	/* min-height, not height: was a fixed-height <td> whose row (and so its
+	   sibling .data) was always at least as tall via table layout; as a flex
+	   row item this still sets the row's minimum, but lets it grow to match
+	   a taller .data instead of clipping against it. */
+	min-height: 20px;
+	white-space: nowrap;
+	overflow:hidden;
+	/* Was vertical-align:middle (table-cell centering) - the flex equivalent. */
+	display: flex;
+	align-items: center;
+    padding-left: 5px;
+    padding-right: 5px;
+	/* Was width:150px. flex-basis instead of width so it holds this size
+	   as a flex item even though .epesi-rv-row no longer has a table's
+	   column-width negotiation; 0 0 keeps it from growing/shrinking. */
+	flex: 0 0 150px;
+    text-align: left;
+	box-shadow: none;
+	font-size: 0.85rem;
+	/* Row-to-row separation: the old page-bg-coloured line only worked
+	   because it disappeared against a dark label; against a light one it
+	   needs to actually be visible, so this now uses the same border grey
+	   as everything else in this file (.data, focus outlines, etc). */
+	border-bottom: 1px solid #495057;
+}
+.epesi_rtl .Utils_RecordBrowser__View_entry .label {
+    text-align: right;
+}
+.Utils_RecordBrowser__View_entry .label_top{
+    border-radius: 0;
+}
+
+.Utils_RecordBrowser__View_entry .long_label {
+    text-align: left;
+	flex-basis: 20%;
+}
+
+.Utils_RecordBrowser__View_entry .data {
+    text-align: left;
+	word-wrap: break-word;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+	border: 1px solid #495057;
+	/* Was "none" - a visible separator between the label and data columns,
+	   per request, instead of them sitting flush against each other. */
+	border-left: 1px solid #495057;
+	box-shadow: none;
+	position: relative;
+	font-size: 0.85rem;
+	/* Was implicit table-cell auto-width (fills whatever the row doesn't
+	   give .label); the flex equivalent, plus min-width:0 so a long
+	   unbreakable value (a URL, an autocomplete widget) can still shrink
+	   below its own content size instead of forcing the row wider. */
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.epesi_rtl .Utils_RecordBrowser__View_entry .data {
+    text-align: right;
+}
+.Utils_RecordBrowser__View_entry .currency {
+    text-align: right;
+}
+
+.Utils_RecordBrowser__View_entry .number {
+    text-align: right;
+}
+
+.Utils_RecordBrowser__View_entry .help {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	right: 2px;
+	top: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .help + div {
+	margin-right: 14px;
+}
+
+.Utils_RecordBrowser__View_entry .edit .help  + div {
+	margin-right: 22px;
+}
+
+.Utils_RecordBrowser__View_entry .view .data {
+    padding: 3px 5px;
+	background-color: #24272b;
+}
+
+.Utils_RecordBrowser__View_entry .view .data img {
+    vertical-align: middle;
+}
+
+.Utils_RecordBrowser__View_entry .edit .data {
+    border-bottom: none;
+	background-color: #2b3035;
+}
+
+.Utils_RecordBrowser__View_entry .long_data {
+    width: 80%;
+}
+
+.Utils_RecordBrowser__View_entry .view .long_data {
+    border-right: 1px solid #B3B3B3;
+}
+
+.Utils_RecordBrowser__View_entry .edit .long_data {
+    border-right: none;
+}
+
+.Utils_RecordBrowser__View_entry .edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input:not([type=button]),
+.Utils_RecordBrowser__View_entry .data select,
+.Utils_RecordBrowser__View_entry .data textarea {
+	/* 100%/box-sizing so the field (and so its :focus background) fills the
+	   whole .data cell - was 99%/14px (a sliver short both ways), leaving a
+	   visible gap around the focus highlight between the field and the
+	   cell's own edges. */
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+    background-color: #2b3035;
+    border: 0px;
+	padding: 3px 5px;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.Utils_RecordBrowser__View_entry .data textarea {
+	height: 63px;
+}
+
+.Utils_RecordBrowser__View_entry .edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input[disabled],
+.Utils_RecordBrowser__View_entry .data select[disabled],
+.Utils_RecordBrowser__View_entry .data textarea[disabled] {
+    background-color: #2b3035;
+}
+
+.Utils_RecordBrowser__View_entry .edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input,
+.Utils_RecordBrowser__View_entry .data textarea {
+	box-shadow: none;
+}
+
+.Utils_RecordBrowser__View_entry .edit .frozen,
+.Utils_RecordBrowser__View_entry .data .static_field,
+.Utils_RecordBrowser__View_entry .data input {
+	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
+}
+
+.Utils_RecordBrowser__View_entry .frozen .static_field {
+	padding: 0px;
+	margin: 0px;
+	background: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry .view .frozen .static_field {
+	width: 100%;
+}
+
+.Utils_RecordBrowser__View_entry .data input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data input::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data select::-moz-placeholder,
+.Utils_RecordBrowser__View_entry .data textarea::-moz-placeholder {
+    color: #FF4429;
+}
+
+.Utils_RecordBrowser__View_entry .data select {
+	height: 100%;
+	padding: 0 5px;
+	margin: 0;
+}
+
+.Utils_RecordBrowser__View_entry .form_error img {
+	margin-left: 5px;
+	border: none;
+	position: absolute;
+	right:3px;
+}
+.Utils_RecordBrowser__View_entry .form_error a {
+	color: white;
+	text-decoration: underline;
+}
+.Utils_RecordBrowser__View_entry .form_error a:hover {
+	color: #CCCCCC;
+}
+.Utils_RecordBrowser__View_entry .form_error:not(:empty) {
+	color: white !important;
+	position: absolute;
+	right: 0px;
+	display: block;
+	height: 15px;
+	margin: 0;
+	padding: 3px 15px 2px 15px;
+	font-weight: bold;
+	z-index: 5;
+	white-space: nowrap;
+	vertical-align: top;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	box-shadow: none;
+
+	background: #dc3545;
+
+	max-width:50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.Utils_RecordBrowser__View_entry .longfields .form_error,
+.Utils_RecordBrowser__View_entry .multiselects .form_error {
+	-webkit-border-radius: 0 4px 0 4px;
+	-moz-border-radius: 0 4px 0 4px;
+    border-radius: 0 4px 0 4px;
+}
+
+/* currency END */
+.Utils_RecordBrowser__View_entry .currency_amount input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* currency START */
+
+/* automulti START */
+
+.Utils_RecordBrowser__View_entry .edit .automulti {
+	background-color: #2b3035;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti select {
+	height: 80px;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti td {
+	padding: 0;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="button"]{
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+    border-radius: 6px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.Utils_RecordBrowser__View_entry .data .automulti input::-webkit-input-placeholder,
+.Utils_RecordBrowser__View_entry .data .automulti input::-moz-placeholder {
+    color: #AAAAAA;
+}
+/* automulti END */
+/* timestamp START */
+.Utils_RecordBrowser__View_entry .timestamp > div > div {
+	float: right;
+}
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
+	float: none;
+	margin-right: 130px;
+}
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a group of an hour/minute/am-pm <select> trio plus a separate date
+   <input>) predates the ".data select{width:100%}" rule higher up in this
+   file, which - added later, for ordinary single-select fields - forces
+   every one of these hour/minute/am-pm selects onto its own full-width
+   line, breaking the float:right layout above entirely (each select ends
+   up stacked instead of sitting compact and side by side). The date
+   <input> is unaffected by this override and correctly keeps width:100% -
+   it's the non-floated sibling the "margin-right:130px" rule above already
+   reserves space against, so it's meant to fill what's left of the row. */
+.Utils_RecordBrowser__View_entry .data .timestamp select {
+	width: auto;
+	height: auto;
+}
+/* timestamp END */
+
+.Utils_RecordBrowser__View_entry .data input[type="checkbox"],
+.Utils_RecordBrowser__View_entry .data input[type="radio"] {
+    width: auto;
+}
+
+.Utils_RecordBrowser__View_entry .data input:focus,
+.Utils_RecordBrowser__View_entry .data select:focus,
+.Utils_RecordBrowser__View_entry .data textarea:focus {
+    background-color: #17233a;
+    /* The browser's own default focus ring (rounded, inset-looking) was
+       never overridden here, so it rendered on top of this background
+       highlight - the light-blue background alone is the intended cue. */
+    outline: none;
+    box-shadow: none;
+    /* Some fields (e.g. the autocomplete/autoselect text input -
+       Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php) render with
+       class="form-control", picking up Bootstrap's own :focus styling
+       (blue border-color + rounded corners) on top of this rule's
+       background tint. All !important - Bootstrap's own rule carries the
+       same .form-control specificity this selector already has to beat
+       regardless of load order. */
+    border-color: #495057 !important;
+    border-radius: 0 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+}
+
+.Utils_RecordBrowser__View_entry #multiselect .form-element select,
+.Utils_RecordBrowser__View_entry #multiselect .to-element select {
+    width: 100%;
+    height: 100px;
+}
+
+.Utils_RecordBrowser__View_entry .data a.button {
+    height: 20px;
+    display: block;
+    float: right;
+}
+
+.Utils_RecordBrowser__View_entry .left-column,
+.Utils_RecordBrowser__View_entry .right-column {
+	vertical-align: top;
+}
+
+.dz-file-preview {
+	z-index: 5;
+}
+
+/* Small screens: stack each .column under the previous one instead of
+ * staying side by side, and stack each row's .label above its .data
+ * instead of side by side - real flex reflow now, not the display:block
+ * responsive-table technique the <table> version needed. */
+@media (max-width: 767.98px) {
+	.epesi-rv-columns {
+		flex-wrap: wrap;
+	}
+
+	/* !important: .column carries its own inline width:{$cols_percent}%
+	   (View_entry.tpl), which otherwise beats any plain class rule here
+	   regardless of source order. */
+	.Utils_RecordBrowser__View_entry .column {
+		flex-basis: 100% !important;
+		/* Was horizontal breathing room between side-by-side columns
+		   (padding-left/right, see above); now that they stack, that would
+		   just indent every field one column too - swap for vertical
+		   breathing room between the stacked column groups instead. */
+		padding-left: 0;
+		padding-right: 0;
+		margin-bottom: 12px;
+	}
+
+	.Utils_RecordBrowser__View_entry .epesi-rv-row {
+		flex-wrap: wrap;
+	}
+
+	.Utils_RecordBrowser__View_entry .label,
+	.Utils_RecordBrowser__View_entry .data {
+		flex-basis: 100%;
+	}
+}

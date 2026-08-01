@@ -1,0 +1,112 @@
+/* AdminLTE re-skin for Utils_TabbedBrowser. The tab <span> elements
+ * themselves (class="tabbed_browser_selected"/"tabbed_browser_unselected")
+ * are pre-rendered HTML strings from TabbedBrowser_0.php::get_link(), shared
+ * with the default theme - restyled here purely via those class names, no
+ * markup changes. Used e.g. by Base_Dashboard for its tabs, and by any
+ * module that calls Utils_TabbedBrowser::set_tab().
+ */
+
+.epesi-tb {
+	margin-top: 1rem;
+}
+
+.epesi-tb-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border-bottom: 2px solid #495057;
+	gap: 0.2rem;
+}
+
+.epesi-tb-item {
+	position: relative;
+}
+
+.epesi-tb-nav .tabbed_browser_unselected,
+.epesi-tb-nav .tabbed_browser_selected {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.45rem 0.9rem;
+	border-radius: 0.375rem 0.375rem 0 0;
+	cursor: pointer;
+	text-decoration: none;
+	font-size: 0.85rem;
+	position: relative;
+}
+
+.epesi-tb-nav .tabbed_browser_unselected {
+	color: #adb5bd;
+	/* Was #2b3035 - too close to the page's own background (#1a1d20) to read
+	   as a tab at all, per request. */
+	background-color: #495057;
+}
+
+.epesi-tb-nav .tabbed_browser_unselected:hover {
+	background-color: #495057;
+	color: #0d6efd;
+	text-decoration: none;
+}
+
+.epesi-tb-nav .tabbed_browser_selected {
+	color: #fff;
+	background-color: #0d6efd;
+	font-weight: 600;
+}
+
+.epesi-tb-nav .tabbed_browser_selected:hover {
+	text-decoration: none;
+	color: #fff;
+}
+
+.epesi-tb-nav img.tab_icon {
+	position: absolute;
+	right: -4px;
+	top: -4px;
+}
+
+/* the group toggle's own dropdown-arrow image (TabbedBrowser_0.php's
+   submenu.png) - not the .tab_icon status image above. */
+.epesi-tb-nav .tabbed_browser_unselected img:not(.tab_icon),
+.epesi-tb-nav .tabbed_browser_selected img:not(.tab_icon) {
+	width: 8px;
+	height: auto;
+	vertical-align: middle;
+}
+
+.epesi-tb-submenu {
+	background-color: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+	padding: 0.25rem;
+	min-width: 160px;
+	z-index: 1055;
+}
+
+.epesi-tb-submenu span {
+	display: block;
+	padding: 0.4rem 0.6rem;
+	border-radius: 0.25rem;
+	font-size: 0.85rem;
+	color: #adb5bd;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.epesi-tb-submenu span:hover {
+	background-color: #343a40;
+	color: #0d6efd;
+}
+
+.epesi-tb-submenu span.tabbed_browser_selected {
+	background-color: #0d6efd;
+	color: #fff;
+}
+
+.epesi-tb-body {
+	padding-top: 0.75rem;
+}

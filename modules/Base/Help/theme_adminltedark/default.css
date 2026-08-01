@@ -1,0 +1,171 @@
+/* AdminLTE re-skin for Base_Help. Per-file theme resolution replaces the
+ * whole stylesheet, not just the rules that changed, so the fixed-position
+ * overlay/menu/tutorial-highlight rules below are carried forward
+ * unchanged from theme/default.css.
+ *
+ * 2026-07-28: the visible toggle link that used to live in this file (first
+ * a compact navbar icon+label, later a standalone "Support" sidebar block)
+ * is gone - "Help" is a real accordion entry now, under the sidebar's
+ * existing "Support" submenu (Base_HelpCommon::menu(), styled entirely by
+ * Base/Menu/theme_adminlte/default.css like any other menu item, nothing
+ * needed here). Nothing in this file draws anything visible any more - it's
+ * purely the overlay/search-popup markup's positioning/skin below. */
+
+/* ---- tutorial arrow/comment-bubble highlighter (Helper.draw_help_arrow()/
+   fancy_arrow() in js/main.js) - a completely separate Base_Help feature
+   from the search popup below, walking a user through a guided tour one
+   step at a time. Positioning (left/top, computed per-step against the
+   highlighted element) stays JS-driven and untouched, same for the canvas-
+   drawn connecting arrow itself (js/main.js's own stroke colour, shared
+   with the default theme, out of this CSS-only pass's scope) - only the
+   comment bubble's own look (default theme: a heavy reddish-brown box with
+   a thick red border and text-shadow) and its Next/Finish buttons are
+   restyled here, to match this theme's card/button language instead of
+   standing out as a visually unrelated leftover. */
+
+.Base_Help__tools {
+	z-index:9001;
+	background:none;
+	position:fixed;
+	top:0px;
+}
+
+.Base_Help__tools.comment {
+	font-size: 0.95rem;
+	background-color: #2b3035;
+	padding: 1rem;
+	border: 1px solid #495057;
+	color: #dee2e6;
+	max-width: 300px;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+}
+
+.Base_Help__tools.comment .button_next {
+	float: right;
+	background-color: #0d6efd;
+	font-size: 0.85rem;
+	font-weight: 500;
+	margin: 0.6rem 0 0;
+	padding: 0.35rem 0.9rem;
+	border: none;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	color: #fff;
+}
+
+.Base_Help__tools.comment .button_next:hover {
+	background-color: #0b5ed7;
+}
+
+#Base_Help__click_icon {
+	position: fixed;
+	z-index: 9002;
+}
+
+/* ---- "search help topics" popup (Helper.menu(), js/main.js) - a custom,
+   hand-rolled show/hide mechanism (inline style.display toggling), not a
+   Leightbox instance, so none of this theme's Leightbox styling reaches it.
+   Markup/ids/classes unchanged from the default theme (both templates are
+   byte-for-byte identical here) - only these rules are new. */
+
+#Base_Help__overlay {
+	position: fixed;
+	display: none;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1045;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+#Base_Help__menu {
+	position: fixed;
+	top: 20px;
+	right: 40px;
+	width: 420px;
+	max-width: calc(100vw - 2rem);
+	height: 400px;
+	max-height: calc(100vh - 40px);
+	z-index: 1050;
+	display: flex;
+	flex-direction: column;
+	background-color: #2b3035;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.3);
+	padding: 1rem;
+	overflow: hidden;
+}
+
+#Base_Help__search {
+	width: 100%;
+	margin: 0 0 0.75rem;
+	padding: 0.45rem 0.75rem;
+	font-size: 0.95rem;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	box-shadow: none;
+	flex: 0 0 auto;
+}
+
+#Base_Help__search:focus {
+	outline: none;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.tutorial_links {
+	flex: 1 1 auto;
+	height: auto;
+	overflow-y: auto;
+}
+
+.tutorial_links a {
+	display: block;
+	font-size: 0.9rem;
+	padding: 0.4rem 0.5rem;
+	border-radius: 0.375rem;
+	color: #0d6efd;
+	text-decoration: none;
+}
+
+.tutorial_links a:hover {
+	background-color: #343a40;
+}
+
+#Base_Help__help_close_menu {
+	position: static;
+	flex: 0 0 auto;
+	align-self: flex-end;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	margin-top: 0.5rem;
+	padding: 0.3rem 0.6rem;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	font-size: 0.85rem;
+	font-weight: 500;
+	height: auto;
+	color: #adb5bd;
+}
+
+#Base_Help__help_close_menu:hover {
+	background-color: #343a40;
+	color: #dc3545;
+}
+
+/* The default theme's own close_black.png sprite - dropped in favour of a
+   Bootstrap Icons glyph via ::before, added before the "Close" text (which
+   comes first in the markup, the icon after) since ::before always renders
+   ahead of an element's own text content regardless of source order. */
+#Base_Help__help_close_menu img {
+	display: none;
+}
+
+#Base_Help__help_close_menu::before {
+	font-family: "bootstrap-icons";
+	content: "\f659";
+	font-size: 0.9rem;
+}

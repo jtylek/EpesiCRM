@@ -1,0 +1,139 @@
+/* AdminLTE variant of FirstRun's styling - see theme_adminlte/default.tpl.
+   The wizard's actual form fields ({$wizard} -> Utils_Wizard -> Libs_QuickForm)
+   still render as the plain HTML_QuickForm_Renderer_TCMSDefault <table id="quickform">
+   markup (modules/Libs/QuickForm/Renderer/TCMSDefault.php) - this module doesn't
+   go through the EpesiSmartyRenderer/array-form path setup.php's forms use, so
+   the Bootstrap look here is achieved by re-skinning that table via CSS rather
+   than by changing the renderer. */
+
+body#FirstRun {
+	background-color: #2b3035;
+	font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	font-size: 0.875rem;
+}
+
+#FirstRun .firstrun-shell {
+	max-width: 640px;
+	margin: 2rem auto 0;
+	padding: 0 1rem;
+}
+
+#FirstRun .firstrun-card {
+	border-radius: 0.5rem;
+	border: 1px solid #495057;
+	background-color: #2b3035;
+	box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .15) !important;
+}
+
+/* Bold, block-shaped caret so it's obvious which field has focus - default.tpl
+   autofocuses the page's first input/select on load, so this caret is the
+   one landing there, not a stray leftover from a previous step. caret-shape
+   is Safari-only today; unsupported browsers just keep the normal thin bar. */
+#FirstRun table#quickform input,
+#FirstRun table#quickform select,
+#FirstRun table#quickform textarea {
+	caret-color: #0d6efd;
+	caret-shape: block;
+}
+
+#FirstRun .firstrun-footer {
+	margin: 1.5rem auto 2rem;
+}
+
+#FirstRun table#quickform {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+
+#FirstRun table#quickform td.header {
+	font-size: 1rem;
+	font-weight: 600;
+	padding-bottom: 0.75rem;
+}
+
+/* Same label/value split as setuptheme/db_config.tpl's col-sm-4/col-sm-8
+   grid, but right-aligned so the label sits flush against its input. */
+#FirstRun table#quickform tr td:first-child {
+	width: 35%;
+	text-align: right;
+	padding: 0.5rem 0.75rem 0.5rem 0;
+	white-space: normal;
+	vertical-align: middle;
+}
+
+#FirstRun table#quickform tr td:nth-child(2) {
+	width: 65%;
+	padding: 0.5rem 0;
+	vertical-align: middle;
+}
+
+#FirstRun table#quickform input[type="text"],
+#FirstRun table#quickform input[type="password"],
+#FirstRun table#quickform select,
+#FirstRun table#quickform textarea {
+	display: block;
+	width: 100%;
+	max-width: 320px;
+	padding: 0.3rem 0.6rem;
+	font-size: 0.85rem;
+	color: #dee2e6;
+	background-color: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	box-sizing: border-box;
+}
+
+#FirstRun table#quickform input[type="text"]:focus,
+#FirstRun table#quickform input[type="password"]:focus,
+#FirstRun table#quickform select:focus {
+	border-color: #86b7fe;
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, .25);
+}
+
+#FirstRun table#quickform input[type="submit"],
+#FirstRun table#quickform input[type="button"] {
+	display: inline-block;
+	padding: 0.3rem 0.9rem;
+	font-size: 0.85rem;
+	font-weight: 400;
+	color: #fff;
+	background-color: #0d6efd;
+	border: 1px solid #0d6efd;
+	border-radius: 0.375rem;
+	cursor: pointer;
+}
+
+#FirstRun table#quickform input[type="button"] {
+	color: #0d6efd;
+	background-color: #2b3035;
+	margin-right: 0.5rem;
+}
+
+#FirstRun table#quickform input[type="submit"]:hover {
+	background-color: #0b5ed7;
+	border-color: #0a58ca;
+}
+
+#FirstRun table#quickform span.error {
+	display: block;
+	color: #dc3545;
+	font-size: 0.85rem;
+}
+
+#FirstRun td[align="left"][valign="top"] {
+	font-size: 0.85rem;
+	color: #8b929a;
+	padding-top: 0.5rem;
+}
+
+#FirstRun ul {
+	list-style: none;
+	padding-left: 0;
+	margin-bottom: 1rem;
+}
+
+#FirstRun ul li {
+	padding: 0.35rem 0;
+}

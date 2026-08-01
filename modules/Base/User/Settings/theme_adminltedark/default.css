@@ -1,0 +1,85 @@
+/* AdminLTE re-skin for the user settings picker (Base_User_Settings::main_page()),
+ * same layout as Base_Admin's tools listing (one boxed card per item) but its
+ * own fresh .epesi-user-settings-* class names rather than either the default
+ * theme's .epesi_big_button/.epesi_label or Base_Admin's .epesi-admin-* -
+ * each module's adminlte theme stays self-contained. The default theme's own
+ * copy of this file is empty (all its styling comes from the shared, reused-
+ * elsewhere classes), so there is nothing to carry forward here.
+ */
+
+.epesi-user-settings {
+	max-width: 1100px;
+}
+
+.epesi-user-settings-title {
+	font-weight: 600;
+	font-size: 0.95rem;
+	color: #adb5bd;
+	margin-bottom: 0.6rem;
+	padding-bottom: 0.35rem;
+	border-bottom: 1px solid #495057;
+}
+
+/* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
+ * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
+ * menu and Base_Admin's own listing - no bespoke .epesi-user-settings-card
+ * sizing needed here.
+ */
+
+/* settings_form.tpl (Base_User_Settings::display_adminlte()) - the actual
+ * per-branch settings edit screen (e.g. "Quick Access", "Messenger Alerts"),
+ * shared by every My Settings/Admin settings branch since Base_User_Settings
+ * is the one module behind all of them. The checkbox->switch look itself
+ * (.epesi-switch) is styled globally in Libs_QuickForm's own theme_adminlte
+ * CSS since QuickForm_0.php tags every settings checkbox with it regardless
+ * of which module owns the field; this file only covers this screen's own
+ * layout (the header/label/matrix-table/field-row chrome around them).
+ */
+.epesi-settings-matrix {
+	margin-bottom: 1rem;
+}
+
+.epesi-settings-matrix th,
+.epesi-settings-matrix td {
+	vertical-align: middle;
+}
+
+.epesi-settings-matrix td:not(:first-child),
+.epesi-settings-matrix th:not(:first-child) {
+	text-align: center;
+}
+
+.epesi-settings-fields input[type="text"],
+.epesi-settings-fields input[type="password"],
+.epesi-settings-fields input[type="number"],
+.epesi-settings-fields select,
+.epesi-settings-fields textarea {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	color: #dee2e6;
+	background-color: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+}
+
+.epesi-settings-fields input[type="text"]:focus,
+.epesi-settings-fields input[type="password"]:focus,
+.epesi-settings-fields input[type="number"]:focus,
+.epesi-settings-fields select:focus,
+.epesi-settings-fields textarea:focus {
+	outline: none;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.epesi-settings-fields .epesi-settings-row {
+	padding: 0.5rem 0;
+	border-bottom: 1px solid #495057;
+}
+
+.epesi-settings-fields .epesi-settings-row:last-child {
+	border-bottom: none;
+}

@@ -1,0 +1,112 @@
+/* AdminLTE re-skin for Apps_Shoutbox's "big" chat form (Chat tab, $big=true -
+ * see chat_form_big.tpl's comment for why this, not chat_form.tpl, is what
+ * actually renders there). Same layout/reasoning as chat_form.css - dropped
+ * the default theme's table-based layout (label column + narrow textarea +
+ * to-field/Send stacked in a separate row) for one flex column with a single
+ * toolbar row, so entry field, "to" selector and Send button all read as one
+ * cohesive unit instead of a legacy form-grid.
+ */
+
+.epesi-shoutbox {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.epesi-shoutbox-compose textarea {
+	width: 100%;
+	min-height: 70px;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.4rem 0.6rem;
+	font-size: 0.85rem;
+	resize: vertical;
+}
+
+.epesi-shoutbox-compose textarea:focus {
+	outline: 0;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.epesi-shoutbox-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.epesi-shoutbox-to {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.epesi-shoutbox-to select,
+.epesi-shoutbox-to input[type="text"] {
+	width: 100%;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.3rem 0.5rem;
+	font-size: 0.8rem;
+}
+
+.epesi-shoutbox-to select:focus,
+.epesi-shoutbox-to input[type="text"]:focus {
+	outline: 0;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.epesi-shoutbox-toolbar input[type="submit"] {
+	flex: 0 0 auto;
+	border: none;
+	border-radius: 0.375rem;
+	background-color: #198754;
+	color: #fff;
+	padding: 0.35rem 0.9rem;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.epesi-shoutbox-toolbar input[type="submit"]:hover {
+	background-color: #157347;
+}
+
+#shoutbox_board_big {
+	height: 320px;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	text-align: left;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.5rem 0.6rem;
+	background-color: #2b3035;
+	font-size: 0.85rem;
+}
+
+#shoutbox_board_big .author {
+	display: inline-block;
+	background-color: #0d6efd;
+	color: #fff;
+	border-radius: 0.25rem;
+	padding: 0.1rem 0.4rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+#shoutbox_board_big .author a {
+	color: #fff;
+}
+
+#shoutbox_board_big .time {
+	font-style: normal;
+	font-size: 0.75rem;
+	color: #adb5bd;
+	margin-left: 0.3rem;
+}
+
+#shoutbox_board_big hr {
+	border: none;
+	border-top: 1px solid #343a40;
+	margin: 0.4rem 0;
+}

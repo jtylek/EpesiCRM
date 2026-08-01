@@ -1,0 +1,107 @@
+/* AdminLTE re-skin for Base_ActionBar - the icon+label toolbar that sits in
+ * the shell's app-content-header (see Base/Box/theme_adminlte/default.tpl).
+ * Also backs launchpad.tpl (the quick-access popup), which shares these same
+ * classes rather than duplicating them.
+ */
+
+.epesi-actionbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	width: 100%;
+	gap: 0.25rem;
+}
+
+.epesi-actionbar-group {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	gap: 0.15rem;
+}
+
+.epesi-actionbar-launcher-group {
+	margin-left: auto;
+	padding-left: 0.5rem;
+	border-left: 1px solid #495057;
+}
+
+.epesi-actionbar-btn {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.1rem;
+	min-width: 56px;
+	padding: 0.1rem 0.4rem;
+	border-radius: 0.375rem;
+	color: #adb5bd;
+	text-decoration: none;
+	font-size: 0.7rem;
+	line-height: 1.15;
+	text-align: center;
+}
+
+.epesi-actionbar-btn:hover {
+	background-color: #343a40;
+	color: #0d6efd;
+}
+
+.epesi-actionbar-btn .bi {
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.epesi-actionbar-btn img {
+	width: 20px;
+	height: 20px;
+	object-fit: contain;
+}
+
+.epesi-actionbar-label {
+	max-width: 76px;
+	overflow-wrap: anywhere;
+	white-space: normal;
+	/* Reserve room for 2 lines of label text at all times, not just when a
+	   label actually wraps that far - the ActionBar's real height is driven
+	   by --epesi-actionbar-height, a live ResizeObserver reading (Base_Box/
+	   theme_adminlte/default.tpl) that keeps .app-main's offset in sync with
+	   #ActionBar's actual rendered height, so navigating from a screen with
+	   short one-line labels to one with a longer wrapped label visibly grew
+	   the bar - and shifted everything below it - on every navigation.
+	   min-height here keeps every button's label box, and so the whole bar
+	   (every button stretches to match, via .epesi-actionbar's own
+	   align-items:stretch), a constant height regardless of content. */
+	min-height: calc(1.15em * 2);
+}
+
+/* Below the label breakpoint icons stay tappable but text drops, matching how
+   the shell's own navbar items collapse to icon-only. */
+@media (max-width: 575.98px) {
+	.epesi-actionbar-label {
+		display: none;
+	}
+	.epesi-actionbar-btn {
+		min-width: auto;
+		padding: 0.4rem;
+	}
+}
+
+/* ---- launchpad popup (leightbox content) ---- */
+
+.epesi-actionbar-launchpad {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+}
+
+.epesi-actionbar-launchpad-btn {
+	min-width: 84px;
+	padding: 0.5rem;
+}
+
+.epesi-actionbar-launchpad-btn img {
+	width: 32px;
+	height: 32px;
+}

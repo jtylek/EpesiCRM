@@ -1,0 +1,255 @@
+/* AdminLTE re-skin for Base_Setup (the EPESI Store / Modules Setup catalog
+ * screen). Markup/ids match the default theme's default.tpl 1:1 - only class
+ * names and visuals changed - so theme/default.js (filter/show-hide actions
+ * and options) keeps working unchanged. See default.tpl's own comment for
+ * the specific DOM contracts that must not move.
+ */
+
+.epesi-setup {
+	padding: 0 0.5rem;
+}
+
+/* --- filter pills ---------------------------------------------------- */
+/* base_setup__filter_by() does a hard className="" / "selected" overwrite
+ * (not classList add/remove), so no other class can ride along on these
+ * elements - style purely off ".filters > div" structure + ".selected". */
+
+.epesi-setup .filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin: 0 0 1rem;
+}
+
+.epesi-setup .filters > div {
+	cursor: pointer;
+	padding: 0.4rem 1rem;
+	border-radius: 50rem;
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: #adb5bd;
+	background-color: #495057;
+	user-select: none;
+}
+
+.epesi-setup .filters > div:hover {
+	background-color: #495057;
+	color: #0d6efd;
+}
+
+.epesi-setup .filters > div.selected {
+	color: #fff;
+	background-color: #0d6efd;
+}
+
+/* --- card grid --------------------------------------------------------- */
+
+.epesi-setup-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+.epesi-setup-card {
+	flex: 0 0 220px;
+	width: 220px;
+	background: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+	padding: 1rem;
+	text-align: center;
+	transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.epesi-setup-card:hover {
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+	transform: translateY(-2px);
+}
+
+.epesi-setup-card-link {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.epesi-setup-card-link:hover {
+	color: #0d6efd;
+}
+
+.epesi-setup-card-icon {
+	width: 64px;
+	height: 64px;
+	object-fit: contain;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-setup-card-name {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #dee2e6;
+	margin-bottom: 0.25rem;
+}
+
+.epesi-setup-card-version {
+	font-size: 0.75rem;
+	color: #8b929a;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-setup-actions {
+	position: relative;
+	margin-top: 0.5rem;
+}
+
+/* --- status/action pill (Installed/Available/Install/Uninstall/...) --- */
+
+.epesi-setup-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-width: 130px;
+	padding: 0.4rem 0.9rem;
+	border-radius: 50rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #fff;
+	cursor: pointer;
+	background-color: #8b929a;
+}
+
+.epesi-setup-action:hover {
+	filter: brightness(1.08);
+}
+
+.epesi-setup-action.install       { background-color: #198754; } /* installed - success */
+.epesi-setup-action.partial-install { background-color: #3bb273; } /* partially installed */
+.epesi-setup-action.available     { background-color: #ffc107; color: #212529; } /* can be installed */
+.epesi-setup-action.store         { background-color: #0d6efd; } /* store product */
+.epesi-setup-action.disabled      { background-color: #495057; color: #adb5bd; cursor: default; }
+.epesi-setup-action.disabled:hover { filter: none; }
+.epesi-setup-action.uninstall     { background-color: #dc3545; }
+.epesi-setup-action.problem       { background-color: #fd7e14; }
+
+/* --- dropdown panel (current status repeated + Install/Uninstall btns) - */
+
+.epesi-setup-action-panel {
+	/* position/top/left are set inline by theme_adminlte/default.js's
+	   epesi_setup__position_centered() - see .epesi-setup-options' comment,
+	   same clipping issue. This is just the pre-JS/no-JS fallback. */
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	/* Base_Box/theme_adminlte's fixed navbar/ActionBar sit at z-index
+	   1038-1040 - anything lower gets covered by them once the page
+	   scrolls the card (and this panel with it) up underneath. Below
+	   Leightbox's 1050 since this isn't a modal. */
+	z-index: 1045;
+	margin-top: 0.25rem;
+	background: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	padding: 0.35rem;
+	min-width: 150px;
+}
+
+.epesi-setup-subaction {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	padding: 0.4rem 0.75rem;
+	margin: 0.15rem 0;
+	border-radius: 0.375rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #fff;
+	cursor: pointer;
+	background-color: #8b929a;
+}
+
+.epesi-setup-subaction:hover {
+	filter: brightness(1.08);
+}
+
+.epesi-setup-subaction.install       { background-color: #198754; }
+.epesi-setup-subaction.partial-install { background-color: #3bb273; }
+.epesi-setup-subaction.available     { background-color: #ffc107; color: #212529; }
+.epesi-setup-subaction.store         { background-color: #0d6efd; }
+.epesi-setup-subaction.disabled      { background-color: #495057; color: #adb5bd; cursor: default; }
+.epesi-setup-subaction.disabled:hover { filter: none; }
+.epesi-setup-subaction.uninstall     { background-color: #dc3545; }
+.epesi-setup-subaction.problem       { background-color: #fd7e14; }
+
+/* --- "Optional" sub-modules toggle + panel ----------------------------- */
+
+.epesi-setup-toggle-options {
+	margin-top: 0.5rem;
+	font-size: 0.8rem;
+	color: #8b929a;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.3rem;
+}
+
+.epesi-setup-toggle-options:hover {
+	color: #0d6efd;
+}
+
+.epesi-setup-options {
+	/* position/top/left/width are set inline by
+	   theme_adminlte/default.js's epesi_setup__position_full() -
+	   position:fixed computed from the card's on-screen rect, since
+	   .app-main's overflow:auto clips a plain position:absolute panel the
+	   moment it extends past the scrolled viewport. This is just the
+	   pre-JS/no-JS fallback. */
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	/* see .epesi-setup-action-panel's comment - must clear the fixed
+	   navbar/ActionBar's 1038-1040. */
+	z-index: 1045;
+	margin-top: 0.25rem;
+	background: #2b3035;
+	border: 1px solid #495057;
+	border-radius: 0.5rem;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	padding: 0.5rem;
+	text-align: left;
+}
+
+.epesi-setup-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.35rem 0;
+	border-bottom: 1px solid #2b3035;
+}
+
+.epesi-setup-option:last-child {
+	border-bottom: none;
+}
+
+.epesi-setup-option-label {
+	font-size: 0.85rem;
+	color: #adb5bd;
+}
+
+.epesi-setup-option-action {
+	position: relative;
+	flex-shrink: 0;
+}
+
+.epesi-setup-option-action .epesi-setup-action {
+	min-width: 0;
+	padding: 0.3rem 0.6rem;
+	font-size: 0.78rem;
+}
+

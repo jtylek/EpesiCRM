@@ -1,0 +1,66 @@
+/* AdminLTE grid layout for Libs_QuickForm's "column" renderer
+ * (display_as_column() - one field per row, label left / control right).
+ *
+ * Replaces the legacy theme's <table style="width:500px"> + fixed 150px
+ * label / 350px data <td> columns (theme/column.tpl) with real CSS grid, so
+ * rows genuinely reflow on narrow screens instead of relying on the
+ * table:has()-based display:block hack this theme used before this file
+ * existed (see Base_Box/theme_adminlte/default.css's history).
+ *
+ * .epesi_label/.epesi_data are kept as secondary classes on the grid items
+ * (rather than the only classes) since other modules' own theme/*.tpl files
+ * reuse those same two class names for unrelated table layouts - scoping
+ * every rule below to the epesi-qf-grid-* classes instead avoids leaking
+ * into those.
+ */
+
+.epesi-qf-header {
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-qf-grid {
+	display: grid;
+	grid-template-columns: minmax(120px, max-content) minmax(0, 1fr);
+	column-gap: 0.75rem;
+	row-gap: 0.6rem;
+	align-items: start;
+	margin: 0.5rem 0;
+}
+
+.epesi-qf-grid-label {
+	grid-column: 1;
+	white-space: nowrap;
+	padding-top: 0.4rem;
+}
+
+.epesi-qf-grid-data {
+	grid-column: 2;
+	min-width: 0;
+}
+
+.epesi-qf-field-wrap {
+	/* form_data's error markup (a positioned tooltip/bubble in some field
+	   types) anchors to the nearest positioned ancestor - previously the
+	   table cell itself, now this wrapper. */
+	position: relative;
+}
+
+.epesi-qf-buttons {
+	text-align: center;
+	margin-top: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+	.epesi-qf-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.epesi-qf-grid-label,
+	.epesi-qf-grid-data {
+		grid-column: 1;
+	}
+	.epesi-qf-grid-label {
+		white-space: normal;
+		padding-top: 0;
+	}
+}
