@@ -149,8 +149,18 @@ class Base_ActionBar extends Module {
 			$th->assign('icons',array());
 			$th->assign('launcher',array_reverse($launcher));
 			$th->display();
-			eval_js('$("launchpad_button_section").style.display="";');
-			eval_js('$("launchpad_button_section_spacing").style.display="";');
+			// Both ids are printed once in Base_Box's own shell markup (not
+			// re-rendered by ordinary AJAX navigation) - guarded rather than
+			// assumed present, since this eval_js runs inside the same shared
+			// per-request append_js blob as every other queued module's own
+			// script (Epesi::get_output()), where an uncaught exception here
+			// would abort every one of THOSE too, not just this call. Was a
+			// bare $("...").style.display=... (throws on a null lookup), the
+			// exact failure Base_Box/theme_adminlte/default.tpl's own comment
+			// on these two ids already warned about without this file having
+			// been updated to match.
+			eval_js('if($("launchpad_button_section"))$("launchpad_button_section").style.display="";');
+			eval_js('if($("launchpad_button_section_spacing"))$("launchpad_button_section_spacing").style.display="";');
 		}
 	}
 
