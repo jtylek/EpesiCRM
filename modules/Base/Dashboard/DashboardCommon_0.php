@@ -120,7 +120,8 @@ class Base_DashboardCommon extends ModuleCommon {
 	}
 	
 	public static function get_remove_applet_button($id, $default_dash) {
-		return '<a class="remove" id="dashboard_remove_applet_'.$id.'" '.(is_numeric($id)?'':'style="display:none;" ').Utils_TooltipCommon::open_tag_attrs(__('Remove')).' href="javascript:void(0);" onClick="if(confirm(\''.__('Delete this applet?').'\'))remove_applet('.(is_numeric($id)?$id:-1).','.($default_dash?1:0).');">x</a>';
+		$action = 'remove_applet('.(is_numeric($id)?$id:-1).','.($default_dash?1:0).');';
+		return '<a class="remove" id="dashboard_remove_applet_'.$id.'" '.(is_numeric($id)?'':'style="display:none;" ').Utils_TooltipCommon::open_tag_attrs(__('Remove')).' href="javascript:void(0);" onClick="'.Module::wrap_confirm_js(__('Delete this applet?'), $action).'">x</a>';
 	}
 
 	public static function remove_applet($id, $default) {

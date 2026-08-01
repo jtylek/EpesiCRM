@@ -484,8 +484,9 @@ abstract class Module extends ModulePrimitive {
 	/**
 	 * Create onClick action string (with href="javascript:void(0);").
 	 * Use variables passed as first parameter, to generate variables accessible by $_REQUEST array.
-	 * This function will trigger js confirm dialog before launching processing.
-	 * If cancelled, no processing will be done.
+	 * This function will trigger a confirmation dialog before launching processing - a styled
+	 * Bootstrap modal on themes that load Bootstrap, a native confirm() otherwise (see
+	 * inject_confirm_modal()). If cancelled, no processing will be done.
 	 *
 	 * <code>
 	 * print('<a '.$this->create_href(array('somekey'=>'somevalue'))).'>Link</a>');
@@ -498,7 +499,92 @@ abstract class Module extends ModulePrimitive {
 	 * @return string href string
 	 */
 	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null) {
-		return ' href="javascript:void(0)" onClick="if(confirm(\''.addslashes($confirm).'\')) {'.self::create_href_js($variables,$indicator,$mode).'}"';
+		return ' href="javascript:void(0)" onClick="'.self::wrap_confirm_js($confirm, self::create_href_js($variables,$indicator,$mode)).'"';
+	}
+
+	/**
+	 * Wraps a raw JS statement with the shared confirmation dialog (see create_confirm_href()
+	 * above / inject_confirm_modal() below), for callers that need to confirm a plain JS action
+	 * rather than one of this class's own create_href_js()-built callbacks - e.g. a hand-rolled
+	 * onclick attribute that calls some other JS function directly.
+	 *
+	 * <code>
+	 * '<a href="javascript:void(0)" onClick="'.Module::wrap_confirm_js(__('Sure?'), 'doThing();').'">Go</a>'
+	 * </code>
+	 *
+	 * Calls inject_confirm_modal() so the common case (normal page render) has it ready
+	 * immediately, but does NOT depend on that having actually reached the browser: the
+	 * returned snippet itself checks `typeof epesi_confirm` before using it, falling back to a
+	 * native confirm() otherwise. That matters for callers outside a normal Epesi page render
+	 * that never flush queued eval_js_once() output at all - e.g. Base_Dashboard's update.php
+	 * (prints raw JS text directly, no Epesi::send_output() call) - where inject_confirm_modal()
+	 * here is a no-op for the CURRENT response; without this fallback, a page where nothing
+	 * had rendered a confirm link yet would call an undefined epesi_confirm() and throw.
+	 *
+	 * @param string $confirm question displayed in the confirmation box - may contain "\n"s
+	 *   (rendered as real line breaks, see inject_confirm_modal()'s white-space:pre-line)
+	 * @param string $action_js raw JS to run if confirmed (a single statement/expression)
+	 * @return string JS snippet suitable for an onClick/onclick attribute value
+	 */
+	public static function wrap_confirm_js($confirm, $action_js) {
+		self::inject_confirm_modal();
+		// Epesi::escapeJS(), not addslashes(): a caller's message can contain real "\n"s
+		// (e.g. Utils_Messenger's multi-line alarm popup) - addslashes() leaves those as literal
+		// newline bytes, which would land unescaped inside this single-quoted JS string and
+		// break it (a raw newline inside a JS string literal is a syntax error); escapeJS()
+		// converts them to the two-character "\n" escape sequence, same as every other
+		// JS-string-unsafe character here.
+		$msg = Epesi::escapeJS($confirm, false);
+		return 'if(typeof epesi_confirm===\'function\'){epesi_confirm(\''.$msg.'\',function(){'.$action_js.'})}else if(confirm(\''.$msg.'\')){'.$action_js.'}';
+	}
+
+	/**
+	 * Injects (once per session) a shared confirmation modal plus the window.epesi_confirm()
+	 * helper create_confirm_href() calls instead of the native confirm(). Same technique as
+	 * Apps_Shoutbox's own confirm modal (Shoutbox_0.php): a plain Bootstrap modal, which only
+	 * exists as a library on the adminlte theme (Base_ThemeCommon::load_theme_assets()) - so
+	 * epesi_confirm() checks for `bootstrap` at call time and falls back to a native confirm()
+	 * when it's absent (the default theme). That runtime check, not a PHP-side theme lookup, is
+	 * what keeps this safe to call unconditionally from theme-agnostic core code.
+	 *
+	 * The modal is a single shared instance (not one per link, which would mean re-injecting a
+	 * copy of this markup for every row of every list that has a delete/clone/etc. action): each
+	 * call re-populates its message and rebinds its OK button to that call's own action, cloning
+	 * the button first to drop whatever the previous confirmation had bound to it.
+	 */
+	private static function inject_confirm_modal() {
+		$modal_html = json_encode(
+			'<div class="modal fade" id="epesi_confirm_modal" tabindex="-1" aria-hidden="true">'
+			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
+			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-question-circle-fill me-2 text-primary"></i>'.__('Confirm').'</h5>'
+			.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>'
+			// white-space:pre-line (not innerHTML) - some callers' messages (e.g.
+			// Utils_Messenger's alarm popup) have embedded "\n"s for readability; textContent
+			// stays XSS-safe (message content isn't always fully trusted - e.g. an alarm's
+			// free-text comment), CSS alone makes the literal newlines actually render.
+			.'<div class="modal-body"><p class="mb-0" id="epesi_confirm_modal_msg" style="white-space:pre-line"></p></div>'
+			.'<div class="modal-footer">'
+			.'<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">'.__('Cancel').'</button>'
+			.'<button type="button" class="btn btn-primary" id="epesi_confirm_modal_ok" autofocus>'.__('OK').'</button>'
+			.'</div></div></div></div>'
+		);
+		eval_js_once('if(!window.epesi_confirm){'
+			.'document.body.insertAdjacentHTML(\'beforeend\','.$modal_html.');'
+			.'window.epesi_confirm=function(msg,actionFn){'
+				.'if(typeof bootstrap===\'undefined\'){if(confirm(msg))actionFn();return;}'
+				.'var el=document.getElementById(\'epesi_confirm_modal\');'
+				.'el.querySelector(\'#epesi_confirm_modal_msg\').textContent=msg;'
+				.'var ok=el.querySelector(\'#epesi_confirm_modal_ok\');'
+				.'var freshOk=ok.cloneNode(true);'
+				.'ok.parentNode.replaceChild(freshOk,ok);'
+				.'freshOk.addEventListener(\'click\',function(){'
+					.'var m=bootstrap.Modal.getInstance(el);'
+					.'if(m)m.hide();'
+					.'actionFn();'
+				.'});'
+				.'bootstrap.Modal.getOrCreateInstance(el).show();'
+			.'};'
+		.'}');
 	}
 
 	/**
