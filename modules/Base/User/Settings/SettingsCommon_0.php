@@ -52,7 +52,7 @@ class Base_User_SettingsCommon extends ModuleCommon {
 		if ($variables === null) {
 			$variables = $_SESSION['default_user_settings'] ?? null;
 		}
-		if (!isset($variables[$module])) {
+		if (!array_key_exists($name, $variables[$module] ?? array())) {
 			if (class_exists($module . 'Common') && method_exists($module . 'Common', 'user_settings')) {
 				$settings = call_user_func(array($module . 'Common', 'user_settings'), true);
 				if (is_array($settings)) {
