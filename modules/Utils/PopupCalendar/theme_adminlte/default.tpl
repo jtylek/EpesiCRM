@@ -3,7 +3,7 @@
    PopupCalendarCommon_0.php::create_href() - its #datepicker_..._header/_view
    cells get overwritten by theme_adminlte/main2.js's show()/show_month() etc.
    as soon as the popup opens. *}
-<div class="card shadow-sm border-0 utils-popupcalendar-card">
+<div class="card utils-popupcalendar-card">
 	<div class="card-body">
 {$calendar}
 	</div>

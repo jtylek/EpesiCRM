@@ -6,8 +6,18 @@
    theme's CSS uses (today/weekend/selected/day/month) so main2.js needed no
    logic changes, only markup ones. */
 
+/* Was Bootstrap's shadow-sm/border-0 utilities (see default.tpl) - too faint
+   to read as a floating popup over a page that's mostly light grey itself
+   (the .epesi-rv-* card backgrounds, other panels, etc. sit in the same
+   pale range). Replaced with an explicit border + a much stronger shadow so
+   the popup visibly lifts off whatever's behind it, on light or dark
+   backgrounds alike. Set directly here rather than via shadow-lg (still a
+   plain CSS box-shadow under the hood) so the exact spread/opacity can be
+   tuned without fighting Bootstrap's own !important utility classes. */
 .utils-popupcalendar-card {
 	width: 240px;
+	border: 1px solid rgba(0, 0, 0, .15);
+	box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .3);
 }
 
 .utils-popupcalendar-card .card-body {
