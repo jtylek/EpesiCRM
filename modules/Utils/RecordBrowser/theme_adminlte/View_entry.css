@@ -272,8 +272,14 @@
 }
 
 .Utils_RecordBrowser__View_entry .label {
-	background: #6c757d;
-    color: #fff;
+	/* Light label / dark text - matches the Filters box's already-converted
+	   label style (Filters/theme_adminlte/default.css), reverting the
+	   earlier dark-label/white-text choice for this screen. #e9ecef reads as
+	   a distinct "header" tone against both the view-mode data cell (#f8f9fa)
+	   and the edit-mode one (#fff), without needing a background this dark. */
+	background: #e9ecef;
+    color: #495057;
+	font-weight: 600;
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
@@ -287,10 +293,11 @@
     text-align: left;
 	box-shadow: none;
 	font-size: 0.85rem;
-	/* Subtle row-to-row separation - the page's own background grey, not a
-	   dark line, so adjacent label rows read as distinct without looking
-	   like a harsh divider. */
-	border-bottom: 1px solid #f4f6f9;
+	/* Row-to-row separation: the old page-bg-coloured line only worked
+	   because it disappeared against a dark label; against a light one it
+	   needs to actually be visible, so this now uses the same border grey
+	   as everything else in this file (.data, focus outlines, etc). */
+	border-bottom: 1px solid #dee2e6;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .label {
     text-align: right;
