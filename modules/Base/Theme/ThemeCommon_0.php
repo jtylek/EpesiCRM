@@ -188,8 +188,8 @@ class Base_ThemeCommon extends ModuleCommon {
 			// Base_Theme may not be installed yet (e.g. this runs during the
 			// pre-module-install splash on a brand new setup, or FirstRun's
 			// admin-creation wizard, which both run before ThemeInstall.php
-			// has had a chance to persist 'adminlte' as default_theme).
-			$theme = Variable::get('default_theme', false) ?: 'adminlte';
+			// has had a chance to persist 'adminltedark' as default_theme).
+			$theme = Variable::get('default_theme', false) ?: 'adminltedark';
 			// A theme lives entirely in modules/<Mod>/theme_<name>/ - checked
 			// directly rather than via Base_Theme::list_themes() because this
 			// runs early enough in bootstrap that the Base_Theme class may not
