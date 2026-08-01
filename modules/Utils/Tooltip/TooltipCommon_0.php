@@ -80,7 +80,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
-		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+		if (Base_ThemeCommon::is_adminlte_family()) {
 			return ' data-epesi-tooltip="1" title="'.htmlspecialchars(self::to_plain_text($tip)).'" ';
 		}
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.show(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
@@ -102,7 +102,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
 
-		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+		if (Base_ThemeCommon::is_adminlte_family()) {
 			// Content isn't known yet - theme_adminlte/tooltip.js's
 			// epesi_tooltip_ajax_load(), wired via plain onmouseenter (no
 			// Bootstrap/Popper involved, see open_tag_attrs() above), POSTs
@@ -199,7 +199,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 // - loading it too would be dead weight, and init_tooltip_div() would inject
 // a floating div nothing ever shows. theme_adminlte/tooltip.js is still
 // needed for the ajax_open_tag_attrs() variant's on-hover content fetch.
-if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+if (Base_ThemeCommon::is_adminlte_family()) {
 	load_js('modules/Utils/Tooltip/theme_adminlte/tooltip.js');
 } else {
 	load_js('modules/Utils/Tooltip/js/tooltip.js');

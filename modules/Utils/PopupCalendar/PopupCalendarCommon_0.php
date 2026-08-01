@@ -39,7 +39,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		// classes; positioning/show-hide below and datepicker.js's validation
 		// stay Prototype-based for both themes (Prototype is still loaded
 		// globally regardless of theme, see legacy-js-libraries-inventory).
-		if (Base_ThemeCommon::get_default_template() === 'adminlte')
+		if (Base_ThemeCommon::is_adminlte_family())
 			load_js('modules/Utils/PopupCalendar/theme_adminlte/main2.js');
 		else
 			load_js('modules/Utils/PopupCalendar/js/main2.js');

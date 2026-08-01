@@ -47,7 +47,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	 * default theme's page weight unchanged.
 	 */
 	public static function load_theme_assets() {
-		if (self::get_default_template() !== 'adminlte') return;
+		if (!self::is_adminlte_family()) return;
 		load_css('libs/bootstrap-5.3.8/css/bootstrap.min.css');
 		// Served through its own loader so the @font-face url("fonts/...")
 		// references in the vendored CSS resolve against the icon package's
@@ -64,16 +64,17 @@ class Base_ThemeCommon extends ModuleCommon {
 		// attribute directly - e.g. "[data-bs-theme=dark] .app-sidebar" - which
 		// still matches through a lower data-bs-theme="light" pin (a descendant
 		// combinator doesn't care that a closer ancestor overrides it), so those
-		// components went dark regardless of the pins on .app-wrapper/
-		// .login-page-adminlte. The theme is light-only for now (no user-facing
-		// switch yet), so force <html> itself back to light instead of chasing
+		// components went dark/light regardless of the pins on .app-wrapper/
+		// .login-page-adminlte. Neither theme has a user-facing light/dark switch
+		// yet, so force <html> itself to match the active theme instead of chasing
 		// every such rule individually. Epesi.append_js only runs once every
 		// queued load_js() script has finished loading (see Epesi.js_loader() in
 		// include/epesi.js), so this always executes after adminlte.min.js's own
 		// auto-detection, not in a race with it.
-		eval_js_once("try{localStorage.setItem('lte-theme','light');}catch(e){}"
-			."document.documentElement.setAttribute('data-bs-theme','light');"
-			."document.documentElement.style.colorScheme='light';");
+		$mode = self::is_dark_theme() ? 'dark' : 'light';
+		eval_js_once("try{localStorage.setItem('lte-theme','$mode');}catch(e){}"
+			."document.documentElement.setAttribute('data-bs-theme','$mode');"
+			."document.documentElement.style.colorScheme='$mode';");
 	}
 
 	/**
@@ -126,7 +127,29 @@ class Base_ThemeCommon extends ModuleCommon {
 		}
 		return $theme;
 	}
-	
+
+	/**
+	 * True for any theme built on the Bootstrap/AdminLTE framework (currently
+	 * 'adminlte' and its dark fork 'adminltedark'). Call sites that used to
+	 * check get_default_template() === 'adminlte' to pick Bootstrap-based
+	 * markup/JS over the legacy default theme should check this instead, so
+	 * they don't need updating again for every future member of the family.
+	 */
+	public static function is_adminlte_family($theme = null) {
+		if (!isset($theme)) $theme = self::get_default_template();
+		return in_array($theme, array('adminlte', 'adminltedark'), true);
+	}
+
+	/**
+	 * True for the dark member of the AdminLTE family - lets shared
+	 * adminlte-family templates/PHP pick a light or dark asset/attribute
+	 * value without hardcoding which theme names are "dark".
+	 */
+	public static function is_dark_theme($theme = null) {
+		if (!isset($theme)) $theme = self::get_default_template();
+		return $theme === 'adminltedark';
+	}
+
 	public static function display_smarty($smarty, $module_name, $user_template=null, $fullname=false) {
 		$module_name = str_replace('_','/',$module_name);
 		if(isset($user_template)) {
@@ -162,6 +185,9 @@ class Base_ThemeCommon extends ModuleCommon {
 		// theme root, which no longer exists as a directory - point it at the
 		// handler that maps those paths back onto modules/.
 		$smarty->assign('theme_dir', self::get_theme_dir_url());
+		// Lets a template branch on the active theme directly (e.g. the shell's
+		// data-bs-theme pin) without a PHP-side helper for every such spot.
+		$smarty->assign('theme_name', self::get_default_template());
 
 		// Smarty 2.x's file: resource only treats a path as absolute when it
 		// matches a leading "/" or a drive letter; anything else is resolved

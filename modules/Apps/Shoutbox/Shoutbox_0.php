@@ -192,7 +192,7 @@ class Apps_Shoutbox extends Module {
 		// only (data-bs-toggle, no custom JS) - gated to adminlte like the
 		// "send to all" confirm modal in chat(), since that's the only theme
 		// bootstrap.js loads for.
-		if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+		if (Base_ThemeCommon::is_adminlte_family()) {
 			$opts['actions'][] = '<a href="#" data-bs-toggle="modal" data-bs-target="#Apps_Shoutbox__bbcode_help_modal" '.Utils_TooltipCommon::open_tag_attrs(__('Formatting help')).'><i class="bi bi-question-circle"></i></a>';
 		}
 		$this->chat();
@@ -372,7 +372,7 @@ class Apps_Shoutbox extends Module {
 		    foreach ($bbcode_ref as $code => $meta) {
 		    	$bbcode_rows .= '<tr><td><code>['.htmlspecialchars($code).']</code></td><td>'.htmlspecialchars($meta['label']).'</td><td><code>'.htmlspecialchars($meta['example']).'</code></td></tr>';
 		    }
-		    if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+		    if (Base_ThemeCommon::is_adminlte_family()) {
 			    $help_modal_html = '<div class="modal fade" id="Apps_Shoutbox__bbcode_help_modal" tabindex="-1" aria-hidden="true">'
 			    		.'<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">'
 			    			.'<div class="modal-content">'

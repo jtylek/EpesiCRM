@@ -686,7 +686,7 @@ class Utils_RecordBrowser extends Module {
         // substitute at all under adminlte, so this must still render there
         // too. The default theme always renders it regardless.
         if (!$pdf && !$special && $this->get_access('add',$this->custom_defaults)!==false
-                && (!$this->fullscreen_table || Base_ThemeCommon::get_default_template() !== 'adminlte')) {
+                && (!$this->fullscreen_table || !Base_ThemeCommon::is_adminlte_family())) {
             if ($this->add_button!==null) $label = $this->add_button;
             elseif (!$this->multiple_defaults) $label = $this->create_callback_href($this->navigate(...), array('view_entry', 'add', null, $this->custom_defaults));
             else $label = Utils_RecordBrowserCommon::create_new_record_href($this->tab,$this->custom_defaults,'multi',true,true);

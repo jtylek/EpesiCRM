@@ -34,7 +34,7 @@ class CRM_Roundcube extends Module {
         }
         if($def===null) {
 			$href = $this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts')));
-			if (Base_ThemeCommon::get_default_template() == 'adminlte') {
+			if (Base_ThemeCommon::is_adminlte_family()) {
 				print('<div class="text-center text-muted" style="padding:4rem 1rem;">'
 					.'<i class="bi bi-envelope-plus" style="font-size:3rem;"></i>'
 					.'<p class="mt-3 mb-3" style="font-size:1.1rem;">'.__('Please set your e-mail account').'</p>'

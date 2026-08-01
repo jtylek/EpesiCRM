@@ -89,7 +89,7 @@ class Base_User_Settings extends Module {
         if($f->validate()) {
             $this->submit_settings($f->exportValues());
             $this->set_back_location();
-        } elseif (Base_ThemeCommon::get_default_template()=='adminlte') {
+        } elseif (Base_ThemeCommon::is_adminlte_family()) {
             $this->display_adminlte($f,$branch);
         } else
             $f->display();

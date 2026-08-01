@@ -279,7 +279,7 @@ class Base_Menu extends Module {
 
 		$theme = $this->init_module(Base_Theme::module_name());
 
-		if (Base_ThemeCommon::get_default_template() == 'adminlte') {
+		if (Base_ThemeCommon::is_adminlte_family()) {
 			// The whole tree normally hangs off a single "Menu" root, which suits a
 			// top-bar dropdown but collapses an entire sidebar into one row - so the
 			// sidebar is built from $modules_menu directly, putting each top-level
