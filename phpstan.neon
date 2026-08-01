@@ -13,9 +13,15 @@ parameters:
     paths:
         - include
         - modules
-    # let PHPStan discover Epesi + vendor class definitions even without an autoloader
+    # let PHPStan discover Epesi + vendor class definitions even without an autoloader.
+    # modules/Base/Theme/smarty and libs are vendored PHP (Smarty, Minify, ADOdb, ...) that
+    # excludePaths/paths deliberately keep out of error-reporting, but their classes are still
+    # referenced from code we do analyze (e.g. simple_login.php, theme_css.php) - without this,
+    # PHPStan can't resolve those symbols and reports bogus "class not found" errors.
     scanDirectories:
         - vendor
+        - libs
+        - modules/Base/Theme/smarty
     excludePaths:
         - modules/CRM/Roundcube/RC/program/*
         - modules/CRM/Roundcube/RC/vendor/*
