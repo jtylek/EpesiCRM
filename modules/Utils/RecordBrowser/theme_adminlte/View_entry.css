@@ -610,3 +610,61 @@
 .dz-file-preview {
 	z-index: 5;
 }
+
+/* Small screens: the field grid above is a real HTML table (label|value
+ * side by side, plus - when $cols>1 - two of those tables sitting side by
+ * side as .column cells), which just gets cramped once the row narrows
+ * instead of reflowing on its own. Standard responsive-table technique:
+ * flip every row of it to display:block so each label sits on its own line
+ * above its value, and each .column stacks under the previous one instead
+ * of staying side by side. `>` child combinators throughout so only this
+ * screen's own row/column tables are touched - automulti/multiselect's
+ * field widgets build their own nested <table> inside a .data cell, but
+ * always under their own class (automulti/#multiselect, never
+ * .view/.edit/.multiselects/.longfields), so they never match these
+ * selectors and keep their own internal layout untouched. */
+@media (max-width: 767.98px) {
+	.Utils_RecordBrowser__View_entry,
+	.Utils_RecordBrowser__View_entry > tbody,
+	.Utils_RecordBrowser__View_entry > tbody > tr,
+	.Utils_RecordBrowser__View_entry td.column,
+	.Utils_RecordBrowser__View_entry table.view,
+	.Utils_RecordBrowser__View_entry table.edit,
+	.Utils_RecordBrowser__View_entry table.multiselects,
+	.Utils_RecordBrowser__View_entry table.longfields,
+	/* Forcing table.view/.edit/etc to display:block without also touching
+	   their own <tbody> leaves that tbody at its UA-default
+	   display:table-row-group - an orphaned table part with no table parent,
+	   which the browser wraps in an anonymous table box instead of just
+	   inheriting the width from table.view. That anonymous box does its own
+	   shrink-to-fit sizing, which is why (confirmed live) the outer column
+	   stacked correctly but every label/data box still only spanned ~45-50%
+	   of the row instead of the intended full width - this was missing on
+	   the first pass. */
+	.Utils_RecordBrowser__View_entry table.view > tbody,
+	.Utils_RecordBrowser__View_entry table.edit > tbody,
+	.Utils_RecordBrowser__View_entry table.multiselects > tbody,
+	.Utils_RecordBrowser__View_entry table.longfields > tbody,
+	.Utils_RecordBrowser__View_entry table.view > tbody > tr,
+	.Utils_RecordBrowser__View_entry table.edit > tbody > tr,
+	.Utils_RecordBrowser__View_entry table.multiselects > tbody > tr,
+	.Utils_RecordBrowser__View_entry table.longfields > tbody > tr,
+	.Utils_RecordBrowser__View_entry td.label,
+	.Utils_RecordBrowser__View_entry td.data {
+		display: block;
+		/* !important: td.column carries its own inline width:{$cols_percent}%
+		   (View_entry.tpl), which otherwise beats any plain class rule here
+		   regardless of source order. */
+		width: 100% !important;
+	}
+
+	/* Was horizontal breathing room between side-by-side columns
+	   (padding-left/right, see above); now that they stack, that would just
+	   indent every field one column too - swap for vertical breathing room
+	   between the stacked column groups instead. */
+	.Utils_RecordBrowser__View_entry td.column {
+		padding-left: 0;
+		padding-right: 0;
+		margin-bottom: 12px;
+	}
+}

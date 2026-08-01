@@ -159,3 +159,62 @@
 #Utils_RecordBrowser__Filter .buttons input:hover {
 	background-color: #0b5ed7;
 }
+
+/* Small screens: elements.tpl wraps up to 4 label/data pairs per physical
+ * <tr> (real layout math, kept from the default theme, same as
+ * View_entry.css's column-balancing table). Same responsive technique as
+ * View_entry.css: flip every table part to display:block so each label/data
+ * pair gets a full-width line of its own instead of staying cramped
+ * 4-across. Unlike View_entry.css this grid is flat (one outer <table>, no
+ * nested inner table per field), so there's no anonymous-tbody trap for a
+ * NESTED table - but the outer table's own <tbody> still needs covering
+ * here for the same reason (a <table> forced to display:block without also
+ * covering its <tbody> leaves that tbody as an orphaned anonymous table box
+ * that ignores the forced width - this was the exact bug found and fixed in
+ * View_entry.css, so it's included here from the start instead of being a
+ * second occurrence of the same mistake).
+ */
+@media (max-width: 767.98px) {
+	.Utils_RecordBrowser__Filter > table,
+	.Utils_RecordBrowser__Filter > table > tbody,
+	.Utils_RecordBrowser__Filter > table > tbody > tr,
+	.Utils_RecordBrowser__Filter td.label,
+	.Utils_RecordBrowser__Filter td.data,
+	.Utils_RecordBrowser__Filter td.buttons {
+		display: block;
+		width: 100% !important;
+	}
+
+	/* The label/data pill shape (rounded-left label + rounded-right data,
+	   .data's left border removed so the pair reads as one joined shape)
+	   only makes sense side by side. Stacked, round the pair as a single
+	   top/bottom block instead and restore .data's left border, which used
+	   to rely on sitting flush against .label. */
+	.Utils_RecordBrowser__Filter .label {
+		border-radius: 4px 4px 0 0;
+	}
+	.Utils_RecordBrowser__Filter .data {
+		border-radius: 0 0 4px 4px;
+		border-left: 1px solid #dee2e6;
+		margin-bottom: 8px;
+	}
+
+	/* Inputs were a fixed 100px/98px (sized for a compact side-by-side
+	   pill) - now that .data spans the full row, let them fill it instead
+	   of leaving most of the row empty. */
+	.Utils_RecordBrowser__Filter .data input,
+	.Utils_RecordBrowser__Filter .data select {
+		width: 100%;
+		box-sizing: border-box;
+		margin-left: 0;
+	}
+	.Utils_RecordBrowser__Filter .data select {
+		margin-right: 0;
+	}
+
+	.Utils_RecordBrowser__Filter .buttons {
+		float: none;
+		text-align: right;
+		padding-right: 0;
+	}
+}

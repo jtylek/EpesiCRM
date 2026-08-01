@@ -1,13 +1,3 @@
-{* Portrait-mode block for phone-width screens - see default.css for the
-   media query. A fixed, full-viewport overlay rather than hiding sibling
-   elements: renders once here, ahead of both branches below, so it covers
-   the login screen too without needing to know anything about how deep
-   either branch's markup ends up nested by the time it reaches <body>. *}
-<div id="epesi-rotate-prompt">
-	<i class="bi bi-phone-landscape"></i>
-	<p>{'Please rotate your device to landscape mode.'|t}</p>
-</div>
-
 {if !$logged}
 
 <div id="Base_Box__login">

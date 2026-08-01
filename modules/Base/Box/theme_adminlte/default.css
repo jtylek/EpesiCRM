@@ -385,48 +385,58 @@ body {
 	text-align: center;
 }
 
-/* ---- portrait lock (phone-width only) ---- */
+/* ---- QuickForm column-layout forms (mobile) ---- */
 
-/* Hidden by default; only ever shown by the media query below. A fixed,
-   full-viewport overlay (very high z-index - above Leightbox's 1050, the
-   tallest other z-index in this theme) rather than hiding sibling elements,
-   so it works regardless of exactly how deep either of default.tpl's two
-   top-level branches (login screen vs. the logged-in shell) end up nested
-   by the time they reach <body> - no selector here needs to know that. */
-#epesi-rotate-prompt {
-	display: none;
-}
+/* Libs/QuickForm's "column" renderer (theme/column.tpl - no adminlte
+   override exists, it's plain HTML shared by both themes) builds a raw
+   <table style="width:500px"> with a fixed 150px label / 350px data column,
+   plus a separate 700px-wide header <div>. It's {include}'d directly inside
+   ~20 other modules' own top-level templates (Settings, Admin, Followup's
+   leightbox, etc.), each of which loads its own CSS auto-derived from ITS
+   OWN top-level tpl name - column.tpl itself is never the display() target,
+   so no single per-module CSS file reaches every place it's used. This file
+   (Base_Box's) is the one exception: it's loaded on every single page,
+   after every other module's CSS (Base_Box_0.php renders last, via
+   Base_ThemeCommon::load_theme_assets() - see ThemeCommon_0.php), so a rule
+   placed here is guaranteed to reach every column.tpl instance app-wide
+   without having to touch each of those ~20 templates individually.
 
-@media (max-width: 767.98px) and (orientation: portrait) {
-	#epesi-rotate-prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		position: fixed;
-		inset: 0;
-		z-index: 2000;
-		padding: 2rem;
-		text-align: center;
-		background-color: #212529;
-		color: #fff;
+   table:has(.epesi_label) (rather than a bare class match) keeps this
+   scoped to column.tpl's actual <table> markup only: Libs/QuickForm's OTHER
+   renderer, theme/row.tpl, reuses the exact same .epesi_label/.epesi_data
+   CLASS NAMES for a deliberately different, non-table inline-block "compact
+   row" layout (<span style="display:table-cell">, no <table>/<td> at all) -
+   a bare .epesi_label/.epesi_data selector would also force those spans to
+   display:block, breaking that layout. Same responsive technique as
+   RecordBrowser's View_entry.css/Filters default.css, including covering
+   the table's own <tbody> and every <tr> so no anonymous-table-box sizing
+   trap is left uncovered (see View_entry.css for how that bug first showed
+   up: a nested table forced to display:block without its <tbody> also
+   covered stayed shrink-to-fit width despite the table itself being 100%). */
+@media (max-width: 767.98px) {
+	table:has(.epesi_label),
+	table:has(.epesi_label) > tbody,
+	table:has(.epesi_label) > tbody > tr,
+	table:has(.epesi_label) td {
+		display: block;
+		/* !important: column.tpl hardcodes width:500px/150px/350px inline
+		   on the table/label/data cells - only !important beats that. */
+		width: 100% !important;
 	}
 
-	#epesi-rotate-prompt i {
-		font-size: 3.5rem;
-		animation: epesi-rotate-hint 1.6s ease-in-out infinite;
+	/* The standalone header <div> (form_data.header - a page-level heading
+	   above the field grid, not part of the <table> at all) is 700px fixed
+	   width in BOTH column.tpl and row.tpl - wide enough alone to overflow
+	   any phone screen and force horizontal scrolling regardless of which
+	   renderer it's paired with, so this one is intentionally not scoped to
+	   table:has() and applies to both. */
+	div.epesi_label.header {
+		width: 100% !important;
+		box-sizing: border-box;
 	}
 
-	#epesi-rotate-prompt p {
-		margin: 0;
-		max-width: 20rem;
-		font-size: 1.1rem;
-	}
-
-	@keyframes epesi-rotate-hint {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(90deg); }
+	table:has(.epesi_label) td.epesi_data {
+		box-sizing: border-box;
 	}
 }
 
