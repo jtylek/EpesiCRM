@@ -312,6 +312,24 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 			$t = str_replace($months_sb,self::$months_en_short,$t);
 		}
 
+		// %d/%m/%Y (day-before-month, slash-separated) is the one
+		// configurable date format (see RegionalSettingsCommon_0.php's
+		// $date_formats_proto) that strtotime() cannot parse correctly on
+		// its own: per the PHP manual, a slash-separated numeric date is
+		// always read as m/d/y regardless of locale, so time2reg()'s own
+		// output under this format - e.g. "08/12/2026" for 8 December -
+		// silently round-trips back as 12 August, and any day above 12 (e.g.
+		// "31/07/2026") fails outright to strtotime()==false, which every
+		// caller of reg2time() ends up treating as epoch (1970-01-01) - the
+		// bug reported as "Project Start Date defaults to 01/01/1970".
+		// Swap the first two numeric groups before handing off so
+		// strtotime()'s own m/d/y assumption lands on the day/month actually
+		// meant. %m/%d/%Y needs no such swap (already matches strtotime's
+		// assumption); the %Y-%m-%d and name-based formats (%B/%b, handled
+		// above) are unambiguous to strtotime() as-is.
+		if (str_starts_with($datef,'%d/%m/%Y') && preg_match('#^(\d{1,2})/(\d{1,2})/(\d{4})(.*)$#',$t,$dm))
+			$t = $dm[2].'/'.$dm[1].'/'.$dm[3].$dm[4];
+
 		$tt = strtotime($t);
 		if($tz)
 			self::restore_tz();
