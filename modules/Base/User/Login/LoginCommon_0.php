@@ -243,6 +243,21 @@ class Base_User_LoginCommon extends ModuleCommon {
 		self::clean_old_autologins();
 	}
 
+	// Re-sends the same still-valid token (sliding 30-day expiry) instead of
+	// minting a new one. autologin() used to call new_autologin_id() here,
+	// which deletes the old DB row and swaps in a brand new cookie value on
+	// every silent re-auth - since $_COOKIE isn't updated until the browser's
+	// *next* request, any second request already in flight with the old
+	// cookie (routine in this app's multi-request-per-page AJAX flow) would
+	// find its token already deleted and fail permanently, with no way to
+	// recover short of logging in again. Reported as "Remember me" having no
+	// effect. Keeping the same token avoids the race entirely.
+	public static function refresh_autologin($user, $autologin_id)
+	{
+		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
+		DB::Execute('UPDATE user_autologin SET last_log=%T WHERE autologin_id=%s', array(time(), $autologin_id));
+	}
+
     public static function is_autologin_forbidden()
     {
         return true == Variable::get('forbid_autologin', false);
@@ -257,7 +272,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
 				if($ret) {
 					Base_User_LoginCommon::set_logged($user);
-					self::new_autologin_id($autologin_id);
+					self::refresh_autologin($user, $autologin_id);
 					return true;
 				}
 			}
