@@ -117,3 +117,22 @@
 	border-top: 1px solid #343a40;
 	margin: 0.4rem 0;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-shoutbox-compose textarea {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-shoutbox-to select,
+[data-bs-theme="light"] .epesi-shoutbox-to input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] #shoutbox_board {
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #shoutbox_board hr {
+  border-top: 1px solid #e9ecef;
+}

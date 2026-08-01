@@ -41,3 +41,8 @@
 	padding: 0.2rem 0.4rem;
 	font-size: 0.8rem;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-br-viewmode select {
+  border: 1px solid #ced4da;
+}

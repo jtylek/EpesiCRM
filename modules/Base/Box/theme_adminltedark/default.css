@@ -273,6 +273,27 @@ body {
 	text-decoration: none;
 }
 
+/* adminltedark-only color-mode toggle, sharing the footer's one-line row with
+   Logout (Base_Box/theme_adminltedark/default.tpl) - icon-only, sized and
+   styled like .sidebar-toggle-inline above rather than Logout's own
+   icon+label button, since it isn't a navigation link. */
+.epesi-adminlte .epesi-theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.375rem;
+	color: var(--epesi-text-muted);
+	font-size: 1rem;
+	flex: 0 0 auto;
+}
+
+.epesi-adminlte .epesi-theme-toggle:hover {
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
+}
+
 /* ---- main column ---- */
 
 .epesi-adminlte .app-main {
@@ -413,4 +434,28 @@ body {
 		margin-left: 0;
 		padding-top: 0;
 	}
+}
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+:root[data-bs-theme="light"] {
+  --epesi-bg: #f4f6f9;
+  --epesi-surface: #fff;
+  --epesi-border: #dee2e6;
+  --epesi-text: #212529;
+  --epesi-text-secondary: #495057;
+  --epesi-text-muted: #6c757d;
+  --epesi-hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] .epesi-adminlte .app-sidebar {
+  --lte-sidebar-color: #343a40;
+  --lte-sidebar-hover-color: #212529;
+  --lte-sidebar-hover-bg: rgba(0, 0, 0, 0.075);
+  --lte-sidebar-header-color: #6c757d;
+  --lte-sidebar-menu-active-bg: rgba(0, 0, 0, 0.075);
+  --lte-sidebar-submenu-color: #495057;
+  --lte-sidebar-submenu-hover-color: #212529;
+  --lte-sidebar-submenu-hover-bg: rgba(0, 0, 0, 0.075);
+  --lte-sidebar-submenu-active-color: #212529;
+  --lte-sidebar-submenu-active-bg: rgba(0, 0, 0, 0.075);
 }

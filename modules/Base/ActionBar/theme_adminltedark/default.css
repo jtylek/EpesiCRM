@@ -105,3 +105,16 @@
 	width: 32px;
 	height: 32px;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-actionbar-launcher-group {
+  border-left: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-actionbar-btn {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-actionbar-btn:hover {
+  background-color: #e9ecef;
+}

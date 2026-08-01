@@ -105,3 +105,17 @@
 	margin-top: 0.4rem;
 	cursor: pointer;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-statusbar-content {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .epesi-statusbar-content .message.loading {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-statusbar-progress {
+  background-color: #dee2e6;
+}

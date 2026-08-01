@@ -48,3 +48,17 @@
 #CRM_Filters .filters-autoselect select {
 	width: 180px;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] #filter_box a.lbOn {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+[data-bs-theme="light"] #filter_box a.lbOn:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] #filter_box a.lbOn::before {
+  color: #6c757d;
+}

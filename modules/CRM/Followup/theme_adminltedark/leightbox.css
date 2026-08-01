@@ -124,3 +124,30 @@
 	font-weight: 600;
 	white-space: nowrap;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-followup-label {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-followup-control select,
+[data-bs-theme="light"] .epesi-followup-control textarea {
+  border: 1px solid #ced4da;
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .epesi-followup-actions {
+  border-top: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-followup-btn {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-followup-btn:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-followup-sep {
+  color: #6c757d;
+}

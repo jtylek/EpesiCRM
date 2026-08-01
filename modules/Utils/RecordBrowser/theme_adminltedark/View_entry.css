@@ -648,3 +648,70 @@
 		flex-basis: 100%;
 	}
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-rv-required {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-rv-tools {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-rv-tools a::before {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-rv-card {
+  background-color: #f4f6f9 !important;
+}
+
+[data-bs-theme="light"] .epesi-rv-card.card {
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .label {
+  background: #e9ecef;
+  color: #495057;
+  border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data {
+  border: 1px solid #dee2e6;
+  border-left: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .view .data {
+  background-color: #f8f9fa;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .edit .data {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .edit .frozen,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data .static_field,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input:not([type=button]),
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data select,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data textarea {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .edit .frozen,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data .static_field,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input[disabled],
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data select[disabled],
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data textarea[disabled] {
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .edit .automulti {
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data select:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data textarea:focus {
+  background-color: #eaf2ff;
+  border-color: #dee2e6 !important;
+}

@@ -238,3 +238,32 @@ input.epesi-switch[type="checkbox"] + label {
 	cursor: pointer;
 	margin-left: 0.4rem;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] #multiselect .form-element select,
+[data-bs-theme="light"] #multiselect .to-element select {
+  border: 1px solid #ced4da;
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #multiselect .buttons-cell td > input,
+[data-bs-theme="light"] #multiselect .buttons .button input {
+  background-color: #6c757d;
+}
+
+[data-bs-theme="light"] #multiselect .buttons-cell td > input[disabled],
+[data-bs-theme="light"] #multiselect .buttons-cell td > input[readonly],
+[data-bs-theme="light"] #multiselect .buttons .button input[disabled],
+[data-bs-theme="light"] #multiselect .buttons .button input[readonly] {
+  background-color: #ced4da;
+}
+
+[data-bs-theme="light"] .autocomplete ul {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] input.epesi-switch[type="checkbox"] {
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}

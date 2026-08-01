@@ -137,3 +137,30 @@ body#FirstRun {
 #FirstRun ul li {
 	padding: 0.35rem 0;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] body#FirstRun {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #FirstRun .firstrun-card {
+  border: 1px solid #dee2e6;
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] #FirstRun table#quickform input[type="text"],
+[data-bs-theme="light"] #FirstRun table#quickform input[type="password"],
+[data-bs-theme="light"] #FirstRun table#quickform select,
+[data-bs-theme="light"] #FirstRun table#quickform textarea {
+  color: #212529;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] #FirstRun table#quickform input[type="button"] {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #FirstRun td[align="left"][valign="top"] {
+  color: #6c757d;
+}

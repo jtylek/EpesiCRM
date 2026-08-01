@@ -133,3 +133,39 @@
 	background-color: #0b5ed7;
 	border-color: #0b5ed7;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-search-mini-group input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-search-full {
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-search-full-header {
+  color: #343a40;
+}
+
+[data-bs-theme="light"] .epesi-search-full-header .bi {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-search-full input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-search-categories {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"] {
+  border: 1px solid #6c757d;
+  background-color: #fff;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"]:hover {
+  background-color: #e9ecef;
+}

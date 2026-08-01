@@ -109,20 +109,19 @@ body:has(.login-page-adminlte) #body_content {
 }
 
 /* ---- logout (relocated into the sidebar footer by Base_Box's own
-   theme_adminlte/default.tpl - a DOM move, not a template split, since
+   theme_adminltedark/default.tpl - a DOM move, not a template split, since
    Login_0.php hands Base_Box logged_as+logout as one combined blob; see
    that file's comment) - not #top_bar-scoped any more, since it no longer
-   lives there. Styled as a full-width row of its own - now the only thing
-   in .sidebar-footer (the "EPESI powered"/version lines that used to sit
-   below it were dropped per a later request). */
+   lives there. .sidebar-footer is a flex row now (that same .tpl), sharing
+   its one line with the color-mode toggle next to it - this box no longer
+   needs to fill the row on its own, just size to its own content. */
 
 .sidebar-footer .logout_css3_box {
 	/* Was a separator above the "EPESI powered"/version line that used to
 	   sit below Logout in this same box - that line is gone (per request,
-	   already reachable from About), and Logout is now the only/last thing
-	   here, so no more border-bottom/padding-bottom to separate it from. */
+	   already reachable from About), so no more border-bottom/padding-bottom
+	   to separate it from. */
 	box-shadow: none;
-	display: block;
 }
 
 .logout_icon {
@@ -155,4 +154,38 @@ body:has(.login-page-adminlte) #body_content {
 	font-family: "bootstrap-icons";
 	content: "\f1c3";
 	font-size: 1rem;
+}
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .login-page-adminlte {
+  background-color: #ffffff;
+}
+
+[data-bs-theme="light"] .login-page-adminlte .login-box-msg {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .login-page-adminlte .card {
+  background-color: #f4f6f9;
+}
+
+[data-bs-theme="light"] #top_bar .logged_as {
+  color: #495057;
+}
+
+[data-bs-theme="light"] #top_bar .logged_as::before {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] #top_bar .logged_as b.green {
+  color: #212529;
+}
+
+[data-bs-theme="light"] .logout_icon {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .logout_icon:hover,
+[data-bs-theme="light"] .logout_icon:focus {
+  background-color: #e9ecef;
 }

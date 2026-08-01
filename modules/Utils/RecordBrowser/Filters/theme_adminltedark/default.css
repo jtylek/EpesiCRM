@@ -204,3 +204,41 @@
 		padding-right: 0;
 	}
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-rbf-btn {
+  border: 1px solid #6c757d;
+  background-color: #fff;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-rbf-btn:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .label {
+  color: #495057;
+  background: #f1f3f5;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data input,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data select {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data input:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data select:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data textarea:focus {
+  background-color: #eaf2ff;
+}
+
+@media (max-width: 767.98px) {
+  [data-bs-theme="light"] .Utils_RecordBrowser__Filter .data {
+    border-left: 1px solid #dee2e6;
+  }
+}

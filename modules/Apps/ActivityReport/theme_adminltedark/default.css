@@ -70,3 +70,16 @@
 .epesi-ar input[type="submit"]:hover {
 	background-color: #0b5ed7;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-ar .form-label {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-ar input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-ar select {
+  border: 1px solid #ced4da;
+}

@@ -15,3 +15,8 @@
 	font-size: 0.95em;
 	margin-right: 0.4rem;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-mmi-icon {
+  color: #6c757d;
+}

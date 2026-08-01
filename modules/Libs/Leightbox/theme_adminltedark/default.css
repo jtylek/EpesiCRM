@@ -167,3 +167,22 @@
 #Leightbox_content .table .layer .margin2px {
 	padding: 0px;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .leightbox {
+  color: #212529;
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #Leightbox_header {
+  background-color: #212529;
+}
+
+[data-bs-theme="light"] #clipboard h3 {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] #clipboard div[onmouseover] {
+  border: 1px solid #dee2e6 !important;
+  background-color: #f8f9fa;
+}

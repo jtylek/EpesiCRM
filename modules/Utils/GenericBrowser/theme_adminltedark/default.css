@@ -836,3 +836,112 @@
 #epesi-gb-actions-menu a:hover {
 	background-color: #2b3035;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-gb .card-header,
+[data-bs-theme="light"] .epesi-gb .card-footer {
+  background-color: #f8f9fa;
+}
+
+[data-bs-theme="light"] .epesi-gb-label {
+  color: #343a40;
+}
+
+[data-bs-theme="light"] .epesi-gb-label a,
+[data-bs-theme="light"] .epesi-gb-label .record_browser_add_new {
+  color: #495057 !important;
+}
+
+[data-bs-theme="light"] .epesi-gb-label a:hover,
+[data-bs-theme="light"] .epesi-gb-label .record_browser_add_new:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-gb-search input[type="text"],
+[data-bs-theme="light"] .epesi-gb-search select {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-gb-search input[type="submit"],
+[data-bs-theme="light"] .epesi-gb-search input[type="button"],
+[data-bs-theme="light"] .epesi-gb-adv .button {
+  border: 1px solid #6c757d;
+  background-color: #fff;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-gb-search input[type="submit"]:hover,
+[data-bs-theme="light"] .epesi-gb-search input[type="button"]:hover,
+[data-bs-theme="light"] .epesi-gb-adv .button:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser > tbody > tr {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser > tbody > tr:hover {
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser__td {
+  border-bottom: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] :is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .Utils_GenericBrowser__overflow_div {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-gb-pager a {
+  border: 1px solid #ced4da;
+  color: #343a40;
+}
+
+[data-bs-theme="light"] .epesi-gb-pager a:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-gb-page select,
+[data-bs-theme="light"] .epesi-gb-per-page select {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-gb-more-toggle {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-gb-more-toggle.epesi-gb-actions-open {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] #epesi-gb-actions-menu {
+  background-color: #fff;
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] #epesi-gb-actions-menu a {
+  color: #343a40;
+}
+
+[data-bs-theme="light"] #epesi-gb-actions-menu a:hover {
+  background-color: #f1f3f5;
+}
+
+@media (max-width: 991.98px) {
+  [data-bs-theme="light"] .epesi-gb-actions-toggle {
+    color: #6c757d;
+  }
+
+  [data-bs-theme="light"] .epesi-gb-actions-toggle.epesi-gb-actions-open {
+    background-color: #e9ecef;
+  }
+}

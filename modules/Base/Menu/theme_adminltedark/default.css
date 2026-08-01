@@ -95,3 +95,25 @@
 	border-top: 1px solid #495057;
 	opacity: 1;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link {
+  color: #343a40;
+}
+
+[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link:hover,
+[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link:focus {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link[aria-expanded="true"] {
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-icon {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-adminlte #MenuBar hr.menu-split {
+  border-top: 1px solid #dee2e6;
+}

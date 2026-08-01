@@ -43,3 +43,24 @@
 .epesi-search-results-item a:hover {
 	color: #0d6efd;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-search-results {
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-search-results-header {
+  background-color: #212529;
+}
+
+[data-bs-theme="light"] .epesi-search-results-warning {
+  border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-search-results-item:hover {
+  background-color: #f1f3f5;
+}
+
+[data-bs-theme="light"] .epesi-search-results-item a {
+  color: #343a40;
+}

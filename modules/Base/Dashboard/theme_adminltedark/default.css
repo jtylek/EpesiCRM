@@ -240,3 +240,25 @@
 	padding: 0.3rem 0.6rem;
 	font-size: 0.85rem;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-applet-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-applet-actions a {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-applet-body {
+  background-color: #f8f9fa;
+}
+
+[data-bs-theme="light"] #dashboard {
+  background-color: #f4f6f9;
+}
+
+[data-bs-theme="light"] #dashboard_applets_filter {
+  border: 1px solid #ced4da;
+}

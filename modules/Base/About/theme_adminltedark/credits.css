@@ -128,3 +128,42 @@
 	margin-top: 0.5rem;
 	margin-bottom: 0;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-about {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .epesi-about-subtitle {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-about-version {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-about-license-text {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-about-note {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-about h2 {
+  border-bottom: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-about h3 {
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-about-footer {
+  border-top: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-about-footer p {
+  color: #6c757d;
+}

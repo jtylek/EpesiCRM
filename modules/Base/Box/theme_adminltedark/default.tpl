@@ -738,9 +738,32 @@
 		   reachable from the About section (Base_About's credits/EULA
 		   popup). Base_Box_0.php still assigns $version_no (shared with the
 		   default theme), just unused here now. The Logout link (relocated
-		   here by the eval_js_once above) is the only, and so last, thing
-		   left in the sidebar footer. *}
-		<div class="sidebar-footer text-center small"></div>
+		   here by the eval_js_once above) shares this one-line row with the
+		   color-mode toggle below it. *}
+		<div class="sidebar-footer d-flex align-items-center justify-content-center gap-2 small">
+			{* adminltedark-only: a single icon-only toggle rather than the
+			   light/dark pair a dropdown would need. adminlte.min.js's built-in
+			   color-mode toggler ("Me" class) still does the actual work -
+			   listens for clicks on any [data-bs-theme-value] element and
+			   persists the choice to localStorage['lte-theme'] itself - but
+			   Me has no notion of "toggle to the opposite of whatever's active
+			   now", only "set to this literal value", so this element's own
+			   data-bs-theme-value has to be kept pointing at the OPPOSITE of
+			   the current theme at all times. Base_ThemeCommon::
+			   load_theme_assets() owns that: it sets the initial value (and
+			   the initial icon, via the same data-lte-theme-icon attribute
+			   Me's own _showActiveTheme() toggles ".d-none" on after every
+			   later click - both icons are kept in the DOM, only one visible)
+			   when it seeds/resolves the starting theme, then flips this
+			   element's data-bs-theme-value again on every "changed.lte.color-
+			   mode" event Me dispatches after a click. No custom click handler
+			   needed either way, matching this theme's convention of using
+			   AdminLTE's own JS over hand-rolled listeners. *}
+			<a href="#" class="epesi-theme-toggle" data-bs-theme-value="light" role="button" aria-label="{'Toggle color mode'|t}" title="{'Toggle color mode'|t}">
+				<i class="bi bi-sun-fill" data-lte-theme-icon="light"></i>
+				<i class="bi bi-moon-stars-fill d-none" data-lte-theme-icon="dark"></i>
+			</a>
+		</div>
 	</aside>
 
 	<main class="app-main">

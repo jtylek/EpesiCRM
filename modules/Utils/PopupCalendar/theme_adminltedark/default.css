@@ -91,3 +91,21 @@
 .utils-popupcalendar-grid td.weekend:not(.selected) {
 	color: var(--bs-secondary-color, #8b929a);
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .utils-popupcalendar-card {
+  border: 1px solid rgba(0, 0, 0, .15);
+}
+
+[data-bs-theme="light"] .utils-popupcalendar-grid td.daysHeader {
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+[data-bs-theme="light"] .utils-popupcalendar-grid td:not(.empty):hover div.day,
+[data-bs-theme="light"] .utils-popupcalendar-grid td:hover div.month {
+  background-color: var(--bs-tertiary-bg, #e9ecef);
+}
+
+[data-bs-theme="light"] .utils-popupcalendar-grid td.weekend:not(.selected) {
+  color: var(--bs-secondary-color, #6c757d);
+}

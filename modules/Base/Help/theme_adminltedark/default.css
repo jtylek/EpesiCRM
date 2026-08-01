@@ -169,3 +169,30 @@
 	content: "\f659";
 	font-size: 0.9rem;
 }
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .Base_Help__tools.comment {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  color: #212529;
+}
+
+[data-bs-theme="light"] #Base_Help__menu {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] #Base_Help__search {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .tutorial_links a:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] #Base_Help__help_close_menu {
+  color: #495057;
+}
+
+[data-bs-theme="light"] #Base_Help__help_close_menu:hover {
+  background-color: #e9ecef;
+}
