@@ -38,6 +38,16 @@ class CRM_Calendar extends Module {
 	}
 
 	public function body($args = array()) {
+		// Needed for the FullCalendar renderer (Utils_Calendar::fullcalendar()): its
+		// events come from a JSON fetch, not a server re-render of this module, so the
+		// normal get_record_href_array()/create_record_href() "does this href match a
+		// pending __jump_to_RB_* request" detection never gets a chance to run for an
+		// event click - check_for_jump() performs the same push_module() unconditionally,
+		// exactly as Base_Dashboard_0.php:26-27 already does for the same reason. A no-op
+		// under the legacy grid engine, since that path's re-render already handles it.
+		if (Utils_RecordBrowserInstall::is_installed())
+			if (Utils_RecordBrowserCommon::check_for_jump()) return;
+
 		$ev_mod = $this->init_module(CRM_Calendar_Event::module_name());
 		$ev_mod->help('Calendar Help','main');
 
@@ -76,6 +86,7 @@ class CRM_Calendar extends Module {
 		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
 
 		$args_defaults = array('default_view'=>Base_User_SettingsCommon::get('CRM_Calendar','default_view'),
+			'engine'=>Base_User_SettingsCommon::get('CRM_Calendar','calendar_engine'),
 			'first_day_of_week'=>Utils_PopupCalendarCommon::get_first_day_of_week(),
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
@@ -96,7 +107,19 @@ class CRM_Calendar extends Module {
 		}
 
 		$theme = $this->init_module(Base_Theme::module_name());
-		$c = $this->init_module(Utils_Calendar::module_name(),array(CRM_Calendar_Event::module_name(),$args,$this->get_new_event_href_js(...)));
+		// Registered as a plain static array-callable, not a first-class-callable
+		// closure: Module::get_ajax_callback_key() does
+		// md5(serialize($func).serialize($args)), and serialize() fatals on a
+		// Closure. $args is null (not e.g. the date range) so this mints exactly
+		// one $_SESSION['ajax_callbacks'] entry per page render rather than a
+		// new one on every calendar navigation - the actual date range travels
+		// in the feed URL's query string instead (see fullcalendar-init.js's feed()).
+		$events_feed_url = $this->create_ajax_callback_url(array('CRM_CalendarCommon','fullcalendar_events'), null);
+		// Same reasoning as $events_feed_url above (static array-callable,
+		// $args=null) - drives drag-move/resize via
+		// CRM_CalendarCommon::fullcalendar_update().
+		$events_write_url = $this->create_ajax_callback_url(array('CRM_CalendarCommon','fullcalendar_update'), null);
+		$c = $this->init_module(Utils_Calendar::module_name(),array(CRM_Calendar_Event::module_name(),$args,$this->get_new_event_href_js(...),$events_feed_url,$events_write_url));
 		$view_type = $c->get_current_view();
 		CRM_CalendarCommon::$mode = $view_type;
 		$theme->assign('calendar',$this->get_html_of_module($c));

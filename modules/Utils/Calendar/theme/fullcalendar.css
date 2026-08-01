@@ -1,0 +1,102 @@
+/* Base styling for the FullCalendar-based renderer (Utils_Calendar::fullcalendar(),
+ * modules/Utils/Calendar/fullcalendar-init.js). Loaded via Base_ThemeCommon::
+ * load_css('Utils_Calendar','fullcalendar') - resolver-based, so an AdminLTE/
+ * adminltedark override can layer on top later without touching this file.
+ *
+ * FullCalendar v6's own bundle ships no CSS at all (injects its base styles
+ * from JS), so everything here is project-authored, not an override of
+ * anything upstream.
+ */
+
+.epesi-fc-container {
+	margin-top: 0.5rem;
+}
+
+/* Epesi's palette is 7 named colors (green/yellow/red/blue/gray/cyan/magenta -
+ * CRM_Calendar_EventCommon::get_available_colors()), carried in the JSON feed
+ * as a CSS class (Utils_CalendarCommon::event_to_fullcalendar()) rather than
+ * an inline color, specifically so a themed override (theme_adminlte/
+ * theme_adminltedark) can remap these for its own contrast instead of being
+ * stuck with whatever the server sent. Values below match the legacy grid's
+ * own event chip palette (modules/Utils/Calendar/theme/event.css) as closely
+ * as a solid FullCalendar chip reasonably can - the legacy chips use these as
+ * a pale background with a matching border and black text, which reads poorly
+ * at FullCalendar's more compact chip size, so the border color is used as a
+ * solid background with white text instead.
+ */
+.fc-epesi-ev.fc-epesi-ev--green  { background-color: #339933; border-color: #339933; }
+.fc-epesi-ev.fc-epesi-ev--yellow { background-color: #999933; border-color: #999933; }
+.fc-epesi-ev.fc-epesi-ev--red    { background-color: #993333; border-color: #993333; }
+.fc-epesi-ev.fc-epesi-ev--blue   { background-color: #336699; border-color: #336699; }
+.fc-epesi-ev.fc-epesi-ev--gray   { background-color: #808080; border-color: #808080; }
+.fc-epesi-ev.fc-epesi-ev--cyan   { background-color: #339999; border-color: #339999; }
+.fc-epesi-ev.fc-epesi-ev--magenta{ background-color: #993399; border-color: #993399; }
+
+.fc-epesi-ev.fc-epesi-ev--green,
+.fc-epesi-ev.fc-epesi-ev--yellow,
+.fc-epesi-ev.fc-epesi-ev--red,
+.fc-epesi-ev.fc-epesi-ev--blue,
+.fc-epesi-ev.fc-epesi-ev--gray,
+.fc-epesi-ev.fc-epesi-ev--cyan,
+.fc-epesi-ev.fc-epesi-ev--magenta {
+	color: #fff;
+}
+
+/* list view (Phase 3) renders the color as a small dot rather than a filled
+ * bar - FullCalendar reads --fc-event-border-color from the event element's
+ * inherited style for that dot, no separate rule needed here.
+ */
+
+/* Delete affordance (Phase 4, fullcalendar-init.js's eventDidMount) -
+ * FullCalendar has no built-in delete gesture, so this is appended into
+ * .fc-epesi-ev directly. Hidden until hover so it doesn't compete with the
+ * event's own title/time text in a day-grid month cell, which is often only
+ * one line tall. color:inherit rather than a fixed value so it's always
+ * legible against whatever palette color this specific event is (its parent
+ * already sets color:#fff - see above). */
+.fc-epesi-ev {
+	position: relative;
+}
+
+.fc-epesi-ev .epesi-fc-delete {
+	position: absolute;
+	top: 0;
+	right: 2px;
+	color: inherit;
+	opacity: 0;
+	cursor: pointer;
+	font-weight: bold;
+	line-height: 1.4;
+	padding: 0 2px;
+}
+
+.fc-epesi-ev:hover .epesi-fc-delete {
+	opacity: 0.75;
+}
+
+.fc-epesi-ev .epesi-fc-delete:hover {
+	opacity: 1;
+}
+
+/* :hover never fires on a touchscreen, so the rules above alone would make
+ * delete silently unreachable on mobile - not just less convenient, an
+ * actual dead affordance. (hover: none) targets devices without a real
+ * pointer, keeping the hover-reveal behavior for desktop mouse users as-is. */
+@media (hover: none) {
+	.fc-epesi-ev .epesi-fc-delete {
+		opacity: 0.6;
+	}
+}
+
+/* Matches Base_Box/theme_adminlte/default.css's own off-canvas-sidebar
+ * breakpoint. The toolbar's own column layout (theme_adminlte/
+ * theme_adminltedark's fullcalendar.css) already stacks nav/title/view-
+ * switcher into separate rows - this lets the view-switcher's own button
+ * group wrap onto more than one row too, rather than assuming five buttons
+ * always fit one line down to arbitrarily narrow widths. */
+@media (max-width: 767.98px) {
+	.epesi-fc-container .fc-toolbar-chunk {
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+}

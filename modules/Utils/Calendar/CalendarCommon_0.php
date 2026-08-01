@@ -66,6 +66,105 @@ class Utils_CalendarCommon extends ModuleCommon {
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event'.($mode?'_'.$mode:''));
 	}
 
+	/**
+	 * Translates the array shape every event-source handler's get_all()/get()
+	 * already returns (id, start/timeless, duration, title, description, color,
+	 * view_action/edit_action/delete_action/move_action, ...) into FullCalendar's
+	 * event object shape. Pure shape translation - process_event() is reused
+	 * as-is for its existing validation and its $row['end'] derivation (by
+	 * reference) for timed events, so there is exactly one place that knows how
+	 * to compute an event's end time.
+	 *
+	 * @param array $events array of event arrays as returned by
+	 *   Utils_Calendar_EventCommon::get_all()/CRM_Calendar_EventCommon::get_all()
+	 * @return array array of FullCalendar-shaped event objects, ready for
+	 *   json_encode()
+	 */
+	public static function events_to_fullcalendar($events) {
+		$ret = array();
+		foreach ($events as $ev)
+			$ret[] = self::event_to_fullcalendar($ev);
+		return $ret;
+	}
+
+	public static function event_to_fullcalendar($ev) {
+		self::process_event($ev); // validates required fields; derives $ev['end'] for timed events
+
+		$timeless = isset($ev['timeless']) && $ev['timeless'];
+		if ($timeless) {
+			$start = is_numeric($ev['timeless']) ? date('Y-m-d', $ev['timeless']) : $ev['timeless'];
+			$end = null;
+		} else {
+			$start = str_replace(' ', 'T', Base_RegionalSettingsCommon::time2reg($ev['start'], true, true, true, false));
+			// duration==-1 ("no duration", the Meeting timeless sentinel that can
+			// still reach here via a non-timeless code path) or 0 -> no end.
+			$end = ($ev['duration'] > 0)
+				? str_replace(' ', 'T', Base_RegionalSettingsCommon::time2reg($ev['end'], true, true, true, false))
+				: null;
+		}
+
+		// Epesi's palette is 7 named colors, not hex values - emitted as a CSS
+		// class (fc-epesi-ev--<name>) rather than inline backgroundColor/
+		// borderColor, so adminlte and adminltedark can each style them for
+		// their own contrast (an inline color would be unreadable in dark mode
+		// for some of these).
+		$classNames = array('fc-epesi-ev');
+		if (!empty($ev['color'])) $classNames[] = 'fc-epesi-ev--'.preg_replace('/[^a-z0-9_-]/', '', (string)$ev['color']);
+
+		return array(
+			'id' => (string)$ev['id'],
+			'title' => (string)$ev['title'],
+			'start' => $start,
+			'end' => $end,
+			'allDay' => $timeless,
+			'classNames' => $classNames,
+			// Straight from the handler's own tri-state (true/absent = default
+			// allowed, false = refused, e.g. CRM_MeetingCommon::crm_event_get()
+			// already sets these false when the viewer lacks edit access) - no
+			// new permission logic, just a type mapping.
+			'startEditable' => !isset($ev['move_action']) || $ev['move_action'] !== false,
+			'durationEditable' => !$timeless && (!isset($ev['edit_action']) || $ev['edit_action'] !== false),
+			'extendedProps' => array(
+				// Verbatim ' href="..." onClick="..." ' attribute fragments, the
+				// exact same ones the legacy event chip (event.tpl/event_day.tpl)
+				// already renders via Module::create_href()/create_record_href() -
+				// the client-side glue applies these onto the rendered element
+				// rather than re-deriving any href logic here. Every built-in
+				// handler (Meeting/Tasks/PhoneCall) always sets these three keys
+				// explicitly (see e.g. CRM_MeetingCommon::crm_event_get()), so in
+				// practice the UCev_id/UCaction "default" fallback below - matching
+				// Utils_CalendarCommon::print_event()'s legacy default construction
+				// for API parity - is dead code for every handler shipped with this
+				// app; it is NOT wired up to be handled by the FullCalendar render
+				// path (Utils_Calendar::fullcalendar()), only by the legacy
+				// day/week/month/year/agenda methods, so a future third-party
+				// handler that omits view_action/edit_action/delete_action would
+				// need that wired up too before its default links would work here.
+				'viewAttrs' => self::action_href($ev, 'view_action',
+					Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view'))),
+				'editAttrs' => self::action_href($ev, 'edit_action',
+					Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'edit'))),
+				'deleteAttrs' => self::action_href($ev, 'delete_action',
+					Module::create_confirm_href(__('Delete this event?'), array('UCev_id'=>$ev['id'], 'UCaction'=>'delete'))),
+				'tooltip' => strip_tags((string)($ev['description'] ?? '')),
+			),
+		);
+	}
+
+	/**
+	 * Normalizes an event's view_action/edit_action/delete_action tri-state
+	 * (true|absent = use the precomputed default href, false = suppressed,
+	 * string = use verbatim - already a full ' href="..." onClick="..." '
+	 * fragment from Module::create_href()) into either a fragment or null.
+	 */
+	private static function action_href($ev, $key, $href_if_default) {
+		if (!isset($ev[$key]) || $ev[$key] === true)
+			return $href_if_default;
+		if ($ev[$key] === false)
+			return null;
+		return (string)$ev[$key];
+	}
+
 	public static function process_event(& $row) {
 		if(!isset($row['start']) && !(isset($row['timeless']) && $row['timeless']))
 			trigger_error('Invalid return of event method: get(_all) (missing field \'start\' or \'timeless\' in '.print_r($row, true).')',E_USER_ERROR);
