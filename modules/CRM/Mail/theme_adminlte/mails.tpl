@@ -6,11 +6,13 @@
    memory). Unlike those two, this one already has its own {if $main_page}
    guard around the header (it renders as an embedded tab too, e.g. inside a
    contact's "E-mails" tab) - kept, mirroring View_entry.tpl's own pattern.
-   Icon+caption dropped from the header, tooltips kept. Layout below kept
-   byte-for-byte identical to the default theme's own mails.tpl - real
-   per-field layout, not decoration. View_entry.css (loaded alongside any
-   custom $tpl by RecordBrowser_0.php) already covers .label/.data/.column/
-   etc, so no separate CSS needed here. *}
+   Icon+caption dropped from the header, tooltips kept. Layout below mirrors
+   View_entry.tpl/Contact.tpl's own conversion to flex (.epesi-rv-columns/
+   .column/.view/.edit/.epesi-rv-row/.label/.data instead of a <table> of
+   <table>s) - real per-field content, not decoration, unchanged beyond the
+   wrapper markup. View_entry.css (loaded alongside any custom $tpl by
+   RecordBrowser_0.php) already covers .label/.data/.column/etc, so no
+   separate CSS needed here. *}
 {* Get total number of fields to display *}
 {assign var=count value=0}
 {php}
@@ -72,32 +74,29 @@
 	<div class="card-body p-0">
 
         <div class="Utils_RecordBrowser__container">
+        <div class="Utils_RecordBrowser__View_entry">
 
             {* Outside table *}
-            <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-                <tbody>
-                <tr>
-                    <td>
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+            <div class="epesi-rv-columns">
+                    <div class="column">
+                        <div class="{if $action == 'view'}view{else}edit{/if}">
                             {$fields.title.full_field}
-                        </table>
-                    </td>
-                    <td>
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="{if $action == 'view'}view{else}edit{/if}">
                             {$fields.edited_on.full_field}
-                        </table>
-                    </td>
-                    <td>
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="{if $action == 'view'}view{else}edit{/if}">
                             {$fields.permission.full_field}
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-                        <tr>
-                        <td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
+                        </div>
+                    </div>
+            </div>
+            <div class="longfields {if $action == 'view'}view{else}edit{/if}">
+                        <div class="epesi-rv-row">
+                        <div class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
                             {if $longfields.note.error}{$longfields.note.error}{/if}
                             {if $longfields.note.help}
                                 <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
@@ -105,29 +104,23 @@
                             <div>
                                 {$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
                             </div>
-                        </td>
-                        </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        </div>
+                        </div>
+            </div>
+            <div class="epesi-rv-columns">
+                    <div class="column">
+                        <div class="{if $action == 'view'}view{else}edit{/if}">
                             {$fields.sticky.full_field}
-                        </table>
-                    </td>
-                    <td colspan="2">
-                        <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                        </div>
+                    </div>
+                    <div class="column" style="flex: 1 1 0; min-width: 0;">
+                        <div class="{if $action == 'view'}view{else}edit{/if}">
                             {$fields.crypted.full_field}
-                        </table>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+            </div>
 
-            <table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-                <tbody>
-                <tr>
+            <div class="epesi-rv-columns">
                     {assign var=x value=1}
                     {assign var=y value=1}
                     {foreach key=k item=f from=$fields name=fields}
@@ -138,68 +131,50 @@
                             {/if}
 
                             {if $y==1}
-                                <td class="column" style="width: {$cols_percent}%;">
-                                <table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+                                <div class="column" style="width: {$cols_percent}%;">
+                                <div class="{if $action == 'view'}view{else}edit{/if}">
                             {/if}
                             {$f.full_field}
                             {if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-                                {if $x>$no_empty}
-                                    <tr style="display:none;">
-                                        <td class="label">&nbsp;</td>
-                                        <td class="data">&nbsp;</td>
-                                    </tr>
-                                {/if}
                                 {assign var=y value=1}
                                 {assign var=x value=$x+1}
-                                </table>
-                                </td>
+                                </div>
+                                </div>
                             {else}
                                 {assign var=y value=$y+1}
                             {/if}
                         {/if}
                         {/if}
                     {/foreach}
-                </tr>
+            </div>
                 {if !empty($multiselects)}
-                    <tr>
+                    <div class="epesi-rv-columns">
                         {assign var=x value=1}
                         {assign var=y value=1}
                         {foreach key=k item=f from=$multiselects name=fields}
                             {if $y==1}
-                                <td class="column" style="width: {$cols_percent}%;" colspan="2">
-                                <table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+                                <div class="column" style="width: {$cols_percent}%;">
+                                <div class="multiselects {if $action == 'view'}view{else}edit{/if}">
                             {/if}
                             {$f.full_field}
                             {if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-                                {if $x>$mss_no_empty}
-                                    <tr style="display:none;">
-                                        <td class="label">&nbsp;</td>
-                                        <td class="data">&nbsp;</td>
-                                    </tr>
-                                {/if}
                                 {assign var=y value=1}
                                 {assign var=x value=$x+1}
-                                </table>
-                                </td>
+                                </div>
+                                </div>
                             {else}
                                 {assign var=y value=$y+1}
                             {/if}
                         {/foreach}
-                    </tr>
+                    </div>
                 {/if}
-                <tr>
-                    <td colspan="{$cols}">
-                        <table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-                            {foreach key=k item=f from=$longfields name=fields}
-                                {if $k!='note'}
-                                    {$f.full_field}
-                                {/if}
-                            {/foreach}
-                        </table>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="longfields {if $action == 'view'}view{else}edit{/if}">
+                        {foreach key=k item=f from=$longfields name=fields}
+                            {if $k!='note'}
+                                {$f.full_field}
+                            {/if}
+                        {/foreach}
+            </div>
 
             {if $main_page}
                 {php}
@@ -207,6 +182,7 @@
                 {/php}
             {/if}
 
+        </div>
         </div>
 
 	</div>

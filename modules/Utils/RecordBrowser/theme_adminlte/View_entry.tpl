@@ -87,78 +87,69 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
-			{assign var=x value=1}
-			{assign var=y value=1}
-			{foreach key=k item=f from=$fields name=fields}
-				{if $f.type!="multiselect"}
-					{if !isset($focus) && $f.type=="text"}
-						{assign var=focus value=$f.element}
-					{/if}
+{* Field grid - was a <table> of <table>s (one outer row, N td.column cells,
+   each holding its own column-balanced inner table); now the equivalent
+   nesting in flex/grid-friendly divs, so it reflows on narrow screens
+   without the display:block responsive-table hack the table version needed.
+   The row/column *distribution* math (rows/no_empty/cols_percent, computed
+   above) is unchanged - only the markup each transition point emits. The
+   old invisible "filler" row that padded a shorter column up to its taller
+   sibling's row count (purely so two side-by-side <table>s looked
+   even) is dropped: flex columns don't need equal row counts to look
+   right. *}
+<div class="Utils_RecordBrowser__View_entry">
+<div class="epesi-rv-columns">
+	{assign var=x value=1}
+	{assign var=y value=1}
+	{foreach key=k item=f from=$fields name=fields}
+		{if $f.type!="multiselect"}
+			{if !isset($focus) && $f.type=="text"}
+				{assign var=focus value=$f.element}
+			{/if}
 
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					{/if}
-						{$f.full_field}
-					{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-						{if $x>$no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/if}
-			{/foreach}
-		</tr>
-		{if !empty($multiselects)}
-			<tr>
-				{assign var=x value=1}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="{if $action == 'view'}view{else}edit{/if}">
+			{/if}
+					{$f.full_field}
+			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 				{assign var=y value=1}
-				{foreach key=k item=f from=$multiselects name=fields}
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{/if}
-					{$f.full_field}
-					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-						{if $x>$mss_no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/foreach}
-			</tr>
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
 		{/if}
-		<tr>
-			<td colspan="{$cols}">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{$f.full_field}
-				{/foreach}
-			</table>
-			</td>
-		</tr>
-	</tbody>
-</table>
+	{/foreach}
+</div>
+{if !empty($multiselects)}
+	<div class="epesi-rv-columns">
+		{assign var=x value=1}
+		{assign var=y value=1}
+		{foreach key=k item=f from=$multiselects name=fields}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+			{/if}
+				{$f.full_field}
+			{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+				{assign var=y value=1}
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
+		{/foreach}
+	</div>
+{/if}
+<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+	{foreach key=k item=f from=$longfields name=fields}
+		{$f.full_field}
+	{/foreach}
+</div>
+</div>
 
 {if $main_page}
 {php}

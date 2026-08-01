@@ -1,9 +1,8 @@
 /* AdminLTE re-skin for Utils_RecordBrowser_Filters - the "Show/Hide filters"
  * toggle (controls.tpl, brand new markup - a real <button>, see the comment
- * there for why that's safe) and the filter field grid (elements.tpl, same
- * 4-per-row wrapping table as the default theme, colours/shadows softened in
- * place rather than rewritten, same reasoning as View_entry.css: the layout
- * math is real, so only cosmetic declarations were touched).
+ * there for why that's safe) and the filter field grid (elements.tpl - flex,
+ * replacing the default theme's 4-per-row wrapping <table>; see that file's
+ * own comment).
  */
 
 .epesi-rbf-controls {
@@ -28,14 +27,18 @@
 	background-color: #e9ecef;
 }
 
-.Utils_RecordBrowser__Filter > table {
-	margin-left: auto;
-	margin-right: 0;
-	border-spacing: 3px;
+.epesi-rbf-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.4rem;
 }
-.epesi_rtl .Utils_RecordBrowser__Filter > table {
-	margin-left: 0;
-	margin-right: auto;
+.epesi_rtl .epesi-rbf-row {
+	justify-content: flex-start;
+}
+
+.epesi-rbf-pair {
+	display: flex;
 }
 
 .Utils_RecordBrowser__Filter {
@@ -48,7 +51,8 @@
 .Utils_RecordBrowser__Filter .label {
     color: #495057;
     height: 28px;
-    vertical-align: middle;
+	display: flex;
+	align-items: center;
     padding-left: 5px;
     padding-right: 5px;
 
@@ -114,15 +118,14 @@
 #Utils_RecordBrowser__Filter .buttons,
 #Utils_RecordBrowser__Filter .buttons_disabled {
 	cursor: pointer;
-	display: block;
-    float: right;
+	display: flex;
+	align-items: center;
     padding-right: 8px;
 }
 
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons,
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
     padding-left: 8px;
-    float: left;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,
@@ -160,29 +163,13 @@
 	background-color: #0b5ed7;
 }
 
-/* Small screens: elements.tpl wraps up to 4 label/data pairs per physical
- * <tr> (real layout math, kept from the default theme, same as
- * View_entry.css's column-balancing table). Same responsive technique as
- * View_entry.css: flip every table part to display:block so each label/data
- * pair gets a full-width line of its own instead of staying cramped
- * 4-across. Unlike View_entry.css this grid is flat (one outer <table>, no
- * nested inner table per field), so there's no anonymous-tbody trap for a
- * NESTED table - but the outer table's own <tbody> still needs covering
- * here for the same reason (a <table> forced to display:block without also
- * covering its <tbody> leaves that tbody as an orphaned anonymous table box
- * that ignores the forced width - this was the exact bug found and fixed in
- * View_entry.css, so it's included here from the start instead of being a
- * second occurrence of the same mistake).
- */
+/* Small screens: each .epesi-rbf-pair gets a full-width line of its own
+ * instead of staying cramped several-across - flex-basis, not the old
+ * table version's display:block hack. */
 @media (max-width: 767.98px) {
-	.Utils_RecordBrowser__Filter > table,
-	.Utils_RecordBrowser__Filter > table > tbody,
-	.Utils_RecordBrowser__Filter > table > tbody > tr,
-	.Utils_RecordBrowser__Filter td.label,
-	.Utils_RecordBrowser__Filter td.data,
-	.Utils_RecordBrowser__Filter td.buttons {
-		display: block;
-		width: 100% !important;
+	.epesi-rbf-pair,
+	.Utils_RecordBrowser__Filter .buttons {
+		flex-basis: 100%;
 	}
 
 	/* The label/data pill shape (rounded-left label + rounded-right data,
@@ -213,8 +200,7 @@
 	}
 
 	.Utils_RecordBrowser__Filter .buttons {
-		float: none;
-		text-align: right;
+		justify-content: flex-end;
 		padding-right: 0;
 	}
 }

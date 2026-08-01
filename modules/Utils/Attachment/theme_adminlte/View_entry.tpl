@@ -13,7 +13,11 @@
    needs the whole row's width to lay out in one line; cramped into a
    regular 1/3 or 1/4 column it wraps and the row balloons to match its
    height, dragging Permission/Sticky's cells tall along with it since they
-   share the same <tr>. Then Attached to, then the note body.
+   share the same row. Then Attached to, then the note body. Structure
+   mirrors View_entry.tpl/Contact.tpl's own conversion to flex
+   (.epesi-rv-columns/.column/.view/.edit/.epesi-rv-row/.label/.data
+   instead of a <table> of <table>s) - real per-field content, not
+   decoration, unchanged beyond the wrapper markup.
    'Edited by' and 'Edited on' split the single 'edited_on' field's combined
    display_date() text (see AttachmentCommon_0.php's $last_editor_info) into
    two columns - only available in 'view' mode, since 'add'/'edit' render
@@ -101,65 +105,52 @@
 	<div class="card-body p-0">
 
 		<div class="Utils_RecordBrowser__container">
+		<div class="Utils_RecordBrowser__View_entry">
 
 			{* Row 1: Title alone, styled as a heading *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td class="epesi-attachment-title">
-						{$fields.title.html}
-					</td>
-				</tr>
-				</tbody>
-			</table>
+			<div class="epesi-attachment-title">
+				{$fields.title.html}
+			</div>
 
 			{if $action == 'view'}
 			{* Row 2 (view): Edited by / Edited on / Permission / Sticky *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="view">
-						<tr>
-							<td class="label">{$edited_by_caption}</td>
-							<td class="data">{$editor_label}</td>
-						</tr>
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="view">
-						<tr>
-							<td class="label">{$fields.edited_on.label}</td>
-							<td class="data">{$edited_date_label}</td>
-						</tr>
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="view">
+			<div class="epesi-rv-columns">
+					<div class="column">
+						<div class="view">
+						<div class="epesi-rv-row">
+							<div class="label">{$edited_by_caption}</div>
+							<div class="data">{$editor_label}</div>
+						</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="view">
+						<div class="epesi-rv-row">
+							<div class="label">{$fields.edited_on.label}</div>
+							<div class="data">{$edited_date_label}</div>
+						</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="view">
 							{$fields.permission.full_field}
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="view">
+						</div>
+					</div>
+					<div class="column">
+						<div class="view">
 							{$fields.sticky.full_field}
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
+						</div>
+					</div>
+			</div>
 
 			{* Row 3 (view): Encryption, full width so its edit-mode group fits on one line *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="view">
+			<div class="epesi-rv-columns">
+					<div class="column" style="flex: 1 1 0; min-width: 0;">
+						<div class="view">
 							{$fields.crypted.full_field}
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
+						</div>
+					</div>
+			</div>
 			{else}
 			{* Row 2 (add/edit): no 'Edited on' - it's always frozen/system-managed,
 			   not something to edit here. Permission / Sticky / Encryption share
@@ -167,33 +158,27 @@
 			   Encryption's group take however much of the row it needs for its
 			   checkbox + Password + Confirm Password + Password Hint fields to
 			   stay on one line, while Permission/Sticky stay their normal size. *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+			<div class="epesi-rv-columns">
+					<div class="column">
+						<div class="edit">
 							{$fields.permission.full_field}
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+						</div>
+					</div>
+					<div class="column">
+						<div class="edit">
 							{$fields.sticky.full_field}
-						</table>
-					</td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0" class="edit">
+						</div>
+					</div>
+					<div class="column" style="flex: 1 1 0; min-width: 0;">
+						<div class="edit">
 							{$fields.crypted.full_field}
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
+						</div>
+					</div>
+			</div>
 			{/if}
 
 			{* Any other generic fields this recordset gains in future (none currently), then Row 4: Attached to *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
+			<div class="epesi-rv-columns">
 					{assign var=x value=1}
 					{assign var=y value=1}
 					{foreach key=k item=f from=$fields name=fields}
@@ -204,95 +189,65 @@
 							{/if}
 
 							{if $y==1}
-								<td class="column" style="width: {$cols_percent}%;">
-								<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+								<div class="column" style="width: {$cols_percent}%;">
+								<div class="{if $action == 'view'}view{else}edit{/if}">
 							{/if}
 							{$f.full_field}
 							{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-								{if $x>$no_empty}
-									<tr style="display:none;">
-										<td class="label">&nbsp;</td>
-										<td class="data">&nbsp;</td>
-									</tr>
-								{/if}
 								{assign var=y value=1}
 								{assign var=x value=$x+1}
-								</table>
-								</td>
+								</div>
+								</div>
 							{else}
 								{assign var=y value=$y+1}
 							{/if}
 						{/if}
 						{/if}
 					{/foreach}
-				</tr>
+			</div>
 				{if !empty($multiselects)}
-					<tr>
+					<div class="epesi-rv-columns">
 						{assign var=x value=1}
 						{assign var=y value=1}
 						{foreach key=k item=f from=$multiselects name=fields}
 							{if $y==1}
-								<td class="column" style="width: {$cols_percent}%;" colspan="2">
-								<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+								<div class="column" style="width: {$cols_percent}%;">
+								<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
 							{/if}
 							{$f.full_field}
 							{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-								{if $x>$mss_no_empty}
-									<tr style="display:none;">
-										<td class="label">&nbsp;</td>
-										<td class="data">&nbsp;</td>
-									</tr>
-								{/if}
 								{assign var=y value=1}
 								{assign var=x value=$x+1}
-								</table>
-								</td>
+								</div>
+								</div>
 							{else}
 								{assign var=y value=$y+1}
 							{/if}
 						{/foreach}
-					</tr>
+					</div>
 				{/if}
-				</tbody>
-			</table>
 
 			{* Row 5: body of the note (and any other longfields, none currently) *}
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td colspan="3">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-						<tr>
-						<td class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-							{if $longfields.note.error}{$longfields.note.error}{/if}
-							{if $longfields.note.help}
-								<div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
-							{/if}
-							<div>
-								{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
-							</div>
-						</td>
-						</tr>
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-			<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-				<tbody>
-				<tr>
-					<td colspan="{$cols}">
-						<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-							{foreach key=k item=f from=$longfields name=fields}
-								{if $k!='note'}
-									{$f.full_field}
-								{/if}
-							{/foreach}
-						</table>
-					</td>
-				</tr>
-				</tbody>
-			</table>
+			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+					<div class="epesi-rv-row">
+					<div class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
+						{if $longfields.note.error}{$longfields.note.error}{/if}
+						{if $longfields.note.help}
+							<div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+						{/if}
+						<div>
+							{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+						</div>
+					</div>
+					</div>
+			</div>
+			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+					{foreach key=k item=f from=$longfields name=fields}
+						{if $k!='note'}
+							{$f.full_field}
+						{/if}
+					{/foreach}
+			</div>
 
 			{if $main_page}
 				{php}
@@ -300,6 +255,7 @@
 				{/php}
 			{/if}
 
+		</div>
 		</div>
 
 	</div>

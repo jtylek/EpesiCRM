@@ -3,10 +3,11 @@
 	<div class="logout_css3_box"><a class="logout_icon" {$logout_href}>{$logout_label}<div class="logout_icon_img"></div></a></div>
 {else}
 {$form_data.javascript}
-{* data-bs-theme is pinned because AdminLTE's JS follows the OS
-   prefers-color-scheme and would otherwise flip Bootstrap to its dark palette,
-   turning this card black. Scoped here rather than fought in CSS. *}
-<div class="login-page-adminlte d-flex align-items-center justify-content-center" data-bs-theme="light">
+{* data-bs-theme is pinned to the active theme because AdminLTE's JS follows
+   the OS prefers-color-scheme and would otherwise flip Bootstrap to whichever
+   palette the OS prefers, regardless of which Epesi theme is installed.
+   Scoped here rather than fought in CSS. *}
+<div class="login-page-adminlte d-flex align-items-center justify-content-center" data-bs-theme="{if $theme_name=='adminltedark'}dark{else}light{/if}">
 	<div class="login-box">
 		<div class="card">
 			<div class="card-body login-card-body">

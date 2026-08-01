@@ -5,19 +5,26 @@
    default.tpl (see ../../Contacts/theme_adminlte/Contact.tpl and
    [[adminlte-theme-incomplete]] memory). Already has its own {if $main_page}
    guard around the header - kept. Icon+caption dropped from the header,
-   tooltips kept. Everything else (the day/month/time "header-new" event box,
-   recurrence-hash weekday grid, messenger alert block) kept byte-for-byte
-   identical to the default theme's own default.tpl - real layout/logic, not
-   decoration, and NOT themed here (out of scope for this pass - just the
-   header+card wrapper, matching the same fix applied to View_entry.tpl/
-   Contact.tpl/mails.tpl/PhoneCall's default.tpl). Kept the
-   "CRM_Calendar_Event_Personal" wrapper class - modules/CRM/Meeting/theme/
-   default.css scopes status/priority/access select-option icons and the
-   header-new day-box styling off this class name, and has no theme_adminlte
-   override, so it still resolves via the normal fallback-to-default
-   mechanism and needs the class present to keep matching. View_entry.css
-   (loaded alongside any custom $tpl by RecordBrowser_0.php) covers .label/
-   .data/.column/etc generically. *}
+   tooltips kept. Layout below mirrors View_entry.tpl/Contact.tpl/
+   PhoneCall's default.tpl's own conversion to flex (.epesi-rv-columns/
+   .column/.view/.edit/.epesi-rv-row/.label/.data instead of a <table> of
+   <table>s) - real per-field content, not decoration, unchanged beyond the
+   wrapper markup. Two genuinely tabular bits are left as real <table>s
+   rather than forced into the flex grid: the "header-new" day/month/time/
+   duration date box (a small fixed display, not a layout device - it used
+   a <td rowspan="3"> to sit beside the title/fields column AND the
+   multiselects/longfields rows below it; flexbox has no rowspan equivalent,
+   so this is reproduced by making the day box one flex sibling of a second
+   flex item that itself stacks title/fields, multiselects and longfields -
+   same visual result, no rowspan needed) and the recurrence-hash weekday
+   grid (a genuine 2-row, up-to-7-column data table - which weekday
+   checkboxes go with which label). Kept the "CRM_Calendar_Event_Personal"
+   wrapper class - modules/CRM/Meeting/theme/default.css scopes status/
+   priority/access select-option icons and the header-new day-box styling
+   off this class name, and has no theme_adminlte override, so it still
+   resolves via the normal fallback-to-default mechanism and needs the class
+   present to keep matching. View_entry.css (loaded alongside any custom
+   $tpl by RecordBrowser_0.php) covers .label/.data/.column/etc generically. *}
 {assign var=count value=0}
 {php}
 	$this->_tpl_vars['multiselects'] = array();
@@ -79,12 +86,11 @@
 	<div class="card-body p-0">
 
 <div class="Utils_RecordBrowser__container">
-    <table class="Utils_RecordBrowser__View_entry" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-        <tbody>
-            <tr>
+<div class="Utils_RecordBrowser__View_entry">
+<div class="epesi-rv-columns" style="align-items: flex-start;">
                 {if $action == 'view'}
                 <!-- NEW HEADER -->
-                <td rowspan="3" style="width:143px; vertical-align:top;">
+                <div class="column" style="flex: 0 0 143px;">
                     <table border="0" class="header-new">
                         <tbody>
                             <tr>
@@ -127,129 +133,125 @@
                             </tr>
                         </tbody>
                     </table>
-                </td>
+                </div>
                 {/if}
+                <div class="column" style="flex: 1 1 0; min-width: 0;">
+                <div class="epesi-rv-columns">
                 <!-- LEFT -->
-                <td style="width: 50%; height: 101px; vertical-align: top;">
+                <div class="column" style="width: 50%;">
                     {* title *}
-                    <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
-							{$fields.title.full_field}
-							{$fields.permission.full_field}
-							{$fields.priority.full_field}
-							{$fields.status.full_field}
-                        </tbody>
-                    </table>
-                </td>
-                <!-- -->
+                    <div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.title.full_field}
+						{$fields.permission.full_field}
+						{$fields.priority.full_field}
+						{$fields.status.full_field}
+                    </div>
+                </div>
                 <!-- RIGHT -->
-                <td style="width: 50%; height: 101px; vertical-align: top;">
-                    <table style="table-layout: auto;" name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if} no-border" cellspacing="0" cellpadding="0" border="0">
-                        <tbody>
+                <div class="column" style="width: 50%;">
+                    <div class="{if $action == 'view'}view{else}edit{/if} no-border">
                     {* start - end *}
                     {if $action != 'view'}
-                                <tr>
-                                    <td class="label">{$form_data.date.label}{if $form_data.date.required}*{/if}</td>
-                                    <td colspan="2" class="data timestamp">
-										<div style="position:relative;">
-											<span class="error">{$form_data.date.error}</span>
-											<div id="time_s" id="_time__data">{$form_data.time.html}</div>
-											<div class="time_s" id="_date__data">{$form_data.date.html}</div>
-										</div>
-									</td>
-                                </tr>
+                                <div class="epesi-rv-row">
+                                    <div class="label">{$form_data.date.label}{if $form_data.date.required}*{/if}</div>
+                                    <div class="data timestamp">
+										<span class="error">{$form_data.date.error}</span>
+										<div id="time_s" id="_time__data">{$form_data.time.html}</div>
+										<div class="time_s" id="_date__data">{$form_data.date.html}</div>
+									</div>
+                                </div>
                     {/if}
-                            <tr>
-                                <td class="label" align="left">{$form_data.timeless.label}{if $form_data.timeless.required}*{/if}</td>
-                                <td class="data" align="left" colspan="2" id="_timeless__data">{$form_data.timeless.html}</td>
-                            </tr>
+                            <div class="epesi-rv-row">
+                                <div class="label">{$form_data.timeless.label}{if $form_data.timeless.required}*{/if}</div>
+                                <div class="data" id="_timeless__data">{$form_data.timeless.html}</div>
+                            </div>
                     {if $action != 'view'}
-                                <tr id="duration_end_date__data_">
-                                    <td class="label">
+                                <div class="epesi-rv-row" id="duration_end_date__data_">
+                                    <div class="label">
 										{$form_data.duration.label} / {$form_data.end_time.label}
-									</td>
-                                    <td colspan="2" class="data" style="height: 20px;">
-										<div style="position:relative;">
-											<div class="toggle_button">{$form_data.toggle.html}</div>
-											<div id="crm_calendar_duration_block">
-													<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
-											</div>
-											<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+									</div>
+                                    <div class="data" style="height: 20px;">
+										<div class="toggle_button">{$form_data.toggle.html}</div>
+										<div id="crm_calendar_duration_block">
+												<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
 										</div>
-                                    </td>
-                                </tr>
+										<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+                                    </div>
+                                </div>
                     {/if}
-                            <tr>
-                                <td class="label" align="left">{$form_data.recurrence_type.label}</td>
-                                <td class="data" align="left" colspan="2" id="_recurrence_type__data">
+                            <div class="epesi-rv-row">
+                                <div class="label">{$form_data.recurrence_type.label}</div>
+                                <div class="data" id="_recurrence_type__data">
                                     {$form_data.recurrence_type.html}
-                                </td>
-                            </tr>
+                                </div>
+                            </div>
 			    {if isset($form_data.recurrence_start_date)}
-				    <tr id="recurrence_start_date_row">
-					<td class="label" align="left">{$form_data.recurrence_start_date.label}</td>
-					<td class="data" align="left" colspan="2" id="_recurrence_start_date__data">
+				    <div class="epesi-rv-row" id="recurrence_start_date_row">
+					<div class="label">{$form_data.recurrence_start_date.label}</div>
+					<div class="data" id="_recurrence_start_date__data">
 						<span id="recurrence_start_date_span">
 							{$form_data.recurrence_start_date.html}
 						</span>
-					</td>
-				    </tr>
+					</div>
+				    </div>
 			    {/if}
-                            <tr id="recurrence_end_date_row">
-                                <td class="label" align="left" style="width:25%">{$form_data.recurrence_end.label}</td>
+                            <div class="epesi-rv-row" id="recurrence_end_date_row">
+                                <div class="label" style="flex-basis: 25%;">{$form_data.recurrence_end.label}</div>
                                 {if isset($form_data.recurrence_end_checkbox)}
-									<td align="left" style="width:1px;" id="_recurrence_end_checkbox__data">
-										{$form_data.recurrence_end_checkbox.html}
-									</td>
-								<td class="data" align="left" id="_recurrence_end__data" style="width:99%;">
+									<div style="flex: 1 1 auto; min-width: 0; display: flex;">
+										<div id="_recurrence_end_checkbox__data">
+											{$form_data.recurrence_end_checkbox.html}
+										</div>
+										<div class="data" style="flex: 1 1 auto; min-width: 0;" id="_recurrence_end__data">
 								{else}
-                                <td class="data" align="left" id="_recurrence_end__data" colspan="2">
+                                <div class="data" id="_recurrence_end__data">
 								{/if}
 									<span id="recurrence_end_date_span">
 										{$form_data.recurrence_end.html}
 									</span>
-                                </td>
-                            </tr>
-                            <tr id="recurrence_hash_row">
-                                <td class="label" align="left">{$form_data.recurrence_hash.label}</td>
-                                <td class="data" align="left" colspan="2" id="_recurrence_hash__data">
-									<div style="position:relative;">
-										<span class="error">{$form_data.recurrence_hash.error}</span>
-										<table>
-											<tr>
-												{if $fdow<=0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
-												{if $fdow<=1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
-												{if $fdow<=2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
-												{if $fdow<=3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
-												{if $fdow<=4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
-												{if $fdow<=5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
-												<td>{$form_data.recurrence_hash_6.label}</td>
-												{if $fdow>0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
-												{if $fdow>1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
-												{if $fdow>2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
-												{if $fdow>3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
-												{if $fdow>4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
-												{if $fdow>5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
-											</tr>
-											<tr>
-												{if $fdow<=0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
-												{if $fdow<=1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
-												{if $fdow<=2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
-												{if $fdow<=3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
-												{if $fdow<=4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
-												{if $fdow<=5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
-												<td>{$form_data.recurrence_hash_6.html}</td>
-												{if $fdow>0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
-												{if $fdow>1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
-												{if $fdow>2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
-												{if $fdow>3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
-												{if $fdow>4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
-												{if $fdow>5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
-											</tr>
-										</table>
+                                </div>
+                                {if isset($form_data.recurrence_end_checkbox)}
 									</div>
-								</td>
-                            </tr>
+								{/if}
+                            </div>
+                            <div class="epesi-rv-row" id="recurrence_hash_row">
+                                <div class="label">{$form_data.recurrence_hash.label}</div>
+                                <div class="data" id="_recurrence_hash__data">
+									<span class="error">{$form_data.recurrence_hash.error}</span>
+									<table>
+										<tr>
+											{if $fdow<=0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
+											{if $fdow<=1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
+											{if $fdow<=2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
+											{if $fdow<=3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
+											{if $fdow<=4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
+											{if $fdow<=5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
+											<td>{$form_data.recurrence_hash_6.label}</td>
+											{if $fdow>0}<td>{$form_data.recurrence_hash_0.label}</td>{/if}
+											{if $fdow>1}<td>{$form_data.recurrence_hash_1.label}</td>{/if}
+											{if $fdow>2}<td>{$form_data.recurrence_hash_2.label}</td>{/if}
+											{if $fdow>3}<td>{$form_data.recurrence_hash_3.label}</td>{/if}
+											{if $fdow>4}<td>{$form_data.recurrence_hash_4.label}</td>{/if}
+											{if $fdow>5}<td>{$form_data.recurrence_hash_5.label}</td>{/if}
+										</tr>
+										<tr>
+											{if $fdow<=0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
+											{if $fdow<=1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
+											{if $fdow<=2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
+											{if $fdow<=3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
+											{if $fdow<=4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
+											{if $fdow<=5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
+											<td>{$form_data.recurrence_hash_6.html}</td>
+											{if $fdow>0}<td>{$form_data.recurrence_hash_0.html}</td>{/if}
+											{if $fdow>1}<td>{$form_data.recurrence_hash_1.html}</td>{/if}
+											{if $fdow>2}<td>{$form_data.recurrence_hash_2.html}</td>{/if}
+											{if $fdow>3}<td>{$form_data.recurrence_hash_3.html}</td>{/if}
+											{if $fdow>4}<td>{$form_data.recurrence_hash_4.html}</td>{/if}
+											{if $fdow>5}<td>{$form_data.recurrence_hash_5.html}</td>{/if}
+										</tr>
+									</table>
+                                </div>
+                            </div>
 				{foreach key=k item=f from=$fields name=fields}
 					{if (	$k!='title' &&
 							$k!='customers' &&
@@ -269,89 +271,65 @@
 						{$f.full_field}
 					{/if}
 				{/foreach}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
+                    </div>
+                </div>
+                </div>
 			{if !empty($multiselects)}
-				<tr>
+				<div class="epesi-rv-columns">
 					{assign var=x value=1}
 					{assign var=y value=1}
 					{foreach key=k item=f from=$multiselects name=fields}
 						{if $y==1}
-						<td class="column" style="width: {$cols_percent}%;">
-							<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+						<div class="column" style="width: {$cols_percent}%;">
+							<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
 						{/if}
 						{$f.full_field}
 						{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-							{if $x>$mss_no_empty}
-								<tr style="display:none;">
-									<td class="label">&nbsp;</td>
-									<td class="data">&nbsp;</td>
-								</tr>
-							{/if}
 							{assign var=y value=1}
 							{assign var=x value=$x+1}
-							</table>
-						</td>
+							</div>
+						</div>
 						{else}
 							{assign var=y value=$y+1}
 						{/if}
 					{/foreach}
-				</tr>
+				</div>
 			{/if}
-			<tr>
-				<td colspan="2">
-				<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{foreach key=k item=f from=$longfields name=fields}
-						{$f.full_field}
-					{/foreach}
-				</table>
-				</td>
-			</tr>
+			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+				{foreach key=k item=f from=$longfields name=fields}
+					{$f.full_field}
+				{/foreach}
+			</div>
             {if $action=='add'}
-            <tr>
-                <td style="width: 50%; vertical-align: top;" colspan=2>
-                        <div id="alert" style="padding-top: 5px;">
-                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
-                                <tbody>
-                                    <tr>
-                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_on.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}
-											</div>
-										</td>
-	                                </tr>
-    	                        </tbody>
-        	                </table>
-            	            <div id="messenger_block">
-                            <table name="CRMCalendar" class="form {if $action == 'view'}view{else}edit{/if}" style="border-left: none;" cellspacing="0" cellpadding="0" border="0">
-                                <tbody>
-                                    <tr>
-                                        <td class="label" align="left" style="width: 30%;">{$form_data.messenger_before.label}*</td>
-                                        <td class="data" align="left" style="width: 70%;">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}
-											</div>
-										</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="label" align="left">{$form_data.messenger_message.label}*</td>
-                                        <td class="data smalltext" align="left">
-											<div style="position:relative;">
-												<span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}
-											</div>
-										</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <div id="alert" style="padding-top: 5px;">
+                    <div class="{if $action == 'view'}view{else}edit{/if}" style="border-left: none;">
+                        <div class="epesi-rv-row">
+                            <div class="label" style="flex-basis: 30%;">{$form_data.messenger_on.label}*</div>
+                            <div class="data" style="flex-basis: 70%;">
+								<span class="error">{$form_data.messenger_on.error}</span>{$form_data.messenger_on.html}
+							</div>
                         </div>
-                </td>
-			</tr>
+                    </div>
+                    <div id="messenger_block">
+                    <div class="{if $action == 'view'}view{else}edit{/if}" style="border-left: none;">
+                        <div class="epesi-rv-row">
+                            <div class="label" style="flex-basis: 30%;">{$form_data.messenger_before.label}*</div>
+                            <div class="data" style="flex-basis: 70%;">
+								<span class="error">{$form_data.messenger_before.error}</span>{$form_data.messenger_before.html}
+							</div>
+                        </div>
+                        <div class="epesi-rv-row">
+                            <div class="label">{$form_data.messenger_message.label}*</div>
+                            <div class="data smalltext">
+								<span class="error">{$form_data.messenger_message.error}</span>{$form_data.messenger_message.html}
+							</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
 			{/if}
-        </tbody>
-    </table>
+                </div>
+</div>
 </div>
 
 

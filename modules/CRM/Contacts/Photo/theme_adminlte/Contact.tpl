@@ -3,10 +3,15 @@
    ('contact', ...) in their respective Install.php - whichever runs last at
    install time wins in the DB), adding a photo box column and a
    paste_company_info block on top of the base layout. Same treatment as
-   ../../theme_adminlte/Contact.tpl: module icon+caption header dropped,
-   tooltips row kept, everything else (including the photo column/colspan
-   math, which differs from the base file) kept byte-for-byte identical to
-   this module's own default-theme Contact.tpl. No separate CSS needed -
+   ../../theme_adminlte/Contact.tpl (flex - .epesi-rv-columns/.column/.view/
+   .edit/.epesi-rv-row/.label/.data instead of a <table> of <table>s):
+   module icon+caption header dropped, tooltips row kept, field content
+   unchanged. The photo column (view mode only, 128px) and the second field
+   column simply become flex siblings with the second column set to
+   flex:1 1 0 (fills whatever space is left after the first column and the
+   optional photo box) - the original table version needed width:43%/50%
+   plus colspan gymnastics to approximate this; flex absorbs the remaining
+   space natively, no colspan equivalent needed. No separate CSS needed -
    View_entry.css is loaded alongside any custom $tpl by RecordBrowser_0.php
    and already covers these shared class names. *}
 {if isset($form_data.paste_company_info)}
@@ -71,36 +76,25 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
-			<td class="left-column">
-				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tbody>
+<div class="Utils_RecordBrowser__View_entry">
+<div class="epesi-rv-columns">
+	<div class="column left-column" style="width: {$cols_percent}%;">
+		<div class="{if $action == 'view'}view{else}edit{/if}">
 						{* create new company *}
 						{if isset($form_data.create_company)}
-						<tr>
-							<td class="label" nowrap>
+						<div class="epesi-rv-row">
+							<div class="label">
 								{$form_data.create_company.label}
-							</td>
-							<td>
+							</div>
+							<div style="flex: 1 1 auto; min-width: 0;">
 								<div class="create-company" style="width:24px; display:inline-block; float: left">
 									{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
 								<div style="display:inline-block;width: calc(100% - 24px)" class="data">
 									{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
-							</td>
-						</tr>
-						{else}
-							{if $action == 'edit'}
-								{* empty *}
-{*								<tr style="display:none;">
-									<td class="label" align="left">&nbsp;</td>
-									<td class="data" colspan="2" align="left">&nbsp;</td>
-								</tr>*}
-							{/if}
+							</div>
+						</div>
 						{/if}
 						{assign var=x value=1}
 						{if $action=='view'}
@@ -115,79 +109,64 @@
 								{/if}
 
 								{if $y==1 && $x==2}
-								<td class="column" {if $action=='view'}style="width: 43%;"{else}style="width: 50%;" colspan="2"{/if}>
-									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+								</div>
+							</div>
+							<div class="column" style="flex: 1 1 0; min-width: 0;">
+								<div class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
 								{$f.full_field}
 								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{if $x>$no_empty}
-										<tr style="display:none;">
-											<td class="label">&nbsp;</td>
-											<td colspan="2" class="data">&nbsp;</td>
-										</tr>
-									{/if}
 									{assign var=y value=1}
 									{assign var=x value=$x+1}
-									</table>
-								</td>
 								{else}
 									{assign var=y value=$y+1}
 								{/if}
 							{/if}
 						{/foreach}
-			{if $action=='view'}
-			<td style="width:128px;vertical-align:top;">
-				<a class="photo" {$photo_link}>
-					<img  class="shadow_5px_left" src="{$photo_src}" >
-					{if isset($photo_note)}
-						<div class="photo_note">
-							{$photo_note}
-						</div>
-					{/if}
-					<div class="overlay">
-					</div>
-				</a>
-			</td>
+		</div>
+	</div>
+	{if $action=='view'}
+	<div class="column" style="flex: 0 0 128px;">
+		<a class="photo" {$photo_link}>
+			<img  class="shadow_5px_left" src="{$photo_src}" >
+			{if isset($photo_note)}
+				<div class="photo_note">
+					{$photo_note}
+				</div>
 			{/if}
-		</tr>
-		{if !empty($multiselects)}
-			<tr>
-				{assign var=x value=1}
+			<div class="overlay">
+			</div>
+		</a>
+	</div>
+	{/if}
+</div>
+{if !empty($multiselects)}
+	<div class="epesi-rv-columns">
+		{assign var=x value=1}
+		{assign var=y value=1}
+		{foreach key=k item=f from=$multiselects name=fields}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+			{/if}
+			{$f.full_field}
+			{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 				{assign var=y value=1}
-				{foreach key=k item=f from=$multiselects name=fields}
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;" {if $x==2}colspan="2"{/if}>
-						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{/if}
-					{$f.full_field}
-					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-						{if $x>$mss_no_empty}
-							<tr>
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/foreach}
-			</tr>
-		{/if}
-		<tr>
-			<td colspan="3">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{$f.full_field}
-				{/foreach}
-			</table>
-			</td>
-		</tr>
-	</tbody>
-</table>
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
+		{/foreach}
+	</div>
+{/if}
+<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+	{foreach key=k item=f from=$longfields name=fields}
+		{$f.full_field}
+	{/foreach}
+</div>
+</div>
 
 {php}
 	eval_js('focus_by_id(\'last_name\');');

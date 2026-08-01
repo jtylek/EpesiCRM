@@ -10,7 +10,7 @@
    sizing; restore a normal base so the app reads at its intended scale. */
 body {
 	font-size: 14px;
-	background-color: #f4f6f9;
+	background-color: var(--epesi-bg);
 }
 
 /* :root, not .epesi-adminlte - Leightbox popups (modules/Libs/Leightbox/
@@ -23,6 +23,20 @@ body {
 	--epesi-sidebar-width: 250px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
+
+	/* Color palette - shared naming convention across every theme_adminlte*
+	   stylesheet. A theme fork (e.g. theme_adminltedark) only needs to
+	   override this block; rules that reference these variables instead of a
+	   literal hex value need no per-fork changes at all. */
+	--epesi-bg: #f4f6f9;
+	--epesi-surface: #fff;
+	--epesi-border: #dee2e6;
+	--epesi-text: #212529;
+	--epesi-text-secondary: #495057;
+	--epesi-text-muted: #6c757d;
+	--epesi-link: #0d6efd;
+	--epesi-hover-bg: rgba(0, 0, 0, 0.05);
+	--epesi-shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ---- header ---- */
@@ -44,8 +58,8 @@ body {
 	   reported "too much blank space in the navbar" case traced back to this
 	   growing once and sticking. */
 	min-height: 3.5rem;
-	background-color: #fff;
-	border-bottom: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-bottom: 1px solid var(--epesi-border);
 	padding: 0;
 	/* Only ever animated by body.epesi-topbar-hidden below lg (see the
 	   "hide on scroll" block further down) - harmless at every other width/
@@ -70,7 +84,7 @@ body {
 }
 
 .epesi-adminlte .app-header .nav-link {
-	color: #495057;
+	color: var(--epesi-text-secondary);
 	padding: 0.5rem 0.75rem;
 	/* comfortable tap target on touch screens */
 	min-width: 44px;
@@ -81,7 +95,7 @@ body {
 }
 
 .epesi-adminlte .app-header .nav-link:hover {
-	color: #0d6efd;
+	color: var(--epesi-link);
 }
 
 .epesi-adminlte .app-header .bi {
@@ -90,7 +104,7 @@ body {
 
 .epesi-adminlte #module-indicator {
 	font-weight: 600;
-	color: #212529;
+	color: var(--epesi-text);
 	max-width: 40vw;
 }
 
@@ -171,8 +185,8 @@ body {
 	display: flex;
 	flex-direction: column;
 	/* Light sidebar, to keep the visual jump from the current UI small. */
-	background-color: #fff;
-	border-right: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-right: 1px solid var(--epesi-border);
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: margin-left 0.25s ease-in-out;
@@ -199,7 +213,7 @@ body {
 
 .epesi-adminlte .sidebar-brand {
 	padding: 0.5rem 0.75rem;
-	border-bottom: 1px solid #dee2e6;
+	border-bottom: 1px solid var(--epesi-border);
 	min-height: var(--epesi-header-height);
 	display: flex;
 	align-items: center;
@@ -218,14 +232,14 @@ body {
 	width: 2.25rem;
 	height: 2.25rem;
 	border-radius: 0.375rem;
-	color: #495057;
+	color: var(--epesi-text-secondary);
 	font-size: 1.25rem;
 	flex: 0 0 auto;
 }
 
 .epesi-adminlte .sidebar-toggle-inline:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-	color: #212529;
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
 }
 
 .epesi-adminlte .sidebar-brand img {
@@ -250,12 +264,12 @@ body {
 .epesi-adminlte .sidebar-footer {
 	flex: 0 0 auto;
 	padding: 0.5rem;
-	border-top: 1px solid #dee2e6;
-	color: #6c757d;
+	border-top: 1px solid var(--epesi-border);
+	color: var(--epesi-text-muted);
 }
 
 .epesi-adminlte .sidebar-footer a {
-	color: #6c757d;
+	color: var(--epesi-text-muted);
 	text-decoration: none;
 }
 
@@ -272,7 +286,7 @@ body {
 	   .app-content (itself only as tall as that screen's own content) can't
 	   show through as white regardless of how tall body's own box ends up
 	   being computed. */
-	background-color: #f4f6f9;
+	background-color: var(--epesi-bg);
 }
 
 /* Docked under the navbar rather than scrolling away with the page content -
@@ -291,13 +305,13 @@ body {
 	left: var(--epesi-sidebar-width);
 	right: 0;
 	z-index: 1030;
-	background-color: #fff;
-	border-bottom: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-bottom: 1px solid var(--epesi-border);
 	/* The default theme dropped a shadow band under its fixed bars (actual
 	   gradient PNGs - images/shadow/b.png - repeated across the width); a
 	   plain CSS drop shadow gets the same "floating above the content"
 	   effect without needing image assets. */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 2px 4px var(--epesi-shadow-color);
 	padding: 0.15rem 0;
 	/* transform: only ever animated by body.epesi-topbar-hidden below lg -
 	   see the "hide on scroll" block further down. */
@@ -310,7 +324,7 @@ body {
 	   white in the gap above/around content that isn't covered by whatever
 	   the current screen's own module CSS fills in (e.g. Dashboard's
 	   #dashboard only covers its own box, not the content column around it). */
-	background-color: #f4f6f9;
+	background-color: var(--epesi-bg);
 }
 
 /* The default theme centred content in a fixed-width table; content is now
@@ -383,61 +397,6 @@ body {
 
 #Base_Box__login .status {
 	text-align: center;
-}
-
-/* ---- QuickForm column-layout forms (mobile) ---- */
-
-/* Libs/QuickForm's "column" renderer (theme/column.tpl - no adminlte
-   override exists, it's plain HTML shared by both themes) builds a raw
-   <table style="width:500px"> with a fixed 150px label / 350px data column,
-   plus a separate 700px-wide header <div>. It's {include}'d directly inside
-   ~20 other modules' own top-level templates (Settings, Admin, Followup's
-   leightbox, etc.), each of which loads its own CSS auto-derived from ITS
-   OWN top-level tpl name - column.tpl itself is never the display() target,
-   so no single per-module CSS file reaches every place it's used. This file
-   (Base_Box's) is the one exception: it's loaded on every single page,
-   after every other module's CSS (Base_Box_0.php renders last, via
-   Base_ThemeCommon::load_theme_assets() - see ThemeCommon_0.php), so a rule
-   placed here is guaranteed to reach every column.tpl instance app-wide
-   without having to touch each of those ~20 templates individually.
-
-   table:has(.epesi_label) (rather than a bare class match) keeps this
-   scoped to column.tpl's actual <table> markup only: Libs/QuickForm's OTHER
-   renderer, theme/row.tpl, reuses the exact same .epesi_label/.epesi_data
-   CLASS NAMES for a deliberately different, non-table inline-block "compact
-   row" layout (<span style="display:table-cell">, no <table>/<td> at all) -
-   a bare .epesi_label/.epesi_data selector would also force those spans to
-   display:block, breaking that layout. Same responsive technique as
-   RecordBrowser's View_entry.css/Filters default.css, including covering
-   the table's own <tbody> and every <tr> so no anonymous-table-box sizing
-   trap is left uncovered (see View_entry.css for how that bug first showed
-   up: a nested table forced to display:block without its <tbody> also
-   covered stayed shrink-to-fit width despite the table itself being 100%). */
-@media (max-width: 767.98px) {
-	table:has(.epesi_label),
-	table:has(.epesi_label) > tbody,
-	table:has(.epesi_label) > tbody > tr,
-	table:has(.epesi_label) td {
-		display: block;
-		/* !important: column.tpl hardcodes width:500px/150px/350px inline
-		   on the table/label/data cells - only !important beats that. */
-		width: 100% !important;
-	}
-
-	/* The standalone header <div> (form_data.header - a page-level heading
-	   above the field grid, not part of the <table> at all) is 700px fixed
-	   width in BOTH column.tpl and row.tpl - wide enough alone to overflow
-	   any phone screen and force horizontal scrolling regardless of which
-	   renderer it's paired with, so this one is intentionally not scoped to
-	   table:has() and applies to both. */
-	div.epesi_label.header {
-		width: 100% !important;
-		box-sizing: border-box;
-	}
-
-	table:has(.epesi_label) td.epesi_data {
-		box-sizing: border-box;
-	}
 }
 
 /* ---- print ---- */
