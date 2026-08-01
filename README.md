@@ -7,7 +7,7 @@ Epesi has been designed as a Kickstarter project and provides "no code" and "low
 
 <b>About</b>
 
-EPESI CRM is a result of many years of experience working with SMB businesses and addresses inefficiencies of current e-mail “collaboration” workflow and commonplace data management using inadequate spreadsheet applications. It is a completely web based application designed for small and medium-sized enterprises trying to optimize business processes, simplify office work and reduce administrative costs. It does not require any client to be installed - any modern browser on any operating system will work - drastically reducing the deployment cost.
+EPESI ERP is a result of many years of experience working with SMB businesses and addresses inefficiencies of current e-mail “collaboration” workflow and commonplace data management using inadequate spreadsheet applications. It is a completely web based application designed for small and medium-sized enterprises trying to optimize business processes, simplify office work and reduce administrative costs. It does not require any client to be installed - any modern browser on any operating system will work - drastically reducing the deployment cost.
 
 Our software can make your organization more efficient, better organized and more competitive. We can help you simplify and automate internal procedures with management of important business information.
 
