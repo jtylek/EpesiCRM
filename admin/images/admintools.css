@@ -7,6 +7,17 @@
  * styling), all superseded.
  */
 
+/* The menu-grid card label (layout.tpl: fw-semibold text-body, no size of
+ * its own) otherwise inherits body's font-size directly - Base_Box/
+ * theme_adminlte/default.css's body{font-size} is loaded on this page too,
+ * so bumping it there (dense in-app tables/forms reading small) also
+ * oversized this page's card labels. Pinned back to 1rem, matching the
+ * module-side .epesi-admin equivalent (Base_Admin/theme_adminlte*/default.css).
+ */
+.app-content .card-body span {
+	font-size: 1rem;
+}
+
 /* HTML_QuickForm's default renderer (Modules.tpl) prints a bare, class-less
  * <table> - Bootstrap's reset strips its default browser borders/padding,
  * leaving an unreadable wall of text with no styling of its own.

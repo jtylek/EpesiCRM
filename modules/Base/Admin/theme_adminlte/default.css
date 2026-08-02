@@ -27,5 +27,13 @@
 /* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
  * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
  * menu exactly so both admin listings read as the same size/weight of
- * button - no bespoke .epesi-admin-card sizing needed here.
+ * button.
  */
+
+/* The label span (default.tpl: fw-semibold text-body, no size of its own)
+   otherwise inherits body's font-size directly - fine at Bootstrap's 1rem,
+   but reads oversized now that body is bumped past it. Pinned back to 1rem
+   independent of whatever body is set to. */
+.epesi-admin .card-body span {
+	font-size: 1rem;
+}
