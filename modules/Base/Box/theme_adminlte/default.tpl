@@ -249,6 +249,14 @@
 			// "extra" action, so a future module's own icon groups correctly
 			// without this file needing to know about it.
 			"function isCoreAction(a){".
+				// RecordBrowser_0.php's inline "add new record" row (add_in_table)
+				// submits via a real <input type="submit"> nested in its own action
+				// <a> instead of an <img>-based icon (it has to actually submit the
+				// row's form, not just navigate) - with no <img> to match below it
+				// fell through to "extra" and got buried behind the More actions
+				// toggle for something that's core to RecordBrowser itself, used on
+				// every table with this feature on, not a module bolt-on.
+				"if(a.querySelector('input[type=\"submit\"]'))return true;".
 				"var img=a.querySelector('img');".
 				"var src=img?(img.getAttribute('src')||''):'';".
 				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".

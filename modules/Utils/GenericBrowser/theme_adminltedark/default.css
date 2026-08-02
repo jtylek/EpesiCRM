@@ -402,6 +402,40 @@
 	content: "\f117";
 }
 
+/* RecordBrowser_0.php's inline "add new record" row (add_in_table) submits
+   via a real <input type="submit"> (RecordBrowser_0.php ~875/903), not the
+   href/onclick <a> + decorative <img> every other action here uses - it has
+   to actually submit the row's own form, so unlike the icons above it can't
+   just be hidden in favour of a ::before glyph on its wrapping <a> (an
+   <input> can't be un-clicked that way, and pseudo-elements don't render on
+   replaced form controls like <input> at all). Keeps the real <input> as
+   the thing that's actually focused/clicked (so it stays keyboard/AT
+   accessible with its own "Save" label as the accessible name), stretched
+   invisibly over the wrapping <a>'s icon glyph instead of the other way
+   around. bi-check2-square (\f271) matches the "Save"/Export toolbar
+   button's own icon above (.epesi-gb-label a.record_browser_button) for the
+   same action elsewhere in this table's own chrome. */
+.epesi-gb table.Utils_GenericBrowser a:has(input[type="submit"]) {
+	position: relative;
+}
+
+.epesi-gb table.Utils_GenericBrowser a:has(input[type="submit"])::before {
+	content: "\f271";
+}
+
+.epesi-gb table.Utils_GenericBrowser a input[type="submit"] {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	opacity: 0;
+	cursor: pointer;
+}
+
 :is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {
 	content: "\f5d6";
 }
