@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_ThemeInstall extends ModuleInstall {
 	public function install() {
-		Variable::set('default_theme','adminlte');
+		Variable::set('default_theme','adminltedark');
 		return true;
 	}
 

@@ -1,0 +1,244 @@
+/* AdminLTE re-skin for Utils_RecordBrowser_Filters - the "Show/Hide filters"
+ * toggle (controls.tpl, brand new markup - a real <button>, see the comment
+ * there for why that's safe) and the filter field grid (elements.tpl - flex,
+ * replacing the default theme's 4-per-row wrapping <table>; see that file's
+ * own comment).
+ */
+
+.epesi-rbf-controls {
+	display: flex;
+	gap: 0.4rem;
+}
+
+.epesi-rbf-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	border: 1px solid #8b929a;
+	border-radius: 0.375rem;
+	background-color: #2b3035;
+	color: #adb5bd;
+	padding: 0.3rem 0.7rem;
+	font-size: 0.85rem;
+	cursor: pointer;
+}
+
+.epesi-rbf-btn:hover {
+	background-color: #343a40;
+}
+
+.epesi-rbf-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.4rem;
+}
+.epesi_rtl .epesi-rbf-row {
+	justify-content: flex-start;
+}
+
+.epesi-rbf-pair {
+	display: flex;
+}
+
+.Utils_RecordBrowser__Filter {
+    display: block;
+	margin: 0.5rem 0;
+}
+
+/* label */
+
+.Utils_RecordBrowser__Filter .label {
+    color: #adb5bd;
+    height: 28px;
+	display: flex;
+	align-items: center;
+    padding-left: 5px;
+    padding-right: 5px;
+
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px;
+	box-shadow: none;
+	font-size: 0.8rem;
+
+	background: #2b3035;
+}
+
+/* data */
+
+.Utils_RecordBrowser__Filter .data {
+	text-align: left;
+    background-color: #2b3035;
+
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+	border: 1px solid #495057;
+	border-left: none;
+	box-shadow: none;
+}
+
+.Utils_RecordBrowser__Filter .data input,
+.Utils_RecordBrowser__Filter .data select {
+    background-color: #2b3035;
+    border: none;
+    width: 100px;
+	height: 24px;
+	font-size: 0.8rem;
+	margin-left: 2px;
+	-webkit-border-radius: 0 4px 4px 0;
+	-moz-border-radius: 0 4px 4px 0;
+    border-radius: 0 4px 4px 0;
+}
+.Utils_RecordBrowser__Filter .data select {
+	margin-right: 2px;
+	height: 26px;
+    width: 98px;
+	padding: 4px 0;
+}
+
+.Utils_RecordBrowser__Filter .data input[type='checkbox'] {
+    width: auto;
+}
+
+.Utils_RecordBrowser__Filter .data input:focus,
+.Utils_RecordBrowser__Filter .data select:focus,
+.Utils_RecordBrowser__Filter .data textarea:focus {
+    background-color: #17233a;
+}
+
+/* buttons (the filter form's own Show submit, in elements.tpl - not the
+   Show/Hide filters toggle above, that's .epesi-rbf-btn) */
+
+#recordbrowser_filters_ .buttons {
+	padding-left: 5px;
+}
+
+#Utils_RecordBrowser__Filter .buttons,
+#Utils_RecordBrowser__Filter .buttons_disabled {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+    padding-right: 8px;
+}
+
+.epesi_rtl #Utils_RecordBrowser__Filter .buttons,
+.epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
+    padding-left: 8px;
+}
+
+.Utils_RecordBrowser__Filter .buttons input,
+#Utils_RecordBrowser__Filter .buttons input {
+    color: #fff;
+    width: 100px;
+    height: 30px;
+    border: 0px;
+	padding-bottom: 3px;
+	cursor: pointer;
+	background-color: #0d6efd;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	box-shadow: none;
+}
+
+.Utils_RecordBrowser__Filter .buttons_disabled input,
+#Utils_RecordBrowser__Filter .buttons_disabled input {
+    color: #fff;
+    width: 100px;
+    height: 30px;
+    border: 0px;
+	padding-bottom: 3px;
+	cursor: pointer;
+	background-color: #adb5bd;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	box-shadow: none;
+}
+
+.Utils_RecordBrowser__Filter .buttons input:hover,
+#Utils_RecordBrowser__Filter .buttons input:hover {
+	background-color: #0b5ed7;
+}
+
+/* Small screens: each .epesi-rbf-pair gets a full-width line of its own
+ * instead of staying cramped several-across - flex-basis, not the old
+ * table version's display:block hack. */
+@media (max-width: 767.98px) {
+	.epesi-rbf-pair,
+	.Utils_RecordBrowser__Filter .buttons {
+		flex-basis: 100%;
+	}
+
+	/* The label/data pill shape (rounded-left label + rounded-right data,
+	   .data's left border removed so the pair reads as one joined shape)
+	   only makes sense side by side. Stacked, round the pair as a single
+	   top/bottom block instead and restore .data's left border, which used
+	   to rely on sitting flush against .label. */
+	.Utils_RecordBrowser__Filter .label {
+		border-radius: 4px 4px 0 0;
+	}
+	.Utils_RecordBrowser__Filter .data {
+		border-radius: 0 0 4px 4px;
+		border-left: 1px solid #495057;
+		margin-bottom: 8px;
+	}
+
+	/* Inputs were a fixed 100px/98px (sized for a compact side-by-side
+	   pill) - now that .data spans the full row, let them fill it instead
+	   of leaving most of the row empty. */
+	.Utils_RecordBrowser__Filter .data input,
+	.Utils_RecordBrowser__Filter .data select {
+		width: 100%;
+		box-sizing: border-box;
+		margin-left: 0;
+	}
+	.Utils_RecordBrowser__Filter .data select {
+		margin-right: 0;
+	}
+
+	.Utils_RecordBrowser__Filter .buttons {
+		justify-content: flex-end;
+		padding-right: 0;
+	}
+}
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-rbf-btn {
+  border: 1px solid #6c757d;
+  background-color: #fff;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-rbf-btn:hover {
+  background-color: #e9ecef;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .label {
+  color: #495057;
+  background: #f1f3f5;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data input,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data select {
+  background-color: #fff;
+}
+
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data input:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data select:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter .data textarea:focus {
+  background-color: #eaf2ff;
+}
+
+@media (max-width: 767.98px) {
+  [data-bs-theme="light"] .Utils_RecordBrowser__Filter .data {
+    border-left: 1px solid #dee2e6;
+  }
+}

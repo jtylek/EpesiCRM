@@ -28,7 +28,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		// pushing the popup mostly off-screen (same reason that theme's own
 		// resize button is omitted). adminlte's CSS handles the "big" case
 		// itself via the big="1" attribute just printed above.
-		if ($big && Base_ThemeCommon::get_default_template() !== 'adminlte') {
+		if ($big && !Base_ThemeCommon::is_adminlte_family()) {
 			eval_js('s = $(\''.$id.'\').style;'.
 			's.top = \'5%\';'.
 			's.left = \'5%\';'.

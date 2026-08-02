@@ -7,10 +7,11 @@
  */
 
 /* Epesi's global body{font-size:13px} would shrink all of Bootstrap's rem-based
-   sizing; restore a normal base so the app reads at its intended scale. */
+   sizing; bumped past Bootstrap's own 1rem default too - the app's dense
+   tables/forms still read small at 1rem, per request. */
 body {
-	font-size: 14px;
-	background-color: #f4f6f9;
+	font-size: 1.15rem;
+	background-color: var(--epesi-bg);
 }
 
 /* :root, not .epesi-adminlte - Leightbox popups (modules/Libs/Leightbox/
@@ -23,6 +24,20 @@ body {
 	--epesi-sidebar-width: 250px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
+
+	/* Color palette - shared naming convention across every theme_adminlte*
+	   stylesheet. A theme fork (e.g. theme_adminltedark) only needs to
+	   override this block; rules that reference these variables instead of a
+	   literal hex value need no per-fork changes at all. */
+	--epesi-bg: #f4f6f9;
+	--epesi-surface: #fff;
+	--epesi-border: #dee2e6;
+	--epesi-text: #212529;
+	--epesi-text-secondary: #495057;
+	--epesi-text-muted: #6c757d;
+	--epesi-link: #0d6efd;
+	--epesi-hover-bg: rgba(0, 0, 0, 0.05);
+	--epesi-shadow-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ---- header ---- */
@@ -44,8 +59,8 @@ body {
 	   reported "too much blank space in the navbar" case traced back to this
 	   growing once and sticking. */
 	min-height: 3.5rem;
-	background-color: #fff;
-	border-bottom: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-bottom: 1px solid var(--epesi-border);
 	padding: 0;
 	/* Only ever animated by body.epesi-topbar-hidden below lg (see the
 	   "hide on scroll" block further down) - harmless at every other width/
@@ -70,7 +85,7 @@ body {
 }
 
 .epesi-adminlte .app-header .nav-link {
-	color: #495057;
+	color: var(--epesi-text-secondary);
 	padding: 0.5rem 0.75rem;
 	/* comfortable tap target on touch screens */
 	min-width: 44px;
@@ -81,7 +96,7 @@ body {
 }
 
 .epesi-adminlte .app-header .nav-link:hover {
-	color: #0d6efd;
+	color: var(--epesi-link);
 }
 
 .epesi-adminlte .app-header .bi {
@@ -90,7 +105,7 @@ body {
 
 .epesi-adminlte #module-indicator {
 	font-weight: 600;
-	color: #212529;
+	color: var(--epesi-text);
 	max-width: 40vw;
 }
 
@@ -171,8 +186,8 @@ body {
 	display: flex;
 	flex-direction: column;
 	/* Light sidebar, to keep the visual jump from the current UI small. */
-	background-color: #fff;
-	border-right: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-right: 1px solid var(--epesi-border);
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: margin-left 0.25s ease-in-out;
@@ -199,7 +214,7 @@ body {
 
 .epesi-adminlte .sidebar-brand {
 	padding: 0.5rem 0.75rem;
-	border-bottom: 1px solid #dee2e6;
+	border-bottom: 1px solid var(--epesi-border);
 	min-height: var(--epesi-header-height);
 	display: flex;
 	align-items: center;
@@ -218,14 +233,14 @@ body {
 	width: 2.25rem;
 	height: 2.25rem;
 	border-radius: 0.375rem;
-	color: #495057;
+	color: var(--epesi-text-secondary);
 	font-size: 1.25rem;
 	flex: 0 0 auto;
 }
 
 .epesi-adminlte .sidebar-toggle-inline:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-	color: #212529;
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
 }
 
 .epesi-adminlte .sidebar-brand img {
@@ -250,12 +265,12 @@ body {
 .epesi-adminlte .sidebar-footer {
 	flex: 0 0 auto;
 	padding: 0.5rem;
-	border-top: 1px solid #dee2e6;
-	color: #6c757d;
+	border-top: 1px solid var(--epesi-border);
+	color: var(--epesi-text-muted);
 }
 
 .epesi-adminlte .sidebar-footer a {
-	color: #6c757d;
+	color: var(--epesi-text-muted);
 	text-decoration: none;
 }
 
@@ -272,7 +287,7 @@ body {
 	   .app-content (itself only as tall as that screen's own content) can't
 	   show through as white regardless of how tall body's own box ends up
 	   being computed. */
-	background-color: #f4f6f9;
+	background-color: var(--epesi-bg);
 }
 
 /* Docked under the navbar rather than scrolling away with the page content -
@@ -291,13 +306,13 @@ body {
 	left: var(--epesi-sidebar-width);
 	right: 0;
 	z-index: 1030;
-	background-color: #fff;
-	border-bottom: 1px solid #dee2e6;
+	background-color: var(--epesi-surface);
+	border-bottom: 1px solid var(--epesi-border);
 	/* The default theme dropped a shadow band under its fixed bars (actual
 	   gradient PNGs - images/shadow/b.png - repeated across the width); a
 	   plain CSS drop shadow gets the same "floating above the content"
 	   effect without needing image assets. */
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+	box-shadow: 0 2px 4px var(--epesi-shadow-color);
 	padding: 0.15rem 0;
 	/* transform: only ever animated by body.epesi-topbar-hidden below lg -
 	   see the "hide on scroll" block further down. */
@@ -310,7 +325,7 @@ body {
 	   white in the gap above/around content that isn't covered by whatever
 	   the current screen's own module CSS fills in (e.g. Dashboard's
 	   #dashboard only covers its own box, not the content column around it). */
-	background-color: #f4f6f9;
+	background-color: var(--epesi-bg);
 }
 
 /* The default theme centred content in a fixed-width table; content is now
@@ -383,51 +398,6 @@ body {
 
 #Base_Box__login .status {
 	text-align: center;
-}
-
-/* ---- portrait lock (phone-width only) ---- */
-
-/* Hidden by default; only ever shown by the media query below. A fixed,
-   full-viewport overlay (very high z-index - above Leightbox's 1050, the
-   tallest other z-index in this theme) rather than hiding sibling elements,
-   so it works regardless of exactly how deep either of default.tpl's two
-   top-level branches (login screen vs. the logged-in shell) end up nested
-   by the time they reach <body> - no selector here needs to know that. */
-#epesi-rotate-prompt {
-	display: none;
-}
-
-@media (max-width: 767.98px) and (orientation: portrait) {
-	#epesi-rotate-prompt {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-		position: fixed;
-		inset: 0;
-		z-index: 2000;
-		padding: 2rem;
-		text-align: center;
-		background-color: #212529;
-		color: #fff;
-	}
-
-	#epesi-rotate-prompt i {
-		font-size: 3.5rem;
-		animation: epesi-rotate-hint 1.6s ease-in-out infinite;
-	}
-
-	#epesi-rotate-prompt p {
-		margin: 0;
-		max-width: 20rem;
-		font-size: 1.1rem;
-	}
-
-	@keyframes epesi-rotate-hint {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(90deg); }
-	}
 }
 
 /* ---- print ---- */

@@ -236,11 +236,39 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
 		$ip = get_client_ip_address();
+		// gethostbyaddr() returns the IP unchanged (not false) when no PTR
+		// record resolves - same check CRM_LoginAuditCommon::init() already
+		// uses for its own host_name column. description is display-only
+		// (unlike get_client_ip_address()'s other callers, which need a bare
+		// IP for exact-match ban/audit comparisons), so it's safe to enrich
+		// here without touching that function itself.
+		$host = gethostbyaddr($ip);
+		$location = ($host && $host !== $ip) ? $host.' ('.$ip.')' : $ip;
+		// parse_user_agent() (include/misc.php) covers what reverse DNS can't:
+		// a remote/internet login has no meaningful PTR record to resolve, but
+		// the User-Agent header is sent regardless of where the client is.
+		$device = parse_user_agent();
+		$description = substr($device ? $location.' · '.$device : $location, 0, 64);
 		if ($old_autologin_id) {
 			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
 		}
-		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $ip, time()));
+		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $description, time()));
 		self::clean_old_autologins();
+	}
+
+	// Re-sends the same still-valid token (sliding 30-day expiry) instead of
+	// minting a new one. autologin() used to call new_autologin_id() here,
+	// which deletes the old DB row and swaps in a brand new cookie value on
+	// every silent re-auth - since $_COOKIE isn't updated until the browser's
+	// *next* request, any second request already in flight with the old
+	// cookie (routine in this app's multi-request-per-page AJAX flow) would
+	// find its token already deleted and fail permanently, with no way to
+	// recover short of logging in again. Reported as "Remember me" having no
+	// effect. Keeping the same token avoids the race entirely.
+	public static function refresh_autologin($user, $autologin_id)
+	{
+		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
+		DB::Execute('UPDATE user_autologin SET last_log=%T WHERE autologin_id=%s', array(time(), $autologin_id));
 	}
 
     public static function is_autologin_forbidden()
@@ -257,7 +285,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 				$ret = DB::GetOne('SELECT 1 FROM user_login u JOIN user_autologin p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1 AND p.autologin_id=%s', array($user,$autologin_id));
 				if($ret) {
 					Base_User_LoginCommon::set_logged($user);
-					self::new_autologin_id($autologin_id);
+					self::refresh_autologin($user, $autologin_id);
 					return true;
 				}
 			}

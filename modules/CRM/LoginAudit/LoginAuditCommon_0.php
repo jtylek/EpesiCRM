@@ -80,7 +80,11 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 			$now = time();
             $remote_address = get_client_ip_address();
 			$remote_host = gethostbyaddr($remote_address);
-			DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time,ip_address,host_name) VALUES(%d,%T,%T,%s,%s)',array(Acl::get_user(),$now,$now,$remote_address,$remote_host));
+			// Same OS/Browser label Base_User_LoginCommon::new_autologin_id()
+			// uses for its "remembered devices" description - display-only,
+			// not for feature detection or security decisions.
+			$device = parse_user_agent() ?? '';
+			DB::Execute('INSERT INTO base_login_audit(user_login_id,start_time,end_time,ip_address,host_name,device) VALUES(%d,%T,%T,%s,%s,%s)',array(Acl::get_user(),$now,$now,$remote_address,$remote_host,$device));
 			$_SESSION['base_login_audit'] = DB::Insert_ID('base_login_audit','id');
 			$_SESSION['base_login_audit_user'] = Acl::get_user();
 		}

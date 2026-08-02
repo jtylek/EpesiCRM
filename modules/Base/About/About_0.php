@@ -18,7 +18,7 @@ class Base_About extends Module {
 		// own popup chrome) in favour of class hooks styled by
 		// theme_adminlte/credits.css, so it reads cleanly inside this
 		// theme's own Leightbox popup instead of fighting it.
-		$is_adminlte = Base_ThemeCommon::get_default_template() === 'adminlte';
+		$is_adminlte = Base_ThemeCommon::is_adminlte_family();
 		if ($is_adminlte) Base_ThemeCommon::load_css($this->get_type(), 'credits', false);
 		$file = $is_adminlte ? 'credits_adminlte.html' : 'credits.html';
 		$credits = str_replace(array('__VERSION__','__YEAR__'),array(EPESI_VERSION.' rev'.EPESI_REVISION,date('Y')),@file_get_contents($this->get_module_dir().'/'.$file));

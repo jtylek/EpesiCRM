@@ -261,7 +261,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
 
-    	if (Base_ThemeCommon::get_default_template() === 'adminlte') {
+    	if (Base_ThemeCommon::is_adminlte_family()) {
     		// Bootstrap Icons glyph instead of the default theme's sprite
     		// background-image - bi-building matches Base_AdminlteIcons's own
     		// choice for "companies" by filename, for consistency with the

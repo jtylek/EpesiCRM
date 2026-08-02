@@ -1,0 +1,41 @@
+/* AdminLTE flex layout for Libs_QuickForm's "row" renderer
+ * (display_as_row() - compact inline label+control chips that wrap, e.g.
+ * filter bars).
+ *
+ * Replaces the legacy theme's display:inline-block/display:table-cell
+ * hybrid with fixed 10px label / auto data widths (theme/row.tpl) with a
+ * real flexbox, so chips wrap naturally on narrow screens.
+ *
+ * .epesi_label/.epesi_data are kept as secondary classes - see column.css's
+ * comment for why the layout rules themselves target the epesi-qf-row-*
+ * classes instead.
+ */
+
+.epesi-qf-row-wrap {
+	text-align: left;
+	padding-left: 0.4rem;
+}
+
+.epesi-qf-header {
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-qf-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6rem 1.25rem;
+	margin: 0.3rem 0;
+}
+
+.epesi-qf-row-item {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	white-space: nowrap;
+}
+
+.epesi-qf-row-label {
+	white-space: nowrap;
+}

@@ -163,7 +163,7 @@ class Base_Dashboard extends Module {
 		// column 0/1 (col % $col_count) here at display time only, so nothing
 		// needs migrating and switching back to the default theme would show
 		// it in its original column again.
-		$col_count = Base_ThemeCommon::get_default_template() === 'adminlte' ? 2 : 3;
+		$col_count = Base_ThemeCommon::is_adminlte_family() ? 2 : 3;
 		$applets = array_fill(0, $col_count, array());
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
@@ -279,7 +279,7 @@ class Base_Dashboard extends Module {
 		$pos = 0;
 		// keep new applets within the columns display_dashboard() actually
 		// renders under this theme (2 for adminlte, 3 for the default theme).
-		$col_count = Base_ThemeCommon::get_default_template() === 'adminlte' ? 2 : 3;
+		$col_count = Base_ThemeCommon::is_adminlte_family() ? 2 : 3;
 		DB::StartTrans();
 		if($default_dash) {
 			$cols = DB::GetAssoc('SELECT col,count(id) FROM base_dashboard_default_applets WHERE tab=%d GROUP BY col ORDER BY col',array($tab_id));

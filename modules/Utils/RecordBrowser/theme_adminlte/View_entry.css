@@ -1,15 +1,15 @@
 /* AdminLTE re-skin for Utils_RecordBrowser's single-record view/edit screen.
- * Only the header (icon/caption/tooltips row, previously a
- * .Utils_RecordBrowser__table) and the outer container (a plain rounded gray
- * box, now a Bootstrap card) are structurally different - see View_entry.tpl.
- * Everything below is the SAME field-grid CSS as the default theme with
- * colours/shadows softened, not rewritten: the column-balancing table and
- * per-field-type markup ($f.full_field - automulti/timestamp/currency/frozen/
- * multiselect) are built elsewhere and shared with the default theme, so
- * their positioning/sizing rules are kept exactly as before and only
- * backgrounds/box-shadows/border-radius were touched, to avoid quietly
- * breaking some field type's layout by rewriting a rule believed to be purely
- * cosmetic.
+ * The header (icon/caption/tooltips row) and outer container (a Bootstrap
+ * card) are structurally different from the default theme, and the field
+ * grid itself (.epesi-rv-columns/.column/.view/.edit/.epesi-rv-row/.label/
+ * .data) is flexbox, replacing the default theme's column-balancing
+ * <table>-of-<table>s - see View_entry.tpl and single_field.tpl. The
+ * column-balancing *math* (which field lands in which column) is unchanged,
+ * only the markup. Per-field-type widget internals ($f.full_field -
+ * automulti/timestamp/currency/frozen/multiselect) are built elsewhere and
+ * shared with the default theme and are untouched here beyond
+ * backgrounds/box-shadows/border-radius, since none of them depend on their
+ * ancestor .data being a table cell specifically.
  */
 
 .epesi-rv-header {
@@ -202,14 +202,6 @@
 
 .Utils_RecordBrowser__View_entry {
     width: 100%;
-	/* Without this (table-layout defaults to auto), each row's td.column is
-	   free to size itself from its own row's content instead of sharing one
-	   consistent column width across every row - a short value like "---"
-	   in a multiselect/longfield row could end up narrower than a regular
-	   field row's column right next to it, even though both specify the
-	   same width:{$cols_percent}% inline. Fixed layout makes every row
-	   honour that shared percentage instead. */
-	table-layout: fixed;
 }
 
 .Utils_RecordBrowser__container {
@@ -217,80 +209,94 @@
 	padding: 0;
 }
 
-/* Gap between the left/right field columns (each td.column is its own inner
-   table.edit/view). border-spacing on the outer table doesn't work here -
-   Bootstrap's global "table { border-collapse: collapse }" reset applies to
-   every <table> on the page regardless of class, and border-spacing has no
-   effect at all once border-collapse is collapse - so this uses padding
-   instead, which isn't affected by that reset. Left/right (not just one
-   side) so adjacent columns' padding adds up to the full gap between them. */
-.Utils_RecordBrowser__View_entry td.column {
-	vertical-align: top;
-	padding-left: 24px;
-	padding-right: 24px;
+/* Was a <table> of <table>s (see View_entry.tpl) - .epesi-rv-columns lays
+   out each .column div side by side, replacing the outer table/tr; there
+   can be more than one (regular fields, then a separate one for
+   multiselects) stacked as ordinary block siblings. */
+.epesi-rv-columns {
+	display: flex;
 }
 
-.Utils_RecordBrowser__View_entry td.column:first-child {
+/* Gap between the left/right field columns (each .column is its own inner
+   .view/.edit flex column). Left/right (not just one side) so adjacent
+   columns' padding adds up to the full gap between them. */
+.Utils_RecordBrowser__View_entry .column {
+	padding-left: 24px;
+	padding-right: 24px;
+	/* Every .column carries its own inline width:{$cols_percent}% - this
+	   keeps it from also flex-growing/shrinking away from that explicit
+	   share when a sibling column's content is a different height. */
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+.Utils_RecordBrowser__View_entry .column:first-child {
 	padding-left: 0;
 }
 
-.Utils_RecordBrowser__View_entry td.column:last-child {
+.Utils_RecordBrowser__View_entry .column:last-child {
 	padding-right: 0;
 }
 
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
+.Utils_RecordBrowser__View_entry .view,
+.Utils_RecordBrowser__View_entry .edit {
+	/* Was a <table>; each field is now an .epesi-rv-row flex row (see
+	   below) stacked here instead of a <tbody>'s <tr>s. */
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+	width: 100%;
 }
 
-.Utils_RecordBrowser__View_entry table.edit {
-    border-top: none;
-    width: 100%;
+.Utils_RecordBrowser__View_entry .edit {
+	border-top: none;
 }
 
-.Utils_RecordBrowser__View_entry table.edit,
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
-	border-spacing: 3px;
-	/* Every real row here is exactly 2 cells (single_field.tpl: one .label +
-	   one .data td, always - confirmed via RecordBrowser_0.php's $fields/
-	   $longfields split, "long text" rows never mix with regular rows in the
-	   same table instance, and each field-grid "column" is always its own
-	   separate <table> element, so this never couples column counts across
-	   differently-shaped rows). Tried once already this same day and
-	   reverted - back then the multiselect widget itself (#multiselect,
-	   Libs/QuickForm/theme_adminlte/default.css) could genuinely overflow
-	   its own internal math, and giving its ancestor .data cell a definite
-	   width just exposed that overflow instead of absorbing it. Now that
-	   #multiselect is display:block/flex (rewritten same day - it no longer
-	   has any internal sizing ambiguity of its own), this is safe: it gives
-	   .data a concrete width (100% minus .label's fixed 150px) so a lone-row
-	   table (e.g. the separate "multiselects" table for a single multiselect
-	   field) doesn't fall back to sizing its data column from its own
-	   sparse row's min-content instead of matching its sibling column's
-	   width the way a many-row regular-fields table naturally does. */
-	table-layout: fixed;
+/* Was a <tr> (single_field.tpl) - lays its .label/.data children
+   side by side, replacing the pair of <td>s. column-gap replaces the
+   outer <table>'s old border-spacing:3px (which gapped both rows and
+   columns of cells; row-gap above now covers the row side of that). */
+.Utils_RecordBrowser__View_entry .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
 }
 
 .Utils_RecordBrowser__View_entry .label {
-	background: #6c757d;
-    color: #fff;
+	/* Light label / dark text - matches the Filters box's already-converted
+	   label style (Filters/theme_adminlte/default.css), reverting the
+	   earlier dark-label/white-text choice for this screen. #e9ecef reads as
+	   a distinct "header" tone against both the view-mode data cell (#f8f9fa)
+	   and the edit-mode one (#fff), without needing a background this dark. */
+	background: #e9ecef;
+    color: #495057;
+	font-weight: 600;
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
-    height: 20px;
+	/* min-height, not height: was a fixed-height <td> whose row (and so its
+	   sibling .data) was always at least as tall via table layout; as a flex
+	   row item this still sets the row's minimum, but lets it grow to match
+	   a taller .data instead of clipping against it. */
+	min-height: 20px;
 	white-space: nowrap;
 	overflow:hidden;
-    vertical-align: middle;
+	/* Was vertical-align:middle (table-cell centering) - the flex equivalent. */
+	display: flex;
+	align-items: center;
     padding-left: 5px;
     padding-right: 5px;
-    width: 150px;
+	/* Was width:150px. flex-basis instead of width so it holds this size
+	   as a flex item even though .epesi-rv-row no longer has a table's
+	   column-width negotiation; 0 0 keeps it from growing/shrinking. */
+	flex: 0 0 150px;
     text-align: left;
 	box-shadow: none;
 	font-size: 0.85rem;
-	/* Subtle row-to-row separation - the page's own background grey, not a
-	   dark line, so adjacent label rows read as distinct without looking
-	   like a harsh divider. */
-	border-bottom: 1px solid #f4f6f9;
+	/* Row-to-row separation: the old page-bg-coloured line only worked
+	   because it disappeared against a dark label; against a light one it
+	   needs to actually be visible, so this now uses the same border grey
+	   as everything else in this file (.data, focus outlines, etc). */
+	border-bottom: 1px solid #dee2e6;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .label {
     text-align: right;
@@ -301,7 +307,7 @@
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
-    width: 20%;
+	flex-basis: 20%;
 }
 
 .Utils_RecordBrowser__View_entry .data {
@@ -317,6 +323,12 @@
 	box-shadow: none;
 	position: relative;
 	font-size: 0.85rem;
+	/* Was implicit table-cell auto-width (fills whatever the row doesn't
+	   give .label); the flex equivalent, plus min-width:0 so a long
+	   unbreakable value (a URL, an autocomplete widget) can still shrink
+	   below its own content size instead of forcing the row wider. */
+	flex: 1 1 auto;
+	min-width: 0;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .data {
     text-align: right;
@@ -341,20 +353,20 @@
 	margin-right: 14px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .help  + div {
+.Utils_RecordBrowser__View_entry .edit .help  + div {
 	margin-right: 22px;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data {
+.Utils_RecordBrowser__View_entry .view .data {
     padding: 3px 5px;
 	background-color: #f8f9fa;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data img {
+.Utils_RecordBrowser__View_entry .view .data img {
     vertical-align: middle;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .data {
+.Utils_RecordBrowser__View_entry .edit .data {
     border-bottom: none;
 	background-color: #fff;
 }
@@ -363,15 +375,15 @@
     width: 80%;
 }
 
-.Utils_RecordBrowser__View_entry table.view .long_data {
+.Utils_RecordBrowser__View_entry .view .long_data {
     border-right: 1px solid #B3B3B3;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .long_data {
+.Utils_RecordBrowser__View_entry .edit .long_data {
     border-right: none;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
@@ -395,7 +407,7 @@
 	height: 63px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input[disabled],
 .Utils_RecordBrowser__View_entry .data select[disabled],
@@ -403,14 +415,14 @@
     background-color: #f1f3f5;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input,
 .Utils_RecordBrowser__View_entry .data textarea {
 	box-shadow: none;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input {
 	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
@@ -424,7 +436,7 @@
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
-.Utils_RecordBrowser__View_entry table.view .frozen .static_field {
+.Utils_RecordBrowser__View_entry .view .frozen .static_field {
 	width: 100%;
 }
 
@@ -497,21 +509,21 @@
 
 /* automulti START */
 
-.Utils_RecordBrowser__View_entry table.edit .automulti {
+.Utils_RecordBrowser__View_entry .edit .automulti {
 	background-color: #f1f3f5;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti select {
+.Utils_RecordBrowser__View_entry .edit .automulti select {
 	height: 80px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti td {
+.Utils_RecordBrowser__View_entry .edit .automulti td {
 	padding: 0;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="text"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="text"]{
 	-webkit-border-radius: 0px;
 	-moz-border-radius: 0px;
     border-radius: 0px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="button"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="button"]{
 	height: 100%;
 	width: 100%;
 	padding: 0;
@@ -602,4 +614,37 @@
 
 .dz-file-preview {
 	z-index: 5;
+}
+
+/* Small screens: stack each .column under the previous one instead of
+ * staying side by side, and stack each row's .label above its .data
+ * instead of side by side - real flex reflow now, not the display:block
+ * responsive-table technique the <table> version needed. */
+@media (max-width: 767.98px) {
+	.epesi-rv-columns {
+		flex-wrap: wrap;
+	}
+
+	/* !important: .column carries its own inline width:{$cols_percent}%
+	   (View_entry.tpl), which otherwise beats any plain class rule here
+	   regardless of source order. */
+	.Utils_RecordBrowser__View_entry .column {
+		flex-basis: 100% !important;
+		/* Was horizontal breathing room between side-by-side columns
+		   (padding-left/right, see above); now that they stack, that would
+		   just indent every field one column too - swap for vertical
+		   breathing room between the stacked column groups instead. */
+		padding-left: 0;
+		padding-right: 0;
+		margin-bottom: 12px;
+	}
+
+	.Utils_RecordBrowser__View_entry .epesi-rv-row {
+		flex-wrap: wrap;
+	}
+
+	.Utils_RecordBrowser__View_entry .label,
+	.Utils_RecordBrowser__View_entry .data {
+		flex-basis: 100%;
+	}
 }

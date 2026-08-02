@@ -21,15 +21,38 @@ class Utils_Calendar extends Module {
 				  'end_day'=>'17:00',
 				  'interval'=>'1:00',
 				  'default_date'=>null,
-				  'head_col_width'=>'90px');
+				  'head_col_width'=>'90px',
+				  // 'legacy' (default) = the Smarty-rendered day/week/month/
+				  // year/agenda tabs below; 'fullcalendar' = the single
+				  // FullCalendar-based renderer, see fullcalendar() and
+				  // Utils_CalendarCommon::events_to_fullcalendar(). Anything
+				  // that constructs this module without passing 'engine'
+				  // (e.g. Tests_Calendar) is unaffected - stays on 'legacy'.
+				  'engine'=>'legacy');
 	private $date; //current date
 	private $event_module;
 	private $tb;
 	private $displayed_events = array();
 	private $custom_new_event_href_js = null;
+	// URL for the FullCalendar JSON events feed (CRM_CalendarCommon::
+	// fullcalendar_events(), reached via Module::create_ajax_callback_url() -
+	// injected by the caller for the same reason $custom_new_event_href_js is:
+	// this module is meant to stay CRM-agnostic, so it doesn't call
+	// CRM_CalendarCommon directly. Only meaningful when settings['engine']
+	// is 'fullcalendar'.
+	private $custom_events_feed_url = null;
+	// URL for the FullCalendar drag-move/resize write endpoint
+	// (CRM_CalendarCommon::fullcalendar_update()) - same CRM-agnostic
+	// injection reasoning as $custom_events_feed_url. Drag-to-create reuses
+	// $custom_new_event_href_js instead (the existing add-event flow), not
+	// this endpoint - creating an event was never a "PATCH this record"
+	// operation even in the legacy grid.
+	private $custom_events_write_url = null;
 
-	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null) {
+	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null, $custom_events_feed_url=null, $custom_events_write_url=null) {
 		$this->custom_new_event_href_js = $custom_new_event_href_js;
+		$this->custom_events_feed_url = $custom_events_feed_url;
+		$this->custom_events_write_url = $custom_events_write_url;
 		$this->settings = array_merge($this->settings,$settings);
 
 		$this->event_module = str_replace('/','_',$ev_mod);
@@ -58,7 +81,12 @@ class Utils_Calendar extends Module {
 			$this->shift_week_day($this->get_unique_href_variable('shift_week_day'));
 
 
-		if(count($this->settings['views'])>1) {
+		// The FullCalendar engine has its own client-side view-switcher
+		// toolbar (headerToolbar in fullcalendar()) and refetches from one
+		// JSON endpoint on every navigation, instead of five separately
+		// server-rendered tabs each mounting their own instance - see the
+		// "Why drop Utils_TabbedBrowser" note in the implementation plan.
+		if($this->settings['engine']!=='fullcalendar' && count($this->settings['views'])>1) {
 			$this->tb = $this->init_module(Utils_TabbedBrowser::module_name());
 
 			foreach($this->settings['views'] as $k=>$v) {
@@ -110,6 +138,13 @@ class Utils_Calendar extends Module {
 	}
 
 	public function get_current_view(){
+		// Unguarded $this->tb access here was already a latent bug reachable
+		// via a restricted 'views'=>[...] single-view config (count()<=1 also
+		// skips the tb init above) - surfaced now because the FullCalendar
+		// engine skips tb unconditionally. null is a valid, already-handled
+		// state for every caller (CRM_Calendar::body()'s PDF-export switch
+		// only acts when isset($view), which this correctly prevents).
+		if (!isset($this->tb)) return null;
 		return $this->settings['views'][$this->tb->get_tab()];
 	}
 
@@ -254,19 +289,23 @@ class Utils_Calendar extends Module {
 	}
 
 	public function body($arg = null) {
-		load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
-		load_js($this->get_module_dir().'calendar-jq.js');
-
-		$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
-		if(isset($this->tb)) {
-			$this->display_module($this->tb);
-			$this->tb->tag();
+		if ($this->settings['engine'] === 'fullcalendar') {
+			$this->fullcalendar();
 		} else {
-			$kk = array_keys($this->settings['views']);
-			$v = $this->settings['views'][$kk[0]];
-			if(!in_array($v,self::$views))
-				trigger_error('Invalid view: '.$v.' - '.print_r(self::$views,true),E_USER_ERROR);
-			call_user_func(array($this,strtolower($v)));
+			load_js($this->get_module_dir().'jquery.ui.touch-punch.min.js');
+			load_js($this->get_module_dir().'calendar-jq.js');
+
+			$this->js('Utils_Calendar.day_href = \''.Epesi::escapeJS($this->create_unique_href_js(array('action'=>'switch','time'=>'__DATE__', 'tab'=>'Day')),false).'\'');
+			if(isset($this->tb)) {
+				$this->display_module($this->tb);
+				$this->tb->tag();
+			} else {
+				$kk = array_keys($this->settings['views']);
+				$v = $this->settings['views'][$kk[0]];
+				if(!in_array($v,self::$views))
+					trigger_error('Invalid view: '.$v.' - '.print_r(self::$views,true),E_USER_ERROR);
+				call_user_func(array($this,strtolower($v)));
+			}
 		}
 
 		if ($this->custom_new_event_href_js!==null)
@@ -950,6 +989,151 @@ class Utils_Calendar extends Module {
 		$theme->assign('navigation_bar_additions', $navigation_bar_additions);
 
 		$theme->display('year');
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// FullCalendar (fullcalendar.io, MIT standard bundle) - single view,
+	// client-side navigation via its own toolbar, refetching events from
+	// $custom_events_feed_url as the visible range changes. No server-side
+	// grid math (month_array()/get_timeline()/the day-loop above) - all of
+	// that is FullCalendar's own job now; this method only assembles config
+	// and prints a mount point.
+	public function fullcalendar() {
+		Base_ThemeCommon::load_css('Utils_Calendar', 'fullcalendar');
+		// '' loader: skip Epesi's minify/bundling pipeline for this prebuilt,
+		// already-minified vendor file (same pattern modules/Libs/CKEditor/
+		// ckeditor.php:8 already uses for ckeditor.js).
+		load_js('libs/fullcalendar-6.1.21/index.global.min.js', '');
+		load_js($this->get_module_dir().'fullcalendar-init.js');
+
+		// Stable across re-renders (derived from this module instance's own
+		// path, never time()/uniqid()) - Epesi's content-diffing only
+		// re-emits this module's queued JS when its HTML/JS actually changed,
+		// so a re-render that keeps the same container id (e.g. switching CRM
+		// Filters "Perspective") must refetch the existing live instance
+		// rather than force a pointless destroy/remount. See
+		// EpesiFullCalendar.mount() in fullcalendar-init.js.
+		$mount_id = 'utils-calendar-fc-'.md5($this->get_path());
+		print('<div id="'.$mount_id.'" class="epesi-fc-container"></div>');
+
+		if ($this->custom_events_feed_url === null)
+			// Defensive, not currently reachable: every caller that sets
+			// engine=>'fullcalendar' (only CRM_Calendar today) must also pass
+			// a feed URL as construct()'s 4th argument.
+			trigger_error('Utils_Calendar: fullcalendar engine needs a feed URL (construct()\'s 4th argument)', E_USER_WARNING);
+
+		// H:MM (legacy settings shape, e.g. '8:00'/'17:00'/'0:15') -> HH:MM:SS
+		// (FullCalendar's slot time shape).
+		$to_hms = function($t) {
+			$p = explode(':', $t);
+			return str_pad($p[0], 2, '0', STR_PAD_LEFT).':'.str_pad($p[1] ?? '00', 2, '0', STR_PAD_LEFT).':00';
+		};
+		$start_day = $to_hms($this->settings['start_day']);
+		$end_day = $to_hms($this->settings['end_day']);
+		if (strtotime($end_day) <= strtotime($start_day)) {
+			// The legacy day/week timeline has special-cased wrap-around
+			// rendering for this (get_timeline()'s "$end<$start" branch, e.g.
+			// an overnight shift 17:00-8:00) that FullCalendar's slot range
+			// doesn't map onto directly - shown as the full day instead
+			// rather than reproducing that wrap-around, an accepted minor UX
+			// difference for what both requires is an unusual settings
+			// combination in the first place.
+			$start_day = '00:00:00';
+			$end_day = '24:00:00';
+		}
+		$interval = $to_hms($this->settings['interval']);
+
+		$time_fmt = Base_User_SettingsCommon::get('Base_RegionalSettings', 'time');
+		$hour12 = str_contains((string)$time_fmt, '%I');
+		$time_format = array('hour' => '2-digit', 'minute' => '2-digit', 'hour12' => $hour12);
+
+		// FullCalendar's own locale FILES (locales-all.global.min.js) are
+		// deliberately not vendored - month/weekday names come from the
+		// browser's native Intl via this code alone, and every other string
+		// FullCalendar would otherwise supply from a locale file is
+		// overridden below via Epesi's own __(), keeping Epesi's translation
+		// system as the single source of truth instead of a second one.
+		$config = array(
+			'timeZone' => 'local', // server already converts to the user's regional tz before serializing (Base_RegionalSettingsCommon::time2reg())
+			'locale' => Base_LangCommon::get_lang_code(),
+			'initialView' => self::view_to_fullcalendar($this->settings['default_view']),
+			'initialDate' => date('Y-m-d', $this->date),
+			'firstDay' => (int)$this->settings['first_day_of_week'],
+			'headerToolbar' => array(
+				'left' => 'prev,next today',
+				'center' => 'title',
+				'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listWeek,multiMonthYear',
+			),
+			'buttonText' => array(
+				'today' => __('Today'),
+				'month' => __('Month'),
+				'week' => __('Week'),
+				'day' => __('Day'),
+				'list' => __('Agenda'),
+			),
+			'views' => array('multiMonthYear' => array('buttonText' => __('Year'))),
+			'noEventsText' => __('No events to display'),
+			'slotMinTime' => $start_day,
+			'slotMaxTime' => $end_day,
+			'slotDuration' => $interval,
+			'eventTimeFormat' => $time_format,
+			'slotLabelFormat' => $time_format,
+			'height' => 'auto',
+			'dayMaxEvents' => true,
+			'nowIndicator' => true,
+			// Global capability switches - per-event startEditable/
+			// durationEditable (Utils_CalendarCommon::event_to_fullcalendar(),
+			// already sourced from each handler's own move_action/edit_action
+			// ACL tri-state) still applies underneath these, so a record the
+			// current user can't edit stays non-draggable even with this on.
+			'editable' => $this->custom_events_write_url !== null,
+			'selectMirror' => true,
+			'selectMinDistance' => 0, // a plain click is a zero-distance "select" - covers the old double-click-empty-cell gesture and the new drag-to-create range with one handler
+		);
+
+		// Same href-template mechanism day()/week()/month() already use for
+		// their own double-click-to-add (calendar-jq.js's activate_dnd()) -
+		// __TIME__/__TIMELESS__ are substituted client-side
+		// (fullcalendar-init.js) before eval(), reusing whatever "New
+		// Meeting/Task/Phonecall" chooser the existing add-event flow already
+		// builds. selectable only turns on once this template actually
+		// exists - drag-to-create with no add flow to hand off to would be a
+		// dead gesture.
+		if ($this->custom_new_event_href_js !== null)
+			$new_event_template = call_user_func($this->custom_new_event_href_js, '__TIME__', '__TIMELESS__');
+		else
+			$new_event_template = $this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__'));
+		$config['selectable'] = $new_event_template !== false && $new_event_template !== null;
+
+		eval_js('EpesiFullCalendar.mount('.
+			json_encode($mount_id).','.
+			json_encode($config).','.
+			json_encode($this->custom_events_feed_url).','.
+			json_encode($this->custom_events_write_url).','.
+			json_encode($new_event_template).
+		');');
+	}
+
+	// Maps both shapes of legacy view name onto a FullCalendar view - the
+	// lowercase 'agenda'/'day'/'week'/'month'/'year' stored by
+	// CRM_CalendarCommon::user_settings()'s 'default_view' select, AND the
+	// capitalized 'Day'/'Week'/'Month'/'Year' from self::$views/
+	// Applets_MonthView's switch_to_tab request param (CRM_Calendar::body()
+	// copies switch_to_tab straight into $args['default_view'] with no
+	// translation of its own) - a single case-insensitive map covers both,
+	// so Applets/MonthView's own deep links need no change to keep working.
+	// Agenda maps to listWeek: FullCalendar's list view has no per-source
+	// custom-column model, so the legacy Agenda tab's 4 extra columns
+	// (Type/Description/Assigned to/Related with) don't carry over - that
+	// data is already available via the PDF export, which is retained.
+	public static function view_to_fullcalendar($view) {
+		return match (strtolower((string)$view)) {
+			'day' => 'timeGridDay',
+			'week' => 'timeGridWeek',
+			'year' => 'multiMonthYear',
+			'agenda' => 'listWeek',
+			default => 'dayGridMonth',
+		};
 	}
 
 	public function get_displayed_events() {

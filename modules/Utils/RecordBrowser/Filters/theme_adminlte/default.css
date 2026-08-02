@@ -1,9 +1,8 @@
 /* AdminLTE re-skin for Utils_RecordBrowser_Filters - the "Show/Hide filters"
  * toggle (controls.tpl, brand new markup - a real <button>, see the comment
- * there for why that's safe) and the filter field grid (elements.tpl, same
- * 4-per-row wrapping table as the default theme, colours/shadows softened in
- * place rather than rewritten, same reasoning as View_entry.css: the layout
- * math is real, so only cosmetic declarations were touched).
+ * there for why that's safe) and the filter field grid (elements.tpl - flex,
+ * replacing the default theme's 4-per-row wrapping <table>; see that file's
+ * own comment).
  */
 
 .epesi-rbf-controls {
@@ -28,14 +27,18 @@
 	background-color: #e9ecef;
 }
 
-.Utils_RecordBrowser__Filter > table {
-	margin-left: auto;
-	margin-right: 0;
-	border-spacing: 3px;
+.epesi-rbf-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.4rem;
 }
-.epesi_rtl .Utils_RecordBrowser__Filter > table {
-	margin-left: 0;
-	margin-right: auto;
+.epesi_rtl .epesi-rbf-row {
+	justify-content: flex-start;
+}
+
+.epesi-rbf-pair {
+	display: flex;
 }
 
 .Utils_RecordBrowser__Filter {
@@ -48,7 +51,8 @@
 .Utils_RecordBrowser__Filter .label {
     color: #495057;
     height: 28px;
-    vertical-align: middle;
+	display: flex;
+	align-items: center;
     padding-left: 5px;
     padding-right: 5px;
 
@@ -114,15 +118,14 @@
 #Utils_RecordBrowser__Filter .buttons,
 #Utils_RecordBrowser__Filter .buttons_disabled {
 	cursor: pointer;
-	display: block;
-    float: right;
+	display: flex;
+	align-items: center;
     padding-right: 8px;
 }
 
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons,
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
     padding-left: 8px;
-    float: left;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,
@@ -158,4 +161,46 @@
 .Utils_RecordBrowser__Filter .buttons input:hover,
 #Utils_RecordBrowser__Filter .buttons input:hover {
 	background-color: #0b5ed7;
+}
+
+/* Small screens: each .epesi-rbf-pair gets a full-width line of its own
+ * instead of staying cramped several-across - flex-basis, not the old
+ * table version's display:block hack. */
+@media (max-width: 767.98px) {
+	.epesi-rbf-pair,
+	.Utils_RecordBrowser__Filter .buttons {
+		flex-basis: 100%;
+	}
+
+	/* The label/data pill shape (rounded-left label + rounded-right data,
+	   .data's left border removed so the pair reads as one joined shape)
+	   only makes sense side by side. Stacked, round the pair as a single
+	   top/bottom block instead and restore .data's left border, which used
+	   to rely on sitting flush against .label. */
+	.Utils_RecordBrowser__Filter .label {
+		border-radius: 4px 4px 0 0;
+	}
+	.Utils_RecordBrowser__Filter .data {
+		border-radius: 0 0 4px 4px;
+		border-left: 1px solid #dee2e6;
+		margin-bottom: 8px;
+	}
+
+	/* Inputs were a fixed 100px/98px (sized for a compact side-by-side
+	   pill) - now that .data spans the full row, let them fill it instead
+	   of leaving most of the row empty. */
+	.Utils_RecordBrowser__Filter .data input,
+	.Utils_RecordBrowser__Filter .data select {
+		width: 100%;
+		box-sizing: border-box;
+		margin-left: 0;
+	}
+	.Utils_RecordBrowser__Filter .data select {
+		margin-right: 0;
+	}
+
+	.Utils_RecordBrowser__Filter .buttons {
+		justify-content: flex-end;
+		padding-right: 0;
+	}
 }

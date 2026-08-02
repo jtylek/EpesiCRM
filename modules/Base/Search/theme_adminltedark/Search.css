@@ -1,0 +1,171 @@
+/* AdminLTE re-skin for Base_Search: the navbar "mini" quick-search box
+ * (form_mini="yes"), and the full search-with-categories screen (used when
+ * the module renders as ordinary page content).
+ */
+
+/* ---- mini (navbar) ---- */
+
+.epesi-search-mini-group {
+	display: flex;
+	align-items: stretch;
+}
+
+.epesi-search-mini-group input[type="text"] {
+	border: 1px solid #495057;
+	border-right: none;
+	border-radius: 0.375rem 0 0 0.375rem;
+	padding: 0.25rem 0.6rem;
+	font-size: 0.85rem;
+	width: 160px;
+}
+
+.epesi-search-mini-group input[type="text"]:focus {
+	outline: 0;
+	border-color: #86b7fe;
+}
+
+.epesi-search-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 0.6rem;
+	border-radius: 0 0.375rem 0.375rem 0;
+	background-color: #198754;
+	color: #fff;
+	text-decoration: none;
+}
+
+.epesi-search-btn:hover {
+	background-color: #157347;
+	color: #fff;
+}
+
+/* ---- full search screen ---- */
+
+.epesi-search-full {
+	max-width: 700px;
+	margin: 1rem auto;
+	border: 1px solid #495057;
+	box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.08);
+}
+
+.epesi-search-full-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-weight: 600;
+	font-size: 1.1rem;
+	color: #ced4da;
+	margin-bottom: 1rem;
+}
+
+.epesi-search-full-header .bi {
+	color: #8b929a;
+}
+
+.epesi-search-full input[type="text"] {
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.4rem 0.6rem;
+	width: 100%;
+}
+
+.epesi-search-full input[type="text"]:focus {
+	outline: 0;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Grid, not flex-wrap - keeps every category aligned into clean columns
+   instead of ragged rows whose item count depends on label length. */
+.epesi-search-categories {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+	gap: 0.4rem 1rem;
+	padding: 0.75rem;
+	background-color: #24272b;
+	border: 1px solid #343a40;
+	border-radius: 0.375rem;
+}
+
+.epesi-search-categories li {
+	list-style: none;
+}
+
+.epesi-search-categories label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.epesi-search-categories input[type="checkbox"] {
+	width: 1rem;
+	height: 1rem;
+	accent-color: #0d6efd;
+	cursor: pointer;
+}
+
+.epesi-search-full-actions input[type="submit"] {
+	border: 1px solid #8b929a;
+	border-radius: 0.375rem;
+	background-color: #2b3035;
+	color: #adb5bd;
+	padding: 0.4rem 0.9rem;
+	font-size: 0.85rem;
+}
+
+.epesi-search-full-actions input[type="submit"]:hover {
+	background-color: #343a40;
+}
+
+/* The last button in the row is quick_search_submit ("Search") - the
+   primary action, styled to stand out from Select all/Deselect all. */
+.epesi-search-full-actions input[type="submit"]:last-child {
+	border-color: #0d6efd;
+	background-color: #0d6efd;
+	color: #fff;
+}
+
+.epesi-search-full-actions input[type="submit"]:last-child:hover {
+	background-color: #0b5ed7;
+	border-color: #0b5ed7;
+}
+
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .epesi-search-mini-group input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-search-full {
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-search-full-header {
+  color: #343a40;
+}
+
+[data-bs-theme="light"] .epesi-search-full-header .bi {
+  color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-search-full input[type="text"] {
+  border: 1px solid #ced4da;
+}
+
+[data-bs-theme="light"] .epesi-search-categories {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"] {
+  border: 1px solid #6c757d;
+  background-color: #fff;
+  color: #495057;
+}
+
+[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"]:hover {
+  background-color: #e9ecef;
+}

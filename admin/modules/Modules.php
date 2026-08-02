@@ -23,7 +23,7 @@ class Modules extends AdminModule {
             $form->setDefaults(array($name => $state));
         }
 
-        $form->addElement('button', 'submit_button', 'Update', array('class' => 'btn btn-primary', 'onclick' => 'if(confirm("Are you sure?")) document.modulesform.submit();'));
+        $form->addElement('button', 'submit_button', 'Update', array('class' => 'btn btn-primary', 'onclick' => Module::wrap_confirm_js('Are you sure?', 'document.modulesform.submit();')));
 
         //validation or display
         if ($form->validate()) {

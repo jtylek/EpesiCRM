@@ -9,23 +9,25 @@ Kept in-repo so findings survive and stay versioned with the code.
 
 ---
 
-## ✅ STATUS: Rector ladder complete
+## ✅ STATUS: Rector ladder complete, app running on PHP 8.2, released as 20260701-rc1
 
 The full Rector migration ladder has been applied to all Core code (own code, excluding bundled libraries):
 
 - **PHP 7.0 → 7.4** — applied to all directories
 - **PHP 8.0** — applied (switch→match reviewed individually; one skipped in Administrator_0.php, see §5)
 - **PHP 8.1** — applied (first-class callable, readonly, never; null→string cast rule deferred, see §5)
-- **PHP 8.2** — verified: 685 files scanned, **zero changes** — code is already 8.2 syntax-clean
+- **PHP 8.2** — verified: 685 files scanned, **zero changes** — code is already 8.2 syntax-clean; reconfirmed clean post-hardening (636 files, zero changes — see PHASE 5 STATUS)
 
 **Core is now PHP 8.2 syntax-compatible.** Verified via `php -l` (zero fatals) on all migrated code.
 
-**NOT yet done** (separate efforts, mostly composer/architecture — Jasiek's domain):
-- Composer dependency migration (QuickForm, Smarty, Roundcube, Memio) — blocks installer & full app test
+**Since resolved** (this section originally listed these as "NOT yet done" — kept here only as a pointer to where each was actually closed out):
+- Composer dependency migration — DONE: QuickForm → openpsa/quickform (§11), ADOdb → adodb/adodb-php (§11), Roundcube 1.2.1→1.7.1 (§30). Smarty deliberately patched-in-place rather than replaced, by design (§17). Stale dev deps partially cleaned (aspect-mock removed, §51); faker/memio/psysh still open, see §4.
+- Full runtime app testing — DONE: installer completes, app logs in and renders the full dashboard (§15); Core modules CRUD-tested (§23–§41); hardening pass completed and released as CalVer `20260701-rc1` (PHASE 5 STATUS).
+
+**Still open:**
 - Deferred decisions documented in §5 below
 - modules/Tests (220 files, low priority)
-- 50 premium modules beyond Core
-- Full runtime app testing (blocked by installer loop until QuickForm is migrated)
+- 50 premium modules beyond Core (see §59 for the upgrade-safety gate)
 
 ---
 
@@ -97,17 +99,14 @@ Rules applied (all behavior-preserving): null-coalescing (`isset()?:` → `??`),
 ## 2. KNOWN BLOCKERS — need decisions / the "proper order" composer work
 
 ### ★ QuickForm PHP4 constructor — root cause of the installer loop
+- **STATUS: RESOLVED — see §11.** QuickForm 3.2.14 was replaced with `openpsa/quickform` via composer (the "proper order" approach recommended below was the path taken).
 - **File:** `modules/Libs/QuickForm/3.2.14-php7/HTML/QuickForm.php` line 284
-- **Problem:** `function HTML_QuickForm(...)` is a PHP4-style constructor with NO `__construct`. On PHP 8.2 it is NOT recognized as a constructor → never runs on `new` → form's `name`/`method`/`action` attributes never set → renders a bare `<form>` → form submits as GET losing the license/htaccess params → installer bounces back to language select (the "loop").
-- **Status:** NOT fixed. QuickForm is a vendored library (in `modules/Libs/`), excluded from Rector.
-- **Recommended fix:** replace QuickForm 3.2.14 with a PHP-8-compatible version via composer (the "proper order" approach), rather than hand-patching the vendored copy.
-- This is almost certainly the same loop seen on the earlier 8.x attempt.
+- **Problem (history):** `function HTML_QuickForm(...)` is a PHP4-style constructor with NO `__construct`. On PHP 8.2 it is NOT recognized as a constructor → never runs on `new` → form's `name`/`method`/`action` attributes never set → renders a bare `<form>` → form submits as GET losing the license/htaccess params → installer bounces back to language select (the "loop"). This is almost certainly the same loop seen on the earlier 8.x attempt.
 
 ### Installer loop — secondary findings (in `setup.php`)
-While diagnosing, two installer issues surfaced (separate from the QuickForm root cause):
+**RESOLVED — moot.** QuickForm is fixed and the installer now completes end-to-end (§15). While diagnosing, two installer issues had surfaced (separate from the QuickForm root cause), kept as history:
 - Password field is marked `required` (line ~212), but XAMPP root has a blank password → validation always failed. (Worked around locally by commenting the rule during diagnosis; setup.php has since been restored to vanilla.)
 - mysqli throws exceptions by default since PHP 8.1; the old `if ($link->connect_errno)` style check (setup.php ~line 299) assumes the pre-8.1 return-false behavior.
-These are moot once QuickForm is fixed and the installer can be properly exercised.
 
 ### Memio dependency — console/Develop tools broken
 - **Files:** `console/Develop/CreateModuleCommand.php`, `CreateTestModuleCommand.php` (line 13)
@@ -116,9 +115,9 @@ These are moot once QuickForm is fixed and the installer can be properly exercis
 - **Decision needed (Jasiek):** migrate/replace Memio, or remove these dev tools if no longer used.
 
 ### Roundcube — bundled webmail (CRM)
+- **STATUS: DONE — see §30.** Replaced with a full Roundcube 1.2.1 → 1.7.1 upgrade (the recommended approach below was the path taken).
 - **Location:** `modules/CRM/Roundcube/` — ~423 of CRM's 515 files. Has its own vendored PEAR, plugins, tinymce, etc.
-- **Status:** entirely excluded from Rector.
-- **Recommended approach:** replace the whole old Roundcube package with a current release, rather than migrating its internals.
+- Entirely excluded from Rector.
 
 ---
 
@@ -140,7 +139,7 @@ Rector is scoped to Epesi's OWN code only. These are skipped (`withSkip`) and sh
 These block a clean `composer install` under PHP 8.2 (require `--ignore-platform-reqs` as a workaround). All are dev/testing tools, not runtime:
 - `fzaninotto/faker` v1.9.2 (also marked **abandoned**)
 - `memio/memio` v1.1.1
-- `codeception/aspect-mock` 3.1.1 (pulls in `goaop/parser-reflection` → old php-parser)
+- ~~`codeception/aspect-mock` 3.1.1 (pulls in `goaop/parser-reflection` → old php-parser)~~ **DONE — removed, see §51.**
 - `symfony/var-dumper` v4 / `psy/psysh` (old)
 - `symfony/debug` (abandoned → use `symfony/error-handler`)
 
@@ -245,6 +244,7 @@ All findings below are READ-ONLY recon — nothing was changed yet.
 - composer.json also flags: psr-0 empty-namespace autoload (perf), and unbound `@stable` constraints on psy/psysh and enyo/dropzone (risky — could pull anything).
 
 ### Plan for next session (ACTION, on an experiment branch)
+**DONE — executed in §10–§15.**
 1. Create `experiment/composer-deps` branch (full reversibility; main stays clean). Use a throwaway DB (epesi_test) so installs can be dropped.
 2. Tackle QuickForm (vendored, main installer blocker) — replace with an 8.2-compatible version, ideally via composer (e.g. pear/html_quickform2) to consolidate under composer where possible.
 3. Run the app, see what breaks NEXT (expect a cascade: Smarty, possibly others). Fix iteratively, driven by real errors, not bulk.
@@ -364,7 +364,7 @@ This validates insisting on a live-app test, not just Rector + php -l.
   docblock comment) and 3 Roundcube files (vendored webmail — never touch). Bulk sed was applied ONLY to
   the explicitly-listed Core files, never a blind tree-wide sed — analysis first, then targeted fix.
 
-### 11.4 Epesi's own QuickForm extensions need PHP4→PHP8 constructor fixes for openpsa (IN PROGRESS)
+### 11.4 Epesi's own QuickForm extensions need PHP4→PHP8 constructor fixes for openpsa (RESOLVED — see §12.2)
 After the installer COMPLETED (license→htaccess→db config→system check all green) and entered the app
 (process.php → FirstRun wizard), hit "Cannot call constructor" at QuickForm_0.php:37 (`new HTML_QuickForm`).
 Root cause: NOT openpsa (isolated `new HTML_QuickForm(...)` test → SUCCESS). It's Epesi's OWN renderer/
@@ -377,8 +377,8 @@ constructor, so the old `$this->HTML_QuickForm_Renderer()` call fails.
   ≠ class name). It only called the nonexistent parent ctor. Replaced with empty `__construct()` (class
   properties are initialized at declaration, no ctor logic needed).
 
-- **STILL TO FIX** (same family, found via grep — these have name == own class, so they're REAL php4
-  ctors that DO initialize, need rename to __construct + fix internal parent call to parent::__construct):
+- **FIXED — see §12.2** (same family, found via grep — these have name == own class, so they're REAL php4
+  ctors that DO initialize; renamed to __construct + fixed internal parent call to parent::__construct):
     Renderer/TCMSArray.php:157         (calls $this->HTML_QuickForm_Renderer())
     Renderer/TCMSArraySmarty.php:123   (calls $this->HTML_QuickForm_Renderer_TCMSArray(...))
     FieldTypes/autoselect/autoselect.php:32
@@ -396,10 +396,11 @@ the class name. When moving to openpsa these must become proper `__construct` wi
 
 ### State of play
 - Installer runs end-to-end on PHP 8.2, DB schema starts building, app reaches FirstRun wizard.
-- Remaining blocker: the 6 extension constructors above. Once fixed, FirstRun should render → login → live app.
+- The 6 extension constructors above were fixed (§12.2), and FirstRun/login/live app were reached (§15).
 - Open flags: "Modules dir writable: No" (yellow on system-check; may matter for module install — chmod
-  modules/ if needed). Old libs/adodb/ + old modules/Libs/QuickForm/3.2.14-php7/ now unused → cleanup
+  modules/ if needed). Old libs/adodb/ + old modules/Libs/QuickForm/3.2.14-php7/ were unused → cleanup
   candidates AFTER proving they're dead (grep whole codebase first, same discipline as before).
+  **`3.2.14-php7/` removed, see §50. `libs/adodb/` still present on disk — not yet deleted.**
 - --ignore-platform-reqs still needed for composer ops until dev pkgs (faker/memio/aspect-mock/psysh) cleaned.
 
 ### Test DB (for resuming)
@@ -474,15 +475,17 @@ vendor by rewriting the 2 Epesi calls to write the global directly, like Epesi d
 Then revert the vendor `static` edit. (Not yet done — verify-first approach: confirmed static works,
 trad-off change pending.)
 
-### 12.7 openpsa — custom element type registration format mismatch (IN PROGRESS, current blocker)
+### 12.7 openpsa — custom element type registration format mismatch (RESOLVED — see §15.1)
 Epesi registers ~8 custom element types as ARRAY: 
   $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('file.php', 'ClassName');
 (commondata, commondata_group, datepicker, timestamp, critsvalue, currency, multiselect, autocomplete,
 automulti, autoselect). openpsa expects a STRING (classname only) and instantiates via ReflectionClass
 (autoload, no file include). Patched openpsa `_loadElement` (QuickForm.php:477) to accept BOTH formats:
 if array → require_once($reg[0]) then use $reg[1]; else use string. (Vendor edit — fix-twice candidate.)
-BUT current blocker is EARLIER: `isTypeRegistered()` (QuickForm.php:1128) checks the global and throws
-at line 476 BEFORE reaching the format handler — meaning 'commondata' isn't
+BUT the blocker was actually EARLIER: `isTypeRegistered()` (QuickForm.php:1128) checks the global and
+throws at line 476 BEFORE reaching the format handler. **Final root cause + fix: §15.1** (openpsa resets
+the types global on first autoload; fixed by forcing that reset to happen before Epesi's eager
+registration runs).
 
 ---
 
@@ -514,9 +517,9 @@ All of these got Epesi running on PHP 8.2 but are temporary. Each needs a perman
 
 4. **commondata type registered directly in ContactsInstall.php:222** (country_element) —
    band-aid for timing: CommonData module not loaded when Contacts uses 'commondata' during FirstRun.
-   Proper fix: eager-register ALL custom element types before FirstRun/module install, OR ensure
-   custom-type modules load before dependent modules. (include_common didn't work — module not
-   installed yet at that point.)
+   **DONE — proper fix implemented in §15.2** (`register_custom_qf_types()` eager-registers all 9
+   custom types, including commondata, before FirstRun/module install runs). Not confirmed whether the
+   original ContactsInstall.php:222 band-aid line was removed as redundant — worth a quick check.
 
 5. **Core PHP8 fixes** (these are legit, keep — not band-aids): error.php:207 ($errcontext=null),
    get_magic_quotes_gpc→false in 5 files, magicquotes.php, QuickForm extension __construct fixes (7 files),
@@ -528,6 +531,7 @@ All of these got Epesi running on PHP 8.2 but are temporary. Each needs a perman
 ### ADODB / OPENPSA (drop-ins — keep, but clean up)
 7. Old libs/adodb/ and old modules/Libs/QuickForm/3.2.14-php7/ now UNUSED → delete AFTER proving dead
    (grep whole codebase). Keeping them risks more include_path stale-loads (see #3).
+   **`3.2.14-php7/` — DONE, removed (§50). `libs/adodb/` — still on disk, not yet deleted.**
 
 ### COMPOSER
 8. --ignore-platform-reqs still needed (dev pkgs faker/memio/aspect-mock/psysh pin old PHP). Clean up.
@@ -617,7 +621,7 @@ These loaded old/system-PEAR HTML_* classes, causing "Cannot declare HTML_Common
 2. FIX-TWICE (§13) when ready: relocate the 3 remaining vendor edits out of openpsa
    (registerElementType static, _loadElement dual-format — line 17 reset fix is already non-vendor);
    systematic relative-require sweep across ALL modules; remove /opt/lampp/lib/php from include_path;
-   replace Smarty (Smarty 5); delete dead libs/adodb + 3.2.14-php7 after grep-proving unused;
+   replace Smarty (Smarty 5); delete dead libs/adodb (3.2.14-php7 already removed, §50) after grep-proving unused;
    clean dev composer pkgs so --ignore-platform-reqs isn't needed.
 3. Revert the point commondata
 
@@ -635,7 +639,7 @@ CRM modules (Contacts/Companies/Tasks/Agenda all share RecordBrowser display).
 SYSTEMIC: grep `call_user_func_array` across modules — any call passing an assoc array hits this on
 PHP 8. Likely more occurrences.
 
-### 16.2 NOT FIXED (deferred — Smarty is being replaced) — record DETAIL view
+### 16.2 record DETAIL view (originally deferred — later pulled back into scope and fixed, see §17.2/§18)
 Opening a single record (Contacts → view a contact) throws:
   TypeError: Unsupported operand types: int / string
   data/Base_Theme/compiled/...View_entry.tpl.php:21  (compiled from Utils/RecordBrowser/View_entry.tpl)
@@ -648,8 +652,7 @@ template guard/int-cast or (better) the Smarty replacement.
 ### Module test status (branch experiment/composer-deps)
 - Dashboard: WORKS (all applets).
 - Record LISTS (Contacts etc.): WORK after 16.1.
-- Record DETAIL view: blocked by 16.2 (Smarty int/string) — deferred to Smarty replacement.
-- Not
+- Record DETAIL view: blocked by 16.2 (Smarty int/string) — RESOLVED, see §18.
 
 ---
 
@@ -698,7 +701,7 @@ elegancko). Wcześniej odłożone jako "Smarty=wymiana", ale dla wypuszczalnej 8
    require HTML/*, each/create_function.
 3. Otagować wydanie PHP 8.2 gdy moduły przechodzą.
 
-### Stan działania (bez zmian od §16): dashboard OK, listy rekordów OK, podgląd rekordu = §17.2.
+### Stan działania (bez zmian od §16): dashboard OK, listy rekordów OK, podgląd rekordu = §17.2 (RESOLVED, patrz §18).
 
 ## 18. View_entry int/string FIXED + ważna lekcja o ścieżkach szablonów
 
@@ -790,13 +793,11 @@ off-by-one — link/href generowany z opóźnieniem o jeden (ostatni plik nie ma
 momencie renderowania listy, albo pętla renderuje linki dla wszystkich oprócz ostatniego).
 Niefatalne, kosmetyczne. Do naprawy po wypuszczalnej 8.2.
 
-### 21.2 view/download załącznika "file not found" — patrz §20 (DLA JAŚKA)
-To samo znalezisko co §20 (storage prefix Tasks vs Roundcube). Realny bug, ale wrażliwy obszar
-(storage) → diagnoza zrobiona, zmiana należy do Jaśka. NIE blokujemy na tym wypuszczenia rdzenia;
-oznaczone do konsultacji z Architektem.
-DODATKOWA WSKAZÓWKA: user NIE korzystał z Roundcube ani Tasks — te moduły ładują się automatycznie
-w tle (start/render kontaktu) i ustawiają współdzielony Instance() singleton. Potwierdza, że prefiks
-zależy od KOLEJNOŚCI ŁADOWANIA modułów, nie od akcji użytkownika.
+### 21.2 view/download załącznika "file not found" — duplikat §20, root cause + fix: §36
+Ten sam bug co §20 (storage prefix Tasks vs Roundcube) — nie powtarzam diagnozy. Jedyna nowa
+informacja: user NIE korzystał z Roundcube ani Tasks — te moduły ładują się automatycznie w tle
+(start/render kontaktu) i same ustawiają współdzielony Instance() singleton, co potwierdza że
+prefiks zależy od KOLEJNOŚCI ŁADOWANIA modułów, nie od akcji użytkownika.
 
 ### 21.3 Loader/spinner zostaje na wierzchu po AJAX — znika po kliknięciu (niefatalne, JS)
 Stała warstwa loadera nie chowa się sama po zakończeniu AJAX — trzeba kliknąć. POTWIERDZONE że to NIE
@@ -808,11 +809,7 @@ Console/Network) w osobnej sesji polish. Możliwe że tak było też na PHP7 —
 Przy teście klonowania mojego kontaktu do kontaktu Jaśka, klonuj user najpierw do kontaktu, nie usera 
 
 ### 21.4 PHP 8 "" != 0 quirk — guard login_id w ContactsCommon
-MECHANIKA (do naprawy — blocker): ContactsCommon_0.php:1022, zapis kontaktu bez emaila. Warunek
-`$values['login']!=0` miał POMIJAĆ dogrywanie emaila gdy brak konta user. PHP 8 zmienił "" == 0
-(true→false) → "" != 0 teraz TRUE → warunek wchodzi z pustym login → DB::GetOne(%d,"") → fatal.
-FIX: `!empty($values['login']) && is_numeric($values['login'])` — pusty login pomijany (kontakt bez
-konta zapisuje się; zgodne z contact≠user).
+FIXED — pełna diagnoza i diff: §23.1 (ContactsCommon_0.php:1022). Nie powtarzam tu treści.
 
 PYTANIE PROJEKTOWE DLA JAŚKA (intencja, NIE ruszane): czy logika "gdy kontakt MA konto user i brak
 emaila → skopiuj email z user_password" jest poprawna wobec unikalności emaila? Karina wskazuje, że
@@ -1394,7 +1391,7 @@ Requested by Jasiek (2026-06-29). Full design in `PROPOSAL_mail_attachments_file
 - **MOVE (Jasiek decided 2026-06-29):** the patch stores each legacy file in FileStorage, sets `file_id`, then — only after `Utils_FileStorageCommon::file_exists($file_id)` confirms it — **deletes** the legacy `data/CRM_Mail/attachments/<mail_id>/<mime_id>` and the now-empty per-mail dir. Verify-before-delete = no data-loss window; idempotent.
 - **CORRECTION (2026-06-30) — storage-id bug found on real data:** the first cut used `add_data_from_content()`, which returns the low-level **content** id (`utils_filestorage_files.id`), but `read_content()`/`file_exists()`/`meta()` expect a **storage-object** id (`utils_filestorage.id`). With dedup the two id-spaces diverge — on the client copy only 15/39 happened to line up. Fixed to use **`write_content()`** (stores content + creates the storage object, returns the storage id) in both the write path and the patch — the same API the standard attachment flow uses (`AttachmentCommon` `write_file`/`write_content`). The dry-run move check (verify-before-delete) caught this before any file was deleted.
 - **First cut validated dedup** on the client copy (197 vs 160 physical files for 39 attachments → 2 reused) but had the id bug above; needs a **clean re-migration** to re-validate the read path + move end-to-end.
-- **Status:** code fixed; **own branch, not yet merged** to composer-deps. Re-validation on a clean staging migration pending.
+- **Status:** code fixed and merged — confirmed shipped by the 2026-06-30 gap hunt (top of file, §"Result"), which found `rc_mails_attachments.file_id` present on the upgraded system.
 
 ---
 
@@ -1905,7 +1902,8 @@ no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
 
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
-> **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied. Remaining before merge to main are Jasiek decisions (§36, §22), not further Core testing.
+> **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
+> **NOTE:** this checklist captures the 2026-06-27/28 state. The branch has since shipped — released as CalVer `20260701-rc1` (see PHASE 5 STATUS) — and further hardening (§47–§65) is already on `main`. Kept here as history; items below are corrected to their actual outcome rather than left as stale TODOs.
 
 ### ✅ Done
 - Rector PHP 7→8.2 ladder applied to all own code
@@ -1917,17 +1915,15 @@ no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
 - Calendar/Agenda — tested, no fatals
 - Filters/search (critsvalue) — tested across modules, no fatals
 - Password recovery — mail-failure now reported instead of silent success (§34)
-- Filestorage view/download/get-link — fixed via §20 narrow fix (deterministic path, fix-twice for §36)
+- Filestorage view/download/get-link — fixed via §20 narrow fix, later superseded by the §36 root-cause fix
 - Email/Roundcube — upgraded to RC 1.7.1, send/receive confirmed working (§30)
 - Administrator — tested OK: Access restriction (§35), Files (§20; Mail §37a), Common data (§38), RecordBrowser add-field (§39) + Permissions edit (§40) + custom recordset (RAD) create, Currencies, Language & translations. Modules Administration & Store deferred (see below).
+- **§22 mcrypt decision** — RESOLVED 2026-06-28: Option A (`phpseclib/mcrypt_compat`) adopted, see §22.
+- **§26 timestamp field layout** — FIXED, see §26.
 
-### 🔲 Must do before merge
-- [ ] **§36 Instance() root fix (Jasiek)** — PHP 8.x static-in-inherited-method broke `ModuleCommon::Instance()`; verified fix ready, to be applied + re-tested on a separate review branch. Root cause of §20 + §33. §20 currently has a narrow fix-twice patch in place.
-- [ ] **§22 mcrypt decision (Jasiek)** — encrypted notes are currently fatal on PHP 8.2; needs either `phpseclib/mcrypt_compat` or openssl replacement before merge. Users with encrypted notes would hit this immediately.
-
-### 🔲 Can merge with open ticket (non-fatal)
-- [ ] **Modules Administration & Store** — page opens, but lots to fix; **deferred to the future** (it's effectively a separate application / Telaxus store integration, related to §32/§33 EssClient). Not a migration blocker — decision by Karina 2026-06-27.
-- [ ] §26 timestamp field layout — cosmetic, PhoneCall/Meeting date+time display
-- [ ] §21.1 off-by-one attachment link — cosmetic
-- [ ] §21.3 loader/spinner JS — cosmetic
-- [ ] §21.4 login_id design question — code fix applied, design intent to confirm with Jasiek
+### 🔲 Still open
+- **§36 Instance() root fix** — verified fix on `experiment/instance-singleton-fix` as of 2026-06-28 (see §36 for the full status); adopting it as canonical is still Jasiek's call.
+- **Modules Administration & Store** — page opens, but lots to fix; **deferred to the future** (it's effectively a separate application / Telaxus store integration, related to §32/§33 EssClient). Not a migration blocker — decision by Karina 2026-06-27.
+- §21.1 off-by-one attachment link — cosmetic
+- §21.3 loader/spinner JS — cosmetic
+- §21.4 login_id design question (email-copy 1:1 assumption) — code fix applied (§23.1), design intent still to confirm with Jasiek

@@ -33,7 +33,7 @@ class Base_HelpCommon extends ModuleCommon {
 	// real external links) - irrelevant to a javascript: URL's actual
 	// behavior, but left explicit rather than relying on that mismatch.
 	public static function menu() {
-		if (Base_ThemeCommon::get_default_template() !== 'adminlte') return;
+		if (!Base_ThemeCommon::is_adminlte_family()) return;
 		return array(_M('Support') => array('__submenu__' => 1,
 			_M('Help') => array('__url__' => 'javascript:void(Helper.menu());', '__target__' => '_self')));
 	}

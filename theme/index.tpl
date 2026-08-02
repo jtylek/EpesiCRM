@@ -40,7 +40,7 @@
 
 		<style type="text/css">
 			{if $DIRECTION_RTL}body {ldelim} direction: rtl; {rdelim}{/if}
-			{if $theme_name == 'adminlte'}
+			{if $theme_name == 'adminlte' || $theme_name == 'adminltedark'}
 			{literal}
 			/* This splash prints before any per-module theme CSS loads (that
 			   only happens once Base_Box itself renders, well after this) -
@@ -48,6 +48,8 @@
 			   incident, it can't assume Bootstrap/AdminLTE's stylesheets are
 			   attached yet and has to be fully self-contained plain CSS. */
 			#epesiStatus {
+				display: flex;
+				flex-direction: column;
 				position: fixed;
 				left: 50%; top: 30%;
 				transform: translateX(-50%);
@@ -69,13 +71,12 @@
 				max-width: 100%;
 				height: auto;
 			}
-			#epesiStatus table {
+			.epesi-boot-text {
 				color: inherit;
 				font-weight: normal;
 				font-family: inherit;
 				font-size: 0.95rem;
-				border: none;
-				width: 100%;
+				margin-top: 0.5rem;
 			}
 			.epesi-boot-progress {
 				width: 100%;
@@ -83,6 +84,7 @@
 				background-color: #dee2e6;
 				border-radius: 999px;
 				overflow: hidden;
+				margin-top: 0.75rem;
 			}
 			.epesi-boot-progress-bar {
 				width: 40%;
@@ -96,6 +98,21 @@
 				100% { transform: translateX(250%); }
 			}
 			{/literal}
+			{if $theme_name == 'adminltedark'}
+			{literal}
+			/* Dark palette override - same box, same layout rules above, just
+			   the colors AdminLTE 4's own [data-bs-theme=dark] uses. Kept as a
+			   flat override rather than duplicating the whole block above. */
+			#epesiStatus {
+				background-color: #1e2125;
+				color: #dee2e6;
+				box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.6);
+			}
+			.epesi-boot-progress {
+				background-color: #495057;
+			}
+			{/literal}
+			{/if}
 			{else}
 			{literal}
 			#epesiStatus {
@@ -151,20 +168,10 @@
 			</div>
 
 			<div id="epesiStatus">
-				{if $theme_name == 'adminlte'}
-				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-					<tr>
-						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; padding-top: 0.5rem;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></td>
-					</tr>
-					<tr>
-						<td style="padding-top: 0.75rem;">
-							<div class="epesi-boot-progress"><div class="epesi-boot-progress-bar"></div></div>
-						</td>
-					</tr>
-				</table>
+				{if $theme_name == 'adminlte' || $theme_name == 'adminltedark'}
+				<img src="images/logo.png" alt="logo" width="550" height="200" border="0">
+				<div class="epesi-boot-text"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></div>
+				<div class="epesi-boot-progress"><div class="epesi-boot-progress-bar"></div></div>
 				{else}
 				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
 					<tr>

@@ -1,0 +1,82 @@
+/* adminltedark skin for the FullCalendar renderer - identical rules to
+ * theme_adminlte/fullcalendar.css on purpose: every value here is a
+ * var(--epesi-*) reference, never a hardcoded hex, so it automatically picks
+ * up this theme's own dark :root palette (Base_Box/theme_adminltedark/
+ * default.css) - and, via that same file's [data-bs-theme="light"] override
+ * block, the live light/dark toggle in the sidebar footer too. Nothing
+ * dark-specific needed beyond existing here as its own file, matching the
+ * resolver's per-theme directory convention (theme_adminltedark/ does not
+ * fall back to theme_adminlte/ - see Base_ThemeResolver::resolve()).
+ *
+ * ".epesi-fc-container.fc" (compound, no space) - not a typo/duplicate: see
+ * the long comment in theme_adminlte/fullcalendar.css - FullCalendar stamps
+ * its own root "fc" class onto the SAME mount div this theme's own
+ * "epesi-fc-container" class is on, not a separate child, so a descendant
+ * combinator here would silently never match anything.
+ */
+
+.epesi-fc-container.fc {
+	--fc-border-color: var(--epesi-border);
+	--fc-page-bg-color: var(--epesi-surface);
+	--fc-neutral-bg-color: var(--epesi-bg);
+	--fc-neutral-text-color: var(--epesi-text-secondary);
+	--fc-list-event-hover-bg-color: var(--epesi-hover-bg);
+	--fc-highlight-color: var(--epesi-hover-bg);
+	--fc-today-bg-color: var(--epesi-hover-bg);
+	--fc-now-indicator-color: #dc3545;
+	--fc-non-business-color: var(--epesi-hover-bg);
+	--fc-more-link-bg-color: var(--epesi-hover-bg);
+	--fc-more-link-text-color: var(--epesi-text);
+	color: var(--epesi-text);
+}
+
+.epesi-fc-container.fc .fc-toolbar-title {
+	color: var(--epesi-text);
+	font-size: 1.25rem;
+}
+
+.epesi-fc-container.fc a {
+	color: var(--epesi-link);
+}
+
+/* .fc-button isn't Bootstrap's own .btn (the standard bundle doesn't include
+ * the separate @fullcalendar/bootstrap5 connector plugin, so this styles it
+ * to match by hand rather than adding another vendored dependency for it). */
+.epesi-fc-container.fc .fc-button {
+	background-color: var(--epesi-surface);
+	border-color: var(--epesi-border);
+	color: var(--epesi-text-secondary);
+	box-shadow: none;
+	text-transform: capitalize;
+}
+
+.epesi-fc-container.fc .fc-button:hover {
+	background-color: var(--epesi-hover-bg);
+	border-color: var(--epesi-border);
+	color: var(--epesi-text);
+}
+
+.epesi-fc-container.fc .fc-button-primary:not(:disabled).fc-button-active,
+.epesi-fc-container.fc .fc-button-primary:not(:disabled):active {
+	background-color: var(--epesi-link);
+	border-color: var(--epesi-link);
+	color: #fff;
+}
+
+.epesi-fc-container.fc .fc-button:disabled {
+	opacity: 0.5;
+}
+
+.epesi-fc-container.fc .fc-list-day-cushion {
+	background-color: var(--epesi-bg);
+}
+
+/* Matches Base_Box/theme_adminlte/default.css's own off-canvas-sidebar
+ * breakpoint, so the calendar's own layout shifts at the same point the
+ * rest of the shell does. */
+@media (max-width: 767.98px) {
+	.epesi-fc-container.fc .fc-toolbar {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+}

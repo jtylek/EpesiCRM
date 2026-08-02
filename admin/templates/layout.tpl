@@ -107,8 +107,43 @@
 		<div class="text-muted small">{'Support'|t}: <a href="https://epesi.org">https://epesi.org</a></div>
 	</footer>
 
+{* Module::wrap_confirm_js()/create_confirm_href() (include/module.php) expect this modal +
+   window.epesi_confirm to exist - normally injected via eval_js_once() into the main app's
+   own output, but this admin/ shell is a separate Smarty render that never flushes that
+   queue, so it's included here directly instead, statically, same as this shell already does
+   for Bootstrap/AdminLTE's own JS below. Keep this markup/script in sync with
+   Module::inject_confirm_modal() if that ever changes - same technique, just delivered
+   unconditionally instead of lazily since there's no shared session-JS-queue to lean on here. *}
+<div class="modal fade" id="epesi_confirm_modal" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+		<div class="modal-header"><h5 class="modal-title"><i class="bi bi-question-circle-fill me-2 text-primary"></i>{'Confirm'|t}</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+		<div class="modal-body"><p class="mb-0" id="epesi_confirm_modal_msg" style="white-space:pre-line"></p></div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{'Cancel'|t}</button>
+			<button type="button" class="btn btn-primary" id="epesi_confirm_modal_ok" autofocus>{'OK'|t}</button>
+		</div>
+	</div></div>
 </div>
 <script src="{$epesi_url}libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js"></script>
 <script src="{$epesi_url}libs/adminlte-4.1.0/js/adminlte.min.js"></script>
+<script>
+{literal}
+window.epesi_confirm = window.epesi_confirm || function(msg, actionFn) {
+	if (typeof bootstrap === 'undefined') { if (confirm(msg)) actionFn(); return; }
+	var el = document.getElementById('epesi_confirm_modal');
+	el.querySelector('#epesi_confirm_modal_msg').textContent = msg;
+	var ok = el.querySelector('#epesi_confirm_modal_ok');
+	var freshOk = ok.cloneNode(true);
+	ok.parentNode.replaceChild(freshOk, ok);
+	freshOk.addEventListener('click', function() {
+		var m = bootstrap.Modal.getInstance(el);
+		if (m) m.hide();
+		actionFn();
+	});
+	bootstrap.Modal.getOrCreateInstance(el).show();
+};
+{/literal}
+</script>
 </body>
 </html>

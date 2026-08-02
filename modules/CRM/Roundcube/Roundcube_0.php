@@ -34,7 +34,7 @@ class CRM_Roundcube extends Module {
         }
         if($def===null) {
 			$href = $this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts')));
-			if (Base_ThemeCommon::get_default_template() == 'adminlte') {
+			if (Base_ThemeCommon::is_adminlte_family()) {
 				print('<div class="text-center text-muted" style="padding:4rem 1rem;">'
 					.'<i class="bi bi-envelope-plus" style="font-size:3rem;"></i>'
 					.'<p class="mt-3 mb-3" style="font-size:1.1rem;">'.__('Please set your e-mail account').'</p>'
@@ -60,7 +60,20 @@ class CRM_Roundcube extends Module {
         } else {
             $RC = 'RC';
         }
-        print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="modules/CRM/Roundcube/' . $RC . '/public_html/index.php?'.http_build_query($params).'" width="100%" height="300px" id="rc_frame"></iframe></div>');
+        $rc_src = 'modules/CRM/Roundcube/' . $RC . '/public_html/index.php?'.http_build_query($params);
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            // Replaces the old animated images/loader-0.gif background - the
+            // spinner sits over the iframe until Roundcube's own page inside
+            // it finishes loading, then the iframe's onload hides it.
+            print('<div class="position-relative">'
+                .'<div class="position-absolute top-50 start-50 translate-middle">'
+                .'<div class="spinner-border text-primary" role="status"><span class="visually-hidden">'.__('Loading...').'</span></div>'
+                .'</div>'
+                .'<iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame" onload="this.previousElementSibling.style.display=\'none\';"></iframe>'
+                .'</div>');
+        } else {
+            print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame"></iframe></div>');
+        }
         eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
         $epesi_mail_name = EPESI . ' - ' . get_epesi_url();

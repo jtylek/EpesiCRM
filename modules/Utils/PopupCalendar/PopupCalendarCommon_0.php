@@ -33,7 +33,16 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 
 	public static function create_href($name,$function = '',$mode=null,$first_day_of_week=null,$pos_js=null,$default=null,$id=null) {
 		Base_ThemeCommon::load_css('Utils_PopupCalendar');
-		load_js('modules/Utils/PopupCalendar/js/main2.js');
+		// Same Utils_PopupCalendar class/API either way (constructor args, show(),
+		// show_month()/show_year()/show_decade()/show_century()) - the adminlte
+		// variant only swaps the header/grid markup it builds for Bootstrap
+		// classes; positioning/show-hide below and datepicker.js's validation
+		// stay Prototype-based for both themes (Prototype is still loaded
+		// globally regardless of theme, see legacy-js-libraries-inventory).
+		if (Base_ThemeCommon::is_adminlte_family())
+			load_js('modules/Utils/PopupCalendar/theme_adminlte/main2.js');
+		else
+			load_js('modules/Utils/PopupCalendar/js/main2.js');
 		load_js('modules/Utils/PopupCalendar/datepicker.js');
 
 		if(!isset($mode)) $mode='day';
