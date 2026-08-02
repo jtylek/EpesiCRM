@@ -267,7 +267,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     		// choice for "companies" by filename, for consistency with the
     		// sidebar/launcher icons. Hidden text kept for the same
     		// accessibility purpose the default theme's own hidden span served.
-    		$bs_icon = array('company' => array('bi-building', '#fd7e14'), 'contact' => array('bi-person-fill', '#0d6efd'));
+    		$bs_icon = array('company' => array('bi-building', '#0d6efd'), 'contact' => array('bi-person-fill', '#0d6efd'));
     		$bi = $bs_icon[$tab] ?? null;
     		$rindicator = $bi ?
     		'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i><span style="display:none">['.$indicator_text.'] </span>' : "[$indicator_text] ";
