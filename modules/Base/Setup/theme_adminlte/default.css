@@ -59,12 +59,17 @@
 	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 	padding: 1rem;
 	text-align: center;
-	transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+	transition: box-shadow 0.15s ease-in-out;
 }
 
+/* No transform here (e.g. a hover lift): a CSS transform on this ancestor
+   would become the containing block for its position:fixed descendants
+   (.epesi-setup-options/.epesi-setup-action-panel, positioned by
+   theme_adminlte/default.js - see that file's comment), silently breaking
+   their viewport-relative coordinates and flinging an open dropdown to a
+   bogus position the moment the card is hovered again. */
 .epesi-setup-card:hover {
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-	transform: translateY(-2px);
 }
 
 .epesi-setup-card-link {

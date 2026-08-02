@@ -89,7 +89,7 @@
 									{$action.name}
 								</div>
 								<div class="epesi-setup-option-action">
-									<div id="show_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__show_actions('{$name}','{$option}');epesi_setup__position_centered('hide_actions_{$name}__{$option}',this);">
+									<div id="show_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__position_centered('hide_actions_{$name}__{$option}',this);epesi_setup__show_actions('{$name}','{$option}');">
 										<span>{$action.status}</span>{if !empty($action.buttons)}<i class="bi bi-chevron-down"></i>{/if}
 									</div>
 									{if !empty($action.buttons)}
