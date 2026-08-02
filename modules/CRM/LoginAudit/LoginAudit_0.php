@@ -93,7 +93,7 @@ class CRM_LoginAudit extends Module {
                         array('name'=>__('Host Name'),'order'=>'b.host_name','width'=>25),
                         array('name'=>__('Device'),'order'=>'b.device','width'=>15)));
 
-        $gb->set_default_order(array(__('Start')=>'DESC'));
+        $gb->set_default_order(array(__('End')=>'DESC'));
 
 		if($user>0){
             $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name, b.device FROM base_login_audit b WHERE b.user_login_id='.$user;
