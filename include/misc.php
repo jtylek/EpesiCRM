@@ -347,6 +347,20 @@ function get_client_ip_address()
     return trim($remote_address[0]);
 }
 
+// Reverse-DNS hostname for a client IP, cached in the session against that
+// IP. gethostbyaddr() has no cache of its own and can take several seconds
+// per call (e.g. a LAN client with no PTR record, falling through to
+// NetBIOS resolution before giving up) - this re-resolves only when the IP
+// actually changes instead of once per call site per request.
+function get_client_host_name($remote_address = null) {
+    if ($remote_address === null) $remote_address = get_client_ip_address();
+    if (!isset($_SESSION['client_host_name_ip']) || $_SESSION['client_host_name_ip'] !== $remote_address) {
+        $_SESSION['client_host_name_ip'] = $remote_address;
+        $_SESSION['client_host_name'] = gethostbyaddr($remote_address);
+    }
+    return $_SESSION['client_host_name'];
+}
+
 // Best-effort "OS · Browser" label from the request's User-Agent header, for
 // display only (e.g. Base_User_LoginCommon::new_autologin_id()'s "remembered
 // devices" description) - never for feature detection or security decisions,
