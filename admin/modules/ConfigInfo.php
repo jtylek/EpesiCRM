@@ -1,5 +1,7 @@
 <?php
 
+require_once('include/compatibility_check.php');
+
 /**
  * Description of ConfigInfo
  *
@@ -14,24 +16,6 @@ class ConfigInfo extends AdminModule {
         // separate ok flag of their own.
         $class = ($value === 'NO' || !$ok) ? 'text-danger' : 'text-success';
         return array('label' => $label, 'value' => $value, 'class' => $class, 'strong' => $strong);
-    }
-
-    private function env_rows() {
-        $rows = array();
-
-        $data_dir_ok = is_writable('data');
-        $data_writable = $data_dir_ok ? 'OK' : '<strong>WARNING!</strong> Please fix privileges for data directory.';
-        $rows[] = $this->row('Data directory is writeable', $data_writable, $data_dir_ok, $data_dir_ok);
-
-        $version_ok = version_compare(phpversion(), '7.1.0') >= 0;
-        $version_text = $version_ok ? 'OK' : '<strong>WARNING!</strong> You are running an old version of PHP, minimum version 7.1 required.';
-        $rows[] = $this->row('PHP version: ' . phpversion(), $version_text, $version_ok, $version_ok);
-
-        $curl_ok = extension_loaded('curl');
-        $curl_text = $curl_ok ? 'OK' : 'Curl extension not found - Please uncomment <pre><strong>;extension=php_curl.dll</strong></pre> line in your php.ini';
-        $rows[] = $this->row('Curl loaded', $curl_text, $curl_ok, $curl_ok);
-
-        return $rows;
     }
 
     private function config_rows() {
@@ -70,7 +54,7 @@ class ConfigInfo extends AdminModule {
 
     public function body() {
         return $this->render('ConfigInfo.tpl', array(
-            'env_rows' => $this->env_rows(),
+            'checks' => CompatibilityCheck::environment_checks(),
             'config_rows' => $this->config_rows(),
         ));
     }
