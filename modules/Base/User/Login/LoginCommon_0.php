@@ -236,10 +236,23 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
 		$ip = get_client_ip_address();
+		// gethostbyaddr() returns the IP unchanged (not false) when no PTR
+		// record resolves - same check CRM_LoginAuditCommon::init() already
+		// uses for its own host_name column. description is display-only
+		// (unlike get_client_ip_address()'s other callers, which need a bare
+		// IP for exact-match ban/audit comparisons), so it's safe to enrich
+		// here without touching that function itself.
+		$host = gethostbyaddr($ip);
+		$location = ($host && $host !== $ip) ? $host.' ('.$ip.')' : $ip;
+		// parse_user_agent() (include/misc.php) covers what reverse DNS can't:
+		// a remote/internet login has no meaningful PTR record to resolve, but
+		// the User-Agent header is sent regardless of where the client is.
+		$device = parse_user_agent();
+		$description = substr($device ? $location.' · '.$device : $location, 0, 64);
 		if ($old_autologin_id) {
 			DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d AND autologin_id=%s', array($uid, $old_autologin_id));
 		}
-		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $ip, time()));
+		DB::Execute('INSERT INTO user_autologin(user_login_id,autologin_id,description,last_log) VALUES(%d,%s,%s,%T)', array($uid, $autologin_id, $description, time()));
 		self::clean_old_autologins();
 	}
 

@@ -347,6 +347,43 @@ function get_client_ip_address()
     return trim($remote_address[0]);
 }
 
+// Best-effort "OS · Browser" label from the request's User-Agent header, for
+// display only (e.g. Base_User_LoginCommon::new_autologin_id()'s "remembered
+// devices" description) - never for feature detection or security decisions,
+// the header is trivially spoofable. Order matters: Edge/Opera/mobile Chrome/
+// mobile Firefox UAs all also contain "Chrome"/"Safari" tokens for
+// compatibility, so their own markers must be checked first, and a genuine
+// desktop Safari UA is only distinguished from Chrome's by the "Version/x.y"
+// token Chrome's UA doesn't carry.
+function parse_user_agent($user_agent = null)
+{
+    if ($user_agent === null) $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    if ($user_agent === '') return null;
+
+    $os = match(true) {
+        (bool)preg_match('/windows/i', $user_agent) => 'Windows',
+        (bool)preg_match('/iphone|ipad|ipod/i', $user_agent) => 'iOS',
+        (bool)preg_match('/android/i', $user_agent) => 'Android',
+        (bool)preg_match('/mac os x|macintosh/i', $user_agent) => 'macOS',
+        (bool)preg_match('/linux/i', $user_agent) => 'Linux',
+        default => null,
+    };
+
+    $browser = match(true) {
+        (bool)preg_match('#edg[ai]?/#i', $user_agent) => 'Edge',
+        (bool)preg_match('#opr/|opera#i', $user_agent) => 'Opera',
+        (bool)preg_match('/crios/i', $user_agent) => 'Chrome',
+        (bool)preg_match('/fxios/i', $user_agent) => 'Firefox',
+        (bool)preg_match('#chrome/#i', $user_agent) => 'Chrome',
+        (bool)preg_match('#firefox/#i', $user_agent) => 'Firefox',
+        (bool)preg_match('#version/.*safari#i', $user_agent) => 'Safari',
+        default => null,
+    };
+
+    $label = trim(($os ?? '').($os && $browser ? ' · ' : '').($browser ?? ''), ' ·');
+    return $label !== '' ? $label : null;
+}
+
 function filesize_hr($size) {
 	if(!is_numeric($size)) $size = filesize($size);
 	$bytes = array('B','KB','MB','GB','TB');
