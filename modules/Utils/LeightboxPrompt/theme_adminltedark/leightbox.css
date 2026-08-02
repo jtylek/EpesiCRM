@@ -1,0 +1,54 @@
+/* adminltedark skin for Utils_LeightboxPrompt's chooser grid - identical
+ * rules to theme_adminlte/leightbox.css on purpose: every value here is a
+ * var(--epesi-*) reference, never a hardcoded hex, so it automatically picks
+ * up this theme's own dark :root palette (Base_Box/theme_adminltedark/
+ * default.css) - and, via that same file's [data-bs-theme="light"] override
+ * block, the live light/dark toggle in the sidebar footer too. Nothing
+ * dark-specific needed beyond existing here as its own file, matching the
+ * resolver's per-theme directory convention (theme_adminltedark/ does not
+ * fall back to theme_adminlte/).
+ */
+
+.epesi-lbp-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+}
+
+.epesi-lbp-grid > a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	width: 6.5rem;
+	padding: 0.9rem 0.5rem;
+	border: 1px solid var(--epesi-border);
+	border-radius: 0.5rem;
+	background-color: var(--epesi-surface);
+	color: var(--epesi-text);
+	text-align: center;
+	text-decoration: none;
+}
+
+.epesi-lbp-grid > a:hover {
+	background-color: var(--epesi-hover-bg);
+	border-color: var(--epesi-link);
+	color: var(--epesi-text);
+}
+
+.epesi-lbp-grid > a i {
+	font-size: 1.75rem;
+	line-height: 1;
+	color: var(--epesi-link);
+}
+
+.epesi-lbp-grid > a img {
+	width: 32px;
+	height: 32px;
+}
+
+.epesi-lbp-label {
+	font-size: 0.85rem;
+}

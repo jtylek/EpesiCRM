@@ -100,3 +100,37 @@
 		justify-content: center;
 	}
 }
+
+/* epesiToggleHours (fullcalendar-init.js) - CSS-only icon, not a DOM write:
+ * FullCalendar re-renders the toolbar itself on every view switch, so
+ * anything written directly into this button's innerHTML/textContent gets
+ * fought over on the next such re-render (observed as the label
+ * duplicating). A ::before driven by the .fc-button-active class this code
+ * DOES toggle (a classList change, not text - survives FullCalendar's own
+ * re-render fine) has no such conflict. Codepoints are bootstrap-icons'
+ * bi-arrows-expand (\f14c) / bi-arrows-collapse (\f14b) - same icons
+ * Utils_GenericBrowser's own Expand All/Collapse All button uses - rather
+ * than loading the actual bootstrap-icons stylesheet's classes here, since
+ * the icon has to be pure ::before content anyway. */
+.fc-epesiToggleHours-button::before {
+	font-family: "bootstrap-icons" !important;
+	margin-right: 0.35em;
+	content: "\f14c";
+}
+
+.fc-epesiToggleHours-button.fc-button-active::before {
+	content: "\f14b";
+}
+
+/* Day view's own day-of-week header is still technically a FullCalendar
+ * navLink (see fullcalendar-init.js's datesSet handler) but clicking it is a
+ * same-view/same-date no-op - styled here to read as plain text instead of
+ * inviting a click that visibly does nothing. Week/Month's day headers are
+ * untouched (genuinely useful navLinks - Week/Month -> Day) since this only
+ * applies while epesi-fc-no-day-drilldown is set, i.e. only in Day view
+ * itself. */
+.epesi-fc-container.epesi-fc-no-day-drilldown .fc-col-header-cell-cushion {
+	color: inherit;
+	text-decoration: none;
+	cursor: default;
+}

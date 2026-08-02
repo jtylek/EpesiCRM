@@ -1,3 +1,12 @@
+{php}
+	// Base_ActionBar::body() now sends $launcher pre-sorted ascending
+	// (alphabetical by the trimmed label actually displayed) directly, for
+	// the adminlte themes' flexbox layout (source order = visual order).
+	// This theme instead floats each item right (.panel_div_right below,
+	// see default.css), which re-reverses DOM order into visual order -
+	// reversing back here keeps the display ascending too.
+	$this->assign('launcher', array_reverse($this->get_template_vars('launcher')));
+{/php}
 <div id="Base_ActionBar" align="center">
 	<table class="ActionBar">
         <tbody>

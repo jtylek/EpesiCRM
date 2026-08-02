@@ -68,7 +68,15 @@ class Base_AdminlteIcons {
 			if ($base_stem !== $stem && isset(self::$by_filename[$base_stem]))
 				return self::$by_filename[$base_stem];
 		}
-		if (!$module && $icon && preg_match('#modules/([^/]+/[^/]+)/#', $icon, $m))
+		// The module path's own depth varies (most are "modules/Vendor/Module/
+		// theme.../...", but a sub-module nests further, e.g. "modules/Premium/
+		// Projects/Tickets/theme/icon.png") - grabbing a fixed first two
+		// segments silently truncated the deeper case to "Premium/Projects",
+		// resolving the WRONG module's adminlte_icon() (Projects' instead of
+		// Tickets') for any caller that didn't already have the real module
+		// name in hand. "everything before the last /theme.../." is a
+		// depth-independent way to find the true module path.
+		if (!$module && $icon && preg_match('#^modules/(.+)/theme[^/]*/#', $icon, $m))
 			$module = $m[1];
 		if ($module) {
 			$class = str_replace('/', '_', $module).'Common';

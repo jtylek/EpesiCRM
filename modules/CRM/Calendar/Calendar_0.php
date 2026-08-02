@@ -51,9 +51,20 @@ class CRM_Calendar extends Module {
 		$ev_mod = $this->init_module(CRM_Calendar_Event::module_name());
 		$ev_mod->help('Calendar Help','main');
 
+		// True for any render that names a specific view/date to land on -
+		// a caller-supplied $args (e.g. the "Full Screen" applet link
+		// forcing Agenda view), or either deep-link request below - as
+		// opposed to an ordinary render that should just show whatever the
+		// user was last looking at. Utils_Calendar::fullcalendar() uses
+		// this to decide whether the browser's remembered last-visited
+		// view/date is allowed to win; see its 'explicit_navigation'
+		// setting.
+		$explicit_navigation = isset($args['default_view']) || isset($args['default_date']);
+
 		if(isset($_REQUEST['search_date']) && is_numeric($_REQUEST['search_date']) && isset($_REQUEST['ev_id']) && is_numeric($_REQUEST['ev_id'])) {
 			$default_date = intval($_REQUEST['search_date']);
 			$this->view_event(intval($_REQUEST['ev_id']));
+			$explicit_navigation = true;
 		} else
 			$default_date = null;
 
@@ -104,7 +115,9 @@ class CRM_Calendar extends Module {
 		if (isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date']) && isset($_REQUEST['switch_to_tab']) && is_string($_REQUEST['switch_to_tab'])) {
 			$args['default_date'] = $_REQUEST['jump_to_date'];
 			$args['default_view'] = $_REQUEST['switch_to_tab'];
+			$explicit_navigation = true;
 		}
+		$args['explicit_navigation'] = $explicit_navigation;
 
 		$theme = $this->init_module(Base_Theme::module_name());
 		// Registered as a plain static array-callable, not a first-class-callable
@@ -178,6 +191,13 @@ class CRM_Calendar extends Module {
 	
 	public function applet($conf, & $opts) {
 		$opts['go'] = true;
+		// Without this, the fullscreen link falls back to body()'s own
+		// defaults - the user's saved default_view (whatever that happens
+		// to be), not the Agenda list this applet is actually showing.
+		// body()'s $explicit_navigation also picks this up, so it correctly
+		// takes priority over any remembered last-visited view too.
+		$opts['go_function'] = 'body';
+		$opts['go_arguments'] = array(array('default_view' => 'agenda'));
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agendaX');
 		$columns = array(

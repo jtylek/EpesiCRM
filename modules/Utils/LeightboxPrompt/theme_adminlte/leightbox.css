@@ -1,0 +1,52 @@
+/* AdminLTE re-skin for Utils_LeightboxPrompt's chooser grid (leightbox.tpl) -
+ * the legacy version was a plain <table> of 32x32 <img> icons + bare
+ * underlined <a> text links, which read as unstyled/broken next to the rest
+ * of the (already re-skinned) Leightbox modal chrome around it. var(--epesi-*)
+ * throughout, same convention as every other re-skinned component (e.g.
+ * modules/Utils/Calendar/theme_adminlte/fullcalendar.css) - no color literals
+ * here, so this file is safe to be near-identical to theme_adminltedark's copy.
+ */
+
+.epesi-lbp-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+}
+
+.epesi-lbp-grid > a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	width: 6.5rem;
+	padding: 0.9rem 0.5rem;
+	border: 1px solid var(--epesi-border);
+	border-radius: 0.5rem;
+	background-color: var(--epesi-surface);
+	color: var(--epesi-text);
+	text-align: center;
+	text-decoration: none;
+}
+
+.epesi-lbp-grid > a:hover {
+	background-color: var(--epesi-hover-bg);
+	border-color: var(--epesi-link);
+	color: var(--epesi-text);
+}
+
+.epesi-lbp-grid > a i {
+	font-size: 1.75rem;
+	line-height: 1;
+	color: var(--epesi-link);
+}
+
+.epesi-lbp-grid > a img {
+	width: 32px;
+	height: 32px;
+}
+
+.epesi-lbp-label {
+	font-size: 0.85rem;
+}
