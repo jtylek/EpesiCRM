@@ -21,7 +21,7 @@ body {
    this theme's default.tpl writes to document.documentElement (:root) for
    the same reason. */
 :root {
-	--epesi-sidebar-width: 250px;
+	--epesi-sidebar-width: 200px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
 
@@ -182,6 +182,15 @@ body {
 	bottom: 0;
 	left: 0;
 	width: var(--epesi-sidebar-width);
+	/* AdminLTE's own base rule (libs/adminlte-4.1.0/css/adminlte.min.css)
+	   pins .app-sidebar's actual rendered size with min-width/max-width tied
+	   to ITS OWN --lte-sidebar-width (default 250px) - min-width wins over a
+	   smaller `width`, so without repeating the override here the sidebar
+	   stays locked at AdminLTE's 250px regardless of this variable's value,
+	   while every other rule below (content margin, header offset) still
+	   moves - only noticeable once --epesi-sidebar-width diverges from 250px. */
+	min-width: var(--epesi-sidebar-width);
+	max-width: var(--epesi-sidebar-width);
 	z-index: 1040;
 	display: flex;
 	flex-direction: column;
