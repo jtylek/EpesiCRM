@@ -321,32 +321,6 @@ class CRM_MailCommon extends ModuleCommon {
         );
     }
 
-    public static function QFfield_nickname(&$form, $field, $label, $mode, $default,$x,$y) {
-        if ($mode=='add' || $mode=='edit') {
-            $form->addElement('text', $field, $label);
-            $form->registerRule('check_nickname','callback','check_nickname','CRM_MailCommon');
-            $form->addRule($field, __('Field required'), 'required');
-            if ($mode=='edit') {
-                $form->addRule($field, __('Nickname already in use'), 'check_nickname',array($y->record['record_type'],$y->record['record_id'],$y->record['id']));
-                $form->setDefaults(array($field=>$default));
-            } else {
-                $rec = $y->get_custom_defaults();
-                $form->addRule($field, __('Nickname already in use'), 'check_nickname',array($rec['record_type'],$rec['record_id']));
-            }
-        } else {
-            $form->addElement('static', $field, $label, $default);
-        }
-    }
-
-    public static function check_nickname($v,$id) {
-        if(isset($id[2])) {
-            $r = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('nickname'=>$v,'record_type'=>$id[0],'record_id'=>$id[1],'!id'=>$id[2]),array());
-            return empty($r);
-        }
-        $r = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('nickname'=>$v,'record_type'=>$id[0],'record_id'=>$id[1]),array());
-        return empty($r);
-    }
-
     public static function create_thread($id) {
         $m = Utils_RecordBrowserCommon::get_record('rc_mails',$id);
         $thread = $m['thread'];
@@ -383,7 +357,7 @@ class CRM_MailCommon extends ModuleCommon {
         $r = Utils_RecordBrowserCommon::get_records('rc_multiple_emails',array('record_type'=>$tab,'record_id'=>$rec_id));
         $rec = array();
         foreach($r as $r2)
-            $rec[$r2['nickname']] = $r2;
+            $rec[$r2['id']] = $r2;
         return $rec;
     }
 

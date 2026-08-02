@@ -285,7 +285,6 @@ class CRM_MailInstall extends ModuleInstall {
 		$fields = array(
 			array('name' => _M('Record Type'), 	'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('text',64), 'required'=>false, 'visible'=>false, 'filter'=>true, 'extra'=>false),
 			array('name' => _M('Record ID'), 		'type'=>'hidden', 'param'=>Utils_RecordBrowserCommon::actual_db_type('integer'), 'filter'=>false, 'required'=>false, 'extra'=>false, 'visible'=>false),
-			array('name' => _M('Nickname'), 		'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'QFfield_callback'=>array('CRM_MailCommon','QFfield_nickname')),
 			array('name' => _M('Email'), 			'type'=>'email', 'required'=>true, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true)
 		);
 
