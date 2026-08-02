@@ -13,14 +13,14 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class CRM_LoginAudit extends Module {
 
 	public function applet() {
-		$query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b WHERE b.user_login_id='.Acl::get_user().' ORDER BY b.start_time DESC';
-		
+		$query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name, b.device FROM base_login_audit b WHERE b.user_login_id='.Acl::get_user().' ORDER BY b.start_time DESC';
+
 		$ret = DB::SelectLimit($query, 1, 1);
 		if($row = $ret->FetchRow()) {
 			$ok1 = $row['ip_address'] == get_client_ip_address();
 			$ok2 = DB::GetOne('SELECT 1 FROM base_login_audit b WHERE (SELECT MIN(b2.start_time) FROM base_login_audit b2 WHERE b2.ip_address=%s)<b.start_time AND (SELECT MAX(b3.start_time) FROM base_login_audit b3 WHERE b3.ip_address=%s)>b.start_time AND b.ip_address!=%s',array($row['ip_address'],$row['ip_address'],$row['ip_address']));
 			$ok = $ok1 || $ok2;
-			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').__('On: %s',array($row['start_time'])).'<br />'.__('Host name: %s',array($row['host_name'])).'<br />'.__('IP address: %s',array( $row['ip_address'])).'</div>');
+			print(($ok?'<div style="padding:7px;">':'<div style="padding:7px;background-color: red; color:white; font-weight:bold;">').__('On: %s',array($row['start_time'])).'<br />'.__('Host name: %s',array($row['host_name'])).'<br />'.__('IP address: %s',array( $row['ip_address'])).($row['device']?'<br />'.__('Device: %s',array($row['device'])):'').'</div>');
 		}
 	}
 	
@@ -90,15 +90,16 @@ class CRM_LoginAudit extends Module {
 						array('name'=>__('End'),'order'=>'b.end_time','width'=>15),
                         array('name'=>__('Duration'),'width'=>10),
                         array('name'=>__('IP Address'),'order'=>'b.ip_address','width'=>10),
-                        array('name'=>__('Host Name'),'order'=>'b.host_name','width'=>30)));
+                        array('name'=>__('Host Name'),'order'=>'b.host_name','width'=>25),
+                        array('name'=>__('Device'),'order'=>'b.device','width'=>15)));
 
         $gb->set_default_order(array(__('End')=>'DESC'));
 
 		if($user>0){
-            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b WHERE b.user_login_id='.$user;
+            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name, b.device FROM base_login_audit b WHERE b.user_login_id='.$user;
             $query_qty = 'SELECT count(b.id) FROM base_login_audit b WHERE b.user_login_id='.$user;
         } else {
-            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name FROM base_login_audit b';
+            $query = 'SELECT b.user_login_id, b.start_time, b.end_time, b.ip_address, b.host_name, b.device FROM base_login_audit b';
             $query_qty = 'SELECT count(b.id) FROM base_login_audit b';
         }
 
@@ -118,7 +119,7 @@ class CRM_LoginAudit extends Module {
                         }
                 $offset=strtotime("1970-01-01 00:00:00");
                 $sess_time=date("G:i:s",strtotime($row['end_time'])-strtotime($row['start_time'])+$offset);
-                $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name']);
+                $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name'],$row['device']);
 			}
 
 		$this->display_module($gb);
