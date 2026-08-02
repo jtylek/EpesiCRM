@@ -7,10 +7,10 @@
  */
 
 /* Epesi's global body{font-size:13px} would shrink all of Bootstrap's rem-based
-   sizing; bumped past Bootstrap's own 1rem default too - the app's dense
-   tables/forms still read small at 1rem, per request. */
+   sizing; restore the true default (1rem) so the app reads at Bootstrap's
+   intended scale. */
 body {
-	font-size: 1.15rem;
+	font-size: 1rem;
 	background-color: var(--epesi-bg);
 }
 

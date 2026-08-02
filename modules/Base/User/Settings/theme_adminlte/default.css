@@ -22,16 +22,9 @@
 
 /* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
  * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
- * menu and Base_Admin's own listing.
+ * menu and Base_Admin's own listing - no bespoke .epesi-user-settings-card
+ * sizing needed here.
  */
-
-/* The label span (default.tpl: fw-semibold text-body, no size of its own)
-   otherwise inherits body's font-size directly - fine at Bootstrap's 1rem,
-   but reads oversized now that body is bumped past it. Pinned back to 1rem,
-   matching Base_Admin's own equivalent fix. */
-.epesi-user-settings .card-body span {
-	font-size: 1rem;
-}
 
 /* settings_form.tpl (Base_User_Settings::display_adminlte()) - the actual
  * per-branch settings edit screen (e.g. "Quick Access", "Messenger Alerts"),
