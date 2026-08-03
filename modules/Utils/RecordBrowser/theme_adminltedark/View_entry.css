@@ -261,6 +261,28 @@
 	column-gap: 3px;
 }
 
+/* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/etc, which still use
+   .epesi-rv-columns/.column with a PHP-computed fixed column count - see
+   AI-shared/bug-patterns.md). CSS multi-column instead: the browser picks
+   however many columns of at least ~420px fit the available width and
+   balances rows across them, rather than RecordBrowser_0.php hardcoding 2.
+   Overrides .view/.edit's display:flex above - a flex container can't also
+   be a multicol container. Degrades to a single column with no media query
+   needed once the viewport is narrower than one column's worth of width. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view,
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
+	display: block;
+	column-width: 420px;
+	column-gap: 24px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row {
+	break-inside: avoid;
+	margin-bottom: 3px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
+	margin-bottom: 0;
+}
+
 .Utils_RecordBrowser__View_entry .label {
 	/* Light label / dark text - matches the Filters box's already-converted
 	   label style (Filters/theme_adminlte/default.css), reverting the

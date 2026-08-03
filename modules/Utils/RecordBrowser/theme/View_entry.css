@@ -215,17 +215,18 @@
 	color: #CCCCCC;
 }
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
-	color: white !important; 
+	color: white !important;
 	position: absolute;
+	top: 0;
+	bottom: 0;
 	right: 0px;
-	display: block;
-	height: 15px;
+	display: flex;
+	align-items: center;
 	margin: 0;
-	padding: 3px 15px 2px 15px;
+	padding: 0 15px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
-	vertical-align: top;
 	-webkit-border-radius: 0 4px 4px 0;
 	-moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
@@ -234,8 +235,14 @@
 	box-shadow: inset 1px 1px 1px #111;
 
 	background: #a72527; /* Old browsers */
-	
-	max-width:50%;
+
+	/* Was 50% of the container - for a fixed-length message like "Field
+	   required" this can still be very wide on a wide field, growing
+	   leftward from right:0 far enough to overhang neighboring content
+	   (same bug as the adminlte/adminltedark copy of this rule - see
+	   AI-shared/bug-patterns.md). A small fixed cap keeps the badge
+	   compact regardless of row width. */
+	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -245,6 +252,96 @@
 	-webkit-border-radius: 0 4px 0 4px;
 	-moz-border-radius: 0 4px 0 4px;
     border-radius: 0 4px 0 4px;
+}
+
+/* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/PhoneCall's and
+   Meeting's default.tpl/Attachment's View_entry.tpl, which still use
+   td.column with a PHP-computed fixed column count - see
+   AI-shared/bug-patterns.md). CSS multi-column instead: the browser
+   picks however many columns of at least ~420px fit the available width and
+   balances rows across them, rather than RecordBrowser_0.php hardcoding 2.
+   Field rows are built directly in View_entry.tpl now (not through
+   single_field.tpl, which still emits <tr>/<td>), reusing .label/.data/etc
+   directly - they're already unscoped from any table-cell requirement below
+   this point. Only the handful of rules further up this file that *were*
+   table.view/table.edit-scoped needed an .epesi-rv-fluid.view/.edit
+   equivalent, since these rows are plain divs, not table cells. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view,
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
+	display: block;
+	column-width: 420px;
+	column-gap: 24px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
+	break-inside: avoid;
+	margin-bottom: 3px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
+	margin-bottom: 0;
+}
+/* .label was a fixed-height table cell whose row (and so its sibling .data)
+   was always at least as tall via table layout, with vertical-align:middle
+   centering its text; as a flex row item here it needs min-height instead of
+   height (so it can grow to match a taller .data instead of clipping) plus
+   flex centering to replace vertical-align, which does nothing outside a
+   table-cell/inline context. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row .label {
+	height: auto;
+	min-height: 20px;
+	display: flex;
+	align-items: center;
+}
+/* Equivalents of the table.view/table.edit-scoped rules earlier in this
+   file, which don't match a plain div row at all. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .data {
+    padding: 3px 5px;
+	background-color: #EBEBE4;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .data img {
+    vertical-align: middle;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .data {
+    border-bottom: none;
+	background-color: #FFFFF9;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .help + div {
+	margin-right: 22px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .long_data {
+    border-right: 1px solid #B3B3B3;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .long_data {
+    border-right: none;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .frozen .static_field {
+    width: 100%;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti {
+	background-color: rgba(0, 0, 0, 0.15);
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti select {
+	height: 80px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti td {
+	padding: 0;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti input[type="button"]{
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+    border-radius: 6px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
 
 /* currency END */

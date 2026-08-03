@@ -1,37 +1,28 @@
-{* Get total number of fields to display *}
-{assign var=count value=0}
+{* Split multiselects out from the regular fields - long text fields are
+   already kept separate by RecordBrowser_0.php itself ($longfields). No
+   row/column pre-computation anymore: the fluid CSS multi-column container
+   below (.epesi-rv-fluid) lets the browser decide how many columns fit,
+   based on available width, instead of a fixed PHP-computed count. *}
 {php}
 	$this->_tpl_vars['multiselects'] = array();
 {/php}
 {foreach key=k item=f from=$fields name=fields}
-	{if $f.type!="multiselect"}
-		{assign var=count value=$count+1}
-	{else}
+	{if $f.type=="multiselect"}
 		{php}
 			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
 		{/php}
 	{/if}
 {/foreach}
-{php}
-	$this->_tpl_vars['cols'] = (int)$this->_tpl_vars['cols']; if ($this->_tpl_vars['cols'] < 1) $this->_tpl_vars['cols'] = 1; // PHP 8: cols may arrive as string/empty; cast to int + guard against div-by-zero
-	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
-{/php}
 
 {* Only the record header/container chrome is restyled here (a Bootstrap
-   card instead of the gray rounded box) - the field grid below is left
-   byte-for-byte identical to the default theme's column-balancing table
-   logic (real layout math, not decoration) and the field markup itself
-   ($f.full_field) is built per field-type elsewhere and shared with the
-   default theme, so View_entry.css re-skins it by class name instead
-   (.label/.data/.form_error/.automulti/.timestamp/etc - all already scoped
-   under .Utils_RecordBrowser__View_entry, so no collision risk with other
-   screens). *}
+   card instead of the gray rounded box). The field grid below now uses a
+   fluid CSS multi-column layout, same approach as the default theme's own
+   copy of this file (see its comments for the full rationale) - the
+   per-field markup itself ($f.full_field) is built per field-type elsewhere
+   and shared with the default theme, so View_entry.css re-skins it by class
+   name instead (.label/.data/.form_error/.automulti/.timestamp/etc - all
+   already scoped under .Utils_RecordBrowser__View_entry, so no collision
+   risk with other screens). *}
 {if $main_page}
 <div class="epesi-rv-header">
 	{* Per request: module icon + caption ("Contacts") dropped from this
@@ -87,60 +78,29 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Field grid - was a <table> of <table>s (one outer row, N td.column cells,
-   each holding its own column-balanced inner table); now the equivalent
-   nesting in flex/grid-friendly divs, so it reflows on narrow screens
-   without the display:block responsive-table hack the table version needed.
-   The row/column *distribution* math (rows/no_empty/cols_percent, computed
-   above) is unchanged - only the markup each transition point emits. The
-   old invisible "filler" row that padded a shorter column up to its taller
-   sibling's row count (purely so two side-by-side <table>s looked
-   even) is dropped: flex columns don't need equal row counts to look
-   right. *}
+{* Field grid - was a <table> of <table>s, then a PHP-computed fixed number
+   of flex .column divs; now a flat sequence of .epesi-rv-row divs inside a
+   CSS multi-column container (.epesi-rv-fluid, see View_entry.css) - the
+   browser decides how many columns fit at the current width, same idea as
+   text reflowing in a newspaper layout. .epesi-rv-row/.label/.data are
+   unscoped from any particular container (already true - both this generic
+   template and per-table overrides like Contact.tpl share them), so no new
+   field-level CSS was needed, only a new container rule. *}
 <div class="Utils_RecordBrowser__View_entry">
-<div class="epesi-rv-columns">
-	{assign var=x value=1}
-	{assign var=y value=1}
+<div class="epesi-rv-fluid {if $action == 'view'}view{else}edit{/if}">
 	{foreach key=k item=f from=$fields name=fields}
 		{if $f.type!="multiselect"}
 			{if !isset($focus) && $f.type=="text"}
 				{assign var=focus value=$f.element}
 			{/if}
-
-			{if $y==1}
-			<div class="column" style="width: {$cols_percent}%;">
-				<div class="{if $action == 'view'}view{else}edit{/if}">
-			{/if}
-					{$f.full_field}
-			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-				{assign var=y value=1}
-				{assign var=x value=$x+1}
-				</div>
-			</div>
-			{else}
-				{assign var=y value=$y+1}
-			{/if}
+			{$f.full_field}
 		{/if}
 	{/foreach}
 </div>
 {if !empty($multiselects)}
-	<div class="epesi-rv-columns">
-		{assign var=x value=1}
-		{assign var=y value=1}
+	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
 		{foreach key=k item=f from=$multiselects name=fields}
-			{if $y==1}
-			<div class="column" style="width: {$cols_percent}%;">
-				<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
-			{/if}
-				{$f.full_field}
-			{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-				{assign var=y value=1}
-				{assign var=x value=$x+1}
-				</div>
-			</div>
-			{else}
-				{assign var=y value=$y+1}
-			{/if}
+			{$f.full_field}
 		{/foreach}
 	</div>
 {/if}

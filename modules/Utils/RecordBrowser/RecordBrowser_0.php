@@ -1207,14 +1207,11 @@ class Utils_RecordBrowser extends Module {
 
         $last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
 		if (!$last_page) $last_page = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
-        $label = DB::GetRow('SELECT field, param FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
-		if ($label) {
-			$cols = $label['param'];
-			$label = $label['field'];
-		} else $cols = false;
+        $label = DB::GetRow('SELECT field FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
+		if ($label) $label = $label['field'];
 
         $this->view_entry_details(1, $last_page, $data, $theme, true);
-        $ret = DB::Execute('SELECT position, field, param FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d ORDER BY position', array($last_page));
+        $ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d ORDER BY position', array($last_page));
         $row = true;
         if ($mode=='view')
             print("</form>\n");
@@ -1238,7 +1235,7 @@ class Utils_RecordBrowser extends Module {
             }
             if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
                 $translated_label = _V($label);
-                $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
+                $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, _V($label)), $js); // TRSL
 				if ($hide_page) {
 					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
@@ -1247,7 +1244,6 @@ class Utils_RecordBrowser extends Module {
 
 				$tab_counter++;
 			}
-            if ($row) $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
         }
@@ -1320,7 +1316,7 @@ class Utils_RecordBrowser extends Module {
         print('Addon is broken, please contact system administrator.');
     }
 
-    public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
+    public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $tab_label = null){
         if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
         $fields = array();
         $longfields = array();
@@ -1337,9 +1333,15 @@ class Utils_RecordBrowser extends Module {
                 if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
             }
         }
-        if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
-        $theme->assign('cols', $cols);
+        // Compat shim, kept deliberately: several per-table custom templates
+        // (Contact.tpl, Contact/Photo's Contact.tpl, mails.tpl, Meeting's and
+        // PhoneCall's default.tpl, Attachment's View_entry.tpl) still read
+        // cols/rows/no_empty for their own fixed-column table/flex layout -
+        // out of scope for the CSS-driven fluid columns the generic
+        // View_entry.tpl now uses (see AI-shared/adminlte-theme.md). Do
+        // not remove this without also updating all of those templates.
+        $theme->assign('cols', 2);
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
