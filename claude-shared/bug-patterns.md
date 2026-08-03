@@ -82,6 +82,75 @@ looks different" report for this specific screen is almost always two
 different accounts, or the same account's settings changed between
 observations (e.g. an accidental Restore Defaults click), not a rendering bug.
 
+## `setDefaults()` must run before `addElement()` for a QuickForm `static` element
+
+Found 2026-08-03 while exercising RecordBrowser's `'file'` field type for the first
+time in `modules/Custom/Tutorial/` (see `Dev-Tutorial.md` §11.2) — not specific to that
+module; the same bug is latent anywhere the `'file'` type is used, including
+`Utils_Attachment`'s own real production usage.
+
+`Utils_FileUpload_Dropzone::add_to_form()` (`modules/Utils/FileUpload/Dropzone.php`)
+originally did:
+```php
+$form->addElement('static', $identifier, $label, $content)->freeze();
+$form->setDefaults(array($identifier => $content));
+```
+`HTML_QuickForm::addElement()` synchronously fires an `updateValue` event on the new
+element, which reads whatever default the form *already* has for that field name —
+at that point still the record's raw `'file'`-column value (an empty array on a
+brand-new record, since no files are attached yet), set earlier in RecordBrowser's
+generic per-field default pass. `HTML_QuickForm_static::setValue()` then does
+`(string) $text` on that array, emitting `E_WARNING: Array to string conversion` —
+which, since `REPORT_ALL_ERRORS` is on for this instance, blanks the whole module's
+rendered output (see `CLAUDE.md`'s Error handling section) rather than just logging.
+`setDefaults()` a line later, meant to supply the correct HTML string, comes too late —
+the bad value was already consumed.
+
+**Fix**: swap the two calls — `setDefaults()` first, so the correct string default is
+already in place by the time `addElement()`'s synchronous `updateValue` fires:
+```php
+$form->setDefaults(array($identifier => $content));
+$form->addElement('static', $identifier, $label, $content)->freeze();
+```
+
+**How to apply**: this is a general QuickForm trap, not specific to Dropzone — for any
+custom element wrapper that both adds a `static` (or other auto-value-pulling) element
+*and* wants to control its own default, set the default before adding the element, not
+after. If a `'file'`-type field ever produces a blank RecordBrowser screen on "Add new
+record" again, suspect this exact class of bug before assuming it's something new.
+
+## Dead Smarty template variable with no `isset()` guard: `$new` in Contact.tpl
+
+Found 2026-08-03, same session as the Dropzone bug above, via the same error-log
+monitor — triggered by adding a new Contact in the browser under `adminltedark`.
+`modules/CRM/Contacts/Photo/theme_adminlte/Contact.tpl` and its `theme_adminltedark`
+copy both had:
+```smarty
+{foreach item=n from=$new}
+    {$n}
+{/foreach}
+```
+with no `{if isset($new)}` guard — unlike every other conditional var in the same
+tooltip block right above it (`$subscription_tooltip`, `$fav_tooltip`, `$info_tooltip`,
+`$clipboard_tooltip`, `$history_tooltip`, all correctly `{if isset(...)}`-wrapped).
+Confirmed via grep (core + the one installed Premium module, `Premium/Projects`) that
+**nothing anywhere assigns a `new` template variable** — this is dead/vestigial
+markup, not a live feature with a producer that's merely sometimes absent. This is a
+concrete instance of the general trap `CLAUDE.md`'s Error Handling section already
+warns about: an unset key referenced in a compiled Smarty template throws
+`E_WARNING: Undefined array key`, which — since `REPORT_ALL_ERRORS` is on for this
+instance — blanks the whole module's rendered output (here: the entire "Add new
+Contact" screen), not just a cosmetic gap.
+
+**Fix**: wrapped both copies in `{if isset($new)}...{/if}`, matching the sibling blocks'
+existing style exactly.
+
+**How to apply**: when auditing a custom RecordBrowser `.tpl` (or any Smarty template)
+for this class of bug, a variable referenced without `isset()`/`{if isset(...)}` next to
+several siblings that *do* have the guard is a strong tell — check whether anything
+in the codebase (core **and** Premium, since Premium is gitignored and invisible to the
+Grep tool) actually ever assigns it before assuming the guard is unnecessary.
+
 ## Known, still-open issue: Shoutbox delete UI doesn't work
 
 The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/

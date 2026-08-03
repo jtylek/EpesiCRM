@@ -22,6 +22,10 @@ same for every developer and every computer working on this repo.
 
 ## Files
 
+- [Dev-Tutorial.md](Dev-Tutorial.md) — how to write an Epesi module from scratch:
+  class hierarchy, install/uninstall lifecycle, RecordBrowser field types, ACL,
+  patches, translations. Paired with a complete working example module at
+  `modules/Custom/Tutorial/`.
 - [adminlte-theme.md](adminlte-theme.md) — status of the `adminlte`/`adminltedark`
   themes, plus the recurring CSS/JS architecture traps hit while building them.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on purpose;
@@ -35,6 +39,14 @@ same for every developer and every computer working on this repo.
   shape* is likely to recur elsewhere in the codebase.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that
   looked like application bugs but weren't.
+
+## Conventions for investigating/fixing bugs
+
+- **Never grep `vendor/` when looking for code to fix.** Third-party/vendor-provided
+  code (`vendor/openpsa/quickform`, etc.) is out of scope for patches — if a bug's
+  root cause traces into vendor code, look for where *our own* code calls into it or
+  configures it instead, since that's what's actually fixable here. (Searching vendor
+  purely to *understand* behavior, not to find something to edit, is fine.)
 
 ## Maintaining this folder
 

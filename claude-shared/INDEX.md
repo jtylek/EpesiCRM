@@ -1,5 +1,9 @@
 # Index
 
+- [Dev-Tutorial.md](Dev-Tutorial.md) — how modules are built in Epesi: class
+  hierarchy, install/uninstall lifecycle, RecordBrowser field-type vocabulary,
+  ACL, patches, translations. Paired with `modules/Custom/Tutorial/`, a
+  complete working example module exercising every field type.
 - [adminlte-theme.md](adminlte-theme.md) — `adminlte`/`adminltedark` theme
   status (what's themed, what's not) + recurring CSS/JS architecture traps.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on
