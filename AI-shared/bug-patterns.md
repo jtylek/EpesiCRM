@@ -211,6 +211,82 @@ element inside a row whose height/width is no longer fixed table-cell geometry i
 recurring shape of this whole bug: prefer stretching via `top/bottom`/`left/right` plus
 flex-centering over hardcoded dimensions, for anything inside these flex rows.
 
+## `<select>` percentage width unreliable inside a CSS multi-column container
+
+Found 2026-08-03, same session as the fluid-columns redesign (see
+`adminlte-theme.md`) - reported live on a real `company` record (which, like
+any table with no custom `tpl`, renders through the generic `View_entry.tpl`):
+plain text fields (Company Name, Address 1, City, ...) filled their `.data`
+cell's full width correctly; `<select>`-based fields (a short commondata list
+like Permission) visibly did not, leaving a gap between the dropdown and the
+cell's right edge. Two other selects on the same screen (Country, Zone) looked
+fine - but only because their option text ("United States of America") is
+long enough to make the select's own intrinsic content width fill most of the
+cell anyway, coincidentally masking the same underlying bug rather than being
+genuinely unaffected by it.
+
+**Root cause**: `<select>` defaults to `display: inline-block` in the browser's
+UA stylesheet. Its percentage-width resolution against an ancestor is
+unreliable specifically inside a CSS multi-column container (`.epesi-rv-fluid`,
+introduced by the fluid-columns redesign) in at least some browsers - a quirk
+that doesn't affect text `<input>`/`<textarea>`, which is exactly why only
+dropdown fields showed a visible gap.
+
+**Fix**: added `display: block;` to the shared `.data select` rule in all
+three themes. An inline-block element already at `width:100%` renders
+identically to a block one outside a multicol context, so this has no visible
+effect on the six other per-table templates that don't use `.epesi-rv-fluid`
+at all - it only changes behavior where the quirk was actually possible.
+
+**How to apply**: if a form control other than plain text/textarea (a custom
+widget, a future field type) ever looks mis-sized specifically inside
+`.epesi-rv-fluid`, but not in the six untouched per-table templates, suspect
+this same inline-block-in-multicol class of quirk before assuming it's a
+field-definition or specificity problem - check the element's default
+`display` value first.
+
+**Same investigation, a second symptom**: after the width fix, select-holding
+rows (Permission, Country, Zone) were still visibly *shorter* than input rows
+(Phone, Fax, Address 1) on the same screen - a different root cause, not a
+leftover of the first bug. Each `.epesi-rv-row` is its own independent flex
+container (unlike the old `<table>` layout, where every row shared one table
+and so one row height); with nothing enforcing a floor, a row's height is
+whatever its own content naturally is, and `<select>`'s native rendering (OS
+dropdown chrome) tends to compute a few pixels shorter than an `<input>`'s
+even at identical CSS padding/font-size - not something either theme's CSS
+directly controls.
+
+First attempt - a shared `.epesi-rv-row { min-height: 28px }` plus an explicit
+`line-height: 1.5` on the combined input/select/textarea rule - **did not
+fully fix it**, confirmed live. The real cause turned out to be simpler and
+entirely self-inflicted: the file already had a *second*, more specific
+`.data select { ... }` rule further down, re-declaring `height: 100%` (left
+over from before this session's multicol work). Same selector specificity as
+the combined rule above it, but later in source order - so it silently won
+every time and undid whatever height the combined rule declared, including
+the `min-height`/`line-height` attempt.
+
+**Actual fix**: replaced the combined rule's `height: 100%` with an explicit
+`height: 32px` (percentage height was the ambiguity in the first place - an
+explicit pixel value is unambiguous for a form control regardless of the
+parent's own height), and **removed** the conflicting `height: 100%` from the
+later, more specific `.data select` rule entirely rather than trying to keep
+two competing declarations in sync. The legacy theme had the same conflict in
+a different shape (`height:14px` on the combined rule vs. an explicit
+`height:18px; padding:0` on `.data select` alone) - resolved the same way, by
+deleting the select-specific override so it inherits the combined rule's
+values instead of fighting them.
+
+**How to apply**: before declaring `height`/`width`/any property on a
+type-specific rule (`.data select`) that a broader combined rule (`.data
+input, .data select, .data textarea`) already sets, grep for the type-specific
+selector first - if the property is already provided by the combined rule, a
+later, same-specificity re-declaration is redundant at best and silently wins
+by source order at worst. This is the same shape as the `.form_error` bug two
+entries up (a later rule quietly winning) - check for a duplicate/competing
+declaration before assuming a value you set isn't being applied due to something
+more exotic.
+
 ## Known, still-open issue: Shoutbox delete UI doesn't work
 
 The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/

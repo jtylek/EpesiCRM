@@ -259,6 +259,16 @@
 .Utils_RecordBrowser__View_entry .epesi-rv-row {
 	display: flex;
 	column-gap: 3px;
+	/* Each row is its own independent flex container (unlike the old table
+	   layout, where every row shared one table and so one row height) - with
+	   nothing enforcing a floor, a row holding only a <select> (whose native
+	   rendering, even with identical CSS padding, tends to be a few pixels
+	   shorter than an <input>'s - OS dropdown chrome, not a CSS issue this
+	   theme controls) ends up visibly shorter than a row holding an <input>.
+	   A shared min-height gives every row the same floor regardless of which
+	   field type it holds - .label (min-height:20px) and .data's child both
+	   stretch to match via flex's default align-items:stretch. */
+	min-height: 28px;
 }
 
 /* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/etc, which still use
@@ -410,13 +420,19 @@
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
-	/* 100%/box-sizing so the field (and so its :focus background) fills the
-	   whole .data cell - was 99%/14px (a sliver short both ways), leaving a
-	   visible gap around the focus highlight between the field and the
-	   cell's own edges. */
+	/* box-sizing so the field (and so its :focus background) fills the whole
+	   .data cell - was 99%/14px (a sliver short both ways), leaving a visible
+	   gap around the focus highlight between the field and the cell's own
+	   edges. height is an explicit px value, not 100% - percentage height
+	   depends on .data actually having a definite height to resolve against,
+	   which a <select> (unlike <input>/<textarea>) doesn't reliably do here;
+	   an explicit value sidesteps that ambiguity entirely and is what
+	   actually keeps every field type the same height (see .epesi-rv-row's
+	   matching min-height for the row itself). */
 	width: 100%;
-	height: 100%;
+	height: 32px;
 	box-sizing: border-box;
+	line-height: 1.5;
     background-color: #2b3035;
     border: 0px;
 	padding: 3px 5px;
@@ -472,7 +488,23 @@
 }
 
 .Utils_RecordBrowser__View_entry .data select {
-	height: 100%;
+	/* <select> defaults to display:inline-block, whose percentage-width
+	   resolution is unreliable inside a CSS multi-column container
+	   (.epesi-rv-fluid) in some browsers - a quirk specific to <select>,
+	   not text inputs/textareas (which is why only dropdown fields showed
+	   this, and why a short-valued one like a small commondata list was
+	   visibly narrow while a long-valued one like Country happened to look
+	   fine - masked by its own long option text, not actually unaffected).
+	   Forcing block sizing here resolves width:100% against .data the same
+	   reliable way it already does everywhere else - no visible difference
+	   outside a multicol context, since an inline-block element already at
+	   100% width looks identical to a block one. */
+	/* Deliberately does not repeat height here (was height:100%, same
+	   specificity as the shared input/select/textarea rule above but later
+	   in source order, so it silently won and undid that rule's explicit
+	   height:32px every time - the real cause of select rows staying short
+	   even after that fix). */
+	display: block;
 	padding: 0 5px;
 	margin: 0;
 }

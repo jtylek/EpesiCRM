@@ -17,7 +17,6 @@ class Custom_TutorialInstall extends ModuleInstall {
 			// record (create_linked_text) - without one, a text field just
 			// renders as plain text in GenericBrowser listings.
 			array('name'=>_M('Name'), 'type'=>'text', 'required'=>true, 'param'=>'64', 'visible'=>true, 'filter'=>true, 'display_callback'=>array('Custom_TutorialCommon', 'display_category_name')),
-			array('name'=>_M('Description'), 'type'=>'text', 'param'=>'255', 'visible'=>true),
 			// 'crm_contact' is a *registered datatype* (Utils_RecordBrowserCommon::
 			// register_datatype()), not a core RecordBrowser type - CRM_Contacts
 			// rewrites it into a 'select'/'multiselect' pointed at its own
@@ -27,6 +26,7 @@ class Custom_TutorialInstall extends ModuleInstall {
 			// helper CRM_PhoneCall/CRM_Meeting/CRM_Tasks each define for
 			// themselves (there is no shared central one to call instead).
 			array('name'=>_M('Manager'), 'type'=>'crm_contact', 'param'=>array('field_type'=>'select', 'crits'=>array('Custom_TutorialCommon', 'employees_crits'), 'format'=>array('CRM_ContactsCommon', 'contact_format_no_company')), 'visible'=>true),
+			array('name'=>_M('Description'), 'type'=>'text', 'param'=>'255', 'visible'=>true),
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('tutorial_category', $category_fields);
 		Utils_RecordBrowserCommon::set_caption('tutorial_category', _M('Tutorial Categories'));

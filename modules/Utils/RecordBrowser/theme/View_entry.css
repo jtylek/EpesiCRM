@@ -138,6 +138,15 @@
 .Utils_RecordBrowser__View_entry .data textarea {
 	width: 99%;
 	height: 14px;
+	/* Browsers don't apply an <input>'s and a <select>'s default
+	   line-height identically even at the same font-size/padding/height -
+	   an explicit, shared value removes that as a source of the two
+	   rendering at different heights (see the generic View_entry.tpl's
+	   .epesi-rv-row min-height for the other half of this, scoped there
+	   since this combined rule is also used by Contact.tpl/mails.tpl/etc,
+	   which keep their existing table layout unaffected by this addition
+	   either way - line-height alone changes nothing for them). */
+	line-height: 1.5;
     background-color: #FFFFF9;
     border: 0px;
 	padding: 3px 5px;
@@ -195,10 +204,15 @@
 }
 
 .Utils_RecordBrowser__View_entry .data select {
-	height: 18px;
-	padding: 0;
-	margin-left: 2px;
-	margin-top: 2px;
+	/* <select> defaults to display:inline-block, whose percentage-width
+	   resolution is unreliable inside a CSS multi-column container
+	   (.epesi-rv-fluid, used by the generic View_entry.tpl only) in some
+	   browsers - a quirk specific to <select>, not text inputs/textareas.
+	   Forcing block sizing resolves width:100% (set on the shared .data
+	   input/select/textarea rule above) against .data the same reliable way
+	   it already does everywhere else - no visible difference outside a
+	   multicol context. */
+	display: block;
 }
 
 .Utils_RecordBrowser__View_entry .form_error img {
@@ -277,6 +291,13 @@
 	column-gap: 3px;
 	break-inside: avoid;
 	margin-bottom: 3px;
+	/* Each row is its own independent flex container - with nothing
+	   enforcing a floor, a row holding only a <select> (whose native
+	   rendering, even with identical CSS padding, tends to be a few pixels
+	   shorter than an <input>'s - OS dropdown chrome, not a CSS issue this
+	   theme controls) ends up visibly shorter than a row holding an
+	   <input>. A shared min-height gives every row the same floor. */
+	min-height: 28px;
 }
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
 	margin-bottom: 0;
