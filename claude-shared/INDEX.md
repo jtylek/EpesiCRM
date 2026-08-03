@@ -1,0 +1,22 @@
+# Index
+
+- [adminlte-theme.md](adminlte-theme.md) — `adminlte`/`adminltedark` theme
+  status (what's themed, what's not) + recurring CSS/JS architecture traps.
+- [deliberate-removals.md](deliberate-removals.md) — features removed on
+  purpose (quick-jump, login-audit purge, autofocus, legacy mobile system,
+  `data/` theme+lang storage). Don't silently reintroduce.
+- [standalone-entrypoints.md](standalone-entrypoints.md) — `admin/`,
+  `update.php`, `check.php`, `setup.php` PHP/view split; the `anonymous_setup`
+  access-control hardening pass; Smarty 2 gotchas hit doing this work.
+- [legacy-js-migration.md](legacy-js-migration.md) — Prototype.js/
+  script.aculo.us/old-jQuery inventory, elimination plan, and progress so far.
+- [bug-patterns.md](bug-patterns.md) — already-fixed bugs whose root-cause
+  shape (raw-record-vs-form-submission, strtotime() date parsing, settings
+  override chains) is likely to recur elsewhere; plus one still-open bug
+  (Shoutbox delete UI).
+- [environment-gotchas.md](environment-gotchas.md) — DB/server issues that
+  looked like application bugs (CLI scripts hitting the live DB, silent ADOdb
+  failures from `max_allowed_packet`, MariaDB manifest corruption, access.log
+  vs error.log).
+
+Last reorganized: 2026-08-03.
