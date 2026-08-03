@@ -151,6 +151,66 @@ several siblings that *do* have the guard is a strong tell — check whether any
 in the codebase (core **and** Premium, since Premium is gitignored and invisible to the
 Grep tool) actually ever assigns it before assuming the guard is unnecessary.
 
+## `.form_error`'s `position: absolute` had no `top`, so it escaped its field row
+
+Found 2026-08-03, same session as the two bugs above, while exercising required-field
+validation in `modules/Custom/Tutorial/` under `adminltedark` — but not specific to
+that module or theme; the rule is byte-identical (and equally missing `top`) in both
+`modules/Utils/RecordBrowser/theme_adminlte/View_entry.css` and its `adminltedark`
+copy, so any required RecordBrowser field under either theme was affected.
+
+The error badge itself is generated in core, not a theme file:
+`include/TCMSArray.php`'s array-form renderer emits
+`<span class="form_error" id="...">...</span>` right after each field's control
+(`error` key in the array `EpesiSmartyRenderer`/`TCMSArray` builds per element).
+`View_entry.css` styles it:
+```css
+.Utils_RecordBrowser__View_entry .form_error:not(:empty) {
+	position: absolute;
+	right: 0px;
+	height: 15px;
+	...
+	/* no top/bottom set at all */
+}
+```
+`position: absolute` with no `top` falls back to the browser's "static position"
+algorithm — workable enough under the original `<table>`-cell layout, but unreliable
+once the row became a flex container (`.epesi-rv-row { display: flex }`, part of the
+adminlte(dark) nested-table→flexbox rewrite — see `adminlte-theme.md`). Symptom:
+the red "Field required" badge rendered detached from its own field, overlapping
+unrelated content (observed: hanging up near the tab strip above).
+
+**Fix, part 1**: pin it explicitly — added `top: 0;` (anchors to the top-right corner
+of `.data`, which already has `position: relative`) to both theme copies of the rule.
+
+**Fix, part 2** (found immediately after, same badge): `max-width: 50%` sized the
+badge relative to `.data`'s own width - fine for a genuinely variable-length message,
+but "Field required" (`__('Field required')`, `modules/Libs/QuickForm/QuickForm_0.php`)
+is always short and fixed-length. On a wide field, 50% of the container is still wide,
+and since the badge is anchored by `right: 0` with no `left`, it grows **leftward**
+from the right edge to fill that width - overhanging neighboring content instead of
+sitting as a compact tag. Changed to a fixed `max-width: 200px` in both theme copies,
+which keeps it compact regardless of the row's actual width.
+
+**Fix, part 3** (found immediately after that, same badge again - reported as "not
+rendered full height"): the rule also had a hardcoded `height: 15px`, sized for the
+original `<table>` layout's shorter rows. Under the flex rewrite, `.data` rows are
+taller (fields fill the row via `height: 100%`), so the 15px badge only covered a
+sliver at the top of the row instead of the row's real height. Fixed by replacing
+`height: 15px` with `top: 0; bottom: 0` (stretches the badge to fill `.data`'s full
+height, since it's already `position: absolute` inside `.data`'s `position: relative`)
+and switching `display: block` + fixed vertical padding to `display: flex; align-items:
+center` (so the text stays vertically centered at whatever height the row ends up
+being, instead of being pinned near the top with a small fixed padding).
+
+**How to apply**: any `position: absolute` rule in this theme pair that doesn't set
+`top`/`bottom` is suspect — the flex rewrite changed what "static position" resolves
+to versus the original table layout it replaced, in both width AND height. A hardcoded
+pixel `height` (or a percentage `max-width` paired with `right:0`-anchoring) on an
+element inside a row whose height/width is no longer fixed table-cell geometry is the
+recurring shape of this whole bug: prefer stretching via `top/bottom`/`left/right` plus
+flex-centering over hardcoded dimensions, for anything inside these flex rows.
+
 ## Known, still-open issue: Shoutbox delete UI doesn't work
 
 The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/

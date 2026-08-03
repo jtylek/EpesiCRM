@@ -471,15 +471,16 @@
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
 	color: white !important;
 	position: absolute;
+	top: 0;
+	bottom: 0;
 	right: 0px;
-	display: block;
-	height: 15px;
+	display: flex;
+	align-items: center;
 	margin: 0;
-	padding: 3px 15px 2px 15px;
+	padding: 0 15px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
-	vertical-align: top;
 	-webkit-border-radius: 0 4px 4px 0;
 	-moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
@@ -487,7 +488,11 @@
 
 	background: #dc3545;
 
-	max-width:50%;
+	/* Was 50% of the container - for a fixed-length message like "Field
+	   required" this can still be very wide on a wide field, growing
+	   leftward from right:0 far enough to overhang neighboring content.
+	   A small fixed cap keeps the badge compact regardless of row width. */
+	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
