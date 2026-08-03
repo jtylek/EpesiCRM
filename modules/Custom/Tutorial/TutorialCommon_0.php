@@ -7,7 +7,7 @@ class Custom_TutorialCommon extends ModuleCommon {
 	// single Custom_Tutorial instance class (see Custom_Tutorial::body()/
 	// categories() in Tutorial_0.php). No module opts into the menu via a
 	// registration call - declaring this static method is the whole mechanism
-	// (see claude-shared/Dev-Tutorial.md §7).
+	// (see AI-shared/Dev-Tutorial.md §7).
 	public static function menu() {
 		return array(_M('Tutorial') => array(
 			'__submenu__' => 1,
@@ -66,7 +66,7 @@ class Custom_TutorialCommon extends ModuleCommon {
 	// TutorialInstall.php::install(). Populates the hidden Internal Token
 	// field exactly once, when a record is first created (or cloned) -
 	// 'editing' mode receives the already-stored value and leaves it alone,
-	// so the token is stable across edits. See claude-shared/Dev-Tutorial.md
+	// so the token is stable across edits. See AI-shared/Dev-Tutorial.md
 	// §11.5 for the full add/edit/display mode reference and a trap to know
 	// about (raw record vs. form submission shape differs by mode).
 	public static function submit_tutorial($values, $mode, $tab = null) {

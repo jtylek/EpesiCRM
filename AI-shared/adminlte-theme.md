@@ -1,5 +1,58 @@
 # AdminLTE theme(s) status
 
+## RecordBrowser's generic View_entry.tpl: fluid CSS columns (2026-08-03)
+
+See [design-philosophy.md](design-philosophy.md) for why this was originally
+computed in PHP at all, and why replacing it with CSS is a continuation of that
+principle, not a departure from it.
+
+`Utils_RecordBrowser::view_entry_details()` (`RecordBrowser_0.php`) used to take
+a `$cols` param (default 2, optionally overridden per-tab from a page_split
+field's own `param` column) and pre-compute which field landed in which of N
+columns (`$rows`/`$no_empty`/`$cols_percent`, done in the *template*, not PHP).
+This has been removed entirely from the **generic** `View_entry.tpl` in all
+three themes (`theme/`, `theme_adminlte/`, `theme_adminltedark/`) — replaced by
+a plain CSS multi-column container (`.epesi-rv-fluid { column-width: 420px;
+column-gap: 24px; }`) that lets the browser decide how many columns fit the
+current width, instead of a fixed PHP-computed count. Fields render as a flat
+sequence of rows; `break-inside: avoid` keeps each row intact.
+
+**This does NOT apply to the ~6 other per-table templates** (`CRM_Contacts`'s
+`Contact.tpl`, `CRM_Contacts_Photo`'s `Contact.tpl`, `CRM_Mail`'s `mails.tpl`,
+`CRM_Meeting`'s and `CRM_PhoneCall`'s `default.tpl`, `Utils_Attachment`'s
+`View_entry.tpl`) — a deliberate scope decision, confirmed with the user, since
+converting those too would be a much bigger change touching core CRM screens.
+They still read `$cols`/`$rows`/`$no_empty` for their own fixed-column table/flex
+layout, so `view_entry_details()` still assigns `'cols' => 2` as a **permanent
+compatibility shim** purely for their benefit — don't remove it without also
+converting (or otherwise updating) all of those templates first.
+
+**Why the generic template needed its own field-row markup, not just new CSS**:
+`single_field.tpl` (which builds each field's `$f.full_field` HTML) is *shared*
+between the generic template and every one of those other per-table templates.
+In the legacy `theme/` (table-based) theme, `single_field.tpl` emits `<tr><td>`
+— dropping that directly into a `<div>` (as pure CSS multi-column requires) is
+invalid HTML that browsers silently relocate via foster-parenting, breaking
+layout. So the legacy generic `View_entry.tpl` now builds its rows directly
+from the individual pieces `get_field_display_options()` already returns
+(`$f.label`/`.html`/`.error`/`.help`/`.required`/`.advanced`/`.style`/`.element`)
+instead of going through `single_field.tpl` at all — `single_field.tpl` itself
+is untouched, still serving the other templates exactly as before. The two
+AdminLTE-family themes didn't need this workaround: their `single_field.tpl`
+already emits `.epesi-rv-row` `<div>`s (no table involved anywhere in that
+theme), so `{$f.full_field}` drops straight into the new fluid container as-is.
+
+**Legacy theme CSS note**: most of `.label`/`.data`/`.form_error`/etc in
+`theme/View_entry.css` are already unscoped from any table-cell requirement and
+so were safe to reuse directly for the new div-based rows; only a handful of
+rules that *were* `table.view`/`table.edit`-scoped (background colors, the
+automulti edit-mode block, a couple of border tweaks) needed an equivalent
+added under `.epesi-rv-fluid.view`/`.epesi-rv-fluid.edit` instead. Also fixed,
+proactively, in all three themes: the same `.form_error` positioning bug
+documented in `bug-patterns.md` (no `top` set, `max-width:50%`) — it would have
+resurfaced the moment these rows went through a flex layout instead of a table
+cell.
+
 Two AdminLTE-based themes exist under `modules/*/theme_adminlte/` and
 `modules/*/theme_adminltedark/`. Both replace the original `theme/` (legacy,
 table-based) look. Themes resolve straight from `modules/` — no build step, no

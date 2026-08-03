@@ -10,7 +10,7 @@ migration log — root causes, decisions, and a running "upgrade-gap" discipline
 also reach existing installs — lives in `MIGRATION_NOTES.md`. Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
 
-`claude-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
+`AI-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
 git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate removals that look like bugs,
 recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
 worth a look before assuming something is broken/missing rather than intentional.

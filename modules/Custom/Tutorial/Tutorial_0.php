@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * Reference module for claude-shared/Dev-Tutorial.md - wraps two
+ * Reference module for AI-shared/Dev-Tutorial.md - wraps two
  * RecordBrowser tables registered in TutorialInstall.php. See that install
  * file for the full field-type roster, and TutorialCommon_0.php for the
  * menu()/display_callback()/processing-callback conventions used here.

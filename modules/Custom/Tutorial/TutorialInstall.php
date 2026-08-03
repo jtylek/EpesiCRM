@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 /**
- * Reference module for claude-shared/Dev-Tutorial.md - exercises every
+ * Reference module for AI-shared/Dev-Tutorial.md - exercises every
  * RecordBrowser field type in one real, installable table. See that file
  * for the full write-up of each type used below.
  */

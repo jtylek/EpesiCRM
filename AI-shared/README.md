@@ -1,4 +1,4 @@
-# claude-shared/
+# AI-shared/
 
 Shared, git-tracked notes for AI assistants (and human developers) working on this
 codebase — written so a session starting from scratch, on any computer, doesn't have
@@ -12,7 +12,7 @@ same for every developer and every computer working on this repo.
   commands. Read it first, always — it doesn't change often.
 - **`MIGRATION_NOTES.md`** (repo root) is the authoritative log of the PHP 7.4 → 8.2
   migration specifically: root causes, decisions, the upgrade-gap discipline.
-- **`claude-shared/`** (this folder) is the living, lower-ceremony layer in between:
+- **`AI-shared/`** (this folder) is the living, lower-ceremony layer in between:
   ongoing feature status, deliberate removals that look like bugs, subtle bug patterns
   worth recognizing if they recur, and environment/tooling gotchas that aren't really
   "architecture" but will burn the next person who doesn't know them. It's expected to
@@ -22,6 +22,11 @@ same for every developer and every computer working on this repo.
 
 ## Files
 
+- [design-philosophy.md](design-philosophy.md) — the founding principle behind
+  Epesi's architecture (from the framework's creator): free the developer to write
+  pure business logic in PHP, with the framework generating view/CSS/JS
+  automatically. Read this before evaluating any redesign work — it's the test
+  for whether a change is "modernizing" or "cutting against the point."
 - [Dev-Tutorial.md](Dev-Tutorial.md) — how to write an Epesi module from scratch:
   class hierarchy, install/uninstall lifecycle, RecordBrowser field types, ACL,
   patches, translations. Paired with a complete working example module at

@@ -1,5 +1,9 @@
 # Index
 
+- [design-philosophy.md](design-philosophy.md) — the founding principle behind
+  Epesi (from the framework's creator): developers write pure business logic in
+  PHP, the framework generates view/CSS/JS automatically. The test to apply to
+  any future redesign work.
 - [Dev-Tutorial.md](Dev-Tutorial.md) — how modules are built in Epesi: class
   hierarchy, install/uninstall lifecycle, RecordBrowser field-type vocabulary,
   ACL, patches, translations. Paired with `modules/Custom/Tutorial/`, a

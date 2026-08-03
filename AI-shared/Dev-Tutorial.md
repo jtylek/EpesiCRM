@@ -326,7 +326,7 @@ public static function home_page() {
 `__module__`/`__function__`/`__function_arguments__`/`__icon__` keys.
 `home_page()`'s value shape is `[module_name, function_name, function_args]`.
 
-**`adminlte_icon()`** (AdminLTE theme only — see `claude-shared/adminlte-theme.md`)
+**`adminlte_icon()`** (AdminLTE theme only — see `AI-shared/adminlte-theme.md`)
 is resolved on-demand per module rather than aggregated, via
 `Base_AdminlteIcons::resolve()`, falling back to a plain gear icon if
 undeclared:
@@ -380,7 +380,7 @@ A module's `patches/` directory has **no manifest** — it's scanned by
 convention (`PatchUtil::list_for_module()`, `include/patches.php`). Filename
 convention: `YYYYMMDD_short_description.php`. **A patch's identity is its file
 path, not its content** — editing an already-applied patch is silently
-ignored; ship a new file for any further change (see `claude-shared/`'s own
+ignored; ship a new file for any further change (see `AI-shared/`'s own
 cross-reference to this in the codebase's general conventions). On a brand-new
 install, all patches that already exist at install time are marked applied
 without running — only patches added *after* a site went live actually execute
@@ -609,7 +609,7 @@ modes receive the **raw stored DB record** (real columns only); `'add'`/`'edit'`
 non-column form fields like a checkbox name with no backing column). A callback
 that checks a form-checkbox-shaped key (`$values['some_checkbox']`) while
 running in display/view mode will find it simply unset — see
-`claude-shared/bug-patterns.md` for a real bug this caused (`CRM_MeetingCommon`
+`AI-shared/bug-patterns.md` for a real bug this caused (`CRM_MeetingCommon`
 checking a nonexistent `timeless` key instead of the real `duration==-1` signal).
 
 ### 11.6 ACL
@@ -751,5 +751,5 @@ as if it were an ordinary type.
 - `modules/CRM/PhoneCall/` — richest real field-type usage in one install file.
 - `modules/Tests/Tooltip/` — the one real example of the `_1` multi-version
   mechanism (§4), kept specifically to demonstrate it.
-- `claude-shared/adminlte-theme.md`, `claude-shared/bug-patterns.md` — theming
+- `AI-shared/adminlte-theme.md`, `AI-shared/bug-patterns.md` — theming
   a module's screens, and RecordBrowser-specific bug shapes worth knowing.
