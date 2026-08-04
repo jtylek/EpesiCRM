@@ -419,18 +419,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 			Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$values['id']);
 			break;
 		case 'display':
-			$pdf = Utils_RecordBrowser::$rb_obj->pack_module(Libs_TCPDF::module_name(), 'L');
-			if ($pdf->prepare()) {
-				$pdf->set_title($values['title']);
-				$pdf->set_subject('');
-				$pdf->prepare_header();
-				$pdf->AddPage();
-				$v = CRM_Calendar_EventCommon::get(DB::GetOne('SELECT id FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array('Meetings')).'#'.$values['id']);
-				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module(CRM_Calendar_Event::module_name());
-				$ev_mod->make_event_PDF($pdf,$v,true,'view');
-			}
-			$pdf->add_actionbar_icon('Print');
-
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
             if ($values['time']) {

@@ -65,7 +65,7 @@ class Base_User_Login extends Module {
 				// default.tpl, which relocates just the logout half into the
 				// sidebar footer - that needed real, separately addressable
 				// elements to target, not one fused blob).
-				$this->theme->assign('logged_as_text', __('Logged as %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')));
+				$this->theme->assign('logged_as_text', __('User %s',array('</br><b class="green">'.Base_UserCommon::get_my_user_login().'</b>')));
 				$this->theme->assign('logout_href', $this->create_unique_href(array('logout'=>1)));
 				$this->theme->assign('logout_label', __('Logout'));
 				$this->theme->display();
