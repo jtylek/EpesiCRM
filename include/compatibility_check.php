@@ -216,6 +216,34 @@ class CompatibilityCheck {
         return null;
     }
 
+    // Read-only: queries the live MySQL session variable. Requires a
+    // connected DB (like database_permission_check() below) - callers must
+    // guard on that themselves. Returns null on PostgreSQL, which has no
+    // equivalent packet-size cap.
+    //
+    // History::set() (include/history.php) persists a gzip+serialized blob
+    // into a longblob column on every request via a raw, unbound query - a
+    // large pasted note can exceed max_allowed_packet, and ADOdb's mysqli
+    // driver swallows the resulting failure silently (see
+    // AI-shared/environment-gotchas.md). 1M is the historical MySQL/MariaDB
+    // stock default this bites hardest, hence the hard-fail threshold below.
+    public static function database_settings_check() {
+        if (!DB::is_mysql()) return null;
+
+        $bytes = (int) DB::GetOne('SELECT @@max_allowed_packet');
+        $mb = $bytes / 1048576;
+        $status = (rtrim(rtrim(number_format($mb, 1), '0'), '.')) . ' MB';
+
+        if ($bytes <= 1048576) $severity = 2;
+        elseif ($bytes < 16777216) $severity = 1;
+        else $severity = 0;
+
+        $tests = array(
+            array('label' => 'max_allowed_packet', 'status' => $status, 'severity' => $severity),
+        );
+        return array('label' => 'Database settings', 'tests' => $tests, 'solution' => 'http://forum.epesibim.com');
+    }
+
     // Mutating probe: creates a scratch table, exercises ALTER/INSERT/
     // UPDATE/LOCK/DELETE/DROP against it. Only meaningful once a live DB
     // connection exists - callers must guard on that themselves (check.php's

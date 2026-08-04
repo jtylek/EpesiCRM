@@ -53,8 +53,11 @@ class ConfigInfo extends AdminModule {
     }
 
     public function body() {
+        $checks = CompatibilityCheck::environment_checks();
+        $db_settings = CompatibilityCheck::database_settings_check();
+        if ($db_settings) $checks[] = $db_settings;
         return $this->render('ConfigInfo.tpl', array(
-            'checks' => CompatibilityCheck::environment_checks(),
+            'checks' => $checks,
             'config_rows' => $this->config_rows(),
         ));
     }

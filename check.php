@@ -49,6 +49,8 @@ $checks = array();
 // checks that ConfigInfo.php (admin panel) also uses.
 if ($config) {
 	$checks[] = CompatibilityCheck::database_permission_check();
+	$db_settings = CompatibilityCheck::database_settings_check();
+	if ($db_settings) $checks[] = $db_settings;
 }
 
 $checks = array_merge($checks, CompatibilityCheck::environment_checks());
