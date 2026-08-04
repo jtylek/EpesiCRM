@@ -1128,6 +1128,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			    if (isset($values['login']) && $values['login']) {
 			        $ret = Base_UserCommon::change_active_state($values['login'], false);
 			        if (!$ret) $values = false;
+			        else Base_User_LoginCommon::invalidate_password($values['login']);
 		        }
 		        break;
         }

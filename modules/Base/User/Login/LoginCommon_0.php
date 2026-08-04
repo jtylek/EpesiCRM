@@ -148,6 +148,21 @@ class Base_User_LoginCommon extends ModuleCommon {
 	public static function get_mail($id) {
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
 	}
+
+	/**
+	 * Blanks a user's password hash so no input can ever match it again,
+	 * without deleting the user_login/user_password rows themselves - used
+	 * on Contact delete (CRM_ContactsCommon::submit_contact()) alongside
+	 * Base_UserCommon::change_active_state(), so the account is both
+	 * deactivated and unable to authenticate even if reactivated later,
+	 * while everything that references user_login_id (ACL, audit history,
+	 * message ownership, ...) keeps a row to point at.
+	 *
+	 * @param integer user id (get from User module)
+	 */
+	public static function invalidate_password($id) {
+		return DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array('', $id));
+	}
     
     public static function is_banned($login = null, $current_time = null) {
         $time_seconds = Variable::get('host_ban_time');

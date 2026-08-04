@@ -43,9 +43,11 @@
 			{if isset($history_tooltip)}
 				&nbsp;&nbsp;&nbsp;{$history_tooltip}
 			{/if}
-			{foreach item=n from=$new}
-				&nbsp;&nbsp;&nbsp;{$n}
-			{/foreach}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
 		</div>
 	</div>
 </div>
@@ -95,7 +97,16 @@
 					</div>
 			{else}
 					<div class="epesi-rv-row">
-						<div class="label">{$form_data.customer.label}{if $form_data.customer.required}*{/if}</div>
+						{* Not driven by $form_data.customer.required (never set true - see
+						   PhoneCallInstall.php): Customer/Phone are only conditionally
+						   required (the Other Customer/Other Phone checkbox below is a
+						   valid alternative, enforced in CRM_PhoneCallCommon::
+						   submit_phonecall()'s own form rule, not RecordBrowser's schema
+						   requiredness), and that flag also drives an unconditional
+						   "always required" QuickForm rule that would break the escape
+						   hatch. The asterisk here is a hardcoded hint matching the *real*
+						   requirement instead. *}
+						<div class="label">{$form_data.customer.label}*</div>
 						<div class="data" id="_customer__data">
 							<span class="error">
 								{$form_data.customer.error}
@@ -118,7 +129,9 @@
 						</div>
 					</div>
 					<div class="epesi-rv-row">
-						<div class="label">{$form_data.phone.label}{if $form_data.phone.required}*{/if}</div>
+						{* See the Customer field above - same reasoning, hardcoded
+						   asterisk rather than $form_data.phone.required. *}
+						<div class="label">{$form_data.phone.label}*</div>
 						<div class="data" id="_phone__data">
 							<span class="error">
 								{$form_data.phone.error}
