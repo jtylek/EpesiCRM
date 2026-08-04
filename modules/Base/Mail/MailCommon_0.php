@@ -76,11 +76,19 @@ class Base_MailCommon extends Base_AdminModuleCommon {
 	 * @param string email message
 	 * @param string sender
 	 * @param string sender's name
+	 * @param int|null $timeout SMTP connect timeout override, in seconds - null
+	 *   keeps PHPMailer's own default (class.phpmailer.php's $Timeout, 300s).
+	 *   Real mail (cron, app-triggered notifications) wants that generous
+	 *   default since a slow-but-working server shouldn't drop a send; the
+	 *   admin "Test" button (Base_Mail::test_mail_config()) wants the
+	 *   opposite - fail fast with a clear error instead of leaving the UI on
+	 *   "Loading..." for up to 5 minutes when a host/port is unreachable.
 	 * @return true on success, false otherwise
 	 */
-	public static function send($to,$subject,$body,$from_addr=null, $from_name=null, $html=false, $critical=false, $inline_images = array(), $attachments = array()) {
+	public static function send($to,$subject,$body,$from_addr=null, $from_name=null, $html=false, $critical=false, $inline_images = array(), $attachments = array(), $timeout = null) {
 		self::$last_error = null;
 		$mailer = self::new_mailer();
+		if ($timeout !== null) $mailer->Timeout = $timeout;
 		$mail_use_replyto = Variable::get('mail_use_replyto');
 		if(!isset($from_name)) $from_name = Variable::get('mail_from_name');
 		if(!isset($from_addr)) {

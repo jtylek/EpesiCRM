@@ -58,8 +58,15 @@ updateEpesiIndicatorFunction=function(){
                 document.getElementById('dismiss').style.display='';
 				t=document.getElementById('statusbar_text');
 				if(t)t.innerHTML=statusbar_message_t;
+				// Base_StatusBarCommon::message()'s $type ('normal'/'warning'/'error')
+				// ends up as a class on the injected "<div class='message TYPE'>" -
+				// an error is worth reading, not a 5-second toast the user has to
+				// react to before it vanishes on its own; leave it up to the
+				// existing "click anywhere to dismiss" (statusbar_fade(), wired in
+				// statusbar_fade_double_check() below) instead of auto-hiding it.
+				var is_error = statusbar_message_t.indexOf('message error')!=-1;
 				statusbar_message('');
-				setTimeout('statusbar_fade('+statusbar_fade_count+')',5000);
+				if (!is_error) setTimeout('statusbar_fade('+statusbar_fade_count+')',5000);
 			}else{
 				statusbar_fade();
 			};

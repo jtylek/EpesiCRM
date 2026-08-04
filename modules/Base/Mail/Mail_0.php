@@ -89,7 +89,12 @@ class Base_Mail extends Module implements Base_AdminInterface {
 	
 	public function test_mail_config($email) {
 		ob_start();
-		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())));
+		// Short connect timeout: this is an interactive admin action, not a
+		// background send - a host/port that's unreachable (wrong port,
+		// blocked outbound, typo) should surface as "An error has occured"
+		// within a few seconds, not leave the UI on "Loading..." for up to
+		// PHPMailer's default 300s. See Base_MailCommon::send()'s $timeout doc.
+		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())), timeout: 10);
 		$msg = ob_get_clean();
 		if ($msg) print('<span class="important_notice">'.$msg.'</span>');
 		if ($ret) {
