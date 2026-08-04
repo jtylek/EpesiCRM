@@ -979,7 +979,20 @@ hr.line {
 	text-align: left;
 	background-color: #FFFFF9;
 	width: 102px;
-	height: 20px;
+	/* Was height:20px. A definite height (vs. auto/min-height) is what a cell
+	   reports as its own preferred size to CSS Grid's row track-sizing - for
+	   a plain single-row cell that's a no-op (content is ~20px anyway), but
+	   for a grid-row:span-N cell (Apps_ActivityReport's Record Type
+	   multiselect, spanning 5 rows: modules/Apps/ActivityReport/theme/
+	   default.tpl) it capped the cell's contribution to those rows' combined
+	   height at 20px regardless of its actual ~100px-tall multiselect
+	   <select> children, so the spanned rows never grew to fit them - the
+	   selects rendered fine but visually overflowed past the grid (and the
+	   .epesi_grey_board container around it, both overflow:visible) into
+	   whatever page content follows. min-height keeps every ordinary
+	   single-line cell at the same 20px floor while letting a spanning
+	   cell's real content height count instead of being ignored. */
+	min-height: 20px;
 	padding: 0;
 	border-spacing: 0;
 	
