@@ -218,7 +218,7 @@ hr.line {
 
 #top_bar #top_bar_1 {
 	width: 100%;
-	height: 20px;
+	height: 30px;
 	border-bottom: 0px solid #b3b3b3;
 }
 
@@ -229,7 +229,7 @@ hr.line {
 /* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {
-	height: 20px;
+	height: 30px;
 	width: 93px;
 	text-align: left;
 	

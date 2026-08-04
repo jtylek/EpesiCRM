@@ -1,0 +1,11 @@
+/* The recordsets field's grid cell (theme/default.tpl) reuses the generic
+   .epesi_data styling for its blue/cream look, but that class also carries
+   a fixed width:102px meant for single-line inputs. Unlike the <td> this
+   cell used to be (real tables auto-grow a column past an explicit width
+   when its content needs more room), a CSS Grid item honors that width
+   rigidly - the multiselect widget's two <select> boxes need far more than
+   102px and were overflowing past their own cell into the buttons/next
+   column instead of the grid growing to fit them. */
+.epesi_data.multiselect {
+	width: auto;
+}

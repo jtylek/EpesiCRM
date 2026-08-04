@@ -25,6 +25,16 @@
 	padding: 5px 8px;
 }
 
+/* .letters-search > div below is floated, so without a clearfix the parent
+   collapses to just its own padding (~10px) instead of the ~30px its
+   buttons actually need - the table/layer box that follows in the DOM then
+   paints over the bottom of those buttons. */
+.letters-search::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
 .letters-search img {
     border: none;
 }
