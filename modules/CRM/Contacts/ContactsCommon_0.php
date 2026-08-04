@@ -914,16 +914,24 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
 		else {
+			// .up("tr") is a leftover from when this template's rows were
+			// real <table> rows - RecordBrowser_0.php:1474 already made the
+			// equivalent switch to .up(".epesi-rv-row") (the div-based row
+			// wrapper theme/single_field.tpl/View_entry.tpl now use) when
+			// that table->div conversion happened; this call site was
+			// missed, and .up() returning undefined (Prototype, not null,
+			// for "no match") crashed every field toggle here.
 			eval_js('new_user_textfield = function(){'.
-					'($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("username").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-					'if ($("contact_admin")) $("contact_admin").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'var v=($("crm_contacts_select_user").value==""?"none":"");'.
+					'["username","set_password","confirm_password","_access__data","contact_admin"].each(function(id){'.
+					'var e=$(id);if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display=v;}'.
+					'});'.
 					'}');
 			eval_js('new_user_textfield();');
 			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
 		}
 		if ($default)
-			eval_js('$("_login__data").up("tr").style.display = "none";');
+			eval_js('var e=$("_login__data");if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display="none";}');
 	}
 
 	public static function check_new_username($arg) {

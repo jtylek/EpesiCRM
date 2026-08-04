@@ -687,7 +687,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		if($r['recurrence_type'])
-			$next['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next['title'];
+			$next['recurring'] = true;
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
 

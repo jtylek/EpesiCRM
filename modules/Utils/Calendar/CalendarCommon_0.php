@@ -110,6 +110,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		// for some of these).
 		$classNames = array('fc-epesi-ev');
 		if (!empty($ev['color'])) $classNames[] = 'fc-epesi-ev--'.preg_replace('/[^a-z0-9_-]/', '', (string)$ev['color']);
+		if (!empty($ev['recurring'])) $classNames[] = 'fc-epesi-ev--recurring';
 
 		return array(
 			'id' => (string)$ev['id'],

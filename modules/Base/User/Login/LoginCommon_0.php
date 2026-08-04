@@ -106,20 +106,20 @@ class Base_User_LoginCommon extends ModuleCommon {
 			$pass = generate_password();
 		
 		if(!Base_UserCommon::add_user($username)) {
-			print(__('Account creation failed.').'<br>'.__('Unable to add user to database.').'<br>');
-			return false;	
+			Base_StatusBarCommon::message(__('Account creation failed.').' '.__('Unable to add user to database.'), 'error');
+			return false;
 		}
 		$user_id = Base_UserCommon::get_user_id($username);
 		if($user_id===false) {
-			print(__('Account creation failed.').'<br>'.__('Unable to get id of added user.').'<br>');
+			Base_StatusBarCommon::message(__('Account creation failed.').' '.__('Unable to get id of added user.'), 'error');
 			return false;
 		}
 		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, $pass_hash, $mail));
-		
+
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
-				print(__('Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'));
+				Base_StatusBarCommon::message(__('Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'), 'warning');
 			}
 		}
 
