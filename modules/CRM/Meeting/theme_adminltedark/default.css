@@ -43,3 +43,111 @@
 .epesi-meeting-datebox a:hover {
 	color: #dc3545;
 }
+
+/* Utils_RecordBrowser's shared View_entry.css forces every .data select to
+   display:block/width:99% (needed for the generic multi-column View_entry.tpl);
+   on a block box, width:auto still fills the containing block instead of
+   shrinking to content, so the hour/minute selects in the date/time row below
+   (theme_adminltedark/default.tpl's #time_s/#time_e) each end up on their own
+   row instead of sharing one line with the date field beside them, unless
+   display is reset back to inline-block too. resolve_theme_file() picks this
+   file over modules/CRM/Meeting/theme/default.css wholesale when adminltedark
+   is active, so that file's copy of this same override never reaches here -
+   it has to be duplicated, not just referenced. */
+.CRM_Calendar_Event_Personal #time_s select,
+.CRM_Calendar_Event_Personal #time_e select {
+	display: inline-block;
+	width: auto;
+}
+
+/* The same shared View_entry.css also styles its OWN generic "timestamp"
+   field type (search "timestamp START"): .timestamp > div > div:last-child
+   gets margin-right:130px there, sized for that widget's own last element.
+   Meeting's unrelated #time_s > div (the lone div wrapping the hour/minute
+   selects) is structurally a ".timestamp > div > div:last-child" too (it's
+   both first and only child), so it inherits that 130px reservation by
+   coincidence - width:auto on it then fills its container minus that margin,
+   which is why #time_s ends up ~130px wider than "hh : mm" actually needs
+   and pushes the date field beside it onto its own line. Zero it back out. */
+.CRM_Calendar_Event_Personal .data.timestamp > div > div:last-child {
+	margin-right: 0;
+}
+
+.CRM_Calendar_Event_Personal .data.timestamp {
+	display: flex;
+	align-items: center;
+	column-gap: 8px;
+	flex-wrap: wrap;
+}
+
+/* The .tpl emits #time_s (time.html) before #_date__data (date.html), but
+   the row should read date-then-time. Reordering the source elements would
+   mean touching the shared PHP that also drives the JS timeless-toggle's
+   $('time_s') lookup, so flex order moves the date field first visually
+   instead, leaving ids/markup alone. */
+.CRM_Calendar_Event_Personal #_date__data {
+	order: -1;
+}
+
+/* Same shared-CSS clash as the selects above, for the date field beside them:
+   .data input:not([type=button]) also sets width:99%, which - resolved
+   against a flex item's own auto-sized width instead of a table/block
+   ancestor - blows up far past what "05/08/2026" needs and is what forces
+   the wrap despite the flex-wrap fix above leaving enough room otherwise.
+   The :not([type=button]) clause makes that shared rule (0,3,1) specificity,
+   so a plain .time_s input override (0,2,1) loses the cascade outright - has
+   to hook the element's own id to win. */
+.CRM_Calendar_Event_Personal #_date__data input {
+	width: 100px;
+}
+
+/* Ported from modules/CRM/Meeting/theme/default.css (the light theme's copy),
+   which never reaches here for the same resolve_theme_file() reason as the
+   rules above - without it the Toggle button lays out as a normal block
+   instead of beside the duration/end-time selects. The row's #495057 divider
+   color elsewhere in this file's dark palette (see View_entry.css .data)
+   replaces the light theme's #E0E0E0.
+
+   Was a float:right button beside a fixed-height (20px) .data box, sized for
+   the old table-cell layout's own row height; the select/end-time content
+   actually renders taller than that (~32px, per the shared .data select/input
+   sizing in View_entry.css), so the button - correctly full-height of the
+   20px box it floated in - looked short next to the taller, overflowing
+   select beside it. Flex with align-items:stretch sizes the button to
+   whatever the row's actual content height is instead of a hardcoded value,
+   so "full row height" holds regardless of that shared sizing changing again
+   later. order:1 keeps the button on the right without touching the .tpl's
+   markup order (button is the first child there). */
+#duration_end_date__data_ .data {
+	display: flex;
+	align-items: stretch;
+	column-gap: 6px;
+}
+
+/* Neither the duration select nor the end-time block had flex-grow, so both
+   just sat at their natural content width, leaving dead space between them
+   and the button instead of using the row's full width like the sibling
+   Priority/Status/Permission selects elsewhere in this form do. */
+#duration_end_date__data_ #crm_calendar_duration_block,
+#duration_end_date__data_ #crm_calendar_event_end_block {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.CRM_Calendar_Event_Personal div.toggle_button {
+	order: 1;
+	flex: 0 0 auto;
+	/* Belt-and-suspenders for "right justified": the flex-grow above already
+	   consumes the leftover space, but margin-left:auto keeps the button
+	   pinned to the row's right edge even if that grow rule is ever removed
+	   or the content block's own content pushes narrower than expected. */
+	margin-left: auto;
+	border-left: 4px solid #495057;
+}
+
+.CRM_Calendar_Event_Personal .toggle_button input {
+	width: 98px;
+	height: 100%;
+	padding: 0px;
+}
+

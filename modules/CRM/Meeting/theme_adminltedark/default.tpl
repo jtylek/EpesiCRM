@@ -71,9 +71,11 @@
 		{if isset($history_tooltip)}
 			{$history_tooltip}
 		{/if}
-		{foreach item=n from=$new}
-			{$n}
-		{/foreach}
+		{if isset($new)}
+			{foreach item=n from=$new}
+				{$n}
+			{/foreach}
+		{/if}
 	</div>
 </div>
 {if isset($click2fill)}
@@ -100,7 +102,7 @@
                    layout/colspan logic (multi-day events span 3 columns instead of
                    1, time/duration always span every column) mirrors the light
                    theme's own div/grid conversion of this same table. *}
-                {if $event_info.start_date != $event_info.end_date}
+                {if isset($event_info) && $event_info.start_date != $event_info.end_date}
                 	{assign var=colspan value=3}
                 {else}
                 	{assign var=colspan value=1}
@@ -110,17 +112,17 @@
                         <div class="card-body text-center p-2">
                             <div class="epesi-meeting-grid" style="grid-template-columns: repeat({$colspan}, auto);">
                                 <div class="epesi-meeting-weekday">{$day_details.start.weekday}</div>
-								{if $event_info.start_date != $event_info.end_date}
+								{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 									<div class="epesi-meeting-weekday">&nbsp;-&nbsp;</div>
 									<div class="epesi-meeting-weekday">{$day_details.end.weekday}</div>
 								{/if}
                                 <div class="epesi-meeting-day">{$day_details.start.day}</div>
-								{if $event_info.start_date != $event_info.end_date}
+								{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 									<div class="epesi-meeting-day">&nbsp;-&nbsp;</div>
 									<div class="epesi-meeting-day">{$day_details.end.day}</div>
 								{/if}
                                 <div class="epesi-meeting-month">{$day_details.start.month}&nbsp;{$day_details.start.year}</div>
-								{if $event_info.start_date != $event_info.end_date}
+								{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 									<div></div>
 									<div class="epesi-meeting-month">{$day_details.end.month}&nbsp;{$day_details.start.year}</div>
 								{/if}
@@ -174,10 +176,10 @@
                                     <div class="label">
 										{$form_data.duration.label} / {$form_data.end_time.label}
 									</div>
-                                    <div class="data" style="height: 20px;">
+                                    <div class="data">
 										<div class="toggle_button">{$form_data.toggle.html}</div>
 										<div id="crm_calendar_duration_block">
-												<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
+												<span class="error">{$form_data.duration.error}</span><div id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
 										</div>
 										<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
                                     </div>

@@ -50,9 +50,11 @@
 			{if isset($history_tooltip)}
 				&nbsp;&nbsp;&nbsp;{$history_tooltip}
 			{/if}
-			{foreach item=n from=$new}
-				&nbsp;&nbsp;&nbsp;{$n}
-			{/foreach}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
 		</div>
 	</div>
 </div>
@@ -79,24 +81,24 @@
                        time/duration rows always span every column. $colspan
                        must be computed before the grid container's own
                        style attribute is emitted, not inside it. *}
-                    {if $event_info.start_date != $event_info.end_date}
+                    {if isset($event_info) && $event_info.start_date != $event_info.end_date}
                     	{assign var=colspan value=3}
                     {else}
                     	{assign var=colspan value=1}
                     {/if}
                     <div class="header-new" style="grid-template-columns: repeat({$colspan}, auto);">
                         <div class="weekday green">{$day_details.start.weekday}</div>
-						{if $event_info.start_date != $event_info.end_date}
+						{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 							<div class="weekday green">&nbsp;-&nbsp;</div>
 							<div class="weekday green">{$day_details.end.weekday}</div>
 						{/if}
                         <div class="day black">{$day_details.start.day}</div>
-						{if $event_info.start_date != $event_info.end_date}
+						{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 							<div class="day black">&nbsp;-&nbsp;</div>
 							<div class="day black">{$day_details.end.day}</div>
 						{/if}
                         <div class="month blue">{$day_details.start.month}&nbsp;{$day_details.start.year}</div>
-						{if $event_info.start_date != $event_info.end_date}
+						{if isset($event_info) && $event_info.start_date != $event_info.end_date}
 							<div></div>
 							<div class="month blue">{$day_details.end.month}&nbsp;{$day_details.start.year}</div>
 						{/if}
@@ -148,10 +150,10 @@
                                     <div class="label">
 										{$form_data.duration.label} / {$form_data.end_time.label}
 									</div>
-                                    <div class="data" style="height: 20px;">
+                                    <div class="data">
 										<div class="toggle_button">{$form_data.toggle.html}</div>
 										<div id="crm_calendar_duration_block">
-												<span class="error">{$form_data.duration.error}</span><div style="margin-right: 105px;" id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
+												<span class="error">{$form_data.duration.error}</span><div id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
 										</div>
 										<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
 									</div>
