@@ -1,5 +1,80 @@
 # AdminLTE theme(s) status
 
+## `adminlte` (light) removed entirely — `adminltedark` is now the only AdminLTE-family theme (2026-08-04)
+
+Per explicit direction: stop spending time fixing/debugging the light-only
+`adminlte` theme and focus solely on `adminltedark` going forward. All 34
+`modules/*/theme_adminlte/` directories in the main repo (75 files) were
+deleted outright, not deprecated — same "delete, don't leave inert" approach
+as the [[quickjump-removed]]/[[legacy-mobile-removed]]-style removals
+elsewhere in this codebase. `modules/Premium/Projects/Tickets/theme_adminlte`
+was deliberately left untouched — Premium is a separate, separately-licensed
+git repo (see this file's own README), out of scope without a separate
+decision there.
+
+Everything below this entry that still describes `adminlte` (light) — the
+now-removed `## adminlte (light)` section, and any path example naming
+`theme_adminlte` in the traps list further down — is historical, describing
+work against files that no longer exist. Left in place rather than deleted
+outright: the underlying lessons (CSS-per-rendering-module, class-name
+collisions, `data-bs-theme` pin scoping, etc.) still apply verbatim to
+`adminltedark`, just substitute `theme_adminltedark` for `theme_adminlte` in
+any path mentioned.
+
+**`Base_ThemeCommon::is_adminlte_family()`** (`modules/Base/Theme/ThemeCommon_0.php`)
+was narrowed from `array('adminlte', 'adminltedark')` to just
+`array('adminltedark')` rather than removed — every one of its ~17 call sites
+across the codebase is a legitimate "is this the Bootstrap/AdminLTE-based
+rendering path" check that still needs to hold for `adminltedark`, and the
+abstraction costs nothing to keep for a hypothetical future family member.
+
+**Two live hardcoded-path bugs found and fixed *before* deleting the
+directories** (would otherwise have 404'd for `adminltedark` too, since
+neither branches by which family member is active):
+`Utils_Tooltip/TooltipCommon_0.php`'s `ajax_open_tag_attrs()` and the
+module-load `load_js()` at the bottom of that file both hardcoded
+`theme_adminlte/tooltip.js`; `Utils_PopupCalendar/PopupCalendarCommon_0.php`'s
+`create_href()` hardcoded `theme_adminlte/main2.js`. Both `theme_adminltedark`
+copies were confirmed byte-identical (`diff`, zero output) before repointing,
+so this was a latent bug with no behavior change today — it only would have
+started 404ing once `theme_adminlte/` was gone.
+
+**Two more hardcoded `<link>`s, in the *permanently*-AdminLTE-styled admin/
+setup/login chrome** (`admin/templates/layout.tpl`, `include/templates/
+login_page.tpl` — independent of the user-selected app theme, see
+`MIGRATION_NOTES.md` and [[admin-tools-adminlte]]/[[update-check-adminlte-split]]):
+both had a comment explicitly stating intent — "reused as-is (not copied) so
+this shell stays in sync with the real app's own AdminLTE shell/login screen"
+— pointing at `Base_Box`'s / `Base_User_Login`'s `theme_adminlte/default.css`.
+Repointed to their `theme_adminltedark/default.css` equivalents instead of
+forking a static copy, honoring that same stated intent now that the real
+app's shell/login screen *is* `adminltedark`. Confirmed safe: both
+`theme_adminltedark/default.css` files already carry a full
+`[data-bs-theme="light"]` override layer (CSS custom properties redefined
+under that selector, auto-generated, see `gen_light_override.js` mentioned in
+several `theme_adminltedark/*.css` file headers) — these two templates already
+pin `data-bs-theme="light"` on their wrapper, so they render via that override
+layer, not the dark defaults.
+
+**Migration patch**: `modules/Base/Theme/patches/20260804_remove_adminlte_theme.php`
+flips any existing install's `default_theme` variable from `'adminlte'` to
+`'adminltedark'` if still set that way — this dev DB's own `default_theme` was
+already `'adminltedark'` (set by `ThemeInstall.php` since before this pass),
+and there's no per-user theme override anywhere in the codebase (`default_theme`
+is the only place a theme name is ever stored), so this patch only matters for
+some other, real existing install where an admin had explicitly picked the
+light theme.
+
+**Not done as part of this pass** (flag before assuming it's covered): the
+stale `theme_adminlte`-path comments left throughout the codebase (mostly
+"see Base_Box/theme_adminlte/default.css" style cross-references explaining
+*why* some other file's value was chosen) were not scrubbed — cosmetic
+staleness only, the values themselves are still correct. `Base_AdminlteIcons`
+(`modules/Base/Theme/adminlte_icons.php`) and every module's own
+`adminlte_icon()` static method were **not** touched — that's shared,
+family-wide icon-resolution infrastructure `adminltedark` depends on, named
+after the framework/family, not the removed theme variant.
+
 ## Legacy `theme/` converted to div-only layout (2026-08-04)
 
 The legacy `theme/` (old default, pre-AdminLTE, table-based) is now fully
@@ -199,63 +274,64 @@ documented in `bug-patterns.md` (no `top` set, `max-width:50%`) — it would hav
 resurfaced the moment these rows went through a flex layout instead of a table
 cell.
 
-Two AdminLTE-based themes exist under `modules/*/theme_adminlte/` and
-`modules/*/theme_adminltedark/`. Both replace the original `theme/` (legacy,
-table-based) look. Themes resolve straight from `modules/` — no build step, no
-generated copy (see `Base_ThemeResolver::resolve()`: `theme_<name>` first, falls
-back to legacy `theme/`). **Any module without its own `theme_adminlte(dark)/`
-override silently falls back to the legacy light table-based theme** — this is
-still a large gap, not a bug, for both themes.
+One AdminLTE-based theme exists, under `modules/*/theme_adminltedark/`
+(replaces the original `theme/` (legacy, table-based) look; the light-only
+`adminlte` sibling was removed 2026-08-04, see the dated entry at the top of
+this file). Themes resolve straight from `modules/` — no build step, no
+generated copy (see `Base_ThemeResolver::resolve()`: `theme_<name>` first,
+falls back to legacy `theme/`). **Any module without its own
+`theme_adminltedark/` override silently falls back to the legacy light
+table-based theme** — this is still a large gap, not a bug.
 
-## `adminlte` (light) — started 2026-07-26
+## `adminlte` (light) — started 2026-07-26, removed 2026-08-04
 
-Working and browser-verified as of early Aug 2026: login, app shell (navbar +
-off-canvas sidebar), sidebar menu, GenericBrowser record lists (incl. the ~6
-per-table custom templates: Contact ×2, PhoneCall, Mail, Meeting, Attachment),
-ActionBar/Launchpad, Dashboard applet chrome, TabbedBrowser, Admin/User-Settings
-panels, RecordBrowser view/edit (`View_entry.tpl`), Search (mini + full),
-Leightbox popup chrome, module-indicator icons (via the shared
-`Base_AdminlteIcons`/`adminlte_icon()` convention — each module opts in with its
-own `<Module>Common::adminlte_icon()` static method, same shape as `menu()`/
-`user_settings()`).
+Superseded by `adminltedark` below, then deleted outright (see the dated entry
+at the top of this file). Before removal it had reached working/
+browser-verified coverage of: login, app shell, sidebar menu, GenericBrowser
+record lists, ActionBar/Launchpad, Dashboard applet chrome, TabbedBrowser,
+Admin/User-Settings panels, RecordBrowser view/edit, Search, Leightbox popup
+chrome, module-indicator icons — all since carried forward by `adminltedark`,
+which covers the same module set (see below). Kept here only as a pointer for
+anyone wondering what happened to it; no per-screen detail preserved since
+none of it maps to an existing file any more.
 
-**Not yet themed / not audited**: individual dashboard applets' own inner
-content (Weather, RssFeed, Shoutbox history, Calc, etc. mostly `print()` raw
-HTML), `Base_Admin/theme/access_panel.tpl`, QuickForm's raw-table renderer
-(`Libs/QuickForm/Renderer/TCMSDefault.php`, used by `Utils_Wizard` — **its
-`_headerTemplate`/`_elementTemplate`/`_formTemplate`/`_requiredNoteTemplate`
-raw strings were converted from `<tr>/<td>` to `<div>` as part of the
-2026-08-04 legacy-theme div conversion above, since the class is theme-
-agnostic and shared by every theme; it's still a CSS-only reskin, not
-converted to the Smarty array renderer**), leightbox popup
-*contents* (e.g. CRM_Filters "manage perspectives"), Base_Help's tutorial
-overlay. Tooltips are **plain native browser tooltips** (`title="..."` only) —
-three separate attempts at a JS-driven (Bootstrap) tooltip component each broke
-real functionality in hard-to-diagnose ways (load-order races, orphaned popups,
-conflicts with `GenericBrowser`'s own hover-driven `table_overflow_show`); treat
-any future JS tooltip attempt here as high-risk and test broadly before calling
-it done.
+## `adminltedark` — created 2026-08-01, sole AdminLTE-family theme since 2026-08-04
 
-## `adminltedark` — created 2026-08-01
+Was a **full independent fork** of `theme_adminlte/` (not resolver-chained —
+a module it doesn't cover falls straight to the legacy theme, not to a
+now-nonexistent `adminlte`). Covers the same ~34 modules `adminlte` used to;
+module-coverage expansion ("Phase 2") was never started and is now the only
+remaining path for growing AdminLTE-family coverage. Has a live navbar
+light/dark toggle built on AdminLTE's own `data-bs-theme-value` color-mode
+toggler (`adminlte.min.js`'s `Me` class) rather than a custom implementation.
 
-A **full independent fork** of `theme_adminlte/`, not resolver-chained (no
-`adminltedark → adminlte` fallback — a module `adminltedark` doesn't cover falls
-straight to the legacy theme, same gap as `adminlte` itself). Covers the same
-~33 modules `adminlte` covers; module-coverage expansion ("Phase 2") was never
-started. Has a live navbar light/dark toggle built on AdminLTE's own
-`data-bs-theme-value` color-mode toggler (`adminlte.min.js`'s `Me` class) rather
-than a custom implementation — `adminlte` (light) still force-pins
-`data-bs-theme="light"` unconditionally and offers no toggle.
+**Not yet themed / not audited** (inherited from `adminlte`, never closed):
+individual dashboard applets' own inner content (Weather, RssFeed, Shoutbox
+history, Calc, etc. mostly `print()` raw HTML), `Base_Admin/theme/
+access_panel.tpl`, QuickForm's raw-table renderer (`Libs/QuickForm/Renderer/
+TCMSDefault.php`, used by `Utils_Wizard` — its `_headerTemplate`/
+`_elementTemplate`/`_formTemplate`/`_requiredNoteTemplate` raw strings were
+converted from `<tr>/<td>` to `<div>` as part of the 2026-08-04 legacy-theme
+div conversion, since the class is theme-agnostic and shared by every theme;
+still a CSS-only reskin, not converted to the Smarty array renderer),
+leightbox popup *contents* (e.g. CRM_Filters "manage perspectives"),
+Base_Help's tutorial overlay. Tooltips are **plain native browser tooltips**
+(`title="..."` only) — three separate attempts at a JS-driven (Bootstrap)
+tooltip component each broke real functionality in hard-to-diagnose ways
+(load-order races, orphaned popups, conflicts with `GenericBrowser`'s own
+hover-driven `table_overflow_show`); treat any future JS tooltip attempt here
+as high-risk and test broadly before calling it done.
 
-As part of this fork, several modules' nested-`<table>` layout was rewritten as
-real flexbox/grid (QuickForm's `row.tpl`/`column.tpl`, RecordBrowser's
-`View_entry.tpl` + the per-table overrides, the RecordBrowser filter bar) —
-landed in the shared `theme_adminlte/` files first, then copied into the dark
-fork, so both themes benefit.
+As part of the original fork, several modules' nested-`<table>` layout was
+rewritten as real flexbox/grid (QuickForm's `row.tpl`/`column.tpl`,
+RecordBrowser's `View_entry.tpl` + the per-table overrides, the RecordBrowser
+filter bar) — landed in `theme_adminlte/` first, then copied into the dark
+fork; that provenance is now purely historical since only the dark fork
+remains.
 
-## Recurring CSS/JS traps (read before touching either theme)
+## Recurring CSS/JS traps (read before touching the theme)
 
-1. **CSS loads per rendering module.** `modules/X/theme_adminlte/default.css` is
+1. **CSS loads per rendering module.** `modules/X/theme_adminltedark/default.css` is
    only fetched when module `X` itself renders — putting a style under the
    wrong module (e.g. sidebar CSS under `Utils/Menu` when `Base_Menu` is what
    actually renders it) produces a silently-unstyled screen. Verify with
@@ -278,7 +354,7 @@ fork, so both themes benefit.
 4. **Fixed-height layout vars (`--epesi-header-height` etc.) must track real
    content, not a guess** — the navbar/ActionBar heights vary with what's
    rendered (widget widths, wrapped text). Both are kept in sync live via a
-   `ResizeObserver` in `Base_Box/theme_adminlte/default.tpl`. Never make a CSS
+   `ResizeObserver` in `Base_Box/theme_adminltedark/default.tpl`. Never make a CSS
    var that's *written from* an element's measured height also *constrain*
    that same element's `min-height` — creates a one-way ratchet that can only
    grow.

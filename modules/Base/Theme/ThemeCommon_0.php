@@ -203,15 +203,18 @@ class Base_ThemeCommon extends ModuleCommon {
 	}
 
 	/**
-	 * True for any theme built on the Bootstrap/AdminLTE framework (currently
-	 * 'adminlte' and its dark fork 'adminltedark'). Call sites that used to
+	 * True for any theme built on the Bootstrap/AdminLTE framework - currently
+	 * just 'adminltedark' ('adminlte', the light-only original, was removed
+	 * 2026-08-04, see AI-shared/adminlte-theme.md: adminltedark covers light
+	 * mode itself via the navbar toggle, and the project isn't investing in a
+	 * second, separately-maintained family member). Call sites that used to
 	 * check get_default_template() === 'adminlte' to pick Bootstrap-based
 	 * markup/JS over the legacy default theme should check this instead, so
 	 * they don't need updating again for every future member of the family.
 	 */
 	public static function is_adminlte_family($theme = null) {
 		if (!isset($theme)) $theme = self::get_default_template();
-		return in_array($theme, array('adminlte', 'adminltedark'), true);
+		return in_array($theme, array('adminltedark'), true);
 	}
 
 	/**

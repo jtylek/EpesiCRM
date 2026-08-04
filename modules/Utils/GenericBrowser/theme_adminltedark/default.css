@@ -255,6 +255,11 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	/* Per request: dark mode only (no [data-bs-theme="light"] override below,
+	   see this file's own light-mode section) - header row stays white via
+	   its own .Utils_GenericBrowser__th color rule above, unaffected since
+	   __th/__td are separate classes. */
+	color: #00ff00;
 }
 
 /* The actions cell's own content is just a row of icon glyphs (no text line

@@ -103,7 +103,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
 
 		if (Base_ThemeCommon::is_adminlte_family()) {
-			// Content isn't known yet - theme_adminlte/tooltip.js's
+			// Content isn't known yet - theme_adminltedark/tooltip.js's
 			// epesi_tooltip_ajax_load(), wired via plain onmouseenter (no
 			// Bootstrap/Popper involved, see open_tag_attrs() above), POSTs
 			// to the same modules/Utils/Tooltip/req.php the default theme
@@ -197,10 +197,10 @@ class Utils_TooltipCommon extends ModuleCommon {
 // The default theme's custom mouse-tracking #tooltip_div is unused under
 // adminlte (plain native title="..." tooltips instead, see open_tag_attrs())
 // - loading it too would be dead weight, and init_tooltip_div() would inject
-// a floating div nothing ever shows. theme_adminlte/tooltip.js is still
+// a floating div nothing ever shows. theme_adminltedark/tooltip.js is still
 // needed for the ajax_open_tag_attrs() variant's on-hover content fetch.
 if (Base_ThemeCommon::is_adminlte_family()) {
-	load_js('modules/Utils/Tooltip/theme_adminlte/tooltip.js');
+	load_js('modules/Utils/Tooltip/theme_adminltedark/tooltip.js');
 } else {
 	load_js('modules/Utils/Tooltip/js/tooltip.js');
 	Utils_TooltipCommon::init_tooltip_div();
