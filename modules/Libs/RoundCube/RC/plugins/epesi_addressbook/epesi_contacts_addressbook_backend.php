@@ -182,6 +182,17 @@ class epesi_contacts_addressbook_backend extends rcube_addressbook
             $ret_array = array();
             while($row = $ret->FetchRow()) {
                 if(!isset($row['ID']) && isset($row['id'])) $row['ID'] = $row['id'];
+                // Contacts with more than one e-mail address are synthesized here as
+                // one row per address (see the UNION above) - without the address
+                // itself in the label, the contact list shows the same "Last First"
+                // name several times with no way to tell the rows apart. Only done
+                // for this plain list/browse path, not _search()/get_record() -
+                // those feed compose autocomplete, which already appends the row's
+                // specific email itself (format_email_recipient()); doing it here
+                // too would double it up there.
+                if (!empty($row['email'])) {
+                    $row['name'] .= ' '.$row['email'];
+                }
                 $ret_array[] = $row;
             }
             return $ret_array;

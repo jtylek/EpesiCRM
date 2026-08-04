@@ -965,6 +965,7 @@
 
 [data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser__td {
   border-bottom: 1px solid #e9ecef;
+  color: #212529;
 }
 
 [data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {

@@ -267,3 +267,13 @@ input.epesi-switch[type="checkbox"] + label {
   background-color: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(0, 0, 0, 0.25);
 }
+
+/* The rule above matches :checked too (same 3-class-1-element specificity,
+ * and it comes later in the cascade) - without a :checked variant here it
+ * silently wins over the base stylesheet's own
+ * input.epesi-switch[type="checkbox"]:checked rule above, so every switch
+ * rendered grey in light mode regardless of on/off state. */
+[data-bs-theme="light"] input.epesi-switch[type="checkbox"]:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}

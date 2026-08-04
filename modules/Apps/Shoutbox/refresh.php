@@ -26,11 +26,11 @@ $arr = DB::GetAll('SELECT * FROM apps_shoutbox_messages WHERE '.($uid?'(base_use
 //print it out
 foreach($arr as $row) {
 	$daydiff = floor((time()-strtotime($row['posted_on']))/86400);
-	$fcolor = match (true) {
-        $daydiff<1 => '#000000',
-        $daydiff<3 => '#444444',
-        $daydiff<7 => '#888888',
-        default => '#AAAAAA',
+	$fclass = match (true) {
+        $daydiff<1 => 'shoutbox-age-0',
+        $daydiff<3 => 'shoutbox-age-1',
+        $daydiff<7 => 'shoutbox-age-2',
+        default => 'shoutbox-age-3',
     };
 	$user_label = Apps_ShoutboxCommon::create_write_to_link($row['base_user_login_id']);
 	if ($row['to_user_login_id'])
@@ -38,7 +38,7 @@ foreach($arr as $row) {
 
 	$strongify = $row['to_user_login_id'] == $myid && $uid===null;
 	$message = Apps_ShoutboxCommon::format_message($row, $strongify, $shoutbox_admin);
-	print('<span class="author border_radius_3px dark_blue_gradient">'.$user_label.'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><br/><span class="shoutbox_textbox"style="color:'.$fcolor.';">'.$message.'</span><hr/>');
+	print('<span class="author border_radius_3px dark_blue_gradient">'.$user_label.'</span><span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on'],2).']</span><br/><span class="shoutbox_textbox '.$fclass.'">'.$message.'</span><hr/>');
 }
 
 $content = ob_get_contents();

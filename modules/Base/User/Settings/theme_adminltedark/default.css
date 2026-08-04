@@ -79,6 +79,15 @@
 	border-bottom: none;
 }
 
+/* settings_form.tpl gives each label plain Bootstrap .col-form-label.fw-semibold -
+ * 1rem/600, the same as any other untouched form label - which reads noticeably
+ * larger/heavier than the rest of the chrome around it (the sidebar nav links
+ * this screen sits next to are 0.875rem/400). Sized down to match. */
+.epesi-settings-row label {
+	font-size: 0.875rem;
+	font-weight: 400;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-user-settings-title {
   color: #495057;

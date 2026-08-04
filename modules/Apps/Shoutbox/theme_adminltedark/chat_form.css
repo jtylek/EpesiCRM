@@ -8,10 +8,14 @@
  * layout, since it's simpler and there was no positioning contract to
  * preserve.
  *
- * #shoutbox_board's own content (.author/.time/hr) is printed directly by
- * refresh.php - a standalone script with no theme resolution of its own,
- * shared with the default theme - so only colours/spacing are reskinned
- * here, by the same class names, not the markup itself.
+ * #shoutbox_board's own content (.author/.time/hr/.shoutbox-age-*) is printed
+ * directly by refresh.php - a standalone script with no theme resolution of
+ * its own, shared with the default theme - so only colours/spacing are
+ * reskinned here, by the same class names, not the markup itself. Message
+ * age-fading used to be an inline style="color:..." refresh.php generated
+ * per row, hardcoded for a white background and unreadable here (near-black
+ * on #shoutbox_board's dark background) - refresh.php now emits one of the
+ * shoutbox-age-0..3 classes instead, so each theme can define its own fade.
  */
 
 .epesi-shoutbox {
@@ -93,7 +97,7 @@
 
 #shoutbox_board .author {
 	display: inline-block;
-	background-color: #0d6efd;
+	background-color: #6c757d;
 	color: #fff;
 	border-radius: 0.25rem;
 	padding: 0.1rem 0.4rem;
@@ -118,6 +122,45 @@
 	margin: 0.4rem 0;
 }
 
+/* refresh.php fades older messages by tagging them with one of these classes
+ * instead of the default theme's inline color - dark-appropriate shades so
+ * even the oldest messages stay legible on #shoutbox_board's dark background. */
+#shoutbox_board .shoutbox-age-0 { color: #f8f9fa; }
+#shoutbox_board .shoutbox-age-1 { color: #ced4da; }
+#shoutbox_board .shoutbox-age-2 { color: #adb5bd; }
+#shoutbox_board .shoutbox-age-3 { color: #6c757d; }
+
+/* History tab (Shoutbox_0.php::history(), a Utils_GenericBrowser table) prints the
+ * same <span class="author"> markup as the Chat tab's refresh.php output - the rule
+ * above is extended to cover it here rather than duplicated, so the two tabs stay
+ * visually identical instead of drifting apart. Scoped to Apps_Shoutbox's own
+ * content span (matched via the id Base_Box/ModuleManager gives every module's
+ * wrapper), not a bare .Utils_GenericBrowser__td selector - GenericBrowser's own
+ * theme (modules/Utils/GenericBrowser/theme_adminltedark/default.css) intentionally
+ * colors every other browser's row text #00ff00 in dark mode; only Shoutbox's own
+ * History table should read like the Chat tab instead. */
+[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author {
+	display: inline-block;
+	background-color: #6c757d;
+	color: #fff;
+	border-radius: 0.25rem;
+	padding: 0.1rem 0.4rem;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+/* The author label is itself wrapped in a Base_UserCommon::get_user_label() link
+ * (History links each name through to its contact record) - without this, the
+ * anchor's own link-blue color wins over .author's white and the name becomes
+ * unreadable against the same-blue badge background. */
+[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author a {
+	color: #fff;
+}
+
+[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td {
+	color: #f8f9fa;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-shoutbox-compose textarea {
   border: 1px solid #ced4da;
@@ -136,3 +179,8 @@
 [data-bs-theme="light"] #shoutbox_board hr {
   border-top: 1px solid #e9ecef;
 }
+
+[data-bs-theme="light"] #shoutbox_board .shoutbox-age-0 { color: #000000; }
+[data-bs-theme="light"] #shoutbox_board .shoutbox-age-1 { color: #444444; }
+[data-bs-theme="light"] #shoutbox_board .shoutbox-age-2 { color: #888888; }
+[data-bs-theme="light"] #shoutbox_board .shoutbox-age-3 { color: #AAAAAA; }

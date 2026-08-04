@@ -86,7 +86,7 @@
 
 #shoutbox_board_big .author {
 	display: inline-block;
-	background-color: #0d6efd;
+	background-color: #6c757d;
 	color: #fff;
 	border-radius: 0.25rem;
 	padding: 0.1rem 0.4rem;
@@ -111,6 +111,14 @@
 	margin: 0.4rem 0;
 }
 
+/* refresh.php fades older messages by tagging them with one of these classes
+ * instead of the default theme's inline color - dark-appropriate shades so
+ * even the oldest messages stay legible on #shoutbox_board_big's dark background. */
+#shoutbox_board_big .shoutbox-age-0 { color: #f8f9fa; }
+#shoutbox_board_big .shoutbox-age-1 { color: #ced4da; }
+#shoutbox_board_big .shoutbox-age-2 { color: #adb5bd; }
+#shoutbox_board_big .shoutbox-age-3 { color: #6c757d; }
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-shoutbox-compose textarea {
   border: 1px solid #ced4da;
@@ -129,3 +137,8 @@
 [data-bs-theme="light"] #shoutbox_board_big hr {
   border-top: 1px solid #e9ecef;
 }
+
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-0 { color: #000000; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-1 { color: #444444; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-2 { color: #888888; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-3 { color: #AAAAAA; }
