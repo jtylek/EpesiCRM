@@ -92,8 +92,16 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())));
 		$msg = ob_get_clean();
 		if ($msg) print('<span class="important_notice">'.$msg.'</span>');
-		if ($ret) Base_StatusBarCommon::message(__('E-mail was sent successfully'));
-		else Base_StatusBarCommon::message(__('An error has occured'), 'error');
+		if ($ret) {
+			Base_StatusBarCommon::message(__('E-mail was sent successfully'));
+		} else {
+			$error = Base_MailCommon::get_last_error();
+			// htmlspecialchars: $error can echo back server-controlled text
+			// (e.g. a TLS certificate's CN, as in the mismatch this is
+			// mainly here for) - Base_StatusBarCommon::message() doesn't
+			// escape its $text, so this is the only guard against it.
+			Base_StatusBarCommon::message($error ? __('An error has occured: %s', array(htmlspecialchars($error, ENT_QUOTES))) : __('An error has occured'), 'error');
+		}
 		return false;
 	}
 	

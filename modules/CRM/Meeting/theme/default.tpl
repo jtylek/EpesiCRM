@@ -71,7 +71,7 @@
 <div class="Utils_RecordBrowser__container">
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-columns" style="align-items: flex-start;">
-                {if $action == 'view'}
+                {if $action == 'view' && isset($day_details)}
                 <!-- NEW HEADER -->
                 <div class="column" style="flex: 0 0 143px;">
                     {* Was a <table> with a <td rowspan="3"> sitting beside

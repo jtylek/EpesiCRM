@@ -559,6 +559,12 @@ abstract class Module extends ModulePrimitive {
 	 * call create_confirm_href()/wrap_confirm_js() first.
 	 */
 	public static function inject_confirm_modal() {
+		// Bootstrap-less themes have no CSS to hide a ".modal.fade" element, so
+		// injecting it there would leave the raw markup sitting visibly in the
+		// page instead of hidden until .show()'d; wrap_confirm_js()'s generated
+		// onClick already falls back to a native confirm() when epesi_confirm()
+		// was never defined, so skipping the injection here is safe.
+		if (!Base_ThemeCommon::is_adminlte_family()) return;
 		$modal_html = json_encode(
 			'<div class="modal fade" id="epesi_confirm_modal" tabindex="-1" aria-hidden="true">'
 			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
@@ -618,6 +624,8 @@ abstract class Module extends ModulePrimitive {
 	 * AdminLTE-family page render (see inject_confirm_modal()'s doc comment for why that matters).
 	 */
 	public static function inject_alert_modal() {
+		// Same theme dependency as inject_confirm_modal() above - see its comment.
+		if (!Base_ThemeCommon::is_adminlte_family()) return;
 		$modal_html = json_encode(
 			'<div class="modal fade" id="epesi_alert_modal" tabindex="-1" aria-hidden="true">'
 			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'

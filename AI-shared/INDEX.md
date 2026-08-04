@@ -26,5 +26,9 @@
   looked like application bugs (CLI scripts hitting the live DB, silent ADOdb
   failures from `max_allowed_packet`, MariaDB manifest corruption, access.log
   vs error.log).
+- [known-todos.md](known-todos.md) — full-repo `TODO`/`FIXME`/`XXX` audit
+  (2026-08-04): every marker in Epesi's own code individually re-verified as
+  still-open, none stale. Two flagged as worth prioritizing (a dead param, an
+  escaping hack with a working fix already nearby in the same file).
 
-Last reorganized: 2026-08-03.
+Last reorganized: 2026-08-04.

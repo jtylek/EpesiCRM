@@ -48,9 +48,11 @@
 			{if isset($history_tooltip)}
 				&nbsp;&nbsp;&nbsp;{$history_tooltip}
 			{/if}
-			{foreach item=n from=$new}
-				&nbsp;&nbsp;&nbsp;{$n}
-			{/foreach}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
 		</div>
 	</div>
 </div>

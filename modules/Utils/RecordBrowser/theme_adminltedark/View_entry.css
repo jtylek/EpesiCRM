@@ -671,11 +671,16 @@
     border-style: solid !important;
 }
 
-.Utils_RecordBrowser__View_entry #multiselect .form-element select,
-.Utils_RecordBrowser__View_entry #multiselect .to-element select {
-    width: 100%;
-    height: 100px;
-}
+/* Was width:100%;height:100px here - Libs/QuickForm/theme_adminltedark/
+   default.css already reworked #multiselect into a flex row (with its own
+   width:100% plus a height tall enough to match/exceed the 4-button column
+   beside it, computed from the same CSS vars the buttons use), but this
+   selector's extra .Utils_RecordBrowser__View_entry class made it MORE
+   specific than that plain #multiselect one, so its stale height:100px kept
+   winning the height property outright (min-height from the QuickForm rule
+   still applied as a floor, but that alone left the select ~11px shorter
+   than the actual button column - see AI-shared/bug-patterns.md). Deferring
+   entirely to QuickForm's rule removes that conflict app-wide, not just here. */
 
 .Utils_RecordBrowser__View_entry .data a.button {
     height: 20px;

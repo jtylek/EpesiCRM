@@ -287,6 +287,140 @@ entries up (a later rule quietly winning) - check for a duplicate/competing
 declaration before assuming a value you set isn't being applied due to something
 more exotic.
 
+## Meeting day-card widget: `$event_info` unset for timeless meetings, guarded inconsistently
+
+Found 2026-08-04 via the PHP error-log monitor, triggered by viewing an all-day
+"Company Holiday" meeting. `CRM_MeetingCommon::submit_meeting()`'s `'display'` case
+(`MeetingCommon_0.php:460-461`) only assigns `$ret['event_info']` when
+`$values['duration'] != -1` — i.e. it's simply **not set** for a timeless meeting.
+That's correct and intentional (see the "Raw DB record vs. form submission" and
+timeless-meeting entries in this same file/history), but both view templates
+(`CRM/Meeting/theme/default.tpl` and `theme_adminltedark/default.tpl`) read
+`$event_info.start_date`/`.end_date` in **four** places to decide the day-card's
+multi-day colspan/weekday/day/month layout — added later, during the grid/multi-day
+rework in commit `bb6e0df6` ("Fix Dashboard column layout, Meetings date box...") —
+and only the two pre-existing time/duration rows kept an `{if isset($event_info)}`
+guard; the four newer checks didn't. Viewing any timeless meeting threw `E_WARNING`
+at all four spots (`Undefined array key "event_info"` / `access array offset on
+value of type null`), which — `REPORT_ALL_ERRORS` being on for this instance —
+blanks that module's rendered output, not just logs quietly.
+
+**Fix**: added `isset($event_info) &&` to all four `{if $event_info.start_date !=
+$event_info.end_date}` checks in both theme templates, matching the guard style
+already used by the neighboring time/duration rows.
+
+**How to apply**: this widget has broken from this same root cause three times now
+(see the timeless-meeting bugs earlier in this file/session history) — any future
+edit to either theme's `CRM/Meeting/default.tpl`, or to `MeetingCommon_0.php`'s
+`'display'` case, should grep **every** `$event_info` usage in both template copies
+and confirm each is `isset`-guarded, rather than adding one more guarded read next
+to existing unguarded ones. More generally: a Smarty template variable that a PHP
+callback assigns conditionally needs every one of its read sites guarded, not just
+the ones added in the same pass as the conditional assignment.
+
+## Legacy theme add/edit form fields: wrapped, misaligned, clipped, then overflowing — four stacked bugs, one investigation
+
+Found 2026-08-04, all in the legacy default theme, all on `modules/Utils/RecordBrowser/
+theme/View_entry.css`'s add/edit form rendering, surfaced one at a time as each fix
+revealed the next: "Date and Time field doesn't align on one line" → (after fixing
+that) "aligned but hours are cut off on top, minutes cut off on bottom" → (after
+fixing that) "select boxes don't fill the entire height making it invisible to the
+user... only multiselect renders fine" → (after fixing that) "fields are a little bit
+too wide - see Title field extending onto the Date label." Four separate,
+independently-necessary root causes; fixing #1 and #2 alone still left every plain
+`<select>` in the theme (Permission, Priority, Status, Recurring Event, ...) rendering
+with blank space under
+a top-pinned option label, not just the timestamp widget's hour/minute pair.
+
+**Bug 1**: `modules/Utils/RecordBrowser/theme/View_entry.css` (legacy theme) was
+missing a `.data .timestamp select { width: auto; height: auto; }` override that
+`theme_adminltedark/View_entry.css` already had — without it, the generic `.data
+select { width: 99% }` rule forces each hour/minute `<select>` onto its own
+full-width line. Ported the adminltedark rule over; fixed the wrapping.
+
+**Bug 2** (the "cut off" follow-up, not scoped to either theme — lives in the shared,
+globally-loaded `modules/Libs/QuickForm/theme/default.css`): its universal
+time-picker rule only lists `select[name$="[h]"], [i], [a]`. `HTML_QuickForm_date`
+(`vendor/openpsa/quickform/lib/HTML/QuickForm/date.php:296-362`) builds each
+select's field-name key directly from the PHP date-format character in use —
+`'h'` for 12-hour format (paired with an `[a]` am/pm select), `'H'` (capital) for
+24-hour format, with no am/pm select at all. CSS attribute selectors are
+case-sensitive, so on any account running in 24-hour mode
+(`Base_RegionalSettingsCommon::time_12h()` false), the hour select's name ends in
+`[H]`, silently fails to match, and falls back to the un-sized/un-`vertical-align`d
+default — producing a several-pixel vertical offset from the minute select right
+next to it (which does match `[i]`), which reads as "hour clipped at top, minute
+clipped at bottom" at this theme's compact 14px row height.
+
+**Fix**: added `select[name$="[H]"]` to that selector list alongside the existing
+lowercase `[h]`/`[i]`/`[a]`.
+
+**How to apply**: this file is loaded globally (not per-theme), so the fix covers
+every theme at once — but any *other* CSS in this codebase that targets
+`HTML_QuickForm_timestamp`'s sub-fields by name suffix should be grepped for the
+same lowercase-only `[h]` assumption, since it will silently misbehave for any
+account/install using 24-hour time. More generally: a hardcoded field-name-suffix
+CSS selector next to a form element whose field names are generated from
+locale/format config is a recurring trap — check every format branch the
+generating code can take, not just the one you happened to test with.
+
+**Bug 3** (the broader "invisible select" follow-up — not timestamp-specific at all):
+`View_entry.css`'s shared `.data input/select/textarea` rule hardcoded `height: 14px`
+on all three, with a comment explaining the intent — force `<input>` and `<select>` to
+render at an identical height, since browsers don't apply their default line-height
+the same way to each. That reasoning holds for `<input>`, which has no OS-drawn chrome
+and can be squeezed to whatever pixel height CSS declares. It does not hold for
+`<select>`: real (non-headless) browsers won't actually shrink a native select's
+rendered box down to 14px — the *declared* box stayed 14px but the option text
+rendered pinned to the top of a visually taller box, leaving blank space below. Every
+plain `<select>` in the legacy theme's add/edit forms had this to some degree; it read
+as "invisible" because the visible sliver of text at the top is easy to miss,
+especially on an unfocused field. `theme_adminltedark/View_entry.css` never had this
+problem because its equivalent combined rule uses an explicit `height: 32px` instead
+of fighting the native minimum.
+
+**Fix**: dropped `height: 14px` from the combined rule entirely (for `<input>`,
+`<select>`, and `<textarea>` alike) — `line-height: 1.5` plus the existing `padding:
+3px 5px` now define a natural, browser-respected height for all three instead of a
+value real browsers silently override for one of them. Removed the then-redundant
+`height: auto` from Bug 1's `.timestamp select` override (still keeps `width: auto` —
+that part is still needed) since the general rule no longer forces a height to
+override in the first place.
+
+**How to apply**: a hardcoded pixel `height` on a rule that includes `<select>` is
+inherently suspect in this codebase - see also the "`<select>` percentage width
+unreliable..." entry above, a different symptom (width, not height) of the same
+general class of bug: native `<select>` chrome does not obey CSS sizing the way
+`<input>`/`<textarea>` do, and headless/automated browser checks can fail to catch it
+since headless rendering is sometimes more compliant than a real browser's native
+widget rendering. Prefer `height: auto` (or an explicit value generous enough to clear
+the OS-chrome minimum, as adminltedark's 32px does) over a small fixed height on any
+rule touching `<select>` — verify with a real browser screenshot at actual size, not
+just computed-style bounding boxes, since a headless engine may render the same CSS
+more forgivingly than what the user actually sees.
+
+**Bug 4** (found immediately after fixing Bug 3, same combined rule): with `height:
+14px` gone, the rule's other pre-existing issue became visible - it never declared
+`box-sizing`, so each element type fell back to its own browser UA default. Chrome
+defaults `<select>`/`<button>` to `box-sizing: border-box` but `<input>`/`<textarea>`
+to `content-box`. At `width: 99%` with `padding: 3px 5px`, a `content-box` element
+adds that padding *on top of* the 99%, overflowing its `.data` cell by (padding − 1%
+of the cell's width) - measured ~5.6px on the Title field. `<select>` never showed
+this since border-box already keeps padding inside the declared width. Reported as
+"fields are a little too wide - Title field extends onto the Date label."
+Mathematically this overflow existed before Bug 3's fix too (box-sizing math is
+independent of height), but a few px of horizontal bleed under a 14px-tall,
+mostly-empty-looking field was easy to miss next to the two more obvious bugs.
+
+**Fix**: added `box-sizing: border-box` to the same combined rule.
+
+**How to apply**: whenever a shared rule sets `width`/`padding` across multiple
+different form-control tags without an explicit `box-sizing`, don't assume browser
+UA defaults agree between them - `<select>`/`<button>` and `<input>`/`<textarea>`
+diverge in Chrome specifically. Check for this any time a "field is slightly too
+wide/narrow" report follows a `<select>` field looking fine right next to an
+`<input>` field that doesn't, in the same shared-style row.
+
 ## Known, still-open issue: Shoutbox delete UI doesn't work
 
 The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/

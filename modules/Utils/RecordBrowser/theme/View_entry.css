@@ -178,9 +178,29 @@
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
 	width: 99%;
-	height: 14px;
+	/* Chrome's UA stylesheet defaults <select>/<button> to box-sizing:border-box
+	   but <input>/<textarea> to content-box - without an explicit value here,
+	   an <input> at width:99% adds its padding (3px 5px below) ON TOP of that
+	   99%, overflowing past the .data cell's right edge by (padding - 1% of
+	   the cell's width); <select> happened not to show this since border-box
+	   already keeps its padding inside the declared width. Reported as the
+	   Title field visibly overlapping the next column's label. Pin all three
+	   to the same box model so 99% means the same thing for every one of them. */
+	box-sizing: border-box;
+	/* Was a hardcoded height:14px, meant to remove line-height inconsistency
+	   between an <input>'s and a <select>'s default rendering (see the
+	   line-height comment below) by pinning both to the same fixed box.
+	   Real (non-headless) browsers won't actually shrink a native <select>'s
+	   OS-drawn chrome down to 14px - the *declared* box stayed 14px but the
+	   *rendered* one came out taller, with the option text sitting at the
+	   top of that taller box and blank space below it (reported: a focused
+	   Permission/Priority/Status/etc. select looking half-empty/"invisible").
+	   <input>/<textarea> don't have OS chrome to fight, so they never showed
+	   this - only <select> did. Dropped the fixed height for all three;
+	   line-height + padding below now define a natural, browser-respected
+	   height for every one of them instead. */
 	/* Browsers don't apply an <input>'s and a <select>'s default
-	   line-height identically even at the same font-size/padding/height -
+	   line-height identically even at the same font-size/padding -
 	   an explicit, shared value removes that as a source of the two
 	   rendering at different heights (see the generic View_entry.tpl's
 	   .epesi-rv-row min-height for the other half of this, scoped there
@@ -450,6 +470,21 @@
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
+}
+/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a group of an hour/minute/am-pm <select> trio plus a separate date
+   <input>) predates the ".data select{width:99%}" rule above (line 178),
+   which - added later, for ordinary single-select fields - forces every one
+   of these hour/minute/am-pm selects onto its own full-width line, breaking
+   the float:right layout above entirely (each select ends up stacked
+   instead of sitting compact and side by side). The date <input> is
+   unaffected by this override and correctly keeps width:99% - it's the
+   non-floated sibling the "margin-right:130px" rule above already reserves
+   space against, so it's meant to fill what's left of the row. height:auto
+   isn't needed here anymore - the combined rule above no longer hardcodes
+   height:14px for anything, select included. */
+.Utils_RecordBrowser__View_entry .data .timestamp select {
+	width: auto;
 }
 /* timestamp END */
 

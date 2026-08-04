@@ -339,14 +339,21 @@ class Apps_Shoutbox extends Module {
 		    // focus()-call tracing. The autofocus attribute above feeds
 		    // exactly the input that script already looks for first, so this
 		    // needs no JS of our own at all.
-		    eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
-		    		.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
-		    		.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
-		    			.'var m=bootstrap.Modal.getInstance(document.getElementById(\'Apps_Shoutbox__confirm_all_modal\'));'
-		    			.'if(m)m.hide();'
-		    			.'if(window.Apps_Shoutbox__pendingForm)window.Apps_Shoutbox__pendingForm.onsubmit();'
-		    		.'});'
-		    	.'}');
+		    // Bootstrap-less themes have no CSS to hide a ".modal.fade" element, so
+		    // injecting it there would leave the raw markup sitting visibly in the
+		    // page instead of hidden until .show()'d - the click handler below
+		    // already falls back to plain confirm() when this modal was never
+		    // injected, so gating the injection itself is safe.
+		    if (Base_ThemeCommon::is_adminlte_family()) {
+		    	eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
+		    			.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
+		    			.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
+		    				.'var m=bootstrap.Modal.getInstance(document.getElementById(\'Apps_Shoutbox__confirm_all_modal\'));'
+		    				.'if(m)m.hide();'
+		    				.'if(window.Apps_Shoutbox__pendingForm)window.Apps_Shoutbox__pendingForm.onsubmit();'
+		    			.'});'
+		    		.'}');
+		    }
 		    //bound with a namespaced handler (rather than the plain .click() the
 		    //original used) so re-running this eval_js on a re-render can't stack
 		    //duplicate listeners onto elements the DOM replace didn't actually swap.

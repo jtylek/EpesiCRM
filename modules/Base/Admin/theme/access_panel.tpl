@@ -5,9 +5,16 @@
 	<div class="epesi_label header" style="clear:both;">{$s.header}</div>
     <div class="buttons_container">
 		{foreach key=key item=button from=$s.buttons}
-			{$__link.sections.$sk.buttons.$key.link.open}
 				<div class="epesi_big_button bigger" id="{$button.id}">
-				{* Was a <table> with a <td rowspan="2"> form-switch cell beside
+				{* $__link.sections.$sk.buttons.$key.link.open/.close used to wrap
+				   this div - Admin_0.php's admin() never puts a 'link' key on a
+				   button (only its OWN launcher-grid buttons() method does, a
+				   different template), so that path was always empty/absent -
+				   Trying to access array offset on value of type null, once per
+				   button, on every render. Removed rather than isset()-guarded:
+				   with the single call site never populating it, there's no
+				   case where guarding would ever let it render something.
+				   Was a <table> with a <td rowspan="2"> form-switch cell beside
 				   icon/text rows, plus a full-width sections row containing an
 				   inner label/data <table> - CSS Grid instead, grid-row:span 2
 				   replacing the rowspan (see AI-shared/adminlte-theme.md). *}
@@ -43,7 +50,6 @@
 					</div>
 				</div>
 				</div>
-			{$__link.sections.$sk.buttons.$key.link.close}
 		{/foreach}
 	</div>
 {/foreach}

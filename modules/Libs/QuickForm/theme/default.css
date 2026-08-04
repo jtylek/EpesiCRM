@@ -103,8 +103,15 @@
    rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell.
    Not scoped to a "td" ancestor: RecordBrowser's View_entry family renders its .data cells as
    divs, not <td>s (see AI-shared/adminlte-theme.md) - a tag-qualified selector here would silently
-   stop matching for every one of those screens. */
+   stop matching for every one of those screens.
+   [H] (capital) is a separate field name from [h]: HTML_QuickForm_date (vendor/openpsa/quickform/
+   lib/HTML/QuickForm/date.php) builds each select's array key straight from the PHP date-format
+   character in use - 'h' for 12-hour (with an [a] am/pm select alongside it), 'H' for 24-hour (no
+   am/pm select at all). CSS attribute selectors are case-sensitive, so an install running in
+   24-hour mode (Base_RegionalSettingsCommon::time_12h() false) needs [H] listed explicitly or its
+   hour select silently falls back to the un-sized default and misaligns against the minute select. */
 select[name$="[h]"],
+select[name$="[H]"],
 select[name$="[i]"],
 select[name$="[a]"] {
 	display: inline-block;

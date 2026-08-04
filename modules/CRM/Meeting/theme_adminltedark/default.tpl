@@ -90,7 +90,7 @@
 <div class="Utils_RecordBrowser__container">
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-columns" style="align-items: flex-start;">
-                {if $action == 'view'}
+                {if $action == 'view' && isset($day_details)}
                 {* Plain Bootstrap .card instead of the <table class="header-new">
                    the light theme still uses (modules/CRM/Meeting/theme/default.css)
                    - that table's styling is a hardcoded #F9F9F9 box with an inset

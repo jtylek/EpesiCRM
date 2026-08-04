@@ -1,6 +1,6 @@
 <h1>{$caption}</h1>
 <h3>ID: {$record_id}</h3>
-{if $no_access}<div style="color:red; font-weight: bold">{"Access forbidden"|t}</div>{/if}
+{if isset($no_access) && $no_access}<div style="color:red; font-weight: bold">{"Access forbidden"|t}</div>{/if}
 {if count($data)}
 <table border="1" cellpadding="3">
     {assign var=i value=0}
