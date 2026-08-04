@@ -39,13 +39,19 @@ Libs_QuickForm__autohide = function(e) {
 		}
 
 		if (found) {
-			var confirmed = true;
-			if (typeof group.confirm !== 'undefined')
-				confirmed = confirm(group.confirm);
-
-			if (confirmed) {
+			var apply = function() {
 				jq(group.fields).closest('tr')[group.mode]();
 				jq(group.fields)[group.mode]().removeClass('auto' + reverse_mode[group.mode]).addClass('auto' + group.mode); // hide/show element to trigger nested autohide
+			};
+			// set_fields[group.mode] below is recorded regardless of the confirm outcome (same
+			// as before this was made async-capable), so deferring apply() to a callback doesn't
+			// affect later groups' not_set_fields calculation in this same loop.
+			if (typeof group.confirm === 'undefined') {
+				apply();
+			} else if (typeof epesi_confirm === 'function') {
+				epesi_confirm(group.confirm, apply);
+			} else if (confirm(group.confirm)) {
+				apply();
 			}
 		} else {
 			//apply reverse mode only to fields not specifically set

@@ -117,6 +117,15 @@ class Base_ThemeCommon extends ModuleCommon {
 		// earlier testing (always via reload) never caught it. Retrying for a
 		// few seconds rather than giving up after one null check makes this
 		// self-healing regardless of exactly when that patch lands.
+
+		// Guarantees window.epesi_confirm()/epesi_alert() (the styled Bootstrap-modal
+		// replacements for native confirm()/alert(), see include/module.php) exist on every
+		// AdminLTE-family page, not just ones where some module happened to render a
+		// confirm/alert link first - needed for purely client-side callers like QuickForm's
+		// unsaved-changes leave-page guard (Epesi.confirmLeave in include/epesi.js).
+		Module::inject_confirm_modal();
+		Module::inject_alert_modal();
+
 		if (self::is_dark_theme()) {
 			eval_js_once(
 				"try{var s=localStorage.getItem('lte-theme');".

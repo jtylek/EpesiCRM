@@ -15,7 +15,10 @@ function get_deps(mod) {
 };
 function show_alert(x, mod) {
 	if(x.options[x.selectedIndex].value == -2) {
-		if(!showed) alert(base_setup__reinstall_warning);
+		if(!showed) {
+			if (typeof epesi_alert === 'function') epesi_alert(base_setup__reinstall_warning);
+			else alert(base_setup__reinstall_warning);
+		}
 		showed=true;
 		return;
 	}
@@ -27,14 +30,24 @@ function show_alert(x, mod) {
 	var arr = get_deps(mod);
 	if(arr.length == 1) return;
 	var str = arr.length < 11 ? " - "+arr.join("\n - ") : arr.join(", ");
-	if(confirm(base_setup__uninstall_warning + "\n" + str) == false) {
+	var revert = function() {
 		var ind = 0;
 		for(; ind < x.options.length; ind++) if(x.options[ind].value == original_select[mod]) break;
 		x.selectedIndex = ind;
+	};
+	var proceed = function() {
+		for(var i = 0; i < arr.length; i++) {
+			var el = document.getElementsByName("installed["+arr[i]+"]")[0];
+			el.selectedIndex=0;
+		}
+	};
+	if (typeof epesi_confirm === 'function') {
+		epesi_confirm(base_setup__uninstall_warning + "\n" + str, proceed, revert);
 		return;
 	}
-	for(var i = 0; i < arr.length; i++) {
-		var el = document.getElementsByName("installed["+arr[i]+"]")[0];
-		el.selectedIndex=0;
+	if(confirm(base_setup__uninstall_warning + "\n" + str) == false) {
+		revert();
+		return;
 	}
+	proceed();
 }

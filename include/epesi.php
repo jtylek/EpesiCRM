@@ -129,7 +129,12 @@ class Epesi {
 	}
 
 	public final static function alert($txt,$del = false) {
-		self::js('alert(\''.self::escapeJS($txt,false).'\')',$del);
+		// epesi_alert(), when defined (see Module::inject_alert_modal()), shows a styled
+		// AdminLTE Bootstrap modal instead of the native alert() popup; the typeof check keeps
+		// this safe for contexts where that never got injected (non-AdminLTE theme, or a raw
+		// JS response that bypasses the normal page render - see inject_alert_modal()'s doc).
+		$msg = self::escapeJS($txt,false);
+		self::js('if(typeof epesi_alert===\'function\'){epesi_alert(\''.$msg.'\')}else{alert(\''.$msg.'\')}',$del);
 	}
 
 	public final static function redirect($addr='') {

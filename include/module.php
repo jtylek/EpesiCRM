@@ -551,8 +551,14 @@ abstract class Module extends ModulePrimitive {
 	 * copy of this markup for every row of every list that has a delete/clone/etc. action): each
 	 * call re-populates its message and rebinds its OK button to that call's own action, cloning
 	 * the button first to drop whatever the previous confirmation had bound to it.
+	 *
+	 * Public (not private) so Base_ThemeCommon::load_theme_assets() can also call it unconditionally
+	 * on every AdminLTE-family page render - some confirmations (e.g. QuickForm's unsaved-changes
+	 * leave-page guard, see set_confirm_leave_page()) are pure client-side JS with no PHP-rendered
+	 * link, so they'd otherwise find epesi_confirm() undefined on a page where no module happened to
+	 * call create_confirm_href()/wrap_confirm_js() first.
 	 */
-	private static function inject_confirm_modal() {
+	public static function inject_confirm_modal() {
 		$modal_html = json_encode(
 			'<div class="modal fade" id="epesi_confirm_modal" tabindex="-1" aria-hidden="true">'
 			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
@@ -570,18 +576,65 @@ abstract class Module extends ModulePrimitive {
 		);
 		eval_js_once('if(!window.epesi_confirm){'
 			.'document.body.insertAdjacentHTML(\'beforeend\','.$modal_html.');'
-			.'window.epesi_confirm=function(msg,actionFn){'
-				.'if(typeof bootstrap===\'undefined\'){if(confirm(msg))actionFn();return;}'
+			// cancelFn is optional (most callers just fire-and-forget an action on OK, and rely
+			// on Cancel's data-bs-dismiss to simply close the modal) - passed by callers that need
+			// to undo an already-visible UI change when the user backs out (e.g. Base_Setup's
+			// module-uninstall dropdown reverting its own selection on Cancel). Bound via
+			// 'hidden.bs.modal' (fires on Cancel, backdrop click, and Esc alike) rather than the
+			// Cancel button directly so all three dismiss paths are covered; a "confirmed" flag
+			// keeps it from also firing when OK's own click handler is what closed the modal. The
+			// listener is stored on the element and replaced (not stacked) each call, same reason
+			// the OK button itself gets cloned below.
+			.'window.epesi_confirm=function(msg,actionFn,cancelFn){'
+				.'if(typeof bootstrap===\'undefined\'){if(confirm(msg)){actionFn();}else if(cancelFn){cancelFn();}return;}'
 				.'var el=document.getElementById(\'epesi_confirm_modal\');'
 				.'el.querySelector(\'#epesi_confirm_modal_msg\').textContent=msg;'
 				.'var ok=el.querySelector(\'#epesi_confirm_modal_ok\');'
 				.'var freshOk=ok.cloneNode(true);'
 				.'ok.parentNode.replaceChild(freshOk,ok);'
+				.'var confirmed=false;'
 				.'freshOk.addEventListener(\'click\',function(){'
+					.'confirmed=true;'
 					.'var m=bootstrap.Modal.getInstance(el);'
 					.'if(m)m.hide();'
 					.'actionFn();'
 				.'});'
+				.'if(el._epesiHiddenHandler)el.removeEventListener(\'hidden.bs.modal\',el._epesiHiddenHandler);'
+				.'el._epesiHiddenHandler=function(){if(!confirmed&&cancelFn)cancelFn();};'
+				.'el.addEventListener(\'hidden.bs.modal\',el._epesiHiddenHandler);'
+				.'bootstrap.Modal.getOrCreateInstance(el).show();'
+			.'};'
+		.'}');
+	}
+
+	/**
+	 * Injects (once per session) a shared informational modal plus the window.epesi_alert()
+	 * helper Epesi::alert() uses instead of the native alert() - same technique/theme dependency
+	 * as inject_confirm_modal() above (falls back to a native alert() when Bootstrap isn't loaded).
+	 * Unlike the confirm modal there's no action to bind: the single OK button just dismisses the
+	 * modal via data-bs-dismiss, no click listener needed.
+	 *
+	 * Public so Base_ThemeCommon::load_theme_assets() can call it unconditionally on every
+	 * AdminLTE-family page render (see inject_confirm_modal()'s doc comment for why that matters).
+	 */
+	public static function inject_alert_modal() {
+		$modal_html = json_encode(
+			'<div class="modal fade" id="epesi_alert_modal" tabindex="-1" aria-hidden="true">'
+			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
+			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-info-circle-fill me-2 text-primary"></i>'.__('Notice').'</h5>'
+			.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>'
+			// white-space:pre-line + textContent for the same reasons as the confirm modal above.
+			.'<div class="modal-body"><p class="mb-0" id="epesi_alert_modal_msg" style="white-space:pre-line"></p></div>'
+			.'<div class="modal-footer">'
+			.'<button type="button" class="btn btn-primary" data-bs-dismiss="modal" autofocus>'.__('OK').'</button>'
+			.'</div></div></div></div>'
+		);
+		eval_js_once('if(!window.epesi_alert){'
+			.'document.body.insertAdjacentHTML(\'beforeend\','.$modal_html.');'
+			.'window.epesi_alert=function(msg){'
+				.'if(typeof bootstrap===\'undefined\'){alert(msg);return;}'
+				.'var el=document.getElementById(\'epesi_alert_modal\');'
+				.'el.querySelector(\'#epesi_alert_modal_msg\').textContent=msg;'
 				.'bootstrap.Modal.getOrCreateInstance(el).show();'
 			.'};'
 		.'}');

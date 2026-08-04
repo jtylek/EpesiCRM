@@ -35,8 +35,10 @@ var Epesi = {
         // have list of changed fields
 		forms_freezed:{},
 		message:'Leave page?',
-		//checks if leaving the page is approved
-		check: function() {
+		//checks if leaving the page is approved; calls onApproved() once it is (possibly
+        //asynchronously, if the styled epesi_confirm() modal is used - see module.php's
+        //inject_confirm_modal()). onApproved() is simply never called if the user cancels.
+		check: function(onApproved) {
 			//remove non-existent forms from the array
 			jQuery.each(this.forms, function(f) {
 				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
@@ -54,19 +56,30 @@ var Epesi = {
                     }
                 }
             }
-			if (requires_confirmation) {
-				//take care if user disabled alert messages
-				var openTime = new Date();
-				try {
-					var confirmed = confirm(this.message);
-				} catch(e) {
-					var confirmed = true;
-				}
-				var closeTime = new Date();
-				if ((closeTime - openTime) > 350 && !confirmed) return false;
-				this.deactivate();
+			if (!requires_confirmation) {
+				onApproved();
+				return;
 			}
-			return true;
+			var message = this.message;
+			//styled AdminLTE modal, injected app-wide by Base_ThemeCommon::load_theme_assets()
+			if (typeof epesi_confirm === 'function') {
+				epesi_confirm(message, function() {
+					Epesi.confirmLeave.deactivate();
+					onApproved();
+				});
+				return;
+			}
+			//take care if user disabled alert messages
+			var openTime = new Date();
+			try {
+				var confirmed = confirm(message);
+			} catch(e) {
+				var confirmed = true;
+			}
+			var closeTime = new Date();
+			if ((closeTime - openTime) > 350 && !confirmed) return;
+			this.deactivate();
+			onApproved();
 		},
 		activate: function(f, m) {
             this.message = m;
@@ -191,13 +204,20 @@ var Epesi = {
 				throw(e);
 			},
 			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
+				var msg = 'Failure ('+t.status+')';
+				if (typeof epesi_alert === 'function') epesi_alert(msg); else alert(msg);
 				Epesi.text(t.responseText,'error_box','p');
 			}
 		});
 	},
 	href: function(url,indicator,mode,disableConfirmLeave) {
-		if (typeof disableConfirmLeave == 'undefined' && !Epesi.confirmLeave.check()) return;
+		if (typeof disableConfirmLeave == 'undefined') {
+			Epesi.confirmLeave.check(function() { Epesi._hrefGo(url,indicator,mode); });
+			return;
+		}
+		Epesi._hrefGo(url,indicator,mode);
+	},
+	_hrefGo: function(url,indicator,mode) {
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);
