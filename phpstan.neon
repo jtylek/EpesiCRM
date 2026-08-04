@@ -23,9 +23,9 @@ parameters:
         - libs
         - modules/Base/Theme/smarty
     excludePaths:
-        - modules/CRM/Roundcube/RC/program/*
-        - modules/CRM/Roundcube/RC/vendor/*
-        - modules/CRM/Roundcube/RC/plugins/*
+        - modules/Libs/RoundCube/RC/program/*
+        - modules/Libs/RoundCube/RC/vendor/*
+        - modules/Libs/RoundCube/RC/plugins/*
         - modules/Tests/*
         - modules/Base/Theme/smarty/*
     # third-party/legacy noise we don't own

@@ -60,7 +60,7 @@ class CRM_Roundcube extends Module {
         } else {
             $RC = 'RC';
         }
-        $rc_src = 'modules/CRM/Roundcube/' . $RC . '/public_html/index.php?'.http_build_query($params);
+        $rc_src = 'modules/Libs/RoundCube/' . $RC . '/public_html/index.php?'.http_build_query($params);
         if (Base_ThemeCommon::is_adminlte_family()) {
             // Replaces the old animated images/loader-0.gif background - the
             // spinner sits over the iframe until Roundcube's own page inside

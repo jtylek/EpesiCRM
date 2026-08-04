@@ -30,8 +30,8 @@ jobs:
             fi
           done < <(
             find include modules admin console -name '*.php' \
-              ! -path 'modules/CRM/Roundcube/RC/program/*' \
-              ! -path 'modules/CRM/Roundcube/RC/vendor/*' \
+              ! -path 'modules/Libs/RoundCube/RC/program/*' \
+              ! -path 'modules/Libs/RoundCube/RC/vendor/*' \
               ! -path 'console/Develop/*' \
               ! -path 'modules/Tests/*'
             find . -maxdepth 1 -name '*.php'

@@ -90,7 +90,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     {
         $supported = Cache::get('rc_multiwin');
         if ($supported === null) {
-            $test_url = get_epesi_url() . '/modules/CRM/Roundcube/RCWIN_0/robots.txt';
+            $test_url = get_epesi_url() . '/modules/Libs/RoundCube/RCWIN_0/robots.txt';
             $ret = '';
             if(ini_get('allow_url_fopen'))
                 $ret = @file_get_contents($test_url);

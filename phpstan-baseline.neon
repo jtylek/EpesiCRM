@@ -286,85 +286,85 @@ parameters:
 			message: '#^Access to constant ERROR_COOKIES_DISABLED on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant ERROR_INVALID_HOST on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant ERROR_INVALID_REQUEST on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 2
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant ERROR_RATE_LIMIT on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant ERROR_STORAGE on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant INPUT_GET on an unknown class rcube_utils\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Access to constant INPUT_POST on an unknown class rcube_utils\.$#'
 			identifier: class.notFound
 			count: 4
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method get_input_string\(\) on an unknown class rcube_utils\.$#'
 			identifier: class.notFound
 			count: 3
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method get_instance\(\) on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method https_check\(\) on an unknown class rcube_utils\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method logonWarning\(\) on an unknown class rcmail_install\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method raise_error\(\) on an unknown class rcmail\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to static method raise_error\(\) on an unknown class rcube\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Function rcmail_fatal_error not found\.$#'
 			identifier: function.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RC/public_html/index.php
+			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
 			message: '#^Call to an undefined static method Utils_AttachmentCommon\:\:create_remote\(\)\.$#'
