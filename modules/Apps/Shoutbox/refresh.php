@@ -21,8 +21,10 @@ $myid = Base_AclCommon::get_user();
 $uid = (isset($_GET['uid']) && is_numeric($_GET['uid']))?$_GET['uid']:null;
 $shoutbox_admin = Base_AclCommon::check_permission('Shoutbox Admin');
 
-//get last 20 messages
-$arr = DB::GetAll('SELECT * FROM apps_shoutbox_messages WHERE '.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).' ORDER BY posted_on DESC LIMIT 20');
+//get last 20 messages - deleted ones are excluded here regardless of admin
+//status (History, not the live Chat feed, is where a Shoutbox Admin reviews
+//them - see Apps_Shoutbox::history())
+$arr = DB::GetAll('SELECT * FROM apps_shoutbox_messages WHERE ('.($uid?'(base_user_login_id='.$myid.' AND to_user_login_id='.$uid.') OR (base_user_login_id='.$uid.' AND to_user_login_id='.$myid.')':'to_user_login_id is null OR to_user_login_id='.$myid.' OR base_user_login_id='.$myid).') AND (deleted=0 OR deleted IS NULL) ORDER BY posted_on DESC LIMIT 20');
 //print it out
 foreach($arr as $row) {
 	$daydiff = floor((time()-strtotime($row['posted_on']))/86400);

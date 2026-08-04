@@ -163,7 +163,8 @@ class Base_Dashboard extends Module {
 		// column 0/1 (col % $col_count) here at display time only, so nothing
 		// needs migrating and switching back to the default theme would show
 		// it in its original column again.
-		$col_count = Base_ThemeCommon::is_adminlte_family() ? 2 : 3;
+		$is_adminlte = Base_ThemeCommon::is_adminlte_family();
+		$col_count = $is_adminlte ? 2 : 3;
 		$applets = array_fill(0, $col_count, array());
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
@@ -173,9 +174,22 @@ class Base_Dashboard extends Module {
 		while($row = $ret->FetchRow())
 			$applets[$row['col'] % $col_count][] = $row;
 
-		print('<div id="dashboard" style="width: 100%;">');
+		// adminlte: fixed inline width%/display:inline-block replaced with a
+		// CSS grid (.epesi-dashboard-columns/-column, theme_adminltedark/
+		// default.css) that collapses to a single column below the md
+		// breakpoint instead of squeezing both columns down at every width -
+		// the default theme's own inline-width layout is untouched.
+		if ($is_adminlte) {
+			print('<div id="dashboard" class="epesi-dashboard-columns">');
+		} else {
+			print('<div id="dashboard" style="width: 100%;">');
+		}
 		for($j=0; $j<$col_count; $j++) {
-			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:'.(int)(100/$col_count).'%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			if ($is_adminlte) {
+				print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" class="epesi-dashboard-column">');
+			} else {
+				print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:'.(int)(100/$col_count).'%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			}
 
 			foreach($applets[$j] as $row) {
 				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;

@@ -226,6 +226,33 @@
 	box-sizing: border-box;
 }
 
+/* Grid for the actual per-tab applet columns (Dashboard_0.php's
+   display_dashboard(), adminlte family only - the default theme keeps its
+   own inline-width 3-column layout untouched). Used to be two sibling divs
+   printed with inline width:50%/display:inline-block, hardcoding 2 columns
+   at every viewport width down to a phone; grid + a breakpoint here instead,
+   collapsing to a single column below md instead of squeezing both columns'
+   applet cards (tables especially) down to an unusable width. Class-scoped
+   rather than added to the #dashboard rule above - that id is reused
+   (pre-existing, not touched here) by the config-mode "add applet" picker
+   panel's own <td>, which must keep its own single-column layout regardless. */
+.epesi-dashboard-columns {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	align-items: start;
+}
+
+.epesi-dashboard-column {
+	min-height: 200px;
+	padding-bottom: 10px;
+}
+
+@media (max-width: 767.98px) {
+	.epesi-dashboard-columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
 /* Belt and suspenders alongside default.tpl's own .card.mb-3 - guarantees
    vertical separation between stacked applets regardless of what the card
    itself does, since .applet (the outer wrapper) is what Dashboard_0.php

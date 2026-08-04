@@ -3,6 +3,7 @@
 .env
 .claude/
 .history/
+.playwright-mcp/
 
 # Each module here is a separately purchased/installed premium add-on,
 # managed by its own git repository - not part of this one.

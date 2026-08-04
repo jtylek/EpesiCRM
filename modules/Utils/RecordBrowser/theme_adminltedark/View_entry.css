@@ -415,6 +415,23 @@
     border-right: none;
 }
 
+/* Multiselect fields (the "> >> << <" dual-listbox widget - two list boxes
+   plus arrow buttons side by side) need real width to be usable; forced into
+   the same label-left/data-right row as every other field type left the
+   widget squeezed into whatever's left of a 150px-wide label, per request.
+   Stacked instead - label on its own full-width line above the widget,
+   matching how the same widget already reads in a plain QuickForm (non-
+   RecordBrowser) form. flex-direction:column flips .label's flex-basis from
+   a width to a height, so 150px must be overridden to auto here too. */
+.Utils_RecordBrowser__View_entry .multiselect_row {
+	flex-direction: column;
+}
+
+.Utils_RecordBrowser__View_entry .multiselect_label {
+	flex: 0 0 auto;
+	border-bottom: none;
+}
+
 .Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),

@@ -1,0 +1,45 @@
+/* AdminLTE re-skin for the "day box" widget in CRM_Meeting's view-record
+ * header (see theme_adminltedark/default.tpl) - was a raw <table class=
+ * "header-new"> styled by the shared modules/CRM/Meeting/theme/default.css
+ * (light theme's own file, still used as-is there, untouched here) with a
+ * hardcoded #F9F9F9 background and inset box-shadow that doesn't adapt to
+ * dark mode. Plain Bootstrap .card instead, so it picks up the theme's own
+ * card background/border for free - only the grid layout and font-sizing
+ * below (matching the light theme's own weekday/day/month/time/duration
+ * sizes) are specific to this widget.
+ */
+.epesi-meeting-grid {
+	display: grid;
+	row-gap: 2px;
+}
+
+.epesi-meeting-weekday,
+.epesi-meeting-day,
+.epesi-meeting-month,
+.epesi-meeting-time,
+.epesi-meeting-duration {
+	font-weight: bold;
+}
+
+.epesi-meeting-weekday,
+.epesi-meeting-month {
+	font-size: 15px;
+}
+
+.epesi-meeting-day {
+	font-size: 59px;
+	line-height: 1.1;
+}
+
+.epesi-meeting-time,
+.epesi-meeting-duration {
+	grid-column: 1 / -1;
+}
+
+.epesi-meeting-datebox a {
+	color: inherit;
+}
+
+.epesi-meeting-datebox a:hover {
+	color: #dc3545;
+}

@@ -89,50 +89,54 @@
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-columns" style="align-items: flex-start;">
                 {if $action == 'view'}
-                <!-- NEW HEADER -->
+                {* Plain Bootstrap .card instead of the <table class="header-new">
+                   the light theme still uses (modules/CRM/Meeting/theme/default.css)
+                   - that table's styling is a hardcoded #F9F9F9 box with an inset
+                   shadow that doesn't adapt to dark mode; a .card picks up the
+                   theme's own card background/border for free. Own class names
+                   (epesi-meeting-*) rather than the shared weekday/day/month/time/
+                   duration + green/black/blue/dark-gray utility classes, styled in
+                   this module's own theme_adminltedark/default.css - the grid
+                   layout/colspan logic (multi-day events span 3 columns instead of
+                   1, time/duration always span every column) mirrors the light
+                   theme's own div/grid conversion of this same table. *}
+                {if $event_info.start_date != $event_info.end_date}
+                	{assign var=colspan value=3}
+                {else}
+                	{assign var=colspan value=1}
+                {/if}
                 <div class="column" style="flex: 0 0 143px;">
-                    <table border="0" class="header-new">
-                        <tbody>
-                            <tr>
-                                <td class="weekday green">{$day_details.start.weekday}</td>
+                    <div class="card epesi-meeting-datebox">
+                        <div class="card-body text-center p-2">
+                            <div class="epesi-meeting-grid" style="grid-template-columns: repeat({$colspan}, auto);">
+                                <div class="epesi-meeting-weekday">{$day_details.start.weekday}</div>
 								{if $event_info.start_date != $event_info.end_date}
-									{assign var=colspan value=3}
-									<td class="weekday green">&nbsp;-&nbsp;</td>
-									<td class="weekday green">{$day_details.end.weekday}</td>
-								{else}
-									{assign var=colspan value=1}
+									<div class="epesi-meeting-weekday">&nbsp;-&nbsp;</div>
+									<div class="epesi-meeting-weekday">{$day_details.end.weekday}</div>
 								{/if}
-                            </tr>
-                            <tr>
-                                <td class="day black">{$day_details.start.day}</td>
+                                <div class="epesi-meeting-day">{$day_details.start.day}</div>
 								{if $event_info.start_date != $event_info.end_date}
-									<td class="day black">&nbsp;-&nbsp;</td>
-									<td class="day black">{$day_details.end.day}</td>
+									<div class="epesi-meeting-day">&nbsp;-&nbsp;</div>
+									<div class="epesi-meeting-day">{$day_details.end.day}</div>
 								{/if}
-                            </tr>
-                            <tr>
-                                <td class="month blue">{$day_details.start.month}&nbsp;{$day_details.start.year}</td>
+                                <div class="epesi-meeting-month">{$day_details.start.month}&nbsp;{$day_details.start.year}</div>
 								{if $event_info.start_date != $event_info.end_date}
-									<td></td>
-									<td class="month blue">{$day_details.end.month}&nbsp;{$day_details.start.year}</td>
+									<div></div>
+									<div class="epesi-meeting-month">{$day_details.end.month}&nbsp;{$day_details.start.year}</div>
 								{/if}
-                            </tr>
-                            <tr>
-                                <td colspan="{$colspan}" class="time black">
+                                <div class="epesi-meeting-time">
                                     {if isset($event_info)}
                                         {$event_info.start_time}&nbsp;-&nbsp;{$event_info.end_time}
                                     {/if}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="{$colspan}" class="duration dark-gray">
+                                </div>
+                                <div class="epesi-meeting-duration">
                                     {if isset($event_info)}
                                         {$event_info.duration}
                                     {/if}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 {/if}
                 <div class="column" style="flex: 1 1 0; min-width: 0;">
