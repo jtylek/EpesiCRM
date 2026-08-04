@@ -144,7 +144,7 @@
 				border-radius: 10px;
 				/* end border radius */
 			}
-			#epesiStatus table {
+			#epesiStatus > div {
 				color: #000000;
 				font-weight: normal;
 				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
@@ -173,17 +173,11 @@
 				<div class="epesi-boot-text"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></div>
 				<div class="epesi-boot-progress"><div class="epesi-boot-progress-bar"></div></div>
 				{else}
-				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-					<tr>
-						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
-					</tr>
-				</table>
+				<div style="width: 100%;">
+					<div><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></div>
+					<div style="display: flex; align-items: center; justify-content: center; height: 30px;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></div>
+					<div style="display: flex; align-items: center; justify-content: center; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></div>
+				</div>
 				{/if}
 			</div>
 		</div>

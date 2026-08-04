@@ -1,4 +1,8 @@
-table#Utils_Comment__Comment td.contents {
+#Utils_Comment__Comment {
+	margin-top: 5px;
+}
+
+#Utils_Comment__Comment .contents {
 	padding: 4px;
 	vertical-align: top;
 	height: 60px;
@@ -6,9 +10,8 @@ table#Utils_Comment__Comment td.contents {
     border: 1px solid #B3B3B3;
 }
 
-table#Utils_Comment__Comment td.user {
+#Utils_Comment__Comment .user {
 	padding: 4px;
-	width: 100px;
 	vertical-align: top;
 	font-weight: bold;
     background-color: #F8F8F8;
@@ -17,16 +20,15 @@ table#Utils_Comment__Comment td.user {
     border-top: 1px solid #B3B3B3;
 }
 
-table#Utils_Comment__Comment td.date {
+#Utils_Comment__Comment .date {
 	padding: 2px;
     background-color: #F8F8F8;
     border-left: 1px solid #B3B3B3;
     border-top: 1px solid #B3B3B3;
 }
 
-table#Utils_Comment__Comment td.action {
+#Utils_Comment__Comment .action {
 	padding: 2px;
-	width: 200px;
 	white-space: nowrap;
     background-color: #F8F8F8;
 	text-align: right;

@@ -1,49 +1,36 @@
 <center>
 <div class="month-applet-menu">
-		<table border="0" class="month-applet-menu">
-			<tr>
-				<td><a class="button" {$prevyear_href}><img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
-				<td><a class="button" {$today_href}><img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
-				<td><a class="button" {$nextyear_href}><img src="{$theme_dir}/Utils/Calendar/next.png"></a></td>
-				<td class="select_date_dashboard">{$popup_calendar}</td>
-				<!-- <td style="width: 10px;"></td>
-				<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils/Calendar/4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
-			</tr>
-		</table>
+		<div style="display: flex; align-items: center;">
+				<div><a class="button" {$prevyear_href}><img src="{$theme_dir}/Utils/Calendar/prev.png"></a></div>
+				<div><a class="button" {$today_href}><img src="{$theme_dir}/Utils/Calendar/this.png"></a></div>
+				<div><a class="button" {$nextyear_href}><img src="{$theme_dir}/Utils/Calendar/next.png"></a></div>
+				<div class="select_date_dashboard">{$popup_calendar}</div>
+		</div>
 </div>
 
-{math assign="col" equation="x" x=3}
-
-<table border="0" cellpadding="0" cellspacing="5" style="background-color: #FFFFFF;">
+{* Was a <table> hand-wrapping every 3 mini month-calendars into a new <tr>
+   (a genuine grid of grids) - CSS Grid replaces both levels, same recipe as
+   Utils_Calendar's own year.tpl (see AI-shared/adminlte-theme.md). *}
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background-color: #FFFFFF;">
 
 {foreach item=month from=$year}
-	{if $col % 3 == 0}<tr>{/if}
-		<td style="vertical-align: top">
-            <table name="CRMCalendar" id="Utils_Calendar__year" cellpadding="0" cellspacing="0" border="0">
-            	<tr>
-            		<td class="header-month" colspan="8"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></td>
-            	</tr>
-            	<tr>
-            		<td class="week-number">&nbsp;</td>
+		<div>
+            <div name="CRMCalendar" id="Utils_Calendar__year" role="table" style="display: grid; grid-template-columns: repeat(8, 1fr);">
+            		<div class="header-month" role="row" style="grid-column: 1 / -1;"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></div>
+            		<div class="week-number" role="columnheader">&nbsp;</div>
             		{foreach item=header from=$day_headers}
-            			<td class="header">{$header}</td>
+            			<div class="header" role="columnheader">{$header}</div>
             		{/foreach}
-            	</tr>
             	{foreach item=week from=$month.month}
-            		<tr>
-            			<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
+            			<div class="week-number" role="rowheader"><a {$week.week_link}>{$week.week_label}</a></div>
             			{foreach item=day from=$week.days}
-            				<td class="day {$day.style}"><a {$day.day_link}>{$day.day}</a></td>
+            				<div class="day {$day.style}" role="cell"><a {$day.day_link}>{$day.day}</a></div>
             			{/foreach}
-            		</tr>
             	{/foreach}
-            </table>
-		</td>
-	{if $col % 3 == 3}</tr>{/if}
-
-    {math assign="col" equation="x+1" x=$col}
+            </div>
+		</div>
 
 {/foreach}
 
-</table>
+</div>
 	</center>

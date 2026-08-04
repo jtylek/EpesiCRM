@@ -63,13 +63,11 @@
 	width: 100%;
 	height: 100%;
 	padding: 0px;
-	border-collapse: collapse;
 }
 
-.Utils_Tray__box_table th {
+.Utils_Tray__box_table_th {
 	font-weight: normal;
 	height: 20px;
-	border: 0px;
 	background-repeat: repeat-x;
 	text-align: left;
 	min-height: 25px;
@@ -77,7 +75,8 @@
 	border-right: 1px solid #B3B3B3;
 	border-bottom: 1px solid #FFFFFF;
 	color: #FFFFFF;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -87,10 +86,8 @@
 	/* end css3  gradient */
 }
 
-.Utils_Tray__box_table td {
-	border: 0px;
+.Utils_Tray__box_wrap {
 	padding: 2px;
-	vertical-align: top;
 }
 		
 .Utils_Tray__slot {
@@ -111,9 +108,9 @@
 
 .Utils_Tray__title {
     width: 100%;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     height: 31px;
-	table-layout: auto;
 }
 
 .Utils_Tray__title .name img.icon {

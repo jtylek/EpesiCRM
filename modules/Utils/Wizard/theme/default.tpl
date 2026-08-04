@@ -1,5 +1,5 @@
 {if !empty($captions)}
-<table style="width:100%"><tr><td style="width:200px;vertical-align:top;">
+<div style="width:100%; display: flex;"><div style="width:200px;">
 {assign var=level value=0}
 <ul>
 {foreach from=$captions key=i item=cap}
@@ -27,9 +27,9 @@
 	</li>
 {/foreach}
 </ul>
-</td><td>
+</div><div style="flex: 1 1 auto; min-width: 0;">
 {/if}
 {$page}
 {if !empty($captions)}
-</td></tr></table>
+</div></div>
 {/if}

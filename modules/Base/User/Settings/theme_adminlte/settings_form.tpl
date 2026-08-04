@@ -16,27 +16,25 @@
 
 	{foreach from=$sections item=section}
 		{if $section.select_matrix}
+			{* Was a <table class="table"> - CSS Grid instead, column count set
+			   dynamically from $section.headers (see AI-shared/adminlte-theme.md). *}
 			<div class="table-responsive">
-				<table class="table epesi-settings-matrix">
-					<thead>
-						<tr>
-							<th></th>
-							{foreach from=$section.headers item=h}
-								<th>{$h}</th>
-							{/foreach}
-						</tr>
-					</thead>
-					<tbody>
-						{foreach from=$section.matrix_rows item=row}
-							<tr>
-								<td>{$row.label}</td>
-								{foreach from=$row.cells item=cell}
-									<td>{if $cell}{$cell}{else}<span class="text-muted">&mdash;</span>{/if}</td>
-								{/foreach}
-							</tr>
+				<div class="epesi-settings-matrix" role="table" style="display: grid; grid-template-columns: minmax(150px, 2fr) repeat({$section.headers|@count}, minmax(60px, 1fr));">
+					<div role="row" style="display: contents;">
+						<div class="border-bottom fw-semibold" role="columnheader"></div>
+						{foreach from=$section.headers item=h}
+							<div class="border-bottom fw-semibold text-center" role="columnheader">{$h}</div>
 						{/foreach}
-					</tbody>
-				</table>
+					</div>
+					{foreach from=$section.matrix_rows item=row}
+						<div role="row" style="display: contents;">
+							<div class="border-bottom" role="cell">{$row.label}</div>
+							{foreach from=$row.cells item=cell}
+								<div class="border-bottom text-center" role="cell">{if $cell}{$cell}{else}<span class="text-muted">&mdash;</span>{/if}</div>
+							{/foreach}
+						</div>
+					{/foreach}
+				</div>
 			</div>
 		{else}
 			{if $section.header}
@@ -45,26 +43,22 @@
 
 			{if $section.matrix_rows}
 				<div class="table-responsive">
-					<table class="table epesi-settings-matrix">
-						<thead>
-							<tr>
-								<th></th>
-								{foreach from=$section.matrix_captions item=cap}
-									<th>{$cap}</th>
-								{/foreach}
-							</tr>
-						</thead>
-						<tbody>
-							{foreach from=$section.matrix_rows item=row}
-								<tr>
-									<td>{$row.label}</td>
-									{foreach from=$row.cells item=cell}
-										<td>{$cell}</td>
-									{/foreach}
-								</tr>
+					<div class="epesi-settings-matrix" role="table" style="display: grid; grid-template-columns: minmax(150px, 2fr) repeat({$section.matrix_captions|@count}, minmax(60px, 1fr));">
+						<div role="row" style="display: contents;">
+							<div class="border-bottom fw-semibold" role="columnheader"></div>
+							{foreach from=$section.matrix_captions item=cap}
+								<div class="border-bottom fw-semibold text-center" role="columnheader">{$cap}</div>
 							{/foreach}
-						</tbody>
-					</table>
+						</div>
+						{foreach from=$section.matrix_rows item=row}
+							<div role="row" style="display: contents;">
+								<div class="border-bottom" role="cell">{$row.label}</div>
+								{foreach from=$row.cells item=cell}
+									<div class="border-bottom text-center" role="cell">{$cell}</div>
+								{/foreach}
+							</div>
+						{/foreach}
+					</div>
 				</div>
 			{/if}
 

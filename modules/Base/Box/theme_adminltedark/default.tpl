@@ -262,7 +262,7 @@
 				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
 			"}".
 			"function ensureToggles(){".
-				"document.querySelectorAll('table.Utils_GenericBrowser td.Utils_GenericBrowser__actions').forEach(function(cell){".
+				"document.querySelectorAll('.Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
 					"if(cell.querySelector('.epesi-gb-actions-toggle'))return;".
 					"var links=Array.prototype.slice.call(cell.querySelectorAll('a'));".
 					"if(!links.length)return;".
@@ -411,7 +411,7 @@
 	// favourite/watchdog icons were left cramped. These two columns are
 	// therefore measured the same way the actions column is above - not
 	// trusted at their PHP-declared px value at all - by walking each body
-	// row's cell at the SAME column position (th.cellIndex; these columns'
+	// row's cell at the SAME column position (cellIndexOf(th); these columns'
 	// <td>s carry no distinguishing class, unlike .Utils_GenericBrowser__actions)
 	// and taking the largest scrollWidth, falling back to the declared
 	// width only if a table somehow has no body rows yet. The measured
@@ -458,18 +458,20 @@
 						// dragged) into an unbounded feedback loop - reproduced as a
 						// column growing by a fixed ~10px per call with NO actual resize
 						// at all. Cloning the cell into a detached, auto-layout table
-						// (kept under the same .epesi-gb/table.Utils_GenericBrowser
+						// (kept under the same .epesi-gb/.Utils_GenericBrowser
 						// classes so the icon ::before/hidden-<img> rules in this theme's
 						// own default.css still apply) measures the content alone,
 						// independent of whatever width the live column currently has.
 						"var holder=document.createElement('div');".
 						"holder.className='epesi-gb';".
 						"holder.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:-9999px;';".
-						"var mt=document.createElement('table');".
+						"var mt=document.createElement('div');".
 						"mt.className='Utils_GenericBrowser';".
 						"mt.style.cssText='table-layout:auto;width:auto;';".
-						"var tb=document.createElement('tbody');".
-						"var tr=document.createElement('tr');".
+						"var tb=document.createElement('div');".
+						"tb.className='Utils_GenericBrowser__tbody';".
+						"var tr=document.createElement('div');".
+						"tr.className='Utils_GenericBrowser__tr';".
 						"tr.appendChild(cell.cloneNode(true));".
 						"tb.appendChild(tr);".
 						"mt.appendChild(tb);".
@@ -479,11 +481,19 @@
 						"document.body.removeChild(holder);".
 						"return w;".
 					"}".
-					"document.querySelectorAll('table.Utils_GenericBrowser').forEach(function(table){".
-						"var headerCell=table.querySelector('th.Utils_GenericBrowser__actions, thead td.Utils_GenericBrowser__actions');".
+					// A div has no native .cellIndex (that's an HTMLTableCellElement-
+					// only property, always undefined on a plain element) - this grid
+					// is now divs laid out via CSS table-display, not real <td>/<th>
+					// elements, so the column position has to be computed from DOM
+					// position among the row's own children instead.
+					"function cellIndexOf(el){".
+						"return Array.prototype.indexOf.call(el.parentNode.children,el);".
+					"}".
+					"document.querySelectorAll('.Utils_GenericBrowser').forEach(function(table){".
+						"var headerCell=table.querySelector('.Utils_GenericBrowser__th.Utils_GenericBrowser__actions');".
 						"if(!headerCell)return;".
 						"var maxWidth=0;".
-						"table.querySelectorAll('tbody td.Utils_GenericBrowser__actions').forEach(function(cell){".
+						"table.querySelectorAll('.Utils_GenericBrowser__tbody .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
 							"var w=naturalWidth(cell);".
 							"if(w>maxWidth)maxWidth=w;".
 						"});".
@@ -495,7 +505,7 @@
 						"if(!container)return;".
 						"var containerWidth=container.clientWidth;".
 						"if(containerWidth<=0)return;".
-						"var others=table.querySelectorAll('thead > tr > th:not(.Utils_GenericBrowser__actions), thead > tr > td:not(.Utils_GenericBrowser__actions)');".
+						"var others=table.querySelectorAll('.Utils_GenericBrowser__thead .Utils_GenericBrowser__th:not(.Utils_GenericBrowser__actions)');".
 						"var percentCols=[];".
 						"var percents=[];".
 						"var totalPercent=0;".
@@ -510,13 +520,13 @@
 								"percents.push(p);".
 								"totalPercent+=p;".
 							"}else{".
-								"var idx=th.cellIndex;".
+								"var idx=cellIndexOf(th);".
 								"var fw=0;".
-								"table.querySelectorAll('tbody > tr').forEach(function(row){".
-									"var cell=row.cells[idx];".
+								"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
+									"var cell=row.children[idx];".
 									// This <td> has no class or attribute of its own (RecordBrowserCommon_0.php's
 									// get_fav_button()/WatchdogCommon_0.php's get_change_subscription_icon() build
-									// it bare - the th.cellIndex walk above is already working around exactly
+									// it bare - the cellIndexOf(th) walk above is already working around exactly
 									// that), so default.css has no selector that could tighten its padding the
 									// way the Actions column's own td.Utils_GenericBrowser__actions rule does -
 									// Bootstrap's default ".table" cell padding (.5rem each side) was left in
@@ -586,7 +596,7 @@
 							"if(div.scrollHeight>18){".
 								"div.classList.remove('expanded');".
 								"div.classList.add('collapsed');".
-								"var row=div.closest('tr');".
+								"var row=div.closest('.Utils_GenericBrowser__tr');".
 								"if(row){".
 									"var more=row.querySelector(\"a[id^='gb_more_']\");".
 									"var less=row.querySelector(\"a[id^='gb_less_']\");".

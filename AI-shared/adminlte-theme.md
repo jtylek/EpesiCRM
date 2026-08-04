@@ -1,5 +1,151 @@
 # AdminLTE theme(s) status
 
+## Legacy `theme/` converted to div-only layout (2026-08-04)
+
+The legacy `theme/` (old default, pre-AdminLTE, table-based) is now fully
+div/flexbox/CSS-Grid-based, matching what `theme_adminlte(dark)/` already did
+per-screen. Scope: all of `theme/` across every module, plus
+`admin/templates/`, `setuptheme/`, `include/templates/`, and root `theme/`
+(the boot splash). Point 7 below ("Epesi renders almost everything as nested
+`<table>`s") is resolved for `theme/` as a result — the whole bug class it
+described no longer applies there.
+
+**New Smarty plugin**: `Base_Theme/smarty/plugins/function.html_grid_epesi.php`
+replaces `html_table_epesi` for GenericBrowser's core list grid in the legacy
+theme (same `loop`/`cols`/`row_attrs`/`table_attr` param contract, emits
+`role="table"`/`row`/`columnheader`/`cell` div markup instead of `<table>`).
+`function.html_table.php` and `function.html_scrolled_table_epesi.php` (+ its
+companion JS) were confirmed to have zero remaining callers and were deleted
+outright rather than converted.
+
+**Dropped feature**: GenericBrowser's column-resize (jQuery `colResizable`,
+`js/col_resizable.js`) was removed — the vendored plugin hard-requires a real
+`<table>` and no div-compatible equivalent was available. Sort/filter/search
+are unaffected. `GenericBrowser_0.php`'s `$resizable_columns`/
+`set_resizable_columns()` API surface is left in place but now inert.
+
+**PDF/email carve-outs — these 4 templates deliberately still emit
+`<table>`, do not "fix" them**:
+- `Utils/GenericBrowser/theme/pdf.tpl` — still calls `{html_table_epesi}`.
+- `Utils/RecordBrowser/Reports/theme/pdf_row.tpl`
+- `CRM/Calendar/Event/theme/pdf_version.tpl`
+- `Utils/RecordBrowser/theme/RecordPrint.tpl` — found *during this pass*, not
+  in the original inventory. Confirmed via `RecordPrinter.php` →
+  `Base_Print_Printer` → `Base_Print_Document_PDF::add_content()` →
+  `Libs_TCPDFCommon::writeHTML()`: this exact template's HTML is fed straight
+  into TCPDF, which only reliably renders `<table>`-based layout, not
+  flex/grid. Verified PDF export still works end-to-end post-conversion
+  (`Base_Print/Handle.php` response: `content-type: application/pdf`, 94KB,
+  valid).
+`Utils/RecordBrowser/theme/changes_list_email.tpl` (an inline-styled **email
+body**, not PDF) was left as `<table>` for the same reason — email client CSS
+support is closer to TCPDF's than to a browser's. `Base_Theme/smarty/debug.tpl`
+(Smarty's own vendored debug console, see `MIGRATION_NOTES.md` §17 on why
+Smarty 2 itself is never touched) was also deliberately left alone — not a
+carve-out for rendering reasons, just out of scope as vendored code.
+
+**Files missed by the original inventory, found via a post-hoc full-repo
+grep sweep and converted in the same pass**: `Utils/LeightboxPrompt/theme/
+form.tpl`, `CRM/Followup/theme/leightbox.tpl`, `Utils/FileStorage/theme/
+download.tpl`. If a future sweep of this codebase turns up more legacy
+`<table>` usage outside `modules/Premium/` (out of scope, separately
+licensed/gitignored), treat it the same way, using whichever of these 5
+recipes fits — don't assume this pass's inventory was exhaustive:
+1. **Label/value row** (`single_field.tpl`): `<tr><td class="label">`/
+   `<td class="data">` → `<div class="epesi-rv-row"><div class="label">`/
+   `<div class="data">`, tag swap only. Row is `display:flex`.
+2. **Generic field-list form** (QuickForm's `column.tpl`): CSS Grid
+   (`grid-template-columns: minmax(120px,max-content) minmax(0,1fr)`), label/
+   data divs emitted flat — grid auto-placement pairs them, no row wrapper.
+3. **Repeating group hand-wrapped into a new `<tr>` every N items**
+   (`RecordBrowser/Filters/theme/elements.tpl`): delete the modulo/counter
+   bookkeeping, replace with `display:flex; flex-wrap:wrap` on the container.
+4. **Genuine 2D data grid** (GenericBrowser's list, calendar month/week/day
+   grids, Settings matrix): CSS Grid with explicit `grid-template-columns`
+   (computed via `{$x|@count}` when column count is dynamic), plus
+   `role="table"`/`"row"`/`"columnheader"`/`"cell"` ARIA attributes to
+   restore the semantics real `<table>` markup gave for free. For a row that
+   needs to stay hoverable/addressable as a group, wrap it in a
+   `display:contents` div with `role="row"` — its cells still lay out
+   directly against the grid's own column tracks.
+5. **`rowspan`-dependent layout**: prefer native CSS Grid `grid-row:span N`
+   over a flex-sibling-stacking workaround — simpler and, per the
+   CRM_Meeting bug above, less error-prone. If flex-sibling-stacking is used
+   anyway (make the rowspanning cell a flex sibling of a second flex item
+   that internally stacks the rows that used to share the rowspanned cell),
+   triple-check the closing `</div>` for that second flex item lands *after*
+   every row meant to be inside it, and verify live in a browser, not just
+   by reading the template.
+
+**A real bug found and fixed during this pass** (not present before this
+conversion touched the file, and not caused by the div conversion mechanics
+themselves — a nesting mistake made while doing it): `CRM/Meeting/theme/
+default.tpl`'s rowspan-replacement wrapper column (`flex: 1 1 0; min-width:
+0`, standing in for the original `<td rowspan="3">`'s sibling) was closed one
+`</div>` too early, leaving the multiselects/longfields/alert sections as
+*siblings* of that wrapper instead of children stacked inside it. Since those
+sections have `flex-basis:auto` (auto-sized to content) and the wrapper had
+`flex-basis:0` (grows only from `flex-grow`), the auto-sized siblings claimed
+essentially all the row's width first, leaving the wrapper — and everything
+inside it, including Title/Permission/Employees/etc — collapsed to ~0px
+(visually: field values wrapped one character per line). Caught by live
+browser verification, not by grep or lint — this class of bug (a flex/grid
+container is syntactically valid HTML and produces no console error) is
+invisible to static checks. `CRM/Calendar/Event/theme/default.tpl` uses the
+same rowspan-replacement pattern and was re-checked by hand against this
+exact failure mode — nesting confirmed correct there.
+
+**Also found and fixed: a stale-CSS-selector regression from the GenericBrowser
+grid conversion itself.** `Utils_GenericBrowser`'s core list grid moving from
+`<table>`/`<thead>`/`<tr>`/`<th>`/`<td>` to `.Utils_GenericBrowser__thead`/
+`__tr`/`__th`/`__td` div classes broke any *other* module's CSS that still
+targeted the old tag-based selectors for a GenericBrowser widget embedded
+outside GenericBrowser's own theme files. Found in `Utils/FrontPage/theme/
+default.css` (a whole duplicated block, `.contents table > thead > tr > th`
+etc.), `Base/Dashboard/theme/default.css` (`.Utils_GenericBrowser th`), and
+`Utils/RecordBrowser/Reports/theme/default.css` (`table.Utils_GenericBrowser
+tr:hover`) — all fixed to the current class-based selectors. This class of
+bug doesn't show up in a `<table` grep (it's CSS, not HTML) — if
+`Utils_GenericBrowser`'s own markup ever changes again, grep for
+`Utils_GenericBrowser.*\b(tr|td|th|thead|tbody)\b` and `table\.Utils_GenericBrowser`
+across all `*.css` first, not just the files being actively edited.
+
+**Pre-existing bugs surfaced by browser-testing this pass (not caused by it,
+left as found — report/decide separately, don't silently fix mid-conversion)**:
+- `Base_ActionBar/theme/default.tpl`'s `{if $i.icon_url}` undefined-array-key
+  warning — this one **was** fixed, as a low-risk drive-by, since it was in a
+  file already being edited for the conversion itself.
+- The shared confirm-modal (`Module::create_confirm_href()`/
+  `window.epesi_confirm()`) renders unstyled/visible inline off-AdminLTE,
+  because Bootstrap's `.modal{display:none}` CSS isn't loaded for the legacy
+  theme. Still unfixed.
+- `{foreach item=n from=$new}` (a per-record "what's new" tooltip loop) is
+  unguarded by `isset()` in **22 View_entry-family templates** across both
+  the legacy and AdminLTE-family themes (`View_entry.tpl`, `Contact.tpl` ×2,
+  `mails.tpl` ×2, `PhoneCall`'s and `Meeting`'s `default.tpl`,
+  `Attachment/View_entry.tpl`, all three themes) — pre-existing in the
+  original table markup, carried forward verbatim, not introduced by this
+  pass. Triggers `E_WARNING: Undefined array key "new"` under
+  `REPORT_ALL_ERRORS` on `view`/`edit` actions where `$new` isn't assigned.
+  Still unfixed — systemic enough (22 call sites) to warrant its own pass
+  rather than a drive-by fix.
+- Similarly-shaped unguarded-array-access warnings exist elsewhere in
+  `CRM_Meeting`'s own template (`$event_info.start_date` compared without an
+  `isset()` guard, hit by all-day/"Company Holiday"-type records) and in
+  `RecordBrowser/theme/RecordPrint.tpl` (`$no_access`) — same "pre-existing,
+  verified against the original baseline via git, not this pass's doing"
+  story, left alone for the same reason.
+
+**Verification performed**: `php -l` on every touched PHP file; a full-repo
+grep sweep for `<table|<tr|<td|<th` across the entire in-scope tree (clean
+except the carve-outs above and this file's own explanatory comments); live
+Playwright testing of ~15 screens in the legacy theme (top bar/ActionBar
+chrome, Dashboard applets, GenericBrowser list view, RecordBrowser
+View_entry — Contact/PhoneCall/Task/Meeting incl. recurring and
+timeless/all-day variants, PopupCalendar widget incl. year/month drill-down,
+Calendar month/week/day/year views, a Leightbox popup) plus the PDF export
+pipeline — all confirmed working, zero console errors.
+
 ## RecordBrowser's generic View_entry.tpl: fluid CSS columns (2026-08-03)
 
 See [design-philosophy.md](design-philosophy.md) for why this was originally
@@ -76,8 +222,12 @@ own `<Module>Common::adminlte_icon()` static method, same shape as `menu()`/
 **Not yet themed / not audited**: individual dashboard applets' own inner
 content (Weather, RssFeed, Shoutbox history, Calc, etc. mostly `print()` raw
 HTML), `Base_Admin/theme/access_panel.tpl`, QuickForm's raw-table renderer
-(`Libs/QuickForm/Renderer/TCMSDefault.php`, used by `Utils_Wizard` — CSS-only
-override, not converted to the Smarty array renderer), leightbox popup
+(`Libs/QuickForm/Renderer/TCMSDefault.php`, used by `Utils_Wizard` — **its
+`_headerTemplate`/`_elementTemplate`/`_formTemplate`/`_requiredNoteTemplate`
+raw strings were converted from `<tr>/<td>` to `<div>` as part of the
+2026-08-04 legacy-theme div conversion above, since the class is theme-
+agnostic and shared by every theme; it's still a CSS-only reskin, not
+converted to the Smarty array renderer**), leightbox popup
 *contents* (e.g. CRM_Filters "manage perspectives"), Base_Help's tutorial
 overlay. Tooltips are **plain native browser tooltips** (`title="..."` only) —
 three separate attempts at a JS-driven (Bootstrap) tooltip component each broke
@@ -149,24 +299,26 @@ fork, so both themes benefit.
    body in try/catch and guard on its dependencies actually being loaded
    (load order between independently-`load_js()`'d files is never guaranteed).
 
-7. **Epesi renders almost everything as nested `<table>`s, not divs** — a
-   systemic source of width/sizing bugs, not a one-off. A nested `<table>` with
-   a percentage width has no resolvable preferred width under auto-layout, so
-   sizing becomes unpredictable and content-dependent. `table-layout:fixed` on
-   the outer table is a common fix; converting the *inner* element to
-   `display:block`/flex (as done for the multiselect dual-listbox widget) is
-   usually more robust than fighting auto-layout further. A genuine
-   div/flexbox rewrite would eliminate this whole bug class but is out of
-   scope for per-screen theming passes — flagged so it isn't rediscovered from
-   scratch each time.
+7. **Epesi used to render almost everything as nested `<table>`s, not divs** —
+   a systemic source of width/sizing bugs, not a one-off. **Resolved for the
+   legacy `theme/` as of 2026-08-04** (see the dated entry at the top of this
+   file) — that whole theme is now div/flexbox/CSS-Grid-based, the same as
+   `theme_adminlte(dark)/` already was. A nested `<table>` with a percentage
+   width has no resolvable preferred width under auto-layout, so sizing
+   becomes unpredictable and content-dependent; the flex/grid equivalents
+   don't have that failure mode, but introduce a different one instead — see
+   the CRM_Meeting div-nesting bug in that same entry: a flex/grid container
+   closed one level too shallow produces no HTML validation error and no
+   console warning, only a silently-collapsed column, so live browser
+   verification (not grep/lint) is what actually catches it.
 
 8. **AdminLTE's `.card-body.p-0` CSS reaches into any `<table>` inside it**
    (adds `padding-left/right` to first/last-of-type cells at the same
    specificity as a per-column override — needs `!important` to beat).
-   Separately, `Utils/GenericBrowser/js/col_resizable.js` strips the `width`
-   HTML attribute from header cells at runtime and replaces it with an inline
-   pixel style — any later JS that needs a column's *original* declared width
-   must cache it early or read a stable class, not the DOM attribute.
+   (`Utils/GenericBrowser/js/col_resizable.js`, previously noted here for
+   stripping the `width` HTML attribute from header cells at runtime, was
+   deleted 2026-08-04 along with the column-resize feature itself — see the
+   dated entry at the top of this file.)
 
 9. **Bootstrap utility classes (`shadow-sm`, `border-0`, etc.) set their
    property with `!important`** — remove the utility class from markup rather

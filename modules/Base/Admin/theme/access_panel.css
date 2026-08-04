@@ -38,7 +38,8 @@
 	width: 32px;
 	margin: auto;
 	padding-top: 5px;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
 }
 
 
@@ -48,16 +49,18 @@
 	width: 80px;
 	padding: 5px;
 	text-align: center;
-	vertical-align: middle;
-	display: table-cell;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #Base_Admin__access .epesi_big_button .bb_form {
 	width: 120px;
 	padding: 5px;
 	text-align: center;
-	vertical-align: middle;
-	display: table-cell;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #Base_Admin__access .big_button_container {

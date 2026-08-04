@@ -49,32 +49,32 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
     * @var      string
     * @access   private
     */
-    var $_headerTemplate = 
-        "\n\t<tr>\n\t\t<td class=\"header\" colspan=\"2\">{header}</td>\n\t</tr>";
+    var $_headerTemplate =
+        "\n\t<div class=\"quickform-row\">\n\t\t<div class=\"header\">{header}</div>\n\t</div>";
 
    /**
     * Element template string
     * @var      string
     * @access   private
     */
-    var $_elementTemplate = 
-        "\n\t<tr>\n\t\t<td class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</td>\n\t\t<td class=\"{element_style}\"><span class=\"error\" id=\"{error_id}\"></span>\t{element}</td>\n\t</tr>";
+    var $_elementTemplate =
+        "\n\t<div class=\"quickform-row\">\n\t\t<div class=\"element\"><!-- BEGIN required --><span style=\"color: #ff0000\">*</span><!-- END required -->{label}</div>\n\t\t<div class=\"{element_style}\"><span class=\"error\" id=\"{error_id}\"></span>\t{element}</div>\n\t</div>";
 
    /**
     * Form template string
     * @var      string
     * @access   private
     */
-    var $_formTemplate = 
-        "\n<form{attributes}>\n<div>\n{hidden}<table border=\"0\" id=\"quickform\">\n{content}\n</table>\n</div>\n</form>";
+    var $_formTemplate =
+        "\n<form{attributes}>\n<div>\n{hidden}<div id=\"quickform\">\n{content}\n</div>\n</div>\n</form>";
 
    /**
     * Required Note template string
     * @var      string
     * @access   private
     */
-    var $_requiredNoteTemplate = 
-        "\n\t<tr>\n\t\t<td></td>\n\t<td align=\"left\" valign=\"top\">{requiredNote}</td>\n\t</tr>";
+    var $_requiredNoteTemplate =
+        "\n\t<div class=\"quickform-row\">\n\t\t<div></div>\n\t<div style=\"text-align:left;\">{requiredNote}</div>\n\t</div>";
 
    /**
     * Array containing the templates for customised elements

@@ -1017,14 +1017,16 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
 		$theme->assign('id',md5($this->get_path()));
-		
-		if ($this->resizable_columns) {
-			load_js($this->get_module_dir().'js/col_resizable.js');
-				
-			$fixed_col_setting = !empty($this->fixed_columns_selector)? ', skipColumnClass:"'.$this->fixed_columns_selector.'"':'';
-			eval_js('jq("#table_'.$md5_id.'").colResizable({liveDrag:true, postbackSafe:true, partialRefresh:true'.$fixed_col_setting.'});');
-		}
-		
+
+		// Column drag-to-resize (js/col_resizable.js, jQuery colResizable) was
+		// dropped when this grid's markup moved from a real <table> to CSS
+		// table-display divs (see AI-shared/adminlte-theme.md) - the vendored
+		// plugin hard-requires an actual <table> element and has no
+		// div-compatible equivalent. $resizable_columns/set_resizable_columns()
+		// are kept as inert API surface (RecordBrowser_0.php still calls
+		// set_resizable_columns(false) for PDF export, where it's moot anyway
+		// since pdf.tpl still renders a real <table> via {html_table_epesi}).
+
 		if(isset($template))
 			$theme->display($template,true);
 		else

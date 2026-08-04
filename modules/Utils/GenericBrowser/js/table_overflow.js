@@ -191,7 +191,7 @@ gb_expandable_init = function(table,id) {
     // per-row action icons (they only surface inside the "more actions"
     // kebab there) or the Expand All/Collapse All buttons.
     el.unbind().each(function() {
-        var tallPreview = jq(this).closest('td').hasClass('Utils_RecordBrowser__tallpreview');
+        var tallPreview = jq(this).closest('.Utils_GenericBrowser__td').hasClass('Utils_RecordBrowser__tallpreview');
         jq(this).click(function (e) {
             if(getSelection().toString()) return;
             var onSelf = (e.target == this);
@@ -202,7 +202,7 @@ gb_expandable_init = function(table,id) {
             }
         });
     });
-    el.parent("td").unbind().click(function (e) {
+    el.parent(".Utils_GenericBrowser__td").unbind().click(function (e) {
         if (e.target == this) {
             jq(this).children("div").click();
         }
@@ -216,6 +216,6 @@ gb_expandable_adjust_action_column = function (table, actions) {
     if (Object.keys(gb_expandable[table]).length > 0) {
         actions = actions + 1;
     }
-    var el = jq('#table_' + table + ' th.Utils_GenericBrowser__actions:first');
+    var el = jq('#table_' + table + ' .Utils_GenericBrowser__th.Utils_GenericBrowser__actions:first');
     el.css('width', actions * 16 + 6);
 };

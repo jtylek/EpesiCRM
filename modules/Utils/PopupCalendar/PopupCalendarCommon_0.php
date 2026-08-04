@@ -56,8 +56,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			trigger_error('Invalid first day of week',E_USER_ERROR);
 
 		$calendar = '<div id="Utils_PopupCalendar">'.
-			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
-			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
+			'<div id="datepicker_'.$name.'_header">error</div>'.
+			'<div id="datepicker_'.$name.'_view">calendar not loaded</div></div>';
 
 		$entry = 'datepicker_'.$name.'_calendar';
 		$butt = $id ?? 'datepicker_' . $name . '_button';

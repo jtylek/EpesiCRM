@@ -1,24 +1,25 @@
-table#Base_Search__Search {
+#Base_Search__Search {
     width:970px;
     margin:0px auto;
 }
-table#Base_Search__Search span.error {
+#Base_Search__Search span.error {
 	color: red;
 }
 
-table#Base_Search__Search td.header_tail {
+#Base_Search__Search .header_tail {
 	color: #FFFFFF;
 	font-weight: bold;
 	width: 200px;
 	height: 20px;
 	border: 0px;
-	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
 	/* css3 blue gradient */
 	background: #7b9cbd; /* Old browsers */
 	/* end css3  gradient */
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -32,14 +33,14 @@ table#Base_Search__Search td.header_tail {
  	/* end css3 shadow border*/
 }
 
-table#Base_Search__Search td.header_tail span.header {
+#Base_Search__Search .header_tail span.header {
 	color: #FFFFFF;
 	text-align: left;
 	font-weight: bold;
 	padding-left: 5px;
 }
 
-table#Base_Search__Search input[type=text] {
+#Base_Search__Search input[type=text] {
 	color: #000000;
 	border: 1px solid #b3b3b3;
 	/*width: 173px;*/
@@ -47,7 +48,7 @@ table#Base_Search__Search input[type=text] {
 	height: 16px;
 	font-size: 13px;
 	padding-left: 5px;
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -55,25 +56,25 @@ table#Base_Search__Search input[type=text] {
 	/* end border radius */
 }
 
-.epesi_rtl table#Base_Search__Search input {
+.epesi_rtl #Base_Search__Search input {
 	margin-left: 10px;
 }
 
-table#Base_Search__Search input:focus {
+#Base_Search__Search input:focus {
 	background-color: #FFFFA5;
 }
 
-table#Base_Search__Search td.input {
+#Base_Search__Search .input {
 	height: 21px;
 	width: 164px;
 	padding-right: 0px;
 }
 
-table#Base_Search__Search td.submit {
+#Base_Search__Search .submit {
 	padding-left: 2px;
 }
 
-table#Base_Search__Search input.mini_submit {
+#Base_Search__Search input.mini_submit {
 	color: #FFFFFF;
 	width: 110px;
 	height: 21px;
@@ -82,14 +83,14 @@ table#Base_Search__Search input.mini_submit {
 	display: block;
 	float: right;
 	cursor: pointer;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	/* end dark css3 green background gradient */
 
 }
 
-table#Base_Search__Search input.mini_submit:hover {
+#Base_Search__Search input.mini_submit:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	/* end light css3 green background gradient */
@@ -103,40 +104,38 @@ table#Base_Search__Search input.mini_submit:hover {
 	background: url("Base/Box/search_icon.png") no-repeat right;
 }
 
-table#Base_Search__Search input.submit {
+#Base_Search__Search input.submit {
 	cursor: pointer;
 	color: #FFFFFF;
 	border: 0px;
 	width: 100px;
 	height: 20px;
 	font-size: 13px;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	/* end dark css3 green background gradient */
 }
 
-table#Base_Search__Search input.submit:hover {
+#Base_Search__Search input.submit:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	/* end light css3 green background gradient */
 }
 
-table#Base_Search__Search .label {
+#Base_Search__Search .label {
 	color: #000000;
 	font-size: 13px;
-	vertical-align: middle;
 }
-table#Base_Search__Search ul li {
+#Base_Search__Search ul li {
     width:170px;
     display:block;
     float:left;
     margin-right:14px;
 }
 
-table#Base_Search__Search td.data select {
+#Base_Search__Search .data select {
 	font-size: 13px;
-	vertical-align: middle;
 }
 
 .search_button {
@@ -149,7 +148,7 @@ table#Base_Search__Search td.data select {
     border: none;
     text-align: center;
     vertical-align: middle;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	/* end dark css3 green background gradient */

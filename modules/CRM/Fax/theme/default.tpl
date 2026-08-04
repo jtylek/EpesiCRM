@@ -1,38 +1,36 @@
 {$form_open}
 
-<table id="CRM_Fax__filters" align="left" width="100%;">
-	<tr>
+<div id="CRM_Fax__filters" style="display: flex; flex-wrap: wrap; align-items: center; width: 100%;">
 		{if isset($form_data.status)}
-		<td class="label">
+		<div class="label">
 			{$form_data.status.label}
-		</td>
-		<td class="data" width="30px;">
+		</div>
+		<div class="data" style="width:30px;">
 			{$form_data.status.error}
 			{$form_data.status.html}
-		</td>
+		</div>
 		{/if}
 		{if isset($form_data.start)}
-		<td class="label">
+		<div class="label">
 			{$form_data.start.label}
-		</td>
-		<td class="data" width="30px;">
+		</div>
+		<div class="data" style="width:30px;">
 			{$form_data.start.error}
 			{$form_data.start.html}
-		</td>
-		<td class="label">
+		</div>
+		<div class="label">
 			{$form_data.end.label}
-		</td>
-		<td class="data" width="30px;">
+		</div>
+		<div class="data" style="width:30px;">
 			{$form_data.end.error}
 			{$form_data.end.html}
-		</td>
+		</div>
 		{/if}
-		<td class="data" width="30px;">
+		<div class="data" style="width:30px;">
 			{$form_data.submit_button.html}
-		</td>
-	</tr>
-</table>
-		
+		</div>
+</div>
+
 
 {$form_close}
 

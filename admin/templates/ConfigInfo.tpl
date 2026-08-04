@@ -2,29 +2,23 @@
 {foreach from=$checks item=category}
 <div class="mb-3">
 	<h6>{$category.label}</h6>
-	<table class="table table-sm mb-0">
-		<tbody>
+	<div class="list-group list-group-flush">
 {foreach from=$category.tests item=test}
-			<tr>
-				<td>{$test.label}</td>
-				<td class="text-end">
-					<span class="badge {if $test.severity==0}bg-success{elseif $test.severity==1}bg-warning text-dark{else}bg-danger{/if}">{$test.status}</span>
-				</td>
-			</tr>
+		<div class="list-group-item d-flex justify-content-between align-items-center">
+			{$test.label}
+			<span class="badge {if $test.severity==0}bg-success{elseif $test.severity==1}bg-warning text-dark{else}bg-danger{/if}">{$test.status}</span>
+		</div>
 {/foreach}
-		</tbody>
-	</table>
+	</div>
 </div>
 {/foreach}
 
 <h5 class="mt-4">EPESI config.php</h5>
-<table class="table table-striped table-sm">
-	<tbody>
-		{foreach from=$config_rows item=row}
-		<tr>
-			<td>{$row.label}</td>
-			<td>{if $row.strong}<strong class="{$row.class}">{$row.value}</strong>{else}<span class="{$row.class}">{$row.value}</span>{/if}</td>
-		</tr>
-		{/foreach}
-	</tbody>
-</table>
+<div class="list-group list-group-flush">
+	{foreach from=$config_rows item=row}
+	<div class="list-group-item d-flex justify-content-between align-items-center">
+		{$row.label}
+		{if $row.strong}<strong class="{$row.class}">{$row.value}</strong>{else}<span class="{$row.class}">{$row.value}</span>{/if}
+	</div>
+	{/foreach}
+</div>

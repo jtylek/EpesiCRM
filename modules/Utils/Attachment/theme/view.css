@@ -41,8 +41,9 @@
     height: 40px;
     font-size: 15px;
     font-weight: bold;
-    vertical-align: middle;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     /* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -55,12 +56,12 @@
 }
 
 #Utils_Attachment__view .file {
-    vertical-align: top;
     text-align: left;
     font-size: 14px;
     height: 40px;
     width: 50px;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     background-color: #E3E3E3;
 }
 
@@ -92,7 +93,8 @@
 }
 
 #Utils_Attachment__view .file_desc {
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     background-color: #E3E3E3;
     padding-left: 10px;
     padding-right: 10px;
@@ -112,7 +114,8 @@
 
 .Utils_Attachment__table {
     width: 100%;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     height: 31px;
 }
 
@@ -149,6 +152,7 @@
 }
 
 .Utils_Attachment__table .required_fav_info {
+    flex: 1 1 auto;
     color: #777777;
     text-align: right;
     padding-right: 20px;

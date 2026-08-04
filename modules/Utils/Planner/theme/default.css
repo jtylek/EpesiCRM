@@ -1,20 +1,13 @@
 #Utils_Planner__grid .header {
-	vertical-align: middle;
 	border: 1px solid #B3B3B3;
-	width: 14%;
 	padding: 0px;
+	display: flex;
+	align-items: center;
 
 	/* css3 gray gradient - calendar */
 	background: #ffffff; /* Old browsers */
 	/* end css3 gray gradient - calendar */
 }
-
-#Utils_Planner__grid,
-#Utils_Planner__resource_table,
-#Utils_Planner__table {
-	table-layout: auto;
-}
-
 
 #Utils_Planner__grid .header > div {
 	color: #336699;
@@ -23,7 +16,7 @@
 	font-size: 13px;
 	padding: 5px;
 	text-align: center;
-	
+	width: 100%;
 }
 
 #Utils_Planner__grid .header > div > input {
@@ -36,8 +29,9 @@
 #Utils_Planner__grid .epesi_label.grid_legend {
 	padding: 0px 4px;
 	height: 29px;
-	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: auto;
 }
 
@@ -61,10 +55,6 @@
 	background-color: #FFBBBB;
 }
 
-#Utils_Planner__resource_table {
-	border-spacing: 3px;
-	width: 100%;
-}
 #Utils_Planner__resource_table .epesi_label {
 	width: 100px;;
 }
@@ -84,12 +74,8 @@
 #Utils_Planner__resource_table select.noconflict {
     background-color: #FFFFFF;
 }
-#Utils_Planner__time_frames table {
-	width: 100%;
-}
-
-
 #Utils_Planner__time_frames .time_frames {
+	width: 100%;
     background-color: #F2F2F2;
     /* border radius */
     -webkit-border-radius: 3px;
@@ -99,7 +85,7 @@
 }
 
 
-#Utils_Planner__time_frames .time_frames tr td {
+#Utils_Planner__time_frames .time_frames > div {
     border-right: 1px solid gray;
     text-align: center;
 }

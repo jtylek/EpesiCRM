@@ -1,31 +1,25 @@
 {foreach from=$checks item=category}
 <div class="mb-3">
 	<h6>{$category.label}</h6>
-	<table class="table table-sm mb-0">
-		<tbody>
+	<div class="list-group list-group-flush">
 {foreach from=$category.tests item=test}
-			<tr>
-				<td>{$test.label}</td>
-				<td class="text-end">
-					<span class="badge {if $test.severity==0}bg-success{elseif $test.severity==1}bg-warning text-dark{else}bg-danger{/if}">{$test.status}</span>
-				</td>
-			</tr>
+		<div class="list-group-item d-flex justify-content-between align-items-center">
+			{$test.label}
+			<span class="badge {if $test.severity==0}bg-success{elseif $test.severity==1}bg-warning text-dark{else}bg-danger{/if}">{$test.status}</span>
+		</div>
 {/foreach}
-		</tbody>
-	</table>
+	</div>
 </div>
 {/foreach}
 {if $orphaned}
 <div class="mb-3">
 	<h6>{'Additional modules'|t}</h6>
-	<table class="table table-sm mb-1">
-		<tbody>
+	<div class="list-group list-group-flush">
 {foreach from=$orphaned item=mod}
-			<tr><td>{$mod}</td><td class="text-end"><span class="badge bg-warning text-dark">{'Code missing'|t}</span></td></tr>
+		<div class="list-group-item d-flex justify-content-between align-items-center">{$mod}<span class="badge bg-warning text-dark">{'Code missing'|t}</span></div>
 {/foreach}
-		</tbody>
-	</table>
-	<p class="text-muted small mb-0">{'These modules are installed but their code is not in this build (most likely premium/custom). Their data stays in the database; migrate them to this version to restore them.'|t}</p>
+	</div>
+	<p class="text-muted small mb-0 mt-1">{'These modules are installed but their code is not in this build (most likely premium/custom). Their data stays in the database; migrate them to this version to restore them.'|t}</p>
 </div>
 {/if}
 <div class="small text-muted mt-3">

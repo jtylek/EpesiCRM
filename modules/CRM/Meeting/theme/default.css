@@ -128,12 +128,27 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 	-webkit-box-shadow: inset 1px 1px 1px black;
 	-moz-box-shadow: inset 1px 1px 1px black;
 	box-shadow: inset 1px 1px 1px black;
+	/* Was a <table> with a <td rowspan="3"> - CSS grid instead. Column count
+	   (1 or 3, depending on whether the event spans multiple days) is set
+	   inline per-record (default.tpl's $colspan), since that's per-record
+	   data, not something CSS alone can know. */
+	display: grid;
+	align-items: center;
 }
 
-.CRM_Calendar_Event_Personal .header-new td {
+.CRM_Calendar_Event_Personal .header-new > div {
 	white-space: nowrap;
 	text-align: center;
-	vertical-align: middle;
+}
+
+/* Was a 2-row/7-column <table> (recurrence weekday label row, checkbox row -
+   see default.tpl). Fixed 7-column grid auto-places the flat sequence of 14
+   divs into 2 rows of 7, same as the table did. */
+.CRM_Calendar_Event_Personal .recurrence-hash-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	align-items: center;
+	text-align: center;
 }
 
 .CRM_Calendar_Event_Personal .header-new .weekday,

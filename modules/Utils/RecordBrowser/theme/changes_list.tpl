@@ -1,56 +1,55 @@
-<table class="Utils_RB__changelist" cellspacing="0" style="table-layout: fixed;">
+{* Was a <table> (field/old-value/new-value columns, a genuine 2D data
+   grid) - CSS Grid instead; role="table"/"row"/"columnheader"/"cell"
+   restore ARIA table semantics. Each row is a display:contents wrapper so
+   its cells still lay out directly against the grid's own column tracks -
+   the .header/.last_row presentation classes moved from the row onto its
+   cells, since display:contents elements paint no box of their own (see
+   AI-shared/adminlte-theme.md). *}
+<div class="Utils_RB__changelist" role="table" style="display: grid; grid-template-columns: 30% 35% 35%;">
 	{if isset($header)}
-		<tr class="header">
-			<th>
+		<div role="row" style="display: contents;">
+			<div class="header" role="columnheader">
 				{$header.0}
-			</th>
-			<th>
+			</div>
+			<div class="header" role="columnheader">
 				{$header.1}
-			</th>
-			<th>
+			</div>
+			<div class="header" role="columnheader">
 				{$header.2}
-			</th>
-		</tr>
+			</div>
+		</div>
 	{/if}
 	{foreach from=$events item=e}
 		{if is_string($e.what)}
-			{if isset($e.who)}
-			<tr>
-			{else}
-			<tr class="last_row">
-			{/if}
-				<td colspan="3" class="message">
+			<div role="row" style="display: contents;">
+				<div class="message{if !isset($e.who)} last_row{/if}" role="cell" style="grid-column: 1 / -1;">
 					{$e.what}
-				</td>
-            </tr>
+				</div>
+			</div>
 		{else}
 			{foreach from=$e.what item=r}
-				{if isset($e.who)}
-				<tr>
-				{else}
-				<tr class="last_row">
-				{/if}
-					<td class="field">
+				<div role="row" style="display: contents;">
+					<div class="field{if !isset($e.who)} last_row{/if}" role="cell">
 						{$r.0}
-					</td>
-					<td class="data">
+					</div>
+					<div class="data{if !isset($e.who)} last_row{/if}" role="cell">
 						{$r.1}
-					</td>
-					<td class="data">
+					</div>
+					<div class="data{if !isset($e.who)} last_row{/if}" role="cell">
 						{$r.2}
-					</td>
-				</tr>
+					</div>
+				</div>
 			{/foreach}
 		{/if}
 		{if isset($e.who)}
-			<tr class="last_row">
-				<td colspan="2" class="user">
+			<div role="row" style="display: contents;">
+				<div class="user last_row" role="cell" style="grid-column: span 2;">
 					{$e.who}
-				</td>
-				<td class="timestamp">
+				</div>
+				<div class="timestamp last_row" role="cell">
 					{$e.when}
-				</td>
-			</tr>
+				</div>
+			</div>
 		{/if}
 	{/foreach}
-</table>
+</div>

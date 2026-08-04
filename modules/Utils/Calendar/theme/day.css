@@ -14,7 +14,10 @@
 	user-select: none;
 }
 
-#Utils_Calendar__day td {
+#Utils_Calendar__day .hour,
+#Utils_Calendar__day .hours_header,
+#Utils_Calendar__day .midday_hour,
+#Utils_Calendar__day [class^="inter"] {
 	height: 29px;
 	padding: 0px;
 	margin: 0px;
@@ -22,7 +25,7 @@
 
 /* hours header */
 
-#Utils_Calendar__day td.hours_header {
+#Utils_Calendar__day .hours_header {
 	border: 0px;
 	text-align: center;
 	color: #339933;
@@ -32,7 +35,7 @@
 
 /* header day */
 
-#Utils_Calendar__day td.header_day {
+#Utils_Calendar__day .header_day {
 	width: 100%;
 	border-left: 1px solid #B3B3B3;
 	height: 50px;
@@ -49,7 +52,7 @@
 	/* end css3 gray gradient - calendar */
 }
 
-#Utils_Calendar__day td.header_day_weekend {
+#Utils_Calendar__day .header_day_weekend {
 	width: 100%;
 	border-left: 1px solid #B3B3B3;
 	height: 50px;
@@ -68,7 +71,7 @@
 
 /* header month */
 
-#Utils_Calendar__day td.header_month {
+#Utils_Calendar__day .header_month {
 	color: #FFFFFF;
 	text-align: center;
 	vertical-align: middle;
@@ -82,18 +85,18 @@
 	/* end css3  gradient */
 }
 
-#Utils_Calendar__day td.header_month a {
+#Utils_Calendar__day .header_month a {
 	color: #FFFFFF;
 	padding: 5px;
 }
 
-#Utils_Calendar__day td.header_month a:hover {
+#Utils_Calendar__day .header_month a:hover {
 	background-color: #336699;
 }
 
 /* today */
 
-#Utils_Calendar__day td.today {
+#Utils_Calendar__day .today {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -105,11 +108,11 @@
 
 /* hour */
 
-#Utils_Calendar__day td.hour a {
+#Utils_Calendar__day .hour a {
 	color: #FFFFFF;
 }
 
-#Utils_Calendar__day td.hour {
+#Utils_Calendar__day .hour {
 	width: 90px;
 	vertical-align: middle;
 	color: #FFFFFF;
@@ -122,13 +125,13 @@
 	padding-right: 5px;
 }
 
-#Utils_Calendar__day tr:hover td.hour {
+#Utils_Calendar__day .day-row:hover .hour {
 	background-color: #339966;
 }
 
 /* midday hour */
 
-#Utils_Calendar__day td.midday_hour {
+#Utils_Calendar__day .midday_hour {
 	vertical-align: top;
 	color: #FFFFFF;
 	border: 1px solid #B3B3B3;
@@ -144,7 +147,7 @@
 
 /* inter */
 
-#Utils_Calendar__day td.inter {
+#Utils_Calendar__day .inter {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -155,11 +158,11 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__day td.inter:hover {
+#Utils_Calendar__day .inter:hover {
 	background-color: #e6cfcf
 }
 
-#Utils_Calendar__day td.inter_weekend {
+#Utils_Calendar__day .inter_weekend {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -170,13 +173,13 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__day td.inter_weekend:hover {
+#Utils_Calendar__day .inter_weekend:hover {
 	background-color: #e6cfcf
 }
 
 /* midday inter */
 
-#Utils_Calendar__day td.midday_inter {
+#Utils_Calendar__day .midday_inter {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -188,6 +191,6 @@
 	margin: 0px;
 }
 
-#Utils_Calendar__day td.midday_inter:hover {
+#Utils_Calendar__day .midday_inter:hover {
 	background-color: #e6cfcf
 }

@@ -4,18 +4,18 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 
 *}
 <div style="width: 900px;">
- 
+
 <div class="navigation-menu">
-	<table border="0" cellpadding="0" cellspacing="0"><tr>
-		<td class="empty"></td>
-		<td class="button_cell"><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
-		<td class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
-		<td class="button_cell"><a class="button" {$next_href}><img src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></td>
-		<td style="width: 10px;"></td>
-		<td class="button_cell">{$popup_calendar}</td>
-		<td class="empty"></td>
-		<td class="button_cell">{$navigation_bar_additions}</td>
-	</tr></table>
+	<div style="display: flex; align-items: center;">
+			<div class="empty"></div>
+			<div class="button_cell"><a class="button" {$prev_href}>{$prev_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></div>
+			<div class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></div>
+			<div class="button_cell"><a class="button" {$next_href}><img src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$next_label}</a></div>
+			<div style="width: 10px;"></div>
+			<div class="button_cell">{$popup_calendar}</div>
+			<div class="empty"></div>
+			<div class="button_cell">{$navigation_bar_additions}</div>
+	</div>
 </div>
 
 
@@ -24,49 +24,44 @@ Variable {$weekend} (true/false) indicated whether displayed day is part of week
 
 <div style="padding: 5px; background-color: #FFFFFF;">
 
-	<table cellspacing=0 id="Utils_Calendar__day">
-		<thead>
-			<tr>
-				<th style="width:{$head_col_width};"></th>
-				<th></th>
-			</tr>
-		</thead>
+	{* Was a <table> (hour rows x a single day column sub-divided into
+	   |$busy_labels| resource columns via colspan, plus a rowspan=3 header
+	   cell) plus a malformed extra <tr> that opened around every per-stamp
+	   row without ever being closed (browsers silently auto-closed it - not
+	   reproduced here). CSS Grid replaces both the rowspan and the
+	   colspan-driven resource sub-columns, same recipe as
+	   CalendarBusyReport's own week.tpl (see AI-shared/adminlte-theme.md). *}
+	<div id="Utils_Calendar__day" role="table" style="display: grid; grid-template-columns: {$head_col_width} repeat({$busy_labels|@count}, 1fr);">
 {* shows month *}
-		<tr>
-			<td class="hours_header" rowspan="3"><img src="{$theme_dir}/Utils/Calendar/icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</td>
-			<td class="header_month" colspan="{$busy_labels|@count}">
+			<div class="hours_header" role="rowheader" style="grid-row: span 3;"><img src="{$theme_dir}/Utils/Calendar/icon-day.png" width="32" height="32" border="0"><br>{$day_view_label}</div>
+			<div class="header_month" role="columnheader" style="grid-column: span {$busy_labels|@count};">
 				<a {$link_month}>{$header_month}</a>
 				 &bull;
 				<a {$link_year}>{$header_year}</a>
-			</td>
-
-		</tr>
+			</div>
 
 {* this row contains days of month *}
-		<tr>
-			<td class="header_day{if $weekend}_weekend{/if}" colspan="{$busy_labels|@count}">
+			<div class="header_day{if $weekend}_weekend{/if}" role="columnheader" style="grid-column: span {$busy_labels|@count};">
 				{$header_day.label} &bull; {$header_day.number}
-			</td>
-		</tr>
-		<tr>
-		{foreach key=k item=label from=$busy_labels}
-			<td class="hour">
+			</div>
+
+{* this row contains the per-resource sub-headers *}
+			{foreach key=k item=label from=$busy_labels}
+			<div class="hour" role="columnheader">
 				{$label}
-			</td>
-		{/foreach}
-		</tr>
+			</div>
+			{/foreach}
 
-		<tr>
 		{foreach key=k item=stamp from=$timeline}
-			<tr>
-				<td class="hour" nowrap >{$stamp.label}</td>
+			<div class="day-row" role="row" style="display: contents;">
+				<div class="hour" role="rowheader" style="white-space: nowrap;">{$stamp.label}</div>
 				{foreach key=k item=label from=$busy_labels}
-				<td class="inter{if $weekend}_weekend{/if}"{if $stamp.id!==false} time="{$stamp.id}"{/if} object="{$k}">{if isset($report[$stamp.id][$k])}{$report[$stamp.id][$k]}{else}&nbsp;{/if}</td>
+				<div class="inter{if $weekend}_weekend{/if}" role="cell"{if $stamp.id!==false} time="{$stamp.id}"{/if} object="{$k}">{if isset($report[$stamp.id][$k])}{$report[$stamp.id][$k]}{else}&nbsp;{/if}</div>
 				{/foreach}
-			</tr>
+			</div>
 		{/foreach}
 
-	</table>
+	</div>
 
 </div>
  		</div>

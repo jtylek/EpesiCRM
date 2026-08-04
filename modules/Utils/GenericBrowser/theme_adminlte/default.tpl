@@ -1,7 +1,9 @@
-{* The {html_table_epesi} call below keeps table_id/cols_width_id/class="Utils_GenericBrowser"
-   and the fixed table-layout style byte-for-byte identical to the default theme - js/col_resizable.js
-   and js/table_overflow.js key off exactly these, not the surrounding chrome, which is all this
-   theme actually changes. *}
+{* The {html_grid_epesi} call below keeps table_id/cols_width_id/class="Utils_GenericBrowser"
+   and the fixed table-layout style byte-for-byte identical to the default theme - js/table_overflow.js
+   keys off exactly these, not the surrounding chrome, which is all this theme actually changes.
+   js/col_resizable.js's drag-to-resize-columns feature was dropped entirely when this grid moved
+   from a real <table> to CSS table-display divs (see AI-shared/adminlte-theme.md) - the vendored
+   plugin hard-requires an actual <table> element and has no div-compatible equivalent. *}
 
 <div class="epesi-gb card mb-3">
 
@@ -65,8 +67,8 @@
 <div class="card-body p-0">
 	<div class="table-responsive">
 		{$table_prefix}
-		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
-		{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
+		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+		{html_grid_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 		{$table_postfix}
 	</div>
 </div>

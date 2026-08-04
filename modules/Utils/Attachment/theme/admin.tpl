@@ -3,26 +3,26 @@
 <div class="css3_content_shadow">
 <div class="Utils_RecordBrowser__container">
 
-<div class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
+<div class="Utils_RecordBrowser__View_entry">
 
-<table width="100%" class="edit">
-	<tr>
-		<td style="width:20%;" class="label">
+<div class="edit" style="width:100%;">
+	<div class="epesi-rv-row">
+		<div class="label" style="flex-basis: 20%;">
 			{$form_data.google_user.label}
-		</td>
-		<td class="data" style="vertical-align:top;">
+		</div>
+		<div class="data">
 			{$form_data.google_user.html}
-		</td>
-	</tr>
-	<tr>
-		<td style="width:20%;" class="label">
+		</div>
+	</div>
+	<div class="epesi-rv-row">
+		<div class="label" style="flex-basis: 20%;">
 			{$form_data.google_pass.label}
-		</td>
-		<td class="data" style="vertical-align:top;">
+		</div>
+		<div class="data">
 			{$form_data.google_pass.html}
-		</td>
-	</tr>
-</table>
+		</div>
+	</div>
+</div>
 </div>
 
 </div>

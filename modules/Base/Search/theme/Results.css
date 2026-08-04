@@ -1,29 +1,30 @@
-table#Base_Search__Results {
+#Base_Search__Results {
 	width: 970px;
 }
 
-table#Base_Search__Results .label {
+#Base_Search__Results .label {
 }
 
-table#Base_Search__Results .header {
+#Base_Search__Results .header {
 	color: #FFFFFF;
 	background-color: #336699;
 	background-image: url("images/header-blue.gif");
 	background-repeat: repeat-x;
 	height: 20px;
-	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_Search__Results a {
+#Base_Search__Results a {
 	color: #4C4C4C;
 }
 
-table#Base_Search__Results a:hover {
+#Base_Search__Results a:hover {
 	color: #336699;
 }
 
-table#Base_Search__Results td.link {
+#Base_Search__Results .link {
 	border-left: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
 	border-bottom: 1px solid #B3B3B3;
@@ -31,11 +32,11 @@ table#Base_Search__Results td.link {
 	padding-left: 20px;
 	padding-right: 20px;
 	height: 20px;
-	vertical-align: middle;
-	text-align: left;
+	display: flex;
+	align-items: center;
 }
 
-table#Base_Search__Results td.warning {
+#Base_Search__Results .warning {
 	border-left: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
 	border-bottom: 1px solid #B3B3B3;
@@ -44,10 +45,11 @@ table#Base_Search__Results td.warning {
 	padding-right: 20px;
 	height: 20px;
 	font-weight: bold;
-	vertical-align: middle;
-	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_Search__Results td.link:hover {
+#Base_Search__Results .link:hover {
 	background-color: #F0F0F0;
 }

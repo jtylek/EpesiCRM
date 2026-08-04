@@ -10,21 +10,44 @@
 	border-radius: 6px;
 }
 
-.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
-
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
+/* Was a <table> of <table>s (one <td class="column"> per side-by-side
+   column, each containing its own <table class="view|edit">) - now a flex
+   row of .column divs, each containing a .view|.edit div that stacks its
+   .epesi-rv-row children vertically instead of a <tbody>'s <tr>s. Column
+   widths are still PHP-computed (RecordBrowser_0.php's $cols_percent, same
+   math as before) and set inline per-column, same as the already-converted
+   theme_adminlte copy of this pattern. */
+.epesi-rv-columns {
+	display: flex;
 }
 
-.Utils_RecordBrowser__View_entry table.edit {
+.Utils_RecordBrowser__View_entry .column {
+	vertical-align: top;
+	flex: 0 0 auto;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
+.Utils_RecordBrowser__View_entry .view,
+.Utils_RecordBrowser__View_entry .edit {
+    width: 100%;
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .edit {
     border-top: none;
-    width: 100%;
 }
 
-.Utils_RecordBrowser__View_entry table.edit,
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
-	border-spacing: 3px;
+.Utils_RecordBrowser__View_entry .edit,
+.Utils_RecordBrowser__View_entry .view {
+	row-gap: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
 }
 
 .Utils_RecordBrowser__View_entry .label {
@@ -35,13 +58,20 @@
 	-webkit-border-radius: 4px 0 0 4px;
 	-moz-border-radius: 4px 0 0 4px;
     border-radius: 4px 0 0 4px;
-    height: 20px;
+    height: auto;
+    min-height: 20px;
 	white-space: nowrap;
 	overflow:hidden;
-    vertical-align: middle;
+	/* Was vertical-align:middle (table-cell centering) - the flex equivalent,
+	   now that .epesi-rv-row is a flex row instead of a <tr>. */
+	display: flex;
+	align-items: center;
     padding-left: 5px;
     padding-right: 5px;
-    width: 150px;
+	/* Was width:150px. flex-basis (via the flex shorthand) instead, so it
+	   holds this size as a flex item even without a table's column-width
+	   negotiation; 0 0 keeps it from growing/shrinking. */
+    flex: 0 0 150px;
     text-align: left;
 	-webkit-box-shadow: inset 1px 1px 1px #333355;
 	-moz-box-shadow: inset 1px 1px 1px #333355;
@@ -61,7 +91,10 @@
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
-    width: 20%;
+	/* .label sets an explicit flex-basis (150px), which always wins over
+	   width for a flex item's main-axis size - flex-basis here overrides it
+	   back to a percentage for long-text rows specifically. */
+    flex-basis: 20%;
 }
 
 .Utils_RecordBrowser__View_entry .data {
@@ -74,6 +107,14 @@
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
 	position: relative;
+	/* Was implicit table-cell auto-width (fills whatever the row doesn't
+	   give .label); the flex equivalent, plus min-width:0 so a long
+	   unbreakable value can still shrink below its own content size instead
+	   of forcing the row wider. flex-basis:auto (the "auto" in "1 1 auto")
+	   defers to the width property when one is set - .long_data below relies
+	   on exactly that instead of needing its own flex-basis override. */
+	flex: 1 1 auto;
+	min-width: 0;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .data {
 	-webkit-border-radius: 4px 0 0 4px;
@@ -101,20 +142,20 @@
 	margin-right: 14px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .help  + div {
+.Utils_RecordBrowser__View_entry .edit .help  + div {
 	margin-right: 22px;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data {
+.Utils_RecordBrowser__View_entry .view .data {
     padding: 3px 5px;
 	background-color: #EBEBE4;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data img {
+.Utils_RecordBrowser__View_entry .view .data img {
     vertical-align: middle;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .data {
+.Utils_RecordBrowser__View_entry .edit .data {
     border-bottom: none;
 	background-color: #FFFFF9;
 }
@@ -123,15 +164,15 @@
     width: 80%;
 }
 
-.Utils_RecordBrowser__View_entry table.view .long_data {
+.Utils_RecordBrowser__View_entry .view .long_data {
     border-right: 1px solid #B3B3B3;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .long_data {
+.Utils_RecordBrowser__View_entry .edit .long_data {
     border-right: none;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
@@ -159,7 +200,7 @@
 	height: 63px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input[disabled],
 .Utils_RecordBrowser__View_entry .data select[disabled],
@@ -167,7 +208,7 @@
     background-color: #EEEEEE;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input,
 .Utils_RecordBrowser__View_entry .data textarea {
@@ -176,10 +217,10 @@
 	box-shadow: inset 1px 1px 1px #777;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input {
-	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
+	padding-right: 0px; /* iPad fix for fields extending over the removed <td> element */
 }
 
 .Utils_RecordBrowser__View_entry .frozen .static_field {
@@ -190,7 +231,7 @@
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
-.Utils_RecordBrowser__View_entry table.view .frozen .static_field {
+.Utils_RecordBrowser__View_entry .view .frozen .static_field {
 	width: 100%;
 }
 
@@ -302,18 +343,6 @@
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
 	margin-bottom: 0;
 }
-/* .label was a fixed-height table cell whose row (and so its sibling .data)
-   was always at least as tall via table layout, with vertical-align:middle
-   centering its text; as a flex row item here it needs min-height instead of
-   height (so it can grow to match a taller .data instead of clipping) plus
-   flex centering to replace vertical-align, which does nothing outside a
-   table-cell/inline context. */
-.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row .label {
-	height: auto;
-	min-height: 20px;
-	display: flex;
-	align-items: center;
-}
 /* Equivalents of the table.view/table.edit-scoped rules earlier in this
    file, which don't match a plain div row at all. */
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .data {
@@ -375,21 +404,25 @@
 
 /* automulti START */
 
-.Utils_RecordBrowser__View_entry table.edit .automulti {
+.Utils_RecordBrowser__View_entry .edit .automulti {
 	background-color: rgba(0, 0, 0, 0.15);
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti select {
+.Utils_RecordBrowser__View_entry .edit .automulti select {
 	height: 80px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti td {
+.Utils_RecordBrowser__View_entry .edit .automulti td {
+	/* automulti (Libs/QuickForm/FieldTypes/automulti/automulti.php) still
+	   renders its own internal dual-listbox widget as a real <table> - a
+	   separate, self-contained field-type widget, out of scope for this
+	   pass (tracked separately, see AI-shared/adminlte-theme.md). */
 	padding: 0;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="text"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="text"]{
 	-webkit-border-radius: 0px;
 	-moz-border-radius: 0px;
     border-radius: 0px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="button"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="button"]{
 	height: 100%;
 	width: 100%;
 	padding: 0;
@@ -445,9 +478,19 @@
 
 .Utils_RecordBrowser__table {
     width: 100%;
-    vertical-align: middle;
-    height: 31px;
-	table-layout: auto;
+}
+
+/* Was a 1-row <table>'s <tr> (icon/caption <td> + required-note/tooltips
+   <td>); now a flex row of two divs, replacing table-cell layout. */
+.Utils_RecordBrowser__table_row {
+	display: flex;
+	align-items: center;
+	min-height: 31px;
+}
+
+/* Was <td style="width:100px">. */
+.Utils_RecordBrowser__table_icon {
+	flex: 0 0 100px;
 }
 
 .Utils_RecordBrowser__table .name img.icon {
@@ -491,6 +534,7 @@
 }
 
 .Utils_RecordBrowser__table .required_fav_info {
+	flex: 1 1 auto;
     color: #777777;
     text-align: right;
     padding-right: 20px;

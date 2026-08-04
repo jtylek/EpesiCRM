@@ -4,9 +4,11 @@
 // (show/show_month/show_year/show_decade/show_century, constructor args, this.selected
 // tracking) are identical to the classic version - only the generated header/grid markup
 // changed, from the old <table class="menu">/blue-GIF chrome to Bootstrap toolbar buttons
-// and bootstrap-icons chevrons. Still relies on Prototype's $() for innerHTML assignment
-// and on PopupCalendarCommon_0.php's Prototype-based show/hide/position wiring, both of
-// which stay in place for this theme too - see that file's create_href().
+// and bootstrap-icons chevrons, and (as of the div-only pass) the day/month grid itself,
+// from <table>/<tr>/<td> to CSS Grid - see AI-shared/adminlte-theme.md. Still relies on
+// Prototype's $() for innerHTML assignment and on PopupCalendarCommon_0.php's
+// Prototype-based show/hide/position wiring, both of which stay in place for this theme
+// too - see that file's create_href().
 var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_week, month_names, day_names) {
 		this.monthName = month_names;
 		this.link_proto = link_proto;
@@ -59,10 +61,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			var daysInWeek = 7;
 
 			// formatting constants
-			var TRstart = '<tr>';
-			var TRend = '</tr>';
-			var TDend = '</td>';
-			var empty = '<td class="empty">&nbsp;</td>';
+			var DIVend = '</div>';
+			var empty = '<div class="empty" role="presentation">&nbsp;</div>';
 
 			// preparing date
 			var Calendar = new Date();
@@ -99,13 +99,12 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			Calendar.setMonth( month );
 			Calendar.setYear( year_real );
 			var cal = '';
-			cal += '<table cellspacing="0" cellpadding="0" border="0" class="utils-popupcalendar-grid">' + TRstart;
+			cal += '<div class="utils-popupcalendar-grid" role="table" style="display: grid; grid-template-columns: repeat(7, 1fr);">';
 
 			// days' names
 			for(index = 0; index < 7; index++) {
-				cal += '<td class="daysHeader">' + days[(index+this.first_day_of_week)%7] + TDend;
+				cal += '<div class="daysHeader" role="columnheader">' + days[(index+this.first_day_of_week)%7] + DIVend;
 			}
-			cal += TRend + TRstart;
 
 			// blanks before first day of the month
 			var tmp = Calendar.getDay();
@@ -116,9 +115,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			var weekday;
 			for(index = 0; index < daysInMonth[month]; index++)	{
 				weekday = Calendar.getDay();
-				if(weekday == this.first_day_of_week) { cal += TRstart; }
 
-				cal += '<td class="';
+				cal += '<div role="cell" class="';
 				if( (current_day == Calendar.getDate()) && (current_month == month) && (current_year == year) )
 					cal += 'today ';
 				if( weekday % 6 < 1 )
@@ -134,9 +132,8 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				prep_link = prep_link.replace("__DAY__", Calendar.getDate());
 				cal += '<div class="day"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.selected = new Date('+Calendar.getFullYear()+','+Calendar.getMonth()+','+Calendar.getDate()+');datepicker_'+this.instance_id+'.show_month('+year+','+month+','+day+');'+prep_link+'">';
 				cal += Calendar.getDate();
-				cal += '</a></div>' + TDend;
+				cal += '</a></div>' + DIVend;
 
-				if(weekday == (this.first_day_of_week+6)%7) { cal += TRend; }
 				Calendar.setDate(Calendar.getDate()+1);
 			} // end for loop
 
@@ -144,18 +141,15 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				for(index = weekday+1; index < (Calendar.getDay()+6)%7; index++) {
 					cal += empty;
 				}
-				cal += TRend;
 			}
-			cal += '</TABLE>';
+			cal += '</div>';
 			// and final solution
 			$('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 
 		//show a year
 		this.show_year = function( year ) {
-			var TRstart = '<tr>';
-			var TRend = '</tr>';
-			var TDend = '</td>';
+			var DIVend = '</div>';
 
 			// preparing date
 			var Calendar = new Date();
@@ -177,16 +171,13 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// filling year with months
 			var cal = '';
-			cal += '<table cellspacing="0" cellpadding="0" border="0" class="utils-popupcalendar-grid">';
+			cal += '<div class="utils-popupcalendar-grid" role="table" style="display: grid; grid-template-columns: repeat(3, 1fr);">';
 			for(index = 0; index < 12; index++)	{
-				if( index % 3 == 0 ) { cal += TRstart; }
-
-				cal += '<td ';
+				cal += '<div role="cell" class="';
 				if( (current_month == index) && (current_year == year) ) {
-						cal += ' class=today>';
-				} else {
-					cal += '>';
+						cal += 'today';
 				}
+				cal += '">';
 				var prep_link;
 				if(this.mode!='month') {
 					prep_link = 'datepicker_'+this.instance_id+'.show_month('+year+', '+index+')';
@@ -197,21 +188,17 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				}
 				cal += '<div class="month"><a href="javascript:void(0)" onClick="'+prep_link+'">';
 				cal += this.monthName[index];
-				cal += '</a></div>' + TDend;
-
-				if(index % 3 == 2) { cal += TRend; }
+				cal += '</a></div>' + DIVend;
 			} // end for loop
 
-			cal += '</TABLE>';
+			cal += '</div>';
 			// and final solution
 			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 
 		//show a decade
 		this.show_decade = function( decade ) {
-			var TRstart = '<tr>';
-			var TRend = '</tr>';
-			var TDend = '</td>';
+			var DIVend = '</div>';
 
 			// preparing date
 			var Calendar = new Date();
@@ -232,16 +219,13 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// filling year with months
 			var cal = '';
-			cal += '<table cellspacing="0" cellpadding="0" border="0" class="utils-popupcalendar-grid">';
+			cal += '<div class="utils-popupcalendar-grid" role="table" style="display: grid; grid-template-columns: repeat(3, 1fr);">';
 			for(index = 0; index < 12; index++)	{
-				if( index % 3 == 0 ) { cal += TRstart; }
-
-				cal += '<td ';
+				cal += '<div role="cell" class="';
 				if( current_year == decade + index -1 ) {
-						cal += ' class=today>';
-				} else {
-					cal += '>';
+						cal += 'today';
 				}
+				cal += '">';
 				var prep_link;
 				if(this.mode!='year') {
 					prep_link = 'datepicker_'+this.instance_id+'.show_year('+(decade+index-1)+')';
@@ -252,21 +236,17 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				}
 				cal += '<div class="month"><a href="javascript:void(0)" onClick="'+prep_link+'">';
 				cal += (decade_real + index - 1);
-				cal += '</a></div>' + TDend;
-
-				if(index % 3 == 2) { cal += TRend; }
+				cal += '</a></div>' + DIVend;
 			} // end for loop
 
-			cal += '</TABLE>';
+			cal += '</div>';
 			// and final solution
 			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 
 		//show a century
 		this.show_century = function( century ) {
-			var TRstart = '<tr>';
-			var TRend = '</tr>';
-			var TDend = '</td>';
+			var DIVend = '</div>';
 
 			// preparing date
 			var Calendar = new Date();
@@ -287,24 +267,19 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 
 			// filling year with months
 			var cal = '';
-			cal += '<table cellspacing="0" cellpadding="0" border="0" class="utils-popupcalendar-grid">';
+			cal += '<div class="utils-popupcalendar-grid" role="table" style="display: grid; grid-template-columns: repeat(3, 1fr);">';
 			for(index = 0; index < 120; index += 10)	{
-				if( index % 30 == 0 ) { cal += TRstart; }
-
-				cal += '<td ';
+				cal += '<div role="cell" class="';
 				if( (current_year > century + index - 10) && (century + index > current_year) ) {
-						cal += ' class=today>';
-				} else {
-					cal += '>';
+						cal += 'today';
 				}
+				cal += '">';
 				cal += '<div class="month"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(' + (century + index - 10) + ')">';
 				cal += (century_real + index - 10) + '&nbsp;-&nbsp;' + (century_real + index);
-				cal += '</a></div>' + TDend;
-
-				if(index % 30 == 20) { cal += TRend; }
+				cal += '</a></div>' + DIVend;
 			} // end for loop
 
-			cal += '</TABLE>';
+			cal += '</div>';
 			// and final solution
 			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}

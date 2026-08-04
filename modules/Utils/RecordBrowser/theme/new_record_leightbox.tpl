@@ -1,9 +1,7 @@
 <center>
 <br>
-<table cellspacing="0" cellpadding="0">
-	<tr>
+<div style="display: flex; flex-wrap: wrap; justify-content: center;">
 {foreach key=k item=cd from=$custom_defaults}
-	        <td>
 				{$cd.open}
 				<div class="epesi_big_button">
                     {if $cd.icon}
@@ -12,10 +10,8 @@
 					<span>{$cd.label}</span>
 				</div>
 				{$cd.close}
-	        </td>
 {/foreach}
-    </tr>
-</table>
+</div>
 
 </center>
 

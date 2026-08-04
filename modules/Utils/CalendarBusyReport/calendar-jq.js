@@ -1,6 +1,6 @@
 Utils_CalendarBusyReport = {
 activate_dclick:function(new_ev) {
-	jq('td.inter_other, td.inter_other_weekend, td.inter_today, td.inter_today_weekend').each(function() {
+	jq('.inter_other, .inter_other_weekend, .inter_today, .inter_today_weekend').each(function() {
 		var id = jq(this).attr('time');
 		var obj = jq(this).attr('object');
 		var f = '';

@@ -54,12 +54,14 @@ foreach ($cleanFrames as $day=>$v) {
 			$duration = '';
 			if ($h) $duration .= $h.$label_h.' ';
 			if ($min || !$duration) $duration .= $min.__('min');
-			$next = '<tr>'.
-						'<td style="width:90px">'.$headers[$day].'</td>'.
-						'<td>'.Utils_PlannerCommon::format_time($start*60).'</td>'.
-						'<td>'.Utils_PlannerCommon::format_time($t*60).'</td>'.
-						'<td>'.$duration.'</td>'.
-					'</tr>';
+			// Was a <tr> of 4 <td>s - now a flat run of 4 divs; the grid's own
+			// column tracks (see $timeframe_string below) wrap every 4 into a
+			// new visual row, the same way <tr> boundaries used to (see
+			// AI-shared/adminlte-theme.md).
+			$next = '<div style="width:90px">'.$headers[$day].'</div>'.
+						'<div>'.Utils_PlannerCommon::format_time($start*60).'</div>'.
+						'<div>'.Utils_PlannerCommon::format_time($t*60).'</div>'.
+						'<div>'.$duration.'</div>';
 			$selected_frames[] = $day.'::'.$start.'::'.$t;
 			$timeframe[$day][] = $next;
 			$start = null;		
@@ -69,7 +71,7 @@ foreach ($cleanFrames as $day=>$v) {
 
 $js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
 
-$timeframe_string = '<table class="time_frames">';
+$timeframe_string = '<div class="time_frames" style="display: grid; grid-template-columns: 90px repeat(3, 1fr);">';
 if (isset($_SESSION['client']['utils_planner']['date']))
 	$day = $_SESSION['client']['utils_planner']['date'];
 else
@@ -88,7 +90,7 @@ do {
 	$count++;
 } while ($count<7); 
 
-$timeframe_string .= '</table>';
+$timeframe_string .= '</div>';
 
 $js .= '$("Utils_Planner__time_frames").innerHTML="'.Epesi::escapeJS($timeframe_string).'";';
 

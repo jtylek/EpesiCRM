@@ -222,6 +222,10 @@ hr.line {
 	border-bottom: 0px solid #b3b3b3;
 }
 
+#top_bar #top_bar_1 > div {
+	flex-shrink: 0;
+}
+
 /* menu bar */
 
 #top_bar #top_bar_1 .menu-bar {
@@ -303,6 +307,7 @@ hr.line {
 }
 
 #top_bar #top_bar_1 .filler {
+	flex: 1 1 auto;
 	/* css3 shadow border*/
 	-webkit-box-shadow: 0px 0px 3px #000000;
 	-moz-box-shadow: 0px 0px 3px #000000;
@@ -425,6 +430,10 @@ hr.line {
 	/* end css3 transparent gradient */
 }
 
+#top_bar #top_bar_2 > div {
+	flex-shrink: 0;
+}
+
 #top_bar #top_bar_2 .logo {
 	width: 193px;
 	height: 80px;
@@ -474,8 +483,7 @@ hr.line {
 }
 
 #top_bar #top_bar_2 .icons {
-	width: auto;
-	vertical-align: top;
+	flex: 1 1 auto;
 	height: auto;
 }
 
@@ -1153,19 +1161,44 @@ hr.line {
 .epesi_grey_board {
 	padding: 2px 10px;
 }
-.epesi_grey_board > table {
+/* Was a <table> (border-spacing:3px gapping both rows and cells) - now a
+   flex column of .epesi-cp-row divs, each a flex row of its own label/data
+   pair (RecordBrowser's/Base_HomePage's/Base_Acl's clearance-picker forms -
+   edit_permissions.tpl/edit_home_pages.tpl, identical markup, only the
+   add_clearance() JS callback name differs per caller). row-gap/column-gap
+   replace border-spacing's two axes. */
+.epesi_grey_board > .epesi-cp-rows {
 	width: 100%;
-	border-spacing: 3px;
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+	padding: 3px;
 	background-color: #CCC;
 	border: 2px solid transparent;
 
 	-webkit-box-shadow: 1px 1px 5px black;
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
-	
+
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
+}
+.epesi-cp-row {
+	display: flex;
+	column-gap: 3px;
+}
+/* Was width:20%/80% set inline on the table's FIRST row only, relying on
+   table-layout to apply that column width to every other row too; a flex
+   row has no such shared column-track concept, so this is scoped to every
+   row explicitly instead (see AI-shared/adminlte-theme.md for the same
+   pattern in CRM_Calendar_Event's own conversion). */
+.epesi-cp-row .epesi_label {
+	flex: 0 0 20%;
+}
+.epesi-cp-row .epesi_data {
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .epesi_caption img {

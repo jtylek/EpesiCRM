@@ -1,43 +1,19 @@
 {if isset($custom_tooltip)}
-<table id="Utils_Calendar__event_tip" border="0">
-    <tbody>
-	<tr>
-            <td colspan="2">{$custom_tooltip}</td>
-	</tr>
-    <tr>
-            <td class="info" colspan="2">{$show_hide_info}</td>
-    </tr>
-	</tbody>
-</table>
+<div id="Utils_Calendar__event_tip">
+    <div>{$custom_tooltip}</div>
+    <div class="info">{$show_hide_info}</div>
+</div>
 {else}
-<table id="Utils_Calendar__event_tip" border="0">
-    <tbody>
-	<tr>
-            <td class="title" colspan="2">{$title}</td>
-        </tr>
-	<tr>
-	   <td colspan="2">{$description}</td>
-        </tr>
-        <tr>
-            <td class="label">Start</td><td class="data">{$start}</td>
-        </tr>
-        <tr>
-            <td class="label">End</td><td class="data">{$end}</td>
-        </tr>
+<div id="Utils_Calendar__event_tip">
+    <div class="title">{$title}</div>
+    <div>{$description}</div>
+    <div class="epesi-rv-row"><div class="label">Start</div><div class="data">{$start}</div></div>
+    <div class="epesi-rv-row"><div class="label">End</div><div class="data">{$end}</div></div>
 {if $duration}
-         <tr>
-            <td class="label">Duration</td><td class="data">{$duration}</td>
-        </tr>
+    <div class="epesi-rv-row"><div class="label">Duration</div><div class="data">{$duration}</div></div>
 {/if}
-	<tr>
-	   <td colspan="2">{$additional_info}</td>
-        </tr>
-        <tr>
-            <td colspan="2">{$additional_info2}</td>
-        </tr>
-        <tr>
-            <td class="info" colspan="2">{$show_hide_info}</td>
-        </tr>
-    </tbody>
-</table>
+    <div>{$additional_info}</div>
+    <div>{$additional_info2}</div>
+    <div class="info">{$show_hide_info}</div>
+</div>
 {/if}

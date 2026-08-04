@@ -37,16 +37,11 @@
  */
 .epesi-settings-matrix {
 	margin-bottom: 1rem;
+	align-items: center;
 }
 
-.epesi-settings-matrix th,
-.epesi-settings-matrix td {
-	vertical-align: middle;
-}
-
-.epesi-settings-matrix td:not(:first-child),
-.epesi-settings-matrix th:not(:first-child) {
-	text-align: center;
+.epesi-settings-matrix > div {
+	padding: .5rem;
 }
 
 .epesi-settings-fields input[type="text"],

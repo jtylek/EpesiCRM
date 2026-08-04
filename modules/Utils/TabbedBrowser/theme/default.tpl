@@ -4,9 +4,7 @@
 
 <div class="Utils_TabbedBrowser_div">
 
-<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-	<tr>
-		<td>
+<div style="width: 100%;">
 			<ul class="Utils_TabbedBrowser">
 			{foreach from=$captions key=cap item=link}
 				{if isset($captions_submenus[$cap])}
@@ -23,14 +21,8 @@
 				</li>&nbsp;
 			{/foreach}
 			</ul>
-		</td>
-	</tr>
-	<tr >
-		<td >
 		<div class="border_bottom"></div>
 			<center>{$body}</center>
-		</td>
-	</tr>
-</table>
+</div>
 
 </div>

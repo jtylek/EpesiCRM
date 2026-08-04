@@ -1,10 +1,7 @@
 <center>
 
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-	<tr>
+<div id="CRM_Filters" style="display: flex; flex-wrap: wrap; justify-content: center;">
         <!-- MY -->
-        <td>
-
 	    {$__link.my.open}
 		<div class="epesi_big_button">
             <img src="{$theme_dir}/CRM/Filters/my.png" alt="" align="middle" border="0" width="32" height="32">
@@ -12,78 +9,48 @@
         </div>
 	    {$__link.my.close}
 
-        </td>
-
 		{if isset($all)}
 			<!-- ALL -->
-			<td>
-
 			{$__link.all.open}
 			<div class="epesi_big_button">
 				<img src="{$theme_dir}/CRM/Filters/all.png" alt="" align="middle" border="0" width="32" height="32">
 				<span>{$__link.all.text}</span>
 			</div>
 			{$__link.all.close}
-
-			</td>
 		{/if}
 
         <!-- MANAGE FILTERS -->
-        <td>
-
 	    {$__link.manage.open}
 		<div class="epesi_big_button">
             <img src="{$theme_dir}/CRM/Filters/manage.png" alt="" align="middle" border="0" width="32" height="32">
 			<span>{$__link.manage.text}</span>
         </div>
 	    {$__link.manage.close}
-
-        </td>
-    </tr>
-</table>
-<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-	<tr>
-        <td colspan="3" style="text-align: center;">
+</div>
+<div id="CRM_Filters" style="text-align: center;">
 			{$contacts_open}
 				{$contacts_data.crm_filter_contact.label}&nbsp;<span class="filters-autoselect">{$contacts_data.crm_filter_contact.html}</span>&nbsp;<span class="child_button">{$contacts_data.submit.html}</span>
 			{$contacts_close}
-		</td>
-    </tr>
-</table>
+</div>
 
 <br>
 
 {if !empty($filters)}
-	<table id="CRM_Filters" cellspacing="0" cellpadding="0">
-		<tr>
-			<td colspan="4" class="epesi_label header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</td>
-		</tr>
-		<tr>
-
-		{assign var=x value=0}
+	{* Was a <table> hand-wrapping every 4 saved filters into a new <tr> -
+	   flex-wrap replaces that, same recipe used app-wide for this pattern
+	   (see AI-shared/adminlte-theme.md). *}
+	<div id="CRM_Filters">
+		<div class="epesi_label header">&nbsp;&nbsp;{$saved_filters}&nbsp;&nbsp;</div>
+		<div style="display: flex; flex-wrap: wrap;">
 		{foreach item=p key=k from=$filters}
-		{assign var=x value=$x+1}
-
-			<td>
-
 			{$p.open}
 			<div class="epesi_big_button">
 				<span class="text">{$p.title}</span>
 			</div>
 			{$p.close}
-
-		</td>
-
-		{if ($x%4)==0}
-		</tr>
-		<tr>
-		{/if}
-
-	{/foreach}
-
-		</tr>
-
-	</table>
+		{/foreach}
+		</div>
+	</div>
 {/if}
 
 </center>

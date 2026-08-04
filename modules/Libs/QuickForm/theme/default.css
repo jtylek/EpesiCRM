@@ -1,27 +1,39 @@
+/* TCMSDefault.php's fallback (non-Smarty-array) QuickForm renderer - was a
+   <table id="quickform"> of <tr>s (one <td class="element"> label cell +
+   one <td class="{element_style}"> data cell per row); now a flex column of
+   .quickform-row divs, each a flex row of its own two cells. */
 #quickform {
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+}
+
+.quickform-row {
+	display: flex;
+	column-gap: 3px;
 }
 
 #quickform .header {
 	white-space: nowrap;
 	text-align: center;
-	vertical-align: middle;
 	color: #FFFFFF;
 	height: 20px;
 	border: 0px;
 	padding-left: 5px;
 	padding-right: 5px;
 	margin-bottom: 5px;
-	
+	width: 100%;
+
 	/* css3 blue gradient */
 	background: #7b9cbd; /* Old browsers */
 	/* end css3  gradient */
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px black;
 	-moz-box-shadow: 1px 1px 3px black;
@@ -31,7 +43,6 @@
 
 #quickform .label {
 	text-align: right;
-	vertical-align: top;
 	font-weight: normal;
 	background-color: #F0F0F0;
 }
@@ -39,6 +50,7 @@
 #quickform .element {
 	text-align: right;
 	font-weight: normal;
+	flex: 0 0 150px;
 }
 
 #quickform .element,
@@ -71,33 +83,36 @@
 /* Lay the date picker and the time (hour : minute am/pm) side by side on one line (flex; date
    picker first), wrapping to two lines only when the form is too narrow. Flex items ignore float,
    so this also neutralises the View_entry float that used to push the time off-screen. */
-td.data.timestamp > div {
+.data.timestamp > div {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
 }
-td.data.timestamp > div > div {
+.data.timestamp > div > div {
 	float: none;
 	white-space: nowrap;
 	margin: 0;
 }
-td.data.timestamp > div > div:last-child {
+.data.timestamp > div > div:last-child {
 	order: -1;
 }
 /* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
    in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
    inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into
-   rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell. */
-td select[name$="[h]"],
-td select[name$="[i]"],
-td select[name$="[a]"] {
+   rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell.
+   Not scoped to a "td" ancestor: RecordBrowser's View_entry family renders its .data cells as
+   divs, not <td>s (see AI-shared/adminlte-theme.md) - a tag-qualified selector here would silently
+   stop matching for every one of those screens. */
+select[name$="[h]"],
+select[name$="[i]"],
+select[name$="[a]"] {
 	display: inline-block;
 	width: auto;
 	min-width: 0;
 	vertical-align: middle;
 }
-td.data.timestamp > div > div:last-child input {
+.data.timestamp > div > div:last-child input {
 	width: 150px;
 }
 

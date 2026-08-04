@@ -697,7 +697,7 @@ class Utils_RecordBrowser extends Module {
             if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" data-rb-tab="'.htmlspecialchars($this->tab).'" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
         }
         if ($this->more_add_button_stuff) {
-            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+            if ($custom_label) $custom_label = '<div style="display:flex;align-items:center;"><div>'.$custom_label.'</div><div>'.$this->more_add_button_stuff.'</div></div>';
             else $custom_label = $this->more_add_button_stuff;
         }
         $gb->set_custom_label($custom_label);
@@ -783,11 +783,11 @@ class Utils_RecordBrowser extends Module {
                 elseif ($args['style']=='noexpand') $value = array('class'=>'Utils_RecordBrowser__noexpand','value'=>$value,'overflow_box'=>false);
                 elseif ($args['style']=='tall_preview') $value = array('class'=>'Utils_RecordBrowser__tallpreview','value'=>$value,'overflow_box'=>false);
                 if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect','commondata'))) {
-                    $table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
-                    $ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;">'.
+                    $table = '<div class="Utils_RecordBrowser__grid_table" style="width:100%;display:flex;"><div id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</div><div id="grid_value_field_'.$argsid.'_'.$row['id'].'" style="flex:1 1 auto;min-width:0;">';
+                    $ed_icon = '</div><div style="min-width:18px;width:18px;padding:0px;margin:0px;flex:0 0 18px;">'.
                                 '<span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\',\''.$form_name.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'edit.png').'"></a></span>'.
                                 '<span id="grid_save_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_submit_field(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file(Utils_RecordBrowser::module_name(), 'save_grid.png').'"></a></span>'.
-                                '</td></tr></table>';
+                                '</div></div>';
 
 /*                  $table = '<span id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</span><span id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
                     $ed_icon = '</span>'.
@@ -1471,7 +1471,7 @@ class Utils_RecordBrowser extends Module {
             }
             // is set then hide empty fields that are not checkboxes
 			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
-				eval_js('var e=$("_'.$desc['id'].'__data");if(e)e.up("tr").style.display="none";');
+				eval_js('var e=$("_'.$desc['id'].'__data");if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display="none";}');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL

@@ -5,18 +5,17 @@
 <center>
 <div id="shoutbox_big_container">
 {$form_open}
-<table border="0" width="100%">
-    <tr>
-        <td rowspan="2" class="epesi_label" style="width:80px;">{$form_data.post.label}</td>
-        <td rowspan="2" class="epesi_data" style="width:50%">{$form_data.post.html}</td>
-		<td rowspan="2" style="width:10px;"></td>
-        <td class="epesi_label" style="width:25px;">{$form_data.shoutbox_to.label}</td>
-        <td class="epesi_data" style="width:20%;">{$form_data.shoutbox_to.html}</td>
-    </tr>
-    <tr>
-        <td colspan="2" class="child_button" style="text-align: center;">{$form_data.submit_button.html}</td>
-    </tr>
-</table>
+{* Was a <table> with two <td rowspan="2"> cells (post label/data) sitting
+   beside a to-field row and a submit row below - CSS Grid instead,
+   grid-row:span 2 replacing the rowspans (see AI-shared/adminlte-theme.md). *}
+<div role="table" style="display: grid; grid-template-columns: 80px 50% 10px 25px 20%; width: 100%;">
+    <div class="epesi_label" role="cell" style="grid-row: span 2;">{$form_data.post.label}</div>
+    <div class="epesi_data" role="cell" style="grid-row: span 2;">{$form_data.post.html}</div>
+	<div role="presentation" style="grid-row: span 2;"></div>
+    <div class="epesi_label" role="cell">{$form_data.shoutbox_to.label}</div>
+    <div class="epesi_data" role="cell">{$form_data.shoutbox_to.html}</div>
+    <div class="child_button" role="cell" style="grid-column: span 2; text-align: center;">{$form_data.submit_button.html}</div>
+</div>
 {$form_close}
 {$board}
 </div>

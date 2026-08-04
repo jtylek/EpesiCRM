@@ -23,41 +23,39 @@
 {/php}
 
 {if $main_page}
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
-				{if isset($new)}
-					{foreach item=n from=$new}
-						&nbsp;&nbsp;&nbsp;{$n}
-					{/foreach}
-				{/if}
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="Utils_RecordBrowser__table">
+	<div class="Utils_RecordBrowser__table_row">
+		<div class="Utils_RecordBrowser__table_icon">
+			<div class="name">
+				<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+				<div class="label">{$caption}</div>
+			</div>
+		</div>
+		<div class="required_fav_info">
+			&nbsp;*&nbsp;{$required_note}
+			{if isset($subscription_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+			{/if}
+			{if isset($fav_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+			{/if}
+			{if isset($info_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$info_tooltip}
+			{/if}
+			{if isset($clipboard_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+			{/if}
+			{if isset($history_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$history_tooltip}
+			{/if}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
+		</div>
+	</div>
+</div>
 
 {if isset($click2fill)}
     {$click2fill}
@@ -70,93 +68,74 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry email" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
-			{assign var=x value=1}
-			{assign var=y value=1}
-			{foreach key=k item=f from=$fields name=fields}
-				{if $f.type!="multiselect"}
-					{if !isset($focus) && $f.type=="text"}
-						{assign var=focus value=$f.element}
-					{/if}
+<div class="Utils_RecordBrowser__View_entry email">
+<div class="epesi-rv-columns">
+	{assign var=x value=1}
+	{assign var=y value=1}
+	{foreach key=k item=f from=$fields name=fields}
+		{if $f.type!="multiselect"}
+			{if !isset($focus) && $f.type=="text"}
+				{assign var=focus value=$f.element}
+			{/if}
 
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					{/if}
-					{$f.full_field}
-					{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-						{if $x>$no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/if}
-			{/foreach}
-		</tr>
-		{if !empty($multiselects)}
-			<tr>
-				{assign var=x value=1}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="{if $action == 'view'}view{else}edit{/if}">
+			{/if}
+			{$f.full_field}
+			{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
 				{assign var=y value=1}
-				{foreach key=k item=f from=$multiselects name=fields}
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{/if}
-					{$f.full_field}
-					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-						{if $x>$mss_no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/foreach}
-			</tr>
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
 		{/if}
-		<tr>
-			<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{if $f.element!="body"}
-						<tr>
-							<td class="label long_label">{$f.label}{if $f.required}*{/if}</td>
-						</tr>
-						<tr>
-							<td class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
-								{if $f.error}{$f.error}{/if}
-								{if $f.help}
-									<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
-								{/if}
-								<div>
-									{$f.html}{if $action == 'view'}&nbsp;{/if}
-								</div>
-							</td>
-						</tr>
+	{/foreach}
+</div>
+{if !empty($multiselects)}
+	<div class="epesi-rv-columns">
+		{assign var=x value=1}
+		{assign var=y value=1}
+		{foreach key=k item=f from=$multiselects name=fields}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+			{/if}
+			{$f.full_field}
+			{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
+				{assign var=y value=1}
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
+		{/foreach}
+	</div>
+{/if}
+<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+	{foreach key=k item=f from=$longfields name=fields}
+		{if $f.element!="body"}
+			<div class="epesi-rv-row">
+				<div class="label long_label">{$f.label}{if $f.required}*{/if}</div>
+			</div>
+			<div class="epesi-rv-row">
+				<div class="data long_data {if $f.type == 'currency'}currency{/if}" id="_{$f.element}__data">
+					{if $f.error}{$f.error}{/if}
+					{if $f.help}
+						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
 					{/if}
-				{/foreach}
-			</table>
-			</td>
-		</tr>
-	</tbody>
-</table>
+					<div>
+						{$f.html}{if $action == 'view'}&nbsp;{/if}
+					</div>
+				</div>
+			</div>
+		{/if}
+	{/foreach}
+</div>
+</div>
 
 {if $main_page}
 {php}

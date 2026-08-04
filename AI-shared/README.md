@@ -53,6 +53,19 @@ same for every developer and every computer working on this repo.
   configures it instead, since that's what's actually fixable here. (Searching vendor
   purely to *understand* behavior, not to find something to edit, is fine.)
 
+## Conventions for AI assistants' own tool usage in this repo
+
+- **Never write screenshots (Playwright `browser_take_screenshot`, etc.) or other
+  scratch/test-output files into the repo itself — always target the session's own
+  scratchpad directory, with an absolute path, never a bare filename.** A bare
+  filename resolves relative to the current working directory, which for this repo
+  is the project root — a bare filename there lands as an untracked file sitting
+  right next to the actual codebase. Hit during the legacy `<table>`→`<div>`
+  conversion pass (2026-08-04): ~34 verification screenshots ended up loose in the
+  repo root this way, and the user had to notice and ask for them to be cleaned up.
+  If a scratch file ever does end up in the wrong place, clean it up as soon as it's
+  noticed, without waiting to be asked.
+
 ## Maintaining this folder
 
 If you're an AI assistant and you land on a fact that would have saved real time had

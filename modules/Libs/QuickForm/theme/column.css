@@ -1,0 +1,79 @@
+/* Legacy-theme grid layout for Libs_QuickForm's "column" renderer
+ * (display_as_column() - one field per row, label left / control right).
+ *
+ * Replaces the old <table style="width:500px"> + fixed 150px label / 350px
+ * data <td> columns with real CSS grid (see column.tpl) - same recipe
+ * already proven in theme_adminlte/column.css, ported here so this legacy
+ * theme's own row/label/data visuals (Base/Box/theme/default.css's
+ * .epesi_label/.epesi_data - blue label pill, inset data box) keep working
+ * unchanged, just laid out via grid instead of table cells.
+ *
+ * .epesi_label/.epesi_data are kept as secondary classes on the grid items
+ * (not the only classes) since other legacy theme/*.tpl files reuse those
+ * same two class names for unrelated table layouts - every actual layout
+ * rule below is scoped under .epesi-qf-grid so it can't leak into those.
+ *
+ * Base/Box/theme/default.css's shared .epesi_label{width:100px}/
+ * .epesi_data{width:102px} would otherwise fight the grid's own column
+ * sizing (a fixed width on a grid item overrides the default stretch-to-
+ * fill-track behaviour) - overridden back to width:auto below, scoped
+ * under .epesi-qf-grid for higher specificity than the single-class
+ * global rule so this wins regardless of stylesheet load order.
+ */
+
+.epesi-qf-header {
+	font-weight: bold;
+}
+
+.epesi-qf-grid {
+	display: grid;
+	grid-template-columns: minmax(120px, max-content) minmax(0, 1fr);
+	column-gap: 3px;
+	row-gap: 3px;
+	align-items: start;
+	margin: 0.5rem 0;
+}
+
+.epesi-qf-grid .epesi-qf-grid-label {
+	grid-column: 1;
+	white-space: nowrap;
+	width: auto;
+	height: auto;
+	min-height: 20px;
+	display: flex;
+	align-items: center;
+}
+
+.epesi-qf-grid .epesi-qf-grid-data {
+	grid-column: 2;
+	min-width: 0;
+	width: auto;
+	height: auto;
+	min-height: 20px;
+}
+
+.epesi-qf-field-wrap {
+	/* form_data's error markup (a positioned tooltip/bubble in some field
+	   types) anchors to the nearest positioned ancestor - previously the
+	   table cell itself, now this wrapper. */
+	position: relative;
+	min-height: 20px;
+}
+
+.epesi-qf-buttons {
+	text-align: center;
+	margin-top: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+	.epesi-qf-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.epesi-qf-grid .epesi-qf-grid-label,
+	.epesi-qf-grid .epesi-qf-grid-data {
+		grid-column: 1;
+	}
+	.epesi-qf-grid .epesi-qf-grid-label {
+		white-space: normal;
+	}
+}

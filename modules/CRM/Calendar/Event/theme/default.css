@@ -12,7 +12,13 @@
 }
 */
 
-#CRM_Calendar_Event_Personal table.form {
+/* Was a <table> of <tr>s (one or two <td>s per row); now a flex column of
+   .form-row divs, each a flex row of its own one or two cell divs. Cell
+   widths that were already explicit (style="width:20%" etc, still present on
+   the markup) continue to size each cell the same way as flex-basis-via-
+   width; no flex-grow is set on cells, so two-cell rows keep their intended
+   ratio instead of both growing to fill leftover space. */
+#CRM_Calendar_Event_Personal .form {
 	background-color: #FFFFFF;
 	width: 100%;
 	background-color: white;
@@ -20,18 +26,49 @@
 	border-top: 1px solid #b3b3b3;
 	border-left: 1px solid #b3b3b3;
 	border-right: 1px solid #b3b3b3;
+	display: flex;
+	flex-direction: column;
 }
 
-#CRM_Calendar_Event_Personal table.form td.nowrap {
+#CRM_Calendar_Event_Personal .form-row {
+	display: flex;
+}
+
+/* Default label/data split for any .form-row that doesn't set its own
+   explicit width on .label/.data (default.tpl's timeless/access/priority/
+   color/status/custom-field rows rely on this - only their first row ever
+   had an explicit width in the old table, since a table's column widths
+   apply to every row once set on any one of them; a flex row has no such
+   shared column-track concept, so this class default reproduces it). An
+   inline width on a specific row's .label/.data (title, recurrence,
+   messenger rows) still wins over this, the same way .long_data overrides
+   .data's default flex-basis in Utils_RecordBrowser's View_entry.css. */
+#CRM_Calendar_Event_Personal .form-row .label {
+	flex: 0 0 20%;
+}
+#CRM_Calendar_Event_Personal .form-row .data {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+/* A lone .label or .data alone in its own row (description's label-above-
+   data layout, part of the edit-mode start/end block) - not a pair, so the
+   20%/auto split above doesn't apply; it should fill the row like the
+   original single-<td> <tr> did. */
+#CRM_Calendar_Event_Personal .form-row.solo .label,
+#CRM_Calendar_Event_Personal .form-row.solo .data {
+	flex: 1 1 100%;
+}
+
+#CRM_Calendar_Event_Personal .form .nowrap {
 	white-space: nowrap;
 }
 
-#CRM_Calendar_Event_Personal table.x_details td.x_show_details {
+#CRM_Calendar_Event_Personal .x_details .x_show_details {
 	background: #BEbEbE;
 	color: blue;
 }
 
-#CRM_Calendar_Event_Personal table.form span.error {
+#CRM_Calendar_Event_Personal .form span.error {
 	color: red;
 }
 
@@ -111,28 +148,30 @@
     background-color: #336699;
     color: #FFFFFF;
     border-bottom: 1px solid #B3B3B3;
-    height: 20px;
-    vertical-align: middle;
+    height: auto;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
     padding-left: 5px;
     padding-right: 5px;
     text-align: left;
 }
 
-#CRM_Calendar_Event_Personal table.view .data {
+#CRM_Calendar_Event_Personal .view .data {
     border-bottom: 1px solid #B3B3B3;
     padding-left: 5px;
     padding-right: 5px;
     text-align: left;
 }
 
-#CRM_Calendar_Event_Personal table.edit .data {
+#CRM_Calendar_Event_Personal .edit .data {
     border-bottom: none;
     padding-left: 4px;
     padding-right: 4px;
     text-align: left;
 }
 
-#CRM_Calendar_Event_Personal table.edit {
+#CRM_Calendar_Event_Personal .edit {
 	border: none;
 }
 
@@ -180,8 +219,7 @@
 }
 
 
-#CRM_Calendar_Event_Personal .no-border,
-#CRM_Calendar_Event_Personal table.no-border {
+#CRM_Calendar_Event_Personal .no-border {
 	border-top: none;
 }
 
@@ -306,12 +344,17 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 #CRM_Calendar_Event_Personal .header-new {
 	margin: 10px;
+	/* Was a <table> (always 3 columns, empty <td>s when the event doesn't
+	   span multiple days) - CSS grid instead, replacing table-cell layout;
+	   the time/duration rows always span every column. */
+	display: grid;
+	grid-template-columns: repeat(3, auto);
+	align-items: center;
 }
 
-#CRM_Calendar_Event_Personal .header-new td {
+#CRM_Calendar_Event_Personal .header-new > div {
 	white-space: nowrap;
 	text-align: center;
-	vertical-align: middle;
 }
 
 #CRM_Calendar_Event_Personal .header-new .weekday,
@@ -378,8 +421,11 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
 
 .CRM_Calendar_Event__header {
     width: 100%;
-    vertical-align: middle;
     height: 31px;
+	/* Was a 1-row <table> (icon/name/required_fav_info <td>s) - flex row
+	   instead, replacing table-cell layout. */
+	display: flex;
+	align-items: center;
 }
 
 .CRM_Calendar_Event__header .icon {
@@ -390,9 +436,10 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-right: 10px;
     padding-top: 2px;
     padding-bottom: 2px;
-    vertical-align: top;
+	flex: 0 0 auto;
     background-color: #666666;
     background-image: url('images/dark-gray.gif');
+	align-self: stretch;
 }
 
 .CRM_Calendar_Event__header .icon img {
@@ -409,16 +456,17 @@ select[name="color"] option[value="7"] { color: #993399; background-color: white
     padding-left: 10px;
     padding-top: 7px;
     height: 24px;
-    vertical-align: top;
+	flex: 0 0 290px;
     background-image: url('images/dark-gray-gradient.gif');
     background-repeat: repeat-y;
+	align-self: stretch;
 }
 
 .CRM_Calendar_Event__header .required_fav_info {
+	flex: 1 1 auto;
     color: #777777;
     text-align: right;
     padding-right: 20px;
-    vertical-align: middle;
 }
 
 .CRM_Calendar_Event__header .required_fav_info img {

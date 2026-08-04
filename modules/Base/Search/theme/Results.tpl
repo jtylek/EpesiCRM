@@ -1,18 +1,12 @@
 {if isset($links)}
-<table id="Base_Search__Results" cellspacing="0" cellpadding="0" border="0">
-	<tr>
-		<td class="header">{$header}</td>
-	</tr>
+<div id="Base_Search__Results">
+	<div class="header">{$header}</div>
 	{if isset($warning)}
-		<tr>
-			<td class="warning">{$warning}</td>
-		</tr>
+		<div class="warning">{$warning}</div>
 	{/if}
 	{foreach key=key item=link from=$links}
-	<tr>
-		<td class="link">{$link}</td>
-		<!-- $key holds name of the module -->
-	</tr>
+	<div class="link">{$link}</div>
+	<!-- $key holds name of the module -->
 	{/foreach}
-</table>
+</div>
 {/if}

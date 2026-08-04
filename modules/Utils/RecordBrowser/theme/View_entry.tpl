@@ -15,41 +15,39 @@
 {/foreach}
 
 {if $main_page}
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
-				{if isset($new)}
-					{foreach item=n from=$new}
-						&nbsp;&nbsp;&nbsp;{$n}
-					{/foreach}
-				{/if}
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="Utils_RecordBrowser__table">
+	<div class="Utils_RecordBrowser__table_row">
+		<div class="Utils_RecordBrowser__table_icon">
+			<div class="name">
+				<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+				<div class="label">{$caption}</div>
+			</div>
+		</div>
+		<div class="required_fav_info">
+			&nbsp;*&nbsp;{$required_note}
+			{if isset($subscription_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+			{/if}
+			{if isset($fav_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+			{/if}
+			{if isset($info_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$info_tooltip}
+			{/if}
+			{if isset($clipboard_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+			{/if}
+			{if isset($history_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$history_tooltip}
+			{/if}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
+		</div>
+	</div>
+</div>
 
 {if isset($click2fill)}
     {$click2fill}
@@ -68,16 +66,18 @@
    picks however many columns fit the available width. Built directly from
    each field's raw pieces ($f.label/.html/.error/.help/etc, all provided by
    get_field_display_options() alongside the pre-rendered $f.full_field) -
-   NOT through single_field.tpl, which still emits <tr>/<td> and is shared
-   with Contact.tpl/mails.tpl/PhoneCall's and Meeting's default.tpl/
-   Attachment's View_entry.tpl, all of which keep their existing fixed-column
-   table layout unchanged (see AI-shared/bug-patterns.md - a <tr>/<td>
-   dropped directly into a <div> is invalid HTML that browsers silently
-   relocate). Reuses the existing .label/.data/.form_error/.automulti/etc
-   classes and CSS directly - all already unscoped from any table ancestor
-   requirement - except a handful of view/edit-mode-specific rules that
-   *were* table.view/table.edit-scoped, which have an equivalent added under
-   .epesi-rv-fluid.view/.edit in View_entry.css instead. *}
+   NOT through single_field.tpl (which now also emits divs, not <tr>/<td>,
+   but this generic template still builds its rows inline rather than going
+   through it, since it needs the CSS multi-column wrapper single_field.tpl
+   doesn't know about). Contact.tpl/mails.tpl/PhoneCall's and Meeting's
+   default.tpl/Attachment's View_entry.tpl also went fully div-based, using
+   the fixed-column-count .epesi-rv-columns/.column pattern instead of this
+   file's fluid CSS-multicolumn one. Reuses the existing .label/.data/
+   .form_error/.automulti/etc classes and CSS directly - all already
+   unscoped from any table ancestor requirement - except a handful of
+   view/edit-mode-specific rules that *were* table.view/table.edit-scoped,
+   which have an equivalent added under .epesi-rv-fluid.view/.edit in
+   View_entry.css instead. *}
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-fluid {if $action == 'view'}view{else}edit{/if}">
 	{foreach key=k item=f from=$fields name=fields}
@@ -123,11 +123,11 @@
    through single_field.tpl/{$f.full_field} in a plain table exactly as
    before, just without the outer colspan wrapper (no longer needed, since
    there's no outer table to span). *}
-<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+<div class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
 	{foreach key=k item=f from=$longfields name=fields}
 		{$f.full_field}
 	{/foreach}
-</table>
+</div>
 </div>
 
 {if $main_page}
