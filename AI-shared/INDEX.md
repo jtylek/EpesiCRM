@@ -20,12 +20,13 @@
   script.aculo.us/old-jQuery inventory, elimination plan, and progress so far.
 - [bug-patterns.md](bug-patterns.md) — already-fixed bugs whose root-cause
   shape (raw-record-vs-form-submission, strtotime() date parsing, settings
-  override chains) is likely to recur elsewhere; plus one still-open bug
-  (Shoutbox delete UI).
+  override chains, legacy-theme `<select>` sizing across four stacked CSS
+  bugs, a shared timeout/timer applied to a context it wasn't tuned for) is
+  likely to recur elsewhere; plus one still-open bug (Shoutbox delete UI).
 - [environment-gotchas.md](environment-gotchas.md) — DB/server issues that
   looked like application bugs (CLI scripts hitting the live DB, silent ADOdb
   failures from `max_allowed_packet`, MariaDB manifest corruption, access.log
-  vs error.log).
+  vs error.log, outbound SMTP port 25 blocked from this machine).
 - [known-todos.md](known-todos.md) — full-repo `TODO`/`FIXME`/`XXX` audit
   (2026-08-04): every marker in Epesi's own code individually re-verified as
   still-open, none stale. Two flagged as worth prioritizing (a dead param, an

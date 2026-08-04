@@ -65,6 +65,24 @@ don't confuse the two.
 `php_errors.log` to explain it, suspect a silently-swallowed ADOdb failure
 (packet size, lock timeout) before assuming the code path was never reached.
 
+## Outbound SMTP port 25 is blocked from this machine
+
+Confirmed 2026-08-04 while debugging Mail server settings' "Test" button
+hanging on "Loading..." for minutes: a direct TCP connect to an external
+host's port 25 times out (no RST, no refusal - packets just go nowhere),
+while ports 587 and 465 on the same host connect instantly. This is a very
+common network/hosting policy (blocking outbound 25 curbs spam relaying) and
+likely applies to real deployments too, not just this dev box - port 25 is
+the MTA-to-MTA delivery port, not the authenticated-submission port a mail
+client/app should be using anyway.
+
+**How to apply**: if SMTP-related code (mail testing, cron mail delivery)
+appears to hang rather than fail, check the configured `mail_host` port
+before assuming a code bug - a silent hang (vs. an immediate connection-
+refused error) is the signature of a filtered/blocked port, not a
+misconfigured or down server. Recommend port 587 (STARTTLS) or 465
+(implicit TLS) for SMTP submission instead of 25.
+
 ## MariaDB `multi-master.info` corruption (root cause never found)
 
 Hit once (2026-07-29): `C:\xampp82\mysql\data\multi-master.info` should just

@@ -421,6 +421,50 @@ diverge in Chrome specifically. Check for this any time a "field is slightly too
 wide/narrow" report follows a `<select>` field looking fine right next to an
 `<input>` field that doesn't, in the same shared-style row.
 
+## Base_StatusBar: one shared timeout/fade for every message severity, and every caller
+
+Found 2026-08-04/05, reported as "I got an error [testing Mail server settings] and
+the alert quickly self-disappears; it should stay and let me close it" followed by
+"[Mail server settings'] Test button - I am trying to test e-mail sending - got
+Loading... only."
+
+**Bug 1**: `modules/Base/StatusBar/js/main.js`'s `Epesi.updateIndicator()` scheduled
+`setTimeout(statusbar_fade, 5000)` unconditionally for every message -
+`Base_StatusBarCommon::message()`'s `$type` ('normal'/'warning'/'error') only affects
+the injected div's CSS class (color/background), never whether it auto-dismisses. A
+"Settings saved" toast disappearing after 5s is fine; an error message a user needs
+to actually read (and the existing "click anywhere to dismiss" affordance, which the
+5s timer raced against and always won) getting yanked away just as fast is not.
+**Fix**: skip the `setTimeout` specifically when the injected HTML contains `message
+error` (`statusbar_message_t.indexOf('message error')`), leaving errors up until
+manually dismissed while normal/warning messages keep the original 5s auto-fade.
+
+**Bug 2** (surfaced once Bug 1 let the user actually watch a slow Test attempt
+instead of it vanishing): `Base_MailCommon::send()` - used both for real mail sending
+*and* by `Base_Mail::test_mail_config()` (the admin "Test" button) - never overrode
+PHPMailer's `$Timeout` (`modules/Base/Mail/class.smtp.php:144`, default 300s/5min).
+An unreachable host:port doesn't fail fast; `stream_socket_client()` just blocks
+until that timeout, so the UI sat on "Loading..." for up to 5 minutes with zero
+feedback. Root cause of the *specific* report was the configured port (25) being
+filtered outbound rather than actively refused - see
+`environment-gotchas.md`'s "Outbound SMTP port 25 is blocked" entry - but the missing
+timeout is the real bug: even a fast-refusing bad config would still block the UI far
+longer than an interactive "Test" click should ever wait.
+**Fix**: added an optional `$timeout` param to `Base_MailCommon::send()` (`null` =
+unchanged 300s default, so cron/app-triggered real mail sends keep their existing
+generous allowance for a slow-but-working server) and pass `timeout: 10` from
+`test_mail_config()` specifically, since that call is interactive and should fail
+fast on a bad host/port instead of hanging.
+
+**How to apply**: both bugs are the same shape - **a single shared mechanism
+(a fixed auto-dismiss timer; a fixed connect timeout) tuned for one calling context
+gets silently inherited by a different context with different needs** (a background
+confirmation vs. an error demanding attention; a background/cron send that can
+tolerate a slow server vs. an interactive button that should fail fast). Before
+reusing a shared timeout/timer constant, check whether every call site actually wants
+the same value, or whether the "interactive/user-is-waiting" call sites need their
+own override.
+
 ## Known, still-open issue: Shoutbox delete UI doesn't work
 
 The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/
