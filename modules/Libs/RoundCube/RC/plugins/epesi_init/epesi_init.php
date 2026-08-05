@@ -47,6 +47,9 @@ class epesi_init extends rcube_plugin
         case '%m/%d/%Y':
             $date = 'm/d/Y';
             break;
+        case '%d/%m/%Y':
+            $date = 'd/m/Y';
+            break;
         case '%d %B %Y':
             $date = 'd F Y';
             break;

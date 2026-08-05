@@ -64,7 +64,10 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
     public static function file_field_getters() {
         $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
         if($ret)
-            return array(_M('Mail')=>array('func'=>'mail_file_field','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
+            // 'icon' (a PNG) is the legacy-theme fallback; 'bi' is a Bootstrap
+            // icon class name, used by Utils_FileStorage's AdminLTE-dark
+            // download.tpl instead of the PNG where supported.
+            return array(_M('Mail')=>array('func'=>'mail_file_field','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png'),'bi'=>'bi-envelope'));
     }
 
     public static function mail_file_field($backref) {

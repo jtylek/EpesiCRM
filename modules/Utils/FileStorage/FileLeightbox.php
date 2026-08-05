@@ -74,7 +74,7 @@ class Utils_FileStorage_FileLeightbox
                     if (isset($_GET['utils_attachment_custom_getter']) && $_GET['utils_attachment_custom_getter'] == $cus_id) {
                         call_user_func_array(array($mod . 'Common', $func['func']), array($meta['backref']));
                     }
-                    $custom_getters[] = array('open' => '<a href="javascript:void(0)" onclick="' . Epesi::escapeJS(Module::create_href_js(array('utils_attachment_custom_getter' => $cus_id)), true, false) . ';' . $close_leightbox_js . '">', 'close' => '</a>', 'text' => $caption, 'icon' => $func['icon']);
+                    $custom_getters[] = array('open' => '<a href="javascript:void(0)" onclick="' . Epesi::escapeJS(Module::create_href_js(array('utils_attachment_custom_getter' => $cus_id)), true, false) . ';' . $close_leightbox_js . '">', 'close' => '</a>', 'text' => $caption, 'icon' => $func['icon'], 'bi' => isset($func['bi']) ? $func['bi'] : null);
                 }
             }
         }

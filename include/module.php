@@ -574,7 +574,7 @@ abstract class Module extends ModulePrimitive {
 			// Utils_Messenger's alarm popup) have embedded "\n"s for readability; textContent
 			// stays XSS-safe (message content isn't always fully trusted - e.g. an alarm's
 			// free-text comment), CSS alone makes the literal newlines actually render.
-			.'<div class="modal-body"><p class="mb-0" id="epesi_confirm_modal_msg" style="white-space:pre-line"></p></div>'
+			.'<div class="modal-body"><p class="mb-0" id="epesi_confirm_modal_msg" style="white-space:pre-line;overflow-wrap:anywhere"></p></div>'
 			.'<div class="modal-footer">'
 			.'<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">'.__('Cancel').'</button>'
 			.'<button type="button" class="btn btn-primary" id="epesi_confirm_modal_ok" autofocus>'.__('OK').'</button>'
@@ -632,7 +632,7 @@ abstract class Module extends ModulePrimitive {
 			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-info-circle-fill me-2 text-primary"></i>'.__('Notice').'</h5>'
 			.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>'
 			// white-space:pre-line + textContent for the same reasons as the confirm modal above.
-			.'<div class="modal-body"><p class="mb-0" id="epesi_alert_modal_msg" style="white-space:pre-line"></p></div>'
+			.'<div class="modal-body"><p class="mb-0" id="epesi_alert_modal_msg" style="white-space:pre-line;overflow-wrap:anywhere"></p></div>'
 			.'<div class="modal-footer">'
 			.'<button type="button" class="btn btn-primary" data-bs-dismiss="modal" autofocus>'.__('OK').'</button>'
 			.'</div></div></div></div>'

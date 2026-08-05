@@ -37,6 +37,14 @@ class Base_AdminlteIcons {
 		'companies' => 'bi-building',
 		'contacts'  => 'bi-person-vcard-fill',
 		'launcher'  => 'bi-grid-3x3-gap-fill',
+		// Not a module-disambiguation entry like the three above - this is
+		// Base_ActionBar's own generic icons/back.png, reused as a plain
+		// "Cancel"/"Back" glyph by callers outside the action bar itself
+		// (e.g. Utils_LeightboxPrompt option buttons, CRM_Mail's "Paste
+		// e-mail" Cancel). Same bi-arrow-left the action bar's own
+		// theme_adminltedark/default.tpl uses for its 'back' action, so the
+		// glyph reads the same wherever a "back.png" shows up.
+		'back'      => 'bi-arrow-left',
 	);
 
 	/**
