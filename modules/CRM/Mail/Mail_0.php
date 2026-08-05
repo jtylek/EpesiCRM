@@ -138,7 +138,7 @@ class CRM_Mail extends Module {
 			$this->display_module($rb, array(array('(contacts'=>array('contact/'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
 		} elseif($rs=='company') {
 			$form = $this->init_module(Libs_QuickForm::module_name());
-			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 			if ($form->validate()) {
 				$show_related = $form->exportValue('include_related');
 				$this->set_module_variable('include_related',$show_related);
@@ -178,7 +178,7 @@ class CRM_Mail extends Module {
 			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
 		} elseif($rs=='company') {
 			$form = $this->init_module(Libs_QuickForm::module_name());
-			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 			if ($form->validate()) {
 				$show_related = $form->exportValue('include_related');
 				$this->set_module_variable('include_related',$show_related);

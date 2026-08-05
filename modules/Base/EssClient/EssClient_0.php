@@ -289,7 +289,7 @@ class Base_EssClient extends Module {
 
     public function no_ssl_settings() {
         $f = $this->init_module("Libs/QuickForm");
-        $f->addElement('checkbox', 'allow', 'Allow unsecure connection');
+        $f->addElement('checkbox', 'allow', 'Allow unsecure connection', null, array('class'=>'epesi-switch'));
         Base_ActionBarCommon::add('back', __('Back'), Base_BoxCommon::pop_main_href());
         Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
         if ($f->validate()) {

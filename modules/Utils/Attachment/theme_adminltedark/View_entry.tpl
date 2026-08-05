@@ -157,33 +157,11 @@
 [data-bs-theme="light"] #crypted.epesi-switch:checked:focus-visible, [data-bs-theme="light"] #sticky.epesi-switch:checked:focus-visible {
 	border-color: #0d6efd !important;
 }
-/* View mode freezes Sticky/Crypted instead of rendering the live
-   'epesi-switch' input above - frozen checkboxes render as a plain
-   <img src=".../checkbox_on|off.png"> app-wide (HTML_QuickForm_
-   epesi_checkbox/epesi_advcheckbox's getFrozenHtml(), shared by every
-   frozen checkbox field, so not changed directly), not an on/off switch.
-   Swapped for a matching toggle glyph here instead, scoped to just these
-   two fields' .data cells - same hide-the-<img>-show-a-::before-glyph
-   technique this theme already uses for .epesi-rv-tools' icons
-   (RecordBrowser's View_entry.css), keyed off the image filename (stable
-   across locales) rather than its translated alt text. */
-#_sticky__data img, #_crypted__data img {
-	display: none;
-}
-#_sticky__data:has(img[src*="checkbox_on.png"])::before,
-#_crypted__data:has(img[src*="checkbox_on.png"])::before {
-	font-family: "bootstrap-icons";
-	content: "\f5d6";
-	font-size: 1.5rem;
-	color: #0d6efd;
-}
-#_sticky__data:has(img[src*="checkbox_off.png"])::before,
-#_crypted__data:has(img[src*="checkbox_off.png"])::before {
-	font-family: "bootstrap-icons";
-	content: "\f5d5";
-	font-size: 1.5rem;
-	color: #8b929a;
-}
+/* View mode's frozen Sticky/Crypted checkboxes now get their switch-glyph
+   look from the app-wide fix in Libs/QuickForm/theme_adminltedark/
+   default.css (.epesi-frozen-checkbox, HTML_QuickForm_epesi_checkbox/
+   epesi_advcheckbox's getFrozenHtml()) - no per-field override needed here
+   anymore. */
 /* QFfield_crypted's Password/Confirm Password/Password Hint inputs (see
    AttachmentCommon_0.php) start disabled and are enabled/shown by the
    Encryption toggle's onChange JS - whatever makes them render white-on-

@@ -239,6 +239,35 @@ input.epesi-switch[type="checkbox"] + label {
 	margin-left: 0.4rem;
 }
 
+/* Frozen (view-mode) checkboxes app-wide (HTML_QuickForm_epesi_checkbox/
+ * epesi_advcheckbox's getFrozenHtml() - see modules/Libs/QuickForm/
+ * FieldTypes/epesi_checkbox|epesi_advcheckbox) - matches the on/off switch
+ * look 'epesi-switch' already gives active checkboxes above. The <img> stays
+ * in the markup (untouched under the legacy default theme, which has no
+ * matching CSS here) and is just hidden; the wrapping span is inline, unlike
+ * the field template's own block-level wrapper div every field type gets, so
+ * the glyph doesn't add an extra line the way hiding a block would. */
+.epesi-frozen-checkbox img {
+	display: none;
+}
+
+.epesi-frozen-checkbox::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+	vertical-align: middle;
+}
+
+.epesi-frozen-checkbox-on::before {
+	content: "\f5d6";
+	color: #0d6efd;
+}
+
+.epesi-frozen-checkbox-off::before {
+	content: "\f5d5";
+	color: #8b929a;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] #multiselect .form-element select,
 [data-bs-theme="light"] #multiselect .to-element select {
@@ -276,4 +305,8 @@ input.epesi-switch[type="checkbox"] + label {
 [data-bs-theme="light"] input.epesi-switch[type="checkbox"]:checked {
   background-color: #0d6efd;
   border-color: #0d6efd;
+}
+
+[data-bs-theme="light"] .epesi-frozen-checkbox-off::before {
+  color: #6c757d;
 }

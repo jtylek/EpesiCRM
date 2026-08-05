@@ -2028,11 +2028,11 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addFormRule($this->check_field_definitions(...));
 
-		$form->addElement('checkbox', 'visible', __('Table view'));
-		$form->addElement('checkbox', 'tooltip', __('Tooltip view'));
-		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required'));
-		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter'));
-		$form->addElement('checkbox', 'export', __('Export'));
+		$form->addElement('checkbox', 'visible', __('Table view'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'tooltip', __('Tooltip view'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required', 'class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter', 'class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'export', __('Export'), null, array('class'=>'epesi-switch'));
         
         $form->addElement('text', 'autonumber_prefix', __('Prefix string'), array('id' => 'autonumber_prefix'));
         $form->addRule('autonumber_prefix', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
@@ -2044,7 +2044,7 @@ class Utils_RecordBrowser extends Module {
         $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
         $ck->setFCKProps(null, null, false);
 
-		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced'));
+		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced', 'class'=>'epesi-switch'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = 'Callback returning the template or template file to use for the field';
         $form->addElement('textarea', 'template', __('Field template') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'template'));

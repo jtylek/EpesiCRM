@@ -173,7 +173,7 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function QFfield_smtp_auth(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('checkbox', $field, $label,'',array('onchange'=>'CRM_Mail.smtp_auth_change(this.checked)','id'=>$field));
+        $form->addElement('checkbox', $field, $label,'',array('onchange'=>'CRM_Mail.smtp_auth_change(this.checked)','id'=>$field,'class'=>'epesi-switch'));
         $form->setDefaults(array($field=>$default));
         if ($mode == 'edit' || $mode == 'add') {
             eval_js('CRM_Mail.smtp_auth_change('.($default?1:0).')');
@@ -205,7 +205,7 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function QFfield_default_account(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('checkbox', $field, $label,'');
+        $form->addElement('checkbox', $field, $label,'',array('class'=>'epesi-switch'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view' || $default) $form->freeze(array($field));
     }

@@ -105,11 +105,11 @@ class CRM_Contacts_Activities extends Module {
 	public function filters() {	
 		$form = $this->init_module(Libs_QuickForm::module_name());
 		$form->addElement('header', 'display', __('Show'));
-		if (CRM_MeetingInstall::is_installed()) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (CRM_TasksInstall::is_installed()) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js()));
-		if (CRM_PhoneCallInstall::is_installed()) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js()));
+		if (CRM_MeetingInstall::is_installed()) $form->addElement('checkbox', 'events', __('Meetings'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
+		if (CRM_TasksInstall::is_installed()) $form->addElement('checkbox', 'tasks', __('Tasks'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
+		if (CRM_PhoneCallInstall::is_installed()) $form->addElement('checkbox', 'phonecalls', __('Phonecalls'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 		$form->addElement('select', 'activities_date', str_replace(' ','&nbsp;',__('Activities date')), array(0=>__('Future'), 1=>__('Past'), 2=>__('All time')), array('onchange'=>$form->get_submit_form_js()));
-		$form->addElement('checkbox', 'closed', __('Closed'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox', 'closed', __('Closed'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 		$old_display = $this->get_module_variable('display_options', array(
 			'events'=>CRM_MeetingInstall::is_installed(),
 			'tasks'=>CRM_TasksInstall::is_installed(),

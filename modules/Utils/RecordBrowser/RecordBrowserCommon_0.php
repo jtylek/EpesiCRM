@@ -3304,7 +3304,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function QFfield_checkbox(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field));
+        // 'epesi-switch': same on/off toggle look QuickForm_0.php's
+        // get_element_by_array() already gives every array-declared settings
+        // checkbox (user_settings()/admin_settings()/etc) - this is the
+        // fallback QFfield_callback for every RecordBrowser 'checkbox'-typed
+        // field that doesn't register its own (i.e. most of them, across
+        // every module built on RecordBrowser), so this one change covers
+        // that whole class of app-wide. Styled by Libs/QuickForm's
+        // theme_adminltedark/default.css; a plain, unstyled checkbox under
+        // the legacy default theme, which doesn't define .epesi-switch.
+        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field, 'class' => 'epesi-switch'));
         $el->setValues(array('0','1'));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));

@@ -37,10 +37,10 @@ class Apps_ActivityReport extends Module {
 
 		$form->addElement('multiselect', 'recordsets', __('Record Type'), $rb_tabs);
 
-		$form->addElement('checkbox', 'new', __('New record'));
-		$form->addElement('checkbox', 'edit', __('Record edit'));
-		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'));
-		$form->addElement('checkbox', 'file', __('Files'));
+		$form->addElement('checkbox', 'new', __('New record'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'edit', __('Record edit'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'file', __('Files'), null, array('class'=>'epesi-switch'));
 
 		$form->addElement('datepicker', 'start_date', __('Start Date'));
 		$form->addElement('datepicker', 'end_date', __('End Date'));

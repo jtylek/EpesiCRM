@@ -63,7 +63,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
             $form->addElement('select', 'mail_security', __('Security'),
                     array('' => __('None'), 'ssl' => 'SSL', 'ssl_ssc'=>'SSL (self signed certificate)', 'tls' => 'TLS', 'tls_ssc' => 'TLS (self signed certificate)'));
 			
-			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','class="epesi-switch" onChange="'.$form->get_submit_form_js(false).'"');
 			
 			$auth = $form->getElement('mail_auth')->getValue();
 			if($auth) {

@@ -37,7 +37,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');
 		
-		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
 			$form->freeze('allow_lang_change');
 		
@@ -71,10 +71,10 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
 		$me = CRM_ContactsCommon::get_my_record();
 		$form->addElement('static', 'header', '<div id="decription_label" />', $desc);
-		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();'));
+		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();', 'class'=>'epesi-switch'));
 		$form->addElement('text', 'first_name', __('First Name'), array('id'=>'first_name'));
 		$form->addElement('text', 'last_name', __('Last Name'), array('id'=>'last_name'));
-		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();'));
+		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();', 'class'=>'epesi-switch'));
 		$form->addElement('text', 'credits_website', __('Credits website'), array('id'=>'credits_website'));
 		$form->addElement('text', 'contact_email', __('Contact e-mail'), array('id'=>'contact_email'));
 		$form->addElement('static', 'IP', __('IP'), $ip);

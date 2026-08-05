@@ -154,7 +154,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					'if(ts) ts.style.display = cal_style;'.
 				'}');
 			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'button'));
-			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless'));
+			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless', 'class'=>'epesi-switch'));
 
 			eval_js('crm_calendar_event_timeless($("timeless").checked)');
 			eval_js('crm_calendar_duration_switcher(1)');
@@ -167,7 +167,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			$form->addFormRule(array('CRM_MeetingCommon','check_date_and_time'));
 		} else {
-			$form->addElement('checkbox', 'timeless', __('Timeless'));
+			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('class'=>'epesi-switch'));
 			$form->setDefaults(array('timeless'=>($default==-1?1:0)));
 		}
 
@@ -262,7 +262,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 					'$("recurrence_end").value="";'.
 				'}'.
 			'}');
-			$form->addElement('checkbox', 'recurrence_end_checkbox', __('Recurrence end'), null, array('id'=>'recurrence_end_checkbox','onclick'=>'recurrence_end_switch(this.checked);'));
+			$form->addElement('checkbox', 'recurrence_end_checkbox', __('Recurrence end'), null, array('id'=>'recurrence_end_checkbox','onclick'=>'recurrence_end_switch(this.checked);','class'=>'epesi-switch'));
 			eval_js('recurrence_end_switch('.($default?'1':'0').');');
 			if ($mode=='edit') {
 				$form->setDefaults(array($field=>$default));

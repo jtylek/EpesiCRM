@@ -84,8 +84,8 @@ class Utils_RecordBrowser_CustomRecordsets extends Module
             $m[] = $form->createElement('text', 'menu_' . $i, __('Menu'), array('placeholder' => __('Enter Menu or Submenu label')));
         }
         $form->addGroup($m, 'menu', __('Menu'));
-        $form->addElement('checkbox', 'recent', __('Enable Recent'));
-        $form->addElement('checkbox', 'favs', __('Enable Favorites'));
+        $form->addElement('checkbox', 'recent', __('Enable Recent'), null, array('class'=>'epesi-switch'));
+        $form->addElement('checkbox', 'favs', __('Enable Favorites'), null, array('class'=>'epesi-switch'));
         $form->addRule('tab', __('Field required'), 'required');
         $form->addRule('caption', __('Field required'), 'required');
         $form->addFormRule($this->check_form(...));

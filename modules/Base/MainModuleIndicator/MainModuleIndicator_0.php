@@ -72,8 +72,8 @@ class Base_MainModuleIndicator extends Module {
 			'show_module_indicator'=>Variable::get('show_module_indicator')
 			));
 		$form->addElement('text','title',__('Base page title'));
-		$form->addElement('checkbox','show_caption_in_title',__('Display module captions inside page title'));
-		$form->addElement('checkbox','show_module_indicator',__('Display module captions inside module'));
+		$form->addElement('checkbox','show_caption_in_title',__('Display module captions inside page title'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox','show_module_indicator',__('Display module captions inside module'), null, array('class'=>'epesi-switch'));
         $form->addElement('submit', 'button', __('Save'), $form->get_submit_form_href());
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         if($form->validate()) {

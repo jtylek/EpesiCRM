@@ -158,7 +158,7 @@ class Base_Admin extends Module {
 			$sections_id = $name.'__sections';
 
 			$enable_default = Base_AdminCommon::get_access($name, '', true);
-			$form->addElement('checkbox', $enable_field, $enable_default===null?__('Access blocked'):__('Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':''));
+			$form->addElement('checkbox', $enable_field, $enable_default===null?__('Access blocked'):__('Allow access'), null, array('onchange'=>'admin_switch_button("'.$button_id.'",this.checked, "'.$sections_id.'");', 'id'=>$enable_field, 'style'=>$enable_default===null?'display:none;':'', 'class'=>'epesi-switch'));
 			$form->setDefaults(array($enable_field=>$enable_default));
 			eval_js('admin_switch_button("'.$button_id.'",$("'.$enable_field.'").checked, "'.$sections_id.'", 1);');
 			

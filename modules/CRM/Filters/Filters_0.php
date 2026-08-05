@@ -124,8 +124,8 @@ class CRM_Filters extends Module {
 		$this->display_module($gb);
 		
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');
-		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
-        $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js(),'class'=>'epesi-switch'));
+        $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js(),'class'=>'epesi-switch'));
 		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters'),
             'show_only_users_in_filters' => Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')
 						));
