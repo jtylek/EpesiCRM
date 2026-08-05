@@ -420,29 +420,75 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function QFfield_crypted(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='view') {
-            $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field));
+            $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field,'class'=>'epesi-switch'));
             $form->setDefaults(array($field=>$default));
             $elem->freeze(1);
         } else {
+            // The checkbox stays alone on the group's own line (on/off switch,
+            // see the 'epesi-switch' class - shared with QuickForm_0.php's
+            // array-declared settings checkboxes, see Libs/QuickForm/
+            // theme_adminltedark/default.css); the Password/Confirm/Hint trio
+            // is wrapped in a <div> (via 'static' elements holding raw open/
+            // close tags - same trick as MainModuleIndicator_0.php) so the
+            // onChange handler below can hide/show it as one block instead of
+            // just disabling its inputs, per the note-form redesign in
+            // View_entry.tpl.
+            // Each Password/Confirm/Hint field is wrapped in its own
+            // '.epesi-attachment-crypted-field' div (label above input, see
+            // View_entry.tpl's CSS) instead of the label and input being
+            // flat siblings in the flex row - a flat label+input pair can be
+            // split across the wrap point on narrow screens (label stranded
+            // at the end of one line, its input alone at the start of the
+            // next); wrapping each pair as a single flex item keeps a label
+            // glued to its own input no matter where the row wraps.
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;','style'=>'margin-right:40px;'));
-            $elems[] = $form->createElement('static','note_password_label','',__('Password').':');
-            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password','style'=>'width:200px;margin-right:20px;'));
-            $elems[] = $form->createElement('static','note_password2_label','',__('Confirm Password').':');
-            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2','style'=>'width:200px;margin-right:20px;'));
-            $elems[] = $form->createElement('static','note_password_hint_label','',__('Password Hint').':');
-            $elems[] = $form->createElement('text','note_password_hint',__('Password Hint'), array('id'=>'note_password_hint','style'=>'width:200px'));
-            $form->addGroup($elems,$field,__('Encryption'));
+            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'class'=>'epesi-switch','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;if(this.checked)$("note_crypted_details").show();else $("note_crypted_details").hide();'));
+            $elems[] = $form->createElement('static','note_crypted_details_open','','<div id="note_crypted_details" class="epesi-attachment-crypted-details">');
+            $elems[] = $form->createElement('static','note_password_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Password').':</span>');
+            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $elems[] = $form->createElement('static','note_password_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_password2_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Confirm Password').':</span>');
+            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
+            $elems[] = $form->createElement('static','note_password2_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_password_hint_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Password Hint').':</span>');
+            $elems[] = $form->createElement('text','note_password_hint',__('Password Hint'), array('id'=>'note_password_hint'));
+            $elems[] = $form->createElement('static','note_password_hint_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_crypted_details_close','','</div>');
+            // Explicit '' separator: addGroup()'s default inserts '&nbsp;'
+            // between every element, including between each field's opening-
+            // div static and its input and the closing-div static - as text
+            // nodes directly inside a flex column (.epesi-attachment-
+            // crypted-field), those extra nbsps became their own anonymous
+            // flex items, forcing an extra blank line between each label and
+            // its input instead of the two sitting flush together.
+            $form->addGroup($elems,$field,__('Encryption'),'');
 
             if($default) {
                 $hint = isset($rb_obj->record['note']) ? self::get_password_hint($rb_obj->record['note']) : '';
                 $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;');
+            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;$("note_crypted_details").hide();');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }
+    }
+
+    // Same as the generic Utils_RecordBrowserCommon::QFfield_checkbox() every
+    // other 'checkbox'-typed RecordBrowser field falls back to (advcheckbox,
+    // not plain checkbox, so an explicit '0' is submitted when unchecked
+    // instead of the field vanishing from $_POST entirely) - just with the
+    // 'epesi-switch' on/off toggle look, matching Encryption's, instead of a
+    // bare checkbox. Registered as this field's own QFfield_callback (see
+    // AttachmentInstall.php / the 20260805 patch) rather than changed in the
+    // shared callback itself, which every other checkbox field app-wide also
+    // falls back to.
+    public static function QFfield_sticky(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field, 'class' => 'epesi-switch'));
+        $el->setValues(array('0','1'));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
     }
 
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

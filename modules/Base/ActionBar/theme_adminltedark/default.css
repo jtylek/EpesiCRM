@@ -106,6 +106,36 @@
 	height: 32px;
 }
 
+/* The persistent header toolbar drops its labels below 575.98px to stay
+   compact (see the media query above) - .epesi-actionbar-label is shared
+   with this popup rather than duplicated (per this file's own header
+   comment), so that same query silently hid labels here too. The popup has
+   its own dedicated screen space (see #actionbar_launchpad's full-width
+   override below), so the same space-saving trade-off doesn't apply -
+   labels should stay visible, per request. */
+@media (max-width: 575.98px) {
+	.epesi-actionbar-launchpad .epesi-actionbar-label {
+		display: block;
+	}
+}
+
+/* On narrow/mobile screens the Launchpad popup specifically - not every
+   Leightbox popup app-wide, which keep their shared 70%/900px-cap sizing
+   (Libs/Leightbox/theme_adminltedark/default.css) - should fill the full
+   screen width instead of leaving unusable overlay margins on both sides,
+   per request. #actionbar_launchpad's id specificity overrides the shared
+   .leightbox rule (including its [big="1"] variant) without touching other
+   popups. */
+@media (max-width: 575.98px) {
+	#actionbar_launchpad.leightbox {
+		width: 100%;
+		max-width: 100%;
+		left: 0;
+		transform: none;
+		border-radius: 0;
+	}
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-actionbar-launcher-group {
   border-left: 1px solid #dee2e6;
