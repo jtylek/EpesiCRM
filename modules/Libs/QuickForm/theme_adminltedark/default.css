@@ -144,6 +144,60 @@
 	background-color: #495057;
 }
 
+/* ---- mobile checklist fallback (multiselect.js's own
+ * epesi_ms_build_checklist()) ----
+ * iOS Safari (and Android Chrome, per report) never render <select multiple>
+ * as an inline listbox under touch, size attribute (multiselect.php's
+ * toHtml()) or not - the compact "N selected" native summary control that
+ * replaces it still works (tapping opens a real native picker) but shows
+ * nothing inline and doesn't match this widget's own move-between-lists
+ * visual language at all. The JS builds a flat, always-in-sync checklist (one
+ * checkbox per option, checked = currently in the "to" list) as a sibling of
+ * the existing #multiselect table, hidden by default via an inline style set
+ * at build time - only shown below this theme's usual mobile breakpoint
+ * (767.98px, matching every other touch-specific rule in this theme), where
+ * it fully replaces the native two-select/four-button UI instead of sitting
+ * alongside it. */
+.epesi-ms-checklist {
+	max-height: 240px;
+	overflow-y: auto;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.4rem;
+	background-color: #2b3035;
+}
+
+.epesi-ms-check {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.35rem 0.2rem;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.epesi-ms-check input[type="checkbox"] {
+	flex-shrink: 0;
+	width: 1.05rem;
+	height: 1.05rem;
+	accent-color: #0d6efd;
+	margin: 0;
+}
+
+.epesi-ms-check:has(input:disabled) {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+@media (max-width: 767.98px) {
+	#multiselect {
+		display: none !important;
+	}
+	.epesi-ms-checklist {
+		display: block !important;
+	}
+}
+
 /* ---- autocomplete/autoselect suggestion dropdown ----
  * Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php prints
  * <div id="..._suggestbox" class="autocomplete">&nbsp;</div> right after
@@ -400,4 +454,9 @@ div.data.timestamp > div > div:last-child input {
 
 [data-bs-theme="light"] .epesi-frozen-checkbox-off::before {
   color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-ms-checklist {
+  border: 1px solid #ced4da;
+  background-color: #fff;
 }

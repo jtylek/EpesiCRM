@@ -31,5 +31,10 @@
   (2026-08-04): every marker in Epesi's own code individually re-verified as
   still-open, none stale. Two flagged as worth prioritizing (a dead param, an
   escaping hack with a working fix already nearby in the same file).
+- [TODO.md](TODO.md) — follow-up work deferred during AI-assisted sessions
+  (started 2026-08-05): a real fix shipped now, with a known limitation
+  recorded to come back to later. First entry: the mobile multiselect
+  checklist fallback needs an autoselect/search switchover for large option
+  counts, not yet implemented/testable in this dev install.
 
-Last reorganized: 2026-08-04.
+Last reorganized: 2026-08-05.

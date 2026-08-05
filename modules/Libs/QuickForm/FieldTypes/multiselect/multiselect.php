@@ -356,6 +356,20 @@ class HTML_QuickForm_multiselect extends HTML_QuickForm_element
     {
     	//print_r($this->_values);
 		$this->updateAttributes(array('multiple' => 'multiple'));
+		/* A <select multiple> with no explicit size attribute renders fine as
+		   an inline listbox on desktop browsers (CSS height is enough there),
+		   but mobile Chrome (confirmed on Android) instead treats it as a
+		   native picker control - a compact "N selected" summary box with no
+		   visible options at all, only opening the real list in a modal after
+		   a tap. Setting size explicitly forces every browser, mobile
+		   included, to render it as the real inline listbox this widget's
+		   own move-between-boxes UI (the >/>>/<</< buttons) requires -
+		   without it there's no way to see, let alone multi-select, the
+		   options on a phone. Not overridden if a caller already set one via
+		   setSize(). */
+		if (!$this->getAttribute('size')) {
+			$this->updateAttributes(array('size' => 8));
+		}
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         } else {

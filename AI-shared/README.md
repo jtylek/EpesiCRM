@@ -47,6 +47,10 @@ same for every developer and every computer working on this repo.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.
+- [TODO.md](TODO.md) — follow-up work *we* deferred (not pre-existing code markers,
+  see known-todos.md for those): a real fix shipped now, with a known limitation to
+  come back to later, usually because this dev install can't exercise the condition
+  that would need testing.
 
 ## Conventions for investigating/fixing bugs
 
