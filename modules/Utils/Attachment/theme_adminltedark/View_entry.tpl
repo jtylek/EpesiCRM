@@ -5,11 +5,14 @@
    (see ../../../CRM/Contacts/theme_adminlte/Contact.tpl and
    [[adminlte-theme-incomplete]] memory).
 
-   Layout (2026-08-05 redesign, per request): Title (label + input, one
-   line), then Edited by/Edited on (view mode only), then the note body
-   (CKEditor in add/edit, rendered text in view) full width, then Files
-   full width, then a two-column row (Attached to on the left; Permission
-   and Sticky stacked on the right), then Encryption full width - its
+   Layout (2026-08-05 redesign, per request; reordered same day - Edited
+   by/Edited on moved after the note body, per follow-up request): Title
+   (label + input, one line), then the note body (CKEditor in add/edit,
+   rendered text in view) full width, then Edited by/Edited on (view mode
+   only, each column an equal flex share so the pair spans the row's full
+   width), then Files full width, then a two-column row (Attached to on
+   the left; Permission and Sticky stacked on the right), then Encryption
+   full width - its
    edit-mode QuickForm group renders the on/off toggle (see 'epesi-switch',
    shared with Libs/QuickForm's array-declared settings checkboxes) alone
    on the first line, with the Password/Confirm Password/Password Hint
@@ -256,29 +259,7 @@
 				{$fields.title.full_field}
 			</div>
 
-			{if $action == 'view'}
-			{* Row 2 (view only): Edited by / Edited on *}
-			<div class="epesi-rv-columns">
-					<div class="column">
-						<div class="view">
-						<div class="epesi-rv-row">
-							<div class="label">{$edited_by_caption}</div>
-							<div class="data">{$editor_label}</div>
-						</div>
-						</div>
-					</div>
-					<div class="column">
-						<div class="view">
-						<div class="epesi-rv-row">
-							<div class="label">{$fields.edited_on.label}</div>
-							<div class="data">{$edited_date_label}</div>
-						</div>
-						</div>
-					</div>
-			</div>
-			{/if}
-
-			{* Row 3: body of the note - CKEditor (add/edit) or rendered text
+			{* Row 2: body of the note - CKEditor (add/edit) or rendered text
 			   (view), full width. (Any other longfields this recordset gains
 			   in future, none currently.) *}
 			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
@@ -301,6 +282,33 @@
 						{/if}
 					{/foreach}
 			</div>
+
+			{if $action == 'view'}
+			{* Row 3 (view only): Edited by / Edited on - each column is an
+			   equal flex-grow share (matching the Files/Attached-to-etc rows
+			   below) instead of the bare '.column' default (flex:0 0 auto,
+			   no explicit width - shrinks to fit its label+value content),
+			   so the pair together spans the row's full width instead of
+			   leaving the rest of the row blank, per request. *}
+			<div class="epesi-rv-columns">
+					<div class="column" style="flex: 1 1 0; min-width: 0;">
+						<div class="view">
+						<div class="epesi-rv-row">
+							<div class="label">{$edited_by_caption}</div>
+							<div class="data">{$editor_label}</div>
+						</div>
+						</div>
+					</div>
+					<div class="column" style="flex: 1 1 0; min-width: 0;">
+						<div class="view">
+						<div class="epesi-rv-row">
+							<div class="label">{$fields.edited_on.label}</div>
+							<div class="data">{$edited_date_label}</div>
+						</div>
+						</div>
+					</div>
+			</div>
+			{/if}
 
 			{* Row 4: Files, full width *}
 			{if isset($fields.files)}

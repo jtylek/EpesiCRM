@@ -313,7 +313,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = '<b>'.$row['title'].'</b><br>'.$body;
         }
         
-        if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
+        if($row['sticky']) $text = '<i class="bi bi-pin-angle-fill text-warning me-1"></i>'.$text;
 
         $files = self::display_files($row, $nolink);
 
