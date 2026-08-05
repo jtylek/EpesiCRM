@@ -247,6 +247,98 @@
 	color: #0d6efd;
 }
 
+/* ---- automulti (autocomplete-based multiselect: search box + Remove button,
+ * backed by a hidden <select multiple> listing everything already added) ----
+ * Libs/QuickForm/FieldTypes/automulti/automulti.php::toHtml() emits
+ * <table class="automulti"><tr><td class="search-element">(the autocomplete
+ * input above)</td><td class="search">(optional "Advanced Selection" zoom-
+ * icon link, only for RecordBrowser multiselect fields backed by a recordset
+ * larger than Utils_RecordBrowserCommon::$options_limit - empty <td></td>
+ * otherwise)</td><td class="button">(Remove button)</td></tr><tr>
+ * <td class="main-element" colspan="3"><select multiple>...</td></tr></table>
+ * - no .tpl, shared with the default theme. Same nested-table-under-
+ * table-layout:auto sizing problem already fixed for #multiselect above (see
+ * that comment): the search box + Remove button row was sizing itself by its
+ * own min-content instead of the surrounding .data cell's actual rendered
+ * width, leaving a large blank gap on the right (reported against
+ * CRM_PhoneCall's Employees field, an automulti-rendered 'multiselect').
+ * Fixed the same way - taken out of table layout via display:block/flex. */
+.automulti {
+	display: block;
+	width: 100%;
+}
+.automulti tbody {
+	display: contents;
+}
+.automulti tr {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+}
+.automulti tr + tr {
+	margin-top: 0.35rem;
+}
+.automulti td {
+	text-align: center;
+}
+/* Collapses the filler <td></td> automulti.php emits in place of the
+   "Advanced Selection" zoom-icon link when that link isn't configured - see
+   the field breakdown above. */
+.automulti td:empty {
+	display: none;
+}
+.automulti .search-element {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.automulti .search-element input[type="text"] {
+	width: 100%;
+	box-sizing: border-box;
+}
+.automulti td.search {
+	flex: 0 0 auto;
+	margin-left: 0.5rem;
+	display: flex;
+	align-items: center;
+}
+.automulti .button {
+	flex: 0 0 110px;
+	margin-left: 0.5rem;
+}
+/* Remove button - styled as a standard Bootstrap "rounded-pill" button.
+ * automulti.php hardcodes style="width:100%" on the <input> itself - an
+ * inline style beats any width rule written here regardless, so its
+ * rendered width is left to come from the .button flex-basis above instead
+ * of being fought; border-radius/color/background aren't touched by that
+ * inline style and are free to style here. Same base/hover/disabled palette
+ * as #multiselect's own move buttons above, for a consistent look between
+ * the two widgets. */
+.automulti .button input {
+	height: 100%;
+	cursor: pointer;
+	font-weight: 600;
+	color: #fff;
+	border: none;
+	border-radius: 50rem;
+	background-color: #8b929a;
+	box-shadow: none;
+	transition: background-color .15s ease-in-out;
+}
+.automulti .button input:hover,
+.automulti .button input:focus {
+	background-color: #0d6efd;
+}
+.automulti .disabled input {
+	cursor: not-allowed;
+	background-color: #495057;
+}
+.automulti .main-element {
+	flex: 1 1 100%;
+}
+.automulti .main-element select {
+	width: 100%;
+}
+
 /* ---- settings checkboxes rendered as on/off switches ----
  * QuickForm_0.php::get_element_by_array() tags every 'bool'/'checkbox'
  * array-declared field (user_settings()/admin_settings() hooks, Base_Setup,
@@ -429,6 +521,14 @@ div.data.timestamp > div > div:last-child input {
 [data-bs-theme="light"] #multiselect .buttons-cell td > input[readonly],
 [data-bs-theme="light"] #multiselect .buttons .button input[disabled],
 [data-bs-theme="light"] #multiselect .buttons .button input[readonly] {
+  background-color: #ced4da;
+}
+
+[data-bs-theme="light"] .automulti .button input {
+  background-color: #6c757d;
+}
+
+[data-bs-theme="light"] .automulti .disabled input {
   background-color: #ced4da;
 }
 
