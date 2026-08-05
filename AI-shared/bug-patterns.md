@@ -465,16 +465,114 @@ reusing a shared timeout/timer constant, check whether every call site actually 
 the same value, or whether the "interactive/user-is-waiting" call sites need their
 own override.
 
-## Known, still-open issue: Shoutbox delete UI doesn't work
+## `epesi-switch` checkboxes and `timestamp` fields losing CSS fights inside RecordBrowser's `.data` cell
 
-The History tab's delete icon (`Apps_Shoutbox::delete_msg()`/
-`can_delete_msg()`) does not actually delete a message on this install — not
-yet root-caused (could be `can_delete_msg()`'s permission logic, or something
-broken in GenericBrowser row-action rendering here). Workaround: soft-delete
-directly —
+Found 2026-08-05, two related bugs in the same session: CRM_Meeting's "Timeless"
+switch rendered as a near-invisible sliver instead of a pill toggle, and
+CRM_PhoneCall's "Date and Time" field (a `timestamp`-typed field) had its
+hour/date/minute sub-elements stacked vertically instead of on one line - both
+under `adminltedark` only.
 
-```sql
-UPDATE apps_shoutbox_messages SET deleted=1 WHERE id=<id>;
-```
+**Bug 1 (epesi-switch)**: `Utils_RecordBrowserCommon::QFfield_checkbox()`'s
+default renderer tags every plain RecordBrowser checkbox field with class
+`epesi-switch` (see the "Render checkboxes as on/off switches app-wide" commit),
+whose own look comes from `Libs/QuickForm/theme_adminltedark/default.css`'s
+`input.epesi-switch[type="checkbox"]` rule. But `Utils/RecordBrowser/
+theme_adminltedark/View_entry.css` independently has `.data input:not([type=
+button])`/`.data input[type="checkbox"]{width:auto}` rules (written for
+ordinary fields, not switches) with **equal-or-higher specificity**, so they
+silently win and squash the switch's width/height/background/border back down.
+`Utils_Attachment` had already hit this exact conflict for its own Sticky/
+Crypted fields and "fixed" it with `#crypted.epesi-switch, #sticky.epesi-switch`
+**id selectors** duplicated in its own `theme_adminltedark/View_entry.tpl` - a
+per-field patch that only covered those two ids and did nothing for any other
+module's switch (CRM_Meeting's Timeless included).
 
-Never hard-delete; the module's own design keeps all messages in history.
+**First fix attempt**: moved the override into `View_entry.css` itself, scoped
+to the **class** `epesi-switch` instead of specific field ids
+(`.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]`,
+plus `:checked`/`:focus`/light-theme variants) - fixed every RecordBrowser
+checkbox tagged `epesi-switch` **inside a RecordBrowser view/edit field**, and
+let the now-redundant per-id block in Attachment's own template be deleted.
+
+**Still not the actual permanent fix**: the very same session, `Apps_
+ActivityReport`'s filter-form checkboxes ("New record"/"Record edit"/"Record
+Delete-restore"/"Files", also tagged `epesi-switch`) showed the identical
+squashed-to-a-dot symptom - but this time from `Apps_ActivityReport`'s own
+`theme_adminltedark/default.css` (`.epesi-ar-check input[type="checkbox"]
+{width:1.05rem;height:1.05rem}`), a completely unrelated module/container
+that isn't RecordBrowser's `View_entry` at all, so the `View_entry.css` fix
+above didn't reach it. Three unrelated modules hitting the exact same shape
+(Attachment, Meeting, ActivityReport) is the tell that per-container patches
+are the wrong level to fix this at - **any** module can add its own ordinary
+`input[type=checkbox]` sizing rule with no idea a specific instance carries
+`epesi-switch`, and each one is a fresh chance to tie or beat the switch
+component's own specificity by accident.
+
+**Actual fix**: added `!important` to every core visual property (width,
+height, appearance, background-color/image/position/repeat/size, border,
+border-radius) on the base `input.epesi-switch[type="checkbox"]` rule itself,
+in `Libs/QuickForm/theme_adminltedark/default.css` - plus its `:checked` and
+light-theme variants. A checkbox opting into `epesi-switch` is declaring
+"always render as a switch regardless of surrounding context," which is
+exactly the case `!important` exists for (same reasoning already used
+elsewhere in this file for beating Bootstrap's own `.form-control:focus`).
+This made the `View_entry.css` class-scoped fix above almost entirely
+redundant - trimmed it back down to just the `:focus`/`:focus-visible`
+border-radius fight (`View_entry.css`'s own `.data input:focus{border-radius:
+0 !important}` still needs a matching `!important` to lose, since only
+`!important` beats `!important` regardless of specificity) and removed the
+now-dead width/height/background/border declarations from both the dark and
+light-mode copies.
+
+**Bug 2 (timestamp fields)**: `Libs_QuickForm`'s legacy `theme/default.css` has
+a documented "§26" fix (flex layout on `.data.timestamp > div`, `order:-1` to
+put the date first, `select[name$="[h/H/i/a]"]{display:inline-block;width:
+auto}` for the hour/minute/am-pm selects) - but `Base_ThemeResolver::resolve()`
+(`modules/Base/Theme/resolver.php`) picks exactly **one** file per module+
+filename, no cascading. `Libs/QuickForm/theme_adminltedark/default.css`
+already existed (for `#multiselect`/autocomplete/epesi-switch), so it fully
+shadowed `theme/default.css` for this module under adminltedark - the §26 fix
+never reached this theme at all. Every `'type'=>'timestamp'` RecordBrowser
+field was affected (CRM_PhoneCall Date and Time, CRM_Tasks Deadline, CRM_Mail
+First/Last Date, Utils_Attachment Edited on, CRM_Roundcube thread dates) -
+CRM_Meeting's own Date looked fine only because it's built from two separate
+`'date'`+`'time'` fields and never goes through this component at all, which
+made the bug look Meeting-specific/already-solved when it wasn't.
+
+**A verbatim port of the §26 CSS into the adminltedark file still wasn't
+enough** - `View_entry.css` has rules that happen to match this same markup
+with equal-or-higher specificity than the legacy fix's plain selectors:
+`.data select{display:block}` (2 classes+1 type) beats a bare `select[name$=
+...]` (1 type+1 attribute); `.timestamp>div>div{float:right}`/`:last-child{
+margin-right:130px}` tie **exactly** with a bare `.data.timestamp>div>div`
+(both 2 classes+matching types). Had to prefix every selector in the ported
+block with an explicit `div` type selector (`div.data.timestamp > div`, `div.
+data.timestamp select[name$="[h]"]`, etc) - CSS specificity compares column-
+by-column (classes before types), so adding one type selector without adding a
+class breaks an exact tie in the port's favor without needing `!important`.
+
+**How to apply**: (1) if a module's `theme_adminltedark/<file>` already exists
+and its `theme/<file>` counterpart later gets a fix, the resolver will **not**
+carry that fix over - grep both files for the touched selectors whenever
+either theme's copy of a shared CSS/JS file changes, and port to the other
+side explicitly. (2) When porting CSS between the two theme's files, verify
+against `View_entry.css`'s (or whichever shared ancestor file's) actual
+specificity for the same elements live in a browser (`getComputedStyle`), not
+just by reasoning about the selectors - a verbatim copy can silently lose a
+specificity fight the original never had to fight, because the two themes'
+"generic field" rules aren't specified identically. (3) A per-id or per-
+container CSS patch for one field's `epesi-switch`/similar shared-class
+styling issue is a sign the fix belongs in the shared component's own file
+instead - and if it's a class meant to render identically **regardless of
+which of dozens of unrelated modules' own CSS happens to also target the same
+bare tag/attribute** (`input[type=checkbox]`, `<select>`, etc), scoping the
+fix to that class in a container-specific file (RecordBrowser's `View_entry.
+css`) still isn't enough - every *other* container can independently write
+its own conflicting rule with no idea the class exists, as ActivityReport did
+here after Meeting. For a component-identity class like this, `!important` on
+the component's own base rule (not spread across every container that happens
+to embed it) is the actual permanent fix, not a workaround to avoid. A second
+module hitting the same-shaped bug is confirmation to escalate the fix's
+scope, not to write one more container-specific patch.
+

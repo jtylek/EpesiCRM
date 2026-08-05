@@ -95,71 +95,12 @@
 #_attached_to__data table.automulti {
 	width: 100%;
 }
-/* .epesi-switch's own sizing/track/knob (Libs/QuickForm/theme_adminltedark/
-   default.css) loses to View_entry.css's higher-specificity
-   ".data input:not([type=button]){width:100%;height:32px;background-color:
-   ...;border:0px}" rule - not just squashing the toggle into a tall sliver,
-   but also stripping its track color/border down to whatever the shared
-   rule sets. In dark mode that still happened to show a visible white knob
-   (the shared rule's dark background differs from the knob's own white
-   fill), but in light mode both the shared rule's background and the
-   .data cell's own background resolve to the same white, so the whole
-   switch - track, border and knob alike - disappeared. Re-declaring the
-   full switch appearance here (mirroring the shared component's own base +
-   light-mode rules), under #crypted/#sticky's id selectors, outranks the
-   shared rule regardless of theme. Shared by both fields' toggles instead
-   of duplicated - Sticky reuses the same 'epesi-switch' look as Encryption
-   (AttachmentCommon_0.php's QFfield_sticky), per request. */
-#crypted.epesi-switch, #sticky.epesi-switch {
-	width: 2.25em;
-	height: 1.25em;
-	background-color: rgba(255, 255, 255, 0.25);
-	border: 1px solid rgba(255, 255, 255, 0.25);
-	border-radius: 2em;
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-	background-position: left center;
-	background-repeat: no-repeat;
-	background-size: contain;
-}
-#crypted.epesi-switch:checked, #sticky.epesi-switch:checked {
-	background-color: #0d6efd;
-	border-color: #0d6efd;
-	background-position: right center;
-}
-[data-bs-theme="light"] #crypted.epesi-switch, [data-bs-theme="light"] #sticky.epesi-switch {
-	background-color: rgba(0, 0, 0, 0.25);
-	border-color: rgba(0, 0, 0, 0.25);
-}
-[data-bs-theme="light"] #crypted.epesi-switch:checked, [data-bs-theme="light"] #sticky.epesi-switch:checked {
-	background-color: #0d6efd;
-	border-color: #0d6efd;
-}
-/* View_entry.css's ".data input:focus" rule re-squares the switch back into
-   a rectangle - !important border-radius/width/style/color, meant for
-   giving a plain text/select field an active-focus outline, firing the
-   instant the switch is clicked (native checkboxes keep focus after being
-   toggled with a pointer). Only another !important declaration can contest
-   an !important one, so this has to match it rather than just outrank it
-   on ordinary specificity like the rules above. */
-#crypted.epesi-switch:focus, #sticky.epesi-switch:focus,
-#crypted.epesi-switch:focus-visible, #sticky.epesi-switch:focus-visible {
-	border-width: 1px !important;
-	border-style: solid !important;
-	border-radius: 2em !important;
-	border-color: rgba(255, 255, 255, 0.25) !important;
-}
-#crypted.epesi-switch:checked:focus, #sticky.epesi-switch:checked:focus,
-#crypted.epesi-switch:checked:focus-visible, #sticky.epesi-switch:checked:focus-visible {
-	border-color: #0d6efd !important;
-}
-[data-bs-theme="light"] #crypted.epesi-switch:focus, [data-bs-theme="light"] #sticky.epesi-switch:focus,
-[data-bs-theme="light"] #crypted.epesi-switch:focus-visible, [data-bs-theme="light"] #sticky.epesi-switch:focus-visible {
-	border-color: rgba(0, 0, 0, 0.25) !important;
-}
-[data-bs-theme="light"] #crypted.epesi-switch:checked:focus, [data-bs-theme="light"] #sticky.epesi-switch:checked:focus,
-[data-bs-theme="light"] #crypted.epesi-switch:checked:focus-visible, [data-bs-theme="light"] #sticky.epesi-switch:checked:focus-visible {
-	border-color: #0d6efd !important;
-}
+/* .epesi-switch's own sizing/track/knob used to lose to View_entry.css's
+   higher-specificity ".data input:not([type=button])"/"[type=checkbox]"
+   rules here - this is now fixed generically, for every RecordBrowser
+   'epesi-switch' checkbox (Crypted/Sticky here, CRM_Meeting's Timeless,
+   etc), in Utils/RecordBrowser/theme_adminltedark/View_entry.css itself
+   instead of duplicated per-field via #crypted/#sticky id selectors. */
 /* View mode's frozen Sticky/Crypted checkboxes now get their switch-glyph
    look from the app-wide fix in Libs/QuickForm/theme_adminltedark/
    default.css (.epesi-frozen-checkbox, HTML_QuickForm_epesi_checkbox/

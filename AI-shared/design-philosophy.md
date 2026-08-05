@@ -45,6 +45,46 @@ screen sizes), now delegated to the browser via CSS (`column-width`, letting ava
 width decide) — a more automatic, less brittle way to keep the same promise, not a
 step away from it.
 
+## "Lazy delete" — records are marked deleted, not removed
+
+Noted 2026-08-05, correcting a misdiagnosis: `Apps_Shoutbox`'s History tab
+"delete" icon was logged in `bug-patterns.md` as a "doesn't work" bug. It
+isn't one — `Shoutbox_0.php::delete_msg()` does exactly what it's supposed to
+(`UPDATE apps_shoutbox_messages SET deleted=1 ...`; the action is even
+labelled "Mark message as deleted", not "Delete", in the UI itself), and
+`Shoutbox_0.php::can_delete_msg()`/the History view hide `deleted=1` rows from
+ordinary users while an administrator still sees the full history. Nothing
+was ever broken; a genuine DB row disappearing was never the intent.
+
+This is not a one-off Shoutbox quirk - it's how deletion works **throughout
+Epesi by design**: `Utils_RecordBrowserCommon::delete_record($tab, $id, $perma
+= false)` defaults to `set_active($tab, $id, false)` (flip an active/inactive
+flag) rather than a real `DELETE`, with a matching `restore_record()` to flip
+it back - a real `DELETE` only happens when a caller explicitly passes `$perma
+= true`. Apps_ActivityReport's own "Record Delete/restore" filter (see
+`bug-patterns.md`'s `epesi-switch` entry) tracks exactly this state
+transition, not permanent removal - further evidence this is the framework's
+normal path, not an exception.
+
+**Why**: two concrete benefits, not just caution for its own sake -
+1. **No orphaned records.** Other rows that reference a "deleted" one (links,
+   history entries, favorites, watchdog subscriptions, foreign-key-shaped
+   relations RecordBrowser doesn't enforce at the DB level) keep resolving
+   correctly instead of pointing at nothing, because the row is still there.
+2. **Better data security.** Nothing a user "deletes" is ever silently
+   destroyed - an administrator (or the record's own history) can always
+   recover it, and a mistaken or malicious deletion is reversible rather than
+   an unrecoverable data-loss event.
+
+**How to apply**: before treating a "delete doesn't work"/"deleted item still
+visible somewhere" report as a bug, check whether the table/module already has
+a `deleted`/`active`-style flag and a restore path - if so, the visible-to-
+admins-only behavior is very likely intentional, not broken, the same way
+[[deliberate-removals]]'s Login Audit purge-removal entry documents the
+opposite end of the same instinct (some tables, like the login audit log,
+don't even get a soft-delete - they're meant to be fully permanent). Confirm
+the actual intent before "fixing" what looks like an incomplete delete.
+
 ## How to apply
 
 When evaluating any future redesign work (further table→flex/grid conversions, CSS

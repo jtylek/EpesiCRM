@@ -671,6 +671,35 @@
     border-style: solid !important;
 }
 
+/* Any checkbox tagged 'epesi-switch' used to lose to this file's own
+   '.data input[type=checkbox]{width:auto}'/'.data input:not([type=button])'
+   rules (same-or-higher specificity than the switch's own bare
+   'input.epesi-switch[type=checkbox]' rule) - squashed here, then found
+   again in Apps_ActivityReport's own unrelated '.epesi-ar-check
+   input[type=checkbox]{width:1.05rem}' rule (a completely different
+   module/container), which is what finally moved the real fix to
+   Libs/QuickForm/theme_adminltedark/default.css's base rule itself
+   (!important on every core visual property - see that file's comment for
+   the full history: Utils_Attachment's Sticky/Crypted, CRM_Meeting's
+   Timeless, then Apps_ActivityReport's filter checkboxes, three unrelated
+   modules hitting the same shape). Only the focus-radius fight below is
+   still local to this file - this file's own '.data input:focus' rule
+   re-squares the switch into a rectangle with !important border
+   properties, and only another !important declaration can contest one,
+   regardless of specificity, so a matching local override is still needed
+   for the RecordBrowser view/edit context specifically. */
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus,
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus-visible {
+	border-width: 1px !important;
+	border-style: solid !important;
+	border-radius: 2em !important;
+	border-color: rgba(255, 255, 255, 0.25) !important;
+}
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
+	border-color: #0d6efd !important;
+}
+
 /* Was width:100%;height:100px here - Libs/QuickForm/theme_adminltedark/
    default.css already reworked #multiselect into a flex row (with its own
    width:100% plus a height tall enough to match/exceed the 4-button column
@@ -795,4 +824,18 @@
 [data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data textarea:focus {
   background-color: #eaf2ff;
   border-color: #dee2e6 !important;
+}
+
+/* Light-mode counterpart of the dark-mode focus-radius override above - same
+   "only !important beats !important" reasoning; base/checked colors don't
+   need a local override here since Libs/QuickForm/theme_adminltedark/
+   default.css's own light-mode 'input.epesi-switch' rules are !important
+   now too. */
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus-visible {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
+  border-color: #0d6efd !important;
 }

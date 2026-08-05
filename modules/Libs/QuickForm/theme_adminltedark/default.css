@@ -203,30 +203,50 @@
  * .form-switch wrapper divs, so this reproduces the same pill-track/sliding-
  * knob visual as a Bootstrap switch directly on the bare input, using an
  * inline SVG knob exactly like Bootstrap's own .form-switch .form-check-input
- * background-image approach. */
+ * background-image approach.
+ *
+ * All core visual properties are !important. 'epesi-switch' is used as a
+ * standalone class on checkboxes rendered in dozens of unrelated contexts
+ * app-wide (RecordBrowser view/edit fields, Filters/report forms, Admin
+ * panels, Settings screens, ...), each of which typically also has its own
+ * plain 'input[type=checkbox]' sizing rule for *ordinary* checkboxes in that
+ * screen - written with no awareness that a specific instance might carry
+ * this class instead. Those per-screen rules have historically tied or beaten
+ * this rule's specificity purely by accident (RecordBrowser's View_entry.css
+ * '.data input[type=checkbox]{width:auto}'; Apps_ActivityReport's own
+ * '.epesi-ar-check input[type=checkbox]{width:1.05rem;height:1.05rem}') and
+ * silently squashed the switch back down to a native checkbox's tiny box -
+ * found three separate times in three unrelated modules (Utils_Attachment's
+ * Sticky/Crypted, CRM_Meeting's Timeless, Apps_ActivityReport's New record/
+ * Record edit/Record Delete-restore/Files filters) before switching to
+ * !important here instead of chasing every future module's own checkbox CSS
+ * with one more specificity fix. A checkbox opting into 'epesi-switch' is
+ * declaring "always render as a switch, regardless of surrounding context" -
+ * exactly the case !important exists for, and the same reasoning already
+ * used for Bootstrap's own '.form-control:focus' fight above. */
 input.epesi-switch[type="checkbox"] {
-	appearance: none;
-	-webkit-appearance: none;
-	width: 2.25em;
-	height: 1.25em;
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	width: 2.25em !important;
+	height: 1.25em !important;
 	vertical-align: middle;
-	margin: 0;
-	background-color: rgba(255, 255, 255, 0.25);
-	border: 1px solid rgba(255, 255, 255, 0.25);
-	border-radius: 2em;
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-	background-position: left center;
-	background-repeat: no-repeat;
-	background-size: contain;
+	margin: 0 !important;
+	background-color: rgba(255, 255, 255, 0.25) !important;
+	border: 1px solid rgba(255, 255, 255, 0.25) !important;
+	border-radius: 2em !important;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+	background-position: left center !important;
+	background-repeat: no-repeat !important;
+	background-size: contain !important;
 	transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
 	cursor: pointer;
 	flex-shrink: 0;
 }
 
 input.epesi-switch[type="checkbox"]:checked {
-	background-color: #0d6efd;
-	border-color: #0d6efd;
-	background-position: right center;
+	background-color: #0d6efd !important;
+	border-color: #0d6efd !important;
+	background-position: right center !important;
 }
 
 input.epesi-switch[type="checkbox"]:focus-visible {
@@ -268,6 +288,77 @@ input.epesi-switch[type="checkbox"] + label {
 	color: #8b929a;
 }
 
+/* ---- timestamp field (deadline, event/meeting alert time, etc.) ----
+ * Ported from the legacy theme's own fix (theme/default.css §26) - ported
+ * here, not just "left to fall back", because Base_ThemeResolver::resolve()
+ * (modules/Base/Theme/resolver.php) picks exactly one file per module+
+ * filename with no cascading: this file already exists (for #multiselect/
+ * autocomplete/epesi-switch above), so it fully shadows theme/default.css
+ * for Libs_QuickForm under adminltedark, and the §26 fix never reaches this
+ * theme without a copy of its own. Confirmed hit by CRM_PhoneCall's "Date
+ * and Time" field (PhoneCallInstall.php, 'type'=>'timestamp', rendered
+ * generically - unlike CRM_Meeting's own Date, which is two separate
+ * 'date'+'time' fields and never goes through this component at all); same
+ * class of every other 'timestamp'-typed field app-wide (CRM_Tasks
+ * Deadline, CRM_Mail First/Last Date, Utils_Attachment Edited on,
+ * CRM_Roundcube thread dates). No color values below, so no light-theme
+ * variant is needed in the override section further down.
+ *
+ * A verbatim port isn't enough under adminltedark: Utils/RecordBrowser/
+ * theme_adminltedark/View_entry.css carries several rules - unrelated to
+ * this fix, written for ordinary single-value fields - that happen to match
+ * this same markup with EQUAL OR HIGHER specificity than the legacy port's
+ * plain-class selectors: ".data select{display:block}" (2 classes+1 type)
+ * beats a bare "select[name$=...]" (1 type+1 attribute), and
+ * ".timestamp>div>div{float:right}"/":last-child{margin-right:130px}" tie
+ * exactly with a bare ".data.timestamp>div>div" (both 2 classes+matching
+ * types), so the winner becomes whichever file the browser happens to
+ * cascade later - not reliable. Prefixing every selector below with the
+ * literal "div" type (the actual tag these fields render as) adds one type
+ * selector without adding a class, which - per CSS's column-by-column
+ * specificity comparison (classes compared before types) - is enough to
+ * win every one of these ties/near-ties without resorting to !important. */
+div.data.timestamp > div {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+div.data.timestamp > div > div {
+	float: none;
+	white-space: nowrap;
+	margin: 0;
+}
+div.data.timestamp > div > div:last-child {
+	order: -1;
+	margin-right: 0;
+}
+/* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
+   in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
+   inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into
+   rows. Size them to content inline - fixes EVERY time picker regardless of the surrounding cell.
+   Scoped to div.data.timestamp (see the specificity note above) rather than left bare - a bare
+   "select[name$=...]" loses outright to View_entry.css's ".data select{display:block}" (2 classes
+   beats 1 type+1 attribute), leaving the selects block-level and stacked instead of inline.
+   [H] (capital) is a separate field name from [h]: HTML_QuickForm_date (vendor/openpsa/quickform/
+   lib/HTML/QuickForm/date.php) builds each select's array key straight from the PHP date-format
+   character in use - 'h' for 12-hour (with an [a] am/pm select alongside it), 'H' for 24-hour (no
+   am/pm select at all). CSS attribute selectors are case-sensitive, so an install running in
+   24-hour mode (Base_RegionalSettingsCommon::time_12h() false) needs [H] listed explicitly or its
+   hour select silently falls back to the un-sized default and misaligns against the minute select. */
+div.data.timestamp select[name$="[h]"],
+div.data.timestamp select[name$="[H]"],
+div.data.timestamp select[name$="[i]"],
+div.data.timestamp select[name$="[a]"] {
+	display: inline-block;
+	width: auto;
+	min-width: 0;
+	vertical-align: middle;
+}
+div.data.timestamp > div > div:last-child input {
+	width: 150px;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] #multiselect .form-element select,
 [data-bs-theme="light"] #multiselect .to-element select {
@@ -293,8 +384,8 @@ input.epesi-switch[type="checkbox"] + label {
 }
 
 [data-bs-theme="light"] input.epesi-switch[type="checkbox"] {
-  background-color: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(0, 0, 0, 0.25) !important;
 }
 
 /* The rule above matches :checked too (same 3-class-1-element specificity,
@@ -303,8 +394,8 @@ input.epesi-switch[type="checkbox"] + label {
  * input.epesi-switch[type="checkbox"]:checked rule above, so every switch
  * rendered grey in light mode regardless of on/off state. */
 [data-bs-theme="light"] input.epesi-switch[type="checkbox"]:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
 }
 
 [data-bs-theme="light"] .epesi-frozen-checkbox-off::before {
