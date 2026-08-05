@@ -3,10 +3,6 @@
  * unstyled table markup before). The GenericBrowser results table below
  * this form needs no changes here - it's themed generically already. */
 
-.epesi-ar {
-	max-width: 900px;
-}
-
 .epesi-ar .form-label {
 	font-size: 0.85rem;
 	color: #adb5bd;

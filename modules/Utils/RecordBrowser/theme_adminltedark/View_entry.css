@@ -342,6 +342,27 @@
 	flex-basis: 20%;
 }
 
+/* Long text ("Description" etc) fields, stacked the same way multiselects
+   are below - label on its own full-width line above the textarea instead
+   of a label-left(20%)/data-right(80%) row, per request. .long_row's own
+   flex-direction:column flips .long_label's flex-basis from a width to a
+   height, so the 20% above (meaningless/unreliable against a column
+   container with no definite height to resolve a percentage against) is
+   overridden back to auto here, same as .multiselect_label below. */
+.Utils_RecordBrowser__View_entry .long_row {
+	flex-direction: column;
+}
+
+.Utils_RecordBrowser__View_entry .long_row .long_label {
+	flex: 0 0 auto;
+	flex-basis: auto;
+	border-bottom: none;
+}
+
+.Utils_RecordBrowser__View_entry .long_row .long_data {
+	width: 100%;
+}
+
 .Utils_RecordBrowser__View_entry .data {
     text-align: left;
 	word-wrap: break-word;
@@ -430,6 +451,21 @@
 .Utils_RecordBrowser__View_entry .multiselect_label {
 	flex: 0 0 auto;
 	border-bottom: none;
+}
+
+/* Both stacked labels above (.multiselect_label, .long_row .long_label) sit
+   alone on their own line, with no sibling .data tall enough to stretch them
+   to match - unlike every ordinary row, where align-items:stretch (the
+   .epesi-rv-row default) grows .label to match .data's own 32px input/select
+   height plus its 1px top+bottom border (see ".data input/select" below),
+   which is what actually makes every ordinary label render ~34px tall.
+   Without this, both fell back to the base .label rule's own min-height:20px
+   instead, rendering visibly shorter than every other field's label - per
+   request, given the same explicit height here so they match. */
+.Utils_RecordBrowser__View_entry .multiselect_label,
+.Utils_RecordBrowser__View_entry .long_row .long_label {
+	height: 34px;
+	box-sizing: border-box;
 }
 
 .Utils_RecordBrowser__View_entry .edit .frozen,

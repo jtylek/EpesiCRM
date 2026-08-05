@@ -1,4 +1,10 @@
 {$form_open}
+{* Plain Bootstrap .card - see Libs/QuickForm/theme_adminltedark/row.tpl's
+   own comment: no epesi-qf-specific override needed, this theme's base
+   .card rule already themes itself for light/dark. Per request, every
+   QuickForm-rendered form gets this treatment. *}
+<div class="card mb-3">
+<div class="card-body">
 
 {foreach from=$form_data.header item=h}
 	<div class="epesi_label header epesi-qf-header">
@@ -28,4 +34,6 @@
 	{/foreach}
 </div>
 
+</div>
+</div>
 {$form_close}
