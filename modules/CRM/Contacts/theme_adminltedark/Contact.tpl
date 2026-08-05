@@ -93,11 +93,11 @@
 							<div class="label">
 								{$form_data.create_company.label}
 							</div>
-							<div style="flex: 1 1 auto; min-width: 0;">
-								<div class="create-company" style="width:24px; display:inline-block; float: left">
+							<div style="flex: 1 1 auto; min-width: 0; display: flex;">
+								<div class="create-company">
 									{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
-								<div style="display:inline-block;width: calc(100% - 24px)" class="data">
+								<div class="data" style="flex: 1 1 auto; min-width: 0;">
 									{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
 							</div>

@@ -202,6 +202,16 @@
 
 .Utils_RecordBrowser__View_entry {
     width: 100%;
+	/* Single source of truth for the gap between side-by-side field columns,
+	   read by both the .column mechanism (Contact.tpl/mails.tpl/Meeting's
+	   default.tpl's own hardcoded splits) and .epesi-rv-fluid (PhoneCall's
+	   default.tpl, the generic View_entry.tpl) below - per request, was two
+	   different hardcoded values (48px total via .column's own
+	   padding-left/right, 24px via .epesi-rv-fluid's column-gap) that made
+	   the same "2 columns of fields" concept look inconsistently spaced from
+	   one table to the next. Narrowed from those to this one value at the
+	   same time - per request, "very narrow, maximum 10px". */
+	--epesi-rv-col-gap: 8px;
 }
 
 .Utils_RecordBrowser__container {
@@ -219,10 +229,19 @@
 
 /* Gap between the left/right field columns (each .column is its own inner
    .view/.edit flex column). Left/right (not just one side) so adjacent
-   columns' padding adds up to the full gap between them. */
+   columns' padding adds up to the full gap between them - --epesi-rv-col-gap
+   (declared on .Utils_RecordBrowser__View_entry below) is the FULL visible
+   gap, so each side gets half. Per request: every per-table template's own
+   2-column split (Contact.tpl/Contact.tpl (Photo)/mails.tpl/Meeting's
+   default.tpl - PhoneCall's default.tpl and the generic View_entry.tpl use
+   the .epesi-rv-fluid mechanism just below instead) was rendering a
+   different-looking gap purely because each one hardcoded its own
+   width:{$cols_percent}%/50% split with no shared gap value - this file is
+   the one place both mechanisms actually read the gap from now, instead of
+   each module effectively inventing its own. */
 .Utils_RecordBrowser__View_entry .column {
-	padding-left: 24px;
-	padding-right: 24px;
+	padding-left: calc(var(--epesi-rv-col-gap) / 2);
+	padding-right: calc(var(--epesi-rv-col-gap) / 2);
 	/* Every .column carries its own inline width:{$cols_percent}% - this
 	   keeps it from also flex-growing/shrinking away from that explicit
 	   share when a sibling column's content is a different height. */
@@ -283,7 +302,7 @@
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
 	display: block;
 	column-width: 420px;
-	column-gap: 24px;
+	column-gap: var(--epesi-rv-col-gap);
 }
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row {
 	break-inside: avoid;
