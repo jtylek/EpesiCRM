@@ -428,23 +428,16 @@ class CRM_ContactsCommon extends ModuleCommon {
                 __('Group')=>$group
                 ));
     }
+    // Used to append ' [CompanyName]' after the contact's own name - dropped
+    // app-wide per request (took up too much space everywhere this format
+    // is used: the Attached-to record-picker, Fax/PhoneCall contact
+    // displays, Contacts autocomplete dropdowns, the Administrator panel's
+    // contact list, and this recordset's registered description_callback).
+    // Now identical to contact_format_no_company(), which already existed
+    // as the lean alternative a couple of other call sites used - delegate
+    // to it instead of keeping two copies of the same body.
     public static function contact_format_default($record, $nolink=false){
-        if (is_numeric($record)) $record = self::get_contact($record);
-        if (!$record || $record=='__NULL__') return null;
-        $ret = '';
-		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
-        					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
-        
-        if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
-            $first_comp = $record['company_name'];
-            $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        } elseif (isset($record['related_companies']) && is_array($record['related_companies']) && !empty($record['related_companies'])) {
-            $first_comp = reset($record['related_companies']);
-            $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        }
-        return $ret;
+        return self::contact_format_no_company($record, $nolink);
     }
     public static function contact_format_no_company($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
@@ -642,7 +635,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$access = Utils_RecordBrowserCommon::get_access('contact', $mode, Utils_RecordBrowser::$last_record);
 				$c_access = Utils_RecordBrowserCommon::get_access('company', 'add');
 				if ($c_access && $access['company_name']) {
-					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onClick="document.getElementById(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
+					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'class="epesi-switch" onClick="document.getElementById(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
 					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
 					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
