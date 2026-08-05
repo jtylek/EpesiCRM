@@ -82,19 +82,28 @@
    in narrow popup forms. */
 /* Lay the date picker and the time (hour : minute am/pm) side by side on one line (flex; date
    picker first), wrapping to two lines only when the form is too narrow. Flex items ignore float,
-   so this also neutralises the View_entry float that used to push the time off-screen. */
-.data.timestamp > div {
+   so this also neutralises the View_entry float that used to push the time off-screen.
+   .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
+   field) is built from the exact same HTML_QuickForm_timestamp widget with 'date'=>false
+   (Utils_RecordBrowserCommon::QFfield_time()) - same hour/minute <select> markup, just wrapped in
+   a "data time" cell instead of "data timestamp" (Utils_RecordBrowserCommon::fill_definition()
+   sets style=type, and 'time' and 'timestamp' are distinct types). Without .time listed here too,
+   its selects fall back to the un-flexed default and stack into separate rows. */
+.data.timestamp > div,
+.data.time > div {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
 }
-.data.timestamp > div > div {
+.data.timestamp > div > div,
+.data.time > div > div {
 	float: none;
 	white-space: nowrap;
 	margin: 0;
 }
-.data.timestamp > div > div:last-child {
+.data.timestamp > div > div:last-child,
+.data.time > div > div:last-child {
 	order: -1;
 }
 /* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear

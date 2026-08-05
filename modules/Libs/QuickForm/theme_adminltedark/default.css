@@ -464,18 +464,21 @@ input.epesi-switch[type="checkbox"] + label {
  * selector without adding a class, which - per CSS's column-by-column
  * specificity comparison (classes compared before types) - is enough to
  * win every one of these ties/near-ties without resorting to !important. */
-div.data.timestamp > div {
+div.data.timestamp > div,
+div.data.time > div {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
 }
-div.data.timestamp > div > div {
+div.data.timestamp > div > div,
+div.data.time > div > div {
 	float: none;
 	white-space: nowrap;
 	margin: 0;
 }
-div.data.timestamp > div > div:last-child {
+div.data.timestamp > div > div:last-child,
+div.data.time > div > div:last-child {
 	order: -1;
 	margin-right: 0;
 }
@@ -491,11 +494,21 @@ div.data.timestamp > div > div:last-child {
    character in use - 'h' for 12-hour (with an [a] am/pm select alongside it), 'H' for 24-hour (no
    am/pm select at all). CSS attribute selectors are case-sensitive, so an install running in
    24-hour mode (Base_RegionalSettingsCommon::time_12h() false) needs [H] listed explicitly or its
-   hour select silently falls back to the un-sized default and misaligns against the minute select. */
+   hour select silently falls back to the un-sized default and misaligns against the minute select.
+   div.data.time (as well as .timestamp): a time-only field (RecordBrowser type 'time', e.g. a
+   Duration field, built by Utils_RecordBrowserCommon::QFfield_time() with 'date'=>false) renders
+   through this exact same HTML_QuickForm_timestamp/hour-minute-select markup but sits in a
+   "data time" cell instead of "data timestamp" - style is set from type, and 'time' and
+   'timestamp' are distinct RecordBrowser field types. Without .time listed here at the same
+   specificity, its selects lose to View_entry.css the same way the bare selector used to. */
 div.data.timestamp select[name$="[h]"],
+div.data.time select[name$="[h]"],
 div.data.timestamp select[name$="[H]"],
+div.data.time select[name$="[H]"],
 div.data.timestamp select[name$="[i]"],
-div.data.timestamp select[name$="[a]"] {
+div.data.time select[name$="[i]"],
+div.data.timestamp select[name$="[a]"],
+div.data.time select[name$="[a]"] {
 	display: inline-block;
 	width: auto;
 	min-width: 0;

@@ -388,7 +388,33 @@
    overflow/height could ever have shown it, since it was display:none the
    entire time. Scoped to "a img" instead, matching what's actually true:
    every icon this file replaces is always inside an <a>; plain embedded
-   content images never are. */
+   content images never are.
+
+   That "always inside an <a>" test still wasn't sufficient on its own,
+   though: Utils_Attachment's own file thumbnail preview
+   (Utils_FileStorageCommon::get_file_inline_node(), rendered by
+   Utils_AttachmentCommon::display_files() right after the download link)
+   wraps its <img class="file_inline"> in an <a> too (linking to the
+   full-size preview) - reported as a Notes browse-row thumbnail rendering
+   as nothing at all (not merely clipped by the tall_preview collapsed
+   height fix elsewhere in this theme - inspecting the live DOM showed the
+   <img> present, fully loaded, just display:none).
+
+   First attempt scoped this rule down to the actions cell specifically
+   (.Utils_GenericBrowser__actions) instead of the whole table, on the
+   theory that which CELL an icon lives in is reliable where markup shape
+   isn't - wrong: the favourite-star (RecordBrowserCommon_0.php's
+   get_fav_button_tags()) and watchdog (WatchdogCommon_0.php's
+   get_change_subscription_icon_tags()) icons render into their OWN plain
+   ".Utils_GenericBrowser__td" column, not the actions cell, so narrowing
+   to the actions cell let their raster <img> show again *alongside* the
+   ::before glyph rules below (which stayed scoped to the whole table) -
+   reported as both the old icon and the new glyph showing at once for
+   every star/watchdog cell. Reverted to the whole table and excluded
+   ":not(.file_inline)" instead - that class is this one shared function's
+   own, sole marker for "this <a><img> is real content, not an action
+   icon", so it's the one exclusion needed regardless of which column an
+   icon or a preview ends up in. */
 
 /* :is(...) rather than two copies of every rule below (one scoped to the
    real table, one to #epesi-gb-actions-menu): the mobile actions menu
@@ -401,7 +427,7 @@
    scoped to ".epesi-gb .Utils_GenericBrowser a" reached a clone living
    outside that table). Keeping one shared prefix here means any future
    icon added to this list needs it defined once, not twice. */
-:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a img {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a img:not(.file_inline) {
 	display: none;
 }
 

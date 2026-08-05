@@ -459,14 +459,17 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div > div {
+.Utils_RecordBrowser__View_entry .timestamp > div > div,
+.Utils_RecordBrowser__View_entry .time > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
@@ -482,8 +485,12 @@
    non-floated sibling the "margin-right:130px" rule above already reserves
    space against, so it's meant to fill what's left of the row. height:auto
    isn't needed here anymore - the combined rule above no longer hardcodes
-   height:14px for anything, select included. */
-.Utils_RecordBrowser__View_entry .data .timestamp select {
+   height:14px for anything, select included.
+   .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
+   field, built with 'date'=>false) renders the same hour/minute-select markup but sits in a
+   "data time" cell - style is set from type, and 'time'/'timestamp' are distinct field types. */
+.Utils_RecordBrowser__View_entry .data .timestamp select,
+.Utils_RecordBrowser__View_entry .data .time select {
 	width: auto;
 }
 /* timestamp END */
