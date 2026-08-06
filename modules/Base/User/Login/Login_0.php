@@ -106,7 +106,7 @@ class Base_User_Login extends Module {
         if (Base_User_LoginCommon::is_autologin_forbidden() == false) {
     		$warning=__('Keep this box unchecked if using a public computer');
 	    	$form->addElement('static','warning',null,$warning);
-		    $form->addElement('checkbox', 'autologin', '',__('Remember me'), array('class'=>'form-check-input'));
+		    $form->addElement('checkbox', 'autologin', '',__('Remember me'), array('class'=>'form-check-input', 'role'=>'switch'));
         }
 
 		$form->addElement('static', 'recover_password', null, '<a '.$this->create_unique_href(array('mail_recover_pass'=>1)).'>'.__('Recover password').'</a>');

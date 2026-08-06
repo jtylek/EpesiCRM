@@ -100,16 +100,17 @@
 			{/literal}
 			{if $theme_name == 'adminltedark'}
 			{literal}
-			/* Dark palette override - same box, same layout rules above, just
-			   the colors AdminLTE 4's own [data-bs-theme=dark] uses. Kept as a
-			   flat override rather than duplicating the whole block above. */
+			/* Matches the sidebar's fixed light-grey/black-text scheme
+			   (commit 77d43486) rather than AdminLTE's own [data-bs-theme=dark]
+			   colors - this splash has no light/dark toggle (it renders before
+			   that JS runs), so it always uses the sidebar's "always" palette. */
 			#epesiStatus {
-				background-color: #1e2125;
-				color: #dee2e6;
+				background-color: #dee2e6;
+				color: #000000;
 				box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.6);
 			}
 			.epesi-boot-progress {
-				background-color: #495057;
+				background-color: #adb5bd;
 			}
 			{/literal}
 			{/if}
