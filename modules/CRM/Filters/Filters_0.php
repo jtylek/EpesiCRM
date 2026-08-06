@@ -166,7 +166,9 @@ class CRM_Filters extends Module {
 			$v = $form->exportValues();
             Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
 			foreach($v as $key => $value) {
-				$v[$key] = Utils_SafeHtml_SafeHtml::outputSafeHtml($value);
+				if (is_string($value)) {
+					$v[$key] = Utils_SafeHtml_SafeHtml::outputSafeHtml($value);
+				}
 			}
             if(isset($id)) {
 				DB::Execute('UPDATE crm_filters_group SET name=%s,description=%s WHERE id=%d',array($v['name'],$v['description'],$id));
