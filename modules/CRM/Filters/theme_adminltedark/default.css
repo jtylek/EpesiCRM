@@ -1,13 +1,23 @@
-/* AdminLTE re-skin for CRM_Filters' navbar "Perspective" link.
+/* AdminLTE re-skin for CRM_Filters' navbar "Perspective" link, and for the
+ * "Perspective" leightbox popup opened from it (id="crm_filters", see
+ * Filters_0.php::body() -> Libs_LeightboxCommon::display('crm_filters', ...)).
  *
- * Filters_0.php::body() prints this anchor directly (no .tpl file backs it),
- * shared with the default theme, so only CSS changes here - the decorative
- * .filter_icon_img sprite (position:relative hack sized for the old <table>
- * navbar) is dropped in favour of a Bootstrap Icons glyph added via ::before.
- * The leightbox "manage perspectives" popup (CRM/Filters/theme/default.tpl)
- * keeps using its default styling except for the one rule carried forward
- * below - per-file theme resolution replaces the whole stylesheet, so it
- * would otherwise lose even this.
+ * Filters_0.php::body() prints the navbar anchor directly (no .tpl file backs
+ * it), shared with the default theme, so only CSS changes here - the
+ * decorative .filter_icon_img sprite (position:relative hack sized for the
+ * old <table> navbar) is dropped in favour of a Bootstrap Icons glyph added
+ * via ::before.
+ *
+ * The popup itself now has its own theme_adminltedark/default.tpl (previously
+ * fell through to the default theme's CRM/Filters/theme/default.tpl, reading
+ * as broken next to the rest of the AdminLTE UI - raw <img> icons and plain
+ * <a> links). Its ".epesi-filters-*" classes are styled below, and per
+ * request it always uses the same fixed light-grey/black-text palette as the
+ * sidebar and the ActionBar Launchpad popup (Base/ActionBar/
+ * theme_adminltedark/default.css's #actionbar_launchpad rules), in both light
+ * and dark mode - #crm_filters's id specificity overrides the shared
+ * .leightbox/#Leightbox_header/.epesi-leightbox-btn rules (Libs/Leightbox/
+ * theme_adminltedark/default.css) the same way #actionbar_launchpad does.
  */
 
 #filter_box a.lbOn {
@@ -43,10 +53,97 @@
 	display: none;
 }
 
-/* carried forward from the default theme (unchanged) */
-#CRM_Filters .filters-autoselect input,
-#CRM_Filters .filters-autoselect select {
+/* ---- "Perspective" popup content (theme_adminltedark/default.tpl) ----
+ * Fixed light-grey/black-text palette throughout, per request - unlike every
+ * other Leightbox popup app-wide (which follows the live navbar theme
+ * toggle), this one always matches the sidebar, same treatment as the
+ * ActionBar Launchpad popup below it. No [data-bs-theme="light"] variant
+ * needed for any of this - it's the same in both modes.
+ */
+
+#crm_filters.leightbox {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#crm_filters #Leightbox_header {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#crm_filters .epesi-leightbox-btn {
+	color: #000;
+}
+
+#crm_filters .epesi-leightbox-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.epesi-filters-popup {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.epesi-filters-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+}
+
+.epesi-filters-btn {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
+	min-width: 84px;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	color: #000;
+	text-decoration: none;
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+.epesi-filters-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.epesi-filters-btn .bi {
+	font-size: 1.75rem;
+	line-height: 1;
+}
+
+.epesi-filters-label {
+	max-width: 100px;
+	overflow-wrap: anywhere;
+}
+
+.epesi-filters-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem;
+}
+
+.epesi-filters-autoselect input,
+.epesi-filters-autoselect select {
 	width: 180px;
+}
+
+.epesi-filters-saved {
+	border-top: 1px solid rgba(0, 0, 0, 0.15);
+	padding-top: 0.75rem;
+}
+
+.epesi-filters-saved-header {
+	text-align: center;
+	font-weight: 600;
+	margin-bottom: 0.5rem;
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
