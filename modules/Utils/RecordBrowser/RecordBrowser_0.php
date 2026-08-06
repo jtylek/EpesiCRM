@@ -1832,18 +1832,18 @@ class Utils_RecordBrowser extends Module {
 			);
             if ($args['type'] == 'page_split')
                     $gb_row->add_data(
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>$field),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>$args['name']),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>__('Page Split')),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>'')
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$field),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$args['name']),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>__('Page Split')),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>'')
                     );
                 else {
                     if (isset($display_callbacbacks[$field])) {

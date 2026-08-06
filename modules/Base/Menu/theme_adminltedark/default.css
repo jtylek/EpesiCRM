@@ -11,12 +11,19 @@
 	flex-wrap: nowrap;
 }
 
+/* Sidebar background is always light grey now (Base_Box/theme_adminltedark/
+   default.css's .app-sidebar, per request), not just under [data-bs-theme=
+   "light"] - so these colors (previously the [data-bs-theme="light"]
+   override further down, now the only version) apply unconditionally too.
+   The old dark-mode values (light-on-dark: #ced4da text, #343a40/#2b3035
+   hover/active backgrounds) were only correct while the sidebar itself was
+   dark. */
 .epesi-adminlte #MenuBar .nav-link {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.5rem 0.9rem;
-	color: #ced4da;
+	color: #000;
 	font-size: 14px;
 	border-radius: 0;
 	/* comfortable tap target */
@@ -25,12 +32,12 @@
 
 .epesi-adminlte #MenuBar .nav-link:hover,
 .epesi-adminlte #MenuBar .nav-link:focus {
-	background-color: #343a40;
+	background-color: #e9ecef;
 	color: #0d6efd;
 }
 
 .epesi-adminlte #MenuBar .nav-link[aria-expanded="true"] {
-	background-color: #2b3035;
+	background-color: #f1f3f5;
 	color: #0d6efd;
 }
 
@@ -43,7 +50,7 @@
 	flex: 0 0 1.25rem;
 	text-align: center;
 	font-size: 0.95rem;
-	color: #8b929a;
+	color: #6c757d;
 }
 
 /* Labels wrap rather than overflow a narrow sidebar. */
@@ -90,30 +97,10 @@
 	min-height: 40px;
 }
 
+/* No divider line, per request - the margin alone still separates
+   Administrator from the regular menu items above it. */
 .epesi-adminlte #MenuBar hr.menu-split {
 	margin: 0.35rem 0.9rem;
-	border-top: 1px solid #495057;
+	border-top: none;
 	opacity: 1;
-}
-
-/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link {
-  color: #343a40;
-}
-
-[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link:hover,
-[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link:focus {
-  background-color: #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-link[aria-expanded="true"] {
-  background-color: #f1f3f5;
-}
-
-[data-bs-theme="light"] .epesi-adminlte #MenuBar .nav-icon {
-  color: #6c757d;
-}
-
-[data-bs-theme="light"] .epesi-adminlte #MenuBar hr.menu-split {
-  border-top: 1px solid #dee2e6;
 }
