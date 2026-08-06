@@ -136,6 +136,44 @@
 	}
 }
 
+/* ---- launchpad popup: sidebar-matching fixed grey scheme ----
+ * Per request: unlike every other Leightbox popup app-wide (which keeps the
+ * shared shell's own per-mode dark/light colors - Libs/Leightbox/
+ * theme_adminltedark/default.css) or the persistent ActionBar toolbar above
+ * (still following the live navbar theme toggle as before), the Launchpad
+ * popup always renders the same fixed light-grey/black-text palette as the
+ * sidebar (Base_Box/theme_adminltedark/default.css, commit 77d43486), in
+ * both light and dark mode. #actionbar_launchpad's id specificity overrides
+ * the shared .leightbox/#Leightbox_header/.epesi-actionbar-btn rules (and
+ * their own [data-bs-theme="light"] variants) without touching any other
+ * popup. */
+#actionbar_launchpad.leightbox {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#actionbar_launchpad #Leightbox_header {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-leightbox-btn {
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-leightbox-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+#actionbar_launchpad .epesi-actionbar-btn {
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-actionbar-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+	color: #000;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-actionbar-launcher-group {
   border-left: 1px solid #dee2e6;
