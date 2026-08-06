@@ -981,6 +981,11 @@
   background-color: #fff;
 }
 
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th {
+  background: #e9e9ed;
+  color: #000;
+}
+
 [data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
   background-color: #fff;
 }
