@@ -2467,15 +2467,17 @@ class Utils_RecordBrowser extends Module {
                 $last_row = $row2;
                 $dates_select[$row['edited_on']] = $date_and_time;
             }
+            $first_in_group = true;
             foreach($changed as $k=>$v) {
                 if ($k=='id') {
 					$gb_cha->add_row(
-						$date_and_time, 
-						$user, 
+						$first_in_group ? $date_and_time : '',
+						$first_in_group ? $user : '',
 						array('value'=>_V($last_row['old_value']), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
 						array('value'=>'', 'dummy'=>true),
 						array('value'=>'', 'dummy'=>true)
 					);
+					$first_in_group = false;
                 } else {
                     if (!isset($field_hash[$k])) continue;
                     $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
@@ -2485,12 +2487,13 @@ class Utils_RecordBrowser extends Module {
 					$gb_row = $gb_cha->get_new_row();
 					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
                     $gb_row->add_data(
-                        $date_and_time,
-                        $row['edited_by']!==null?$user:'',
+                        $first_in_group ? $date_and_time : '',
+                        $first_in_group ? ($row['edited_by']!==null?$user:'') : '',
                         _V($this->table_rows[$field_hash[$k]]['name']), // TRSL
                         $old,
                         $new
                     );
+                    $first_in_group = false;
                 }
             }
         }
