@@ -888,6 +888,23 @@
 		background-color: #343a40;
 		border-radius: 0.25rem;
 	}
+
+	/* Favourite/watchdog star-and-eye columns: same breakpoint as the actions
+	   kebab collapse above, per request - narrow screens hide them entirely
+	   to leave room for the actual data columns, wide screens keep showing
+	   them. The <th> already carries this class straight from RecordBrowser_0.php's
+	   own 'attrs'=>'class="Utils_RecordBrowser__favs"'/'__watchdog' (RecordBrowser_0.php
+	   ~443/448), so this rule alone hides the header. The body <td> is
+	   normally class-less (see this file's own "favourite/watchdog icon
+	   columns" comment above and Base_Box/theme_adminltedark/default.tpl's
+	   epesiSizeGbActions()) - that function now also adds this same class to
+	   each row's cell at the column's position so this one rule reaches both
+	   the header and every body cell consistently, keeping column count/order
+	   in sync across the whole table instead of just blanking the header. */
+	.epesi-gb .Utils_GenericBrowser .Utils_RecordBrowser__favs,
+	.epesi-gb .Utils_GenericBrowser .Utils_RecordBrowser__watchdog {
+		display: none;
+	}
 }
 
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -

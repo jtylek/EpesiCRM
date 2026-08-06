@@ -521,36 +521,60 @@
 								"totalPercent+=p;".
 							"}else{".
 								"var idx=cellIndexOf(th);".
+								// Below the mobile breakpoint this whole column is hidden
+								// (Utils/GenericBrowser/theme_adminltedark/default.css's own
+								// "@media (max-width: 991.98px)" block, keyed off this same
+								// class) - the <th> already carries it straight from
+								// RecordBrowser_0.php's server-rendered markup, so by the time
+								// this script runs the CSS has already decided and
+								// getComputedStyle can just be asked. When hidden, the column
+								// reserves none of the available width (a hidden cell takes
+								// none in the real rendered layout either) and the natural-width
+								// measurement below is skipped - measuring a display:none clone
+								// would read back 0 anyway, which used to fall through to the
+								// "no body rows yet" fallback and wrongly reserve a phantom
+								// ~24px for a column that isn't actually showing.
+								"var favClass=th.classList.contains('Utils_RecordBrowser__favs')?'Utils_RecordBrowser__favs':'Utils_RecordBrowser__watchdog';".
+								"var hiddenCol=getComputedStyle(th).display==='none';".
 								"var fw=0;".
 								"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
 									"var cell=row.children[idx];".
-									// This <td> has no class or attribute of its own (RecordBrowserCommon_0.php's
-									// get_fav_button()/WatchdogCommon_0.php's get_change_subscription_icon() build
-									// it bare - the cellIndexOf(th) walk above is already working around exactly
-									// that), so default.css has no selector that could tighten its padding the
-									// way the Actions column's own td.Utils_GenericBrowser__actions rule does -
-									// Bootstrap's default ".table" cell padding (.5rem each side) was left in
-									// full around a single small icon, reported as "extra white space" around
-									// the star/eye columns. Set inline here instead, before naturalWidth()
-									// clones this same cell, so the measurement and the applied padding always
-									// agree with each other.
-									"if(cell){".
-										"cell.style.padding='0.25rem 0.25rem 0.1rem';".
-										"cell.style.textAlign='center';".
-										// Same reasoning as the Actions column's own vertical-align:top override
-										// (Utils/GenericBrowser/theme_adminlte/default.css) - this cell has no
-										// class of its own for that CSS rule to reach, so it's set inline here
-										// instead. Without it this icon defaults to vertical-align:middle and
-										// visibly floats below the row's top edge on any row where another
-										// column wraps to more than one line, out of line with both the text
-										// columns and the Actions column right next to it.
-										"cell.style.verticalAlign='top';".
-										"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
-									"}".
+									"if(!cell)return;".
+									// This <td> has no class or attribute of its own
+									// (RecordBrowserCommon_0.php's get_fav_button()/
+									// WatchdogCommon_0.php's get_change_subscription_icon() build
+									// it bare - the cellIndexOf(th) walk above is already working
+									// around exactly that) - added here, the one place that
+									// already knows this row's cell IS the favourite/watchdog
+									// column, so default.css's mobile-hide rule above (keyed off
+									// this same class) reaches the header AND every body cell
+									// consistently instead of just blanking the header alone.
+									"cell.classList.add(favClass);".
+									"if(hiddenCol)return;".
+									// Bootstrap's default ".table" cell padding (.5rem each side)
+									// was left in full around a single small icon, reported as
+									// "extra white space" around the star/eye columns. Set inline
+									// here instead, before naturalWidth() clones this same cell,
+									// so the measurement and the applied padding always agree
+									// with each other.
+									"cell.style.padding='0.25rem 0.25rem 0.1rem';".
+									"cell.style.textAlign='center';".
+									// Same reasoning as the Actions column's own vertical-align:top
+									// override (Utils/GenericBrowser/theme_adminlte/default.css) -
+									// this cell has no class of its own for that CSS rule to
+									// reach, so it's set inline here instead. Without it this icon
+									// defaults to vertical-align:middle and visibly floats below
+									// the row's top edge on any row where another column wraps to
+									// more than one line, out of line with both the text columns
+									// and the Actions column right next to it.
+									"cell.style.verticalAlign='top';".
+									"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
 								"});".
-								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
-								"th.style.width=fw+'px';".
-								"fixedWidth+=fw;".
+								"if(!hiddenCol){".
+									"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
+									"th.style.width=fw+'px';".
+									"fixedWidth+=fw;".
+								"}".
 							"}".
 						"});".
 						// RecordBrowser tables default to $expandable_rows=true (RecordBrowser_0.php),
