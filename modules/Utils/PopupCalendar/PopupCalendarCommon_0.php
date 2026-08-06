@@ -37,8 +37,7 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		// show_month()/show_year()/show_decade()/show_century()) - the adminlte
 		// variant only swaps the header/grid markup it builds for Bootstrap
 		// classes; positioning/show-hide below and datepicker.js's validation
-		// stay Prototype-based for both themes (Prototype is still loaded
-		// globally regardless of theme, see legacy-js-libraries-inventory).
+		// are jQuery-based for both themes.
 		if (Base_ThemeCommon::is_adminlte_family())
 			load_js('modules/Utils/PopupCalendar/theme_adminltedark/main2.js');
 		else
@@ -73,11 +72,17 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$cal_out.
 			'</div>');
 
-		if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()});';
-		eval_js('if(Epesi.ie)$(\''.$entry.'\').style.position="fixed";else $(\''.$entry.'\').absolutize();');
+		if(!isset($pos_js)) $pos_js = 'jQuery(popup).clonePosition(document.getElementById(\''.$butt.'\'),{setWidth:false,setHeight:false,offsetTop:document.getElementById(\''.$butt.'\').offsetHeight});';
+		// Prototype's absolutize() also preserved the element's current
+		// rendered top/left/width/height when switching it to position:absolute
+		// - moot here, since this div stays display:none until the onClick
+		// handler above both repositions it via clonePosition() and reveals it
+		// via toggle() in the same synchronous call, so nothing is ever visible
+		// mid-transition.
+		eval_js('if(Epesi.ie)document.getElementById(\''.$entry.'\').style.position="fixed";else document.getElementById(\''.$entry.'\').style.position="absolute";');
 
-		$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
-		$function .= ';$(\''.$entry.'\').hide()';
+		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');'.$pos_js.';jQuery(popup).toggle()" href="javascript:void(0)" id="'.$butt.'"';
+		$function .= ';jQuery(document.getElementById(\''.$entry.'\')).hide()';
 
 		if ($default) {
 			if (!is_numeric($default)) $default = strtotime($default);

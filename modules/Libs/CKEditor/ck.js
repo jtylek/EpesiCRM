@@ -1,32 +1,31 @@
 var ckeditors = {};
 var ckeditors_hib = {};
 
-Event.observe(document,'e:submit_form', function(e) {
-    var name = e.memo;
+jQuery(document).on('e:submit_form', function(e, name) {
     for(key in ckeditors) {
         value = ckeditors[key];
-		var textarea = $(key);
+		var textarea = document.getElementById(key);
 		if(name==textarea.form.getAttribute("name")) {
 			value.destroy();
-			$(textarea).hide();
+			jQuery(textarea).hide();
 			delete(ckeditors[key]);
 //			alert(textarea.innerHTML);
 		}
 	}
 });
 
-Event.observe(document,'e:loading', function() {
+jQuery(document).on('e:loading', function() {
     for(key in ckeditors) {
 //        alert('hib '+key);
         value = ckeditors[key];
 		ckeditors_hib[key]=value.config;
 		value.destroy();
-		$(key).hide();
+		jQuery(document.getElementById(key)).hide();
 		delete(ckeditors[key]);
 	}
 });
 
-Event.observe(document,'e:load', function() {
+jQuery(document).on('e:load', function() {
     for(key in ckeditors_hib) {
 //      alert('unhib '+key);
         value = ckeditors_hib[key];

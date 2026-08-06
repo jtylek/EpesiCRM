@@ -68,9 +68,9 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<div class="prev" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+prev_year+'\', \''+prev_month+'\')">&lt;&lt</a></div>';
 			header_string += '<div class="label" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+year+'\')">'+this.monthName[month] + ' ' + year_real+'</a></div>';
 			header_string += '<div class="next" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_month(\''+next_year+'\', \''+next_month+'\')">&gt;&gt</a></div>';
-			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></div>';
+			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="jQuery(document.getElementById(\'datepicker_'+this.instance_id+'_calendar\')).toggle()">X</a></div>';
 			header_string += '</div>';
-			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
+			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
 			// filling month
 			Calendar.setDate(1);
@@ -125,7 +125,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			}
 			cal += '</div>';
 			// and final solution
-			$('datepicker_'+this.instance_id+'_view').innerHTML = cal;
+			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 
 		//show a year
@@ -147,7 +147,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<div class="prev" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+prev_year+'\')">&lt;&lt</a></div>';
 			header_string += '<div class="label" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+(year - (year%10))+'\')">'+ year_real+'</a></div>';
 			header_string += '<div class="next" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_year(\''+next_year+'\')">&gt;&gt</a></div>';
-			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></div>';
+			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="jQuery(document.getElementById(\'datepicker_'+this.instance_id+'_calendar\')).toggle()">X</a></div>';
 			header_string += '</div>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
@@ -196,7 +196,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<div class="prev" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+prev_decade+'\')">&lt;&lt</a></div>';
 			header_string += '<div class="label" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+(decade - (decade%100))+'\')">'+ decade_real + ' - ' + (decade_real+10) + '</a></div>';
 			header_string += '<div class="next" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_decade(\''+next_decade+'\')">&gt;&gt</a></div>';
-			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></div>';
+			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="jQuery(document.getElementById(\'datepicker_'+this.instance_id+'_calendar\')).toggle()">X</a></div>';
 			header_string += '</div>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
@@ -245,7 +245,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			header_string += '<div class="prev" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+prev_century+'\')">&lt;&lt</a></div>';
 			header_string += '<div class="label" role="cell">'+ century_real + ' - ' + (century_real+100) + '</div>';
 			header_string += '<div class="next" role="cell"><a href="javascript:void(0)" onClick="datepicker_'+this.instance_id+'.show_century(\''+next_century+'\')">&gt;&gt</a></div>';
-			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()">X</a></div>';
+			header_string += '<div class="close" role="cell"><a href="javascript:void(0)" onClick="jQuery(document.getElementById(\'datepicker_'+this.instance_id+'_calendar\')).toggle()">X</a></div>';
 			header_string += '</div>';
 			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 

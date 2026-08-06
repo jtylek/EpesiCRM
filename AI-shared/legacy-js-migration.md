@@ -1,19 +1,26 @@
 # Legacy JS libraries: inventory and elimination plan
 
-As of 2026-07-30, every page still loads (hard-coded in `index.php`'s `$jses`
+As of 2026-07-30, every page loaded (hard-coded in `index.php`'s `$jses`
 array, bypassing Epesi's own `load_js()` module-asset system entirely):
 
-- `libs/prototype.js` (1.7)
+- `libs/prototype.js` (1.7) — **removed 2026-08-06, see step 5.**
 - `modules/Libs/ScriptAculoUs/1.8.0/*` (actually v1.7.0 per file header despite
   the directory name) — loaded via `Libs_ScriptAculoUsCommon`, declared as a
-  module dependency by ~5 modules (Colorpicker, Leightbox, Dashboard, etc.)
+  module dependency by ~5 modules (Colorpicker, Leightbox, Dashboard, etc.) —
+  **removed 2026-07-30, see step 1.**
 - `libs/jquery-1.11.3.js` + `jquery-migrate-1.2.1.js` +
-  `jquery-ui-1.10.1.custom.min.js`
+  `jquery-ui-1.10.1.custom.min.js` — still loaded, unchanged; step 6 (stretch)
+  is upgrading these.
 
-**Critical wiring fact**: `include/epesi.js` calls `jQuery.noConflict()` after
-both load, so **`$` is bound to Prototype, `jQuery` is the real jQuery** —
-everywhere, on every page. Don't assume `$(...)` is jQuery syntax anywhere in
-this codebase.
+**Historical wiring fact, no longer true as of 2026-08-06**: `include/epesi.js`
+used to call `jQuery.noConflict()` right after both prototype.js and jQuery
+loaded, so `$` was bound to Prototype and `jQuery` was the real jQuery,
+everywhere, on every page. Now that prototype.js is gone (step 5), that call
+was removed too — `$` is jQuery's own default global again, same as `jQuery`.
+Any code/notes below phrased in the present tense as "`$` is Prototype" are
+describing the pre-step-5 codebase; don't assume that's still true when
+reading old commit history or working from a stale checkout that predates
+2026-08-06.
 
 `MIGRATION_NOTES.md` §9 already flagged this stack as "mostly old JS — do NOT
 block PHP 8.2" — deliberately deprioritized as a separate track from the PHP
@@ -29,46 +36,611 @@ for the widget layer underneath.
 1. **script.aculo.us** — only 2 files used `Sortable`/`Draggable`/`Droppables`
    (low usage); `Effect.*` used in 7 files, replaceable with CSS transitions.
 2. **`Ajax.Request`/`Ajax.Updater`** (27 files) → `jQuery.ajax`, mechanical
-   since jQuery is already loaded everywhere.
-3. **`Class.create`** (8 files) → plain JS classes.
+   since jQuery is already loaded everywhere. **Done 2026-08-06.**
+3. **`Class.create`** (8 files) → plain JS classes. **Done 2026-08-06.**
 4. **Remaining `$('id')`/`Element.*` calls** → `jQuery(...)`/vanilla DOM — the
    biggest and riskiest phase; do it module-by-module with manual browser
    testing, since server-built inline JS strings aren't caught by any linter.
+   **Done 2026-08-06** (~60 files).
 5. Remove `jQuery.noConflict()` from `include/epesi.js`, drop
    `libs/prototype.js` and the ScriptAculoUs module from `index.php`'s `$jses`
-   and the 5 modules' dependency declarations, delete the files.
-6. Stretch: upgrade jQuery 1.11.3 → current, retire jquery-migrate.
+   and the 5 modules' dependency declarations, delete the files. **Done
+   2026-08-06** (ScriptAculoUs module was already gone since step 1; this step
+   was really just prototype.js + the `noConflict()`/dead-Responders cleanup).
+6. Stretch: upgrade jQuery 1.11.3 → current, retire jquery-migrate. Not
+   started.
 
-## Progress (started 2026-07-30, step 1)
+## Progress
 
-Done (syntax-checked, not yet fully browser-verified — no browser automation
-was available in that session):
+### Step 1, script.aculo.us — done (2026-07-30, commit `255a5256`)
 
-- Deleted `modules/Utils/Calendar/calendar.js` (dead code — its `load_js()`
-  call was already commented out; only Draggable/Sortable/Droppables user).
-- `Base_StatusBar/js/main.js`, `Utils_Menu/js/menu.js` (note: `Utils_Menu` has
-  **zero live callers** — effectively dead in production, fixed anyway since
-  `Tests_Menu` still declares it), `Base_Setup`'s wizard JS, and
-  `Utils_Calendar/theme/event_.js`'s `Effect.toggle` all had their
-  ScriptAculoUs `Effect.*` calls replaced with vanilla JS/small local helpers.
-  (`.clonePosition()`/`$()` in `event_.js` were deliberately left — those are
-  Prototype *core*, in scope only once Prototype itself is tackled.)
-- The QuickForm autocomplete widget was rewritten from scratch
-  (`modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.js`, vanilla +
-  `jQuery.ajax`), replacing script.aculo.us's `Ajax.Autocompleter`. This one
-  file underlies `autocomplete.php`, `autoselect.php`, and `automulti.php`
-  (used by Contacts/RecordBrowser/Filters/Planner/Shoutbox/ActivityReport
-  search fields) — so fixing it fixed all three field types at once. Confirmed
-  via grep that `Ajax.InPlaceEditor`, `Ajax.InPlaceCollectionEditor`,
-  `Form.Element.DelayedObserver`, `Autocompleter.Local` have zero remaining
-  callers — safe to drop entirely.
+Effect.*/Ajax.Autocompleter calls replaced with vanilla JS/CSS transitions and
+a new `EpesiAutocompleter` widget
+(`modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.js`, underlies
+`autocomplete.php`/`autoselect.php`/`automulti.php`). The
+`Libs_ScriptAculoUs` module itself **was** then fully removed — deleted from
+disk and dropped as a dependency from the Colorpicker/Leightbox/Dashboard
+installers (an earlier revision of this doc said this step was still
+outstanding; it isn't).
 
-**Not yet done**: actually uninstalling the `Libs_ScriptAculoUs` module (it's
-DB-tracked via `ModuleManager`; Colorpicker/Leightbox/Dashboard declare it as a
-`requires()` dependency even though none of the three call any of its
-functions anymore — the dependency is vestigial but removal needs
-`ModuleManager::uninstall()`, not a blind directory delete). Steps 2–6 above
-have not started.
+### Step 2, `Ajax.Request`/`Ajax.Updater` → `jQuery.ajax` — in progress (started 2026-08-06)
+
+**Two things to know before touching any more callers:**
+
+1. **`process.php` hard-rejects requests missing the `X-Client-ID` header**
+   (`if(!isset($_POST['url']) || !isset($_SERVER['HTTP_X_CLIENT_ID'])) die('alert(...)')`
+   — `process.php:15`). Prototype attaches this header to *every* Ajax.Request
+   app-wide via a global `Ajax.Responders.register({onCreate: ...})` hook in
+   `include/epesi.js`. `jQuery.ajax` doesn't fire Prototype's Responders, so a
+   ported call gets no header unless something else adds it. Fixed by adding a
+   matching `jQuery.ajaxSetup({beforeSend: ...})` header injector right after
+   `jQuery.noConflict()` in `include/epesi.js` — this must exist (it now does)
+   before porting any further callers. The old Prototype Responders hook is
+   left in place too, still serving not-yet-ported callers; remove both hooks
+   together only in step 5, once nothing calls `Ajax.Request`/`Ajax.Updater`
+   anymore.
+2. **The vendored `libs/prototype.js` is locally patched**, not stock: its
+   `observe()` additionally does `jQuery(selector).bind(eventName, handler)`
+   for any colon-namespaced ("custom") event name (`e:load`, `e:loading`,
+   `e_cs:load`, `e_u_cd:clear`, etc.), but `fire()` does **not** call
+   `jQuery(...).trigger(...)` — it only dispatches a native `dataavailable`
+   event carrying `.eventName`/`.memo`. Net effect: a still-Prototype
+   `Event.observe(el, 'e:load', fn)` listener *will* still catch a
+   `jQuery(el).trigger('e:load')` fired by newly-ported code (because
+   `observe()` also registers under jQuery), but a newly-ported
+   `jQuery(el).on('e:load', fn)` listener will **not** catch an old
+   `Event.fire(el, 'e:load')` (because `fire()` never goes through jQuery).
+   Conclusion for step 4 (`Event.observe`/`.fire`/custom pub-sub events):
+   port `fire()` call sites freely/independently, but only port an
+   `observe()` listener for a given custom event name once every `fire()` of
+   that same event name elsewhere in the codebase has already been ported —
+   otherwise the listener goes silently deaf. Not yet relevant to step 2/3
+   (which don't touch `Event.observe`/`.fire` at all), but will matter a lot
+   once step 4 starts.
+3. **Prototype's `Ajax.Request` auto-executes the response as JS when there's
+   no explicit success/complete callback at all**, provided the response's
+   `Content-type` matches a JS mime type and is same-origin (vendored
+   `libs/prototype.js:1607-1611`, `evalJS` option, default `true`). Several
+   endpoints in this codebase (`process.php`, `Utils/Messenger/refresh.php`,
+   `Tools/SessionKeeper/logout.php`, ...) rely on exactly this: they set
+   `header("Content-type: text/javascript")` and the calling JS has **no**
+   `onSuccess`/`onComplete` at all — the whole point is that the response
+   *is* the side effect. `jQuery.ajax` does **not** do this automatically
+   (its default dataType-guessing only recognizes xml/html/json content
+   types, confirmed in the vendored `libs/jquery-1.11.3.js:8896-8900` —
+   "script" isn't in that map) — a plain `jQuery.ajax(url)` port of one of
+   these calls silently drops the response on the floor. Fix: pass
+   `dataType: 'script'` explicitly, which routes through jQuery's
+   `"text script"` converter (`jquery-1.11.3.js:9770`,
+   `jQuery.globalEval(text)`) and matches Prototype's behavior. **This
+   already caused one real regression**, caught only on a second pass: the
+   2026-08-06 port of `sk.js` gave `logout.php`'s call no `dataType`, and
+   `logout.php` responds with `document.location='index.php';` on session
+   timeout relying purely on this auto-eval — the redirect would have
+   silently stopped firing. Fixed same day. Before porting any further
+   callback-less `Ajax.Request` call, grep the target PHP file for
+   `Content-type: text/javascript` and add `dataType: 'script'` if found.
+
+**Done** (mechanical swap only — `new Ajax.Request(url,{parameters:{...},
+onSuccess/onComplete:...})` → `jQuery.ajax(url,{data:{...},
+success/complete:...})`, `Object.toJSON()` → `JSON.stringify()` (safe even for
+Prototype `Hash` objects — `Hash.prototype.toJSON` exists and `JSON.stringify`
+calls it per spec), `.evalJSON()` → `JSON.parse()`; `onFailure`→`error`;
+syntax-checked with `node --check`; see below for what's been browser-verified
+vs. transport-only-verified):
+`modules/Utils/RecordBrowser/grid.js`, `favorites.js`,
+`RecordPickerFS/select_all.js`, `RecordPicker/select_all.js`,
+`rpicker_fs.js`, `modules/Utils/Planner/planner.js`,
+`modules/Tools/SessionKeeper/sk.js` (also had to pin `method:'post'`
+explicitly — Prototype defaults bare `new Ajax.Request(url)` to POST, jQuery
+defaults to GET, and a cached GET would silently break the keepalive ping),
+`modules/Base/Lang/Administrator/js/main.js`, `modules/Base/Help/js/main.js`,
+`modules/Utils/Attachment/attachments.js` (left its `Event.fire`/`Event.observe`
+calls untouched — step 4 concern, not step 2), `modules/Utils/CommonData/qf.js`
+and `modules/Utils/ChainedSelect/cs.js` (both `Class.create`-based — only their
+`Ajax.Request` blocks + the one response handler each feeds were touched;
+`Class.create`/`Event.observe`/`bindAsEventListener` left alone, step 3/4
+concerns), `modules/Utils/Calendar/calendar-jq.js` (see below for detail — its
+`onComplete`+`onException`+`onFailure` shape needed a bit more thought than the
+others).
+
+**Browser-verified (2026-08-06, via Playwright against the local dev install, `jtylek` user):**
+`grid.js` and `favorites.js` end-to-end through real UI interaction (RecordBrowser
+inline-edit round-trip incl. re-render from the eval'd response; favorites star
+toggle) with actual DB state changes confirmed and reverted afterward. `sk.js`,
+`Help/js/main.js`, `qf.js`, `RecordPicker/select_all.js`, and
+`Calendar/update.php` (see below) confirmed at the transport layer (direct
+`jQuery.ajax` calls to the real endpoints — 200 responses, correct
+`X-Client-ID`/JSON param round-trip, domain-level error text coming back
+exactly as expected for deliberately-invalid test input, zero console errors
+throughout). Two features were behind opt-in per-user settings not enabled by
+default — "Grid edit (experimental)" (`Utils_RecordBrowser`/`grid`) and
+"Calendar grid: Classic" (`CRM_Calendar`/`calendar_engine`, default
+`fullcalendar`) — both under My settings → Control panel; toggled on for
+testing and reverted back off afterward.
+
+`modules/Utils/Calendar/calendar-jq.js` — done (2026-08-06). Its 2
+`Ajax.Request` calls (drag/drop event move in `activate_dnd`'s `drop` handler,
+and `delete_event`) both defined `onComplete`+`onException`+`onFailure`; ported
+`onComplete`→`complete`, `onFailure`→`error`, dropped `onException` (no jQuery
+equivalent — a JS exception thrown inside `complete`/`success` just propagates
+to the console uncaught by default, which is what Prototype's `onException:
+function(t,e){throw(e);}` did anyway, so behavior is unchanged). Confirmed via
+`node --check` and a direct transport-level call to `update.php` (200, correct
+domain-validation error for a bogus `ev_id`, zero console errors) — did **not**
+drive a real drag-and-drop or delete through the UI, to avoid mutating/removing
+real calendar data in this shared dev install ([[dont-delete-test-records]] in
+Claude's private memory).
+
+**Server-built inline-JS callers — done (2026-08-06).** These build the
+`Ajax.Request`/`Ajax.Updater` call as a PHP string (`eval_js()`/
+`eval_js_once()`), not in a `.js` file — not caught by any linter, and each
+needed its own read rather than a mechanical find/replace:
+
+- `modules/Base/Lang/Administrator/Administrator_0.php` (`send_lang_ajax`) —
+  simplest case: PHP already builds the whole options object via
+  `json_encode()`, just needed `parameters`→`data` in the array before
+  encoding and `new Ajax.Request`→`jQuery.ajax` in the wrapper string.
+  Browser-verified at the transport layer.
+- `modules/Apps/Shoutbox/Shoutbox_0.php` (`chat()`'s refresh poller) — this
+  one was `Ajax.Updater`, not `Request`: Prototype's "fetch HTML, stuff it
+  into an element's innerHTML" helper, and `refresh.php` prints plain HTML
+  with no JS wrapping — the exact use case jQuery's `.load(url)` exists for.
+  Ported to `jQuery('#shoutbox_board...').load(url + '?uid=' +
+  encodeURIComponent(shoutbox_uid))`, keeping `uid` on the query string
+  rather than as jQuery `.load()`'s data-object (which auto-switches the
+  request to POST) because `refresh.php` reads `$_GET['uid']` specifically —
+  passing it as POST data would have silently broken the "who am I chatting
+  with" filter. **Browser-verified fully end-to-end**: called
+  `shoutbox_refresh()` directly, confirmed the GET request carried
+  `?uid=all` and the board's innerHTML was replaced with real message HTML.
+- `modules/Utils/Messenger/refresh.php` + `MessengerCommon_0.php` — the
+  callback-less auto-eval case from point 3 above (`refresh.php` sets
+  `Content-type: text/javascript`, no `onSuccess` in the original). Ported to
+  `jQuery.ajax(url, {method:'get', dataType:'script'})`. The per-alert
+  turnoff action (built inside `refresh.php`'s loop, spliced into a
+  `Module::wrap_confirm_js()` callback body — confirmed by reading
+  `include/module.php:529-538` that `$action_js` is inlined raw into a
+  `function(){...}` body, not eval'd separately) only needed its own
+  `Ajax.Request`→`jQuery.ajax` + `parameters`→`data` swap, no structural
+  change. Browser-verified: `utils_messenger_refresh()` (both the
+  already-running `setInterval` and a manual call) hits the endpoint with
+  `dataType:'script'`, 200s, zero console errors; confirmed via
+  `.toString()` that the live function in the browser is the new code.
+- `modules/Base/EpesiStore/EpesiStoreCommon_0.php` (`post_install_refresh_by_ajax`)
+  — `onComplete` reads `t.responseText` directly (string-compares against
+  `'1'`/`'0'`) — ported to `complete: function(jqXHR){var t=jqXHR; ...}`,
+  keeping the rest of the callback body untouched via the `var t=jqXHR` alias
+  rather than rewriting every `t.` reference inside the PHP string. **Not
+  browser-tested live** — `runpatches.php` actually applies pending patches,
+  a real mutating operation on this dev install
+  ([[cli-tests-hit-live-db]]-adjacent risk), so this one only got `php -l` +
+  careful manual reading, not a live Playwright call.
+- `modules/Utils/PopupCalendar/datepicker.php` — `onSuccess:function(t){e.value=t.responseText;...}`
+  ported to `success:function(responseText){e.value=responseText;...}` with
+  `dataType:'text'`. **Browser-verified fully end-to-end**: opened a real
+  date field's popup calendar on the Contacts "New record" form, clicked a
+  day, confirmed the field's value was set from the real `up.php` response
+  and the POST request came back 200.
+- `modules/Utils/FileDownload/FileDownload_0.php` (`utils_filedownload_refresh`)
+  — another `Ajax.Updater`, ported to `.load(url, {path: path})`; confirmed
+  `refresh.php` reads `$_POST['path']` so `.load()`'s data-object-implies-POST
+  default matches (unlike the Shoutbox case above). Transport-verified.
+- `modules/Applets/Weather/Weather_0.php` and `modules/Applets/RssFeed/RssFeed_0.php`
+  (near-identical `rssfeedfunc`) — `Ajax.Updater` with an `onComplete` that
+  cached `r.responseText`; jQuery's `.load(url, data, complete)` third-argument
+  callback's *first* parameter is already the plain response-text string, so
+  `onComplete:function(r){rssfeedcache[name]=r.responseText}` became
+  `function(r){rssfeedcache[name]=r}` — no `.responseText` needed. Both
+  transport-verified (Weather returned a clean "Error getting RSS" for a
+  bogus test feed URL, proving the request round-trip and error path work).
+  (`Apps/Shoutbox/theme_adminltedark/chat_form.tpl` only mentions
+  `Ajax.Updater()` in a comment describing `Shoutbox_0.php`'s poller — no
+  code there.)
+
+**`include/epesi.js`'s own `Epesi.request()` — done (2026-08-06). Step 2 is
+now fully complete** — confirmed by grep that zero `Ajax.Request`/
+`Ajax.Updater` callers remain anywhere in the codebase (only the library
+itself and one harmless comment in `chat_form.tpl` still mention the name).
+
+This was the highest-blast-radius single change in the entire migration: the
+function every page transition in the whole app goes through (posts to
+`process.php`, whose response is raw JS the client must execute — see
+CLAUDE.md's "AJAX-push SPA" description). Two things made it harder than the
+other 30-odd callers:
+
+1. **No manual `eval()` anywhere in the original** — like the Messenger case
+   (point 3 above), this relies entirely on Prototype's automatic
+   Content-type-based eval (`process.php` sends
+   `Content-type: text/javascript`, and neither `onSuccess` nor `onComplete`
+   touch `t.responseText`). Ported with `dataType: 'text'` (not `'script'`)
+   and a **manual, deliberately-placed** `eval(responseText)` inside
+   `success` — see point 2.
+2. **Callback ordering had to be preserved exactly.** Prototype's actual
+   firing order for a successful response is `onSuccess` → auto-eval →
+   `onComplete` (`libs/prototype.js:1594-1624`: the success/failure handler
+   fires first, *then* `evalResponse()`, *then* `onComplete`). The original
+   `onSuccess` captures `document.activeElement`'s id into `keep_focus_field`
+   *before* the response JS can patch the DOM (and potentially remove the
+   currently-focused element), and `onComplete` later restores focus to
+   that same id. jQuery's own `dataType:'script'` auto-eval happens as part
+   of response *conversion*, which runs **before** `success` fires — using
+   it would have evaluated the response (patching the DOM) before the
+   focus-capture ever ran, silently breaking focus restoration on every
+   single page transition. Fix: `dataType:'text'` (jQuery does no
+   auto-conversion/auto-eval for it) and eval manually, in this exact order
+   inside `success`: capture `keep_focus_field` → fire `'e:loading'` → THEN
+   `eval(responseText)`. `complete` (fires after `success`/`error`, same as
+   Prototype's `onComplete` firing after `onSuccess`/`onFailure`) handles
+   `procOn--`, firing `'e:load'`, and the focus restore, unchanged from the
+   original. `onFailure`→`error` (reads `jqXHR.status`/`jqXHR.responseText`
+   instead of `t.status`/`t.responseText`). `onException` dropped, same
+   reasoning as `calendar-jq.js` above.
+
+**Browser-verified thoroughly** given the stakes (Playwright, full page
+reload so the new `epesi.js` actually loads, `jtylek` session): (a) a full
+cold bootstrap through `Epesi.init()`→`Epesi.request()` — session
+auto-restored, Dashboard rendered completely (Shoutbox history, Watchdog
+widget, sidebar), zero console errors; (b) plain click-navigation between
+modules (Contacts, Administrator); (c) browser back button (exercises the
+separate `unFocus.History` `historyChange` listener path, also calls
+`Epesi.request`); (d) **the focus-restoration behavior specifically** —
+focused a real search field (`#gb_search_field`), submitted its form
+(triggers `_chj`→`Epesi.href`→`Epesi.request`), and confirmed
+`document.activeElement.id === 'gb_search_field'` after the full
+request/response/DOM-patch cycle completed. All four passed with zero
+console errors throughout.
+
+The now-orphaned `Ajax.Responders.register(...)` block at the bottom of
+`include/epesi.js` is dead code (nothing creates an `Ajax.Request` instance
+anymore to trigger it) but deliberately left in place — remove it together
+with `jQuery.noConflict()` and `prototype.js` itself in step 5, not before.
+
+### Step 3, `Class.create` → plain JS — done (2026-08-06)
+
+Only 3 real files had it left (confirmed by grep, matching the prediction
+above): `modules/Utils/CommonData/qf.js` (`Utils_CommonData`,
+`Utils_CommonData_freeze`), `modules/Utils/ChainedSelect/cs.js`
+(`Utils_ChainedSelect`), `modules/Libs/Leightbox/leightbox.js` (`leightbox`).
+None used Prototype's inheritance (`Class.create(ParentClass, {...})`) or
+mixins — all four were the simple `Class.create()` (no args) + separate
+`.prototype = {...}` assignment form, which converts mechanically and
+losslessly to `function Name(...) { /* old initialize body */ }` +
+`Name.prototype.method = function(){...}` per method (confirmed by grepping
+every `new Utils_CommonData(`/`new Utils_CommonData_freeze(`/
+`new Utils_ChainedSelect(`/`new leightbox(` call site first — all positional
+constructor calls, so the conversion is fully transparent to callers, no
+call-site changes needed anywhere). Deliberately did **not** touch anything
+inside the method bodies — `Event.observe`/`.fire()`/`$()`/
+`.bindAsEventListener()` all stay exactly as they were, since those are step
+4's concern, not step 3's. `node --check`-clean on all three files.
+
+**Browser-verified against real, already-active production usage** — no
+synthetic test harness needed for any of the three:
+- `leightbox`: 2 real instances already existed on the Dashboard
+  (`leightboxes` array, created by the pre-existing `leightbox_reload()`
+  bootstrap). Confirmed `leightboxes[0] instanceof leightbox` is `true`
+  (validates the prototype chain survived the conversion), then called
+  `.activate()`/`.deactivate()` directly and confirmed the overlay/content
+  `display` toggled correctly each way, zero console errors.
+- `Utils_CommonData`: this is what actually powers the Country/Zone
+  cascading dropdown on Contacts' New/Edit forms (`type=>'commondata'` in
+  `ContactsInstall.php`) — the same field pair `[[popup-calendar]]`-adjacent
+  testing had already exercised earlier this session for an unrelated
+  reason. Changed Country from the default to Poland on a live "New record"
+  form; the Zone dropdown correctly went from 52 US states to Poland's 17
+  voivodeships (properly translated), via a real `POST
+  modules/Utils/CommonData/update.php` → 200 → `on_request` → option-list
+  rebuild round-trip. `Utils_CommonData_freeze` (same file, same pattern,
+  not separately live-tested) has proportionally lower risk given how
+  thoroughly its sibling class in the same file was exercised.
+- `Utils_ChainedSelect`: powers PhoneCall's Customer→Phone field
+  (`Utils_ChainedSelectCommon::create(...)` in `PhoneCallCommon_0.php`).
+  Changed Customer to a real company on a live "New record" form; the Phone
+  dropdown correctly repopulated with that company's actual phone record
+  from the DB via a real `POST modules/Utils/ChainedSelect/req.php` → 200
+  round-trip. Zero console errors throughout both cascading-dropdown tests.
+
+### Step 4, remaining `$('id')`/`Element.*`/`Event.observe`/`.fire()` calls — done (2026-08-06)
+
+The big one — touched roughly 60 files. Re-verified file/usage counts fresh via
+grep rather than trusting step 1-3's numbers (as those sections themselves
+warned); the true remaining surface was smaller than feared once vendored
+trees (`modules/Libs/CKEditor/ckeditor/`, `modules/Libs/RoundCube/RC/`,
+`vendor/`, `libs/*` bundles, `modules/Utils/QueryBuilder/query-builder.standalone.js`,
+`modules/Tests/`) were excluded — those have their own bundled `$`/jQuery and
+were never in scope.
+
+**Custom-event fire/observe ordering (finding 2) applied throughout.** For
+every colon-namespaced event, all `fire()` sites were ported to
+`jQuery(el).trigger(name)` *before* any of that event's `observe()` sites were
+ported to `jQuery(el).on(name, fn)` — old-style `Event.observe()` listeners
+stay dual-compatible (they bridge into jQuery internally) until they're
+themselves ported, but a new `jQuery().on()` listener is deaf to an
+old-style `Event.fire()`. Full inventory (fire sites → observe sites) per
+event name, and every file that touches it:
+- `e:load` — 1 fire site (`include/epesi.js`'s `Epesi.request()`, was a
+  literal `Event.fire(document,'e:load')` inside the `complete` callback's
+  `Epesi.append_js(...)` string) → observe sites: `qf.js` (x2, both
+  `Utils_CommonData`/`Utils_CommonData_freeze` constructors), `cs.js` (x2),
+  `sk.js`, `leightbox.js`, `Codepress/CodepressCommon_0.php`,
+  `Libs/CKEditor/ck.js`, `QuickForm/FieldTypes/multiselect/multiselect.js`
+  (dropped its `typeof document.observe==='function'` guard — jQuery is
+  always loaded), `Base/Box/theme_adminltedark/default.tpl` (x2, same guard
+  drop).
+- `e:loading` — 2 fire sites (`epesi.js`'s `Epesi.request()` success
+  callback, `Utils/Attachment/attachments.js`) → observe sites:
+  `Utils/Calendar/calendar-jq.js`, `Libs/CKEditor/ck.js`.
+- `e:submit_form` — 1 fire site (`Libs/QuickForm/QuickForm_0.php`'s
+  `get_submit_form_js_by_name()`, the function behind *every* form-submit
+  button app-wide) → 1 observe site (`Libs/CKEditor/ck.js`). This pair needed
+  more than a syntax swap: Prototype's `Event.fire(el,name,memo)` passes
+  `memo` to the handler as `event.memo`; the ported
+  `jQuery(document).trigger('e:submit_form', formName)` instead passes
+  `formName` as the handler's *second* argument (`function(e, name){...}`)
+  since jQuery's `.trigger(type, extraParameters)` doesn't use `.memo`.
+  Ported both sides together as one change.
+- `e_cs:load`/`e_cs:clear` — fully self-contained inside `cs.js` (fire and
+  observe both in the same file) — no cross-file ordering risk, converted in
+  one pass.
+- `e_u_cd:load`/`e_u_cd:clear` — mostly self-contained in `qf.js`, **except**
+  `CRM/Contacts/ContactsCommon_0.php`'s "Paste Company Info" action button
+  also fires `e_u_cd:load` directly (`country.fire('e_u_cd:load')`, inside a
+  nested nested-quoted `setTimeout('...')` string) — both fire sites had to
+  ship together before `qf.js`'s observe side could be touched.
+- `native:change` (`Utils/Planner/Planner_0.php`) — **orphaned**: grepped the
+  entire codebase (including vendored trees) and found zero `fire`/`trigger`
+  call sites for this name, old or new style. Ported the listener anyway
+  (inert either way, so no ordering risk), but flagging in case this is
+  actually dead/vestigial code worth removing separately — not investigated
+  further, out of scope for a mechanical port.
+
+**`bindAsEventListener(context, ...extraArgs)` argument-order trap** — found
+in `Utils/PopupCalendar/datepicker.php` (the only 2 call sites anywhere with
+extra args beyond context; grepped for the pattern with a comma after the
+first arg first to confirm nothing else in the codebase — already-ported or
+not — had this shape). Prototype's `bindAsEventListener` invokes the handler
+as `(event, ...extraArgs)`; native `Function.prototype.bind(context,
+...extraArgs)` invokes it as `(...extraArgs, event)` — **reversed**. A naive
+`.bindAsEventListener(ctx, fmt)` → `.bind(ctx, fmt)` port would have silently
+swapped the arguments. Confirmed the target functions'
+actual signature (`datepicker.js`'s `validate: function(ev,f)` /
+`validate_blur: function(ev,f)`) expects `(event, format)`, matching
+Prototype's order — ported via an explicit wrapper
+(`function(e){Utils_PopupCalendarDatePicker.validate.call(ctx,e,fmt)}`)
+instead of `.bind()`, preserving the exact call order regardless of which
+native method would have been used. Every *other* `bindAsEventListener`
+conversion this session was single-argument (context only, no extras), where
+`.bind(ctx)` is a safe direct substitute — this trap only bites with extra
+bound arguments.
+
+**Shared `jQuery.fn.clonePosition` plugin, and a real naming-collision bug
+caught mid-port.** `Utils_Calendar/calendar-jq.js` already had its own
+IIFE-local `$.fn.clonePosition` (a full jQuery reimplementation of
+Prototype's `Element#clonePosition`, including its own `.offset()` setter
+override) predating this session, used only by that file's own calls — which
+use `cloneWidth`/`cloneHeight` option names. But `GenericBrowser/table_overflow.js`,
+`Utils_Calendar/theme/event_.js`, `TabbedBrowser/theme/default.js`,
+`PopupCalendarCommon_0.php`, `Utils/Calendar/CalendarCommon_0.php`,
+`Utils/CalendarBusyReport/CalendarBusyReportCommon_0.php`, and
+`Utils/PopupCalendar/datepicker.php` all called Prototype's *native*
+`Element#clonePosition`, whose real option names are `setWidth`/`setHeight`
+(confirmed against Prototype's actual source, not assumed). Added a global
+`jQuery.fn.clonePosition` fallback to `include/epesi.js` (loaded on every
+page; calendar-jq.js's own richer copy, loading after it on Calendar pages,
+simply overwrites this one there) — **first written using only
+`cloneWidth`/`cloneHeight`**, which would have silently ignored every
+`setWidth:false`/`setHeight:false` caller's intent (defaulting to `true`,
+cloning dimensions the original code explicitly asked NOT to clone) — caught
+before it shipped by tracing through `PopupCalendarCommon_0.php`'s own call.
+Fixed both the new global copy *and* calendar-jq.js's existing local copy to
+accept either naming convention (`'cloneWidth' in options ? ... :
+('setWidth' in options ? ... : true)`), so every pre-existing call site keeps
+working regardless of which Prototype-vs-plugin convention it was written
+against. Also caught: `TabbedBrowser/theme/default.js` and
+`PopupCalendarCommon_0.php`'s own `$pos_js` default were passing a bare id
+*string* as `clonePosition`'s first argument — Prototype's version
+resolves strings via its own `$()` internally, but the new plugin does
+`jQuery(element)`, which treats a bare string as a CSS selector, not an ID
+lookup — fixed by resolving to an element (`document.getElementById(...)`)
+before passing it in, everywhere this pattern appeared.
+
+**`.absolutize()`** (`PopupCalendarCommon_0.php`) — Prototype's version also
+preserves the element's current rendered top/left/width/height when
+switching it to `position:absolute`. Judged that preservation moot for this
+specific caller: the popup div stays `display:none` until the very same
+onclick handler both repositions it via `clonePosition()` and reveals it via
+`toggle()`, synchronously, so nothing is ever visible mid-transition. Ported
+to a direct `style.position="absolute"` (or `"fixed"` for old IE, unchanged)
+rather than reimplementing Prototype's offset-preservation math.
+
+**`.up(selector)`** (Prototype: nearest matching *ancestor*, search starts at
+the parent, excludes the element itself) → native `Element.prototype.closest()`
+(DOM4/modern-browser built-in, no jQuery needed; search is inclusive of the
+element itself). Used directly in `Base/Lang/Administrator/Administrator_0.php`
+(`.closest("td")`); via `jQuery(el).closest(sel)[0]` in
+`CRM/Contacts/ContactsCommon_0.php` and `Utils/RecordBrowser/RecordBrowser_0.php`
+(written before settling on the simpler native form — both are equally
+correct here since none of the starting elements could ever match their own
+ancestor selector, so the inclusive-self semantics never actually differ in
+these specific call sites; not worth churning back).
+
+**`.readAttribute()`/`.writeAttribute()`** → jQuery `.attr()` (matches this
+codebase's own established idiom for the same "last touch time" pattern,
+already used in `leightbox.js`'s touchstart/touchend handling) — NOT
+jQuery's `.data()`, which uses an internal cache rather than reflecting a
+real DOM attribute and would have been a silent behavior change.
+`Utils/Calendar/calendar-jq.js` and `Utils/CalendarBusyReport/calendar-jq.js`
+both had one touchend handler using this pattern.
+
+**`.serialize()`** on a Prototype-extended form element → `jQuery(el).serialize()`
+(same url-encoded output format, jQuery form serialization is a drop-in
+match). Call sites: `Utils/RecordBrowser/grid.js` (`grid_edit_form_name` is a
+bare JS variable holding a form id, not a literal — same treatment),
+`Libs/QuickForm/QuickForm_0.php` (`get_submit_form_js_by_name()`, the
+same central submit-button function as the `e:submit_form` entry above),
+`CRM/Followup/FollowupCommon_0.php`.
+
+**Prototype Array/Enumerable extensions found incidentally while porting
+DOM/event code in the same files** — not originally in this step's scope
+(step 4 as documented was `$()`/`Element.*`/`Event.*` only) but converted
+since they were sitting in the exact lines being touched: `.size()` →
+`.length` (`cs.js`'s `new Hash()`→`{}` conversion also dropped `.set(k,v)`
+for plain bracket assignment; `include/epesi.js`'s `js_loader`/`load_css`
+queue-management code, high blast radius — every `load_js()`/`load_css()`
+call in the app goes through it), `Object.isArray()` → native
+`Array.isArray()` (`cs.js`), `.first()` → `[0]`, `.without(x)` →
+`.filter(v=>v!==x)`, `.clear()` → `.length=0` (all three in `epesi.js`'s
+`js_loader`), `.childElements()` → `.children`, `.hasClassName()`/
+`.addClassName()` → `.classList.contains()`/`.add()`, `.visible()`/`.hide()`/
+`.show()` → direct `style.display` checks/assignment matching Prototype's
+own literal implementation (`!= 'none'` / `= 'none'` / `= ''` — NOT jQuery's
+`.show()`, which restores a computed default display type rather than empty
+string, a real behavioral difference) — all in
+`Base/EssClient/messages_hiding.js` and `Base/MainModuleIndicator/help.js`.
+`.down(selector)` → native `.querySelector(selector)` in
+`Base/Lang/Administrator/js/main.js`. Left `PeriodicalExecuter` (used by
+`Tools/SessionKeeper/sk.js`) and any remaining `Hash`/`Object.extend` calls
+elsewhere untouched — genuinely out of scope, not encountered inline with
+DOM/event code, catalogued here in case step 5 planning needs to sweep for
+them separately.
+
+**One pre-existing bug found and deliberately left alone**: `cs.js`'s
+`Utils_ChainedSelect.prototype.clear` references a bare `obj` that's never
+declared in that method's scope (unlike `request()`'s own properly-scoped
+local `obj`) — throws `ReferenceError` if ever invoked, meaning this method
+is dead code today regardless of Prototype/jQuery. Not a Prototype-removal
+concern (doesn't reference `Event`/`$`/any Prototype global — the bug is a
+plain JS scoping mistake that happens to also call a since-Prototype-only
+`.fire()`), so left byte-for-byte unconverted rather than "fixing" unrelated
+pre-existing breakage under cover of this migration.
+
+**Browser-verified (2026-08-06, via Playwright, `jtylek` session)**: full
+cold bootstrap (zero console errors, all 4 Dashboard leightbox instances
+present and `instanceof leightbox`), click-navigation between modules,
+Contacts' Country→Zone cascade (real `e_u_cd:load` round-trip, Poland → 17
+translated voivodeships, matches step 3's pre-step-4 result exactly),
+QuickForm submit on a real Tasks "New record" form (`get_submit_form_js_by_name`'s
+`document.getElementById(...).submited.value=1` + `Epesi.confirmLeave.freeze()`
++ `jQuery(...).serialize()` chain — hit real server-side field validation,
+not a crash, confirming the full AJAX round-trip works), the Tasks deadline
+popup calendar end-to-end (`absolutize`→`position:absolute`,
+`clonePosition` positioned it near the button with real computed
+`top`/`left`, `toggle()` showed it, clicked day 15, field populated
+`15/08/2026` from a real `up.php` response), and the Help tutorial widget
+(`Helper.menu()` opened the overlay, `suggestions.php`'s AJAX call populated
+real tutorial links, `hide_menu()` closed it again). Zero console errors
+across every test.
+
+### Step 5, drop prototype.js entirely — done (2026-08-06)
+
+Before touching the bootstrap wiring, swept for the general Prototype utility
+surface step 4 deliberately left out of scope (Hash, `.evalJSON()`,
+`PeriodicalExecuter`, `$H`/`$R`/`$A`/`$F`, `Selector.`, `Enumerable.`,
+`Class.create(`, `Ajax.Request`/`Ajax.Updater`) across the whole codebase,
+not just the trees step 4 swept. Found and ported 3 more real call sites that
+step 4's DOM/event-focused pass had no reason to touch:
+- `Utils/ChainedSelect/ChainedSelectCommon_0.php` — `var params = new
+  Hash();` + `.set(k,v)` (feeds `cs.js`'s `Utils_ChainedSelect` constructor
+  as its `params` argument) → `{}` + bracket assignment, same treatment as
+  `cs.js`'s own internal `Hash` from step 4.
+- `Utils/CommonData/qf.js` — both `Utils_CommonData`/`Utils_CommonData_freeze`
+  constructors did `cd.evalJSON()` → `JSON.parse(cd)`.
+- `Tools/SessionKeeper/sk.js` — `new PeriodicalExecuter(SessionKeeper.func,
+  SessionKeeper.interval)`, the only use of `PeriodicalExecuter` anywhere in
+  the codebase. Prototype's version took its frequency in *seconds* and
+  passed itself (carrying a `.stop()` method) into the callback as the sole
+  argument; replicated minimally with `setInterval(fn, interval*1000)` where
+  `fn` wraps the real callback and hands it `{stop: function(){clearInterval(...)}}`
+  — no general-purpose shim needed since there was exactly one call site.
+  Skipped Prototype's non-overlap ("`currentlyExecuting`") guard: `SessionKeeper.func`
+  is synchronous (fires AJAX calls but doesn't await them), so the guard would
+  never actually have blocked an overlapping tick in practice.
+
+Grepped again afterward for the same set of tokens plus a few more
+(`Object.extend`/`Object.toJSON`, `Try.these`, `Insertion.`, `Position.`,
+`$w(`, `.cumulativeOffset(`, `.pluck(`, `.gsub(`, `.camelize(`) — zero further
+hits outside vendored trees. **Deliberately did not** try to grep-enumerate
+Prototype's full Array/String/Number/Function prototype-extension surface
+(`.pluck`/`.include`/`.reject`/`.detect`/`.zip`/`.compact`/`.strip`/etc.) —
+too many of those names collide with legitimate native/custom code to
+regex for safely without a high false-positive rate. Relied on runtime
+verification instead (below) to catch anything a static sweep would have
+missed, on the theory that removing the library and exercising the app
+turns any real remaining dependency into an immediate, precisely-located
+console error.
+
+**Bootstrap changes**, `include/epesi.js`:
+- Removed `jQuery.noConflict();` — no longer needed since nothing claims `$`
+  first anymore; jQuery's own default load-time behavior (binding both
+  `jQuery` and `$` to itself) now applies untouched, so `$` is jQuery
+  everywhere, same as `jQuery`. All of Epesi's own code already stopped
+  using bare `$(...)` as of step 4, so this is a no-op for the app's own
+  code, but matters for any third-party snippet that assumes default jQuery
+  wiring.
+- Deleted the dead `Ajax.Responders.register({onCreate, onException})` block
+  (the `X-Client-ID` header injection it used to provide has been fully
+  superseded by the `jQuery.ajaxSetup({beforeSend})` shim since step 2; this
+  block hadn't done anything since the last `Ajax.Request` caller was ported).
+- Kept `jq = jQuery;` — used throughout the ported codebase as a shorthand,
+  has nothing to do with Prototype, no reason to remove it.
+
+**Load-order changes**:
+- `index.php`'s `$jses` array: dropped `'libs/prototype.js'` (was first in
+  the array). ScriptAculoUs was already gone from this array since step 1 —
+  step 5 turned out to just be the prototype.js + bootstrap-cleanup half of
+  the originally-planned step.
+- `modules/Base/MainModuleIndicator/help.php` — a second, independent script
+  loader found by grepping for `prototype.js` literally (not caught by the
+  `$jses` search since this file builds its own separate `Minify_Build`
+  array for a standalone popup page, outside `index.php`'s bootstrap
+  entirely). Loaded `libs/prototype.js` + its own `help.js`; since step 4
+  already made that `help.js` fully vanilla (no jQuery either), dropped
+  prototype.js from this array too with no replacement needed.
+- Grepped for `prototype\.js` and `src=.*prototype` across every
+  `.php`/`.tpl`/`.html` file to confirm no third loader existed (e.g. in
+  `update.php`/`check.php`/`setup.php`'s separate AdminLTE view paths) —
+  clean.
+
+**File deleted**: `libs/prototype.js` itself (`git rm`), only after the
+runtime verification below passed with it already absent from both load
+points — wanted a real "app still works with the file physically gone, not
+just unlinked" confirmation before removing it, in case some other loader
+was missed by the grep sweep.
+
+**Browser-verified (2026-08-06, via Playwright, `jtylek` session), with
+`libs/prototype.js` fully removed from both load points before, then also
+physically deleted from disk and re-tested fresh after**: confirmed
+`typeof window.Prototype === 'undefined'` and `window.$ === window.jQuery`
+(jQuery's own default binding, no manual shim needed); full cold bootstrap,
+zero console errors, all 4 leightbox instances present; click-navigation;
+Contacts' Country→Zone cascade (Poland → 17 voivodeships, real
+`update.php` round-trip, confirms the `JSON.parse(cd)` port); PhoneCall's
+Customer→Phone cascade (real customer → real DB phone numbers via
+`req.php`, confirms `ChainedSelectCommon_0.php`'s `Hash`→`{}` port);
+`table_overflow.js`'s `clonePosition` positioned a synthetic overflow
+tooltip correctly against a test `<td>` (confirms the shared
+`jQuery.fn.clonePosition` fallback in `epesi.js`, not calendar-jq.js's own
+copy, and specifically that its `setWidth`/`setHeight` option-name handling
+works on a non-Calendar page); leightbox activate/deactivate. The
+`SessionKeeper`/`PeriodicalExecuter` replacement got an unplanned but
+thorough real-world test: manually invoking `SessionKeeper.func()` with
+`time` already exhausted correctly called `.stop()` (`clearInterval`) *and*
+fired the real `logout.php` AJAX call, which correctly auto-eval'd
+`document.location='index.php'` (the exact regression fixed back in step 2)
+and logged the session out to the real login screen — logged back in
+(`jtylek`/`mikuma64`) and confirmed Dashboard re-rendered cleanly afterward.
+Zero console errors across every test in this pass.
+
+### Step 6, jQuery 1.11.3 → current — explicitly deferred (2026-08-06)
+
+User decision: leave this for now rather than continue immediately after
+step 5. Not a rejection, just a "not now" — revisit when there's appetite,
+don't pick it up unprompted. The actual goal of this whole migration
+(prototype.js gone) is already done; this stack was never blocking anything
+per `MIGRATION_NOTES.md` §9, and jQuery-migrate exists specifically to
+smooth over API changes whenever the upgrade does happen. Not investigated
+further this session.
 
 **Before relying on any file/count above**: this is a live, multi-session
 migration — re-verify with a fresh grep rather than trusting these numbers,

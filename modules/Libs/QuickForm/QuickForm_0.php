@@ -37,7 +37,7 @@ class Libs_QuickForm extends Module {
 		$this->qf = new HTML_QuickForm($form_name, 'post', $action, $target, array('onSubmit'=>$on_submit), true);
 		$this->qf->addElement('hidden', 'submited', 0);
 		$this->qf->setRequiredNote('<span class="required_note_star">*</span> <span class="required_note">'.__('denotes required field').'</span>');
-		eval_js_once("set_qf_sub0 = function(fn){var x=$(fn);if(x)x.submited.value=0}");
+		eval_js_once("set_qf_sub0 = function(fn){var x=document.getElementById(fn);if(x)x.submited.value=0}");
 		eval_js("set_qf_sub0('".addslashes($form_name)."')");
 		Base_ThemeCommon::load_css('Libs_QuickForm');
 	}
@@ -131,13 +131,13 @@ class Libs_QuickForm extends Module {
 		foreach ($form_name as $f) {
             $pre .= 'Epesi.confirmLeave.freeze(\''.addslashes($f).'\');';
             if ($submited) {
-				$pre .= "$('".addslashes($f)."').submited.value=1;";
+				$pre .= "document.getElementById('".addslashes($f)."').submited.value=1;";
 			}
-			$pre .= "Event.fire(document,'e:submit_form','".$f."');";
-			$pre .= str_replace('this',"$('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
+			$pre .= "jQuery(document).trigger('e:submit_form','".$f."');";
+			$pre .= str_replace('this',"document.getElementById('".addslashes($f)."')",Libs_QuickFormCommon::get_on_submit_actions());
 			if ($chj) $chj .= "+'&'+";
-			$chj .= "$('".addslashes($f)."').serialize()";
-			if ($submited) $post .= "$('".addslashes($f)."').submited.value=0;";
+			$chj .= "jQuery(document.getElementById('".addslashes($f)."')).serialize()";
+			if ($submited) $post .= "document.getElementById('".addslashes($f)."').submited.value=0;";
 		}
 		$s = $pre . Module::create_href_js_raw($chj.$fast, $indicator, $queue?'queue':'') . $post;
 		return $s;
@@ -165,13 +165,13 @@ class Libs_QuickForm extends Module {
 		switch($v['type']){
 			case 'select':
 				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
-				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+				$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;
 			case 'multiselect':
 				$elem = $this -> createElement('multiselect',$v['name'],$v['label'],$v['values'],$v['param']);
 				if (!is_array($v['default'])) $v['default'] = array($v['default']);
-				$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].'__from;'.
+				$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].'__from;'.
 				'ms_remove_all(\''.$v['name'].'\', \'__SEP__\');'.
 				$v['name'].'__default=[\''.implode('\',\'',$v['default']).'\'];'.
 				'for(i=0; i<e.length; i++) if('.$v['name'].'__default.indexOf(e.options[i].value)!=-1){e.options[i].selected=true;};'.
@@ -193,7 +193,7 @@ class Libs_QuickForm extends Module {
 				elseif (is_string($attr) && $attr !== '') $attr .= ' class="epesi-switch"';
 				else $attr = array('class'=>'epesi-switch');
 				$elem = $this -> createElement('checkbox',$v['name'],$v['label'],$v['values'],$attr);
-				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
+				$default_js .= 'document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].'.checked = '.($v['default']?1:0).';';
 				break;
 			
 			case 'html':
@@ -218,7 +218,7 @@ class Libs_QuickForm extends Module {
 			case 'hidden':
 			case 'textarea':
 				$elem = $this -> createElement($v['type'],$v['name'],$v['label'],$v['param']);
-				$default_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
+				$default_js .= 'document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 				break;
 						
 			case 'callback':
@@ -244,7 +244,7 @@ class Libs_QuickForm extends Module {
 					foreach($v['values'] as $k=>$x)
 						$radio[] = $this -> createElement('radio',$v['name'],null,$x,$k,$v['param']);
 					$this->addGroup($radio,null,$v['label']);
-					$default_js .= 'e = $(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
+					$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 					'for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==\''.$v['default'].'\')e[i].checked=true;};';
 					break;
 				case 'group':

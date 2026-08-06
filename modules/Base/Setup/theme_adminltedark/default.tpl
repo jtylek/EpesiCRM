@@ -101,7 +101,7 @@
 								{if !empty($action.buttons)}
 									<div class="epesi-setup-action-panel" id="hide_actions_{$name}__{$option}" style="display:none;">
 										{foreach from=$action.buttons item=button}
-											<div {$button.href} class="epesi-setup-subaction {$button.style}" onclick="Effect.Fade($('hide_actions_{$name}'), {literal}{duration:0.4}{/literal});">
+											<div {$button.href} class="epesi-setup-subaction {$button.style}" onclick="document.getElementById('hide_actions_{$name}').style.display='none';">
 												{$button.label}
 											</div>
 										{/foreach}

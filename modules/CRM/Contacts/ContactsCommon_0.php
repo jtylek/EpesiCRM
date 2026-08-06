@@ -639,12 +639,12 @@ class CRM_ContactsCommon extends ModuleCommon {
 					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
 					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-					eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
-							'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+					eval_js('jQuery(\'#last_name\').on(\'change\', update_create_company_name_field);'.
+							'jQuery(\'#first_name\').on(\'change\', update_create_company_name_field);'.
 							'function update_create_company_name_field() {'.
 								'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 							'}');
-					eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+					eval_js('document.getElementById("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
@@ -660,12 +660,12 @@ class CRM_ContactsCommon extends ModuleCommon {
                     'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
                     'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
                     'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
-                    'var country = $(\'country\');'.
+                    'var country = document.getElementById(\'country\');'.
                     'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
                     'country.selectedIndex = k;'.
-                    'country.fire(\'e_u_cd:load\');'.
+                    'jQuery(country).trigger(\'e_u_cd:load\');'.
                     'setTimeout(\''.
-                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
+                    'var zone = document.getElementById(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
                     'zone.selectedIndex = k;'.
                     '\',900);'.
                     'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
@@ -907,24 +907,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
 		else {
-			// .up("tr") is a leftover from when this template's rows were
-			// real <table> rows - RecordBrowser_0.php:1474 already made the
-			// equivalent switch to .up(".epesi-rv-row") (the div-based row
-			// wrapper theme/single_field.tpl/View_entry.tpl now use) when
-			// that table->div conversion happened; this call site was
-			// missed, and .up() returning undefined (Prototype, not null,
-			// for "no match") crashed every field toggle here.
+			// Walks up to the div-based row wrapper (theme/single_field.tpl/
+			// View_entry.tpl), matching RecordBrowser_0.php:1474's row lookup;
+			// closest() yields undefined via [0] when there's no match, same
+			// as it always has here - if(r) below depends on that.
 			eval_js('new_user_textfield = function(){'.
-					'var v=($("crm_contacts_select_user").value==""?"none":"");'.
-					'["username","set_password","confirm_password","_access__data","contact_admin"].each(function(id){'.
-					'var e=$(id);if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display=v;}'.
+					'var v=(document.getElementById("crm_contacts_select_user").value==""?"none":"");'.
+					'["username","set_password","confirm_password","_access__data","contact_admin"].forEach(function(id){'.
+					'var e=document.getElementById(id);if(e){var r=jQuery(e).closest(".epesi-rv-row")[0];if(r)r.style.display=v;}'.
 					'});'.
 					'}');
 			eval_js('new_user_textfield();');
-			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
+			eval_js('jQuery("#crm_contacts_select_user").on("change",function(){new_user_textfield();});');
 		}
 		if ($default)
-			eval_js('var e=$("_login__data");if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display="none";}');
+			eval_js('var e=document.getElementById("_login__data");if(e){var r=jQuery(e).closest(".epesi-rv-row")[0];if(r)r.style.display="none";}');
 	}
 
 	public static function check_new_username($arg) {

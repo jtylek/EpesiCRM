@@ -328,7 +328,7 @@
 			"document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});".
 			"window.addEventListener('resize',closeMenu);".
 			"try{ensureToggles();}catch(e){}".
-			"if(typeof document.observe==='function')document.observe('e:load',function(){try{closeMenu();ensureToggles();}catch(e){}});".
+			"jQuery(document).on('e:load',function(){try{closeMenu();ensureToggles();}catch(e){}});".
 		"})();"
 	);
 
@@ -632,7 +632,7 @@
 			// real metrics and corrects it without needing a window resize to
 			// accidentally trigger the same recovery.
 			"if(document.fonts&&document.fonts.ready)document.fonts.ready.then(epesiSizeGbActions);".
-			"if(typeof document.observe==='function')document.observe('e:load',epesiSizeGbActions);".
+			"jQuery(document).on('e:load',epesiSizeGbActions);".
 			"var epesiGbResizeTimer=null;".
 			"window.addEventListener('resize',function(){".
 				"if(epesiGbResizeTimer)clearTimeout(epesiGbResizeTimer);".

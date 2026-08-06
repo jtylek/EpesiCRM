@@ -1,5 +1,5 @@
 <div class="help">
-	<a {$href} onMouseOver="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="$('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';">
+	<a {$href} onMouseOver="document.getElementById('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help-hover.png';" onMouseOut="document.getElementById('help_icon').src='{$theme_dir}/Base/MainModuleIndicator/help.png';">
 		<img src="{$theme_dir}/Base/MainModuleIndicator/help.png" id="help_icon" alt="?" border="0"><div class="help_label">{$label}</div>
 	</a>
 </div>

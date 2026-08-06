@@ -1,5 +1,5 @@
 getelem = function(form,elem) {
-f=$(form);
+f=document.getElementById(form);
 if(f){
 e=f.elements[elem];
 }
@@ -31,7 +31,7 @@ for(i=0; i<e.length; i++){e[i].checked=false;if(e[i].value==value)e[i].checked=t
 }};
 
 seterror=function(err_id, error){
-t=$(err_id);
+t=document.getElementById(err_id);
 if(t) {
 if (error!="") t.innerHTML = error+"<br>";
 else t.innerHTML = error;

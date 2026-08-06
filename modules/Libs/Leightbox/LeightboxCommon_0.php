@@ -29,7 +29,7 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		// resize button is omitted). adminlte's CSS handles the "big" case
 		// itself via the big="1" attribute just printed above.
 		if ($big && !Base_ThemeCommon::is_adminlte_family()) {
-			eval_js('s = $(\''.$id.'\').style;'.
+			eval_js('s = document.getElementById(\''.$id.'\').style;'.
 			's.top = \'5%\';'.
 			's.left = \'5%\';'.
 			's.width = \'90%\';'.

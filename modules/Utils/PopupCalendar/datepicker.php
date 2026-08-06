@@ -38,14 +38,14 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
             if (!$this->getAttribute('placeholder'))
                 $this->setAttribute('placeholder', __('Click to select date'));
             $js = Utils_PopupCalendarCommon::create_href(md5($id),
-                    'new Ajax.Request(\'modules/Utils/PopupCalendar/up.php\','.
-                    '{method:\'post\', parameters:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__},'.
-                    'onSuccess:function(t){e=$(\''.Epesi::escapeJS($id,false).'\');if(e) {e.value=t.responseText;jq(e).change();}}})',
+                    'jQuery.ajax(\'modules/Utils/PopupCalendar/up.php\','.
+                    '{method:\'post\', data:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__}, dataType:\'text\','.
+                    'success:function(responseText){e=document.getElementById(\''.Epesi::escapeJS($id,false).'\');if(e) {e.value=responseText;jq(e).change();}}})',
                     null,null,
-                    'popup.clonePosition(\''.$id.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$id.'\').getHeight()})',$value, $id);
+                    'jQuery(popup).clonePosition(document.getElementById(\''.$id.'\'),{setWidth:false,setHeight:false,offsetTop:document.getElementById(\''.$id.'\').offsetHeight})',$value, $id);
             $str .= $this->_getTabs() . '<input ' . $js . ' ' . $this->_getAttrString($this->_attributes) . ' '.Utils_TooltipCommon::open_tag_attrs(__('Example date: %s',array($ex_date)), false ).' />';
-			eval_js('Event.observe(\''.$id.'\',\'keypress\',Utils_PopupCalendarDatePicker.validate.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
-			eval_js('Event.observe(\''.$id.'\',\'blur\',Utils_PopupCalendarDatePicker.validate_blur.bindAsEventListener(Utils_PopupCalendarDatePicker,\''.Epesi::escapeJS($date_format,false).'\'))');
+			eval_js('jQuery(document.getElementById(\''.$id.'\')).on(\'keypress\',function(e){Utils_PopupCalendarDatePicker.validate.call(Utils_PopupCalendarDatePicker,e,\''.Epesi::escapeJS($date_format,false).'\')})');
+			eval_js('jQuery(document.getElementById(\''.$id.'\')).on(\'blur\',function(e){Utils_PopupCalendarDatePicker.validate_blur.call(Utils_PopupCalendarDatePicker,e,\''.Epesi::escapeJS($date_format,false).'\')})');
 		}
 		return $str;
 	} //end func toHtml

@@ -69,7 +69,7 @@ foreach ($cleanFrames as $day=>$v) {
 	}
 }
 
-$js .= '$("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
+$js .= 'document.getElementById("grid_selected_frames").value="'.implode(';',$selected_frames).'";';
 
 $timeframe_string = '<div class="time_frames" style="display: grid; grid-template-columns: 90px repeat(3, 1fr);">';
 if (isset($_SESSION['client']['utils_planner']['date']))
@@ -92,7 +92,7 @@ do {
 
 $timeframe_string .= '</div>';
 
-$js .= '$("Utils_Planner__time_frames").innerHTML="'.Epesi::escapeJS($timeframe_string).'";';
+$js .= 'document.getElementById("Utils_Planner__time_frames").innerHTML="'.Epesi::escapeJS($timeframe_string).'";';
 
 $js .= Utils_PlannerCommon::timeframe_changed($selected_frames);
 

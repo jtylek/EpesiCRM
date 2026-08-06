@@ -3,17 +3,17 @@ automulti_remove_button_update = function (element) {
 	i = 0;
 	while (i!=list.options.length) {
 		if (list.options[i].selected) {
-			$("automulti_button_style_"+element).setAttribute("class","button enabled");
+			document.getElementById("automulti_button_style_"+element).setAttribute("class","button enabled");
 			break;
 		}
 		i++;
 	}
-	if (i==list.options.length) $("automulti_button_style_"+element).setAttribute("class","button disabled");
+	if (i==list.options.length) document.getElementById("automulti_button_style_"+element).setAttribute("class","button disabled");
 }
 
 automulti_remove_button_action = function (element, list_sep) {
 	list = document.getElementsByName(element+"__display")[0];
-	val_holder = $(element+'__var_holder');
+	val_holder = document.getElementById(element+'__var_holder');
 	i = 0;
 	val_holder.value = "";
 	while (i!=list.options.length) {
@@ -29,9 +29,9 @@ automulti_remove_button_action = function (element, list_sep) {
 }
 
 automulti_on_hide = function (element, list_sep) {
-	var new_value=$("__autocomplete_id_"+element+"__search").value.split('__');
+	var new_value=document.getElementById("__autocomplete_id_"+element+"__search").value.split('__');
 	if (new_value && typeof(new_value[1])!="undefined") {
-		$("__autocomplete_id_"+element+"__search").value="";
+		document.getElementById("__autocomplete_id_"+element+"__search").value="";
 		automulti_add_value(element, list_sep, new_value[0], new_value[1]);
 	}
 }
@@ -51,7 +51,7 @@ automulti_add_value = function (element, list_sep, value, label) {
 		list.options[i].value = value;
 		list.options[i].text = label;
 		if(typeof iphone != "undefined") list.options[i].selected = true;
-		val_holder = $(element+'__var_holder');
+		val_holder = document.getElementById(element+'__var_holder');
 		val_holder.value = val_holder.value + list_sep + value;
 	}
 }

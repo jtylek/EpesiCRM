@@ -168,8 +168,8 @@ class Base_ActionBar extends Module {
 			// exact failure Base_Box/theme_adminlte/default.tpl's own comment
 			// on these two ids already warned about without this file having
 			// been updated to match.
-			eval_js('if($("launchpad_button_section"))$("launchpad_button_section").style.display="";');
-			eval_js('if($("launchpad_button_section_spacing"))$("launchpad_button_section_spacing").style.display="";');
+			eval_js('if(document.getElementById("launchpad_button_section"))document.getElementById("launchpad_button_section").style.display="";');
+			eval_js('if(document.getElementById("launchpad_button_section_spacing"))document.getElementById("launchpad_button_section_spacing").style.display="";');
 		}
 	}
 

@@ -10,6 +10,15 @@ it was fixed, rather than leaving it lingering in "Open".
 
 ## Open
 
+- **2026-08-06 — jQuery 1.11.3 → current upgrade deferred.** Step 6 (stretch)
+  of the Prototype removal plan (`AI-shared/legacy-js-migration.md`) — steps
+  1-5 are done as of 2026-08-06 (prototype.js and script.aculo.us fully
+  removed from the codebase). Upgrading the still-bundled jQuery
+  1.11.3/jquery-migrate-1.2.1/jquery-ui-1.10.1 is a separate, smaller-blast-
+  radius cleanup that was never blocking anything (`MIGRATION_NOTES.md` §9).
+  Explicit user decision to leave it for now rather than continue immediately
+  — not investigated further, revisit when there's appetite for it.
+
 - **2026-08-05 — Mobile multiselect checklist doesn't degrade for large option
   counts.** `modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.js`'s
   `epesi_ms_build_checklist()` (paired with `.epesi-ms-checklist` in

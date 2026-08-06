@@ -5,10 +5,10 @@
 // tracking) are identical to the classic version - only the generated header/grid markup
 // changed, from the old <table class="menu">/blue-GIF chrome to Bootstrap toolbar buttons
 // and bootstrap-icons chevrons, and (as of the div-only pass) the day/month grid itself,
-// from <table>/<tr>/<td> to CSS Grid - see AI-shared/adminlte-theme.md. Still relies on
-// Prototype's $() for innerHTML assignment and on PopupCalendarCommon_0.php's
-// Prototype-based show/hide/position wiring, both of which stay in place for this theme
-// too - see that file's create_href().
+// from <table>/<tr>/<td> to CSS Grid - see AI-shared/adminlte-theme.md. Uses
+// document.getElementById()/jQuery for innerHTML assignment and, like
+// PopupCalendarCommon_0.php's show/hide/position wiring, is jQuery-based -
+// see that file's create_href().
 var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_week, month_names, day_names) {
 		this.monthName = month_names;
 		this.link_proto = link_proto;
@@ -43,7 +43,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			html += '<button type="button" class="btn btn-sm btn-light border-0 px-2" onClick="'+prev_onclick+'"><i class="bi bi-chevron-left"></i></button>';
 			html += label_html;
 			html += '<button type="button" class="btn btn-sm btn-light border-0 px-2" onClick="'+next_onclick+'"><i class="bi bi-chevron-right"></i></button>';
-			html += '<button type="button" class="btn-close ms-1" aria-label="Close" onClick="$(\'datepicker_'+this.instance_id+'_calendar\').toggle()"></button>';
+			html += '<button type="button" class="btn-close ms-1" aria-label="Close" onClick="jQuery(document.getElementById(\'datepicker_'+this.instance_id+'_calendar\')).toggle()"></button>';
 			html += '</div>';
 			return html;
 		}
@@ -92,7 +92,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 				label,
 				'datepicker_'+this.instance_id+'.show_month(\''+next_year+'\', \''+next_month+'\')'
 			);
-			$('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
+			document.getElementById('datepicker_'+this.instance_id+'_header').innerHTML = header_string;
 
 			// filling month
 			Calendar.setDate(1);
@@ -144,7 +144,7 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			}
 			cal += '</div>';
 			// and final solution
-			$('datepicker_'+this.instance_id+'_view').innerHTML = cal;
+			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 
 		//show a year

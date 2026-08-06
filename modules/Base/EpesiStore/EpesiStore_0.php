@@ -432,7 +432,7 @@ class Base_EpesiStore extends Module {
             $str .= '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
         }
         print($str);
-        eval_js('$("' . $hash_or_url . '").submit();');
+        eval_js('document.getElementById("' . $hash_or_url . '").submit();');
     }
 
     public function process_downloading() {

@@ -163,7 +163,7 @@
 		<div id="body_content">
 			<div id="main_content" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
-				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
+				<div class="button" onclick="document.getElementById('error_box').innerHTML='';document.getElementById('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>

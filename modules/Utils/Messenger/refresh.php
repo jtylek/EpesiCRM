@@ -32,7 +32,7 @@ foreach($arr as $row) {
 	ob_clean();
 
 	$msg = __('Alert on: %s',array(Base_RegionalSettingsCommon::time2reg($row['alert_on'])))."\n".$ret."\n".($row['message']?__('Alarm comment: %s',array($row['message'])):'')."\n\n".__('Are you sure you want to turn off the alarm?');
-	$action = 'new Ajax.Request(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',parameters:{id:'.$row['id'].'}});';
+	$action = 'jQuery.ajax(\'modules/Utils/Messenger/turnoff.php\',{method:\'get\',data:{id:'.$row['id'].'}});';
 	print(Module::wrap_confirm_js($msg, $action));
 }
 

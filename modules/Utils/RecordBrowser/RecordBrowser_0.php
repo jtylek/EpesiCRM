@@ -1237,7 +1237,7 @@ class Utils_RecordBrowser extends Module {
                 $translated_label = _V($label);
                 $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, _V($label)), $js); // TRSL
 				if ($hide_page) {
-					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
+					eval_js('document.getElementById("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
 				} else
 					$additional_tabs++;
@@ -1471,7 +1471,7 @@ class Utils_RecordBrowser extends Module {
             }
             // is set then hide empty fields that are not checkboxes
 			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
-				eval_js('var e=$("_'.$desc['id'].'__data");if(e){var r=e.up(".epesi-rv-row");if(r)r.style.display="none";}');
+				eval_js('var e=document.getElementById("_'.$desc['id'].'__data");if(e){var r=e.closest(".epesi-rv-row");if(r)r.style.display="none";}');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL
@@ -2436,11 +2436,11 @@ class Utils_RecordBrowser extends Module {
         $gb_cha = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab.'__changes');
 		$form = $this->init_module('Libs_QuickForm');
 
-        $table_columns_changes = array( array('name'=>__('Date'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Username'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Field'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Old value'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('New value'), 'width'=>10, 'wrapmode'=>'nowrap'));
+        $table_columns_changes = array( array('name'=>__('Date'), 'width'=>15, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Username'), 'width'=>15, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Field'), 'width'=>20, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Old value'), 'width'=>30, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('New value'), 'width'=>30, 'wrapmode'=>'nowrap'));
 
         $gb_cha->set_table_columns( $table_columns_changes );
 
@@ -2455,6 +2455,7 @@ class Utils_RecordBrowser extends Module {
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
 		$dates_select = array();
+		$dates_meta = array();
 		$tb_path = escapeJS($tb->get_path());
         while ($row = $ret->FetchRow()) {
 			$user = Base_UserCommon::get_user_label($row['edited_by']);
@@ -2466,6 +2467,7 @@ class Utils_RecordBrowser extends Module {
                 $changed[$row2['field']] = $row2['old_value'];
                 $last_row = $row2;
                 $dates_select[$row['edited_on']] = $date_and_time;
+                $dates_meta[$row['edited_on']] = array('user'=>$row['edited_by']!==null?$user:'', 'created'=>false);
             }
             $first_in_group = true;
             foreach($changed as $k=>$v) {
@@ -2499,6 +2501,7 @@ class Utils_RecordBrowser extends Module {
         }
 
 		$gb_row = $gb_cha->get_new_row();
+		$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$created['created_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
 		$gb_row->add_data(
 			Base_RegionalSettingsCommon::time2reg($created['created_on']),
 			$created['created_by']!==null?Base_UserCommon::get_user_label($created['created_by']):'',
@@ -2515,13 +2518,35 @@ class Utils_RecordBrowser extends Module {
 
 		$tb->start_tab(__('Record historical view'));
 		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
+		$dates_meta[$created['created_on']] = array('user'=>$created['created_by']!==null?Base_UserCommon::get_user_label($created['created_by']):'', 'created'=>true);
 		foreach($this->table_rows as $field => $desc) {
 			if (!$access[$desc['id']]) continue;
 			$val = $this->get_val($field, $created, false, $desc);
         }
-		$form->addElement('select', 'historical_view_pick_date', __('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
-		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
+		$dates_keys = array_keys($dates_select);
+		$default_index = array_search($created['created_on'], $dates_keys);
+		load_js('modules/Libs/QuickForm/select.js');
+		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
+		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || $default_index>=count($dates_keys)-1) $prev_attrs['disabled'] = 1;
+		$prev_button = $form->createElement('button', 'historical_view_prev', __('Previous'), $prev_attrs);
+		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || $default_index<=0) $next_attrs['disabled'] = 1;
+		$next_button = $form->createElement('button', 'historical_view_next', __('Next'), $next_attrs);
+		$play_attrs = array('id'=>'historical_view_play_button', 'class'=>'btn btn-secondary', 'data-play-label'=>__('Play'), 'data-pause-label'=>__('Pause'), 'onclick'=>'recordbrowser_edit_history_toggle_play("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || count($dates_keys)<2 || $default_index<=0) $play_attrs['disabled'] = 1;
+		$play_button = $form->createElement('button', 'historical_view_play', __('Play'), $play_attrs);
+		$interval_select = $form->createElement('select', 'historical_view_play_interval', '', array(1=>'1s', 3=>'3s', 5=>'5s', 10=>'10s'), array('id'=>'historical_view_play_interval', 'onChange'=>'recordbrowser_edit_history_interval_changed("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")'));
+		$label_static = $form->createElement('static', 'historical_view_label', '', __('View the record as of'));
+		$indicator_html = '<span id="historical_view_indicators" data-by-label="'.htmlspecialchars(__('Edited by')).'">'
+			.'<span id="historical_view_created_badge" style="display:none;font-weight:bold;color:#28a745;">'.__('Record Created').'</span> '
+			.'<span id="historical_view_username_indicator"></span>'
+			.'</span>';
+		$indicator_static = $form->createElement('static', 'historical_view_indicator', '', $indicator_html);
+		$form->addGroup(array($label_static, $select, $indicator_static, $prev_button, $next_button, $play_button, $interval_select), 'historical_view_group', '');
+		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'], 'historical_view_play_interval'=>1)));
 		$form->display();
+		eval_js('recordbrowser_edit_history_meta='.json_encode($dates_meta).';recordbrowser_edit_history_update_buttons();');
 		$this->view_entry('history', $created);
 		$tb->end_tab();
 
@@ -2694,7 +2719,7 @@ class Utils_RecordBrowser extends Module {
 
     public function enable_quick_new_records($button = true, $force_show = null) {
         $this->add_in_table = true;
-		$href = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
+		$href = 'href="javascript:void(0);" onclick="document.getElementById(\'add_in_table_row\').style.display=(document.getElementById(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if(document.getElementById(focus_on_field))focus_by_id(focus_on_field);"';
         if ($button) $this->add_button = $href;
         if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
         else $this->show_add_in_table = $force_show;

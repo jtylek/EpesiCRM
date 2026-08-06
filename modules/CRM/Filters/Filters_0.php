@@ -19,19 +19,19 @@ class CRM_Filters extends Module {
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
 		$th->assign('my','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'my').' id="crm_filters_my">'.__('My records').'</a>');
-		eval_js('Event.observe(\'crm_filters_my\',\'click\', crm_filters_deactivate)');
+		eval_js('jQuery(document.getElementById(\'crm_filters_my\')).on(\'click\', crm_filters_deactivate)');
 
 		/*$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');*/
 
 		$th->assign('manage','<a '.$this->create_callback_href($this->manage_filters(...)).' id="crm_filters_manage">'.__('Manage presets').'</a>');
-		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
+		eval_js('jQuery(document.getElementById(\'crm_filters_manage\')).on(\'click\', crm_filters_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
 			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
-			eval_js('Event.observe(\'crm_filters_'.$row['id'].'\',\'click\', crm_filters_deactivate)');
+			eval_js('jQuery(document.getElementById(\'crm_filters_'.$row['id'].'\')).on(\'click\', crm_filters_deactivate)');
 		}
 		$th->assign('filters',$filters);
 

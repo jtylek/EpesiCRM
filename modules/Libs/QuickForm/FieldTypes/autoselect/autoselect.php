@@ -88,7 +88,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 
             $myName = $this->getName();
 			$this->updateAttributes(array('id'=>$myName));
-			eval_js('Event.observe("'.$myName.'", "keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
+			eval_js('jQuery(document.getElementById("'.$myName.'")).on("keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
             if (!$this->getMultiple()) {
                 $attrString = $this->_getAttrString($this->_attributes);
             } else {
@@ -119,7 +119,7 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
 			$search = new HTML_QuickForm_autocomplete($myName.'__search','', array('HTML_QuickForm_autoselect','get_autocomplete_suggestbox'), array($this->more_opts_callback, $this->more_opts_args, $this->more_opts_format), $text_attrs);
 			$search->on_hide_js('autoselect_on_hide("'.$myName.'",'.($mode?'1':'0').');'.$this->on_hide_js_code);
 
-			if ($mode==0) eval_js('Event.observe("'.$myName.'","change",function(){if($("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
+			if ($mode==0) eval_js('jQuery(document.getElementById("'.$myName.'")).on("change",function(){if(document.getElementById("'.$myName.'").value=="")autoselect_start_searching("'.$myName.'");});');
 			
 			if (isset($val[0]) && $val[0]!='')
 				$mode=1;

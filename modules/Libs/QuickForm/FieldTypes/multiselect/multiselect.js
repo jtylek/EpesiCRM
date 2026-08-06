@@ -203,8 +203,6 @@ if (document.readyState === 'loading') {
 } else {
 	epesi_ms_init_checklists();
 }
-if (typeof document.observe === 'function') {
-	document.observe('e:load', function() {
-		try { epesi_ms_init_checklists(); } catch (e) {}
-	});
-}
+jQuery(document).on('e:load', function() {
+	try { epesi_ms_init_checklists(); } catch (e) {}
+});

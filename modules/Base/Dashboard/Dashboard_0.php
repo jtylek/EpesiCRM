@@ -141,7 +141,7 @@ class Base_Dashboard extends Module {
 			print('</div>');
 			print('</div>');
 			print('</td></tr></table>');
-			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
+			eval_js('var dim={height:document.documentElement.clientHeight};var dct=document.getElementById("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}

@@ -551,7 +551,7 @@ class Apps_Shoutbox extends Module {
 				//get logged user id
 				$user_id = Base_AclCommon::get_user();
 				//clear text box and focus it
-				eval_js('$(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
+				eval_js('document.getElementById(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
 
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
@@ -566,8 +566,8 @@ class Apps_Shoutbox extends Module {
    		$theme->display('chat_form'.($big?'_big':''));
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
-		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!$(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
-			'new Ajax.Updater(\'shoutbox_board'.($big?'_big':'').'\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', parameters: { uid: shoutbox_uid }});'.
+		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!document.getElementById(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
+			'jQuery(\'#shoutbox_board'.($big?'_big':'').'\').load(\'modules/Apps/Shoutbox/refresh.php?uid=\'+encodeURIComponent(shoutbox_uid));'.
 			'};setInterval(\'shoutbox_refresh'.($big?'_big':'').'()\','.($big?'10000':'30000').')');
 		eval_js('shoutbox_refresh'.($big?'_big':'').'()');
 	}

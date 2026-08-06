@@ -442,7 +442,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             // next); wrapping each pair as a single flex item keeps a label
             // glued to its own input no matter where the row wraps.
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'class'=>'epesi-switch','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;if(this.checked)$("note_crypted_details").show();else $("note_crypted_details").hide();'));
+            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'class'=>'epesi-switch','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;if(this.checked)document.getElementById("note_crypted_details").style.display="";else document.getElementById("note_crypted_details").style.display="none";'));
             $elems[] = $form->createElement('static','note_crypted_details_open','','<div id="note_crypted_details" class="epesi-attachment-crypted-details">');
             $elems[] = $form->createElement('static','note_password_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Password').':</span>');
             $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
@@ -468,7 +468,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
                 $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;$("note_crypted_details").hide();');
+            if(!$crypted) eval_js('document.getElementById("note_password").disabled=1;document.getElementById("note_password2").disabled=1;document.getElementById("note_password_hint").disabled=1;document.getElementById("note_crypted_details").style.display="none";');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }
