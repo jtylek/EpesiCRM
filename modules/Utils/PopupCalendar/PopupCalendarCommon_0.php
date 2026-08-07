@@ -81,7 +81,13 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		// mid-transition.
 		eval_js('if(Epesi.ie)document.getElementById(\''.$entry.'\').style.position="fixed";else document.getElementById(\''.$entry.'\').style.position="absolute";');
 
-		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');'.$pos_js.';jQuery(popup).toggle()" href="javascript:void(0)" id="'.$butt.'"';
+		// clonePosition() above only clones the trigger's own position, with no
+		// awareness of the viewport's edges - clampToViewport() (main2.js, both
+		// themes) nudges the now-visible popup back on-screen if it renders past
+		// the right edge of the window (e.g. a field anchored in a narrow/right-
+		// hand column). Only run once toggle() has actually shown the popup, not
+		// when the same click is hiding an already-open one.
+		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');'.$pos_js.';jQuery(popup).toggle();if(jQuery(popup).is(\':visible\'))Utils_PopupCalendar.clampToViewport(popup);" href="javascript:void(0)" id="'.$butt.'"';
 		$function .= ';jQuery(document.getElementById(\''.$entry.'\')).hide()';
 
 		if ($default) {

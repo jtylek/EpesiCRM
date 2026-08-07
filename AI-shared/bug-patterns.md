@@ -608,3 +608,56 @@ to embed it) is the actual permanent fix, not a workaround to avoid. A second
 module hitting the same-shaped bug is confirmation to escalate the fix's
 scope, not to write one more container-specific patch.
 
+## `Utils_PopupCalendar` rendering off-screen: `clonePosition()` has no viewport awareness, and the popup wrapper can't be measured directly
+
+Found 2026-08-07 on Tasks' "Deadline" date field (`Utils/PopupCalendar/
+datepicker.php`) - clicking a date field near the right edge of a narrow
+container (a two-column AdminLTE edit form) opened the calendar mostly
+off-screen to the right, forcing horizontal page scroll to see it.
+
+**Root cause, part 1**: `PopupCalendarCommon_0.php::create_href()` positions
+the popup purely by cloning the trigger element's own position
+(`jQuery(popup).clonePosition(triggerEl, {offsetTop: triggerEl.offsetHeight})`
+- see `include/epesi.js`'s `jQuery.fn.clonePosition`, a faithful port of
+Prototype's `Element#clonePosition`). Prototype's original never did viewport
+clamping either, so this isn't a migration regression - just a pre-existing
+gap in a widget nobody had opened this close to a viewport edge before.
+
+**Root cause, part 2 (the part that makes a simple clamp non-trivial)**: the
+popup wrapper `create_href()` renders is deliberately `style="width:1px"`
+(`#datepicker_<name>_calendar`), and both themes' actual visible chrome is a
+**child** of that wrapper with its own explicit width -
+`theme_adminltedark/default.tpl`'s `.utils-popupcalendar-card` (240px) or the
+classic theme's `theme/default.tpl` `.layer` div (220px, plus a `margin-left:
+-70px`). A block child with an explicit width isn't width-clipped by a
+too-narrow parent - it just overflows the parent's box - so the parent
+(`popup`) itself still measures `offsetWidth`/`getBoundingClientRect().width`
+≈ 1px. Any overflow-detection code that measures `popup` directly (the
+obvious first instinct) silently never fires, because the number it's
+comparing against isn't the real rendered size.
+
+**Fix**: added `Utils_PopupCalendar.clampToViewport(popup)` (duplicated in
+both `js/main2.js` and `theme_adminltedark/main2.js`, matching this file's
+existing "identical API, different markup" convention) that measures
+`popup.firstElementChild`'s `getBoundingClientRect()` - the actual card/layer,
+not the wrapper - and if its right edge is past `window.innerWidth`, shifts
+`popup`'s own `left` (which the child inherits its position from, being
+normal in-flow content) leftward by the overflow amount. Wired into
+`create_href()`'s shared `onClick` handler, after `toggle()`, guarded by
+`jQuery(popup).is(':visible')` so it only runs when the click just *opened*
+the popup, not when it closed one.
+
+**How to apply**: (1) any future geometry check on this widget must measure
+`popup.firstElementChild`, never `popup` itself - the 1px wrapper width is
+deliberate (unclear original purpose, but both themes depend on child-only
+sizing) and will silently defeat naive `offsetWidth`-based logic again. (2)
+This fix only covers `create_href()`'s own popup (used by both `datepicker`/
+`timestamp` QuickForm fields and any direct `Utils_PopupCalendarCommon::show()`/
+`create_href()` caller). Other `clonePosition()` consumers - `Utils_Calendar`/
+`Utils_CalendarBusyReport`'s "move event" popups, `GenericBrowser/
+table_overflow.js`, `TabbedBrowser/theme/default.js` - share the same
+no-viewport-awareness gap in the underlying primitive and were deliberately
+left alone here (different popups, not reported broken); if one of them turns
+up the same off-screen symptom, that's confirmation to lift `clampToViewport`
+into a shared helper rather than re-deriving it a third time.
+

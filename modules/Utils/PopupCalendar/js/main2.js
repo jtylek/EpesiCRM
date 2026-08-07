@@ -268,3 +268,14 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 	}
+
+// Keeps the popup within the viewport horizontally - see the identical
+// method in theme_adminltedark/main2.js for the full explanation. This
+// theme's real footprint is its only child, the .layer div (fixed 220px,
+// see theme/default.tpl), not the outer 1px-wide popup wrapper itself.
+Utils_PopupCalendar.clampToViewport = function(popup) {
+	var content = popup.firstElementChild;
+	if (!content) return;
+	var overflow = content.getBoundingClientRect().right - (window.innerWidth || document.documentElement.clientWidth);
+	if (overflow > 0) jQuery(popup).css('left', '-=' + (overflow + 8));
+}

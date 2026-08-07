@@ -284,3 +284,19 @@ var Utils_PopupCalendar = function(link_proto, instance_id, mode,first_day_of_we
 			document.getElementById('datepicker_'+this.instance_id+'_view').innerHTML = cal;
 		}
 	}
+
+// Keeps the popup within the viewport horizontally. clonePosition() (see
+// include/epesi.js), called by PopupCalendarCommon_0.php's create_href()
+// before this runs, only clones the trigger element's own position - it has
+// no awareness of the viewport's right edge, so a trigger anchored near the
+// right side of a narrow container (e.g. a two-column edit form) renders the
+// calendar partially or fully off-screen. The outer popup div itself can't
+// be measured directly - create_href() deliberately renders it at
+// style="width:1px", so its real footprint comes from its only child, this
+// theme's .utils-popupcalendar-card (fixed 240px, see default.css).
+Utils_PopupCalendar.clampToViewport = function(popup) {
+	var content = popup.firstElementChild;
+	if (!content) return;
+	var overflow = content.getBoundingClientRect().right - (window.innerWidth || document.documentElement.clientWidth);
+	if (overflow > 0) jQuery(popup).css('left', '-=' + (overflow + 8));
+}
