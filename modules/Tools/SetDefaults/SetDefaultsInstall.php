@@ -25,6 +25,34 @@ class Tools_SetDefaultsInstall extends ModuleInstall {
         Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), 'b34db58caa3e6a8b933deca655640047_d', '1');
         Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), 'b34db58caa3e6a8b933deca655640047_l', '1');
 
+        // Every Quick Access item defaults to on (see Base_Menu_QuickAccessCommon::
+        // user_settings() - 'default'=>1 for both the Dashboard/ActionBar and
+        // Launchpad columns) for both new users, so a curated "limited by
+        // default" set needs the unwanted items switched off explicitly rather
+        // than the wanted ones switched on. Matched by label (not name/hash)
+        // since the hash is an md5() of each module's own, undocumented raw
+        // menu key - the label is the only stable, inspectable identifier
+        // available without running the app. Inlined here rather than in a
+        // Tools_SetDefaultsCommon helper: ModuleManager only registers a
+        // module (making its *Common class autoloadable) after install()
+        // returns, so this module can't call its own Common class from
+        // within its own install().
+        $keep_enabled_labels = array(
+            'CRM: Calendar',
+            'CRM: Companies',
+            'CRM: Contacts',
+            'CRM: Meetings',
+            'CRM: Phonecalls',
+            'CRM: Tasks',
+            'Dashboard',
+            'E-mail',
+        );
+        foreach (Base_Menu_QuickAccessCommon::get_options() as $opt) {
+            if (in_array($opt['label'], $keep_enabled_labels, true)) continue;
+            Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), $opt['name'] . '_d', '0');
+            Base_User_SettingsCommon::save_admin(Base_Menu_QuickAccessInstall::module_name(), $opt['name'] . '_l', '0');
+        }
+
 		// default applets
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(1,'Applets_Clock',2,0,1,1));
 		DB::Execute('INSERT INTO base_dashboard_default_applets (id, module_name, col, pos, color, tab) VALUES (%d, %s, %d, %d, %d, %d)', array(2,'CRM_Tasks',1,0,6,1));
