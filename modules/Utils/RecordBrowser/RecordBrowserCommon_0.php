@@ -1517,7 +1517,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $v = self::encode_multi($filestorageIds);
                 $old = self::encode_multi($old);
             } else {
-                if ($record[$desc['id']]===$values[$desc['id']]) continue;
+                if ((string)$record[$desc['id']]===(string)$values[$desc['id']]) continue;
                 $v = $values[$desc['id']];
                 $old = $record[$desc['id']];
             }

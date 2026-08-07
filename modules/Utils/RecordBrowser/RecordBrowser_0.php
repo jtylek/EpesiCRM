@@ -2543,7 +2543,7 @@ class Utils_RecordBrowser extends Module {
 			.'<span id="historical_view_username_indicator"></span>'
 			.'</span>';
 		$indicator_static = $form->createElement('static', 'historical_view_indicator', '', $indicator_html);
-		$form->addGroup(array($label_static, $select, $indicator_static, $prev_button, $next_button, $play_button, $interval_select), 'historical_view_group', '');
+		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $play_button, $interval_select, $indicator_static), 'historical_view_group', '');
 		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'], 'historical_view_play_interval'=>1)));
 		$form->display();
 		eval_js('recordbrowser_edit_history_meta='.json_encode($dates_meta).';recordbrowser_edit_history_update_buttons();');

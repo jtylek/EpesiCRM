@@ -525,6 +525,38 @@ border-radius fight (`View_entry.css`'s own `.data input:focus{border-radius:
 now-dead width/height/background/border declarations from both the dark and
 light-mode copies.
 
+## RecordBrowser edit history logging a field as "changed" on every save, even when untouched
+
+Found 2026-08-07 on a `contact` record's "Company Name" field (`crm_company`
+type, backed by an `int(11)` column) - Changes History/Record historical view
+showed a `company_name` row on *every* edit of the record, old value and new
+value both rendering as the same company, even when the edit only touched
+unrelated fields (Home Phone, Country/Zone, Title, Group, ...).
+
+**Root cause**: `Utils_RecordBrowserCommon::update_record()`'s diff detection
+(the generic, non-multiselect/non-file branch) compared the DB-fetched record
+value against the freshly submitted form value with strict `===`. Confirmed
+via a debug script that `get_record()` returns this field as a native PHP
+`int` (`int(2)`) for its `int(11)` column, while `$form->exportValues()`
+always yields `string` (`"2"`) - `2 === "2"` is `false`, so the field reads as
+"changed" unconditionally, regardless of whether the selection actually
+changed. Plain-text (`varchar`) fields never showed this because both sides
+are already strings there; only int-backed fields (recordpicker-style
+`select`/`crm_company`/`crm_contact` link fields, `type=>'integer'` fields
+like `login`) are exposed to it, and only when they're *not* falsy on the
+"stayed the same" round trip already caught elsewhere (checkbox fields are
+already explicitly normalized to `0`/`1` a few lines above this branch).
+
+**Fix**: cast both sides to `(string)` before comparing
+(`RecordBrowserCommon_0.php`, `update_record()`) rather than relying on the
+DB driver and form layer to agree on a PHP type.
+
+**How to apply**: any future "did this field actually change" comparison
+between a `get_record()`-shaped raw value and a `$form->exportValues()`-shaped
+submitted value should compare as strings (or otherwise normalize types)
+rather than using `===`/`!==` directly - the two sources aren't guaranteed to
+agree on int-vs-string for numeric-backed columns.
+
 **Bug 2 (timestamp fields)**: `Libs_QuickForm`'s legacy `theme/default.css` has
 a documented "§26" fix (flex layout on `.data.timestamp > div`, `order:-1` to
 put the date first, `select[name$="[h/H/i/a]"]{display:inline-block;width:
