@@ -83,8 +83,8 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process($this->submit_admin(...))) {
 			Base_StatusBarCommon::message(__('Settings saved'));
 		}
-		$form->display();					
-		
+		$form->display_as_column();
+
 	}
 	
 	public function test_mail_config($email) {

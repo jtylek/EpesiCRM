@@ -389,6 +389,18 @@ there. Patch bodies typically call `PatchUtil::db_add_column()`/
 straight `DB::Execute()`. Scaffold with `console.php dev:module:patch <module>
 "<title>"`.
 
+**While a module is still being actively developed and hasn't shipped
+anywhere else, don't write a patch for every schema/field change** — just
+edit `install()`/`uninstall()` directly and uninstall+reinstall the module
+through Setup/Epesi Store to pick up the change. Patches exist to carry a
+fix to installs that already ran the old `install()` and can't be
+uninstalled/reinstalled without losing real data; a module with no such
+installs yet has nothing to carry a patch *to*. Writing patches during this
+phase just means maintaining two places (the patch *and* `install()`, since
+a fresh install still needs the current `install()` to reflect the final
+shape) for no real benefit. Switch to patches once the module is genuinely
+live somewhere and reinstalling would mean losing real records.
+
 ## 9. Translations
 
 ```php
@@ -502,6 +514,16 @@ real `QFfield_<type>()` method building its form widget and an entry in
 | `hidden` | `param` as a raw SQL type fragment, or no column if `param` is empty | hidden input | for module-managed values the user never edits directly — set via a processing callback (§11.5) |
 | `calculated` | same as `hidden` | read-only static text | give it a real (if unused) column so `get_val()`'s `array_key_exists` check passes, then drive its displayed value entirely from a `display_callback` reading *other* fields in the record |
 | `page_split` | none (pseudo-type) | tab/page divider | never holds data; purely organizes the edit form into pages |
+
+**Don't add a `page_split` speculatively for a module that currently has only
+one section**, even if you already know more sections are coming later. A
+brand-new recordset already gets an implicit unnamed first page (the seeded
+`General` field mentioned in §11.1) — a solo explicit `page_split` with every
+other field under it (found 2026-08-06, `modules/Premium/Grants/`) produced a
+broken install that had to be fixed by removing the field and
+uninstalling/reinstalling. Add `page_split` fields explicitly, one at a time,
+at the point a genuine second/third/... section is actually being added to an
+already-working module — not in advance of the section existing.
 
 **Extending beyond this list**: `Utils_RecordBrowserCommon::register_datatype($type,
 $module, $func)` registers a callback that *rewrites* a custom type name into one

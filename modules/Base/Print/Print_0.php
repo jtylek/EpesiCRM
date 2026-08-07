@@ -48,7 +48,7 @@ class Base_Print extends Module
             $this->parent->reset();
         } else {
             Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-            $this->display_module($form);
+            $form->display_as_column();
         }
     }
 }

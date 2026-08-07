@@ -74,36 +74,88 @@ class Base_MainModuleIndicator extends Module {
 		$form->addElement('text','title',__('Base page title'));
 		$form->addElement('checkbox','show_caption_in_title',__('Display module captions inside page title'), null, array('class'=>'epesi-switch'));
 		$form->addElement('checkbox','show_module_indicator',__('Display module captions inside module'), null, array('class'=>'epesi-switch'));
-        $form->addElement('submit', 'button', __('Save'), $form->get_submit_form_href());
+        $form->addElement('submit', 'button', __('Save'), $form->get_submit_form_href().' class="submit btn btn-primary"');
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         if($form->validate()) {
             $form->process($this->submit_config(...));
         } else
-            $this->display_module($form);
+            $form->display_as_column();
 
         $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
 		$form->addElement('header', 'upload', __('Small Logo'));
 		$form->addElement('static','logo_size','',__('Logo image should be 193px by 83px in JPG/JPEG, GIF, PNG or BMP format'));
         $logo = Variable::get('logo_file');
-        if($logo && file_exists($logo)) $form->addElement('static','logo','','<img src="'.$logo.'?'.filemtime($logo).'" />');
+        // Same fallback path this logo's own display template
+        // (theme/logo.tpl) already falls back to when nothing's been
+        // uploaded - mirrors reality instead of guessing, same principle as
+        // the Printing Options logo preview.
+        if ($logo && file_exists($logo)) {
+            $preview = $logo.'?'.filemtime($logo);
+            $preview_caption = __('Current logo');
+        } else {
+            $preview = Base_ThemeCommon::get_template_file('images/logo-small.png');
+            $preview_caption = __('Current logo (default EPESI logo - no custom logo uploaded)');
+        }
         $form->addElement('hidden','type','');
 		$form->add_upload_element();
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         //$form->addElement('submit', 'button', __('Upload'), $form->get_submit_form_href());
 
+		// column.tpl renders every button in its own trailing section, always
+		// after the whole field grid and with nothing after it - so a
+		// 'static' element (or plain print() once the card's already closed)
+		// can't land below the button while staying inside the card. Capture
+		// the rendered card HTML and splice the preview in just before its
+		// own closing </div> instead.
+		//
+		// set_inline_display() is required for this to actually work:
+		// display_module() normally prints just a placeholder <span> (real
+		// content gets injected separately, out-of-band, later in the page
+		// render) - get_html_of_module() only returns the real HTML directly
+		// when the module is in inline-display mode (see Utils_RecordBrowser/
+		// Reports/Reports_0.php's identical use on a GenericBrowser instance).
+		// Without this, ob_get_clean() below only ever captures the
+		// placeholder span, and the spliced-in preview ends up appended after
+		// it - outside the card once the real content is injected.
+		$form->set_inline_display();
+		ob_start();
 		$this->display_module($form, array( $this->submit_logo(...) ));
+		$html = ob_get_clean();
+		$preview_html = '<div>'.htmlspecialchars($preview_caption).'</div><img src="'.htmlspecialchars($preview).'" style="max-width:300px;" />';
+		// Second-to-last </div>, not the last one - see TCPDF_0.php's
+		// identical fix for why.
+		$last = strrpos($html, '</div>');
+		$pos = $last !== false ? strrpos(substr($html, 0, $last), '</div>') : false;
+		print($pos !== false ? substr($html, 0, $pos).$preview_html.substr($html, $pos) : $html.$preview_html);
 
         $form = $this->init_module(Utils_FileUpload::module_name(),array(false));
         $form->addElement('header', 'upload', __('Login Logo'));
         $form->addElement('static','logo_size','',__('Logo image should be 550px by 200px in JPG/JPEG, GIF, PNG or BMP format'));
         $logo = Variable::get('login_logo_file');
-        if($logo && file_exists($logo)) $form->addElement('static','logo','','<img src="'.$logo.'?'.filemtime($logo).'" />');
+        // Same fallback path theme_adminltedark/login-logo.tpl already falls
+        // back to when nothing's been uploaded.
+        if ($logo && file_exists($logo)) {
+            $preview = $logo.'?'.filemtime($logo);
+            $preview_caption = __('Current logo');
+        } else {
+            $preview = Base_ThemeCommon::get_template_file('images/logo.png');
+            $preview_caption = __('Current logo (default EPESI logo - no custom logo uploaded)');
+        }
         $form->addElement('hidden','type','login_');
         $form->add_upload_element();
         $form->addElement('static','','<div style="width:200px"></div>','<div style="width:600px"></div>');
         //$form->addElement('submit', 'button', __('Upload'), $form->get_submit_form_href());
 
+        $form->set_inline_display();
+        ob_start();
         $this->display_module($form, array( $this->submit_logo(...) ));
+        $html = ob_get_clean();
+        $preview_html = '<div>'.htmlspecialchars($preview_caption).'</div><img src="'.htmlspecialchars($preview).'" style="max-width:300px;" />';
+        // Second-to-last </div>, not the last one - see TCPDF_0.php's
+        // identical fix for why.
+        $last = strrpos($html, '</div>');
+        $pos = $last !== false ? strrpos(substr($html, 0, $last), '</div>') : false;
+        print($pos !== false ? substr($html, 0, $pos).$preview_html.substr($html, $pos) : $html.$preview_html);
 
         Base_ActionBarCommon::add('delete',__('Delete logo'),$this->create_callback_href($this->delete_logo(...)));
         Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());

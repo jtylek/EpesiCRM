@@ -33,7 +33,7 @@ class Base_Error extends Module implements Base_AdminInterface {
 			Variable::set('error_mail',$form->exportValue('mail'));
 			$this->parent->reset();
 		} else {
-			$form->display();
+			$form->display_as_column();
 		}
 	}	
 }

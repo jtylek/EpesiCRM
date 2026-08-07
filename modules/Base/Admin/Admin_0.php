@@ -113,11 +113,21 @@ class Base_Admin extends Module {
 	}
 	
 	public function caption() {
-		$module = $this->get_module_variable('href');
+		// 'selected_module' is the actual module variable set_module()/body()
+		// use - was read here as 'href' (a stale/mismatched key that's never
+		// set anywhere in the codebase), which meant this always fell through
+		// to the generic "Administration: Control Panel" regardless of which
+		// admin screen was active.
+		$module = $this->get_module_variable('selected_module');
 		if ($module===null) return __('Administration: Control Panel');
 		$func = array($module.'Common','admin_caption');
 		if(!is_callable($func)) return __('Administration: %s', array($module));
 		$caption = call_user_func($func);
+		// admin_caption() returns array('label'=>..., 'section'=>...) in every
+		// real implementation (see list_admin_modules() above, which already
+		// normalizes the same way) - passing the raw array into %s would print
+		// "Administration: Array" instead of the actual label.
+		if (is_array($caption)) $caption = $caption['label'] ?? null;
 		if($caption) return __('Administration: %s',array($caption));
 		return __('Administration');
 	}
