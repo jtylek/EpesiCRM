@@ -11,8 +11,26 @@
    run-on list. $header (the "Field/Old value/New value" column captions)
    is deliberately left unrendered here - per request, redundant once
    old/new values already carry their own diff-style red/green shading
-   below. *}
+   below.
+
+   The explicit <colgroup> matches table-layout:fixed on
+   .epesi-tooltip-popup table (theme_adminltedark/default.css): with
+   table-layout:auto (the default), a long unbroken run of field text has
+   an unbounded max-content/preferred width (word-wrap:break-word only
+   affects layout once a width is already fixed, not intrinsic-size
+   calculation) - inside .epesi-tooltip-popup's own width:max-content, that
+   let the table refuse to shrink to the popup's max-width:480px and spill
+   its content outside the popup's background/border instead of wrapping.
+   Fixed layout needs a definite per-column width to size against; without
+   this <colgroup>, a table whose first row happens to be one of the
+   colspan="3" group_header/message rows (no per-column info at all) would
+   size its columns ambiguously depending on browser fallback behavior. *}
 <table>
+	<colgroup>
+		<col style="width:22%">
+		<col style="width:39%">
+		<col style="width:39%">
+	</colgroup>
 	{foreach from=$events item=e}
 		{if isset($e.who) && $e.who !== ''}
 			<tr>

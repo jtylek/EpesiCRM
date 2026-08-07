@@ -2753,12 +2753,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $event_display['what'] = _V($v);
                 continue;
             }
+			// Re-sync before every field, not just once before the loop: a
+			// previous iteration's self::get_val() call may have rendered a
+			// linked-record field (e.g. a crm_company_contact "Customers" field
+			// resolving a company/contact label via create_default_linked_label()
+			// -> get_record() -> self::init() for THAT tab) and left
+			// self::$hash/self::$table_rows pointing at a different recordset -
+			// the isset() check right below would then silently miss every field
+			// that comes after it in $edit_details, dropping it from the changes
+			// list entirely.
+			self::init($tab);
 			$k = self::get_field_id($k); // failsafe
 			if (!isset(self::$hash[$k])) continue;
 			if (!$access[$k]) continue;
             $modifications_to_show += 1;
             if (!$details) continue; // do not generate content when we dont want them
-			self::init($tab);
 			$field = self::$hash[$k];
 			$desc = self::$table_rows[$field];
 			$event_display['what'][] = array(

@@ -49,6 +49,15 @@
    that's the only element the table ever actually renders into. */
 .epesi-tooltip-popup table {
 	border-collapse: collapse;
+	/* table-layout:fixed + width:100% (sized against the popup's own
+	   max-width:480px, see .epesi-tooltip-popup above) forces columns to
+	   the <colgroup>-declared percentages (changes_list.tpl) and wraps
+	   cell text to fit - table-layout:auto's default sizing ignores
+	   word-wrap:break-word when computing a table's preferred width, so a
+	   long unbroken run of field text made the table refuse to shrink and
+	   spill outside the popup's own background/border instead of wrapping. */
+	table-layout: fixed;
+	width: 100%;
 }
 
 .epesi-tooltip-popup td {

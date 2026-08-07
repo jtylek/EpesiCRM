@@ -126,10 +126,15 @@ class Utils_TooltipCommon extends ModuleCommon {
 	//
 	// $keep_table: for content built from a real <table> (currently just
 	// Utils_RecordBrowser's theme_adminltedark/changes_list.tpl, a
-	// "Field/Old value/New value" changes grid) - keeps table/row/cell tags
-	// intact instead of flattening them to "Field: Old value"-style lines,
-	// so the browser aligns the columns instead of the columns running
-	// together at whatever width each value happens to be. Deliberately its
+	// "Field/Old value/New value" changes grid) - keeps table/colgroup/col/
+	// row/cell tags intact instead of flattening them to "Field: Old
+	// value"-style lines, so the browser aligns the columns instead of the
+	// columns running together at whatever width each value happens to be.
+	// The <colgroup>/<col> pair is what lets the table's own CSS
+	// (.epesi-tooltip-popup table, theme_adminltedark/default.css) declare
+	// fixed per-column widths - without it, table-layout:fixed has no
+	// reliable per-column sizing hint on a table whose first row is one of
+	// changes_list.tpl's colspan="3" group_header/message rows. Deliberately its
 	// own allowlist rather than folding into the default one: interactive/
 	// resource tags (<a>, <img>, ...) stay excluded either way, but the
 	// default allowlist's </td><td> and role="cell" flattening would corrupt
@@ -137,7 +142,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function to_safe_html($tip, $keep_table = false) {
 		if ($keep_table) {
 			$safe = preg_replace('#</(div|p|li)>#i', '<br>', $tip);
-			$safe = strip_tags($safe, '<strong><b><br><table><tr><th><td>');
+			$safe = strip_tags($safe, '<strong><b><br><table><colgroup><col><tr><th><td>');
 			return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 		}
 		$safe = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
