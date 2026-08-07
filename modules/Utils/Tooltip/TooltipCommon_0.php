@@ -290,13 +290,24 @@ class Utils_TooltipCommon extends ModuleCommon {
 			Libs_LeightboxCommon::display('tooltip_leightbox_mode', '<center><span id="tooltip_leightbox_mode_content" /></center>');
 			$init = $loc;
 		}
-		// typeof-guarded like open_tag_attrs()/ajax_open_tag_attrs() above -
-		// js/tooltip.js (and its Utils_Tooltip global) isn't loaded under
-		// adminlte (see the bottom of this file), so this would otherwise
-		// throw on click there; the leightbox itself still opens via
-		// get_open_href()'s own href, just without this tooltip content
-		// pre-populating it.
-		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').' onmousedown="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.leightbox_mode(this)" ';
+		// The leightbox itself always opens via get_open_href()'s own href
+		// (Libs_Leightbox's lbOn-click handling is theme-independent) - only
+		// *populating* it needs a theme-specific script, since it has to
+		// read the same element's hover-tooltip content back out, and
+		// open_tag_attrs()/ajax_open_tag_attrs() render completely different
+		// attributes per theme (legacy: a plain tip="..." attribute, read by
+		// js/tooltip.js's Utils_Tooltip.leightbox_mode(); adminlte:
+		// data-tooltip/data-tooltip-ajax, read by theme_adminltedark/
+		// tooltip.js's epesi_tooltip_leightbox_populate() - see that
+		// function's own comment for why it can't just always use
+		// innerHTML). Both are typeof-guarded so this never throws on
+		// whichever theme's tooltip.js isn't loaded.
+		if (Base_ThemeCommon::is_adminlte_family()) {
+			$onmousedown = ' onmousedown="if(typeof(epesi_tooltip_leightbox_populate)!=\'undefined\')epesi_tooltip_leightbox_populate(this)" ';
+		} else {
+			$onmousedown = ' onmousedown="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.leightbox_mode(this)" ';
+		}
+		return Libs_LeightboxCommon::get_open_href('tooltip_leightbox_mode').$onmousedown;
 	}
 	
 }

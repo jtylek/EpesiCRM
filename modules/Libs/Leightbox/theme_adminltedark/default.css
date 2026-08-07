@@ -160,6 +160,26 @@
 	background-color: #0b5ed7;
 }
 
+/* Utils_TooltipCommon::tooltip_leightbox_mode()'s popup (Watchdog applet /
+   ActivityReport "what changed" tooltips shown big, re-using
+   Utils_Tooltip/theme_adminltedark/tooltip.js's epesi_tooltip_leightbox_
+   populate() content - see that file). Per request: same fixed grey/black
+   scheme as the sidebar and the hover-tooltip popup itself
+   (Utils_Tooltip/theme_adminltedark/default.css's .epesi-tooltip-popup),
+   not this component's own default dark chrome - #tooltip_leightbox_mode is
+   the popup's own id (see the #clipboard rules above for why an id selector
+   scopes this to just this one popup) and beats the [data-bs-theme="light"]
+   override below on specificity, so it stays this one grey regardless of
+   theme, same as #Leightbox_header already does. Font size matches
+   .epesi-tooltip-popup's own .8125rem too - this popup only ever shows the
+   same changes-list table the small hover popup does, just bigger/pinned,
+   not a reason for it to read in a larger font. */
+#tooltip_leightbox_mode {
+	background-color: #dee2e6;
+	color: #000;
+	font-size: .8125rem;
+}
+
 /* carried forward from the default theme (unchanged) - strips decorative
    shadow/padding wrappers that older, not-yet-adminlte-themed widgets may
    still render inside a leightbox's content. */

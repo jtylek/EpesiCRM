@@ -112,3 +112,30 @@ function epesi_tooltip_ajax_load(el, tooltipId) {
 		});
 	} catch (e) {}
 }
+
+// tooltip_leightbox_mode() (TooltipCommon_0.php) wires this via onmousedown
+// on the SAME element open_tag_attrs()/ajax_open_tag_attrs() already put its
+// own hover-tooltip data-* attributes on, so a click/tap re-shows that same
+// content inside the bigger Leightbox popup (Libs_Leightbox's own lbOn-click
+// handling opens the popup shell regardless of theme; only populating
+// #tooltip_leightbox_mode_content needs this theme-specific read, since the
+// legacy theme's js/tooltip.js reads a differently-named tip="..." attribute
+// instead). Content-safety mirrors epesi_tooltip_show_popup()'s asHtml rule
+// exactly: data-tooltip (open_tag_attrs(), sync) is always safe-html: skip
+// straight to innerHTML. data-tooltip-ajax is only safe for innerHTML when
+// data-tooltip-html marks it as the $safe_html/$keep_table ajax variant -
+// otherwise (or before the ajax response has arrived, still "Loading...")
+// it's plain text, same textContent-vs-innerHTML split as the hover popup.
+function epesi_tooltip_leightbox_populate(el) {
+	try {
+		var target = document.getElementById('tooltip_leightbox_mode_content');
+		if (!target) return;
+		if (el.hasAttribute('data-tooltip')) {
+			target.innerHTML = el.getAttribute('data-tooltip') || '';
+		} else if (el.hasAttribute('data-tooltip-ajax')) {
+			var text = el.getAttribute('data-tooltip-ajax') || '';
+			if (el.hasAttribute('data-tooltip-html')) target.innerHTML = text;
+			else target.textContent = text;
+		}
+	} catch (e) {}
+}
