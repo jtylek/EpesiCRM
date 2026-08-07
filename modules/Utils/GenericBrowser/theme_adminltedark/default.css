@@ -574,6 +574,16 @@
 	content: "\f4b3";
 }
 
+/* CRM_Mail's own "copy" row action (Mail_0.php's actions_for_mails()/copy(),
+   kept inline rather than grouped under More actions - see the
+   Base_Box/theme_adminltedark/default.tpl isCoreAction() carve-out for that
+   same icon path). Without this rule it fell through the blanket
+   "a img:not(.file_inline){display:none}" rule above with no ::before glyph
+   to replace it, rendering as an empty, invisible link. bi-copy (\f759). */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Mail"][src*="/copy_small.png"])::before {
+	content: "\f759";
+}
+
 /* Per-row "more"/"less" expand/collapse toggles (GenericBrowser_0.php's
    __add_row_action() with plus_gray.png/minus_gray.png - not one of the
    "known keyword" action icons above, so without these two rules they'd

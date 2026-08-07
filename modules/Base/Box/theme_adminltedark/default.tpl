@@ -271,6 +271,14 @@
 				"if(a.querySelector('input[type=\"submit\"]'))return true;".
 				"var img=a.querySelector('img');".
 				"var src=img?(img.getAttribute('src')||''):'';".
+				// CRM_Mail's own "copy" row action (actions_for_mails()/copy() in
+				// CRM/Mail/Mail_0.php) resolves to CRM/Mail's own theme copy_small.png,
+				// not the shared Utils/Attachment icon of the same filename used
+				// elsewhere (RecordBrowser's permission-rule "Clone rule", Attachment
+				// itself) - per request, kept inline in the Mail list's actions column
+				// instead of buried behind More actions, scoped to this exact resolved
+				// path so no other module's same-named icon is affected.
+				"if(/\\/CRM\\/Mail\\/theme[^\\/]*\\/copy_small\\.png$/.test(src))return true;".
 				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
 			"}".
 			"function ensureToggles(){".
@@ -712,6 +720,77 @@
 				"});".
 			"})();\"".
 		");"
+	);
+
+	// CRM_Mail's own Threaded/Flat e-mail browse tables (addon_threaded()/
+	// addon_flat()/thread_addon() in CRM/Mail/Mail_0.php) show First Date/
+	// Last Date/Date columns that are full timestamps - per request, trimmed
+	// to date-only in these lists specifically, while a single e-mail's own
+	// "Date" field (mails.tpl) keeps its time. RecordBrowser has no
+	// per-browse-instance display override: a field's rendered value always
+	// goes through Utils_RecordBrowserCommon::get_val(), which resolves the
+	// display callback straight from the tab+field's OWN global registration
+	// (self::$display_callback_table, backed by the rc_mails/rc_mail_threads
+	// _callback DB table) - not from anything RecordBrowser_0.php::
+	// set_header_properties() can pass in per call, so switching the field's
+	// own display_callback to a date-only formatter would strip the time
+	// everywhere that field renders, including the single e-mail/thread
+	// record view. Done client-side instead, identifying these specific
+	// tables by their header text (First Date+Last Date for Threaded;
+	// Message+Archived by, both CRM_Mail-specific labels, for Flat/the
+	// per-thread expanded list) rather than any module-specific class, since
+	// none exists on the table root (see gb-actions-menu-flyout-direction
+	// memory's isCoreAction() for the same "identify by content" reasoning).
+	//
+	// Strips a trailing time-of-day (with or without seconds, 12h am/pm or
+	// 24h - Base_RegionalSettingsCommon::time2reg() always renders "<date>
+	// <time>" in that order, one space-separated block each, regardless of
+	// which of the site's configurable date/time format strings is active)
+	// rather than assuming the date portion itself has no internal spaces -
+	// some of Base_RegionalSettingsInstall's own date format choices
+	// ("%d %B %Y") do. Modifies the cell's own ".expandable" wrapper div's
+	// text, not the <td> itself - GenericBrowser's row cells all render
+	// wrapped in that div by default (see epesiSizeGbActions's own comment on
+	// it, just above), and overwriting the <td>'s full content would strip
+	// the wrapper along with it, breaking that same row-height clamping.
+	eval_js_once(
+		"(function(){".
+			"function stripTime(t){".
+				"return t.replace(/\\s+\\d{1,2}:\\d{2}(?::\\d{2})?\\s*(?:[AaPp][Mm])?\\s*$/,'');".
+			"}".
+			"function headerIndex(headRow,label){".
+				"var ths=headRow.children;".
+				"for(var i=0;i<ths.length;i++)if(ths[i].textContent.trim()===label)return i;".
+				"return -1;".
+			"}".
+			"function trimColumn(table,headRow,label){".
+				"var idx=headerIndex(headRow,label);".
+				"if(idx<0)return;".
+				"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
+					"var cell=row.children[idx];".
+					"if(!cell)return;".
+					"var target=cell.querySelector('.expandable')||cell;".
+					"var t=target.textContent;".
+					"var stripped=stripTime(t).trim();".
+					"if(stripped!==t.trim())target.textContent=stripped;".
+				"});".
+			"}".
+			"function trimMailDates(){".
+				"document.querySelectorAll('.Utils_GenericBrowser').forEach(function(table){".
+					"var headRow=table.querySelector('.Utils_GenericBrowser__thead .Utils_GenericBrowser__tr');".
+					"if(!headRow)return;".
+					"var labels=Array.prototype.map.call(headRow.children,function(th){return th.textContent.trim();});".
+					"if(labels.indexOf('First Date')!==-1&&labels.indexOf('Last Date')!==-1){".
+						"trimColumn(table,headRow,'First Date');".
+						"trimColumn(table,headRow,'Last Date');".
+					"}else if(labels.indexOf('Message')!==-1&&labels.indexOf('Archived by')!==-1){".
+						"trimColumn(table,headRow,'Date');".
+					"}".
+				"});".
+			"}".
+			"try{trimMailDates();}catch(e){}".
+			"jQuery(document).on('e:load',function(){try{trimMailDates();}catch(e){}});".
+		"})();"
 	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part

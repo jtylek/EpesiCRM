@@ -103,12 +103,14 @@ class CRM_Mail extends Module {
 	public function addon_threaded($rs,$id) {
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_mail_threads','rc_mails_threaded');
 		$rb->set_header_properties(array(
-						'date'=>array('width'=>10),
-						'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
-						'subject'=>array('name'=>__('Message'),'width'=>40),
+						'contacts'=>array('name'=>__('Involved contacts'), 'width'=>15),
+						'subject'=>array('name'=>__('Message'),'width'=>25),
+						'first_date'=>array('width'=>15),
+						'last_date'=>array('width'=>15),
 						'attachments'=>array('width'=>5),
 						'count'=>array('width'=>5)
 		));
+		$rb->set_additional_actions_method($this->actions_for_threads(...));
 
 		//set order by threads:
 		//1 - if there is reference sort by parent message date, else sort by this message date ("group" messages by "parent" date)
@@ -161,9 +163,10 @@ class CRM_Mail extends Module {
 			'attachments'=>array('width'=>5)
 		));
 		$rb->set_additional_actions_method($this->actions_for_mails(...));
+		$rb->disable_watchdog();
 
 		if($rs=='contact') {
-			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 		} elseif($rs=='company') {
 			$form = $this->init_module(Libs_QuickForm::module_name());
 			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
@@ -185,9 +188,9 @@ class CRM_Mail extends Module {
 				foreach ($conts as $c)
 					$customers[] = 'contact/'.$c['id'];
 			}
-			$this->display_module($rb, array(array('(contacts'=>$customers,'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('(contacts'=>$customers,'|related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 		} else
-			$this->display_module($rb, array(array('related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 	}
 
 	public function thread_addon($arg,$rb) {
@@ -200,8 +203,9 @@ class CRM_Mail extends Module {
 			'attachments'=>array('width'=>5)
 		));
 		$rb->set_additional_actions_method($this->actions_for_mails(...));
+		$rb->disable_watchdog();
 
-		$this->display_module($rb, array(array('thread'=>$arg['id']), array(), array('date'=>'DESC')), 'show_data');
+		$this->display_module($rb, array(array('thread'=>$arg['id']), array('related'=>false), array('date'=>'DESC')), 'show_data');
 	}
 
 	public function paste($rs,$id) {
@@ -225,6 +229,22 @@ class CRM_Mail extends Module {
 
 	public function copy($id) {
 		$_SESSION['rc_mails_cp'] = array($id);
+	}
+
+	/**
+	 * Row action for addon_threaded()'s rc_mail_threads rows - $id there is a
+	 * thread id (its own recordset, see MailInstall.php), not an rc_mails id
+	 * that copy()/paste() can use directly, so this resolves it to the
+	 * thread's own most recent message first (same rc_mails_data_1/f_thread
+	 * query MailCommon_0.php's display_mail_thread() uses for its count).
+	 */
+	public function copy_thread($thread_id) {
+		$id = DB::GetOne('SELECT id FROM rc_mails_data_1 WHERE f_thread=%d AND active=1 ORDER BY f_date DESC LIMIT 1', array($thread_id));
+		if ($id) $this->copy($id);
+	}
+
+	public function actions_for_threads($r, $gb_row) {
+		$gb_row->add_action($this->create_callback_href($this->copy_thread(...),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
 	}
 
 	public function open_mail_client($id) {
