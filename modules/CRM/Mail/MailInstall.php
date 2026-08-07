@@ -260,10 +260,6 @@ class CRM_MailInstall extends ModuleInstall {
         DB::CreateIndex('rc_mails_thread_idx', 'rc_mails_data_1', 'f_thread');
         DB::CreateIndex('rc_mails_msgid_idx', 'rc_mails_data_1', 'f_message_id');
 
-		Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_MailInstall::module_name(), 'mail_body_addon', _M('Body'));
-        Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_MailInstall::module_name(), 'attachments_addon', _M('Attachments'));
-		Utils_RecordBrowserCommon::new_addon('rc_mails', CRM_MailInstall::module_name(), 'mail_headers_addon', _M('Headers'));
-
         @DB::DropTable('rc_mails_attachments');
         DB::CreateTable('rc_mails_attachments','
             mail_id I4 NOTNULL,
@@ -323,7 +319,12 @@ class CRM_MailInstall extends ModuleInstall {
 	}
 
 	public function uninstall() {
+		// Not registered by install() anymore (see above - Body/Attachments/Headers render
+		// inline on the AdminLTE "View e-mail" template instead of as addon tabs now), but
+		// still cleaned up here since an install that predates that change may still have them.
+		Utils_RecordBrowserCommon::delete_addon('rc_mails', CRM_MailInstall::module_name(), 'mail_body_addon');
 		Utils_RecordBrowserCommon::delete_addon('rc_mails', CRM_MailInstall::module_name(), 'attachments_addon');
+		Utils_RecordBrowserCommon::delete_addon('rc_mails', CRM_MailInstall::module_name(), 'mail_headers_addon');
         Utils_RecordBrowserCommon::delete_addon('contact', CRM_MailInstall::module_name(), 'addon');
         Utils_RecordBrowserCommon::delete_addon('company', CRM_MailInstall::module_name(), 'addon');
         DB::DropTable('rc_mails_attachments');

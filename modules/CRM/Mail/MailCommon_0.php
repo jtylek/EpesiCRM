@@ -293,6 +293,133 @@ class CRM_MailCommon extends ModuleCommon {
         return DB::GetOne('SELECT count(mime_id) FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($record['id']));
     }
 
+    // Cc isn't a real rc_mails column (only From/To are archived that way, see
+    // MailInstall.php's rc_mails field list) - it only exists inside the raw headers blob
+    // archived alongside each mail (headers_data), which is blocked from the normal 'view'
+    // field ACL (add_access('rc_mails','view',...) - the raw dump is noisy technical content,
+    // not meant for the regular record view, hence no "Headers" tab anymore either - see
+    // theme_adminltedark/mails.tpl). This pulls just the Cc line out of that blob instead of
+    // exposing the whole thing.
+    public static function get_cc_html($mail_id) {
+        $headers = DB::GetOne('SELECT f_headers_data FROM rc_mails_data_1 WHERE id=%d', array($mail_id));
+        if (!$headers || !preg_match('/^Cc:\s*(.+)$/mi', (string) $headers, $m)) return '';
+        return self::format_address_list(trim($m[1]));
+    }
+
+    // From/To/Cc are archived as whatever the sending client's own header happened to contain
+    // (rcube_mime::decode_mime_string() only undoes MIME encoded-words, see
+    // Libs/RoundCube/RC/plugins/epesi_archive/epesi_archive.php) - some clients wrap the whole
+    // "Name email@domain" pair in one pair of straight quotes with no <> around the address at
+    // all (e.g. "Tylek Janusz test@mrf.epesi.cloud"), which reads oddly verbatim. This
+    // reformats each comma-separated entry to "Name" followed by a quoted address instead
+    // (per request), same treatment for the standard Name <email@domain> form.
+    public static function format_address_list($raw) {
+        $raw = trim((string) $raw);
+        if ($raw === '') return '';
+        $out = array();
+        foreach (self::split_address_list($raw) as $part) {
+            $out[] = self::format_address($part);
+        }
+        return implode(', ', $out);
+    }
+
+    // Splits on commas that aren't inside a "..." quoted segment, so a quoted display name
+    // containing a comma isn't split in half.
+    private static function split_address_list($raw) {
+        preg_match_all('/"[^"]*"|[^,]+/', $raw, $m);
+        return array_map('trim', $m[0]);
+    }
+
+    private static function format_address($part) {
+        $part = trim($part);
+        if (strlen($part) >= 2 && $part[0] === '"' && substr($part, -1) === '"') {
+            $part = trim(substr($part, 1, -1));
+        }
+        if ($part !== '' && preg_match('/^(.*?)\s*<?([^\s<>]+@[^\s<>]+?)>?$/', $part, $m)) {
+            $name = trim($m[1]);
+            $email = trim($m[2]);
+            if ($name === '') return '"'.htmlspecialchars($email, ENT_QUOTES).'"';
+            return htmlspecialchars($name, ENT_QUOTES).' "'.htmlspecialchars($email, ENT_QUOTES).'"';
+        }
+        return htmlspecialchars($part, ENT_QUOTES);
+    }
+
+    // "Date archived" (when the mail was pulled into EPESI) isn't an rc_mails field either -
+    // distinct from the 'date' field (the e-mail's own Date header) - every RecordBrowser table
+    // carries this as created_on/created_by metadata instead of a real column.
+    public static function get_archived_on_html($mail_id) {
+        $info = Utils_RecordBrowserCommon::get_record_info('rc_mails', $mail_id);
+        return $info['created_on'] ? Base_RegionalSettingsCommon::time2reg($info['created_on']) : '';
+    }
+
+    // Attachment listing for theme_adminltedark/mails.tpl, replacing the old attachments_addon
+    // tab: no inline image preview here even for PNG/JPG (an e-mail's own inline images already
+    // render within the Body iframe itself, see get_html.php - duplicating them as oversized
+    // previews here too just to download them again read worse, per request). Clicking the
+    // filename opens a small View/Download prompt (Libs_LeightboxCommon - the same generic popup
+    // Utils_Attachment's own file links use) rather than downloading immediately - get.php's
+    // 'attachment' flag alone can only pick one fixed disposition, so both links pass an explicit
+    // ?disposition= override to get the other one.
+    //
+    // Content styled to match Utils_FileStorage's own file popup (theme_adminltedark/
+    // download.tpl's .epesi-filedl-* classes, loaded below) rather than a bare link list, per
+    // request - built directly here instead of reusing Utils_FileStorage_FileLeightbox itself:
+    // that helper (and the Utils_Attachment_FileActionHandler/Utils_RecordBrowser_FileActionHandler
+    // machinery behind its own View/Download links) expects the file to be a genuine RecordBrowser
+    // field value, which these attachments (rows in rc_mails_attachments, not an rc_mails field)
+    // aren't - and it also pulls in "File History" and "Get link" (a public, unauthenticated,
+    // 7-day download token - see Utils_FileStorage_RemoteActionHandler's forUsersOnly=false),
+    // deliberately left out here rather than exposing an unauthenticated share link for private
+    // archived mail without being asked for it specifically.
+    public static function get_attachments_html($mail_id) {
+        $rows = DB::Execute('SELECT mime_id, name, file_id FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1 ORDER BY name', array($mail_id));
+        Base_ThemeCommon::load_css('Utils_FileStorage', 'download');
+        $files = '';
+        while ($a = $rows->FetchRow()) {
+            $name = htmlspecialchars((string) $a['name'], ENT_QUOTES);
+            $size = self::get_attachment_size($a['file_id'], $mail_id, $a['mime_id']);
+            $size_label = htmlspecialchars($size !== null ? self::format_file_size($size) : __('Unknown'), ENT_QUOTES);
+
+            $lid = 'crm_mail_attachment_'.$mail_id.'_'.$a['mime_id'];
+            $close_js = 'leightbox_deactivate(\''.$lid.'\');';
+            $view_url = 'modules/CRM/Mail/get.php?'.http_build_query(array('mime_id'=>$a['mime_id'],'mail_id'=>$mail_id,'disposition'=>'inline'));
+            $download_url = 'modules/CRM/Mail/get.php?'.http_build_query(array('mime_id'=>$a['mime_id'],'mail_id'=>$mail_id,'disposition'=>'attachment'));
+
+            $content = '<div class="epesi-filedl-info">'
+                     .   '<div class="epesi-filedl-row"><div class="epesi-filedl-label">'.__('Filename').'</div><div class="epesi-filedl-value">'.$name.'</div></div>'
+                     .   '<div class="epesi-filedl-row"><div class="epesi-filedl-label">'.__('File size').'</div><div class="epesi-filedl-value">'.$size_label.'</div></div>'
+                     . '</div>'
+                     . '<div class="epesi-filedl-actions">'
+                     .   '<a href="'.$view_url.'" target="_blank" onclick="'.$close_js.'"><span class="epesi-filedl-btn"><i class="bi bi-eye"></i><span class="epesi-filedl-btn-label">'.__('View').'</span></span></a>'
+                     .   '<a href="'.$download_url.'" onclick="'.$close_js.'"><span class="epesi-filedl-btn"><i class="bi bi-download"></i><span class="epesi-filedl-btn-label">'.__('Download').'</span></span></a>'
+                     . '</div>';
+            $popup = Libs_LeightboxCommon::get($lid, $content, __('File'));
+
+            $files .= '<div class="crm-mail-attachment-file"><a '.Libs_LeightboxCommon::get_open_href($lid).'>'.$name.'</a>'.($size!==null?' <span class="crm-mail-attachment-size">('.self::format_file_size($size).')</span>':'').'</div>'.$popup;
+        }
+        return $files;
+    }
+
+    // Attachments migrated from plain files under DATA_DIR to Utils_FileStorage (see
+    // patches/20260629_mail_attachments_to_filestorage.php) - same dual lookup as get.php's own
+    // file-serving fallback, needed here too since old rows may still be legacy-only.
+    private static function get_attachment_size($file_id, $mail_id, $mime_id) {
+        if ($file_id) {
+            try {
+                return Utils_FileStorageCommon::meta($file_id)['size'];
+            } catch (Exception $e) {
+            }
+        }
+        $legacy = DATA_DIR.'/CRM_Mail/attachments/'.$mail_id.'/'.$mime_id;
+        return file_exists($legacy) ? filesize($legacy) : null;
+    }
+
+    private static function format_file_size($bytes) {
+        $units = array('B','kB','MB','GB');
+        for ($i = 0; $i < count($units) - 1 && $bytes >= 1024; $i++) $bytes /= 1024;
+        return round($bytes, $bytes < 10 && $i > 0 ? 1 : 0).' '.$units[$i];
+    }
+
     public static function QFfield_body(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         //$form->addElement('static', $field, $label,DB::GetOne('SELECT f_body FROM rc_mails_data_1 WHERE id=%d',array($rb->record['id'])));
         $form->addElement('static', $field, $label,'<iframe id="rc_mail_body" src="modules/CRM/Mail/get_html.php?'.http_build_query(array('id'=>$rb->record['id'])).'" style="width:100%;border:0" border="0"></iframe>');

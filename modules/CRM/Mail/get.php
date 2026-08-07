@@ -22,6 +22,13 @@ if (!isset($access_fields['body']) || !$access_fields['body'])
 [$mimetype, $name, $attachment, $file_id] = DB::GetRow('SELECT type,name,attachment,file_id FROM rc_mails_attachments WHERE mail_id=%d AND mime_id=%s',array($_GET['mail_id'],$_GET['mime_id']));
 
 $disposition = $attachment?'attachment':'inline';
+// Lets a caller ask for the other disposition regardless of the stored 'attachment' flag - used
+// by the AdminLTE "View e-mail" template's attachment list (CRM_MailCommon::get_attachments_html())
+// to offer both a View (inline) and Download (attachment) link for the same file via a leightbox
+// prompt, instead of the flag alone always forcing one or the other. Whitelisted, not just
+// trusted as-is - this ends up straight in a response header below.
+if (isset($_GET['disposition']) && in_array($_GET['disposition'], array('inline', 'attachment'), true))
+    $disposition = $_GET['disposition'];
 
 if(headers_sent())
     die('Some data has already been output to browser, can\'t send file');

@@ -1,40 +1,50 @@
-{* CRM_Mail registers this as the per-table template for the 'rc_mails'
-   record type (MailInstall.php calls Utils_RecordBrowserCommon::set_tpl
-   ('rc_mails', ...)) - same bypass-of-View_entry.tpl mechanism as
-   CRM_Contacts's Contact.tpl / CRM_PhoneCall's default.tpl (see
-   ../../Contacts/theme_adminlte/Contact.tpl and [[adminlte-theme-incomplete]]
-   memory). Unlike those two, this one already has its own {if $main_page}
-   guard around the header (it renders as an embedded tab too, e.g. inside a
-   contact's "E-mails" tab) - kept, mirroring View_entry.tpl's own pattern.
-   Icon+caption dropped from the header, tooltips kept. Layout below mirrors
-   View_entry.tpl/Contact.tpl's own conversion to flex (.epesi-rv-columns/
-   .column/.view/.edit/.epesi-rv-row/.label/.data instead of a <table> of
-   <table>s) - real per-field content, not decoration, unchanged beyond the
-   wrapper markup. View_entry.css (loaded alongside any custom $tpl by
-   RecordBrowser_0.php) already covers .label/.data/.column/etc, so no
-   separate CSS needed here. *}
-{* Get total number of fields to display *}
-{assign var=count value=0}
+{* CRM_Mail registers this as the per-table template for the 'rc_mails' record type
+   (MailInstall.php calls Utils_RecordBrowserCommon::set_tpl('rc_mails', ...)) - same bypass-of-
+   View_entry.tpl mechanism as CRM_Contacts's Contact.tpl / CRM_PhoneCall's default.tpl (see
+   ../../Contacts/theme_adminlte/Contact.tpl and [[adminlte-theme-incomplete]] memory). Only ever
+   selected when $main_page is true (see RecordBrowser_0.php::view_entry()), so no {if $main_page}
+   guard is needed structurally - kept anyway around the header/tooltips row, matching this file's
+   own prior version.
+
+   Previous version of this file was a stray copy of Utils/Attachment's View_entry.tpl (referenced
+   $fields.title/.sticky/.crypted/.permission/$longfields.note - none of which exist on rc_mails,
+   hence the "Undefined array key" warnings) rather than anything built for Mail's own fields.
+   Rebuilt from scratch to a fixed layout (per request): Subject full width; From+Date; To+Cc;
+   Employee+Date archived+Thread; Contacts+Related; Body full width; Attachments underneath as
+   plain download links (no inline image preview even for PNG/JPG - an e-mail's own inline
+   images already render within the Body iframe itself, see get_html.php) - deliberately NOT the
+   auto-flowing .epesi-rv-fluid masonry the generic View_entry.tpl/PhoneCall's default.tpl use
+   elsewhere, since that lets the browser decide which fields land in the same row/column instead
+   of this fixed pairing.
+
+   Two of the six rows use data that isn't a plain rc_mails field:
+    - Cc: only exists inside the raw archived headers blob (headers_data - blocked from the
+      normal 'view' field ACL, see MailInstall.php), so there's no $fields.cc to render. Body/
+      Attachments/Headers used to be separate addon tabs below the main record (mail_body_addon/
+      attachments_addon/mail_headers_addon) - now unregistered (MailInstall.php + a patch for
+      existing installs) since Body and Attachments render inline here instead, and the raw
+      Headers dump isn't needed now that Cc is parsed out of it directly (see
+      CRM_MailCommon::get_cc_html()).
+    - Date archived: when the record was archived into EPESI, i.e. created_on record metadata
+      (Utils_RecordBrowserCommon::get_record_info()), not itself an rc_mails column - distinct
+      from the 'date' field (the e-mail's own Date header, shown next to From above).
+   Both are computed in the {php} block below and rendered with the same .epesi-rv-row/.label/
+   .data markup single_field.tpl uses for real fields, for a consistent look.
+
+   View_entry.css (loaded alongside any custom $tpl by RecordBrowser_0.php) covers .label/.data/
+   .epesi-rv-columns/.column/etc; mails.css (this theme) only adds the attachment list styling,
+   replacing the legacy (non-adminlte) theme/mails.css's ".direction" rule, which doesn't apply to
+   this flex-based markup. *}
 {php}
-	$this->_tpl_vars['multiselects'] = array();
-{/php}
-{foreach key=k item=f from=$fields name=fields}
-	{if $f.type!="multiselect"}
-		{assign var=count value=$count+1}
-	{else}
-		{php}
-			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-		{/php}
-	{/if}
-{/foreach}
-{php}
-	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
+	$mail_id = $this->_tpl_vars['raw_data']['id'];
+	$this->assign('mail_from_html', CRM_MailCommon::format_address_list($this->_tpl_vars['raw_data']['from']));
+	$this->assign('mail_to_html', CRM_MailCommon::format_address_list($this->_tpl_vars['raw_data']['to']));
+	$this->assign('mail_cc_label', __('Cc'));
+	$this->assign('mail_cc_html', CRM_MailCommon::get_cc_html($mail_id));
+	$this->assign('mail_archived_label', __('Date archived'));
+	$this->assign('mail_archived_html', CRM_MailCommon::get_archived_on_html($mail_id));
+	$this->assign('mail_attachments_label', __('Attachments'));
+	$this->assign('mail_attachments_html', CRM_MailCommon::get_attachments_html($mail_id));
 {/php}
 
 {if $main_page}
@@ -73,117 +83,143 @@
 <div class="epesi-rv-card{if $main_page} card{/if}">
 	<div class="card-body p-0">
 
-        <div class="Utils_RecordBrowser__container">
-        <div class="Utils_RecordBrowser__View_entry">
+		<div class="Utils_RecordBrowser__container">
+		<div class="Utils_RecordBrowser__View_entry">
 
-            {* Outside table *}
-            <div class="epesi-rv-columns">
-                    <div class="column">
-                        <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {$fields.title.full_field}
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {$fields.edited_on.full_field}
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {$fields.permission.full_field}
-                        </div>
-                    </div>
-            </div>
-            <div class="longfields {if $action == 'view'}view{else}edit{/if}">
-                        <div class="epesi-rv-row">
-                        <div class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-                            {if $longfields.note.error}{$longfields.note.error}{/if}
-                            {if $longfields.note.help}
-                                <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
-                            {/if}
-                            <div>
-                                {$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
-                            </div>
-                        </div>
-                        </div>
-            </div>
-            <div class="epesi-rv-columns">
-                    <div class="column">
-                        <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {$fields.sticky.full_field}
-                        </div>
-                    </div>
-                    <div class="column" style="flex: 1 1 0; min-width: 0;">
-                        <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {$fields.crypted.full_field}
-                        </div>
-                    </div>
-            </div>
+			{* Subject - full width. Rendered from the raw value rather than
+			   $fields.subject.full_field: display_subject() (CRM_MailCommon) also appends a
+			   "From: ...<br />To: ..." preview meant for the browse-list row, which would
+			   duplicate the dedicated From/To rows below. *}
+			<div class="epesi-rv-columns">
+				<div class="column" style="width: 100%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						<div class="epesi-rv-row">
+							<div class="label">{$fields.subject.label}</div>
+							<div class="data" id="_subject__data"><div>{$raw_data.subject|escape}&nbsp;</div></div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <div class="epesi-rv-columns">
-                    {assign var=x value=1}
-                    {assign var=y value=1}
-                    {foreach key=k item=f from=$fields name=fields}
-                        {if $k!='title' && $k!='permission' && $k!='edited_on' && $k!='sticky' && $k!='crypted'}
-                        {if $f.type!="multiselect"}
-                            {if !isset($focus) && $f.type=="text"}
-                                {assign var=focus value=$f.element}
-                            {/if}
+			{* From | Date. From rendered from the raw value (via CRM_MailCommon::
+			   format_address_list()) rather than $fields.from.full_field, same reason as To
+			   below - see get_cc_html()'s treatment of Cc for the "why" in full. *}
+			<div class="epesi-rv-columns">
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						<div class="epesi-rv-row">
+							<div class="label">{$fields.from.label}</div>
+							<div class="data" id="_from__data"><div>{$mail_from_html}&nbsp;</div></div>
+						</div>
+					</div>
+				</div>
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.date.full_field}
+					</div>
+				</div>
+			</div>
 
-                            {if $y==1}
-                                <div class="column" style="width: {$cols_percent}%;">
-                                <div class="{if $action == 'view'}view{else}edit{/if}">
-                            {/if}
-                            {$f.full_field}
-                            {if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-                                {assign var=y value=1}
-                                {assign var=x value=$x+1}
-                                </div>
-                                </div>
-                            {else}
-                                {assign var=y value=$y+1}
-                            {/if}
-                        {/if}
-                        {/if}
-                    {/foreach}
-            </div>
-                {if !empty($multiselects)}
-                    <div class="epesi-rv-columns">
-                        {assign var=x value=1}
-                        {assign var=y value=1}
-                        {foreach key=k item=f from=$multiselects name=fields}
-                            {if $y==1}
-                                <div class="column" style="width: {$cols_percent}%;">
-                                <div class="multiselects {if $action == 'view'}view{else}edit{/if}">
-                            {/if}
-                            {$f.full_field}
-                            {if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-                                {assign var=y value=1}
-                                {assign var=x value=$x+1}
-                                </div>
-                                </div>
-                            {else}
-                                {assign var=y value=$y+1}
-                            {/if}
-                        {/foreach}
-                    </div>
-                {/if}
-            <div class="longfields {if $action == 'view'}view{else}edit{/if}">
-                        {foreach key=k item=f from=$longfields name=fields}
-                            {if $k!='note'}
-                                {$f.full_field}
-                            {/if}
-                        {/foreach}
-            </div>
+			{* To | Cc. To rendered from the raw value (via CRM_MailCommon::
+			   format_address_list()) rather than $fields.to.full_field: some archived mail
+			   stores "Name email@domain" as one straight-quoted string with no <> around the
+			   address at all - reads oddly verbatim, so this reformats it to Name followed by
+			   a quoted address instead (per request), same as Cc. *}
+			<div class="epesi-rv-columns">
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						<div class="epesi-rv-row">
+							<div class="label">{$fields.to.label}</div>
+							<div class="data" id="_to__data"><div>{$mail_to_html}&nbsp;</div></div>
+						</div>
+					</div>
+				</div>
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						<div class="epesi-rv-row">
+							<div class="label">{$mail_cc_label}</div>
+							<div class="data" id="_cc__data"><div>{$mail_cc_html}&nbsp;</div></div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            {if $main_page}
-                {php}
-                    if (isset($this->_tpl_vars['focus'])) eval_js('focus_by_id(\''.$this->_tpl_vars['focus'].'\');');
-                {/php}
-            {/if}
+			{* Employee | Date archived | Thread *}
+			<div class="epesi-rv-columns">
+				<div class="column" style="width: calc(100% / 3);">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.employee.full_field}
+					</div>
+				</div>
+				<div class="column" style="width: calc(100% / 3);">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						<div class="epesi-rv-row">
+							<div class="label">{$mail_archived_label}</div>
+							<div class="data" id="_archived_on__data"><div>{$mail_archived_html}&nbsp;</div></div>
+						</div>
+					</div>
+				</div>
+				<div class="column" style="width: calc(100% / 3);">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.thread.full_field}
+					</div>
+				</div>
+			</div>
 
-        </div>
-        </div>
+			{* Contacts | Related *}
+			<div class="epesi-rv-columns">
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.contacts.full_field}
+					</div>
+				</div>
+				<div class="column" style="width: 50%;">
+					<div class="{if $action == 'view'}view{else}edit{/if}">
+						{$fields.related.full_field}
+					</div>
+				</div>
+			</div>
+
+			{* Any other field (e.g. an admin-added custom field) falls through here instead of
+			   silently never rendering - same convention as every other per-table template
+			   (Contact.tpl, PhoneCall's default.tpl, etc). *}
+			<div class="epesi-rv-columns">
+				{foreach key=k item=f from=$fields name=fields}
+					{if $k!='subject' && $k!='from' && $k!='date' && $k!='to' && $k!='employee' && $k!='thread' && $k!='contacts' && $k!='related' && $k!='attachments'}
+						<div class="column" style="width: 50%;">
+							<div class="{if $action == 'view'}view{else}edit{/if}">
+								{$f.full_field}
+							</div>
+						</div>
+					{/if}
+				{/foreach}
+			</div>
+
+			{* Body - full width *}
+			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+				{$longfields.body.full_field}
+				{foreach key=k item=f from=$longfields name=fields}
+					{if $k!='body'}
+						{$f.full_field}
+					{/if}
+				{/foreach}
+			</div>
+
+			{* Attachments - full width, underneath Body; always a plain download link, even
+			   for PNG/JPG (see MailCommon_0.php::get_attachments_html()). *}
+			{if $mail_attachments_html}
+			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+				<div class="epesi-rv-row long_row">
+					<div class="label long_label">{$mail_attachments_label}</div>
+					<div class="data long_data" id="_attachments__data">
+						<div class="crm-mail-attachments">{$mail_attachments_html}</div>
+					</div>
+				</div>
+			</div>
+			{/if}
+
+		</div>
+		</div>
 
 	</div>
 </div>

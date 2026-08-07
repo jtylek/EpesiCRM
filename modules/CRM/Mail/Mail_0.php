@@ -58,18 +58,6 @@ class CRM_Mail extends Module {
 		$f->display();
 	}
 
-	public function attachments_addon($arg,$rb) {
-		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'attachments');
-		$attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($arg['id']));
-		$data = array();
-		foreach($attachments as $k=>&$n) {
-			$filename = DATA_DIR.'/CRM_Mail/attachments/'.$arg['id'].'/'.$k;
-			$data[] = array('<a href="modules/CRM/Mail/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$arg['id'])).'" target="_blank">'.$n.'</a>',file_exists($filename)?filesize($filename):'---');
-		}
-		$this->display_module($m,array(array(array('name'=>'Filename','search'=>1),
-							array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
-	}
-
 	public function addon($arg, $rb) {
 		$rs = $rb->tab;
 		$id = $arg['id'];
@@ -307,20 +295,6 @@ class CRM_Mail extends Module {
 		$this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
 		$order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
 		$this->display_module($this->rb,$order);
-	}
-
-	public function mail_body_addon($rec) {
-		$theme = $this->init_module('Base_Theme');
-		$rec['body'] = '<iframe id="rc_mail_body" src="modules/CRM/Mail/get_html.php?'.http_build_query(array('id'=>$rec['id'])).'" style="width:100%;border:0" border="0"></iframe>';
-		$theme->assign('email', $rec);
-		$theme->display('mail_body');
-	}
-
-	public function mail_headers_addon($rec) {
-		$theme = $this->init_module('Base_Theme');
-		$rec['headers_data'] = '<iframe id="rc_mail_body" src="modules/CRM/Mail/get_html.php?'.http_build_query(array('id'=>$rec['id'], 'field'=>'headers')).'" style="width:100%;border:0" border="0"></iframe>';
-		$theme->assign('email', $rec);
-		$theme->display('mail_headers');
 	}
 
 }
