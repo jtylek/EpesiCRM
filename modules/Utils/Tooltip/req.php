@@ -22,5 +22,11 @@ if (!isset($_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id'
 $callback = $_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id']]['callback'];
 $args = $_SESSION['client']['utils_tooltip']['callbacks'][$_POST['tooltip_id']]['args'];
 
-print(call_user_func_array($callback, $args));
+$content = call_user_func_array($callback, $args);
+// Callbacks (format_info_tooltip() etc.) return HTML; the adminlte client
+// (theme_adminltedark/tooltip.js) only ever displays plain text, so convert
+// here once rather than relying on the client to strip markup itself -
+// naive DOM textContent extraction collapsed block/row boundaries into a
+// single run-on line instead of one "Label: value" per line.
+print(Base_ThemeCommon::is_adminlte_family() ? Utils_TooltipCommon::to_plain_text($content) : $content);
 ?>

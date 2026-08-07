@@ -2068,19 +2068,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         // If CRM Module is not installed get user login only
         $created_by = Base_UserCommon::get_user_label($info['created_by']);
-        $htmlinfo=array(
-                    __('Record ID').':'=>$id,
-                    __('Created by').':'=>$created_by,
-                    __('Created on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['created_on'])
-                        );
-        if ($info['edited_on']!==null) {
-            $htmlinfo=$htmlinfo+array(
-                    __('Edited by').':'=>$info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'',
-                    __('Edited on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['edited_on'])
-                        );
-        }
 
-        return  Utils_TooltipCommon::format_info_tooltip($htmlinfo);
+        // Not a Label=>Value table (format_info_tooltip()'s usual shape):
+        // the edited/created date+time lines are deliberately label-less
+        // (time2reg()'s own defaults already give one "date time" string,
+        // no seconds), and edited_by/edited_on are shown before created_by/
+        // created_on - most recent activity first.
+        $lines = array('<strong>'.__('Record ID').': '.$id.'</strong>');
+        if ($info['edited_on']!==null) {
+            $edited_by = $info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'';
+            $lines[] = __('Edited by').': '.$edited_by;
+            $lines[] = Base_RegionalSettingsCommon::time2reg($info['edited_on']);
+        }
+        $lines[] = __('Created by').': '.$created_by;
+        $lines[] = Base_RegionalSettingsCommon::time2reg($info['created_on']);
+
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+        return $purifier->purify(implode('<br>', $lines));
     }
     public static function get_record($tab, $id, $htmlspecialchars=true) {
         if (!is_numeric($id)) return null;

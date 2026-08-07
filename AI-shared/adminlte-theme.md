@@ -315,12 +315,41 @@ converted from `<tr>/<td>` to `<div>` as part of the 2026-08-04 legacy-theme
 div conversion, since the class is theme-agnostic and shared by every theme;
 still a CSS-only reskin, not converted to the Smarty array renderer),
 leightbox popup *contents* (e.g. CRM_Filters "manage perspectives"),
-Base_Help's tutorial overlay. Tooltips are **plain native browser tooltips**
-(`title="..."` only) — three separate attempts at a JS-driven (Bootstrap)
-tooltip component each broke real functionality in hard-to-diagnose ways
-(load-order races, orphaned popups, conflicts with `GenericBrowser`'s own
-hover-driven `table_overflow_show`); treat any future JS tooltip attempt here
-as high-risk and test broadly before calling it done.
+Base_Help's tutorial overlay.
+
+**Tooltips** (`Utils_Tooltip`, 2026-08 restyle): grey/black to match the
+sidebar (`#DEE2E6`/`#000`, hardcoded not themed — see
+`Base/Box/theme_adminltedark/default.css`'s sidebar rule for why). Native
+tooltips (`title="..."`, the pre-2026-08 mechanism) can't be recolored by CSS
+at all, so recoloring forced a real rendering change. Two things were tried
+and rejected before landing on the current approach:
+1. A JS-driven Bootstrap tooltip *component*, three separate times, well
+   before this restyle — broke real functionality in hard-to-diagnose ways
+   each time (load-order races, orphaned popups, conflicts with
+   `GenericBrowser`'s own hover-driven `table_overflow_show`). Treat any
+   future JS tooltip *component* attempt here as high-risk.
+2. A pure CSS `::after` popup (`[data-tooltip]:hover::after`, no JS at all) —
+   seemed safest given (1), but had to be dropped too: it's clipped by any
+   ancestor with `overflow:hidden`, and that turned out to include plain
+   Bootstrap `.card` containers (rounded corners on dashboard applets, admin
+   panels, etc.), not just `RecordBrowser`/`GenericBrowser` table cells'
+   ellipsis truncation — i.e. most of the app, not an edge case. Confirmed by
+   hovering a dashboard applet's own "Remove" icon in a live browser: computed
+   `content`/colors were correct, but invisible, clipped by `.card`.
+
+What's actually live now: both `open_tag_attrs()` ("help" tooltips, e.g.
+action icons) and `ajax_open_tag_attrs()` (RecordBrowser "show in tooltip"
+record-hover tooltips) render the same plain `.epesi-tooltip-popup` div,
+appended to `<body>` on a bare `onmouseenter`
+(`Utils/Tooltip/theme_adminltedark/tooltip.js`) — the same body-append escape
+`table_overflow_show` itself already uses for overflowing cell content, not a
+component with its own event-delegation lifecycle, so still a fundamentally
+different risk profile from (1). Known consequence: since this popup and
+`table_overflow_show`'s own overflow-preview box can both trigger off
+hovering the same `<td>` (the tooltip span is nested inside the cell
+`table_overflow_show`'s `onmouseover` is bound to), a cell whose content is
+both truncated *and* tooltip-enabled can show both popups at once. Cosmetic
+(nothing errors or breaks), not chased further yet.
 
 As part of the original fork, several modules' nested-`<table>` layout was
 rewritten as real flexbox/grid (QuickForm's `row.tpl`/`column.tpl`,

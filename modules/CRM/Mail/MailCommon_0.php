@@ -316,6 +316,17 @@ class CRM_MailCommon extends ModuleCommon {
     public static function format_address_list($raw) {
         $raw = trim((string) $raw);
         if ($raw === '') return '';
+        // Callers pass $raw_data field values (RecordBrowser's own record-
+        // display prep), which are already HTML-escaped for direct output -
+        // decode once before format_address()'s own htmlspecialchars() calls
+        // below, or a stored value that already contains a literal quote
+        // character (the straight-quoted "Name email@domain" form this
+        // function specifically targets, see below) gets double-escaped:
+        // the decoded '"' survives as real text, but the *encoded* one
+        // (still reading as literal "&quot;" at this point) has its '&'
+        // escaped into '&amp;' on top, rendering as literal "&quot;" text
+        // on screen instead of a quote mark.
+        $raw = html_entity_decode($raw, ENT_QUOTES);
         $out = array();
         foreach (self::split_address_list($raw) as $part) {
             $out[] = self::format_address($part);

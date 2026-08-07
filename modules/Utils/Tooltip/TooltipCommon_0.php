@@ -50,22 +50,85 @@ class Utils_TooltipCommon extends ModuleCommon {
 	// scripts already present in this app in ways that were hard to pin
 	// down precisely and broke real functionality each time (see
 	// adminlte-css-conflicts.md's "e:load"/tooltip entries for the history).
-	// Reverted by request to a plain native browser tooltip instead - just
-	// the title="..." attribute, no JS component at all - which trades
-	// visual polish for a guarantee that this feature can never again
-	// conflict with anything else on the page, since there is nothing left
-	// for it to conflict with.
-	private static function to_plain_text($tip) {
-		// Native tooltips only ever show plain text, so block-ish
-		// boundaries are turned into separators (title="" does render \n)
-		// before stripping the rest, so e.g. format_info_tooltip()'s table
-		// still reads as "Label: value" one per line instead of one run-on
-		// wall of text.
+	// Reverted by request to a plain native browser tooltip - just the
+	// title="..." attribute, no JS component at all. Restyling to match the
+	// sidebar's grey/black scheme (2026-08) still had to avoid that same
+	// failure mode, since native tooltips can't be recolored with CSS at
+	// all. A pure CSS ::after popup (no JS at all) was tried next, but had
+	// to be dropped too: it's clipped by any ancestor with overflow:hidden,
+	// which turned out to include plain Bootstrap .card containers (used
+	// for rounded corners on dashboard applets, admin panels, etc.), not
+	// just RecordBrowser/GenericBrowser table cells. Both open_tag_attrs()
+	// and ajax_open_tag_attrs() now render the same small
+	// theme_adminltedark/tooltip.js-driven popup (a real element appended to
+	// <body> on hover, escaping any ancestor's clipping) - see that file's
+	// header comment for why this is a fundamentally different, much lower
+	// risk to that same failure mode than the earlier Bootstrap component
+	// attempts: no component, no event delegation, just a plain
+	// mouseenter/mouseleave pair.
+	// Splits on $delimiter_regex, trims/collapses whitespace within each
+	// piece, drops any that end up empty, and rejoins with $join. A plain
+	// "collapse 2+ newlines into 1" regex (the previous approach) missed
+	// lines that were only ever template indentation (a run of tabs/spaces
+	// between two tags, e.g. changes_list.tpl's per-cell divs each on their
+	// own source line) - those collapse to a single space, not nothing, so
+	// they never matched as "blank" and survived as stray near-empty lines
+	// in the popup. Collapsing only [ \t]{2,} (2+ spaces/tabs) wasn't enough
+	// either: the role="cell"/"columnheader" join above only replaces the
+	// exact "</div>...<div...>" span between two cells, leaving each cell's
+	// OWN internal template whitespace (a single "\n\t\t" before/after its
+	// text, from the source .tpl's own indentation) sitting untouched right
+	// next to the newly-inserted " | " - visible as literal stray newlines
+	// splitting "Field | Old value" back across lines. Collapsing every
+	// \s+ run (not just space/tab, and not just 2+) catches that too.
+	private static function collapse_blank_lines($text, $delimiter_regex, $join) {
+		$lines = preg_split($delimiter_regex, $text);
+		$lines = array_map(function($l) {
+			return trim(preg_replace('/\s+/', ' ', $l));
+		}, $lines);
+		return implode($join, array_filter($lines, function($l) { return $l !== ''; }));
+	}
+
+	public static function to_plain_text($tip) {
+		// The tooltip popup only ever shows plain text, so block-ish
+		// boundaries are turned into separators before stripping the rest,
+		// so e.g. format_info_tooltip()'s table still reads as
+		// "Label: value" one per line instead of one run-on wall of text.
 		$plain = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
+		// Same idea for the CSS-Grid-based table replacements some templates
+		// use instead of a real <table> (e.g. Utils_RecordBrowser's
+		// changes_list.tpl, "Field/Old value/New value" - real <div>s with
+		// role="row"/"columnheader"/"cell" restoring ARIA table semantics,
+		// see that file's own header comment) - adjacent cells within one
+		// row joined onto a single line instead of each getting its own.
+		$plain = preg_replace('#</div>\s*<div[^>]*\brole="(?:cell|columnheader)"[^>]*>#i', ' | ', $plain);
 		$plain = preg_replace('#</(tr|div|p|li)>|<br\s*/?>#i', "\n", $plain);
-		$plain = trim(html_entity_decode(strip_tags($plain), ENT_QUOTES));
-		$plain = preg_replace('/[ \t]{2,}/', ' ', $plain);
-		return preg_replace("/\n{2,}/", "\n", $plain);
+		$plain = html_entity_decode(strip_tags($plain), ENT_QUOTES);
+		return self::collapse_blank_lines($plain, '/\n/', "\n");
+	}
+
+	// Like to_plain_text() but keeps a small safe-formatting subset
+	// (<strong>/<b>/<br>) instead of stripping every tag, since
+	// open_tag_attrs()'s popup renders this via innerHTML
+	// (theme_adminltedark/tooltip.js's epesi_tooltip_show()), not plain
+	// textContent - lets e.g. Utils_RecordBrowserCommon::get_html_record_info()
+	// bold its "Record ID" line. Deliberately does NOT html_entity_decode
+	// like to_plain_text() does: that round-trip is only safe when the
+	// result is consumed as inert text, never re-parsed as HTML - any
+	// entities already present are left alone and rendered natively by the
+	// browser instead. ajax_open_tag_attrs()'s content keeps going through
+	// to_plain_text() + textContent (see tooltip.js), since its req.php
+	// response has already been through html_entity_decode server-side,
+	// which innerHTML would be unsafe to re-parse.
+	public static function to_safe_html($tip) {
+		$safe = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
+		// See to_plain_text()'s matching comment - CSS-Grid table
+		// replacements (role="cell"/"columnheader") join their row's cells
+		// onto one line the same way a real <table>'s </td><td> does above.
+		$safe = preg_replace('#</div>\s*<div[^>]*\brole="(?:cell|columnheader)"[^>]*>#i', ' | ', $safe);
+		$safe = preg_replace('#</(tr|div|p|li)>#i', '<br>', $safe);
+		$safe = strip_tags($safe, '<strong><b><br>');
+		return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 	}
 
 	/**
@@ -81,7 +144,16 @@ class Utils_TooltipCommon extends ModuleCommon {
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
 		if (Base_ThemeCommon::is_adminlte_family()) {
-			return ' data-epesi-tooltip="1" title="'.htmlspecialchars(self::to_plain_text($tip)).'" ';
+			// data-tooltip holds the popup's content (safe-HTML subset, see
+			// to_safe_html()); theme_adminltedark/tooltip.js's
+			// epesi_tooltip_show() reads it on hover and shows/positions the
+			// popup via innerHTML (theme_adminltedark/default.css's
+			// .epesi-tooltip-popup). aria-label carries the fully-plain
+			// version, space-joined, for screen readers, since a data-*
+			// attribute has no accessibility semantics of its own.
+			$html = self::to_safe_html($tip);
+			$plain = self::to_plain_text($tip);
+			return ' data-epesi-tooltip="1" data-tooltip="'.htmlspecialchars($html).'" aria-label="'.htmlspecialchars(str_replace("\n", ' ', $plain)).'" onmouseenter="epesi_tooltip_show(this)" ';
 		}
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.show(this,event,'.$max_width.')" tip="'.htmlspecialchars($tip).'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
 	}
@@ -103,15 +175,17 @@ class Utils_TooltipCommon extends ModuleCommon {
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
 
 		if (Base_ThemeCommon::is_adminlte_family()) {
-			// Content isn't known yet - theme_adminltedark/tooltip.js's
-			// epesi_tooltip_ajax_load(), wired via plain onmouseenter (no
-			// Bootstrap/Popper involved, see open_tag_attrs() above), POSTs
-			// to the same modules/Utils/Tooltip/req.php the default theme
-			// uses on first hover and rewrites the title attribute in
-			// place. Native tooltips don't refresh mid-display, so the
-			// very first hover on a given element still shows "Loading..."
-			// once; the fetched content shows from the next hover onward.
-			return ' data-epesi-tooltip="1" title="'.htmlspecialchars(__('Loading...')).'" onmouseenter="epesi_tooltip_ajax_load(this,\''.$tooltip_id.'\')" ';
+			// Content isn't known yet - deliberately a separate
+			// data-tooltip-ajax attribute (not data-tooltip), since
+			// theme_adminltedark/tooltip.js's epesi_tooltip_ajax_load()
+			// (wired via plain onmouseenter, no Bootstrap/Popper involved)
+			// needs to tell "show this placeholder now" apart from
+			// open_tag_attrs()'s "content already known" case. It POSTs to
+			// the same modules/Utils/Tooltip/req.php the default theme uses
+			// on first hover, then rewrites the popup's content in place
+			// once the ajax call returns, so (unlike the old title-attribute
+			// version) it updates live rather than needing a second hover.
+			return ' data-epesi-tooltip="1" data-tooltip-ajax="'.htmlspecialchars(__('Loading...')).'" onmouseenter="epesi_tooltip_ajax_load(this,\''.$tooltip_id.'\')" ';
 		}
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';
@@ -195,11 +269,13 @@ class Utils_TooltipCommon extends ModuleCommon {
 }
 
 // The default theme's custom mouse-tracking #tooltip_div is unused under
-// adminlte (plain native title="..." tooltips instead, see open_tag_attrs())
-// - loading it too would be dead weight, and init_tooltip_div() would inject
-// a floating div nothing ever shows. theme_adminltedark/tooltip.js is still
-// needed for the ajax_open_tag_attrs() variant's on-hover content fetch.
+// adminlte (see open_tag_attrs()/ajax_open_tag_attrs() above) - loading it
+// too would be dead weight, and init_tooltip_div() would inject a floating
+// div nothing ever shows. theme_adminltedark/default.css has the CSS-only
+// [data-tooltip] popup; theme_adminltedark/tooltip.js is still needed for
+// the ajax_open_tag_attrs() variant's on-hover content fetch + popup.
 if (Base_ThemeCommon::is_adminlte_family()) {
+	Base_ThemeCommon::load_css(Utils_TooltipCommon::module_name(),'default');
 	load_js('modules/Utils/Tooltip/theme_adminltedark/tooltip.js');
 } else {
 	load_js('modules/Utils/Tooltip/js/tooltip.js');

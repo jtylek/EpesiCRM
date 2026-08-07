@@ -1,0 +1,40 @@
+/* Tooltip styling: grey background / black text, matching the sidebar's
+   fixed scheme (Base/Box/theme_adminltedark/default.css, #DEE2E6 / #000) so
+   it stays legible regardless of light/dark mode - deliberately hardcoded
+   here rather than using the --epesi-surface/--epesi-border vars, which flip
+   with the theme.
+
+   Both open_tag_attrs() ("help" tooltips) and ajax_open_tag_attrs()
+   (RecordBrowser hover tooltips) render this same popup via
+   theme_adminltedark/tooltip.js, appended to <body> on hover - see that
+   file's header comment for why a pure CSS ::after popup didn't work here
+   (clipped by any overflow:hidden ancestor, which includes plain Bootstrap
+   .card containers, not just RecordBrowser/GenericBrowser table cells). */
+.epesi-tooltip-popup {
+	position: fixed;
+	background-color: #DEE2E6;
+	color: #000;
+	white-space: pre-line;
+	padding: 4px 8px;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 4px;
+	font-size: .8125rem;
+	line-height: 1.4;
+	/* Without an explicit width, position:fixed's shrink-to-fit sizing was
+	   computing narrower than the widest actual line (browser quirk), so
+	   e.g. "Created by: Tylek Karina" wrapped despite easily fitting under
+	   max-width - width:max-content forces sizing to the content's real
+	   natural width instead, and max-width still caps/wraps a genuinely
+	   long single line. */
+	width: max-content;
+	/* Wide enough for a "Field | Old value | New value" changes-list row
+	   (Watchdog/RecordBrowser's changes_list.tpl content, per request) to
+	   read as one line rather than wrapping mid-row. */
+	max-width: 480px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+	/* Above every other z-index in the theme (StatusBar 2001-2002,
+	   Base_Help's tutorial overlay 9001-9002 included) - a hover tooltip
+	   should never end up buried under a modal/leightbox/status bar. */
+	z-index: 9500;
+	pointer-events: none;
+}

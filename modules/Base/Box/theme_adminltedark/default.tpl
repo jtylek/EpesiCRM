@@ -194,42 +194,54 @@
 				"if(!actions.length)return;".
 				"var m=getMenu();".
 				"m.innerHTML='';".
+				// No visible text label per action (per request) - the panel
+				// is a horizontal row of icons now, not a vertical list, and
+				// every cloned <a> already carries its own hover tooltip
+				// (Utils_TooltipCommon::open_tag_attrs() sets data-tooltip/
+				// aria-label/onmouseenter="epesi_tooltip_show(this)" on the
+				// original element, all preserved by cloneNode), so a
+				// second, redundant text label isn't needed to identify the
+				// action - it used to read the (since-removed) title
+				// attribute for exactly that, which is why this used to
+				// render as icons with empty space where the label used to
+				// be rather than nothing at all.
 				"actions.forEach(function(a){".
-					"var clone=a.cloneNode(true);".
-					// data-epesi-mobile-label (RowObject.php's add_info(), Record ID
-					// only) stands in for the full title text where one is present -
-					// today that's just the info icon, whose title is a whole "Record
-					// ID / Created by / Edited by / ..." dump meant for a hover
-					// tooltip, not a menu item label.
-					"var label=a.getAttribute('data-epesi-mobile-label')||a.getAttribute('title');".
-					"if(label){var span=document.createElement('span');span.textContent=label;clone.appendChild(span);}".
-					"m.appendChild(clone);".
+					"m.appendChild(a.cloneNode(true));".
 				"});".
 				"m.classList.add('show');".
 				"var r=btn.getBoundingClientRect();".
-				// A row near the bottom of the viewport (last few rows of a long
-				// table, small phone screen) left the menu opening downward
-				// unconditionally, running off the bottom of the screen with no
-				// way to reach the actions past whatever happened to fit above the
-				// fold. Flip to open upward instead whenever there isn't enough
-				// room below AND there IS enough room above; if neither direction
-				// fits (a very long action list on a very short viewport), keep
-				// opening downward and let #epesi-gb-actions-menu's own
-				// max-height:60vh + overflow-y:auto (default.css) make it
-				// scrollable instead of clipped.
+				// Opens as a flyout to the RIGHT of the button by default
+				// (per request) instead of dropping down below it, which
+				// used to overlap/cover the row(s) underneath. A button near
+				// the right edge of the viewport (a narrow "actions" column
+				// pinned to the right side of a wide table, small phone
+				// screen) left the menu running off the right of the screen
+				// with no room to reach it, so flip to the LEFT instead
+				// whenever there isn't enough room to the right AND there IS
+				// enough room to the left; if neither fits (a very wide menu
+				// on a very narrow viewport), keep opening to the right and
+				// let it clip rather than mis-measure a negative position.
+				"var menuWidth=m.offsetWidth;".
 				"var menuHeight=m.offsetHeight;".
-				"var spaceBelow=window.innerHeight-r.bottom;".
-				"var top;".
-				"if(spaceBelow>=menuHeight+4||r.top<menuHeight+4){".
-					"top=r.bottom+4;".
+				"var spaceRight=window.innerWidth-r.right;".
+				"var left;".
+				"if(spaceRight>=menuWidth+4||r.left<menuWidth+4){".
+					"left=r.right+4;".
 				"}else{".
-					"top=r.top-menuHeight-4;".
+					"left=r.left-menuWidth-4;".
 				"}".
-				"if(top<4)top=4;".
-				"m.style.top=top+'px';".
-				"var left=r.right-m.offsetWidth;".
 				"if(left<4)left=4;".
 				"m.style.left=left+'px';".
+				// Top-aligned with the button by default, nudged up only if
+				// that would run the menu off the bottom of the viewport
+				// (last few rows of a long table) - mirrors
+				// #epesi-gb-actions-menu's own max-height:60vh+overflow-y:auto
+				// (default.css) as the final fallback for a menu too tall to
+				// fit even flush against the bottom edge.
+				"var top=r.top;".
+				"if(top+menuHeight>window.innerHeight-4)top=window.innerHeight-menuHeight-4;".
+				"if(top<4)top=4;".
+				"m.style.top=top+'px';".
 				"btn.classList.add('epesi-gb-actions-open');".
 			"}".
 			// A row's action <a>s fall into two groups: the "core" ones built

@@ -922,33 +922,80 @@
 	display: none !important;
 }
 
+/* Utils_Watchdog's own dashboard applet (Watchdog_0.php::applet(), wrapped in its own
+   "epesi-watchdog-applet" div) - same opt-out as .epesi-admin-panel above, per request: its own
+   action set (Stop Watching/View/Mark as Read) is short enough to always fit, and unlike a
+   regular full-page RecordBrowser table this one is a small dashboard tile a user may well keep
+   open at a narrow browser width even on an otherwise-wide desktop. */
+.epesi-watchdog-applet .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-watchdog-applet .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
+/* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
+   module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
+   (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus
+   whatever else RecordBrowser/GenericBrowser build in directly), so they always group into the
+   "More actions" (bi-three-dots) toggle regardless of viewport width - a second, independent
+   collapsing mechanism from the mobile kebab just above, needing the same shaped fix. */
+.epesi-watchdog-applet .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-watchdog-applet .epesi-gb-more-toggle {
+	display: none !important;
+}
+
+/* Actions column width: epesiSizeGbActions() (Base_Box/theme_adminltedark/default.tpl) sizes
+   this column by measuring a detached CLONE of the cell - cloneNode(true) copies the cell and
+   its own descendants, but not this wrapper div sitting outside the table, so the clone never
+   sees the two overrides above and always measures the collapsed/grouped state, undersizing the
+   column for what's actually shown live once those overrides force every icon visible. This
+   applet always has the same small, fixed action set (view/info/Stop Watching/Mark as Read -
+   Watchdog_0.php), so a generous fixed width - comfortably wide enough for all of them plus room
+   to grow by one more - is simpler and lower-risk than teaching that shared, already-intricate
+   (and separately still in progress) measurement script about this one table's own wrapper
+   class. !important: epesiSizeGbActions() sets its own (undersized, per the above) width via
+   inline style, which this still needs to win over; the other columns (Cat./Title) were already
+   sized assuming that narrower width, so the row may render a little wider than the applet's own
+   box here - accepted per request ("render as fluid div" if a plain wider column doesn't
+   otherwise fit) over clipping an icon or falling back to the kebab. */
+.epesi-watchdog-applet .Utils_GenericBrowser__th.Utils_GenericBrowser__actions,
+.epesi-watchdog-applet .Utils_GenericBrowser__td.Utils_GenericBrowser__actions {
+	width: 110px !important;
+	min-width: 110px !important;
+}
+
 #epesi-gb-actions-menu {
 	display: none;
 	position: fixed;
 	z-index: 1055;
-	min-width: 160px;
-	max-height: 60vh;
-	overflow-y: auto;
+	max-width: 90vw;
+	overflow-x: auto;
 	background-color: #2b3035;
 	border: 1px solid #495057;
 	border-radius: 0.375rem;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
-	padding: 0.25rem 0;
+	padding: 0.25rem;
 }
 
+/* Horizontal row of icon-only buttons (per request) rather than a vertical
+   list - each item already carries its own hover tooltip (cloned along with
+   the <a>, see openMenuFor() in Base_Box/theme_adminltedark/default.tpl),
+   so no in-panel text label is needed to identify the action. */
 #epesi-gb-actions-menu.show {
-	display: block;
+	display: flex;
+	flex-direction: row;
 }
 
 #epesi-gb-actions-menu a {
 	display: flex !important;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.4rem 0.85rem;
+	justify-content: center;
+	padding: 0.5rem 0.65rem;
 	color: #ced4da;
 	text-decoration: none;
-	white-space: nowrap;
-	font-size: 0.85rem;
 }
 
 #epesi-gb-actions-menu a:hover {

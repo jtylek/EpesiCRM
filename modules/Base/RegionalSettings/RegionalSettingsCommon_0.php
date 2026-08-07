@@ -205,7 +205,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 	 * @return string date and time (no seconds), joined by <br>
 	 */
 	public static function time2reg_multiline($t=null,$tz=true) {
-		return self::time2reg($t,false,true,$tz).'<br>'.self::time2reg($t,true,false,$tz);
+		return self::time2reg($t,false,true,$tz).'<br>'.self::time2reg($t,2,false,$tz);
 	}
 
 	public static function strftime($format,$timestamp) {
