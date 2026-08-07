@@ -661,3 +661,44 @@ left alone here (different popups, not reported broken); if one of them turns
 up the same off-screen symptom, that's confirmation to lift `clampToViewport`
 into a shared helper rather than re-deriving it a third time.
 
+## Fixing one caller of a shared tooltip helper left a second caller of the *same underlying data* unfixed
+
+Found 2026-08-07 making the Watchdog/RecordBrowser "what changed" tooltip
+(`Utils_RecordBrowserCommon::watchdog_label()`'s `changes_list.tpl` output,
+"Field/Old value/New value") render as a real table instead of a flattened
+`" | "`/`": "`-joined line. First fix touched only `Utils_WatchdogCommon::
+ajax_subscription_tooltip()`, the callback behind the per-row "watching" icon's
+`Utils_TooltipCommon::ajax_open_tag_attrs()` call - verified the isolated
+string-transform logic worked, shipped it, and the reported tooltip (the
+Watchdog **applet**'s info icon) still rendered exactly as before, on two
+browsers, after a hard refresh and a full Apache restart. Neither of those
+was the problem: the applet builds its info icon through a **completely
+different** path - `Watchdog_0.php`'s `applet()` → `RowObject::add_info()` →
+`GenericBrowser_0.php`'s row-action renderer → `Utils_TooltipCommon::
+open_tag_attrs()` (the *synchronous* tooltip helper, not the ajax one) - which
+still called the old, always-flattening `to_safe_html($tip)` with no way to
+opt out. Same source data (`watchdog_label()`'s HTML), two independent
+rendering call chains reaching `Utils_TooltipCommon` by different routes; only
+one of them got the fix.
+
+**Fix**: threaded a `$keep_table` flag through **both** chains -
+`Utils_TooltipCommon::to_safe_html($tip, $keep_table)` / `open_tag_attrs(...,
+$keep_table)` / `ajax_open_tag_attrs(..., $safe_html)` for the ajax
+callback, and `GenericBrowser_0.php::__add_row_action()` /
+`RowObject::add_info(..., $keep_table)` for the synchronous one - defaulting
+to `false` everywhere so every *other* tooltip (view/edit/delete action
+tooltips, `format_info_tooltip()`-based ones) keeps its existing flattened
+rendering untouched, and set it `true` only at the two call sites that
+actually pass `changes_list.tpl` content (`WatchdogCommon_0.php`'s ajax
+callback and `Watchdog_0.php`'s `add_info()` call).
+
+**How to apply**: when a fix targets "content X renders wrong," grep for
+*every* place that content reaches the screen before declaring done - the
+same underlying data/callback can be wired through more than one independent
+rendering path (sync vs. ajax, a dashboard applet vs. a plain list row), and
+a plausible-looking negative result (hard refresh, cache clear, server
+restart, all with no change) is itself a strong signal that the executing
+code genuinely hasn't changed for *that specific call site* - i.e. you fixed
+a different path than the one being looked at - rather than a caching
+problem to chase.
+
