@@ -24,6 +24,20 @@
 	gap: 0.5rem;
 }
 
+/* The dashboard applet's own .card (chat_form.tpl - not chat_form_big.tpl's
+   Chat-tab rendering, which is a normal module body and never sits inside a
+   zero-padding .epesi-applet-body to begin with) needs its own padding: a
+   bare .card class supplies no padding of its own (only .card-body does, and
+   this reuses .epesi-shoutbox's own flex container rather than adding a
+   separate nested .card-body div), and #dashboard .epesi-applet-body's own
+   padding is zeroed by Base/Dashboard/theme_adminltedark/default.css for
+   GenericBrowser/RecordBrowser table applets - which, applied blanket to
+   every applet body, left this form/board pair pressed flush against the
+   applet's outer edges with no inset at all. */
+.epesi-shoutbox.card {
+	padding: 0.5rem;
+}
+
 .epesi-shoutbox-compose textarea {
 	width: 100%;
 	min-height: 60px;

@@ -127,9 +127,27 @@
    already-padding-0 body - its own Bootstrap mb-3 (1rem) margin then reads
    as a band of unexplained white space between the table/pager and the
    applet card's own bottom edge, since there's no sibling content below it
-   to justify the gap here. Zeroed the same way padding was above. */
+   to justify the gap here. Zeroed the same way padding was above.
+
+   Per request: this inner card's own Bootstrap border/border-radius also
+   render as a second, narrower box nested just inside the applet's own
+   .epesi-applet-card frame (a visible rounded-corner line around the table,
+   inset from the applet's real edge) - stripped here so the table runs
+   flush to the applet's own edges instead. Bootstrap 5's .card-header/
+   .card-footer read their own divider border from the --bs-card-border-width
+   custom property rather than a literal value inherited from .card's own
+   border shorthand, so zeroing that variable (not just "border:none" on the
+   card element itself) is what's needed to reach those too; same for
+   --bs-card-border-radius, which .card-header:first-child/.card-footer:
+   last-child read for their own corner rounding independent of the parent's
+   own border-radius property. The outer .epesi-applet-card keeps its own
+   real border, so the applet as a whole still reads as one bordered box,
+   not zero. */
 #dashboard .epesi-applet-body .epesi-gb.card {
 	margin-bottom: 0 !important;
+	--bs-card-border-width: 0;
+	--bs-card-border-radius: 0;
+	box-shadow: none;
 }
 
 /* Colour accent (was a 4px border around the whole card in the default

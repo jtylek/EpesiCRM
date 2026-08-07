@@ -16,7 +16,19 @@
 	}
 	$this->assign('form_data', $form_data);
 {/php}
-<div class="Apps_Shoutbox__dashboard epesi-shoutbox">
+{* Wrapped in its own Bootstrap "card" (same recipe as Utils_GenericBrowser's
+   own .epesi-gb.card, Utils/GenericBrowser/theme_adminltedark/default.tpl) -
+   #dashboard .epesi-applet-body has padding:0!important (Base/Dashboard/
+   theme_adminltedark/default.css), a blanket rule meant for GenericBrowser/
+   RecordBrowser table applets so their own grid can run edge-to-edge, applied
+   indiscriminately to every applet's body regardless of content. Without an
+   inner card of its own supplying its own padding, this form/board pair sat
+   pressed flush against the applet's outer edges - reported as "looked
+   better before" (i.e. before that shared zero-padding rule started
+   affecting this non-table applet too). Scoped to chat_form.tpl specifically
+   (chat_form_big.tpl's own Chat-tab rendering is a normal module body, never
+   inside .epesi-applet-body, so it doesn't need this and isn't touched). *}
+<div class="Apps_Shoutbox__dashboard epesi-shoutbox card">
 	{$form_open}
 	<div class="epesi-shoutbox-compose">
 		{$form_data.post.html}
