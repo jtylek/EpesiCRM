@@ -117,10 +117,29 @@ class Utils_TooltipCommon extends ModuleCommon {
 	// result is consumed as inert text, never re-parsed as HTML - any
 	// entities already present are left alone and rendered natively by the
 	// browser instead. ajax_open_tag_attrs()'s content keeps going through
-	// to_plain_text() + textContent (see tooltip.js), since its req.php
-	// response has already been through html_entity_decode server-side,
-	// which innerHTML would be unsafe to re-parse.
-	public static function to_safe_html($tip) {
+	// to_plain_text() + textContent (see tooltip.js) by default, since its
+	// req.php response has already been through html_entity_decode
+	// server-side, which innerHTML would be unsafe to re-parse - unless the
+	// caller opted into $keep_table (see ajax_open_tag_attrs()'s $safe_html
+	// param), in which case req.php routes through here instead and
+	// tooltip.js renders it via innerHTML too.
+	//
+	// $keep_table: for content built from a real <table> (currently just
+	// Utils_RecordBrowser's theme_adminltedark/changes_list.tpl, a
+	// "Field/Old value/New value" changes grid) - keeps table/row/cell tags
+	// intact instead of flattening them to "Field: Old value"-style lines,
+	// so the browser aligns the columns instead of the columns running
+	// together at whatever width each value happens to be. Deliberately its
+	// own allowlist rather than folding into the default one: interactive/
+	// resource tags (<a>, <img>, ...) stay excluded either way, but the
+	// default allowlist's </td><td> and role="cell" flattening would corrupt
+	// a real table's structure the moment it also carries these tags.
+	public static function to_safe_html($tip, $keep_table = false) {
+		if ($keep_table) {
+			$safe = preg_replace('#</(div|p|li)>#i', '<br>', $tip);
+			$safe = strip_tags($safe, '<strong><b><br><table><tr><th><td>');
+			return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
+		}
 		$safe = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
 		// See to_plain_text()'s matching comment - CSS-Grid table
 		// replacements (role="cell"/"columnheader") join their row's cells
@@ -137,9 +156,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 *
 	 * @param string tooltip text
 	 * @param boolean help tooltip? (you can turn off help tooltips)
+	 * @param int max_width unused under adminlte (fixed via .epesi-tooltip-popup's own max-width); kept for the legacy theme's Utils_Tooltip.show()
+	 * @param bool keep a real <table>'s structure instead of flattening it (see to_safe_html()'s $keep_table doc) - opt in only when $tip's HTML is known to be safe to keep, e.g. Utils_GenericBrowser\RowObject::add_info()'s Watchdog changes-list caller
 	 * @return string HTML tag attributes
 	 */
-	public static function open_tag_attrs( $tip, $help=true, $max_width=500 ) {
+	public static function open_tag_attrs( $tip, $help=true, $max_width=500, $keep_table=false ) {
 		if(MOBILE_DEVICE) return '';
 		self::show_help();
 		if($help && !self::$help_tooltips) return '';
@@ -151,7 +172,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 			// .epesi-tooltip-popup). aria-label carries the fully-plain
 			// version, space-joined, for screen readers, since a data-*
 			// attribute has no accessibility semantics of its own.
-			$html = self::to_safe_html($tip);
+			$html = self::to_safe_html($tip, $keep_table);
 			$plain = self::to_plain_text($tip);
 			return ' data-epesi-tooltip="1" data-tooltip="'.htmlspecialchars($html).'" aria-label="'.htmlspecialchars(str_replace("\n", ' ', $plain)).'" onmouseenter="epesi_tooltip_show(this)" ';
 		}
@@ -164,12 +185,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 *
 	 * @param callback method that will be called to get tooltip content
 	 * @param array parameters that will be passed to the callback
+	 * @param int unused under adminlte (fixed via .epesi-tooltip-popup's own max-width); kept for the legacy theme's Utils_Tooltip.load_ajax()
+	 * @param bool render the callback's HTML via to_safe_html($content,true)+innerHTML (keeps e.g. a real <table>'s columns aligned) instead of the default to_plain_text()+textContent flatten - opt in only for callbacks whose HTML is safe to keep (see to_safe_html()'s $keep_table doc)
 	 * @return string HTML tag attributes
 	 */
-	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300 ) {
+	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300, $safe_html=false ) {
 		if(MOBILE_DEVICE) return '';
 
-		$tooltip_settings = array('callback'=>$callback, 'args'=>$args);
+		$tooltip_settings = array('callback'=>$callback, 'args'=>$args, 'safe_html'=>$safe_html);
 		$tooltip_id = md5(serialize($tooltip_settings));
 
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
@@ -185,7 +208,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 			// on first hover, then rewrites the popup's content in place
 			// once the ajax call returns, so (unlike the old title-attribute
 			// version) it updates live rather than needing a second hover.
-			return ' data-epesi-tooltip="1" data-tooltip-ajax="'.htmlspecialchars(__('Loading...')).'" onmouseenter="epesi_tooltip_ajax_load(this,\''.$tooltip_id.'\')" ';
+			// data-tooltip-html tells tooltip.js to render the (eventual)
+			// response via innerHTML instead of textContent - only set when
+			// $safe_html is true, matching the safe_html flag req.php reads
+			// back out of $tooltip_settings above.
+			$html_attr = $safe_html ? ' data-tooltip-html="1"' : '';
+			return ' data-epesi-tooltip="1" data-tooltip-ajax="'.htmlspecialchars(__('Loading...')).'"'.$html_attr.' onmouseenter="epesi_tooltip_ajax_load(this,\''.$tooltip_id.'\')" ';
 		}
 		$loading_message = '<center><img src='.Base_ThemeCommon::get_template_file('Utils_Tooltip','loader.gif').' /><br/>'.__('Loading...').'</center>';
 		return ' onMouseMove="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.load_ajax(this,event,'.$max_width.')" tip="'.$loading_message.'" tooltip_id="'.$tooltip_id.'" onMouseOut="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" onMouseUp="if(typeof(Utils_Tooltip)!=\'undefined\')Utils_Tooltip.hide()" ';

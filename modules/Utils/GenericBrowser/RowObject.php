@@ -97,11 +97,15 @@ class Utils_GenericBrowser_RowObject {
      *   default.tpl), where $tooltip's full "Record ID / Created by / Edited
      *   by / ..." dump would otherwise be the only text available - that
      *   tooltip is meant to be read on hover, not as a menu item label.
+     * @param bool $keep_table keep a real <table>'s structure in $tooltip
+     *   instead of flattening it (Utils_TooltipCommon::open_tag_attrs()'s
+     *   $keep_table) - opt in only when $tooltip's HTML is known to be safe
+     *   to keep, e.g. Utils_Watchdog's changes-list applet row.
      */
-    public function add_info($tooltip, $leightbox = false, $mobile_label = null){
+    public function add_info($tooltip, $leightbox = false, $mobile_label = null, $keep_table = false){
         $tag_attrs = $leightbox?Utils_TooltipCommon::tooltip_leightbox_mode():'';
         if ($mobile_label !== null) $tag_attrs .= ' data-epesi-mobile-label="'.htmlspecialchars($mobile_label).'"';
-        $this->GBobj->__add_row_action($this->num, $tag_attrs,'info',$tooltip,null);
+        $this->GBobj->__add_row_action($this->num, $tag_attrs,'info',$tooltip,null,0,false,1,$keep_table);
     }
 
     /**

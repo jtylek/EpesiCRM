@@ -57,6 +57,39 @@
 	object-fit: contain;
 }
 
+/* Utils_Watchdog's "Watch"/"Stop Watching" toolbar button still hands this
+   theme a legacy watch_big.png/unwatch_big.png file path (Base_ActionBar's
+   own icon_map in default.tpl only covers named icons, not file-path ones -
+   ActionBar_0.php::body() sets icon_url whenever the icon string contains a
+   "/" and exists on disk, so the template falls straight to <img> for these
+   with no bi_icon lookup at all), rendering as a plain circle instead of a
+   themed glyph. Same :has()-based img-swap already used for the small
+   per-row subscription icon (RecordBrowser/theme_adminltedark/
+   View_entry.css) rather than touching the shared WatchdogCommon_0.php -
+   keeps the mapping theme-scoped like every other icon here. Same eye/
+   eye-slash glyphs and green "watching" tint as that file too, so the big
+   toolbar button and the small row icon read as the same concept. */
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"]) img,
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"]) img {
+	display: none;
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"])::before,
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"])::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"])::before {
+	content: "\f340";
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"])::before {
+	content: "\f33e";
+	color: #198754;
+}
+
 .epesi-actionbar-label {
 	max-width: 76px;
 	overflow-wrap: anywhere;

@@ -358,7 +358,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 			}
 		}
-		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id));
+		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id), 300, true);
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	}
 

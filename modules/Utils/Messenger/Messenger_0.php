@@ -171,7 +171,7 @@ class Utils_Messenger extends Module {
 		while($row = $ret->FetchRow()) {
 			$info = call_user_func_array(unserialize($row['callback_method']),unserialize($row['callback_args']));
 			$info = str_replace("\n",'<br>',$info);
-			$r = & $gb->get_new_row();
+			$r = $gb->get_new_row();
 			$r->add_data('<span class="'.($row['done']?'checkbox_on':'checkbox_off').'" />',Base_RegionalSettingsCommon::time2reg($row['alert_on']),$info.'<br>'.($row['message']?__('Alarm comment: %s',array($row['message'])):''));
 			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),$this->delete_user_entry(...),$row['id']),'Delete');
 		}

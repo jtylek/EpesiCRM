@@ -18,6 +18,10 @@
   access-control hardening pass; Smarty 2 gotchas hit doing this work.
 - [legacy-js-migration.md](legacy-js-migration.md) — Prototype.js/
   script.aculo.us/old-jQuery inventory, elimination plan, and progress so far.
+- [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — planned CKEditor→
+  Quill swap (MIT vs. non-MIT license, retiring an old dependency): verified scope (4
+  call sites, one shared element/lifecycle-JS), the HTML-vs-Delta storage decision,
+  step-by-step plan, ~1-2 day estimate. Not started — needs its own branch.
 - [bug-patterns.md](bug-patterns.md) — already-fixed bugs whose root-cause
   shape (raw-record-vs-form-submission, strtotime() date parsing, settings
   override chains, legacy-theme `<select>` sizing across four stacked CSS

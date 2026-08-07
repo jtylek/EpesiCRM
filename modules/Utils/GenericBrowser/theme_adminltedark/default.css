@@ -947,24 +947,25 @@
 	display: none !important;
 }
 
-/* Actions column width: epesiSizeGbActions() (Base_Box/theme_adminltedark/default.tpl) sizes
-   this column by measuring a detached CLONE of the cell - cloneNode(true) copies the cell and
-   its own descendants, but not this wrapper div sitting outside the table, so the clone never
-   sees the two overrides above and always measures the collapsed/grouped state, undersizing the
-   column for what's actually shown live once those overrides force every icon visible. This
-   applet always has the same small, fixed action set (view/info/Stop Watching/Mark as Read -
-   Watchdog_0.php), so a generous fixed width - comfortably wide enough for all of them plus room
-   to grow by one more - is simpler and lower-risk than teaching that shared, already-intricate
-   (and separately still in progress) measurement script about this one table's own wrapper
-   class. !important: epesiSizeGbActions() sets its own (undersized, per the above) width via
-   inline style, which this still needs to win over; the other columns (Cat./Title) were already
-   sized assuming that narrower width, so the row may render a little wider than the applet's own
-   box here - accepted per request ("render as fluid div" if a plain wider column doesn't
-   otherwise fit) over clipping an icon or falling back to the kebab. */
-.epesi-watchdog-applet .Utils_GenericBrowser__th.Utils_GenericBrowser__actions,
-.epesi-watchdog-applet .Utils_GenericBrowser__td.Utils_GenericBrowser__actions {
-	width: 110px !important;
-	min-width: 110px !important;
+/* A fixed pixel width for just the actions column (tried first) either left dead space (too
+   wide) or clipped/overflowed (too narrow) - it can only ever be a guess, because the actions
+   column's real width need and the Cat./Title columns' own share are computed independently: the
+   table's own inline style="...table-layout:fixed..." (Utils_GenericBrowser/theme_adminltedark/
+   default.tpl) locks every column's width to whatever epesiSizeGbActions() (Base_Box/
+   theme_adminltedark/default.tpl) last calculated - and that calculation measures the actions
+   column off a detached CLONE of the cell, which (cloneNode(true) copies the cell and its own
+   descendants, not this wrapper div sitting outside the table) never sees the two overrides
+   above and so always measures the collapsed/grouped state, undersizing the column for what's
+   actually shown live once those overrides force every icon visible - with Cat./Title's own
+   widths already computed on top of that wrong number regardless of what fixed value replaced
+   it afterwards.
+   table-layout:auto instead (per request - "render as fluid div") sidesteps the mismatch
+   entirely: every column's declared width (whatever epesiSizeGbActions() still sets inline)
+   becomes a mere hint rather than a hard lock, so the actions column can grow just enough to fit
+   its own real content and Cat./Title yield the rest, all in one pass, with nothing left to keep
+   in sync by hand. !important since the table-layout:fixed above is itself an inline style. */
+.epesi-watchdog-applet .Utils_GenericBrowser {
+	table-layout: auto !important;
 }
 
 #epesi-gb-actions-menu {

@@ -38,12 +38,15 @@ function epesi_tooltip_hide_popup() {
 	epesi_tooltip_current_el = null;
 }
 
-// asHtml=true renders via innerHTML (open_tag_attrs()'s content: a small
-// safe subset - <strong>/<b>/<br> only, see TooltipCommon_0.php's
-// to_safe_html() - server-controlled, never re-parsed user HTML). The ajax
-// path keeps asHtml=false/textContent: its content has been through
-// html_entity_decode() server-side (to_plain_text()), which would be unsafe
-// to hand to innerHTML.
+// asHtml=true renders via innerHTML: open_tag_attrs()'s content is always a
+// small safe subset (<strong>/<b>/<br> only, see TooltipCommon_0.php's
+// to_safe_html()) - server-controlled, never re-parsed user HTML. The ajax
+// path (epesi_tooltip_ajax_load() below) defaults to asHtml=false/textContent
+// instead: its content has normally been through html_entity_decode()
+// server-side (to_plain_text()), which would be unsafe to hand to innerHTML -
+// except for callbacks that opted into $safe_html (data-tooltip-html), whose
+// response skips that decode step and is safe the same way open_tag_attrs()'s
+// is.
 function epesi_tooltip_show_popup(el, content, asHtml) {
 	epesi_tooltip_hide_popup();
 	if (!content) return;
@@ -66,9 +69,16 @@ function epesi_tooltip_show(el) {
 }
 
 // ajax_open_tag_attrs() - content isn't known until the first hover.
+// data-tooltip-html marks callbacks that opted into
+// Utils_TooltipCommon::ajax_open_tag_attrs()'s $safe_html param (e.g.
+// Watchdog's changes-list tooltip) - req.php then sends already-safe HTML
+// (to_safe_html($content,true), see that method's $keep_table doc) instead
+// of plain text, and it needs innerHTML here to actually render as a table
+// rather than literal "<table>..." text.
 function epesi_tooltip_ajax_load(el, tooltipId) {
 	try {
-		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip-ajax') || '', false);
+		var asHtml = el.hasAttribute('data-tooltip-html');
+		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip-ajax') || '', asHtml);
 
 		if (el.getAttribute('data-epesi-tooltip-loaded') == '1') return;
 		el.setAttribute('data-epesi-tooltip-loaded', '1');
@@ -78,15 +88,17 @@ function epesi_tooltip_ajax_load(el, tooltipId) {
 			data: { tooltip_id: tooltipId, cid: Epesi.client_id },
 			success: function(text) {
 				try {
-					// req.php now returns plain text (Utils_TooltipCommon::to_plain_text()),
-					// one "Label: value" per line - no HTML parsing needed here.
+					// req.php returns plain text (Utils_TooltipCommon::to_plain_text()) by
+					// default, one "Label: value" per line, or (asHtml) the to_safe_html()
+					// equivalent - either way no further parsing needed here.
 					text = (text || '').trim();
 					el.setAttribute('data-tooltip-ajax', text);
 					if (epesi_tooltip_current_el === el) {
 						if (text) {
-							if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, false);
+							if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, asHtml);
 							else {
-								epesi_tooltip_popup_el.textContent = text;
+								if (asHtml) epesi_tooltip_popup_el.innerHTML = text;
+								else epesi_tooltip_popup_el.textContent = text;
 								epesi_tooltip_position(epesi_tooltip_popup_el, el);
 							}
 						} else {

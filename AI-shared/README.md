@@ -40,6 +40,8 @@ same for every developer and every computer working on this repo.
   around `anonymous_setup`.
 - [legacy-js-migration.md](legacy-js-migration.md) — Prototype.js/script.aculo.us/old
   jQuery inventory and the planned elimination order.
+- [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — planned CKEditor→
+  Quill swap (license + retirement), full scope/decision/plan recorded; not started.
 - [bug-patterns.md](bug-patterns.md) — subtle, already-fixed bugs whose *root-cause
   shape* is likely to recur elsewhere in the codebase.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that

@@ -190,7 +190,7 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1,$keep_table=false) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		switch ($icon) {
 			case 'view': $order = $order?: -3; break;
@@ -198,7 +198,7 @@ class Utils_GenericBrowser extends Module {
 			case 'delete': $order = $order?: -1; break;
 			case 'info': $order = $order?: 1000; break;
 		}
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size, 'order'=>$order);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size, 'order'=>$order, 'keep_table'=>$keep_table);
 		$this->en_actions = true;
 	}
 
@@ -895,7 +895,7 @@ class Utils_GenericBrowser extends Module {
 					uasort($this->actions[$i], $this->sort_actions(...));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
-						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
+						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null, 500, $arr['keep_table'] ?? false).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
 							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
 					    } elseif(file_exists($icon)) {

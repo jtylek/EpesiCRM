@@ -27,9 +27,9 @@
 	   natural width instead, and max-width still caps/wraps a genuinely
 	   long single line. */
 	width: max-content;
-	/* Wide enough for a "Field | Old value | New value" changes-list row
-	   (Watchdog/RecordBrowser's changes_list.tpl content, per request) to
-	   read as one line rather than wrapping mid-row. */
+	/* Wide enough for a typical Watchdog/RecordBrowser changes-list table
+	   (see the "table" rules below) to lay out without its columns getting
+	   too cramped, while still capping/wrapping a long single-line tooltip. */
 	max-width: 480px;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 	/* Above every other z-index in the theme (StatusBar 2001-2002,
@@ -37,4 +37,57 @@
 	   should never end up buried under a modal/leightbox/status bar. */
 	z-index: 9500;
 	pointer-events: none;
+}
+
+/* Utils_RecordBrowser's theme_adminltedark/changes_list.tpl (Watchdog/
+   ActivityReport "what changed" tooltips, ajax_open_tag_attrs(...,
+   $safe_html=true) - see Utils_TooltipCommon::to_safe_html()'s $keep_table
+   param) renders a real <table> into the popup instead of the old " | "
+   -joined plain text, so the Field/Old value/New value columns line up
+   without any monospace-font trick - plain table layout does it natively.
+   Scoped under .epesi-tooltip-popup rather than a RecordBrowser class since
+   that's the only element the table ever actually renders into. */
+.epesi-tooltip-popup table {
+	border-collapse: collapse;
+}
+
+.epesi-tooltip-popup td {
+	text-align: left;
+	vertical-align: top;
+	padding: 2px 10px 2px 0;
+	word-wrap: break-word;
+}
+
+.epesi-tooltip-popup td:last-child {
+	padding-right: 0;
+}
+
+/* Each edit's who/when, as a full-width heading above that edit's own
+   field-change rows - reads as a group separator between edits instead of
+   blending into the next edit's rows. */
+.epesi-tooltip-popup td.group_header {
+	font-weight: bold;
+	color: #555;
+	padding-top: 6px;
+	border-top: 1px solid rgba(0, 0, 0, .2);
+}
+
+.epesi-tooltip-popup td.message {
+	text-align: center;
+	font-weight: bold;
+}
+
+.epesi-tooltip-popup td.field {
+	font-weight: bold;
+}
+
+/* Old/new value cells shaded like a code diff viewer (removed-line red /
+   added-line green), per request - text color is left as the popup's own
+   black, since both tints are light enough to stay readable against it. */
+.epesi-tooltip-popup td.old_value {
+	background-color: #fadbd9;
+}
+
+.epesi-tooltip-popup td.new_value {
+	background-color: #d9f2df;
 }

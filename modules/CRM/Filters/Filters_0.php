@@ -107,7 +107,7 @@ class CRM_Filters extends Module {
 
 		$ret = DB::Execute('SELECT g.name,g.id,g.description FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user());
 		while($row = $ret->FetchRow()) {
-			$gb_row = & $gb->get_new_row();
+			$gb_row = $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href(__('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href($this->edit_group(...),$row['id']),'Edit');
 			$cids = DB::GetAssoc('SELECT c.contact_id, c.contact_id FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));

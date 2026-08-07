@@ -63,17 +63,11 @@ class CRM_PhoneCallInstall extends ModuleInstall {
 			array('name' => _M('Date and Time'),		'type'=>'timestamp', 'required'=>true, 'extra'=>false, 'visible'=>true),			
 
 			array('name' => _M('Description'), 		'type'=>'long text', 'required'=>false, 'param'=>'255', 'extra'=>false),
-            array(
-                'name'     => _M('Related'),
-                'type'     => 'multiselect',
-                'QFfield_callback' => array(
-                    'CRM_PhoneCallCommon',
-                    'QFfield_related',
-                ),
+            array('name'     => _M('Related'),	  'type'     => 'multiselect', 'QFfield_callback' => array(    'CRM_PhoneCallCommon', 'QFfield_related',),
                 'param'    => '__RECORDSETS__::;CRM_PhoneCallCommon::related_crits',
                 'extra'    => false,
                 'required' => false,
-                'visible'  => true,
+                'visible'  => false,
             ),
 		);
 		Utils_RecordBrowserCommon::install_new_recordset('phonecall', $fields);
