@@ -520,7 +520,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function user_settings(){
         $ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
-        $settings = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
+        $settings = array(0=>array(), 1=>array());
         while ($row = $ret->FetchRow()) {
 			$caption = _V($row['caption']); // ****** RecordBrowser - recordset caption
             if (!self::get_access($row['tab'],'browse')) continue;
@@ -531,15 +531,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if (Utils_WatchdogCommon::category_exists($row['tab'])) $options['watchdog'] = __('Watched');
                 $settings[0][] = array('name'=>$row['tab'].'_default_view','label'=>$caption,'type'=>'select','values'=>$options,'default'=>'all');
             }
-            if ($row['favorites'])
-                $settings[1][] = array('name'=>$row['tab'].'_auto_fav','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
-            if (Utils_WatchdogCommon::category_exists($row['tab'])) {
-                $settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
+            $has_fav = (bool)$row['favorites'];
+            $has_watch = Utils_WatchdogCommon::category_exists($row['tab']);
+            if ($has_fav || $has_watch) {
+                // Toggle-switch matrix, not two separate Enabled/Disabled
+                // selects - same group-of-checkboxes mechanism
+                // Base_Menu_QuickAccessCommon::user_settings() uses
+                // (Settings_0.php's display_adminlte() detects a uniform
+                // checkbox group and matrix-renders it). Both columns are
+                // always present, even for a recordset that only supports
+                // one of the two: that merge only matches groups whose *set*
+                // of column captions is identical across every row in the
+                // section, so a variable column count per row would break
+                // the merge for whichever rows don't match the first one
+                // processed. The not-applicable side is disabled instead,
+                // standing in for the dash the old select-based version
+                // showed for it.
+                $settings[1][] = array('type'=>'group', 'label'=>$caption, 'elems'=>array(
+                    array('type'=>'bool', 'name'=>$row['tab'].'_auto_fav', 'values'=>__('Automatically add to favorites records created by me'), 'default'=>0,
+                        'param'=>$has_fav ? null : array('disabled'=>'disabled')),
+                    array('type'=>'bool', 'name'=>$row['tab'].'_auto_subs', 'values'=>__('Automatically watch records created by me'), 'default'=>0,
+                        'param'=>$has_watch ? null : array('disabled'=>'disabled')),
+                ));
             }
 			$settings[0][] = array('name'=>$row['tab'].'_show_filters','label'=>'','type'=>'hidden','default'=>0);
         }
         $final_settings = array();
-        $subscribe_settings = array();
         $final_settings[] = array('name'=>'add_in_table_shown','label'=>__('Quick new record - show by default'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'hide_empty','label'=>__('Hide empty fields'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'enable_autocomplete','label'=>__('Enable autocomplete in select/multiselect at'),'type'=>'select','default'=>50, 'values'=>array(0=>__('Always'), 20=>__('%s records', array(20)), 50=>__('%s records', array(50)), 100=>__('%s records', array(100))));
@@ -547,10 +564,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings[] = array('name'=>'confirm_leave','label'=>__('Confirm before leave edit page'),'type'=>'checkbox','default'=>1);
         $final_settings[] = array('name'=>'header_default_view','label'=>__('Default data view'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[0]);
-        $final_settings[] = array('name'=>'header_auto_fav','label'=>__('Automatically add to favorites records created by me'),'type'=>'header');
+        $final_settings[] = array('name'=>'header_auto_settings','label'=>__('Automatic favorites / watching for records created by me'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[1]);
-        $final_settings[] = array('name'=>'header_auto_subscriptions','label'=>__('Automatically watch records created by me'),'type'=>'header');
-        $final_settings = array_merge($final_settings,$settings[2]);
         return array(__('Browsing records')=>$final_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){

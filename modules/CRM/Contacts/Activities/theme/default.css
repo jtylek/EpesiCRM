@@ -1,0 +1,14 @@
+/* Space between the toggle-filter row (theme/default.tpl's
+   #CRM_Contacts_Activities) and the activities GenericBrowser table
+   rendered right after it. */
+#CRM_Contacts_Activities {
+	margin-bottom: 0.75rem;
+}
+
+/* Smaller table headers - scoped to just the GenericBrowser table that
+   immediately follows the filter row (adjacent-sibling selector), not a
+   global GenericBrowser change, since column headers elsewhere in the app
+   should keep their normal size. */
+#CRM_Contacts_Activities + .epesi-gb .Utils_GenericBrowser__th {
+	font-size: 0.7rem;
+}

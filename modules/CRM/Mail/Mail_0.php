@@ -55,7 +55,7 @@ class CRM_Mail extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$f->display();
+		$f->display_as_column();
 	}
 
 	public function addon($arg, $rb) {

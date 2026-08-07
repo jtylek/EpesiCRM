@@ -157,7 +157,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$emailHeader = Variable::get('add_user_email_header','');
 		$form->setDefaults(array('emailHeader'=>$emailHeader));
-		$form->display();
+		$form->display_as_column();
 		
 		return true;
     } 
