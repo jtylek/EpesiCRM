@@ -140,50 +140,54 @@
    otherwise neutral-gray card - and its box-shadow (overriding .epesi-applet-
    card's default neutral one, same specificity/load-order reasoning as
    border-color above) is tinted to match, rather than a plain gray shadow
-   under a coloured frame. */
+   under a coloured frame. The header's own background-color/color and the
+   actions-link color below are !important for the same reason: the
+   [data-bs-theme="light"] override further down this file has equal
+   specificity (0,0,2,0) and wins on source order alone, which was silently
+   greying out every applet's header in light mode. */
 .epesi-applet-black { border-color: #5B5B5B !important; box-shadow: 0 0 6px rgba(91, 91, 91, 0.5) !important; }
-.epesi-applet-black .epesi-applet-header { background-color: #5B5B5B; color: #fff; }
-.epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-black .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-black .epesi-applet-header { background-color: #5B5B5B !important; color: #fff !important; }
+.epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-black .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-blue { border-color: #7B9CBD !important; box-shadow: 0 0 6px rgba(123, 156, 189, 0.5) !important; }
-.epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD; color: #fff; }
-.epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-blue .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD !important; color: #fff !important; }
+.epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-blue .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-blue { border-color: #346799 !important; box-shadow: 0 0 6px rgba(52, 103, 153, 0.5) !important; }
-.epesi-applet-dark-blue .epesi-applet-header { background-color: #346799; color: #fff; }
-.epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-blue .epesi-applet-header { background-color: #346799 !important; color: #fff !important; }
+.epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-gray { border-color: #8C8C8C !important; box-shadow: 0 0 6px rgba(140, 140, 140, 0.5) !important; }
-.epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C; color: #fff; }
-.epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C !important; color: #fff !important; }
+.epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-green { border-color: #A8CC8E !important; box-shadow: 0 0 6px rgba(168, 204, 142, 0.5) !important; }
-.epesi-applet-green .epesi-applet-header { background-color: #A8CC8E; color: #212529; }
+.epesi-applet-green .epesi-applet-header { background-color: #A8CC8E !important; color: #212529 !important; }
 
 .epesi-applet-dark-green { border-color: #4A7C2A !important; box-shadow: 0 0 6px rgba(74, 124, 42, 0.5) !important; }
-.epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A; color: #fff; }
-.epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A !important; color: #fff !important; }
+.epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-red { border-color: #BD7B7B !important; box-shadow: 0 0 6px rgba(189, 123, 123, 0.5) !important; }
-.epesi-applet-red .epesi-applet-header { background-color: #BD7B7B; color: #fff; }
-.epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-red .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-red .epesi-applet-header { background-color: #BD7B7B !important; color: #fff !important; }
+.epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-red .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-red { border-color: #990033 !important; box-shadow: 0 0 6px rgba(153, 0, 51, 0.5) !important; }
-.epesi-applet-dark-red .epesi-applet-header { background-color: #990033; color: #fff; }
-.epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-red .epesi-applet-header { background-color: #990033 !important; color: #fff !important; }
+.epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-yellow { border-color: #F2F2A2 !important; box-shadow: 0 0 6px rgba(242, 242, 162, 0.5) !important; }
-.epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2; color: #212529; }
+.epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2 !important; color: #212529 !important; }
 
 .epesi-applet-dark-yellow { border-color: #CCCC33 !important; box-shadow: 0 0 6px rgba(204, 204, 51, 0.5) !important; }
-.epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33; color: #212529; }
+.epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33 !important; color: #212529 !important; }
 
 /* carried forward from the default theme (unchanged) - strips decorative
    shadow/padding wrappers that older, not-yet-adminlte-themed applet content
