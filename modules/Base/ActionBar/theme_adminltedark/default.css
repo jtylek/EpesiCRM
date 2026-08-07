@@ -90,6 +90,26 @@
 	color: #198754;
 }
 
+/* CRM_Mail's "Paste mail" toolbar button (Mail_0.php's addon_view(), the
+   ActionBarCommon::add() call right after the Leightbox prompt) hands this
+   theme Base_ThemeCommon::get_template_file($this->get_type(),'copy.png') -
+   a raw resolved path, same "/" shaped case as the Watchdog buttons above -
+   so it falls to a plain <img> too, rendering the legacy theme's raster
+   clipboard icon instead of a themed glyph. Distinct from CRM_Mail's other
+   copy_small.png row-action icon (GenericBrowser/theme_adminltedark/
+   default.css) - that one is the per-row "Copy" action; this is the
+   toolbar's "Paste" action - so bi-clipboard-plus rather than bi-copy. */
+.epesi-actionbar-btn:has(img[src*="Mail"][src*="/copy.png"]) img {
+	display: none;
+}
+
+.epesi-actionbar-btn:has(img[src*="Mail"][src*="/copy.png"])::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+	content: "\f28e";
+}
+
 .epesi-actionbar-label {
 	max-width: 76px;
 	overflow-wrap: anywhere;
