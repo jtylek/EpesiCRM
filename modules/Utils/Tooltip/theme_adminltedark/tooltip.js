@@ -21,12 +21,22 @@ var epesi_tooltip_current_el = null;
 
 function epesi_tooltip_position(popup, el) {
 	var rect = el.getBoundingClientRect();
+	var spaceAbove = rect.top - 4;
+	var spaceBelow = window.innerHeight - rect.bottom - 4;
 	// Above the icon by default, so the popup isn't sitting directly under
-	// the mouse pointer (which obscures it) - only falls back to below when
-	// there isn't room above (element near the top of the viewport).
-	var top = rect.top - 4 - popup.offsetHeight;
-	if (top < 4) top = rect.bottom + 4;
-	popup.style.top = Math.max(4, top) + 'px';
+	// the mouse pointer (which obscures it) - but only when above is
+	// actually the roomier side. Comparing available space (not just "does
+	// it fit above") matters for a tall ajax popup (e.g. Watchdog's
+	// changes-list) on an icon near the bottom of the screen: the old "only
+	// fall back to below when it doesn't fit above" check would still flip
+	// to below there, which has even less room and let the popup run off
+	// the bottom of the viewport uncapped. Final clamp keeps it fully inside
+	// the viewport either way (best-effort - a popup taller than the whole
+	// viewport still clips, just at the edge instead of mid-content).
+	var top = (spaceAbove >= popup.offsetHeight || spaceAbove >= spaceBelow)
+		? rect.top - 4 - popup.offsetHeight
+		: rect.bottom + 4;
+	popup.style.top = Math.max(4, Math.min(top, window.innerHeight - popup.offsetHeight - 4)) + 'px';
 	popup.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - popup.offsetWidth - 4)) + 'px';
 }
 
