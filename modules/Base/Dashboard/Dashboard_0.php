@@ -351,6 +351,7 @@ class Base_Dashboard extends Module {
 
 		if($this->is_back()) {
 			$ok=false;
+			$this->unset_module_variable('config_applet_mod');
 			return false;
 		}
 
@@ -364,10 +365,13 @@ class Base_Dashboard extends Module {
 
 		$f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
+		// Read by caption() below so the module indicator shows "Dashboard:
+		// <applet> settings" instead of repeating the title as an in-card
+		// header - same delegation pattern Base_Admin::caption() already
+		// uses for 'selected_module'.
+		$this->set_module_variable('config_applet_mod', $mod);
 
 		if($is_conf) {
-			$f->addElement('header',null,__('%s settings', array($caption)));
-
 			//send the applet id to applet_settings function
 			$menu = call_user_func($sett_fn);
 
@@ -383,12 +387,12 @@ class Base_Dashboard extends Module {
 		$color[0] = __('Default').': '.$color[0]['label'];
 		for($k=1; $k<count($color); $k++)
 			$color[$k] = '&bull; '.$color[$k]['label'];
-		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;'));
+		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;', 'class'=>'form-select'));
 
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Base_AclCommon::get_user()));
-		$f->addElement('select','__tab',__('Tab'),$tabs);
+		$f->addElement('select','__tab',__('Tab'),$tabs,array('class'=>'form-select'));
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
 
@@ -418,10 +422,11 @@ class Base_Dashboard extends Module {
 			}
 			$ok = true;
 			self::$settings_cache = null;
+			$this->unset_module_variable('config_applet_mod');
 			return false;
 		}
 		$ok=null;
-		$f->display();
+		$f->display_as_column();
 
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
@@ -521,6 +526,12 @@ class Base_Dashboard extends Module {
 	}
 
 	public function caption() {
+		// Mirrors Base_Admin::caption()'s 'selected_module' delegation -
+		// while configure_applet() is showing an applet's settings screen,
+		// the module indicator names it instead of just "Dashboard".
+		$mod = $this->get_module_variable('config_applet_mod');
+		if ($mod && is_callable(array($mod.'Common','applet_caption')))
+			return __('Dashboard: %s settings', array(call_user_func(array($mod.'Common','applet_caption'))));
 		return __('Dashboard');
 	}
 

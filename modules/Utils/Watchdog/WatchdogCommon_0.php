@@ -41,8 +41,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
         $ret[] = array('label'=>__('Records limit'),'name'=>'records_limit','type'=>'select', 'values' => array(/*'__all__' => __('All'), */'10' => '10', '15' => '15', '20' => '20', '30' => '30'), 'default' => '15');
 
 		if (!empty($methods)) {
-			$ret[] = array('label'=>__('Categories'),'name'=>'categories_header','type'=>'header');
-			foreach ($methods as $k=>$v) { 
+			foreach ($methods as $k=>$v) {
 				$method = explode('::',$v);
 				IF (!is_callable($method)) continue;
 				$methods[$k] = call_user_func($method);

@@ -164,7 +164,15 @@ class Libs_QuickForm extends Module {
 		if(!isset($v['values'])) $v['values']=null;
 		switch($v['type']){
 			case 'select':
-				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$v['param']);
+				// Same opt-in-by-default treatment as the 'epesi-switch' class
+				// below for checkboxes: every array-declared select gets
+				// Bootstrap's own .form-select styling for free, without every
+				// caller having to pass its own 'param'.
+				$attr = $v['param'];
+				if (is_array($attr)) $attr['class'] = trim(($attr['class'] ?? '').' form-select');
+				elseif (is_string($attr) && $attr !== '') $attr .= ' class="form-select"';
+				else $attr = array('class'=>'form-select');
+				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$attr);
 				$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;

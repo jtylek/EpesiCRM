@@ -21,7 +21,10 @@
 				{$__link.href.open}<i class="bi bi-arrows-fullscreen"></i>{$__link.href.close}
 			{/if}
 			{if isset($toggle)}
-				{$__link.toggle.open}<i class="bi bi-dash-lg"></i>{$__link.toggle.close}
+				{* Starts expanded (card-body has no collapsed state on render) - chevron-up
+				   means "click to collapse"; ab.js's toggle click handler flips this to
+				   bi-chevron-down (and back) in step with the .content blind toggle. *}
+				{$__link.toggle.open}<i class="bi bi-chevron-up"></i>{$__link.toggle.close}
 			{/if}
 			{if isset($configure)}
 				{$__link.configure.open}<i class="bi bi-gear"></i>{$__link.configure.close}
