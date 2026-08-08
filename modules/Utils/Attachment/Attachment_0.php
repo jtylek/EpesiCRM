@@ -150,6 +150,20 @@ class Utils_Attachment extends Module {
 	public function user_addon($uid) {
 		$this->body(null, null, $uid);
 	}
+
+	// 'Features Configuration' admin panel - see AttachmentCommon_0.php's
+	// admin_caption()/processing_related(). Same shape as CRM_Tasks/
+	// CRM_Meeting's own admin(): just a plain RecordBrowser CRUD screen over
+	// the module's own '_related' table.
+	public function admin() {
+		if ($this->is_back()) {
+			$this->parent->reset();
+			return;
+		}
+		$rb = $this->init_module(Utils_RecordBrowser::module_name(), 'utils_attachment_related', 'utils_attachment_related');
+		$this->display_module($rb);
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+	}
 }
 
 ?>

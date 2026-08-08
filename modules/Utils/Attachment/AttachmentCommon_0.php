@@ -28,6 +28,95 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		Utils_RecordBrowserCommon::delete_addon($table, Utils_Attachment::module_name(), 'body');
 	}
 
+	// 'Features Configuration' admin panel (Base_Admin's grid, same section
+	// CRM_Tasks/CRM_Meeting/CRM_PhoneCall/CRM_Mail already use for their own
+	// per-recordset addon wiring) - lets an admin add/remove which recordsets
+	// get the Attachment "Notes" addon at runtime, instead of only via a
+	// module's own Install.php calling new_addon()/delete_addon() directly
+	// (still supported, e.g. Premium_Grants - the two mechanisms coexist,
+	// since both just end up calling Utils_RecordBrowserCommon::new_addon()).
+	public static function admin_caption() {
+		return array('label' => __('Attachments'), 'section' => __('Features Configuration'));
+	}
+
+	// QFfield_callback for utils_attachment_related's 'recordset' field -
+	// exact mirror of CRM_TasksCommon::QFfield_recordset(): a plain 'text'
+	// column presented as a <select> of recordsets not already wired up
+	// (excluding other *_related tables, which can't themselves take the
+	// addon).
+	public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
+		if ($mode == 'add' || $mode == 'edit') {
+			$rss = DB::GetCol('SELECT f_recordset FROM utils_attachment_related_data_1 WHERE active=1');
+			$key = array_search($default, $rss);
+			if ($key !== false)
+				unset($rss[$key]);
+			// 'utils_attachment' itself is excluded too - a note attached to a
+			// note doesn't make sense, and new_addon()/delete_addon() would end
+			// up wiring the addon onto its own recordset.
+			$tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s AND tab != %s', array('%_related', 'utils_attachment'));
+			foreach ($tabs as $k => $v) {
+				$tabs[$k] = _V($v) . " ($k)";
+			}
+			$form->addElement('select', $field, $label, $tabs, array('id' => $field));
+			$form->addRule($field, 'Field required', 'required');
+			// Defense in depth against a tampered submit picking a recordset
+			// outside the dropdown's own option list (already wired up
+			// elsewhere, or 'utils_attachment' itself) - the dropdown only
+			// filters what's *offered*, it doesn't stop a raw POST. $default
+			// (the row's own prior value, only meaningful in 'edit' mode) is
+			// passed through as the rule's $options so editing a row without
+			// changing its recordset doesn't trip the "already used" check
+			// against itself - see registerRule()'s 3rd/4th args and
+			// HTML_QuickForm_Rule_Callback::validate()'s $options passthrough.
+			$form->registerRule('recordset_unique_rule', 'callback', 'validate_recordset', 'Utils_AttachmentCommon');
+			$form->addRule($field, __('This recordset already has the Attachments addon'), 'recordset_unique_rule', $mode == 'edit' ? $default : null);
+			if ($mode == 'edit')
+				$form->setDefaults(array($field => $default));
+		} else {
+			$form->addElement('static', $field, $label);
+			$form->setDefaults(array($field => $default));
+		}
+	}
+
+	// $current is the row's own prior recordset value when editing (excluded
+	// from the "already used" check so a no-op edit still validates), null
+	// when adding.
+	public static function validate_recordset($value, $current = null) {
+		if ($value === 'utils_attachment') return false;
+		$rss = DB::GetCol('SELECT f_recordset FROM utils_attachment_related_data_1 WHERE active=1');
+		if ($current !== null) {
+			$key = array_search($current, $rss);
+			if ($key !== false) unset($rss[$key]);
+		}
+		return !in_array($value, $rss);
+	}
+
+	public static function display_recordset($r, $nolink = false) {
+		$caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
+		return $caption . ' (' . $r['recordset'] . ')';
+	}
+
+	// utils_attachment_related's processing_callback - add/edit/delete a row
+	// here just wires/unwires the real addon via new_addon()/delete_addon()
+	// above (same as CRM_TasksCommon::processing_related()); 'edit' falls
+	// through to 'add' so switching a row's recordset detaches the old one
+	// and attaches the new one in a single save.
+	public static function processing_related($values, $mode) {
+		switch ($mode) {
+			case 'edit':
+				$rec = Utils_RecordBrowserCommon::get_record('utils_attachment_related', $values['id']);
+				self::delete_addon($rec['recordset']);
+			case 'add':
+				self::new_addon($values['recordset']);
+				break;
+
+			case 'delete':
+				self::delete_addon($values['recordset']);
+				break;
+		}
+		return $values;
+	}
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
             $info = '%D - ' . __('Date') . '<br>%T - ' . __('Time') . '<br>%U - ' . __('User');
