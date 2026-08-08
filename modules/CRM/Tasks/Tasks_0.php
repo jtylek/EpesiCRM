@@ -19,6 +19,10 @@ class CRM_Tasks extends Module
         $this->help('Tasks Help', 'main');
 
         $this->rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task', 'task');
+        $this->rb->set_header_properties(array(
+            'employees' => array('width' => 5),
+            'deadline' => array('width' => 7),
+        ));
         $me = CRM_ContactsCommon::get_my_record();
         CRM_CommonCommon::status_filter($this->rb);
         $this->rb->set_filters_defaults(array('employees' => $this->rb->crm_perspective_default(), 'status' => '__NO_CLOSED__'));
