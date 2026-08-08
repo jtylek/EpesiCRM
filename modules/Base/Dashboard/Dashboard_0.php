@@ -381,7 +381,7 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$caption.' '.__('display settings'));
+		$f->addElement('header',null,$caption.' '.__('applet settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
 		$color[0] = __('Default').': '.$color[0]['label'];
