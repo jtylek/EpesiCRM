@@ -58,6 +58,7 @@ while ($row = $ret->FetchRow()) {
 
 foreach($table_rows as $field => $args) {
 	ob_start();
+	$args = array('seconds'=>true) + $args;
 	$val = @Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
 	if (!$val)
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, true, $args);
