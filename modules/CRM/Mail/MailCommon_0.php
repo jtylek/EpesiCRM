@@ -658,7 +658,7 @@ class CRM_MailCommon extends ModuleCommon {
         foreach($ret as $row)
                 $conf[] = array('name'=>'account_'.$row['id'], 'label'=>$row['account_name'], 'type'=>'checkbox', 'default'=>1);
         if(count($conf)==1)
-            return array(array('type'=>'static','label'=>__('No accounts configured, go Menu->My settings->Control panel->E-mail accounts')));
+            return array(array('name'=>'no_accounts','label'=>'','type'=>'static','values'=>__('No accounts configured, go Menu->My settings->Control panel->E-mail accounts')));
         return $conf;
     }
 
