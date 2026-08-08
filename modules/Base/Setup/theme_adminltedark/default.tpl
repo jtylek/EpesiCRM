@@ -3,7 +3,7 @@
 	eval_js('base_setup__preprocess_filter = base_setup__last_filter;');
 	eval_js('base_setup__last_filter = "";');
 	load_js('modules/Base/Setup/theme/default.js');
-	load_js('modules/Base/Setup/theme_adminlte/default.js');
+	load_js('modules/Base/Setup/theme_adminltedark/default.js');
 	eval_js('if(base_setup__preprocess_filter!=null)base_setup__filter_by(base_setup__preprocess_filter);');
 {/php}
 
@@ -11,7 +11,7 @@
    theme/default.js's base_setup__filter_by() and its
    base_setup__last_options/last_actions/last_actions_option globals still
    work), but show/hide of the actions/options panels themselves calls
-   theme_adminlte/default.js's epesi_setup__show/hide_actions/options
+   theme_adminltedark/default.js's epesi_setup__show/hide_actions/options
    instead of the shared, Prototype-Effect-animated
    base_setup__show/hide_actions/options - see that file's comment for why.
    - #Base_Setup__filter_{arg} ids + the filter's onclick, and the fact that
