@@ -911,7 +911,7 @@ class Utils_GenericBrowser extends Module {
 					// Add overflow_box to actions
 					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
 					if ($settings==2 || ($settings==1 && detect_iphone()))
-						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true);"';
+						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
 				} else {
 					$col[$column_no]['label'] = '&nbsp;';
                     $col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
@@ -940,7 +940,7 @@ class Utils_GenericBrowser extends Module {
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				if (!isset($v['overflow_box']) || $v['overflow_box']) {
-					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this);"';
+					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,false,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
 				} else {
 					if (!isset($v['style'])) $v['style'] = '';
 					$v['style'] .= 'white-space: normal;';

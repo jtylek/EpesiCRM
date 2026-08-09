@@ -703,12 +703,28 @@
    temporarily relocates an overflowing cell's content, images included,
    into this floating box). Also entirely unstyled here before - it would
    render zero-size/unpositioned with no background, indistinguishable from
-   not working at all. */
+   not working at all.
+
+   Fixed grey/black sidebar scheme (#dee2e6/#000, per request), not a themed
+   dark background - this box is appended straight to <body>
+   (Utils_GenericBrowser__overflow_div(), js/table_overflow.js), a *sibling*
+   of the .epesi-adminlte.app-wrapper div that data-bs-theme actually lives
+   on (Base_Box/theme_adminltedark/default.tpl), not a descendant of it. So
+   neither the dark-mode custom properties nor the
+   "[data-bs-theme='light'] .Utils_GenericBrowser__overflow_div" override
+   this file used to carry could ever reach it - the relocated cell content
+   inherited color from plain <body> instead, which read as invisible
+   (same/similar to the background either way) rather than "not working" -
+   easy to miss since a blanked-looking cell and a merely-invisible-text
+   overlay look identical at a glance. Same fix/reasoning as Utils_Tooltip's
+   own popup (theme_adminltedark/default.css's .epesi-tooltip-popup), which
+   hits this exact body-append trap already. */
 .Utils_GenericBrowser__overflow_div {
-	background-color: #2b3035;
-	border: 1px solid #495057;
+	background-color: #dee2e6;
+	border: 1px solid #adb5bd;
 	border-radius: 0 0.375rem 0.375rem 0.375rem;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+	color: #000;
 }
 
 .Utils_GenericBrowser__overflow_div_content {
@@ -1076,11 +1092,6 @@
 
 [data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
   color: #6c757d;
-}
-
-[data-bs-theme="light"] .Utils_GenericBrowser__overflow_div {
-  background-color: #fff;
-  border: 1px solid #ced4da;
 }
 
 [data-bs-theme="light"] .epesi-gb-pager a {
