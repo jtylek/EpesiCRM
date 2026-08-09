@@ -125,8 +125,16 @@ function epesi_tooltip_ajax_load(el, tooltipId) {
 		var asHtml = el.hasAttribute('data-tooltip-html');
 
 		if (epesi_tooltip_ajax_cache.hasOwnProperty(tooltipId)) {
+			// epesi_tooltip_ajax_apply() only *updates* a popup that's
+			// already showing for el (it no-ops unless
+			// epesi_tooltip_current_el === el, which is set by
+			// epesi_tooltip_show_popup() below) - a cache hit hasn't called
+			// that yet, so it must paint the popup itself here, exactly like
+			// epesi_tooltip_show()'s sync data-tooltip path does.
+			var cached = epesi_tooltip_ajax_cache[tooltipId];
+			el.setAttribute('data-tooltip-ajax', cached);
 			el.setAttribute('data-epesi-tooltip-loaded', '1');
-			epesi_tooltip_ajax_apply(el, epesi_tooltip_ajax_cache[tooltipId], asHtml);
+			epesi_tooltip_show_popup(el, cached, asHtml);
 			return;
 		}
 
