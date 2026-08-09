@@ -110,12 +110,19 @@
 	color: #0d6efd;
 }
 
-.epesi-applet-body {
+/* Compound selector (not just .epesi-applet-body) is load-bearing, not
+   stylistic: the .tpl's own "p-2" utility class (Bootstrap, default.tpl:37 -
+   "card-body epesi-applet-body p-2") sets padding:.5rem !important too, same
+   specificity (one class) as a bare ".epesi-applet-body{padding:0!important}"
+   would be - a tie broken only by whichever stylesheet happens to load
+   later in the DOM, which flipped silently once (Bootstrap/AdminLTE's
+   vendored bundle re-injected after this module's own CSS on some renders,
+   observed live via document.styleSheets - not a caching artifact, so
+   clearing the browser cache never fixed it). ".card-body.epesi-applet-body"
+   is two classes, unconditionally higher specificity than ".p-2"'s one -
+   wins regardless of load order, permanently, instead of by accident. */
+.card-body.epesi-applet-body {
 	background-color: #24272b;
-	/* !important: the .tpl's own "p-2" utility class (Bootstrap, !important
-	   already) would otherwise still leave 0.5rem on every side - zeroed here
-	   instead so table-based applet content (GenericBrowser etc.) can run
-	   edge-to-edge inside the card, matching the card's own rounded corners. */
 	padding: 0 !important;
 }
 
