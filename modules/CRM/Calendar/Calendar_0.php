@@ -119,6 +119,19 @@ class CRM_Calendar extends Module {
 		}
 		$args['explicit_navigation'] = $explicit_navigation;
 
+		// Applets_MonthView's day-click can ask to land here with the
+		// add-event flow already open (one click total, instead of a click to
+		// arrive plus a click on "Add event") - reuses get_new_event_href_js()
+		// unmodified (same single-handler-vs-Leightbox-picker logic the
+		// FullCalendar embed's own double-click-to-add already goes through
+		// below), just invoked directly with a real date instead of waiting
+		// for a click. $this->lp (if this install has 2+ event handler types)
+		// is already set up above.
+		if (!empty($_REQUEST['open_add']) && isset($_REQUEST['jump_to_date']) && is_numeric($_REQUEST['jump_to_date'])) {
+			$add_href = $this->get_new_event_href_js((int)$_REQUEST['jump_to_date'], true);
+			if ($add_href) eval_js($add_href);
+		}
+
 		$theme = $this->init_module(Base_Theme::module_name());
 		// Registered as a plain static array-callable, not a first-class-callable
 		// closure: Module::get_ajax_callback_key() does

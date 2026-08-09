@@ -38,7 +38,20 @@ class Utils_Calendar extends Module {
 				  // view/date (see fullcalendar-init.js) is allowed to win -
 				  // a deliberate deep link must never be silently overridden
 				  // by leftover state from before the user navigated away.
-				  'explicit_navigation'=>false);
+				  'explicit_navigation'=>false,
+				  // Strips fullcalendar()'s toolbar down to prev/next/today and
+				  // caps event density - for a small, non-page-level embed (see
+				  // Applets_MonthView) rather than the full CRM_Calendar screen.
+				  // Only meaningful when engine==='fullcalendar'.
+				  'compact'=>false,
+				  // CSS selector for an existing, already-wired trigger element
+				  // (e.g. a popup-calendar "jump to date" link) that a click on
+				  // the toolbar title should forward to, instead of doing
+				  // nothing - see fullcalendar()/fullcalendar-init.js's
+				  // datesSet handling. Null = title stays plain text (default
+				  // FullCalendar behavior). Only meaningful when
+				  // engine==='fullcalendar'.
+				  'title_click_forward_selector'=>null);
 	private $date; //current date
 	private $event_module;
 	private $tb;
@@ -58,11 +71,17 @@ class Utils_Calendar extends Module {
 	// this endpoint - creating an event was never a "PATCH this record"
 	// operation even in the legacy grid.
 	private $custom_events_write_url = null;
+	// href-JS template for a compact-mode day click ('__DATE__' substituted
+	// client-side with the clicked date, same templating convention as
+	// $custom_new_event_href_js's __TIME__/__TIMELESS__) - see fullcalendar()'s
+	// navLinks handling below. Only meaningful when settings['compact'] is true.
+	private $custom_day_click_href_js = null;
 
-	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null, $custom_events_feed_url=null, $custom_events_write_url=null) {
+	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null, $custom_events_feed_url=null, $custom_events_write_url=null, $custom_day_click_href_js=null) {
 		$this->custom_new_event_href_js = $custom_new_event_href_js;
 		$this->custom_events_feed_url = $custom_events_feed_url;
 		$this->custom_events_write_url = $custom_events_write_url;
+		$this->custom_day_click_href_js = $custom_day_click_href_js;
 		$this->settings = array_merge($this->settings,$settings);
 
 		$this->event_module = str_replace('/','_',$ev_mod);
@@ -1024,7 +1043,7 @@ class Utils_Calendar extends Module {
 		// rather than force a pointless destroy/remount. See
 		// EpesiFullCalendar.mount() in fullcalendar-init.js.
 		$mount_id = 'utils-calendar-fc-'.md5($this->get_path());
-		print('<div id="'.$mount_id.'" class="epesi-fc-container"></div>');
+		print('<div id="'.$mount_id.'" class="epesi-fc-container'.($this->settings['compact']?' epesi-fc-compact':'').'"></div>');
 
 		if ($this->custom_events_feed_url === null)
 			// Defensive, not currently reachable: every caller that sets
@@ -1127,6 +1146,25 @@ class Utils_Calendar extends Module {
 			'selectMinDistance' => 0, // a plain click is a zero-distance "select" - covers the old double-click-empty-cell gesture and the new drag-to-create range with one handler
 		);
 
+		if ($this->settings['compact']) {
+			// A small, non-page-level embed (Applets_MonthView) has no room for
+			// the full page's view-switcher/year button - just month-stepping.
+			$config['headerToolbar'] = array('left' => 'prev,next', 'center' => 'title', 'right' => 'today');
+			unset($config['views']); // multiMonthYear button text, now unreachable
+			$config['dayMaxEvents'] = 2; // cap event pills in a narrow dashboard column
+			$config['height'] = 320; // fixed compact height instead of 'auto' (which sizes to a full day/week grid this embed never shows)
+		}
+		if ($this->custom_day_click_href_js !== null) {
+			// A day-click template is supplied - it replaces FullCalendar's own
+			// built-in navLinks drill-down (which would switch this same small
+			// instance to an internal, toolbar-less Day view with no way back
+			// to Month) with a real navigation, wired client-side below.
+			$config['navLinks'] = false;
+			$day_click_template = call_user_func($this->custom_day_click_href_js, '__DATE__');
+		} else {
+			$day_click_template = null;
+		}
+
 		// Same href-template mechanism day()/week()/month() already use for
 		// their own double-click-to-add (calendar-jq.js's activate_dnd()) -
 		// __TIME__/__TIMELESS__ are substituted client-side
@@ -1173,7 +1211,9 @@ class Utils_Calendar extends Module {
 			json_encode($this->custom_events_write_url).','.
 			json_encode($new_event_template).','.
 			json_encode($toggle_hours_labels).','.
-			json_encode($suppress_view_restore).
+			json_encode($suppress_view_restore).','.
+			json_encode($day_click_template).','.
+			json_encode($this->settings['title_click_forward_selector']).
 		');');
 	}
 

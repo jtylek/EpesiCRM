@@ -140,15 +140,15 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 	// in Base_Box's own shell scripts: an uncaught exception here would abort
 	// every OTHER queued script that happens to be concatenated after this
 	// one in the same response, not just this module's own initialization.
-	function mount(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore) {
+	function mount(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector) {
 		try {
-			mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore);
+			mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector);
 		} catch (e) {
 			console.error('EpesiFullCalendar.mount failed:', e);
 		}
 	}
 
-	function mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore) {
+	function mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector) {
 		var el = document.getElementById(mountId);
 		if (!el) return; // container not in the DOM yet/anymore - nothing to do
 
@@ -249,6 +249,21 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			};
 		}
 
+		if (dayClickTemplate) {
+			// Compact-mode navigation (Applets_MonthView) - replaces navLinks
+			// (disabled by Utils_Calendar::fullcalendar() whenever this
+			// template is supplied) with a real navigation to the caller's own
+			// choice of destination (e.g. CRM_Calendar's Day view), same
+			// __PLACEHOLDER__ substitution convention as newEventTemplate above.
+			var origDateClick = config.dateClick;
+			config.dateClick = function (info) {
+				var ts = Math.floor(info.date.getTime() / 1000);
+				var f = dayClickTemplate.replace('__DATE__', ts);
+				try { (new Function(f))(); } catch (e) { console.error(e); }
+				if (origDateClick) origDateClick(info);
+			};
+		}
+
 		// Fires on initial render and on every navigation (view switch,
 		// prev/next/today) - the only hook into FullCalendar's entirely
 		// client-side navigation, so it's also the only place that can keep
@@ -268,6 +283,25 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			// saveViewState() - theme/fullcalendar.css scopes the "don't look
 			// like a link" styling to it.
 			el.classList.toggle('epesi-fc-no-day-drilldown', info.view.type === 'timeGridDay');
+			// Re-applied every render (assignment, not addEventListener - safe
+			// against duplicate bindings whether FullCalendar reuses or
+			// recreates the title node on navigation) - forwards a click on
+			// the plain-text toolbar title to an already-wired trigger
+			// elsewhere on the page (e.g. Applets_MonthView's own "jump to
+			// date" popup-calendar link), since FullCalendar's title has no
+			// click behavior of its own.
+			if (titleClickForwardSelector) {
+				var titleEl = el.querySelector('.fc-toolbar-title');
+				if (titleEl) {
+					titleEl.style.cursor = 'pointer';
+					titleEl.style.userSelect = 'none';
+					titleEl.onclick = function (ev) {
+						ev.preventDefault();
+						var target = document.querySelector(titleClickForwardSelector);
+						if (target) target.click();
+					};
+				}
+			}
 			if (origDatesSet) origDatesSet(info);
 		};
 
