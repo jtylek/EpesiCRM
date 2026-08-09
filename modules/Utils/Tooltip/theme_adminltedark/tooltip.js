@@ -18,6 +18,16 @@
  */
 var epesi_tooltip_popup_el = null;
 var epesi_tooltip_current_el = null;
+// Shared across every element on the page, keyed by tooltip_id
+// (ajax_open_tag_attrs()'s md5(serialize($tooltip_settings)), see
+// TooltipCommon_0.php) - safe to share because two elements only ever get
+// the same tooltip_id when their callback+args+safe_html serialized
+// identically, i.e. they'd fetch byte-identical content anyway (e.g. the
+// same contact record linked from several rows of a RecordBrowser list).
+// epesi_tooltip_ajax_pending dedupes concurrent hovers of same-ID elements
+// that happen before the first one's response has come back.
+var epesi_tooltip_ajax_cache = {};
+var epesi_tooltip_ajax_pending = {};
 
 function epesi_tooltip_position(popup, el) {
 	var rect = el.getBoundingClientRect();
@@ -78,7 +88,32 @@ function epesi_tooltip_show(el) {
 	} catch (e) {}
 }
 
-// ajax_open_tag_attrs() - content isn't known until the first hover.
+// Applies a resolved ajax response (from cache, or just back from req.php)
+// to one waiting element: updates its own data-tooltip-ajax (so a later
+// leightbox-mode click, or a cache hit next hover, has it too) and, if
+// that element is the one currently under the mouse, paints/updates the
+// live popup.
+function epesi_tooltip_ajax_apply(el, text, asHtml) {
+	el.setAttribute('data-tooltip-ajax', text);
+	if (epesi_tooltip_current_el !== el) return;
+	if (text) {
+		if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, asHtml);
+		else {
+			if (asHtml) epesi_tooltip_popup_el.innerHTML = text;
+			else epesi_tooltip_popup_el.textContent = text;
+			epesi_tooltip_position(epesi_tooltip_popup_el, el);
+		}
+	} else {
+		// Nothing to show (e.g. record has no tooltip fields) - don't leave
+		// the "Loading..." placeholder stuck.
+		epesi_tooltip_hide_popup();
+	}
+}
+
+// ajax_open_tag_attrs() - content isn't known until the first hover, unless
+// some other element already fetched the same tooltip_id (epesi_tooltip_ajax_cache)
+// or is currently fetching it (epesi_tooltip_ajax_pending) - see the cache
+// vars' own comment above for why sharing by tooltip_id is safe.
 // data-tooltip-html marks callbacks that opted into
 // Utils_TooltipCommon::ajax_open_tag_attrs()'s $safe_html param (e.g.
 // Watchdog's changes-list tooltip) - req.php then sends already-safe HTML
@@ -88,10 +123,26 @@ function epesi_tooltip_show(el) {
 function epesi_tooltip_ajax_load(el, tooltipId) {
 	try {
 		var asHtml = el.hasAttribute('data-tooltip-html');
+
+		if (epesi_tooltip_ajax_cache.hasOwnProperty(tooltipId)) {
+			el.setAttribute('data-epesi-tooltip-loaded', '1');
+			epesi_tooltip_ajax_apply(el, epesi_tooltip_ajax_cache[tooltipId], asHtml);
+			return;
+		}
+
 		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip-ajax') || '', asHtml);
 
 		if (el.getAttribute('data-epesi-tooltip-loaded') == '1') return;
 		el.setAttribute('data-epesi-tooltip-loaded', '1');
+
+		if (epesi_tooltip_ajax_pending[tooltipId]) {
+			// Another element with the same tooltip_id is already in flight -
+			// piggyback on its response instead of firing a second request.
+			epesi_tooltip_ajax_pending[tooltipId].push(el);
+			return;
+		}
+		epesi_tooltip_ajax_pending[tooltipId] = [el];
+
 		jq.ajax({
 			type: 'POST',
 			url: 'modules/Utils/Tooltip/req.php',
@@ -102,21 +153,12 @@ function epesi_tooltip_ajax_load(el, tooltipId) {
 					// default, one "Label: value" per line, or (asHtml) the to_safe_html()
 					// equivalent - either way no further parsing needed here.
 					text = (text || '').trim();
-					el.setAttribute('data-tooltip-ajax', text);
-					if (epesi_tooltip_current_el === el) {
-						if (text) {
-							if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, asHtml);
-							else {
-								if (asHtml) epesi_tooltip_popup_el.innerHTML = text;
-								else epesi_tooltip_popup_el.textContent = text;
-								epesi_tooltip_position(epesi_tooltip_popup_el, el);
-							}
-						} else {
-							// Nothing to show (e.g. record has no tooltip fields) -
-							// don't leave the "Loading..." placeholder stuck.
-							epesi_tooltip_hide_popup();
-						}
-					}
+					epesi_tooltip_ajax_cache[tooltipId] = text;
+					var waiting = epesi_tooltip_ajax_pending[tooltipId] || [];
+					delete epesi_tooltip_ajax_pending[tooltipId];
+					waiting.forEach(function(waitingEl) {
+						epesi_tooltip_ajax_apply(waitingEl, text, waitingEl.hasAttribute('data-tooltip-html'));
+					});
 				} catch (e) {}
 			}
 		});
