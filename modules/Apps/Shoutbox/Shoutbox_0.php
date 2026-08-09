@@ -367,6 +367,24 @@ class Apps_Shoutbox extends Module {
 		    		.'return false;'
 		    	.'});');
 
+		    //Keep the Send button disabled while the message textarea is empty
+		    //(or whitespace-only) - previously it stayed clickable with no text
+		    //at all, which for "to=all" fired the confirm-all popup above (or,
+		    //for a specific recipient, a round-trip just to hit QuickForm's
+		    //server-side "Field required" rule) on a message with nothing to
+		    //send. Namespaced off/on on the textarea's own "input" event, same
+		    //idiom as the click handler above and for the same reason (re-
+		    //running this eval_js on a re-render can't stack duplicate
+		    //listeners onto elements the DOM replace didn't actually swap).
+		    eval_js('(function(){'
+		    		.'var txt=document.getElementById("shoutbox_text'.($big?'_big':'').'");'
+		    		.'var btn=document.getElementById("shoutbox_button'.($big?'_big':'').'");'
+		    		.'if(!txt||!btn)return;'
+		    		.'function sync(){btn.disabled=!txt.value.trim();}'
+		    		.'sync();'
+		    		.'jq(txt).off("input.Apps_Shoutbox_toggleSend").on("input.Apps_Shoutbox_toggleSend",sync);'
+		    	.'})();');
+
 		    //BBCode reference: built once per request from whatever's actually
 		    //registered (bbcode_reference(), backed by Utils_BBCodeCommon::
 		    //get_registered_codes()) so a module installed later shows up here
@@ -550,8 +568,10 @@ class Apps_Shoutbox extends Module {
 				$msg = Utils_BBCodeCommon::optimize($msg);
 				//get logged user id
 				$user_id = Base_AclCommon::get_user();
-				//clear text box and focus it
-				eval_js('document.getElementById(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
+				//clear text box and focus it - value is set programmatically, which
+				//doesn't fire the 'input' event the Send-button disable toggle
+				//above listens for, so its disabled state is set explicitly here too.
+				eval_js('document.getElementById(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'";var b=document.getElementById(\'shoutbox_button'.($big?'_big':'').'\');if(b)b.disabled=true;');
 
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
