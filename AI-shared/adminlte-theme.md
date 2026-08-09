@@ -358,6 +358,50 @@ filter bar) — landed in `theme_adminlte/` first, then copied into the dark
 fork; that provenance is now purely historical since only the dark fork
 remains.
 
+## Leightbox popups: fixed grey/black sidebar chrome convention (2026-08-08/09)
+
+Per explicit direction, Leightbox-based popups are being moved, one at a time
+as they come up, to the **same fixed grey/black scheme as the app-sidebar**
+(`#dee2e6` background, `#000` text — `Base_Box/theme_adminltedark/
+default.css`'s sidebar rule, "stays this same color in both light and dark
+mode, per request") instead of each popup's own `var(--epesi-*)`-themed dark
+chrome. This is not a global default yet — it's applied popup-by-popup on
+request, not swept across every Leightbox in the app — but any *new* Leightbox
+popup, or one that comes up for other styling work, should default to this
+scheme rather than the themed one unless told otherwise. Already converted:
+`Libs_Leightbox`'s own header (`#Leightbox_header`) and the Watchdog "what
+changed" popup (`#tooltip_leightbox_mode`) — both in `Libs/Leightbox/
+theme_adminltedark/default.css`; `CRM_Followup`'s Follow-up popup and
+`Premium_Projects_Tickets`' "Change Status" popup (same `_followups_leightbox`
+id suffix/plumbing) — `CRM/Followup/theme_adminltedark/leightbox.css` and
+`Premium/Projects/Tickets/theme_adminltedark/status_leightbox.tpl`;
+`Utils_LeightboxPrompt`'s generic chooser grid (`CRM_Calendar`'s "New Event",
+`CRM_Mail`, `Utils_Messenger`, `Base_Lang_Administrator` all reuse it) —
+`Utils/LeightboxPrompt/theme_adminltedark/leightbox.css`. See the Tooltips
+entry above for the same scheme applied to `Utils_Tooltip`'s hover popup.
+
+**The trap this convention creates: native `<select>`/`<textarea>` text goes
+invisible.** Forcing a popup to always-light chrome doesn't stop the *browser*
+from still treating the page as dark-themed — `Base_ThemeCommon`'s dark-mode
+toggle sets `colorScheme='dark'` on `<html>` (see `ThemeCommon_0.php`), and
+browsers use that (not this popup's own CSS) to pick native form-control
+colors for anything left unstyled. A `<select>`/`<textarea>` with an explicit
+white `background-color` but no explicit `color` renders white-on-white for
+both the closed control's own text *and* its native dropdown option list —
+`background-color: #fff` alone is not enough. Fix, needed on every such field:
+```css
+color: #000;
+color-scheme: light;
+```
+`color-scheme: light` is the part that fixes the native dropdown popup
+specifically (the option list is browser-native chrome, not something CSS can
+otherwise restyle) — `color` alone can fix the closed box but isn't reliably
+enough for the open list. Found and fixed in both `CRM_Followup`'s and
+`Premium_Projects_Tickets`' popups (same underlying bug, hit independently in
+each). See the matching `bug-patterns.md` entry for the full symptom writeup —
+check any *other* fixed-light-chrome popup containing a `<select>`/`<textarea>`
+for the same gap before assuming only these two had it.
+
 ## Recurring CSS/JS traps (read before touching the theme)
 
 1. **CSS loads per rendering module.** `modules/X/theme_adminltedark/default.css` is
