@@ -43,9 +43,9 @@ same for every developer and every computer working on this repo.
 - [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — planned CKEditor→
   Quill swap (license + retirement), full scope/decision/plan recorded; not started.
 - [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) —
-  planned generic mobile/responsive layout for every `Utils_GenericBrowser`/
-  `Utils_RecordBrowser` list table; research + plan recorded, work happens on the
-  `mobile-gb` branch; not started.
+  generic mobile/responsive 2-line-per-row layout for every `Utils_GenericBrowser`/
+  `Utils_RecordBrowser` list table; implemented on the `mobile-gb` branch, not yet
+  visually verified or merged.
 - [bug-patterns.md](bug-patterns.md) — subtle, already-fixed bugs whose *root-cause
   shape* is likely to recur elsewhere in the codebase.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that

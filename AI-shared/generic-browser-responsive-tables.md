@@ -1,11 +1,18 @@
-# Utils_GenericBrowser mobile/responsive table (planned, not started)
+# Utils_GenericBrowser mobile/responsive table (implemented on `mobile-gb`, unverified)
 
-**Status as of 2026-08-10: research + plan agreed, zero code changed.** Triggered by
-`CRM_LoginAudit` being unreadable on narrow/mobile viewports (7 columns squeezed into
-one line). Decision: fix it **generically for every `Utils_GenericBrowser`/
-`Utils_RecordBrowser` list**, not just Login Audit — do this work on its own
-`mobile-gb` branch (see [[karina-branch-sync]]-style branch discipline further down),
-not mixed into `jasiek`/`karina` mainline work.
+**Status as of 2026-08-10: implemented on the `mobile-gb` branch, not yet visually
+verified in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`
+being unreadable on narrow/mobile viewports (7 columns squeezed into one line).
+Decision: fix it **generically for every `Utils_GenericBrowser`/`Utils_RecordBrowser`
+list**, not just Login Audit — confirmed this reaches RecordBrowser's Browse mode too,
+since `RecordBrowser_0.php` renders its grid via a genuine child
+`Utils_GenericBrowser::module_name()` instance (`RecordBrowser_0.php:298` etc.), which
+goes through this same GenericBrowser theme — RecordBrowser's own
+`theme_adminltedark/Browsing_records.tpl` only renders the surrounding page chrome
+(filters/tabs), not the grid itself, and GenericBrowser's `theme_adminltedark/` has
+exactly one template/CSS pair (no per-caller override to miss). Do this work on its
+own `mobile-gb` branch (see [[mobile-gb-branch]]), not mixed into `jasiek`/`karina`
+mainline work.
 
 ## Why it squeezes instead of scrolling
 
@@ -43,39 +50,59 @@ scrolling sideways or wrapping.
   column, so this rule doesn't touch it today, but it's the pattern to extend rather
   than invent something new.
 
-## Planned mechanism
+## Implemented mechanism
 
-Turn each row (header included, since header/body share the `__tr` class) into an
+Each row (header included, since header/body share the `__tr` class) becomes an
 N-column CSS Grid at a mobile breakpoint, instead of letting `display:table-cell`
-squeeze every column proportionally:
+squeeze every column proportionally. Two files changed, both in
+`modules/Utils/GenericBrowser/theme_adminltedark/`:
 
-```css
-@media (max-width: 767.98px) {
-  .epesi-gb .Utils_GenericBrowser,
-  .epesi-gb .Utils_GenericBrowser__thead,
-  .epesi-gb .Utils_GenericBrowser__tbody {
-    display: block; /* escape the table layout algorithm cleanly first */
+- **`default.tpl`** — the existing `{php}` block that builds `cols` now also computes
+  `mobile_cols = max(1, ceil(count($cols)/2))` and assigns it as a template var; the
+  `table_attr` capture appends `--epesi-gb-mobile-cols:{$mobile_cols};` to the
+  wrapper's inline `style=`. Done in the `.tpl` (not `GenericBrowser_0.php`) since it's
+  purely a presentation concern of this theme and keeps the change to one file per
+  theme rather than touching the shared PHP class.
+- **`default.css`** — new `@media (max-width: 767.98px)` block, placed right after the
+  existing 991.98px kebab/favs-watchdog-hide block:
+  ```css
+  @media (max-width: 767.98px) {
+    .epesi-gb .Utils_GenericBrowser,
+    .epesi-gb .Utils_GenericBrowser__thead,
+    .epesi-gb .Utils_GenericBrowser__tbody {
+      display: block; /* escape the table layout algorithm cleanly first */
+    }
+    .epesi-gb .Utils_GenericBrowser__tr {
+      display: grid;
+      grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
+    }
+    .epesi-gb .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
+      border-bottom: 1px solid #343a40; /* row separator moved from __td to __tr */
+    }
+    .epesi-gb .Utils_GenericBrowser__td {
+      border-bottom: none;
+    }
   }
-  .epesi-gb .Utils_GenericBrowser__tr {
-    display: grid;
-    grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
-  }
-}
-```
+  ```
 
 Forcing the ancestors to `display:block` before making `__tr` a grid matters: a
 `display:grid` child of a `display:table-row-group` parent otherwise risks the browser
 generating an anonymous `table-row` wrapper around it per the CSS table anonymous-box
-rules, which would break the intended wrapping.
+rules, which would break the intended wrapping. Moving the row-separator border from
+each `__td` (existing rule, fires on every physical line) to the `__tr` itself means a
+logical row's 2 physical lines read as one row with one separator below it, not two
+rows with a separator between them.
 
-Because this is going **generic** (not scoped to one module via `set_prefix()`), column
-count varies per table, so the number of columns-per-line can't be hardcoded — it needs
-to be `ceil(column_count/2)`, computed server-side in `GenericBrowser_0.php` where the
-column array is already built, and emitted as a CSS custom property
-(`--epesi-gb-mobile-cols`) on the wrapper. That single generic rule then gives every
-`Utils_GenericBrowser`/`Utils_RecordBrowser` table a 2-line mobile layout regardless of
-how many columns it has, with header and body rows staying column-aligned since both
-use the same rule and the same computed value.
+Because this is generic (not scoped to one module), column count varies per table, so
+the number of columns-per-line can't be hardcoded — `ceil(column_count/2)` computed
+per-table in the `.tpl` and exposed via `--epesi-gb-mobile-cols` is what lets this one
+CSS rule work for every table regardless of how many columns it has, with header and
+body rows staying column-aligned since both use the same rule and the same computed
+value.
+
+**Not done, deliberately:** no change to `GenericBrowser_0.php`, `theme/default.tpl`
+(legacy non-AdminLTE theme, out of scope — every other polish pass this session has
+been `adminltedark`-only), or `function.html_grid_epesi.php`.
 
 ## Alternatives considered
 
@@ -95,7 +122,7 @@ use the same rule and the same computed value.
   dependency for a problem CSS already solves, and this codebase deliberately avoids
   adding to the legacy Prototype/jQuery stack (see [[legacy-js-migration]]).
 
-## Regression surface to retest once implemented (generic = touches every list screen)
+## Regression surface to retest before merging (generic = touches every list screen)
 
 - The 991.98px actions-kebab collapse and favs/watchdog column hide
   (`default.css:883-934`) — need to confirm the two breakpoints/rules don't fight each

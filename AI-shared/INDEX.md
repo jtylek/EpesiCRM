@@ -23,11 +23,12 @@
   call sites, one shared element/lifecycle-JS), the HTML-vs-Delta storage decision,
   step-by-step plan, ~1-2 day estimate. Not started — needs its own branch.
 - [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) —
-  planned fix for `Utils_GenericBrowser`/`Utils_RecordBrowser` list tables squeezing
-  unreadable on narrow viewports instead of scrolling/wrapping: root cause (div-based
-  CSS table-display grid, fixed 100% width), the CSS-grid 2-line-per-row mechanism
-  planned, alternatives considered and rejected. Not started — work happens on the
-  `mobile-gb` branch.
+  fix for `Utils_GenericBrowser`/`Utils_RecordBrowser` list tables squeezing unreadable
+  on narrow viewports instead of scrolling/wrapping: root cause (div-based CSS
+  table-display grid, fixed 100% width), the CSS-grid 2-line-per-row mechanism,
+  alternatives considered and rejected. Implemented on the `mobile-gb` branch
+  (`GenericBrowser/theme_adminltedark/default.tpl` + `default.css`), confirmed to
+  reach RecordBrowser's Browse mode; not yet visually verified or merged.
 - [bug-patterns.md](bug-patterns.md) — already-fixed bugs whose root-cause
   shape (raw-record-vs-form-submission, strtotime() date parsing, settings
   override chains, legacy-theme `<select>` sizing across four stacked CSS

@@ -62,12 +62,18 @@
 	foreach($cols as $k=>$v)
 		$cols[$k]['label'] = '<span>'.$cols[$k]['label'].'</span>';
 	$this->assign('cols',$cols);
+	// Mobile 2-line-per-row layout (see this theme's default.css "mobile:
+	// 2-line-per-row layout" block) needs a per-table column-per-line count -
+	// column count varies per module, so it can't be a fixed CSS number.
+	// Computed here rather than in GenericBrowser_0.php since it's purely a
+	// presentation concern of this theme.
+	$this->assign('mobile_cols', max(1, (int)ceil(count($cols)/2)));
 {/php}
 
 <div class="card-body p-0">
 	<div class="table-responsive">
 		{$table_prefix}
-		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;--epesi-gb-mobile-cols:{$mobile_cols};"{/capture}
 		{html_grid_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 		{$table_postfix}
 	</div>

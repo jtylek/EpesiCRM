@@ -933,6 +933,56 @@
 	}
 }
 
+/* ---- mobile: 2-line-per-row layout (generic, every Utils_GenericBrowser/
+   Utils_RecordBrowser table) ----
+ * Below ~768px, a table with several columns just keeps shrinking every
+ * column to fit table-layout:fixed's 100% width (see this file's own
+ * "---- table ----" comment above) until it's unreadable. Instead, wrap each
+ * row - header included, since header/body share the __tr class, see
+ * function.html_grid_epesi.php - into exactly 2 physical lines.
+ *
+ * Column count varies per module, so the number of columns-per-line can't be
+ * a fixed number here: default.tpl computes ceil(column_count/2) server-side
+ * per table and exposes it as the --epesi-gb-mobile-cols custom property on
+ * the outer .Utils_GenericBrowser wrapper, so this one rule works for every
+ * table regardless of how many columns it has.
+ *
+ * The ancestors are forced to display:block first - a display:grid child of
+ * a display:table-row-group parent otherwise risks the browser generating
+ * an anonymous table-row wrapper around it per the CSS table anonymous-box
+ * rules, which would silently defeat the wrap.
+ *
+ * Row separators move from each __td's own border-bottom (above) to the
+ * __tr itself, so a logical row's 2 physical lines read as one row with one
+ * separator below it, rather than two rows with a separator between them.
+ *
+ * Known limitation: --epesi-gb-mobile-cols counts ALL columns, including any
+ * RecordBrowser favourite/watchdog/actions columns the 991.98px rule above
+ * already hides at this width - so a table using those features can split
+ * unevenly (e.g. 5+2 instead of 4+3) rather than exactly in half. Still
+ * renders correctly, just not perfectly balanced. See
+ * AI-shared/generic-browser-responsive-tables.md. */
+@media (max-width: 767.98px) {
+	.epesi-gb .Utils_GenericBrowser,
+	.epesi-gb .Utils_GenericBrowser__thead,
+	.epesi-gb .Utils_GenericBrowser__tbody {
+		display: block;
+	}
+
+	.epesi-gb .Utils_GenericBrowser__tr {
+		display: grid;
+		grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
+	}
+
+	.epesi-gb .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
+		border-bottom: 1px solid #343a40;
+	}
+
+	.epesi-gb .Utils_GenericBrowser__td {
+		border-bottom: none;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every
