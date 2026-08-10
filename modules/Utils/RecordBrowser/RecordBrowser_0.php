@@ -668,7 +668,19 @@ class Utils_RecordBrowser extends Module {
         if (is_array($limit)) $this->set_module_variable('last_offset',$limit['offset']);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
-            $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+            // Was icon key 'save' - rendered identically to a real Save action
+            // (both the legacy sprite and, more visibly, the AdminLTE theme's
+            // shared bi-check2-square glyph), confusing since this button
+            // downloads a CSV rather than saving anything. 'export' is its own
+            // key now - Base_ActionBarCommon::$available_icons maps it to the
+            // same sprite position as 'save' (ActionBarCommon_0.php), so the
+            // legacy theme's fullscreen_table rendering is pixel-identical to
+            // before, and theme/icons/export.png (a copy of save.png) covers
+            // new_button()'s non-fullscreen_table file-path fallback the same
+            // way; only the AdminLTE theme's own icon_map (Base_ActionBar/
+            // theme_adminltedark/default.tpl) actually points this at a
+            // different glyph (bi-download).
+            $this->new_button('export',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
 
         $this->set_module_variable('crits_stuff',$crits?$crits:array());
         $this->set_module_variable('order_stuff',$order?$order:array());

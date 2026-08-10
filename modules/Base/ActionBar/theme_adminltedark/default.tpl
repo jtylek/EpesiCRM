@@ -20,6 +20,13 @@
 		'add'       => 'bi-plus-lg',
 		'delete'    => 'bi-trash',
 		'save'      => 'bi-check2-square',
+		// RecordBrowser_0.php's "Export" (CSV download) button - own key now,
+		// not sharing 'save' any more, since the two rendered identically
+		// under this theme and read as confusing (an export that looks like
+		// a save). bi-filetype-csv per request - names the actual file
+		// format this button produces (csv_export.php) rather than a more
+		// generic download/arrow-out glyph.
+		'export'    => 'bi-filetype-csv',
 		'print'     => 'bi-printer',
 		'clone'     => 'bi-files',
 		'settings'  => 'bi-gear',
