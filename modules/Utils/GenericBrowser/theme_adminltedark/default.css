@@ -1068,6 +1068,20 @@
 	display: none !important;
 }
 
+/* Same "More actions" toggle, same fix, generalized to every Dashboard applet
+   (2026-08-10 follow-up) - the .epesi-applet-body pair above only covered
+   ensureToggles()'s mobile-responsive kebab, not this second, independent,
+   always-on one. Any row with even one non-"core" action (e.g. Premium
+   Projects/Tickets' per-row actions beyond view/edit/info) was still showing
+   this kebab inside an applet regardless of viewport width, same reasoning
+   as the pair above: an applet card has room for a couple more icons. */
+.epesi-applet-body .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-applet-body .epesi-gb-more-toggle {
+	display: none !important;
+}
+
 /* A fixed pixel width for just the actions column (tried first) either left dead space (too
    wide) or clipped/overflowed (too narrow) - it can only ever be a guess, because the actions
    column's real width need and the Cat./Title columns' own share are computed independently: the

@@ -156,6 +156,23 @@ RecordBrowser Browse-mode table (not inside a Dashboard applet) still gets the k
 collapse. Per explicit request, this is scoped for now — revisit if it should extend
 to Browse mode too.
 
+**Follow-up: missed a second, independent kebab mechanism (2026-08-10).** Confirmed by
+a follow-up screenshot (Jasiek's Tickets applet) that a "⋮" kebab was still showing
+even with the fix above live — not stale cache after all. `ensureToggles()`
+(`Base_Box/theme_adminltedark/default.tpl`) actually runs *two* separate collapsing
+mechanisms: the responsive one fixed above (`.epesi-gb-actions-toggle`, mobile-width
+only), and a second, **always-on regardless of viewport width** "More actions" toggle
+(`.epesi-gb-more-toggle`/`.epesi-gb-actions-extra`) that groups any action not in
+`isCoreAction()`'s fixed list (view/edit/delete/info/print/restore/active-on/
+active-off/move-up-down/move-up/move-down/history/history_inactive/plus_gray/
+minus_gray/expand/collapse) — e.g. Premium Projects/Tickets' own per-row actions
+beyond view/edit/info. `.epesi-watchdog-applet` already had an override for *both*
+mechanisms (`theme_adminltedark/default.css` ~1058-1069); my original `.epesi-applet-body`
+fix only copied the first pair. Added the matching second pair
+(`.epesi-applet-body .epesi-gb-actions-extra`/`.epesi-gb-more-toggle`) right after it —
+now `.epesi-watchdog-applet`'s rules are a genuinely redundant subset of
+`.epesi-applet-body`'s for both mechanisms, not just one.
+
 ## Regression surface to retest before merging (generic = touches every list screen)
 
 - The 991.98px actions-kebab collapse and favs/watchdog column hide
