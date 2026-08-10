@@ -38,6 +38,12 @@
 .epesi-applet-title {
 	font-weight: 600;
 	font-size: 1rem;
+	/* Own line-height, not the header's inherited line-height:1 (line 35) -
+	   that value is tight enough that this element's own overflow:hidden
+	   (needed below for the ellipsis truncation) clipped descenders (e.g. the
+	   tail of a lowercase "g") off the bottom of the title instead of only
+	   truncating overflow width-wise. */
+	line-height: 1.3;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
