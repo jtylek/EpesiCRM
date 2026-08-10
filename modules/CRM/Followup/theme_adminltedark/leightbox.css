@@ -66,11 +66,24 @@
 	color: #000 !important;
 }
 
+/* #Leightbox_content's own padding (Libs_Leightbox/theme_adminltedark/
+   default.css) is 1rem all round, shared by every popup in the app - not
+   touched directly (would affect every other Leightbox), but scoped down
+   here for just this popup: per request, the gap between the "Follow-up"
+   header and the first field read as dead space on a small phone screen,
+   worth reclaiming even though it's a perfectly ordinary padding value -
+   this popup's rows are short enough that the standard 1rem top/bottom adds
+   up to a large fraction of the whole (compact) form. */
+.leightbox[id$="_followups_leightbox"] #Leightbox_content {
+	padding-top: 0.4rem;
+	padding-bottom: 0.5rem;
+}
+
 .epesi-followup-fields {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
-	margin-bottom: 1rem;
+	gap: 0.35rem;
+	margin-bottom: 0.5rem;
 }
 
 .epesi-followup-row {
@@ -89,11 +102,21 @@
 	gap: 0.25rem 1rem;
 }
 
+/* font-size/text-transform per request ("Status"/"Note" labels made
+   smaller) - this row wraps to its own line below ~767.98px (see
+   .epesi-followup-row's own comment on why min-width triggers that), so on
+   mobile the label reads as a small caption sitting directly above its
+   control rather than a same-size label beside it; margin-bottom replaces
+   most of what used to be padding-top's alignment role now that there's no
+   taller sibling on the same line to line up with. */
 .epesi-followup-label {
 	flex: 0 0 100px;
-	padding-top: 0.4rem;
-	color: #495057;
+	margin-bottom: 0.15rem;
+	color: #6c757d;
 	font-weight: 600;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
 }
 
 .epesi-followup-control {
@@ -140,13 +163,27 @@
 	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
+/* Per request: an explicit two-line layout rather than the old single
+   flex-wrap row (Save + "Or save and create:" + all three "New X" buttons
+   together, wrapping wherever width ran out) - Save/the "Or save and
+   create:" label always share the first line, and New Meeting/New Task/
+   New Phonecall always share the second, regardless of viewport width.
+   leightbox.tpl now renders these as two child divs (.epesi-followup-
+   actions-row1/-row2) instead of one flat run of siblings. */
 .epesi-followup-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid #e9ecef;
+}
+
+.epesi-followup-actions-row1,
+.epesi-followup-actions-row2 {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.4rem;
-	padding-top: 0.75rem;
-	border-top: 1px solid #e9ecef;
 }
 
 .epesi-followup-btn {
@@ -187,7 +224,10 @@
 }
 
 .epesi-followup-sep {
-	margin: 0 0.5rem;
+	/* Left margin only now - row1 (leightbox.tpl) always ends with this
+	   label right after the Save button, nothing trailing it needs space on
+	   the right. */
+	margin-left: 0.5rem;
 	color: #6c757d;
 	font-size: 0.8rem;
 	font-weight: 600;
