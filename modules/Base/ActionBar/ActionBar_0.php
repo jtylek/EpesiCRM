@@ -52,11 +52,14 @@ class Base_ActionBar extends Module {
 
 		//translate
 		foreach($icons as &$i) {
-			$description = $i['description'];
-            if($i['description'])
-                $t = Utils_TooltipCommon::open_tag_attrs($description);
-            else
-                $t = '';
+			// Every button gets a tooltip now, not just the handful that pass an
+			// explicit $description - falls back to the visible label text
+			// (stripped of any markup, e.g. Roundcube's bolded account label)
+			// so there's still a hint once the AdminLTE theme hides labels at
+			// narrow widths (Base_ActionBar/theme_adminltedark/default.css's
+			// max-width:991.98px rule).
+			$description = $i['description'] ?: strip_tags($i['label']);
+			$t = Utils_TooltipCommon::open_tag_attrs($description);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			$i['helpID'] = 'ActionBar_'.$i['icon'];
