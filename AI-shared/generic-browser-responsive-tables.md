@@ -156,6 +156,32 @@ RecordBrowser Browse-mode table (not inside a Dashboard applet) still gets the k
 collapse. Per explicit request, this is scoped for now — revisit if it should extend
 to Browse mode too.
 
+## Utils_Attachment Notes/Journal addon: opted out of the 2-line grid entirely (2026-08-10)
+
+Reported after visual verification: the Notes addon (`Utils_Attachment::body()`, embedded as
+a tab on Contacts/Companies/etc. — Journal is the same widget, different `$crits`/caption,
+see `theme_adminltedark/default.css`'s own `data-rb-tab="utils_attachment"` comment) rendered
+fine before today's change and shouldn't have been swept up in the generic fix — its `note`
+column is a wide `Utils_RecordBrowser__tallpreview` text column (see this file's "expandable
+cells" entry in `default.css`), not a fixed value that benefits from an even N-way grid split.
+This was flagged as a risk in advance, see "Regression surface to retest" above.
+
+Unlike the kebab-only opt-outs above, this table opts out of the *entire*
+`max-width:767.98px` block, reverting to the pre-fix proportional-width table-cell layout.
+Same `set_prefix()`/`set_postfix()` wrapping technique as `view_edit_history()`'s
+`.epesi-rb-changes-history` (`RecordBrowser_0.php:2462-2464`), but `Attachment_0.php` calls
+`show_data()` directly rather than going through `body()`, so it has no `$gb` of its own to
+call `set_prefix()` on — added a small public hook, `RecordBrowser_0.php`'s
+`set_data_gb($gb)`, reusing the existing private `$data_gb` property `show_data()` already
+checks (`if ($this->data_gb!==null) $gb = $this->data_gb;`) for RecordBrowser's own full-page
+Browse mode (`body()`/`show_filters()`). `Attachment_0.php::body()` now pre-builds a
+`Utils_GenericBrowser` child itself, wraps it in `<div class="epesi-attachment-notes">`, and
+injects it via that setter before calling `show_data()`.
+
+`theme_adminltedark/default.css`'s mobile 2-line block gained a `:not(:has(.epesi-attachment-notes))`
+clause on every selector, scoped to the ancestor `.epesi-gb` card — simplest option since the
+marker div sits *inside* the grid wrapper those rules target, not on it.
+
 **Follow-up: missed a second, independent kebab mechanism (2026-08-10).** Confirmed by
 a follow-up screenshot (Jasiek's Tickets applet) that a "⋮" kebab was still showing
 even with the fix above live — not stale cache after all. `ensureToggles()`

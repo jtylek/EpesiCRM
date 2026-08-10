@@ -90,6 +90,16 @@ class Utils_RecordBrowser extends Module {
         $this->grid = $arg;
     }
 
+    // Lets a caller that invokes show_data() directly (an addon tab like Utils_Attachment's,
+    // bypassing body()/show_filters() - those two also populate $data_gb, but only on the
+    // full-page Browse mode path) pre-build its own Utils_GenericBrowser child instance and
+    // call set_prefix()/set_postfix() on it first (same technique as this file's own
+    // view_edit_history()) - show_data() picks up the injected instance via its existing
+    // "if ($this->data_gb!==null)" check instead of creating its own.
+    public function set_data_gb($gb) {
+        $this->data_gb = $gb;
+    }
+
     public function set_filter_crits($field, $crits) {
         $this->filter_crits[$field] = $crits;
     }

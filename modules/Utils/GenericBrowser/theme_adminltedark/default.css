@@ -973,24 +973,34 @@
  * already hides at this width - so a table using those features can split
  * unevenly (e.g. 5+2 instead of 4+3) rather than exactly in half. Still
  * renders correctly, just not perfectly balanced. See
- * AI-shared/generic-browser-responsive-tables.md. */
+ * AI-shared/generic-browser-responsive-tables.md.
+ *
+ * ":not(:has(.epesi-attachment-notes))" on every selector below: Utils_Attachment's
+ * Notes/Journal addon (Attachment_0.php::body()) opts out of this whole block (2026-08-10
+ * follow-up, per request - it rendered fine before this fix and shouldn't have been swept
+ * up in the generic change). Its own 'note' column is a wide tall_preview text column (see
+ * the "expandable cells" block above), not a fixed value that benefits from an even N-way
+ * grid split. Attachment_0.php wraps just that table's own {html_grid_epesi} output in
+ * "<div class=epesi-attachment-notes>" (set_prefix()/set_postfix(), same technique as
+ * ".epesi-rb-changes-history" below) - :has() on the ancestor .epesi-gb card is simplest
+ * since that marker sits *inside* the grid wrapper these rules target, not on it. */
 @media (max-width: 767.98px) {
-	.epesi-gb .Utils_GenericBrowser,
-	.epesi-gb .Utils_GenericBrowser__thead,
-	.epesi-gb .Utils_GenericBrowser__tbody {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__thead,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tbody {
 		display: block;
 	}
 
-	.epesi-gb .Utils_GenericBrowser__tr {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tr {
 		display: grid;
 		grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
 	}
 
-	.epesi-gb .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
 		border-bottom: 1px solid #343a40;
 	}
 
-	.epesi-gb .Utils_GenericBrowser__td {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__td {
 		border-bottom: none;
 	}
 
@@ -1003,8 +1013,8 @@
 	   is why headers were clipping to 1-2 characters. Only !important can
 	   beat an inline style from a stylesheet rule; width:auto lets the item
 	   fall back to the grid's own default stretch-to-fill-the-track sizing. */
-	.epesi-gb .Utils_GenericBrowser__th,
-	.epesi-gb .Utils_GenericBrowser__td {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__th,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__td {
 		width: auto !important;
 	}
 }
