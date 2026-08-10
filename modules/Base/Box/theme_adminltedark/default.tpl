@@ -45,6 +45,45 @@
 		"})();"
 	);
 
+	// Narrow portrait phones collapse #ActionBar entirely when it has nothing
+	// but pinned Quick Access launcher icons in it (default.css's own
+	// "body.epesi-actionbar-empty" rule) - mainly a Dashboard thing, since
+	// that's normally the one screen with no screen actions of its own at
+	// all. An earlier version of that rule tried to stay CSS-only, keyed off
+	// data-module-type="Base_Dashboard" via :has(), with a second :not(:has(
+	// ...)) clause meant to keep the bar visible whenever a real action (e.g.
+	// config mode's own "Save", or an individual applet's Save/Back/Restore
+	// Defaults - Base_Dashboard/Dashboard_0.php's configure_applet()) was
+	// actually present - reported as still hiding the bar live regardless,
+	// for reasons never pinned down, so it was dropped in favour of
+	// unconditionally hiding on Dashboard, with Save becoming unreachable
+	// there below this breakpoint as a documented (not fixed) side effect.
+	// Same "CSS :has() chain silently failed in production" shape already
+	// hit once before for a near-identical reason (see the epesi-gb-actions-
+	// menu isCoreAction() block further down this file's own comments) -
+	// owning both ends of the check here instead removes that whole class of
+	// mismatch, and generalizing off "does the bar actually contain a real
+	// action button" rather than "is this Dashboard" makes the rule correct
+	// for any screen that happens to render with none, not just that one.
+	// MutationObserver instead of e:load: #ActionBar's own content is
+	// shell-adjacent, patched directly by Epesi's AJAX layer on navigation
+	// rather than necessarily going through the same "#content was replaced"
+	// event GenericBrowser tables rely on - watching the node itself is
+	// mechanism-agnostic, so this reacts correctly regardless of exactly how
+	// the update happened.
+	eval_js_once(
+		"(function(){".
+			"var bar=document.getElementById('ActionBar');".
+			"if(!bar)return;".
+			"function sync(){".
+				"var hasAction=!!bar.querySelector('.epesi-actionbar-group:not(.epesi-actionbar-launcher-group) .epesi-actionbar-btn');".
+				"document.body.classList.toggle('epesi-actionbar-empty',!hasAction);".
+			"}".
+			"sync();".
+			"new MutationObserver(sync).observe(bar,{childList:true,subtree:true});".
+		"})();"
+	);
+
 	// Below lg, the sidebar is an off-canvas overlay (see default.css) that
 	// stays open (body.sidebar-open) across a menu-driven navigation until
 	// the user explicitly closes it - since navigating IS what they were

@@ -505,31 +505,31 @@ body {
 	#search_box {
 		display: none !important;
 	}
-	/* Dashboard specifically - per request, unconditionally at this
-	   breakpoint: it normally has no screen actions of its own (the
-	   "Config" ActionBar button moved out entirely - see Base_Dashboard/
-	   Dashboard_0.php) and its pinned Quick Access icons are already hidden
-	   here too (.epesi-actionbar-launcher-group, above in Base_ActionBar's
-	   own theme_adminltedark/default.css), so the bar itself normally
-	   renders as a tall empty band with nothing in it. Was previously
-	   guarded with :not(:has(...)) to keep config mode's own "Save" button
-	   visible - dropped after that guard still reportedly left the bar
-	   showing empty live (this selector's job is to definitely fix the
-	   reported bug, not to also cover an unconfirmed edge case at the risk
-	   of reintroducing it) - so config mode's Save button is ALSO hidden by
-	   this now on a narrow portrait phone specifically; exiting config mode
-	   there needs a wider/landscape view until this gets its own explicit
-	   opt-out. Same :has()+data-module-type mechanism as the Base_Admin
-	   rule above - .app-content-header is a sibling of #top_bar (both
-	   children of .epesi-adminlte.app-wrapper), not a descendant of it, so
-	   the :has() check has to sit on that shared ancestor instead of on
-	   .app-header itself. --epesi-actionbar-height (the ResizeObserver in
-	   default.tpl) tracks this element's real offsetHeight, so hiding it
-	   collapses .app-main's reserved padding-top down to just the navbar's
-	   height too - no leftover gap where the bar used to be. Every OTHER
-	   screen keeps its ActionBar regardless of content - only Dashboard is
-	   targeted here. */
-	.epesi-adminlte:has(.epesi-mmi[data-module-type="Base_Dashboard"]) .app-content-header {
+	/* Collapses the bar on a narrow portrait phone whenever it genuinely has
+	   no real action in it - mainly a Dashboard thing (no "Config" button
+	   any more - see Base_Dashboard/Dashboard_0.php - and its pinned Quick
+	   Access icons are already hidden at this breakpoint too, .epesi-
+	   actionbar-launcher-group in Base_ActionBar's own theme_adminltedark/
+	   default.css - so it normally renders as a tall empty band with
+	   nothing in it), but not Dashboard-specific any more: this used to be
+	   a :has()+data-module-type="Base_Dashboard" selector with a second
+	   :not(:has(...)) clause meant to keep the bar visible whenever a real
+	   action (config mode's own "Save", or an individual applet's Save/
+	   Back/Restore Defaults - Dashboard_0.php's configure_applet()) was
+	   actually present - reported as still hiding the bar live regardless,
+	   for reasons never pinned down, so Save became unreachable there below
+	   this breakpoint as a known, undesired side effect. body.epesi-
+	   actionbar-empty is set by a MutationObserver in default.tpl instead
+	   (see that file's own comment) - JS querying #ActionBar's actual
+	   content directly is unambiguous where the nested :has() chain wasn't,
+	   and keying off "is the bar actually empty" rather than "is this
+	   Dashboard" is correct for any screen that happens to render with no
+	   actions, not just that one. --epesi-actionbar-height (the
+	   ResizeObserver in default.tpl) tracks this element's real
+	   offsetHeight, so hiding it collapses .app-main's reserved
+	   padding-top down to just the navbar's height too - no leftover gap
+	   where the bar used to be. */
+	body.epesi-actionbar-empty .epesi-adminlte .app-content-header {
 		display: none;
 	}
 }
