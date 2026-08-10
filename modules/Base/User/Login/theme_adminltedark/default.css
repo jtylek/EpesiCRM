@@ -148,7 +148,7 @@ body:has(.login-page-adminlte) #body_content {
 .sidebar-footer .logged_as {
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	gap: 0.35rem;
 	font-size: 0.8rem;
 	color: #000;
@@ -194,6 +194,11 @@ body:has(.login-page-adminlte) #body_content {
 	color: #adb5bd;
 	background: none;
 	padding: 0.3rem 0.5rem;
+	/* Negative margin cancels the left padding above so the icon glyph itself
+	   lines up under .logged_as's icon (which has no left padding of its
+	   own) - the padding is still needed on all sides for a symmetric hover
+	   pill around "Logout", just not for the icon's resting position. */
+	margin-left: -0.5rem;
 	border-radius: 0.375rem;
 	font-size: 0.85rem;
 	text-decoration: none;
@@ -201,7 +206,15 @@ body:has(.login-page-adminlte) #body_content {
 
 .logout_icon:hover,
 .logout_icon:focus {
-	background-color: #343a40;
+	/* Unconditional light-style hover, not theme-dependent - the sidebar
+	   itself is always the fixed light grey (.app-sidebar, Base_Box's
+	   default.css), never dark, so the dark hover this rule used to carry
+	   (left over from when Logout lived in the theme-following navbar,
+	   before the DOM move documented below) rendered as a near-invisible
+	   dark-on-dark box once it landed in the always-light sidebar. Matches
+	   #MenuBar .nav-link:hover's own light hover background for the same
+	   reason (Base_Menu/theme_adminltedark/default.css). */
+	background-color: #e9ecef;
 	color: #dc3545;
 }
 
@@ -230,16 +243,13 @@ body:has(.login-page-adminlte) #body_content {
    in the sidebar footer (see that rule's own updated comment above), which
    is always the one fixed light-grey scheme regardless of the live navbar
    dark/light toggle, so there's no longer an actual light/dark divergence
-   left to override. (.logout_icon's own light-theme override just below is
-   untouched here, left as pre-existing - it's arguably the same kind of dead
-   weight now that Logout lives in the same fixed-grey footer too, since
-   .sidebar-footer a{color:#000} already wins on specificity regardless of
-   theme, but that predates this change and is out of its scope.) */
+   left to override. .logout_icon's own light-theme hover override that used
+   to live below this comment is gone the same way: its background-color is
+   now the unconditional value on the base .logout_icon:hover rule above
+   (see that rule's own comment) rather than a light-only divergence, since
+   Logout's hover reads from the same always-light sidebar regardless of
+   theme. Its plain (non-hover) color override just below is left as
+   pre-existing, still out of this change's scope. */
 [data-bs-theme="light"] .logout_icon {
   color: #495057;
-}
-
-[data-bs-theme="light"] .logout_icon:hover,
-[data-bs-theme="light"] .logout_icon:focus {
-  background-color: #e9ecef;
 }

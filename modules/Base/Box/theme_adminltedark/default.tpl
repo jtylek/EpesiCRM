@@ -878,7 +878,7 @@
 		   default theme), just unused here now. The Logout link (relocated
 		   here by the eval_js_once above) shares this one-line row with the
 		   color-mode toggle below it. *}
-		<div class="sidebar-footer d-flex align-items-center justify-content-center gap-2 small">
+		<div class="sidebar-footer d-flex align-items-center justify-content-start gap-2 small">
 			{* adminltedark-only: a single icon-only toggle rather than the
 			   light/dark pair a dropdown would need. adminlte.min.js's built-in
 			   color-mode toggler ("Me" class) still does the actual work -
