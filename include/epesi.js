@@ -196,6 +196,17 @@ var Epesi = {
 		// must happen *after* activeElement is captured and 'e:loading' fires
 		// (matching Prototype's onSuccess-then-evalResponse-then-onComplete order),
 		// since the response JS can replace the currently-focused element.
+		//
+		// timeout: without this, a request that never gets a response (a stalled
+		// mobile connection - WiFi/cellular handoff, a dead NAT mapping - silently
+		// drops the request with no TCP RST) leaves Epesi.procOn incremented
+		// forever, since neither success/error/complete ever fires: the app is
+		// stuck showing "Loading..." with no way to recover short of a hard
+		// reload. Reported 2026-08-10 as "Epesi does not load" on a phone; same
+        // failure shape as the Mail Test hang documented in
+        // AI-shared/bug-patterns.md, but that fix only covered PHPMailer's own
+        // socket timeout - this is the client-side ajax call used for every
+        // page navigation, which had no timeout at all.
 		jQuery.ajax(Epesi.process_file, {
 			method: 'post',
 			data: {
@@ -203,6 +214,7 @@ var Epesi = {
 				url: url
 			},
 			dataType: 'text',
+			timeout: 60000,
 			success: function(responseText) {
 				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
 				jQuery(document).trigger('e:loading');
@@ -216,7 +228,7 @@ var Epesi = {
                 }
 			},
 			error: function(jqXHR) {
-				var msg = 'Failure ('+jqXHR.status+')';
+				var msg = jqXHR.statusText=='timeout' ? 'Request timed out - please try again' : 'Failure ('+jqXHR.status+')';
 				if (typeof epesi_alert === 'function') epesi_alert(msg); else alert(msg);
 				Epesi.text(jqXHR.responseText,'error_box','p');
 			}
