@@ -536,6 +536,30 @@ first thing to verify properly** (inspect `--epesi-header-height`/
 than re-deriving a per-popup workaround each time — a fix in the shared
 `Libs_Leightbox` base CSS would be worth it at that point.
 
+**Follow-up 3: still too narrow specifically in mobile landscape (2026-08-10) —
+the real bug was shrink-to-fit sizing, not a missing viewport cap.** Both
+`CRM_Followup`'s `width:fit-content` and `Premium_Projects_Tickets`'
+`width:auto` looked viewport-aware already (paired with `max-width:90vw` /
+`min(520px, calc(100vw-24px))`) but never actually grew to use that allowance
+— for a `position:fixed` box pinned by `left:50%` alone (no matching `right`),
+CSS resolves `auto`/`fit-content` width via **shrink-to-fit**: the box sizes to
+its own content's preferred width, full stop, regardless of how much more
+space `max-width` would allow. A landscape phone has a much wider viewport
+than the same phone in portrait, but since neither popup was actually sizing
+off the viewport, orientation made no difference — both stayed pinned near
+their content-minimum width either way, which is why "make them wider" didn't
+already happen for free at the wider landscape width. Fixed by giving both an
+**explicit** width instead of `auto`/`fit-content` (explicit lengths on a
+fixed/absolute box are used directly, not shrink-to-fit):
+`width: max(280px, min(90vw, 480px))` (Followup) /
+`width: max(280px, min(90vw, 520px)) !important` (Tickets) — now genuinely
+scales up with the viewport, landscape included, instead of merely being
+capped by one. **Any other custom-width Leightbox override should be checked
+for this same `width:auto`/`fit-content`-on-a-fixed-box trap** before assuming
+its own `max-width` is doing anything in landscape — it likely isn't. The base
+`Libs_Leightbox` `.leightbox` rule itself is fine (explicit `width:70%`, not
+auto/fit-content), so this is specific to popups that override it.
+
 ## Recurring CSS/JS traps (read before touching the theme)
 
 1. **CSS loads per rendering module.** `modules/X/theme_adminltedark/default.css` is

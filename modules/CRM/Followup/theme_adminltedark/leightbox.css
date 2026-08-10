@@ -16,16 +16,17 @@
    scoped this way rather than editing Libs_Leightbox's own CSS, which
    would affect every other popup in the app. */
 .leightbox[id$="_followups_leightbox"] {
-	width: fit-content;
-	max-width: 90vw;
-	/* fit-content sizes to the row's own preferred width, which on a mostly-
-	   empty Status <select> is barely more than the label - confirmed by
-	   screenshot: nothing overflowed anymore, but the popup rendered so
-	   narrow the dropdown/textarea were both cramped down near their
-	   min-content. Floors it at a comfortable size instead of leaving it to
-	   guess from near-empty controls, while max-width above still caps it on
-	   a genuinely tiny screen. */
-	min-width: min(300px, 90vw);
+	/* Was width:fit-content - for a position:fixed box pinned by left:50%
+	   alone (no matching "right"), auto/fit-content sizing is shrink-to-fit:
+	   the box sizes to its own content's preferred width, not to the space
+	   available, so it never grew even when a lot more width was on offer
+	   (confirmed by report: too narrow in landscape on a phone, where the
+	   viewport is much wider than portrait but the popup stayed the same
+	   near-content-minimum size either way). An explicit width scales with
+	   the viewport instead - min(90vw,480px) grows right up to a comfortable
+	   desktop-ish cap as more width becomes available, and max(280px, ...)
+	   keeps a usable floor on a genuinely narrow portrait screen. */
+	width: max(280px, min(90vw, 480px));
 }
 
 /* Libs_Leightbox's base .leightbox pins top to calc(header+actionbar+1rem)
