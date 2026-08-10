@@ -396,6 +396,37 @@ filter bar) — landed in `theme_adminlte/` first, then copied into the dark
 fork; that provenance is now purely historical since only the dark fork
 remains.
 
+**Touch devices: hold-to-preview collided with the native link context menu
+(2026-08-10).** The popup above is wired purely via `onmouseenter` — no
+touch handling anywhere. On a phone this meant a quick tap on a
+tooltip-bearing `<a>` just navigated before the popup could register, while a
+long-press synthesized `mouseenter` around the same hold duration the browser
+uses to decide "show the native context menu" (Open in New Tab/Copy Link/...)
+— so holding the link showed both the popup *and* the native menu at once.
+Neither `open_tag_attrs()` nor `ajax_open_tag_attrs()`'s own
+`if(MOBILE_DEVICE) return '';` guard helps here — `MOBILE_DEVICE` has been
+permanently `0` since `detect_mobile_device()` was deleted (see
+[[deliberate-removals]]'s "Legacy mobile system" entry), so every tooltip
+renders fully hover-wired even on a phone; that entry calls the remaining
+`MOBILE_DEVICE` checks app-wide "dead-but-harmless," which undersells this one
+specifically — its deadness is what let this bug happen.
+
+Fixed client-side only, in `tooltip.js`: `epesi_tooltip_mobile_enhance()` runs
+on `window` `load` and on `e:load` (idempotent via an
+`epesi-tooltip-mobile-done` marker class), and on any `(hover:none)` device,
+every `[data-epesi-tooltip="1"]` element that sits inside a real `<a href>`
+gets a small `.epesi-tooltip-mobile-trigger` button inserted right after that
+link (a sibling, not a child - nesting `<button>` inside `<a>` is invalid
+HTML) wired to the *same* `onmouseenter` handler the server already rendered
+(captured by reference before being cleared, not reimplemented). Tapping the
+button shows the popup without navigating; tapping the link itself navigates
+immediately like any ordinary link, since the link's own `onmouseenter` is
+nulled out so the browser's native hold gesture no longer triggers the popup
+at all. A deferred (`setTimeout`) document-level capture-phase click listener
+dismisses the popup on the next tap elsewhere, since `mouseleave` (the
+existing dismiss path, still used for real mouse hover) generally never fires
+on touch.
+
 ## Leightbox popups: fixed grey/black sidebar chrome convention (2026-08-08/09)
 
 Per explicit direction, Leightbox-based popups are being moved, one at a time

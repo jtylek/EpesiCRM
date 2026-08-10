@@ -199,3 +199,89 @@ function epesi_tooltip_leightbox_populate(el) {
 		}
 	} catch (e) {}
 }
+
+// Touch devices have no hover, so open_tag_attrs()/ajax_open_tag_attrs()'s
+// onmouseenter never fires from a deliberate, unambiguous gesture the way it
+// does with a mouse: a quick tap on the <a> most of these attributes sit on
+// just navigates before our popup registers, while a long-press synthesizes
+// mouseenter around the same hold duration the browser uses to decide "show
+// the native link context menu" (Open in New Tab/Copy Link/...) - so holding
+// the link shows both at once, visibly colliding. Neither PHP function's own
+// `if(MOBILE_DEVICE) return '';` guard (TooltipCommon_0.php) saves us here -
+// MOBILE_DEVICE has been permanently 0 since detect_mobile_device() was
+// deleted with the legacy mobile system (see
+// AI-shared/deliberate-removals.md's "Legacy mobile system" entry) - so every
+// tooltip renders fully hover-wired even on a phone.
+//
+// Fix: give touch users a dedicated, unambiguous tap target instead of the
+// hold gesture. On any (hover:none) device, every [data-epesi-tooltip="1"]
+// element that's inside a real link gets a small trailing button appended
+// right after that link (not inside it - nesting a <button> inside an <a>
+// is invalid HTML and behaves inconsistently), wired to the exact same
+// onmouseenter handler the server already rendered (reused via a captured
+// reference, not reimplemented). Tapping the button shows the tooltip
+// without navigating (preventDefault/stopPropagation); tapping the link
+// itself navigates immediately like any other link, since the link's own
+// onmouseenter is cleared so the browser's native hold gesture no longer
+// triggers our popup at all - only the browser's own context menu does,
+// same as any ordinary link.
+function epesi_tooltip_mobile_outside_tap_dismiss(e) {
+	if (!epesi_tooltip_popup_el || epesi_tooltip_popup_el.contains(e.target)) return;
+	epesi_tooltip_hide_popup();
+	document.removeEventListener('click', epesi_tooltip_mobile_outside_tap_dismiss, true);
+}
+
+function epesi_tooltip_mobile_show(origHandler, el) {
+	try {
+		origHandler.call(el);
+		// Re-registered on every tap rather than once globally, deferred via
+		// setTimeout so the very same tap that opened the popup doesn't reach
+		// this listener itself - capture phase runs before the button's own
+		// bubble-phase stopPropagation takes effect, so an immediate add
+		// would close the popup right back on the tap that opened it.
+		document.removeEventListener('click', epesi_tooltip_mobile_outside_tap_dismiss, true);
+		setTimeout(function() {
+			document.addEventListener('click', epesi_tooltip_mobile_outside_tap_dismiss, true);
+		}, 0);
+	} catch (e) {}
+}
+
+function epesi_tooltip_mobile_enhance() {
+	try {
+		if (!window.matchMedia || !window.matchMedia('(hover: none)').matches) return;
+		document.querySelectorAll('[data-epesi-tooltip="1"]:not(.epesi-tooltip-mobile-done)').forEach(function(el) {
+			el.classList.add('epesi-tooltip-mobile-done');
+			var anchor = el.closest('a[href]');
+			if (!anchor) return;
+			var origHandler = el.onmouseenter;
+			if (typeof origHandler !== 'function') return;
+			el.onmouseenter = null;
+			var label = el.getAttribute('aria-label');
+			var btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'epesi-tooltip-mobile-trigger';
+			btn.setAttribute('aria-label', label || 'Show info');
+			btn.innerHTML = '<i class="bi bi-info-circle" aria-hidden="true"></i>';
+			btn.addEventListener('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				epesi_tooltip_mobile_show(origHandler, el);
+			});
+			anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+		});
+	} catch (e) {}
+}
+
+// Deferred to window 'load' (not run at top level here) so this doesn't
+// depend on this static file's own load order relative to jQuery - e:load
+// is a jQuery-only custom event (jQuery(document).trigger(...), never
+// bubbled as a real DOM CustomEvent), so jq(document).on(...) is the only
+// way to catch it and genuinely needs jq to already exist.
+window.addEventListener('load', function() {
+	try {
+		epesi_tooltip_mobile_enhance();
+		jq(document).on('e:load', function() {
+			try { epesi_tooltip_mobile_enhance(); } catch (e) {}
+		});
+	} catch (e) {}
+});
