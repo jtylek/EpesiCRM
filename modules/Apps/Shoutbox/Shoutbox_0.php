@@ -68,10 +68,14 @@ class Apps_Shoutbox extends Module {
 
 		//if submited
 		if($qf->validate()) {
-			$perspective = $qf->exportValue('perspective');
+			if ($qf->elementExists('perspective')) {
+				$perspective = $qf->exportValue('perspective');
+			}
 			$from_date = $qf->exportValue('from_date');
 			$to_date = $qf->exportValue('to_date');
-			$user = $qf->exportValue('user');
+			if ($qf->elementExists('user')) {
+				$user = $qf->exportValue('user');
+			}
 			$show = $qf->exportValue('show');
 			$search_word = $qf->exportValue('search');
 		}
