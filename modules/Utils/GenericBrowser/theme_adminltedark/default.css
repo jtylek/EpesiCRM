@@ -1024,6 +1024,25 @@
 	display: none !important;
 }
 
+/* Every Dashboard applet (Base_Dashboard/theme_adminltedark/default.tpl's own
+   "card-body epesi-applet-body" wrapper around every applet's {$content},
+   regardless of which module it is - not module-specific like
+   .epesi-watchdog-applet above) opts out the same way, per request
+   (2026-08-10): now that a GenericBrowser table's rows wrap into the
+   max-width:767.98px 2-line grid above, the actions column - one of
+   --epesi-gb-mobile-cols slots, same as any data column - has plenty of
+   width for its icons even on a phone-width applet card, so collapsing to a
+   kebab there just hides actions that already fit. Deliberately scoped to
+   .epesi-applet-body only, not GenericBrowser tables generally - a
+   full-page RecordBrowser Browse-mode table (not inside an applet) keeps
+   the kebab collapse for now. */
+.epesi-applet-body .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-applet-body .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
 /* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
    module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
    (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus

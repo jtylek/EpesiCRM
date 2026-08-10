@@ -136,6 +136,26 @@ to the grid's own default stretch-to-fill-the-track sizing.
   dependency for a problem CSS already solves, and this codebase deliberately avoids
   adding to the legacy Prototype/jQuery stack (see [[legacy-js-migration]]).
 
+## Dashboard applets: kebab collapse turned off (2026-08-10)
+
+Once rows wrap into the 2-line grid, the actions column is just one of
+`--epesi-gb-mobile-cols` slots — on a phone-width Dashboard applet card that's plenty
+of room for its icons, so collapsing them into a kebab (the existing 991.98px rule)
+just hides actions that already fit; confirmed by screenshot (Karina's Tickets,
+Phonecalls applets). Fixed by reusing the exact opt-out pattern
+`.epesi-admin-panel`/`.epesi-watchdog-applet` already established
+(`theme_adminltedark/default.css` ~1000-1025): added the same 2-rule override scoped to
+`.epesi-applet-body` — Base_Dashboard's own generic wrapper around *every* applet's
+content (`Base_Dashboard/theme_adminltedark/default.tpl:37`), regardless of which
+module it is, unlike Watchdog's module-specific wrapper. `.epesi-watchdog-applet`'s own
+rule is now a redundant subset of this one (a Watchdog applet is also inside
+`.epesi-applet-body`) — left in place rather than removed, harmless.
+
+**Deliberately scoped to applets only, not GenericBrowser generally** — a full-page
+RecordBrowser Browse-mode table (not inside a Dashboard applet) still gets the kebab
+collapse. Per explicit request, this is scoped for now — revisit if it should extend
+to Browse mode too.
+
 ## Regression surface to retest before merging (generic = touches every list screen)
 
 - The 991.98px actions-kebab collapse and favs/watchdog column hide
