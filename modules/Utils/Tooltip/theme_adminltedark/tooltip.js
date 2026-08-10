@@ -283,5 +283,19 @@ window.addEventListener('load', function() {
 		jq(document).on('e:load', function() {
 			try { epesi_tooltip_mobile_enhance(); } catch (e) {}
 		});
+		// A showing popup's only cleanup path is the triggering element's own
+		// mouseleave (epesi_tooltip_show_popup() above) - but most tooltipped
+		// elements are icon links (Fullscreen, Configure, Toggle, RecordBrowser
+		// row actions, ...) whose click swaps the surrounding DOM via Epesi's
+		// ajax push (include/epesi.js's Epesi.request()) instead of a real page
+		// navigation. That destroys the element mid-hover without ever
+		// dispatching mouseleave, so the popup is orphaned in <body> and
+		// outlives the content it was pointing at (reported: Shoutbox's
+		// Fullscreen tooltip surviving into the fullscreen view; same shape
+		// wherever else a tooltipped icon triggers an ajax swap). 'e:loading'
+		// fires right before every such swap (see epesi.js), so hiding here
+		// mirrors the existing Utils_Calendar.destroy pattern of tearing down
+		// transient UI on that event.
+		jq(document).on('e:loading', epesi_tooltip_hide_popup);
 	} catch (e) {}
 });
