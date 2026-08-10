@@ -100,6 +100,14 @@ class Apps_Shoutbox extends Module {
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'shoutbox_history');
 
+		// Every row has at most one action (delete, or restore once deleted -
+		// never both, see the add_action() call below) - opt this table out
+		// of the mobile actions-kebab collapse, same technique/reasoning as
+		// RecordBrowser_0.php's own ".epesi-rb-changes-history" (see
+		// theme_adminltedark/default.css's ".epesi-shoutbox-history" rule).
+		$gb->set_prefix('<div class="epesi-shoutbox-history">');
+		$gb->set_postfix('</div>');
+
 		$gb->set_table_columns(array(
 						array('name'=>__('From'),'width'=>10),
 						array('name'=>__('To'),'width'=>10),

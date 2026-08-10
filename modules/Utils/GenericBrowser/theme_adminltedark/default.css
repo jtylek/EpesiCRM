@@ -1130,6 +1130,18 @@
 	display: none !important;
 }
 
+/* Apps_Shoutbox's own History tab (Shoutbox_0.php::history(), grid wrapped via
+   set_prefix()/set_postfix() in its own "epesi-shoutbox-history" div, same technique) has at
+   most one row action - delete, or restore once already deleted, never both at once - so
+   collapsing it behind a kebab just adds an extra tap for zero space savings, same reasoning as
+   .epesi-rb-changes-history above. */
+.epesi-shoutbox-history .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-shoutbox-history .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
 /* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
    module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
    (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus
