@@ -127,6 +127,20 @@
 	min-height: calc(1.15em * 2);
 }
 
+/* The launcher group's own labels don't need that 2-line reservation -
+   unlike .epesi-actionbar-group's per-screen action labels (which really do
+   vary in length screen to screen, the reason for the rule above), this
+   group's content is the user's own fixed Quick Access pin list
+   (ActionBar_0.php::body()'s $launcher) and renders identically regardless
+   of which screen is current, so there's no cross-navigation height jump to
+   guard against here. Left at the general 2-line reservation, this read as
+   a wasted blank band under the row whenever the per-screen group is empty
+   (e.g. Dashboard, see Base_Box's own :has()-based ActionBar-hiding
+   comment) and the launcher group is the only content left in the bar. */
+.epesi-actionbar-launcher-group .epesi-actionbar-label {
+	min-height: 1.15em;
+}
+
 /* Below the label breakpoint icons stay tappable but text drops, matching how
    the shell's own navbar items collapse to icon-only. Was max-width:575.98px
    (Bootstrap's sm) - per request, raised to the same lg/991.98px breakpoint
