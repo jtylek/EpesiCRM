@@ -1043,6 +1043,34 @@
 	}
 }
 
+/* The page's own "#content_body > .container-fluid" (Base_Box/theme_adminltedark/default.css)
+ * carries Bootstrap's own gutter (--bs-gutter-x, defaults to 1.5rem - .container-fluid's own
+ * padding is half of it, .75rem each side) - after the "no card frame" rule above, that gutter
+ * is the only thing left holding a full-page/tab GenericBrowser table away from the true screen
+ * edge on a narrow phone.
+ *
+ * A negative side margin to cancel it (tried first) doesn't work here: that same container also
+ * carries "overflow-x:auto" (Base_Box/theme_adminltedark/default.css, needed for its own
+ * reasons), and per the CSS overflow computed-value rule, setting only one axis to a
+ * non-"visible" value forces the other axis to compute as "auto" too - so anything pushed past
+ * the container's own padding edge (exactly what a negative side margin does) gets silently
+ * clipped instead of actually reaching the screen edge. Utils_RecordBrowser's own
+ * Browsing_records.css hit this identical trap first, with a negative *top* margin on this same
+ * container - see that file's own comment for the longer version of this same rule.
+ *
+ * Zeroing the gutter itself, instead of trying to escape it, sidesteps the clipping entirely.
+ * :has() scopes this to only the container that actually holds a GenericBrowser table (a
+ * Details-only tab, for instance, keeps its normal side padding) - the tradeoff is that any
+ * OTHER content sharing that same container alongside the table (e.g. a Browse-mode page's own
+ * filters/search UI, still inside the same .container-fluid) loses its side padding too at this
+ * width, not just the table. Selector matches Base_Box's own rule's specificity plus the extra
+ * :has() pseudo-class, so it wins regardless of stylesheet load order. */
+@media (max-width: 767.98px) {
+	.epesi-adminlte #content_body > .container-fluid:has(.epesi-gb) {
+		--bs-gutter-x: 0;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every
