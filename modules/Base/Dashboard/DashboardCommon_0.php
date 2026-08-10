@@ -18,9 +18,20 @@ class Base_DashboardCommon extends ModuleCommon {
 	public static function adminlte_icon() { return 'bi-speedometer2'; }
 
 	public static function menu() {
-		if(Base_AclCommon::check_permission('Dashboard'))
-			return array(_M('Dashboard')=>array());
-		return array();
+		if(!Base_AclCommon::check_permission('Dashboard')) return array();
+		$ret = array(_M('Dashboard')=>array());
+		// "Config" used to be an ActionBar button on the Dashboard itself
+		// (Dashboard_0.php's dashboard()) - relocated per request to a
+		// permanent Menu -> My settings -> Dashboard entry instead (it was
+		// the only action left in the mobile ActionBar on a plain Dashboard
+		// view). __function__ routes this entry to Base_Dashboard::
+		// open_config() (the same module, a different entry point) rather
+		// than the default body(). Same permission gate dashboard() itself
+		// uses to decide whether config mode is offered at all - no point
+		// showing a settings entry that would just no-op.
+		if (Base_DashboardCommon::has_permission_to_manage_applets())
+			$ret[_M('My settings')] = array('__submenu__'=>1, _M('Dashboard')=>array('__function__'=>'open_config'));
+		return $ret;
 	}
 
 	public static function home_page() {
