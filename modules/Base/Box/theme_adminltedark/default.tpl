@@ -67,58 +67,45 @@
 		"})();"
 	);
 
-	// Moves the Logout link (.logout_css3_box - Login_0.php now hands both
-	// themes plain data, not pre-built HTML, but its own default.tpl still
-	// assembles logged_as+logout into ONE combined string before Base_Box
-	// ever sees it as {$login} - that's a container-system boundary, not
-	// something Login_0.php's own markup controls) from the navbar's
-	// {$login} slot into the sidebar footer, per request. A DOM relocation
-	// since Base_Box can't address the logout half separately through the
-	// container system - moving the actual node post-render is the only way
-	// to send just it somewhere else. Runs once - the
-	// navbar/sidebar footer are shell chrome, not re-rendered by ordinary
-	// AJAX navigation (only #main_content swaps), so the moved node stays
-	// moved. See default.css for this element's now-generic (not #top_bar-
-	// scoped) styling, restyled for its new spot.
+	// Moves both halves of {$login} (.logged_as/"User <username>" and
+	// .logout_css3_box/Logout - Login_0.php now hands both themes plain
+	// data, not pre-built HTML, but its own default.tpl still assembles them
+	// into ONE combined string before Base_Box ever sees it as {$login} -
+	// that's a container-system boundary, not something Login_0.php's own
+	// markup controls) from the navbar's {$login} slot into the sidebar
+	// footer, per request (Logout moved there first, in an earlier request;
+	// .logged_as joined it later). A DOM relocation since Base_Box can't
+	// address either half separately through the container system - moving
+	// the actual nodes post-render is the only way to send them somewhere
+	// else. Runs once - the navbar/sidebar footer are shell chrome, not
+	// re-rendered by ordinary AJAX navigation (only #main_content swaps), so
+	// the moved nodes stay moved. Order matters: logout is inserted at
+	// footer.firstChild first (landing ahead of the color-mode toggle
+	// already there), then .logged_as is inserted at the new firstChild
+	// (landing ahead of logout) - final order is logged_as, logout, toggle.
+	// See Base_User_Login/theme_adminltedark/default.css for both elements'
+	// now-generic (not #top_bar-scoped) styling, restyled for their new spot,
+	// and Base_Box's own default.css for the .sidebar-footer layout rules
+	// (flex-wrap + .logged_as's own flex-basis:100%) that put .logged_as on
+	// its own line above logout/the toggle.
 	eval_js_once(
 		"(function(){".
+			"var login=document.querySelector('.logged_as');".
 			"var logout=document.querySelector('.logout_css3_box');".
 			"var footer=document.querySelector('.sidebar-footer');".
 			"if(logout&&footer)footer.insertBefore(logout,footer.firstChild);".
+			"if(login&&footer)footer.insertBefore(login,footer.firstChild);".
 		"})();"
 	);
 
-	// Hides the navbar+ActionBar on scroll below lg, reclaiming vertical
-	// space on a phone/small-tablet screen, per request - reappearing only
-	// once scrolled back to the very top (not on scroll-up generally, which
-	// is the more common pattern for this kind of UI, but not what was
-	// asked for here). body.epesi-topbar-hidden (default.css) transforms
-	// both bars off-screen; .app-content-header's own transform distance
-	// reads --epesi-header-height/--epesi-actionbar-height (the same two
-	// variables the ResizeObserver above keeps in sync) rather than a fixed
-	// guess, so it stays exactly off-screen regardless of how tall either
-	// bar actually renders. window.innerWidth is re-checked on every
-	// scroll event (not just once at load) so this still behaves correctly
-	// if the viewport crosses the breakpoint later (e.g. a device rotation
-	// - see the portrait-lock overlay above, which already forces phones
-	// back to this width range anyway).
-	eval_js_once(
-		"(function(){".
-			"var hidden=false;".
-			"window.addEventListener('scroll',function(){".
-				"if(window.innerWidth>=992){".
-					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
-					"return;".
-				"}".
-				"var y=window.scrollY||document.documentElement.scrollTop;".
-				"if(y<=0){".
-					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
-				"}else if(!hidden){".
-					"document.body.classList.add('epesi-topbar-hidden');hidden=true;".
-				"}".
-			"},{passive:true});".
-		"})();"
-	);
+	// Both the navbar and the ActionBar used to hide on scroll below lg,
+	// toggling body.epesi-topbar-hidden (default.css) to reclaim vertical
+	// space on a phone/small-tablet screen - first just the navbar was
+	// reverted to stay fixed/visible (per request), then the ActionBar too
+	// (per a later request: "make sure ActionBar sticks always at the bottom
+	// of navbar - always visible"), which removed the last consumer of that
+	// class, so the scroll listener that toggled it is gone entirely now
+	// rather than left running with nothing left to do.
 
 	// Below the same 991.98px breakpoint the sidebar itself goes off-canvas
 	// (Base_Box/theme_adminlte/default.css), per request: collapse every
@@ -808,16 +795,15 @@
 
 	<nav id="top_bar" class="app-header navbar navbar-expand nonselectable">
 		<div class="container-fluid">
+			{* $home (icon+"Home" label link to the Dashboard) dropped from this
+			   theme's navbar entirely, on every screen size, per request -
+			   Box_0.php still assigns it (shared with the default theme), it's
+			   just not rendered here any more. The sidebar's own Dashboard menu
+			   entry (Base_Menu) stays as the way back to it. *}
 			<ul class="navbar-nav align-items-center">
 				<li class="nav-item">
 					<a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="{'Toggle navigation'|t}">
 						<i class="bi bi-list"></i>
-					</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link home-bar" {$home.href}>
-						<i class="bi bi-house-door me-1"></i>
-						<span class="d-none d-sm-inline">{$home.label}</span>
 					</a>
 				</li>
 			</ul>
@@ -837,6 +823,25 @@
 				   keep the row to one line - Box_0.php still assigns it (shared
 				   with the default theme), it's just not rendered here. *}
 				<li class="nav-item login">{$login}</li>
+				{* Per request: a permanent navbar icon on both desktop and mobile,
+				   positioned as the last (rightmost) item in the row. Reuses
+				   Base_ActionBar's own "actionbar_launchpad" Leightbox popup rather
+				   than building a second one - any element with class="lbOn"
+				   rel="actionbar_launchpad" opens the same popup (leightbox.js's
+				   leightbox_reload() binds every ".lbOn" element in the DOM to its
+				   own "rel", not just one designated trigger), so this needs no new
+				   PHP/JS of its own. ActionBar_0.php's launchpad() no longer renders
+				   its own matching button under this theme (guarded by
+				   Base_ThemeCommon::is_adminlte_family()) - this navbar icon
+				   replaced it, so the ActionBar copy would otherwise be a second
+				   button opening the exact same popup. bi-grid-3x3-gap-fill matches
+				   Base_AdminlteIcons::resolve()'s 'launcher' mapping (adminlte_
+				   icons.php) - the same glyph that ActionBar button used to render. *}
+				<li class="nav-item epesi-launchpad-trigger">
+					<a class="nav-link lbOn" rel="actionbar_launchpad" href="javascript:void(0)" aria-label="{'Launchpad'|t}">
+						<i class="bi bi-grid-3x3-gap-fill"></i>
+					</a>
+				</li>
 			</ul>
 		</div>
 	</nav>

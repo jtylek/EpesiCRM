@@ -30,6 +30,12 @@
 	$module_type = $this->get_template_vars('module_type');
 	$this->assign('bi_icon', $text ? Base_AdminlteIcons::resolve($module_icon, $module_icon ? null : $module_type, 'bi-app-indicator') : null);
 {/php}
-<div class="text epesi-mmi">
+{* data-module-type: not used for the icon lookup above (that already
+   happened server-side) - exposed here purely as a CSS hook so Base_Box's
+   own theme_adminltedark/default.css can target "we're currently showing
+   module X" via :has(), e.g. hiding the navbar's Search/Perspective on the
+   Base_Admin control panel to leave the (often long, "Administration: ...")
+   caption more room. *}
+<div class="text epesi-mmi" data-module-type="{$module_type}">
 {if $bi_icon}<i class="bi {$bi_icon} epesi-mmi-icon"></i>{/if}{$text}
 </div>

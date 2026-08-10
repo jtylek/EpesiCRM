@@ -127,40 +127,56 @@ body:has(.login-page-adminlte) #body_content {
 	--bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230d6efd'/%3e%3c/svg%3e") !important;
 }
 
-/* ---- logged-in-as (stays in the shell's top navbar) ----
- * Login_0.php builds these as pre-rendered HTML strings shared with the
- * default theme (a <br> inside .logged_as, a background-image sprite inside
- * .logout_icon_img) - restyled here via CSS only, nothing in Login_0.php
- * changed. Base_Box's own adminlte CSS also neutralizes float/hides this
- * <br> generically for every navbar widget; the rules below just make this
- * one look intentional rather than merely un-broken. */
+/* ---- logged-in-as (relocated into the sidebar footer by Base_Box's own
+   theme_adminltedark/default.tpl, same DOM move as Logout below it - a DOM
+   move rather than a template split, since Login_0.php hands Base_Box
+   logged_as+logout as one combined blob; see that file's comment) - no
+   longer #top_bar-scoped, since it no longer lives there.
+ * Login_0.php builds this as a pre-rendered HTML string shared with the
+ * default theme (a <br> inside .logged_as) - restyled here via CSS only,
+ * nothing in Login_0.php changed. Base_Box's own generic float/<br>
+ * neutralizing for every navbar widget was scoped to the navbar itself
+ * (".app-header .nav-item"), so it stopped reaching this element once moved;
+ * the <br> hide is repeated below, scoped to this element's new home
+ * instead. Dark text/icon colors, not the light-on-dark tones this used to
+ * need in the navbar - the sidebar (and so its footer) is always the same
+ * fixed light grey in both app themes (Base_Box/theme_adminltedark/
+ * default.css's own .app-sidebar comment), same reasoning already applied
+ * to Logout below (no [data-bs-theme="light"] variant needed for either, for
+ * the same reason). */
 
-#top_bar .logged_as {
-	display: inline-flex;
+.sidebar-footer .logged_as {
+	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 0.35rem;
-	font-size: 0.85rem;
-	color: #adb5bd;
+	font-size: 0.8rem;
+	color: #000;
 }
 
-#top_bar .logged_as::before {
+.sidebar-footer .logged_as br {
+	display: none;
+}
+
+.sidebar-footer .logged_as::before {
 	font-family: "bootstrap-icons";
 	content: "\f4d7";
-	font-size: 1.1rem;
-	color: #8b929a;
+	font-size: 1rem;
+	color: #495057;
 }
 
-#top_bar .logged_as b.green {
-	color: #dee2e6;
+.sidebar-footer .logged_as b.green {
+	color: #000;
 }
 
 /* ---- logout (relocated into the sidebar footer by Base_Box's own
    theme_adminltedark/default.tpl - a DOM move, not a template split, since
    Login_0.php hands Base_Box logged_as+logout as one combined blob; see
    that file's comment) - not #top_bar-scoped any more, since it no longer
-   lives there. .sidebar-footer is a flex row now (that same .tpl), sharing
-   its one line with the color-mode toggle next to it - this box no longer
-   needs to fill the row on its own, just size to its own content. */
+   lives there. .sidebar-footer wraps onto two lines now (that same .tpl's
+   default.css): .logged_as claims the first on its own, Logout shares the
+   second with the color-mode toggle next to it - this box no longer needs
+   to fill a row on its own, just size to its own content. */
 
 .sidebar-footer .logout_css3_box {
 	/* Was a separator above the "EPESI powered"/version line that used to
@@ -209,21 +225,16 @@ body:has(.login-page-adminlte) #body_content {
    unconditionally (see those rules' own comments), and the page itself is
    permanently pinned to data-bs-theme="light" (default.tpl), so this block's
    values were an exact duplicate rather than an actual light/dark divergence.
-   The #top_bar/.logout_icon overrides below are unrelated - that's the
-   logged-in-as widget in the app shell, which still follows the live navbar
-   dark/light toggle. */
-[data-bs-theme="light"] #top_bar .logged_as {
-  color: #495057;
-}
-
-[data-bs-theme="light"] #top_bar .logged_as::before {
-  color: #6c757d;
-}
-
-[data-bs-theme="light"] #top_bar .logged_as b.green {
-  color: #212529;
-}
-
+   The #top_bar .logged_as light-theme override that used to live below this
+   comment is gone the same way, for the same reason - .logged_as now lives
+   in the sidebar footer (see that rule's own updated comment above), which
+   is always the one fixed light-grey scheme regardless of the live navbar
+   dark/light toggle, so there's no longer an actual light/dark divergence
+   left to override. (.logout_icon's own light-theme override just below is
+   untouched here, left as pre-existing - it's arguably the same kind of dead
+   weight now that Logout lives in the same fixed-grey footer too, since
+   .sidebar-footer a{color:#000} already wins on specificity regardless of
+   theme, but that predates this change and is out of its scope.) */
 [data-bs-theme="light"] .logout_icon {
   color: #495057;
 }

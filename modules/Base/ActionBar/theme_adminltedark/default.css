@@ -128,14 +128,57 @@
 }
 
 /* Below the label breakpoint icons stay tappable but text drops, matching how
-   the shell's own navbar items collapse to icon-only. */
-@media (max-width: 575.98px) {
+   the shell's own navbar items collapse to icon-only. Was max-width:575.98px
+   (Bootstrap's sm) - per request, raised to the same lg/991.98px breakpoint
+   already used app-wide for "mobile" elsewhere this theme (off-canvas
+   sidebar, the navbar's own portrait-only drops) - reported still showing
+   labels at a width in between the two (~866px), well past where they'd
+   already dropped if this had stayed at sm. Above 991.98px, labels are back
+   (confirmed desired: "like desktop - fully visible with icons and
+   labels"). */
+@media (max-width: 991.98px) {
 	.epesi-actionbar-label {
 		display: none;
 	}
 	.epesi-actionbar-btn {
 		min-width: auto;
-		padding: 0.4rem;
+		/* Was a uniform 0.4rem (6.4px) on every side - bumped up from the
+		   desktop rule's 0.1rem 0.4rem specifically to give the now-label-
+		   less icon a bigger tap target, but that quadrupled the VERTICAL
+		   padding too (1.6px -> 6.4px), which with every button in the row
+		   sharing the same padding read as a whole empty band above and
+		   another below the icon row itself, not just breathing room around
+		   each icon - reported as wasted height on a narrow phone, per
+		   request ("make ActionBar shorter... when displaying only icons").
+		   Horizontal padding is still bumped (a bigger left-right tap target
+		   doesn't add to the bar's own height the way vertical padding
+		   does), just not vertical. */
+		padding: 0.15rem 0.5rem;
+	}
+}
+
+/* .epesi-actionbar-launcher-group is the pinned "show inline in the
+   ActionBar" Quick Access row (ActionBar_0.php::body()'s own $launcher,
+   built from Base_Menu_QuickAccessCommon's per-item "_d" user setting - see
+   [[quickaccess-actionbar-not-browser-bug]] on why "Dashboard" is a
+   confusing name for what's really just "show this icon inline in the
+   ActionBar", not a Dashboard-only feature). Per request: on a narrow
+   portrait phone these are redundant with the navbar's own Launchpad icon
+   (Base_Box/theme_adminltedark/default.tpl - reaches every module, pinned
+   or not), and they're what was crowding the ActionBar out on Dashboard in
+   the first place, so drop them there specifically rather than everywhere -
+   the ActionBar's own screen-action icons (.epesi-actionbar-group, e.g.
+   "Back"/"Add") are a different group entirely and are untouched. Since
+   ActionBar_0.php's launchpad() no longer renders its own matching button
+   under this theme (guarded by Base_ThemeCommon::is_adminlte_family(), see
+   that file), this class now has only this one meaning here - no risk of
+   also hiding the Launchpad trigger itself by accident. Same breakpoint as
+   Base_Box's own portrait-only navbar rules (max-width:991.98px, matching
+   the off-canvas-sidebar breakpoint, plus orientation:portrait since a
+   landscape phone this wide still has room). */
+@media (max-width: 991.98px) and (orientation: portrait) {
+	.epesi-actionbar-launcher-group {
+		display: none;
 	}
 }
 
@@ -159,14 +202,15 @@
 	height: 32px;
 }
 
-/* The persistent header toolbar drops its labels below 575.98px to stay
-   compact (see the media query above) - .epesi-actionbar-label is shared
-   with this popup rather than duplicated (per this file's own header
-   comment), so that same query silently hid labels here too. The popup has
-   its own dedicated screen space (see #actionbar_launchpad's full-width
-   override below), so the same space-saving trade-off doesn't apply -
-   labels should stay visible, per request. */
-@media (max-width: 575.98px) {
+/* The persistent header toolbar drops its labels below 991.98px to stay
+   compact (see the media query above, raised from 575.98px per a later
+   request - kept in sync here) - .epesi-actionbar-label is shared with this
+   popup rather than duplicated (per this file's own header comment), so
+   that same query silently hid labels here too. The popup has its own
+   dedicated screen space (see #actionbar_launchpad's full-width override
+   below), so the same space-saving trade-off doesn't apply - labels should
+   stay visible, per request. */
+@media (max-width: 991.98px) {
 	.epesi-actionbar-launchpad .epesi-actionbar-label {
 		display: block;
 	}
@@ -175,17 +219,26 @@
 /* On narrow/mobile screens the Launchpad popup specifically - not every
    Leightbox popup app-wide, which keep their shared 70%/900px-cap sizing
    (Libs/Leightbox/theme_adminltedark/default.css) - should fill the full
-   screen width instead of leaving unusable overlay margins on both sides,
-   per request. #actionbar_launchpad's id specificity overrides the shared
-   .leightbox rule (including its [big="1"] variant) without touching other
-   popups. */
+   screen instead of leaving unusable overlay margins on both sides and
+   starting a third of the way down, per request. #actionbar_launchpad's id
+   specificity overrides the shared .leightbox rule (including its [big="1"]
+   variant and its top:calc(header+actionbar+1rem) resting position) without
+   touching other popups. No explicit "and (orientation: portrait)" clause -
+   this same max-width already excludes essentially every phone's landscape
+   width (a phone narrow enough to be under 575.98px in landscape doesn't
+   exist in practice), so it acts as a portrait-only condition on its own,
+   matching this file's other mobile rules (e.g. the label-visibility query
+   above) rather than introducing a second breakpoint convention. */
 @media (max-width: 575.98px) {
 	#actionbar_launchpad.leightbox {
 		width: 100%;
 		max-width: 100%;
 		left: 0;
+		top: 0;
 		transform: none;
 		border-radius: 0;
+		height: 100vh;
+		max-height: 100vh;
 	}
 }
 
