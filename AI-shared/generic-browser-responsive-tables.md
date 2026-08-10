@@ -104,6 +104,20 @@ value.
 (legacy non-AdminLTE theme, out of scope — every other polish pass this session has
 been `adminltedark`-only), or `function.html_grid_epesi.php`.
 
+## Bug found in first-round visual verification: headers clipped to 1-2 characters
+
+Every `__th` (and any `__td` on an `absolute_width` table) carries its own inline
+`style="width:N%"` set by `GenericBrowser_0.php:856` — sized as N% of the *whole row*,
+for the desktop table-cell layout. A percentage `width` on a CSS grid item resolves
+against that item's own grid area (already just one 1fr track), not the row as a
+whole — so the same N% reapplied on top of an already-narrow track compounded down to
+near-zero width, and `overflow:hidden;text-overflow:ellipsis` clipped the label to
+whatever tiny sliver was left (1-2 characters). Fixed by adding
+`.epesi-gb .Utils_GenericBrowser__th, .epesi-gb .Utils_GenericBrowser__td { width: auto
+!important; }` inside the same `max-width:767.98px` block — `!important` is required
+because only that can beat an inline `style=`, and `width:auto` lets the item fall back
+to the grid's own default stretch-to-fill-the-track sizing.
+
 ## Alternatives considered
 
 - **Stacked `label: value` cards** (`::before{content:attr(data-label)}` per cell) —

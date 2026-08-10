@@ -981,6 +981,20 @@
 	.epesi-gb .Utils_GenericBrowser__td {
 		border-bottom: none;
 	}
+
+	/* Every __th (GenericBrowser_0.php:856, absolute_width columns' __td too,
+	   ~967-968) carries its own inline style="width:N%" sized for the desktop
+	   table-cell layout - N% of the *whole row*. A grid item resolves a
+	   percentage width against its own grid area (already just one track of
+	   the row), not the row as a whole, so that same N% re-applied on top of
+	   an already-narrow 1fr track compounded down to near-zero width, which
+	   is why headers were clipping to 1-2 characters. Only !important can
+	   beat an inline style from a stylesheet rule; width:auto lets the item
+	   fall back to the grid's own default stretch-to-fill-the-track sizing. */
+	.epesi-gb .Utils_GenericBrowser__th,
+	.epesi-gb .Utils_GenericBrowser__td {
+		width: auto !important;
+	}
 }
 
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
