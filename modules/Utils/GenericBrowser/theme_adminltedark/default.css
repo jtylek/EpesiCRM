@@ -225,6 +225,18 @@
 	color: inherit;
 }
 
+/* Sort-direction glyph (GenericBrowser_0.php's Utils_GenericBrowser__sort
+   span, adminlte-family branch) - a Bootstrap Icons caret instead of the
+   legacy theme's sort-ascending.png/sort-descending.png raster icon, which
+   had no adminltedark copy and fell back to the legacy theme's own
+   unstyled one. Sized down and inherits the header's own white text color
+   rather than standing out as its own element. */
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__sort .bi {
+	margin-left: 4px;
+	font-size: 0.75em;
+	vertical-align: middle;
+}
+
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th input {
 	/* Per-column search input is concatenated onto the column label's own
 	   inline text/link (GenericBrowser_0.php/default.tpl build

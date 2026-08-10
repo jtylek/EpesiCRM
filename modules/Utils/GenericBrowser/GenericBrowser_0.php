@@ -844,7 +844,19 @@ class Utils_GenericBrowser extends Module {
 			}
 			if(isset($v['order'])) $is_order = true;
 			if(!isset($headers[$i])) $headers[$i] = array('label'=>'');
-			if ($v['name'] && isset($order[0]['column']) && $v['name']==$order[0]['column']) $label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
+			if ($v['name'] && isset($order[0]['column']) && $v['name']==$order[0]['column']) {
+				if (Base_ThemeCommon::is_adminlte_family()) {
+					// Bootstrap Icons glyph instead of the legacy theme's own
+					// sort-ascending.png/sort-descending.png (no adminltedark
+					// copy of those ever existed, so get_template_file() was
+					// silently falling back to the legacy theme's raster
+					// icon - looked stock/unstyled against this theme).
+					$icon = strtolower($order[0]['direction'])=='desc' ? 'bi-caret-down-fill' : 'bi-caret-up-fill';
+					$label = '<span class="Utils_GenericBrowser__sort">'.$v['name'].' <i class="bi '.$icon.'"></i></span>';
+				} else {
+					$label = '<span style="padding-right: 12px; margin-right: 12px; background-image: url('.Base_ThemeCommon::get_template_file('Utils_GenericBrowser','sort-'.strtolower($order[0]['direction']).'ending.png').'); background-repeat: no-repeat; background-position: right;">'.$v['name'].'</span>';
+				}
+			}
 			else $label = $v['name'];
 			$headers[$i]['label'] .= ($v['preppend'] ?? '').(isset($v['order'])?'<a '.$this->create_unique_href(array('change_order'=>$v['name'])).'>' . $label . '</a>':$label).($v['append'] ?? '');
 			//if ($v['search']) $headers[$i] .= $form_array['search__'.$v['search']]['label'].$form_array['search__'.$v['search']]['html'];
