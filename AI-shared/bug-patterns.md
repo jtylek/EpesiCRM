@@ -787,3 +787,35 @@ unrelated popups hit this independently in one session; before styling a
 both properties up front instead of waiting for it to be reported as
 "invisible text."
 
+## Status field's "quick shortcut" click bypassed the follow-up prompt entirely
+
+`CRM_Tasks`/`CRM_PhoneCall`/`Premium_Projects_Tickets`/`CRM_Meeting`'s
+`display_status()` (Meeting: split across `get_status_change_leightbox_href()`
++ `display_status()`) all special-cased the *first* status value (Open/New,
+`$v==0` or `$v<=0`): instead of opening the same Follow-up/Change-Status
+leightbox prompt every other status value opens (`class="lbOn"
+rel="..._followups_leightbox"`), clicking it fired a hardcoded `onclick` that
+submitted the underlying form directly with a made-up action
+(`set_in_progress`/`set_next_stage`), auto-advancing straight to "In Progress"
+with no prompt, no note field, no choice of any *other* status. Reported as
+unintuitive: a user clicking "Open" expecting the same status-choice popup
+every other status shows instead got silently reassigned to a specific status
+they may not have wanted.
+
+**Fix, identical shape in all four**: delete the special-cased branch and let
+`$v==0`/`$v<=0` fall through to the same leightbox-opening return every other
+status already uses - the leightbox's own status dropdown (`closecancel`)
+already offers every status including "In Progress", so nothing was actually
+gained by the shortcut. The now-unreachable `action=='set_in_progress'`/
+`'set_next_stage'` handling deeper in each function (confirmed via a
+whole-repo grep for both strings - no other caller in any of the four, before
+*or* after fixing Meeting) was deleted too rather than left dead.
+
+**How to apply**: any `display_status()`/similar field-formatter that branches
+on the *current* value to decide between "prompt" and "silently mutate and
+reload" for what's supposed to be one clickable status field is the same bug
+shape - the prompt should be unconditional, not skipped for whichever value
+happens to be first. All known instances of this pattern in the codebase are
+fixed as of 2026-08-10 - if a *new* module adds its own status field this way,
+it's copying the pre-fix pattern from one of these four, not a fresh design.
+

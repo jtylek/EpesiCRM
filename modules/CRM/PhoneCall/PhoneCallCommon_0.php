@@ -218,9 +218,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 				Utils_AttachmentCommon::add('phonecall/'.$record['id'],0,Acl::get_user(),$note);
 			}
 
-			if ($action == 'set_in_progress') $v = 1;
 			Utils_RecordBrowserCommon::update_record('phonecall', $record['id'], array('status'=>$v));
-			if ($action == 'set_in_progress') location(array());
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
@@ -238,9 +236,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
 			location(array());
 		}
-		if ($v==0) {
-			return '<a href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$record['id'].'\');'.$prefix.'_submit_form();">'.$status[$v].'</a>';
-		}
+		// Clicking Status always opens the Follow-up leightbox prompt (its own
+		// "closecancel" dropdown already offers every status, In Progress
+		// included) - never auto-advances on click, even from Open, since
+		// that skipped the prompt entirely and was reported as unintuitive.
 		return '<a href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');">'.$status[$v].'</a>';
 	}
 
