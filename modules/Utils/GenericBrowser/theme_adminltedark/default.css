@@ -1019,6 +1019,30 @@
 	}
 }
 
+/* Same breakpoint as the 2-line grid above - strip the card's own border/radius/shadow/
+ * bottom-margin so a full-page/tab GenericBrowser table runs flush to the screen edges on a
+ * narrow phone viewport instead of sitting in a visibly separate box, per request ("render it
+ * full screen ... as you do it in applets already"). Exact same properties/values as
+ * "#dashboard .epesi-applet-body .epesi-gb.card" above, which already gives every Dashboard
+ * applet this treatment unconditionally (any width) - see that rule's own comment for why each
+ * one needs zeroing this specific way (border-radius/border-width via their --bs-card-* custom
+ * properties, not a plain "border:none", since .card-header/.card-footer read their own corner
+ * rounding and divider border from those variables independently of the card element's own
+ * border/border-radius). margin-bottom needs !important for the same load-order reason as that
+ * rule's own margin-bottom: Bootstrap's ".mb-3" utility (this table's card carries it - see
+ * default.tpl) can lose a tied-specificity fight to it depending on which stylesheet the
+ * browser happens to apply last. .card-header/.card-footer's own background-color is left
+ * alone here too, same as the applet treatment - only the outer frame goes, not the whole card
+ * look. */
+@media (max-width: 767.98px) {
+	.epesi-gb.card {
+		margin-bottom: 0 !important;
+		--bs-card-border-width: 0;
+		--bs-card-border-radius: 0;
+		box-shadow: none;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every
