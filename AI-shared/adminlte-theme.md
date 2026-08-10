@@ -337,6 +337,44 @@ and rejected before landing on the current approach:
    hovering a dashboard applet's own "Remove" icon in a live browser: computed
    `content`/colors were correct, but invisible, clipped by `.card`.
 
+**Ajax tooltip responses are now cached client-side, shared by `tooltip_id`
+across every element on the page (2026-08-09).** Previously
+`epesi_tooltip_ajax_load()` fetched fresh from `Utils/Tooltip/req.php` on
+every element's *first* hover, even when several elements resolved to the
+exact same `tooltip_id` (`ajax_open_tag_attrs()`'s
+`md5(serialize($tooltip_settings))`) — e.g. a RecordBrowser list where the
+same Customer/Contact is linked from several rows (`CRM_ContactsCommon`'s
+`company_get_tooltip()`/`contact_get_tooltip()`, or the generic
+`create_default_record_tooltip_ajax()` path any other module's record-hover
+tooltip goes through) fired one redundant round-trip per row. Now a
+page-scoped `epesi_tooltip_ajax_cache` (keyed by `tooltip_id`) is checked
+first, and an in-flight `epesi_tooltip_ajax_pending` map lets a second
+element hovered while the first's request is still in flight piggyback on
+that same response instead of firing its own. Safe to share because two
+elements only ever land on the same `tooltip_id` when their
+callback+args+`safe_html` serialized identically — i.e. they'd have fetched
+byte-identical content anyway.
+Caught one regression while landing this: the cache-hit branch first called
+`epesi_tooltip_ajax_apply()` (the "update an already-open popup" helper,
+gated on `epesi_tooltip_current_el === el`) directly — but nothing had
+called `epesi_tooltip_show_popup()` yet to make that true for a fresh cache
+hit, so every hover *after* the first one on a shared `tooltip_id` silently
+showed nothing at all. Fixed by having the cache-hit branch call
+`epesi_tooltip_show_popup()` itself, same as the synchronous
+`open_tag_attrs()` path (`epesi_tooltip_show()`) already does.
+**Deliberately client-side only, not server-side, for now**: the same
+per-`tooltip_id` sharing idea was considered for `req.php` too (there's a
+real cross-request cache abstraction already in `include/cache.php`'s
+`Cache` class), but `contact_get_tooltip()`/`company_get_tooltip()`'s
+`Utils_RecordBrowserCommon::get_access(..., 'view', $record)` ACL check and
+every tooltip's `__()` translation calls are both evaluated against
+*whoever's currently hovering* at fetch time — neither is part of the
+`tooltip_id` hash, so a naive shared server cache could leak an
+access-gated tooltip to a user without view access, or serve the wrong
+language. Would need the cache key to also fold in the user's effective
+permission context and language to be safe, which cuts into the cross-user
+hit-rate benefit — not implemented.
+
 What's actually live now: both `open_tag_attrs()` ("help" tooltips, e.g.
 action icons) and `ajax_open_tag_attrs()` (RecordBrowser "show in tooltip"
 record-hover tooltips) render the same plain `.epesi-tooltip-popup` div,
