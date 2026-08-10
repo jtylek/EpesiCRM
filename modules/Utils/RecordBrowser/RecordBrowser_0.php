@@ -1172,7 +1172,7 @@ class Utils_RecordBrowser extends Module {
                     Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
             } elseif($mode!='history') {
                 Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-                Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+                Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
             }
             //Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
         }
@@ -3083,7 +3083,7 @@ class Utils_RecordBrowser extends Module {
 		$theme->display('edit_permissions');
 		Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		return true;
 	}
 	

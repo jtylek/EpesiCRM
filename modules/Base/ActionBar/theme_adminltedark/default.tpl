@@ -16,6 +16,7 @@
 		'search'    => 'bi-search',
 		'folder'    => 'bi-folder2-open',
 		'edit'      => 'bi-pencil-square',
+		'company'   => 'bi-building',
 		'view'      => 'bi-eye',
 		'add'       => 'bi-plus-lg',
 		'delete'    => 'bi-trash',

@@ -1210,7 +1210,7 @@ class CRM_ContactsCommon extends ModuleCommon {
          * we should come back to initial state - do not print LB.
          */
         if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) ) {
-            if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('edit', __('Copy company data'), Module::create_href(array('UCD'=>true)));
+            if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('company', __('Copy company data'), Module::create_href(array('UCD'=>true)));
         }
         if(isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) {
             $ucd = Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0);
@@ -1280,7 +1280,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $html = $form->toHtml();
 
             Libs_LeightboxCommon::display($lid, $html);
-            Base_ActionBarCommon::add('edit', __('Copy company data'), Libs_LeightboxCommon::get_open_href($lid));
+            Base_ActionBarCommon::add('company', __('Copy company data'), Libs_LeightboxCommon::get_open_href($lid));
             if (isset($_REQUEST['UCD'])) eval_js('leightbox_activate(\''.$lid.'\')');
 			unset($_REQUEST['UCD']);
         }

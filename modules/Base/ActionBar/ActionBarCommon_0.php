@@ -41,6 +41,12 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// rename), only the AdminLTE theme's icon_map (Base_ActionBar/
 			// theme_adminltedark/default.tpl) actually diverges the two.
 			'export'	=> 13,
+			// CRM_ContactsCommon's "Copy company data" used the 'edit' key outright
+			// (pencil icon, indistinguishable from a real Edit action) - own key now,
+			// same sprite position as 'edit' so the legacy theme is unaffected; only
+			// the AdminLTE theme's icon_map (Base_ActionBar/theme_adminltedark/
+			// default.tpl) points this at a distinct glyph (bi-building).
+			'company'	=> 9,
 			'print'		=> 14,
 			'clone'		=> 15,
 			'settings'	=> 16,
