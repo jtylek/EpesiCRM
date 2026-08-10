@@ -27,6 +27,7 @@ class Utils_GenericBrowser extends Module {
 	private $absolute_width = false;
 	private $no_actions = array();
     private $expandable = false;
+    private $expand_collapse_external = false;
 	public $form_s = null;
 	private $resizable_columns = true;
 	private $fixed_columns_selector = '.Utils_GenericBrowser__actions';
@@ -152,6 +153,33 @@ class Utils_GenericBrowser extends Module {
 		if (Base_User_SettingsCommon::get($this->get_type(), 'disable_expandable'))
 			return;
 		$this->set_module_variable('expandable',$this->expandable = ($b ? true : false));
+	}
+
+	// Lets a caller (e.g. Utils_RecordBrowser's browse() screen) render the
+	// Expand All/Collapse All controls itself, elsewhere in its own layout,
+	// instead of inside this module's own card-header toolbar - see
+	// get_expand_collapse_controls(). Only suppresses this module's own
+	// rendering; the buttons' behavior is unchanged since gb_expand_all()/
+	// gb_collapse_all() target rows purely by the md5(path) id, not by DOM
+	// position.
+	public function use_external_expand_collapse_controls($b = true) {
+		$this->expand_collapse_external = $b ? true : false;
+	}
+
+	public function get_expand_collapse_controls() {
+		return $this->expandable ? $this->build_expand_collapse_controls() : null;
+	}
+
+	private function build_expand_collapse_controls() {
+		$md5_id = md5($this->get_path());
+		return array(
+			'e_label'=>__('Expand All'),
+			'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',
+			'e_id'=>'expand_all_button_'.$md5_id,
+			'c_label'=>__('Collapse All'),
+			'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
+			'c_id'=>'collapse_all_button_'.$md5_id
+		);
 	}
 
 	public function set_per_page($pp) {
@@ -1008,14 +1036,9 @@ class Utils_GenericBrowser extends Module {
 		$theme->assign('custom_label_args', $this->custom_label_args);
 
         if($this->expandable) {
-            $theme->assign('expand_collapse',array(
-                'e_label'=>__('Expand All'),
-                'e_href'=>'href="javascript:void(0);" onClick=\'gb_expand_all("'.$md5_id.'")\'',
-                'e_id'=>'expand_all_button_'.$md5_id,
-                'c_label'=>__('Collapse All'),
-                'c_href'=>'href="javascript:void(0);" onClick=\'gb_collapse_all("'.$md5_id.'")\'',
-                'c_id'=>'collapse_all_button_'.$md5_id
-            ));
+            if (!$this->expand_collapse_external) {
+                $theme->assign('expand_collapse', $this->build_expand_collapse_controls());
+            }
             $max_actions ??= 0;
             eval_js('gb_expandable_adjust_action_column("'.$md5_id.'", ' . $max_actions . ')');
             eval_js('gb_show_hide_buttons("'.$md5_id.'")');

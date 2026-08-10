@@ -306,6 +306,11 @@ class Utils_RecordBrowser extends Module {
         $this->is_on_main_page = true;
 
         $this->data_gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
+        // AdminLTE's Browsing_records.tpl renders Expand All/Collapse All itself,
+        // next to the view-mode picker, instead of in the table's own toolbar row
+        // (see modules/Utils/RecordBrowser/theme_adminltedark/Browsing_records.tpl).
+        // The legacy theme keeps the buttons inline in the table's own header.
+        if (Base_ThemeCommon::is_adminlte_family()) $this->data_gb->use_external_expand_collapse_controls(true);
 
         if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
         else $filters = '';
@@ -364,6 +369,7 @@ class Utils_RecordBrowser extends Module {
         ob_end_clean();
 
         $theme->assign('table', $table);
+        $theme->assign('expand_collapse', $this->data_gb->get_expand_collapse_controls());
         if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').($this->get_jump_to_id_button()));
         $theme->assign('icon', $this->icon);
         $theme->display('Browsing_records');

@@ -7,13 +7,21 @@
    disable_headline() still hides the view-mode picker exactly as before. *}
 <div class="epesi-br">
 	<div class="epesi-br-top">
-		{if isset($caption) && isset($form_data)}
-			<div class="epesi-br-viewmode">
-				{$form_open}
-				{$form_data.browse_mode.html}
-				{$form_close}
-			</div>
-		{/if}
+		<div class="epesi-br-left">
+			{if isset($caption) && isset($form_data)}
+				<div class="epesi-br-viewmode">
+					{$form_open}
+					{$form_data.browse_mode.html}
+					{$form_close}
+				</div>
+			{/if}
+			{if isset($expand_collapse)}
+				<div class="btn-group btn-group-sm" role="group">
+					<a id="{$expand_collapse.e_id}" class="btn btn-outline-secondary" {$expand_collapse.e_href}><i class="bi bi-arrows-expand"></i> {$expand_collapse.e_label}</a>
+					<a id="{$expand_collapse.c_id}" class="btn btn-outline-secondary" {$expand_collapse.c_href}><i class="bi bi-arrows-collapse"></i> {$expand_collapse.c_label}</a>
+				</div>
+			{/if}
+		</div>
 		{if isset($filters.controls)}
 			<div class="epesi-br-filters">
 				{$filters.controls}
