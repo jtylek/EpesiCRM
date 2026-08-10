@@ -7,9 +7,13 @@
    Per request: dropped the {$header} "Shoutbox" caption (redundant - the tab
    strip above already says "Chat") and the {$form_data.post.label} "Message"
    label the default theme's table layout printed. Same ids as chat_form.tpl,
-   suffixed _big throughout (shoutbox_text_big/shoutbox_to_big/
-   shoutbox_button_big/shoutbox_board_big) - Shoutbox_0.php's own JS references
-   these directly by id, kept exactly as QuickForm renders them. *}
+   suffixed _big throughout (shoutbox_text_big/shoutbox_button_big/
+   shoutbox_board_big) - Shoutbox_0.php's own JS references these directly by
+   id, kept exactly as QuickForm renders them. shoutbox_to is the one
+   exception: HTML_QuickForm_autoselect::toHtml() always forces its id back to
+   the plain field name, so it's never actually suffixed _big even in this
+   template - see the addElement('autoselect','shoutbox_to',...) comment in
+   Shoutbox_0.php::chat(). *}
 {php}
 	// Shoutbox_0.php doesn't set a placeholder on the message textarea
 	// (shared with the default theme, which relies on the {$form_data.post.label}

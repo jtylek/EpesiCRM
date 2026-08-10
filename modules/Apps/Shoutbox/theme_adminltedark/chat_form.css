@@ -156,16 +156,18 @@
 #shoutbox_board .shoutbox-age-2 { color: #adb5bd; }
 #shoutbox_board .shoutbox-age-3 { color: #6c757d; }
 
-/* History tab (Shoutbox_0.php::history(), a Utils_GenericBrowser table) prints the
- * same <span class="author"> markup as the Chat tab's refresh.php output - the rule
- * above is extended to cover it here rather than duplicated, so the two tabs stay
- * visually identical instead of drifting apart. Scoped to Apps_Shoutbox's own
- * content span (matched via the id Base_Box/ModuleManager gives every module's
- * wrapper), not a bare .Utils_GenericBrowser__td selector - GenericBrowser's own
- * theme (modules/Utils/GenericBrowser/theme_adminltedark/default.css) intentionally
- * colors every other browser's row text #00ff00 in dark mode; only Shoutbox's own
- * History table should read like the Chat tab instead. */
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author {
+/* History tab (Shoutbox_0.php::history()) prints the exact same message markup as
+ * the Chat tab's refresh.php output (.author/.time/.shoutbox_textbox/.shoutbox-age-*)
+ * into a single-column Utils_GenericBrowser table (kept only for its query/pagination
+ * machinery, not as a data grid) - the rules above are extended to cover it here
+ * rather than duplicated, so the two tabs stay visually identical instead of drifting
+ * apart. Scoped to the "epesi-shoutbox-history" wrapper div (Shoutbox_0.php's own
+ * set_prefix()/set_postfix() around this one table), not a bare
+ * .Utils_GenericBrowser__td selector - GenericBrowser's own theme
+ * (modules/Utils/GenericBrowser/theme_adminltedark/default.css) intentionally colors
+ * every other browser's row text #00ff00 in dark mode; only Shoutbox's own History
+ * table should read like the Chat tab instead. */
+.epesi-shoutbox-history .author {
 	display: inline-block;
 	background-color: #6c757d;
 	color: #fff;
@@ -175,16 +177,44 @@
 	font-weight: 600;
 }
 
-/* The author label is itself wrapped in a Base_UserCommon::get_user_label() link
- * (History links each name through to its contact record) - without this, the
- * anchor's own link-blue color wins over .author's white and the name becomes
- * unreadable against the same-blue badge background. */
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author a {
+/* The sender/recipient names are Base_UserCommon::get_user_label() links (History
+ * links each name through to its contact record) - without this, the anchor's own
+ * link-blue color wins over .author's white and the name becomes unreadable against
+ * the same-blue badge background. */
+.epesi-shoutbox-history .author a {
 	color: #fff;
 }
 
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td {
-	color: #f8f9fa;
+.epesi-shoutbox-history .time {
+	font-style: normal;
+	font-size: 0.75rem;
+	color: #adb5bd;
+	margin-left: 0.3rem;
+}
+
+.epesi-shoutbox-history .shoutbox-age-0 { color: #f8f9fa; }
+.epesi-shoutbox-history .shoutbox-age-1 { color: #ced4da; }
+.epesi-shoutbox-history .shoutbox-age-2 { color: #adb5bd; }
+.epesi-shoutbox-history .shoutbox-age-3 { color: #6c757d; }
+
+/* No per-column header makes sense for a single free-form "message" column -
+ * Shoutbox_0.php::history() sets its one column's name to '' precisely so this table
+ * has nothing worth a header row (Chat's own #shoutbox_board has none either). */
+.epesi-shoutbox-history .Utils_GenericBrowser__thead {
+	display: none;
+}
+
+/* Delete (row not yet deleted) / restore (already deleted) icon - appended after the
+ * [date] in each row's own first line (Shoutbox_0.php::history()), replacing the old
+ * table layout's separate actions column now that there's only one column. Muted by
+ * default like the rest of GenericBrowser's own action icons, brightening on hover. */
+.epesi-shoutbox-history .shoutbox-history-action {
+	margin-left: 0.4rem;
+	color: #8b929a;
+}
+
+.epesi-shoutbox-history .shoutbox-history-action:hover {
+	color: #fff;
 }
 
 /* "Send message to all?" confirm popup (Shoutbox_0.php::chat(), Bootstrap
@@ -240,3 +270,11 @@
 [data-bs-theme="light"] #shoutbox_board .shoutbox-age-1 { color: #444444; }
 [data-bs-theme="light"] #shoutbox_board .shoutbox-age-2 { color: #888888; }
 [data-bs-theme="light"] #shoutbox_board .shoutbox-age-3 { color: #AAAAAA; }
+
+/* Same light-mode age-fade values as #shoutbox_board above, extended to the History
+ * tab's own message list (added by hand - gen_light_override.js only ever covered the
+ * rules present when it last ran, not anything added to this file afterward). */
+[data-bs-theme="light"] .epesi-shoutbox-history .shoutbox-age-0 { color: #000000; }
+[data-bs-theme="light"] .epesi-shoutbox-history .shoutbox-age-1 { color: #444444; }
+[data-bs-theme="light"] .epesi-shoutbox-history .shoutbox-age-2 { color: #888888; }
+[data-bs-theme="light"] .epesi-shoutbox-history .shoutbox-age-3 { color: #AAAAAA; }

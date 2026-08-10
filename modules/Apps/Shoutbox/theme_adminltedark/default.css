@@ -1,0 +1,17 @@
+/* Show/Hide filters toggle above the History tab's filters card (see
+   Shoutbox_0.php::history()). Bootstrap's own collapse component maintains
+   aria-expanded on the toggle button itself, so the label swap is pure CSS
+   keyed off that attribute instead of a shown.bs.collapse/hidden.bs.collapse
+   JS listener. */
+.shoutbox-filters-toggle {
+	padding-left: 0.9rem;
+}
+.shoutbox-filters-toggle .filters-toggle-show {
+	display: none;
+}
+.shoutbox-filters-toggle[aria-expanded="false"] .filters-toggle-hide {
+	display: none;
+}
+.shoutbox-filters-toggle[aria-expanded="false"] .filters-toggle-show {
+	display: inline;
+}

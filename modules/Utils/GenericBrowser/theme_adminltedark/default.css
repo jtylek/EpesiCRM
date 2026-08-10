@@ -1071,6 +1071,31 @@
 	}
 }
 
+/* Utils_Attachment's own "Edited on" column (Utils_RecordBrowser__noexpand,
+ * RecordBrowser_0.php ~805 - date/time/username stacked via <br>, style='noexpand') is opted
+ * out of the mobile 2-line grid above (.epesi-attachment-notes), so it's still governed by
+ * plain table-layout:fixed - its width is a percentage of the row (GenericBrowser_0.php's
+ * width->percent math off Attachment_0.php's own set_header_properties() weight), which shrinks
+ * along with the whole row on a narrow phone - reported as the date clipping mid-digit
+ * ("05/08/2" instead of "05/08/2026") even though this column's content is a fixed shape, never
+ * something a user would want ellipsized.
+ *
+ * min-width on the body cell is enough to widen the whole column: table-layout:fixed's per-
+ * column width is one shared value across every row regardless of which row's cell specifies
+ * it (the header <th> doesn't carry this class at all - RecordBrowser_0.php only puts it on
+ * the body <td> - but widening any one cell in a column widens all of them together), and an
+ * explicit min-width (unlike ordinary text content, which the fixed algorithm ignores when
+ * sizing columns) still constrains the rendered box - the table grows past its own 100% when
+ * this forces it to, finally engaging .table-responsive's own overflow-x:auto for whatever's
+ * left, rather than the wide "Note" tallpreview column always winning the space fight. Sized
+ * for the date line only (10 characters, e.g. "05/08/2026") per request - the username line
+ * beneath it can still wrap/scroll. */
+@media (max-width: 767.98px) {
+	.epesi-attachment-notes .Utils_GenericBrowser__td.Utils_RecordBrowser__noexpand {
+		min-width: 6.5em;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every
@@ -1127,18 +1152,6 @@
 	display: inline-flex !important;
 }
 .epesi-rb-changes-history .epesi-gb-actions-toggle {
-	display: none !important;
-}
-
-/* Apps_Shoutbox's own History tab (Shoutbox_0.php::history(), grid wrapped via
-   set_prefix()/set_postfix() in its own "epesi-shoutbox-history" div, same technique) has at
-   most one row action - delete, or restore once already deleted, never both at once - so
-   collapsing it behind a kebab just adds an extra tap for zero space savings, same reasoning as
-   .epesi-rb-changes-history above. */
-.epesi-shoutbox-history .epesi-gb-actions-icons {
-	display: inline-flex !important;
-}
-.epesi-shoutbox-history .epesi-gb-actions-toggle {
 	display: none !important;
 }
 
