@@ -1055,6 +1055,19 @@
 	display: none !important;
 }
 
+/* Record Browser's "Changes History" tab (RecordBrowser_0.php::view_edit_history(), grid
+   wrapped via set_prefix()/set_postfix() in its own "epesi-rb-changes-history" div) has exactly
+   one row action - View, jumping to the matching point in "Record historical view" - so
+   collapsing it behind a kebab just adds an extra tap for zero space savings, unlike a
+   multi-action Browse-mode table where the kebab actually reclaims row width. Same opt-out
+   shape as .epesi-admin-panel/.epesi-watchdog-applet/.epesi-applet-body above. */
+.epesi-rb-changes-history .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-rb-changes-history .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
 /* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
    module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
    (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus

@@ -2457,6 +2457,11 @@ class Utils_RecordBrowser extends Module {
         $gb_cha->set_table_columns( $table_columns_changes );
 
         $gb_cha->set_inline_display();
+        // Only row action here is "View" (jump to Record historical view) - opt this table
+        // out of the mobile actions-kebab collapse, see theme_adminltedark/default.css's
+        // ".epesi-rb-changes-history" rule.
+        $gb_cha->set_prefix('<div class="epesi-rb-changes-history">');
+        $gb_cha->set_postfix('</div>');
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $access = $this->get_access('view', $created);

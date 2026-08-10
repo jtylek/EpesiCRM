@@ -185,3 +185,19 @@ now `.epesi-watchdog-applet`'s rules are a genuinely redundant subset of
 - The just-fixed ajax-tooltip cell-overflow hover preview (`82d577c2`, `929b699a`,
   `7ce240b8`) — it measures cell boxes; changing a cell's display mode at the breakpoint
   needs re-verifying the hover preview still triggers correctly.
+
+## Record Browser "Changes History" tab: single-action kebab opted out (2026-08-10)
+
+Reported from a mobile-portrait screenshot: the Changes History tab's per-row action set
+is just one entry (`view`, label "View", jumping to the matching point in "Record
+historical view" — `RecordBrowser_0.php:2503`/`2517`) but the 991.98px kebab collapse
+still applied, so viewing a single change cost an extra tap to open the kebab first.
+Same opt-out shape as `.epesi-admin-panel`/`.epesi-watchdog-applet`/`.epesi-applet-body`
+above, scoped narrowly instead of generically: `RecordBrowser_0.php`'s
+`view_edit_history()` now wraps that `Utils_GenericBrowser` instance's grid via
+`set_prefix()`/`set_postfix()` in a `<div class="epesi-rb-changes-history">`, and
+`theme_adminltedark/default.css` adds the matching `.epesi-gb-actions-icons` (show) /
+`.epesi-gb-actions-toggle` (hide) pair, unscoped to any media query so it wins at every
+width. Only the responsive-kebab pair was needed, not the always-on "More actions"
+pair — `view` is in `isCoreAction()`'s fixed list, so that second mechanism never
+applied here to begin with.
