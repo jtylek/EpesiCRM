@@ -48,11 +48,11 @@
    for .epesi-actionbar-btn, their <div> label for .epesi-actionbar-label).
    Icon technique unchanged from the first pass: hide the <img>, add a
    Bootstrap Icons glyph via ::before - codepoints match Base_ActionBar's own
-   icon map ('add'=>bi-plus-lg, 'save'=>bi-check2-square, 'print'=>bi-printer)
-   so the same action looks identical whether it renders here or in the real
-   ActionBar. Print and Export share one class (record_browser_button) with
-   no other distinguishing hook, told apart via :has() on each one's own
-   icon filename. */
+   icon map ('add'=>bi-plus-lg, 'save'=>bi-check2-square, 'print'=>bi-printer,
+   'export'=>bi-filetype-csv) so the same action looks identical whether it
+   renders here or in the real ActionBar. Print and Export share one class
+   (record_browser_button) with no other distinguishing hook, told apart via
+   :has() on each one's own icon filename. */
 
 .epesi-gb-label .record_browser_add_new img,
 .epesi-gb-label a.record_browser_button img {
@@ -113,6 +113,10 @@
 	content: "\f271";
 }
 
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/export.png"])::before {
+	content: "\f743"; /* bi-filetype-csv - export.png links to csv_export.php; matches the icon_map entry Base_ActionBar/theme_adminltedark/default.tpl already uses for the real ActionBar's own 'export' action */
+}
+
 /* Print/Export's own label div carries an inline style="...;top:-8px" (a
    default-theme hack to vertically-align text next to the old horizontal
    <img> sprite) - meaningless now that this is a vertical icon-over-label
@@ -151,14 +155,23 @@
    (.epesi-br-btn/.epesi-rbf-btn) and Filters/theme_adminltedark's own Show
    submit, which sit in the same toolbar rows elsewhere on the Browse screen,
    per request that every button in these toolbars read as one consistent
-   style rather than some filled and some outlined. !important guards the
-   fixed colors against gen_light_override.js re-adding a conflicting
-   [data-bs-theme="light"] block later - see AI-shared/bug-patterns.md's
-   Dashboard applet-header entry for why this is this codebase's established
-   fix for exactly that risk. */
+   style rather than some filled and some outlined. Also covers this file's
+   own .epesi-gb-expand-btn (Expand All/Collapse All as rendered inline in
+   this module's card-header toolbar - i.e. an addon-tab listing like Notes/
+   Journal, not the fullscreen Browse screen which uses .epesi-br-btn
+   instead - see use_external_expand_collapse_controls() in
+   GenericBrowser_0.php): it previously kept Bootstrap's plain
+   .btn-outline-secondary look, the one outlined-not-filled holdout in an
+   otherwise all-filled-grey set of toolbars, per the same consistency
+   request. !important guards the fixed colors against
+   gen_light_override.js re-adding a conflicting [data-bs-theme="light"]
+   block later - see AI-shared/bug-patterns.md's Dashboard applet-header
+   entry for why this is this codebase's established fix for exactly that
+   risk. */
 .epesi-gb-search input[type="submit"],
 .epesi-gb-search input[type="button"],
-.epesi-gb-adv .button {
+.epesi-gb-adv .button,
+.epesi-gb-expand-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.35rem;
@@ -174,9 +187,23 @@
 
 .epesi-gb-search input[type="submit"]:hover,
 .epesi-gb-search input[type="button"]:hover,
-.epesi-gb-adv .button:hover {
+.epesi-gb-adv .button:hover,
+.epesi-gb-expand-btn:hover,
+.epesi-gb-expand-btn:focus {
 	background-color: #343a40 !important;
 	border-color: #343a40 !important;
+	color: #fff !important;
+}
+
+/* Expand All/Collapse All sit in a .btn-group for spacing only - only one is
+   ever visible at a time (gb_show_hide_buttons(), see table_overflow.js),
+   never both as a joined pair, but Bootstrap's own .btn-group > .btn:not(:
+   first-child)/:not(:last-child) corner-zeroing rules (higher specificity
+   than a plain class) don't know that and square off whichever corner faces
+   the other, now-irrelevant button - same fix as .epesi-br-btn in
+   Browsing_records.css. */
+.epesi-gb-expand-btn {
+	border-radius: 0.375rem !important;
 }
 
 /* Advanced Search (.epesi-gb-adv, the $adv_search toggle link -
