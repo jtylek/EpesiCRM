@@ -1,7 +1,8 @@
 # Utils_GenericBrowser mobile/responsive table (implemented on `mobile-gb`, unverified)
 
-**Status as of 2026-08-10: implemented on the `mobile-gb` branch, not yet visually
-verified in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`
+**Status as of 2026-08-11: implemented on the `mobile-gb` branch; visual verification
+found the mobile_cols/favs-watchdog bug documented below (now fixed), not yet re-verified
+in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`
 being unreadable on narrow/mobile viewports (7 columns squeezed into one line).
 Decision: fix it **generically for every `Utils_GenericBrowser`/`Utils_RecordBrowser`
 list**, not just Login Audit — confirmed this reaches RecordBrowser's Browse mode too,
@@ -58,7 +59,8 @@ squeeze every column proportionally. Two files changed, both in
 `modules/Utils/GenericBrowser/theme_adminltedark/`:
 
 - **`default.tpl`** — the existing `{php}` block that builds `cols` now also computes
-  `mobile_cols = max(1, ceil(count($cols)/2))` and assigns it as a template var; the
+  `mobile_cols = max(1, ceil($visible_count/2))` (see 2026-08-11 fix below for what
+  counts as "visible") and assigns it as a template var; the
   `table_attr` capture appends `--epesi-gb-mobile-cols:{$mobile_cols};` to the
   wrapper's inline `style=`. Done in the `.tpl` (not `GenericBrowser_0.php`) since it's
   purely a presentation concern of this theme and keeps the change to one file per
@@ -211,6 +213,41 @@ now `.epesi-watchdog-applet`'s rules are a genuinely redundant subset of
 - The just-fixed ajax-tooltip cell-overflow hover preview (`82d577c2`, `929b699a`,
   `7ce240b8`) — it measures cell boxes; changing a cell's display mode at the breakpoint
   needs re-verifying the hover preview still triggers correctly.
+
+## Bug found in real visual verification: empty trailing cells on every row (2026-08-11)
+
+Reported via screenshot (Companies Browse mode, Ticket list) on a real phone-width
+viewport: every row - header and data alike - left 1-2 grid cells visibly empty at the
+end of its second physical line, and on Companies the header's second line read
+"Account Manager, ⋮" instead of the expected City/Company Name/Phone/Group/Account
+Manager/actions split evenly across two lines. This is the "Known limitation" flagged
+in `default.css`'s own comment when the feature was first implemented (2026-08-10) -
+turned out to be a real, visible defect, not just an imbalance.
+
+Root cause: `--epesi-gb-mobile-cols` (`default.tpl`) was computed from `count($cols)` -
+every column RecordBrowser hands to `{html_grid_epesi}`, including its own
+favourite/watchdog columns (`RecordBrowser_0.php`'s `fixed_columns_class`,
+`RecordBrowser_0.php:459`/`464` - tagged via `attrs="class=Utils_RecordBrowser__favs"` /
+`__watchdog`). But `default.css`'s own pre-existing `@media (max-width: 991.98px)` rule
+(`default.css:1000-1015`) already `display:none`s exactly those two columns' `__th`/`__td`
+at this width (991.98px covers 767.98px too) - and a `display:none` grid item is removed
+from CSS Grid's auto-placement flow entirely, not just visually hidden in place. So the
+*actual* number of items landing in the `repeat(var(--epesi-gb-mobile-cols), 1fr)` grid
+was 1-2 less than what `--epesi-gb-mobile-cols` (computed from the pre-hide total) assumed,
+leaving that many trailing cells on the row's second line empty. Confirmed algebraically:
+for a table with favs+watchdog+5 data columns+actions = 8 total columns,
+`mobile_cols = ceil(8/2) = 4`, but only 6 columns actually render at this width, so line 2
+(items 5-6: Account Manager, actions) filled only 2 of its 4 slots.
+
+Fix: `default.tpl`'s `{php}` block now counts only columns whose `attrs` string does
+*not* match `Utils_RecordBrowser__favs`/`__watchdog` before computing
+`ceil(.../2)` - i.e. it counts what will actually be visible at this breakpoint, the
+same two columns the 991.98px rule already excludes. The actions column is deliberately
+*not* excluded from the count - unlike favs/watchdog, its `__th`/`__td` box stays in
+grid flow at this width (only its inner icons collapse into a kebab via a separate,
+unrelated mechanism - see "---- mobile actions menu ----" in `default.css`), so it
+still needs a grid slot. `default.css`'s stale "Known limitation" comment was rewritten
+to describe the fix instead. Not yet re-verified in a browser after this change.
 
 ## Record Browser "Changes History" tab: single-action kebab opted out (2026-08-10)
 

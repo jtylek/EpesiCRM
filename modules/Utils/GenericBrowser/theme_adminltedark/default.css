@@ -1038,11 +1038,14 @@
  * __tr itself, so a logical row's 2 physical lines read as one row with one
  * separator below it, rather than two rows with a separator between them.
  *
- * Known limitation: --epesi-gb-mobile-cols counts ALL columns, including any
- * RecordBrowser favourite/watchdog/actions columns the 991.98px rule above
- * already hides at this width - so a table using those features can split
- * unevenly (e.g. 5+2 instead of 4+3) rather than exactly in half. Still
- * renders correctly, just not perfectly balanced. See
+ * Fixed 2026-08-11: --epesi-gb-mobile-cols originally counted ALL columns,
+ * including RecordBrowser's own favourite/watchdog columns that the
+ * 991.98px rule above already display:none's at this width (which also
+ * covers this 767.98px one) - since display:none removes an item from grid
+ * flow entirely, the actual per-row item count came up short of what
+ * --epesi-gb-mobile-cols assumed, leaving trailing empty grid cells on
+ * every row (reported as "empty fields" on Companies/Tickets). default.tpl
+ * now excludes those two columns from the count it computes. See
  * AI-shared/generic-browser-responsive-tables.md.
  *
  * ":not(:has(.epesi-attachment-notes))" on every selector below: Utils_Attachment's

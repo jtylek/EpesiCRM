@@ -67,7 +67,18 @@
 	// column count varies per module, so it can't be a fixed CSS number.
 	// Computed here rather than in GenericBrowser_0.php since it's purely a
 	// presentation concern of this theme.
-	$this->assign('mobile_cols', max(1, (int)ceil(count($cols)/2)));
+	// Excludes RecordBrowser's own favourite/watchdog columns
+	// (RecordBrowser_0.php's fixed_columns_class, tagged via their own
+	// 'attrs' class) - default.css's existing 991.98px breakpoint already
+	// display:none's those columns (which also covers this 767.98px one),
+	// so counting them here overstated the per-line total and left trailing
+	// empty grid cells on every row instead of an even 2-line split.
+	$mobile_col_count = 0;
+	foreach ($cols as $v) {
+		if (preg_match('/class="[^"]*\bUtils_RecordBrowser__(?:favs|watchdog)\b/', $v['attrs'] ?? '')) continue;
+		$mobile_col_count++;
+	}
+	$this->assign('mobile_cols', max(1, (int)ceil($mobile_col_count/2)));
 {/php}
 
 <div class="card-body p-0">
