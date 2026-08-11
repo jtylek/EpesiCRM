@@ -42,7 +42,7 @@ class Base_Search extends Module {
 		            $checked = isset($cat_name['checked']) && $cat_name['checked'];
 		            $cat_name = $cat_name['caption'];
 		        }
-		        $search_categories_checkboxes[] = $form->createElement('advcheckbox', $mod.'#'.$cat_id,  '', $cat_name);
+		        $search_categories_checkboxes[] = $form->createElement('advcheckbox', $mod.'#'.$cat_id,  '', $cat_name, array('class'=>'epesi-switch'));
 				if (isset($categories_tmp[$mod . '#' . $cat_id])) {
 					$checked = $categories_tmp[$mod . '#' . $cat_id];
 				}
@@ -96,11 +96,31 @@ class Base_Search extends Module {
 							$links[] = $rv;
 						}
 				}
-				$qs_theme = $this->pack_module(Base_Theme::module_name());
-				$qs_theme->assign('header', __('Search results'));
-				$qs_theme->assign('links', $links);
-				$qs_theme->assign('warning', $warning ?? null);
-				$qs_theme->display('Results');
+				// GenericBrowser is used only for its pagination machinery, same
+				// as Apps_Shoutbox's history() tab - $links is already fully
+				// collected in memory (capped at 100 above), so get_limit()/
+				// array_slice() stand in for the query_order_limit()+SQL LIMIT
+				// pair a DB-backed browser would use.
+				Base_ThemeCommon::load_css($this->get_type(), 'Results');
+				print '<div class="epesi-search-results card">';
+				print '<div class="card-header epesi-search-results-header">'.__('Search results').'</div>';
+				if (isset($warning)) print '<div class="epesi-search-results-warning">'.$warning.'</div>';
+
+				$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'search_results');
+				$gb->set_table_columns(array(
+					array('name'=>'', 'width'=>100)
+				));
+				$gb->set_prefix('<div class="epesi-search-results-list">');
+				$gb->set_postfix('</div>');
+				$gb->set_inline_display();
+
+				$page = $gb->get_limit(count($links));
+				foreach (array_slice($links, $page['offset'], $page['numrows']) as $link) {
+					$gb->get_new_row()->add_data($link);
+				}
+				$this->display_module($gb);
+
+				print '</div>';
 				return;
 			}
 		}

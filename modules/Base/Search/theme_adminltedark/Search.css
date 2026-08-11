@@ -82,7 +82,7 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
 	gap: 0.4rem 1rem;
-	padding: 0.75rem;
+	padding: 0.75rem 1.25rem;
 	background-color: #24272b;
 	border: 1px solid #343a40;
 	border-radius: 0.375rem;
@@ -108,30 +108,27 @@
 	cursor: pointer;
 }
 
-.epesi-search-full-actions input[type="submit"] {
-	border: 1px solid #8b929a;
-	border-radius: 0.375rem;
-	background-color: #2b3035;
-	color: #adb5bd;
-	padding: 0.4rem 0.9rem;
+/* Deselect all/Select all (type=button) and Search (type=submit) - one
+   consistent blue-filled, rounded-pill style for all three, fixed regardless
+   of theme (!important guards against gen_light_override.js's generated
+   [data-bs-theme="light"] block below tying in specificity and winning the
+   cascade on generated colors - see the GenericBrowser Search/Show all/
+   Advanced Search buttons fix for the same pattern). */
+.epesi-search-full-actions input[type="submit"],
+.epesi-search-full-actions input[type="button"] {
+	border: 1px solid #0d6efd !important;
+	border-radius: 50rem;
+	background-color: #0d6efd !important;
+	color: #fff !important;
+	padding: 0.4rem 1rem;
 	font-size: 0.85rem;
+	cursor: pointer;
 }
 
-.epesi-search-full-actions input[type="submit"]:hover {
-	background-color: #343a40;
-}
-
-/* The last button in the row is quick_search_submit ("Search") - the
-   primary action, styled to stand out from Select all/Deselect all. */
-.epesi-search-full-actions input[type="submit"]:last-child {
-	border-color: #0d6efd;
-	background-color: #0d6efd;
-	color: #fff;
-}
-
-.epesi-search-full-actions input[type="submit"]:last-child:hover {
-	background-color: #0b5ed7;
-	border-color: #0b5ed7;
+.epesi-search-full-actions input[type="submit"]:hover,
+.epesi-search-full-actions input[type="button"]:hover {
+	background-color: #0b5ed7 !important;
+	border-color: #0b5ed7 !important;
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
@@ -158,14 +155,4 @@
 [data-bs-theme="light"] .epesi-search-categories {
   background-color: #f8f9fa;
   border: 1px solid #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"] {
-  border: 1px solid #6c757d;
-  background-color: #fff;
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-search-full-actions input[type="submit"]:hover {
-  background-color: #e9ecef;
 }

@@ -1,8 +1,11 @@
-/* AdminLTE re-skin for Base_Search's results list (Base_Search::body(),
- * $qs_theme->display('Results')). Styled to match Utils_GenericBrowser's own
- * dark-header/hover-row look (see modules/Utils/GenericBrowser/theme_adminlte/
- * default.css) for visual consistency with the rest of the app, since this
- * is effectively a single-column result table.
+/* AdminLTE re-skin for Base_Search's results list (Base_Search::body(), the
+ * card printed directly in PHP around a Utils_GenericBrowser instance -
+ * GenericBrowser supplies the actual row rendering plus pagination now,
+ * kept only for its query/pagination machinery same as Apps_Shoutbox's
+ * history tab; see that module's chat_form.css for the identical pattern
+ * this is copied from). Only the outer card chrome is styled here -
+ * GenericBrowser's own theme_adminltedark/default.css already gives rows
+ * their hover/link-color treatment.
  */
 
 .epesi-search-results {
@@ -12,11 +15,37 @@
 	box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.08);
 }
 
+/* Single unnamed column ('name'=>'' in Search_0.php) has nothing worth a
+   header row - same reasoning/selector as Shoutbox's .epesi-shoutbox-history
+   .Utils_GenericBrowser__thead rule. */
+.epesi-search-results-list .Utils_GenericBrowser__thead {
+	display: none;
+}
+
+/* Merges GenericBrowser's own nested ".epesi-gb.card" into this outer card
+   instead of nesting visibly - same technique/properties as Shoutbox's
+   ".epesi-gb.card:has(.epesi-shoutbox-history)" rule. */
+.epesi-gb.card:has(.epesi-search-results-list) {
+	margin-bottom: 0 !important;
+	--bs-card-border-width: 0;
+	--bs-card-border-radius: 0;
+	box-shadow: none;
+}
+
+/* Fixed grey/black, same as the app-sidebar (Base_Box/theme_adminltedark/
+   default.css) - "stays this same color in both light and dark mode, per
+   request" (see AI-shared/adminlte-theme.md's Leightbox popups entry for the
+   same #dee2e6/#000 convention applied elsewhere). !important guards against
+   gen_light_override.js re-adding a conflicting [data-bs-theme="light"]
+   block later - no light-mode override needed/wanted below. Padding trimmed
+   from Bootstrap's default .card-header ~0.5rem 1rem to just fit the title,
+   per request. */
 .epesi-search-results-header {
-	background-color: #dee2e6;
-	color: #fff;
+	background-color: #dee2e6 !important;
+	color: #000 !important;
 	font-weight: 600;
 	text-align: center;
+	padding: 0.4rem 1rem;
 }
 
 .epesi-search-results-warning {
@@ -28,39 +57,11 @@
 	border-bottom: 1px solid #495057;
 }
 
-.epesi-search-results-item {
-	padding: 0.5rem 1rem;
-}
-
-.epesi-search-results-item:hover {
-	background-color: #2b3035;
-}
-
-.epesi-search-results-item a {
-	color: #ced4da;
-}
-
-.epesi-search-results-item a:hover {
-	color: #0d6efd;
-}
-
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-search-results {
   border: 1px solid #dee2e6;
 }
 
-[data-bs-theme="light"] .epesi-search-results-header {
-  background-color: #212529;
-}
-
 [data-bs-theme="light"] .epesi-search-results-warning {
   border-bottom: 1px solid #dee2e6;
-}
-
-[data-bs-theme="light"] .epesi-search-results-item:hover {
-  background-color: #f1f3f5;
-}
-
-[data-bs-theme="light"] .epesi-search-results-item a {
-  color: #343a40;
 }
