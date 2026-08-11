@@ -181,6 +181,24 @@
 		display: none;
 	}
 
+	/* .epesi-gb-search is itself just one flex item of .card-header.epesi-gb-
+	   toolbar (default.tpl) - fine on desktop, where its own ms-md-auto
+	   (default.tpl) pushes it flush right alongside a custom_label/
+	   expand_collapse sharing that row, but on mobile (ms-md-auto inactive
+	   below md) it was left sized to its own content and stranded at the
+	   toolbar's left edge, on a row of its own with a wide dead gap to the
+	   right of Show all - reported in landscape, where the toolbar is wide
+	   enough that this row's total content no longer comes close to filling
+	   it. flex-basis:100% claims the toolbar's full row width regardless of
+	   what else shares it; combined with the keyword box's own flex:1 1 0%
+	   below, growing to fill THIS now-full-width row in turn is what
+	   actually closes that gap and, as a side effect, pushes Search/Show all
+	   flush against the row's true right edge - no separate justify-content
+	   needed for that part. */
+	.epesi-gb-search {
+		flex: 1 1 100%;
+	}
+
 	/* form_data_search's own <form> (default.tpl) is flex-wrap, which - once
 	   the row only has to fit the keyword box, Search and Show all (the adv
 	   toggle above no longer competing for space) - still stacked each of
