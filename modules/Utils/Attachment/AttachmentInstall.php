@@ -121,6 +121,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         Utils_RecordBrowserCommon::set_tpl('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_AttachmentInstall::module_name(), 'View_entry'));
         Utils_RecordBrowserCommon::enable_watchdog('utils_attachment', array('Utils_AttachmentCommon','watchdog_label'));
         Utils_RecordBrowserCommon::set_caption('utils_attachment', _M('Note'));
+        Utils_RecordBrowserCommon::set_icon('utils_attachment', Base_ThemeCommon::get_template_filename(Utils_AttachmentInstall::module_name(), 'icon.png'));
         Utils_RecordBrowserCommon::set_description_callback('utils_attachment', array('Utils_AttachmentCommon','description_callback'));
         Utils_RecordBrowserCommon::set_jump_to_id('utils_attachment', false);
         Utils_RecordBrowserCommon::set_search('utils_attachment',1,0);
