@@ -62,6 +62,10 @@ body {
 	background-color: var(--epesi-surface);
 	border-bottom: 1px solid var(--epesi-border);
 	padding: 0;
+	/* Only ever animated by body.epesi-topbar-hidden below lg (see the
+	   "hide on scroll" block further down) - harmless at every other width/
+	   state, since transform is never otherwise set on this element. */
+	transition: transform 0.25s ease-in-out;
 }
 
 /* The navbar's own background spans the full width (left:0) so it reads as
@@ -425,13 +429,9 @@ body {
 	   effect without needing image assets. */
 	box-shadow: 0 2px 4px var(--epesi-shadow-color);
 	padding: 0.15rem 0;
-	/* left is the only thing actually animated now (the sidebar-collapse
-	   toggle's own transition, min-width:992px block further down) - a
-	   matching "transform" transition used to live here too, for the
-	   hide-on-scroll behaviour that toggled body.epesi-topbar-hidden; that
-	   feature is gone (see this file's other "epesi-topbar-hidden" comments
-	   and default.tpl), so removed rather than left harmlessly unused. */
-	transition: left 0.25s ease-in-out;
+	/* transform: only ever animated by body.epesi-topbar-hidden below lg -
+	   see the "hide on scroll" block further down. */
+	transition: left 0.25s ease-in-out, transform 0.25s ease-in-out;
 }
 
 .epesi-adminlte .app-content {
@@ -474,14 +474,23 @@ body {
 		margin-left: 0;
 	}
 
-	/* Hide-on-scroll used to live here (body.epesi-topbar-hidden, toggled by
-	   default.tpl's scroll listener) - first the navbar was reverted to stay
-	   fixed/visible on mobile same as desktop, then the ActionBar too (per a
-	   later request: "make sure ActionBar sticks always at the bottom of
-	   navbar - always visible"), which removed the last use of that class -
-	   see default.tpl for the matching removal of the scroll listener
-	   itself. Both bars are simply always visible now, same as desktop,
-	   nothing left for this breakpoint to toggle on scroll. */
+	/* Hide-on-scroll (default.tpl's scroll listener toggles this class,
+	   only below this same lg breakpoint, reappearing only once scrolled
+	   back to the very top - not on scroll-up generally). .app-main's own
+	   padding-top is deliberately left alone here - the reserved space just
+	   sits empty while the bars are off-screen, rather than having content
+	   reflow/jump vertically under a scroll position that hasn't itself
+	   changed. */
+	body.epesi-topbar-hidden .epesi-adminlte .app-header {
+		transform: translateY(-100%);
+	}
+	/* Needs the combined height, not just its own - .app-content-header's
+	   resting `top` is already var(--epesi-header-height), so translating
+	   it by only its own height would still leave part of it (the
+	   difference between the two bars' heights) visible on screen. */
+	body.epesi-topbar-hidden .epesi-adminlte .app-content-header {
+		transform: translateY(calc(-1 * (var(--epesi-header-height) + var(--epesi-actionbar-height))));
+	}
 }
 
 /* Portrait phones only, same off-canvas-sidebar breakpoint as above - a

@@ -137,14 +137,41 @@
 		"})();"
 	);
 
-	// Both the navbar and the ActionBar used to hide on scroll below lg,
-	// toggling body.epesi-topbar-hidden (default.css) to reclaim vertical
-	// space on a phone/small-tablet screen - first just the navbar was
-	// reverted to stay fixed/visible (per request), then the ActionBar too
-	// (per a later request: "make sure ActionBar sticks always at the bottom
-	// of navbar - always visible"), which removed the last consumer of that
-	// class, so the scroll listener that toggled it is gone entirely now
-	// rather than left running with nothing left to do.
+	// Hides the navbar+ActionBar on scroll below lg, reclaiming vertical
+	// space on a phone/small-tablet screen, per request - reappearing only
+	// once scrolled back to the very top (not on scroll-up generally, which
+	// is the more common pattern for this kind of UI, but not what was
+	// asked for here). This was tried once before, reverted per request (in
+	// favour of keeping both bars permanently visible/fixed), and is back
+	// per a later request - see this file's git history for the earlier
+	// round if the reasoning below needs cross-checking again.
+	// body.epesi-topbar-hidden (default.css) transforms both bars
+	// off-screen; .app-content-header's own transform distance reads
+	// --epesi-header-height/--epesi-actionbar-height (the same two
+	// variables the ResizeObserver above keeps in sync) rather than a fixed
+	// guess, so it stays exactly off-screen regardless of how tall either
+	// bar actually renders. window.innerWidth is re-checked on every
+	// scroll event (not just once at load) so this still behaves correctly
+	// if the viewport crosses the breakpoint later (e.g. a device rotation
+	// - see the portrait-lock overlay above, which already forces phones
+	// back to this width range anyway).
+	eval_js_once(
+		"(function(){".
+			"var hidden=false;".
+			"window.addEventListener('scroll',function(){".
+				"if(window.innerWidth>=992){".
+					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
+					"return;".
+				"}".
+				"var y=window.scrollY||document.documentElement.scrollTop;".
+				"if(y<=0){".
+					"if(hidden){document.body.classList.remove('epesi-topbar-hidden');hidden=false;}".
+				"}else if(!hidden){".
+					"document.body.classList.add('epesi-topbar-hidden');hidden=true;".
+				"}".
+			"},{passive:true});".
+		"})();"
+	);
 
 	// Below the same 991.98px breakpoint the sidebar itself goes off-canvas
 	// (Base_Box/theme_adminlte/default.css), per request: collapse every
