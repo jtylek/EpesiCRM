@@ -23,7 +23,7 @@ class Applets_NoteCommon extends ModuleCommon {
 
 	public static function applet_settings() {
 		return array(
-			array('name'=>'title','label'=>__('Title'),'type'=>'text','default'=>__('Note'),'rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
+			array('name'=>'title','label'=>__('Title'),'type'=>'text','default'=>__('Note'),'param'=>array('class'=>'form-control'),'rule'=>array(array('message'=>'Field required', 'type'=>'required'))),
 			array('name'=>'text','type'=>'callback','func'=>array('Applets_NoteCommon','text_elem'),'default'=>'','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')),'filter'=>array(array('Applets_NoteCommon','filter_text'))),
 			array('name'=>'bcolor','label'=>__('Background color'),'type'=>'select','default'=>'nice yellow','rule'=>array(array('message'=>__('Field required'), 'type'=>'required')), 'values'=>array('nice-yellow' => __('Yellow'), 'blue'=>__('Blue'), 'red'=>__('Red'), 'yellow'=>__('Bleak Yellow'), 'green' => __('Green'), 'white'=>__('White'), 'gradient' => __('Gradient'), 'gradient2' => __('Gradient 2'), 'gray' => __('Gray'), 'dark-blue' => __('Dark blue'), 'dark-red' => __('Dark red'), 'dark-yellow' => __('Dark yellow'), 'dark-green' => __('Dark green')))
 			);
@@ -36,7 +36,12 @@ class Applets_NoteCommon extends ModuleCommon {
 	public static function text_elem($name, $args, & $def_js) {
 		$form = new HTML_QuickForm();
 		$obj = $form->createElement('quill',$name,__('Text to display'));
-		$obj->setQuillProps('400','300',false);
+		// No explicit width: RecordBrowser_0.php's own 'help' quill field (the
+		// other settings-form use of this element) passes null too - Quill's
+		// auto-generated toolbar is a plain block div with no width of its own,
+		// so it only lines up with the editor container below it when neither
+		// has an explicit width and both block-fill the same parent instead.
+		$obj->setQuillProps(null,'300',false);
 	//	$def_js .= '$(\''.$this->getAttribute('name').'\').'.$v['name'].'.value = \''.$v['default'].'\';';
 		return $obj;
 	}
