@@ -783,8 +783,27 @@
    cell's overflow:hidden, with no way to ever see it. The one property that
    actually matters is div.expandable.expanded{white-space:normal} below -
    that's what lets a click on "Expand All" un-clip an image at all. */
+/* max-height, not a flat height - same reasoning/fix as the
+   Utils_RecordBrowser__tallpreview override further down, just for the plain
+   case. gb_expandable_init() (js/table_overflow.js) only ever collapses a
+   ROW whose measured content genuinely exceeds 18px, so on that path alone a
+   flat height here could never pad anything short - but Base_Box/
+   theme_adminltedark/default.tpl's epesiSizeGbActions() also force-collapses
+   individual divs still ".expanded" whose scrollHeight>18px, on every
+   window resize/e:load/document.fonts.ready run, with no matching path to
+   ever un-collapse one again once the reason stops applying. The actions
+   column is measured/wrapped using the bootstrap-icons webfont's fallback
+   metrics before that font finishes loading (see that file's own "font
+   timing" comment) - a row briefly measuring >18px during that window gets
+   force-collapsed, then stays collapsed forever even after the real font
+   loads and its actual content would fit on one line well under 18px. A
+   flat height:18px here then pads that row back up while "collapsed",
+   visibly shrinking it the moment it's expanded - reported as "collapsed
+   looks taller than expanded" for plain Browse rows (e.g. Contacts), not
+   just the Notes tall_preview case this pattern was first fixed for. */
 .epesi-gb div.expandable.collapsed {
-	height: 18px;
+	height: auto;
+	max-height: 18px;
 	overflow: hidden;
 }
 
