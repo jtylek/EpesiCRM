@@ -25,8 +25,8 @@ class CRM_Mail extends Module {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab(__('Global Signature'),$this->admin_signature(...));
 		$tb->set_tab(__('Related'),$this->admin_related(...));
+		$tb->set_tab(__('Global Signature'),$this->admin_signature(...));
 		$this->display_module($tb);
 	}
 
