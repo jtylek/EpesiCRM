@@ -824,9 +824,26 @@
    div.expandable.expanded rule above (height:auto!important) when toggled
    open. Same specificity trick as __noexpand (extra class + element on both
    the td and the div beats the plain .collapsed rule's 3-classes-1-element
-   without needing !important). */
+   without needing !important).
+
+   max-height, not a flat height: a literal height:72px pads out any note
+   whose real content is shorter than that (e.g. a title + one short body
+   line, ~40px) with blank space while collapsed, then - since .expanded
+   above is height:auto - the box visibly SHRINKS the moment it's expanded,
+   reported as "expanded is shorter than collapsed". max-height only ever
+   clips content taller than 72px (the original intent, per the comment
+   above), and never adds height a short note doesn't have.
+
+   height:auto has to be repeated here too, not just max-height - the plain
+   .collapsed rule above (2 classes on the div, 1 on the td) sets an explicit
+   height:18px, and dropping this rule's own `height` declaration entirely
+   (an earlier version of this fix) let that 18px win the cascade outright
+   for the `height` property, clamping every tallpreview note back down to
+   one line - height:auto is needed here to actually override it so
+   max-height is what ends up doing the clamping instead. */
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_RecordBrowser__tallpreview div.expandable.collapsed {
-	height: 72px;
+	height: auto;
+	max-height: 72px;
 	overflow: hidden;
 }
 
@@ -1210,9 +1227,14 @@
  * out of the mobile 2-line grid above (.epesi-attachment-notes), so it's still governed by
  * plain table-layout:fixed - its width is a percentage of the row (GenericBrowser_0.php's
  * width->percent math off Attachment_0.php's own set_header_properties() weight), which shrinks
- * along with the whole row on a narrow phone - reported as the date clipping mid-digit
- * ("05/08/2" instead of "05/08/2026") even though this column's content is a fixed shape, never
- * something a user would want ellipsized.
+ * along with the whole row whenever this widget's own container is narrow - reported as the
+ * date clipping mid-digit ("05/08/2" instead of "05/08/2026") even though this column's content
+ * is a fixed shape, never something a user would want ellipsized. Originally gated to
+ * max-width:767.98px (phone viewports), but the same clipping reproduces on an ordinary desktop
+ * browser too whenever this addon-tab's own content column is narrower than the phone breakpoint
+ * (it's embedded next to other page chrome, not the full viewport width) - the underlying
+ * table-layout:fixed shrink is about this container's width, not the viewport's, so the rule is
+ * unconditional now.
  *
  * min-width on the body cell is enough to widen the whole column: table-layout:fixed's per-
  * column width is one shared value across every row regardless of which row's cell specifies
@@ -1224,10 +1246,8 @@
  * left, rather than the wide "Note" tallpreview column always winning the space fight. Sized
  * for the date line only (10 characters, e.g. "05/08/2026") per request - the username line
  * beneath it can still wrap/scroll. */
-@media (max-width: 767.98px) {
-	.epesi-attachment-notes .Utils_GenericBrowser__td.Utils_RecordBrowser__noexpand {
-		min-width: 6.5em;
-	}
+.epesi-attachment-notes .Utils_GenericBrowser__td.Utils_RecordBrowser__noexpand {
+	min-width: 6.5em;
 }
 
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -

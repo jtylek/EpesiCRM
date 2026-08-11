@@ -586,12 +586,67 @@
 						"others.forEach(function(th){".
 							"var isFixedIcon=th.classList.contains('Utils_RecordBrowser__favs')||th.classList.contains('Utils_RecordBrowser__watchdog');".
 							"if(!isFixedIcon){".
-								"var stored=th.getAttribute('data-epesi-orig-percent');".
-								"var p=stored!==null?parseFloat(stored):(parseFloat(th.getAttribute('width')||th.style.width||'0')||0);".
-								"if(stored===null)th.setAttribute('data-epesi-orig-percent',p);".
-								"percentCols.push(th);".
-								"percents.push(p);".
-								"totalPercent+=p;".
+								// A column whose PHP-side set_header_properties() width was a real
+								// CSS length (e.g. Utils_Attachment's 'edited_on'=>"12em" -
+								// Attachment_0.php) arrives here as an inline th.style.width, not
+								// the width="NN%" HTML attribute the plain numeric-weight columns
+								// get (GenericBrowser_0.php's is_numeric($v['width']) branch).
+								// parseFloat("12em") silently drops the "em" and returns 12 - previously
+								// fed straight into the percent-weighted split below as if "12" meant
+								// "12% of the row", alongside a wide text column's own much larger
+								// weight (e.g. "Note"'s default 90-100) - so this column was always
+								// squeezed to roughly 12/(12+90) of the available width regardless of
+								// container size, never enough to fit a 3-line date/time/user cell.
+								//
+								// Converting the "12em" itself to a flat px number (an earlier version
+								// of this fix) overcorrected: 12em is comfortably more than a short
+								// date/time/name actually needs, so on a narrow container - where the
+								// "Note" column has the least room to spare - that flat guess left a
+								// visible dead gap in this column while squeezing Note. Measuring the
+								// column's own real content instead (same naturalWidth() clone-and-
+								// measure technique the favs/watchdog icon columns just below already
+								// use) sizes it to fit exactly, on any container width, without relying
+								// on the author's em guess at all - the em unit only still matters here
+								// as the *signal* that this column is fixed-shape, not proportional.
+								//
+								// That signal only survives long enough to READ once, though: this same
+								// branch below (both outcomes) ends by writing a plain "NNpx" back onto
+								// th.style.width, so a percent column like "Note" (initially "90%") looks
+								// exactly like an absolute-length column ("642px") to this raw/isPercent
+								// check on the very next run (window resize, e:load, Expand All...) -
+								// mis-routing it into the natural-content measurement branch instead,
+								// which then measures Note's own full unwrapped BBCode/HTML content in an
+								// unconstrained clone (routinely 1000s of px) and locks the column there.
+								// Deciding the column's kind once, on first sight, into a data attribute -
+								// same pattern data-epesi-orig-percent already uses for the percent value
+								// itself just below - keeps every later run trusting that original
+								// classification instead of re-deriving it from this script's own prior
+								// output.
+								"var colKind=th.getAttribute('data-epesi-col-kind');".
+								"if(colKind===null){".
+									"var raw0=th.getAttribute('width')||th.style.width||'';".
+									"colKind=(raw0.indexOf('%')===-1&&/(em|px|rem)$/.test(raw0))?'absolute':'percent';".
+									"th.setAttribute('data-epesi-col-kind',colKind);".
+								"}".
+								"if(colKind==='absolute'){".
+									"var idxAbs=cellIndexOf(th);".
+									"var fwAbs=0;".
+									"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
+										"var cell=row.children[idxAbs];".
+										"if(!cell)return;".
+										"var wAbs=naturalWidth(cell);if(wAbs>fwAbs)fwAbs=wAbs;".
+									"});".
+									"var awPx=fwAbs>0?Math.ceil(fwAbs+6):(parseFloat(th.style.width)||th.getBoundingClientRect().width||0);".
+									"th.style.width=awPx+'px';".
+									"fixedWidth+=awPx;".
+								"}else{".
+									"var stored=th.getAttribute('data-epesi-orig-percent');".
+									"var p=stored!==null?parseFloat(stored):(parseFloat(th.getAttribute('width')||th.style.width||'0')||0);".
+									"if(stored===null)th.setAttribute('data-epesi-orig-percent',p);".
+									"percentCols.push(th);".
+									"percents.push(p);".
+									"totalPercent+=p;".
+								"}".
 							"}else{".
 								"var idx=cellIndexOf(th);".
 								// Below the mobile breakpoint this whole column is hidden
