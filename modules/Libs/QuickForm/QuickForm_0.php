@@ -169,6 +169,7 @@ class Libs_QuickForm extends Module {
 		$elem = null;
 		if(!isset($v['param'])) $v['param']=null;
 		if(!isset($v['values'])) $v['values']=null;
+		if(!isset($v['label'])) $v['label']=null;
 		switch($v['type']){
 			case 'select':
 				// Same opt-in-by-default treatment as the 'epesi-switch' class
