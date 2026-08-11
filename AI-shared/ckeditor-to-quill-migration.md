@@ -220,3 +220,26 @@ unchanged (still a single fixed preset per render, no switch).
   `setQuillProps(...)` call. The per-user `Base_User_SettingsCommon` 'editor'
   (Simple/Advanced) setting still picks the *starting* toolbar unchanged - the switch is
   purely a live, session-only override on top, not a replacement for that setting.
+
+**Bug found and fixed while testing this**: the Advanced preset's header group in
+`toolbarAdvanced()` was `array('header'=>array(1,2,3,false))` - NOT wrapped in its own
+array. Quill's toolbar builder decides whether `modules.toolbar.container` is "a list of
+groups" or "one flat group" by checking `Array.isArray(groups[0])` - since our
+`groups[0]` was a plain object (`{header:[1,2,3,false]}`), not an array, that check fails
+and Quill silently reinterprets the *entire* 8/9-entry toolbar array as a single flat
+group. Every other group (each itself a real array, e.g. `["bold","italic",...]`) then
+gets treated as one bogus control named by its first numeric key ("format 0"), and only
+the header `<select>` renders - as an unstyled native dropdown too, since the pickers-
+upgrade step never got that far. This is why the Advanced toolbar showed only a plain
+"Normal" dropdown and nothing else, in both light and dark mode - not a CSS/theme issue,
+a config-shape bug. It predates today's switch button (same array since the original
+2026-08-11 migration) but was never caught live because Notes always defaulted to Basic
+and the other 3 call sites' Advanced rendering was never independently screenshotted (see
+"Verification" section above - the isolated-instance test that claimed "zero console
+warnings" evidently used a differently-shaped config than what actually shipped). Fixed
+by wrapping: `array(array('header'=>array(1,2,3,false)))`, matching Quill's own canonical
+`[[{header:[...]}], [...]]` shape. Confirmed live via Playwright (console warnings went
+from 8x "quill:toolbar ignoring attaching to nonexistent format 0" to zero, all 9 toolbar
+groups render, content survives a live switch) in both light and dark mode. Worth
+remembering if anyone hand-edits a Quill toolbar array again: a single-control group must
+still be wrapped in its own array, especially at index 0.

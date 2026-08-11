@@ -71,7 +71,7 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
 
     private function toolbarAdvanced() {
         return array(
-            array('header'=>array(1,2,3,false)),
+            array(array('header'=>array(1,2,3,false))), // must be its own one-item group (double-wrapped) - as the toolbar array's first element, an unwrapped {header:...} object fails Quill's Array.isArray(groups[0]) shorthand-detection check, which then silently reinterprets the *entire* toolbar array as one single flat group instead of a list of groups (each other group's own array becomes one bogus "format 0" control - "quill:toolbar ignoring attaching to nonexistent format 0" in the console - and only the header select ends up rendering)
             array('bold','italic','underline','strike'),
             array(array('color'=>array()),array('background'=>array())),
             array(array('list'=>'ordered'),array('list'=>'bullet')),
