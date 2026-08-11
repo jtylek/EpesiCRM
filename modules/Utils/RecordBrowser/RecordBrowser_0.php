@@ -1177,7 +1177,12 @@ class Utils_RecordBrowser extends Module {
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
                     Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
             } elseif($mode!='history') {
-                Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+                // queue=true (also on this method's other Save call sites below): a tap
+                // that lands while some unrelated Epesi.href() call is still in flight
+                // (e.g. this very form still loading on a slow mobile connection)
+                // otherwise gets silently and permanently dropped - no request, no
+                // error, no visual feedback - see get_submit_form_href()'s doc comment.
+                Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
                 Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
             }
             //Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
@@ -1621,7 +1626,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('select', 'search_priority', __('Search priority'), array(-2=>__('Lowest'),-1=>__('Low'), 0=>__('Default'), 1=>__('High'), 2=>__('Highest')));
         
 	if ($full_access) {
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 	} else {
 		$form->freeze();
 	}
@@ -1718,7 +1723,7 @@ class Utils_RecordBrowser extends Module {
         }
         $form->display();
 		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
-		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href(true, null, true));
 
         return true;
     }
@@ -1736,7 +1741,7 @@ class Utils_RecordBrowser extends Module {
         $textarea->setRows(12);
         $textarea->setCols(80);
 		if ($full_access) {
-			Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+			Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 		} else {
 			$form->freeze();
 		}
@@ -2305,7 +2310,7 @@ class Utils_RecordBrowser extends Module {
         	$form->autohide_fields($control_field, $row[$control_field] ?? null, $map);
         }
 
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		
         return true;
@@ -3088,7 +3093,7 @@ class Utils_RecordBrowser extends Module {
 		
 		$theme->display('edit_permissions');
 		Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		return true;
 	}

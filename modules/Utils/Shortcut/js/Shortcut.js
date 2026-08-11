@@ -45,6 +45,17 @@ shortcut = {
 			//Find Which key is pressed
 			if (e.keyCode) code = e.keyCode;
 			else if (e.which) code = e.which;
+			else return; // synthetic/IME keyboard event (common on mobile virtual
+			// keyboards) with neither property set - nothing to match a shortcut
+			// against, and referencing the unset global `code` below would throw a
+			// ReferenceError that aborts this handler entirely. Reported 2026-08-11:
+			// this listener has no disable_in_input equivalent for CKEditor's
+			// contenteditable iframe body (only checks tagName == INPUT/TEXTAREA),
+			// so it runs on every keystroke typed into a RecordBrowser rich-text
+			// field too - on Android this crashed on some virtual-keyboard
+			// keystrokes while typing a note, which (since nothing on the page
+			// catches it) can abort whatever else was mid-execution in that same
+			// call stack.
 			var character = String.fromCharCode(code);
             character = character.toLowerCase();
 			

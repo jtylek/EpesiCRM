@@ -4,6 +4,28 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence MIT
  */
+// TEMPORARY diagnostic (2026-08-11) for an in-progress mobile "Save does
+// nothing" investigation: an ActionBar button's onClick is a raw inline
+// attribute executed outside jQuery's ajax machinery entirely, so an
+// exception thrown there (before the click handler ever reaches
+// Epesi.request()) produces zero network activity and no console on a phone
+// with no devtools - completely silent. Surface it on-screen instead. Remove
+// once the root cause behind that investigation is found and fixed.
+var epesiDiagErrorsShown = {};
+window.onerror = function(message, source, lineno, colno, error) {
+	var msg = 'JS error: '+message+' ('+source+':'+lineno+':'+colno+')';
+	// dedupe by message text, not a one-shot flag: the same error re-firing on
+	// every keystroke (as one already has) would otherwise spam a popup per
+	// keystroke, but a *different* error - there is no guarantee only one bug
+	// is live at a time - would otherwise stay invisible for the rest of the
+	// page's life once the first one had already shown once.
+	if (epesiDiagErrorsShown[msg]) return false;
+	epesiDiagErrorsShown[msg] = true;
+	if (window.console && console.error) console.error(msg, error);
+	setTimeout(function() { alert(msg); }, 0);
+	return false;
+};
+
 // process.php hard-rejects any request missing the X-Client-ID header
 // (`die('alert(...)')`) - this is the one and only source of it now that
 // prototype.js (and the Ajax.Responders.register() hook it used to need) is
@@ -218,7 +240,26 @@ var Epesi = {
 			success: function(responseText) {
 				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
 				jQuery(document).trigger('e:loading');
-				eval(responseText);
+				// jQuery does not guard user callbacks: an uncaught exception here
+				// (a bug in this specific response's generated JS) propagates straight
+				// out of jQuery's internal resolve chain and skips 'complete' below,
+				// so Epesi.procOn is never decremented back - every future click then
+				// silently no-ops forever (Epesi._hrefGo()'s procOn>0 guard), since
+				// nothing about that looks like an error to the user: no failed
+				// request, no visible indicator change, just an app that stops
+				// responding to taps. Catch it so the app always recovers instead of
+				// getting permanently wedged by one bad response.
+				try {
+					eval(responseText);
+				} catch(e) {
+					if (window.console && console.error) console.error('Epesi.request: error evaluating response', e, responseText);
+					// message included inline (not just console) since mobile browsers
+					// have no visible console - this is often the only way to learn
+					// what broke.
+					var msg = 'An error occurred while processing the response: '+(e && e.message ? e.message : e)+'. Please try again.';
+					if (typeof epesi_alert === 'function') epesi_alert(msg);
+					else alert(msg);
+				}
 			},
 			complete: function(jqXHR) {
 				Epesi.procOn--;

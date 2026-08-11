@@ -29,9 +29,17 @@ $client_id_next = $client_id+1;
 $_SESSION['num_of_clients'] = $client_id_next;
 
 //DBSession::destroy_client(session_id(),$client_id);
-if($client_id-5>=0) {
-    EpesiSession::destroy_client(session_id(),$client_id-5);
-    $_SESSION['session_destroyed'][$client_id-5] = 1;
+// Window used to be 5, evicting the session bucket of any tab still open once 5
+// more index.php loads happened anywhere in this browser session (any tab, any
+// reload) - process.php then bounces that tab's next action (e.g. a RecordBrowser
+// Save) through the "too many tabs" recovery path, discarding whatever was being
+// submitted. On mobile this is easy to hit with perfectly normal use: Android
+// Chrome silently reloads backgrounded tabs under memory pressure, each reload
+// counting as a new generation even with only one or two tabs actually open. 25
+// keeps the same unbounded-growth protection while giving that far more headroom.
+if($client_id-25>=0) {
+    EpesiSession::destroy_client(session_id(),$client_id-25);
+    $_SESSION['session_destroyed'][$client_id-25] = 1;
 }
 session_commit();
 
