@@ -125,23 +125,3 @@
 	background-color: #d9f2df;
 }
 
-/* Touch tap target for tooltip-bearing links (tooltip.js's
-   epesi_tooltip_mobile_enhance() - see that function's own comment for why
-   this exists). Only ever created by that function, on (hover:none) devices,
-   so no media query is needed here to hide it on desktop - it's simply never
-   in the DOM there. Deliberately small/subtle rather than a standalone
-   full-size control: it's a secondary affordance trailing a same-size link
-   or icon, not a primary one. */
-.epesi-tooltip-mobile-trigger {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	margin-left: 4px;
-	padding: 0;
-	border: none;
-	background: transparent;
-	font-size: 0.85em;
-	color: #6c757d;
-	vertical-align: middle;
-	line-height: 1;
-}
