@@ -88,12 +88,17 @@
 
 .epesi-rv-tools a::before {
 	font-family: "bootstrap-icons";
-	/* 2rem (per an earlier round of this same request) read too big -
-	   settled on 1.5rem, still noticeably larger than this file's other
-	   icon glyphs (favourite/subscription/info/clipboard/history + each
-	   module's "New X" shortcuts are this screen's primary action row, not
-	   incidental decoration) without dominating the header. */
-	font-size: 1.5rem;
+	/* Was 1.5rem (2rem before that, per an earlier round of this same
+	   request) - per request, matched down to 1.25rem to read the same size
+	   as the ActionBar's own icons (.epesi-actionbar-btn .bi, Base/ActionBar/
+	   theme_adminltedark/default.css), reported as visibly bigger than that
+	   row despite sitting directly below it. */
+	font-size: 1.25rem;
+	/* Without this, the glyph's line box falls back to the inherited body
+	   line-height (>1), padding every icon top and bottom and making this
+	   row visibly taller than it needs to be - same line-height:1 the
+	   ActionBar rule above already uses for the same reason. */
+	line-height: 1;
 	color: #8b929a;
 }
 
