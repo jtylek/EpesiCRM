@@ -256,6 +256,30 @@
 	}
 }
 
+/* Same fullscreen treatment, landscape phones: the max-width query above
+   deliberately doesn't fire in landscape (a rotated phone is wider than
+   575.98px), so a phone turned sideways still gets the default centered
+   70%/900px-cap popup - with much less vertical room to work with in
+   landscape, that leaves it half cut-off rather than merely inset. Gated on
+   max-height instead of max-width, and scoped with orientation:landscape so
+   it doesn't also catch a portrait phone via some other short-viewport edge
+   case. 500px separates a phone's landscape height (~375-430px on current
+   hardware) from a landscape tablet's (768px+, iPad Mini and up), which
+   keeps enough room for the normal centered sizing and shouldn't be forced
+   fullscreen. */
+@media (max-height: 500px) and (orientation: landscape) {
+	#actionbar_launchpad.leightbox {
+		width: 100%;
+		max-width: 100%;
+		left: 0;
+		top: 0;
+		transform: none;
+		border-radius: 0;
+		height: 100vh;
+		max-height: 100vh;
+	}
+}
+
 /* ---- launchpad popup: sidebar-matching fixed grey scheme ----
  * Per request: unlike every other Leightbox popup app-wide (which keeps the
  * shared shell's own per-mode dark/light colors - Libs/Leightbox/
