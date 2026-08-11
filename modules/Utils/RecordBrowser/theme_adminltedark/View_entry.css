@@ -835,6 +835,29 @@
 	.Utils_RecordBrowser__View_entry .data {
 		flex-basis: 100%;
 	}
+
+	/* "* Indicates required fields." - low-value boilerplate that just eats
+	   space on a narrow screen; the header row already wraps around it (see
+	   .epesi-rv-header's flex-wrap above), so removing it doesn't reflow
+	   anything else. */
+	.epesi-rv-required {
+		display: none;
+	}
+
+	/* "Set CRM Filter" (CRM_Contacts' per-contact shortcut into the
+	   "Perspective" filter, ContactsCommon_0.php's $ret['new']['crm_filter'])
+	   - per request, Perspective isn't used on mobile, so this entry point
+	   into it is dropped from the toolbar on narrow screens same as
+	   .epesi-rv-required above. Scoped to .epesi-rv-crmfilter specifically
+	   (added to that one anchor in ContactsCommon_0.php) rather than the
+	   generic ".epesi-rv-tools a:not(:has(img))" bare-text-link selector
+	   already used to glyph-ify it above - that selector also matches
+	   Utils_Attachment's unrelated "File history" link (same bare-"F",
+	   no-<img> shape, different feature entirely), which must stay visible.
+	*/
+	.epesi-rv-tools a.epesi-rv-crmfilter {
+		display: none;
+	}
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */

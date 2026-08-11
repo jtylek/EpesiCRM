@@ -33,9 +33,11 @@
 	   request - it was sharing .epesi-rv-tools' right-aligned flex row with
 	   the icon tooltips, so it always ended up glued to the icons instead of
 	   acting as an independent page note. *}
+	{if $required_note}
 	<div class="epesi-rv-required">
 		*&nbsp;{$required_note}
 	</div>
+	{/if}
 	<div class="epesi-rv-tools">
 		{if isset($subscription_tooltip)}
 			{$subscription_tooltip}

@@ -1373,7 +1373,11 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
-        $theme->assign('required_note', __('Indicates required fields.'));
+        // Only meaningful while fields are actually editable - view/history mode
+        // has no required-vs-optional distinction to explain, so leave it unset
+        // rather than showing a "* Indicates required fields." note above a
+        // read-only record.
+        $theme->assign('required_note', (self::$mode=='add' || self::$mode=='edit') ? __('Indicates required fields.') : '');
 
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);

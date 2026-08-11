@@ -1042,7 +1042,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             else $cus[] = 'contact/'.$values['id'];
             $ret = array();
 			$ret['new'] = array();
-			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
+			$ret['new']['crm_filter'] = '<a class="epesi-rv-crmfilter" '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
 			if (isset($_REQUEST['set_crm_filter']))
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
 			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';

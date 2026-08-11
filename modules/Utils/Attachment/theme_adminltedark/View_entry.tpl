@@ -159,7 +159,7 @@
 {if $main_page}
 <div class="epesi-rv-header">
 	<div class="epesi-rv-tools">
-		*&nbsp;{$required_note}
+		{if $required_note}*&nbsp;{$required_note}{/if}
 		{if isset($subscription_tooltip)}
 			{$subscription_tooltip}
 		{/if}
