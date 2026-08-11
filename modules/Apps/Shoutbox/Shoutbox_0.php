@@ -93,6 +93,15 @@ class Apps_Shoutbox extends Module {
 
 		$qf->setDefaults(array('from_date'=>$from_date,'to_date'=>$to_date,'user'=>$user,'perspective'=>$perspective, 'show'=>$show));
 
+		// One card around the filters toggle/form AND the message list below
+		// (closed after display_module($gb) further down) so History reads as
+		// a single unit, same as Chat's own compose+board card - GenericBrowser
+		// still renders its own nested ".epesi-gb.card" inside here, stripped
+		// down to a borderless/shadowless/marginless shell by
+		// theme_adminltedark/chat_form.css's own ".epesi-shoutbox-history"
+		// rules so it merges into this outer card instead of nesting visibly.
+		print '<div class="card epesi-shoutbox-card mb-3"><div class="card-body">';
+
 		// Bootstrap's own collapse component (native to adminlte.min.js, see
 		// CLAUDE.md's "prefer native attributes over hand-rolled listeners")
 		// toggles the card; the label swap is pure CSS keyed off the
@@ -166,21 +175,18 @@ class Apps_Shoutbox extends Module {
 				// Same sender/recipient badge shape as refresh.php's Chat feed -
 				// one combined pill, "-> recipient" only for a private message,
 				// omitted entirely for a public/all one (not a separate "[All]"
-				// column like the old table layout showed).
-				$user_label = Base_UserCommon::get_user_label($row['base_user_login_id']);
+				// column like the old table layout showed). nolink=true (unlike
+				// the old table layout's plain get_user_label() call) - per
+				// request, drops CRM_Contacts' own hover-tooltip+click-through
+				// link that get_user_label() bundles together with no way to
+				// keep one without the other; Chat's own badge (refresh.php's
+				// create_write_to_link()) already passes nolink=true for the
+				// same reason, just replacing the dropped link with its own
+				// "click name to add as chat recipient" one instead.
+				$user_label = Base_UserCommon::get_user_label($row['base_user_login_id'], true);
 				if ($row['to_user_login_id']!==null) {
-					$user_label .= ' -> '.Base_UserCommon::get_user_label($row['to_user_login_id']);
+					$user_label .= ' -> '.Base_UserCommon::get_user_label($row['to_user_login_id'], true);
 				}
-
-				// Same age-fade bucketing as refresh.php's Chat feed, so an old
-				// History message fades the same way an old Chat one does.
-				$daydiff = floor((time()-strtotime($row['posted_on']))/86400);
-				$age_class = match (true) {
-					$daydiff<1 => 'shoutbox-age-0',
-					$daydiff<3 => 'shoutbox-age-1',
-					$daydiff<7 => 'shoutbox-age-2',
-					default => 'shoutbox-age-3',
-				};
 
 				$action_html = '';
 				if (Apps_ShoutboxCommon::can_delete_msg($row)) {
@@ -195,13 +201,15 @@ class Apps_Shoutbox extends Module {
 					'value'=>'<span class="author border_radius_3px dark_blue_gradient">'.$user_label.'</span>'
 						.'<span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on']).']</span>'
 						.$action_html
-						.'<br/><span class="shoutbox_textbox '.$age_class.'">'.Apps_ShoutboxCommon::format_message($row, false, $shoutbox_admin).'</span>',
+						.'<br/><span class="shoutbox_textbox">'.Apps_ShoutboxCommon::format_message($row, false, $shoutbox_admin).'</span>',
 					'overflow_box'=>false,
 				));
 			}
 
 		$gb->set_inline_display(true);
 		$this->display_module($gb);
+
+		print '</div></div>';
 		return true;
 	}
 

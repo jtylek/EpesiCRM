@@ -123,13 +123,15 @@
 	margin: 0.4rem 0;
 }
 
-/* refresh.php fades older messages by tagging them with one of these classes
- * instead of the default theme's inline color - dark-appropriate shades so
- * even the oldest messages stay legible on #shoutbox_board_big's dark background. */
-#shoutbox_board_big .shoutbox-age-0 { color: #f8f9fa; }
-#shoutbox_board_big .shoutbox-age-1 { color: #ced4da; }
-#shoutbox_board_big .shoutbox-age-2 { color: #adb5bd; }
-#shoutbox_board_big .shoutbox-age-3 { color: #6c757d; }
+/* Per request, messages no longer fade with age - a single static color instead,
+ * legible on #shoutbox_board_big's dark background. Same #00ff00 GenericBrowser's
+ * own theme (theme_adminltedark/default.css) already gives every History message
+ * in dark mode - see chat_form.css's own longer comment on its matching
+ * #shoutbox_board rule for why this now deliberately matches that instead of a
+ * separate #f8f9fa. */
+#shoutbox_board_big .shoutbox_textbox {
+	color: #00ff00;
+}
 
 /* "Send message to all?" confirm popup (Shoutbox_0.php::chat(), Bootstrap
  * modal #Apps_Shoutbox__confirm_all_modal) - injected once into <body>,
@@ -180,7 +182,13 @@
   border-top: 1px solid #e9ecef;
 }
 
-[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-0 { color: #000000; }
-[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-1 { color: #444444; }
-[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-2 { color: #888888; }
-[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-3 { color: #AAAAAA; }
+/* #shoutbox_board_big's own bare ".shoutbox_textbox" rule above (dark mode's
+ * #00ff00) has no [data-bs-theme] qualifier of its own, so it applied
+ * unconditionally, including in light mode - reported as message text almost
+ * unreadable against the light board background above. #212529, not a plainer
+ * #000, to exactly match History's own light-mode message color (see
+ * chat_form.css's matching rule for the full reasoning). */
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox_textbox {
+  color: #212529;
+}
+
