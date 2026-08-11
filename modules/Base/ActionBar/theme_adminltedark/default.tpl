@@ -31,6 +31,7 @@
 		'print'     => 'bi-printer',
 		'clone'     => 'bi-files',
 		'settings'  => 'bi-gear',
+		'login-as'  => 'bi-person-circle',
 		'scan'      => 'bi-upc-scan',
 		'filter'    => 'bi-funnel',
 		'retry'     => 'bi-arrow-repeat',

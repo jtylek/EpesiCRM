@@ -324,7 +324,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
         Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		if(Base_AclCommon::i_am_sa() && $edit_id>=0)
-			Base_ActionBarCommon::add('settings', __('Log as user'), $this->create_callback_href($this->log_as_user(...),$edit_id));
+			Base_ActionBarCommon::add('login-as', __('Log as user'), $this->create_callback_href($this->log_as_user(...),$edit_id));
 			
 		return true;
     }

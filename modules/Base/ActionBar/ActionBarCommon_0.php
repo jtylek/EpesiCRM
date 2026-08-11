@@ -50,6 +50,13 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'print'		=> 14,
 			'clone'		=> 15,
 			'settings'	=> 16,
+			// CRM_ContactsCommon's / Administrator_0's "Log as user" used the
+			// 'settings' key outright (gear icon, indistinguishable from a real
+			// Settings action) - own key now, same sprite position as 'settings'
+			// so the legacy theme is unaffected; only the AdminLTE theme's
+			// icon_map (Base_ActionBar/theme_adminltedark/default.tpl) points
+			// this at a distinct glyph (bi-person-circle).
+			'login-as'	=> 16,
 			'scan'		=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,
