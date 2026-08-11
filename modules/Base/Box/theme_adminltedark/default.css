@@ -414,7 +414,17 @@ body {
    --epesi-actionbar-height are kept in sync with the actual rendered
    elements by the ResizeObserver in Base_Box/theme_adminlte/default.tpl -
    this bar's own height is content-dependent (a screen's action list varies),
-   so it can't be a fixed guess any more than the navbar's height could. */
+   so it can't be a fixed guess any more than the navbar's height could.
+
+   Stays .app-content-header (not #ActionBar) here specifically so the
+   below-991.98px/sidebar-collapse "left: 0" overrides further down this
+   file - same selector, same specificity, later in the cascade - keep
+   winning by source order as intended; an earlier attempt at this fix
+   raised only this whole block to #ActionBar and that extra specificity
+   made this rule's own left:var(--epesi-sidebar-width) beat those mobile
+   overrides too, floating the bar off in a shrunk box on the right instead
+   of spanning full width. See the padding rule right below for the actual
+   fix and why it has to be scoped narrower than this. */
 .epesi-adminlte .app-content-header {
 	position: fixed;
 	top: var(--epesi-header-height);
@@ -428,10 +438,29 @@ body {
 	   plain CSS drop shadow gets the same "floating above the content"
 	   effect without needing image assets. */
 	box-shadow: 0 2px 4px var(--epesi-shadow-color);
-	padding: 0.15rem 0;
 	/* transform: only ever animated by body.epesi-topbar-hidden below lg -
 	   see the "hide on scroll" block further down. */
 	transition: left 0.25s ease-in-out, transform 0.25s ease-in-out;
+}
+
+/* #ActionBar (the id default.tpl already puts on this same element, also
+   used as a JS hook elsewhere - see the empty-actionbar comment further
+   down) rather than the .app-content-header class above: AdminLTE's own
+   adminlte.min.css carries `.app-main .app-content-header{padding:1rem
+   .5rem}`, the exact same specificity (two classes) the padding declaration
+   used to have when it lived in the block above - and that vendor
+   stylesheet's <link> loads after this one (Base_Box's own bundle goes out
+   first, then the shared bootstrap+adminlte bundle - see default.tpl's
+   asset list), so on an equal-specificity tie the vendor rule won by source
+   order alone, silently overriding this padding to a full 1rem/16px
+   top+bottom (0.5rem/8px left+right) - reported as a visibly over-tall
+   ActionBar, most noticeable on mobile where every pixel of vertical screen
+   space is scarce. The id bumps just this property's specificity above any
+   class-only vendor selector regardless of load order, without affecting
+   the position/left cascade the block above still needs to win by order
+   (see that block's own comment on why it can't also move to #ActionBar). */
+.epesi-adminlte #ActionBar {
+	padding: 0.15rem 0;
 }
 
 .epesi-adminlte .app-content {
