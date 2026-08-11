@@ -435,7 +435,7 @@ class Base_User_Settings extends Module {
             }
         }
 
-        ksort($modules);
+        uksort($modules,strcasecmp(...));
 
         $buttons = array();
         foreach($modules as $caption=>$arg) {
