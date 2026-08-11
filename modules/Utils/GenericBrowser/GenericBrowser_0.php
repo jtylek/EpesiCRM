@@ -1044,7 +1044,7 @@ class Utils_GenericBrowser extends Module {
             eval_js('gb_show_hide_buttons("'.$md5_id.'")');
         }
 
-		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'>' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '&nbsp;&nbsp;&nbsp;<img src="' . Base_ThemeCommon::get_template_file($this -> get_type(), 'advanced.png') . '" width="8px" height="20px" border="0" style="vertical-align: middle;"></a>');
+		if ($search_on) $theme->assign('adv_search','<a id="switch_search_'.($this->is_adv_search_on()?'simple':'advanced').'" class="button" '.$this->create_unique_href(array('adv_search'=>!$this->is_adv_search_on())).'><i class="bi bi-search"></i> ' . ($this->is_adv_search_on()?__('Simple Search'):__('Advanced Search')) . '</a>');
 		else $theme->assign('adv_search','');
 
 		if (Base_User_SettingsCommon::get(Utils_GenericBrowser::module_name(),'adv_history') && $is_order){
