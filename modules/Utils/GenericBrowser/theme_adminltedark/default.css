@@ -707,6 +707,26 @@
 	content: "\f759";
 }
 
+/* Utils_Attachment's own "Copy link"/"Cut" row actions (Attachment_0.php's
+   copy()/cut(), used e.g. by the Notes applet's attachment list) - same
+   "blanket display:none with no ::before glyph" gap as CRM_Mail's copy
+   action above, just for Attachment's own theme copy of copy_small.png
+   (modules/Utils/Attachment/theme/copy_small.png, a different resolved path
+   from CRM_Mail's so scoping by "Attachment" here doesn't touch the Mail
+   rule above) plus cut_small.png, which had no rule at all. Both of these
+   are "extra" actions per isCoreAction() in Base_Box/theme_adminltedark/
+   default.tpl, so they only ever render inside the #epesi-gb-actions-menu
+   flyout, not the table's own actions column - without a glyph they showed
+   as a blank clickable box in that panel (reported: "white box with no
+   icons"). bi-link (\f471) for Copy link, bi-scissors (\f528) for Cut. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Attachment"][src*="/copy_small.png"])::before {
+	content: "\f471";
+}
+
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Attachment"][src*="/cut_small.png"])::before {
+	content: "\f528";
+}
+
 /* Per-row "more"/"less" expand/collapse toggles (GenericBrowser_0.php's
    __add_row_action() with plus_gray.png/minus_gray.png - not one of the
    "known keyword" action icons above, so without these two rules they'd
