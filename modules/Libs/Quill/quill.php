@@ -56,25 +56,51 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
     }
 
     function setToolbarPreset($bAdvanced) {
-        if ($bAdvanced) {
-            $this->config['toolbar'] = array(
-                array('header'=>array(1,2,3,false)),
-                array('bold','italic','underline','strike'),
-                array(array('color'=>array()),array('background'=>array())),
-                array(array('list'=>'ordered'),array('list'=>'bullet')),
-                array(array('indent'=>-1),array('indent'=>1)), // must be JS numbers, not strings - Quill's own toolbar/format matching is type-strict and silently no-ops on a string ("quill:toolbar ignoring attaching to nonexistent format" in the console) rather than erroring
-                array('blockquote','code-block'),
-                array('link','image'),
-                array('clean'),
-            );
-        } else {
-            $this->config['toolbar'] = array(
-                array('bold','italic','underline'),
-                array(array('list'=>'ordered'),array('list'=>'bullet')),
-                array('link'),
-                array('clean'),
-            );
-        }
+        $this->config['advanced'] = $bAdvanced;
+        $this->config['toolbar'] = $bAdvanced ? $this->toolbarAdvanced() : $this->toolbarBasic();
+    }
+
+    private function toolbarBasic() {
+        return array(
+            array('bold','italic','underline'),
+            array(array('list'=>'ordered'),array('list'=>'bullet')),
+            array('link'),
+            array('clean'),
+        );
+    }
+
+    private function toolbarAdvanced() {
+        return array(
+            array('header'=>array(1,2,3,false)),
+            array('bold','italic','underline','strike'),
+            array(array('color'=>array()),array('background'=>array())),
+            array(array('list'=>'ordered'),array('list'=>'bullet')),
+            array(array('indent'=>-1),array('indent'=>1)), // must be JS numbers, not strings - Quill's own toolbar/format matching is type-strict and silently no-ops on a string ("quill:toolbar ignoring attaching to nonexistent format" in the console) rather than erroring
+            array('blockquote','code-block'),
+            array('link','image'),
+            array('clean'),
+        );
+    }
+
+    // Adds a live "switch toolbar" button (mirrors CKEditor's old toolbarswitch
+    // plugin, not ported when this element replaced ckeditor.php - see
+    // AI-shared/ckeditor-to-quill-migration.md's "Not ported" note) that lets the
+    // user flip between the Basic and Advanced presets for just this instance,
+    // without touching their saved Base_User_SettingsCommon 'editor' default -
+    // the starting toolbar is still whatever setQuillProps()/setToolbarPreset()
+    // was called with. Must be called after setQuillProps() so $this->config
+    // ['advanced'] already reflects the intended starting state.
+    function enableToolbarSwitch() {
+        $basic = $this->toolbarBasic();
+        $basic[] = array('switchtoolbar');
+        $advanced = $this->toolbarAdvanced();
+        $advanced[] = array('switchtoolbar');
+        $this->config['toolbarBasic'] = $basic;
+        $this->config['toolbarAdvanced'] = $advanced;
+        $this->config['toolbar'] = !empty($this->config['advanced']) ? $advanced : $basic;
+        $this->config['switchable'] = true;
+        $this->config['switchTitleToAdvanced'] = __('Switch to advanced toolbar');
+        $this->config['switchTitleToBasic'] = __('Switch to basic toolbar');
     }
 
     function setConfig(array $conf) {
@@ -113,9 +139,16 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
             $style = '';
             if (!empty($this->config['width'])) $style .= 'width:'.self::to_css_length($this->config['width']).';';
             if (!empty($this->config['height'])) $style .= 'height:'.self::to_css_length($this->config['height']).';';
-            eval_js('quills_hib["'.$id.'"]='.json_encode(array(
-                'toolbar' => $this->config['toolbar'],
-            )));
+            $hib = array('toolbar' => $this->config['toolbar']);
+            if (!empty($this->config['switchable'])) {
+                $hib['switchable'] = true;
+                $hib['advanced'] = !empty($this->config['advanced']);
+                $hib['toolbarBasic'] = $this->config['toolbarBasic'];
+                $hib['toolbarAdvanced'] = $this->config['toolbarAdvanced'];
+                $hib['switchTitleToAdvanced'] = $this->config['switchTitleToAdvanced'];
+                $hib['switchTitleToBasic'] = $this->config['switchTitleToBasic'];
+            }
+            eval_js('quills_hib["'.$id.'"]='.json_encode($hib));
             // Hidden input carries the value through form serialization exactly like
             // the textarea it replaces did for CKEditor - qu.js keeps it synced from
             // the live Quill instance (on every edit, and again right before

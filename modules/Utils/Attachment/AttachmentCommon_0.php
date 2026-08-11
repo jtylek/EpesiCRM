@@ -487,6 +487,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
             $fck = $form->addElement('quill', $field, $label);
             $fck->setQuillProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            $fck->enableToolbarSwitch();
 
             $form->setDefaults(array($field=>$default));
         } else {

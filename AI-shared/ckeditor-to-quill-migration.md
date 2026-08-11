@@ -194,6 +194,29 @@ lowest risk of the three).
 
 ## Progress
 
-Done, 2026-08-11, on branch `ckeditor-to-quill`. Not yet merged to `jasiek`/`main`; not
-yet committed (working tree only) - holding for explicit commit approval per this user's
-standing preference.
+Merged into `jasiek` as `8d47bec1` ("Replace CKEditor with Quill for all rich-text
+fields") - the line above ("not yet merged... holding for commit approval") is stale,
+left for history.
+
+## Follow-up: toolbar switch button restored, Notes only (2026-08-12)
+
+The "not ported" live toolbar-switch button (above) got asked for back, scoped to the
+Notes field (`Utils_Attachment::QFfield_note`) only - the other 3 call sites are
+unchanged (still a single fixed preset per render, no switch).
+
+- `quill.php`: `toolbarBasic()`/`toolbarAdvanced()` split out of `setToolbarPreset()` as
+  private helpers; new `enableToolbarSwitch()` appends a `'switchtoolbar'` button group
+  to both arrays and emits both plus translated title strings into the `quills_hib[id]`
+  JS config when set. Must be called after `setQuillProps()` (reads
+  `$this->config['advanced']` to know the starting preset).
+- `qu.js`: registers a custom three-dot icon on `Quill.import('ui/icons')` once
+  (globally, matches `.ql-fill` styling so `theme.css`'s toolbar-invert dark-mode filter
+  themes it for free); `quill_switch_toolbar(key)` destroys/recreates the instance
+  against the alternate toolbar array, same destroy-and-rebuild technique
+  `quill_teardown`/the `e:load` hibernate path already used - Quill has no API to swap a
+  running instance's toolbar config in place, same limitation CKEditor's own
+  `ckeditor_reload()` worked around.
+- Notes call site: `$fck->enableToolbarSwitch();` added right after the existing
+  `setQuillProps(...)` call. The per-user `Base_User_SettingsCommon` 'editor'
+  (Simple/Advanced) setting still picks the *starting* toolbar unchanged - the switch is
+  purely a live, session-only override on top, not a replacement for that setting.
