@@ -1506,9 +1506,15 @@ class Utils_RecordBrowser extends Module {
                 $form->setDefaults(array($desc['id']=>$record[$desc['id']]));
                 continue;
             }
-            // is set then hide empty fields that are not checkboxes
-			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
-				eval_js('var e=document.getElementById("_'.$desc['id'].'__data");if(e){var r=e.closest(".epesi-rv-row");if(r)r.style.display="none";}');
+            // Always tag an empty (non-checkbox) field's row with a class in view mode,
+            // regardless of the 'hide_empty' setting below - View_entry.css's own
+            // 991.98px sidebar-collapse media query uses it to auto-hide empty fields
+            // on narrow/mobile viewports for everyone, independent of this per-user
+            // desktop preference. If the setting IS on, also hide it immediately via
+            // inline style, same as before, so it stays hidden at every width.
+			if ($mode == 'view' && $desc['type'] != 'checkbox' && $this->field_is_empty($record, $desc['id'])) {
+				$hide_now = Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') ? 'r.style.display="none";' : '';
+				eval_js('var e=document.getElementById("_'.$desc['id'].'__data");if(e){var r=e.closest(".epesi-rv-row");if(r){r.classList.add("epesi-rv-empty");'.$hide_now.'}}');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL

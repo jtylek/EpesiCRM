@@ -847,6 +847,24 @@
 	}
 }
 
+/* Per request: once the sidebar itself goes off-canvas (Base_Box's own
+   991.98px sidebar-collapse breakpoint - Base/Box/theme_adminltedark/
+   default.css/default.tpl), automatically hide empty fields to save the
+   vertical space they'd otherwise waste on a narrow screen - independent of
+   the per-user "Hide empty fields" RecordBrowser setting
+   (Utils_RecordBrowserCommon.php's 'hide_empty'), which only does this at
+   every width once a user opts in. RecordBrowser_0.php's own
+   prepare_view_entry_details() always tags an empty (non-checkbox) field's
+   .epesi-rv-row with .epesi-rv-empty in view mode regardless of that
+   setting; this rule is what actually hides it, and only below this
+   breakpoint - a user who hasn't touched the setting still sees every field
+   on desktop, exactly as before. */
+@media (max-width: 991.98px) {
+	.Utils_RecordBrowser__View_entry .epesi-rv-row.epesi-rv-empty {
+		display: none;
+	}
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-rv-tools {
   color: #6c757d;
