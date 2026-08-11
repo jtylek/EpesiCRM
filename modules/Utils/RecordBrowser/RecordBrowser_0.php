@@ -2041,8 +2041,8 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
-        $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
-        $ck->setFCKProps(null, null, false);
+        $ck = $form->addElement('quill', 'help', __('Help Message'));
+        $ck->setQuillProps(null, null, false);
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced', 'class'=>'epesi-switch'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';

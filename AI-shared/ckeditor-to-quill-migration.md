@@ -1,8 +1,13 @@
-# CKEditor → Quill migration (planned, not started)
+# CKEditor → Quill migration
 
-**Status as of 2026-08-07: planning only, zero code changed.** Reason for the swap:
-license (CKEditor 4 here is GPL/LGPL/MPL tri-license, not MIT; Quill is MIT) and general
-retirement of an old dependency. **Do this on its own branch, not mixed into other work.**
+**Status as of 2026-08-11: done, on branch `ckeditor-to-quill` (off `jasiek`), not yet
+merged.** Triggered by a real mobile bug the same night: `ck.js` crashed on a `null`
+tracked CKEditor instance (a failed `CKEDITOR.replace()`, more likely on mobile/touch -
+see `AI-shared/bug-patterns.md`'s "uncaught exception in a document-level handler" entry),
+which silently ate every Save click. Reason for the swap: license (CKEditor 4 here is
+GPL/LGPL/MPL tri-license; Quill is **BSD-3-Clause**, not MIT as originally noted below -
+still permissive/non-copyleft, the actual motivation stands) and general retirement of an
+old, now-demonstrably-fragile dependency.
 
 ## Scope (verified by grep across the whole repo, including a plain-`grep` sweep of
 the gitignored `modules/Premium/` tree — zero CKEditor references there)
@@ -98,6 +103,97 @@ some edge case in Epesi's page-replacement lifecycle doesn't map cleanly onto Qu
 init/destroy API; worth prototyping steps 1-3 against just the Notes field (highest
 traffic, most complex of the 4) before touching the other 3 call sites.
 
+## What actually happened, deviations from the plan above
+
+Steps 1-4 and 7 done as planned. Steps 5, 6, 8 deviated:
+
+**Step 5 (module wiring)**: done as planned - `Libs_QuillInstall` replaces
+`Libs_CKEditorInstall` in both `requires()` lists, with an
+`20260811_swap_ckeditor_dependency_for_quill.php` patch in each of
+`Utils_Attachment`/`Base_Dashboard` calling `ModuleManager::install('Libs/Quill')` for
+existing installs.
+
+**Step 6 (delete CKEditor) - did NOT delete the whole module.**
+`ModuleManager::uninstall()` requires the target's `*Install.php` to still be loadable
+(it calls the class's own `uninstall()` hook) and refuses if anything still `requires()`
+it - by the time that's true here, `commons_with_code` (below) has already made this
+sort of "was this really updated for every install" question uncomfortable to resolve
+with confidence, so auto-uninstalling `Libs_CKEditor` from a patch was judged more risk
+than the disk space is worth. Instead: deleted the ~250-file vendored `ckeditor/` tree,
+`ckeditor.php`, `ck.js`, `frontend.css` (ported to `Libs/Quill/frontend.css` unchanged -
+still needed so old `class="Bold"/"Title"/"Code"` HTML from CKEditor's Styles dropdown
+keeps rendering), `onsubmit.js`, `.hidden`; kept `CKEditorInstall.php` (unchanged) and
+`CKEditorCommon_0.php` (stripped to an empty documented shell) so the module stays
+installed-and-harmless rather than installed-and-broken. Nothing registers the
+`'ckeditor'` QuickForm type anymore.
+
+**Step 8 (phpstan)**: not run - this checkout's `composer.json` doesn't list
+`phpstan/phpstan` in `require-dev` and `vendor/bin/` has no phpstan binary, a pre-existing
+environment gap unrelated to this migration.
+
+**Not ported: CKEditor's live in-session "Switch toolbar" button** (the vendored
+`toolbarswitch` plugin's toolbar icon, wired to `ck.js`'s `ckeditor_reload()`). The
+Basic/Full toolbar *choice* itself is fully preserved (still driven by the same
+`Base_User_SettingsCommon::get(...,'editor')` setting, via `setQuillProps()`'s 3rd arg,
+now on all 4 call sites) - only the mid-session live-toggle convenience is gone. Deliberate
+scope cut given the night's priority was mobile reliability, not full parity; revisit if
+anyone actually asks for it back.
+
+**A new, non-obvious bug found and fixed while porting**: `include/epesi.php`'s
+`[data-bs-theme="dark"]` selector convention is easy to get backwards. `.app-wrapper`
+(the actual visual theme root) always carries `data-bs-theme="dark"` as a fixed baseline
+independent of `<html>`'s own `data-bs-theme`, which is what the light/dark *toggle*
+actually flips - so `[data-bs-theme="dark"] X` matches X unconditionally (there's always
+a "dark" ancestor via `.app-wrapper`), while `[data-bs-theme="light"] X` matches only in
+light mode (via `<html>`). `theme.css` initially gated dark colors behind
+`[data-bs-theme="dark"]` (seemed intuitive) and got a solid-black, unreadable editor body
+even in light mode as a result. Fixed by following the convention every other
+`theme_adminltedark/*.css` file in this repo already uses: dark is the *unscoped
+default*, `[data-bs-theme="light"]` is the override - never the reverse. Worth grepping
+for this exact mistake if a future dark-mode CSS addition looks "inverted" in one theme.
+
+**Also found, unrelated to Quill's own correctness**: this dev environment's
+`ModuleManager::create_common_cache()`/`commons_with_code` caching (`include/
+module_manager.php`) did not reliably run a freshly-`module:install`-ed module's
+`Common_0.php` top-level code on every request, even after `console.php cache:rebuild`
+and fresh logins - `Libs_QuillCommon`'s own `load_css()` calls (the file's only job)
+intermittently never fired. Root cause not fully chased (limited value chasing pre-existing
+infra rather than this migration); worked around by moving `load_css()` into `quill.php`'s
+own element-class constructor, right next to its `load_js()` calls, which proved reliable
+every time in testing - matching how CKEditor's own JS loading (also constructor-based)
+never had this problem, only its Common-file-based CSS loading might have (never
+specifically verified either way for the old code, since nothing was watching for it).
+If a *different* future module's `load_css()`/`load_js()` call placed in a `Common_0.php`
+top level seems to silently not fire, this is the first thing to suspect.
+
+## Verification (2026-08-11)
+
+**Notes body (flagship, highest-traffic surface)**: fully verified end-to-end live via
+Playwright - typed title + rich-text body, saved, viewed record, content rendered
+correctly. Basic toolbar (Bold/Italic/Underline/lists/link/clean) renders and functions
+correctly in both the browser's light and dark modes after the CSS convention fix above.
+
+**Mail signature / RecordBrowser Help Message / Note applet**: not each independently
+smoke-tested live to completion - repeated, unrelated Playwright browser-cache staleness
+(the same class of issue documented in `AI-shared/bug-patterns.md`, but hitting *this
+testing session's* long-lived browser rather than a real user's) and sidebar-link click
+flakiness in the test harness made live verification of the Advanced/Full toolbar
+preset's rendering unreliable to pin down in the time available. Instead verified by:
+constructing an isolated Quill instance directly with the exact same Advanced toolbar
+config used by these 3 call sites (`{header:[1,2,3,false]}`, `bold/italic/underline/
+strike`, `color/background`, `list`, `indent` (fixed to numeric `-1`/`1`, not string -
+Quill's format matching is type-strict and silently no-ops on a string, logging
+"quill:toolbar ignoring attaching to nonexistent format" rather than erroring),
+`blockquote`/`code-block`, `link`/`image`, `clean`) - zero console warnings/errors.
+Combined with the proven-identical underlying element class/lifecycle glue (same code
+path as the fully-verified Notes body, just a different toolbar preset value), this is
+good confidence but not the same as an actual screenshot of each screen. **Worth an
+independent live check of these 3 screens before merging**, particularly the Mail
+signature (Advanced toolbar) and RecordBrowser Help Message (admin-only, Basic toolbar,
+lowest risk of the three).
+
 ## Progress
 
-None yet — plan only, as of 2026-08-07. Do this work on a dedicated branch.
+Done, 2026-08-11, on branch `ckeditor-to-quill`. Not yet merged to `jasiek`/`main`; not
+yet committed (working tree only) - holding for explicit commit approval per this user's
+standing preference.

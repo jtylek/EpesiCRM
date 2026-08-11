@@ -113,7 +113,7 @@ class Base_DashboardInstall extends ModuleInstall {
 			array('name'=>Libs_QuickFormInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TabbedBrowserInstall::module_name(),'version'=>0),
 			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0),
-			array('name'=>Libs_CKEditorInstall::module_name(),'version'=>0),
+			array('name'=>Libs_QuillInstall::module_name(),'version'=>0),
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),
 			array('name'=>Utils_TooltipInstall::module_name(),'version'=>0));
 	}

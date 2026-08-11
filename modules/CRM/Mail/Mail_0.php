@@ -40,8 +40,8 @@ class CRM_Mail extends Module {
 
 		$f->addElement('header',null,__('Outgoing mail global signature'));
 
-		$fck = & $f->addElement('ckeditor', 'content', __('Content'));
-		$fck->setFCKProps('800','300',true);
+		$fck = & $f->addElement('quill', 'content', __('Content'));
+		$fck->setQuillProps('800','300',true);
 
 		$f->setDefaults(array('content'=>Variable::get('crm_mail_global_signature',false)));
 

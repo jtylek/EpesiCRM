@@ -485,8 +485,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
         if ($mode=='add' || $mode=='edit') {
 
-            $fck = $form->addElement('ckeditor', $field, $label);
-            $fck->setFCKProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            $fck = $form->addElement('quill', $field, $label);
+            $fck->setQuillProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
 
             $form->setDefaults(array($field=>$default));
         } else {

@@ -1,0 +1,98 @@
+/* App integration for the vendored Quill snow theme (quill.snow.css, loaded
+ * unconditionally alongside this file - see quill.php's constructor). Not
+ * theme-scoped into theme/ vs theme_adminltedark/ folders like a normal
+ * rendering module's CSS, matching this module's CKEditor predecessor
+ * (frontend.css was flat/unconditional too).
+ *
+ * Dark is the *unscoped default* here, with [data-bs-theme="light"] as the
+ * override - not the other way around. `.app-wrapper` (the app's real visual
+ * theme root) carries data-bs-theme="dark" as its own fixed baseline
+ * independent of <html>'s own data-bs-theme, which is what the light/dark
+ * *toggle* actually flips - so `[data-bs-theme="dark"] X` matches X
+ * regardless of the user's chosen theme (there's always a "dark" ancestor
+ * via .app-wrapper), while `[data-bs-theme="light"] X` matches only when the
+ * user is in light mode (via <html>). Confirmed 2026-08-11: an initial
+ * [data-bs-theme="dark"]-gated version of this file rendered a solid black,
+ * unreadable editor body even in light mode, for exactly this reason. Same
+ * convention already established throughout theme_adminltedark/*.css - see
+ * e.g. modules/Base/Dashboard/theme_adminltedark/default.css.
+ */
+
+.epesi-quill-editor {
+	min-height: 150px;
+}
+
+.epesi-quill-frozen {
+	white-space: normal;
+}
+
+/* Quill's toolbar is a dense grid of individually-colored SVG icons
+ * (.ql-stroke/.ql-fill/etc, dozens of rules across quill.snow.css) - inverting the
+ * whole toolbar's colors is far more maintainable than re-declaring every one of
+ * those rules by hand, and reads correctly since the toolbar has no photographic
+ * content, only monochrome icon strokes/fills on a flat background. The editor
+ * body/dropdowns/link-tooltip aren't icon-heavy, so those get plain color
+ * overrides instead - an invert would make typed text unreadable.
+ */
+.ql-toolbar.ql-snow {
+	filter: invert(1) hue-rotate(180deg);
+	background-color: #2b3035;
+	border-color: #495057;
+}
+.ql-container.ql-snow {
+	border-color: #495057;
+}
+.ql-editor {
+	background-color: #2b3035;
+	color: #dee2e6;
+}
+.ql-editor.ql-blank::before {
+	color: #6c757d;
+}
+.ql-snow .ql-picker-options {
+	background-color: #2b3035;
+	border-color: #495057 !important;
+}
+.ql-snow .ql-tooltip {
+	background-color: #2b3035;
+	border-color: #495057;
+	color: #dee2e6;
+	box-shadow: none;
+}
+.ql-snow .ql-tooltip input[type="text"] {
+	background-color: #1a1d20;
+	color: #dee2e6;
+	border-color: #495057;
+}
+
+/* ==== light-mode override ==== */
+[data-bs-theme="light"] .ql-toolbar.ql-snow {
+	filter: none;
+	background-color: #fff;
+	border-color: #ccc;
+}
+[data-bs-theme="light"] .ql-container.ql-snow {
+	border-color: #ccc;
+}
+[data-bs-theme="light"] .ql-editor {
+	background-color: #fff;
+	color: #000;
+}
+[data-bs-theme="light"] .ql-editor.ql-blank::before {
+	color: rgba(0, 0, 0, 0.6);
+}
+[data-bs-theme="light"] .ql-snow .ql-picker-options {
+	background-color: #fff;
+	border-color: #ccc !important;
+}
+[data-bs-theme="light"] .ql-snow .ql-tooltip {
+	background-color: #fff;
+	border-color: #ccc;
+	color: #444;
+	box-shadow: 0 0 5px #ddd;
+}
+[data-bs-theme="light"] .ql-snow .ql-tooltip input[type="text"] {
+	background-color: #fff;
+	color: #444;
+	border-color: #ccc;
+}

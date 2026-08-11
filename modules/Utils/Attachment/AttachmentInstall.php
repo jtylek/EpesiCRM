@@ -155,7 +155,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
                  array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
 			     array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0),
-			     array('name'=>Libs_CKEditorInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_QuillInstall::module_name(), 'version'=>0),
 			     array('name'=>Libs_LeightboxInstall::module_name(), 'version'=>0),
 			     array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
 			     array('name'=>Utils_WatchdogInstall::module_name(), 'version'=>0),

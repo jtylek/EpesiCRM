@@ -290,7 +290,7 @@ class Epesi {
 		$t['datepicker']       = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
 		$t['timestamp']        = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
 		$t['currency']         = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
-		$t['ckeditor']         = array('modules/Libs/CKEditor/ckeditor.php','HTML_Quickform_ckeditor');
+		$t['quill']            = array('modules/Libs/Quill/quill.php','HTML_Quickform_quill');
 		$t['codepress']        = array('modules/Libs/Codepress/HTML_Quickform_codepress_0.php','HTML_Quickform_codepress');
 		$t['critsvalue']       = array('modules/Utils/QueryBuilder/quickform_crits.php','HTML_QuickForm_crits');
 	}
