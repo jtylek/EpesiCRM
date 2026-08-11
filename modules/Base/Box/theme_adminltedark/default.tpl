@@ -45,6 +45,45 @@
 		"})();"
 	);
 
+	// Narrow portrait phones collapse #ActionBar entirely when it has nothing
+	// but pinned Quick Access launcher icons in it (default.css's own
+	// "body.epesi-actionbar-empty" rule) - mainly a Dashboard thing, since
+	// that's normally the one screen with no screen actions of its own at
+	// all. An earlier version of that rule tried to stay CSS-only, keyed off
+	// data-module-type="Base_Dashboard" via :has(), with a second :not(:has(
+	// ...)) clause meant to keep the bar visible whenever a real action (e.g.
+	// config mode's own "Save", or an individual applet's Save/Back/Restore
+	// Defaults - Base_Dashboard/Dashboard_0.php's configure_applet()) was
+	// actually present - reported as still hiding the bar live regardless,
+	// for reasons never pinned down, so it was dropped in favour of
+	// unconditionally hiding on Dashboard, with Save becoming unreachable
+	// there below this breakpoint as a documented (not fixed) side effect.
+	// Same "CSS :has() chain silently failed in production" shape already
+	// hit once before for a near-identical reason (see the epesi-gb-actions-
+	// menu isCoreAction() block further down this file's own comments) -
+	// owning both ends of the check here instead removes that whole class of
+	// mismatch, and generalizing off "does the bar actually contain a real
+	// action button" rather than "is this Dashboard" makes the rule correct
+	// for any screen that happens to render with none, not just that one.
+	// MutationObserver instead of e:load: #ActionBar's own content is
+	// shell-adjacent, patched directly by Epesi's AJAX layer on navigation
+	// rather than necessarily going through the same "#content was replaced"
+	// event GenericBrowser tables rely on - watching the node itself is
+	// mechanism-agnostic, so this reacts correctly regardless of exactly how
+	// the update happened.
+	eval_js_once(
+		"(function(){".
+			"var bar=document.getElementById('ActionBar');".
+			"if(!bar)return;".
+			"function sync(){".
+				"var hasAction=!!bar.querySelector('.epesi-actionbar-group:not(.epesi-actionbar-launcher-group) .epesi-actionbar-btn');".
+				"document.body.classList.toggle('epesi-actionbar-empty',!hasAction);".
+			"}".
+			"sync();".
+			"new MutationObserver(sync).observe(bar,{childList:true,subtree:true});".
+		"})();"
+	);
+
 	// Below lg, the sidebar is an off-canvas overlay (see default.css) that
 	// stays open (body.sidebar-open) across a menu-driven navigation until
 	// the user explicitly closes it - since navigating IS what they were
@@ -67,24 +106,34 @@
 		"})();"
 	);
 
-	// Moves the Logout link (.logout_css3_box - Login_0.php now hands both
-	// themes plain data, not pre-built HTML, but its own default.tpl still
-	// assembles logged_as+logout into ONE combined string before Base_Box
-	// ever sees it as {$login} - that's a container-system boundary, not
-	// something Login_0.php's own markup controls) from the navbar's
-	// {$login} slot into the sidebar footer, per request. A DOM relocation
-	// since Base_Box can't address the logout half separately through the
-	// container system - moving the actual node post-render is the only way
-	// to send just it somewhere else. Runs once - the
-	// navbar/sidebar footer are shell chrome, not re-rendered by ordinary
-	// AJAX navigation (only #main_content swaps), so the moved node stays
-	// moved. See default.css for this element's now-generic (not #top_bar-
-	// scoped) styling, restyled for its new spot.
+	// Moves both halves of {$login} (.logged_as/"User <username>" and
+	// .logout_css3_box/Logout - Login_0.php now hands both themes plain
+	// data, not pre-built HTML, but its own default.tpl still assembles them
+	// into ONE combined string before Base_Box ever sees it as {$login} -
+	// that's a container-system boundary, not something Login_0.php's own
+	// markup controls) from the navbar's {$login} slot into the sidebar
+	// footer, per request (Logout moved there first, in an earlier request;
+	// .logged_as joined it later). A DOM relocation since Base_Box can't
+	// address either half separately through the container system - moving
+	// the actual nodes post-render is the only way to send them somewhere
+	// else. Runs once - the navbar/sidebar footer are shell chrome, not
+	// re-rendered by ordinary AJAX navigation (only #main_content swaps), so
+	// the moved nodes stay moved. Order matters: logout is inserted at
+	// footer.firstChild first (landing ahead of the color-mode toggle
+	// already there), then .logged_as is inserted at the new firstChild
+	// (landing ahead of logout) - final order is logged_as, logout, toggle.
+	// See Base_User_Login/theme_adminltedark/default.css for both elements'
+	// now-generic (not #top_bar-scoped) styling, restyled for their new spot,
+	// and Base_Box's own default.css for the .sidebar-footer layout rules
+	// (flex-wrap + .logged_as's own flex-basis:100%) that put .logged_as on
+	// its own line above logout/the toggle.
 	eval_js_once(
 		"(function(){".
+			"var login=document.querySelector('.logged_as');".
 			"var logout=document.querySelector('.logout_css3_box');".
 			"var footer=document.querySelector('.sidebar-footer');".
 			"if(logout&&footer)footer.insertBefore(logout,footer.firstChild);".
+			"if(login&&footer)footer.insertBefore(login,footer.firstChild);".
 		"})();"
 	);
 
@@ -92,9 +141,13 @@
 	// space on a phone/small-tablet screen, per request - reappearing only
 	// once scrolled back to the very top (not on scroll-up generally, which
 	// is the more common pattern for this kind of UI, but not what was
-	// asked for here). body.epesi-topbar-hidden (default.css) transforms
-	// both bars off-screen; .app-content-header's own transform distance
-	// reads --epesi-header-height/--epesi-actionbar-height (the same two
+	// asked for here). This was tried once before, reverted per request (in
+	// favour of keeping both bars permanently visible/fixed), and is back
+	// per a later request - see this file's git history for the earlier
+	// round if the reasoning below needs cross-checking again.
+	// body.epesi-topbar-hidden (default.css) transforms both bars
+	// off-screen; .app-content-header's own transform distance reads
+	// --epesi-header-height/--epesi-actionbar-height (the same two
 	// variables the ResizeObserver above keeps in sync) rather than a fixed
 	// guess, so it stays exactly off-screen regardless of how tall either
 	// bar actually renders. window.innerWidth is re-checked on every
@@ -808,16 +861,15 @@
 
 	<nav id="top_bar" class="app-header navbar navbar-expand nonselectable">
 		<div class="container-fluid">
+			{* $home (icon+"Home" label link to the Dashboard) dropped from this
+			   theme's navbar entirely, on every screen size, per request -
+			   Box_0.php still assigns it (shared with the default theme), it's
+			   just not rendered here any more. The sidebar's own Dashboard menu
+			   entry (Base_Menu) stays as the way back to it. *}
 			<ul class="navbar-nav align-items-center">
 				<li class="nav-item">
 					<a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="{'Toggle navigation'|t}">
 						<i class="bi bi-list"></i>
-					</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link home-bar" {$home.href}>
-						<i class="bi bi-house-door me-1"></i>
-						<span class="d-none d-sm-inline">{$home.label}</span>
 					</a>
 				</li>
 			</ul>
@@ -837,6 +889,25 @@
 				   keep the row to one line - Box_0.php still assigns it (shared
 				   with the default theme), it's just not rendered here. *}
 				<li class="nav-item login">{$login}</li>
+				{* Per request: a permanent navbar icon on both desktop and mobile,
+				   positioned as the last (rightmost) item in the row. Reuses
+				   Base_ActionBar's own "actionbar_launchpad" Leightbox popup rather
+				   than building a second one - any element with class="lbOn"
+				   rel="actionbar_launchpad" opens the same popup (leightbox.js's
+				   leightbox_reload() binds every ".lbOn" element in the DOM to its
+				   own "rel", not just one designated trigger), so this needs no new
+				   PHP/JS of its own. ActionBar_0.php's launchpad() no longer renders
+				   its own matching button under this theme (guarded by
+				   Base_ThemeCommon::is_adminlte_family()) - this navbar icon
+				   replaced it, so the ActionBar copy would otherwise be a second
+				   button opening the exact same popup. bi-grid-3x3-gap-fill matches
+				   Base_AdminlteIcons::resolve()'s 'launcher' mapping (adminlte_
+				   icons.php) - the same glyph that ActionBar button used to render. *}
+				<li class="nav-item epesi-launchpad-trigger">
+					<a class="nav-link lbOn" rel="actionbar_launchpad" href="javascript:void(0)" aria-label="{'Launchpad'|t}">
+						<i class="bi bi-grid-3x3-gap-fill"></i>
+					</a>
+				</li>
 			</ul>
 		</div>
 	</nav>
@@ -873,7 +944,7 @@
 		   default theme), just unused here now. The Logout link (relocated
 		   here by the eval_js_once above) shares this one-line row with the
 		   color-mode toggle below it. *}
-		<div class="sidebar-footer d-flex align-items-center justify-content-center gap-2 small">
+		<div class="sidebar-footer d-flex align-items-center justify-content-start gap-2 small">
 			{* adminltedark-only: a single icon-only toggle rather than the
 			   light/dark pair a dropdown would need. adminlte.min.js's built-in
 			   color-mode toggler ("Me" class) still does the actual work -

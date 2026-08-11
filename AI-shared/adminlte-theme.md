@@ -396,6 +396,52 @@ filter bar) — landed in `theme_adminlte/` first, then copied into the dark
 fork; that provenance is now purely historical since only the dark fork
 remains.
 
+**Touch devices: hold-to-preview collided with the native link context menu
+(2026-08-10).** The popup above is wired purely via `onmouseenter` — no
+touch handling anywhere. On a phone this meant a quick tap on a
+tooltip-bearing `<a>` just navigated before the popup could register, while a
+long-press synthesized `mouseenter` around the same hold duration the browser
+uses to decide "show the native context menu" (Open in New Tab/Copy Link/...)
+— so holding the link showed both the popup *and* the native menu at once.
+Neither `open_tag_attrs()` nor `ajax_open_tag_attrs()`'s own
+`if(MOBILE_DEVICE) return '';` guard helps here — `MOBILE_DEVICE` has been
+permanently `0` since `detect_mobile_device()` was deleted (see
+[[deliberate-removals]]'s "Legacy mobile system" entry), so every tooltip
+renders fully hover-wired even on a phone; that entry calls the remaining
+`MOBILE_DEVICE` checks app-wide "dead-but-harmless," which undersells this one
+specifically — its deadness is what let this bug happen.
+
+Fixed client-side only, in `tooltip.js`: `epesi_tooltip_mobile_enhance()` runs
+on `window` `load` and on `e:load` (idempotent via an
+`epesi-tooltip-mobile-done` marker class), and on any `(hover:none)` device,
+every `[data-epesi-tooltip="1"]` element that sits inside a real `<a href>`
+gets a small `.epesi-tooltip-mobile-trigger` button inserted right after that
+link (a sibling, not a child - nesting `<button>` inside `<a>` is invalid
+HTML) wired to the *same* `onmouseenter` handler the server already rendered
+(captured by reference before being cleared, not reimplemented). Tapping the
+button shows the popup without navigating; tapping the link itself navigates
+immediately like any ordinary link, since the link's own `onmouseenter` is
+nulled out so the browser's native hold gesture no longer triggers the popup
+at all. A deferred (`setTimeout`) document-level capture-phase click listener
+dismisses the popup on the next tap elsewhere, since `mouseleave` (the
+existing dismiss path, still used for real mouse hover) generally never fires
+on touch.
+
+**Follow-up: popup ran off the right edge on a phone (2026-08-10).** Tapping
+the new mobile trigger button above worked, but on a narrow viewport the
+popup's right edge extended past the screen — confirmed by screenshot (a
+"Project Name/Due Date/Description/..." record-info tooltip cut off
+mid-sentence). Root cause was in the CSS, not the JS: `.epesi-tooltip-popup`'s
+`max-width:480px` is sized for desktop, wider than most phone viewports.
+`epesi_tooltip_position()` (`tooltip.js`) can only ever slide the popup's
+*left* edge within `[4, innerWidth-width-4]` — once `width` alone already
+exceeds `innerWidth-8`, that range goes negative/empty and the clamp falls
+back to `left:4px` with the popup still wider than the screen, so the excess
+just runs off the right edge uncapped; no amount of JS repositioning can fix
+a box that's inherently wider than its container. Fixed by capping the width
+itself: `max-width: min(480px, calc(100vw - 16px))` — same 480px cap on
+desktop, shrinks to fit the viewport on a phone either way.
+
 ## Leightbox popups: fixed grey/black sidebar chrome convention (2026-08-08/09)
 
 Per explicit direction, Leightbox-based popups are being moved, one at a time
@@ -439,6 +485,80 @@ enough for the open list. Found and fixed in both `CRM_Followup`'s and
 each). See the matching `bug-patterns.md` entry for the full symptom writeup —
 check any *other* fixed-light-chrome popup containing a `<select>`/`<textarea>`
 for the same gap before assuming only these two had it.
+
+**Another recurring gap in these same fixed-chrome overrides: not viewport-aware
+(2026-08-10, Premium_Projects_Tickets' Change Status popup).** Confirmed by
+screenshot: on a phone the popup rendered wider than the screen and got cut off
+on both edges, unreadable. Same underlying shape as the Tooltip popup fix
+above — `#premium_ticket_status_followups_leightbox`'s own override
+(`status_leightbox.tpl`) replaced Libs_Leightbox's default *viewport-relative*
+sizing (70%/900px) with a *fixed* `max-width:520px`, wider than most phone
+viewports; separately, `.epesi-ticket-status-buttons`' `grid-template-columns:
+repeat(4, 1fr)` forced 4 equal columns of `white-space:nowrap` buttons
+(Mark as New/Reopen/In Progress/On Hold/Resolved/Need Feedback/Close), so even
+capping the popup alone wouldn't have been enough — the grid's own minimum
+content width could still exceed a narrower popup box. Fixed both together:
+`max-width: min(520px, calc(100vw - 24px)) !important` on the popup, and
+`grid-template-columns: repeat(auto-fit, minmax(130px, 1fr))` on the button
+grid so it reflows to fewer columns instead of forcing an overflowing row.
+**`CRM_Followup`'s Follow-up popup checked too (2026-08-10 follow-up)** —
+already in better shape than Tickets' popup (`.leightbox[id$="_followups_leightbox"]`
+already used `max-width:90vw`, viewport-relative from the start, and
+`.epesi-followup-actions` already had `flex-wrap:wrap`), so no outright
+overflow/cutoff. Screenshotted after a first-pass fix (`.epesi-followup-row`
+given `flex-wrap:wrap` + `.epesi-followup-control` a `min-width:180px`, so the
+Status/Note label+control pair drops to its own line instead of squeezing the
+control arbitrarily narrow) and the popup rendered *without* overflowing but
+noticeably narrower than it needed to be — `width:fit-content` sizes to the
+row's own preferred width, which on a mostly-empty `<select>` is barely wider
+than the label. Fixed by flooring the popup itself:
+`min-width: min(300px, 90vw)` alongside the existing `max-width:90vw`, so it
+no longer sizes itself down to whatever a near-empty control happens to want.
+
+**Follow-up 2: popup positioned a third of the way down on mobile, cutting off
+the bottom (2026-08-10).** Confirmed by screenshot — nothing visibly occupied
+the gap above the popup, yet it rendered well below the true top, pushing the
+"Save"/"save and create" row below the fold. Libs_Leightbox's base `.leightbox`
+pins `top: calc(--epesi-header-height + --epesi-actionbar-height + 1rem)` —
+those two vars are the navbar/ActionBar's *real* `offsetHeight`, kept live via
+`ResizeObserver` (`Base_Box/theme_adminltedark/default.tpl`'s `watch()`).
+Working theory, not fully confirmed via live DOM inspection: on mobile those
+elements are hidden off-canvas rather than height-collapsed, so `offsetHeight`
+likely still reports their full desktop-sized height while invisible,
+inflating the calc() past anything actually on screen. Rather than chase that
+down further, worked around it directly in `CRM_Followup`'s own override:
+below `max-width:767.98px`, `top: 0.75rem !important` and
+`max-height: calc(100vh - 1.5rem) !important` pin the popup near the real top
+regardless of what the header/actionbar vars report. **If any other Leightbox
+popup gets the same complaint on mobile, this off-canvas-height theory is the
+first thing to verify properly** (inspect `--epesi-header-height`/
+`--epesi-actionbar-height`'s live computed value on a narrow viewport) rather
+than re-deriving a per-popup workaround each time — a fix in the shared
+`Libs_Leightbox` base CSS would be worth it at that point.
+
+**Follow-up 3: still too narrow specifically in mobile landscape (2026-08-10) —
+the real bug was shrink-to-fit sizing, not a missing viewport cap.** Both
+`CRM_Followup`'s `width:fit-content` and `Premium_Projects_Tickets`'
+`width:auto` looked viewport-aware already (paired with `max-width:90vw` /
+`min(520px, calc(100vw-24px))`) but never actually grew to use that allowance
+— for a `position:fixed` box pinned by `left:50%` alone (no matching `right`),
+CSS resolves `auto`/`fit-content` width via **shrink-to-fit**: the box sizes to
+its own content's preferred width, full stop, regardless of how much more
+space `max-width` would allow. A landscape phone has a much wider viewport
+than the same phone in portrait, but since neither popup was actually sizing
+off the viewport, orientation made no difference — both stayed pinned near
+their content-minimum width either way, which is why "make them wider" didn't
+already happen for free at the wider landscape width. Fixed by giving both an
+**explicit** width instead of `auto`/`fit-content` (explicit lengths on a
+fixed/absolute box are used directly, not shrink-to-fit):
+`width: max(280px, min(90vw, 480px))` (Followup) /
+`width: max(280px, min(90vw, 520px)) !important` (Tickets) — now genuinely
+scales up with the viewport, landscape included, instead of merely being
+capped by one. **Any other custom-width Leightbox override should be checked
+for this same `width:auto`/`fit-content`-on-a-fixed-box trap** before assuming
+its own `max-width` is doing anything in landscape — it likely isn't. The base
+`Libs_Leightbox` `.leightbox` rule itself is fine (explicit `width:70%`, not
+auto/fit-content), so this is specific to popups that override it.
 
 ## Recurring CSS/JS traps (read before touching the theme)
 

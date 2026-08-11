@@ -117,8 +117,15 @@ class Libs_QuickForm extends Module {
 		$form_name = $this->qf->getAttribute('name');
 		return $this->get_submit_form_js_by_name($form_name,$submited,$indicator,$queue); 
 	}
-	public function get_submit_form_href($submited=true, $indicator=null) {
-		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator).'" ';
+	// $queue=true makes a tap that lands while some unrelated Epesi.href() call is
+	// still in flight (a slow mobile connection still loading the very page this
+	// button is on, a background applet refresh, ...) retry every 500ms instead of
+	// being silently and permanently dropped - see Epesi._hrefGo() in epesi.js.
+	// Defaults false to keep existing callers' behavior unchanged; RecordBrowser's
+	// add/edit Save button opts in explicitly (a Save click that just vanishes with
+	// no feedback is worse than the narrow extra double-submit window this widens).
+	public function get_submit_form_href($submited=true, $indicator=null, $queue=false) {
+		 return ' href="javascript:void(0)" onClick="'.$this->get_submit_form_js($submited,$indicator,$queue).'" ';
 	}
 
 	public function get_submit_form_js_by_name($form_name, $submited, $indicator, $queue=false) {

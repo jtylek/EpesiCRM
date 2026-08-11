@@ -8,14 +8,13 @@
  * layout, since it's simpler and there was no positioning contract to
  * preserve.
  *
- * #shoutbox_board's own content (.author/.time/hr/.shoutbox-age-*) is printed
- * directly by refresh.php - a standalone script with no theme resolution of
- * its own, shared with the default theme - so only colours/spacing are
- * reskinned here, by the same class names, not the markup itself. Message
- * age-fading used to be an inline style="color:..." refresh.php generated
- * per row, hardcoded for a white background and unreadable here (near-black
- * on #shoutbox_board's dark background) - refresh.php now emits one of the
- * shoutbox-age-0..3 classes instead, so each theme can define its own fade.
+ * #shoutbox_board's own content (.author/.time/.shoutbox_textbox/hr) is printed
+ * directly by refresh.php - a standalone script with no theme resolution of its
+ * own, shared with the default theme - so only colours/spacing are reskinned
+ * here, by the same class names, not the markup itself. Messages used to fade
+ * with age (a shoutbox-age-0..3 class per row, each theme defining its own fade
+ * shades) - dropped per request in favour of a single static .shoutbox_textbox
+ * color, matching History's own equally-static message color below.
  */
 
 .epesi-shoutbox {
@@ -148,24 +147,40 @@
 	margin: 0.4rem 0;
 }
 
-/* refresh.php fades older messages by tagging them with one of these classes
- * instead of the default theme's inline color - dark-appropriate shades so
- * even the oldest messages stay legible on #shoutbox_board's dark background. */
-#shoutbox_board .shoutbox-age-0 { color: #f8f9fa; }
-#shoutbox_board .shoutbox-age-1 { color: #ced4da; }
-#shoutbox_board .shoutbox-age-2 { color: #adb5bd; }
-#shoutbox_board .shoutbox-age-3 { color: #6c757d; }
+/* Per request, messages no longer fade with age - a single static color instead,
+ * legible on #shoutbox_board's dark background. Deliberately the exact same
+ * #00ff00 GenericBrowser's own theme (theme_adminltedark/default.css) already
+ * gives every other browser's row text in dark mode (History's own message text
+ * below inherits that same color unstyled, per request, rather than fighting it -
+ * see that rule's own comment) - not the earlier #f8f9fa this rule used, which
+ * left Chat and History reading as two different colors side by side. */
+#shoutbox_board .shoutbox_textbox {
+	color: #00ff00;
+}
 
-/* History tab (Shoutbox_0.php::history(), a Utils_GenericBrowser table) prints the
- * same <span class="author"> markup as the Chat tab's refresh.php output - the rule
- * above is extended to cover it here rather than duplicated, so the two tabs stay
- * visually identical instead of drifting apart. Scoped to Apps_Shoutbox's own
- * content span (matched via the id Base_Box/ModuleManager gives every module's
- * wrapper), not a bare .Utils_GenericBrowser__td selector - GenericBrowser's own
- * theme (modules/Utils/GenericBrowser/theme_adminltedark/default.css) intentionally
- * colors every other browser's row text #00ff00 in dark mode; only Shoutbox's own
- * History table should read like the Chat tab instead. */
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author {
+/* History tab (Shoutbox_0.php::history()) prints mostly the same message markup
+ * as the Chat tab's refresh.php output (.author/.time/.shoutbox_textbox) into a
+ * single-column Utils_GenericBrowser table (kept only for its query/pagination
+ * machinery, not as a data grid) - the rules above are extended to cover it here
+ * rather than duplicated, so the two tabs stay visually consistent instead of
+ * drifting apart. Message text itself is deliberately left with no color rule
+ * here at all: GenericBrowser's own ".epesi-gb .Utils_GenericBrowser__td" rule
+ * (theme_adminltedark/default.css) already colors it #00ff00 in dark mode -
+ * exactly the shade #shoutbox_board's own rule above now matches on purpose -
+ * and #212529 in light mode via that same file's own
+ * "[data-bs-theme='light'] .Utils_GenericBrowser__td" rule, which Chat's light
+ * override below also now matches. An earlier attempt here to override dark mode
+ * to #f8f9fa never actually won: both rules share the same class+class
+ * specificity, and GenericBrowser's own stylesheet loads after Shoutbox's, so it
+ * kept applying regardless - simplest fix is to stop fighting it and match Chat
+ * to it instead, which is also what was actually requested. Font-size still
+ * needs its own explicit rule below: .epesi-gb's own 0.8rem cascade (denser
+ * table default) otherwise reads smaller than Chat's #shoutbox_board 0.85rem. */
+.epesi-shoutbox-history .shoutbox_textbox {
+	font-size: 0.85rem;
+}
+
+.epesi-shoutbox-history .author {
 	display: inline-block;
 	background-color: #6c757d;
 	color: #fff;
@@ -175,16 +190,51 @@
 	font-weight: 600;
 }
 
-/* The author label is itself wrapped in a Base_UserCommon::get_user_label() link
- * (History links each name through to its contact record) - without this, the
- * anchor's own link-blue color wins over .author's white and the name becomes
- * unreadable against the same-blue badge background. */
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td .author a {
+.epesi-shoutbox-history .time {
+	font-style: normal;
+	font-size: 0.75rem;
+	color: #adb5bd;
+	margin-left: 0.3rem;
+}
+
+/* No per-column header makes sense for a single free-form "message" column -
+ * Shoutbox_0.php::history() sets its one column's name to '' precisely so this table
+ * has nothing worth a header row (Chat's own #shoutbox_board has none either). */
+.epesi-shoutbox-history .Utils_GenericBrowser__thead {
+	display: none;
+}
+
+/* Delete (row not yet deleted) / restore (already deleted) icon - appended after the
+ * [date] in each row's own first line (Shoutbox_0.php::history()), replacing the old
+ * table layout's separate actions column now that there's only one column. Muted by
+ * default like the rest of GenericBrowser's own action icons, brightening on hover. */
+.epesi-shoutbox-history .shoutbox-history-action {
+	margin-left: 0.4rem;
+	color: #8b929a;
+}
+
+.epesi-shoutbox-history .shoutbox-history-action:hover {
 	color: #fff;
 }
 
-[id*="Apps_Shoutbox"] .epesi-gb .Utils_GenericBrowser__td {
-	color: #f8f9fa;
+/* History's filters toggle/form + message list now share one outer
+ * ".epesi-shoutbox-card" card (Shoutbox_0.php::history()), matching Chat's own
+ * compose+board card - but GenericBrowser still renders its usual nested
+ * ".epesi-gb.card" around the message list inside that same card-body. Stripped down
+ * to a borderless/shadowless/marginless shell (same technique/properties as
+ * GenericBrowser's own "no card frame" mobile rule and Dashboard's applet-body one -
+ * border-radius/border-width via their --bs-card-* custom properties, not a plain
+ * "border:none", since .card-header/.card-footer read their own corner rounding and
+ * divider border from those variables independently of the card element's own
+ * border/border-radius) so it merges into the outer card instead of nesting visibly,
+ * unconditionally rather than only below the mobile breakpoint. :has() targets only
+ * the GenericBrowser card that actually holds this table, not the outer card itself
+ * (".epesi-shoutbox-history" sits inside the former, not the latter). */
+.epesi-gb.card:has(.epesi-shoutbox-history) {
+	margin-bottom: 0 !important;
+	--bs-card-border-width: 0;
+	--bs-card-border-radius: 0;
+	box-shadow: none;
 }
 
 /* "Send message to all?" confirm popup (Shoutbox_0.php::chat(), Bootstrap
@@ -236,7 +286,14 @@
   border-top: 1px solid #e9ecef;
 }
 
-[data-bs-theme="light"] #shoutbox_board .shoutbox-age-0 { color: #000000; }
-[data-bs-theme="light"] #shoutbox_board .shoutbox-age-1 { color: #444444; }
-[data-bs-theme="light"] #shoutbox_board .shoutbox-age-2 { color: #888888; }
-[data-bs-theme="light"] #shoutbox_board .shoutbox-age-3 { color: #AAAAAA; }
+/* #shoutbox_board's own bare ".shoutbox_textbox" rule above (dark mode's #00ff00)
+ * has no [data-bs-theme] qualifier of its own, so it applied unconditionally,
+ * including in light mode - reported as message text almost unreadable against
+ * the light board background above. #212529, not a plainer #000, to exactly match
+ * History's own light-mode message color (GenericBrowser's own
+ * "[data-bs-theme='light'] .Utils_GenericBrowser__td" rule, theme_adminltedark/
+ * default.css) rather than merely being close to it. */
+[data-bs-theme="light"] #shoutbox_board .shoutbox_textbox {
+  color: #212529;
+}
+

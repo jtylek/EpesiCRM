@@ -20,11 +20,6 @@
 	margin-bottom: 0.75rem;
 }
 
-.epesi-rv-required {
-	color: #8b929a;
-	font-size: 0.85rem;
-}
-
 .epesi-rv-tools {
 	display: flex;
 	align-items: center;
@@ -32,13 +27,13 @@
 	gap: 0.5rem;
 	color: #8b929a;
 	font-size: 0.85rem;
-	/* Pushes this row to the far right of .epesi-rv-header regardless of
-	   .epesi-rv-required's own width, by consuming all free space on the
-	   main axis as margin instead of relying on the parent's
-	   justify-content - a previous attempt used justify-content:space-between
-	   on the parent for this and it didn't actually right-justify the icons
-	   (reported: still sitting immediately after the required-note text,
-	   with unused space to the right instead of the icons moving into it). */
+	/* Pushes this row to the far right of .epesi-rv-header, by consuming all
+	   free space on the main axis as margin instead of relying on the
+	   parent's justify-content - a previous attempt used
+	   justify-content:space-between on the parent for this and it didn't
+	   actually right-justify the icons (reported: still sitting immediately
+	   after the required-note text that used to share this row, with unused
+	   space to the right instead of the icons moving into it). */
 	margin-left: auto;
 }
 
@@ -835,13 +830,24 @@
 	.Utils_RecordBrowser__View_entry .data {
 		flex-basis: 100%;
 	}
+
+	/* "Set CRM Filter" (CRM_Contacts' per-contact shortcut into the
+	   "Perspective" filter, ContactsCommon_0.php's $ret['new']['crm_filter'])
+	   - per request, Perspective isn't used on mobile, so this entry point
+	   into it is dropped from the toolbar on narrow screens. Scoped to
+	   .epesi-rv-crmfilter specifically (added to that one anchor in
+	   ContactsCommon_0.php) rather than the
+	   generic ".epesi-rv-tools a:not(:has(img))" bare-text-link selector
+	   already used to glyph-ify it above - that selector also matches
+	   Utils_Attachment's unrelated "File history" link (same bare-"F",
+	   no-<img> shape, different feature entirely), which must stay visible.
+	*/
+	.epesi-rv-tools a.epesi-rv-crmfilter {
+		display: none;
+	}
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-rv-required {
-  color: #6c757d;
-}
-
 [data-bs-theme="light"] .epesi-rv-tools {
   color: #6c757d;
 }

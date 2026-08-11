@@ -89,6 +89,21 @@ class HTML_QuickForm_autoselect extends HTML_QuickForm_select {
             $myName = $this->getName();
 			$this->updateAttributes(array('id'=>$myName));
 			eval_js('jQuery(document.getElementById("'.$myName.'")).on("keydown", function(ev){autoselect_start_searching("'.$myName.'", ev.keyCode)});');
+			// Mobile: tapping a bare <select> opens the OS picker directly, with
+			// no keydown ever reaching it, so the keydown listener above never
+			// fires and the field is stuck showing only the "Start typing to
+			// search..." placeholder. preventDefault()-ing touchstart stops the
+			// browser from replaying its usual synthetic mousedown/click after
+			// the tap (same mechanism relied on by Utils_Tooltip's AdminLTE JS),
+			// which keeps the native picker from opening at all, so we can swap
+			// to the real search box instead - same outcome as typing a key.
+			// Desktop: mousedown+preventDefault is the standard way to stop a
+			// <select>'s own dropdown from opening on click - used here for the
+			// same reason, so a mouse click also jumps straight to the search
+			// box instead of opening a dropdown that (per QFfield_select()) never
+			// has more than the placeholder or the one already-picked value in
+			// it anyway.
+			eval_js('jQuery(document.getElementById("'.$myName.'")).on("touchstart mousedown", function(ev){ev.preventDefault();autoselect_start_searching("'.$myName.'");});');
             if (!$this->getMultiple()) {
                 $attrString = $this->_getAttrString($this->_attributes);
             } else {

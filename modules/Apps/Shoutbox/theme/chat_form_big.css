@@ -58,10 +58,9 @@
     color: #B3B3B3;
 }
 
-#shoutbox_board_big .shoutbox-age-0 { color: #000000; }
-#shoutbox_board_big .shoutbox-age-1 { color: #444444; }
-#shoutbox_board_big .shoutbox-age-2 { color: #888888; }
-#shoutbox_board_big .shoutbox-age-3 { color: #AAAAAA; }
+#shoutbox_board_big .shoutbox_textbox {
+	color: #000000;
+}
 
 #shoutbox_big_container .epesi_data textarea {
 	height: 50px;

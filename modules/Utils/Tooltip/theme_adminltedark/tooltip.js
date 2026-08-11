@@ -29,6 +29,37 @@ var epesi_tooltip_current_el = null;
 var epesi_tooltip_ajax_cache = {};
 var epesi_tooltip_ajax_pending = {};
 
+// Whether the pointer gesture in progress right now is a touch tap, checked
+// by epesi_tooltip_show()/epesi_tooltip_ajax_load() below to bail out before
+// ever opening a popup off one. First attempt at this used
+// matchMedia('(hover: none)') instead - a device-capability check, applied
+// once up front to strip onmouseenter off every tooltip element on such a
+// device - but that kept failing to suppress the popup on a real phone in
+// practice (device/emulator hover-capability reporting is inconsistent
+// enough not to trust as the sole gate). This tracks the actual gesture
+// instead of the device's declared capability, which sidesteps that
+// entirely and also does the right thing on hybrid touch+mouse hardware
+// (still shows on genuine mouse hover there). Works because of the fixed
+// order browsers replay for a tap on an element that didn't call
+// preventDefault on its touchstart: touchstart, then a synthetic mouseover/
+// mouseenter/mousemove/mousedown/mouseup/click sequence - touchstart always
+// lands first, so the flag is already true by the time onmouseenter (and
+// therefore epesi_tooltip_show()/epesi_tooltip_ajax_load()) fires for that
+// same tap; the synthetic mousemove a step later then clears it again,
+// ready for the next real hover. Both PHP-side tooltip functions' own
+// `if(MOBILE_DEVICE) return '';` guard (TooltipCommon_0.php) can't help here
+// either way - MOBILE_DEVICE has been permanently 0 since
+// detect_mobile_device() was deleted with the legacy mobile system (see
+// AI-shared/deliberate-removals.md's "Legacy mobile system" entry), so every
+// tooltip still renders fully hover-wired even on a phone; this flag is a
+// client-side patch of that server-rendered wiring instead. aria-label (set
+// alongside onmouseenter by both PHP functions) still carries the tooltip
+// text for assistive tech regardless of this flag - screen readers read it
+// directly off the element, no JS/hover involved.
+var epesi_touch_active = false;
+document.addEventListener('touchstart', function() { epesi_touch_active = true; }, true);
+document.addEventListener('mousemove', function() { epesi_touch_active = false; }, true);
+
 function epesi_tooltip_position(popup, el) {
 	var rect = el.getBoundingClientRect();
 	var spaceAbove = rect.top - 4;
@@ -83,6 +114,7 @@ function epesi_tooltip_show_popup(el, content, asHtml) {
 
 // open_tag_attrs() - content is already known server-side, no ajax needed.
 function epesi_tooltip_show(el) {
+	if (epesi_touch_active) return;
 	try {
 		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip') || '', true);
 	} catch (e) {}
@@ -121,6 +153,7 @@ function epesi_tooltip_ajax_apply(el, text, asHtml) {
 // of plain text, and it needs innerHTML here to actually render as a table
 // rather than literal "<table>..." text.
 function epesi_tooltip_ajax_load(el, tooltipId) {
+	if (epesi_touch_active) return;
 	try {
 		var asHtml = el.hasAttribute('data-tooltip-html');
 
@@ -199,3 +232,27 @@ function epesi_tooltip_leightbox_populate(el) {
 		}
 	} catch (e) {}
 }
+
+// Deferred to window 'load' (not run at top level here) so this doesn't
+// depend on this static file's own load order relative to jQuery - e:load
+// is a jQuery-only custom event (jQuery(document).trigger(...), never
+// bubbled as a real DOM CustomEvent), so jq(document).on(...) is the only
+// way to catch it and genuinely needs jq to already exist.
+window.addEventListener('load', function() {
+	try {
+		// A showing popup's only cleanup path is the triggering element's own
+		// mouseleave (epesi_tooltip_show_popup() above) - but most tooltipped
+		// elements are icon links (Fullscreen, Configure, Toggle, RecordBrowser
+		// row actions, ...) whose click swaps the surrounding DOM via Epesi's
+		// ajax push (include/epesi.js's Epesi.request()) instead of a real page
+		// navigation. That destroys the element mid-hover without ever
+		// dispatching mouseleave, so the popup is orphaned in <body> and
+		// outlives the content it was pointing at (reported: Shoutbox's
+		// Fullscreen tooltip surviving into the fullscreen view; same shape
+		// wherever else a tooltipped icon triggers an ajax swap). 'e:loading'
+		// fires right before every such swap (see epesi.js), so hiding here
+		// mirrors the existing Utils_Calendar.destroy pattern of tearing down
+		// transient UI on that event.
+		jq(document).on('e:loading', epesi_tooltip_hide_popup);
+	} catch (e) {}
+});

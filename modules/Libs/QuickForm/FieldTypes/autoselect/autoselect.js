@@ -35,7 +35,10 @@ autoselect_add_value = function (element, value, label) {
 }
 
 autoselect_start_searching = function (element, keyCode) {
-	if (keyCode<48 || keyCode>105) return;
+	// keyCode is only checked when actually given (the keydown listener below
+	// passes ev.keyCode, to ignore Tab/Shift/arrow keys etc.) - the touchstart
+	// listener calls this with no keyCode at all to always proceed.
+	if (keyCode!==undefined && (keyCode<48 || keyCode>105)) return;
 	document.getElementById('__'+element+'_autocomplete_span').style.display="";
 	document.getElementById('__autocomplete_id_'+element+'__search').focus();
 	document.getElementById('__'+element+'_select_span').style.display="none";

@@ -48,11 +48,11 @@
    for .epesi-actionbar-btn, their <div> label for .epesi-actionbar-label).
    Icon technique unchanged from the first pass: hide the <img>, add a
    Bootstrap Icons glyph via ::before - codepoints match Base_ActionBar's own
-   icon map ('add'=>bi-plus-lg, 'save'=>bi-check2-square, 'print'=>bi-printer)
-   so the same action looks identical whether it renders here or in the real
-   ActionBar. Print and Export share one class (record_browser_button) with
-   no other distinguishing hook, told apart via :has() on each one's own
-   icon filename. */
+   icon map ('add'=>bi-plus-lg, 'save'=>bi-check2-square, 'print'=>bi-printer,
+   'export'=>bi-filetype-csv) so the same action looks identical whether it
+   renders here or in the real ActionBar. Print and Export share one class
+   (record_browser_button) with no other distinguishing hook, told apart via
+   :has() on each one's own icon filename. */
 
 .epesi-gb-label .record_browser_add_new img,
 .epesi-gb-label a.record_browser_button img {
@@ -113,6 +113,10 @@
 	content: "\f271";
 }
 
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/export.png"])::before {
+	content: "\f743"; /* bi-filetype-csv - export.png links to csv_export.php; matches the icon_map entry Base_ActionBar/theme_adminltedark/default.tpl already uses for the real ActionBar's own 'export' action */
+}
+
 /* Print/Export's own label div carries an inline style="...;top:-8px" (a
    default-theme hack to vertically-align text next to the old horizontal
    <img> sprite) - meaningless now that this is a vertical icon-over-label
@@ -146,23 +150,130 @@
 	outline: 0;
 }
 
+/* Fixed dark-grey/white, deliberately the same regardless of theme - matches
+   Browsing_records.tpl's Expand All/Collapse All/Show-Hide filters
+   (.epesi-br-btn/.epesi-rbf-btn) and Filters/theme_adminltedark's own Show
+   submit, which sit in the same toolbar rows elsewhere on the Browse screen,
+   per request that every button in these toolbars read as one consistent
+   style rather than some filled and some outlined. Also covers this file's
+   own .epesi-gb-expand-btn (Expand All/Collapse All as rendered inline in
+   this module's card-header toolbar - i.e. an addon-tab listing like Notes/
+   Journal, not the fullscreen Browse screen which uses .epesi-br-btn
+   instead - see use_external_expand_collapse_controls() in
+   GenericBrowser_0.php): it previously kept Bootstrap's plain
+   .btn-outline-secondary look, the one outlined-not-filled holdout in an
+   otherwise all-filled-grey set of toolbars, per the same consistency
+   request. !important guards the fixed colors against
+   gen_light_override.js re-adding a conflicting [data-bs-theme="light"]
+   block later - see AI-shared/bug-patterns.md's Dashboard applet-header
+   entry for why this is this codebase's established fix for exactly that
+   risk. */
 .epesi-gb-search input[type="submit"],
 .epesi-gb-search input[type="button"],
-.epesi-gb-adv .button {
-	border: 1px solid #8b929a;
-	border-radius: 0.25rem;
-	background-color: #2b3035;
-	color: #adb5bd;
-	padding: 0.25rem 0.6rem;
-	font-size: 0.8rem;
+.epesi-gb-adv .button,
+.epesi-gb-expand-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	border: 1px solid #495057 !important;
+	border-radius: 0.375rem;
+	background-color: #495057 !important;
+	color: #fff !important;
+	padding: 0.3rem 0.7rem;
+	font-size: 0.85rem;
 	text-decoration: none;
-	display: inline-block;
+	cursor: pointer;
 }
 
 .epesi-gb-search input[type="submit"]:hover,
 .epesi-gb-search input[type="button"]:hover,
-.epesi-gb-adv .button:hover {
-	background-color: #343a40;
+.epesi-gb-adv .button:hover,
+.epesi-gb-expand-btn:hover,
+.epesi-gb-expand-btn:focus {
+	background-color: #343a40 !important;
+	border-color: #343a40 !important;
+	color: #fff !important;
+}
+
+/* Expand All/Collapse All sit in a .btn-group for spacing only - only one is
+   ever visible at a time (gb_show_hide_buttons(), see table_overflow.js),
+   never both as a joined pair, but Bootstrap's own .btn-group > .btn:not(:
+   first-child)/:not(:last-child) corner-zeroing rules (higher specificity
+   than a plain class) don't know that and square off whichever corner faces
+   the other, now-irrelevant button - same fix as .epesi-br-btn in
+   Browsing_records.css. */
+.epesi-gb-expand-btn {
+	border-radius: 0.375rem !important;
+}
+
+/* Advanced Search (.epesi-gb-adv, the $adv_search toggle link -
+   GenericBrowser_0.php's switch_search_.../"Advanced Search"/"Simple
+   Search" href) dropped entirely below this breakpoint, per request: a
+   phone doesn't have room for the column-by-column fields it switches to
+   anyway, so mobile sticks to the plain keyword box only. Same breakpoint
+   as the mobile row-collapse/actions-kebab rules elsewhere in this file.
+   default.tpl's own {if isset($form_data_search.search)} branch (the one
+   actually reachable here - advanced mode's own {else} branch has no
+   keyword box at all) still renders this span; hiding it client-side is
+   simpler than threading a "mobile" flag down into GenericBrowser_0.php
+   just to skip building the link server-side. */
+@media (max-width: 767.98px) {
+	.epesi-gb-adv {
+		display: none;
+	}
+
+	/* .epesi-gb-search is itself just one flex item of .card-header.epesi-gb-
+	   toolbar (default.tpl) - fine on desktop, where its own ms-md-auto
+	   (default.tpl) pushes it flush right alongside a custom_label/
+	   expand_collapse sharing that row, but on mobile (ms-md-auto inactive
+	   below md) it was left sized to its own content and stranded at the
+	   toolbar's left edge, on a row of its own with a wide dead gap to the
+	   right of Show all - reported in landscape, where the toolbar is wide
+	   enough that this row's total content no longer comes close to filling
+	   it. flex-basis:100% claims the toolbar's full row width regardless of
+	   what else shares it; combined with the keyword box's own flex:1 1 0%
+	   below, growing to fill THIS now-full-width row in turn is what
+	   actually closes that gap and, as a side effect, pushes Search/Show all
+	   flush against the row's true right edge - no separate justify-content
+	   needed for that part. */
+	.epesi-gb-search {
+		flex: 1 1 100%;
+	}
+
+	/* form_data_search's own <form> (default.tpl) is flex-wrap, which - once
+	   the row only has to fit the keyword box, Search and Show all (the adv
+	   toggle above no longer competing for space) - still stacked each of
+	   those three onto its own line rather than shrinking to fit, since a
+	   flex item's default min-width is its own content/intrinsic width, not
+	   0. nowrap forces them onto one row; flex:1 1 0% puts the keyword box
+	   on a %-of-remaining-space basis instead of that intrinsic width, so
+	   it's what actually gives up the room the other two need, min-width:0
+	   removing the last floor under it. Search/Show all
+	   keep their own natural button width (flex-shrink:0) - neither has
+	   meaningful slack left to give up before its own label clips. */
+	.epesi-gb-search form {
+		flex-wrap: nowrap;
+	}
+	.epesi-gb-search input[type="text"] {
+		flex: 1 1 0%;
+		min-width: 0;
+	}
+	.epesi-gb-search input[type="submit"],
+	.epesi-gb-search input[type="button"] {
+		flex-shrink: 0;
+	}
+}
+
+/* Same one-line row as above, just tighter still - per request, the
+   keyword box can afford to read smaller yet on the narrowest phones so
+   Search/Show all keep a comfortable tap target instead of the three
+   splitting an already-tight row three ways evenly. */
+@media (max-width: 575.98px) {
+	.epesi-gb-search input[type="text"] {
+		padding-left: 0.35rem;
+		padding-right: 0.35rem;
+		font-size: 0.75rem;
+	}
 }
 
 /* ---- table ----
@@ -223,6 +334,18 @@
 
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th a {
 	color: inherit;
+}
+
+/* Sort-direction glyph (GenericBrowser_0.php's Utils_GenericBrowser__sort
+   span, adminlte-family branch) - a Bootstrap Icons caret instead of the
+   legacy theme's sort-ascending.png/sort-descending.png raster icon, which
+   had no adminltedark copy and fell back to the legacy theme's own
+   unstyled one. Sized down and inherits the header's own white text color
+   rather than standing out as its own element. */
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__sort .bi {
+	margin-left: 4px;
+	font-size: 0.75em;
+	vertical-align: middle;
 }
 
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th input {
@@ -933,6 +1056,160 @@
 	}
 }
 
+/* ---- mobile: 2-line-per-row layout (generic, every Utils_GenericBrowser/
+   Utils_RecordBrowser table) ----
+ * Below ~768px, a table with several columns just keeps shrinking every
+ * column to fit table-layout:fixed's 100% width (see this file's own
+ * "---- table ----" comment above) until it's unreadable. Instead, wrap each
+ * row - header included, since header/body share the __tr class, see
+ * function.html_grid_epesi.php - into exactly 2 physical lines.
+ *
+ * Column count varies per module, so the number of columns-per-line can't be
+ * a fixed number here: default.tpl computes ceil(column_count/2) server-side
+ * per table and exposes it as the --epesi-gb-mobile-cols custom property on
+ * the outer .Utils_GenericBrowser wrapper, so this one rule works for every
+ * table regardless of how many columns it has.
+ *
+ * The ancestors are forced to display:block first - a display:grid child of
+ * a display:table-row-group parent otherwise risks the browser generating
+ * an anonymous table-row wrapper around it per the CSS table anonymous-box
+ * rules, which would silently defeat the wrap.
+ *
+ * Row separators move from each __td's own border-bottom (above) to the
+ * __tr itself, so a logical row's 2 physical lines read as one row with one
+ * separator below it, rather than two rows with a separator between them.
+ *
+ * Fixed 2026-08-11: --epesi-gb-mobile-cols originally counted ALL columns,
+ * including RecordBrowser's own favourite/watchdog columns that the
+ * 991.98px rule above already display:none's at this width (which also
+ * covers this 767.98px one) - since display:none removes an item from grid
+ * flow entirely, the actual per-row item count came up short of what
+ * --epesi-gb-mobile-cols assumed, leaving trailing empty grid cells on
+ * every row (reported as "empty fields" on Companies/Tickets). default.tpl
+ * now excludes those two columns from the count it computes. See
+ * AI-shared/generic-browser-responsive-tables.md.
+ *
+ * ":not(:has(.epesi-attachment-notes))" on every selector below: Utils_Attachment's
+ * Notes/Journal addon (Attachment_0.php::body()) opts out of this whole block (2026-08-10
+ * follow-up, per request - it rendered fine before this fix and shouldn't have been swept
+ * up in the generic change). Its own 'note' column is a wide tall_preview text column (see
+ * the "expandable cells" block above), not a fixed value that benefits from an even N-way
+ * grid split. Attachment_0.php wraps just that table's own {html_grid_epesi} output in
+ * "<div class=epesi-attachment-notes>" (set_prefix()/set_postfix(), same technique as
+ * ".epesi-rb-changes-history" below) - :has() on the ancestor .epesi-gb card is simplest
+ * since that marker sits *inside* the grid wrapper these rules target, not on it. */
+@media (max-width: 767.98px) {
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__thead,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tbody {
+		display: block;
+	}
+
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tr {
+		display: grid;
+		grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
+	}
+
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
+		border-bottom: 1px solid #343a40;
+	}
+
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__td {
+		border-bottom: none;
+	}
+
+	/* Every __th (GenericBrowser_0.php:856, absolute_width columns' __td too,
+	   ~967-968) carries its own inline style="width:N%" sized for the desktop
+	   table-cell layout - N% of the *whole row*. A grid item resolves a
+	   percentage width against its own grid area (already just one track of
+	   the row), not the row as a whole, so that same N% re-applied on top of
+	   an already-narrow 1fr track compounded down to near-zero width, which
+	   is why headers were clipping to 1-2 characters. Only !important can
+	   beat an inline style from a stylesheet rule; width:auto lets the item
+	   fall back to the grid's own default stretch-to-fill-the-track sizing. */
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__th,
+	.epesi-gb:not(:has(.epesi-attachment-notes)) .Utils_GenericBrowser__td {
+		width: auto !important;
+	}
+}
+
+/* Same breakpoint as the 2-line grid above - strip the card's own border/radius/shadow/
+ * bottom-margin so a full-page/tab GenericBrowser table runs flush to the screen edges on a
+ * narrow phone viewport instead of sitting in a visibly separate box, per request ("render it
+ * full screen ... as you do it in applets already"). Exact same properties/values as
+ * "#dashboard .epesi-applet-body .epesi-gb.card" above, which already gives every Dashboard
+ * applet this treatment unconditionally (any width) - see that rule's own comment for why each
+ * one needs zeroing this specific way (border-radius/border-width via their --bs-card-* custom
+ * properties, not a plain "border:none", since .card-header/.card-footer read their own corner
+ * rounding and divider border from those variables independently of the card element's own
+ * border/border-radius). margin-bottom needs !important for the same load-order reason as that
+ * rule's own margin-bottom: Bootstrap's ".mb-3" utility (this table's card carries it - see
+ * default.tpl) can lose a tied-specificity fight to it depending on which stylesheet the
+ * browser happens to apply last. .card-header/.card-footer's own background-color is left
+ * alone here too, same as the applet treatment - only the outer frame goes, not the whole card
+ * look. */
+@media (max-width: 767.98px) {
+	.epesi-gb.card {
+		margin-bottom: 0 !important;
+		--bs-card-border-width: 0;
+		--bs-card-border-radius: 0;
+		box-shadow: none;
+	}
+}
+
+/* The page's own "#content_body > .container-fluid" (Base_Box/theme_adminltedark/default.css)
+ * carries Bootstrap's own gutter (--bs-gutter-x, defaults to 1.5rem - .container-fluid's own
+ * padding is half of it, .75rem each side) - after the "no card frame" rule above, that gutter
+ * is the only thing left holding a full-page/tab GenericBrowser table away from the true screen
+ * edge on a narrow phone.
+ *
+ * A negative side margin to cancel it (tried first) doesn't work here: that same container also
+ * carries "overflow-x:auto" (Base_Box/theme_adminltedark/default.css, needed for its own
+ * reasons), and per the CSS overflow computed-value rule, setting only one axis to a
+ * non-"visible" value forces the other axis to compute as "auto" too - so anything pushed past
+ * the container's own padding edge (exactly what a negative side margin does) gets silently
+ * clipped instead of actually reaching the screen edge. Utils_RecordBrowser's own
+ * Browsing_records.css hit this identical trap first, with a negative *top* margin on this same
+ * container - see that file's own comment for the longer version of this same rule.
+ *
+ * Zeroing the gutter itself, instead of trying to escape it, sidesteps the clipping entirely.
+ * :has() scopes this to only the container that actually holds a GenericBrowser table (a
+ * Details-only tab, for instance, keeps its normal side padding) - the tradeoff is that any
+ * OTHER content sharing that same container alongside the table (e.g. a Browse-mode page's own
+ * filters/search UI, still inside the same .container-fluid) loses its side padding too at this
+ * width, not just the table. Selector matches Base_Box's own rule's specificity plus the extra
+ * :has() pseudo-class, so it wins regardless of stylesheet load order. */
+@media (max-width: 767.98px) {
+	.epesi-adminlte #content_body > .container-fluid:has(.epesi-gb) {
+		--bs-gutter-x: 0;
+	}
+}
+
+/* Utils_Attachment's own "Edited on" column (Utils_RecordBrowser__noexpand,
+ * RecordBrowser_0.php ~805 - date/time/username stacked via <br>, style='noexpand') is opted
+ * out of the mobile 2-line grid above (.epesi-attachment-notes), so it's still governed by
+ * plain table-layout:fixed - its width is a percentage of the row (GenericBrowser_0.php's
+ * width->percent math off Attachment_0.php's own set_header_properties() weight), which shrinks
+ * along with the whole row on a narrow phone - reported as the date clipping mid-digit
+ * ("05/08/2" instead of "05/08/2026") even though this column's content is a fixed shape, never
+ * something a user would want ellipsized.
+ *
+ * min-width on the body cell is enough to widen the whole column: table-layout:fixed's per-
+ * column width is one shared value across every row regardless of which row's cell specifies
+ * it (the header <th> doesn't carry this class at all - RecordBrowser_0.php only puts it on
+ * the body <td> - but widening any one cell in a column widens all of them together), and an
+ * explicit min-width (unlike ordinary text content, which the fixed algorithm ignores when
+ * sizing columns) still constrains the rendered box - the table grows past its own 100% when
+ * this forces it to, finally engaging .table-responsive's own overflow-x:auto for whatever's
+ * left, rather than the wide "Note" tallpreview column always winning the space fight. Sized
+ * for the date line only (10 characters, e.g. "05/08/2026") per request - the username line
+ * beneath it can still wrap/scroll. */
+@media (max-width: 767.98px) {
+	.epesi-attachment-notes .Utils_GenericBrowser__td.Utils_RecordBrowser__noexpand {
+		min-width: 6.5em;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every
@@ -960,6 +1237,38 @@
 	display: none !important;
 }
 
+/* Every Dashboard applet (Base_Dashboard/theme_adminltedark/default.tpl's own
+   "card-body epesi-applet-body" wrapper around every applet's {$content},
+   regardless of which module it is - not module-specific like
+   .epesi-watchdog-applet above) opts out the same way, per request
+   (2026-08-10): now that a GenericBrowser table's rows wrap into the
+   max-width:767.98px 2-line grid above, the actions column - one of
+   --epesi-gb-mobile-cols slots, same as any data column - has plenty of
+   width for its icons even on a phone-width applet card, so collapsing to a
+   kebab there just hides actions that already fit. Deliberately scoped to
+   .epesi-applet-body only, not GenericBrowser tables generally - a
+   full-page RecordBrowser Browse-mode table (not inside an applet) keeps
+   the kebab collapse for now. */
+.epesi-applet-body .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-applet-body .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
+/* Record Browser's "Changes History" tab (RecordBrowser_0.php::view_edit_history(), grid
+   wrapped via set_prefix()/set_postfix() in its own "epesi-rb-changes-history" div) has exactly
+   one row action - View, jumping to the matching point in "Record historical view" - so
+   collapsing it behind a kebab just adds an extra tap for zero space savings, unlike a
+   multi-action Browse-mode table where the kebab actually reclaims row width. Same opt-out
+   shape as .epesi-admin-panel/.epesi-watchdog-applet/.epesi-applet-body above. */
+.epesi-rb-changes-history .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-rb-changes-history .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
 /* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
    module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
    (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus
@@ -970,6 +1279,20 @@
 	display: inline-flex !important;
 }
 .epesi-watchdog-applet .epesi-gb-more-toggle {
+	display: none !important;
+}
+
+/* Same "More actions" toggle, same fix, generalized to every Dashboard applet
+   (2026-08-10 follow-up) - the .epesi-applet-body pair above only covered
+   ensureToggles()'s mobile-responsive kebab, not this second, independent,
+   always-on one. Any row with even one non-"core" action (e.g. Premium
+   Projects/Tickets' per-row actions beyond view/edit/info) was still showing
+   this kebab inside an applet regardless of viewport width, same reasoning
+   as the pair above: an applet card has room for a couple more icons. */
+.epesi-applet-body .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-applet-body .epesi-gb-more-toggle {
 	display: none !important;
 }
 
@@ -1052,20 +1375,6 @@
 [data-bs-theme="light"] .epesi-gb-search input[type="text"],
 [data-bs-theme="light"] .epesi-gb-search select {
   border: 1px solid #ced4da;
-}
-
-[data-bs-theme="light"] .epesi-gb-search input[type="submit"],
-[data-bs-theme="light"] .epesi-gb-search input[type="button"],
-[data-bs-theme="light"] .epesi-gb-adv .button {
-  border: 1px solid #6c757d;
-  background-color: #fff;
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-gb-search input[type="submit"]:hover,
-[data-bs-theme="light"] .epesi-gb-search input[type="button"]:hover,
-[data-bs-theme="light"] .epesi-gb-adv .button:hover {
-  background-color: #e9ecef;
 }
 
 [data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser {

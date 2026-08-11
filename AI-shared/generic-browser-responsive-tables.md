@@ -1,11 +1,19 @@
-# Utils_GenericBrowser mobile/responsive table (planned, not started)
+# Utils_GenericBrowser mobile/responsive table (implemented on `mobile-gb`, unverified)
 
-**Status as of 2026-08-10: research + plan agreed, zero code changed.** Triggered by
-`CRM_LoginAudit` being unreadable on narrow/mobile viewports (7 columns squeezed into
-one line). Decision: fix it **generically for every `Utils_GenericBrowser`/
-`Utils_RecordBrowser` list**, not just Login Audit — do this work on its own
-`mobile-gb` branch (see [[karina-branch-sync]]-style branch discipline further down),
-not mixed into `jasiek`/`karina` mainline work.
+**Status as of 2026-08-11: implemented on the `mobile-gb` branch; visual verification
+found the mobile_cols/favs-watchdog bug documented below (now fixed), not yet re-verified
+in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`
+being unreadable on narrow/mobile viewports (7 columns squeezed into one line).
+Decision: fix it **generically for every `Utils_GenericBrowser`/`Utils_RecordBrowser`
+list**, not just Login Audit — confirmed this reaches RecordBrowser's Browse mode too,
+since `RecordBrowser_0.php` renders its grid via a genuine child
+`Utils_GenericBrowser::module_name()` instance (`RecordBrowser_0.php:298` etc.), which
+goes through this same GenericBrowser theme — RecordBrowser's own
+`theme_adminltedark/Browsing_records.tpl` only renders the surrounding page chrome
+(filters/tabs), not the grid itself, and GenericBrowser's `theme_adminltedark/` has
+exactly one template/CSS pair (no per-caller override to miss). Do this work on its
+own `mobile-gb` branch (see [[mobile-gb-branch]]), not mixed into `jasiek`/`karina`
+mainline work.
 
 ## Why it squeezes instead of scrolling
 
@@ -43,39 +51,74 @@ scrolling sideways or wrapping.
   column, so this rule doesn't touch it today, but it's the pattern to extend rather
   than invent something new.
 
-## Planned mechanism
+## Implemented mechanism
 
-Turn each row (header included, since header/body share the `__tr` class) into an
+Each row (header included, since header/body share the `__tr` class) becomes an
 N-column CSS Grid at a mobile breakpoint, instead of letting `display:table-cell`
-squeeze every column proportionally:
+squeeze every column proportionally. Two files changed, both in
+`modules/Utils/GenericBrowser/theme_adminltedark/`:
 
-```css
-@media (max-width: 767.98px) {
-  .epesi-gb .Utils_GenericBrowser,
-  .epesi-gb .Utils_GenericBrowser__thead,
-  .epesi-gb .Utils_GenericBrowser__tbody {
-    display: block; /* escape the table layout algorithm cleanly first */
+- **`default.tpl`** — the existing `{php}` block that builds `cols` now also computes
+  `mobile_cols = max(1, ceil($visible_count/2))` (see 2026-08-11 fix below for what
+  counts as "visible") and assigns it as a template var; the
+  `table_attr` capture appends `--epesi-gb-mobile-cols:{$mobile_cols};` to the
+  wrapper's inline `style=`. Done in the `.tpl` (not `GenericBrowser_0.php`) since it's
+  purely a presentation concern of this theme and keeps the change to one file per
+  theme rather than touching the shared PHP class.
+- **`default.css`** — new `@media (max-width: 767.98px)` block, placed right after the
+  existing 991.98px kebab/favs-watchdog-hide block:
+  ```css
+  @media (max-width: 767.98px) {
+    .epesi-gb .Utils_GenericBrowser,
+    .epesi-gb .Utils_GenericBrowser__thead,
+    .epesi-gb .Utils_GenericBrowser__tbody {
+      display: block; /* escape the table layout algorithm cleanly first */
+    }
+    .epesi-gb .Utils_GenericBrowser__tr {
+      display: grid;
+      grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
+    }
+    .epesi-gb .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
+      border-bottom: 1px solid #343a40; /* row separator moved from __td to __tr */
+    }
+    .epesi-gb .Utils_GenericBrowser__td {
+      border-bottom: none;
+    }
   }
-  .epesi-gb .Utils_GenericBrowser__tr {
-    display: grid;
-    grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr);
-  }
-}
-```
+  ```
 
 Forcing the ancestors to `display:block` before making `__tr` a grid matters: a
 `display:grid` child of a `display:table-row-group` parent otherwise risks the browser
 generating an anonymous `table-row` wrapper around it per the CSS table anonymous-box
-rules, which would break the intended wrapping.
+rules, which would break the intended wrapping. Moving the row-separator border from
+each `__td` (existing rule, fires on every physical line) to the `__tr` itself means a
+logical row's 2 physical lines read as one row with one separator below it, not two
+rows with a separator between them.
 
-Because this is going **generic** (not scoped to one module via `set_prefix()`), column
-count varies per table, so the number of columns-per-line can't be hardcoded — it needs
-to be `ceil(column_count/2)`, computed server-side in `GenericBrowser_0.php` where the
-column array is already built, and emitted as a CSS custom property
-(`--epesi-gb-mobile-cols`) on the wrapper. That single generic rule then gives every
-`Utils_GenericBrowser`/`Utils_RecordBrowser` table a 2-line mobile layout regardless of
-how many columns it has, with header and body rows staying column-aligned since both
-use the same rule and the same computed value.
+Because this is generic (not scoped to one module), column count varies per table, so
+the number of columns-per-line can't be hardcoded — `ceil(column_count/2)` computed
+per-table in the `.tpl` and exposed via `--epesi-gb-mobile-cols` is what lets this one
+CSS rule work for every table regardless of how many columns it has, with header and
+body rows staying column-aligned since both use the same rule and the same computed
+value.
+
+**Not done, deliberately:** no change to `GenericBrowser_0.php`, `theme/default.tpl`
+(legacy non-AdminLTE theme, out of scope — every other polish pass this session has
+been `adminltedark`-only), or `function.html_grid_epesi.php`.
+
+## Bug found in first-round visual verification: headers clipped to 1-2 characters
+
+Every `__th` (and any `__td` on an `absolute_width` table) carries its own inline
+`style="width:N%"` set by `GenericBrowser_0.php:856` — sized as N% of the *whole row*,
+for the desktop table-cell layout. A percentage `width` on a CSS grid item resolves
+against that item's own grid area (already just one 1fr track), not the row as a
+whole — so the same N% reapplied on top of an already-narrow track compounded down to
+near-zero width, and `overflow:hidden;text-overflow:ellipsis` clipped the label to
+whatever tiny sliver was left (1-2 characters). Fixed by adding
+`.epesi-gb .Utils_GenericBrowser__th, .epesi-gb .Utils_GenericBrowser__td { width: auto
+!important; }` inside the same `max-width:767.98px` block — `!important` is required
+because only that can beat an inline `style=`, and `width:auto` lets the item fall back
+to the grid's own default stretch-to-fill-the-track sizing.
 
 ## Alternatives considered
 
@@ -95,7 +138,70 @@ use the same rule and the same computed value.
   dependency for a problem CSS already solves, and this codebase deliberately avoids
   adding to the legacy Prototype/jQuery stack (see [[legacy-js-migration]]).
 
-## Regression surface to retest once implemented (generic = touches every list screen)
+## Dashboard applets: kebab collapse turned off (2026-08-10)
+
+Once rows wrap into the 2-line grid, the actions column is just one of
+`--epesi-gb-mobile-cols` slots — on a phone-width Dashboard applet card that's plenty
+of room for its icons, so collapsing them into a kebab (the existing 991.98px rule)
+just hides actions that already fit; confirmed by screenshot (Karina's Tickets,
+Phonecalls applets). Fixed by reusing the exact opt-out pattern
+`.epesi-admin-panel`/`.epesi-watchdog-applet` already established
+(`theme_adminltedark/default.css` ~1000-1025): added the same 2-rule override scoped to
+`.epesi-applet-body` — Base_Dashboard's own generic wrapper around *every* applet's
+content (`Base_Dashboard/theme_adminltedark/default.tpl:37`), regardless of which
+module it is, unlike Watchdog's module-specific wrapper. `.epesi-watchdog-applet`'s own
+rule is now a redundant subset of this one (a Watchdog applet is also inside
+`.epesi-applet-body`) — left in place rather than removed, harmless.
+
+**Deliberately scoped to applets only, not GenericBrowser generally** — a full-page
+RecordBrowser Browse-mode table (not inside a Dashboard applet) still gets the kebab
+collapse. Per explicit request, this is scoped for now — revisit if it should extend
+to Browse mode too.
+
+## Utils_Attachment Notes/Journal addon: opted out of the 2-line grid entirely (2026-08-10)
+
+Reported after visual verification: the Notes addon (`Utils_Attachment::body()`, embedded as
+a tab on Contacts/Companies/etc. — Journal is the same widget, different `$crits`/caption,
+see `theme_adminltedark/default.css`'s own `data-rb-tab="utils_attachment"` comment) rendered
+fine before today's change and shouldn't have been swept up in the generic fix — its `note`
+column is a wide `Utils_RecordBrowser__tallpreview` text column (see this file's "expandable
+cells" entry in `default.css`), not a fixed value that benefits from an even N-way grid split.
+This was flagged as a risk in advance, see "Regression surface to retest" above.
+
+Unlike the kebab-only opt-outs above, this table opts out of the *entire*
+`max-width:767.98px` block, reverting to the pre-fix proportional-width table-cell layout.
+Same `set_prefix()`/`set_postfix()` wrapping technique as `view_edit_history()`'s
+`.epesi-rb-changes-history` (`RecordBrowser_0.php:2462-2464`), but `Attachment_0.php` calls
+`show_data()` directly rather than going through `body()`, so it has no `$gb` of its own to
+call `set_prefix()` on — added a small public hook, `RecordBrowser_0.php`'s
+`set_data_gb($gb)`, reusing the existing private `$data_gb` property `show_data()` already
+checks (`if ($this->data_gb!==null) $gb = $this->data_gb;`) for RecordBrowser's own full-page
+Browse mode (`body()`/`show_filters()`). `Attachment_0.php::body()` now pre-builds a
+`Utils_GenericBrowser` child itself, wraps it in `<div class="epesi-attachment-notes">`, and
+injects it via that setter before calling `show_data()`.
+
+`theme_adminltedark/default.css`'s mobile 2-line block gained a `:not(:has(.epesi-attachment-notes))`
+clause on every selector, scoped to the ancestor `.epesi-gb` card — simplest option since the
+marker div sits *inside* the grid wrapper those rules target, not on it.
+
+**Follow-up: missed a second, independent kebab mechanism (2026-08-10).** Confirmed by
+a follow-up screenshot (Jasiek's Tickets applet) that a "⋮" kebab was still showing
+even with the fix above live — not stale cache after all. `ensureToggles()`
+(`Base_Box/theme_adminltedark/default.tpl`) actually runs *two* separate collapsing
+mechanisms: the responsive one fixed above (`.epesi-gb-actions-toggle`, mobile-width
+only), and a second, **always-on regardless of viewport width** "More actions" toggle
+(`.epesi-gb-more-toggle`/`.epesi-gb-actions-extra`) that groups any action not in
+`isCoreAction()`'s fixed list (view/edit/delete/info/print/restore/active-on/
+active-off/move-up-down/move-up/move-down/history/history_inactive/plus_gray/
+minus_gray/expand/collapse) — e.g. Premium Projects/Tickets' own per-row actions
+beyond view/edit/info. `.epesi-watchdog-applet` already had an override for *both*
+mechanisms (`theme_adminltedark/default.css` ~1058-1069); my original `.epesi-applet-body`
+fix only copied the first pair. Added the matching second pair
+(`.epesi-applet-body .epesi-gb-actions-extra`/`.epesi-gb-more-toggle`) right after it —
+now `.epesi-watchdog-applet`'s rules are a genuinely redundant subset of
+`.epesi-applet-body`'s for both mechanisms, not just one.
+
+## Regression surface to retest before merging (generic = touches every list screen)
 
 - The 991.98px actions-kebab collapse and favs/watchdog column hide
   (`default.css:883-934`) — need to confirm the two breakpoints/rules don't fight each
@@ -107,3 +213,54 @@ use the same rule and the same computed value.
 - The just-fixed ajax-tooltip cell-overflow hover preview (`82d577c2`, `929b699a`,
   `7ce240b8`) — it measures cell boxes; changing a cell's display mode at the breakpoint
   needs re-verifying the hover preview still triggers correctly.
+
+## Bug found in real visual verification: empty trailing cells on every row (2026-08-11)
+
+Reported via screenshot (Companies Browse mode, Ticket list) on a real phone-width
+viewport: every row - header and data alike - left 1-2 grid cells visibly empty at the
+end of its second physical line, and on Companies the header's second line read
+"Account Manager, ⋮" instead of the expected City/Company Name/Phone/Group/Account
+Manager/actions split evenly across two lines. This is the "Known limitation" flagged
+in `default.css`'s own comment when the feature was first implemented (2026-08-10) -
+turned out to be a real, visible defect, not just an imbalance.
+
+Root cause: `--epesi-gb-mobile-cols` (`default.tpl`) was computed from `count($cols)` -
+every column RecordBrowser hands to `{html_grid_epesi}`, including its own
+favourite/watchdog columns (`RecordBrowser_0.php`'s `fixed_columns_class`,
+`RecordBrowser_0.php:459`/`464` - tagged via `attrs="class=Utils_RecordBrowser__favs"` /
+`__watchdog`). But `default.css`'s own pre-existing `@media (max-width: 991.98px)` rule
+(`default.css:1000-1015`) already `display:none`s exactly those two columns' `__th`/`__td`
+at this width (991.98px covers 767.98px too) - and a `display:none` grid item is removed
+from CSS Grid's auto-placement flow entirely, not just visually hidden in place. So the
+*actual* number of items landing in the `repeat(var(--epesi-gb-mobile-cols), 1fr)` grid
+was 1-2 less than what `--epesi-gb-mobile-cols` (computed from the pre-hide total) assumed,
+leaving that many trailing cells on the row's second line empty. Confirmed algebraically:
+for a table with favs+watchdog+5 data columns+actions = 8 total columns,
+`mobile_cols = ceil(8/2) = 4`, but only 6 columns actually render at this width, so line 2
+(items 5-6: Account Manager, actions) filled only 2 of its 4 slots.
+
+Fix: `default.tpl`'s `{php}` block now counts only columns whose `attrs` string does
+*not* match `Utils_RecordBrowser__favs`/`__watchdog` before computing
+`ceil(.../2)` - i.e. it counts what will actually be visible at this breakpoint, the
+same two columns the 991.98px rule already excludes. The actions column is deliberately
+*not* excluded from the count - unlike favs/watchdog, its `__th`/`__td` box stays in
+grid flow at this width (only its inner icons collapse into a kebab via a separate,
+unrelated mechanism - see "---- mobile actions menu ----" in `default.css`), so it
+still needs a grid slot. `default.css`'s stale "Known limitation" comment was rewritten
+to describe the fix instead. Not yet re-verified in a browser after this change.
+
+## Record Browser "Changes History" tab: single-action kebab opted out (2026-08-10)
+
+Reported from a mobile-portrait screenshot: the Changes History tab's per-row action set
+is just one entry (`view`, label "View", jumping to the matching point in "Record
+historical view" — `RecordBrowser_0.php:2503`/`2517`) but the 991.98px kebab collapse
+still applied, so viewing a single change cost an extra tap to open the kebab first.
+Same opt-out shape as `.epesi-admin-panel`/`.epesi-watchdog-applet`/`.epesi-applet-body`
+above, scoped narrowly instead of generically: `RecordBrowser_0.php`'s
+`view_edit_history()` now wraps that `Utils_GenericBrowser` instance's grid via
+`set_prefix()`/`set_postfix()` in a `<div class="epesi-rb-changes-history">`, and
+`theme_adminltedark/default.css` adds the matching `.epesi-gb-actions-icons` (show) /
+`.epesi-gb-actions-toggle` (hide) pair, unscoped to any media query so it wins at every
+width. Only the responsive-kebab pair was needed, not the always-on "More actions"
+pair — `view` is in `isCoreAction()`'s fixed list, so that second mechanism never
+applied here to begin with.

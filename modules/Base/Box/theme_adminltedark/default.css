@@ -107,6 +107,34 @@ body {
 	font-weight: 600;
 	color: var(--epesi-text);
 	max-width: 40vw;
+	/* Per request - global, not just the narrow-portrait breakpoint below.
+	   Otherwise inherits body's own 1rem override (this file, top of the
+	   sheet) same as the rest of the navbar text, reading oversized next to
+	   the icon-only nav-links either side of it at their default sizing. */
+	font-size: 0.85rem;
+}
+
+/* Base_Admin's control panel has an unusually long caption ("Administration:
+   <section>", MainModuleIndicator/theme_adminltedark/default.tpl's own
+   data-module-type attribute exposes $module_type for exactly this) that
+   was still getting truncated even at full desktop width - per request,
+   Search and Perspective are dropped there specifically (every sub-panel,
+   not just the landing grid - Base_Admin stays the one tracked "main
+   module" across its own internal sub-screens, per Admin_0.php's
+   set_module()/caption(), so this :has() keeps matching as you drill in)
+   to give the caption the room instead. :has() lets this stay a pure CSS
+   rule keyed off the indicator's own content rather than needing every
+   navbar widget's template to know about "are we in Admin" itself.
+   !important on #filter_box only: it also carries Bootstrap's own
+   "d-none d-lg-block" utility classes (default.tpl), which compile with
+   !important themselves and would otherwise win at >=992px regardless of
+   this rule's own #id specificity; #search_box has no such competing
+   !important rule so a plain override is enough there. */
+.epesi-adminlte .app-header:has(.epesi-mmi[data-module-type="Base_Admin"]) #search_box {
+	display: none;
+}
+.epesi-adminlte .app-header:has(.epesi-mmi[data-module-type="Base_Admin"]) #filter_box {
+	display: none !important;
 }
 
 /* The shell's own widgets (search/filter/help/login) come from modules that
@@ -294,7 +322,12 @@ body {
    muted-text color. */
 .epesi-adminlte .sidebar-footer {
 	flex: 0 0 auto;
-	padding: 0.5rem;
+	flex-wrap: wrap;
+	/* Left padding matches .nav-link's own padding-left (Base_Menu/theme_
+	   adminltedark/default.css) rather than the plain 0.5rem the other sides
+	   use, so User/Logout's icons line up with the menu items' icons directly
+	   above them instead of sitting further left. */
+	padding: 0.5rem 0.5rem 0.5rem 0.9rem;
 	/* No divider line, per request - same reasoning as .sidebar-brand above. */
 	color: #000;
 }
@@ -302,6 +335,29 @@ body {
 .epesi-adminlte .sidebar-footer a {
 	color: #000;
 	text-decoration: none;
+}
+
+/* "User <username>" (relocated here from the navbar by default.tpl's own
+   eval_js_once, same DOM-move as Logout below it - both moved by request,
+   .logged_as second so it lands ahead of Logout in the footer). flex-basis:
+   100% on a flex-wrap:wrap container (the rule above) forces it onto its own
+   line, with Logout/the color-mode toggle sharing the row underneath -
+   .logged_as is first in DOM order after the move, so it's what wraps to the
+   top rather than either of them. Sizing/color handled by Base_User_Login's
+   own theme CSS (".sidebar-footer .logged_as" there) - same file-ownership
+   split already used for Logout (structural/layout rules here in Base_Box,
+   the moved widget's own appearance in the module that actually owns it). */
+.epesi-adminlte .sidebar-footer .logged_as {
+	flex: 1 0 100%;
+}
+
+/* Empty once both .logged_as and .logout_css3_box have been moved out by the
+   eval_js_once below - :empty re-evaluates live as soon as that DOM move
+   happens. Not strictly required (an empty <li class="nav-item"> has no
+   padding/border of its own to contribute a visible gap - see .nav-item's
+   own rules above) but cheap insurance against a stray empty flex item. */
+.epesi-adminlte .app-header .nav-item.login:empty {
+	display: none;
 }
 
 /* adminltedark-only color-mode toggle, sharing the footer's one-line row with
@@ -321,7 +377,15 @@ body {
 }
 
 .epesi-adminlte .epesi-theme-toggle:hover {
-	background-color: var(--epesi-hover-bg);
+	/* Not var(--epesi-hover-bg) - that variable tracks the app theme
+	   (rgba(255,255,255,.08) in dark mode), but this toggle sits in the
+	   sidebar, which is always the fixed light grey (.app-sidebar above)
+	   regardless of theme. In dark mode that white-on-white overlay was
+	   nearly invisible against the light grey background - same bug, same
+	   fix as Logout's own hover just below it in the footer (Base_User_
+	   Login/theme_adminltedark/default.css). #e9ecef matches #MenuBar
+	   .nav-link:hover's own light hover background for the same reason. */
+	background-color: #e9ecef;
 	color: #000;
 }
 
@@ -426,6 +490,76 @@ body {
 	   difference between the two bars' heights) visible on screen. */
 	body.epesi-topbar-hidden .epesi-adminlte .app-content-header {
 		transform: translateY(calc(-1 * (var(--epesi-header-height) + var(--epesi-actionbar-height))));
+	}
+}
+
+/* Portrait phones only, same off-canvas-sidebar breakpoint as above - a
+   landscape phone or a tablet under 992px still has enough navbar width to
+   keep everything; it's the portrait case (much narrower, per request) that
+   has to start dropping content. (Two items that originally had a rule here
+   are gone: "User <username>" - it moved out of the navbar entirely, on
+   every screen size, into the sidebar footer, see default.tpl and Base_User_
+   Login/theme_adminltedark/default.css, so there's nothing left in the
+   navbar to hide; and the home icon, dropped from the navbar outright the
+   same way, per an earlier request - see default.tpl. The launchpad trigger
+   this originally made room for is likewise a permanent, always-shown navbar
+   icon now, per a later request, so there's no "show it here" rule for that
+   either.) */
+@media (max-width: 991.98px) and (orientation: portrait) {
+	/* The search box - per request, dropped to reclaim more room on a narrow
+	   portrait phone. !important as a precaution - {$search}'s own module may
+	   carry theme CSS of its own that this file can't see ahead of time.
+	   #module-indicator (current screen name) used to be dropped here too,
+	   alongside search - restored per request, since with search (and
+	   everything else this block used to also hide, see the comment above)
+	   already gone, the row has room for it again and the navbar read as
+	   confusingly bare - a blank strip between the sidebar toggle and the
+	   launchpad icon with no indication of which screen you're on. */
+	#search_box {
+		display: none !important;
+	}
+	/* Stretch the restored indicator to fill that reclaimed space instead of
+	   sitting at the desktop rule's own max-width:40vw (this file's
+	   un-prefixed #module-indicator rule above) - on a narrow phone that cap
+	   left a wide dead gap between the truncated caption and the launchpad
+	   icon rather than using the room the search box's removal actually
+	   freed up. flex:1 1 auto claims the leftover space .container-fluid's
+	   flex layout (Bootstrap navbar rule) has between the two nav-item
+	   clusters; min-width:0 is required alongside it - a flex item's default
+	   min-width is auto (its content's own intrinsic width), which silently
+	   defeats text-truncate's overflow:hidden by refusing to shrink narrower
+	   than that in the first place. */
+	.epesi-adminlte #module-indicator {
+		max-width: none;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	/* Collapses the bar on a narrow portrait phone whenever it genuinely has
+	   no real action in it - mainly a Dashboard thing (no "Config" button
+	   any more - see Base_Dashboard/Dashboard_0.php - and its pinned Quick
+	   Access icons are already hidden at this breakpoint too, .epesi-
+	   actionbar-launcher-group in Base_ActionBar's own theme_adminltedark/
+	   default.css - so it normally renders as a tall empty band with
+	   nothing in it), but not Dashboard-specific any more: this used to be
+	   a :has()+data-module-type="Base_Dashboard" selector with a second
+	   :not(:has(...)) clause meant to keep the bar visible whenever a real
+	   action (config mode's own "Save", or an individual applet's Save/
+	   Back/Restore Defaults - Dashboard_0.php's configure_applet()) was
+	   actually present - reported as still hiding the bar live regardless,
+	   for reasons never pinned down, so Save became unreachable there below
+	   this breakpoint as a known, undesired side effect. body.epesi-
+	   actionbar-empty is set by a MutationObserver in default.tpl instead
+	   (see that file's own comment) - JS querying #ActionBar's actual
+	   content directly is unambiguous where the nested :has() chain wasn't,
+	   and keying off "is the bar actually empty" rather than "is this
+	   Dashboard" is correct for any screen that happens to render with no
+	   actions, not just that one. --epesi-actionbar-height (the
+	   ResizeObserver in default.tpl) tracks this element's real
+	   offsetHeight, so hiding it collapses .app-main's reserved
+	   padding-top down to just the navbar's height too - no leftover gap
+	   where the bar used to be. */
+	body.epesi-actionbar-empty .epesi-adminlte .app-content-header {
+		display: none;
 	}
 }
 

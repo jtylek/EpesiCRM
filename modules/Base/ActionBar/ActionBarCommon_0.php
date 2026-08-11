@@ -32,9 +32,31 @@ class Base_ActionBarCommon extends ModuleCommon {
 			'add'		=> 11,
 			'delete'	=> 12,
 			'save'		=> 13,
+			// Same sprite position as 'save' - RecordBrowser_0.php's "Export"
+			// button used to reuse the 'save' key outright (icon-only reason,
+			// looked identical to a real Save action, most visibly under the
+			// AdminLTE theme's own separate icon map), so this is a distinct
+			// key for that button now, not a distinct sprite: the legacy
+			// theme still renders it exactly as before (unaffected by the
+			// rename), only the AdminLTE theme's icon_map (Base_ActionBar/
+			// theme_adminltedark/default.tpl) actually diverges the two.
+			'export'	=> 13,
+			// CRM_ContactsCommon's "Copy company data" used the 'edit' key outright
+			// (pencil icon, indistinguishable from a real Edit action) - own key now,
+			// same sprite position as 'edit' so the legacy theme is unaffected; only
+			// the AdminLTE theme's icon_map (Base_ActionBar/theme_adminltedark/
+			// default.tpl) points this at a distinct glyph (bi-building).
+			'company'	=> 9,
 			'print'		=> 14,
 			'clone'		=> 15,
 			'settings'	=> 16,
+			// CRM_ContactsCommon's / Administrator_0's "Log as user" used the
+			// 'settings' key outright (gear icon, indistinguishable from a real
+			// Settings action) - own key now, same sprite position as 'settings'
+			// so the legacy theme is unaffected; only the AdminLTE theme's
+			// icon_map (Base_ActionBar/theme_adminltedark/default.tpl) points
+			// this at a distinct glyph (bi-person-circle).
+			'login-as'	=> 16,
 			'scan'		=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,

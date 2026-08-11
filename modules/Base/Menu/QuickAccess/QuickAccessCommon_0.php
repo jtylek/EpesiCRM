@@ -37,21 +37,43 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 			// Default on for both columns, except the Dashboard module's own
 			// entry: showing a "Dashboard" widget on the Dashboard itself is
 			// circular/pointless, so only its Launchpad default stays on.
-			$dashboard_default = ($opt['module']==Base_Dashboard::module_name())?0:1;
+			$is_dashboard = ($opt['module']==Base_Dashboard::module_name());
+			$dashboard_default = $is_dashboard?0:1;
+			$dashboard_elem = array_merge($opt,array(
+						'values'=>__('Dashboard'),
+						'default'=>$dashboard_default,
+						'name'=>$name.'_d'));
+			$launchpad_elem = array_merge($opt,array(
+						'values'=>__('Launchpad'),
+						'name'=>$name.'_l'));
+			if ($is_dashboard) {
+				// Locked, not just defaulted, per request: a "Dashboard"
+				// quick-access icon inline on the Dashboard itself is
+				// pointless (see above), and Dashboard's own Launchpad entry
+				// is the one guaranteed way back to it now that the
+				// ActionBar's own per-item pin toggle for it is gone
+				// (Base_Box/theme_adminltedark/default.tpl's permanent
+				// navbar icon replaced it) - so unlike every other row,
+				// neither checkbox here should be user-changeable at all.
+				// 'disabled' on the QuickForm element (Libs_QuickForm's
+				// get_element_by_array() merges this into the checkbox's own
+				// HTML attributes) only stops it being changed FROM HERE ON;
+				// the actual behaviour is enforced unconditionally in
+				// ActionBar_0.php::body() regardless of whatever's already
+				// stored for a user from before this lock existed, so a
+				// disabled-but-stale-looking checkbox here (for someone who
+				// toggled this row before today) doesn't leave the real
+				// behaviour unlocked.
+				$dashboard_elem['param'] = array('disabled'=>'disabled');
+				$launchpad_elem['param'] = array('disabled'=>'disabled');
+				$launchpad_elem['default'] = 1;
+			}
 			// Both elems share the group's own 'label' (the module item's name,
 			// used as the row header) - each elem's own 'values' is its column
 			// caption, shown inline by non-adminlte themes and used to build the
 			// "Dashboard"/"Launchpad" column headers in the adminlte theme (see
 			// Base_User_Settings::body()).
-			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array(
-						array_merge($opt,array(
-							'values'=>__('Dashboard'),
-							'default'=>$dashboard_default,
-							'name'=>$name.'_d')),
-						array_merge($opt,array(
-							'values'=>__('Launchpad'),
-							'name'=>$name.'_l'))
-					));
+			$ret_opts[] = array('type'=>'group', 'label'=>$opt['label'], 'elems'=>array($dashboard_elem, $launchpad_elem));
 		}
 		//trigger_error(print_r($ret_opts,true));
 		if (Acl::is_user()) return array(__('Quick Access')=>$ret_opts);

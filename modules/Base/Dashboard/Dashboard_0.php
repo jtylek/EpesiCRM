@@ -19,7 +19,42 @@ class Base_Dashboard extends Module {
         on_init(array('Base_ActionBarCommon', 'show_quick_access_shortcuts'), array(false));
 	}
 
+	// Base_Box's "main module" position tracks a (module, function) pair that
+	// persists across every subsequent request against that SAME position -
+	// not just the one navigation click that set it (see push_main()/body()
+	// in Base_Box/Box_0.php: the function stays on a session-stored stack
+	// until a fresh box_main_href navigation replaces the whole stack, so an
+	// in-page callback's own follow-up redraw still re-invokes the SAME
+	// function). That means body() and open_config() below can each be
+	// re-invoked many times for their own reasons, not just once on first
+	// entry - config_mode has to be explicitly (re)declared at the top of
+	// each rather than toggled, or a stale value from a previous, unrelated
+	// visit leaks into a fresh one (reported: navigating to the plain
+	// 'Dashboard' menu item always opened in config mode, once
+	// open_config() below had ever been used in the same session).
 	public function body() {
+		$this->set_module_variable('config_mode', false);
+		$this->render();
+	}
+
+	// __function__ entry point for the Menu -> My settings -> Dashboard link
+	// (Base_DashboardCommon::menu()) - the "Config" ActionBar button that
+	// used to open config mode from an already-displayed Dashboard is gone
+	// (see dashboard()'s own comment); this is its replacement. Re-checks
+	// permission independently of the menu's own ACL gate, same defensive
+	// pattern body() effectively had before via dashboard()'s own check -
+	// has_permission_to_manage_applets() is the same one dashboard() itself
+	// uses to decide whether config mode is even offered at all.
+	public function open_config() {
+		if (!Base_DashboardCommon::has_permission_to_manage_applets()) return;
+		$this->set_module_variable('config_mode', true);
+		$this->render();
+	}
+
+	// Shared by body()/open_config() above - deliberately doesn't touch
+	// config_mode itself (see body()'s own comment on why each entry point
+	// sets it explicitly instead).
+	private function render() {
 		if(!Base_AclCommon::check_permission('Dashboard')) return;
 		$this->help('Dashboard Help','main');
 
@@ -36,10 +71,49 @@ class Base_Dashboard extends Module {
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if ($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()) {
 			if ($config_mode) {
-				Base_ActionBarCommon::add('back',__('Done'),$this->create_callback_href($this->switch_config_mode(...)));
-			} else {
-				Base_ActionBarCommon::add('settings',__('Config'),$this->create_callback_href($this->switch_config_mode(...)));
+				// Was a callback (switch_config_mode(), toggling config_mode
+				// back off in place) labelled "Done" with a back-arrow icon -
+				// per request, now labelled/iconed "Save" - but the HREF
+				// underneath still has to differ by path, not just relabel:
+				if ($default_dash) {
+					// admin()'s "Default dashboard" admin panel reaches this
+					// config_mode through a completely different module path
+					// (nested under Base_Admin, not Base_Box's own "main"
+					// position) than open_config() below, and never forces
+					// config_mode back to true the way open_config() does on
+					// every redraw - so toggling in place here, same as
+					// before, is still correct and doesn't hit the re-opens-
+					// itself problem the plain (non-admin) path has (see the
+					// else branch's own comment). admin()'s own "Back" button
+					// (added in admin() itself) is what actually leaves this
+					// screen; this one just drops back to the read-only view
+					// within the same admin panel.
+					Base_ActionBarCommon::add('save',__('Save'),$this->create_callback_href($this->switch_config_mode(...)));
+				} else {
+					// This path (config_mode true, not default_dash) is only
+					// ever reached via the Menu -> My settings -> Dashboard
+					// entry (open_config() below) - and Base_Box's "main
+					// module" position keeps re-invoking THAT SAME function
+					// for every subsequent request against this position,
+					// including a callback's own follow-up redraw (see
+					// body()'s own comment). A callback here (the old
+					// switch_config_mode() toggle) would have been
+					// immediately re-opened into config mode by open_config()
+					// on the very next redraw, making the button look like it
+					// did nothing - so this is a real navigation instead:
+					// create_main_href with no function replaces the stack
+					// position outright and lands back on body(), which
+					// explicitly resets config_mode to false itself.
+					Base_ActionBarCommon::add('save',__('Save'),$this->create_main_href(Base_Dashboard::module_name()));
+				}
 			}
+			// The entry point into config mode ("Config") used to live here
+			// too, as the else branch's own ActionBar button - moved out per
+			// request (it was the only action left in the mobile ActionBar on
+			// a plain Dashboard view, standing out oddly alone) to a
+			// permanent Menu -> My settings -> Dashboard sidebar entry
+			// instead (see open_config() above and Base_DashboardCommon::
+			// menu()).
 		}
 
 		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
@@ -146,6 +220,9 @@ class Base_Dashboard extends Module {
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
 
+	// Only reached from the $default_dash branch of dashboard()'s "Save"
+	// button now - see that branch's own comment on why it's still a
+	// same-place toggle there, unlike the other branch's real navigation.
 	public function switch_config_mode() {
 		$this->set_module_variable('config_mode', !$this->get_module_variable('config_mode', false));
 	}

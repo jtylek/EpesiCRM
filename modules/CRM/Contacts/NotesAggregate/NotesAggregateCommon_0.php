@@ -16,7 +16,7 @@ class CRM_Contacts_NotesAggregateCommon extends ModuleCommon {
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
 	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-journal-text'; }
+	public static function adminlte_icon() { return 'bi-journal'; }
 
 	public static function user_settings() {
 		return array(__('Notes Aggregate')=>array(

@@ -25,8 +25,12 @@
 	   class) sets padding from --bs-card-cap-padding-y/-x (0.5rem/1rem by
 	   default) - without this, load order between this file and
 	   bootstrap.min.css decides which wins, so the header's height would be
-	   at the mercy of that instead of always matching this theme's design. */
-	padding: 4px 0.5rem !important;
+	   at the mercy of that instead of always matching this theme's design.
+	   Vertical padding raised from 4px per request ("slightly taller... so
+	   that it renders icons bigger and the title fits") - the extra height
+	   is what makes room for .epesi-applet-actions' own bigger icons below
+	   without cramping the title text against the header's edges. */
+	padding: 7px 0.6rem !important;
 	font-size: 1rem;
 	line-height: 1;
 }
@@ -34,6 +38,12 @@
 .epesi-applet-title {
 	font-weight: 600;
 	font-size: 1rem;
+	/* Own line-height, not the header's inherited line-height:1 (line 35) -
+	   that value is tight enough that this element's own overflow:hidden
+	   (needed below for the ellipsis truncation) clipped descenders (e.g. the
+	   tail of a lowercase "g") off the bottom of the title instead of only
+	   truncating overflow width-wise. */
+	line-height: 1.3;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -90,13 +100,14 @@
    sized to the PNG's own pixel dimensions - capped to match the Bootstrap
    Icons glyphs around it instead of dictating the row's height. */
 .epesi-applet-actions img {
-	width: 0.9em;
-	height: 0.9em;
+	/* Scaled up to match .bi below, same "slightly taller header" request. */
+	width: 1.05em;
+	height: 1.05em;
 	object-fit: contain;
 }
 
 .epesi-applet-actions .bi {
-	font-size: 0.85em;
+	font-size: 1em;
 }
 
 .epesi-applet-actions a {

@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		<div class="required_fav_info">
-			&nbsp;*&nbsp;{$required_note}
+			{if $required_note}&nbsp;*&nbsp;{$required_note}{/if}
 			{if isset($subscription_tooltip)}
 				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
 			{/if}

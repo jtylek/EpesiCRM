@@ -31,18 +31,72 @@
 	margin-bottom: 0.5rem;
 }
 
-.epesi-br-viewmode {
+.epesi-br-left {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 	margin-right: auto;
 }
 
-.epesi-br-viewmode select {
-	border: 1px solid #495057;
-	border-radius: 0.25rem;
-	padding: 0.2rem 0.4rem;
-	font-size: 0.8rem;
+/* View-mode select, Expand All/Collapse All and (Filters/theme_adminltedark's)
+   Show/Hide filters button all sit in this same toolbar row - per request, a
+   single fixed dark-grey/white look for all three, deliberately NOT flipping
+   with [data-bs-theme="light"] like most of this theme does. The select
+   previously carried no background/color of its own, so its "button" look
+   was actually just the browser's native control chrome (dark because
+   Base_ThemeCommon sets colorScheme='dark' on <html> - see ThemeCommon_0.php),
+   which is why it already looked filled while the plain .btn-outline-secondary
+   anchors next to it didn't - and why it would have inverted to native LIGHT
+   chrome (different size again) under the light theme instead of matching.
+   appearance:none + a hand-drawn arrow take over the closed control's look
+   entirely instead of layering onto native chrome; color-scheme:dark keeps
+   the native OPEN option list dark-styled too regardless of the page's own
+   theme, avoiding the white-text-on-native-light-popup mismatch documented in
+   AI-shared/bug-patterns.md ("Native <select>/<textarea> text goes
+   white-on-white..."). !important on the color properties guards against
+   gen_light_override.js re-adding a conflicting override later - see that
+   same doc's Dashboard applet-header entry for why this is this codebase's
+   established fix for exactly that risk. */
+.epesi-br-viewmode select,
+.epesi-br-btn {
+	background-color: #495057 !important;
+	color: #fff !important;
+	border: 1px solid #495057 !important;
+	/* !important: Expand All/Collapse All sit in a .btn-group for spacing
+	   only - only one is ever visible at a time (jQuery show/hide, see
+	   table_overflow.js's gb_show_hide_buttons()), never both as a joined
+	   pair, but Bootstrap's own .btn-group > .btn:not(:first-child)/
+	   :not(:last-child) corner-zeroing rules (higher specificity than a
+	   plain class) don't know that and squared off whichever corner faced
+	   the other, now-irrelevant button. */
+	border-radius: 0.375rem !important;
+	padding: 0.3rem 0.7rem;
+	font-size: 0.85rem;
 }
 
-/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-br-viewmode select {
-  border: 1px solid #ced4da;
+.epesi-br-viewmode select {
+	appearance: none;
+	-webkit-appearance: none;
+	color-scheme: dark;
+	padding-right: 1.9rem;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23fff' d='M8 11 3 6h10z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.6rem center;
+	background-size: 10px 10px;
+}
+
+.epesi-br-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	text-decoration: none;
+}
+
+.epesi-br-viewmode select:hover,
+.epesi-br-btn:hover,
+.epesi-br-btn:focus {
+	background-color: #343a40 !important;
+	border-color: #343a40 !important;
+	color: #fff !important;
 }

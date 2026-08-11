@@ -90,6 +90,16 @@ class Utils_RecordBrowser extends Module {
         $this->grid = $arg;
     }
 
+    // Lets a caller that invokes show_data() directly (an addon tab like Utils_Attachment's,
+    // bypassing body()/show_filters() - those two also populate $data_gb, but only on the
+    // full-page Browse mode path) pre-build its own Utils_GenericBrowser child instance and
+    // call set_prefix()/set_postfix() on it first (same technique as this file's own
+    // view_edit_history()) - show_data() picks up the injected instance via its existing
+    // "if ($this->data_gb!==null)" check instead of creating its own.
+    public function set_data_gb($gb) {
+        $this->data_gb = $gb;
+    }
+
     public function set_filter_crits($field, $crits) {
         $this->filter_crits[$field] = $crits;
     }
@@ -296,6 +306,11 @@ class Utils_RecordBrowser extends Module {
         $this->is_on_main_page = true;
 
         $this->data_gb = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab);
+        // AdminLTE's Browsing_records.tpl renders Expand All/Collapse All itself,
+        // next to the view-mode picker, instead of in the table's own toolbar row
+        // (see modules/Utils/RecordBrowser/theme_adminltedark/Browsing_records.tpl).
+        // The legacy theme keeps the buttons inline in the table's own header.
+        if (Base_ThemeCommon::is_adminlte_family()) $this->data_gb->use_external_expand_collapse_controls(true);
 
         if (!$this->disabled['filters']) $filters = $this->show_filters($filters_set);
         else $filters = '';
@@ -354,6 +369,7 @@ class Utils_RecordBrowser extends Module {
         ob_end_clean();
 
         $theme->assign('table', $table);
+        $theme->assign('expand_collapse', $this->data_gb->get_expand_collapse_controls());
         if (!$this->disabled['headline']) $theme->assign('caption', _V($this->caption).($this->additional_caption?' - '.$this->additional_caption:'').($this->get_jump_to_id_button()));
         $theme->assign('icon', $this->icon);
         $theme->display('Browsing_records');
@@ -668,7 +684,19 @@ class Utils_RecordBrowser extends Module {
         if (is_array($limit)) $this->set_module_variable('last_offset',$limit['offset']);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
-            $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+            // Was icon key 'save' - rendered identically to a real Save action
+            // (both the legacy sprite and, more visibly, the AdminLTE theme's
+            // shared bi-check2-square glyph), confusing since this button
+            // downloads a CSV rather than saving anything. 'export' is its own
+            // key now - Base_ActionBarCommon::$available_icons maps it to the
+            // same sprite position as 'save' (ActionBarCommon_0.php), so the
+            // legacy theme's fullscreen_table rendering is pixel-identical to
+            // before, and theme/icons/export.png (a copy of save.png) covers
+            // new_button()'s non-fullscreen_table file-path fallback the same
+            // way; only the AdminLTE theme's own icon_map (Base_ActionBar/
+            // theme_adminltedark/default.tpl) actually points this at a
+            // different glyph (bi-download).
+            $this->new_button('export',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
 
         $this->set_module_variable('crits_stuff',$crits?$crits:array());
         $this->set_module_variable('order_stuff',$order?$order:array());
@@ -1149,8 +1177,13 @@ class Utils_RecordBrowser extends Module {
                 if ($show_actions===true || (is_array($show_actions) && (!isset($show_actions['back']) || $show_actions['back'])))
                     Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
             } elseif($mode!='history') {
-                Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-                Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+                // queue=true (also on this method's other Save call sites below): a tap
+                // that lands while some unrelated Epesi.href() call is still in flight
+                // (e.g. this very form still loading on a slow mobile connection)
+                // otherwise gets silently and permanently dropped - no request, no
+                // error, no visual feedback - see get_submit_form_href()'s doc comment.
+                Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
+                Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
             }
             //Utils_ShortcutCommon::add(array('esc'), 'function(){'.$this->create_back_href_js().'}');
         }
@@ -1345,7 +1378,11 @@ class Utils_RecordBrowser extends Module {
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
-        $theme->assign('required_note', __('Indicates required fields.'));
+        // Only meaningful while fields are actually editable - view/history mode
+        // has no required-vs-optional distinction to explain, so leave it unset
+        // rather than showing a "* Indicates required fields." note above a
+        // read-only record.
+        $theme->assign('required_note', (self::$mode=='add' || self::$mode=='edit') ? __('Indicates required fields.') : '');
 
         $theme->assign('caption',_V($this->caption) . $this->get_jump_to_id_button());
         $theme->assign('icon',$this->icon);
@@ -1589,7 +1626,7 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('select', 'search_priority', __('Search priority'), array(-2=>__('Lowest'),-1=>__('Low'), 0=>__('Default'), 1=>__('High'), 2=>__('Highest')));
         
 	if ($full_access) {
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 	} else {
 		$form->freeze();
 	}
@@ -1686,7 +1723,7 @@ class Utils_RecordBrowser extends Module {
         }
         $form->display();
 		Base_ActionBarCommon::add('back',__('Cancel'),$this->create_back_href());
-		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href());
+		Base_ActionBarCommon::add('save',__('Save'),$form->get_submit_form_href(true, null, true));
 
         return true;
     }
@@ -1704,7 +1741,7 @@ class Utils_RecordBrowser extends Module {
         $textarea->setRows(12);
         $textarea->setCols(80);
 		if ($full_access) {
-			Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+			Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 		} else {
 			$form->freeze();
 		}
@@ -2273,7 +2310,7 @@ class Utils_RecordBrowser extends Module {
         	$form->autohide_fields($control_field, $row[$control_field] ?? null, $map);
         }
 
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
 		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		
         return true;
@@ -2445,6 +2482,11 @@ class Utils_RecordBrowser extends Module {
         $gb_cha->set_table_columns( $table_columns_changes );
 
         $gb_cha->set_inline_display();
+        // Only row action here is "View" (jump to Record historical view) - opt this table
+        // out of the mobile actions-kebab collapse, see theme_adminltedark/default.css's
+        // ".epesi-rb-changes-history" rule.
+        $gb_cha->set_prefix('<div class="epesi-rb-changes-history">');
+        $gb_cha->set_postfix('</div>');
 
         $created = Utils_RecordBrowserCommon::get_record($this->tab, $id, true);
         $access = $this->get_access('view', $created);
@@ -2527,25 +2569,21 @@ class Utils_RecordBrowser extends Module {
 		$dates_keys = array_keys($dates_select);
 		$default_index = array_search($created['created_on'], $dates_keys);
 		load_js('modules/Libs/QuickForm/select.js');
-		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
-		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
+		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
 		if ($default_index===false || $default_index>=count($dates_keys)-1) $prev_attrs['disabled'] = 1;
 		$prev_button = $form->createElement('button', 'historical_view_prev', __('Previous'), $prev_attrs);
-		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
 		if ($default_index===false || $default_index<=0) $next_attrs['disabled'] = 1;
 		$next_button = $form->createElement('button', 'historical_view_next', __('Next'), $next_attrs);
-		$play_attrs = array('id'=>'historical_view_play_button', 'class'=>'btn btn-secondary', 'data-play-label'=>__('Play'), 'data-pause-label'=>__('Pause'), 'onclick'=>'recordbrowser_edit_history_toggle_play("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
-		if ($default_index===false || count($dates_keys)<2 || $default_index<=0) $play_attrs['disabled'] = 1;
-		$play_button = $form->createElement('button', 'historical_view_play', __('Play'), $play_attrs);
-		$interval_select = $form->createElement('select', 'historical_view_play_interval', '', array(1=>'1s', 3=>'3s', 5=>'5s', 10=>'10s'), array('id'=>'historical_view_play_interval', 'onChange'=>'recordbrowser_edit_history_interval_changed("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")'));
 		$label_static = $form->createElement('static', 'historical_view_label', '', __('View the record as of'));
 		$indicator_html = '<span id="historical_view_indicators" data-by-label="'.htmlspecialchars(__('Edited by')).'">'
 			.'<span id="historical_view_created_badge" style="display:none;font-weight:bold;color:#28a745;">'.__('Record Created').'</span> '
 			.'<span id="historical_view_username_indicator"></span>'
 			.'</span>';
 		$indicator_static = $form->createElement('static', 'historical_view_indicator', '', $indicator_html);
-		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $play_button, $interval_select, $indicator_static), 'historical_view_group', '');
-		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'], 'historical_view_play_interval'=>1)));
+		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $indicator_static), 'historical_view_group', '');
+		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'])));
 		$form->display();
 		eval_js('recordbrowser_edit_history_meta='.json_encode($dates_meta).';recordbrowser_edit_history_update_buttons();');
 		$this->view_entry('history', $created);
@@ -2692,7 +2730,7 @@ class Utils_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
         $form = $this->init_module(Libs_QuickForm::module_name(), null, 'pick_recordset');
-        $opts = Utils_RecordBrowserCommon::list_installed_recordsets('%caption (%tab)');
+        $opts = Utils_RecordBrowserCommon::list_installed_recordsets('%caption');
 		asort($opts);
 		$first = array_keys($opts);
 		$first = reset($first);
@@ -3055,8 +3093,8 @@ class Utils_RecordBrowser extends Module {
 		
 		$theme->display('edit_permissions');
 		Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
-		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href(true, null, true));
+		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 		return true;
 	}
 	

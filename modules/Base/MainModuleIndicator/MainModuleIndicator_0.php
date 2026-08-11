@@ -54,7 +54,20 @@ class Base_MainModuleIndicator extends Module {
 		// uses (per-link icon first, module fallback second), so this bar's
 		// icon can't disagree with the sidebar's for the same screen.
 		$t->assign('module_icon', ($active_module && is_callable(array($active_module,'icon'))) ? $active_module->icon() : null);
-		$t->assign('module_type', (isset($active_module) && $active_module) ? $active_module->get_type() : null);
+		// module_type: prefer the packed child's real type over Base_HomePage's
+		// own (get_type() is final, so Base_HomePage can't just override it
+		// directly - see that module's packed_module_type() for why this needs
+		// its own accessor). Without this, "Home" landing on e.g. Dashboard
+		// reported as module_type=Base_HomePage on first load (only a REAL
+		// navigation to Dashboard - not via Home - tracked it correctly),
+		// breaking any :has()+data-module-type CSS keyed off the real module,
+		// e.g. Base_Box's own Dashboard-specific ActionBar-hiding rule.
+		$module_type = (isset($active_module) && $active_module) ? $active_module->get_type() : null;
+		if ($active_module && is_callable(array($active_module,'packed_module_type'))) {
+			$packed_type = $active_module->packed_module_type();
+			if ($packed_type) $module_type = $packed_type;
+		}
+		$t->assign('module_type', $module_type);
 
 		$t->display();
 	}

@@ -29,8 +29,15 @@
 	width: max-content;
 	/* Wide enough for a typical Watchdog/RecordBrowser changes-list table
 	   (see the "table" rules below) to lay out without its columns getting
-	   too cramped, while still capping/wrapping a long single-line tooltip. */
-	max-width: 480px;
+	   too cramped, while still capping/wrapping a long single-line tooltip.
+	   min() with a viewport-relative fallback matters on a narrow phone:
+	   480px is wider than most phone viewports, and epesi_tooltip_position()
+	   (tooltip.js) can only ever slide the popup's *left* edge within
+	   [4, innerWidth-width-4] - if width alone already exceeds
+	   innerWidth-8, that range is empty/negative and the clamp falls back to
+	   left:4px with the popup still wider than the screen, running off the
+	   right edge uncapped. Capping width itself keeps that range valid. */
+	max-width: min(480px, calc(100vw - 16px));
 	box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
 	/* Above every other z-index in the theme (StatusBar 2001-2002,
 	   Base_Help's tutorial overlay 9001-9002 included) - a hover tooltip
@@ -117,3 +124,4 @@
 #tooltip_leightbox_mode_content td.new_value {
 	background-color: #d9f2df;
 }
+

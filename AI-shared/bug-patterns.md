@@ -787,3 +787,113 @@ unrelated popups hit this independently in one session; before styling a
 both properties up front instead of waiting for it to be reported as
 "invisible text."
 
+## Status field's "quick shortcut" click bypassed the follow-up prompt entirely
+
+`CRM_Tasks`/`CRM_PhoneCall`/`Premium_Projects_Tickets`/`CRM_Meeting`'s
+`display_status()` (Meeting: split across `get_status_change_leightbox_href()`
++ `display_status()`) all special-cased the *first* status value (Open/New,
+`$v==0` or `$v<=0`): instead of opening the same Follow-up/Change-Status
+leightbox prompt every other status value opens (`class="lbOn"
+rel="..._followups_leightbox"`), clicking it fired a hardcoded `onclick` that
+submitted the underlying form directly with a made-up action
+(`set_in_progress`/`set_next_stage`), auto-advancing straight to "In Progress"
+with no prompt, no note field, no choice of any *other* status. Reported as
+unintuitive: a user clicking "Open" expecting the same status-choice popup
+every other status shows instead got silently reassigned to a specific status
+they may not have wanted.
+
+**Fix, identical shape in all four**: delete the special-cased branch and let
+`$v==0`/`$v<=0` fall through to the same leightbox-opening return every other
+status already uses - the leightbox's own status dropdown (`closecancel`)
+already offers every status including "In Progress", so nothing was actually
+gained by the shortcut. The now-unreachable `action=='set_in_progress'`/
+`'set_next_stage'` handling deeper in each function (confirmed via a
+whole-repo grep for both strings - no other caller in any of the four, before
+*or* after fixing Meeting) was deleted too rather than left dead.
+
+**How to apply**: any `display_status()`/similar field-formatter that branches
+on the *current* value to decide between "prompt" and "silently mutate and
+reload" for what's supposed to be one clickable status field is the same bug
+shape - the prompt should be unconditional, not skipped for whichever value
+happens to be first. All known instances of this pattern in the codebase are
+fixed as of 2026-08-10 - if a *new* module adds its own status field this way,
+it's copying the pre-fix pattern from one of these four, not a fresh design.
+
+## An uncaught exception in a `document`-level handler silently eats the click that triggered it — invisible on mobile, no devtools
+
+Found 2026-08-11, reported simply as "tapping Save on a phone does nothing" -
+icon shows the tap registered (plain CSS `:hover` sticking, unrelated to
+whether anything actually ran), then nothing: no request in the access log,
+no visible error, screen never leaves edit mode. Took a temporary
+`window.onerror` handler in `epesi.js` (still present, kept intentionally for
+now per user request - remove once no longer needed) to surface what was
+actually happening, since a phone has no visible console.
+
+**Bug 1**: `modules/Libs/CKEditor/ck.js`'s `e:submit_form` handler
+unconditionally calls `.destroy()` on every tracked instance in the global
+`ckeditors` map. That map is only ever populated by `CKEDITOR.replace(key,
+value)` (in the `e:load` handler), which **can return `null`** if CKEditor's
+own init fails for any reason - a known CKEditor 4 quirk, more likely on
+mobile/touch browsers (this app has an open, not-yet-started plan to replace
+CKEditor with Quill - see `ckeditor-to-quill-migration.md` - which this class
+of fragility is part of the motivation for). Nothing here ever guarded
+against that `null`, so a single failed init poisoned the map, and the *next*
+Save's `e:submit_form` handler threw a `TypeError` trying to call `.destroy()`
+on it.
+
+**Bug 2** (a second, independent bug the same investigation uncovered *after*
+fixing Bug 1 - hidden until then because the diagnostic above only showed the
+*first* error per page load): `modules/Utils/Shortcut/js/Shortcut.js`'s
+global keydown listener has an `opt['disable_in_input']` guard that only
+checks `element.tagName == 'INPUT' || 'TEXTAREA'` - it doesn't recognize
+CKEditor's `contenteditable` iframe body as a form field, so it runs on every
+keystroke typed into any RecordBrowser rich-text field too. It reads
+`e.keyCode`/`e.which` into an un-`var`-declared global `code`, then
+unconditionally does `String.fromCharCode(code)` right after - if a keyboard
+event has *neither* property set (some Android virtual-keyboard/IME-generated
+key events don't), `code` was never assigned at all, and referencing it threw
+`ReferenceError: code is not defined`.
+
+**The shared shape**: both are `jQuery(document).on(...)` handlers bound once
+at page-load and re-invoked on every matching event thereafter. jQuery does
+not wrap user callbacks in try/catch - an uncaught exception inside one
+propagates out through jQuery's internal dispatch and **aborts whatever
+called `.trigger(...)`**, which for `e:submit_form` specifically is the
+ActionBar Save button's own raw inline `onclick` attribute, executed
+synchronously, outside the ajax layer entirely: the exception aborts that
+`onclick` before it ever reaches `_chj()`/`Epesi.request()`. Zero network
+activity, zero visible feedback, and (critically) no console on a phone -
+this is why it read as "tapping the button does literally nothing" rather
+than as an error.
+
+**Fix**: guarded both - `ck.js` now checks a tracked instance is truthy
+before calling `.destroy()`/reading `.config` on it anywhere (and uses
+`!ckeditors[key]` instead of `typeof ckeditors[key]=="undefined"` so a
+previously-failed `null` entry gets *retried* on the next `e:load` cycle
+instead of being permanently stuck, since `typeof null` is `"object"`, not
+`"undefined"`); `Shortcut.js` now returns early if neither `keyCode` nor
+`which` is set, instead of falling through to reference the unset `code`.
+Also (defense in depth, not a fix for either specific bug): `epesi.js`'s
+`Epesi.request()` now wraps `eval(responseText)` in try/catch too, so a bug
+in a *response*'s generated JS can no longer permanently leak
+`Epesi.procOn` and silently wedge every future click in the session the same
+way (a related but distinct failure mode from the two above - that one would
+manifest as a stuck "Loading..." indicator instead of true silence).
+
+**How to apply**: any `jQuery(document).on('e:...', ...)` handler in this
+codebase (there are several - GenericBrowser, RecordBrowser, other field
+types) runs for *every* matching trigger app-wide, including ones fired by
+totally unrelated code (any `Epesi.href()`/form-submit call triggers
+`e:submit_form`/`e:loading`/`e:load` globally, not scoped to whichever module
+"owns" the click). Before trusting that a value read from a shared
+module-level map (`ckeditors`, or similar caches elsewhere) is always
+populated, or that a browser API property (`keyCode`/`which`, or anything
+else increasingly deprecated in favor of newer equivalents) is always set,
+check what happens on mobile/touch input specifically - it's the environment
+most likely to violate assumptions that hold reliably on desktop. And when a
+report says a button "does nothing" with no error and no network activity at
+all, suspect an uncaught exception inside that button's own click-triggered
+event-handler chain before suspecting the network/server - there is no
+built-in visibility into that on a phone, so it takes deliberately adding a
+`window.onerror` (or equivalent) to see it.
+

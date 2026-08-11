@@ -47,16 +47,42 @@ class Base_ActionBar extends Module {
 		
 		$icons = Base_ActionBarCommon::get();
 
+		// Every ActionBar should start with a Back action - added globally
+		// here rather than by each module, so it's never missing (e.g. a
+		// top-level Browse screen reached straight from the menu never had
+		// anywhere to go "back" to inside its own module) and never doubled
+		// up. If a module already registered its own 'back' (RecordBrowser's
+		// view->browse, Settings subpages, etc. - those are more specific
+		// than a generic "previous screen" and take priority), skip this.
+		// Base_BoxCommon::has_nav_history() is false with nothing to return
+		// to (e.g. the very first screen after login), so no dead button.
+		$has_back = false;
+		foreach ($icons as $i) {
+			if ($i['icon'] === 'back') { $has_back = true; break; }
+		}
+		if (!$has_back && Base_BoxCommon::has_nav_history()) {
+			$icons[] = array(
+				'icon' => 'back',
+				'label' => __('Back'),
+				'action' => Base_BoxCommon::nav_back_href(),
+				'description' => null,
+				'position' => 0,
+			);
+		}
+
 		//sort
 		usort($icons, $this->compare(...));
 
 		//translate
 		foreach($icons as &$i) {
-			$description = $i['description'];
-            if($i['description'])
-                $t = Utils_TooltipCommon::open_tag_attrs($description);
-            else
-                $t = '';
+			// Every button gets a tooltip now, not just the handful that pass an
+			// explicit $description - falls back to the visible label text
+			// (stripped of any markup, e.g. Roundcube's bolded account label)
+			// so there's still a hint once the AdminLTE theme hides labels at
+			// narrow widths (Base_ActionBar/theme_adminltedark/default.css's
+			// max-width:991.98px rule).
+			$description = $i['description'] ?: strip_tags($i['label']);
+			$t = Utils_TooltipCommon::open_tag_attrs($description);
 			$i['open'] = '<a '.$i['action'].' '.$t.'>';
 			$i['close'] = '</a>';
 			$i['helpID'] = 'ActionBar_'.$i['icon'];
@@ -75,7 +101,20 @@ class Base_ActionBar extends Module {
 			if(!empty($opts)) {
 				self::$launchpad = array();
 				foreach ($opts as $k=>$v) {
-					if(Base_ActionBarCommon::$quick_access_shortcuts
+					// Dashboard's own Quick Access entry is locked, both
+					// directions, regardless of whatever's stored for it
+					// (Base_Menu_QuickAccess/QuickAccessCommon_0.php's
+					// user_settings() disables both its checkboxes in the
+					// settings UI to match, but the real enforcement has to
+					// live here - a disabled checkbox alone doesn't stop a
+					// stale pre-existing DB value from before this lock
+					// existed). '_d' (pinned inline in the ActionBar) is
+					// pointless while already ON the Dashboard, so never
+					// shown; '_l' (Launchpad) is the one guaranteed way back
+					// to it now that the ActionBar's own per-item toggle for
+					// it is gone, so always shown.
+					$is_dashboard = ($v['module']==Base_Dashboard::module_name());
+					if(!$is_dashboard && Base_ActionBarCommon::$quick_access_shortcuts
                             && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_d')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
@@ -95,7 +134,7 @@ class Base_ActionBar extends Module {
 						$ii['icon'] = $icon;
 						$launcher[] = $ii;
 					}
-					if (Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
+					if ($is_dashboard || Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_l')) {
 						$ii = array();
 						$trimmed_label = trim(substr(strrchr($v['label'],':'),1));
 						$ii['label'] = $trimmed_label?$trimmed_label:$v['label'];
@@ -153,23 +192,34 @@ class Base_ActionBar extends Module {
 			$lp_out = ob_get_clean();
 			$big = count(self::$launchpad)>10;
 			Libs_LeightboxCommon::display('actionbar_launchpad',$lp_out,__('Launchpad'),$big);
-			$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
-			$th = $this->pack_module(Base_Theme::module_name());
-			$th->assign('icons',array());
-			$th->assign('launcher',array_reverse($launcher));
-			$th->display();
-			// Both ids are printed once in Base_Box's own shell markup (not
-			// re-rendered by ordinary AJAX navigation) - guarded rather than
-			// assumed present, since this eval_js runs inside the same shared
-			// per-request append_js blob as every other queued module's own
-			// script (Epesi::get_output()), where an uncaught exception here
-			// would abort every one of THOSE too, not just this call. Was a
-			// bare $("...").style.display=... (throws on a null lookup), the
-			// exact failure Base_Box/theme_adminlte/default.tpl's own comment
-			// on these two ids already warned about without this file having
-			// been updated to match.
-			eval_js('if(document.getElementById("launchpad_button_section"))document.getElementById("launchpad_button_section").style.display="";');
-			eval_js('if(document.getElementById("launchpad_button_section_spacing"))document.getElementById("launchpad_button_section_spacing").style.display="";');
+			// AdminLTE(-dark): the Launchpad trigger now lives in the top
+			// navbar itself (Base_Box/theme_adminltedark/default.tpl's
+			// #top_bar .epesi-launchpad-trigger, shown on both desktop and
+			// mobile - per request), so adding a second button for it here
+			// would just be redundant - both would open this same
+			// 'actionbar_launchpad' popup (already registered above
+			// regardless of theme, since the navbar icon depends on it).
+			// The legacy theme has no such navbar icon, so it still gets
+			// this ActionBar button exactly as before.
+			if (!Base_ThemeCommon::is_adminlte_family()) {
+				$launcher[] = array('label'=>__('Launchpad'),'description'=>'Quick modules launcher','open'=>'<a '.Libs_LeightboxCommon::get_open_href('actionbar_launchpad').'>','close'=>'</a>','icon'=>$icon);
+				$th = $this->pack_module(Base_Theme::module_name());
+				$th->assign('icons',array());
+				$th->assign('launcher',array_reverse($launcher));
+				$th->display();
+				// Both ids are printed once in Base_Box's own shell markup (not
+				// re-rendered by ordinary AJAX navigation) - guarded rather than
+				// assumed present, since this eval_js runs inside the same shared
+				// per-request append_js blob as every other queued module's own
+				// script (Epesi::get_output()), where an uncaught exception here
+				// would abort every one of THOSE too, not just this call. Was a
+				// bare $("...").style.display=... (throws on a null lookup), the
+				// exact failure Base_Box/theme_adminlte/default.tpl's own comment
+				// on these two ids already warned about without this file having
+				// been updated to match.
+				eval_js('if(document.getElementById("launchpad_button_section"))document.getElementById("launchpad_button_section").style.display="";');
+				eval_js('if(document.getElementById("launchpad_button_section_spacing"))document.getElementById("launchpad_button_section_spacing").style.display="";');
+			}
 		}
 	}
 

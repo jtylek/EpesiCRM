@@ -23,16 +23,21 @@
 </div>
 
 <div class="epesi-followup-actions">
-	{$just_close.open}
-		<span class="epesi-followup-btn epesi-followup-btn-primary">
-			<i class="bi bi-check2-square"></i>
-			<span class="epesi-followup-btn-label">{$just_close.text}</span>
-		</span>
-	{$just_close.close}
+	<div class="epesi-followup-actions-row1">
+		{$just_close.open}
+			<span class="epesi-followup-btn epesi-followup-btn-primary">
+				<i class="bi bi-check2-square"></i>
+				<span class="epesi-followup-btn-label">{$just_close.text}</span>
+			</span>
+		{$just_close.close}
+
+		{if isset($new_meeting) || isset($new_task) || isset($new_phonecall)}
+			<span class="epesi-followup-sep">{"Or save and create:"|t}</span>
+		{/if}
+	</div>
 
 	{if isset($new_meeting) || isset($new_task) || isset($new_phonecall)}
-		<span class="epesi-followup-sep">{"Or save and create:"|t}</span>
-
+	<div class="epesi-followup-actions-row2">
 		{if isset($new_meeting)}
 		{$new_meeting.open}
 			<span class="epesi-followup-btn">
@@ -59,6 +64,7 @@
 			</span>
 		{$new_phonecall.close}
 		{/if}
+	</div>
 	{/if}
 </div>
 {$form_close}

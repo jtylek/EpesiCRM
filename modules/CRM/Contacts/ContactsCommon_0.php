@@ -884,7 +884,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         if ($mode=='view') {
 			if (!$default) return;
 			if(Base_User_AdministratorCommon::get_log_as_user_access($default)) {
-				Base_ActionBarCommon::add('settings', __('Log as user'), Module::create_href(array('log_as_user'=>$default)));
+				Base_ActionBarCommon::add('login-as', __('Log as user'), Module::create_href(array('log_as_user'=>$default)));
 				if (isset($_REQUEST['log_as_user']) && $_REQUEST['log_as_user']==$default) {
 					Acl::set_user($default, true); //tag who is logged
 					Epesi::redirect();
@@ -1042,7 +1042,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             else $cus[] = 'contact/'.$values['id'];
             $ret = array();
 			$ret['new'] = array();
-			$ret['new']['crm_filter'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
+			$ret['new']['crm_filter'] = '<a class="epesi-rv-crmfilter" '.Utils_TooltipCommon::open_tag_attrs(__('Set CRM Filter')).' '.Module::create_href(array('set_crm_filter'=>1)).'>F</a>';
 			if (isset($_REQUEST['set_crm_filter']))
 				CRM_FiltersCommon::set_profile('c'.$values['id']);
 			if (CRM_MeetingInstall::is_installed() && Utils_RecordBrowserCommon::get_access('crm_meeting','add')) $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', array('employees'=>$emp,'customers'=>$cus,'status'=>0, 'priority'=>1, 'permission'=>0)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'"></a>';
@@ -1210,7 +1210,7 @@ class CRM_ContactsCommon extends ModuleCommon {
          * we should come back to initial state - do not print LB.
          */
         if( ! (isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) ) {
-            if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('edit', __('Copy company data'), Module::create_href(array('UCD'=>true)));
+            if(isset($values['company_name']) && $values['company_name']) Base_ActionBarCommon::add('company', __('Copy company data'), Module::create_href(array('UCD'=>true)));
         }
         if(isset($_REQUEST['UCD']) || Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0)) {
             $ucd = Module::static_get_module_variable(CRM_Contacts::module_name(), 'UCD', 0);
@@ -1280,7 +1280,7 @@ class CRM_ContactsCommon extends ModuleCommon {
             $html = $form->toHtml();
 
             Libs_LeightboxCommon::display($lid, $html);
-            Base_ActionBarCommon::add('edit', __('Copy company data'), Libs_LeightboxCommon::get_open_href($lid));
+            Base_ActionBarCommon::add('company', __('Copy company data'), Libs_LeightboxCommon::get_open_href($lid));
             if (isset($_REQUEST['UCD'])) eval_js('leightbox_activate(\''.$lid.'\')');
 			unset($_REQUEST['UCD']);
         }

@@ -148,7 +148,7 @@ class Base_Acl extends Module {
 		eval_js('base_acl__initialized = true;');
 
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 
 		return true;
 	}

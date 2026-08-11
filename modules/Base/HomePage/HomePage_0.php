@@ -29,6 +29,20 @@ class Base_HomePage extends Module {
 	public function icon() {
 		if (isset($this->m) && is_callable(array($this->m,'icon'))) return $this->m->icon();
 	}
+	// Base_Box's own "main module" tracking (get_main_module()) never sees
+	// past Base_HomePage on the very first load of a fresh session (or any
+	// other landing on "Home") - $this->m (e.g. Base_Dashboard, whichever
+	// module is configured as the home page) is packed inline as a CHILD of
+	// this module, not swapped in as Base_Box's own tracked main module the
+	// way a real navigation would. get_type() is final (module_primitive.php)
+	// so it can't be overridden to report the packed child's type instead -
+	// this is a separate, duck-typed accessor for callers (currently
+	// MainModuleIndicator_0.php's $module_type, used for its own
+	// data-module-type CSS hook) that need to know what's REALLY showing,
+	// same delegation shape as caption()/icon() above.
+	public function packed_module_type() {
+		return isset($this->m) ? $this->m->get_type() : null;
+	}
 
 	public function admin() {
 		if ($this->is_back()) {
@@ -157,7 +171,7 @@ class Base_HomePage extends Module {
 		eval_js('base_home_page__initialized = true;');
 
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
-		Base_ActionBarCommon::add('delete', __('Cancel'), $this->create_back_href());
+		Base_ActionBarCommon::add('back', __('Cancel'), $this->create_back_href());
 
 		return true;
 	}

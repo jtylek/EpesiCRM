@@ -16,8 +16,38 @@
    scoped this way rather than editing Libs_Leightbox's own CSS, which
    would affect every other popup in the app. */
 .leightbox[id$="_followups_leightbox"] {
-	width: fit-content;
-	max-width: 90vw;
+	/* Was width:fit-content - for a position:fixed box pinned by left:50%
+	   alone (no matching "right"), auto/fit-content sizing is shrink-to-fit:
+	   the box sizes to its own content's preferred width, not to the space
+	   available, so it never grew even when a lot more width was on offer
+	   (confirmed by report: too narrow in landscape on a phone, where the
+	   viewport is much wider than portrait but the popup stayed the same
+	   near-content-minimum size either way). An explicit width scales with
+	   the viewport instead - min(90vw,480px) grows right up to a comfortable
+	   desktop-ish cap as more width becomes available, and max(280px, ...)
+	   keeps a usable floor on a genuinely narrow portrait screen. */
+	width: max(280px, min(90vw, 480px));
+}
+
+/* Libs_Leightbox's base .leightbox pins top to calc(header+actionbar+1rem)
+   (theme_adminltedark/default.css) - correct on desktop, but on a narrow
+   screen the popup still rendered roughly a third of the way down with
+   nothing visibly occupying that space above it (confirmed by screenshot),
+   cutting the bottom (Save/"save and create" row) off below the fold.
+   --epesi-header-height/--epesi-actionbar-height are the navbar/ActionBar's
+   real offsetHeight (Base_Box/theme_adminltedark/default.tpl's watch()) -
+   on mobile those elements are hidden off-canvas rather than collapsed, so
+   they likely still report their full desktop-sized height even while
+   invisible, inflating this popup's calculated offset past what's actually
+   on screen. Rather than depend on that calc() here, pin close to the real
+   top directly below ~767.98px, matching this theme's other mobile
+   breakpoints, and let max-height give the "Or save and create" row enough
+   room to stay visible without scrolling. */
+@media (max-width: 767.98px) {
+	.leightbox[id$="_followups_leightbox"] {
+		top: 0.75rem !important;
+		max-height: calc(100vh - 1.5rem) !important;
+	}
 }
 
 /* Per request: same fixed grey/black sidebar scheme as Libs_Leightbox's own
@@ -36,28 +66,62 @@
 	color: #000 !important;
 }
 
+/* #Leightbox_content's own padding (Libs_Leightbox/theme_adminltedark/
+   default.css) is 1rem all round, shared by every popup in the app - not
+   touched directly (would affect every other Leightbox), but scoped down
+   here for just this popup: per request, the gap between the "Follow-up"
+   header and the first field read as dead space on a small phone screen,
+   worth reclaiming even though it's a perfectly ordinary padding value -
+   this popup's rows are short enough that the standard 1rem top/bottom adds
+   up to a large fraction of the whole (compact) form. */
+.leightbox[id$="_followups_leightbox"] #Leightbox_content {
+	padding-top: 0.4rem;
+	padding-bottom: 0.5rem;
+}
+
 .epesi-followup-fields {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
-	margin-bottom: 1rem;
+	gap: 0.35rem;
+	margin-bottom: 0.5rem;
 }
 
 .epesi-followup-row {
 	display: flex;
+	/* Was nowrap: fine down to the popup's own max-width:90vw floor (~90% of
+	   a phone's viewport) since .epesi-followup-control's flex:1 1 auto just
+	   kept shrinking the select/textarea to whatever room was left next to
+	   the fixed 100px label - usable but cramped, not the Change Status
+	   popup's outright overflow (see AI-shared/adminlte-theme.md), but still
+	   worth the same "stack on narrow screens" treatment used throughout this
+	   theme's mobile work. min-width below is what actually triggers the
+	   wrap - flex-wrap alone is a no-op while the item can still shrink to
+	   fit, since a <select>'s own min-content is much narrower than that. */
+	flex-wrap: wrap;
 	align-items: flex-start;
-	gap: 1rem;
+	gap: 0.25rem 1rem;
 }
 
+/* font-size/text-transform per request ("Status"/"Note" labels made
+   smaller) - this row wraps to its own line below ~767.98px (see
+   .epesi-followup-row's own comment on why min-width triggers that), so on
+   mobile the label reads as a small caption sitting directly above its
+   control rather than a same-size label beside it; margin-bottom replaces
+   most of what used to be padding-top's alignment role now that there's no
+   taller sibling on the same line to line up with. */
 .epesi-followup-label {
 	flex: 0 0 100px;
-	padding-top: 0.4rem;
-	color: #495057;
+	margin-bottom: 0.15rem;
+	color: #6c757d;
 	font-weight: 600;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
 }
 
 .epesi-followup-control {
 	flex: 1 1 auto;
+	min-width: 180px;
 	max-width: 420px;
 }
 
@@ -99,13 +163,27 @@
 	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
+/* Per request: an explicit two-line layout rather than the old single
+   flex-wrap row (Save + "Or save and create:" + all three "New X" buttons
+   together, wrapping wherever width ran out) - Save/the "Or save and
+   create:" label always share the first line, and New Meeting/New Task/
+   New Phonecall always share the second, regardless of viewport width.
+   leightbox.tpl now renders these as two child divs (.epesi-followup-
+   actions-row1/-row2) instead of one flat run of siblings. */
 .epesi-followup-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid #e9ecef;
+}
+
+.epesi-followup-actions-row1,
+.epesi-followup-actions-row2 {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 0.4rem;
-	padding-top: 0.75rem;
-	border-top: 1px solid #e9ecef;
 }
 
 .epesi-followup-btn {
@@ -146,7 +224,10 @@
 }
 
 .epesi-followup-sep {
-	margin: 0 0.5rem;
+	/* Left margin only now - row1 (leightbox.tpl) always ends with this
+	   label right after the Save button, nothing trailing it needs space on
+	   the right. */
+	margin-left: 0.5rem;
 	color: #6c757d;
 	font-size: 0.8rem;
 	font-weight: 600;

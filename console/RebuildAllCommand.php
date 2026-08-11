@@ -9,7 +9,6 @@
 namespace Epesi\Console;
 use Cache;
 use ModuleManager;
-use Base_ThemeCommon;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,13 +18,14 @@ class RebuildAllCommand extends Command
     protected function configure(){
         $this
             ->setName('rebuild:all')
-            ->setDescription('Rebuild EPESI default theme and cache')
+            ->setDescription('Rebuild EPESI cache')
         ;
     }
     protected function execute(InputInterface $input, OutputInterface $output) {
-        $output->writeln('Rebuilding themes...');
-        Base_ThemeCommon::themeup();
-        $output->writeln('Theme rebuilt! Rebuilding cache...');
+        // Theme rebuild dropped: themes are served straight from modules/*/theme[_<theme>]/
+        // now, so Base_ThemeCommon::themeup() is a no-op (see its own docblock) - calling
+        // it here just printed "Rebuilding themes..." for a step that did nothing.
+        $output->writeln('Rebuilding cache...');
         Cache::clear();
         ModuleManager::create_common_cache();
         $output->writeln('Cache rebuilt!');

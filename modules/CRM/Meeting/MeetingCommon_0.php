@@ -370,9 +370,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 				Utils_AttachmentCommon::add('crm_meeting/'.$record['id'],0,Acl::get_user(),$note);
 			}
 
-			if ($action == 'set_in_progress') $v = 1;
 			Utils_RecordBrowserCommon::update_record('crm_meeting', $record['id'], array('status'=>$v));
-			if ($action == 'set_in_progress') location(array());
 
 			$values = $record;
 			$values['date_and_time'] = date('Y-m-d H:i:s');
@@ -389,9 +387,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			location(array());
 		}
-		if ($v==0) {
-			return ' href="javascript:void(0)" onclick="'.$prefix.'_set_action(\'set_in_progress\');'.$prefix.'_set_id(\''.$record['id'].'\');'.$prefix.'_submit_form();"';
-		}
+		// Clicking Status always opens the Follow-up leightbox prompt (its own
+		// "closecancel" dropdown already offers every status, In Progress
+		// included) - never auto-advances on click, even from Open, since
+		// that skipped the prompt entirely and was reported as unintuitive
+		// (same fix as CRM_Tasks/CRM_PhoneCall/Premium_Projects_Tickets).
 		return ' href="javascript:void(0)" class="lbOn" rel="'.$prefix.'_followups_leightbox" onMouseDown="'.$prefix.'_set_id('.$record['id'].');"';
 	}
 	

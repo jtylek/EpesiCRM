@@ -15,8 +15,8 @@
 
 	{if isset($expand_collapse)}
 		<div class="btn-group btn-group-sm" role="group">
-			<a id="{$expand_collapse.e_id}" class="btn btn-outline-secondary" {$expand_collapse.e_href}><i class="bi bi-arrows-expand"></i> {$expand_collapse.e_label}</a>
-			<a id="{$expand_collapse.c_id}" class="btn btn-outline-secondary" {$expand_collapse.c_href}><i class="bi bi-arrows-collapse"></i> {$expand_collapse.c_label}</a>
+			<a id="{$expand_collapse.e_id}" class="btn epesi-gb-expand-btn" {$expand_collapse.e_href}><i class="bi bi-arrows-expand"></i> {$expand_collapse.e_label}</a>
+			<a id="{$expand_collapse.c_id}" class="btn epesi-gb-expand-btn" {$expand_collapse.c_href}><i class="bi bi-arrows-collapse"></i> {$expand_collapse.c_label}</a>
 		</div>
 	{/if}
 
@@ -62,12 +62,29 @@
 	foreach($cols as $k=>$v)
 		$cols[$k]['label'] = '<span>'.$cols[$k]['label'].'</span>';
 	$this->assign('cols',$cols);
+	// Mobile 2-line-per-row layout (see this theme's default.css "mobile:
+	// 2-line-per-row layout" block) needs a per-table column-per-line count -
+	// column count varies per module, so it can't be a fixed CSS number.
+	// Computed here rather than in GenericBrowser_0.php since it's purely a
+	// presentation concern of this theme.
+	// Excludes RecordBrowser's own favourite/watchdog columns
+	// (RecordBrowser_0.php's fixed_columns_class, tagged via their own
+	// 'attrs' class) - default.css's existing 991.98px breakpoint already
+	// display:none's those columns (which also covers this 767.98px one),
+	// so counting them here overstated the per-line total and left trailing
+	// empty grid cells on every row instead of an even 2-line split.
+	$mobile_col_count = 0;
+	foreach ($cols as $v) {
+		if (preg_match('/class="[^"]*\bUtils_RecordBrowser__(?:favs|watchdog)\b/', $v['attrs'] ?? '')) continue;
+		$mobile_col_count++;
+	}
+	$this->assign('mobile_cols', max(1, (int)ceil($mobile_col_count/2)));
 {/php}
 
 <div class="card-body p-0">
 	<div class="table-responsive">
 		{$table_prefix}
-		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+		{capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser table table-hover align-middle mb-0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;--epesi-gb-mobile-cols:{$mobile_cols};"{/capture}
 		{html_grid_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 		{$table_postfix}
 	</div>

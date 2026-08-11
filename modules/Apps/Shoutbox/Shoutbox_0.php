@@ -30,12 +30,17 @@ class Apps_Shoutbox extends Module {
     }
 	
 	public function history() {
+		Base_ThemeCommon::load_css($this->get_type());
 		$shoutbox_admin = Base_AclCommon::check_permission('Shoutbox Admin');
-		if ($shoutbox_admin) {
-			print __('You are shoutbox admin. You can see all communication in the company.');
-		}
 		$myid = Base_AclCommon::get_user();
 		$qf = $this->init_module(Libs_QuickForm::module_name());
+		if ($shoutbox_admin) {
+			// Rendered as a QuickForm header so it lands inside the filters
+			// card (theme_adminltedark/row.tpl's .epesi-qf-header) instead of
+			// floating above it; wrapped smaller/muted so it reads as a note,
+			// not a heading.
+			$qf->addElement('header', null, '<small class="text-muted fw-normal">'.__('You are shoutbox admin. You can see all communication in the company.').'</small>');
+		}
 
 		$to_date = & $this->get_module_variable('to_date');
 		$from_date = & $this->get_module_variable('from_date');
@@ -68,10 +73,14 @@ class Apps_Shoutbox extends Module {
 
 		//if submited
 		if($qf->validate()) {
-			$perspective = $qf->exportValue('perspective');
+			if ($qf->elementExists('perspective')) {
+				$perspective = $qf->exportValue('perspective');
+			}
 			$from_date = $qf->exportValue('from_date');
 			$to_date = $qf->exportValue('to_date');
-			$user = $qf->exportValue('user');
+			if ($qf->elementExists('user')) {
+				$user = $qf->exportValue('user');
+			}
 			$show = $qf->exportValue('show');
 			$search_word = $qf->exportValue('search');
 		}
@@ -83,7 +92,28 @@ class Apps_Shoutbox extends Module {
 		}
 
 		$qf->setDefaults(array('from_date'=>$from_date,'to_date'=>$to_date,'user'=>$user,'perspective'=>$perspective, 'show'=>$show));
+
+		// One card around the filters toggle/form AND the message list below
+		// (closed after display_module($gb) further down) so History reads as
+		// a single unit, same as Chat's own compose+board card - GenericBrowser
+		// still renders its own nested ".epesi-gb.card" inside here, stripped
+		// down to a borderless/shadowless/marginless shell by
+		// theme_adminltedark/chat_form.css's own ".epesi-shoutbox-history"
+		// rules so it merges into this outer card instead of nesting visibly.
+		print '<div class="card epesi-shoutbox-card mb-3"><div class="card-body">';
+
+		// Bootstrap's own collapse component (native to adminlte.min.js, see
+		// CLAUDE.md's "prefer native attributes over hand-rolled listeners")
+		// toggles the card; the label swap is pure CSS keyed off the
+		// aria-expanded attribute Bootstrap already maintains on the button.
+		$filters_id = 'shoutbox_filters_'.md5($this->get_path());
+		print '<button type="button" class="btn btn-primary btn-sm mb-2 shoutbox-filters-toggle" data-bs-toggle="collapse" data-bs-target="#'.$filters_id.'" aria-expanded="false" aria-controls="'.$filters_id.'">'
+			.'<span class="filters-toggle-hide">'.__('Hide filters').'</span>'
+			.'<span class="filters-toggle-show">'.__('Show filters').'</span>'
+			.'</button>';
+		print '<div class="collapse" id="'.$filters_id.'">';
 		$qf->display_as_row();
+		print '</div>';
 
 		$uid = is_numeric($user)?$user:null;
 		$date_where = '';
@@ -100,11 +130,17 @@ class Apps_Shoutbox extends Module {
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'shoutbox_history');
 
+		// One combined column per row, styled to look like the Chat tab's own
+		// #shoutbox_board message list (refresh.php) rather than a data grid -
+		// GenericBrowser is kept only for its query/pagination machinery (see
+		// theme_adminltedark/chat_form.css's ".epesi-shoutbox-history" rules
+		// for the header-hiding/row styling that makes this read as a plain
+		// list instead of a table).
+		$gb->set_prefix('<div class="epesi-shoutbox-history">');
+		$gb->set_postfix('</div>');
+
 		$gb->set_table_columns(array(
-						array('name'=>__('From'),'width'=>10),
-						array('name'=>__('To'),'width'=>10),
-						array('name'=>__('Message'),'width'=>64),
-						array('name'=>__('Date'),'width'=>16)
+						array('name'=>'','width'=>100)
 						));
 
         // $gb->set_default_order(array(__('Date')=>'DESC'));
@@ -135,28 +171,45 @@ class Apps_Shoutbox extends Module {
         if($ret)
 			while(($row=$ret->FetchRow())) {
 				$gb_row = $gb->get_new_row();
-				$ulogin = Base_UserCommon::get_user_label($row['base_user_login_id']);
-				if($row['to_user_login_id']!==null)
-    				$tologin = Base_UserCommon::get_user_label($row['to_user_login_id']);
-    		    else
-    		        $tologin = '['.__('All').']';
-				$gb_row->add_data(
-					'<span class="author">'.$ulogin.'</span>',
-					'<span class="author">'.$tologin.'</span>',
-					array('value'=>Apps_ShoutboxCommon::format_message($row, false, $shoutbox_admin), 'overflow_box'=>false),
-					Base_RegionalSettingsCommon::time2reg($row['posted_on'])
-				);
+
+				// Same sender/recipient badge shape as refresh.php's Chat feed -
+				// one combined pill, "-> recipient" only for a private message,
+				// omitted entirely for a public/all one (not a separate "[All]"
+				// column like the old table layout showed). nolink=true (unlike
+				// the old table layout's plain get_user_label() call) - per
+				// request, drops CRM_Contacts' own hover-tooltip+click-through
+				// link that get_user_label() bundles together with no way to
+				// keep one without the other; Chat's own badge (refresh.php's
+				// create_write_to_link()) already passes nolink=true for the
+				// same reason, just replacing the dropped link with its own
+				// "click name to add as chat recipient" one instead.
+				$user_label = Base_UserCommon::get_user_label($row['base_user_login_id'], true);
+				if ($row['to_user_login_id']!==null) {
+					$user_label .= ' -> '.Base_UserCommon::get_user_label($row['to_user_login_id'], true);
+				}
+
+				$action_html = '';
 				if (Apps_ShoutboxCommon::can_delete_msg($row)) {
 					if (!$row['deleted']) {
-						$gb_row->add_action($this->create_callback_href($this->delete_msg(...),array($row)), __('Mark message as deleted'), null, 'delete');
+						$action_html = '<a class="shoutbox-history-action" '.Utils_TooltipCommon::open_tag_attrs(__('Mark message as deleted')).' '.$this->create_callback_href($this->delete_msg(...),array($row)).'><i class="bi bi-trash"></i></a>';
 					} else {
-						$gb_row->add_action($this->create_callback_href($this->restore_msg(...),array($row)), __('Restore message'), null, 'active-off');
+						$action_html = '<a class="shoutbox-history-action" '.Utils_TooltipCommon::open_tag_attrs(__('Restore message')).' '.$this->create_callback_href($this->restore_msg(...),array($row)).'><i class="bi bi-arrow-counterclockwise"></i></a>';
 					}
 				}
+
+				$gb_row->add_data(array(
+					'value'=>'<span class="author border_radius_3px dark_blue_gradient">'.$user_label.'</span>'
+						.'<span class="time"> ['.Base_RegionalSettingsCommon::time2reg($row['posted_on']).']</span>'
+						.$action_html
+						.'<br/><span class="shoutbox_textbox">'.Apps_ShoutboxCommon::format_message($row, false, $shoutbox_admin).'</span>',
+					'overflow_box'=>false,
+				));
 			}
 
 		$gb->set_inline_display(true);
 		$this->display_module($gb);
+
+		print '</div></div>';
 		return true;
 	}
 
@@ -285,7 +338,12 @@ class Apps_Shoutbox extends Module {
     		    } else $emps = array();
     		} else $emps = array();
 		    $e = $qf->addElement('autoselect','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
-		    $e->setAttribute('id','shoutbox_to'.($big?'_big':''));
+		    // No id suffix here (unlike shoutbox_text_big/shoutbox_button_big below):
+		    // HTML_QuickForm_autoselect::toHtml() unconditionally does
+		    // updateAttributes(array('id'=>$this->getName())) at render time, so this
+		    // field's id is always plain "shoutbox_to" - a setAttribute('id',...) call
+		    // here would just get overwritten. Confirm-all's click handler below finds
+		    // it by [name=] within the submitted form instead of guessing a "_big" id.
 		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('shoutbox_to'));
@@ -358,8 +416,13 @@ class Apps_Shoutbox extends Module {
 		    //original used) so re-running this eval_js on a re-render can't stack
 		    //duplicate listeners onto elements the DOM replace didn't actually swap.
 		    eval_js('jq("#shoutbox_button, #shoutbox_button_big").off("click.Apps_Shoutbox_confirmAll").on("click.Apps_Shoutbox_confirmAll",function(){'
-		    		.'var toId=(this.id==="shoutbox_button_big")?"shoutbox_to_big":"shoutbox_to";'
-		    		.'if(jq("#"+toId).val()!=="all")return true;'
+		    		// Looked up by name within this button's own form, not a
+		    		// guessed "#shoutbox_to"/"#shoutbox_to_big" id: the autoselect
+		    		// field's id is always plain "shoutbox_to" (see the addElement
+		    		// call above), so an id-based lookup here silently found
+		    		// nothing for the big Chat-tab form and skipped the confirm.
+		    		.'var toEl=this.form.querySelector(\'[name="shoutbox_to"]\');'
+		    		.'if(!toEl||toEl.value!=="all")return true;'
 		    		.'var modalEl=document.getElementById("Apps_Shoutbox__confirm_all_modal");'
 		    		.'if(!modalEl||typeof bootstrap==="undefined")return confirm('.json_encode(__('Send message to all?')).');'
 		    		.'window.Apps_Shoutbox__pendingForm=this.form;'
