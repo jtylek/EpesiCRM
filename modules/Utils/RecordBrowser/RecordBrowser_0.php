@@ -2725,7 +2725,7 @@ class Utils_RecordBrowser extends Module {
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 
         $form = $this->init_module(Libs_QuickForm::module_name(), null, 'pick_recordset');
-        $opts = Utils_RecordBrowserCommon::list_installed_recordsets('%caption (%tab)');
+        $opts = Utils_RecordBrowserCommon::list_installed_recordsets('%caption');
 		asort($opts);
 		$first = array_keys($opts);
 		$first = reset($first);
