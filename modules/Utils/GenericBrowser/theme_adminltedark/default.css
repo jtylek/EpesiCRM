@@ -165,6 +165,58 @@
 	background-color: #343a40;
 }
 
+/* Advanced Search (.epesi-gb-adv, the $adv_search toggle link -
+   GenericBrowser_0.php's switch_search_.../"Advanced Search"/"Simple
+   Search" href) dropped entirely below this breakpoint, per request: a
+   phone doesn't have room for the column-by-column fields it switches to
+   anyway, so mobile sticks to the plain keyword box only. Same breakpoint
+   as the mobile row-collapse/actions-kebab rules elsewhere in this file.
+   default.tpl's own {if isset($form_data_search.search)} branch (the one
+   actually reachable here - advanced mode's own {else} branch has no
+   keyword box at all) still renders this span; hiding it client-side is
+   simpler than threading a "mobile" flag down into GenericBrowser_0.php
+   just to skip building the link server-side. */
+@media (max-width: 767.98px) {
+	.epesi-gb-adv {
+		display: none;
+	}
+
+	/* form_data_search's own <form> (default.tpl) is flex-wrap, which - once
+	   the row only has to fit the keyword box, Search and Show all (the adv
+	   toggle above no longer competing for space) - still stacked each of
+	   those three onto its own line rather than shrinking to fit, since a
+	   flex item's default min-width is its own content/intrinsic width, not
+	   0. nowrap forces them onto one row; flex:1 1 0% puts the keyword box
+	   on a %-of-remaining-space basis instead of that intrinsic width, so
+	   it's what actually gives up the room the other two need, min-width:0
+	   removing the last floor under it. Search/Show all
+	   keep their own natural button width (flex-shrink:0) - neither has
+	   meaningful slack left to give up before its own label clips. */
+	.epesi-gb-search form {
+		flex-wrap: nowrap;
+	}
+	.epesi-gb-search input[type="text"] {
+		flex: 1 1 0%;
+		min-width: 0;
+	}
+	.epesi-gb-search input[type="submit"],
+	.epesi-gb-search input[type="button"] {
+		flex-shrink: 0;
+	}
+}
+
+/* Same one-line row as above, just tighter still - per request, the
+   keyword box can afford to read smaller yet on the narrowest phones so
+   Search/Show all keep a comfortable tap target instead of the three
+   splitting an already-tight row three ways evenly. */
+@media (max-width: 575.98px) {
+	.epesi-gb-search input[type="text"] {
+		padding-left: 0.35rem;
+		padding-right: 0.35rem;
+		font-size: 0.75rem;
+	}
+}
+
 /* ---- table ----
  * Was a real <table>; now divs laid out with the CSS table-display algorithm
  * (display:table/table-row-group/table-row/table-cell) instead of CSS Grid,
