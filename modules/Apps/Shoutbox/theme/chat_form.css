@@ -27,6 +27,11 @@
     color: #B3B3B3;
 }
 
+#shoutbox_board .shoutbox-age-0 { color: #000000; }
+#shoutbox_board .shoutbox-age-1 { color: #444444; }
+#shoutbox_board .shoutbox-age-2 { color: #888888; }
+#shoutbox_board .shoutbox-age-3 { color: #AAAAAA; }
+
 #shoutbox_text {
     width: 94%;
 	margin: 35px auto 5px 6px;

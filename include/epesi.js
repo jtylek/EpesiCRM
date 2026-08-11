@@ -4,7 +4,15 @@
  * @copyright Copyright &copy; 2007, Telaxus LLC
  * @licence MIT
  */
-jQuery.noConflict();
+// process.php hard-rejects any request missing the X-Client-ID header
+// (`die('alert(...)')`) - this is the one and only source of it now that
+// prototype.js (and the Ajax.Responders.register() hook it used to need) is
+// gone, see AI-shared/legacy-js-migration.md step 5.
+jQuery.ajaxSetup({
+	beforeSend: function(xhr) {
+		xhr.setRequestHeader('X-Client-ID', Epesi.client_id);
+	}
+});
 
 function focus_by_id(idd) {
 	xx = document.getElementById(idd);
@@ -35,8 +43,10 @@ var Epesi = {
         // have list of changed fields
 		forms_freezed:{},
 		message:'Leave page?',
-		//checks if leaving the page is approved
-		check: function() {
+		//checks if leaving the page is approved; calls onApproved() once it is (possibly
+        //asynchronously, if the styled epesi_confirm() modal is used - see module.php's
+        //inject_confirm_modal()). onApproved() is simply never called if the user cancels.
+		check: function(onApproved) {
 			//remove non-existent forms from the array
 			jQuery.each(this.forms, function(f) {
 				if (!jQuery('#'+f).length) Epesi.confirmLeave.deactivate(f);
@@ -54,19 +64,30 @@ var Epesi = {
                     }
                 }
             }
-			if (requires_confirmation) {
-				//take care if user disabled alert messages
-				var openTime = new Date();
-				try {
-					var confirmed = confirm(this.message);
-				} catch(e) {
-					var confirmed = true;
-				}
-				var closeTime = new Date();
-				if ((closeTime - openTime) > 350 && !confirmed) return false;
-				this.deactivate();
+			if (!requires_confirmation) {
+				onApproved();
+				return;
 			}
-			return true;
+			var message = this.message;
+			//styled AdminLTE modal, injected app-wide by Base_ThemeCommon::load_theme_assets()
+			if (typeof epesi_confirm === 'function') {
+				epesi_confirm(message, function() {
+					Epesi.confirmLeave.deactivate();
+					onApproved();
+				});
+				return;
+			}
+			//take care if user disabled alert messages
+			var openTime = new Date();
+			try {
+				var confirmed = confirm(message);
+			} catch(e) {
+				var confirmed = true;
+			}
+			var closeTime = new Date();
+			if ((closeTime - openTime) > 350 && !confirmed) return;
+			this.deactivate();
+			onApproved();
 		},
 		activate: function(f, m) {
             this.message = m;
@@ -117,12 +138,12 @@ var Epesi = {
         }
 	},
 	updateIndicator: function() {
-		var s = $(Epesi.indicator);
+		var s = document.getElementById(Epesi.indicator);
 		if(s) s.style.visibility = Epesi.procOn ? 'visible' : 'hidden';
-		if (!Epesi.procOn) $('main_content').style.display = '';
+		if (!Epesi.procOn) document.getElementById('main_content').style.display = '';
 	},
 	updateIndicatorText: function(text) {
-		$(Epesi.indicator_text).innerHTML = text;
+		document.getElementById(Epesi.indicator_text).innerHTML = text;
 	},
 	history_on:1,
 	history_add:function(id){
@@ -170,34 +191,45 @@ var Epesi = {
 		Epesi.procOn++;
 		Epesi.updateIndicator();
 		var keep_focus_field = null;
-		new Ajax.Request(Epesi.process_file, {
+		// dataType 'text' (not 'script') deliberately, so the response is eval'd
+		// manually below rather than via jQuery's own script auto-eval - the eval
+		// must happen *after* activeElement is captured and 'e:loading' fires
+		// (matching Prototype's onSuccess-then-evalResponse-then-onComplete order),
+		// since the response JS can replace the currently-focused element.
+		jQuery.ajax(Epesi.process_file, {
 			method: 'post',
-			parameters: {
+			data: {
 				history: history_id,
 				url: url
 			},
-			onComplete: function(t) {
+			dataType: 'text',
+			success: function(responseText) {
+				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
+				jQuery(document).trigger('e:loading');
+				eval(responseText);
+			},
+			complete: function(jqXHR) {
 				Epesi.procOn--;
-				Epesi.append_js('Event.fire(document,\'e:load\');Epesi.updateIndicator();');
+				Epesi.append_js('jQuery(document).trigger(\'e:load\');Epesi.updateIndicator();');
 				if(keep_focus_field!=null) {
                     Epesi.append_js('jQuery("#'+keep_focus_field+':visible").focus();');
                 }
 			},
-			onSuccess: function(t) {
-				if(typeof document.activeElement != "undefined") keep_focus_field = document.activeElement.getAttribute("id");
-				Event.fire(document,'e:loading');
-			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(jqXHR) {
+				var msg = 'Failure ('+jqXHR.status+')';
+				if (typeof epesi_alert === 'function') epesi_alert(msg); else alert(msg);
+				Epesi.text(jqXHR.responseText,'error_box','p');
 			}
 		});
 	},
 	href: function(url,indicator,mode,disableConfirmLeave) {
-		if (typeof disableConfirmLeave == 'undefined' && !Epesi.confirmLeave.check()) return;
+		if (typeof disableConfirmLeave == 'undefined') {
+			Epesi.confirmLeave.check(function() { Epesi._hrefGo(url,indicator,mode); });
+			return;
+		}
+		Epesi._hrefGo(url,indicator,mode);
+	},
+	_hrefGo: function(url,indicator,mode) {
 		if(Epesi.procOn==0 || mode=='allow'){
 			if(indicator=='') indicator=Epesi.default_indicator;
 			Epesi.updateIndicatorText(indicator);
@@ -213,7 +245,7 @@ var Epesi = {
 		jQuery('form[name="' + formName + '"] input[name="submited"]').val(0);
 	},
 	text: function(txt,idt,type) {
-		var t=$(idt);
+		var t=document.getElementById(idt);
 		if(!t) return;
 		if(type=='i')//instead
 			t.innerHTML = txt;
@@ -229,7 +261,7 @@ var Epesi = {
 	js_loader_running:false,
 	load_js:function(file) {
 		if (Epesi.loaded_jss.indexOf(file)!=-1) return;
-		Epesi.to_load_jss[Epesi.to_load_jss.size()] = file;
+		Epesi.to_load_jss[Epesi.to_load_jss.length] = file;
 		if(Epesi.js_loader_running==false) {
 			Epesi.js_loader_running=true;
 			Epesi.js_loader();
@@ -239,7 +271,7 @@ var Epesi = {
 		if(Epesi.js_loader_running==false) {
 			Epesi.append_js_script(texti);
 		} else
-			Epesi.to_append_jss[Epesi.to_append_jss.size()] = texti;
+			Epesi.to_append_jss[Epesi.to_append_jss.length] = texti;
 	},
 	append_js_script:function(texti) {
 		fileref=document.createElement("script");
@@ -248,7 +280,7 @@ var Epesi = {
 		document.getElementsByTagName("head").item(0).appendChild(fileref);
 	},
 	js_loader:function() {
-		file = Epesi.to_load_jss.first();
+		file = Epesi.to_load_jss[0];
 		if(typeof file != 'undefined') {
 			fileref=document.createElement("script")
 			fileref.setAttribute("type", "text/javascript");
@@ -256,17 +288,17 @@ var Epesi = {
 			fileref.onload=fileref.onreadystatechange=function() {
 				if (fileref.readyState && fileref.readyState != 'loaded' && fileref.readyState != 'complete')
 					return;
-				Epesi.loaded_jss[Epesi.loaded_jss.size()] = file;
+				Epesi.loaded_jss[Epesi.loaded_jss.length] = file;
 				Epesi.js_loader();
 			}
 			document.getElementsByTagName("head").item(0).appendChild(fileref);
-			Epesi.to_load_jss = Epesi.to_load_jss.without(file);
+			Epesi.to_load_jss = Epesi.to_load_jss.filter(function(f){return f!==file;});
 		} else {
-			for(var i=0; i<Epesi.to_append_jss.size(); i++) {
+			for(var i=0; i<Epesi.to_append_jss.length; i++) {
 				var texti = Epesi.to_append_jss[i];
 				Epesi.append_js_script(texti);
 			}
-			Epesi.to_append_jss.clear();
+			Epesi.to_append_jss.length = 0;
 			Epesi.js_loader_running = false;
 		}
 	},
@@ -279,23 +311,11 @@ var Epesi = {
 		fileref.setAttribute("type", "text/css");
 		fileref.setAttribute("href", file);
 		document.getElementsByTagName("head").item(0).appendChild(fileref);
-		Epesi.loaded_csses[Epesi.loaded_csses.size()] = file;
+		Epesi.loaded_csses[Epesi.loaded_csses.length] = file;
 		return true;
 	}
 };
 _chj=Epesi.href;
-Ajax.Responders.register({
-onCreate: function(x,y) { //hack
-        if (typeof x.options.requestHeaders == 'undefined')
-		x.options.requestHeaders = ['X-Client-ID', Epesi.client_id];
-	else if (typeof x.options.requestHeaders.push == 'function')
-		x.options.requestHeaders.push('X-Client-ID',Epesi.client_id);
-	else
-		x.options.requestHeaders = $H(x.options.requestHeaders).merge({'X-Client-ID': Epesi.client_id});	
-},
-onException: function(req, e){
-	alert(e);
-}});
 function getTotalTopOffet(e) {
 	var ret=0;
 	while (e!=null) {
@@ -315,3 +335,30 @@ is_visible = function(element) {
 	return true;
 };
 jq=jQuery;
+
+// Prototype's Element#clonePosition (position one element like another) has
+// no native jQuery equivalent; several modules (GenericBrowser, Calendar,
+// TabbedBrowser, PopupCalendar) relied on it. modules/Utils/Calendar/calendar-jq.js
+// already carries a richer version (with its own offset() setter override)
+// scoped to its own IIFE - loading after this file on Calendar pages, it
+// simply overwrites this fallback there. This global version (relying on
+// jQuery's own native offset() setter) covers every other module. Options
+// accept BOTH Prototype's native key names (setWidth/setHeight, used by
+// call sites ported straight off Element#clonePosition) and calendar-jq.js's
+// own longstanding cloneWidth/cloneHeight names (used by call sites ported
+// off that file's plugin) - the two were never reconciled pre-port, and
+// silently ignoring one spelling would resurrect whatever the caller passed
+// false for.
+jQuery.fn.clonePosition = function(element, options){
+	options = options || {};
+	var cloneWidth = ('cloneWidth' in options) ? options.cloneWidth : (('setWidth' in options) ? options.setWidth : true);
+	var cloneHeight = ('cloneHeight' in options) ? options.cloneHeight : (('setHeight' in options) ? options.setHeight : true);
+	var offsetLeft = options.offsetLeft || 0;
+	var offsetTop = options.offsetTop || 0;
+	var $element = jQuery(element);
+	var offsets = $element.offset();
+	this.offset({top: (offsets.top + offsetTop), left: (offsets.left + offsetLeft)});
+	if (cloneWidth) this.width($element.width());
+	if (cloneHeight) this.height($element.height());
+	return this;
+};

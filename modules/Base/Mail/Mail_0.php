@@ -63,7 +63,7 @@ class Base_Mail extends Module implements Base_AdminInterface {
             $form->addElement('select', 'mail_security', __('Security'),
                     array('' => __('None'), 'ssl' => 'SSL', 'ssl_ssc'=>'SSL (self signed certificate)', 'tls' => 'TLS', 'tls_ssc' => 'TLS (self signed certificate)'));
 			
-			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','onChange="'.$form->get_submit_form_js(false).'"');
+			$form->addElement('checkbox','mail_auth', __('SMTP authorization'),'','class="epesi-switch" onChange="'.$form->get_submit_form_js(false).'"');
 			
 			$auth = $form->getElement('mail_auth')->getValue();
 			if($auth) {
@@ -83,17 +83,30 @@ class Base_Mail extends Module implements Base_AdminInterface {
 		if($form->getSubmitValue('submited') && $form->validate() && $form->process($this->submit_admin(...))) {
 			Base_StatusBarCommon::message(__('Settings saved'));
 		}
-		$form->display();					
-		
+		$form->display_as_column();
+
 	}
 	
 	public function test_mail_config($email) {
 		ob_start();
-		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())));
+		// Short connect timeout: this is an interactive admin action, not a
+		// background send - a host/port that's unreachable (wrong port,
+		// blocked outbound, typo) should surface as "An error has occured"
+		// within a few seconds, not leave the UI on "Loading..." for up to
+		// PHPMailer's default 300s. See Base_MailCommon::send()'s $timeout doc.
+		$ret = Base_MailCommon::send($email, __('E-mail configuration test'), __('If you are reading this, it means that your e-mail server configuration at %s is working properly.', array(get_epesi_url())), timeout: 10);
 		$msg = ob_get_clean();
 		if ($msg) print('<span class="important_notice">'.$msg.'</span>');
-		if ($ret) Base_StatusBarCommon::message(__('E-mail was sent successfully'));
-		else Base_StatusBarCommon::message(__('An error has occured'), 'error');
+		if ($ret) {
+			Base_StatusBarCommon::message(__('E-mail was sent successfully'));
+		} else {
+			$error = Base_MailCommon::get_last_error();
+			// htmlspecialchars: $error can echo back server-controlled text
+			// (e.g. a TLS certificate's CN, as in the mismatch this is
+			// mainly here for) - Base_StatusBarCommon::message() doesn't
+			// escape its $text, so this is the only guard against it.
+			Base_StatusBarCommon::message($error ? __('An error has occured: %s', array(htmlspecialchars($error, ENT_QUOTES))) : __('An error has occured'), 'error');
+		}
 		return false;
 	}
 	

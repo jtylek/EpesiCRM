@@ -21,7 +21,8 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 
 	public static function user_settings() {
 		return Acl::i_am_user() ? [
-				__('Account') => 'body'
+				__('Password') => 'body',
+				__('Autologin') => 'autologin',
 		]: [];
 	}
 	

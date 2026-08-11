@@ -9,8 +9,9 @@
 
 #Leightbox_header .left {
 	height: 30px;
-	text-align: middle;
-	cursor: pionter;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
 	/*dark css3 green background gradient */
 	background: #226622; /* Old browsers */
 	/* end dark css3 green background gradient */
@@ -34,7 +35,8 @@
 	height: 30px;
 	padding: 3px;
 	padding: 0px 9px 0px 0px;
-	text-align: middle;
+	display: flex;
+	align-items: center;
 	cursor: pointer;
 	
 	/*dark css3 green background gradient */
@@ -62,11 +64,11 @@
 
 
 #Leightbox_header .center {
-	width: 100%;
 	height: 30px;
 	font-weight: bold;
-	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #actionbar_launchpad {

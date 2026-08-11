@@ -112,8 +112,14 @@ class Utils_FileUpload_Dropzone extends Module
     public function add_to_form(Libs_QuickForm $form, $identifier, $label)
     {
         $content = $this->get_div($identifier);
-        $form->addElement('static', $identifier, $label, $content)->freeze();
+        // setDefaults() must run before addElement(): addElement() synchronously
+        // fires QuickForm's updateValue event on the new element, which reads
+        // whatever default the form already has for this field name - if that's
+        // still the record's raw array-shaped 'file' column default (e.g. an
+        // empty array on a brand-new record), HTML_QuickForm_static::setValue()
+        // casts it with (string) and emits "Array to string conversion".
         $form->setDefaults(array($identifier => $content));
+        $form->addElement('static', $identifier, $label, $content)->freeze();
         $this->register_file_fields($form, $identifier);
     }
 

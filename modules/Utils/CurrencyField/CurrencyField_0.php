@@ -136,7 +136,7 @@ class Utils_CurrencyField extends Module {
 			DB::Execute($sql, $vals);
 			return false;
 		}
-		$form->display();
+		$form->display_as_column();
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
 		return true;

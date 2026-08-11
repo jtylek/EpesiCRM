@@ -28,7 +28,30 @@ class Utils_Calendar extends Module {
 				  // Utils_CalendarCommon::events_to_fullcalendar(). Anything
 				  // that constructs this module without passing 'engine'
 				  // (e.g. Tests_Calendar) is unaffected - stays on 'legacy'.
-				  'engine'=>'legacy');
+				  'engine'=>'legacy',
+				  // True when the caller passed an explicit default_view/
+				  // default_date for THIS render (a deep link - e.g. CRM_
+				  // Calendar::body()'s jump_to_date/switch_to_tab or
+				  // search_date/ev_id handling), as opposed to just the
+				  // user's ordinary saved setting. fullcalendar() uses this
+				  // to decide whether the browser's remembered last-visited
+				  // view/date (see fullcalendar-init.js) is allowed to win -
+				  // a deliberate deep link must never be silently overridden
+				  // by leftover state from before the user navigated away.
+				  'explicit_navigation'=>false,
+				  // Strips fullcalendar()'s toolbar down to prev/next/today and
+				  // caps event density - for a small, non-page-level embed (see
+				  // Applets_MonthView) rather than the full CRM_Calendar screen.
+				  // Only meaningful when engine==='fullcalendar'.
+				  'compact'=>false,
+				  // CSS selector for an existing, already-wired trigger element
+				  // (e.g. a popup-calendar "jump to date" link) that a click on
+				  // the toolbar title should forward to, instead of doing
+				  // nothing - see fullcalendar()/fullcalendar-init.js's
+				  // datesSet handling. Null = title stays plain text (default
+				  // FullCalendar behavior). Only meaningful when
+				  // engine==='fullcalendar'.
+				  'title_click_forward_selector'=>null);
 	private $date; //current date
 	private $event_module;
 	private $tb;
@@ -48,11 +71,17 @@ class Utils_Calendar extends Module {
 	// this endpoint - creating an event was never a "PATCH this record"
 	// operation even in the legacy grid.
 	private $custom_events_write_url = null;
+	// href-JS template for a compact-mode day click ('__DATE__' substituted
+	// client-side with the clicked date, same templating convention as
+	// $custom_new_event_href_js's __TIME__/__TIMELESS__) - see fullcalendar()'s
+	// navLinks handling below. Only meaningful when settings['compact'] is true.
+	private $custom_day_click_href_js = null;
 
-	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null, $custom_events_feed_url=null, $custom_events_write_url=null) {
+	public function construct($ev_mod, array $settings=null, $custom_new_event_href_js=null, $custom_events_feed_url=null, $custom_events_write_url=null, $custom_day_click_href_js=null) {
 		$this->custom_new_event_href_js = $custom_new_event_href_js;
 		$this->custom_events_feed_url = $custom_events_feed_url;
 		$this->custom_events_write_url = $custom_events_write_url;
+		$this->custom_day_click_href_js = $custom_day_click_href_js;
 		$this->settings = array_merge($this->settings,$settings);
 
 		$this->event_module = str_replace('/','_',$ev_mod);
@@ -1014,7 +1043,7 @@ class Utils_Calendar extends Module {
 		// rather than force a pointless destroy/remount. See
 		// EpesiFullCalendar.mount() in fullcalendar-init.js.
 		$mount_id = 'utils-calendar-fc-'.md5($this->get_path());
-		print('<div id="'.$mount_id.'" class="epesi-fc-container"></div>');
+		print('<div id="'.$mount_id.'" class="epesi-fc-container'.($this->settings['compact']?' epesi-fc-compact':'').'"></div>');
 
 		if ($this->custom_events_feed_url === null)
 			// Defensive, not currently reachable: every caller that sets
@@ -1031,13 +1060,15 @@ class Utils_Calendar extends Module {
 		$start_day = $to_hms($this->settings['start_day']);
 		$end_day = $to_hms($this->settings['end_day']);
 		if (strtotime($end_day) <= strtotime($start_day)) {
-			// The legacy day/week timeline has special-cased wrap-around
-			// rendering for this (get_timeline()'s "$end<$start" branch, e.g.
-			// an overnight shift 17:00-8:00) that FullCalendar's slot range
-			// doesn't map onto directly - shown as the full day instead
-			// rather than reproducing that wrap-around, an accepted minor UX
-			// difference for what both requires is an unusual settings
-			// combination in the first place.
+			// slotMinTime/slotMaxTime below need start<end - an overnight
+			// range (e.g. 17:00-8:00) has no direct equivalent (the legacy
+			// day/week timeline has its own special-cased wrap-around
+			// rendering for this, get_timeline()'s "$end<$start" branch),
+			// so this collapses to the full day instead of handing
+			// FullCalendar an inverted range it can't render at all - an
+			// accepted minor UX difference for what's an unusual settings
+			// combination in the first place. epesiToggleHours still works
+			// the same either way, it just has nothing left to expand.
 			$start_day = '00:00:00';
 			$end_day = '24:00:00';
 		}
@@ -1060,7 +1091,7 @@ class Utils_Calendar extends Module {
 			'initialDate' => date('Y-m-d', $this->date),
 			'firstDay' => (int)$this->settings['first_day_of_week'],
 			'headerToolbar' => array(
-				'left' => 'prev,next today',
+				'left' => 'prev,next today epesiToggleHours',
 				'center' => 'title',
 				'right' => 'dayGridMonth,timeGridWeek,timeGridDay,listWeek,multiMonthYear',
 			),
@@ -1073,14 +1104,38 @@ class Utils_Calendar extends Module {
 			),
 			'views' => array('multiMonthYear' => array('buttonText' => __('Year'))),
 			'noEventsText' => __('No events to display'),
+			// Week/Day default to showing only [start_day, end_day] - an
+			// event outside it (an early call, a late meeting, ...) is still
+			// in the JSON feed, just not on the visible grid by default. The
+			// "epesiToggleHours" custom button (fullcalendar-init.js, wired
+			// up client-side since PHP config can't carry a JS callback)
+			// swaps slotMinTime/slotMaxTime to 00:00/24:00 on demand, so
+			// nothing is ever permanently hidden, only collapsed - the user
+			// setting stays a genuine default, not a data-loss trap.
 			'slotMinTime' => $start_day,
 			'slotMaxTime' => $end_day,
+			// Redundant while collapsed (the grid already starts exactly at
+			// start_day), but shades the configured interval once
+			// epesiToggleHours expands the grid to the full day.
+			'businessHours' => array('daysOfWeek' => array(0, 1, 2, 3, 4, 5, 6), 'startTime' => $start_day, 'endTime' => $end_day),
 			'slotDuration' => $interval,
 			'eventTimeFormat' => $time_format,
 			'slotLabelFormat' => $time_format,
+			// 'auto' fits the (usually short) configured range exactly; the
+			// toggle button switches this to a fixed height when it expands
+			// the grid to 24h, so timeGrid gets its own scroller instead of
+			// stretching the page - see fullcalendar-init.js.
 			'height' => 'auto',
 			'dayMaxEvents' => true,
 			'nowIndicator' => true,
+			// Day-of-week headers (Week view) and date-cell numbers (Month
+			// view) are structurally <a> tags regardless of this setting -
+			// theme CSS's generic "a { color: var(--epesi-link) }" rule is
+			// what makes them look clickable - but without navLinks they
+			// have no click handler at all. true wires up FullCalendar's own
+			// built-in click-to-drill-down (day header/number -> Day view,
+			// week number -> Week view).
+			'navLinks' => true,
 			// Global capability switches - per-event startEditable/
 			// durationEditable (Utils_CalendarCommon::event_to_fullcalendar(),
 			// already sourced from each handler's own move_action/edit_action
@@ -1090,6 +1145,25 @@ class Utils_Calendar extends Module {
 			'selectMirror' => true,
 			'selectMinDistance' => 0, // a plain click is a zero-distance "select" - covers the old double-click-empty-cell gesture and the new drag-to-create range with one handler
 		);
+
+		if ($this->settings['compact']) {
+			// A small, non-page-level embed (Applets_MonthView) has no room for
+			// the full page's view-switcher/year button - just month-stepping.
+			$config['headerToolbar'] = array('left' => 'prev,next', 'center' => 'title', 'right' => 'today');
+			unset($config['views']); // multiMonthYear button text, now unreachable
+			$config['dayMaxEvents'] = 2; // cap event pills in a narrow dashboard column
+			$config['height'] = 320; // fixed compact height instead of 'auto' (which sizes to a full day/week grid this embed never shows)
+		}
+		if ($this->custom_day_click_href_js !== null) {
+			// A day-click template is supplied - it replaces FullCalendar's own
+			// built-in navLinks drill-down (which would switch this same small
+			// instance to an internal, toolbar-less Day view with no way back
+			// to Month) with a real navigation, wired client-side below.
+			$config['navLinks'] = false;
+			$day_click_template = call_user_func($this->custom_day_click_href_js, '__DATE__');
+		} else {
+			$day_click_template = null;
+		}
 
 		// Same href-template mechanism day()/week()/month() already use for
 		// their own double-click-to-add (calendar-jq.js's activate_dnd()) -
@@ -1105,12 +1179,41 @@ class Utils_Calendar extends Module {
 			$new_event_template = $this->create_unique_href_js(array('action'=>'add','time'=>'__TIME__','timeless'=>'__TIMELESS__'));
 		$config['selectable'] = $new_event_template !== false && $new_event_template !== null;
 
+		// [collapsed-state label, expanded-state label] for the
+		// epesiToggleHours button - text can't travel inside $config (that
+		// button's actual behavior is a JS click callback, which isn't
+		// JSON-encodable), so it's its own mount() argument instead, same as
+		// $new_event_template's __TIME__/__TIMELESS__ templating. Reuses the
+		// exact same __()/icon pair Utils_GenericBrowser's own Expand
+		// All/Collapse All button already uses (theme_adminlte/default.tpl:
+		// bi-arrows-expand + "Expand All", bi-arrows-collapse + "Collapse
+		// All") so this reads as the same control app-wide, not a
+		// calendar-specific one-off, and shares the existing translation.
+		$toggle_hours_labels = array(__('Expand All'), __('Collapse All'));
+
+		// Client-side view switching (Day/Week/Month/.../prev/next) never
+		// tells the server - it's the whole point of this engine ("no
+		// server-side grid math"). So navigating away (e.g. clicking an
+		// event) and back destroys and rebuilds this FullCalendar instance
+		// from scratch, and initialView/initialDate above would otherwise
+		// always be the user's saved default_view setting, not wherever
+		// they actually were. fullcalendar-init.js persists the last
+		// view/date to sessionStorage (keyed by $mount_id, so per calendar
+		// box) and restores it here UNLESS this render came from an actual
+		// deep link (explicit_navigation - see the settings default above),
+		// which must always win over stale remembered state.
+		$suppress_view_restore = (bool)$this->settings['explicit_navigation'];
+
 		eval_js('EpesiFullCalendar.mount('.
 			json_encode($mount_id).','.
 			json_encode($config).','.
 			json_encode($this->custom_events_feed_url).','.
 			json_encode($this->custom_events_write_url).','.
-			json_encode($new_event_template).
+			json_encode($new_event_template).','.
+			json_encode($toggle_hours_labels).','.
+			json_encode($suppress_view_restore).','.
+			json_encode($day_click_template).','.
+			json_encode($this->settings['title_click_forward_selector']).
 		');');
 	}
 

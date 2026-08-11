@@ -133,7 +133,14 @@ class Base_Acl extends Module {
 
 		$form->assign_theme('form', $theme);
 		$theme->assign('counts', $counts);
-		
+
+		// edit_permissions.tpl renders its own custom template (not via
+		// display_as_column()/display_as_row()), so it never picks up the
+		// card+grid CSS those load automatically - load it explicitly so the
+		// theme_adminltedark/edit_permissions.tpl override (which reuses the
+		// same .epesi-qf-grid classes) actually gets styled.
+		Base_ThemeCommon::load_css('Libs_QuickForm', 'column');
+
 		$theme->display('edit_permissions');
 
 		load_js('modules/Base/Acl/edit_permissions.js');

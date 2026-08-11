@@ -1,12 +1,10 @@
-<table id="Base_User_Settings" cellspacing="0" cellpadding="0">
-	<tr>
-		<td colspan="4" class="epesi_label header">{$header}</td>
-	</tr>
-	{assign var=x value=0}
-	{foreach key=key item=button from=$buttons}
-	{assign var=x value=$x+1}
-		<td>
-			<div>
+{* Was a <table> hand-wrapping every 4 icons into a new <tr> - flex-wrap
+   replaces that, same recipe used app-wide for this pattern (see
+   AI-shared/adminlte-theme.md). *}
+<div id="Base_User_Settings">
+	<div class="epesi_label header">{$header}</div>
+	<div style="display: flex; flex-wrap: wrap;">
+		{foreach key=key item=button from=$buttons}
 			{$__link.buttons.$key.link.open}
 			<div class="epesi_big_button bigger">
 				{if isset($button.icon)}
@@ -17,12 +15,7 @@
 				</span>
 			</div>
 			{$__link.buttons.$key.link.close}
-			</div>
-		</td>
-		<!-- $key holds name of the module -->
-	{if ($x%4)==0}
-	<tr>
-	{/if}
-	{/foreach}
-	</tr>
-</table>
+			<!-- $key holds name of the module -->
+		{/foreach}
+	</div>
+</div>

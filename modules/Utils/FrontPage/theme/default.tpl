@@ -7,28 +7,24 @@
 </head>
 <body>
 		{if $header!==null}
-			<table id="banner" border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td class="page_header image"><img src="{$url}/{$logo}" width="193" height="83"></td>
-					<td class="page_header">{$header}&nbsp;</td>
-					<td class="page_header image"></td>
-				</tr>
-			</table>
+			<div id="banner" style="display: flex;">
+				<div class="page_header image"><img src="{$url}/{$logo}" width="193" height="83"></div>
+				<div class="page_header" style="flex: 1 1 auto;">{$header}&nbsp;</div>
+				<div class="page_header image"></div>
+			</div>
 			<br>
 		{/if}
 		<center>
-		<table border="0" cellpadding="10" cellspacing="8" style="width:{if $info}100%{else}800px{/if}; vertical-align: top;">
-			<tr>
-				<td class="main frame contents" rowspan="2">
+		<div style="display: flex; padding: 10px; column-gap: 8px; width:{if $info}100%{else}800px{/if};">
+				<div class="main frame contents">
 					{$contents}
-				</td>
+				</div>
 				{if $info}
-					<td class="info frame">
+					<div class="info frame">
 						{$info}
-					</td>
+					</div>
 				{/if}
-			</tr>
-		</table>
+		</div>
 		</center>
 		<br>
 		<center>

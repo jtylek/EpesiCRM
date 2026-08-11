@@ -29,10 +29,10 @@ class Utils_ChainedSelectCommon extends ModuleCommon {
 		if (!is_array($prev_ids)) $prev_ids = array($prev_ids);
 		if($params===null) $params=array();
 		if($default_val===null) $default_val='';
-		$js = 'var params = new Hash();';
+		$js = 'var params = {};';
 		$_SESSION['client']['utils_chainedselect'][$dest_id] = $url_or_callback;
 		foreach($params as $k=>$v)
-			$js.='params.set("'.$k.'","'.$v.'");';
+			$js.='params["'.$k.'"]="'.$v.'";';
 		eval_js($js.'new Utils_ChainedSelect("'.$dest_id.'",new Array("'.implode('","',$prev_ids).'"),params, "'.$default_val.'")');
 	}
 	

@@ -281,19 +281,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function display_timestamp($record, $nolink, $desc=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']]) && $record[$desc['id']]!=='') {
-    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds');
+    		$ret = Base_RegionalSettingsCommon::time2reg($record[$desc['id']], !empty($desc['seconds']) ? true : 'without_seconds');
     	}
-    
+
     	return $ret;
     }
     public static function display_time($record, $nolink, $desc=null) {
     	$ret = '';
     	if (isset($desc['id']) && isset($record[$desc['id']])) {
             $ret = $record[$desc['id']] !== '' && $record[$desc['id']] !== false
-                ? Base_RegionalSettingsCommon::time2reg($record[$desc['id']], 'without_seconds', false)
+                ? Base_RegionalSettingsCommon::time2reg($record[$desc['id']], !empty($desc['seconds']) ? true : 'without_seconds', false)
                 : '---';
     	}
-    
+
     	return $ret;
     }
     public static function display_long_text($record, $nolink, $desc=null) {
@@ -520,7 +520,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function user_settings(){
         $ret = DB::Execute('SELECT tab, caption, icon, recent, favorites, full_history FROM recordbrowser_table_properties');
-        $settings = array(0=>array(), 1=>array(), 2=>array(), 3=>array());
+        $settings = array(0=>array(), 1=>array());
         while ($row = $ret->FetchRow()) {
 			$caption = _V($row['caption']); // ****** RecordBrowser - recordset caption
             if (!self::get_access($row['tab'],'browse')) continue;
@@ -531,15 +531,32 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 if (Utils_WatchdogCommon::category_exists($row['tab'])) $options['watchdog'] = __('Watched');
                 $settings[0][] = array('name'=>$row['tab'].'_default_view','label'=>$caption,'type'=>'select','values'=>$options,'default'=>'all');
             }
-            if ($row['favorites'])
-                $settings[1][] = array('name'=>$row['tab'].'_auto_fav','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
-            if (Utils_WatchdogCommon::category_exists($row['tab'])) {
-                $settings[2][] = array('name'=>$row['tab'].'_auto_subs','label'=>$caption,'type'=>'select','values'=>array(__('Disabled'), __('Enabled')),'default'=>0);
+            $has_fav = (bool)$row['favorites'];
+            $has_watch = Utils_WatchdogCommon::category_exists($row['tab']);
+            if ($has_fav || $has_watch) {
+                // Toggle-switch matrix, not two separate Enabled/Disabled
+                // selects - same group-of-checkboxes mechanism
+                // Base_Menu_QuickAccessCommon::user_settings() uses
+                // (Settings_0.php's display_adminlte() detects a uniform
+                // checkbox group and matrix-renders it). Both columns are
+                // always present, even for a recordset that only supports
+                // one of the two: that merge only matches groups whose *set*
+                // of column captions is identical across every row in the
+                // section, so a variable column count per row would break
+                // the merge for whichever rows don't match the first one
+                // processed. The not-applicable side is disabled instead,
+                // standing in for the dash the old select-based version
+                // showed for it.
+                $settings[1][] = array('type'=>'group', 'label'=>$caption, 'elems'=>array(
+                    array('type'=>'bool', 'name'=>$row['tab'].'_auto_fav', 'values'=>__('Automatically add to favorites records created by me'), 'default'=>0,
+                        'param'=>$has_fav ? null : array('disabled'=>'disabled')),
+                    array('type'=>'bool', 'name'=>$row['tab'].'_auto_subs', 'values'=>__('Automatically watch records created by me'), 'default'=>0,
+                        'param'=>$has_watch ? null : array('disabled'=>'disabled')),
+                ));
             }
 			$settings[0][] = array('name'=>$row['tab'].'_show_filters','label'=>'','type'=>'hidden','default'=>0);
         }
         $final_settings = array();
-        $subscribe_settings = array();
         $final_settings[] = array('name'=>'add_in_table_shown','label'=>__('Quick new record - show by default'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'hide_empty','label'=>__('Hide empty fields'),'type'=>'checkbox','default'=>0);
         $final_settings[] = array('name'=>'enable_autocomplete','label'=>__('Enable autocomplete in select/multiselect at'),'type'=>'select','default'=>50, 'values'=>array(0=>__('Always'), 20=>__('%s records', array(20)), 50=>__('%s records', array(50)), 100=>__('%s records', array(100))));
@@ -547,10 +564,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $final_settings[] = array('name'=>'confirm_leave','label'=>__('Confirm before leave edit page'),'type'=>'checkbox','default'=>1);
         $final_settings[] = array('name'=>'header_default_view','label'=>__('Default data view'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[0]);
-        $final_settings[] = array('name'=>'header_auto_fav','label'=>__('Automatically add to favorites records created by me'),'type'=>'header');
+        $final_settings[] = array('name'=>'header_auto_settings','label'=>__('Automatic favorites / watching for records created by me'),'type'=>'header');
         $final_settings = array_merge($final_settings,$settings[1]);
-        $final_settings[] = array('name'=>'header_auto_subscriptions','label'=>__('Automatically watch records created by me'),'type'=>'header');
-        $final_settings = array_merge($final_settings,$settings[2]);
         return array(__('Browsing records')=>$final_settings);
     }
     public static function check_table_name($tab, $flush=false, $failure_on_missing=true){
@@ -1517,7 +1532,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $v = self::encode_multi($filestorageIds);
                 $old = self::encode_multi($old);
             } else {
-                if ($record[$desc['id']]===$values[$desc['id']]) continue;
+                if ((string)$record[$desc['id']]===(string)$values[$desc['id']]) continue;
                 $v = $values[$desc['id']];
                 $old = $record[$desc['id']];
             }
@@ -2068,19 +2083,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         // If CRM Module is not installed get user login only
         $created_by = Base_UserCommon::get_user_label($info['created_by']);
-        $htmlinfo=array(
-                    __('Record ID').':'=>$id,
-                    __('Created by').':'=>$created_by,
-                    __('Created on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['created_on'])
-                        );
-        if ($info['edited_on']!==null) {
-            $htmlinfo=$htmlinfo+array(
-                    __('Edited by').':'=>$info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'',
-                    __('Edited on').':'=>Base_RegionalSettingsCommon::time2reg_multiline($info['edited_on'])
-                        );
-        }
 
-        return  Utils_TooltipCommon::format_info_tooltip($htmlinfo);
+        // Not a Label=>Value table (format_info_tooltip()'s usual shape):
+        // the edited/created date+time lines are deliberately label-less
+        // (time2reg()'s own defaults already give one "date time" string,
+        // no seconds), and edited_by/edited_on are shown before created_by/
+        // created_on - most recent activity first.
+        $lines = array('<strong>'.__('Record ID').': '.$id.'</strong>');
+        if ($info['edited_on']!==null) {
+            $edited_by = $info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'';
+            $lines[] = __('Edited by').': '.$edited_by;
+            $lines[] = Base_RegionalSettingsCommon::time2reg($info['edited_on']);
+        }
+        $lines[] = __('Created by').': '.$created_by;
+        $lines[] = Base_RegionalSettingsCommon::time2reg($info['created_on']);
+
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+        return $purifier->purify(implode('<br>', $lines));
     }
     public static function get_record($tab, $id, $htmlspecialchars=true) {
         if (!is_numeric($id)) return null;
@@ -2748,12 +2768,21 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $event_display['what'] = _V($v);
                 continue;
             }
+			// Re-sync before every field, not just once before the loop: a
+			// previous iteration's self::get_val() call may have rendered a
+			// linked-record field (e.g. a crm_company_contact "Customers" field
+			// resolving a company/contact label via create_default_linked_label()
+			// -> get_record() -> self::init() for THAT tab) and left
+			// self::$hash/self::$table_rows pointing at a different recordset -
+			// the isset() check right below would then silently miss every field
+			// that comes after it in $edit_details, dropping it from the changes
+			// list entirely.
+			self::init($tab);
 			$k = self::get_field_id($k); // failsafe
 			if (!isset(self::$hash[$k])) continue;
 			if (!$access[$k]) continue;
             $modifications_to_show += 1;
             if (!$details) continue; // do not generate content when we dont want them
-			self::init($tab);
 			$field = self::$hash[$k];
 			$desc = self::$table_rows[$field];
 			$event_display['what'][] = array(
@@ -3304,7 +3333,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function QFfield_checkbox(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
-        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field));
+        // 'epesi-switch': same on/off toggle look QuickForm_0.php's
+        // get_element_by_array() already gives every array-declared settings
+        // checkbox (user_settings()/admin_settings()/etc) - this is the
+        // fallback QFfield_callback for every RecordBrowser 'checkbox'-typed
+        // field that doesn't register its own (i.e. most of them, across
+        // every module built on RecordBrowser), so this one change covers
+        // that whole class of app-wide. Styled by Libs/QuickForm's
+        // theme_adminltedark/default.css; a plain, unstyled checkbox under
+        // the legacy default theme, which doesn't define .epesi-switch.
+        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field, 'class' => 'epesi-switch'));
         $el->setValues(array('0','1'));
         if ($mode !== 'add')
             $form->setDefaults(array($field => $default));

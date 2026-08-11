@@ -121,10 +121,19 @@ class Base_ActionBar extends Module {
 			}
 		}
 
+		// Alphabetical by the SAME trimmed label actually displayed (e.g.
+		// "Bug tracker: Tickets" -> "Tickets") - not $v['label']'s full
+		// breadcrumb-prefixed form, which is what get_options() itself
+		// sorts by (grouping every item alphabetically by its PARENT menu
+		// name first) and reads as scrambled once only the trimmed leaf
+		// name is shown. Matches launchpad()'s own compare_launcher(),
+		// which already sorts by this same trimmed label.
+		usort($launcher, fn($a, $b) => strcmp($a['label'], $b['label']));
+
 		//display
 		$th = $this->pack_module(Base_Theme::module_name());
 		$th->assign('icons',$icons);
-		$th->assign('launcher',array_reverse($launcher));
+		$th->assign('launcher',$launcher);
 		$th->display();
 	}
 	
@@ -159,8 +168,8 @@ class Base_ActionBar extends Module {
 			// exact failure Base_Box/theme_adminlte/default.tpl's own comment
 			// on these two ids already warned about without this file having
 			// been updated to match.
-			eval_js('if($("launchpad_button_section"))$("launchpad_button_section").style.display="";');
-			eval_js('if($("launchpad_button_section_spacing"))$("launchpad_button_section_spacing").style.display="";');
+			eval_js('if(document.getElementById("launchpad_button_section"))document.getElementById("launchpad_button_section").style.display="";');
+			eval_js('if(document.getElementById("launchpad_button_section_spacing"))document.getElementById("launchpad_button_section_spacing").style.display="";');
 		}
 	}
 

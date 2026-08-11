@@ -3,30 +3,22 @@
     {if $form_html}{$form_html}{/if}
 
     {if $icons}
-    <table id="Base_Print" cellspacing="0" cellpadding="0" style="margin: 10px;">
-        <tr>
+    {* Was a <table> hand-wrapping every 3 icons into a new <tr> - flex-wrap
+       replaces that, same recipe used app-wide for this pattern (see
+       AI-shared/adminlte-theme.md). *}
+    <div id="Base_Print" style="display: flex; flex-wrap: wrap; justify-content: center; margin: 10px;">
 
-            {assign var=x value=0}
             {foreach item=i from=$icons}
-            {assign var=x value=$x+1}
 
-            <td>
-                <a {$i.href}>
-                    <div class="big-button">
-                        {$i.label}
-                    </div>
-                </a>
-            </td>
-
-            {if ($x%3)==0}
-        </tr>
-        <tr>
-            {/if}
+            <a {$i.href}>
+                <div class="big-button">
+                    {$i.label}
+                </div>
+            </a>
 
             {/foreach}
 
-        </tr>
-    </table>
+    </div>
     {else}
         <h2>{"No template available"|t}</h2>
     {/if}

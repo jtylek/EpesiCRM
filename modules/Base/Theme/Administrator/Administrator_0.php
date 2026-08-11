@@ -39,7 +39,7 @@ class Base_Theme_Administrator extends Module implements Base_AdminInterface{
 		if($form->validate()) {
 			$form->process($this->submit_admin(...));
 		} else {
-			$form->display();
+			$form->display_as_column();
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());

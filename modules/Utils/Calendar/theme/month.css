@@ -6,7 +6,7 @@
 
 /* Utils_Calendar__month */
 
-table#Utils_Calendar__month {
+#Utils_Calendar__month {
 	width: 100%;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -17,7 +17,7 @@ table#Utils_Calendar__month {
 */
 }
 
-table#Utils_Calendar__month td.empty {
+#Utils_Calendar__month .empty {
 	border-top: 1px solid #B3B3B3;
 	border-left: 1px solid #B3B3B3;
 	background-color: #F0F0F0;
@@ -25,115 +25,114 @@ table#Utils_Calendar__month td.empty {
 
 /* day */
 
-table#Utils_Calendar__month td.day {
-	vertical-align: top;
+#Utils_Calendar__month .day {
 	text-align: left;
-	width: 14%;
 	height: 50px;
 	padding: 1px 2px 1px 2px;
 	border-bottom: 1px solid #B3B3B3;
 	border-right: 1px solid #B3B3B3;
 }
 
-table#Utils_Calendar__month a.day_link {
+#Utils_Calendar__month a.day_link {
 	font-size: 17px;
 	font-weight: bold;
 	padding-left: 2px;
 	padding-top: 2px;
 }
 
-table#Utils_Calendar__month td.current {
+#Utils_Calendar__month .current {
 	color: #000000;
 	background-color: #FFFFFF;
 }
 
-table#Utils_Calendar__month td.current div.inner {
+#Utils_Calendar__month .current div.inner {
     width: 100%;
     min-height: 50px;
 }
 
-table#Utils_Calendar__month td.other {
+#Utils_Calendar__month .other {
 	color: #B3B3B3;
 	background-color: #F0F0F0;
 }
 
-table#Utils_Calendar__month td.other div.inner {
+#Utils_Calendar__month .other div.inner {
     width: 100%;
     min-height: 50px;
 }
 
-table#Utils_Calendar__month td.today {
+#Utils_Calendar__month .today {
 	border: 2px solid #336699;
 	background-color: #E6ECF2;
 }
 
-table#Utils_Calendar__month td.today div.inner {
+#Utils_Calendar__month .today div.inner {
     width: 100%;
     min-height: 50px;
 }
 
-table#Utils_Calendar__month td.current_weekend {
+#Utils_Calendar__month .current_weekend {
 	color: #000000;
 	background-color: #E0EDE0;
 }
 
-table#Utils_Calendar__month td.current_weekend div.inner {
+#Utils_Calendar__month .current_weekend div.inner {
     width: 100%;
     min-height: 50px;
 }
 
-table#Utils_Calendar__month td.current_weekend a {
+#Utils_Calendar__month .current_weekend a {
 	color: #338833;
 }
 
-table#Utils_Calendar__month td.today_weekend a {
+#Utils_Calendar__month .today_weekend a {
 	color: #338833;
 }
 
-table#Utils_Calendar__month td.other_weekend {
+#Utils_Calendar__month .other_weekend {
 	color: #B3B3B3;
 	background-color: #D7DDE3;
 }
 
-table#Utils_Calendar__month td.other_weekend div.inner {
+#Utils_Calendar__month .other_weekend div.inner {
     width: 100%;
     min-height: 50px;
 }
 
 
-table#Utils_Calendar__month td.today_weekend {
+#Utils_Calendar__month .today_weekend {
 	border: 2px solid #336699;
 	background-color: #CCFFCC;
 }
 
-table#Utils_Calendar__month td.other_weekend div.inner {
+#Utils_Calendar__month .other_weekend div.inner {
     width: 100%;
     min-height: 50px;
 }
 
-table#Utils_Calendar__month td.other a.day_link {
+#Utils_Calendar__month .other a.day_link {
 	color: #B3B3B3;
 }
 
-table#Utils_Calendar__month td.other_weekend a.day_link {
+#Utils_Calendar__month .other_weekend a.day_link {
 	color: #B3B3B3;
 }
 
-table#Utils_Calendar__month td.today_weekend:hover,
-table#Utils_Calendar__month td.current_weekend:hover,
-table#Utils_Calendar__month td.today:hover,
-table#Utils_Calendar__month td.current:hover {
+#Utils_Calendar__month .today_weekend:hover,
+#Utils_Calendar__month .current_weekend:hover,
+#Utils_Calendar__month .today:hover,
+#Utils_Calendar__month .current:hover {
 	background-color: #e6cfcf !important;
 }
 
 /* header */
 
-table#Utils_Calendar__month td.day_header {
+#Utils_Calendar__month .day_header {
 	color: #336699;
 	font-weight: bold;
 	font-size: 14px;
 	height: 30px;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
 	border-right: 1px solid #B3B3B3;
@@ -144,12 +143,13 @@ table#Utils_Calendar__month td.day_header {
 	/* end css3 gray gradient - calendar */
 }
 
-table#Utils_Calendar__month td.weekend_day_header {
+#Utils_Calendar__month .weekend_day_header {
 	color: #005505;
 	font-weight: bold;
 	font-size: 14px;
 	height: 30px;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
 	padding-left: 5px;
 	border-left: 1px solid #FFFFFF;
 	border-right: 1px solid #B3B3B3;
@@ -160,29 +160,30 @@ table#Utils_Calendar__month td.weekend_day_header {
 	/* end css3 light blue gradient - calendar */
 }
 
-table#Utils_Calendar__month td.week-number {
+#Utils_Calendar__month .week-number {
 	color: #FFFFFF;
 	text-align: center;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	background-color: #336699;
 	border-bottom: 1px solid #FFFFFF;
-	width: 30px;
 }
 
-table#Utils_Calendar__month td.week-number a {
+#Utils_Calendar__month .week-number a {
 	color: #FFFFFF;
 	display: block;
 	line-height: 50px;
 	width: 100%;
 }
 
-table#Utils_Calendar__month td.week-number a:hover {
+#Utils_Calendar__month .week-number a:hover {
 	background-color: #339933;
 }
 
 /* event */
 
-table#Utils_Calendar__month div.events_brief {
+#Utils_Calendar__month div.events_brief {
 	height: 18px;
 	border: 2px solid #339933;
 	background-color: #cfe6cf;
@@ -192,15 +193,15 @@ table#Utils_Calendar__month div.events_brief {
 	margin: 1px;
 }
 
-table#Utils_Calendar__month div.events_brief span {
+#Utils_Calendar__month div.events_brief span {
 	height: 18px;
 }
 
-table#Utils_Calendar__month .events_icon {
+#Utils_Calendar__month .events_icon {
 	border: 1px solid #336699;
 }
 
-table#Utils_Calendar__month .events_drag_handle {
+#Utils_Calendar__month .events_drag_handle {
 	cursor: move;
 	background-color: #339933;
 	width: 18px;
@@ -210,7 +211,7 @@ table#Utils_Calendar__month .events_drag_handle {
 	padding-top: 1px;
 }
 
-table#Utils_Calendar__month .events_brief_info {
+#Utils_Calendar__month .events_brief_info {
 	display: block;
 	float: left;
 	padding-left: 5px;
@@ -218,7 +219,7 @@ table#Utils_Calendar__month .events_brief_info {
 	padding-top: 1px;
 }
 
-table#Utils_Calendar__month .events_more {
+#Utils_Calendar__month .events_more {
 	background-color: #339933;
 	display: block;
 	float: right;
@@ -229,26 +230,27 @@ table#Utils_Calendar__month .events_more {
 
 /* month-header */
 
-table#Utils_Calendar__month .month-header {
+#Utils_Calendar__month .month-header {
 	color: #FFFFFF;
-	vertical-align: middle;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	height: 30px;
 	padding-left: 10px;
 	border-bottom: 1px solid #FFFFFF;
 	font-size: 17px;
 	font-weight: bold;
-	text-align: center;
-	
+
 	/* css3 blue gradient */
 	background: #7b9cbd; /* Old browsers */
 	/* end css3  gradient */
 }
 
-table#Utils_Calendar__month .month-header a {
+#Utils_Calendar__month .month-header a {
 	color: #FFFFFF;
 	padding: 6px;
 }
 
-table#Utils_Calendar__month .month-header a:hover {
+#Utils_Calendar__month .month-header a:hover {
 	background-color: #336699;
 }

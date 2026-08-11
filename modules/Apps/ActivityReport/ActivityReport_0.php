@@ -37,10 +37,10 @@ class Apps_ActivityReport extends Module {
 
 		$form->addElement('multiselect', 'recordsets', __('Record Type'), $rb_tabs);
 
-		$form->addElement('checkbox', 'new', __('New record'));
-		$form->addElement('checkbox', 'edit', __('Record edit'));
-		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'));
-		$form->addElement('checkbox', 'file', __('Files'));
+		$form->addElement('checkbox', 'new', __('New record'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'edit', __('Record edit'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'delete_restore', __('Record Delete/restore'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'file', __('Files'), null, array('class'=>'epesi-switch'));
 
 		$form->addElement('datepicker', 'start_date', __('Start Date'));
 		$form->addElement('datepicker', 'end_date', __('End Date'));
@@ -156,7 +156,7 @@ class Apps_ActivityReport extends Module {
 							if ($action == 'RESTORED') $action = __('Restored');
 						} else {
 							$action = __('Edited');
-							$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500).'>'.$action.'</a>';
+							$action = '<a '.Utils_TooltipCommon::tooltip_leightbox_mode().' '.Utils_TooltipCommon::ajax_open_tag_attrs(array('Utils_RecordBrowserCommon', 'get_edit_details_label'), array($row['tab'], $row['r_id'], $row['id']), 500, true).'>'.$action.'</a>';
 						}
 						$r_id = $row['r_id'];
 						break;

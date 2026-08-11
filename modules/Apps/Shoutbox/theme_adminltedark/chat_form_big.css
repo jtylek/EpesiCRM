@@ -71,6 +71,18 @@
 	background-color: #157347;
 }
 
+/* Send starts (and goes back to) disabled while the message textarea is
+   empty (Shoutbox_0.php::chat()'s Apps_Shoutbox_toggleSend input listener) -
+   the plain background-color/cursor rules above apply regardless of the
+   :disabled state, so without this the button stayed green and
+   pointer-cursored while inert, reading as broken rather than intentionally
+   inactive. */
+.epesi-shoutbox-toolbar input[type="submit"]:disabled {
+	background-color: #495057;
+	color: #adb5bd;
+	cursor: not-allowed;
+}
+
 #shoutbox_board_big {
 	height: 320px;
 	overflow-y: auto;
@@ -86,7 +98,7 @@
 
 #shoutbox_board_big .author {
 	display: inline-block;
-	background-color: #0d6efd;
+	background-color: #6c757d;
 	color: #fff;
 	border-radius: 0.25rem;
 	padding: 0.1rem 0.4rem;
@@ -111,6 +123,44 @@
 	margin: 0.4rem 0;
 }
 
+/* refresh.php fades older messages by tagging them with one of these classes
+ * instead of the default theme's inline color - dark-appropriate shades so
+ * even the oldest messages stay legible on #shoutbox_board_big's dark background. */
+#shoutbox_board_big .shoutbox-age-0 { color: #f8f9fa; }
+#shoutbox_board_big .shoutbox-age-1 { color: #ced4da; }
+#shoutbox_board_big .shoutbox-age-2 { color: #adb5bd; }
+#shoutbox_board_big .shoutbox-age-3 { color: #6c757d; }
+
+/* "Send message to all?" confirm popup (Shoutbox_0.php::chat(), Bootstrap
+ * modal #Apps_Shoutbox__confirm_all_modal) - injected once into <body>,
+ * shared by both the big (Chat tab, this file) and small (applet,
+ * chat_form.css) forms regardless of which one triggered it, so this rule
+ * is duplicated into both rather than living in just one - only whichever
+ * form actually rendered first is guaranteed to have its CSS loaded when
+ * the popup is shown. Per request: same fixed grey/black sidebar scheme as
+ * the app's Leightbox popups (see AI-shared/adminlte-theme.md's "Leightbox
+ * popups: fixed grey/black sidebar chrome convention"), not Bootstrap's own
+ * default dark modal chrome. Higher specificity than Bootstrap's own bare
+ * ".modal-content"/".btn-close" rules (id + class beats class alone), so no
+ * !important needed.
+ */
+#Apps_Shoutbox__confirm_all_modal .modal-content {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#Apps_Shoutbox__confirm_all_modal .modal-header,
+#Apps_Shoutbox__confirm_all_modal .modal-footer {
+	border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Bootstrap's dark-mode .btn-close is filter:invert()'d white, invisible
+ * against this popup's fixed light grey header - forced back to the
+ * default (dark) rendering. */
+#Apps_Shoutbox__confirm_all_modal .btn-close {
+	filter: none;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-shoutbox-compose textarea {
   border: 1px solid #ced4da;
@@ -129,3 +179,8 @@
 [data-bs-theme="light"] #shoutbox_board_big hr {
   border-top: 1px solid #e9ecef;
 }
+
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-0 { color: #000000; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-1 { color: #444444; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-2 { color: #888888; }
+[data-bs-theme="light"] #shoutbox_board_big .shoutbox-age-3 { color: #AAAAAA; }

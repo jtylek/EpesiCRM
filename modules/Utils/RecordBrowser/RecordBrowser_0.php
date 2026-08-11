@@ -665,7 +665,7 @@ class Utils_RecordBrowser extends Module {
                 $records = Utils_RecordBrowserCommon::get_records($this->tab, $crits, array(), $order, $limit, $admin);
             }
         }
-        $this->set_module_variable('last_offset',$limit['offset']);
+        if (is_array($limit)) $this->set_module_variable('last_offset',$limit['offset']);
 
         if (($this->get_access('export') || $this->enable_export) && !$this->disabled['export'])
             $this->new_button('save',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
@@ -697,7 +697,7 @@ class Utils_RecordBrowser extends Module {
             if ($label!==false && $label!=='') $custom_label = '<a '.$label.'><span class="record_browser_add_new" data-rb-tab="'.htmlspecialchars($this->tab).'" '.Utils_TooltipCommon::open_tag_attrs(__('Add new record')).'><img src="'.Base_ThemeCommon::get_template_file('Utils/RecordBrowser/add.png').'" /><div class="add_new">'.__('Add new').'</div></span></a>';
         }
         if ($this->more_add_button_stuff) {
-            if ($custom_label) $custom_label = '<table><tr><td>'.$custom_label.'</td><td>'.$this->more_add_button_stuff.'</td></tr></table>';
+            if ($custom_label) $custom_label = '<div style="display:flex;align-items:center;"><div>'.$custom_label.'</div><div>'.$this->more_add_button_stuff.'</div></div>';
             else $custom_label = $this->more_add_button_stuff;
         }
         $gb->set_custom_label($custom_label);
@@ -783,11 +783,11 @@ class Utils_RecordBrowser extends Module {
                 elseif ($args['style']=='noexpand') $value = array('class'=>'Utils_RecordBrowser__noexpand','value'=>$value,'overflow_box'=>false);
                 elseif ($args['style']=='tall_preview') $value = array('class'=>'Utils_RecordBrowser__tallpreview','value'=>$value,'overflow_box'=>false);
                 if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect','commondata'))) {
-                    $table = '<table class="Utils_RecordBrowser__grid_table" style="width:100%" cellpadding="0" cellspacing="0" border="0"><tr><td id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</td><td id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
-                    $ed_icon = '</td><td style="min-width:18px;width:18px;padding:0px;margin:0px;">'.
+                    $table = '<div class="Utils_RecordBrowser__grid_table" style="width:100%;display:flex;"><div id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</div><div id="grid_value_field_'.$argsid.'_'.$row['id'].'" style="flex:1 1 auto;min-width:0;">';
+                    $ed_icon = '</div><div style="min-width:18px;width:18px;padding:0px;margin:0px;flex:0 0 18px;">'.
                                 '<span id="grid_edit_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_enable_field_edit(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\',\''.$form_name.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'edit.png').'"></a></span>'.
                                 '<span id="grid_save_'.$argsid.'_'.$row['id'].'" style="float:right;display:none;"><a href="javascript:void(0);" onclick="grid_submit_field(\''.$argsid.'\','.$row['id'].',\''.$this->tab.'\');"><img border="0" src="'.Base_ThemeCommon::get_template_file(Utils_RecordBrowser::module_name(), 'save_grid.png').'"></a></span>'.
-                                '</td></tr></table>';
+                                '</div></div>';
 
 /*                  $table = '<span id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</span><span id="grid_value_field_'.$argsid.'_'.$row['id'].'">';
                     $ed_icon = '</span>'.
@@ -1207,14 +1207,11 @@ class Utils_RecordBrowser extends Module {
 
         $last_page = DB::GetOne('SELECT MIN(position) FROM '.$this->tab.'_field WHERE type = \'page_split\' AND field != \'General\'');
 		if (!$last_page) $last_page = DB::GetOne('SELECT MAX(position) FROM '.$this->tab.'_field')+1;
-        $label = DB::GetRow('SELECT field, param FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
-		if ($label) {
-			$cols = $label['param'];
-			$label = $label['field'];
-		} else $cols = false;
+        $label = DB::GetRow('SELECT field FROM '.$this->tab.'_field WHERE position=%s', array($last_page));
+		if ($label) $label = $label['field'];
 
         $this->view_entry_details(1, $last_page, $data, $theme, true);
-        $ret = DB::Execute('SELECT position, field, param FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d ORDER BY position', array($last_page));
+        $ret = DB::Execute('SELECT position, field FROM '.$this->tab.'_field WHERE type = \'page_split\' AND position > %d ORDER BY position', array($last_page));
         $row = true;
         if ($mode=='view')
             print("</form>\n");
@@ -1238,16 +1235,15 @@ class Utils_RecordBrowser extends Module {
             }
             if ($valid_page && $pos - $last_page>1 && !isset($this->hide_tab[$label])) {
                 $translated_label = _V($label);
-                $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, $cols, _V($label)), $js); // TRSL
+                $tb->set_tab($translated_label, $this->view_entry_details(...), array($last_page, $pos + 1, $data, null, false, _V($label)), $js); // TRSL
 				if ($hide_page) {
-					eval_js('$("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
+					eval_js('document.getElementById("'.$tb->get_tab_id(_V($label)).'").style.display="none";');
 					if ($default_tab === $tab_counter) $default_tab = $tab_counter + 1;
 				} else
 					$additional_tabs++;
 
 				$tab_counter++;
 			}
-            if ($row) $cols = $row['param'];
             $last_page = $pos;
             if ($row) $label = $row['field'];
         }
@@ -1320,7 +1316,7 @@ class Utils_RecordBrowser extends Module {
         print('Addon is broken, please contact system administrator.');
     }
 
-    public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $cols = 2, $tab_label = null){
+    public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $tab_label = null){
         if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
         $fields = array();
         $longfields = array();
@@ -1337,9 +1333,15 @@ class Utils_RecordBrowser extends Module {
                 if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
             }
         }
-        if ($cols==0) $cols=2;
         $theme->assign('fields', $fields);
-        $theme->assign('cols', $cols);
+        // Compat shim, kept deliberately: several per-table custom templates
+        // (Contact.tpl, Contact/Photo's Contact.tpl, mails.tpl, Meeting's and
+        // PhoneCall's default.tpl, Attachment's View_entry.tpl) still read
+        // cols/rows/no_empty for their own fixed-column table/flex layout -
+        // out of scope for the CSS-driven fluid columns the generic
+        // View_entry.tpl now uses (see AI-shared/adminlte-theme.md). Do
+        // not remove this without also updating all of those templates.
+        $theme->assign('cols', 2);
         $theme->assign('longfields', $longfields);
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
@@ -1469,7 +1471,7 @@ class Utils_RecordBrowser extends Module {
             }
             // is set then hide empty fields that are not checkboxes
 			if ($mode == 'view' && $desc['type'] != 'checkbox' && Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') && $this->field_is_empty($record, $desc['id'])) {
-				eval_js('var e=$("_'.$desc['id'].'__data");if(e)e.up("tr").style.display="none";');
+				eval_js('var e=document.getElementById("_'.$desc['id'].'__data");if(e){var r=e.closest(".epesi-rv-row");if(r)r.style.display="none";}');
 			}
             // translate label and put it into span with id
             $label = '<span id="_'.$desc['id'].'__label">'._V($desc['name']).'</span>'; // TRSL
@@ -1830,18 +1832,18 @@ class Utils_RecordBrowser extends Module {
 			);
             if ($args['type'] == 'page_split')
                     $gb_row->add_data(
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>$field),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>$args['name']),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>__('Page Split')),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>''),
-                        array('style'=>'background-color: #DFDFFF;', 'value'=>'')
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$field),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$args['name']),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>__('Page Split')),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
+                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>'')
                     );
                 else {
                     if (isset($display_callbacbacks[$field])) {
@@ -2026,11 +2028,11 @@ class Utils_RecordBrowser extends Module {
 
 		$form->addFormRule($this->check_field_definitions(...));
 
-		$form->addElement('checkbox', 'visible', __('Table view'));
-		$form->addElement('checkbox', 'tooltip', __('Tooltip view'));
-		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required'));
-		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter'));
-		$form->addElement('checkbox', 'export', __('Export'));
+		$form->addElement('checkbox', 'visible', __('Table view'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'tooltip', __('Tooltip view'), null, array('class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'required', __('Required'), null, array('id'=>'required', 'class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'filter', __('Filter enabled'), null, array('id' => 'filter', 'class'=>'epesi-switch'));
+		$form->addElement('checkbox', 'export', __('Export'), null, array('class'=>'epesi-switch'));
         
         $form->addElement('text', 'autonumber_prefix', __('Prefix string'), array('id' => 'autonumber_prefix'));
         $form->addRule('autonumber_prefix', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
@@ -2039,10 +2041,10 @@ class Utils_RecordBrowser extends Module {
         $form->addElement('text', 'autonumber_pad_mask', __('Pad character'), array('id' => 'autonumber_pad_mask'));
         $form->addRule('autonumber_pad_mask', __('Double underscore is not allowed'), 'callback', array('Utils_RecordBrowser', 'qf_rule_without_double_underscore'));
 
-        $ck = $form->addElement('ckeditor', 'help', __('Help Message'));
-        $ck->setFCKProps(null, null, false);
+        $ck = $form->addElement('quill', 'help', __('Help Message'));
+        $ck->setQuillProps(null, null, false);
 
-		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced'));
+		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced', 'class'=>'epesi-switch'));
         $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
         $txt = 'Callback returning the template or template file to use for the field';
         $form->addElement('textarea', 'template', __('Field template') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'template'));
@@ -2434,11 +2436,11 @@ class Utils_RecordBrowser extends Module {
         $gb_cha = $this->init_module(Utils_GenericBrowser::module_name(), null, $this->tab.'__changes');
 		$form = $this->init_module('Libs_QuickForm');
 
-        $table_columns_changes = array( array('name'=>__('Date'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Username'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Field'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('Old value'), 'width'=>10, 'wrapmode'=>'nowrap'),
-                                        array('name'=>__('New value'), 'width'=>10, 'wrapmode'=>'nowrap'));
+        $table_columns_changes = array( array('name'=>__('Date'), 'width'=>15, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Username'), 'width'=>15, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Field'), 'width'=>20, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('Old value'), 'width'=>30, 'wrapmode'=>'nowrap'),
+                                        array('name'=>__('New value'), 'width'=>30, 'wrapmode'=>'nowrap'));
 
         $gb_cha->set_table_columns( $table_columns_changes );
 
@@ -2453,10 +2455,11 @@ class Utils_RecordBrowser extends Module {
 
         $ret = DB::Execute('SELECT ul.login, c.id, c.edited_on, c.edited_by FROM '.$this->tab.'_edit_history AS c LEFT JOIN user_login AS ul ON ul.id=c.edited_by WHERE c.'.$this->tab.'_id=%d ORDER BY edited_on DESC, id DESC',array($id));
 		$dates_select = array();
+		$dates_meta = array();
 		$tb_path = escapeJS($tb->get_path());
         while ($row = $ret->FetchRow()) {
 			$user = Base_UserCommon::get_user_label($row['edited_by']);
-			$date_and_time = Base_RegionalSettingsCommon::time2reg($row['edited_on']);
+			$date_and_time = Base_RegionalSettingsCommon::time2reg($row['edited_on'], true);
             $changed = array();
             $ret2 = DB::Execute('SELECT * FROM '.$this->tab.'_edit_history_data WHERE edit_id=%d',array($row['id']));
             while($row2 = $ret2->FetchRow()) {
@@ -2464,38 +2467,44 @@ class Utils_RecordBrowser extends Module {
                 $changed[$row2['field']] = $row2['old_value'];
                 $last_row = $row2;
                 $dates_select[$row['edited_on']] = $date_and_time;
+                $dates_meta[$row['edited_on']] = array('user'=>$row['edited_by']!==null?$user:'', 'created'=>false);
             }
+            $first_in_group = true;
             foreach($changed as $k=>$v) {
                 if ($k=='id') {
 					$gb_cha->add_row(
-						$date_and_time, 
-						$user, 
+						$first_in_group ? $date_and_time : '',
+						$first_in_group ? $user : '',
 						array('value'=>_V($last_row['old_value']), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
 						array('value'=>'', 'dummy'=>true),
 						array('value'=>'', 'dummy'=>true)
 					);
+					$first_in_group = false;
                 } else {
                     if (!isset($field_hash[$k])) continue;
-                    $new = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                    $desc_with_seconds = array('seconds'=>true) + $this->table_rows[$field_hash[$k]];
+                    $new = $this->get_val($field_hash[$k], $created, false, $desc_with_seconds);
                     if ($this->table_rows[$field_hash[$k]]['type']=='multiselect') $v = Utils_RecordBrowserCommon::decode_multi($v);
                     $created[$k] = $v;
-                    $old = $this->get_val($field_hash[$k], $created, false, $this->table_rows[$field_hash[$k]]);
+                    $old = $this->get_val($field_hash[$k], $created, false, $desc_with_seconds);
 					$gb_row = $gb_cha->get_new_row();
 					$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$row['edited_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
                     $gb_row->add_data(
-                        $date_and_time,
-                        $row['edited_by']!==null?$user:'',
+                        $first_in_group ? $date_and_time : '',
+                        $first_in_group ? ($row['edited_by']!==null?$user:'') : '',
                         _V($this->table_rows[$field_hash[$k]]['name']), // TRSL
                         $old,
                         $new
                     );
+                    $first_in_group = false;
                 }
             }
         }
 
 		$gb_row = $gb_cha->get_new_row();
+		$gb_row->add_action('href="javascript:void(0);" onclick="recordbrowser_edit_history_jump(\''.$created['created_on'].'\',\''.$this->tab.'\','.$created['id'].',\''.$form->get_name().'\');tabbed_browser_switch(1,2,null,\''.$tb_path.'\')"','View');
 		$gb_row->add_data(
-			Base_RegionalSettingsCommon::time2reg($created['created_on']),
+			Base_RegionalSettingsCommon::time2reg($created['created_on'], true),
 			$created['created_by']!==null?Base_UserCommon::get_user_label($created['created_by']):'',
 			array('value'=>__('RECORD CREATED'), 'attrs'=>'colspan="3" style="text-align:center;font-weight:bold;"'),
 			array('value'=>'', 'dummy'=>true),
@@ -2509,14 +2518,36 @@ class Utils_RecordBrowser extends Module {
 		$tb->end_tab();
 
 		$tb->start_tab(__('Record historical view'));
-		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on']);
+		$dates_select[$created['created_on']] = Base_RegionalSettingsCommon::time2reg($created['created_on'], true);
+		$dates_meta[$created['created_on']] = array('user'=>$created['created_by']!==null?Base_UserCommon::get_user_label($created['created_by']):'', 'created'=>true);
 		foreach($this->table_rows as $field => $desc) {
 			if (!$access[$desc['id']]) continue;
 			$val = $this->get_val($field, $created, false, $desc);
         }
-		$form->addElement('select', 'historical_view_pick_date', __('View the record as of'), $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");', 'id'=>'historical_view_pick_date'));
-		$form->setDefaults(array('historical_view_pick_date'=>$created['created_on']));
+		$dates_keys = array_keys($dates_select);
+		$default_index = array_search($created['created_on'], $dates_keys);
+		load_js('modules/Libs/QuickForm/select.js');
+		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
+		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || $default_index>=count($dates_keys)-1) $prev_attrs['disabled'] = 1;
+		$prev_button = $form->createElement('button', 'historical_view_prev', __('Previous'), $prev_attrs);
+		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || $default_index<=0) $next_attrs['disabled'] = 1;
+		$next_button = $form->createElement('button', 'historical_view_next', __('Next'), $next_attrs);
+		$play_attrs = array('id'=>'historical_view_play_button', 'class'=>'btn btn-secondary', 'data-play-label'=>__('Play'), 'data-pause-label'=>__('Pause'), 'onclick'=>'recordbrowser_edit_history_toggle_play("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		if ($default_index===false || count($dates_keys)<2 || $default_index<=0) $play_attrs['disabled'] = 1;
+		$play_button = $form->createElement('button', 'historical_view_play', __('Play'), $play_attrs);
+		$interval_select = $form->createElement('select', 'historical_view_play_interval', '', array(1=>'1s', 3=>'3s', 5=>'5s', 10=>'10s'), array('id'=>'historical_view_play_interval', 'onChange'=>'recordbrowser_edit_history_interval_changed("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")'));
+		$label_static = $form->createElement('static', 'historical_view_label', '', __('View the record as of'));
+		$indicator_html = '<span id="historical_view_indicators" data-by-label="'.htmlspecialchars(__('Edited by')).'">'
+			.'<span id="historical_view_created_badge" style="display:none;font-weight:bold;color:#28a745;">'.__('Record Created').'</span> '
+			.'<span id="historical_view_username_indicator"></span>'
+			.'</span>';
+		$indicator_static = $form->createElement('static', 'historical_view_indicator', '', $indicator_html);
+		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $play_button, $interval_select, $indicator_static), 'historical_view_group', '');
+		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'], 'historical_view_play_interval'=>1)));
 		$form->display();
+		eval_js('recordbrowser_edit_history_meta='.json_encode($dates_meta).';recordbrowser_edit_history_update_buttons();');
 		$this->view_entry('history', $created);
 		$tb->end_tab();
 
@@ -2689,7 +2720,7 @@ class Utils_RecordBrowser extends Module {
 
     public function enable_quick_new_records($button = true, $force_show = null) {
         $this->add_in_table = true;
-		$href = 'href="javascript:void(0);" onclick="$(\'add_in_table_row\').style.display=($(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if($(focus_on_field))focus_by_id(focus_on_field);"';
+		$href = 'href="javascript:void(0);" onclick="document.getElementById(\'add_in_table_row\').style.display=(document.getElementById(\'add_in_table_row\').style.display==\'none\'?\'\':\'none\');if(focus_on_field)if(document.getElementById(focus_on_field))focus_by_id(focus_on_field);"';
         if ($button) $this->add_button = $href;
         if ($force_show===null) $this->show_add_in_table = Base_User_SettingsCommon::get('Utils_RecordBrowser','add_in_table_shown');
         else $this->show_add_in_table = $force_show;

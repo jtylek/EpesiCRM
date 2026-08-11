@@ -95,10 +95,13 @@ base_setup__filter_by = function (attr) {
 		base_setup__hide_options(base_setup__last_options);
 	if (base_setup__last_actions)
 		base_setup__hide_actions(base_setup__last_actions, base_setup__last_actions_option);
-	document.getElementById('Base_Setup__filter_'+base_setup__last_filter).className="";
-	document.getElementById('Base_Setup__filter_'+attr).className="selected";
-	base_setup__last_filter = attr;
 	var container = document.getElementById('Base_Setup');
+	var next_tab = document.getElementById('Base_Setup__filter_'+attr);
+	if (!container || !next_tab) return;
+	var prev_tab = document.getElementById('Base_Setup__filter_'+base_setup__last_filter);
+	if (prev_tab) prev_tab.className="";
+	next_tab.className="selected";
+	base_setup__last_filter = attr;
 	for (w = 0; w < container.childNodes.length; w++) {
 		var div = container.childNodes[w];
 		if (div.nodeType==1) {

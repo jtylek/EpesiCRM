@@ -1,0 +1,76 @@
+/* Compact overrides for the FullCalendar embed in the Month View dashboard
+ * applet - modules/Utils/Calendar/theme_adminltedark/fullcalendar.css (loaded
+ * unconditionally by Utils_Calendar::fullcalendar() itself) already supplies
+ * the base skin via var(--epesi-*)/var(--fc-*); this file only shrinks things
+ * down to fit a dashboard column instead of a full page. No values here are
+ * hardcoded colors, so nothing extra is needed for the light/dark toggle.
+ *
+ * ".epesi-fc-compact.fc" (compound, no space) - Utils_Calendar::fullcalendar()
+ * prints "epesi-fc-compact" onto the SAME mount div FullCalendar stamps its
+ * own "fc" root class onto (only when settings['compact'] is true), not a
+ * separate child - see the base fullcalendar.css's own comment on this same
+ * pattern for .epesi-fc-container.fc.
+ */
+
+/* display:none is safe now (unlike earlier attempts) - MonthView_0.php passes
+ * PopupCalendarCommon_0.php's show() a custom $pos_js that positions the
+ * popup off the FullCalendar title element instead of this trigger, so
+ * nothing reads this element's own geometry anymore. Only ever activated
+ * programmatically (title-click forwarding, see fullcalendar-init.js's
+ * titleClickForwardSelector) - .click() fires an element's handlers
+ * regardless of display:none, so this still works with zero reserved space.
+ */
+.epesi-mv-jump {
+	display: none;
+}
+
+.epesi-fc-compact.fc .fc-toolbar {
+	margin-bottom: 0.5rem;
+}
+
+.epesi-fc-compact.fc .fc-toolbar-title {
+	font-size: 0.95rem;
+}
+
+.epesi-fc-compact.fc .fc-toolbar-title:hover {
+	text-decoration: underline;
+	color: var(--epesi-link);
+}
+
+.epesi-fc-compact.fc .fc-button {
+	padding: 0.15rem 0.4rem;
+	font-size: 0.75rem;
+}
+
+/* pointer-events:none - navLinks is off (see Utils_Calendar::fullcalendar()),
+ * but FullCalendar still renders the day number as its own <a> regardless
+ * (confirmed: a click directly on the number never reached dateClick, only
+ * clicks elsewhere in the same cell did - this element intercepts the click
+ * before it can bubble). Letting the click fall through to the day cell
+ * underneath makes the number clickable via the exact same dateClick
+ * handler as the rest of its cell, matching what its own link-blue/
+ * underline styling (theme's blanket "a{color:...}" rule) already implies.
+ */
+.epesi-fc-compact.fc .fc-daygrid-day-number {
+	font-size: 0.75rem;
+	padding: 2px 4px;
+	pointer-events: none;
+}
+
+.epesi-fc-compact.fc .fc-event,
+.epesi-fc-compact.fc .fc-daygrid-more-link {
+	font-size: 0.7rem;
+}
+
+/* Weekday column headers (Sun/Mon/...) have no per-column click target in
+ * this compact, Month-only, navLinks:false embed - pointer-events:none for
+ * the same reason as the day number above, plus stripped of the generic
+ * link-blue/underline styling here (unlike the day number, nothing is
+ * listening for a click that falls through a header cushion, so looking
+ * clickable would just be misleading). */
+.epesi-fc-compact.fc .fc-col-header-cell-cushion {
+	font-size: 0.7rem;
+	pointer-events: none;
+	color: var(--epesi-text-secondary);
+	text-decoration: none;
+}

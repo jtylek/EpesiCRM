@@ -81,6 +81,7 @@ dashboard_activate = function(tabs, default_dash,allowed_management) {
         var aa = jq(a);
         aa.find('a.toggle').click(function(b) {
             aa.find('.content').toggle('blind');
+            jq(this).find('i').toggleClass('bi-chevron-up bi-chevron-down');
         });
   });
 }

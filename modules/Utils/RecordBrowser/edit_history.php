@@ -58,11 +58,12 @@ while ($row = $ret->FetchRow()) {
 
 foreach($table_rows as $field => $args) {
 	ob_start();
+	$args = array('seconds'=>true) + $args;
 	$val = @Utils_RecordBrowserCommon::get_val($tab, $field, $created, false, $args);
 	if (!$val)
 		$val = Utils_RecordBrowserCommon::get_val($tab, $field, $created, true, $args);
 	ob_end_clean();
-	print('if($("_'.$args['id'].'__data"))$("_'.$args['id'].'__data").innerHTML = "'.Epesi::escapeJS($val).'";');
+	print('if(document.getElementById("_'.$args['id'].'__data"))document.getElementById("_'.$args['id'].'__data").innerHTML = "'.Epesi::escapeJS($val).'";');
 //	if (!$access[$args['id']]) continue;
 //	if ($created[$args['id']] !== '') $created[$args['id']] = $val; // TRSL
 }

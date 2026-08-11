@@ -1,60 +1,50 @@
 <div class="navigation-menu">
-	<table border="0">
-		<tr>
-			<td class="empty"></td>
-			<td style="width: 10px;"></td>
-			<td class="button_cell"><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></td>
-			<td class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></td>
-			<td class="button_cell"><a class="button" {$nextyear_href}><img src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$nextyear_label}</a></td>
-			<td style="width: 10px;"></td>
-			<td class="button_cell">{$popup_calendar}</td>
-			<!-- <td style="width: 10px;"></td>
-			<td><a class="button" style="width: 80px;"><img border="0" width="20" height="20" src="{$theme_dir}/Utils/Calendar/4x3.png" style="vertical-align: middle; padding: 0px; margin-left: 10px; display: block; float: left; width: 20px; height: 20px;">4 x 3</a></td> -->
-			<td class="empty"></td>
+	<div style="display: flex; align-items: center;">
+			<div class="empty"></div>
+			<div style="width: 10px;"></div>
+			<div class="button_cell"><a class="button" {$prevyear_href}>{$prevyear_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/prev.png"></a></div>
+			<div class="button_cell"><a class="button" {$today_href}>{$today_label}&nbsp;&nbsp;<img src="{$theme_dir}/Utils/Calendar/this.png"></a></div>
+			<div class="button_cell"><a class="button" {$nextyear_href}><img src="{$theme_dir}/Utils/Calendar/next.png">&nbsp;&nbsp;{$nextyear_label}</a></div>
+			<div style="width: 10px;"></div>
+			<div class="button_cell">{$popup_calendar}</div>
+			<div class="empty"></div>
 			{if $navigation_bar_additions}
-				<td class="button_cell">{$navigation_bar_additions}</td>
+				<div class="button_cell">{$navigation_bar_additions}</div>
 			{/if}
-		</tr>
-	</table>
+	</div>
 </div>
 
 
 	<div class="layer" style="padding: 9px; width: 764px;">
 		<div class="css3_content_shadow">
 
-{math assign="col" equation="x" x=3}
-
-<table border="0" cellpadding="0" cellspacing="5" style="background-color: #FFFFFF;">
+{* Was a <table> hand-wrapping every 3 mini month-calendars into a new
+   <tr> (a genuine grid of grids) - CSS Grid replaces both levels: the
+   outer 3-per-row layout (grid-template-columns: repeat(3,1fr), no more
+   col-counter math) and each inner month's own week x day grid (same
+   role="table"/"row"/"columnheader"/"cell" pattern as month.tpl/week.tpl -
+   see AI-shared/adminlte-theme.md). *}
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; background-color: #FFFFFF;">
 
 {foreach item=month from=$year}
-	{if $col % 3 == 0}<tr>{/if}
-		<td style="vertical-align: top">
-            <table name="CRMCalendar" id="Utils_Calendar__year" cellpadding="0" cellspacing="0" border="0">
-            	<tr>
-            		<td class="header-month" colspan="8"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></td>
-            	</tr>
-            	<tr>
-            		<td class="week-number">&nbsp;</td>
+		<div>
+            <div name="CRMCalendar" id="Utils_Calendar__year" role="table" style="display: grid; grid-template-columns: repeat(8, 1fr);">
+            		<div class="header-month" role="row" style="grid-column: 1 / -1;"><a {$month.month_link}>{$month.month_label} &bull; {$month.year_label}</a></div>
+            		<div class="week-number" role="columnheader">&nbsp;</div>
             		{foreach item=header from=$day_headers}
-            			<td class="header">{$header}</td>
+            			<div class="header" role="columnheader">{$header}</div>
             		{/foreach}
-            	</tr>
             	{foreach item=week from=$month.month}
-            		<tr>
-            			<td class="week-number"><a {$week.week_link}>{$week.week_label}</a></td>
+            			<div class="week-number" role="rowheader"><a {$week.week_link}>{$week.week_label}</a></div>
             			{foreach item=day from=$week.days}
-            				<td class="day {$day.style}"><a {$day.day_link}>{$day.day}</a></td>
+            				<div class="day {$day.style}" role="cell"><a {$day.day_link}>{$day.day}</a></div>
             			{/foreach}
-            		</tr>
             	{/foreach}
-            </table>
-		</td>
-	{if $col % 3 == 3}</tr>{/if}
-
-    {math assign="col" equation="x+1" x=$col}
+            </div>
+		</div>
 
 {/foreach}
 
-</table>
+</div>
  		</div>
 	</div>

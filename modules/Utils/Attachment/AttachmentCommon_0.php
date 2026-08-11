@@ -28,6 +28,95 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		Utils_RecordBrowserCommon::delete_addon($table, Utils_Attachment::module_name(), 'body');
 	}
 
+	// 'Features Configuration' admin panel (Base_Admin's grid, same section
+	// CRM_Tasks/CRM_Meeting/CRM_PhoneCall/CRM_Mail already use for their own
+	// per-recordset addon wiring) - lets an admin add/remove which recordsets
+	// get the Attachment "Notes" addon at runtime, instead of only via a
+	// module's own Install.php calling new_addon()/delete_addon() directly
+	// (still supported, e.g. Premium_Grants - the two mechanisms coexist,
+	// since both just end up calling Utils_RecordBrowserCommon::new_addon()).
+	public static function admin_caption() {
+		return array('label' => __('Attachments'), 'section' => __('Features Configuration'));
+	}
+
+	// QFfield_callback for utils_attachment_related's 'recordset' field -
+	// exact mirror of CRM_TasksCommon::QFfield_recordset(): a plain 'text'
+	// column presented as a <select> of recordsets not already wired up
+	// (excluding other *_related tables, which can't themselves take the
+	// addon).
+	public static function QFfield_recordset(&$form, $field, $label, $mode, $default) {
+		if ($mode == 'add' || $mode == 'edit') {
+			$rss = DB::GetCol('SELECT f_recordset FROM utils_attachment_related_data_1 WHERE active=1');
+			$key = array_search($default, $rss);
+			if ($key !== false)
+				unset($rss[$key]);
+			// 'utils_attachment' itself is excluded too - a note attached to a
+			// note doesn't make sense, and new_addon()/delete_addon() would end
+			// up wiring the addon onto its own recordset.
+			$tabs = DB::GetAssoc('SELECT tab, caption FROM recordbrowser_table_properties WHERE tab not in (\'' . implode('\',\'', $rss) . '\') AND tab not like %s AND tab != %s', array('%_related', 'utils_attachment'));
+			foreach ($tabs as $k => $v) {
+				$tabs[$k] = _V($v) . " ($k)";
+			}
+			$form->addElement('select', $field, $label, $tabs, array('id' => $field));
+			$form->addRule($field, 'Field required', 'required');
+			// Defense in depth against a tampered submit picking a recordset
+			// outside the dropdown's own option list (already wired up
+			// elsewhere, or 'utils_attachment' itself) - the dropdown only
+			// filters what's *offered*, it doesn't stop a raw POST. $default
+			// (the row's own prior value, only meaningful in 'edit' mode) is
+			// passed through as the rule's $options so editing a row without
+			// changing its recordset doesn't trip the "already used" check
+			// against itself - see registerRule()'s 3rd/4th args and
+			// HTML_QuickForm_Rule_Callback::validate()'s $options passthrough.
+			$form->registerRule('recordset_unique_rule', 'callback', 'validate_recordset', 'Utils_AttachmentCommon');
+			$form->addRule($field, __('This recordset already has the Attachments addon'), 'recordset_unique_rule', $mode == 'edit' ? $default : null);
+			if ($mode == 'edit')
+				$form->setDefaults(array($field => $default));
+		} else {
+			$form->addElement('static', $field, $label);
+			$form->setDefaults(array($field => $default));
+		}
+	}
+
+	// $current is the row's own prior recordset value when editing (excluded
+	// from the "already used" check so a no-op edit still validates), null
+	// when adding.
+	public static function validate_recordset($value, $current = null) {
+		if ($value === 'utils_attachment') return false;
+		$rss = DB::GetCol('SELECT f_recordset FROM utils_attachment_related_data_1 WHERE active=1');
+		if ($current !== null) {
+			$key = array_search($current, $rss);
+			if ($key !== false) unset($rss[$key]);
+		}
+		return !in_array($value, $rss);
+	}
+
+	public static function display_recordset($r, $nolink = false) {
+		$caption = Utils_RecordBrowserCommon::get_caption($r['recordset']);
+		return $caption . ' (' . $r['recordset'] . ')';
+	}
+
+	// utils_attachment_related's processing_callback - add/edit/delete a row
+	// here just wires/unwires the real addon via new_addon()/delete_addon()
+	// above (same as CRM_TasksCommon::processing_related()); 'edit' falls
+	// through to 'add' so switching a row's recordset detaches the old one
+	// and attaches the new one in a single save.
+	public static function processing_related($values, $mode) {
+		switch ($mode) {
+			case 'edit':
+				$rec = Utils_RecordBrowserCommon::get_record('utils_attachment_related', $values['id']);
+				self::delete_addon($rec['recordset']);
+			case 'add':
+				self::new_addon($values['recordset']);
+				break;
+
+			case 'delete':
+				self::delete_addon($values['recordset']);
+				break;
+		}
+		return $values;
+	}
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
             $info = '%D - ' . __('Date') . '<br>%T - ' . __('Time') . '<br>%U - ' . __('User');
@@ -313,7 +402,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = '<b>'.$row['title'].'</b><br>'.$body;
         }
         
-        if($row['sticky']) $text = '<img src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','sticky.png').'" hspace=3 align="left"> '.$text;
+        if($row['sticky']) $text = '<i class="bi bi-pin-angle-fill text-warning me-1"></i>'.$text;
 
         $files = self::display_files($row, $nolink);
 
@@ -396,8 +485,8 @@ class Utils_AttachmentCommon extends ModuleCommon {
         }
         if ($mode=='add' || $mode=='edit') {
 
-            $fck = $form->addElement('ckeditor', $field, $label);
-            $fck->setFCKProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            $fck = $form->addElement('quill', $field, $label);
+            $fck->setQuillProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
 
             $form->setDefaults(array($field=>$default));
         } else {
@@ -420,29 +509,75 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
     public static function QFfield_crypted(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode=='view') {
-            $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field));
+            $elem = $form->addElement('checkbox', $field, $label,'', array('id'=>$field,'class'=>'epesi-switch'));
             $form->setDefaults(array($field=>$default));
             $elem->freeze(1);
         } else {
+            // The checkbox stays alone on the group's own line (on/off switch,
+            // see the 'epesi-switch' class - shared with QuickForm_0.php's
+            // array-declared settings checkboxes, see Libs/QuickForm/
+            // theme_adminltedark/default.css); the Password/Confirm/Hint trio
+            // is wrapped in a <div> (via 'static' elements holding raw open/
+            // close tags - same trick as MainModuleIndicator_0.php) so the
+            // onChange handler below can hide/show it as one block instead of
+            // just disabling its inputs, per the note-form redesign in
+            // View_entry.tpl.
+            // Each Password/Confirm/Hint field is wrapped in its own
+            // '.epesi-attachment-crypted-field' div (label above input, see
+            // View_entry.tpl's CSS) instead of the label and input being
+            // flat siblings in the flex row - a flat label+input pair can be
+            // split across the wrap point on narrow screens (label stranded
+            // at the end of one line, its input alone at the start of the
+            // next); wrapping each pair as a single flex item keeps a label
+            // glued to its own input no matter where the row wraps.
             $elems = array();
-            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;','style'=>'margin-right:40px;'));
-            $elems[] = $form->createElement('static','note_password_label','',__('Password').':');
-            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password','style'=>'width:200px;margin-right:20px;'));
-            $elems[] = $form->createElement('static','note_password2_label','',__('Confirm Password').':');
-            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2','style'=>'width:200px;margin-right:20px;'));
-            $elems[] = $form->createElement('static','note_password_hint_label','',__('Password Hint').':');
-            $elems[] = $form->createElement('text','note_password_hint',__('Password Hint'), array('id'=>'note_password_hint','style'=>'width:200px'));
-            $form->addGroup($elems,$field,__('Encryption'));
+            $elems[] = $form->createElement('checkbox', $field, '','', array('id'=>$field,'class'=>'epesi-switch','onChange'=>'this.form.elements["note_password"].disabled=this.form.elements["note_password2"].disabled=this.form.elements["note_password_hint"].disabled=!this.checked;if(this.checked)document.getElementById("note_crypted_details").style.display="";else document.getElementById("note_crypted_details").style.display="none";'));
+            $elems[] = $form->createElement('static','note_crypted_details_open','','<div id="note_crypted_details" class="epesi-attachment-crypted-details">');
+            $elems[] = $form->createElement('static','note_password_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Password').':</span>');
+            $elems[] = $form->createElement('password','note_password',__('Password'), array('id'=>'note_password'));
+            $elems[] = $form->createElement('static','note_password_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_password2_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Confirm Password').':</span>');
+            $elems[] = $form->createElement('password','note_password2',__('Confirm Password'), array('id'=>'note_password2'));
+            $elems[] = $form->createElement('static','note_password2_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_password_hint_group_open','','<div class="epesi-attachment-crypted-field"><span class="epesi-attachment-crypted-label">'.__('Password Hint').':</span>');
+            $elems[] = $form->createElement('text','note_password_hint',__('Password Hint'), array('id'=>'note_password_hint'));
+            $elems[] = $form->createElement('static','note_password_hint_group_close','','</div>');
+            $elems[] = $form->createElement('static','note_crypted_details_close','','</div>');
+            // Explicit '' separator: addGroup()'s default inserts '&nbsp;'
+            // between every element, including between each field's opening-
+            // div static and its input and the closing-div static - as text
+            // nodes directly inside a flex column (.epesi-attachment-
+            // crypted-field), those extra nbsps became their own anonymous
+            // flex items, forcing an extra blank line between each label and
+            // its input instead of the two sitting flush together.
+            $form->addGroup($elems,$field,__('Encryption'),'');
 
             if($default) {
                 $hint = isset($rb_obj->record['note']) ? self::get_password_hint($rb_obj->record['note']) : '';
                 $form->setDefaults(array('crypted'=>array('crypted'=>$default,'note_password'=>'*@#old@#*','note_password2'=>'*@#old@#*', 'note_password_hint'=>$hint)));
             }
             $crypted = $form->exportValue($field);
-            if(!$crypted) eval_js('$("note_password").disabled=1;$("note_password2").disabled=1;$("note_password_hint").disabled=1;');
+            if(!$crypted) eval_js('document.getElementById("note_password").disabled=1;document.getElementById("note_password2").disabled=1;document.getElementById("note_password_hint").disabled=1;document.getElementById("note_crypted_details").style.display="none";');
 
             $form->addFormRule(array('Utils_AttachmentCommon','crypted_rules'));
         }
+    }
+
+    // Same as the generic Utils_RecordBrowserCommon::QFfield_checkbox() every
+    // other 'checkbox'-typed RecordBrowser field falls back to (advcheckbox,
+    // not plain checkbox, so an explicit '0' is submitted when unchecked
+    // instead of the field vanishing from $_POST entirely) - just with the
+    // 'epesi-switch' on/off toggle look, matching Encryption's, instead of a
+    // bare checkbox. Registered as this field's own QFfield_callback (see
+    // AttachmentInstall.php / the 20260805 patch) rather than changed in the
+    // shared callback itself, which every other checkbox field app-wide also
+    // falls back to.
+    public static function QFfield_sticky(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type']);
+        $el = $form->addElement('advcheckbox', $field, $label, '', array('id' => $field, 'class' => 'epesi-switch'));
+        $el->setValues(array('0','1'));
+        if ($mode !== 'add')
+            $form->setDefaults(array($field => $default));
     }
 
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {

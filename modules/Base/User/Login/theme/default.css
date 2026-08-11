@@ -4,7 +4,7 @@
 	-moz-box-shadow: 1px 1px 5px black;
 	box-shadow: 1px 1px 5px black;
 	/* end css3 shadow border*/
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -12,7 +12,7 @@
 	/* end border radius */
 }
 
-table#Base_User_Login {
+#Base_User_Login {
 	border: 1px solid #FFFFFF;
 	font-size: 13px;
 	background-color: #E0E0E0;
@@ -23,41 +23,54 @@ table#Base_User_Login {
 	/* end border radius */
 }
 
-table#Base_User_Login .gradient {
+#Base_User_Login .gradient {
 	background-color: #ffffff;
 	/* login css3 gray gradient */
 	background: #ffffff; /* Old browsers */
 	/* end login css3 gray gradient */
 }
 
-table#Base_User_Login td.title {
+#Base_User_Login .title {
 	color: #336699;
 	font-size: 24px;
 	text-align: center;
 	height: 35px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.title span {
+#Base_User_Login .title span {
 	vertical-align: super;
 	font-size: 11px;
 }
 
-table#Base_User_Login a {
+#Base_User_Login a {
 	color: #777777;
 	font-size: 13px;
 }
 
-table#Base_User_Login span.error {
+#Base_User_Login span.error {
 	color: red;
 	font-size: 13px;
 }
 
-table#Base_User_Login td.error {
+#Base_User_Login .error {
 	text-align: center;
 	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.input input {
+#Base_User_Login .demo_notice {
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#Base_User_Login .input input {
 	color: #000000;
 	border: 1px solid #B3B3B3;
 	width: 160px;
@@ -67,7 +80,7 @@ table#Base_User_Login td.input input {
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 2px black;
 	-moz-box-shadow: 1px 1px 2px black;
@@ -75,11 +88,11 @@ table#Base_User_Login td.input input {
 	/* end css3 shadow border*/
 }
 
-table#Base_User_Login td.input input:focus {
+#Base_User_Login .input input:focus {
 	background-color: #FFFFA5;
 }
 
-table#Base_User_Login td.submit_button input {
+#Base_User_Login .submit_button input {
 	font-size: 13px;
 	color: #FFFFFF;
 	border: 0px;
@@ -87,13 +100,13 @@ table#Base_User_Login td.submit_button input {
 	height: 25px;
 	vertical-align: middle;
 	cursor: pointer;
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 2px black;
 	-moz-box-shadow: 1px 1px 2px black;
@@ -105,103 +118,131 @@ table#Base_User_Login td.submit_button input {
 	/* end dark css3 green background gradient */
 }
 
-table#Base_User_Login input.submit:hover {
+#Base_User_Login input.submit:hover {
 	/*light css3 green background gradient */
 	background: #226622; /* Old browsers */
 	/* end light css3 green background gradient */
 }
 
-table#Base_User_Login td.label {
+#Base_User_Login .login-row {
+	display: flex;
+	align-items: center;
+}
+
+#Base_User_Login .label {
 	font-weight: normal;
 	width: 225px;
 	height: 30px;
 	font-size: 13px;
 	color: #000000;
 	text-align: right;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 }
 
-table#Base_User_Login td.input {
+#Base_User_Login .input {
 	font-weight: normal;
 	width: 325px;
 	height: 30px;
 	text-align: left;
+	display: flex;
+	align-items: center;
 }
 
-.epesi_rtl table#Base_User_Login td.label {
+.epesi_rtl #Base_User_Login .label {
 	text-align: left;
+	justify-content: flex-start;
 }
 
-.epesi_rtl table#Base_User_Login td.input {
+.epesi_rtl #Base_User_Login .input {
 	text-align: right;
+	justify-content: flex-end;
 }
 
-table#Base_User_Login td.input input {
+#Base_User_Login .input input {
 	font-size: 13px;
 }
 
-table#Base_User_Login td.submit_button {
+#Base_User_Login .submit_button {
 	text-align: center;
 	height: 35px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.header_tail {
+#Base_User_Login .header_tail {
 	width: 550px;
 	height: 200px;
 	background-color: #FFFFFF;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.footer {
+#Base_User_Login .footer {
 	color: #336699;
 	font-size: 13px;
 	text-align: center;
 	height: 40px;
-	vertical-align: top;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
 }
 
-table#Base_User_Login td.footer a {
+#Base_User_Login .footer a {
 	font-weight: bold;
 	color: #336699;
 }
 
-table#Base_User_Login td.footer a:hover {
+#Base_User_Login .footer a:hover {
 	color: #993333;
 }
 
-table#Base_User_Login td.recover_password {
+#Base_User_Login .recover_password {
 	text-align: center;
 	color: #336699;
 	font-weight: bold;
 	height: 25px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.recover_password a {
+#Base_User_Login .recover_password a {
 	color: #777777;
 }
 
-table#Base_User_Login td.recover_password a:hover {
+#Base_User_Login .recover_password a:hover {
 	color: #000000;
 }
 
-table#Base_User_Login td.autologin {
+#Base_User_Login .autologin {
 	text-align: center;
 	height: 30px;
 	color: #777777;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.donation_notice {
+#Base_User_Login .donation_notice {
 	text-align: center;
-	vertical-align: middle;
-	height: 30px; 
-	width:100%; 
-	font-weight:normal; 
+	height: 30px;
+	width:100%;
+	font-weight:normal;
 	color: #888;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-table#Base_User_Login td.donation_notice a {
+#Base_User_Login .donation_notice a {
 	color: #00F;
 }
 
-table#Base_User_Login td.donation_notice a:hover {
+#Base_User_Login .donation_notice a:hover {
 	color: #77F;
 	text-decoration: underline;
 }
@@ -224,7 +265,7 @@ table#Base_User_Login td.donation_notice a:hover {
     border: none;
     text-align: center;
     vertical-align: middle;
-	
+
 	/*dark css3 green background image gradient */
 	background: #226622; /* Old browsers */
 	/* end dark css3 green background gradient */
@@ -287,13 +328,16 @@ table#Base_User_Login td.donation_notice a:hover {
 	width: 109px;
 }
 
-table#Base_User_Login .message {
+#Base_User_Login .message {
 	text-align: center;
 	line-height: 22px;
 	font-size: 19px;
 	height: 135px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
-table#Base_User_Login .message a {
+#Base_User_Login .message a {
 	text-align: center;
 	line-height: 22px;
 	font-size: 19px;

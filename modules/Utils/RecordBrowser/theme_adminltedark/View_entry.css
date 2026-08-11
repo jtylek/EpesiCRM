@@ -202,6 +202,16 @@
 
 .Utils_RecordBrowser__View_entry {
     width: 100%;
+	/* Single source of truth for the gap between side-by-side field columns,
+	   read by both the .column mechanism (Contact.tpl/mails.tpl/Meeting's
+	   default.tpl's own hardcoded splits) and .epesi-rv-fluid (PhoneCall's
+	   default.tpl, the generic View_entry.tpl) below - per request, was two
+	   different hardcoded values (48px total via .column's own
+	   padding-left/right, 24px via .epesi-rv-fluid's column-gap) that made
+	   the same "2 columns of fields" concept look inconsistently spaced from
+	   one table to the next. Narrowed from those to this one value at the
+	   same time - per request, "very narrow, maximum 10px". */
+	--epesi-rv-col-gap: 8px;
 }
 
 .Utils_RecordBrowser__container {
@@ -219,10 +229,19 @@
 
 /* Gap between the left/right field columns (each .column is its own inner
    .view/.edit flex column). Left/right (not just one side) so adjacent
-   columns' padding adds up to the full gap between them. */
+   columns' padding adds up to the full gap between them - --epesi-rv-col-gap
+   (declared on .Utils_RecordBrowser__View_entry below) is the FULL visible
+   gap, so each side gets half. Per request: every per-table template's own
+   2-column split (Contact.tpl/Contact.tpl (Photo)/mails.tpl/Meeting's
+   default.tpl - PhoneCall's default.tpl and the generic View_entry.tpl use
+   the .epesi-rv-fluid mechanism just below instead) was rendering a
+   different-looking gap purely because each one hardcoded its own
+   width:{$cols_percent}%/50% split with no shared gap value - this file is
+   the one place both mechanisms actually read the gap from now, instead of
+   each module effectively inventing its own. */
 .Utils_RecordBrowser__View_entry .column {
-	padding-left: 24px;
-	padding-right: 24px;
+	padding-left: calc(var(--epesi-rv-col-gap) / 2);
+	padding-right: calc(var(--epesi-rv-col-gap) / 2);
 	/* Every .column carries its own inline width:{$cols_percent}% - this
 	   keeps it from also flex-growing/shrinking away from that explicit
 	   share when a sibling column's content is a different height. */
@@ -259,6 +278,38 @@
 .Utils_RecordBrowser__View_entry .epesi-rv-row {
 	display: flex;
 	column-gap: 3px;
+	/* Each row is its own independent flex container (unlike the old table
+	   layout, where every row shared one table and so one row height) - with
+	   nothing enforcing a floor, a row holding only a <select> (whose native
+	   rendering, even with identical CSS padding, tends to be a few pixels
+	   shorter than an <input>'s - OS dropdown chrome, not a CSS issue this
+	   theme controls) ends up visibly shorter than a row holding an <input>.
+	   A shared min-height gives every row the same floor regardless of which
+	   field type it holds - .label (min-height:20px) and .data's child both
+	   stretch to match via flex's default align-items:stretch. */
+	min-height: 28px;
+}
+
+/* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/etc, which still use
+   .epesi-rv-columns/.column with a PHP-computed fixed column count - see
+   AI-shared/bug-patterns.md). CSS multi-column instead: the browser picks
+   however many columns of at least ~420px fit the available width and
+   balances rows across them, rather than RecordBrowser_0.php hardcoding 2.
+   Overrides .view/.edit's display:flex above - a flex container can't also
+   be a multicol container. Degrades to a single column with no media query
+   needed once the viewport is narrower than one column's worth of width. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view,
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
+	display: block;
+	column-width: 420px;
+	column-gap: var(--epesi-rv-col-gap);
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row {
+	break-inside: avoid;
+	margin-bottom: 3px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
+	margin-bottom: 0;
 }
 
 .Utils_RecordBrowser__View_entry .label {
@@ -308,6 +359,27 @@
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
 	flex-basis: 20%;
+}
+
+/* Long text ("Description" etc) fields, stacked the same way multiselects
+   are below - label on its own full-width line above the textarea instead
+   of a label-left(20%)/data-right(80%) row, per request. .long_row's own
+   flex-direction:column flips .long_label's flex-basis from a width to a
+   height, so the 20% above (meaningless/unreliable against a column
+   container with no definite height to resolve a percentage against) is
+   overridden back to auto here, same as .multiselect_label below. */
+.Utils_RecordBrowser__View_entry .long_row {
+	flex-direction: column;
+}
+
+.Utils_RecordBrowser__View_entry .long_row .long_label {
+	flex: 0 0 auto;
+	flex-basis: auto;
+	border-bottom: none;
+}
+
+.Utils_RecordBrowser__View_entry .long_row .long_data {
+	width: 100%;
 }
 
 .Utils_RecordBrowser__View_entry .data {
@@ -383,18 +455,56 @@
     border-right: none;
 }
 
+/* Multiselect fields (the "> >> << <" dual-listbox widget - two list boxes
+   plus arrow buttons side by side) need real width to be usable; forced into
+   the same label-left/data-right row as every other field type left the
+   widget squeezed into whatever's left of a 150px-wide label, per request.
+   Stacked instead - label on its own full-width line above the widget,
+   matching how the same widget already reads in a plain QuickForm (non-
+   RecordBrowser) form. flex-direction:column flips .label's flex-basis from
+   a width to a height, so 150px must be overridden to auto here too. */
+.Utils_RecordBrowser__View_entry .multiselect_row {
+	flex-direction: column;
+}
+
+.Utils_RecordBrowser__View_entry .multiselect_label {
+	flex: 0 0 auto;
+	border-bottom: none;
+}
+
+/* Both stacked labels above (.multiselect_label, .long_row .long_label) sit
+   alone on their own line, with no sibling .data tall enough to stretch them
+   to match - unlike every ordinary row, where align-items:stretch (the
+   .epesi-rv-row default) grows .label to match .data's own 32px input/select
+   height plus its 1px top+bottom border (see ".data input/select" below),
+   which is what actually makes every ordinary label render ~34px tall.
+   Without this, both fell back to the base .label rule's own min-height:20px
+   instead, rendering visibly shorter than every other field's label - per
+   request, given the same explicit height here so they match. */
+.Utils_RecordBrowser__View_entry .multiselect_label,
+.Utils_RecordBrowser__View_entry .long_row .long_label {
+	height: 34px;
+	box-sizing: border-box;
+}
+
 .Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
-	/* 100%/box-sizing so the field (and so its :focus background) fills the
-	   whole .data cell - was 99%/14px (a sliver short both ways), leaving a
-	   visible gap around the focus highlight between the field and the
-	   cell's own edges. */
+	/* box-sizing so the field (and so its :focus background) fills the whole
+	   .data cell - was 99%/14px (a sliver short both ways), leaving a visible
+	   gap around the focus highlight between the field and the cell's own
+	   edges. height is an explicit px value, not 100% - percentage height
+	   depends on .data actually having a definite height to resolve against,
+	   which a <select> (unlike <input>/<textarea>) doesn't reliably do here;
+	   an explicit value sidesteps that ambiguity entirely and is what
+	   actually keeps every field type the same height (see .epesi-rv-row's
+	   matching min-height for the row itself). */
 	width: 100%;
-	height: 100%;
+	height: 32px;
 	box-sizing: border-box;
+	line-height: 1.5;
     background-color: #2b3035;
     border: 0px;
 	padding: 3px 5px;
@@ -405,6 +515,21 @@
 
 .Utils_RecordBrowser__View_entry .data textarea {
 	height: 63px;
+}
+
+/* Attachment/file fields (Utils_FileUpload_Dropzone::get_div()) render their dropzone widget as
+   a frozen static QuickForm element - RecordBrowser_0.php appends ' frozen' onto every frozen
+   field's style, so this .data cell also matches plain ".frozen" above and inherits its fixed
+   height:32px (meant for a single-line frozen value: a frozen text input, a frozen select,
+   etc). The dropzone widget's own CSS (Utils/FileUpload/theme/dropzone.css) needs more than one
+   line - min-height:50px empty, taller still once Dropzone.js renders a thumbnail preview for an
+   attached file - so the fixed height clips it, and since .data's own overflow is visible (not
+   hidden), the clipped part spills unclipped on top of whatever field comes next instead of
+   pushing it down. :has() (already used elsewhere in this theme, e.g. .epesi-ms-check above)
+   scopes the fix to exactly this one widget instead of loosening the fixed height for every
+   other frozen field type, which still wants it. */
+.Utils_RecordBrowser__View_entry .edit .frozen:has(.dropzone) {
+	height: auto;
 }
 
 .Utils_RecordBrowser__View_entry .edit .frozen,
@@ -450,7 +575,23 @@
 }
 
 .Utils_RecordBrowser__View_entry .data select {
-	height: 100%;
+	/* <select> defaults to display:inline-block, whose percentage-width
+	   resolution is unreliable inside a CSS multi-column container
+	   (.epesi-rv-fluid) in some browsers - a quirk specific to <select>,
+	   not text inputs/textareas (which is why only dropdown fields showed
+	   this, and why a short-valued one like a small commondata list was
+	   visibly narrow while a long-valued one like Country happened to look
+	   fine - masked by its own long option text, not actually unaffected).
+	   Forcing block sizing here resolves width:100% against .data the same
+	   reliable way it already does everywhere else - no visible difference
+	   outside a multicol context, since an inline-block element already at
+	   100% width looks identical to a block one. */
+	/* Deliberately does not repeat height here (was height:100%, same
+	   specificity as the shared input/select/textarea rule above but later
+	   in source order, so it silently won and undid that rule's explicit
+	   height:32px every time - the real cause of select rows staying short
+	   even after that fix). */
+	display: block;
 	padding: 0 5px;
 	margin: 0;
 }
@@ -471,15 +612,16 @@
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
 	color: white !important;
 	position: absolute;
+	top: 0;
+	bottom: 0;
 	right: 0px;
-	display: block;
-	height: 15px;
+	display: flex;
+	align-items: center;
 	margin: 0;
-	padding: 3px 15px 2px 15px;
+	padding: 0 15px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
-	vertical-align: top;
 	-webkit-border-radius: 0 4px 4px 0;
 	-moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
@@ -487,7 +629,11 @@
 
 	background: #dc3545;
 
-	max-width:50%;
+	/* Was 50% of the container - for a fixed-length message like "Field
+	   required" this can still be very wide on a wide field, growing
+	   leftward from right:0 far enough to overhang neighboring content.
+	   A small fixed cap keeps the badge compact regardless of row width. */
+	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -508,6 +654,10 @@
 /* currency START */
 
 /* automulti START */
+/* Shape/layout (width, border-radius on the Remove button, etc.) comes from
+   Libs/QuickForm/theme_adminltedark/default.css's own ".automulti" block,
+   shared by every automulti field app-wide, not just RecordBrowser's - this
+   file only carries this screen's colours on top of it. */
 
 .Utils_RecordBrowser__View_entry .edit .automulti {
 	background-color: #2b3035;
@@ -527,9 +677,6 @@
 	height: 100%;
 	width: 100%;
 	padding: 0;
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-    border-radius: 6px;
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
 	box-shadow: none;
@@ -540,14 +687,17 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div > div {
+.Utils_RecordBrowser__View_entry .timestamp > div > div,
+.Utils_RecordBrowser__View_entry .time > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
@@ -561,8 +711,12 @@
    up stacked instead of sitting compact and side by side). The date
    <input> is unaffected by this override and correctly keeps width:100% -
    it's the non-floated sibling the "margin-right:130px" rule above already
-   reserves space against, so it's meant to fill what's left of the row. */
-.Utils_RecordBrowser__View_entry .data .timestamp select {
+   reserves space against, so it's meant to fill what's left of the row.
+   .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
+   field, built with 'date'=>false) renders the same hour/minute-select markup but sits in a
+   "data time" cell - style is set from type, and 'time'/'timestamp' are distinct field types. */
+.Utils_RecordBrowser__View_entry .data .timestamp select,
+.Utils_RecordBrowser__View_entry .data .time select {
 	width: auto;
 	height: auto;
 }
@@ -595,11 +749,45 @@
     border-style: solid !important;
 }
 
-.Utils_RecordBrowser__View_entry #multiselect .form-element select,
-.Utils_RecordBrowser__View_entry #multiselect .to-element select {
-    width: 100%;
-    height: 100px;
+/* Any checkbox tagged 'epesi-switch' used to lose to this file's own
+   '.data input[type=checkbox]{width:auto}'/'.data input:not([type=button])'
+   rules (same-or-higher specificity than the switch's own bare
+   'input.epesi-switch[type=checkbox]' rule) - squashed here, then found
+   again in Apps_ActivityReport's own unrelated '.epesi-ar-check
+   input[type=checkbox]{width:1.05rem}' rule (a completely different
+   module/container), which is what finally moved the real fix to
+   Libs/QuickForm/theme_adminltedark/default.css's base rule itself
+   (!important on every core visual property - see that file's comment for
+   the full history: Utils_Attachment's Sticky/Crypted, CRM_Meeting's
+   Timeless, then Apps_ActivityReport's filter checkboxes, three unrelated
+   modules hitting the same shape). Only the focus-radius fight below is
+   still local to this file - this file's own '.data input:focus' rule
+   re-squares the switch into a rectangle with !important border
+   properties, and only another !important declaration can contest one,
+   regardless of specificity, so a matching local override is still needed
+   for the RecordBrowser view/edit context specifically. */
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus,
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus-visible {
+	border-width: 1px !important;
+	border-style: solid !important;
+	border-radius: 2em !important;
+	border-color: rgba(255, 255, 255, 0.25) !important;
 }
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
+	border-color: #0d6efd !important;
+}
+
+/* Was width:100%;height:100px here - Libs/QuickForm/theme_adminltedark/
+   default.css already reworked #multiselect into a flex row (with its own
+   width:100% plus a height tall enough to match/exceed the 4-button column
+   beside it, computed from the same CSS vars the buttons use), but this
+   selector's extra .Utils_RecordBrowser__View_entry class made it MORE
+   specific than that plain #multiselect one, so its stale height:100px kept
+   winning the height property outright (min-height from the QuickForm rule
+   still applied as a floor, but that alone left the select ~11px shorter
+   than the actual button column - see AI-shared/bug-patterns.md). Deferring
+   entirely to QuickForm's rule removes that conflict app-wide, not just here. */
 
 .Utils_RecordBrowser__View_entry .data a.button {
     height: 20px;
@@ -714,4 +902,18 @@
 [data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data textarea:focus {
   background-color: #eaf2ff;
   border-color: #dee2e6 !important;
+}
+
+/* Light-mode counterpart of the dark-mode focus-radius override above - same
+   "only !important beats !important" reasoning; base/checked colors don't
+   need a local override here since Libs/QuickForm/theme_adminltedark/
+   default.css's own light-mode 'input.epesi-switch' rules are !important
+   now too. */
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus-visible {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
+[data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
+  border-color: #0d6efd !important;
 }

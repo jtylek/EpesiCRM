@@ -66,7 +66,7 @@ class Utils_CustomMenu extends Module {
 			array('name'=>__('Menu entry path'), 'width'=>70),
 				));
 		foreach($data as $row) {
-			$r = & $gb->get_new_row();
+			$r = $gb->get_new_row();
 			$r->add_data($row);
 			$r->add_action($this->create_unique_href(array('edit'=>$row)),'Edit');
 			$r->add_action($this->create_confirm_callback_href(__('Are you sure?'),$this->delete_entry(...),$row),'Delete');

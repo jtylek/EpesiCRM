@@ -20,6 +20,22 @@
 	max-width: 90vw;
 }
 
+/* Per request: same fixed grey/black sidebar scheme as Libs_Leightbox's own
+   #Leightbox_header/#tooltip_leightbox_mode (theme_adminltedark/default.css)
+   and Premium_Projects_Tickets' "Change Status" popup (identical
+   _followups_leightbox id suffix, same underlying
+   CRM_FollowupCommon::check_location() plumbing this popup shares with it) -
+   not this popup's own default dark chrome. !important needed: this
+   selector and Libs_Leightbox's own "[data-bs-theme='light'] .leightbox"
+   are the same specificity (one attribute + one class each), so a plain
+   rule would silently lose whenever that stylesheet happens to load after
+   this one - same non-!important-tie trap documented in Base_Box/theme_
+   adminltedark/default.css's .app-sidebar background-color comment. */
+.leightbox[id$="_followups_leightbox"] {
+	background-color: #dee2e6 !important;
+	color: #000 !important;
+}
+
 .epesi-followup-fields {
 	display: flex;
 	flex-direction: column;
@@ -36,7 +52,7 @@
 .epesi-followup-label {
 	flex: 0 0 100px;
 	padding-top: 0.4rem;
-	color: #adb5bd;
+	color: #495057;
 	font-weight: 600;
 }
 
@@ -45,14 +61,26 @@
 	max-width: 420px;
 }
 
+/* color + color-scheme:light needed, not just background-color: this popup
+   is pinned to the fixed light/grey chrome above even under the app's dark
+   theme, but the app sets colorScheme='dark' on <html> when dark mode is
+   active (Base_ThemeCommon's lte-theme toggle - see ThemeCommon_0.php), and
+   browsers use that (not this file's colors) to pick native <select>
+   closed-box text and dropdown-option-list colors for anything left
+   unstyled - white-on-white otherwise despite the explicit white
+   background-color. Same fix as Premium_Projects_Tickets' "Change Status"
+   popup (theme_adminltedark/status_leightbox.tpl), which shares this exact
+   symptom. */
 .epesi-followup-control select,
 .epesi-followup-control textarea {
 	width: 100%;
-	border: 1px solid #495057;
+	border: 1px solid #ced4da;
 	border-radius: 0.375rem;
 	padding: 0.375rem 0.6rem;
 	font-size: 0.9rem;
-	background-color: #2b3035;
+	background-color: #fff;
+	color: #000;
+	color-scheme: light;
 }
 
 .epesi-followup-control select {
@@ -77,7 +105,7 @@
 	align-items: center;
 	gap: 0.4rem;
 	padding-top: 0.75rem;
-	border-top: 1px solid #343a40;
+	border-top: 1px solid #e9ecef;
 }
 
 .epesi-followup-btn {
@@ -89,7 +117,7 @@
 	min-width: 64px;
 	padding: 0.35rem 0.5rem;
 	border-radius: 0.375rem;
-	color: #adb5bd;
+	color: #495057;
 	text-decoration: none;
 	font-size: 0.75rem;
 	line-height: 1.2;
@@ -103,7 +131,7 @@
 }
 
 .epesi-followup-btn:hover {
-	background-color: #343a40;
+	background-color: #e9ecef;
 	color: #0d6efd;
 }
 
@@ -119,35 +147,13 @@
 
 .epesi-followup-sep {
 	margin: 0 0.5rem;
-	color: #8b929a;
+	color: #6c757d;
 	font-size: 0.8rem;
 	font-weight: 600;
 	white-space: nowrap;
 }
 
-/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-followup-label {
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-followup-control select,
-[data-bs-theme="light"] .epesi-followup-control textarea {
-  border: 1px solid #ced4da;
-  background-color: #fff;
-}
-
-[data-bs-theme="light"] .epesi-followup-actions {
-  border-top: 1px solid #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-followup-btn {
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-followup-btn:hover {
-  background-color: #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-followup-sep {
-  color: #6c757d;
-}
+/* No [data-bs-theme="light"] overrides below (unlike other adminltedark
+   files) - every color above is now the fixed sidebar grey/black scheme in
+   both themes, same as Libs_Leightbox's #Leightbox_header; see the
+   .leightbox[id$="_followups_leightbox"] rule's own comment above. */

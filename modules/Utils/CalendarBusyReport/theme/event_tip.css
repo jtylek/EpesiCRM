@@ -2,8 +2,18 @@
     width: 200px;    
 }
 
+#Utils_Calendar__event_tip .epesi-rv-row {
+    display: flex;
+}
+
 #Utils_Calendar__event_tip .label {
+    flex: 0 0 auto;
+    margin-right: 4px;
     font-weight: bold;
+}
+
+#Utils_Calendar__event_tip .data {
+    flex: 1 1 auto;
 }
 
 #Utils_Calendar__event_tip .info {

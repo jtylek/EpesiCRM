@@ -129,7 +129,12 @@ class Epesi {
 	}
 
 	public final static function alert($txt,$del = false) {
-		self::js('alert(\''.self::escapeJS($txt,false).'\')',$del);
+		// epesi_alert(), when defined (see Module::inject_alert_modal()), shows a styled
+		// AdminLTE Bootstrap modal instead of the native alert() popup; the typeof check keeps
+		// this safe for contexts where that never got injected (non-AdminLTE theme, or a raw
+		// JS response that bypasses the normal page render - see inject_alert_modal()'s doc).
+		$msg = self::escapeJS($txt,false);
+		self::js('if(typeof epesi_alert===\'function\'){epesi_alert(\''.$msg.'\')}else{alert(\''.$msg.'\')}',$del);
 	}
 
 	public final static function redirect($addr='') {
@@ -285,7 +290,7 @@ class Epesi {
 		$t['datepicker']       = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
 		$t['timestamp']        = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
 		$t['currency']         = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
-		$t['ckeditor']         = array('modules/Libs/CKEditor/ckeditor.php','HTML_Quickform_ckeditor');
+		$t['quill']            = array('modules/Libs/Quill/quill.php','HTML_Quickform_quill');
 		$t['codepress']        = array('modules/Libs/Codepress/HTML_Quickform_codepress_0.php','HTML_Quickform_codepress');
 		$t['critsvalue']       = array('modules/Utils/QueryBuilder/quickform_crits.php','HTML_QuickForm_crits');
 	}
@@ -466,7 +471,7 @@ class Epesi {
 		}
 		if(!isset($_SESSION['client']['custom_debug']) || $debug!=$_SESSION['client']['custom_debug']) {
 			self::text($debug,'debug');
-			if ($debug) Epesi::js("$('debug_content').style.display='block';");
+			if ($debug) Epesi::js("document.getElementById('debug_content').style.display='block';");
 			$_SESSION['client']['custom_debug'] = $debug;
 		}
 

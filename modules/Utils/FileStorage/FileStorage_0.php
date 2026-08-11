@@ -131,8 +131,8 @@ class Utils_FileStorage extends Module
             $meta = is_numeric($id) ? Utils_FileStorageCommon::meta($id) : $id;
             $acion_handler = new Utils_FileStorage_ActionHandler();
             $action_urls = $acion_handler->getActionUrls($meta['id']);
-            $file_leightbox_href[$col['id']] = Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls, true);
-            $file = '<a '.$file_leightbox_href[$col['id']].'>'.$col['filename'].'</a>';
+            $file_leightbox_href[$id] = Utils_FileStorage_FileLeightbox::get_file_leightbox($meta, $action_urls, true);
+            $file = '<a '.$file_leightbox_href[$id].'>'.$col['filename'].'</a>';
             $r->add_data($col['deleted']?__('Yes'):__('No'),Base_RegionalSettingsCommon::time2reg($col['created_on']),Base_UserCommon::get_user_label($col['created_by']),$file);
         }
         $this->display_module($gb);

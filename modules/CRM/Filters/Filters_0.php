@@ -19,19 +19,19 @@ class CRM_Filters extends Module {
 		eval_js_once('crm_filters_deactivate = function(){leightbox_deactivate(\'crm_filters\');}');
 
 		$th->assign('my','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'my').' id="crm_filters_my">'.__('My records').'</a>');
-		eval_js('Event.observe(\'crm_filters_my\',\'click\', crm_filters_deactivate)');
+		eval_js('jQuery(document.getElementById(\'crm_filters_my\')).on(\'click\', crm_filters_deactivate)');
 
 		/*$th->assign('all','<a '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),'all').' id="crm_filters_all">'.__('All records').'</a>');
 		eval_js('Event.observe(\'crm_filters_all\',\'click\', crm_filters_deactivate)');*/
 
 		$th->assign('manage','<a '.$this->create_callback_href($this->manage_filters(...)).' id="crm_filters_manage">'.__('Manage presets').'</a>');
-		eval_js('Event.observe(\'crm_filters_manage\',\'click\', crm_filters_deactivate)');
+		eval_js('jQuery(document.getElementById(\'crm_filters_manage\')).on(\'click\', crm_filters_deactivate)');
 
 		$ret = DB::Execute('SELECT id,name,description FROM crm_filters_group WHERE user_login_id=%d',array(Acl::get_user()));
 		$filters = array();
 		while($row = $ret->FetchRow()) {
 			$filters[] = array('title'=>$row['name'],'description'=>'','open'=>'<a '.Utils_TooltipCommon::open_tag_attrs($row['description'],false).' '.$this->create_callback_href(array('CRM_FiltersCommon','set_profile'),$row['id']).' id="crm_filters_'.$row['id'].'">','close'=>'</a>');
-			eval_js('Event.observe(\'crm_filters_'.$row['id'].'\',\'click\', crm_filters_deactivate)');
+			eval_js('jQuery(document.getElementById(\'crm_filters_'.$row['id'].'\')).on(\'click\', crm_filters_deactivate)');
 		}
 		$th->assign('filters',$filters);
 
@@ -107,7 +107,7 @@ class CRM_Filters extends Module {
 
 		$ret = DB::Execute('SELECT g.name,g.id,g.description FROM crm_filters_group g WHERE g.user_login_id='.Acl::get_user());
 		while($row = $ret->FetchRow()) {
-			$gb_row = & $gb->get_new_row();
+			$gb_row = $gb->get_new_row();
 			$gb_row->add_action($this->create_confirm_callback_href(__('Delete this group?'),array('CRM_Filters','delete_group'), $row['id']),'Delete');
 			$gb_row->add_action($this->create_callback_href($this->edit_group(...),$row['id']),'Edit');
 			$cids = DB::GetAssoc('SELECT c.contact_id, c.contact_id FROM crm_filters_contacts c WHERE c.group_id=%d',array($row['id']));
@@ -124,8 +124,8 @@ class CRM_Filters extends Module {
 		$this->display_module($gb);
 		
 		$qf = $this->init_module(Libs_QuickForm::module_name(),null,'default_filter');
-		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
-        $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js()));
+		$qf->addElement('checkbox','show_all_contacts_in_filters',__('Show all contacts in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js(),'class'=>'epesi-switch'));
+        $qf->addElement('checkbox','show_only_users_in_filters',__('Show only users in Perspective selection'),null,array('onChange'=>$qf->get_submit_form_js(),'class'=>'epesi-switch'));
 		$qf->setDefaults(array(	'show_all_contacts_in_filters'=>Base_User_SettingsCommon::get('CRM_Contacts','show_all_contacts_in_filters'),
             'show_only_users_in_filters' => Base_User_SettingsCommon::get('CRM_Contacts','show_only_users_in_filters')
 						));
@@ -166,7 +166,9 @@ class CRM_Filters extends Module {
 			$v = $form->exportValues();
             Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier());
 			foreach($v as $key => $value) {
-				$v[$key] = Utils_SafeHtml_SafeHtml::outputSafeHtml($value);
+				if (is_string($value)) {
+					$v[$key] = Utils_SafeHtml_SafeHtml::outputSafeHtml($value);
+				}
 			}
             if(isset($id)) {
 				DB::Execute('UPDATE crm_filters_group SET name=%s,description=%s WHERE id=%d',array($v['name'],$v['description'],$id));

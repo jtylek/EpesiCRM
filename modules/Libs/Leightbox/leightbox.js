@@ -60,125 +60,119 @@ function checkIt(string) {
 
 /*-----------------------------------------------------------------------------------------------*/
 
-var leightbox = Class.create();
+function leightbox(ctrl) {
+    this.yPos = 0;
+    this.content = ctrl.getAttribute("rel");
+    var exec = this.activate.bind(this);
+    jq(ctrl).on('click', exec);
+    jq(ctrl).on('touchstart',function(){jq(this).attr('last_touch_start',(new Date()).getTime());}).on('touchend',function(){ var a = (new Date()).getTime()-jq(this).attr('last_touch_start'); if(a>200 && a<1000) exec() });
 
-leightbox.prototype = {
-
-    yPos : 0,
-
-    initialize: function(ctrl) {
-        this.content = ctrl.getAttribute("rel");
-	var exec = this.activate.bindAsEventListener(this);
-        Event.observe(ctrl, 'click', exec, false);
-	jq(ctrl).on('touchstart',function(){jq(this).attr('last_touch_start',(new Date()).getTime());}).on('touchend',function(){ var a = (new Date()).getTime()-jq(this).attr('last_touch_start'); if(a>200 && a<1000) exec() });
-
-        ctrl.onclick = function(){return false;};
-    },
-
-    // Turn everything on - mainly the IE fixes
-    activate: function(){
-		leightbox_is_active = true;
-        if (browser == 'Internet Explorer'){
-            this.getScroll();
-            this.prepareIE('100%', 'hidden');
-            this.setScroll(0,0);
-            this.hideSelects('hidden');
-        }
-        this.displayLeightbox("block");
-    },
-
-    // Ie requires height to 100% and overflow hidden or else you can scroll down past the leightbox
-    prepareIE: function(height, overflow){
-        bod = document.getElementsByTagName('body')[0];
-        bod.style.height = height;
-        bod.style.overflow = overflow;
-
-        htm = document.getElementsByTagName('html')[0];
-        htm.style.height = height;
-        htm.style.overflow = overflow;
-    },
-
-    // In IE, select elements hover on top of the leightbox
-    hideSelects: function(visibility){
-        selects = document.getElementsByTagName('select');
-        for(i = 0; i < selects.length; i++) {
-            selects[i].style.visibility = visibility;
-        }
-    },
-
-    // Taken from leightbox implementation found at http://www.huddletogether.com/projects/lightbox/
-    getScroll: function(){
-        if (self.pageYOffset) {
-            this.yPos = self.pageYOffset;
-        } else if (document.documentElement && document.documentElement.scrollTop){
-            this.yPos = document.documentElement.scrollTop;
-        } else if (document.body) {
-            this.yPos = document.body.scrollTop;
-        }
-    },
-
-    setScroll: function(x, y){
-        window.scrollTo(x, y);
-    },
-
-    displayLeightbox: function(display){
-        var c = $(this.content);
-        var co = $('leightbox_overlay');
-        var ccont = $('leightbox_container');
-        if(display == 'none') {
-            var tag = $(this.content+'__tag');
-            if(tag) {
-            tag.parentNode.insertBefore(c,tag);
-            tag.parentNode.removeChild(tag);
-            } else {
-                c.id = this.content+"__bak";
-            var c2 = $(this.content);
-            if(c2) c2.parentNode.removeChild(c2);
-                c.id = this.content;
-            }
-        } else {
-            var tag = document.createElement('div');
-            tag.id = this.content+'__tag';
-            c.parentNode.insertBefore(tag,c);
-            ccont.appendChild(c);
-            if(navigator.appName.indexOf('Explorer') != -1 ) {
-            co.style.position="absolute";
-            co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
-            c.style.position="absolute";
-            c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
-            c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/6) + 'px';
-            c.style.height = (document.documentElement.clientHeight/2) + 'px';
-            c.style.width = (document.documentElement.clientWidth/1.5) + 'px';
-            }
-        }
-        co.style.display = display;
-        c.style.display = display;
-        if(display != 'none') this.actions();
-    },
-
-    // Search through new links within the lightbox, and attach click event
-    actions: function(){
-        lbActions = document.getElementsByClassName('lbAction');
-
-        for(i = 0; i < lbActions.length; i++) {
-            Event.observe(lbActions[i], 'click', this[lbActions[i].getAttribute("rel")].bindAsEventListener(this), false);
-            lbActions[i].onclick = function(){return false;};
-        }
-
-    },
-
-    // Example of creating your own functionality once lightbox is initiated
-    deactivate: function(){
-		leightbox_is_active = false;
-        if (browser == "Internet Explorer"){
-            this.setScroll(0,this.yPos);
-            this.prepareIE("auto", "visible");
-            this.hideSelects("visible");
-        }
-
-        this.displayLeightbox("none");
-    }
+    ctrl.onclick = function(){return false;};
 }
+
+// Turn everything on - mainly the IE fixes
+leightbox.prototype.activate = function(){
+	leightbox_is_active = true;
+    if (browser == 'Internet Explorer'){
+        this.getScroll();
+        this.prepareIE('100%', 'hidden');
+        this.setScroll(0,0);
+        this.hideSelects('hidden');
+    }
+    this.displayLeightbox("block");
+};
+
+// Ie requires height to 100% and overflow hidden or else you can scroll down past the leightbox
+leightbox.prototype.prepareIE = function(height, overflow){
+    bod = document.getElementsByTagName('body')[0];
+    bod.style.height = height;
+    bod.style.overflow = overflow;
+
+    htm = document.getElementsByTagName('html')[0];
+    htm.style.height = height;
+    htm.style.overflow = overflow;
+};
+
+// In IE, select elements hover on top of the leightbox
+leightbox.prototype.hideSelects = function(visibility){
+    selects = document.getElementsByTagName('select');
+    for(i = 0; i < selects.length; i++) {
+        selects[i].style.visibility = visibility;
+    }
+};
+
+// Taken from leightbox implementation found at http://www.huddletogether.com/projects/lightbox/
+leightbox.prototype.getScroll = function(){
+    if (self.pageYOffset) {
+        this.yPos = self.pageYOffset;
+    } else if (document.documentElement && document.documentElement.scrollTop){
+        this.yPos = document.documentElement.scrollTop;
+    } else if (document.body) {
+        this.yPos = document.body.scrollTop;
+    }
+};
+
+leightbox.prototype.setScroll = function(x, y){
+    window.scrollTo(x, y);
+};
+
+leightbox.prototype.displayLeightbox = function(display){
+    var c = document.getElementById(this.content);
+    var co = document.getElementById('leightbox_overlay');
+    var ccont = document.getElementById('leightbox_container');
+    if(display == 'none') {
+        var tag = document.getElementById(this.content+'__tag');
+        if(tag) {
+        tag.parentNode.insertBefore(c,tag);
+        tag.parentNode.removeChild(tag);
+        } else {
+            c.id = this.content+"__bak";
+        var c2 = document.getElementById(this.content);
+        if(c2) c2.parentNode.removeChild(c2);
+            c.id = this.content;
+        }
+    } else {
+        var tag = document.createElement('div');
+        tag.id = this.content+'__tag';
+        c.parentNode.insertBefore(tag,c);
+        ccont.appendChild(c);
+        if(navigator.appName.indexOf('Explorer') != -1 ) {
+        co.style.position="absolute";
+        co.style.height = (document.documentElement.clientHeight < document.body.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight) + 'px';
+        c.style.position="absolute";
+        c.style.top = (document.documentElement.scrollTop + document.documentElement.clientHeight/4) + 'px';
+        c.style.left = (document.documentElement.scrollLeft + document.documentElement.clientWidth/6) + 'px';
+        c.style.height = (document.documentElement.clientHeight/2) + 'px';
+        c.style.width = (document.documentElement.clientWidth/1.5) + 'px';
+        }
+    }
+    co.style.display = display;
+    c.style.display = display;
+    if(display != 'none') this.actions();
+};
+
+// Search through new links within the lightbox, and attach click event
+leightbox.prototype.actions = function(){
+    lbActions = document.getElementsByClassName('lbAction');
+
+    for(i = 0; i < lbActions.length; i++) {
+        jq(lbActions[i]).on('click', this[lbActions[i].getAttribute("rel")].bind(this));
+        lbActions[i].onclick = function(){return false;};
+    }
+
+};
+
+// Example of creating your own functionality once lightbox is initiated
+leightbox.prototype.deactivate = function(){
+	leightbox_is_active = false;
+    if (browser == "Internet Explorer"){
+        this.setScroll(0,this.yPos);
+        this.prepareIE("auto", "visible");
+        this.hideSelects("visible");
+    }
+
+    this.displayLeightbox("none");
+};
 
 /*-----------------------------------------------------------------------------------------------*/
 
@@ -234,12 +228,12 @@ function leightbox_reload() {
         }
         return;
     }
-    $('leightbox_container').innerHTML = '';
+    document.getElementById('leightbox_container').innerHTML = '';
     lbox = document.getElementsByClassName('lbOn');
     for(i = 0; i < leightboxes.length; i++)
         delete(leightboxes[i]);
     for(i = 0; i < lbox.length; i++) {
-        lbox[i].stopObserving('click');
+        jq(lbox[i]).off('click');
         leightboxes[i] = new leightbox(lbox[i]);
         if (leightbox_to_activate==lbox[i].getAttribute("rel")) {
             leightboxes[i].activate();
@@ -248,4 +242,4 @@ function leightbox_reload() {
     }
 }
 
-document.observe("e:load", leightbox_reload);
+jq(document).on("e:load", leightbox_reload);

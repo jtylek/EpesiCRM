@@ -194,42 +194,54 @@
 				"if(!actions.length)return;".
 				"var m=getMenu();".
 				"m.innerHTML='';".
+				// No visible text label per action (per request) - the panel
+				// is a horizontal row of icons now, not a vertical list, and
+				// every cloned <a> already carries its own hover tooltip
+				// (Utils_TooltipCommon::open_tag_attrs() sets data-tooltip/
+				// aria-label/onmouseenter="epesi_tooltip_show(this)" on the
+				// original element, all preserved by cloneNode), so a
+				// second, redundant text label isn't needed to identify the
+				// action - it used to read the (since-removed) title
+				// attribute for exactly that, which is why this used to
+				// render as icons with empty space where the label used to
+				// be rather than nothing at all.
 				"actions.forEach(function(a){".
-					"var clone=a.cloneNode(true);".
-					// data-epesi-mobile-label (RowObject.php's add_info(), Record ID
-					// only) stands in for the full title text where one is present -
-					// today that's just the info icon, whose title is a whole "Record
-					// ID / Created by / Edited by / ..." dump meant for a hover
-					// tooltip, not a menu item label.
-					"var label=a.getAttribute('data-epesi-mobile-label')||a.getAttribute('title');".
-					"if(label){var span=document.createElement('span');span.textContent=label;clone.appendChild(span);}".
-					"m.appendChild(clone);".
+					"m.appendChild(a.cloneNode(true));".
 				"});".
 				"m.classList.add('show');".
 				"var r=btn.getBoundingClientRect();".
-				// A row near the bottom of the viewport (last few rows of a long
-				// table, small phone screen) left the menu opening downward
-				// unconditionally, running off the bottom of the screen with no
-				// way to reach the actions past whatever happened to fit above the
-				// fold. Flip to open upward instead whenever there isn't enough
-				// room below AND there IS enough room above; if neither direction
-				// fits (a very long action list on a very short viewport), keep
-				// opening downward and let #epesi-gb-actions-menu's own
-				// max-height:60vh + overflow-y:auto (default.css) make it
-				// scrollable instead of clipped.
+				// Opens as a flyout to the RIGHT of the button by default
+				// (per request) instead of dropping down below it, which
+				// used to overlap/cover the row(s) underneath. A button near
+				// the right edge of the viewport (a narrow "actions" column
+				// pinned to the right side of a wide table, small phone
+				// screen) left the menu running off the right of the screen
+				// with no room to reach it, so flip to the LEFT instead
+				// whenever there isn't enough room to the right AND there IS
+				// enough room to the left; if neither fits (a very wide menu
+				// on a very narrow viewport), keep opening to the right and
+				// let it clip rather than mis-measure a negative position.
+				"var menuWidth=m.offsetWidth;".
 				"var menuHeight=m.offsetHeight;".
-				"var spaceBelow=window.innerHeight-r.bottom;".
-				"var top;".
-				"if(spaceBelow>=menuHeight+4||r.top<menuHeight+4){".
-					"top=r.bottom+4;".
+				"var spaceRight=window.innerWidth-r.right;".
+				"var left;".
+				"if(spaceRight>=menuWidth+4||r.left<menuWidth+4){".
+					"left=r.right+4;".
 				"}else{".
-					"top=r.top-menuHeight-4;".
+					"left=r.left-menuWidth-4;".
 				"}".
-				"if(top<4)top=4;".
-				"m.style.top=top+'px';".
-				"var left=r.right-m.offsetWidth;".
 				"if(left<4)left=4;".
 				"m.style.left=left+'px';".
+				// Top-aligned with the button by default, nudged up only if
+				// that would run the menu off the bottom of the viewport
+				// (last few rows of a long table) - mirrors
+				// #epesi-gb-actions-menu's own max-height:60vh+overflow-y:auto
+				// (default.css) as the final fallback for a menu too tall to
+				// fit even flush against the bottom edge.
+				"var top=r.top;".
+				"if(top+menuHeight>window.innerHeight-4)top=window.innerHeight-menuHeight-4;".
+				"if(top<4)top=4;".
+				"m.style.top=top+'px';".
 				"btn.classList.add('epesi-gb-actions-open');".
 			"}".
 			// A row's action <a>s fall into two groups: the "core" ones built
@@ -249,12 +261,28 @@
 			// "extra" action, so a future module's own icon groups correctly
 			// without this file needing to know about it.
 			"function isCoreAction(a){".
+				// RecordBrowser_0.php's inline "add new record" row (add_in_table)
+				// submits via a real <input type="submit"> nested in its own action
+				// <a> instead of an <img>-based icon (it has to actually submit the
+				// row's form, not just navigate) - with no <img> to match below it
+				// fell through to "extra" and got buried behind the More actions
+				// toggle for something that's core to RecordBrowser itself, used on
+				// every table with this feature on, not a module bolt-on.
+				"if(a.querySelector('input[type=\"submit\"]'))return true;".
 				"var img=a.querySelector('img');".
 				"var src=img?(img.getAttribute('src')||''):'';".
+				// CRM_Mail's own "copy" row action (actions_for_mails()/copy() in
+				// CRM/Mail/Mail_0.php) resolves to CRM/Mail's own theme copy_small.png,
+				// not the shared Utils/Attachment icon of the same filename used
+				// elsewhere (RecordBrowser's permission-rule "Clone rule", Attachment
+				// itself) - per request, kept inline in the Mail list's actions column
+				// instead of buried behind More actions, scoped to this exact resolved
+				// path so no other module's same-named icon is affected.
+				"if(/\\/CRM\\/Mail\\/theme[^\\/]*\\/copy_small\\.png$/.test(src))return true;".
 				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
 			"}".
 			"function ensureToggles(){".
-				"document.querySelectorAll('table.Utils_GenericBrowser td.Utils_GenericBrowser__actions').forEach(function(cell){".
+				"document.querySelectorAll('.Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
 					"if(cell.querySelector('.epesi-gb-actions-toggle'))return;".
 					"var links=Array.prototype.slice.call(cell.querySelectorAll('a'));".
 					"if(!links.length)return;".
@@ -320,7 +348,7 @@
 			"document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});".
 			"window.addEventListener('resize',closeMenu);".
 			"try{ensureToggles();}catch(e){}".
-			"if(typeof document.observe==='function')document.observe('e:load',function(){try{closeMenu();ensureToggles();}catch(e){}});".
+			"jQuery(document).on('e:load',function(){try{closeMenu();ensureToggles();}catch(e){}});".
 		"})();"
 	);
 
@@ -403,7 +431,7 @@
 	// favourite/watchdog icons were left cramped. These two columns are
 	// therefore measured the same way the actions column is above - not
 	// trusted at their PHP-declared px value at all - by walking each body
-	// row's cell at the SAME column position (th.cellIndex; these columns'
+	// row's cell at the SAME column position (cellIndexOf(th); these columns'
 	// <td>s carry no distinguishing class, unlike .Utils_GenericBrowser__actions)
 	// and taking the largest scrollWidth, falling back to the declared
 	// width only if a table somehow has no body rows yet. The measured
@@ -450,18 +478,20 @@
 						// dragged) into an unbounded feedback loop - reproduced as a
 						// column growing by a fixed ~10px per call with NO actual resize
 						// at all. Cloning the cell into a detached, auto-layout table
-						// (kept under the same .epesi-gb/table.Utils_GenericBrowser
+						// (kept under the same .epesi-gb/.Utils_GenericBrowser
 						// classes so the icon ::before/hidden-<img> rules in this theme's
 						// own default.css still apply) measures the content alone,
 						// independent of whatever width the live column currently has.
 						"var holder=document.createElement('div');".
 						"holder.className='epesi-gb';".
 						"holder.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:-9999px;';".
-						"var mt=document.createElement('table');".
+						"var mt=document.createElement('div');".
 						"mt.className='Utils_GenericBrowser';".
 						"mt.style.cssText='table-layout:auto;width:auto;';".
-						"var tb=document.createElement('tbody');".
-						"var tr=document.createElement('tr');".
+						"var tb=document.createElement('div');".
+						"tb.className='Utils_GenericBrowser__tbody';".
+						"var tr=document.createElement('div');".
+						"tr.className='Utils_GenericBrowser__tr';".
 						"tr.appendChild(cell.cloneNode(true));".
 						"tb.appendChild(tr);".
 						"mt.appendChild(tb);".
@@ -471,11 +501,19 @@
 						"document.body.removeChild(holder);".
 						"return w;".
 					"}".
-					"document.querySelectorAll('table.Utils_GenericBrowser').forEach(function(table){".
-						"var headerCell=table.querySelector('th.Utils_GenericBrowser__actions, thead td.Utils_GenericBrowser__actions');".
+					// A div has no native .cellIndex (that's an HTMLTableCellElement-
+					// only property, always undefined on a plain element) - this grid
+					// is now divs laid out via CSS table-display, not real <td>/<th>
+					// elements, so the column position has to be computed from DOM
+					// position among the row's own children instead.
+					"function cellIndexOf(el){".
+						"return Array.prototype.indexOf.call(el.parentNode.children,el);".
+					"}".
+					"document.querySelectorAll('.Utils_GenericBrowser').forEach(function(table){".
+						"var headerCell=table.querySelector('.Utils_GenericBrowser__th.Utils_GenericBrowser__actions');".
 						"if(!headerCell)return;".
 						"var maxWidth=0;".
-						"table.querySelectorAll('tbody td.Utils_GenericBrowser__actions').forEach(function(cell){".
+						"table.querySelectorAll('.Utils_GenericBrowser__tbody .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
 							"var w=naturalWidth(cell);".
 							"if(w>maxWidth)maxWidth=w;".
 						"});".
@@ -487,7 +525,7 @@
 						"if(!container)return;".
 						"var containerWidth=container.clientWidth;".
 						"if(containerWidth<=0)return;".
-						"var others=table.querySelectorAll('thead > tr > th:not(.Utils_GenericBrowser__actions), thead > tr > td:not(.Utils_GenericBrowser__actions)');".
+						"var others=table.querySelectorAll('.Utils_GenericBrowser__thead .Utils_GenericBrowser__th:not(.Utils_GenericBrowser__actions)');".
 						"var percentCols=[];".
 						"var percents=[];".
 						"var totalPercent=0;".
@@ -502,37 +540,61 @@
 								"percents.push(p);".
 								"totalPercent+=p;".
 							"}else{".
-								"var idx=th.cellIndex;".
+								"var idx=cellIndexOf(th);".
+								// Below the mobile breakpoint this whole column is hidden
+								// (Utils/GenericBrowser/theme_adminltedark/default.css's own
+								// "@media (max-width: 991.98px)" block, keyed off this same
+								// class) - the <th> already carries it straight from
+								// RecordBrowser_0.php's server-rendered markup, so by the time
+								// this script runs the CSS has already decided and
+								// getComputedStyle can just be asked. When hidden, the column
+								// reserves none of the available width (a hidden cell takes
+								// none in the real rendered layout either) and the natural-width
+								// measurement below is skipped - measuring a display:none clone
+								// would read back 0 anyway, which used to fall through to the
+								// "no body rows yet" fallback and wrongly reserve a phantom
+								// ~24px for a column that isn't actually showing.
+								"var favClass=th.classList.contains('Utils_RecordBrowser__favs')?'Utils_RecordBrowser__favs':'Utils_RecordBrowser__watchdog';".
+								"var hiddenCol=getComputedStyle(th).display==='none';".
 								"var fw=0;".
-								"table.querySelectorAll('tbody > tr').forEach(function(row){".
-									"var cell=row.cells[idx];".
-									// This <td> has no class or attribute of its own (RecordBrowserCommon_0.php's
-									// get_fav_button()/WatchdogCommon_0.php's get_change_subscription_icon() build
-									// it bare - the th.cellIndex walk above is already working around exactly
-									// that), so default.css has no selector that could tighten its padding the
-									// way the Actions column's own td.Utils_GenericBrowser__actions rule does -
-									// Bootstrap's default ".table" cell padding (.5rem each side) was left in
-									// full around a single small icon, reported as "extra white space" around
-									// the star/eye columns. Set inline here instead, before naturalWidth()
-									// clones this same cell, so the measurement and the applied padding always
-									// agree with each other.
-									"if(cell){".
-										"cell.style.padding='0.25rem 0.25rem 0.1rem';".
-										"cell.style.textAlign='center';".
-										// Same reasoning as the Actions column's own vertical-align:top override
-										// (Utils/GenericBrowser/theme_adminlte/default.css) - this cell has no
-										// class of its own for that CSS rule to reach, so it's set inline here
-										// instead. Without it this icon defaults to vertical-align:middle and
-										// visibly floats below the row's top edge on any row where another
-										// column wraps to more than one line, out of line with both the text
-										// columns and the Actions column right next to it.
-										"cell.style.verticalAlign='top';".
-										"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
-									"}".
+								"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
+									"var cell=row.children[idx];".
+									"if(!cell)return;".
+									// This <td> has no class or attribute of its own
+									// (RecordBrowserCommon_0.php's get_fav_button()/
+									// WatchdogCommon_0.php's get_change_subscription_icon() build
+									// it bare - the cellIndexOf(th) walk above is already working
+									// around exactly that) - added here, the one place that
+									// already knows this row's cell IS the favourite/watchdog
+									// column, so default.css's mobile-hide rule above (keyed off
+									// this same class) reaches the header AND every body cell
+									// consistently instead of just blanking the header alone.
+									"cell.classList.add(favClass);".
+									"if(hiddenCol)return;".
+									// Bootstrap's default ".table" cell padding (.5rem each side)
+									// was left in full around a single small icon, reported as
+									// "extra white space" around the star/eye columns. Set inline
+									// here instead, before naturalWidth() clones this same cell,
+									// so the measurement and the applied padding always agree
+									// with each other.
+									"cell.style.padding='0.25rem 0.25rem 0.1rem';".
+									"cell.style.textAlign='center';".
+									// Same reasoning as the Actions column's own vertical-align:top
+									// override (Utils/GenericBrowser/theme_adminlte/default.css) -
+									// this cell has no class of its own for that CSS rule to
+									// reach, so it's set inline here instead. Without it this icon
+									// defaults to vertical-align:middle and visibly floats below
+									// the row's top edge on any row where another column wraps to
+									// more than one line, out of line with both the text columns
+									// and the Actions column right next to it.
+									"cell.style.verticalAlign='top';".
+									"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
 								"});".
-								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
-								"th.style.width=fw+'px';".
-								"fixedWidth+=fw;".
+								"if(!hiddenCol){".
+									"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
+									"th.style.width=fw+'px';".
+									"fixedWidth+=fw;".
+								"}".
 							"}".
 						"});".
 						// RecordBrowser tables default to $expandable_rows=true (RecordBrowser_0.php),
@@ -578,7 +640,7 @@
 							"if(div.scrollHeight>18){".
 								"div.classList.remove('expanded');".
 								"div.classList.add('collapsed');".
-								"var row=div.closest('tr');".
+								"var row=div.closest('.Utils_GenericBrowser__tr');".
 								"if(row){".
 									"var more=row.querySelector(\"a[id^='gb_more_']\");".
 									"var less=row.querySelector(\"a[id^='gb_less_']\");".
@@ -614,7 +676,7 @@
 			// real metrics and corrects it without needing a window resize to
 			// accidentally trigger the same recovery.
 			"if(document.fonts&&document.fonts.ready)document.fonts.ready.then(epesiSizeGbActions);".
-			"if(typeof document.observe==='function')document.observe('e:load',epesiSizeGbActions);".
+			"jQuery(document).on('e:load',epesiSizeGbActions);".
 			"var epesiGbResizeTimer=null;".
 			"window.addEventListener('resize',function(){".
 				"if(epesiGbResizeTimer)clearTimeout(epesiGbResizeTimer);".
@@ -658,6 +720,77 @@
 				"});".
 			"})();\"".
 		");"
+	);
+
+	// CRM_Mail's own Threaded/Flat e-mail browse tables (addon_threaded()/
+	// addon_flat()/thread_addon() in CRM/Mail/Mail_0.php) show First Date/
+	// Last Date/Date columns that are full timestamps - per request, trimmed
+	// to date-only in these lists specifically, while a single e-mail's own
+	// "Date" field (mails.tpl) keeps its time. RecordBrowser has no
+	// per-browse-instance display override: a field's rendered value always
+	// goes through Utils_RecordBrowserCommon::get_val(), which resolves the
+	// display callback straight from the tab+field's OWN global registration
+	// (self::$display_callback_table, backed by the rc_mails/rc_mail_threads
+	// _callback DB table) - not from anything RecordBrowser_0.php::
+	// set_header_properties() can pass in per call, so switching the field's
+	// own display_callback to a date-only formatter would strip the time
+	// everywhere that field renders, including the single e-mail/thread
+	// record view. Done client-side instead, identifying these specific
+	// tables by their header text (First Date+Last Date for Threaded;
+	// Message+Archived by, both CRM_Mail-specific labels, for Flat/the
+	// per-thread expanded list) rather than any module-specific class, since
+	// none exists on the table root (see gb-actions-menu-flyout-direction
+	// memory's isCoreAction() for the same "identify by content" reasoning).
+	//
+	// Strips a trailing time-of-day (with or without seconds, 12h am/pm or
+	// 24h - Base_RegionalSettingsCommon::time2reg() always renders "<date>
+	// <time>" in that order, one space-separated block each, regardless of
+	// which of the site's configurable date/time format strings is active)
+	// rather than assuming the date portion itself has no internal spaces -
+	// some of Base_RegionalSettingsInstall's own date format choices
+	// ("%d %B %Y") do. Modifies the cell's own ".expandable" wrapper div's
+	// text, not the <td> itself - GenericBrowser's row cells all render
+	// wrapped in that div by default (see epesiSizeGbActions's own comment on
+	// it, just above), and overwriting the <td>'s full content would strip
+	// the wrapper along with it, breaking that same row-height clamping.
+	eval_js_once(
+		"(function(){".
+			"function stripTime(t){".
+				"return t.replace(/\\s+\\d{1,2}:\\d{2}(?::\\d{2})?\\s*(?:[AaPp][Mm])?\\s*$/,'');".
+			"}".
+			"function headerIndex(headRow,label){".
+				"var ths=headRow.children;".
+				"for(var i=0;i<ths.length;i++)if(ths[i].textContent.trim()===label)return i;".
+				"return -1;".
+			"}".
+			"function trimColumn(table,headRow,label){".
+				"var idx=headerIndex(headRow,label);".
+				"if(idx<0)return;".
+				"table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr').forEach(function(row){".
+					"var cell=row.children[idx];".
+					"if(!cell)return;".
+					"var target=cell.querySelector('.expandable')||cell;".
+					"var t=target.textContent;".
+					"var stripped=stripTime(t).trim();".
+					"if(stripped!==t.trim())target.textContent=stripped;".
+				"});".
+			"}".
+			"function trimMailDates(){".
+				"document.querySelectorAll('.Utils_GenericBrowser').forEach(function(table){".
+					"var headRow=table.querySelector('.Utils_GenericBrowser__thead .Utils_GenericBrowser__tr');".
+					"if(!headRow)return;".
+					"var labels=Array.prototype.map.call(headRow.children,function(th){return th.textContent.trim();});".
+					"if(labels.indexOf('First Date')!==-1&&labels.indexOf('Last Date')!==-1){".
+						"trimColumn(table,headRow,'First Date');".
+						"trimColumn(table,headRow,'Last Date');".
+					"}else if(labels.indexOf('Message')!==-1&&labels.indexOf('Archived by')!==-1){".
+						"trimColumn(table,headRow,'Date');".
+					"}".
+				"});".
+			"}".
+			"try{trimMailDates();}catch(e){}".
+			"jQuery(document).on('e:load',function(){try{trimMailDates();}catch(e){}});".
+		"})();"
 	);
 {/php}
 	{* Base_Help's overlay is an independent absolutely-positioned system, not part

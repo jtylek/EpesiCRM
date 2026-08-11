@@ -102,6 +102,29 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 		return { id: event.id, start: naiveLocal(event.start), duration: duration, allDay: event.allDay ? 1 : 0 };
 	}
 
+	// Remembers the last view/date this calendar box was showing, so
+	// navigating away (e.g. clicking an event) and back doesn't always land
+	// back on the user's saved default_view/today - view switching and
+	// prev/next/today navigation are entirely client-side (FullCalendar's
+	// own toolbar, "no server-side grid math"), so the server has no way to
+	// know about them on its own; this is the other half of that. Keyed by
+	// mountId (stable per calendar box, see Utils_Calendar::fullcalendar())
+	// and scoped to sessionStorage rather than localStorage - "remembered
+	// for this browser session", not a sticky cross-session default (that's
+	// what the actual default_view SETTING is for). Wrapped in try/catch:
+	// sessionStorage can throw in some private-browsing configurations, and
+	// losing the memory feature is a fine fallback, a broken calendar isn't.
+	function viewStateKey(mountId) { return 'epesi-fc-view:' + mountId; }
+	function saveViewState(mountId, view, date) {
+		try { sessionStorage.setItem(viewStateKey(mountId), JSON.stringify({ view: view, date: date })); } catch (e) {}
+	}
+	function loadViewState(mountId) {
+		try {
+			var raw = sessionStorage.getItem(viewStateKey(mountId));
+			return raw ? JSON.parse(raw) : null;
+		} catch (e) { return null; }
+	}
+
 	// Epesi's content-diffing (Epesi::process()/Epesi::$content) only re-emits
 	// a module's mount script when its rendered HTML/JS actually changed, so a
 	// re-render of the SAME calendar instance (e.g. after switching CRM
@@ -117,15 +140,15 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 	// in Base_Box's own shell scripts: an uncaught exception here would abort
 	// every OTHER queued script that happens to be concatenated after this
 	// one in the same response, not just this module's own initialization.
-	function mount(mountId, config, feedUrl, writeUrl, newEventTemplate) {
+	function mount(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector) {
 		try {
-			mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate);
+			mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector);
 		} catch (e) {
 			console.error('EpesiFullCalendar.mount failed:', e);
 		}
 	}
 
-	function mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate) {
+	function mountUnsafe(mountId, config, feedUrl, writeUrl, newEventTemplate, toggleHoursLabels, suppressViewRestore, dayClickTemplate, titleClickForwardSelector) {
 		var el = document.getElementById(mountId);
 		if (!el) return; // container not in the DOM yet/anymore - nothing to do
 
@@ -140,6 +163,16 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 		}
 
 		config = config || {};
+		// suppressViewRestore is true for a genuine deep link (Utils_Calendar's
+		// 'explicit_navigation' setting) - that must always win over whatever
+		// was remembered from before the user navigated away.
+		if (!suppressViewRestore) {
+			var remembered = loadViewState(mountId);
+			if (remembered && remembered.view) {
+				config.initialView = remembered.view;
+				if (remembered.date) config.initialDate = remembered.date;
+			}
+		}
 		// A time-grid week/day or a 7-column month grid is cramped past
 		// usability on a phone-width screen - the list view reflows to a
 		// single readable column instead, so it's used as the actual
@@ -216,8 +249,112 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			};
 		}
 
-		var cal = new FullCalendar.Calendar(el, config);
+		if (dayClickTemplate) {
+			// Compact-mode navigation (Applets_MonthView) - replaces navLinks
+			// (disabled by Utils_Calendar::fullcalendar() whenever this
+			// template is supplied) with a real navigation to the caller's own
+			// choice of destination (e.g. CRM_Calendar's Day view), same
+			// __PLACEHOLDER__ substitution convention as newEventTemplate above.
+			var origDateClick = config.dateClick;
+			config.dateClick = function (info) {
+				var ts = Math.floor(info.date.getTime() / 1000);
+				var f = dayClickTemplate.replace('__DATE__', ts);
+				try { (new Function(f))(); } catch (e) { console.error(e); }
+				if (origDateClick) origDateClick(info);
+			};
+		}
+
+		// Fires on initial render and on every navigation (view switch,
+		// prev/next/today) - the only hook into FullCalendar's entirely
+		// client-side navigation, so it's also the only place that can keep
+		// the remembered view/date (see loadViewState() above) up to date.
+		var origDatesSet = config.datesSet;
+		config.datesSet = function (info) {
+			var d = info.view.currentStart;
+			saveViewState(mountId, info.view.type, d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()));
+			// timeGridDay's own day-of-week header is still a real FullCalendar
+			// navLink (navLinks applies uniformly, there's no built-in "already
+			// at this granularity" exception) - clicking it calls zoomTo() with
+			// the view's own current date, a same-view/same-date no-op with no
+			// visible effect. Rather than guess at FullCalendar's internal,
+			// undocumented per-view class names (already got that wrong twice
+			// this session), this class is entirely our own, driven by the
+			// same documented info.view.type this code already uses for
+			// saveViewState() - theme/fullcalendar.css scopes the "don't look
+			// like a link" styling to it.
+			el.classList.toggle('epesi-fc-no-day-drilldown', info.view.type === 'timeGridDay');
+			// Re-applied every render (assignment, not addEventListener - safe
+			// against duplicate bindings whether FullCalendar reuses or
+			// recreates the title node on navigation) - forwards a click on
+			// the plain-text toolbar title to an already-wired trigger
+			// elsewhere on the page (e.g. Applets_MonthView's own "jump to
+			// date" popup-calendar link), since FullCalendar's title has no
+			// click behavior of its own.
+			if (titleClickForwardSelector) {
+				var titleEl = el.querySelector('.fc-toolbar-title');
+				if (titleEl) {
+					titleEl.style.cursor = 'pointer';
+					titleEl.style.userSelect = 'none';
+					titleEl.onclick = function (ev) {
+						ev.preventDefault();
+						var target = document.querySelector(titleClickForwardSelector);
+						if (target) target.click();
+					};
+				}
+			}
+			if (origDatesSet) origDatesSet(info);
+		};
+
+		// Week/Day open collapsed to Utils_Calendar::fullcalendar()'s
+		// slotMinTime/slotMaxTime (the user's "Start/End day at" setting,
+		// already in config) - this button is the escape hatch, expanding to
+		// the full 00:00-24:00 day on demand rather than an event outside
+		// that range being permanently unreachable. cal is assigned below,
+		// after this closure is built but before it can ever run (only a
+		// click fires it) - config.height mirrors whatever
+		// Utils_Calendar::fullcalendar() sent (normally 'auto', sized to the
+		// short configured range); 650 is only used for the expanded 24h
+		// state so timeGrid gets its own scroller instead of stretching the
+		// page full-length.
+		var cal;
+		var hoursExpanded = false;
+		var collapsedMin = config.slotMinTime, collapsedMax = config.slotMaxTime, collapsedHeight = config.height;
+		// [collapsed-state label, expanded-state label] - same wording/icon
+		// pair as Utils_GenericBrowser's own Expand All/Collapse All button
+		// (theme_adminlte/default.tpl), not a calendar-specific one-off.
+		var labels = toggleHoursLabels || ['Expand All', 'Collapse All'];
+		function toggleHoursClick() {
+			hoursExpanded = !hoursExpanded;
+			cal.setOption('slotMinTime', hoursExpanded ? '00:00:00' : collapsedMin);
+			cal.setOption('slotMaxTime', hoursExpanded ? '24:00:00' : collapsedMax);
+			cal.setOption('height', hoursExpanded ? 650 : collapsedHeight);
+			applyToggleHoursState();
+		}
+		// The label MUST go through cal.setOption('customButtons', ...), not
+		// a direct btn.innerHTML write: FullCalendar re-renders the toolbar
+		// on its own (e.g. every Day<->Week view switch, all client-side,
+		// nothing this code is told about) using whatever it still thinks
+		// customButtons.epesiToggleHours.text is - a direct DOM write it
+		// doesn't know about got its own expected text re-inserted
+		// alongside the manual one on the next such re-render ("Expand
+		// AllExpand All"). The icon is CSS-only instead (theme/
+		// fullcalendar.css, ::before keyed off this same stable
+		// .fc-epesiToggleHours-button + toggled .fc-button-active) - a
+		// classList toggle survives that same re-render fine, unlike a
+		// text/HTML write.
+		function applyToggleHoursState() {
+			cal.setOption('customButtons', { epesiToggleHours: { text: hoursExpanded ? labels[1] : labels[0], click: toggleHoursClick } });
+			var btn = el.querySelector('.fc-epesiToggleHours-button');
+			if (btn) {
+				btn.classList.toggle('fc-button-active', hoursExpanded);
+				btn.setAttribute('aria-pressed', hoursExpanded ? 'true' : 'false');
+			}
+		}
+		config.customButtons = { epesiToggleHours: { text: labels[0], click: toggleHoursClick } };
+
+		cal = new FullCalendar.Calendar(el, config);
 		cal.render();
+		applyToggleHoursState();
 		instances[mountId] = { cal: cal, el: el };
 	}
 

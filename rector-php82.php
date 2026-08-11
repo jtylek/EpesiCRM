@@ -19,7 +19,6 @@ return RectorConfig::configure()
     ->withSkip([
         __DIR__ . '/modules/Libs',
         __DIR__ . '/vendor',
-        __DIR__ . '/modules/CRM/Roundcube',
         __DIR__ . '/modules/Base/Theme/smarty',
         __DIR__ . '/modules/Tests',
     ])

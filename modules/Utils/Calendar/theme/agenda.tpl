@@ -1,29 +1,23 @@
 {$form_open}
 
-<table style="width:98%">
-	<tr>
-		<td>
-		</td>
-		<td style="width:400px;">
-			<table id="Utils_Calendar__agenda" border="0" cellspacing="0" cellpadding="0">
-				<tbody>
-					<tr>
-						<td class="epesi_label">{$form_data.start.label}</td><td class="epesi_data">{$form_data.start.html}</td>
-						<td>&nbsp;&nbsp;</td>
-						<td class="epesi_label">{$form_data.end.label}</td><td class="epesi_data">{$form_data.end.html}</td>
-						<td>&nbsp;&nbsp;</td>
-						<td class="child_button">{$form_data.submit_button.html}</td>
-					</tr>
-				</tbody>
-			</table>
-		</td>
-		<td>
-		</td>
-		<td class="button_cell">
+<div style="display: flex; width:98%;">
+		<div style="flex: 1 1 auto;">
+		</div>
+		<div style="width:400px;">
+			<div id="Utils_Calendar__agenda" style="display: flex; align-items: center;">
+					<div class="epesi_label">{$form_data.start.label}</div><div class="epesi_data">{$form_data.start.html}</div>
+					<div>&nbsp;&nbsp;</div>
+					<div class="epesi_label">{$form_data.end.label}</div><div class="epesi_data">{$form_data.end.html}</div>
+					<div>&nbsp;&nbsp;</div>
+					<div class="child_button">{$form_data.submit_button.html}</div>
+			</div>
+		</div>
+		<div style="flex: 1 1 auto;">
+		</div>
+		<div class="button_cell">
 			{$navigation_bar_additions}
-		</td>
-	</tr>
-</table>
+		</div>
+</div>
 
 {$form_close}
 <br>

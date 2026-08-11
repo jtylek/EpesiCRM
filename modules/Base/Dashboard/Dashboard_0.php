@@ -141,7 +141,7 @@ class Base_Dashboard extends Module {
 			print('</div>');
 			print('</div>');
 			print('</td></tr></table>');
-			eval_js('var dim=document.viewport.getDimensions();var dct=$("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
+			eval_js('var dim={height:document.documentElement.clientHeight};var dct=document.getElementById("dashboard_applets_new_scroll");dct.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-150)+"px";');
 		}
 		eval_js('dashboard_activate('.json_encode($init_tabs_js).','.($default_dash?1:0).','.($default_dash || Base_DashboardCommon::has_permission_to_manage_applets()?1:0).')');
 	}
@@ -163,7 +163,8 @@ class Base_Dashboard extends Module {
 		// column 0/1 (col % $col_count) here at display time only, so nothing
 		// needs migrating and switching back to the default theme would show
 		// it in its original column again.
-		$col_count = Base_ThemeCommon::is_adminlte_family() ? 2 : 3;
+		$is_adminlte = Base_ThemeCommon::is_adminlte_family();
+		$col_count = $is_adminlte ? 2 : 3;
 		$applets = array_fill(0, $col_count, array());
 		$config_mode = $this->get_module_variable('config_mode', false);
 		if($default_dash || !Base_DashboardCommon::has_permission_to_manage_applets())
@@ -173,9 +174,22 @@ class Base_Dashboard extends Module {
 		while($row = $ret->FetchRow())
 			$applets[$row['col'] % $col_count][] = $row;
 
-		print('<div id="dashboard" style="width: 100%;">');
+		// adminlte: fixed inline width%/display:inline-block replaced with a
+		// CSS grid (.epesi-dashboard-columns/-column, theme_adminltedark/
+		// default.css) that collapses to a single column below the md
+		// breakpoint instead of squeezing both columns down at every width -
+		// the default theme's own inline-width layout is untouched.
+		if ($is_adminlte) {
+			print('<div id="dashboard" class="epesi-dashboard-columns">');
+		} else {
+			print('<div id="dashboard" style="width: 100%;">');
+		}
 		for($j=0; $j<$col_count; $j++) {
-			print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:'.(int)(100/$col_count).'%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			if ($is_adminlte) {
+				print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" class="epesi-dashboard-column">');
+			} else {
+				print('<div id="dashboard_applets_'.$tab_id.'_'.$j.'" style="width:'.(int)(100/$col_count).'%;min-height:200px;padding-bottom:10px;vertical-align:top;display:inline-block">');
+			}
 
 			foreach($applets[$j] as $row) {
 				if (!is_callable(array($row['module_name'].'Common', 'applet_caption'))) continue;
@@ -337,6 +351,7 @@ class Base_Dashboard extends Module {
 
 		if($this->is_back()) {
 			$ok=false;
+			$this->unset_module_variable('config_applet_mod');
 			return false;
 		}
 
@@ -350,10 +365,13 @@ class Base_Dashboard extends Module {
 
 		$f = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'),'settings');
 		$caption = call_user_func(array($mod.'Common','applet_caption'));
+		// Read by caption() below so the module indicator shows "Dashboard:
+		// <applet> settings" instead of repeating the title as an in-card
+		// header - same delegation pattern Base_Admin::caption() already
+		// uses for 'selected_module'.
+		$this->set_module_variable('config_applet_mod', $mod);
 
 		if($is_conf) {
-			$f->addElement('header',null,__('%s settings', array($caption)));
-
 			//send the applet id to applet_settings function
 			$menu = call_user_func($sett_fn);
 
@@ -363,18 +381,18 @@ class Base_Dashboard extends Module {
 				trigger_error('Invalid applet settings function: '.$mod,E_USER_ERROR);
 		}
 
-		$f->addElement('header',null,$caption.' '.__('display settings'));
+		$f->addElement('header',null,$caption.' '.__('applet settings'));
 
 		$color = Base_DashboardCommon::get_available_colors();
 		$color[0] = __('Default').': '.$color[0]['label'];
 		for($k=1; $k<count($color); $k++)
 			$color[$k] = '&bull; '.$color[$k]['label'];
-		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;'));
+		$f->addElement('select', '__color', __('Color'), $color, array('style'=>'width: 100%;', 'class'=>'form-select'));
 
 		$table_tabs = 'base_dashboard_'.($default_dash?'default_':'').'tabs';
 		$table_applets = 'base_dashboard_'.($default_dash?'default_':'').'applets';
 		$tabs = DB::GetAssoc('SELECT id,name FROM '.$table_tabs.($default_dash?'':' WHERE user_login_id='.Base_AclCommon::get_user()));
-		$f->addElement('select','__tab',__('Tab'),$tabs);
+		$f->addElement('select','__tab',__('Tab'),$tabs,array('class'=>'form-select'));
 		$dfs = DB::GetRow('SELECT tab,color FROM '.$table_applets.' WHERE id=%d',array($id));
 		$f->setDefaults(array('__tab'=>$dfs['tab'],'__color'=>$dfs['color']));
 
@@ -404,10 +422,11 @@ class Base_Dashboard extends Module {
 			}
 			$ok = true;
 			self::$settings_cache = null;
+			$this->unset_module_variable('config_applet_mod');
 			return false;
 		}
 		$ok=null;
-		$f->display();
+		$f->display_as_column();
 
 		Base_ActionBarCommon::add('back',__('Back'),$this->create_back_href());
 		Base_ActionBarCommon::add('save',__('Save'),$f->get_submit_form_href());
@@ -507,6 +526,12 @@ class Base_Dashboard extends Module {
 	}
 
 	public function caption() {
+		// Mirrors Base_Admin::caption()'s 'selected_module' delegation -
+		// while configure_applet() is showing an applet's settings screen,
+		// the module indicator names it instead of just "Dashboard".
+		$mod = $this->get_module_variable('config_applet_mod');
+		if ($mod && is_callable(array($mod.'Common','applet_caption')))
+			return __('Dashboard: %s settings', array(call_user_func(array($mod.'Common','applet_caption'))));
 		return __('Dashboard');
 	}
 

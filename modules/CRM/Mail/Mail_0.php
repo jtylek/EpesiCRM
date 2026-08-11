@@ -40,8 +40,8 @@ class CRM_Mail extends Module {
 
 		$f->addElement('header',null,__('Outgoing mail global signature'));
 
-		$fck = & $f->addElement('ckeditor', 'content', __('Content'));
-		$fck->setFCKProps('800','300',true);
+		$fck = & $f->addElement('quill', 'content', __('Content'));
+		$fck->setQuillProps('800','300',true);
 
 		$f->setDefaults(array('content'=>Variable::get('crm_mail_global_signature',false)));
 
@@ -55,19 +55,7 @@ class CRM_Mail extends Module {
 			$this->parent->reset();
 			return;
 		}
-		$f->display();
-	}
-
-	public function attachments_addon($arg,$rb) {
-		$m = $this->init_module(Utils_GenericBrowser::module_name(),null,'attachments');
-		$attachments = DB::GetAssoc('SELECT mime_id,name FROM rc_mails_attachments WHERE mail_id=%d AND attachment=1',array($arg['id']));
-		$data = array();
-		foreach($attachments as $k=>&$n) {
-			$filename = DATA_DIR.'/CRM_Mail/attachments/'.$arg['id'].'/'.$k;
-			$data[] = array('<a href="modules/CRM/Mail/get.php?'.http_build_query(array('mime_id'=>$k,'mail_id'=>$arg['id'])).'" target="_blank">'.$n.'</a>',file_exists($filename)?filesize($filename):'---');
-		}
-		$this->display_module($m,array(array(array('name'=>'Filename','search'=>1),
-							array('name'=>'Size')),$data,false,null,array('Filename'=>'ASC')),'simple_table');
+		$f->display_as_column();
 	}
 
 	public function addon($arg, $rb) {
@@ -94,7 +82,7 @@ class CRM_Mail extends Module {
 			$content = '';
 			foreach($_SESSION['rc_mails_cp'] as $mid) {
 				$mail = Utils_RecordBrowserCommon::get_record('rc_mails',$mid);
-				$content .= '<div style="text-align:left"><b>'.__('From').':</b> <i>'.$mail['from'].'</i><br /><b>'.__('To').':</b> <i>'.$mail['to'].'</i><br /><b>'.__('Subject').':</b> <i>'.$mail['subject'].'</i><br />'.substr(strip_tags($mail['body'],'<br><hr>'),0,200).(strlen($mail['body'])>200?'...':'').'</div>';
+				$content .= '<div style="text-align:left"><b>'.__('From').':</b> <i>'.$mail['from'].'</i><br /><b>'.__('To').':</b> <i>'.$mail['to'].'</i><br /><b>'.__('Subject').':</b> <i>'.$mail['subject'].'</i><br />'.substr(strip_tags($mail['body'],'<br><hr>'),0,1000).(strlen($mail['body'])>1000?'...':'').'</div>';
 			}
 			$this->display_module($this->lp, array(__('Paste e-mail'), array(), $content, false));
 			$vals = $this->lp->export_values();
@@ -115,12 +103,14 @@ class CRM_Mail extends Module {
 	public function addon_threaded($rs,$id) {
 		$rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_mail_threads','rc_mails_threaded');
 		$rb->set_header_properties(array(
-						'date'=>array('width'=>10),
-						'contacts'=>array('name'=>__('Involved contacts'), 'width'=>20),
-						'subject'=>array('name'=>__('Message'),'width'=>40),
+						'contacts'=>array('name'=>__('Involved contacts'), 'width'=>15),
+						'subject'=>array('name'=>__('Message'),'width'=>25),
+						'first_date'=>array('width'=>15),
+						'last_date'=>array('width'=>15),
 						'attachments'=>array('width'=>5),
 						'count'=>array('width'=>5)
 		));
+		$rb->set_additional_actions_method($this->actions_for_threads(...));
 
 		//set order by threads:
 		//1 - if there is reference sort by parent message date, else sort by this message date ("group" messages by "parent" date)
@@ -138,7 +128,7 @@ class CRM_Mail extends Module {
 			$this->display_module($rb, array(array('(contacts'=>array('contact/'.$id),'|id'=>$assoc_threads_ids), array(), array('last_date'=>'DESC')), 'show_data');
 		} elseif($rs=='company') {
 			$form = $this->init_module(Libs_QuickForm::module_name());
-			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 			if ($form->validate()) {
 				$show_related = $form->exportValue('include_related');
 				$this->set_module_variable('include_related',$show_related);
@@ -173,12 +163,13 @@ class CRM_Mail extends Module {
 			'attachments'=>array('width'=>5)
 		));
 		$rb->set_additional_actions_method($this->actions_for_mails(...));
+		$rb->disable_watchdog();
 
 		if($rs=='contact') {
-			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('(employee'=>$id,'|contacts'=>array('contact/'.$id),'|related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 		} elseif($rs=='company') {
 			$form = $this->init_module(Libs_QuickForm::module_name());
-			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js()));
+			$form->addElement('checkbox', 'include_related', __('Include related e-mails'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 			if ($form->validate()) {
 				$show_related = $form->exportValue('include_related');
 				$this->set_module_variable('include_related',$show_related);
@@ -197,9 +188,9 @@ class CRM_Mail extends Module {
 				foreach ($conts as $c)
 					$customers[] = 'contact/'.$c['id'];
 			}
-			$this->display_module($rb, array(array('(contacts'=>$customers,'|related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('(contacts'=>$customers,'|related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 		} else
-			$this->display_module($rb, array(array('related'=>$rs.'/'.$id), array(), array('date'=>'DESC')), 'show_data');
+			$this->display_module($rb, array(array('related'=>$rs.'/'.$id), array('related'=>false), array('date'=>'DESC')), 'show_data');
 	}
 
 	public function thread_addon($arg,$rb) {
@@ -212,8 +203,9 @@ class CRM_Mail extends Module {
 			'attachments'=>array('width'=>5)
 		));
 		$rb->set_additional_actions_method($this->actions_for_mails(...));
+		$rb->disable_watchdog();
 
-		$this->display_module($rb, array(array('thread'=>$arg['id']), array(), array('date'=>'DESC')), 'show_data');
+		$this->display_module($rb, array(array('thread'=>$arg['id']), array('related'=>false), array('date'=>'DESC')), 'show_data');
 	}
 
 	public function paste($rs,$id) {
@@ -237,6 +229,22 @@ class CRM_Mail extends Module {
 
 	public function copy($id) {
 		$_SESSION['rc_mails_cp'] = array($id);
+	}
+
+	/**
+	 * Row action for addon_threaded()'s rc_mail_threads rows - $id there is a
+	 * thread id (its own recordset, see MailInstall.php), not an rc_mails id
+	 * that copy()/paste() can use directly, so this resolves it to the
+	 * thread's own most recent message first (same rc_mails_data_1/f_thread
+	 * query MailCommon_0.php's display_mail_thread() uses for its count).
+	 */
+	public function copy_thread($thread_id) {
+		$id = DB::GetOne('SELECT id FROM rc_mails_data_1 WHERE f_thread=%d AND active=1 ORDER BY f_date DESC LIMIT 1', array($thread_id));
+		if ($id) $this->copy($id);
+	}
+
+	public function actions_for_threads($r, $gb_row) {
+		$gb_row->add_action($this->create_callback_href($this->copy_thread(...),array($r['id'])),'copy',null,Base_ThemeCommon::get_template_file($this->get_type(),'copy_small.png'));
 	}
 
 	public function open_mail_client($id) {
@@ -307,20 +315,6 @@ class CRM_Mail extends Module {
 		$this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
 		$order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
 		$this->display_module($this->rb,$order);
-	}
-
-	public function mail_body_addon($rec) {
-		$theme = $this->init_module('Base_Theme');
-		$rec['body'] = '<iframe id="rc_mail_body" src="modules/CRM/Mail/get_html.php?'.http_build_query(array('id'=>$rec['id'])).'" style="width:100%;border:0" border="0"></iframe>';
-		$theme->assign('email', $rec);
-		$theme->display('mail_body');
-	}
-
-	public function mail_headers_addon($rec) {
-		$theme = $this->init_module('Base_Theme');
-		$rec['headers_data'] = '<iframe id="rc_mail_body" src="modules/CRM/Mail/get_html.php?'.http_build_query(array('id'=>$rec['id'], 'field'=>'headers')).'" style="width:100%;border:0" border="0"></iframe>';
-		$theme->assign('email', $rec);
-		$theme->display('mail_headers');
 	}
 
 }

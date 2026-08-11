@@ -153,7 +153,11 @@ class Utils_FileStorage_ActionHandler
     
     protected function logFileAccessed($filestorageId, $action, $time = null) {
     	$remote_address = get_client_ip_address();
-    	$remote_host = gethostbyaddr($remote_address);
+    	// get_client_host_name() (include/misc.php) reuses the reverse-DNS
+    	// result CRM_LoginAuditCommon::init() already cached in the session at
+    	// login, instead of paying for gethostbyaddr() again on every single
+    	// file download/preview.
+    	$remote_host = get_client_host_name($remote_address);
     	DB::Execute('INSERT INTO utils_filestorage_access(file_id,date_accessed,accessed_by,type,ip_address,host_name) ' . 'VALUES (%d,%T,%d,%d,%s,%s)', [
     			$filestorageId,
     			$time ?: time(),

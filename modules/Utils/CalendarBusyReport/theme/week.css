@@ -15,11 +15,13 @@
 	border-bottom: 1px solid #B3B3B3;
 }
 
-#Utils_Calendar__week td {
+#Utils_Calendar__week .hour,
+#Utils_Calendar__week .hours_header,
+#Utils_Calendar__week [class^="inter_"] {
 	height: 29px;
 }
 
-#Utils_Calendar__week td.hours_header {
+#Utils_Calendar__week .hours_header {
 	border: 0px;
 	text-align: center;
 	color: #339933;
@@ -29,7 +31,7 @@
 
 /* header day other */
 
-#Utils_Calendar__week td.header_day_other {
+#Utils_Calendar__week .header_day_other {
 	vertical-align: middle;
 	border-right: 1px solid #FFFFFF;
 	border-left: 1px solid #B3B3B3;
@@ -37,7 +39,7 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__week td.header_day_other a {
+#Utils_Calendar__week .header_day_other a {
 	display: block;
 	font-weight: bold;
 	font-size: 17px;
@@ -51,7 +53,7 @@
 
 }
 
-#Utils_Calendar__week td.header_day_other a:hover {
+#Utils_Calendar__week .header_day_other a:hover {
 	/* css3 v2 gray gradient - calendar */
 	background: #b7b7b7; /* Old browsers */
 	/* end css3 v2 gray gradient - calendar */
@@ -59,7 +61,7 @@
 
 /* header day other weekend */
 
-#Utils_Calendar__week td.header_day_other_weekend {
+#Utils_Calendar__week .header_day_other_weekend {
 	vertical-align: middle;
 	border-right: 1px solid #FFFFFF;
 	border-left: 1px solid #B3B3B3;
@@ -67,7 +69,7 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__week td.header_day_other_weekend a {
+#Utils_Calendar__week .header_day_other_weekend a {
 	display: block;
 	color: #226630;
 	font-weight: bold;
@@ -81,7 +83,7 @@
 	/* end css3 light blue gradient - calendar */
 }
 
-#Utils_Calendar__week td.header_day_other_weekend a:hover {
+#Utils_Calendar__week .header_day_other_weekend a:hover {
 	/* css3 v2 light blue gradient - calendar */
 	background: #aec6f9; /* Old browsers */
 	/* end css3 v2 light blue gradient - calendar */
@@ -89,7 +91,7 @@
 
 /* header day today */
 
-#Utils_Calendar__week td.header_day_today {
+#Utils_Calendar__week .header_day_today {
 	vertical-align: middle;
 	font-size: 17px;
 	width: 14%;
@@ -98,7 +100,7 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__week td.header_day_today a {
+#Utils_Calendar__week .header_day_today a {
 	display: block;
 	font-weight: bold;
 	font-size: 17px;
@@ -111,7 +113,7 @@
 	/* end css3 light blue gradient - calendar; day today */
 }
 
-#Utils_Calendar__week td.header_day_today a:hover {
+#Utils_Calendar__week .header_day_today a:hover {
 	/* css3 v2 light blue gradient - calendar; day today */
 	background: #d5ebfb; /* Old browsers */
 	/* end css3 v2 light blue gradient - calendar; day today */
@@ -119,7 +121,7 @@
 
 /* header day today weekend */
 
-#Utils_Calendar__week td.header_day_today_weekend {
+#Utils_Calendar__week .header_day_today_weekend {
 	vertical-align: middle;
 	font-size: 17px;
 	width: 14%;
@@ -128,7 +130,7 @@
 	padding: 0px;
 }
 
-#Utils_Calendar__week td.header_day_today_weekend a {
+#Utils_Calendar__week .header_day_today_weekend a {
 	display: block;
 	color: #226630;
 	font-weight: bold;
@@ -142,7 +144,7 @@
 	/* end css3 light blue gradient - calendar; day today */
 }
 
-#Utils_Calendar__week td.header_day_today_weekend a:hover {
+#Utils_Calendar__week .header_day_today_weekend a:hover {
 	/* css3 v2 light blue gradient - calendar; day today */
 	background: #d5ebfb; /* Old browsers */
 	/* end css3 v2 light blue gradient - calendar; day today */
@@ -150,7 +152,7 @@
 
 /* header month */
 
-#Utils_Calendar__week td.header_month {
+#Utils_Calendar__week .header_month {
 	color: #FFFFFF;
 	vertical-align: middle;
 	height: 30px;
@@ -165,22 +167,22 @@
 	/* end css3  gradient */
 }
 
-#Utils_Calendar__week td.header_month a {
+#Utils_Calendar__week .header_month a {
 	color: #FFFFFF;
 	padding: 5px;
 }
 
-#Utils_Calendar__week td.header_month a:hover {
+#Utils_Calendar__week .header_month a:hover {
 	background-color: #336699;
 }
 
 /* hour */
 
-#Utils_Calendar__week td.hour span a {
+#Utils_Calendar__week .hour span a {
 	color: #FFFFFF;
 }
 
-#Utils_Calendar__week td.hour {
+#Utils_Calendar__week .hour {
 	vertical-align: middle;
 	color: #FFFFFF;
 	border-top: 1px solid #B3B3B3;
@@ -193,13 +195,13 @@
 	padding-right: 5px;
 }
 
-#Utils_Calendar__week tr:hover td.hour {
+#Utils_Calendar__week .week-row:hover .hour {
 	background-color: #339966;
 }
 
 /* inter */
 
-#Utils_Calendar__week td.inter_other {
+#Utils_Calendar__week .inter_other {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -212,11 +214,11 @@
 	cursor: pointer;
 }
 
-#Utils_Calendar__week td.inter_other:hover {
+#Utils_Calendar__week .inter_other:hover {
 	background-color: #e6cfcf !important;
 }
 
-#Utils_Calendar__week td.inter_other_weekend {
+#Utils_Calendar__week .inter_other_weekend {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -228,17 +230,17 @@
 	cursor: pointer;
 }
 
-#Utils_Calendar__week td.inter_other_weekend div.inner {
+#Utils_Calendar__week .inter_other_weekend div.inner {
     width: 100%;
     height: 29px;
 	background-color: #E0EDE0;
 }
 
-#Utils_Calendar__week td.inter_other_weekend div.inner:hover {
+#Utils_Calendar__week .inter_other_weekend div.inner:hover {
 	background-color: #e6cfcf !important;
 }
 
-#Utils_Calendar__week td.inter_today {
+#Utils_Calendar__week .inter_today {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -252,17 +254,17 @@
 	border-right: 2px solid #336699;
 }
 
-#Utils_Calendar__week td.inter_today div.inner {
+#Utils_Calendar__week .inter_today div.inner {
     width: 100%;
     height: 29px;
 	background-color: #CFDAE6;
 }
 
-#Utils_Calendar__week td.inter_today div.inner:hover {
+#Utils_Calendar__week .inter_today div.inner:hover {
 	background-color: #e6cfcf;
 }
 
-#Utils_Calendar__week td.inter_today_weekend {
+#Utils_Calendar__week .inter_today_weekend {
 	vertical-align: top;
 	color: #000000;
 	border: 1px solid #B3B3B3;
@@ -278,12 +280,12 @@
 	border-right: 2px solid #336699;
 }
 
-#Utils_Calendar__week td.inter_today_weekend div.inner {
+#Utils_Calendar__week .inter_today_weekend div.inner {
     width: 100%;
     height: 29px;
 	background-color: #E6ECF2;
 }
 
-#Utils_Calendar__week td.inter_today_weekend div.inner:hover {
+#Utils_Calendar__week .inter_today_weekend div.inner:hover {
 	background-color: #e6cfcf;
 }

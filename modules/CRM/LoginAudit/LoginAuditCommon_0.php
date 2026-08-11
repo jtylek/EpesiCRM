@@ -79,7 +79,11 @@ class CRM_LoginAuditCommon extends ModuleCommon {
 		if (!$tracked) {
 			$now = time();
             $remote_address = get_client_ip_address();
-			$remote_host = gethostbyaddr($remote_address);
+			// get_client_host_name() (include/misc.php) caches the reverse-DNS
+			// lookup in the session against this IP, so a self-heal re-track
+			// (see above) doesn't pay for gethostbyaddr() again when the IP
+			// hasn't changed.
+			$remote_host = get_client_host_name($remote_address);
 			// Same OS/Browser label Base_User_LoginCommon::new_autologin_id()
 			// uses for its "remembered devices" description - display-only,
 			// not for feature detection or security decisions.

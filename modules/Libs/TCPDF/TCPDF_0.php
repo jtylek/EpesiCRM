@@ -123,14 +123,58 @@ class Libs_TCPDF extends Module {
 		}
 		$form = $this->init_module(Utils_FileUpload::module_name(),array(false));
 		$form->addElement('header', 'upload', __('Upload company logo',array(),false));
+
+		// Preview of whichever logo would actually render in a generated PDF
+		// right now - mirrors TCPDFCommon::prepare_header()'s own fallback
+		// logic exactly (custom logo if uploaded, else the built-in EPESI
+		// logo), per Jasiek's request: previously a PDF could silently fall
+		// back to the default logo with no way to see that from this screen.
+		$custom_logo = Libs_TCPDFCommon::get_logo_filename();
+		if (file_exists($custom_logo)) {
+			$preview = $custom_logo.'?'.filemtime($custom_logo);
+			$preview_caption = __('Current logo');
+		} else {
+			$preview = Base_ThemeCommon::get_template_file(Libs_TCPDF::module_name(),'logo-small.png');
+			$preview_caption = __('Current logo (default EPESI logo - no custom logo uploaded)');
+		}
+
 		$form->add_upload_element();
-		$form->addElement('button',null,__('Upload'),$form->get_submit_form_href());
+		$form->addElement('button',null,__('Upload'),$form->get_submit_form_href().' class="submit btn btn-primary"');
+		// column.tpl renders every button in its own trailing section, always
+		// after the whole field grid and with nothing after it - so a
+		// 'static' element (or plain print() once the card's already closed)
+		// can't land below the button while staying inside the card. Capture
+		// the rendered card HTML and splice the preview in just before its
+		// own closing </div> instead.
+		//
+		// set_inline_display() is required for this to actually work:
+		// display_module() normally prints just a placeholder <span> (real
+		// content gets injected separately, out-of-band, later in the page
+		// render) - get_html_of_module() only returns the real HTML directly
+		// when the module is in inline-display mode (see Utils_RecordBrowser/
+		// Reports/Reports_0.php's identical use on a GenericBrowser instance).
+		// Without this, ob_get_clean() below only ever captures the
+		// placeholder span, and the spliced-in preview ends up appended after
+		// it - outside the card once the real content is injected.
+		$form->set_inline_display();
+		ob_start();
 		$this->display_module($form, array( array($this,'upload_logo') ));
+		$html = ob_get_clean();
+		$preview_html = '<div>'.htmlspecialchars($preview_caption).'</div><img src="'.htmlspecialchars($preview).'" style="max-width:300px;" />';
+		// Second-to-last </div>, not the last one: the last </div> closes
+		// .card itself, but .card-body (one level in, where the padding
+		// lives) closes just before that - landing inside .card but outside
+		// .card-body put the preview inside the card's border/background yet
+		// outside its padded content area, which read as "not really merged".
+		$last = strrpos($html, '</div>');
+		$pos = $last !== false ? strrpos(substr($html, 0, $last), '</div>') : false;
+		print($pos !== false ? substr($html, 0, $pos).$preview_html.substr($html, $pos) : $html.$preview_html);
+		Base_ActionBarCommon::add('delete', __('Delete logo'), $this->create_callback_href($this->delete_logo(...)));
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 	}
 
 	public function upload_logo($file,$oryg,$data) {
-		$fp = fopen($file, "r");
+		if (!$oryg) return;
 		$ext = strrchr($oryg,'.');
 		if($ext==='' || $ext!=='.png') {
 			print(__('Invalid extension. Only *.png is allowed.',array(),false));
@@ -140,6 +184,10 @@ class Libs_TCPDF extends Module {
 		if (file_exists($target_filename)) unlink($target_filename);
 		copy($file, $target_filename);
 		print(__('Upload successful.',array(),false));
+	}
+
+	public function delete_logo() {
+		@unlink(Libs_TCPDFCommon::get_logo_filename());
 	}
 }
 

@@ -48,11 +48,12 @@
 	}
 	$this->assign('icons', $icons);
 
-	// Base_ActionBar::body()/launchpad() hand this theme array_reverse()'d - the
-	// default theme floats each item right, which re-reverses the visual order.
-	// This theme lays them out with flexbox in source order instead, so reverse
-	// back to the intended order here.
-	$launcher = array_reverse($this->get_template_vars('launcher'));
+	// Base_ActionBar::body() now hands this theme its own already-alphabetical
+	// (by trimmed label) order directly - no reversal needed here, this
+	// theme lays items out with flexbox in source order. (The default theme
+	// floats each item right instead, needing the opposite source order -
+	// see its own default.tpl for that reversal, not here.)
+	$launcher = $this->get_template_vars('launcher');
 
 	// Quick-access launcher items carry a module-provided icon.png (or a
 	// link-specific override, e.g. CRM_Contacts's companies.png/contacts.png)

@@ -1,17 +1,15 @@
 <div>
 
 {if (isset($custom_label) && $custom_label) || isset($form_data_search) || isset($expand_collapse)}
-<table class="letters-search nonselectable" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
+<div class="letters-search nonselectable">
 			<!-- Custom label -->
 			{if (isset($custom_label) && $custom_label)}
-				<td class="letter_search_icon" {$custom_label_args}>
+				<div class="letter_search_icon" {$custom_label_args}>
 				<nobr>{$custom_label}</nobr>
-				</td>
+				</div>
 			{/if}
             <!-- Expand/Collapse -->
-			<td class="expand_collapse">
+			<div class="expand_collapse">
 				{if isset($expand_collapse)}
                     <a id="{$expand_collapse.e_id}" class="button" {$expand_collapse.e_href}><img src="{$theme_dir}/Base/ActionBar/icons/expand_big.png" />
                         <div style="display:inline-block;position:relative;top:-4px">
@@ -25,10 +23,10 @@
                     </a>
 				{/if}
 				&nbsp;
-			</td>
+			</div>
 			<!-- Advanced / Simple Search -->
 			{if isset($form_data_search)}
-				<td style="width:470px; float:right">
+				<div style="width:470px; float:right">
 					{$form_data_search.javascript}
 
 					<form {$form_data_search.attributes}>
@@ -60,11 +58,9 @@
 						{/if}
 					{/if}
 					</form>
-				</td>
+				</div>
 			{/if}
-		</tr>
-	</tbody>
-</table>
+</div>
 {/if}
 
 {php}
@@ -79,8 +75,8 @@
 		<div class="css3_content_shadow">
 			<div class="margin2px">
 				{$table_prefix}
-                {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
-				{html_table_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
+                {capture name="table_attr"}id="{$table_id}" cols_width_id="{$cols_width_id}" class="Utils_GenericBrowser" style="width:100%;table-layout:fixed;overflow:hidden;text-overflow:ellipsis;"{/capture}
+				{html_grid_epesi table_attr=$smarty.capture.table_attr loop=$data cols=$cols row_attrs=$row_attrs}
 				{$table_postfix}
 
 				{if isset($form_data_paging)}
@@ -90,37 +86,34 @@
 				{$form_data_paging.hidden}
 				{/if}
 				{if isset($order) || $first || $prev || $summary || isset($form_data_paging.page) || isset($form_data_paging.per_page)}
-					<table id="Utils_GenericBrowser__navigation" class="nonselectable" border="0" cellspacing="0" cellpadding="0">
-						<tr class="nav_background">
-							<td style="text-align: left; width: 1px; white-space: nowrap;">
+					<div id="Utils_GenericBrowser__navigation" class="nonselectable">
+						<div class="nav_background">
+							<div style="text-align: left; white-space: nowrap;">
 								{if isset($order)}
 									{$order}&nbsp;&nbsp;&nbsp;<b>{$reset}</b>&nbsp;&nbsp;&nbsp;
 								{/if}
-							</td>
-							<td style="width:30%"></td>
-							<td style="width:30%"></td>
+							</div>
 							{if isset($__link.first.open) || isset($__link.last.open)}
-								<td class="nav_button" nowrap>{if isset($__link.first.open)}{$__link.first.open}<div class="nav_left_arrow"><img src="{$theme_dir}/images/first.png"></div><div class="nav_left_label">{$__link.first.text}</div>{$__link.first.close}{/if}</td>
-								<td class="nav_button" nowrap>{if isset($__link.prev.open)}{$__link.prev.open}<div class="nav_left_arrow"><img border="0" src="{$theme_dir}/images/prev.png"></div><div class="nav_left_label">{$__link.prev.text}</div>{$__link.prev.close}{/if}</td>
+								<div class="nav_button" style="white-space:nowrap;">{if isset($__link.first.open)}{$__link.first.open}<div class="nav_left_arrow"><img src="{$theme_dir}/images/first.png"></div><div class="nav_left_label">{$__link.first.text}</div>{$__link.first.close}{/if}</div>
+								<div class="nav_button" style="white-space:nowrap;">{if isset($__link.prev.open)}{$__link.prev.open}<div class="nav_left_arrow"><img border="0" src="{$theme_dir}/images/prev.png"></div><div class="nav_left_label">{$__link.prev.text}</div>{$__link.prev.close}{/if}</div>
 							{/if}
-							<td class="nav_summary" nowrap>&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</td>
+							<div class="nav_summary" style="white-space:nowrap;">&nbsp;&nbsp;&nbsp;{$summary}&nbsp;&nbsp;&nbsp;</div>
 							{if isset($__link.first.open) || isset($__link.last.open)}
-								<td class="nav_button" nowrap>{if isset($__link.next.open)}{$__link.next.open}<div class="nav_right_label">{$__link.next.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/next.png"></div>{$__link.next.close}{/if}</td>
-								<td class="nav_button" nowrap>{if isset($__link.last.open)}{$__link.last.open}<div class="nav_right_label">{$__link.last.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/last.png"></div>{$__link.last.close}{/if}</td>
+								<div class="nav_button" style="white-space:nowrap;">{if isset($__link.next.open)}{$__link.next.open}<div class="nav_right_label">{$__link.next.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/next.png"></div>{$__link.next.close}{/if}</div>
+								<div class="nav_button" style="white-space:nowrap;">{if isset($__link.last.open)}{$__link.last.open}<div class="nav_right_label">{$__link.last.text}</div><div class="nav_right_arrow"><img border="0" src="{$theme_dir}/images/last.png"></div>{$__link.last.close}{/if}</div>
 							{/if}
-							<td style="width:30%"></td>
-							<td class="nav_pagin" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
+							<div class="nav_pagin" style="text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.page)}
 									{$form_data_paging.page.label} {$form_data_paging.page.html}
-								{/if}	
-							</td>
-							<td class="nav_per_page" nowrap style="width: 1px; text-align: right; white-space: nowrap;">
+								{/if}
+							</div>
+							<div class="nav_per_page" style="text-align: right; white-space: nowrap;">
 								{if isset($form_data_paging.per_page)}
 									{$form_data_paging.per_page.label} {$form_data_paging.per_page.html}
 								{/if}
-							</td>
-						</tr>
-					</table>
+							</div>
+						</div>
+					</div>
 				{/if}
 
 				{if isset($form_data_paging)}

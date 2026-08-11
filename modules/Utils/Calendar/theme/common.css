@@ -34,11 +34,15 @@ div.navigation-menu a.button:hover {
 
 }
 
-div.navigation-menu > table {
+/* Was a 1-row <table> of button/trash cells (month/week/day/year/agenda all
+   share this same navigation bar markup) - flex row instead. */
+div.navigation-menu > div {
+	display: flex;
+	align-items: center;
 	width: 98%;
 }
 
-div.navigation-menu > table td {
+div.navigation-menu > div > div {
 	padding-left: 3px;
 	padding-right: 3px;
 }

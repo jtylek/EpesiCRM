@@ -1,94 +1,85 @@
 <center>
 <br/>
-<table id="Utils_FileStorage__download_info" cellpadding="0" style="width:300px; border-spacing: 3px;">
-	<tr>
-		<td class="epesi_label" style="width:30%;">
+<div id="Utils_FileStorage__download_info" style="width:300px; display: flex; flex-direction: column; row-gap: 3px;">
+	<div style="display: flex; column-gap: 3px;">
+		<div class="epesi_label" style="flex: 0 0 30%;">
 			{$labels.filename}
-		</td>
-		<td class="epesi_data static_field" style="width:70%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+		</div>
+		<div class="epesi_data static_field" style="flex: 1 1 auto; min-width: 0; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
 			{$filename}
-		</td>
-	</tr>
-	<tr>
-		<td class="epesi_label" style="width:30%;">
+		</div>
+	</div>
+	<div style="display: flex; column-gap: 3px;">
+		<div class="epesi_label" style="flex: 0 0 30%;">
 			{$labels.file_size}
-		</td>
-		<td class="epesi_data static_field" style="width:70%;">
+		</div>
+		<div class="epesi_data static_field" style="flex: 1 1 auto; min-width: 0;">
 			{$file_size}
-		</td>
-	</tr>
-</table>
+		</div>
+	</div>
+</div>
 <br/>
 
 <div id="{$download_options_id}">
-	<table id="Utils_FileStorage__download" cellspacing="0" cellpadding="0">
-		<tr>
+	<div id="Utils_FileStorage__download" style="display: flex; flex-wrap: wrap;">
 			<!-- VIEW -->
-			<td valign="top">
+			<div>
 				{$__link.view.open}
 					<div class="epesi_big_button">
 						<img src="{$theme_dir}/Utils/FileStorage/view.png" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$__link.view.text}</span>
 					</div>
 				{$__link.view.close}
-			</td>
+			</div>
 			<!-- DOWNLOAD -->
-			<td valign="top">
+			<div>
 				{$__link.download.open}
 					<div class="epesi_big_button">
 						<img src="{$theme_dir}/Utils/FileStorage/download.png" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$__link.download.text}</span>
 					</div>
 				{$__link.download.close}
-			</td>
+			</div>
 			<!-- HISTORY -->
 			{if $__link.history}
-			<td valign="top">
+			<div>
 				{$__link.history.open}
 					<div class="epesi_big_button">
 						<img src="{$theme_dir}/Utils/FileStorage/history.png" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$__link.history.text}</span>
 					</div>
 				{$__link.history.close}
-			</td>
+			</div>
 			{/if}
             {if isset($link)}
 			<!-- LINK -->
-			<td valign="top">
+			<div>
 				{$__link.link.open}
 					<div class="epesi_big_button">
 						<img src="{$theme_dir}/Utils/FileStorage/link.png" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$__link.link.text}</span>
 					</div>
 				{$__link.link.close}
-			</td>
+			</div>
             {/if}
-		</tr>
-	</table>
+	</div>
 
 	{if $custom_getters}
-	<table id="Utils_FileStorage__download" cellspacing="0" cellpadding="0">
-		<tr>
-		{assign var=x value=0}
+	{* Was a <table> hand-wrapping every 4 icons into a new <tr> - flex-wrap
+	   replaces that, same recipe used app-wide for this pattern (see
+	   AI-shared/adminlte-theme.md). *}
+	<div id="Utils_FileStorage__download" style="display: flex; flex-wrap: wrap;">
 		{foreach item=p key=k from=$custom_getters}
-		{assign var=x value=$x+1}
-			
-			<td valign="top">
+			<div>
 				{$p.open}
 					<div class="epesi_big_button">
 						<img src="{$p.icon}" alt="" align="middle" border="0" width="32" height="32">
 						<span>{$p.text}</span>
 					</div>
 				{$p.close}
-			</td>
-		{if ($x%4)==0}
-		</tr>
-		<tr>
-		{/if}
-
-	{/foreach}
-		</tr>
-	</table>
+			</div>
+		{/foreach}
+	</div>
 	{/if}
 </div>
 </center>

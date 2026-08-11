@@ -5,7 +5,10 @@
 .login-page-adminlte {
 	min-height: 100vh;
 	padding: 0;
-	background-color: #2b3035;
+	/* Always white, not themed - same "fixed, not per-mode" treatment as the
+	   sidebar's always-light-grey background (commit 77d43486) and the boot
+	   splash's fixed palette (theme/index.tpl). */
+	background-color: #ffffff;
 	/* Epesi's global body{font-size:13px} would otherwise shrink all of
 	   Bootstrap/AdminLTE's rem-based sizing on this page; restore a normal
 	   base size so the login page reads at its intended scale. */
@@ -45,7 +48,9 @@ body:has(.login-page-adminlte) #body_content {
 .login-page-adminlte .login-box-msg {
 	text-align: center;
 	margin-bottom: 0.5rem;
-	color: #8b929a;
+	/* Black, not a themed muted-text variable - same always-black-on-grey
+	   treatment as the sidebar text (commit 77d43486). */
+	color: #000000;
 }
 
 /* Each field carries an always-present error line that QuickForm only fills in
@@ -72,13 +77,54 @@ body:has(.login-page-adminlte) #body_content {
 
 .login-page-adminlte .card {
 	border-top: none !important;
-	background-color: #1a1d20;
+	/* Fixed light grey + black text, matching the sidebar's own always-grey
+	   scheme (commit 77d43486) rather than following AdminLTE's per-mode
+	   --bs-card-bg/--bs-card-color. !important defensively, matching the
+	   sidebar's own precedent (AI-shared/adminlte-theme.md trap #3) even
+	   though this selector's specificity already beats Bootstrap's plain
+	   .card rule on its own. */
+	background-color: #dee2e6 !important;
+	color: #000000 !important;
 	overflow: hidden;
 	box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.25);
 }
 
+/* AdminLTE ships its own ".login-card-body, .register-card-body" rule that
+   paints an opaque var(--bs-body-bg) (white) background directly on top of
+   .card-body's whole content area - without overriding it too, that fully
+   hides the grey set on .card above; only a sliver at the rounded corners
+   would show through. */
+.login-page-adminlte .card-body {
+	background-color: #dee2e6 !important;
+}
+
 .login-page-adminlte .form-check {
 	padding-top: 0.3rem;
+}
+
+/* Bootstrap's unchecked switch border defaults to var(--bs-border-color)
+   (#dee2e6) - identical to the card's own new background above, so the
+   off-state track had no visible edge at all. Blue (Bootstrap primary,
+   matching the Login button/links) rather than a neutral grey, so the
+   switch reads as "outlined, not yet on" instead of merely disabled-looking.
+   The knob itself is a background-image (an SVG circle, positioned left
+   when unchecked) rather than a plain color - AdminLTE ships
+   "[data-bs-theme=dark] .form-switch .form-check-input:not(:checked):not(:focus)"
+   redefining that circle's fill as white (meant for AdminLTE's normally-dark
+   tracks, invisible on our white/light one), and it keeps winning over the
+   plain (non-!important) version of this rule regardless of load order:
+   its specificity (0-5-0: one attribute + four classes/pseudo-classes) beats
+   this rule's (0-4-0) outright, and matches even though .login-page-adminlte
+   itself is pinned data-bs-theme="light" - that attribute selector matches
+   through *any* ancestor carrying data-bs-theme="dark" (e.g. <html>, set by
+   adminlte.min.js from OS prefers-color-scheme), not just the nearest one.
+   Same trap as the sidebar's --lte-sidebar-* (AI-shared/adminlte-theme.md
+   trap #3), same fix. Only the unchecked state needs any of this; :checked
+   already gets its own visible primary-blue border+fill+white-knob from
+   Bootstrap. */
+.login-page-adminlte .form-switch .form-check-input:not(:checked) {
+	border-color: #0d6efd;
+	--bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230d6efd'/%3e%3c/svg%3e") !important;
 }
 
 /* ---- logged-in-as (stays in the shell's top navbar) ----
@@ -157,18 +203,15 @@ body:has(.login-page-adminlte) #body_content {
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .login-page-adminlte {
-  background-color: #ffffff;
-}
-
-[data-bs-theme="light"] .login-page-adminlte .login-box-msg {
-  color: #6c757d;
-}
-
-[data-bs-theme="light"] .login-page-adminlte .card {
-  background-color: #f4f6f9;
-}
-
+/* .login-page-adminlte / .login-box-msg / .card's [data-bs-theme="light"]
+   overrides used to live here - removed as dead weight, not merely unneeded:
+   the base rules above now hardcode the same always-white/grey scheme
+   unconditionally (see those rules' own comments), and the page itself is
+   permanently pinned to data-bs-theme="light" (default.tpl), so this block's
+   values were an exact duplicate rather than an actual light/dark divergence.
+   The #top_bar/.logout_icon overrides below are unrelated - that's the
+   logged-in-as widget in the app shell, which still follows the live navbar
+   dark/light toggle. */
 [data-bs-theme="light"] #top_bar .logged_as {
   color: #495057;
 }

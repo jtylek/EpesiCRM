@@ -57,6 +57,59 @@
 	object-fit: contain;
 }
 
+/* Utils_Watchdog's "Watch"/"Stop Watching" toolbar button still hands this
+   theme a legacy watch_big.png/unwatch_big.png file path (Base_ActionBar's
+   own icon_map in default.tpl only covers named icons, not file-path ones -
+   ActionBar_0.php::body() sets icon_url whenever the icon string contains a
+   "/" and exists on disk, so the template falls straight to <img> for these
+   with no bi_icon lookup at all), rendering as a plain circle instead of a
+   themed glyph. Same :has()-based img-swap already used for the small
+   per-row subscription icon (RecordBrowser/theme_adminltedark/
+   View_entry.css) rather than touching the shared WatchdogCommon_0.php -
+   keeps the mapping theme-scoped like every other icon here. Same eye/
+   eye-slash glyphs and green "watching" tint as that file too, so the big
+   toolbar button and the small row icon read as the same concept. */
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"]) img,
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"]) img {
+	display: none;
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"])::before,
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"])::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/watch_big.png"])::before {
+	content: "\f340";
+}
+
+.epesi-actionbar-btn:has(img[src*="Watchdog"][src*="/unwatch_big.png"])::before {
+	content: "\f33e";
+	color: #198754;
+}
+
+/* CRM_Mail's "Paste mail" toolbar button (Mail_0.php's addon_view(), the
+   ActionBarCommon::add() call right after the Leightbox prompt) hands this
+   theme Base_ThemeCommon::get_template_file($this->get_type(),'copy.png') -
+   a raw resolved path, same "/" shaped case as the Watchdog buttons above -
+   so it falls to a plain <img> too, rendering the legacy theme's raster
+   clipboard icon instead of a themed glyph. Distinct from CRM_Mail's other
+   copy_small.png row-action icon (GenericBrowser/theme_adminltedark/
+   default.css) - that one is the per-row "Copy" action; this is the
+   toolbar's "Paste" action - so bi-clipboard-plus rather than bi-copy. */
+.epesi-actionbar-btn:has(img[src*="Mail"][src*="/copy.png"]) img {
+	display: none;
+}
+
+.epesi-actionbar-btn:has(img[src*="Mail"][src*="/copy.png"])::before {
+	font-family: "bootstrap-icons";
+	font-size: 1.25rem;
+	line-height: 1;
+	content: "\f28e";
+}
+
 .epesi-actionbar-label {
 	max-width: 76px;
 	overflow-wrap: anywhere;
@@ -104,6 +157,74 @@
 .epesi-actionbar-launchpad-btn img {
 	width: 32px;
 	height: 32px;
+}
+
+/* The persistent header toolbar drops its labels below 575.98px to stay
+   compact (see the media query above) - .epesi-actionbar-label is shared
+   with this popup rather than duplicated (per this file's own header
+   comment), so that same query silently hid labels here too. The popup has
+   its own dedicated screen space (see #actionbar_launchpad's full-width
+   override below), so the same space-saving trade-off doesn't apply -
+   labels should stay visible, per request. */
+@media (max-width: 575.98px) {
+	.epesi-actionbar-launchpad .epesi-actionbar-label {
+		display: block;
+	}
+}
+
+/* On narrow/mobile screens the Launchpad popup specifically - not every
+   Leightbox popup app-wide, which keep their shared 70%/900px-cap sizing
+   (Libs/Leightbox/theme_adminltedark/default.css) - should fill the full
+   screen width instead of leaving unusable overlay margins on both sides,
+   per request. #actionbar_launchpad's id specificity overrides the shared
+   .leightbox rule (including its [big="1"] variant) without touching other
+   popups. */
+@media (max-width: 575.98px) {
+	#actionbar_launchpad.leightbox {
+		width: 100%;
+		max-width: 100%;
+		left: 0;
+		transform: none;
+		border-radius: 0;
+	}
+}
+
+/* ---- launchpad popup: sidebar-matching fixed grey scheme ----
+ * Per request: unlike every other Leightbox popup app-wide (which keeps the
+ * shared shell's own per-mode dark/light colors - Libs/Leightbox/
+ * theme_adminltedark/default.css) or the persistent ActionBar toolbar above
+ * (still following the live navbar theme toggle as before), the Launchpad
+ * popup always renders the same fixed light-grey/black-text palette as the
+ * sidebar (Base_Box/theme_adminltedark/default.css, commit 77d43486), in
+ * both light and dark mode. #actionbar_launchpad's id specificity overrides
+ * the shared .leightbox/#Leightbox_header/.epesi-actionbar-btn rules (and
+ * their own [data-bs-theme="light"] variants) without touching any other
+ * popup. */
+#actionbar_launchpad.leightbox {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#actionbar_launchpad #Leightbox_header {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-leightbox-btn {
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-leightbox-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+#actionbar_launchpad .epesi-actionbar-btn {
+	color: #000;
+}
+
+#actionbar_launchpad .epesi-actionbar-btn:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+	color: #000;
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */

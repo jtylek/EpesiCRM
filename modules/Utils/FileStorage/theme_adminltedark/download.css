@@ -1,0 +1,106 @@
+/* AdminLTE re-skin for Utils_FileStorage's file-info popup - see download.tpl
+ * for why fresh classes are used instead of the default theme's shared
+ * .epesi_big_button/.epesi_label/.epesi_data.
+ */
+
+/* Libs_Leightbox/theme_adminltedark/default.css sets a generic width:70% for
+   every popup - on a narrow (mobile) viewport that leaves barely enough room
+   for the filename before it has to truncate. The leightbox id has no fixed
+   suffix here (FileLeightbox.php builds it as 'get_file_'.md5(...).md5(...)),
+   so scope on the stable "get_file_" prefix instead, same approach as
+   CRM_Followup/theme_adminltedark/leightbox.css uses its own fixed suffix. */
+.leightbox[id^="get_file_"] {
+	width: min(92vw, 420px);
+}
+
+.epesi-filedl-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 0.85rem;
+	padding-bottom: 0.85rem;
+	border-bottom: 1px solid #495057;
+}
+
+.epesi-filedl-row {
+	display: flex;
+	align-items: baseline;
+	gap: 0.75rem;
+}
+
+.epesi-filedl-label {
+	flex: 0 0 auto;
+	min-width: 80px;
+	color: #adb5bd;
+	font-weight: 600;
+	font-size: 0.85rem;
+}
+
+.epesi-filedl-value {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	font-size: 0.9rem;
+}
+
+.epesi-filedl-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.epesi-filedl-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.65rem;
+	padding: 0.5rem 0.6rem;
+	border-radius: 0.375rem;
+	color: #dee2e6;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.epesi-filedl-btn:hover {
+	background-color: rgba(255, 255, 255, 0.08);
+	color: #fff;
+}
+
+.epesi-filedl-btn i {
+	flex: 0 0 auto;
+	width: 1.5rem;
+	text-align: center;
+	font-size: 1.1rem;
+	color: #6ea8fe;
+}
+
+.epesi-filedl-btn-icon {
+	flex: 0 0 auto;
+	width: 1.5rem;
+	height: 1.5rem;
+	object-fit: contain;
+}
+
+.epesi-filedl-btn-label {
+	font-size: 0.9rem;
+}
+
+[data-bs-theme="light"] .epesi-filedl-info {
+	border-bottom-color: #dee2e6;
+}
+
+[data-bs-theme="light"] .epesi-filedl-label {
+	color: #6c757d;
+}
+
+[data-bs-theme="light"] .epesi-filedl-btn {
+	color: #212529;
+}
+
+[data-bs-theme="light"] .epesi-filedl-btn:hover {
+	background-color: rgba(0, 0, 0, 0.06);
+	color: #000;
+}
+
+[data-bs-theme="light"] .epesi-filedl-btn i {
+	color: #0d6efd;
+}

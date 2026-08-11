@@ -1,5 +1,5 @@
 function utils_commondata_sort_nodes_init(table_md5) {
-    jq("#table_" + table_md5 + " tbody").sortable(
+    jq("#table_" + table_md5 + " .Utils_GenericBrowser__tbody").sortable(
         {
             helper: function (e, tr) {
                 var $originals = tr.children();
@@ -12,7 +12,7 @@ function utils_commondata_sort_nodes_init(table_md5) {
             },
             handle: ".move-handle",
             containment: "parent",
-            items: "> tr.sortable",
+            items: "> div.sortable",
             update: function (event, ui) {
                 _chj(jq.param({"node_position": [ui.item.attr("node"), ui.item.index()+1]}), "", "");
             }

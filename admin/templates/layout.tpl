@@ -10,8 +10,11 @@
 	<link href="{$epesi_url}libs/adminlte-4.1.0/css/adminlte.min.css" rel="stylesheet" />
 	{* Reused as-is (not copied) so this shell's sidebar/navbar chrome
 	   (.epesi-adminlte/.app-header/.app-sidebar/.app-main/.app-content-header)
-	   stays in sync with the real logged-in app's own AdminLTE shell. *}
-	<link href="{$epesi_url}modules/Base/Box/theme_adminlte/default.css" rel="stylesheet" />
+	   stays in sync with the real logged-in app's own AdminLTE shell -
+	   adminltedark since the light-only adminlte theme was removed
+	   (2026-08-04, see AI-shared/adminlte-theme.md); its default.css covers
+	   light mode itself via [data-bs-theme="light"], matching the pin below. *}
+	<link href="{$epesi_url}modules/Base/Box/theme_adminltedark/default.css" rel="stylesheet" />
 	<link href="./images/admintools.css" rel="stylesheet" />
 </head>
 {* data-bs-theme pinned for the same reason as the login page - AdminLTE's JS

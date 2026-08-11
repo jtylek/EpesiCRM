@@ -37,6 +37,14 @@ class Base_AdminlteIcons {
 		'companies' => 'bi-building',
 		'contacts'  => 'bi-person-vcard-fill',
 		'launcher'  => 'bi-grid-3x3-gap-fill',
+		// Not a module-disambiguation entry like the three above - this is
+		// Base_ActionBar's own generic icons/back.png, reused as a plain
+		// "Cancel"/"Back" glyph by callers outside the action bar itself
+		// (e.g. Utils_LeightboxPrompt option buttons, CRM_Mail's "Paste
+		// e-mail" Cancel). Same bi-arrow-left the action bar's own
+		// theme_adminltedark/default.tpl uses for its 'back' action, so the
+		// glyph reads the same wherever a "back.png" shows up.
+		'back'      => 'bi-arrow-left',
 	);
 
 	/**
@@ -68,7 +76,15 @@ class Base_AdminlteIcons {
 			if ($base_stem !== $stem && isset(self::$by_filename[$base_stem]))
 				return self::$by_filename[$base_stem];
 		}
-		if (!$module && $icon && preg_match('#modules/([^/]+/[^/]+)/#', $icon, $m))
+		// The module path's own depth varies (most are "modules/Vendor/Module/
+		// theme.../...", but a sub-module nests further, e.g. "modules/Premium/
+		// Projects/Tickets/theme/icon.png") - grabbing a fixed first two
+		// segments silently truncated the deeper case to "Premium/Projects",
+		// resolving the WRONG module's adminlte_icon() (Projects' instead of
+		// Tickets') for any caller that didn't already have the real module
+		// name in hand. "everything before the last /theme.../." is a
+		// depth-independent way to find the true module path.
+		if (!$module && $icon && preg_match('#^modules/(.+)/theme[^/]*/#', $icon, $m))
 			$module = $m[1];
 		if ($module) {
 			$class = str_replace('/', '_', $module).'Common';

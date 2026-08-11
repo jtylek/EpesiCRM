@@ -13,80 +13,58 @@
 	<div class="layer" style="padding: 9px; width: 552px;">
 		<div class="css3_content_shadow">
 
-	    <table id="Base_User_Login" cellspacing="0" cellpadding="0" border="0" style="height: auto;">
-            <tbody>
-	    	<tr>
-				<td colspan="2" class="header_tail">{$logo}</td>
-			</tr>
-            <tr>
-                <td class="gradient">
-                    <table cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout: auto;">
-                        <tbody>
+	    <div id="Base_User_Login" style="height: auto;">
+			<div class="header_tail">{$logo}</div>
+            <div class="gradient">
+                <div style="width:100%;">
 {if $is_demo}
-   			<tr>
-   				<td colspan="2" align="center"><strong>EPESI DEMO APPLICATION</strong></td>
-   			</tr>
+   			<div class="demo_notice"><strong>EPESI DEMO APPLICATION</strong></div>
 {/if}
 					{if isset($message)}
-						<tr>
-							<td class="message">
-								{$message}
-							</td>
-						</tr>
-						<tr>
-							<td colspan="2" class="autologin"></td>
-						</tr>
+						<div class="message">
+							{$message}
+						</div>
+						<div class="autologin"></div>
 					{else}
 						{if $mode=='recover_pass'}
-                            <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
-                            <tr><td colspan="2" class="error"><span class="error">{$form_data.mail.error}</span></td></tr>
-							<tr>
-								<td class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
-								<td class="input">{$form_data.username.html}</td>
-							</tr>
-							<tr>
-								<td class="label">{$form_data.mail.label}&nbsp;&nbsp;</td>
-								<td class="input">{$form_data.mail.html}</td>
-							</tr>
-							<tr><td colspan="2" class="submit_button">{$form_data.buttons.html}</td></tr>
-							<tr>
-								<td colspan="2" class="autologin"></td>
-							</tr>
+                            <div class="error"><span class="error">{$form_data.username.error}</span></div>
+                            <div class="error"><span class="error">{$form_data.mail.error}</span></div>
+							<div class="login-row">
+								<div class="label">{$form_data.username.label}&nbsp;&nbsp;</div>
+								<div class="input">{$form_data.username.html}</div>
+							</div>
+							<div class="login-row">
+								<div class="label">{$form_data.mail.label}&nbsp;&nbsp;</div>
+								<div class="input">{$form_data.mail.html}</div>
+							</div>
+							<div class="submit_button">{$form_data.buttons.html}</div>
+							<div class="autologin"></div>
 						{else}
-                            <tr><td colspan="2" class="error"><span class="error">{$form_data.username.error}</span></td></tr>
-                            <tr><td colspan="2" class="error"><span class="error">{$form_data.password.error}</span></td></tr>
-							<tr>
-								<td class="label">{$form_data.username.label}&nbsp;&nbsp;</td>
-								<td class="input">{$form_data.username.html}</td>
-							</tr>
-							<tr>
-								<td class="label">{$form_data.password.label}&nbsp;&nbsp;</td>
-								<td class="input">{$form_data.password.html}</td>
-							</tr>
-							<tr>
-								<td colspan="2" class="submit_button">{$form_data.submit_button.html}</td>
-							</tr>
-							<tr>
-								<td colspan="2" class="autologin">{$form_data.autologin.html}</td>
-							</tr>
+                            <div class="error"><span class="error">{$form_data.username.error}</span></div>
+                            <div class="error"><span class="error">{$form_data.password.error}</span></div>
+							<div class="login-row">
+								<div class="label">{$form_data.username.label}&nbsp;&nbsp;</div>
+								<div class="input">{$form_data.username.html}</div>
+							</div>
+							<div class="login-row">
+								<div class="label">{$form_data.password.label}&nbsp;&nbsp;</div>
+								<div class="input">{$form_data.password.html}</div>
+							</div>
+							<div class="submit_button">{$form_data.submit_button.html}</div>
+							<div class="autologin">{$form_data.autologin.html}</div>
 						{/if}
 					{/if}
-						<tr>
-							<td colspan="2" class="autologin">{$form_data.warning.html}</td>
-                        </tr>
-                        <tr><td colspan="2" class="recover_password">{$form_data.recover_password.html}</td></tr>
-                        <tr><td>&nbsp;</td></tr>
-                        <tr><td colspan="2" class="footer">
+						<div class="autologin">{$form_data.warning.html}</div>
+                        <div class="recover_password">{$form_data.recover_password.html}</div>
+                        <div>&nbsp;</div>
+                        <div class="footer">
                         <!-- Epesi Terms of Use require line below - do not remove it! -->
                         Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek
                         <!-- Epesi Terms of Use require line above - do not remove it! -->
-                        </td></tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            </tbody>
-		</table>
+                        </div>
+                </div>
+            </div>
+		</div>
 
  		</div>
 	</div>

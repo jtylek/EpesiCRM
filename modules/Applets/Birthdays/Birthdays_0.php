@@ -21,7 +21,6 @@ class Applets_Birthdays extends Module {
 		$opts['go'] = false; // enable/disable full screen
 		$opts['title'] = $conf['title'];
 
-		$title = __('Birthdays upcoming in the next: %d days.', array($conf['no_of_days']));
 		$sort_order = 'ASC';
 
 		// initialize the recordset
@@ -43,7 +42,6 @@ class Applets_Birthdays extends Module {
 						);
 		// 2nd - criteria (filter)
 		if ($conf['no_of_days'] < 0) {
-			$title = __('Birthdays from the last %d days.', array(-$conf['no_of_days']));
 			$sort_order = 'DESC';
 		}
 		$dates = array();
@@ -77,7 +75,6 @@ class Applets_Birthdays extends Module {
 									& $opts
 				);
 		// initialize miniview
-		print($title);
 		$this->display_module($rb, $conds, 'mini_view');
 	}
 }

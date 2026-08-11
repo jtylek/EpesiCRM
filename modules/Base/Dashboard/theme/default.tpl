@@ -1,25 +1,24 @@
 	<div class="layer" style="padding: 10px 0px; width: 96%; min-height: 30px;">
 		<div class="content_shadow_css3_dashboard {$color}_dashboard">
-            <table class="container {$color}_dashboard" cellpadding="0" cellspacing="0" border="0">
-                <tbody>
-                <tr class="nonselectable">
-                	<td width="3px" class="header actions {$color}_dashboard">
-                	</td>
+            <div class="container {$color}_dashboard">
+                <div class="header-row nonselectable" style="display: flex; align-items: center;">
+                	<div style="width:3px;" class="header actions {$color}_dashboard">
+                	</div>
                 	{if !empty($actions)}
 						{assign var=actions_width value=$actions|@count}
 						{assign var=actions_width value=$actions_width*16}
 						{assign var=actions_width value=$actions_width+4}
-	                	<td width="{$actions_width}px" class="header actions {$color}">
+	                	<div style="width:{$actions_width}px;" class="header actions {$color}">
 							{foreach item=action from=$actions}
 		                		{$action}
 		                	{/foreach}
-	                	</td>
+	                	</div>
 	                {else}
-	                	<td width="3px" class="header actions {$color}">
-	                	</td>
+	                	<div style="width:3px;" class="header actions {$color}">
+	                	</div>
                 	{/if}
                 	{* 18px/icon + 2px base *}
-                    <td class="header title {$handle_class} {if $fixed}fixed {/if}{$color}">{$caption}</td>
+                    <div class="header title {$handle_class} {if $fixed}fixed {/if}{$color}" style="flex: 1 1 auto;">{$caption}</div>
 					{assign var=actions_width value=8}
 					{if isset($href)}
 						{assign var=actions_width value=$actions_width+18}
@@ -33,7 +32,7 @@
 					{if isset($remove)}
 						{assign var=actions_width value=$actions_width+18}
 					{/if}
-                    <td class="header controls {$color}" nowrap="1" width="{$actions_width}px">
+                    <div class="header controls {$color}" style="white-space: nowrap; width:{$actions_width}px;">
 						{if isset($href)}
 							{$__link.href.open}
 							<img src="{$theme_dir}/Base/Dashboard/resize.png" onMouseOver="this.src='{$theme_dir}/Base/Dashboard/resize-hover.png';" onMouseOut="this.src='{$theme_dir}/Base/Dashboard/resize.png';" width="14" height="14" alt="R" border="0">
@@ -55,13 +54,10 @@
 							{$__link.remove.close}
 						{/if}
 						&nbsp;
-					</td>
-                </tr>
-                <tr>
-                    <td colspan="4" class="content_td" onclick="">{$content}</td>
-                </tr>
-                </tbody>
-            </table>
+					</div>
+                </div>
+                <div class="content_td" onclick="">{$content}</div>
+            </div>
  		</div>
 	</div>
 

@@ -1,27 +1,39 @@
+/* TCMSDefault.php's fallback (non-Smarty-array) QuickForm renderer - was a
+   <table id="quickform"> of <tr>s (one <td class="element"> label cell +
+   one <td class="{element_style}"> data cell per row); now a flex column of
+   .quickform-row divs, each a flex row of its own two cells. */
 #quickform {
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+}
+
+.quickform-row {
+	display: flex;
+	column-gap: 3px;
 }
 
 #quickform .header {
 	white-space: nowrap;
 	text-align: center;
-	vertical-align: middle;
 	color: #FFFFFF;
 	height: 20px;
 	border: 0px;
 	padding-left: 5px;
 	padding-right: 5px;
 	margin-bottom: 5px;
-	
+	width: 100%;
+
 	/* css3 blue gradient */
 	background: #7b9cbd; /* Old browsers */
 	/* end css3  gradient */
-	
+
 	/* border radius */
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
 	/* end border radius */
-	
+
 	/* css3 shadow border*/
 	-webkit-box-shadow: 1px 1px 3px black;
 	-moz-box-shadow: 1px 1px 3px black;
@@ -31,7 +43,6 @@
 
 #quickform .label {
 	text-align: right;
-	vertical-align: top;
 	font-weight: normal;
 	background-color: #F0F0F0;
 }
@@ -39,6 +50,7 @@
 #quickform .element {
 	text-align: right;
 	font-weight: normal;
+	flex: 0 0 150px;
 }
 
 #quickform .element,
@@ -70,34 +82,53 @@
    in narrow popup forms. */
 /* Lay the date picker and the time (hour : minute am/pm) side by side on one line (flex; date
    picker first), wrapping to two lines only when the form is too narrow. Flex items ignore float,
-   so this also neutralises the View_entry float that used to push the time off-screen. */
-td.data.timestamp > div {
+   so this also neutralises the View_entry float that used to push the time off-screen.
+   .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
+   field) is built from the exact same HTML_QuickForm_timestamp widget with 'date'=>false
+   (Utils_RecordBrowserCommon::QFfield_time()) - same hour/minute <select> markup, just wrapped in
+   a "data time" cell instead of "data timestamp" (Utils_RecordBrowserCommon::fill_definition()
+   sets style=type, and 'time' and 'timestamp' are distinct types). Without .time listed here too,
+   its selects fall back to the un-flexed default and stack into separate rows. */
+.data.timestamp > div,
+.data.time > div {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 10px;
 }
-td.data.timestamp > div > div {
+.data.timestamp > div > div,
+.data.time > div > div {
 	float: none;
 	white-space: nowrap;
 	margin: 0;
 }
-td.data.timestamp > div > div:last-child {
+.data.timestamp > div > div:last-child,
+.data.time > div > div:last-child {
 	order: -1;
 }
 /* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
    in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
    inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into
-   rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell. */
-td select[name$="[h]"],
-td select[name$="[i]"],
-td select[name$="[a]"] {
+   rows. Size them to content inline — fixes EVERY time picker regardless of the surrounding cell.
+   Not scoped to a "td" ancestor: RecordBrowser's View_entry family renders its .data cells as
+   divs, not <td>s (see AI-shared/adminlte-theme.md) - a tag-qualified selector here would silently
+   stop matching for every one of those screens.
+   [H] (capital) is a separate field name from [h]: HTML_QuickForm_date (vendor/openpsa/quickform/
+   lib/HTML/QuickForm/date.php) builds each select's array key straight from the PHP date-format
+   character in use - 'h' for 12-hour (with an [a] am/pm select alongside it), 'H' for 24-hour (no
+   am/pm select at all). CSS attribute selectors are case-sensitive, so an install running in
+   24-hour mode (Base_RegionalSettingsCommon::time_12h() false) needs [H] listed explicitly or its
+   hour select silently falls back to the un-sized default and misaligns against the minute select. */
+select[name$="[h]"],
+select[name$="[H]"],
+select[name$="[i]"],
+select[name$="[a]"] {
 	display: inline-block;
 	width: auto;
 	min-width: 0;
 	vertical-align: middle;
 }
-td.data.timestamp > div > div:last-child input {
+.data.timestamp > div > div:last-child input {
 	width: 150px;
 }
 

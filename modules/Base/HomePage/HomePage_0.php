@@ -142,7 +142,14 @@ class Base_HomePage extends Module {
 
 		$form->assign_theme('form', $theme);
 		$theme->assign('counts', $counts);
-		
+
+		// Same fix as Base_Acl's edit_permissions.tpl: this renders its own
+		// custom template rather than display_as_column()/display_as_row(),
+		// so the card+grid CSS those load automatically never gets loaded
+		// here - load it explicitly for the theme_adminltedark/
+		// edit_home_pages.tpl override, which reuses the same classes.
+		Base_ThemeCommon::load_css('Libs_QuickForm', 'column');
+
 		$theme->display('edit_home_pages');
 
 		load_js('modules/Base/HomePage/edit_home_pages.js');

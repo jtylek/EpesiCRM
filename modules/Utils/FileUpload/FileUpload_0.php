@@ -109,7 +109,11 @@ class Utils_FileUpload extends Module {
 		$s = $this->form->get_submit_form_js(false,__('Processing file...'));
 
 		$this->form->addElement('hidden','submit_js',$s);
-		$this->form->addElement('file', 'file', $label?$label:__('Specify file'));
+		// No default label: the browser's own native "Choose File" button
+		// text already says this, so a "Specify file" label next to it was
+		// redundant. $label still lets a caller opt into a real label
+		// (e.g. distinguishing multiple file fields on one form) if needed.
+		$this->form->addElement('file', 'file', $label ?: '', array('class'=>'form-control'));
 	}
 
 	public function get_submit_form_js() {
@@ -137,12 +141,12 @@ class Utils_FileUpload extends Module {
 		$this->add_upload_element();
 
 		if($this->submit_button)
-			$this->form->addElement('submit', 'button', $this->upload_button_caption, $this->get_submit_form_href());
+			$this->form->addElement('submit', 'button', $this->upload_button_caption, $this->get_submit_form_href().' class="submit btn btn-primary"');
 
 		if($this->form->validate()) {
 			$this->form->process($this->submit_parent(...));
 		} else
-			$this->form->display();
+			$this->form->display_as_column();
 	}
 
 	/**

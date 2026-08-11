@@ -1,0 +1,38 @@
+/* AdminLTE-dark "View e-mail" template (mails.tpl) - Body/Attachments now render inline on the
+ * main record instead of as separate addon tabs (see mails.tpl's own header comment and
+ * MailInstall.php). Everything else in that layout (label/data rows, columns) reuses
+ * Utils/RecordBrowser/theme_adminltedark/View_entry.css, loaded automatically alongside this
+ * file (Base_ThemeCommon::display_smarty()) - only the attachment list styling below is
+ * specific to this template: the trigger links themselves (no inline image preview - see
+ * MailCommon_0.php::get_attachments_html()), plus a width override for their popup, which reuses
+ * Utils_FileStorage's own .epesi-filedl-* classes (theme_adminltedark/download.css, loaded by
+ * get_attachments_html() itself) for its content. Replaces the legacy (non-adminlte)
+ * theme/mails.css's ".direction" rule, which targeted table-based markup this theme doesn't use.
+ */
+
+.crm-mail-attachments {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.crm-mail-attachment-file {
+	padding: 3px 0;
+}
+
+.crm-mail-attachment-size {
+	color: #8b929a;
+	font-size: 0.85rem;
+}
+
+/* Matches Utils_FileStorage's own file popup width (theme_adminltedark/download.css) rather
+   than Libs_Leightbox's generic 70%/900px default, which reads oversized for a single
+   filename+size+two-buttons popup like this one. */
+.leightbox[id^="crm_mail_attachment_"] {
+	width: min(92vw, 420px);
+}
+
+/* ==== adminltedark: light-mode override ==== */
+[data-bs-theme="light"] .crm-mail-attachment-size {
+	color: #6c757d;
+}

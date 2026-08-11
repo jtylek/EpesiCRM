@@ -110,12 +110,19 @@
 	color: #0d6efd;
 }
 
-.epesi-applet-body {
+/* Compound selector (not just .epesi-applet-body) is load-bearing, not
+   stylistic: the .tpl's own "p-2" utility class (Bootstrap, default.tpl:37 -
+   "card-body epesi-applet-body p-2") sets padding:.5rem !important too, same
+   specificity (one class) as a bare ".epesi-applet-body{padding:0!important}"
+   would be - a tie broken only by whichever stylesheet happens to load
+   later in the DOM, which flipped silently once (Bootstrap/AdminLTE's
+   vendored bundle re-injected after this module's own CSS on some renders,
+   observed live via document.styleSheets - not a caching artifact, so
+   clearing the browser cache never fixed it). ".card-body.epesi-applet-body"
+   is two classes, unconditionally higher specificity than ".p-2"'s one -
+   wins regardless of load order, permanently, instead of by accident. */
+.card-body.epesi-applet-body {
 	background-color: #24272b;
-	/* !important: the .tpl's own "p-2" utility class (Bootstrap, !important
-	   already) would otherwise still leave 0.5rem on every side - zeroed here
-	   instead so table-based applet content (GenericBrowser etc.) can run
-	   edge-to-edge inside the card, matching the card's own rounded corners. */
 	padding: 0 !important;
 }
 
@@ -127,9 +134,27 @@
    already-padding-0 body - its own Bootstrap mb-3 (1rem) margin then reads
    as a band of unexplained white space between the table/pager and the
    applet card's own bottom edge, since there's no sibling content below it
-   to justify the gap here. Zeroed the same way padding was above. */
+   to justify the gap here. Zeroed the same way padding was above.
+
+   Per request: this inner card's own Bootstrap border/border-radius also
+   render as a second, narrower box nested just inside the applet's own
+   .epesi-applet-card frame (a visible rounded-corner line around the table,
+   inset from the applet's real edge) - stripped here so the table runs
+   flush to the applet's own edges instead. Bootstrap 5's .card-header/
+   .card-footer read their own divider border from the --bs-card-border-width
+   custom property rather than a literal value inherited from .card's own
+   border shorthand, so zeroing that variable (not just "border:none" on the
+   card element itself) is what's needed to reach those too; same for
+   --bs-card-border-radius, which .card-header:first-child/.card-footer:
+   last-child read for their own corner rounding independent of the parent's
+   own border-radius property. The outer .epesi-applet-card keeps its own
+   real border, so the applet as a whole still reads as one bordered box,
+   not zero. */
 #dashboard .epesi-applet-body .epesi-gb.card {
 	margin-bottom: 0 !important;
+	--bs-card-border-width: 0;
+	--bs-card-border-radius: 0;
+	box-shadow: none;
 }
 
 /* Colour accent (was a 4px border around the whole card in the default
@@ -140,50 +165,54 @@
    otherwise neutral-gray card - and its box-shadow (overriding .epesi-applet-
    card's default neutral one, same specificity/load-order reasoning as
    border-color above) is tinted to match, rather than a plain gray shadow
-   under a coloured frame. */
+   under a coloured frame. The header's own background-color/color and the
+   actions-link color below are !important for the same reason: the
+   [data-bs-theme="light"] override further down this file has equal
+   specificity (0,0,2,0) and wins on source order alone, which was silently
+   greying out every applet's header in light mode. */
 .epesi-applet-black { border-color: #5B5B5B !important; box-shadow: 0 0 6px rgba(91, 91, 91, 0.5) !important; }
-.epesi-applet-black .epesi-applet-header { background-color: #5B5B5B; color: #fff; }
-.epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-black .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-black .epesi-applet-header { background-color: #5B5B5B !important; color: #fff !important; }
+.epesi-applet-black .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-black .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-blue { border-color: #7B9CBD !important; box-shadow: 0 0 6px rgba(123, 156, 189, 0.5) !important; }
-.epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD; color: #fff; }
-.epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-blue .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-blue .epesi-applet-header { background-color: #7B9CBD !important; color: #fff !important; }
+.epesi-applet-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-blue .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-blue { border-color: #346799 !important; box-shadow: 0 0 6px rgba(52, 103, 153, 0.5) !important; }
-.epesi-applet-dark-blue .epesi-applet-header { background-color: #346799; color: #fff; }
-.epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-blue .epesi-applet-header { background-color: #346799 !important; color: #fff !important; }
+.epesi-applet-dark-blue .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-blue .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-gray { border-color: #8C8C8C !important; box-shadow: 0 0 6px rgba(140, 140, 140, 0.5) !important; }
-.epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C; color: #fff; }
-.epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-gray .epesi-applet-header { background-color: #8C8C8C !important; color: #fff !important; }
+.epesi-applet-dark-gray .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-gray .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-green { border-color: #A8CC8E !important; box-shadow: 0 0 6px rgba(168, 204, 142, 0.5) !important; }
-.epesi-applet-green .epesi-applet-header { background-color: #A8CC8E; color: #212529; }
+.epesi-applet-green .epesi-applet-header { background-color: #A8CC8E !important; color: #212529 !important; }
 
 .epesi-applet-dark-green { border-color: #4A7C2A !important; box-shadow: 0 0 6px rgba(74, 124, 42, 0.5) !important; }
-.epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A; color: #fff; }
-.epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-green .epesi-applet-header { background-color: #4A7C2A !important; color: #fff !important; }
+.epesi-applet-dark-green .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-green .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-red { border-color: #BD7B7B !important; box-shadow: 0 0 6px rgba(189, 123, 123, 0.5) !important; }
-.epesi-applet-red .epesi-applet-header { background-color: #BD7B7B; color: #fff; }
-.epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-red .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-red .epesi-applet-header { background-color: #BD7B7B !important; color: #fff !important; }
+.epesi-applet-red .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-red .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-dark-red { border-color: #990033 !important; box-shadow: 0 0 6px rgba(153, 0, 51, 0.5) !important; }
-.epesi-applet-dark-red .epesi-applet-header { background-color: #990033; color: #fff; }
-.epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75); }
-.epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff; }
+.epesi-applet-dark-red .epesi-applet-header { background-color: #990033 !important; color: #fff !important; }
+.epesi-applet-dark-red .epesi-applet-actions a { color: rgba(255,255,255,0.75) !important; }
+.epesi-applet-dark-red .epesi-applet-actions a:hover { color: #fff !important; }
 
 .epesi-applet-yellow { border-color: #F2F2A2 !important; box-shadow: 0 0 6px rgba(242, 242, 162, 0.5) !important; }
-.epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2; color: #212529; }
+.epesi-applet-yellow .epesi-applet-header { background-color: #F2F2A2 !important; color: #212529 !important; }
 
 .epesi-applet-dark-yellow { border-color: #CCCC33 !important; box-shadow: 0 0 6px rgba(204, 204, 51, 0.5) !important; }
-.epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33; color: #212529; }
+.epesi-applet-dark-yellow .epesi-applet-header { background-color: #CCCC33 !important; color: #212529 !important; }
 
 /* carried forward from the default theme (unchanged) - strips decorative
    shadow/padding wrappers that older, not-yet-adminlte-themed applet content
@@ -224,6 +253,33 @@
 #dashboard > div {
 	padding: 0 0.5rem;
 	box-sizing: border-box;
+}
+
+/* Grid for the actual per-tab applet columns (Dashboard_0.php's
+   display_dashboard(), adminlte family only - the default theme keeps its
+   own inline-width 3-column layout untouched). Used to be two sibling divs
+   printed with inline width:50%/display:inline-block, hardcoding 2 columns
+   at every viewport width down to a phone; grid + a breakpoint here instead,
+   collapsing to a single column below md instead of squeezing both columns'
+   applet cards (tables especially) down to an unusable width. Class-scoped
+   rather than added to the #dashboard rule above - that id is reused
+   (pre-existing, not touched here) by the config-mode "add applet" picker
+   panel's own <td>, which must keep its own single-column layout regardless. */
+.epesi-dashboard-columns {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	align-items: start;
+}
+
+.epesi-dashboard-column {
+	min-height: 200px;
+	padding-bottom: 10px;
+}
+
+@media (max-width: 767.98px) {
+	.epesi-dashboard-columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 /* Belt and suspenders alongside default.tpl's own .card.mb-3 - guarantees

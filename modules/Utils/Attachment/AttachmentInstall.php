@@ -15,6 +15,32 @@ class Utils_AttachmentInstall extends ModuleInstall {
 	public function install() {
 		$ret = true;
         Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
+
+        // 'Features Configuration' admin panel table - see AttachmentCommon_0.
+        // php's admin_caption()/QFfield_recordset()/processing_related() -
+        // same shape as CRM_Tasks' task_related / CRM_Meeting's
+        // crm_meeting_related. Each row just wires the Attachment "Notes"
+        // addon onto the picked recordset via new_addon()/delete_addon().
+        $fields = array(
+            array(
+                'name'  => _M('Recordset'),
+                'type'  => 'text',
+                'param' => 64,
+                'display_callback' => array('Utils_AttachmentCommon', 'display_recordset'),
+                'QFfield_callback' => array('Utils_AttachmentCommon', 'QFfield_recordset'),
+                'required' => true,
+                'extra'    => false,
+                'visible'  => true,
+            ),
+        );
+        Utils_RecordBrowserCommon::install_new_recordset('utils_attachment_related', $fields);
+        Utils_RecordBrowserCommon::set_caption('utils_attachment_related', _M('Attachments Related Recordsets'));
+        Utils_RecordBrowserCommon::register_processing_callback('utils_attachment_related', array('Utils_AttachmentCommon', 'processing_related'));
+        Utils_RecordBrowserCommon::add_access('utils_attachment_related', 'view', 'ACCESS:employee');
+        Utils_RecordBrowserCommon::add_access('utils_attachment_related', 'add', 'ADMIN');
+        Utils_RecordBrowserCommon::add_access('utils_attachment_related', 'edit', 'SUPERADMIN');
+        Utils_RecordBrowserCommon::add_access('utils_attachment_related', 'delete', 'SUPERADMIN');
+
         $fields = array(
             array(
                 'name' => _M('Edited on'),
@@ -70,7 +96,8 @@ class Utils_AttachmentInstall extends ModuleInstall {
             array('name' => _M('Sticky'),
                 'type' => 'checkbox',
                 'visible' => true,
-                'extra' => false),
+                'extra' => false,
+                'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_sticky')),
             array('name' => _M('Crypted'),
                 'type' => 'checkbox',
                 'extra' => false,
@@ -110,6 +137,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 		Base_AclCommon::delete_permission('Attachments - view full download history');
 		$ret = true;
 
+        Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment_related');
         Utils_RecordBrowserCommon::uninstall_recordset('utils_attachment');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
@@ -127,7 +155,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
 			     array('name'=>Utils_BBCodeInstall::module_name(), 'version'=>0),
                  array('name'=>CRM_CommonInstall::module_name(), 'version'=>0),
 			     array('name'=>Libs_QuickFormInstall::module_name(), 'version'=>0),
-			     array('name'=>Libs_CKEditorInstall::module_name(), 'version'=>0),
+			     array('name'=>Libs_QuillInstall::module_name(), 'version'=>0),
 			     array('name'=>Libs_LeightboxInstall::module_name(), 'version'=>0),
 			     array('name'=>Utils_TooltipInstall::module_name(), 'version'=>0),
 			     array('name'=>Utils_WatchdogInstall::module_name(), 'version'=>0),

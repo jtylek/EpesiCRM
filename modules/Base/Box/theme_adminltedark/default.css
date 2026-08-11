@@ -7,10 +7,10 @@
  */
 
 /* Epesi's global body{font-size:13px} would shrink all of Bootstrap's rem-based
-   sizing; bumped past Bootstrap's own 1rem default too - the app's dense
-   tables/forms still read small at 1rem, per request. */
+   sizing; restore the true default (1rem) so the app reads at Bootstrap's
+   intended scale. */
 body {
-	font-size: 1.15rem;
+	font-size: 1rem;
 	background-color: var(--epesi-bg);
 }
 
@@ -21,7 +21,7 @@ body {
    this theme's default.tpl writes to document.documentElement (:root) for
    the same reason. */
 :root {
-	--epesi-sidebar-width: 250px;
+	--epesi-sidebar-width: 200px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
 
@@ -182,39 +182,64 @@ body {
 	bottom: 0;
 	left: 0;
 	width: var(--epesi-sidebar-width);
+	/* AdminLTE's own base rule (libs/adminlte-4.1.0/css/adminlte.min.css)
+	   pins .app-sidebar's actual rendered size with min-width/max-width tied
+	   to ITS OWN --lte-sidebar-width (default 250px) - min-width wins over a
+	   smaller `width`, so without repeating the override here the sidebar
+	   stays locked at AdminLTE's 250px regardless of this variable's value,
+	   while every other rule below (content margin, header offset) still
+	   moves - only noticeable once --epesi-sidebar-width diverges from 250px. */
+	min-width: var(--epesi-sidebar-width);
+	max-width: var(--epesi-sidebar-width);
 	z-index: 1040;
 	display: flex;
 	flex-direction: column;
-	/* Light sidebar, to keep the visual jump from the current UI small. */
-	background-color: var(--epesi-surface);
+	/* Fixed light grey, deliberately not var(--epesi-surface) - the sidebar
+	   stays this same color in both light and dark mode (per request), rather
+	   than following the rest of the shell's per-theme surface color. */
+	background-color: #DEE2E6;
 	border-right: 1px solid var(--epesi-border);
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: margin-left 0.25s ease-in-out;
 
-	/* AdminLTE ships a light and a dark value for each of these and defaults to
-	   the dark set, which is near-invisible on a light sidebar - labels look
-	   washed out and disappear entirely on hover. Pinning the light values here
-	   fixes AdminLTE's own rules at the source rather than out-specifying every
-	   one of them. */
-	--lte-sidebar-color: #ced4da;
-	--lte-sidebar-hover-color: #dee2e6;
-	--lte-sidebar-hover-bg: rgba(255, 255, 255, 0.1);
-	--lte-sidebar-active-color: #000;
-	--lte-sidebar-header-color: #8b929a;
-	--lte-sidebar-menu-active-color: #000;
-	--lte-sidebar-menu-active-bg: rgba(255, 255, 255, 0.1);
-	--lte-sidebar-submenu-bg: transparent;
-	--lte-sidebar-submenu-color: #adb5bd;
-	--lte-sidebar-submenu-hover-color: #dee2e6;
-	--lte-sidebar-submenu-hover-bg: rgba(255, 255, 255, 0.1);
-	--lte-sidebar-submenu-active-color: #dee2e6;
-	--lte-sidebar-submenu-active-bg: rgba(255, 255, 255, 0.1);
+	/* Since the sidebar background is now always light grey (not just under
+	   [data-bs-theme="light"]), it always needs black text - !important on
+	   every one of these because libs/adminlte-4.1.0/css/adminlte.min.css has
+	   its own "[data-bs-theme=dark] .app-sidebar { --lte-sidebar-color:
+	   #c2c7d0; ... }" block at the exact same specificity as this rule
+	   (0-2-0: one attribute selector + one class, vs. our two classes) - a
+	   non-!important tie is won by whichever stylesheet loads later, which in
+	   practice was AdminLTE's, so the plain (non-!important) version of this
+	   block was silently losing under dark mode despite matching the already-
+	   correct light-mode override it replaced. See AI-shared/adminlte-theme.md
+	   trap #3 for the general shape of this class of bug. */
+	--lte-sidebar-color: #000 !important;
+	--lte-sidebar-hover-color: #000 !important;
+	--lte-sidebar-hover-bg: rgba(0, 0, 0, 0.075) !important;
+	--lte-sidebar-active-color: #000 !important;
+	--lte-sidebar-header-color: #000 !important;
+	--lte-sidebar-menu-active-color: #000 !important;
+	--lte-sidebar-menu-active-bg: rgba(0, 0, 0, 0.075) !important;
+	--lte-sidebar-submenu-bg: transparent !important;
+	--lte-sidebar-submenu-color: #000 !important;
+	--lte-sidebar-submenu-hover-color: #000 !important;
+	--lte-sidebar-submenu-hover-bg: rgba(0, 0, 0, 0.075) !important;
+	--lte-sidebar-submenu-active-color: #000 !important;
+	--lte-sidebar-submenu-active-bg: rgba(0, 0, 0, 0.075) !important;
 }
 
 .epesi-adminlte .sidebar-brand {
 	padding: 0.5rem 0.75rem;
-	border-bottom: 1px solid var(--epesi-border);
+	/* No divider line, per request - explicit `none`, not just omitting our
+	   own border-bottom: libs/adminlte-4.1.0/css/adminlte.min.css's own base
+	   ".sidebar-brand" rule sets "border-bottom: 1px solid var(--bs-border-
+	   color)" (a Bootstrap variable, untouched by this theme's own palette),
+	   which resurfaces uncontested the moment this rule stops declaring the
+	   property at all - dropping the declaration entirely still left the line
+	   showing in dark mode, since --bs-border-color reads differently there
+	   than the light-mode value it happened to blend in with. */
+	border-bottom: none;
 	min-height: var(--epesi-header-height);
 	display: flex;
 	align-items: center;
@@ -262,15 +287,20 @@ body {
 	overflow-y: auto;
 }
 
+/* Black, not var(--epesi-text-muted) - that variable is themed (light grey
+   in dark mode) and this footer sits in the sidebar, which is always light
+   grey now (see .app-sidebar above), so it needs the same always-black text
+   as the rest of the sidebar rather than following the shell's per-theme
+   muted-text color. */
 .epesi-adminlte .sidebar-footer {
 	flex: 0 0 auto;
 	padding: 0.5rem;
-	border-top: 1px solid var(--epesi-border);
-	color: var(--epesi-text-muted);
+	/* No divider line, per request - same reasoning as .sidebar-brand above. */
+	color: #000;
 }
 
 .epesi-adminlte .sidebar-footer a {
-	color: var(--epesi-text-muted);
+	color: #000;
 	text-decoration: none;
 }
 
@@ -285,14 +315,14 @@ body {
 	width: 2rem;
 	height: 2rem;
 	border-radius: 0.375rem;
-	color: var(--epesi-text-muted);
+	color: #000;
 	font-size: 1rem;
 	flex: 0 0 auto;
 }
 
 .epesi-adminlte .epesi-theme-toggle:hover {
 	background-color: var(--epesi-hover-bg);
-	color: var(--epesi-text);
+	color: #000;
 }
 
 /* ---- main column ---- */
@@ -448,15 +478,9 @@ body {
   --epesi-hover-bg: rgba(0, 0, 0, 0.05);
 }
 
-[data-bs-theme="light"] .epesi-adminlte .app-sidebar {
-  --lte-sidebar-color: #343a40;
-  --lte-sidebar-hover-color: #212529;
-  --lte-sidebar-hover-bg: rgba(0, 0, 0, 0.075);
-  --lte-sidebar-header-color: #6c757d;
-  --lte-sidebar-menu-active-bg: rgba(0, 0, 0, 0.075);
-  --lte-sidebar-submenu-color: #495057;
-  --lte-sidebar-submenu-hover-color: #212529;
-  --lte-sidebar-submenu-hover-bg: rgba(0, 0, 0, 0.075);
-  --lte-sidebar-submenu-active-color: #212529;
-  --lte-sidebar-submenu-active-bg: rgba(0, 0, 0, 0.075);
-}
+/* .app-sidebar's [data-bs-theme="light"] override used to live here - removed
+   as dead weight, not merely unneeded: the base .epesi-adminlte .app-sidebar
+   rule above now hardcodes the same always-light-grey background and the same
+   dark-on-light --lte-sidebar-* values unconditionally (see that rule's own
+   comment), so this block's values were an exact duplicate rather than an
+   actual light/dark divergence. */

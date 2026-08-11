@@ -1,0 +1,119 @@
+/* Tooltip styling: grey background / black text, matching the sidebar's
+   fixed scheme (Base/Box/theme_adminltedark/default.css, #DEE2E6 / #000) so
+   it stays legible regardless of light/dark mode - deliberately hardcoded
+   here rather than using the --epesi-surface/--epesi-border vars, which flip
+   with the theme.
+
+   Both open_tag_attrs() ("help" tooltips) and ajax_open_tag_attrs()
+   (RecordBrowser hover tooltips) render this same popup via
+   theme_adminltedark/tooltip.js, appended to <body> on hover - see that
+   file's header comment for why a pure CSS ::after popup didn't work here
+   (clipped by any overflow:hidden ancestor, which includes plain Bootstrap
+   .card containers, not just RecordBrowser/GenericBrowser table cells). */
+.epesi-tooltip-popup {
+	position: fixed;
+	background-color: #DEE2E6;
+	color: #000;
+	white-space: pre-line;
+	padding: 4px 8px;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 4px;
+	font-size: .8125rem;
+	line-height: 1.4;
+	/* Without an explicit width, position:fixed's shrink-to-fit sizing was
+	   computing narrower than the widest actual line (browser quirk), so
+	   e.g. "Created by: Tylek Karina" wrapped despite easily fitting under
+	   max-width - width:max-content forces sizing to the content's real
+	   natural width instead, and max-width still caps/wraps a genuinely
+	   long single line. */
+	width: max-content;
+	/* Wide enough for a typical Watchdog/RecordBrowser changes-list table
+	   (see the "table" rules below) to lay out without its columns getting
+	   too cramped, while still capping/wrapping a long single-line tooltip. */
+	max-width: 480px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+	/* Above every other z-index in the theme (StatusBar 2001-2002,
+	   Base_Help's tutorial overlay 9001-9002 included) - a hover tooltip
+	   should never end up buried under a modal/leightbox/status bar. */
+	z-index: 9500;
+	pointer-events: none;
+}
+
+/* Utils_RecordBrowser's theme_adminltedark/changes_list.tpl (Watchdog/
+   ActivityReport "what changed" tooltips, ajax_open_tag_attrs(...,
+   $safe_html=true) - see Utils_TooltipCommon::to_safe_html()'s $keep_table
+   param) renders a real <table> into the popup instead of the old " | "
+   -joined plain text, so the Field/Old value/New value columns line up
+   without any monospace-font trick - plain table layout does it natively.
+   Also styled under #tooltip_leightbox_mode_content (Libs_Leightbox's popup,
+   see tooltip_leightbox_mode()/epesi_tooltip_leightbox_populate() - a
+   click/tap re-shows the same element's tooltip content in a bigger,
+   dedicated popup) - the only two elements this table ever actually renders
+   into. Its ancestor #tooltip_leightbox_mode (Libs_Leightbox/
+   theme_adminltedark/default.css) already sets the matching grey
+   background/black text for that popup specifically, so cell text here
+   inherits black same as inside .epesi-tooltip-popup - only the red/green
+   value-cell shading needs repeating per context. */
+
+.epesi-tooltip-popup table,
+#tooltip_leightbox_mode_content table {
+	border-collapse: collapse;
+	/* table-layout:fixed + width:100% (sized against the popup's own
+	   max-width:480px, see .epesi-tooltip-popup above) forces columns to
+	   the <colgroup>-declared percentages (changes_list.tpl) and wraps
+	   cell text to fit - table-layout:auto's default sizing ignores
+	   word-wrap:break-word when computing a table's preferred width, so a
+	   long unbroken run of field text made the table refuse to shrink and
+	   spill outside the popup's own background/border instead of wrapping. */
+	table-layout: fixed;
+	width: 100%;
+}
+
+.epesi-tooltip-popup td,
+#tooltip_leightbox_mode_content td {
+	text-align: left;
+	vertical-align: top;
+	padding: 2px 10px 2px 0;
+	word-wrap: break-word;
+}
+
+.epesi-tooltip-popup td:last-child,
+#tooltip_leightbox_mode_content td:last-child {
+	padding-right: 0;
+}
+
+/* Each edit's who/when, as a full-width heading above that edit's own
+   field-change rows - reads as a group separator between edits instead of
+   blending into the next edit's rows. */
+.epesi-tooltip-popup td.group_header,
+#tooltip_leightbox_mode_content td.group_header {
+	font-weight: bold;
+	color: #555;
+	padding-top: 6px;
+	border-top: 1px solid rgba(0, 0, 0, .2);
+}
+
+.epesi-tooltip-popup td.message,
+#tooltip_leightbox_mode_content td.message {
+	text-align: center;
+	font-weight: bold;
+}
+
+.epesi-tooltip-popup td.field,
+#tooltip_leightbox_mode_content td.field {
+	font-weight: bold;
+}
+
+/* Old/new value cells shaded like a code diff viewer (removed-line red /
+   added-line green), per request - text color is left as the popup's/
+   leightbox's own black (see above), since both tints are light enough to
+   stay readable against it. */
+.epesi-tooltip-popup td.old_value,
+#tooltip_leightbox_mode_content td.old_value {
+	background-color: #fadbd9;
+}
+
+.epesi-tooltip-popup td.new_value,
+#tooltip_leightbox_mode_content td.new_value {
+	background-color: #d9f2df;
+}

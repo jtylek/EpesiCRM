@@ -13,43 +13,7 @@ class Applets_MonthView extends Module {
 	private $date;
 
 	public function body() {
-	
-	}
 
-	public function month_array($date, $mark = array()) {
-		$first_day_of_month = strtotime(date('Y-m-', $date).'01');
-		$diff = date('w', $first_day_of_month)-Utils_PopupCalendarCommon::get_first_day_of_week();
-		if ($diff<0) $diff += 7;
-		$currday = strtotime("-$diff days", $first_day_of_month);
-		$curmonth = date('m', $date);
-
-		$month = array();
-		$today = date('Y-m-d',strtotime(Base_RegionalSettingsCommon::time2reg(null,false,true,true,false)));
-		$colors = CRM_Calendar_EventCommon::get_available_colors();
-		while (date('m', $currday) != ($curmonth)%12+1) {
-			$week = array();
-			$weekno = date('W',$currday);
-			$link = Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$currday, 'switch_to_tab'=>'Week'));
-			for ($i=0; $i<7; $i++) {
-				$main_month = date('m', $currday)==$curmonth;
-				$next = array(
-							'day'=>date('j', $currday),
-							'day_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$currday, 'switch_to_tab'=>'Day')),
-							'style'=>($main_month?(date('Y-m-d',$currday)==$today?'today':'current'):'other').(date('N',$currday)>=6?'_weekend':''),
-							'time'=>$currday
-							);
-				if ($main_month && isset($mark[date('Y-m-d',$currday)])) {
-					$next['style'].= ' event-'.$colors[$mark[date('Y-m-d',$currday)]];
-				}
-				$week[] = $next;
-				$currday = strtotime(date('Y-m-d',strtotime(date('Y-m-d 12:00:00',$currday))+3600*24).' '.date('H:i:s',$currday));
-			}
-			$month[] = array(
-							'week_label'=>$weekno,
-							'week_link' => $link,
-							'days'=>$week);
-		}
-		return $month;
 	}
 
 	public function applet($conf, & $opts) {
@@ -58,41 +22,82 @@ class Applets_MonthView extends Module {
 		if ($this->date==null) $this->date = date('Y-m-15');
 		$this->set_module_variable('date', $this->date);
 		$this->date = strtotime($this->date);
-		$theme = $this->pack_module(Base_Theme::module_name());
 
-		$theme->assign('nextyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date+30*24*60*60))));
-		$theme->assign('today_href', $this->create_unique_href(array('date'=>date('Y-m-d'))));
-		$theme->assign('prevyear_href', $this->create_unique_href(array('date'=>date('Y-m-15',$this->date-30*24*60*60))));
+		Base_ThemeCommon::load_css('Applets_MonthView', 'fullcalendar-embed');
 
+		// "mine" scope - same "my own records" semantics this applet always
+		// had (previously CRM_Calendar_EventCommon::$filter='('.$me['id'].')'
+		// set directly here), now applied server-side by
+		// CRM_CalendarCommon::fullcalendar_events() instead.
+		$events_feed_url = $this->create_ajax_callback_url(array('CRM_CalendarCommon', 'fullcalendar_events'), array('scope' => 'mine'));
+
+		$day_click_href_js = function($date) {
+			// Same jump_to_date/switch_to_tab deep link this applet's day
+			// cells always used, plus open_add=1 so CRM_Calendar::body() also
+			// opens the add-event flow automatically on arrival - the mini
+			// calendar itself can't create events directly (see
+			// CRM_Calendar_Event::add(), an empty stub - the real add flow
+			// needs CRM_Calendar's own event-type picker), so this gets there
+			// in one click instead of two.
+			return Base_BoxCommon::create_href_js($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$date, 'switch_to_tab'=>'Day', 'open_add'=>1));
+		};
+
+		// Constructed (not yet rendered - init_module() alone has no output)
+		// before the "jump to date" trigger below, so its own get_path() is
+		// available to compute the exact same mount_id Utils_Calendar::
+		// fullcalendar() derives internally, letting the popup position
+		// itself off the FullCalendar title instead of this trigger.
+		$c = $this->init_module(Utils_Calendar::module_name(), array(
+			CRM_Calendar_Event::module_name(),
+			array(
+				'engine' => 'fullcalendar',
+				'compact' => true,
+				'default_view' => 'Month',
+				'default_date' => $this->date,
+				'first_day_of_week' => Utils_PopupCalendarCommon::get_first_day_of_week(),
+				'explicit_navigation' => true,
+				// Forwards a click on the "August 2026" toolbar title to the
+				// popup-calendar trigger printed below (.epesi-mv-jump's own
+				// <a>) - frees the toolbar from also needing its own visible
+				// icon for the same action.
+				'title_click_forward_selector' => '.epesi-mv-jump a',
+			),
+			function($t, $tl) { return false; }, // no drag-to-create in this small embed
+			$events_feed_url,
+			null, // no write URL -> not draggable/resizable here
+			$day_click_href_js,
+		));
+
+		// "Jump to date" trigger - the <a> itself is display:none (see
+		// fullcalendar-embed.css), only ever activated programmatically via
+		// the title-click forwarding above, never by its own visible affordance
+		// - so its own geometry can't be used to position the popup (a
+		// display:none element always reports an all-zero rect, and every
+		// attempt at a "hidden but positionable" middle ground broke in ways
+		// that weren't diagnosable without a live browser). $pos_js overrides
+		// PopupCalendarCommon_0.php's default (which clonePosition()s off the
+		// trigger itself) to target the FullCalendar title instead - always
+		// visible, never hidden, and it's genuinely where the user just
+		// clicked, so anchoring there is more correct anyway. 'utils-calendar-
+		// fc-'.md5(...) duplicates Utils_Calendar::fullcalendar()'s own
+		// $mount_id formula exactly (see that method) - $c->get_path() is
+		// stable/deterministic, so this matches regardless of call order.
+		$title_sel = '#utils-calendar-fc-'.md5($c->get_path()).' .fc-toolbar-title';
+		$pos_js = 'var t=document.querySelector(\''.$title_sel.'\');if(t)jQuery(popup).clonePosition(t,{setWidth:false,setHeight:false,offsetTop:t.offsetHeight});';
 		$link_text = $this->create_unique_href_js(array('date'=>'__YEAR__-__MONTH__-__DAY__'));
-		$theme->assign('popup_calendar', Utils_PopupCalendarCommon::show('week_selector', $link_text,'month',null,null,''));
+		// 'monthview_selector' (own name, not the generic 'week_selector' the
+		// original code used) - Utils_PopupCalendarCommon::show()'s $name
+		// becomes a literal DOM id ("datepicker_<name>_button" etc.), not
+		// scoped per module instance, and 'week_selector' is also used
+		// verbatim by CRM_Calendar's own legacy views, Utils_Planner, and
+		// Utils_CalendarBusyReport - any of those left in the page (Epesi's
+		// box-stack model doesn't necessarily destroy a popped module's DOM)
+		// would collide via getElementById().
+		print('<div class="epesi-mv-jump">'.Utils_PopupCalendarCommon::show('monthview_selector', $link_text, 'month', null, $pos_js, '').'</div>');
 
-		$day_headers = array();
-		$day = strtotime('Sun');
-		$day = strtotime('+'.Utils_PopupCalendarCommon::get_first_day_of_week().' days', $day);
-		for ($i=0; $i<7; $i++) {
-			$day_headers[] = __date('D', $day);
-			$day = strtotime('+1 day', $day);
-		}
-
-		$year = array();
-		
-		$me = CRM_ContactsCommon::get_my_record(); 
-		CRM_Calendar_EventCommon::$filter = '('.$me['id'].')';
-		$ret = call_user_func(array('CRM_Calendar_EventCommon','get_event_days'),date('Y-m-01',$this->date),date('Y-m-d',strtotime(date('Y-m-t', $this->date))+86400));
-		
-		$month = $this->month_array($this->date, $ret);
-		$year[] = array('month' => $month,
-						'month_link' => Base_BoxCommon::create_href($this, 'CRM_Calendar', null, null, null, array('jump_to_date'=>$this->date, 'switch_to_tab'=>'Month')),
-						'month_label' => __date('F', $this->date),
-						'year_label' => date('Y', $this->date)
-						);
-		$theme->assign('year', $year);
-		$theme->assign('day_headers', $day_headers);
-
-		$theme->display('year');
+		$this->display_module($c);
 	}
-	
+
 }
 
 ?>

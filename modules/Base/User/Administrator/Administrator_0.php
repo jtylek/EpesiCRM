@@ -12,11 +12,18 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_Administrator extends Module implements Base_AdminInterface {
+    // Both user_settings() branches ('Password' -> body(), 'Autologin' ->
+    // autologin()) share this one module/caption() - tracks which of the two
+    // entry points is currently showing so caption() can label the box
+    // correctly instead of always saying "user".
+    private $settings_view = 'password';
+
     public function body() {
         if(!Base_AclCommon::i_am_user()) {
             print(__('First log in to the system.'));
             return;
         }
+        $this->settings_view = 'password';
 
         $form = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'));
 
@@ -33,13 +40,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         $form->addElement('text','mail', __('New e-mail address'));
         $form->addRule('mail', __('Field required'), 'required');
         $form->addRule('mail', __('Invalid e-mail address'), 'email');
-
-        //autologin
-        $ret = DB::GetAll('SELECT autologin_id,description,last_log FROM user_autologin WHERE user_login_id=%d',array(Acl::get_user()));
-        if($ret)
-            $form->addElement('header', null, __('Delete autologin'));
-        foreach($ret as $row)
-            $form->addElement('checkbox','delete_autologin['.$row['autologin_id'].']',$row['description'],Base_RegionalSettingsCommon::time2reg($row['last_log']));
 
         //confirmation
         $form->addElement('header', null, __('Confirmation'));
@@ -67,8 +67,49 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         }
     }
 
+    public function autologin() {
+        if(!Base_AclCommon::i_am_user()) {
+            print(__('First log in to the system.'));
+            return;
+        }
+        $this->settings_view = 'autologin';
+
+        if (Base_AclCommon::check_permission('Advanced User Settings'))
+            Base_ActionBarCommon::add('back',__('Back'),$this->create_main_href('Base_User_Settings'));
+
+        $ret = DB::GetAll('SELECT autologin_id,description,last_log FROM user_autologin WHERE user_login_id=%d ORDER BY last_log DESC',array(Acl::get_user()));
+
+        if($ret)
+            Base_ActionBarCommon::add('delete',__('Delete all'),$this->create_confirm_callback_href(__('Delete all remembered devices? You will need to log in again on each of them.'),$this->delete_all_autologins(...)));
+
+        $gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'autologin');
+        $gb->set_table_columns(array(
+                        array('name'=>__('Device'),'width'=>70),
+                        array('name'=>__('Last used'),'width'=>30)));
+
+        foreach($ret as $row) {
+            $gb_row = $gb->get_new_row();
+            $gb_row->add_action($this->create_confirm_callback_href(__('Delete this autologin?'),$this->delete_autologin(...),array($row['autologin_id'])),'delete',__('Delete'));
+            $gb_row->add_data($row['description'],Base_RegionalSettingsCommon::time2reg($row['last_log']));
+        }
+
+        $this->display_module($gb);
+
+        if(!$ret) print('<p>'.__('No remembered devices.').'</p>');
+    }
+
+    public function delete_autologin($autologin_id) {
+        DB::Execute('DELETE FROM user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($autologin_id,Acl::get_user()));
+        return false;
+    }
+
+    public function delete_all_autologins() {
+        DB::Execute('DELETE FROM user_autologin WHERE user_login_id=%d',array(Acl::get_user()));
+        return false;
+    }
+
     public function caption() {
-        return __('My settings: user');
+        return $this->settings_view=='autologin' ? __('My settings: autologin') : __('My settings: user');
     }
 
     public function submit_user_preferences($data) {
@@ -78,10 +119,6 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
         }
         $new_pass = $data['new_pass'];
         $mail = $data['mail'];
-        
-        if(isset($data['delete_autologin']))
-        foreach($data['delete_autologin'] as $key=>$val)
-            if($val) DB::Execute('DELETE from user_autologin WHERE autologin_id=%s AND user_login_id=%d',array($key,Acl::get_user()));
 
         $user_id = Acl::get_user();
         if($user_id===null) {
@@ -120,7 +157,7 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
 		
 		$emailHeader = Variable::get('add_user_email_header','');
 		$form->setDefaults(array('emailHeader'=>$emailHeader));
-		$form->display();
+		$form->display_as_column();
 		
 		return true;
     } 

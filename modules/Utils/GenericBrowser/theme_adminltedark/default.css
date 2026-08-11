@@ -1,8 +1,12 @@
 /* AdminLTE re-skin for Utils_GenericBrowser (the record-list/audit-log table
  * widget used all over the app, e.g. CRM_LoginAudit). Only the chrome around
- * the table changes here - the <table class="Utils_GenericBrowser"> markup
- * itself is emitted identically to the default theme by {html_table_epesi},
- * so js/col_resizable.js and js/table_overflow.js need no changes.
+ * the grid changes here - the .Utils_GenericBrowser markup itself is emitted
+ * identically to the default theme by {html_grid_epesi} (div/CSS
+ * table-display, not a real <table> - see that plugin's own header comment),
+ * so js/table_overflow.js needs no changes beyond its own tag-selector fixes
+ * (done once, shared by every theme). js/col_resizable.js (drag-to-resize
+ * columns) was dropped entirely, not adapted - it hard-required a real
+ * <table> with no div-compatible equivalent available.
  */
 
 .epesi-gb {
@@ -161,15 +165,47 @@
 	background-color: #343a40;
 }
 
-/* ---- table ---- */
+/* ---- table ----
+ * Was a real <table>; now divs laid out with the CSS table-display algorithm
+ * (display:table/table-row-group/table-row/table-cell) instead of CSS Grid,
+ * specifically so column-width negotiation across rows keeps working the
+ * same way a real table did, and so each row stays a real box (needed by
+ * table_overflow.js/sort_fields.js/sort_nodes.js's DOM hooks and jQuery UI
+ * sortable's drag-helper clone - see the shared function.html_grid_epesi.php
+ * plugin's own header comment for the full rationale, and
+ * AI-shared/adminlte-theme.md). Bootstrap's own .table CSS (added via
+ * class="table table-hover..." in default.tpl) styles cells through
+ * ":not(caption) > * > *"-style wildcard child combinators rather than
+ * tag-specific ones, so it keeps matching this div structure unchanged -
+ * only the display-mode declarations below are actually new. */
+.epesi-gb .Utils_GenericBrowser {
+	display: table;
+}
 
-.epesi-gb table.Utils_GenericBrowser {
+.epesi-gb .Utils_GenericBrowser__thead {
+	display: table-header-group;
+}
+
+.epesi-gb .Utils_GenericBrowser__tbody {
+	display: table-row-group;
+}
+
+.epesi-gb .Utils_GenericBrowser__tr {
+	display: table-row;
+}
+
+.epesi-gb .Utils_GenericBrowser__th,
+.epesi-gb .Utils_GenericBrowser__td {
+	display: table-cell;
+}
+
+.epesi-gb .Utils_GenericBrowser {
 	background-color: #2b3035;
 	border: none;
 }
 
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th {
-	background: #212529;
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th {
+	background: #3B3B3B;
 	color: #fff;
 	font-weight: 600;
 	vertical-align: middle;
@@ -180,16 +216,16 @@
 	text-overflow: ellipsis;
 }
 
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th > span {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th > span {
 	color: inherit;
 	display: block;
 }
 
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th a {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th a {
 	color: inherit;
 }
 
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th input {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th input {
 	/* Per-column search input is concatenated onto the column label's own
 	   inline text/link (GenericBrowser_0.php/default.tpl build
 	   "$cols[$k]['label'] .= $search_fields[$k]" then wrap the whole thing in
@@ -204,11 +240,11 @@
 	padding: 2px 4px;
 }
 
-.epesi-gb table.Utils_GenericBrowser > tbody > tr {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
 	background-color: #2b3035;
 }
 
-.epesi-gb table.Utils_GenericBrowser > tbody > tr:hover {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr:hover {
 	background-color: #2b3035;
 }
 
@@ -219,6 +255,11 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	/* Per request: dark mode only (no [data-bs-theme="light"] override below,
+	   see this file's own light-mode section) - header row stays white via
+	   its own .Utils_GenericBrowser__th color rule above, unaffected since
+	   __th/__td are separate classes. */
+	color: #00ff00;
 }
 
 /* The actions cell's own content is just a row of icon glyphs (no text line
@@ -238,7 +279,7 @@
    AdminLTE rule also targets thead th:first-of-type/:last-of-type, so the
    header cell needs the same override or the JS-measured width (based on
    the now-tighter body cells) would sit under a padded, wider header cell. */
-.epesi-gb table.Utils_GenericBrowser > tbody > tr > td.Utils_GenericBrowser__actions {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tr .Utils_GenericBrowser__td.Utils_GenericBrowser__actions {
 	padding-top: 0.25rem;
 	padding-bottom: 0.1rem;
 	padding-left: 0.25rem !important;
@@ -257,7 +298,7 @@
 	vertical-align: top;
 }
 
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th.Utils_GenericBrowser__actions {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th.Utils_GenericBrowser__actions {
 	padding-left: 0.25rem !important;
 	padding-right: 0.25rem !important;
 }
@@ -277,8 +318,8 @@
    exactly this "no class on the td" reason (see that file's own comment) -
    padding is set inline there, on both the real td and the naturalWidth()
    measurement clone, so what gets measured is what gets applied. */
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th.Utils_RecordBrowser__favs,
-.epesi-gb table.Utils_GenericBrowser > thead > tr > th.Utils_RecordBrowser__watchdog {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th.Utils_RecordBrowser__favs,
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th.Utils_RecordBrowser__watchdog {
 	padding-left: 0.25rem !important;
 	padding-right: 0.25rem !important;
 	text-align: center;
@@ -321,7 +362,7 @@
    .Utils_GenericBrowser__actions, which silently missed favourite/watching
    entirely (correctly fixed elsewhere, per user report) since their <img>
    isn't in that cell or class at all. Scoped to the whole table instead
-   (.epesi-gb table.Utils_GenericBrowser) so both cases are covered by the
+   (.epesi-gb .Utils_GenericBrowser) so both cases are covered by the
    same rules - safe to broaden since each :has() selector is still keyed to
    one specific icon's own src, not just any <img> in the table. Shared with
    the default theme, no .tpl for any of it. Same technique as
@@ -334,7 +375,7 @@
    this exact codebase).
 
    The display:none rule itself was NOT given that same "safe to broaden"
-   protection, though - it was a bare "table.Utils_GenericBrowser img",
+   protection, though - it was a bare ".Utils_GenericBrowser img",
    matching literally every <img> anywhere in the table, not just the ones
    inside an <a> (view/edit/delete/favourite/watchdog/module icons are all
    wrapped in <a> - confirmed via GenericBrowser_0.php's __add_row_action(),
@@ -347,7 +388,33 @@
    overflow/height could ever have shown it, since it was display:none the
    entire time. Scoped to "a img" instead, matching what's actually true:
    every icon this file replaces is always inside an <a>; plain embedded
-   content images never are. */
+   content images never are.
+
+   That "always inside an <a>" test still wasn't sufficient on its own,
+   though: Utils_Attachment's own file thumbnail preview
+   (Utils_FileStorageCommon::get_file_inline_node(), rendered by
+   Utils_AttachmentCommon::display_files() right after the download link)
+   wraps its <img class="file_inline"> in an <a> too (linking to the
+   full-size preview) - reported as a Notes browse-row thumbnail rendering
+   as nothing at all (not merely clipped by the tall_preview collapsed
+   height fix elsewhere in this theme - inspecting the live DOM showed the
+   <img> present, fully loaded, just display:none).
+
+   First attempt scoped this rule down to the actions cell specifically
+   (.Utils_GenericBrowser__actions) instead of the whole table, on the
+   theory that which CELL an icon lives in is reliable where markup shape
+   isn't - wrong: the favourite-star (RecordBrowserCommon_0.php's
+   get_fav_button_tags()) and watchdog (WatchdogCommon_0.php's
+   get_change_subscription_icon_tags()) icons render into their OWN plain
+   ".Utils_GenericBrowser__td" column, not the actions cell, so narrowing
+   to the actions cell let their raster <img> show again *alongside* the
+   ::before glyph rules below (which stayed scoped to the whole table) -
+   reported as both the old icon and the new glyph showing at once for
+   every star/watchdog cell. Reverted to the whole table and excluded
+   ":not(.file_inline)" instead - that class is this one shared function's
+   own, sole marker for "this <a><img> is real content, not an action
+   icon", so it's the one exclusion needed regardless of which column an
+   icon or a preview ends up in. */
 
 /* :is(...) rather than two copies of every rule below (one scoped to the
    real table, one to #epesi-gb-actions-menu): the mobile actions menu
@@ -357,14 +424,14 @@
    instead of the glyph - exactly what showed up when this shared prefix
    was still table-only (screenshot: the menu re-showed the raw view/edit/
    delete/... sprites GenericBrowser_0.php builds, since none of the rules
-   scoped to ".epesi-gb table.Utils_GenericBrowser a" reached a clone living
+   scoped to ".epesi-gb .Utils_GenericBrowser a" reached a clone living
    outside that table). Keeping one shared prefix here means any future
    icon added to this list needs it defined once, not twice. */
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a img {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a img:not(.file_inline) {
 	display: none;
 }
 
-.epesi-gb table.Utils_GenericBrowser a {
+.epesi-gb .Utils_GenericBrowser a {
 	display: inline-flex;
 	align-items: center;
 	margin-right: 0.15rem;
@@ -372,105 +439,149 @@
 	text-decoration: none;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
 	font-family: "bootstrap-icons";
 	font-size: 1rem;
 	color: #8b929a;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/view.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/view.png"])::before {
 	content: "\f341";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/edit.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/edit.png"])::before {
 	content: "\f4ca";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/delete.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/delete.png"])::before {
 	content: "\f5de";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/info.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/info.png"])::before {
 	content: "\f430";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/print.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/print.png"])::before {
 	content: "\f501";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/restore.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/restore.png"])::before {
 	content: "\f117";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {
+/* RecordBrowser_0.php's inline "add new record" row (add_in_table) submits
+   via a real <input type="submit"> (RecordBrowser_0.php ~875/903), not the
+   href/onclick <a> + decorative <img> every other action here uses - it has
+   to actually submit the row's own form, so unlike the icons above it can't
+   just be hidden in favour of a ::before glyph on its wrapping <a> (an
+   <input> can't be un-clicked that way, and pseudo-elements don't render on
+   replaced form controls like <input> at all). Keeps the real <input> as
+   the thing that's actually focused/clicked (so it stays keyboard/AT
+   accessible with its own "Save" label as the accessible name), stretched
+   invisibly over the wrapping <a>'s icon glyph instead of the other way
+   around. bi-check2-square (\f271) matches the "Save"/Export toolbar
+   button's own icon above (.epesi-gb-label a.record_browser_button) for the
+   same action elsewhere in this table's own chrome. */
+.epesi-gb .Utils_GenericBrowser a:has(input[type="submit"]) {
+	position: relative;
+}
+
+.epesi-gb .Utils_GenericBrowser a:has(input[type="submit"])::before {
+	content: "\f271";
+}
+
+.epesi-gb .Utils_GenericBrowser a input[type="submit"] {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	opacity: 0;
+	cursor: pointer;
+}
+
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {
 	content: "\f5d6";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-off.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-off.png"])::before {
 	content: "\f5d5";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-up.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-up.png"])::before {
 	content: "\f148";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-down.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-down.png"])::before {
 	content: "\f128";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-up-down.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/move-up-down.png"])::before {
 	content: "\f127";
 }
 
 /* Same glyph both states (history.png/history_inactive.png), inactive just
    dimmed - matches the identical rule in View_entry.css for this same icon
    pair used elsewhere. */
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history.png"])::before,
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history.png"])::before,
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
 	content: "\f292";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/history_inactive.png"])::before {
 	opacity: 0.4;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="RecordBrowser"][src*="/star_fav.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="RecordBrowser"][src*="/star_fav.png"])::before {
 	content: "\f586";
 	color: #ffc107;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="RecordBrowser"][src*="/star_nofav.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="RecordBrowser"][src*="/star_nofav.png"])::before {
 	content: "\f588";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/not_watching_small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/not_watching_small.png"])::before {
 	content: "\f340";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/watching_small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/watching_small.png"])::before {
 	content: "\f33e";
 	color: #198754;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/watching_small_new_events.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/watching_small_new_events.png"])::before {
 	content: "\f33e";
 	color: #fd7e14;
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
 	content: "\f1e8";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Tasks"][src*="/icon-small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Tasks"][src*="/icon-small.png"])::before {
 	content: "\f477";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="PhoneCall"][src*="/icon-small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="PhoneCall"][src*="/icon-small.png"])::before {
 	content: "\f5b4";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Attachment"][src*="/icon_small.png"])::before {
 	content: "\f4b3";
+}
+
+/* CRM_Mail's own "copy" row action (Mail_0.php's actions_for_mails()/copy(),
+   kept inline rather than grouped under More actions - see the
+   Base_Box/theme_adminltedark/default.tpl isCoreAction() carve-out for that
+   same icon path). Without this rule it fell through the blanket
+   "a img:not(.file_inline){display:none}" rule above with no ::before glyph
+   to replace it, rendering as an empty, invisible link. bi-copy (\f759). */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Mail"][src*="/copy_small.png"])::before {
+	content: "\f759";
 }
 
 /* Per-row "more"/"less" expand/collapse toggles (GenericBrowser_0.php's
@@ -485,11 +596,11 @@
    the "Expand All"/"Collapse All" buttons above the table, which are a
    different action (every row at once) and shouldn't look identical to
    this per-row, per-cell one. */
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/plus_gray.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/plus_gray.png"])::before {
 	content: "\f282";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/minus_gray.png"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/minus_gray.png"])::before {
 	content: "\f286";
 }
 
@@ -504,11 +615,11 @@
    until that menu made these two actions show up somewhere the missing
    glyph was obvious (they'd always rendered blank in the real table too).
    Same glyphs, keyed to the post-swap filenames instead. */
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/expand.gif"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/expand.gif"])::before {
 	content: "\f282";
 }
 
-:is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/collapse.gif"])::before {
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/collapse.gif"])::before {
 	content: "\f286";
 }
 
@@ -554,7 +665,7 @@
    though this cell's own content never varies in height. More specific than
    the plain .collapsed rule above (an extra class + element on both the td and
    the div), so this wins on cascade order alone without needing !important. */
-.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__noexpand div.expandable {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_RecordBrowser__noexpand div.expandable {
 	height: auto;
 	overflow: visible;
 }
@@ -571,7 +682,7 @@
    open. Same specificity trick as __noexpand (extra class + element on both
    the td and the div beats the plain .collapsed rule's 3-classes-1-element
    without needing !important). */
-.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__tallpreview div.expandable.collapsed {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_RecordBrowser__tallpreview div.expandable.collapsed {
 	height: 72px;
 	overflow: hidden;
 }
@@ -579,7 +690,7 @@
 /* Click-anywhere-to-toggle affordance (table_overflow.js's gb_expandable_init) -
    only shown once exceedsHeight confirms the row actually has something to
    toggle; a short row with nothing to expand isn't given a pointer cursor. */
-.epesi-gb table.Utils_GenericBrowser td.Utils_RecordBrowser__tallpreview div.expandable.exceedsHeight {
+.epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_RecordBrowser__tallpreview div.expandable.exceedsHeight {
 	cursor: pointer;
 }
 
@@ -592,12 +703,28 @@
    temporarily relocates an overflowing cell's content, images included,
    into this floating box). Also entirely unstyled here before - it would
    render zero-size/unpositioned with no background, indistinguishable from
-   not working at all. */
+   not working at all.
+
+   Fixed grey/black sidebar scheme (#dee2e6/#000, per request), not a themed
+   dark background - this box is appended straight to <body>
+   (Utils_GenericBrowser__overflow_div(), js/table_overflow.js), a *sibling*
+   of the .epesi-adminlte.app-wrapper div that data-bs-theme actually lives
+   on (Base_Box/theme_adminltedark/default.tpl), not a descendant of it. So
+   neither the dark-mode custom properties nor the
+   "[data-bs-theme='light'] .Utils_GenericBrowser__overflow_div" override
+   this file used to carry could ever reach it - the relocated cell content
+   inherited color from plain <body> instead, which read as invisible
+   (same/similar to the background either way) rather than "not working" -
+   easy to miss since a blanked-looking cell and a merely-invisible-text
+   overlay look identical at a glance. Same fix/reasoning as Utils_Tooltip's
+   own popup (theme_adminltedark/default.css's .epesi-tooltip-popup), which
+   hits this exact body-append trap already. */
 .Utils_GenericBrowser__overflow_div {
-	background-color: #2b3035;
-	border: 1px solid #495057;
+	background-color: #dee2e6;
+	border: 1px solid #adb5bd;
 	border-radius: 0 0.375rem 0.375rem 0.375rem;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+	color: #000;
 }
 
 .Utils_GenericBrowser__overflow_div_content {
@@ -678,7 +805,7 @@
    below, which is the cell's ONLY visible control and gets a deliberately
    larger fixed touch-target size), so it needs to match THEIR sizing
    instead: no fixed width/height, same inline-flex/line-height/margin as
-   ".epesi-gb table.Utils_GenericBrowser a" (the "---- table ----" section
+   ".epesi-gb .Utils_GenericBrowser a" (the "---- table ----" section
    above). A fixed 1.75rem square here (matching the kebab) made this
    button visibly taller than every icon beside it, and being a <button>
    rather than an <a> gave it its own default baseline - together enough of
@@ -787,6 +914,23 @@
 		background-color: #343a40;
 		border-radius: 0.25rem;
 	}
+
+	/* Favourite/watchdog star-and-eye columns: same breakpoint as the actions
+	   kebab collapse above, per request - narrow screens hide them entirely
+	   to leave room for the actual data columns, wide screens keep showing
+	   them. The <th> already carries this class straight from RecordBrowser_0.php's
+	   own 'attrs'=>'class="Utils_RecordBrowser__favs"'/'__watchdog' (RecordBrowser_0.php
+	   ~443/448), so this rule alone hides the header. The body <td> is
+	   normally class-less (see this file's own "favourite/watchdog icon
+	   columns" comment above and Base_Box/theme_adminltedark/default.tpl's
+	   epesiSizeGbActions()) - that function now also adds this same class to
+	   each row's cell at the column's position so this one rule reaches both
+	   the header and every body cell consistently, keeping column count/order
+	   in sync across the whole table instead of just blanking the header. */
+	.epesi-gb .Utils_GenericBrowser .Utils_RecordBrowser__favs,
+	.epesi-gb .Utils_GenericBrowser .Utils_RecordBrowser__watchdog {
+		display: none;
+	}
 }
 
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
@@ -804,33 +948,81 @@
 	display: none !important;
 }
 
+/* Utils_Watchdog's own dashboard applet (Watchdog_0.php::applet(), wrapped in its own
+   "epesi-watchdog-applet" div) - same opt-out as .epesi-admin-panel above, per request: its own
+   action set (Stop Watching/View/Mark as Read) is short enough to always fit, and unlike a
+   regular full-page RecordBrowser table this one is a small dashboard tile a user may well keep
+   open at a narrow browser width even on an otherwise-wide desktop. */
+.epesi-watchdog-applet .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-watchdog-applet .epesi-gb-actions-toggle {
+	display: none !important;
+}
+
+/* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
+   module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
+   (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus
+   whatever else RecordBrowser/GenericBrowser build in directly), so they always group into the
+   "More actions" (bi-three-dots) toggle regardless of viewport width - a second, independent
+   collapsing mechanism from the mobile kebab just above, needing the same shaped fix. */
+.epesi-watchdog-applet .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-watchdog-applet .epesi-gb-more-toggle {
+	display: none !important;
+}
+
+/* A fixed pixel width for just the actions column (tried first) either left dead space (too
+   wide) or clipped/overflowed (too narrow) - it can only ever be a guess, because the actions
+   column's real width need and the Cat./Title columns' own share are computed independently: the
+   table's own inline style="...table-layout:fixed..." (Utils_GenericBrowser/theme_adminltedark/
+   default.tpl) locks every column's width to whatever epesiSizeGbActions() (Base_Box/
+   theme_adminltedark/default.tpl) last calculated - and that calculation measures the actions
+   column off a detached CLONE of the cell, which (cloneNode(true) copies the cell and its own
+   descendants, not this wrapper div sitting outside the table) never sees the two overrides
+   above and so always measures the collapsed/grouped state, undersizing the column for what's
+   actually shown live once those overrides force every icon visible - with Cat./Title's own
+   widths already computed on top of that wrong number regardless of what fixed value replaced
+   it afterwards.
+   table-layout:auto instead (per request - "render as fluid div") sidesteps the mismatch
+   entirely: every column's declared width (whatever epesiSizeGbActions() still sets inline)
+   becomes a mere hint rather than a hard lock, so the actions column can grow just enough to fit
+   its own real content and Cat./Title yield the rest, all in one pass, with nothing left to keep
+   in sync by hand. !important since the table-layout:fixed above is itself an inline style. */
+.epesi-watchdog-applet .Utils_GenericBrowser {
+	table-layout: auto !important;
+}
+
 #epesi-gb-actions-menu {
 	display: none;
 	position: fixed;
 	z-index: 1055;
-	min-width: 160px;
-	max-height: 60vh;
-	overflow-y: auto;
+	max-width: 90vw;
+	overflow-x: auto;
 	background-color: #2b3035;
 	border: 1px solid #495057;
 	border-radius: 0.375rem;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
-	padding: 0.25rem 0;
+	padding: 0.25rem;
 }
 
+/* Horizontal row of icon-only buttons (per request) rather than a vertical
+   list - each item already carries its own hover tooltip (cloned along with
+   the <a>, see openMenuFor() in Base_Box/theme_adminltedark/default.tpl),
+   so no in-panel text label is needed to identify the action. */
 #epesi-gb-actions-menu.show {
-	display: block;
+	display: flex;
+	flex-direction: row;
 }
 
 #epesi-gb-actions-menu a {
 	display: flex !important;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.4rem 0.85rem;
+	justify-content: center;
+	padding: 0.5rem 0.65rem;
 	color: #ced4da;
 	text-decoration: none;
-	white-space: nowrap;
-	font-size: 0.85rem;
 }
 
 #epesi-gb-actions-menu a:hover {
@@ -876,29 +1068,30 @@
   background-color: #e9ecef;
 }
 
-[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser {
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser {
   background-color: #fff;
 }
 
-[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser > tbody > tr {
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th {
+  background: #e9e9ed;
+  color: #000;
+}
+
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
   background-color: #fff;
 }
 
-[data-bs-theme="light"] .epesi-gb table.Utils_GenericBrowser > tbody > tr:hover {
+[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr:hover {
   background-color: #f1f3f5;
 }
 
 [data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser__td {
   border-bottom: 1px solid #e9ecef;
+  color: #212529;
 }
 
-[data-bs-theme="light"] :is(.epesi-gb table.Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
+[data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
   color: #6c757d;
-}
-
-[data-bs-theme="light"] .Utils_GenericBrowser__overflow_div {
-  background-color: #fff;
-  border: 1px solid #ced4da;
 }
 
 [data-bs-theme="light"] .epesi-gb-pager a {

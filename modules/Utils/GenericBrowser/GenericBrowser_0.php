@@ -190,7 +190,7 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
-	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1) {
+	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1,$keep_table=false) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		switch ($icon) {
 			case 'view': $order = $order?: -3; break;
@@ -198,7 +198,7 @@ class Utils_GenericBrowser extends Module {
 			case 'delete': $order = $order?: -1; break;
 			case 'info': $order = $order?: 1000; break;
 		}
-		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size, 'order'=>$order);
+		$this->actions[$num][$icon] = array('tag_attrs'=>$tag_attrs,'label'=>$label,'tooltip'=>$tooltip, 'off'=>$off, 'size'=>$size, 'order'=>$order, 'keep_table'=>$keep_table);
 		$this->en_actions = true;
 	}
 
@@ -895,7 +895,7 @@ class Utils_GenericBrowser extends Module {
 					uasort($this->actions[$i], $this->sort_actions(...));
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
-						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null).' '.$arr['tag_attrs'].'>';
+						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null, 500, $arr['keep_table'] ?? false).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
 							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
 					    } elseif(file_exists($icon)) {
@@ -911,7 +911,7 @@ class Utils_GenericBrowser extends Module {
 					// Add overflow_box to actions
 					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
 					if ($settings==2 || ($settings==1 && detect_iphone()))
-						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true);"';
+						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
 				} else {
 					$col[$column_no]['label'] = '&nbsp;';
                     $col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';
@@ -940,7 +940,7 @@ class Utils_GenericBrowser extends Module {
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
 				if (!isset($v['overflow_box']) || $v['overflow_box']) {
-					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this);"';
+					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,false,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
 				} else {
 					if (!isset($v['style'])) $v['style'] = '';
 					$v['style'] .= 'white-space: normal;';
@@ -1017,14 +1017,16 @@ class Utils_GenericBrowser extends Module {
 			$theme->assign('order',$this->get_module_variable('order_history_display'));
 		}
 		$theme->assign('id',md5($this->get_path()));
-		
-		if ($this->resizable_columns) {
-			load_js($this->get_module_dir().'js/col_resizable.js');
-				
-			$fixed_col_setting = !empty($this->fixed_columns_selector)? ', skipColumnClass:"'.$this->fixed_columns_selector.'"':'';
-			eval_js('jq("#table_'.$md5_id.'").colResizable({liveDrag:true, postbackSafe:true, partialRefresh:true'.$fixed_col_setting.'});');
-		}
-		
+
+		// Column drag-to-resize (js/col_resizable.js, jQuery colResizable) was
+		// dropped when this grid's markup moved from a real <table> to CSS
+		// table-display divs (see AI-shared/adminlte-theme.md) - the vendored
+		// plugin hard-requires an actual <table> element and has no
+		// div-compatible equivalent. $resizable_columns/set_resizable_columns()
+		// are kept as inert API surface (RecordBrowser_0.php still calls
+		// set_resizable_columns(false) for PDF export, where it's moot anyway
+		// since pdf.tpl still renders a real <table> via {html_table_epesi}).
+
 		if(isset($template))
 			$theme->display($template,true);
 		else

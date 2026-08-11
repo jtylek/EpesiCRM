@@ -93,7 +93,7 @@ class Utils_Watchdog extends Module {
             $gb_row->set_attrs('name="watchdog_table_row_'.$v.'__'.$k.'"');
             $gb_row->add_action('href="javascript:void(0);" onclick="watchdog_applet_mark_as_read(\''.$v.'__'.$k.'\')"','Mark as Read',__('Mark as read'),Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'mark_as_read.png'));
             $something_to_purge = true;
-			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true);
+			if (isset($data['events']) && $data['events']) $gb_row->add_info($data['events'], true, null, true);
 			$count++;
 			if ($records_limit && $count >= $records_limit) break;
 		}
@@ -102,7 +102,17 @@ class Utils_Watchdog extends Module {
 			print(__('Displaying %s of %s records', array($count, $records_qty)));
 		$this->set_module_variable('display_at_time', time());
 		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Mark all entries as read')).' '.$this->create_confirm_callback_href(__('This will mark all entries in selected categories as read, are you sure you want to continue?'),$this->purge_subscriptions_applet(...), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
+		// Wrapper class, not the table itself: theme_adminltedark's GenericBrowser CSS
+		// ("Utils_Watchdog's own dashboard applet", Utils/GenericBrowser/theme_adminltedark/
+		// default.css) uses it to opt this applet's row actions out of the mobile kebab collapse
+		// - same mechanism/reasoning as Base_Admin's own "epesi-admin-panel" wrapper
+		// (Admin_0.php::body()), just for this applet instead of the whole admin panel. This is a
+		// small dashboard tile, easily narrower than the collapse's 991.98px breakpoint even in
+		// an otherwise-wide browser window, and its own action set (Stop Watching/View/Mark as
+		// Read) is short enough to always fit without needing the extra tap.
+		print('<div class="epesi-watchdog-applet">');
 		$this->display_module($gb);
+		print('</div>');
 	}
 
 }

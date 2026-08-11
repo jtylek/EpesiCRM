@@ -8,43 +8,43 @@ number (wyrownanie do prawej)
 
 */
 
-table.Utils_GenericBrowser .top-row {
+.Utils_GenericBrowser .top-row {
     border-top: 1px solid #336699;
 }
 
-table.Utils_GenericBrowser .total,
-table.Utils_GenericBrowser .total-row_desc {
+.Utils_GenericBrowser .total,
+.Utils_GenericBrowser .total-row_desc {
     background-color: #e6ecf2;
 }
 
-table.Utils_GenericBrowser .total-all {
+.Utils_GenericBrowser .total-all {
     background-color: #b8c8d9;
     font-weight: bold;
 }
 
-table.Utils_GenericBrowser .fade-out-zero {
+.Utils_GenericBrowser .fade-out-zero {
     color: #AAAAAA;
 }
 
-table.Utils_GenericBrowser .number {
+.Utils_GenericBrowser .number {
     text-align: right;
 }
 
 /* row hover */
 
-table.Utils_GenericBrowser tr:hover .total {
+.Utils_GenericBrowser .Utils_GenericBrowser__tr:hover .total {
     background-color: #cfdae6;
 }
 
-table.Utils_GenericBrowser tr:hover .total-all {
+.Utils_GenericBrowser .Utils_GenericBrowser__tr:hover .total-all {
     /*background-color: #a3b8cc;*/
     background-color: #8fa7bf;
 }
 
-table.Utils_GenericBrowser tr:hover .total-row_desc {
+.Utils_GenericBrowser .Utils_GenericBrowser__tr:hover .total-row_desc {
     background-color: #e6ecf2;
 }
 
-table.Utils_GenericBrowser tr:hover .row-desc {
+.Utils_GenericBrowser .Utils_GenericBrowser__tr:hover .row-desc {
     background-color: white;
 }

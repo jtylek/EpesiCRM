@@ -9,9 +9,12 @@
 	<link href="libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet" />
 	<link href="libs/adminlte-4.1.0/css/adminlte.min.css" rel="stylesheet" />
 	{* Reused as-is (not copied) so this page's login-box/card chrome stays in
-	   sync with the real app's own adminlte login screen - see that file's
-	   own comment for why data-bs-theme is pinned to light below. *}
-	<link href="modules/Base/User/Login/theme_adminlte/default.css" rel="stylesheet" />
+	   sync with the real app's own login screen - adminltedark since the
+	   light-only adminlte theme was removed (2026-08-04, see
+	   AI-shared/adminlte-theme.md); its default.css covers light mode itself
+	   via [data-bs-theme="light"] - see that file's own comment for why
+	   data-bs-theme is pinned to light below. *}
+	<link href="modules/Base/User/Login/theme_adminltedark/default.css" rel="stylesheet" />
 </head>
 <body>
 <div class="login-page-adminlte d-flex align-items-center justify-content-center" data-bs-theme="light">

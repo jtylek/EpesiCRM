@@ -25,6 +25,16 @@
 	padding: 5px 8px;
 }
 
+/* .letters-search > div below is floated, so without a clearfix the parent
+   collapses to just its own padding (~10px) instead of the ~30px its
+   buttons actually need - the table/layer box that follows in the DOM then
+   paints over the bottom of those buttons. */
+.letters-search::after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
 .letters-search img {
     border: none;
 }
@@ -125,46 +135,74 @@
 }
 /* */
 
-table.Utils_GenericBrowser {
+/* Was a real <table>; now divs laid out with the CSS table-display
+   algorithm (display:table/table-row-group/table-row/table-cell) instead of
+   CSS Grid, specifically so column-width negotiation across rows keeps
+   working the same way a real table did, and so each row stays a real box
+   (needed by table_overflow.js/sort_fields.js/sort_nodes.js's DOM hooks and
+   by jQuery UI sortable's drag-helper clone - see
+   AI-shared/adminlte-theme.md and function.html_grid_epesi.php's own
+   header comment for the full rationale). role="table"/"rowgroup"/"row"/
+   "columnheader"/"cell" (set by the plugin) restore ARIA table semantics
+   for screen readers, since the markup itself is no longer a real <table>. */
+.Utils_GenericBrowser {
     background-color: #FFFFFF;
     /*border-top: 1px solid #B3B3B3;*/
     border-left: 1px solid #B3B3B3;
 	-webkit-border-radius: 6px 6px 0 0;
 	-moz-border-radius: 6px 6px 0 0;
 	border-radius: 6px 6px 0 0;
+	display: table;
 }
 
-table.Utils_GenericBrowser > thead > tr > th:first-child {
+.Utils_GenericBrowser__thead {
+	display: table-header-group;
+}
+
+.Utils_GenericBrowser__tbody {
+	display: table-row-group;
+	overflow: auto;
+}
+
+.Utils_GenericBrowser__tr {
+	display: table-row;
+}
+
+.Utils_GenericBrowser__th {
+	display: table-cell;
+}
+
+.Utils_GenericBrowser__th.first {
 	-webkit-border-radius: 6px 0 0 0;
 	-moz-border-radius: 6px 0 0 0;
 	border-radius: 6px 0 0 0;
 }
 
-table.Utils_GenericBrowser > thead > tr > th:last-child {
+.Utils_GenericBrowser__th.last {
 	-webkit-border-radius: 0 6px 0 0;
 	-moz-border-radius: 0 6px 0 0;
 	border-radius: 0 6px 0 0;
 }
 
-.applet table.Utils_GenericBrowser th:first-child,
-.applet table.Utils_GenericBrowser th:last-child,
-.applet table.Utils_GenericBrowser {
+.applet .Utils_GenericBrowser__th.first,
+.applet .Utils_GenericBrowser__th.last,
+.applet .Utils_GenericBrowser {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
 	border-radius: 0;
 }
 
-table.Utils_GenericBrowser input[type="text"],
-table.Utils_GenericBrowser select {
+.Utils_GenericBrowser input[type="text"],
+.Utils_GenericBrowser select {
 	width: 90%;
 }
 
-table.Utils_GenericBrowser a.button {
+.Utils_GenericBrowser a.button {
 	width: 20px;
 	text-align:left;
 }
 
-table.Utils_GenericBrowser > thead > tr > th {
+.Utils_GenericBrowser__th {
     font-weight: normal;
     background-repeat: repeat-x;
     text-align: left;
@@ -178,33 +216,33 @@ table.Utils_GenericBrowser > thead > tr > th {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	
+
 	/* css3 blue gradient */
 	background: #3f6a8c; /* Old browsers */
 	/* end css3  gradient */
 }
-.epesi_rtl table.Utils_GenericBrowser > thead > tr > th {
+.epesi_rtl .Utils_GenericBrowser__th {
     text-align: right;
 }
 
-table.Utils_GenericBrowser > thead > tr > th > .GB_margin {
+.Utils_GenericBrowser__th > .GB_margin {
 	margin: 0px 40% auto 5px;
 }
 
-table.Utils_GenericBrowser > thead > tr > th > span {
+.Utils_GenericBrowser__th > span {
 	color: #FFFFFF;
     display: block;
 	height: 100%;
     line-height: 20px;
     padding: 3px 10px 3px 3px;
 }
-table.Utils_GenericBrowser > thead > tr > th a {
+.Utils_GenericBrowser__th a {
 	color: #FFFFFF;
 	width: 120%;
 	display: block;
 }
 
-table.Utils_GenericBrowser > thead > tr > th:hover {	
+.Utils_GenericBrowser__th:hover {
 	/* css3 blue gradient - reverse */
 background: #5b8eb5; /* Old browsers */
 	/* end css3 blue gradient - reverse */
@@ -218,7 +256,7 @@ background: #5b8eb5; /* Old browsers */
 	background: none !important;
 }
 
-table.Utils_GenericBrowser > thead > tr > th input {
+.Utils_GenericBrowser__th input {
     display: block;
     width: 100%;
     border: 0px;
@@ -229,19 +267,15 @@ table.Utils_GenericBrowser > thead > tr > th input {
 	box-shadow: inset 1px 1px 1px #333;
 }
 
-table.Utils_GenericBrowser > thead > tr > th input:focus {
+.Utils_GenericBrowser__th input:focus {
     background-color: #ffffa5;
 }
 
-table.Utils_GenericBrowser > tbody {
-	overflow: auto;
-}
-
-table.Utils_GenericBrowser > tbody > tr {
+.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr {
 	background-color: #FFFFFF;
 }
 
-table.Utils_GenericBrowser > tbody > tr:hover {
+.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr:hover {
 	background-color: #F0F0F0;
 }
 
@@ -259,6 +293,7 @@ table.Utils_GenericBrowser > tbody > tr:hover {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	line-height: 14px;
+	display: table-cell;
 }
 .epesi_rtl .Utils_GenericBrowser__td {
     text-align: right;
@@ -268,7 +303,7 @@ table.Utils_GenericBrowser > tbody > tr:hover {
 	margin: 0 1px;
 }
 
-table.Utils_GenericBrowser > tbody > td img {
+.Utils_GenericBrowser__tbody .Utils_GenericBrowser__td img {
 	vertical-align: middle;
 }
 
@@ -325,7 +360,10 @@ table.Utils_GenericBrowser > tbody > td img {
 }
 
 
-.letters-search > tbody > tr > td {
+/* Was a <table class="letters-search">'s <tr>'s direct <td> children; now a
+   plain div wrapping each of the (up to 2) toolbar pieces (custom label,
+   expand/collapse, search form) directly - no row/cell wrapper needed. */
+.letters-search > div {
     display: inline-block;
     float: left;
     margin-top: 5px;
@@ -370,9 +408,19 @@ table.Utils_GenericBrowser > tbody > td img {
 /* bottom navigation */
 #Utils_GenericBrowser__navigation {
 	height: 23px;
-	vertical-align: middle;
 	width:100%;
-	table-layout: auto;
+}
+
+/* Was a <tr> (no rule of its own - the table-level styling below covered it
+   visually via inheritance); now the actual flex row, replacing the old
+   fixed-width blank spacer <td>s with justify-content:space-between so the
+   order/reset text, the pager buttons, and the page-size controls stay
+   spread across the bar without needing explicit filler elements. */
+.nav_background {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 100%;
 }
 
 .nav_pagin select,
@@ -399,13 +447,13 @@ table.Utils_GenericBrowser > tbody > td img {
 	border-radius: 0 0 6px 6px;
 }
 
-#Utils_GenericBrowser__navigation td.nav_summary {
+#Utils_GenericBrowser__navigation .nav_summary {
 	width: 160px;
 	text-align: center;
 	white-space: nowrap;
 }
 
-#Utils_GenericBrowser__navigation td.nav_button {
+#Utils_GenericBrowser__navigation .nav_button {
 	width: 96px;
 }
 

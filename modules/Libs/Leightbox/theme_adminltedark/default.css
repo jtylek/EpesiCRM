@@ -65,6 +65,16 @@
 	max-height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height) - 1rem);
 }
 
+/* #dee2e6 deliberately matches the app-sidebar's own fixed light grey (Base/Box/
+   theme_adminltedark/default.css - "the sidebar stays this same color in both light and dark
+   mode, per request"), not var(--epesi-surface) - same "always this one grey" treatment, per
+   request. That means it needs the sidebar's own black text/icon convention too, not white -
+   this was still using the light theme's own text color even under dark mode (color:#fff / a
+   white hover tint on a light background), reading as barely-visible near-white-on-near-white.
+   Fixed to match the sidebar's --lte-sidebar-color:#000 (black text, black-tinted hover)
+   exactly, and the now-redundant [data-bs-theme="light"] override for this header (previously
+   the only variant that was actually readable) removed below - one look in both themes now,
+   same as the sidebar it's matching. */
 #Leightbox_header {
 	position: sticky;
 	top: 0;
@@ -75,7 +85,7 @@
 	gap: 1rem;
 	padding: 0.6rem 1rem;
 	background-color: #dee2e6;
-	color: #fff;
+	color: #000;
 	border-radius: 0.5rem 0.5rem 0 0;
 }
 
@@ -99,12 +109,12 @@
 	width: 2rem;
 	height: 2rem;
 	border-radius: 0.375rem;
-	color: #fff;
+	color: #000;
 	text-decoration: none;
 }
 
 .epesi-leightbox-btn:hover {
-	background-color: rgba(255, 255, 255, 0.15);
+	background-color: rgba(0, 0, 0, 0.075);
 }
 
 #Leightbox_content {
@@ -150,6 +160,26 @@
 	background-color: #0b5ed7;
 }
 
+/* Utils_TooltipCommon::tooltip_leightbox_mode()'s popup (Watchdog applet /
+   ActivityReport "what changed" tooltips shown big, re-using
+   Utils_Tooltip/theme_adminltedark/tooltip.js's epesi_tooltip_leightbox_
+   populate() content - see that file). Per request: same fixed grey/black
+   scheme as the sidebar and the hover-tooltip popup itself
+   (Utils_Tooltip/theme_adminltedark/default.css's .epesi-tooltip-popup),
+   not this component's own default dark chrome - #tooltip_leightbox_mode is
+   the popup's own id (see the #clipboard rules above for why an id selector
+   scopes this to just this one popup) and beats the [data-bs-theme="light"]
+   override below on specificity, so it stays this one grey regardless of
+   theme, same as #Leightbox_header already does. Font size matches
+   .epesi-tooltip-popup's own .8125rem too - this popup only ever shows the
+   same changes-list table the small hover popup does, just bigger/pinned,
+   not a reason for it to read in a larger font. */
+#tooltip_leightbox_mode {
+	background-color: #dee2e6;
+	color: #000;
+	font-size: .8125rem;
+}
+
 /* carried forward from the default theme (unchanged) - strips decorative
    shadow/padding wrappers that older, not-yet-adminlte-themed widgets may
    still render inside a leightbox's content. */
@@ -174,9 +204,9 @@
   background-color: #fff;
 }
 
-[data-bs-theme="light"] #Leightbox_header {
-  background-color: #212529;
-}
+/* No #Leightbox_header override here (unlike the rest of this block) - it stays the sidebar's
+   fixed light grey + black text in both themes, same as the sidebar itself; see the base rule's
+   own comment above. */
 
 [data-bs-theme="light"] #clipboard h3 {
   color: #6c757d;

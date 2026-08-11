@@ -25,34 +25,34 @@ getX = function( obj ) {
 
 show_path_children = function( id ) {
 	for( i in opened ) {
-		if( $(opened[i]) ) {
-			$(opened[i]).style.visibility = "hidden";
+		if( document.getElementById(opened[i]) ) {
+			document.getElementById(opened[i]).style.visibility = "hidden";
 		}
 	}
 	if( is_IE ) {
-		var t = $('utils_path_mask');
+		var t = document.getElementById('utils_path_mask');
 		if( t ) {
 			t.style.display = 'none';
 		}
 	}
 	opened[id] = 'path_'+id;
 	clearTimeout(hide_to[id]);
-	var parent = $('path_link_' + id);
-	var node = $('path_'+id);
+	var parent = document.getElementById('path_link_' + id);
+	var node = document.getElementById('path_'+id);
 	if( node && parent) {
 		var tmp = getY( parent ) + parent.offsetHeight + parent.style.top;
 		node.style.top = tmp + 'px';
 		var tmp = getX( parent );
 		node.style.left = tmp + 'px';
 		node.style.zIndex = 1000;
-		
+
 		if(node.offsetWidth < parent.offsetWidth) {
 			node.width = parent.offsetWidth + 'px';
 		}
 		if( is_IE ) {
-			var t = $('utils_path_mask');
+			var t = document.getElementById('utils_path_mask');
 			if( t ) {
-				t.style.zIndex = 9;//$(id).style.zIndex - 1;
+				t.style.zIndex = 9;//document.getElementById(id).style.zIndex - 1;
 				t.style.left = getX(node);
 				t.style.top = getY(node);
 				t.style.width = getWidth(node);
@@ -67,11 +67,11 @@ show_path_children = function( id ) {
 }
 
 hide_path_children_f = function( id ) {
-	var node = $('path_'+id);
+	var node = document.getElementById('path_'+id);
 	if( node ) {
 		node.style.visibility = "hidden";
 		if( is_IE ) {
-			var t = $('utils_path_mask');
+			var t = document.getElementById('utils_path_mask');
 			if( t ) {
 				t.style.display = 'none';
 			}
@@ -83,10 +83,10 @@ hide_path_children = function( id ) {
 }
 
 utils_path_writeOut = function( id ) {
-	if( $('path_conteiner_' + id) ) {
+	if( document.getElementById('path_conteiner_' + id) ) {
 		if( navigator.appName.indexOf('Explorer') != -1 ) {
 			is_IE = true;
-			$('path_conteiner_' + id).innerHTML += '<iframe class=utils_path_custom_iframe id=utils_path_mask>blah</iframe>';
+			document.getElementById('path_conteiner_' + id).innerHTML += '<iframe class=utils_path_custom_iframe id=utils_path_mask>blah</iframe>';
 		}
 	} else {
 		setTimeout("utils_path_writeOut("+id+")", 20);

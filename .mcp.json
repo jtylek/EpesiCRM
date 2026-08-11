@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "command": "node",
+      "args": ["C:\\Users\\jasiek\\AppData\\Roaming\\npm\\node_modules\\@playwright\\mcp\\cli.js"]
     }
   }
 }

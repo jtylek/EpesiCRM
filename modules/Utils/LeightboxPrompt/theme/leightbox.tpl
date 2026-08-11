@@ -1,10 +1,10 @@
 <center>
 {$open_buttons_section}
-<table id="Utils_LeightboxPrompt" cellspacing="0" cellpadding="0">
-	{assign var=x value=0}
-	<tr>
+{* Was a <table> hand-wrapping every 6 icons into a new <tr> - flex-wrap
+   replaces that, same recipe used app-wide for this pattern (see
+   AI-shared/adminlte-theme.md). *}
+<div id="Utils_LeightboxPrompt" style="display: flex; flex-wrap: wrap;">
 	{foreach item=b from=$buttons}
-        <td>
 			{$b.open}
 			<div class="epesi_big_button">
 				{if ($b.icon)}
@@ -13,16 +13,8 @@
 				<span>{$b.label}</span>
 			</div>
 			{$b.close}
-        </td>
-		{assign var=x value=$x+1}
-		{if ($x==6)}
-			{assign var=x value=0}
-			</tr>
-			<tr>
-		{/if}
 	{/foreach}
-    </tr>
-</table>
+</div>
 {$close_buttons_section}
 
 {foreach item=b from=$sections}

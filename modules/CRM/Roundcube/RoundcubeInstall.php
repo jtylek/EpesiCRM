@@ -28,9 +28,9 @@ class CRM_RoundcubeInstall extends ModuleInstall {
         $this->drop_all_rc_tables();
 
         if(DB::is_mysql())
-            $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/mysql.initial.sql');
+            $f = file_get_contents('modules/Libs/RoundCube/RC/SQL/mysql.initial.sql');
         else
-            $f = file_get_contents('modules/CRM/Roundcube/RC/SQL/postgres.initial.sql');
+            $f = file_get_contents('modules/Libs/RoundCube/RC/SQL/postgres.initial.sql');
         foreach(explode(';',$f) as $q) {
             $q = trim($q);
             if(!$q) continue;

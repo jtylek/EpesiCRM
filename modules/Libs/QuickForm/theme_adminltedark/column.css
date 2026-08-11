@@ -39,6 +39,15 @@
 	min-width: 0;
 }
 
+/* column.tpl skips the label cell entirely for a field with no label - this
+   spans the data cell across both grid columns instead of leaving the empty
+   label column's width as unclaimed space (e.g. Utils_FileUpload's file
+   input, which has no separate label since the browser's own "Choose File"
+   button already says that). */
+.epesi-qf-grid-data--full {
+	grid-column: 1 / -1;
+}
+
 .epesi-qf-field-wrap {
 	/* form_data's error markup (a positioned tooltip/bubble in some field
 	   types) anchors to the nearest positioned ancestor - previously the

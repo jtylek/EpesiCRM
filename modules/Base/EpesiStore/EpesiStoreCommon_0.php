@@ -310,9 +310,9 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         $show_processing = "Epesi.procOn++;Epesi.updateIndicatorText('" . Epesi::escapeJS(__('Running post download procedures')) . "');Epesi.updateIndicator();";
         $success_text = Epesi::escapeJS(__("Success. Restart EPESI to ensure proper operation."));
         $failure_text = Epesi::escapeJS(__("Patch apply error. See patches log for more information (EPESI_DIR/data/logs/patches.log)"));
-        $ajax_req = "new Ajax.Request('modules/Base/EpesiStore/runpatches.php',"
-                . "{ method: 'post', "
-                . "onComplete: function(t) {Epesi.procOn--;"
+        $ajax_req = "jQuery.ajax('modules/Base/EpesiStore/runpatches.php',"
+                . "{ method: 'post', dataType: 'text', "
+                . "complete: function(jqXHR) {var t=jqXHR;Epesi.procOn--;"
                 . "if (t.responseText == '1') statusbar_message('<div class=\"message normal\">" . $success_text . "</div>');"
                 . "else if (t.responseText == '0') alert('$failure_text');"
                 . "else alert('Error: '+t.responseText);"

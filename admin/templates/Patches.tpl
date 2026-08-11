@@ -6,22 +6,20 @@
 <h5>{'This utility scans for available patches and applies them as necessary'|t}</h5>
 	{/if}
 
-<table class="table table-sm table-striped align-middle">
-	<tbody>
-		{foreach from=$rows item=row}
-		<tr>
-			<td{if $row.strong} class="fw-semibold"{/if}>{$row.module}</td>
-			<td{if $row.strong} class="fw-semibold"{/if}>{$row.description}</td>
-			<td class="text-end"><span class="badge {$row.badge_class}">{$row.status_text}</span></td>
-		</tr>
-		{if $row.extra}
-		<tr>
-			<td colspan="3"><pre class="text-muted small mb-0">{$row.extra|escape}</pre></td>
-		</tr>
-		{/if}
-		{/foreach}
-	</tbody>
-</table>
+<div role="table" style="display: grid; grid-template-columns: auto 1fr auto; align-items: center;">
+	{foreach from=$rows item=row}
+	<div role="row" style="display: contents;">
+		<div class="border-bottom py-1 pe-2{if $row.strong} fw-semibold{/if}" role="cell">{$row.module}</div>
+		<div class="border-bottom py-1 pe-2{if $row.strong} fw-semibold{/if}" role="cell">{$row.description}</div>
+		<div class="border-bottom py-1 text-end" role="cell"><span class="badge {$row.badge_class}">{$row.status_text}</span></div>
+	</div>
+	{if $row.extra}
+	<div role="row" style="display: contents;">
+		<div class="border-bottom py-1" role="cell" style="grid-column: 1 / -1;"><pre class="text-muted small mb-0">{$row.extra|escape}</pre></div>
+	</div>
+	{/if}
+	{/foreach}
+</div>
 
 <div class="d-flex gap-3 mb-3">
 	{if $new_count}<span>{'New patches found:'|t} <strong class="text-danger">{$new_count}</strong></span>{/if}

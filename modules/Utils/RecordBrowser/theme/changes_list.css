@@ -2,18 +2,18 @@
 	background-color: lightblue;
 }
 
-.Utils_RB__changelist .last_row td {
+.Utils_RB__changelist .last_row {
 	border-bottom: 2px solid black;
 }
 
-.Utils_RB__changelist td,
-.Utils_RB__changelist th {
+.Utils_RB__changelist > div > div {
 	padding: 4px;
 }
 
-table.Utils_RB__changelist {
+.Utils_RB__changelist {
 	border: 1px solid black;
 	width: 400px;
+	color: black;
 }
 
 .Utils_RB__changelist .message {
@@ -21,7 +21,7 @@ table.Utils_RB__changelist {
 	font-weight: bold;
 }
 
-.Utils_RB__changelist td {
+.Utils_RB__changelist [role="cell"] {
 	border-right: 1px solid darkgray;
 	border-bottom: 1px solid darkgray;
 }
@@ -41,16 +41,7 @@ table.Utils_RB__changelist {
 	color: inherit;
 }
 
-.Utils_RB__changelist {
-	color: black;
-}
-
-.Utils_RB__changelist .field {
-	width: 30%;
-}
-
 .Utils_RB__changelist .data {
-	width: 35%;
 	word-wrap: break-word;
     overflow-x: hidden;
 }

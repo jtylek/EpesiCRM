@@ -339,14 +339,21 @@ class Apps_Shoutbox extends Module {
 		    // focus()-call tracing. The autofocus attribute above feeds
 		    // exactly the input that script already looks for first, so this
 		    // needs no JS of our own at all.
-		    eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
-		    		.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
-		    		.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
-		    			.'var m=bootstrap.Modal.getInstance(document.getElementById(\'Apps_Shoutbox__confirm_all_modal\'));'
-		    			.'if(m)m.hide();'
-		    			.'if(window.Apps_Shoutbox__pendingForm)window.Apps_Shoutbox__pendingForm.onsubmit();'
-		    		.'});'
-		    	.'}');
+		    // Bootstrap-less themes have no CSS to hide a ".modal.fade" element, so
+		    // injecting it there would leave the raw markup sitting visibly in the
+		    // page instead of hidden until .show()'d - the click handler below
+		    // already falls back to plain confirm() when this modal was never
+		    // injected, so gating the injection itself is safe.
+		    if (Base_ThemeCommon::is_adminlte_family()) {
+		    	eval_js_once('if(!document.getElementById(\'Apps_Shoutbox__confirm_all_modal\')){'
+		    			.'document.body.insertAdjacentHTML(\'beforeend\','.json_encode($confirm_modal_html).');'
+		    			.'document.getElementById(\'Apps_Shoutbox__confirm_all_send\').addEventListener(\'click\',function(){'
+		    				.'var m=bootstrap.Modal.getInstance(document.getElementById(\'Apps_Shoutbox__confirm_all_modal\'));'
+		    				.'if(m)m.hide();'
+		    				.'if(window.Apps_Shoutbox__pendingForm)window.Apps_Shoutbox__pendingForm.onsubmit();'
+		    			.'});'
+		    		.'}');
+		    }
 		    //bound with a namespaced handler (rather than the plain .click() the
 		    //original used) so re-running this eval_js on a re-render can't stack
 		    //duplicate listeners onto elements the DOM replace didn't actually swap.
@@ -359,6 +366,24 @@ class Apps_Shoutbox extends Module {
 		    		.'bootstrap.Modal.getOrCreateInstance(modalEl).show();'
 		    		.'return false;'
 		    	.'});');
+
+		    //Keep the Send button disabled while the message textarea is empty
+		    //(or whitespace-only) - previously it stayed clickable with no text
+		    //at all, which for "to=all" fired the confirm-all popup above (or,
+		    //for a specific recipient, a round-trip just to hit QuickForm's
+		    //server-side "Field required" rule) on a message with nothing to
+		    //send. Namespaced off/on on the textarea's own "input" event, same
+		    //idiom as the click handler above and for the same reason (re-
+		    //running this eval_js on a re-render can't stack duplicate
+		    //listeners onto elements the DOM replace didn't actually swap).
+		    eval_js('(function(){'
+		    		.'var txt=document.getElementById("shoutbox_text'.($big?'_big':'').'");'
+		    		.'var btn=document.getElementById("shoutbox_button'.($big?'_big':'').'");'
+		    		.'if(!txt||!btn)return;'
+		    		.'function sync(){btn.disabled=!txt.value.trim();}'
+		    		.'sync();'
+		    		.'jq(txt).off("input.Apps_Shoutbox_toggleSend").on("input.Apps_Shoutbox_toggleSend",sync);'
+		    	.'})();');
 
 		    //BBCode reference: built once per request from whatever's actually
 		    //registered (bbcode_reference(), backed by Utils_BBCodeCommon::
@@ -543,8 +568,10 @@ class Apps_Shoutbox extends Module {
 				$msg = Utils_BBCodeCommon::optimize($msg);
 				//get logged user id
 				$user_id = Base_AclCommon::get_user();
-				//clear text box and focus it
-				eval_js('$(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'"');
+				//clear text box and focus it - value is set programmatically, which
+				//doesn't fire the 'input' event the Send-button disable toggle
+				//above listens for, so its disabled state is set explicitly here too.
+				eval_js('document.getElementById(\'shoutbox_text'.($big?'_big':'').'\').value=\'\';focus_by_id(\'shoutbox_text'.($big?'_big':'').'\');shoutbox_uid="'.$to.'";var b=document.getElementById(\'shoutbox_button'.($big?'_big':'').'\');if(b)b.disabled=true;');
 
 				//insert to db
 				DB::Execute('INSERT INTO apps_shoutbox_messages(message,base_user_login_id,to_user_login_id) VALUES(%s,%d,%d)',array(htmlspecialchars($msg,ENT_QUOTES,'UTF-8'),$user_id,is_numeric($to)?$to:null));
@@ -559,8 +586,8 @@ class Apps_Shoutbox extends Module {
    		$theme->display('chat_form'.($big?'_big':''));
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
-		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!$(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
-			'new Ajax.Updater(\'shoutbox_board'.($big?'_big':'').'\',\'modules/Apps/Shoutbox/refresh.php\',{method:\'get\', parameters: { uid: shoutbox_uid }});'.
+		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!document.getElementById(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
+			'jQuery(\'#shoutbox_board'.($big?'_big':'').'\').load(\'modules/Apps/Shoutbox/refresh.php?uid=\'+encodeURIComponent(shoutbox_uid));'.
 			'};setInterval(\'shoutbox_refresh'.($big?'_big':'').'()\','.($big?'10000':'30000').')');
 		eval_js('shoutbox_refresh'.($big?'_big':'').'()');
 	}

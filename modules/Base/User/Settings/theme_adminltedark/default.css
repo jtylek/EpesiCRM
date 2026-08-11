@@ -22,16 +22,9 @@
 
 /* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
  * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
- * menu and Base_Admin's own listing.
+ * menu and Base_Admin's own listing - no bespoke .epesi-user-settings-card
+ * sizing needed here.
  */
-
-/* The label span (default.tpl: fw-semibold text-body, no size of its own)
-   otherwise inherits body's font-size directly - fine at Bootstrap's 1rem,
-   but reads oversized now that body is bumped past it. Pinned back to 1rem,
-   matching Base_Admin's own equivalent fix. */
-.epesi-user-settings .card-body span {
-	font-size: 1rem;
-}
 
 /* settings_form.tpl (Base_User_Settings::display_adminlte()) - the actual
  * per-branch settings edit screen (e.g. "Quick Access", "Messenger Alerts"),
@@ -44,16 +37,11 @@
  */
 .epesi-settings-matrix {
 	margin-bottom: 1rem;
+	align-items: center;
 }
 
-.epesi-settings-matrix th,
-.epesi-settings-matrix td {
-	vertical-align: middle;
-}
-
-.epesi-settings-matrix td:not(:first-child),
-.epesi-settings-matrix th:not(:first-child) {
-	text-align: center;
+.epesi-settings-matrix > div {
+	padding: .5rem;
 }
 
 .epesi-settings-fields input[type="text"],
@@ -89,6 +77,15 @@
 
 .epesi-settings-fields .epesi-settings-row:last-child {
 	border-bottom: none;
+}
+
+/* settings_form.tpl gives each label plain Bootstrap .col-form-label.fw-semibold -
+ * 1rem/600, the same as any other untouched form label - which reads noticeably
+ * larger/heavier than the rest of the chrome around it (the sidebar nav links
+ * this screen sits next to are 0.875rem/400). Sized down to match. */
+.epesi-settings-row label {
+	font-size: 0.875rem;
+	font-weight: 400;
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */

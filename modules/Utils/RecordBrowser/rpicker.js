@@ -1,8 +1,8 @@
 rpicker_init = function(element, id){
-	var checkbox = $('leightbox_rpicker_'+element+'_'+id);
+	var checkbox = document.getElementById('leightbox_rpicker_'+element+'_'+id);
 	var list = document.getElementsByName(element+'to[]')[0];
 	if (!list)
-		list = $(element);
+		list = document.getElementById(element);
 	var k = 0;
 	checkbox.checked = false;
 	if(list) while (k!=list.length) {
@@ -12,13 +12,13 @@ rpicker_init = function(element, id){
 		}
 		k++;
 	}
-	checkbox.observe('click', function(e){
+	jQuery(checkbox).on('click', function(e){
 		rpicker_move(element,id,checkbox.getAttribute('formated_name'));
 	});
 }
 
 rpicker_move = function(element, id, cstring, where){
-	var checkbox = $('leightbox_rpicker_'+element+'_'+id);
+	var checkbox = document.getElementById('leightbox_rpicker_'+element+'_'+id);
 	if (typeof(where)=="undefined")
 		where = checkbox.checked;
 	else if (checkbox)
@@ -26,7 +26,7 @@ rpicker_move = function(element, id, cstring, where){
 	var tolist = document.getElementsByName(element+'to[]')[0];
 	var fromlist = document.getElementsByName(element+'from[]')[0];
 	if (!tolist) {
-		var list = $(element);
+		var list = document.getElementById(element);
 		if (where) {
 			automulti_add_value(element, '__SEP__', id, cstring);
 		} else {

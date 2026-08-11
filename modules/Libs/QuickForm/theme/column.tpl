@@ -1,38 +1,31 @@
 {$form_open}
 
 {foreach from=$form_data.header item=h}
-	<div class="epesi_label header" style="width:700px;">
+	<div class="epesi_label header epesi-qf-header">
 		{$h}
 	</div>
 {/foreach}
-<table style="border-spacing: 3px; width:500px;">
+<div class="epesi-qf-grid">
 	{foreach from=$form_data item=f}
 		{if is_array($f) && isset($f.type) && isset($f.html) && isset($f.label) && $f.type!='hidden' && $f.type!='button' && $f.type!='submit'}
-		<tr>
-			<td class="epesi_label" style="width: 150px;white-space: nowrap;">
-				{$f.label}{if $f.required}*{/if}
-			</td>
-			<td class="epesi_data{if $f.frozen} static_field{/if}" style="width: 350px;">
-				<div style="position: relative;">
-					{$f.error}
-					{$f.html}
-				</div>
-			</td>
-		</tr>
+		<div class="epesi_label epesi-qf-grid-label">
+			{$f.label}{if $f.required}*{/if}
+		</div>
+		<div class="epesi_data{if $f.frozen} static_field{/if} epesi-qf-grid-data">
+			<div class="epesi-qf-field-wrap">
+				{$f.error}
+				{$f.html}
+			</div>
+		</div>
 		{/if}
 	{/foreach}
-	<tr>
-		<td colspan="2">
-			<center class="child_button">
-			{foreach from=$form_data item=f}
-				{if is_array($f) && isset($f.type) && ($f.type=='button' || $f.type=='submit')}
-					{$f.html}
-				{/if}
-			{/foreach}
-			</center>
-		</td>
-	</tr>
-</table>
-
+</div>
+<div class="epesi-qf-buttons">
+	{foreach from=$form_data item=f}
+		{if is_array($f) && isset($f.type) && ($f.type=='button' || $f.type=='submit')}
+			{$f.html}
+		{/if}
+	{/foreach}
+</div>
 
 {$form_close}

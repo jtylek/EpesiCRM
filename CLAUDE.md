@@ -10,6 +10,11 @@ migration log — root causes, decisions, and a running "upgrade-gap" discipline
 also reach existing installs — lives in `MIGRATION_NOTES.md`. Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
 
+`AI-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
+git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate removals that look like bugs,
+recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
+worth a look before assuming something is broken/missing rather than intentional.
+
 ## Environment quirks (this machine)
 
 - **PHP binary:** the bare `php` on PATH resolves to an unrelated XAMPP 7.4 install. Always use

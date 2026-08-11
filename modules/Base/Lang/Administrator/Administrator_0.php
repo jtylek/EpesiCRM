@@ -37,7 +37,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'select_language'))
 			$form->freeze('lang_code');
 		
-		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js()));
+		$form->addElement('checkbox','allow_lang_change',__('Allow users to change language'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
 		if (!Base_AdminCommon::get_access('Base_Lang_Administrator', 'enable_users_to_select'))
 			$form->freeze('allow_lang_change');
 		
@@ -63,23 +63,23 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$desc .= __('The only data being sent is the values of the fields presented below and the translated strings, we do not receive any other information contained in EPESI.').'<br>';
 		$desc .= __('You can also change your Translations Contribution settings at later time.').'<br>';
 		$desc .= '</div>';
-		eval_js('$("trans_sett_info").up("td").setAttribute("colspan",2);');
-		eval_js('$("trans_sett_info").up("td").style.borderRadius="0";'); // Not really nice, but will have to do for now
-		eval_js('$("decription_label").up("td").hide();');
-		eval_js('function update_credits(){$("contact_email").disabled=$("credits_website").disabled=!$("include_credits").checked||!$("allow").checked;}');
+		eval_js('document.getElementById("trans_sett_info").closest("td").setAttribute("colspan",2);');
+		eval_js('document.getElementById("trans_sett_info").closest("td").style.borderRadius="0";'); // Not really nice, but will have to do for now
+		eval_js('jQuery(document.getElementById("decription_label").closest("td")).hide();');
+		eval_js('function update_credits(){document.getElementById("contact_email").disabled=document.getElementById("credits_website").disabled=!document.getElementById("include_credits").checked||!document.getElementById("allow").checked;}');
 		eval_js('update_credits();');
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
 		$me = CRM_ContactsCommon::get_my_record();
 		$form->addElement('static', 'header', '<div id="decription_label" />', $desc);
-		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'$("include_credits").disabled=$("first_name").disabled=$("last_name").disabled=!this.checked;update_credits();'));
+		$form->addElement('checkbox', 'allow', __('Enable sending translations'), null, array('id'=>'allow', 'onchange'=>'document.getElementById("include_credits").disabled=document.getElementById("first_name").disabled=document.getElementById("last_name").disabled=!this.checked;update_credits();', 'class'=>'epesi-switch'));
 		$form->addElement('text', 'first_name', __('First Name'), array('id'=>'first_name'));
 		$form->addElement('text', 'last_name', __('Last Name'), array('id'=>'last_name'));
-		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();'));
+		$form->addElement('checkbox', 'include_credits', __('Include in credits'), null, array('id'=>'include_credits', 'onchange'=>'update_credits();', 'class'=>'epesi-switch'));
 		$form->addElement('text', 'credits_website', __('Credits website'), array('id'=>'credits_website'));
 		$form->addElement('text', 'contact_email', __('Contact e-mail'), array('id'=>'contact_email'));
 		$form->addElement('static', 'IP', __('IP'), $ip);
 		$lp->add_option(null, null, null, $form);
-		eval_js('$("first_name").disabled=$("last_name").disabled=!$("allow").checked;');
+		eval_js('document.getElementById("first_name").disabled=document.getElementById("last_name").disabled=!document.getElementById("allow").checked;');
 		$vals = $lp->export_values();
 		if ($vals) {
 			$values = $vals['form'];
@@ -234,9 +234,9 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
     public function send_lang_ajax($lang)
     {
         $params = array('cid' => CID, 'lang' => $lang);
-        $request = array('method' => 'post', 'parameters' => $params);
+        $request = array('method' => 'post', 'data' => $params);
         $query = json_encode($request);
-        $js = 'new Ajax.Request("modules/Base/Lang/Administrator/send_current.php",' . $query . ');';
+        $js = 'jQuery.ajax("modules/Base/Lang/Administrator/send_current.php",' . $query . ');';
         eval_js($js);
     }
 

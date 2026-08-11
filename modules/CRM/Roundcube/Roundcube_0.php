@@ -30,7 +30,7 @@ class CRM_Roundcube extends Module {
             }
         }
         foreach($accounts as $a) {
-            Base_ActionBarCommon::add('add',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?-1:0);
+            Base_ActionBarCommon::add('new-mail',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?-1:0);
         }
         if($def===null) {
 			$href = $this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts')));
@@ -60,7 +60,7 @@ class CRM_Roundcube extends Module {
         } else {
             $RC = 'RC';
         }
-        $rc_src = 'modules/CRM/Roundcube/' . $RC . '/public_html/index.php?'.http_build_query($params);
+        $rc_src = 'modules/Libs/RoundCube/' . $RC . '/public_html/index.php?'.http_build_query($params);
         if (Base_ThemeCommon::is_adminlte_family()) {
             // Replaces the old animated images/loader-0.gif background - the
             // spinner sits over the iframe until Roundcube's own page inside
@@ -74,7 +74,7 @@ class CRM_Roundcube extends Module {
         } else {
             print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame"></iframe></div>');
         }
-        eval_js('var dim=document.viewport.getDimensions();var rc=$("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
+        eval_js('var dim={height:document.documentElement.clientHeight};var rc=document.getElementById("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
         $epesi_mail_name = EPESI . ' - ' . get_epesi_url();
         eval_js_once("if (typeof navigator != 'undefined') { navigator.registerProtocolHandler('mailto', '$epesi_mail_url', '$epesi_mail_name'); }");

@@ -81,20 +81,25 @@
 	});
 
   $.fn.clonePosition = function(element, options){
-    var options = $.extend({
-      cloneWidth: true,
-      cloneHeight: true,
-      offsetLeft: 0,
-      offsetTop: 0
-    }, (options || {}));
+    // Accepts both this plugin's own cloneWidth/cloneHeight names (used by
+    // calls in this file) and Prototype's native Element#clonePosition
+    // setWidth/setHeight names (used by callers elsewhere in the Calendar
+    // module, e.g. theme/event_.js, ported straight off the Prototype
+    // original) - silently ignoring one spelling would resurrect whatever
+    // the caller passed false for.
+    options = options || {};
+    var cloneWidth = ('cloneWidth' in options) ? options.cloneWidth : (('setWidth' in options) ? options.setWidth : true);
+    var cloneHeight = ('cloneHeight' in options) ? options.cloneHeight : (('setHeight' in options) ? options.setHeight : true);
+    var offsetLeft = options.offsetLeft || 0;
+    var offsetTop = options.offsetTop || 0;
 
     var offsets = $(element).offset();
 
-    $(this).offset({top: (offsets.top + options.offsetTop),
-      left: (offsets.left + options.offsetLeft)});
+    $(this).offset({top: (offsets.top + offsetTop),
+      left: (offsets.left + offsetLeft)});
 
-    if (options.cloneWidth) $(this).width($(element).width());
-    if (options.cloneHeight) $(this).height($(element).height());
+    if (cloneWidth) $(this).width($(element).width());
+    if (cloneHeight) $(this).height($(element).height());
 
     return this;
   }
@@ -308,7 +313,7 @@ add_event_tag:function(dest,ev) {
 			var err_evs = too_many_events;
 			dest.removeAttr("too_many_events");
 			var date = dest.attr('id').substr(7);
-			var err = $('tooManyEventsCell_'+date);
+			var err = document.getElementById('tooManyEventsCell_'+date);
 			err.parentNode.removeChild(err);
 			jQuery.each(err_evs,function(i,id) {
 				if(typeof id == undefined) return;
@@ -352,12 +357,12 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 			f = f.replace('__TIMELESS__','0');
 		}
 
-		Event.observe(cell_id,'dblclick',function(e){eval(f)});
-		Event.observe(cell_id,'touchend',function(e){
+		jQuery(document.getElementById(cell_id)).on('dblclick',function(e){eval(f)});
+		jQuery(document.getElementById(cell_id)).on('touchend',function(e){
 		    var now = new Date().getTime();
-		    var lastTouch = $(this).readAttribute('lastTouch') || 0;
+		    var lastTouch = jQuery(this).attr('lastTouch') || 0;
 		    var delta = now-lastTouch;
-		    $(this).writeAttribute('lastTouch',now);
+		    jQuery(this).attr('lastTouch',now);
 		    if(delta<500)
     		    eval(f);
 		});
@@ -378,18 +383,19 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 				Epesi.procOn++;
 				Epesi.updateIndicator();
 //				element.css({zIndex:0});
-				new Ajax.Request('modules/Utils/Calendar/update.php',{
+				jQuery.ajax('modules/Utils/Calendar/update.php',{
 					method:'post',
-					parameters:{
+					data:{
 						ev_id: element.attr('id').substr(21),
 						cell_id: droppable.attr('id').substr(7),
 						path: mpath,
 						cid: ecid,
 						page_type: Utils_Calendar.page_type
 					},
-					onComplete: function(t) {
+					dataType: 'text',
+					complete: function(jqXHR) {
 						var reject=false;
-						eval(t.responseText);
+						eval(jqXHR.responseText);
 						if(!reject) {
 							setTimeout(function() {
 							if(Utils_Calendar.page_type=='month') {
@@ -426,12 +432,9 @@ activate_dnd:function(ids_in,new_ev,mpath,ecid) {
 						Epesi.procOn--;
 						Epesi.updateIndicator();
 					},
-					onException: function(t,e) {
-						throw(e);
-					},
-					onFailure: function(t) {
-						alert('Failure ('+t.status+')');
-						Epesi.text(t.responseText,'error_box','p');
+					error: function(jqXHR) {
+						alert('Failure ('+jqXHR.status+')');
+						Epesi.text(jqXHR.responseText,'error_box','p');
 					}
 				});
 			}
@@ -462,17 +465,18 @@ delete_event:function(eid,mpath,ecid) {
 	Epesi.updateIndicatorText("Deleting event");
 	Epesi.procOn++;
 	Epesi.updateIndicator();
-	new Ajax.Request('modules/Utils/Calendar/update.php',{
+	jQuery.ajax('modules/Utils/Calendar/update.php',{
 			method:'post',
-			parameters:{
+			data:{
 				ev_id: eid.substr(21),
 				cell_id: 'trash',
 				path: mpath,
 				cid: ecid
 			},
-			onComplete: function(t) {
+			dataType: 'text',
+			complete: function(jqXHR) {
 				var reject=false;
-				eval(t.responseText);
+				eval(jqXHR.responseText);
                 var element = Utils_Calendar.jq_id(eid);
 				if(reject) {
                     Utils_Calendar.revert_element(element);
@@ -487,12 +491,9 @@ delete_event:function(eid,mpath,ecid) {
 				Epesi.procOn--;
 				Epesi.updateIndicator();
 			},
-			onException: function(t,e) {
-				throw(e);
-			},
-			onFailure: function(t) {
-				alert('Failure ('+t.status+')');
-				Epesi.text(t.responseText,'error_box','p');
+			error: function(jqXHR) {
+				alert('Failure ('+jqXHR.status+')');
+				Epesi.text(jqXHR.responseText,'error_box','p');
 			}
 	});
 },
@@ -532,4 +533,4 @@ destroy:function() {
 	Utils_Calendar.jq_cache = {};
 }
 };
-document.observe('e:loading', Utils_Calendar.destroy);
+jQuery(document).on('e:loading', Utils_Calendar.destroy);

@@ -137,7 +137,7 @@ class Utils_MessengerCommon extends ModuleCommon {
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.
-			'if(utils_messenger_on) new Ajax.Request(\'modules/Utils/Messenger/refresh.php\',{method:\'get\'});'.
+			'if(utils_messenger_on) jQuery.ajax(\'modules/Utils/Messenger/refresh.php\',{method:\'get\',dataType:\'script\'});'.
 			'};setInterval(\'utils_messenger_refresh()\',180000);utils_messenger_refresh()');
 
 ?>

@@ -1,5 +1,13 @@
 <div class="epesi-qf-row-wrap">
 {$form_open}
+{* Plain Bootstrap .card - deliberately no epesi-qf-specific override, same
+   as Apps_ActivityReport's own filter-form card: this theme's base .card
+   rule already gives a white/dark-surface background, subtle border and
+   soft shadow that adapt with the light/dark toggle for free. Per request,
+   every QuickForm-rendered form gets this treatment, not just modules (like
+   Activity Report) that hand-rolled their own card markup. *}
+<div class="card mb-3">
+<div class="card-body">
 
 {if isset($form_data.header)}
 {foreach from=$form_data.header item=h}
@@ -33,5 +41,7 @@
 	{/foreach}
 </div>
 
+</div>
+</div>
 {$form_close}
 </div>

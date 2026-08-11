@@ -1,12 +1,18 @@
-.Utils_RecordBrowser__Filter > table {
-	margin-left: auto;
-	margin-right: 0;
-	border-spacing: 1px;
+/* Was a <table> hand-wrapping every 4 label/data pairs into a new <tr> (see
+   elements.tpl); .epesi-rbf-row is the real flex container that replaces
+   it now - the browser decides how many .epesi-rbf-pairs fit per line. */
+.epesi-rbf-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 1px;
 }
-.epesi_rtl .Utils_RecordBrowser__Filter > table {
-	margin-left: 0;
-	margin-right: auto;
-	border-spacing: 1px;
+.epesi_rtl .epesi-rbf-row {
+	justify-content: flex-start;
+}
+
+.epesi-rbf-pair {
+	display: flex;
 }
 
 .Utils_RecordBrowser__Filter {
@@ -21,7 +27,8 @@
 .Utils_RecordBrowser__Filter .label {
     color: #FFFFFF;
     height: 28px;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
     padding-left: 5px;
     padding-right: 5px;
 
@@ -90,15 +97,14 @@
 #Utils_RecordBrowser__Filter .buttons,
 #Utils_RecordBrowser__Filter .buttons_disabled {
 	cursor: pointer;
-	display: block;
-    float: right;
+	display: flex;
+	align-items: center;
     padding-right: 8px;
 }
 
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons,
 .epesi_rtl #Utils_RecordBrowser__Filter .buttons_disabled {
     padding-left: 8px;
-    float: left;
 }
 
 .Utils_RecordBrowser__Filter .buttons input,

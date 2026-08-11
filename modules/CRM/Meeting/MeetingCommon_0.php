@@ -129,34 +129,34 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			$form->addElement('hidden','duration_switch',$duration_switch,array('id'=>'duration_switch'));
 			eval_js_once('crm_calendar_duration_switcher = function(x) {'.
-				'var sw = $(\'duration_switch\');'.
+				'var sw = document.getElementById(\'duration_switch\');'.
 				'if((!x && sw.value==\'0\') || (x && sw.value==\'1\')) {'.
-				'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.hide();'.
-				'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.show();'.
+				'var end_b=document.getElementById(\'crm_calendar_event_end_block\');if(end_b)jQuery(end_b).hide();'.
+				'var dur_b=document.getElementById(\'crm_calendar_duration_block\');if(dur_b)jQuery(dur_b).show();'.
 				'sw.value=\'1\';'.
 				'} else {'.
-				'var end_b=$(\'crm_calendar_event_end_block\');if(end_b)end_b.show();'.
-				'var dur_b=$(\'crm_calendar_duration_block\');if(dur_b)dur_b.hide();'.
+				'var end_b=document.getElementById(\'crm_calendar_event_end_block\');if(end_b)jQuery(end_b).show();'.
+				'var dur_b=document.getElementById(\'crm_calendar_duration_block\');if(dur_b)jQuery(dur_b).hide();'.
 				'sw.value=\'0\';'.
 				'}}');
 			eval_js_once('crm_calendar_event_timeless = function(val) {'.
 					'var cal_style;'.
-					'var tdb=$(\'toggle_duration_button\');'.
+					'var tdb=document.getElementById(\'toggle_duration_button\');'.
 					'if(tdb==null) return;'.
 					'if(val){'.
 					'cal_style = \'none\';'.
 					'}else{'.
 					'cal_style = \'\';'.
 					'}'.
-					'var db = $(\'duration_end_date__data_\');'.
+					'var db = document.getElementById(\'duration_end_date__data_\');'.
 					'if(db) db.style.display = cal_style;'.
-					'var ts = $(\'time_s\');'.
+					'var ts = document.getElementById(\'time_s\');'.
 					'if(ts) ts.style.display = cal_style;'.
 				'}');
 			$form->addElement('button', 'toggle', __('Toggle'), array('onclick'=>'crm_calendar_duration_switcher()', 'id'=>'toggle_duration_button', 'class'=>'button'));
-			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless'));
+			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('onClick'=>'crm_calendar_event_timeless(this.checked)', 'id'=>'timeless', 'class'=>'epesi-switch'));
 
-			eval_js('crm_calendar_event_timeless($("timeless").checked)');
+			eval_js('crm_calendar_event_timeless(document.getElementById("timeless").checked)');
 			eval_js('crm_calendar_duration_switcher(1)');
 
 			$form->setDefaults(array('duration_switch'=>$duration_switch));
@@ -167,16 +167,16 @@ class CRM_MeetingCommon extends ModuleCommon {
 
 			$form->addFormRule(array('CRM_MeetingCommon','check_date_and_time'));
 		} else {
-			$form->addElement('checkbox', 'timeless', __('Timeless'));
+			$form->addElement('checkbox', 'timeless', __('Timeless'), null, array('class'=>'epesi-switch'));
 			$form->setDefaults(array('timeless'=>($default==-1?1:0)));
 		}
 
 		//messanger
 		if($mode == 'add') {
-			eval_js_once('crm_calendar_event_messenger = function(v) {var mb=$("messenger_block");if(!mb)return;if(v)mb.show();else mb.hide();}');
+			eval_js_once('crm_calendar_event_messenger = function(v) {var mb=document.getElementById("messenger_block");if(!mb)return;if(v)jQuery(mb).show();else jQuery(mb).hide();}');
 			$form->addElement('select','messenger_before',__('Popup alert'),array(0=>__('on event start'), 900=>__('15 minutes before event'), 1800=>__('30 minutes before event'), 2700=>__('45 minutes before event'), 3600=>__('1 hour before event'), 2*3600=>__('2 hours before event'), 3*3600=>__('3 hours before event'), 4*3600=>__('4 hours before event'), 8*3600=>__('8 hours before event'), 12*3600=>__('12 hours before event'), 24*3600=>__('24 hours before event')));
 			$form->addElement('textarea','messenger_message',__('Popup message'), array('id'=>'messenger_message'));
-			$form->addElement('select','messenger_on',__('Alert'),array('none'=>__('None'),'me'=>__('me'),'all'=>__('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");$("messenger_message").value=$("title").value;'));
+			$form->addElement('select','messenger_on',__('Alert'),array('none'=>__('None'),'me'=>__('me'),'all'=>__('all selected employees')),array('onChange'=>'crm_calendar_event_messenger(this.value!="none");document.getElementById("messenger_message").value=document.getElementById("title").value;'));
 //			$form->addElement('checkbox','messenger_on',__('Alert me'),null,array('onClick'=>'crm_calendar_event_messenger(this.checked);$("messenger_message").value=$("event_title").value;'));
 			eval_js('crm_calendar_event_messenger('.(($form->exportValue('messenger_on')!='none' && $form->exportValue('messenger_on')!='')?1:0).')');
 			$form->addFormRule(array('CRM_MeetingCommon', 'check_my_user_form'));
@@ -222,10 +222,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		eval_js('recurrence_type_switch = function(arg){'.
 			'if (arg==0) mode="none";'.
 			'else mode="";'.
-			'$("recurrence_end_date_row").style.display=mode;'.
+			'document.getElementById("recurrence_end_date_row").style.display=mode;'.
 			'if (arg!=8) mode="none";'.
 			'else mode="";'.
-			'$("recurrence_hash_row").style.display=mode;'.
+			'document.getElementById("recurrence_hash_row").style.display=mode;'.
 		'}');
 		$options = array(
 			''=>__('No'),
@@ -242,7 +242,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			11=>__('Every year')
 			);
 		if ($mode=='add' || $mode=='edit') {
-			eval_js('recurrence_type_switch($("recurrence_type").value);');
+			eval_js('recurrence_type_switch(document.getElementById("recurrence_type").value);');
 			$form->addElement('select', $field, __('Recurring Event'), $options, array('id'=>$field, 'onchange'=>'recurrence_type_switch(this.value);'));
 			if ($mode=='edit') $form->setDefaults(array($field=>$default));
 		} else {
@@ -255,14 +255,14 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if ($mode=='add' || $mode=='edit') {
 			$form->addElement('datepicker', $field, __('Recurrence End Date'), array('id'=>$field));
 			eval_js('recurrence_end_switch = function(arg){'.
-				'reds = $("recurrence_end");'.
+				'reds = document.getElementById("recurrence_end");'.
 				'if (arg) reds.disabled="";'.
 				'else {'.
 					'reds.disabled="1";'.
-					'$("recurrence_end").value="";'.
+					'document.getElementById("recurrence_end").value="";'.
 				'}'.
 			'}');
-			$form->addElement('checkbox', 'recurrence_end_checkbox', __('Recurrence end'), null, array('id'=>'recurrence_end_checkbox','onclick'=>'recurrence_end_switch(this.checked);'));
+			$form->addElement('checkbox', 'recurrence_end_checkbox', __('Recurrence end'), null, array('id'=>'recurrence_end_checkbox','onclick'=>'recurrence_end_switch(this.checked);','class'=>'epesi-switch'));
 			eval_js('recurrence_end_switch('.($default?'1':'0').');');
 			if ($mode=='edit') {
 				$form->setDefaults(array($field=>$default));
@@ -419,18 +419,6 @@ class CRM_MeetingCommon extends ModuleCommon {
 			Utils_MessengerCommon::delete_by_id('CRM_Calendar_Event:'.$values['id']);
 			break;
 		case 'display':
-			$pdf = Utils_RecordBrowser::$rb_obj->pack_module(Libs_TCPDF::module_name(), 'L');
-			if ($pdf->prepare()) {
-				$pdf->set_title($values['title']);
-				$pdf->set_subject('');
-				$pdf->prepare_header();
-				$pdf->AddPage();
-				$v = CRM_Calendar_EventCommon::get(DB::GetOne('SELECT id FROM crm_calendar_custom_events_handlers WHERE group_name=%s', array('Meetings')).'#'.$values['id']);
-				$ev_mod = Utils_RecordBrowser::$rb_obj->init_module(CRM_Calendar_Event::module_name());
-				$ev_mod->make_event_PDF($pdf,$v,true,'view');
-			}
-			$pdf->add_actionbar_icon('Print');
-
 			if (isset($_REQUEST['day'])) $values['date'] = $_REQUEST['day'];
 			$ret = array();
             if ($values['time']) {
@@ -699,7 +687,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 			$next['color'] = 'gray';
 
 		if($r['recurrence_type'])
-			$next['title'] = '<img src="'.Base_ThemeCommon::get_template_file('CRM_Calendar_Event','recurrence.png').'" border=0 hspace=0 vspace=0 align=left>'.$next['title'];
+			$next['recurring'] = true;
 
 		$next['view_action'] = Utils_RecordBrowserCommon::create_record_href('crm_meeting', $r['id'], 'view', array('day'=>$day));
 

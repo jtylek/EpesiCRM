@@ -1,64 +1,53 @@
-{* Get total number of fields to display *}
-{assign var=count value=0}
+{* Split multiselects out from the regular fields - long text fields are
+   already kept separate by RecordBrowser_0.php itself ($longfields). No
+   row/column pre-computation anymore: the fluid CSS multi-column container
+   below (.epesi-rv-fluid) lets the browser decide how many columns fit,
+   based on available width, instead of a fixed PHP-computed count. *}
 {php}
 	$this->_tpl_vars['multiselects'] = array();
 {/php}
 {foreach key=k item=f from=$fields name=fields}
-	{if $f.type!="multiselect"}
-		{assign var=count value=$count+1}
-	{else}
+	{if $f.type=="multiselect"}
 		{php}
 			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
 		{/php}
 	{/if}
 {/foreach}
-{php}
-	$this->_tpl_vars['cols'] = (int)$this->_tpl_vars['cols']; if ($this->_tpl_vars['cols'] < 1) $this->_tpl_vars['cols'] = 1; // PHP 8: cols may arrive as string/empty; cast to int + guard against div-by-zero
-	$this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
-	$this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-	if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
-	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
-{/php}
 
 {if $main_page}
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
-				{if isset($new)}
-					{foreach item=n from=$new}
-						&nbsp;&nbsp;&nbsp;{$n}
-					{/foreach}
-				{/if}
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="Utils_RecordBrowser__table">
+	<div class="Utils_RecordBrowser__table_row">
+		<div class="Utils_RecordBrowser__table_icon">
+			<div class="name">
+				<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+				<div class="label">{$caption}</div>
+			</div>
+		</div>
+		<div class="required_fav_info">
+			&nbsp;*&nbsp;{$required_note}
+			{if isset($subscription_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+			{/if}
+			{if isset($fav_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+			{/if}
+			{if isset($info_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$info_tooltip}
+			{/if}
+			{if isset($clipboard_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+			{/if}
+			{if isset($history_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$history_tooltip}
+			{/if}
+			{if isset($new)}
+				{foreach item=n from=$new}
+					&nbsp;&nbsp;&nbsp;{$n}
+				{/foreach}
+			{/if}
+		</div>
+	</div>
+</div>
 
 {if isset($click2fill)}
     {$click2fill}
@@ -71,78 +60,75 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
-			{assign var=x value=1}
-			{assign var=y value=1}
-			{foreach key=k item=f from=$fields name=fields}
-				{if $f.type!="multiselect"}
-					{if !isset($focus) && $f.type=="text"}
-						{assign var=focus value=$f.element}
+{* Field grid - was a <table> of <table>s with a PHP-computed fixed column
+   count (RecordBrowser_0.php::view_entry_details()'s old $cols param); now a
+   flat sequence of divs inside a CSS multi-column container so the browser
+   picks however many columns fit the available width. Built directly from
+   each field's raw pieces ($f.label/.html/.error/.help/etc, all provided by
+   get_field_display_options() alongside the pre-rendered $f.full_field) -
+   NOT through single_field.tpl (which now also emits divs, not <tr>/<td>,
+   but this generic template still builds its rows inline rather than going
+   through it, since it needs the CSS multi-column wrapper single_field.tpl
+   doesn't know about). Contact.tpl/mails.tpl/PhoneCall's and Meeting's
+   default.tpl/Attachment's View_entry.tpl also went fully div-based, using
+   the fixed-column-count .epesi-rv-columns/.column pattern instead of this
+   file's fluid CSS-multicolumn one. Reuses the existing .label/.data/
+   .form_error/.automulti/etc classes and CSS directly - all already
+   unscoped from any table ancestor requirement - except a handful of
+   view/edit-mode-specific rules that *were* table.view/table.edit-scoped,
+   which have an equivalent added under .epesi-rv-fluid.view/.edit in
+   View_entry.css instead. *}
+<div class="Utils_RecordBrowser__View_entry">
+<div class="epesi-rv-fluid {if $action == 'view'}view{else}edit{/if}">
+	{foreach key=k item=f from=$fields name=fields}
+		{if $f.type!="multiselect"}
+			{if !isset($focus) && $f.type=="text"}
+				{assign var=focus value=$f.element}
+			{/if}
+			<div class="epesi-rv-row">
+				<div class="label{if $f.type == 'long text'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+				<div class="data{if $f.type == 'long text'} long_data{/if} {$f.style}" id="_{$f.element}__data">
+					{if $f.error}{$f.error}{/if}
+					{if $f.help}
+						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
 					{/if}
-
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
-					{/if}
-						{$f.full_field}
-					{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-						{if $x>$no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/if}
-			{/foreach}
-		</tr>
-		{if !empty($multiselects)}
-			<tr>
-				{assign var=x value=1}
-				{assign var=y value=1}
-				{foreach key=k item=f from=$multiselects name=fields}
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{/if}
-					{$f.full_field}
-					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-						{if $x>$mss_no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/foreach}
-			</tr>
+					<div>
+						{$f.html}{if $action == 'view'}&nbsp;{/if}
+					</div>
+				</div>
+			</div>
 		{/if}
-		<tr>
-			<td colspan="{$cols}">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{$f.full_field}
-				{/foreach}
-			</table>
-			</td>
-		</tr>
-	</tbody>
-</table>
+	{/foreach}
+</div>
+{if !empty($multiselects)}
+	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
+		{foreach key=k item=f from=$multiselects name=fields}
+			<div class="epesi-rv-row">
+				<div class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+				<div class="data {$f.style}" id="_{$f.element}__data">
+					{if $f.error}{$f.error}{/if}
+					{if $f.help}
+						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
+					{/if}
+					<div>
+						{$f.html}{if $action == 'view'}&nbsp;{/if}
+					</div>
+				</div>
+			</div>
+		{/foreach}
+	</div>
+{/if}
+{* Long text fields were always full-width, single-column - unaffected by
+   the column split either before or after this change, so left going
+   through single_field.tpl/{$f.full_field} in a plain table exactly as
+   before, just without the outer colspan wrapper (no longer needed, since
+   there's no outer table to span). *}
+<div class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
+	{foreach key=k item=f from=$longfields name=fields}
+		{$f.full_field}
+	{/foreach}
+</div>
+</div>
 
 {if $main_page}
 {php}

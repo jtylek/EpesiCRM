@@ -29,14 +29,13 @@ class Applets_RssFeed extends Module {
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
 			'rssfeedfunc = function(name,fee,num,cache){'.
-			'if(!$(\'rssfeed_\'+name)) return;'.
+			'if(!document.getElementById(\'rssfeed_\'+name)) return;'.
 			'if(cache && typeof rssfeedcache[name] != \'undefined\')'.
-				'$(\'rssfeed_\'+name).innerHTML = rssfeedcache[name];'.
+				'document.getElementById(\'rssfeed_\'+name).innerHTML = rssfeedcache[name];'.
 			'else '.
-				'new Ajax.Updater(\'rssfeed_\'+name,\'modules/Applets/RssFeed/refresh.php\',{'.
-					'method:\'post\','.
-					'onComplete:function(r){rssfeedcache[name]=r.responseText},'.
-					'parameters:{feed:fee, number:num, cid: Epesi.client_id}});'.
+				'jQuery(\'#rssfeed_\'+name).load(\'modules/Applets/RssFeed/refresh.php\','.
+					'{feed:fee, number:num, cid: Epesi.client_id},'.
+					'function(r){rssfeedcache[name]=r});'.
 			'}');
 		eval_js_once('setInterval(\'rssfeedfunc(\\\''.$name.'\\\',\\\''.Epesi::escapeJS($values['rssfeed'],false).'\\\' ,'.$values['rssnumber'].' , 0)\',1799993)'); //29 minutes and 53 seconds
 

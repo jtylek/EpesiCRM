@@ -22,7 +22,7 @@ function disableSelection(target){
 
 var switch_direction = '';
 function time_grid_mouse_down(from_time,day,switchd) {
-	elem = $(day+'__'+from_time);
+	elem = document.getElementById(day+'__'+from_time);
 	if (!elem) {
 //		alert(day+'__'+from_time+': element not found');
 		return;
@@ -40,7 +40,7 @@ function time_grid_mouse_down(from_time,day,switchd) {
 
 function time_grid_mouse_move(from_time,day) {
 	if (switch_direction=='') return;
-	elem = $(day+'__'+from_time);
+	elem = document.getElementById(day+'__'+from_time);
 	if (has_class(elem,'noconflict'))
 		elem.className = 'border_radius_3px noconflict '+switch_direction;
 	else
@@ -48,7 +48,7 @@ function time_grid_mouse_move(from_time,day) {
 }
 
 function time_grid_change_conflicts(from_time,day,conflict) {
-	elem = $(day+'__'+from_time);
+	elem = document.getElementById(day+'__'+from_time);
 	if (!elem) return;
 	if (conflict)
 		switch_conflict = 'conflict';
@@ -64,32 +64,33 @@ function resource_changed(resource,type) {
 	if (!type) {
 		opts = new Array();
 		i=0;
-		while (i!=$(resource).options.length){
-			opts[i] = $(resource).options[i].value;
+		while (i!=document.getElementById(resource).options.length){
+			opts[i] = document.getElementById(resource).options[i].value;
 			i++;
 		}
-		rvalue = $(resource).value;
+		rvalue = document.getElementById(resource).value;
 	} else {
 		if (type=='checkbox') {
 			opts = 0;
-			if ($(resource).checked) rvalue = 1;
+			if (document.getElementById(resource).checked) rvalue = 1;
 			else rvalue = 0;
 		}
 		if (type=='datepicker') {
 			opts = 0;
-			rvalue = $(resource).value;
+			rvalue = document.getElementById(resource).value;
 		}
 	}
-	new Ajax.Request('modules/Utils/Planner/resource_change.php', {
+	jQuery.ajax('modules/Utils/Planner/resource_change.php', {
 		method: 'post',
-		parameters:{
-			resource:Object.toJSON(resource),
-			options:Object.toJSON(opts),
-			value:Object.toJSON(rvalue),
+		data:{
+			resource:JSON.stringify(resource),
+			options:JSON.stringify(opts),
+			value:JSON.stringify(rvalue),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		dataType: 'text',
+		success:function(responseText) {
+			eval(responseText);
 		}
 	});
 }
@@ -103,14 +104,15 @@ function update_grid() {
 //		frames[id[0]][id[1]] = true;
 		frames[i] = frames_elems[i].id;
 	}
-	new Ajax.Request('modules/Utils/Planner/grid_change.php', {
+	jQuery.ajax('modules/Utils/Planner/grid_change.php', {
 		method: 'post',
-		parameters:{
-			frames:Object.toJSON(frames),
+		data:{
+			frames:JSON.stringify(frames),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		dataType: 'text',
+		success:function(responseText) {
+			eval(responseText);
 		}
 	});
 }

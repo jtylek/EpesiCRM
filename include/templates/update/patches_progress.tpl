@@ -1,26 +1,26 @@
 <h4>{$heading}:</h4>
 <p class="text-muted">{$last_refresh_label} - {$last_refresh}</p>
-<table class="table table-sm table-striped align-middle">
-	<thead>
-		<tr><th>{$module_label}</th><th>{$patch_label}</th><th class="text-end">{$status_label}</th></tr>
-	</thead>
-	<tbody>
+<div role="table" style="display: grid; grid-template-columns: auto 1fr auto; align-items: center;">
+	<div role="row" style="display: contents;">
+		<div class="fw-semibold border-bottom py-1 pe-2" role="columnheader">{$module_label}</div>
+		<div class="fw-semibold border-bottom py-1 pe-2" role="columnheader">{$patch_label}</div>
+		<div class="fw-semibold border-bottom py-1 text-end" role="columnheader">{$status_label}</div>
+	</div>
 	{foreach from=$rows item=row}
-		<tr>
-			<td>{$row.module}</td>
-			<td>{$row.description}</td>
-			<td class="text-end">
-				{if $row.timeout}
-					<div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
-				{else}
-					<span class="badge text-bg-secondary">{$pending_label}</span>
-				{/if}
-				{if $row.user_message}
-					<div class="small text-muted">{$row.user_message}</div>
-				{/if}
-			</td>
-		</tr>
+	<div role="row" style="display: contents;">
+		<div class="border-bottom py-1 pe-2" role="cell">{$row.module}</div>
+		<div class="border-bottom py-1 pe-2" role="cell">{$row.description}</div>
+		<div class="border-bottom py-1 text-end" role="cell">
+			{if $row.timeout}
+				<div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+			{else}
+				<span class="badge text-bg-secondary">{$pending_label}</span>
+			{/if}
+			{if $row.user_message}
+				<div class="small text-muted">{$row.user_message}</div>
+			{/if}
+		</div>
+	</div>
 	{/foreach}
-	</tbody>
-</table>
+</div>
 <script type="text/javascript">location.reload(true)</script>

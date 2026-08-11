@@ -8,6 +8,46 @@
 	background-color: #E0E0EE;
 }
 
+/* Acl_0.php sets colspan="2" on this cell so the permission name spans the
+   full row (over the icon-actions column, suppressed here via no_actions())
+   as a section-header bar. But GenericBrowser's rows are display:table-cell
+   divs now (html_grid_epesi, not a real <table>), and an HTML colspan
+   attribute has no effect there - verified empirically, including that
+   switching the cell to display:block does NOT fix it either: per the CSS
+   table anonymous-box rules, a table-row-group's non-table-row child (this
+   row, if given display:block) still gets wrapped in an anonymous
+   table-row+table-cell pair, landing right back in the same single-column
+   width negotiation.
+   position:absolute is the one reliable escape: per spec it forces the
+   computed display to block ("blockified") and is explicitly exempted from
+   that anonymous-table-object fixup, so it never gets re-wrapped. With
+   left:0/right:0 and no width, it resolves to the full width of its
+   containing block - the row below, made position:relative so that's this
+   row's own box, which (still a real display:table-row, untouched) already
+   spans the table's complete rendered width the normal way.
+   Both this row's remaining children are now height-less: the actions
+   placeholder is display:none (no_actions() - GenericBrowser hides rather
+   than empties it), and the permission cell itself no longer participates
+   in table layout at all once absolutely positioned - so nothing is left
+   to size the row, which collapses to 0 without an explicit height. Plain
+   height (unlike min-height/max-height, explicitly excluded from applying
+   to internal table-display elements by the CSS2.1 table height algorithm)
+   does apply to a table-row and folds in as its minimum used height, so
+   this is the one such property that actually works here. Matches this
+   table's own normal row height (14px line-height + 3px/2px padding, see
+   .Utils_GenericBrowser__td). */
+.Utils_GenericBrowser__tr:has(> .Base_Acl__permission) {
+	position: relative;
+	height: 21px;
+}
+.Base_Acl__permission {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	box-sizing: border-box;
+}
+
 .Base_Acl__edit_permissions select,
 .Base_Acl__edit_permissions input {
 	width: auto;

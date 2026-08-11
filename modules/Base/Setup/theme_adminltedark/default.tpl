@@ -3,7 +3,7 @@
 	eval_js('base_setup__preprocess_filter = base_setup__last_filter;');
 	eval_js('base_setup__last_filter = "";');
 	load_js('modules/Base/Setup/theme/default.js');
-	load_js('modules/Base/Setup/theme_adminlte/default.js');
+	load_js('modules/Base/Setup/theme_adminltedark/default.js');
 	eval_js('if(base_setup__preprocess_filter!=null)base_setup__filter_by(base_setup__preprocess_filter);');
 {/php}
 
@@ -11,7 +11,7 @@
    theme/default.js's base_setup__filter_by() and its
    base_setup__last_options/last_actions/last_actions_option globals still
    work), but show/hide of the actions/options panels themselves calls
-   theme_adminlte/default.js's epesi_setup__show/hide_actions/options
+   theme_adminltedark/default.js's epesi_setup__show/hide_actions/options
    instead of the shared, Prototype-Effect-animated
    base_setup__show/hide_actions/options - see that file's comment for why.
    - #Base_Setup__filter_{arg} ids + the filter's onclick, and the fact that
@@ -89,7 +89,7 @@
 									{$action.name}
 								</div>
 								<div class="epesi-setup-option-action">
-									<div id="show_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__show_actions('{$name}','{$option}');epesi_setup__position_centered('hide_actions_{$name}__{$option}',this);">
+									<div id="show_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__position_centered('hide_actions_{$name}__{$option}',this);epesi_setup__show_actions('{$name}','{$option}');">
 										<span>{$action.status}</span>{if !empty($action.buttons)}<i class="bi bi-chevron-down"></i>{/if}
 									</div>
 									{if !empty($action.buttons)}
@@ -101,7 +101,7 @@
 								{if !empty($action.buttons)}
 									<div class="epesi-setup-action-panel" id="hide_actions_{$name}__{$option}" style="display:none;">
 										{foreach from=$action.buttons item=button}
-											<div {$button.href} class="epesi-setup-subaction {$button.style}" onclick="Effect.Fade($('hide_actions_{$name}'), {literal}{duration:0.4}{/literal});">
+											<div {$button.href} class="epesi-setup-subaction {$button.style}" onclick="document.getElementById('hide_actions_{$name}').style.display='none';">
 												{$button.label}
 											</div>
 										{/foreach}

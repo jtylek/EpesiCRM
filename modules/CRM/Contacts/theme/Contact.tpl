@@ -23,39 +23,39 @@
 	$this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
 {/php}
 
-<table class="Utils_RecordBrowser__table" border="0" cellpadding="0" cellspacing="0">
-	<tbody>
-		<tr>
-			<td style="width:100px;">
-				<div class="name">
-					<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
-					<div class="label">{$caption}</div>
-				</div>
-			</td>
-			<td class="required_fav_info">
-				&nbsp;*&nbsp;{$required_note}
-				{if isset($subscription_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
-				{/if}
-				{if isset($fav_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$fav_tooltip}
-				{/if}
-				{if isset($info_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$info_tooltip}
-				{/if}
-				{if isset($clipboard_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
-				{/if}
-				{if isset($history_tooltip)}
-					&nbsp;&nbsp;&nbsp;{$history_tooltip}
-				{/if}
+<div class="Utils_RecordBrowser__table">
+	<div class="Utils_RecordBrowser__table_row">
+		<div class="Utils_RecordBrowser__table_icon">
+			<div class="name">
+				<img alt="&nbsp;" class="icon" src="{$icon}" width="32" height="32" border="0">
+				<div class="label">{$caption}</div>
+			</div>
+		</div>
+		<div class="required_fav_info">
+			&nbsp;*&nbsp;{$required_note}
+			{if isset($subscription_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$subscription_tooltip}
+			{/if}
+			{if isset($fav_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$fav_tooltip}
+			{/if}
+			{if isset($info_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$info_tooltip}
+			{/if}
+			{if isset($clipboard_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$clipboard_tooltip}
+			{/if}
+			{if isset($history_tooltip)}
+				&nbsp;&nbsp;&nbsp;{$history_tooltip}
+			{/if}
+			{if isset($new)}
 				{foreach item=n from=$new}
 					&nbsp;&nbsp;&nbsp;{$n}
 				{/foreach}
-			</td>
-		</tr>
-	</tbody>
-</table>
+			{/if}
+		</div>
+	</div>
+</div>
 
 {if isset($click2fill)}
     {$click2fill}
@@ -69,28 +69,25 @@
 
 <div class="Utils_RecordBrowser__container">
 
-{* Outside table *}
-<table class="Utils_RecordBrowser__View_entry" cellpadding="0" cellspacing="0" border="0">
-	<tbody>
-		<tr>
-			<td class="left-column">
-				<table border="0" cellpadding="0" cellspacing="0" class="{if $action == 'view'}view{else}edit{/if}">
-					<tbody>
+<div class="Utils_RecordBrowser__View_entry">
+<div class="epesi-rv-columns">
+	<div class="column left-column" style="width: {$cols_percent}%;">
+		<div class="{if $action == 'view'}view{else}edit{/if}">
 						{* create new company *}
 						{if isset($form_data.create_company)}
-						<tr>
-							<td class="label" nowrap>
+						<div class="epesi-rv-row">
+							<div class="label">
 								{$form_data.create_company.label}
-							</td>
-							<td>
+							</div>
+							<div style="flex: 1 1 auto; min-width: 0;">
 								<div class="create-company" style="width:24px; display:inline-block; float: left">
 									{$form_data.create_company.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
 								<div style="display:inline-block;width: calc(100% - 24px)" class="data">
 									{if isset($form_data.create_company_name.error)}<span class="error">{$form_data.create_company_name.error}</span>{/if}{$form_data.create_company_name.html}{if $action == 'view'}&nbsp;{/if}
 								</div>
-							</td>
-						</tr>
+							</div>
+						</div>
 						{/if}
 						{assign var=x value=1}
 						{if $action=='view'}
@@ -105,65 +102,50 @@
 								{/if}
 
 								{if $y == 1 && $x >= 2}
-								<td class="column" style="width: {$cols_percent}%;">
-									<table cellpadding="0" cellspacing="0" border="0" class="{if $action == 'view'}view{else}edit{/if}">
+								</div>
+							</div>
+							<div class="column" style="width: {$cols_percent}%;">
+								<div class="{if $action == 'view'}view{else}edit{/if}">
 								{/if}
 								{$f.full_field}
 								{if $y==$rows or ($y==$rows-1 and $x>$no_empty)}
-									{if $x>$no_empty}
-										<tr style="display:none;">
-											<td class="label">&nbsp;</td>
-											<td colspan="2" class="data">&nbsp;</td>
-										</tr>
-									{/if}
 									{assign var=y value=1}
 									{assign var=x value=$x+1}
-									</table>
-								</td>
 								{else}
 									{assign var=y value=$y+1}
 								{/if}
 							{/if}
 						{/foreach}
-		</tr>
-		{if !empty($multiselects)}
-			<tr>
-				{assign var=x value=1}
+		</div>
+	</div>
+</div>
+{if !empty($multiselects)}
+	<div class="epesi-rv-columns">
+		{assign var=x value=1}
+		{assign var=y value=1}
+		{foreach key=k item=f from=$multiselects name=fields}
+			{if $y==1}
+			<div class="column" style="width: {$cols_percent}%;">
+				<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+			{/if}
+				{$f.full_field}
+			{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
 				{assign var=y value=1}
-				{foreach key=k item=f from=$multiselects name=fields}
-					{if $y==1}
-					<td class="column" style="width: {$cols_percent}%;">
-						<table cellpadding="0" cellspacing="0" border="0" class="multiselects {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-					{/if}
-					{$f.full_field}
-					{if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-						{if $x>$mss_no_empty}
-							<tr style="display:none;">
-								<td class="label">&nbsp;</td>
-								<td class="data">&nbsp;</td>
-							</tr>
-						{/if}
-						{assign var=y value=1}
-						{assign var=x value=$x+1}
-						</table>
-					</td>
-					{else}
-						{assign var=y value=$y+1}
-					{/if}
-				{/foreach}
-			</tr>
-		{/if}
-		<tr>
-			<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-				{foreach key=k item=f from=$longfields name=fields}
-					{$f.full_field}
-				{/foreach}
-			</table>
-			</td>
-		</tr>
-	</tbody>
-</table>
+				{assign var=x value=$x+1}
+				</div>
+			</div>
+			{else}
+				{assign var=y value=$y+1}
+			{/if}
+		{/foreach}
+	</div>
+{/if}
+<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+	{foreach key=k item=f from=$longfields name=fields}
+		{$f.full_field}
+	{/foreach}
+</div>
+</div>
 
 
 {php}

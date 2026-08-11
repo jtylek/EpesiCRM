@@ -171,7 +171,14 @@ class CRM_CalendarCommon extends ModuleCommon {
 		// Same session state the existing "Perspective" filter and the
 		// per-user event-source checkboxes already persist - see
 		// CRM_Calendar::body() and CRM_Calendar_Event::get_navigation_bar_additions().
-		CRM_Calendar_EventCommon::$filter = CRM_FiltersCommon::get();
+		// scope=mine is a compact-embed opt-in (Applets_MonthView) - restricts
+		// to the current user's own records, same scope string CRM_Calendar's
+		// own Agenda dashboard applet already uses (CRM_FiltersCommon::
+		// get_my_profile()). CRM_Calendar::body() never sends this param, so
+		// its own feed is unaffected.
+		CRM_Calendar_EventCommon::$filter = $request->query->get('scope') === 'mine'
+			? '('.CRM_FiltersCommon::get_my_profile().')'
+			: CRM_FiltersCommon::get();
 		CRM_Calendar_EventCommon::$events_handlers = Base_User_SettingsCommon::get('CRM_Calendar_Event', 'event_handlers');
 
 		// get_all() print()s a "too many events" notice on hitting

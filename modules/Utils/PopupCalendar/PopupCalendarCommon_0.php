@@ -37,10 +37,9 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 		// show_month()/show_year()/show_decade()/show_century()) - the adminlte
 		// variant only swaps the header/grid markup it builds for Bootstrap
 		// classes; positioning/show-hide below and datepicker.js's validation
-		// stay Prototype-based for both themes (Prototype is still loaded
-		// globally regardless of theme, see legacy-js-libraries-inventory).
+		// are jQuery-based for both themes.
 		if (Base_ThemeCommon::is_adminlte_family())
-			load_js('modules/Utils/PopupCalendar/theme_adminlte/main2.js');
+			load_js('modules/Utils/PopupCalendar/theme_adminltedark/main2.js');
 		else
 			load_js('modules/Utils/PopupCalendar/js/main2.js');
 		load_js('modules/Utils/PopupCalendar/datepicker.js');
@@ -56,8 +55,8 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			trigger_error('Invalid first day of week',E_USER_ERROR);
 
 		$calendar = '<div id="Utils_PopupCalendar">'.
-			'<table cellspacing="0" cellpadding="0" border="0"><tr><td id="datepicker_'.$name.'_header">error</td></tr>'.
-			'<tr><td id="datepicker_'.$name.'_view">calendar not loaded</td></tr></table></div>';
+			'<div id="datepicker_'.$name.'_header">error</div>'.
+			'<div id="datepicker_'.$name.'_view">calendar not loaded</div></div>';
 
 		$entry = 'datepicker_'.$name.'_calendar';
 		$butt = $id ?? 'datepicker_' . $name . '_button';
@@ -73,11 +72,23 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			$cal_out.
 			'</div>');
 
-		if(!isset($pos_js)) $pos_js = 'popup.clonePosition(\''.$butt.'\',{setWidth:false,setHeight:false,offsetTop:$(\''.$butt.'\').getHeight()});';
-		eval_js('if(Epesi.ie)$(\''.$entry.'\').style.position="fixed";else $(\''.$entry.'\').absolutize();');
+		if(!isset($pos_js)) $pos_js = 'jQuery(popup).clonePosition(document.getElementById(\''.$butt.'\'),{setWidth:false,setHeight:false,offsetTop:document.getElementById(\''.$butt.'\').offsetHeight});';
+		// Prototype's absolutize() also preserved the element's current
+		// rendered top/left/width/height when switching it to position:absolute
+		// - moot here, since this div stays display:none until the onClick
+		// handler above both repositions it via clonePosition() and reveals it
+		// via toggle() in the same synchronous call, so nothing is ever visible
+		// mid-transition.
+		eval_js('if(Epesi.ie)document.getElementById(\''.$entry.'\').style.position="fixed";else document.getElementById(\''.$entry.'\').style.position="absolute";');
 
-		$ret = 'onClick="var popup=$(\''.$entry.'\');'.$pos_js.';$(\''.$entry.'\').toggle()" href="javascript:void(0)" id="'.$butt.'"';
-		$function .= ';$(\''.$entry.'\').hide()';
+		// clonePosition() above only clones the trigger's own position, with no
+		// awareness of the viewport's edges - clampToViewport() (main2.js, both
+		// themes) nudges the now-visible popup back on-screen if it renders past
+		// the right edge of the window (e.g. a field anchored in a narrow/right-
+		// hand column). Only run once toggle() has actually shown the popup, not
+		// when the same click is hiding an already-open one.
+		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');'.$pos_js.';jQuery(popup).toggle();if(jQuery(popup).is(\':visible\'))Utils_PopupCalendar.clampToViewport(popup);" href="javascript:void(0)" id="'.$butt.'"';
+		$function .= ';jQuery(document.getElementById(\''.$entry.'\')).hide()';
 
 		if ($default) {
 			if (!is_numeric($default)) $default = strtotime($default);

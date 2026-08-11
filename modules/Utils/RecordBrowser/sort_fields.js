@@ -1,5 +1,5 @@
 function rb_admin_sort_fields_init(table_md5) {
-    jq("#table_" + table_md5 + " tbody").sortable(
+    jq("#table_" + table_md5 + " .Utils_GenericBrowser__tbody").sortable(
         {
             helper: function (e, tr) {
                 var $originals = tr.children();
@@ -12,7 +12,7 @@ function rb_admin_sort_fields_init(table_md5) {
             },
             handle: ".move-handle",
             containment: "parent",
-            items: "> tr.sortable",
+            items: "> div.sortable",
             update: function (event, ui) {
                 _chj(jq.param({"field_pos": [ui.item.attr("field_name"), ui.item.index()]}), "", "");
             }

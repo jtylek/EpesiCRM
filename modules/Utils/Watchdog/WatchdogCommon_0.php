@@ -41,8 +41,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
         $ret[] = array('label'=>__('Records limit'),'name'=>'records_limit','type'=>'select', 'values' => array(/*'__all__' => __('All'), */'10' => '10', '15' => '15', '20' => '20', '30' => '30'), 'default' => '15');
 
 		if (!empty($methods)) {
-			$ret[] = array('label'=>__('Categories'),'name'=>'categories_header','type'=>'header');
-			foreach ($methods as $k=>$v) { 
+			foreach ($methods as $k=>$v) {
 				$method = explode('::',$v);
 				IF (!is_callable($method)) continue;
 				$methods[$k] = call_user_func($method);
@@ -358,7 +357,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
 			}
 		}
-		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id));
+		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id), 300, true);
 		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
 	}
 
@@ -374,7 +373,13 @@ class Utils_WatchdogCommon extends ModuleCommon {
 				$tooltip = __('You are watching this record, click to stop watching this record for changes.');
 			} else {
 				$ev = self::display_events($category_id, $last_seen, $id);
-				$tooltip = __('You are watching this record, click to stop watching this record for changes.').($ev?'<br>'.__('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']:'');
+				// When there are unseen changes to show, that takes over the
+				// tooltip entirely - showing the generic "you are watching
+				// this record" hint above a list of what actually changed
+				// was redundant (per request).
+				$tooltip = $ev
+					? __('The following changes were made since the last time you were viewing this record:').'<br><br>'.$ev['events']
+					: __('You are watching this record, click to stop watching this record for changes.');
 			}
 		}
 		$subscribers = self::get_subscribers($category_name,$id);

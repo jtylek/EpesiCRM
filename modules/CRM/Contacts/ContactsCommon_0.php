@@ -219,7 +219,7 @@ class CRM_ContactsCommon extends ModuleCommon {
         return $field;
     }
     public static function crm_company_contact_select_list_options($record) {
-    	return array('format_callback'=>array('CRM_ContactsCommon', 'autoselect_company_contact_format'));
+    	return array('format_callback'=>array('CRM_ContactsCommon', 'select_list_company_contact_format'));
     }
     public static function employee_crits() {
         $my_company = CRM_ContactsCommon::get_main_company();
@@ -244,7 +244,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     	return self::company_contact_format_default($arg, $nolink);
     }
-	public static function company_contact_format_default($arg,$nolink=false) {
+    public static function select_list_company_contact_format($arg) {
+    	// Used for the company/contact dual-select widget option labels only:
+    	// Utils_RecordBrowserCommon::call_select_item_format_callback() already
+    	// prepends the source module name (e.g. "[Companies]"/"[Contacts]"), so
+    	// the per-record "[Company]"/"[Person]" indicator here would be redundant.
+    	return self::company_contact_format_default($arg, true, false);
+    }
+	public static function company_contact_format_default($arg,$nolink=false,$show_indicator=true) {
     	//backward compatibility
         $id = null;
 
@@ -259,25 +266,27 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
 
-    	$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
+    	if ($show_indicator) {
+    		$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
 
-    	if (Base_ThemeCommon::is_adminlte_family()) {
-    		// Bootstrap Icons glyph instead of the default theme's sprite
-    		// background-image - bi-building matches Base_AdminlteIcons's own
-    		// choice for "companies" by filename, for consistency with the
-    		// sidebar/launcher icons. Hidden text kept for the same
-    		// accessibility purpose the default theme's own hidden span served.
-    		$bs_icon = array('company' => array('bi-building', '#fd7e14'), 'contact' => array('bi-person-fill', '#0d6efd'));
-    		$bi = $bs_icon[$tab] ?? null;
-    		$rindicator = $bi ?
-    		'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i><span style="display:none">['.$indicator_text.'] </span>' : "[$indicator_text] ";
-    	} else {
-    		$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
-    				'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
-    		$rindicator = isset($icon[$tab]) ?
-    		'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    		if (Base_ThemeCommon::is_adminlte_family()) {
+    			// Bootstrap Icons glyph instead of the default theme's sprite
+    			// background-image - bi-building matches Base_AdminlteIcons's own
+    			// choice for "companies" by filename, for consistency with the
+    			// sidebar/launcher icons. Hidden text kept for the same
+    			// accessibility purpose the default theme's own hidden span served.
+    			$bs_icon = array('company' => array('bi-building', '#0d6efd'), 'contact' => array('bi-person-fill', '#0d6efd'));
+    			$bi = $bs_icon[$tab] ?? null;
+    			$rindicator = $bi ?
+    			'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i><span style="display:none">['.$indicator_text.'] </span>' : "[$indicator_text] ";
+    		} else {
+    			$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
+    					'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
+    			$rindicator = isset($icon[$tab]) ?
+    			'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    		}
+    		$val = $rindicator.$val;
     	}
-    	$val = $rindicator.$val;
     	if ($nolink)
     		return strip_tags($val);
     	return $val;
@@ -419,23 +428,16 @@ class CRM_ContactsCommon extends ModuleCommon {
                 __('Group')=>$group
                 ));
     }
+    // Used to append ' [CompanyName]' after the contact's own name - dropped
+    // app-wide per request (took up too much space everywhere this format
+    // is used: the Attached-to record-picker, Fax/PhoneCall contact
+    // displays, Contacts autocomplete dropdowns, the Administrator panel's
+    // contact list, and this recordset's registered description_callback).
+    // Now identical to contact_format_no_company(), which already existed
+    // as the lean alternative a couple of other call sites used - delegate
+    // to it instead of keeping two copies of the same body.
     public static function contact_format_default($record, $nolink=false){
-        if (is_numeric($record)) $record = self::get_contact($record);
-        if (!$record || $record=='__NULL__') return null;
-        $ret = '';
-		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
-		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-        $ret .= Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink, 
-        					array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
-        
-        if (isset($record['company_name']) && $record['company_name'] && is_numeric($record['company_name'])) {
-            $first_comp = $record['company_name'];
-            $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        } elseif (isset($record['related_companies']) && is_array($record['related_companies']) && !empty($record['related_companies'])) {
-            $first_comp = reset($record['related_companies']);
-            $ret .= ' ['.Utils_RecordBrowserCommon::create_linked_label('company', 'Company Name', $first_comp, $nolink).']';
-        }
-        return $ret;
+        return self::contact_format_no_company($record, $nolink);
     }
     public static function contact_format_no_company($record, $nolink=false){
         if (is_numeric($record)) $record = self::get_contact($record);
@@ -633,16 +635,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 				$access = Utils_RecordBrowserCommon::get_access('contact', $mode, Utils_RecordBrowser::$last_record);
 				$c_access = Utils_RecordBrowserCommon::get_access('company', 'add');
 				if ($c_access && $access['company_name']) {
-					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'onClick="document.getElementById(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
+					$form->addElement('checkbox', 'create_company', __('Create new company'), null, 'class="epesi-switch" onClick="document.getElementById(\'company_name\').disabled = this.checked;document.getElementsByName(\'create_company_name\')[0].disabled=!this.checked;" '.Utils_TooltipCommon::open_tag_attrs(__('Create a new company for this contact')));
 					$form->addElement('text', 'create_company_name', __('New company name'), array('disabled'=>1));
 					$form->addFormRule(array('CRM_ContactsCommon', 'check_new_company_name'));
 					if (isset($rb) && isset($rb->record['last_name']) && isset($rb->record['first_name'])) $form->setDefaults(array('create_company_name'=>$rb->record['last_name'].' '.$rb->record['first_name']));
-					eval_js('Event.observe(\'last_name\',\'change\', update_create_company_name_field);'.
-							'Event.observe(\'first_name\',\'change\', update_create_company_name_field);'.
+					eval_js('jQuery(\'#last_name\').on(\'change\', update_create_company_name_field);'.
+							'jQuery(\'#first_name\').on(\'change\', update_create_company_name_field);'.
 							'function update_create_company_name_field() {'.
 								'document.forms[\''.$form->getAttribute('name').'\'].create_company_name.value = document.forms[\''.$form->getAttribute('name').'\'].last_name.value+" "+document.forms[\''.$form->getAttribute('name').'\'].first_name.value;'.
 							'}');
-					eval_js('$("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
+					eval_js('document.getElementById("company_name").disabled = document.getElementsByName("create_company")[0].checked;document.getElementsByName("create_company_name")[0].disabled=!document.getElementsByName("create_company")[0].checked;');
 				}
             } else {
                 $comp = self::get_company(self::$paste_or_new);
@@ -658,12 +660,12 @@ class CRM_ContactsCommon extends ModuleCommon {
                     'document.getElementsByName(\'fax\')[0].value=\''.$comp['fax'].'\';'.
                     'document.getElementsByName(\'city\')[0].value=\''.$comp['city'].'\';'.
                     'document.getElementsByName(\'postal_code\')[0].value=\''.$comp['postal_code'].'\';'.
-                    'var country = $(\'country\');'.
+                    'var country = document.getElementById(\'country\');'.
                     'var k = 0; while (k < country.options.length) if (country.options[k].value==\''.$comp['country'].'\') break; else k++;'.
                     'country.selectedIndex = k;'.
-                    'country.fire(\'e_u_cd:load\');'.
+                    'jQuery(country).trigger(\'e_u_cd:load\');'.
                     'setTimeout(\''.
-                    'var zone = $(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
+                    'var zone = document.getElementById(\\\'zone\\\'); k = 0; while (k < zone.options.length) if (zone.options[k].value==\\\''.$comp['zone'].'\\\') break; else k++;'.
                     'zone.selectedIndex = k;'.
                     '\',900);'.
                     'document.getElementsByName(\'web_address\')[0].value=\''.$comp['web_address'].'\';';
@@ -905,16 +907,21 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$form->setDefaults(array($field=>$default));
 		if ($default!=='') $form->freeze($field);
 		else {
+			// Walks up to the div-based row wrapper (theme/single_field.tpl/
+			// View_entry.tpl), matching RecordBrowser_0.php:1474's row lookup;
+			// closest() yields undefined via [0] when there's no match, same
+			// as it always has here - if(r) below depends on that.
 			eval_js('new_user_textfield = function(){'.
-					'($("crm_contacts_select_user").value=="new"?"":"none");'.
-					'$("username").up("tr").style.display = $("set_password").up("tr").style.display = $("confirm_password").up("tr").style.display = $("_access__data").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
-					'if ($("contact_admin")) $("contact_admin").up("tr").style.display = ($("crm_contacts_select_user").value==""?"none":"");'.
+					'var v=(document.getElementById("crm_contacts_select_user").value==""?"none":"");'.
+					'["username","set_password","confirm_password","_access__data","contact_admin"].forEach(function(id){'.
+					'var e=document.getElementById(id);if(e){var r=jQuery(e).closest(".epesi-rv-row")[0];if(r)r.style.display=v;}'.
+					'});'.
 					'}');
 			eval_js('new_user_textfield();');
-			eval_js('Event.observe("crm_contacts_select_user","change",function(){new_user_textfield();});');
+			eval_js('jQuery("#crm_contacts_select_user").on("change",function(){new_user_textfield();});');
 		}
 		if ($default)
-			eval_js('$("_login__data").up("tr").style.display = "none";');
+			eval_js('var e=document.getElementById("_login__data");if(e){var r=jQuery(e).closest(".epesi-rv-row")[0];if(r)r.style.display="none";}');
 	}
 
 	public static function check_new_username($arg) {
@@ -1111,6 +1118,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 			    if (isset($values['login']) && $values['login']) {
 			        $ret = Base_UserCommon::change_active_state($values['login'], false);
 			        if (!$ret) $values = false;
+			        else Base_User_LoginCommon::invalidate_password($values['login']);
 		        }
 		        break;
         }

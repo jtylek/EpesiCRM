@@ -100,16 +100,17 @@
 			{/literal}
 			{if $theme_name == 'adminltedark'}
 			{literal}
-			/* Dark palette override - same box, same layout rules above, just
-			   the colors AdminLTE 4's own [data-bs-theme=dark] uses. Kept as a
-			   flat override rather than duplicating the whole block above. */
+			/* Matches the sidebar's fixed light-grey/black-text scheme
+			   (commit 77d43486) rather than AdminLTE's own [data-bs-theme=dark]
+			   colors - this splash has no light/dark toggle (it renders before
+			   that JS runs), so it always uses the sidebar's "always" palette. */
 			#epesiStatus {
-				background-color: #1e2125;
-				color: #dee2e6;
+				background-color: #dee2e6;
+				color: #000000;
 				box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.6);
 			}
 			.epesi-boot-progress {
-				background-color: #495057;
+				background-color: #adb5bd;
 			}
 			{/literal}
 			{/if}
@@ -144,7 +145,7 @@
 				border-radius: 10px;
 				/* end border radius */
 			}
-			#epesiStatus table {
+			#epesiStatus > div {
 				color: #000000;
 				font-weight: normal;
 				font-family: Tahoma, Verdana, Vera-Sans, DejaVu-Sans;
@@ -162,7 +163,7 @@
 		<div id="body_content">
 			<div id="main_content" style="display:none;"></div>
 			<div id="debug_content" style="padding-top:97px;display:none;">
-				<div class="button" onclick="$('error_box').innerHTML='';$('debug_content').style.display='none';">Hide</div>
+				<div class="button" onclick="document.getElementById('error_box').innerHTML='';document.getElementById('debug_content').style.display='none';">Hide</div>
 				<div id="debug"></div>
 				<div id="error_box"></div>
 			</div>
@@ -173,17 +174,11 @@
 				<div class="epesi-boot-text"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></div>
 				<div class="epesi-boot-progress"><div class="epesi-boot-progress-bar"></div></div>
 				{else}
-				<table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
-					<tr>
-						<td><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></td>
-					</tr>
-					<tr>
-						<td style="text-align: center; vertical-align: middle; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></td>
-					</tr>
-				</table>
+				<div style="width: 100%;">
+					<div><img src="images/logo.png" alt="logo" width="550" height="200" border="0"></div>
+					<div style="display: flex; align-items: center; justify-content: center; height: 30px;"><span id="epesiStatusText">{$STARTING_MESSAGE}</span></div>
+					<div style="display: flex; align-items: center; justify-content: center; height: 30px;"><img src="images/loader.gif" alt="loader" width="256" height="10" border="0"></div>
+				</div>
 				{/if}
 			</div>
 		</div>

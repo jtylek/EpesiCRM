@@ -68,18 +68,27 @@ function RSS_Retrieve($url)
 {
 	global $RSS_Content;
 
+	$RSS_Content = array();
+
 	$doc  = new DOMDocument();
-	$doc->load($url);
+	// Some remote feeds ship malformed XML (e.g. an unescaped "&" in a query
+	// string) - DOMDocument::load() would otherwise surface that as a raw
+	// PHP warning (xmlParseEntityRef: no name...) in place of the applet's
+	// content. Route it through libxml's own error queue instead so a bad
+	// feed just renders empty rather than leaking the parser error.
+	$prev_use_errors = libxml_use_internal_errors(true);
+	$loaded = $doc->load($url);
+	libxml_clear_errors();
+	libxml_use_internal_errors($prev_use_errors);
+	if (!$loaded) return;
 
 	$channels = $doc->getElementsByTagName("channel");
-	
-	$RSS_Content = array();
-	
+
 	foreach($channels as $channel)
 	{
 		 RSS_Channel($channel);
 	}
-	
+
 }
 
 
@@ -87,13 +96,17 @@ function RSS_RetrieveLinks($url)
 {
 	global $RSS_Content;
 
+	$RSS_Content = array();
+
 	$doc  = new DOMDocument();
-	$doc->load($url);
+	$prev_use_errors = libxml_use_internal_errors(true);
+	$loaded = $doc->load($url);
+	libxml_clear_errors();
+	libxml_use_internal_errors($prev_use_errors);
+	if (!$loaded) return;
 
 	$channels = $doc->getElementsByTagName("channel");
-	
-	$RSS_Content = array();
-	
+
 	foreach($channels as $channel)
 	{
 		$items = $channel->getElementsByTagName("item");
@@ -102,7 +115,7 @@ function RSS_RetrieveLinks($url)
 			$y = RSS_Tags($item, 1);	// get description of article, type 1
 			array_push($RSS_Content, $y);
 		}
-		 
+
 	}
 
 }

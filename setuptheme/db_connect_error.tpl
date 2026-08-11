@@ -2,22 +2,16 @@
 	<strong>{'Could not connect to the database.'|t}</strong>
 </div>
 
-<table class="table table-sm mb-3">
-	<tbody>
-		<tr>
-			<td>{'PHP MySQL driver (mysqli extension)'|t}</td>
-			<td class="text-end">
-				<span class="badge {if $mysqli_loaded}bg-success{else}bg-danger{/if}">{if $mysqli_loaded}{'Loaded'|t}{else}{'Not loaded'|t}{/if}</span>
-			</td>
-		</tr>
-		<tr>
-			<td>{'MySQL server reachable'|t} ({$diag_host}:{$diag_port})</td>
-			<td class="text-end">
-				<span class="badge {if $server_reachable}bg-success{else}bg-danger{/if}">{if $server_reachable}{'Reachable'|t}{else}{'Not reachable'|t}{/if}</span>
-			</td>
-		</tr>
-	</tbody>
-</table>
+<div class="list-group list-group-flush mb-3">
+	<div class="list-group-item d-flex justify-content-between align-items-center">
+		{'PHP MySQL driver (mysqli extension)'|t}
+		<span class="badge {if $mysqli_loaded}bg-success{else}bg-danger{/if}">{if $mysqli_loaded}{'Loaded'|t}{else}{'Not loaded'|t}{/if}</span>
+	</div>
+	<div class="list-group-item d-flex justify-content-between align-items-center">
+		{'MySQL server reachable'|t} ({$diag_host}:{$diag_port})
+		<span class="badge {if $server_reachable}bg-success{else}bg-danger{/if}">{if $server_reachable}{'Reachable'|t}{else}{'Not reachable'|t}{/if}</span>
+	</div>
+</div>
 
 {if $driver_error}
 <div class="mb-3">

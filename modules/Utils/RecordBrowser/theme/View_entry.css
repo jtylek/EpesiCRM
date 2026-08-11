@@ -10,21 +10,44 @@
 	border-radius: 6px;
 }
 
-.Utils_RecordBrowser__View_entry td.column  { vertical-align: top; }
-
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
+/* Was a <table> of <table>s (one <td class="column"> per side-by-side
+   column, each containing its own <table class="view|edit">) - now a flex
+   row of .column divs, each containing a .view|.edit div that stacks its
+   .epesi-rv-row children vertically instead of a <tbody>'s <tr>s. Column
+   widths are still PHP-computed (RecordBrowser_0.php's $cols_percent, same
+   math as before) and set inline per-column, same as the already-converted
+   theme_adminlte copy of this pattern. */
+.epesi-rv-columns {
+	display: flex;
 }
 
-.Utils_RecordBrowser__View_entry table.edit {
+.Utils_RecordBrowser__View_entry .column {
+	vertical-align: top;
+	flex: 0 0 auto;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
+.Utils_RecordBrowser__View_entry .view,
+.Utils_RecordBrowser__View_entry .edit {
+    width: 100%;
+	display: flex;
+	flex-direction: column;
+	row-gap: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .edit {
     border-top: none;
-    width: 100%;
 }
 
-.Utils_RecordBrowser__View_entry table.edit,
-.Utils_RecordBrowser__View_entry table.view {
-    width: 100%;
-	border-spacing: 3px;
+.Utils_RecordBrowser__View_entry .edit,
+.Utils_RecordBrowser__View_entry .view {
+	row-gap: 3px;
+}
+
+.Utils_RecordBrowser__View_entry .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
 }
 
 .Utils_RecordBrowser__View_entry .label {
@@ -35,13 +58,20 @@
 	-webkit-border-radius: 4px 0 0 4px;
 	-moz-border-radius: 4px 0 0 4px;
     border-radius: 4px 0 0 4px;
-    height: 20px;
+    height: auto;
+    min-height: 20px;
 	white-space: nowrap;
 	overflow:hidden;
-    vertical-align: middle;
+	/* Was vertical-align:middle (table-cell centering) - the flex equivalent,
+	   now that .epesi-rv-row is a flex row instead of a <tr>. */
+	display: flex;
+	align-items: center;
     padding-left: 5px;
     padding-right: 5px;
-    width: 150px;
+	/* Was width:150px. flex-basis (via the flex shorthand) instead, so it
+	   holds this size as a flex item even without a table's column-width
+	   negotiation; 0 0 keeps it from growing/shrinking. */
+    flex: 0 0 150px;
     text-align: left;
 	-webkit-box-shadow: inset 1px 1px 1px #333355;
 	-moz-box-shadow: inset 1px 1px 1px #333355;
@@ -61,7 +91,10 @@
 
 .Utils_RecordBrowser__View_entry .long_label {
     text-align: left;
-    width: 20%;
+	/* .label sets an explicit flex-basis (150px), which always wins over
+	   width for a flex item's main-axis size - flex-basis here overrides it
+	   back to a percentage for long-text rows specifically. */
+    flex-basis: 20%;
 }
 
 .Utils_RecordBrowser__View_entry .data {
@@ -74,6 +107,14 @@
 	-moz-box-shadow: inset 1px 1px 1px #777;
 	box-shadow: inset 1px 1px 1px #777;
 	position: relative;
+	/* Was implicit table-cell auto-width (fills whatever the row doesn't
+	   give .label); the flex equivalent, plus min-width:0 so a long
+	   unbreakable value can still shrink below its own content size instead
+	   of forcing the row wider. flex-basis:auto (the "auto" in "1 1 auto")
+	   defers to the width property when one is set - .long_data below relies
+	   on exactly that instead of needing its own flex-basis override. */
+	flex: 1 1 auto;
+	min-width: 0;
 }
 .epesi_rtl .Utils_RecordBrowser__View_entry .data {
 	-webkit-border-radius: 4px 0 0 4px;
@@ -101,20 +142,20 @@
 	margin-right: 14px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .help  + div {
+.Utils_RecordBrowser__View_entry .edit .help  + div {
 	margin-right: 22px;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data {
+.Utils_RecordBrowser__View_entry .view .data {
     padding: 3px 5px;
 	background-color: #EBEBE4;
 }
 
-.Utils_RecordBrowser__View_entry table.view .data img {
+.Utils_RecordBrowser__View_entry .view .data img {
     vertical-align: middle;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .data {
+.Utils_RecordBrowser__View_entry .edit .data {
     border-bottom: none;
 	background-color: #FFFFF9;
 }
@@ -123,21 +164,50 @@
     width: 80%;
 }
 
-.Utils_RecordBrowser__View_entry table.view .long_data {
+.Utils_RecordBrowser__View_entry .view .long_data {
     border-right: 1px solid #B3B3B3;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .long_data {
+.Utils_RecordBrowser__View_entry .edit .long_data {
     border-right: none;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input:not([type=button]),
 .Utils_RecordBrowser__View_entry .data select,
 .Utils_RecordBrowser__View_entry .data textarea {
 	width: 99%;
-	height: 14px;
+	/* Chrome's UA stylesheet defaults <select>/<button> to box-sizing:border-box
+	   but <input>/<textarea> to content-box - without an explicit value here,
+	   an <input> at width:99% adds its padding (3px 5px below) ON TOP of that
+	   99%, overflowing past the .data cell's right edge by (padding - 1% of
+	   the cell's width); <select> happened not to show this since border-box
+	   already keeps its padding inside the declared width. Reported as the
+	   Title field visibly overlapping the next column's label. Pin all three
+	   to the same box model so 99% means the same thing for every one of them. */
+	box-sizing: border-box;
+	/* Was a hardcoded height:14px, meant to remove line-height inconsistency
+	   between an <input>'s and a <select>'s default rendering (see the
+	   line-height comment below) by pinning both to the same fixed box.
+	   Real (non-headless) browsers won't actually shrink a native <select>'s
+	   OS-drawn chrome down to 14px - the *declared* box stayed 14px but the
+	   *rendered* one came out taller, with the option text sitting at the
+	   top of that taller box and blank space below it (reported: a focused
+	   Permission/Priority/Status/etc. select looking half-empty/"invisible").
+	   <input>/<textarea> don't have OS chrome to fight, so they never showed
+	   this - only <select> did. Dropped the fixed height for all three;
+	   line-height + padding below now define a natural, browser-respected
+	   height for every one of them instead. */
+	/* Browsers don't apply an <input>'s and a <select>'s default
+	   line-height identically even at the same font-size/padding -
+	   an explicit, shared value removes that as a source of the two
+	   rendering at different heights (see the generic View_entry.tpl's
+	   .epesi-rv-row min-height for the other half of this, scoped there
+	   since this combined rule is also used by Contact.tpl/mails.tpl/etc,
+	   which keep their existing table layout unaffected by this addition
+	   either way - line-height alone changes nothing for them). */
+	line-height: 1.5;
     background-color: #FFFFF9;
     border: 0px;
 	padding: 3px 5px;
@@ -150,7 +220,7 @@
 	height: 63px;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input[disabled],
 .Utils_RecordBrowser__View_entry .data select[disabled],
@@ -158,7 +228,7 @@
     background-color: #EEEEEE;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input,
 .Utils_RecordBrowser__View_entry .data textarea {
@@ -167,10 +237,10 @@
 	box-shadow: inset 1px 1px 1px #777;
 }
 
-.Utils_RecordBrowser__View_entry table.edit .frozen,
+.Utils_RecordBrowser__View_entry .edit .frozen,
 .Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input {
-	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
+	padding-right: 0px; /* iPad fix for fields extending over the removed <td> element */
 }
 
 .Utils_RecordBrowser__View_entry .frozen .static_field {
@@ -181,7 +251,7 @@
 	-moz-box-shadow: none;
 	box-shadow: none;
 }
-.Utils_RecordBrowser__View_entry table.view .frozen .static_field {
+.Utils_RecordBrowser__View_entry .view .frozen .static_field {
 	width: 100%;
 }
 
@@ -195,10 +265,15 @@
 }
 
 .Utils_RecordBrowser__View_entry .data select {
-	height: 18px;
-	padding: 0;
-	margin-left: 2px;
-	margin-top: 2px;
+	/* <select> defaults to display:inline-block, whose percentage-width
+	   resolution is unreliable inside a CSS multi-column container
+	   (.epesi-rv-fluid, used by the generic View_entry.tpl only) in some
+	   browsers - a quirk specific to <select>, not text inputs/textareas.
+	   Forcing block sizing resolves width:100% (set on the shared .data
+	   input/select/textarea rule above) against .data the same reliable way
+	   it already does everywhere else - no visible difference outside a
+	   multicol context. */
+	display: block;
 }
 
 .Utils_RecordBrowser__View_entry .form_error img {
@@ -215,17 +290,18 @@
 	color: #CCCCCC;
 }
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
-	color: white !important; 
+	color: white !important;
 	position: absolute;
+	top: 0;
+	bottom: 0;
 	right: 0px;
-	display: block;
-	height: 15px;
+	display: flex;
+	align-items: center;
 	margin: 0;
-	padding: 3px 15px 2px 15px;
+	padding: 0 15px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
-	vertical-align: top;
 	-webkit-border-radius: 0 4px 4px 0;
 	-moz-border-radius: 0 4px 4px 0;
     border-radius: 0 4px 4px 0;
@@ -234,8 +310,14 @@
 	box-shadow: inset 1px 1px 1px #111;
 
 	background: #a72527; /* Old browsers */
-	
-	max-width:50%;
+
+	/* Was 50% of the container - for a fixed-length message like "Field
+	   required" this can still be very wide on a wide field, growing
+	   leftward from right:0 far enough to overhang neighboring content
+	   (same bug as the adminlte/adminltedark copy of this rule - see
+	   AI-shared/bug-patterns.md). A small fixed cap keeps the badge
+	   compact regardless of row width. */
+	max-width: 200px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -245,6 +327,91 @@
 	-webkit-border-radius: 0 4px 0 4px;
 	-moz-border-radius: 0 4px 0 4px;
     border-radius: 0 4px 0 4px;
+}
+
+/* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/PhoneCall's and
+   Meeting's default.tpl/Attachment's View_entry.tpl, which still use
+   td.column with a PHP-computed fixed column count - see
+   AI-shared/bug-patterns.md). CSS multi-column instead: the browser
+   picks however many columns of at least ~420px fit the available width and
+   balances rows across them, rather than RecordBrowser_0.php hardcoding 2.
+   Field rows are built directly in View_entry.tpl now (not through
+   single_field.tpl, which still emits <tr>/<td>), reusing .label/.data/etc
+   directly - they're already unscoped from any table-cell requirement below
+   this point. Only the handful of rules further up this file that *were*
+   table.view/table.edit-scoped needed an .epesi-rv-fluid.view/.edit
+   equivalent, since these rows are plain divs, not table cells. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view,
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
+	display: block;
+	column-width: 420px;
+	column-gap: 24px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row {
+	display: flex;
+	column-gap: 3px;
+	break-inside: avoid;
+	margin-bottom: 3px;
+	/* Each row is its own independent flex container - with nothing
+	   enforcing a floor, a row holding only a <select> (whose native
+	   rendering, even with identical CSS padding, tends to be a few pixels
+	   shorter than an <input>'s - OS dropdown chrome, not a CSS issue this
+	   theme controls) ends up visibly shorter than a row holding an
+	   <input>. A shared min-height gives every row the same floor. */
+	min-height: 28px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
+	margin-bottom: 0;
+}
+/* Equivalents of the table.view/table.edit-scoped rules earlier in this
+   file, which don't match a plain div row at all. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .data {
+    padding: 3px 5px;
+	background-color: #EBEBE4;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .data img {
+    vertical-align: middle;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .data {
+    border-bottom: none;
+	background-color: #FFFFF9;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .help + div {
+	margin-right: 22px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .long_data {
+    border-right: 1px solid #B3B3B3;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .long_data {
+    border-right: none;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view .frozen .static_field {
+    width: 100%;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti {
+	background-color: rgba(0, 0, 0, 0.15);
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti select {
+	height: 80px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti td {
+	padding: 0;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit .automulti input[type="button"]{
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+    border-radius: 6px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
 
 /* currency END */
@@ -257,21 +424,25 @@
 
 /* automulti START */
 
-.Utils_RecordBrowser__View_entry table.edit .automulti {
+.Utils_RecordBrowser__View_entry .edit .automulti {
 	background-color: rgba(0, 0, 0, 0.15);
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti select {
+.Utils_RecordBrowser__View_entry .edit .automulti select {
 	height: 80px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti td {
+.Utils_RecordBrowser__View_entry .edit .automulti td {
+	/* automulti (Libs/QuickForm/FieldTypes/automulti/automulti.php) still
+	   renders its own internal dual-listbox widget as a real <table> - a
+	   separate, self-contained field-type widget, out of scope for this
+	   pass (tracked separately, see AI-shared/adminlte-theme.md). */
 	padding: 0;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="text"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="text"]{
 	-webkit-border-radius: 0px;
 	-moz-border-radius: 0px;
     border-radius: 0px;
 }
-.Utils_RecordBrowser__View_entry table.edit .automulti input[type="button"]{
+.Utils_RecordBrowser__View_entry .edit .automulti input[type="button"]{
 	height: 100%;
 	width: 100%;
 	padding: 0;
@@ -288,17 +459,39 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div > div {
+.Utils_RecordBrowser__View_entry .timestamp > div > div,
+.Utils_RecordBrowser__View_entry .time > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input {
+.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input,
+.Utils_RecordBrowser__View_entry .time > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
+}
+/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a group of an hour/minute/am-pm <select> trio plus a separate date
+   <input>) predates the ".data select{width:99%}" rule above (line 178),
+   which - added later, for ordinary single-select fields - forces every one
+   of these hour/minute/am-pm selects onto its own full-width line, breaking
+   the float:right layout above entirely (each select ends up stacked
+   instead of sitting compact and side by side). The date <input> is
+   unaffected by this override and correctly keeps width:99% - it's the
+   non-floated sibling the "margin-right:130px" rule above already reserves
+   space against, so it's meant to fill what's left of the row. height:auto
+   isn't needed here anymore - the combined rule above no longer hardcodes
+   height:14px for anything, select included.
+   .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
+   field, built with 'date'=>false) renders the same hour/minute-select markup but sits in a
+   "data time" cell - style is set from type, and 'time'/'timestamp' are distinct field types. */
+.Utils_RecordBrowser__View_entry .data .timestamp select,
+.Utils_RecordBrowser__View_entry .data .time select {
+	width: auto;
 }
 /* timestamp END */
 
@@ -327,9 +520,19 @@
 
 .Utils_RecordBrowser__table {
     width: 100%;
-    vertical-align: middle;
-    height: 31px;
-	table-layout: auto;
+}
+
+/* Was a 1-row <table>'s <tr> (icon/caption <td> + required-note/tooltips
+   <td>); now a flex row of two divs, replacing table-cell layout. */
+.Utils_RecordBrowser__table_row {
+	display: flex;
+	align-items: center;
+	min-height: 31px;
+}
+
+/* Was <td style="width:100px">. */
+.Utils_RecordBrowser__table_icon {
+	flex: 0 0 100px;
 }
 
 .Utils_RecordBrowser__table .name img.icon {
@@ -373,6 +576,7 @@
 }
 
 .Utils_RecordBrowser__table .required_fav_info {
+	flex: 1 1 auto;
     color: #777777;
     text-align: right;
     padding-right: 20px;

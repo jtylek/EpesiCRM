@@ -1,0 +1,68 @@
+/* adminltedark skin for Utils_LeightboxPrompt's chooser grid.
+ *
+ * Per request: same fixed grey/black sidebar scheme as Libs_Leightbox's own
+ * #Leightbox_header/#tooltip_leightbox_mode (Libs/Leightbox/theme_
+ * adminltedark/default.css) and CRM_Followup's popup (CRM/Followup/theme_
+ * adminltedark/leightbox.css) - not this component's own themed dark
+ * chrome, since this used to be var(--epesi-*)-based (following this
+ * theme's live light/dark toggle) but that read as a dark island floating
+ * inside the header's always-light-grey bar in dark mode. !important needed
+ * on the background/color override: this selector and Libs_Leightbox's own
+ * "[data-bs-theme='light'] .leightbox" are the same specificity (one
+ * attribute + one class each), so a plain rule would silently lose whenever
+ * that stylesheet happens to load after this one - same non-!important-tie
+ * trap documented in Base_Box/theme_adminltedark/default.css's .app-sidebar
+ * background-color comment. The id suffix is Utils_LeightboxPrompt_0.php's
+ * own (Libs_LeightboxCommon::display($this->group.'_prompt_leightbox', ...)
+ * in body()), so this covers every module reusing this generic chooser
+ * (CRM_Calendar's "New Event", CRM_Mail, Utils_Messenger, Base_Lang_
+ * Administrator), not just one.
+ */
+.leightbox[id$="_prompt_leightbox"] {
+	background-color: #dee2e6 !important;
+	color: #000 !important;
+}
+
+.epesi-lbp-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+}
+
+.epesi-lbp-grid > a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	width: 6.5rem;
+	padding: 0.9rem 0.5rem;
+	border: 1px solid #ced4da;
+	border-radius: 0.5rem;
+	background-color: #fff;
+	color: #000;
+	text-align: center;
+	text-decoration: none;
+}
+
+.epesi-lbp-grid > a:hover {
+	background-color: #e9ecef;
+	border-color: #0d6efd;
+	color: #000;
+}
+
+.epesi-lbp-grid > a i {
+	font-size: 1.75rem;
+	line-height: 1;
+	color: #0d6efd;
+}
+
+.epesi-lbp-grid > a img {
+	width: 32px;
+	height: 32px;
+}
+
+.epesi-lbp-label {
+	font-size: 0.85rem;
+}

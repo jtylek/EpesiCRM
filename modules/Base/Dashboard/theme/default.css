@@ -6,11 +6,11 @@
 	/* end css3 shadow border*/
 }
 
-#dashboard .Utils_GenericBrowser th {
+#dashboard .Utils_GenericBrowser__th {
 	height: 20px;
 }
-#dashboard .Utils_GenericBrowser th a,
-#dashboard .Utils_GenericBrowser th span {
+#dashboard .Utils_GenericBrowser__th a,
+#dashboard .Utils_GenericBrowser__th span {
 	padding-top: 0;
 	padding-bottom: 0;
 }
@@ -42,7 +42,6 @@
 #dashboard .container {
 	width: 100%;
 	border: none;
-	table-layout: fixed;
 	background-color: #FFFFFF;
 }
 

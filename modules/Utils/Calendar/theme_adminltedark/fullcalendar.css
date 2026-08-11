@@ -80,3 +80,15 @@
 		gap: 0.5rem;
 	}
 }
+
+/* Recurring-event marker - see theme/fullcalendar.css for the full
+ * rationale (bi-arrow-repeat glyph instead of an <img> tag embedded in the
+ * plain-text event title). Duplicated here rather than relying on a
+ * theme/theme_adminltedark fallback merge, matching this file's own existing
+ * practice of duplicating rules verbatim per theme variant. */
+.fc-epesi-ev--recurring .fc-event-title::before,
+.fc-epesi-ev--recurring .fc-list-event-title::before {
+	font-family: "bootstrap-icons" !important;
+	margin-right: 0.3em;
+	content: "\f130";
+}

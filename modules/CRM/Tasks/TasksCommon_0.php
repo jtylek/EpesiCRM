@@ -150,7 +150,8 @@ class CRM_TasksCommon extends ModuleCommon {
 		$timeless = $record['timeless'] ?? false;
 		$show_time = !$timeless;
 		$time2reg = $show_time;
-		$ret = Base_RegionalSettingsCommon::time2reg($deadline, $show_time, true, $time2reg);
+		$time = $show_time ? (!empty($desc['seconds']) ? true : 2) : false;
+		$ret = Base_RegionalSettingsCommon::time2reg($deadline, $time, true, $time2reg);
 		$past_deadline = $timeless
 				? (Base_RegionalSettingsCommon::time2reg(null, false, true, true, false) > date('Y-m-d', $deadline))
 				: (time() > $deadline);

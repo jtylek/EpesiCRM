@@ -106,20 +106,20 @@ class Base_User_LoginCommon extends ModuleCommon {
 			$pass = generate_password();
 		
 		if(!Base_UserCommon::add_user($username)) {
-			print(__('Account creation failed.').'<br>'.__('Unable to add user to database.').'<br>');
-			return false;	
+			Base_StatusBarCommon::message(__('Account creation failed.').' '.__('Unable to add user to database.'), 'error');
+			return false;
 		}
 		$user_id = Base_UserCommon::get_user_id($username);
 		if($user_id===false) {
-			print(__('Account creation failed.').'<br>'.__('Unable to get id of added user.').'<br>');
+			Base_StatusBarCommon::message(__('Account creation failed.').' '.__('Unable to get id of added user.'), 'error');
 			return false;
 		}
 		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, $pass_hash, $mail));
-		
+
 		if($send_mail) {
 			if(!self::send_mail_with_password($username, $pass, $mail)) {
-				print(__('Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'));
+				Base_StatusBarCommon::message(__('Warning: Unable to send e-mail with password. Check Mail module configuration or contact system administrator for password recovery.'), 'warning');
 			}
 		}
 
@@ -147,6 +147,21 @@ class Base_User_LoginCommon extends ModuleCommon {
 	
 	public static function get_mail($id) {
 		return DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d',array($id));
+	}
+
+	/**
+	 * Blanks a user's password hash so no input can ever match it again,
+	 * without deleting the user_login/user_password rows themselves - used
+	 * on Contact delete (CRM_ContactsCommon::submit_contact()) alongside
+	 * Base_UserCommon::change_active_state(), so the account is both
+	 * deactivated and unable to authenticate even if reactivated later,
+	 * while everything that references user_login_id (ACL, audit history,
+	 * message ownership, ...) keeps a row to point at.
+	 *
+	 * @param integer user id (get from User module)
+	 */
+	public static function invalidate_password($id) {
+		return DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array('', $id));
 	}
     
     public static function is_banned($login = null, $current_time = null) {
@@ -236,13 +251,16 @@ class Base_User_LoginCommon extends ModuleCommon {
 		$autologin_id = md5(mt_rand().md5($user.$uid).mt_rand());
 		setcookie('autologin_id',$user.' '.$autologin_id,['expires' => time()+60*60*24*30]);
 		$ip = get_client_ip_address();
-		// gethostbyaddr() returns the IP unchanged (not false) when no PTR
-		// record resolves - same check CRM_LoginAuditCommon::init() already
-		// uses for its own host_name column. description is display-only
-		// (unlike get_client_ip_address()'s other callers, which need a bare
-		// IP for exact-match ban/audit comparisons), so it's safe to enrich
-		// here without touching that function itself.
-		$host = gethostbyaddr($ip);
+		// get_client_host_name() (include/misc.php) shares CRM_LoginAuditCommon
+		// ::init()'s session-cached reverse-DNS lookup, so a "Remember me"
+		// login doesn't pay for gethostbyaddr() a second time on the same IP.
+		// It still returns the IP unchanged (not false) when no PTR record
+		// resolves - same check CRM_LoginAuditCommon::init() already uses for
+		// its own host_name column. description is display-only (unlike
+		// get_client_ip_address()'s other callers, which need a bare IP for
+		// exact-match ban/audit comparisons), so it's safe to enrich here
+		// without touching that function itself.
+		$host = get_client_host_name($ip);
 		$location = ($host && $host !== $ip) ? $host.' ('.$ip.')' : $ip;
 		// parse_user_agent() (include/misc.php) covers what reverse DNS can't:
 		// a remote/internet login has no meaningful PTR record to resolve, but

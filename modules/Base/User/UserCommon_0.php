@@ -61,7 +61,7 @@ class Base_UserCommon extends ModuleCommon {
 	 */
 	public static function add_user($username) {
 		if(DB::Execute('INSERT INTO user_login(login) VALUES(%s)', $username)===false) {
-			print('Unable to add user to user_login table<br>');
+			Base_StatusBarCommon::message('Unable to add user to user_login table', 'error');
 			return false;
 		}
 /*		$acl = Base_AclCommon::add_user(DB::Insert_ID('user_login','id'));

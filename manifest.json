@@ -1,13 +1,13 @@
 {
-	"name": "EPESI",
-	"short_name": "EPESI",
-	"description": "EPESI open source CRM/BPM",
+	"name": "Epesi",
+	"short_name": "Epesi",
+	"description": "Epesi open source CRM/ERP",
 	"start_url": "index.php",
 	"scope": "./",
 	"display": "standalone",
 	"orientation": "landscape",
 	"background_color": "#ffffff",
-	"theme_color": "#0d6efd",
+	"theme_color": "#dee2e6",
 	"icons": [
 		{
 			"src": "images/pwa/icon-192.png",

@@ -1,16 +1,17 @@
 utils_recordbrowser_set_favorite = function(state,tab,id,element) {
-	$(element).innerHTML = '...';
-	new Ajax.Request('modules/Utils/RecordBrowser/favorites.php', {
+	document.getElementById(element).innerHTML = '...';
+	jQuery.ajax('modules/Utils/RecordBrowser/favorites.php', {
 		method: 'post',
-		parameters:{
-			tab:Object.toJSON(tab),
-			id:Object.toJSON(id),
-			state:Object.toJSON(state),
-			element:Object.toJSON(element),
+		data:{
+			tab:JSON.stringify(tab),
+			id:JSON.stringify(id),
+			state:JSON.stringify(state),
+			element:JSON.stringify(element),
 			cid: Epesi.client_id
 		},
-		onSuccess:function(t) {
-			eval(t.responseText);
+		dataType: 'text',
+		success:function(responseText) {
+			eval(responseText);
 		}
 	});
 };

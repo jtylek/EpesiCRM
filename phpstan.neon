@@ -13,6 +13,14 @@ parameters:
     paths:
         - include
         - modules
+
+    # Load minimal stubs for legacy third-party libs so PHPStan can resolve symbols.
+    stubFiles:
+        - phpstan-stubs/smarty.stub.php
+        - phpstan-stubs/quickform.stub.php
+        - phpstan-stubs/jsmin.stub.php
+        - phpstan-stubs/minify.stub.php
+
     # let PHPStan discover Epesi + vendor class definitions even without an autoloader.
     # modules/Base/Theme/smarty and libs are vendored PHP (Smarty, Minify, ADOdb, ...) that
     # excludePaths/paths deliberately keep out of error-reporting, but their classes are still
@@ -23,9 +31,9 @@ parameters:
         - libs
         - modules/Base/Theme/smarty
     excludePaths:
-        - modules/CRM/Roundcube/RC/program/*
-        - modules/CRM/Roundcube/RC/vendor/*
-        - modules/CRM/Roundcube/RC/plugins/*
+        - modules/Libs/RoundCube/RC/program/*
+        - modules/Libs/RoundCube/RC/vendor/*
+        - modules/Libs/RoundCube/RC/plugins/*
         - modules/Tests/*
         - modules/Base/Theme/smarty/*
     # third-party/legacy noise we don't own
