@@ -38,6 +38,10 @@
   looked like application bugs (CLI scripts hitting the live DB, silent ADOdb
   failures from `max_allowed_packet`, MariaDB manifest corruption, access.log
   vs error.log, outbound SMTP port 25 blocked from this machine).
+- [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
+  developer's machine (app error log, php.ini error_log, Apache error/access.log,
+  noise filters, dedicated-window habit). Log paths/config vary per machine/dev —
+  use as a starting template, not a prescribed standard.
 - [known-todos.md](known-todos.md) — full-repo `TODO`/`FIXME`/`XXX` audit
   (2026-08-04): every marker in Epesi's own code individually re-verified as
   still-open, none stale. Two flagged as worth prioritizing (a dead param, an

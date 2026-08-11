@@ -10,21 +10,30 @@
 	gap: 0.4rem;
 }
 
+/* Fixed dark-grey/white, deliberately the same regardless of theme - matches
+   Browsing_records.tpl's Expand All/Collapse All and view-mode select
+   (Utils/RecordBrowser/theme_adminltedark/Browsing_records.css), which sit in
+   the same toolbar row on the Browse screen, per request that all three read
+   as one consistent button style. !important guards the fixed colors against
+   gen_light_override.js re-adding a conflicting [data-bs-theme="light"] block
+   later - see AI-shared/bug-patterns.md's Dashboard applet-header entry for
+   why this is this codebase's established fix for exactly that risk. */
 .epesi-rbf-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.35rem;
-	border: 1px solid #8b929a;
+	border: 1px solid #495057 !important;
 	border-radius: 0.375rem;
-	background-color: #2b3035;
-	color: #adb5bd;
+	background-color: #495057 !important;
+	color: #fff !important;
 	padding: 0.3rem 0.7rem;
 	font-size: 0.85rem;
 	cursor: pointer;
 }
 
 .epesi-rbf-btn:hover {
-	background-color: #343a40;
+	background-color: #343a40 !important;
+	border-color: #343a40 !important;
 }
 
 .epesi-rbf-row {
@@ -206,16 +215,6 @@
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-rbf-btn {
-  border: 1px solid #6c757d;
-  background-color: #fff;
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-rbf-btn:hover {
-  background-color: #e9ecef;
-}
-
 [data-bs-theme="light"] .Utils_RecordBrowser__Filter .label {
   color: #495057;
   background: #f1f3f5;

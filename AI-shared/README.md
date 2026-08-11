@@ -50,6 +50,9 @@ same for every developer and every computer working on this repo.
   shape* is likely to recur elsewhere in the codebase.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that
   looked like application bugs but weren't.
+- [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
+  (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
+  use as a template, not a standard.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.
