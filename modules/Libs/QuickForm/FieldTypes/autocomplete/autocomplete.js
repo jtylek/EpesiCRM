@@ -73,7 +73,15 @@ EpesiAutocompleter.prototype.onKeyUp = function(ev) {
 		switch (ev.key) {
 			case 'Tab':
 			case 'Enter':
+				// hide() (not just selectEntry()) matters here: it's what runs
+				// the on_hide_js_code a caller like autoselect/automulti wired
+				// up via on_hide_js() to parse the "id__label" token selectEntry()
+				// just wrote into the visible input and commit it into the real
+				// field. The click handler below already does both together -
+				// without hide() here too, Tab/Enter left that raw token sitting
+				// in the box instead of committing the selection.
 				this.selectEntry();
+				this.hide();
 				ev.preventDefault();
 				return;
 			case 'Escape':
