@@ -29,6 +29,14 @@ body:has(.login-page-adminlte) #body_content {
 .login-page-adminlte .login-box {
 	width: 100%;
 	max-width: 650px;
+	/* .login-box is a flex item of .login-page-adminlte (d-flex above), so it
+	   defaults to min-width:auto - which lets the login-logo's fixed 550x200
+	   <img> (MainModuleIndicator/theme_adminltedark/login-logo.tpl) force
+	   this box, and so the whole page, wider than a narrow phone viewport,
+	   despite the image's own max-width:100% rule below only capping its
+	   *rendered* size, not its contribution to this flex item's intrinsic
+	   minimum width. min-width:0 lets the box actually shrink to fit. */
+	min-width: 0;
 }
 
 .login-page-adminlte .login-logo {
@@ -73,6 +81,18 @@ body:has(.login-page-adminlte) #body_content {
 
 .login-page-adminlte .text-danger {
 	text-align: center;
+}
+
+/* AdminLTE's own login-card-body override (adminlte.min.css) makes
+   .input-group-text transparent, so the person/lock icon reads as a plain
+   floating glyph rather than a joined pill segment - but Bootstrap's base
+   .input-group rule still zeroes the form-control's *right* corners since
+   it isn't the group's last child, leaving the input rounded on the left
+   only. Restore the right corners to match now that there's no visible
+   icon box left to visually "join" against. */
+.login-page-adminlte .input-group .form-control {
+	border-top-right-radius: var(--bs-border-radius) !important;
+	border-bottom-right-radius: var(--bs-border-radius) !important;
 }
 
 .login-page-adminlte .card {
