@@ -2564,25 +2564,21 @@ class Utils_RecordBrowser extends Module {
 		$dates_keys = array_keys($dates_select);
 		$default_index = array_search($created['created_on'], $dates_keys);
 		load_js('modules/Libs/QuickForm/select.js');
-		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
-		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		$select = $form->createElement('select', 'historical_view_pick_date', '', $dates_select, array('onChange'=>'recordbrowser_edit_history("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'");recordbrowser_edit_history_update_buttons();', 'onkeydown'=>'typeAhead();', 'id'=>'historical_view_pick_date'));
+		$prev_attrs = array('id'=>'historical_view_prev_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_step(1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
 		if ($default_index===false || $default_index>=count($dates_keys)-1) $prev_attrs['disabled'] = 1;
 		$prev_button = $form->createElement('button', 'historical_view_prev', __('Previous'), $prev_attrs);
-		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_stop_play();recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
+		$next_attrs = array('id'=>'historical_view_next_button', 'class'=>'btn btn-secondary', 'onclick'=>'recordbrowser_edit_history_step(-1,"'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
 		if ($default_index===false || $default_index<=0) $next_attrs['disabled'] = 1;
 		$next_button = $form->createElement('button', 'historical_view_next', __('Next'), $next_attrs);
-		$play_attrs = array('id'=>'historical_view_play_button', 'class'=>'btn btn-secondary', 'data-play-label'=>__('Play'), 'data-pause-label'=>__('Pause'), 'onclick'=>'recordbrowser_edit_history_toggle_play("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")');
-		if ($default_index===false || count($dates_keys)<2 || $default_index<=0) $play_attrs['disabled'] = 1;
-		$play_button = $form->createElement('button', 'historical_view_play', __('Play'), $play_attrs);
-		$interval_select = $form->createElement('select', 'historical_view_play_interval', '', array(1=>'1s', 3=>'3s', 5=>'5s', 10=>'10s'), array('id'=>'historical_view_play_interval', 'onChange'=>'recordbrowser_edit_history_interval_changed("'.$this->tab.'",'.$created['id'].',"'.$form->get_name().'")'));
 		$label_static = $form->createElement('static', 'historical_view_label', '', __('View the record as of'));
 		$indicator_html = '<span id="historical_view_indicators" data-by-label="'.htmlspecialchars(__('Edited by')).'">'
 			.'<span id="historical_view_created_badge" style="display:none;font-weight:bold;color:#28a745;">'.__('Record Created').'</span> '
 			.'<span id="historical_view_username_indicator"></span>'
 			.'</span>';
 		$indicator_static = $form->createElement('static', 'historical_view_indicator', '', $indicator_html);
-		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $play_button, $interval_select, $indicator_static), 'historical_view_group', '');
-		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'], 'historical_view_play_interval'=>1)));
+		$form->addGroup(array($label_static, $select, $prev_button, $next_button, $indicator_static), 'historical_view_group', '');
+		$form->setDefaults(array('historical_view_group'=>array('historical_view_pick_date'=>$created['created_on'])));
 		$form->display();
 		eval_js('recordbrowser_edit_history_meta='.json_encode($dates_meta).';recordbrowser_edit_history_update_buttons();');
 		$this->view_entry('history', $created);
