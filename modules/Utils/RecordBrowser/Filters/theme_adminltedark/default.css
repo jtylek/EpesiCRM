@@ -50,9 +50,16 @@
 	display: flex;
 }
 
+/* Card: bg sits between the page (--epesi-bg #1a1d20, see Base_Box) and the
+   label/data pill fill (#2b3035 below) so the panel reads as its own layer
+   without swallowing the pills into a single flat block. */
 .Utils_RecordBrowser__Filter {
     display: block;
 	margin: 0.5rem 0;
+	background-color: #212529;
+	border: 1px solid #495057;
+	border-radius: 0.5rem;
+	padding: 0.75rem;
 }
 
 /* label */
@@ -137,6 +144,9 @@
     padding-left: 8px;
 }
 
+/* Grey, not Bootstrap blue - matches .epesi-rbf-btn (the Show/Hide filters
+   toggle) so the two buttons in this toolbar read as one consistent style
+   instead of a random blue CTA next to a grey one. */
 .Utils_RecordBrowser__Filter .buttons input,
 #Utils_RecordBrowser__Filter .buttons input {
     color: #fff;
@@ -145,7 +155,7 @@
     border: 0px;
 	padding-bottom: 3px;
 	cursor: pointer;
-	background-color: #0d6efd;
+	background-color: #495057;
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
@@ -169,35 +179,41 @@
 
 .Utils_RecordBrowser__Filter .buttons input:hover,
 #Utils_RecordBrowser__Filter .buttons input:hover {
-	background-color: #0b5ed7;
+	background-color: #343a40;
 }
 
-/* Small screens: each .epesi-rbf-pair gets a full-width line of its own
- * instead of staying cramped several-across - flex-basis, not the old
- * table version's display:block hack. */
+/* Small screens: one filter per line, as a two-column grid (label | data)
+ * instead of flex-wrapped pills - a grid's column tracks size to the widest
+ * cell across ALL rows, so every label lines up to the same width and every
+ * select/input starts at the same x, which independently-sized flex pairs
+ * can't do. .epesi-rbf-pair becomes display:contents so its .label/.data
+ * children join the grid directly instead of forming their own nested row;
+ * .buttons (a sibling of the pairs, not inside one - see elements.tpl) spans
+ * both columns to sit full-width beneath them.
+ *
+ * label/data keep the desktop rule's left/right rounding (4px 0 0 4px /
+ * 0 4px 4px 0, further up this file) unmodified here - they're still side by
+ * side, just full width now, so a top/bottom split (this block's previous
+ * approach) produced a stair-step outline instead of a clean pill. */
 @media (max-width: 767.98px) {
-	.epesi-rbf-pair,
-	.Utils_RecordBrowser__Filter .buttons {
-		flex-basis: 100%;
+	.epesi-rbf-row {
+		display: grid;
+		grid-template-columns: max-content 1fr;
+		row-gap: 0.4rem;
 	}
 
-	/* The label/data pill shape (rounded-left label + rounded-right data,
-	   .data's left border removed so the pair reads as one joined shape)
-	   only makes sense side by side. Stacked, round the pair as a single
-	   top/bottom block instead and restore .data's left border, which used
-	   to rely on sitting flush against .label. */
-	.Utils_RecordBrowser__Filter .label {
-		border-radius: 4px 4px 0 0;
+	.epesi-rbf-pair {
+		display: contents;
 	}
+
 	.Utils_RecordBrowser__Filter .data {
-		border-radius: 0 0 4px 4px;
 		border-left: 1px solid #495057;
-		margin-bottom: 8px;
+		min-width: 0;
 	}
 
 	/* Inputs were a fixed 100px/98px (sized for a compact side-by-side
-	   pill) - now that .data spans the full row, let them fill it instead
-	   of leaving most of the row empty. */
+	   pill) - now that .data fills its grid column, let them fill it
+	   instead of leaving most of the row empty. */
 	.Utils_RecordBrowser__Filter .data input,
 	.Utils_RecordBrowser__Filter .data select {
 		width: 100%;
@@ -209,12 +225,18 @@
 	}
 
 	.Utils_RecordBrowser__Filter .buttons {
+		grid-column: 1 / -1;
 		justify-content: flex-end;
 		padding-right: 0;
 	}
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
+[data-bs-theme="light"] .Utils_RecordBrowser__Filter {
+  background-color: #fff;
+  border-color: #dee2e6;
+}
+
 [data-bs-theme="light"] .Utils_RecordBrowser__Filter .label {
   color: #495057;
   background: #f1f3f5;
