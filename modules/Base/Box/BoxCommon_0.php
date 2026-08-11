@@ -82,6 +82,24 @@ class Base_BoxCommon extends ModuleCommon {
     public static function pop_main_href() {
         return self::main_module_instance()->create_callback_href(array('Base_BoxCommon', 'pop_main'));
     }
+
+    public static function nav_back() {
+        self::_base_box_instance()->nav_back();
+    }
+
+    public static function nav_back_href() {
+        return self::main_module_instance()->create_callback_href(array('Base_BoxCommon', 'nav_back'));
+    }
+
+    /**
+     * True when there's a previous screen the global Back button (added
+     * automatically by Base_ActionBar_0.php when no module registered its
+     * own 'back' action) can return to.
+     */
+    public static function has_nav_history() {
+        $x = ModuleManager::get_instance('/Base_Box|0');
+        return $x ? $x->has_nav_history() : false;
+    }
 	
 	public static function update_version_check_indicator($force=false) {
 		$version_no = __('version %s',array(EPESI_VERSION));

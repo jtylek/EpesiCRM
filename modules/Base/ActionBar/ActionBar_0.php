@@ -47,6 +47,29 @@ class Base_ActionBar extends Module {
 		
 		$icons = Base_ActionBarCommon::get();
 
+		// Every ActionBar should start with a Back action - added globally
+		// here rather than by each module, so it's never missing (e.g. a
+		// top-level Browse screen reached straight from the menu never had
+		// anywhere to go "back" to inside its own module) and never doubled
+		// up. If a module already registered its own 'back' (RecordBrowser's
+		// view->browse, Settings subpages, etc. - those are more specific
+		// than a generic "previous screen" and take priority), skip this.
+		// Base_BoxCommon::has_nav_history() is false with nothing to return
+		// to (e.g. the very first screen after login), so no dead button.
+		$has_back = false;
+		foreach ($icons as $i) {
+			if ($i['icon'] === 'back') { $has_back = true; break; }
+		}
+		if (!$has_back && Base_BoxCommon::has_nav_history()) {
+			$icons[] = array(
+				'icon' => 'back',
+				'label' => __('Back'),
+				'action' => Base_BoxCommon::nav_back_href(),
+				'description' => null,
+				'position' => 0,
+			);
+		}
+
 		//sort
 		usort($icons, $this->compare(...));
 

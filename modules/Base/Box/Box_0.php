@@ -73,6 +73,12 @@ class Base_Box extends Module {
         } else {
             $pop_main = false;
         }
+        if(isset($_REQUEST['base_box_nav_back'])) {
+            $nav_back = true;
+            unset($_REQUEST['base_box_nav_back']);
+        } else {
+            $nav_back = false;
+        }
         if($this->isset_module_variable('main')) {
             $mains = $this->get_module_variable('main');
             if($pop_main) {
@@ -88,6 +94,21 @@ class Base_Box extends Module {
                 }
         } else $mains = array();
 
+        // Separate history stack just for the ActionBar's global Back button
+        // (Base_ActionBar_0.php) - deliberately NOT folded into $mains above,
+        // since Base_User_Settings and others key off count($mains)>1 to
+        // detect they were explicitly push_main()'d (Base_BoxCommon::
+        // push_module); growing $mains on ordinary menu navigation too would
+        // make that check misfire and auto-pop screens reached normally.
+        $nav_history = $this->isset_module_variable('nav_history') ? $this->get_module_variable('nav_history') : array();
+
+        if ($nav_back) {
+            $prev_main = array_pop($nav_history);
+            if ($prev_main !== null) {
+                $containers['main'] = $prev_main;
+                $pop_main = true;
+            }
+        }
 
         if (isset($_REQUEST['box_main_href'])) {
             if(!isset($_SESSION['client']['base_box_hrefs']))
@@ -96,6 +117,19 @@ class Base_Box extends Module {
             if(isset($hs[$_REQUEST['box_main_href']])) {
                 $rh = $hs[$_REQUEST['box_main_href']];
                 $href = $rh['m'];
+
+                // Remember the screen we're navigating away from, so a later
+                // global Back click can return to it. Skipped on the very
+                // first load (no real previous screen) and on a repeat click
+                // of the same target (already there - nothing to go back to).
+                $prev_main = $containers['main'];
+                $new_sig = serialize(array($href, $rh['f'] ?? null, $rh['a'] ?? null));
+                $prev_sig = serialize(array($prev_main['module'] ?? null, $prev_main['function'] ?? null, $prev_main['arguments'] ?? null));
+                if (!empty($prev_main['module']) && $new_sig !== $prev_sig) {
+                    $nav_history[] = $prev_main;
+                    if (count($nav_history) > 10) array_shift($nav_history);
+                }
+
                 $containers['main']['module'] = $href;
                 if(isset($rh['f']))
                     $containers['main']['function'] = $rh['f'];
@@ -116,9 +150,17 @@ class Base_Box extends Module {
             unset($_REQUEST['box_main_href']);
             $hs = array();
         }
+        // Same reasoning as the $mains freeze loop above - a module tracked
+        // in nav_history isn't rendered as 'main' this request, but still
+        // needs its child-instance slot reserved on Base_Box so a fresh
+        // (clear_vars) main module elsewhere can't be mistaken for it.
+        foreach ($nav_history as $m)
+            if (!empty($m['module']) && ModuleManager::is_installed($m['module'])>=0)
+                $this->freeze_module($m['module'],($m['name'] ?? null));
         array_push($mains,$containers['main']);
         $main_length = count($mains);
         $this->set_module_variable('main', $mains);
+        $this->set_module_variable('nav_history', $nav_history);
 //      Epesi::alert(print_r($mains,true));
 //      $containers['main']['name'] .= '_'.$main_length;
         //print_r($containers);
@@ -208,6 +250,24 @@ class Base_Box extends Module {
         $poped = true;
 //        $mains = & $this->get_module_variable('main');
         location(array('base_box_pop_main'=>$c));
+    }
+
+    /**
+     * Returns to the previous screen recorded in nav_history (see body()) -
+     * the generic fallback the ActionBar's global Back button uses when the
+     * currently active module hasn't registered its own Back action.
+     */
+    public function nav_back() {
+        static $went_back = false;
+        if($went_back)
+            return;
+        $went_back = true;
+        location(array('base_box_nav_back'=>1));
+    }
+
+    public function has_nav_history() {
+        $h = $this->isset_module_variable('nav_history') ? $this->get_module_variable('nav_history') : array();
+        return count($h) > 0;
     }
 }
 ?>
