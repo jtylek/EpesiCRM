@@ -103,6 +103,11 @@ body {
 	font-weight: 600;
 	color: var(--epesi-text);
 	max-width: 40vw;
+	/* Per request - global, not just the narrow-portrait breakpoint below.
+	   Otherwise inherits body's own 1rem override (this file, top of the
+	   sheet) same as the rest of the navbar text, reading oversized next to
+	   the icon-only nav-links either side of it at their default sizing. */
+	font-size: 0.85rem;
 }
 
 /* Base_Admin's control panel has an unusually long caption ("Administration:
@@ -492,18 +497,33 @@ body {
    icon now, per a later request, so there's no "show it here" rule for that
    either.) */
 @media (max-width: 991.98px) and (orientation: portrait) {
-	/* Module indicator (current screen name) and the search box - per
-	   request, dropped to reclaim more room on a narrow portrait phone.
-	   #module-indicator is shared with Base_MainModuleIndicator's own AJAX
-	   updates, not this theme's to rename; plain display:none is enough for
-	   it since nothing else styles it. !important on #search_box as a
-	   precaution - {$search}'s own module may carry theme CSS of its own
-	   that this file can't see ahead of time. */
-	.epesi-adminlte #module-indicator {
-		display: none;
-	}
+	/* The search box - per request, dropped to reclaim more room on a narrow
+	   portrait phone. !important as a precaution - {$search}'s own module may
+	   carry theme CSS of its own that this file can't see ahead of time.
+	   #module-indicator (current screen name) used to be dropped here too,
+	   alongside search - restored per request, since with search (and
+	   everything else this block used to also hide, see the comment above)
+	   already gone, the row has room for it again and the navbar read as
+	   confusingly bare - a blank strip between the sidebar toggle and the
+	   launchpad icon with no indication of which screen you're on. */
 	#search_box {
 		display: none !important;
+	}
+	/* Stretch the restored indicator to fill that reclaimed space instead of
+	   sitting at the desktop rule's own max-width:40vw (this file's
+	   un-prefixed #module-indicator rule above) - on a narrow phone that cap
+	   left a wide dead gap between the truncated caption and the launchpad
+	   icon rather than using the room the search box's removal actually
+	   freed up. flex:1 1 auto claims the leftover space .container-fluid's
+	   flex layout (Bootstrap navbar rule) has between the two nav-item
+	   clusters; min-width:0 is required alongside it - a flex item's default
+	   min-width is auto (its content's own intrinsic width), which silently
+	   defeats text-truncate's overflow:hidden by refusing to shrink narrower
+	   than that in the first place. */
+	.epesi-adminlte #module-indicator {
+		max-width: none;
+		flex: 1 1 auto;
+		min-width: 0;
 	}
 	/* Collapses the bar on a narrow portrait phone whenever it genuinely has
 	   no real action in it - mainly a Dashboard thing (no "Config" button
