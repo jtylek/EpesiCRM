@@ -486,7 +486,16 @@ class Utils_AttachmentCommon extends ModuleCommon {
         if ($mode=='add' || $mode=='edit') {
 
             $fck = $form->addElement('quill', $field, $label);
-            $fck->setQuillProps('99%','300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            // No explicit width: Quill's auto-generated toolbar is inserted as the
+            // container div's preceding *sibling*, not a descendant (see qu.js), so
+            // it has no width of its own - it only lines up with the container below
+            // it when neither has an explicit width and both block-fill their shared
+            // parent. An explicit '99%' here (this field's width before the Quill
+            // migration) left the container 1% narrower than the toolbar, the same
+            // bug already fixed for Applets/Note's settings-form field (see that
+            // commit) but missed here. RecordBrowser_0.php's own quill field passes
+            // null for the same reason.
+            $fck->setQuillProps(null,'300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
             $fck->enableToolbarSwitch();
 
             $form->setDefaults(array($field=>$default));

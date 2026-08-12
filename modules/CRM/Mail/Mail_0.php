@@ -41,7 +41,11 @@ class CRM_Mail extends Module {
 		$f->addElement('header',null,__('Outgoing mail global signature'));
 
 		$fck = & $f->addElement('quill', 'content', __('Content'));
-		$fck->setQuillProps('800','300',true);
+		// No explicit width - see AttachmentCommon_0.php's note field / Applets_
+		// NoteCommon::text_elem() for why an explicit width here mismatches
+		// Quill's toolbar, which is a separate sibling div with no width of its
+		// own.
+		$fck->setQuillProps(null,'300',true);
 
 		$f->setDefaults(array('content'=>Variable::get('crm_mail_global_signature',false)));
 
