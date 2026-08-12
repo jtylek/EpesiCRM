@@ -23,9 +23,8 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
-		$tb->set_tab('Translations', $this->translations(...));
 		$tb->set_tab('Settings', $this->settings(...));
-		$tb->set_default_tab(1);
+		$tb->set_tab('Translations', $this->translations(...));
 		$this->display_module($tb);
 		$tb->tag();
 	}
