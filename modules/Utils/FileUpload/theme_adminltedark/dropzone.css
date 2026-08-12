@@ -1,0 +1,32 @@
+/* adminltedark override of ../theme/dropzone.css - that file hardcodes a
+ * white background/black-ish text (readable on the legacy 'default' theme
+ * only) with no theme-scoped counterpart, since Dropzone.php used to load it
+ * via a raw load_css() call instead of Base_ThemeCommon::load_css(), which
+ * bypasses Base_ThemeResolver's theme_<name>-over-theme fallback entirely.
+ * Colors match the app's shared dark form-control palette (Libs/QuickForm/
+ * theme_adminltedark/default.css's #2b3035 background / #495057 border).
+ *
+ * Dark is the unscoped default here, with [data-bs-theme="light"] as the
+ * override - same convention as modules/Libs/Quill/theme.css (see that
+ * file's header comment): 'adminltedark' is the only theme left, so this
+ * folder covers BOTH the dark default and the light toggle state, not just
+ * dark - a plain unconditional dark override here left the dropzone black
+ * even after toggling to light mode.
+ */
+div.dropzone {
+	background: #2b3035 none repeat scroll 0% 0%;
+	border-color: #0d6efd;
+	color: #dee2e6;
+}
+div.dropzone .dz-remove {
+	color: #dee2e6;
+}
+
+[data-bs-theme="light"] div.dropzone {
+	background: #fff none repeat scroll 0% 0%;
+	border-color: #0d6efd;
+	color: #212529;
+}
+[data-bs-theme="light"] div.dropzone .dz-remove {
+	color: #212529;
+}

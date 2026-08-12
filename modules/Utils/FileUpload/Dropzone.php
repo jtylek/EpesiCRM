@@ -25,7 +25,11 @@ class Utils_FileUpload_Dropzone extends Module
         $identifier = 'dropzone_' . $identifier;
         $content = "<div id=\"{$identifier}\" class=\"dropzone\"></div>";
         $dir = 'modules/Utils/FileUpload/';
-        load_css($dir . 'theme/dropzone.css');
+        // Themed loader (not a raw load_css('theme/dropzone.css') call) so
+        // theme_adminltedark/dropzone.css below actually gets picked up - see
+        // Base_ThemeResolver::resolve_uncached()'s theme_<name>-over-theme
+        // fallback.
+        Base_ThemeCommon::load_css('Utils_FileUpload', 'dropzone');
         load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/basic.min.css');
         load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.css');
         load_js(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.js');

@@ -27,17 +27,67 @@
 }
 
 /* Quill's toolbar is a dense grid of individually-colored SVG icons
- * (.ql-stroke/.ql-fill/etc, dozens of rules across quill.snow.css) - inverting the
- * whole toolbar's colors is far more maintainable than re-declaring every one of
- * those rules by hand, and reads correctly since the toolbar has no photographic
- * content, only monochrome icon strokes/fills on a flat background. The editor
- * body/dropdowns/link-tooltip aren't icon-heavy, so those get plain color
- * overrides instead - an invert would make typed text unreadable.
+ * (.ql-stroke/.ql-fill/etc, dozens of rules across quill.snow.css) - inverting
+ * their colors is far more maintainable than re-declaring every one of those
+ * rules by hand, and reads correctly since they're monochrome strokes/fills
+ * (plus, for the color-picker's swatch preview, invert+hue-rotate(180deg)
+ * flips lightness while restoring the original hue) on an otherwise flat
+ * background. The editor body/dropdowns/link-tooltip aren't icon-heavy, so
+ * those get plain color overrides instead - an invert would make typed text
+ * unreadable.
+ *
+ * The filter is scoped to .ql-stroke/.ql-fill (not applied to
+ * .ql-toolbar.ql-snow itself): filter post-processes an element's *entire*
+ * painted output, background-color included, so putting it on the same rule
+ * as background-color:#2b3035 below would invert that already-dark
+ * background a second time into a light grey - which is what made the whole
+ * toolbar render as a flat grey bar instead of dark. Scoping to .ql-stroke/
+ * .ql-fill also means .ql-picker-options (the open dropdown panel) is never
+ * inside the filtered subtree, so its own dark colors below don't suffer the
+ * same double-invert either, and swatch/icon previews inside it keep their
+ * true (not hue-approximated) color.
+ *
+ * .ql-picker-label (the closed picker button - "Normal", a font-color "A",
+ * the background-color checkerboard, ...) is handled separately with a plain
+ * color override below, NOT folded into the filter selector above: the
+ * color/background pickers' entire icon, and every picker's own dropdown
+ * caret, is an .ql-stroke/.ql-fill SVG *nested inside* .ql-picker-label. An
+ * earlier version of this rule filtered .ql-picker-label too, which meant
+ * that nested content got invert(1) hue-rotate(180deg) applied twice - once
+ * from matching .ql-stroke/.ql-fill directly, once more from its filtered
+ * ancestor - and two applications of an invert (self-cancelling) composed
+ * with hue-rotate(180deg)+hue-rotate(180deg)=hue-rotate(360deg) (a no-op)
+ * is the identity transform, so those icons silently fell back to their
+ * unfiltered, light-mode-only color - a dark stroke on a dark toolbar,
+ * "barely visible" exactly like the light-mode screenshot but on a dark
+ * background. Bold/italic/underline/etc buttons don't sit inside a
+ * .ql-picker-label, so they only ever got the filter once and always looked
+ * right.
  */
 .ql-toolbar.ql-snow {
-	filter: invert(1) hue-rotate(180deg);
 	background-color: #2b3035;
 	border-color: #495057;
+}
+.ql-toolbar.ql-snow .ql-stroke,
+.ql-toolbar.ql-snow .ql-fill {
+	filter: invert(1) hue-rotate(180deg);
+}
+.ql-toolbar.ql-snow .ql-picker-label {
+	color: #dee2e6;
+}
+/* quill.snow.css dims the picker label and its own caret icon while the
+ * dropdown is open (meant to read as muted against a light toolbar) - kept
+ * dim here too, just shifted to a tone that stays visible on the toolbar's
+ * dark background instead of the light-mode-only #ccc/#ccc pair.
+ */
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+	color: #adb5bd;
+}
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+	stroke: #adb5bd;
+}
+.ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-fill {
+	fill: #adb5bd;
 }
 .ql-container.ql-snow {
 	border-color: #495057;
@@ -52,6 +102,7 @@
 .ql-snow .ql-picker-options {
 	background-color: #2b3035;
 	border-color: #495057 !important;
+	color: #dee2e6;
 }
 .ql-snow .ql-tooltip {
 	background-color: #2b3035;
@@ -67,9 +118,24 @@
 
 /* ==== light-mode override ==== */
 [data-bs-theme="light"] .ql-toolbar.ql-snow {
-	filter: none;
 	background-color: #fff;
 	border-color: #ccc;
+}
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-stroke,
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-fill {
+	filter: none;
+}
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-picker-label {
+	color: #444;
+}
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+	color: #ccc;
+}
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+	stroke: #ccc;
+}
+[data-bs-theme="light"] .ql-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-fill {
+	fill: #ccc;
 }
 [data-bs-theme="light"] .ql-container.ql-snow {
 	border-color: #ccc;
@@ -84,6 +150,7 @@
 [data-bs-theme="light"] .ql-snow .ql-picker-options {
 	background-color: #fff;
 	border-color: #ccc !important;
+	color: #444;
 }
 [data-bs-theme="light"] .ql-snow .ql-tooltip {
 	background-color: #fff;
