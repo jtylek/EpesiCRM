@@ -25,6 +25,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$tb = $this->init_module(Utils_TabbedBrowser::module_name());
 		$tb->set_tab('Translations', $this->translations(...));
 		$tb->set_tab('Settings', $this->settings(...));
+		$tb->set_default_tab(1);
 		$this->display_module($tb);
 		$tb->tag();
 	}
@@ -63,9 +64,9 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 		$desc .= __('The only data being sent is the values of the fields presented below and the translated strings, we do not receive any other information contained in EPESI.').'<br>';
 		$desc .= __('You can also change your Translations Contribution settings at later time.').'<br>';
 		$desc .= '</div>';
-		eval_js('document.getElementById("trans_sett_info").closest("td").setAttribute("colspan",2);');
-		eval_js('document.getElementById("trans_sett_info").closest("td").style.borderRadius="0";'); // Not really nice, but will have to do for now
-		eval_js('jQuery(document.getElementById("decription_label").closest("td")).hide();');
+		eval_js('jQuery(document.getElementById("trans_sett_info").closest(".epesi_data")).css("grid-column", "1 / -1");');
+		eval_js('jQuery(document.getElementById("trans_sett_info").closest(".epesi_data")).css("border-radius", "0");'); // Not really nice, but will have to do for now
+		eval_js('jQuery(document.getElementById("decription_label").closest(".epesi_label, .epesi-lbp-form-label")).hide();');
 		eval_js('function update_credits(){document.getElementById("contact_email").disabled=document.getElementById("credits_website").disabled=!document.getElementById("include_credits").checked||!document.getElementById("allow").checked;}');
 		eval_js('update_credits();');
 		$ip = gethostbyname($_SERVER['SERVER_NAME']);
