@@ -1,18 +1,21 @@
 {php}
 	// Admin_0.php::list_admin_modules() pushes buttons with array_append (not
-	// keyed by module name), so the module identity isn't directly available
-	// here - but $button['icon'] is already Base_ThemeCommon::get_template_file()'s
-	// resolved "modules/<Vendor>/<Module>/theme/icon.png" path (or a custom
-	// admin_icon() path, best-effort), which Base_AdminlteIcons::resolve() can
-	// extract the module from itself. 'bi-gear' fallback for anything it can't
-	// place - unlike the launcher icons, this panel is specifically "admin
-	// tools", so a generic tool glyph fits better than keeping an unmapped
-	// module's own image.
+	// keyed by module name) but now carries the real module name explicitly
+	// as $button['module'] - relying on Base_AdminlteIcons::resolve() to
+	// extract it from $button['icon'] instead used to mis-detect the module
+	// whenever a module had no theme/icon.png of its own: the icon path then
+	// fell back to Base_Admin's own icon.png, which resolve() read as "this
+	// button belongs to Base_Admin" and rendered Base_AdminCommon's icon
+	// (bi-gear-fill) for every such module regardless of its own declared
+	// adminlte_icon() (e.g. Base_AclCommon's bi-person-gear never showed).
+	// 'bi-gear' fallback for anything still unplaced - unlike the launcher
+	// icons, this panel is specifically "admin tools", so a generic tool
+	// glyph fits better than keeping an unmapped module's own image.
 	require_once('modules/Base/Theme/adminlte_icons.php');
 	$sections = $this->get_template_vars('sections');
 	foreach ($sections as $sk=>$s) {
 		foreach ($s['buttons'] as $key=>$button) {
-			$sections[$sk]['buttons'][$key]['bi_icon'] = Base_AdminlteIcons::resolve($button['icon'] ?? null, null, 'bi-gear');
+			$sections[$sk]['buttons'][$key]['bi_icon'] = Base_AdminlteIcons::resolve($button['icon'] ?? null, $button['module'] ?? null, 'bi-gear');
 		}
 	}
 	$this->assign('sections', $sections);

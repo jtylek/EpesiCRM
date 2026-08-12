@@ -82,6 +82,7 @@ class Base_Admin extends Module {
 			if (!isset($caption['section'])) $caption['section'] = __('Misc');
 			$mod_ok[$name] = $caption;
 		}
+		uasort($mod_ok, fn($a, $b) => strcasecmp($a['label'], $b['label']));
 		if (Base_AclCommon::i_am_sa()) {
 			Base_ActionBarCommon::add('admin-panel', __('Admin Panel Access'), $this->create_callback_href($this->set_module(...), array('Base_Admin')));
             if (!DEMO_MODE && !HOSTING_MODE) {
@@ -99,7 +100,7 @@ class Base_Admin extends Module {
 				if (!file_exists($icon)) $icon = Base_ThemeCommon::get_template_file('Base_Admin','icon.png');
 			}
 			$buttons[$caption['section']][] = array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
-						'icon'=>$icon);
+						'icon'=>$icon, 'module'=>$name);
 		}
 
 		foreach ($buttons as $section=>$b) {
