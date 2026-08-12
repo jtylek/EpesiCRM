@@ -57,6 +57,15 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// icon_map (Base_ActionBar/theme_adminltedark/default.tpl) points
 			// this at a distinct glyph (bi-person-circle).
 			'login-as'	=> 16,
+			// Base_Admin_0's "Admin Panel Access" / "Admin Tools" Quick Access
+			// entries both used the 'settings' key outright (identical gear
+			// icons, indistinguishable from each other) - own keys now, same
+			// sprite position as 'settings' so the legacy theme is unaffected;
+			// only the AdminLTE theme's icon_map (Base_ActionBar/
+			// theme_adminltedark/default.tpl) points these at distinct glyphs
+			// (bi-person-workspace / bi-motherboard).
+			'admin-panel'	=> 16,
+			'admin-tools'	=> 16,
 			'scan'		=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,

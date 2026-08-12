@@ -32,6 +32,8 @@
 		'clone'     => 'bi-files',
 		'settings'  => 'bi-gear',
 		'login-as'  => 'bi-person-circle',
+		'admin-panel' => 'bi-person-workspace',
+		'admin-tools' => 'bi-motherboard',
 		'scan'      => 'bi-upc-scan',
 		'filter'    => 'bi-funnel',
 		'retry'     => 'bi-arrow-repeat',

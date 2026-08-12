@@ -83,10 +83,10 @@ class Base_Admin extends Module {
 			$mod_ok[$name] = $caption;
 		}
 		if (Base_AclCommon::i_am_sa()) {
-			Base_ActionBarCommon::add('settings', __('Admin Panel Access'), $this->create_callback_href($this->set_module(...), array('Base_Admin')));
+			Base_ActionBarCommon::add('admin-panel', __('Admin Panel Access'), $this->create_callback_href($this->set_module(...), array('Base_Admin')));
             if (!DEMO_MODE && !HOSTING_MODE) {
        			$admin_tools_url = rtrim(get_epesi_url(), '/') . '/admin/';
-	    		Base_ActionBarCommon::add('settings', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
+	    		Base_ActionBarCommon::add('admin-tools', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
             }
         }
                                 
