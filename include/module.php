@@ -757,7 +757,7 @@ abstract class Module extends ModulePrimitive {
 
 	public function create_ajax_callback_url($func, array $args = null)
 	{
-		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>CID));
+		return 'ajax.php?'.http_build_query(array('key' => $this->get_ajax_callback_key($func, $args), 'cid'=>defined('CID') ? CID : false));
 	}
 
 	private function create_callback_name($func, $args) {
