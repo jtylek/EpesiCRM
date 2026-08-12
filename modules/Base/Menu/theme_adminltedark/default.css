@@ -22,12 +22,12 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding: 0.5rem 0.9rem;
+	padding: 0.3rem 0.9rem;
 	color: #000;
 	font-size: 14px;
 	border-radius: 0;
 	/* comfortable tap target */
-	min-height: 44px;
+	min-height: 34px;
 }
 
 .epesi-adminlte #MenuBar .nav-link:hover,
@@ -94,7 +94,7 @@
 
 .epesi-adminlte #MenuBar .epesi-submenu .nav-link {
 	font-size: 13px;
-	min-height: 40px;
+	min-height: 30px;
 }
 
 /* No divider line, per request - the margin alone still separates
