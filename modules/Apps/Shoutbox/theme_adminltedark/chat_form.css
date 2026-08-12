@@ -149,13 +149,14 @@
 
 /* Per request, messages no longer fade with age - a single static color instead,
  * legible on #shoutbox_board's dark background. Deliberately the exact same
- * #00ff00 GenericBrowser's own theme (theme_adminltedark/default.css) already
- * gives every other browser's row text in dark mode (History's own message text
- * below inherits that same color unstyled, per request, rather than fighting it -
- * see that rule's own comment) - not the earlier #f8f9fa this rule used, which
- * left Chat and History reading as two different colors side by side. */
+ * #fff GenericBrowser's own theme (theme_adminltedark/default.css) gives every
+ * other browser's row text in dark mode (History's own message text below
+ * inherits that same color unstyled, per request, rather than fighting it -
+ * see that rule's own comment) - matches rather than the earlier #f8f9fa/
+ * #00ff00 this rule used, which left Chat and History reading as two
+ * different colors side by side. */
 #shoutbox_board .shoutbox_textbox {
-	color: #00ff00;
+	color: #fff;
 }
 
 /* History tab (Shoutbox_0.php::history()) prints mostly the same message markup
@@ -165,7 +166,7 @@
  * rather than duplicated, so the two tabs stay visually consistent instead of
  * drifting apart. Message text itself is deliberately left with no color rule
  * here at all: GenericBrowser's own ".epesi-gb .Utils_GenericBrowser__td" rule
- * (theme_adminltedark/default.css) already colors it #00ff00 in dark mode -
+ * (theme_adminltedark/default.css) already colors it #fff in dark mode -
  * exactly the shade #shoutbox_board's own rule above now matches on purpose -
  * and #212529 in light mode via that same file's own
  * "[data-bs-theme='light'] .Utils_GenericBrowser__td" rule, which Chat's light
@@ -286,7 +287,7 @@
   border-top: 1px solid #e9ecef;
 }
 
-/* #shoutbox_board's own bare ".shoutbox_textbox" rule above (dark mode's #00ff00)
+/* #shoutbox_board's own bare ".shoutbox_textbox" rule above (dark mode's #fff)
  * has no [data-bs-theme] qualifier of its own, so it applied unconditionally,
  * including in light mode - reported as message text almost unreadable against
  * the light board background above. #212529, not a plainer #000, to exactly match

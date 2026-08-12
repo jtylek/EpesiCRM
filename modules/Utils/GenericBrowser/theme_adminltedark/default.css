@@ -379,10 +379,16 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	/* Per request: dark mode only (no [data-bs-theme="light"] override below,
-	   see this file's own light-mode section) - header row stays white via
-	   its own .Utils_GenericBrowser__th color rule above, unaffected since
-	   __th/__td are separate classes. */
-	color: #00ff00;
+	   see this file's own light-mode section) - matches the header row's own
+	   .Utils_GenericBrowser__th color rule above. Was briefly green per an
+	   earlier request, reverted; CRM_LoginAudit's own theme_adminltedark/
+	   default.css keeps that page's rows green via a scoped override.
+	   Shoutbox's History tab (Apps_Shoutbox/theme_adminltedark/chat_form.css)
+	   inherits this color for its own message text rather than setting its
+	   own, and Chat's #shoutbox_board/#shoutbox_board_big .shoutbox_textbox
+	   rules (chat_form.css/chat_form_big.css) hardcode the same value to
+	   match it - keep those three in sync with this one if it changes again. */
+	color: #fff;
 }
 
 /* The actions cell's own content is just a row of icon glyphs (no text line

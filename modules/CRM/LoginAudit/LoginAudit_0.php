@@ -123,7 +123,14 @@ class CRM_LoginAudit extends Module {
                 $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b>',$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name'],$row['device']);
 			}
 
+		// Per request: this browser's rows stay green in dark mode while
+		// Utils_GenericBrowser's own default reverted to white - the wrapper
+		// class scopes the override in this module's own CSS (see
+		// theme_adminltedark/default.css) instead of touching the shared one.
+		Base_ThemeCommon::load_css('CRM_LoginAudit', 'default', false);
+		print('<div class="epesi-login-audit-gb">');
 		$this->display_module($gb);
+		print('</div>');
 
         return true;
 	}

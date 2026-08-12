@@ -1,0 +1,12 @@
+/* Per request: Login Audit's browse table keeps green row text in dark mode
+   even though Utils_GenericBrowser's own theme_adminltedark/default.css
+   reverted its shared .Utils_GenericBrowser__td rule back to white (that was
+   a site-wide green change made per an earlier, since-reversed request).
+   Scoped via the .epesi-login-audit-gb wrapper LoginAudit_0.php's admin()
+   prints around $this->display_module($gb) rather than editing the shared
+   GenericBrowser stylesheet, so no other browser is affected. !important
+   beats the shared rule's plain color declaration regardless of CSS load
+   order between the two files. */
+.epesi-login-audit-gb .Utils_GenericBrowser__td {
+	color: #00ff00 !important;
+}

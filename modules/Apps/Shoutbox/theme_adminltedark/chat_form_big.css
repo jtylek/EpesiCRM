@@ -124,13 +124,13 @@
 }
 
 /* Per request, messages no longer fade with age - a single static color instead,
- * legible on #shoutbox_board_big's dark background. Same #00ff00 GenericBrowser's
- * own theme (theme_adminltedark/default.css) already gives every History message
- * in dark mode - see chat_form.css's own longer comment on its matching
+ * legible on #shoutbox_board_big's dark background. Same #fff GenericBrowser's
+ * own theme (theme_adminltedark/default.css) gives every History message in
+ * dark mode - see chat_form.css's own longer comment on its matching
  * #shoutbox_board rule for why this now deliberately matches that instead of a
- * separate #f8f9fa. */
+ * separate #f8f9fa/#00ff00. */
 #shoutbox_board_big .shoutbox_textbox {
-	color: #00ff00;
+	color: #fff;
 }
 
 /* "Send message to all?" confirm popup (Shoutbox_0.php::chat(), Bootstrap
@@ -183,7 +183,7 @@
 }
 
 /* #shoutbox_board_big's own bare ".shoutbox_textbox" rule above (dark mode's
- * #00ff00) has no [data-bs-theme] qualifier of its own, so it applied
+ * #fff) has no [data-bs-theme] qualifier of its own, so it applied
  * unconditionally, including in light mode - reported as message text almost
  * unreadable against the light board background above. #212529, not a plainer
  * #000, to exactly match History's own light-mode message color (see
