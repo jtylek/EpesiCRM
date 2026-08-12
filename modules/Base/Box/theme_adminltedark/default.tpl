@@ -332,7 +332,13 @@
 				// instead of buried behind More actions, scoped to this exact resolved
 				// path so no other module's same-named icon is affected.
 				"if(/\\/CRM\\/Mail\\/theme[^\\/]*\\/copy_small\\.png$/.test(src))return true;".
-				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
+				// GenericBrowser_0.php appends "-off" to a core icon's filename
+				// when the action is disabled (add_action(..., $off=true), e.g.
+				// RecordBrowser_0.php's "no delete permission" row) - matched here
+				// too so a disabled core action still renders inline (grayed out)
+				// instead of falling through to "extra" and hiding behind More
+				// actions, which is what happened before this (-off)? was added.
+				"return /\\/(view|edit|delete|info|print|restore|active-on|active-off|move-up-down|move-up|move-down|history|history_inactive|plus_gray|minus_gray)(-off)?\\.png$/.test(src)||/\\/(expand|collapse)\\.gif$/.test(src);".
 			"}".
 			"function ensureToggles(){".
 				"document.querySelectorAll('.Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
