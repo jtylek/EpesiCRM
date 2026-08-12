@@ -144,7 +144,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
                 print "<h1 style=\"color:red; width: 70%\">$warning_mgs</h1>";
             } else {
                 $contribution_mgs = __('If you wish to help us with translating EPESI to your language, then click Translation Contribution in the Action Bar.');
-                print "<h3>$contribution_mgs</h3>";
+                print "<p>$contribution_mgs</p>";
             }
             $form->display_as_column();
             if ($allow_sending) {
