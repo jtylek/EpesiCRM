@@ -61,9 +61,20 @@ document.addEventListener('touchstart', function() { epesi_touch_active = true; 
 document.addEventListener('mousemove', function() { epesi_touch_active = false; }, true);
 
 function epesi_tooltip_position(popup, el) {
+	// documentElement.clientWidth/clientHeight, not window.innerWidth/
+	// innerHeight: inner* includes the scrollbar's own width, so on any page
+	// tall enough to have a vertical scrollbar (routine in this app) the
+	// clamp below let the popup's right edge land a scrollbar-width past the
+	// actual visible content area - it rendered fine, just partly hidden
+	// under the scrollbar track, which read as "tooltip near the right edge
+	// doesn't render full width". client* is the visible-content size the
+	// scrollbar has already been subtracted from, so clamping against it
+	// keeps the whole popup off the scrollbar.
+	var viewportWidth = document.documentElement.clientWidth;
+	var viewportHeight = document.documentElement.clientHeight;
 	var rect = el.getBoundingClientRect();
 	var spaceAbove = rect.top - 4;
-	var spaceBelow = window.innerHeight - rect.bottom - 4;
+	var spaceBelow = viewportHeight - rect.bottom - 4;
 	// Above the icon by default, so the popup isn't sitting directly under
 	// the mouse pointer (which obscures it) - but only when above is
 	// actually the roomier side. Comparing available space (not just "does
@@ -77,8 +88,8 @@ function epesi_tooltip_position(popup, el) {
 	var top = (spaceAbove >= popup.offsetHeight || spaceAbove >= spaceBelow)
 		? rect.top - 4 - popup.offsetHeight
 		: rect.bottom + 4;
-	popup.style.top = Math.max(4, Math.min(top, window.innerHeight - popup.offsetHeight - 4)) + 'px';
-	popup.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - popup.offsetWidth - 4)) + 'px';
+	popup.style.top = Math.max(4, Math.min(top, viewportHeight - popup.offsetHeight - 4)) + 'px';
+	popup.style.left = Math.max(4, Math.min(rect.left, viewportWidth - popup.offsetWidth - 4)) + 'px';
 }
 
 function epesi_tooltip_hide_popup() {
