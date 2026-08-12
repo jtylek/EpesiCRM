@@ -120,9 +120,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 	// to_plain_text() + textContent (see tooltip.js) by default, since its
 	// req.php response has already been through html_entity_decode
 	// server-side, which innerHTML would be unsafe to re-parse - unless the
-	// caller opted into $keep_table (see ajax_open_tag_attrs()'s $safe_html
-	// param), in which case req.php routes through here instead and
-	// tooltip.js renders it via innerHTML too.
+	// caller opted into $safe_html (see ajax_open_tag_attrs()'s own doc), in
+	// which case req.php routes through here instead and tooltip.js renders
+	// it via innerHTML too; $keep_table is a further, independent opt-in on
+	// top of that (req.php reads both flags separately from the same
+	// session-stored tooltip_settings).
 	//
 	// $keep_table: for content built from a real <table> (currently just
 	// Utils_RecordBrowser's theme_adminltedark/changes_list.tpl, a
@@ -191,13 +193,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param callback method that will be called to get tooltip content
 	 * @param array parameters that will be passed to the callback
 	 * @param int unused under adminlte (fixed via .epesi-tooltip-popup's own max-width); kept for the legacy theme's Utils_Tooltip.load_ajax()
-	 * @param bool render the callback's HTML via to_safe_html($content,true)+innerHTML (keeps e.g. a real <table>'s columns aligned) instead of the default to_plain_text()+textContent flatten - opt in only for callbacks whose HTML is safe to keep (see to_safe_html()'s $keep_table doc)
+	 * @param bool render the callback's HTML via to_safe_html($content,$keep_table)+innerHTML (keeps <strong>/<b>/<br>) instead of the default to_plain_text()+textContent flatten - opt in only for callbacks whose HTML is safe to keep
+	 * @param bool passed through to to_safe_html()'s $keep_table - only meaningful when $safe_html is true; keeps a real <table>'s structure (e.g. Watchdog's Field/Old value/New value changes grid) instead of flattening rows to "Label: value" lines
 	 * @return string HTML tag attributes
 	 */
-	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300, $safe_html=false ) {
+	public static function ajax_open_tag_attrs( $callback, $args, $max_width=300, $safe_html=false, $keep_table=false ) {
 		if(MOBILE_DEVICE) return '';
 
-		$tooltip_settings = array('callback'=>$callback, 'args'=>$args, 'safe_html'=>$safe_html);
+		$tooltip_settings = array('callback'=>$callback, 'args'=>$args, 'safe_html'=>$safe_html, 'keep_table'=>$keep_table);
 		$tooltip_id = md5(serialize($tooltip_settings));
 
 		$_SESSION['client']['utils_tooltip']['callbacks'][$tooltip_id] = $tooltip_settings;
@@ -246,10 +249,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param string text
 	 * @param mixed callback
 	 * @param array arguments for the callback
+	 * @param int max_width unused under adminlte, see open_tag_attrs()
+	 * @param bool render the callback's HTML via to_safe_html() (keeps <strong>/<b>/<br>) instead of flattening it to plain text - see ajax_open_tag_attrs()'s $safe_html doc
 	 * @return string text with tooltip
 	 */
-	public static function ajax_create( $text, $callback, $args=array(), $max_width=300) {
-		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width).'>'.$text.'</span>';
+	public static function ajax_create( $text, $callback, $args=array(), $max_width=300, $safe_html=false) {
+		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width,$safe_html).'>'.$text.'</span>';
 	}
 
     public static function is_tooltip_code_in_str($str)

@@ -2464,8 +2464,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		return self::create_default_record_tooltip_ajax($text, $tab, $id);
     
     	//args name => expected index (in case of numeric indexed array)
-    	$tooltip_create_args = array('tip'=>0, 'args'=>1, 'help'=>1, 'max_width'=>2);
-    	 
+    	// 'safe_html' only applies to the callable-tip/ajax_create() branch
+    	// below (see its own $safe_html doc). Every custom per-record tooltip
+    	// callback in this codebase (CRM_ContactsCommon::company_get_tooltip()/
+    	// contact_get_tooltip(), Premium_Projects_TicketsCommon::
+    	// ticket_id_get_tooltip()) is built from format_info_tooltip(), already
+    	// HTMLPurifier-sanitized there - so it defaults to true below (bold
+    	// <strong> field labels, kept safe for innerHTML) rather than making
+    	// every caller opt in individually; pass 'safe_html'=>false in $tooltip
+    	// for a callback whose HTML isn't safe to keep.
+    	$tooltip_create_args = array('tip'=>0, 'args'=>1, 'help'=>1, 'max_width'=>2, 'safe_html'=>3);
+
     	foreach ($tooltip_create_args as $name=>&$key) {
     		$key = match (true) {
                 isset($tooltip[$name]) => $tooltip[$name],
@@ -2473,17 +2482,27 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 default => null,
             };
     	}
-    	 
+    	unset($key);
+
     	if (is_callable($tooltip_create_args['tip'])) {
     		unset($tooltip_create_args['help']);
-    		 
+
     		if (!is_array($tooltip_create_args['args']))
     			$tooltip_create_args['args'] = array($tooltip_create_args['args']);
-    		 
+
+    		// Both defaulted explicitly (rather than left null for the
+    		// trailing-null trim below to drop) so ajax_create()'s own
+    		// $max_width=300 default doesn't get displaced by a literal null
+    		// positional arg sitting in front of the now-defaulted safe_html.
+    		if ($tooltip_create_args['max_width'] === null)
+    			$tooltip_create_args['max_width'] = 300;
+    		if ($tooltip_create_args['safe_html'] === null)
+    			$tooltip_create_args['safe_html'] = true;
+
     		$tooltip_create_callback = array('Utils_TooltipCommon', 'ajax_create');
     	}
     	else {
-    		unset($tooltip_create_args['args']);
+    		unset($tooltip_create_args['args'], $tooltip_create_args['safe_html']);
     		$tooltip_create_callback = array('Utils_TooltipCommon', 'create');
     	}
     	 
@@ -2580,7 +2599,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($force == false && Utils_TooltipCommon::is_tooltip_code_in_str($string)) {
             return $string;
         }
-        $string = Utils_TooltipCommon::ajax_create($string, array(__CLASS__, 'default_record_tooltip'), array($tab, $id));
+        // safe_html=true: default_record_tooltip() returns format_info_tooltip()'s
+        // HTML (already HTMLPurifier-sanitized there), so its <strong> field
+        // labels render bold instead of being flattened to plain text.
+        $string = Utils_TooltipCommon::ajax_create($string, array(__CLASS__, 'default_record_tooltip'), array($tab, $id), 300, true);
         return $string;
     }
 
