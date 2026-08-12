@@ -979,9 +979,26 @@ class Utils_GenericBrowser extends Module {
 				}
 				if (!is_array($v)) $v = array('value'=>$v);
 				$col[$k]['label'] = $v['value'];
-				if (!isset($v['overflow_box']) || $v['overflow_box']) {
+				// A cell whose value already carries its own tooltip (e.g.
+				// CRM_ContactsCommon::company_get_tooltip() via
+				// Utils_RecordBrowserCommon::create_linked_text() - a
+				// data-epesi-tooltip/'Utils_Tooltip.load_ajax(' attribute
+				// on the <a> itself) doesn't get the overflow preview too:
+				// onmouseover bubbles from that <a> up to this <td> regardless,
+				// so both used to fire on the same hover - the plain "full
+				// truncated text" preview stacked on top of the richer
+				// explicit tooltip, which already opens with that same text
+				// (see company_get_tooltip()'s bolded first row) so nothing is
+				// lost by letting the explicit tooltip win alone. Skipped only
+				// for this, not folded into the overflow_box=>false path
+				// below - that path also switches the cell to
+				// white-space:normal (wrapping instead of truncating), which
+				// isn't needed here since the tooltip already covers full-text
+				// disclosure and the cell should keep its normal ellipsis.
+				$has_own_tooltip = Utils_TooltipCommon::is_tooltip_code_in_str($col[$k]['label']);
+				if (!$has_own_tooltip && (!isset($v['overflow_box']) || $v['overflow_box'])) {
 					$col[$k]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,false,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
-				} else {
+				} elseif (!$has_own_tooltip) {
 					if (!isset($v['style'])) $v['style'] = '';
 					$v['style'] .= 'white-space: normal;';
 				}
