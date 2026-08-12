@@ -36,6 +36,10 @@ class Patches extends SteppedAdminModule {
     }
 
     public function start_text() {
+        $filter = $_GET['filter'] ?? 'uninstalled';
+        if (!in_array($filter, array('installed', 'uninstalled')))
+            $filter = 'uninstalled';
+
         $patches = PatchUtil::list_patches(false);
         $rows = array();
         $new_count = 0;
@@ -43,11 +47,13 @@ class Patches extends SteppedAdminModule {
 
         foreach ($patches as $patch) {
             if ($patch->was_applied()) {
-                $rows[] = $this->row($patch, 'installed', 'text-bg-success');
                 $installed_count++;
+                if ($filter == 'installed')
+                    $rows[] = $this->row($patch, 'installed', 'text-bg-success');
             } else {
-                $rows[] = $this->row($patch, 'new patch', 'text-bg-danger', true);
                 $new_count++;
+                if ($filter == 'uninstalled')
+                    $rows[] = $this->row($patch, 'new patch', 'text-bg-danger', true);
             }
         }
 
@@ -61,6 +67,7 @@ class Patches extends SteppedAdminModule {
 
         return $this->render('Patches.tpl', array(
             'mode' => 'list',
+            'filter' => $filter,
             'rows' => $rows,
             'new_count' => $new_count,
             'installed_count' => $installed_count,

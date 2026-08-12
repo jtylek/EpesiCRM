@@ -4,6 +4,11 @@
 {else}
 	{if $mode == 'list'}
 <h5>{'This utility scans for available patches and applies them as necessary'|t}</h5>
+
+<div class="btn-group mb-3" role="group">
+	<a href="?module=Patches&filter=uninstalled" class="btn btn-sm {if $filter == 'uninstalled'}btn-secondary{else}btn-outline-secondary{/if}">{'Uninstalled'|t}</a>
+	<a href="?module=Patches&filter=installed" class="btn btn-sm {if $filter == 'installed'}btn-secondary{else}btn-outline-secondary{/if}">{'Installed'|t}</a>
+</div>
 	{/if}
 
 <div role="table" style="display: grid; grid-template-columns: auto 1fr auto; align-items: center;">
