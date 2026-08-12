@@ -428,6 +428,18 @@ class CRM_ContactsCommon extends ModuleCommon {
                 __('Group')=>$group
                 ));
     }
+    // The Contacts browse table's own "Last Name" column rendered a plain
+    // linked label with no tooltip at all, unlike every other place a
+    // contact is referenced (Attached-to fields etc.), which already show
+    // the full contact-card popup via contact_get_tooltip() above. Mirrors
+    // company_format_default()'s fix for the analogous "Company Name" column.
+    public static function contact_lastname_format_default($record, $nolink=false) {
+        if (is_numeric($record)) $record = self::get_contact($record);
+        if (!$record || $record=='__NULL__') return null;
+
+        return Utils_RecordBrowserCommon::create_linked_text($record['last_name'], 'contact', $record['id'], $nolink,
+                            array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
+    }
     // Used to append ' [CompanyName]' after the contact's own name - dropped
     // app-wide per request (took up too much space everywhere this format
     // is used: the Attached-to record-picker, Fax/PhoneCall contact

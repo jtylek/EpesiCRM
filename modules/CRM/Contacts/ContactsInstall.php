@@ -42,7 +42,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::install_new_recordset('company', $fields);
 // ************ contacts ************** //
 		$fields = array(
-			array('name' => _M('Last Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_RecordBrowserCommon', 'display_linked_field_label')),
+			array('name' => _M('Last Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'contact_lastname_format_default')),
 			array('name' => _M('First Name'), 	'type'=>'text', 'required'=>true, 'param'=>'64', 'extra'=>false, 'visible'=>true, 'display_callback'=>array('Utils_RecordBrowserCommon', 'display_linked_field_label')),
 			array('name' => _M('Company Name'), 'type'=>'crm_company', 'param'=>array('field_type'=>'select'), 'required'=>false, 'extra'=>false, 'visible'=>true, 'filter'=>true),
 			array('name' => _M('Related Companies'), 	'type'=>'crm_company', 'param'=>array('field_type'=>'multiselect'), 'required'=>false, 'extra'=>true, 'visible'=>false, 'filter'=>true),

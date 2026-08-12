@@ -33,6 +33,11 @@ same for every developer and every computer working on this repo.
   `modules/Custom/Tutorial/`.
 - [adminlte-theme.md](adminlte-theme.md) — status of the `adminlte`/`adminltedark`
   themes, plus the recurring CSS/JS architecture traps hit while building them.
+- [tooltips-howto.md](tooltips-howto.md) — step-by-step recipe for adding a proper
+  mouseover tooltip to a RecordBrowser column: find the generic no-tooltip callback,
+  reuse/add a `*_get_tooltip()` builder, wire it up in both `*Install.php` (fresh
+  installs) and a patch (existing installs) — two different DB storage mechanisms
+  depending on which kind of callback it is.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on purpose;
   don't silently reintroduce them or treat their absence as an oversight.
 - [standalone-entrypoints.md](standalone-entrypoints.md) — `admin/`, `update.php`,
