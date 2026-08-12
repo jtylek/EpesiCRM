@@ -85,7 +85,8 @@ class CRM_LoginAudit extends Module {
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),null,'login_audit');
 
 		$gb->set_table_columns(array(
-						array('name'=>'<b>'.__('Login').'</b> '.__('[uid] -> User Name'),'order'=>'b.user_login_id','width'=>20),
+						array('name'=>'<b>'.__('Login').'</b> '.__('[uid]'),'order'=>'b.user_login_id','width'=>10),
+						array('name'=>__('User Name'),'width'=>10),
 						array('name'=>__('Start'), 'order'=>'b.start_time', 'width'=>15),
 						array('name'=>__('End'),'order'=>'b.end_time','width'=>15),
                         array('name'=>__('Duration'),'width'=>10),
@@ -119,7 +120,7 @@ class CRM_LoginAudit extends Module {
                         }
                 $offset=strtotime("1970-01-01 00:00:00");
                 $sess_time=date("G:i:s",strtotime($row['end_time'])-strtotime($row['start_time'])+$offset);
-                $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b> -> '.$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name'],$row['device']);
+                $gb->add_row('<b>'.$ulogin.' ['.$uid_num.']</b>',$uid,$row['start_time'],$row['end_time'],$sess_time,$row['ip_address'],$row['host_name'],$row['device']);
 			}
 
 		$this->display_module($gb);
