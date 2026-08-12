@@ -162,8 +162,11 @@ class Utils_FileStorageCommon extends ModuleCommon {
     
     public static function get_downloads_count($meta) {
     	$id = is_numeric($meta)? $meta: $meta['id'];
-    	
-    	return DB::GetOne('SELECT COUNT(*) FROM utils_filestorage_access WHERE file_id=%d', array($id))?: 0;
+
+    	// Only count actual downloads, not previews/inline views (the "View" choice in the
+    	// file leightbox logs access type 'preview'/'inline', not 'download').
+    	return DB::GetOne('SELECT COUNT(*) FROM utils_filestorage_access WHERE file_id=%d AND type=%d',
+    			array($id, Utils_FileStorage_ActionHandler::actions['download']))?: 0;
     }
 
     /**
