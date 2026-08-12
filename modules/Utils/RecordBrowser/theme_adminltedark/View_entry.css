@@ -863,6 +863,94 @@
 	}
 }
 
+/* Landscape phones: the max-width:767.98px block above is a plain WIDTH
+   query, but a phone rotated to landscape reports a width in the ~650-930px
+   range (comparable to a small tablet or a narrow desktop window) even
+   though it's still phone-shaped underneath - reported: fields still
+   rendered label-above/value-below (two lines each, wasting most of the
+   screen's width) below 767.98px, and jumped straight to Contact.tpl's fixed
+   2-column split (RecordBrowser_0.php's $cols=2, cramped) above it - neither
+   is right for a landscape phone, which has enough width for one line per
+   field but not for two side-by-side field columns. Detected the same way
+   Base/ActionBar's own launchpad-popup fullscreen rule does (see that
+   file's comment): max-height instead of max-width, scoped to
+   orientation:landscape - a phone's landscape HEIGHT (~375-430px on current
+   hardware) stays short regardless of its width, which a landscape tablet's
+   or a resized desktop window's doesn't, so this reliably targets "phone,
+   rotated" without a second width breakpoint to keep in sync with the one
+   above. Placed after that block so these rules win on the (small-phone)
+   overlap where both queries match at once. */
+@media (max-height: 500px) and (orientation: landscape) {
+	.epesi-rv-columns {
+		flex-wrap: wrap;
+	}
+
+	/* Same one-column forcing as the portrait rule above (.column carries its
+	   own inline width:{$cols_percent}%, so still needs !important to beat
+	   it) - Contact.tpl/mails.tpl/Meeting's default.tpl's fixed 2-column
+	   split shouldn't kick in here either, same reasoning as the row-unstack
+	   below: a landscape phone doesn't have room for two side-by-side field
+	   columns, just for one line per field. */
+	.Utils_RecordBrowser__View_entry .column {
+		flex-basis: 100% !important;
+		padding-left: 0;
+		padding-right: 0;
+		margin-bottom: 12px;
+	}
+
+	/* Unlike the portrait rule above, rows stay side by side here - explicit
+	   flex-wrap/flex values (not just undoing the portrait rule's
+	   flex-basis:100%) so this wins outright on the narrow-landscape-phone
+	   overlap with the max-width:767.98px block above, which sets the same
+	   properties. */
+	.Utils_RecordBrowser__View_entry .epesi-rv-row {
+		flex-wrap: nowrap;
+	}
+
+	/* :not(.multiselect_label):not(.long_label) - those two stay column-
+	   stacked on purpose even here (.multiselect_row/.long_row's own
+	   flex-direction:column, unrelated to this media query, is what makes a
+	   multiselect widget/textarea usable instead of squeezed into a 150px-wide
+	   row). Reported: without this exclusion, this rule's flex-basis:150px
+	   landed on their *height* instead of a width (flex-basis follows the
+	   row's own main axis, which flex-direction:column has already turned
+	   vertical), rendering the "Group" multiselect's label as a 150px-tall
+	   empty block. */
+	.Utils_RecordBrowser__View_entry .label:not(.multiselect_label):not(.long_label) {
+		flex: 0 0 150px;
+	}
+
+	.Utils_RecordBrowser__View_entry .data {
+		flex: 1 1 auto;
+	}
+
+	/* The generic View_entry.tpl/PhoneCall's default.tpl use CSS multi-column
+	   (.epesi-rv-fluid, column-width:420px) instead of Contact.tpl's fixed
+	   split - left alone it can still fit two 420px columns once a landscape
+	   phone's width clears ~850px, same "shouldn't have room for 2 columns"
+	   reasoning as the .column override above. */
+	.Utils_RecordBrowser__View_entry .epesi-rv-fluid.view,
+	.Utils_RecordBrowser__View_entry .epesi-rv-fluid.edit {
+		column-count: 1;
+	}
+}
+
+/* Stacked-column bottom margin (.column's own margin-bottom:12px, set by both
+   media-query blocks above) is meant to separate one stacked column from the
+   next one below it - on the LAST .column in a given .epesi-rv-columns group
+   (Contact.tpl/mails.tpl/Meeting's default.tpl render the regular fields and
+   the multiselects as two separate .epesi-rv-columns groups, each with its
+   own trailing .column) there's nothing below it to separate from, so that
+   same margin only shows up as unwanted blank space - reported both between
+   the last regular field and a following multiselect field ("Group"), and
+   between that multiselect and the card's own bottom edge. Left unscoped by
+   media query (rather than duplicated inside both blocks) since .column only
+   ever carries a margin-bottom in the first place under one of those two
+   queries - a no-op everywhere else. */
+.Utils_RecordBrowser__View_entry .column:last-child {
+	margin-bottom: 0;
+}
+
 /* Per request: once the sidebar itself goes off-canvas (Base_Box's own
    991.98px sidebar-collapse breakpoint - Base/Box/theme_adminltedark/
    default.css/default.tpl), automatically hide empty fields to save the
