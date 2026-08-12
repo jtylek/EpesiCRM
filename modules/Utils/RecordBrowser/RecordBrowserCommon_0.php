@@ -3702,10 +3702,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $removed_spaces = preg_replace('/[ ]+/', ' ', $stripped);
                 return mb_strtolower(trim($removed_spaces));
             };
+            // Fields a module named/captioned after the record's own creation/
+            // edit metadata (e.g. Utils_Attachment's 'Edited on', whose
+            // display_date() callback embeds the editor's - or, if never
+            // edited, the creator's - username per the admin-configurable
+            // 'edited_on_format' setting) aren't real searchable content.
+            // Indexing them would let a keyword search for someone's name
+            // surface every record they merely created/edited.
+            $index_excluded_field_ids = array('created_on', 'created_by', 'edited_on', 'edited_by');
             $insert_vals = array();
             foreach($table_rows as $field_info) {
                 $field = $field_info['id'];
                 if(!isset($record[$field])) continue;
+                if(in_array($field_info['id'], $index_excluded_field_ids, true)) continue;
                 ob_start();
                 $text = self::get_val($tab,$field,$record, true);
                 ob_end_clean();
