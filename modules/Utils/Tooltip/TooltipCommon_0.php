@@ -254,7 +254,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 
     public static function is_tooltip_code_in_str($str)
     {
-        return str_contains($str, 'Utils_Toltip.show(') || str_contains($str, 'Utils_Tooltip.load_ajax(')
+        return str_contains($str, 'Utils_Tooltip.show(') || str_contains($str, 'Utils_Tooltip.load_ajax(')
             || str_contains($str, 'data-epesi-tooltip="1"');
     }
 
@@ -267,6 +267,7 @@ class Utils_TooltipCommon extends ModuleCommon {
 		if(!is_array($arg) || empty($arg)) return '';
 		$table='<table width="280" cellpadding="2">';
 		foreach ($arg as $k=>$v){
+			if ($v===null || (is_string($v) && trim(strip_tags($v))==='')) continue;
 			$table.='<tr><td width="90"><strong>';
 			$table.=$k.'</strong></td><td bgcolor="white" style="word-wrap: break-word;">';
 			$table.= $v; // Value
