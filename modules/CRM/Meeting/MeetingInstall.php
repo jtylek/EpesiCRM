@@ -101,7 +101,7 @@ class CRM_MeetingInstall extends ModuleInstall {
                     ),
                     'format' => array(
                         'CRM_ContactsCommon',
-                        'contact_format_no_company',
+                        'contact_format_no_company_no_tooltip',
                     ),
                 ),
                 'display_callback' => array(

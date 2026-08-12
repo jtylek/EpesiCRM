@@ -439,15 +439,21 @@ class CRM_ContactsCommon extends ModuleCommon {
     public static function contact_format_default($record, $nolink=false){
         return self::contact_format_no_company($record, $nolink);
     }
-    public static function contact_format_no_company($record, $nolink=false){
+    public static function contact_format_no_company($record, $nolink=false, $tooltip=true){
         if (is_numeric($record)) $record = self::get_contact($record);
         if (!$record || $record=='__NULL__') return null;
         $ret = '';
 		$format = Base_User_SettingsCommon::get('CRM_Contacts','contact_format');
 		$label = trim(str_replace(array('##l##','##f##'), array($record['last_name'], $record['first_name']), $format));
-		
+
         return Utils_RecordBrowserCommon::create_linked_text($label, 'contact', $record['id'], $nolink,
-				array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)));
+				$tooltip ? array(array('CRM_ContactsCommon','contact_get_tooltip'), array($record)) : false);
+    }
+    // Staff-assignment fields (Employees, Account Manager, Ticket Owner) - the
+    // contact-card popup (phones/email/address) is noise for a co-worker
+    // picker, unlike a customer-facing contact reference elsewhere.
+    public static function contact_format_no_company_no_tooltip($record, $nolink=false){
+        return self::contact_format_no_company($record, $nolink, false);
     }
     public static function contacts_chainedselect_crits($default, $desc, $format_func, $ref_field){
         Utils_ChainedSelectCommon::create($desc['id'],array($ref_field),'modules/CRM/Contacts/update_contact.php', array('format'=>implode('::', $format_func), 'required'=>$desc['required']), $default);
