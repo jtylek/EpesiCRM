@@ -330,6 +330,14 @@ body {
 	padding: 0.5rem 0.5rem 0.5rem 0.9rem;
 	/* No divider line, per request - same reasoning as .sidebar-brand above. */
 	color: #000;
+	/* Overrides the .tpl's own gap-2 utility class, which sets a single `gap`
+	   (both row- and column-gap, !important) - .gap-2's 0.5rem read as too
+	   much space between the .logged_as/Logout lines once flex-wrap put them
+	   on separate rows. Only row-gap is narrowed here so column-gap (the
+	   Logout-to-color-toggle spacing on the shared second row) keeps gap-2's
+	   original 0.5rem; needs !important and the two-class selector's higher
+	   specificity to beat .gap-2's own !important. */
+	row-gap: 0.15rem !important;
 }
 
 .epesi-adminlte .sidebar-footer a {
