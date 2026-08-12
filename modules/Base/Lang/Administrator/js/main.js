@@ -29,7 +29,7 @@ lang_translate = function (original, span_id) {
 			cid: Epesi.client_id
 		},
 		success:function() {
-			if(document.getElementById(span_id))document.getElementById(span_id).style.color = "black";
+			if(document.getElementById(span_id))document.getElementById(span_id).style.color = "";
 		}
 	});
 }
