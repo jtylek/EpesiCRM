@@ -496,10 +496,12 @@ abstract class Module extends ModulePrimitive {
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
+	 * @param bool $danger show the red/warning styling instead of the default blue "Confirm" one -
+	 *   use for destructive actions (e.g. irreversible deletes) to visually set them apart
 	 * @return string href string
 	 */
-	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null) {
-		return ' href="javascript:void(0)" onClick="'.self::wrap_confirm_js($confirm, self::create_href_js($variables,$indicator,$mode)).'"';
+	public final static function create_confirm_href($confirm, array $variables = array (), $indicator=null, $mode=null, $danger=false) {
+		return ' href="javascript:void(0)" onClick="'.self::wrap_confirm_js($confirm, self::create_href_js($variables,$indicator,$mode), $danger).'"';
 	}
 
 	/**
@@ -524,9 +526,11 @@ abstract class Module extends ModulePrimitive {
 	 * @param string $confirm question displayed in the confirmation box - may contain "\n"s
 	 *   (rendered as real line breaks, see inject_confirm_modal()'s white-space:pre-line)
 	 * @param string $action_js raw JS to run if confirmed (a single statement/expression)
+	 * @param bool $danger show the red/warning styling instead of the default blue "Confirm" one -
+	 *   use for destructive actions (e.g. irreversible deletes) to visually set them apart
 	 * @return string JS snippet suitable for an onClick/onclick attribute value
 	 */
-	public static function wrap_confirm_js($confirm, $action_js) {
+	public static function wrap_confirm_js($confirm, $action_js, $danger=false) {
 		self::inject_confirm_modal();
 		// Epesi::escapeJS(), not addslashes(): a caller's message can contain real "\n"s
 		// (e.g. Utils_Messenger's multi-line alarm popup) - addslashes() leaves those as literal
@@ -535,7 +539,8 @@ abstract class Module extends ModulePrimitive {
 		// converts them to the two-character "\n" escape sequence, same as every other
 		// JS-string-unsafe character here.
 		$msg = Epesi::escapeJS($confirm, false);
-		return 'if(typeof epesi_confirm===\'function\'){epesi_confirm(\''.$msg.'\',function(){'.$action_js.'})}else if(confirm(\''.$msg.'\')){'.$action_js.'}';
+		$danger_js = $danger ? 'true' : 'false';
+		return 'if(typeof epesi_confirm===\'function\'){epesi_confirm(\''.$msg.'\',function(){'.$action_js.'},null,'.$danger_js.')}else if(confirm(\''.$msg.'\')){'.$action_js.'}';
 	}
 
 	/**
@@ -568,7 +573,7 @@ abstract class Module extends ModulePrimitive {
 		$modal_html = json_encode(
 			'<div class="modal fade" id="epesi_confirm_modal" tabindex="-1" aria-hidden="true">'
 			.'<div class="modal-dialog modal-dialog-centered"><div class="modal-content">'
-			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-question-circle-fill me-2 text-primary"></i>'.__('Confirm').'</h5>'
+			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-question-circle-fill me-2 text-primary" id="epesi_confirm_modal_icon"></i><span id="epesi_confirm_modal_title">'.__('Confirm').'</span></h5>'
 			.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>'
 			// white-space:pre-line (not innerHTML) - some callers' messages (e.g.
 			// Utils_Messenger's alarm popup) have embedded "\n"s for readability; textContent
@@ -580,6 +585,10 @@ abstract class Module extends ModulePrimitive {
 			.'<button type="button" class="btn btn-primary" id="epesi_confirm_modal_ok" autofocus>'.__('OK').'</button>'
 			.'</div></div></div></div>'
 		);
+		// Danger-variant title/icon text, embedded once here (not passed per-call) since the
+		// modal markup itself is only ever injected once per page (guarded below).
+		$danger_title = json_encode(__('Warning'));
+		$normal_title = json_encode(__('Confirm'));
 		eval_js_once('if(!window.epesi_confirm){'
 			.'document.body.insertAdjacentHTML(\'beforeend\','.$modal_html.');'
 			// cancelFn is optional (most callers just fire-and-forget an action on OK, and rely
@@ -591,12 +600,17 @@ abstract class Module extends ModulePrimitive {
 			// keeps it from also firing when OK's own click handler is what closed the modal. The
 			// listener is stored on the element and replaced (not stacked) each call, same reason
 			// the OK button itself gets cloned below.
-			.'window.epesi_confirm=function(msg,actionFn,cancelFn){'
+			// danger (optional, default false) swaps the question/blue styling for a
+			// warning/red one - use for destructive, hard-to-reverse actions.
+			.'window.epesi_confirm=function(msg,actionFn,cancelFn,danger){'
 				.'if(typeof bootstrap===\'undefined\'){if(confirm(msg)){actionFn();}else if(cancelFn){cancelFn();}return;}'
 				.'var el=document.getElementById(\'epesi_confirm_modal\');'
 				.'el.querySelector(\'#epesi_confirm_modal_msg\').textContent=msg;'
+				.'el.querySelector(\'#epesi_confirm_modal_icon\').className=danger?\'bi bi-exclamation-triangle-fill me-2 text-danger\':\'bi bi-question-circle-fill me-2 text-primary\';'
+				.'el.querySelector(\'#epesi_confirm_modal_title\').textContent=danger?'.$danger_title.':'.$normal_title.';'
 				.'var ok=el.querySelector(\'#epesi_confirm_modal_ok\');'
 				.'var freshOk=ok.cloneNode(true);'
+				.'freshOk.className=danger?\'btn btn-danger\':\'btn btn-primary\';'
 				.'ok.parentNode.replaceChild(freshOk,ok);'
 				.'var confirmed=false;'
 				.'freshOk.addEventListener(\'click\',function(){'
@@ -689,13 +703,14 @@ abstract class Module extends ModulePrimitive {
 	 * @param array $variables variables to pass along with href
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
+	 * @param bool $danger show the red/warning styling instead of the default blue "Confirm" one
 	 * @return string href string
 	 */
-	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null,$mode=null) {
+	public final function create_confirm_unique_href($confirm,array $variables = array (),$indicator=null,$mode=null,$danger=false) {
 		$uvars = array('__action_module__'=>$this->get_path());
 		foreach ($variables as $a => $b)
 			$uvars[$this->create_unique_key($a)] = $b;
-		return static::create_confirm_href($confirm, $uvars, $indicator, $mode);
+		return static::create_confirm_href($confirm, $uvars, $indicator, $mode, $danger);
 	}
 
 	/**
@@ -830,11 +845,13 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed $args arguments
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
+	 * @param bool $danger show the red/warning styling instead of the default blue "Confirm" one -
+	 *   use for destructive actions (e.g. irreversible deletes) to visually set them apart
 	 * @return string href string
 	 */
-	public final function create_confirm_callback_href($confirm, $func, $args=array(),$indicator=null,$mode=null) {
+	public final function create_confirm_callback_href($confirm, $func, $args=array(),$indicator=null,$mode=null,$danger=false) {
 		$name = $this->create_callback_name($func,$args);
-		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode);
+		return $this->create_confirm_callback_href_with_id($name, $confirm, $func,$args,$indicator,$mode,$danger);
 	}
 
 	private function set_callback($name,$func,$args) {
@@ -913,12 +930,13 @@ abstract class Module extends ModulePrimitive {
 	 * @param mixed $args arguments
 	 * @param string $indicator status bar indicator text
 	 * @param string $mode block, allow, queue click on simutanous click
+	 * @param bool $danger show the red/warning styling instead of the default blue "Confirm" one
 	 * @return string
 	 */
-	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=array(), $indicator=null,$mode=null) {
+	public final function create_confirm_callback_href_with_id($name, $confirm, $func, $args=array(), $indicator=null,$mode=null,$danger=false) {
 		$name = 'callback_'.$name;
 		$this->set_callback($name,$func,$args);
-		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator,$mode);
+		return $this->create_confirm_unique_href($confirm,array($name=>1),$indicator,$mode,$danger);
 	}
 	//endregion
 	//region Back hrefs

@@ -1639,8 +1639,8 @@ class Utils_RecordBrowser extends Module {
         if($r) $form->setDefaults($r);
         $form->display_as_column();
         if ($full_access) {
-            $clear_index_href = $this->create_confirm_callback_href(__('Are you sure?'), $this->clear_search_index(...), array($this->tab));
-            echo "<a $clear_index_href>" . __('Clear search index') . "</a>";
+            $clear_index_href = $this->create_confirm_callback_href(__('This will destroy the index!'), $this->clear_search_index(...), array($this->tab), null, null, true);
+            echo "<a class=\"btn btn-danger btn-sm\" $clear_index_href>" . __('Clear search index') . "</a>";
             if ($form->validate()) {
                 DB::Execute('UPDATE recordbrowser_table_properties SET caption=%s,description_fields=%s,favorites=%b,recent=%d,full_history=%b,jump_to_id=%b,search_include=%d,search_priority=%d WHERE tab=%s',
                             array($form->exportValue('caption'), $form->exportValue('description_fields'), $form->exportValue('favorites'), $form->exportValue('recent'), $form->exportValue('full_history'), $form->exportValue('jump_to_id'), $form->exportValue('search_include'), $form->exportValue('search_priority'), $this->tab));
