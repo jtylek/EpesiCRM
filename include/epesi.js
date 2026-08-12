@@ -13,6 +13,12 @@
 // once the root cause behind that investigation is found and fixed.
 var epesiDiagErrorsShown = {};
 window.onerror = function(message, source, lineno, colno, error) {
+	// Benign browser noise, not an app bug: fires when a ResizeObserver callback
+	// doesn't finish reacting to a resize before the next frame (e.g. a card
+	// re-laying-out after navigation) - Chrome/Safari report it via window.onerror
+	// even though nothing actually failed. See
+	// https://stackoverflow.com/questions/49384120/resizeobserver-loop-limit-exceeded
+	if (/^ResizeObserver loop/.test(message)) return false;
 	var msg = 'JS error: '+message+' ('+source+':'+lineno+':'+colno+')';
 	// dedupe by message text, not a one-shot flag: the same error re-firing on
 	// every keystroke (as one already has) would otherwise spam a popup per
