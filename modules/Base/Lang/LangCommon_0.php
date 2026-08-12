@@ -269,36 +269,55 @@ class Base_LangCommon extends ModuleCommon {
     }
 
 	/**
-	 * Writes a custom translation override into the owning module's own
-	 * lang/<code>_custom.php file (created on first write). Clears that
-	 * language's merged cache so the edit is visible on the next request.
+	 * Writes a custom translation override into
+	 * data/Base_Lang/custom/<module>/<code>.php (created on first write, never
+	 * inside modules/ - that tree is shipped source, this is per-instance
+	 * data). Re-saving an already-overridden key replaces its value in place
+	 * rather than appending a new line, so the file never grows a duplicate
+	 * per edit. Clears that language's merged cache so the edit is visible
+	 * on the next request.
 	 */
 	public static function append_custom($module, $lang, $arr) {
 		if (!$module || !$lang) return false;
-		$dir = 'modules/'.str_replace('_','/',$module).'/lang';
-		if (!is_dir($dir)) return false;
-		$file = $dir.'/'.$lang.'_custom.php';
-		$exists = file_exists($file);
-		$f = @fopen($file, 'a');
-		if(!$f)	return false;
-		if(!$exists) fwrite($f,"<?php\n".'global $custom_translations;'."\n");
-		if (flock($f, LOCK_EX)) {
-			foreach($arr as $k=>$v)
-				fwrite($f, '$custom_translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+		$dir = DATA_DIR.'/Base_Lang/custom/'.$module;
+		if (!is_dir($dir) && !@mkdir($dir, 0777, true)) return false;
+		$file = $dir.'/'.$lang.'.php';
 
-			flock($f, LOCK_UN);
-			fclose($f);
+		// Read the existing overrides before opening the write handle below -
+		// include() opens its own handle on $file, which on Windows gets
+		// denied while a second handle on the same file holds flock(LOCK_EX).
+		global $custom_translations;
+		$backup = $custom_translations;
+		$custom_translations = array();
+		if (file_exists($file)) {
+			ob_start();
+			include($file);
+			ob_get_clean();
 		}
+		$merged = array_merge($custom_translations, $arr);
+		$custom_translations = $backup;
+
+		$f = @fopen($file, 'w');
+		if (!$f) return false;
+		if (flock($f, LOCK_EX)) {
+			fwrite($f, "<?php\n".'global $custom_translations;'."\n");
+			foreach ($merged as $k=>$v)
+				fwrite($f, '$custom_translations[\''.addcslashes($k,'\\\'').'\']=\''.addcslashes($v,'\\\'')."';\n");
+			flock($f, LOCK_UN);
+		}
+		fclose($f);
+
 		Cache::clear('lang_merged_'.$lang);
 		return true;
 	}
 
 	/**
-	 * Merges every installed module's lang/<code>.php (defaults) and
-	 * lang/<code>_custom.php (overrides) for the given language, the same
-	 * way module code itself is merged per request via
-	 * ModuleManager::get_load_priority_array() - no build step, no on-disk
-	 * cache file.
+	 * Merges every installed module's lang/<code>.php (shipped defaults, read
+	 * from modules/) and data/Base_Lang/custom/<module>/<code>.php
+	 * (per-instance overrides, read from data/ - never modules/) for the
+	 * given language, the same way module code itself is merged per request
+	 * via ModuleManager::get_load_priority_array() - no build step, no
+	 * on-disk cache file.
 	 *
 	 * @return array [$translations, $custom_translations, $translation_module]
 	 */
@@ -328,7 +347,7 @@ class Base_LangCommon extends ModuleCommon {
 				}
 			}
 
-			$custom_file = $dir.'/'.$lang_code.'_custom.php';
+			$custom_file = DATA_DIR.'/Base_Lang/custom/'.$module.'/'.$lang_code.'.php';
 			if (file_exists($custom_file)) {
 				$custom_translations = array();
 				ob_start();

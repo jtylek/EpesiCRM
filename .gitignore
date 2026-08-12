@@ -25,10 +25,8 @@ data/*
 # lives outside data/ entirely so it's never swept into data backups
 /temp/
 
-# Per-installation custom translation overrides - live under modules/ next to
-# each module's shipped lang/<code>.php defaults, but are local instance data,
-# not source (see Base_LangCommon::append_custom()).
-modules/*/lang/*_custom.php
-modules/*/*/lang/*_custom.php
-modules/*/*/*/lang/*_custom.php
-modules/*/*/*/*/lang/*_custom.php
+# Per-installation custom translation overrides used to live under modules/
+# next to each module's shipped lang/<code>.php defaults; moved to
+# data/Base_Lang/custom/ (already covered by the data/* rule above) so
+# instance data never touches the modules/ tree at all - see
+# Base_LangCommon::append_custom().

@@ -75,6 +75,19 @@ context folded into this file and `adminlte-theme.md`). Never suggest running a
 theme rebuild, and if asked "why doesn't theme upload work anymore" — it was
 deliberately removed, not broken.
 
+**Follow-up (2026-08-12):** `data/Base_Lang/` came back, narrowly, for one
+thing only — per-instance custom translation overrides. Shipped translations
+still live at `modules/<Module>/lang/<code>.php` (unchanged, still theme/lang-
+from-`modules/` as above). But the per-instance override a user creates via
+the admin Translate screen now writes to
+`data/Base_Lang/custom/<module>/<code>.php` instead of
+`modules/<Module>/lang/<code>_custom.php` — the user's call that instance
+data (even one gitignored file per module) shouldn't be written into
+modules/ at all. See `Base_LangCommon::append_custom()`/`build_merge()` and
+patch `20260812_move_custom_translations_to_data.php`, which migrates any
+already-written `modules/*/lang/*_custom.php` files on upgrade. This does
+*not* revive theme storage under `data/` — that stays fully removed.
+
 ## Setup wizard tooltip/JS component attempts — see `adminlte-theme.md`
 
 (Not a removal of a feature per se, but three separate JS-tooltip-component

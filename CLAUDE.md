@@ -98,8 +98,9 @@ following a fixed naming convention:
 - `patches/<YYYYMMDD>_<description>.php` — one-off upgrade steps applied via `runpatches.php`/`update.php`.
   **Patches are identified by filepath, not content** — editing an already-applied patch file is a silent
   no-op; ship a new file instead.
-- `lang/<code>.php` — translations; `lang/<code>_custom.php` is a gitignored per-instance override, never
-  shipped source.
+- `lang/<code>.php` — shipped translation defaults, source-controlled. Per-instance custom overrides (entered
+  via the admin Translate screen) live outside modules/ entirely, at `data/Base_Lang/custom/<module>/<code>.php`
+  (gitignored, created on first write) — never written into modules/ (see `Base_LangCommon::append_custom()`).
 - `theme/` — legacy default-theme templates/CSS for this module; `theme_adminlte/` — the AdminLTE reskin.
   CSS is loaded **per rendering module**, not globally, so don't assume AdminLTE's own class names are safe
   to reuse inside a module's `theme_adminlte/` — collisions are easy.

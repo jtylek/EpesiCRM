@@ -424,8 +424,11 @@ $translations['Projects']='Projekty';
 $translations['Due Date']='Termin';
 ```
 An empty string value means "not yet translated" (falls back to the English
-key). `lang/<code>_custom.php` is a gitignored per-instance override layer,
-never shipped as source.
+key). Per-instance custom overrides (entered via the admin Translate screen)
+are never written into `modules/` - they live at
+`data/Base_Lang/custom/<module>/<code>.php` (gitignored, created on first
+write by `Base_LangCommon::append_custom()`), keeping `modules/` pure shipped
+source.
 
 ## 10. Adding an admin-facing icon, and other small conventions
 
