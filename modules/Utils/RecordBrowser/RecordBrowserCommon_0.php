@@ -2089,13 +2089,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         // (time2reg()'s own defaults already give one "date time" string,
         // no seconds), and edited_by/edited_on are shown before created_by/
         // created_on - most recent activity first.
-        $lines = array('<strong>'.__('Record ID').': '.$id.'</strong>');
+        $lines = array('<strong>'.__('Record ID').':</strong> '.$id);
         if ($info['edited_on']!==null) {
             $edited_by = $info['edited_by']!==null?Base_UserCommon::get_user_label($info['edited_by']):'';
-            $lines[] = __('Edited by').': '.$edited_by;
+            $lines[] = '<strong>'.__('Edited by').':</strong> '.$edited_by;
             $lines[] = Base_RegionalSettingsCommon::time2reg($info['edited_on']);
         }
-        $lines[] = __('Created by').': '.$created_by;
+        $lines[] = '<strong>'.__('Created by').':</strong> '.$created_by;
         $lines[] = Base_RegionalSettingsCommon::time2reg($info['created_on']);
 
         $config = HTMLPurifier_Config::createDefault();
