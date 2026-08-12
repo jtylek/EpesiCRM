@@ -659,7 +659,7 @@ class Utils_RecordBrowser extends Module {
                 'more_table_properties'=>$this->more_table_properties,
                 'limit' => $print_limit,
             );
-            $print_href = 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>CID)).'" target="_blank"';
+            $print_href = 'href="modules/Utils/RecordBrowser/print.php?'.http_build_query(array('key'=>$key, 'cid'=>defined('CID') ? CID : false)).'" target="_blank"';
             $print_tooltip_text = $limited_print ?
                 __('Due to more than %d records, you are allowed to print current view', array($limited_print_records)) :
                 __('Print all records');
@@ -696,7 +696,7 @@ class Utils_RecordBrowser extends Module {
             // way; only the AdminLTE theme's own icon_map (Base_ActionBar/
             // theme_adminltedark/default.tpl) actually points this at a
             // different glyph (bi-download).
-            $this->new_button('export',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>CID, 'path'=>$this->get_path())).'"');
+            $this->new_button('export',__('Export'), 'href="modules/Utils/RecordBrowser/csv_export.php?'.http_build_query(array('tab'=>$this->tab, 'admin'=>$admin, 'cid'=>defined('CID') ? CID : false, 'path'=>$this->get_path())).'"');
 
         $this->set_module_variable('crits_stuff',$crits?$crits:array());
         $this->set_module_variable('order_stuff',$order?$order:array());
