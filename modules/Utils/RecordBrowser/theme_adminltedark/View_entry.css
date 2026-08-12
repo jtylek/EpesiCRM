@@ -198,6 +198,17 @@
 .epesi-rv-card.card {
 	border: 1px solid #495057;
 	box-shadow: 0 0.05rem 0.25rem rgba(0, 0, 0, 0.06);
+	/* card-body.p-0 (View_entry.tpl) means field content - the Quill toolbar/
+	 * editor, the Files dropzone, .form-control backgrounds/borders, etc. -
+	 * butts right up against this card's edge with no inset of its own.
+	 * Bootstrap's .card doesn't clip to its own border-radius by default, so
+	 * any of those flush, square-cornered children painted right at the
+	 * boundary square off this card's rounded corners instead of following
+	 * the curve. Clip to the border-radius here instead of padding the
+	 * fields away from the edge, which would still leave the same bug for
+	 * any child whose own background happens to reach the padded edge.
+	 */
+	overflow: hidden;
 }
 
 .Utils_RecordBrowser__View_entry {
