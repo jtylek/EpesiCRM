@@ -2,7 +2,7 @@ var Utils_PopupCalendarDatePicker = {
 format:null,
 re:null,
 validate: function(ev,f) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var val = elem.value;
 	var key = ev.which;
 	if(!(key>=32 && key<=126)) return;
@@ -10,12 +10,12 @@ validate: function(ev,f) {
 	val = val.substring(0,car)+String.fromCharCode(key)+val.substring(car);
 	this.init_re(f);
 	if(!this.re.test(val))
-		Event.stop(ev);
+		{ ev.preventDefault(); ev.stopPropagation(); }
 	// The redundant elem.value re-check that used to live here (alert()+
 	// clear the whole field whenever the value-so-far didn't fully match)
 	// fired on every single keystroke of a still-incomplete date - e.g.
 	// typing "0" for the month before reaching the "/" separator, which
-	// alone never matches - not just on genuinely invalid input. Event.stop()
+	// alone never matches - not just on genuinely invalid input. preventDefault()
 	// above already blocks this keystroke outright whenever the prospective
 	// value doesn't match, so elem.value only ever holds characters this same
 	// regex already accepted a keystroke earlier via that same guard;
@@ -26,7 +26,7 @@ validate: function(ev,f) {
 	// every keystroke while the user is still mid-entry.
 },
 validate_blur: function(ev,f) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	this.init_re(f);
 	if(!this.re.test(elem.value)) {
 		alert('Invalid date - clearing');
@@ -62,7 +62,7 @@ format2regexp: function(f) {
 // This code is (c) Dynarch.com, 2006.
 // GNU LGPL. (www.gnu.org/licenses/lgpl.html)
 get_caret: function(input) {
-	if (Prototype.Browser.Gecko)
+	if ('selectionStart' in input)
 		return input.selectionEnd;
 	var range = document.selection.createRange();
 	var isCollapsed = range.compareEndPoints("StartToEnd", range) == 0;

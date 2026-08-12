@@ -43,7 +43,7 @@ round:function(val,currency) {
 	return all/prec;
 },
 validate: function(ev) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	var val = elem.value;
 	var key = ev.which;
@@ -53,13 +53,13 @@ validate: function(ev) {
 	val = val.substring(0,Scar)+String.fromCharCode(key)+val.substring(Ecar);
 	this.init_re(currency.regex);
 	if(!this.re.test(val))
-		Event.stop(ev);
+		{ ev.preventDefault(); ev.stopPropagation(); }
 	if(!this.re.test(elem.value)) {
 		elem.value='';
 	}
 },
 validate_blur: function(ev,f) {
-	var elem = Event.element(ev);
+	var elem = ev.target;
 	var currency = Utils_CurrencyField.currencies[jq('#__'+elem.id+'__currency').val()];
 	this.init_re(currency.regex);
 	if(!this.re.test(elem.value)) {
