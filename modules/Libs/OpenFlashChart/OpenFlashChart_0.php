@@ -57,7 +57,7 @@ class Libs_OpenFlashChart extends Module {
 //		eval_js('var open_flash_chart_data=function() {'.
 //					'return "'.Epesi::escapeJS($data).'";'.
 //					  '}');
-		$url=urlencode($this->get_module_dir().'data.php?id='.CID.'&chart='.$this->get_path());
+		$url=urlencode($this->get_module_dir().'data.php?id='.(defined('CID') ? CID : false).'&chart='.$this->get_path());
 		print('<span style="display:none">'.md5($data).'</span>');
 		print('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="'.$this->width.'" height="'.$this->height.'" id="ofc_'.$md.'" align="middle">'.
 		     '<param name="allowScriptAccess" value="sameDomain" />'.

@@ -233,7 +233,7 @@ class Base_Lang_Administrator extends Module implements Base_AdminInterface {
 
     public function send_lang_ajax($lang)
     {
-        $params = array('cid' => CID, 'lang' => $lang);
+        $params = array('cid' => defined('CID') ? CID : false, 'lang' => $lang);
         $request = array('method' => 'post', 'data' => $params);
         $query = json_encode($request);
         $js = 'jQuery.ajax("modules/Base/Lang/Administrator/send_current.php",' . $query . ');';

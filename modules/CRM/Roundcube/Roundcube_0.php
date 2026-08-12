@@ -47,7 +47,7 @@ class CRM_Roundcube extends Module {
         $params = array('_autologin_id'=>$def['id'])+$params2;
         if (function_exists('apache_get_modules') && in_array('mod_rewrite',apache_get_modules())) {
             $multiwin = CRM_RoundcubeCommon::multiwin_supported();
-            $RC = $multiwin ? 'RCWIN_' . CID : 'RC';
+            $RC = $multiwin ? 'RCWIN_' . (defined('CID') ? CID : false) : 'RC';
             // §57: soften the old red alarm — the single-window limit only bites if you open a
             // SECOND mail window, so show a calm note once per session instead of scaring users
             // on every mail open.

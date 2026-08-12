@@ -26,7 +26,7 @@ class Utils_Attachment_FileActionHandler
      */
     public function getActionUrlsAttachment($filestorageId, $tab, $recordId, $field, $crypted)
     {
-        $params = ['tab' => $tab, 'record' => $recordId, 'field' => $field, 'crypted' => $crypted, 'cid' => CID];
+        $params = ['tab' => $tab, 'record' => $recordId, 'field' => $field, 'crypted' => $crypted, 'cid' => defined('CID') ? CID : false];
         return $this->getActionUrls($filestorageId, $params);
     }
    

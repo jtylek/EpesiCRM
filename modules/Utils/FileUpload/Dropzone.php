@@ -33,7 +33,7 @@ class Utils_FileUpload_Dropzone extends Module
         load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/basic.min.css');
         load_css(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.css');
         load_js(EPESI_LOCAL_DIR . '/vendor/enyo/dropzone/dist/min/dropzone.min.js');
-        $query = http_build_query(array('cid' => CID, 'path' => $this->get_path()));
+        $query = http_build_query(array('cid' => defined('CID') ? CID : false, 'path' => $this->get_path()));
         $files = $this->get_uploaded_files();
         $files_js = '';
         if (isset($files['add'])) {

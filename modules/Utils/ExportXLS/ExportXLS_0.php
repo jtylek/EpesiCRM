@@ -14,7 +14,7 @@ class Utils_ExportXLS extends Module {
 		$xls_id = $this->get_path();
 		$this->set_module_variable('callback', $callback);
 		if($dlfilename==null) $dlfilename='download';
-		return 'href="modules/Utils/ExportXLS/download.php?'.http_build_query(array('id'=>CID,'xls'=>$xls_id,'args'=>$args,'filename'=>$dlfilename.'.xls')).'" target="_blank"';
+		return 'href="modules/Utils/ExportXLS/download.php?'.http_build_query(array('id'=>defined('CID') ? CID : false,'xls'=>$xls_id,'args'=>$args,'filename'=>$dlfilename.'.xls')).'" target="_blank"';
 	}
 }
 

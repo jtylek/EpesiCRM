@@ -633,7 +633,7 @@ class Utils_Calendar extends Module {
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\')');
+				'\''.(defined('CID') ? CID : false).'\')');
 	}
 
 	///////////////////////////////////////////////////////
@@ -840,7 +840,7 @@ class Utils_Calendar extends Module {
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\')');
+				'\''.(defined('CID') ? CID : false).'\')');
 	}
 
 	//////////////////////////////////////////////////////
@@ -969,7 +969,7 @@ class Utils_Calendar extends Module {
 		eval_js('Utils_Calendar.activate_dnd(\''.Epesi::escapeJS(json_encode($dnd),false).'\','.
 				'\''.Epesi::escapeJS($jshref,false).'\','.
 				'\''.Epesi::escapeJS($this->get_path(),false).'\','.
-				'\''.CID.'\')');
+				'\''.(defined('CID') ? CID : false).'\')');
 	}
 
 	public function year() {

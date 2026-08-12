@@ -432,7 +432,7 @@ class Epesi {
 			}
 
 		if(DEBUG) {
-			$debug .= 'vars '.CID.': '.print_r($_SESSION['client']['__module_vars__'],true).'<br>';
+			$debug .= 'vars '.(defined('CID') ? CID : false).': '.print_r($_SESSION['client']['__module_vars__'],true).'<br>';
 			$debug .= 'user='.Base_AclCommon::get_user().'<br>';
 			if(isset($_REQUEST['__action_module__']))
 				$debug .= 'action module='.$_REQUEST['__action_module__'].'<br>';

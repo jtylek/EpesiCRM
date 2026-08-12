@@ -50,7 +50,7 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text {
 			$key = md5(serialize($this->callback).$id);
 			$_SESSION['client']['quickform']['autocomplete'][$key] = array('callback'=>$this->callback, 'field'=>$name, 'args'=>$this->args);
 			load_js('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.js');
-			eval_js('var epesi_autocompleter = new EpesiAutocompleter(\''.$id.'\', \''.$id.'_suggestbox\', \'modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php?'.http_build_query(array('cid'=>CID, 'key'=>$key)).'\', {frequency: 0.6});');
+			eval_js('var epesi_autocompleter = new EpesiAutocompleter(\''.$id.'\', \''.$id.'_suggestbox\', \'modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete_update.php?'.http_build_query(array('cid'=>defined('CID') ? CID : false, 'key'=>$key)).'\', {frequency: 0.6});');
 
 			// TODO: not really neat, need to extend the function automatically
 			if ($this->on_hide_js_code) eval_js('epesi_autocompleter.hide=function(){'.

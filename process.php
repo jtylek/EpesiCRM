@@ -49,7 +49,7 @@ if(!isset($_SESSION['num_of_clients'])) {
 	Epesi::redirect();
 	Epesi::send_output();
 	define('SESSION_EXPIRED',1);
-	EpesiSession::destroy_client(session_id(),CID);
+	EpesiSession::destroy_client(session_id(),defined('CID') ? CID : false);
 } else {
 	Epesi::process($_POST['url'],$_POST['history'] ?? false);
 }

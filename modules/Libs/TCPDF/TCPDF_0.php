@@ -71,7 +71,7 @@ class Libs_TCPDF extends Module {
 	}
 	
 	public function generate_name() {
-		return md5($this->get_path().'__'.Acl::get_user().'__'.CID.'__'.session_id());
+		return md5($this->get_path().'__'.Acl::get_user().'__'.(defined('CID') ? CID : false).'__'.session_id());
 	}
 	
 	public function full_path($filename) {
@@ -113,7 +113,7 @@ class Libs_TCPDF extends Module {
 		$this->set_module_variable('pdf', $filename);
 		if(!isset($dlfilename)) $dlfilename='download';
 		$this->tcpdf = null;
-		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>CID,'pdf'=>$pdf_id,'filename'=>$dlfilename.'.pdf'));
+		return 'modules/Libs/TCPDF/download.php?'.http_build_query(array('id'=>defined('CID') ? CID : false,'pdf'=>$pdf_id,'filename'=>$dlfilename.'.pdf'));
 	}
 	
 	public function admin() {

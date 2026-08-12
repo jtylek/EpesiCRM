@@ -27,7 +27,7 @@ class Utils_FileUpload extends Module {
 		$this->form = $this->init_module(Libs_QuickForm::module_name(), array(__('Uploading file...'),'modules/Utils/FileUpload/upload.php','upload_iframe',''),'file_chooser');
 		$this->form->addElement('static','upload_iframe',null,'<iframe frameborder="0" id="upload_iframe" name="upload_iframe" src="" style="display:none"></iframe>');
 		$this->form->addElement('hidden','required',$req?'1':'0');
-		$this->form->addElement('hidden','cid',CID);
+		$this->form->addElement('hidden','cid',defined('CID') ? CID : false);
 	}
 
 	/**

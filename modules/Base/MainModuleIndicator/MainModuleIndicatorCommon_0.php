@@ -34,7 +34,7 @@ class Base_MainModuleIndicatorCommon extends Base_AdminModuleCommon {
 	}
 
 	public static function get_href() {
-		return 'href="'.self::Instance()->get_module_dir().'help.php?cid='.CID.'" target="_blank"'; // 15:20
+		return 'href="'.self::Instance()->get_module_dir().'help.php?cid='.(defined('CID') ? CID : false).'" target="_blank"'; // 15:20
 	}
 	
 }

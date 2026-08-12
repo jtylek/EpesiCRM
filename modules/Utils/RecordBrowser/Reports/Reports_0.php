@@ -1107,7 +1107,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 			if($this->pdf_filename && !$this->pdf) {
 				if ($this->csv)
-					Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>CID,'filename'=>$this->pdf_filename)).'"');
+					Base_ActionBarCommon::add('save',__('Download CSV'),'target="_blank" href="'.$this->get_module_dir().'/csv.php?'.http_build_query(array('p'=>$this->get_path(),'id'=>defined('CID') ? CID : false,'filename'=>$this->pdf_filename)).'"');
 				else 
 					Base_ActionBarCommon::add('print',__('Create CSV'),$this->create_href(array('rb_reports_enable_csv'=>1)));
 			}
