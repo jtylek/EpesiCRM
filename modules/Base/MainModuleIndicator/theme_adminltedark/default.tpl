@@ -18,17 +18,17 @@
 	// exact same table. $module_icon (via icon()/CRM_Contacts::icon()
 	// delegation) stays correct either way - it's always the per-table icon
 	// file (e.g. "modules/CRM/Contacts/icon.png") - so letting
-	// Base_AdminlteIcons::resolve()'s own path auto-extraction read the real
+	// Base_BootstrapIcons::resolve()'s own path auto-extraction read the real
 	// module straight out of that path (its 2nd param, $module, must be null
 	// for that branch to run at all) sidesteps the wrong-module problem
 	// instead of trying to fix Base_Box's own module-tracking. Only fall
 	// back to the (possibly-wrong-in-this-one-case, but only source
 	// available) $module_type when there's no icon path to extract from.
-	require_once('modules/Base/Theme/adminlte_icons.php');
+	require_once('modules/Base/Theme/bootstrap_icons.php');
 	$text = $this->get_template_vars('text');
 	$module_icon = $this->get_template_vars('module_icon');
 	$module_type = $this->get_template_vars('module_type');
-	$this->assign('bi_icon', $text ? Base_AdminlteIcons::resolve($module_icon, $module_icon ? null : $module_type, 'bi-app-indicator') : null);
+	$this->assign('bi_icon', $text ? Base_BootstrapIcons::resolve($module_icon, $module_icon ? null : $module_type, 'bi-app-indicator') : null);
 {/php}
 {* data-module-type: not used for the icon lookup above (that already
    happened server-side) - exposed here purely as a CSS hook so Base_Box's

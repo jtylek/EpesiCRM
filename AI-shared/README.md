@@ -32,7 +32,18 @@ same for every developer and every computer working on this repo.
   patches, translations. Paired with a complete working example module at
   `modules/Custom/Tutorial/`.
 - [adminlte-theme.md](adminlte-theme.md) — status of the `adminlte`/`adminltedark`
-  themes, plus the recurring CSS/JS architecture traps hit while building them.
+  themes, plus the recurring CSS/JS architecture traps hit while building them. Also
+  covers the module-icon convention's history: `adminlte_icon()`/`Base_AdminlteIcons`
+  → `bootstrap_icon()`/`Base_BootstrapIcons` (2026-08-14), made theme-agnostic ahead
+  of any future non-AdminLTE theme.
+- [how-menu-works.md](how-menu-works.md) — how the sidebar/left menu tree is built,
+  cached, and rendered: `Base_MenuCommon::get_menus()`'s session cache, the two
+  independent AdminLTE-vs-default-theme render paths, the AdminLTE sidebar's DOM
+  shape (Bootstrap collapse, not AdminLTE's own classes), and the `#MenuBar` shell
+  wiring/JS-rebind convention. Written ahead of planning a menu search/filter feature.
+- [menu-search-plan.md](menu-search-plan.md) — approved plan for the AdminLTE sidebar
+  search/filter box (client-side, AdminLTE-only, cascading auto-expand on match).
+  Pairs with how-menu-works.md; check here before re-deriving the design.
 - [tooltips-howto.md](tooltips-howto.md) — step-by-step recipe for adding a proper
   mouseover tooltip to a RecordBrowser column: find the generic no-tooltip callback,
   reuse/add a `*_get_tooltip()` builder, wire it up in both `*Install.php` (fresh
@@ -54,7 +65,9 @@ same for every developer and every computer working on this repo.
 - [bug-patterns.md](bug-patterns.md) — subtle, already-fixed bugs whose *root-cause
   shape* is likely to recur elsewhere in the codebase.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that
-  looked like application bugs but weren't.
+  looked like application bugs but weren't, plus dev-tooling setup notes (e.g.
+  driving a real browser against this app for UI verification) worth not
+  rediscovering each session.
 - [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
   use as a template, not a standard.

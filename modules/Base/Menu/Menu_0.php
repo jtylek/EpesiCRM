@@ -68,6 +68,119 @@ class Base_Menu extends Module {
 	 * @param int $depth nesting level, 0 at the top
 	 * @return string HTML
 	 */
+	// Sidebar search/filter box, prepended to build_menu_html()'s output (see
+	// body()) so it lands inside #MenuBar, directly above the menu tree - i.e.
+	// just under the logo, without touching Base_Box's shell template. Pure
+	// client-side filtering: build_menu_html() already renders the whole
+	// (ACL-filtered) tree into the DOM every time, so there's nothing to fetch.
+	private function build_menu_search_html() {
+		$placeholder = htmlspecialchars(__('Search menu...'), ENT_QUOTES);
+		$aria_label = htmlspecialchars(__('Search menu'), ENT_QUOTES);
+		$clear_label = htmlspecialchars(__('Clear'), ENT_QUOTES);
+		$no_results = htmlspecialchars(__('No matching menu items'), ENT_QUOTES);
+		return '<div class="epesi-menu-search">'
+			. '<i class="bi bi-search"></i>'
+			. '<input type="text" class="epesi-menu-search-input" placeholder="' . $placeholder . '" aria-label="' . $aria_label . '">'
+			. '<a href="#" class="epesi-menu-search-clear d-none" aria-label="' . $clear_label . '"><i class="bi bi-x-lg"></i></a>'
+			. '</div>'
+			. '<div class="epesi-menu-no-results d-none">' . $no_results . '</div>';
+	}
+
+	// Filter script for build_menu_search_html()'s input. Walks the tree
+	// top-down: a folder <li> that matches (or has a matching descendant)
+	// opens its own .collapse by setting the same .show class / aria-expanded
+	// attribute Bootstrap's own Collapse component would end up with - not
+	// bootstrap.Collapse.getOrCreateInstance().show()/.hide() (tried first;
+	// those are transition-driven and silently no-op while a transition on
+	// the same element is already in flight, which a debounced per-keystroke
+	// filter reopening/closing nested folders in quick succession hits in
+	// practice - confirmed by browser testing, see setCollapseOpen() below).
+	// This keeps the existing [aria-expanded="true"] chevron CSS
+	// (theme_adminltedark/default.css) in sync deterministically instead.
+	// Once an ancestor's own label matches,
+	// `forced` cascades true through every descendant so the whole matched
+	// subtree shows and opens unfiltered, per the feature's intended UX
+	// (typing "Accounting" reveals all of Accounting, not just the folder
+	// row itself). #MenuBar's content is rebuilt fresh on every render this
+	// module does (see the existing bar.__epesiCloseBound example a few
+	// lines up in Base_Box's own shell template) - not permanent chrome - so
+	// this uses the same every-render eval_js() + idempotency-marker rebind
+	// pattern rather than eval_js_once().
+	private function menu_search_js() {
+		return "(function(){"
+			. "var input=document.querySelector('#MenuBar .epesi-menu-search-input');"
+			. "if(!input||input.__epesiFilterBound)return;"
+			. "input.__epesiFilterBound=true;"
+			. "var menuBar=document.getElementById('MenuBar');"
+			. "var clearBtn=document.querySelector('#MenuBar .epesi-menu-search-clear');"
+			. "var noResults=document.querySelector('#MenuBar .epesi-menu-no-results');"
+			. "var openedByFilter=new Set();"
+			// Direct classList/aria manipulation, not bootstrap.Collapse's
+			// .show()/.hide(): those are asynchronous (CSS-transition-driven)
+			// and silently no-op while a transition on the same element is
+			// still in flight (Collapse._isTransitioning) - a debounced
+			// live filter naturally fires several opens/closes on the same
+			// nested elements in quick succession, which dropped opens on
+			// nested folders during testing. This reproduces the exact
+			// end-state Bootstrap's own show()/hide() settle into (.show
+			// class, aria-expanded/.collapsed on the trigger) synchronously,
+			// and instant open/close reads better for a per-keystroke filter
+			// than a slide animation would anyway.
+			. "function setCollapseOpen(collapseDiv,open){"
+				. "collapseDiv.classList.toggle('show',open);"
+				. "var trigger=menuBar.querySelector('[data-bs-target=\"#'+collapseDiv.id+'\"]');"
+				. "if(trigger){trigger.setAttribute('aria-expanded',open?'true':'false');trigger.classList.toggle('collapsed',!open);}"
+			. "}"
+			. "function walk(li,query,forced){"
+				. "var label=li.querySelector(':scope > a.nav-link > .nav-label');"
+				. "var text=label?label.textContent.toLowerCase():'';"
+				. "var selfMatch=forced||text.indexOf(query)!==-1;"
+				. "var collapseDiv=li.querySelector(':scope > div.collapse');"
+				. "var childLis=collapseDiv?collapseDiv.querySelectorAll(':scope > ul.epesi-submenu > li.nav-item'):null;"
+				. "var childMatch=false;"
+				. "if(childLis){childLis.forEach(function(c){if(walk(c,query,forced||selfMatch))childMatch=true;});}"
+				. "var visible=selfMatch||childMatch;"
+				. "li.classList.toggle('epesi-menu-hidden',!visible);"
+				. "if(collapseDiv&&visible&&(childMatch||(selfMatch&&childLis&&childLis.length))){"
+					. "if(!collapseDiv.classList.contains('show'))openedByFilter.add(collapseDiv.id);"
+					. "setCollapseOpen(collapseDiv,true);"
+				. "}"
+				. "return visible;"
+			. "}"
+			. "function resetMenu(){"
+				. "menuBar.querySelectorAll('li.nav-item.epesi-menu-hidden').forEach(function(li){li.classList.remove('epesi-menu-hidden');});"
+				. "openedByFilter.forEach(function(id){var el=document.getElementById(id);if(el)setCollapseOpen(el,false);});"
+				. "openedByFilter.clear();"
+				. "if(noResults)noResults.classList.add('d-none');"
+				. "if(clearBtn)clearBtn.classList.add('d-none');"
+			. "}"
+			. "function filterMenu(raw){"
+				. "var query=raw.trim().toLowerCase();"
+				. "if(clearBtn)clearBtn.classList.toggle('d-none',query==='');"
+				. "if(query===''){resetMenu();return;}"
+				. "var topUl=menuBar.querySelector('ul.epesi-menu');"
+				. "var topLis=topUl?topUl.querySelectorAll(':scope > li.nav-item'):[];"
+				. "var anyVisible=false;"
+				. "topLis.forEach(function(li){if(walk(li,query,false))anyVisible=true;});"
+				. "if(noResults)noResults.classList.toggle('d-none',anyVisible);"
+			. "}"
+			. "var debounceTimer=null;"
+			. "input.addEventListener('input',function(){"
+				. "clearTimeout(debounceTimer);"
+				. "var v=input.value;"
+				. "debounceTimer=setTimeout(function(){filterMenu(v);},120);"
+			. "});"
+			. "input.addEventListener('keydown',function(e){"
+				. "if(e.key==='Escape'){input.value='';filterMenu('');input.blur();}"
+			. "});"
+			. "if(clearBtn){"
+				. "clearBtn.addEventListener('click',function(e){"
+					. "e.preventDefault();input.value='';filterMenu('');input.focus();"
+				. "});"
+			. "}"
+		. "})();";
+	}
+
 	private function build_menu_html(& $m, $prefix = '', $depth = 0) {
 		// Deliberately NOT AdminLTE's sidebar-menu/nav-treeview classes: it hides
 		// .nav-treeview unless the parent carries its own .menu-open class, which
@@ -82,19 +195,19 @@ class Base_Menu extends Module {
 
 			// Menu entries carry an arbitrary module-provided icon filename (or
 			// none at all - falling back to the module's own icon-small.png),
-			// not a name from a fixed enum. Base_AdminlteIcons is the single
+			// not a name from a fixed enum. Base_BootstrapIcons is the single
 			// shared map for this (also used by the ActionBar's quick-access
 			// launcher/launchpad icons, so a module's icon reads the same in
 			// both places); an unmatched entry falls back to a plain
-			// folder/dot rather than Base_AdminlteIcons's own generic default,
+			// folder/dot rather than Base_BootstrapIcons's own generic default,
 			// since menu icons are mostly filler art to begin with.
-			require_once('modules/Base/Theme/adminlte_icons.php');
+			require_once('modules/Base/Theme/bootstrap_icons.php');
 			$icon_raw = $arr['__icon_small__'] ?? $arr['__icon__'] ?? null;
 			$parent_module = $arr['parent_module'] ?? null;
 			unset($arr['__icon_small__'], $arr['__icon__'], $arr['parent_module']);
 
 			$is_sub = array_key_exists('__submenu__', $arr);
-			$bi_icon = Base_AdminlteIcons::resolve($icon_raw, $parent_module, $is_sub ? 'bi-folder2' : 'bi-dot');
+			$bi_icon = Base_BootstrapIcons::resolve($icon_raw, $parent_module, $is_sub ? 'bi-folder2' : 'bi-dot');
 
 			$tip = '';
 			if (array_key_exists('__description__', $arr)) {
@@ -288,7 +401,8 @@ class Base_Menu extends Module {
 			// build_menu_html()).
 			$sidebar = $modules_menu;
 			unset($sidebar['__submenu__']);
-			$theme->assign('menu', $this->build_menu_html($sidebar, 'Menu_'));
+			$theme->assign('menu', $this->build_menu_search_html() . $this->build_menu_html($sidebar, 'Menu_'));
+			eval_js($this->menu_search_js());
 		} else {
 			$menu_mod = $this->init_module("Utils/Menu", "horizontal");
 			$this->build_menu($menu_mod,$menu);

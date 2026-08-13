@@ -10,11 +10,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_PopupCalendarCommon extends ModuleCommon {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-calendar3'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-calendar3'; }
 
 	public static function show($name,$function = '',$mode=null,$first_day_of_week=null,$pos_js=null,$label=null,$default=null) {
         // label seems to be unused and always null.

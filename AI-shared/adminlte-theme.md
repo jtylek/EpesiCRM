@@ -69,11 +69,21 @@ light theme.
 stale `theme_adminlte`-path comments left throughout the codebase (mostly
 "see Base_Box/theme_adminlte/default.css" style cross-references explaining
 *why* some other file's value was chosen) were not scrubbed — cosmetic
-staleness only, the values themselves are still correct. `Base_AdminlteIcons`
-(`modules/Base/Theme/adminlte_icons.php`) and every module's own
-`adminlte_icon()` static method were **not** touched — that's shared,
-family-wide icon-resolution infrastructure `adminltedark` depends on, named
+staleness only, the values themselves are still correct. The icon-resolution
+class (then `Base_AdminlteIcons`, see update below) and every module's own
+icon method were **not** touched as part of *this* pass — that was shared,
+family-wide icon-resolution infrastructure `adminltedark` depended on, named
 after the framework/family, not the removed theme variant.
+
+**Update (2026-08-14, separate pass)**: that infrastructure *was* later
+renamed - `Base_AdminlteIcons`/`adminlte_icons.php` → `Base_BootstrapIcons`/
+`modules/Base/Theme/bootstrap_icons.php` - to make the "module declares
+`bootstrap_icon()`, resolver looks it up on demand" convention explicitly
+theme-agnostic instead of framework-named, ahead of any future non-AdminLTE
+theme wanting to reuse it. Every module's own method was renamed
+`adminlte_icon()` → `bootstrap_icon()` in the same pass. The adminlte theme
+remains the only actual consumer of `resolve()` today; nothing about
+*that* changed.
 
 ## Legacy `theme/` converted to div-only layout (2026-08-04)
 
@@ -560,6 +570,52 @@ its own `max-width` is doing anything in landscape — it likely isn't. The base
 `Libs_Leightbox` `.leightbox` rule itself is fine (explicit `width:70%`, not
 auto/fit-content), so this is specific to popups that override it.
 
+## Premium_KnowledgeBase: theme_adminltedark added (2026-08-13)
+
+First AdminLTE coverage for `Premium_KnowledgeBase`'s tree view (`KnowledgeBase_0.php`'s
+`tree_view()`) — previously had no `theme_adminltedark/` at all, so it always fell back
+to the legacy theme regardless of the active app theme. New files:
+`theme_adminltedark/tree_view.tpl` (wraps the tree in a `card`/`card-header`/`card-body`,
+icon + breadcrumb-style title built from the existing `$title`/`$main_href` vars) and
+`theme_adminltedark/tree_view.css`.
+
+**`Utils_Tree` itself still has no `theme_adminltedark` of its own** — confirmed via a
+full-repo grep for `init_module('Utils/Tree')`, `Premium_KnowledgeBase` is its only real
+caller (the one other hit, `Develop/ModuleCreator`, doesn't render it in a themed
+context). It also isn't template-driven at all: `Tree_0.php`'s `print_structure()` builds
+raw `<table>` HTML directly in PHP (id/class strings concatenated inline,
+`onmouseover`/`onmouseout` swapping a node's `className` between
+`utils_tree_node`/`utils_tree_node_hover`), so its legacy `theme/default.css` always
+loads no matter which theme is active — nothing to "resolve" per-theme since there's no
+template step to intercept. Rather than fork/rewrite this shared, JS-driven widget (real
+risk: `Develop/ModuleCreator` also depends on its exact behavior), the new
+`tree_view.css` reaches into the borrowed markup with selectors scoped under
+`.epesi-kb-body`. The one genuinely functional fix in there (not just cosmetic): the
+legacy stylesheet's `.utils_tree_node_hover` hardcodes `background-color:#FFFFFF` — fine
+against that theme's white page, but unreadable (near-invisible light text on a white
+box) once the surrounding card is dark. Overridden to `var(--bs-tertiary-bg)` instead.
+
+**Used Bootstrap 5.3's own `--bs-*` theme tokens** (`--bs-tertiary-bg`, `--bs-link-color`,
+`--bs-body-color`, `--bs-border-color`, `--bs-secondary-color`) **instead of this
+codebase's `--epesi-*` custom properties** (`Base/Box/theme_adminltedark/default.css`'s
+"Color palette" block). Bootstrap 5.3 (vendored at `libs/bootstrap-5.3.8/`) already flips
+these automatically off `data-bs-theme`, same as every stock `.card`/`.card-header` in
+the app — so this file needs no hand-written `[data-bs-theme="light"]` override block at
+all, unlike most other `theme_adminltedark/*.css` files in this codebase. Worth reaching
+for on new module CSS generally: the `--epesi-*` set exists because `Base_Box`'s own
+shell (sidebar/navbar) needs values Bootstrap has no token for at all
+(`--epesi-sidebar-width`, `--epesi-header-height`, ...) — anywhere a plain Bootstrap
+component color would already do the job, `--bs-*` is less code and self-maintaining.
+
+Separately, same day: moved from a top-level sidebar entry to a submenu under "CRM"
+(`KnowledgeBaseCommon_0.php::menu()`) — unrelated to theming as such, see
+`Dev-Tutorial.md` §7 for the menu-merge mechanism itself.
+
+Verified live end-to-end (Playwright driving this machine's installed Edge — see
+`environment-gotchas.md`'s browser-testing entry): root tree, breadcrumb drill-down into
+a subcategory, and the reskinned hover state all confirmed logged-in, real data, zero
+console errors.
+
 ## Recurring CSS/JS traps (read before touching the theme)
 
 1. **CSS loads per rendering module.** `modules/X/theme_adminltedark/default.css` is
@@ -645,6 +701,20 @@ auto/fit-content), so this is specific to popups that override it.
     anything JS-positioned. Read the rect before mutating visibility, never
     assume inline-onclick order is layout-safe just because it reads
     left-to-right.
+
+12. **A module's auto-loaded CSS file is named after the *template*, not always
+    `default.css`.** `Base_ThemeCommon::display_smarty()` derives the CSS path by
+    swapping `.tpl` for `.css` on whatever template name was actually passed to
+    `display()` — `$theme->display('tree_view')` loads `tree_view.css`, not
+    `default.css` (only `$theme->display()` with no argument resolves to
+    `default.tpl`/`default.css`). `Utils/RecordBrowser/theme_adminltedark/
+    View_entry.css` is a pre-existing example of this same naming; the
+    `Premium_KnowledgeBase` entry above is another. Naming a new theme CSS file
+    `default.css` when the module's own template isn't literally displayed as
+    `'default'` means it silently never loads — no error anywhere, the page just
+    renders with the legacy/unstyled markup and it's easy to mistake for "this
+    part of the reskin just wasn't done yet." Check the exact string passed to
+    `$theme->display(...)` before naming the CSS file.
 
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.

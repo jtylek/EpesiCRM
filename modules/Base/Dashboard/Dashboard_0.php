@@ -167,12 +167,29 @@ class Base_Dashboard extends Module {
 				$buttons = array();
 				if ($config_mode) {
 					$label .= '&nbsp;';
-					if($tab['pos']>$tabs[0]['pos'])
-						$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					if($tab['pos']<$tabs[count($tabs)-1]['pos'])
-						$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
-					$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),$this->delete_tab(...),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+					// AdminLTE: Bootstrap Icons glyphs instead of the legacy theme's
+					// own roll-left/roll-right/configure/close.png (no adminltedark
+					// copies of those ever existed, so get_template_file() was
+					// silently falling back to the legacy theme's tiny raster icons -
+					// same reasoning as GenericBrowser_0.php's sort-arrow swap above).
+					// A glyph has no separate "hover" art, so the onMouseOver/
+					// onMouseOut src-swap (needed for the legacy <img> pair) is
+					// simply dropped here rather than adapted.
+					if (Base_ThemeCommon::is_adminlte_family()) {
+						if($tab['pos']>$tabs[0]['pos'])
+							$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],-1)).'><i class="bi bi-chevron-left" style="font-size:16px;"></i></a>';
+						if($tab['pos']<$tabs[count($tabs)-1]['pos'])
+							$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],+1)).'><i class="bi bi-chevron-right" style="font-size:16px;"></i></a>';
+						$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><i class="bi bi-gear" style="font-size:16px;"></i></a>';
+						$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),$this->delete_tab(...),$tab['id']).'><i class="bi bi-x-lg" style="font-size:16px;"></i></a>';
+					} else {
+						if($tab['pos']>$tabs[0]['pos'])
+							$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],-1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-left.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						if($tab['pos']<$tabs[count($tabs)-1]['pos'])
+							$label .= '<a '.$this->create_callback_href($this->move_tab(...),array($tab['id'],$tab['pos'],+1)).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','roll-right.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '<a href="javascript:void(0);" onclick="edit_dashboard_tab('.$tab['id'].');"><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','configure.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+						$label .= '<a '.$this->create_confirm_callback_href(__('Delete this tab and all applets assigned to it?'),$this->delete_tab(...),$tab['id']).'><img src="'.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'" onMouseOver="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close-hover.png').'\';" onMouseOut="this.src=\''.Base_ThemeCommon::get_template_file('/Base/Dashboard','close.png').'\';" width="14" height="14" alt="<" border="0"></a>';
+					}
 				}
 				$this->tb->set_tab($label, $this->display_dashboard(...),$tab['id'], $config_mode, $buttons);
 				$init_tabs_js[] = $tab['id'];

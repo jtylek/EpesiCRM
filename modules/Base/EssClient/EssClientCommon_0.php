@@ -11,11 +11,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_EssClientCommon extends Base_AdminModuleCommon {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-diagram-3'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-diagram-3'; }
 
     const VAR_LICENSE_KEY = 'license_key';
     const VAR_INSTALLATION_STATUS = 'ess_installations_status';

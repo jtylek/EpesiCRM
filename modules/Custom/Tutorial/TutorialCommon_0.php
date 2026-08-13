@@ -17,9 +17,9 @@ class Custom_TutorialCommon extends ModuleCommon {
 	}
 
 	// AdminLTE sidebar/ActionBar icon - Bootstrap Icons class name, resolved
-	// on demand by Base_AdminlteIcons::resolve(). Falls back to a plain gear
+	// on demand by Base_BootstrapIcons::resolve(). Falls back to a plain gear
 	// on themes/screens that don't call this.
-	public static function adminlte_icon() {
+	public static function bootstrap_icon() {
 		return 'bi-mortarboard-fill';
 	}
 

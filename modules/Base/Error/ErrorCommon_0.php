@@ -31,11 +31,11 @@ $err = new EpesiErrorObserver();
 ErrorHandler::add_observer($err);
 
 class Base_ErrorCommon extends ModuleCommon implements Base_AdminModuleCommonInterface {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-bug-fill'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-bug-fill'; }
 
 	public static function admin_caption() {
 		return array('label'=>__('PHP & SQL Errors to mail'), 'section'=>__('Server Configuration'));

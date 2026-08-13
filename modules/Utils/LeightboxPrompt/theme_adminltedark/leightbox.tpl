@@ -1,13 +1,13 @@
 {php}
-	// Same shared Base_AdminlteIcons map every other icon consumer uses (sidebar
+	// Same shared Base_BootstrapIcons map every other icon consumer uses (sidebar
 	// menu, ActionBar launcher/Launchpad, admin panels) - see the comment in
-	// modules/Base/Theme/adminlte_icons.php. A null fallback keeps this
+	// modules/Base/Theme/bootstrap_icons.php. A null fallback keeps this
 	// button's original <img> (a legacy PNG, e.g. CRM_Calendar's own event-type
-	// icons) if the option's own module hasn't declared an adminlte_icon().
-	require_once('modules/Base/Theme/adminlte_icons.php');
+	// icons) if the option's own module hasn't declared an bootstrap_icon().
+	require_once('modules/Base/Theme/bootstrap_icons.php');
 	$buttons = $this->get_template_vars('buttons');
 	foreach ($buttons as $k=>$b) {
-		$buttons[$k]['bi_icon'] = Base_AdminlteIcons::resolve($b['icon'] ?? null, null, null);
+		$buttons[$k]['bi_icon'] = Base_BootstrapIcons::resolve($b['icon'] ?? null, null, null);
 	}
 	$this->assign('buttons', $buttons);
 {/php}

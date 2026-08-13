@@ -20,11 +20,11 @@ define('TCPDF_DIR', 'modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/');
 require_once 'modules/Libs/TCPDF/vendor/autoload.php';
 
 class Libs_TCPDFCommon extends ModuleCommon {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-file-earmark-pdf'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-file-earmark-pdf'; }
 
     public static $default_font = 'dejavusanscondensed';//'Helvetica';
 

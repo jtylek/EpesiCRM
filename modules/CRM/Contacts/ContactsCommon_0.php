@@ -12,11 +12,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class CRM_ContactsCommon extends ModuleCommon {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-person-vcard-fill'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-person-vcard-fill'; }
 
     public static $paste_or_new = 'new';
 	static $field = null;
@@ -271,7 +271,7 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     		if (Base_ThemeCommon::is_adminlte_family()) {
     			// Bootstrap Icons glyph instead of the default theme's sprite
-    			// background-image - bi-building matches Base_AdminlteIcons's own
+    			// background-image - bi-building matches Base_BootstrapIcons's own
     			// choice for "companies" by filename, for consistency with the
     			// sidebar/launcher icons. Hidden text kept for the same
     			// accessibility purpose the default theme's own hidden span served.

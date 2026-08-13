@@ -1,12 +1,12 @@
 {php}
-	// Same shared Base_AdminlteIcons map as default.tpl's launcher group and
+	// Same shared Base_BootstrapIcons map as default.tpl's launcher group and
 	// Base_Menu::build_menu_html()'s sidebar icons - see the comment in
 	// default.tpl for why a null fallback here keeps an unmatched module's
 	// original image rather than falling back to a generic glyph.
-	require_once('modules/Base/Theme/adminlte_icons.php');
+	require_once('modules/Base/Theme/bootstrap_icons.php');
 	$icons = $this->get_template_vars('icons');
 	foreach ($icons as $k=>$i) {
-		$icons[$k]['bi_icon'] = Base_AdminlteIcons::resolve($i['icon'] ?? null, null, null);
+		$icons[$k]['bi_icon'] = Base_BootstrapIcons::resolve($i['icon'] ?? null, null, null);
 	}
 	$this->assign('icons', $icons);
 {/php}

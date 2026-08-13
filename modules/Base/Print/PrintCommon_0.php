@@ -12,11 +12,11 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_PrintCommon extends ModuleCommon
 {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-printer'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-printer'; }
 
     public static function admin_caption()
     {
@@ -199,6 +199,11 @@ class Base_PrintCommon extends ModuleCommon
         }
         $th = Base_ThemeCommon::init_smarty();
         $th->assign('icons', $launchpad);
+        // launchpad.tpl's {if $form_html} is an optional hook other callers of this
+        // shared template use; this caller has no form to inject, so give it a
+        // default rather than leave it unassigned (undefined-array-key warning
+        // under Smarty 2 on PHP 8, which blanks the whole module).
+        $th->assign('form_html', '');
         ob_start();
         Base_ThemeCommon::display_smarty($th, self::Instance()->get_type(), 'launchpad');
         $content = ob_get_clean();

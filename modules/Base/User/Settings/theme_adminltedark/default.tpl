@@ -1,17 +1,17 @@
 {php}
 	// Settings_0.php::main_page() pushes buttons with [] = (numeric index),
 	// but - unlike Base_Admin's listing - keeps 'module'=>$module_names
-	// (the owning module(s)) right on each button, so Base_AdminlteIcons can
+	// (the owning module(s)) right on each button, so Base_BootstrapIcons can
 	// resolve from the module name directly rather than reverse-parsing the
 	// icon path. 'bi-sliders' fallback for anything unmapped - distinct from
 	// the admin tools panel's 'bi-gear', since this is specifically the user
 	// settings picker.
-	require_once('modules/Base/Theme/adminlte_icons.php');
+	require_once('modules/Base/Theme/bootstrap_icons.php');
 	$buttons = $this->get_template_vars('buttons');
 	foreach ($buttons as $key=>$button) {
 		$modules = $button['module'] ?? null;
 		$module = is_array($modules) ? ($modules[0] ?? null) : $modules;
-		$buttons[$key]['bi_icon'] = Base_AdminlteIcons::resolve($button['icon'] ?? null, $module, 'bi-sliders');
+		$buttons[$key]['bi_icon'] = Base_BootstrapIcons::resolve($button['icon'] ?? null, $module, 'bi-sliders');
 	}
 	$this->assign('buttons', $buttons);
 {/php}

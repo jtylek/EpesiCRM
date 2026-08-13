@@ -83,8 +83,8 @@
    PhoneCall, Mail, Meeting, Attachment) without touching any of them
    individually. The "New X" glyphs reuse the exact same per-module icon
    already declared for Menu/ActionBar/Admin panels elsewhere in this theme
-   (Base_AdminlteIcons - see Base/Theme/adminlte_icons.php's
-   <Module>Common::adminlte_icon()), for consistency. Not covered:
+   (Base_BootstrapIcons - see Base/Theme/bootstrap_icons.php's
+   <Module>Common::bootstrap_icon()), for consistency. Not covered:
    CRM_Contacts'/Utils_Attachment's "crm_filter" entry ('Set CRM Filter'/
    'File history') - a bare-text "F" link with no <img> at all, and no other
    reliable hook to key off; a rare, low-traffic feature, left as plain text
@@ -196,7 +196,7 @@
    child at all, though, which is a reliable enough hook on its own - hide
    its literal "F" text (font-size:0 - it's the only content, so nothing
    else to preserve) and add a funnel glyph, same family as CRM_Filters'
-   own navbar "Perspective" link (Base/Theme/adminlte_icons.php isn't
+   own navbar "Perspective" link (Base/Theme/bootstrap_icons.php isn't
    involved here, but reusing the same glyph keeps "filter" reading the
    same everywhere in this theme). */
 .epesi-rv-tools a:not(:has(img)) {

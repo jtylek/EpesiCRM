@@ -10,6 +10,15 @@
   complete working example module exercising every field type.
 - [adminlte-theme.md](adminlte-theme.md) — `adminlte`/`adminltedark` theme
   status (what's themed, what's not) + recurring CSS/JS architecture traps.
+- [how-menu-works.md](how-menu-works.md) — sidebar/left menu internals: tree
+  construction and session caching (`Base_MenuCommon::get_menus()`), the AdminLTE
+  vs. default-theme render split, `build_menu_html()`'s DOM shape (Bootstrap
+  collapse, not AdminLTE's own classes), and the `#MenuBar` shell/JS-rebind
+  convention. Written 2026-08-14 ahead of planning a menu search/filter feature.
+- [menu-search-plan.md](menu-search-plan.md) — approved 2026-08-14 plan for an
+  AdminLTE sidebar search/filter box: client-side only, AdminLTE-family scope only,
+  cascading auto-expand of ancestor folders on match, Bootstrap Collapse API for
+  expand/collapse. Implementation follows in the same session.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on
   purpose (quick-jump, login-audit purge, autofocus, legacy mobile system,
   `data/` theme+lang storage). Don't silently reintroduce.
@@ -51,7 +60,11 @@
   `EPESI_URL` redirecting off `localhost` to the real production domain,
   stale `data/cache/` after a wholesale code swap, clearing logs before a
   migration pass, this machine's broken port-443 SSL vhost causing
-  browser-side http→https auto-upgrade to look like a 403).
+  browser-side http→https auto-upgrade to look like a 403), plus a dev-tooling
+  entry on driving a real browser against this app (no `chromium-cli`,
+  Playwright's own Chromium never downloaded — use the `channel: 'msedge'`/
+  `'chrome'` option instead; the app's AJAX-push SPA shape means no
+  deep-linkable URLs, so verification means click-through navigation).
 - [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
   developer's machine (app error log, php.ini error_log, Apache error/access.log,
   noise filters, dedicated-window habit). Log paths/config vary per machine/dev —

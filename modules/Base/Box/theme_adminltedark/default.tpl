@@ -1008,7 +1008,7 @@
 				   Base_ThemeCommon::is_adminlte_family()) - this navbar icon
 				   replaced it, so the ActionBar copy would otherwise be a second
 				   button opening the exact same popup. bi-grid-3x3-gap-fill matches
-				   Base_AdminlteIcons::resolve()'s 'launcher' mapping (adminlte_
+				   Base_BootstrapIcons::resolve()'s 'launcher' mapping (adminlte_
 				   icons.php) - the same glyph that ActionBar button used to render. *}
 				<li class="nav-item epesi-launchpad-trigger">
 					<a class="nav-link lbOn" rel="actionbar_launchpad" href="javascript:void(0)" aria-label="{'Launchpad'|t}">

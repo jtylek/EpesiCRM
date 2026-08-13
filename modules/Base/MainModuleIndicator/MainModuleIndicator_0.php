@@ -49,7 +49,7 @@ class Base_MainModuleIndicator extends Module {
 		// module_icon mirrors the caption()-delegation pattern above (a module
 		// like CRM_Contacts or Base_HomePage can expose an icon() method that
 		// points at the actual active table/page's own icon, e.g. Companies vs
-		// Contacts) - it takes priority in Base_AdminlteIcons::resolve() over
+		// Contacts) - it takes priority in Base_BootstrapIcons::resolve() over
 		// module_type, the same order Base_Menu's build_menu_html() already
 		// uses (per-link icon first, module fallback second), so this bar's
 		// icon can't disagree with the sidebar's for the same screen.

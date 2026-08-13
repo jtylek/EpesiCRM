@@ -11,11 +11,11 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_FiltersCommon extends ModuleCommon {
-	// AdminLTE-only: Base_AdminlteIcons::resolve() looks this up for this
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
-	// modules/Base/Theme/adminlte_icons.php.
-	public static function adminlte_icon() { return 'bi-funnel'; }
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-funnel'; }
 
 	public static function set_filters_visibility($tab, $visible) {
 		Base_User_SettingsCommon::save(self::module_name(), $tab . '_show_filters', $visible);

@@ -326,12 +326,33 @@ public static function home_page() {
 `__module__`/`__function__`/`__function_arguments__`/`__icon__` keys.
 `home_page()`'s value shape is `[module_name, function_name, function_args]`.
 
-**`adminlte_icon()`** (AdminLTE theme only — see `AI-shared/adminlte-theme.md`)
+**No single file "owns" a top-level group.** Multiple, unrelated modules can each
+return the *same* translated label (`_M('CRM')`, `_M('Reports')`, ...) wrapped in
+`array('__submenu__'=>1, ...)`, and `Base_Menu::add_menu()` (`modules/Base/Menu/
+Menu_0.php`) merges every module's contribution into one accordion group purely by
+matching the label string at render time, after `Base_MenuCommon::get_menus()`
+(`MenuCommon_0.php`) has collected every module's `menu()` result. There is, for
+example, no `CRM_0.php`/`CRMCommon_0.php` file at all — `modules/CRM/`'s top-level
+`_M('CRM')` contributors (`Contacts`, `Tasks`, `PhoneCall`, `Meeting`, `Fax`,
+`Calendar`) are six independent sibling modules, none more "primary" than another.
+So moving a module from a top-level entry into an existing group (or vice versa) only
+ever requires editing *that module's own* `menu()` — nothing under the target group's
+own modules needs touching (confirmed 2026-08-13, moving `Premium_KnowledgeBase`'s
+entry from top-level to a new child under "CRM").
+
+**`menu()`'s result is cached per-session**, not recomputed every request —
+`Base_MenuCommon::get_menus()` stores the merged-per-module result in
+`$_SESSION['client']['__module_vars__']` (`Module::static_get/set_module_variable()`).
+After editing a `menu()` method, a plain reload in an already-logged-in browser tab
+won't show the change — log out and back in (or start a fresh session) to see it,
+same trap as any other module-variable cache (§6).
+
+**`bootstrap_icon()`** (AdminLTE theme only — see `AI-shared/adminlte-theme.md`)
 is resolved on-demand per module rather than aggregated, via
-`Base_AdminlteIcons::resolve()`, falling back to a plain gear icon if
+`Base_BootstrapIcons::resolve()`, falling back to a plain gear icon if
 undeclared:
 ```php
-public static function adminlte_icon() { return 'bi-envelope-fill'; }  // Bootstrap Icons class name
+public static function bootstrap_icon() { return 'bi-envelope-fill'; }  // Bootstrap Icons class name
 ```
 
 **ActionBar is a different pattern** — not a declared method, but an imperative
@@ -344,7 +365,7 @@ Base_ActionBarCommon::add('settings', __('Settings'),
     __('Click to edit tray settings'));
 ```
 `$type` (first arg) is either a built-in icon key (`home`/`back`/`edit`/`save`/
-`delete`/…) or resolved through the same `Base_AdminlteIcons` machinery on that
+`delete`/…) or resolved through the same `Base_BootstrapIcons` machinery on that
 theme.
 
 **`simple_setup()`** (on the `Install` class) controls whether/how your module
@@ -433,7 +454,7 @@ source.
 ## 10. Adding an admin-facing icon, and other small conventions
 
 - Every convention-method your module declares (`menu()`, `user_settings()`,
-  `home_page()`, `adminlte_icon()`) lives on the **`Common`** class, as a
+  `home_page()`, `bootstrap_icon()`) lives on the **`Common`** class, as a
   `public static` method — never on the instance (`Module`) class.
 - `_M()` for any label computed outside of a live request context (install
   time, ACL permission names); `__()` everywhere else.
@@ -755,7 +776,7 @@ as if it were an ordinary type.
    `CommonData` arrays via `Utils_CommonDataCommon::remove()`, addon
    registrations via `delete_addon()`).
 4. In `<Name>Common_0.php`: add a `menu()` method so the module is reachable,
-   and `adminlte_icon()` if you want a real sidebar icon instead of the
+   and `bootstrap_icon()` if you want a real sidebar icon instead of the
    fallback gear.
 5. In `<Name>_0.php::body()`: `$this->rb = $this->init_module(Utils_RecordBrowser::module_name(), '<tab>', '<tab>'); $this->display_module($this->rb);` — set any
    `set_filters_defaults()`/`set_default_order()`/`set_defaults()` first.
