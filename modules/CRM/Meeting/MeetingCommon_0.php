@@ -331,7 +331,11 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$record['title'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($record['title']);
 		$record['description'] = Utils_SafeHtml_SafeHtml::outputSafeHtml($record['description']);
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('crm_meeting', 'Title', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
+		// Skip the Description-as-tooltip wrapper too when this Title is being shown on
+		// its own meeting's view/history page - create_linked_label_r()/record_link_open_tag_r()
+		// already drop the self-link there via is_self_view(), but this tooltip is a bespoke
+		// <span> built independently of those primitives, so it needs the same check.
+		if (isset($record['description']) && $record['description']!='' && !Utils_RecordBrowserCommon::is_self_view('crm_meeting', $record['id'] ?? null)) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
     public static function display_title_with_mark($record) {

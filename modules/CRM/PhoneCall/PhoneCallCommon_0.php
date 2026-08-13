@@ -145,7 +145,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
         $record['description'] = $purifier->purify($record['description']);
 
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('phonecall', 'Subject', $record, $nolink);
-		if (!$nolink && isset($record['description']) && $record['description']!='') $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
+		// Skip the Description-as-tooltip wrapper too when this Subject is being shown on
+		// its own phone call's view/history page - see MeetingCommon_0::display_title()'s
+		// identical fix.
+		if (!$nolink && isset($record['description']) && $record['description']!='' && !Utils_RecordBrowserCommon::is_self_view('phonecall', $record['id'] ?? null)) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
 	public static function display_phone_number($record, $nolink) {

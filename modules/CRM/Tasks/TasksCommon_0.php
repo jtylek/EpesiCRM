@@ -162,7 +162,10 @@ class CRM_TasksCommon extends ModuleCommon {
 	}
     public static function display_title($record, $nolink) {
 		$ret = Utils_RecordBrowserCommon::create_linked_label_r('task', 'Title', $record, $nolink);
-		if (isset($record['description']) && $record['description']!='' && !MOBILE_DEVICE) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
+		// Skip the Description-as-tooltip wrapper too when this Title is being shown on
+		// its own task's view/history page - the Description is already visible below;
+		// see MeetingCommon_0::display_title()'s identical fix.
+		if (isset($record['description']) && $record['description']!='' && !MOBILE_DEVICE && !Utils_RecordBrowserCommon::is_self_view('task', $record['id'] ?? null)) $ret = '<span '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::format_long_text($record['description']), false).'>'.$ret.'</span>';
 		return $ret;
 	}
     public static function display_title_with_mark($record) {

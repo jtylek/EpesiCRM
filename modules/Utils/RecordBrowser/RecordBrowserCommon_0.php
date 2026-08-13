@@ -20,6 +20,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 	public static function adminlte_icon() { return 'bi-table'; }
 
     private static $del_or_a = '';
+    // Set (tab,id) of the record currently rendered on its own single-record
+    // view/history page - see QFfield_static_display(). Lets record_link_open_tag[_r]()
+    // and create_record_tooltip() drop the link+tooltip when a field's own
+    // display callback would otherwise link the record to itself (e.g.
+    // Contacts' "Last Name" field, whose display callback links to its own
+    // contact record - harmless in Browse lists/Attached-to references
+    // elsewhere, but redundant when already showing that exact record).
+    private static $self_view_context = null;
+    public static function is_self_view($tab, $id) {
+        return self::$self_view_context && self::$self_view_context[0] === $tab && (string)self::$self_view_context[1] === (string)$id;
+    }
     public static $admin_filter = '';
     public static $table_rows = array();
     public static $hash = array();
@@ -2366,6 +2377,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!isset($record['id']) || !is_numeric($record['id'])) {
             return self::$del_or_a = '';
         }
+        if (!$nolink && $action=='view' && self::is_self_view($tab, $record['id'])) $nolink = true;
         if (class_exists('Utils_RecordBrowser') &&
             isset(Utils_RecordBrowser::$access_override) &&
             Utils_RecordBrowser::$access_override['tab']==$tab &&
@@ -2408,6 +2420,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if (!is_numeric($id)) {
             return self::$del_or_a = '';
         }
+        if (!$nolink && $action=='view' && self::is_self_view($tab, $id)) $nolink = true;
         if (class_exists('Utils_RecordBrowser') &&
             isset(Utils_RecordBrowser::$access_override) &&
             Utils_RecordBrowser::$access_override['tab']==$tab &&
@@ -2457,7 +2470,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     			$text . self::record_link_close_tag();
     }
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
-    	if (!$tooltip || $nolink || Utils_TooltipCommon::is_tooltip_code_in_str($text)) 
+    	if (!$tooltip || $nolink || self::is_self_view($tab, $id) || Utils_TooltipCommon::is_tooltip_code_in_str($text))
     		return $text;
     	 
     	if (!is_array($tooltip))
@@ -2588,7 +2601,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
 
         $ret = self::record_link_open_tag_r($tab, $record, $nolink) . $label . self::record_link_close_tag();
-        if ($nolink == false && $detailed_tooltip) {
+        if ($nolink == false && $detailed_tooltip && !self::is_self_view($tab, $id)) {
             $ret = self::create_default_record_tooltip_ajax($ret, $tab, $id);
         }
         return $ret;
@@ -3343,7 +3356,17 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function QFfield_static_display(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         if ($mode !== 'add' && $mode !== 'edit') {
             if ($desc['type'] != 'checkbox' || isset($rb_obj->display_callback_table[$field])) {
+                // Mark this record as "currently on its own view/history page" so a
+                // field whose display callback links back to this same record (e.g.
+                // Contacts' Last/First Name - see is_self_view()) renders as plain
+                // text instead of a redundant self-link + tooltip. Scoped tightly
+                // around this single get_val() call: unrelated to Browse/grid-row
+                // rendering, which goes through a different path (RecordBrowser::get_val()
+                // at line ~808) and always keeps its links.
+                $prev_self_view_context = self::$self_view_context;
+                self::$self_view_context = isset($rb_obj->record['id']) ? array($rb_obj->tab, $rb_obj->record['id']) : null;
                 $def = self::get_val($rb_obj->tab, $field, $rb_obj->record, false, $desc);
+                self::$self_view_context = $prev_self_view_context;
                 $form->addElement('static', $field, $label, $def, array('id' => $field));
                 return true;
             }

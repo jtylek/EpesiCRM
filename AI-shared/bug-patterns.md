@@ -897,3 +897,66 @@ event-handler chain before suspecting the network/server - there is no
 built-in visibility into that on a phone, so it takes deliberately adding a
 `window.onerror` (or equivalent) to see it.
 
+## A record's own "identity" field linking/tooltipping to itself on its own View entry page
+
+Found 2026-08-13, reported independently six times in one session as each
+module was checked: Contacts' Last/First Name, Meeting's Title, Tasks'
+Title, PhoneCall's Subject, Premium_Projects' Project Name, and
+Premium_Projects_Tickets' Title all rendered as a clickable link *and/or* a
+hover tooltip pointing back to the exact same record already on screen.
+Harmless (even desirable) everywhere else these fields' display callbacks
+run - Browse list rows, Attached-to/reference pickers in *other* records -
+but redundant and slightly confusing on the record's own single-record
+View/history page. The last two were found proactively by grepping for the
+same shape across the whole `modules/` tree (`grep -rln
+"TooltipCommon::open_tag_attrs"` combined with `description` - see
+`premium-modules-gitignored.md`: this class of sweep must use plain `grep`,
+not the Grep tool, or it silently misses `modules/Premium/`) rather than
+waiting for a seventh screenshot - worth doing that sweep again if this
+pattern resurfaces, since it's cheap and has a 100% hit rate so far.
+
+**Root cause**: `Utils_RecordBrowserCommon::get_val()`/`call_display_callback()`
+doesn't know or care *where* it's being called from - a field's display
+callback (`CRM_ContactsCommon::contact_lastname_format_default()`,
+`CRM_MeetingCommon::display_title()`, `CRM_TasksCommon::display_title()`,
+`CRM_PhoneCallCommon::display_subject()`) always builds a link+tooltip to
+`($tab, $record['id'])` regardless of whether that happens to be the very
+record currently being displayed. The single-record View screen
+(`RecordBrowserCommon_0.php::QFfield_static_display()`, used by every 'text'-
+type field's default renderer) is the *only* code path where "the record
+being formatted" and "the record on screen" are always the same record - grid/
+Browse-row rendering (`RecordBrowser_0.php` line ~808, a separate `get_val()`
+call site) never has this problem since a list shows many records at once.
+
+**Fix**: added `Utils_RecordBrowserCommon::is_self_view($tab, $id)` - checks
+a private static `$self_view_context` set to `($rb_obj->tab, $rb_obj->record['id'])`
+only for the duration of `QFfield_static_display()`'s own `get_val()` call, then
+restored. Wired into the three shared link/tooltip primitives every display
+callback ultimately funnels through - `record_link_open_tag_r()`,
+`record_link_open_tag()`, `create_record_tooltip()` (plus
+`create_default_linked_label()`'s own separate tooltip check) - so any field
+anywhere linking back to the record already on screen silently renders as
+plain text instead. Five modules (Meeting, Tasks, PhoneCall,
+Premium_Projects, Premium_Projects_Tickets) additionally build a *second*,
+bespoke tooltip independent of those primitives (wrapping the linked label in
+their own `<span {tooltip attrs}>` to show the record's Description/long-text
+field, and for Projects/Tickets also Start/Due Date, as a preview) - those
+needed their own explicit `!Utils_RecordBrowserCommon::is_self_view(...)`
+guard added at each call site, since the shared primitives' fix doesn't reach
+hand-rolled tooltip spans. Tickets' `display_title()` has a second, unrelated
+tooltip right below the fixed one (`Blocked due to following tickets`/`Blocks
+ticket #N`) - that one was deliberately left alone since it describes *other*
+ticket records, not a self-reference, and stays useful on the ticket's own
+view page.
+
+**How to apply**: if a *new* module's own field-formatter builds a link back to
+its own record (the `create_linked_label`/`create_linked_text`/
+`create_linked_label_r` family, or a raw `Utils_TooltipCommon::open_tag_attrs()`
+span like Meeting/Tasks/PhoneCall's Description preview) and that field is
+ever shown on the record's own View/history page, check whether it already
+goes self-link-aware for free via the shared primitives (it does, if it's
+`create_linked_label`/`create_linked_text`/`create_linked_label_r`/
+`create_default_linked_label`) - if it's a hand-rolled tooltip span instead,
+it needs an explicit `is_self_view($tab, $id)` guard added at that call site,
+matching Meeting/Tasks/PhoneCall's fix.
+
