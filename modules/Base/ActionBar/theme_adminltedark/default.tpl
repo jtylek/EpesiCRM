@@ -12,6 +12,8 @@
 		'history'   => 'bi-clock-history',
 		'all'       => 'bi-collection',
 		'favorites' => 'bi-star-fill',
+		'priority-add'    => 'bi-arrow-bar-up',
+		'priority-remove' => 'bi-arrow-bar-down',
 		'calendar'  => 'bi-calendar3',
 		'search'    => 'bi-search',
 		'folder'    => 'bi-folder2-open',

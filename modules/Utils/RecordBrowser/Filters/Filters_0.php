@@ -320,7 +320,11 @@ class Utils_RecordBrowser_Filters extends Module {
 					break;
 
 				default:
-					if (!isset($this->values[$element_id]) || ($field_type=='select' && $this->values[$element_id]==='')) 
+					// '' must normalize to "unset" for every field type here, not just 'select' -
+					// an autoselect/multiselect widget (crm_contact, crm_company_contact) left
+					// blank submits '', which otherwise survives as a literal field='' crit that
+					// can never match a real value, silently hiding every record.
+					if (!isset($this->values[$element_id]) || $this->values[$element_id]==='')
 						$this->values[$element_id]=self::$empty_value;
 						
 					if ($this->values[$element_id]!==self::$empty_value) 						

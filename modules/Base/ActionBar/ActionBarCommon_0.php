@@ -66,6 +66,15 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// (bi-person-workspace / bi-motherboard).
 			'admin-panel'	=> 16,
 			'admin-tools'	=> 16,
+			// Premium_PriorityListCommon's "Add to priority list" / "Remove from
+			// priority list" used the 'favorites' key outright (star icon, shared
+			// with every other bookmark-style action) - own keys now, same sprite
+			// position as 'favorites' so the legacy theme is unaffected; only the
+			// AdminLTE theme's icon_map (Base_ActionBar/theme_adminltedark/
+			// default.tpl) points these at distinct glyphs (bi-arrow-bar-up /
+			// bi-arrow-bar-down).
+			'priority-add'	=> 5,
+			'priority-remove' => 5,
 			'scan'		=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,
