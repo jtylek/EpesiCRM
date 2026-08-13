@@ -12,28 +12,41 @@
  * ancestor .data being a table cell specifically.
  */
 
+/* Was margin-top:-0.5rem here (clawing back part of the shell's own shared
+   .app-content padding-top - 1rem, Base/Box/theme_adminltedark/default.css)
+   instead of the padding-top reduction below - reported as the tooltip/
+   history/favourite/subscription icons losing their top few px. #content_body
+   > .container-fluid (Base_Box/theme_adminltedark/default.css) carries
+   overflow-x:auto, which - regardless of what its own overflow-y computes to
+   - already makes it establish a block formatting context, and a BFC boundary
+   stops a first child's negative margin from ever reaching up through it to
+   collapse with .app-content's padding in the first place (the old comment's
+   "padding stops collapse propagation" reasoning skipped over .container-fluid
+   sitting in between). So the negative margin only ever repositioned this row
+   inside .container-fluid's own box, past its top edge - invisible while that
+   edge's exact rendered position happened to leave the row uncropped, then
+   visibly clipped once Base_Box's own overflow-y fix (see that file) made
+   .container-fluid's box a reliable hard clip instead. Reducing .app-content's
+   own padding-top instead (below) doesn't have this problem - padding shrinks
+   the box itself, it doesn't push content out of it - same technique already
+   used for Browsing_records.css's near-identical gap-above-the-first-row
+   request. */
 .epesi-rv-header {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin-bottom: 0.4rem;
-	/* Claws back part of the shell's own shared .app-content padding-top
-	   (1rem - Base/Box/theme_adminltedark/default.css), which stacks with
-	   this row's own margin-bottom above. Only ever noticeable here: this
-	   row is always the first thing rendered inside .app-content on a
-	   standalone ($main_page) record screen, and is often visually empty -
-	   the tooltip/history/favourite/subscription icons it holds are all
-	   gated to non-'add' mode (RecordBrowser_0.php), so on "New record"
-	   specifically this collapses to just its own margin, reported as a
-	   bigger-than-intended gap above the card. Negative margin-top on a
-	   flex container repositions its own box, not its children's layout,
-	   so this doesn't disturb the row's own icon alignment. Margin
-	   collapsing can't pull this past .app-content's padding edge (a
-	   padding, not a margin, stops collapse propagation there), so this
-	   can only ever reclaim part of that 1rem, never overlap the fixed
-	   ActionBar above it. */
-	margin-top: -0.5rem;
+}
+
+/* Half of .app-content's own 1rem padding-top, on any screen that renders a
+   standalone ($main_page) record view/edit header - see .epesi-rv-header's
+   own comment above for why this replaced a negative margin on that row
+   instead. Only ever noticeable when the row is visually empty (icons gated
+   to non-'add' mode, RecordBrowser_0.php) - e.g. "New record" - where it
+   previously read as a bigger-than-intended gap above the card. */
+.epesi-adminlte .app-content:has(.epesi-rv-header) {
+	padding-top: 0.5rem;
 }
 
 .epesi-rv-tools {

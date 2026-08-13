@@ -406,10 +406,13 @@ body {
 	transition: margin-left 0.25s ease-in-out;
 	/* .app-main is the element guaranteed to be at least one viewport tall
 	   (min-height:100vh above) - set directly here rather than relying on it
-	   inheriting from body, so a short screen's leftover space below
-	   .app-content (itself only as tall as that screen's own content) can't
-	   show through as white regardless of how tall body's own box ends up
-	   being computed. */
+	   inheriting from body. .app-content's own flex:1 1 auto (below) is what
+	   actually stretches the visible content column down to meet this now,
+	   but this background/min-height stays as the fallback for anything that
+	   doesn't go through .app-content (e.g. .app-sidebar's own background is
+	   separate, but a future fixed/overlay element sitting directly in
+	   .app-main wouldn't be) - belt and braces against a white flash, not
+	   load-bearing for the common case any more. */
 	background-color: var(--epesi-bg);
 }
 
@@ -478,6 +481,21 @@ body {
 	   the current screen's own module CSS fills in (e.g. Dashboard's
 	   #dashboard only covers its own box, not the content column around it). */
 	background-color: var(--epesi-bg);
+	/* .app-main (libs/adminlte-4.1.0/css/adminlte.min.css) is display:flex;
+	   flex-direction:column, and .app-content-header (#ActionBar) - .app-main's
+	   only other in-flow child - is pulled out of that flow by this file's own
+	   position:fixed rule above, leaving .app-content as .app-main's sole real
+	   flex item. Without a flex-grow, a flex item's main-axis (here: vertical)
+	   size defaults to its own content height regardless of how much extra
+	   room .app-main has (its min-height:100vh, below, doesn't get shared
+	   downward automatically) - reported as a dead grey band between a short
+	   screen's content and the true bottom of the page, and (found via
+	   DevTools) confirmed as div#content measuring far shorter than
+	   .app-main itself. 1 1 auto still respects this element's own natural
+	   content height as a floor (flex-basis:auto) - a screen taller than one
+	   viewport still grows .app-main right along with it, this only claims
+	   leftover space on a short screen, never clips a tall one. */
+	flex: 1 1 auto;
 }
 
 /* The default theme centred content in a fixed-width table; content is now
@@ -487,8 +505,24 @@ body {
 	width: 100%;
 }
 
+/* overflow-x:auto is needed so a too-wide child (e.g. a wide GenericBrowser
+   table) scrolls sideways instead of blowing out the page width. overflow-y
+   must be set explicitly alongside it - per the CSS overflow computed-value
+   rule, leaving it at the default 'visible' while the other axis is
+   non-'visible' silently forces it to compute as 'auto' too, turning this
+   container into its own independent vertical scroll region (nothing above
+   it caps its height, so this was never needed for its own sizing - it just
+   fights the page's own scrollbar). Reported as two vertical scrollbars on
+   tall tab content (the container's own internal one plus the outer page's),
+   and as dead scrollable space below short tab content (this container
+   staying pinned to its own stale scrollHeight from a previous size).
+   hidden, not visible - explicitly restating 'visible' here would still hit
+   the same computed-value rule and get silently swapped back to 'auto'.
+   Same pairing already used above for the same reason (.app-header
+   .navbar-nav). */
 .epesi-adminlte #content_body > .container-fluid {
 	overflow-x: auto;
+	overflow-y: hidden;
 }
 
 /* ---- collapsed / mobile ---- */
