@@ -645,3 +645,86 @@ further this session.
 **Before relying on any file/count above**: this is a live, multi-session
 migration — re-verify with a fresh grep rather than trusting these numbers,
 especially the "X files use Y" counts.
+
+### Step 7, `modules/Premium/` — the migration's actual blind spot, found 2026-08-13
+
+Every "confirmed by grep that zero callers remain" claim in steps 2-5 above
+was **false for `modules/Premium/`** (and, by the same mechanism,
+`modules/Custom/`) — both are `.gitignore`-excluded (`modules/*` blocked,
+only a fixed allowlist un-ignored, Premium/Custom not in it; see
+`CLAUDE.md`'s Environment quirks section), and Claude Code's `Grep` tool
+silently skips gitignored paths. Every sweep run through it during steps 1-6
+walked right past these files while confidently reporting completion. First
+surfaced as a real symptom, not a proactive check: fresh install of
+`jtylek/epesi`'s `jasiek` branch, first Dashboard load after a PHP 8.2
+migration pass, stuck forever on "Loading..." — see
+[[report-all-errors-exits-on-warning]] in `bug-patterns.md` for that specific
+bug (`Premium/KnowledgeBase/Thread.php`, unrelated to this file but same
+triggering session) and `environment-gotchas.md` for the discovery path.
+That prompted a plain-`grep`/Bash sweep (not the `Grep` tool) of
+`modules/Premium` + `modules/Custom` for every pattern steps 1-5 eliminated
+elsewhere. `Custom/Tutorial` was clean. `Premium/` had 13 real call sites
+across 6 files, **all fixed same session**:
+
+- **`document.observe`/`Event.observe` (7 sites, 5 files)**:
+  `Invoice/InvoiceCommon_0.php:1003` (`Event.observe(document,"e:load",...)` —
+  same page-blanking shape as the PriorityList bug below, since it runs on
+  every load of any page rendering this QuickForm field, not just on a
+  click); `SalesOpportunity/SalesOpportunityCommon_0.php` (4 sites, all
+  `Event.observe('<button_id>','click',handler)`); `Vacation/
+  VacationCommon_0.php` (2 sites, same click-handler shape, one inside a
+  `foreach` loop over approval actions); `Timesheet/update_leightbox.php:74`
+  (`Event.observe(...,"native:change",...)` — grepped the **whole**
+  codebase including Premium/Custom and found zero `fire()` sites for
+  `native:change` anywhere, old or new style, so this was already-inert dead
+  code even under Prototype, exactly like the one sibling site
+  `Utils/Planner/Planner_0.php:95` already documented above — ported the
+  syntax anyway, mirroring that file's exact `jQuery(document.getElementById(...))
+  .on("native:change",...)` shape, purely to stop it throwing
+  `TypeError: Event.observe is not a function` now that `Event` resolves to
+  the native browser constructor instead of Prototype's).
+- **`Ajax.Request` (6 sites, 4 files)**: `Invoice/Items/autocomplete.js`,
+  `Timesheet/time_estimate.js`, `Timesheet/update_billed.js` (×2),
+  `Timesheet/update_leightbox.js` (×2) — all callback-less-or-`onSuccess`-
+  with-manual-`eval(t.responseText)` shape, ported using the exact
+  `grid.js`/`favorites.js` precedent from step 2 above: `dataType: 'text'` +
+  `success:function(responseText){eval(responseText);...}` (not `complete`/
+  `jqXHR` — that alternate precedent from `EpesiStoreCommon_0.php` is for
+  callbacks needing status-independent execution; these all only ran on
+  success originally, so `success:` preserves that). `Object.toJSON()` →
+  `JSON.stringify()`, `parameters` → `data` throughout, same as step 2's
+  mechanical mapping.
+- **A second, distinct bug found while reading the same code, not from any
+  grep pattern above**: raw Prototype-style `$(id).property` DOM access
+  (`.value`, `.innerHTML`, `.disabled`, `.submited` via `document.forms`
+  shorthand, `.getAttribute(...)`) across `SalesOpportunityCommon_0.php`,
+  `VacationCommon_0.php`, `Timesheet/update_leightbox.php`,
+  `Timesheet/update_leightbox.js`, `Timesheet/time_estimate.js`. Prototype's
+  `$(id)` returned a raw DOM element; now that `$ === jQuery` (step 5), the
+  *same call* returns a jQuery-wrapped set instead, and those properties
+  don't exist on it — silently broken (no exception, e.g.
+  `$(id).value = x` just sets a stray property on the jQuery object and
+  the real form field never updates), not crash-loud like the other two
+  patterns. One variant is worse than silent: `time_estimate.js`'s
+  `if (!$('timesheets_counting_'+i)) continue;` used a bare ID with **no**
+  `#` prefix, which jQuery parses as a *tag-name* selector — always returns
+  an empty-but-truthy jQuery object, so the guard silently stopped guarding
+  anything, and the very next line's `.getAttribute()` call threw instead.
+  Fixed every site by switching to `document.getElementById(id)` (or, where
+  the codebase already had a `document.forms[name].fieldName` idiom two
+  lines away in the same function, matched that instead of introducing a
+  second convention) — not `jQuery('#'+id)`, to keep raw property/method
+  access (`.value`, `.innerHTML`, `.getAttribute`) working exactly as
+  before with zero call-site behavior change beyond fixing the bug.
+
+**How to apply**: any future "swept the whole codebase, zero remaining"
+claim about a Prototype/jQuery/legacy-JS pattern needs a plain-`grep`/
+`git grep --no-index`-based check of `modules/Premium` and `modules/Custom`
+specifically before being trusted — the `Grep` tool's gitignore-respecting
+default silently produces false negatives here, and steps 1-6 above are proof
+it already happened once across an entire multi-day migration. If auditing
+this area again, also re-check for the `$(id).property` raw-access pattern
+specifically (not just `Ajax.Request`/`Event.observe`/`Class.create`) — it's
+the same root cause (`$` no longer means "raw DOM element getter") but wasn't
+on steps 1-5's original elimination-target list at all, so a grep for only
+those three literal strings won't catch it.
