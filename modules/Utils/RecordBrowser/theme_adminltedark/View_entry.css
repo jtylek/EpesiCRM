@@ -951,19 +951,29 @@
 	margin-bottom: 0;
 }
 
-/* Per request: once the sidebar itself goes off-canvas (Base_Box's own
-   991.98px sidebar-collapse breakpoint - Base/Box/theme_adminltedark/
-   default.css/default.tpl), automatically hide empty fields to save the
-   vertical space they'd otherwise waste on a narrow screen - independent of
-   the per-user "Hide empty fields" RecordBrowser setting
-   (Utils_RecordBrowserCommon.php's 'hide_empty'), which only does this at
-   every width once a user opts in. RecordBrowser_0.php's own
-   prepare_view_entry_details() always tags an empty (non-checkbox) field's
-   .epesi-rv-row with .epesi-rv-empty in view mode regardless of that
-   setting; this rule is what actually hides it, and only below this
-   breakpoint - a user who hasn't touched the setting still sees every field
-   on desktop, exactly as before. */
-@media (max-width: 991.98px) {
+/* Per request: once the field layout has actually stacked to a single
+   column, automatically hide empty fields to save the vertical space
+   they'd otherwise waste on a narrow screen - independent of the per-user
+   "Hide empty fields" RecordBrowser setting (Utils_RecordBrowserCommon.php's
+   'hide_empty'), which only does this at every width once a user opts in.
+   RecordBrowser_0.php's own prepare_view_entry_details() always tags an
+   empty (non-checkbox) field's .epesi-rv-row with .epesi-rv-empty in view
+   mode regardless of that setting; this rule is what actually hides it, and
+   only below this breakpoint - a user who hasn't touched the setting still
+   sees every field on desktop, exactly as before.
+   Originally keyed off Base_Box's 991.98px sidebar-collapse breakpoint, but
+   that's when the *sidebar* goes off-canvas, not when the field grid itself
+   drops to one column - Contact.tpl/mails.tpl/Meeting's/PhoneCall's fixed
+   2-column .epesi-rv-columns/.column split (and .epesi-rv-fluid, which needs
+   roughly 2*420px+gap ≈ 864px to hold two columns) both still render two
+   columns side by side well below 991.98px, so fields were disappearing out
+   of a layout that still had two columns' worth of room, leaving one column
+   visibly gappier than the other. 767.98px is the same breakpoint this file
+   already uses (above) to force Contact.tpl-style .column onto its own line
+   via flex-basis:100% !important - the genuine single-column threshold for
+   every per-table template, fluid included (a viewport this narrow is always
+   under the fluid layout's own ~864px 2-column floor too). */
+@media (max-width: 767.98px) {
 	.Utils_RecordBrowser__View_entry .epesi-rv-row.epesi-rv-empty {
 		display: none;
 	}

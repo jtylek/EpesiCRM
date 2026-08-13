@@ -1508,10 +1508,11 @@ class Utils_RecordBrowser extends Module {
             }
             // Always tag an empty (non-checkbox) field's row with a class in view mode,
             // regardless of the 'hide_empty' setting below - View_entry.css's own
-            // 991.98px sidebar-collapse media query uses it to auto-hide empty fields
-            // on narrow/mobile viewports for everyone, independent of this per-user
-            // desktop preference. If the setting IS on, also hide it immediately via
-            // inline style, same as before, so it stays hidden at every width.
+            // 767.98px single-column media query uses it to auto-hide empty fields
+            // once the field grid has actually stacked to one column, independent of
+            // this per-user desktop preference. If the setting IS on, also hide it
+            // immediately via inline style, same as before, so it stays hidden at
+            // every width.
 			if ($mode == 'view' && $desc['type'] != 'checkbox' && $this->field_is_empty($record, $desc['id'])) {
 				$hide_now = Base_User_SettingsCommon::get(Utils_RecordBrowser::module_name(),'hide_empty') ? 'r.style.display="none";' : '';
 				eval_js('var e=document.getElementById("_'.$desc['id'].'__data");if(e){var r=e.closest(".epesi-rv-row");if(r){r.classList.add("epesi-rv-empty");'.$hide_now.'}}');
