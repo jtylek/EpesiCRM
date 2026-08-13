@@ -4,6 +4,27 @@
 some overlap exists deliberately; this file covers additional gotchas found
 during work on this codebase that aren't yet folded into CLAUDE.md.)
 
+## `modules/Custom/` is only *partly* gitignored, unlike all of `modules/Premium/`
+
+Don't assume `modules/Custom/` is gitignored wholesale the way `modules/Premium/`
+is — verified 2026-08-14 via `git check-ignore`/`.gitignore` that only
+`modules/Custom/Tutorial` (the shipped example module paired with
+`AI-shared/Dev-Tutorial.md`) was tracked in the main repo; every other
+`modules/Custom/<X>` is meant to be a separate nested git repo, same pattern as
+each `modules/Premium/<X>`, but that carve-out wasn't actually encoded in
+`.gitignore` until this same date — before then, a real Custom module dropped in
+next to Tutorial would have been silently swept into the main repo's history
+instead of staying its own repo.
+
+**How to apply**: `.gitignore` now has `modules/Custom/*` +
+`!modules/Custom/Tutorial` right under the `modules/Premium/` rule. If you're
+about to `git add`/audit/sweep `modules/Custom/`, don't assume the `Grep` tool
+(which respects `.gitignore`) sees everything under it the way it does for a
+genuinely fully-tracked directory — a real Custom module living there needs the
+same plain-Bash-grep treatment as `modules/Premium/` (see the
+Premium/Custom-migration-scope memory note), even though `Tutorial` itself is
+fine through the normal tools.
+
 ## CLI scripts share the live DB — writes in a "test" script are real
 
 Any ad-hoc PHP script that bootstraps `include.php` connects to the **same

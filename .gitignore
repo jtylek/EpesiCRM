@@ -9,6 +9,14 @@
 # managed by its own git repository - not part of this one.
 modules/Premium/
 
+# Same idea as Premium/ above, but per-installation: modules/Custom/ holds
+# site-specific custom modules, each expected to be its own nested git repo
+# (not part of this one) once it exists - except Tutorial, the one example
+# module that ships with this repo (see AI-shared/Dev-Tutorial.md) and is
+# meant to stay tracked here.
+modules/Custom/*
+!modules/Custom/Tutorial
+
 # Build output of console/Develop/CreateDistCommand.php (dev:dist:create)
 /epesi-*.zip
 

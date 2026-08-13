@@ -64,7 +64,10 @@
   entry on driving a real browser against this app (no `chromium-cli`,
   Playwright's own Chromium never downloaded — use the `channel: 'msedge'`/
   `'chrome'` option instead; the app's AJAX-push SPA shape means no
-  deep-linkable URLs, so verification means click-through navigation).
+  deep-linkable URLs, so verification means click-through navigation); plus
+  `modules/Custom/` being only partly gitignored (only `Tutorial` is tracked
+  in the main repo — every other Custom module is meant to be its own nested
+  git repo, same as Premium, now actually encoded in `.gitignore`).
 - [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
   developer's machine (app error log, php.ini error_log, Apache error/access.log,
   noise filters, dedicated-window habit). Log paths/config vary per machine/dev —
