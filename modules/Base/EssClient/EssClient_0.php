@@ -138,7 +138,7 @@ class Base_EssClient extends Module {
         $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
         print(' <a target="_blank" href="' . $url . '">' . __('Terms and Conditions') . '</a>');
         print('<center>');
-        $form->display();
+        $form->display_as_column();
         print('</center>');
         print('</div>');
         return;
