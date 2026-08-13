@@ -832,9 +832,10 @@
 }
 
 /* Small screens: stack each .column under the previous one instead of
- * staying side by side, and stack each row's .label above its .data
- * instead of side by side - real flex reflow now, not the display:block
- * responsive-table technique the <table> version needed. */
+ * staying side by side - real flex reflow now, not the display:block
+ * responsive-table technique the <table> version needed. Row-level
+ * label-above-data stacking is a separate, narrower breakpoint below (see
+ * that block for why it isn't done here too). */
 @media (max-width: 767.98px) {
 	.epesi-rv-columns {
 		flex-wrap: wrap;
@@ -854,15 +855,6 @@
 		margin-bottom: 12px;
 	}
 
-	.Utils_RecordBrowser__View_entry .epesi-rv-row {
-		flex-wrap: wrap;
-	}
-
-	.Utils_RecordBrowser__View_entry .label,
-	.Utils_RecordBrowser__View_entry .data {
-		flex-basis: 100%;
-	}
-
 	/* "Set CRM Filter" (CRM_Contacts' per-contact shortcut into the
 	   "Perspective" filter, ContactsCommon_0.php's $ret['new']['crm_filter'])
 	   - per request, Perspective isn't used on mobile, so this entry point
@@ -876,6 +868,28 @@
 	*/
 	.epesi-rv-tools a.epesi-rv-crmfilter {
 		display: none;
+	}
+}
+
+/* Real phone-portrait widths only (~480px and narrower - iPhone/Android
+   portrait; the 767.98px block above is Bootstrap's own sidebar-collapse
+   width, not a "too narrow for one line" width). Reported: a plain desktop
+   Chrome window resized down to ~900px - comfortably wider than any phone,
+   still mouse/landscape-oriented, no touch involved - was rendering every
+   field label-above-data (two lines) purely because 900px is under
+   767.98px. That width only justifies dropping to a single *column* (the
+   block above); a single column at 900px (or even down to ~480px) still has
+   plenty of room for label+data on one line, same "narrow doesn't
+   automatically mean phone" reasoning as the landscape-phone block below,
+   just via a width check instead of a height+orientation one. */
+@media (max-width: 480px) {
+	.Utils_RecordBrowser__View_entry .epesi-rv-row {
+		flex-wrap: wrap;
+	}
+
+	.Utils_RecordBrowser__View_entry .label,
+	.Utils_RecordBrowser__View_entry .data {
+		flex-basis: 100%;
 	}
 }
 
@@ -914,11 +928,13 @@
 		margin-bottom: 12px;
 	}
 
-	/* Unlike the portrait rule above, rows stay side by side here - explicit
-	   flex-wrap/flex values (not just undoing the portrait rule's
-	   flex-basis:100%) so this wins outright on the narrow-landscape-phone
-	   overlap with the max-width:767.98px block above, which sets the same
-	   properties. */
+	/* Rows stay side by side here even though a real landscape phone's width
+	   (~650-930px, see above) is already past the max-width:480px row-stacking
+	   block below - kept as an explicit, higher-specificity safety net (not
+	   just relying on that block's own width not matching) for the rare
+	   narrower-than-480px-and-short case (an old/small handset), so this
+	   still wins outright on that overlap regardless of which block loads
+	   last. */
 	.Utils_RecordBrowser__View_entry .epesi-rv-row {
 		flex-wrap: nowrap;
 	}
