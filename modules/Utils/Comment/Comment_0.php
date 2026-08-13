@@ -230,7 +230,6 @@ class Utils_Comment extends Module{
 		} else {
 			$form->assign_theme('form', $theme);
 			$theme->assign('required', '<span align=top size=4 style="color:#FF0000">*</span>');
-			$theme->assign('required_description', __('Indicates required fields.'));
 			$theme -> display('Reply');
 		}
 	}

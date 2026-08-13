@@ -6,6 +6,5 @@
 	<div role="presentation"></div>
 	<div class="submit" role="cell" style="text-align: left; padding-top: 5px;">{$form_data.submit_comment.html}&nbsp;{$form_data.cancel_comment.html}</div>
 </div>
-{$required}&nbsp;{$required_description}
 
 {$form_close}
