@@ -1900,6 +1900,53 @@ no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
 
 ---
 
+### §66 — `FORCE_CACHE_COMMON_FILES`: combined-common-file generator broken by the no-closing-tag convention (2026-08-13)
+
+**Why (Jasiek).** Investigating dashboard/page-load performance, Jasiek enabled `FORCE_CACHE_COMMON_FILES` — an
+existing (default-OFF) perf toggle that concatenates every installed module's `*Common_X.php` into one
+pre-built `data/cache/common.php`, so `ModuleManager::load_modules()` does one `require_once` instead of a
+`stat()`+`open()` per module (128 files / ~1.1MB of source in this install — measured ~15ms/request of raw
+file-I/O overhead saved). Turning it on immediately broke **every** request that reaches
+`ModuleManager::load_modules()` — i.e. nearly the whole app (`process.php`, `ajax.php`-style refresh endpoints,
+`indexer.php`, etc.) — with `ParseError: syntax error, unexpected token "<", expecting end of file` in the
+generated `data/cache/common.php`.
+
+**Root cause.** `ModuleManager::create_common_cache()`
+([include/module_manager.php:949](include/module_manager.php)) builds the combined file by looping over every
+installed module and doing `$ret .= file_get_contents($file_url)` (the module's raw Common-file source)
+followed by `$ret .= '<?php $x = ...; ... ?>'` (a small trailer that instantiates the Common singleton). This
+assumes every source file's content **ends with a closing `?>` tag** — true when this generator was written,
+no longer true after the PHP 8 modernization: files in this codebase now conventionally omit the closing tag
+(standard PSR-2-ish practice, avoids stray-whitespace/header bugs). With the closing tag gone, the *next*
+appended segment's literal `<?php` lands **inside the still-open PHP block** from the previous file — not a
+new open tag, just the four characters `<`, `?`, `p`, `h`, `p` as tokens — and PHP chokes on the stray `<`.
+Since `FORCE_CACHE_COMMON_FILES` defaults OFF and (per repo history) nobody had exercised this path since the
+close-tag convention changed, this has apparently been silently broken for any install that turns it on,
+unnoticed until now.
+
+**Fix.** Force-close before each trailer: `$ret .= '?><?php $x = ...'` instead of `'<?php $x = ...'`
+([include/module_manager.php:961-965](include/module_manager.php)). Safe in both cases — if the file already
+closed itself, the extra `?>` just emits harmless literal text (silently swallowed: `load_modules()` wraps the
+`require_once` of this cache file in `ob_start()`/`ob_end_clean()`); if it didn't, `?>` acts as PHP's implicit
+statement terminator (same rule that lets a file end mid-statement with no trailing `;`), then reopens cleanly
+for the trailer. **Meta note:** the first attempt at this fix documented the change with a `//` line comment
+that itself contained the literal text `` `?>` `` — which reproduced the *exact same bug*, since a `//`/`#`
+comment in PHP is terminated by `?>` wherever it appears, not just by the newline. Switched to a `/* */` block
+comment phrased without literal tag syntax.
+
+**Upgrade-gap note:** pure code fix in a core include, reaches every install on update — no DB patch needed.
+But `data/cache/common.php` is a **stale on-disk artifact**, not stored business data: `create_common_cache()`
+only (re)runs when the file doesn't already exist, so any install that already hit this bug needs its broken
+cache file deleted once (`data/cache/common.php`) after updating, or it'll keep loading the old broken version
+forever. Not worth a formal patch (purely a rebuildable cache directory) — noted here instead.
+
+**Verify:** regenerated `data/cache/common.php` (1.26MB) lints clean; full page load + AJAX round-trip
+(`process.php`, `Utils/RecordBrowser/indexer.php`, `Utils/Messenger/refresh.php`, `Base/Notify/refresh.php`)
+all verified 200 with zero console errors via a real browser, with `FORCE_CACHE_COMMON_FILES=1` live.
+**STATUS: fixed and verified working.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

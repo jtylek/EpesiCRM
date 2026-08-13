@@ -959,7 +959,10 @@ class ModuleManager {
 			$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
 			if(file_exists($file_url)) {
 				$ret .= file_get_contents ($file_url);
-				$ret .= '<?php $x = \''.$module.'Common\';'.
+				/* Files no longer reliably end with a closing PHP close-tag, so force one
+				   here - otherwise the open-tag appended below is parsed as more of the
+				   previous file's (still-open) PHP code instead of a new open tag. */
+				$ret .= '?><?php $x = \''.$module.'Common\';'.
 					'if(class_exists($x, false)){ '.
 						'if(!array_key_exists(\'ModuleCommon\',class_parents($x)))'.
 							'trigger_error(\'Module '.$path.': Common class should extend ModuleCommon class.\',E_USER_ERROR);'.
