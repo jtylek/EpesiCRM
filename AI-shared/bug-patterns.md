@@ -960,3 +960,67 @@ goes self-link-aware for free via the shared primitives (it does, if it's
 it needs an explicit `is_self_view($tab, $id)` guard added at that call site,
 matching Meeting/Tasks/PhoneCall's fix.
 
+## `eval_js_once()` inside `Base_Box`'s own shell template assumed the shell renders once; it doesn't
+
+Found 2026-08-13, reported as "viewed an e-mail on mobile, worked the first
+time; on a later visit the toolbar looks broken and a 'Logout' link starts
+showing in the navbar" - confirmed by the user to reproduce on a real phone
+but *not* by merely resizing a desktop browser narrow, which pointed away
+from a pure CSS-breakpoint bug.
+
+**Root cause**: `Epesi::go()` (`include/epesi.php`) hardcodes
+`self::$content[$path]['span'] = 'main_content'` for the **root** module
+(`Base_Box`) exactly like `display_module()` does for any child - meaning
+Box's *entire* rendered shell (navbar, sidebar, `#top_bar`, `#ActionBar`, the
+whole `.epesi-adminlte.app-wrapper`) is one wholesale-replaceable
+`Epesi.text(..., 'main_content')` unit, not just the inner `{$main}`
+content area. Box's own output legitimately changes across ordinary
+cross-module navigation (e.g. `$moduleindicator`'s embedded text differs),
+so the *whole shell* - not merely the screen content - gets torn down and
+replaced with a fresh DOM subtree far more often than "once per session."
+Several one-time DOM-setup scripts in `Base_Box/theme_adminltedark/
+default.tpl` assumed the opposite - explicit comments claimed "the navbar/
+sidebar footer are shell chrome, not re-rendered by ordinary AJAX navigation"
+- and were wrapped in `eval_js_once()`, whose dedup is a **server-side,
+whole-session** flag (`$_SESSION['client']['__evaled_jses__'][md5($js)]`,
+`include/misc.php`): it fires the JS to the client on the very first call
+ever and never again, regardless of how many times the DOM it operates on
+is actually recreated. Concretely: the script that moves `.logged_as`/
+`.logout_css3_box` out of the navbar into the sidebar footer only ever ran
+once, so every later shell replacement left a fresh, un-relocated Logout
+link stuck in the navbar; the `ResizeObserver`-based `--epesi-header-height`/
+`--epesi-actionbar-height` sync only ever attached to the *first* `#top_bar`/
+`#ActionBar` nodes, so later ones (now taller, e.g. from the stuck Logout
+text) were never tracked, letting the fixed bars end up mis-sized against
+real content ("invisible toolbar"). Mobile-only in practice because the
+navbar is more likely to actually change height there (off-canvas sidebar,
+narrower search/filter wrapping) and a desktop-narrow test that doesn't
+chain through two genuinely different module views never triggers the
+"Box's own content differs" replacement in the first place.
+
+**Fix**: switched the shell-scoped setup scripts (`--epesi-header-height`/
+`--epesi-actionbar-height` watch, the `#ActionBar`-empty `MutationObserver`,
+the `#MenuBar` close-sidebar-on-nav click listener, and the Logout/username
+relocation) from `eval_js_once()` to plain `eval_js()`, so they re-run every
+time `Base_Box::body()` executes (i.e. every request) instead of once ever.
+To avoid piling up duplicate `ResizeObserver`s/listeners on the (far more
+common) requests where the shell *isn't* actually replaced and the same DOM
+nodes persist, each script now self-guards with a marker property set on the
+element itself (`el.__epesiHeightWatched`, `bar.__epesiEmptyWatched`,
+`bar.__epesiCloseBound`) checked before attaching anything - cheap on a
+no-op re-run, correct on a fresh node. The relocation script needed no such
+guard: re-inserting an already-relocated node at the position it's already
+in is a harmless no-op.
+
+**How to apply**: any script in a `theme_adminltedark`/`theme_adminlte`
+shell template (`Base_Box`'s own `default.tpl`, or any other file whose
+`{php}` block runs as part of the *root* module's `body()`) that does
+one-time DOM setup on an element inside the shell and is wrapped in
+`eval_js_once()` under the assumption "this only renders once" is suspect -
+`main_content` is Box's own span, so the whole shell can legitimately be
+replaced mid-session. Prefer `eval_js()` + a client-side idempotency marker
+on the target element over `eval_js_once()`'s server-side "sent once ever"
+gate for anything touching shell chrome, not just the four scripts fixed
+here - the same trap will reproduce for any *new* one-time shell script
+written the old way.
+

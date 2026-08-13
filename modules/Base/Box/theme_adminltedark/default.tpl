@@ -30,11 +30,29 @@
 	// :root sees every element in the document, .epesi-adminlte's descendants
 	// included, so declaring the variables there (see this theme's default.css)
 	// instead costs nothing for the shell itself.
-	eval_js_once(
+	//
+	// eval_js() (runs every render), not eval_js_once(): Base_Box's own output
+	// is itself sent under a single span ('main_content', Epesi::go()) like any
+	// other module's - whenever that whole rendered string changes (e.g.
+	// $moduleindicator's text differs across a plain cross-module navigation),
+	// the ENTIRE shell, #top_bar/#ActionBar included, is torn down and
+	// replaced by a fresh DOM subtree, same as {$main}. That can happen many
+	// times per session, not just once - an eval_js_once()-guarded watch()
+	// (as this used to be) only ever attaches on the very first such replace;
+	// every later one leaves the ResizeObserver bound to the old, now-detached
+	// nodes, so the height vars silently stop tracking and the fixed bars can
+	// end up mis-sized against real content (reported as an "invisible
+	// toolbar" on mobile, where the navbar's own height is most likely to
+	// actually change between screens). The el.__epesiHeightWatched marker
+	// keeps this idempotent per DOM node so the (far more common) requests
+	// where the shell ISN'T replaced don't pile up duplicate observers on the
+	// same still-alive #top_bar/#ActionBar.
+	eval_js(
 		"(function(){".
 			"var wrap=document.documentElement;".
 			"function watch(el,prop){".
-				"if(!el)return;".
+				"if(!el||el.__epesiHeightWatched)return;".
+				"el.__epesiHeightWatched=true;".
 				"var sync=function(){wrap.style.setProperty(prop,el.offsetHeight+'px');};".
 				"sync();".
 				"if(window.ResizeObserver)new ResizeObserver(sync).observe(el);".
@@ -71,10 +89,18 @@
 	// event GenericBrowser tables rely on - watching the node itself is
 	// mechanism-agnostic, so this reacts correctly regardless of exactly how
 	// the update happened.
-	eval_js_once(
+	//
+	// eval_js(), guarded by bar.__epesiEmptyWatched rather than eval_js_once():
+	// #ActionBar is itself part of Base_Box's own 'main_content'-spanned
+	// output, so it can be replaced by a fresh node whenever the shell
+	// re-renders (see the --epesi-header-height watch() above for why that's
+	// not actually a once-per-session event) - a session-scoped eval_js_once()
+	// left every #ActionBar past the first with no observer at all.
+	eval_js(
 		"(function(){".
 			"var bar=document.getElementById('ActionBar');".
-			"if(!bar)return;".
+			"if(!bar||bar.__epesiEmptyWatched)return;".
+			"bar.__epesiEmptyWatched=true;".
 			"function sync(){".
 				"var hasAction=!!bar.querySelector('.epesi-actionbar-group:not(.epesi-actionbar-launcher-group) .epesi-actionbar-btn');".
 				"document.body.classList.toggle('epesi-actionbar-empty',!hasAction);".
@@ -88,16 +114,21 @@
 	// stays open (body.sidebar-open) across a menu-driven navigation until
 	// the user explicitly closes it - since navigating IS what they were
 	// trying to do, closing it automatically here saves that extra tap.
-	// Delegated on #MenuBar (Base_Menu::build_menu_html()'s own wrapper, not
-	// re-rendered by ordinary AJAX navigation) rather than bound per-link, so
-	// this doesn't need to be re-attached after anything. Excludes
+	// Delegated on #MenuBar (Base_Menu::build_menu_html()'s own wrapper)
+	// rather than bound per-link, so individual menu links don't each need
+	// their own listener. #MenuBar is still part of Base_Box's own shell
+	// output though (see the --epesi-header-height watch() above), so it CAN
+	// be swapped for a fresh node mid-session - eval_js() + the
+	// bar.__epesiCloseBound marker re-binds on a new node exactly once
+	// instead of assuming (wrongly) the original one lives forever. Excludes
 	// a.menu-parent (data-bs-toggle="collapse" submenu headers - clicking one
 	// only expands/collapses a submenu, no navigation happens, so the sidebar
 	// shouldn't close).
-	eval_js_once(
+	eval_js(
 		"(function(){".
 			"var bar=document.getElementById('MenuBar');".
-			"if(!bar)return;".
+			"if(!bar||bar.__epesiCloseBound)return;".
+			"bar.__epesiCloseBound=true;".
 			"bar.addEventListener('click',function(e){".
 				"var a=e.target.closest('a.nav-link:not(.menu-parent)');".
 				"if(!a)return;".
@@ -116,9 +147,24 @@
 	// .logged_as joined it later). A DOM relocation since Base_Box can't
 	// address either half separately through the container system - moving
 	// the actual nodes post-render is the only way to send them somewhere
-	// else. Runs once - the navbar/sidebar footer are shell chrome, not
-	// re-rendered by ordinary AJAX navigation (only #main_content swaps), so
-	// the moved nodes stay moved. Order matters: logout is inserted at
+	// else.
+	//
+	// eval_js() every render, not eval_js_once(): the navbar/sidebar footer
+	// are NOT shell-chrome-that-never-changes - they're part of Base_Box's own
+	// 'main_content'-spanned output (Epesi::go()), which gets wholesale
+	// replaced with a fresh DOM subtree any time that output's rendered text
+	// differs from the last time it was sent this session (routinely true on
+	// an ordinary cross-module navigation, since e.g. $moduleindicator's text
+	// changes too - see the --epesi-header-height watch() above for the same
+	// reasoning in more detail). A one-time eval_js_once() here only ever
+	// relocates the VERY FIRST {$login} pair rendered this session; every
+	// later shell replace inserts a brand new, not-yet-moved
+	// .logged_as/.logout_css3_box pair that this script never touches again
+	// (the server considers the JS itself already "sent"), leaving Logout
+	// stuck inline in the navbar - reported as "Logout starts appearing in
+	// the navbar" after viewing a second record. Re-running this on an
+	// already-relocated pair is a harmless no-op (re-inserting a node at the
+	// position it's already in). Order matters: logout is inserted at
 	// footer.firstChild first (landing ahead of the color-mode toggle
 	// already there), then .logged_as is inserted at the new firstChild
 	// (landing ahead of logout) - final order is logged_as, logout, toggle.
@@ -127,7 +173,7 @@
 	// and Base_Box's own default.css for the .sidebar-footer layout rules
 	// (flex-wrap + .logged_as's own flex-basis:100%) that put .logged_as on
 	// its own line above logout/the toggle.
-	eval_js_once(
+	eval_js(
 		"(function(){".
 			"var login=document.querySelector('.logged_as');".
 			"var logout=document.querySelector('.logout_css3_box');".
