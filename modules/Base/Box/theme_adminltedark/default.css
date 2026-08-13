@@ -397,6 +397,51 @@ body {
 	color: #000;
 }
 
+/* ---- alert / confirm modal chrome ---- */
+
+/* Module::inject_alert_modal()'s shared #epesi_alert_modal (every Epesi::alert()
+   call app-wide, e.g. Premium_PriorityListCommon's "list is full" warning) and
+   inject_confirm_modal()'s shared #epesi_confirm_modal (every create_confirm_href()/
+   epesi_confirm() call, e.g. Premium_PriorityList's remove-item confirm) - same
+   fixed light grey/black scheme as .app-sidebar above and Libs_Leightbox's
+   #Leightbox_header/#tooltip_leightbox_mode, per request, rather than following
+   the shell's per-theme surface color. Only the chrome (background/text/border/
+   close icon) is touched - the confirm modal's question/warning icon and OK
+   button keep their existing blue/red (danger) colors, that's a meaningful signal
+   independent of this fixed-grey chrome. ID selectors already outrank the plain
+   ".modal-content" class rule that sets background-color/color from
+   --bs-modal-bg/--bs-modal-color, so no !important needed here. */
+#epesi_alert_modal .modal-content,
+#epesi_confirm_modal .modal-content {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+#epesi_alert_modal .modal-header,
+#epesi_alert_modal .modal-footer,
+#epesi_confirm_modal .modal-header,
+#epesi_confirm_modal .modal-footer {
+	/* Bootstrap's own border-color (--bs-border-color) tracks the ambient
+	   dark-mode palette (light-on-dark) - invisible against this modal's own
+	   fixed light grey background, so pinned to the same light divider value
+	   CRM_Followup/theme_adminltedark/leightbox.css already uses on this
+	   palette (.epesi-followup-control select/textarea's own border-color). */
+	border-color: #ced4da;
+}
+
+/* Bootstrap's close-icon SVG is recolored via this custom property under
+   [data-bs-theme=dark] (invert(1) grayscale(100%) brightness(200%)) - normally
+   correct (white icon on a dark modal), but this modal's background is always
+   the fixed light grey above regardless of theme, so the inverted (white) icon
+   would go invisible on it. Reset directly on the element it's actually used by
+   (filter:var(--bs-btn-close-filter) on .btn-close itself) rather than relying
+   on specificity - a same-element declaration always wins over one inherited
+   from a [data-bs-theme=dark] ancestor, no !important tie to worry about. */
+#epesi_alert_modal .btn-close,
+#epesi_confirm_modal .btn-close {
+	--bs-btn-close-filter: none;
+}
+
 /* ---- main column ---- */
 
 .epesi-adminlte .app-main {
