@@ -198,9 +198,9 @@ class CRM_ContactsCommon extends ModuleCommon {
         if (!isset($field['display_callback'])) $field['display_callback'] = array('CRM_ContactsCommon', 'display_contact');
         $field['type'] = $field['param']['field_type'];
         $param = 'contact::Last Name|First Name';
-        if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
-        else $param .= ';::';
         if (isset($field['param']['crits'])) $param .= ';'.implode('::',$field['param']['crits']);
+        else $param .= ';::';
+        if (isset($field['param']['format'])) $param .= ';'.implode('::',$field['param']['format']);
         else $param .= ';::';
         $field['param'] = $param;
         return $field;
@@ -353,8 +353,8 @@ class CRM_ContactsCommon extends ModuleCommon {
         $def = '';
         $first = true;
         $param = @explode(';',$desc['param']);
-        if (!isset($param[1]) || $param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-        else $callback = explode('::', $param[1]);
+        if (!isset($param[2]) || $param[2] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+        else $callback = explode('::', $param[2]);
         if (!is_array($v)) $v = array($v);
         foreach($v as $k=>$w){
             if ($w=='') break;
@@ -548,10 +548,10 @@ class CRM_ContactsCommon extends ModuleCommon {
         $param = explode(';',$desc['param']);
         if ($mode=='add' || $mode=='edit') {
             $adv_crits = null;
-            if (!isset($param[1]) || $param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-            else $callback = explode('::', $param[1]);
-            if (isset($param[2]) && $param[2] != '::') {
-                $crit_callback = explode('::',$param[2]);
+            if (!isset($param[2]) || $param[2] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+            else $callback = explode('::', $param[2]);
+            if (isset($param[1]) && $param[1] != '::') {
+                $crit_callback = explode('::',$param[1]);
                 if ($crit_callback[0]=='ChainedSelect') {
                     $crits = null;
                 } elseif (is_callable($crit_callback)) {
@@ -613,7 +613,7 @@ class CRM_ContactsCommon extends ModuleCommon {
                 }
             }
             $form->setDefaults(array($field=>$default));
-            if (isset($param[2]) && $param[2] != '::')
+            if (isset($param[1]) && $param[1] != '::')
                 if ($crit_callback[0]=='ChainedSelect') {
                     if ($form->exportValue($field)) $default = $form->exportValue($field);
                     self::contacts_chainedselect_crits($default, $desc, $callback, $crit_callback[1]);
@@ -1403,8 +1403,8 @@ class CRM_ContactsCommon extends ModuleCommon {
 		$first = true;
 		$param = explode(';',$desc['param']);
 		if (!is_array($v) && !is_numeric($v)) return $v;
-		if ($param[1] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
-		else $callback = explode('::', $param[1]);
+		if (!isset($param[2]) || $param[2] == '::') $callback = array('CRM_ContactsCommon', 'contact_format_default');
+		else $callback = explode('::', $param[2]);
 		if (!is_array($v)) $v = array($v);
 		foreach($v as $k=>$w){
 			if ($w=='') break;

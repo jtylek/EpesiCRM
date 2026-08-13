@@ -182,8 +182,15 @@ class Utils_RecordBrowser_Filters extends Module {
 					$select_options = array();
 		
 					$param = Utils_RecordBrowserCommon::decode_select_param($desc['param']);
-					$multi_adv_params = Utils_RecordBrowserCommon::call_select_adv_params_callback($param['adv_params_callback']);
-					$format_callback = $multi_adv_params['format_callback'];
+					if ($param['single_tab'] == 'contact') {
+						// crm_contact fields encode a direct record-format callback in this slot
+						// (see CRM_ContactsCommon::crm_contact_datatype()), not an adv-params
+						// callback to invoke for a config array - use it as the format callback as-is.
+						$format_callback = is_callable($param['adv_params_callback']) ? $param['adv_params_callback'] : array('CRM_ContactsCommon', 'contact_format_default');
+					} else {
+						$multi_adv_params = Utils_RecordBrowserCommon::call_select_adv_params_callback($param['adv_params_callback']);
+						$format_callback = $multi_adv_params['format_callback'];
+					}
 		
 					if ($param['single_tab'] == '__COMMON__') {
 						if (empty($param['array_id'])) continue 2;
@@ -202,20 +209,7 @@ class Utils_RecordBrowser_Filters extends Module {
 							Utils_RecordBrowserCommon::check_table_name($param['single_tab']);
 							
 							$tab = $param['single_tab'];
-							
-							//--->temporary use to cover bug in CRM_Contacts module where crits and adv_param_callbacks are in reversed order
-							if ($tab == 'contact' && $this->rb_obj->get_QFfield_callback($filter_name) == 'CRM_ContactsCommon::QFfield_contact') {
-								$crits_callback = $param['adv_params_callback'];
-								$param['adv_params_callback'] = $param['crits_callback'];
-								$param['crits_callback'] = $crits_callback;
-								$multi_adv_params = Utils_RecordBrowserCommon::call_select_adv_params_callback($param['adv_params_callback']);
-								$format_callback = $multi_adv_params['format_callback'];
-								if (is_callable($crits_callback)) {
-									$crits = call_user_func($crits_callback, false);
-								}
-							}
-							///--->end temporary use. to be removed when bug fixed
-							
+
 							$crits = is_array($crits) && isset($crits[$tab]) ? $crits[$tab] : $crits; //in case tab_crits
 							
 							$qty = Utils_RecordBrowserCommon::get_records_count($tab, $crits);
