@@ -1,0 +1,95 @@
+{
+    "name":         "behat/gherkin",
+    "description":  "Gherkin DSL parser for PHP",
+    "keywords":     ["BDD", "parser", "DSL", "Behat", "Gherkin", "Cucumber"],
+    "homepage":     "https://behat.org/",
+    "type":         "library",
+    "license":      "MIT",
+    "authors":      [
+        {
+            "name":      "Konstantin Kudryashov",
+            "email":     "ever.zet@gmail.com",
+            "homepage":  "https://everzet.com"
+        }
+    ],
+
+    "require": {
+        "php": ">=8.1 <8.6",
+        "composer-runtime-api": "^2.2"
+    },
+
+    "require-dev": {
+        "symfony/yaml": "^5.4 || ^6.4 || ^7.0",
+        "phpunit/phpunit": "^10.5",
+        "cucumber/gherkin-monorepo": "dev-gherkin-v39.1.0",
+        "friendsofphp/php-cs-fixer": "^3.77",
+        "phpstan/phpstan": "^2",
+        "phpstan/extension-installer": "^1",
+        "phpstan/phpstan-phpunit": "^2",
+        "mikey179/vfsstream": "^1.6"
+    },
+
+    "suggest": {
+        "symfony/yaml": "If you want to parse features, represented in YAML files"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Behat\\Gherkin\\": "src/"
+        }
+    },
+
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Behat\\Gherkin\\": "tests/"
+        }
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "4.x-dev"
+        }
+    },
+
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "cucumber/gherkin-monorepo",
+                "version": "dev-gherkin-v39.1.0",
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/cucumber/gherkin.git",
+                    "reference": "bd7c07eff3d697200e20bdbe9e493fcf07340094"
+                },
+                "dist": {
+                    "type": "zip",
+                    "url": "https://api.github.com/repos/cucumber/gherkin/zipball/bd7c07eff3d697200e20bdbe9e493fcf07340094",
+                    "reference": "bd7c07eff3d697200e20bdbe9e493fcf07340094"
+                }
+            }
+        }
+    ],
+
+    "scripts": {
+        "lint": [
+            "phpstan analyze --ansi --no-progress --memory-limit=-1",
+            "phpstan analyze bin/update_cucumber --ansi --no-progress --memory-limit=-1",
+            "phpstan analyze bin/update_i18n --ansi --no-progress --memory-limit=-1",
+            "php-cs-fixer check --diff --ansi --show-progress=dots --verbose"
+        ],
+        "test": [
+            "phpunit --colors=always"
+        ],
+        "fix": [
+            "php-cs-fixer fix --diff --ansi --show-progress=dots"
+        ]
+    },
+
+    "config": {
+        "process-timeout": 0,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    }
+}
