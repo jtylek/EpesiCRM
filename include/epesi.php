@@ -99,7 +99,33 @@ class Epesi {
 		self::$jses = array();
 		self::$load_jses = array();
 	}
-	
+
+	// load_js()/load_css() mark a URL as sent in $_SESSION the instant they're
+	// called, before the response is actually flushed to the client - correct
+	// for the normal get_output() path (clean() only runs after $ret already
+	// captured the queued Epesi.load_js()/load_css() calls), but wrong for an
+	// abort: if a fatal error elsewhere in the same request reaches
+	// ErrorHandler::notify_client(), it discards everything queued so far and
+	// sends only the error alert - any load_js()/load_css() calls already made
+	// this request are silently dropped without ever reaching the browser,
+	// while the session still thinks they were delivered. Every later render
+	// of that same field/module (same client session) then skips re-queuing
+	// the script/stylesheet load but still runs code that depends on it -
+	// e.g. HTML_QuickForm_autocomplete's eval_js('new EpesiAutocompleter(...)')
+	// throwing "EpesiAutocompleter is not defined" forever after, since
+	// autocomplete.js never actually loaded. Release the pending URLs' session
+	// flags before discarding so the next request retries them.
+	public final static function discard() {
+		foreach (self::$load_jses as $urls)
+			foreach ($urls as $u)
+				unset($_SESSION['client']['__loaded_jses__'][$u]);
+		foreach (self::$load_csses as $urls)
+			foreach ($urls as $u)
+				unset($_SESSION['client']['__loaded_csses__'][$u]);
+		self::$load_csses = array();
+		self::clean();
+	}
+
 	public final static function load_js($u,$loader=null) {
 		if(!is_string($u) || strlen($u)==0) return false;
 		if (!isset($_SESSION['client']['__loaded_jses__'][$u])) {

@@ -1012,6 +1012,49 @@ no-op re-run, correct on a fresh node. The relocation script needed no such
 guard: re-inserting an already-relocated node at the position it's already
 in is a harmless no-op.
 
+## `load_js()`'s "already sent" session flag is set before the response is actually flushed
+
+Found 2026-08-13 as a live `Uncaught ReferenceError: EpesiAutocompleter is
+not defined` on an autocomplete field. Same family as the `eval_js_once()`
+entry just above - server-side, per-client-session "don't resend this asset"
+bookkeeping that isn't actually tied to the asset having reached the
+browser - but triggered by request *abortion* rather than DOM re-render
+frequency.
+
+**Root cause**: `Epesi::load_js()`/`load_css()` (`include/epesi.php`) write
+`$_SESSION['client']['__loaded_jses__'][$u] = true` the instant they're
+called, then queue the actual `Epesi.load_js(...)` call into an in-memory
+array that only gets embedded into the response string later, inside
+`get_output()`. That's fine on the normal path - `get_output()` reads the
+queued calls into `$ret` *before* calling `clean()`. But
+`ErrorHandler::notify_client()` (`include/error.php`), reached whenever a
+fatal error/uncaught exception occurs anywhere else in the same request,
+calls `Epesi::clean()` directly to discard everything queued so far and
+replaces the response with just the error alert - silently dropping any
+`load_js()`/`load_css()` calls already made this request without ever
+sending them, while the session flag they set remains. `HTML_QuickForm_autocomplete::toHtml()`
+calls `load_js('.../autocomplete.js')` then unconditionally
+`eval_js('new EpesiAutocompleter(...)')` on every render; once the session
+flag is stuck "loaded" without the file ever having reached the browser,
+every later render of that field (same client/tab, until a full page reload
+issues a fresh client id) skips re-queuing the script but still runs the
+`eval_js()` that depends on it - permanent `ReferenceError` for the rest of
+that tab's session, triggered by a one-time, possibly unrelated fatal error
+earlier in some other request.
+
+**Fix**: added `Epesi::discard()`, which releases the session flags for
+whatever's still pending in `self::$load_jses`/`$load_csses` before calling
+`clean()`; `ErrorHandler::notify_client()` now calls that instead of
+`Epesi::clean()` directly. Only the abort path changed - the normal
+`get_output()` flush still uses plain `clean()`, since by that point the
+queued calls are already captured in the returned string.
+
+**How to apply**: any code that discards `Epesi`'s queued-but-not-yet-flushed
+output (calling `Epesi::clean()`, or reimplementing the same "wipe and
+replace" shape) needs to release the matching session flags first, not just
+in `error.php`'s already-fixed call site - the same leak would reproduce
+anywhere else that pattern gets added.
+
 **How to apply**: any script in a `theme_adminltedark`/`theme_adminlte`
 shell template (`Base_Box`'s own `default.tpl`, or any other file whose
 `{php}` block runs as part of the *root* module's `body()`) that does
@@ -1023,4 +1066,79 @@ on the target element over `eval_js_once()`'s server-side "sent once ever"
 gate for anything touching shell chrome, not just the four scripts fixed
 here - the same trap will reproduce for any *new* one-time shell script
 written the old way.
+
+## Watchdog "type label" callback indexes a record that doesn't exist for the generic (no-`$rid`) call
+
+Found 2026-08-13, first real-world hit after pulling `jtylek/epesi`'s `jasiek`
+branch fresh and loading the Dashboard: **blank page**, nothing in
+`data/logs/php_errors.log` beyond a single `E_WARNING`. `Base_Dashboard`'s
+Watchdog applet-settings path (`Dashboard_0.php:569` `get_default_values()` →
+`applet_settings()`) calls every module's `*_watchdog_label($rid = null, ...)`
+callback with **no `$rid`**, purely to get the generic display name for the
+"what to watch" picker - not for any specific record.
+`Premium_KnowledgeBase_Thread::thread_watchdog_label()`
+(`modules/Premium/KnowledgeBase/Thread.php:143-146`) doesn't account for this:
+it unconditionally calls `Utils_RecordBrowserCommon::get_record(...,$rid)`
+(returns `null`/`false` when `$rid` is `null`) then immediately does
+`$record['category']` to run a category-ACL check via
+`Premium_KnowledgeBase_Category::check_permission()`. Under PHP 8 that's
+`E_WARNING: Trying to access array offset on value of type null` - and since
+`REPORT_ALL_ERRORS` is on for this instance (see `CLAUDE.md`'s Error handling
+section, [[environment-gotchas]]), the *first* warning anywhere blanks the
+whole rendered output, not just that one applet. Sibling `*_watchdog_label`
+implementations (`ContactsCommon_0.php`'s `contact_watchdog_label`/
+`company_watchdog_label`) don't hit this at all - they have no per-record
+permission gate to begin with, so they're safe to call with `$rid = null`.
+KnowledgeBase's category-ACL check is genuinely needed for *real* per-record
+calls (hiding watchdog event labels for threads in categories the viewer
+can't see), just not written to tolerate the record-less generic call.
+
+**Fix**: `if($record && !Premium_KnowledgeBase_Category::check_permission($record['category'])) return;`
+- skip the ACL check entirely when there's no record to check (the generic/
+`$rid === null` case), keep it for real per-record calls.
+
+**How to apply**: any `*_watchdog_label()` implementation that does its own
+extra permission/lookup work beyond delegating straight to
+`Utils_RecordBrowserCommon::watchdog_label()` needs to explicitly handle
+`$rid === null` / a not-found record, since the Dashboard's applet-settings
+UI calls every registered watchdog-label callback that way on every load
+whether or not the module has any records at all. A blank page with exactly
+one `E_WARNING` in the log and no fatal is the signature of this whole class
+of bug under `REPORT_ALL_ERRORS` - check the warning's own file/line first,
+it's almost always an unguarded array/property access, not a real crash.
+
+## Legacy-format access-rule crits with non-string keys: a PHP 7.4→8.2 migration artifact, not a fresh bug
+
+Found 2026-08-13 via the error-log monitor during the PHP 7.4→8.2/data migration, on
+a `premium_invoice_customer_templates` ACL rule - not scoped to that one table, just
+the first one whose data happened to trip it.
+
+`Utils_RecordBrowser_Access::getRuleCrits()` → `parseAccessCrits()` unserializes each
+access rule's stored `crits` DB column and, if not already an object, hands the raw
+array to `Utils_RecordBrowser_CritsBuilder::build_from_array()`/`build_single()`
+(`Crits.php`). Both methods `foreach` over the array expecting **every key to be a
+field-name string** (with optional leading modifier chars: `!`/`"`/`<`/`>`/`~`/`(`/
+`|`/`^`) and immediately index `$k[0]` to read the first modifier char. One stored
+rule's crits unserialized to a plain **indexed** array (`[0 => "customer"]` -
+`a:1:{i:0;s:8:"customer";}`) instead of the expected `['field' => value]` shape - a
+legacy/malformed data shape that PHP 7.4 tolerated silently (`$k[0]` on an int key
+just evaluated to `null`, no notice) but PHP 8.2 flags as `E_WARNING: Trying to
+access array offset on value of type int`, tripping `REPORT_ALL_ERRORS` and blanking
+the whole module.
+
+**Fix**: added `if (!is_string($k)) continue;` in both `build_from_array()`'s and
+`build_single()`'s per-key loop (right after `build_single()`'s existing
+`CritsInterface` instanceof check, which already legitimately uses non-string keys
+for plain indexed arrays of sub-`Crits` objects) - skip the malformed entry rather
+than warn, deliberately not touching the underlying stored data since altering ACL
+rule rows isn't a call to make unprompted.
+
+**How to apply**: this is a specific instance of a general migration-era shape worth
+watching for anywhere old serialized/array-shaped data reaches PHP 8 code that
+indexes into a key or value without checking its type first - PHP 7.4's looser
+type-juggling silently absorbed shapes that 8.2 warns on. If another table's access
+rules (or any other `unserialize()`-fed array consumer) throws a similar "access
+offset on value of type int/bool" warning, suspect old/malformed stored data before
+assuming fresh code introduced the bug - and prefer a defensive skip over "fixing"
+the data directly unless the data's correct shape is actually known.
 

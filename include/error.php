@@ -25,7 +25,7 @@ class ErrorHandler {
 
 		if(JS_OUTPUT && class_exists('Epesi')) {
 			chdir(dirname(__FILE__, 2));
-			Epesi::clean();
+			Epesi::discard();
 			if(DISPLAY_ERRORS) {
 				Epesi::js("document.getElementById('debug_content').style.display='block';");
 				Epesi::text('<pre>' . $buffer . '</pre><hr>','error_box','prepend');

@@ -18,6 +18,11 @@
   access-control hardening pass; Smarty 2 gotchas hit doing this work.
 - [legacy-js-migration.md](legacy-js-migration.md) — Prototype.js/
   script.aculo.us/old-jQuery inventory, elimination plan, and progress so far.
+  Step 7 (2026-08-13): `modules/Premium/` was the whole migration's actual
+  blind spot — gitignored, so every "zero callers remain" grep-based claim in
+  steps 1-6 silently never checked it. 13 real leftover call sites found and
+  fixed, plus a second undetected bug class (`$(id).property` raw-DOM access
+  broken by `$` now meaning jQuery).
 - [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — planned CKEditor→
   Quill swap (MIT vs. non-MIT license, retiring an old dependency): verified scope (4
   call sites, one shared element/lifecycle-JS), the HTML-vs-Delta storage decision,
@@ -32,12 +37,21 @@
 - [bug-patterns.md](bug-patterns.md) — already-fixed bugs whose root-cause
   shape (raw-record-vs-form-submission, strtotime() date parsing, settings
   override chains, legacy-theme `<select>` sizing across four stacked CSS
-  bugs, a shared timeout/timer applied to a context it wasn't tuned for) is
-  likely to recur elsewhere; plus one still-open bug (Shoutbox delete UI).
+  bugs, a shared timeout/timer applied to a context it wasn't tuned for, a
+  `*_watchdog_label()` callback indexing a record that doesn't exist for the
+  generic no-`$rid` call, `eval_js_once()`'s session-wide dedup assuming a
+  shell template renders once when it doesn't, `load_js()`'s "already sent"
+  session flag surviving a request abort that never actually delivered the
+  asset) is likely to recur elsewhere; plus one still-open bug (Shoutbox
+  delete UI).
 - [environment-gotchas.md](environment-gotchas.md) — DB/server issues that
   looked like application bugs (CLI scripts hitting the live DB, silent ADOdb
   failures from `max_allowed_packet`, MariaDB manifest corruption, access.log
-  vs error.log, outbound SMTP port 25 blocked from this machine).
+  vs error.log, outbound SMTP port 25 blocked from this machine, hardcoded
+  `EPESI_URL` redirecting off `localhost` to the real production domain,
+  stale `data/cache/` after a wholesale code swap, clearing logs before a
+  migration pass, this machine's broken port-443 SSL vhost causing
+  browser-side http→https auto-upgrade to look like a 403).
 - [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
   developer's machine (app error log, php.ini error_log, Apache error/access.log,
   noise filters, dedicated-window habit). Log paths/config vary per machine/dev —
