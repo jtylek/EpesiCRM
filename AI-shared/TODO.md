@@ -10,6 +10,37 @@ it was fixed, rather than leaving it lingering in "Open".
 
 ## Open
 
+- **2026-08-13 — Consider switching the JS minifier from `JSMin` to the already-vendored
+  `JSMinPlus`.** `libs/minify/JSMin.php` (Douglas Crockford's classic char-by-char
+  minifier, wired as the default JS minifier in
+  `libs/minify/Minify/Controller/Base.php:74`) had a real correctness bug: its
+  "collapse a trailing space" shortcut decides to drop a space without knowing what
+  comes after it, so `+ ++x` / `- --x` (e.g. jQuery UI's `uniqueId()`: `"ui-id-"+
+  ++n`) collapsed into `+++x`/`---x` — a hard JS syntax error (`Invalid left-hand
+  side expression in postfix operation`), which broke the *entire* combined JS
+  bundle's execution app-wide. Patched surgically in `JSMin.php` (preserve the space
+  when it would otherwise merge two `+` or two `-` into the wrong token) —
+  correctness-safe, but as a narrow patch on a heuristic char-based state machine, it
+  can't rule out other undiscovered edge cases in the same family.
+
+  This codebase already vendors a better one, unused: **`libs/minify/JSMinPlus.php`**,
+  sitting right next to JSMin. It's a real JS parser (ported from Mozilla's Narcissus
+  engine), not a character-adjacency heuristic — this whole *class* of bug is
+  structurally impossible there, since it emits based on actual parsed tokens. Same
+  static `::minify($js)` interface as JSMin, so rebinding
+  `Minify/Controller/Base.php:74` (`Minify::TYPE_JS => array('JSMin', 'minify')` →
+  `array('JSMinPlus', 'minify')`) is mechanically a one-line swap.
+
+  **Not implemented**: swapping the app's default minifier is a much bigger blast
+  radius than the one-method JSMin patch — JSMinPlus is a stricter, ~2009-era parser,
+  and every JS file the app ever serves through `serve.php` would need to parse
+  clean under it before trusting it in production. Not verified broadly; the
+  immediate crash is already fixed via the narrow JSMin patch instead.
+
+  **Fix direction**: rebind `TYPE_JS` to `JSMinPlus` in a branch/dev instance, then
+  exercise every module that loads its own JS (not just the shared bundle) to check
+  none of it throws or gets mis-minified before rolling it out as the default.
+
 - **2026-08-06 — jQuery 1.11.3 → current upgrade deferred.** Step 6 (stretch)
   of the Prototype removal plan (`AI-shared/legacy-js-migration.md`) — steps
   1-5 are done as of 2026-08-06 (prototype.js and script.aculo.us fully

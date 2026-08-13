@@ -1947,6 +1947,66 @@ all verified 200 with zero console errors via a real browser, with `FORCE_CACHE_
 
 ---
 
+### §67 — `JSMin` space-collapse bug broke the entire shared JS bundle (`+ ++x` → `+++x`) (2026-08-13)
+
+**Why (Jasiek).** Immediately after §66, Chrome incognito showed a blank white page (non-incognito windows
+loaded fine, masking this via aggressive `serve.php` caching — see below). Console showed
+`serve.php:9 Uncaught SyntaxError: Invalid left-hand side expression in postfix operation`, then
+`Uncaught ReferenceError: Epesi is not defined` — the second error is just fallout from the first: the
+combined `serve.php` JS bundle (`jquery` + `jquery-migrate` + `jquery-ui` + `HistoryKeeper` + `include/epesi.js`)
+failed to parse at all, so `window.Epesi` (defined inside it) never existed by the time `init_js.php`'s
+`Epesi.init(...)` ran.
+
+**Root cause.** `MINIFY_SOURCES` (on in this install's `data/config.php`, independent of `FORCE_CACHE_COMMON_FILES`)
+runs the combined bundle through `libs/minify/JSMin.php`
+([Minify/Controller/Base.php:74](libs/minify/Minify/Controller/Base.php) wires `Minify::TYPE_JS` to
+`JSMin::minify`) — a straight PHP port of Crockford's classic char-by-char jsmin.c. jQuery UI's
+`uniqueId()` contains `this.id="ui-id-"+ ++n` — string concat (`+`) with a pre-incremented `n` (`++n`), the
+space required to keep `+` and `++` as separate tokens. JSMin's minifier has a **long-standing, well-known
+limitation** here: its "collapse a trailing space" shortcut
+([JSMin.php, the `elseif (! $this->isAlphaNum($this->a))` branch](libs/minify/JSMin.php)) decides to drop a
+space based only on the token *before* it, without any lookahead to what follows — so it collapsed
+`+ ++n` to `+++n`. Retokenized, `"ui-id-"+++n` is `"ui-id-"`, `++`, `+n` — a postfix `++` applied to a
+string literal, which V8 rejects outright as `Invalid left-hand side expression in postfix operation`.
+Confirmed the vendored `libs/jquery-ui-1.10.1.custom.min.js` source is correct as shipped (has the space);
+JSMin introduces the bug at request time, only when (re-)minifying.
+
+**Why it surfaced now, not earlier:** `serve.php` sends `Cache-Control: max-age=31536000` and Minify has its
+own on-disk cache (`data/cache/minify/`) keyed off the request's minify options — today's `MINIFY_ENCODE`
+toggling (§ this session) forced a fresh minification pass that (deterministically) hit this bug for the
+first time in this install; a browser profile that already had this exact bundle URL cached from before kept
+loading the old, unaffected copy, which is why non-incognito windows (and this session's own curl/Playwright
+checks, which never actually parsed the JS as JS) appeared fine while a cache-free incognito window didn't.
+
+**Fix.** Two coordinated changes in `JSMin::min()`'s state machine ([libs/minify/JSMin.php](libs/minify/JSMin.php)):
+1. The `$this->a === ' '` branch (deciding whether to drop a space that's already `$a`) now also checks
+   whether the last emitted output char and the upcoming `$b` are both `+` or both `-`, and keeps the space
+   if so.
+2. That alone wasn't sufficient — the *actual* code path that ate this specific space was a different
+   shortcut (`elseif (! $this->isAlphaNum($this->a))`, when `$a` is punctuation and `$b` is a space): it
+   skips the space via lookahead **before ever seeing what follows it**, without promoting the space to `$a`
+   at all, bypassing fix (1) entirely. Excluded `$a === '+'`/`'-'` from that shortcut so the space is instead
+   handled character-by-character through fix (1), which can see far enough ahead to decide correctly.
+   Traced and confirmed both changes together are necessary via an isolated `JSMin::minify()` repro before
+   touching the live bundle. **Tradeoff:** conservative by design — also keeps the space in the ordinary safe
+   case `a + b` → `a+ b` (a few bytes less compression), since a true fix would need two-character lookahead
+   past the space, a larger change to this state machine than justified for a size-only optimization.
+
+**Not done:** this codebase already vendors a structurally better minifier, unused —
+`libs/minify/JSMinPlus.php`, a real JS parser (ported from Mozilla's Narcissus engine) where this whole bug
+*class* can't occur, since it emits from parsed tokens rather than character adjacency. Same static
+`::minify()` interface, so rebinding `Minify::TYPE_JS` to it is mechanically a one-line change — deferred as
+a separate, properly-tested follow-up (stricter parser, needs a broad regression pass across every JS file the
+app serves before trusting it as the default) rather than folded into this incident fix. Tracked in
+[AI-shared/TODO.md](../AI-shared/TODO.md).
+
+**Verify:** isolated `JSMin::minify()` repro confirms `+ ++n`, `- --b`, and plain `a+b`/`a + b` all round-trip
+correctly; regenerated `data/cache/minify/*` bundle passes `node --check`; full page load verified clean
+(zero console errors, all requests 200) in a fresh/incognito-equivalent browser context.
+**STATUS: fixed and verified working.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

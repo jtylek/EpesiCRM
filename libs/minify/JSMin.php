@@ -100,7 +100,14 @@ class JSMin {
             // determine next command
             $command = self::ACTION_KEEP_A; // default
             if ($this->a === ' ') {
-                if (! $this->isAlphaNum($this->b)) {
+                // Deleting this space is unsafe if the char already emitted and $b
+                // are both '+' or both '-': collapsing "+ ++x" / "- --x" merges them
+                // into "+++x" / "---x", which retokenizes as a postfix ++/-- on
+                // whatever precedes it instead of two separate unary/binary operators.
+                $prev = substr($this->output, -1);
+                $mergesOperator = ($this->b === '+' && $prev === '+')
+                    || ($this->b === '-' && $prev === '-');
+                if (! $this->isAlphaNum($this->b) && ! $mergesOperator) {
                     $command = self::ACTION_DELETE_A;
                 }
             } elseif ($this->a === "\n") {
@@ -111,8 +118,12 @@ class JSMin {
                     $command = self::ACTION_DELETE_A;
                 }
             } elseif (! $this->isAlphaNum($this->a)) {
-                if ($this->b === ' '
-                    || ($this->b === "\n" 
+                // Don't take the "drop trailing space" shortcut for +/-: it discards
+                // the space before seeing what follows it, so it can't tell whether
+                // the next real char is also +/- (which would need the space kept,
+                // per the ACTION_KEEP_A/'$this->a === '' '" branch above).
+                if (($this->b === ' ' && $this->a !== '+' && $this->a !== '-')
+                    || ($this->b === "\n"
                         && (false === strpos('}])+-"\'', $this->a)))) {
                     $command = self::ACTION_DELETE_A_B;
                 }
