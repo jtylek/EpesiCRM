@@ -46,8 +46,8 @@ if (isset($_GET['f'])) {
 		require_once('include/config.php');
         
 		$cache_dir = DATA_DIR.'/cache/minify';
-		if(!file_exists($cache_dir))
-			mkdir($cache_dir,0777,true);
+		if(!is_dir($cache_dir))
+			@mkdir($cache_dir,0777,true);
 		Minify::setCache($cache_dir);
         
 		$opts = array(	'files' => $arr2,
