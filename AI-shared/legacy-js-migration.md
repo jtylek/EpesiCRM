@@ -728,3 +728,96 @@ specifically (not just `Ajax.Request`/`Event.observe`/`Class.create`) — it's
 the same root cause (`$` no longer means "raw DOM element getter") but wasn't
 on steps 1-5's original elimination-target list at all, so a grep for only
 those three literal strings won't catch it.
+
+### Step 7 correction — the "all fixed same session" claim above was false, found and actually fixed 2026-08-13
+
+The step 7 section above (13 sites, 6 files, "all fixed same session") documented
+an *intended* fix that was never actually written to disk — root cause unknown
+(most likely the session ended, e.g. via `/clear`, between planning the fix and
+applying it), but confirmed false the same day: a real browser console error
+(`TypeError: Event.observe is not a function` at `bim.epe.si/#7`) surfaced
+during ongoing migration testing, and a fresh plain-`grep` sweep of
+`modules/Premium`/`modules/Custom` found all 8 `Event.observe` sites the doc
+claimed were ported still present verbatim (`Invoice/InvoiceCommon_0.php:1003`,
+`SalesOpportunity/SalesOpportunityCommon_0.php` ×4, `Vacation/VacationCommon_0.php`
+×2, `Timesheet/update_leightbox.php:74`).
+
+**Lesson**: this doc's own narrative is not proof a fix landed — a "done" claim
+here needs to survive a fresh grep, same as any codebase-wide claim from steps
+1-6. Don't trust a prior session's own migration notes at face value when a
+live symptom contradicts them; re-verify against the actual files before
+building on top of a documented-but-unconfirmed fix.
+
+**What was actually fixed this pass**, once verified against real file content
+(all mechanical, same conventions as steps 2-6 above; `php -l`/`node --check`
+clean on every touched file):
+
+- **`Event.observe` (8 sites, 4 files)** — the ones the earlier entry claimed:
+  `Invoice/InvoiceCommon_0.php`, `SalesOpportunity/SalesOpportunityCommon_0.php`
+  (×4 click handlers), `Vacation/VacationCommon_0.php` (×2), `Timesheet/
+  update_leightbox.php` (the `native:change` dead-code site). Ported to
+  `jQuery(document.getElementById(id)).on(eventName, handler)` (`e:load`
+  observe site in Invoice used `jQuery(document).on(...)` directly, matching
+  the rest of the codebase's `e:load` observe sites — safe since `e:load`'s
+  only fire site, `epesi.js`'s `Epesi.request()`, has used `jQuery(...).trigger(...)`
+  since step 4).
+- **`$(id).property`/`$(id).method()` raw-access bugs, far more widespread
+  than the original step 7 entry's "6 files" claim** — a broader re-sweep (a
+  corrected grep regex; the first attempt at this during this same pass
+  under-matched escaped-quote `$(\'id\')` call sites inside single-quoted PHP
+  strings, worth remembering next time this pattern is grepped for) found
+  roughly two dozen sites across 14 files total (fixed as found rather than
+  inventoried first, so no exact count to quote here — same "don't trust a
+  number in this doc, re-grep" caution as everywhere else in it), all fixed
+  the same way as step 7's original description — `$(id)` → `document.getElementById(id)`, except
+  where a `document.forms[name]` idiom already existed two lines away in the
+  same function (matched that instead, per the precedent set in step 7's
+  original `SalesOpportunityCommon_0.php`/`VacationCommon_0.php` analysis) —
+  and `.up("tr")` (Prototype nearest-ancestor) → native `.closest("tr")`:
+  `Invoice/InvoiceCommon_0.php` (3 more sites beyond the `Event.observe` one:
+  `show_hide_date_paid`'s `.up("tr")` call, an `_example_number__data` update,
+  a due/paid-date-picker `onmouseup` handler), `SalesOpportunity/
+  SalesOpportunityCommon_0.php` (the `_follow_up_form` submit handler),
+  `Vacation/VacationCommon_0.php` (`_vacation_form` submit handler + a
+  `_note` field clear), `Assets/Service/ServiceCommon_0.php` (3 sites: a
+  resolution-required validator, the `_follow_up_form` submit handler, a
+  resolution-select value setter), `Expenses/ExpensesCommon_0.php` (the same
+  `show_hide_date_paid`/`.up("tr")` shape as Invoice, plus an `onmouseup`
+  handler — this file wasn't even in step 7's original inventory), `Invoice/
+  Items/ItemsCommon_0.php` (an autocomplete on-hide handler + a focus-on-empty
+  check), `Invoice/numbering.js` (2 sites — also not in the original
+  inventory), `SalesOpportunity/Report/Report_0.php` (a report filter field
+  setter — not in the original inventory), `Timesheet/ServiceCall/
+  ServiceCall_0.php` (2 sites: a toggle-visibility onclick handler + a note-
+  field clear — not in the original inventory), `Timesheet/time_estimate.php`
+  (server-built JS string, not in the original inventory), `Timesheet/
+  update_leightbox_billed.php` (5 sites, same shape as the already-known
+  `update_leightbox.php` — not in the original inventory), `Projects/Tickets/
+  Testing/TestingCommon_0.php` (2 sites, same shape as `Assets/Service` —
+  not in the original inventory). **Most of these files were never mentioned
+  in step 7's original inventory at all** (it named 5: `SalesOpportunityCommon_0.php`,
+  `VacationCommon_0.php`, `Timesheet/update_leightbox.php`+`.js`,
+  `Timesheet/time_estimate.js`) — the original pass's file inventory itself
+  was incomplete, not just unapplied.
+- **`Ajax.Request`/`Object.toJSON` (6 sites, 4 files)**, same `dataType:'text'`
+  + `success:function(responseText){eval(responseText);...}` + `JSON.stringify()`
+  treatment as step 2/step 7's original precedent: `Timesheet/update_leightbox.js`
+  (×2, `timesheet_update_leightbox_duration`/`timesheet_update_leightbox`;
+  also had 8 more `$(id)` sites in the same two functions), `Timesheet/
+  update_billed.js` (×2), `Timesheet/time_estimate.js` (×1, plus the
+  `if (!$('timesheets_counting_'+i))` bare-ID-as-tag-selector silent-guard
+  bug the original doc predicted but hadn't actually fixed), `Invoice/Items/
+  autocomplete.js` (×1).
+
+**Re-verified after fixing**: a fresh grep of `modules/Premium` + `modules/
+Custom` for every pattern above (`Event.observe`/`document.observe`,
+`Ajax.Request`/`Ajax.Updater`, `Class.create`, `Object.toJSON`/`.evalJSON()`,
+`.up(`/`.down(`/`.readAttribute`/`.writeAttribute`/`.bindAsEventListener`, and
+the corrected bare-`$(id)` regex) came back clean except for 4 already-
+commented-out lines (`Expenses/net_gross.js`, `Invoice/net_gross.js` — dead
+code, left alone) and the vendored `Vacation/js/jquery.fn.gantt.js` (real
+jQuery `$('<div.../>')` HTML-string construction, not Prototype, out of
+scope). **Not browser-tested this pass** (no live reproduction of each
+affected screen) — same caveat as the original step 7 entry for anything
+this thorough a re-sweep didn't have time to click through; if any of these
+screens misbehaves next, re-check this list before assuming a new bug.
