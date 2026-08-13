@@ -117,6 +117,22 @@
 	content: "\f743"; /* bi-filetype-csv - export.png links to csv_export.php; matches the icon_map entry Base_ActionBar/theme_adminltedark/default.tpl already uses for the real ActionBar's own 'export' action */
 }
 
+/* CRM_Contacts's company_addon() Contacts tab (Companies view record) adds
+   "Associate"/"Remove Associate" via new_button('add', ...)/new_button('delete', ...)
+   (CRM/Contacts/Contacts_0.php add_associate_button()) - reusing the generic
+   add/delete icon keys, same as "Add new" above, but with no :has() rule to
+   match they rendered with no icon at all (img hidden, no ::before content).
+   Own glyphs per request instead of falling back to the generic add/delete
+   look, since neither actually adds/deletes a record here (they open the
+   contact-picker to add/remove a company association). */
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/add.png"])::before {
+	content: "\f89a"; /* bi-person-add */
+}
+
+.epesi-gb-label a.record_browser_button:has(img[src*="/icons/delete.png"])::before {
+	content: "\f4d9"; /* bi-person-dash */
+}
+
 /* Print/Export's own label div carries an inline style="...;top:-8px" (a
    default-theme hack to vertically-align text next to the old horizontal
    <img> sprite) - meaningless now that this is a vertical icon-over-label
