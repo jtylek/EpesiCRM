@@ -55,7 +55,7 @@ class DB {
 		}
         if (self::is_mysql()) {
 			// For MySQL
-    		$new->Execute('SET NAMES "utf8"');
+    		$new->Execute('SET NAMES "utf8mb4"');
 		} elseif (self::is_postgresql()) {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
@@ -110,7 +110,7 @@ class DB {
 	
 	public static function CreateTable($name, $cols, $opts=null) {
 		$dict = self::dict();
-		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci');
+		$def_opts = array('postgres'=>' WITH OIDS','mysql' => ' ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
 		$arr = $dict->CreateTableSQL($name,$cols,isset($opts)?array_merge($def_opts,$opts):$def_opts);
 		if($arr===false) return false;
 		$ret = $dict->ExecuteSQLArray($arr);

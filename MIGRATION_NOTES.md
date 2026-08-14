@@ -2007,6 +2007,58 @@ correctly; regenerated `data/cache/minify/*` bundle passes `node --check`; full 
 
 ---
 
+### §68 — MySQL `utf8` → `utf8mb4`: 4-byte characters (emoji) rejected/mangled on save (2026-08-14)
+
+**Why (Jasiek, relayed from another session).** A note containing an emoji silently failed to save. Traced to
+[include/database.php:58](include/database.php) hardcoding `SET NAMES "utf8"` on every MySQL connection.
+MySQL's `utf8` type is a legacy alias capped at 3 bytes/char; most emoji need 4 bytes (`utf8mb4`), so sending
+one over a connection declared `utf8` gets rejected or mangled by the driver before it ever reaches a column.
+
+**Root cause, part 1 — code defaults.** Three call sites hardcoded the 3-byte charset, all fixed to `utf8mb4`/
+`utf8mb4_unicode_ci`:
+- [include/database.php:58](include/database.php) — `DB::Connect()`'s `SET NAMES`, applied to every connection.
+- [include/database.php:113](include/database.php) — `DB::CreateTable()`'s MySQL default (`DEFAULT CHARACTER
+  SET ...`), used by every module's `*Install.php` and by any upgrade patch that creates a new table.
+- [setup.php:356](setup.php) and [setup.php:692](setup.php) — fresh-install `CREATE DATABASE`/`ALTER DATABASE`.
+
+These three are pure code, no stored data touched — they only change what happens for connections/tables
+created *after* the fix, so they were applied directly rather than gated behind a patch.
+
+**Root cause, part 2 — existing data.** Fixing the connection/creation defaults doesn't touch tables created
+before the fix. A read-only `information_schema` audit of this dev DB (whose own schema default was already
+`utf8mb4`, from some earlier manual change) found **413 tables / 815 columns** still physically stored as
+`utf8`/`utf8_unicode_ci` — essentially the whole schema (Contacts, Meetings, Tasks, Notes/dashboard settings,
+RecordBrowser data tables, Roundcube's `rc_*` tables, etc.) — still rejecting 4-byte characters regardless of
+the part-1 fix. This is expected to be the norm on any pre-existing install, not a quirk of this one DB.
+
+**Fix, part 2 — upgrade patch.** New patch
+[modules/Base/patches/20260814_utf8mb4_migration.php](modules/Base/patches/20260814_utf8mb4_migration.php):
+`ALTER DATABASE` to `utf8mb4`, then walks every table returned by
+`information_schema.TABLES WHERE TABLE_COLLATION NOT LIKE 'utf8mb4%'` and runs `CONVERT TO CHARACTER SET
+utf8mb4 COLLATE utf8mb4_unicode_ci` (also forcing `ROW_FORMAT=DYNAMIC` first, defensively, so an indexed
+`VARCHAR(255)` column doesn't hit the old 767-byte InnoDB index-prefix limit on older MySQL — moot on this
+dev DB, whose MariaDB 10.4 already defaults every table to `ROW_FORMAT=Dynamic`, but not guaranteed on every
+install this patch has to serve). Lives in `Base/patches/` (not any one table's owning module) because Base
+is the only module always installed, so it's the only `patches/` dir `PatchUtil::list_patches()` is
+guaranteed to scan — and because the migration is genuinely cross-module, not owned by any single one.
+Idempotent (re-queries `information_schema` fresh each run, so an already-converted table just drops out of
+the list) and resumable (`Patch::require_time()` between tables lets a slow/large install spread the work
+across multiple `runpatches.php`/cron invocations instead of timing out mid-run); a failure on one table is
+logged via `error_log()` and skipped rather than aborting the rest.
+
+**Deliberately not run automatically:** unlike the part-1 code fix, this patch was written but left for Jasiek
+to run (via the normal patch/update flow) on his own schedule, ideally after a backup — an `ALTER TABLE ...
+CONVERT TO CHARACTER SET` across ~400 tables is a real, if low-risk, live-data operation on an existing install,
+not a pure code change.
+
+**Verify:** read-only audit query (`information_schema.TABLES`/`COLUMNS` filtered to non-`utf8mb4%`) confirmed
+the 413/815 figures above before writing the patch; the patch's own table-selection query was independently
+re-run read-only and returned the identical 413-table list. Post-run verification (re-running the same audit
+expecting zero rows, and confirming an emoji actually saves) is still open.
+**STATUS: code fix (part 1) done; migration patch (part 2) written, not yet run against this DB.**
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
