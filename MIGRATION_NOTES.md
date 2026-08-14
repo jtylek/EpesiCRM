@@ -2059,6 +2059,63 @@ expecting zero rows, and confirming an emoji actually saves) is still open.
 
 ---
 
+### §69 — §58's RC schema-migration patch never actually ran: wrong glob path (2026-08-14)
+
+**Symptom:** user reported "Opening Mail module generates an error" (generic Epesi error page).
+`data/CRM_Roundcube/log/errors.log` had the exact §58 signature recurring within the last few
+minutes: `DB Error: [1054] Unknown column 'expires_at' in 'field list'` on `rc_session` queries —
+i.e. the bug §58 claimed to have resolved on 2026-07-08 was still live on this dev DB on
+2026-08-14, despite `data/logs/patches.log` showing
+`[modules/CRM/Roundcube/patches/20260708_rc_schema_migrate.php] ... SUCCESS` from the day before
+(2026-08-13 16:20:16). Direct `DESCRIBE rc_session` confirmed the table still only has
+`sess_id`/`created`/`changed`/`ip`/`vars` — the pre-2025 schema — even though `rc_system.roundcube-
+version` read `2025092300` (the target §58 was supposed to reach).
+
+**Root cause:** §58's patch (`modules/CRM/Roundcube/patches/20260708_rc_schema_migrate.php:49`)
+globs `modules/CRM/Roundcube/RC/SQL/mysql/*.sql`. That directory has **never existed** — the
+Roundcube vendor tree (including its 35 SQL migration files) lives at
+`modules/Libs/RoundCube/RC/SQL/`, exactly where `CRM_RoundcubeInstall::install()` already reads
+`mysql.initial.sql`/`postgres.initial.sql` from for a fresh install. `glob()` on the wrong path
+silently returns `array()` (no warning, no exception), so the migration `foreach` ran **zero**
+files — but the patch's last line unconditionally runs
+`UPDATE rc_system SET value='2025092300' WHERE name='roundcube-version'` regardless of whether any
+migration actually happened. Net effect: the patch always "succeeds" and always marks the schema
+as migrated, without ever touching it. This makes the §58 write-up's claimed validation ("`rc_session
+.expires_at` now exists ... on Karina's real DA upgrade instance") suspect — either that check
+wasn't actually re-run after the marker update, or it was inferred from the absence of errors
+rather than confirmed directly; worth re-verifying there too.
+
+**Why a plain edit of the 2026-07-08 file won't fix this:** patches are identified by filepath —
+editing `20260708_rc_schema_migrate.php` is a silent no-op on every instance that already "ran" it
+(this dev DB included), because `runpatches.php`/`PatchUtil::apply_new()` only apply patch files
+it hasn't seen before. Worse, the broken run already bumped `rc_system.roundcube-version` to the
+target on those instances, so a corrected patch can't trust that marker either — it would see
+`current >= target` and skip on the very installs that need it most.
+
+**Fix:** new patch
+[modules/CRM/Roundcube/patches/20260814_rc_schema_migrate_fix.php](modules/CRM/Roundcube/patches/20260814_rc_schema_migrate_fix.php),
+same migration logic as §58 but: (1) globs the correct `modules/Libs/RoundCube/RC/SQL/<mysql|
+postgres>/*.sql` path (also fixing a second latent bug — §58 hardcoded the `mysql` subdirectory
+regardless of driver, which would have broken Postgres installs too); (2) ignores the
+`rc_system.roundcube-version` marker as the "already done" signal and instead checks for
+`rc_session.expires_at` directly via `DB::MetaColumns()` — the concrete column the 2025092300
+migration adds — since that marker is now known-unreliable on any instance that ran the broken
+§58 patch; falls back to the same `2015030800` floor §58 used when actually replaying migrations.
+Idempotent either way (a fresh install or an instance where §58 somehow did work correctly just
+sees `expires_at` already present and returns immediately).
+
+**STATUS: applied and verified on this dev DB (2026-08-14 20:10).** Run directly via the `Patch`
+class (not `PatchUtil::apply_new()`, which sweeps and runs *every* pending patch in date order —
+that would have also triggered §68's utf8mb4 migration, deliberately left for Jasiek to run on
+his own schedule) to keep the blast radius to this one patch. `patches.log` records `SUCCESS`;
+`DESCRIBE rc_session` now shows `expires_at` (with its index) in place of the old `created`/
+`changed` columns; re-running the exact query from the original error log
+(`SELECT ... expires_at ... FROM rc_session WHERE sess_id = ...`) now executes cleanly instead of
+throwing `Unknown column 'expires_at'`. Not yet confirmed by actually opening Mail in a browser —
+no browser-automation tool was available in this session to do that end-to-end check.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
