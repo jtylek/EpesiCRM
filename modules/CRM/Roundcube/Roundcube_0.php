@@ -30,7 +30,13 @@ class CRM_Roundcube extends Module {
             }
         }
         foreach($accounts as $a) {
-            Base_ActionBarCommon::add('new-mail',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?-1:0);
+            // Positions kept above 0 (Base_ActionBar_0.php's global "every
+            // screen starts with Back" item, added with the default position
+            // 0 whenever no module registered its own 'back') so Back always
+            // sorts first regardless of which account is the user's default -
+            // the -1/0 split below only needs to rank the user's default
+            // account ahead of the others, not ahead of Back too.
+            Base_ActionBarCommon::add('new-mail',($a==$def?'<b><u>'.$a['account_name'].'</u></b>':$a['account_name']), $this->create_callback_href(array($this,'account'),$a['id']),$a['email'],$a==$user_def?1:2);
         }
         if($def===null) {
 			$href = $this->create_callback_href(array($this,'push_settings'),array(__('E-mail Accounts')));
