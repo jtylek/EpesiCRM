@@ -37,6 +37,7 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 		<meta name="apple-mobile-web-app-title" content="EPESI" />
 {$js_tags_html}
+		<script type="text/javascript">var EPESI_ASSET_VERSION = {$ASSET_VERSION};</script>
 		<link type="text/css" href="{$csses_src}" rel="stylesheet"></link>
 
 		<style type="text/css">

@@ -249,6 +249,74 @@ function preg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 }
 
 /**
+ * Newest mtime among this install's own front-end JS/CSS assets (theme/,
+ * modules/, libs/, include/). Used to detect that a fix shipped since a
+ * long-open browser tab last loaded index.php: this app is an old-style
+ * AJAX-push SPA (process.php patches the existing DOM) that never reloads
+ * index.php on its own, and serve.php sends a one-year Cache-Control on JS/
+ * CSS, so a tab that's stayed open keeps running whatever JS was in memory
+ * at its original load indefinitely - see AI-shared/bug-patterns.md's
+ * "already-fixed JS bug coming back" entry for the incident this exists to
+ * catch. Called both from index.php (every full page load) and
+ * check_version.php (polled every 20 minutes per open tab by
+ * Epesi.updateCheck in include/epesi.js), so results are cached for 15
+ * minutes - a full scan takes over a second, too slow to pay inline on
+ * every page load or poll.
+ *
+ * @return int unix timestamp
+ */
+function epesi_asset_version() {
+	$cache_file = (defined('DATA_DIR') ? DATA_DIR : 'data') . '/cache/asset_version.txt';
+	if (is_file($cache_file) && (time() - filemtime($cache_file)) < 900)
+		return (int)file_get_contents($cache_file);
+
+	$max = 0;
+	foreach (array('theme','modules','libs','include') as $dir)
+		if (is_dir($dir)) $max = max($max, _epesi_asset_version_scan($dir));
+
+	$cache_dir = dirname($cache_file);
+	if (!is_dir($cache_dir)) @mkdir($cache_dir, 0777, true);
+	@file_put_contents($cache_file, $max);
+
+	return $max;
+}
+
+/**
+ * Recursion helper for epesi_asset_version() - not preg_tree() (which
+ * returns every matching path up front, requiring a second pass to find the
+ * max) because modules/Libs/RoundCube/RC alone - a vendored, never
+ * hand-edited third-party webmail release, see AI-shared/README.md's
+ * vendor-code convention - is ~35% of this tree's files, and skipping it
+ * without descending into it at all is what keeps the full scan usable.
+ * Also skips any `node_modules` directory by name (none exist under
+ * modules/Premium or modules/Custom today, but both are separately
+ * licensed/gitignored nested git repos - see CLAUDE.md's Environment
+ * quirks - whose own build tooling could add one later without this file
+ * knowing).
+ *
+ * @return int unix timestamp
+ */
+function _epesi_asset_version_scan($path) {
+	$path = rtrim($path, '/');
+	if ($path === 'modules/Libs/RoundCube/RC' || basename($path) === 'node_modules') return 0;
+	$max = 0;
+	if ($handle = opendir($path)) {
+		while (false !== ($file = readdir($handle))) {
+			if ($file === '.' || $file === '..') continue;
+			$filep = $path.'/'.$file;
+			if (is_dir($filep))
+				$max = max($max, _epesi_asset_version_scan($filep));
+			elseif (preg_match('/\.(js|css)$/i', $file)) {
+				$mtime = @filemtime($filep);
+				if ($mtime > $max) $max = $mtime;
+			}
+		}
+		closedir($handle);
+	}
+	return $max;
+}
+
+/**
  * Removes directory recursively, deleteing all files stored under this directory
  *
  * @param string directory to remove

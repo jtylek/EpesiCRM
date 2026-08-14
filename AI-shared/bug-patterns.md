@@ -1142,3 +1142,45 @@ offset on value of type int/bool" warning, suspect old/malformed stored data bef
 assuming fresh code introduced the bug - and prefer a defensive skip over "fixing"
 the data directly unless the data's correct shape is actually known.
 
+## An already-fixed JS bug "coming back" in one browser window but not incognito: stale client state, not a regression
+
+Reported 2026-08-14: the `alert('Invalid date - clearing')` popup from
+[MIGRATION_NOTES.md §64](../MIGRATION_NOTES.md) (fixed 2026-07-24 - an
+untouched, optional date field failed the datepicker's validation regex on
+blur) appeared to resurface in a normal browser window. Before assuming the
+fix had regressed: `datepicker.js`'s source still had the fixed regex, and
+every relevant bundle already on disk in `data/cache/minify/` - including one
+regenerated minutes earlier - also had it. Server-side, there was nothing to
+fix. Confirmed the actual explanation by asking whether the same window in an
+**incognito/private session** showed the bug too - it didn't - which pins the
+cause on stale client state, not stale server output.
+
+**Why this happens here specifically.** Two things compound: (1) `serve.php`
+sends `Cache-Control: max-age=31536000` (one year -
+[serve.php:54](../serve.php)) on the combined JS/CSS bundle, so a browser that
+already has a given bundle URL cached won't even ask the server again until
+that URL changes or the cache is forced clear; (2) Epesi's module tree is an
+old-style AJAX-push SPA (`process.php` returns JS that patches the existing
+DOM - see `CLAUDE.md`'s Architecture section), so a browser tab can stay
+"open" and interactive for a long session without ever reloading `index.php`
+- meaning whatever JS was in memory at that tab's *original* load keeps
+running indefinitely, untouched by any later fix, until an actual page
+reload happens. (The bundle URL itself *is* cache-busted correctly - see
+`Minify_Build::uri()` appending `max(filemtime())` across the bundle's source
+files, [libs/minify/Minify/Build.php:76-101](../libs/minify/Minify/Build.php)
+- so this isn't a server-side versioning bug either; the browser just never
+asks again while the tab/session stays alive.)
+
+**How to apply**: before investigating an already-documented-as-fixed bug as
+a regression, check whether it reproduces in a fresh incognito/private
+window (or after an explicit hard refresh) first. If incognito is clean,
+the fix is intact and the report is stale client state in one browser
+profile/tab - no code change needed, just tell the reporter to hard-refresh
+or start a new session. Only chase it as a real regression if a *fresh*
+session/tab also reproduces it. This is the same underlying `serve.php`
+caching behavior already hit once before from the opposite direction (§67
+in `MIGRATION_NOTES.md`: a stale cached bundle masked a *newly introduced*
+bug in non-incognito windows while incognito correctly showed it broken) -
+worth recognizing either direction: aggressive caching can hide a real bug
+just as easily as it can appear to resurrect a fixed one.
+

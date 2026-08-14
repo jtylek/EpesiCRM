@@ -408,6 +408,56 @@ jq=jQuery;
 // off that file's plugin) - the two were never reconciled pre-port, and
 // silently ignoring one spelling would resurrect whatever the caller passed
 // false for.
+// This app is an old-style AJAX-push SPA (process.php patches the existing
+// DOM - see CLAUDE.md's Architecture section) that never reloads index.php
+// on its own, and serve.php caches JS/CSS for a year - so a tab that's
+// stayed open since before a JS fix shipped keeps running the stale JS
+// indefinitely, with no signal to the user that anything's out of date.
+// Reported repeatedly as an already-fixed bug "coming back" (see
+// AI-shared/bug-patterns.md); this polls check_version.php periodically and
+// prompts for a reload instead of leaving it silent. Deliberately not a
+// forced reload - the confirmLeave-checked pattern used everywhere else in
+// this file is for actual navigation, not an unrelated background check
+// that could otherwise interrupt an in-progress form.
+Epesi.updateCheck = {
+	interval: 20*60*1000,
+	shown: false,
+	start: function() {
+		if (typeof EPESI_ASSET_VERSION == 'undefined' || !EPESI_ASSET_VERSION) return;
+		setInterval(Epesi.updateCheck.check, Epesi.updateCheck.interval);
+	},
+	check: function() {
+		if (Epesi.updateCheck.shown) return;
+		jQuery.ajax('check_version.php', {
+			dataType: 'text',
+			cache: false,
+			success: function(v) {
+				if (parseInt(v, 10) > EPESI_ASSET_VERSION) Epesi.updateCheck.notify();
+			}
+		});
+	},
+	notify: function() {
+		if (Epesi.updateCheck.shown) return;
+		Epesi.updateCheck.shown = true;
+		// Plain self-contained inline styles, not theme classes - same
+		// reasoning as index.tpl's #epesiStatus splash: this can fire before
+		// (or without) any theme CSS being a safe assumption.
+		var bar = document.createElement('div');
+		bar.id = 'epesiUpdateBar';
+		bar.setAttribute('style',
+			'position:fixed;left:0;right:0;bottom:0;z-index:2003;'+
+			'background:#212529;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;'+
+			'font-size:0.9rem;padding:0.6rem 1rem;text-align:center;box-shadow:0 -0.25rem 0.75rem rgba(0,0,0,0.3);');
+		bar.innerHTML =
+			'An update to this application has been installed - reload to get the latest fixes.'+
+			' <button type="button" style="margin-left:0.75rem;padding:0.25rem 0.75rem;border:0;border-radius:0.25rem;'+
+			'background:#0d6efd;color:#fff;cursor:pointer;" onclick="location.reload()">Reload now</button>'+
+			' <span style="margin-left:0.5rem;cursor:pointer;opacity:0.7;" onclick="document.getElementById(\'epesiUpdateBar\').remove()">&times;</span>';
+		document.body.appendChild(bar);
+	}
+};
+jQuery(function(){ Epesi.updateCheck.start(); });
+
 jQuery.fn.clonePosition = function(element, options){
 	options = options || {};
 	var cloneWidth = ('cloneWidth' in options) ? options.cloneWidth : (('setWidth' in options) ? options.setWidth : true);

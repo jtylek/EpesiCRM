@@ -95,6 +95,10 @@ $csses = array('libs/jquery-ui-1.10.1.custom.min.css');
 $csses_build = new Minify_Build($csses);
 $csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 
+// Reference point for Epesi.updateCheck (include/epesi.js) - see
+// epesi_asset_version()'s docblock in include/misc.php.
+$asset_version = epesi_asset_version();
+
 $accepts_html = isset($_SERVER['HTTP_ACCEPT']) && stripos($_SERVER['HTTP_ACCEPT'], 'html') !== false;
 $init_js_inline = '';
 if($accepts_html) {
@@ -105,6 +109,7 @@ if($accepts_html) {
 
 $smarty->assign('js_tags_html', $js_tags_html);
 $smarty->assign('csses_src', $csses_src);
+$smarty->assign('ASSET_VERSION', $asset_version);
 $smarty->assign('DIRECTION_RTL', (bool)DIRECTION_RTL);
 $smarty->assign('TRACKING_CODE', TRACKING_CODE);
 $smarty->assign('STARTING_MESSAGE', STARTING_MESSAGE);
