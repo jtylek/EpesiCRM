@@ -552,10 +552,25 @@ class Utils_RecordBrowser_Reports extends Module {
 				}
 				$ggrow = array($this->cols_total);
 			} else {
-				$this->first = true;
-				$count = count($this->categories);
-				$ggrow = array();
+				$visible_cats = array();
 				foreach ($this->categories as $c_id=>$c) {
+					if (!isset($this->cols_total[$c])) $this->cols_total[$c] = array();
+					if ($this->show_empty_rows) {
+						$visible_cats[$c_id] = $c;
+						continue;
+					}
+					$empty = true;
+					foreach ($this->cols_total[$c] as $col_vals) {
+						foreach ((array)$col_vals as $w) {
+							if ($w) { $empty = false; break 2; }
+						}
+					}
+					if (!$empty) $visible_cats[$c_id] = $c;
+				}
+				$this->first = true;
+				$count = count($visible_cats);
+				$ggrow = array();
+				foreach ($visible_cats as $c_id=>$c) {
 					if ($this->first) {
 						$grow = array(0=>$this->format_cell(array('total-row_desc'), $this->col_summary['label']));
 						$grow[0]['attrs'] .= 'rowspan="'.$count.'" ';
