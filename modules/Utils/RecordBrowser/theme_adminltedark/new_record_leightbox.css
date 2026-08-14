@@ -1,0 +1,70 @@
+/* adminltedark skin for Utils_RecordBrowser's multi-type "New record" chooser
+ * (Utils_RecordBrowserCommon::create_new_record_href(), 'multi' mode) - same
+ * gap Utils_LeightboxPrompt's own chooser grid had before its
+ * theme_adminltedark/leightbox.css: the legacy theme/new_record_leightbox.tpl
+ * used a bare .epesi_big_button class with no styling anywhere (even in the
+ * legacy theme - theme/new_record_leightbox.css is a 0-byte file), so this
+ * list always rendered as plain unstyled icon+text pairs, in every theme.
+ * Fresh .epesi-nrb-* class names rather than reusing .epesi_big_button, same
+ * reason CRM_Followup's popup uses fresh classes instead of that shared,
+ * reused-elsewhere class name (see that file's own comment).
+ *
+ * Per request: same fixed grey/black sidebar scheme as Libs_Leightbox's own
+ * #Leightbox_header and every other Leightbox popup converted so far
+ * (CRM_Followup, Utils_LeightboxPrompt) - not this popup's own themed dark
+ * chrome. The id is fixed ('actionbar_rb_new_record',
+ * RecordBrowserCommon_0.php's create_new_record_href() - only one such popup
+ * can ever exist per request), so a plain #id selector is used rather than
+ * the "[id$=...]" suffix-match the per-caller-id Leightboxes need; an id
+ * selector already outweighs Libs_Leightbox's own ".leightbox"/
+ * "[data-bs-theme='light'] .leightbox" rules, so no !important tie-break is
+ * needed here unlike those files.
+ */
+#actionbar_rb_new_record {
+	background-color: #dee2e6;
+	color: #000;
+}
+
+.epesi-nrb-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+}
+
+.epesi-nrb-grid > a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	width: 6.5rem;
+	padding: 0.9rem 0.5rem;
+	border: 1px solid #ced4da;
+	border-radius: 0.5rem;
+	background-color: #fff;
+	color: #000;
+	text-align: center;
+	text-decoration: none;
+}
+
+.epesi-nrb-grid > a:hover {
+	background-color: #e9ecef;
+	border-color: #0d6efd;
+	color: #000;
+}
+
+.epesi-nrb-grid > a i {
+	font-size: 1.75rem;
+	line-height: 1;
+	color: #0d6efd;
+}
+
+.epesi-nrb-grid > a img {
+	width: 32px;
+	height: 32px;
+}
+
+.epesi-nrb-label {
+	font-size: 0.85rem;
+}

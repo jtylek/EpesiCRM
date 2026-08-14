@@ -729,6 +729,109 @@ the same root cause (`$` no longer means "raw DOM element getter") but wasn't
 on steps 1-5's original elimination-target list at all, so a grep for only
 those three literal strings won't catch it.
 
+### `modules/Premium/Warehouse` swept, 2026-08-14
+
+`Premium_Warehouse` didn't exist in this checkout until 2026-08-14 (cloned
+fresh from `jtylek/Premium-Warehouse` this same session, see the install-error
+fixes earlier this session for its `*Install.php`/`Printer.php` PHP 8.2 gaps)
+— so it's a second instance of the same "never covered by steps 1-6, and
+also missing from step 7's original inventory since it wasn't installed yet"
+gap, found the same way step 7 was: a live symptom (`TypeError: Cannot set
+properties of undefined (setting 'display')`, `Wholesale`'s "File scan"
+popup, `$("id").style` returning a jQuery wrapper instead of a raw element)
+during real use, not a proactive audit.
+
+Swept `modules/Premium/Warehouse` (excluding `eCommerce/quickcart33pro/` —
+vendored MooTools/`prototype.lite.js`/Litebox bundle with its own `$`
+binding, same "vendored trees are out of scope" treatment as
+`modules/Libs/CKEditor/ckeditor/` etc.):
+- **`$(id).property`/`.method()`** (~150+ sites, ~23 files) — confirmed via
+  grep first that every `$(` call in the tree is a single-argument plain
+  id-lookup (zero `$$(`, zero multi-arg, zero CSS-selector-shaped or
+  `$(this)`/`$(document)` args), so a blanket `$(` → `document.getElementById(`
+  text substitution across every non-vendored `.js`/`.php` file was safe
+  (PHP never has a literal `$(` outside a string, so this can't corrupt real
+  PHP syntax either). 8 `.enable()`/`.disable()` sites (`DrupalCommerce_0.php`,
+  `eCommerce_0.php`'s near-identical `ecommerce_autoprices` blocks) needed
+  manual semantic conversion instead — Prototype's `Element#enable()`/
+  `#disable()` aren't DOM methods, ported to `.disabled = false`/`= true`.
+- **`Event.observe`/`Event.stopObserving`** (23 sites, 2 files) — plain
+  native-event sites (`change`/`keyup`/`keypress`/`blur`) ported mechanically
+  to `jQuery(document.getElementById(id)).on(name, handler)`/`.off(...)`.
+  `Items/Orders/contractor_update.js`'s `e:load` observe site is safe under
+  the same reasoning as `Invoice/InvoiceCommon_0.php`'s pre-existing one
+  (`e:load`'s only fire site, `epesi.js`'s `Epesi.request()`, has used
+  `jQuery(...).trigger(...)` since step 4) — ported to `jQuery(document).on(...)`.
+  Its 4 `native:change` sites re-confirmed still orphaned (zero fire/trigger
+  sites anywhere, old or new style, including now-swept Premium) before
+  porting, same as the pre-existing `Utils/Planner/Planner_0.php` entry.
+- **`bindAsEventListener` extra-arg trap, a second real instance** —
+  `OrdersCommon_0.php`'s `Utils_CurrencyField.validate`/`validate_blur`
+  bindings (×2, both `QFfield_discount_rate` and `QFfield_quantity`) pass an
+  extra `format` string arg, same shape as the `datepicker.js` case the
+  original trap writeup names as "the only 2 call sites anywhere" — that
+  claim was only ever true for the pre-Premium sweep scope. Ported via the
+  same explicit-wrapper technique (`function(ev){Utils_CurrencyField.validate
+  .call(Utils_CurrencyField,ev,format)}`), not `.bind()`, to preserve
+  Prototype's `(event, ...extraArgs)` order.
+- **`contractor_update.js`** — the one file combining every pattern at once:
+  `Class.create()`+`.prototype={...}` (converted to a plain
+  `function ContractorUpdate(){...}` constructor absorbing the old
+  `initialize` body and property defaults, `ContractorUpdate.prototype.x=`
+  per remaining method, same recipe as `leightbox.js`'s own step-3
+  conversion), 2×`Ajax.Request`→`jQuery.ajax` (`dataType:'text'` +
+  `success:function(responseText){eval(responseText);...}`, the
+  callback-less-manual-eval shape, `Object.toJSON()`→`JSON.stringify()`),
+  and the *other* documented `bindAsEventListener` trap shape — extra
+  boolean arg (`shipping`), not a format string — ported via a captured
+  `self` closure (`function(e){self.request_by_company(e,true);}`) rather
+  than a wrapper string, equivalent technique.
+- **Zero real hits** for `Ajax.Request`/`Ajax.Updater`/`Class.create` outside
+  `contractor_update.js` and `quickcart33pro`, and for
+  `.up(`/`.down(`/`.readAttribute`/`.writeAttribute`/`Hash`/
+  `PeriodicalExecuter`/`.hasClassName`/`.addClassName`/`$w(`/`$A(`/`$H(`/
+  `$F(`/`$R(`/`Try.these`/`Insertion.`/`Position.`/`.pluck(`/`.gsub(`/
+  `.camelize(` anywhere in the tree. One `.evalJSON()` call
+  (`Wholesale/add_item.js:2`) is pre-existing dead/commented-out code, left
+  alone same as the `net_gross.js` precedent.
+
+**Correction**: `eCommerce/banner.js` did need a change, contrary to the
+"no change needed" note this section originally had — its `document.observe`
+top-level listener (`document.observe("e:load", function(){...})`) is a
+*second* Prototype-only API, distinct from the `$(id).property` sweep above,
+and its `uf.clonePosition("banner_upload_slot")` call passed a bare string
+into the shared `jQuery.fn.clonePosition` plugin, which resolves its first
+arg via `jQuery(element)` — the exact bare-id-as-CSS-selector trap already
+documented for `TabbedBrowser`/`PopupCalendarCommon_0.php` above, not an
+`.enable()`/`.disable()`-style semantic gap. Fixed by porting the listener to
+`jQuery(document).on("e:load", ...)` (safe under the same `e:load` reasoning
+as every other observe site in this section) and resolving both the caller
+(`uf`) and the target argument to real elements via `document.getElementById`
+before the `jQuery(...).clonePosition(...)` call.
+
+**Verified**: `php -l`/`node --check` clean on every touched file (25 total);
+fresh re-grep of the whole non-vendored tree for every pattern above came
+back zero. Two independent sessions converged on this same sweep in
+parallel this session (triggered from opposite directions — a live user bug
+report on Wholesale's Distributor edit form vs. a proactive grep-driven
+sweep) and hit real edit races on shared files (`Wholesale/js/sync_item.js`,
+this doc) resolved by re-reading before each write; no content was lost.
+**Browser-verified beyond the original bug report's screen**: Wholesale's
+Distributors "Edit record" form end-to-end via Playwright (`jtylek` session)
+— opened a real record (plugin "XLS or CSV custom import (manufacturer)"),
+confirmed all 6 parameter rows relabeled correctly with zero console errors
+(this is the `.up("tr")`→`.closest(".epesi-rv-row")` fix, not just the
+`$(id).property` one, since the AdminLTE-era markup replaced `<tr>` rows with
+`.epesi-rv-row` divs — the `.up()`/`.closest("tr")` distinction doesn't
+otherwise appear in this section's inventory above), then switched the
+Plugin dropdown to "Epesi" and confirmed a real `adjust_parameters.php`
+AJAX round-trip re-labeled the fields to that plugin's own params (URL/
+Login/Password), zero console errors throughout. The other files were
+ported mechanically, following exactly the same conventions already
+browser-verified elsewhere in this doc, but weren't individually clicked
+through in a live session (Wholesale's own File scan popup was
+curl-confirmed only, per the note this replaced).
+
 ### Step 7 correction — the "all fixed same session" claim above was false, found and actually fixed 2026-08-13
 
 The step 7 section above (13 sites, 6 files, "all fixed same session") documented

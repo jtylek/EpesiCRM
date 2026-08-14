@@ -25,20 +25,30 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 	public static function user_settings() {
 		self::get_options();
 		$ret_opts = array();
+		$grandfathered = self::get_grandfathered_items();
 		foreach(self::$options as $opt) {
 			unset($opt['link']);
 			$name = $opt['name'];
 			unset($opt['name']);
+			// Only items that existed as of the last freeze (see
+			// freeze_current_items_as_grandfathered()) default to visible -
+			// anything installed afterward (e.g. a Premium module added later
+			// via EpesiStore) starts hidden instead, so installing a new
+			// module no longer clutters every user's Quick Access bar/
+			// Launchpad the way Premium_Warehouse just did. Per-user rows in
+			// base_user_settings still override this either way, same as
+			// before.
+			$default = in_array($name, $grandfathered) ? 1 : 0;
 			$opt = array_merge($opt,array(
 						'type'=>'bool',
 						'reload'=>true,
-						'default'=>1
+						'default'=>$default
 						));
 			// Default on for both columns, except the Dashboard module's own
 			// entry: showing a "Dashboard" widget on the Dashboard itself is
 			// circular/pointless, so only its Launchpad default stays on.
 			$is_dashboard = ($opt['module']==Base_Dashboard::module_name());
-			$dashboard_default = $is_dashboard?0:1;
+			$dashboard_default = $is_dashboard?0:$default;
 			$dashboard_elem = array_merge($opt,array(
 						'values'=>__('Dashboard'),
 						'default'=>$dashboard_default,
@@ -78,6 +88,28 @@ class Base_Menu_QuickAccessCommon extends ModuleCommon {
 		//trigger_error(print_r($ret_opts,true));
 		if (Acl::is_user()) return array(__('Quick Access')=>$ret_opts);
 		return array();
+	}
+
+	// The set of item names (get_options()'s own 'name', an md5 of the menu
+	// path - the same key used for the _d/_l setting rows) that still
+	// default to visible. Empty/never-frozen means every item defaults to
+	// hidden, so an install that never freezes still fails safe rather than
+	// silently reverting to "everything on".
+	public static function get_grandfathered_items() {
+		$items = Variable::get('quickaccess_grandfathered_items', false);
+		return is_array($items) ? $items : array();
+	}
+
+	// Snapshots every menu item that exists right now as still defaulting to
+	// visible - called once at the end of a fresh install's module-install
+	// loop (FirstRun_0.php::done()) and once via the 20260814 patch for
+	// installs upgrading into this behavior. Deliberately never called again
+	// after that: a module installed later is exactly what's meant to start
+	// hidden, so nothing should keep growing this set back to "everything".
+	public static function freeze_current_items_as_grandfathered() {
+		self::$options = null; // force a recompute against the current menu, not a request-cached one
+		$names = array_map(fn($opt) => $opt['name'], self::get_options());
+		Variable::set('quickaccess_grandfathered_items', $names);
 	}
 
 	public static function get_options() {

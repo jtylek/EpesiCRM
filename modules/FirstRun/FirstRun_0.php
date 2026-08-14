@@ -231,6 +231,16 @@ class FirstRun extends Module {
 		Base_SetupCommon::refresh_available_modules();
 		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
 
+		// Freezes the just-installed package's own menu items as the
+		// permanent Quick Access/Launchpad "default visible" baseline (see
+		// Base_Menu_QuickAccessCommon::freeze_current_items_as_grandfathered())
+		// - has to run after the cache/menu refresh above, once the newly
+		// installed modules' menus actually resolve. Anything installed
+		// later via EpesiStore starts hidden by default instead, so a
+		// post-setup module install no longer clutters every user's Quick
+		// Access bar/Launchpad the way it used to.
+		Base_Menu_QuickAccessCommon::freeze_current_items_as_grandfathered();
+
 		$t = microtime(true);
 		epesi_log(date('Y-m-d H:i:s').': Creating cache of template files ...'."\n",'firstrun.log');
 		Base_ThemeCommon::create_cache();

@@ -590,7 +590,7 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
  * If enabled CPU usage may raise, but amount
  * of transferred data is smaller.
  */
-//define(\'MINIFY_SOURCES\',0);
+define(\'MINIFY_SOURCES\',1);
 
 /*
  * Bundle every module\'s Common_0.php into one cached file

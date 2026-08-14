@@ -338,14 +338,25 @@
 	vertical-align: middle;
 	border: none;
 	border-right: 1px solid rgba(255, 255, 255, 0.15);
-	white-space: nowrap;
 	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
+/* white-space/text-overflow live here, not on __th itself: __th is
+   display:table-cell (see "---- table ----" below), and per the CSS Overflow
+   spec text-overflow never applies to table-cell/table-row/... boxes - only
+   the ellipsis rendering was silently no-op'd (overflow:hidden above still
+   clipped fine, since overflow isn't in that exclusion list), so a header
+   whose full label didn't fit its column's percentage width (e.g. "On Hand"
+   in a narrow quantity column) got hard-cut to "On Han" with no "..." at all
+   instead of "On Han...". This span (already display:block for the
+   color:inherit rule below) is the nearest actual block box, where
+   text-overflow does apply. */
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th > span {
 	color: inherit;
 	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__th a {

@@ -68,17 +68,6 @@ body#FirstRun {
 	box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .15) !important;
 }
 
-/* Bold, block-shaped caret so it's obvious which field has focus - default.tpl
-   autofocuses the page's first input/select on load, so this caret is the
-   one landing there, not a stray leftover from a previous step. caret-shape
-   is Safari-only today; unsupported browsers just keep the normal thin bar. */
-#FirstRun input,
-#FirstRun select,
-#FirstRun textarea {
-	caret-color: #0d6efd;
-	caret-shape: block;
-}
-
 #FirstRun .firstrun-footer {
 	margin: 1.5rem auto 2rem;
 }
