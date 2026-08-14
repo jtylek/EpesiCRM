@@ -14,6 +14,12 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_HelpCommon extends ModuleCommon {
+	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
+	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
+	// indicator, etc.) instead of a central map - see
+	// modules/Base/Theme/bootstrap_icons.php.
+	public static function bootstrap_icon() { return 'bi-life-preserver'; }
+
 	// adminlte only, per request ("move Help to menu under Support") -
 	// merges into the same "Support" submenu group Base_About/Base_EssClient/
 	// Base_EpesiStore/Base_Mail_ContactUs already contribute to

@@ -1,0 +1,24 @@
+/* Get Support landing page. Fixed light grey/black scheme, per request -
+   deliberately matches the app-sidebar's own fixed light grey (Base/Box/
+   theme_adminltedark/default.css - "the sidebar stays this same color in
+   both light and dark mode, per request"), same always-this-one-grey
+   treatment already applied to Leightbox popups/tooltips elsewhere (see
+   AI-shared/adminlte-theme.md's "fixed grey/black sidebar chrome
+   convention"). No [data-bs-theme="light"] override needed - stays this one
+   grey regardless of theme. */
+
+.epesi-support.card {
+	background-color: #dee2e6;
+	color: #000;
+	border: none;
+}
+
+.epesi-support.card .card-header {
+	background-color: rgba(0, 0, 0, 0.05);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	color: #000;
+}
+
+.epesi-support.card .card-body a {
+	color: #0d6efd;
+}

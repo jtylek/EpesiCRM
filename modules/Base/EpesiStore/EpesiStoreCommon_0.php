@@ -28,14 +28,6 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const CART_VAR = 'cart';
     const DOWNLOAD_QUEUE_VAR = 'queue';
 
-    public static function menu() {
-        if (!self::admin_access())
-            return;
-        if (!Base_EssClientCommon::has_license_key())
-            return;
-        return array(_M('Support') => array('__submenu__' => 1, _M('%s Store', array(EPESI)) => array('__function__' => 'manage')));
-    }
-
     public static function admin_access() {
         $trial = defined('TRIAL_MODE') ? TRIAL_MODE : 0;
         return Base_AclCommon::i_am_sa() && !$trial && !DEMO_MODE;
