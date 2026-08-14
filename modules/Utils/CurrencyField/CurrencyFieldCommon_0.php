@@ -122,7 +122,123 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if ($cache===null) $cache = DB::GetRow('SELECT * FROM utils_currency WHERE default_currency=1');
 		return $cache;
 	}
-	
+
+	public static function get_rate_backfill_start() {
+		$v = Variable::get('utils_currency_rate_backfill_start', false);
+		return $v ?: date('Y-m-d', strtotime('-1 year'));
+	}
+
+	public static function set_rate_backfill_start($date) {
+		Variable::set('utils_currency_rate_backfill_start', $date);
+	}
+
+	/**
+	 * Looks up the cached daily rate for converting 1 unit of $currency_id into
+	 * $target_currency_id, as of $date - falling back to the most recent earlier
+	 * cached date (weekends/bank holidays have no published rate).
+	 *
+	 * @return float|null null if nothing is cached yet for this pair.
+	 */
+	public static function get_cached_rate($currency_id, $target_currency_id, $date) {
+		if ($currency_id == $target_currency_id) return 1.0;
+		$rate = DB::GetOne('SELECT rate FROM utils_currency_rate WHERE currency_id=%d AND target_currency_id=%d AND rate_date<=%D ORDER BY rate_date DESC LIMIT 1', array($currency_id, $target_currency_id, $date));
+		return $rate!==false && $rate!==null ? (float)$rate : null;
+	}
+
+	private static function fetch_json($url) {
+		if (function_exists('curl_init')) {
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+			$body = curl_exec($ch);
+			curl_close($ch);
+		} else {
+			$body = @file_get_contents($url, false, stream_context_create(array('http'=>array('timeout'=>30))));
+		}
+		if (!$body) return null;
+		$data = @json_decode($body, true);
+		return is_array($data) ? $data : null;
+	}
+
+	/**
+	 * Fetches missing daily exchange rates (from every active currency to every
+	 * other active currency) from Frankfurter (api.frankfurter.dev, free ECB-backed
+	 * rates, no API key) and caches them in utils_currency_rate. Backfills from
+	 * get_rate_backfill_start() (or the last cached date, if later) through today.
+	 * Called from the "Update currencies exchange rates" admin action.
+	 */
+	public static function fetch_daily_rates() {
+		if (!CURRENCY_RATE_AUTO_FETCH) {
+			Epesi::alert(__('Currency rate auto-fetch is disabled in configuration.'));
+			return false;
+		}
+		$currencies = self::get_currencies();
+		if (count($currencies) < 2) {
+			Epesi::alert(__('Add at least two active currencies before fetching exchange rates.'));
+			return false;
+		}
+		$today = date('Y-m-d');
+		$backfill_start = self::get_rate_backfill_start();
+		$fetched = 0;
+		$skipped = array();
+		foreach ($currencies as $from_id => $from_code) {
+			$to_ids = array();
+			foreach ($currencies as $id => $code) {
+				if ($id != $from_id) $to_ids[$code] = $id;
+			}
+			if (!$to_ids) continue;
+
+			$last = DB::GetOne('SELECT MAX(rate_date) FROM utils_currency_rate WHERE currency_id=%d', array($from_id));
+			$start = $last ? date('Y-m-d', strtotime($last) + 86400) : $backfill_start;
+			if ($start > $today) continue;
+
+			$url = 'https://api.frankfurter.dev/v1/'.$start.'..'.$today.'?base='.urlencode($from_code).'&symbols='.urlencode(implode(',', array_keys($to_ids)));
+			$data = self::fetch_json($url);
+			if (!isset($data['rates']) || !is_array($data['rates'])) {
+				$skipped[] = $from_code;
+				continue;
+			}
+			$now = time();
+			foreach ($data['rates'] as $rate_date => $rates_by_code) {
+				foreach ($rates_by_code as $code => $rate) {
+					if (!isset($to_ids[$code])) continue;
+					$to_id = $to_ids[$code];
+					$exists = DB::GetOne('SELECT id FROM utils_currency_rate WHERE currency_id=%d AND target_currency_id=%d AND rate_date=%D', array($from_id, $to_id, $rate_date));
+					if ($exists) {
+						DB::Execute('UPDATE utils_currency_rate SET rate=%f, source=%s, fetched=%d WHERE id=%d', array($rate, 'frankfurter', $now, $exists));
+					} else {
+						DB::Execute('INSERT INTO utils_currency_rate (currency_id, target_currency_id, rate_date, rate, source, fetched) VALUES (%d, %d, %D, %f, %s, %d)', array($from_id, $to_id, $rate_date, $rate, 'frankfurter', $now));
+					}
+					$fetched++;
+				}
+			}
+		}
+		$msg = __('Fetched').' '.$fetched.' '.__('exchange rate(s).');
+		if ($skipped) $msg .= ' '.__('Skipped (unsupported currency or unreachable service):').' '.implode(', ', array_unique($skipped));
+		$recalculated = self::recalculate_missing_amounts();
+		if ($recalculated) $msg .= ' '.__('Recalculated').' '.$recalculated.' '.__('previously-unresolved record(s).');
+		Epesi::alert($msg);
+		return false;
+	}
+
+	/**
+	 * Re-triggers amount recalculation, via each optional Premium module's own
+	 * hook, for existing records that were saved with a missing exchange rate
+	 * before this cache had data for them - so a fetch retroactively fixes
+	 * already-broken records, not just future ones. No-ops per module when
+	 * that module isn't installed.
+	 */
+	private static function recalculate_missing_amounts() {
+		$count = 0;
+		if (ModuleManager::is_installed('Premium_Accounts') >= 0) $count += Premium_AccountsCommon::recalculate_missing_amounts();
+		if (ModuleManager::is_installed('Premium_Expenses') >= 0) $count += Premium_ExpensesCommon::recalculate_missing_amounts();
+		if (ModuleManager::is_installed('Premium_Timesheet') >= 0) $count += Premium_TimesheetCommon::recalculate_missing_amounts();
+		if (ModuleManager::is_installed('Premium_Vehicles') >= 0) $count += Premium_VehiclesCommon::recalculate_missing_amounts();
+		return $count;
+	}
+
 	public static function admin_caption() {
 		return array('label'=>__('Currencies'), 'section'=>__('Regional Settings'));
 	}

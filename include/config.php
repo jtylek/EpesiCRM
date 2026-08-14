@@ -49,6 +49,12 @@ if(!defined('TRACKING_CODE')) define('TRACKING_CODE','');
 // mechanism off (no server-side scan, no client-side poll, no banner).
 if(!defined('ASSET_VERSION_CHECK')) define('ASSET_VERSION_CHECK',1);
 
+// Utils_CurrencyFieldCommon::fetch_daily_rates() (the admin "Update currencies
+// exchange rates" action on the Currencies screen) calls out to
+// api.frankfurter.dev to cache daily FX rates. Set to 0 in data/config.php to
+// disable the outbound call entirely (button hidden, method no-ops).
+if(!defined('CURRENCY_RATE_AUTO_FETCH')) define('CURRENCY_RATE_AUTO_FETCH',1);
+
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);
 if(!defined('READ_ONLY_SESSION')) define('READ_ONLY_SESSION',0);

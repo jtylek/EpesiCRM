@@ -56,10 +56,33 @@ class Utils_CurrencyField extends Module {
 			$gb_row->add_action($this->create_callback_href($this->edit_currency(...),array($row['id'])),'edit');
 		}
 		Base_ActionBarCommon::add('add', __('New'), $this->create_callback_href($this->edit_currency(...), array(null)));
+		if (CURRENCY_RATE_AUTO_FETCH) {
+			Base_ActionBarCommon::add('retry', __('Update currencies exchange rates'), $this->create_confirm_callback_href(__('This will fetch missing daily exchange rates from an external source and may take a moment. Continue?'), array('Utils_CurrencyFieldCommon','fetch_daily_rates')));
+			Base_ActionBarCommon::add('settings', __('Exchange rate settings'), $this->create_callback_href($this->rate_settings(...)));
+		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		$this->display_module($gb);
 	}
-	
+
+	public function rate_settings() {
+		if ($this->is_back()) return false;
+		$form = $this->init_module('Libs_QuickForm');
+		$form->addElement('header', 'header', __('Exchange rate settings'));
+		$form->addElement('text', 'backfill_start', __('Fetch rates starting from'));
+		$form->addRule('backfill_start', __('Field required'), 'required');
+		$form->addRule('backfill_start', __('Invalid date, use YYYY-MM-DD'), 'regex', '/^\d{4}-\d{2}-\d{2}$/');
+		if ($form->validate()) {
+			$vals = $form->exportValues();
+			Utils_CurrencyFieldCommon::set_rate_backfill_start($vals['backfill_start']);
+			return false;
+		}
+		$form->setDefaults(array('backfill_start' => Utils_CurrencyFieldCommon::get_rate_backfill_start()));
+		$form->display_as_column();
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		return true;
+	}
+
 	public function edit_currency($id) {
 		if ($this->is_back()) return false;
 		$form = $this->init_module('Libs_QuickForm');

@@ -59,6 +59,7 @@ class ConfigInfo extends AdminModule {
             $this->row('Minify sources: ', $yn(MINIFY_SOURCES)),
             $this->row('Force cache common files: ', $yn(FORCE_CACHE_COMMON_FILES)),
             $this->row('Asset version check (stale-tab reload prompt): ', $yn(ASSET_VERSION_CHECK)),
+            $this->row('Currency rate auto-fetch: ', $yn(CURRENCY_RATE_AUTO_FETCH)),
             $this->row('Suggest Donation: ', $yn(SUGGEST_DONATION)),
             $this->row('Check epesi version: ', $yn(CHECK_VERSION)),
             $this->row('JS Output: ', $yn(JS_OUTPUT)),

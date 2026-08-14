@@ -26,10 +26,21 @@ class Utils_CurrencyFieldInstall extends ModuleInstall {
 					array('constraints'=>''));
 		DB::Execute('INSERT INTO utils_currency (symbol, code, decimal_sign, thousand_sign, decimals, pos_before, active, default_currency) VALUES (%s, %s, %s, %s, %d, %d, %d, %d)',
 					array('$', 'USD', '.', ',', 2, 1, 1, 1));
+		DB::CreateTable('utils_currency_rate',
+					'id I AUTO KEY,'.
+					'currency_id I NOTNULL,'.
+					'target_currency_id I NOTNULL,'.
+					'rate_date D NOTNULL,'.
+					'rate F NOTNULL,'.
+					'source C(32),'.
+					'fetched I8 NOTNULL',
+					array('constraints'=>''));
+		DB::CreateIndex('utils_currency_rate_pair', 'utils_currency_rate', 'currency_id,target_currency_id,rate_date', array('UNIQUE'=>1));
 		return true;
 	}
-	
+
 	public function uninstall() {
+		DB::DropTable('utils_currency_rate');
 		DB::DropTable('utils_currency');
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return true;
