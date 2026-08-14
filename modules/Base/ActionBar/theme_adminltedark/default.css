@@ -127,6 +127,24 @@
 	min-height: calc(1.15em * 2);
 }
 
+/* Roundcube_0.php's account-switcher buttons ('new-mail' icon type, unique
+   to this list - see Base_ActionBar/theme_adminltedark/default.tpl's
+   $icon_map) use the full email address as their label whenever no shorter
+   account_name was set for that account. The generic 2-line word-wrap rule
+   above has no whitespace to break an email address at, so it broke mid-word
+   instead (e.g. "k.tylek@eurol" / "eader.com") - single line + ellipsis here
+   instead, same :has() icon-targeting pattern as the Watchdog/Mail overrides
+   above. The full address is still available on hover: Base_ActionBarCommon
+   ::add()'s $description param (Roundcube_0.php passes $a['email']) already
+   renders as this button's own tooltip. */
+.epesi-actionbar-btn:has(.bi-envelope-plus) .epesi-actionbar-label {
+	max-width: 140px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+}
+
 /* The launcher group's own labels don't need that 2-line reservation -
    unlike .epesi-actionbar-group's per-screen action labels (which really do
    vary in length screen to screen, the reason for the rule above), this
