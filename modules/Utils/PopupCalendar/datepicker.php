@@ -37,6 +37,16 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$this->setType('text');
             if (!$this->getAttribute('placeholder'))
                 $this->setAttribute('placeholder', __('Click to select date'));
+            // Browser/password-manager autofill (keyed off name="birth_date"
+            // etc.) fills its own stored format (commonly ISO YYYY-MM-DD),
+            // which almost never matches this instance's configured
+            // date_format() - validate_blur() in datepicker.js then correctly
+            // rejects the mismatch and wipes the field, so every autofill of
+            // a date field silently loses the value the browser just filled.
+            // Opting this field out of autofill entirely avoids the mismatch
+            // rather than trying to parse arbitrary autofill formats.
+            if (!$this->getAttribute('autocomplete'))
+                $this->setAttribute('autocomplete', 'off');
             $js = Utils_PopupCalendarCommon::create_href(md5($id),
                     'jQuery.ajax(\'modules/Utils/PopupCalendar/up.php\','.
                     '{method:\'post\', data:{date: __YEAR__+\'-\'+__MONTH__+\'-\'+__DAY__}, dataType:\'text\','.

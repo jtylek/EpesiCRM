@@ -29,6 +29,28 @@ validate_blur: function(ev,f) {
 	var elem = ev.target;
 	this.init_re(f);
 	if(!this.re.test(elem.value)) {
+		// Browser/password-manager autofill on a semantically-named field
+		// (e.g. "birth_date") ignores autocomplete="off" often enough in
+		// Chrome specifically (a deliberate Chromium decision, not a bug) to
+		// not be a reliable defense on its own - see AI-shared/bug-patterns.md.
+		// Autofill's own stored format is unambiguous ISO (YYYY-MM-DD)
+		// regardless of what this field is configured to display, so reparse
+		// and reformat that one specific shape instead of rejecting it
+		// outright - an autofilled date then survives instead of silently
+		// vanishing. Anything else (genuinely invalid input, or an ambiguous
+		// non-ISO format that could be misread, e.g. slash-separated) still
+		// alerts+clears rather than guessing wrong. Skipped for %B/%b
+		// (month-name) formats - no locale-aware month-name table here to
+		// reformat into safely.
+		var iso = elem.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+		if (iso && f.indexOf('%B')===-1 && f.indexOf('%b')===-1) {
+			var reformatted = f.replace('%Y', iso[1]).replace('%y', iso[1].slice(2))
+				.replace('%m', iso[2]).replace('%d', iso[3]);
+			if (this.re.test(reformatted)) {
+				elem.value = reformatted;
+				return;
+			}
+		}
 		alert('Invalid date - clearing');
 		elem.value='';
 	}

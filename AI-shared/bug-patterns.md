@@ -1184,3 +1184,66 @@ bug in non-incognito windows while incognito correctly showed it broken) -
 worth recognizing either direction: aggressive caching can hide a real bug
 just as easily as it can appear to resurrect a fixed one.
 
+## "Invalid date - clearing" recurring *again*, surviving a hard reload and a brand-new tab: browser autofill, not stale JS
+
+Reported again 2026-08-14, same day as the stale-tab entry just above - but
+this time the reporter did a real `Ctrl+Shift+R` **and** opened a brand-new
+tab, and it got *worse* (3 alerts instead of 1). That combination rules out
+every page-JS-staleness theory at once (stale cached bundle, stale in-memory
+tab JS, the `load_js()` session-dedup flag documented earlier in this file -
+a fresh tab gets a fresh `client_id`/session bucket, per `init_js.php`, so
+none of those can survive a genuinely new tab). Confirmed live by fetching
+`serve.php?f=modules/Utils/PopupCalendar/datepicker.js` directly with curl:
+the served content already had the real regex fix. Something else was
+depositing a non-empty, wrong-format value into the field *without the user
+typing it*.
+
+**Real root cause**: [modules/Utils/PopupCalendar/datepicker.php](../modules/Utils/PopupCalendar/datepicker.php)'s
+`HTML_QuickForm_datepicker::toHtml()` rendered the input with no
+`autocomplete` attribute at all, and a plain semantic `name`/`id` (e.g.
+`birth_date` on Contacts) - exactly what browser/password-manager autofill
+heuristics key off, on a form that also has name/address/phone fields (i.e.
+any "Add Contact"-shaped form). Autofill has no idea this app expects one
+specific configured `date_format()` (e.g. `%m/%d/%Y`); it fills in whatever
+shape it stores internally (commonly ISO `YYYY-MM-DD`). `validate_blur()`
+then does exactly what it's supposed to - rejects the mismatched format and
+clears the field - except the value it's wiping was never something the user
+typed, so every autofill of a date field silently loses the value the
+browser/password manager just filled, with no obvious cause from the user's
+side. Reproduced conclusively via Playwright: `el.value = '1990-05-20';
+el.blur()` on a completely fresh page load fired the exact same alert.
+
+**Fix (partial)**: `toHtml()` now sets `autocomplete="off"` on the field
+(unless already set) right after the `placeholder` default. Applies to every
+date field app-wide (shared QuickForm element type), pure code change,
+reaches existing installs automatically. Follow-up:
+`validate_blur()` (datepicker.js) also now reparses/reformats an unambiguous
+ISO `YYYY-MM-DD` value instead of rejecting it, verified in isolation against
+the live-served JS (six cases: three format×ISO-input combos all reformat
+correctly, empty still passes, genuine garbage still alerts+clears, an
+already-valid value passes through unchanged).
+
+**Outcome: still not fully resolved in the wild.** Both fixes are real and
+verified correct for what they target, but re-enabling Birth Date and
+retesting with the reporting user's actual (Chrome-profile-synced) autofill
+data reproduced the alert again - autocomplete="off" is a deliberate
+Chromium no-op for fields it strongly believes are profile data (not a bug,
+a documented Chrome product decision), and whatever value Chrome is actually
+inserting isn't the plain ISO shape the reformat fallback handles. Rather
+than keep guessing at real-world autofill formats with no way to reproduce
+the user's actual synced-profile behavior locally, the field was disabled
+instead - see `deliberate-removals.md`'s "Contacts Birth Date field
+disabled" entry. Keep both code fixes (they're correct and harmless, and
+help in browsers/situations where autocomplete="off" *is* honored) but don't
+present this as fully solved if it comes up again.
+
+**How to apply**: when a bug is reported as "already fixed" yet survives a
+hard reload *and* a brand-new tab, stop looking at page JS/session state
+entirely - both are guaranteed fresh at that point (see `init_js.php`'s
+`num_of_clients` counter, which mints a new per-tab session bucket every full
+`index.php` load). Look instead at browser-profile-level state that persists
+across tabs/reloads: autofill, saved passwords, extensions. Any custom-
+formatted text input whose `name`/`id` reads as a real-world field
+(birthdate, address, phone, email) and has no explicit `autocomplete` is a
+candidate - `autocomplete="off"` is the standard mitigation, not an attempt
+to parse every possible autofill format.

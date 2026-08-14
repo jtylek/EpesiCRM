@@ -88,6 +88,40 @@ patch `20260812_move_custom_translations_to_data.php`, which migrates any
 already-written `modules/*/lang/*_custom.php` files on upgrade. This does
 *not* revive theme storage under `data/` — that stays fully removed.
 
+## Contacts "Birth Date" field disabled (2026-08-14)
+
+The `type=>'date'` "Birth Date" field on `CRM_Contacts`
+([modules/CRM/Contacts/ContactsInstall.php:71](../modules/CRM/Contacts/ContactsInstall.php))
+was disabled via the admin field-management UI (a per-instance `RecordBrowser`
+config flag, not a code change — the field definition itself is untouched) at
+explicit user request, after repeated "Invalid date - clearing" reports
+traced to browser/password-manager autofill on this specific field — see the
+"browser autofill, not stale JS" entry in `bug-patterns.md` for the full
+investigation. Two real code fixes were shipped for the underlying mechanism
+(`autocomplete="off"` on the field, then a datepicker.js fallback that
+reparses/reformats an unambiguous ISO `YYYY-MM-DD` autofill value instead of
+rejecting it) and both are still in place — but re-enabling the field and
+retesting still reproduced the alert with the user's real (Chrome-profile-
+synced) autofill data, meaning whatever Chrome is actually inserting there
+isn't the plain ISO shape the reformat fallback handles. Rather than keep
+chasing unknown real-world autofill formats, the user decided disabling the
+field is not worth continuing to fight.
+
+**Also removed on this instance**: the `Applets/Birthdays` dashboard applet
+(reads Contacts' Birth Date to list upcoming birthdays — pointless with the
+field disabled) was uninstalled via Administration: Modules Administration &
+Store, and dropped from the `[CRM installation]` preset in
+`modules/FirstRun/distros.ini` (the first-run wizard's fresh-install module
+bundle, `modules/FirstRun/FirstRun_0.php:69`) so future fresh installs don't
+pull it in either.
+
+**How to apply**: if a future request wants Birth Date back, re-enabling it
+needs a warning that this exact autofill-triggered alert may return for
+users whose browser/password-manager autofills it — the underlying datepicker
+fixes reduce but don't eliminate the risk. Don't silently re-enable it (or
+reinstall the Birthdays applet / re-add it to distros.ini) as a "fix" for an
+unrelated complaint; confirm with the user first, per this file's header.
+
 ## Setup wizard tooltip/JS component attempts — see `adminlte-theme.md`
 
 (Not a removal of a feature per se, but three separate JS-tooltip-component
