@@ -21,7 +21,10 @@
  * /`home_page()` elsewhere in this codebase - resolve() below just looks it
  * up on demand instead of aggregating every module's up front. Undeclared is
  * the expected case (most modules have no reason to appear in the sidebar/
- * launcher/admin panels), handled by falling back to a plain gear.
+ * launcher/admin panels), handled by falling back to a generic "window"
+ * glyph (bi-layout-text-window-reverse) unless the caller supplies its own
+ * more context-appropriate fallback (e.g. Admin's 'bi-gear', Settings'
+ * 'bi-sliders').
  *
  * Deliberately plain PHP (require_once'd, not a Module subclass) - matches
  * why modules/Base/Theme/resolver.php isn't one either: consumers pull this
@@ -66,7 +69,7 @@ class Base_BootstrapIcons {
 	 *        original icon/image instead"
 	 * @return string|null a "bi-..." class name, or $fallback
 	 */
-	public static function resolve($icon, $module = null, $fallback = 'bi-gear') {
+	public static function resolve($icon, $module = null, $fallback = 'bi-layout-text-window-reverse') {
 		if ($icon) {
 			$stem = strtolower(pathinfo($icon, PATHINFO_FILENAME));
 			if (isset(self::$by_filename[$stem]))

@@ -24,11 +24,17 @@
 	// instead of trying to fix Base_Box's own module-tracking. Only fall
 	// back to the (possibly-wrong-in-this-one-case, but only source
 	// available) $module_type when there's no icon path to extract from.
+	// Falls all the way through to Base_BootstrapIcons's own generic default
+	// (bi-layout-text-window-reverse, via the omitted 3rd arg) when the
+	// active module hasn't declared bootstrap_icon() either - see
+	// Utils/Attachment/patches/20260811_set_icon.php for a past case of
+	// this exact fallthrough (fixed there by giving that module its own
+	// icon, not by changing this fallback).
 	require_once('modules/Base/Theme/bootstrap_icons.php');
 	$text = $this->get_template_vars('text');
 	$module_icon = $this->get_template_vars('module_icon');
 	$module_type = $this->get_template_vars('module_type');
-	$this->assign('bi_icon', $text ? Base_BootstrapIcons::resolve($module_icon, $module_icon ? null : $module_type, 'bi-app-indicator') : null);
+	$this->assign('bi_icon', $text ? Base_BootstrapIcons::resolve($module_icon, $module_icon ? null : $module_type) : null);
 {/php}
 {* data-module-type: not used for the icon lookup above (that already
    happened server-side) - exposed here purely as a CSS hook so Base_Box's

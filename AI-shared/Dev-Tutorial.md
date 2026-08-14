@@ -349,8 +349,9 @@ same trap as any other module-variable cache (§6).
 
 **`bootstrap_icon()`** (AdminLTE theme only — see `AI-shared/adminlte-theme.md`)
 is resolved on-demand per module rather than aggregated, via
-`Base_BootstrapIcons::resolve()`, falling back to a plain gear icon if
-undeclared:
+`Base_BootstrapIcons::resolve()`, falling back to a generic window icon
+(`bi-layout-text-window-reverse`) if undeclared, unless the caller supplies
+its own more context-appropriate fallback:
 ```php
 public static function bootstrap_icon() { return 'bi-envelope-fill'; }  // Bootstrap Icons class name
 ```

@@ -73,13 +73,14 @@
 	// as an already-resolved file path, not a name from the fixed list above.
 	// Base_BootstrapIcons is the single shared map for this (also used by
 	// Base_Menu::build_menu_html()'s sidebar icons, so a module's icon reads
-	// the same in both places); a null fallback here means an unmatched
-	// module keeps its own original image rather than a generic glyph -
-	// unlike the named icons above, these can be genuinely meaningful custom
-	// artwork worth keeping.
+	// the same in both places); an unmatched module now falls back to
+	// Base_BootstrapIcons's own generic default (bi-layout-text-window-reverse,
+	// via the omitted 3rd arg) instead of keeping its own raster image, so
+	// icon-less modules read consistently everywhere rather than mixing
+	// custom artwork and glyphs in the same row.
 	require_once('modules/Base/Theme/bootstrap_icons.php');
 	foreach ($launcher as $k=>$i) {
-		$launcher[$k]['bi_icon'] = Base_BootstrapIcons::resolve($i['icon'] ?? null, null, null);
+		$launcher[$k]['bi_icon'] = Base_BootstrapIcons::resolve($i['icon'] ?? null);
 	}
 	$this->assign('launcher', $launcher);
 {/php}

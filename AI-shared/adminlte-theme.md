@@ -85,6 +85,55 @@ theme wanting to reuse it. Every module's own method was renamed
 remains the only actual consumer of `resolve()` today; nothing about
 *that* changed.
 
+**Update (2026-08-14, same day):** `resolve()`'s own `$fallback` default —
+used for modules that don't declare `bootstrap_icon()` when the caller
+doesn't supply a more specific fallback — changed from `'bi-gear'` to
+`'bi-layout-text-window-reverse'` (a generic "window" glyph, less likely to
+misread as "this is a settings/admin screen" than a gear). None of the 7
+current call sites actually relied on this default — each already passes
+its own context-appropriate fallback (`'bi-gear'` for Admin's tool list,
+`'bi-sliders'` for Settings, `'bi-app-indicator'` for MainModuleIndicator,
+`'bi-folder2'`/`'bi-dot'` for Menu sub/leaf items, `null` for ActionBar's
+launcher/launchpad and LeightboxPrompt to keep a module's original raster
+icon instead of forcing a glyph) — those were deliberately left alone. Only
+the function's documented default, and the docs describing it
+(`Dev-Tutorial.md`, `Custom/Tutorial/TutorialCommon_0.php`'s comment),
+changed.
+
+**Update (2026-08-14, later same day):** per explicit follow-up request, the
+per-caller overrides above were walked back everywhere they existed purely
+to say "no icon declared" (as opposed to a genuinely different structural
+meaning) — the whole point of the earlier change was for icon-less modules
+to read the same everywhere, and leaving each call site's own override in
+place defeated that:
+- **Menu** (`Menu_0.php:210`, `Base_Menu::build_menu_html()`): leaf items no
+  longer pass `'bi-dot'` — they now omit the 3rd arg and take `resolve()`'s
+  own default. Submenu/category entries **still** pass `'bi-folder2'`
+  deliberately kept — that's marking "this is a folder in the tree", a
+  structural fact, not a per-module icon fallback.
+- **ActionBar launcher** (`theme_adminltedark/default.tpl`, the quick-access
+  row) and **launchpad** (`theme_adminltedark/launchpad.tpl`, the pinned-icon
+  popup): both dropped their explicit `null` 3rd arg and now take the
+  generic default too. This is an intentional behavior change from the
+  original design noted above (null meant "keep the module's own raster
+  icon.png instead of a generic glyph") — an icon-less module's launcher/
+  launchpad entry now shows the shared glyph instead of its original
+  artwork. `launchpad.tpl`'s `{if $i.bi_icon}...{else}<img src=$i.icon>{/if}`
+  branch is effectively dead now (`bi_icon` can no longer come back null from
+  these call sites) but was left in place rather than restructured.
+- **MainModuleIndicator** (`theme_adminltedark/default.tpl:31`, the "which
+  module's content is this" strip above the content pane): dropped its
+  explicit `'bi-app-indicator'` 3rd arg the same way.
+- **Left unchanged, not part of this request**: Admin's `'bi-gear'` (comment
+  there explicitly says gear fits because "this panel is specifically admin
+  tools") and Settings' `'bi-sliders'` — both are curated single-purpose
+  screens, not "any module might show up here with no icon" surfaces, so
+  their fallback is arguably still a real, separate design choice rather
+  than an "undeclared" placeholder. LeightboxPrompt's `null` (arbitrary
+  per-button icons in a generic modal, not necessarily module icons at all)
+  was likewise left alone. Revisit if a future request wants those unified
+  too.
+
 ## Legacy `theme/` converted to div-only layout (2026-08-04)
 
 The legacy `theme/` (old default, pre-AdminLTE, table-based) is now fully
