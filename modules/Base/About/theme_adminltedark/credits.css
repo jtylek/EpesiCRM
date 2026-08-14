@@ -9,12 +9,18 @@
 
 .epesi-about {
 	text-align: center;
-	/* Belt-and-braces: .leightbox itself already sets a white background
-	   (Libs/Leightbox/theme_adminlte/default.css), but forcing it here too,
-	   directly on this content's own outermost element, guarantees a white
-	   background regardless of what's actually happening one level up in
-	   the Leightbox chrome. */
-	background-color: #2b3035;
+	/* #dee2e6/#212529 deliberately the same in both themes now, per request -
+	   same "always this one grey" treatment as the sidebar and
+	   #Leightbox_header (see Libs/Leightbox/theme_adminltedark/default.css),
+	   not the dark popup chrome's own color/background-color. Was dark-only
+	   (#2b3035, matching .leightbox's dark default) with a light-mode
+	   override just for the background - that left the inherited light-grey
+	   .leightbox text color (#dee2e6) illegible against this now-light
+	   background in dark mode, so color is pinned here explicitly too rather
+	   than left to inherit from .leightbox, whose base/light-mode colors
+	   still differ. */
+	background-color: #dee2e6;
+	color: #212529;
 	/* #Leightbox_content already has its own 1rem padding, but this popup's
 	   text runs right up to the edges regardless (visible on a wide/"big"
 	   render) - added directly here too, per request. */
@@ -37,13 +43,13 @@
 }
 
 .epesi-about-subtitle {
-	color: #8b929a;
+	color: #6c757d;
 	margin-bottom: 0.25rem;
 }
 
 .epesi-about-version {
 	font-size: 0.85rem;
-	color: #8b929a;
+	color: #6c757d;
 	margin-bottom: 1rem;
 }
 
@@ -78,7 +84,7 @@
 
 .epesi-about-note {
 	font-size: 0.85rem;
-	color: #8b929a;
+	color: #6c757d;
 	margin-bottom: 1.5rem;
 }
 
@@ -88,7 +94,7 @@
 	text-align: left;
 	margin-top: 1.5rem;
 	margin-bottom: 0.5rem;
-	border-bottom: 1px solid #343a40;
+	border-bottom: 1px solid #e9ecef;
 	padding-bottom: 0.35rem;
 }
 
@@ -98,7 +104,7 @@
 	text-align: left;
 	margin-top: 1rem;
 	margin-bottom: 0.4rem;
-	color: #adb5bd;
+	color: #495057;
 }
 
 .epesi-about ul {
@@ -115,7 +121,7 @@
 .epesi-about-footer {
 	margin-top: 1.5rem;
 	padding-top: 1rem;
-	border-top: 1px solid #343a40;
+	border-top: 1px solid #e9ecef;
 }
 
 .epesi-about-footer img {
@@ -124,46 +130,22 @@
 
 .epesi-about-footer p {
 	font-size: 0.8rem;
-	color: #8b929a;
+	color: #6c757d;
 	margin-top: 0.5rem;
 	margin-bottom: 0;
 }
 
-/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
-[data-bs-theme="light"] .epesi-about {
-  background-color: #fff;
-}
-
-[data-bs-theme="light"] .epesi-about-subtitle {
-  color: #6c757d;
-}
-
-[data-bs-theme="light"] .epesi-about-version {
-  color: #6c757d;
-}
-
+/* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ====
+   Only .epesi-about-license-text still varies by theme (deliberately kept as
+   its own dark/light inset box - see credits_adminlte.html discussion).
+   Every other .epesi-about* rule above now hardcodes the value this block
+   used to apply only under light mode, since the container itself
+   (background #dee2e6 / color #212529) no longer varies by theme either -
+   same "always this one grey" treatment as the sidebar and #Leightbox_header,
+   so the redundant per-selector overrides for those were removed rather than
+   kept in sync with values that can no longer drift from their base rule. */
 [data-bs-theme="light"] .epesi-about-license-text {
   background-color: #fff;
   border: 1px solid #e9ecef;
   color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-about-note {
-  color: #6c757d;
-}
-
-[data-bs-theme="light"] .epesi-about h2 {
-  border-bottom: 1px solid #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-about h3 {
-  color: #495057;
-}
-
-[data-bs-theme="light"] .epesi-about-footer {
-  border-top: 1px solid #e9ecef;
-}
-
-[data-bs-theme="light"] .epesi-about-footer p {
-  color: #6c757d;
 }
