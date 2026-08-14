@@ -14,6 +14,7 @@
  */
 define('_VALID_ACCESS', 1);
 require_once('include/data_dir.php');
+require_once('include/config.php');
 require_once('include/misc.php');
 
 header('Content-Type: text/plain');

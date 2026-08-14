@@ -42,6 +42,13 @@ if(!defined('SUGGEST_DONATION')) define('SUGGEST_DONATION',1);
 if(!defined('CHECK_VERSION')) define('CHECK_VERSION',1);
 if(!defined('TRACKING_CODE')) define('TRACKING_CODE','');
 
+// Epesi.updateCheck (include/epesi.js) polls check_version.php so a
+// long-open SPA tab notices a JS/CSS fix shipped since it loaded and
+// prompts for a reload - see epesi_asset_version()'s docblock in
+// include/misc.php. Set to 0 in data/config.php to turn the whole
+// mechanism off (no server-side scan, no client-side poll, no banner).
+if(!defined('ASSET_VERSION_CHECK')) define('ASSET_VERSION_CHECK',1);
+
 if(!defined('JS_OUTPUT')) define('JS_OUTPUT',0);
 if(!defined('SET_SESSION')) define('SET_SESSION',1);
 if(!defined('READ_ONLY_SESSION')) define('READ_ONLY_SESSION',0);

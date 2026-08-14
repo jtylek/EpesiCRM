@@ -261,11 +261,18 @@ function preg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
  * check_version.php (polled every 20 minutes per open tab by
  * Epesi.updateCheck in include/epesi.js), so results are cached for 15
  * minutes - a full scan takes over a second, too slow to pay inline on
- * every page load or poll.
+ * every page load or poll. Returns 0 (never "newer" than anything) when
+ * ASSET_VERSION_CHECK (include/config.php) is off - Epesi.updateCheck's own
+ * `!EPESI_ASSET_VERSION` guard then never starts polling, and a stale
+ * already-polling tab's next check_version.php request also flatlines to 0,
+ * so disabling this is enough to fully stop both ends without touching
+ * index.php/epesi.js/check_version.php separately.
  *
  * @return int unix timestamp
  */
 function epesi_asset_version() {
+	if (!ASSET_VERSION_CHECK) return 0;
+
 	$cache_file = (defined('DATA_DIR') ? DATA_DIR : 'data') . '/cache/asset_version.txt';
 	if (is_file($cache_file) && (time() - filemtime($cache_file)) < 900)
 		return (int)file_get_contents($cache_file);

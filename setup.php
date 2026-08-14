@@ -491,6 +491,14 @@ function write_config($host, $user, $pass, $dbname, $engine, $other) {
 	if (memcached_session_available()) {
 	    $other_conf .= "\n".'define(\'SESSION_TYPE\',\'memcache\');';
 	    $other_conf .= "\n".'define(\'MEMCACHE_SESSION_SERVER\',\'127.0.0.1:11211\');';
+	} else {
+	    // No reachable memcached server at install time - fall back to the
+	    // database-backed session handler (EpesiSessionDBStorage) rather than
+	    // leaving SESSION_TYPE unset, which would silently default to the
+	    // file-based handler (include/config.php) instead. SQL survives a
+	    // multi-server/load-balanced deployment the way file-based sessions
+	    // don't, without requiring an extra service to install.
+	    $other_conf .= "\n".'define(\'SESSION_TYPE\',\'sql\');';
 	}
 	$c = fopen(DATA_DIR.'/config.php', 'w');
 	fwrite($c, '<?php
@@ -583,6 +591,24 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
  * of transferred data is smaller.
  */
 //define(\'MINIFY_SOURCES\',0);
+
+/*
+ * Bundle every module\'s Common_0.php into one cached file
+ * (data/cache/common.php) instead of one require per module per request.
+ * Real perf win on a production install with many modules; leave off only
+ * for active module development, where it otherwise masks Common_0.php
+ * edits until the cache is rebuilt (see AI-shared/environment-gotchas.md).
+ */
+define(\'FORCE_CACHE_COMMON_FILES\',1);
+
+/*
+ * Poll for a shipped JS/CSS fix and prompt long-open tabs to reload (this
+ * app never reloads index.php on its own, so a tab can otherwise keep
+ * running stale JS indefinitely - see AI-shared/bug-patterns.md). Off by
+ * default for fresh installs - a newer, less-battle-tested feature the
+ * admin can opt into rather than one imposed on every install.
+ */
+define(\'ASSET_VERSION_CHECK\',0);
 
 /*
  * Show donation links in EPESI

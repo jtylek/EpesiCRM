@@ -18,6 +18,23 @@ class ConfigInfo extends AdminModule {
         return array('label' => $label, 'value' => $value, 'class' => $class, 'strong' => $strong);
     }
 
+    // Live connection charset, not a config.php constant - DB::Connect()
+    // (include/database.php) hardcodes MySQL connections to utf8mb4 (see
+    // MIGRATION_NOTES.md §68's legacy-utf8/emoji-mangling fix and
+    // patches/20260814_utf8mb4_migration.php), so this is what actually
+    // catches an install that hasn't had that patch applied yet - a stale
+    // "utf8" here means table data can still silently mangle 4-byte
+    // characters (emoji) even though the code migrated. Not meaningful for
+    // PostgreSQL (DB::Connect() never calls SET NAMES for it - separate
+    // bytea_output setting instead), so shown as N/A there rather than
+    // querying a driver-specific concept that doesn't apply.
+    private function database_charset_row() {
+        if (!DB::is_mysql())
+            return $this->row('Database Charset:', 'N/A ('.DATABASE_DRIVER.')', true, false);
+        $charset = DB::GetCharSet();
+        return $this->row('Database Charset:', $charset, strtolower($charset) === 'utf8mb4');
+    }
+
     private function config_rows() {
         $yn = function($v) { return $v ? 'YES' : 'NO'; };
         return array(
@@ -25,6 +42,7 @@ class ConfigInfo extends AdminModule {
             $this->row('epesi revison:', EPESI_REVISION),
             $this->row('Database Name:', DATABASE_NAME),
             $this->row('Database Driver:', DATABASE_DRIVER),
+            $this->database_charset_row(),
             $this->row('epesi Local Dir:', EPESI_LOCAL_DIR),
             $this->row('epesi Dir:', EPESI_DIR),
             $this->row('epesi URL:', get_epesi_url()),
@@ -39,6 +57,8 @@ class ConfigInfo extends AdminModule {
             $this->row('Reducing Transfer: ', $yn(REDUCING_TRANSFER)),
             $this->row('Minify Encode: ', $yn(MINIFY_ENCODE)),
             $this->row('Minify sources: ', $yn(MINIFY_SOURCES)),
+            $this->row('Force cache common files: ', $yn(FORCE_CACHE_COMMON_FILES)),
+            $this->row('Asset version check (stale-tab reload prompt): ', $yn(ASSET_VERSION_CHECK)),
             $this->row('Suggest Donation: ', $yn(SUGGEST_DONATION)),
             $this->row('Check epesi version: ', $yn(CHECK_VERSION)),
             $this->row('JS Output: ', $yn(JS_OUTPUT)),
@@ -63,7 +83,7 @@ class ConfigInfo extends AdminModule {
     }
 
     public function menu_entry() {
-        return __("PHP Environment & config.php");
+        return __("Configuration");
     }
 
     public function icon() {
