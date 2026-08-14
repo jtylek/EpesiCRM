@@ -619,6 +619,64 @@ its own `max-width` is doing anything in landscape — it likely isn't. The base
 `Libs_Leightbox` `.leightbox` rule itself is fine (explicit `width:70%`, not
 auto/fit-content), so this is specific to popups that override it.
 
+## Premium_Payments: theme_adminltedark added for its 3 per-record view templates (2026-08-14)
+
+First AdminLTE coverage for `Premium_Payments`, on explicit request after a user screenshot
+showed the "Payment Entries: View record" screen (a single payment attached to an Invoice's
+"Payments" tab) rendering in the unstyled legacy look despite the rest of the app being
+`adminltedark`. Root cause was the same "no `theme_adminltedark/` override" gap as every
+other never-touched Premium module (see the "Not yet themed" list below and the
+`Premium_KnowledgeBase` entry) - `Premium_Payments` used a **custom per-recordset `$tpl`**
+(`EntriesRS`/`AgentsRS`/`AddonsRS`'s own `install2()` each call `set_tpl(...)`, pointing at
+`view_entry_entries`/`view_entry_agent`/`view_entry_one_col` respectively), so it never fell
+through to the generic, already-themed `Utils_RecordBrowser/theme_adminltedark/View_entry.tpl`
+at all - RecordBrowser_0.php's `view_entry_details()` looks up a `theme_<name>/<that literal
+filename>.tpl` the same way any other template resolves (`Base_ThemeResolver::resolve()`), so a
+per-table override needs its **own** `theme_adminltedark/` copy even when its content is
+otherwise a plain field-list view no different from the generic template.
+
+All three of `modules/Premium/Payments/theme/view_entry_{entries,agent,one_col}.tpl` turned out
+to be byte-identical (confirmed via `diff`) - each is a separate file only because
+`EntriesRS`/`AgentsRS`/`AddonsRS` each independently call `set_tpl()` with a different filename,
+not because their content ever diverged. Themed all three the same way, in one pass, rather than
+just the one in the bug report - Agents/Addons are reachable from Admin ("Payment services" tool)
+and would have hit the exact same unstyled-view bug the moment anyone opened one.
+
+New `theme_adminltedark/view_entry_{entries,agent,one_col}.tpl` (identical content across all
+three, mirroring `Utils_RecordBrowser/theme_adminltedark/View_entry.tpl`'s own structure almost
+verbatim: `.epesi-rv-header`/`.epesi-rv-tools` tools row with module icon+caption+required-note
+dropped per that file's established convention, `.epesi-rv-card.card` wrapper,
+`.Utils_RecordBrowser__container` > `.Utils_RecordBrowser__View_entry` > `.epesi-rv-fluid` for
+regular fields + a `multiselects` fluid block + `.longfields` for long-text fields). **No new CSS
+file** - `RecordBrowser_0.php`'s `view_entry_details()` already calls
+`Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry')` whenever a custom `$tpl` is set
+(true for all three here), which resolves to `Utils_RecordBrowser/theme_adminltedark/View_entry.css`
+under the active theme - reusing that file's exact class names for free inherits its dark card
+chrome, fluid-column field grid, and (per the request to "use existing bootstrap icons") its
+already-built bootstrap-icons glyph-swap for the info/clipboard/history tooltip icons
+(`.epesi-rv-tools a:has(img[src*="RecordBrowser"]...)::before`), with zero new icon assets.
+`$fields`/`$longfields`/`$action`/`$main_page`/etc. are assigned by `view_entry_details()`
+unconditionally before it picks which template to render, so a custom `$tpl` template can read
+them exactly like the generic one, including any per-instance custom fields added later through
+RecordBrowser's own "Manage fields" admin screen (e.g. this install has extra `Account`/`First
+Name`/`Last Name` fields on `payments_entries` not present in `EntriesRS::fields()`) - no
+per-field markup needed in the template either way.
+
+Verified live end-to-end (Playwright driving this machine's installed Edge): the Entries view
+from the original bug report (Invoice → Payments tab → click a payment row), that same record's
+edit mode (form controls - selects/currency field/textareas - already correctly dark-styled via
+`Libs/QuickForm/theme_adminltedark/default.css`, unrelated to this change), and the sibling
+Addons/Agents single-record views reached via Admin → "Payment services". Zero console errors.
+The embedded Payments-tab list itself (`addon.tpl`, `Utils_GenericBrowser`-based) was already
+rendering correctly pre-existing - only the drill-down single-record view was ever broken.
+
+**Found, not fixed - pre-existing, unrelated to theming**: both view and edit mode render a
+plain unstyled `<h2>Warning! Balance is already 0.</h2>` above the field grid
+(`EntriesRS::QFfield_amount()` prints it directly via raw `print()`, not through a themed
+component) - present in the original bug-report screenshot too, so not introduced by this pass.
+Cosmetic (a plain white heading against the dark card, no layout break), left alone as out of
+scope for a theming-only request.
+
 ## Premium_KnowledgeBase: theme_adminltedark added (2026-08-13)
 
 First AdminLTE coverage for `Premium_KnowledgeBase`'s tree view (`KnowledgeBase_0.php`'s
