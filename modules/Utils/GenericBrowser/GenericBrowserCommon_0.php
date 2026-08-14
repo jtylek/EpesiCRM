@@ -27,7 +27,12 @@ class Utils_GenericBrowserCommon extends ModuleCommon {
 			array('name'=>'display_no_records_message','label'=>__('Hide \'No records found\' message'),'type'=>'bool','default'=>0),
 			array('name'=>'show_all_button','label'=>__('Display \'Show all\' button'),'type'=>'bool','default'=>1),
 			array('name'=>'zoom_actions','label'=>__('Zoom "Actions" buttons'),'type'=>'select', 'values'=>array(0=>__('Never'), 1=>__('For mobile devices'), 2=>__('Always')),'default'=>1),
-            array('name'=>'disable_expandable', 'label' => __('Do not use expandable rows'), 'type' => 'bool', 'default' => 0)
+            array('name'=>'disable_expandable', 'label' => __('Do not use expandable rows'), 'type' => 'bool', 'default' => 0,
+                // Decorative only (Base_User_Settings::display_adminlte()/settings_form.tpl
+                // render this as a non-clickable badge before the label) - just points the
+                // user at the "Expand All" control this setting turns off, same icon/text
+                // as Utils_GenericBrowserCommon::build_expand_collapse_controls().
+                'hint' => array('icon'=>'bi-arrows-expand', 'label'=>__('Expand All')))
 			));
 	}
 	

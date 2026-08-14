@@ -157,7 +157,7 @@ class Base_User_Settings extends Module {
                 if ($v['type']=='header') {
                     $header_positions[] = array('count'=>$count,'label'=>$v['label']);
                 } else {
-                    $source_defs[$count] = array('type'=>$v['type'],'values'=>$v['values'] ?? null);
+                    $source_defs[$count] = array('type'=>$v['type'],'values'=>$v['values'] ?? null,'hint'=>$v['hint'] ?? null);
                     $count++;
                 }
             }
@@ -222,6 +222,7 @@ class Base_User_Settings extends Module {
                         }
                     }
                 }
+                $el['hint'] = $sec['defs'][$idx]['hint'] ?? null;
                 $plain[] = array('el'=>$el,'def'=>$sec['defs'][$idx]);
             }
 

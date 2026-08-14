@@ -88,6 +88,26 @@
 	font-weight: 400;
 }
 
+/* Decorative-only badge a field definition can opt into via user_settings()'s
+ * 'hint' key (e.g. Utils_GenericBrowserCommon's disable_expandable field
+ * pointing at the "Expand All" control it turns off) - never a link/button,
+ * just an icon+label lifted from the control the setting actually affects. */
+.epesi-settings-hint-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.1rem 0.45rem;
+	margin-right: 0.4rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	color: #adb5bd;
+	background-color: #343a40;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	cursor: default;
+	vertical-align: middle;
+}
+
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-user-settings-title {
   color: #495057;
@@ -106,4 +126,10 @@
 
 [data-bs-theme="light"] .epesi-settings-fields .epesi-settings-row {
   border-bottom: 1px solid #f1f1f1;
+}
+
+[data-bs-theme="light"] .epesi-settings-hint-badge {
+  color: #6c757d;
+  background-color: #f1f3f5;
+  border: 1px solid #dee2e6;
 }

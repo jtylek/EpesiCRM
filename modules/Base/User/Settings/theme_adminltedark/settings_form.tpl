@@ -66,7 +66,10 @@
 				<div class="epesi-settings-fields">
 					{foreach from=$section.rows item=f}
 						<div class="epesi-settings-row row align-items-center">
-							<label class="col-sm-4 col-form-label fw-semibold">{$f.label}{if $f.required}<span class="text-danger">*</span>{/if}</label>
+							<label class="col-sm-4 col-form-label fw-semibold">
+								{if $f.hint}<span class="epesi-settings-hint-badge"><i class="bi {$f.hint.icon}"></i> {$f.hint.label}</span>{/if}
+								{$f.label}{if $f.required}<span class="text-danger">*</span>{/if}
+							</label>
 							<div class="col-sm-8">
 								{$f.html}
 							</div>
