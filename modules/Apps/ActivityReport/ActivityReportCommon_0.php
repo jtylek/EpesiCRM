@@ -14,7 +14,7 @@ class Apps_ActivityReportCommon extends ModuleCommon {
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
 	// modules/Base/Theme/bootstrap_icons.php.
-	public static function bootstrap_icon() { return 'bi-graph-up'; }
+	public static function bootstrap_icon() { return 'bi-activity'; }
 
 	public static function menu(){
 	    if (self::has_access_to_report())

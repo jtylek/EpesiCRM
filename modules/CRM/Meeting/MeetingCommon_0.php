@@ -15,7 +15,7 @@ class CRM_MeetingCommon extends ModuleCommon {
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
 	// indicator, etc.) instead of a central map - see
 	// modules/Base/Theme/bootstrap_icons.php.
-	public static function bootstrap_icon() { return 'bi-calendar-event'; }
+	public static function bootstrap_icon() { return 'bi-calendar-date'; }
 
 	public static function crm_calendar_handler($action) {
 		$args = func_get_args();
