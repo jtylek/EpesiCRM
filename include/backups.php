@@ -262,7 +262,8 @@ class BackupArchive extends ZipArchive {
 
         return $this->close();
     }
-    
+
+
     #[\ReturnTypeWillChange]
     public function extractTo($destination, $entries = null) {
         $this->_open();
@@ -292,10 +293,20 @@ class BackupArchive extends ZipArchive {
     }
 
     private function add($file_info) {
-        static $counter = 0; // this counter is used to avoid to many opened files error
+        // Checkpointing (periodic close+reopen) avoids exhausting file handles
+        // on very large trees, since ZipArchive::addFile() keeps a source
+        // handle pending until close(). But close()'s temp-file-then-rename
+        // internals are flaky under a mid-stream reopen on Windows (the
+        // rename can transiently fail, and - unlike a normal failed close -
+        // it still deinitializes the Zip object, so a naive retry throws
+        // ValueError: Invalid or uninitialized Zip object). A large threshold
+        // keeps checkpointing available for pathologically large installs
+        // while avoiding that path entirely for realistic tree sizes.
+        static $counter = 0;
 
-        if ($counter == 1000) {
-            $this->close();
+        if ($counter == 100000) {
+            if (!$this->close())
+                throw new ErrorException("File: {$this->_file} failed to checkpoint (close) - entries added so far may be lost");
             $this->_open();
             $counter = 0;
         }
