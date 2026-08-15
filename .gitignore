@@ -38,3 +38,7 @@ data/*
 # data/Base_Lang/custom/ (already covered by the data/* rule above) so
 # instance data never touches the modules/ tree at all - see
 # Base_LangCommon::append_custom().
+
+# Scratch planning notes for unrelated side projects (e.g. parts-kits/) that
+# don't belong in the EPESI codebase's history.
+/parts-kits/
