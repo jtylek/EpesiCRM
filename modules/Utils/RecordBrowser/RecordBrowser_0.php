@@ -928,7 +928,8 @@ class Utils_RecordBrowser extends Module {
 //              $row_data[] = '&nbsp;';
 
             $gb_row = $gb->get_new_row();
-            $gb_row->add_action('',$data['submit_qanr']['html'],'', null, 0, false, 7);
+            $save_label = $data['submit_qanr']['html'].'<span class="epesi-qanr-save-label">'.__('Save').'</span>';
+            $gb_row->add_action('',$save_label,__('Save'), null, 0, false, 7);
             $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
             $gb_row->add_data_array($row_data);
         }
