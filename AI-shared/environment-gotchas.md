@@ -232,7 +232,7 @@ with **no corresponding entry in Apache's access.log or error.log at all**,
 same tell as the `EPESI_URL` gotcha above. Don't waste time looking for a
 server-side cause of a 403 that has zero log footprint.
 
-**How to apply**: if a local `bim.epe.si` test session shows an unexplained
+**How to apply**: if a local test session shows an unexplained
 403/connection failure and the address bar has silently become `https://`,
 suspect the browser's HTTP→HTTPS auto-upgrade before the app. Fix by clearing
 that origin's HSTS/HTTPS-only exception in the browser (Chrome:
@@ -276,11 +276,14 @@ sidebar's unrelated top-level "Accounting" menu entry before the KB tree's own
 container instead of the whole page (e.g.
 `page.locator('.epesi-kb-body').getByText('Accounting', { exact: true })`).
 
-App URL for local browser testing: `http://localhost/bim.epe.si/` — not `https://`
-(this file's own SSL-vhost entry above), and not the real public `bim.epe.si` domain,
-which is a live, unrelated production server (see the `EPESI_URL` gotcha above);
-`data/config.php`'s `EPESI_URL` is already correctly set to the localhost path-based
-URL on this install, so no redirect-off-localhost risk here currently.
+App URL for local browser testing: **don't hardcode a URL in this file.** This
+machine runs multiple EPESI projects side by side, each in its own `htdocs`
+subdirectory with its own `data/config.php` and its own database, so the
+local test URL differs per checkout. Read that checkout's `data/config.php`
+for its `EPESI_URL` (see the gotcha above — confirm it's actually set to the
+localhost path-based URL and not left pointing at a real production domain)
+and use that: path-based `http://localhost/<folder>`, not `https://` (this
+file's own SSL-vhost entry above).
 
 **Never write real login credentials into this file or any other git-tracked
 doc** — it travels with `git clone`/`git pull` to every developer and computer, unlike
