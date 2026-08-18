@@ -1457,31 +1457,35 @@
 
 /* Premium_Import's "List of uploaded files" queue screen (Import_0.php's "file_queue"
    Utils_GenericBrowser, wrapped via set_prefix()/set_postfix() in its own
-   "epesi-import-file-queue" div) and the "Select worksheet to import" screen just above
-   (same file's "worksheet_list" browser, "epesi-import-worksheet-list" div) both have the
-   same problem: too many data columns (11 for file_queue: Status/Row count/Processed rows/
-   File name/Hash/User/Date/Time/File type/Worksheet name/Delimiter; Status/Worksheet name/
-   File name/Recordset/Date format/plus several numeric import-progress columns for
-   worksheet_list) plus actions never fit any reasonable width - the inline
+   "epesi-import-file-queue" div), the "Select worksheet to import" screen just above (same
+   file's "worksheet_list" browser, "epesi-import-worksheet-list" div), and the "Import
+   preview" screen (import_preview()'s "Import_Preview" browser, "epesi-import-preview" div)
+   all have the same problem: too many data columns (11 for file_queue: Status/Row count/
+   Processed rows/File name/Hash/User/Date/Time/File type/Worksheet name/Delimiter; Status/
+   Worksheet name/File name/Recordset/Date format/plus several numeric import-progress
+   columns for worksheet_list; one column per mapped field plus Valid/Duplicate/Imported/
+   Selected for Import_Preview) plus actions never fit any reasonable width - the inline
    width:100%;table-layout:fixed this theme's default.tpl always emits (see
    generic-browser-responsive-tables.md's "Why it squeezes instead of scrolling") forces every
    column to shrink proportionally to fit exactly 100% of the container instead of overflowing,
    so the surrounding .table-responsive (overflow-x:auto) never actually engages - confirmed live
    on file_queue: Status (100px spec'd) rendered at 86px, Delimiter (50px spec'd) at 22px, every
    unspec'd column crushed to 82px, clipping the hash/filename/date values the columns exist to
-   show; worksheet_list showed the identical symptom (every header truncated to 3-4 characters).
-   Letting the table take its natural content width and rely on the existing .table-responsive
-   scrollbar was explicitly considered and rejected for the *generic* mobile fix above (loses
-   "read every value without scrolling" on a phone), but is the right fix here: both screens are
-   desktop-only admin tooling (per explicit request, not used on mobile), so a horizontal
-   scrollbar to reach the tail columns is normal and expected, same as any wide data grid.
-   Guarded to width>=768px anyway so it can't fight the max-width:767.98px 2-line mobile grid
-   above, which needs the table root to stay full-width for its own grid math - confirmed live
-   that dropping the guard visibly breaks that layout (columns collapse to two illegibly-narrow
-   tracks). */
+   show; worksheet_list and Import_Preview both showed the identical symptom (every unspec'd
+   header truncated to 3-4 characters, e.g. Import_Preview's "Company Name"/"Imported"/
+   "Selected" columns). Letting the table take its natural content width and rely on the
+   existing .table-responsive scrollbar was explicitly considered and rejected for the
+   *generic* mobile fix above (loses "read every value without scrolling" on a phone), but is
+   the right fix here: all three screens are desktop-only admin tooling (per explicit request,
+   not used on mobile), so a horizontal scrollbar to reach the tail columns is normal and
+   expected, same as any wide data grid. Guarded to width>=768px anyway so it can't fight the
+   max-width:767.98px 2-line mobile grid above, which needs the table root to stay full-width
+   for its own grid math - confirmed live that dropping the guard visibly breaks that layout
+   (columns collapse to two illegibly-narrow tracks). */
 @media (min-width: 768px) {
 	.epesi-import-file-queue .Utils_GenericBrowser,
-	.epesi-import-worksheet-list .Utils_GenericBrowser {
+	.epesi-import-worksheet-list .Utils_GenericBrowser,
+	.epesi-import-preview .Utils_GenericBrowser {
 		width: max-content !important;
 		min-width: 100% !important;
 	}
