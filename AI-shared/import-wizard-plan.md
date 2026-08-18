@@ -3,14 +3,15 @@
 Planned and approved 2026-08-18. Extends into a shared `Utils_Wizard` AdminLTE template used by both
 `Premium/Import` and `FirstRun`.
 
-**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far: `cf24218..7c11c24`
-on the module's own nested repo (`jtylek/Premium-Import`, pushed - includes the "Match values" fix, bug #3
-below); the shared `Utils_Wizard` template plus `FirstRun` cleanup: `87e727bf..77ae10fc` on `migration`
-(`jtylek/epesi`, pushed). Bug #4 (sticky-callback hijacking) below is fixed and verified live but **not yet
-committed**. Full round trip verified live four times (upload → CSV parse → destination → mapping → fixed
-values → [match values] → duplicate handling → review → import → done), records landed correctly in
-Contacts each time, including with an actual commondata (Match values) field mapped via a real file column.
-Four real bugs only surfaced by actually driving it in a browser, worth remembering:
+**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far: `cf24218..ede708f`
+on the module's own nested repo (`jtylek/Premium-Import`, pushed - includes the "Match values" fix (bug #3),
+the sticky-callback-hijacking fix (bug #4, `7ac63c0`), the Permission-column case-sensitivity fix (bug #5,
+`ede708f`), and an AdminLTE layout polish pass over the wizard's own screens, also `ede708f`); the shared
+`Utils_Wizard` template plus `FirstRun` cleanup: `87e727bf..77ae10fc` on `migration` (`jtylek/epesi`, pushed).
+Full round trip verified live four times (upload → CSV parse → destination → mapping → fixed values →
+[match values] → duplicate handling → review → import → done), records landed correctly in Contacts each
+time, including with an actual commondata (Match values) field mapped via a real file column.
+Five real bugs only surfaced by actually driving it in a browser, worth remembering:
 
 1. **`Premium_Import_Temp_Worksheet::set_recordset()` unconditionally deletes and recreates the mapping** -
    harmless for the standalone `select_recordset()` screen (visited once, then navigated away from via
@@ -73,6 +74,21 @@ Four real bugs only surfaced by actually driving it in a browser, worth remember
    e.g. `files()` → `worksheets()` → deeper screens); never point one screen's callback-href back at a
    screen that can also navigate forward to it, even for something as innocuous-seeming as a "back to X"
    convenience button - use `create_back_href()` for that instead.**
+5. **`is_permission_column()`'s field-name check was case-sensitive against the wrong case, so it never
+   matched anything.** Reported by the user as the "Map columns" step still showing a required, unmapped
+   "Permission" field (screenshot: red asterisk + "This field is required" sitting right above the select).
+   `is_permission_column()` compared `$column->get_name() == 'permission'` (lowercase) - but `get_name()`
+   (`Premium_Import_Mapping_SystemColumn::get_name()`, fed from `Utils_RecordBrowserCommon::init()`'s `name`
+   key, which is the RecordBrowser field's raw stored `field` value, not a separate machine key) is literally
+   `"Permission"`, capitalized - confirmed by querying `contact_field`/`company_field` directly
+   (`field='Permission', caption=NULL`), and by `CRM_Contacts`/`CRM_Companies`'s own `Install.php` using
+   `_M('Permission')` verbatim. The mismatch meant this column was never recognized as the auto-forced system
+   column it's meant to be, so it leaked into every step that's supposed to silently skip it (Map columns,
+   Fixed values, Duplicate handling) instead of being force-set to Public. Fixed with a case-insensitive
+   `strcasecmp()` - single-point fix since every other call site already routes through this same helper.
+   **General lesson: `SystemColumn::get_name()`/`get_col_data()`'s `'name'` key is a display label
+   (caption-or-field-name), not a stable machine identifier - don't assume exact-case string equality against
+   it without checking the actual stored value first.**
 
 Also found and fixed opportunistically: `Utils_Wizard`'s own `curr_page`/`history` (stored via
 `get_module_variable`) don't survive a full page reload (a fresh top-level page load gets a fresh
@@ -92,6 +108,20 @@ earlier steps. Cause: `Base_ActionBarCommon::add()` accumulates globally per-req
 pattern `FirstRun` itself uses) - including the `Base_ActionBarCommon::add()` calls inside steps that aren't
 the active one. Cosmetic only (clicking a stale button just harmlessly reloads), not chased further this
 session.
+
+**AdminLTE layout polish pass (2026-08-18, `ede708f`):** the wizard's screens render as plain
+`HTML_QuickForm_Renderer_TCMSDefault` markup (see `modules/Libs/QuickForm/Renderer/TCMSDefault.php`), which
+has no AdminLTE styling of its own - each field/button was rendering as its own full-width block with no
+gap, plain unstyled buttons, and multi-field steps (Map columns, Match values) stacking every
+label/selector pair vertically instead of side by side. Fixed with CSS scoped to a new
+`.epesi-import-wizard` wrapper (`worksheet_wizard()` now wraps its `display_module($wizard, ...)` call in
+this div) so the fix doesn't leak into every other `TCMSDefault`-rendered form on the page - same
+unscoped-`#quickform`/`.quickform-row` constraint `FirstRun`'s own theme fix already worked around, see that
+module's `theme_adminltedark/default.css`. Also introduced an `.epesi-import-mapping` marker div
+(`mapping_fields()`/`match_values_fields()` bracket their field rows in it via a `'html'` pseudo-element,
+which `TCMSDefault` renders with no wrapping row of its own) driving a CSS-Grid label/selector two-column
+layout, reused by both steps. All in `modules/Premium/Import/theme_adminltedark/default.css` +
+`Import_0.php`.
 
 **Not yet exercised by live testing:** the multi-sheet-XLSX "choose worksheet" picker, the chunked
 parse/import progress screens for a file large enough to hit `Import/FileProcessingLimit`/`Import/ImportLimit`,
