@@ -1432,6 +1432,61 @@
 	display: none !important;
 }
 
+/* Premium_Import's "Select worksheet to import" / process-queue screen (Import_0.php's
+   "worksheet_list" Utils_GenericBrowser, wrapped via set_prefix()/set_postfix() in its own
+   "epesi-import-worksheet-list" div) - per explicit request, show every row action (delete/select
+   recordset/set mapping/manual fields/set common data/preview/queue toggle) as its own icon,
+   never behind a kebab: this is a short, low-traffic admin worklist (a handful of in-progress
+   imports at a time, not a long Browse-mode table), so reclaiming row width isn't worth the extra
+   tap. Same opt-out shape as .epesi-admin-panel/.epesi-watchdog-applet/.epesi-applet-body/
+   .epesi-rb-changes-history above - both mechanisms, since most of this row's actions (folder/
+   edit/manual/copy/checkbox icons) aren't in ensureToggles()'s isCoreAction() fixed list and
+   would otherwise always group into the "More actions" toggle regardless of viewport width. */
+.epesi-import-worksheet-list .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-import-worksheet-list .epesi-gb-actions-toggle {
+	display: none !important;
+}
+.epesi-import-worksheet-list .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-import-worksheet-list .epesi-gb-more-toggle {
+	display: none !important;
+}
+
+/* Premium_Import's "List of uploaded files" queue screen (Import_0.php's "file_queue"
+   Utils_GenericBrowser, wrapped via set_prefix()/set_postfix() in its own
+   "epesi-import-file-queue" div) and the "Select worksheet to import" screen just above
+   (same file's "worksheet_list" browser, "epesi-import-worksheet-list" div) both have the
+   same problem: too many data columns (11 for file_queue: Status/Row count/Processed rows/
+   File name/Hash/User/Date/Time/File type/Worksheet name/Delimiter; Status/Worksheet name/
+   File name/Recordset/Date format/plus several numeric import-progress columns for
+   worksheet_list) plus actions never fit any reasonable width - the inline
+   width:100%;table-layout:fixed this theme's default.tpl always emits (see
+   generic-browser-responsive-tables.md's "Why it squeezes instead of scrolling") forces every
+   column to shrink proportionally to fit exactly 100% of the container instead of overflowing,
+   so the surrounding .table-responsive (overflow-x:auto) never actually engages - confirmed live
+   on file_queue: Status (100px spec'd) rendered at 86px, Delimiter (50px spec'd) at 22px, every
+   unspec'd column crushed to 82px, clipping the hash/filename/date values the columns exist to
+   show; worksheet_list showed the identical symptom (every header truncated to 3-4 characters).
+   Letting the table take its natural content width and rely on the existing .table-responsive
+   scrollbar was explicitly considered and rejected for the *generic* mobile fix above (loses
+   "read every value without scrolling" on a phone), but is the right fix here: both screens are
+   desktop-only admin tooling (per explicit request, not used on mobile), so a horizontal
+   scrollbar to reach the tail columns is normal and expected, same as any wide data grid.
+   Guarded to width>=768px anyway so it can't fight the max-width:767.98px 2-line mobile grid
+   above, which needs the table root to stay full-width for its own grid math - confirmed live
+   that dropping the guard visibly breaks that layout (columns collapse to two illegibly-narrow
+   tracks). */
+@media (min-width: 768px) {
+	.epesi-import-file-queue .Utils_GenericBrowser,
+	.epesi-import-worksheet-list .Utils_GenericBrowser {
+		width: max-content !important;
+		min-width: 100% !important;
+	}
+}
+
 /* Watchdog's own 2 extra actions (Stop Watching/Mark as Read, added via add_action() with the
    module's own icons - see Watchdog_0.php) aren't in ensureToggles()'s fixed "core" icon list
    (Base_Box/theme_adminltedark/default.tpl's isCoreAction() - view/edit/delete/info/... plus
