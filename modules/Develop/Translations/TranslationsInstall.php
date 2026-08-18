@@ -50,7 +50,7 @@ class Develop_TranslationsInstall extends ModuleInstall {
 			array('name'=>'Base/Box','version'=>0)
 		);
 	}
-	public function simple_setup() {
+	public static function simple_setup() {
         return false;
 	}
 }

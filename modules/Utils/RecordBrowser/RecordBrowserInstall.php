@@ -119,7 +119,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'TL', 'Description'=>'Module to browse and modify records.');
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return __('EPESI Core');
 	}
 	

@@ -52,7 +52,7 @@ class Data_TaxRatesInstall extends ModuleInstall {
 			array('name'=>Utils_RecordBrowserInstall::module_name(),'version'=>0));
 	}
 
-	public function simple_setup() {
+	public static function simple_setup() {
         return false;
 	}
 }

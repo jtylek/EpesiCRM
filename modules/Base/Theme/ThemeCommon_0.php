@@ -127,7 +127,34 @@ class Base_ThemeCommon extends ModuleCommon {
 		Module::inject_alert_modal();
 
 		if (self::is_dark_theme()) {
-			eval_js_once(
+			// eval_js(), NOT eval_js_once(): load_theme_assets() runs on every
+			// Box_0.php construct() - including the AJAX-push login/logout
+			// cycle, which re-renders Base_Box's shell (a fresh .epesi-adminlte
+			// with its SSR-hardcoded data-bs-theme, see theme_adminltedark/
+			// default.tpl) without a real page navigation. eval_js_once() dedupes
+			// by md5($js) in $_SESSION['client']['__evaled_jses__'], which survives
+			// logout (confirmed live: instrumenting setAttribute('data-bs-theme',...)
+			// during a logout+login cycle showed zero calls on the second login -
+			// the whole sync block below had already been marked "sent" earlier in
+			// the session and was silently skipped) - so this block, including its
+			// "self-healing" retry loop, never got a chance to run a second time,
+			// permanently leaving the freshly-rendered .epesi-adminlte stuck on
+			// its SSR default (dark) while <html> (set once, on the original full
+			// page load, and never re-touched by login) kept showing the correct
+			// value - every Bootstrap/AdminLTE component keyed off
+			// "[data-bs-theme=dark] .card"-style selectors matching .epesi-adminlte
+			// as an ancestor (i.e. nearly every card/table in the content area)
+			// rendered dark regardless of the user's real light/dark choice, while
+			// the sidebar/navbar (which mostly don't depend on that specific
+			// ancestor) looked correctly themed - reported as "Playwright renders
+			// light mode with a black background." Re-sending this every render is
+			// safe/cheap: it's a handful of idempotent DOM queries and attribute
+			// sets, and the IIFE's retry loop is self-contained per invocation (no
+			// state shared/accumulated across calls). The event listener below is
+			// deliberately kept in its own eval_js_once() - that one genuinely only
+			// needs registering once; re-running the block above on every render
+			// must not re-add it every time too.
+			eval_js(
 				"try{var s=localStorage.getItem('lte-theme');".
 				"if(s!=='light'&&s!=='dark')localStorage.setItem('lte-theme','dark');}catch(e){}".
 				"var m='dark';try{var s2=localStorage.getItem('lte-theme');if(s2==='light'||s2==='dark')m=s2;}catch(e){}".
@@ -145,7 +172,9 @@ class Base_ThemeCommon extends ModuleCommon {
 						"});".
 					"}".
 					"if((!w||!tb)&&++epesiSyncTries<50)setTimeout(epesiSyncThemeShell,100);".
-				"})();".
+				"})();"
+			);
+			eval_js_once(
 				"document.addEventListener('changed.lte.color-mode',function(e){".
 					"var w2=document.querySelector('.epesi-adminlte');".
 					"if(w2&&e.detail&&e.detail.resolved)w2.setAttribute('data-bs-theme',e.detail.resolved);".

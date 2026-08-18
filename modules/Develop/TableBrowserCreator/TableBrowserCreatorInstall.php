@@ -26,7 +26,7 @@ class Develop_TableBrowserCreatorInstall extends ModuleInstall {
 					array('name'=>'Utils/GenericBrowser','version'=>0));
 	}
 
-	public function simple_setup() {
+	public static function simple_setup() {
         return false;
 	}
 }

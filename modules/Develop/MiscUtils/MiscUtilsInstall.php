@@ -20,7 +20,7 @@ class Develop_MiscUtilsInstall extends ModuleInstall {
         return array();
     }
 
-    public function simple_setup() {
+    public static function simple_setup() {
         return false;
     }
 

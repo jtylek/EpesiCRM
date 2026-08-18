@@ -18,6 +18,18 @@ and the `quickjump` column in `RecordBrowserInstall.php`'s `CREATE TABLE` (fresh
 installs only — the column is left inert in already-installed tables, no
 migration was run to drop it).
 
+**Gap found 2026-08-18:** the sweep only covered the tracked repo — `modules/Premium/`
+is a separately-licensed, gitignored tree (each premium module its own git repo, see
+main `CLAUDE.md`) and was never touched, so it can still contain leftover
+`Utils_RecordBrowserCommon::set_quickjump()` calls in `*Install.php` files. One was
+hit live in `modules/Premium/SalesOpportunity/SalesOpportunityInstall.php:38` —
+fatal `Call to undefined method` on install/upgrade via the Store admin screen — and
+fixed by deleting the call (`install_new_recordset()` is idempotent, so re-running
+the install after the fix is safe, no leftover partial state to clean up). If another
+Premium module fails to install/upgrade with the same "undefined method
+`set_quickjump`" error, this is why — grep `modules/Premium/` for `set_quickjump` and
+delete the call the same way, don't try to re-add the method.
+
 ## Login Audit purge/maintenance (removed 2026-07-28)
 
 `CRM_LoginAudit`'s `purge_log()` method and its "Maintenance" ActionBar button

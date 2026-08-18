@@ -685,7 +685,7 @@ class Data_CountriesInstall extends ModuleInstall {
 			array('name'=>Utils_CommonDataInstall::module_name(),'version'=>0));
 	}
 
-	public function simple_setup() {
+	public static function simple_setup() {
 		return __('EPESI Core');
 	}
 }

@@ -378,6 +378,16 @@
 				// instead of buried behind More actions, scoped to this exact resolved
 				// path so no other module's same-named icon is affected.
 				"if(/\\/CRM\\/Mail\\/theme[^\\/]*\\/copy_small\\.png$/.test(src))return true;".
+				// Premium_Import's own queue-toggle action (files()/worksheets() in
+				// Premium/Import/Import_0.php - "Add to queue"/"Remove from queue")
+				// resolves to its own checkbox-on/checkbox-off.png, not a shared
+				// GenericBrowser icon - per request, kept inline instead of buried
+				// behind More actions, in either toggle state (checkbox-on = not yet
+				// queued, checkbox-off = already queued - see Premium/Import/
+				// theme_adminltedark/default.css's own comment on the naming), so it
+				// doesn't fall back behind the toggle the moment a row's queue state
+				// flips.
+				"if(/\\/Premium\\/Import\\/theme[^\\/]*\\/checkbox-(on|off)(-off)?\\.png$/.test(src))return true;".
 				// GenericBrowser_0.php appends "-off" to a core icon's filename
 				// when the action is disabled (add_action(..., $off=true), e.g.
 				// RecordBrowser_0.php's "no delete permission" row) - matched here

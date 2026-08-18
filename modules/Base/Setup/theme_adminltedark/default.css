@@ -128,14 +128,21 @@
 	filter: brightness(1.08);
 }
 
-.epesi-setup-action.install       { background-color: #198754; } /* installed - success */
-.epesi-setup-action.partial-install { background-color: #3bb273; } /* partially installed */
-.epesi-setup-action.available     { background-color: #ffc107; color: #212529; } /* can be installed */
-.epesi-setup-action.store         { background-color: #0d6efd; } /* store product */
+/* !important on the status colors guards against the auto-generated
+   light-mode override below (gen_light_override.js) - its generic
+   [data-bs-theme="light"] .epesi-setup-action fallback ties these rules'
+   specificity exactly (1 attribute+1 class vs 2 classes) and, being later in
+   source order, would otherwise silently win and flatten every status pill
+   to the same grey in light mode. Same shape/fix as the Dashboard applet
+   header bug - see AI-shared/bug-patterns.md. */
+.epesi-setup-action.install       { background-color: #198754 !important; } /* installed - success */
+.epesi-setup-action.partial-install { background-color: #3bb273 !important; } /* partially installed */
+.epesi-setup-action.available     { background-color: #ffc107 !important; color: #212529 !important; } /* can be installed */
+.epesi-setup-action.store         { background-color: #0d6efd !important; } /* store product */
 .epesi-setup-action.disabled      { background-color: #495057; color: #adb5bd; cursor: default; }
 .epesi-setup-action.disabled:hover { filter: none; }
-.epesi-setup-action.uninstall     { background-color: #dc3545; }
-.epesi-setup-action.problem       { background-color: #fd7e14; }
+.epesi-setup-action.uninstall     { background-color: #dc3545 !important; }
+.epesi-setup-action.problem       { background-color: #fd7e14 !important; }
 
 /* --- dropdown panel (current status repeated + Install/Uninstall btns) - */
 
@@ -180,14 +187,14 @@
 	filter: brightness(1.08);
 }
 
-.epesi-setup-subaction.install       { background-color: #198754; }
-.epesi-setup-subaction.partial-install { background-color: #3bb273; }
-.epesi-setup-subaction.available     { background-color: #ffc107; color: #212529; }
-.epesi-setup-subaction.store         { background-color: #0d6efd; }
+.epesi-setup-subaction.install       { background-color: #198754 !important; }
+.epesi-setup-subaction.partial-install { background-color: #3bb273 !important; }
+.epesi-setup-subaction.available     { background-color: #ffc107 !important; color: #212529 !important; }
+.epesi-setup-subaction.store         { background-color: #0d6efd !important; }
 .epesi-setup-subaction.disabled      { background-color: #495057; color: #adb5bd; cursor: default; }
 .epesi-setup-subaction.disabled:hover { filter: none; }
-.epesi-setup-subaction.uninstall     { background-color: #dc3545; }
-.epesi-setup-subaction.problem       { background-color: #fd7e14; }
+.epesi-setup-subaction.uninstall     { background-color: #dc3545 !important; }
+.epesi-setup-subaction.problem       { background-color: #fd7e14 !important; }
 
 /* --- "Optional" sub-modules toggle + panel ----------------------------- */
 

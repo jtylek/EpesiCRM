@@ -1247,3 +1247,272 @@ formatted text input whose `name`/`id` reads as a real-world field
 (birthdate, address, phone, email) and has no explicit `autocomplete` is a
 candidate - `autocomplete="off"` is the standard mitigation, not an attempt
 to parse every possible autofill format.
+
+## `ModuleInstall::simple_setup()` declared non-static silently drops the module from the Setup screen entirely
+
+Found 2026-08-18, immediately after cloning `Premium-SalesOpportunity` as a new
+nested repo (`modules/Premium/SalesOpportunity/`, matching the existing
+`Premium-Import` pattern - see `README.md`'s index). Reported as "module
+`/Premium/Import` does not have simple setup" - it (and, once checked, several
+core modules) had silently stopped appearing in Base_Setup's Simple view
+list, with no error, no log entry, nothing to blank the page - it just isn't
+in the list.
+
+**Root cause**: `Base_Setup_0::simple_setup()` discovers each module's install
+hook by class name string, not an instance -
+`is_callable(array($module_install_class, 'simple_setup'))` /
+`call_user_func($func_simple)` - because at this point there's no live
+`ModuleInstall` object to call it on, only the class name from
+`get_module_dirs()`. PHP 7 tolerated calling a non-static method this way
+(deprecation notice only); **PHP 8 does not** - `is_callable` on a
+class-name-string + non-static-method pair simply returns `false`. Since
+`Setup_0.php` treats a non-callable hook identically to one that returned
+`false` (`if ($simple_module===false) continue;`), the module is silently
+skipped from the package listing - not shown as "unavailable," not erroring,
+just absent, indistinguishable from a module that intentionally opts out.
+
+This is the exact bug shape `MIGRATION_NOTES.md` already documents for
+`PEAR::isError()`/`PEAR::raiseError()` (§76, §275) and openpsa's
+`registerElementType()` (§12.6) - "non-static method called statically" - just
+manifesting as a silent UI omission instead of a fatal error, since this
+particular call site was already defensively wrapped in `is_callable()`.
+
+Swept the whole tree for the same declaration shape
+(`public function simple_setup()` instead of `public static function
+simple_setup()`) and found it in 14 more places, all one-line trivial bodies
+with no `$this` usage (confirmed safe to make `static` with zero behavior
+change other than becoming callable again): `Base/Box`, `Base/Error`,
+`Base/Help`, `Data/Countries`, `Data/TaxRates`, `Develop/MiscUtils`,
+`Develop/ModuleCreator`, `Develop/ModuleEditor`, `Develop/TableBrowserCreator`,
+`Develop/Translations`, `Utils/BBCode`, `Utils/Calendar`,
+`Utils/RecordBrowser`, `Utils/Tray`, plus `Premium/Import`. The ones that
+already returned `false` had no user-visible effect either way; the ones
+returning a real package name (Box, Error, Help, Countries, BBCode,
+RecordBrowser) are mostly always-installed "EPESI Core" modules so their
+absence from the *installable* list wasn't obviously wrong - but `Base_Error`
+specifically loses its "Error reporting" sub-option entirely this way, and any
+non-core module (like `Premium/Import`) becomes impossible to install or
+uninstall from Setup's Simple view at all.
+
+**Fix**: changed all 15 to `public static function simple_setup()`. Pure code
+fix, no stored/seed data involved, so no upgrade patch needed - reaches
+existing installs the moment the file is deployed.
+
+**How to apply**: any *new* module (Premium or core) whose `*Install.php`
+declares `simple_setup()` as an instance method instead of `static` will
+reproduce this exact silent omission - it won't throw, won't log, won't
+render an error; it will just never appear in Base_Setup → Simple view, which
+reads as "the module doesn't support simple setup" rather than "this is a
+bug." Check `simple_setup()` is declared `static` as part of scaffolding any
+new module's `*Install.php` (also relevant to `Dev-Tutorial.md`'s install
+lifecycle section and the `dev:create:module` console scaffold, if either
+generates a template `simple_setup()` stub - worth checking they emit
+`static`). See the "`modules/Premium/` is invisible to every PHP 8.2
+migration tool" entry further down for the broader pattern this is one
+instance of.
+
+## One specific Bootstrap Icons glyph (`bi-square`, `\f584`) silently never paints in this app's vendored font - and `getComputedStyle` can't be trusted to diagnose it
+
+Found 2026-08-18 while adding the first `theme_adminltedark` coverage for
+`Premium_Import` (a module with no template of its own - see the module-icon
+glyph-swap technique already established in `Utils_RecordBrowser/
+theme_adminltedark/View_entry.css` and `Utils_GenericBrowser/
+theme_adminltedark/default.css`'s own action-icon rows). Picked `bi-square`
+(`content: "\f584"`, an empty checkbox outline) for the "Add to queue"
+action's unchecked state - the codepoint is correctly declared in
+`libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css` and the vendored
+`.woff`/`.woff2` are full, unsubsetted builds (~130-180KB, no evidence of
+trimming) - yet the icon rendered as a genuinely blank box, confirmed by
+screenshot, not just "looks off." Every other glyph tried in the same rule
+slot (`\f341` eye, `\f26d` check-square, `\f3d9` folder2, `\f451` keyboard,
+`\f5b2` tags, `\f4fd` plus-square) rendered correctly on the first try, in
+the same selector, same file, same session - ruling out the selector/CSS
+mechanism, cascade, or file-loading as the cause. No root cause chased
+further (not worth the time for one glyph); worked around by picking
+`bi-plus-square` (`\f4fd`, "add" reads at least as well for an "Add to
+queue" action as a bare empty checkbox does) instead.
+
+**The much bigger time-sink**: `getComputedStyle(el, '::before').content`
+(and `CSSStyleRule.cssText`/`.style.content` read back through Playwright's
+`page.evaluate`) reported `content: ""` for *every* hex-escape `content`
+value tested in this session - including the ones that were, confirmed by
+screenshot moments later, rendering completely correctly (GenericBrowser's
+own long-shipped `\f341`, `\f5de`, etc). Chased this as a real bug for a
+long time: rewrote the selector prefix (a legitimate fix, kept - see below),
+added `!important`, re-fetched the CSS file with `cache: 'no-store'` to rule
+out `serve.php`'s year-long `Cache-Control` masking an edit, injected the
+freshly-fetched text into a brand-new `<style>` tag to bypass the `<link>`
+entirely - the computed-style reading stayed `""` throughout, on rules that
+a same-second screenshot proved were painting fine. The unreliable reading
+was the reporting path itself, not the page: don't trust
+`getComputedStyle`/`cssText` for a `content` value containing a Private-Use-
+Area escape in this environment - a live screenshot is the only trustworthy
+check for whether a `content: "\fXXX"` glyph is actually rendering.
+
+**The legitimate fix found along the way, still correct and worth keeping**:
+the first attempt at this file scoped its rules to plain
+`.Utils_GenericBrowser__actions a:has(...)::before`, which - per the
+`getComputedStyle` red herring above - looked like it was failing the same
+way as everything else, but was *also* independently wrong for a real
+reason: `Utils_GenericBrowser/theme_adminltedark/default.css`'s own base
+`a::before` reset uses `:is(.epesi-gb .Utils_GenericBrowser,
+#epesi-gb-actions-menu)` as its selector prefix, and per spec `:is()`'s
+specificity is the *highest*-specificity branch in its argument list
+regardless of which branch actually matches a given element - here that's
+the `#epesi-gb-actions-menu` ID, so the reset carries ID-level specificity
+everywhere it applies, table row or floating overflow-menu clone alike. A
+selector scoped to a plain class can never outrank that no matter how many
+`:has()` conditions it adds. Rewriting to reuse that exact same `:is(...)`
+prefix (matching every other per-icon override already in that file) fixes
+this properly, at equal specificity plus the `:has()` tie-breaker, with no
+`!important` needed - confirmed live by removing `!important` again after
+switching prefixes and the icon still rendered.
+
+**How to apply**: (1) any future custom action-icon glyph added to a
+`Utils_GenericBrowser` row (in any module) must reuse the `:is(.epesi-gb
+.Utils_GenericBrowser, #epesi-gb-actions-menu)` prefix, not a scoped-down
+class selector, for the same two reasons documented in
+`Utils_GenericBrowser/theme_adminltedark/default.css`'s own header comment
+(ID-level specificity tie, and reach into the overflow-menu clone) - this
+entry is a second, independent confirmation of that file's own warning, hit
+by not reading it closely enough the first time. (2) If a newly-picked
+Bootstrap Icons glyph refuses to render with no console error and a
+seemingly-correct selector, don't trust `getComputedStyle`/CSSOM to
+diagnose it in this environment - do a cheap live swap to a different,
+already-proven codepoint and screenshot; if the different codepoint renders
+in the exact same rule, the mechanism is fine and the *specific glyph* is
+the problem, not your CSS. `bi-square` (`\f584`) specifically is confirmed
+bad as of this date; treat any other single glyph the same way if it turns
+up silently blank.
+
+## `modules/Premium/` is invisible to every PHP 8.2 migration tool - old-syntax bugs there only surface at runtime
+
+Found 2026-08-18 during a live error-log monitoring session: four unrelated
+PHP 8-incompatibility fatals surfaced from `modules/Premium/` in under an
+hour, each a syntax/signature shape the core migration sweep had already
+cleared out of tracked code:
+
+- `Utils_RecordBrowserCommon::set_quickjump()` call left in
+  `Premium/SalesOpportunity/SalesOpportunityInstall.php:38` after the method
+  was deleted codebase-wide (see `deliberate-removals.md`'s quickjump entry,
+  which now also documents this gap) - fatal on module install/upgrade via
+  the Store admin screen.
+- Curly-brace array offset syntax (`$columns{$id} = ...`), removed outright
+  in PHP 8.0, in `Premium/Import/Temp/Worksheet.php:199`.
+- Two `PhpOffice\PhpSpreadsheet\Reader\IReadFilter` implementers
+  (`Premium/Import/File/FirstRowFilter.php`,
+  `Premium/Import/File/ChunkReadFilter.php`) with bare untyped `readCell()`
+  signatures, incompatible with the interface's typed
+  `readCell(string, int, string = ''): bool` - fatal the moment Import's
+  filtered-read path runs.
+- The already-documented `simple_setup()` declared-non-static bug just above
+  this entry also hit `Premium/Import` alongside 14 core modules.
+
+**Root cause**: `phpstan.neon` and `rector-php82.php` both list `paths:
+[include, modules]`, which *would* include `modules/Premium` - but Premium
+is a separately-licensed tree, gitignored and each module its own nested git
+repo (see main `CLAUDE.md`), so it's simply not present in CI's checkout at
+all. Every migration/static-analysis pass that already swept core code for
+these exact syntax shapes (removed curly-brace offsets, non-static
+callback-by-classname calls, deleted API surface) never had a chance to see
+Premium's copies of the same shapes. Unlike a clean miss, these don't show
+up as PHPStan findings to triage later - they're silent until the exact
+code path executes in production and throws a fatal.
+
+**How to apply**: don't treat "PHPStan/Rector are clean" or "the migration
+sweep is done" as covering Premium - it isn't and can't be, structurally.
+When a Premium module throws a fatal that looks like a PHP 7.4-vs-8.2
+compatibility shape (curly-brace offsets, `{}`/dynamic-property notices,
+non-static-called-statically, interface/parent signature mismatches, removed
+PEAR/openpsa APIs per `MIGRATION_NOTES.md`), first check whether the same
+shape was already fixed in core (`git log -S'<pattern>'` or grep
+`deliberate-removals.md`/this file) - if so it's almost certainly this gap,
+not a new bug class, and the fix is the same mechanical change core already
+got. If you're touching a Premium module for any reason, a quick manual grep
+for these known-bad shapes (`{$`, `function simple_setup()` missing
+`static`, interface implementations with untyped params) is worth doing
+opportunistically since no automated pass will ever flag it. There is no
+CI-side fix available (Premium can't be added to a public CI checkout) -
+this stays a manual-sweep-on-touch problem indefinitely.
+
+## `eval_js_once()` permanently skips a script that needs to re-run every time its target element is freshly (re-)rendered, not just once ever
+
+Found 2026-08-18, reported as "when you run Playwright it renders light mode
+with a black background" - screenshots showed a fully light-themed sidebar/
+navbar/page background with every Bootstrap `.card` (Admin panel tool
+tiles, a GenericBrowser table row) rendering solid black regardless.
+
+**Root cause**: `Base_Box`'s shell wrapper (`.epesi-adminlte`,
+`theme_adminltedark/default.tpl:977`) is server-rendered with
+`data-bs-theme` hardcoded from the *installed theme name*, not the user's
+actual color-mode preference: `{if $theme_name=='adminltedark'}dark{else}
+light{/if}` - since `adminltedark` is the only AdminLTE-family theme now
+(see this file's own `adminlte-theme.md` history), this is unconditionally
+`"dark"` on every fresh render of that markup. `Base_ThemeCommon::
+load_theme_assets()` queues a client-side correction
+(`epesiSyncThemeShell()`) that's supposed to immediately re-sync
+`.epesi-adminlte`'s attribute to match `localStorage['lte-theme']`, with a
+"self-healing" retry loop for the case where the script runs before the
+element exists yet.
+
+That correction was wrapped in `eval_js_once()`, which dedupes by
+`md5($js)` in `$_SESSION['client']['__evaled_jses__']` - a **server-side,
+PHP-session-scoped** flag, not cleared by logout. `load_theme_assets()` is
+called from `Box_0.php`'s construct(), which runs again on every AJAX-push
+login (logging in patches Box's whole shell into the DOM without a real
+page navigation - see `ThemeCommon_0.php`'s own pre-existing comment on
+this exact race, which assumed the retry loop made it self-healing).
+Confirmed live by patching `Element.prototype.setAttribute` and
+`Storage.prototype.getItem` before a logout+login cycle: on the *second*
+login within the same browser session, **zero** calls to either were
+intercepted - the entire sync script, including its retry loop, was
+silently skipped by `eval_js_once()` because the exact same script content
+had already been marked "sent" earlier in the session (e.g. the original
+full-page login). The freshly-rendered `.epesi-adminlte` from the second
+login was left stuck on its SSR-hardcoded `"dark"`, forever, with nothing
+left to correct it - `<html>`'s own attribute (set once on the original
+page load by AdminLTE's own separate, non-Epesi color-mode script, and
+never touched again by a mere AJAX login) happened to still show the
+*correct* value, which is why the shell chrome looked right while the
+content area's cards/tables didn't: AdminLTE/Bootstrap's dark-mode CSS uses
+`[data-bs-theme=dark] .card`-style selectors matching *any* ancestor, and
+`.epesi-adminlte` sits directly above nearly every card/table in the app.
+A plain full page reload (not a re-login) always "fixed" it, since that
+re-runs the whole PHP request from scratch including a fresh
+`load_theme_assets()` call with a session where the dedup flag genuinely
+hadn't been set yet in *that* browser tab's history - which is exactly why
+this had gone unnoticed: normal manual testing tends to reload rather than
+logout/login repeatedly, while an AI driving the browser via repeated
+session-expiry-triggered logins (as happened organically this session)
+hits the buggy path constantly.
+
+**Fix**: split the one `eval_js_once()` call into two. The seed +
+immediate `<html>` update + `epesiSyncThemeShell()` retry IIFE now goes
+through plain `eval_js()` - safe to resend on every `load_theme_assets()`
+call since it's a handful of idempotent DOM queries/attribute sets with no
+cross-invocation state (the retry counter lives inside each IIFE's own
+closure). The `document.addEventListener('changed.lte.color-mode', ...)`
+registration stayed in its own `eval_js_once()`, unchanged - registering
+that one repeatedly *would* be a real (if minor) accumulating-listener
+problem, unlike the sync logic itself. Verified live across two separate
+logout+login cycles (both correctly synced `.epesi-adminlte` to `"light"`)
+and the real color-mode toggle in both directions (still correctly flips
+both `<html>` and `.epesi-adminlte` together, confirming the split
+listener still works).
+
+**How to apply**: `eval_js_once()`'s guarantee is "this exact script body
+runs at most once per PHP session" - correct for one-time setup (event
+listener registration, injecting a modal template once) but wrong for any
+script whose job is to *re-assert current state onto a DOM element that
+can be freshly (re-)rendered more than once per session* (a shell wrapper,
+a widget re-inserted by AJAX, anything server-rendered with a
+request-time-computed default that a client-side script is meant to
+correct). Before wrapping a state-sync script in `eval_js_once()`, ask
+whether the element it targets is guaranteed to exist exactly once for the
+lifetime of the session - if it can be re-rendered (this app's AJAX-push
+navigation model makes that more common than a traditional multi-page app,
+per `CLAUDE.md`'s Architecture section), the sync logic needs plain
+`eval_js()` (or its own re-triggering hook), while any one-time-only side
+effect nested inside the same block (listener registration, etc.) should
+be split into its own separately-keyed `eval_js_once()` call so it doesn't
+get needlessly re-run just because the sync logic now correctly does.

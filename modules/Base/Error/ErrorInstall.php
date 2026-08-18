@@ -44,7 +44,7 @@ class Base_ErrorInstall extends ModuleInstall {
 			array('name'=>Base_AclInstall::module_name(), 'version'=>0));
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
         return array('package'=>__('EPESI Core'), 'option'=>__('Error reporting'));
 	}
 }	

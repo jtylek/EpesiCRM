@@ -35,7 +35,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'BBCode parser module for epesi.');
 	}
 
-	public function simple_setup() {
+	public static function simple_setup() {
 		return __('EPESI Core');
 	}
 	public function requires($v) {

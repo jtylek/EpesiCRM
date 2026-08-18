@@ -27,7 +27,7 @@ class Develop_ModuleCreatorInstall extends ModuleInstall {
 				array('name'=>'Utils/Tree','version'=>0),
 				array('name'=>'Utils/GenericBrowser','version'=>0));
 	}
-	public function simple_setup() {
+	public static function simple_setup() {
         return false;
 	}
 }

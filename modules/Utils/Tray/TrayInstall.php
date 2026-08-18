@@ -43,7 +43,7 @@ class Utils_TrayInstall extends ModuleInstall {
 		);
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
 		return false;
 	}
 	

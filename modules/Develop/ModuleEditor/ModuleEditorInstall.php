@@ -13,7 +13,6 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Develop_ModuleEditorInstall extends ModuleInstall {
 
 	public function install() {
-		Base_LangCommon::install_translations($this->get_type());
 		return true;
 	}
 	
@@ -40,7 +39,7 @@ class Develop_ModuleEditorInstall extends ModuleInstall {
 			'License'=>'MIT');
 	}
 	
-	public function simple_setup() {
+	public static function simple_setup() {
         return false;
 	}
 }

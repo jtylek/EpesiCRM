@@ -24,7 +24,7 @@ class Utils_CalendarInstall extends ModuleInstall {
 		return array('Author'=>'<a href="mailto:abisaga@telaxus.com">Arkadiusz Bisaga</a>, <a href="mailto:pbukowski@telaxus.com">Paul Bukowski</a> (<a href="http://www.telaxus.com">Janusz Tylek</a>)', 'License'=>'MIT', 'Description'=>'Abstract calendar.');
 	}
 
-	public function simple_setup() {
+	public static function simple_setup() {
 		return false;
 	}
 	
