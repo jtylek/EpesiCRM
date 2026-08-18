@@ -56,8 +56,10 @@ same for every developer and every computer working on this repo.
   around `anonymous_setup`.
 - [legacy-js-migration.md](legacy-js-migration.md) — Prototype.js/script.aculo.us/old
   jQuery inventory and the planned elimination order.
-- [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — planned CKEditor→
-  Quill swap (license + retirement), full scope/decision/plan recorded; not started.
+- [ckeditor-to-quill-migration.md](ckeditor-to-quill-migration.md) — CKEditor→Quill
+  swap (license + retirement): done, merged as `8d47bec1`, plus a 2026-08-12 follow-up
+  restoring the Notes toolbar-switch button. `modules/Libs/CKEditor/` still has 2 inert
+  wrapper files left on purpose — see `deliberate-removals.md`.
 - [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) —
   generic mobile/responsive 2-line-per-row layout for every `Utils_GenericBrowser`/
   `Utils_RecordBrowser` list table; implemented on the `mobile-gb` branch, not yet

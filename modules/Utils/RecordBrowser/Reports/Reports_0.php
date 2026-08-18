@@ -643,29 +643,26 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_chart($r,$ref_rec,$gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name());
-			$f2 = $this->init_module(Libs_OpenFlashChart::module_name());
+			$f = $this->init_module(Libs_ChartJS::module_name());
+			$f2 = $this->init_module(Libs_ChartJS::module_name());
 			$results = call_user_func($this->display_cell_callback, $r);
 
-			$title = new OFC_Elements_Title( $ref_rec );
-			$f->set_title( $title );
-			$f2->set_title( $title );
+			$f->set_type(Libs_ChartJS::TYPE_LINE);
+			$f2->set_type(Libs_ChartJS::TYPE_LINE);
+			$f->set_title($ref_rec);
+			$f2->set_title($ref_rec);
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$f->set_x_axis($x_ax);
-			$f2->set_x_axis($x_ax);
+			$f->set_labels($labels);
+			$f2->set_labels($labels);
 			$max = 5;
 			$max2 = 5;
 			$curr = false;
 			$num = false;
-			
+
 			if (empty($this->categories)) {
 				$arr = array();
-				$bar = new OFC_Charts_Line();
-				$bar->set_colour(self::$colours[0]);
 				foreach ($results as & $res_ref) {
 					if (is_array($res_ref))
 						$res_ref = array_pop($res_ref);
@@ -677,21 +674,16 @@ class Utils_RecordBrowser_Reports extends Module {
 						if($max<$val) $max=$val;
 					}
 				}
-				$bar->set_values( $arr );
 				if($this->format=='currency') {
-					$f2->add_element( $bar );
+					$f2->add_dataset('',self::$colours[0],$arr);
 					$curr = true;
 				} else {
-					$f->add_element( $bar );
+					$f->add_dataset('',self::$colours[0],$arr);
 					$num = true;
 				}
 			} else {
 			    $color = 0;
 				foreach ($this->categories as $q=>$c) {
-					$bar = new OFC_Charts_Line();
-					$bar->set_colour(self::$colours[$color%count(self::$colours)]);
-					$color++;
-					$bar->set_key(strip_tags($c),10);
 					$arr = array();
 					foreach ($results as $v) {
 						if (is_array($v[$c])) $v[$c] = reset($v[$c]);
@@ -703,23 +695,19 @@ class Utils_RecordBrowser_Reports extends Module {
 							if($max<$val) $max=$val;
 						}
 					}
-					$bar->set_values( $arr );
 					if($this->format[$c]=='currency') {
-						$f2->add_element( $bar );
+						$f2->add_dataset(strip_tags($c),self::$colours[$color%count(self::$colours)],$arr);
 						$curr = true;
 					} else {
-						$f->add_element( $bar );
+						$f->add_dataset(strip_tags($c),self::$colours[$color%count(self::$colours)],$arr);
 						$num = true;
 					}
+					$color++;
 				}
 			}
 
 			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max);
-				$y_ax->set_steps($max/10);
-				$f->set_y_axis($y_ax);
-
+				$f->set_y_max($max);
 				$f->set_width(950);
 				$f->set_height(400);
 
@@ -728,11 +716,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max2);
-				$y_ax->set_steps($max2/10);
-				$f2->set_y_axis($y_ax);
-
+				$f2->set_y_max($max2);
 				$f2->set_width(950);
 				$f2->set_height(400);
 
@@ -743,14 +727,17 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_summary_chart($gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary numeric
-			$f2 = $this->init_module(Libs_OpenFlashChart::module_name()); //row summary currency
-			$fc = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary numeric
-			$fc2 = $this->init_module(Libs_OpenFlashChart::module_name()); //columns summary currency
+			$f = $this->init_module(Libs_ChartJS::module_name()); //row summary numeric
+			$f2 = $this->init_module(Libs_ChartJS::module_name()); //row summary currency
+			$fc = $this->init_module(Libs_ChartJS::module_name()); //columns summary numeric
+			$fc2 = $this->init_module(Libs_ChartJS::module_name()); //columns summary currency
+			$f->set_type(Libs_ChartJS::TYPE_BAR);
+			$f2->set_type(Libs_ChartJS::TYPE_BAR);
+			$fc->set_type(Libs_ChartJS::TYPE_BAR);
+			$fc2->set_type(Libs_ChartJS::TYPE_BAR);
 
-			$title = new OFC_Elements_Title( "Summary by row" );
-			$f->set_title( $title );
-			$f2->set_title( $title );
+			$f->set_title("Summary by row");
+			$f2->set_title("Summary by row");
 			if(!empty($this->categories)) {
 				$labels = array();
 				$labels_c = array();
@@ -761,42 +748,31 @@ class Utils_RecordBrowser_Reports extends Module {
 						$labels[] = strip_tags($c);
 					}
 				}
-				$x_ax = new OFC_Elements_Axis_X();
-				$x_ax->set_labels_from_array($labels);
-				$f->set_x_axis($x_ax);
-				$x_ax = new OFC_Elements_Axis_X();
-				$x_ax->set_labels_from_array($labels_c);
-				$f2->set_x_axis($x_ax);
+				$f->set_labels($labels);
+				$f2->set_labels($labels_c);
 			}
 
-			$title = new OFC_Elements_Title( "Summary by column" );
-			$fc->set_title( $title );
-			$fc2->set_title( $title );
+			$fc->set_title("Summary by column");
+			$fc2->set_title("Summary by column");
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$fc->set_x_axis($x_ax);
-			$fc2->set_x_axis($x_ax);
+			$fc->set_labels($labels);
+			$fc2->set_labels($labels);
 			$max = 5;
 			$max2 = 5;
 			$maxc = 5;
 			$maxc2 = 5;
 			$curr = false;
 			$num = false;
-			$col_total=array();
 
             $color = 0;
 			foreach($this->ref_records as $k=>$r) {
 				$results = call_user_func($this->display_cell_callback, $r);
 
 				$ref_rec = call_user_func($this->ref_record_display_callback, $r,true);
-
-				$bar = new OFC_Charts_Bar_Glass();
-				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
+				$bar_color = self::$colours[$color%count(self::$colours)];
 				$color++;
-				$bar->set_key(strip_tags($ref_rec),10);
 
 				if(empty($this->categories)) {
 					$total = 0;
@@ -810,22 +786,18 @@ class Utils_RecordBrowser_Reports extends Module {
 						$this->cols_total[$i][0] += $val;
 						$i++;
 					}
-					$bar->set_values(array($total));
 					if($this->format=='currency') {
                         if ($total > $max2)
     						$max2 = $total;
-						$f2->add_element( $bar );
+						$f2->add_dataset(strip_tags($ref_rec),$bar_color,array($total));
 						$curr = true;
 					} else {
                         if ($total > $max)
 						    $max = $total;
-						$f->add_element( $bar );
+						$f->add_dataset(strip_tags($ref_rec),$bar_color,array($total));
 						$num = true;
 					}
 				} else {
-					$bar_c = new OFC_Charts_Bar_Glass();
-					$bar_c->set_colour(self::$colours[$color%count(self::$colours)]);
-					$bar_c->set_key(strip_tags($ref_rec),10);
 					$arr = array();
 					$arr_c = array();
 					foreach ($this->categories as $q=>$c) {
@@ -849,13 +821,11 @@ class Utils_RecordBrowser_Reports extends Module {
 						}
 					}
 					if(!empty($arr)) {
-						$bar->set_values( $arr );
-						$f->add_element( $bar );
+						$f->add_dataset(strip_tags($ref_rec),$bar_color,$arr);
 						$num = true;
 					}
 					if(!empty($arr_c)) {
-						$bar_c->set_values( $arr_c );
-						$f2->add_element( $bar_c );
+						$f2->add_dataset(strip_tags($ref_rec),$bar_color,$arr_c);
 						$curr = true;
 					}
 				}
@@ -863,11 +833,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max);
-				$y_ax->set_steps($max/10);
-				$f->set_y_axis($y_ax);
-
+				$f->set_y_max($max);
 				$f->set_width(950);
 				$f->set_height(400);
 
@@ -876,11 +842,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$max2);
-				$y_ax->set_steps($max2/10);
-				$f2->set_y_axis($y_ax);
-
+				$f2->set_y_max($max2);
 				$f2->set_width(950);
 				$f2->set_height(400);
 
@@ -889,9 +851,6 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if(empty($this->categories)) {
-				$bar = new OFC_Charts_Bar_Glass();
-				$bar->set_colour(self::$colours[0]);
-				$bar->set_key('Total',10);
 				$mm = 5;
                 $values = array();
 				foreach($this->cols_total as $val) {
@@ -899,30 +858,25 @@ class Utils_RecordBrowser_Reports extends Module {
 					if($mm < $rval) $mm = $rval;
                     $values[] = $rval;
                 }
-				$bar->set_values($values);
 				if($this->format=='currency') {
 					$maxc2 = $mm;
-					$fc2->add_element( $bar );
+					$fc2->add_dataset('Total',self::$colours[0],$values);
 				} else {
 					$maxc = $mm;
-					$fc->add_element( $bar );
+					$fc->add_dataset('Total',self::$colours[0],$values);
 				}
 			} else {
 				$i = 0;
 				foreach($this->cols_total as $k=>$arr) {
-					$bar = new OFC_Charts_Bar_Glass();
-					$bar->set_colour(self::$colours[$i%count(self::$colours)]);
-					$bar->set_key(strip_tags($k),10);
-					$bar->set_values($arr);
 					$mm = 5;
 					foreach($arr as $val)
 						if($mm<$val) $mm=$val;
 					if($this->format[$k]=='currency') {
 						if($mm>$maxc2) $maxc2 = $mm;
-						$fc2->add_element( $bar );
+						$fc2->add_dataset(strip_tags($k),self::$colours[$i%count(self::$colours)],$arr);
 					} else {
 						if($mm>$maxc) $maxc = $mm;
-						$fc->add_element( $bar );
+						$fc->add_dataset(strip_tags($k),self::$colours[$i%count(self::$colours)],$arr);
 					}
 					$i++;
 				}
@@ -930,11 +884,7 @@ class Utils_RecordBrowser_Reports extends Module {
 
 
 			if($num) {
-				$y_ax = new OFC_Elements_Axis_Y();
-				$y_ax->set_range(0,$maxc);
-				$y_ax->set_steps($maxc/10);
-				$fc->set_y_axis($y_ax);
-
+				$fc->set_y_max($maxc);
 				$fc->set_width(950);
 				$fc->set_height(400);
 
@@ -943,11 +893,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			}
 
 			if($curr) {
-				$y_ax = new OFC_Elements_Axis_X();
-				$y_ax->set_range(0,$maxc2);
-				$y_ax->set_steps($maxc2/10);
-				$fc2->set_y_axis($y_ax);
-
+				$fc2->set_y_max($maxc2);
 				$fc2->set_width(950);
 				$fc2->set_height(400);
 
@@ -958,16 +904,14 @@ class Utils_RecordBrowser_Reports extends Module {
 	}
 
 	public function draw_category_chart($ref_rec,$gb_captions) {
-			$f = $this->init_module(Libs_OpenFlashChart::module_name());
+			$f = $this->init_module(Libs_ChartJS::module_name());
+			$f->set_type(Libs_ChartJS::TYPE_LINE);
 
-			$title = new OFC_Elements_Title( $ref_rec );
-			$f->set_title( $title );
+			$f->set_title($ref_rec);
 			$labels = array();
 			foreach($gb_captions as $cap)
 				$labels[] = $cap['name'];
-			$x_ax = new OFC_Elements_Axis_X();
-			$x_ax->set_labels_from_array($labels);
-			$f->set_x_axis($x_ax);
+			$f->set_labels($labels);
 			$max = 5;
 
             $color = 0;
@@ -975,10 +919,6 @@ class Utils_RecordBrowser_Reports extends Module {
 				$results = call_user_func($this->display_cell_callback, $r);
 
 				$title2 = strip_tags(call_user_func($this->ref_record_display_callback, $r,true));
-				$bar = new OFC_Charts_Line();
-				$bar->set_colour(self::$colours[$color%count(self::$colours)]);
-				$color++;
-				$bar->set_key($title2,10);
 				$arr = array();
 				foreach ($results as $v) {
 					if($ref_rec) {
@@ -993,15 +933,11 @@ class Utils_RecordBrowser_Reports extends Module {
 					$arr[] = $val;
 					if($max<$val) $max=$val;
 				}
-				$bar->set_values( $arr );
-				$f->add_element( $bar );
+				$f->add_dataset($title2,self::$colours[$color%count(self::$colours)],$arr);
+				$color++;
 			}
 
-			$y_ax = new OFC_Elements_Axis_Y();
-			$y_ax->set_range(0,$max);
-			$y_ax->set_steps($max/10);
-			$f->set_y_axis($y_ax);
-
+			$f->set_y_max($max);
 			$f->set_width(950);
 			$f->set_height(400);
 

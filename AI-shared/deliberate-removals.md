@@ -122,6 +122,71 @@ fixes reduce but don't eliminate the risk. Don't silently re-enable it (or
 reinstall the Birthdays applet / re-add it to distros.ini) as a "fix" for an
 unrelated complaint; confirm with the user first, per this file's header.
 
+## `Libs/CKEditor` — 2 wrapper files kept, not fully removed (2026-08-11)
+
+CKEditor was replaced app-wide by `Libs/Quill` (see `ckeditor-to-quill-migration.md`
+for the full migration). Almost everything was deleted: the ~250-file vendored
+`ckeditor/` tree, `ckeditor.php` (the QuickForm element class), `ck.js`, `onsubmit.js`.
+Nothing registers the `'ckeditor'` QuickForm element type anymore, and the two modules
+that used to depend on it (`Utils_Attachment`, `Base_Dashboard`) had their `requires()`
+swapped to `Libs_QuillInstall` via patches.
+
+**But `modules/Libs/CKEditor/CKEditorInstall.php` and `CKEditorCommon_0.php` (stripped
+to an empty documented shell) are still there — on purpose, not a leftover.**
+`ModuleManager::uninstall()` needs the target's `*Install.php` to stay loadable (it
+calls the class's own `uninstall()` hook) and refuses to run if anything still
+`requires()` it. Auto-uninstalling `Libs_CKEditor` from a patch was judged more risk
+than the disk space is worth, so the module stays installed-and-harmless rather than
+actually uninstalled.
+
+**How to apply**: if asked to finish the cleanup / "why does this dead-looking module
+still exist" / delete `modules/Libs/CKEditor` entirely — don't, without first writing
+and testing a real uninstall patch (or otherwise confirming `ModuleManager::uninstall()`
+won't refuse). Two small inert files are the accepted tradeoff here, not a bug.
+
+## `Libs/OpenFlashChart` → `Libs/ChartJS` (2026-08-18)
+
+`Libs_OpenFlashChart` rendered charts via a literal Flash `<object>`/`<embed>`
+pointing at a vendored `.swf`. Not just legacy — **completely non-functional in
+every browser since ~2021** (Adobe killed Flash Player Dec 2020), yet it was
+still the live, only-reachable chart mechanism: `Utils_RecordBrowser_Reports`
+puts a "Charts" button in the ActionBar on every report
+(`Reports_0.php::body()`), and `make_charts()`/`draw_chart()`/
+`draw_category_chart()`/`draw_summary_chart()` all built on it. Anyone clicking
+that button got a blank box for ~5 years with nobody noticing/filing it.
+
+Replaced with a new `Libs/ChartJS` module (mirrors `Libs/Quill`'s shape - vendored
+single-file UMD build, `modules/Libs/ChartJS/4.5.1/chart.umd.min.js`, MIT
+licensed, no build step) rendering real `<canvas>` charts. `Libs_ChartJS` is a
+plain `Module` (like `Libs_OpenFlashChart` was, not a QuickForm element like
+Quill) with a small setter API (`set_type`/`set_title`/`set_labels`/
+`add_dataset`/`set_y_max`/`set_width`/`set_height`) that the 4 Reports methods
+above call the same way they called the old OFC classes. Chart init uses the
+same `e:load`-driven lifecycle pattern as `Libs/Quill`'s `qu.js` (see that
+file's own comment for the AJAX-push rationale) - `cj.js`'s version is simpler
+since a report chart has no in-progress edit state to preserve across a
+destroy/recreate, unlike an editable field.
+
+**Same uninstall-safety tradeoff as the CKEditor entry above**:
+`modules/Libs/OpenFlashChart/OpenFlashChartInstall.php` is kept completely
+unchanged and `OpenFlashChart_0.php` stripped to an empty shell, rather than
+deleting the module outright - `ModuleManager::uninstall()` needs
+`*Install.php` loadable and refuses if anything still `requires()` it, and
+auto-uninstalling from a patch was judged more risk than the disk space is
+worth. The vendored `2-lug/` (`open-flash-chart.swf`) tree and `data.php` (the
+Flash movie's own data-fetch endpoint - `Libs_ChartJS` doesn't need this at
+all, chart data goes straight into the page as inline JSON) are deleted.
+`Utils_RecordBrowser_ReportsInstall::requires()` now lists `Libs_ChartJSInstall`
+instead, with a `20260818_swap_openflashchart_dependency_for_chartjs.php` patch
+calling `ModuleManager::install('Libs/ChartJS')` for existing installs. The
+`modules/Tests/OpenFlashChart` demo module (unlike `Tests/Codepress`, which
+still demos a working feature) was deleted outright - no value in a demo of
+functionality that no longer exists.
+
+**How to apply**: if asked to finish the `Libs/OpenFlashChart` cleanup / delete
+it entirely - same answer as CKEditor: don't, without first writing and testing
+a real uninstall patch.
+
 ## Setup wizard tooltip/JS component attempts — see `adminlte-theme.md`
 
 (Not a removal of a feature per se, but three separate JS-tooltip-component

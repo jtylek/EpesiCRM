@@ -2,73 +2,34 @@
 /**
  * Flash Charts
  *
- * This module uses Open Flash Chart, displays data as a chart in flash.
+ * This module used Open Flash Chart to display data as a chart in Flash.
  * Copyright (C) 2007 John Glazebrook
  * distributed under the terms of the GNU General Public License version 2 or later
  *
  * @author Paul Bukowski <pbukowski@telaxus.com>
  * @copyright Copyright &copy; 2006, Janusz Tylek
- * @version 1.0
  * @license MIT
  * @package epesi-libs
  * @subpackage openflashchart
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+// OpenFlashChart -> ChartJS migration, 2026-08-18 (AI-shared/deliberate-removals.md):
+// replaced by modules/Libs/ChartJS - Flash itself has rendered nothing in any
+// browser since ~2021 (Adobe killed Flash Player Dec 2020), so this was already
+// non-functional, not just legacy. This module is kept installed - not
+// uninstalled/deleted - purely so ModuleManager::uninstall() (which needs
+// OpenFlashChartInstall.php loadable to run its own uninstall() hook, and refuses
+// to proceed if anything still requires it) has nothing to actually do here: no
+// code requires Libs_OpenFlashChartInstall anymore (Utils_RecordBrowser_Reports's
+// requires() now lists Libs_ChartJSInstall - see that module's own upgrade patch),
+// so there's no correctness reason to force existing installs through an uninstall
+// step, only a modest disk-space one. The vendored 2-lug/ (open-flash-chart.swf)
+// tree and data.php (the Flash movie's own data-fetch endpoint) are both deleted;
+// nothing instantiates this class anymore.
 class Libs_OpenFlashChart extends Module {
-	private $ofc;
-	private $width="500px";
-	private $height="300px";
-	private static $included = false;
-	
-	public function construct() {
-		if(!self::$included) {
-			$dir = $this->get_module_dir();
-			ini_set('include_path',ini_get('include_path').PATH_SEPARATOR.$dir.'/2-lug');
-			require_once('OFC/OFC_Chart.php');
-			self::$included = true;
-		}
-
-		$this->ofc = new OFC_Chart();
-	}
-
-	public function & __call($func_name, $args = array()) {
-		if (is_object($this->ofc))
-			$return = call_user_func_array(array(&$this->ofc, $func_name), $args);
-		else
-			trigger_error("OpenFlashChart object doesn't exists", E_USER_ERROR);
-		return $return;
-	}
-	
-	public function set_width($w) {
-		if(is_numeric($w)) $w .= 'px';
-		$this->width = $w;
-	}
-	
-	public function set_height($h) {
-		if(is_numeric($h)) $h .= 'px';
-		$this->height = $h;
-	}
-
 	public function body() {
-		$md = md5($this->get_path());
-		$data = $this->ofc->toString();
-		$this->set_module_variable('data',$data);
-//		eval_js('var open_flash_chart_data=function() {'.
-//					'return "'.Epesi::escapeJS($data).'";'.
-//					  '}');
-		$url=urlencode($this->get_module_dir().'data.php?id='.(defined('CID') ? CID : false).'&chart='.$this->get_path());
-		print('<span style="display:none">'.md5($data).'</span>');
-		print('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="'.$this->width.'" height="'.$this->height.'" id="ofc_'.$md.'" align="middle">'.
-		     '<param name="allowScriptAccess" value="sameDomain" />'.
-		     '<param name="movie" value="'.$this->get_module_dir().'2-lug/open-flash-chart.swf" />'.
-			 '<param name="FlashVars" value="data-file='.$url.'" />'.
-			 '<param name="wmode" value="opaque">'.
-		     '<param name="quality" value="high" />'.
-			 '<embed src="'.$this->get_module_dir().'2-lug/open-flash-chart.swf" wmode="opaque" FlashVars="data-file='.$url.'" quality="high" bgcolor="#FFFFFF" width="'.$this->width.'" height="'.$this->height.'" name="open-flash-chart" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />'.
-			'</object>');
 	}
-
 }
 
 ?>
