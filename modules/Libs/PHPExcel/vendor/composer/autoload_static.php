@@ -6,13 +6,51 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit03698c2208e47e2c08256b6643d309a9
 {
-    public static $prefixesPsr0 = array (
+    public static $prefixLengthsPsr4 = array (
+        'Z' => 
+        array (
+            'ZipStream\\' => 10,
+        ),
         'P' => 
         array (
-            'PHPExcel' => 
-            array (
-                0 => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes',
-            ),
+            'Psr\\SimpleCache\\' => 16,
+            'PhpOffice\\PhpSpreadsheet\\' => 25,
+        ),
+        'M' => 
+        array (
+            'Matrix\\' => 7,
+        ),
+        'C' => 
+        array (
+            'Composer\\Pcre\\' => 14,
+            'Complex\\' => 8,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'ZipStream\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
+        'Psr\\SimpleCache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
+        'PhpOffice\\PhpSpreadsheet\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
+        'Matrix\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
+        'Composer\\Pcre\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/pcre/src',
+        ),
+        'Complex\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
         ),
     );
 
@@ -23,7 +61,8 @@ class ComposerStaticInit03698c2208e47e2c08256b6643d309a9
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInit03698c2208e47e2c08256b6643d309a9::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit03698c2208e47e2c08256b6643d309a9::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit03698c2208e47e2c08256b6643d309a9::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit03698c2208e47e2c08256b6643d309a9::$classMap;
 
         }, null, ClassLoader::class);

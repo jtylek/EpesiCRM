@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Libs_PHPExcelCommon extends ModuleCommon {
 	public static function load($file) {
-		return PHPExcel_IOFactory::load($file);
+		return \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
 	}
 }
 
