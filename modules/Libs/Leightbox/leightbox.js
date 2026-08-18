@@ -118,6 +118,13 @@ leightbox.prototype.setScroll = function(x, y){
 
 leightbox.prototype.displayLeightbox = function(display){
     var c = document.getElementById(this.content);
+    // Guard added 2026-08-18: a trigger's rel target isn't guaranteed to
+    // exist - e.g. Base_ActionBar's Launchpad popup only gets built server-side
+    // when there's at least one item to show, but its trigger icon
+    // (Base_Box/theme_adminltedark/default.tpl's .epesi-launchpad-trigger) is
+    // always rendered regardless. Without this, clicking such a trigger threw
+    // "Cannot read properties of null (reading 'parentNode')" below.
+    if (!c) return;
     var co = document.getElementById('leightbox_overlay');
     var ccont = document.getElementById('leightbox_container');
     if(display == 'none') {

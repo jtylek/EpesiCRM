@@ -113,7 +113,26 @@ class Base_ActionBar extends Module {
 					// shown; '_l' (Launchpad) is the one guaranteed way back
 					// to it now that the ActionBar's own per-item toggle for
 					// it is gone, so always shown.
-					$is_dashboard = ($v['module']==Base_Dashboard::module_name());
+					// $v['module'] is the underscore class-name form (e.g.
+					// 'Base_Dashboard', from check_for_links()'s $mod - itself
+					// a Base_MenuCommon::get_menus() array key, which
+					// ModuleManager::call_common_methods() keys by class name)
+					// while module_name() returns the slash path form (e.g.
+					// 'Base/Dashboard') - comparing them directly never
+					// matched, silently defeating this "always shown" guarantee
+					// for every user (confirmed live: is_dashboard was false
+					// even for the literal Dashboard entry). Module alone isn't
+					// enough to identify *this* entry though - Base_Dashboard::
+					// menu() also contributes a second, unrelated leaf under the
+					// same module ("My settings: Dashboard", routed via
+					// __function__=>'open_config' to the applet-config screen,
+					// not the dashboard itself) which shares 'module' with the
+					// real one and, once matched here too, showed up as a
+					// second bogus "Dashboard" Launchpad icon (reported live).
+					// add_default_menu() only sets box_main_function when the
+					// menu entry declared __function__, so its absence is what
+					// actually singles out the plain "go to the Dashboard" link.
+					$is_dashboard = ($v['module']==str_replace('/','_',Base_Dashboard::module_name())) && empty($v['link']['box_main_function']);
 					if(!$is_dashboard && Base_ActionBarCommon::$quick_access_shortcuts
                             && Base_User_SettingsCommon::get(Base_Menu_QuickAccessCommon::module_name(),$v['name'].'_d')) {
 						$ii = array();
