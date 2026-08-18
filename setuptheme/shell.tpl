@@ -4,7 +4,7 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="robots" content="NOINDEX, NOARCHIVE" />
-	<title>{if $title}{$title} - {/if}{'EPESI setup'|t}</title>
+	<title>{if $title}{$title} - {/if}{'Epesi setup wizard'|t}</title>
 	<link href="libs/bootstrap-5.3.8/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css" rel="stylesheet" />
 	<link href="libs/adminlte-4.1.0/css/adminlte.min.css" rel="stylesheet" />
@@ -129,8 +129,8 @@
 <div class="epesi-adminlte app-wrapper" data-bs-theme="light">
 
 	<nav class="app-header navbar navbar-expand">
-		<div class="container-fluid">
-			<span class="navbar-brand"><i class="bi bi-gear-fill me-1"></i>{'EPESI setup'|t}</span>
+		<div class="container-fluid justify-content-center">
+			<span class="navbar-brand"><i class="bi bi-gear-fill me-1"></i>{'Epesi setup wizard'|t}</span>
 		</div>
 	</nav>
 
@@ -163,7 +163,7 @@
 
 	<footer class="app-footer text-center py-3">
 		<div><a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
-		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz Tylek and Karina Tylek</div>
+		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz and Karina Tylek</div>
 	</footer>
 
 </div>

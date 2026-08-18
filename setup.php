@@ -178,7 +178,7 @@ if(!isset($_GET['license'])) {
 	$license_html = str_replace('{YEAR}', date('Y'), read_doc_file('license'));
 
 	$form = new HTML_QuickForm('licenceform','get');
-	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz Tylek and Karina Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz and Karina Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"Made with EPESI"</strong> logo and the link from the application login screen or the toolbar.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'), array('class'=>'form-check-input'));
