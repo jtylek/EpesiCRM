@@ -20,5 +20,5 @@ eval_js_once('document.body.id=\'FirstRun\'');
 // wizard page swaps in different fields - without this, focus is left
 // wherever the previous step's submit left it, so the caret appears to be
 // floating over the wrong control.
-eval_js('var el=document.querySelector(\'#FirstRun table#quickform input[type="text"], #FirstRun table#quickform input[type="password"], #FirstRun table#quickform select, #FirstRun table#quickform textarea\'); if(el) el.focus();');
+eval_js('var el=document.querySelector(\'#FirstRun #quickform input[type="text"], #FirstRun #quickform input[type="password"], #FirstRun #quickform select, #FirstRun #quickform textarea\'); if(el) el.focus();');
 {/php}

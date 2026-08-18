@@ -1,0 +1,105 @@
+/* AdminLTE stepper styling for ./default.tpl's .epesi-wizard-steps markup -
+ * see AI-shared/import-wizard-plan.md.
+ *
+ * Uses Bootstrap 5's own --bs-* custom properties (already redefined per
+ * [data-bs-theme] by AdminLTE itself, same approach modules/Premium/Import/
+ * theme_adminltedark/default.css's .epesi-import-title rule already relies
+ * on) rather than hardcoded hex + a manual light-mode override block - no
+ * light/dark divergence to maintain here.
+ */
+.epesi-wizard-steps {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	list-style: none;
+	padding: 0;
+	margin: 0 0 1.5rem;
+}
+
+.epesi-wizard-step {
+	display: flex;
+	align-items: center;
+	flex: 0 1 auto;
+	gap: 0.5rem;
+	color: var(--bs-secondary-color);
+}
+
+/* Connector line between steps, skipped after the last one. */
+.epesi-wizard-step:not(:last-child)::after {
+	content: "";
+	flex: 1 1 2rem;
+	min-width: 1.5rem;
+	height: 2px;
+	background-color: var(--bs-border-color);
+	margin: 0 0.75rem;
+}
+
+.epesi-wizard-step-done:not(:last-child)::after {
+	background-color: var(--bs-success);
+}
+
+.epesi-wizard-step-marker {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 50%;
+	border: 2px solid var(--bs-border-color);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: var(--bs-secondary-color);
+}
+
+.epesi-wizard-step-done .epesi-wizard-step-marker {
+	border-color: var(--bs-success);
+	background-color: var(--bs-success);
+	color: var(--bs-white, #fff);
+}
+
+.epesi-wizard-step-active .epesi-wizard-step-marker {
+	border-color: var(--bs-primary);
+	color: var(--bs-primary);
+}
+
+.epesi-wizard-step-label {
+	white-space: nowrap;
+	font-size: 0.9rem;
+}
+
+.epesi-wizard-step-active .epesi-wizard-step-label {
+	font-weight: 600;
+	color: var(--bs-body-color);
+}
+
+.epesi-wizard-step-done .epesi-wizard-step-label {
+	color: var(--bs-body-color);
+}
+
+/* Nested (level>0) sub-steps - e.g. Develop/ModuleCreator's dynamic per-table
+   pages - drop to their own line under the active parent step rather than
+   widening the horizontal row. */
+.epesi-wizard-substeps {
+	flex-basis: 100%;
+	list-style: none;
+	margin: 0.35rem 0 0 2.25rem;
+	padding: 0;
+	font-size: 0.8rem;
+	color: var(--bs-secondary-color);
+}
+
+.epesi-wizard-substeps li {
+	padding: 0.1rem 0;
+}
+
+@media (max-width: 576px) {
+	.epesi-wizard-step-label {
+		display: none;
+	}
+
+	.epesi-wizard-step:not(:last-child)::after {
+		flex: 1 1 1rem;
+		margin: 0 0.35rem;
+	}
+}

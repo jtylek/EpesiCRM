@@ -44,6 +44,11 @@ same for every developer and every computer working on this repo.
 - [menu-search-plan.md](menu-search-plan.md) — approved plan for the AdminLTE sidebar
   search/filter box (client-side, AdminLTE-only, cascading auto-expand on match).
   Pairs with how-menu-works.md; check here before re-deriving the design.
+- [import-wizard-plan.md](import-wizard-plan.md) — approved plan turning Premium/Import's
+  icon-grid flow into a guided `Utils_Wizard` step-by-step wizard, plus a new shared
+  `Utils_Wizard` AdminLTE stepper template (`theme_adminltedark/default.tpl`) that
+  FirstRun and Develop/ModuleCreator pick up automatically too, no code changes needed
+  in either. Check here before re-deriving the wizard-template design.
 - [tooltips-howto.md](tooltips-howto.md) — step-by-step recipe for adding a proper
   mouseover tooltip to a RecordBrowser column: find the generic no-tooltip callback,
   reuse/add a `*_get_tooltip()` builder, wire it up in both `*Install.php` (fresh

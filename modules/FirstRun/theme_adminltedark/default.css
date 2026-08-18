@@ -139,16 +139,6 @@ body#FirstRun {
 	font-size: 0.85rem;
 }
 
-#FirstRun ul {
-	list-style: none;
-	padding-left: 0;
-	margin-bottom: 1rem;
-}
-
-#FirstRun ul li {
-	padding: 0.35rem 0;
-}
-
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] body#FirstRun {
   background-color: #fff;
