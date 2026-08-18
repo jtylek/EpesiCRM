@@ -3,9 +3,16 @@
 Planned and approved 2026-08-18. Extends into a shared `Utils_Wizard` AdminLTE template used by both
 `Premium/Import` and `FirstRun`.
 
-**Status: implemented and verified live** (upload → CSV parse → destination → mapping → fixed values →
-duplicate handling → review → import → done, full round trip, records landed correctly in Contacts). Two
-real bugs only surfaced by actually driving it in a browser, worth remembering:
+**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far:
+`cf24218..c830c2d` on the module's own nested repo (`jtylek/Premium-Import`, pushed); the shared
+`Utils_Wizard` template plus `FirstRun` cleanup: `87e727bf..0b460976` on `migration` (`jtylek/epesi`,
+pushed). The "Match values" fix below (`match_values_fields()`/`match_values_apply()`) was made and verified
+live in a follow-up pass and is **not yet committed** - it's a real, confirmed bug fix, just hasn't had an
+explicit commit instruction yet. Full round trip verified live three times (upload → CSV parse →
+destination → mapping → fixed values → [match values] → duplicate handling → review → import → done),
+records landed correctly in Contacts each time, including with an actual commondata (Match values) field
+mapped via a real file column. Three real bugs only surfaced by actually driving it in a browser, worth
+remembering:
 
 1. **`Premium_Import_Temp_Worksheet::set_recordset()` unconditionally deletes and recreates the mapping** -
    harmless for the standalone `select_recordset()` screen (visited once, then navigated away from via
@@ -26,16 +33,30 @@ real bugs only surfaced by actually driving it in a browser, worth remembering:
    dumping `display_module()`'s return value and row counts right next to the empty space where the table
    should render. Fixed by giving the wizard's "Review & import" step its own plain, self-contained HTML
    table (`wizard_review_table()`) instead of routing through `Utils_GenericBrowser` - no placeholder, no
-   patch step, works at any nesting depth. `Utils_TabbedBrowser` (used by the "Match values" step,
-   `common_data_body()`) is architecturally the same shape and hasn't been exercised by any test data yet -
-   check this first if that step ever renders empty.
+   patch step, works at any nesting depth.
+3. **Confirmed the same shape hits `Utils_TabbedBrowser` too** - flagged as a risk in the first pass of this
+   doc, then actually verified live: the "Match values" step (`common_data_body()`, `Utils_TabbedBrowser`
+   with one tab per commondata column) rendered as just the "Common data setup" heading and Prev/Next, the
+   entire tab area empty, same silent-success shape as bug #2. Fixed the same way: `match_values_fields()`/
+   `match_values_apply()` build one flat `Libs_QuickForm` covering every commondata column's unique values
+   (field names prefixed `<column_id>__<index>` to stay unique across columns, since they no longer get one
+   form per tab) instead of routing through `Utils_TabbedBrowser`. The standalone `set_common_data()` screen
+   keeps using `common_data_body()`/`Utils_TabbedBrowser`/`common_field()` unchanged (one level deep, works
+   fine) - only the wizard path was rewired. **General lesson for this codebase: any child module normally
+   reached via `display_module()` (`Utils_GenericBrowser`, `Utils_TabbedBrowser`, and presumably others with
+   the same shape) is unsafe to nest two `display_module()` calls deep - verify empty-looking output by
+   checking `display_module()`'s return value before assuming the underlying data/logic is what's wrong.**
 
 Also found and fixed opportunistically: `Utils_Wizard`'s own `curr_page`/`history` (stored via
 `get_module_variable`) don't survive a full page reload (a fresh top-level page load gets a fresh
 module-variable scope) - without a fix, reloading mid-wizard always restarted at step 1. Fixed by computing
 an initial `$start_page` from the worksheet's actual state (recordset set? mapping valid? etc.) before
 constructing the `Utils_Wizard` instance - only affects the *very first* render of a fresh instance, normal
-Prev/Next navigation is unaffected.
+Prev/Next navigation is unaffected. Side effect, not fixed: `history` itself still resets to empty on that
+same reload even though `$start_page` correctly restores `curr_page` - so the first render after a resume is
+missing its "Prev" button (`Wizard_0::next_page()` only adds Prev when `history` is non-empty) until at
+least one more step transition happens. Cosmetic (the Advanced link and browser back both still work),
+noted for whoever picks this up next.
 
 **Known minor issue, not yet fixed:** the action bar on the final "Done" screen still shows leftover buttons
 ("Autodetect columns", "Duplicate checking setup", "Find duplicates", "Select all", "Select none") from
@@ -47,8 +68,8 @@ session.
 
 **Not yet exercised by live testing:** the multi-sheet-XLSX "choose worksheet" picker, the chunked
 parse/import progress screens for a file large enough to hit `Import/FileProcessingLimit`/`Import/ImportLimit`,
-the "Match values" step (needs a commondata field actually mapped via a file column, not manual), and
-`Develop/ModuleCreator`'s nested (`level=1`) captions rendering through the new shared stepper template.
+and `Develop/ModuleCreator`'s nested (`level=1`) captions rendering through the new shared stepper template.
+("Match values" *is* now exercised - see bug #3 above.)
 
 ## Context
 
