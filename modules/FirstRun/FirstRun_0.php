@@ -69,6 +69,7 @@ class FirstRun extends Module {
 			$this->ini = parse_ini_file('modules/FirstRun/distros.ini',true);
 			if (count($this->ini)>1) {
 				$f = & $wizard->begin_page();
+				$wizard->set_caption(__('Setup type'));
 				$f->addElement('header', null, __('Welcome to EPESI first run wizard'));
 				$f->setDefaults(array('setup_type'=>key($this->ini)));
 				foreach($this->ini as $name=>$pkgs) {
@@ -86,6 +87,7 @@ class FirstRun extends Module {
 
 			/////////////////////////////////////////////////////////////////
 			$f = $wizard->begin_page('simple_user');
+			$wizard->set_caption(__('Administrator'));
 			$f->addElement('header', null, __('Please enter administrator user login and password'));
 
 			$f->addElement('text', 'login', __('Login'));
@@ -107,6 +109,7 @@ class FirstRun extends Module {
 
 			/////////////////////////////////////////////////////
 			$f = $wizard->begin_page('simple_mail');
+			$wizard->set_caption(__('Mail settings'));
 
 			$f->addElement('header',null, __('Mail settings'));
 			$f->addElement('html','<tr><td colspan=2>'.__('If you are on a hosted server it probably should stay as it is now.').'</td></tr>');
@@ -117,6 +120,7 @@ class FirstRun extends Module {
 
 			//////////////////////
 			$f = $wizard->begin_page('simple_mail_smtp');
+			$wizard->set_caption(__('SMTP settings'));
 
 			$f->addElement('header',null, __('Mail settings'));
 			$f->addElement('text','mail_host', __('SMTP host address'));
@@ -130,7 +134,7 @@ class FirstRun extends Module {
 
 			////////////////////////////////////////////////////////////
 			$f = $wizard->begin_page('setup_warning');
-			$f->addElement('header', null, __('Warning'));
+			$wizard->set_caption(__('Confirm'));
 			$f->addElement('html','<tr><td colspan=2><br />' . __('Setup will now check for available modules and will install them.') . '<br>' . __('This operation may take several minutes.') . '<br><br></td></tr>');
 			$wizard->next_page();
 

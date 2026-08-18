@@ -9,11 +9,16 @@
  */
 .epesi-wizard-steps {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: flex-start;
 	list-style: none;
 	padding: 0;
 	margin: 0 0 1.5rem;
+	/* Shrinking the connectors (below) usually keeps a typical 4-step wizard
+	   on one line within its card; this is the fallback for whatever doesn't
+	   (a narrower card, longer translated labels) - scroll inside the row
+	   rather than bursting past the card's edges. */
+	overflow-x: auto;
 }
 
 .epesi-wizard-step {
@@ -27,11 +32,11 @@
 /* Connector line between steps, skipped after the last one. */
 .epesi-wizard-step:not(:last-child)::after {
 	content: "";
-	flex: 1 1 2rem;
-	min-width: 1.5rem;
+	flex: 1 1 1rem;
+	min-width: 0.75rem;
 	height: 2px;
 	background-color: var(--bs-border-color);
-	margin: 0 0.75rem;
+	margin: 0 0.5rem;
 }
 
 .epesi-wizard-step-done:not(:last-child)::after {

@@ -1,4 +1,3 @@
-<p class="text-muted">{'Select your language'|t}</p>
 <div class="d-flex flex-wrap gap-3 justify-content-center">
 {foreach from=$langs_list item=lang}
 	<a href="{$lang.href}" class="text-decoration-none text-center" style="width:110px;">
