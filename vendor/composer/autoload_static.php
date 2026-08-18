@@ -54,10 +54,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
             'PhpParser\\' => 10,
             'ParagonIE\\ConstantTime\\' => 23,
         ),
-        'M' => 
-        array (
-            'Money\\' => 6,
-        ),
         'I' => 
         array (
             'Ifsnop\\' => 7,
@@ -158,10 +154,6 @@ class ComposerStaticInit297bc3e5d696582495380f43f17687a4
         'ParagonIE\\ConstantTime\\' => 
         array (
             0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
-        ),
-        'Money\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/moneyphp/money/src',
         ),
         'Ifsnop\\' => 
         array (

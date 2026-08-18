@@ -299,7 +299,7 @@ if(isset($_GET['htaccess']) && isset($_GET['license'])) {
 		 	  				}
 			   				pg_close($link);
 						} else {
-							include_once('libs/adodb/adodb.inc.php');
+							include_once('vendor/adodb/adodb-php/adodb.inc.php');
 							$ado = & NewADOConnection('postgres');
 							if(!@$ado->Connect($host,$user,$pass,$dbname)) {
 								$db_error = __('Database does not exist.') . '<br />' . __('Please create the database first or select option')

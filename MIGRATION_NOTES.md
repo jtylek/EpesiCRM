@@ -1479,6 +1479,19 @@ The Tests-exclusion decision from §51 landed on "remove": `composer remove --de
 
 ---
 
+## 53. DONE — `require` dependency audit: drop unused `moneyphp/money`; reclassify `psy/psysh`
+
+Full pass over every `composer.json` `require` entry, verifying each has a real call site (not just declared). Two findings:
+
+- **`moneyphp/money` was entirely unused** — zero references anywhere in Epesi's own code (root or Premium), only in its own vendor files. `Utils_CurrencyField` (currency formatting/parsing) is hand-rolled string/decimal logic with no dependency on the `Money\Money` value object. `composer remove moneyphp/money` — clean, no other package depended on it.
+- **`psy/psysh` moved from `require-dev` to `require`**: `console/ShellCommand.php` (`console.php shell`) calls `\Psy\Shell::debug()` from shipped code, not test/dev tooling — same category as `fakerphp/faker`, already in `require` for the same reason (`console/Demo/GenerateContactsCommand.php`).
+
+**Don't remove `guzzlehttp/psr7` on a similar grep-based sweep** — it has zero *direct* call sites in Epesi's own code either, but §47 pins it deliberately: an old psr7 in root `vendor/` was shadowing RoundCube's own psr7 2.x through the shared per-module autoloader (`module_manager.php::load_modules()`), fataling mail send. It's a structural/version-pin dependency, not a code dependency — "no grep hits" isn't sufficient evidence of dead weight for a package that's there to control autoload resolution order for a *different* module's vendored copy. Checked and confirmed the reasoning still holds before leaving it in place.
+
+**Follow-up, same sitting**: the `setup.php:302` stale-duplicate-library issue noticed in passing above — `include_once('libs/adodb/adodb.inc.php')`, the old pre-composer v5.20.2 copy (`each()` still present, §50's sibling QuickForm cleanup was modeled on this exact shape) — is fixed. `setup.php` now points at the same composer-managed `vendor/adodb/adodb-php/adodb.inc.php` `include/database.php` already used, and the dead `libs/adodb/` directory (96 files) is deleted entirely.
+
+---
+
 ## PHASE 5 STATUS (as of 2026-07-01)
 
 **Done:**

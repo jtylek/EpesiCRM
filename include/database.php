@@ -15,10 +15,8 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
  * Include AdoDB.
  */
 
-/*require_once('libs/adodb/adodb-errorhandler.inc.php');
-require_once('libs/adodb/adodb.inc.php');*/
 //require_once('vendor/adodb/adodb-php/adodb-errorhandler.inc.php');  // openpsa-style drop-in: new ADOdb 5.22 via composer
-require_once('vendor/adodb/adodb-php/adodb.inc.php');               // (old libs/adodb was v5.20.2 from 2015, had removed each())
+require_once('vendor/adodb/adodb-php/adodb.inc.php');               // (old libs/adodb was v5.20.2 from 2015, had removed each() - now gone entirely, setup.php's last use of it switched to this same vendor copy)
 require_once('misc.php');
 
 /**

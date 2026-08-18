@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-migration',
         'version' => 'dev-migration',
-        'reference' => '6e2a3a336baf96bb826eee9637a040ded80f9725',
+        'reference' => 'c9e14fca062aa1789e0151d2cf3134b70f4f0dc8',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-migration',
             'version' => 'dev-migration',
-            'reference' => '6e2a3a336baf96bb826eee9637a040ded80f9725',
+            'reference' => 'c9e14fca062aa1789e0151d2cf3134b70f4f0dc8',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -73,15 +73,6 @@
             'aliases' => array(
                 0 => '9999999-dev',
             ),
-            'dev_requirement' => false,
-        ),
-        'moneyphp/money' => array(
-            'pretty_version' => 'v3.3.3',
-            'version' => '3.3.3.0',
-            'reference' => '0dc40e3791c67e8793e3aa13fead8cf4661ec9cd',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../moneyphp/money',
-            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'nikic/php-parser' => array(
