@@ -407,9 +407,10 @@
 	white-space: nowrap;
 	/* Per request: dark mode only (no [data-bs-theme="light"] override below,
 	   see this file's own light-mode section) - matches the header row's own
-	   .Utils_GenericBrowser__th color rule above. Was briefly green per an
-	   earlier request, reverted; CRM_LoginAudit's own theme_adminltedark/
-	   default.css keeps that page's rows green via a scoped override.
+	   .Utils_GenericBrowser__th color rule above. Was briefly green (also
+	   briefly kept green just for CRM_LoginAudit via a scoped override in
+	   that module's own theme_adminltedark/default.css, since removed) -
+	   both reverted to plain white.
 	   Shoutbox's History tab (Apps_Shoutbox/theme_adminltedark/chat_form.css)
 	   inherits this color for its own message text rather than setting its
 	   own, and Chat's #shoutbox_board/#shoutbox_board_big .shoutbox_textbox
