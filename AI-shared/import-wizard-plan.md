@@ -3,16 +3,14 @@
 Planned and approved 2026-08-18. Extends into a shared `Utils_Wizard` AdminLTE template used by both
 `Premium/Import` and `FirstRun`.
 
-**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far:
-`cf24218..c830c2d` on the module's own nested repo (`jtylek/Premium-Import`, pushed); the shared
-`Utils_Wizard` template plus `FirstRun` cleanup: `87e727bf..0b460976` on `migration` (`jtylek/epesi`,
-pushed). The "Match values" fix below (`match_values_fields()`/`match_values_apply()`) was made and verified
-live in a follow-up pass and is **not yet committed** - it's a real, confirmed bug fix, just hasn't had an
-explicit commit instruction yet. Full round trip verified live three times (upload → CSV parse →
-destination → mapping → fixed values → [match values] → duplicate handling → review → import → done),
-records landed correctly in Contacts each time, including with an actual commondata (Match values) field
-mapped via a real file column. Three real bugs only surfaced by actually driving it in a browser, worth
-remembering:
+**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far: `cf24218..7c11c24`
+on the module's own nested repo (`jtylek/Premium-Import`, pushed - includes the "Match values" fix, bug #3
+below); the shared `Utils_Wizard` template plus `FirstRun` cleanup: `87e727bf..77ae10fc` on `migration`
+(`jtylek/epesi`, pushed). Bug #4 (sticky-callback hijacking) below is fixed and verified live but **not yet
+committed**. Full round trip verified live four times (upload → CSV parse → destination → mapping → fixed
+values → [match values] → duplicate handling → review → import → done), records landed correctly in
+Contacts each time, including with an actual commondata (Match values) field mapped via a real file column.
+Four real bugs only surfaced by actually driving it in a browser, worth remembering:
 
 1. **`Premium_Import_Temp_Worksheet::set_recordset()` unconditionally deletes and recreates the mapping** -
    harmless for the standalone `select_recordset()` screen (visited once, then navigated away from via
@@ -46,6 +44,35 @@ remembering:
    reached via `display_module()` (`Utils_GenericBrowser`, `Utils_TabbedBrowser`, and presumably others with
    the same shape) is unsafe to nest two `display_module()` calls deep - verify empty-looking output by
    checking `display_module()`'s return value before assuming the underlying data/logic is what's wrong.**
+4. **Reciprocal `create_callback_href()` cross-links between two screens silently hijack every *other*
+   in-page action on both.** Reported by the user as "Clear worksheet list does not work now." Root cause,
+   confirmed by reading `include/module.php`'s callback dispatch (`get_html_of_module()` ~line 1081) plus
+   `create_unique_key()` (~line 1304) and `get_module_variable_or_unique_href_variable()` (~line 297):
+   `create_callback_href($func)` calls `set_callback()`, which **re-registers that callback at the *end* of
+   `__callbacks__` every time the link is merely *rendered*, not just when clicked** - and once a callback's
+   own href has been clicked at least once, its "active" flag is *persisted* (`set_module_variable`) and
+   stays true forever unless the callback itself returns falsy. The dispatch loop checks callbacks in
+   `array_reverse()` order (most-recently-registered first) and stops at the first one whose flag is true.
+   I had added an `import_wizard`-targeted "Back to guided import" button to both `worksheets()` and
+   `files()`'s action bars. Since `import_wizard` had already been activated once (via `admin()`'s own
+   `call_callback_href()` on the original menu click) and always returns truthy, merely *rendering*
+   `worksheets()` (which draws that button) re-registered `import_wizard` as more recent than `worksheets`'s
+   own already-active callback - so the *next* request against that screen (any unique-href action,
+   including "Clear worksheet list", almost certainly also "Delete worksheet"/"Set delimiter"/etc.) got
+   silently redirected into re-rendering the wizard instead, with `worksheets()`'s own action code never
+   running at all. 100% reproducible; confirmed by direct DB inspection (`premium_import_temp_worksheet`/
+   `premium_import_file_queue` row counts genuinely unchanged after clicking "Clear worksheet list" and
+   confirming the dialog, then unchanged again after removing ref-staleness as a possible confound). Fixed by
+   simply removing both added links - `worksheets()`/`files()` already had a working "Back" button
+   (`create_back_href()`, which does *not* register/re-prioritize anything, just pops the history stack), so
+   the cross-link was redundant as well as actively harmful. Also verified the *wizard's own* forward-only
+   "Advanced: manage all files & worksheets" link (`import_wizard()` → `files`, one direction only now) does
+   **not** carry the same risk for the wizard's own "Next" progression - tested live: enter wizard → visit
+   Advanced → Back → Next still correctly advances. **General lesson: in this framework, only use
+   `create_callback_href` for one-way/forward navigation (matching the codebase's own existing pattern,
+   e.g. `files()` → `worksheets()` → deeper screens); never point one screen's callback-href back at a
+   screen that can also navigate forward to it, even for something as innocuous-seeming as a "back to X"
+   convenience button - use `create_back_href()` for that instead.**
 
 Also found and fixed opportunistically: `Utils_Wizard`'s own `curr_page`/`history` (stored via
 `get_module_variable`) don't survive a full page reload (a fresh top-level page load gets a fresh
