@@ -1473,6 +1473,12 @@ Disabled in `requires.php` (openpsa/quickform via composer is loaded instead) an
 
 ---
 
+## 52. DONE — Remove `codeception/codeception` + its skeleton (closes the §51 loose end)
+
+The Tests-exclusion decision from §51 landed on "remove": `composer remove --dev codeception/codeception` pruned **36 packages** (Codeception itself, PHPUnit, behat/gherkin, symfony/finder+yaml+event-dispatcher, the sebastian/* internals). `codeception.yml` and `tests/` (the two example files — `tests/acceptance/LoginCept.php`, `tests/unit/StaticMockExampleTest.php` — plus suite configs/bootstrap, both dating to the original vanilla-1.9.1 baseline commit and never expanded or wired into CI) were deleted outright rather than left pointing at an uninstalled library. Also dropped the now-dead `codeception\.yml` entry from `console/Develop/CreateDistCommand.php`'s dist-zip exclude list. `PROPOSAL_functional_tests.md` (still open, undecided) describes building a real suite on Codeception starting from that skeleton — it now needs to note the skeleton is gone, not just unexpanded, if that plan is picked back up.
+
+---
+
 ## PHASE 5 STATUS (as of 2026-07-01)
 
 **Done:**

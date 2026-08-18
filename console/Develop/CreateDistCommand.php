@@ -71,7 +71,7 @@ class CreateDistCommand extends Command
             // (copy('htaccess.txt','data/.htaccess')), so removing it would break
             // that step. .htaccess itself (this dev instance's own, already-tuned
             // copy) IS excluded, since setup.php generates the real one fresh.
-            '^(\.htaccess|\.gitignore|codeception\.yml|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
+            '^(\.htaccess|\.gitignore|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
         );
         // Guard against the output file landing inside the tree being archived
         // (e.g. a bare filename with no path) and trying to zip itself.

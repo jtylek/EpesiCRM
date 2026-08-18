@@ -13,7 +13,8 @@
         "openpsa/quickform": "^3.4",
         "adodb/adodb-php": "^5.22",
         "phpseclib/mcrypt_compat": "^2.0",
-        "guzzlehttp/psr7": "^2.7"
+        "guzzlehttp/psr7": "^2.7",
+        "psy/psysh": "@stable"
     },
     "scripts": {
         "post-install-cmd": [
@@ -30,9 +31,5 @@
         "psr-0": {
             "": "modules/"
         }
-    },
-    "require-dev": {
-        "codeception/codeception": "*",
-        "psy/psysh": "@stable"
     }
 }
