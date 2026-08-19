@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-EPESI BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery/Prototype front end). This checkout is
+EPESI BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
 Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2, currently released as CalVer `20260701-rc1`. The full
 migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
 also reach existing installs — lives in `MIGRATION_NOTES.md`. Read the relevant section there before
@@ -116,8 +116,17 @@ Smarty **2** (vendored/patched-in-place under `modules/Base/Theme/smarty/`, deli
 non-legacy (admin/setup/update) views. Smarty 2 template modifier callbacks must be plain functions —
 closures don't work.
 
-The front end still loads legacy libraries on every page: Prototype.js, Scriptaculous, and an old jQuery
-(`$` is bound to Prototype via `noConflict()`, not jQuery) alongside AdminLTE's own JS/Bootstrap. When adding
+The front end still loads an old jQuery (1.11.3 + jquery-migrate) on every page alongside AdminLTE's own
+JS/Bootstrap. Prototype.js and Scriptaculous were fully removed as of 2026-08-06 (see
+`AI-shared/legacy-js-migration.md` for the full history) — `$` is jQuery's own default binding now, not
+Prototype's. This matters for old/legacy code still assuming Prototype semantics: a bare `$('some_id')`
+(no `#`) is jQuery's *tag-name* selector, not an ID lookup — it never returns `null`/`undefined`, so an
+`if (!el) return` guard written for Prototype's `$` won't catch it, and the returned (empty) jQuery
+collection has no `.style`/`.value`/`.disabled`/`.innerHTML` etc. Old code needing a raw DOM element
+(for those properties) should use `document.getElementById(id)`, not `$(id)`/`jQuery(id)`. This bug
+shape has bitten several `modules/Premium/` modules already (each is its own gitignored git repo, never
+swept by the migration — see that doc's "Step 7" and later entries) and is easy to reintroduce when
+porting old inline `onclick`/`eval_js()` strings. When adding
 interactive AdminLTE-themed UI, prefer native attributes/AdminLTE's own JS over hand-rolled listeners —
 e.g. Bootstrap modal autofocus needs the `autofocus` attribute, not a `shown.bs.modal` listener, since
 `adminlte.min.js` already runs its own focus-stealing script. Native `confirm()` has been replaced app-wide

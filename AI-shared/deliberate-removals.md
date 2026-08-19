@@ -30,6 +30,14 @@ Premium module fails to install/upgrade with the same "undefined method
 `set_quickjump`" error, this is why — grep `modules/Premium/` for `set_quickjump` and
 delete the call the same way, don't try to re-add the method.
 
+**Second hit 2026-08-19:** same call found and fixed in
+`modules/Premium/ListManager/ListManagerInstall.php:34` (`Premium_CampaignManager`
+depends on `Premium/ListManager` via `requires()`, so it was blocked from installing
+too until this was fixed). `modules/Premium/CampaignManager` itself has no
+`set_quickjump` call. Still not swept: any other Premium repos not yet cloned into
+this checkout — check for this on every fresh `modules/Premium/*` clone, not just
+these two.
+
 ## Login Audit purge/maintenance (removed 2026-07-28)
 
 `CRM_LoginAudit`'s `purge_log()` method and its "Maintenance" ActionBar button

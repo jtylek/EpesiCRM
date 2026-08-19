@@ -290,3 +290,47 @@ doc** — it travels with `git clone`/`git pull` to every developer and computer
 per-session/per-machine notes. Ask the user for credentials in-session instead, or use
 whatever secrets mechanism the project already has, and only record the *shape* of the
 login flow (field selectors, above) here.
+
+## `modules/Premium/` checkouts can change under you mid-session from concurrent work elsewhere — verify before assuming corruption
+
+Hit 2026-08-19: mid-session, `modules/Premium/ListManager/ListManagerInstall.php`
+was found to differ from what the assistant had last written — on top of its
+own one-line edit (deleting a leftover `set_quickjump()` call, see
+`deliberate-removals.md`), the file was also missing
+`Base_ThemeCommon::install_default_theme($this->get_type());` from `install()`
+(while `uninstall()` still called the matching `uninstall_default_theme()`),
+and both `@DB::CreateIndex(...)` calls had been repointed at
+`premium_listmanager_element_data_1` instead of the recordset name used
+everywhere else in the file, `premium_listmanager_element`. This looked like
+corruption — an asymmetric install/uninstall pair, an index pointed at a
+table name that appeared nowhere else. **It wasn't**: confirmed by the user
+these were deliberate, already-tested fixes from another session working on
+the same nested repo. The `_data_1` rename in particular is actually
+*correcting* a real pre-existing bug, not introducing one:
+`Utils_RecordBrowserCommon::install_new_recordset()` always physically
+creates a recordset's data table as `<name>_data_1` (see
+`RecordBrowserCommon_0.php:801`, indexed internally the same way at
+`:809-810`) — the bare `premium_listmanager_element` table the original code
+targeted never existed, so those two `@`-suppressed `CreateIndex` calls had
+silently no-op'd since this module was written. Same shape likely applies
+anywhere else in `modules/Premium/` that indexes a recordset by its bare
+logical name instead of `<name>_data_1` — worth a grep
+(`@DB::CreateIndex\('[a-z_]+','premium_`) if this comes up again.
+
+The directory also went missing entirely once earlier in the same session
+right after being cloned (re-cloned as a workaround) — whether that was the
+same concurrent activity or something else was never pinned down.
+
+Since `modules/Premium/` is entirely gitignored (see `CLAUDE.md`), there's
+no git history to diff against for either kind of change — a normal
+tracked-repo file would at least show up in `git status`/`git diff` with a
+"someone else's commit" explanation available via `git log`. A gitignored
+nested repo gives you none of that, so an unexplained diff is genuinely
+ambiguous between corruption and legitimate concurrent work.
+
+**How to apply**: if a file under `modules/Premium/` (or any other
+gitignored, separately-repo'd tree) doesn't match what you last wrote,
+**don't revert it and don't assume corruption** — flag the specific diff to
+the user and ask, the way you would for any surprising change to code you
+don't own outright. It may well be tested work from a parallel session on
+the same nested repo that just hasn't been communicated yet.

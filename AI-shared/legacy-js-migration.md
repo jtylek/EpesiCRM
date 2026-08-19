@@ -63,6 +63,23 @@ disk and dropped as a dependency from the Colorpicker/Leightbox/Dashboard
 installers (an earlier revision of this doc said this step was still
 outstanding; it isn't).
 
+**Gap found 2026-08-19:** same blind spot as the quickjump removal (see
+`deliberate-removals.md`) — the sweep only covered the tracked repo, and
+`modules/Premium/` (separately-licensed, gitignored, each module its own git
+repo) was never touched. Hit live as `Uncaught ReferenceError: Effect is not
+defined` opening Campaign Manager's admin config screen in the Store admin
+panel. Found and fixed `Effect.BlindDown`/`Effect.BlindUp` calls in
+`modules/Premium/CampaignManager/js/admin.js` (admin config screen) and
+`js/placeholders.js` (message-editing screen, loaded independently of
+admin.js) — replaced with a locally-inlined copy of the `epesiBlind()`
+CSS-transition helper from `modules/Base/Setup/theme/default.js` (that helper
+itself is Setup-theme-scoped, not a shared global, so each caller needs its
+own copy — don't try to reference it cross-module). `modules/Premium/ListManager`
+had no scriptaculous usage. If another Premium module throws `Effect is not
+defined`/`Sortable is not defined`/`Draggable is not defined`, this is why —
+grep that module for `Effect\.|Sortable\.|Droppables\.|new Draggable` and
+replace the same way, don't try to re-add `Libs_ScriptAculoUs` as a dependency.
+
 ### Step 2, `Ajax.Request`/`Ajax.Updater` → `jQuery.ajax` — in progress (started 2026-08-06)
 
 **Two things to know before touching any more callers:**
@@ -924,3 +941,63 @@ scope). **Not browser-tested this pass** (no live reproduction of each
 affected screen) — same caveat as the original step 7 entry for anything
 this thorough a re-sweep didn't have time to click through; if any of these
 screens misbehaves next, re-check this list before assuming a new bug.
+
+### `Premium_ListManager`/`Premium_CampaignManager` swept, 2026-08-19 — and CLAUDE.md's own "$ is Prototype" line is stale
+
+Neither module appears anywhere in steps 7/7-correction above — a third confirmation
+that this class of gap has to be found per-Premium-module, it's never inherited from a
+sibling module's sweep. Found live, the same way step 7 and the Warehouse entry were:
+a real browser error (`TypeError: Cannot set properties of undefined (setting
+'overflow')`) opening Campaign Manager's admin config screen, right after an unrelated
+same-session fix (`Effect.BlindDown`/`BlindUp` → a local CSS-transition helper, see this
+doc's scriptaculous-gap entry above) made the code reach far enough to hit it.
+
+**Worth calling out explicitly**: this doc's own "historical wiring fact, no longer true
+as of 2026-08-06" note (near the top of this file) was right there to read, but
+`CLAUDE.md`'s Rendering section still says, in the present tense, "`$` is bound to
+Prototype via noConflict(), not jQuery" — that line is simply wrong as of this date, and
+a same-session research pass into these two modules trusted `CLAUDE.md` over this doc and
+concluded `admin.js`'s bare `$(...)` calls were fine ("epesi still defines this globally
+elsewhere, not itself evidence of remaining migration work"). They are not fine — `$`
+being jQuery means every bare `$('some_id')` (no `#`) is a *tag-name* selector, always
+returns an empty-but-truthy jQuery collection, and `if (!el) return` guards (as `cm_blind()`
+had) don't catch it; `el.style`/`el.value`/`el.disabled`/`el.innerHTML` then either throw
+(`.style` — no such property on a jQuery object) or silently no-op onto a stray property
+(`.disabled`/`.innerHTML` — the "worse than silent" variant this doc's own step 7 already
+named). **`CLAUDE.md` should be corrected** (flagged to the user rather than edited solo,
+since it's curated/stable guidance, not a living note like this file) — until then, don't
+trust that specific line; treat `$` as jQuery everywhere in this codebase, full stop.
+
+**Fixed, all `$(id)` → `document.getElementById(id)`, same convention as every other site
+in this doc** (`php -l`/`node --check` clean):
+- `Premium/CampaignManager/js/admin.js` — every toggle handler
+  (`cm_toggle_reply_handler`/`cm_toggle_footer_handler`/`cm_toggle_manage_handler`/
+  `cm_toggle_enable_new_subs`/`cm_custom_reply_url_example`), ~12 sites. This is the one
+  that actually threw — the others below were silent/latent until exercised.
+- `Premium/CampaignManager/js/placeholders.js` — `campaign_manager_placeholders_expand_group`'s
+  2 `$('Placeholder_...')` sites. **Not fixed**: `campaign_manager_new_reply`/
+  `campaign_manager_delete_placeholder` in the same file, and `new_reply.php`'s own
+  response string — these are already broken independently via `Object.toJSON`/
+  `Ajax.Request` (Prototype APIs that no longer exist at all post-step-5, not just
+  old-style), a separate, larger port left for a future pass; fixing their `$(id)` calls
+  alone wouldn't restore working end-to-end behavior, so left alone rather than
+  half-fixing dead code. `manage_emails.js`/`autosave.js` have the same
+  `Ajax.Request`/`Object.toJSON`/`Event.observe` gap, also untouched.
+- `Premium/CampaignManager/CampaignManagerCommon_0.php` — 2 server-built `eval_js()`
+  strings (`get_response_placeholders_html()`/`get_attachments_html()`, both
+  `$("campaign_manager__...").innerHTML=...`) — these run on every message add/edit
+  screen render, unconditionally, so silently-broken `.innerHTML` here meant the
+  reply-options/attachments panel never actually populated, on every single message
+  edit, regardless of the Ajax.Request-gated reply-add/delete flow above.
+- `Premium/CampaignManager/CampaignManager_0.php` — `admin_lists()`'s (Campaigns
+  Settings tab) list-publish checkbox: both the inline `onchange` attribute and the
+  `eval_js()` initial-state setter used `$("list_label_N")`/`$("list_N")` to toggle
+  `.disabled` — silent no-op, not a thrown error, so this one could easily have gone
+  unnoticed for a while.
+- `Premium/ListManager` — confirmed clean (no `.js` files at all per an earlier pass
+  this session, and a fresh grep of its PHP for the same server-built-string pattern
+  found zero hits).
+
+**Not re-verified live in a browser this pass** — fixed by reading, `node --check`/
+`php -l` only. If Campaign Manager's admin screen or message-edit screen misbehaves
+again after this, re-check this entry before assuming a new regression.

@@ -823,5 +823,135 @@ console errors.
     part of the reskin just wasn't done yet." Check the exact string passed to
     `$theme->display(...)` before naming the CSS file.
 
+## `Premium_ListManager` / `Premium_CampaignManager`: theme_adminltedark added, including the admin config panel (2026-08-19)
+
+First AdminLTE coverage for both modules, on explicit request including "the Administrator
+control panel" specifically (`Premium_CampaignManager::admin_main()`'s Settings tab,
+`theme/admin.tpl`). Both are separately-licensed nested git repos under `modules/Premium/`
+(see main `CLAUDE.md`) - same never-swept gap as every other first-time Premium theming pass
+here (`Premium_Payments`/`Premium_KnowledgeBase` entries above).
+
+**Files added**: `Premium/ListManager/theme_adminltedark/{filter,history_filter,add_new,
+add_history,dynamic_list_management}.tpl` + one shared `default.css`;
+`Premium/CampaignManager/theme_adminltedark/{admin,cron,daily_limit,filters,default}.tpl` +
+one shared `default.css`. `default.tpl` (CampaignManager's message record view) reuses
+`Utils_RecordBrowser/theme_adminltedark/View_entry.css`'s own class names
+(`.epesi-rv-card`/`.Utils_RecordBrowser__container`/`.Utils_RecordBrowser__View_entry`/
+`.epesi-rv-row`/`.label`/`.data`) rather than inventing new ones, mirroring
+`CRM/Contacts/theme_adminltedark/Contact.tpl` - valid here because `RecordBrowser_0.php::
+view_entry_details()` unconditionally loads that CSS whenever a per-table `$tpl` is set,
+same guarantee `Contact.tpl`'s own comment documents. Every other screen in both modules is
+raw PHP-built HTML with no such guarantee, so those use each module's own `.epesi-lm-*`/
+`.epesi-cm-*` classes instead - reusing another module's theme_adminltedark class names
+outside that guarantee is the collision risk this file's top-level README already warns
+about.
+
+**Bootstrap Icons, per explicit request ("replace all old icons")**:
+- `Premium_ListManagerCommon::bootstrap_icon()` → `bi-list-check`,
+  `Premium_CampaignManagerCommon::bootstrap_icon()` → `bi-mailbox-flag` (sidebar/launcher -
+  see `modules/Base/Theme/bootstrap_icons.php`).
+- Row-action PNGs still swapped via the established hide-`<img>`-add-`::before`-on-the-
+  wrapping-`<a>` technique (`Premium/Import/theme_adminltedark/default.css`'s own
+  precedent): ListManager's `edit_votes.png`→`bi-hand-thumbs-up`, `add_note.png`→
+  `bi-journal-plus`. **Every codepoint used was verified against the vendored
+  `libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css`** rather than typed from memory -
+  Import's own file already documents one specific glyph (`bi-square`, `\f584`) silently
+  failing to render in this vendored build despite matching the font's own docs, so a wrong
+  guess here fails silently (blank icon), not with an error.
+- `warning.png` (ListManager's inline "no contact info" flag, `display_data_details()`) had
+  no wrapping element at all (`::before` on a bare `<img>` is undefined/unreliable per spec
+  for replaced elements) - fixed by wrapping it in a `<span class="epesi-lm-warning-icon">`
+  in `ListManagerCommon_0.php` itself, the one PHP-markup change this pass needed.
+  `close_black.png` (CampaignManager's reply-delete icon, actually `Utils_RecordBrowser`'s
+  own asset, borrowed via a CampaignManager-only class `Campaign_manager_del_icon`) got the
+  same span-free treatment since that class is already unique to this one usage.
+- Recordset tab icons (`icon.png`/`element_icon.png`/`history_icon.png`) were deliberately
+  **not** touched: `Utils_RecordBrowser/theme_adminltedark/{Browsing_records,View_entry}.tpl`
+  already drop the module icon+caption from those screens entirely under adminltedark (see
+  their own "per request" comments), so these PNGs don't actually render as visible `<img>`s
+  in the screens either module touches - swapping them would be effort spent on dead code.
+
+**Gotcha worth repeating for the next module**: `Base_ThemeCommon::load_css($module)` calls
+`get_template_file($module,'default.css')` and, if that resolves to nothing under the
+*currently active* theme, hits `trigger_error(..., E_USER_ERROR)` by default - a real fatal,
+not a blanked-module warning (contrast `CLAUDE.md`'s `REPORT_ALL_ERRORS` note, which is about
+E_WARNING/E_NOTICE). `Premium/ListManager/theme/` had no `default.css` at all before this
+pass (only `.tpl`/`.png` files) - adding `load_css($this->get_type())` calls without also
+adding an (empty, comment-only) `Premium/ListManager/theme/default.css` would have fataled
+every one of these screens the moment anyone ran the *legacy* (non-adminltedark) theme.
+CampaignManager didn't need this fallback since `theme/default.css` already existed there.
+Before copying this module's `load_css($this->get_type())` pattern into a Premium module
+that has never had *any* CSS file (Import's own precedent already had one, which is why its
+own version of this note never had to mention this), check for/add the legacy-theme fallback
+file first.
+
+**Not touched (explicitly out of scope for a theming pass)**: this pass's own scoping research
+(see the conversation, not repeated here) found several JS files across both modules still
+mid-`legacy-js-migration.md` - `Premium/CampaignManager/js/{manage_emails,autosave}.js` still
+use `Ajax.Request`/`Object.toJSON`/`Event.observe`, and `placeholders.js`'s reply-add/delete
+handlers do too (its blind/expand functions were already fixed for the removed `Effect.*`
+dependency in an earlier session - see `legacy-js-migration.md`'s own scriptaculous-gap entry).
+None of this blocks the CSS/template work above, but is a separate, pre-existing gap - not
+something this reskin introduced or fixed.
+
+**Follow-up, same day: `Utils_TabbedBrowser` replaced with a native `<details>`/`<summary>`
+accordion in `admin()` specifically, per explicit request** (the user saw its 3 tab captions
+render as a plain unstyled bullet list - `Utils_TabbedBrowser/theme_adminltedark/default.tpl`'s
+own `.epesi-tb-nav`/`.epesi-tb-item` CSS wasn't the actual problem, that file/CSS pair is fine;
+this was a "replace the component" ask, not a "fix its styling" one). Chose native
+`<details>`/`<summary>` over Bootstrap 5's own `data-bs-toggle="collapse"` accordion
+specifically to avoid a theme-detection branch in PHP: Bootstrap 5's JS only loads under
+adminltedark (see `legacy-js-migration.md`), so a `data-bs-toggle`-based accordion would have
+needed `admin()` to check the active theme and fall back to something else under the legacy
+theme. `<details>`/`<summary>` needs no JS at all and degrades to the browser's native
+disclosure triangle under the legacy theme (unstyled but functional) while getting a real
+AdminLTE look under this theme's `default.css` (chevron `::before` on `<summary>`, rotated via
+`[open] > summary::before { transform: rotate(90deg) }` - `::marker` can't be transitioned
+directly since it isn't a real box, hence suppressing it and drawing the glyph separately).
+
+**The real complexity wasn't the markup, it was `Base_ActionBarCommon`.** `Utils_TabbedBrowser`
+only ever calls the *selected* tab's callback per request (`display_contents()`'s
+`$selected || $val['js']` guard) - so `admin_main()`/`admin_lists()`/`admin_email_server()`
+could each freely call `Base_ActionBarCommon::add('save', ..., $form->get_submit_form_href())`
+without colliding, since only one of them ever ran per request. An accordion has no such
+concept from PHP's side - all three sections (three independent `Libs_QuickForm` instances,
+three independent submit flows) now render unconditionally on every request, `admin()` just
+prints each one wrapped in its own `<details>`. Three calls to `Base_ActionBarCommon::add('save',
+...)` with the same key in one request don't merge or stack - last-write-wins, so two of the
+three forms would have silently lost their only way to submit (no visible button anywhere,
+since the href being clicked doesn't matter until something points a real element at it).
+**Fixed by moving each form's Save trigger inline into its own accordion body** instead of the
+shared ActionBar: `admin_main()` now assigns `save_href` for `admin.tpl` (both theme copies) to
+render as a link using the same `get_submit_form_href()` mechanism; `admin_lists()` folds the
+same link into its `Utils_GenericBrowser` postfix (inside the same `<form>`); `admin_email_server()`
+gets a real QuickForm `submit` element instead (simplest of the three, since that method already
+uses QuickForm's own generic renderer, which themes a submit button automatically - no manual
+markup needed). `admin_email_server()`'s `clone`/`search` ActionBar entries ("Copy EPESI
+settings"/"Test") were left as-is in the shared ActionBar - unique keys, no collision, the only
+change is they're now always visible rather than only while that section happened to be "the
+active tab", a minor UX quirk not a functional bug. `admin_main()`'s and `admin_lists()`'s own
+redundant `Base_ActionBarCommon::add('back', ...)` calls (duplicating `admin()`'s own, always
+harmless since 'back' never differed) were dropped during this pass, not because they were
+broken.
+
+**Not done**: no attempt to preserve `Utils_TabbedBrowser::tag()`'s hidden
+`<span>md5(...)</span>` (some kind of change-detection marker) - dropped along with the rest of
+TabbedBrowser for this screen; if some caching/refresh mechanism elsewhere in the app turns out
+to depend on it specifically for this screen, that would be a new, currently-undiagnosed
+symptom to trace back to this change. Not browser-tested live this pass (`php -l`/Smarty
+tag-balance/CSS brace-balance checked only) - if the accordion or any of the three forms
+misbehaves, re-check this entry before assuming a fresh bug.
+
+**Correction, same day**: the scoping research above also called `admin.js`'s bare `$(...)`
+calls "not itself evidence of remaining migration work," trusting `CLAUDE.md`'s (stale) claim
+that `$` is bound to Prototype on this codebase. It isn't, hasn't been since 2026-08-06, and
+that specific bare-`$('id')` pattern is exactly what threw `Uncaught TypeError: Cannot set
+properties of undefined (setting 'overflow')` opening this same admin screen live - see
+`legacy-js-migration.md`'s own new entry for the full fix list (`admin.js` in full,
+`placeholders.js`'s two reachable sites, two `CampaignManagerCommon_0.php` eval_js strings, and
+`CampaignManager_0.php`'s `admin_lists()` checkbox toggle). Don't repeat that mistake -
+`CLAUDE.md`'s Rendering section needs a correction, flagged to the user rather than edited
+solo.
+
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.
