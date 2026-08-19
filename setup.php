@@ -8,8 +8,10 @@
  */
 if (version_compare(phpversion(), '7.0.0')==-1)
 	error_reporting(E_ALL); //all without notices
-else
+elseif (PHP_VERSION_ID < 80400)
 	error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
+else
+	error_reporting(E_ALL & ~E_DEPRECATED); // E_STRICT itself deprecated to reference since PHP 8.4
 ob_start();
 ini_set('arg_separator.output','&');
 @define('SYSTEM_TIMEZONE',date_default_timezone_get());

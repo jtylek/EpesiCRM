@@ -42,7 +42,10 @@ class CompatibilityCheck {
 
     private static function error_reporting_check() {
         $err = error_reporting();
-        $strict = (($err | E_STRICT) == $err);
+        // E_STRICT no longer exists as a distinct error class since PHP 8.4
+        // (and the constant itself is deprecated to reference) - the check
+        // is meaningless there, so treat it as always-disabled on 8.4+.
+        $strict = PHP_VERSION_ID < 80400 && (($err | E_STRICT) == $err);
         $display = ini_get('display_errors');
 
         $tests = array();

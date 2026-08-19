@@ -41,7 +41,11 @@ class ErrorHandler {
 	// E_USER_ERROR and E_RECOVERABLE_ERROR do) - these stay fatal everywhere,
 	// including inside a compiled template, unlike the soft/non-fatal set
 	// below.
-	const SOFT_ERROR_TYPES = E_WARNING | E_NOTICE | E_STRICT | E_DEPRECATED | E_USER_WARNING | E_USER_NOTICE | E_USER_DEPRECATED;
+	// E_STRICT itself is deprecated to reference since PHP 8.4 (constant still
+	// defined, but fetching it emits E_DEPRECATED) - PHP_VERSION_ID guard
+	// matches the pattern already used by vendor/psy/psysh and
+	// vendor/codeception for this same issue.
+	const SOFT_ERROR_TYPES = E_WARNING | E_NOTICE | (PHP_VERSION_ID < 80400 ? E_STRICT : 0) | E_DEPRECATED | E_USER_WARNING | E_USER_NOTICE | E_USER_DEPRECATED;
 
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
     	if (($type & error_reporting()) > 0) {
@@ -276,7 +280,7 @@ if(REPORT_ALL_ERRORS) {
     if (version_compare(phpversion(), '5.4.0')==-1)
     	$error_reporting_level = E_ALL; //all without notices
     else
-        $error_reporting_level = E_ALL & ~E_STRICT & ~E_DEPRECATED; // E_STRICT cause 5.4 unusable, E_DEPRECATED
+        $error_reporting_level = PHP_VERSION_ID < 80400 ? E_ALL & ~E_STRICT & ~E_DEPRECATED : E_ALL & ~E_DEPRECATED; // E_STRICT cause 5.4 unusable, E_DEPRECATED; E_STRICT itself deprecated to reference since 8.4
 }
 else
 	$error_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR;
