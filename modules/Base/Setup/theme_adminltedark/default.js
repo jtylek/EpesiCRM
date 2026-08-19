@@ -94,3 +94,15 @@ epesi_setup__hide_actions = function (name, option) {
 	base_setup__last_actions = false;
 	base_setup__last_actions_option = false;
 };
+
+epesi_setup__toggle_actions = function (name, trigger) {
+	var chevron = trigger ? trigger.querySelector('.bi-chevron-down, .bi-chevron-up') : null;
+	if (base_setup__last_actions == name && !base_setup__last_actions_option) {
+		epesi_setup__hide_actions(name);
+		if (chevron) chevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
+	} else {
+		epesi_setup__position_centered('hide_actions_' + name, trigger);
+		epesi_setup__show_actions(name);
+		if (chevron) chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
+	}
+};
