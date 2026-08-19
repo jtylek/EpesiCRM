@@ -17,10 +17,10 @@ worth a look before assuming something is broken/missing rather than intentional
 
 ## Environment quirks (this machine)
 
-- **PHP binary:** the bare `php` on PATH resolves to an unrelated XAMPP 7.4 install. Always use
-  `/c/xampp82/php/php.exe` (Bash) / `C:\xampp82\php\php.exe` (PowerShell) for this project — PHP 7.4 can't
-  parse constructor property promotion used in this codebase, so `php -l` with the wrong binary gives false
-  parse errors.
+- **PHP binary:** on Windows dev machines, the bare `php` on PATH resolves to an unrelated XAMPP 7.4 install —
+  use `/c/xampp82/php/php.exe` (Bash) / `C:\xampp82\php\php.exe` (PowerShell) instead. On this Linux machine
+  there's no bare `php` on PATH at all — use `/opt/lampp/bin/php`. PHP 7.4 can't parse constructor property
+  promotion used in this codebase, so `php -l` with the wrong binary gives false parse errors.
 - No build step: PHP/theme files are served directly from `modules/` and `theme*/` — there's nothing to
   compile or bundle for normal development.
 - `data/` is the runtime data directory (config, cache, uploads, logs, per-instance state) and is gitignored
@@ -38,7 +38,8 @@ composer install
 
 Lint (what CI's `lint` job runs, minus vendor/Roundcube/dev-tool exclusions):
 ```
-/c/xampp82/php/php.exe -l path/to/file.php
+/c/xampp82/php/php.exe -l path/to/file.php   # Windows
+/opt/lampp/bin/php -l path/to/file.php       # this Linux machine
 ```
 
 Static analysis (level 0, own code only — `include/` + `modules/`; baseline in `phpstan-baseline.neon` means
@@ -55,7 +56,8 @@ vendor/bin/rector process --dry-run --config rector-php82.php
 CLI console (module management, cache/theme rebuild, backups, patch/module scaffolding — see
 `console.php` for the full command list):
 ```
-/c/xampp82/php/php.exe console.php list
+/c/xampp82/php/php.exe console.php list             # Windows
+/opt/lampp/bin/php console.php list                  # this Linux machine
 /c/xampp82/php/php.exe console.php dev:create:module
 /c/xampp82/php/php.exe console.php dev:create:patch
 ```

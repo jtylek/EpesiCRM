@@ -334,3 +334,30 @@ gitignored, separately-repo'd tree) doesn't match what you last wrote,
 the user and ask, the way you would for any surprising change to code you
 don't own outright. It may well be tested work from a parallel session on
 the same nested repo that just hasn't been communicated yet.
+
+## Claude Code's own Bash sandbox can't run `/opt/lampp/bin/php` — missing `libcrypt.so.1`, unrelated to the real host
+
+Confirmed 2026-08-19: from inside a Claude Code session's Bash tool on Karina's Linux
+machine, `/opt/lampp/bin/php -v` fails with
+`error while loading shared libraries: libcrypt.so.1: cannot open shared object file`.
+This is **not** a real problem with the app or the actual host — Apache was serving
+requests fine at the same time (`access_log`/`error_log` both had fresh entries), and a
+prior session's memory had already confirmed this exact binary running successfully
+(8.2.12). The break is specific to the Bash tool's own sandbox container, which ships a
+newer `libxcrypt` (`libcrypt.so.2` only, no `.so.1` compat symlink) than what this XAMPP
+8.2.12 PHP build was linked against.
+
+Not fixable from inside that sandbox: `/usr/lib` is a read-only filesystem there, no
+`apt`/`dpkg`/package manager is available, and there's no `sudo`/root. A same-directory
+symlink workaround (`libcrypt.so.1` → `libcrypt.so.2` + `LD_LIBRARY_PATH`) was tried and
+fails harder, at load time, with `version 'GLIBC_2.2.5' not found` — confirming a real
+ABI break between the two library versions, not just a missing filename alias.
+
+**How to apply**: if a Claude Code session reports `/opt/lampp/bin/php` (or any command
+that shells out to it, e.g. `console.php`, `php -l`) failing with a `libcrypt.so.1`
+error, don't chase it as an app/environment bug — it's a gap in that session's own Bash
+sandbox image. Run the command from a real terminal instead; ask Claude to just read
+files/reason about version info (e.g. `/opt/lampp/RELEASENOTES`,
+`data/config.php`) rather than trying to execute the binary. Worth reporting to
+Anthropic as a sandbox image gap if it keeps recurring, rather than working around it
+per-session.
