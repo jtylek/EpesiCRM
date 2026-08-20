@@ -32,10 +32,9 @@
 <div class="epesi-adminlte app-wrapper" data-bs-theme="light">
 
 	<nav class="app-header navbar navbar-expand">
-		<div class="container-fluid">
+		<div class="container-fluid justify-content-center">
 			<a class="navbar-brand d-flex align-items-center" href="{$url}">
-				<img src="{$url}/{$logo}" height="32" class="me-2" alt="" />
-				EPESI
+				{$site_title}
 			</a>
 		</div>
 	</nav>
