@@ -383,6 +383,21 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = Utils_BBCodeCommon::parse($text);
 	    Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
             $text = Utils_SafeHtml_SafeHtml::outputSafeHtml($text);
+            // This 'view'/browse-grid render never constructs the 'quill' QuickForm
+            // element (it's a plain 'static' element - see QFfield_note() below), so
+            // quill.php's constructor - the only place that load_css()s Quill's own
+            // stylesheets - never runs here. Without it, a saved table (or an old
+            // CKEditor-era .Bold/.Title/.Code class) renders as bare unstyled HTML,
+            // even though the markup itself survived storage/purification intact.
+            // .epesi-quill-frozen is the same wrapper class quill.php's own
+            // getFrozenHtml() already uses for the other 3 call sites' frozen
+            // renders (Mail signature/RecordBrowser Help Message/Note applet), which
+            // do load these files via their live 'quill' element's constructor - reusing
+            // it here keeps this module's read-only rendering visually identical to
+            // theirs instead of drifting apart.
+            load_css('modules/Libs/Quill/frontend.css');
+            load_css('modules/Libs/Quill/theme.css');
+            $text = '<div class="epesi-quill-frozen">'.$text.'</div>';
             // mark as read all 'browsed' records
             foreach (self::$mark_as_read as $note_id) {
                 Utils_WatchdogCommon::notified('utils_attachment', $note_id);
@@ -496,6 +511,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             // commit) but missed here. RecordBrowser_0.php's own quill field passes
             // null for the same reason.
             $fck->setQuillProps(null,'300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            $fck->enableInsertTable(); // must precede enableToolbarSwitch() - see that method's own doc comment in quill.php
             $fck->enableToolbarSwitch();
 
             $form->setDefaults(array($field=>$default));

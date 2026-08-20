@@ -70,7 +70,7 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
     }
 
     private function toolbarAdvanced() {
-        return array(
+        $toolbar = array(
             array(array('header'=>array(1,2,3,false))), // must be its own one-item group (double-wrapped) - as the toolbar array's first element, an unwrapped {header:...} object fails Quill's Array.isArray(groups[0]) shorthand-detection check, which then silently reinterprets the *entire* toolbar array as one single flat group instead of a list of groups (each other group's own array becomes one bogus "format 0" control - "quill:toolbar ignoring attaching to nonexistent format 0" in the console - and only the header select ends up rendering)
             array('bold','italic','underline','strike'),
             array(array('color'=>array()),array('background'=>array())),
@@ -80,6 +80,10 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
             array('link','image'),
             array('clean'),
         );
+        // Advanced-only, same reasoning as color/indent/blockquote/etc above -
+        // Basic stays deliberately minimal. See enableInsertTable().
+        if (!empty($this->config['insertTable'])) $toolbar[] = array('inserttable');
+        return $toolbar;
     }
 
     // Adds a live "switch toolbar" button (mirrors CKEditor's old toolbarswitch
@@ -101,6 +105,28 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
         $this->config['switchable'] = true;
         $this->config['switchTitleToAdvanced'] = __('Switch to advanced toolbar');
         $this->config['switchTitleToBasic'] = __('Switch to basic toolbar');
+    }
+
+    // Adds an "Insert Table" button to the Advanced toolbar (see the flag
+    // check in toolbarAdvanced() above) - turns Quill's official modules/table
+    // (registered unconditionally in qu.js's `table: true` module config)
+    // from a paste-only capability into something a user can actually invoke,
+    // via qu.js's quill_insert_table() prompting for a row/column count and
+    // calling quill.getModule('table').insertTable(rows, cols).
+    //
+    // Must be called after setQuillProps() and *before* enableToolbarSwitch():
+    // this only flips a flag and re-derives $this->config['toolbar'] via
+    // setToolbarPreset() (so a non-switchable caller gets a correct toolbar
+    // immediately), but enableToolbarSwitch() independently rebuilds
+    // toolbarBasic/toolbarAdvanced/toolbar from scratch by calling
+    // toolbarAdvanced()/toolbarBasic() again - if it ran first, those arrays
+    // would already be frozen without the button.
+    function enableInsertTable() {
+        $this->config['insertTable'] = true;
+        $this->config['insertTableTitle'] = __('Insert table');
+        $this->config['insertTableRowsPrompt'] = __('Number of rows:');
+        $this->config['insertTableColsPrompt'] = __('Number of columns:');
+        $this->setToolbarPreset(!empty($this->config['advanced']));
     }
 
     function setConfig(array $conf) {
@@ -147,6 +173,12 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
                 $hib['toolbarAdvanced'] = $this->config['toolbarAdvanced'];
                 $hib['switchTitleToAdvanced'] = $this->config['switchTitleToAdvanced'];
                 $hib['switchTitleToBasic'] = $this->config['switchTitleToBasic'];
+            }
+            if (!empty($this->config['insertTable'])) {
+                $hib['insertTable'] = true;
+                $hib['insertTableTitle'] = $this->config['insertTableTitle'];
+                $hib['insertTableRowsPrompt'] = $this->config['insertTableRowsPrompt'];
+                $hib['insertTableColsPrompt'] = $this->config['insertTableColsPrompt'];
             }
             eval_js('quills_hib["'.$id.'"]='.json_encode($hib));
             // Hidden input carries the value through form serialization exactly like

@@ -26,6 +26,32 @@
 	white-space: normal;
 }
 
+/* quill.snow.css already styles tables inside the live editor (.ql-editor
+ * table/td: border-collapse, table-layout:fixed, width:100%, a 1px border) -
+ * mirrored here under .epesi-quill-frozen so a saved table looks the same
+ * once it's read-only (AttachmentCommon_0.php's display_note(), and every
+ * other call site's frozen render via quill.php's getFrozenHtml()) instead
+ * of losing its layout/borders entirely, which is what happens with no CSS
+ * backing the bare <table>/<td> tags at all. table-layout:fixed+width:100%
+ * is what makes columns split evenly across the full available width rather
+ * than shrinking to fit content - matching the editor, not a literal replay
+ * of whatever column widths the original paste source (Excel, Word, ...) had,
+ * since Quill's own paste normalization already discards those inline widths
+ * before the HTML is ever saved.
+ */
+.epesi-quill-frozen table {
+	border-collapse: collapse;
+	table-layout: fixed;
+	width: 100%;
+}
+.epesi-quill-frozen td {
+	border: 1px solid #495057;
+	padding: 2px 5px;
+}
+[data-bs-theme="light"] .epesi-quill-frozen td {
+	border-color: #000;
+}
+
 /* Quill's toolbar is a dense grid of individually-colored SVG icons
  * (.ql-stroke/.ql-fill/etc, dozens of rules across quill.snow.css) - inverting
  * their colors is far more maintainable than re-declaring every one of those
