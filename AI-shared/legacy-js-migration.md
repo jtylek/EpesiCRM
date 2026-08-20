@@ -1001,3 +1001,40 @@ in this doc** (`php -l`/`node --check` clean):
 **Not re-verified live in a browser this pass** — fixed by reading, `node --check`/
 `php -l` only. If Campaign Manager's admin screen or message-edit screen misbehaves
 again after this, re-check this entry before assuming a new regression.
+
+### `Premium/CampaignManager/js/autosave.js`'s `Event.observe`/`.fire` — fixed 2026-08-20
+
+Hit live: "New record" on Campaign Manager's E-mails screen threw
+`Uncaught TypeError: Event.observe is not a function` from a combined-JS
+`serve.php` request, immediately followed by `Uncaught TypeError:
+Utils_PopupCalendar is not a constructor` on the next page action. Root
+cause was the untouched gap this doc already flagged above ("`manage_emails.js`/
+`autosave.js` have the same Ajax.Request/Object.toJSON/Event.observe gap, also
+untouched") — `autosave.js:17` had a **top-level** (not inside a function)
+`Event.observe(document,'e:loading', function(){...})`, which throws
+immediately on script evaluation since `Event` resolves to the native
+browser constructor post-step-5, not Prototype's. Because `serve.php`
+concatenates its `f[]` file list into one script and executes it as a
+single unit, that uncaught throw aborted execution of everything later in
+the same combined response — in this request, `f[3]` was
+`modules/Utils/PopupCalendar/theme_adminltedark/main2.js`, whose top-level
+`var Utils_PopupCalendar = function(...){...}` therefore never ran, leaving
+`Utils_PopupCalendar` undefined for the second error. A concatenation-order
+coincidence, not a real dependency between the two modules — any other
+Premium `Event.observe`/`.fire` top-level call ahead of some other file in
+a `serve.php` bundle could produce the same "unrelated second error"
+symptom.
+
+Fixed: `Event.observe(document,'e:loading', fn)` → `jQuery(document).on('e:loading',
+fn)`; `Event.fire(document,'e:submit_form',form_id)` →
+`jQuery(document).trigger('e:submit_form', form_id)` (memo→second-arg
+convention, matching `QuickForm_0.php`'s already-ported fire site for the
+same event name, see step 4 above). `node --check` clean.
+`manage_emails.js` still has the same gap per the doc entry above — not
+touched this pass, not implicated in this specific error (not part of the
+`serve.php` bundle that threw).
+
+**Not yet browser-verified live** — fixed by reading + `node --check` only,
+same caveat as the entry above. If Campaign Manager's E-mails "New record"
+screen still throws after this, re-check this entry before assuming a new
+regression.

@@ -953,5 +953,56 @@ properties of undefined (setting 'overflow')` opening this same admin screen liv
 `CLAUDE.md`'s Rendering section needs a correction, flagged to the user rather than edited
 solo.
 
+**Reverted, 2026-08-20: back to `Utils_TabbedBrowser` in `admin()`.** The native
+`<details>`/`<summary>` accordion from the entry above didn't look good in practice - reverted on
+explicit request the same day it was tried, back to the original `$tb = $this->init_module
+('Utils_TabbedBrowser'); ...; $tb->tag();` call. Undid, in `CampaignManager_0.php`: the accordion
+markup in `admin()`; `admin_main()`'s/`admin_lists()`'s/`admin_email_server()`'s inline Save
+triggers, restored to shared `Base_ActionBarCommon::add('save', ...)` calls (safe again now that
+only one tab's callback runs per request, the original collision this pattern was built to avoid
+no longer exists). Undid, in the templates: the `$save_href`-rendering blocks added to both
+`theme/admin.tpl` and `theme_adminltedark/admin.tpl`. Undid, in `theme_adminltedark/default.css`:
+the `.epesi-cm-accordion-*`/`.epesi-cm-list-save`/`.epesi-cm-form-actions` rules, now dead. Left
+alone: everything else from the theming pass above (the six-card `admin_main()` layout in
+`theme_adminltedark/admin.tpl`, Bootstrap Icons swaps, `Utils_TabbedBrowser`'s own
+`theme_adminltedark/default.css` `.epesi-tb-nav`/`.epesi-tb-item` styling) - none of that was
+the complaint, only the accordion-vs-tabs choice was. If tabs are asked to change again, don't
+reach for this same accordion approach without checking this entry first.
+
+**Follow-up, same day: the reverted tabs still rendered as a plain unstyled bullet list -
+root-caused to a one-character CSS authoring bug, not the tabs-vs-accordion choice.**
+After the revert above, `Utils_TabbedBrowser`'s admin() tabs still showed no styling at all
+(bullet list, `display:block` instead of the `.epesi-tb-nav` flex layout) - the same symptom
+the original accordion-switch entry blamed on "TabbedBrowser is unstyled under this theme."
+That diagnosis was wrong. The real cause: `Premium/CampaignManager/theme_adminltedark/
+default.css`'s own top-of-file header comment contained the prose "Utils_RecordBrowser's own
+.epesi-rv-" followed directly by a wildcard asterisk and a slash before the next word - i.e.
+the literal two-character comment-close sequence, typed as normal English inside the comment,
+not as code. CSS comments don't nest and don't care about intent: that sequence closed the
+block comment nine lines early, and everything from there to the *real* intended close became
+live, garbled "CSS" - which doesn't just corrupt one rule, it corrupts *all CSS in that same
+parse* from that point on, including every other bundled file (`admin()`'s screen bundles this
+file together with `Utils_RecordBrowser/View_entry.css` and `Utils_TabbedBrowser`'s own CSS via
+`theme_css.php`/`libs/minify`, so the tabs' styling - a completely unrelated file - silently
+disappeared too). Confirmed with `CampaignManager/theme_adminltedark/default.css` alone in
+isolation: 0 CSSOM rules parsed from an otherwise well-formed file, until the comment was fixed.
+Fixed by rewording the sentence so the asterisk and slash are never adjacent (spelled out as
+"epesi-rv prefixed classes" instead of the wildcard-glob shorthand) - two follow-up attempts at
+a fix ironically re-introduced the exact same bug by describing the problem using the literal
+two-character sequence inside the fix's own explanatory comment; the final wording avoids typing
+that sequence anywhere, including in prose.
+
+**Not a general multi-file-bundling bug** - a live sweep of the rest of `modules/` for the same
+pattern (a wildcard-glob-style comment ending in an asterisk immediately before a slash) found
+this to be the only occurrence codebase-wide, and a clean 2-file bundle (`View_entry.css` +
+`Utils_TabbedBrowser`'s own CSS, no CampaignManager file involved) parses and applies correctly.
+So `theme_css.php`/Minify's file-combining itself is fine; this was a one-file content bug that
+happened to have an outsized, hard-to-trace blast radius because of what it silently corrupted
+downstream. Worth remembering next time a reskinned screen looks completely unstyled for no
+apparent reason: check whether *any* CSS file sharing that page's bundle request has a comment
+whose prose happens to spell out those two characters back-to-back - `sheet.cssRules.length`
+on the individual file in isolation (via devtools/console, not a text-level `/*`/`*/` count,
+which has the same blind spot as the bug itself) is the fastest way to confirm it.
+
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.
