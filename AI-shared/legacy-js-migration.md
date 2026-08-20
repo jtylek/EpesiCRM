@@ -975,14 +975,15 @@ in this doc** (`php -l`/`node --check` clean):
   `cm_toggle_enable_new_subs`/`cm_custom_reply_url_example`), ~12 sites. This is the one
   that actually threw — the others below were silent/latent until exercised.
 - `Premium/CampaignManager/js/placeholders.js` — `campaign_manager_placeholders_expand_group`'s
-  2 `$('Placeholder_...')` sites. **Not fixed**: `campaign_manager_new_reply`/
-  `campaign_manager_delete_placeholder` in the same file, and `new_reply.php`'s own
-  response string — these are already broken independently via `Object.toJSON`/
-  `Ajax.Request` (Prototype APIs that no longer exist at all post-step-5, not just
-  old-style), a separate, larger port left for a future pass; fixing their `$(id)` calls
-  alone wouldn't restore working end-to-end behavior, so left alone rather than
-  half-fixing dead code. `manage_emails.js`/`autosave.js` have the same
-  `Ajax.Request`/`Object.toJSON`/`Event.observe` gap, also untouched.
+  2 `$('Placeholder_...')` sites. `campaign_manager_new_reply`/`campaign_manager_delete_placeholder`
+  in the same file, and `new_reply.php`'s own response string, were left broken here
+  (`Object.toJSON`/`Ajax.Request`) — **since fixed, 2026-08-20, see `adminlte-theme.md`'s
+  "footer editor reported broken" entry for the full writeup** (ported to
+  `jQuery.ajax()`/`JSON.stringify()`/`element.closest(...)`/`document.getElementById(...)`,
+  same recipe as every other site in this doc; that same pass also fixed an unrelated
+  CKEditor-API leftover in this file's `campaign_manager_placeholders_insert()`, missed by the
+  CKEditor→Quill migration's PHP-only sweep). `manage_emails.js`/`autosave.js` still have their
+  own separate `Ajax.Request`/`Object.toJSON`/`Event.observe` gaps, not touched by that pass.
 - `Premium/CampaignManager/CampaignManagerCommon_0.php` — 2 server-built `eval_js()`
   strings (`get_response_placeholders_html()`/`get_attachments_html()`, both
   `$("campaign_manager__...").innerHTML=...`) — these run on every message add/edit

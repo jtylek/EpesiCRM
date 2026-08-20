@@ -1,5 +1,5 @@
 <div id="Browsing_records" style="display: flex; align-items: flex-start;">
-	{if $select_form != ""}
+	{if isset($select_form) && $select_form != ""}
 	<div style="width: 200px;">
 		{$select_form}
 	</div>

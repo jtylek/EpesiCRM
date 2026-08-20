@@ -1004,5 +1004,112 @@ whose prose happens to spell out those two characters back-to-back - `sheet.cssR
 on the individual file in isolation (via devtools/console, not a text-level `/*`/`*/` count,
 which has the same blind spot as the bug itself) is the fastest way to confirm it.
 
+**Follow-up, 2026-08-20: footer editor (`admin_edit_footer()`) reported "broken" - two real
+bugs, both in `theme_adminltedark/default.tpl`, not the placeholder/reply-link panel's own
+CSS.** User screenshot showed the footer editor (Admin → Campaign Manager → Settings tab →
+"you can edit the footer by clicking **here**") rendering with no visible card boundary at
+all - floating directly on the page background - and its instructional field label truncated
+mid-sentence to "Message Footer - leave". Both root-caused to the same file:
+
+1. `<div class="epesi-rv-card{if $main_page} card{/if}">` only adds Bootstrap's `.card` class
+   (border/shadow/rounded-corner clipping - see `Utils_RecordBrowser/theme_adminltedark/
+   View_entry.css`'s own comment on `.epesi-rv-card.card`) when `$main_page` is true.
+   `admin_edit_footer()` deliberately passes `main_page=false` (see this file's own dated
+   entry above explaining why - it needs the header/tools row's own `$main_page` gate, not the
+   card class, and originally had no way to ask for one without the other). Fixed by widening
+   the template's condition to `{if $main_page || isset($footer_mode)}` - `$footer_mode` is
+   already assigned `true` by this exact rendering path and used elsewhere in the same
+   template, so this needed no new PHP variable.
+2. The `message_subject` field's `.epesi-rv-row` has no `.data` sibling in footer mode (no
+   `isset($fields.message_subject.html)`), so its lone `.label` div - built for a short field
+   name like "Name"/"List" (`flex:0 0 150px; white-space:nowrap; overflow:hidden` in
+   `View_entry.css`) - was carrying the whole instructional sentence
+   (`admin_edit_footer()`'s `'Message Footer - leave the field empty to use default footer'`)
+   and clipping it. Same underlying shape as the legacy `theme/default.tpl`'s own
+   `label`/`label_top`+`colspan=2` special-case for this exact field, which the adminltedark
+   port never carried over. Fixed with a new modifier class (`epesi-cm-label-only`, added to
+   the row only when `!isset($fields.message_subject.html)`) whose `.label` override resets
+   `flex`/`white-space`/`overflow` to let it wrap and grow like a heading instead.
+
+**Separately, live-testing this screen surfaced a real functional bug in
+`Premium/CampaignManager/js/placeholders.js`, unrelated to theming**: every "Paste" button
+(Insert Placeholder/Insert Reply link/Insert Attachments) threw
+`Uncaught ReferenceError: CKEDITOR is not defined` on click -
+`campaign_manager_placeholders_insert()` was never ported off the CKEditor API when this
+module's message-body field switched to Quill (`QFfield_ckeditor()`/`admin_edit_footer()`
+both already call `addElement('quill', ...)` - only this one JS function still called
+`CKEDITOR.instances.ckeditor_message.*`). Missed by the original CKEditor→Quill sweep because
+that sweep was PHP-side (`addElement('ckeditor', ...)` call sites - see
+`ckeditor-to-quill-migration.md`'s own "Gap found" entry on `modules/Premium/`/`modules/Custom/`
+not being covered by the original repo-wide sweep); this was a JS-side leftover with no PHP
+signature to grep for. Ported to `quills['quill_message']` (`Libs/Quill/qu.js`'s live-instance
+registry, keyed by `quill.php`'s own `'quill_'.$elementName` id convention) -
+`insertText()`/`getText()`/`deleteText()`/`clipboard.dangerouslyPasteHTML()` replacing
+`insertText()`/`getSelection()`/`insertHtml()`. One follow-on bug caught by testing the fix
+live, not obvious from reading the code: plain-token inserts (the single-arg call shape, e.g.
+`{target.first_name}`) landed right after an already-inserted reply link picked up that link's
+own formatting (Quill inherits the format of the character immediately before the insertion
+point unless told otherwise) - the placeholder token rendered as blue/underlined link text
+instead of plain text. Fixed by passing an explicit `{link: false}` formats argument to
+`insertText()`.
+
+**Also fixed, same file, pre-existing and already flagged (not closed) by this doc's own
+2026-08-19 entry above**: `campaign_manager_new_reply()`/`campaign_manager_delete_placeholder()`
+still used `Ajax.Request`/`Object.toJSON`/`element.up(...)` (all Prototype APIs removed
+2026-08-06 - see `legacy-js-migration.md`). Ported to `jQuery.ajax()`/`JSON.stringify()`/
+`element.closest(...)`, same mechanical recipe as every other `Ajax.Request` port in that doc.
+`new_reply.php`'s own response string had the matching bare-`$(id)`-is-jQuery's-tag-selector
+bug this doc's "Recurring CSS/JS traps" list and `CLAUDE.md` both warn about
+(`$("campaign_manager__replies").innerHTML=$("campaign_manager__replies").innerHTML+"..."` -
+silently no-ops, never threw) - fixed to `document.getElementById("campaign_manager__replies").
+innerHTML+="..."`, same convention as every other site in `legacy-js-migration.md`'s own fix
+list for this module.
+
+Verified live via Playwright (both light and dark mode): footer editor card boundary and full
+label text now render correctly; a plain placeholder token, a reply-link token, "Add new reply
+option" (round-trips through `new_reply.php`, new button appears with correct styling), and its
+delete (X) button (confirm dialog → row hidden → `delete_reply.php` round-trip) all verified
+end-to-end with zero console errors, on both the footer editor and the regular message Add/Edit
+screen. `manage_emails.js`/`autosave.js` still have their own separate,
+already-documented-elsewhere gaps (Ajax.Request/Object.toJSON for the former;
+`autosave.js` reads a stale `#ckeditor_message` field id that doesn't exist in the DOM anymore
+for its own message-body slice specifically - found but not fixed this pass, out of scope for
+what was reported broken) - not touched this pass.
+
+**Follow-up, 2026-08-20: footer editor still visually cramped after the fixes above - two
+more layout bugs, both root-caused to the same `CampaignManager` files (not `View_entry.css`
+this time).** User screenshot showed the Quill editor's text area a hair narrower than its
+own toolbar above it (a visible jog on the right edge), and the whole editor boxed into only
+the right half of the screen with a large unused gap to its left.
+
+1. **Editor body narrower than its own toolbar.** `quill.php`'s `toHtml()` only applies an
+   inline `width` to the container div Quill turns into `.ql-container` - the toolbar Quill
+   auto-generates is inserted as that container's *preceding sibling* (see `qu.js`'s own
+   comment on this), gets no inline width of its own, and defaults to 100% of the parent.
+   Both `CampaignManager_0.php::admin_edit_footer()` and `CampaignManagerCommon_0.php::
+   QFfield_ckeditor()` (the regular Add/Edit message field - same underlying bug, same fix)
+   called `setQuillProps('99%', ...)` - a container 1% narrower than its own toolbar. Every
+   *other* `setQuillProps()` caller in the codebase (`Applets/Note`, `CRM/Mail`,
+   `Utils/Attachment`, `Utils/RecordBrowser`) already passes `null` for width, which is what
+   keeps their toolbar/container in sync. Fixed by changing both CampaignManager call sites
+   from `'99%'` to `null` to match.
+2. **Editor stuck in a half-width column with unused space to its left.** `default.tpl`'s
+   two `.column` divs (placeholders panel, message editor) are unconditionally 50%/50w -
+   fine for the regular Add/Edit screen, where the left column also holds five metadata
+   rows (name/list/date/scheduled/sent_to), but in `$footer_mode` those rows are hidden
+   (`{if !isset($footer_mode)}`) and the left column holds only the placeholders tree, which
+   never needed anywhere near half the row. Fixed with a `$footer_mode`-conditional inline
+   style: the left column becomes a fixed `320px` sidebar (`flex: 0 0 320px`, matching its
+   actual rendered content width, unchanged from before this fix) and the right column
+   switches to `flex: 1 1 auto` to fill the reclaimed space - same shape as every other
+   `$footer_mode`-only tweak already in this file (the card-class/label-wrap fixes above).
+   Regular (non-footer) Add/Edit screen deliberately left at 50/50, unchanged.
+
+Verified live via Playwright (both light and dark mode, `jtylek` login): footer editor's
+toolbar and text area now line up flush on the right edge, and the editor now spans nearly
+the full viewport width instead of half of it with a dead gap alongside. Regular message
+Add/Edit screen (`List Messages` → `New`) re-checked side by side - still 50/50, toolbar/
+editor width now matches there too, five metadata fields unaffected.
+
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.
