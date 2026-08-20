@@ -1111,5 +1111,55 @@ the full viewport width instead of half of it with a dead gap alongside. Regular
 Add/Edit screen (`List Messages` → `New`) re-checked side by side - still 50/50, toolbar/
 editor width now matches there too, five metadata fields unaffected.
 
+**Follow-up, 2026-08-20: footer editor opened blank instead of showing the current footer,
+and Save then threw a JS crash - two more bugs in `CampaignManager_0.php`, unrelated to
+theming.** User reported the Settings tab's "Current footer:" preview showed real text but
+clicking "here" to edit it opened an empty Quill editor; saving from there (even unchanged)
+then threw `Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')`.
+
+1. **Blank editor.** `admin_edit_footer()` preloaded the Quill field straight from the raw
+   `campaign_manager_footer_text` Variable, which is empty until an admin has ever saved a
+   custom footer. The Settings-page preview instead calls
+   `Premium_CampaignManagerCommon::get_footer()`, which falls back to hardcoded default text
+   when that Variable is empty - so the preview showed real content while the editor, reading
+   the raw Variable directly, opened blank. Fixed by falling back to `get_footer()` in the
+   editor too when the raw value is empty, so it preloads the same effective text the preview
+   just showed.
+2. **Save crash.** `admin_edit_footer()` built its full render output (`$form->accept($renderer)`,
+   theme assigns, and a `get_placeholders_html(null)` call) unconditionally, *before* checking
+   `$form->validate()`. `get_placeholders_html()` (and the reply/attachment sub-calls it makes)
+   each call `eval_js('document.getElementById("campaign_manager__replies").innerHTML = ...')`
+   assuming its own returned stub `<div id="campaign_manager__replies"></div>` HTML lands in the
+   same response right after - true on GET/redisplay, since that HTML gets printed via
+   `$theme->display()`. On a successful Save, though, the function took the
+   `Variable::set(...); return false;` branch and never printed anything - the queued eval_js
+   still fired (append_js has no idea the print never happened), so
+   `document.getElementById("campaign_manager__replies")` returned null and `.innerHTML=`
+   threw. Same shape applies to `campaign_manager__attachments`. Fixed by moving the
+   `$form->validate()` check up to right after `setDefaults()`, before any of the
+   renderer/theme/`get_placeholders_html()` work - the save path now returns before any of that
+   runs, matching how `admin_main()`/`admin()` elsewhere in this same file already validate
+   before building render output.
+
+Also split the Settings-page "You can edit the footer by clicking here. Current footer:" hint
+into two lines (own `<div class="epesi-cm-hint">` each in `admin.tpl`, backed by a new
+`custom_footer_current_label` theme var alongside the existing `custom_footer_label`) per user
+request, and made the preview substitute real values for `{main_company.*}` tokens instead of
+showing them raw - `get_footer()`'s default/custom text both leave those unresolved (real
+substitution normally only happens at send time, in `prepare_message()`, which needs a
+target/employee context this settings-page preview doesn't have). Added
+`Premium_CampaignManagerCommon::get_footer_preview()`, a display-only wrapper around
+`get_footer()` that resolves `{main_company.*}` using the same company-field-loop shape as
+`prepare_message()`'s own cache-building, and pointed `admin_main()`'s `custom_footer_info`
+assign at it instead of the raw `get_footer()`. `get_footer()` itself (used by the editor's
+own default-fallback and by actual message sending) is untouched.
+
+Verified live via Playwright (`jtylek` login): editor now preloads the same text as the
+preview; clicking Save with no changes round-trips cleanly with zero console errors (previously
+threw immediately); Settings-page preview now reads "You can edit the footer by clicking
+here." / "Current footer:" on separate lines with `{main_company.company_name}` resolved to
+the real company name (`{main_company.email}` resolved to an empty string, correctly, since
+this dev company record has no email set).
+
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.
