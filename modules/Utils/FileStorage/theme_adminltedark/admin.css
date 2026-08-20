@@ -1,0 +1,16 @@
+/* AdminLTE styling for Utils_FileStorage::admin()'s own screen furniture
+ * (the "Created On (From/To)"/"Created By" filter bar above the files
+ * grid). Scoped to .epesi-filestorage-filter - a wrapper this module adds
+ * around Libs_QuickForm::display_as_row()'s output - rather than editing
+ * Libs/QuickForm/theme_adminltedark/row.css directly, since that shared
+ * row/row.css pair is also used by every other "compact filter bar" in the
+ * app (e.g. Utils_RecordBrowser's admin "Show records" filter) and a plain
+ * font-size change there would apply everywhere, not just here.
+ */
+
+.epesi-filestorage-filter .epesi-qf-row-label,
+.epesi-filestorage-filter .epesi-qf-row-data,
+.epesi-filestorage-filter input,
+.epesi-filestorage-filter select {
+	font-size: 0.8rem;
+}

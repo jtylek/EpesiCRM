@@ -29,7 +29,9 @@ automulti_remove_button_action = function (element, list_sep) {
 }
 
 automulti_on_hide = function (element, list_sep) {
-	var new_value=document.getElementById("__autocomplete_id_"+element+"__search").value.split('__');
+	var search_el = document.getElementById("__autocomplete_id_"+element+"__search");
+	if (!search_el) return;
+	var new_value = search_el.value.split('__');
 	if (new_value && typeof(new_value[1])!="undefined") {
 		document.getElementById("__autocomplete_id_"+element+"__search").value="";
 		automulti_add_value(element, list_sep, new_value[0], new_value[1]);

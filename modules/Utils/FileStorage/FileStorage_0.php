@@ -23,6 +23,8 @@ class Utils_FileStorage extends Module
             return;
         }
 
+        $filters = $this->filter_form();
+
         /** @var Utils_GenericBrowser $gb */
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'files');
         $cols = [
@@ -30,13 +32,13 @@ class Utils_FileStorage extends Module
             ['name' => __('Created by'), 'order' => 'created_by', 'width' => 3],
             ['name' => __('Filename'), 'search' => 'filename', 'order' => 'filename', 'width' => 10],
             ['name' => __('Occurrence'), 'width' => 5],
-            ['name' => __('Deleted'), 'search' => 'deleted', 'width' => 1],
+            ['name' => __('Deleted'), 'search' => 'deleted', 'width' => 3],
             ['name' => __('Link'), 'search' => 'link', 'order' => 'link', 'width' => 5]
         ];
         $gb->set_table_columns($cols);
         $gb->set_default_order([__('Created on') => 'DESC']);
 
-        $sqlPart = $this->get_sql_query($gb);
+        $sqlPart = $this->get_sql_query($gb, $filters);
 
         foreach (DB::GetAll("SELECT * $sqlPart") as $r) {
             $filename = Utils_FileStorageCommon::get_file_label($r['id']);
@@ -46,17 +48,93 @@ class Utils_FileStorage extends Module
             $link = $r['link'];
             $backref = $this->create_backref_link($r['backref']);
 
-            $gb->add_row($created_on, $created_by, $filename, $backref, $deleted, $link);
+            $row = $gb->get_new_row();
+            $row->add_data_array([$created_on, $created_by, $filename, $backref, $deleted, $link]);
+            // Same view/download access log the file's own "File History" popup
+            // link already offers (Utils_FileStorage_FileLeightbox::get_file_leightbox()
+            // -> file_history()'s "File access history" tab) - surfaced here as a
+            // direct row action too, one click instead of two, same as
+            // RecordBrowser's "View edit history" row action (icon='history').
+            $row->add_action($this->create_callback_href($this->show_file_history(...), [$r['id']]), __('History'), __('View file view/download history'), 'history');
         }
 
         $this->display_module($gb);
     }
 
-    private function get_sql_query(Utils_GenericBrowser $gb)
+    public function show_file_history($id)
+    {
+        self::getHistory($id);
+        return false;
+    }
+
+    // Own QuickForm instance, separate from Utils_GenericBrowser's internal
+    // search form ($gb->form_s) - lets Created On/Created By be filtered by
+    // real value (date range, exact user match) instead of the generic
+    // browser's per-column free-text LIKE search (see get_search_query()),
+    // which has no concept of a range or a select's option list. Same
+    // pattern as Apps_ActivityReport::body()'s own filter form.
+    private function filter_form()
+    {
+        $form = $this->init_module(Libs_QuickForm::module_name(), null, 'files_filter');
+
+        $creators = DB::GetAssoc('SELECT DISTINCT created_by, created_by AS uid FROM utils_filestorage');
+        foreach ($creators as $k => $u) {
+            $creators[$k] = Base_UserCommon::get_user_label($u, true);
+        }
+        asort($creators);
+        $creators = ['' => '[' . __('All') . ']'] + $creators;
+
+        $form->addElement('datepicker', 'created_from', __('Created On') . ' (' . __('From') . ')');
+        $form->addElement('datepicker', 'created_to', __('Created On') . ' (' . __('To') . ')');
+        $form->addElement('select', 'created_by', __('Created By'), $creators);
+        $form->addElement('submit', 'submit_filter', __('Filter'));
+
+        $filters = $this->get_module_variable('filters', ['created_from' => '', 'created_to' => '', 'created_by' => '']);
+        if ($form->validate()) {
+            $filters = $form->exportValues();
+            $this->set_module_variable('filters', $filters);
+        }
+        $form->setDefaults($filters);
+
+        // display_as_row() renders via Libs_QuickForm's own shared row.tpl/
+        // row.css (used by every "compact filter bar" in the app, e.g.
+        // RecordBrowser's admin "Show records" filter) - wrapping its output
+        // in a module-specific class instead of editing that shared CSS
+        // keeps the smaller font scoped to just this filter bar. See
+        // admin.css.
+        Base_ThemeCommon::load_css(self::module_name(), 'admin');
+        echo '<div class="epesi-filestorage-filter">';
+        $form->display_as_row();
+        echo '</div>';
+
+        return $filters;
+    }
+
+    private function get_sql_query(Utils_GenericBrowser $gb, array $filters = [])
     {
         $orderSql = $gb->get_query_order();
         $whereSql = $gb->get_search_query();
-        $whereSql = $whereSql ? "WHERE $whereSql" : "";
+
+        $conditions = [];
+        if ($whereSql) {
+            $conditions[] = "($whereSql)";
+        }
+        if (!empty($filters['created_by'])) {
+            $conditions[] = 'created_by=' . (int)$filters['created_by'];
+        }
+        // created_on is a native DATETIME column (Install.php declares it as
+        // ADODB Data Dictionary type 'T' - DB::Execute()'s %T placeholder
+        // stores a formatted datetime string, not a raw unix int - see
+        // BindTimeStamp()/DBTimeStamp() in vendor/adodb), so the filter
+        // needs a quoted datetime literal here too, not (int)strtotime(...).
+        if (!empty($filters['created_from'])) {
+            $conditions[] = 'created_on>=' . DB::qstr(date('Y-m-d H:i:s', strtotime($filters['created_from'] . ' 00:00:00')));
+        }
+        if (!empty($filters['created_to'])) {
+            $conditions[] = 'created_on<=' . DB::qstr(date('Y-m-d H:i:s', strtotime($filters['created_to'] . ' 23:59:59')));
+        }
+
+        $whereSql = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
         $sqlPart = trim("FROM utils_filestorage $whereSql $orderSql");
         $total = DB::GetOne("SELECT count(*) $sqlPart");
         $limit = $gb->get_limit($total);
@@ -69,9 +147,15 @@ class Utils_FileStorage extends Module
         if (str_starts_with($backref, 'rb:')) {
             $backref = substr($backref, 3);
         }
-        $recordToken = Utils_RecordBrowserCommon::decode_record_token($backref);
-        if ($recordToken) {
-            return Utils_RecordBrowserCommon::create_default_linked_label($recordToken['tab'], $recordToken['id']);
+        // Generic RecordBrowser file fields write backrefs as "tab/id/field_id"
+        // (see RecordBrowserCommon_0.php's save_val() calls to
+        // Utils_FileStorageCommon::add_files()), not the plain "tab/id" pair
+        // decode_record_token() expects - its array_pop() would grab the
+        // trailing field_id as the record id instead of the real id in the
+        // middle segment, so parse position 1 explicitly instead.
+        $parts = explode('/', $backref);
+        if (count($parts) >= 2 && is_numeric($parts[1]) && Utils_RecordBrowserCommon::check_table_name($parts[0], false, false)) {
+            return Utils_RecordBrowserCommon::create_default_linked_label($parts[0], $parts[1]);
         }
         return $backref;
     }

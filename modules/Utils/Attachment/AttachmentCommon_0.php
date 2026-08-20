@@ -269,10 +269,19 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$notes = self::get_files($from_group);
 		$mapping = array();
 		foreach ($notes as $n) {
-			$mapping[$n['note_id']] = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$n['file']);
+			// $n['file'] is the *original* note's permanent, hash-addressed storage
+			// path (Utils_FileStorageCommon::meta()'s 'file' key) - routing that
+			// through add()/add_file() would ingest it as if it were a throwaway
+			// temp upload and @unlink() it afterwards, deleting the original
+			// attachment's content out from under the note it still belongs to.
+			// Attach the existing filestorage id directly instead - add_files()
+			// clones by id without touching the source file at all.
+			$id = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text']);
+			if ($id) Utils_RecordBrowserCommon::update_record('utils_attachment', $id, array('files' => array($n['filestorage_id'])));
+			$mapping[$n['note_id']] = $id;
 		}
 		return $mapping;
-	}	
+	}
 	
 	public static function detach_note($note, $group) {
 		$note = is_numeric($note)? self::get_note($note): $note;
