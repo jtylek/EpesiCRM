@@ -1455,6 +1455,28 @@
 	display: none !important;
 }
 
+/* Premium_ListManager's "The List" addon (a premium_listmanager record's element grid,
+   ListManager_0.php's show_regular_list_elements()/actions_for_list_elements(), wrapped via
+   set_prefix()/set_postfix()+set_data_gb() in its own "epesi-listmanager-elements" div) - per
+   explicit request, show every row action (view/edit/edit votes or remove/add history
+   entry/history) as its own icon, never behind a kebab. "Add history entry" (add_note.png)
+   isn't in ensureToggles()'s isCoreAction() fixed list, so it would otherwise always group into
+   the "More actions" toggle regardless of viewport width even though this row's action set is
+   short enough to show inline. Same opt-out shape (both mechanisms) as
+   .epesi-import-worksheet-list above. */
+.epesi-listmanager-elements .epesi-gb-actions-icons {
+	display: inline-flex !important;
+}
+.epesi-listmanager-elements .epesi-gb-actions-toggle {
+	display: none !important;
+}
+.epesi-listmanager-elements .epesi-gb-actions-extra {
+	display: inline-flex !important;
+}
+.epesi-listmanager-elements .epesi-gb-more-toggle {
+	display: none !important;
+}
+
 /* Premium_Import's "List of uploaded files" queue screen (Import_0.php's "file_queue"
    Utils_GenericBrowser, wrapped via set_prefix()/set_postfix() in its own
    "epesi-import-file-queue" div), the "Select worksheet to import" screen just above (same
