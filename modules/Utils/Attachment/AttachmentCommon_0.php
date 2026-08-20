@@ -297,6 +297,19 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note);
 	}
 
+	// Plain-argument equivalent of Utils_FileStorage_ActionHandler::createRemote()
+	// (protected, Request-shaped) - writes the same utils_filestorage_remote
+	// row/remote.php URL that CRM_Roundcube_RemoteAttachment already uses, for
+	// callers with just a file_id and no HTTP request to build. $label isn't
+	// persisted - the table has no column for it.
+	public static function create_remote($file_id, $label, $expires) {
+		$token = md5($file_id.$label.$expires.mt_rand());
+		DB::Execute('INSERT INTO utils_filestorage_remote(file_id,token,created_on,created_by,expires_on) VALUES (%d,%s,%T,%d,%T)',
+			array($file_id, $token, time(), Acl::get_user(), $expires));
+		$id = DB::Insert_ID('utils_filestorage_remote', 'id');
+		return get_epesi_url().'/modules/Utils/FileStorage/remote.php?'.http_build_query(array('id'=>$id, 'token'=>$token));
+	}
+
     public static function encrypt($input,$password, $hint = '') {
         $iv = '';
         $input .= md5($input);
