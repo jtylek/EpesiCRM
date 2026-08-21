@@ -741,6 +741,79 @@ own `company` record view, the way `Tests_Bugtrack` does), your own `uninstall()
 call `delete_addon()` explicitly — the table you don't own has no reason to know your
 module is going away.
 
+### 11.9 Enforcing per-field uniqueness
+
+There's no `'unique'=>true` core field option — RecordBrowser itself has no notion of
+a unique constraint. Every real example of this is a **per-field, hand-rolled
+`QFfield_callback` + `$form->addFormRule()` pair**, not something you turn on in the
+field definition. The canonical example is `CRM_Contacts`'s Email field:
+
+```php
+// ContactsInstall.php
+array('name' => _M('Email'), 'type'=>'email', 'param'=>array('unique'=>true), ...),
+```
+`'email'` is a registered datatype (§11.2's extension mechanism —
+`CRM_ContactsCommon::email_datatype()`) that, when it sees `param['unique']`, points
+`QFfield_callback` at `QFfield_unique_email()` instead of the plain `QFfield_email()`.
+That wraps the normal email input, then — only in `add`/`edit` mode — calls:
+```php
+public static function add_rule_email_unique($form, $field, $rset=null, $rid=null) {
+    self::$field = $field;   // static scratch state, see below
+    self::$rset = $rset;
+    self::$rid = $rid;
+    $form->addFormRule(array('CRM_ContactsCommon', 'check_email_unique'));
+}
+public static function check_email_unique($data) {
+    if (!isset($data[self::$field]) || !$data[self::$field]) return array();
+    $rec = self::get_record_by_email($data[self::$field], self::$rset, self::$rid);
+    if (!$rec) return array();
+    return array(self::$field => __('E-mail address duplicate found: %s', [...]));
+}
+```
+(`ContactsCommon_0.php:1351-1365`; `get_record_by_email()` runs a direct
+`f_email `.DB::like().` %s AND id!=%d` query against the table, case-insensitively.)
+
+**Why `addFormRule()` (whole-submission) instead of the per-field `addRule()`
+everywhere else**: a per-field `addRule()` callback only ever receives *that field's*
+own submitted value — no way to reach the record's own `id` (needed to exclude itself
+when editing, or every edit would flag itself as a duplicate of itself) or any other
+submitted data. `addFormRule()`'s callback gets the **entire submitted `$data` array**
+instead, which is the only hook with enough context to do this check at all.
+
+**Why static properties, not a closure carrying the field/id**: this is old-style
+QuickForm using string/array callables (`array($class, $method)`), not closures — the
+rule callback's signature is fixed by the framework (`callback($data)`), so there's no
+parameter slot for "which field" or "which id to exclude." The `add_rule_*_unique()`
+wrapper stashes that context into static properties *immediately before* registering
+the rule, and the rule callback reads it back out when QuickForm invokes it later in
+the same request. This only works because there's exactly one form validating at a
+time per request — don't reuse this shape for anything that could validate two forms
+of the same type in one request.
+
+**Second real example**, added building `Premium_Domains` (`modules/Premium/Domains/
+DomainsCommon_0.php`): `add_rule_domain_name_unique()`/`check_domain_name_unique()` on
+the Domain Name field, same shape, generalized to a plain
+`SELECT id FROM <tab>_data_1 WHERE active=1 AND f_<field> `.DB::like().` %s AND id!=%d`
+against the field's own recordset table (domain names, like email addresses, are
+conventionally case-insensitive — `DB::like()` is what makes the match
+cross-DB-portable case-insensitive, MySQL `LIKE` vs PostgreSQL `ILIKE`; a plain
+`Utils_RecordBrowserCommon::get_records($tab, $crits)` crits-based lookup would lose
+that portability guarantee without extra work).
+
+**Recipe for a new unique field** (no CRM_Contacts dependency needed — this pattern
+is entirely reusable per-module):
+1. Give the field its own `QFfield_<name>()` wrapping whatever the field's normal
+   `QFfield_callback`/type-default would build.
+2. Inside it, only for `$mode=='add'||$mode=='edit'`, call a small
+   `add_rule_<name>_unique($form, $field, $rid)` — stash `$field` (and `$rid` from
+   `$rb_obj->record['id'] ?? null`) into two static properties, then
+   `$form->addFormRule(array(static::class, 'check_<name>_unique'))`.
+3. Write `check_<name>_unique($data)`: bail to `array()` if the field's submitted
+   value is empty; otherwise `DB::GetOne('SELECT id FROM <tab>_data_1 WHERE active=1
+   AND f_<field> '.DB::like().' %s AND id!=%d', array($value, $rid ?: -1))`; return
+   `array($field => __('... duplicate found: %s', [...]))` on a hit, `array()` if
+   clear.
+
 ## 12. QuickForm field types (the widget layer underneath RecordBrowser)
 
 `modules/Libs/QuickForm/FieldTypes/` holds this codebase's custom QuickForm

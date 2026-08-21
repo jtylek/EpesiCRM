@@ -8,6 +8,33 @@ to your own machine and confirm what's actually relevant there (e.g. re-run the
 "does Apache's error.log carry PHP lines on this box" check below rather than trusting
 the answer recorded here). Don't assume these exact paths exist on a different machine.
 
+## Quick start (skip re-deriving this every session)
+
+Once you've confirmed the four paths below are correct for **your own machine** (verify
+once — `ls`/`Test-Path` each, plus `php -i | grep error_log` for the php.ini path — and
+correct any that differ), treat that confirmation as durable for that machine rather than
+re-verifying and re-reading this whole file from scratch on every future "start monitoring
+error logs" request in the same repo checkout. Just launch the four tails directly. Only
+re-verify if a monitor errors immediately (path moved, XAMPP reinstalled elsewhere, a log
+got rotated to a new name, etc.) — fix the one broken path, not all four.
+
+Confirmed working on jasiek's Windows/XAMPP box (`c:\xampp82\htdocs\epesigithub`) as of
+2026-08-21 — adjust these four paths for your own machine, then this block is your
+low-ceremony starting point too:
+
+```
+tail -f -n0 data/logs/php_errors.log
+tail -f -n0 /c/xampp82/php/logs/php_error_log
+tail -f -n0 /c/xampp82/apache/logs/error.log
+tail -f -n0 /c/xampp82/apache/logs/access.log | grep -E --line-buffered '" [45][0-9]{2} ' | grep -Ev --line-buffered 'favicon\.ico|com\.chrome\.devtools\.json|\.(js|css)\.map'
+```
+
+An AI assistant should run each as its own persistent background watch (e.g. Claude Code's
+`Monitor` tool, one call per line above) rather than one shell juggling four `tail -f`s, so
+each log's events surface independently. Also worth a quick check for (and cancellation of)
+any stale one-off monitoring job left over from an earlier ad-hoc request in the same
+session, so it doesn't duplicate the live watch.
+
 ## Example: the four logs (one developer's Windows/XAMPP setup)
 
 1. **`data/logs/php_errors.log`** — Epesi's own app-level PHP error log, written by

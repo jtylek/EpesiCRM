@@ -362,6 +362,83 @@ the user and ask, the way you would for any surprising change to code you
 don't own outright. It may well be tested work from a parallel session on
 the same nested repo that just hasn't been communicated yet.
 
+## Rector and PHPStan are installed globally via Composer on this machine, not per-project
+
+Done 2026-08-21 (Jasiek's Windows box) so both tools are shared across every local
+PHP project instead of living in this repo's own `vendor/`:
+
+```
+composer global require rector/rector:^2 phpstan/phpstan:^2
+```
+
+This installs into `C:\Users\jasiek\AppData\Roaming\Composer\vendor\bin`, which was
+already on `PATH` (`composer global config home` shows the home dir; its `vendor\bin`
+is the standard global-bin location Composer adds during setup) — so `rector` and
+`phpstan` now resolve directly from any project directory, no `vendor/bin/` prefix,
+no per-project `composer.json` entry. Usage is otherwise unchanged: run from inside a
+project and point at its own config, e.g. `phpstan analyse -c phpstan.neon`,
+`rector process --dry-run --config rector-php82.php`.
+
+This repo's own `composer.json` deliberately does **not** list either tool as a
+dependency — CI installs both isolated into scratch dirs per run
+(`.github/workflows/php-checks.yml`: `composer --working-dir=/tmp/rector require
+rector/rector:^2`, same shape for `/tmp/phpstan`) specifically to dodge a php-parser
+version conflict with Epesi's own deps. A global Composer install is the same shape
+of fix — its own vendor tree, entirely outside any project — just persistent instead
+of re-fetched every run. Versions were pinned to `^2` for both to match what CI uses.
+
+**How to apply on another developer's computer**: this is per-machine state, not
+something `git pull` brings along — run the same `composer global require` command
+there too. If that machine's global Composer bin dir isn't already on `PATH`, add it
+(`composer global config home` prints the path; the tools live in `<that
+path>\vendor\bin` on Windows or `<that path>/vendor/bin` on Linux/macOS). Keep the
+version constraint in sync with whatever `.github/workflows/php-checks.yml` pins if
+that ever changes, so local runs and CI report the same findings.
+
+While verifying this install against this repo's actual `phpstan.neon`, the run hit
+a **real** issue unrelated to the global-vs-local install choice: see the "vendored
+Kint debug library uses removed PHP 7 syntax" note below (`phpstan.neon`'s
+`excludePaths` didn't cover it, so any invocation — global or CI's isolated one
+— would abort with parse errors).
+
+## Vendored Kint debug library breaks PHPStan with removed PHP 7 curly-brace syntax
+
+Found 2026-08-21 while smoke-testing the global PHPStan install (see above) against
+this repo's real `phpstan.neon`: the run aborted with "Result is incomplete because
+of severe errors" instead of reporting ordinary findings.
+`modules/Develop/MiscUtils/kint/parsers/custom/json.php` (Kint, a vendored
+third-party var-dump/debug library, added via commit `762612ba2` "materialize
+previously-uncommitted vendor dependencies") uses old curly-brace string-offset
+syntax (`$variable{0}`), which PHP 8.0 removed outright — a genuine parse error
+under `phpVersion: 80200`, not a false positive. Unlike an ordinary finding, a parse
+error can't be suppressed via `phpstan-baseline.neon` and aborts the whole analysis
+run rather than just flagging that one file. The file was already absent from
+`phpstan-baseline.neon`, meaning a fresh CI run would hit the same abort (CI's
+PHPStan job has no `|| true`, so this would redden the build, not just add noise).
+
+Fixed at first by adding `modules/Develop/MiscUtils/kint/*` to `phpstan.neon`'s
+`excludePaths`, alongside the existing RoundCube/Smarty/Tests entries — same
+pattern, since Kint here is vendored code we don't own, not Epesi's own code.
+
+**Follow-up (2026-08-21): the whole `Develop_MiscUtils` module was deleted**,
+not just excluded. It was a bare dev-tooling module (no menu, no ACL, no admin
+screen) whose only content was a global `p($x)` debug-dump helper and this
+bundled Kint library — a manual `var_dump`-style aid for a developer to sprinkle
+into code while debugging, superseded now that AI-assisted sessions read code
+and logs directly instead. Confirmed zero references anywhere else in the
+tracked codebase (`Kint::`, `p(`, `Develop_MiscUtils`/`requires()`) before
+removing. Not installed in this instance's DB (`console.php module:uninstall
+Develop_MiscUtils` reported "not installed"), so no uninstall step was needed —
+just `git rm -r modules/Develop/MiscUtils`. The `excludePaths` entry above is
+now gone too, since the directory it pointed at no longer exists.
+
+**How to apply**: if PHPStan (local or CI) ever reports "Result is incomplete
+because of severe errors" again, check whether the failing file is vendored/
+third-party code that landed under `modules/` without a matching `excludePaths`
+entry, before assuming a real regression in Epesi's own code. And if any old
+code still calls `p()` or `Kint::`, that call is now dead — `Develop_MiscUtils`
+no longer exists to define/load them.
+
 ## Claude Code's own Bash sandbox can't run `/opt/lampp/bin/php` — missing `libcrypt.so.1`, unrelated to the real host
 
 Confirmed 2026-08-19: from inside a Claude Code session's Bash tool on Karina's Linux

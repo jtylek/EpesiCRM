@@ -212,3 +212,88 @@ a real uninstall patch.
 (Not a removal of a feature per se, but three separate JS-tooltip-component
 attempts were each tried and reverted back to plain native tooltips — see the
 "Not yet themed" section there before trying a fourth.)
+
+## Entire `modules/Develop/` tree removed (2026-08-21)
+
+All five `Develop_*` modules — `MiscUtils`, `ModuleCreator`, `ModuleEditor`,
+`TableBrowserCreator`, `Translations` — were deleted outright, at explicit user
+request, as no-longer-needed 2006–2008-era developer tooling now that an
+AI-assisted session reads/writes code and the DB directly instead of a human
+using in-app scaffolding/debugging widgets. **If a future request wants any of
+this back, it needs to be rebuilt fresh** (or use the modern equivalents noted
+below) — don't restore these from git history and re-wire them in.
+
+Confirmed zero cross-references anywhere else in the tracked codebase before
+deleting each one (no other module's `requires()` named any of them, no
+`Develop_*`/`Develop/*` string hits outside their own directories except a
+stale doc-comment example in `Utils_Wizard`'s adminltedark stepper template,
+fixed in the same pass — see below). None were installed in this dev
+instance's DB either (`console.php module:uninstall` reported "not installed"
+for all five), so no live uninstall step ran for any of them.
+
+**Per-module reasoning** (user's own words, recorded verbatim where given):
+
+- **MiscUtils** — a global `p($x)` var-dump helper plus a bundled copy of
+  Kint (a pre-Xdebug/VarDumper-era PHP debug library), for a developer to
+  sprinkle into code while debugging. Superseded by an AI assistant reading
+  code/logs/DB state directly. This is also what was breaking PHPStan
+  earlier the same day — see the `phpstan.neon`/Kint entries in
+  `environment-gotchas.md` for that side story; the `excludePaths` workaround
+  added there is now moot and was removed again once the module itself was
+  deleted.
+- **ModuleCreator** — "the web wizard predates it and does nothing the CLI
+  command (or an AI assistant writing the files directly) doesn't already
+  cover. We already have in Administrator control panel Custom Recordset."
+  I.e. `console.php dev:module:create` (added during the PHP 8.2 migration,
+  `console/Develop/CreateModuleCommand.php`) already covers the same
+  boilerplate-file scaffolding this wizard did, and the Administrator
+  control panel's Custom Recordset feature already covers ad hoc
+  table/recordset creation without needing a whole new module — the two
+  together made this wizard fully redundant.
+- **TableBrowserCreator** — the oldest of the five (2006), admin-gated,
+  scaffolded a RecordBrowser-backed module + its DB tables. Same redundancy
+  as ModuleCreator: Custom Recordset covers the table-creation need, CLI/AI
+  covers the module-file scaffolding.
+- **ModuleEditor** — an in-browser file manager *and* code editor (Codepress
+  widget) that could create/browse/edit arbitrary files from the app root
+  through the web UI, with no ACL check of its own (relied on Epesi's normal
+  per-user grant model, so not open by default, but a real arbitrary-file-write
+  surface if ever granted to anyone). Redundant now that code is edited via
+  IDE/AI-assisted terminal access, and worth removing on security-hardening
+  grounds alone, independent of the tooling argument.
+- **Translations** — "Translations are handled now by special Epesi
+  instance." This was never a per-instance utility — it was the old
+  **public/community translation-contribution tracker** tied to Telaxus's
+  original open-source project (`develop_trans_contribs`/
+  `develop_trans_users` DB tables, `svn_config_example.php`,
+  `receive_translation.php` — an SVN-based pipeline for accepting
+  crowd-sourced translations), unrelated to the per-instance admin
+  "Translate" screen (`Base_Lang`) that's still active and untouched by this
+  removal. That community-translation role now lives on a separate, dedicated
+  Epesi instance instead.
+
+**Known residual gap**: unlike the CKEditor/OpenFlashChart removals above,
+no uninstall patch was written for any of these five. For `MiscUtils`,
+`ModuleCreator`, `ModuleEditor`, and `TableBrowserCreator` this is harmless —
+none of their `*Install.php::install()` methods created any DB schema, so
+there's nothing to leak. `Translations` did create the two tables named
+above; on any install where this module was ever actually installed (not
+this one), those tables become orphaned rather than dropped — same
+"auto-uninstall patch judged more risk than the disk space is worth" call
+already made for `Libs/OpenFlashChart` above. Confirmed this is not a
+crash risk either way: `ModuleManager::check_is_module_available()`
+(`include/module_manager.php:1098`) already handles a module whose directory
+has disappeared while still marked installed — it flags the DB row
+`MODULE_NOT_FOUND` and unregisters it for that request, no fatal error - so
+the module system itself tolerates exactly this kind of removal without a
+patch, even though the orphaned tables specifically don't get cleaned up.
+
+**Related cleanup**: `modules/Utils/Wizard/theme_adminltedark/default.tpl`'s
+nested-wizard-step grouping logic existed specifically to support
+ModuleCreator's dynamic per-table sub-steps — it's now dead-but-harmless (no
+remaining `Utils_Wizard` consumer produces nested captions), left in place as
+reusable infrastructure for FirstRun/`Premium/Import` rather than ripped out,
+per the same "don't refactor shared infrastructure beyond what's asked"
+judgment used elsewhere in this file. Its stale comment referencing
+`Develop/ModuleCreator` was updated in the same pass so it doesn't send a
+future reader looking for a module that no longer exists.

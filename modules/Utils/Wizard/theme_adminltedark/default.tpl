@@ -3,8 +3,8 @@
    Overrides the legacy bare <ul> in ../theme/default.tpl (still used verbatim
    by the plain/default theme) via Base_ThemeResolver's per-file theme_adminltedark
    fallback (modules/Base/Theme/resolver.php) - picked up automatically by every
-   Utils_Wizard consumer (FirstRun, Develop/ModuleCreator, Premium/Import's
-   guided import), no changes needed in any of them.
+   Utils_Wizard consumer (FirstRun, Premium/Import's guided import), no changes
+   needed in any of them.
 
    $captions/$active_caption_key/$page are assigned by Wizard_0::body() exactly
    as for the legacy template. Grouping/status computed here in PHP rather than
@@ -15,12 +15,15 @@
 	$active_caption_key = $this->get_template_vars('active_caption_key');
 
 	/* Group into top-level (level 0) steps, with any deeper-level captions
-	   nested under the preceding top-level one - this is only exercised by
-	   Develop/ModuleCreator's dynamic per-table sub-steps today, so it's kept
-	   to a simple indented sub-list rather than a fully general nested
-	   stepper. $owner_of maps every caption key (level 0 or nested) to the
-	   $steps index of its owning top-level step, so the active step - which
-	   may itself be a nested one - resolves with a single lookup below. */
+	   nested under the preceding top-level one. No current consumer produces
+	   nested captions (the one that did, Develop/ModuleCreator's dynamic
+	   per-table sub-steps, was removed 2026-08-21 - see
+	   AI-shared/deliberate-removals.md), so this path is dead-but-harmless -
+	   kept as a simple indented sub-list rather than a fully general nested
+	   stepper, in case a future consumer needs it. $owner_of maps every
+	   caption key (level 0 or nested) to the $steps index of its owning
+	   top-level step, so the active step - which may itself be a nested one -
+	   resolves with a single lookup below. */
 	$steps = array();
 	$owner_of = array();
 	$last_index = -1;

@@ -1576,3 +1576,104 @@ still null) and reports `STATUS_TIMEOUT` instead of running. `CRM_Tasks`'
 `task_related`/`CRM_Meeting`'s `crm_meeting_related` still have the
 underlying gap unaddressed - same fix shape would apply there if either is
 ever reported empty despite active wiring.
+
+## Setting a `datepicker` QuickForm field's value from JS needs the regional format, not ISO (2026-08-21)
+
+`HTML_QuickForm_datepicker` (`modules/Utils/PopupCalendar/datepicker.php`) stores its
+live value as **text in the user's configured regional date format**
+(`Base_RegionalSettingsCommon::time2reg($value, false, true, false)`), not ISO
+`YYYY-MM-DD` — `exportValue()` only converts back to ISO at actual form-submit time.
+The field also has a `blur` handler (`Utils_PopupCalendarDatePicker.validate_blur`,
+wired in `datepicker.php`) that checks whatever's currently typed against
+`Base_RegionalSettingsCommon::date_format()` and **silently wipes the field** on a
+mismatch — this is the same trap already documented above the browser-autofill fix in
+that same file's own comment (autofill fills the browser's stored format, which rarely
+matches, and gets wiped the same way).
+
+Any script-driven autofill of a `date`/`timestamp` RecordBrowser field (jQuery
+`.val('2027-02-15')` or similar) has to reproduce this: format server-side with
+`Base_RegionalSettingsCommon::time2reg($timestamp, false, true, false)` before sending
+the value to JS, not raw ISO, or the field will look filled for an instant and then go
+blank on blur with no visible error. Hit building `Premium_Domains`'s "Lookup WHOIS"
+auto-fill (`Premium_DomainsCommon::whois_lookup()`/`js/whois.js`) — WHOIS returns
+ISO/RFC-3339-ish expiry dates, and this install's regional format is day-first
+(`%d.%m.%Y`, Slovenian locale), which would have silently dropped every auto-filled
+Expiration Date.
+
+**How to apply**: before wiring any JS that sets a RecordBrowser `date`/`timestamp`
+field's value programmatically (auto-fill, import preview, bulk-edit, etc.), convert
+the timestamp through `time2reg($ts, false, true, false)` server-side first and send
+*that* string to the client — never send ISO and expect the widget to accept it as-is.
+
+## WHOIS/other outbound-network-dependent features can fail silently by hosting environment, not code bug (2026-08-21)
+
+`Premium_DomainsCommon::whois_lookup()`'s raw-WHOIS-protocol implementation (TCP port
+43 to `whois.iana.org` then the TLD's own server) depends on the app server actually
+being allowed to open outbound connections on that port — not guaranteed on shared
+hosting or behind a restrictive egress firewall. A report of "WHOIS server did not
+respond" (or any similar timeout from a from-scratch socket/curl call to an external
+host) should be checked against the hosting environment's outbound-network policy
+*before* assuming the parsing/protocol code itself is wrong — see
+`AI-shared/CROSS_PLATFORM_RESULTS.md` for this app's known hosting-environment matrix.
+
+**How to apply**: any future feature that opens an outbound connection to a
+third-party host (WHOIS, an external API, etc.) should degrade to a clear
+user-facing error on connection failure/timeout (as `whois_lookup()` does) rather than
+a blank/broken UI, precisely because "can't reach the outside world" is a real,
+non-rare condition for this app's hosting targets.
+
+## A `QFfield_callback` adding a *second* `$form->addElement()` renders nothing (2026-08-21)
+
+`RecordBrowser`'s Add/Edit form isn't built by rendering "every element currently in
+`$form`" - `RecordBrowser_0.php::prepare_view_entry_details()` iterates
+`$this->table_rows` (the recordset's own declared field list) and, for each field,
+calls that field's `QFfield_callback` (or the type default) to populate `$form`, then
+the template renders elements **by looking up each declared field's own id**, one at a
+time. A `QFfield_callback` that calls `$form->addElement(...)` a *second* time under a
+different, undeclared element name (e.g. to bolt on an extra button/info panel next to
+the real input) adds that element to the PHP `$form` object successfully — `$form->
+getElement()` would find it — but it never gets a rendering slot, so it silently never
+appears in the page HTML. No error, no warning; the callback just looks like it did
+nothing.
+
+Hit building `Premium_Domains`'s "Lookup WHOIS" button (`Premium_DomainsCommon::
+QFfield_domain_name()`): a `$form->addElement('static', $field.'_whois', ...)` call
+right after the real text element compiled fine and simply never showed up on the Add
+form. Fixed by not adding a second form element at all - instead `eval_js()` a small
+snippet that finds the real field's already-rendered `<input>` by id and inserts the
+extra HTML next to it via jQuery `.after()`, the same technique `Utils_ChainedSelect
+Common::create()` already uses to attach itself to an existing field rather than
+declaring a new QuickForm element.
+
+**How to apply**: a `QFfield_callback` that needs to add UI *beyond* the one form
+element for its own field (a button, a hint panel, injected widget chrome) must do it
+via `eval_js()`/DOM injection targeting the real field's rendered element, never via a
+second `$form->addElement()` call under a made-up field name - the latter compiles
+without error but is dead weight, invisible on every actual page render.
+
+## `load_js()` is per-*session* (not per-file-version) - editing an already-loaded JS file mid-session shows nothing until a fresh tab/login (2026-08-21)
+
+`Epesi::load_js($u)` (`include/epesi.php:129`) only ever emits a `<script src="...">`
+tag for a given URL **once per session** - it checks/sets
+`$_SESSION['client']['__loaded_jses__'][$u]` and silently no-ops on every later call
+for the same `$u`, for the rest of that login session (same `$_SESSION['client']`
+tree, same per-tab/CID scoping, as the already-documented `menu()` result cache in
+`AI-shared/Dev-Tutorial.md`/`how-menu-works.md`). This means: once a module's JS file
+has been loaded once in a browser tab, **editing that file on disk has no visible
+effect in that same tab/session** - the browser never re-fetches/re-executes it,
+because the server never re-emits the `<script>` tag telling it to. No error, no
+stale-cache indication - the page just keeps behaving exactly like the old file.
+
+Hit repeatedly while iterating on `Premium_Domains`'s `js/whois.js` (WHOIS auto-fill):
+adding a new field to auto-fill (Created Date) and testing again *in the same
+already-open tab* showed every previously-working auto-fill still working but the
+brand-new one silently doing nothing - indistinguishable from a real bug in the new
+code without knowing about this cache. Confirmed by re-reading the exact file content
+on disk (correct) and tracing `load_js()`'s session-gated logic.
+
+**How to apply**: when a `load_js()`-loaded file was just edited and a re-test in the
+*same already-open tab/session* doesn't reflect the change, don't assume the new code
+is wrong first - open a new tab (new CID) or log out/back in to get a session that
+hasn't already loaded the old copy, and retest there before debugging further. This is
+a standing trap for the rest of this module's (or any module's) JS iteration, not a
+one-time fluke.

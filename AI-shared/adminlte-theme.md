@@ -1161,5 +1161,28 @@ here." / "Current footer:" on separate lines with `{main_company.company_name}` 
 the real company name (`{main_company.email}` resolved to an empty string, correctly, since
 this dev company record has no email set).
 
+## New modules: `bootstrap_icon()` only, no `theme/icon*.png` (2026-08-21)
+
+Established while building `Premium_Domains` (a brand-new module, not a retrofit):
+per explicit request, a module written from scratch should declare its icon **only**
+via `bootstrap_icon()` on the `Common` class (see the "renamed to theme-agnostic"
+update above) and skip the legacy per-module `theme/icon.png`/`icon-small.png` raster
+files and the matching `Utils_RecordBrowserCommon::set_icon(...)` call entirely - don't
+scaffold them just because `console.php dev:module:create`/older modules do. This is
+narrower than the general resolve() precedent already documented above (real modules
+still keep their existing raster icons where callers deliberately pass `$fallback=null`
+to preserve one, e.g. ActionBar's launcher/launchpad and LeightboxPrompt): those are
+existing, already-shipped icons with call sites relying on them, not something to
+newly add. A brand-new module has no such install base to preserve, so there's no
+reason to ship a PNG nobody reads once `bootstrap_icon()` covers the (currently only
+real) consumer, `Base_BootstrapIcons::resolve()`. Both `Base_ThemeCommon::
+install_default_theme()`/`uninstall_default_theme()` are literal no-ops today (see
+`ThemeCommon_0.php`) regardless of whether a `theme/` directory exists, so calling them
+with no `theme/` dir at all is harmless and still fine to keep for convention/future-proofing.
+
+This is a forward-looking convention for new modules, not a retrofit instruction -
+don't go remove existing modules' `theme/icon*.png` files/`set_icon()` calls under this
+note alone.
+
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.
