@@ -24,6 +24,12 @@ document.addEventListener('keydown', function(e) {
 			e.preventDefault();
 			next.focus();
 		}
+	} else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && tag === 'SELECT') {
+		// A closed <select> natively cycles its own value on Left/Right too,
+		// same as Up/Down - block that so Up/Down (field navigation, above)
+		// is the only thing arrow keys do here; Left/Right stay free to move
+		// the text cursor in the row's actual text inputs/textarea.
+		e.preventDefault();
 	} else if (e.key === 'Enter' && !(tag === 'TEXTAREA' && e.shiftKey)) {
 		e.preventDefault();
 		var save = row.querySelector('input[name=submit_qanr]');
