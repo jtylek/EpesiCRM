@@ -20,7 +20,7 @@
 
 Epesi is a **module framework with a full CRM built on top of it** — a Progressive Web App
 you install on your own server, then extend. Out of the box you get Contacts, Companies,
-Calendar, E-mail, Tasks, Phonecalls, Sales Opportunities and a dashboard you can rearrange
+Calendar, E-mail, Tasks, Phonecalls and a dashboard you can rearrange
 per user. Because it's a framework underneath, that CRM is also a starting point: add the
 modules your business actually needs and Epesi grows into a full ERP — inventory,
 invoicing, project tracking, whatever your domain requires — without you starting from an
@@ -96,7 +96,7 @@ for the implementation history.
 - **No boilerplate CRUD.** Declare a table's fields once and get a full data grid with
   search, filtering, sorting, CSV export, printing, and ACL for free.
 - **Batteries included.** CRM out of the box (Contacts, Companies, Calendar, Tasks,
-  Sales Opportunities, Phonecalls), plus webmail, Watchdog notifications, Shoutbox chat,
+  Phonecalls), plus webmail, Watchdog notifications, Shoutbox chat,
   and a Telegram integration — all real modules you can read as reference implementations.
 - **PWA, zero client install.** Runs in any modern browser, installable to a home screen,
   no desktop client to distribute or update.
@@ -136,15 +136,13 @@ module.
 
 ## Getting started
 
-**Hosted (no server needed):**
-- [Epesi Cloud](https://epesi.cloud/store/epesi-cloud-free-trial) — free 30-day trial,
-  fully managed.
-- [Softaculous](https://www.softaculous.com/apps/erp/EPESI) auto-install via cPanel
-  ([video walkthrough](https://www.youtube.com/watch?v=FR4mQsHUNCY)).
+**If you just want to run Epesi:**
+- Easiest — the [Softaculous installer](https://epesi.org/get-started/softaculous),
+  available via most hosts' cPanel.
+- Or download a release directly from
+  [SourceForge](https://sourceforge.net/projects/epesi/).
 
-**Self-hosted (DIY):**
-
-Requires a LAMP-style stack — PHP 8.2 and MySQL or PostgreSQL:
+**If you want to develop your own modules:**
 
 ```bash
 git clone https://github.com/jtylek/epesi.git
@@ -152,9 +150,10 @@ cd epesi
 composer install
 ```
 
-Point your web server's document root at the checkout and open it in a browser to run
-the setup wizard. See [`CLAUDE.md`](CLAUDE.md) for the full architecture, local commands
-(lint, static analysis, console tooling), and environment notes.
+Requires a LAMP-style stack — PHP 8.2 and MySQL or PostgreSQL. Point your web server's
+document root at the checkout and open it in a browser to run the setup wizard. See
+[`CLAUDE.md`](CLAUDE.md) for the full architecture, local commands (lint, static
+analysis, console tooling), and environment notes.
 
 ## Documentation map
 
@@ -164,7 +163,7 @@ the setup wizard. See [`CLAUDE.md`](CLAUDE.md) for the full architecture, local 
 | [`AI-shared/`](AI-shared/) | Living notes: feature status, tutorials, bug patterns, environment gotchas |
 | [`AI-shared/Dev-Tutorial.md`](AI-shared/Dev-Tutorial.md) | How to write a module from scratch, paired with `modules/Custom/Tutorial/` |
 | [`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) | The founding principle: business logic in PHP, view generated for you |
-| [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md) | PHP 7.4 → 8.2 migration log — root causes and decisions |
+| [`AI-shared/MIGRATION_NOTES.md`](AI-shared/MIGRATION_NOTES.md) | PHP 7.4 → 8.2 migration log — root causes and decisions |
 
 ## Support
 

@@ -8,9 +8,11 @@ same for every developer and every computer working on this repo.
 
 ## How this differs from other docs in this repo
 
-- **`CLAUDE.md`** (repo root) is curated, stable guidance: architecture, conventions,
-  commands. Read it first, always — it doesn't change often.
-- **`MIGRATION_NOTES.md`** (repo root) is the authoritative log of the PHP 7.4 → 8.2
+- **`CLAUDE.md`** (repo root — the only `.md` file kept there, since Claude Code
+  auto-loads it from the project root) is curated, stable guidance: architecture,
+  conventions, commands. Read it first, always — it doesn't change often.
+- **`MIGRATION_NOTES.md`** (in this folder, but treat it as the stable exception to
+  "living/lower-ceremony" below) is the authoritative log of the PHP 7.4 → 8.2
   migration specifically: root causes, decisions, the upgrade-gap discipline.
 - **`AI-shared/`** (this folder) is the living, lower-ceremony layer in between:
   ongoing feature status, deliberate removals that look like bugs, subtle bug patterns
@@ -22,6 +24,24 @@ same for every developer and every computer working on this repo.
 
 ## Files
 
+- [MIGRATION_NOTES.md](MIGRATION_NOTES.md) — the authoritative PHP 7.4 → 8.2 migration
+  log: root causes, decisions, the upgrade-gap discipline. See "How this differs" above
+  for why it's treated as more stable than the rest of this folder.
+- [CROSS_PLATFORM_RESULTS.md](CROSS_PLATFORM_RESULTS.md) — pass/fail matrix of the
+  PHP 8.2 migration across hosting environments (Windows/XAMPP, cPanel, DirectAdmin,
+  macOS); any ❌ gets logged back into `MIGRATION_NOTES.md`.
+- [PROPOSAL_functional_tests.md](PROPOSAL_functional_tests.md) — undecided proposal for
+  a small, high-ROI functional/Codeception test suite; the `codeception.yml`/`tests/`
+  skeleton it would have started from was since removed (see `MIGRATION_NOTES.md`).
+- [PROPOSAL_instance_singleton_fix.md](PROPOSAL_instance_singleton_fix.md) — undecided
+  proposal fixing `ModuleCommon::Instance()` for PHP 8 on branch
+  `experiment/instance-singleton-fix`; cross-references `MIGRATION_NOTES.md` §36/§20/§33.
+- [PROPOSAL_mail_attachments_filestorage.md](PROPOSAL_mail_attachments_filestorage.md) —
+  undecided proposal to move archived e-mail attachments into the central
+  `Utils_FileStorage` instead of a per-module `CRM_Mail` folder.
+- [PROPOSAL_mcrypt_compat.md](PROPOSAL_mcrypt_compat.md) — undecided proposal restoring
+  encrypted-notes support on PHP 8 via `phpseclib/mcrypt_compat`; cross-references
+  `MIGRATION_NOTES.md` §22.
 - [design-philosophy.md](design-philosophy.md) — the founding principle behind
   Epesi's architecture (from the framework's creator): free the developer to write
   pure business logic in PHP, with the framework generating view/CSS/JS
@@ -77,7 +97,9 @@ same for every developer and every computer working on this repo.
   rediscovering each session.
 - [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
-  use as a template, not a standard.
+  use as a template, not a standard. Has a "Quick start" block up top: once you've
+  confirmed the four paths for your own machine, launch straight from there instead of
+  re-deriving the setup each session.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.

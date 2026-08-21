@@ -1145,7 +1145,7 @@ the data directly unless the data's correct shape is actually known.
 ## An already-fixed JS bug "coming back" in one browser window but not incognito: stale client state, not a regression
 
 Reported 2026-08-14: the `alert('Invalid date - clearing')` popup from
-[MIGRATION_NOTES.md §64](../MIGRATION_NOTES.md) (fixed 2026-07-24 - an
+[MIGRATION_NOTES.md §64](MIGRATION_NOTES.md) (fixed 2026-07-24 - an
 untouched, optional date field failed the datepicker's validation regex on
 blur) appeared to resurface in a normal browser window. Before assuming the
 fix had regressed: `datepicker.js`'s source still had the fixed regex, and

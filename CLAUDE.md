@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 EPESI BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
 Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2, currently released as CalVer `20260701-rc1`. The full
 migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
-also reach existing installs — lives in `MIGRATION_NOTES.md`. Read the relevant section there before
+also reach existing installs — lives in `AI-shared/MIGRATION_NOTES.md`. Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
 
 `AI-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
@@ -63,7 +63,7 @@ CLI console (module management, cache/theme rebuild, backups, patch/module scaff
 ```
 
 **Tests:** `codeception.yml` and `tests/` are an empty skeleton (no real `*Cest.php`/`*Cept.php` suite yet;
-`modules/Tests/*` are demo/example modules, not automated tests) — see `PROPOSAL_functional_tests.md` for
+`modules/Tests/*` are demo/example modules, not automated tests) — see `AI-shared/PROPOSAL_functional_tests.md` for
 the (undecided) plan. Don't assume a test command will validate a change; verify by running the app instead.
 `php update.php` from the CLI is a real mutating operation against the live DB, not a dry check — be careful
 running it outside a disposable environment.
@@ -114,7 +114,7 @@ filter/CRUD behavior from scratch.
 ### Rendering
 
 Smarty **2** (vendored/patched-in-place under `modules/Base/Theme/smarty/`, deliberately not upgraded — see
-`MIGRATION_NOTES.md` §17) is the template engine; `include/EpesiSmartyRenderer.php` wraps it for the
+`AI-shared/MIGRATION_NOTES.md` §17) is the template engine; `include/EpesiSmartyRenderer.php` wraps it for the
 non-legacy (admin/setup/update) views. Smarty 2 template modifier callbacks must be plain functions —
 closures don't work.
 
