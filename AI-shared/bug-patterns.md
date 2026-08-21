@@ -1516,3 +1516,63 @@ per `CLAUDE.md`'s Architecture section), the sync logic needs plain
 effect nested inside the same block (listener registration, etc.) should
 be split into its own separately-keyed `eval_js_once()` call so it doesn't
 get needlessly re-run just because the sync logic now correctly does.
+
+## An addon `*_related` admin grid only shows rows added through itself — not addon wiring done directly by other modules' `Install.php`
+
+Found 2026-08-21 investigating why the "Administration: Attachments" screen
+(`Utils_Attachment::admin()`, `AttachmentCommon_0.php`'s `admin_caption()` —
+the "Features Configuration" section's Attachments panel) rendered as an
+empty grid with just a "Recordset" column header, despite the Notes addon
+clearly being active on `company`/`contact`/`task`/`phonecall`/`crm_meeting`
+records in the running app.
+
+**Root cause**: there are two independent, non-syncing places an addon's
+wiring can live. `Utils_RecordBrowserCommon::new_addon($tab, $module, $func,
+$label)` (`RecordBrowserCommon_0.php:1175`) is the **real, live registry** —
+it writes straight into the `recordbrowser_addon` table (`tab`, `module`,
+`func`, `label`, `pos`, `enabled`) and is what actually makes an addon render
+on a recordset. `Utils_AttachmentCommon::new_addon()`/`delete_addon()` are
+thin wrappers around it, called directly from ~50+ places across the
+codebase — `CRM_Tasks`/`CRM_PhoneCall`/`CRM_Contacts` (company+contact)/
+`CRM_Meeting`/`Tests_Bugtrack`'s own `Install.php` files, plus a long list of
+Premium/Custom recordsets seeded in `modules/Base/patches/notes_addons.php`.
+None of these ever touch a **second**, separate table: `utils_attachment_
+related_data_1`, a plain `Utils_RecordBrowser` recordset (added by the
+`20260808_features_configuration.php` patch) whose sole purpose is to let an
+admin add/remove the addon at runtime via a CRUD grid — `Utils_Attachment
+Common::processing_related()` is its `add`/`edit`/`delete` callback, and
+itself just calls the same `new_addon()`/`delete_addon()` wrappers above.
+The grid displays **only** rows that exist in this second table — i.e. only
+recordsets an admin explicitly added through the grid itself — so every
+recordset wired up the other way (directly, at install time) is fully active
+but invisible to this screen. Same two-mechanism split exists for `CRM_
+Tasks`' `task_related`/`CRM_Meeting`'s `crm_meeting_related` and likely any
+other module built on this "Features Configuration addon" pattern — check
+before assuming any one of these grids reflects live addon state.
+
+**How to apply**: don't trust a `*_related`-table-backed "Features
+Configuration" admin grid to show which recordsets currently have an addon —
+query `recordbrowser_addon WHERE module=... AND func=...` directly for
+ground truth. If a grid like this needs to actually list everything, it
+needs to be seeded/reconciled from `recordbrowser_addon`, not just from its
+own table's rows.
+
+**Fixed for Attachments 2026-08-21**: `modules/Utils/Attachment/patches/
+20260821_seed_related_from_addon.php` backfills a `utils_attachment_related`
+row for every recordset `recordbrowser_addon` already has wired to
+`Utils_Attachment`'s `body` addon but with no matching row yet, via a plain
+`Utils_RecordBrowserCommon::new_record()` call per missing recordset (same
+precedent already used by `CRM_Roundcube`'s 2015 `rc_related` patch). That
+insert re-enters `processing_related()` → `new_addon()`, which harmlessly
+re-wires the already-existing `recordbrowser_addon` row (only its `pos`
+shifts) rather than duplicating it — confirmed via a rolled-back dry run
+before applying for real. Applied to the dev DB directly (bypassing
+`update.php`'s full app-wide patch sweep) via `PatchUtil::list_for_module()`
++ a single `Patch::apply()` call, since `PatchUtil::start_timing()` is
+private and has to be invoked (via `ReflectionMethod`) before calling
+`apply()` standalone, or every patch immediately throws
+`NotEnoughExecutionTimeException` (`self::$start_time`/`$deadline_time` are
+still null) and reports `STATUS_TIMEOUT` instead of running. `CRM_Tasks`'
+`task_related`/`CRM_Meeting`'s `crm_meeting_related` still have the
+underlying gap unaddressed - same fix shape would apply there if either is
+ever reported empty despite active wiring.
