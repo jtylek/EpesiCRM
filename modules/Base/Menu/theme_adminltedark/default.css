@@ -162,6 +162,17 @@
 	display: none;
 }
 
+/* Keyboard highlight for the search box's Up/Down navigation
+   (Menu_0.php::menu_search_js()). Focus itself stays on the search input the
+   whole time (so typing keeps working), so this is a synthetic indicator, not
+   a real :focus state - an inset ring on top of the existing hover/expanded
+   background keeps it visible whichever of those also applies. */
+.epesi-adminlte #MenuBar .nav-link.epesi-menu-search-active {
+	background-color: #e9ecef;
+	color: #0d6efd;
+	box-shadow: inset 0 0 0 0.125rem #0d6efd;
+}
+
 .epesi-adminlte #MenuBar .epesi-menu-no-results {
 	margin: 0 0.9rem 0.6rem;
 	font-size: 0.8rem;

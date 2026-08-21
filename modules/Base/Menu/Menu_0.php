@@ -115,6 +115,18 @@ class Base_Menu extends Module {
 			. "var clearBtn=document.querySelector('#MenuBar .epesi-menu-search-clear');"
 			. "var noResults=document.querySelector('#MenuBar .epesi-menu-no-results');"
 			. "var openedByFilter=new Set();"
+			. "var activeLink=null;"
+			// Keyboard nav operates over whatever is currently visible (folders
+			// and leaves alike, in DOM order - already correct top-to-bottom
+			// visual order since a li's own <a> precedes its nested .collapse
+			// in the markup) so arrowing can reach a leaf inside an
+			// auto-expanded folder without a mouse.
+			. "function visibleLinks(){return Array.prototype.slice.call(menuBar.querySelectorAll('li.nav-item:not(.epesi-menu-hidden) > a.nav-link'));}"
+			. "function setActiveLink(link){"
+				. "if(activeLink)activeLink.classList.remove('epesi-menu-search-active');"
+				. "activeLink=link;"
+				. "if(activeLink){activeLink.classList.add('epesi-menu-search-active');activeLink.scrollIntoView({block:'nearest'});}"
+			. "}"
 			// Direct classList/aria manipulation, not bootstrap.Collapse's
 			// .show()/.hide(): those are asynchronous (CSS-transition-driven)
 			// and silently no-op while a transition on the same element is
@@ -155,6 +167,10 @@ class Base_Menu extends Module {
 				. "if(clearBtn)clearBtn.classList.add('d-none');"
 			. "}"
 			. "function filterMenu(raw){"
+				// Whatever was highlighted no longer necessarily reflects the
+				// new visible set - each keystroke re-derives it, so drop the
+				// stale highlight rather than leaving it on a now-hidden item.
+				. "setActiveLink(null);"
 				. "var query=raw.trim().toLowerCase();"
 				. "if(clearBtn)clearBtn.classList.toggle('d-none',query==='');"
 				. "if(query===''){resetMenu();return;}"
@@ -171,7 +187,21 @@ class Base_Menu extends Module {
 				. "debounceTimer=setTimeout(function(){filterMenu(v);},120);"
 			. "});"
 			. "input.addEventListener('keydown',function(e){"
-				. "if(e.key==='Escape'){input.value='';filterMenu('');input.blur();}"
+				. "if(e.key==='Escape'){input.value='';filterMenu('');input.blur();return;}"
+				. "if(e.key==='ArrowDown'||e.key==='ArrowUp'){"
+					. "var links=visibleLinks();"
+					. "if(!links.length)return;"
+					. "e.preventDefault();"
+					. "var idx=activeLink?links.indexOf(activeLink):-1;"
+					. "idx=e.key==='ArrowDown'?Math.min(idx+1,links.length-1):Math.max(idx-1,0);"
+					. "setActiveLink(links[idx]);"
+					. "return;"
+				. "}"
+				// Same href a click would follow - leaf items navigate
+				// (Base_MenuCommon::create_href_js()/plain __url__), folder
+				// headers toggle their own .collapse via Bootstrap's own
+				// data-bs-toggle handling, same as a mouse click on either.
+				. "if(e.key==='Enter'&&activeLink){e.preventDefault();activeLink.click();}"
 			. "});"
 			. "if(clearBtn){"
 				. "clearBtn.addEventListener('click',function(e){"

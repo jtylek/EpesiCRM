@@ -123,6 +123,33 @@ needed to reveal a match.
 - Clear button appears only while the input is non-empty; Escape does the same as
   clicking it.
 
+## Follow-up: keyboard navigation (2026-08-21)
+
+Added Up/Down/Enter handling to the same `keydown` listener that already had
+Escape (`menu_search_js()`, `modules/Base/Menu/Menu_0.php`):
+
+- `visibleLinks()` collects every currently-visible item's own `a.nav-link`
+  (`li.nav-item:not(.epesi-menu-hidden) > a.nav-link`, scoped to `#MenuBar`),
+  folders and leaves alike — document order already matches visual
+  top-to-bottom order since a li's own anchor precedes its nested
+  `.collapse` in the markup, so no extra sorting is needed.
+- `setActiveLink()` toggles a synthetic highlight class
+  (`.epesi-menu-search-active`, styled in `default.css` with an inset ring
+  since real DOM focus deliberately stays on the text input the whole time —
+  moving it to the links would break further typing).
+- ArrowDown/ArrowUp move the highlight by one within `visibleLinks()`,
+  clamped (not wrapped) at either end; Enter calls `.click()` on the
+  highlighted link, so a leaf navigates exactly like a mouse click would
+  (`javascript:` href or `__url__`) and a folder header toggles its
+  `.collapse` the same way a click on it does.
+- `filterMenu()` clears the highlight on every keystroke (`setActiveLink(null)`
+  at the top) rather than trying to carry it across a changed visible set —
+  simpler than remapping an index, and matches how typing further already
+  narrows/reshuffles what's on screen.
+- Works with an empty query too (arrows over the full unfiltered tree) since
+  `visibleLinks()` has no query dependency — not requested but free and
+  consistent, so left in rather than special-cased away.
+
 ## Verification
 
 No automated test suite exists for this app (CLAUDE.md) — verify by running it:
@@ -145,3 +172,9 @@ No automated test suite exists for this app (CLAUDE.md) — verify by running it
 8. Trigger a shell re-render mid-session (theme toggle, or navigating somewhere that
    re-renders Box) and confirm the search box still works afterward — proves the
    idempotency-marker rebind is working rather than double-binding or going stale.
+9. Type a query with multiple matches ("camp") → ArrowDown highlights the first visible
+   item, repeated ArrowDown moves through folders and leaves in visual order and stops
+   (doesn't wrap) at the last one; ArrowUp moves back up and stops at the first; Enter
+   on a highlighted leaf navigates like a click would; Enter on a highlighted folder
+   header toggles it like a click would. Typing another character clears the highlight
+   rather than leaving it stranded on a now-hidden item.
