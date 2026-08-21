@@ -30,3 +30,18 @@ document.addEventListener('keydown', function(e) {
 		if (save) save.click();
 	}
 });
+
+// A <select>'s native popup swallows ArrowUp/Down before the keydown above
+// ever sees them, so a mouse click into one would silently break arrow-key
+// field navigation. First click here only focuses (matching what Tab
+// already does, where arrows work fine); a second click on an
+// already-focused select opens its popup normally for picking with the
+// mouse.
+document.addEventListener('mousedown', function(e) {
+	var row = document.getElementById('add_in_table_row');
+	if (!row || !row.contains(e.target) || e.target.tagName !== 'SELECT') return;
+	if (document.activeElement !== e.target) {
+		e.preventDefault();
+		e.target.focus();
+	}
+}, true);
