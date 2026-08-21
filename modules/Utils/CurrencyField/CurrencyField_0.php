@@ -58,6 +58,7 @@ class Utils_CurrencyField extends Module {
 		Base_ActionBarCommon::add('add', __('New'), $this->create_callback_href($this->edit_currency(...), array(null)));
 		if (CURRENCY_RATE_AUTO_FETCH) {
 			Base_ActionBarCommon::add('retry', __('Update currencies exchange rates'), $this->create_confirm_callback_href(__('This will fetch missing daily exchange rates from an external source and may take a moment. Continue?'), array('Utils_CurrencyFieldCommon','fetch_daily_rates')));
+			Base_ActionBarCommon::add('view', __('Show exchange rates'), $this->create_callback_href($this->show_rates(...)));
 			Base_ActionBarCommon::add('settings', __('Exchange rate settings'), $this->create_callback_href($this->rate_settings(...)));
 		}
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
@@ -80,6 +81,59 @@ class Utils_CurrencyField extends Module {
 		$form->display_as_column();
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		Base_ActionBarCommon::add('save', __('Save'), $form->get_submit_form_href());
+		return true;
+	}
+
+	public function show_rates() {
+		if ($this->is_back()) return false;
+
+		$currencies = Utils_CurrencyFieldCommon::get_all_currencies();
+
+		$from = $this->get_module_variable('filter_from','');
+		$to = $this->get_module_variable('filter_to','');
+		$form = $this->init_module('Libs_QuickForm',null,'filter');
+		$form->setDefaults(array('from'=>$from,'to'=>$to));
+		$el_from = $form->addElement('select','from',__('From currency'),array(),array('onChange'=>$form->get_submit_form_js()));
+		$el_from->addOption(__('All'),'');
+		foreach ($currencies as $cid=>$code) $el_from->addOption($code,$cid);
+		$el_to = $form->addElement('select','to',__('To currency'),array(),array('onChange'=>$form->get_submit_form_js()));
+		$el_to->addOption(__('All'),'');
+		foreach ($currencies as $cid=>$code) $el_to->addOption($code,$cid);
+		$form->display_as_row();
+		$from = $form->exportValue('from');
+		$to = $form->exportValue('to');
+		$this->set_module_variable('filter_from',$from);
+		$this->set_module_variable('filter_to',$to);
+
+		$gb = $this->init_module('Utils_GenericBrowser',null,'exchange_rates');
+		$gb->set_table_columns(array(
+			array('name'=>__('From'),'order'=>'cf.code','width'=>15),
+			array('name'=>__('To'),'order'=>'ct.code','width'=>15),
+			array('name'=>__('Date'),'order'=>'r.rate_date','width'=>15),
+			array('name'=>__('Rate'),'order'=>'r.rate','width'=>15),
+			array('name'=>__('Source'),'order'=>'r.source','width'=>15),
+			array('name'=>__('Fetched'),'order'=>'r.fetched','width'=>25)
+		));
+		$gb->set_default_order(array(__('Date')=>'DESC'));
+
+		$where = array();
+		if ($from) $where[] = 'r.currency_id='.(int)$from;
+		if ($to) $where[] = 'r.target_currency_id='.(int)$to;
+		$where_sql = $where ? ' WHERE '.implode(' AND ',$where) : '';
+
+		$query = 'SELECT cf.code AS from_code, ct.code AS to_code, r.rate_date, r.rate, r.source, r.fetched'.
+					' FROM utils_currency_rate r'.
+					' JOIN utils_currency cf ON cf.id=r.currency_id'.
+					' JOIN utils_currency ct ON ct.id=r.target_currency_id'.$where_sql;
+		$query_qty = 'SELECT COUNT(*) FROM utils_currency_rate r'.$where_sql;
+
+		$ret = $gb->query_order_limit($query, $query_qty);
+		if ($ret) while ($row = $ret->FetchRow()) {
+			$gb->add_row($row['from_code'], $row['to_code'], $row['rate_date'], rtrim(rtrim(number_format((float)$row['rate'], 6, '.', ''), '0'), '.'), $row['source'], $row['fetched'] ? date('Y-m-d H:i', $row['fetched']) : '');
+		}
+
+		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+		$this->display_module($gb);
 		return true;
 	}
 
