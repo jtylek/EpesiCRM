@@ -643,12 +643,10 @@
    built from two real siblings inside the <a> (RecordBrowser_0.php emits a
    translated <span class="epesi-qanr-save-label"> right next to the
    <input>): this file only handles layout, never the label text itself, so
-   this stays correct under every language. bi-check2-square (\f271) matches
-   the "Save"/Export toolbar button's own icon above
-   (.epesi-gb-label a.record_browser_button) for the same action elsewhere in
-   this table's own chrome. Also gets its own accent color (Bootstrap's
-   success green) so it reads as the row's one affirmative action instead of
-   blending in with the neutral-grey view/edit/delete icons on ordinary rows. */
+   this stays correct under every language. bi-save (\f525) reads as a
+   save/floppy-disk glyph distinct from the neutral-grey view/edit/delete
+   icons on ordinary rows; also gets its own accent color (Bootstrap's
+   success green) so it stands out as the row's one affirmative action. */
 .epesi-gb .Utils_GenericBrowser a:has(input[type="submit"]) {
 	position: relative;
 	display: inline-flex;
@@ -665,8 +663,21 @@
 	background-color: #157347;
 }
 
+/* The focusable element is the invisible (opacity:0) input covering this
+   pill, so a plain browser focus ring would land on something the user
+   can't see. Put the ring on the visible pill itself instead, whenever
+   that hidden input has focus - e.g. after Tabbing onto Save, so it's
+   clear the button is the thing Enter/Space/click would activate next.
+   A colored glow (Bootstrap's own focus-ring approach) rather than a
+   solid outline color, since a single outline color can't have good
+   contrast against both this table's light and dark row backgrounds -
+   the glow reads fine against either. */
+.epesi-gb .Utils_GenericBrowser a:has(input[type="submit"]:focus) {
+	box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, .5);
+}
+
 .epesi-gb .Utils_GenericBrowser a:has(input[type="submit"])::before {
-	content: "\f271";
+	content: "\f525";
 	font-family: "bootstrap-icons";
 	font-size: 0.9rem;
 	line-height: 1;
@@ -708,6 +719,10 @@
 
 .epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"]):hover {
 	background-color: #0b5ed7;
+}
+
+.epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"]:focus) {
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, .5);
 }
 
 .epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"])::before {
@@ -755,6 +770,38 @@
 #add_in_table_row .Utils_GenericBrowser__td textarea {
 	min-height: 2.2rem;
 	resize: vertical;
+}
+
+/* Required-field error for this row's fields (RecordBrowser_0.php's
+   render_add_in_table_row concatenates the QuickForm-emitted
+   <span class="form_error"> before the field's own HTML in each cell -
+   include/TCMSArray.php - previously unstyled here, so it showed as plain
+   text sitting above the field instead of on it). Same treatment as
+   Utils_RecordBrowser__View_entry's edit/add form (View_entry.css): the
+   overlay covers the whole cell instead of the message floating beside the
+   field, and pointer-events:none leaves the actual input/select/textarea
+   underneath fully clickable/typeable. TCMSDefault.js clears the span's
+   content on the field's own input/change event, which is what :not(:empty)
+   below keys off, so the overlay disappears the moment the row is fixed. */
+#add_in_table_row .Utils_GenericBrowser__td {
+	position: relative;
+}
+
+#add_in_table_row .form_error:not(:empty) {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	padding: 0 0.5rem;
+	background: #dc3545;
+	color: #fff;
+	font-weight: bold;
+	font-size: 0.8rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	pointer-events: none;
+	z-index: 1;
 }
 
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {

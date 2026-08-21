@@ -982,7 +982,21 @@ class Utils_RecordBrowser extends Module {
         foreach($visible_cols as $k => $v) {
             if (isset($data[$k])) {
                 $row_data[] = array('value'=>$data[$k]['error'].$data[$k]['html'], 'overflow_box'=>false);
-                if ($first) eval_js('focus_on_field = "'.$k.'";');
+                if ($first) {
+                    // Sets the var the New-button's onclick reads for the
+                    // toggle-open case, and also focuses directly here for
+                    // when the row is already visible on render (after a
+                    // submit, or a failed-validation reshow) - that path
+                    // never runs the onclick handler, so without this the
+                    // row would reappear with nothing focused. Deferred via
+                    // setTimeout since this eval_js is queued before the
+                    // box's own DOM patch further down in show_data() - a
+                    // synchronous call here would run before the field it
+                    // targets is even in the DOM. Harmless no-op via
+                    // focus_by_id's own existence check if the row is
+                    // currently hidden.
+                    eval_js('focus_on_field = "'.$k.'";setTimeout(function(){focus_by_id(focus_on_field);},300);');
+                }
                 $first = false;
             } else $row_data[] = '&nbsp;';
         }
@@ -1191,7 +1205,6 @@ class Utils_RecordBrowser extends Module {
             }
             $this->dirty_read_changes($id, $time_from);
         }
-		$form->add_error_closing_buttons();
 
         if (($mode=='edit' || $mode=='add') && $show_actions!==false) {
             Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
@@ -2818,7 +2831,7 @@ class Utils_RecordBrowser extends Module {
             $this->show_add_in_table = true;
             $this->set_module_variable('force_add_in_table_after_submit', false);
         }
-        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){if (jq("#add_in_table_row").is(":visible")) jq("input[name=submit_qanr]").click();}');
+        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){if (jq("#add_in_table_row").is(":visible")) {if(document.activeElement)document.activeElement.blur();jq("input[name=submit_qanr]").click();}}');
 		return $href;
     }
 	

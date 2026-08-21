@@ -27,7 +27,17 @@ document.addEventListener('keydown', function(e) {
 	} else if (e.key === 'Enter' && !(tag === 'TEXTAREA' && e.shiftKey)) {
 		e.preventDefault();
 		var save = row.querySelector('input[name=submit_qanr]');
-		if (save) save.click();
+		if (save) {
+			// Epesi.request() (include/epesi.js) snapshots document.activeElement's
+			// id before sending the request and re-focuses it once the response
+			// lands, to avoid losing focus across every AJAX-driven update - but
+			// that fights the row's own post-submit refocus onto Event, since
+			// whichever field had focus here (e.g. Note) would win the race and
+			// steal it back. Blurring first means nothing has an id for it to
+			// restore.
+			e.target.blur();
+			save.click();
+		}
 	}
 });
 
