@@ -1,0 +1,42 @@
+/* AdminLTE dark reskin for Utils_Calendar's event hover-tooltip content -
+ * markup/ids match the default theme's event_tip.tpl 1:1, only colors
+ * changed here (the tooltip's own popup chrome comes from Utils_Tooltip,
+ * this is just the content injected into it). */
+
+#Utils_Calendar__event_tip {
+	width: 200px;
+}
+
+#Utils_Calendar__event_tip .epesi-rv-row {
+	display: flex;
+}
+
+#Utils_Calendar__event_tip .label {
+	flex: 0 0 auto;
+	margin-right: 4px;
+	font-weight: bold;
+	color: var(--epesi-text);
+}
+
+#Utils_Calendar__event_tip .data {
+	flex: 1 1 auto;
+	color: var(--epesi-text-secondary);
+}
+
+#Utils_Calendar__event_tip .info,
+#Utils_Calendar__event_tip .title {
+	background-color: var(--epesi-surface);
+	text-align: center;
+	color: var(--epesi-text);
+}
+
+#Utils_Calendar__event_tip .title {
+	font-weight: bold;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+[data-bs-theme="light"] #Utils_Calendar__event_tip .info,
+[data-bs-theme="light"] #Utils_Calendar__event_tip .title {
+	background-color: #fff;
+}

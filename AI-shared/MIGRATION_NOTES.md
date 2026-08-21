@@ -2135,6 +2135,30 @@ no browser-automation tool was available in this session to do that end-to-end c
 
 ---
 
+### §70 — Premium/GeneralContractor: dead `install_default_theme()` calls removed (2026-08-21)
+
+`Base_ThemeCommon::install_default_theme()`/`uninstall_default_theme()` were made no-ops back on
+2026-07-31 when theme storage under `data/` was removed — themes are served straight from
+`modules/` now with zero build step (see `AI-shared/deliberate-removals.md`'s "Theme/lang storage
+under `data/`" entry). The no-ops were kept only so pre-existing call sites in core wouldn't fatal;
+they were never meant to still be called from new/edited code.
+
+`modules/Premium/GeneralContractor` — a separate, gitignored Premium repo, so not touched by that
+core-only removal sweep — had 9 `*Install.php` files (`GeneralContractorInstall`, `ChangeOrders`,
+`Planner`, `Tickets`, `ProgBilling`, `Activities`, `LiftEquipment`, `ShopEquipment`, `Visit`) still
+opening `install()` with a call to `Base_ThemeCommon::install_default_theme($this->get_type())`.
+Harmless (the call is a no-op) but pointless dead weight; removed all 9, no replacement needed.
+
+**How to apply:** if another Premium/Custom module (any gitignored tree not swept by the core
+migration) is found calling `install_default_theme()`/`uninstall_default_theme()`, remove the call
+outright rather than looking for a replacement API — same treatment as the `Libs/ScriptAculoUs`
+and `Base_LangCommon::install_translations()` dead-API removals hit in this same module (see
+`modules/Premium/GeneralContractor/docs/required-premium-modules.md`). `console/Develop/
+CreateModuleCommand.php`'s `install()` scaffold is already clean (just `return true;`), so newly
+scaffolded modules won't reintroduce this.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

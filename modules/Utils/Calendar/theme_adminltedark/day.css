@@ -1,0 +1,139 @@
+/* AdminLTE dark reskin for Utils_Calendar's single-day grid - markup/ids
+ * match the default theme's day.tpl 1:1, only classes/colors changed here.
+ * Same resource-row behavior as week.css when settings['timeline'] is false
+ * (see that file's own comment).
+ */
+
+#calendar_event_handlers_trigger {
+	height: 26px;
+	padding-top: 4px;
+}
+
+#Utils_Calendar__day {
+	width: 100%;
+	border-right: 1px solid var(--epesi-border);
+	border-bottom: 1px solid var(--epesi-border);
+	background-color: var(--epesi-surface);
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+#Utils_Calendar__day .hour,
+#Utils_Calendar__day .hours_header,
+#Utils_Calendar__day .midday_hour,
+#Utils_Calendar__day [class^="inter"] {
+	min-height: 29px;
+	padding: 0px;
+	margin: 0px;
+}
+
+#Utils_Calendar__day .hours_header {
+	border: 0px;
+	text-align: center;
+	color: var(--epesi-text-secondary);
+	background-color: var(--epesi-surface);
+}
+
+#Utils_Calendar__day .hours_header img {
+	filter: invert(1) brightness(1.7);
+}
+
+#Utils_Calendar__day .header_day,
+#Utils_Calendar__day .header_day_weekend {
+	width: 100%;
+	border-left: 1px solid var(--epesi-border);
+	height: 50px;
+	text-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+	font-weight: bold;
+	font-size: 15px;
+	color: var(--epesi-text);
+	vertical-align: middle;
+	background: var(--epesi-surface);
+}
+
+#Utils_Calendar__day .header_day_weekend {
+	background: var(--epesi-bg);
+}
+
+#Utils_Calendar__day .header_month {
+	color: #fff;
+	text-align: center;
+	vertical-align: middle;
+	height: 30px;
+	padding-left: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	background: var(--epesi-link);
+}
+
+#Utils_Calendar__day .header_month a {
+	color: #fff;
+	padding: 5px;
+}
+
+#Utils_Calendar__day .header_month a:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+#Utils_Calendar__day .today {
+	vertical-align: top;
+	color: var(--epesi-text);
+	border: 1px solid var(--epesi-border);
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background: var(--epesi-hover-bg);
+}
+
+#Utils_Calendar__day .hour,
+#Utils_Calendar__day .midday_hour {
+	vertical-align: middle;
+	color: var(--epesi-text-secondary);
+	border-top: 1px solid var(--epesi-border);
+	text-align: center;
+	background-color: var(--epesi-bg);
+	padding: 2px 5px;
+}
+
+#Utils_Calendar__day .hour a {
+	color: var(--epesi-link);
+}
+
+#Utils_Calendar__day .day-row:hover .hour {
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
+}
+
+#Utils_Calendar__day .inter,
+#Utils_Calendar__day .midday_inter {
+	vertical-align: top;
+	color: var(--epesi-text);
+	border: 1px solid var(--epesi-border);
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	padding: 0px;
+	background-color: var(--epesi-surface);
+}
+
+#Utils_Calendar__day .inter_weekend {
+	vertical-align: top;
+	color: var(--epesi-text);
+	border: 1px solid var(--epesi-border);
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	background-color: var(--epesi-bg);
+	padding: 0px;
+}
+
+#Utils_Calendar__day .inter:hover,
+#Utils_Calendar__day .inter_weekend:hover,
+#Utils_Calendar__day .midday_inter:hover {
+	background-color: var(--epesi-hover-bg);
+}

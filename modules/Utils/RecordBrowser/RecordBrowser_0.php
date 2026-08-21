@@ -67,6 +67,7 @@ class Utils_RecordBrowser extends Module {
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
     private $data_gb = null;
+    private $save_button_trailing = false;
     public $view_fields_permission;
     public $form = null;
     public $tab;
@@ -196,6 +197,18 @@ class Utils_RecordBrowser extends Module {
 
     public function set_table_column_order($arg) {
         $this->col_order = $arg;
+    }
+
+    /**
+     * When enable_quick_new_records() is on, render the inline row's Save
+     * button as its own trailing table column instead of in the shared
+     * actions column (where it would sit wherever the (app-wide, per-user)
+     * 'Position of Actions column' setting puts the view/edit/delete/info
+     * icons - left by default). Opt-in per instance so other tables keep
+     * that default behavior.
+     */
+    public function set_save_button_trailing($bool = true) {
+        $this->save_button_trailing = $bool;
     }
 	
 	public function set_search_calculated_callback($callback) {
@@ -416,7 +429,7 @@ class Utils_RecordBrowser extends Module {
             if ($clone_result!='canceled') return;
         }
         if ($this->check_for_jump()) return;
-        Utils_RecordBrowserCommon::$cols_order = $this->col_order;
+        Utils_RecordBrowserCommon::$cols_order[$this->tab] = $this->col_order;
         if ($this->get_access('browse')===false) {
             print(__('You are not authorised to browse this data.'));
             return;
@@ -536,6 +549,9 @@ class Utils_RecordBrowser extends Module {
 			print('Invalid view, no fields to display');
 			return;
 		}
+
+		if (!$special && !$pdf && $this->add_in_table && $this->save_button_trailing)
+			$table_columns[] = array('name'=>'&nbsp;', 'width'=>'130px', 'wrapmode'=>'nowrap');
 
 		$gb->set_table_columns( $table_columns );
 		
@@ -846,6 +862,7 @@ class Utils_RecordBrowser extends Module {
 				}
                 $row_data[] = $value;
             }
+            if (!$special && !$pdf && $this->add_in_table && $this->save_button_trailing) $row_data[] = '&nbsp;';
 
             $gb_row->add_data_array($row_data);
             if (!$pdf && $this->disabled['actions']!==true) {
@@ -929,7 +946,11 @@ class Utils_RecordBrowser extends Module {
 
             $gb_row = $gb->get_new_row();
             $save_label = $data['submit_qanr']['html'].'<span class="epesi-qanr-save-label">'.__('Save').'</span>';
-            $gb_row->add_action('',$save_label,__('Save'), null, 0, false, 7);
+            if ($this->save_button_trailing) {
+                $row_data[] = array('value'=>'<a '.Utils_TooltipCommon::open_tag_attrs(__('Save'), false).' class="Utils_RecordBrowser__save_trailing">'.$save_label.'</a>', 'overflow_box'=>false);
+            } else {
+                $gb_row->add_action('',$save_label,__('Save'), null, 0, false, 7);
+            }
             $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
             $gb_row->add_data_array($row_data);
         }

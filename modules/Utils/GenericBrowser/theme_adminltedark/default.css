@@ -691,6 +691,33 @@
 	cursor: pointer;
 }
 
+/* Utils_RecordBrowser__save_trailing: opt-in variant (RecordBrowser_0.php's
+   set_save_button_trailing()) where the Save pill above is placed as the
+   add_in_table row's own trailing column instead of in the shared actions
+   column - used where a table's row actions need to stay on their usual
+   (app-wide) side while Save specifically sits at the end. Same pill, just
+   Bootstrap's primary blue and a true pill radius instead of the accent
+   green above, since it's no longer sharing space with the neutral action
+   icons that green was chosen to stand out against. */
+.epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"]) {
+	border-radius: 50rem;
+	background-color: #0d6efd;
+	padding: 0.5rem 1.25rem;
+	gap: 0.5rem;
+}
+
+.epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"]):hover {
+	background-color: #0b5ed7;
+}
+
+.epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing:has(input[type="submit"])::before {
+	font-size: 1.1rem;
+}
+
+.epesi-gb .Utils_GenericBrowser a.Utils_RecordBrowser__save_trailing .epesi-qanr-save-label {
+	font-size: 1rem;
+}
+
 /* The row's own input/textarea/select fields (QuickForm elements dropped
    straight into GenericBrowser cells - no .tpl of their own, see the block
    above) previously rendered fully native/unstyled - browser-default inset
@@ -1619,6 +1646,22 @@
 [data-bs-theme="light"] .epesi-gb-search input[type="text"],
 [data-bs-theme="light"] .epesi-gb-search select {
   border: 1px solid #ced4da;
+}
+
+/* #add_in_table_row's fields (see the dark-mode rule above, ~line 707) were
+   never given a light counterpart - they kept the hardcoded dark
+   background-color/color, rendering as a solid dark box floating in the
+   otherwise-light table once a user switches to light mode. */
+[data-bs-theme="light"] #add_in_table_row {
+  background-color: rgba(13, 202, 240, 0.08);
+}
+
+[data-bs-theme="light"] #add_in_table_row .Utils_GenericBrowser__td input[type="text"],
+[data-bs-theme="light"] #add_in_table_row .Utils_GenericBrowser__td textarea,
+[data-bs-theme="light"] #add_in_table_row .Utils_GenericBrowser__td select {
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  color: #212529;
 }
 
 [data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser {

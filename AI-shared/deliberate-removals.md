@@ -4,6 +4,12 @@ Features that are *missing on purpose*, at explicit user request — not oversig
 regressions, or gaps to silently fill back in. If a request implies re-adding one of
 these, surface the tension and confirm first rather than just doing it.
 
+Some of these (Quick Jump, Theme installation) are recurring reintroduction bugs
+specifically in `modules/Premium/`/`modules/Custom/` — separate, gitignored, never-swept
+repos (see `CLAUDE.md`). The `/fix-old-epesi-module` skill
+(`.claude/skills/fix-old-epesi-module/SKILL.md`) scans a given old module for exactly
+this shape of issue, plus general PHP 8.x compatibility, and fixes them.
+
 ## A-Z "quick jump" letter selection (removed 2026-07-27)
 
 The letter-selection popover in `GenericBrowser`/`RecordBrowser` list screens
@@ -107,6 +113,17 @@ modules/ at all. See `Base_LangCommon::append_custom()`/`build_merge()` and
 patch `20260812_move_custom_translations_to_data.php`, which migrates any
 already-written `modules/*/lang/*_custom.php` files on upgrade. This does
 *not* revive theme storage under `data/` — that stays fully removed.
+
+**Follow-up (2026-08-21):** `install_default_theme()`/`uninstall_default_theme()` are kept as
+no-ops in core (`Base_ThemeCommon`) purely so old call sites don't fatal, not as something new
+code should still call. `modules/Premium/GeneralContractor` (a separate, gitignored repo — not
+swept by the 2026-07-31 core removal) had 9 `*Install.php` files still calling
+`Base_ThemeCommon::install_default_theme($this->get_type())` at the top of `install()`; removed
+all 9, no replacement needed (themes already resolve straight from `modules/` without it). If
+another Premium module's install fatals or just carries this dead call, same fix applies — delete
+the line, don't look for a replacement API. `console/Develop/CreateModuleCommand.php`'s scaffold
+already generates a clean `install()` with no theme-install call, so newly-created modules aren't
+at risk of reintroducing this — checked 2026-08-21, still true.
 
 ## Contacts "Birth Date" field disabled (2026-08-14)
 
