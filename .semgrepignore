@@ -1,0 +1,6 @@
+# Vendored/third-party code, mirrors the php -l exclusions in .github/workflows/php-checks.yml —
+# not our code, different conventions, findings here aren't actionable.
+modules/Libs/RoundCube/RC/program/
+modules/Libs/RoundCube/RC/vendor/
+console/Develop/
+modules/Tests/
