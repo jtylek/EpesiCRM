@@ -1,66 +1,183 @@
-![Epesi Logo](/images/logo.png)
-=
-[![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
+<p align="center">
+  <img src="/images/logo.png" alt="Epesi Logo" width="360">
+</p>
 
-<b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
-Epesi has been designed as a Kickstarter project and provides "no code" and "low code" environment for developers. You can quickly create your own modules: https://epesi.org/devtutorial/helloworld
+<p align="center">
+  <b>An open-source PHP framework and CRM that generates its own UI — so you can build
+  business modules by describing them, not by hand-coding views.</b>
+</p>
 
-<b>About</b>
+<p align="center">
+  <a href="https://github.com/jtylek/epesi/actions/workflows/php-checks.yml"><img src="https://github.com/jtylek/epesi/actions/workflows/php-checks.yml/badge.svg" alt="PHP checks"></a>
+  <a href="https://sourceforge.net/projects/epesi"><img src="https://img.shields.io/sourceforge/dt/epesi.svg" alt="SourceForge downloads"></a>
+  <img src="https://img.shields.io/badge/PHP-8.2-777bb4" alt="PHP 8.2">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+</p>
 
-EPESI ERP is a result of many years of experience working with SMB businesses and addresses inefficiencies of current e-mail “collaboration” workflow and commonplace data management using inadequate spreadsheet applications. It is a completely web based application designed for small and medium-sized enterprises trying to optimize business processes, simplify office work and reduce administrative costs. It does not require any client to be installed - any modern browser on any operating system will work - drastically reducing the deployment cost.
+---
 
-Our software can make your organization more efficient, better organized and more competitive. We can help you simplify and automate internal procedures with management of important business information.
+## What is Epesi?
 
-- To eliminate e-mail in our workplace we internally use <b>EPESI</b> for all tasks, notes, projects and tickets - making our life more organized. 
-- In addition we use great multiplatform and programmable chat: <b>Telegram https://telegram.org/</b> 
+Epesi is a **module framework with a full CRM built on top of it** — a Progressive Web App
+you install on your own server, then extend. Out of the box you get Contacts, Companies,
+Calendar, E-mail, Tasks, Phonecalls, Sales Opportunities and a dashboard you can rearrange
+per user. Because it's a framework underneath, that CRM is also a starting point: add the
+modules your business actually needs and Epesi grows into a full ERP — inventory,
+invoicing, project tracking, whatever your domain requires — without you starting from an
+empty repo.
 
-Telegram is a messaging app with a focus on speed and security, it’s super-fast, simple and free. You can use Telegram on all your devices at the same time — your messages sync seamlessly across any number of your phones, tablets or computers.
+**The core idea:** a module author declares *what a record looks like* — field names,
+types, relationships — in a plain PHP array, and the framework (`Utils_RecordBrowser`)
+generates the add/edit/view/browse/search/filter/ACL screens for it automatically. No
+HTML, no CSS, no JavaScript to write for the common case — the framework produces a
+working, responsive UI from the declaration. See
+[`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) for the reasoning
+behind this, straight from the framework's creator.
 
-- Epesi is already integrated with Telegram messaging platform te receive notifications from the <b>Watchdog</b> module (free and included with the latest release) as well as with Time tracking and reporting module integrated with Premium module Timesheets  http://epe.si/modules/premium/timesheets/
+## Gallery
 
-More information on epesi - description of functionality, demos and more visit: https://epe.si/
+<table>
+  <tr>
+    <td width="50%"><img src="/images/screenshots/dashboard.jpg" alt="Dashboard with configurable widgets"></td>
+    <td width="50%"><img src="/images/screenshots/dashboard-darkmode.jpg" alt="Dark mode theme"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Configurable per-user dashboard</sub></td>
+    <td align="center"><sub>Built-in dark mode</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="/images/screenshots/contacts.jpg" alt="Contacts browser"></td>
+    <td width="50%"><img src="/images/screenshots/companies.jpg" alt="Companies browser"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Contacts — generated list, search &amp; filters</sub></td>
+    <td align="center"><sub>Companies — same generated CRUD, different table</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="/images/screenshots/calendar.jpg" alt="Calendar"></td>
+    <td width="50%"><img src="/images/screenshots/roundcube.jpg" alt="Roundcube webmail integration"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Calendar — day/week/month/agenda views</sub></td>
+    <td align="center"><sub>Built-in webmail (Roundcube) embedded in the UI</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="/images/screenshots/mobile-contacts-portrait.jpg" alt="Contacts browser on a phone, portrait"></td>
+    <td width="50%"><img src="/images/screenshots/mobile-contacts-landscape.jpg" alt="Contacts browser on a phone, landscape"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>PWA on a phone — same generated grid, responsive layout</sub></td>
+    <td align="center"><sub>Landscape</sub></td>
+  </tr>
+</table>
 
-<b>Support</b>
-- User Manual -  https://epesi.org/ 
-- For developers - please open issues here.
+## New: AdminLTE theme, mobile-friendly out of the box
 
-<b>Setup:</b>
-- Automatic - no technical expertise needed - setup hosting at Epesi Cloud (free 30-day trial): https://epesi.cloud/store/epesi-cloud-free-trial
-- Autoinstall via cPanel using Softaculous: https://www.softaculous.com/apps/erp/EPESI
-</br>
- Video tutorial on how to install epesi using Softaculous autoinstaller via cPanel -  https://www.youtube.com/watch?v=FR4mQsHUNCY
+The UI has been rebuilt on top of [AdminLTE](https://adminlte.io/)/Bootstrap
+(`adminltedark`, now the default theme for new installs) — a modern sidebar layout,
+built-in dark mode, and consistent styling across every screen, replacing the
+framework's older default theme.
 
-<b>DIY - Do It Yourself manual methods:</b>
-For experienced users and server administrators:
-It requires properly configured HTTP server with PHP and MySQL or PostgreSQL database server - so called LAMP stack: https://en.wikipedia.org/wiki/LAMP_(software_bundle)
+That rebuild included a **generic mobile/responsive pass across the whole framework**,
+not a per-module patch: the same data-grid component every `Utils_RecordBrowser`/
+`Utils_GenericBrowser` list uses (Contacts, Companies, Login Audit, any module you
+build) reflows into a compact two-line-per-row layout below the tablet breakpoint,
+non-essential columns (row actions, favorites/watchdog toggles) collapse into a kebab
+menu, and the sidebar, search, and filter bars all adapt to portrait/landscape phone
+viewports — see the mobile gallery shots above, taken straight from a phone. Because
+this lives in the shared grid/theme layer, a module author gets the mobile layout for
+free the same way they get the desktop one: by declaring fields, not by writing
+responsive CSS. See [`AI-shared/adminlte-theme.md`](AI-shared/adminlte-theme.md) and
+[`AI-shared/generic-browser-responsive-tables.md`](AI-shared/generic-browser-responsive-tables.md)
+for the implementation history.
 
-- Download from Sourceforge: http://sourceforge.net/projects/epesi
+## Why developers like it
 
-<b>Reviews</b>
-- Users testimonials https://epe.si/about-us
-- Sourceforge: https://sourceforge.net/projects/epesi/reviews/
-- Review from September 19, 2016: "Top 10 Open Source CRM" by http://www.datamation.com/open-source/top-10-open-source-crm.html
+- **No boilerplate CRUD.** Declare a table's fields once and get a full data grid with
+  search, filtering, sorting, CSV export, printing, and ACL for free.
+- **Batteries included.** CRM out of the box (Contacts, Companies, Calendar, Tasks,
+  Sales Opportunities, Phonecalls), plus webmail, Watchdog notifications, Shoutbox chat,
+  and a Telegram integration — all real modules you can read as reference implementations.
+- **PWA, zero client install.** Runs in any modern browser, installable to a home screen,
+  no desktop client to distribute or update.
+- **Ordinary LAMP stack.** PHP 8.2 + MySQL or PostgreSQL. No build step — `modules/` and
+  `theme*/` are served directly, nothing to compile or bundle.
+- **AI-agent ready.** This repo is set up to be productively worked on by an AI coding
+  agent from the first clone — see below.
 
-<b>License:</b>
+## Build modules in plain English with an AI agent
 
-EPESI is released under the MIT License
+This repository ships pre-trained for AI-assisted development. [`AI-shared/`](AI-shared/)
+is a git-tracked knowledge base — architecture rationale, the module-authoring tutorial,
+known bug patterns, deliberate design decisions that look like bugs but aren't — written
+specifically so an AI agent (or a new developer) starting from a fresh clone doesn't have
+to rediscover the framework's conventions from scratch. Combined with
+[`CLAUDE.md`](CLAUDE.md) at the repo root, an agent can go from a plain-English feature
+request to a working module respecting this codebase's actual conventions, not generic
+PHP idioms.
 
-Copyright © 2006-2022 by Janusz Tylek and Karina Tylek
+**Recommended setup:**
+1. Clone this repo.
+2. Open it in [VS Code](https://code.visualstudio.com/).
+3. Install the [Claude Code](https://claude.com/claude-code) extension and point it at
+   the checkout.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/orsell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+From there, describe the module you want in plain English. The agent reads
+`CLAUDE.md` and `AI-shared/` first, so it already knows the module anatomy
+(`Install`/`Common`/`Main` classes), `Utils_RecordBrowser` field types, the patch system
+for upgrading existing installs, and where AdminLTE theming does and doesn't apply.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+**See it for yourself:** [`modules/Custom/Tutorial/`](modules/Custom/Tutorial/) is a
+complete, working module built entirely by Claude, from a plain-English brief, following
+[`AI-shared/Dev-Tutorial.md`](AI-shared/Dev-Tutorial.md). It demonstrates every
+`RecordBrowser` field type, a lookup table, and an addon tab in one real example —
+read it side by side with the tutorial to see the pattern an agent follows for any new
+module.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHERDEALINGS IN THE SOFTWARE.
+## Getting started
 
-<b>Credits:</b>
+**Hosted (no server needed):**
+- [Epesi Cloud](https://epesi.cloud/store/epesi-cloud-free-trial) — free 30-day trial,
+  fully managed.
+- [Softaculous](https://www.softaculous.com/apps/erp/EPESI) auto-install via cPanel
+  ([video walkthrough](https://www.youtube.com/watch?v=FR4mQsHUNCY)).
 
-https://www.linkedin.com/in/jtylek/
-https://www.linkedin.com/in/ktylek/
+**Self-hosted (DIY):**
 
-Epesi  https://epe.si/
+Requires a LAMP-style stack — PHP 8.2 and MySQL or PostgreSQL:
 
-<i>Copyright © 2006-2022 by Janusz Tylek and Karina Tylek</i>
+```bash
+git clone https://github.com/jtylek/epesi.git
+cd epesi
+composer install
+```
 
-Enjoy,  
-<b>EPESI Team</b>
+Point your web server's document root at the checkout and open it in a browser to run
+the setup wizard. See [`CLAUDE.md`](CLAUDE.md) for the full architecture, local commands
+(lint, static analysis, console tooling), and environment notes.
+
+## Documentation map
+
+| File | What it's for |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | Architecture, bootstrap chain, module system, commands — read first |
+| [`AI-shared/`](AI-shared/) | Living notes: feature status, tutorials, bug patterns, environment gotchas |
+| [`AI-shared/Dev-Tutorial.md`](AI-shared/Dev-Tutorial.md) | How to write a module from scratch, paired with `modules/Custom/Tutorial/` |
+| [`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) | The founding principle: business logic in PHP, view generated for you |
+| [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md) | PHP 7.4 → 8.2 migration log — root causes and decisions |
+
+## Support
+
+- User manual: https://epesi.org/
+- Developer tutorial: https://epesi.org/devtutorial
+- Bugs and feature requests: open an issue on this repo
+- More about the project: https://epe.si/
+
+## License
+
+Epesi is released under the [MIT License](https://opensource.org/licenses/MIT).
+
+Copyright © 2006-2026 by Janusz Tylek and Karina Tylek
+
+<sub>[LinkedIn: Janusz](https://www.linkedin.com/in/jtylek/) ·
+[LinkedIn: Karina](https://www.linkedin.com/in/ktylek/)</sub>
