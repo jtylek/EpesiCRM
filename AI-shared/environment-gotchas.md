@@ -243,6 +243,33 @@ but fixing it (editing `httpd-ssl.conf`, restarting Apache) affects every
 site under this XAMPP instance, not just this one, so treat that as a
 deliberate separate decision, not a quick fix.
 
+### Same root cause also breaks individual AJAX actions, with a real access.log footprint this time
+
+Verified 2026-08-21 (`Utils_FileStorage`'s "Get link" button). Once a tab has
+silently upgraded to `https://localhost/...`, full-page navigation and
+same-scheme relative requests can keep working normally — only requests built
+from the hardcoded-`http://` `EPESI_URL` (the `EPESI_URL` gotcha above) start
+failing, because they're now cross-origin by *scheme* alone relative to the
+https page. Any JS that calls such an absolute URL (e.g.
+`modules/Utils/FileStorage/remote.js`'s `$.ajax(url, {method:'post'})` for
+"Get link") trips a CORS preflight — this app has no OPTIONS/CORS handling
+anywhere, so the preflight always 403s, the real POST never fires, and the
+user just sees a generic AJAX failure (`error:` callback, e.g. "Failure
+(error)"). Unlike the whole-page-navigation case above, this variant **does**
+show up in access.log: an `OPTIONS ... 403` on the affected endpoint with an
+empty `Referer` (`"-"` — Chrome's preflight doesn't send one) and no
+POST/GET immediately following it. Comparing `Referer` scheme across
+neighboring requests in the same session (`https://localhost/...` on
+everything else vs. missing on the failing endpoint) confirms the upgrade
+rather than an app/ACL bug.
+
+**How to apply**: symptom is "one specific AJAX action fails while the rest
+of the app works fine," not a whole-page failure — easy to mistake for a code
+bug (undefined-array-key warnings, ACL checks, etc. are all worth ruling out
+first, but if those check out) look for `OPTIONS .* 403` near the failure's
+timestamp in access.log before assuming a server-side cause. Same fix as
+above: clear the `localhost` HSTS entry and reload fresh over `http://`.
+
 ## Browser-driven UI verification on this machine: no `chromium-cli`, Playwright's own Chromium was never downloaded, and the app has no deep-linkable URLs
 
 No project skill exists yet for driving this app in a browser (checked
