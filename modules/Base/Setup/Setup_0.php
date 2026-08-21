@@ -445,7 +445,20 @@ class Base_Setup extends Module {
                 'label' => $b_label,
                 'style' => 'install',
                 'href'  => Base_EpesiStoreCommon::action_href($s, $s['action'], array('Base_Setup', 'response_callback')));
-            if (isset($sorted[$name]) && $downloaded) {
+            // A name that already exists in $sorted came from the local
+            // module-dir scan above (simple_setup()'s $module_dirs loop) -
+            // local presence, installed or merely available on disk, must
+            // always take precedence over whatever the Store server reports
+            // for that same display name (e.g. Premium_Import's "Data
+            // Import" package colliding with a same-named commercial Store
+            // product). $downloaded only means "the Store's license account
+            // says we bought this" - it says nothing about local state, and
+            // used alone here previously let a locally-known module get
+            // unconditionally clobbered by a fresh "Store"/buy entry a few
+            // lines down whenever this installation's license hadn't
+            // purchased it through the Store itself.
+            if (isset($sorted[$name])) {
+              if ($downloaded) {
 				$sorted[$name]['filter'][] = 'purchases';
                 if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
                     $sorted[$name]['buttons'][] = $button;
@@ -458,6 +471,7 @@ class Base_Setup extends Module {
                     $sorted[$name]['style'] = 'disabled';
                     $sorted[$name]['status'] = __('Files modified');
                 }
+              }
                 $sorted[$name]['url'] = $s['description_url'];
 				$sorted[$name]['icon'] = $s['icon_url'];
 				continue;
