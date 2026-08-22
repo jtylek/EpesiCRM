@@ -2135,6 +2135,156 @@ no browser-automation tool was available in this session to do that end-to-end c
 
 ---
 
+### §70 — First real client cutover: `kancelaria.epesi.cloud` converted from an ungit'd production install to `migration` (2026-08-22)
+
+**Context:** `kancelaria.epesi.cloud` is a real (non-dev) Epesi 1.9.1 install — a law firm CRM,
+not a test box — under this same Windows/XAMPP setup, previously deployed by copying files with no
+`.git` anywhere in the tree. Needed to become a working copy of `jtylek/epesi`'s `migration` branch
+while preserving `data/` (795MB: `config.php`, uploads, cache, logs) and the 12 Premium modules
+already installed, without a rename/downtime window (user's explicit choice — see next paragraph).
+
+**Problem:** `git clone` refuses a non-empty target directory, and `git init` + fetch + `git
+checkout migration` aborts on every core file it would touch ("untracked working tree files would
+be overwritten by checkout") — the directory already had a full previous install's files at every
+path the new repo tracks.
+
+**Approach (offered as a 3-way choice; user picked "merge in-place" over a rename-and-swap or
+asking-for-manual-approval on the rename):** clone the core repo into a sibling temp directory,
+check out `migration` there, then `robocopy <temp> <live> /E /XD <temp>/data` — **no `/MIR`, no
+`/PURGE`**. Plain `/E` overwrites any file that exists at the same relative path in the new repo,
+adds anything new, but never deletes a file that only exists in the destination. `data/` was
+excluded from the copy entirely and left 100% untouched (confirmed after: `data/config.php`'s DB
+host/credentials survived unchanged). This is the general trick: robocopy's merge semantics do
+exactly what `git checkout` refuses to — overwrite in place without deleting local-only files.
+Robocopy's own exit codes 1–7 are informational ("files copied", "extras present", etc.), not
+failures — only ≥8 is a real error; don't treat a non-zero `$LASTEXITCODE` from robocopy as failure
+without checking which bit is set.
+
+The `.git` directory from the temp clone was copied over too (robocopy doesn't special-case
+dotdirs) — that's what actually turns the live directory into a real git working tree already on
+`migration`, with no separate `git init`/remote/fetch ever run against the live path itself.
+
+**Result:** `git status` in the live directory is clean against `migration` for everything the new
+repo tracks, plus ~264 leftover untracked entries — all identified as harmless pre-migration cruft,
+not data loss: old CKEditor files (superseded, see `ckeditor-to-quill-migration.md`), old bundled
+libs now replaced by Composer equivalents (`modules/Libs/{QuickForm,OpenFlashChart,ScriptAculoUs,
+PHPExcel}` vs. the new tracked `vendor/`), old testing-stack vendor packages (`codeception`/
+`behat`/`phpunit` families — matches §51/§52's "removed the skeleton"), and old custom `Base/Lang`
+overrides that predate the `data/Base_Lang/custom/` convention. None block the app; safe to clean
+up later, not urgent.
+
+**Premium modules:** same merge-in-place pattern applied per module (`modules/Premium/<Name>` ←
+clone `jtylek/Premium-<Name>` to a temp dir, robocopy merge, drop the temp). All 12 modules this
+instance had installed — Accounts, CaseManagement, ExchangeRate, Expenses, Invoice, KnowledgeBase,
+MultipleAddresses, Payments, PrintTemplates, Projects, Timesheet, Vacation — resolved cleanly to a
+same-named `Premium-*` repo on the first try (the naming convention in CLAUDE.md's "Environment
+quirks" held with zero exceptions across all 12). 10 of 12 came out byte-identical to upstream
+(`git status` clean); `CaseManagement` and `Projects` each had a handful of pre-existing untracked
+leftovers (a `.bak` file, two old `theme/` dirs, one old patch file) — same harmless-leftover story
+as core.
+
+**Verification done:** PHP 8.2.12 (`php -v`); the 5 Windows/XAMPP-required extensions noted
+elsewhere in this doc (`zip`/`gd`/`imap`/`pdo_mysql`/`intl`) were already all enabled on this
+machine; `php -l` clean on all 5 bootstrap entrypoints (`index.php`/`include.php`/`process.php`/
+`ajax.php`/`cron.php`); hitting `index.php` over HTTP 302-redirects through to `update.php`'s
+admin-login gate with a clean AdminLTE-themed render and no PHP errors — exactly the expected
+behavior per this file's "Bump `EPESI_VERSION` so `update.php` auto-runs on first load" upgrade
+design, since this DB was restored from a pre-migration backup and is still on the old schema.
+
+**Not done yet, deliberately:** logging into `update.php` and running the patch sweep against this
+real DB — per this doc's own guidance ("a real mutating operation against the live DB ... be
+careful running it outside a disposable environment") that's a one-way action against production
+data for the user to trigger attended, not something to run automatically right after a code
+merge. Also not done: a logged-in browser walkthrough (no browser-automation tool available this
+session — same gap noted in §69).
+
+**How to apply next time:** this merge-in-place / robocopy technique is the general answer for
+"convert an existing, already-populated Epesi install into a git-tracked `migration`-branch
+checkout without a rename/downtime window" — reusable for the next real client cutover, not just
+this one instance.
+
+---
+
+### §71 — `kancelaria.epesi.cloud` cutover cleanup: removed the ~264 pre-migration leftovers §70 left in place (2026-08-22)
+
+**Context:** §70's robocopy merge deliberately never deletes anything — it only overwrites/adds, so
+every file the old (pre-`migration`) install had that the new tree doesn't track was left behind as
+untracked cruft (`git status` showed ~264 such entries after §70: 10 at repo root, the rest under
+`modules/` and `vendor/`). §70 judged all of it harmless and left cleanup for later. This entry is
+that cleanup, done in two passes at the user's request.
+
+**Pass 1 — 10 root-level files**, removed individually after inspecting each one's actual content
+(not just the filename) to confirm none were load-bearing:
+- `epesi.407_66615.2026-08-13_14-55-44` / `epesi.407_67944.2025-10-17_17-33-44` — serialized-PHP
+  **Softaculous auto-installer** bookkeeping (`softpath`/`softurl`/`softdb`/`softdomain` keys),
+  recording two different original cPanel hosting paths this instance was once installed at. Pure
+  installer metadata, unread by the app itself.
+- `softperms.txt` (23.8k lines) / `softver.txt` (just `1.9.1`) — same Softaculous bookkeeping
+  (file-permission manifest + version marker).
+- `old.htaccess` — a manually-renamed-aside backup of a prior cPanel-generated `.htaccess`
+  (https-redirect + PHP-handler directives); superseded by the new repo's tracked `.htaccess`.
+- `codeception.yml` — the empty test-skeleton config; matches §51/§52 ("removed the skeleton") —
+  the `migration` branch doesn't ship this file at all.
+- `mobile.css` / `mobile.php` — the legacy standalone mobile site. Explicitly listed in
+  `deliberate-removals.md` as removed on purpose — this is the "don't silently reintroduce it"
+  warning cutting the other way: these were leftover remnants of the *already-removed* feature,
+  correctly deleted, not a case of removing something that's still wanted.
+- `index.html_` — an old renamed-aside placeholder (likely a disabled directory-index blocker from
+  the original host). `install.txt` — one line pointing to `/docs`, superseded/duplicated there.
+
+**Pass 2 — everything else, repo-wide**, via `git clean -fd` (not manual `rm`, once the 10 root
+files were already handled individually): safe specifically because `data/*` and `modules/Premium/`
+are `.gitignore`d, so `git clean` (which respects `.gitignore` — it only removes untracked-and-
+**not**-ignored paths) structurally cannot touch either one, no matter how broad the invocation.
+Confirmed no nested git repos existed among the untracked paths (`git clean -n` prints "would skip
+... (git repository)" for those, and none appeared) before running for real. One quirk: the first
+`git clean -fd` pass left exactly 3 directories behind
+(`modules/Libs/PHPExcel/vendor/phpoffice/phpexcel/`, `vendor/codeception/`,
+`vendor/ezyang/htmlpurifier/plugins/`) despite none containing a nested `.git` — re-running
+`git clean -fd` targeted at just those 3 paths removed them on the second attempt with no error.
+Root cause not investigated (didn't recur, low stakes) — **if it recurs, don't assume the leftover
+is special; just re-run `git clean -fd` targeted at the specific stragglers.**
+
+**What this cleaned up, by category** (all superseded-by-`migration`, confirmed via
+`MIGRATION_NOTES.md`/`AI-shared` cross-references before deleting, not just left/right diffed):
+old `admin/` panel files (images + `LangUp.php`/`PhpInfo.php`/`ThemeUp.php`/Patches CSS) replaced by
+the new admin UI; `libs/prototype.js` (Prototype.js — see `legacy-js-migration.md`, fully removed
+2026-08-06) + `libs/UiUIKit/` + `libs/adodb/` (old bundled copy, now `vendor/adodb/adodb-php`); the
+old `modules/CRM/Roundcube/RC/` webmail vendor tree (relocated to `modules/Libs/RoundCube/RC/` — see
+§69) + its old `.htaccess`; `modules/Libs/CKEditor/{ckeditor/,ck.js,...}` (superseded by Quill, see
+`ckeditor-to-quill-migration.md` — the 2 *inert wrapper files* it deliberately kept were already
+part of the tracked tree and untouched by this cleanup); `modules/Libs/{QuickForm,OpenFlashChart,
+ScriptAculoUs,PHPExcel/vendor/...}` (old hand-vendored copies, now Composer packages under the
+tracked `vendor/`); the empty root `tests/` skeleton; and a long tail of `vendor/<pkg>/...` stragglers
+— old dev/test-only packages no longer in the dependency set at all (`behat`, `codeception`,
+`phpunit`, `phpspec`, `moneyphp`, `psy/psysh`, etc. — matches §51/§52/§53's dependency-audit trail),
+plus extra files inside packages that *are* still tracked but pinned to a different version now
+(old `CHANGELOG.md`/`Tests/`/`.travis.yml`/etc. from a prior install of e.g. `nikic/php-parser`,
+`symfony/*`, `guzzlehttp/*`, `ezyang/htmlpurifier` that the currently-tracked version doesn't ship).
+Also swept: assorted per-module leftover theme/JS/mobile files (`Utils/Attachment`, `Utils/Tray`,
+`Utils/GenericBrowser`, `Utils/RecordBrowser` `.orig`/`.jt` backup files, `Base/Lang` flag images no
+longer part of the tracked language set, `Base/Search`, `Applets/MonthView`, `CRM/Mail` templates)
+and one empty leftover `cgi-bin/` from the original cPanel host (git doesn't list empty untracked
+dirs in `git status`, only `git clean`, so it wasn't in §70's ~264 count but was swept here anyway).
+
+**Result:** `git status` on `kancelaria.epesi.cloud` is now fully clean against `migration` — zero
+untracked entries anywhere in the tree, only the two `AI-shared/*.md` edits (§70 + this entry)
+show as modified. `data/` and all 12 `modules/Premium/*` nested repos are exactly as §70 left them.
+
+**How to apply next time:** once a §70-style merge-in-place cutover is done and its leftover list
+has been read through category-by-category (as above) and nothing load-bearing is in it, `git clean
+-fd` is the right blunt instrument for the bulk of the cleanup — safe by construction as long as
+`data/` and any per-installation nested-repo trees (Premium, Custom) are actually `.gitignore`d
+already, which they are on this codebase. Don't reach for manual `rm -rf` across hundreds of paths;
+let `.gitignore` do the safety filtering.
+
+**Signed off by Jasiek (2026-08-22)**, against the original ask (core → clone of `jtylek/epesi` on
+`migration`; every Premium module → clone of its own `jtylek/Premium-<Name>` repo; `data/` untouched;
+all leftovers gone): confirmed all four hold. Deliberately still open, by his own call, not an
+oversight: manually running `update.php`'s patch sweep against this instance's real DB.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
