@@ -2425,6 +2425,76 @@ whenever a patch/migration path is in question and the instance is real and reac
 
 ---
 
+### §74 — Running `update.php`'s patch sweep: CLI over browser, and why `REPORT_ALL_ERRORS` should be off for the run (2026-08-22)
+
+**Context:** after §73's Premium-module sweep, the next step on `kancelaria.epesi.cloud` was
+actually running `update.php`'s patch sweep against the real (pre-migration-backup) DB. Read
+`update.php`'s full source (`EpesiUpdate::run()` and everything it calls) before recommending an
+approach, rather than guessing from the login page alone.
+
+**CLI (`php update.php` from the repo root) over the browser, for this and any future
+`.git`-backed instance:**
+- **No execution-time pressure.** The CLI branch of `update_process()` calls
+  `PatchUtil::disable_time_management()` up front, and CLI PHP has no default execution-time limit
+  anyway. The browser branch is a `?up=start` → `?up=patches` → `?up=end` redirect chain instead,
+  which can hit a web-server timeout mid-sweep and needs manual page reloads to resume.
+- **No login friction.** `check_user()`'s CLI branch calls `Base_AclCommon::set_sa_user()` and just
+  checks `i_am_sa()` — no session, no admin-level-2 login screen (which the browser path requires).
+- **Output streams straight to the terminal in real time** (`cli_msg()` calls at every step),
+  pairing naturally with a second window tailing logs (e.g. `/monitor-error-logs`) instead of
+  reading a rendered HTML progress page.
+- **The network self-update path is a non-issue either way, here.** `net_update_blocked()` returns
+  true whenever `.git` exists in the root — true for any `migration`-branch checkout done via §71's
+  method — so the "download a signed release zip from ess.epe.si and overwrite files" logic in
+  `update.php` never runs in *either* mode on this kind of install. The only thing either mode
+  actually does is call `PatchUtil::apply_new()`, which behaves identically regardless of how it's
+  invoked — so this isn't a safety tradeoff, purely an ergonomics one.
+- Maintenance mode turns on automatically at the start and off at the end in both modes
+  (`turn_on_maintenance_mode()`/`MaintenanceMode::turn_off()` in `perform_update_start()`/
+  `perform_update_end()`) — expected, not a bug, for a live site.
+
+**`REPORT_ALL_ERRORS` should be turned off (`0`) in `data/config.php` before running the sweep, back
+on after, if it's normally left on for dev/debugging (as it was here — see the earlier session note
+about turning it on for this exact upgrade).** The reasoning is specific, not just "less noise is
+safer":
+- `Patch::apply()`'s `try/catch` only catches `PatchException`/`Exception` — **it does not catch
+  `Error`** (PHP's separate throwable class for e.g. "call to undefined method"). So the exact class
+  of bug §73 hunted down and fixed ahead of time would crash a patch regardless of
+  `REPORT_ALL_ERRORS` either way — that setting only ever controls whether `E_WARNING`/`E_NOTICE`
+  *also* count as failures, never whether a genuine fatal does. Since §73 already covers the
+  fatal-class risk, there's little safety upside left to gain from leaving it on for this specific
+  operation.
+- With it on, `error.php` sets `error_reporting()` to `E_ALL & ~E_DEPRECATED`, so
+  `Patch::error_handler()` (registered via `set_error_handler` for the duration of `include
+  $this->file`) converts *any* notice — even something as cosmetically harmless as an old patch
+  touching an optional array key — into a caught `PatchException`, marking that one patch
+  `STATUS_ERROR`. Because `perform_update_patches()` always calls `PatchUtil::apply_new(true)` —
+  `$die_on_error = true`, unconditionally, in both CLI and browser modes — a single such notice
+  anywhere in the queue triggers `trigger_error(..., E_USER_ERROR)` and halts the *entire* sweep at
+  that point, not just that one patch. Across a decade-plus of patch files spanning a dozen-plus
+  modules, hitting at least one such notice is plausible, and it costs a full
+  stop-diagnose-fix-rerun cycle for something that usually isn't a real bug.
+- **The tradeoff, worth knowing rather than assuming away:** with it off, a notice during a patch is
+  silently swallowed — not logged anywhere, not shown — rather than visible-but-non-fatal. Lowering
+  `error_reporting()` doesn't just relax a threshold for display purposes; `Patch::error_handler()`
+  itself checks `error_reporting() & $errno` and no-ops entirely below that level, so there's no
+  fallback visibility. If the sweep still hits a real `STATUS_ERROR` after turning it off, that's a
+  genuine signal worth investigating (not a notice that slipped through) — `E_USER_ERROR` from a
+  true `Exception`/`PatchException` still halts execution regardless of this setting, since the
+  default (non-`REPORT_ALL_ERRORS`) `error_reporting_level` explicitly includes `E_USER_ERROR`.
+- Already-applied patches are skipped automatically on any re-run (`PatchesDB::was_applied()`,
+  keyed by an md5 of the patch's file path — see §73's Timesheet check for how to query this table
+  directly if ever needed) — so a halted run is always safe to just fix-and-rerun, never needs a
+  restart from scratch.
+
+**How to apply next time:** for any `.git`-backed instance, prefer `php update.php` (CLI) over the
+browser for the same reasons above; they're general, not specific to this one install. Before
+running it, check `data/config.php` for `REPORT_ALL_ERRORS` and turn it off for the duration of the
+run if it's on, for the specific reason above (notice-vs-fatal, not just "less noise") — turn it
+back on afterward if it's the instance's normal dev/debug setting.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
