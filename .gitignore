@@ -47,3 +47,7 @@ data/*
 # Scratch planning notes for unrelated side projects (e.g. parts-kits/) that
 # don't belong in the EPESI codebase's history.
 /parts-kits/
+
+# Personal deployment notes for this developer's own hosting account (domain,
+# paths, repo layout) - not meant to be shared across computers/developers.
+AI-shared/DirectAdmin-git-sync.md
