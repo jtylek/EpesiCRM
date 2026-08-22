@@ -16,7 +16,7 @@ jobs:
     container:
       image: semgrep/semgrep
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run Semgrep
         run: semgrep scan --config=p/php --config=p/owasp-top-ten --sarif --output=semgrep.sarif
       - name: Upload SARIF as build artifact (works regardless of GHAS licensing)
@@ -46,7 +46,7 @@ jobs:
           - "modules/Libs/PHPExcel"
           - "modules/Libs/TCPDF"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
