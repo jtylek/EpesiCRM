@@ -135,8 +135,8 @@ foreach($data as $v) {
 		$val = Utils_RecordBrowserCommon::get_val($table,$col['key'],$v,IPHONE,$col['record']);
 		if(IPHONE) {
 			if($val==='') continue;
-			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val{0}) {
-				$letter=$val{0};
+			if($type!='recent' && $col['record']['id'] == $letter_col && $letter!==$val[0]) {
+				$letter=$val[0];
 				print('</ul><h4>'.$letter.'</h4><ul>');
 			}
 			if($i)
