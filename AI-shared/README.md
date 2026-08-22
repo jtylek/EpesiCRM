@@ -33,15 +33,9 @@ same for every developer and every computer working on this repo.
 - [PROPOSAL_functional_tests.md](PROPOSAL_functional_tests.md) — undecided proposal for
   a small, high-ROI functional/Codeception test suite; the `codeception.yml`/`tests/`
   skeleton it would have started from was since removed (see `MIGRATION_NOTES.md`).
-- [PROPOSAL_instance_singleton_fix.md](PROPOSAL_instance_singleton_fix.md) — undecided
-  proposal fixing `ModuleCommon::Instance()` for PHP 8 on branch
-  `experiment/instance-singleton-fix`; cross-references `MIGRATION_NOTES.md` §36/§20/§33.
-- [PROPOSAL_mail_attachments_filestorage.md](PROPOSAL_mail_attachments_filestorage.md) —
-  undecided proposal to move archived e-mail attachments into the central
-  `Utils_FileStorage` instead of a per-module `CRM_Mail` folder.
-- [PROPOSAL_mcrypt_compat.md](PROPOSAL_mcrypt_compat.md) — undecided proposal restoring
-  encrypted-notes support on PHP 8 via `phpseclib/mcrypt_compat`; cross-references
-  `MIGRATION_NOTES.md` §22.
+  (Three sibling proposals — `instance_singleton_fix`, `mail_attachments_filestorage`,
+  `mcrypt_compat` — were removed 2026-08-22 once confirmed implemented in the codebase;
+  see `MIGRATION_NOTES.md` §22/§36/§44 for the designs they described.)
 - [design-philosophy.md](design-philosophy.md) — the founding principle behind
   Epesi's architecture (from the framework's creator): free the developer to write
   pure business logic in PHP, with the framework generating view/CSS/JS
