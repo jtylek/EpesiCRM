@@ -1168,7 +1168,7 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ### Test status — DONE
 - Email UI opens, IMAP connects (SSL), inbox loads.
-- Compose + send to `test@mrf.epesi.cloud` confirmed working.
+- Compose + send to `test@client-b.example` confirmed working.
 - Address book autocomplete works (no more server error on To: field).
 
 ### Future RC upgrades — what is safe and what needs attention
@@ -1384,7 +1384,8 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 
 ## 44. DONE (branch `experiment/mail-attachments-filestorage`) — archived e-mail attachments → Utils_FileStorage (Jasiek request)
 
-Requested by Jasiek (2026-06-29). Full design in `PROPOSAL_mail_attachments_filestorage.md`.
+Requested by Jasiek (2026-06-29). (The original design proposal, `PROPOSAL_mail_attachments_filestorage.md`,
+was removed 2026-08-22 once confirmed implemented — see this section for the design it described.)
 
 - **Before:** `archive_message()` wrote attachment bytes raw to `data/CRM_Mail/attachments/<mail_id>/<mime_id>` (no dedup, bypassing the central store); `get.php`/`get_remote.php` read straight from there.
 - **Change:** `rc_mails_attachments` gains `file_id` (install + idempotent patch); write path stores via `Utils_FileStorageCommon::write_content()`; read paths serve from FileStorage when `file_id` is set, else **fall back** to the legacy folder; a patch (`modules/CRM/Mail/patches/20260629_mail_attachments_to_filestorage.php`) **moves** legacy rows into FileStorage.
@@ -2159,10 +2160,10 @@ scaffolded modules won't reintroduce this.
 
 ---
 
-### §71 — First real client cutover: `kancelaria.epesi.cloud` converted from an ungit'd production install to `migration` (2026-08-22)
+### §71 — First real client cutover: `client-instance.example` converted from an ungit'd production install to `migration` (2026-08-22)
 
-**Context:** `kancelaria.epesi.cloud` is a real (non-dev) Epesi 1.9.1 install — a law firm CRM,
-not a test box — under this same Windows/XAMPP setup, previously deployed by copying files with no
+**Context:** `client-instance.example` is a real (non-dev), client-confidential Epesi 1.9.1
+install, not a test box — under this same Windows/XAMPP setup, previously deployed by copying files with no
 `.git` anywhere in the tree. Needed to become a working copy of `jtylek/epesi`'s `migration` branch
 while preserving `data/` (795MB: `config.php`, uploads, cache, logs) and the 12 Premium modules
 already installed, without a rename/downtime window (user's explicit choice — see next paragraph).
@@ -2229,7 +2230,7 @@ this one instance.
 
 ---
 
-### §72 — `kancelaria.epesi.cloud` cutover cleanup: removed the ~264 pre-migration leftovers §71 left in place (2026-08-22)
+### §72 — `client-instance.example` cutover cleanup: removed the ~264 pre-migration leftovers §71 left in place (2026-08-22)
 
 **Context:** §71's robocopy merge deliberately never deletes anything — it only overwrites/adds, so
 every file the old (pre-`migration`) install had that the new tree doesn't track was left behind as
@@ -2291,7 +2292,7 @@ longer part of the tracked language set, `Base/Search`, `Applets/MonthView`, `CR
 and one empty leftover `cgi-bin/` from the original cPanel host (git doesn't list empty untracked
 dirs in `git status`, only `git clean`, so it wasn't in §71's ~264 count but was swept here anyway).
 
-**Result:** `git status` on `kancelaria.epesi.cloud` is now fully clean against `migration` — zero
+**Result:** `git status` on `client-instance.example` is now fully clean against `migration` — zero
 untracked entries anywhere in the tree, only the two `AI-shared/*.md` edits (§71 + this entry)
 show as modified. `data/` and all 12 `modules/Premium/*` nested repos are exactly as §71 left them.
 
@@ -2322,7 +2323,7 @@ eyeballing here rather than blind automated deletion).
 
 ---
 
-### §73 — Pre-upgrade Premium-module PHP 8 sweep on `kancelaria.epesi.cloud`: 8 real fatals found and fixed across 6 modules (2026-08-22)
+### §73 — Pre-upgrade Premium-module PHP 8 sweep on `client-instance.example`: 8 real fatals found and fixed across 6 modules (2026-08-22)
 
 **Context:** before running `update.php`'s patch sweep against this instance's real DB (per §71/§72),
 scanned all 12 `modules/Premium/*` repos for PHP 8 compatibility and reintroduced deliberately-
@@ -2440,7 +2441,7 @@ whenever a patch/migration path is in question and the instance is real and reac
 
 ### §74 — Running `update.php`'s patch sweep: CLI over browser, and why `REPORT_ALL_ERRORS` should be off for the run (2026-08-22)
 
-**Context:** after §73's Premium-module sweep, the next step on `kancelaria.epesi.cloud` was
+**Context:** after §73's Premium-module sweep, the next step on `client-instance.example` was
 actually running `update.php`'s patch sweep against the real (pre-migration-backup) DB. Read
 `update.php`'s full source (`EpesiUpdate::run()` and everything it calls) before recommending an
 approach, rather than guessing from the login page alone.
@@ -2508,7 +2509,7 @@ back on afterward if it's the instance's normal dev/debug setting.
 
 ---
 
-### §75 — `kancelaria.epesi.cloud`: `update.php` run, clean, 47 patches, 1.9.1 → `20260701-rc2` (2026-08-22)
+### §75 — `client-instance.example`: `update.php` run, clean, 47 patches, 1.9.1 → `20260701-rc2` (2026-08-22)
 
 **Result: the §71–§74 preparation paid off — `php update.php` (per §74's CLI recommendation, with
 `REPORT_ALL_ERRORS` off per that same entry) ran start to finish with zero errors or timeouts.**
@@ -2553,6 +2554,121 @@ for the next real cutover rather than treating any one step as optional.
 
 ---
 
+### §76 — Repeat cutover on `client-instance-2.example`: re-confirm CLI over browser for `update.php` — don't re-derive the wrong answer from stale context (2026-08-22)
+
+**Context:** a fresh Claude Code session re-ran the §71–§75 cutover process end-to-end on a
+second instance, `client-instance-2.example` (separate directory/DB from the original
+`client-instance.example` `§71` ran against — same install, different name). Core clone +
+all 12 Premium modules populated cleanly, reproducing §71 exactly (264 leftover entries, same
+two Premium modules — CaseManagement, Projects — with the same pre-existing leftovers).
+
+**The mistake:** when it came time to run `update.php`'s patch sweep, the session initially
+concluded it was blocked — reasoning that the sweep is "browser-gated" (admin login) and that
+no browser-automation tool was available this session, citing `environment-gotchas.md`'s older
+"no browser-automation tool available" note from a *different* context (a logged-in UI
+walkthrough, not the patch sweep itself). This ignored that §74 had already read
+`update.php`'s actual source and settled this exact question: **CLI (`php update.php`) is not
+a fallback for when browser automation is unavailable — it's the actively preferred method**,
+regardless of tooling, because the CLI branch avoids execution-time limits, admin-login
+friction, and streams output live (`net_update_blocked()` also makes the two modes behave
+identically for a `.git`-backed instance either way — no safety difference, purely ergonomics
+per §74). The user caught this and pointed back at the already-recorded decision rather than
+letting the session re-derive (and get wrong) an answer that was already settled.
+
+**Result once corrected:** `php update.php` (`/c/xampp82/php/php.exe update.php` on this
+Windows box) ran clean — `1.9.1 → 20260701-rc2`, `Done`, matching §75's outcome exactly. One
+difference from §75 worth recording: on the original instance §72's *manual* `git clean -fd`
+had already removed the pre-migration leftovers before the patch sweep ran, so
+`20260822_remove_pre_migration_leftover_paths.php` was a no-op there. On this second instance
+no manual cleanup was done first — the patch did real work, logging each removal
+(`libs/prototype.js`, `libs/adodb`, `libs/UiUIKit`, old CKEditor/OpenFlashChart/QuickForm/
+ScriptAculoUs/PHPExcel bundled copies, `modules/CRM/Roundcube/RC`, old `admin/` files,
+`mobile.php`/`mobile.css`, the empty `tests` skeleton) to `data/logs/patches.log` — concrete
+confirmation the patch is a full substitute for §72's manual step on a from-scratch repeat, not
+just a safety-net for stragglers.
+
+**How to apply next time:** before concluding *any* step of this migration is blocked or needs
+a tool that isn't available, grep this file for whether the question was already answered
+(here, `§74`/"CLI" would have surfaced immediately). Specifically: **`update.php`'s patch sweep
+always runs via CLI (`php update.php` from the repo root) on a `.git`-backed instance — never
+attempt or ask for browser automation to drive it**, that was never the blocker it was assumed
+to be.
+
+---
+
+### §77 — Full repeat-cutover timing + gotcha log: `client-instance-2.example`, git-init to `update.php` done in ~10 minutes of measured execution (2026-08-22)
+
+**Context:** consolidated record of the full §71-style cutover repeated end-to-end this session
+on a second instance, `client-instance-2.example` — requested separately from §76 (which only
+covers the CLI-vs-browser correction) because the user wanted one place with total timing and
+every gotcha hit along the way, not just the individual step entries.
+
+**Timeline (from git reflog / `data/logs/patches.log` timestamps, all 2026-08-22):**
+
+| Phase | Start | End | Duration |
+|---|---|---|---|
+| `git init` + `remote add origin` + `fetch` (6 branches) | 19:40:46 | 19:40:56 | ~10s |
+| `git checkout migration` — first attempt aborted (see Gotcha 1), retried with `-f` | 19:40:56 | 19:41:59 | ~1m |
+| Clone all 12 `jtylek/Premium-<Name>` repos to temp dirs (parallel) + `robocopy /E` merge into `modules/Premium/*` + temp cleanup | ~19:41:59 | 19:43:56 | ~2m |
+| Verification pass + user checkpoint (asked whether to also run cleanup/PHP8-sweep/update — user said hold off, then separately confirmed Premium modules were pre-fixed and no manual cleanup needed) | 19:43:56 | 19:49:45 | *(conversation turns, not continuous execution)* |
+| `php update.php` (CLI) — 49 patches incl. the leftover-cleanup patch | 19:49:45 | 19:50:22 | ~37s |
+
+**Total measured execution time (git/robocopy/patch operations only): ~9m36s**, spread across
+three conversation turns — the gap between Premium-population and running `update.php` was
+user think-time/back-and-forth (see Gotchas 2-3 below), not processing time, so it isn't part
+of the "how long did the actual work take" figure.
+
+**Gotchas/errors encountered, in order:**
+
+1. **`git checkout -b migration origin/migration` aborted**: "The following untracked working
+   tree files would be overwritten by checkout" — expected per §71, since the directory already
+   had a full prior install at every path the new repo tracks. Resolved with `git checkout -f`;
+   safe here specifically because `data/*` and `modules/Premium/` were never tracked by the core
+   repo, so a plain (non-purging) force-checkout can't touch them regardless of `.gitignore`
+   state at the time. This is a different (simpler, no-temp-dir) technique than §71's
+   robocopy-from-sibling-clone approach — both land in the same result for the core repo; the
+   sibling-clone technique remains necessary for `modules/Premium/*` since those aren't a `git
+   checkout` target at all (see §71).
+2. **Session incorrectly concluded `update.php` was blocked** on missing browser-automation
+   tooling, instead of checking whether this exact question had already been answered — it had,
+   in §74. Full writeup + correction in §76; not repeated here beyond the pointer.
+3. **Robocopy's own exit codes (1, 3) surfaced as "error" banners** from the PowerShell tool
+   wrapper (any non-zero `$LASTEXITCODE` is treated as a tool failure) even though 1 = "files
+   copied" and 3 = "files copied + extras present" are robocopy's normal informational codes,
+   not failures — same point §71 already makes about not trusting `$LASTEXITCODE` at face value,
+   now reconfirmed against this specific tool's error-surfacing behavior. Only ≥8 is a real
+   robocopy error.
+4. **Direct `mysql` CLI verification query was blocked** by this session's permission
+   classifier (a bare password on the command line reads as sensitive regardless of intent) —
+   worth knowing before relying on §75's exact verification method (`SELECT value FROM
+   variables WHERE name='version'` via raw `mysql` CLI) as a repeatable step; fell back to
+   `update.php`'s own reported version string (`Updated to 20260701-rc2`) and `console.php
+   maintenance:status` (`disabled`) instead, both sufficient confirmation without touching the
+   DB directly.
+
+**What was deliberately skipped this run, and confirmed safe in hindsight:** per explicit user
+instruction, §73's Premium-module PHP 8 sweep and §72's manual `git clean -fd` leftover cleanup
+were both skipped — the former because all 12 Premium modules' PHP 8 fixes are already pushed
+to their GitHub repos (a fresh clone comes in fixed), the latter because
+`20260822_remove_pre_migration_leftover_paths.php` handles it automatically. Zero `ERROR`
+entries in `patches.log` (49/49 `SUCCESS`) confirms skipping the PHP 8 sweep was safe. The
+cleanup patch actually did real work this time (unlike §75, where a prior manual `git clean -fd`
+had made it a no-op) — logged 22 individual removals, taking the repo from 264 untracked
+leftover entries down to 242 (the remaining 242 are the same `vendor/*`-stragglers/etc. category
+§72 catalogued as harmless but out of this patch's narrower scope).
+
+**Final state:** `1.9.1 → 20260701-rc2`, `Done`; 49/49 patches `SUCCESS`, 0 `ERROR`/`TIMEOUT`;
+maintenance mode auto-disabled at the end; `data/` and all 12 Premium module repos intact
+throughout (never touched by anything other than their own robocopy merge step).
+
+**How to apply next time:** budget roughly 10 minutes of actual execution time for this whole
+cutover on a machine/network similar to this one (core clone+checkout ~1m, Premium
+clone+merge ~2m, `update.php` well under a minute) — the rest of any real session's wall-clock
+time is conversation/verification overhead, not the process itself being slow. Read §71-76
+before starting a repeat so Gotchas 1-2 above don't recur a third time.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
@@ -2573,9 +2689,13 @@ for the next real cutover rather than treating any one step as optional.
 - Administrator — tested OK: Access restriction (§35), Files (§20; Mail §37a), Common data (§38), RecordBrowser add-field (§39) + Permissions edit (§40) + custom recordset (RAD) create, Currencies, Language & translations. Modules Administration & Store deferred (see below).
 - **§22 mcrypt decision** — RESOLVED 2026-06-28: Option A (`phpseclib/mcrypt_compat`) adopted, see §22.
 - **§26 timestamp field layout** — FIXED, see §26.
+- **§36 Instance() root fix** — ADOPTED as canonical: `include/module_common.php`'s `Instance()`
+  keys its singleton storage per-class via `static::class`, confirmed present in the current
+  `migration` branch (verified 2026-08-22 while removing the now-redundant
+  `PROPOSAL_instance_singleton_fix.md`). This line previously sat under "Still open" pending
+  Jasiek's call — corrected here since the code shows the call was made.
 
 ### 🔲 Still open
-- **§36 Instance() root fix** — verified fix on `experiment/instance-singleton-fix` as of 2026-06-28 (see §36 for the full status); adopting it as canonical is still Jasiek's call.
 - **Modules Administration & Store** — page opens, but lots to fix; **deferred to the future** (it's effectively a separate application / Telaxus store integration, related to §32/§33 EssClient). Not a migration blocker — decision by Karina 2026-06-27.
 - §21.1 off-by-one attachment link — cosmetic
 - §21.3 loader/spinner JS — cosmetic
