@@ -21,7 +21,7 @@ jobs:
         run: semgrep scan --config=p/php --config=p/owasp-top-ten --sarif --output=semgrep.sarif
       - name: Upload SARIF as build artifact (works regardless of GHAS licensing)
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: semgrep-sarif
           path: semgrep.sarif
