@@ -35,7 +35,7 @@
  * 
  * @access public
  */
-class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
+class HTML_QuickForm_Renderer_EpesiDefault extends HTML_QuickForm_Renderer
 {
    /**
     * The HTML of the form  
@@ -182,7 +182,7 @@ class HTML_QuickForm_Renderer_TCMSDefault extends HTML_QuickForm_Renderer
         $this->_html = '';
         $this->_hiddenHtml = '';
         $this->_formName = $form->getAttribute('name');
-	load_js('modules/Libs/QuickForm/Renderer/TCMSDefault.js');
+	load_js('modules/Libs/QuickForm/Renderer/EpesiDefault.js');
     } // end func startForm
 
    /**

@@ -1,4 +1,4 @@
-/* TCMSDefault.php's fallback (non-Smarty-array) QuickForm renderer - was a
+/* EpesiDefault.php's fallback (non-Smarty-array) QuickForm renderer - was a
    <table id="quickform"> of <tr>s (one <td class="element"> label cell +
    one <td class="{element_style}"> data cell per row); now a flex column of
    .quickform-row divs, each a flex row of its own two cells. */

@@ -368,7 +368,7 @@ toggler (`adminlte.min.js`'s `Me` class) rather than a custom implementation.
 individual dashboard applets' own inner content (Weather, RssFeed, Shoutbox
 history, Calc, etc. mostly `print()` raw HTML), `Base_Admin/theme/
 access_panel.tpl`, QuickForm's raw-table renderer (`Libs/QuickForm/Renderer/
-TCMSDefault.php`, used by `Utils_Wizard` — its `_headerTemplate`/
+EpesiDefault.php`, used by `Utils_Wizard` — its `_headerTemplate`/
 `_elementTemplate`/`_formTemplate`/`_requiredNoteTemplate` raw strings were
 converted from `<tr>/<td>` to `<div>` as part of the 2026-08-04 legacy-theme
 div conversion, since the class is theme-agnostic and shared by every theme;

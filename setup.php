@@ -24,7 +24,7 @@ require_once('vendor/autoload.php');
 require_once('modules/Libs/QuickForm/requires.php');
 require_once('setuptheme/SetupSmarty.php');
 
-// TCMSArray(Smarty)'s startForm()/renderError() call the global load_js()/
+// EpesiArray(Smarty)'s startForm()/renderError() call the global load_js()/
 // eval_js() helpers (include/misc.php), which normally proxy to the real
 // Epesi asset-queue class (include/epesi.php) - not loaded here, since this
 // script runs before the app is installed/bootstrapped (no DB yet). This
@@ -202,7 +202,7 @@ if(!isset($_GET['license'])) {
 	$form->accept($renderer);
 	$form_data = $renderer->toArray();
 	// toArray()'s 'errors' key only gets a field's entry when that field
-	// actually fails validation (see TCMSArray::_elementToArray()) - Smarty's
+	// actually fails validation (see EpesiArray::_elementToArray()) - Smarty's
 	// dot notation ($form_data.errors.tos1) has no isset guard of its own and
 	// throws a PHP 8 warning on a plain first page load, same class of bug
 	// already fixed in QuickForm_0.php's own 'header' key (see [[report-all-errors-exits-on-warning]]).

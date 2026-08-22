@@ -10,9 +10,9 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 require_once('include/EpesiSmartyRenderer.php');
-require_once('Renderer/TCMSDefault.php');
+require_once('Renderer/EpesiDefault.php');
 
-$GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
+$GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_EpesiDefault();
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');

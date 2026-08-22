@@ -13,22 +13,22 @@ parameters:
 			path: include/EpesiSmartyRenderer.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_elementIdx\.$#'
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiArray\:\:\$_elementIdx\.$#'
 			identifier: property.notFound
 			count: 1
-			path: include/TCMSArray.php
+			path: include/EpesiArray.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_formName\.$#'
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiArray\:\:\$_formName\.$#'
 			identifier: property.notFound
 			count: 2
-			path: include/TCMSArray.php
+			path: include/EpesiArray.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_staticLabels\.$#'
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiArray\:\:\$_staticLabels\.$#'
 			identifier: property.notFound
 			count: 2
-			path: include/TCMSArray.php
+			path: include/EpesiArray.php
 
 		-
 			message: '#^Path in include_once\(\) "map\.php" is not a file or it does not exist\.$#'
@@ -331,16 +331,16 @@ parameters:
 			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSDefault\:\:\$_formName\.$#'
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiDefault\:\:\$_formName\.$#'
 			identifier: property.notFound
 			count: 3
-			path: modules/Libs/QuickForm/Renderer/TCMSDefault.php
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSDefault\:\:\$_groupType\.$#'
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiDefault\:\:\$_groupType\.$#'
 			identifier: property.notFound
 			count: 4
-			path: modules/Libs/QuickForm/Renderer/TCMSDefault.php
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
 
 		-
 			message: '#^Access to constant ERROR_COOKIES_DISABLED on an unknown class rcmail\.$#'

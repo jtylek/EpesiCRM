@@ -101,7 +101,7 @@
  *
  * @access public
  */
-class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
+class HTML_QuickForm_Renderer_EpesiArray extends HTML_QuickForm_Renderer
 {
    /**
     * An array being generated
@@ -148,6 +148,25 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
     var $inline_errors = false;
 
    /**
+    * Name of the form, set in startForm(); used to build element error-span ids
+    * @var string
+    */
+    var $_formName;
+
+   /**
+    * Legacy element counter set in startForm(); unused elsewhere in this class
+    * @var integer
+    */
+    var $_elementIdx;
+
+   /**
+    * The actual flag read by _elementToArray() - distinct from the unused $staticLabels
+    * above (constructor sets this one, not that one; kept as-is, not a behavior change)
+    * @var bool
+    */
+    var $_staticLabels;
+
+   /**
     * Constructor
     *
     * @param  bool    true: collect all hidden elements into string; false: process them as usual form elements
@@ -160,7 +179,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         $this->_collectHidden = $collectHidden;
         $this->_staticLabels  = $staticLabels;
         //print "<div id='asdfre'></div>";
-//        $js = "HTML_QuickForm_Renderer_TCMSArray_error=function(err_id, error){terefere = $(err_id);if(terefere) terefere.innerHTML = error;}";
+//        $js = "HTML_QuickForm_Renderer_EpesiArray_error=function(err_id, error){terefere = $(err_id);if(terefere) terefere.innerHTML = error;}";
 //		eval_js($js);
     } // end constructor
 
@@ -196,7 +215,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
         $this->_currentSection = null;
         $this->_sectionCount   = 0;
         $this->_formName = $form->getAttribute('name');
-	load_js('modules/Libs/QuickForm/Renderer/TCMSDefault.js');
+	load_js('modules/Libs/QuickForm/Renderer/EpesiDefault.js');
     } // end func startForm
 
 
@@ -297,7 +316,7 @@ class HTML_QuickForm_Renderer_TCMSArray extends HTML_QuickForm_Renderer
             $ret['html']      = $element->toHtml();
         }
         //*** The New Error JS
-//        $js = "HTML_QuickForm_Renderer_TCMSArray_error(\"".htmlspecialchars($err_id)."\", \"".$error."\")";
+//        $js = "HTML_QuickForm_Renderer_EpesiArray_error(\"".htmlspecialchars($err_id)."\", \"".$error."\")";
     if (!$this->inline_errors)
       	eval_js('seterror(\''.$err_id.'\',\''.addslashes($error).'\')');
         return $ret;

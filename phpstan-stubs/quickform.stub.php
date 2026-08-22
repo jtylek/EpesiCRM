@@ -1,8 +1,8 @@
 <?php
-// Minimal HTML_QuickForm_Renderer_TCMSArray stub for PHPStan
+// Minimal HTML_QuickForm_Renderer_EpesiArray stub for PHPStan
 // Declares the properties PHPStan complained about so property access is accepted.
 
-class HTML_QuickForm_Renderer_TCMSArray
+class HTML_QuickForm_Renderer_EpesiArray
 {
     /** @var array<string,string>|null */
     public $_staticLabels = null;

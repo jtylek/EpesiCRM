@@ -2669,6 +2669,58 @@ before starting a repeat so Gotchas 1-2 above don't recur a third time.
 
 ---
 
+### §78 — Rename leftover "TCMS" naming to "Epesi" in the QuickForm array/default renderers (2026-08-22)
+
+**Context:** "TCMS" was Epesi's pre-rebrand product name (see the 2007 copyright header naming
+Jasiek in the old `TCMSArraySmarty.php`/`TCMSDefault.php` files) and had survived as the class/file
+naming for the two QuickForm renderer classes this migration already touched in §11-12: the
+Smarty-array-form renderer (relocated `modules/Libs/QuickForm/Renderer/` → `include/` in
+`8cf350707`) and the raw-table fallback renderer used by `Utils_Wizard`/FirstRun. User asked for
+a full sweep and rename to "Epesi" everywhere.
+
+**Scope found:** confined entirely to this one QuickForm-renderer subsystem — 58 "TCMS"
+occurrences across 18 files (full-repo case-insensitive grep, `modules/Premium/` included via
+plain `grep` since Grep silently skips gitignored paths). No DB tables, config keys, or CSS
+selectors were named after TCMS — only 2 PHP class names, 2 file names (+1 JS asset), and
+comments/docs pointing at them.
+
+**Also found:** `modules/Libs/QuickForm/Renderer/TCMSArray.php` + `TCMSArraySmarty.php` existed
+on disk as **untracked** files — the pre-`8cf350707` originals, deleted from git at that
+relocation commit but present again outside version control (origin unclear; nothing in the
+current code path required them — `QuickForm_0.php` only requires `Renderer/TCMSDefault.php`).
+Deleted per user confirmation rather than renamed, since they were dead duplicates of what now
+lives at `include/EpesiArray.php`.
+
+**Renamed:**
+- Class `HTML_QuickForm_Renderer_TCMSArray` → `HTML_QuickForm_Renderer_EpesiArray`
+  (`include/TCMSArray.php` → `include/EpesiArray.php`, `git mv`)
+- Class `HTML_QuickForm_Renderer_TCMSDefault` → `HTML_QuickForm_Renderer_EpesiDefault`
+  (`modules/Libs/QuickForm/Renderer/TCMSDefault.php` → `Renderer/EpesiDefault.php`, `git mv`)
+- `Renderer/TCMSDefault.js` → `Renderer/EpesiDefault.js` (`git mv`; both renderer classes'
+  `load_js()` calls updated to match)
+- Call sites: `include/EpesiSmartyRenderer.php` (require path + `extends`),
+  `modules/Libs/QuickForm/QuickForm_0.php` (require path + `new`)
+- `phpstan-stubs/quickform.stub.php` stub class name; `phpstan-baseline.neon` regenerated via
+  `vendor/bin/phpstan analyse -c phpstan.neon` rather than hand-edited, since both the class-name
+  regex and the `path:` entries needed to change together
+- Comment-only references (no functional change): `setup.php`, 3 theme CSS files
+  (`modules/Libs/QuickForm/theme/default.css`, `modules/Utils/GenericBrowser/theme_adminltedark/
+  default.css`, `modules/FirstRun/theme_adminltedark/default.css`), and the "current-state"
+  `AI-shared/` docs (`standalone-entrypoints.md`, `import-wizard-plan.md`, `bug-patterns.md`,
+  `adminlte-theme.md`, `TODO.md`)
+
+**Deliberately NOT touched:** this doc's own §11/§12 historical entries — they're a dated record
+of what the code was actually named at the time (mid-migration ctor fixes on `TCMSArray.php`/
+`TCMSArraySmarty.php`/`TCMSDefault.php`), and rewriting history to the post-rename names would
+make those entries inaccurate as a record even though the files they describe no longer exist
+under those names.
+
+**How to apply:** pure code/file rename, no stored/seed data involved (not an `*Install.php`
+default, DB row, or `data/` file) — ships to existing installs via normal code deployment, no
+`patches/` entry needed.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
