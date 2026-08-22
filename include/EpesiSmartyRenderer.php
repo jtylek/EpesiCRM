@@ -316,7 +316,7 @@ class EpesiSmartyRenderer extends HTML_QuickForm_Renderer_EpesiArray
     *
     * @param    string      The template source
     * @access   private
-    * @return   string      The rendered template output
+    * @return   void
     */
     function _tplFetch($tplSource)
     {
