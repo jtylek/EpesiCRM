@@ -1168,7 +1168,7 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ### Test status — DONE
 - Email UI opens, IMAP connects (SSL), inbox loads.
-- Compose + send to `test@mrf.epesi.cloud` confirmed working.
+- Compose + send to `test@client-b.example` confirmed working.
 - Address book autocomplete works (no more server error on To: field).
 
 ### Future RC upgrades — what is safe and what needs attention
