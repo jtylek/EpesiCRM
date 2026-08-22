@@ -2307,6 +2307,122 @@ let `.gitignore` do the safety filtering.
 all leftovers gone): confirmed all four hold. Deliberately still open, by his own call, not an
 oversight: manually running `update.php`'s patch sweep against this instance's real DB.
 
+**Non-git installs:** `git clean -fd` only works because this checkout has a `.git` to diff
+against — an install upgraded by copying/extracting a new release directly over an old one (no git
+anywhere) has no such mechanism and just accumulates these same stale paths release after release.
+`modules/Base/patches/20260822_remove_pre_migration_leftover_paths.php` is the generalized,
+non-git-dependent version of the code-tree subset of this cleanup (the `libs/adodb`,
+`modules/CRM/Roundcube/RC`, CKEditor/OpenFlashChart/QuickForm/ScriptAculoUs vendor leftovers, old
+`admin/` panel files, etc.) — a plain list of known-dead paths (each confirmed via git history, not
+guessed), existence-checked and `recursive_rmdir()`'d, so it runs safely via `update.php`'s normal
+patch sweep on any install and no-ops on ones already clean. Deliberately narrower than the full
+§72 sweep: it doesn't touch `vendor/*` stragglers (that's `composer install`'s job, not a patch's)
+or the host-specific Softaculous/backup files from Pass 1 above (non-constant names, needed
+eyeballing here rather than blind automated deletion).
+
+---
+
+### §73 — Pre-upgrade Premium-module PHP 8 sweep on `kancelaria.epesi.cloud`: 8 real fatals found and fixed across 6 modules (2026-08-22)
+
+**Context:** before running `update.php`'s patch sweep against this instance's real DB (per §71/§72),
+scanned all 12 `modules/Premium/*` repos for PHP 8 compatibility and reintroduced deliberately-
+removed dependencies — the exact job `.claude/skills/fix-old-epesi-module/SKILL.md` (merged in via
+the `jasiek` branch, see the two-new-skills discussion this same session) is written for, run
+manually against all 12 modules since a skill added to `.claude/skills/` mid-session isn't picked up
+by the session that just gained it (see `AI-shared/sharing-skills.md`'s "Known limitation").
+
+**Method:** `rector` (both `rector.php` and `rector-php82.php`, dry-run) + `phpstan analyse` per
+module, plus direct `grep`/`git grep --no-index` sweeps for every pattern in
+`deliberate-removals.md` and every removed-function name this codebase has been bitten by before
+(`create_function`, `each(`, `get_magic_quotes_gpc`, `get_magic_quotes_runtime`, `money_format`,
+`convert_cyr_string`, `ezmlm_hash`, `image2wbmp`, `read_exif_data`, `call_user_method`). Sanity-
+checked the scan methodology itself first: confirmed PHPStan resolves the `Module`/`RecordBrowser`
+base-class hierarchy correctly even when the CLI path is narrowed to one module directory (tested
+against `modules/CRM/Contacts`, zero false positives) — so the many real findings below are genuine,
+not scope artifacts. Ambiguous findings were verified against actual code context (call-site
+analysis, checking whether a calling method has `$this` in scope) and in one case against the live
+DB directly (see Timesheet, below) rather than trusted at face value.
+
+**Confirmed fatal, fixed (8 across 6 modules):**
+- **Invoice, KnowledgeBase** — both `*Install.php::install()` called
+  `Base_LangCommon::install_translations()`, removed from core along with `data/`-based theme/lang
+  storage (§ "Theme/lang storage under `data/`" in `deliberate-removals.md` — that entry didn't
+  previously name this specific method; added it there too). First line of `install()` in both →
+  fatal `Error` on every install/upgrade, uncaught (unlike a patch's own try/catch), risking the
+  whole `update.php` request, not just these two modules. Removed both calls.
+- **KnowledgeBase** `Category.php`/`Thread.php` — both called `set_quickjump()` inside `install()`,
+  the same fatal-on-install pattern already documented twice in `deliberate-removals.md` for other
+  Premium modules (SalesOpportunity, ListManager) — this makes KnowledgeBase the third. Removed both
+  calls, and added the missing `return $success;`/`return parent::uninstall();` in
+  `Category::install()`, `Thread::install()`, `Thread::uninstall()` while in there (all three fell
+  through returning `null` instead of a real success/failure value).
+- **Payments** `DataTransformCallback.php`/`ProcessCallback.php` — both declare a `private function
+  callback_as_string()` (non-static) but call it via `self::callback_as_string(...)` from *other*
+  static methods (`register()`/`unregister()`) — identical bug shape to the core `PEAR::isError()`
+  fix (§1 at the top of this file): fatal "Non-static method cannot be called statically" the moment
+  any payment plugin registers a callback. Both method bodies only touch their argument, never
+  `$this`, so declaring them `static` was safe. (Also added a missing `return true;` in
+  `DataTransformCallback::register()` — same return-missing shape as KnowledgeBase above.)
+- **Payments** `Plugins/AuthorizeNet/Plugin.php` / `Plugins/Paypal/PluginInternal.php` — both built
+  the card-expiration month/year `<select>` group via `HTML_QuickForm::createElement()` (static
+  syntax), but `createElement()` (`vendor/openpsa/quickform/lib/HTML/QuickForm.php:456`) is a genuine
+  instance method that uses `$this->_loadElement()` internally — fatal the moment a user configures
+  an AuthorizeNet or Paypal payment method's card-expiration field. Fixed to use the already-in-scope
+  `$form` instance instead of the class name (both call sites already had `$form` as a parameter).
+- **Vacation** `VacationCommon_0.php` / **CaseManagement** `Matter/MatterCommon_0.php` — both had an
+  unguarded `get_magic_quotes_gpc()` call (removed in PHP 8) gating a `stripslashes()` on a
+  user-submitted note — fatal "Call to undefined function" on every vacation/ticket note submission.
+  The CaseManagement instance was *missed by the phpstan scan* (still unexplained — phpstan flagged
+  the identical pattern fine in Vacation) and caught only by the direct grep sweep for this function
+  name, confirming the skill's own step 3 "cheap supplementary check" isn't redundant with
+  rector/phpstan — run both. Magic quotes have unconditionally returned `false` since PHP 5.4, so the
+  guarded `stripslashes()` was already dead logic either way; removed the whole guard in both files
+  rather than adding a no-op `function_exists()` wrapper.
+- **PrintTemplates** `SectionRecordset.php` — still wired up `$form->addElement('ckeditor', ...)`
+  behind a "Use CKEditor" toggle button; nothing registers the `'ckeditor'` QuickForm element type
+  anymore (see `ckeditor-to-quill-migration.md`) — fatal the moment a user clicks the toggle. Removed
+  the toggle and CKEditor branch entirely, keeping only the already-fully-functional plain-textarea
+  path — not even a Quill port, since the removed toggle's own confirm message warned CKEditor could
+  mangle the Smarty tags these print templates rely on, and Quill would carry the identical risk.
+
+**Checked and confirmed defused, no fix needed:**
+- **Timesheet** `patches/premium_timesheets_add_customer2.php` calls a `Premium_TimesheetCommon::
+  get_customer_options()` that doesn't exist anywhere in the class — but rather than guess at
+  severity, queried this instance's real `patches` table directly (`mysql` CLI against
+  `data/config.php`'s credentials): the patch's identifier hash is already marked applied, and the
+  data condition it touches (`premium_timesheet_data_1` rows with empty `f_customer`) has zero
+  matching rows. `PatchUtil::apply_new()` skips already-applied patches unconditionally, so this
+  specific landmine cannot fire on this instance's upcoming `update.php` run. Left the patch file
+  itself untouched (patches are identified by filepath — editing an already-applied one is a silent
+  no-op per the Patches convention in `CLAUDE.md`) but worth knowing this file is broken if it's ever
+  needed on a *different*, not-yet-upgraded Timesheet install.
+
+**Explicitly not real risks** (verified, not just assumed): the large batch of PHPStan
+`property.notFound` findings for dynamic property assignment (`$this->rb = $this->init_module(...)`
+and similar, across Accounts/CaseManagement/ExchangeRate/Expenses/Payments/Vacation) is harmless —
+confirmed by reading `include/error.php:283` directly: `REPORT_ALL_ERRORS`'s error-reporting level is
+explicitly `E_ALL & ~E_DEPRECATED`, and PHP 8.2's dynamic-property notice is exactly `E_DEPRECATED`,
+so it's silently suppressed by this codebase's own design, not merely by luck. Also left alone as
+genuinely low-priority/pre-existing, unrelated to the migration: `Payments/Plugins/AuthorizeNet/
+anet_php_sdk/**` (vendored third-party SDK, out of scope per this folder's own "never patch vendor
+code" convention even though it isn't literally under a `vendor/` path); `Payments/Plugins/Paypal/
+IpnListener.php`'s undefined `$data` (used inside `empty()`, which never warns on undefined
+variables — silently wrong logic, not a crash); `Projects/Tickets/TicketsInstall.php`'s duplicate
+array key and a patch file's trailing whitespace after `?>` (both cosmetic); and Rector's
+`ArrayToFirstClassCallableRector` suggestions across most modules (pure PHP 8.1+ style
+modernization, zero compatibility risk).
+
+**Result:** 12 individual git commits, one per affected Premium module repo (`Invoice`,
+`KnowledgeBase`, `Payments`, `Vacation`, `PrintTemplates`, `CaseManagement`), each `php -l`-clean
+before committing. Re-ran the full rector+phpstan+grep sweep afterward to confirm: zero remaining
+fatal-shaped findings across all 12 modules.
+
+**How to apply next time:** this is the concrete worked example for `/fix-old-epesi-module` run at
+"all Premium modules" scope rather than one at a time — the same rector+phpstan+grep method scales
+fine module-by-module, but cross-checking an ambiguous static-analysis finding against the *actual
+DB* (not just the code) before deciding severity, as done for the Timesheet patch, is worth doing
+whenever a patch/migration path is in question and the instance is real and reachable.
+
 ---
 
 ## MERGE CHECKLIST — experiment/composer-deps → main
