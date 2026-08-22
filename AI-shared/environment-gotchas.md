@@ -465,3 +465,16 @@ files/reason about version info (e.g. `/opt/lampp/RELEASENOTES`,
 `data/config.php`) rather than trying to execute the binary. Worth reporting to
 Anthropic as a sandbox image gap if it keeps recurring, rather than working around it
 per-session.
+
+## `choco install` needs an elevated shell on this Windows/XAMPP machine
+
+Confirmed 2026-08-22: `choco install <pkg> -y` from Claude Code's own (non-admin)
+PowerShell fails with `UnauthorizedAccessException` on `C:\ProgramData\chocolatey\lib\...`
+— that directory tree is admin-owned, and Chocolatey has no per-user install mode that
+avoids it. `choco --version` works fine (reading), only the actual install write fails.
+
+**How to apply**: don't retry or try to work around this from inside a session — ask the
+user to run the `choco install` command themselves from an elevated ("Run as
+Administrator") PowerShell. Any tool chocolatey would install (e.g. `rsync`, for a
+cleaner alternative to the `robocopy /E` merge-copy pattern in `MIGRATION_NOTES.md` §70)
+hits the same wall.
