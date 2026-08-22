@@ -1,7 +1,12 @@
 *.log
 .vscode/
 .env
-.claude/
+# .claude/ itself is tracked (unlike .vscode/) so shared Claude Code skills under
+# .claude/skills/ (the mechanism behind /skill-name triggers) sync across
+# developers/computers via git, same as AI-shared/. Only the personal/per-machine
+# bits inside it are excluded individually below.
+.claude/settings.json
+.claude/*.lock
 .history/
 .playwright-mcp/
 

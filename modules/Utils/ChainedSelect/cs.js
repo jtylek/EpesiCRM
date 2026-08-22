@@ -76,6 +76,9 @@ Utils_ChainedSelect.prototype.request = function() {
                 if(new_opts == false) {
                     obj.setAttribute("oldDisplayValue", obj.style.display);
                 //    obj.style.display = "none";
+                    while(opts.length > 0) obj.remove(0);
+                    jQuery(obj).trigger('e_cs:clear');
+                    obj.disabled = true;
                     return;
                 } else {
                  //   var val = obj.getAttribute("oldDisplayValue");

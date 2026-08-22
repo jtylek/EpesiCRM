@@ -39,12 +39,36 @@ epesi_setup__position_centered = function (panelId, trigger) {
 epesi_setup__position_full = function (panelId, card) {
 	var panel = document.getElementById(panelId);
 	if (!panel || !card) return;
+	/* .container-fluid (an ancestor between the card and <body>) is
+	 * overflow-y:hidden, which clips a position:absolute panel anchored to
+	 * the card the moment it runs past that ancestor's own bottom edge -
+	 * position:fixed used to be the workaround, but a fixed panel sits
+	 * outside the page's scrollable flow, so a long options list (e.g. 9+
+	 * entries) had nowhere to go but an internal scrollbar. Reparenting to
+	 * <body> (which, like <html>, is overflow:visible - confirmed the whole
+	 * document/window is the real scroll container here) escapes the clip
+	 * *and* lets the panel's full height become part of the page's own
+	 * scrollable content, so a long list just makes the window taller
+	 * instead of needing its own nested scrollbar. */
+	if (!panel._epesiHomeParent) {
+		panel._epesiHomeParent = panel.parentNode;
+		panel._epesiHomeNext = panel.nextSibling;
+	}
+	document.body.appendChild(panel);
 	var rect = card.getBoundingClientRect();
-	panel.style.position = 'fixed';
-	panel.style.top = (rect.bottom + 4) + 'px';
-	panel.style.left = rect.left + 'px';
+	panel.style.position = 'absolute';
+	panel.style.top = (rect.bottom + window.scrollY + 4) + 'px';
+	panel.style.left = (rect.left + window.scrollX) + 'px';
 	panel.style.width = rect.width + 'px';
+	panel.style.maxHeight = '';
+	panel.style.overflowY = '';
 	epesi_setup__force_paint(panel);
+};
+
+epesi_setup__restore_home = function (panel) {
+	if (panel && panel._epesiHomeParent) {
+		panel._epesiHomeParent.insertBefore(panel, panel._epesiHomeNext);
+	}
 };
 
 epesi_setup__show_options = function (name) {
@@ -60,7 +84,12 @@ epesi_setup__show_options = function (name) {
 epesi_setup__hide_options = function (name) {
 	document.getElementById('show_options_' + name).style.display = '';
 	document.getElementById('hide_options_' + name).style.display = 'none';
-	document.getElementById('options_' + name).style.display = 'none';
+	var panel = document.getElementById('options_' + name);
+	panel.style.display = 'none';
+	/* Undo position_full()'s reparent to <body> - otherwise a later
+	 * re-render of #Base_Setup (e.g. after switching filters) would leave
+	 * this panel behind as an orphaned duplicate at the end of <body>. */
+	epesi_setup__restore_home(panel);
 	base_setup__last_options = false;
 };
 

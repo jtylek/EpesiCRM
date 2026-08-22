@@ -1,0 +1,209 @@
+/* AdminLTE dark reskin for Utils_Calendar's month grid - markup/ids match
+ * the default theme's month.tpl 1:1, only classes/colors changed here. */
+
+#calendar_event_handlers_trigger {
+	height: 26px;
+	padding-top: 4px;
+}
+
+#Utils_Calendar__month {
+	width: 100%;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+#Utils_Calendar__month .empty {
+	border-top: 1px solid var(--epesi-border);
+	border-left: 1px solid var(--epesi-border);
+	background-color: var(--epesi-bg);
+}
+
+#Utils_Calendar__month .day {
+	text-align: left;
+	height: 50px;
+	padding: 1px 2px 1px 2px;
+	border-bottom: 1px solid var(--epesi-border);
+	border-right: 1px solid var(--epesi-border);
+}
+
+#Utils_Calendar__month a.day_link {
+	font-size: 15px;
+	font-weight: bold;
+	padding-left: 2px;
+	padding-top: 2px;
+	color: var(--epesi-text);
+}
+
+#Utils_Calendar__month .current,
+#Utils_Calendar__month .today {
+	color: var(--epesi-text);
+	background-color: var(--epesi-surface);
+}
+
+#Utils_Calendar__month .today {
+	border: 2px solid var(--epesi-link);
+	background-color: var(--epesi-hover-bg);
+}
+
+#Utils_Calendar__month .other,
+#Utils_Calendar__month .other_weekend {
+	color: var(--epesi-text-muted);
+	background-color: var(--epesi-bg);
+}
+
+#Utils_Calendar__month .other a.day_link,
+#Utils_Calendar__month .other_weekend a.day_link {
+	color: var(--epesi-text-muted);
+}
+
+#Utils_Calendar__month .current_weekend {
+	color: var(--epesi-text);
+	background-color: var(--epesi-bg);
+}
+
+#Utils_Calendar__month .current_weekend a,
+#Utils_Calendar__month .today_weekend a {
+	color: #3bb273;
+}
+
+#Utils_Calendar__month .today_weekend {
+	border: 2px solid var(--epesi-link);
+	background-color: var(--epesi-hover-bg);
+}
+
+#Utils_Calendar__month [class$="div.inner"],
+#Utils_Calendar__month .current div.inner,
+#Utils_Calendar__month .other div.inner,
+#Utils_Calendar__month .today div.inner,
+#Utils_Calendar__month .current_weekend div.inner,
+#Utils_Calendar__month .other_weekend div.inner,
+#Utils_Calendar__month .today_weekend div.inner {
+	width: 100%;
+	min-height: 50px;
+}
+
+#Utils_Calendar__month .today_weekend:hover,
+#Utils_Calendar__month .current_weekend:hover,
+#Utils_Calendar__month .today:hover,
+#Utils_Calendar__month .current:hover {
+	background-color: var(--epesi-hover-bg) !important;
+}
+
+/* header */
+
+#Utils_Calendar__month .day_header,
+#Utils_Calendar__month .weekend_day_header {
+	color: var(--epesi-text-secondary);
+	font-weight: bold;
+	font-size: 13px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	padding-left: 5px;
+	border-left: 1px solid var(--epesi-bg);
+	border-right: 1px solid var(--epesi-border);
+	border-bottom: 2px solid var(--epesi-border);
+	background: var(--epesi-surface);
+}
+
+#Utils_Calendar__month .weekend_day_header {
+	color: #3bb273;
+	background: var(--epesi-bg);
+}
+
+#Utils_Calendar__month .week-number {
+	color: #fff;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--epesi-link);
+	border-bottom: 1px solid var(--epesi-bg);
+}
+
+#Utils_Calendar__month .week-number a {
+	color: #fff;
+	display: block;
+	line-height: 50px;
+	width: 100%;
+}
+
+#Utils_Calendar__month .week-number a:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* event brief */
+
+#Utils_Calendar__month div.events_brief {
+	height: 18px;
+	border: 1px solid var(--epesi-border);
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
+	font-weight: normal;
+	padding: 0px;
+	margin: 1px;
+	border-radius: 0.2rem;
+}
+
+#Utils_Calendar__month div.events_brief span {
+	height: 18px;
+}
+
+#Utils_Calendar__month .events_icon {
+	border: 1px solid var(--epesi-link);
+}
+
+#Utils_Calendar__month .events_drag_handle {
+	cursor: move;
+	background-color: var(--epesi-link);
+	width: 18px;
+	display: block;
+	float: left;
+	padding-left: 1px;
+	padding-top: 1px;
+}
+
+#Utils_Calendar__month .events_brief_info {
+	display: block;
+	float: left;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 1px;
+}
+
+#Utils_Calendar__month .events_more {
+	background-color: var(--epesi-link);
+	color: #fff;
+	display: block;
+	float: right;
+	padding-left: 4px;
+	padding-right: 2px;
+	padding-top: 1px;
+}
+
+/* month-header */
+
+#Utils_Calendar__month .month-header {
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	padding-left: 10px;
+	border-bottom: 1px solid var(--epesi-bg);
+	font-size: 15px;
+	font-weight: bold;
+	background: var(--epesi-link);
+}
+
+#Utils_Calendar__month .month-header a {
+	color: #fff;
+	padding: 6px;
+}
+
+#Utils_Calendar__month .month-header a:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}

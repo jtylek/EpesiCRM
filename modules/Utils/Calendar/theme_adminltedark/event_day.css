@@ -1,0 +1,142 @@
+/* AdminLTE dark reskin for Utils_Calendar's month-grid/all-day event chip -
+ * markup/ids match the default theme's event_day.tpl 1:1, only classes/
+ * colors changed here. Same 8-color palette as event.css - see that file's
+ * header comment for the rationale.
+ */
+
+#Utils_Calendar__event_day {
+	display: block;
+	width: 200px;
+	margin: 1px;
+	height: 100%;
+	background-repeat: repeat-x;
+	overflow: hidden;
+	border-radius: 0.25rem;
+}
+
+#Utils_Calendar__event_day .handle {
+	cursor: move;
+}
+
+#Utils_Calendar__event_day div.row {
+	display: block;
+}
+
+#Utils_Calendar__event_day #event_time {
+	display: block;
+	padding-left: 5px;
+	vertical-align: middle;
+	overflow: hidden;
+	font-size: 12px;
+	white-space: nowrap;
+	text-align: center;
+}
+
+#Utils_Calendar__event_day #event_title {
+	display: block;
+	padding-left: 5px;
+	vertical-align: middle;
+	width: 100%;
+	overflow: hidden;
+	font-size: 12px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+#Utils_Calendar__event_day #event_title a {
+	display: block;
+	line-height: 13px;
+	vertical-align: middle;
+}
+
+#Utils_Calendar__event_day_images img {
+	padding: 3px;
+	filter: invert(1) brightness(1.8);
+}
+
+#Utils_Calendar__event_day_images img:hover {
+	background-color: var(--epesi-hover-bg);
+	border-radius: 0.2rem;
+}
+
+#Utils_Calendar__event_day #event_info {
+	display: block;
+	float: left;
+	padding-top: 1px;
+	padding-right: 1px;
+	cursor: help;
+}
+
+#Utils_Calendar__event_day #event_info img {
+	filter: invert(1) brightness(1.8);
+}
+
+/* COLORS */
+
+.event_blue    #event_time, .event_blue    #event_title,
+.event_black   #event_time, .event_black   #event_title,
+.event_orange  #event_time, .event_orange  #event_title,
+.event_red     #event_time, .event_red     #event_title,
+.event_yellow  #event_time, .event_yellow  #event_title,
+.event_green   #event_time, .event_green   #event_title,
+.event_gray    #event_time, .event_gray    #event_title,
+.event_cyan    #event_time, .event_cyan    #event_title,
+.event_magenta #event_time, .event_magenta #event_title {
+	color: var(--epesi-text);
+}
+
+.event_blue    #event_title a { color: inherit; }
+.event_black   #event_title a { color: inherit; }
+.event_orange  #event_title a { color: inherit; }
+.event_red     #event_title a { color: inherit; }
+.event_yellow  #event_title a { color: inherit; }
+.event_green   #event_title a { color: inherit; }
+.event_gray    #event_title a { color: inherit; }
+.event_cyan    #event_title a { color: inherit; }
+.event_magenta #event_title a { color: inherit; }
+
+.event_blue    { border: 1px solid #3b82f6; background-color: rgba(59, 130, 246, 0.22); }
+.event_black   { border: 1px solid #6c757d; background-color: rgba(108, 117, 125, 0.28); }
+.event_orange  { border: 1px solid #fd7e14; background-color: rgba(253, 126, 20, 0.22); }
+.event_red     { border: 1px solid #dc3545; background-color: rgba(220, 53, 69, 0.22); }
+.event_yellow  { border: 1px solid #ffc107; background-color: rgba(255, 193, 7, 0.22); }
+.event_green   { border: 1px solid #198754; background-color: rgba(25, 135, 84, 0.22); }
+.event_gray    { border: 1px solid #adb5bd; background-color: rgba(173, 181, 189, 0.18); }
+.event_cyan    { border: 1px solid #0dcaf0; background-color: rgba(13, 202, 240, 0.2); }
+.event_magenta { border: 1px solid #d63384; background-color: rgba(214, 51, 132, 0.22); }
+
+.event_blue    #event_grab, .event_blue    #event_info { background-color: #3b82f6; }
+.event_black   #event_grab, .event_black   #event_info { background-color: #6c757d; }
+.event_orange  #event_grab, .event_orange  #event_info { background-color: #fd7e14; }
+.event_red     #event_grab, .event_red     #event_info { background-color: #dc3545; }
+.event_yellow  #event_grab, .event_yellow  #event_info { background-color: #ffc107; }
+.event_green   #event_grab, .event_green   #event_info { background-color: #198754; }
+.event_gray    #event_grab, .event_gray    #event_info { background-color: #adb5bd; }
+.event_cyan    #event_grab, .event_cyan    #event_info { background-color: #0dcaf0; }
+.event_magenta #event_grab, .event_magenta #event_info { background-color: #d63384; }
+
+.event_blue    #event_title a:hover { color: #3b82f6; }
+.event_black   #event_title a:hover { color: #adb5bd; }
+.event_orange  #event_title a:hover { color: #fd7e14; }
+.event_red     #event_title a:hover { color: #dc3545; }
+.event_yellow  #event_title a:hover { color: #ffc107; }
+.event_green   #event_title a:hover { color: #198754; }
+.event_gray    #event_title a:hover { color: #ced4da; }
+.event_cyan    #event_title a:hover { color: #0dcaf0; }
+.event_magenta #event_title a:hover { color: #d63384; }
+
+/* ==== light-mode override (matches the old default theme's palette) ==== */
+[data-bs-theme="light"] .event_blue    { border-color: #336699; background-color: #cfdbe6; color: #000; }
+[data-bs-theme="light"] .event_black   { border-color: #000;    background-color: #bbb;    color: #000; }
+[data-bs-theme="light"] .event_orange  { border-color: #AA8500; background-color: orange;  color: #000; }
+[data-bs-theme="light"] .event_red     { border-color: #993333; background-color: #e6cfcf; color: #000; }
+[data-bs-theme="light"] .event_yellow  { border-color: #999933; background-color: #ffffa5; color: #000; }
+[data-bs-theme="light"] .event_green   { border-color: #339933; background-color: #cfe6cf; color: #000; }
+[data-bs-theme="light"] .event_gray    { border-color: #808080; background-color: #f0f0f0; color: #000; }
+[data-bs-theme="light"] .event_cyan    { border-color: #339999; background-color: #cfe6e6; color: #000; }
+[data-bs-theme="light"] .event_magenta { border-color: #993399; background-color: #e6cfe6; color: #000; }
+[data-bs-theme="light"] #Utils_Calendar__event_day #event_info img,
+[data-bs-theme="light"] #Utils_Calendar__event_day_images img {
+	filter: none;
+}

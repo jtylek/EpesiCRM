@@ -1,0 +1,119 @@
+/* AdminLTE dark reskin for Utils_Calendar's shared navigation bar (prev/next/
+ * today buttons + drag-to-remove "trash" drop zone) - markup/ids match the
+ * default theme's week.tpl/day.tpl 1:1 (this file has no matching .tpl of its
+ * own - the nav bar markup is embedded directly in each view's template, not
+ * a separate common.tpl), only classes/colors changed here. Raster icons
+ * (prev.png/next.png/this.png/trash.png/...) were drawn dark-on-transparent
+ * for the old light theme - filter: invert flips them light enough to read
+ * on this theme's dark surfaces without needing new artwork or a .tpl fork.
+ */
+
+div.navigation-menu img {
+	vertical-align: top;
+	filter: invert(1) brightness(1.7);
+}
+
+div.navigation-menu a.button {
+	font-weight: 600;
+	color: var(--epesi-text-secondary);
+	background-color: var(--epesi-surface);
+	border: 1px solid var(--epesi-border);
+	border-radius: 50rem;
+	width: 100%;
+	height: 30px;
+	padding-top: 4px;
+	display: block;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+div.navigation-menu a.button:hover {
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
+}
+
+div.navigation-menu a.button img {
+	vertical-align: middle;
+	width: 18px;
+	height: 18px;
+	border: none;
+}
+
+div.navigation-menu > div {
+	display: flex;
+	align-items: center;
+	width: 98%;
+	gap: 0.25rem;
+}
+
+div.navigation-menu > div > div {
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+div.navigation-menu .button_cell {
+	width: 115px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+div.navigation-menu .button_cell .button {
+	width: auto;
+}
+
+/* trash (drag-to-remove drop zone) */
+
+.trash_cell {
+	width: 160px;
+}
+
+div.navigation-menu .trash {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 5px auto auto 0px;
+	padding: 4px 8px;
+	height: 32px;
+	width: 145px;
+	box-sizing: border-box;
+	background-color: var(--epesi-surface);
+	border: 1px dashed var(--epesi-border);
+	border-radius: 0.375rem;
+}
+
+div.navigation-menu .trash .icon {
+	display: block;
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
+}
+
+div.navigation-menu .trash .icon img {
+	width: 100%;
+	height: 100%;
+}
+
+div.navigation-menu .trash .text {
+	display: block;
+	color: var(--epesi-text-secondary);
+	font-size: 0.8rem;
+	vertical-align: middle;
+	text-align: left;
+	line-height: 1.1;
+}
+
+div.navigation-menu .trash:hover {
+	background-color: var(--epesi-hover-bg);
+	border-color: #dc3545;
+}
+
+div.navigation-menu .trash:hover .text {
+	color: #dc3545;
+}
+
+/* ==== light-mode override (this theme's own light palette - see
+   Base_Box/theme_adminltedark/default.css's [data-bs-theme="light"] block for
+   the token values) ==== */
+[data-bs-theme="light"] div.navigation-menu img {
+	filter: none;
+}
