@@ -1,0 +1,83 @@
+table#Utils_GenericBrowser_mobile {
+    background-color: #FFFFFF;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-left: 1px solid #B3B3B3;
+}
+
+table#Utils_GenericBrowser_mobile th {
+    background-color: #336699;
+    background-image: url("images/header-blue.gif");
+    font-weight: normal;
+    background-repeat: repeat-x;
+    text-align: center;
+    height: 20px;
+    /*border-top: 1px solid #B3B3B3;*/
+    border-right: 1px solid #FFFFFF;
+/*    border-bottom: 1px solid #FFFFFF;*/
+	color: #FFFFFF;
+    vertical-align: middle;
+}
+
+table#Utils_GenericBrowser_mobile th a {
+    padding-left: 3px;
+    padding-right: 3px;
+	color: #FFFFFF;
+    display: inline;
+    line-height: 20px;
+}
+
+table#Utils_GenericBrowser_mobile th a:hover {
+    background-image: url('images/header-blue-hover.gif');
+    background-repeat: repeat-x;
+}
+
+table#Utils_GenericBrowser_mobile th input {
+    display: block;
+    background-color: #e6ecf2;
+    width: 100%;
+    border-left: 0px;
+    border-right: 1px solid #b3b3b3;
+    border-bottom: 1px solid #b3b3b3;
+    border-top: 1px solid #b3b3b3;
+}
+
+table#Utils_GenericBrowser_mobile th input:focus {
+    background-color: #ffffa5;
+}
+
+table#Utils_GenericBrowser_mobile tbody {
+	overflow: auto;
+}
+
+table#Utils_GenericBrowser_mobile tr {
+	background-color: #FFFFFF;
+}
+
+table#Utils_GenericBrowser_mobile tr:hover {
+	background-color: #F0F0F0;
+}
+
+table#Utils_GenericBrowser_mobile td {
+    text-align: left;
+    border-right: 1px solid #B3B3B3;
+    border-bottom: 1px solid #B3B3B3;
+    height: 18px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+table#Utils_GenericBrowser_mobile td img {
+	vertical-align: middle;
+}
+
+/* Navigation */
+
+table#Utils_GenericBrowser_mobile__navigation {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+table#Utils_GenericBrowser_mobile__navigation img {
+    vertical-align: middle;
+}
