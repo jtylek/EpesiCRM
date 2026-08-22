@@ -2417,6 +2417,19 @@ modernization, zero compatibility risk).
 before committing. Re-ran the full rector+phpstan+grep sweep afterward to confirm: zero remaining
 fatal-shaped findings across all 12 modules.
 
+**Pushed to origin (2026-08-22):** all 10 Premium modules with commits — `Invoice`,
+`KnowledgeBase`, `Payments`, `Vacation`, `PrintTemplates`, `CaseManagement`, `Expenses`,
+`MultipleAddresses`, `Projects`, `Timesheet` — were fetched and confirmed as clean fast-forwards
+against their own `jtylek/Premium-<Name>` `master` before pushing, so the fixes above are live on
+GitHub, not just local to this checkout: `Premium-CaseManagement` `d6a842f→b4eb52f`,
+`Premium-Expenses` `d10d3c7→dbca6dc`, `Premium-Invoice` `7750457→f6746e8`,
+`Premium-KnowledgeBase` `a846ed8→fbf2aa5`, `Premium-MultipleAddresses` `1fc4f5d→671b1ce`,
+`Premium-Payments` `c1a0aad→73e17c7`, `Premium-PrintTemplates` `0d4101f→419e311`,
+`Premium-Projects` `1519683→4e81e6c`, `Premium-Timesheet` `08ce034→4177c37`,
+`Premium-Vacation` `edb2011→a72f062`. `Accounts` and `ExchangeRate` had zero findings, so nothing
+to push there. The core repo's own `migration`/`jasiek`/`karina` branches were separately fast-
+forwarded to the same tip and pushed too (see §74's commit for what's in that history).
+
 **How to apply next time:** this is the concrete worked example for `/fix-old-epesi-module` run at
 "all Premium modules" scope rather than one at a time — the same rector+phpstan+grep method scales
 fine module-by-module, but cross-checking an ambiguous static-analysis finding against the *actual
