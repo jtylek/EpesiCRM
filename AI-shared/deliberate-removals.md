@@ -125,6 +125,17 @@ the line, don't look for a replacement API. `console/Develop/CreateModuleCommand
 already generates a clean `install()` with no theme-install call, so newly-created modules aren't
 at risk of reintroducing this — checked 2026-08-21, still true.
 
+**Follow-up (2026-08-22):** unlike `install_default_theme()` above, `Base_LangCommon::
+install_translations()` was **not** kept as a core no-op — it's gone entirely, so a leftover call
+fatals with "Call to undefined static method" instead of silently doing nothing. Found live in
+`modules/Premium/Invoice/InvoiceInstall.php` and `modules/Premium/KnowledgeBase/
+KnowledgeBaseInstall.php`, both as the first line of `install()` — meaning every install/upgrade of
+either module fataled immediately, before anything else in `install()` ran (see
+`MIGRATION_NOTES.md` §73 for the full pre-`update.php` Premium sweep this was found in). Fixed by
+deleting both calls, same treatment as `install_default_theme()` — translations are shipped via
+each module's own `lang/<code>.php` now, no install-time registration step needed. If another
+Premium module's install fatals on this specific method name, same fix applies.
+
 ## Contacts "Birth Date" field disabled (2026-08-14)
 
 The `type=>'date'` "Birth Date" field on `CRM_Contacts`
