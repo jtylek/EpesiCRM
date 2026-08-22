@@ -5,3 +5,59 @@ jump_to_record_id = function (tab) {
 		document.getElementById("jump_to_record_input").style.display = "";
 	focus_by_id("jump_to_record_input");
 }
+
+// Quick-add-in-table row: ArrowUp/ArrowDown jump between fields (like Tab),
+// Enter submits. Delegated on document since the row is re-rendered after
+// each submit/validation pass. Skips ArrowUp/Down inside a textarea so
+// multi-line notes keep normal cursor movement, and skips Enter-submits
+// when Shift is held in a textarea so Shift+Enter still inserts a newline.
+document.addEventListener('keydown', function(e) {
+	var row = document.getElementById('add_in_table_row');
+	if (!row || !row.contains(e.target)) return;
+	var tag = e.target.tagName;
+	if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && tag !== 'TEXTAREA') {
+		var fields = Array.prototype.slice.call(row.querySelectorAll('input:not([type=hidden]):not([type=submit]), select, textarea'));
+		var idx = fields.indexOf(e.target);
+		if (idx === -1) return;
+		var next = fields[e.key === 'ArrowDown' ? idx + 1 : idx - 1];
+		if (next) {
+			e.preventDefault();
+			next.focus();
+		}
+	} else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && tag === 'SELECT') {
+		// A closed <select> natively cycles its own value on Left/Right too,
+		// same as Up/Down - block that so Up/Down (field navigation, above)
+		// is the only thing arrow keys do here; Left/Right stay free to move
+		// the text cursor in the row's actual text inputs/textarea.
+		e.preventDefault();
+	} else if (e.key === 'Enter' && !(tag === 'TEXTAREA' && e.shiftKey)) {
+		e.preventDefault();
+		var save = row.querySelector('input[name=submit_qanr]');
+		if (save) {
+			// Epesi.request() (include/epesi.js) snapshots document.activeElement's
+			// id before sending the request and re-focuses it once the response
+			// lands, to avoid losing focus across every AJAX-driven update - but
+			// that fights the row's own post-submit refocus onto Event, since
+			// whichever field had focus here (e.g. Note) would win the race and
+			// steal it back. Blurring first means nothing has an id for it to
+			// restore.
+			e.target.blur();
+			save.click();
+		}
+	}
+});
+
+// A <select>'s native popup swallows ArrowUp/Down before the keydown above
+// ever sees them, so a mouse click into one would silently break arrow-key
+// field navigation. First click here only focuses (matching what Tab
+// already does, where arrows work fine); a second click on an
+// already-focused select opens its popup normally for picking with the
+// mouse.
+document.addEventListener('mousedown', function(e) {
+	var row = document.getElementById('add_in_table_row');
+	if (!row || !row.contains(e.target) || e.target.tagName !== 'SELECT') return;
+	if (document.activeElement !== e.target) {
+		e.preventDefault();
+		e.target.focus();
+	}
+}, true);

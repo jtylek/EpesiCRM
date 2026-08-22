@@ -2135,7 +2135,31 @@ no browser-automation tool was available in this session to do that end-to-end c
 
 ---
 
-### §70 — First real client cutover: `kancelaria.epesi.cloud` converted from an ungit'd production install to `migration` (2026-08-22)
+### §70 — Premium/GeneralContractor: dead `install_default_theme()` calls removed (2026-08-21)
+
+`Base_ThemeCommon::install_default_theme()`/`uninstall_default_theme()` were made no-ops back on
+2026-07-31 when theme storage under `data/` was removed — themes are served straight from
+`modules/` now with zero build step (see `AI-shared/deliberate-removals.md`'s "Theme/lang storage
+under `data/`" entry). The no-ops were kept only so pre-existing call sites in core wouldn't fatal;
+they were never meant to still be called from new/edited code.
+
+`modules/Premium/GeneralContractor` — a separate, gitignored Premium repo, so not touched by that
+core-only removal sweep — had 9 `*Install.php` files (`GeneralContractorInstall`, `ChangeOrders`,
+`Planner`, `Tickets`, `ProgBilling`, `Activities`, `LiftEquipment`, `ShopEquipment`, `Visit`) still
+opening `install()` with a call to `Base_ThemeCommon::install_default_theme($this->get_type())`.
+Harmless (the call is a no-op) but pointless dead weight; removed all 9, no replacement needed.
+
+**How to apply:** if another Premium/Custom module (any gitignored tree not swept by the core
+migration) is found calling `install_default_theme()`/`uninstall_default_theme()`, remove the call
+outright rather than looking for a replacement API — same treatment as the `Libs/ScriptAculoUs`
+and `Base_LangCommon::install_translations()` dead-API removals hit in this same module (see
+`modules/Premium/GeneralContractor/docs/required-premium-modules.md`). `console/Develop/
+CreateModuleCommand.php`'s `install()` scaffold is already clean (just `return true;`), so newly
+scaffolded modules won't reintroduce this.
+
+---
+
+### §71 — First real client cutover: `kancelaria.epesi.cloud` converted from an ungit'd production install to `migration` (2026-08-22)
 
 **Context:** `kancelaria.epesi.cloud` is a real (non-dev) Epesi 1.9.1 install — a law firm CRM,
 not a test box — under this same Windows/XAMPP setup, previously deployed by copying files with no
@@ -2205,12 +2229,12 @@ this one instance.
 
 ---
 
-### §71 — `kancelaria.epesi.cloud` cutover cleanup: removed the ~264 pre-migration leftovers §70 left in place (2026-08-22)
+### §72 — `kancelaria.epesi.cloud` cutover cleanup: removed the ~264 pre-migration leftovers §71 left in place (2026-08-22)
 
-**Context:** §70's robocopy merge deliberately never deletes anything — it only overwrites/adds, so
+**Context:** §71's robocopy merge deliberately never deletes anything — it only overwrites/adds, so
 every file the old (pre-`migration`) install had that the new tree doesn't track was left behind as
-untracked cruft (`git status` showed ~264 such entries after §70: 10 at repo root, the rest under
-`modules/` and `vendor/`). §70 judged all of it harmless and left cleanup for later. This entry is
+untracked cruft (`git status` showed ~264 such entries after §71: 10 at repo root, the rest under
+`modules/` and `vendor/`). §71 judged all of it harmless and left cleanup for later. This entry is
 that cleanup, done in two passes at the user's request.
 
 **Pass 1 — 10 root-level files**, removed individually after inspecting each one's actual content
@@ -2265,13 +2289,13 @@ Also swept: assorted per-module leftover theme/JS/mobile files (`Utils/Attachmen
 `Utils/GenericBrowser`, `Utils/RecordBrowser` `.orig`/`.jt` backup files, `Base/Lang` flag images no
 longer part of the tracked language set, `Base/Search`, `Applets/MonthView`, `CRM/Mail` templates)
 and one empty leftover `cgi-bin/` from the original cPanel host (git doesn't list empty untracked
-dirs in `git status`, only `git clean`, so it wasn't in §70's ~264 count but was swept here anyway).
+dirs in `git status`, only `git clean`, so it wasn't in §71's ~264 count but was swept here anyway).
 
 **Result:** `git status` on `kancelaria.epesi.cloud` is now fully clean against `migration` — zero
-untracked entries anywhere in the tree, only the two `AI-shared/*.md` edits (§70 + this entry)
-show as modified. `data/` and all 12 `modules/Premium/*` nested repos are exactly as §70 left them.
+untracked entries anywhere in the tree, only the two `AI-shared/*.md` edits (§71 + this entry)
+show as modified. `data/` and all 12 `modules/Premium/*` nested repos are exactly as §71 left them.
 
-**How to apply next time:** once a §70-style merge-in-place cutover is done and its leftover list
+**How to apply next time:** once a §71-style merge-in-place cutover is done and its leftover list
 has been read through category-by-category (as above) and nothing load-bearing is in it, `git clean
 -fd` is the right blunt instrument for the bulk of the cleanup — safe by construction as long as
 `data/` and any per-installation nested-repo trees (Premium, Custom) are actually `.gitignore`d

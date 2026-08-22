@@ -1,0 +1,166 @@
+/* AdminLTE dark reskin for Utils_Calendar's week grid - markup/ids match the
+ * default theme's week.tpl 1:1 (see AI-shared/adminlte-theme.md), only
+ * classes/colors changed here. Also the actual renderer for Premium/
+ * GeneralContractor/Planner's Overview/Project/Employee tabs when
+ * settings['timeline'] is false (see Calendar_0.php::get_timeline()) - each
+ * "hour" row becomes a resource row (employee/project/Vacations/Absent) in
+ * that mode, same markup/classes either way.
+ */
+
+#calendar_event_handlers_trigger {
+	height: 26px;
+	padding-top: 4px;
+}
+
+#Utils_Calendar__week {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	width: 100%;
+	border-right: 1px solid var(--epesi-border);
+	border-bottom: 1px solid var(--epesi-border);
+	background-color: var(--epesi-surface);
+}
+
+#Utils_Calendar__week .hour,
+#Utils_Calendar__week .hours_header,
+#Utils_Calendar__week [class^="inter_"] {
+	min-height: 29px;
+}
+
+#Utils_Calendar__week .hours_header {
+	border: 0px;
+	text-align: center;
+	color: var(--epesi-text-secondary);
+	background-color: var(--epesi-surface);
+	filter: none; /* icon inside is handled below, not the whole cell */
+}
+
+#Utils_Calendar__week .hours_header img {
+	filter: invert(1) brightness(1.7);
+}
+
+/* header day (other/weekend/today variants) */
+
+#Utils_Calendar__week [class^="header_day_"] {
+	vertical-align: middle;
+	border-right: 1px solid var(--epesi-bg);
+	border-left: 1px solid var(--epesi-border);
+	width: 14%;
+	padding: 0px;
+}
+
+#Utils_Calendar__week [class^="header_day_"] a {
+	display: block;
+	font-weight: bold;
+	font-size: 15px;
+	line-height: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: var(--epesi-text);
+	background: var(--epesi-surface);
+}
+
+#Utils_Calendar__week [class^="header_day_"] a:hover {
+	background: var(--epesi-hover-bg);
+}
+
+#Utils_Calendar__week .header_day_other_weekend a,
+#Utils_Calendar__week .header_day_today_weekend a {
+	color: var(--epesi-text-secondary);
+	background: var(--epesi-bg);
+}
+
+#Utils_Calendar__week .header_day_today a,
+#Utils_Calendar__week .header_day_today_weekend a {
+	background: var(--epesi-hover-bg);
+}
+
+#Utils_Calendar__week .header_day_today,
+#Utils_Calendar__week .header_day_today_weekend {
+	border-left: 2px solid var(--epesi-link);
+	border-right: 2px solid var(--epesi-link);
+}
+
+/* header month */
+
+#Utils_Calendar__week .header_month {
+	color: #fff;
+	vertical-align: middle;
+	height: 30px;
+	border-right: 1px solid var(--epesi-bg);
+	padding-left: 10px;
+	font-size: 15px;
+	font-weight: bold;
+	text-align: center;
+	background: var(--epesi-link);
+}
+
+#Utils_Calendar__week .header_month a {
+	color: #fff;
+	padding: 5px;
+}
+
+#Utils_Calendar__week .header_month a:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* hour / resource-row label */
+
+#Utils_Calendar__week .hour {
+	vertical-align: middle;
+	color: var(--epesi-text-secondary);
+	border-top: 1px solid var(--epesi-border);
+	text-align: center;
+	background-color: var(--epesi-bg);
+	padding: 4px 5px;
+}
+
+#Utils_Calendar__week .hour a {
+	color: var(--epesi-link);
+}
+
+#Utils_Calendar__week .week-row:hover .hour {
+	background-color: var(--epesi-hover-bg);
+	color: var(--epesi-text);
+}
+
+/* inter (day-cell grid body) */
+
+#Utils_Calendar__week [class^="inter_"] {
+	vertical-align: top;
+	color: var(--epesi-text);
+	border: 1px solid var(--epesi-border);
+	border-right: 0px;
+	border-bottom: 0px;
+	text-align: left;
+	padding: 0px;
+	cursor: pointer;
+	background-color: var(--epesi-surface);
+}
+
+#Utils_Calendar__week [class^="inter_"]:hover,
+#Utils_Calendar__week [class^="inter_"] div.inner:hover {
+	background-color: var(--epesi-hover-bg) !important;
+}
+
+#Utils_Calendar__week .inter_other_weekend div.inner,
+#Utils_Calendar__week .inter_today_weekend div.inner {
+	width: 100%;
+	height: 29px;
+	background-color: var(--epesi-bg);
+}
+
+#Utils_Calendar__week .inter_today,
+#Utils_Calendar__week .inter_today_weekend {
+	border-left: 2px solid var(--epesi-link);
+	border-right: 2px solid var(--epesi-link);
+}
+
+#Utils_Calendar__week .inter_today div.inner {
+	width: 100%;
+	height: 29px;
+	background-color: var(--epesi-hover-bg);
+}

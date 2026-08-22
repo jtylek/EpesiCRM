@@ -75,7 +75,10 @@ same for every developer and every computer working on this repo.
   installs) and a patch (existing installs) — two different DB storage mechanisms
   depending on which kind of callback it is.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on purpose;
-  don't silently reintroduce them or treat their absence as an oversight.
+  don't silently reintroduce them or treat their absence as an oversight. Paired with
+  the `/fix-old-epesi-module` skill, which scans a given `modules/Premium/`/`Custom/`
+  module for reintroduced instances of these (Quick Jump, Theme installation, ...) plus
+  general PHP 8.x compatibility issues.
 - [standalone-entrypoints.md](standalone-entrypoints.md) — `admin/`, `update.php`,
   `check.php`, `setup.php`: their PHP/view split, and a real security hardening pass
   around `anonymous_setup`.
@@ -99,7 +102,14 @@ same for every developer and every computer working on this repo.
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
   use as a template, not a standard. Has a "Quick start" block up top: once you've
   confirmed the four paths for your own machine, launch straight from there instead of
-  re-deriving the setup each session.
+  re-deriving the setup each session. Driven by the `/monitor-error-logs` skill at
+  `.claude/skills/monitor-error-logs/SKILL.md` — see `sharing-skills.md` for why that
+  path is git-tracked and how it's kept that way.
+- [sharing-skills.md](sharing-skills.md) — how to make a custom Claude Code skill
+  (`/trigger-name` action) work the same for every developer/computer: use
+  `.claude/skills/<name>/SKILL.md` (not the legacy `commands/` format, which isn't
+  reliably picked up in every Claude Code surface), and the `.gitignore` gotcha that
+  broke a first attempt at un-ignoring just that subdirectory.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.

@@ -15,6 +15,13 @@ git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate rem
 recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
 worth a look before assuming something is broken/missing rather than intentional.
 
+`.claude/` itself is git-tracked (unlike `.vscode/`), so custom Claude Code skills under `.claude/skills/`
+(the mechanism behind `/skill-name` triggers) sync across developers/computers the same way `AI-shared/`
+does — only `settings.json`/`*.lock` inside it stay personal, excluded individually in `.gitignore`. Author
+a new shared skill directly at `.claude/skills/<name>/SKILL.md`, not the legacy `commands/<name>.md` format
+(unreliable across Claude Code surfaces). See `AI-shared/sharing-skills.md` for the gitignore gotcha behind
+that split and other details.
+
 ## Environment quirks (this machine)
 
 - **PHP binary:** on Windows dev machines, the bare `php` on PATH resolves to an unrelated XAMPP 7.4 install —
