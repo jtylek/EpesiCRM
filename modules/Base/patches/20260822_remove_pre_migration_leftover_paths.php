@@ -8,7 +8,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 // style deploys, or any rsync/robocopy-style merge that only overwrites-and-adds and never
 // deletes) - on those, every one of these old paths survives untouched release after release since
 // nothing ever tells the filesystem it's gone. Modeled directly on the `git clean -fd` cleanup
-// done by hand for the kancelaria.epesi.cloud cutover (MIGRATION_NOTES.md SS71); this patch is the
+// done by hand for the client-instance.example cutover (MIGRATION_NOTES.md SS71); this patch is the
 // same cleanup for installs with no .git to lean on.
 //
 // Every path below was confirmed (via git history on this repo) to have actually been removed from
@@ -20,7 +20,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 // which already prunes packages no longer in composer.lock) or data/ (per-instance data, never
 // touched by cleanup like this). Also not in scope: hosting-artifact files like Softaculous
 // bookkeeping or a renamed-aside old .htaccess backup - those have host-specific, non-constant
-// names or need eyeballing before deletion, so they were handled by hand for kancelaria rather than
+// names or need eyeballing before deletion, so they were handled by hand for the client instance rather than
 // automated here.
 
 $old_paths = array(
