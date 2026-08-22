@@ -2508,6 +2508,51 @@ back on afterward if it's the instance's normal dev/debug setting.
 
 ---
 
+### §75 — `kancelaria.epesi.cloud`: `update.php` run, clean, 47 patches, 1.9.1 → `20260701-rc2` (2026-08-22)
+
+**Result: the §71–§74 preparation paid off — `php update.php` (per §74's CLI recommendation, with
+`REPORT_ALL_ERRORS` off per that same entry) ran start to finish with zero errors or timeouts.**
+
+```
+WARNING: the database lists modules with no code in this build:
+   - Libs_ScriptAculoUs
+These are most likely premium/custom modules. Migrate them to this
+version together with the core. Their data stays in the database.
+Continuing update...
+Update from 1.9.1 to 20260701-rc2...
+Updated to 20260701-rc2
+Done
+```
+
+**`data/logs/patches.log` for this run (18:40:34–18:41:07, ~33s):** 47 patches applied, all
+`SUCCESS`, zero `ERROR`/`TIMEOUT` — spanning core (`CRM/Contacts`, `Base/Theme`, `Base/Lang`,
+`CRM/Roundcube`'s §69 schema-migrate fix, the `utf8mb4` migration — the slowest at ~25s of the
+~33s total — etc.) and Premium modules alike (several `Premium/Projects`/`Projects/Tickets`
+patches ran clean, good real-world confirmation that §73's fixes didn't just satisfy static
+analysis). The very last patch to run, in last position by date, was
+`modules/Base/patches/20260822_remove_pre_migration_leftover_paths.php` (§72's addendum, added by
+a concurrent session) — also `SUCCESS`, correctly a no-op here since §72's manual `git clean -fd`
+had already removed everything on its list.
+
+**The one warning, expected and harmless:** `Libs_ScriptAculoUs` is `orphaned` — the DB has it
+recorded as installed, but its code was deliberately removed from core entirely (dependency
+dropped, see `deliberate-removals.md`). CLI mode just warns and continues automatically (§74/§59's
+`orphaned_modules_gate()` — browser mode would have shown a confirm screen instead). Its data, if
+any, is untouched in the DB, not deleted by this update.
+
+**Post-update verification:**
+- `SELECT value FROM variables WHERE name='version'` → `20260701-rc2`, matching the deployed code.
+- `console.php maintenance:status` → `disabled` — maintenance mode (auto-enabled for the run's
+  duration) turned back off automatically at the end, site is live again.
+
+**How to apply next time:** this is the concrete "it worked" confirmation that the §70–§74
+preparation sequence (merge-in-place cutover → leftover cleanup → Premium-module PHP 8 sweep →
+CLI + `REPORT_ALL_ERRORS`-off for the run) is sufficient groundwork for a real client's `update.php`
+to complete cleanly on the first attempt — worth following the same sequence, in the same order,
+for the next real cutover rather than treating any one step as optional.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
