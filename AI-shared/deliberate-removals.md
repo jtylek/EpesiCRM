@@ -325,3 +325,43 @@ per the same "don't refactor shared infrastructure beyond what's asked"
 judgment used elsewhere in this file. Its stale comment referencing
 `Develop/ModuleCreator` was updated in the same pass so it doesn't send a
 future reader looking for a module that no longer exists.
+
+## Orphaned `modules` DB row after upgrade: usually tolerated, but not a blanket rule
+
+`Libs/ScriptAculoUs` (removed 2026-07-30, commit `255a5256b` — a legacy
+Prototype.js-era animation/autocomplete JS library, replaced by vanilla CSS
+transitions) is gone from the tracked tree entirely, same as `Libs/CKEditor`'s
+vendored editor and the `Develop_*` modules above. Running `update.php` on
+`kancelaria.epesi.cloud` (see `MIGRATION_NOTES.md` §75) surfaced it via the
+§59 `orphaned_modules_gate()` warning: the `modules` table still had a row
+(`name='Libs_ScriptAculoUs', state=2`) — `state=2` is
+`ModuleManager::MODULE_NOT_FOUND`, meaning `check_is_module_available()` had
+already self-quarantined it for the request with no fatal error, exactly as
+designed.
+
+**Why this one got an actual cleanup patch, unlike CKEditor/OpenFlashChart/
+`Develop_*` above:** those three were left alone specifically because a real
+uninstall risked more than it fixed — `ModuleManager::uninstall()` needs the
+target's `*Install.php` to still exist and loadable (CKEditor/OpenFlashChart
+deliberately kept theirs as empty shells for exactly this reason), or the
+module genuinely had real schema/tables that a slapdash cleanup could get
+wrong (the `Develop/Translations` case). `Libs_ScriptAculoUs` has neither
+problem: its code is gone completely (nothing to keep an empty shell for —
+there's no `*Install.php` left to worry about breaking), and checking the
+pre-removal source (`git show 255a5256b^:modules/Libs/ScriptAculoUs/
+ScriptAculoUsInstall.php`) confirms `install()`/`uninstall()` were always
+just `return true;` — it never created a single table or row beyond the
+`modules` tracking entry itself. With zero schema risk and no class to keep
+loadable, there was nothing left for the general "leave it" precedent above
+to actually be protecting against, so a plain
+`DELETE FROM modules WHERE name='Libs_ScriptAculoUs'` — shipped as
+`modules/Base/patches/20260822_remove_orphaned_scriptaculous_module_row.php`
+— was the right, low-risk call here specifically.
+
+**How to apply next time:** an orphaned `modules` row is *not* an automatic
+"always leave it" — check the pre-removal `*Install.php` (via `git show
+<removal-commit>^:<path>`) for what `install()` actually did before deciding.
+No schema ever created (like this one) → a plain `DELETE FROM modules WHERE
+name=...` patch is safe and worth shipping. Real schema, or an `*Install.php`
+that might still need to stay loadable → leave it alone, same as CKEditor/
+OpenFlashChart/`Develop_*` above.
