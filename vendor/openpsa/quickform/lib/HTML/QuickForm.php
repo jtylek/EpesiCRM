@@ -293,7 +293,7 @@ class HTML_QuickForm extends HTML_Common
      * @param     string    $include    Include path for element type (parameter is unused)
      * @param     string    $className  Element class name
      */
-    public static function registerElementType($typeName, $include, $className)
+    public function registerElementType($typeName, $include, $className)
     {
         $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][strtolower($typeName)] = $className;
     }
@@ -475,16 +475,8 @@ class HTML_QuickForm extends HTML_Common
         if (!self::isTypeRegistered($type)) {
             throw new HTML_QuickForm_Error ("Element '$type' does not exist", QUICKFORM_UNREGISTERED_ELEMENT);
         }
-        $registered = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type];
-        if (is_array($registered)) {            // Epesi format: array('file.php', 'ClassName')
-            if (!empty($registered[0]) && !class_exists($registered[1])) require_once($registered[0]);
-            $className = $registered[1];
-        } else {                                // openpsa format: 'ClassName' (string)
-            $className = $registered;
-        }
+        $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type];
         $reflection = new ReflectionClass($className);
-//        $className = $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'][$type];
-//        $reflection = new ReflectionClass($className);
         $elementObject = $reflection->newInstanceArgs($args);
         $err = $elementObject->onQuickFormEvent($event, $args, $this);
         if ($err !== true) {
