@@ -8,7 +8,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jtylek/epesi/actions/workflows/php-checks.yml"><img src="https://github.com/jtylek/epesi/actions/workflows/php-checks.yml/badge.svg" alt="PHP checks"></a>
   <a href="https://sourceforge.net/projects/epesi"><img src="https://img.shields.io/sourceforge/dt/epesi.svg" alt="SourceForge downloads"></a>
   <img src="https://img.shields.io/badge/PHP-8.2-777bb4" alt="PHP 8.2">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
