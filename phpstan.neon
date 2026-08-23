@@ -30,12 +30,25 @@ parameters:
         - vendor
         - libs
         - modules/Base/Theme/smarty
+        - modules/Libs/PHPExcel/vendor
+        - modules/CRM/Mail/vendor
+        - modules/Libs/TCPDF/vendor
     excludePaths:
         - modules/Libs/RoundCube/RC/program/*
         - modules/Libs/RoundCube/RC/vendor/*
         - modules/Libs/RoundCube/RC/plugins/*
         - modules/Tests/*
         - modules/Base/Theme/smarty/*
+        # nested composer installs (own composer.json under these dirs, populated by
+        # composer.json's post-install-cmd) - third-party code, not ours to fix. Kept in
+        # scanDirectories above so Epesi code calling into TCPDF/PhpSpreadsheet/Fetch still
+        # resolves symbols; found via a full local run with modules/Premium populated and all
+        # nested composer deps installed, which surfaced ~280 findings CI's phpstan job (no
+        # composer install step, checks out modules/Premium never since it's gitignored) has
+        # never actually seen.
+        - modules/Libs/PHPExcel/vendor/*
+        - modules/CRM/Mail/vendor/*
+        - modules/Libs/TCPDF/vendor/*
     # third-party/legacy noise we don't own
     reportUnmatchedIgnoredErrors: false
     # keep parallel workers from timing out on the full codebase (PHPStan default is 600s; a

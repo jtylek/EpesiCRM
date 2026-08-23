@@ -1,10 +1,10 @@
 <?php
 // Minimal Smarty / plugin stubs for PHPStan (keeps signatures non-strict)
 class Smarty {
-    public function fetch(string $template = null, $cache_id = null, $compile_id = null, $parent = null): string {}
+    public function fetch(string $template = null, mixed $cache_id = null, mixed $compile_id = null, mixed $parent = null): string {}
     public function display(string $template = null): void {}
-    public function assign($var, $value = null): void {}
-    public function registerPlugin(string $type, string $name, $callback): void {}
+    public function assign(mixed $var, mixed $value = null): void {}
+    public function registerPlugin(string $type, string $name, mixed $callback): void {}
 }
 
 /** Internal template placeholder class used by some plugins */

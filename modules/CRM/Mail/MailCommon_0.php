@@ -310,7 +310,7 @@ class CRM_MailCommon extends ModuleCommon {
     // (rcube_mime::decode_mime_string() only undoes MIME encoded-words, see
     // Libs/RoundCube/RC/plugins/epesi_archive/epesi_archive.php) - some clients wrap the whole
     // "Name email@domain" pair in one pair of straight quotes with no <> around the address at
-    // all (e.g. "Tylek Janusz test@mrf.epesi.cloud"), which reads oddly verbatim. This
+    // all (e.g. "Jane Doe jane@example.com"), which reads oddly verbatim. This
     // reformats each comma-separated entry to "Name" followed by a quoted address instead
     // (per request), same treatment for the standard Name <email@domain> form.
     public static function format_address_list($raw) {

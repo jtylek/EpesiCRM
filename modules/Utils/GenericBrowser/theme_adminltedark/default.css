@@ -775,12 +775,12 @@
 /* Required-field error for this row's fields (RecordBrowser_0.php's
    render_add_in_table_row concatenates the QuickForm-emitted
    <span class="form_error"> before the field's own HTML in each cell -
-   include/TCMSArray.php - previously unstyled here, so it showed as plain
+   include/EpesiArray.php - previously unstyled here, so it showed as plain
    text sitting above the field instead of on it). Same treatment as
    Utils_RecordBrowser__View_entry's edit/add form (View_entry.css): the
    overlay covers the whole cell instead of the message floating beside the
    field, and pointer-events:none leaves the actual input/select/textarea
-   underneath fully clickable/typeable. TCMSDefault.js clears the span's
+   underneath fully clickable/typeable. EpesiDefault.js clears the span's
    content on the field's own input/change event, which is what :not(:empty)
    below keys off, so the overlay disappears the moment the row is fixed. */
 #add_in_table_row .Utils_GenericBrowser__td {

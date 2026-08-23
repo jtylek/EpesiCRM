@@ -1,0 +1,34 @@
+# Normalize line endings to LF for text files on checkout/commit, regardless of a given
+# developer's core.autocrlf setting. Windows dev machines here default to core.autocrlf=true
+# (see CLAUDE.md's Environment quirks), which was leaving vendor/ blobs with inconsistent line
+# endings and causing phantom "modified" status on thousands of files with no real content
+# change. eol=lf pins the behavior so it's consistent across Windows dev boxes and the Linux
+# hosting/CI side of this project.
+* text=auto eol=lf
+
+# Explicit binary declarations as a safety net on top of Git's own content-based detection —
+# these must never go through line-ending conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.wav binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.swf binary
+*.pdf binary
+*.zip binary
+*.z binary
+*.ser binary
+*.xlsx binary
+*.doc binary
+*.docx binary
+*.p12 binary
+*.crt binary
+*.fdf binary
+*.ai binary

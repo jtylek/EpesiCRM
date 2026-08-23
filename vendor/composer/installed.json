@@ -398,7 +398,7 @@
             "time": "2024-09-20T01:53:49+00:00",
             "default-branch": true,
             "type": "library",
-            "installation-source": "source",
+            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "Ifsnop\\": "src/Ifsnop/"

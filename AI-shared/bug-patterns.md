@@ -160,9 +160,9 @@ that module or theme; the rule is byte-identical (and equally missing `top`) in 
 copy, so any required RecordBrowser field under either theme was affected.
 
 The error badge itself is generated in core, not a theme file:
-`include/TCMSArray.php`'s array-form renderer emits
+`include/EpesiArray.php`'s array-form renderer emits
 `<span class="form_error" id="...">...</span>` right after each field's control
-(`error` key in the array `EpesiSmartyRenderer`/`TCMSArray` builds per element).
+(`error` key in the array `EpesiSmartyRenderer`/`EpesiArray` builds per element).
 `View_entry.css` styles it:
 ```css
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {

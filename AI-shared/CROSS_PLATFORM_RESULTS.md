@@ -94,7 +94,7 @@ Copy the block below per platform as you go. Record the PHP version, extensions,
   `RC/logs/`. main now carries §54, so the default ZIP installs clean.
 - ⚠️ **Mail archiving needs the account's IMAP namespace set** (Karina recalled this from PHP-7.4 installs).
   Sent copies + the `CRM Archive` / `CRM Archive Sent` IMAP folders were empty because the account's
-  **`f_imap_root`** was blank; the server (`mail.mrf.epesi.cloud`) uses the `INBOX.` namespace, so folder names
+  **`f_imap_root`** was blank; the server (`mail.client-b.example`) uses the `INBOX.` namespace, so folder names
   must be `INBOX.CRM Archive` etc. (`epesi_archive.php:12-14` prefixes with `f_imap_root`; `config.inc.php:103`
   sets `imap_ns_personal` from it). Setting `f_imap_root='INBOX.'` fixed it — mails now archive. The **`IMAP Root`
   field IS editable in the mail-account form** (Karina set it there; `visible=false` in `MailInstall.php:78` only

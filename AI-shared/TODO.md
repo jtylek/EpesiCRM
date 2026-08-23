@@ -108,7 +108,7 @@ it was fixed, rather than leaving it lingering in "Open".
   `.checkbox_off`/`.checkbox_on`, `.element_automulti`, `.element_button`,
   `.form_error`, `.quickform-row`, `.radio_off`/`.radio_on`. Not chased down
   this pass — `.element_automulti` in particular looks like dead CSS for a
-  class only the old `Renderer/TCMSDefault.php` renderer emits (not the
+  class only the old `Renderer/EpesiDefault.php` renderer emits (not the
   renderer QuickForm_0.php's own `column.tpl`/`row.tpl` actually use under
   adminltedark), but the rest weren't checked either way. Worth a grep-each-
   selector pass before assuming any of them either matters or is safe to

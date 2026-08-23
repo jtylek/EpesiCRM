@@ -14,11 +14,12 @@ with AdminLTE, following one consistent pattern:
 - `setup.php` → `setuptheme/SetupSmarty.php` + `setuptheme/*.tpl`
 
 The shared Smarty-array-form renderer used by several of these
-(`HTML_QuickForm_Renderer_TCMSArraySmarty` + `TCMSArray`) now lives at
-**`include/EpesiSmartyRenderer.php`** / `include/TCMSArray.php` (moved from
-`modules/Libs/QuickForm/Renderer/`). **`modules/Libs/QuickForm` itself is NOT
-legacy code and was not touched** — only the renderer files moved out of it;
-don't confuse the two.
+(`EpesiSmartyRenderer` + `HTML_QuickForm_Renderer_EpesiArray`) now lives at
+**`include/EpesiSmartyRenderer.php`** / `include/EpesiArray.php` (moved from
+`modules/Libs/QuickForm/Renderer/`, and renamed from their original
+`TCMSArraySmarty`/`TCMSArray` names — "TCMS" was Epesi's pre-rebrand product
+name). **`modules/Libs/QuickForm` itself is NOT legacy code and was not
+touched** — only the renderer files moved out of it; don't confuse the two.
 
 ## Smarty 2 gotchas hit repeatedly in this work
 

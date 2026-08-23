@@ -26,7 +26,7 @@
 //
 // $Id: ArraySmarty.php,v 1.10 2005/04/26 07:58:55 ths Exp $
 
-require_once __DIR__ . '/TCMSArray.php';
+require_once __DIR__ . '/EpesiArray.php';
 
 /**
  * A static renderer for HTML_QuickForm, makes an array of form content
@@ -79,7 +79,7 @@ require_once __DIR__ . '/TCMSArray.php';
  *
  * @access public
  */
-class EpesiSmartyRenderer extends HTML_QuickForm_Renderer_TCMSArray
+class EpesiSmartyRenderer extends HTML_QuickForm_Renderer_EpesiArray
 {
    /**
     * The Smarty template engine instance

@@ -332,7 +332,7 @@ future reader looking for a module that no longer exists.
 Prototype.js-era animation/autocomplete JS library, replaced by vanilla CSS
 transitions) is gone from the tracked tree entirely, same as `Libs/CKEditor`'s
 vendored editor and the `Develop_*` modules above. Running `update.php` on
-`kancelaria.epesi.cloud` (see `MIGRATION_NOTES.md` §75) surfaced it via the
+`client-instance.example` (see `MIGRATION_NOTES.md` §75) surfaced it via the
 §59 `orphaned_modules_gate()` warning: the `modules` table still had a row
 (`name='Libs_ScriptAculoUs', state=2`) — `state=2` is
 `ModuleManager::MODULE_NOT_FOUND`, meaning `check_is_module_available()` had
