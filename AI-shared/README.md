@@ -107,6 +107,12 @@ same for every developer and every computer working on this repo.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.
+- [dependency-upgrades.md](dependency-upgrades.md) — findings from bumping composer
+  dependencies (Dependabot-flagged): platform blockers (Symfony 8.x needs PHP ≥8.4, out of
+  scope here), breaking-API changes and their fixes (Symfony Console 7's `execute(): int`,
+  phpdocumentor/reflection-docblock v6), and `tecnickcom/tcpdf` 7.x's font-packaging gap
+  (reverted to 6.x — don't re-attempt without reading this first). Also covers the
+  multiple-`composer.json` layout and the no-test-suite verification method that caught it.
 - [TODO.md](TODO.md) — follow-up work *we* deferred (not pre-existing code markers,
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition

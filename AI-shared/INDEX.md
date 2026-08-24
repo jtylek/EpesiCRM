@@ -76,6 +76,11 @@
   (2026-08-04): every marker in Epesi's own code individually re-verified as
   still-open, none stale. Two flagged as worth prioritizing (a dead param, an
   escaping hack with a working fix already nearby in the same file).
+- [dependency-upgrades.md](dependency-upgrades.md) — composer dependency-upgrade findings
+  (2026-08-24): Symfony capped at `^7.4` (8.x needs PHP ≥8.4), Symfony Console 7's
+  `execute(): int` breaking change (fixed across all 25 `console/*Command.php` files),
+  phpdocumentor/reflection-docblock v6 API rewrite, and `tecnickcom/tcpdf` 7.x's
+  font-packaging gap — reverted to 6.x, don't re-attempt without reading this first.
 - [TODO.md](TODO.md) — follow-up work deferred during AI-assisted sessions
   (started 2026-08-05): a real fix shipped now, with a known limitation
   recorded to come back to later. First entry: the mobile multiselect
