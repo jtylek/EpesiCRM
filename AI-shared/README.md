@@ -58,6 +58,10 @@ same for every developer and every computer working on this repo.
 - [menu-search-plan.md](menu-search-plan.md) — approved plan for the AdminLTE sidebar
   search/filter box (client-side, AdminLTE-only, cascading auto-expand on match).
   Pairs with how-menu-works.md; check here before re-deriving the design.
+- [Epesi-Google-Calendar-sync.md](Epesi-Google-Calendar-sync.md) — approved design for a new
+  `modules/CRM/GoogleCalendarSync/` module: one-way (Epesi → Google), per-user OAuth, cron-polling sync
+  of `crm_meeting` to each user's own Google Calendar, surfaced as a "Google Calendar Sync" tile in My
+  Settings. Not yet implemented — check here before re-deriving the design.
 - [import-wizard-plan.md](import-wizard-plan.md) — approved plan turning Premium/Import's
   icon-grid flow into a guided `Utils_Wizard` step-by-step wizard, plus a new shared
   `Utils_Wizard` AdminLTE stepper template (`theme_adminltedark/default.tpl`) that
@@ -117,6 +121,13 @@ same for every developer and every computer working on this repo.
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition
   that would need testing.
+- [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for
+  cleanly upgrading an existing install from a manually-uploaded SourceForge release zip:
+  what `console.php dev:dist:create` already excludes vs. two gaps found (`AI-shared/`,
+  `.gitattributes`), how `update.php`'s existing network auto-updater already solves the
+  "delete files the new release no longer ships" problem via wipe-then-extract (but only
+  for its own `ess.epe.si` channel), and a manifest-file mechanism to bring the same
+  cleanup (plus a wholesale `vendor/` rebuild) to the manual-zip path.
 
 ## Conventions for investigating/fixing bugs
 

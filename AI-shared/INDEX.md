@@ -86,5 +86,12 @@
   recorded to come back to later. First entry: the mobile multiselect
   checklist fallback needs an autoselect/search switchover for large option
   counts, not yet implemented/testable in this dev install.
+- [release-packaging-plan.md](release-packaging-plan.md) — plan (2026-08-24, not yet
+  implemented) for upgrading an existing install from a manually-uploaded SourceForge
+  release zip without leaving orphaned files behind: two exclusion gaps found in
+  `dev:dist:create` (`AI-shared/`, `.gitattributes`), how `update.php`'s existing
+  network auto-updater already solves this via wipe-then-extract for its own channel,
+  and a proposed manifest mechanism (plus wholesale `vendor/` rebuild) to bring the
+  same cleanup to the manual-zip path.
 
 Last reorganized: 2026-08-05.
