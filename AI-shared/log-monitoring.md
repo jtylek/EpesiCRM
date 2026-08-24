@@ -29,6 +29,20 @@ tail -f -n0 /c/xampp82/apache/logs/error.log
 tail -f -n0 /c/xampp82/apache/logs/access.log | grep -E --line-buffered '" [45][0-9]{2} ' | grep -Ev --line-buffered 'favicon\.ico|com\.chrome\.devtools\.json|\.(js|css)\.map'
 ```
 
+Confirmed working on ktylek's Linux/XAMPP box (`/opt/lampp/htdocs/euroleader`) as of
+2026-08-21. Note the Linux XAMPP log names differ (`error_log`/`access_log`, no dot before
+the extension) — couldn't cross-check the php.ini `error_log` directive itself via
+`php -i` here since `/opt/lampp/bin/php` fails to run in this session (see
+`environment-gotchas.md`'s `libcrypt.so.1` entry); path taken from XAMPP's default layout
+and confirmed present/actively-written via `ls`.
+
+```
+tail -f -n0 data/logs/php_errors.log
+tail -f -n0 /opt/lampp/logs/php_error_log
+tail -f -n0 /opt/lampp/logs/error_log
+tail -f -n0 /opt/lampp/logs/access_log | grep -E --line-buffered '" [45][0-9]{2} ' | grep -Ev --line-buffered 'favicon\.ico|com\.chrome\.devtools\.json|\.(js|css)\.map'
+```
+
 An AI assistant should run each as its own persistent background watch (e.g. Claude Code's
 `Monitor` tool, one call per line above) rather than one shell juggling four `tail -f`s, so
 each log's events surface independently. Also worth a quick check for (and cancellation of)
