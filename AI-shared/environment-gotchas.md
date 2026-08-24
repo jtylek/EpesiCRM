@@ -478,3 +478,26 @@ user to run the `choco install` command themselves from an elevated ("Run as
 Administrator") PowerShell. Any tool chocolatey would install (e.g. `rsync`, for a
 cleaner alternative to the `robocopy /E` merge-copy pattern in `MIGRATION_NOTES.md` §70)
 hits the same wall.
+
+## Windows/NTFS + `core.fileMode=true` makes `git status` show ~30 vendored scripts as modified with zero content diff
+
+Hit 2026-08-24 on jasiek's Windows box (`c:\xampp82\htdocs\euroleader`): `git status` listed
+~30 files as modified — `modules/Libs/RoundCube/RC/bin/*.sh`, a handful of vendored PEAR
+files under `RC/vendor/`, and a couple of top-level `vendor/**/*.sh` build scripts — but
+`git diff` on every one showed **zero content changes**, only `old mode 100755` / `new mode
+100644`. Root cause: these files are checked into git with the Unix executable bit set, but
+NTFS doesn't track that bit at all. With `core.fileMode` at its default `true`, git compares
+the (nonexistent-on-Windows) working-tree mode against the recorded index mode on every
+`status`/`diff`, and it always loses — so the flip reappears on every checkout, not just once.
+Committing these "changes" would strip the executable bit from real, deployed shell
+scripts/binaries — a genuine regression on Linux, not a fix.
+
+**How to apply**: don't commit these — verify a same-shaped mystery diff is mode-only before
+touching it (`git diff -- <file>` showing only `old mode`/`new mode` lines, no `+`/`-`
+content) rather than assuming it's real work or blindly discarding it. The actual fix is
+`git config core.fileMode false` — **local to this repo checkout**, confirmed working
+2026-08-24 (immediately cleared all ~30 spurious entries from `git status`). This is a git
+config change, which Claude Code must never make on its own initiative (or even on request —
+see CLAUDE.md's git safety rules) — ask the user to run it themselves. Per-repo (`--local`,
+the default) is enough; only reach for `--global` if the same machine has other repos hitting
+the same issue.
