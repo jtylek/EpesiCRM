@@ -1677,3 +1677,54 @@ is wrong first - open a new tab (new CID) or log out/back in to get a session th
 hasn't already loaded the old copy, and retest there before debugging further. This is
 a standing trap for the rest of this module's (or any module's) JS iteration, not a
 one-time fluke.
+
+## `cron.php`/`monitoring.php`'s shared token: loose comparison and a predictable value (fixed 2026-08-24)
+
+Both standalone entry points (token-gated, not login-gated - they run before
+`include.php`'s session/ACL layer, same category as `standalone-entrypoints.md`'s
+`admin/`/`update.php`/`check.php`/`setup.php`, just not listed there since they're
+token-auth rather than page-rendering) checked their URL token the same wrong way:
+
+```php
+if(CRON_TOKEN!=$_GET['token'])
+    die('Invalid token in URL - ...');
+```
+
+Two independent weaknesses, both generic enough to recur anywhere else a shared
+secret gets checked this way:
+
+1. **Loose `!=` on two strings.** PHP compares two *numeric-looking* strings
+   numerically even in PHP 8 (the 8.0 numeric-string-comparison change only affects
+   numeric-vs-non-numeric pairs) - the classic "magic hash" bug (`"0e123..." ==
+   "0e456..."`). Astronomically unlikely for a real random token to land on that
+   shape, but it's the wrong primitive for comparing secrets regardless - the
+   correct one is `hash_equals()`, which is also constant-time (loose `!=` isn't,
+   so byte-by-byte timing leakage is a secondary, more theoretical concern here).
+2. **The token itself was low-entropy**: `Base_CronCommon::generate_token()`
+   (`modules/Base/Cron/CronCommon_0.php`) built it as `md5(time() . getcwd())` -
+   not a CSPRNG, just a hash of two guessable-ish inputs (install path + the second
+   the Cron admin panel was first opened). Anyone who can narrow down roughly when
+   an instance was installed can brute-force the token space offline in seconds.
+   `cron.php` runs `Base_AclCommon::set_sa_user()` and executes arbitrary
+   registered module cron callbacks, so a guessed/brute-forced token there is much
+   higher-impact than against `monitoring.php` (which only leaks DB/session/
+   data-dir health status) despite both trusting the exact same value.
+
+**Fix**: `generate_token()` now uses `bin2hex(random_bytes(32))`; both entry points'
+token checks became `!is_string($_GET['token']) || !hash_equals(CRON_TOKEN,
+$_GET['token'])` (the `is_string` guard avoids `hash_equals()` throwing on an
+array-shaped `?token[]=x` submission). Shipped with a patch
+(`modules/Base/Cron/patches/20260824_strengthen_cron_token.php`) that regenerates
+the stored token for existing installs too, per this repo's upgrade-gap discipline -
+a `generate_token()`-only fix would never touch an already-written
+`data/cron_token.php`. **Side effect worth knowing**: this patch changes the live
+cron/monitoring URL on any instance that runs it - any external cron scheduler or
+uptime monitor with the old URL hardcoded needs the new one from Administrator
+Panel → Cron after upgrading, or it'll start failing silently.
+
+**How to apply**: any other spot in this codebase that checks a bearer-token/shared-
+secret style value with `==`/`!=`/`in_array()` instead of `hash_equals()`, or that
+derives a "random" token from `md5()`/`sha1()` over non-CSPRNG inputs (`time()`,
+`getcwd()`, `uniqid()` without the `more_entropy` flag, etc.) instead of
+`random_bytes()`, is the same shape - worth a proactive fix if noticed, not just
+when reported.
