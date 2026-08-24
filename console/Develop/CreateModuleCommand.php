@@ -27,7 +27,7 @@ class CreateModuleCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $module_name = $input->getArgument('name');
         $requires = $input->getOption('require');

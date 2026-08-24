@@ -2,14 +2,14 @@
 
 namespace PhpOffice\PhpSpreadsheet\Reader;
 
-use Closure;
+use PhpOffice\PhpSpreadsheet\Cell\IValueBinder;
 use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
 use PhpOffice\PhpSpreadsheet\Reader\Exception as ReaderException;
 use PhpOffice\PhpSpreadsheet\Reader\Security\XmlScanner;
 use PhpOffice\PhpSpreadsheet\Shared\File;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-abstract class BaseReader implements IReader
+abstract class BaseReader implements IReader2
 {
     /**
      * Read data only?
@@ -20,7 +20,7 @@ abstract class BaseReader implements IReader
 
     /**
      * Read empty cells?
-     * Identifies whether the Reader should read data values for cells all cells, or should ignore cells containing
+     * Identifies whether the Reader should read data values for all cells, or should ignore cells containing
      *         null value or empty string.
      */
     protected bool $readEmptyCells = true;
@@ -61,6 +61,14 @@ abstract class BaseReader implements IReader
     protected bool $createBlankSheetIfNoneRead = false;
 
     /**
+     * Enable drawing pass-through?
+     * Identifies whether the Reader should preserve unsupported drawing elements (shapes, grouped images, etc.)
+     * by storing the original XML for pass-through during write operations.
+     * When enabled, drawings cannot be modified programmatically but are preserved exactly.
+     */
+    protected bool $enableDrawingPassThrough = false;
+
+    /**
      * IReadFilter instance.
      */
     protected IReadFilter $readFilter;
@@ -70,8 +78,10 @@ abstract class BaseReader implements IReader
 
     protected ?XmlScanner $securityScanner = null;
 
-    /** @var null|Closure(string):bool function to return whether image path is okay */
-    protected ?Closure $isWhitelisted = null;
+    protected ?IValueBinder $valueBinder = null;
+
+    /** @var null|callable(string):bool function to return whether image path is okay */
+    protected $isWhitelisted;
 
     public function __construct()
     {
@@ -83,7 +93,7 @@ abstract class BaseReader implements IReader
         return $this->readDataOnly;
     }
 
-    public function setReadDataOnly(bool $readCellValuesOnly): self
+    public function setReadDataOnly(bool $readCellValuesOnly): static
     {
         $this->readDataOnly = $readCellValuesOnly;
 
@@ -95,7 +105,7 @@ abstract class BaseReader implements IReader
         return $this->readEmptyCells;
     }
 
-    public function setReadEmptyCells(bool $readEmptyCells): self
+    public function setReadEmptyCells(bool $readEmptyCells): static
     {
         $this->readEmptyCells = $readEmptyCells;
 
@@ -107,7 +117,7 @@ abstract class BaseReader implements IReader
         return $this->ignoreRowsWithNoCells;
     }
 
-    public function setIgnoreRowsWithNoCells(bool $ignoreRowsWithNoCells): self
+    public function setIgnoreRowsWithNoCells(bool $ignoreRowsWithNoCells): static
     {
         $this->ignoreRowsWithNoCells = $ignoreRowsWithNoCells;
 
@@ -119,19 +129,33 @@ abstract class BaseReader implements IReader
         return $this->includeCharts;
     }
 
-    public function setIncludeCharts(bool $includeCharts): self
+    public function setIncludeCharts(bool $includeCharts): static
     {
         $this->includeCharts = $includeCharts;
 
         return $this;
     }
 
+    public function getEnableDrawingPassThrough(): bool
+    {
+        return $this->enableDrawingPassThrough;
+    }
+
+    public function setEnableDrawingPassThrough(bool $enableDrawingPassThrough): static
+    {
+        $this->enableDrawingPassThrough = $enableDrawingPassThrough;
+
+        return $this;
+    }
+
+    /** @return null|string[] */
     public function getLoadSheetsOnly(): ?array
     {
         return $this->loadSheetsOnly;
     }
 
-    public function setLoadSheetsOnly(string|array|null $sheetList): self
+    /** @param null|string|string[] $sheetList */
+    public function setLoadSheetsOnly(string|array|null $sheetList): static
     {
         if ($sheetList === null) {
             return $this->setLoadAllSheets();
@@ -142,7 +166,7 @@ abstract class BaseReader implements IReader
         return $this;
     }
 
-    public function setLoadAllSheets(): self
+    public function setLoadAllSheets(): static
     {
         $this->loadSheetsOnly = null;
 
@@ -154,7 +178,7 @@ abstract class BaseReader implements IReader
         return $this->readFilter;
     }
 
-    public function setReadFilter(IReadFilter $readFilter): self
+    public function setReadFilter(IReadFilter $readFilter): static
     {
         $this->readFilter = $readFilter;
 
@@ -167,7 +191,7 @@ abstract class BaseReader implements IReader
      * these can be specified within a spreadsheet
      * in a way that can subject the caller to security exploits.
      */
-    public function setAllowExternalImages(bool $allowExternalImages): self
+    public function setAllowExternalImages(bool $allowExternalImages): static
     {
         $this->allowExternalImages = $allowExternalImages;
 
@@ -186,9 +210,9 @@ abstract class BaseReader implements IReader
      * supplying a method which might return true
      * can subject the caller to security exploits.
      *
-     * @param Closure(string):bool $isWhitelisted
+     * @param callable(string):bool $isWhitelisted
      */
-    public function setIsWhitelisted(Closure $isWhitelisted): self
+    public function setIsWhitelisted(callable $isWhitelisted): static
     {
         $this->isWhitelisted = $isWhitelisted;
 
@@ -199,7 +223,7 @@ abstract class BaseReader implements IReader
      * Create a blank sheet if none are read,
      * possibly due to a typo when using LoadSheetsOnly.
      */
-    public function setCreateBlankSheetIfNoneRead(bool $createBlankSheetIfNoneRead): self
+    public function setCreateBlankSheetIfNoneRead(bool $createBlankSheetIfNoneRead): static
     {
         $this->createBlankSheetIfNoneRead = $createBlankSheetIfNoneRead;
 
@@ -228,7 +252,7 @@ abstract class BaseReader implements IReader
         if (((bool) ($flags & self::READ_DATA_ONLY)) === true) {
             $this->setReadDataOnly(true);
         }
-        if (((bool) ($flags & self::SKIP_EMPTY_CELLS) || (bool) ($flags & self::IGNORE_EMPTY_CELLS)) === true) {
+        if (((bool) ($flags & self::IGNORE_EMPTY_CELLS)) === true) {
             $this->setReadEmptyCells(false);
         }
         if (((bool) ($flags & self::IGNORE_ROWS_WITH_NO_CELLS)) === true) {
@@ -289,6 +313,8 @@ abstract class BaseReader implements IReader
 
     /**
      * Return worksheet info (Name, Last Column Letter, Last Column Index, Total Rows, Total Columns).
+     *
+     * @return array<int, array{worksheetName: string, lastColumnLetter: string, lastColumnIndex: int, totalRows: int, totalColumns: int, sheetState: string}>
      */
     public function listWorksheetInfo(string $filename): array
     {
@@ -300,17 +326,34 @@ abstract class BaseReader implements IReader
      * possibly without parsing the whole file to a Spreadsheet object.
      * Readers will often have a more efficient method with which
      * they can override this method.
+     *
+     * @return string[]
      */
     public function listWorksheetNames(string $filename): array
     {
         $returnArray = [];
         $info = $this->listWorksheetInfo($filename);
         foreach ($info as $infoArray) {
-            if (isset($infoArray['worksheetName'])) {
-                $returnArray[] = $infoArray['worksheetName'];
-            }
+            $returnArray[] = $infoArray['worksheetName'];
         }
 
         return $returnArray;
+    }
+
+    public function getValueBinder(): ?IValueBinder
+    {
+        return $this->valueBinder;
+    }
+
+    public function setValueBinder(?IValueBinder $valueBinder): static
+    {
+        $this->valueBinder = $valueBinder;
+
+        return $this;
+    }
+
+    protected function newSpreadsheet(): Spreadsheet
+    {
+        return new Spreadsheet();
     }
 }

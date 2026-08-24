@@ -60,12 +60,10 @@ class ConsoleSectionOutput extends StreamOutput
      * Clears previous output for this section.
      *
      * @param int $lines Number of lines to clear. If null, then the entire output of this section is cleared
-     *
-     * @return void
      */
-    public function clear(?int $lines = null)
+    public function clear(?int $lines = null): void
     {
-        if (empty($this->content) || !$this->isDecorated()) {
+        if (!$this->content || !$this->isDecorated()) {
             return;
         }
 
@@ -76,17 +74,18 @@ class ConsoleSectionOutput extends StreamOutput
             $this->content = [];
         }
 
-        $this->lines -= $lines;
+        // callers may ask to clear more lines than this section tracks (e.g. ProgressBar
+        // counts "\n"-separated lines while addContent() splits on PHP_EOL), so keep the
+        // counter from going negative, which would break the max-height bookkeeping
+        $this->lines = max(0, $this->lines - $lines);
 
         parent::doWrite($this->popStreamContentUntilCurrentSection($this->maxHeight ? min($this->maxHeight, $lines) : $lines), false);
     }
 
     /**
      * Overwrites the previous output with a new message.
-     *
-     * @return void
      */
-    public function overwrite(string|iterable $message)
+    public function overwrite(string|iterable $message): void
     {
         if (!$this->content || !$this->isDecorated()) {
             $this->writeln($message);
@@ -185,10 +184,7 @@ class ConsoleSectionOutput extends StreamOutput
         ++$this->lines;
     }
 
-    /**
-     * @return void
-     */
-    protected function doWrite(string $message, bool $newline)
+    protected function doWrite(string $message, bool $newline): void
     {
         // Simulate newline behavior for consistent output formatting, avoiding extra logic
         if (!$newline && str_ends_with($message, \PHP_EOL)) {

@@ -27,7 +27,7 @@ class UninstallModuleCommand extends Command
             )
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $module_name = $input->getArgument('name');
         $module = DB::GetRow("SELECT * FROM available_modules WHERE name = %s",$module_name);
         if(!$module)

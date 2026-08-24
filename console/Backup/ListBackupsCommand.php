@@ -18,7 +18,7 @@ class ListBackupsCommand extends Command
             ->setDescription('List backups');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $st = new SymfonyStyle($input, $output);
         require_once 'include/backups.php';

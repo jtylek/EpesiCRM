@@ -25,7 +25,7 @@ class ListModulesCommand extends Command
             ->addOption('installed-only', 'i');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('installed-only'))
             $modules = DB::GetAssoc('SELECT available_modules.name, available_modules.version, modules.state FROM available_modules LEFT JOIN modules ON modules.name=available_modules.name where state is NOT NULL');

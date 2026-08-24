@@ -1,24 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "b85c6e4defdefc3ae4499e07481a8ecb",
     "content-hash": "4838a2fe6ca8867c2ee90f2ce53a21e2",
     "packages": [
         {
             "name": "tedivm/fetch",
-            "version": "v0.7.1",
+            "version": "v0.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tedious/Fetch.git",
-                "reference": "ea3f1bbde6bd6388488105240640642dc82c06a6"
+                "reference": "9a1b0eb87d343eb0c8c57acb33973c594b8aca8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tedious/Fetch/zipball/ea3f1bbde6bd6388488105240640642dc82c06a6",
-                "reference": "ea3f1bbde6bd6388488105240640642dc82c06a6",
+                "url": "https://api.github.com/repos/tedious/Fetch/zipball/9a1b0eb87d343eb0c8c57acb33973c594b8aca8d",
+                "reference": "9a1b0eb87d343eb0c8c57acb33973c594b8aca8d",
                 "shasum": ""
             },
             "require": {
@@ -54,7 +53,17 @@
                 "imap",
                 "pop3"
             ],
-            "time": "2015-08-02 03:38:12"
+            "support": {
+                "issues": "https://github.com/tedious/Fetch/issues",
+                "source": "https://github.com/tedious/Fetch/tree/v0.7.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/tedivm",
+                    "type": "github"
+                }
+            ],
+            "time": "2016-11-26T08:28:12+00:00"
         }
     ],
     "packages-dev": [],
@@ -64,5 +73,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
 }

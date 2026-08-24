@@ -3044,11 +3044,13 @@ class Utils_RecordBrowser extends Module {
 				
 			try {
 				[$class_name, $method_name] = explode('::', $callback);
-					
+
 				$class = new ReflectionClass($class_name);
-				$docblock  = new \phpDocumentor\Reflection\DocBlock($class->getMethod($method_name));
-					
-				$output .= '<span class="description">' . $docblock->getShortDescription() . '<br />' . $docblock->getLongDescription()->getContents() . '</span>';
+				$doc_comment = $class->getMethod($method_name)->getDocComment();
+				if ($doc_comment !== false) {
+					$docblock = \phpDocumentor\Reflection\DocBlockFactory::createInstance()->create($doc_comment);
+					$output .= '<span class="description">' . $docblock->getSummary() . '<br />' . $docblock->getDescription()->render() . '</span>';
+				}
 			} catch (Exception) {
 			}
 				

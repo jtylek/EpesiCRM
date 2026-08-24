@@ -5,6 +5,7 @@ namespace PhpOffice\PhpSpreadsheet\Calculation\Web;
 use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Calculation\Information\ExcelError;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 
 class Service
 {
@@ -23,26 +24,22 @@ class Service
         if (is_array($url)) {
             $url = Functions::flattenSingleValue($url);
         }
-        if (!is_string($url)) {
-            return ExcelError::VALUE();
-        }
-        $url = trim($url);
+        $url = trim(StringHelper::convertToString($url, false));
         if (mb_strlen($url) > 2048) {
             return ExcelError::VALUE(); // Invalid URL length
         }
-
         $parsed = parse_url($url);
         $scheme = $parsed['scheme'] ?? '';
         if ($scheme !== 'http' && $scheme !== 'https') {
             return ExcelError::VALUE(); // Invalid protocol
         }
-
         $domainWhiteList = $cell?->getWorksheet()->getParent()?->getDomainWhiteList() ?? [];
         $host = $parsed['host'] ?? '';
         if (!in_array($host, $domainWhiteList, true)) {
             return ($cell === null) ? null : Functions::NOT_YET_IMPLEMENTED; // will be converted to oldCalculatedValue or null
         }
-        // Get results from the the webservice
+
+        // Get results from the webservice
         $ctxArray = [
             'http' => [
                 'follow_location' => 0,

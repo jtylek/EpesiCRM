@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-jasiek',
         'version' => 'dev-jasiek',
-        'reference' => '028d6e9c2ae7a4e4ac446bb008c920c060e73f92',
+        'reference' => 'bc9de8e1223f228395bd71098e1207ff110bb493',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-jasiek',
             'version' => 'dev-jasiek',
-            'reference' => '028d6e9c2ae7a4e4ac446bb008c920c060e73f92',
+            'reference' => 'bc9de8e1223f228395bd71098e1207ff110bb493',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

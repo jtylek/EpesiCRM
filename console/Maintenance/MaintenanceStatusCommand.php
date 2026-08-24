@@ -20,7 +20,7 @@ class MaintenanceStatusCommand extends Command
             ->setDescription('Get status of EPESI maintenance mode')
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $is_on = MaintenanceMode::is_on();
         $status = $is_on ? '<fg=green>enabled</fg=green>' : '<fg=red>disabled</fg=red>';
         $output->writeln("Maintenance mode status: $status");

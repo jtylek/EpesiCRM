@@ -24,7 +24,7 @@ class GenerateContactsCommand extends Command
             ->addOption('count', null, InputOption::VALUE_REQUIRED, 'Count of generated records');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         \Variable::set('anonymous_setup', 1);
         // Utils_RecordBrowserCommon::new_record() stamps created_by with
