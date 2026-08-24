@@ -341,8 +341,14 @@ class Base_Setup extends Module {
 				'style' => $style);
 			}
 		}
+		// Order requested: Installed, Available, Updates, My Purchases, All,
+		// Store. The last three only exist when Store integration is
+		// installed and enabled (add_store_products() below) - 'All' is
+		// added there too, between My Purchases and Store, so it lands in
+		// the right spot when the Store tabs are present; the fallback
+		// after this block adds it at the end otherwise (Store integration
+		// off/uninstalled - nothing to be positioned before).
 		$filters = array(
-			__('All') => array('arg'=>''),
 			__('Installed') => array('arg'=>'installed'),
 			__('Available') => array('arg'=>'available')
 		);
@@ -356,6 +362,8 @@ class Base_Setup extends Module {
             $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';
             Base_ActionBarCommon::add($icon, $text, $href, $desc);
 		}
+		if (!isset($filters[__('All')]))
+			$filters[__('All')] = array('arg'=>'');
 
 		foreach ($sorted as $name=>$v) {
 			ksort($sorted[$name]['options']);
@@ -421,6 +429,7 @@ class Base_Setup extends Module {
 		}
 		$filters[__('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
 		$filters[__('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
+		$filters[__('All')] = array('arg'=>'');
 		$filters[__('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
 		if (!$registered) 
 			return;
