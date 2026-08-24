@@ -164,7 +164,10 @@ class Utils_QueryBuilder extends Module
     {
         $m = $this->get_module_dir();
 
-        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = array($m . 'quickform_crits.php', 'HTML_QuickForm_crits');
+        // openpsa's _loadElement() wants a plain classname string (class already loaded), not
+        // array($file,$class) — see include/epesi.php's register_custom_qf_types() for why.
+        require_once($m . 'quickform_crits.php');
+        $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['critsvalue'] = 'HTML_QuickForm_crits';
 
         load_css($m . 'bootstrap-compat.css');
         load_css($m . 'query-builder.default.css');

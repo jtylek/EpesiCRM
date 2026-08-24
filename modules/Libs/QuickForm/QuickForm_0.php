@@ -13,10 +13,18 @@ require_once('include/EpesiSmartyRenderer.php');
 require_once('Renderer/EpesiDefault.php');
 
 $GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_EpesiDefault();
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
+// openpsa's _loadElement() wants a plain classname string (class already loaded), not
+// array($file,$class) — see include/epesi.php's register_custom_qf_types() for why. This module
+// may load after that eager-registration has already run, so require+register the same way here
+// too, or a later module load would clobber the string back to the array form it can't handle.
+require_once('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = 'HTML_QuickForm_multiselect';
+require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = 'HTML_QuickForm_autocomplete';
+require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = 'HTML_QuickForm_automulti';
+require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = 'HTML_QuickForm_autoselect';
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
 /**

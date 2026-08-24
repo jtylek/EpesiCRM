@@ -464,7 +464,7 @@ were preg_split, which is fine):
 Note: Smarty WILL be replaced long-term (Smarty 5 is PHP 8-native). Only 2 micro-patches needed to
 pass it for now → don't deep-patch, replace later (fix-twice).
 
-### 12.6 openpsa — registerElementType() called statically (CKEditor, Codepress)
+### 12.6 openpsa — registerElementType() called statically (CKEditor, Codepress) (RESOLVED — see §79)
 modules/Libs/CKEditor/CKEditorCommon_0.php:18 and modules/Libs/Codepress/CodepressCommon_0.php:16 call
 `HTML_Quickform::registerElementType(...)` statically; openpsa declares it non-static → fatal.
 The method only writes to $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] (no $this), so made it `static` in
@@ -475,7 +475,7 @@ vendor by rewriting the 2 Epesi calls to write the global directly, like Epesi d
 Then revert the vendor `static` edit. (Not yet done — verify-first approach: confirmed static works,
 trad-off change pending.)
 
-### 12.7 openpsa — custom element type registration format mismatch (RESOLVED — see §15.1)
+### 12.7 openpsa — custom element type registration format mismatch (timing RESOLVED — see §15.1; format mismatch itself RESOLVED — see §79)
 Epesi registers ~8 custom element types as ARRAY: 
   $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('file.php', 'ClassName');
 (commondata, commondata_group, datepicker, timestamp, critsvalue, currency, multiselect, autocomplete,
@@ -495,13 +495,16 @@ All of these got Epesi running on PHP 8.2 but are temporary. Each needs a perman
 
 ### VENDOR EDITS (lost on `composer update` — highest priority to relocate)
 1. **openpsa registerElementType() made static** — vendor/openpsa/quickform/lib/HTML/QuickForm.php:296
-   Proper fix: revert vendor; rewrite the 2 Epesi callers (CKEditor CKEditorCommon_0.php:18,
-   Codepress CodepressCommon_0.php:16) to write $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] directly.
+   **DONE — see §79.** CKEditor's caller was already gone (superseded by Quill); rewrote Codepress's
+   remaining static call to write $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'] directly. Vendor no longer
+   needs the `static` edit (nothing in Epesi calls the method anymore) — left un-reverted since it's
+   harmless and dead code, not because it's still needed.
 
 2. **openpsa _loadElement() dual-format patch** — vendor/openpsa/quickform/lib/HTML/QuickForm.php:477
-   Added array-format handling (Epesi uses array('file','Class'); openpsa expects string).
-   Proper fix: either fork openpsa, or convert all Epesi type registrations to openpsa's string format
-   + ensure those classes are autoloadable.
+   **DONE — see §79.** This exact vendor patch was found lost (composer reset), which is what
+   surfaced this item. Fixed properly per the option below: converted all 8 Epesi registration
+   sites to openpsa's plain-string format, each paired with an explicit `require_once` of the
+   class file (no PSR-4 autoload for Epesi's own classes). No vendor edit needed at all now.
 
 ### EPESI CODE FIXES (survive composer update, but some are band-aids)
 3. **Relative require_once of old QuickForm classes** — these load STALE classes via include_path
@@ -2718,6 +2721,58 @@ under those names.
 **How to apply:** pure code/file rename, no stored/seed data involved (not an `*Install.php`
 default, DB row, or `data/` file) — ships to existing installs via normal code deployment, no
 `patches/` entry needed.
+
+---
+
+### §79 — FIXED (properly this time) — custom QuickForm element types: closed the §12.7/§13 "vendor edit lost on composer update" gap (2026-08-24)
+
+**Symptom:** `CRM_Filters` box fatal on render: `ReflectionClass::__construct(): Argument #1
+($objectOrClass) must be of type object|string, array given`, from `_loadElement()` trying to
+`new ReflectionClass()` on Epesi's `array($file,$className)` registration pair. Caught live by
+`monitor-error-logs` tailing `data/logs/php_errors.log`.
+
+**Root cause:** exactly the failure §12.7/§13 (item 2) predicted. openpsa's `_loadElement()` had
+been vendor-patched to accept Epesi's legacy PEAR-style `array($file,$className)` registration
+format in addition to its own native plain-classname-string format — but that's a vendor edit,
+and `vendor/` isn't git-tracked, so it doesn't survive a `composer install`/`update`. Checked the
+live vendor file: the dual-format patch was gone, back to pristine openpsa (string-only). Same
+fate had already hit the sibling `registerElementType()` static-method vendor patch (§12.6) —
+`modules/Libs/Codepress/CodepressCommon_0.php:16` was still calling it statically, which would
+fatal ("Non-static method ... cannot be called statically") the next time Codepress loads.
+
+**Fix — option (b) from §13 item 2, no vendor edit at all:** converted every custom QF type
+registration in Epesi's own code from `array($file,$className)` to a `require_once($file)` +
+plain classname string, matching what stock/pristine openpsa's `_loadElement()` actually wants
+(a string, with the class already loaded — no autoload for Epesi's own classes, per this doc's
+top-level note). Touched all 8 registration sites, not just the one that happened to crash first,
+since they all shared the same format:
+- `include/epesi.php`'s `register_custom_qf_types()` (the central eager-registration function
+  from §15.2) — the authoritative list of all 14 custom types
+- `modules/Libs/QuickForm/QuickForm_0.php:16-19` (multiselect, autocomplete, automulti, autoselect)
+- `modules/Utils/CommonData/CommonDataCommon_0.php` (commondata, commondata_group)
+- `modules/Utils/QueryBuilder/QueryBuilder_0.php` (critsvalue)
+- `modules/Utils/PopupCalendar/PopupCalendarCommon_0.php` (datepicker, timestamp)
+- `modules/Utils/CurrencyField/CurrencyFieldCommon_0.php` (currency)
+- `modules/CRM/Contacts/ContactsInstall.php` (commondata FirstRun-timing band-aid, §13 item 4)
+- `modules/Libs/Codepress/CodepressCommon_0.php` — also dropped the static `registerElementType()`
+  call entirely in favor of writing `$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']` directly (closes
+  §12.6/§13 item 1 the same way CKEditor's caller was already closed — CKEditor's own `'ckeditor'`
+  registration is gone too, superseded by the Quill editor, per §§2383's note)
+
+Why fix every site instead of just the central `register_custom_qf_types()`: several of these
+per-Common-file lines run at module-file-load time, which can happen *after* the central
+eager-registration already ran (e.g. loading `Libs_QuickForm` re-executes `QuickForm_0.php`) —
+left in the old array format, they'd clobber the working string registration right back to the
+broken one. All 8 sites now register the same way, so load order no longer matters.
+
+**Verified:** `php -l` clean on all 8 files; live browser reload of the crashed `crm_filter_contact`
+autoselect field (via the dashboard's "Perspective" link → `CRM_Filters` lightbox) renders and
+submits correctly, zero console/PHP-log errors.
+
+**How to apply:** pure code fix, no vendor edit, no stored/seed data — ships to existing installs
+via normal code deployment, no `patches/` entry needed. Closes §13's "VENDOR EDITS (lost on
+composer update)" items 1 and 2 for good; nothing left registers a custom QF type via the array
+format, so there's nothing left for a `composer update` to break here.
 
 ---
 

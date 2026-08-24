@@ -216,8 +216,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 	private static $country_elem_name;
 	public static function country_element($name, $args, & $def_js) {
 		self::$country_elem_name = $name;
-		if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'])) // openpsa throws on unregistered types; register directly (CommonData module may not be loaded yet during FirstRun)
-			$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
+		if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'])) { // openpsa throws on unregistered types; register directly (CommonData module may not be loaded yet during FirstRun)
+			require_once('modules/Utils/CommonData/qf.php'); // openpsa's _loadElement() wants a plain classname string (class already loaded), not array($file,$class)
+			$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = 'HTML_QuickForm_commondata';
+		}
 		$form = new HTML_QuickForm();
 		return $form->createElement('commondata',$name,'Country','Countries');
 	}

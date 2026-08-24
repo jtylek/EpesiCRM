@@ -13,8 +13,11 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-HTML_Quickform::registerElementType('codepress','modules/Libs/Codepress/HTML_Quickform_codepress_0.php'
-                                            ,'HTML_Quickform_codepress');
+// Write the global directly rather than call HTML_Quickform::registerElementType(): openpsa
+// declares that method non-static, and openpsa's _loadElement() wants a plain classname string
+// (class already loaded) rather than the array($file,$class) pair the old PEAR API took.
+require_once('modules/Libs/Codepress/HTML_Quickform_codepress_0.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['codepress'] = 'HTML_Quickform_codepress';
 load_js('modules/Libs/Codepress/0.9.6/codepress.js');
 eval_js_once('jQuery(document).on("e:load", function(){CodePress.run();})');
 Libs_QuickFormCommon::add_on_submit_action('CodePress.update(this)');

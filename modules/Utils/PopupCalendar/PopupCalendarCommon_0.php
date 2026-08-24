@@ -124,7 +124,11 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['timestamp'] = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
+// openpsa's _loadElement() wants a plain classname string (class already loaded), not
+// array($file,$class) — see include/epesi.php's register_custom_qf_types() for why.
+require_once('modules/Utils/PopupCalendar/datepicker.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['datepicker'] = 'HTML_QuickForm_datepicker';
+require_once('modules/Utils/PopupCalendar/timestamp.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['timestamp'] = 'HTML_QuickForm_timestamp';
 
 ?>

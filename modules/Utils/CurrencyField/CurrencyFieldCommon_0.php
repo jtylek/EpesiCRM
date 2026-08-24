@@ -325,6 +325,9 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
     }
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
+// openpsa's _loadElement() wants a plain classname string (class already loaded), not
+// array($file,$class) — see include/epesi.php's register_custom_qf_types() for why.
+require_once('modules/Utils/CurrencyField/currency.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['currency'] = 'HTML_QuickForm_currency';
 on_init(array('Utils_CurrencyFieldCommon','load_js'));
 ?>

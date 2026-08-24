@@ -384,7 +384,11 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	}
 }
 
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
+// openpsa's _loadElement() wants a plain classname string (class already loaded), not
+// array($file,$class) — see include/epesi.php's register_custom_qf_types() for why.
+require_once('modules/Utils/CommonData/qf.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = 'HTML_QuickForm_commondata';
+require_once('modules/Utils/CommonData/qf_group.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata_group'] = 'HTML_QuickForm_commondata_group';
 
 ?>
