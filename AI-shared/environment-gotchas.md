@@ -270,6 +270,27 @@ first, but if those check out) look for `OPTIONS .* 403` near the failure's
 timestamp in access.log before assuming a server-side cause. Same fix as
 above: clear the `localhost` HSTS entry and reload fresh over `http://`.
 
+### Same root cause again, this time a JS exception instead of a network failure
+
+Confirmed 2026-08-24 (`CRM_Roundcube`'s webmail screen,
+[Roundcube_0.php:84-86](../modules/CRM/Roundcube/Roundcube_0.php#L84-L86)):
+`navigator.registerProtocolHandler('mailto', $epesi_mail_url, ...)` is called
+with a URL built from `get_epesi_url()` (i.e. the hardcoded `http://`
+`EPESI_URL`). If the tab has silently upgraded to `https://localhost/...`,
+the handler URL is cross-origin by scheme alone relative to the document, and
+the browser throws `Uncaught SecurityError: Failed to execute
+'registerProtocolHandler' on 'Navigator': Can only register custom handler in
+the document's origin.` — a console JS error with no network request at all,
+so it won't show up in access.log even as an absence (unlike the AJAX variant
+above).
+
+**How to apply**: an `Uncaught SecurityError` naming `registerProtocolHandler`
+(or any other API that enforces same-origin against an absolute URL the app
+builds from `EPESI_URL`) is the same scheme-mismatch root cause, not a code
+bug — check the page's actual `https://` vs. the config's `http://` before
+touching the calling code. Same fix: clear the `localhost` HSTS entry and
+reload over `http://`.
+
 ## Browser-driven UI verification on this machine: no `chromium-cli`, Playwright's own Chromium was never downloaded, and the app has no deep-linkable URLs
 
 No project skill exists yet for driving this app in a browser (checked
@@ -478,6 +499,24 @@ user to run the `choco install` command themselves from an elevated ("Run as
 Administrator") PowerShell. Any tool chocolatey would install (e.g. `rsync`, for a
 cleaner alternative to the `robocopy /E` merge-copy pattern in `MIGRATION_NOTES.md` §70)
 hits the same wall.
+
+## Minimum PHP version: 8.0 required, 8.2 recommended — single source of truth is `include/compatibility_check.php`
+
+If asked "what PHP version does Epesi need," don't guess from `composer.json` — it
+declares no explicit `"php"` platform constraint, so it won't tell you. The actual
+enforced floor is `CompatibilityCheck::system_check()`
+(`include/compatibility_check.php:30-41`), shared by both `check.php` (setup's
+"Compatibility check" step) and the logged-in admin "PHP Environment & config.php"
+screen (`admin/modules/ConfigInfo.php`). Floor is PHP 8.0 because Epesi's own code
+uses constructor property promotion (8.0+-only syntax) — anything older fails to
+parse before the check itself could even run. 8.2 is called out as "recommended"
+because that's what this release (`20260701-rc1`) is actually developed and tested
+against, per `MIGRATION_NOTES.md`.
+
+**How to apply**: read `system_check()`'s `$desired_version` directly rather than
+citing a remembered number — if a future patch raises the floor (e.g. to drop 8.0/8.1
+deprecation shims), that's the one place it needs to change and the one place to
+re-check.
 
 ## Windows/NTFS + `core.fileMode=true` makes `git status` show ~30 vendored scripts as modified with zero content diff
 
