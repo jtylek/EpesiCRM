@@ -2972,6 +2972,34 @@ cache rebuild, another module's `install()`) changes what "default" resolves to.
 
 ---
 
+### §83 — Default Dashboard "Note" applet text: same upgrade-gap shape, one-time DB copy not a live template (2026-08-25)
+
+`Tools_SetDefaultsInstall::install()` seeds the default Dashboard "Note" applet's welcome text
+("Congratulations! You've just installed EPESI! ... visit EPESI website", linking to the retired
+`http://epe.si` short domain) via an `INSERT INTO base_dashboard_default_settings`. Fixed the casing to
+"Epesi" and the link to `https://epesi.org` in `install()` — but same as §82, that only reaches fresh
+installs. `base_dashboard_default_applets`/`base_dashboard_default_settings` are templates,
+one-time-copied into each user's own `base_dashboard_applets`/`base_dashboard_settings` the moment their
+dashboard is first created (`Base_DashboardCommon::set_default_applets()`, `DashboardCommon_0.php:148`) —
+after that the per-user row is the live source, fully decoupled from the template. Confirmed on this dev
+DB: both the template row *and* the admin user's already-created Note applet (`applet_id=3`) still held the
+old text.
+
+**No patch added for this one, per explicit direction** — unlike §82, this is cosmetic text on a
+low-stakes dev install, not worth a permanent patch file for. Fixed the template row and this dev DB's
+existing `Applets_Note` instance (`applet_id=3`) directly with a one-off script instead (bootstrapped like
+§82's fix). Any *other* existing install would still show the old text unless fixed the same way by hand —
+acceptable here since none are known to exist yet at this stage.
+
+**How to apply:** any `*_default_*` table copied into a per-user/per-instance table on first use (Dashboard
+applets here, likely others) has the same shape as §82's admin-defaults gap even though the underlying bug
+is simpler (a literal stored value, not an optimization-related no-op) — a source/template fix alone never
+reaches an install whose per-user copy was already made. Check for a sibling `_default_` vs. non-`_default_`
+table pair before assuming an `*Install.php` text/data fix is enough on its own — then use judgment on
+whether the gap is worth a real patch (§82) or a direct one-off fix is enough (here).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

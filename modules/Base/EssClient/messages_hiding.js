@@ -21,6 +21,8 @@ function client_messages_add_discard_buttons() {
             continue;
         var single_messages = childs[i].children;
         for(var j = 0; j < single_messages.length; j++) {
+            if(!single_messages[j].classList.contains("popup_notice_frame"))
+                continue;
             var div = document.createElement("div");
             div.innerHTML = ess_client_messages_discard_label;
             div.classList.add("popup_notice_frame_close_button");
@@ -79,6 +81,8 @@ function show_client_messages() {
         var total = single_messages.length;
         var displayed = 0;
         for(var j = 0; j < total; j++) {
+            if(!single_messages[j].classList.contains("popup_notice_frame"))
+                continue;
             if(discarded_messages[single_messages[j].innerHTML]) {
                 single_messages[j].style.display = 'none';
                 discarded++;

@@ -20,14 +20,6 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     const VAR_LICENSE_KEY = 'license_key';
     const VAR_INSTALLATION_STATUS = 'ess_installations_status';
     
-    public static function menu() {
-        if (!self::admin_access())
-            return;
-        if (self::has_license_key()) 
-			return;
-        return array(_M('Support') => array('__submenu__' => 1, _M('Register Epesi!') => array()));
-    }
-
     public static function get_server_url() {
         return 'https://ess.epe.si/';
     }
@@ -213,7 +205,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         if($printed)
             return '';
         $printed = true;
-        
+
         $content = self::format_client_messages();
 
         $hide_all = __('Hide messages');
@@ -223,10 +215,18 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         eval_js_once('var ess_client_messages_hide_button_label = ' . json_encode($hide_all)
                 . '; var ess_client_messages_show_button_label = ' . json_encode($show_all)
                 . '; var ess_client_messages_discard_label = ' . json_encode($discard));
-        $buttons = "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_hide\">$hide_all</div>" .
-                "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
         load_js('modules/Base/EssClient/messages_hiding.js');
         eval_js('set_client_messages_frame_id("client_messages_frame");');
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            $buttons = '<div class="text-end">'
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" id="client_messages_frame_hide">' . $hide_all . '</button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" id="client_messages_frame_show_discarded">' . $show_discarded . '</button>'
+                    . '</div>';
+            return '<div id="client_messages_frame" class="position-fixed bottom-0 end-0 m-3" style="z-index:1080;max-width:380px;max-height:80vh;overflow-y:auto;">'
+                    . '<div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
+        }
+        $buttons = "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_hide\">$hide_all</div>" .
+                "<div class=\"button\" style=\"width:auto; padding:2px 10px\" id=\"client_messages_frame_show_discarded\">$show_discarded</div>";
         return '<div id="client_messages_frame"><div id="client_messages_frame_content">' . $content . '</div>' . $buttons . '</div>';
     }
 
@@ -236,9 +236,9 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         $red = '#FFCCCC';
         $orange = '#FFDD99';
         $green = '#DDFF99';
-        $ret = self::format_messages_frame($red, __('Error messages') . ':', $msgs[2])
-                . self::format_messages_frame($orange, __('Warning messages') . ':', $msgs[1])
-                . self::format_messages_frame($green, __('Information messages') . ':', $msgs[0]);
+        $ret = self::format_messages_frame($red, __('Error messages') . ':', $msgs[2], 'danger')
+                . self::format_messages_frame($orange, __('Warning messages') . ':', $msgs[1], 'warning')
+                . self::format_messages_frame($green, __('Information messages') . ':', $msgs[0], 'success');
 
         if ($cleanup) {
             Module::static_unset_module_variable(Base_EssClient::module_name(), 'messages');
@@ -246,9 +246,19 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return $ret;
     }
 
-    private static function format_messages_frame($bg_color, $title, $messages) {
+    private static function format_messages_frame($bg_color, $title, $messages, $type = 'success') {
         $ret = '';
         if (count($messages)) {
+            if (Base_ThemeCommon::is_adminlte_family()) {
+                $icons = array('danger' => 'bi-exclamation-octagon-fill', 'warning' => 'bi-exclamation-triangle-fill', 'success' => 'bi-info-circle-fill');
+                $icon = $icons[$type] ?? 'bi-info-circle-fill';
+                $ret .= '<div class="popup_notice alert alert-' . $type . ' shadow-sm mb-2 py-2 px-3">';
+                $ret .= '<div class="d-flex align-items-center mb-1"><i class="bi ' . $icon . ' me-2"></i><strong>' . $title . '</strong></div>';
+                foreach ($messages as $m)
+                    $ret .= '<div class="popup_notice_frame small">' . $m . '</div>';
+                $ret .= '</div>';
+                return $ret;
+            }
             $ret .= '<div class="popup_notice" style="background-color:' . $bg_color . '">';
             $ret .= $title;
             foreach ($messages as $m)

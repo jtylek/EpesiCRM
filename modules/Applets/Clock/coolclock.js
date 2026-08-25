@@ -82,6 +82,22 @@ CoolClock.config = {
 		secondDecoration: { lineWidth: 1, startAt: 70, radius: 4, fillColor: "red", color: "red", alpha: 1 }
 	},
 
+	// Same geometry as swissRail (the default skin), but with white instead of
+	// black - swissRail's black-on-transparent-canvas is nearly invisible on
+	// an AdminLTE dark-theme card background. Auto-selected in render() below
+	// instead of being its own selectable skin, so the default clock stays
+	// legible in both themes without the user having to know to pick
+	// chunkySwissOnBlack themselves.
+	swissRailDark: {
+		outerBorder: { lineWidth: 1, radius:95, color: "white", alpha: 1 },
+		smallIndicator: { lineWidth: 2, startAt: 89, endAt: 93, color: "white", alpha: 1 },
+		largeIndicator: { lineWidth: 4, startAt: 80, endAt: 93, color: "white", alpha: 1 },
+		hourHand: { lineWidth: 8, startAt: -15, endAt: 50, color: "white", alpha: 1 },
+		minuteHand: { lineWidth: 7, startAt: -15, endAt: 75, color: "white", alpha: 1 },
+		secondHand: { lineWidth: 1, startAt: -20, endAt: 85, color: "red", alpha: 1 },
+		secondDecoration: { lineWidth: 1, startAt: 70, radius: 4, fillColor: "red", color: "red", alpha: 1 }
+	},
+
 	chunkySwiss: {
 		outerBorder: { lineWidth: 4, radius:97, color: "black", alpha: 1 },
 		smallIndicator: { lineWidth: 4, startAt: 89, endAt: 93, color: "black", alpha: 1 },
@@ -353,7 +369,10 @@ CoolClock.prototype = {
 	},
 
 	render: function(hour,min,sec) {
-		var skin = CoolClock.config.skins[this.skinId];
+		var skinId = this.skinId;
+		if (skinId == "swissRail" && document.documentElement.getAttribute("data-bs-theme") == "dark")
+			skinId = "swissRailDark";
+		var skin = CoolClock.config.skins[skinId];
 		this.ctx.clearRect(0,0,this.renderRadius*2,this.renderRadius*2);
 
 		this.fullCircle(skin.outerBorder);

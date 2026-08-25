@@ -86,14 +86,25 @@ class Base_EssClient extends Module {
 
     private function connection_problem_form()
     {
+        $help_url = "http://epesi.org/ESS_Connection_Issues";
+        $help_link = "<a href=\"$help_url\" target=\"_blank\">$help_url</a>";
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            print('<div class="d-flex justify-content-center py-4">');
+            print('<div class="card border-danger" style="max-width:600px;width:100%;">');
+            print('<div class="card-body text-center">');
+            print('<i class="bi bi-wifi-off text-danger" style="font-size:3rem;"></i>');
+            print('<h3 class="text-danger mt-3 mb-3">' . __('Connection problem') . '</h3>');
+            print('<p class="mb-3">' . __('Cannot estabilish connection to registration server. Please read error information in the bottom right corner.') . '</p>');
+            print('<p class="text-muted mb-0"><i class="bi bi-info-circle me-1"></i>' . __('For more information please visit this page: %s', array($help_link)) . '</p>');
+            print('</div></div></div>');
+            return;
+        }
         print('<div class="important_notice">');
         print('<h1 style="color:red; text-align: center">');
         print(__('Connection problem'));
         print('</h1><br>');
         print(__('Cannot estabilish connection to registration server. Please read error information in the bottom right corner.'));
         print('<br><br>');
-        $help_url = "http://epesi.org/ESS_Connection_Issues";
-        $help_link = "<a href=\"$help_url\" target=\"_blank\">$help_url</a>";
         print(__('For more information please visit this page: %s', array($help_link)));
         print('</div>');
 
