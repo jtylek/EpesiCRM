@@ -37,9 +37,16 @@
 	color: #0d6efd;
 }
 
+/* !important guards against the auto-generated light-mode override below
+   (gen_light_override.js) - its [data-bs-theme="light"] .epesi-setup .filters
+   > div fallback ties this rule's specificity exactly (3 class-equivalents +
+   1 type each) and, being later in source order, would otherwise silently
+   win and flatten the active tab to the same grey as the rest in light mode.
+   Same shape/fix as the Dashboard applet header bug - see
+   AI-shared/bug-patterns.md. */
 .epesi-setup .filters > div.selected {
-	color: #fff;
-	background-color: #0d6efd;
+	color: #fff !important;
+	background-color: #0d6efd !important;
 }
 
 /* --- card grid --------------------------------------------------------- */
