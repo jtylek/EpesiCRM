@@ -120,7 +120,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function user_settings() {
 		if(Acl::is_user()) {
             $info = '%D - ' . __('Date') . '<br>%T - ' . __('Time') . '<br>%U - ' . __('User');
-            $help = ' <img src="'.Base_ThemeCommon::get_icon('info').'" '.Utils_TooltipCommon::open_tag_attrs($info, false).'/>';
+            $help = ' ' . Utils_TooltipCommon::icon($info, false);
 			return array(
 				__('Notes')=>array(
 					array('name'=>'editor','label'=>__('Editor'), 'type'=>'select', 'default'=>0, 'values'=>array(__('Simple'),__('Advanced'))),

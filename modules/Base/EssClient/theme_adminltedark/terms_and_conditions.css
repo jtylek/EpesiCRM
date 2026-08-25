@@ -1,0 +1,15 @@
+/* Base_EssClient::terms_and_conditions() (theme_adminltedark/terms_and_conditions.tpl)
+ * - the "I agree to Terms and Conditions" checkbox. Plain Bootstrap
+ * .form-check-input renders with just a 1px var(--bs-border-color) outline
+ * and no fill color of its own - low contrast against the card in both
+ * light and dark mode, and small next to the label text next to it. Sized
+ * up and given a solid border + blue accent-color so it reads clearly
+ * regardless of theme, matching the sizing already used for the
+ * automulti/#multiselect checklist's own checkboxes
+ * (Libs/QuickForm/theme_adminltedark/default.css's .epesi-ms-check). */
+#agree {
+	width: 1.15rem;
+	height: 1.15rem;
+	accent-color: #0d6efd;
+	border: 1px solid #6c757d;
+}

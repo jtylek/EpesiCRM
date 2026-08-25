@@ -43,23 +43,36 @@ class Base_EssClient extends Module {
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
                     $data['status'] = Base_EssClientCommon::get_installation_status();
                     ///////// Status ////////
-                    print('<div class="important_notice">');
-                    print('<div style="margin: 5px">' . __('Thank you for registering your Epesi installation.') . '</div>');
-                    $status_description = '';
-                    $verbose_description = '';
-                    if (stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false) {
+                    $confirmed = stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false;
+                    if ($confirmed) {
                         $status_description = __('registration done');
                         $verbose_description = __('The registration process is complete.');
                     } else {
                         $status_description = __('waiting for e-mail confirmation');
                         $verbose_description = __('You need to verify your e-mail address. An e-mail was sent to the Administrator\'s e-mail address with a link to confirm the e-mail address.');
                     }
-                    print('<div class="important_notice_frame"><span style="font-weight:bold;">' . __('License Key') . ': ' .
-                            '</span>' . $data['license_key'] . '<br/>');
-                    print('<span style="font-weight:bold;">' . __('Status') . ': ' .
-                            '</span>' . $status_description . '</div>');
-                    print('<div style="margin: 5px">' . $verbose_description . '</div>');
-                    print('</div>');
+                    if (Base_ThemeCommon::is_adminlte_family()) {
+                        print('<div class="d-flex justify-content-center py-4">');
+                        print('<div class="card ' . ($confirmed ? 'border-success' : 'border-warning') . '" style="max-width:600px;width:100%;">');
+                        print('<div class="card-body text-center">');
+                        print('<i class="bi ' . ($confirmed ? 'bi-check-circle-fill text-success' : 'bi-hourglass-split text-warning') . '" style="font-size:3rem;"></i>');
+                        print('<h3 class="mt-3 mb-3">' . __('Thank you for registering your Epesi installation.') . '</h3>');
+                        print('<div class="text-start bg-body-tertiary rounded p-3 mb-3">');
+                        print('<div class="mb-2"><span class="fw-bold">' . __('License Key') . ':</span> <code class="user-select-all">' . htmlspecialchars($data['license_key']) . '</code></div>');
+                        print('<div><span class="fw-bold">' . __('Status') . ':</span> <span class="badge ' . ($confirmed ? 'text-bg-success' : 'text-bg-warning') . '">' . $status_description . '</span></div>');
+                        print('</div>');
+                        print('<p class="text-muted mb-0">' . $verbose_description . '</p>');
+                        print('</div></div></div>');
+                    } else {
+                        print('<div class="important_notice">');
+                        print('<div style="margin: 5px">' . __('Thank you for registering your Epesi installation.') . '</div>');
+                        print('<div class="important_notice_frame"><span style="font-weight:bold;">' . __('License Key') . ': ' .
+                                '</span>' . $data['license_key'] . '<br/>');
+                        print('<span style="font-weight:bold;">' . __('Status') . ': ' .
+                                '</span>' . $status_description . '</div>');
+                        print('<div style="margin: 5px">' . $verbose_description . '</div>');
+                        print('</div>');
+                    }
                     Base_ActionBarCommon::add('edit', __('Edit company details'), $this->create_callback_href($this->register_form(...), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
@@ -123,7 +136,10 @@ class Base_EssClient extends Module {
         $form = $this->init_module('Libs_QuickForm');
         $form->addElement('checkbox', 'agree', __('I agree to Terms and Conditions'), null, array('class' => 'form-check-input'));
         $form->addRule('agree', __('You must accept Terms and Conditions to proceed'), 'required');
-        $form->addElement('submit', 'submit', __('Obtain Epesi License Key'), array('style' => 'width:200px'));
+        $submit_attrs = Base_ThemeCommon::is_adminlte_family()
+            ? array('class' => 'btn btn-primary rounded-pill px-4')
+            : array('style' => 'width:200px');
+        $form->addElement('submit', 'submit', __('Obtain Epesi License Key'), $submit_attrs);
         if ($form->validate()) {
             $this->set_module_variable('t_and_c_accepted', true);
             location(array());
@@ -181,13 +197,9 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module(Libs_QuickForm::module_name());
 
-        $admin_email_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs(__('This email will be used to send registation link and to contact Administator directly.'), false)
-                . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
+        $admin_email_tooltip = Utils_TooltipCommon::icon(__('This email will be used to send registation link and to contact Administator directly.'), false) . ' ';
 
-        $tax_id_tooltip = '<img ' .
-                Utils_TooltipCommon::open_tag_attrs(__('Your company Tax ID for invoices.'), false)
-                . ' src="' . Base_ThemeCommon::get_icon('info') . '"/> ';
+        $tax_id_tooltip = Utils_TooltipCommon::icon(__('Your company Tax ID for invoices.'), false) . ' ';
 
         $f->addElement('text', 'company_name', __('Company Name'), array('maxlength' => 128));
         $f->addRule('company_name', __('Field required'), 'required');
@@ -258,14 +270,13 @@ class Base_EssClient extends Module {
             }
         }
         // set defaults
-        print('<div class="important_notice">');
-        print(__('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.'));
-        print('<br>');
+        $intro = __('Enter Company and Administrator details. This data will be sent to Epesi Store Server to provide us with contact information. The data sent to Epesi Store Server is limited only to the data you enter using this form and what modules are being purchased and downloaded.');
+        $auto_filled_notice = '';
         if ($data) {
             $f->setDefaults($data);
         } else {
             if (ModuleManager::is_installed('CRM_Contacts') > -1) {
-                print('<span style="color:gray;font-size:10px;">' . __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.') . '</span>');
+                $auto_filled_notice = __('Data below was auto-filled based on Main Company and first Super administrator. Make sure that the data is correct and change it if necessary.');
 				$defaults = Base_EssClientCommon::get_possible_admin();
 				$mc = CRM_ContactsCommon::get_main_company();
                 if ($mc > 0) {
@@ -277,15 +288,40 @@ class Base_EssClient extends Module {
                 $f->setDefaults($defaults);
             }
         }
+        $revalidation_notice = '';
+        $email_change_notice = '';
         if ($data) {
             if (isset($data['status']) && strcasecmp($data['status'], 'Confirmed') == 0)
-                print('<div style="color:gray;font-size:10px;">'.__('Updating Company data will require re-validation by our representative.').'</div>');
-            print('<div style="color:red;font-size:10px;">'.__('Changing Administrator e-mail address will require e-mail confirmation.').'</div>');
+                $revalidation_notice = __('Updating Company data will require re-validation by our representative.');
+            $email_change_notice = __('Changing Administrator e-mail address will require e-mail confirmation.');
         }
-        print('<center>');
 
         $f->addElement('submit', 'submit', $data ? __('Update') : __('Register'));
 
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            $theme = $this->pack_module(Base_Theme::module_name());
+            $f->assign_theme('form', $theme);
+            $theme->assign('intro', $intro);
+            $theme->assign('auto_filled_notice', $auto_filled_notice);
+            $theme->assign('revalidation_notice', $revalidation_notice);
+            $theme->assign('email_change_notice', $email_change_notice);
+            $theme->display('register_form');
+            return true;
+        }
+
+        print('<div class="important_notice">');
+        print($intro);
+        print('<br>');
+        if ($auto_filled_notice) {
+            print('<span style="color:gray;font-size:10px;">' . $auto_filled_notice . '</span>');
+        }
+        if ($revalidation_notice) {
+            print('<div style="color:gray;font-size:10px;">'.$revalidation_notice.'</div>');
+        }
+        if ($email_change_notice) {
+            print('<div style="color:red;font-size:10px;">'.$email_change_notice.'</div>');
+        }
+        print('<center>');
         $f->display_as_column();
         print('</center>');
         print('</div>');

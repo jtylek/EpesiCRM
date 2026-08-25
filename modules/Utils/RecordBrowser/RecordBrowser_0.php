@@ -1801,7 +1801,7 @@ class Utils_RecordBrowser extends Module {
         foreach($this->table_rows as $name=>$desc) {
         	$info .= '<b>'.$desc['id'].'</b> - '.$name.', ';
         }
-        $label = '<img src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser', 'info.png').'" '.Utils_TooltipCommon::open_tag_attrs($info).'/> '.__('Pattern');
+        $label = Utils_TooltipCommon::icon($info) . ' ' . __('Pattern');
         $textarea = $form->addElement('textarea', 'pattern', $label);
         $textarea->setRows(12);
         $textarea->setCols(80);
@@ -2147,7 +2147,7 @@ class Utils_RecordBrowser extends Module {
         $ck->setQuillProps(null, null, false);
 
 		$form->addElement('checkbox', 'advanced', __('Edit advanced properties'), null, array('id'=>'advanced', 'class'=>'epesi-switch'));
-        $icon = '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info">';
+        $icon = Utils_TooltipCommon::icon();
         $txt = 'Callback returning the template or template file to use for the field';
         $form->addElement('textarea', 'template', __('Field template') . Utils_TooltipCommon::create($icon, $txt, false), array('maxlength'=>16000, 'style'=>'width:97%', 'id'=>'template'));
         $txt = '<ul><li>&lt;Class name&gt;::&ltmethod name&gt</li><li>&ltfunction name&gt</li><li>PHP:<br />- $record (array)<br />- $links_not_recommended (bool)<br />- $field (array)<br />return "value to display";</li></ul>';

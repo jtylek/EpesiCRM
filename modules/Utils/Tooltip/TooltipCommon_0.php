@@ -187,6 +187,29 @@ class Utils_TooltipCommon extends ModuleCommon {
 	}
 
 	/**
+	 * Returns the small "info" icon callers prepend to a field label/help
+	 * text to mark it as tooltip-bearing - a Bootstrap icon under the
+	 * AdminLTE family instead of the legacy sprite <img> (get_icon('info')),
+	 * which rendered as a barely-visible/dated glyph on AdminLTE screens.
+	 * Pass $tip to also wire the icon itself as the hover trigger (via
+	 * open_tag_attrs()); omit it when the icon will be wrapped by
+	 * create()/ajax_create() instead, which supplies its own trigger span.
+	 *
+	 * @param string|null $tip tooltip text, or null for a bare icon
+	 * @param boolean $help help tooltip? (see open_tag_attrs())
+	 * @param int $max_width see open_tag_attrs()
+	 * @param bool $keep_table see open_tag_attrs()
+	 * @return string HTML for the icon tag
+	 */
+	public static function icon($tip = null, $help = true, $max_width = 500, $keep_table = false) {
+		$attrs = $tip !== null ? ' ' . self::open_tag_attrs($tip, $help, $max_width, $keep_table) : '';
+		if (Base_ThemeCommon::is_adminlte_family()) {
+			return '<i class="bi bi-info-circle-fill text-primary"' . $attrs . '></i>';
+		}
+		return '<img src="' . Base_ThemeCommon::get_icon('info') . '" alt="info"' . $attrs . '>';
+	}
+
+	/**
 	 * Returns string that when placed as tag attribute
 	 * will enable ajax request to set a tooltip when placing mouse over that element.
 	 *
