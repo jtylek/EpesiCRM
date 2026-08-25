@@ -67,7 +67,12 @@
   deep-linkable URLs, so verification means click-through navigation); plus
   `modules/Custom/` being only partly gitignored (only `Tutorial` is tracked
   in the main repo — every other Custom module is meant to be its own nested
-  git repo, same as Premium, now actually encoded in `.gitignore`).
+  git repo, same as Premium, now actually encoded in `.gitignore`); a
+  gitignored `modules/Premium/` checkout changing mid-session from concurrent
+  work elsewhere isn't corruption — ask, don't revert; and a transient
+  file-write lock inside one patch's loop aborting the *entire* update run,
+  since `update.php`'s `die_on_error` operates at the whole-queue level, not
+  per-item — resilience has to live inside the patch itself.
 - [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
   developer's machine (app error log, php.ini error_log, Apache error/access.log,
   noise filters, dedicated-window habit). Log paths/config vary per machine/dev —
