@@ -51,6 +51,19 @@ class DB {
 				throw new Exception("Connect to database failed");
 			$new = self::$ado;
 		}
+		// adodb's mysqli driver runs with mysqli_report(MYSQLI_REPORT_OFF), so a failed
+		// query raises no PHP warning/exception at all - Execute()/GetAssoc()/etc just
+		// return false/empty silently unless raiseErrorFn is wired up (adodb's own hook
+		// for this). Log-only, no behavior change: every existing caller (including the
+		// many "@DB::Execute(...)" call sites that deliberately tolerate failure) still
+		// gets exactly the same return value, just with the failure now visible in the
+		// same app log developers already watch instead of vanishing completely.
+		$new->raiseErrorFn = function ($dbms, $context, $errno, $errmsg, $p1) {
+			$detail = is_string($p1) ? $p1 : ((is_array($p1) && isset($p1[0])) ? $p1[0] : '');
+			if (strlen($detail) > 2000) $detail = substr($detail, 0, 2000) . '...(truncated)';
+			$label = $context === 'EXECUTE' ? 'Query' : 'Context';
+			epesi_log("DB error [$context] $errno: $errmsg" . ($detail !== '' ? "\n$label: $detail" : '') . "\n", 'php_errors.log');
+		};
         if (self::is_mysql()) {
 			// For MySQL
     		$new->Execute('SET NAMES "utf8mb4"');
