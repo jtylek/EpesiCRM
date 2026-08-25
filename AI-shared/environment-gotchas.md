@@ -206,13 +206,21 @@ for this).
 page reload/incognito test, check `data/config.php` for
 `FORCE_CACHE_COMMON_FILES` before suspecting the edit itself, a typo, or
 browser/session caching — rebuild the cache (or delete
-`data/cache/common.php`) and retest. **This dev machine now keeps it
-disabled** (`FORCE_CACHE_COMMON_FILES = 0` in `data/config.php`, changed
-2026-08-13) precisely to avoid this trap during active development — it's a
-real production perf feature (one bundled file vs. one `require` per module
-per request), just not worth the debugging cost locally. Don't re-enable it
-here without also remembering to rebuild the cache after every `Common_0.php`
-edit.
+`data/cache/common.php`) and retest. **This dev machine keeps it disabled**
+(`FORCE_CACHE_COMMON_FILES = 0` in `data/config.php`) precisely to avoid this
+trap during active development — it's a real production perf feature (one
+bundled file vs. one `require` per module per request), just not worth the
+debugging cost locally. Don't re-enable it here without also remembering to
+rebuild the cache after every `Common_0.php` edit.
+
+**Re-hit 2026-08-25 despite the above:** `data/config.php` is gitignored, not tracked — a `setup.php`/
+`FirstRun` run during unrelated testing earlier in the same day regenerated it fresh from the shipped
+template, silently reverting this to `1` again. Hit exactly the failure mode described above: removed
+`Base_EssClientCommon::menu()` (a "Register Epesi!" Support-menu entry), the user logged out and back in
+(ruling out the session-level menu cache from `how-menu-works.md`) and the entry was still there — turned
+out to be this, not that. Re-disabled it in `data/config.php`. **If `data/config.php` ever gets
+regenerated** (fresh `setup.php` run, restored from a backup, etc.), re-check/re-flip this — it doesn't
+survive that the way git-tracked settings would.
 
 ## This machine's Apache SSL vhost is misconfigured (port mismatch) — `https://localhost` fails TLS entirely
 

@@ -461,6 +461,18 @@
 	top: 3px;
 }
 
+/* single_field.tpl/Utils_Attachment's own View_entry.tpl (shares this file,
+   see that template's own comment) render this box's icon as a Bootstrap
+   icon font glyph now, not the old 14x14 <img> the box's own size above was
+   originally tuned for - sized/centered to fill the same box rather than
+   sitting oversized (inherited body font-size) and top-left-aligned. */
+.Utils_RecordBrowser__View_entry .help i {
+	display: block;
+	font-size: 0.85rem;
+	line-height: 14px;
+	text-align: center;
+}
+
 .Utils_RecordBrowser__View_entry .help + div {
 	margin-right: 14px;
 }

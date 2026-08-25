@@ -585,12 +585,12 @@ define(\'DATABASE_DRIVER\',\''.addcslashes($engine, '\'\\').'\');
 /*
  * Compress history
  */
-//define(\'GZIP_HISTORY\',1);
+define(\'GZIP_HISTORY\',1);
 
 /*
  * Compress HTTP output
  */
-//define(\'MINIFY_ENCODE\',1);
+define(\'MINIFY_ENCODE\',1);
 
 /*
  * Apply sources minifying algorithms.

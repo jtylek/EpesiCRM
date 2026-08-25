@@ -1,0 +1,51 @@
+/* Base_EssClient::license_key_form() - manual License Key entry/recovery
+ * screen. The 'license_key' text input has no maxlength-driven width cap
+ * (register_form.css's own comment on the same theming path applies here
+ * too - going through $f->assign_theme('form', $theme) + a custom .tpl
+ * gets none of Libs_QuickForm's own column.css styling, since that's only
+ * wired up for display_as_column()'s generated markup) - full width of its
+ * flex-grow container instead, wide enough that a real ~40-character
+ * license key never gets clipped regardless of viewport width.
+ */
+
+.epesi-lk-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.epesi-lk-label {
+	flex: 0 0 auto;
+	font-weight: 600;
+	white-space: nowrap;
+	margin: 0;
+}
+
+.epesi-lk-data {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.epesi-lk-data input[type="text"] {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.5rem 0.85rem;
+	border: 1px solid var(--bs-border-color);
+	border-radius: 0.375rem;
+	background-color: var(--bs-body-bg);
+	color: var(--bs-body-color);
+	font-size: 1rem;
+}
+
+.epesi-lk-data input[type="text"]:focus {
+	outline: none;
+	border-color: var(--bs-primary);
+	box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), .25);
+}
+
+@media (max-width: 575.98px) {
+	.epesi-lk-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}

@@ -207,7 +207,7 @@
 					<div class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
 						{if $longfields.note.error}{$longfields.note.error}{/if}
 						{if $longfields.note.help}
-							<div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+							<div class="help"><i class="bi bi-info-circle-fill text-primary" {$longfields.note.help.text}></i></div>
 						{/if}
 						<div>
 							{$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
