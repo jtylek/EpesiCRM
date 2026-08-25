@@ -4,7 +4,9 @@
 	eval_js('base_setup__last_filter = "";');
 	load_js('modules/Base/Setup/theme/default.js');
 	load_js('modules/Base/Setup/theme_adminltedark/default.js');
-	eval_js('if(base_setup__preprocess_filter!=null)base_setup__filter_by(base_setup__preprocess_filter);');
+	// Default tab on a fresh load (no in-session filter choice to restore yet)
+	// is "Installed", not "All" - matches this screen's most common use.
+	eval_js('base_setup__filter_by(base_setup__preprocess_filter!=null?base_setup__preprocess_filter:"installed");');
 {/php}
 
 {* Reskin - markup/ids match the default theme's default.tpl (so
