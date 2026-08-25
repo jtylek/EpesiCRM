@@ -548,3 +548,45 @@ config change, which Claude Code must never make on its own initiative (or even 
 see CLAUDE.md's git safety rules) — ask the user to run it themselves. Per-repo (`--local`,
 the default) is enough; only reach for `--global` if the same machine has other repos hitting
 the same issue.
+
+## A transient file-write failure inside one patch aborted the *entire* update run
+
+Hit 2026-08-20, right after a large `git checkout`/`git clean` pass over
+several nested repos under `modules/`: `update.php` died with `PATCH APPLY
+ERROR` from `modules/CRM/Mail/patches/20260629_mail_attachments_to_filestorage.php`
+— `Utils_FileStorageCommon::write_content()`'s `file_put_contents()` returned
+`false` for one attachment (`Storing data failed`), 162 rows into a loop that
+had already written many others successfully. Replaying the exact same
+`mkdir`/`file_put_contents` sequence against all 162 remaining rows minutes
+later succeeded for every one, with no code change — strongly points at a
+transient lock (Windows Defender real-time scanning, or the Search Indexer)
+on the `data/Utils_FileStorage/` tree, likely provoked by the preceding bulk
+git operations touching the same `data/` volume.
+
+The actual damage wasn't the transient failure itself — it's that the
+migration's `foreach` loop had no per-row error handling, so one exception
+propagated out of the patch entirely. `PatchUtil::apply_new()`
+(`include/patches.php`) — called from `update.php` with `die_on_error=true`
+— then raised a fatal `E_USER_ERROR` and stopped the *whole patch queue*,
+not just that one attachment. `die_on_error` is a flag on the runner that
+iterates every patch; it has no visibility into what one patch's own loop is
+doing, so it can't be scoped to "one file" — and even with
+`die_on_error=false`, `apply_new()` still unconditionally stops at the first
+non-`SUCCESS` patch (deliberate: later patches can assume earlier ones
+succeeded). Resilience has to live *inside* the patch, same pattern already
+used in `modules/Base/patches/20260814_utf8mb4_migration.php`: wrap
+per-item work in try/catch, log with `error_log()` (never `trigger_error()`
+— `Patch::error_handler()` converts that straight back into a fatal
+`PatchException`, undoing the point of catching it), and let the patch's own
+idempotency pick up any skipped item on the next run. Added a 3-attempt
+retry with a 0.2s backoff around the `write_content()` call specifically,
+since that directly targets the observed transient-lock failure mode.
+
+**How to apply**: any patch that loops over many independent items (rows,
+files, records) needs its own per-item try/catch + `error_log()`-on-failure
+— don't rely on `update.php`'s `die_on_error` to contain the blast radius,
+it operates at the whole-queue level, not per-item. If a patch dies mid-loop
+with no obvious logic bug, try replaying the same operation standalone
+before assuming the code is wrong — a transient environment lock (especially
+soon after bulk filesystem operations on the same volume) can look
+identical to a real failure but simply not reproduce on retry.

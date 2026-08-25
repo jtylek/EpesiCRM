@@ -67,7 +67,12 @@
   deep-linkable URLs, so verification means click-through navigation); plus
   `modules/Custom/` being only partly gitignored (only `Tutorial` is tracked
   in the main repo — every other Custom module is meant to be its own nested
-  git repo, same as Premium, now actually encoded in `.gitignore`).
+  git repo, same as Premium, now actually encoded in `.gitignore`); a
+  gitignored `modules/Premium/` checkout changing mid-session from concurrent
+  work elsewhere isn't corruption — ask, don't revert; and a transient
+  file-write lock inside one patch's loop aborting the *entire* update run,
+  since `update.php`'s `die_on_error` operates at the whole-queue level, not
+  per-item — resilience has to live inside the patch itself.
 - [log-monitoring.md](log-monitoring.md) — example log-monitoring setup from one
   developer's machine (app error log, php.ini error_log, Apache error/access.log,
   noise filters, dedicated-window habit). Log paths/config vary per machine/dev —
@@ -81,6 +86,14 @@
   `execute(): int` breaking change (fixed across all 25 `console/*Command.php` files),
   phpdocumentor/reflection-docblock v6 API rewrite, and `tecnickcom/tcpdf` 7.x's
   font-packaging gap — reverted to 6.x, don't re-attempt without reading this first.
+- [legacy-install-cleanup.md](legacy-install-cleanup.md) — epesi-adminlte
+  migration left old bundled TCPDF/PHPExcel/CKEditor/OpenFlashChart/
+  ScriptAculoUs/QuickForm, the old Roundcube location, and old front-end
+  libs/ behind as untracked cruft on any install upgraded in place (dist zip
+  or git checkout) — 471 stale paths found doing this for real. Fixed via
+  `modules/Base/patches/20260819_cleanup_legacy_adminlte_migration_dirs.php`,
+  a whitelist-diff patch that runs automatically on every install through
+  the normal update flow.
 - [TODO.md](TODO.md) — follow-up work deferred during AI-assisted sessions
   (started 2026-08-05): a real fix shipped now, with a known limitation
   recorded to come back to later. First entry: the mobile multiselect

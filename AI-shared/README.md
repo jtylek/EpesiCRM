@@ -95,7 +95,11 @@ same for every developer and every computer working on this repo.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that
   looked like application bugs but weren't, plus dev-tooling setup notes (e.g.
   driving a real browser against this app for UI verification) worth not
-  rediscovering each session.
+  rediscovering each session. Includes: a gitignored `modules/Premium/`
+  checkout changing mid-session from concurrent work elsewhere (ask, don't
+  revert); and a transient file-write lock inside one patch's loop aborting
+  the entire update run because `die_on_error` operates at the whole-queue
+  level, not per-item — per-item resilience has to live inside the patch.
 - [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
   use as a template, not a standard. Has a "Quick start" block up top: once you've
@@ -109,6 +113,14 @@ same for every developer and every computer working on this repo.
   reliably picked up in every Claude Code surface), and the `.gitignore` gotcha that
   broke a first attempt at un-ignoring just that subdirectory. Also inventories the
   currently-shared skills (`/monitor-error-logs`, `/fix-old-epesi-module`).
+- [legacy-install-cleanup.md](legacy-install-cleanup.md) — the epesi-adminlte
+  migration reorganized several bundled libraries in place (TCPDF, PHPExcel,
+  CKEditor, OpenFlashChart, ScriptAculoUs, QuickForm, Roundcube's location,
+  the front-end `libs/` stack); any install upgraded in place (dist zip or
+  git checkout) is left with the old versions as untracked cruft since
+  upgrading only adds/overwrites paths the new release has. Fixed by a
+  whitelist-diff patch in `Base/patches/`, not a one-off script, so it runs
+  automatically for every install via the normal update flow.
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.
