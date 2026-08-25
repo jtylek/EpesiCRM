@@ -102,6 +102,8 @@ base_setup__filter_by = function (attr) {
 	if (prev_tab) prev_tab.className="";
 	next_tab.className="selected";
 	base_setup__last_filter = attr;
+	var messages = document.getElementById('client_messages_frame');
+	if (messages) messages.style.display = (attr=='store') ? '' : 'none';
 	for (w = 0; w < container.childNodes.length; w++) {
 		var div = container.childNodes[w];
 		if (div.nodeType==1) {
