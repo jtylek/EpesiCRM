@@ -41,7 +41,9 @@ class Base_EssClient extends Module {
                 $data = Base_EssClientCommon::server()->installation_registered_data();
                 if ($data) {
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
-                    $data['status'] = Base_EssClientCommon::get_installation_status();
+                    // force_check: this admin screen is viewed rarely and on-demand,
+                    // so it should always reflect live status rather than today's cache.
+                    $data['status'] = Base_EssClientCommon::get_installation_status(true);
                     ///////// Status ////////
                     print('<div class="important_notice">');
                     print('<div style="margin: 5px">' . __('Thank you for registering your Epesi installation.') . '</div>');
