@@ -86,6 +86,14 @@
   `execute(): int` breaking change (fixed across all 25 `console/*Command.php` files),
   phpdocumentor/reflection-docblock v6 API rewrite, and `tecnickcom/tcpdf` 7.x's
   font-packaging gap — reverted to 6.x, don't re-attempt without reading this first.
+- [legacy-install-cleanup.md](legacy-install-cleanup.md) — epesi-adminlte
+  migration left old bundled TCPDF/PHPExcel/CKEditor/OpenFlashChart/
+  ScriptAculoUs/QuickForm, the old Roundcube location, and old front-end
+  libs/ behind as untracked cruft on any install upgraded in place (dist zip
+  or git checkout) — 471 stale paths found doing this for real. Fixed via
+  `modules/Base/patches/20260819_cleanup_legacy_adminlte_migration_dirs.php`,
+  a whitelist-diff patch that runs automatically on every install through
+  the normal update flow.
 - [TODO.md](TODO.md) — follow-up work deferred during AI-assisted sessions
   (started 2026-08-05): a real fix shipped now, with a known limitation
   recorded to come back to later. First entry: the mobile multiselect
