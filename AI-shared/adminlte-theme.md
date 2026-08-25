@@ -1,5 +1,27 @@
 # AdminLTE theme(s) status
 
+## Default color mode (no stored preference) flipped dark → light (2026-08-25)
+
+Per explicit request, ahead of the SourceForge distribution package: a visitor with no
+`localStorage['lte-theme']` yet (fresh browser, fresh install, first-run setup wizard) now gets
+seeded to `'light'` instead of `'dark'`. One-line change in `Base_ThemeCommon::load_theme_assets()`
+(`modules/Base/Theme/ThemeCommon_0.php`) — the exact spot the 2026-08 comment block already
+identifies as "SEEDS a default the first time the key has never been set". A returning visitor's
+own stored choice is untouched either way; only the seed value changed. Verified with an isolated
+Node mock of the emitted JS snippet (localStorage/document stubbed) rather than a live install,
+to avoid mutating this dev DB mid-test — confirmed fresh/no-pref now resolves to light, while
+existing `dark`/`light` stored prefs still round-trip unchanged.
+
+`setuptheme/shell.tpl` (the earlier Language/License/Database/Compatibility steps in `setup.php`,
+before `FirstRun` takes over) was already unconditionally `data-bs-theme="light"` and doesn't load
+`adminlte.min.js`'s color-mode toggler at all — untouched, no dark path existed there to begin with.
+The SSR-hardcoded `data-bs-theme="dark"` in `Base_Box/theme_adminltedark/default.tpl` (the
+`{if $theme_name=='adminltedark'}dark{else}light{/if}` in the "data-bs-theme is pinned to the active
+theme" comment block) was deliberately left alone — it's corrected client-side by the same seeding
+JS on every load regardless of stored preference (existing behavior for anyone who already prefers
+light), so leaving it dark-first-then-corrected is consistent with how a light-preferring user's
+page already rendered before this change, not a new flash-of-dark introduced by it.
+
 ## `adminlte` (light) removed entirely — `adminltedark` is now the only AdminLTE-family theme (2026-08-04)
 
 Per explicit direction: stop spending time fixing/debugging the light-only
