@@ -6,6 +6,24 @@ time this repo is checked out — not just on the machine it was first written o
 Written 2026-08-21 after getting this wrong twice in a row before landing on the
 setup below.
 
+## Currently shared (as of 2026-08-21)
+
+A developer on any computer with this repo checked out has these two `/`-invoked skills
+available (each is a real git-tracked file under `.claude/skills/`, not just an idea
+written down here — check that directory for the current, authoritative list if this
+goes stale):
+
+- **`/monitor-error-logs`** (`.claude/skills/monitor-error-logs/SKILL.md`) — tails this
+  repo's error/warning logs as persistent background watches. See `log-monitoring.md`
+  for the actual log paths/filters it drives.
+- **`/fix-old-epesi-module`** (`.claude/skills/fix-old-epesi-module/SKILL.md`) — scans a
+  given `modules/Premium/`/`Custom/` module for PHP 8.x compatibility issues and
+  reintroduced deliberately-removed dependencies (Quick Jump, Theme installation, ...),
+  then fixes them. See `deliberate-removals.md`.
+
+Add a new bullet here whenever a new shared skill is created, so this file doubles as a
+quick inventory, not just a how-to.
+
 ## Use `.claude/skills/<name>/SKILL.md`, not `.claude/commands/<name>.md`
 
 The legacy `.claude/commands/<name>.md` format is **not reliably picked up in every

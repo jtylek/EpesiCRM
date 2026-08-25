@@ -2774,6 +2774,49 @@ via normal code deployment, no `patches/` entry needed. Closes §13's "VENDOR ED
 composer update)" items 1 and 2 for good; nothing left registers a custom QF type via the array
 format, so there's nothing left for a `composer update` to break here.
 
+### §80 — Premium/GanttChart: two more PHP-8-fatal legacy shapes, both silent/easy to miss (2026-08-21)
+
+`modules/Premium/GanttChart` — never swept by any core migration pass (separate, gitignored Premium
+repo) — hit two PHP 8-fatal patterns not yet catalogued in §49's removed-function list or
+`deliberate-removals.md`, both in `gantt.class.php` (a hand-vendored 2005 charting class bundled
+inside the module, not Epesi's own code, but shipped and executed as part of it):
+
+1. **PHP4-style constructor silently stops being a constructor.** `function gantt($definitions)`
+   (method name === class name) was PHP 4/5's implicit-constructor convention, removed in PHP 8.0 —
+   `new gantt($definitions)` on 8.2 just builds an empty object and runs nothing; every bit of
+   drawing logic that used to execute inside that method never runs. **No warning, no fatal — just
+   silently broken output** (a blank chart image), which is what makes this shape easy to miss next
+   to the rest of §49's removals (those all fatal loudly, so they surface immediately in testing).
+   Fix: rename to `__construct`.
+2. **Bareword identifiers used as ad hoc string constants, never `define()`'d.** Old code
+   (`case END_TO_START:`, `$definitions['dependency_color'][END_TO_START]`, four names total —
+   `END_TO_START`/`END_TO_END`/`START_TO_START`/`START_TO_END`) relied on PHP 5/7's fallback
+   behavior for an undefined constant: silently coerced to its own name as a string (with an
+   `E_WARNING`, easy to miss under normal error reporting). **PHP 8.0 turns this into a fatal
+   `Error: Undefined constant`** — the first one hit kills the request outright, no chart renders
+   at all. Fix: quote them as the strings they were always functionally standing in for (confirmed
+   safe here since the same four names are already used as literal quoted array keys elsewhere in
+   the same files, e.g. `$definitions['dependency_color']['END_TO_START']` — the bareword and
+   quoted forms were clearly meant to be the same value).
+
+**How this was found, and a related trap:** PHPStan (scoped to just this module, per the
+`/fix-old-epesi-module` skill) flagged `img.php`'s `new gantt(...)` as "Instantiated class gantt not
+found" — turned out to be a *third*, unrelated issue (`gantt.class.php` opens with a bare `<?` short
+tag, not `<?php`) masking PHPStan's ability to discover the class at all for that scoped run, which
+in turn hid finding #1 until the short tag was fixed first. A bare `<?` is also a real, separate
+portability risk on its own — most `php.ini-production` templates ship `short_open_tag=Off`, which
+would make a file opening with `<?` render as literal text instead of executing at all, independent
+of anything else in this entry.
+
+**How to apply:** when scanning another never-migrated Premium/Custom module, grep it for
+`function <ClassName>(` matching its own class name (PHP4 constructor — rename to `__construct`) and
+for bare, unquoted all-caps identifiers used where a string is clearly intended (compare against how
+the same name is used elsewhere in the file — if it's ever quoted as a literal in an array key or
+comparison, the unquoted uses nearby are the bug). Neither is caught by `php -l`, and the constructor
+case isn't always caught by Rector/PHPStan either unless the class is actually resolvable — if a
+PHPStan "class not found" finding looks suspicious for a class that's clearly defined right there in
+the file, check for a stray short tag before assuming the finding is a false positive.
+
 ---
 
 ## MERGE CHECKLIST — experiment/composer-deps → main

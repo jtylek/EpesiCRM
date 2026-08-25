@@ -107,7 +107,8 @@ same for every developer and every computer working on this repo.
   (`/trigger-name` action) work the same for every developer/computer: use
   `.claude/skills/<name>/SKILL.md` (not the legacy `commands/` format, which isn't
   reliably picked up in every Claude Code surface), and the `.gitignore` gotcha that
-  broke a first attempt at un-ignoring just that subdirectory.
+  broke a first attempt at un-ignoring just that subdirectory. Also inventories the
+  currently-shared skills (`/monitor-error-logs`, `/fix-old-epesi-module`).
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.

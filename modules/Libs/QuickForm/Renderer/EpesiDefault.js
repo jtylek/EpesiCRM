@@ -40,3 +40,32 @@ if(error!="")
 alert("Error field not defined in smarty template, unable to fill '"+err_id+"' with error: '"+error+"'");
 }
 };
+
+// Required-field errors (.form_error / .error spans, populated by seterror()
+// above) render as a solid overlay on top of the field itself in the
+// AdminLTE theme (see RecordBrowser's View_entry.css / GenericBrowser's
+// default.css) - clearing the span here on the field's own edit is what
+// makes that overlay disappear again, since its CSS keys off :not(:empty).
+// Delegated on document (not attached per-field at render time) because
+// this is old-style AJAX-push content - process.php's response replaces/
+// re-adds form fields via generated JS, not a one-time page load.
+epesi_clear_field_error = function(field) {
+	var containers = [field.parentElement, field.parentElement && field.parentElement.parentElement];
+	for (var i = 0; i < containers.length; i++) {
+		var c = containers[i];
+		if (!c) continue;
+		var err = c.querySelector(':scope > .form_error, :scope > .error');
+		if (err && err.innerHTML !== '') {
+			err.innerHTML = '';
+			return;
+		}
+	}
+};
+
+document.addEventListener('input', function(e) {
+	if (e.target.matches && e.target.matches('input, textarea')) epesi_clear_field_error(e.target);
+});
+
+document.addEventListener('change', function(e) {
+	if (e.target.matches && e.target.matches('select, input[type=checkbox], input[type=radio]')) epesi_clear_field_error(e.target);
+});
