@@ -29,6 +29,27 @@ tail -f -n0 /c/xampp82/apache/logs/error.log
 tail -f -n0 /c/xampp82/apache/logs/access.log | grep -E --line-buffered '" [45][0-9]{2} ' | grep -Ev --line-buffered 'favicon\.ico|com\.chrome\.devtools\.json|\.(js|css)\.map'
 ```
 
+Confirmed working on jasiek's Windows/XAMPP box for the `ess.epe.si` vhost checkout
+(`c:\xampp82\htdocs\ess.epe.si\manage`, a separate checkout from `epesigithub` above, same
+physical machine) as of 2026-08-25. Same php.ini `error_log` and Apache `error.log` as the
+`epesigithub` entry (shared across all vhosts on this XAMPP instance), but the generic
+`apache/logs/access.log` does **not** carry this vhost's traffic — this XAMPP instance gives
+`ess.epe.si` (and other vhosts) their own dedicated `CustomLog`, so the generic access.log only
+shows the default/other vhost's requests (confirmed by tailing both side by side: generic log
+was full of unrelated `/newsetup/...` traffic while `ess.epe.si-access.log` had this vhost's
+actual requests). Use the vhost-specific access log instead:
+
+```
+tail -f -n0 data/logs/php_errors.log
+tail -f -n0 /c/xampp82/php/logs/php_error_log
+tail -f -n0 /c/xampp82/apache/logs/error.log
+tail -f -n0 /c/xampp82/apache/logs/ess.epe.si-access.log | grep -E --line-buffered '" [45][0-9]{2} ' | grep -Ev --line-buffered 'favicon\.ico|com\.chrome\.devtools\.json|\.(js|css)\.map'
+```
+
+If monitoring a different vhost checkout on a machine with per-vhost `CustomLog` directives,
+check for and use that vhost's own access log the same way — don't assume the generic
+`apache/logs/access.log` covers it.
+
 Confirmed working on ktylek's Linux/XAMPP box (`/opt/lampp/htdocs/euroleader`) as of
 2026-08-21. Note the Linux XAMPP log names differ (`error_log`/`access_log`, no dot before
 the extension) — couldn't cross-check the php.ini `error_log` directive itself via
