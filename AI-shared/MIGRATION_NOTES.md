@@ -2819,6 +2819,102 @@ the file, check for a stray short tag before assuming the finding is a false pos
 
 ---
 
+### §81 — `include.php`: PHP-level fallback for hosts where the root `.htaccess` hardening never applies (2026-08-25)
+
+**Context:** `setup.php`'s `check_htaccess()` self-test (see §55) can still legitimately fail even after
+§55's `mod_headers` guard fix — e.g. `AllowOverride` too narrow to permit `Options`/`RedirectMatch`/`Header`,
+or an nginx/PHP-FPM front-end that ignores `.htaccess` entirely. When that happens the admin sees "Your
+hosting is not compatible with default EPESI root .htaccess file" and **no root `.htaccess` gets installed
+at all** — so none of `htaccess.txt`'s hardening applies: no `Options -Indexes`, no `.git`/`.svn` blocking,
+no `X-Frame-Options`/`X-XSS-Protection` headers, no mod_php `memory_limit` bump.
+
+**Fix (partial — 2 of 4):** added a PHP-level fallback at the very top of `include.php`, right after the
+`_VALID_ACCESS` guard, so it runs on every request through the shared bootstrap (`index.php`, `process.php`,
+`ajax.php`, `cron.php`, `console.php`):
+- `header('X-Frame-Options: SAMEORIGIN')` / `header('X-XSS-Protection: 1; mode=block')`, skipped under CLI
+  (`PHP_SAPI !== 'cli'`) since `header()` is a silent no-op there anyway.
+- A `memory_limit` floor of 256M, parsed for K/M/G suffixes and left untouched when already higher or
+  unlimited (`-1`) — a naive `(int) ini_get('memory_limit')` cast misreads `"1G"` as `1` and would have
+  wrongly *downgraded* a 1G host to 256M. Verified standalone via CLI (`64M`→bumped to `256M`, `1G`→left
+  alone, `-1`→left alone). `cron.php`'s later unconditional `ini_set('memory_limit', '512M')` (line ~41)
+  still overrides this floor same as before.
+
+Verified live against the local XAMPP dev instance (`curl -D -`) — both headers present on the actual
+response.
+
+**What's still NOT covered, and can't be at this layer:** `Options -Indexes` (directory listing) and the
+`.git`/`.svn` `RedirectMatch` rules act on the request before PHP ever runs — including for static files
+PHP never sees (a direct request to `/.git/config` is served straight off disk by the web server). Those
+two stay dependent on either the web server's own config (vhost-level `<Directory>`/`<DirectoryMatch>`
+block, or a control-panel toggle) or, for VCS metadata specifically, simply never shipping `.git`/`.svn`
+into the deployed web root (see `release-packaging-plan.md`). `.htaccess` itself is still preferred when it
+works — this fallback exists only for hosts where it's rejected or ignored outright.
+
+**How to apply:** if a future report says the security headers or `memory_limit` aren't taking effect on a
+host that also failed `check_htaccess()`, check whether this `include.php` fallback shipped in the version
+they're running before assuming it's a new bug — and remember it only covers the two of four `.htaccess`
+protections that are reachable from PHP at all.
+
+**Follow-up (same day):** the `check_htaccess()` failure screens in `setup.php` (both the "unable to check"
+and "not compatible" messages, ~line 419 and ~line 438) still told the admin to "tweak it yourself" with no
+mention that headers/`memory_limit` were already handled — misleading now that they're covered
+unconditionally. Added a sentence to both messages saying so, so the admin knows only `Options -Indexes`
+and the `.git`/`.svn` blocking still need manual/web-server-level attention. New English string, no
+`lang/*.php` translations added (falls back to English until translated, same as other untranslated
+strings in this codebase) — no upgrade-gap patch needed since `setup.php` only runs on fresh installs, not
+via `update.php`.
+
+**Follow-up 2 (same day) — readability pass, plus a real display bug found along the way:** even with the
+above, a first-time installer still got a wall of jargon (`X-Frame-Options`, `memory_limit floor`) followed
+immediately by the raw `.htaccess` file dump — not approachable for a non-technical install. While drafting
+a plain-language rewrite, found that `setuptheme/message.tpl` had been rendering `{$pre}` with **no
+`|escape` modifier**, straight into a `<pre>` block. Browsers parse `<IfModule mod_php7.c>` in unescaped
+HTML as an unrecognized custom element — tag hidden, enclosed text kept — so every `<IfModule>`/`</IfModule>`
+guard silently vanished from what the admin actually saw on screen (looked like blank double-linebreaks
+where each guard used to be), even though the real file on disk always had them. Not a regression from
+this session's other changes — pre-existing since `message.tpl` was written; just never noticed until the
+"is this needed" thread led to actually reading the template.
+
+Fixed both problems together in one pass:
+- `message.tpl`: added `|escape` to `{$pre}` (so the actual `<IfModule>` guards now display correctly, verified via a standalone Smarty render), and wrapped the `pre` block in `<details><summary>` — collapsed by default — gated behind a new optional `pre_collapsed`/`pre_label` param pair (the 3 other `message.tpl` callers in `setup.php` never pass `pre` at all, so this is additive, not a behavior change for them; the one existing `pre`-passing site, `check_htaccess()`, is the only caller updated to opt in).
+- `setup.php`: rewrote all three `check_htaccess()` messages in plain language — leads with "this is optional, safe to click Continue," explains in plain terms what's covered automatically vs. what still needs attention, and moved the technical `.htaccess` dump behind the new collapsed `<details>` (via `pre_collapsed=>true`) for the two "hardening isn't applying" cases. The third case (compatible-but-not-writable) keeps the file visible by default since copying it *is* the required action there — no `pre_collapsed`, so it falls through to the template's original always-visible behavior.
+
+**How to apply:** if a future `message.tpl`-style template needs to show a technical/advanced-only block
+alongside a plain-language summary, the `pre_collapsed`/`pre_label` pattern here is the reusable shape —
+plain-language message first, technical detail opt-in via `<details>`. And more generally: any raw
+Apache-style config text (`<IfModule>`, `<Directory>`, etc.) shown through a Smarty `{$var}` without
+`|escape` will silently lose its own tags in the rendered page — worth checking any other `pre`/config-dump
+template for the same gap.
+
+**Follow-up 3 (same day) — two more `message.tpl` PHP 8 warnings, one caused by this change, one pre-existing:**
+Live-tested the "not compatible" screen and got `Warning: Undefined array key "pre_collapsed"` from the
+compiled template. Root cause: `setup.php`'s `message.tpl` render call (~line 222) hand-picks fields off
+`$check` (`'message' => $check['message']`, `'pre' => $check['pre'] ?? null`, ...) instead of passing
+`$check` straight through — Follow-up 1/2 added `pre_collapsed`/`pre_label` to `check_htaccess()`'s *return
+array* but never added them to that hand-picked render-call array, so they never reached the template.
+Fixed by adding `'pre_collapsed' => $check['pre_collapsed'] ?? false` / `'pre_label' => $check['pre_label']
+?? null` alongside the existing `pre` line.
+
+While verifying that fix, found the **same warning class already existed independent of anything in this
+thread**: `message.tpl` references `$heading`/`$pre`/`$link_href` via bare `{if $var}`, which Smarty 2
+compiles to a raw `$this->_tpl_vars['heading']` array access with no `isset()` guard — a PHP 8 "Undefined
+array key" warning for any caller that only assigns `message`. All 3 of `setup.php`'s other `message.tpl`
+calls (safe_mode / stale `config.php` / unwritable `DATA_DIR` error screens, ~lines 157–169) do exactly
+that and had never been caught, presumably because those specific failure paths are rare enough in
+practice that nobody had hit one and looked closely at the output. Fixed centrally in
+`setuptheme/SetupSmarty.php`'s `render()`: when `$template === 'message.tpl'`, backfill
+`heading`/`pre`/`pre_collapsed`/`pre_label`/`link_href`/`link_text` to `null`/`false` before assigning, so
+every current and future bare `render('message.tpl', array('message'=>...))` call is safe by construction
+instead of each call site having to remember the full optional-var list.
+
+**How to apply:** this is the same root-cause shape as the `{if $var.optional_key}` warning already
+documented in the "Error handling" section of `CLAUDE.md` — Smarty 2 has no implicit `isset()` guard on
+`{if $var}`, so *any* template variable a `.tpl` only conditionally references needs either every caller to
+assign it (even to `null`/`false`), or a `render()`-level default like the one added here. Worth the same
+treatment if another shared template/render-wrapper accumulates optional vars over time.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

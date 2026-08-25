@@ -42,6 +42,13 @@ class SetupSmarty {
 
     static function render($template, array $vars = array()) {
         $smarty = self::instance();
+        // message.tpl references several optional vars ($heading, $pre, $pre_collapsed,
+        // $pre_label, $link_href, $link_text) via bare {if $var} - Smarty 2 compiles that
+        // to a raw array access with no isset() guard, which is a PHP 8 "Undefined array
+        // key" warning for any caller that only passes 'message'. Backfill them here so
+        // every message.tpl caller doesn't have to enumerate the same defaults itself.
+        if ($template === 'message.tpl')
+            $vars += array('heading' => null, 'pre' => null, 'pre_collapsed' => false, 'pre_label' => null, 'link_href' => null, 'link_text' => null);
         foreach ($vars as $key => $value)
             $smarty->assign($key, $value);
         return $smarty->fetch($template);

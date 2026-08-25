@@ -24,8 +24,8 @@
 {/if}
 <div class="small text-muted mt-3">
 	<div class="mb-1">{'Legend:'|t}</div>
-	<div><span class="badge bg-success">{'OK'|t}</span> {'matches EPESI requirements'|t}</div>
-	<div><span class="badge bg-warning text-dark">{'Warning'|t}</span> {"shouldn't prevent EPESI from running, but it's recommended to change the settings"|t}</div>
+	<div><span class="badge bg-success">{'OK'|t}</span> {'matches Epesi requirements'|t}</div>
+	<div><span class="badge bg-warning text-dark">{'Warning'|t}</span> {"shouldn't prevent Epesi from running, but it's recommended to change the settings"|t}</div>
 	<div><span class="badge bg-danger">{'Failed'|t}</span> {"check failed, it's necessary to change the settings"|t}</div>
 </div>
 {if $continue_url}
