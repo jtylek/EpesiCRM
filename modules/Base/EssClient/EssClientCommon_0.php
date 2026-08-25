@@ -158,7 +158,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
     }
 
     public static function get_support_email() {
-        $email = 'support@telaxus.com';
+        $email = 'epesi.help@tylek.org';
         if (ModuleManager::is_installed('CRM_Roundcube') >= 0) {
             $email = CRM_RoundcubeCommon::get_mailto_link($email);
         } else {

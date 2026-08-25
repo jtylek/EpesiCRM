@@ -76,8 +76,19 @@ class Base_EssClient extends Module {
                     Base_ActionBarCommon::add('edit', __('Edit company details'), $this->create_callback_href($this->register_form(...), array($data)));
                 } else {
                     $email = Base_EssClientCommon::get_support_email();
+                    $not_recognized_message = __('Your Epesi license key is not recognized by Epesi Store Server. Please contact Epesi support team at %s.', array($email));
 
-                    print('<div class="important_notice">' . __('Your Epesi ID is not recognized by Epesi Store Server. Please contact Epesi team at %s.', array($email)) . '</div>');
+                    if (Base_ThemeCommon::is_adminlte_family()) {
+                        print('<div class="d-flex justify-content-center py-4">');
+                        print('<div class="card border-danger" style="max-width:600px;width:100%;">');
+                        print('<div class="card-body text-center">');
+                        print('<i class="bi bi-exclamation-octagon-fill text-danger" style="font-size:3rem;"></i>');
+                        print('<h3 class="text-danger mt-3 mb-3">' . __('License key not recognized') . '</h3>');
+                        print('<p class="mb-0">' . $not_recognized_message . '</p>');
+                        print('</div></div></div>');
+                    } else {
+                        print('<div class="important_notice">' . $not_recognized_message . '</div>');
+                    }
                     Base_ActionBarCommon::add('delete', __('Revoke license key'), $this->create_confirm_callback_href(__('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
                 $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
@@ -336,7 +347,10 @@ class Base_EssClient extends Module {
 
         $f = $this->init_module(Libs_QuickForm::module_name());
 
-        $f->addElement('text', 'license_key', __('License Key'), array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;'));
+        $license_key_attrs = Base_ThemeCommon::is_adminlte_family()
+            ? array('maxlength' => 64, 'size' => 64)
+            : array('maxlength' => 64, 'size' => 64, 'style' => 'width:395px;');
+        $f->addElement('text', 'license_key', __('License Key'), $license_key_attrs);
         if ($f->validate()) {
             $x = $f->exportValues();
             Base_EssClientCommon::set_license_key($x['license_key']);
@@ -345,8 +359,19 @@ class Base_EssClient extends Module {
 
         $f->setDefaults(array('license_key' => Base_EssClientCommon::get_license_key()));
         Base_ActionBarCommon::add('save', __('Save'), $f->get_submit_form_href());
+
+        $notice = __('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.');
+
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            $theme = $this->pack_module(Base_Theme::module_name());
+            $f->assign_theme('form', $theme);
+            $theme->assign('notice', $notice);
+            $theme->display('license_key_form');
+            return true;
+        }
+
         print('<span class="important_notice"><center>');
-        print(__('On this screen you can manually set your License Key for this installation. This feature should only be used in case of system recovery or migration. If you are uncertain how to use this feature, it\'s best to leave this screen immediately.') . '<br><br>');
+        print($notice . '<br><br>');
         $f->display_as_column();
         print('</center></span>');
         return true;
