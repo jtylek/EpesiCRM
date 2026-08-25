@@ -423,7 +423,7 @@ class Base_Setup extends Module {
 				$msg = __('EPESI Store is not accessible during the trial.');
 				$filters_attrs = 'href="javascript:void(0);" onclick="alert(\''.$msg.'\');"';
 			} else {
-				$msg = __('To access EPESI Store it is necessary that you register your EPESI installation. Would you like to do this now?');
+				$msg = __('To access Epesi Store it is necessary that you register your Epesi installation. Would you like to do this now?');
 				$filters_attrs = $this->create_confirm_callback_href($msg, $this->jump_to_epesi_registration(...));
 			}
 		}
