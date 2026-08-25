@@ -160,9 +160,9 @@ that module or theme; the rule is byte-identical (and equally missing `top`) in 
 copy, so any required RecordBrowser field under either theme was affected.
 
 The error badge itself is generated in core, not a theme file:
-`include/TCMSArray.php`'s array-form renderer emits
+`include/EpesiArray.php`'s array-form renderer emits
 `<span class="form_error" id="...">...</span>` right after each field's control
-(`error` key in the array `EpesiSmartyRenderer`/`TCMSArray` builds per element).
+(`error` key in the array `EpesiSmartyRenderer`/`EpesiArray` builds per element).
 `View_entry.css` styles it:
 ```css
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
@@ -1145,7 +1145,7 @@ the data directly unless the data's correct shape is actually known.
 ## An already-fixed JS bug "coming back" in one browser window but not incognito: stale client state, not a regression
 
 Reported 2026-08-14: the `alert('Invalid date - clearing')` popup from
-[MIGRATION_NOTES.md §64](../MIGRATION_NOTES.md) (fixed 2026-07-24 - an
+[MIGRATION_NOTES.md §64](MIGRATION_NOTES.md) (fixed 2026-07-24 - an
 untouched, optional date field failed the datepicker's validation regex on
 blur) appeared to resurface in a normal browser window. Before assuming the
 fix had regressed: `datepicker.js`'s source still had the fixed regex, and
@@ -1516,3 +1516,215 @@ per `CLAUDE.md`'s Architecture section), the sync logic needs plain
 effect nested inside the same block (listener registration, etc.) should
 be split into its own separately-keyed `eval_js_once()` call so it doesn't
 get needlessly re-run just because the sync logic now correctly does.
+
+## An addon `*_related` admin grid only shows rows added through itself — not addon wiring done directly by other modules' `Install.php`
+
+Found 2026-08-21 investigating why the "Administration: Attachments" screen
+(`Utils_Attachment::admin()`, `AttachmentCommon_0.php`'s `admin_caption()` —
+the "Features Configuration" section's Attachments panel) rendered as an
+empty grid with just a "Recordset" column header, despite the Notes addon
+clearly being active on `company`/`contact`/`task`/`phonecall`/`crm_meeting`
+records in the running app.
+
+**Root cause**: there are two independent, non-syncing places an addon's
+wiring can live. `Utils_RecordBrowserCommon::new_addon($tab, $module, $func,
+$label)` (`RecordBrowserCommon_0.php:1175`) is the **real, live registry** —
+it writes straight into the `recordbrowser_addon` table (`tab`, `module`,
+`func`, `label`, `pos`, `enabled`) and is what actually makes an addon render
+on a recordset. `Utils_AttachmentCommon::new_addon()`/`delete_addon()` are
+thin wrappers around it, called directly from ~50+ places across the
+codebase — `CRM_Tasks`/`CRM_PhoneCall`/`CRM_Contacts` (company+contact)/
+`CRM_Meeting`/`Tests_Bugtrack`'s own `Install.php` files, plus a long list of
+Premium/Custom recordsets seeded in `modules/Base/patches/notes_addons.php`.
+None of these ever touch a **second**, separate table: `utils_attachment_
+related_data_1`, a plain `Utils_RecordBrowser` recordset (added by the
+`20260808_features_configuration.php` patch) whose sole purpose is to let an
+admin add/remove the addon at runtime via a CRUD grid — `Utils_Attachment
+Common::processing_related()` is its `add`/`edit`/`delete` callback, and
+itself just calls the same `new_addon()`/`delete_addon()` wrappers above.
+The grid displays **only** rows that exist in this second table — i.e. only
+recordsets an admin explicitly added through the grid itself — so every
+recordset wired up the other way (directly, at install time) is fully active
+but invisible to this screen. Same two-mechanism split exists for `CRM_
+Tasks`' `task_related`/`CRM_Meeting`'s `crm_meeting_related` and likely any
+other module built on this "Features Configuration addon" pattern — check
+before assuming any one of these grids reflects live addon state.
+
+**How to apply**: don't trust a `*_related`-table-backed "Features
+Configuration" admin grid to show which recordsets currently have an addon —
+query `recordbrowser_addon WHERE module=... AND func=...` directly for
+ground truth. If a grid like this needs to actually list everything, it
+needs to be seeded/reconciled from `recordbrowser_addon`, not just from its
+own table's rows.
+
+**Fixed for Attachments 2026-08-21**: `modules/Utils/Attachment/patches/
+20260821_seed_related_from_addon.php` backfills a `utils_attachment_related`
+row for every recordset `recordbrowser_addon` already has wired to
+`Utils_Attachment`'s `body` addon but with no matching row yet, via a plain
+`Utils_RecordBrowserCommon::new_record()` call per missing recordset (same
+precedent already used by `CRM_Roundcube`'s 2015 `rc_related` patch). That
+insert re-enters `processing_related()` → `new_addon()`, which harmlessly
+re-wires the already-existing `recordbrowser_addon` row (only its `pos`
+shifts) rather than duplicating it — confirmed via a rolled-back dry run
+before applying for real. Applied to the dev DB directly (bypassing
+`update.php`'s full app-wide patch sweep) via `PatchUtil::list_for_module()`
++ a single `Patch::apply()` call, since `PatchUtil::start_timing()` is
+private and has to be invoked (via `ReflectionMethod`) before calling
+`apply()` standalone, or every patch immediately throws
+`NotEnoughExecutionTimeException` (`self::$start_time`/`$deadline_time` are
+still null) and reports `STATUS_TIMEOUT` instead of running. `CRM_Tasks`'
+`task_related`/`CRM_Meeting`'s `crm_meeting_related` still have the
+underlying gap unaddressed - same fix shape would apply there if either is
+ever reported empty despite active wiring.
+
+## Setting a `datepicker` QuickForm field's value from JS needs the regional format, not ISO (2026-08-21)
+
+`HTML_QuickForm_datepicker` (`modules/Utils/PopupCalendar/datepicker.php`) stores its
+live value as **text in the user's configured regional date format**
+(`Base_RegionalSettingsCommon::time2reg($value, false, true, false)`), not ISO
+`YYYY-MM-DD` — `exportValue()` only converts back to ISO at actual form-submit time.
+The field also has a `blur` handler (`Utils_PopupCalendarDatePicker.validate_blur`,
+wired in `datepicker.php`) that checks whatever's currently typed against
+`Base_RegionalSettingsCommon::date_format()` and **silently wipes the field** on a
+mismatch — this is the same trap already documented above the browser-autofill fix in
+that same file's own comment (autofill fills the browser's stored format, which rarely
+matches, and gets wiped the same way).
+
+Any script-driven autofill of a `date`/`timestamp` RecordBrowser field (jQuery
+`.val('2027-02-15')` or similar) has to reproduce this: format server-side with
+`Base_RegionalSettingsCommon::time2reg($timestamp, false, true, false)` before sending
+the value to JS, not raw ISO, or the field will look filled for an instant and then go
+blank on blur with no visible error. Hit building `Premium_Domains`'s "Lookup WHOIS"
+auto-fill (`Premium_DomainsCommon::whois_lookup()`/`js/whois.js`) — WHOIS returns
+ISO/RFC-3339-ish expiry dates, and this install's regional format is day-first
+(`%d.%m.%Y`, Slovenian locale), which would have silently dropped every auto-filled
+Expiration Date.
+
+**How to apply**: before wiring any JS that sets a RecordBrowser `date`/`timestamp`
+field's value programmatically (auto-fill, import preview, bulk-edit, etc.), convert
+the timestamp through `time2reg($ts, false, true, false)` server-side first and send
+*that* string to the client — never send ISO and expect the widget to accept it as-is.
+
+## WHOIS/other outbound-network-dependent features can fail silently by hosting environment, not code bug (2026-08-21)
+
+`Premium_DomainsCommon::whois_lookup()`'s raw-WHOIS-protocol implementation (TCP port
+43 to `whois.iana.org` then the TLD's own server) depends on the app server actually
+being allowed to open outbound connections on that port — not guaranteed on shared
+hosting or behind a restrictive egress firewall. A report of "WHOIS server did not
+respond" (or any similar timeout from a from-scratch socket/curl call to an external
+host) should be checked against the hosting environment's outbound-network policy
+*before* assuming the parsing/protocol code itself is wrong — see
+`AI-shared/CROSS_PLATFORM_RESULTS.md` for this app's known hosting-environment matrix.
+
+**How to apply**: any future feature that opens an outbound connection to a
+third-party host (WHOIS, an external API, etc.) should degrade to a clear
+user-facing error on connection failure/timeout (as `whois_lookup()` does) rather than
+a blank/broken UI, precisely because "can't reach the outside world" is a real,
+non-rare condition for this app's hosting targets.
+
+## A `QFfield_callback` adding a *second* `$form->addElement()` renders nothing (2026-08-21)
+
+`RecordBrowser`'s Add/Edit form isn't built by rendering "every element currently in
+`$form`" - `RecordBrowser_0.php::prepare_view_entry_details()` iterates
+`$this->table_rows` (the recordset's own declared field list) and, for each field,
+calls that field's `QFfield_callback` (or the type default) to populate `$form`, then
+the template renders elements **by looking up each declared field's own id**, one at a
+time. A `QFfield_callback` that calls `$form->addElement(...)` a *second* time under a
+different, undeclared element name (e.g. to bolt on an extra button/info panel next to
+the real input) adds that element to the PHP `$form` object successfully — `$form->
+getElement()` would find it — but it never gets a rendering slot, so it silently never
+appears in the page HTML. No error, no warning; the callback just looks like it did
+nothing.
+
+Hit building `Premium_Domains`'s "Lookup WHOIS" button (`Premium_DomainsCommon::
+QFfield_domain_name()`): a `$form->addElement('static', $field.'_whois', ...)` call
+right after the real text element compiled fine and simply never showed up on the Add
+form. Fixed by not adding a second form element at all - instead `eval_js()` a small
+snippet that finds the real field's already-rendered `<input>` by id and inserts the
+extra HTML next to it via jQuery `.after()`, the same technique `Utils_ChainedSelect
+Common::create()` already uses to attach itself to an existing field rather than
+declaring a new QuickForm element.
+
+**How to apply**: a `QFfield_callback` that needs to add UI *beyond* the one form
+element for its own field (a button, a hint panel, injected widget chrome) must do it
+via `eval_js()`/DOM injection targeting the real field's rendered element, never via a
+second `$form->addElement()` call under a made-up field name - the latter compiles
+without error but is dead weight, invisible on every actual page render.
+
+## `load_js()` is per-*session* (not per-file-version) - editing an already-loaded JS file mid-session shows nothing until a fresh tab/login (2026-08-21)
+
+`Epesi::load_js($u)` (`include/epesi.php:129`) only ever emits a `<script src="...">`
+tag for a given URL **once per session** - it checks/sets
+`$_SESSION['client']['__loaded_jses__'][$u]` and silently no-ops on every later call
+for the same `$u`, for the rest of that login session (same `$_SESSION['client']`
+tree, same per-tab/CID scoping, as the already-documented `menu()` result cache in
+`AI-shared/Dev-Tutorial.md`/`how-menu-works.md`). This means: once a module's JS file
+has been loaded once in a browser tab, **editing that file on disk has no visible
+effect in that same tab/session** - the browser never re-fetches/re-executes it,
+because the server never re-emits the `<script>` tag telling it to. No error, no
+stale-cache indication - the page just keeps behaving exactly like the old file.
+
+Hit repeatedly while iterating on `Premium_Domains`'s `js/whois.js` (WHOIS auto-fill):
+adding a new field to auto-fill (Created Date) and testing again *in the same
+already-open tab* showed every previously-working auto-fill still working but the
+brand-new one silently doing nothing - indistinguishable from a real bug in the new
+code without knowing about this cache. Confirmed by re-reading the exact file content
+on disk (correct) and tracing `load_js()`'s session-gated logic.
+
+**How to apply**: when a `load_js()`-loaded file was just edited and a re-test in the
+*same already-open tab/session* doesn't reflect the change, don't assume the new code
+is wrong first - open a new tab (new CID) or log out/back in to get a session that
+hasn't already loaded the old copy, and retest there before debugging further. This is
+a standing trap for the rest of this module's (or any module's) JS iteration, not a
+one-time fluke.
+
+## `cron.php`/`monitoring.php`'s shared token: loose comparison and a predictable value (fixed 2026-08-24)
+
+Both standalone entry points (token-gated, not login-gated - they run before
+`include.php`'s session/ACL layer, same category as `standalone-entrypoints.md`'s
+`admin/`/`update.php`/`check.php`/`setup.php`, just not listed there since they're
+token-auth rather than page-rendering) checked their URL token the same wrong way:
+
+```php
+if(CRON_TOKEN!=$_GET['token'])
+    die('Invalid token in URL - ...');
+```
+
+Two independent weaknesses, both generic enough to recur anywhere else a shared
+secret gets checked this way:
+
+1. **Loose `!=` on two strings.** PHP compares two *numeric-looking* strings
+   numerically even in PHP 8 (the 8.0 numeric-string-comparison change only affects
+   numeric-vs-non-numeric pairs) - the classic "magic hash" bug (`"0e123..." ==
+   "0e456..."`). Astronomically unlikely for a real random token to land on that
+   shape, but it's the wrong primitive for comparing secrets regardless - the
+   correct one is `hash_equals()`, which is also constant-time (loose `!=` isn't,
+   so byte-by-byte timing leakage is a secondary, more theoretical concern here).
+2. **The token itself was low-entropy**: `Base_CronCommon::generate_token()`
+   (`modules/Base/Cron/CronCommon_0.php`) built it as `md5(time() . getcwd())` -
+   not a CSPRNG, just a hash of two guessable-ish inputs (install path + the second
+   the Cron admin panel was first opened). Anyone who can narrow down roughly when
+   an instance was installed can brute-force the token space offline in seconds.
+   `cron.php` runs `Base_AclCommon::set_sa_user()` and executes arbitrary
+   registered module cron callbacks, so a guessed/brute-forced token there is much
+   higher-impact than against `monitoring.php` (which only leaks DB/session/
+   data-dir health status) despite both trusting the exact same value.
+
+**Fix**: `generate_token()` now uses `bin2hex(random_bytes(32))`; both entry points'
+token checks became `!is_string($_GET['token']) || !hash_equals(CRON_TOKEN,
+$_GET['token'])` (the `is_string` guard avoids `hash_equals()` throwing on an
+array-shaped `?token[]=x` submission). Shipped with a patch
+(`modules/Base/Cron/patches/20260824_strengthen_cron_token.php`) that regenerates
+the stored token for existing installs too, per this repo's upgrade-gap discipline -
+a `generate_token()`-only fix would never touch an already-written
+`data/cron_token.php`. **Side effect worth knowing**: this patch changes the live
+cron/monitoring URL on any instance that runs it - any external cron scheduler or
+uptime monitor with the old URL hardcoded needs the new one from Administrator
+Panel → Cron after upgrading, or it'll start failing silently.
+
+**How to apply**: any other spot in this codebase that checks a bearer-token/shared-
+secret style value with `==`/`!=`/`in_array()` instead of `hash_equals()`, or that
+derives a "random" token from `md5()`/`sha1()` over non-CSPRNG inputs (`time()`,
+`getcwd()`, `uniqid()` without the `more_entropy` flag, etc.) instead of
+`random_bytes()`, is the same shape - worth a proactive fix if noticed, not just
+when reported.

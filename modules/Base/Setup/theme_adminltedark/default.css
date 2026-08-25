@@ -215,11 +215,15 @@
 
 .epesi-setup-options {
 	/* position/top/left/width are set inline by
-	   theme_adminlte/default.js's epesi_setup__position_full() -
-	   position:fixed computed from the card's on-screen rect, since
-	   .app-main's overflow:auto clips a plain position:absolute panel the
-	   moment it extends past the scrolled viewport. This is just the
-	   pre-JS/no-JS fallback. */
+	   theme_adminlte/default.js's epesi_setup__position_full(), which also
+	   reparents the panel to <body> - .container-fluid (an ancestor between
+	   the card and <body>) is overflow-y:hidden and clips a plain
+	   position:absolute panel the moment it extends past that ancestor's
+	   own bottom edge. <body>/<html> are overflow:visible (the real scroll
+	   container here is the window itself), so once reparented the panel
+	   can render at full height - a long options list just makes the page
+	   taller/scrollable instead of needing its own nested scrollbar. This
+	   is just the pre-JS/no-JS fallback position. */
 	position: absolute;
 	top: 100%;
 	left: 0;

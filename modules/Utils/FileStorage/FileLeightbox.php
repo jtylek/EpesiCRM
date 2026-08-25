@@ -44,9 +44,11 @@ class Utils_FileStorage_FileLeightbox
         $links = array();
         $links['view'] = '<a href="' . $action_urls['preview'] . '" target="_blank" onclick="' . $close_leightbox_js . '">' . __('View') . '</a><br>';
         $links['download'] = '<a href="' . $action_urls['download'] . '" onclick="' . $close_leightbox_js . '">' . __('Download') . '</a><br>';
-        if(!$is_history) {
-            $links['history'] = '<a onclick="' . $history_href_js . ';' . $close_leightbox_js . '">' . __('File History') . '</a><br>';
-        }
+        // Always set (even when omitted below) so the download.tpl variants' {if
+        // $__link.history} doesn't hit a PHP 8.2 "undefined array key" warning -
+        // parse_links() turns '' into array() below, which {if} still treats as
+        // falsy, so the button stays hidden exactly as before.
+        $links['history'] = $is_history ? '' : ('<a onclick="' . $history_href_js . ';' . $close_leightbox_js . '">' . __('File History') . '</a><br>');
         $links['link'] = '<a href="javascript:void(0)" onclick="utils_filestorage_get_remote_link(\''.$action_urls['remote'].'\');'.$close_leightbox_js.'">'.__('Get link').'</a><br>';
 
         load_js('modules/Utils/FileStorage/remote.js');

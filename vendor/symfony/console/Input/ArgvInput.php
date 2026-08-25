@@ -40,12 +40,20 @@ use Symfony\Component\Console\Exception\RuntimeException;
  */
 class ArgvInput extends Input
 {
+    /** @var list<string> */
     private array $tokens;
     private array $parsed;
 
+    /** @param list<string>|null $argv */
     public function __construct(?array $argv = null, ?InputDefinition $definition = null)
     {
         $argv ??= $_SERVER['argv'] ?? [];
+
+        foreach ($argv as $arg) {
+            if (!\is_scalar($arg) && !$arg instanceof \Stringable) {
+                throw new RuntimeException(\sprintf('Argument values expected to be all scalars, got "%s".', get_debug_type($arg)));
+            }
+        }
 
         // strip the application name
         array_shift($argv);
@@ -55,18 +63,13 @@ class ArgvInput extends Input
         parent::__construct($definition);
     }
 
-    /**
-     * @return void
-     */
-    protected function setTokens(array $tokens)
+    /** @param list<string> $tokens */
+    protected function setTokens(array $tokens): void
     {
         $this->tokens = $tokens;
     }
 
-    /**
-     * @return void
-     */
-    protected function parse()
+    protected function parse(): void
     {
         $parseOptions = true;
         $this->parsed = $this->tokens;
@@ -131,6 +134,7 @@ class ArgvInput extends Input
 
                 break;
             }
+
             $this->addLongOption($option->getName(), null);
         }
     }
@@ -180,7 +184,7 @@ class ArgvInput extends Input
                 unset($all[$key]);
             }
 
-            if (\count($all)) {
+            if ($all) {
                 if ($symfonyCommandName) {
                     $message = \sprintf('Too many arguments to "%s" command, expected arguments "%s".', $symfonyCommandName, implode('" "', array_keys($all)));
                 } else {
@@ -237,7 +241,7 @@ class ArgvInput extends Input
             throw new RuntimeException(\sprintf('The "--%s" option does not accept a value.', $name));
         }
 
-        if (\in_array($value, ['', null], true) && $option->acceptValue() && \count($this->parsed)) {
+        if (\in_array($value, ['', null], true) && $option->acceptValue() && $this->parsed) {
             // if option accepts an optional or mandatory argument
             // let's see if there is one provided
             $next = array_shift($this->parsed);
@@ -324,7 +328,7 @@ class ArgvInput extends Input
         $values = (array) $values;
         $tokens = $this->tokens;
 
-        while (0 < \count($tokens)) {
+        while ($tokens) {
             $token = array_shift($tokens);
             if ($onlyParams && '--' === $token) {
                 return $default;
@@ -345,6 +349,35 @@ class ArgvInput extends Input
         }
 
         return $default;
+    }
+
+    /**
+     * Returns un-parsed and not validated tokens.
+     *
+     * @param bool $strip Whether to return the raw parameters (false) or the values after the command name (true)
+     *
+     * @return list<string>
+     */
+    public function getRawTokens(bool $strip = false): array
+    {
+        if (!$strip) {
+            return $this->tokens;
+        }
+
+        $parameters = [];
+        $keep = false;
+        foreach ($this->tokens as $value) {
+            if (!$keep && $value === $this->getFirstArgument()) {
+                $keep = true;
+
+                continue;
+            }
+            if ($keep) {
+                $parameters[] = $value;
+            }
+        }
+
+        return $parameters;
     }
 
     /**

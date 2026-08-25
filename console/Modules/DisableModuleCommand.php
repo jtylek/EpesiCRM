@@ -27,7 +27,7 @@ class DisableModuleCommand extends Command
             )
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $module_name = $input->getArgument('name');
         $module = DB::GetRow("SELECT * FROM modules WHERE name = %s",$module_name);
         if(!$module)

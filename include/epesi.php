@@ -298,6 +298,13 @@ class Epesi {
 	// openpsa throws on unregistered element types. Epesi registers custom types (autoselect,
 	// multiselect, commondata, datepicker, currency, ...) lazily inside module Common files, which
 	// load too late for dashboard applets. Eager-load those modules once, before rendering.
+	// openpsa's stock _loadElement() instantiates the registered value via ReflectionClass — it wants
+	// a plain classname string with the class already loaded (no vendor patch, no autoload for Epesi's
+	// own classes per CLAUDE.md), NOT the array($file,$class) pair Epesi historically used. So each
+	// entry below require_once's its file explicitly and registers the string, matching what stock
+	// openpsa expects — see AI-shared/MIGRATION_NOTES.md §12.7/§13/§15.1 for the history (an earlier
+	// approach patched the vendor file to accept both formats; that patch is lost on every composer
+	// update, so this eager-load function is the permanent, vendor-edit-free fix instead).
 	// REVERSIBLE: delete this whole function + its single call site to restore lazy behavior.
 	private static function register_custom_qf_types() {
 		static $done = false;
@@ -305,20 +312,27 @@ class Epesi {
 		$done = true;
 		class_exists('HTML_QuickForm'); // force openpsa autoload first — its QuickForm.php line 17 RESETS the global to built-in types; our custom types must be added AFTER
 		$t = &$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES'];
-		$t['checkbox']         = array('modules/Libs/QuickForm/FieldTypes/epesi_checkbox/epesi_checkbox.php','HTML_QuickForm_epesi_checkbox');
-		$t['advcheckbox']      = array('modules/Libs/QuickForm/FieldTypes/epesi_advcheckbox/epesi_advcheckbox.php','HTML_QuickForm_epesi_advcheckbox');
-		$t['multiselect']      = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
-		$t['autocomplete']     = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
-		$t['automulti']        = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
-		$t['autoselect']       = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
-		$t['commondata']       = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
-		$t['commondata_group'] = array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group');
-		$t['datepicker']       = array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker');
-		$t['timestamp']        = array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp');
-		$t['currency']         = array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency');
-		$t['quill']            = array('modules/Libs/Quill/quill.php','HTML_Quickform_quill');
-		$t['codepress']        = array('modules/Libs/Codepress/HTML_Quickform_codepress_0.php','HTML_Quickform_codepress');
-		$t['critsvalue']       = array('modules/Utils/QueryBuilder/quickform_crits.php','HTML_QuickForm_crits');
+		$types = array(
+			'checkbox'         => array('modules/Libs/QuickForm/FieldTypes/epesi_checkbox/epesi_checkbox.php','HTML_QuickForm_epesi_checkbox'),
+			'advcheckbox'      => array('modules/Libs/QuickForm/FieldTypes/epesi_advcheckbox/epesi_advcheckbox.php','HTML_QuickForm_epesi_advcheckbox'),
+			'multiselect'      => array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect'),
+			'autocomplete'     => array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete'),
+			'automulti'        => array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti'),
+			'autoselect'       => array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect'),
+			'groupselect'      => array('modules/Libs/QuickForm/FieldTypes/groupselect/groupselect.php','HTML_QuickForm_groupselect'),
+			'commondata'       => array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata'),
+			'commondata_group' => array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group'),
+			'datepicker'       => array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker'),
+			'timestamp'        => array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp'),
+			'currency'         => array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency'),
+			'quill'            => array('modules/Libs/Quill/quill.php','HTML_Quickform_quill'),
+			'codepress'        => array('modules/Libs/Codepress/HTML_Quickform_codepress_0.php','HTML_Quickform_codepress'),
+			'critsvalue'       => array('modules/Utils/QueryBuilder/quickform_crits.php','HTML_QuickForm_crits'),
+		);
+		foreach ($types as $type => $reg) {
+			require_once($reg[0]);
+			$t[$type] = $reg[1];
+		}
 	}
 	// === END custom-type eager-load ===
 

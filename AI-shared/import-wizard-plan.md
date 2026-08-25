@@ -110,16 +110,16 @@ the active one. Cosmetic only (clicking a stale button just harmlessly reloads),
 session.
 
 **AdminLTE layout polish pass (2026-08-18, `ede708f`):** the wizard's screens render as plain
-`HTML_QuickForm_Renderer_TCMSDefault` markup (see `modules/Libs/QuickForm/Renderer/TCMSDefault.php`), which
+`HTML_QuickForm_Renderer_EpesiDefault` markup (see `modules/Libs/QuickForm/Renderer/EpesiDefault.php`), which
 has no AdminLTE styling of its own - each field/button was rendering as its own full-width block with no
 gap, plain unstyled buttons, and multi-field steps (Map columns, Match values) stacking every
 label/selector pair vertically instead of side by side. Fixed with CSS scoped to a new
 `.epesi-import-wizard` wrapper (`worksheet_wizard()` now wraps its `display_module($wizard, ...)` call in
-this div) so the fix doesn't leak into every other `TCMSDefault`-rendered form on the page - same
+this div) so the fix doesn't leak into every other `EpesiDefault`-rendered form on the page - same
 unscoped-`#quickform`/`.quickform-row` constraint `FirstRun`'s own theme fix already worked around, see that
 module's `theme_adminltedark/default.css`. Also introduced an `.epesi-import-mapping` marker div
 (`mapping_fields()`/`match_values_fields()` bracket their field rows in it via a `'html'` pseudo-element,
-which `TCMSDefault` renders with no wrapping row of its own) driving a CSS-Grid label/selector two-column
+which `EpesiDefault` renders with no wrapping row of its own) driving a CSS-Grid label/selector two-column
 layout, reused by both steps. All in `modules/Premium/Import/theme_adminltedark/default.css` +
 `Import_0.php`.
 

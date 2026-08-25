@@ -46,7 +46,7 @@ class Base_CronCommon extends ModuleCommon
 
     public static function generate_token()
     {
-        $token = md5(time() . getcwd());
+        $token = bin2hex(random_bytes(32));
         $success = file_put_contents(self::token_file(), '<?php define("CRON_TOKEN", "' . $token . '");');
         if (!$success) {
             throw new ErrorException("Can't generate token file");

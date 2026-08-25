@@ -20,7 +20,7 @@ class EnableAllModuleCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $by_missing_files = $input->getOption('missing-files');
         $by_user = $input->getOption('disabled');

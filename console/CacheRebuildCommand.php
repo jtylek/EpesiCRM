@@ -21,7 +21,7 @@ class CacheRebuildCommand extends Command
             ->setDescription('Rebuild EPESI common cache')
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         Cache::clear();
         ModuleManager::create_common_cache();
 

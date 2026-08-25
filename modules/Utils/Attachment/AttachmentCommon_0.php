@@ -269,10 +269,19 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		$notes = self::get_files($from_group);
 		$mapping = array();
 		foreach ($notes as $n) {
-			$mapping[$n['note_id']] = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text'],$n['original'],$n['file']);
+			// $n['file'] is the *original* note's permanent, hash-addressed storage
+			// path (Utils_FileStorageCommon::meta()'s 'file' key) - routing that
+			// through add()/add_file() would ingest it as if it were a throwaway
+			// temp upload and @unlink() it afterwards, deleting the original
+			// attachment's content out from under the note it still belongs to.
+			// Attach the existing filestorage id directly instead - add_files()
+			// clones by id without touching the source file at all.
+			$id = @self::add($to_group,$n['permission'],Acl::get_user(),$n['text']);
+			if ($id) Utils_RecordBrowserCommon::update_record('utils_attachment', $id, array('files' => array($n['filestorage_id'])));
+			$mapping[$n['note_id']] = $id;
 		}
 		return $mapping;
-	}	
+	}
 	
 	public static function detach_note($note, $group) {
 		$note = is_numeric($note)? self::get_note($note): $note;
@@ -295,6 +304,19 @@ class Utils_AttachmentCommon extends ModuleCommon {
 	public static function is_image($note) {
 		if (!is_string($note)) $note = $note['original'];
 		return preg_match('/\.(jpg|jpeg|gif|png|bmp)$/i',$note);
+	}
+
+	// Plain-argument equivalent of Utils_FileStorage_ActionHandler::createRemote()
+	// (protected, Request-shaped) - writes the same utils_filestorage_remote
+	// row/remote.php URL that CRM_Roundcube_RemoteAttachment already uses, for
+	// callers with just a file_id and no HTTP request to build. $label isn't
+	// persisted - the table has no column for it.
+	public static function create_remote($file_id, $label, $expires) {
+		$token = md5($file_id.$label.$expires.mt_rand());
+		DB::Execute('INSERT INTO utils_filestorage_remote(file_id,token,created_on,created_by,expires_on) VALUES (%d,%s,%T,%d,%T)',
+			array($file_id, $token, time(), Acl::get_user(), $expires));
+		$id = DB::Insert_ID('utils_filestorage_remote', 'id');
+		return get_epesi_url().'/modules/Utils/FileStorage/remote.php?'.http_build_query(array('id'=>$id, 'token'=>$token));
 	}
 
     public static function encrypt($input,$password, $hint = '') {
@@ -383,6 +405,21 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $text = Utils_BBCodeCommon::parse($text);
 	    Utils_SafeHtml_SafeHtml::setSafeHtml(new Utils_SafeHtml_HtmlPurifier);
             $text = Utils_SafeHtml_SafeHtml::outputSafeHtml($text);
+            // This 'view'/browse-grid render never constructs the 'quill' QuickForm
+            // element (it's a plain 'static' element - see QFfield_note() below), so
+            // quill.php's constructor - the only place that load_css()s Quill's own
+            // stylesheets - never runs here. Without it, a saved table (or an old
+            // CKEditor-era .Bold/.Title/.Code class) renders as bare unstyled HTML,
+            // even though the markup itself survived storage/purification intact.
+            // .epesi-quill-frozen is the same wrapper class quill.php's own
+            // getFrozenHtml() already uses for the other 3 call sites' frozen
+            // renders (Mail signature/RecordBrowser Help Message/Note applet), which
+            // do load these files via their live 'quill' element's constructor - reusing
+            // it here keeps this module's read-only rendering visually identical to
+            // theirs instead of drifting apart.
+            load_css('modules/Libs/Quill/frontend.css');
+            load_css('modules/Libs/Quill/theme.css');
+            $text = '<div class="epesi-quill-frozen">'.$text.'</div>';
             // mark as read all 'browsed' records
             foreach (self::$mark_as_read as $note_id) {
                 Utils_WatchdogCommon::notified('utils_attachment', $note_id);
@@ -496,6 +533,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
             // commit) but missed here. RecordBrowser_0.php's own quill field passes
             // null for the same reason.
             $fck->setQuillProps(null,'300',Base_User_SettingsCommon::get(self::Instance()->get_type(),'editor'));
+            $fck->enableInsertTable(); // must precede enableToolbarSwitch() - see that method's own doc comment in quill.php
             $fck->enableToolbarSwitch();
 
             $form->setDefaults(array($field=>$default));

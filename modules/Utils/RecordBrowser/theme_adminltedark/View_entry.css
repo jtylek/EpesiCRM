@@ -636,53 +636,34 @@
 	margin: 0;
 }
 
-.Utils_RecordBrowser__View_entry .form_error img {
-	margin-left: 5px;
-	border: none;
-	position: absolute;
-	right:3px;
-}
-.Utils_RecordBrowser__View_entry .form_error a {
-	color: white;
-	text-decoration: underline;
-}
-.Utils_RecordBrowser__View_entry .form_error a:hover {
-	color: #CCCCCC;
-}
+/* Per request: the error used to float as a badge to the right of the field
+   (right:0, capped at max-width:200px so a long message wouldn't overhang
+   neighboring content). Now covers the field itself instead - inset:0 fills
+   the whole .data cell the field lives in (see .data's own position:relative
+   above), so the field visibly turns red with the message in it rather than
+   a separate box beside it. pointer-events:none lets clicks/keystrokes pass
+   through to the actual input/select/textarea underneath, which stays fully
+   interactive; TCMSDefault.js clears this span's content (which is what
+   :not(:empty) keys off) on the field's own input/change event, so fixing
+   the field removes the overlay automatically instead of needing the old
+   manual close button (removed - see RecordBrowser_0.php). */
 .Utils_RecordBrowser__View_entry .form_error:not(:empty) {
 	color: white !important;
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0px;
+	inset: 0;
 	display: flex;
 	align-items: center;
 	margin: 0;
-	padding: 0 15px;
+	padding: 0 5px;
 	font-weight: bold;
 	z-index: 5;
 	white-space: nowrap;
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+	border-radius: 0;
 	box-shadow: none;
-
 	background: #dc3545;
-
-	/* Was 50% of the container - for a fixed-length message like "Field
-	   required" this can still be very wide on a wide field, growing
-	   leftward from right:0 far enough to overhang neighboring content.
-	   A small fixed cap keeps the badge compact regardless of row width. */
-	max-width: 200px;
+	pointer-events: none;
 	overflow: hidden;
 	text-overflow: ellipsis;
-}
-
-.Utils_RecordBrowser__View_entry .longfields .form_error,
-.Utils_RecordBrowser__View_entry .multiselects .form_error {
-	-webkit-border-radius: 0 4px 0 4px;
-	-moz-border-radius: 0 4px 0 4px;
-    border-radius: 0 4px 0 4px;
 }
 
 /* currency END */

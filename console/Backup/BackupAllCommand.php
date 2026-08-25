@@ -34,7 +34,7 @@ class BackupAllCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file = $input->getArgument('file');
         $file_description = 'Only ' . $file;

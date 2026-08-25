@@ -1,22 +1,22 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Path in require_once\(\) "data/config\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
+			message: '#^Function smarty_function_eval not found\.$#'
+			identifier: function.notFound
 			count: 1
-			path: include/config.php
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^Result of method EpesiSmartyRenderer\:\:_tplFetch\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 5
+			path: include/EpesiSmartyRenderer.php
 
 		-
 			message: '#^Path in include_once\(\) "map\.php" is not a file or it does not exist\.$#'
 			identifier: includeOnce.fileNotFound
 			count: 1
 			path: include/data_dir.php
-
-		-
-			message: '#^Caught class Exeption not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: include/database.php
 
 		-
 			message: '#^Function set_magic_quotes_runtime not found\.$#'
@@ -31,14 +31,8 @@ parameters:
 			path: include/database.php
 
 		-
-			message: '#^Call to static method minify\(\) on an unknown class JSmin\.$#'
-			identifier: class.notFound
-			count: 1
-			path: include/epesi.php
-
-		-
-			message: '#^Instantiated class Minify_Build not found\.$#'
-			identifier: class.notFound
+			message: '#^Class JSMin referenced with incorrect case\: JSmin\.$#'
+			identifier: class.nameCase
 			count: 1
 			path: include/epesi.php
 
@@ -47,12 +41,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: include/epesi.php
-
-		-
-			message: '#^Array has 2 duplicate keys with value ''winw'' \(''winw'', ''winw''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: include/misc.php
 
 		-
 			message: '#^Function location\(\) should return string but return statement is missing\.$#'
@@ -79,10 +67,10 @@ parameters:
 			path: include/session.php
 
 		-
-			message: '#^Instantiated class HTTP_Encoder not found\.$#'
+			message: '#^Instantiated class Smarty not found\.$#'
 			identifier: class.notFound
 			count: 1
-			path: modules/Apps/Shoutbox/refresh.php
+			path: include/simple_login.php
 
 		-
 			message: '#^Array has 2 duplicate keys with value ''CRM_Fax'' \(''CRM_Fax'', ''CRM_Fax''\)\.$#'
@@ -95,12 +83,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: modules/Base/HomePage/HomePageCommon_0.php
-
-		-
-			message: '#^Function set_magic_quotes_runtime not found\.$#'
-			identifier: function.notFound
-			count: 2
-			path: modules/Base/Mail/class.phpmailer.php
 
 		-
 			message: '#^Undefined variable\: \$$#'
@@ -121,12 +103,6 @@ parameters:
 			path: modules/Base/Mail/class.smtp.php
 
 		-
-			message: '#^Instantiated class Minify_Build not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: modules/Base/MainModuleIndicator/help.php
-
-		-
 			message: '#^Parameter \$section of method Base_Print_Printer\:\:print_section\(\) has invalid type Smarty\.$#'
 			identifier: class.notFound
 			count: 1
@@ -139,16 +115,16 @@ parameters:
 			path: modules/Base/Print/Printer.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value ''russian'' \(''russian'', ''russian''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
-
-		-
 			message: '#^Instantiated class Smarty not found\.$#'
 			identifier: class.notFound
 			count: 1
 			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Path in require\(\) "Minify\.php" is not a file or it does not exist\.$#'
+			identifier: require.fileNotFound
+			count: 1
+			path: modules/Base/Theme/theme_css.php
 
 		-
 			message: '#^Call to an undefined static method Acl\:\:del_group\(\)\.$#'
@@ -179,12 +155,6 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: modules/Base/patches/notes_addons.php
-
-		-
-			message: '#^Function mobile_stack_href not found\.$#'
-			identifier: function.notFound
-			count: 2
-			path: modules/CRM/Calendar/CalendarCommon_0.php
 
 		-
 			message: '#^Call to static method isError\(\) on an unknown class PEAR\.$#'
@@ -277,10 +247,88 @@ parameters:
 			path: modules/CRM/Mail/Mail_0.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value ''visible'' \(''visible'', ''visible''\)\.$#'
-			identifier: array.duplicateKey
+			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
+			identifier: staticMethod.notFound
 			count: 1
-			path: modules/CRM/Meeting/MeetingInstall.php
+			path: modules/CRM/Roundcube/patches/20130606_add_thread_view2.php
+
+		-
+			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/CRM/Roundcube/patches/20130617_add_thread_view4.php
+
+		-
+			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/CRM/Roundcube/patches/20130617_add_thread_view5.php
+
+		-
+			message: '#^Class HTML_QuickForm referenced with incorrect case\: HTML_Quickform\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: modules/Libs/Codepress/CodepressCommon_0.php
+
+		-
+			message: '#^Static call to instance method HTML_QuickForm\:\:registerElementType\(\)\.$#'
+			identifier: method.staticCall
+			count: 1
+			path: modules/Libs/Codepress/CodepressCommon_0.php
+
+		-
+			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/Libs/Codepress/HTML_Quickform_codepress_0.php
+
+		-
+			message: '#^Call to static method load\(\) on an unknown class PhpOffice\\PhpSpreadsheet\\IOFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/PHPExcel/PHPExcelCommon_0.php
+
+		-
+			message: '#^Call to an undefined static method DB\:\:isError\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Call to static method raiseError\(\) on an unknown class PEAR\.$#'
+			identifier: class.notFound
+			count: 3
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Method HTML_QuickForm_multiselect\:\:load\(\) should return PEAR_Error but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Path in require_once\(\) "DB\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Result of method HTML_QuickForm_multiselect\:\:loadQuery\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiDefault\:\:\$_formName\.$#'
+			identifier: property.notFound
+			count: 3
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiDefault\:\:\$_groupType\.$#'
+			identifier: property.notFound
+			count: 4
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
 
 		-
 			message: '#^Access to constant ERROR_COOKIES_DISABLED on an unknown class rcmail\.$#'
@@ -367,1318 +415,226 @@ parameters:
 			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
-			message: '#^Call to an undefined static method Utils_AttachmentCommon\:\:create_remote\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Instantiated class TCPDF not found\.$#'
+			identifier: class.notFound
 			count: 1
-			path: modules/CRM/Roundcube/RoundcubeCommon_0.php
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
 
 		-
-			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property Premium_Accounts\:\:\$rb\.$#'
+			identifier: property.notFound
 			count: 1
-			path: modules/CRM/Roundcube/patches/20130606_add_thread_view2.php
+			path: modules/Premium/Accounts/Accounts_0.php
 
 		-
-			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property Premium_CaseManagement_Case\:\:\$rb\.$#'
+			identifier: property.notFound
 			count: 1
-			path: modules/CRM/Roundcube/patches/20130617_add_thread_view4.php
+			path: modules/Premium/CaseManagement/Case/Case_0.php
 
 		-
-			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Access to an undefined property Premium_ExchangeRate\:\:\$rb\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/ExchangeRate/ExchangeRate_0.php
+
+		-
+			message: '#^Access to an undefined property Premium_Expenses\:\:\$rb\.$#'
+			identifier: property.notFound
 			count: 1
-			path: modules/CRM/Roundcube/patches/20130617_add_thread_view5.php
+			path: modules/Premium/Expenses/Expenses_0.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$balance_field_label\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Addon.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$recordset\.$#'
+			identifier: property.notFound
+			count: 7
+			path: modules/Premium/Payments/Addon.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$summarize_field_label\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Addon.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Agent\:\:\$params\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Agent.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Agent\:\:\$plugin\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Agent.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$agent\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$params\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$recordset\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$status_description\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Entry.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetAIM_Response\:\:\$error_message\.$#'
+			identifier: property.notFound
+			count: 3
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetAIM.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$approved_amount\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$avs_code\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$card_balance\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$card_num\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$error_message\.$#'
+			identifier: property.notFound
+			count: 3
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$ref_trans_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$test_mode\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$user_ref\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$version\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$xml\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetSIM\:\:\$api_login_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetSIM\:\:\$md5_setting\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetSIM_Form\:\:\$x_delim_char\.$#'
+			identifier: property.notFound
+			count: 1
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetXMLResponse\:\:\$response\.$#'
+			identifier: property.notFound
+			count: 6
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/shared/AuthorizeNetXMLResponse.php
+
+		-
+			message: '#^Access to an undefined property AuthorizeNetXMLResponse\:\:\$xpath_xml\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/shared/AuthorizeNetXMLResponse.php
+
+		-
+			message: '#^Undefined variable\: \$data$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Premium/Payments/Plugins/Paypal/IpnListener.php
 
 		-
 			message: '#^Array has 2 duplicate keys with value ''visible'' \(''visible'', ''visible''\)\.$#'
 			identifier: array.duplicateKey
-			count: 1
-			path: modules/CRM/Tasks/TasksInstall.php
-
-		-
-			message: '#^Class HTML_QuickForm referenced with incorrect case\: HTML_Quickform\.$#'
-			identifier: class.nameCase
-			count: 1
-			path: modules/Libs/CKEditor/CKEditorCommon_0.php
+			count: 2
+			path: modules/Premium/Projects/Tickets/TicketsInstall.php
 
 		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
 			count: 1
-			path: modules/Libs/CKEditor/CKEditorCommon_0.php
+			path: modules/Premium/Projects/Tickets/patches/20120619_develoeprs_group.php
 
 		-
-			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
+			message: '#^Call to an undefined static method Premium_TimesheetCommon\:\:get_customer_options\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: modules/Libs/CKEditor/ckeditor.php
+			path: modules/Premium/Timesheet/patches/premium_timesheets_add_customer2.php
 
 		-
-			message: '#^Class HTML_QuickForm referenced with incorrect case\: HTML_Quickform\.$#'
-			identifier: class.nameCase
-			count: 1
-			path: modules/Libs/Codepress/CodepressCommon_0.php
-
-		-
-			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: modules/Libs/Codepress/HTML_Quickform_codepress_0.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$dot\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$fill\-alpha\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$font\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$values\.$#'
+			message: '#^Access to an undefined property Premium_Vacation\:\:\$rb\.$#'
 			identifier: property.notFound
 			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area_Hollow\:\:\$width\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Area\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Area/OFC_Charts_Area_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_3d\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_3d.php
-
-		-
-			message: '#^Access to an undefined property bar_3d_value\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_3d.php
-
-		-
-			message: '#^Access to an undefined property bar_3d_value\:\:\$tip\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_3d.php
-
-		-
-			message: '#^Access to an undefined property bar_3d_value\:\:\$top\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_3d.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_3d.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Filled\:\:\$outline\-colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Filled.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Filled\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Filled.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Filled_Value\:\:\$outline\-colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Filled.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Filled.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Glass\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Glass.php
-
-		-
-			message: '#^Access to an undefined property bar_glass_value\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Glass.php
-
-		-
-			message: '#^Access to an undefined property bar_glass_value\:\:\$tip\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Glass.php
-
-		-
-			message: '#^Access to an undefined property bar_glass_value\:\:\$top\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Glass.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Glass.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal\:\:\$font\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal\:\:\$values\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal_Value\:\:\$left\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Horizontal_Value\:\:\$right\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Horizontal.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Sketch\:\:\$offset\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Sketch.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Sketch\:\:\$outline\-colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Sketch.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Sketch\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Sketch.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Sketch.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Stack\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Stack.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Stack_Value\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Stack.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Stack_Value\:\:\$val\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Stack.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Stack.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$bottom\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Value.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Value.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$tip\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Value.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$top\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Value.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Bar/OFC_Charts_Bar_Value.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line_Dot\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Line/OFC_Charts_Line_Dot.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Line\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Line/OFC_Charts_Line_Dot.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line_Hollow\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Line/OFC_Charts_Line_Hollow.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Line\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Line/OFC_Charts_Line_Hollow.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Area\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Area.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Area.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$alpha\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$font\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$tip\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar\:\:\$values\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$bottom\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$tip\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Bar_Value\:\:\$top\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Bar.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$dot\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$font\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$halo\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$values\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Line\:\:\$width\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$alpha\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$animate\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$border\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$colours\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$start\-angle\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie\:\:\$values\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie_Value\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Pie_Value\:\:\$value\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Class OFC_Charts_Pie_Value does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Pie.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter\:\:\$dot\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter\:\:\$values\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter_Value\:\:\$dot\-size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter_Value\:\:\$x\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter_Value\:\:\$y\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/OFC_Charts_Scatter.php
-
-		-
-			message: '#^Access to an undefined property OFC_Charts_Scatter_Line\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Scatter/OFC_Scatter_Line.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Scatter\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Charts/Scatter/OFC_Scatter_Line.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$3d\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$labels\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$max\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$min\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$offset\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$stroke\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X\:\:\$tick\-height\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Axis\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label\:\:\$rotate\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label\:\:\$size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label\:\:\$visible\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label_Set\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label_Set\:\:\$labels\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label_Set\:\:\$rotate\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label_Set\:\:\$size\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_X_Label_Set\:\:\$steps\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$grid\-colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$labels\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$max\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$min\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$offset\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$stroke\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis_Y\:\:\$tick\-length\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Axis\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Axis/OFC_Elements_Axis_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Legend_X\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Legend/OFC_Elements_Legend_X.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Legend/OFC_Elements_Legend_X.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Legend_Y\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Legend/OFC_Elements_Legend_Y.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/Legend/OFC_Elements_Legend_Y.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis\:\:\$colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Axis.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis\:\:\$grid\-colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Axis.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Axis\:\:\$steps\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Axis.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Axis.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Base\:\:\$style\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Base.php
-
-		-
-			message: '#^Access to an undefined property OFC_Elements_Title\:\:\$text\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Title.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/Elements/OFC_Elements_Title.php
-
-		-
-			message: '#^Access to an undefined property Services_JSON\:\:\$use\.$#'
-			identifier: property.notFound
-			count: 5
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/JSON.php
-
-		-
-			message: '#^Call to static method isError\(\) on an unknown class PEAR\.$#'
-			identifier: class.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/JSON.php
-
-		-
-			message: '#^Class Services_JSON_Error does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/JSON.php
-
-		-
-			message: '#^Services_JSON_Error\:\:Services_JSON_Error\(\) calls parent\:\:PEAR_Error\(\) but Services_JSON_Error does not extend any class\.$#'
-			identifier: class.noParent
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/JSON.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$bg_colour\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$elements\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$x_axis\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$x_legend\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$y_axis\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$y_axis_right\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Access to an undefined property OFC_Chart\:\:\$y_legend\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Class OFC_Elements_Title does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Area/OFC_Charts_Area_Hollow\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_3d\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_Filled\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_Glass\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_Horizontal\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_Sketch\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Bar/OFC_Charts_Bar_Stack\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Line/OFC_Charts_Line_Dot\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/Line/OFC_Charts_Line_Hollow\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Area\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Bar\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Line\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Pie\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Charts/OFC_Charts_Scatter\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/JSON\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/JSON_Format\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/OFC_Elements\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Chart.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_X\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_X_Label\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_X_Label_Set\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_Y\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Axis/OFC_Elements_Axis_Y_Right\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Legend/OFC_Elements_Legend_X\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/Legend/OFC_Elements_Legend_Y\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Axis\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Base\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/Elements/OFC_Elements_Title\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/2-lug/OFC/OFC_Elements.php
-
-		-
-			message: '#^Path in require_once\(\) "OFC/OFC_Chart\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/OpenFlashChart/OpenFlashChart_0.php
-
-		-
-			message: '#^Call to static method load\(\) on an unknown class PHPExcel_IOFactory\.$#'
-			identifier: class.notFound
-			count: 1
-			path: modules/Libs/PHPExcel/PHPExcelCommon_0.php
-
-		-
-			message: '#^Call to an undefined static method DB\:\:isError\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
-
-		-
-			message: '#^Call to static method raiseError\(\) on an unknown class PEAR\.$#'
-			identifier: class.notFound
-			count: 3
-			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
-
-		-
-			message: '#^Method HTML_QuickForm_multiselect\:\:load\(\) should return PEAR_Error but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
-
-		-
-			message: '#^Path in require_once\(\) "DB\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
-			count: 1
-			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
-
-		-
-			message: '#^Result of method HTML_QuickForm_multiselect\:\:loadQuery\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
-
-		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_elementIdx\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Libs/QuickForm/Renderer/TCMSArray.php
-
-		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_formName\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/QuickForm/Renderer/TCMSArray.php
-
-		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSArray\:\:\$_staticLabels\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Libs/QuickForm/Renderer/TCMSArray.php
-
-		-
-			message: '#^Function smarty_function_eval not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: modules/Libs/QuickForm/Renderer/TCMSArraySmarty.php
-
-		-
-			message: '#^Result of method HTML_QuickForm_Renderer_TCMSArraySmarty\:\:_tplFetch\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 5
-			path: modules/Libs/QuickForm/Renderer/TCMSArraySmarty.php
-
-		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSDefault\:\:\$_formName\.$#'
-			identifier: property.notFound
-			count: 3
-			path: modules/Libs/QuickForm/Renderer/TCMSDefault.php
-
-		-
-			message: '#^Access to an undefined property HTML_QuickForm_Renderer_TCMSDefault\:\:\$_groupType\.$#'
-			identifier: property.notFound
-			count: 4
-			path: modules/Libs/QuickForm/Renderer/TCMSDefault.php
-
-		-
-			message: '#^Parameter \$parser of method Composer\\InstalledVersions\:\:satisfies\(\) has invalid type Composer\\Semver\\VersionParser\.$#'
-			identifier: class.notFound
-			count: 1
-			path: modules/Libs/TCPDF/vendor/composer/InstalledVersions.php
-
-		-
-			message: '#^Method TCPDF_FILTERS\:\:decodeFilterCCITTFaxDecode\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_filters.php
-
-		-
-			message: '#^Method TCPDF_FILTERS\:\:decodeFilterCrypt\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_filters.php
-
-		-
-			message: '#^Method TCPDF_FILTERS\:\:decodeFilterDCTDecode\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_filters.php
-
-		-
-			message: '#^Method TCPDF_FILTERS\:\:decodeFilterJBIG2Decode\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_filters.php
-
-		-
-			message: '#^Method TCPDF_FILTERS\:\:decodeFilterJPXDecode\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_filters.php
-
-		-
-			message: '#^Function set_magic_quotes_runtime not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/include/tcpdf_static.php
-
-		-
-			message: '#^Method TCPDF\:\:_Ovalue\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Method TCPDF\:\:_Uvalue\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$cidinfo$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$ctg$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$cw$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$desc$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$diff$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$dw$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$enc$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$file$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$originalsize$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$size1$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$size2$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$type$#'
-			identifier: variable.undefined
-			count: 6
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$uniblock$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$up$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Undefined variable\: \$ut$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf.php
-
-		-
-			message: '#^Method TCPDF_IMPORT\:\:importPDF\(\) should return true but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: modules/Libs/TCPDF/vendor/tecnickcom/tcpdf/tcpdf_import.php
+			path: modules/Premium/Vacation/Vacation_0.php
 
 		-
 			message: '#^Method Utils_AttachmentCommon\:\:rb_access\(\) should return bool but return statement is missing\.$#'
@@ -1691,24 +647,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: modules/Utils/Attachment/Attachment_0.php
-
-		-
-			message: '#^Function mobile_stack_href not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: modules/Utils/Calendar/CalendarCommon_0.php
-
-		-
-			message: '#^Undefined variable\: \$columns$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Utils/Calendar/CalendarCommon_0.php
-
-		-
-			message: '#^Undefined variable\: \$data$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Utils/Calendar/CalendarCommon_0.php
 
 		-
 			message: '#^Call to an undefined static method DB\:\:error\(\)\.$#'
@@ -1741,6 +679,30 @@ parameters:
 			path: modules/Utils/CommonData/qf_group.php
 
 		-
+			message: '#^Call to an undefined static method Premium_AccountsCommon\:\:recalculate_missing_amounts\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
+
+		-
+			message: '#^Call to an undefined static method Premium_ExpensesCommon\:\:recalculate_missing_amounts\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
+
+		-
+			message: '#^Call to an undefined static method Premium_TimesheetCommon\:\:recalculate_missing_amounts\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
+
+		-
+			message: '#^Call to static method recalculate_missing_amounts\(\) on an unknown class Premium_VehiclesCommon\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
+
+		-
 			message: '#^Access to an undefined property HTML_QuickForm_currency\:\:\$dec_digits\.$#'
 			identifier: property.notFound
 			count: 2
@@ -1755,7 +717,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Utils_FileStorage\:\:\$caption\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
 			path: modules/Utils/FileStorage/FileStorage_0.php
 
 		-
@@ -1783,12 +745,6 @@ parameters:
 			path: modules/Utils/PopupCalendar/timestamp.php
 
 		-
-			message: '#^Access to an undefined property HTML_QuickForm_crits\:\:\$_caller\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Utils/QueryBuilder/quickform_crits.php
-
-		-
 			message: '#^Unsafe usage of new static\(\)\.$#'
 			identifier: new.static
 			count: 4
@@ -1799,12 +755,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: modules/Utils/RecordBrowser/CustomRecordsets/CustomRecordsets_0.php
-
-		-
-			message: '#^Function mobile_stack_href not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
 
 		-
 			message: '#^Access to an undefined property Utils_RecordBrowser\:\:\$watchdog\.$#'
@@ -1831,36 +781,6 @@ parameters:
 			path: modules/Utils/RecordBrowser/RecordPickerFS/select_all.php
 
 		-
-			message: '#^Class OFC_Elements_Title does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 4
-			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
-
-		-
-			message: '#^Calling self\:\:merge_crits\(\) outside of class scope\.$#'
-			identifier: outOfClass.self
-			count: 1
-			path: modules/Utils/RecordBrowser/mobile.php
-
-		-
-			message: '#^Calling self\:\:record_link_close_tag\(\) outside of class scope\.$#'
-			identifier: outOfClass.self
-			count: 1
-			path: modules/Utils/RecordBrowser/mobile.php
-
-		-
-			message: '#^Calling self\:\:record_link_open_tag\(\) outside of class scope\.$#'
-			identifier: outOfClass.self
-			count: 1
-			path: modules/Utils/RecordBrowser/mobile.php
-
-		-
-			message: '#^Function mobile_stack_href not found\.$#'
-			identifier: function.notFound
-			count: 2
-			path: modules/Utils/RecordBrowser/mobile.php
-
-		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
 			count: 1
@@ -1871,24 +791,6 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
-
-		-
-			message: '#^Call to an undefined static method Utils_TrayCommon\:\:get_tray\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: modules/Utils/Tray/mobile.php
-
-		-
-			message: '#^Call to an undefined static method Utils_TrayCommon\:\:sort_trays\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: modules/Utils/Tray/mobile.php
-
-		-
-			message: '#^Function mobile_stack_href not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: modules/Utils/Tray/mobile.php
 
 		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'

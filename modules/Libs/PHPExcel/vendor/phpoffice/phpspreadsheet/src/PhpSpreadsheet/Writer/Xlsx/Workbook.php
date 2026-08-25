@@ -15,10 +15,11 @@ class Workbook extends WriterPart
      * Write workbook to XML format.
      *
      * @param bool $preCalculateFormulas If true, formulas will be calculated before writing
+     * @param ?bool $forceFullCalc If null, !$preCalculateFormulas
      *
      * @return string XML Output
      */
-    public function writeWorkbook(Spreadsheet $spreadsheet, bool $preCalculateFormulas = false): string
+    public function writeWorkbook(Spreadsheet $spreadsheet, bool $preCalculateFormulas = false, ?bool $forceFullCalc = null): string
     {
         // Create XML writer
         if ($this->getParentWriter()->getUseDiskCaching()) {
@@ -32,7 +33,6 @@ class Workbook extends WriterPart
 
         // workbook
         $objWriter->startElement('workbook');
-        $objWriter->writeAttribute('xml:space', 'preserve');
         $objWriter->writeAttribute('xmlns', Namespaces::MAIN);
         $objWriter->writeAttribute('xmlns:r', Namespaces::SCHEMA_OFFICE_DOCUMENT);
 
@@ -57,7 +57,7 @@ class Workbook extends WriterPart
         (new DefinedNamesWriter($objWriter, $spreadsheet))->write();
 
         // calcPr
-        $this->writeCalcPr($objWriter, $preCalculateFormulas);
+        $this->writeCalcPr($objWriter, $preCalculateFormulas, $forceFullCalc);
 
         $objWriter->endElement();
 
@@ -125,18 +125,35 @@ class Workbook extends WriterPart
      */
     private function writeWorkbookProtection(XMLWriter $objWriter, Spreadsheet $spreadsheet): void
     {
-        if ($spreadsheet->getSecurity()->isSecurityEnabled()) {
+        $security = $spreadsheet->getSecurity();
+        if ($security->isSecurityEnabled()) {
             $objWriter->startElement('workbookProtection');
-            $objWriter->writeAttribute('lockRevision', ($spreadsheet->getSecurity()->getLockRevision() ? 'true' : 'false'));
-            $objWriter->writeAttribute('lockStructure', ($spreadsheet->getSecurity()->getLockStructure() ? 'true' : 'false'));
-            $objWriter->writeAttribute('lockWindows', ($spreadsheet->getSecurity()->getLockWindows() ? 'true' : 'false'));
+            $objWriter->writeAttribute('lockRevision', ($security->getLockRevision() ? 'true' : 'false'));
+            $objWriter->writeAttribute('lockStructure', ($security->getLockStructure() ? 'true' : 'false'));
+            $objWriter->writeAttribute('lockWindows', ($security->getLockWindows() ? 'true' : 'false'));
 
-            if ($spreadsheet->getSecurity()->getRevisionsPassword() != '') {
-                $objWriter->writeAttribute('revisionsPassword', $spreadsheet->getSecurity()->getRevisionsPassword());
+            if ($security->getRevisionsPassword() !== '') {
+                $objWriter->writeAttribute('revisionsPassword', $security->getRevisionsPassword());
+            } else {
+                $hashValue = $security->getRevisionsHashValue();
+                if ($hashValue !== '') {
+                    $objWriter->writeAttribute('revisionsAlgorithmName', $security->getRevisionsAlgorithmName());
+                    $objWriter->writeAttribute('revisionsHashValue', $hashValue);
+                    $objWriter->writeAttribute('revisionsSaltValue', $security->getRevisionsSaltValue());
+                    $objWriter->writeAttribute('revisionsSpinCount', (string) $security->getRevisionsSpinCount());
+                }
             }
 
-            if ($spreadsheet->getSecurity()->getWorkbookPassword() != '') {
-                $objWriter->writeAttribute('workbookPassword', $spreadsheet->getSecurity()->getWorkbookPassword());
+            if ($security->getWorkbookPassword() !== '') {
+                $objWriter->writeAttribute('workbookPassword', $security->getWorkbookPassword());
+            } else {
+                $hashValue = $security->getWorkbookHashValue();
+                if ($hashValue !== '') {
+                    $objWriter->writeAttribute('workbookAlgorithmName', $security->getWorkbookAlgorithmName());
+                    $objWriter->writeAttribute('workbookHashValue', $hashValue);
+                    $objWriter->writeAttribute('workbookSaltValue', $security->getWorkbookSaltValue());
+                    $objWriter->writeAttribute('workbookSpinCount', (string) $security->getWorkbookSpinCount());
+                }
             }
 
             $objWriter->endElement();
@@ -148,7 +165,7 @@ class Workbook extends WriterPart
      *
      * @param bool $preCalculateFormulas If true, formulas will be calculated before writing
      */
-    private function writeCalcPr(XMLWriter $objWriter, bool $preCalculateFormulas = true): void
+    private function writeCalcPr(XMLWriter $objWriter, bool $preCalculateFormulas, ?bool $forceFullCalc): void
     {
         $objWriter->startElement('calcPr');
 
@@ -160,7 +177,11 @@ class Workbook extends WriterPart
         //    fullCalcOnLoad isn't needed if we will calculate before writing
         $objWriter->writeAttribute('calcCompleted', ($preCalculateFormulas) ? '1' : '0');
         $objWriter->writeAttribute('fullCalcOnLoad', ($preCalculateFormulas) ? '0' : '1');
-        $objWriter->writeAttribute('forceFullCalc', ($preCalculateFormulas) ? '0' : '1');
+        if ($forceFullCalc === null) {
+            $objWriter->writeAttribute('forceFullCalc', $preCalculateFormulas ? '0' : '1');
+        } else {
+            $objWriter->writeAttribute('forceFullCalc', $forceFullCalc ? '1' : '0');
+        }
 
         $objWriter->endElement();
     }

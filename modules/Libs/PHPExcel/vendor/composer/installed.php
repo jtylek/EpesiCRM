@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-migration',
-        'version' => 'dev-migration',
-        'reference' => '750e2fec70fd68584c73314eb5a0cbcd611587ba',
+        'pretty_version' => 'dev-jasiek',
+        'version' => 'dev-jasiek',
+        'reference' => 'bc9de8e1223f228395bd71098e1207ff110bb493',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-migration',
-            'version' => 'dev-migration',
-            'reference' => '750e2fec70fd68584c73314eb5a0cbcd611587ba',
+            'pretty_version' => 'dev-jasiek',
+            'version' => 'dev-jasiek',
+            'reference' => 'bc9de8e1223f228395bd71098e1207ff110bb493',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -56,9 +56,9 @@
             'dev_requirement' => false,
         ),
         'phpoffice/phpspreadsheet' => array(
-            'pretty_version' => '2.4.7',
-            'version' => '2.4.7.0',
-            'reference' => '03e65f7c3399756d77f656118f75a61e0fca23c6',
+            'pretty_version' => '5.9.0',
+            'version' => '5.9.0.0',
+            'reference' => '05e99ebf61238a70227b4d9cc02d0030d34f6339',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),

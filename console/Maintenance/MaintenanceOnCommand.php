@@ -20,7 +20,7 @@ class MaintenanceOnCommand extends Command
             )
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $message = $input->getArgument('message');
         MaintenanceMode::turn_on($message);
         $output->writeln("Turned on " . ($message ? "with message: $message" : "with default message"));

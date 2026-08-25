@@ -69,15 +69,32 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 				'greek'=>'CP1253');
 
 
+	// Groups timezone_identifiers_list() by continent (the string before the
+	// first '/') so the 'tz' select below renders as <optgroup> blocks
+	// (HTML_QuickForm_groupselect, triggered by add_array() auto-detecting a
+	// nested values array - see modules/Libs/QuickForm/QuickForm_0.php)
+	// instead of one ~400-entry flat list. Shared with
+	// Base_RegionalSettingsInstall::post_install(), which renders the same
+	// field during the first-run setup wizard.
+	public static function get_grouped_timezones() {
+		if(!function_exists('timezone_identifiers_list'))
+			require_once('modules/Base/RegionalSettings/tz_list.php');
+		$tz = timezone_identifiers_list();
+		sort($tz);
+		$grouped = array();
+		foreach($tz as $z) {
+			$parts = explode('/',$z,2);
+			$grouped[$parts[0]][$z] = isset($parts[1]) ? str_replace('_',' ',$parts[1]) : $z;
+		}
+		return $grouped;
+	}
+
 	public static function user_settings() {
 		$now = strtotime('2008-02-15');
 		$date_formats_proto = array('%Y-%m-%d','%m/%d/%Y','%d/%m/%Y','%d %B %Y','%d %b %Y','%b %d, %Y');
 		$date_formats = array();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = self::strftime($f,$now);
-		if(!function_exists('timezone_identifiers_list'))
-			require_once('modules/Base/RegionalSettings/tz_list.php');
-		$tz = timezone_identifiers_list();
 		return array(__('Regional Settings')=>array(
 				array('type'=>'header','label'=>__('Date & Time'),'name'=>null),
 				array('type'=>'select','name'=>'date','label'=>__('Date format'),
@@ -89,7 +106,7 @@ class Base_RegionalSettingsCommon extends ModuleCommon {
 						'message'=>'This language does not support 12h clock',
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>__('Timezone'), 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz)),
+				array('type'=>'select','name'=>'tz','label'=>__('Timezone'), 'default'=>SYSTEM_TIMEZONE, 'values'=>self::get_grouped_timezones()),
 				array('type'=>'header','label'=>__('Your location'),'name'=>null),
 				array('name'=>'default_country', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_country_elem'),'default'=>'US'),
 				array('name'=>'default_state', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_state_elem'),'default'=>'')

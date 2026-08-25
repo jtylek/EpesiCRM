@@ -243,6 +243,54 @@ but fixing it (editing `httpd-ssl.conf`, restarting Apache) affects every
 site under this XAMPP instance, not just this one, so treat that as a
 deliberate separate decision, not a quick fix.
 
+### Same root cause also breaks individual AJAX actions, with a real access.log footprint this time
+
+Verified 2026-08-21 (`Utils_FileStorage`'s "Get link" button). Once a tab has
+silently upgraded to `https://localhost/...`, full-page navigation and
+same-scheme relative requests can keep working normally — only requests built
+from the hardcoded-`http://` `EPESI_URL` (the `EPESI_URL` gotcha above) start
+failing, because they're now cross-origin by *scheme* alone relative to the
+https page. Any JS that calls such an absolute URL (e.g.
+`modules/Utils/FileStorage/remote.js`'s `$.ajax(url, {method:'post'})` for
+"Get link") trips a CORS preflight — this app has no OPTIONS/CORS handling
+anywhere, so the preflight always 403s, the real POST never fires, and the
+user just sees a generic AJAX failure (`error:` callback, e.g. "Failure
+(error)"). Unlike the whole-page-navigation case above, this variant **does**
+show up in access.log: an `OPTIONS ... 403` on the affected endpoint with an
+empty `Referer` (`"-"` — Chrome's preflight doesn't send one) and no
+POST/GET immediately following it. Comparing `Referer` scheme across
+neighboring requests in the same session (`https://localhost/...` on
+everything else vs. missing on the failing endpoint) confirms the upgrade
+rather than an app/ACL bug.
+
+**How to apply**: symptom is "one specific AJAX action fails while the rest
+of the app works fine," not a whole-page failure — easy to mistake for a code
+bug (undefined-array-key warnings, ACL checks, etc. are all worth ruling out
+first, but if those check out) look for `OPTIONS .* 403` near the failure's
+timestamp in access.log before assuming a server-side cause. Same fix as
+above: clear the `localhost` HSTS entry and reload fresh over `http://`.
+
+### Same root cause again, this time a JS exception instead of a network failure
+
+Confirmed 2026-08-24 (`CRM_Roundcube`'s webmail screen,
+[Roundcube_0.php:84-86](../modules/CRM/Roundcube/Roundcube_0.php#L84-L86)):
+`navigator.registerProtocolHandler('mailto', $epesi_mail_url, ...)` is called
+with a URL built from `get_epesi_url()` (i.e. the hardcoded `http://`
+`EPESI_URL`). If the tab has silently upgraded to `https://localhost/...`,
+the handler URL is cross-origin by scheme alone relative to the document, and
+the browser throws `Uncaught SecurityError: Failed to execute
+'registerProtocolHandler' on 'Navigator': Can only register custom handler in
+the document's origin.` — a console JS error with no network request at all,
+so it won't show up in access.log even as an absence (unlike the AJAX variant
+above).
+
+**How to apply**: an `Uncaught SecurityError` naming `registerProtocolHandler`
+(or any other API that enforces same-origin against an absolute URL the app
+builds from `EPESI_URL`) is the same scheme-mismatch root cause, not a code
+bug — check the page's actual `https://` vs. the config's `http://` before
+touching the calling code. Same fix: clear the `localhost` HSTS entry and
+reload over `http://`.
+
 ## Browser-driven UI verification on this machine: no `chromium-cli`, Playwright's own Chromium was never downloaded, and the app has no deep-linkable URLs
 
 No project skill exists yet for driving this app in a browser (checked
@@ -334,3 +382,161 @@ gitignored, separately-repo'd tree) doesn't match what you last wrote,
 the user and ask, the way you would for any surprising change to code you
 don't own outright. It may well be tested work from a parallel session on
 the same nested repo that just hasn't been communicated yet.
+
+## Rector and PHPStan are installed globally via Composer on this machine, not per-project
+
+Done 2026-08-21 (Jasiek's Windows box) so both tools are shared across every local
+PHP project instead of living in this repo's own `vendor/`:
+
+```
+composer global require rector/rector:^2 phpstan/phpstan:^2
+```
+
+This installs into `C:\Users\jasiek\AppData\Roaming\Composer\vendor\bin`, which was
+already on `PATH` (`composer global config home` shows the home dir; its `vendor\bin`
+is the standard global-bin location Composer adds during setup) — so `rector` and
+`phpstan` now resolve directly from any project directory, no `vendor/bin/` prefix,
+no per-project `composer.json` entry. Usage is otherwise unchanged: run from inside a
+project and point at its own config, e.g. `phpstan analyse -c phpstan.neon`,
+`rector process --dry-run --config rector-php82.php`.
+
+This repo's own `composer.json` deliberately does **not** list either tool as a
+dependency — CI installs both isolated into scratch dirs per run
+(`.github/workflows/php-checks.yml`: `composer --working-dir=/tmp/rector require
+rector/rector:^2`, same shape for `/tmp/phpstan`) specifically to dodge a php-parser
+version conflict with Epesi's own deps. A global Composer install is the same shape
+of fix — its own vendor tree, entirely outside any project — just persistent instead
+of re-fetched every run. Versions were pinned to `^2` for both to match what CI uses.
+
+**How to apply on another developer's computer**: this is per-machine state, not
+something `git pull` brings along — run the same `composer global require` command
+there too. If that machine's global Composer bin dir isn't already on `PATH`, add it
+(`composer global config home` prints the path; the tools live in `<that
+path>\vendor\bin` on Windows or `<that path>/vendor/bin` on Linux/macOS). Keep the
+version constraint in sync with whatever `.github/workflows/php-checks.yml` pins if
+that ever changes, so local runs and CI report the same findings.
+
+While verifying this install against this repo's actual `phpstan.neon`, the run hit
+a **real** issue unrelated to the global-vs-local install choice: see the "vendored
+Kint debug library uses removed PHP 7 syntax" note below (`phpstan.neon`'s
+`excludePaths` didn't cover it, so any invocation — global or CI's isolated one
+— would abort with parse errors).
+
+## Vendored Kint debug library breaks PHPStan with removed PHP 7 curly-brace syntax
+
+Found 2026-08-21 while smoke-testing the global PHPStan install (see above) against
+this repo's real `phpstan.neon`: the run aborted with "Result is incomplete because
+of severe errors" instead of reporting ordinary findings.
+`modules/Develop/MiscUtils/kint/parsers/custom/json.php` (Kint, a vendored
+third-party var-dump/debug library, added via commit `762612ba2` "materialize
+previously-uncommitted vendor dependencies") uses old curly-brace string-offset
+syntax (`$variable{0}`), which PHP 8.0 removed outright — a genuine parse error
+under `phpVersion: 80200`, not a false positive. Unlike an ordinary finding, a parse
+error can't be suppressed via `phpstan-baseline.neon` and aborts the whole analysis
+run rather than just flagging that one file. The file was already absent from
+`phpstan-baseline.neon`, meaning a fresh CI run would hit the same abort (CI's
+PHPStan job has no `|| true`, so this would redden the build, not just add noise).
+
+Fixed at first by adding `modules/Develop/MiscUtils/kint/*` to `phpstan.neon`'s
+`excludePaths`, alongside the existing RoundCube/Smarty/Tests entries — same
+pattern, since Kint here is vendored code we don't own, not Epesi's own code.
+
+**Follow-up (2026-08-21): the whole `Develop_MiscUtils` module was deleted**,
+not just excluded. It was a bare dev-tooling module (no menu, no ACL, no admin
+screen) whose only content was a global `p($x)` debug-dump helper and this
+bundled Kint library — a manual `var_dump`-style aid for a developer to sprinkle
+into code while debugging, superseded now that AI-assisted sessions read code
+and logs directly instead. Confirmed zero references anywhere else in the
+tracked codebase (`Kint::`, `p(`, `Develop_MiscUtils`/`requires()`) before
+removing. Not installed in this instance's DB (`console.php module:uninstall
+Develop_MiscUtils` reported "not installed"), so no uninstall step was needed —
+just `git rm -r modules/Develop/MiscUtils`. The `excludePaths` entry above is
+now gone too, since the directory it pointed at no longer exists.
+
+**How to apply**: if PHPStan (local or CI) ever reports "Result is incomplete
+because of severe errors" again, check whether the failing file is vendored/
+third-party code that landed under `modules/` without a matching `excludePaths`
+entry, before assuming a real regression in Epesi's own code. And if any old
+code still calls `p()` or `Kint::`, that call is now dead — `Develop_MiscUtils`
+no longer exists to define/load them.
+
+## Claude Code's own Bash sandbox can't run `/opt/lampp/bin/php` — missing `libcrypt.so.1`, unrelated to the real host
+
+Confirmed 2026-08-19: from inside a Claude Code session's Bash tool on Karina's Linux
+machine, `/opt/lampp/bin/php -v` fails with
+`error while loading shared libraries: libcrypt.so.1: cannot open shared object file`.
+This is **not** a real problem with the app or the actual host — Apache was serving
+requests fine at the same time (`access_log`/`error_log` both had fresh entries), and a
+prior session's memory had already confirmed this exact binary running successfully
+(8.2.12). The break is specific to the Bash tool's own sandbox container, which ships a
+newer `libxcrypt` (`libcrypt.so.2` only, no `.so.1` compat symlink) than what this XAMPP
+8.2.12 PHP build was linked against.
+
+Not fixable from inside that sandbox: `/usr/lib` is a read-only filesystem there, no
+`apt`/`dpkg`/package manager is available, and there's no `sudo`/root. A same-directory
+symlink workaround (`libcrypt.so.1` → `libcrypt.so.2` + `LD_LIBRARY_PATH`) was tried and
+fails harder, at load time, with `version 'GLIBC_2.2.5' not found` — confirming a real
+ABI break between the two library versions, not just a missing filename alias.
+
+**How to apply**: if a Claude Code session reports `/opt/lampp/bin/php` (or any command
+that shells out to it, e.g. `console.php`, `php -l`) failing with a `libcrypt.so.1`
+error, don't chase it as an app/environment bug — it's a gap in that session's own Bash
+sandbox image. Run the command from a real terminal instead; ask Claude to just read
+files/reason about version info (e.g. `/opt/lampp/RELEASENOTES`,
+`data/config.php`) rather than trying to execute the binary. Worth reporting to
+Anthropic as a sandbox image gap if it keeps recurring, rather than working around it
+per-session.
+
+## `choco install` needs an elevated shell on this Windows/XAMPP machine
+
+Confirmed 2026-08-22: `choco install <pkg> -y` from Claude Code's own (non-admin)
+PowerShell fails with `UnauthorizedAccessException` on `C:\ProgramData\chocolatey\lib\...`
+— that directory tree is admin-owned, and Chocolatey has no per-user install mode that
+avoids it. `choco --version` works fine (reading), only the actual install write fails.
+
+**How to apply**: don't retry or try to work around this from inside a session — ask the
+user to run the `choco install` command themselves from an elevated ("Run as
+Administrator") PowerShell. Any tool chocolatey would install (e.g. `rsync`, for a
+cleaner alternative to the `robocopy /E` merge-copy pattern in `MIGRATION_NOTES.md` §70)
+hits the same wall.
+
+## Minimum PHP version: 8.0 required, 8.2 recommended — single source of truth is `include/compatibility_check.php`
+
+If asked "what PHP version does Epesi need," don't guess from `composer.json` — it
+declares no explicit `"php"` platform constraint, so it won't tell you. The actual
+enforced floor is `CompatibilityCheck::system_check()`
+(`include/compatibility_check.php:30-41`), shared by both `check.php` (setup's
+"Compatibility check" step) and the logged-in admin "PHP Environment & config.php"
+screen (`admin/modules/ConfigInfo.php`). Floor is PHP 8.0 because Epesi's own code
+uses constructor property promotion (8.0+-only syntax) — anything older fails to
+parse before the check itself could even run. 8.2 is called out as "recommended"
+because that's what this release (`20260701-rc1`) is actually developed and tested
+against, per `MIGRATION_NOTES.md`.
+
+**How to apply**: read `system_check()`'s `$desired_version` directly rather than
+citing a remembered number — if a future patch raises the floor (e.g. to drop 8.0/8.1
+deprecation shims), that's the one place it needs to change and the one place to
+re-check.
+
+## Windows/NTFS + `core.fileMode=true` makes `git status` show ~30 vendored scripts as modified with zero content diff
+
+Hit 2026-08-24 on jasiek's Windows box (`c:\xampp82\htdocs\euroleader`): `git status` listed
+~30 files as modified — `modules/Libs/RoundCube/RC/bin/*.sh`, a handful of vendored PEAR
+files under `RC/vendor/`, and a couple of top-level `vendor/**/*.sh` build scripts — but
+`git diff` on every one showed **zero content changes**, only `old mode 100755` / `new mode
+100644`. Root cause: these files are checked into git with the Unix executable bit set, but
+NTFS doesn't track that bit at all. With `core.fileMode` at its default `true`, git compares
+the (nonexistent-on-Windows) working-tree mode against the recorded index mode on every
+`status`/`diff`, and it always loses — so the flip reappears on every checkout, not just once.
+Committing these "changes" would strip the executable bit from real, deployed shell
+scripts/binaries — a genuine regression on Linux, not a fix.
+
+**How to apply**: don't commit these — verify a same-shaped mystery diff is mode-only before
+touching it (`git diff -- <file>` showing only `old mode`/`new mode` lines, no `+`/`-`
+content) rather than assuming it's real work or blindly discarding it. The actual fix is
+`git config core.fileMode false` — **local to this repo checkout**, confirmed working
+2026-08-24 (immediately cleared all ~30 spurious entries from `git status`). This is a git
+config change, which Claude Code must never make on its own initiative (or even on request —
+see CLAUDE.md's git safety rules) — ask the user to run it themselves. Per-repo (`--local`,
+the default) is enough; only reach for `--global` if the same machine has other repos hitting
+the same issue.

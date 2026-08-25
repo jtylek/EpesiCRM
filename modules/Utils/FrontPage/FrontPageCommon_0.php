@@ -20,6 +20,7 @@ class Utils_FrontPageCommon extends ModuleCommon {
 		$smarty->assign('info',$info);
 		$smarty->assign('footer','');
 		$smarty->assign('logo',$l);
+		$smarty->assign('site_title',Variable::get('base_page_title'));
 		$smarty->assign('url',get_epesi_url());
 		Base_ThemeCommon::display_smarty($smarty,'Utils_FrontPage','default');
 	}

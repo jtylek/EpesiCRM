@@ -22,7 +22,7 @@ class CreateDistCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $st = new SymfonyStyle($input, $output);
 

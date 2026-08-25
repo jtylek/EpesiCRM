@@ -51,6 +51,8 @@ class Worksheet
     public const MERGE_CELL_CONTENT_HIDE = 'hide';
     public const MERGE_CELL_CONTENT_MERGE = 'merge';
 
+    public const FUNCTION_LIKE_GROUPBY = '/\b(groupby|_xleta)\b/i'; // weird new syntax
+
     protected const SHEET_NAME_REQUIRES_NO_QUOTES = '/^[_\p{L}][_\p{L}\p{N}]*$/mui';
 
     /**
@@ -63,7 +65,7 @@ class Worksheet
     /**
      * Invalid characters in sheet title.
      */
-    private static array $invalidCharacters = ['*', ':', '/', '\\', '?', '[', ']'];
+    private const INVALID_CHARACTERS = ['*', ':', '/', '\\', '?', '[', ']'];
 
     /**
      * Parent spreadsheet.
@@ -74,8 +76,6 @@ class Worksheet
      * Collection of cells.
      */
     private Cells $cellCollection;
-
-    private bool $cellCollectionInitialized = true;
 
     /**
      * Collection of row dimensions.
@@ -107,6 +107,13 @@ class Worksheet
      * @var ArrayObject<int, BaseDrawing>
      */
     private ArrayObject $drawingCollection;
+
+    /**
+     * Collection of drawings.
+     *
+     * @var ArrayObject<int, BaseDrawing>
+     */
+    private ArrayObject $inCellDrawingCollection;
 
     /**
      * Collection of Chart objects.
@@ -158,14 +165,9 @@ class Worksheet
     private Protection $protection;
 
     /**
-     * Collection of styles.
-     *
-     * @var Style[]
-     */
-    private array $styles = [];
-
-    /**
      * Conditional styles. Indexed by cell coordinate, e.g. 'A1'.
+     *
+     * @var Conditional[][]
      */
     private array $conditionalStylesCollection = [];
 
@@ -293,11 +295,16 @@ class Worksheet
 
     /**
      * Hyperlinks. Indexed by cell coordinate, e.g. 'A1'.
+     *
+     * @var Hyperlink[]
      */
     private array $hyperlinkCollection = [];
 
     /**
      * Data validation objects. Indexed by cell coordinate, e.g. 'A1'.
+     * Index can include ranges, and multiple cells/ranges.
+     *
+     * @var DataValidation[]
      */
     private array $dataValidationCollection = [];
 
@@ -305,11 +312,6 @@ class Worksheet
      * Tab color.
      */
     private ?Color $tabColor = null;
-
-    /**
-     * Hash.
-     */
-    private int $hash;
 
     /**
      * CodeName.
@@ -323,7 +325,6 @@ class Worksheet
     {
         // Set parent and title
         $this->parent = $parent;
-        $this->hash = spl_object_id($this);
         $this->setTitle($title, false);
         // setTitle can change $pTitle
         $this->setCodeName($this->getTitle());
@@ -340,6 +341,8 @@ class Worksheet
         $this->sheetView = new SheetView();
         // Drawing collection
         $this->drawingCollection = new ArrayObject();
+        // In Cell Drawing collection
+        $this->inCellDrawingCollection = new ArrayObject();
         // Chart collection
         $this->chartCollection = new ArrayObject();
         // Protection
@@ -357,13 +360,15 @@ class Worksheet
     /**
      * Disconnect all cells from this Worksheet object,
      * typically so that the worksheet object can be unset.
+     * The worksheet will be in an unusable state after
+     * this method has completed.
      */
     public function disconnectCells(): void
     {
-        if ($this->cellCollectionInitialized) {
+        // isset needed to avoid problems at destruct time
+        if (isset($this->cellCollection)) { //* @phpstan-ignore-line
             $this->cellCollection->unsetWorksheetCells();
             unset($this->cellCollection);
-            $this->cellCollectionInitialized = false;
         }
         //    detach ourself from the workbook, so that it can then delete this worksheet successfully
         $this->parent = null;
@@ -374,10 +379,11 @@ class Worksheet
      */
     public function __destruct()
     {
-        Calculation::getInstance($this->parent)->clearCalculationCacheForWorksheet($this->title);
+        Calculation::getInstanceOrNull($this->parent)
+            ?->clearCalculationCacheForWorksheet($this->title);
 
         $this->disconnectCells();
-        unset($this->rowDimensions, $this->columnDimensions, $this->tableCollection, $this->drawingCollection, $this->chartCollection, $this->autoFilter);
+        unset($this->rowDimensions, $this->columnDimensions, $this->tableCollection, $this->drawingCollection, $this->inCellDrawingCollection, $this->chartCollection, $this->autoFilter);
     }
 
     /**
@@ -390,10 +396,12 @@ class Worksheet
 
     /**
      * Get array of invalid characters for sheet title.
+     *
+     * @return string[]
      */
     public static function getInvalidCharacters(): array
     {
-        return self::$invalidCharacters;
+        return self::INVALID_CHARACTERS;
     }
 
     /**
@@ -411,7 +419,7 @@ class Worksheet
         }
         // Some of the printable ASCII characters are invalid:  * : / \ ? [ ] and  first and last characters cannot be a "'"
         if (
-            (str_replace(self::$invalidCharacters, '', $sheetCodeName) !== $sheetCodeName)
+            (str_replace(self::INVALID_CHARACTERS, '', $sheetCodeName) !== $sheetCodeName)
             || (StringHelper::substring($sheetCodeName, -1, 1) == '\'')
             || (StringHelper::substring($sheetCodeName, 0, 1) == '\'')
         ) {
@@ -436,7 +444,7 @@ class Worksheet
     private static function checkSheetTitle(string $sheetTitle): string
     {
         // Some of the printable ASCII characters are invalid:  * : / \ ? [ ]
-        if (str_replace(self::$invalidCharacters, '', $sheetTitle) !== $sheetTitle) {
+        if (str_replace(self::INVALID_CHARACTERS, '', $sheetTitle) !== $sheetTitle) {
             throw new Exception('Invalid character found in sheet title');
         }
 
@@ -457,7 +465,8 @@ class Worksheet
      */
     public function getCoordinates(bool $sorted = true): array
     {
-        if ($this->cellCollectionInitialized === false) {
+        // isset needed to avoid problems at destruct time
+        if (!isset($this->cellCollection)) { //* @phpstan-ignore-line
             return [];
         }
 
@@ -524,6 +533,16 @@ class Worksheet
     }
 
     /**
+     * Get collection of drawings.
+     *
+     * @return ArrayObject<int, BaseDrawing>
+     */
+    public function getInCellDrawingCollection(): ArrayObject
+    {
+        return $this->inCellDrawingCollection;
+    }
+
+    /**
      * Get collection of charts.
      *
      * @return ArrayObject<int, Chart>
@@ -554,14 +573,14 @@ class Worksheet
     /**
      * Get a chart by its index position.
      *
-     * @param ?string $index Chart index position
+     * @param null|int|string $index Chart index position
      *
      * @return Chart|false
      */
-    public function getChartByIndex(?string $index)
+    public function getChartByIndex(null|int|string $index)
     {
         $chartCount = count($this->chartCollection);
-        if ($chartCount == 0) {
+        if ($chartCount === 0 || (is_string($index) && $index !== (string) (int) $index)) {
             return false;
         }
         if ($index === null) {
@@ -680,6 +699,8 @@ class Worksheet
      */
     public function calculateColumnWidths(): static
     {
+        $activeSheet = $this->getParent()?->getActiveSheetIndex();
+        $selectedCells = $this->selectedCells;
         // initialize $autoSizes array
         $autoSizes = [];
         foreach ($this->getColumnDimensions() as $colDimension) {
@@ -728,6 +749,7 @@ class Worksheet
                         $filterAdjustment = false;
                         if (!empty($autoFilterIndentRanges)) {
                             foreach ($autoFilterIndentRanges as $autoFilterFirstRowRange) {
+                                /** @var string $autoFilterFirstRowRange */
                                 if ($cell->isInRange($autoFilterFirstRowRange)) {
                                     $filterAdjustment = true;
 
@@ -747,7 +769,7 @@ class Worksheet
                                 ->getNumberFormat()->getFormatCode(true)
                         );
 
-                        if ($cellValue !== null && $cellValue !== '') {
+                        if ($cellValue !== '') {
                             $autoSizes[$this->cellCollection->getCurrentColumn()] = max(
                                 $autoSizes[$this->cellCollection->getCurrentColumn()],
                                 round(
@@ -777,6 +799,12 @@ class Worksheet
             }
             $this->activePane = $holdActivePane;
         }
+        if ($activeSheet !== null && $activeSheet >= 0) {
+            // Okay, I get it now - if $activeSheet is not null,
+            // then $this->getParent() must also be non-null.
+            $this->getParent()->setActiveSheetIndex($activeSheet);
+        }
+        $this->setSelectedCells($selectedCells);
 
         return $this;
     }
@@ -818,6 +846,13 @@ class Worksheet
                 $this->parent->getIndex($this)
             );
         }
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    public function setParent(Spreadsheet $parent): self
+    {
         $this->parent = $parent;
 
         return $this;
@@ -889,7 +924,7 @@ class Worksheet
         // Set title
         $this->title = $title;
 
-        if ($this->parent && $this->parent->getIndex($this, true) >= 0 && $this->parent->getCalculationEngine()) {
+        if ($this->parent && $this->parent->getIndex($this, true) >= 0) {
             // New title
             $newTitle = $this->getTitle();
             $this->parent->getCalculationEngine()
@@ -1089,7 +1124,7 @@ class Worksheet
     /**
      * Get highest worksheet column and highest row that have cell records.
      *
-     * @return array Highest column name and highest row number
+     * @return array{row: int, column: string} Highest column name and highest row number
      */
     public function getHighestRowAndColumn(): array
     {
@@ -1184,7 +1219,7 @@ class Worksheet
 
         // Worksheet reference?
         if (str_contains($coordinate, '!')) {
-            $worksheetReference = self::extractSheetTitle($coordinate, true);
+            $worksheetReference = self::extractSheetTitle($coordinate, true, true);
 
             $sheet = $this->getParentOrThrow()->getSheetByName($worksheetReference[0]);
             $finalCoordinate = strtoupper($worksheetReference[1]);
@@ -1204,8 +1239,7 @@ class Worksheet
                     throw new Exception('Sheet not found for named range: ' . $namedRange->getName());
                 }
 
-                /** @phpstan-ignore-next-line */
-                $cellCoordinate = ltrim(substr($namedRange->getValue(), strrpos($namedRange->getValue(), '!')), '!');
+                $cellCoordinate = ltrim(substr($namedRange->getValue(), (int) strrpos($namedRange->getValue(), '!')), '!');
                 $finalCoordinate = str_replace('$', '', $cellCoordinate);
             }
         }
@@ -1217,9 +1251,8 @@ class Worksheet
 
         if (Coordinate::coordinateIsRange($finalCoordinate)) {
             throw new Exception('Cell coordinate string can not be a range of cells.');
-        } elseif (str_contains($finalCoordinate, '$')) {
-            throw new Exception('Cell coordinate must not be absolute.');
         }
+        $finalCoordinate = str_replace('$', '', $finalCoordinate);
 
         return [$sheet, $finalCoordinate];
     }
@@ -1323,6 +1356,13 @@ class Worksheet
         return $this->rowDimensions[$row];
     }
 
+    public function getRowStyle(int $row): ?Style
+    {
+        return $this->parent?->getCellXfByIndexOrNull(
+            ($this->rowDimensions[$row] ?? null)?->getXfIndex()
+        );
+    }
+
     public function rowDimensionExists(int $row): bool
     {
         return isset($this->rowDimensions[$row]);
@@ -1366,27 +1406,28 @@ class Worksheet
         return $this->getColumnDimension(Coordinate::stringFromColumnIndex($columnIndex));
     }
 
-    /**
-     * Get styles.
-     *
-     * @return Style[]
-     */
-    public function getStyles(): array
+    public function getColumnStyle(string $column): ?Style
     {
-        return $this->styles;
+        return $this->parent?->getCellXfByIndexOrNull(
+            ($this->columnDimensions[$column] ?? null)?->getXfIndex()
+        );
     }
 
     /**
      * Get style for cell.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $cellCoordinate
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $cellCoordinate
      *              A simple string containing a cell address like 'A1' or a cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or a CellAddress or AddressRange object.
      */
     public function getStyle(AddressRange|CellAddress|int|string|array $cellCoordinate): Style
     {
+        if (is_string($cellCoordinate)) {
+            $cellCoordinate = Validations::definedNameToCoordinate($cellCoordinate, $this);
+        }
         $cellCoordinate = Validations::validateCellOrCellRange($cellCoordinate);
+        $cellCoordinate = str_replace('$', '', $cellCoordinate);
 
         // set this sheet as active
         $this->getParentOrThrow()->setActiveSheetIndex($this->getParentOrThrow()->getIndex($this));
@@ -1398,6 +1439,58 @@ class Worksheet
     }
 
     /**
+     * Get table styles set for the for given cell.
+     *
+     * @param Cell $cell
+     *              The Cell for which the tables are retrieved
+     *
+     * @return Table[]
+     */
+    public function getTablesWithStylesForCell(Cell $cell): array
+    {
+        $retVal = [];
+
+        foreach ($this->tableCollection as $table) {
+            $dxfsTableStyle = $table->getStyle()->getTableDxfsStyle();
+            if ($dxfsTableStyle !== null) {
+                if ($dxfsTableStyle->getHeaderRowStyle() !== null || $dxfsTableStyle->getFirstRowStripeStyle() !== null || $dxfsTableStyle->getSecondRowStripeStyle() !== null) {
+                    $range = $table->getRange();
+                    if ($cell->isInRange($range)) {
+                        $retVal[] = $table;
+                    }
+                }
+            }
+        }
+
+        return $retVal;
+    }
+
+    /**
+     * Get tables without styles set for the for given cell.
+     *
+     * @param Cell $cell
+     *              The Cell for which the tables are retrieved
+     *
+     * @return Table[]
+     */
+    public function getTablesWithoutStylesForCell(Cell $cell): array
+    {
+        $retVal = [];
+
+        foreach ($this->tableCollection as $table) {
+            $range = $table->getRange();
+            if ($cell->isInRange($range)) {
+                $dxfsTableStyle = $table->getStyle()->getTableDxfsStyle();
+                if ($dxfsTableStyle === null || ($dxfsTableStyle->getHeaderRowStyle() === null && $dxfsTableStyle->getFirstRowStripeStyle() === null && $dxfsTableStyle->getSecondRowStripeStyle() === null)) {
+                    $retVal[] = $table;
+                }
+            }
+        }
+
+        return $retVal;
+    }
+
+    /**
      * Get conditional styles for a cell.
      *
      * @param string $coordinate eg: 'A1' or 'A1:A3'.
@@ -1405,27 +1498,68 @@ class Worksheet
      *               included in a conditional style range.
      *          If a range of cells is specified, then the styles will only be returned if the range matches the entire
      *               range of the conditional.
+     * @param bool $firstOnly default true, return all matching
+     *          conditionals ordered by priority if false, first only if true
      *
      * @return Conditional[]
      */
-    public function getConditionalStyles(string $coordinate): array
+    public function getConditionalStyles(string $coordinate, bool $firstOnly = true): array
     {
         $coordinate = strtoupper($coordinate);
-        if (str_contains($coordinate, ':')) {
+        if (Preg::isMatch('/[: ,]/', $coordinate)) {
             return $this->conditionalStylesCollection[$coordinate] ?? [];
         }
 
-        $cell = $this->getCell($coordinate);
-        foreach (array_keys($this->conditionalStylesCollection) as $conditionalRange) {
-            $cellBlocks = explode(',', Coordinate::resolveUnionAndIntersection($conditionalRange));
-            foreach ($cellBlocks as $cellBlock) {
-                if ($cell->isInRange($cellBlock)) {
-                    return $this->conditionalStylesCollection[$conditionalRange];
+        $conditionalStyles = [];
+        foreach ($this->conditionalStylesCollection as $keyStylesOrig => $conditionalRange) {
+            $keyStyles = Coordinate::resolveUnionAndIntersection($keyStylesOrig);
+            $keyParts = explode(',', $keyStyles);
+            foreach ($keyParts as $keyPart) {
+                if ($keyPart === $coordinate) {
+                    if ($firstOnly) {
+                        return $conditionalRange;
+                    }
+                    $conditionalStyles[$keyStylesOrig] = $conditionalRange;
+
+                    break;
+                } elseif (str_contains($keyPart, ':')) {
+                    if (Coordinate::coordinateIsInsideRange($keyPart, $coordinate)) {
+                        if ($firstOnly) {
+                            return $conditionalRange;
+                        }
+                        $conditionalStyles[$keyStylesOrig] = $conditionalRange;
+
+                        break;
+                    }
                 }
             }
         }
+        $outArray = [];
+        foreach ($conditionalStyles as $conditionalArray) {
+            foreach ($conditionalArray as $conditional) {
+                $outArray[] = $conditional;
+            }
+        }
+        usort($outArray, [self::class, 'comparePriority']);
 
-        return [];
+        return $outArray;
+    }
+
+    private static function comparePriority(Conditional $condA, Conditional $condB): int
+    {
+        $a = $condA->getPriority();
+        $b = $condB->getPriority();
+        if ($a === $b) {
+            return 0;
+        }
+        if ($a === 0) {
+            return 1;
+        }
+        if ($b === 0) {
+            return -1;
+        }
+
+        return ($a < $b) ? -1 : 1;
     }
 
     public function getConditionalRange(string $coordinate): ?string
@@ -1455,19 +1589,7 @@ class Worksheet
      */
     public function conditionalStylesExists(string $coordinate): bool
     {
-        $coordinate = strtoupper($coordinate);
-        if (str_contains($coordinate, ':')) {
-            return isset($this->conditionalStylesCollection[$coordinate]);
-        }
-
-        $cell = $this->getCell($coordinate);
-        foreach (array_keys($this->conditionalStylesCollection) as $conditionalRange) {
-            if ($cell->isInRange($conditionalRange)) {
-                return true;
-            }
-        }
-
-        return false;
+        return !empty($this->getConditionalStyles($coordinate));
     }
 
     /**
@@ -1486,6 +1608,8 @@ class Worksheet
 
     /**
      * Get collection of conditional styles.
+     *
+     * @return Conditional[][]
      */
     public function getConditionalStylesCollection(): array
     {
@@ -1683,7 +1807,7 @@ class Worksheet
     /**
      * Set merge on a cell range.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|string $range A simple string containing a Cell range like 'A1:E10'
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|string $range A simple string containing a Cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or an AddressRange.
      * @param string $behaviour How the merged cells should behave.
@@ -1748,17 +1872,16 @@ class Worksheet
             $iterator = $column->getCellIterator($firstRow);
             $iterator->setIterateOnlyExistingCells(true);
             foreach ($iterator as $cell) {
-                if ($cell !== null) {
-                    $row = $cell->getRow();
-                    if ($row > $lastRow) {
-                        break;
-                    }
-                    $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
+                $row = $cell->getRow();
+                if ($row > $lastRow) {
+                    break;
                 }
+                $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
             }
         }
 
         if ($behaviour === self::MERGE_CELL_CONTENT_MERGE) {
+            /** @var string[] $leftCellValue */
             $this->getCell($upperLeft)->setValueExplicit(implode(' ', $leftCellValue), DataType::TYPE_STRING);
         }
     }
@@ -1773,22 +1896,26 @@ class Worksheet
             $iterator = $row->getCellIterator($firstColumn);
             $iterator->setIterateOnlyExistingCells(true);
             foreach ($iterator as $cell) {
-                if ($cell !== null) {
-                    $column = $cell->getColumn();
-                    $columnIndex = Coordinate::columnIndexFromString($column);
-                    if ($columnIndex > $lastColumnIndex) {
-                        break;
-                    }
-                    $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
+                $column = $cell->getColumn();
+                $columnIndex = Coordinate::columnIndexFromString($column);
+                if ($columnIndex > $lastColumnIndex) {
+                    break;
                 }
+                $leftCellValue = $this->mergeCellBehaviour($cell, $upperLeft, $behaviour, $leftCellValue);
             }
         }
 
         if ($behaviour === self::MERGE_CELL_CONTENT_MERGE) {
+            /** @var string[] $leftCellValue */
             $this->getCell($upperLeft)->setValueExplicit(implode(' ', $leftCellValue), DataType::TYPE_STRING);
         }
     }
 
+    /**
+     * @param mixed[] $leftCellValue
+     *
+     * @return mixed[]
+     */
     public function mergeCellBehaviour(Cell $cell, string $upperLeft, string $behaviour, array $leftCellValue): array
     {
         if ($cell->getCoordinate() !== $upperLeft) {
@@ -1808,7 +1935,7 @@ class Worksheet
     /**
      * Remove merge on a cell range.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|string $range A simple string containing a Cell range like 'A1:E10'
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|string $range A simple string containing a Cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or an AddressRange.
      *
@@ -1859,7 +1986,7 @@ class Worksheet
     /**
      * Set protection on a cell or cell range.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $range A simple string containing a Cell range like 'A1:E10'
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $range A simple string containing a Cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or a CellAddress or AddressRange object.
      * @param string $password Password to unlock the protection
@@ -1882,7 +2009,7 @@ class Worksheet
     /**
      * Remove protection on a cell or cell range.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $range A simple string containing a Cell range like 'A1:E10'
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $range A simple string containing a Cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or a CellAddress or AddressRange object.
      *
@@ -1899,24 +2026,6 @@ class Worksheet
         }
 
         return $this;
-    }
-
-    /**
-     * Get password for protected cells.
-     *
-     * @return string[]
-     *
-     * @deprecated 2.0.1 use getProtectedCellRanges instead
-     * @see Worksheet::getProtectedCellRanges()
-     */
-    public function getProtectedCells(): array
-    {
-        $array = [];
-        foreach ($this->protectedCells as $key => $protectedRange) {
-            $array[$key] = $protectedRange->getPassword();
-        }
-
-        return $array;
     }
 
     /**
@@ -1940,7 +2049,7 @@ class Worksheet
     /**
      * Set AutoFilter.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|AutoFilter|string $autoFilterOrRange
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|AutoFilter|string $autoFilterOrRange
      *            A simple string containing a Cell range like 'A1:E10' is permitted for backward compatibility
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or an AddressRange.
@@ -2338,6 +2447,18 @@ class Worksheet
         if ($row < 1) {
             throw new Exception('Rows to be deleted should at least start from row 1.');
         }
+        if ($numberOfRows === 0) {
+            return $this;
+        }
+        if ($numberOfRows < 0) {
+            $newRow = max(1, $row + $numberOfRows + 1);
+            $numberOfRows = $row - $newRow + 1;
+            $row = $newRow;
+        }
+        $newHighestRow = $this->cachedHighestRow;
+        if ($newHighestRow >= $row) {
+            $newHighestRow = max($row - 1, $this->cachedHighestRow - $numberOfRows);
+        }
         $startRow = $row;
         $endRow = $startRow + $numberOfRows - 1;
         $removeKeys = [];
@@ -2394,10 +2515,12 @@ class Worksheet
         }
 
         $this->rowDimensions = $holdRowDimensions;
+        $this->cachedHighestRow = $newHighestRow;
 
         return $this;
     }
 
+    /** @return RowDimension[] */
     private function removeRowDimensions(int $row, int $numberOfRows): array
     {
         $highRow = $row + $numberOfRows - 1;
@@ -2431,6 +2554,19 @@ class Worksheet
             throw new Exception('Column references should not be numeric.');
         }
         $startColumnInt = Coordinate::columnIndexFromString($column);
+        if ($numberOfColumns === 0) {
+            return $this;
+        }
+        if ($numberOfColumns < 0) {
+            $newStartColumnInt = max(1, $startColumnInt + $numberOfColumns + 1);
+            $numberOfColumns = $startColumnInt - $newStartColumnInt + 1;
+            $startColumnInt = $newStartColumnInt;
+            $column = Coordinate::stringFromColumnIndex($startColumnInt);
+        }
+        $newHighestColumn = $this->cachedHighestColumn;
+        if ($newHighestColumn >= $startColumnInt) {
+            $newHighestColumn = max($startColumnInt - 1, $this->cachedHighestColumn - $numberOfColumns);
+        }
         $endColumnInt = $startColumnInt + $numberOfColumns - 1;
         $removeKeys = [];
         $addKeys = [];
@@ -2481,6 +2617,8 @@ class Worksheet
         $this->columnDimensions = $holdColumnDimensions;
 
         if ($pColumnIndex > $highestColumnIndex) {
+            $this->cachedHighestColumn = $newHighestColumn;
+
             return $this;
         }
 
@@ -2490,12 +2628,14 @@ class Worksheet
             $this->cellCollection->removeColumn($highestColumn);
             $highestColumn = Coordinate::stringFromColumnIndex(Coordinate::columnIndexFromString($highestColumn) - 1);
         }
+        $this->cachedHighestColumn = $newHighestColumn;
 
         $this->garbageCollect();
 
         return $this;
     }
 
+    /** @return ColumnDimension[] */
     private function removeColumnDimensions(int $pColumnIndex, int $numberOfColumns): array
     {
         $highCol = $pColumnIndex + $numberOfColumns - 1;
@@ -2759,7 +2899,7 @@ class Worksheet
     /**
      * Select a range of cells.
      *
-     * @param AddressRange<CellAddress>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $coordinate A simple string containing a Cell range like 'A1:E10'
+     * @param AddressRange<CellAddress>|AddressRange<int>|AddressRange<string>|array{0: int, 1: int, 2: int, 3: int}|array{0: int, 1: int}|CellAddress|int|string $coordinate A simple string containing a Cell range like 'A1:E10'
      *              or passing in an array of [$fromColumnIndex, $fromRow, $toColumnIndex, $toRow] (e.g. [3, 5, 6, 8]),
      *              or a CellAddress or AddressRange object.
      *
@@ -2828,7 +2968,7 @@ class Worksheet
     /**
      * Fill worksheet from values in array.
      *
-     * @param array $source Source array
+     * @param mixed[]|mixed[][] $source Source array
      * @param mixed $nullValue Value in source array that stands for blank cell
      * @param string $startCell Insert array starting from this cell address as the top left coordinate
      * @param bool $strictNullComparison Apply strict comparison when testing for null values in the array
@@ -2841,48 +2981,64 @@ class Worksheet
         if (!is_array(end($source))) {
             $source = [$source];
         }
+        /** @var mixed[][] $source */
 
         // start coordinate
         [$startColumn, $startRow] = Coordinate::coordinateFromString($startCell);
+        $startRow = (int) $startRow;
 
         // Loop through $source
-        foreach ($source as $rowData) {
-            $currentColumn = $startColumn;
-            foreach ($rowData as $cellValue) {
-                if ($strictNullComparison) {
+        if ($strictNullComparison) {
+            foreach ($source as $rowData) {
+                /** @var string */
+                $currentColumn = $startColumn;
+                foreach ($rowData as $cellValue) {
                     if ($cellValue !== $nullValue) {
-                        // Set cell value
                         $this->getCell($currentColumn . $startRow)->setValue($cellValue);
                     }
-                } else {
-                    if ($cellValue != $nullValue) {
-                        // Set cell value
-                        $this->getCell($currentColumn . $startRow)->setValue($cellValue);
-                    }
+                    StringHelper::stringIncrement($currentColumn);
                 }
-                StringHelper::stringIncrement($currentColumn);
+                ++$startRow;
             }
-            ++$startRow;
+        } else {
+            foreach ($source as $rowData) {
+                $currentColumn = $startColumn;
+                foreach ($rowData as $cellValue) {
+                    if ($cellValue != $nullValue) {
+                        $this->getCell($currentColumn . $startRow)->setValue($cellValue);
+                    }
+                    StringHelper::stringIncrement($currentColumn);
+                }
+                ++$startRow;
+            }
         }
 
         return $this;
     }
 
     /**
+     * @param bool $calculateFormulas Whether to calculate cell's value if it is a formula.
      * @param null|bool|float|int|RichText|string $nullValue value to use when null
+     * @param bool $formatData Whether to format data according to cell's style.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
      *
      * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Calculation\Exception
      */
-    protected function cellToArray(Cell $cell, bool $calculateFormulas, bool $formatData, mixed $nullValue): mixed
+    protected function cellToArray(Cell $cell, bool $calculateFormulas, bool $formatData, mixed $nullValue, bool $lessFloatPrecision = false, $oldCalculatedValue = false): mixed
     {
         $returnValue = $nullValue;
 
         if ($cell->getValue() !== null) {
             if ($cell->getValue() instanceof RichText) {
                 $returnValue = $cell->getValue()->getPlainText();
+            } elseif ($calculateFormulas) {
+                $returnValue = $cell->getCalculatedValue();
+            } elseif ($oldCalculatedValue && ($cell->getDataType() === DataType::TYPE_FORMULA)) {
+                $returnValue = $cell->getOldCalculatedValue() ?? $cell->getValue();
             } else {
-                $returnValue = ($calculateFormulas) ? $cell->getCalculatedValue() : $cell->getValue();
+                $returnValue = $cell->getValue();
             }
 
             if ($formatData) {
@@ -2891,7 +3047,8 @@ class Worksheet
                 $returnValuex = $returnValue;
                 $returnValue = NumberFormat::toFormattedString(
                     $returnValuex,
-                    $style->getNumberFormat()->getFormatCode() ?? NumberFormat::FORMAT_GENERAL
+                    $style->getNumberFormat()->getFormatCode() ?? NumberFormat::FORMAT_GENERAL,
+                    lessFloatPrecision: $lessFloatPrecision
                 );
             }
         }
@@ -2909,6 +3066,11 @@ class Worksheet
      *                             True - Return rows and columns indexed by their actual row and column IDs
      * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
      *                            True - Don't return values for rows/columns that are defined as hidden.
+     * @param bool $reduceArrays If true and result is a formula which evaluates to an array, reduce it to the top leftmost value.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
+     *
+     * @return mixed[][]
      */
     public function rangeToArray(
         string $range,
@@ -2916,13 +3078,59 @@ class Worksheet
         bool $calculateFormulas = true,
         bool $formatData = true,
         bool $returnCellRef = false,
-        bool $ignoreHidden = false
+        bool $ignoreHidden = false,
+        bool $reduceArrays = false,
+        bool $lessFloatPrecision = false,
+        bool $oldCalculatedValue = false,
     ): array {
         $returnValue = [];
 
         // Loop through rows
-        foreach ($this->rangeToArrayYieldRows($range, $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden) as $rowRef => $rowArray) {
+        foreach ($this->rangeToArrayYieldRows($range, $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden, $reduceArrays, $lessFloatPrecision, $oldCalculatedValue) as $rowRef => $rowArray) {
+            /** @var int $rowRef */
             $returnValue[$rowRef] = $rowArray;
+        }
+
+        // Return
+        return $returnValue;
+    }
+
+    /**
+     * Create array from a multiple ranges of cells. (such as A1:A3,A15,B17:C17).
+     *
+     * @param null|bool|float|int|RichText|string $nullValue Value returned in the array entry if a cell doesn't exist
+     * @param bool $calculateFormulas Should formulas be calculated?
+     * @param bool $formatData Should formatting be applied to cell values?
+     * @param bool $returnCellRef False - Return a simple array of rows and columns indexed by number counting from zero
+     *                             True - Return rows and columns indexed by their actual row and column IDs
+     * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
+     *                            True - Don't return values for rows/columns that are defined as hidden.
+     * @param bool $reduceArrays If true and result is a formula which evaluates to an array, reduce it to the top leftmost value.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
+     *
+     * @return mixed[][]
+     */
+    public function rangesToArray(
+        string $ranges,
+        mixed $nullValue = null,
+        bool $calculateFormulas = true,
+        bool $formatData = true,
+        bool $returnCellRef = false,
+        bool $ignoreHidden = false,
+        bool $reduceArrays = false,
+        bool $lessFloatPrecision = false,
+        bool $oldCalculatedValue = false,
+    ): array {
+        $returnValue = [];
+
+        $parts = explode(',', $ranges);
+        foreach ($parts as $part) {
+            // Loop through rows
+            foreach ($this->rangeToArrayYieldRows($part, $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden, $reduceArrays, $lessFloatPrecision, $oldCalculatedValue) as $rowRef => $rowArray) {
+                /** @var int $rowRef */
+                $returnValue[$rowRef] = $rowArray;
+            }
         }
 
         // Return
@@ -2939,8 +3147,11 @@ class Worksheet
      *                             True - Return rows and columns indexed by their actual row and column IDs
      * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
      *                            True - Don't return values for rows/columns that are defined as hidden.
+     * @param bool $reduceArrays If true and result is a formula which evaluates to an array, reduce it to the top leftmost value.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
      *
-     * @return Generator<array>
+     * @return Generator<array<mixed>>
      */
     public function rangeToArrayYieldRows(
         string $range,
@@ -2948,7 +3159,10 @@ class Worksheet
         bool $calculateFormulas = true,
         bool $formatData = true,
         bool $returnCellRef = false,
-        bool $ignoreHidden = false
+        bool $ignoreHidden = false,
+        bool $reduceArrays = false,
+        bool $lessFloatPrecision = false,
+        bool $oldCalculatedValue = false,
     ) {
         $range = Validations::validateCellOrCellRange($range);
 
@@ -2980,9 +3194,30 @@ class Worksheet
 
             $index = ($row - 1) * AddressRange::MAX_COLUMN_INT + 1;
             $indexPlus = $index + AddressRange::MAX_COLUMN_INT - 1;
+
+            // Binary search to quickly approach the correct index
+            $keyIndex = intdiv($keysCount, 2);
+            $boundLow = 0;
+            $boundHigh = $keysCount - 1;
+            while ($boundLow <= $boundHigh) {
+                $keyIndex = intdiv($boundLow + $boundHigh, 2);
+                if ($keys[$keyIndex] < $index) {
+                    $boundLow = $keyIndex + 1;
+                } elseif ($keys[$keyIndex] > $index) {
+                    $boundHigh = $keyIndex - 1;
+                } else {
+                    break;
+                }
+            }
+
+            // Realign to the proper index value
+            while ($keyIndex > 0 && $keys[$keyIndex] > $index) {
+                --$keyIndex;
+            }
             while ($keyIndex < $keysCount && $keys[$keyIndex] < $index) {
                 ++$keyIndex;
             }
+
             while ($keyIndex < $keysCount && $keys[$keyIndex] <= $indexPlus) {
                 $key = $keys[$keyIndex];
                 $thisRow = intdiv($key - 1, AddressRange::MAX_COLUMN_INT) + 1;
@@ -2993,7 +3228,12 @@ class Worksheet
                         $columnRef = $returnCellRef ? $col : ($thisCol - $minColInt);
                         $cell = $this->cellCollection->get("{$col}{$thisRow}");
                         if ($cell !== null) {
-                            $value = $this->cellToArray($cell, $calculateFormulas, $formatData, $nullValue);
+                            $value = $this->cellToArray($cell, $calculateFormulas, $formatData, $nullValue, lessFloatPrecision: $lessFloatPrecision, oldCalculatedValue: $oldCalculatedValue);
+                            if ($reduceArrays) {
+                                while (is_array($value)) {
+                                    $value = array_shift($value);
+                                }
+                            }
                             if ($value !== $nullValue) {
                                 $returnValue[$columnRef] = $value;
                             }
@@ -3018,6 +3258,8 @@ class Worksheet
      * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
      *                             True - Don't return values for rows/columns that are defined as hidden.
      * @param array<string, bool> $hiddenColumns
+     *
+     * @return mixed[]
      */
     private function buildNullRow(
         mixed $nullValue,
@@ -3087,6 +3329,11 @@ class Worksheet
      *                             True - Return rows and columns indexed by their actual row and column IDs
      * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
      *                            True - Don't return values for rows/columns that are defined as hidden.
+     * @param bool $reduceArrays If true and result is a formula which evaluates to an array, reduce it to the top leftmost value.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
+     *
+     * @return mixed[][]
      */
     public function namedRangeToArray(
         string $definedName,
@@ -3094,7 +3341,10 @@ class Worksheet
         bool $calculateFormulas = true,
         bool $formatData = true,
         bool $returnCellRef = false,
-        bool $ignoreHidden = false
+        bool $ignoreHidden = false,
+        bool $reduceArrays = false,
+        bool $lessFloatPrecision = false,
+        bool $oldCalculatedValue = false,
     ): array {
         $retVal = [];
         $namedRange = $this->validateNamedRange($definedName);
@@ -3103,7 +3353,7 @@ class Worksheet
             $cellRange = str_replace('$', '', $cellRange);
             $workSheet = $namedRange->getWorksheet();
             if ($workSheet !== null) {
-                $retVal = $workSheet->rangeToArray($cellRange, $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden);
+                $retVal = $workSheet->rangeToArray($cellRange, $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden, $reduceArrays, $lessFloatPrecision, $oldCalculatedValue);
             }
         }
 
@@ -3120,23 +3370,32 @@ class Worksheet
      *                             True - Return rows and columns indexed by their actual row and column IDs
      * @param bool $ignoreHidden False - Return values for rows/columns even if they are defined as hidden.
      *                            True - Don't return values for rows/columns that are defined as hidden.
+     * @param bool $reduceArrays If true and result is a formula which evaluates to an array, reduce it to the top leftmost value.
+     * @param bool $lessFloatPrecision If true, formatting unstyled floats will convert them to a more human-friendly but less computationally accurate value
+     * @param bool $oldCalculatedValue If calculateFormulas is false and this is true, use oldCalculatedFormula instead.
+     *
+     * @return mixed[][]
      */
     public function toArray(
         mixed $nullValue = null,
         bool $calculateFormulas = true,
         bool $formatData = true,
         bool $returnCellRef = false,
-        bool $ignoreHidden = false
+        bool $ignoreHidden = false,
+        bool $reduceArrays = false,
+        bool $lessFloatPrecision = false,
+        bool $oldCalculatedValue = false,
     ): array {
         // Garbage collect...
         $this->garbageCollect();
+        $this->calculateArrays($calculateFormulas);
 
         //    Identify the range that we need to extract from the worksheet
         $maxCol = $this->getHighestColumn();
         $maxRow = $this->getHighestRow();
 
         // Return
-        return $this->rangeToArray("A1:{$maxCol}{$maxRow}", $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden);
+        return $this->rangeToArray("A1:{$maxCol}{$maxRow}", $nullValue, $calculateFormulas, $formatData, $returnCellRef, $ignoreHidden, $reduceArrays, $lessFloatPrecision, $oldCalculatedValue);
     }
 
     /**
@@ -3187,11 +3446,8 @@ class Worksheet
         }
 
         // Cache values
-        if ($highestColumn < 1) {
-            $this->cachedHighestColumn = 1;
-        } else {
-            $this->cachedHighestColumn = $highestColumn;
-        }
+        $this->cachedHighestColumn = max(1, $highestColumn);
+        /** @var int $highestRow */
         $this->cachedHighestRow = $highestRow;
 
         // Return
@@ -3199,16 +3455,13 @@ class Worksheet
     }
 
     /**
-     * @deprecated 3.5.0 use getHashInt instead.
+     * @deprecated 5.2.0 Serves no useful purpose. No replacement.
+     *
+     * @codeCoverageIgnore
      */
-    public function getHashCode(): string
-    {
-        return (string) $this->hash;
-    }
-
     public function getHashInt(): int
     {
-        return $this->hash;
+        return spl_object_id($this);
     }
 
     /**
@@ -3226,7 +3479,7 @@ class Worksheet
      *
      * @return ($range is non-empty-string ? ($returnRange is true ? array{0: string, 1: string} : string) : ($returnRange is true ? array{0: null, 1: null} : null))
      */
-    public static function extractSheetTitle(?string $range, bool $returnRange = false): array|null|string
+    public static function extractSheetTitle(?string $range, bool $returnRange = false, bool $unapostrophize = false): array|null|string
     {
         if (empty($range)) {
             return $returnRange ? [null, null] : null;
@@ -3238,10 +3491,25 @@ class Worksheet
         }
 
         if ($returnRange) {
-            return [substr($range, 0, $sep), substr($range, $sep + 1)];
+            $title = substr($range, 0, $sep);
+            if ($unapostrophize) {
+                $title = self::unApostrophizeTitle($title);
+            }
+
+            return [$title, substr($range, $sep + 1)];
         }
 
         return substr($range, $sep + 1);
+    }
+
+    public static function unApostrophizeTitle(?string $title): string
+    {
+        $title ??= '';
+        if (str_starts_with($title, "'") && str_ends_with($title, "'")) {
+            $title = str_replace("''", "'", substr($title, 1, -1));
+        }
+
+        return $title;
     }
 
     /**
@@ -3251,6 +3519,7 @@ class Worksheet
      */
     public function getHyperlink(string $cellCoordinate): Hyperlink
     {
+        $this->getCell($cellCoordinate)->setHadHyperlink(true);
         // return hyperlink if we already have one
         if (isset($this->hyperlinkCollection[$cellCoordinate])) {
             return $this->hyperlinkCollection[$cellCoordinate];
@@ -3269,12 +3538,17 @@ class Worksheet
      *
      * @return $this
      */
-    public function setHyperlink(string $cellCoordinate, ?Hyperlink $hyperlink = null): static
+    public function setHyperlink(string $cellCoordinate, ?Hyperlink $hyperlink = null, bool $reset = true): static
     {
         if ($hyperlink === null) {
             unset($this->hyperlinkCollection[$cellCoordinate]);
+            if ($reset) {
+                $this->getCell($cellCoordinate)
+                    ->setHadHyperlink(false);
+            }
         } else {
             $this->hyperlinkCollection[$cellCoordinate] = $hyperlink;
+            $this->getCell($cellCoordinate)->setHadHyperlink(true);
         }
 
         return $this;
@@ -3312,10 +3586,27 @@ class Worksheet
             return $this->dataValidationCollection[$cellCoordinate];
         }
 
-        // else create data validation
-        $this->dataValidationCollection[$cellCoordinate] = new DataValidation();
+        // or if cell is part of a data validation range
+        foreach ($this->dataValidationCollection as $key => $dataValidation) {
+            $keyParts = explode(' ', $key);
+            foreach ($keyParts as $keyPart) {
+                if ($keyPart === $cellCoordinate) {
+                    return $dataValidation;
+                }
+                if (str_contains($keyPart, ':')) {
+                    if (Coordinate::coordinateIsInsideRange($keyPart, $cellCoordinate)) {
+                        return $dataValidation;
+                    }
+                }
+            }
+        }
 
-        return $this->dataValidationCollection[$cellCoordinate];
+        // else create data validation
+        $dataValidation = new DataValidation();
+        $dataValidation->setSqref($cellCoordinate);
+        $this->dataValidationCollection[$cellCoordinate] = $dataValidation;
+
+        return $dataValidation;
     }
 
     /**
@@ -3330,6 +3621,7 @@ class Worksheet
         if ($dataValidation === null) {
             unset($this->dataValidationCollection[$cellCoordinate]);
         } else {
+            $dataValidation->setSqref($cellCoordinate);
             $this->dataValidationCollection[$cellCoordinate] = $dataValidation;
         }
 
@@ -3343,7 +3635,24 @@ class Worksheet
      */
     public function dataValidationExists(string $coordinate): bool
     {
-        return isset($this->dataValidationCollection[$coordinate]);
+        if (isset($this->dataValidationCollection[$coordinate])) {
+            return true;
+        }
+        foreach ($this->dataValidationCollection as $key => $dataValidation) {
+            $keyParts = explode(' ', $key);
+            foreach ($keyParts as $keyPart) {
+                if ($keyPart === $coordinate) {
+                    return true;
+                }
+                if (str_contains($keyPart, ':')) {
+                    if (Coordinate::coordinateIsInsideRange($keyPart, $coordinate)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -3353,7 +3662,17 @@ class Worksheet
      */
     public function getDataValidationCollection(): array
     {
-        return $this->dataValidationCollection;
+        $collectionCells = [];
+        $collectionRanges = [];
+        foreach ($this->dataValidationCollection as $key => $dataValidation) {
+            if (Preg::isMatch('/[: ]/', $key)) {
+                $collectionRanges[$key] = $dataValidation;
+            } else {
+                $collectionCells[$key] = $dataValidation;
+            }
+        }
+
+        return array_merge($collectionCells, $collectionRanges);
     }
 
     /**
@@ -3495,24 +3814,30 @@ class Worksheet
      */
     public function __clone()
     {
-        // @phpstan-ignore-next-line
-        foreach ($this as $key => $val) {
+        foreach (get_object_vars($this) as $key => $val) {
             if ($key == 'parent') {
                 continue;
             }
 
             if (is_object($val) || (is_array($val))) {
-                if ($key == 'cellCollection') {
+                if ($key === 'cellCollection') {
                     $newCollection = $this->cellCollection->cloneCellCollection($this);
                     $this->cellCollection = $newCollection;
-                } elseif ($key == 'drawingCollection') {
+                } elseif ($key === 'drawingCollection') {
                     $currentCollection = $this->drawingCollection;
                     $this->drawingCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
                         $newDrawing = clone $item;
                         $newDrawing->setWorksheet($this);
                     }
-                } elseif ($key == 'tableCollection') {
+                } elseif ($key === 'inCellDrawingCollection') {
+                    $currentCollection = $this->inCellDrawingCollection;
+                    $this->inCellDrawingCollection = new ArrayObject();
+                    foreach ($currentCollection as $item) {
+                        $newDrawing = clone $item;
+                        $newDrawing->setWorksheet($this);
+                    }
+                } elseif ($key === 'tableCollection') {
                     $currentCollection = $this->tableCollection;
                     $this->tableCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
@@ -3520,14 +3845,14 @@ class Worksheet
                         $newTable->setName($item->getName() . 'clone');
                         $this->addTable($newTable);
                     }
-                } elseif ($key == 'chartCollection') {
+                } elseif ($key === 'chartCollection') {
                     $currentCollection = $this->chartCollection;
                     $this->chartCollection = new ArrayObject();
                     foreach ($currentCollection as $item) {
                         $newChart = clone $item;
                         $this->addChart($newChart);
                     }
-                } elseif (($key == 'autoFilter') && ($this->autoFilter instanceof AutoFilter)) {
+                } elseif ($key === 'autoFilter') {
                     $newAutoFilter = clone $this->autoFilter;
                     $this->autoFilter = $newAutoFilter;
                     $this->autoFilter->setParent($this);
@@ -3536,7 +3861,6 @@ class Worksheet
                 }
             }
         }
-        $this->hash = spl_object_id($this);
     }
 
     /**
@@ -3727,6 +4051,7 @@ class Worksheet
     {
         $toArray = Coordinate::extractAllCellReferencesInRange($toCells);
         $valueString = $this->getCell($fromCell)->getValueString();
+        /** @var mixed[][] */
         $style = $this->getStyle($fromCell)->exportArray();
         $fromIndexes = Coordinate::indexesFromString($fromCell);
         $referenceHelper = ReferenceHelper::getInstance();
@@ -3741,6 +4066,41 @@ class Worksheet
         }
     }
 
+    public function calculateArrays(bool $preCalculateFormulas = true): void
+    {
+        if ($preCalculateFormulas && Calculation::getInstance($this->parent)->getInstanceArrayReturnType() === Calculation::RETURN_ARRAY_AS_ARRAY) {
+            $keys = $this->cellCollection->getCoordinates();
+            foreach ($keys as $key) {
+                if ($this->getCell($key)->getDataType() === DataType::TYPE_FORMULA) {
+                    if (!Preg::isMatch(self::FUNCTION_LIKE_GROUPBY, $this->getCell($key)->getValueString())) {
+                        $this->getCell($key)->getCalculatedValue();
+                    }
+                }
+            }
+        }
+    }
+
+    public function isCellInSpillRange(string $coordinate): bool
+    {
+        if (Calculation::getInstance($this->parent)->getInstanceArrayReturnType() !== Calculation::RETURN_ARRAY_AS_ARRAY) {
+            return false;
+        }
+        $this->calculateArrays();
+        $keys = $this->cellCollection->getCoordinates();
+        foreach ($keys as $key) {
+            $attributes = $this->getCell($key)->getFormulaAttributes();
+            if (isset($attributes['ref'])) {
+                if (Coordinate::coordinateIsInsideRange($attributes['ref'], $coordinate)) {
+                    // false for first cell in range, true otherwise
+                    return $coordinate !== $key;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /** @param mixed[][] $styleArray */
     public function applyStylesFromArray(string $coordinate, array $styleArray): bool
     {
         $spreadsheet = $this->parent;
@@ -3756,5 +4116,23 @@ class Worksheet
         }
 
         return true;
+    }
+
+    public function copyFormula(string $fromCell, string $toCell): void
+    {
+        $formula = $this->getCell($fromCell)->getValue();
+        $newFormula = $formula;
+        if (is_string($formula) && $this->getCell($fromCell)->getDataType() === DataType::TYPE_FORMULA) {
+            [$fromColInt, $fromRow] = Coordinate::indexesFromString($fromCell);
+            [$toColInt, $toRow] = Coordinate::indexesFromString($toCell);
+            $helper = ReferenceHelper::getInstance();
+            $newFormula = $helper->updateFormulaReferences(
+                $formula,
+                'A1',
+                $toColInt - $fromColInt,
+                $toRow - $fromRow
+            );
+        }
+        $this->setCellValue($toCell, $newFormula);
     }
 }

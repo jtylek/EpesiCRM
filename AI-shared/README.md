@@ -8,9 +8,11 @@ same for every developer and every computer working on this repo.
 
 ## How this differs from other docs in this repo
 
-- **`CLAUDE.md`** (repo root) is curated, stable guidance: architecture, conventions,
-  commands. Read it first, always — it doesn't change often.
-- **`MIGRATION_NOTES.md`** (repo root) is the authoritative log of the PHP 7.4 → 8.2
+- **`CLAUDE.md`** (repo root — the only `.md` file kept there, since Claude Code
+  auto-loads it from the project root) is curated, stable guidance: architecture,
+  conventions, commands. Read it first, always — it doesn't change often.
+- **`MIGRATION_NOTES.md`** (in this folder, but treat it as the stable exception to
+  "living/lower-ceremony" below) is the authoritative log of the PHP 7.4 → 8.2
   migration specifically: root causes, decisions, the upgrade-gap discipline.
 - **`AI-shared/`** (this folder) is the living, lower-ceremony layer in between:
   ongoing feature status, deliberate removals that look like bugs, subtle bug patterns
@@ -22,6 +24,18 @@ same for every developer and every computer working on this repo.
 
 ## Files
 
+- [MIGRATION_NOTES.md](MIGRATION_NOTES.md) — the authoritative PHP 7.4 → 8.2 migration
+  log: root causes, decisions, the upgrade-gap discipline. See "How this differs" above
+  for why it's treated as more stable than the rest of this folder.
+- [CROSS_PLATFORM_RESULTS.md](CROSS_PLATFORM_RESULTS.md) — pass/fail matrix of the
+  PHP 8.2 migration across hosting environments (Windows/XAMPP, cPanel, DirectAdmin,
+  macOS); any ❌ gets logged back into `MIGRATION_NOTES.md`.
+- [PROPOSAL_functional_tests.md](PROPOSAL_functional_tests.md) — undecided proposal for
+  a small, high-ROI functional/Codeception test suite; the `codeception.yml`/`tests/`
+  skeleton it would have started from was since removed (see `MIGRATION_NOTES.md`).
+  (Three sibling proposals — `instance_singleton_fix`, `mail_attachments_filestorage`,
+  `mcrypt_compat` — were removed 2026-08-22 once confirmed implemented in the codebase;
+  see `MIGRATION_NOTES.md` §22/§36/§44 for the designs they described.)
 - [design-philosophy.md](design-philosophy.md) — the founding principle behind
   Epesi's architecture (from the framework's creator): free the developer to write
   pure business logic in PHP, with the framework generating view/CSS/JS
@@ -44,6 +58,10 @@ same for every developer and every computer working on this repo.
 - [menu-search-plan.md](menu-search-plan.md) — approved plan for the AdminLTE sidebar
   search/filter box (client-side, AdminLTE-only, cascading auto-expand on match).
   Pairs with how-menu-works.md; check here before re-deriving the design.
+- [Epesi-Google-Calendar-sync.md](Epesi-Google-Calendar-sync.md) — approved design for a new
+  `modules/CRM/GoogleCalendarSync/` module: one-way (Epesi → Google), per-user OAuth, cron-polling sync
+  of `crm_meeting` to each user's own Google Calendar, surfaced as a "Google Calendar Sync" tile in My
+  Settings. Not yet implemented — check here before re-deriving the design.
 - [import-wizard-plan.md](import-wizard-plan.md) — approved plan turning Premium/Import's
   icon-grid flow into a guided `Utils_Wizard` step-by-step wizard, plus a new shared
   `Utils_Wizard` AdminLTE stepper template (`theme_adminltedark/default.tpl`) that
@@ -55,7 +73,10 @@ same for every developer and every computer working on this repo.
   installs) and a patch (existing installs) — two different DB storage mechanisms
   depending on which kind of callback it is.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on purpose;
-  don't silently reintroduce them or treat their absence as an oversight.
+  don't silently reintroduce them or treat their absence as an oversight. Paired with
+  the `/fix-old-epesi-module` skill, which scans a given `modules/Premium/`/`Custom/`
+  module for reintroduced instances of these (Quick Jump, Theme installation, ...) plus
+  general PHP 8.x compatibility issues.
 - [standalone-entrypoints.md](standalone-entrypoints.md) — `admin/`, `update.php`,
   `check.php`, `setup.php`: their PHP/view split, and a real security hardening pass
   around `anonymous_setup`.
@@ -77,14 +98,37 @@ same for every developer and every computer working on this repo.
   rediscovering each session.
 - [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
-  use as a template, not a standard.
+  use as a template, not a standard. Has a "Quick start" block up top: once you've
+  confirmed the four paths for your own machine, launch straight from there instead of
+  re-deriving the setup each session. Driven by the `/monitor-error-logs` skill at
+  `.claude/skills/monitor-error-logs/SKILL.md` — see `sharing-skills.md` for why that
+  path is git-tracked and how it's kept that way.
+- [sharing-skills.md](sharing-skills.md) — how to make a custom Claude Code skill
+  (`/trigger-name` action) work the same for every developer/computer: use
+  `.claude/skills/<name>/SKILL.md` (not the legacy `commands/` format, which isn't
+  reliably picked up in every Claude Code surface), and the `.gitignore` gotcha that
+  broke a first attempt at un-ignoring just that subdirectory. Also inventories the
+  currently-shared skills (`/monitor-error-logs`, `/fix-old-epesi-module`).
 - [known-todos.md](known-todos.md) — audited inventory of `TODO`/`FIXME`/`XXX` markers
   in Epesi's own code; which are still genuinely open (all of them, as of the audit
   date) and which are worth prioritizing.
+- [dependency-upgrades.md](dependency-upgrades.md) — findings from bumping composer
+  dependencies (Dependabot-flagged): platform blockers (Symfony 8.x needs PHP ≥8.4, out of
+  scope here), breaking-API changes and their fixes (Symfony Console 7's `execute(): int`,
+  phpdocumentor/reflection-docblock v6), and `tecnickcom/tcpdf` 7.x's font-packaging gap
+  (reverted to 6.x — don't re-attempt without reading this first). Also covers the
+  multiple-`composer.json` layout and the no-test-suite verification method that caught it.
 - [TODO.md](TODO.md) — follow-up work *we* deferred (not pre-existing code markers,
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition
   that would need testing.
+- [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for
+  cleanly upgrading an existing install from a manually-uploaded SourceForge release zip:
+  what `console.php dev:dist:create` already excludes vs. two gaps found (`AI-shared/`,
+  `.gitattributes`), how `update.php`'s existing network auto-updater already solves the
+  "delete files the new release no longer ships" problem via wipe-then-extract (but only
+  for its own `ess.epe.si` channel), and a manifest-file mechanism to bring the same
+  cleanup (plus a wholesale `vendor/` rebuild) to the manual-zip path.
 
 ## Conventions for investigating/fixing bugs
 

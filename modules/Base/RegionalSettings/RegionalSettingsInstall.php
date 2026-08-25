@@ -79,10 +79,6 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 		$date_formats = array();
 		foreach($date_formats_proto as $f)
 			$date_formats[$f] = strftime($f,$now);
-		if(!function_exists('timezone_identifiers_list'))
-			require_once('tz_list.php');
-		$tz = timezone_identifiers_list();
-
 		return array(
 				array('type'=>'select','name'=>'date','label'=>__('Date format'),
 					'default'=>'%m/%d/%Y','values'=>$date_formats),//strftime
@@ -93,7 +89,7 @@ class Base_RegionalSettingsInstall extends ModuleInstall {
 						'message'=>__('This language does not support 12h clock'),
 						'param'=>'__form__')
 				),
-				array('type'=>'select','name'=>'tz','label'=>__('Timezone'), 'default'=>SYSTEM_TIMEZONE, 'values'=>array_combine($tz,$tz)),
+				array('type'=>'select','name'=>'tz','label'=>__('Timezone'), 'default'=>SYSTEM_TIMEZONE, 'values'=>Base_RegionalSettingsCommon::get_grouped_timezones()),
 				array('type'=>'header','label'=>__('Your location'),'name'=>null),
 				array('name'=>'default_country', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_country_elem'),'default'=>'US'),
 				array('name'=>'default_state', 'type'=>'callback','func'=>array('Base_RegionalSettingsCommon','default_state_elem'),'default'=>'')

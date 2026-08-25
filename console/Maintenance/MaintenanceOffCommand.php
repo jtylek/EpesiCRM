@@ -14,7 +14,7 @@ class MaintenanceOffCommand extends Command
             ->setDescription('Turn off EPESI maintenance mode')
         ;
     }
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         MaintenanceMode::turn_off();
         $output->writeln("Turned off");
 

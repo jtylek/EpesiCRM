@@ -67,6 +67,8 @@ class Utils_RecordBrowser extends Module {
     private $clipboard_pattern = false;
     private $show_add_in_table = false;
     private $data_gb = null;
+    private $save_button_trailing = false;
+    private $add_in_table_first = false;
     public $view_fields_permission;
     public $form = null;
     public $tab;
@@ -196,6 +198,29 @@ class Utils_RecordBrowser extends Module {
 
     public function set_table_column_order($arg) {
         $this->col_order = $arg;
+    }
+
+    /**
+     * When enable_quick_new_records() is on, render the inline row's Save
+     * button as its own trailing table column instead of in the shared
+     * actions column (where it would sit wherever the (app-wide, per-user)
+     * 'Position of Actions column' setting puts the view/edit/delete/info
+     * icons - left by default). Opt-in per instance so other tables keep
+     * that default behavior.
+     */
+    public function set_save_button_trailing($bool = true) {
+        $this->save_button_trailing = $bool;
+    }
+
+    /**
+     * When enable_quick_new_records() is on, render the inline add row above
+     * the data rows (right under the header) instead of below them - for
+     * tables sorted newest-first, where a new record belongs visually at the
+     * same end of the list its own sort position would put it. Opt-in per
+     * instance so other tables keep the default (below the data rows).
+     */
+    public function set_add_in_table_first($bool = true) {
+        $this->add_in_table_first = $bool;
     }
 	
 	public function set_search_calculated_callback($callback) {
@@ -416,7 +441,7 @@ class Utils_RecordBrowser extends Module {
             if ($clone_result!='canceled') return;
         }
         if ($this->check_for_jump()) return;
-        Utils_RecordBrowserCommon::$cols_order = $this->col_order;
+        Utils_RecordBrowserCommon::$cols_order[$this->tab] = $this->col_order;
         if ($this->get_access('browse')===false) {
             print(__('You are not authorised to browse this data.'));
             return;
@@ -536,6 +561,9 @@ class Utils_RecordBrowser extends Module {
 			print('Invalid view, no fields to display');
 			return;
 		}
+
+		if (!$special && !$pdf && $this->add_in_table && $this->save_button_trailing)
+			$table_columns[] = array('name'=>'&nbsp;', 'width'=>'130px', 'wrapmode'=>'nowrap');
 
 		$gb->set_table_columns( $table_columns );
 		
@@ -770,6 +798,10 @@ class Utils_RecordBrowser extends Module {
         	}        	
         }
 
+        if (!$special && $this->add_in_table && $this->view_fields_permission && $this->add_in_table_first) {
+            $this->render_add_in_table_row($gb, $cols, $form, $admin);
+        }
+
         $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {
@@ -846,6 +878,7 @@ class Utils_RecordBrowser extends Module {
 				}
                 $row_data[] = $value;
             }
+            if (!$special && !$pdf && $this->add_in_table && $this->save_button_trailing) $row_data[] = '&nbsp;';
 
             $gb_row->add_data_array($row_data);
             if (!$pdf && $this->disabled['actions']!==true) {
@@ -874,64 +907,8 @@ class Utils_RecordBrowser extends Module {
                 $this->call_additional_actions_methods($row, $gb_row);
             }
         }
-        if (!$special && $this->add_in_table && $this->view_fields_permission) {
-
-            $visible_cols = array();
-            foreach($this->table_rows as $field => $args){
-                if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false))) continue;
-                if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
-                $visible_cols[$args['id']] = true;
-            }
-
-			self::$last_record = $this->record = $this->custom_defaults = Utils_RecordBrowserCommon::record_processing($this->tab, $this->custom_defaults, 'adding');
-
-            $this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
-            $form->setDefaults($this->custom_defaults);
-
-            if ($form->isSubmitted()) {
-                $this->set_module_variable('force_add_in_table_after_submit', true);
-                if ($form->validate()) {
-                    $values = $form->exportValues();
-                    foreach ($this->custom_defaults as $k=>$v)
-                        if (!isset($values[$k])) $values[$k] = $v;
-                    $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
-                    location(array());
-                } else {
-                    $this->show_add_in_table = true;
-                }
-            }
-            $form->addElement('submit', 'submit_qanr', __('Save'), array('style'=>'width:100%;height:19px;', 'class'=>'button'));
-            $renderer = new EpesiSmartyRenderer();
-            $form->accept($renderer);
-            $data = $renderer->toArray();
-
-            $gb->set_prefix($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
-            $gb->set_postfix("</form>\n");
-
-            if (!$admin && $this->favorites) {
-                $row_data= array('&nbsp;');
-            } else $row_data= array();
-            if (!$admin && $this->watchdog)
-                $row_data[] = '&nbsp;';
-
-
-            $first = true;
-            foreach($visible_cols as $k => $v) {
-                if (isset($data[$k])) {
-                    $row_data[] = array('value'=>$data[$k]['error'].$data[$k]['html'], 'overflow_box'=>false);
-                    if ($first) eval_js('focus_on_field = "'.$k.'";');
-                    $first = false;
-                } else $row_data[] = '&nbsp;';
-            }
-
-//          if ($this->browse_mode == 'recent')
-//              $row_data[] = '&nbsp;';
-
-            $gb_row = $gb->get_new_row();
-            $save_label = $data['submit_qanr']['html'].'<span class="epesi-qanr-save-label">'.__('Save').'</span>';
-            $gb_row->add_action('',$save_label,__('Save'), null, 0, false, 7);
-            $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
-            $gb_row->add_data_array($row_data);
+        if (!$special && $this->add_in_table && $this->view_fields_permission && !$this->add_in_table_first) {
+            $this->render_add_in_table_row($gb, $cols, $form, $admin);
         }
         if ($special) {
             $this->set_module_variable('rpicker_ind',$rpicker_ind);
@@ -952,6 +929,87 @@ class Utils_RecordBrowser extends Module {
             }
         }
 		$this->display_module($gb, $args);
+    }
+
+    /**
+     * Builds and appends the enable_quick_new_records() inline add row.
+     * Called from show_data() either before or after the data-row loop
+     * (see add_in_table_first / set_add_in_table_first()) - row position
+     * within $gb is purely insertion order, so this only needs calling at
+     * the right point relative to that loop, not passed any position info.
+     */
+    private function render_add_in_table_row($gb, $cols, $form, $admin) {
+        $visible_cols = array();
+        foreach($this->table_rows as $field => $args){
+            if ((!$args['visible'] && (!isset($cols[$args['id']]) || $cols[$args['id']] === false))) continue;
+            if (isset($cols[$args['id']]) && $cols[$args['id']] === false) continue;
+            $visible_cols[$args['id']] = true;
+        }
+
+        self::$last_record = $this->record = $this->custom_defaults = Utils_RecordBrowserCommon::record_processing($this->tab, $this->custom_defaults, 'adding');
+
+        $this->prepare_view_entry_details($this->custom_defaults, 'add', null, $form, $visible_cols);
+        $form->setDefaults($this->custom_defaults);
+
+        if ($form->isSubmitted()) {
+            $this->set_module_variable('force_add_in_table_after_submit', true);
+            if ($form->validate()) {
+                $values = $form->exportValues();
+                foreach ($this->custom_defaults as $k=>$v)
+                    if (!isset($values[$k])) $values[$k] = $v;
+                $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+                location(array());
+            } else {
+                $this->show_add_in_table = true;
+            }
+        }
+        $form->addElement('submit', 'submit_qanr', __('Save'), array('style'=>'width:100%;height:19px;', 'class'=>'button'));
+        $renderer = new EpesiSmartyRenderer();
+        $form->accept($renderer);
+        $data = $renderer->toArray();
+
+        $gb->set_prefix($data['javascript'].'<form '.$data['attributes'].'>'.$data['hidden']."\n");
+        $gb->set_postfix("</form>\n");
+
+        if (!$admin && $this->favorites) {
+            $row_data= array('&nbsp;');
+        } else $row_data= array();
+        if (!$admin && $this->watchdog)
+            $row_data[] = '&nbsp;';
+
+
+        $first = true;
+        foreach($visible_cols as $k => $v) {
+            if (isset($data[$k])) {
+                $row_data[] = array('value'=>$data[$k]['error'].$data[$k]['html'], 'overflow_box'=>false);
+                if ($first) {
+                    // Sets the var the New-button's onclick reads for the
+                    // toggle-open case, and also focuses directly here for
+                    // when the row is already visible on render (after a
+                    // submit, or a failed-validation reshow) - that path
+                    // never runs the onclick handler, so without this the
+                    // row would reappear with nothing focused. Deferred via
+                    // setTimeout since this eval_js is queued before the
+                    // box's own DOM patch further down in show_data() - a
+                    // synchronous call here would run before the field it
+                    // targets is even in the DOM. Harmless no-op via
+                    // focus_by_id's own existence check if the row is
+                    // currently hidden.
+                    eval_js('focus_on_field = "'.$k.'";setTimeout(function(){focus_by_id(focus_on_field);},300);');
+                }
+                $first = false;
+            } else $row_data[] = '&nbsp;';
+        }
+
+        $gb_row = $gb->get_new_row();
+        $save_label = $data['submit_qanr']['html'].'<span class="epesi-qanr-save-label">'.__('Save').'</span>';
+        if ($this->save_button_trailing) {
+            $row_data[] = array('value'=>'<a '.Utils_TooltipCommon::open_tag_attrs(__('Save'), false).' class="Utils_RecordBrowser__save_trailing">'.$save_label.'</a>', 'overflow_box'=>false);
+        } else {
+            $gb_row->add_action('',$save_label,__('Save'), null, 0, false, 7);
+        }
+        $gb_row->set_attrs('id="add_in_table_row" style="display:'.($this->show_add_in_table?'':'none').';"');
+        $gb_row->add_data_array($row_data);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     public function delete_record($id, $pop_main = true) {
@@ -1147,7 +1205,6 @@ class Utils_RecordBrowser extends Module {
             }
             $this->dirty_read_changes($id, $time_from);
         }
-		$form->add_error_closing_buttons();
 
         if (($mode=='edit' || $mode=='add') && $show_actions!==false) {
             Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){'.$form->get_submit_form_js().'}');
@@ -2774,7 +2831,7 @@ class Utils_RecordBrowser extends Module {
             $this->show_add_in_table = true;
             $this->set_module_variable('force_add_in_table_after_submit', false);
         }
-        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){if (jq("#add_in_table_row").is(":visible")) jq("input[name=submit_qanr]").click();}');
+        Utils_ShortcutCommon::add(array('Ctrl','S'), 'function(){if (jq("#add_in_table_row").is(":visible")) {if(document.activeElement)document.activeElement.blur();jq("input[name=submit_qanr]").click();}}');
 		return $href;
     }
 	
@@ -2987,11 +3044,13 @@ class Utils_RecordBrowser extends Module {
 				
 			try {
 				[$class_name, $method_name] = explode('::', $callback);
-					
+
 				$class = new ReflectionClass($class_name);
-				$docblock  = new \phpDocumentor\Reflection\DocBlock($class->getMethod($method_name));
-					
-				$output .= '<span class="description">' . $docblock->getShortDescription() . '<br />' . $docblock->getLongDescription()->getContents() . '</span>';
+				$doc_comment = $class->getMethod($method_name)->getDocComment();
+				if ($doc_comment !== false) {
+					$docblock = \phpDocumentor\Reflection\DocBlockFactory::createInstance()->create($doc_comment);
+					$output .= '<span class="description">' . $docblock->getSummary() . '<br />' . $docblock->getDescription()->render() . '</span>';
+				}
 			} catch (Exception) {
 			}
 				

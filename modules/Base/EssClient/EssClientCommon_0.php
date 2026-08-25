@@ -25,7 +25,7 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
             return;
         if (self::has_license_key()) 
 			return;
-        return array(_M('Support') => array('__submenu__' => 1, _M('Register EPESI!') => array()));
+        return array(_M('Support') => array('__submenu__' => 1, _M('Register Epesi!') => array()));
     }
 
     public static function get_server_url() {

@@ -11,7 +11,7 @@
 	</div>
 	<div class="text-center firstrun-footer">
 		<a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a>
-		<div class="text-muted small mt-2">Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz and Karina Tylek</div>
+		<div class="text-muted small mt-2">Copyright &copy; 2006-{php}echo date("Y"){/php} by Janusz Tylek and Karina Tylek</div>
 	</div>
 </div>
 {php}

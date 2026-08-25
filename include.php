@@ -11,6 +11,20 @@ if (__FILE__ == realpath($_SERVER['SCRIPT_FILENAME'])) die("Direct access forbid
 
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
+// Mirrors the security headers/memory_limit from the root .htaccess template (htaccess.txt) so
+// they still apply on hosts where that file gets rejected (see AI-shared/MIGRATION_NOTES.md §55)
+// or where mod_php isn't in use (php_value there is silently ignored under PHP-FPM/CGI).
+if (PHP_SAPI !== 'cli') {
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-XSS-Protection: 1; mode=block');
+}
+$memory_limit = ini_get('memory_limit');
+if ($memory_limit !== '-1' && $memory_limit !== '') {
+    $unit = strtolower(substr($memory_limit, -1));
+    $memory_limit_bytes = (int) $memory_limit * ($unit === 'g' ? 1073741824 : ($unit === 'm' ? 1048576 : ($unit === 'k' ? 1024 : 1)));
+    if ($memory_limit_bytes < 256 * 1024 * 1024) ini_set('memory_limit', '256M');
+}
+
 umask(0022);
 
 chdir(dirname(__FILE__));

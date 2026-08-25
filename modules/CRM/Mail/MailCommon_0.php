@@ -310,7 +310,7 @@ class CRM_MailCommon extends ModuleCommon {
     // (rcube_mime::decode_mime_string() only undoes MIME encoded-words, see
     // Libs/RoundCube/RC/plugins/epesi_archive/epesi_archive.php) - some clients wrap the whole
     // "Name email@domain" pair in one pair of straight quotes with no <> around the address at
-    // all (e.g. "Tylek Janusz test@mrf.epesi.cloud"), which reads oddly verbatim. This
+    // all (e.g. "Jane Doe jane@example.com"), which reads oddly verbatim. This
     // reformats each comma-separated entry to "Name" followed by a quoted address instead
     // (per request), same treatment for the standard Name <email@domain> form.
     public static function format_address_list($raw) {
@@ -576,7 +576,7 @@ class CRM_MailCommon extends ModuleCommon {
             throw new Exception('Invalid account id');
         }
         $port = $rec['security'] == 'ssl' ? 993 : 143;
-        $server_str = '{' . $rec['server'] . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . ':' . $port . '}';
+        $server_str = '{' . self::strip_server_port($rec['server']) . ':' . $port . '/imap/readonly/novalidate-cert' . ($rec['security'] ? '/' . $rec['security'] : '') . '}';
         $cache_key = 'crm_mail_'.md5($server_str . ' # ' . $rec['login'] . ' # ' . $rec['password']);
         if ($cache_validity_in_minutes) {
             $unread_messages = Cache::get($cache_key);
@@ -719,6 +719,16 @@ class CRM_MailCommon extends ModuleCommon {
         return 'get.php?'.http_build_query(array('mail_id'=>'__MAIL_ID__','mime_id'=>$mime_id));
     }
 
+    /**
+     * The 'Server' account field is free text and some users enter it as
+     * "host:port" (following the convention used elsewhere), but the port is
+     * already tracked separately via the account's security setting - strip
+     * it here so callers never build a mailbox spec with a duplicated port.
+     */
+    private static function strip_server_port($server) {
+        return preg_replace('/:\d+$/', '', trim($server));
+    }
+
     public static function get_connection($rec) {
         error_reporting(error_reporting() & ~E_NOTICE); //fetch sometimes gives E_NOTICE on email parse error
 
@@ -732,7 +742,7 @@ class CRM_MailCommon extends ModuleCommon {
         } elseif(isset($cache[$rec['id']])) return $cache[$rec['id']];
 
         $port = $rec['security'] == 'ssl' ? 993 : 143;
-        $server = new \Fetch\Server($rec['server'], $port);
+        $server = new \Fetch\Server(self::strip_server_port($rec['server']), $port);
         $server->setAuthentication($rec['login'], $rec['password']);
         $server->setFlag('readonly');
         $server->setFlag('novalidate-cert');

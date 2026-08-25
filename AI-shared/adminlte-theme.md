@@ -1,5 +1,27 @@
 # AdminLTE theme(s) status
 
+## Default color mode (no stored preference) flipped dark → light (2026-08-25)
+
+Per explicit request, ahead of the SourceForge distribution package: a visitor with no
+`localStorage['lte-theme']` yet (fresh browser, fresh install, first-run setup wizard) now gets
+seeded to `'light'` instead of `'dark'`. One-line change in `Base_ThemeCommon::load_theme_assets()`
+(`modules/Base/Theme/ThemeCommon_0.php`) — the exact spot the 2026-08 comment block already
+identifies as "SEEDS a default the first time the key has never been set". A returning visitor's
+own stored choice is untouched either way; only the seed value changed. Verified with an isolated
+Node mock of the emitted JS snippet (localStorage/document stubbed) rather than a live install,
+to avoid mutating this dev DB mid-test — confirmed fresh/no-pref now resolves to light, while
+existing `dark`/`light` stored prefs still round-trip unchanged.
+
+`setuptheme/shell.tpl` (the earlier Language/License/Database/Compatibility steps in `setup.php`,
+before `FirstRun` takes over) was already unconditionally `data-bs-theme="light"` and doesn't load
+`adminlte.min.js`'s color-mode toggler at all — untouched, no dark path existed there to begin with.
+The SSR-hardcoded `data-bs-theme="dark"` in `Base_Box/theme_adminltedark/default.tpl` (the
+`{if $theme_name=='adminltedark'}dark{else}light{/if}` in the "data-bs-theme is pinned to the active
+theme" comment block) was deliberately left alone — it's corrected client-side by the same seeding
+JS on every load regardless of stored preference (existing behavior for anyone who already prefers
+light), so leaving it dark-first-then-corrected is consistent with how a light-preferring user's
+page already rendered before this change, not a new flash-of-dark introduced by it.
+
 ## `adminlte` (light) removed entirely — `adminltedark` is now the only AdminLTE-family theme (2026-08-04)
 
 Per explicit direction: stop spending time fixing/debugging the light-only
@@ -368,7 +390,7 @@ toggler (`adminlte.min.js`'s `Me` class) rather than a custom implementation.
 individual dashboard applets' own inner content (Weather, RssFeed, Shoutbox
 history, Calc, etc. mostly `print()` raw HTML), `Base_Admin/theme/
 access_panel.tpl`, QuickForm's raw-table renderer (`Libs/QuickForm/Renderer/
-TCMSDefault.php`, used by `Utils_Wizard` — its `_headerTemplate`/
+EpesiDefault.php`, used by `Utils_Wizard` — its `_headerTemplate`/
 `_elementTemplate`/`_formTemplate`/`_requiredNoteTemplate` raw strings were
 converted from `<tr>/<td>` to `<div>` as part of the 2026-08-04 legacy-theme
 div conversion, since the class is theme-agnostic and shared by every theme;
@@ -952,6 +974,237 @@ properties of undefined (setting 'overflow')` opening this same admin screen liv
 `CampaignManager_0.php`'s `admin_lists()` checkbox toggle). Don't repeat that mistake -
 `CLAUDE.md`'s Rendering section needs a correction, flagged to the user rather than edited
 solo.
+
+**Reverted, 2026-08-20: back to `Utils_TabbedBrowser` in `admin()`.** The native
+`<details>`/`<summary>` accordion from the entry above didn't look good in practice - reverted on
+explicit request the same day it was tried, back to the original `$tb = $this->init_module
+('Utils_TabbedBrowser'); ...; $tb->tag();` call. Undid, in `CampaignManager_0.php`: the accordion
+markup in `admin()`; `admin_main()`'s/`admin_lists()`'s/`admin_email_server()`'s inline Save
+triggers, restored to shared `Base_ActionBarCommon::add('save', ...)` calls (safe again now that
+only one tab's callback runs per request, the original collision this pattern was built to avoid
+no longer exists). Undid, in the templates: the `$save_href`-rendering blocks added to both
+`theme/admin.tpl` and `theme_adminltedark/admin.tpl`. Undid, in `theme_adminltedark/default.css`:
+the `.epesi-cm-accordion-*`/`.epesi-cm-list-save`/`.epesi-cm-form-actions` rules, now dead. Left
+alone: everything else from the theming pass above (the six-card `admin_main()` layout in
+`theme_adminltedark/admin.tpl`, Bootstrap Icons swaps, `Utils_TabbedBrowser`'s own
+`theme_adminltedark/default.css` `.epesi-tb-nav`/`.epesi-tb-item` styling) - none of that was
+the complaint, only the accordion-vs-tabs choice was. If tabs are asked to change again, don't
+reach for this same accordion approach without checking this entry first.
+
+**Follow-up, same day: the reverted tabs still rendered as a plain unstyled bullet list -
+root-caused to a one-character CSS authoring bug, not the tabs-vs-accordion choice.**
+After the revert above, `Utils_TabbedBrowser`'s admin() tabs still showed no styling at all
+(bullet list, `display:block` instead of the `.epesi-tb-nav` flex layout) - the same symptom
+the original accordion-switch entry blamed on "TabbedBrowser is unstyled under this theme."
+That diagnosis was wrong. The real cause: `Premium/CampaignManager/theme_adminltedark/
+default.css`'s own top-of-file header comment contained the prose "Utils_RecordBrowser's own
+.epesi-rv-" followed directly by a wildcard asterisk and a slash before the next word - i.e.
+the literal two-character comment-close sequence, typed as normal English inside the comment,
+not as code. CSS comments don't nest and don't care about intent: that sequence closed the
+block comment nine lines early, and everything from there to the *real* intended close became
+live, garbled "CSS" - which doesn't just corrupt one rule, it corrupts *all CSS in that same
+parse* from that point on, including every other bundled file (`admin()`'s screen bundles this
+file together with `Utils_RecordBrowser/View_entry.css` and `Utils_TabbedBrowser`'s own CSS via
+`theme_css.php`/`libs/minify`, so the tabs' styling - a completely unrelated file - silently
+disappeared too). Confirmed with `CampaignManager/theme_adminltedark/default.css` alone in
+isolation: 0 CSSOM rules parsed from an otherwise well-formed file, until the comment was fixed.
+Fixed by rewording the sentence so the asterisk and slash are never adjacent (spelled out as
+"epesi-rv prefixed classes" instead of the wildcard-glob shorthand) - two follow-up attempts at
+a fix ironically re-introduced the exact same bug by describing the problem using the literal
+two-character sequence inside the fix's own explanatory comment; the final wording avoids typing
+that sequence anywhere, including in prose.
+
+**Not a general multi-file-bundling bug** - a live sweep of the rest of `modules/` for the same
+pattern (a wildcard-glob-style comment ending in an asterisk immediately before a slash) found
+this to be the only occurrence codebase-wide, and a clean 2-file bundle (`View_entry.css` +
+`Utils_TabbedBrowser`'s own CSS, no CampaignManager file involved) parses and applies correctly.
+So `theme_css.php`/Minify's file-combining itself is fine; this was a one-file content bug that
+happened to have an outsized, hard-to-trace blast radius because of what it silently corrupted
+downstream. Worth remembering next time a reskinned screen looks completely unstyled for no
+apparent reason: check whether *any* CSS file sharing that page's bundle request has a comment
+whose prose happens to spell out those two characters back-to-back - `sheet.cssRules.length`
+on the individual file in isolation (via devtools/console, not a text-level `/*`/`*/` count,
+which has the same blind spot as the bug itself) is the fastest way to confirm it.
+
+**Follow-up, 2026-08-20: footer editor (`admin_edit_footer()`) reported "broken" - two real
+bugs, both in `theme_adminltedark/default.tpl`, not the placeholder/reply-link panel's own
+CSS.** User screenshot showed the footer editor (Admin → Campaign Manager → Settings tab →
+"you can edit the footer by clicking **here**") rendering with no visible card boundary at
+all - floating directly on the page background - and its instructional field label truncated
+mid-sentence to "Message Footer - leave". Both root-caused to the same file:
+
+1. `<div class="epesi-rv-card{if $main_page} card{/if}">` only adds Bootstrap's `.card` class
+   (border/shadow/rounded-corner clipping - see `Utils_RecordBrowser/theme_adminltedark/
+   View_entry.css`'s own comment on `.epesi-rv-card.card`) when `$main_page` is true.
+   `admin_edit_footer()` deliberately passes `main_page=false` (see this file's own dated
+   entry above explaining why - it needs the header/tools row's own `$main_page` gate, not the
+   card class, and originally had no way to ask for one without the other). Fixed by widening
+   the template's condition to `{if $main_page || isset($footer_mode)}` - `$footer_mode` is
+   already assigned `true` by this exact rendering path and used elsewhere in the same
+   template, so this needed no new PHP variable.
+2. The `message_subject` field's `.epesi-rv-row` has no `.data` sibling in footer mode (no
+   `isset($fields.message_subject.html)`), so its lone `.label` div - built for a short field
+   name like "Name"/"List" (`flex:0 0 150px; white-space:nowrap; overflow:hidden` in
+   `View_entry.css`) - was carrying the whole instructional sentence
+   (`admin_edit_footer()`'s `'Message Footer - leave the field empty to use default footer'`)
+   and clipping it. Same underlying shape as the legacy `theme/default.tpl`'s own
+   `label`/`label_top`+`colspan=2` special-case for this exact field, which the adminltedark
+   port never carried over. Fixed with a new modifier class (`epesi-cm-label-only`, added to
+   the row only when `!isset($fields.message_subject.html)`) whose `.label` override resets
+   `flex`/`white-space`/`overflow` to let it wrap and grow like a heading instead.
+
+**Separately, live-testing this screen surfaced a real functional bug in
+`Premium/CampaignManager/js/placeholders.js`, unrelated to theming**: every "Paste" button
+(Insert Placeholder/Insert Reply link/Insert Attachments) threw
+`Uncaught ReferenceError: CKEDITOR is not defined` on click -
+`campaign_manager_placeholders_insert()` was never ported off the CKEditor API when this
+module's message-body field switched to Quill (`QFfield_ckeditor()`/`admin_edit_footer()`
+both already call `addElement('quill', ...)` - only this one JS function still called
+`CKEDITOR.instances.ckeditor_message.*`). Missed by the original CKEditor→Quill sweep because
+that sweep was PHP-side (`addElement('ckeditor', ...)` call sites - see
+`ckeditor-to-quill-migration.md`'s own "Gap found" entry on `modules/Premium/`/`modules/Custom/`
+not being covered by the original repo-wide sweep); this was a JS-side leftover with no PHP
+signature to grep for. Ported to `quills['quill_message']` (`Libs/Quill/qu.js`'s live-instance
+registry, keyed by `quill.php`'s own `'quill_'.$elementName` id convention) -
+`insertText()`/`getText()`/`deleteText()`/`clipboard.dangerouslyPasteHTML()` replacing
+`insertText()`/`getSelection()`/`insertHtml()`. One follow-on bug caught by testing the fix
+live, not obvious from reading the code: plain-token inserts (the single-arg call shape, e.g.
+`{target.first_name}`) landed right after an already-inserted reply link picked up that link's
+own formatting (Quill inherits the format of the character immediately before the insertion
+point unless told otherwise) - the placeholder token rendered as blue/underlined link text
+instead of plain text. Fixed by passing an explicit `{link: false}` formats argument to
+`insertText()`.
+
+**Also fixed, same file, pre-existing and already flagged (not closed) by this doc's own
+2026-08-19 entry above**: `campaign_manager_new_reply()`/`campaign_manager_delete_placeholder()`
+still used `Ajax.Request`/`Object.toJSON`/`element.up(...)` (all Prototype APIs removed
+2026-08-06 - see `legacy-js-migration.md`). Ported to `jQuery.ajax()`/`JSON.stringify()`/
+`element.closest(...)`, same mechanical recipe as every other `Ajax.Request` port in that doc.
+`new_reply.php`'s own response string had the matching bare-`$(id)`-is-jQuery's-tag-selector
+bug this doc's "Recurring CSS/JS traps" list and `CLAUDE.md` both warn about
+(`$("campaign_manager__replies").innerHTML=$("campaign_manager__replies").innerHTML+"..."` -
+silently no-ops, never threw) - fixed to `document.getElementById("campaign_manager__replies").
+innerHTML+="..."`, same convention as every other site in `legacy-js-migration.md`'s own fix
+list for this module.
+
+Verified live via Playwright (both light and dark mode): footer editor card boundary and full
+label text now render correctly; a plain placeholder token, a reply-link token, "Add new reply
+option" (round-trips through `new_reply.php`, new button appears with correct styling), and its
+delete (X) button (confirm dialog → row hidden → `delete_reply.php` round-trip) all verified
+end-to-end with zero console errors, on both the footer editor and the regular message Add/Edit
+screen. `manage_emails.js`/`autosave.js` still have their own separate,
+already-documented-elsewhere gaps (Ajax.Request/Object.toJSON for the former;
+`autosave.js` reads a stale `#ckeditor_message` field id that doesn't exist in the DOM anymore
+for its own message-body slice specifically - found but not fixed this pass, out of scope for
+what was reported broken) - not touched this pass.
+
+**Follow-up, 2026-08-20: footer editor still visually cramped after the fixes above - two
+more layout bugs, both root-caused to the same `CampaignManager` files (not `View_entry.css`
+this time).** User screenshot showed the Quill editor's text area a hair narrower than its
+own toolbar above it (a visible jog on the right edge), and the whole editor boxed into only
+the right half of the screen with a large unused gap to its left.
+
+1. **Editor body narrower than its own toolbar.** `quill.php`'s `toHtml()` only applies an
+   inline `width` to the container div Quill turns into `.ql-container` - the toolbar Quill
+   auto-generates is inserted as that container's *preceding sibling* (see `qu.js`'s own
+   comment on this), gets no inline width of its own, and defaults to 100% of the parent.
+   Both `CampaignManager_0.php::admin_edit_footer()` and `CampaignManagerCommon_0.php::
+   QFfield_ckeditor()` (the regular Add/Edit message field - same underlying bug, same fix)
+   called `setQuillProps('99%', ...)` - a container 1% narrower than its own toolbar. Every
+   *other* `setQuillProps()` caller in the codebase (`Applets/Note`, `CRM/Mail`,
+   `Utils/Attachment`, `Utils/RecordBrowser`) already passes `null` for width, which is what
+   keeps their toolbar/container in sync. Fixed by changing both CampaignManager call sites
+   from `'99%'` to `null` to match.
+2. **Editor stuck in a half-width column with unused space to its left.** `default.tpl`'s
+   two `.column` divs (placeholders panel, message editor) are unconditionally 50%/50w -
+   fine for the regular Add/Edit screen, where the left column also holds five metadata
+   rows (name/list/date/scheduled/sent_to), but in `$footer_mode` those rows are hidden
+   (`{if !isset($footer_mode)}`) and the left column holds only the placeholders tree, which
+   never needed anywhere near half the row. Fixed with a `$footer_mode`-conditional inline
+   style: the left column becomes a fixed `320px` sidebar (`flex: 0 0 320px`, matching its
+   actual rendered content width, unchanged from before this fix) and the right column
+   switches to `flex: 1 1 auto` to fill the reclaimed space - same shape as every other
+   `$footer_mode`-only tweak already in this file (the card-class/label-wrap fixes above).
+   Regular (non-footer) Add/Edit screen deliberately left at 50/50, unchanged.
+
+Verified live via Playwright (both light and dark mode, `jtylek` login): footer editor's
+toolbar and text area now line up flush on the right edge, and the editor now spans nearly
+the full viewport width instead of half of it with a dead gap alongside. Regular message
+Add/Edit screen (`List Messages` → `New`) re-checked side by side - still 50/50, toolbar/
+editor width now matches there too, five metadata fields unaffected.
+
+**Follow-up, 2026-08-20: footer editor opened blank instead of showing the current footer,
+and Save then threw a JS crash - two more bugs in `CampaignManager_0.php`, unrelated to
+theming.** User reported the Settings tab's "Current footer:" preview showed real text but
+clicking "here" to edit it opened an empty Quill editor; saving from there (even unchanged)
+then threw `Uncaught TypeError: Cannot set properties of null (setting 'innerHTML')`.
+
+1. **Blank editor.** `admin_edit_footer()` preloaded the Quill field straight from the raw
+   `campaign_manager_footer_text` Variable, which is empty until an admin has ever saved a
+   custom footer. The Settings-page preview instead calls
+   `Premium_CampaignManagerCommon::get_footer()`, which falls back to hardcoded default text
+   when that Variable is empty - so the preview showed real content while the editor, reading
+   the raw Variable directly, opened blank. Fixed by falling back to `get_footer()` in the
+   editor too when the raw value is empty, so it preloads the same effective text the preview
+   just showed.
+2. **Save crash.** `admin_edit_footer()` built its full render output (`$form->accept($renderer)`,
+   theme assigns, and a `get_placeholders_html(null)` call) unconditionally, *before* checking
+   `$form->validate()`. `get_placeholders_html()` (and the reply/attachment sub-calls it makes)
+   each call `eval_js('document.getElementById("campaign_manager__replies").innerHTML = ...')`
+   assuming its own returned stub `<div id="campaign_manager__replies"></div>` HTML lands in the
+   same response right after - true on GET/redisplay, since that HTML gets printed via
+   `$theme->display()`. On a successful Save, though, the function took the
+   `Variable::set(...); return false;` branch and never printed anything - the queued eval_js
+   still fired (append_js has no idea the print never happened), so
+   `document.getElementById("campaign_manager__replies")` returned null and `.innerHTML=`
+   threw. Same shape applies to `campaign_manager__attachments`. Fixed by moving the
+   `$form->validate()` check up to right after `setDefaults()`, before any of the
+   renderer/theme/`get_placeholders_html()` work - the save path now returns before any of that
+   runs, matching how `admin_main()`/`admin()` elsewhere in this same file already validate
+   before building render output.
+
+Also split the Settings-page "You can edit the footer by clicking here. Current footer:" hint
+into two lines (own `<div class="epesi-cm-hint">` each in `admin.tpl`, backed by a new
+`custom_footer_current_label` theme var alongside the existing `custom_footer_label`) per user
+request, and made the preview substitute real values for `{main_company.*}` tokens instead of
+showing them raw - `get_footer()`'s default/custom text both leave those unresolved (real
+substitution normally only happens at send time, in `prepare_message()`, which needs a
+target/employee context this settings-page preview doesn't have). Added
+`Premium_CampaignManagerCommon::get_footer_preview()`, a display-only wrapper around
+`get_footer()` that resolves `{main_company.*}` using the same company-field-loop shape as
+`prepare_message()`'s own cache-building, and pointed `admin_main()`'s `custom_footer_info`
+assign at it instead of the raw `get_footer()`. `get_footer()` itself (used by the editor's
+own default-fallback and by actual message sending) is untouched.
+
+Verified live via Playwright (`jtylek` login): editor now preloads the same text as the
+preview; clicking Save with no changes round-trips cleanly with zero console errors (previously
+threw immediately); Settings-page preview now reads "You can edit the footer by clicking
+here." / "Current footer:" on separate lines with `{main_company.company_name}` resolved to
+the real company name (`{main_company.email}` resolved to an empty string, correctly, since
+this dev company record has no email set).
+
+## New modules: `bootstrap_icon()` only, no `theme/icon*.png` (2026-08-21)
+
+Established while building `Premium_Domains` (a brand-new module, not a retrofit):
+per explicit request, a module written from scratch should declare its icon **only**
+via `bootstrap_icon()` on the `Common` class (see the "renamed to theme-agnostic"
+update above) and skip the legacy per-module `theme/icon.png`/`icon-small.png` raster
+files and the matching `Utils_RecordBrowserCommon::set_icon(...)` call entirely - don't
+scaffold them just because `console.php dev:module:create`/older modules do. This is
+narrower than the general resolve() precedent already documented above (real modules
+still keep their existing raster icons where callers deliberately pass `$fallback=null`
+to preserve one, e.g. ActionBar's launcher/launchpad and LeightboxPrompt): those are
+existing, already-shipped icons with call sites relying on them, not something to
+newly add. A brand-new module has no such install base to preserve, so there's no
+reason to ship a PNG nobody reads once `bootstrap_icon()` covers the (currently only
+real) consumer, `Base_BootstrapIcons::resolve()`. Both `Base_ThemeCommon::
+install_default_theme()`/`uninstall_default_theme()` are literal no-ops today (see
+`ThemeCommon_0.php`) regardless of whether a `theme/` directory exists, so calling them
+with no `theme/` dir at all is harmless and still fine to keep for convention/future-proofing.
+
+This is a forward-looking convention for new modules, not a retrofit instruction -
+don't go remove existing modules' `theme/icon*.png` files/`set_icon()` calls under this
+note alone.
 
 See `MIGRATION_NOTES.md` for the PHP-version-migration side of this codebase;
 these theme notes are a separate, still-ongoing effort.

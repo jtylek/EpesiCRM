@@ -4,6 +4,12 @@ Features that are *missing on purpose*, at explicit user request — not oversig
 regressions, or gaps to silently fill back in. If a request implies re-adding one of
 these, surface the tension and confirm first rather than just doing it.
 
+Some of these (Quick Jump, Theme installation) are recurring reintroduction bugs
+specifically in `modules/Premium/`/`modules/Custom/` — separate, gitignored, never-swept
+repos (see `CLAUDE.md`). The `/fix-old-epesi-module` skill
+(`.claude/skills/fix-old-epesi-module/SKILL.md`) scans a given old module for exactly
+this shape of issue, plus general PHP 8.x compatibility, and fixes them.
+
 ## A-Z "quick jump" letter selection (removed 2026-07-27)
 
 The letter-selection popover in `GenericBrowser`/`RecordBrowser` list screens
@@ -107,6 +113,28 @@ modules/ at all. See `Base_LangCommon::append_custom()`/`build_merge()` and
 patch `20260812_move_custom_translations_to_data.php`, which migrates any
 already-written `modules/*/lang/*_custom.php` files on upgrade. This does
 *not* revive theme storage under `data/` — that stays fully removed.
+
+**Follow-up (2026-08-21):** `install_default_theme()`/`uninstall_default_theme()` are kept as
+no-ops in core (`Base_ThemeCommon`) purely so old call sites don't fatal, not as something new
+code should still call. `modules/Premium/GeneralContractor` (a separate, gitignored repo — not
+swept by the 2026-07-31 core removal) had 9 `*Install.php` files still calling
+`Base_ThemeCommon::install_default_theme($this->get_type())` at the top of `install()`; removed
+all 9, no replacement needed (themes already resolve straight from `modules/` without it). If
+another Premium module's install fatals or just carries this dead call, same fix applies — delete
+the line, don't look for a replacement API. `console/Develop/CreateModuleCommand.php`'s scaffold
+already generates a clean `install()` with no theme-install call, so newly-created modules aren't
+at risk of reintroducing this — checked 2026-08-21, still true.
+
+**Follow-up (2026-08-22):** unlike `install_default_theme()` above, `Base_LangCommon::
+install_translations()` was **not** kept as a core no-op — it's gone entirely, so a leftover call
+fatals with "Call to undefined static method" instead of silently doing nothing. Found live in
+`modules/Premium/Invoice/InvoiceInstall.php` and `modules/Premium/KnowledgeBase/
+KnowledgeBaseInstall.php`, both as the first line of `install()` — meaning every install/upgrade of
+either module fataled immediately, before anything else in `install()` ran (see
+`MIGRATION_NOTES.md` §73 for the full pre-`update.php` Premium sweep this was found in). Fixed by
+deleting both calls, same treatment as `install_default_theme()` — translations are shipped via
+each module's own `lang/<code>.php` now, no install-time registration step needed. If another
+Premium module's install fatals on this specific method name, same fix applies.
 
 ## Contacts "Birth Date" field disabled (2026-08-14)
 
@@ -212,3 +240,128 @@ a real uninstall patch.
 (Not a removal of a feature per se, but three separate JS-tooltip-component
 attempts were each tried and reverted back to plain native tooltips — see the
 "Not yet themed" section there before trying a fourth.)
+
+## Entire `modules/Develop/` tree removed (2026-08-21)
+
+All five `Develop_*` modules — `MiscUtils`, `ModuleCreator`, `ModuleEditor`,
+`TableBrowserCreator`, `Translations` — were deleted outright, at explicit user
+request, as no-longer-needed 2006–2008-era developer tooling now that an
+AI-assisted session reads/writes code and the DB directly instead of a human
+using in-app scaffolding/debugging widgets. **If a future request wants any of
+this back, it needs to be rebuilt fresh** (or use the modern equivalents noted
+below) — don't restore these from git history and re-wire them in.
+
+Confirmed zero cross-references anywhere else in the tracked codebase before
+deleting each one (no other module's `requires()` named any of them, no
+`Develop_*`/`Develop/*` string hits outside their own directories except a
+stale doc-comment example in `Utils_Wizard`'s adminltedark stepper template,
+fixed in the same pass — see below). None were installed in this dev
+instance's DB either (`console.php module:uninstall` reported "not installed"
+for all five), so no live uninstall step ran for any of them.
+
+**Per-module reasoning** (user's own words, recorded verbatim where given):
+
+- **MiscUtils** — a global `p($x)` var-dump helper plus a bundled copy of
+  Kint (a pre-Xdebug/VarDumper-era PHP debug library), for a developer to
+  sprinkle into code while debugging. Superseded by an AI assistant reading
+  code/logs/DB state directly. This is also what was breaking PHPStan
+  earlier the same day — see the `phpstan.neon`/Kint entries in
+  `environment-gotchas.md` for that side story; the `excludePaths` workaround
+  added there is now moot and was removed again once the module itself was
+  deleted.
+- **ModuleCreator** — "the web wizard predates it and does nothing the CLI
+  command (or an AI assistant writing the files directly) doesn't already
+  cover. We already have in Administrator control panel Custom Recordset."
+  I.e. `console.php dev:module:create` (added during the PHP 8.2 migration,
+  `console/Develop/CreateModuleCommand.php`) already covers the same
+  boilerplate-file scaffolding this wizard did, and the Administrator
+  control panel's Custom Recordset feature already covers ad hoc
+  table/recordset creation without needing a whole new module — the two
+  together made this wizard fully redundant.
+- **TableBrowserCreator** — the oldest of the five (2006), admin-gated,
+  scaffolded a RecordBrowser-backed module + its DB tables. Same redundancy
+  as ModuleCreator: Custom Recordset covers the table-creation need, CLI/AI
+  covers the module-file scaffolding.
+- **ModuleEditor** — an in-browser file manager *and* code editor (Codepress
+  widget) that could create/browse/edit arbitrary files from the app root
+  through the web UI, with no ACL check of its own (relied on Epesi's normal
+  per-user grant model, so not open by default, but a real arbitrary-file-write
+  surface if ever granted to anyone). Redundant now that code is edited via
+  IDE/AI-assisted terminal access, and worth removing on security-hardening
+  grounds alone, independent of the tooling argument.
+- **Translations** — "Translations are handled now by special Epesi
+  instance." This was never a per-instance utility — it was the old
+  **public/community translation-contribution tracker** tied to Telaxus's
+  original open-source project (`develop_trans_contribs`/
+  `develop_trans_users` DB tables, `svn_config_example.php`,
+  `receive_translation.php` — an SVN-based pipeline for accepting
+  crowd-sourced translations), unrelated to the per-instance admin
+  "Translate" screen (`Base_Lang`) that's still active and untouched by this
+  removal. That community-translation role now lives on a separate, dedicated
+  Epesi instance instead.
+
+**Known residual gap**: unlike the CKEditor/OpenFlashChart removals above,
+no uninstall patch was written for any of these five. For `MiscUtils`,
+`ModuleCreator`, `ModuleEditor`, and `TableBrowserCreator` this is harmless —
+none of their `*Install.php::install()` methods created any DB schema, so
+there's nothing to leak. `Translations` did create the two tables named
+above; on any install where this module was ever actually installed (not
+this one), those tables become orphaned rather than dropped — same
+"auto-uninstall patch judged more risk than the disk space is worth" call
+already made for `Libs/OpenFlashChart` above. Confirmed this is not a
+crash risk either way: `ModuleManager::check_is_module_available()`
+(`include/module_manager.php:1098`) already handles a module whose directory
+has disappeared while still marked installed — it flags the DB row
+`MODULE_NOT_FOUND` and unregisters it for that request, no fatal error - so
+the module system itself tolerates exactly this kind of removal without a
+patch, even though the orphaned tables specifically don't get cleaned up.
+
+**Related cleanup**: `modules/Utils/Wizard/theme_adminltedark/default.tpl`'s
+nested-wizard-step grouping logic existed specifically to support
+ModuleCreator's dynamic per-table sub-steps — it's now dead-but-harmless (no
+remaining `Utils_Wizard` consumer produces nested captions), left in place as
+reusable infrastructure for FirstRun/`Premium/Import` rather than ripped out,
+per the same "don't refactor shared infrastructure beyond what's asked"
+judgment used elsewhere in this file. Its stale comment referencing
+`Develop/ModuleCreator` was updated in the same pass so it doesn't send a
+future reader looking for a module that no longer exists.
+
+## Orphaned `modules` DB row after upgrade: usually tolerated, but not a blanket rule
+
+`Libs/ScriptAculoUs` (removed 2026-07-30, commit `255a5256b` — a legacy
+Prototype.js-era animation/autocomplete JS library, replaced by vanilla CSS
+transitions) is gone from the tracked tree entirely, same as `Libs/CKEditor`'s
+vendored editor and the `Develop_*` modules above. Running `update.php` on
+`client-instance.example` (see `MIGRATION_NOTES.md` §75) surfaced it via the
+§59 `orphaned_modules_gate()` warning: the `modules` table still had a row
+(`name='Libs_ScriptAculoUs', state=2`) — `state=2` is
+`ModuleManager::MODULE_NOT_FOUND`, meaning `check_is_module_available()` had
+already self-quarantined it for the request with no fatal error, exactly as
+designed.
+
+**Why this one got an actual cleanup patch, unlike CKEditor/OpenFlashChart/
+`Develop_*` above:** those three were left alone specifically because a real
+uninstall risked more than it fixed — `ModuleManager::uninstall()` needs the
+target's `*Install.php` to still exist and loadable (CKEditor/OpenFlashChart
+deliberately kept theirs as empty shells for exactly this reason), or the
+module genuinely had real schema/tables that a slapdash cleanup could get
+wrong (the `Develop/Translations` case). `Libs_ScriptAculoUs` has neither
+problem: its code is gone completely (nothing to keep an empty shell for —
+there's no `*Install.php` left to worry about breaking), and checking the
+pre-removal source (`git show 255a5256b^:modules/Libs/ScriptAculoUs/
+ScriptAculoUsInstall.php`) confirms `install()`/`uninstall()` were always
+just `return true;` — it never created a single table or row beyond the
+`modules` tracking entry itself. With zero schema risk and no class to keep
+loadable, there was nothing left for the general "leave it" precedent above
+to actually be protecting against, so a plain
+`DELETE FROM modules WHERE name='Libs_ScriptAculoUs'` — shipped as
+`modules/Base/patches/20260822_remove_orphaned_scriptaculous_module_row.php`
+— was the right, low-risk call here specifically.
+
+**How to apply next time:** an orphaned `modules` row is *not* an automatic
+"always leave it" — check the pre-removal `*Install.php` (via `git show
+<removal-commit>^:<path>`) for what `install()` actually did before deciding.
+No schema ever created (like this one) → a plain `DELETE FROM modules WHERE
+name=...` patch is safe and worth shipping. Real schema, or an `*Install.php`
+that might still need to stay loadable → leave it alone, same as CKEditor/
+OpenFlashChart/`Develop_*` above.

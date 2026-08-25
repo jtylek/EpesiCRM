@@ -586,6 +586,32 @@ class Utils_FileStorageCommon extends ModuleCommon {
     }
 
     /**
+     * Permanently remove a filestorage metadata row - unlike delete(), which only sets the
+     * 'deleted' flag, this actually removes the row (plus its access/remote-link history,
+     * which is meaningless once the parent metadata is gone) and cleans up the underlying
+     * file content if it's now unused. Intended for rows an admin has confirmed can't be
+     * reached through the application anymore - e.g. a backref left dangling by an
+     * uninstalled module - where nothing else can still be pointing at this id. Do not use
+     * this for a row whose reference is still valid (e.g. just because its content went
+     * missing from disk): that could leave a live record's file field pointing at a row that
+     * no longer exists. Use delete_file_on_disk() for the missing-content case instead.
+     *
+     * @param int $id Filestorage ID
+     */
+    public static function purge($id)
+    {
+        $file_id = DB::GetOne('SELECT file_id FROM utils_filestorage WHERE id=%d', array($id));
+        DB::StartTrans();
+        DB::Execute('DELETE FROM utils_filestorage_access WHERE file_id=%d', array($id));
+        DB::Execute('DELETE FROM utils_filestorage_remote WHERE file_id=%d', array($id));
+        DB::Execute('DELETE FROM utils_filestorage WHERE id=%d', array($id));
+        DB::CompleteTrans();
+        if ($file_id) {
+            self::delete_orphaned_file($file_id);
+        }
+    }
+
+    /**
      * Delete file from disk.
      * Mark all filestorages that used this file as deleted.
      * Use with caution!
@@ -595,17 +621,18 @@ class Utils_FileStorageCommon extends ModuleCommon {
     public static function delete_file_on_disk($file_id)
     {
         $hash = self::get_hash_by_file_id($file_id);
-        if (!$hash) {
-            return;
-        }
-
-        $filepath = self::get_storage_file_path($hash);
-        @unlink($filepath);
-        // remove leftover dirs if empty
-        for ($i = 0; $i <= 4; $i++) {
-            $filepath = dirname($filepath);
-            if (!@rmdir($filepath)) {
-                break;
+        // An empty hash means there was never a real file to unlink (e.g. a corrupted/manually
+        // inserted utils_filestorage_files row) - still fall through to mark the metadata
+        // deleted below, same as if the file were already gone from disk.
+        if ($hash) {
+            $filepath = self::get_storage_file_path($hash);
+            @unlink($filepath);
+            // remove leftover dirs if empty
+            for ($i = 0; $i <= 4; $i++) {
+                $filepath = dirname($filepath);
+                if (!@rmdir($filepath)) {
+                    break;
+                }
             }
         }
         DB::Execute('UPDATE utils_filestorage_files SET deleted=1 WHERE id=%d', array($file_id));

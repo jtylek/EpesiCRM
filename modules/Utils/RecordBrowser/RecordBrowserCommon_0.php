@@ -443,7 +443,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	} else {
     		$record_id = array_pop($kk);
     		$tab = $single_tab?$single_tab:$kk[0];
-    		if (!self::check_table_name($tab) || !is_numeric($record_id)) return false;
+    		if (!self::check_table_name($tab, false, false) || !is_numeric($record_id)) return false;
     	}
     	
     	return array('tab'=>$tab, 'id'=>$record_id, $tab, $record_id);

@@ -23,7 +23,7 @@ if (php_sapi_name() == 'cli') {
     if(!file_exists(DATA_DIR.'/cron_token.php'))
         die('Invalid token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
     require_once(DATA_DIR.'/cron_token.php');
-    if(CRON_TOKEN!=$_GET['token'])
+    if(!is_string($_GET['token']) || !hash_equals(CRON_TOKEN, $_GET['token']))
         die('Invalid token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
 }
 require_once('include.php');

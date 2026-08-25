@@ -24,7 +24,7 @@ require_once('vendor/autoload.php');
 require_once('modules/Libs/QuickForm/requires.php');
 require_once('setuptheme/SetupSmarty.php');
 
-// TCMSArray(Smarty)'s startForm()/renderError() call the global load_js()/
+// EpesiArray(Smarty)'s startForm()/renderError() call the global load_js()/
 // eval_js() helpers (include/misc.php), which normally proxy to the real
 // Epesi asset-queue class (include/epesi.php) - not loaded here, since this
 // script runs before the app is installed/bootstrapped (no DB yet). This
@@ -155,7 +155,7 @@ if (isset($_GET['check'])) {
 
 if(trim(ini_get("safe_mode")))
 	setup_page(__('Error'), SetupSmarty::render('message.tpl', array(
-		'message' => __('You cannot use EPESI with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and is removed in PHP 5.4.'),
+		'message' => __('You cannot use Epesi with PHP safe mode turned on - please disable it. Please notice this feature is deprecated since PHP 5.3 and is removed in PHP 5.4.'),
 	)));
 
 if(file_exists(DATA_DIR.'/config.php'))
@@ -180,10 +180,10 @@ if(!isset($_GET['license'])) {
 	$license_html = str_replace('{YEAR}', date('Y'), read_doc_file('license'));
 
 	$form = new HTML_QuickForm('licenceform','get');
-	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz and Karina Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
-	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"Made with EPESI"</strong> logo and the link from the application login screen or the toolbar.'), array('class'=>'form-check-input'));
+	$form -> addElement('checkbox','tos1','',__('I will not remove the <strong>"Copyright by Janusz Tylek and Karina Tylek"</strong> notice as required by the MIT license.'), array('class'=>'form-check-input'));
+	$form -> addElement('checkbox','tos2','',__('I will not remove <strong>"Made with Epesi"</strong> logo and the link from the application login screen or the toolbar.'), array('class'=>'form-check-input'));
 	$form -> addElement('checkbox','tos3','',__('I will not remove <strong>"Support -> About"</strong> credit page from the application menu.'), array('class'=>'form-check-input'));
-	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"EPESI Store"</strong> links from the application.'), array('class'=>'form-check-input'));
+	$form -> addElement('checkbox','tos4','',__('I will not remove or rename <strong>"Epesi Store"</strong> links from the application.'), array('class'=>'form-check-input'));
 	foreach($_GET as $f=>$v) {
         if (!str_starts_with($f, 'tos') && $f != 'submitted' && $f != 'submit')
             $form->addElement('hidden',$f,$v);
@@ -202,7 +202,7 @@ if(!isset($_GET['license'])) {
 	$form->accept($renderer);
 	$form_data = $renderer->toArray();
 	// toArray()'s 'errors' key only gets a field's entry when that field
-	// actually fails validation (see TCMSArray::_elementToArray()) - Smarty's
+	// actually fails validation (see EpesiArray::_elementToArray()) - Smarty's
 	// dot notation ($form_data.errors.tos1) has no isset guard of its own and
 	// throws a PHP 8 warning on a plain first page load, same class of bug
 	// already fixed in QuickForm_0.php's own 'header' key (see [[report-all-errors-exits-on-warning]]).
@@ -223,10 +223,12 @@ if(!isset($_GET['license'])) {
 			'heading' => __('Hosting compatibility'),
 			'message' => $check['message'],
 			'pre' => $check['pre'] ?? null,
+			'pre_collapsed' => $check['pre_collapsed'] ?? false,
+			'pre_label' => $check['pre_label'] ?? null,
 			'link_href' => $continue_url,
 			'link_text' => __('Ok'),
 		));
-		setup_page(__('Welcome to EPESI setup!'), $body, 'database');
+		setup_page('', $body, 'database');
 	}
 }
 if(isset($_GET['htaccess']) && isset($_GET['license'])) {
@@ -416,8 +418,10 @@ function check_htaccess() {
 		unlink('data/.htaccess');
 		unlink('data/test.php');
 		return array('ok'=>false,
-			'message'=>__('Unable to check EPESI root .htaccess file hosting compatibility. You should tweak it yourself.') . ' ' . __('Suggested .htaccess file is:'),
-			'pre'=>file_get_contents('htaccess.txt'));
+			'message'=>__("Epesi couldn't check whether your web server supports its suggested .htaccess file — but this is optional hardening, not something Epesi needs to run, so it's safe to click Continue.") . ' ' . __('Two of its four protections (security response headers and a minimum PHP memory limit) are applied by Epesi itself either way. The rest — hiding folder listings and your .git/.svn files — needs the .htaccess file below; add it yourself, or ask your host, if you want it.'),
+			'pre'=>file_get_contents('htaccess.txt'),
+			'pre_collapsed'=>true,
+			'pre_label'=>__('Show suggested .htaccess file'));
 	}
 	if($ret!=="OK") {
 		file_put_contents('data/.htaccess',"Options -Indexes\nSetEnv PHPRC ".dirname(__FILE__)."\n");
@@ -435,8 +439,10 @@ function check_htaccess() {
 			unlink('data/.htaccess');
 			unlink('data/test.php');
 			return array('ok'=>false,
-				'message'=>__('Your hosting is not compatible with default EPESI root .htaccess file. You should tweak it yourself.') . ' ' . __('Default .htaccess file is:'),
-				'pre'=>file_get_contents('htaccess.txt'));
+				'message'=>__("Your web server doesn't support Epesi's suggested .htaccess file — but this is optional hardening, not something Epesi needs to run, so it's safe to click Continue.") . ' ' . __('Two of its four protections (security response headers and a minimum PHP memory limit) are applied by Epesi itself either way. The rest — hiding folder listings and your .git/.svn files — needs web server-level configuration; ask your host, or use the file below as a starting point if you manage your own server.'),
+				'pre'=>file_get_contents('htaccess.txt'),
+				'pre_collapsed'=>true,
+				'pre_label'=>__('Show default .htaccess file'));
 		}
 	}
 	if(!is_writable('.')) {
@@ -444,7 +450,7 @@ function check_htaccess() {
 		$pre_content = file_get_contents('data/.htaccess');
 		unlink('data/.htaccess');
 		return array('ok'=>false,
-			'message'=>__('Your hosting is compatible with default EPESI root .htaccess file, but installer cannot write to EPESI root directory. You should paste following text to .htaccess file manually.'),
+			'message'=>__("Your web server supports Epesi's .htaccess file, but the installer doesn't have permission to create it automatically. Copy the text below into a file named .htaccess in your Epesi root folder."),
 			'pre'=>$pre_content);
 	}
 	unlink('data/test.php');
@@ -613,7 +619,7 @@ define(\'FORCE_CACHE_COMMON_FILES\',1);
 define(\'ASSET_VERSION_CHECK\',0);
 
 /*
- * Show donation links in EPESI
+ * Show donation links in Epesi
  */
 //define(\'SUGGEST_DONATION\',1);
 

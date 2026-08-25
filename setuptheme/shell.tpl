@@ -162,8 +162,8 @@
 	</main>
 
 	<footer class="app-footer text-center py-3">
-		<div><a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="EPESI powered" /></a></div>
-		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz and Karina Tylek</div>
+		<div><a href="http://epesibim.com" target="_blank" rel="noopener"><img src="images/epesi-powered.png" alt="Epesi powered" /></a></div>
+		<div class="text-muted small">{'Copyright'|t} &copy; 2006-{$smarty.now|date_format:"%Y"} by Janusz Tylek and Karina Tylek</div>
 	</footer>
 
 </div>

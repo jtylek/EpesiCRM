@@ -155,9 +155,14 @@ class Base_ThemeCommon extends ModuleCommon {
 			// needs registering once; re-running the block above on every render
 			// must not re-add it every time too.
 			eval_js(
+				// Seeded default for a visitor with no stored preference yet
+				// (fresh browser, fresh install) is 'light', per explicit
+				// request - was 'dark' (matching the theme's own name) until
+				// 2026-08-25. Only affects the seed; a returning visitor's own
+				// stored 'lte-theme' choice always wins over this.
 				"try{var s=localStorage.getItem('lte-theme');".
-				"if(s!=='light'&&s!=='dark')localStorage.setItem('lte-theme','dark');}catch(e){}".
-				"var m='dark';try{var s2=localStorage.getItem('lte-theme');if(s2==='light'||s2==='dark')m=s2;}catch(e){}".
+				"if(s!=='light'&&s!=='dark')localStorage.setItem('lte-theme','light');}catch(e){}".
+				"var m='light';try{var s2=localStorage.getItem('lte-theme');if(s2==='light'||s2==='dark')m=s2;}catch(e){}".
 				"document.documentElement.setAttribute('data-bs-theme',m);".
 				"document.documentElement.style.colorScheme=m;".
 				"var epesiSyncTries=0;".

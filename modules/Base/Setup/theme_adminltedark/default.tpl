@@ -57,14 +57,11 @@
 					</div>
 				{/if}
 				<div class="epesi-setup-actions">
-					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="epesi-setup-action {$package.style}" onclick="epesi_setup__show_actions('{$name}');epesi_setup__position_centered('hide_actions_{$name}',this);">
+					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="epesi-setup-action {$package.style}" onclick="epesi_setup__toggle_actions('{$name}',this);">
 						<span>{$package.status}</span>{if !empty($package.buttons)}<i class="bi bi-chevron-down"></i>{/if}
 					</div>
 				{if !empty($package.buttons)}
 					<div class="epesi-setup-action-panel" id="hide_actions_{$name}" style="display:none;">
-						<div class="epesi-setup-subaction {$package.style}" onclick="epesi_setup__hide_actions('{$name}');">
-							<span>{$package.status}</span><i class="bi bi-chevron-up"></i>
-						</div>
 						{foreach from=$package.buttons item=button}
 							<div {$button.href} class="epesi-setup-subaction {$button.style}">
 								{$button.label}

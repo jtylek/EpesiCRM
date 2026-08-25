@@ -243,3 +243,33 @@ from 8x "quill:toolbar ignoring attaching to nonexistent format 0" to zero, all 
 groups render, content survives a live switch) in both light and dark mode. Worth
 remembering if anyone hand-edits a Quill toolbar array again: a single-control group must
 still be wrapped in its own array, especially at index 0.
+
+## Gap found: `modules/Premium/`/`modules/Custom/` call sites aren't covered by the "Scope" sweep above (2026-08-20)
+
+The original scope sweep (top of this doc) explicitly grepped the gitignored
+`modules/Premium/` tree and found zero CKEditor references - but each module under
+`modules/Premium/` and `modules/Custom/` is its **own separate nested git repo**
+(`.gitignore`: `modules/Premium/*`, `modules/Custom/*` except `Custom/Tutorial`), so that
+sweep only ever reflected whatever those repos' checked-out state was on 2026-08-11. A
+repo updated/pulled after that date - or simply not present in this checkout at sweep
+time - would not have been caught, and won't show up in a `git grep` of this repo either.
+
+Found live via log monitoring: `modules/Premium/CampaignManager/CampaignManagerCommon_0.php`
+(`QFfield_ckeditor`) still called `addElement('ckeditor', ...)`/`setFCKProps(...)`, throwing
+`HTML_QuickForm_Error: unregistered element: Element 'ckeditor' does not exist` on the
+Campaign message "Add" form - `CKEditorCommon_0.php` no longer registers that type (see
+"Step 6" above). Fixed by porting it to `addElement('quill', ...)`/`setQuillProps(...)`,
+same signature, matching the 4 sites already ported. No `requires()`/module-dependency
+change was needed - `'quill'` is registered unconditionally in `include/epesi.php` (its
+eager custom-QuickForm-type block), independent of which modules declare a dependency on
+`Libs/Quill`.
+
+**Same bug shape as the Prototype.js removal's Premium gap** (see `CLAUDE.md` and
+`legacy-js-migration.md`) - any repo-wide migration or removal is, by construction, blind
+to `modules/Premium/`/`modules/Custom/` content that isn't in *this* checkout at sweep
+time. If you're relying on "the sweep found zero references" for either tree, that's a
+snapshot claim, not a standing guarantee - a plain `grep`/`git grep --no-index` sweep (Claude
+Code's own Grep tool silently skips gitignored paths - see `CLAUDE.md`'s Environment
+quirks) needs re-running per-installation, and any *new* Premium/Custom module pulled in
+later should be independently checked for `addElement('ckeditor', ...)` before assuming
+this migration is complete there.

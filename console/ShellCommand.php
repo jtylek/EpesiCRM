@@ -15,7 +15,7 @@ class ShellCommand extends Command
             ->setDescription('Run interactive shell');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         \Base_AclCommon::set_sa_user();
         \Psy\Shell::debug(get_defined_vars());

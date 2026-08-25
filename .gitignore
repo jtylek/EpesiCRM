@@ -1,7 +1,13 @@
 *.log
 .vscode/
 .env
-.claude/
+Thumbs.db
+# .claude/ itself is tracked (unlike .vscode/) so shared Claude Code skills under
+# .claude/skills/ (the mechanism behind /skill-name triggers) sync across
+# developers/computers via git, same as AI-shared/. Only the personal/per-machine
+# bits inside it are excluded individually below.
+.claude/settings.json
+.claude/*.lock
 .history/
 .playwright-mcp/
 
@@ -42,3 +48,7 @@ data/*
 # Scratch planning notes for unrelated side projects (e.g. parts-kits/) that
 # don't belong in the EPESI codebase's history.
 /parts-kits/
+
+# Personal deployment notes for this developer's own hosting account (domain,
+# paths, repo layout) - not meant to be shared across computers/developers.
+AI-shared/DirectAdmin-git-sync.md

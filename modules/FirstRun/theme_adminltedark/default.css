@@ -1,7 +1,7 @@
 /* AdminLTE variant of FirstRun's styling - see theme_adminlte/default.tpl.
    The wizard's actual form fields ({$wizard} -> Utils_Wizard -> Libs_QuickForm)
-   still render via the plain HTML_QuickForm_Renderer_TCMSDefault renderer
-   (modules/Libs/QuickForm/Renderer/TCMSDefault.php) - this module doesn't go
+   still render via the plain HTML_QuickForm_Renderer_EpesiDefault renderer
+   (modules/Libs/QuickForm/Renderer/EpesiDefault.php) - this module doesn't go
    through the EpesiSmartyRenderer/array-form path setup.php's forms use, so
    the Bootstrap look here is achieved by re-skinning the renderer's own raw
    output via CSS rather than by changing the renderer itself.

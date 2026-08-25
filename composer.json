@@ -1,9 +1,9 @@
 {
     "require": {
         "pimple/pimple": "^3.0",
-        "symfony/console": "^6.4",
-        "symfony/http-foundation": "^6.4",
-        "phpdocumentor/reflection-docblock": "^2.0.4",
+        "symfony/console": "^7.4",
+        "symfony/http-foundation": "^7.4",
+        "phpdocumentor/reflection-docblock": "^6.0",
         "fakerphp/faker": "^1.23",
         "phpfastcache/phpfastcache": "^9.2",
         "ifsnop/mysqldump-php": "dev-master",
@@ -12,7 +12,7 @@
         "openpsa/quickform": "^3.4",
         "adodb/adodb-php": "^5.22",
         "phpseclib/mcrypt_compat": "^2.0",
-        "guzzlehttp/psr7": "^2.7",
+        "guzzlehttp/psr7": "^3.0",
         "psy/psysh": "@stable"
     },
     "scripts": {

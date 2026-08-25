@@ -10,13 +10,23 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 require_once('include/EpesiSmartyRenderer.php');
-require_once('Renderer/TCMSDefault.php');
+require_once('Renderer/EpesiDefault.php');
 
-$GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_TCMSDefault();
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = array('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php','HTML_QuickForm_multiselect');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti');
-$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect');
+$GLOBALS['_HTML_QuickForm_default_renderer'] = new HTML_QuickForm_Renderer_EpesiDefault();
+// openpsa's _loadElement() wants a plain classname string (class already loaded), not
+// array($file,$class) — see include/epesi.php's register_custom_qf_types() for why. This module
+// may load after that eager-registration has already run, so require+register the same way here
+// too, or a later module load would clobber the string back to the array form it can't handle.
+require_once('modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['multiselect'] = 'HTML_QuickForm_multiselect';
+require_once('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autocomplete'] = 'HTML_QuickForm_autocomplete';
+require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = 'HTML_QuickForm_automulti';
+require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = 'HTML_QuickForm_autoselect';
+require_once('modules/Libs/QuickForm/FieldTypes/groupselect/groupselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['groupselect'] = 'HTML_QuickForm_groupselect';
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
 /**
@@ -180,7 +190,12 @@ class Libs_QuickForm extends Module {
 				if (is_array($attr)) $attr['class'] = trim(($attr['class'] ?? '').' form-select');
 				elseif (is_string($attr) && $attr !== '') $attr .= ' class="form-select"';
 				else $attr = array('class'=>'form-select');
-				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$attr);
+				// A 'values' array whose entries are themselves arrays (group
+				// label => array(value=>text)) is rendered as <optgroup> blocks
+				// instead of a flat list - e.g. the timezone picker groups by
+				// continent. Plain flat arrays (every other caller) are unaffected.
+				$is_grouped = is_array($v['values']) && is_array(reset($v['values']));
+				$elem = $this -> createElement($is_grouped ? 'groupselect' : 'select',$v['name'],$v['label'],$v['values'],$attr);
 				$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;

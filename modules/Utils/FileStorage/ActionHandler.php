@@ -188,7 +188,12 @@ class Utils_FileStorage_ActionHandler
     {
         $params = $request->query->all();
         $expires_on = time()+3600*24*7;
-        $token = md5($params['tab'].$params['id'].$params['field'].$expires_on.mt_rand());
+        // 'tab'/'field' are only present when this action was reached via
+        // Utils_RecordBrowser_FileActionHandler::getActionUrlsRB() - the plain
+        // getActionUrls() used e.g. by Utils_FileStorageCommon::get_default_action_urls()
+        // (admin Files list's own filename link) never sets them, and they're
+        // only salt for the token hash below, not required for it.
+        $token = md5(($params['tab'] ?? '').$params['id'].($params['field'] ?? '').$expires_on.mt_rand());
         DB::Execute('INSERT INTO utils_filestorage_remote(file_id,token,created_on,created_by,expires_on) VALUES (%d,%s,%T,%d,%T)',
             [$params['id'],$token,time(),Acl::get_user(),$expires_on]);
         $id = DB::Insert_ID('utils_filestorage_remote','id');

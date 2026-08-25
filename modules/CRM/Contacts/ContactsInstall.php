@@ -27,7 +27,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name' => _M('Short Name'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>false),
 			array('name' => _M('Phone'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Fax'), 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name' => _M('Email'), 		'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>true, 'visible'=>false),
+			array('name' => _M('Email'), 		'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>true, 'visible'=>true),
 			array('name' => _M('Web address'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
 			array('name' => _M('Group'), 		'type'=>'multiselect', 'required'=>false, 'visible'=>true, 'param'=>Utils_RecordBrowserCommon::multiselect_from_common('Companies_Groups'), 'extra'=>false, 'filter'=>true),
 			array('name' => _M('Permission'),	'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>true),
@@ -35,7 +35,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name' => _M('Address 2'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('City'),			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('Country'),		'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name' => _M('Zone'),			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name' => _M('Zone'),			'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name' => _M('Postal Code'),	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name' => _M('Tax ID'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true,'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_tax_id'))
 		);
@@ -51,13 +51,13 @@ class CRM_ContactsInstall extends ModuleInstall {
 			array('name' => _M('Work Phone'), 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Mobile Phone'), 'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_phone')),
 			array('name' => _M('Fax'), 			'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
-			array('name' => _M('Email'), 		'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>false),
+			array('name' => _M('Email'), 		'type'=>'email', 'required'=>false, 'param'=>array('unique'=>true), 'extra'=>false, 'visible'=>true),
 			array('name' => _M('Web address'), 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon', 'display_webaddress'), 'QFfield_callback'=>array('CRM_ContactsCommon', 'QFfield_webaddress')),
 			array('name' => _M('Address 1'), 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('Address 2'), 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('City'), 		'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true, 'visible'=>true, 'display_callback'=>array('CRM_ContactsCommon','maplink')),
 			array('name' => _M('Country'), 		'type'=>'commondata', 'required'=>true, 'param'=>array('Countries'), 'extra'=>true, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
-			array('name' => _M('Zone'), 		'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+			array('name' => _M('Zone'), 		'type'=>'commondata', 'required'=>false, 'param'=>array('Countries','Country'), 'extra'=>true, 'visible'=>false, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
 			array('name' => _M('Postal Code'), 	'type'=>'text', 'required'=>false, 'param'=>'64', 'extra'=>true),
 			array('name' => _M('Permission'), 	'type'=>'commondata', 'required'=>true, 'param'=>array('order_by_key'=>true,'CRM/Access'), 'extra'=>true),
 			array('name' => _M('Details'), 		'type'=>'page_split'),
@@ -216,8 +216,10 @@ class CRM_ContactsInstall extends ModuleInstall {
 	private static $country_elem_name;
 	public static function country_element($name, $args, & $def_js) {
 		self::$country_elem_name = $name;
-		if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'])) // openpsa throws on unregistered types; register directly (CommonData module may not be loaded yet during FirstRun)
-			$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata');
+		if (!isset($GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'])) { // openpsa throws on unregistered types; register directly (CommonData module may not be loaded yet during FirstRun)
+			require_once('modules/Utils/CommonData/qf.php'); // openpsa's _loadElement() wants a plain classname string (class already loaded), not array($file,$class)
+			$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['commondata'] = 'HTML_QuickForm_commondata';
+		}
 		$form = new HTML_QuickForm();
 		return $form->createElement('commondata',$name,'Country','Countries');
 	}

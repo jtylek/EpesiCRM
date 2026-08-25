@@ -60,6 +60,61 @@
 	margin-top: 0.75rem;
 }
 
+/* Plain text/password/textarea/submit elements carry no class of their own
+ * to hang a rule off (unlike 'select'/'checkbox', which already get form-
+ * select/epesi-switch injected server-side) - styled here by element
+ * selector instead, scoped to this grid/buttons container so it can't leak
+ * into unrelated forms, same as the rest of this file. --bs-* variables
+ * keep it consistent with the light/dark toggle automatically. */
+.epesi-qf-grid-data input[type="text"],
+.epesi-qf-grid-data input[type="password"],
+.epesi-qf-grid-data input[type="email"],
+.epesi-qf-grid-data input[type="number"],
+.epesi-qf-grid-data textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--bs-border-color);
+	border-radius: 0.375rem;
+	background-color: var(--bs-body-bg);
+	color: var(--bs-body-color);
+	font-size: 1rem;
+}
+
+.epesi-qf-grid-data textarea {
+	min-height: 80px;
+	resize: vertical;
+}
+
+.epesi-qf-grid-data input[type="text"]:focus,
+.epesi-qf-grid-data input[type="password"]:focus,
+.epesi-qf-grid-data input[type="email"]:focus,
+.epesi-qf-grid-data input[type="number"]:focus,
+.epesi-qf-grid-data textarea:focus {
+	outline: none;
+	border-color: var(--bs-primary);
+	box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), .25);
+}
+
+.epesi-qf-buttons input[type="submit"],
+.epesi-qf-buttons input[type="button"],
+.epesi-qf-buttons button {
+	display: inline-block;
+	padding: 0.375rem 1rem;
+	border: 1px solid var(--bs-primary);
+	border-radius: 0.375rem;
+	background-color: var(--bs-primary);
+	color: #fff;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.epesi-qf-buttons input[type="submit"]:hover,
+.epesi-qf-buttons input[type="button"]:hover,
+.epesi-qf-buttons button:hover {
+	filter: brightness(0.9);
+}
+
 @media (max-width: 767.98px) {
 	.epesi-qf-grid {
 		grid-template-columns: minmax(0, 1fr);
