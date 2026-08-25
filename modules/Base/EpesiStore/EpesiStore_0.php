@@ -49,7 +49,7 @@ class Base_EpesiStore extends Module {
         $setup->set_inline_display();
         if (Base_SetupCommon::is_simple_setup()) {
 			if (!$this->isset_module_variable('filter_set')) {
-				eval_js('base_setup__last_filter="'.(!Base_EssClientCommon::has_license_key()?'':(Base_EpesiStoreCommon::is_update_available()?'updates':'store')).'";');
+				eval_js('base_setup__last_filter="'.(Base_EssClientCommon::has_license_key() && Base_EpesiStoreCommon::is_update_available()?'updates':'installed').'";');
 				$this->set_module_variable('filter_set', true);
 			}
             $this->display_module($setup, array(true), 'admin');
