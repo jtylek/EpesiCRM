@@ -244,6 +244,9 @@ class FirstRun extends Module {
 		// post-setup module install no longer clutters every user's Quick
 		// Access bar/Launchpad the way it used to.
 		Base_Menu_QuickAccessCommon::freeze_current_items_as_grandfathered();
+		// Must run after the freeze above, not during Tools_SetDefaults' own
+		// install() - see Tools_SetDefaultsCommon::apply_quickaccess_defaults().
+		Tools_SetDefaultsCommon::apply_quickaccess_defaults();
 
 		$t = microtime(true);
 		epesi_log(date('Y-m-d H:i:s').': Creating cache of template files ...'."\n",'firstrun.log');

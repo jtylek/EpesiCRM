@@ -37,7 +37,7 @@ class Base_EpesiStore extends Module {
         if (!Base_EpesiStoreCommon::admin_access())
             return;
         $button_label = Base_EssClientCommon::has_license_key()
-                ? __('License Key') : __('Register EPESI!');
+                ? __('License Key') : __('Register Epesi!');
 		Base_ActionBarCommon::add(
                 Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'),
                 $button_label,

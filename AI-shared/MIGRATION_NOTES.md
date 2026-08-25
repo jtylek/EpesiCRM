@@ -2915,6 +2915,63 @@ treatment if another shared template/render-wrapper accumulates optional vars ov
 
 ---
 
+### §82 — Quick Access/Launchpad curated defaults from §71-era commit `930de60db` never actually applied — silent `save_admin()` no-op (2026-08-25)
+
+**Symptom:** every logged-in user's Dashboard action bar and Launchpad were cluttered with nearly every
+menu item in the app (Control panel, Messenger Alerts, My Company, User Activity Report, Search, Support:
+Get Support/Help/Register EPESI!, ...), not the small curated CRM-core set `930de60db` ("Freeze Quick
+Access/Launchpad defaults on install", 2026-08-14) was supposed to leave enabled. Also showed as a visible
+symptom: two tiles both labeled "Dashboard" in the Launchpad grid.
+
+**Root cause:** `Tools_SetDefaultsInstall::install()` tried to curate the defaults by explicitly writing
+`Base_User_SettingsCommon::save_admin(..., '0')` for every Quick Access item *not* in a hand-picked
+keep-enabled list. But `save_admin()` has a storage optimization: if the value being saved equals the
+item's current *default*, it deletes/skips the row instead of storing an override (`SettingsCommon_0.php`
+~line 189). At the point `install()` runs (mid-`ModuleManager::install()` loop, inside
+`FirstRun_0.php::done()`), `Base_Menu_QuickAccessCommon::freeze_current_items_as_grandfathered()` — the
+*same commit's* other new mechanism — hasn't run yet, so every item's computed default is already `0`
+(nothing grandfathered = fails-safe-hidden, see `QuickAccessCommon_0.php::user_settings()`). Writing `'0'`
+against an already-`0` default is a no-op by design, so **zero override rows ever got persisted**. Moments
+later, `freeze_current_items_as_grandfathered()` runs (also in `done()`, deliberately last, since it needs
+every just-installed module's menu to already be resolvable) and flips every item's default to `1`
+(visible) — with nothing on record to hold the non-curated items back down, so everything defaults to
+shown. Confirmed against the live dev DB: `quickaccess_grandfathered_items` had 17 items frozen, but
+`base_user_settings_admin_defaults` had **zero** rows for `Base_Menu_QuickAccess`.
+
+The Launchpad's duplicate "Dashboard" tile was a second, non-obvious symptom of the exact same bug, not a
+separate one: `DashboardCommon_0.php` registers two different menu items that both end in the leaf label
+"Dashboard" — the module's own page link (`_M('Dashboard')`, line 22, locked via `user_settings()`'s
+`is_dashboard` special-case) and a `My settings: Dashboard` config-screen link (line 33, `__function__` =>
+`open_config`). The Launchpad grid renders only the leaf label, not the full `My settings: ...` path, so
+once "My settings: Dashboard" was incorrectly defaulting to visible (not in the curated list), it rendered
+as a second, indistinguishable "Dashboard" tile next to the real one.
+
+**Fix:** moved the curation loop out of `Tools_SetDefaultsInstall::install()` (which structurally cannot
+run late enough — the class doc-comment already noted it can't call its own `*Common` class from inside its
+own `install()`, since `ModuleManager` only registers a module for autoload after `install()` returns) into
+a new `Tools_SetDefaultsCommon::apply_quickaccess_defaults()` (`modules/Tools/SetDefaults/SetDefaultsCommon_0.php`).
+`FirstRun_0.php::done()` now calls it immediately after `freeze_current_items_as_grandfathered()` — at that
+point `install()` has long since returned (module is registered, so the Common class autoloads fine) and
+grandfathering has already happened (so `'0'` is a genuine departure from the now-`1` default and actually
+persists). Added `modules/Tools/SetDefaults/patches/20260825_reapply_quickaccess_defaults_post_freeze.php`
+calling the same method, so every *existing* install that already went through the broken sequence — not
+just fresh ones — gets it re-applied via the normal patch sweep (the standard upgrade-gap discipline: a fix
+to `*Install.php`/fresh-install logic alone never reaches installs that already ran it). Also directly
+re-ran `apply_quickaccess_defaults()` against this dev DB (bootstrapped like `cron.php` — `include.php` +
+`ModuleManager::load_modules()` + `Base_AclCommon::set_sa_user()`, the last one easy to miss: without a
+set ACL user, `Acl::is_user()` is false, `user_settings()` returns `array()` early, and `save_admin()`
+silently no-ops for a *third*, unrelated reason) — went from 0 to 19 override rows, matching the curated
+list exactly.
+
+**How to apply:** any "compute this default, then write only when it differs" pattern (this `save_admin()`/
+`save()` shape exists in both directions in `SettingsCommon_0.php`) is unsafe to call against a default
+that is itself about to change later in the same install flow — the write has to happen *after* whatever
+finalizes the default, not before. If a future default-seeding step in an `*Install.php` looks like it's
+having no effect, check whether something later in the same install sequence (a freeze/grandfather step, a
+cache rebuild, another module's `install()`) changes what "default" resolves to.
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.
