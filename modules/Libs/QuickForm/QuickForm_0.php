@@ -25,6 +25,8 @@ require_once('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['automulti'] = 'HTML_QuickForm_automulti';
 require_once('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php');
 $GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['autoselect'] = 'HTML_QuickForm_autoselect';
+require_once('modules/Libs/QuickForm/FieldTypes/groupselect/groupselect.php');
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['groupselect'] = 'HTML_QuickForm_groupselect';
 $GLOBALS['_HTML_QuickForm_registered_rules']['comparestring'] = array('HTML_QuickForm_Rule_CompareString', 'Rule/CompareString.php');
 
 /**
@@ -188,7 +190,12 @@ class Libs_QuickForm extends Module {
 				if (is_array($attr)) $attr['class'] = trim(($attr['class'] ?? '').' form-select');
 				elseif (is_string($attr) && $attr !== '') $attr .= ' class="form-select"';
 				else $attr = array('class'=>'form-select');
-				$elem = $this -> createElement('select',$v['name'],$v['label'],$v['values'],$attr);
+				// A 'values' array whose entries are themselves arrays (group
+				// label => array(value=>text)) is rendered as <optgroup> blocks
+				// instead of a flat list - e.g. the timezone picker groups by
+				// continent. Plain flat arrays (every other caller) are unaffected.
+				$is_grouped = is_array($v['values']) && is_array(reset($v['values']));
+				$elem = $this -> createElement($is_grouped ? 'groupselect' : 'select',$v['name'],$v['label'],$v['values'],$attr);
 				$default_js .= 'e = document.getElementById(\''.$this->getAttribute('name').'\').'.$v['name'].';'.
 				'for(i=0; i<e.length; i++) if(e.options[i].value==\''.$v['default'].'\'){e.options[i].selected=true;break;};';
 				break;

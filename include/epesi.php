@@ -319,6 +319,7 @@ class Epesi {
 			'autocomplete'     => array('modules/Libs/QuickForm/FieldTypes/autocomplete/autocomplete.php','HTML_QuickForm_autocomplete'),
 			'automulti'        => array('modules/Libs/QuickForm/FieldTypes/automulti/automulti.php','HTML_QuickForm_automulti'),
 			'autoselect'       => array('modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php','HTML_QuickForm_autoselect'),
+			'groupselect'      => array('modules/Libs/QuickForm/FieldTypes/groupselect/groupselect.php','HTML_QuickForm_groupselect'),
 			'commondata'       => array('modules/Utils/CommonData/qf.php','HTML_QuickForm_commondata'),
 			'commondata_group' => array('modules/Utils/CommonData/qf_group.php','HTML_QuickForm_commondata_group'),
 			'datepicker'       => array('modules/Utils/PopupCalendar/datepicker.php','HTML_QuickForm_datepicker'),
