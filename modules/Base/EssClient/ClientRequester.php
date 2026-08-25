@@ -165,6 +165,15 @@ class ClientRequester implements IClient {
     protected function return_response_value_handling_user_messages($serialized, &$response) {
         if ($serialized) {
             $unserialized_response = $this->unserialize_response($response);
+            if (!is_array($unserialized_response)) {
+                // unserialize_response() already added a "Remote server
+                // error" client message for this case (bad/unparseable
+                // response) - just don't also access an offset on a
+                // non-array, which used to throw a warning here that could
+                // blank the whole page under REPORT_ALL_ERRORS and hide
+                // that message.
+                return null;
+            }
             $this->extract_user_messages($unserialized_response);
             return $unserialized_response[IClient::return_value];
         }

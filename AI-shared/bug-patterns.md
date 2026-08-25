@@ -1728,3 +1728,46 @@ derives a "random" token from `md5()`/`sha1()` over non-CSPRNG inputs (`time()`,
 `getcwd()`, `uniqid()` without the `more_entropy` flag, etc.) instead of
 `random_bytes()`, is the same shape - worth a proactive fix if noticed, not just
 when reported.
+
+## A cache that's written but never read, because the "skip cache" flag defaults to "skip"
+
+`Base_EssClientCommon::get_installation_status($clear_cache = true)`
+(`modules/Base/EssClient/EssClientCommon_0.php`) wrote its result into a
+`Variable` on every call, but only *read* that `Variable` back when called
+with `$clear_cache === false`. Every real call site (`is_registered()`, and
+the "Register Epesi!" admin panel) invoked it with no argument, so the
+default (`true`) always won - the cache was faithfully written and then
+never consulted, on every single call, forever. Because `is_registered()` is
+reached from `check_for_new_version.php`, which `Base_Box` fires on **every
+page load** (`Base_BoxCommon::update_version_check_indicator()`), this meant
+a live network round-trip to `https://ess.epe.si/` on every page view of
+every registered installation - invisible locally, but on the ESS server
+side it silently piled up 503,170 rows (154.7 MB) in `ess_access_logs` from
+ordinary browsing by only a handful of client installations.
+
+The correct pattern already existed one file over for comparison -
+`Base_EpesiStoreCommon::is_update_available($force_check = false)`
+(`modules/Base/EpesiStore/EpesiStoreCommon_0.php`) caches by calendar day and
+defaults to using the cache, forcing a live check only when explicitly asked.
+Fixed 2026-08-25 by rewriting `get_installation_status()` to follow that same
+shape (cache keyed by `date('Ymd')`, param renamed `$force_check` defaulting
+`false`), plus a server-side floor in
+`Custom_ESS_AccessLogsCommon::log()` (`modules/Custom/ESS/AccessLogs/AccessLogsCommon_0.php`)
+that now skips the insert if the same company already logged within 24h
+regardless of client version - needed because the client-side fix only helps
+installs that actually update, so already-deployed old clients would
+otherwise keep polling forever. Shipped with an index patch
+(`modules/Custom/ESS/AccessLogs/patches/20260825_company_access_time_idx.php`)
+since the new per-company throttle query needed one, and the existing
+503K-row table on ess.epe.si itself was truncated after the fix (pure access
+telemetry, not a business/audit record - no backup taken).
+
+**How to apply**: a boolean cache-bypass parameter is only as safe as its
+default. When reviewing (or writing) a `get_X($flag = ...)`-style memoized
+accessor, check that the *default* value actually routes through the cache-
+read branch, and check every call site to see whether any of them silently
+rely on the *other* branch by omitting the argument. If the function is
+reachable from a render path that fires on every page load (`Base_Box`,
+`check_for_new_version.js`, anything wired into
+`update_version_check_indicator()`), that's the highest-blast-radius place
+for this exact bug shape to hide.

@@ -41,7 +41,9 @@ class Base_EssClient extends Module {
                 $data = Base_EssClientCommon::server()->installation_registered_data();
                 if ($data) {
                     $data['license_key'] = Base_EssClientCommon::get_license_key();
-                    $data['status'] = Base_EssClientCommon::get_installation_status();
+                    // force_check: this admin screen is viewed rarely and on-demand,
+                    // so it should always reflect live status rather than today's cache.
+                    $data['status'] = Base_EssClientCommon::get_installation_status(true);
                     ///////// Status ////////
                     $confirmed = stripos($data['status'], 'confirmed') !== false || stripos($data['status'], 'validated') !== false;
                     if ($confirmed) {

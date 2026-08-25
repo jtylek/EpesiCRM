@@ -454,6 +454,16 @@ class PHPMailer
     protected $smtp = null;
 
     /**
+     * The SMTP class's getError() result from the last failed smtpConnect()
+     * attempt, captured before the unconditional close() at the end of
+     * smtpConnect() resets it back to empty - see smtpConnect()'s final
+     * close() call.
+     * @var array
+     * @access protected
+     */
+    protected $lastSmtpError = array();
+
+    /**
      * The array of 'to' names and addresses.
      * @var array
      * @access protected
@@ -1455,6 +1465,26 @@ class PHPMailer
     {
         $bad_rcpt = array();
         if (!$this->smtpConnect($this->SMTPOptions)) {
+            // smtpConnect() swallows its specific failure reason (bad host,
+            // rejected STARTTLS, rejected AUTH, ...) into a plain `false`
+            // return unless $this->exceptions is on (it isn't, here) - so
+            // this generic message used to fire identically for a real
+            // connection failure and for e.g. Gmail rejecting AUTH LOGIN
+            // because an app password is required, which sent admins
+            // troubleshooting the wrong thing. $this->smtp->getError() still
+            // has the last SMTP-level detail (or the raw socket error, for a
+            // failure before any SMTP dialogue) - surface that instead when
+            // there is one. Read the captured copy, not a fresh getError()
+            // call - smtpConnect()'s own final close() has already reset
+            // the live one back to empty by the time we get here.
+            $smtp_error = $this->lastSmtpError;
+            if (!empty($smtp_error['error'])) {
+                $reason = $smtp_error['error'];
+                if (!empty($smtp_error['detail'])) {
+                    $reason .= ': ' . trim($smtp_error['detail']);
+                }
+                throw new phpmailerException($this->lang('smtp_error') . $reason, self::STOP_CRITICAL);
+            }
             throw new phpmailerException($this->lang('smtp_connect_failed'), self::STOP_CRITICAL);
         }
         if ('' == $this->Sender) {
@@ -1516,6 +1546,7 @@ class PHPMailer
      */
     public function smtpConnect($options = array())
     {
+        $this->lastSmtpError = array();
         if (is_null($this->smtp)) {
             $this->smtp = $this->getSMTPInstance();
         }
@@ -1608,12 +1639,29 @@ class PHPMailer
                 } catch (phpmailerException $exc) {
                     $lastexception = $exc;
                     $this->edebug($exc->getMessage());
+                    // Capture the SMTP-level error before quit() runs, not
+                    // after: class.smtp.php's sendCommand() calls
+                    // setError('') on *any* successful command as part of
+                    // its normal per-command error reset, and a graceful
+                    // QUIT (the common case even right after a rejected
+                    // AUTH/STARTTLS) is a successful command - so by the
+                    // time quit() returns, the real failure reason is
+                    // already gone, and its own save/restore-around-close()
+                    // trick only helps when QUIT itself fails.
+                    $this->lastSmtpError = $this->smtp->getError();
                     // We must have connected, but then failed TLS or Auth, so close connection nicely
                     $this->smtp->quit();
                 }
             }
         }
         // If we get here, all connection attempts have failed, so close connection hard
+        if (empty($this->lastSmtpError['error'])) {
+            // No host got far enough to reach the catch block above (every
+            // connect() itself failed) - that's the only place left the
+            // detail can still be, since this final close() is about to
+            // reset it same as above.
+            $this->lastSmtpError = $this->smtp->getError();
+        }
         $this->smtp->close();
         // As we've caught all exceptions, just report whatever the last one was
         if ($this->exceptions and !is_null($lastexception)) {

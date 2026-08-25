@@ -83,11 +83,20 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         return false;
     }
 
-    public static function get_installation_status($clear_cache = true) {
-        $status = $clear_cache === false ? Variable::get(self::VAR_INSTALLATION_STATUS, false) : null;
-        if (!$status && self::has_license_key()) {
+    // Checked on every page load via check_for_new_version.php -> is_registered(),
+    // so this must stay cached per-day by default (mirrors
+    // Base_EpesiStoreCommon::is_update_available()'s pattern) - a $force_check=true
+    // default here previously meant a live ESS round-trip on every single page view.
+    public static function get_installation_status($force_check = false) {
+        $cached = Variable::get(self::VAR_INSTALLATION_STATUS, false);
+        $today = date('Ymd');
+        if (!$force_check && is_array($cached) && $cached['check_day'] == $today) {
+            return $cached['status'];
+        }
+        $status = null;
+        if (self::has_license_key()) {
             $status = self::server()->installation_status();
-            Variable::set(self::VAR_INSTALLATION_STATUS, $status);
+            Variable::set(self::VAR_INSTALLATION_STATUS, array('check_day' => $today, 'status' => $status));
         }
         return $status;
     }
