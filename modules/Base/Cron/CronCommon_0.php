@@ -27,7 +27,7 @@ class Base_CronCommon extends ModuleCommon
     public static function get_cron_url()
     {
         $token = self::load_token();
-        $url = get_epesi_url() . '/cron.php?token=' . $token;
+        $url = get_epesi_url() . 'cron.php?token=' . $token;
         return $url;
     }
 

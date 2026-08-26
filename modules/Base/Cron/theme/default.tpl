@@ -1,13 +1,15 @@
 <div class="important_notice">
-    {'Cron is used to periodically execute some job. Every module can define several methods with different intervals. All you need to do is to set up a system to run cron.php file every 1 minute.'|t}
-    <br>
+    {'Cron periodically executes scheduled jobs for every module. It needs to run at least once every minute, using one of the two methods below.'|t}
+    <ol>
+        <li>{'Recommended: have your server run cron.php from the command line every minute, e.g. via a system cron job.'|t}</li>
+        <li>{"If you can't run PHP from the command line, use the Cron URL below instead. Loading it - in a browser, or via an external service that fetches URLs on a schedule - triggers the same cron run over HTTP."|t}</li>
+    </ol>
     {'You can read more on our wiki'|t}: <a href="{$wiki_url}" target="_blank">{$wiki_url}</a>
     <br>
     <br>
-    {'EPESI uses token to verify cron url. Only link with valid token can execute cron. Do not reveal Cron URL. If you suspect that someone knows your unique token, then make a new one.'|t}
-    <br>
-    <br>
     {'Cron URL'|t}: <a href="{$cron_url}" target="_blank">{$cron_url}</a>
+    <br>
+    {'This URL contains a secret token, so anyone with it can trigger cron. Keep it private, and generate a new one if you suspect it has leaked.'|t}
     <br>
     <br>
     <a {$new_token_href} class="button">{'New Token'|t}</a>

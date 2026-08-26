@@ -30,8 +30,13 @@ require_once('include.php');
 
 if (file_exists(DATA_DIR . '/maintenance_mode.php')) die();
 
+if(!isset($argv)) print('Epesi cron message:<br>');
+
 $lock = DATA_DIR.'/cron.lock';
-if(file_exists($lock) && filemtime($lock)>time()-6*3600) die();
+if(file_exists($lock) && filemtime($lock)>time()-6*3600) {
+    if(!isset($argv)) print('Cron is already running, try again shortly.');
+    die();
+}
 register_shutdown_function(function () use ($lock) {
     @unlink("{$lock}");
 });
@@ -102,9 +107,11 @@ class CronErrorObserver extends ErrorObserver {
 }
 
 //call oldest executed callback
+$executed_func = null;
 foreach($cron_last as $func_md5=>$last) {
     if(!isset($cron_funcs_prior[$func_md5])) continue;
-    
+    $executed_func = $cron_funcs_prior[$func_md5];
+
     DB::Execute('UPDATE cron SET last=%d,running=1 WHERE func=%s',array($t,$func_md5));
     @unlink($lock);
 
@@ -128,10 +135,15 @@ foreach($cron_last as $func_md5=>$last) {
         else
             print($cron_funcs_prior[$func_md5].":<br>".$output."<hr>");
         epesi_log($stripped, 'cron.log');
+    } elseif(!isset($argv)) {
+        print('Cron job executed: '.$executed_func);
     }
 
     DB::Execute('UPDATE cron SET last=%d,running=0 WHERE func=%s',array(time(),$func_md5));
     break;
+}
+if($executed_func === null && !isset($argv)) {
+    print('No cron jobs were due to run.');
 }
 @unlink($lock);
 

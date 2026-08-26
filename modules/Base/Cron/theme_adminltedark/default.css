@@ -1,0 +1,9 @@
+.epesi-cron .epesi-cron-url {
+	background: var(--bs-tertiary-bg);
+	padding: .5rem .75rem;
+	border-radius: .375rem;
+}
+
+.epesi-cron .list-group-item {
+	background: transparent;
+}
