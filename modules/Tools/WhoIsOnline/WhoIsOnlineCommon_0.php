@@ -41,9 +41,7 @@ if(!array_key_exists('tools_whoisonline', $_SESSION)
     $current_user = Base_AclCommon::get_user();
     $session_id = EpesiSession::truncated_id();
     if ($current_user && Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me')) {
-        if (DB::GetOne('SELECT COUNT(*) FROM tools_whoisonline_users WHERE session_name=%s', array($session_id)) == 0) {
-            @DB::Execute('INSERT INTO tools_whoisonline_users(session_name,user_login_id) VALUES(%s,%d)',array($session_id, $current_user));
-        }
+        DB::Replace('tools_whoisonline_users', array('session_name'=>$session_id, 'user_login_id'=>$current_user), array('session_name'), true);
     }
     if ($session_id && !$current_user) {
         DB::Execute('DELETE FROM tools_whoisonline_users WHERE session_name=%s', array($session_id));
