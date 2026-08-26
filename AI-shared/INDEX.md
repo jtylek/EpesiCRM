@@ -107,4 +107,10 @@
   and a proposed manifest mechanism (plus wholesale `vendor/` rebuild) to bring the
   same cleanup to the manual-zip path.
 
+- [Claude-settings.md](Claude-settings.md) — Claude Code's Remote Control
+  (`disableRemoteControl: true`, set 2026-08-26 in this machine's `~/.claude/settings.json`)
+  vs. cross-session messaging (`SendMessage`/`ListAgents`): disabling Remote Control only
+  cuts reach to other machines/cloud sessions, same-machine peer messaging still works
+  unless separately denied via `permissions.deny`.
+
 Last reorganized: 2026-08-05.
