@@ -75,6 +75,20 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// bi-arrow-bar-down).
 			'priority-add'	=> 5,
 			'priority-remove' => 5,
+			// Base_EpesiStore_0's "Invoices" button used the 'view' key outright
+			// (eye icon, shared with every other "look at a list" action) - own
+			// key now, same sprite position as 'view' so the legacy theme is
+			// unaffected; only the AdminLTE theme's icon_map (Base_ActionBar/
+			// theme_adminltedark/default.tpl) points this at a distinct glyph
+			// (bi-pass).
+			'invoices'	=> 10,
+			// Base_Setup_0's "Disable EPESI Store" button used the 'delete' key
+			// outright (trash icon, shared with every other destructive/clear
+			// action) - own key now, same sprite position as 'delete' so the
+			// legacy theme is unaffected; only the AdminLTE theme's icon_map
+			// (Base_ActionBar/theme_adminltedark/default.tpl) points this at a
+			// distinct glyph (bi-bag-x).
+			'store-disable'	=> 12,
 			'scan'		=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,

@@ -46,7 +46,7 @@ class Base_EpesiStore extends Module {
         $invoices_form_name = null;
         print create_html_form($invoices_form_name, Base_EssClientCommon::get_invoices_url(),
                 array('key' => Base_EssClientCommon::get_license_key(), 'noheader' => 1), '_blank');
-        Base_ActionBarCommon::add('view', __('Invoices'),
+        Base_ActionBarCommon::add('invoices', __('Invoices'),
                 'href="javascript:void(0)" onClick="document.' . $invoices_form_name . '.submit();"');
 
         $setup = $this->init_module('Base_Setup');

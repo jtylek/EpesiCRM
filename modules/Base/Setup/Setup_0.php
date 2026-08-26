@@ -356,7 +356,7 @@ class Base_Setup extends Module {
             $store_visible = Base_SetupCommon::is_store_visible();
             if ($store_visible)
                 $this->add_store_products($sorted, $filters);
-            $icon = $store_visible ? 'delete' : 'add';
+            $icon = $store_visible ? 'store-disable' : 'add';
             $text = $store_visible ? __('Disable EPESI Store') : __('Enable EPESI Store');
             $href = $this->create_callback_href(array('Base_SetupCommon', 'set_store_visibility'), array(!$store_visible));
             $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';

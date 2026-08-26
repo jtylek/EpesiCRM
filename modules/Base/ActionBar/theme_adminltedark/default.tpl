@@ -20,8 +20,10 @@
 		'edit'      => 'bi-pencil-square',
 		'company'   => 'bi-building',
 		'view'      => 'bi-eye',
+		'invoices'  => 'bi-pass',
 		'add'       => 'bi-plus-lg',
 		'delete'    => 'bi-trash',
+		'store-disable' => 'bi-bag-x',
 		'save'      => 'bi-check2-square',
 		// RecordBrowser_0.php's "Export" (CSV download) button - own key now,
 		// not sharing 'save' any more, since the two rendered identically
