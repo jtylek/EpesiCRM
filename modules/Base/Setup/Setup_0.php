@@ -539,6 +539,7 @@ class Base_Setup extends Module {
 			if (!is_array($module['required_modules'])) $module['required_modules'] = explode(', ',$module['required_modules']);
             foreach ($module['needed_modules'] as $rm_id) {
                 $mod = Base_EpesiStoreCommon::get_module_info_cached($rm_id);
+                if (!$mod) continue;
                 $arr[$mod['name']] = $mod['price'];
             }
             $text .= "<table class=\"price_summary\">";
