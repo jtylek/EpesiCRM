@@ -5,8 +5,12 @@
 	load_js('modules/Base/Setup/theme/default.js');
 	load_js('modules/Base/Setup/theme_adminltedark/default.js');
 	// Default tab on a fresh load (no in-session filter choice to restore yet)
-	// is "Installed", not "All" - matches this screen's most common use.
-	eval_js('base_setup__filter_by(base_setup__preprocess_filter!=null?base_setup__preprocess_filter:"installed");');
+	// is "Updates" when something needs updating - surfaces it immediately
+	// instead of leaving it one click away behind the "Updates available"
+	// banner below - otherwise "Installed" (not "All"), matching this
+	// screen's most common use.
+	$default_filter = $this->get_template_vars('updates_count') ? 'updates' : 'installed';
+	eval_js('base_setup__filter_by(base_setup__preprocess_filter!=null?base_setup__preprocess_filter:"'.$default_filter.'");');
 {/php}
 
 {* Reskin - markup/ids match the default theme's default.tpl (so
@@ -32,6 +36,12 @@
    assigns - kept as trailing class tokens, restyled below. config.png/
    config-up.png swapped for inline Bootstrap Icons chevrons. *}
 <div class="epesi-setup">
+	{if $updates_count}
+	<div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+		<i class="bi bi-arrow-up-circle-fill mt-1"></i>
+		<div>{$updates_alert}</div>
+	</div>
+	{/if}
 	<div class="filters">
 		{foreach key=label item=attr from=$filters}
 			<div id="Base_Setup__filter_{$attr.arg}" {if !$attr.arg}class="selected"{/if} {if isset($attr.attrs)}{$attr.attrs}{/if} onclick="base_setup__filter_by('{$attr.arg}');">{$label}</div>

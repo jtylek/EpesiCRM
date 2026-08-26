@@ -500,6 +500,7 @@ $translations['Partially']='';
 $translations['Disable EPESI Store']='Disable Epesi Store';
 $translations['Enable EPESI Store']='';
 $translations['Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.']='';
+$translations['Updates available: %s module(s) can be updated now - see the Updates tab.']='';
 $translations['Ver. ']='';
 $translations['Optional']='';
 $translations['Error']='';

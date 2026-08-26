@@ -372,13 +372,22 @@ class Base_Setup extends Module {
         }
 		
 		uasort($sorted, $this->simple_setup_sort(...));
-		
+
+		$updates_count = 0;
+		foreach ($sorted as $p)
+			if (in_array('updates', $p['filter'] ?? array()))
+				$updates_count++;
+
 		$t = $this->init_module(Base_Theme::module_name());
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));
 		$t->assign('labels', array('options'=>__('Optional')));
-		
+		$t->assign('updates_count', $updates_count);
+		$t->assign('updates_alert', $updates_count
+			? __('Updates available: %s module(s) can be updated now - see the Updates tab.', array($updates_count))
+			: '');
+
 		$t->display();
 	}
     
@@ -470,9 +479,14 @@ class Base_Setup extends Module {
               if ($downloaded) {
 				$sorted[$name]['filter'][] = 'purchases';
                 if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
-                    $sorted[$name]['buttons'][] = $button;
+                    // Replace (not append to) the locally-installed entry's
+                    // buttons/status - an installed module with a pending
+                    // update should read "Update", not "Installed" with an
+                    // Uninstall option buried in the dropdown alongside it.
+                    $sorted[$name]['buttons'] = array($button);
                     $sorted[$name]['filter'][] = 'updates';
                     $sorted[$name]['style'] = 'problem';
+                    $sorted[$name]['status'] = __('Update');
                 }
                 if ($label == Base_EpesiStoreCommon::ACTION_RESTORE) {
                     $button['style'] = 'problem';

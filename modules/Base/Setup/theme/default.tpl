@@ -4,8 +4,11 @@
 	eval_js('base_setup__last_filter = "";');
 	load_js('modules/Base/Setup/theme/default.js');
 	// Default tab on a fresh load (no in-session filter choice to restore yet)
-	// is "Installed", not "All" - matches this screen's most common use.
-	eval_js('base_setup__filter_by(base_setup__preprocess_filter!=null?base_setup__preprocess_filter:"installed");');
+	// is "Updates" when something needs updating, otherwise "Installed" (not
+	// "All") - matches this screen's most common use. See theme_adminltedark/
+	// default.tpl for the same logic plus an "Updates available" banner.
+	$default_filter = $this->get_template_vars('updates_count') ? 'updates' : 'installed';
+	eval_js('base_setup__filter_by(base_setup__preprocess_filter!=null?base_setup__preprocess_filter:"'.$default_filter.'");');
 {/php}
 
 <div class="Base_Setup">
