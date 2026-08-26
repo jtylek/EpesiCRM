@@ -261,6 +261,8 @@ function check_for_fatal()
 {
     global $error_reporting_level;
     $error = error_get_last();
+    if ( $error === null )
+        return;
     $fatal_reporting_level = E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR;
     if ( $error["type"] & $error_reporting_level & $fatal_reporting_level )
         ErrorHandler::handle_error( $error["type"], $error["message"], $error["file"], $error["line"], '' );
