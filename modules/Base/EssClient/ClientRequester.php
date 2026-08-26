@@ -209,10 +209,15 @@ class ClientRequester implements IClient {
             throw new SecureConnectionException("Your server doesn't support ssl connection. Please load extension 'openssl.'");
 
         $http['method'] = 'POST';
-        $http['header'] = "Content-Type: application/x-www-form-urlencoded\r\n" 
+        $http['header'] = "Content-Type: application/x-www-form-urlencoded\r\n"
                         . "Referer: " . self::get_referer();
         $http['content'] = $post_data;
         $http['timeout'] = $this->connection_timeout;
+        // curl_call() below disables peer/host verification for this same server -
+        // match that here, otherwise this fgc-forced path (used for non-serialized
+        // calls like download_prepared_file(), so redirects to external package
+        // URLs are followed) fails wherever curl would have succeeded.
+        $ssl = array('verify_peer' => false, 'verify_peer_name' => false);
 
         set_error_handler(function ($code, $message) {
             throw new ErrorException($message);
@@ -220,7 +225,7 @@ class ClientRequester implements IClient {
         $exception = null;
         $output = false;
         try {
-            $output = file_get_contents($this->server, false, stream_context_create(array('http' => $http)));
+            $output = file_get_contents($this->server, false, stream_context_create(array('http' => $http, 'ssl' => $ssl)));
         } catch (ErrorException $e) {
             $exception = $e;
         }
