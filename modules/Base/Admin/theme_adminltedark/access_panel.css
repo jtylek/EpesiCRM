@@ -1,0 +1,74 @@
+/* AdminLTE re-skin for the per-user Admin Panel Access screen
+ * (Base_Admin::admin(), access_panel.tpl) - previously had no
+ * theme_adminltedark override at all, so it always fell back to the legacy
+ * table-based theme/access_panel.tpl regardless of the active app theme
+ * (see AI-shared/adminlte-theme.md's "Not yet themed" list). Built on plain
+ * Bootstrap .card/.list-group components, same reasoning as
+ * Premium_KnowledgeBase's theme_adminltedark/tree_view.css: those already
+ * auto-theme off data-bs-theme via --bs-* tokens, so only layout/spacing
+ * needs its own rules here - no hardcoded colors, so no
+ * [data-bs-theme="light"] override block is needed either.
+ *
+ * Fresh .epesi-admin-access-* class names, not the legacy theme's
+ * .epesi_big_button/.epesi_label/.buttons_container (theme/access_panel.css)
+ * or Base_Admin's own listing's .epesi-admin-* (theme_adminltedark/
+ * default.css) - each screen's adminlte theme stays self-contained.
+ *
+ * The on/off switches themselves (.epesi-switch, tagged onto every
+ * bool/checkbox field by QuickForm_0.php) and the show/hide-on-toggle +
+ * fade-when-off behavior (admin_switch_button() in js/main.js, theme-
+ * agnostic, loaded by Admin_0.php::admin() regardless of active theme) are
+ * both unrelated to this file - untouched.
+ */
+
+.epesi-admin-access {
+	max-width: 900px;
+}
+
+.epesi-admin-access-card .card-header {
+	font-weight: 600;
+}
+
+.epesi-admin-access-row {
+	transition: opacity .3s ease-in-out;
+}
+
+.epesi-admin-access-switch {
+	white-space: nowrap;
+	margin-left: auto;
+}
+
+/* Sub-permission fields (e.g. Manage users' "Allow admin to login as
+ * user"/etc checkboxes) - indented to roughly align under the row's own
+ * label, past the icon. Only bordered/padded once it actually has content
+ * (.has-content, set in the template) - the wrapper div itself is always
+ * rendered even when empty, since admin_switch_button() targets it by id
+ * unconditionally to show/hide it on toggle. */
+.epesi-admin-access-subsections.has-content {
+	margin-top: .75rem;
+	padding: .75rem 0 0 2.75rem;
+	border-top: 1px dashed var(--bs-border-color);
+}
+
+.epesi-admin-access-subgrid {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: .5rem 1rem;
+	align-items: center;
+}
+
+.epesi-admin-access-subgrid > .epesi-admin-access-sublabel {
+	text-align: right;
+	font-size: .875rem;
+}
+
+@media (max-width: 575.98px) {
+	.epesi-admin-access-subgrid {
+		grid-template-columns: 1fr;
+	}
+
+	.epesi-admin-access-subgrid > .epesi-admin-access-sublabel {
+		text-align: left;
+		padding-top: .5rem;
+	}
+}
