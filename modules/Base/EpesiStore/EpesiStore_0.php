@@ -43,7 +43,11 @@ class Base_EpesiStore extends Module {
                 $button_label,
                 $this->create_callback_href($this->display_registration_form(...)));
 
-		Base_ActionBarCommon::add('view', __('Invoices'), $this->create_callback_href($this->display_invoices(...)));
+        $invoices_form_name = null;
+        print create_html_form($invoices_form_name, Base_EssClientCommon::get_invoices_url(),
+                array('key' => Base_EssClientCommon::get_license_key(), 'noheader' => 1), '_blank');
+        Base_ActionBarCommon::add('view', __('Invoices'),
+                'href="javascript:void(0)" onClick="document.' . $invoices_form_name . '.submit();"');
 
         $setup = $this->init_module('Base_Setup');
         $setup->set_inline_display();
@@ -63,19 +67,6 @@ class Base_EpesiStore extends Module {
         $tb->tag();
         $this->display_module($tb);
     }
-	
-	public function display_invoices() {
-        if ($this->is_back())
-            return false;
-		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
-
-        $action_url = Base_EssClientCommon::get_invoices_url();
-		$params = array('key'=>Base_EssClientCommon::get_license_key(), 'noheader'=>1);
-        print create_html_form($form_name, $action_url, $params, 'invoices');
-        print('<iframe name="invoices" width="800px" style="border: none;" height="600px"></iframe>');
-        eval_js("document.{$form_name}.submit();");
-		return true;
-	}
 	
 	public function setup_admin($setup) {
 		$this->display_module($setup, array(true), 'admin');
@@ -574,11 +565,11 @@ class Base_EpesiStore extends Module {
                 $data[$key] = $credentials[$key];
         }
         
-        print('<iframe name="payments" width="800px" style="border: none;" height="600px"></iframe>');
-        $html = create_html_form($form_name, $payment_url, $data, 'payments');
-        print $html;
-        $open_js = "document.{$form_name}.submit()";
-        eval_js($open_js);
+        $form_name = null;
+        print create_html_form($form_name, $payment_url, $data, '_blank');
+        print('<div style="text-align:center;padding:2em;">'
+                . '<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+                . __('Continue to payment') . '</button></div>');
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
