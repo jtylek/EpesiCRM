@@ -15,7 +15,10 @@
 	$sections = $this->get_template_vars('sections');
 	foreach ($sections as $sk=>$s) {
 		foreach ($s['buttons'] as $key=>$button) {
-			$sections[$sk]['buttons'][$key]['bi_icon'] = Base_BootstrapIcons::resolve($button['icon'] ?? null, $button['module'] ?? null, 'bi-gear');
+			// 'Admin Panel Access' / 'Admin Tools' tiles (Admin_0.php::list_admin_modules())
+			// aren't real modules - they set their own 'bi_icon' directly since there's no
+			// module class for resolve() to look a bootstrap_icon() up on.
+			$sections[$sk]['buttons'][$key]['bi_icon'] = $button['bi_icon'] ?? Base_BootstrapIcons::resolve($button['icon'] ?? null, $button['module'] ?? null, 'bi-gear');
 		}
 	}
 	$this->assign('sections', $sections);

@@ -55,7 +55,7 @@ class Base_Admin extends Module {
 	public function sort_sections($tmp) {
 		$sections = array();
 		// Apply arbitrary order
-		foreach (array(__('User Management'), __('Features Configuration'), __('Data'), __('Regional Settings'), __('Server Configuration')) as $s) {
+		foreach (array(__('Administration'), __('User Management'), __('Features Configuration'), __('Data'), __('Regional Settings'), __('Server Configuration')) as $s) {
 			if (isset($tmp[$s])) {
 				$sections[$s] = $tmp[$s];
 				unset($tmp[$s]);
@@ -83,14 +83,7 @@ class Base_Admin extends Module {
 			$mod_ok[$name] = $caption;
 		}
 		uasort($mod_ok, fn($a, $b) => strcasecmp($a['label'], $b['label']));
-		if (Base_AclCommon::i_am_sa()) {
-			Base_ActionBarCommon::add('admin-panel', __('Admin Panel Access'), $this->create_callback_href($this->set_module(...), array('Base_Admin')));
-            if (!DEMO_MODE && !HOSTING_MODE) {
-       			$admin_tools_url = rtrim(get_epesi_url(), '/') . '/admin/';
-	    		Base_ActionBarCommon::add('admin-tools', __('Admin Tools'), 'href="'.htmlspecialchars($admin_tools_url).'" target="_blank"');
-            }
-        }
-                                
+
 		$buttons = array();
 		foreach($mod_ok as $name=>$caption) {
 			if (method_exists($name.'Common','admin_icon')) {
@@ -101,6 +94,25 @@ class Base_Admin extends Module {
 			}
 			$buttons[$caption['section']][] = array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$this->create_callback_href($this->set_module(...), array($name)).'>'.$caption['label'].'</a>',
 						'icon'=>$icon, 'module'=>$name);
+		}
+
+		// 'Admin Panel Access' / 'Admin Tools' used to live as ActionBar quick-access
+		// entries (Base_ActionBarCommon::add(...)) rather than tiles here - moved into
+		// the 'Administration' section alongside Modules Administration & Store so
+		// every super-admin-only entry point lives in one place. Same access/description
+		// href each produced as an ActionBar link, just wrapped as a card tile now.
+		if (Base_AclCommon::i_am_sa()) {
+			$buttons[__('Administration')][] = array(
+				'link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$this->create_callback_href($this->set_module(...), array('Base_Admin')).'>'.__('Admin Panel Access').'</a>',
+				'bi_icon'=>'bi-person-workspace',
+			);
+			if (!DEMO_MODE && !HOSTING_MODE) {
+				$admin_tools_url = rtrim(get_epesi_url(), '/') . '/admin/';
+				$buttons[__('Administration')][] = array(
+					'link'=>'<a class="card text-decoration-none h-100 shadow-sm" href="'.htmlspecialchars($admin_tools_url).'" target="_blank">'.__('Admin Tools').'</a>',
+					'bi_icon'=>'bi-motherboard',
+				);
+			}
 		}
 
 		foreach ($buttons as $section=>$b) {
