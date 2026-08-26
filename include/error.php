@@ -192,7 +192,7 @@ class ErrorHandler {
 	}
 	
 
-	public static function add_observer(&$observer) {
+	public static function add_observer($observer) {
 		if (!is_object($observer))
 			return false;
 
