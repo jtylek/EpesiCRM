@@ -1740,10 +1740,10 @@ default (`true`) always won - the cache was faithfully written and then
 never consulted, on every single call, forever. Because `is_registered()` is
 reached from `check_for_new_version.php`, which `Base_Box` fires on **every
 page load** (`Base_BoxCommon::update_version_check_indicator()`), this meant
-a live network round-trip to `https://ess.epe.si/` on every page view of
-every registered installation - invisible locally, but on the ESS server
-side it silently piled up 503,170 rows (154.7 MB) in `ess_access_logs` from
-ordinary browsing by only a handful of client installations.
+a live network round-trip to the configured ESS server on every page view of
+every registered installation - invisible locally, but with real production
+impact server-side (not detailed here; server-side impact + fix specifics
+live outside this repo, kept confidential to that deployment).
 
 The correct pattern already existed one file over for comparison -
 `Base_EpesiStoreCommon::is_update_available($force_check = false)`
@@ -1751,16 +1751,7 @@ The correct pattern already existed one file over for comparison -
 defaults to using the cache, forcing a live check only when explicitly asked.
 Fixed 2026-08-25 by rewriting `get_installation_status()` to follow that same
 shape (cache keyed by `date('Ymd')`, param renamed `$force_check` defaulting
-`false`), plus a server-side floor in
-`Custom_ESS_AccessLogsCommon::log()` (`modules/Custom/ESS/AccessLogs/AccessLogsCommon_0.php`)
-that now skips the insert if the same company already logged within 24h
-regardless of client version - needed because the client-side fix only helps
-installs that actually update, so already-deployed old clients would
-otherwise keep polling forever. Shipped with an index patch
-(`modules/Custom/ESS/AccessLogs/patches/20260825_company_access_time_idx.php`)
-since the new per-company throttle query needed one, and the existing
-503K-row table on ess.epe.si itself was truncated after the fix (pure access
-telemetry, not a business/audit record - no backup taken).
+`false`).
 
 **How to apply**: a boolean cache-bypass parameter is only as safe as its
 default. When reviewing (or writing) a `get_X($flag = ...)`-style memoized
