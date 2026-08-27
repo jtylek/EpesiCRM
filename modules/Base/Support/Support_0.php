@@ -19,16 +19,21 @@ class Base_Support extends Module {
 	private function get_content() {
 		$content = '<p>'.__('%s is a free, open source (MIT licensed) PHP framework for building web-native business applications.', array('Epesi')).'</p>';
 		$content .= '<p>'.__('It uses a modular architecture, and is distributed with basic CRM functionality out of the box:').'</p>';
-		$content .= '<ul>'
+		$content .= '<ul class="epesi-support-modules">'
+			.'<li>'.__('Attachments and notes').'</li>'
+			.'<li>'.__('Calendar').'</li>'
 			.'<li>'.__('Companies').'</li>'
 			.'<li>'.__('Contacts').'</li>'
-			.'<li>'.__('Calendar').'</li>'
-			.'<li>'.__('Tasks').'</li>'
+			.'<li>'.__('Dashboard').'</li>'
+			.'<li>'.__('E-mail archiving').'</li>'
+			.'<li>'.__('Login Audit').'</li>'
 			.'<li>'.__('Phone Calls').'</li>'
 			.'<li>'.__('Roundcube e-mail client integration').'</li>'
-			.'<li>'.__('E-mail archiving').'</li>'
+			.'<li>'.__('Search').'</li>'
 			.'<li>'.__('Shoutbox').'</li>'
-			.'<li>'.__('Attachments and notes').'</li>'
+			.'<li>'.__('Tasks').'</li>'
+			.'<li>'.__('User Activity Report').'</li>'
+			.'<li>'.__('User Management').'</li>'
 			.'</ul>';
 
 		$content .= '<hr>';

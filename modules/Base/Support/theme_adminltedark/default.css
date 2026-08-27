@@ -23,6 +23,11 @@
 	color: #0d6efd;
 }
 
+.epesi-support.card .card-body .epesi-support-modules {
+	column-count: 2;
+	column-gap: 2rem;
+}
+
 /* Bootstrap's .text-muted resolves against --bs-secondary-color, which
    flips to a light grey under the app's dark color mode - nearly invisible
    here since this card's background stays the fixed #dee2e6 above
