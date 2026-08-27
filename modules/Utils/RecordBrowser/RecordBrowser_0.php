@@ -540,7 +540,7 @@ class Utils_RecordBrowser extends Module {
 			$max = 0;
 			$width_sum = 0;
 			foreach ($table_columns as $k=>$v)
-				if ($v['width']>$max) $max = $v['width'];
+				if (intval($v['width'])>$max) $max = intval($v['width']);
 			foreach ($table_columns as $k=>$v) {
 				$table_columns[$k]['width'] = intval($table_columns[$k]['width']);
 				if ($table_columns[$k]['width']<$max/2) $table_columns[$k]['width'] = $max/2;
