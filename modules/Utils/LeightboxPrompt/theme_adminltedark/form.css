@@ -15,7 +15,14 @@
 
 .epesi-lbp-form-label {
 	font-weight: 600;
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Used to read smaller than the
+	   field it labels (QuickForm's own {$e.html}, inheriting body's old
+	   16px), but with body now at 13px it ended up bigger instead. Matches
+	   the same 13px app-wide default so the label and the field it
+	   describes read at the same size. */
+	font-size: 13px;
 	color: var(--epesi-text-secondary);
 	margin-bottom: 0.25rem;
 }

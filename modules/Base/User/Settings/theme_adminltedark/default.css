@@ -53,7 +53,10 @@
 	width: 100%;
 	max-width: 420px;
 	padding: 0.375rem 0.75rem;
-	font-size: 1rem;
+	/* Literal px, not rem - was 1rem (16px, root-relative), Bootstrap's
+	   untouched default, never brought down to match Base_Box/theme_
+	   adminltedark/default.css's app-wide default-font override (13px). */
+	font-size: 13px;
 	color: #dee2e6;
 	background-color: #2b3035;
 	border: 1px solid #495057;
@@ -81,10 +84,13 @@
 
 /* settings_form.tpl gives each label plain Bootstrap .col-form-label.fw-semibold -
  * 1rem/600, the same as any other untouched form label - which reads noticeably
- * larger/heavier than the rest of the chrome around it (the sidebar nav links
- * this screen sits next to are 0.875rem/400). Sized down to match. */
+ * larger/heavier than the rest of the chrome around it. Sized down to match
+ * the app-wide default-font override (Base_Box/theme_adminltedark/default.css,
+ * 13px) - literal px, not rem: was 0.875rem (14px, root-relative), which
+ * happened to equal the sidebar's own literal 14px when this was written,
+ * but doesn't track the 13px default used everywhere else in forms now. */
 .epesi-settings-row label {
-	font-size: 0.875rem;
+	font-size: 13px;
 	font-weight: 400;
 }
 

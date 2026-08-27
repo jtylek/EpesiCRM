@@ -34,7 +34,10 @@
 	border-radius: 0.375rem;
 	background-color: var(--bs-body-bg);
 	color: var(--bs-body-color);
-	font-size: 1rem;
+	/* Literal px, not rem - was 1rem (16px, root-relative), Bootstrap's
+	   untouched default, never brought down to match Base_Box/theme_
+	   adminltedark/default.css's app-wide default-font override (13px). */
+	font-size: 13px;
 }
 
 .epesi-lk-data input[type="text"]:focus {

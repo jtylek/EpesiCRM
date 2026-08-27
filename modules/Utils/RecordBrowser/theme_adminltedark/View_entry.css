@@ -752,31 +752,46 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div > div,
 .Utils_RecordBrowser__View_entry .time > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child,
 .Utils_RecordBrowser__View_entry .time > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input,
 .Utils_RecordBrowser__View_entry .time > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
 }
-/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
-   a group of an hour/minute/am-pm <select> trio plus a separate date
-   <input>) predates the ".data select{width:100%}" rule higher up in this
+/* .timestamp (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a date <input> plus a group of an hour/minute/am-pm <select> trio): NOT
+   given a float-based fallback layout like .time above. A first attempt at
+   one (floating the last child, margin-right:130px reserved on the first)
+   mirrored .time's pattern but only ever ran in practice as an unwanted
+   passenger - Libs/QuickForm/theme_adminltedark/default.css's own
+   'div.data.timestamp > div' rule (loaded alongside every QuickForm-
+   rendered field, so always present) makes this a flex row, and float
+   computes to none on a flex item regardless of what's written here. The
+   float itself was therefore inert, but margin-right:130px was not - as a
+   plain (non-float) margin it still applied on top of Libs/QuickForm's own
+   'margin:0' reset, at higher specificity (3 classes/pseudo-classes there
+   vs. that rule's 2 classes+3 types), stretching the date <input>'s column
+   another 130px and forcing the hour/minute group onto its own wrapped
+   line even when the row had room for both. Only the border-radius reset
+   below is still needed here - actual layout (order, spacing) is
+   Libs/QuickForm's to own. */
+.Utils_RecordBrowser__View_entry .timestamp > div > div:first-child input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* This field predates the ".data select{width:100%}" rule higher up in this
    file, which - added later, for ordinary single-select fields - forces
    every one of these hour/minute/am-pm selects onto its own full-width
    line, breaking the float:right layout above entirely (each select ends
    up stacked instead of sitting compact and side by side). The date
-   <input> is unaffected by this override and correctly keeps width:100% -
-   it's the non-floated sibling the "margin-right:130px" rule above already
-   reserves space against, so it's meant to fill what's left of the row.
+   <input> is unaffected by this override and correctly keeps width:100%.
    .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration
    field, built with 'date'=>false) renders the same hour/minute-select markup but sits in a
    "data time" cell - style is set from type, and 'time'/'timestamp' are distinct field types. */
@@ -837,6 +852,17 @@
 	border-style: solid !important;
 	border-radius: 2em !important;
 	border-color: rgba(255, 255, 255, 0.25) !important;
+}
+/* The border fight above never touched box-shadow, but this file's own
+   '.data input{box-shadow:none}' (unconditional, further up) and
+   '.data input:focus{box-shadow:none}' both also match the switch, so the
+   base stylesheet's own focus-visible glow ring never reached it either -
+   restored here with the same color that rule uses. Unscoped (not under
+   [data-bs-theme="light"]) so it covers both modes: nothing in the
+   light-mode focus rules below sets box-shadow, so there's nothing there to
+   override. */
+.Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:focus-visible {
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
 }
 .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
 .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {

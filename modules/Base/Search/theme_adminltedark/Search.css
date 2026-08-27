@@ -97,7 +97,13 @@
 	align-items: center;
 	gap: 0.4rem;
 	margin: 0;
-	font-size: 0.9rem;
+	/* Literal px, not rem - was 0.9rem (14.4px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Sits in the same form as
+	   .epesi-search-full input[type="text"] above, which has no font-size
+	   of its own and inherits body - used to read smaller than that search
+	   box (body's old 16px), but ended up bigger once body dropped to 13px. */
+	font-size: 13px;
 	cursor: pointer;
 }
 

@@ -175,7 +175,13 @@
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.35rem 0.2rem;
-	font-size: 0.9rem;
+	/* Literal px, not rem - was 0.9rem (14.4px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Its own sibling #multiselect
+	   select{font-size:13px} in this same file was already fixed the same
+	   way; this mobile-checklist alternative to that widget had drifted
+	   off it. */
+	font-size: 13px;
 	cursor: pointer;
 }
 
@@ -480,11 +486,15 @@ div.data.time > div > div {
 	white-space: nowrap;
 	margin: 0;
 }
-div.data.timestamp > div > div:last-child,
-div.data.time > div > div:last-child {
-	order: -1;
-	margin-right: 0;
-}
+/* .timestamp used to render its hour/minute select group before its date
+   input (Utils_PopupCalendar/timestamp.php built the group that way), so
+   this order:-1 on the (then-last) date sub-element pulled it back in front
+   of the (then-first) time group for a date-then-time reading despite the
+   reversed DOM order. timestamp.php now creates the date sub-element first,
+   so plain source order already reads date-then-time - reordering here
+   would flip it back to time-then-date. .time (a single sub-element, no
+   date part - e.g. a Duration field) never had two children for this to
+   matter to. */
 /* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
    in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
    inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into

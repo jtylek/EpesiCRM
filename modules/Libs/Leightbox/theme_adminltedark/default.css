@@ -132,7 +132,16 @@
    chrome. */
 #clipboard h3 {
 	margin: 0 0 0.75rem;
-	font-size: 0.95rem;
+	/* Literal px, not rem - was 0.95rem (15.2px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Sits directly above
+	   "div[onmouseover]" below, whose text has no font-size rule of its own
+	   and inherits body's - used to read smaller than that content
+	   (body's old 16px), but with body now at 13px this instructional
+	   heading ended up bigger than the box it explains. Matches the same
+	   13px app-wide default instead, staying secondary via color/weight
+	   only. */
+	font-size: 13px;
 	font-weight: 400;
 	color: #8b929a;
 }

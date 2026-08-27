@@ -26,18 +26,26 @@
 	   default) - without this, load order between this file and
 	   bootstrap.min.css decides which wins, so the header's height would be
 	   at the mercy of that instead of always matching this theme's design.
-	   Vertical padding raised from 4px per request ("slightly taller... so
-	   that it renders icons bigger and the title fits") - the extra height
-	   is what makes room for .epesi-applet-actions' own bigger icons below
-	   without cramping the title text against the header's edges. */
-	padding: 7px 0.6rem !important;
-	font-size: 1rem;
+	   Vertical padding was raised from 4px to 7px, then per a later request
+	   brought back down to 5px alongside the font-size cut below - both
+	   move together since .epesi-applet-actions' icons are sized in em,
+	   relative to this element's own font-size (see .bi/img below), so a
+	   smaller header font already shrinks them proportionally without a
+	   separate icon-size change. */
+	padding: 5px 0.6rem !important;
+	/* Literal px, not rem - was 1rem (16px, root-relative), Bootstrap's
+	   untouched default, never brought down to match Base_Box/theme_
+	   adminltedark/default.css's app-wide default-font override (13px). */
+	font-size: 13px;
 	line-height: 1;
 }
 
 .epesi-applet-title {
 	font-weight: 600;
-	font-size: 1rem;
+	/* Literal px, not rem - see .epesi-applet-header's own comment above;
+	   this element previously had its own separate 1rem, matching the
+	   header's old size, so it needs the same fix. */
+	font-size: 13px;
 	/* Own line-height, not the header's inherited line-height:1 (line 35) -
 	   that value is tight enough that this element's own overflow:hidden
 	   (needed below for the ellipsis truncation) clipped descenders (e.g. the

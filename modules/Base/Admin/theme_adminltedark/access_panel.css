@@ -59,7 +59,15 @@
 
 .epesi-admin-access-subgrid > .epesi-admin-access-sublabel {
 	text-align: right;
-	font-size: .875rem;
+	/* Literal px, not rem - was .875rem (14px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's body-
+	   level default-font override). That used to read smaller than this
+	   row's own label (inherited from body's old 16px/14px), but with body
+	   now at 13px the relationship flipped - this fixed rem value ended up
+	   bigger than its own parent label. Match the same 13px default instead
+	   of a root-relative fraction, so it stays secondary (via color/weight
+	   only) rather than accidentally the largest text in the row. */
+	font-size: 13px;
 }
 
 @media (max-width: 575.98px) {

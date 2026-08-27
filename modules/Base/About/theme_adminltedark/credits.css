@@ -48,7 +48,15 @@
 }
 
 .epesi-about-version {
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Sandwiched between
+	   .epesi-about-subtitle and .epesi-about-lead, neither of which sets
+	   its own font-size (both inherit body) - used to read smaller than
+	   both (body's old 16px), but with body now at 13px it ended up
+	   bigger. Matches the same 13px app-wide default, staying secondary
+	   via color only. */
+	font-size: 13px;
 	color: #6c757d;
 	margin-bottom: 1rem;
 }
@@ -74,7 +82,15 @@
 	border-radius: 0.375rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Sits right below the unstyled
+	   "For more information..." paragraph (inherits body), and this box's
+	   own .epesi-about h2/h3 headings are separate root-relative rem values
+	   unaffected by this change. Used to read smaller than the surrounding
+	   paragraphs (body's old 16px), but ended up bigger once body dropped
+	   to 13px. Matches that same 13px app-wide default instead. */
+	font-size: 13px;
 	color: #adb5bd;
 }
 
@@ -83,7 +99,14 @@
 }
 
 .epesi-about-note {
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override) - matches the same fix on
+	   .epesi-about-version/.epesi-about-license-text above, for the same
+	   "smaller secondary text next to body copy" role in this popup.
+	   Matches the 13px app-wide default instead of a root-relative
+	   fraction. */
+	font-size: 13px;
 	color: #6c757d;
 	margin-bottom: 1.5rem;
 }

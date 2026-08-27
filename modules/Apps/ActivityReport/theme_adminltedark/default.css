@@ -4,7 +4,16 @@
  * this form needs no changes here - it's themed generically already. */
 
 .epesi-ar .form-label {
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Same specificity as that file's
+	   own ".epesi-adminlte .form-label{font-size:13px}" global fix, and
+	   loaded after it, so this local rule was silently winning and
+	   re-introducing the same root-relative drift that fix exists to
+	   avoid - used to read smaller than the app-wide default (body's old
+	   16px), but ended up bigger once that default dropped to 13px.
+	   Matches it explicitly instead of drifting off it again. */
+	font-size: 13px;
 	color: #adb5bd;
 	margin-bottom: 0.25rem;
 }
