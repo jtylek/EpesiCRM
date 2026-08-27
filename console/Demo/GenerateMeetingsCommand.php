@@ -17,7 +17,8 @@ class GenerateMeetingsCommand extends Command
         $this
             ->setName('demo:generate:meetings')
             ->setDescription('Generate demo meetings')
-            ->addOption('count', null, InputOption::VALUE_REQUIRED, 'Count of generated records');
+            ->addOption('count', null, InputOption::VALUE_REQUIRED, 'Count of generated records')
+            ->addOption('employee', null, InputOption::VALUE_REQUIRED, 'Assign only this employee (contact id or name substring) instead of a random 1-2 per record');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,6 +47,20 @@ class GenerateMeetingsCommand extends Command
         if (!$employee_ids) {
             $output->writeln('<error>No employees found for your company - set up your own contact/company and clone it to add employees before generating demo data.</error>');
             return Command::FAILURE;
+        }
+
+        if ($employee = $input->getOption('employee')) {
+            $matches = is_numeric($employee)
+                ? array_intersect($employee_ids, [(int) $employee])
+                : DB::GetCol(
+                    "SELECT id FROM contact_data_1 WHERE id IN (" . implode(',', $employee_ids) . ") AND (f_first_name LIKE %s OR f_last_name LIKE %s OR CONCAT(f_first_name,' ',f_last_name) LIKE %s)",
+                    ['%' . $employee . '%', '%' . $employee . '%', '%' . $employee . '%']
+                );
+            if (count($matches) !== 1) {
+                $output->writeln('<error>' . (count($matches) === 0 ? "No employee matching \"$employee\"." : "\"$employee\" matches more than one employee - be more specific.") . '</error>');
+                return Command::FAILURE;
+            }
+            $employee_ids = array_values($matches);
         }
 
         $contact_ids = DB::GetCol('SELECT id FROM contact_data_1 WHERE active=1');
