@@ -161,8 +161,8 @@
                                     <div class="label">{$form_data.date.label}{if $form_data.date.required}*{/if}</div>
                                     <div class="data timestamp">
 										<span class="error">{$form_data.date.error}</span>
-										<div id="time_s" id="_time__data">{$form_data.time.html}</div>
 										<div class="time_s" id="_date__data">{$form_data.date.html}</div>
+										<div id="time_s" id="_time__data">{$form_data.time.html}</div>
 									</div>
                                 </div>
                     {/if}
@@ -176,11 +176,11 @@
 										{$form_data.duration.label} / {$form_data.end_time.label}
 									</div>
                                     <div class="data">
-										<div class="toggle_button">{$form_data.toggle.html}</div>
 										<div id="crm_calendar_duration_block">
 												<span class="error">{$form_data.duration.error}</span><div id="_duration__data"><span id="duration">{$form_data.duration.html}</span></div>
 										</div>
 										<div id="crm_calendar_event_end_block" id="_end_time__data"><span class="error">{$form_data.end_time.error}</span><span id="time_e">{$form_data.end_time.html}</span></div>
+										<div class="toggle_button">{$form_data.toggle.html}</div>
                                     </div>
                                 </div>
                     {/if}

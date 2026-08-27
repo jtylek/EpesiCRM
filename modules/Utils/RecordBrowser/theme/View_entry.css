@@ -459,31 +459,45 @@
 }
 /* automulti END */
 /* timestamp START */
-.Utils_RecordBrowser__View_entry .timestamp > div > div,
 .Utils_RecordBrowser__View_entry .time > div > div {
 	float: right;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child,
 .Utils_RecordBrowser__View_entry .time > div > div:last-child {
 	float: none;
 	margin-right: 130px;
 }
-.Utils_RecordBrowser__View_entry .timestamp > div > div:last-child input,
 .Utils_RecordBrowser__View_entry .time > div > div:last-child input {
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
 }
-/* This field (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
-   a group of an hour/minute/am-pm <select> trio plus a separate date
-   <input>) predates the ".data select{width:99%}" rule above (line 178),
+/* .timestamp (Utils_PopupCalendar/timestamp.php's HTML_QuickForm_timestamp -
+   a date <input> plus a group of an hour/minute/am-pm <select> trio): NOT
+   given a float-based fallback layout like .time above. A first attempt at
+   one (floating the last child, margin-right:130px reserved on the first)
+   mirrored .time's pattern but only ever ran in practice as an unwanted
+   passenger - Libs/QuickForm/theme/default.css's own '.data.timestamp > div'
+   rule (loaded alongside every QuickForm-rendered field, so always present)
+   makes this a flex row, and float computes to none on a flex item
+   regardless of what's written here. The float itself was therefore inert,
+   but margin-right:130px was not - as a plain (non-float) margin it still
+   applied on top of Libs/QuickForm's own 'margin:0' reset, at higher
+   specificity (3 classes/pseudo-classes here vs. that rule's 2 classes+2
+   types), stretching the date <input>'s column another 130px and forcing
+   the hour/minute group onto its own wrapped line even when the row had
+   room for both. Only the border-radius reset below is still needed here -
+   actual layout (order, spacing) is Libs/QuickForm's to own. */
+.Utils_RecordBrowser__View_entry .timestamp > div > div:first-child input {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+    border-radius: 0;
+}
+/* This field predates the ".data select{width:99%}" rule above (line 178),
    which - added later, for ordinary single-select fields - forces every one
    of these hour/minute/am-pm selects onto its own full-width line, breaking
    the float:right layout above entirely (each select ends up stacked
    instead of sitting compact and side by side). The date <input> is
-   unaffected by this override and correctly keeps width:99% - it's the
-   non-floated sibling the "margin-right:130px" rule above already reserves
-   space against, so it's meant to fill what's left of the row. height:auto
+   unaffected by this override and correctly keeps width:99%. height:auto
    isn't needed here anymore - the combined rule above no longer hardcodes
    height:14px for anything, select included.
    .time (not just .timestamp): a time-only field (RecordBrowser type 'time', e.g. a Duration

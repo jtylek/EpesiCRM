@@ -80,15 +80,6 @@
 	flex-wrap: wrap;
 }
 
-/* The .tpl emits #time_s (time.html) before #_date__data (date.html), but
-   the row should read date-then-time. Reordering the source elements would
-   mean touching the shared PHP that also drives the JS timeless-toggle's
-   $('time_s') lookup, so flex order moves the date field first visually
-   instead, leaving ids/markup alone. */
-.CRM_Calendar_Event_Personal #_date__data {
-	order: -1;
-}
-
 /* Same shared-CSS clash as the selects above, for the date field beside them:
    .data input:not([type=button]) also sets width:99%, which - resolved
    against a flex item's own auto-sized width instead of a table/block
@@ -116,8 +107,7 @@
    select beside it. Flex with align-items:stretch sizes the button to
    whatever the row's actual content height is instead of a hardcoded value,
    so "full row height" holds regardless of that shared sizing changing again
-   later. order:1 keeps the button on the right without touching the .tpl's
-   markup order (button is the first child there). */
+   later. */
 #duration_end_date__data_ .data {
 	display: flex;
 	align-items: stretch;
@@ -135,7 +125,6 @@
 }
 
 .CRM_Calendar_Event_Personal div.toggle_button {
-	order: 1;
 	flex: 0 0 auto;
 	/* Belt-and-suspenders for "right justified": the flex-grow above already
 	   consumes the leftover space, but margin-left:auto keeps the button

@@ -102,10 +102,15 @@
 	white-space: nowrap;
 	margin: 0;
 }
-.data.timestamp > div > div:last-child,
-.data.time > div > div:last-child {
-	order: -1;
-}
+/* .timestamp used to render its hour/minute select group before its date
+   input (Utils_PopupCalendar/timestamp.php built the group that way), so
+   order:-1 on the (then-last) date sub-element pulled it back in front of
+   the (then-first) time group for a date-then-time reading despite the
+   reversed DOM order. timestamp.php now creates the date sub-element first,
+   so plain source order already reads date-then-time - reordering here
+   would flip it back to time-then-date. .time (a single sub-element, no
+   date part - e.g. a Duration field) never had two children for this to
+   matter to. */
 /* Universal: time-select dropdowns (hour : minute am/pm) carry [h]/[i]/[a] field names and appear
    in many field types (timestamp Deadline, meeting/event Alert time, etc.). In data cells they
    inherit width:97% (.epesi_data input,select,textarea), so three can't share a line and wrap into

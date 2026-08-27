@@ -70,9 +70,16 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 		$this->_options['language'] = $lang_code;
 		if (!isset($this->_options['date'])) $this->_options['date'] = true;
 
-		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
+		// Date sub-element created (and so rendered/tabbed to) before the
+		// hour/minute one, so a combined date+time field reads/tabs as
+		// date -> hour -> minute instead of hour -> minute -> date. Element
+		// keys are unchanged, so lookups by ['__date']/['__datepicker']
+		// elsewhere (setValue/exportValue below, single-child getElement()
+		// callers) are unaffected - only the group's own rendering order
+		// (insertion order of $this->_elements) moves.
 		if ($this->_options['date'])
 			$this->_elements['__datepicker'] = new HTML_QuickForm_datepicker('__datepicker', null, $this->getAttributes());
+		$this->_elements['__date'] = new HTML_QuickForm_date('__date', null, $this->_options, $this->getAttributes());
 	}
 
 	// }}}
