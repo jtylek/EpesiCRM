@@ -42,6 +42,7 @@ $application->add(new \Epesi\Console\Demo\GenerateContactsCommand());
 $application->add(new \Epesi\Console\Demo\GeneratePhonecallsCommand());
 $application->add(new \Epesi\Console\Demo\GenerateMeetingsCommand());
 $application->add(new \Epesi\Console\Demo\GenerateTasksCommand());
+$application->add(new \Epesi\Console\Demo\GenerateShoutboxCommand());
 $application->add(new \Epesi\Console\Develop\CreateModuleCommand());
 $application->add(new \Epesi\Console\Develop\CreatePatchCommand());
 $application->add(new \Epesi\Console\Develop\CreateTestModuleCommand());
