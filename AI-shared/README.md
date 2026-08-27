@@ -130,6 +130,11 @@ same for every developer and every computer working on this repo.
   phpdocumentor/reflection-docblock v6), and `tecnickcom/tcpdf` 7.x's font-packaging gap
   (reverted to 6.x — don't re-attempt without reading this first). Also covers the
   multiple-`composer.json` layout and the no-test-suite verification method that caught it.
+- [demo-data.md](demo-data.md) — the `demo:generate:contacts`/`:phonecalls`/`:meetings`/`:tasks`
+  console commands: why "Employees" must be restricted to contacts belonging to your own company
+  (and these tools never create employees themselves - clone your own contact via the UI first),
+  why `--create-user` was removed outright, the `phonecall.phone` field's selector-not-a-number
+  gotcha, and the checkbox-coercion trap (`trim(false)` → `''` → fails a `%d` bind).
 - [TODO.md](TODO.md) — follow-up work *we* deferred (not pre-existing code markers,
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition

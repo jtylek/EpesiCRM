@@ -19,7 +19,6 @@ class GenerateContactsCommand extends Command
         $this
             ->setName('demo:generate:contacts')
             ->setDescription('Generate demo contacts')
-            ->addOption('create-user', null, InputOption::VALUE_NONE, 'Create user')
             ->addOption('create-company', null, InputOption::VALUE_NONE, 'Create company related to contact')
             ->addOption('count', null, InputOption::VALUE_REQUIRED, 'Count of generated records');
     }
@@ -45,11 +44,6 @@ class GenerateContactsCommand extends Command
 
         if($input->getOption('create-company')){
             $headers[] = '<fg=white;options=bold>Company</fg=white;options=bold>';
-        }
-
-        if($input->getOption('create-user')) {
-            $headers[] = '<fg=white;options=bold>Login</fg=white;options=bold>';
-            $headers[] = '<fg=white;options=bold>Password</fg=white;options=bold>';
         }
 
         $table->setHeaders($headers);
@@ -80,7 +74,6 @@ class GenerateContactsCommand extends Command
             $values['home_city'] = $faker->city;
             $values['home_country'] = $faker->countryCode;
             $values['home_postal_code'] = $faker->postcode;
-            $values['birth_date'] = $faker->dateTimeBetween($startDate = '-30 years', $endDate = 'now', $timezone = date_default_timezone_get())->format('Y-m-d');
 
             $row = [$values['first_name'], $values['last_name']];
 
@@ -90,16 +83,6 @@ class GenerateContactsCommand extends Command
                 $values['create_company'] = 1;
                 $values['create_company_name'] = $faker->company;
                 $row[] = $values['create_company_name'];
-            }
-
-            if ($input->getOption('create-user')) {
-                $values['login'] = 'new';
-                $values['username'] = $faker->userName;
-                $values['set_password'] = $faker->password;
-                $values['confirm_password'] = $values['set_password'];
-                $values['admin'] = 0;
-                $row[] = $values['username'];
-                $row[] = $values['set_password'];
             }
 
             $id = \Utils_RecordBrowserCommon::new_record('contact', $values);
