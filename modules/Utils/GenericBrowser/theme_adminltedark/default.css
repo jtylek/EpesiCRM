@@ -804,6 +804,16 @@
 	z-index: 1;
 }
 
+/* Same :focus-within fallback as Utils_RecordBrowser__View_entry's copy of
+   this rule (View_entry.css) - pointer-events:none lets keystrokes through,
+   but the solid background still hides them until EpesiDefault.js's
+   input/change-triggered clear runs, which isn't guaranteed to find the
+   error span for every field type/markup shape. Focusing any control in the
+   cell hides the overlay immediately regardless. */
+#add_in_table_row .Utils_GenericBrowser__td:focus-within .form_error {
+	display: none;
+}
+
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/active-on.png"])::before {
 	content: "\f5d6";
 }

@@ -3535,8 +3535,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             if ($k != 0)
                 $param[$k] = self::get_field_id($v);
         $label = Utils_RecordBrowserCommon::get_field_tooltip($label, $desc['type'], $desc['param']['array_id']);
-        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => true, 'order' => $desc['param']['order']), array('id' => $field));
-        if ($mode !== 'add')
+        // A required field has no valid "no selection" state, so it shouldn't offer
+        // one - '---' (value='') always fails the 'required' QuickForm rule added
+        // below in RecordBrowser_0.php, forcing the user to notice and fix a
+        // field that visually already looked filled-in. Optional fields keep the
+        // empty option: '---'/blank is a legitimate, intentional value there.
+        $form->addElement($desc['type'], $field, $label, $param, array('empty_option' => !$desc['required'], 'order' => $desc['param']['order']), array('id' => $field));
+        // Was unconditionally skipped in 'add' mode, silently dropping any
+        // module-supplied default (RecordBrowser_0.php's custom_defaults, e.g.
+        // CRM_PhoneCall::body() setting a real Status/Priority) instead of
+        // pre-selecting it - only apply it when there actually is one, so a
+        // field with no default still falls back to the first real option
+        // (now that '---' is gone for required fields) instead of forcing one.
+        if ($mode !== 'add' || $default !== '')
             $form->setDefaults(array($field => $default));
     }
 
@@ -3621,11 +3632,16 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             } else
                 $el = $form->addElement('autoselect', $field, $label, $comp, array(array('Utils_RecordBrowserCommon', 'automulti_suggestbox'), array($rb_obj->tab, $tab_crits, $format_callback, $desc['param'])), $format_callback);
         } else {
-            if ($desc['type'] === 'select')
+            // See QFfield_commondata's own comment: a required select has no
+            // valid "no selection" state, so don't offer '---' there - it only
+            // exists to trip the 'required' rule on a field that looks filled in.
+            if ($desc['type'] === 'select' && !$desc['required'])
                 $comp = array('' => '---') + $comp;
             $form->addElement($desc['type'], $field, $label, $comp, array('id' => $field));
         }
-        if ($mode !== 'add')
+        // See QFfield_commondata's own comment: apply a real add-mode default
+        // (module-supplied via custom_defaults) instead of always skipping it.
+        if ($mode !== 'add' || $default !== '')
             $form->setDefaults(array($field => $default));
     }
 

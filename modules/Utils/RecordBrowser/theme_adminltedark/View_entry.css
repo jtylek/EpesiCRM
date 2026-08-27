@@ -678,6 +678,24 @@
 	text-overflow: ellipsis;
 }
 
+/* pointer-events:none above already lets clicks/keystrokes reach the field
+   underneath, but the solid background still visually hides whatever's
+   typed until epesi_clear_field_error() (EpesiDefault.js) empties the span
+   on the field's own input/change event - fine for a plain <input>, but some
+   field types nest the actual editable control (or wrap the error span an
+   extra level deep, e.g. CRM_PhoneCall/Contacts' own hand-rolled templates:
+   <span class="error"><span class="form_error">) - AdminLTE-Default 's
+   parent/grandparent-only DOM walk doesn't always reach those, leaving the
+   overlay stuck up covering the field with no visible feedback while typing.
+   :focus-within is a CSS-only fallback that doesn't depend on that walk at
+   all: the instant any focusable control inside .data has focus - whatever
+   its field type or however deep it's nested - the overlay hides immediately,
+   so what's typed is always visible. The JS-driven clear above still runs to
+   permanently drop the (fixed) error so it doesn't reappear on blur. */
+.Utils_RecordBrowser__View_entry .data:focus-within .form_error {
+	display: none;
+}
+
 /* currency END */
 .Utils_RecordBrowser__View_entry .currency_amount input {
 	-webkit-border-radius: 0;

@@ -1762,3 +1762,113 @@ reachable from a render path that fires on every page load (`Base_Box`,
 `check_for_new_version.js`, anything wired into
 `update_version_check_indicator()`), that's the highest-blast-radius place
 for this exact bug shape to hide.
+
+## `.form_error`'s solid overlay could hide what's being typed indefinitely — the CSS relied on JS reliably finding the error span, which it didn't for every template shape
+
+Found 2026-08-27, reported as "I can not enter Subject - field is inactive and
+only displays this warning" on `CRM_PhoneCall`'s New Phonecall form
+(`modules/CRM/PhoneCall/theme_adminltedark/default.tpl`). A follow-up to, not
+a regression of, the `.form_error` positioning bug earlier in this file —
+that fix made the badge cover the whole field (`inset:0`) with
+`pointer-events:none` so clicks/keystrokes still reach the real
+`<input>`/`<select>`/`<textarea>` underneath. `EpesiDefault.js`'s
+`epesi_clear_field_error()` (added 2026-08-25) is what's supposed to make the
+overlay disappear again: it empties the error span's content on the field's
+own `input`/`change` event, which is what the CSS's `:not(:empty)` keys off.
+
+**Root cause**: that JS only checks two fixed ancestor levels
+(`field.parentElement`, `.parentElement.parentElement`) for a *direct* child
+`.form_error`/`.error`. That matches the generic `single_field.tpl`'s flat
+markup (`.data > (.form_error, div>input)`), but several hand-rolled
+per-table templates nest an extra wrapper level — `CRM_PhoneCall`'s own
+`default.tpl` (and the same shape in Contacts'/Meeting's own templates) emits
+`<span class="error"><span class="form_error">...</span></span>` inside
+`.data`, one level deeper than the generic template. The overlay's
+`background:#dc3545` fully hides the real input underneath (not a
+translucent highlight), so on any template shape where the JS doesn't
+reliably find/clear the span, a keystroke that doesn't trigger the clear is
+genuinely invisible to the user — reading as "the field is inactive," not
+just cosmetically off. (Live browser verification of this specific fix was
+not possible this session — see `TODO.md`.)
+
+**Fix**: added a CSS-only fallback that doesn't depend on the JS walk finding
+anything:
+```css
+.Utils_RecordBrowser__View_entry .data:focus-within .form_error { display: none; }
+```
+and the equivalent for `#add_in_table_row .Utils_GenericBrowser__td` in
+`Utils_GenericBrowser`'s own copy of this overlay pattern
+(`theme_adminltedark/default.css`) — the instant any focusable control
+inside the field's cell has focus, the overlay hides immediately regardless
+of field type or how deeply the error span is nested. The JS-driven clear
+still runs to permanently drop the error so it doesn't reappear on blur.
+
+**How to apply**: any future per-table template that hand-rolls its own
+field/error markup (the "custom `.tpl` bypasses `View_entry.tpl`/
+`single_field.tpl`" convention `Dev-Tutorial.md` describes) shouldn't assume
+`epesi_clear_field_error()`'s two-level direct-child walk will find its error
+span — the `:focus-within` fallback covers it regardless, so no JS changes
+are needed per-template. A *new* CSS copy of this overlay-on-`.data` pattern
+(a future third RecordBrowser-family container) needs its own
+`:focus-within` rule added alongside, the same way `GenericBrowser` needed
+its own copy of RecordBrowser's.
+
+## Required `commondata`/`select` fields always offered an empty `'---'` choice that's guaranteed to fail that same field's own `required` rule
+
+Found 2026-08-27, same investigation as the entry above — reported as
+Status/Permission/Priority dropdowns (all `'type'=>'commondata'`,
+`'required'=>true` in `PhoneCallInstall.php`, same pattern in
+`TasksInstall.php`/`MeetingInstall.php`) offering `'---'` as an easy-to-leave
+-selected option that immediately trips "Field required" on Save.
+
+**Root cause**: `Utils_RecordBrowserCommon::QFfield_commondata()`/
+`QFfield_select()` (`RecordBrowserCommon_0.php`) unconditionally prepended a
+`''=>'---'` option to every `commondata`/bounded-`select` field, regardless
+of `$desc['required']`. Separately, `RecordBrowser_0.php`'s
+`prepare_view_entry_details()` adds a generic QuickForm `required` rule for
+*any* `$desc['required']` field, which fails on an empty string — exactly
+what `'---'` submits. Neither piece of code accounted for the other;
+combined, every required commondata/select field shipped with an option
+pre-loaded that's certain to fail its own validation.
+
+**Second bug, found while fixing the first**: both functions also had
+`if ($mode !== 'add') $form->setDefaults(...)` — unconditionally skipping
+whatever default value was passed in when rendering an add form. `CRM_
+PhoneCall`/`CRM_Tasks`/`CRM_Meeting` all *already* call `set_defaults()` with
+real values (`status=>0` "Open", `permission=>0` "Public",
+`priority=>CRM_CommonCommon::get_default_priority()` "Medium" — e.g.
+`PhoneCall_0.php:25`), so this skip mattered beyond cosmetics: Priority's
+commondata list is `Low`/`Medium`/`High` (keys 0/1/2), so "first option" and
+"the module's intended default" disagree — dropping `'---'` alone, without
+also fixing this, would silently default every new Phonecall/Task/Meeting's
+Priority to "Low" instead of "Medium". (Whether `RecordBrowser_0.php`'s own
+earlier, form-wide `$form->setDefaults($defaults)` call — made before fields
+are even added, at the top of `render_view()` — already compensated for this
+in practice for these two field types specifically wasn't conclusively
+isolated via static reading alone; no live repro was available this session
+to confirm either way. Fixing the redundant-at-worst inner skip is safe
+regardless.)
+
+**Fix**: gated the `'---'` prepend on `!$desc['required']` in both functions
+(optional fields keep it — `'---'`/blank is a legitimate, intentional value
+there, e.g. an optional Category field), and changed the `setDefaults` skip
+to `if ($mode !== 'add' || $default !== '')` so a real module-supplied
+default now applies in add mode too, not just edit/view. No module-level
+changes needed — `CRM_PhoneCall`/`Tasks`/`Meeting`'s existing
+`set_defaults()` calls should now take effect for these two field types
+without being touched. A required field with *no* module default falls back
+to the first real commondata/select option — better than a
+guaranteed-invalid one, though still not necessarily "the right" business
+default; worth adding a `set_defaults()` call for any field where list order
+and intended default diverge.
+
+**How to apply**: (1) any other RecordBrowser field-type renderer
+(`QFfield_*` in `RecordBrowserCommon_0.php`) that unconditionally offers an
+empty/placeholder option regardless of `$desc['required']` is the same shape
+— a required field shouldn't offer a choice that's certain to fail its own
+validation rule. (2) grep this same file for other
+`if ($mode !== 'add') $form->setDefaults(...)`-shaped guards before assuming
+they're all equivalent to the two fixed here — some field types may already
+get their add-mode default from the earlier form-wide `setDefaults()` call
+in `RecordBrowser_0.php`, some may not; verify each individually rather than
+assuming the fix generalizes automatically.

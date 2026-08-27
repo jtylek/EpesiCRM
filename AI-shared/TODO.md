@@ -10,6 +10,33 @@ it was fixed, rather than leaving it lingering in "Open".
 
 ## Open
 
+- **2026-08-27 — Two RecordBrowser add/edit-form fixes not yet live-verified
+  in a real browser.** Both described in `bug-patterns.md` ("`.form_error`'s
+  solid overlay..." and "Required `commondata`/`select` fields..."): (1) a
+  `:focus-within` CSS fallback so a required field's red error overlay always
+  steps aside while focused, regardless of field type or per-table template
+  nesting depth; (2) gating the `'---'` empty option on `!$desc['required']`
+  in `QFfield_commondata`/`QFfield_select`, plus making a module's
+  `set_defaults()` value actually apply on the add form for those two field
+  types (previously silently skipped). `php -l` passes on the edited file;
+  the actual UI behavior (does Subject now stay visibly typeable after a
+  failed Save; do Status/Permission/Priority now default to Open/Public/
+  Medium on a new Phonecall/Task/Meeting; do *optional* commondata/select
+  fields still correctly keep `'---'` and still allow submitting blank) was
+  never exercised in a browser.
+
+  **Not implemented (verification only, not the fix itself)**: the session's
+  Playwright browser was locked by a concurrent Claude Code session on this
+  machine for the whole conversation, and no alternative browser-driving path
+  was available.
+
+  **Fix direction**: open a Phonecalls (or Tasks/Meeting) "New record" form,
+  confirm Status/Permission/Priority pre-select the intended default instead
+  of `'---'`, submit with Subject/other required fields empty and confirm the
+  error overlay hides the moment you focus/type into the field, and check at
+  least one *optional* commondata/select field elsewhere in the app still
+  offers and accepts `'---'`/blank.
+
 - **2026-08-13 — Consider switching the JS minifier from `JSMin` to the already-vendored
   `JSMinPlus`.** `libs/minify/JSMin.php` (Douglas Crockford's classic char-by-char
   minifier, wired as the default JS minifier in
