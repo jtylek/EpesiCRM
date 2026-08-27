@@ -325,9 +325,10 @@
 	   shorter than an <input>'s - OS dropdown chrome, not a CSS issue this
 	   theme controls) ends up visibly shorter than a row holding an <input>.
 	   A shared min-height gives every row the same floor regardless of which
-	   field type it holds - .label (min-height:20px) and .data's child both
-	   stretch to match via flex's default align-items:stretch. */
-	min-height: 28px;
+	   field type it holds - .label (min-height:16px) and .data's child both
+	   stretch to match via flex's default align-items:stretch. Was 28px -
+	   lowered along with .label/.data's own sizing, per request. */
+	min-height: 24px;
 }
 
 /* Generic View_entry.tpl only (not Contact.tpl/mails.tpl/etc, which still use
@@ -367,22 +368,29 @@
 	/* min-height, not height: was a fixed-height <td> whose row (and so its
 	   sibling .data) was always at least as tall via table layout; as a flex
 	   row item this still sets the row's minimum, but lets it grow to match
-	   a taller .data instead of clipping against it. */
-	min-height: 20px;
+	   a taller .data instead of clipping against it. Was 20px - lowered along
+	   with .data's own height/padding below, per request, for a denser row
+	   footprint than the (already sidebar-matching) previous size. */
+	min-height: 16px;
 	white-space: nowrap;
 	overflow:hidden;
 	/* Was vertical-align:middle (table-cell centering) - the flex equivalent. */
 	display: flex;
 	align-items: center;
-    padding-left: 5px;
-    padding-right: 5px;
+	/* Was 5px both sides - tightened along with .data's own padding below,
+	   per request, for a denser overall form. */
+    padding-left: 4px;
+    padding-right: 4px;
 	/* Was width:150px. flex-basis instead of width so it holds this size
 	   as a flex item even though .epesi-rv-row no longer has a table's
 	   column-width negotiation; 0 0 keeps it from growing/shrinking. */
 	flex: 0 0 150px;
     text-align: left;
 	box-shadow: none;
-	font-size: 0.85rem;
+	/* Literal px, not rem - matches Base_Box/theme_adminltedark/default.css's
+	   app-wide default-font override (13px) so the label column and the
+	   actual field controls read at the same size. */
+	font-size: 13px;
 	/* Row-to-row separation: the old page-bg-coloured line only worked
 	   because it disappeared against a dark label; against a light one it
 	   needs to actually be visible, so this now uses the same border grey
@@ -434,7 +442,8 @@
 	border-left: 1px solid #495057;
 	box-shadow: none;
 	position: relative;
-	font-size: 0.85rem;
+	/* Literal px, not rem - see the matching .label rule above. */
+	font-size: 13px;
 	/* Was implicit table-cell auto-width (fills whatever the row doesn't
 	   give .label); the flex equivalent, plus min-width:0 so a long
 	   unbreakable value (a URL, an autocomplete widget) can still shrink
@@ -527,15 +536,15 @@
 /* Both stacked labels above (.multiselect_label, .long_row .long_label) sit
    alone on their own line, with no sibling .data tall enough to stretch them
    to match - unlike every ordinary row, where align-items:stretch (the
-   .epesi-rv-row default) grows .label to match .data's own 32px input/select
+   .epesi-rv-row default) grows .label to match .data's own 28px input/select
    height plus its 1px top+bottom border (see ".data input/select" below),
-   which is what actually makes every ordinary label render ~34px tall.
-   Without this, both fell back to the base .label rule's own min-height:20px
+   which is what actually makes every ordinary label render ~30px tall.
+   Without this, both fell back to the base .label rule's own min-height:16px
    instead, rendering visibly shorter than every other field's label - per
    request, given the same explicit height here so they match. */
 .Utils_RecordBrowser__View_entry .multiselect_label,
 .Utils_RecordBrowser__View_entry .long_row .long_label {
-	height: 34px;
+	height: 30px;
 	box-sizing: border-box;
 }
 
@@ -554,25 +563,30 @@
 	   actually keeps every field type the same height (see .epesi-rv-row's
 	   matching min-height for the row itself). */
 	width: 100%;
-	height: 32px;
+	/* Was 32px/"3px 5px" - tightened along with .label/.epesi-rv-row/
+	   .long_row .long_label's own sizing below, per request, for a denser
+	   form overall (13px base font, matching sizing throughout). */
+	height: 28px;
 	box-sizing: border-box;
 	line-height: 1.5;
     background-color: #2b3035;
     border: 0px;
-	padding: 3px 5px;
+	padding: 2px 5px;
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
     border-radius: 0;
 }
 
 .Utils_RecordBrowser__View_entry .data textarea {
-	height: 63px;
+	/* Was 63px - scaled down with the same ~0.875 ratio as the single-line
+	   field height above (32px -> 28px), per request. */
+	height: 55px;
 }
 
 /* Attachment/file fields (Utils_FileUpload_Dropzone::get_div()) render their dropzone widget as
    a frozen static QuickForm element - RecordBrowser_0.php appends ' frozen' onto every frozen
    field's style, so this .data cell also matches plain ".frozen" above and inherits its fixed
-   height:32px (meant for a single-line frozen value: a frozen text input, a frozen select,
+   height:28px (meant for a single-line frozen value: a frozen text input, a frozen select,
    etc). The dropzone widget's own CSS (Utils/FileUpload/theme/dropzone.css) needs more than one
    line - min-height:50px empty, taller still once Dropzone.js renders a thumbnail preview for an
    attached file - so the fixed height clips it, and since .data's own overflow is visible (not

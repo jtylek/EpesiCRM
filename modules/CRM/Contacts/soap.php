@@ -56,8 +56,7 @@ class EpesiContacts
 					'home_city'=>'string',
 					'home_country'=>'string',
 					'home_zone'=>'string',
-					'home_postal'=>'string',
-					'birth'=>'string'
+					'home_postal'=>'string'
 				);
 		$this->__typedef['Company'] = array(
 					'id'=>'int',
@@ -159,7 +158,6 @@ class EpesiContacts
 					'home_zone'=> new SOAP_Value("home_zone","string",$row['home_zone']),
 					'home_country'=> new SOAP_Value("home_country","string",$row['home_country']),
 					'home_postal'=> new SOAP_Value("home_postal","string",$row['home_postal_code']),
-					'birth'=> new SOAP_Value("birth","string",$row['birth_date']),
 					'company'=> new SOAP_Value("company",'{urn:'.$namespace.'}ArrayOfInt',$row['company_name'])
 					));
 			}

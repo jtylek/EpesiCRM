@@ -13,6 +13,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Applets_BirthdaysInstall extends ModuleInstall {
 
 	public function install() {
+		if (!DB::GetOne("SELECT position FROM contact_field WHERE field='Birth Date'")) {
+			print('Birthdays applet requires the Birth Date field on Contacts, which this installation does not have.<br>');
+			return false;
+		}
 		Base_ThemeCommon::install_default_theme($this->get_type());
 		return true;
 	}
@@ -42,6 +46,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
+		if (!DB::GetOne("SELECT position FROM contact_field WHERE field='Birth Date'")) return false;
         return array('package'=>__('EPESI Core'), 'option'=>__('Additional applets'));
 	}
 	

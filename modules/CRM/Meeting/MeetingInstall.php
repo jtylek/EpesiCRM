@@ -54,13 +54,6 @@ class CRM_MeetingInstall extends ModuleInstall {
                 ),
             ),
             array(
-                'name'    => _M('Description'),
-                'type'    => 'long text',
-                'extra'   => false,
-                'param'   => '255',
-                'visible' => false,
-            ),
-            array(
                 'name'     => _M('Date'),
                 'type'     => 'date',
                 'required' => true,
@@ -89,6 +82,13 @@ class CRM_MeetingInstall extends ModuleInstall {
                     'CRM_MeetingCommon',
                     'QFfield_duration',
                 ),
+            ),
+            array(
+                'name'    => _M('Description'),
+                'type'    => 'long text',
+                'extra'   => false,
+                'param'   => '255',
+                'visible' => false,
             ),
             array(
                 'name' => _M('Employees'),

@@ -78,7 +78,10 @@
 	border: 1px solid #495057;
 	border-radius: 0.375rem;
 	padding: 0.25rem;
-	font-size: 0.9rem;
+	/* Literal px, not rem - matches Base_Box/theme_adminltedark/default.css's
+	   app-wide default-font override (13px) instead of drifting slightly off
+	   it (was 0.9rem/14.4px, root-relative and untouched by that override). */
+	font-size: 13px;
 	background-color: #2b3035;
 }
 
