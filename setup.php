@@ -603,11 +603,13 @@ define(\'MINIFY_SOURCES\',1);
 /*
  * Bundle every module\'s Common_0.php into one cached file
  * (data/cache/common.php) instead of one require per module per request.
- * Real perf win on a production install with many modules; leave off only
- * for active module development, where it otherwise masks Common_0.php
- * edits until the cache is rebuilt (see AI-shared/environment-gotchas.md).
+ * Real perf win on a production install with many modules, but masks
+ * Common_0.php edits until the cache is rebuilt (see
+ * AI-shared/environment-gotchas.md) - off by default for fresh installs so
+ * active development isn\'t surprised by stale code; a production admin can
+ * opt in once the install is stable.
  */
-define(\'FORCE_CACHE_COMMON_FILES\',1);
+define(\'FORCE_CACHE_COMMON_FILES\',0);
 
 /*
  * Poll for a shipped JS/CSS fix and prompt long-open tabs to reload (this
