@@ -25,6 +25,13 @@ class ModuleManager {
 	public static $root = array();
 	private static $processing = array();
 	private static $processed_modules = array('install'=>array(),'downgrade'=>array(),'upgrade'=>array(),'uninstall'=>array());
+	// Common classes individually require_once()'d via include_common() (e.g. an Install
+	// class doing this directly, or the class-autoloader) before load_modules() got a
+	// chance to run. If non-empty when load_modules() checks FORCE_CACHE_COMMON_FILES, the
+	// whole-bundle require is skipped for this request - require_once dedupes the bundle
+	// file by path, not by the symbols it declares, so blindly requiring it would fatal
+	// with "Cannot redeclare" on anything already loaded this way.
+	private static $individually_loaded_commons = array();
 
 	/**
 	 * Returns DI container
@@ -93,6 +100,7 @@ class ModuleManager {
 				if(!array_key_exists('ModuleCommon',class_parents($x)))
 					trigger_error('Module '.$path.': Common class should extend ModuleCommon class.',E_USER_ERROR);
 				call_user_func(array($x, 'Instance'), $class_name);
+				self::$individually_loaded_commons[$class_name] = true;
     			return true;
 			}
 		} else {
@@ -865,7 +873,7 @@ class ModuleManager {
 		}
 
 		$cached = false;
-		if(FORCE_CACHE_COMMON_FILES) {
+		if(FORCE_CACHE_COMMON_FILES && empty(self::$individually_loaded_commons)) {
 			$cache_file = DATA_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
