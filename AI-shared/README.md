@@ -135,6 +135,12 @@ same for every developer and every computer working on this repo.
   (and these tools never create employees themselves - clone your own contact via the UI first),
   why `--create-user` was removed outright, the `phonecall.phone` field's selector-not-a-number
   gotcha, and the checkbox-coercion trap (`trim(false)` → `''` → fails a `%d` bind).
+- [demo-mode.md](demo-mode.md) — how `DEMO_MODE` actually works: the login screen's
+  select-a-username dropdown (`$demo_users`, a global nothing in this repo currently populates),
+  why it doesn't weaken auth (each demo account's real password must equal its own username), the
+  full list of admin-surface areas it locks app-wide, and the gap between that mechanism (keyed to
+  real login accounts) and "let a visitor pick an Employee contact" - which conflicts with
+  `demo-data.md`'s no-new-logins rule and isn't automated anywhere yet.
 - [TODO.md](TODO.md) — follow-up work *we* deferred (not pre-existing code markers,
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition
