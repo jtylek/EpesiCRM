@@ -327,24 +327,32 @@ class Apps_Shoutbox extends Module {
     		}
        		$qf->addElement('select','to',__('To'),array('all'=>'['.__('All').']')+$emps,array('id'=>'shoutbox_to'.($big?'_big':''),'onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));*/
             $myid = Base_AclCommon::get_user();
-        	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im') && ModuleManager::is_installed('Tools_WhoIsOnline')>=0) {
+        	if(Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im')) {
         	    $adm = Base_User_SettingsCommon::get_admin('Apps_Shoutbox','enable_im');
-    		    $online = Tools_WhoIsOnlineCommon::get_ids();
-    		    if($online) {
+        	    // Online status is now just a "* " decoration on an otherwise-full
+        	    // employee list (see loop below), not a filter on who's selectable -
+        	    // so this stays optional rather than gating the whole feature.
+    		    $online = ModuleManager::is_installed('Tools_WhoIsOnline')>=0 ? Tools_WhoIsOnlineCommon::get_ids() : array();
             	    if(ModuleManager::is_installed('CRM_Contacts')>=0) {
-                	    $emps = DB::GetAssoc('SELECT l.id,'.DB::Concat(DB::qstr("* "),DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login')).' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.id IN ('.implode(',',$online).') ORDER BY name',array($myid,serialize(1)));			    
-		            } else
-    		            $emps = DB::GetAssoc('SELECT l.id,'.DB::Concat(DB::qstr("* "),'l.login').' FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) AND l.id IN ('.implode(',',$online).') ORDER BY l.login',array($myid,serialize(1)));
-    		    } else $emps = array();
+                	    $emps = DB::GetAssoc('SELECT l.id,'.DB::ifelse('cd.f_last_name!=\'\'',DB::concat('cd.f_last_name',DB::qstr(' '),'cd.f_first_name',DB::qstr(' ('),'l.login',DB::qstr(')')),'l.login').' as name FROM user_login l LEFT JOIN contact_data_1 cd ON (cd.f_login=l.id AND cd.active=1) LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) ORDER BY name',array($myid,serialize(1)));
+	            } else
+    		            $emps = DB::GetAssoc('SELECT l.id,l.login FROM user_login l LEFT JOIN base_user_settings us ON (us.user_login_id=l.id AND module=\'Apps_Shoutbox\' AND variable=\'enable_im\') WHERE l.active=1 AND l.id!=%d AND (us.value=%s OR us.value is '.($adm?'':'not ').'null) ORDER BY l.login',array($myid,serialize(1)));
+    		    foreach($online as $id) if(isset($emps[$id])) $emps[$id] = '* '.$emps[$id];
     		} else $emps = array();
-		    $e = $qf->addElement('autoselect','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array(array($this->get_type().'Common', 'user_search'),array()),array($this->get_type().'Common', 'user_format'));
+		    // Plain 'select', not 'autoselect': the latter's own JS unconditionally
+		    // swaps to a search-only box on any click/tap (meant for huge
+		    // record-picker lists where a native dropdown would be unusable - see
+		    // FieldTypes/autoselect/autoselect.php's mousedown/touchstart handler
+		    // comment), which for a short employee list meant clicking "To" could
+		    // never actually open a browsable list - it always jumped straight to
+		    // "Start typing to search...". History's own "User" filter below uses
+		    // the same plain 'select' for the same reason.
 		    // No id suffix here (unlike shoutbox_text_big/shoutbox_button_big below):
-		    // HTML_QuickForm_autoselect::toHtml() unconditionally does
-		    // updateAttributes(array('id'=>$this->getName())) at render time, so this
-		    // field's id is always plain "shoutbox_to" - a setAttribute('id',...) call
-		    // here would just get overwritten. Confirm-all's click handler below finds
-		    // it by [name=] within the submitted form instead of guessing a "_big" id.
-		    $e->setAttribute('onChange','shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()');
+		    // ShoutboxCommon::create_write_to_link()'s onclick handler looks this id
+		    // up directly (document.getElementById('shoutbox_to')) regardless of
+		    // which form (small applet vs. big Chat tab) is on screen, so it must
+		    // stay the same plain id in both.
+		    $qf->addElement('select','shoutbox_to',__('To'), array('all'=>'['.__('All').']')+$emps, array('id'=>'shoutbox_to','onChange'=>'shoutbox_uid=this.value;shoutbox_refresh'.($big?'_big':'').'()'));
         	if(!Base_User_SettingsCommon::get('Apps_Shoutbox','enable_im'))
         	    $qf->freeze(array('shoutbox_to'));
 			//create text box
