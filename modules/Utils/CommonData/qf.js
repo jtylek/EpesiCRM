@@ -28,7 +28,12 @@ Utils_CommonData.prototype.request = function(e) {
 	obj.options.length=0;
 	var curr_root = this.path[0];
 	for(var i=1; i<this.path.length; i++) {
-		var val = eval('obj.form.'+this.path[i]).value;
+		// A sibling field named by this.path can be absent from the form at
+		// this point (e.g. this widget's own 'e:load' listener firing for a
+		// different record's page than the one it was built against) - treat
+		// that the same as an empty value instead of crashing on .value.
+		var field = eval('obj.form.'+this.path[i]);
+		var val = field ? field.value : '';
 		if(val=='') {
 			this.obj.options.length=0;
 			jQuery(this.obj).trigger('e_u_cd:clear');
@@ -96,7 +101,9 @@ Utils_CommonData_freeze.prototype.request = function(e) {
 	var obj = this.obj;
 	var curr_root = this.path[0];
 	for(var i=1; i<this.path.length; i++) {
-		var val = eval('obj.form.'+this.path[i]).value;
+		// See the same guard in Utils_CommonData.prototype.request above.
+		var field = eval('obj.form.'+this.path[i]);
+		var val = field ? field.value : '';
 		if(val=='') {
 			document.getElementById(this.id+'_label').innerHTML = '---';
 			var obj = this.obj;
