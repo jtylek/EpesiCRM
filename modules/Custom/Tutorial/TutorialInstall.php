@@ -76,6 +76,34 @@ class Custom_TutorialInstall extends ModuleInstall {
 			array('name'=>_M('Related Categories'), 'type'=>'multiselect', 'param'=>array('tutorial_category'=>'Name')),
 			array('name'=>_M('Reference No'), 'type'=>'autonumber', 'param'=>Utils_RecordBrowserCommon::encode_autonumber_param('TUT-', 5, '0'), 'visible'=>true),
 
+			array('name'=>_M('Location'), 'type'=>'page_split', 'extra'=>false),
+			// Country/Zone: a *chained* pair of 'commondata' fields - picking a
+			// Country repopulates Zone's option list client-side (no page
+			// reload). This is the exact mechanism behind CRM_Contacts's own
+			// Country/Zone fields (ContactsInstall.php) - reused here verbatim
+			// against the same shared, already-registered 'Countries'
+			// CommonData tree (Data_CountriesInstall) rather than inventing a
+			// fresh dataset: 'Countries' holds country names,
+			// 'Countries/<code>' each country's zones (e.g. 'Countries/US'
+			// holds US states), and it nests further still -
+			// 'Countries/US/PA' holds PA counties, which is what
+			// CRM_Contacts_County's 3-level Country/Zone/County chain
+			// (CountyInstall.php) points at.
+			//
+			// The chaining itself is plain 'commondata' - not the separate
+			// Utils_ChainedSelect module (that one drives a different,
+			// non-CommonData cascade; see PhoneCall's Customer->Phone field
+			// for a real example). What makes a 'commondata' field chained is
+			// simply a 'param' array with more than one element: the first is
+			// the CommonData array id, each element after it is the *name* of
+			// another field on this same form to watch for changes - Zone's
+			// 'param' here names 'Country', so QFfield_zone() (below) ends up
+			// watching field id 'country'. That resolution is by field name,
+			// not position, so Country must keep the exact display name
+			// 'Country' for Zone's chain to still find it.
+			array('name'=>_M('Country'), 'type'=>'commondata', 'param'=>array('Countries'), 'visible'=>true, 'filter'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
+			array('name'=>_M('Zone'), 'type'=>'commondata', 'param'=>array('Countries', 'Country'), 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+
 			array('name'=>_M('Attachments and System'), 'type'=>'page_split', 'extra'=>false),
 			array('name'=>_M('Attachment'), 'type'=>'file', 'visible'=>true),
 			// 'hidden': a real column the user never sees a form field for -
@@ -123,6 +151,11 @@ class Custom_TutorialInstall extends ModuleInstall {
 			array('name'=>Utils_FileStorageInstall::module_name(), 'version'=>0),
 			// Manager (crm_contact -> 'contact' recordset + contact-format helpers).
 			array('name'=>CRM_ContactsInstall::module_name(), 'version'=>0),
+			// Country/Zone (shared 'Countries' CommonData tree + QFfield callbacks).
+			// Already a transitive dependency via CRM_ContactsInstall above,
+			// but declared directly too since this module calls
+			// Data_CountriesCommon itself.
+			array('name'=>Data_CountriesInstall::module_name(), 'version'=>0),
 		);
 	}
 

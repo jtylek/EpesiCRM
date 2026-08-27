@@ -600,6 +600,39 @@ module's — it also avoids taking on that module as a dependency just for one h
 This datatype requires `CRM_Contacts` in your `requires()` (it rewrites the field to
 point at CRM_Contacts's own `contact` recordset).
 
+### 11.3c Chained `commondata` fields (cascading selects, e.g. Country/Zone)
+
+A `commondata` field's `param` can be an array of more than one element instead of a
+single array-id string. The first element is still the `CommonData` array id; each
+element after it is the *display name* of another field on the same form — picking a
+value there repopulates this field's options from the matching nested branch of the
+array, client-side, no page reload. This is what actually powers CRM_Contacts's own
+Country/Zone fields (`ContactsInstall.php`) — **not** the separate `Utils_ChainedSelect`
+module (that one drives a different, non-`CommonData` cascade; see `CRM_PhoneCall`'s
+Customer→Phone field for a real example of it instead).
+
+```php
+// <Module>Install.php::install() — reusing the shared, already-registered
+// 'Countries' tree (Data_CountriesInstall) rather than inventing a fresh one
+array('name'=>_M('Country'), 'type'=>'commondata', 'param'=>array('Countries'),
+    'visible'=>true, 'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_country')),
+array('name'=>_M('Zone'), 'type'=>'commondata', 'param'=>array('Countries', 'Country'),
+    'QFfield_callback'=>array('Data_CountriesCommon', 'QFfield_zone')),
+```
+
+The nested array itself just needs sub-arrays registered under `'<parent>/<key>'`:
+`Countries` holds country names, `Countries/US` holds US states, and it nests further
+still — `Countries/US/PA` holds PA counties, which is what `CRM_Contacts_County`'s
+3-level Country/Zone/County chain (`County/CountyInstall.php`) points at. Field-name
+resolution for the chain is by *name*, not position — a downstream field's `param`
+names the exact display name of the field it depends on (`'Country'` above), so
+renaming the field it chains from breaks the reference.
+
+Real example: `modules/Custom/Tutorial/TutorialInstall.php`'s own Country/Zone
+fields, added specifically to demonstrate this — reusing `Data_CountriesCommon`'s
+`QFfield_country`/`QFfield_zone` verbatim rather than writing new ones, the same
+way §11.3b's Manager field reuses `crm_contact` instead of hand-rolling a picker.
+
 ### 11.4 Filters
 
 Two independent things:
