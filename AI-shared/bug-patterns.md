@@ -661,6 +661,28 @@ left alone here (different popups, not reported broken); if one of them turns
 up the same off-screen symptom, that's confirmation to lift `clampToViewport`
 into a shared helper rather than re-deriving it a third time.
 
+**Root cause, part 3 (found 2026-08-27, same widget)**: reopening the *same*
+field's calendar repeatedly drifted further off-screen each time (close on
+open 1, off to the right/bottom on open 2, gone entirely by open 3) - a
+different symptom from part 1's "off-screen on a single open near a viewport
+edge." Cause: `create_href()`'s `onClick` ran `$pos_js` (the `clonePosition()`
+call) *before* `jQuery(popup).toggle()`, i.e. while the popup div was still
+`display:none`. `clonePosition()` ends in jQuery's `.offset()` *setter*, which
+computes the new top/left as a delta from the element's *current* rendered
+offset (`.offset()` getter). A hidden element can't be measured, so the
+getter reports `{top:0,left:0}` - but this popup div is toggled in place
+(never recreated), so the CSS `top`/`left` left over from the *previous* open
+were still sitting on it. jQuery added the new target on top of that stale
+value instead of replacing it, so each reopen compounded the last one's
+position. **Fix**: reordered to `toggle()` first, then run `$pos_js` and
+`clampToViewport()` only in the branch where the popup just became visible -
+matching the reasoning already applied to `clampToViewport()` itself, which
+also has to run after `toggle()` to measure anything meaningful. **How to
+apply**: any `.offset()`/`clonePosition()`-based positioning of a toggled
+(not recreated) hidden element must run *after* the element is shown, not
+before - measuring or setting offset on a `display:none` element is the
+recurring trap here, independent of the viewport-clamping issue in part 1.
+
 ## Fixing one caller of a shared tooltip helper left a second caller of the *same underlying data* unfixed
 
 Found 2026-08-07 making the Watchdog/RecordBrowser "what changed" tooltip

@@ -73,21 +73,24 @@ class Utils_PopupCalendarCommon extends ModuleCommon {
 			'</div>');
 
 		if(!isset($pos_js)) $pos_js = 'jQuery(popup).clonePosition(document.getElementById(\''.$butt.'\'),{setWidth:false,setHeight:false,offsetTop:document.getElementById(\''.$butt.'\').offsetHeight});';
-		// Prototype's absolutize() also preserved the element's current
-		// rendered top/left/width/height when switching it to position:absolute
-		// - moot here, since this div stays display:none until the onClick
-		// handler above both repositions it via clonePosition() and reveals it
-		// via toggle() in the same synchronous call, so nothing is ever visible
-		// mid-transition.
 		eval_js('if(Epesi.ie)document.getElementById(\''.$entry.'\').style.position="fixed";else document.getElementById(\''.$entry.'\').style.position="absolute";');
 
-		// clonePosition() above only clones the trigger's own position, with no
-		// awareness of the viewport's edges - clampToViewport() (main2.js, both
-		// themes) nudges the now-visible popup back on-screen if it renders past
-		// the right edge of the window (e.g. a field anchored in a narrow/right-
-		// hand column). Only run once toggle() has actually shown the popup, not
-		// when the same click is hiding an already-open one.
-		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');'.$pos_js.';jQuery(popup).toggle();if(jQuery(popup).is(\':visible\'))Utils_PopupCalendar.clampToViewport(popup);" href="javascript:void(0)" id="'.$butt.'"';
+		// clonePosition() calls jQuery's .offset() *setter*, which computes the
+		// new top/left as a delta from the element's *current* rendered offset.
+		// That only works while the popup is actually visible - on a hidden
+		// (display:none) element, .offset() can't measure a box and reports
+		// {top:0,left:0}, while the CSS top/left left behind by the *previous*
+		// open are still sitting on the element (this div is toggled in place,
+		// never recreated). jQuery then adds the new target on top of that
+		// stale value instead of replacing it, so each reopen lands further
+		// right/down than the last - reported 2026-08-27 as the calendar
+		// drifting progressively off-screen over repeated opens on the same
+		// field. Fix: toggle visible *first*, then reposition, so .offset()
+		// measures the real current box each time instead of a hidden one -
+		// same reasoning already applied to clampToViewport() below, which
+		// also has to run after toggle() to measure anything meaningful. Only
+		// runs when the click just *opened* the popup, not when it closed one.
+		$ret = 'onClick="var popup=document.getElementById(\''.$entry.'\');jQuery(popup).toggle();if(jQuery(popup).is(\':visible\')){'.$pos_js.';Utils_PopupCalendar.clampToViewport(popup);}" href="javascript:void(0)" id="'.$butt.'"';
 		$function .= ';jQuery(document.getElementById(\''.$entry.'\')).hide()';
 
 		if ($default) {
