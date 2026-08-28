@@ -227,6 +227,54 @@ Claude Code sessions — see [[concurrent-sessions-shared-env]] — which is a
 real potential confound but wasn't the cause here: PHP-side timings summed
 to the observed gap almost exactly).
 
+## Fixed: `Utils_RecordBrowserCommon::get_description_fields()`'s cache guard never actually cached (2026-08-29)
+
+Found while digging into the Dashboard's 221-222 SQL queries flagged by the
+double-render investigation above. Grouping the debug panel's SQL section by
+caller (see "How to profile" above) showed 42 *identical* `GetAssoc` calls —
+`SELECT tab, description_fields FROM recordbrowser_table_properties`, same
+args every time — all attributed to `get_description_fields()`
+(`RecordBrowserCommon_0.php:1352`), called once per row by
+`create_default_linked_label()` rendering a linked-record label. The
+debug panel's own duplicate-detection styling (an underline added per
+repeat of identical `args`, see the `SQL_TIMES` block in `include/epesi.php`)
+already flagged all 42 as exact repeats — worth remembering as a visual cue
+next time.
+
+**Root cause**: the function already had a `static $cache = null;` guard
+meant to load the whole table once — but it only ever assigned into
+`$cache[$t]` inside `if ($fields)`, i.e. only for tabs with a *non-empty*
+`description_fields` value. This dev DB has 17 tabs and **zero** with that
+column set (confirmed via a throwaway CLI script bootstrapping like
+`console.php` — `SET_SESSION=false` + `require 'include.php'`, see
+[[environment-gotchas]] for why that flag matters), so `$cache` never
+received a single key and stayed `null` forever — the `if ($cache===null)`
+guard was true on every call, defeating the cache entirely. Likely not
+dev-data-specific: `description_fields` is a rarely-configured
+customization, so any install that doesn't set it hits this on every
+linked-record label render, forever.
+
+**Fix**: one line — `$cache = array();` right before the loop, so the
+sentinel reflects "have I loaded" instead of "did I find any data"
+(`RecordBrowserCommon_0.php:1355`). Tabs with no configured
+`description_fields` still correctly `return false` (via the existing
+`isset($cache[$tab])` check below), just without re-querying to find that
+out each time.
+
+**Verified**: the throwaway script showed query count going 3→4→4 (second
+call now free) instead of 3→4→5 (pre-fix, unconditionally +1 every call).
+Live on the Dashboard: 222→180 SQL queries. Also loaded Contacts: Browse
+(exercises `create_default_linked_label()` on a different tab) after the
+fix — renders correctly, no errors.
+
+**How to apply**: this exact shape — a `static $cache = null` sentinel that
+doubles as both "am I loaded" and "the loaded data," populated only inside
+a conditional — silently breaks the moment the condition can be false for
+*every* row in the source data. Grep for other `static $cache = null` guards
+with an `if (...)` gate inside their populate loop before assigning into
+`$cache` (rather than assigning `$cache = $db_ret` unconditionally up
+front) — same bug shape, would need the same one-line fix.
+
 ## Known but not fixed: Simple Setup / EpesiStore hits an external server
 
 `Base_Setup::simple_setup()`'s `add_store_products()` (see
