@@ -282,12 +282,17 @@ class Base_Setup extends Module {
 			// the template falls back to a "Readme..." button that links out
 			// to $package.url (the Store's description_url) instead, since
 			// there's no local file to show. First module found under this
-			// package key wins, same as icon.
-			if (!$package['readme_id']) {
+			// package key wins, UNLESS this is the package's identity module
+			// (the one that also sets icon/version/url, e.g. Base_Setup for
+			// "Epesi Core") - that module's own README.md always takes
+			// priority when present, so the package card describes the
+			// package itself rather than whichever bundled module happened
+			// to sort first and ship a README (e.g. Apps/ActivityReport).
+			if (!$package['readme_id'] || isset($s['icon'])) {
 				$readme_html = Base_SetupCommon::get_readme_html($s['module']);
 				if ($readme_html) {
 					$package['readme_id'] = 'readme_popup_'.$s['module'];
-					Libs_LeightboxCommon::display($package['readme_id'], $readme_html, ModuleManager::get_module_file_name($s['module']));
+					Libs_LeightboxCommon::display($package['readme_id'], $readme_html, $package['name']);
 				}
 			}
 		}
