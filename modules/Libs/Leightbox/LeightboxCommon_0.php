@@ -43,6 +43,12 @@ class Libs_LeightboxCommon extends ModuleCommon {
 		$smarty->assign('header',$header);
 		$smarty->assign('close_label',__('Close'));
 		$smarty->assign('resize_label',__('Resize'));
+		// Separate from resize_label above (that one is for the old drag-style
+		// resize handle - unused by adminlte, see this theme's default.tpl):
+		// these back the adminlte-only maximize/restore toggle button, a
+		// binary full-viewport state, not a free resize.
+		$smarty->assign('maximize_label',__('Maximize'));
+		$smarty->assign('restore_label',__('Restore'));
 		$smarty->assign('close_href','href="javascript:leightbox_deactivate(\''.$id.'\')"');
 		Base_ThemeCommon::display_smarty($smarty,'Libs_Leightbox');
 		print('</div>');

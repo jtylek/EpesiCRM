@@ -1673,7 +1673,7 @@ via `eval_js()`/DOM injection targeting the real field's rendered element, never
 second `$form->addElement()` call under a made-up field name - the latter compiles
 without error but is dead weight, invisible on every actual page render.
 
-## `load_js()` is per-*session* (not per-file-version) - editing an already-loaded JS file mid-session shows nothing until a fresh tab/login (2026-08-21)
+## `load_js()`/`load_css()` are per-*session* (not per-file-version) - editing an already-loaded JS/CSS file mid-session shows nothing until a fresh tab/login (2026-08-21, CSS half confirmed 2026-08-28)
 
 `Epesi::load_js($u)` (`include/epesi.php:129`) only ever emits a `<script src="...">`
 tag for a given URL **once per session** - it checks/sets
@@ -1686,6 +1686,19 @@ effect in that same tab/session** - the browser never re-fetches/re-executes it,
 because the server never re-emits the `<script>` tag telling it to. No error, no
 stale-cache indication - the page just keeps behaving exactly like the old file.
 
+`Epesi::load_css($u)` (same file, a few lines above `load_js()`) is the exact same
+shape against `$_SESSION['client']['__loaded_csses__'][$u]` - same trap, one property
+name different. Confirmed live 2026-08-28 adding a maximize/restore toggle to
+`Libs_Leightbox`'s adminlte theme (`modules/Libs/Leightbox/theme_adminltedark/`): the
+new `.leightbox.maximized` CSS rule (`default.css`) never took visible effect in an
+already-open tab that had loaded that same CSS file earlier in the session (well before
+the edit), while a *brand-new* JS file added in the same change
+(`default.js`, calling `epesi_leightbox_toggle_maximize()`) worked immediately - it had
+never been requested under that session before, so it couldn't hit the "already sent"
+gate at all. The split symptom (icon-swap JS working, sizing CSS not) is itself a
+diagnostic signature of this cache: a component whose JS half is new and CSS half was
+edited will show exactly that half-works/half-doesn't split in a long-running tab.
+
 Hit repeatedly while iterating on `Premium_Domains`'s `js/whois.js` (WHOIS auto-fill):
 adding a new field to auto-fill (Created Date) and testing again *in the same
 already-open tab* showed every previously-working auto-fill still working but the
@@ -1693,12 +1706,15 @@ brand-new one silently doing nothing - indistinguishable from a real bug in the 
 code without knowing about this cache. Confirmed by re-reading the exact file content
 on disk (correct) and tracing `load_js()`'s session-gated logic.
 
-**How to apply**: when a `load_js()`-loaded file was just edited and a re-test in the
-*same already-open tab/session* doesn't reflect the change, don't assume the new code
-is wrong first - open a new tab (new CID) or log out/back in to get a session that
-hasn't already loaded the old copy, and retest there before debugging further. This is
-a standing trap for the rest of this module's (or any module's) JS iteration, not a
-one-time fluke.
+**How to apply**: when a `load_js()`- or `load_css()`-loaded file was just edited and a
+re-test in the *same already-open tab/session* doesn't reflect the change, don't assume
+the new code is wrong first - open a new tab (new CID) or log out/back in to get a
+session that hasn't already loaded the old copy, and retest there before debugging
+further. A CSS change landing alongside a brand-new JS file (or vice versa) is
+especially deceptive: the new file always works (nothing to gate), making the edited
+file's non-effect look like it must be a logic bug in the untouched-looking half. This
+is a standing trap for the rest of this module's (or any module's) JS/CSS iteration, not
+a one-time fluke.
 
 ## `cron.php`/`monitoring.php`'s shared token: loose comparison and a predictable value (fixed 2026-08-24)
 

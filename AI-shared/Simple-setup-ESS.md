@@ -1,10 +1,21 @@
 # Simple Setup: per-module "Readme..." button vs. Epesi Store cards
 
-Written 2026-08-28. A "Readme..." pill button on package cards on the admin Setup
-screen's Simple view (`Base_Setup::simple_setup()`, `modules/Base/Setup/Setup_0.php`),
-opening that module's `README.md` (rendered to HTML) in a new tab — both on the
-top-level card and, per-row, inside a bundled package's "Optional" dropdown (see that
-section below). See "Status" at the bottom for what shipped and how it was verified.
+Written 2026-08-28, revised 2026-08-28 (new-tab → Leightbox). A "Readme..." pill button
+on package cards on the admin Setup screen's Simple view (`Base_Setup::simple_setup()`,
+`modules/Base/Setup/Setup_0.php`), opening that module's `README.md` (rendered to HTML)
+in a Leightbox popup — both on the top-level card and, per-row, inside a bundled
+package's "Optional" dropdown (see that section below). See "Status" at the bottom for
+what shipped and how it was verified.
+
+**Revision note**: originally shipped opening the README in a *new browser tab* via a
+`Base_SetupCommon::view_readme()` ajax callback returning a full standalone HTML page.
+Changed same-day to open in-page in a Leightbox instead, for consistency with Advanced
+Setup's per-module "i" info icon (which got the same README content slightly later, also
+via a Leightbox) - two different UI affordances for the same underlying content no longer
+made sense once both existed. `view_readme()` was removed outright (nothing else called
+it); `Base_SetupCommon::get_readme_html()` - already built for Advanced Setup's popup -
+is now the only renderer, reused here too. Every `readme_url` field this doc describes
+below is `readme_id` today (a Leightbox id, not a URL) - read those mentions accordingly.
 
 ## The scoping decision
 
@@ -115,14 +126,18 @@ module that doesn't already have one.
 ## Status
 
 Implemented and browser-verified 2026-08-28 (both the top-level package-card button and
-the per-option variant above): `readme_url` detection/propagation in `Setup_0.php`,
-`Base_SetupCommon::view_readme()` ajax callback + a small dependency-free Markdown→HTML
-renderer (`markdown_to_html()`/`markdown_inline()`/`markdown_list_item()`/
-`markdown_table_row()`, all in `SetupCommon_0.php`), and the "Readme..." button markup
-in `theme_adminltedark/default.tpl` (`modules/Base/Setup/theme_adminltedark/default.css`
-for styling). `modules/Custom/Tutorial/README.md` was the only real README driving this
-at the time the mechanism itself was verified — see "Content goal" above for the growing
-list.
+the per-option variant above): `readme_id` detection/propagation in `Setup_0.php`, a
+small dependency-free Markdown→HTML renderer (`markdown_to_html()`/`markdown_inline()`/
+`markdown_list_item()`/`markdown_table_row()`, all in `SetupCommon_0.php`, exposed via
+`Base_SetupCommon::get_readme_html()`), and the "Readme..." button markup in
+`theme_adminltedark/default.tpl` (`modules/Base/Setup/theme_adminltedark/default.css`
+for styling) — a `Libs_LeightboxCommon::display()`/`get_open_href()` pair, same pattern
+Advanced Setup's "i" info icon uses, not the original `view_readme()` ajax callback (see
+the revision note at the top — that method was removed once nothing called it anymore).
+`modules/Custom/Tutorial/README.md` was the only real README driving this at the time the
+mechanism itself was first verified — see "Content goal" above for the growing list
+(57 Epesi Core submodules as of the 2026-08-28 revision, tracked via
+`AI-shared/bug-patterns.md`'s Leightbox-id-collision entry from that same sweep).
 
 Two real bugs were caught by testing the renderer against that actual README.md before
 shipping (not hypothetical edge cases): (1) a list item's text wrapping onto an unmarked

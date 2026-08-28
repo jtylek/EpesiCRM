@@ -244,7 +244,7 @@ class Base_Setup extends Module {
 
 		$packages = array();
 		foreach ($structure as $s) {
-			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null, 'readme_url'=>null, 'core'=>0);
+			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null, 'readme_id'=>null, 'core'=>0);
 			$package = & $packages[$s['key']];
 			$package['modules'][] = $s['module'];
 			$package['name'] = $s['package'];
@@ -274,16 +274,21 @@ class Base_Setup extends Module {
 				$package['url'] = $s['url'];
 			// README button: locally-present file, not an opt-in flag in
 			// simple_setup() - any module shipping modules/<Path>/README.md
-			// gets a "Readme..." button on its package's card. Store-only
-			// packages (add_store_products() below) never touch readme_url,
-			// so they never get one - only locally-installed/available
-			// modules do, per product decision (Store cards already point
-			// their icon/title at an external description page instead).
-			// First module found under this package key wins, same as icon.
-			if (!$package['readme_url']) {
-				$readme_file = 'modules/'.ModuleManager::get_module_dir_path($s['module']).'/README.md';
-				if (is_file($readme_file))
-					$package['readme_url'] = $this->create_ajax_callback_url(array('Base_SetupCommon', 'view_readme'), array('module'=>$s['module']));
+			// gets a "Readme..." button on its package's card, opening it in
+			// a Leightbox popup (same in-page mechanism Advanced Setup's "i"
+			// icon uses - see Base_SetupCommon::get_readme_html()) rather
+			// than a separate tab. Store-only packages (add_store_products()
+			// below) never touch readme_id, so they never get one - only
+			// locally-installed/available modules do, per product decision
+			// (Store cards already point their icon/title at an external
+			// description page instead). First module found under this
+			// package key wins, same as icon.
+			if (!$package['readme_id']) {
+				$readme_html = Base_SetupCommon::get_readme_html($s['module']);
+				if ($readme_html) {
+					$package['readme_id'] = 'readme_popup_'.$s['module'];
+					Libs_LeightboxCommon::display($package['readme_id'], $readme_html, ModuleManager::get_module_file_name($s['module']));
+				}
 			}
 		}
 		
@@ -307,9 +312,9 @@ class Base_Setup extends Module {
 				$sorted[$name]['core'] = 0;
 				// Seeded here (not just at line ~352) so "Options only" packages -
 				// no $option===null variant ever runs, so that branch never fires -
-				// still get the key: {if $package.readme_url} on a truly-missing
+				// still get the key: {if $package.readme_id} on a truly-missing
 				// array key is an E_WARNING under PHP 8.2, not a graceful falsy.
-				$sorted[$name]['readme_url'] = null;
+				$sorted[$name]['readme_id'] = null;
 			}
 			$sorted[$name]['core'] |= $p['core'];
 
@@ -371,14 +376,14 @@ class Base_Setup extends Module {
 				$sorted[$name]['icon'] = $p['icon'];
 				$sorted[$name]['version'] = $p['version'];
 				$sorted[$name]['url'] = $p['url'];
-				$sorted[$name]['readme_url'] = $p['readme_url'];
+				$sorted[$name]['readme_id'] = $p['readme_id'];
 			} else {
 				$sorted[$name]['options'][$option] = array(
 				'name' => $option,
 				'buttons' => $buttons,
 				'status' => $status,
 				'style' => $style,
-				'readme_url' => $p['readme_url']);
+				'readme_id' => $p['readme_id']);
 			}
 		}
 		// Order requested: Installed, Available, Updates, My Purchases, All,
@@ -535,17 +540,27 @@ class Base_Setup extends Module {
                     $sorted[$name]['status'] = __('Files modified');
                 }
               }
-                $sorted[$name]['url'] = $s['description_url'];
-				$sorted[$name]['icon'] = $s['icon_url'];
+                // Same "local presence wins" principle as above, extended to
+                // icon/url: a locally-known module's own icon
+                // (simple_setup()'s 'icon'=>true + package-icon.png) or url
+                // must not get replaced by the Store's remote values - the
+                // Store's icon_url/description_url point at an external
+                // dependency (ess.epe.si) that can be briefly slow or
+                // unreachable, and unconditionally preferring it showed a
+                // broken image for a module that may already have a
+                // perfectly good local one. Store data only fills in
+                // whichever of the two the local module didn't set.
+                if (empty($sorted[$name]['url'])) $sorted[$name]['url'] = $s['description_url'];
+				if (empty($sorted[$name]['icon'])) $sorted[$name]['icon'] = $s['icon_url'];
 				continue;
 			}
 			$sorted[$name] = array();
             $sorted[$name]['core'] = 0;
 			// Deliberately left null, not omitted: Store cards get no Readme
 			// button by design (see AI-shared/Simple-setup-ESS.md), but
-			// {if $package.readme_url} on a truly-missing key is an
+			// {if $package.readme_id} on a truly-missing key is an
 			// E_WARNING under PHP 8.2, not a graceful falsy.
-			$sorted[$name]['readme_url'] = null;
+			$sorted[$name]['readme_id'] = null;
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['icon'] = $s['icon_url'];
 			$sorted[$name]['name'] = $name; // ****** FIXME - modules names from the store

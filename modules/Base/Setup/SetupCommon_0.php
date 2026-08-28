@@ -9,9 +9,6 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 class Base_SetupCommon extends ModuleCommon {
 	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
@@ -65,97 +62,14 @@ class Base_SetupCommon extends ModuleCommon {
         Variable::set('base_setup_store_enabled', $enabled ? true : false);
     }
 
-	// Ajax callback for the Simple Setup screen's per-card "Readme..." button
-	// (Base_Setup::simple_setup() -> $this->create_ajax_callback_url(), see
-	// AI-shared/Simple-setup-ESS.md for why this only ever gets wired up for
-	// locally-installed/available module cards, never Epesi Store cards).
-	// Same admin_access() gate as the Setup screen itself - not a public docs
-	// viewer. Renders modules/<Path>/README.md as a standalone HTML page,
-	// opened in a new tab (target="_blank" in the template).
-	public static function view_readme(Request $request, $args) {
-		if (!self::admin_access())
-			return new Response('Forbidden', 403);
-
-		$module = $args['module'] ?? null;
-		if (!$module || !ModuleManager::exists($module))
-			return new Response('Not found', 404);
-
-		$file = 'modules/'.ModuleManager::get_module_dir_path($module).'/README.md';
-		if (!is_file($file))
-			return new Response('Not found', 404);
-
-		$title = htmlspecialchars(ModuleManager::get_module_file_name($module), ENT_QUOTES, 'UTF-8');
-		$body = self::markdown_to_html(file_get_contents($file));
-
-		$html = <<<HTML
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{$title} README</title>
-<style>
-:root { color-scheme: light dark; }
-body {
-	margin: 0;
-	padding: 2.5rem 1.5rem;
-	background: #ffffff;
-	color: #1f2328;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-	line-height: 1.6;
-}
-article { max-width: 780px; margin: 0 auto; }
-h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; margin-bottom: 0.6em; }
-h1 { font-size: 1.9rem; border-bottom: 1px solid #d0d7de; padding-bottom: 0.3em; }
-h2 { font-size: 1.4rem; border-bottom: 1px solid #d0d7de; padding-bottom: 0.25em; }
-h3 { font-size: 1.15rem; }
-p, ul, ol, table, blockquote, pre { margin: 0.8em 0; }
-ul, ol { padding-left: 1.6em; }
-li { margin: 0.25em 0; }
-code {
-	background: #f6f8fa;
-	padding: 0.15em 0.4em;
-	border-radius: 4px;
-	font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-	font-size: 0.9em;
-}
-pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow-x: auto; }
-pre code { background: none; padding: 0; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #d0d7de; padding: 0.5em 0.75em; text-align: left; }
-th { background: #f6f8fa; }
-blockquote { margin-left: 0; padding: 0 1em; color: #57606a; border-left: 0.25em solid #d0d7de; }
-a { color: #0969da; }
-hr { border: none; border-top: 1px solid #d0d7de; margin: 2em 0; }
-@media (prefers-color-scheme: dark) {
-	body { background: #0d1117; color: #e6edf3; }
-	h1, h2 { border-color: #30363d; }
-	code, pre, th { background: #161b22; }
-	th, td { border-color: #30363d; }
-	blockquote { color: #8b949e; border-color: #30363d; }
-	a { color: #58a6ff; }
-	hr { border-color: #30363d; }
-}
-</style>
-</head>
-<body>
-<article>
-{$body}
-</article>
-</body>
-</html>
-HTML;
-
-		return new Response($html, 200, array('Content-Type' => 'text/html; charset=UTF-8'));
-	}
-
-	// Renders modules/<Path>/README.md as an HTML fragment for embedding in
-	// Advanced Setup's per-module "i" info Leightbox (Setup_0.php::
-	// advanced_setup()) - same minimal renderer as view_readme()'s standalone
-	// page, just without that page's <html>/<head> wrapper (the README's own
-	// leading "# Module/Path" heading is left as the fragment's title, same as
-	// view_readme()). Returns null when the module ships no README.md, so the
-	// caller can fall back to the plain info() table.
+	// Renders modules/<Path>/README.md as an HTML fragment for embedding
+	// directly in a Leightbox popup - Simple Setup's per-card "Readme..."
+	// button and Advanced Setup's per-module "i" info icon both call this
+	// (Setup_0.php::simple_setup()/advanced_setup()) rather than opening a
+	// separate tab; the README's own leading "# Module/Path" heading is left
+	// as the fragment's title. Returns null when the module ships no
+	// README.md, so callers can fall back (Advanced Setup falls back to the
+	// plain info() table; Simple Setup simply shows no Readme button).
 	public static function get_readme_html($module) {
 		$file = 'modules/'.ModuleManager::get_module_dir_path($module).'/README.md';
 		if (!is_file($file))

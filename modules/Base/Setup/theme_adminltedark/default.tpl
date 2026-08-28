@@ -68,6 +68,9 @@
 						{$version_label}{$package.version}
 					</div>
 				{/if}
+				{if $package.readme_id}
+					<a class="lbOn btn btn-sm btn-primary rounded-pill px-3 epesi-setup-card-readme" rel="{$package.readme_id}" href="javascript:void(0)">{$labels.readme}</a>
+				{/if}
 				<div class="epesi-setup-actions">
 					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="epesi-setup-action {$package.style}" onclick="epesi_setup__toggle_actions('{$name}',this);">
 						<span>{$package.status}</span>{if !empty($package.buttons)}<i class="bi bi-chevron-down"></i>{/if}
@@ -99,21 +102,26 @@
 								</div>
 								<div class="epesi-setup-option-action">
 									<div id="show_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__position_centered('hide_actions_{$name}__{$option}',this);epesi_setup__show_actions('{$name}','{$option}');">
-										<span>{$action.status}</span>{if !empty($action.buttons)}<i class="bi bi-chevron-down"></i>{/if}
+										<span>{$action.status}</span>{if !empty($action.buttons) || $action.readme_id}<i class="bi bi-chevron-down"></i>{/if}
 									</div>
-									{if !empty($action.buttons)}
+									{if !empty($action.buttons) || $action.readme_id}
 										<div id="hide_actions_button_{$name}__{$option}" class="epesi-setup-action {$action.style}" onclick="epesi_setup__hide_actions('{$name}','{$option}');" style="display: none;">
 											<span>{$action.status}</span><i class="bi bi-chevron-up"></i>
 										</div>
 									{/if}
 								</div>
-								{if !empty($action.buttons)}
+								{if !empty($action.buttons) || $action.readme_id}
 									<div class="epesi-setup-action-panel" id="hide_actions_{$name}__{$option}" style="display:none;">
 										{foreach from=$action.buttons item=button}
 											<div {$button.href} class="epesi-setup-subaction {$button.style}" onclick="document.getElementById('hide_actions_{$name}').style.display='none';">
 												{$button.label}
 											</div>
 										{/foreach}
+										{if $action.readme_id}
+											<a class="lbOn epesi-setup-subaction readme" rel="{$action.readme_id}" href="javascript:void(0)">
+												{$labels.readme}
+											</a>
+										{/if}
 									</div>
 								{/if}
 							</div>

@@ -12,10 +12,13 @@
  * .epesi-adminlte - this popup is appended straight to <body> by
  * leightbox.js, as a sibling of the shell, not a descendant of it).
  *
- * No resize button in this theme's header (default.tpl) - the shared
- * libs_leightbox_resize() sets top/left/width/height as plain inline
+ * No drag-style resize handle in this theme's header (default.tpl) - the
+ * shared libs_leightbox_resize() sets top/left/width/height as plain inline
  * percentages, which don't account for the transform-based centering here
- * and would jump the popup to the old-style positioning.
+ * and would jump the popup to the old-style positioning. A maximize/restore
+ * *toggle* is used instead (.leightbox.maximized below + default.tpl's own
+ * button + default.js's epesi_leightbox_toggle_maximize()) - a plain class
+ * swap, so it overrides the geometry below cleanly instead of fighting it.
  */
 
 #leightbox_overlay,
@@ -63,6 +66,24 @@
 	width: 90%;
 	max-width: none;
 	max-height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height) - 1rem);
+}
+
+/* Maximize/restore toggle (epesi_leightbox_toggle_maximize(), default.js) -
+   true edge-to-edge fullscreen, on top of the fixed header/actionbar rather
+   than below them (same z-index:1050 as the base rule, just no longer
+   leaving room for either) - matches what "maximize" means for an ordinary
+   window. Same specificity as .leightbox[big="1"] above (two simple
+   selectors each), so this rule must stay *after* it in source order to win
+   when a "big" popup also gets maximized - don't reorder these two blocks. */
+.leightbox.maximized {
+	top: 0;
+	left: 0;
+	transform: none;
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	border-radius: 0;
 }
 
 /* #dee2e6 deliberately matches the app-sidebar's own fixed light grey (Base/Box/
@@ -119,6 +140,100 @@
 
 #Leightbox_content {
 	padding: 1rem;
+}
+
+/* Typography for README.md content rendered into a Leightbox
+   (Base_SetupCommon::get_readme_html() - Simple Setup's "Readme..." button
+   and Advanced Setup's "i" info icon both feed markdown_to_html() output
+   straight in here). markdown_to_html() emits bare h1-h4/p/code/pre/table/
+   blockquote/hr with no classes of their own, so without this they inherit
+   whatever oversized default heading sizes the surrounding admin theme sets
+   (a plain browser/Bootstrap h1 is ~2.5rem) - reads like a full page title
+   crammed into a small popup. Same underlying symptom #clipboard h3 below
+   already patched for one specific popup; scoped to #Leightbox_content
+   generally instead so every popup gets sane heading sizes by default, not
+   just ones someone happened to patch individually. Dark-first (this
+   theme's own convention, see the light override block near the bottom of
+   this file) - border/background tints picked to read on the base dark
+   .leightbox surface, overridden for [data-bs-theme="light"] below. */
+#Leightbox_content h1, #Leightbox_content h2, #Leightbox_content h3, #Leightbox_content h4 {
+	line-height: 1.25;
+	margin-top: 1.2em;
+	margin-bottom: 0.5em;
+}
+#Leightbox_content h1:first-child, #Leightbox_content h2:first-child, #Leightbox_content h3:first-child {
+	margin-top: 0;
+}
+#Leightbox_content h1 {
+	font-size: 1.5rem;
+	border-bottom: 1px solid #30363d;
+	padding-bottom: 0.3em;
+}
+#Leightbox_content h2 {
+	font-size: 1.2rem;
+	border-bottom: 1px solid #30363d;
+	padding-bottom: 0.25em;
+}
+#Leightbox_content h3 {
+	font-size: 1.05rem;
+}
+#Leightbox_content h4 {
+	font-size: 0.95rem;
+}
+#Leightbox_content p,
+#Leightbox_content ul,
+#Leightbox_content ol,
+#Leightbox_content table,
+#Leightbox_content blockquote,
+#Leightbox_content pre {
+	margin: 0.7em 0;
+}
+#Leightbox_content ul, #Leightbox_content ol {
+	padding-left: 1.5em;
+}
+#Leightbox_content li {
+	margin: 0.2em 0;
+}
+#Leightbox_content code {
+	background: rgba(110, 118, 129, 0.2);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+	font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+	font-size: 0.85em;
+}
+#Leightbox_content pre {
+	background: rgba(110, 118, 129, 0.12);
+	padding: 0.75em 1em;
+	border-radius: 6px;
+	overflow-x: auto;
+}
+#Leightbox_content pre code {
+	background: none;
+	padding: 0;
+}
+#Leightbox_content table {
+	border-collapse: collapse;
+	width: 100%;
+	font-size: 0.9em;
+}
+#Leightbox_content th, #Leightbox_content td {
+	border: 1px solid #30363d;
+	padding: 0.4em 0.6em;
+	text-align: left;
+}
+#Leightbox_content th {
+	background: rgba(110, 118, 129, 0.15);
+}
+#Leightbox_content blockquote {
+	margin-left: 0;
+	padding: 0 1em;
+	color: #8b949e;
+	border-left: 0.25em solid #30363d;
+}
+#Leightbox_content hr {
+	border: none;
+	border-top: 1px solid #30363d;
+	margin: 1.5em 0;
 }
 
 /* RecordBrowser_0.php's "export values to copy" popup
@@ -224,4 +339,35 @@
 [data-bs-theme="light"] #clipboard div[onmouseover] {
   border: 1px solid #dee2e6 !important;
   background-color: #f8f9fa;
+}
+
+/* Not auto-generated (added by hand alongside the block above, same
+   convention) - light-mode counterpart to the README typography block
+   further up this file. */
+[data-bs-theme="light"] #Leightbox_content h1,
+[data-bs-theme="light"] #Leightbox_content h2 {
+  border-color: #d0d7de;
+}
+
+[data-bs-theme="light"] #Leightbox_content code,
+[data-bs-theme="light"] #Leightbox_content pre {
+  background: #f6f8fa;
+}
+
+[data-bs-theme="light"] #Leightbox_content th,
+[data-bs-theme="light"] #Leightbox_content td {
+  border-color: #d0d7de;
+}
+
+[data-bs-theme="light"] #Leightbox_content th {
+  background: #f6f8fa;
+}
+
+[data-bs-theme="light"] #Leightbox_content blockquote {
+  color: #57606a;
+  border-color: #d0d7de;
+}
+
+[data-bs-theme="light"] #Leightbox_content hr {
+  border-color: #d0d7de;
 }
