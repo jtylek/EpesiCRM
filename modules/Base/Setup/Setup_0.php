@@ -120,17 +120,37 @@ class Base_Setup extends Module {
 			$module_install_class = $entry.'Install';
 
 			$func_info = array($module_install_class,'info');
+			$module_info = is_callable($func_info) ? call_user_func($func_info) : null;
+			// README.md (if the module ships one) takes priority over the bare
+			// info() table - see Base_SetupCommon::get_readme_html().
+			$readme_html = Base_SetupCommon::get_readme_html($entry);
+
 			$info = '';
-			if(is_callable($func_info)) {
-				$module_info = call_user_func($func_info);
-				if($module_info) {
-					$info = ' <a '.Libs_LeightboxCommon::get_open_href($entry).'><img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.png').'></a>';
+			if ($module_info || $readme_html) {
+				$info_icon = Base_ThemeCommon::is_adminlte_family()
+					? '<i class="bi bi-info-circle-fill text-primary" style="cursor:pointer;"></i>'
+					: '<img style="vertical-align: middle; cursor: pointer;" border="0" width="14" height="14" src='.Base_ThemeCommon::get_template_file('Base_Setup', 'info.png').'>';
+				// Namespaced, not bare $entry: a module's own class name (e.g.
+				// "Base_StatusBar") can collide with a DOM id that module's own
+				// JS relies on elsewhere on the page (Base_StatusBar's status
+				// bar container is itself id="Base_StatusBar") - a duplicate id
+				// makes getElementById() silently return this hidden Leightbox
+				// div instead, breaking that module's own show/hide logic. Only
+				// modules with no info() and no README.md never hit this branch
+				// at all, which is why this surfaced only once README.md started
+				// giving every "Epesi Core" module (Base_StatusBar included) a
+				// popup for the first time.
+				$leightbox_id = 'module_info_'.$entry;
+				$info = ' <a '.Libs_LeightboxCommon::get_open_href($leightbox_id).'>'.$info_icon.'</a>';
+				if ($readme_html) {
+					$iii = $readme_html;
+				} else {
 					$iii = '<h1>'.str_replace('_','/',$entry).'</h1><table>';
 					foreach($module_info as $k=>$v)
 						$iii .= '<tr><td>'.$k.'</td><td>'.$v.'</td></tr>';
 					$iii .= '</table>';
-					Libs_LeightboxCommon::display($entry,$iii,'Additional info');
 				}
+				Libs_LeightboxCommon::display($leightbox_id,$iii,'Additional info');
 			}
 
 			// Show Tooltip if module is required
@@ -224,7 +244,7 @@ class Base_Setup extends Module {
 
 		$packages = array();
 		foreach ($structure as $s) {
-			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null, 'core'=>0);
+			if (!isset($packages[$s['key']])) $packages[$s['key']] = array('also_uninstall'=>array(), 'modules'=>array(), 'is_required'=>array(), 'installed'=>null, 'icon'=>false, 'version'=>null, 'url'=>null, 'readme_url'=>null, 'core'=>0);
 			$package = & $packages[$s['key']];
 			$package['modules'][] = $s['module'];
 			$package['name'] = $s['package'];
@@ -252,6 +272,19 @@ class Base_Setup extends Module {
 				$package['version'] = $s['version'];
 			if (isset($s['url']))
 				$package['url'] = $s['url'];
+			// README button: locally-present file, not an opt-in flag in
+			// simple_setup() - any module shipping modules/<Path>/README.md
+			// gets a "Readme..." button on its package's card. Store-only
+			// packages (add_store_products() below) never touch readme_url,
+			// so they never get one - only locally-installed/available
+			// modules do, per product decision (Store cards already point
+			// their icon/title at an external description page instead).
+			// First module found under this package key wins, same as icon.
+			if (!$package['readme_url']) {
+				$readme_file = 'modules/'.ModuleManager::get_module_dir_path($s['module']).'/README.md';
+				if (is_file($readme_file))
+					$package['readme_url'] = $this->create_ajax_callback_url(array('Base_SetupCommon', 'view_readme'), array('module'=>$s['module']));
+			}
 		}
 		
 		$sorted = array();
@@ -272,6 +305,11 @@ class Base_Setup extends Module {
 				$sorted[$name]['instalable'] = 0;
 				$sorted[$name]['uninstalable'] = 0;
 				$sorted[$name]['core'] = 0;
+				// Seeded here (not just at line ~352) so "Options only" packages -
+				// no $option===null variant ever runs, so that branch never fires -
+				// still get the key: {if $package.readme_url} on a truly-missing
+				// array key is an E_WARNING under PHP 8.2, not a graceful falsy.
+				$sorted[$name]['readme_url'] = null;
 			}
 			$sorted[$name]['core'] |= $p['core'];
 
@@ -290,7 +328,7 @@ class Base_Setup extends Module {
 					}
 					$buttons[] = array('label'=>__('Uninstall'),'style'=>'uninstall','href'=>$this->create_confirm_callback_href(__('Are you sure you want to uninstall this package and remove all associated data?'),$this->simple_uninstall(...), array($mods)));
 				} else {
-					if ($p['core']) $message = __('EPESI Core can not be uninstalled');
+					if ($p['core']) $message = __('Epesi Core can not be uninstalled');
 					elseif (empty($p['is_required'])) $message = __('This package can not be uninstalled');
 					else {
 						$required = array();
@@ -333,12 +371,14 @@ class Base_Setup extends Module {
 				$sorted[$name]['icon'] = $p['icon'];
 				$sorted[$name]['version'] = $p['version'];
 				$sorted[$name]['url'] = $p['url'];
+				$sorted[$name]['readme_url'] = $p['readme_url'];
 			} else {
 				$sorted[$name]['options'][$option] = array(
 				'name' => $option,
 				'buttons' => $buttons,
 				'status' => $status,
-				'style' => $style);
+				'style' => $style,
+				'readme_url' => $p['readme_url']);
 			}
 		}
 		// Order requested: Installed, Available, Updates, My Purchases, All,
@@ -382,7 +422,7 @@ class Base_Setup extends Module {
 		$t->assign('packages', $sorted);
 		$t->assign('filters', $filters);
 		$t->assign('version_label', __('Ver. '));
-		$t->assign('labels', array('options'=>__('Optional')));
+		$t->assign('labels', array('options'=>__('Optional'), 'readme'=>__('Readme...')));
 		$t->assign('updates_count', $updates_count);
 		$t->assign('updates_alert', $updates_count
 			? __('Updates available: %s module(s) can be updated now - see the Updates tab.', array($updates_count))
@@ -501,6 +541,11 @@ class Base_Setup extends Module {
 			}
 			$sorted[$name] = array();
             $sorted[$name]['core'] = 0;
+			// Deliberately left null, not omitted: Store cards get no Readme
+			// button by design (see AI-shared/Simple-setup-ESS.md), but
+			// {if $package.readme_url} on a truly-missing key is an
+			// E_WARNING under PHP 8.2, not a graceful falsy.
+			$sorted[$name]['readme_url'] = null;
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['icon'] = $s['icon_url'];
 			$sorted[$name]['name'] = $name; // ****** FIXME - modules names from the store

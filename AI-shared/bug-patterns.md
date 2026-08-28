@@ -1310,7 +1310,7 @@ change other than becoming callable again): `Base/Box`, `Base/Error`,
 `Utils/RecordBrowser`, `Utils/Tray`, plus `Premium/Import`. The ones that
 already returned `false` had no user-visible effect either way; the ones
 returning a real package name (Box, Error, Help, Countries, BBCode,
-RecordBrowser) are mostly always-installed "EPESI Core" modules so their
+RecordBrowser) are mostly always-installed "Epesi Core" modules so their
 absence from the *installable* list wasn't obviously wrong - but `Base_Error`
 specifically loses its "Error reporting" sub-option entirely this way, and any
 non-core module (like `Premium/Import`) becomes impossible to install or
@@ -1894,3 +1894,99 @@ they're all equivalent to the two fixed here — some field types may already
 get their add-mode default from the earlier form-wide `setDefaults()` call
 in `RecordBrowser_0.php`, some may not; verify each individually rather than
 assuming the fix generalizes automatically.
+
+## Local module's Simple Setup package icon needs two separate opt-ins, not just a themed asset file
+
+Found 2026-08-28: `modules/Custom/Tutorial/` showed no icon on its package
+card in Modules Administration & Store's "Simple setup" view, despite the
+`theme/` directory convention being available to it like any other themed
+asset (CSS, templates).
+
+**Root cause**: `Base_Setup::simple_setup()` (`Setup_0.php:249-250`) only
+looks up a package icon `if (isset($s['icon']))`, where `$s` is whatever
+each installed module's own `<Module>Install.php::simple_setup()` static
+method returns. `Custom_TutorialInstall::simple_setup()` returned only
+`array('package'=>_M('Tutorial'))` — no `'icon'` key — so the lookup is
+skipped unconditionally, regardless of whether an icon file exists on disk.
+Dropping a `package-icon.png` into a `theme/` directory with nothing else
+is a silent no-op: no error, the icon area just stays blank.
+
+**The two things actually needed, together**: (1) the module's
+`simple_setup()` must return `'icon'=>true` (an opt-in flag, not a path);
+(2) only then does `Base_ThemeCommon::get_template_file($module,
+'package-icon.png')` (→ `Base_ThemeResolver::resolve()`) get called, which
+resolves through the same convention as any other per-module themed asset —
+`modules/<Module/Path>/theme_<active-theme>/package-icon.png` first, falling
+back to `modules/<Module/Path>/theme/package-icon.png`. Confirmed by
+precedent: `Base/Setup` and `CRM/Contacts` both set `'icon'=>true` and ship
+a `theme/package-icon.png` (128×128 and 256×256 PNG respectively — any
+square PNG works, rendered at 64px/100px via CSS in the AdminLTE/legacy
+themes respectively).
+
+**How to apply**: when a local/custom module's package card is missing an
+icon in Modules Administration & Store's Simple setup view, check both
+halves before assuming the image file is the whole story — grep that
+module's `Install.php` for `simple_setup()` and confirm it returns
+`'icon'=>true`, *and* confirm `theme/package-icon.png` (or a
+theme-specific override) actually exists at that module's path. Either one
+missing alone reproduces the exact same silent no-icon symptom, with
+nothing in the logs to distinguish which half is missing.
+
+## `Libs_LeightboxCommon::display($id, ...)` using a bare module class name as `$id` collides with that same module's own DOM ids, breaking its unrelated JS
+
+Found 2026-08-28 while extending Advanced Setup's per-module "i" info icon
+(`Base_Setup::advanced_setup()`, `Setup_0.php`) to show a module's
+`README.md` (via `Base_SetupCommon::get_readme_html()`) in the same Leightbox
+popup that used to only ever show a bare `info()` table. Adding a
+`modules/Base/StatusBar/README.md` — `Base_StatusBar` had no `info()` method,
+so it had *never* gotten an "i" icon/popup before — made that module newly
+eligible, which is what surfaced this: the whole app's global "Loading..."
+status bar got permanently stuck visible after that, on every page, in every
+browser, even freshly logged in — reads exactly like a hung AJAX request
+(and was chased that way at length: benchmarked the new PHP in isolation,
+checked Apache/MySQL/memcached for anything actually stuck, validated the
+exact JS the framework escapes the content into with Node — all clean),
+but nothing was actually hung.
+
+**Root cause**: `advanced_setup()`'s loop calls
+`Libs_LeightboxCommon::display($entry, $iii, 'Additional info')` with
+`$id = $entry`, the module's own class name (e.g. `"Base_StatusBar"`) —
+this becomes `<div id="Base_StatusBar" class="leightbox">...`. But
+`Base_StatusBar`'s *own* status bar container (`modules/Base/StatusBar/
+theme_adminltedark/default.tpl`) already legitimately uses that exact same
+id, and that module's own `js/main.js` (`updateEpesiIndicatorFunction()`,
+overriding `Epesi.updateIndicator`) looks it up via
+`document.getElementById('Base_StatusBar')` to toggle it on/off as
+`Epesi.procOn` changes. With two elements sharing one id,
+`getElementById()` silently returns whichever comes first in the DOM — the
+(initially-hidden) Leightbox popup, not the real status bar — so every
+subsequent show/hide call was toggling the wrong div. `Epesi.procOn`
+correctly returned to `0` after every request throughout; the *visible*
+"Loading..." text was simply never told to hide again, because the code
+meant to hide it had lost track of which element that was.
+
+This wasn't a risk before because the Leightbox `$id` only ever collided
+with a real page id when a module (a) had a class name matching some
+other element's id verbatim, and (b) actually got a Leightbox at all —
+which required a truthy `info()`. `Base_StatusBar` had neither `info()`
+nor a README before, so it never triggered `display()` and the collision
+sat latent. Adding coverage (an `info()` *or* a README) to any module whose
+class name doubles as a meaningful DOM id elsewhere reproduces this exact
+shape — `Base_StatusBar` is just the clearest/most-visible instance since
+that id is the app's own global loading indicator.
+
+**Fix**: namespaced the Leightbox id (`'module_info_'.$entry`) instead of
+the bare module name, in both the `get_open_href()` and `display()` calls —
+eliminates the whole collision class going forward, not just for
+`Base_StatusBar`.
+
+**How to apply**: never use a bare module/class name as a Leightbox (or any
+other synthetically-generated) DOM id without checking whether that
+module's own theme/JS already uses the same id for something real — prefer
+a namespaced id (a fixed prefix, or the calling feature's own name) so a
+generic "per-module popup" mechanism can never step on a specific module's
+own markup. If a status/loading indicator (or any other global chrome
+element) gets permanently stuck in one visual state despite the underlying
+counter/flag driving it looking correct, check for a duplicate DOM id
+before chasing it as a hung request or a race condition — `document.
+querySelectorAll('#the-id').length > 1` settles it in one line.
