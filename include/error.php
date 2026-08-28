@@ -20,20 +20,53 @@ class ErrorObserver
 class ErrorHandler {
 	private static $observers = array();
 	
-	private static function notify_client($buffer) {
+	private static function notify_client($buffer, $html = null) {
         epesi_log("$buffer\n\n",'php_errors.log');
 
 		if(JS_OUTPUT && class_exists('Epesi')) {
 			chdir(dirname(__FILE__, 2));
 			Epesi::discard();
 			if(DISPLAY_ERRORS) {
-				Epesi::js("document.getElementById('debug_content').style.display='block';");
-				Epesi::text('<pre>' . $buffer . '</pre><hr>','error_box','prepend');
+				Epesi::js("document.getElementById('debug_content').style.display='block';if(typeof epesi_update_debug_bar==='function'){epesi_update_debug_bar();}");
+				Epesi::text(($html ?? '<pre>' . htmlspecialchars($buffer) . '</pre>') . '<hr>','error_box','prepend');
 			}
 			Epesi::alert('There was an error in one of epesi modules.'.((DISPLAY_ERRORS)?' Details are displayed at the bottom of the page, please send this information to system administrator.':''));
 			return Epesi::get_output();
 		}
 		return $buffer;
+	}
+
+	private static function severity_class($type) {
+		$fatal = E_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR;
+		$warning = E_WARNING | E_USER_WARNING | E_CORE_WARNING | E_COMPILE_WARNING;
+		if ($type & $fatal) return 'error';
+		if ($type & $warning) return 'warning';
+		return 'notice';
+	}
+
+	// Builds the on-page HTML card for one error: a colored severity badge +
+	// headline message + file:line up front (previously buried inside one
+	// undifferentiated <pre> blob with the full trace), and the existing
+	// plain-text backtrace (unchanged - see debug_backtrace()) re-flowed one
+	// frame per <li> behind a collapsed <details> instead of dumped inline.
+	private static function render_error_html($badge, $severity, $message, $errfile, $errline, $backtrace) {
+		$trace = trim(preg_replace('/^\s*error backtrace:\s*/', '', (string) $backtrace));
+		$html  = '<div class="epesi-error epesi-error--'.$severity.'">';
+		$html .= '<div class="epesi-error-head">';
+		$html .= '<span class="epesi-error-badge">'.htmlspecialchars($badge).'</span>';
+		$html .= '<span class="epesi-error-message">'.htmlspecialchars($message).'</span>';
+		$html .= '</div>';
+		$html .= '<div class="epesi-error-loc">'.htmlspecialchars($errfile).($errline !== null ? ':'.$errline : '').'</div>';
+		if ($trace !== '') {
+			$frames = preg_split('/\n{2,}/', $trace, -1, PREG_SPLIT_NO_EMPTY);
+			$html .= '<details class="epesi-error-trace"><summary>Stack trace ('.count($frames).')</summary><ol class="epesi-error-frames">';
+			foreach ($frames as $frame) {
+				$html .= '<li><pre>'.htmlspecialchars(trim($frame)).'</pre></li>';
+			}
+			$html .= '</ol></details>';
+		}
+		$html .= '</div>';
+		return $html;
 	}
 	
 	// Types that can legitimately mean "this can't continue" (E_ERROR/E_PARSE/
@@ -50,6 +83,7 @@ class ErrorHandler {
 	public static function handle_error($type, $message,$errfile,$errline,$errcontext) {
     	if (($type & error_reporting()) > 0) {
 				$backtrace = self::debug_backtrace();
+				$orig_message = $message;
 
                 $message = "Type: " . self::error_code_to_string($type) . " ($type)\nMessage: $message\nFile: $errfile\nLine={$errline}{$backtrace}";
 
@@ -75,7 +109,8 @@ class ErrorHandler {
 				}
 
 				while(@ob_end_clean());
-				echo self::notify_client($message);
+				$html = self::render_error_html(self::error_code_to_string($type), self::severity_class($type), $orig_message, $errfile, $errline, $backtrace);
+				echo self::notify_client($message, $html);
 				exit();
 		}
 
@@ -90,7 +125,8 @@ class ErrorHandler {
                . $exception->getMessage() . "\nFile: " .
                $exception->getFile() . "\nLine=" . $exception->getLine() .
                $backtrace . "\n\n";
-        echo self::notify_client($msg);
+        $html = self::render_error_html($exception::class, 'error', $exception->getMessage(), $exception->getFile(), $exception->getLine(), $backtrace);
+        echo self::notify_client($msg, $html);
     }
     
     public static function error_code_to_string($type) {

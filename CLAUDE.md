@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-EPESI BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
+Epesi BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
 Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2, currently released as CalVer `20260701-rc1`. The full
 migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
 also reach existing installs — lives in `AI-shared/MIGRATION_NOTES.md`. Read the relevant section there before

@@ -161,7 +161,9 @@ same for every developer and every computer working on this repo.
   N+1 query patterns on RecordBrowser grids (`Utils_WatchdogCommon`,
   `Utils_CommonDataCommon`'s `get_id`/`get_value`/`get_array`/`get_nodes`) and
   the general fix shape to reapply if another one turns up. Also notes a
-  known-but-deprioritized slow external call in Simple Setup/EpesiStore.
+  known-but-deprioritized slow external call in Simple Setup/EpesiStore, and
+  the 2026-08-28 `#debug_content` redesign (fixed bottom bar, collapsible
+  error cards, `symfony/var-dumper` for SQL query args).
 - [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for
   cleanly upgrading an existing install from a manually-uploaded SourceForge release zip:
   what `console.php dev:dist:create` already excludes vs. two gaps found (`AI-shared/`,

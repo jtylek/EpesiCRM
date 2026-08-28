@@ -1,4 +1,4 @@
-EPESI CHANGELOG
+Epesi CHANGELOG
 ===============
 
 (Dev) means that this change is significant only for developers.
@@ -203,7 +203,7 @@ RELEASE 1.8.1-20161118
 Replaced by rev. 20161121.
 
 Added in this revision PhpFastCache library requires PHP 5.5,
-but EPESI works fine with PHP 5.4.
+but Epesi works fine with PHP 5.4.
 Cache engine has been reverted to the old one in rev. 20161121.
 
 
@@ -241,7 +241,7 @@ RELEASE 1.8.0-20160926
 - New global search engine
 - Fix file uploads - remove temporary files
 - Fix default dashboard - use default settings when user is not allowed to edit dashboard
-- Add option to use EPESI as email handling application in browsers
+- Add option to use Epesi as email handling application in browsers
 - Add custom field template (georgehristov)
 - Improvements in Utils/Tooltip and LeightboxPrompt (georgehristov)
 - Fix Roundcube's addressbook permissions to contacts/companies
@@ -317,7 +317,7 @@ RELEASE 1.7.1-20160127
 - Allow to use self signed certificates for mail server settings
 - Fix frozen autoselect field value
 - Fix words map patch - check if indexes exist, truncate large index
-- Remove update EPESI from /admin
+- Remove update Epesi from /admin
 - Add currency filter to currencies field (Dev)
 - Fix RB subqueries performance issues
 - Fix column width persistence in addons
@@ -393,7 +393,7 @@ RELEASE 1.6.5-20150324
 - Fix JS errors related to form focus
 - Fix autoloader to use absolute path - fixes Roundcube issues
 - Fix calendar event span issues
-- Rename Roundcube's archive folders to not use EPESI word
+- Rename Roundcube's archive folders to not use Epesi word
 - Clear xcache on module update/install and themeup
 - Create function to return default CRM priority and use it for defaults
 - Fix RB patches order for update from older versions
@@ -461,8 +461,8 @@ RELEASE 1.6.3-20150107
 - Improve module dependencies issue reporting
 - Add method Utils_CurrencyFieldCommon::get_all_currencies (Dev)
 - Add printer document config (Dev)
-- Rename recordset_printer RB patch to fix updates from older EPESI versions
-- Whitelabel fixes - replace EPESI text with constant
+- Rename recordset_printer RB patch to fix updates from older Epesi versions
+- Whitelabel fixes - replace Epesi text with constant
 - Include autonumber fields in default description callback
 - Fix duplicate tooltip on field's label - RecordBrowser
 - Fix popup calendar event
@@ -675,10 +675,10 @@ RELEASE 1.5.4-rev11044 (20131014)
 - fixed bugs in RecordBrowser and Attachments
 - changed admin view for currencies
 - do not report E_DEPRECATED errors - PHP 5.5.x [deprecates some features](http://php.net/manual/en/migration55.deprecated.php) used by Smarty templating engine
-- EPESI - RoundCube archiving fixes
+- Epesi - RoundCube archiving fixes
 - RoundCube imap cache fixes
 - fix RecordBrowser's field edit error when param is empty
-- use reply-to header as default when sending emails from EPESI
+- use reply-to header as default when sending emails from Epesi
 - fix time issues in mobile view - [Forum thread](http://forum.epesibim.com/viewtopic.php?f=6&t=1925#p7132)
 - improve CSV export
 
@@ -688,7 +688,7 @@ RELEASE 1.5.3-rev10944 (20130709)
 - fix adding new record - rare issue
 - add patch to create one of the ban variables - sometimes after installation admin could get error "undefined variable"
 - fix template html for launchpad
-- fix deprecated hook name in RoundCube EPESI plugin
+- fix deprecated hook name in RoundCube Epesi plugin
 - fix leightbox js issues
 - fix searching for a lot of records
 - sort meetings in activities tab
@@ -724,18 +724,18 @@ USER PERSPECTIVE
 - shoutbox improvements - click to address person, changed user labels, tab+enter to send
 - company or contact suggestbox - show icon based on type, always display several records from both recordsets
 - watchdog - subscribe to categories (by default only for managers)
-- sort mails archived in EPESI by thread
+- sort mails archived in Epesi by thread
 
 ADMIN PERSPECTIVE
 - User ban system improvements and restore controls in administrator panel
-- add option to disable EPESI store to faster module administration launch
+- add option to disable Epesi store to faster module administration launch
 - changed install process - allow translating from first screen
 - allow run /admin tools before Base installation
 - add option to set security in smtp server settings
 - improved RecordBrowser fields administration
 - changed HomePage mechanism - allow to set default home page for specific group of users
 - link from Administrator panel to /admin tools
-- add EPESI shell in /admin tools - disabled by default
+- add Epesi shell in /admin tools - disabled by default
 - add patch utility in /admin tools
 
 DEVELOPERS PERSPECTIVE
@@ -745,7 +745,7 @@ DEVELOPERS PERSPECTIVE
 - allow to translate strings from smarty templates
 
 SYSTEM
-- RoundCube 0.8.2 with several EPESI integration fixes
+- RoundCube 0.8.2 with several Epesi integration fixes
 - CKEditor 4.0.2
 - optimize startup time
 - allow to translate /admin tools

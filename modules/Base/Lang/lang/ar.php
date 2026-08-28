@@ -21,7 +21,7 @@ $translations['Upcoming Birthdays']='تواريخ ميلاد قادمة';
 $translations['Contact Type']='نوع الحساب';
 $translations['All']='الكل';
 $translations['Favorites']='المفضلة';
-$translations['EPESI Core']='Features Configuration';
+$translations['Epesi Core']='Features Configuration';
 $translations['Additional applets']='تطبيقات اضافيه';
 $translations['Birthdays upcoming in the next: %d days.']='اعياد الميلاد القادمه في الايام المقبله';
 $translations['Calc']='احسب';
@@ -533,7 +533,7 @@ $translations['Options only']='الخيارات فقط';
 $translations['Uninstall']='إلغاء
 ';
 $translations['Are you sure you want to uninstall this package and remove all associated data?']='هل أنت متأكد من رغبتك في إلغاء تثبيت هذه الحزمة وإزالة جميع البيانات المرتبطة بها؟';
-$translations['EPESI Core can not be uninstalled']='لا يمكن إلغاء تثبيت نواة EPESI';
+$translations['Epesi Core can not be uninstalled']='لا يمكن إلغاء تثبيت نواة EPESI';
 $translations['This package can not be uninstalled']='لا يمكن إلغاء تثبيت هذه الحزمة';
 $translations['This package is required by the following packages: %s']='هذه الحزمة مطلوبة من قبل الحزم التالية: %s';
 $translations['Available']='متاح';

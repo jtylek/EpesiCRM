@@ -20,7 +20,7 @@ Client is recognized by a cookie set in the browser.
 You can login as super admin, turn it on, then logout and login as any other
 user.
 
-When maintenance mode is turned on, then EPESI title will contain text
+When maintenance mode is turned on, then Epesi title will contain text
 `(Maintenance mode)`. Of course only for the allowed client.
 
 
@@ -60,7 +60,7 @@ Example file looks like this:
     $maintenance_mode_message = NULL;
 
 
-EPESI during load will check for this special file. If it exists, it will be
+Epesi during load will check for this special file. If it exists, it will be
 loaded. If variable `$maintenance_mode_key` doesn't evaluate to false, then
 maintenance mode is turned on.
 

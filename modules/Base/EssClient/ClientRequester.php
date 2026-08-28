@@ -268,10 +268,10 @@ class ClientRequester implements IClient {
     }
     
     private static function get_referer() {
-        $referer = $_SERVER['HTTP_REFERER'];
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
         if (!$referer)
-            $referer = ($_SERVER['HTTPS'] ? 'https://' : 'http://')
-                    . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $referer = (!empty($_SERVER['HTTPS']) ? 'https://' : 'http://')
+                    . ($_SERVER['HTTP_HOST'] ?? '') . ($_SERVER['REQUEST_URI'] ?? '');
         return $referer;
     }
     

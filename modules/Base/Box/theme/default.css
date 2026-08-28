@@ -170,18 +170,178 @@ hr.line {
 	/* width: 100%; */
 }
 
-#debug {
-	width: 90%;
-	z-index: 99;
-	padding: 5px;
-	color: black;
+/*** debug / error console bar ***
+ * A slim bar pinned to the bottom of the viewport (position:fixed, high
+ * z-index so it always sits above a theme's own fixed chrome - e.g.
+ * AdminLTE's fixed sidebar - instead of being rendered underneath it in
+ * normal document flow). Collapsed to just the summary strip by default;
+ * click it (or the maximize icon) to reveal #debug_panel. #debug_panel is
+ * collapsed via max-height:0/overflow:hidden rather than display:none so
+ * its text content stays available to innerText/textContent-based tooling
+ * (see AI-shared/performance-profiling.md) even while visually hidden.
+ */
+#debug_content {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999999;
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 12px;
+	background: #1e1e1e;
+	color: #ddd;
+	box-shadow: 0 -2px 10px rgba(0,0,0,.4);
 }
 
-#error_box {
-	width: 90%;
-	z-index: 99;
-	padding: 5px;
-	color: black;
+#debug_bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 4px 10px;
+	background: #2d2d2d;
+	border-top: 1px solid #444;
+	cursor: pointer;
+	line-height: 20px;
+}
+
+#debug_bar.has-errors {
+	background: #5c1f1f;
+}
+
+#debug_bar_label {
+	font-weight: bold;
+	color: #fff;
+}
+
+#debug_bar_counts {
+	flex: 1 1 auto;
+	color: #bbb;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#debug_bar_actions span {
+	display: inline-block;
+	padding: 0 6px;
+	color: #ccc;
+}
+
+#debug_bar_actions span:hover {
+	color: #fff;
+}
+
+#debug_panel {
+	max-height: 0;
+	overflow: hidden;
+	padding: 0 10px;
+}
+
+#debug_content.maximized #debug_panel {
+	max-height: 70vh;
+	overflow: auto;
+	padding: 10px;
+}
+
+#debug_content.maximized #debug_bar_max {
+	transform: rotate(180deg);
+}
+
+#debug, #error_box {
+	color: #ddd;
+}
+
+.epesi-error {
+	margin-bottom: 8px;
+	border: 1px solid #444;
+	border-left: 4px solid #999;
+	border-radius: 3px;
+	background: #262626;
+}
+
+.epesi-error--error   { border-left-color: #e04b4b; }
+.epesi-error--warning { border-left-color: #e0a020; }
+.epesi-error--notice  { border-left-color: #4b8be0; }
+
+.epesi-error-head {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 6px 8px;
+	flex-wrap: wrap;
+}
+
+.epesi-error-badge {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 3px;
+	font-weight: bold;
+	font-size: 11px;
+	color: #111;
+	background: #999;
+}
+
+.epesi-error--error   .epesi-error-badge { background: #e04b4b; color: #fff; }
+.epesi-error--warning .epesi-error-badge { background: #e0a020; }
+.epesi-error--notice  .epesi-error-badge { background: #4b8be0; color: #fff; }
+
+.epesi-error-message {
+	color: #fff;
+	word-break: break-word;
+}
+
+.epesi-error-loc {
+	color: #999;
+	font-size: 11px;
+	word-break: break-all;
+}
+
+.epesi-error-trace {
+	border-top: 1px solid #3a3a3a;
+	padding: 4px 8px;
+}
+
+.epesi-error-trace summary {
+	cursor: pointer;
+	color: #9cf;
+}
+
+.epesi-error-frames {
+	margin: 6px 0 2px 16px;
+	padding: 0;
+	list-style: decimal;
+}
+
+.epesi-error-frames li {
+	margin-bottom: 6px;
+}
+
+.epesi-error-frames li pre {
+	margin: 2px 0 0;
+	padding: 4px 6px;
+	background: #1a1a1a;
+	border-radius: 3px;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.epesi-debug-total {
+	font-weight: bold;
+	color: #fff;
+	margin-bottom: 6px;
+}
+
+.epesi-debug-section {
+	margin-bottom: 8px;
+	border: 1px solid #3a3a3a;
+	border-radius: 3px;
+	padding: 4px 8px;
+}
+
+.epesi-debug-section summary {
+	cursor: pointer;
+	color: #9cf;
+	font-weight: bold;
 }
 
 /*** top_bar ***/

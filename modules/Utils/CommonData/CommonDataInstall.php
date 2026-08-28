@@ -46,7 +46,7 @@ class Utils_CommonDataInstall extends ModuleInstall {
 			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0));
 	}
     public static function simple_setup() {
-		return __('EPESI Core');
+		return __('Epesi Core');
     }
 }
 

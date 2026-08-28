@@ -63,7 +63,7 @@ class Base_User_SettingsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return __('EPESI Core');
+		return __('Epesi Core');
 	}
 }
 

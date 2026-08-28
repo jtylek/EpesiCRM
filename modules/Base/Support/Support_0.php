@@ -52,7 +52,7 @@ class Base_Support extends Module {
 		$content .= '<p>'.__('Ask customization questions, report bugs, or request new features on the %s.', array('<a href="https://forum.epe.si/" target="_blank">'.__('Epesi Forum').'</a>')).'</p>';
 
 		$content .= '<h5>'.__('E-mail Support').'</h5>';
-		$content .= '<p>'.__('You can also reach us directly at %s.', array('<a href="mailto:epesi.help@tylek.org">epesi.help@tylek.org</a>')).'</p>';
+		$content .= '<p>'.__('You can also reach us directly at %s &mdash; we build custom modules tailored to your business needs.', array('<a href="mailto:epesi.help@tylek.org">epesi.help@tylek.org</a>')).'</p>';
 
 		$content .= '<h5>'.__('For Developers').'</h5>';
 		$content .= '<p>'.__('Get the source from %s.', array('<a href="https://github.com/jtylek/EpesiCRM" target="_blank">GitHub</a>')).'</p>';

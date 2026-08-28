@@ -65,7 +65,7 @@ class Base_NotifyInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return array('package'=>__('EPESI Core'), 'option'=>__('Web Notifications'), 'version'=>self::version);
+		return array('package'=>__('Epesi Core'), 'option'=>__('Web Notifications'), 'version'=>self::version);
 	}
 
 }

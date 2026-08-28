@@ -2006,3 +2006,37 @@ element) gets permanently stuck in one visual state despite the underlying
 counter/flag driving it looking correct, check for a duplicate DOM id
 before chasing it as a hung request or a race condition — `document.
 querySelectorAll('#the-id').length > 1` settles it in one line.
+
+## A raw `<script>` block added to a `.tpl` file, without `{literal}`, fatals every request (2026-08-28)
+
+Found while redesigning the `#debug_content` debug/error console (see
+`performance-profiling.md`'s update of the same date): added two small JS
+functions (`epesi_debug_toggle()`/`epesi_update_debug_bar()`) directly
+inline in `theme/index.tpl`, the one template every page render goes
+through. Smarty **2** (this codebase's vendored, deliberately-not-upgraded
+template engine — see `MIGRATION_NOTES.md` §17) parses `{...}` as its own
+tag syntax everywhere in a `.tpl` file, including inside a plain
+`<script>` block — it has no concept of "this is JavaScript, don't touch
+it" unless told. Every literal `{`/`}` in the JS (function bodies, `if`
+blocks) was read as an attempted Smarty tag and threw a compile-time fatal
+("unrecognized tag") on **every single request**, since `index.tpl`
+renders on every page.
+
+This didn't look like a template error at first glance: because the
+failure happens during Smarty's compile step (not a clean PHP fatal), the
+symptoms were garbled/partial HTML output and — more confusingly — spurious
+403s on `images/logo.png`/`images/loader.gif` requests with literal quote
+characters baked into the URL, since the broken compiled output corrupted
+attribute values downstream rather than stopping cold.
+
+**Fix**: wrap the JS body in `{literal}` / `{/literal}`, Smarty's
+escape-hatch for "don't parse tags in here." Any Smarty template variables
+you actually want interpolated (`{$foo}`) have to stay *outside* the
+literal block (or be passed via a `data-*` attribute rendered outside it),
+since `{literal}` disables all tag parsing, not just JS-unrelated tags.
+
+**How to apply**: any time you add or edit an inline `<script>` block
+inside *any* `.tpl` file in this codebase (not just `theme/index.tpl`),
+wrap it in `{literal}...{/literal}` before assuming it's done. A raw
+`<script>` with real JS braces is never safe to leave unwrapped in a
+Smarty 2 template.

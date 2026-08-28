@@ -288,10 +288,25 @@ class Epesi {
 		    self::$content[$path]['time'] = microtime(true)-$time;
 	}
 
-	public static function debug($msg=null) {		
+	public static function debug($msg=null) {
 		static $msgs = '';
 		if($msg) $msgs .= $msg.'<br>';
 		return $msgs;
+	}
+
+	// Renders a PHP value as an interactive, collapsible tree via
+	// symfony/var-dumper's HtmlDumper (already vendored - it's a transitive
+	// dependency of symfony/console/psy-psysh, not a new one) instead of a
+	// flat var_export() string. $with_header must be true for exactly one
+	// call per response (the first) so the toggle script/CSS is emitted
+	// once; every later call on the same page reuses it.
+	private static function var_dump_html($value, $with_header) {
+		$output = '';
+		$dumper = new \Symfony\Component\VarDumper\Dumper\HtmlDumper(function($line) use (&$output) { $output .= $line; });
+		if (!$with_header) $dumper->setDumpHeader('');
+		$dumper->setTheme('dark');
+		$dumper->dump((new \Symfony\Component\VarDumper\Cloner\VarCloner())->cloneVar($value));
+		return $output;
 	}
 
 	// === BEGIN custom-type eager-load (PHP 8.2 migration / openpsa QuickForm drop-in) ===
@@ -480,20 +495,22 @@ class Epesi {
 		$debug .= self::debug();
 
 		if(MODULE_TIMES) {
+			$module_times = '';
 			foreach (self::$content as $k => $v) {
 				$style='color:red;font-weight:bold';
 				if ($v['time']<0.5) $style = 'color:orange;font-weight:bold';
 				if ($v['time']<0.05) $style = 'color:green;font-weight:bold';
-				$debug .= 'Time of loading module <b>'.$k.'</b>: <i>'.'<span style="'.$style.';">'.number_format($v['time'],4).'</span>'.'</i><br>';
+				$module_times .= 'Time of loading module <b>'.$k.'</b>: <i>'.'<span style="'.$style.';">'.number_format($v['time'],4).'</span>'.'</i><br>';
 			}
-			$debug .= 'Page renderered in '.(microtime(true)-$time).'s<hr>';
+			$debug .= '<div class="epesi-debug-total">Page renderered in '.(microtime(true)-$time).'s</div>';
+			$debug .= '<details class="epesi-debug-section"><summary>Module load times ('.count(self::$content).')</summary>'.$module_times.'</details>';
 		}
 
 		if(SQL_TIMES) {
-			$debug .= '<font size="+1">QUERIES</font><br>';
 			$queries = DB::GetQueries();
 			$sum = 0;
 			$qty = 0;
+			$query_rows = '';
 			foreach($queries as $kk=>$q) {
 				$style='color:red;font-weight:bold';
 				if ($q['time']<0.5) $style = 'color:orange;font-weight:bold';
@@ -502,16 +519,15 @@ class Epesi {
 					if($queries[$kkk]['args']==$q['args']) {
 						$style .= ';text-decoration:underline';
 					}
-				$debug .= '<span style="'.$style.';">'.'<b>'.$q['func'].'</b> '.htmlspecialchars(var_export($q['args'],true)).' <i><b>'.number_format($q['time'],4).'</b></i>' . (isset($q['caller'])?', '.$q['caller']:'') . '<br>'.'</span>';
+				$query_rows .= '<div style="'.$style.';">'.'<b>'.$q['func'].'</b> '.self::var_dump_html($q['args'], $kk===0).' <i><b>'.number_format($q['time'],4).'</b></i>' . (isset($q['caller'])?', '.htmlspecialchars($q['caller']):'') . '</div>';
 				$sum+=$q['time'];
 				$qty++;
 			}
-			$debug .= '<b>Number of queries:</b> '.$qty.'<br>';
-			$debug .= '<b>Queries times:</b> '.$sum.'<br>';
+			$debug .= '<details class="epesi-debug-section"><summary>SQL queries ('.$qty.', '.number_format($sum,4).'s total)</summary>'.$query_rows.'</details>';
 		}
 		if(!isset($_SESSION['client']['custom_debug']) || $debug!=$_SESSION['client']['custom_debug']) {
 			self::text($debug,'debug');
-			if ($debug) Epesi::js("document.getElementById('debug_content').style.display='block';");
+			if ($debug) Epesi::js("document.getElementById('debug_content').style.display='block';if(typeof epesi_update_debug_bar==='function'){epesi_update_debug_bar();}");
 			$_SESSION['client']['custom_debug'] = $debug;
 		}
 

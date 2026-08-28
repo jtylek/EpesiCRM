@@ -400,7 +400,7 @@ class Patch
 
     function get_module()
     {
-        return $this->module ? $this->module : 'EPESI Core';
+        return $this->module ? $this->module : 'Epesi Core';
     }
 
     function get_short_description()

@@ -43,7 +43,13 @@
 	border: 1px solid #495057;
 	border-radius: 0.375rem;
 	padding: 0.4rem 0.6rem;
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override). Not auto-classed "form-control"
+	   (Shoutbox_0.php::chat() gives it a plain 'class="border_radius_6px"'
+	   instead), so that global 13px rule never reached it either - matches
+	   it explicitly now instead. */
+	font-size: 13px;
 	resize: vertical;
 }
 
@@ -117,7 +123,12 @@
 	border-radius: 0.375rem;
 	padding: 0.5rem 0.6rem;
 	background-color: #2b3035;
-	font-size: 0.85rem;
+	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
+	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
+	   body-level default-font override) - this is the message text itself,
+	   read right alongside the rest of the app's 13px default. Matches it
+	   explicitly instead of drifting off it. */
+	font-size: 13px;
 }
 
 #shoutbox_board .author {
@@ -176,9 +187,12 @@
  * kept applying regardless - simplest fix is to stop fighting it and match Chat
  * to it instead, which is also what was actually requested. Font-size still
  * needs its own explicit rule below: .epesi-gb's own 0.8rem cascade (denser
- * table default) otherwise reads smaller than Chat's #shoutbox_board 0.85rem. */
+ * table default) otherwise reads smaller than Chat's #shoutbox_board, which is
+ * now a literal 13px (was 0.85rem/13.6px, root-relative and left behind by
+ * the app-wide rem->13px cleanup) - matched here explicitly for the same
+ * reason. */
 .epesi-shoutbox-history .shoutbox_textbox {
-	font-size: 0.85rem;
+	font-size: 13px;
 }
 
 .epesi-shoutbox-history .author {

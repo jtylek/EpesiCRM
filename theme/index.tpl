@@ -164,11 +164,42 @@
 
 		<div id="body_content">
 			<div id="main_content" style="display:none;"></div>
-			<div id="debug_content" style="padding-top:97px;display:none;">
-				<div class="button" onclick="document.getElementById('error_box').innerHTML='';document.getElementById('debug_content').style.display='none';">Hide</div>
-				<div id="debug"></div>
-				<div id="error_box"></div>
+			<div id="debug_content" style="display:none;">
+				<div id="debug_bar" onclick="epesi_debug_toggle()">
+					<span id="debug_bar_label">Debug</span>
+					<span id="debug_bar_counts"></span>
+					<span id="debug_bar_actions">
+						<span id="debug_bar_max" title="Maximize / restore">&#9650;</span>
+						<span id="debug_bar_hide" title="Close" onclick="event.stopPropagation();document.getElementById('error_box').innerHTML='';document.getElementById('debug_content').style.display='none';epesi_update_debug_bar();">&#10005;</span>
+					</span>
+				</div>
+				<div id="debug_panel">
+					<div id="error_box"></div>
+					<div id="debug"></div>
+				</div>
 			</div>
+			<script type="text/javascript">
+				{literal}
+				function epesi_debug_toggle() {
+					var el = document.getElementById('debug_content');
+					el.className = (el.className.indexOf('maximized') >= 0) ? '' : 'maximized';
+				}
+				function epesi_update_debug_bar() {
+					var box = document.getElementById('error_box');
+					var errs = box ? box.getElementsByClassName('epesi-error').length : 0;
+					var counts = document.getElementById('debug_bar_counts');
+					var bar = document.getElementById('debug_bar');
+					if (!counts || !bar) return;
+					var parts = [];
+					if (errs) parts.push(errs + (errs == 1 ? ' error' : ' errors'));
+					var dbg = document.getElementById('debug');
+					var m = dbg && dbg.textContent && dbg.textContent.match(/Page renderered in ([0-9.]+)s/);
+					if (m) parts.push('rendered in ' + parseFloat(m[1]).toFixed(3) + 's');
+					counts.textContent = parts.join(' · ');
+					bar.className = errs ? 'has-errors' : '';
+				}
+				{/literal}
+			</script>
 
 			<div id="epesiStatus">
 				{if $theme_name == 'adminlte' || $theme_name == 'adminltedark'}

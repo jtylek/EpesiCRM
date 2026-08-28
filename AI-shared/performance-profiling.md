@@ -20,23 +20,33 @@ define('MODULE_TIMES',1);
 define('SQL_TIMES',1);
 ```
 
-Once both are on, every `process.php` response appends a debug panel
-(`#debug_content`, force-shown via JS) listing:
-- every rendered module's own wall-clock time (`include/epesi.php`'s
-  `MODULE_TIMES` block) — nested by module path, so a slow leaf module's cost
-  rolls up through every ancestor's own total
-- every SQL query run (`include/database.php`'s `SQL_TIMES` instrumentation
-  in `DB::Execute`/`GetOne`/`GetAssoc`/etc.), with args, timing, and the
-  calling function/file/line, plus a total query count and summed query time
+Once both are on, every `process.php` response appends to a debug panel
+(`#debug_content`, force-shown via JS — see "Debug/error console redesign"
+below for its current UI) listing:
+- a `Page renderered in Xs` total, always visible, followed by a collapsed
+  "Module load times (N)" `<details>` section: every rendered module's own
+  wall-clock time (`include/epesi.php`'s `MODULE_TIMES` block) — nested by
+  module path, so a slow leaf module's cost rolls up through every
+  ancestor's own total
+- a collapsed "SQL queries (N, Xs total)" `<details>` section: every SQL
+  query run (`include/database.php`'s `SQL_TIMES` instrumentation in
+  `DB::Execute`/`GetOne`/`GetAssoc`/etc.), with args (rendered as an
+  interactive collapsible tree via `symfony/var-dumper`'s `HtmlDumper` —
+  see [[symfony-var-dumper-vendored]] — not flat `var_export()` text),
+  timing, and the calling function/file/line
 
 This splits "is it the database, or is it PHP?" immediately — e.g. on
 Companies: Browse (see below), only 42% of total render time was SQL; the
 rest was per-row PHP work in `Utils_RecordBrowser`/`Utils_GenericBrowser`.
 From the browser console, the panel's totals can be pulled without dumping
-the whole (often huge) debug blob:
+the whole (often huge) debug blob — use `textContent`, not `innerText`:
+the module-times/SQL-queries sections collapse via native `<details>`
+(closed by default), and closed `<details>` content is excluded from
+`innerText` (it's genuinely not rendered) but still present in
+`textContent`:
 
 ```js
-document.getElementById('debug_content').innerText
+document.getElementById('debug').textContent
   .split('\n').find(l => l.startsWith('Page renderered'))
 ```
 
@@ -48,6 +58,33 @@ To find *why* a specific query runs N times, group the debug panel's query
 lines by their "Called by" function+file+line rather than reading them
 one-by-one — that's what turns "234 queries" into "40 of them are
 `Utils_WatchdogCommon::user_check_if_notified`, one per visible row."
+
+## Debug/error console redesign (2026-08-28)
+
+`#debug_content` used to render in normal document flow with no
+positioning of its own — under the AdminLTE theme (the only real theme in
+this app today, see `adminlte-theme.md`) that put it visually underneath
+the fixed sidebar, and an actual runtime error (as opposed to just
+`MODULE_TIMES`/`SQL_TIMES` output) additionally wiped the rest of the
+response via `Epesi::discard()`, so the whole page went blank except one
+undifferentiated `<pre>` wall of text. Redesigned into a slim bar pinned to
+the bottom of the viewport (`position:fixed`, high `z-index`, collapsed to
+just a one-line summary + error count by default; click to expand into a
+scrollable panel, `✕` to dismiss) — see `theme/index.tpl` (bar markup +
+toggle JS, wrapped in `{literal}`, see `bug-patterns.md`'s entry of this
+same date for why that matters), `include/error.php` (each error now a
+card: colored severity badge, headline message + file:line up front, full
+stack trace collapsed behind "Stack trace (N)"), and `include/epesi.php`
+(the `MODULE_TIMES`/`SQL_TIMES` restructuring described above).
+
+**Gotcha for `modules/Base/Box` specifically**: its per-theme CSS files
+don't cascade — `theme_adminltedark/default.css` is a full standalone
+replacement for `theme/default.css`, not a delta (see that file's own
+header comment). A style meant to apply regardless of theme (like this
+bar) has to be duplicated into both files; adding it to only `theme/
+default.css` silently never applies under the real running theme. Verified
+by intentionally triggering a live error and screenshotting the actual
+rendered page rather than trusting the CSS alone.
 
 ## Fixed: two N+1 patterns on RecordBrowser grids (2026-08-28)
 

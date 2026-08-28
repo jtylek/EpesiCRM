@@ -172,7 +172,7 @@ class Custom_TutorialInstall extends ModuleInstall {
 
 	// Shown in Epesi Store's "Simple view" as its own installable package.
 	public static function simple_setup() {
-		return array('package'=>_M('Tutorial'));
+		return array('package'=>_M('Tutorial'), 'version'=>'1.0', 'icon'=>true);
 	}
 }
 ?>

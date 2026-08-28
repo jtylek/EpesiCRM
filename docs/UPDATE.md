@@ -6,12 +6,12 @@ version: 2014-06-26
 How to perform update
 ---------------------
 
- 1. Open your EPESI and login as super administrator
+ 1. Open your Epesi and login as super administrator
  2. Open */admin* tools (http[s]://EPESI_address/admin/)
  3. Turn on *maintenance mode* (see `maintenance_mode.md` file)
  4. Backup your data - data dir, custom modifications, database
- 5. Update EPESI files - extract release package
- 6. Refresh EPESI - you should see an update page
+ 5. Update Epesi files - extract release package
+ 6. Refresh Epesi - you should see an update page
  7. Click *Update!* and do not close browser's window
 
 Maintenance mode will be turned on during the update process (step 7).
@@ -24,13 +24,13 @@ How my browser drives update?
 Almost every server has a time limit for the script execution. Sometimes PHP
 itself limits this time, but sometimes HTTP server forces PHP to stop after
 some time. It's a bad thing that may happen during update, because it may
-break EPESI.
+break Epesi.
 
 Due to this limits we have developed mechanism to perform update in chunks.
 Every chunk of update should not last more than about 30 seconds.
 
 You browser reloads page to proceed to the next chunk. Javascript is required,
-but it's not a problem since you use EPESI, that requires javascript also.
+but it's not a problem since you use Epesi, that requires javascript also.
 
 
 What if I'll close the browser during update?
@@ -85,9 +85,9 @@ work.
 Update process detailed description
 -----------------------------------
 
-Every request will check for the possible update. EPESI stores it's version
+Every request will check for the possible update. Epesi stores it's version
 number in the database, and in the file `include/version.php`. If version
-in the file is greater than installed (in database), then EPESI needs update
+in the file is greater than installed (in database), then Epesi needs update
 and you'll be redirected to the `update.php` script.
 
 Only super admin can perform update process.

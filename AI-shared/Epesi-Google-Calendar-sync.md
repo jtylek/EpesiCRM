@@ -5,6 +5,99 @@ Epesi meetings to their own Google Calendar. Not yet implemented — this is the
 checked in ahead of the code so the shape survives a context reset / different machine picking up the
 work. Update this file (or note "implemented, see commit X") once built; don't let it drift once it does.
 
+## On hold (2026-08-28)
+
+Built, installed, and got as far as a real live "Connected" status (`jtylek@gmail.com`) via the actual
+Google OAuth flow — then hit `insufficient authentication scopes` on the actual Calendar API calls,
+traced to Google's Data Access/scope-declaration requirement (see `README.md`'s setup walkthrough for
+the full explanation). Put on hold by the user at that point rather than pushing through in one sitting
+— the Console-side setup (project selection, enabling the API, consent-screen scope declaration, the
+scope-picker's enabled-APIs-only filter) turned out fiddlier in practice than the code itself.
+**Not abandoned.** Concretely, as of this pause: `GoogleCalendarSyncInstall.php`'s `simple_setup()` is
+commented out (so it no longer shows in Modules Administration & Store, only in Advanced Setup) and the
+module has been manually uninstalled from this dev instance. See `README.md`'s own "On hold" note at
+the top for the same status, kept in sync with this one. Full setup/troubleshooting instructions are in
+that README, not repeated here.
+
+## Implementation status (2026-08-28, code complete — not yet verified live)
+
+All three PHP files are written and `php -l` clean:
+- `modules/CRM/GoogleCalendarSync/GoogleCalendarSyncInstall.php` — both tables
+  (`crm_googlecalendarsync_accounts`, `crm_googlecalendarsync_map`, with unique indexes) and
+  `Base_AclCommon::add_permission(_M('Google Calendar Sync'), array('ACCESS:employee'))`.
+- `modules/CRM/GoogleCalendarSync/GoogleCalendarSyncCommon_0.php` — tile registration
+  (`user_settings()`, gated on the ACL permission above — it wasn't actually checked anywhere in an
+  earlier draft, fixed), admin config (`admin_caption()`/`admin_access()`), cron driver
+  (`cron()`/`cron_sync()`/`sync_account()`), RRULE translation, encrypt/decrypt, and the full OAuth +
+  Calendar-API-v3 flow as hand-rolled curl calls (see "No vendored dependency" section below for why).
+- `modules/CRM/GoogleCalendarSync/GoogleCalendarSync_0.php` — `connect()` (My Settings tile target:
+  status card + Connect/Disconnect) and `admin()` (superadmin-only Client ID/Secret form). No template
+  files — both render via inline `print()` branching on `Base_ThemeCommon::is_adminlte_family()`, the
+  same pattern `Base_EssClient::admin()`/`no_ssl_settings()` already use for simple status/form screens;
+  deliberately deviates from the design's `theme/`+`theme_adminlte/` file list below (also see the
+  `theme_adminltedark` correction 2 items down — that pairing is stale either way).
+
+**Not yet done — needs a human with real Google Cloud credentials, can't be verified further here:**
+`console.php module:install CRM/GoogleCalendarSync` hasn't been run, and the live OAuth
+consent→callback→token-refresh→event-insert round trip is entirely untested (no Google OAuth Client
+ID/Secret available in this environment). Walk through this file's own "Verification" checklist below
+end-to-end before considering this done.
+
+**Corrections found during research, supersede the original design text above:**
+- The design says `theme/` + `theme_adminlte/`. **Wrong as of this repo's current state**:
+  `theme_adminlte/` (light) was deleted outright on 2026-08-04 — the only AdminLTE-family theme now
+  is `theme_adminltedark/` (see `adminlte-theme.md`). Moot anyway given the inline-`print()` plan above,
+  but if templates end up getting added later, it must be `theme_adminltedark/`, not `theme_adminlte/`.
+- `Base_Admin`'s tile-click dispatch (`Admin_0.php::list_admin_modules()`) calls
+  `$this->pack_module($module, null, 'admin')` — i.e. the admin config screen must be a **public
+  instance method `admin($store=false)` on the `CRM_GoogleCalendarSync` Module class** (`_0.php`),
+  not a Common static. Mirror `Base_EssClient::admin()`: gate with
+  `if (!Base_AclCommon::i_am_sa()) return;` at the top (that boolean check is also exactly what
+  `CRM_GoogleCalendarSyncCommon::admin_access()` should return — no `admin_access_levels()` needed,
+  confirmed via `Base_EssClientCommon::admin_access()`).
+- Confirmed via `Base_AdminCommon::get_access()` / `ModuleManager::check_access()` that `admin_access()`
+  alone (boolean) is sufficient to gate the whole admin tile; don't overbuild with per-section levels.
+- `CRM_FiltersCommon::get_my_profile()` returns a **contact id** (`CRM_ContactsCommon::get_my_record()`
+  wraps `Acl::get_user()`), not a criterion array — for `sync_account()`, resolve each account's contact
+  id via `CRM_ContactsCommon::get_contact_by_user_id($account['epesi_user_id'])['id']` (doesn't depend
+  on the global logged-in user, unlike `get_my_record()`).
+- Decided **not** to build a RecordBrowser crits date-range expression for the ±window (didn't want to
+  guess at the crits DSL's range-operator syntax without verifying it) — instead fetch all active
+  `crm_meeting` rows for the contact via `get_records('crm_meeting', array('employees' => $contact_id))`
+  (multiselect containment crit, same shape as `crm_event_get()`'s `'employees'=>$me['id']` default-value
+  usage) and filter the -7d/+180d window in PHP against `date`/`recurrence_end`. Cheap enough since
+  recurring meetings are single master rows, not expanded occurrences.
+- `get_records()` already applies `active=1` and per-viewer ACL filtering itself (`build_query()`) — no
+  need to pass `active=1` explicitly, but note it filters by the **currently logged-in** Acl user's view
+  access, which under cron (`Base_AclCommon::set_sa_user()`) is SA and therefore no real restriction —
+  the `employees` crit is what actually scopes results to the right person, not ACL.
+- DB column type codes confirmed from existing `DB::CreateTable()` calls: `I4`=int, `I8`=bigint,
+  `C(n)`=varchar, `X`=text/long text, `T`=datetime (`DEFTIMESTAMP` for a default-now column), `I1` used
+  elsewhere for a boolean-ish flag. Columns are nullable by default unless `NOTNULL` is added. Unique
+  index: `DB::CreateIndex($name, $table, 'col1,col2', array('UNIQUE'=>1))`.
+- `Variable::get($name, false)` returns `''` instead of throwing when unset (2nd arg is `$throw_error`) —
+  use that (not a try/catch) when reading the admin-configured Client ID/Secret.
+
+**Resolved: the redirect_uri stability question flagged in an earlier pass of this section.** Google
+requires the `redirect_uri` sent when requesting authorization and the one sent when exchanging the
+code to be the exact same string, registerable once in Google Cloud Console. Plain
+`Module::create_ajax_callback_url()` (`include/module.php:758`) bakes in the *live* per-tab `CID`
+(`include/session.php:490` — `HTTP_X_CLIENT_ID`, not obviously stable across renders/tabs), which
+would have broken that. Fixed by **not** using it: `CRM_GoogleCalendarSyncCommon::oauth_redirect_uri()`
+inlines the same key-generation formula (`md5(serialize($func).serialize($args))`,
+`$_SESSION['ajax_callbacks'][$key] = ...`) but with a hardcoded `cid=0` instead of the live `CID` —
+`ajax.php` only ever checks `is_numeric($_GET['cid'])`, it never compares it against anything, so `0` is
+just as valid as whatever the real per-tab id would have been, and is byte-stable across every render/
+tab/session. Both `connect()` (building the "Connect" link) and `admin()` (displaying the URI to paste
+into Google Cloud Console) call this same helper, so they always agree.
+
+**Remaining next steps, in order:** (1) `php -l` already clean on all three files — run
+`vendor/bin/phpstan analyse -c phpstan.neon` too once phpstan is available in this environment (it
+isn't currently installed here); (2) `console.php module:install CRM/GoogleCalendarSync`, confirm both
+tables + the ACL permission get created; (3) get a real Google Cloud OAuth Client ID/Secret from the
+user (enable the Calendar API, Web-application credential type) and work through the "Verification"
+checklist below end-to-end, including the token-refresh-after-expiry case and the recurrence variants.
+
 ## Scope
 
 - **One-way sync: Epesi → Google only.** Epesi is the source of truth; edits made directly on the Google
@@ -69,13 +162,38 @@ work. Update this file (or note "implemented, see commit X") once built; don't l
 
 ## Design
 
-### 1. Dependency vendoring
+### 1. No vendored dependency — hand-rolled curl client instead (revised 2026-08-28)
 
-`modules/CRM/GoogleCalendarSync/composer.json` requires `google/apiclient` (official Google API PHP
-client — handles OAuth2 exchange/refresh and Calendar API v3 shapes, far less custom code than hand-rolled
-curl). Add `@composer -d="modules/CRM/GoogleCalendarSync" install` to root `composer.json`'s
-`post-install-cmd`, next to the `CRM/Mail` line. Load via `require_once` at the top of
-`GoogleCalendarSyncCommon_0.php`, matching `TCPDFCommon_0.php:20`.
+**Originally** this section specified `modules/CRM/GoogleCalendarSync/composer.json` requiring
+`google/apiclient` (official Google API PHP client). **Reversed after actually installing it**:
+`google/apiclient` pulls in `google/apiclient-services` as a *mandatory* (not optional/suggested)
+dependency — a single monolithic package bundling PHP client stubs for *every* Google API (Gmail,
+Drive, YouTube, Sheets, Calendar, hundreds of others), because Google ships one combined services
+package rather than a per-API split. There is no `composer require` path to pull in just the Calendar
+slice of it. Measured directly in this repo: **over 400MB installed** (10,000+ files) — bigger than
+this entire Epesi checkout including its own root `vendor/`, for what amounts to a handful of REST
+calls. Flagged by the user mid-build (`git status` showing 10,000+ new files) and confirmed before
+proceeding further.
+
+**Decided instead**: no Composer dependency at all for this module. The Google Calendar API v3 is a
+plain JSON/HTTPS REST API, and OAuth2 authorization-code exchange/refresh is just a couple of
+`POST` requests — both are straightforward to hand-roll with PHP's built-in `curl` extension. This
+also better matches this codebase's own conventions: root `composer.json` doesn't even carry a full
+HTTP client (`guzzlehttp/psr7` there is message objects only, not a client), and CLAUDE.md's stated
+ethos is "no build step, surgical changes" — vendoring an entire multi-API SDK for one API was a
+mismatch with that. Trade-off accepted deliberately: ~100-150 lines of custom HTTP/OAuth/Calendar-REST
+code to write and maintain ourselves, in exchange for zero new dependencies and no `vendor/` directory
+for this module at all. `modules/CRM/GoogleCalendarSync/composer.json` was deleted (never committed);
+root `composer.json`'s `post-install-cmd` was NOT touched (no `CRM/Mail`-style nested-composer line
+needed). `GoogleCalendarSyncCommon_0.php` implements its own small `http_request()`/`api_request()`
+JSON-over-curl helpers instead of `require_once`-ing a vendored `autoload.php` the way
+`TCPDFCommon_0.php:20` does — there is no vendor autoload for this module.
+
+Everywhere below that still says `Google_Client`/`Google_Service_Calendar`/`Google_Service_Calendar_Event`
+etc. (SDK class names) is **stale, superseded by this section** — read those as "the equivalent
+hand-rolled curl call" instead. Left in place rather than rewritten line-by-line so the *shape* of the
+OAuth flow / sync logic described below still reads as a design reference; only the "how it talks to
+Google" mechanism changed.
 
 ### 2. Schema (`GoogleCalendarSyncInstall.php`)
 
@@ -170,25 +288,26 @@ config screen (install-wide), both gated by `Base_AclCommon::check_permission('G
 - `modules/CRM/GoogleCalendarSync/GoogleCalendarSync_0.php` — `connect()` page: status + Connect/Disconnect
 - `modules/CRM/GoogleCalendarSync/GoogleCalendarSyncCommon_0.php` — tile registration, cron driver,
   OAuth, sync logic, encrypt/decrypt, RRULE translation, admin registration
-- `modules/CRM/GoogleCalendarSync/composer.json` — `google/apiclient` dependency
-- `composer.json` (root) — add the module's `post-install-cmd` line
-- `modules/CRM/GoogleCalendarSync/theme/` + `theme_adminlte/` — `connect()` page template
+- No `composer.json`/`vendor/` for this module — see "No vendored dependency" above. No template
+  files either — `connect()`/`admin()` render inline, see the Implementation status note above.
 
 ## Verification (once built)
 
-1. `php -l` every new PHP file (`/c/xampp82/php/php.exe` on Windows); `vendor/bin/phpstan analyse -c phpstan.neon` stays clean.
-2. `composer install` at root — installs `google/apiclient` into the module's own `vendor/`.
-3. `php console.php module:install CRM/GoogleCalendarSync` — confirm tables + ACL permission created.
-4. Google Cloud Console: enable Calendar API, create a Web-application OAuth Client ID, set the
-   authorized redirect URI to the module's `create_ajax_callback_url` output, paste Client ID/Secret
-   into the admin config screen.
-5. As a normal user: open My Settings, confirm the "Google Calendar Sync" tile, click in, complete the
+1. `php -l` every new PHP file (`/c/xampp82/php/php.exe` on Windows) — done, clean.
+   `vendor/bin/phpstan analyse -c phpstan.neon` still needs to run once phpstan is available (not
+   installed in this environment as of 2026-08-28).
+2. `php console.php module:install CRM/GoogleCalendarSync` — confirm tables + ACL permission created.
+   Not yet run.
+3. Google Cloud Console: enable Calendar API, create a Web-application OAuth Client ID, set the
+   authorized redirect URI to the value `CRM_GoogleCalendarSyncCommon::oauth_redirect_uri()` displays
+   on the admin config screen, paste Client ID/Secret into that screen.
+4. As a normal user: open My Settings, confirm the "Google Calendar Sync" tile, click in, complete the
    Google consent flow, confirm the account row appears with encrypted (non-plaintext) tokens and the
    tile shows connected status.
-6. Create a one-off meeting and a recurring meeting with that user as a participant; run `cron.php` (or
+5. Create a one-off meeting and a recurring meeting with that user as a participant; run `cron.php` (or
    wait an interval); confirm both appear correctly in Google Calendar including recurrence. Edit the
    meeting — confirm the Google event updates, not duplicates. Soft-delete it — confirm the Google event
    is removed and the map row cleaned up.
-7. Force `token_expires` into the past and re-run sync — confirm token refresh works without requiring
+6. Force `token_expires` into the past and re-run sync — confirm token refresh works without requiring
    reconnect.
-8. Check `data/.../cron.log` for unexpected errors across a few sync ticks.
+7. Check `data/.../cron.log` for unexpected errors across a few sync ticks.

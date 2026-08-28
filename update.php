@@ -1,6 +1,6 @@
 <?php
 /**
- * EPESI Core updater.
+ * Epesi Core updater.
  *
  * @author    Adam Bukowski <abukowski@telaxus.com> and Pawel Bukowski <pbukowski@telaxus.com>
  * @version   2.0

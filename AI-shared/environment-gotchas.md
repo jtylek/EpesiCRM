@@ -333,7 +333,7 @@ container instead of the whole page (e.g.
 `page.locator('.epesi-kb-body').getByText('Accounting', { exact: true })`).
 
 App URL for local browser testing: **don't hardcode a URL in this file.** This
-machine runs multiple EPESI projects side by side, each in its own `htdocs`
+machine runs multiple Epesi projects side by side, each in its own `htdocs`
 subdirectory with its own `data/config.php` and its own database, so the
 local test URL differs per checkout. Read that checkout's `data/config.php`
 for its `EPESI_URL` (see the gotcha above — confirm it's actually set to the

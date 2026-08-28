@@ -686,7 +686,7 @@ class Data_CountriesInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return __('EPESI Core');
+		return __('Epesi Core');
 	}
 }
 

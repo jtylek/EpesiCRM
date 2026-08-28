@@ -147,7 +147,7 @@ navigation/presentation become linear and guided.
 `modules/Utils/Wizard/Wizard_0.php` (`Utils_Wizard`) is a real multi-step-form engine — validation-gated
 `next_page()`, back/forward history, named/conditional pages via `delete_page()`, arbitrary step content via
 `callback_page()` (output buffering captures whatever a callback echoes, not just QuickForm fields) — and
-already drives `modules/FirstRun/FirstRun_0.php` (EPESI's in-app first-run/setup wizard: welcome → admin
+already drives `modules/FirstRun/FirstRun_0.php` (Epesi's in-app first-run/setup wizard: welcome → admin
 user → mail settings → SMTP → warning → done) and `modules/Develop/ModuleCreator/ModuleCreator_0.php` (a dev
 tool; the only real consumer using nested `set_caption($caption, 1)` sub-steps, for its dynamic per-table
 definition pages).
@@ -270,7 +270,7 @@ fields" → "fixed values", "common data" → "match values", one short explanat
   fields (each optional step appears only when relevant); resuming mid-wizard after navigating away;
   imported rows landing correctly in the destination RecordBrowser tab.
 - Confirm `files()`/`worksheets()` (Advanced) still work exactly as today.
-- Re-verify `FirstRun` (the actual EPESI first-run wizard) still renders correctly end-to-end with the new
+- Re-verify `FirstRun` (the actual Epesi first-run wizard) still renders correctly end-to-end with the new
   shared stepper template — this is a shared-module change, regression risk is real, not hypothetical.
 - Screenshot/click through both the Import wizard and FirstRun in AdminLTE light and dark mode via
   Playwright MCP tools — this module has had light/dark parity bugs before.

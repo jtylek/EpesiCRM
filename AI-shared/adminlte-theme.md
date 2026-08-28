@@ -948,7 +948,7 @@ render as a link using the same `get_submit_form_href()` mechanism; `admin_lists
 same link into its `Utils_GenericBrowser` postfix (inside the same `<form>`); `admin_email_server()`
 gets a real QuickForm `submit` element instead (simplest of the three, since that method already
 uses QuickForm's own generic renderer, which themes a submit button automatically - no manual
-markup needed). `admin_email_server()`'s `clone`/`search` ActionBar entries ("Copy EPESI
+markup needed). `admin_email_server()`'s `clone`/`search` ActionBar entries ("Copy Epesi
 settings"/"Test") were left as-is in the shared ActionBar - unique keys, no collision, the only
 change is they're now always visible rather than only while that section happened to be "the
 active tab", a minor UX quirk not a functional bug. `admin_main()`'s and `admin_lists()`'s own

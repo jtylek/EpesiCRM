@@ -506,7 +506,7 @@ All of these got Epesi running on PHP 8.2 but are temporary. Each needs a perman
    sites to openpsa's plain-string format, each paired with an explicit `require_once` of the
    class file (no PSR-4 autoload for Epesi's own classes). No vendor edit needed at all now.
 
-### EPESI CODE FIXES (survive composer update, but some are band-aids)
+### Epesi CODE FIXES (survive composer update, but some are band-aids)
 3. **Relative require_once of old QuickForm classes** — these load STALE classes via include_path
    (old 3.2.14-php7 OR system PEAR /opt/lampp/lib/php/HTML/). Disabled in:
      Renderer/TCMSArray.php:30, Renderer/TCMSDefault.php:30 (Renderer.php)
@@ -568,7 +568,7 @@ first-class-callable Rector rule for code that feeds Epesi's callback system.
 
 ## 15. MILESTONE: Epesi 1.9.1 fully runs on PHP 8.2 — dashboard renders, user logged in
 
-Reached a complete, logged-in dashboard ("Congratulations! You've just installed EPESI!!") on
+Reached a complete, logged-in dashboard ("Congratulations! You've just installed Epesi!!") on
 PHP 8.2.12. Full install → FirstRun → modules installed → Contacts → HomePage → Dashboard with all
 applets rendering (Watchdog, Tasks, Phonecalls, Agenda, Clock, Shoutbox, Welcome). Commit 82a3333
 on branch experiment/composer-deps.
@@ -1224,7 +1224,7 @@ this fix have `f_attached_to = NULL` in `utils_attachment_data_1` and will still
 
 ## 33. FIXED — EpesiStore crashes: ClientRequester.php not found
 
-- **Symptom:** Clicking "EPESI Store" → `Failed opening required 'modules/Base/Setup/ClientRequester.php'`.
+- **Symptom:** Clicking "Epesi Store" → `Failed opening required 'modules/Base/Setup/ClientRequester.php'`.
 - **Cause:** `EssClientCommon_0.php:150` used `self::Instance()->get_module_dir()` to locate `ClientRequester.php`. When called from within `Base_Setup`'s display context, the shared mutable `Instance()` singleton had been overwritten by `Base_Setup`, returning the wrong directory. Same root cause as §20.
 - **Fix:** Replaced `self::Instance()->get_module_dir() . 'ClientRequester.php'` with `__DIR__ . '/ClientRequester.php'` — always resolves to `modules/Base/EssClient/` regardless of call context.
 - **Note:** This `__DIR__` fix was a local workaround for the **same root cause now identified in §36** (Instance() singleton broken by PHP 8.x static-variable semantics). If the §36 root fix is applied, this workaround could be reverted.
@@ -1302,7 +1302,7 @@ Restores **exactly** the PHP 7.4 per-class behavior. Does not change the data mo
 - This touches the **heart of the framework** (`Instance()` is used everywhere) → author's call to apply.
 - **Plan agreed with Karina:** document now (this section); apply + test on a **separate review branch** (revertable), NOT on `experiment/composer-deps` directly, then full module re-test before any merge.
 - **STATUS 2026-06-28:** root fix APPLIED on branch `experiment/instance-singleton-fix` (`module_common.php` — per-class keying via `static::class`). This is a PROPOSAL for Jasiek, NOT merged. Testing in two steps: (1) re-test Core with §20/§33 workarounds still in place → confirm the Instance change introduces no regressions; (2) revert the §20 narrow fix + §33 `__DIR__` workaround → confirm the root fix alone covers them.
-- **RESULT 2026-06-28: BOTH STEPS PASS.** Step 1 — Core re-tested (Dashboard, Contacts, Companies, Tasks, Print, attachments, Help, theme rendering): no regressions, log clean. Step 2 — with both workarounds REMOVED, file view/download/get-link (§20) and EPESI Store (§33) work purely on the root fix. Conclusion: the single `Instance()` fix replaces both targeted workarounds at the source. Branch is a verified, reversible proposal ready for Jasiek's review. If accepted: this becomes the canonical fix and the §20/§33 workarounds stay reverted; the 7 other latent landmine sites (EpesiStore, Theme, Fax, Print, Attachment, MainModuleIndicator) are then also covered.
+- **RESULT 2026-06-28: BOTH STEPS PASS.** Step 1 — Core re-tested (Dashboard, Contacts, Companies, Tasks, Print, attachments, Help, theme rendering): no regressions, log clean. Step 2 — with both workarounds REMOVED, file view/download/get-link (§20) and Epesi Store (§33) work purely on the root fix. Conclusion: the single `Instance()` fix replaces both targeted workarounds at the source. Branch is a verified, reversible proposal ready for Jasiek's review. If accepted: this becomes the canonical fix and the §20/§33 workarounds stay reverted; the 7 other latent landmine sites (EpesiStore, Theme, Fax, Print, Attachment, MainModuleIndicator) are then also covered.
 - **Data caveat:** on a clean production 7.4→8.2 migration, files are already correctly in `data/Utils_FileStorage/`, so the code fix alone is enough. On THIS test instance, files written while the bug was live got scattered to `data/CRM_Tasks/` etc. — those would need a one-time move into `data/Utils_FileStorage/` (separate data step, handle with care).
 
 ---
@@ -1597,7 +1597,7 @@ install, but a clean *reinstall* would hit "table exists"; worth updating that d
 ### §55 — default root `.htaccess` template: fix mis-guarded `Header` directives (2026-07-07)
 
 **Found by the DirectAdmin cross-platform test.** On DA, `setup.php` showed *"Your hosting is not compatible with
-default EPESI root .htaccess file"* — a warning cPanel never showed. Cause: in `htaccess.txt` the security-header
+default Epesi root .htaccess file"* — a warning cPanel never showed. Cause: in `htaccess.txt` the security-header
 lines were wrapped in the **wrong** `<IfModule>` guard:
 ```
 <IfModule mod_alias.c>
@@ -1747,9 +1747,9 @@ handled differently:
 - **Marketing links → swap to the canonical URL:** `http://www.telaxus.com` (~19 files, e.g. the footers already
   changed in the copyright work), `http://epe.si` / `www.epe.si` / `epe.si/donate`, `http://www.epesibim.com`.
 - **⚠️ SERVICE endpoints → do NOT point at a marketing page; map to the CURRENT live host or they break:**
-  - `http://ess.epe.si/update.json` — the **auto-update / EPESI Store check endpoint** (swapping this to a
+  - `http://ess.epe.si/update.json` — the **auto-update / Epesi Store check endpoint** (swapping this to a
     marketing URL breaks update.php's package check).
-  - `https://ess.epe.si/` , `ess.epe.si/payments/` , `ess.epe.si/invoice/` , `ess.epesibim.com/` — EPESI Store /
+  - `https://ess.epe.si/` , `ess.epe.si/payments/` , `ess.epe.si/invoice/` , `ess.epesibim.com/` — Epesi Store /
     subscription / payments service.
   - `http://forum.epesibim.com` (community forum), `http://translate.epesibim.com` (translation server).
   Each of these needs its **actual current host** confirmed, not the marketing link.
@@ -2824,7 +2824,7 @@ the file, check for a stray short tag before assuming the finding is a false pos
 **Context:** `setup.php`'s `check_htaccess()` self-test (see §55) can still legitimately fail even after
 §55's `mod_headers` guard fix — e.g. `AllowOverride` too narrow to permit `Options`/`RedirectMatch`/`Header`,
 or an nginx/PHP-FPM front-end that ignores `.htaccess` entirely. When that happens the admin sees "Your
-hosting is not compatible with default EPESI root .htaccess file" and **no root `.htaccess` gets installed
+hosting is not compatible with default Epesi root .htaccess file" and **no root `.htaccess` gets installed
 at all** — so none of `htaccess.txt`'s hardening applies: no `Options -Indexes`, no `.git`/`.svn` blocking,
 no `X-Frame-Options`/`X-XSS-Protection` headers, no mod_php `memory_limit` bump.
 
@@ -2919,7 +2919,7 @@ treatment if another shared template/render-wrapper accumulates optional vars ov
 
 **Symptom:** every logged-in user's Dashboard action bar and Launchpad were cluttered with nearly every
 menu item in the app (Control panel, Messenger Alerts, My Company, User Activity Report, Search, Support:
-Get Support/Help/Register EPESI!, ...), not the small curated CRM-core set `930de60db` ("Freeze Quick
+Get Support/Help/Register Epesi!, ...), not the small curated CRM-core set `930de60db` ("Freeze Quick
 Access/Launchpad defaults on install", 2026-08-14) was supposed to leave enabled. Also showed as a visible
 symptom: two tiles both labeled "Dashboard" in the Launchpad grid.
 

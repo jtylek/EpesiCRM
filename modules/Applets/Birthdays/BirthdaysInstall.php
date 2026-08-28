@@ -47,7 +47,7 @@ class Applets_BirthdaysInstall extends ModuleInstall {
 	
 	public static function simple_setup() {
 		if (!DB::GetOne("SELECT position FROM contact_field WHERE field='Birth Date'")) return false;
-        return array('package'=>__('EPESI Core'), 'option'=>__('Additional applets'));
+        return array('package'=>__('Epesi Core'), 'option'=>__('Additional applets'));
 	}
 	
 }
