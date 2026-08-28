@@ -28,20 +28,27 @@ an external Store description page (`$s['description_url']`/`$s['icon_url']`), w
 a different kind of "more info" affordance than an in-repo README. Don't unify these or
 add a Readme button to Store-only cards.
 
-This falls out naturally from where the new `readme_url` package key is populated:
+This falls out naturally from where the `readme_id` package key is populated:
 
 - Set only inside the local-scan loop in `simple_setup()` (`foreach ($structure as $s)`
   building `$packages`), immediately after the existing `icon`/`version`/`url` detection
   — same shape, same loop.
-- `add_store_products()` never sets or reads `readme_url`. When it merges store data
+- `add_store_products()` never sets or reads `readme_id`. When it merges store data
   into an *already-locally-known* `$sorted[$name]` entry (the "local presence always
   wins" branch — see the comment above `if (isset($sorted[$name]))` in that method,
   which predates this feature and exists for an unrelated reason: `Premium_Import`'s
   "Data Import" package colliding with a same-named commercial Store product), it
-  overwrites `icon`/`url` with the Store's external URLs but leaves `readme_url`
-  untouched — so a locally-installed module's Readme button survives that merge.
+  leaves `readme_id` untouched — so a locally-installed module's Readme button survives
+  that merge. **Revised 2026-08-28**: it used to also unconditionally overwrite
+  `icon`/`url` with the Store's remote values at this same spot, even when the local
+  module already had its own perfectly good icon — fixed to only fill in whichever of
+  the two the local module left empty (`if (empty($sorted[$name]['icon'])) ...`), same
+  "local wins" principle the comment already claimed but didn't actually apply to those
+  two fields. Caught because `Premium_Import` — the exact module that comment names —
+  showed a broken image after `icon_url` from `ess.epe.si` was briefly slow/unreachable,
+  even though nothing local was wrong.
 - For a brand-new Store-only entry (no local `$sorted[$name]` yet), the key is simply
-  never set, so the template's `{if $package.readme_url}` guard is false and no button
+  never set, so the template's `{if $package.readme_id}` guard is false and no button
   renders.
 
 No extra guard code was needed to keep Store cards Readme-free — it's a consequence of
@@ -65,15 +72,17 @@ Parent Company) shows each sub-module as its own row with its own status dropdow
 row gets its own "Readme..." button too, next to its Install/Uninstall button, reading
 *that specific sub-module's* `README.md` — not the parent package's.
 
-This works for free from the same per-key `readme_url` detection described above: each
+This works for free from the same per-key `readme_id` detection described above: each
 option is its own `$packages[$key]` entry (key = `"<package>|<option>"`), so the
-`is_file()` check already runs once per sub-module, not once per package. The only
-change needed was propagating `$p['readme_url']` into
+`get_readme_html()` check already runs once per sub-module, not once per package. The
+only change needed was propagating `$p['readme_id']` into
 `$sorted[$name]['options'][$option]` (`Setup_0.php`, the `else` branch of the
 `$option===null` check) and rendering it in the template's per-option action panel
-(`theme_adminltedark/default.tpl`) as a real `<a target="_blank">` alongside the
-existing onclick-driven Install/Uninstall `<div>`s — CSS modifier `.epesi-setup-subaction.readme`
-(blue, same hue as `.store`) in `theme_adminltedark/default.css`.
+(`theme_adminltedark/default.tpl`) as a real `<a class="lbOn" rel="{$action.readme_id}"
+href="javascript:void(0)">` alongside the existing onclick-driven Install/Uninstall
+`<div>`s — CSS modifier `.epesi-setup-subaction.readme` (blue, same hue as `.store`) in
+`theme_adminltedark/default.css`. (Originally a plain `<a target="_blank">` to an ajax
+URL — see the revision note at the top of this doc for why that changed to a Leightbox.)
 
 Verified 2026-08-28 by temporarily dropping a `README.md` into
 `modules/CRM/Contacts/Photo/` (a real CRM option) and confirming its own "Readme..."
@@ -122,6 +131,44 @@ core CRM, `Base/`, `Utils/`, `Libs/`, the rest of `Premium/` — still has no RE
 won't show a Readme button until one is added. Not a blocking requirement for new
 modules, just the ongoing direction: pick it up opportunistically when touching a
 module that doesn't already have one.
+
+## Two Leightbox-level improvements that came out of viewing real READMEs
+
+Both landed the same day as the new-tab → Leightbox switch, in `modules/Libs/Leightbox/`
+rather than anything Setup-specific — general improvements to the shared Leightbox
+component itself, discovered by actually reading README content through it, not
+scoped to Simple Setup's own code:
+
+- **Maximize/restore toggle** (`theme_adminltedark/default.tpl`'s new button,
+  `theme_adminltedark/default.js`'s `epesi_leightbox_toggle_maximize()`,
+  `theme_adminltedark/default.css`'s `.leightbox.maximized`). A longer README (or any
+  other Leightbox content) can outgrow the default ~70%-width/900px-max popup with no
+  way to see more at once. Deliberately **not** the old `libs_leightbox_resize()`
+  (`theme/default.js`, shared with the default theme) — that writes inline
+  top/left/width/height styles, which is exactly why this theme's own resize button was
+  omitted in the first place (see `default.css`'s top-of-file comment): those inline
+  writes fight the transform-based centering (`left:50%; transform:translateX(-50%);`)
+  and visibly jump the popup off-screen. The new toggle is a plain CSS class swap
+  instead, so it overrides the geometry cleanly, transform included, and also swaps its
+  own icon (`bi-arrows-fullscreen` ↔ `bi-fullscreen-exit`) and title between
+  `$maximize_label`/`$restore_label` (added to `Libs_LeightboxCommon::get()`'s Smarty
+  assigns alongside the existing, still-unused-by-this-theme `$resize_label`).
+- **Compact heading/code/table/blockquote typography, scoped to `#Leightbox_content`**
+  (`theme_adminltedark/default.css`). `markdown_to_html()` emits bare `h1`-`h4` etc. with
+  no classes, so before this fix they inherited the ambient admin theme's default
+  heading sizes (~2.5rem for a plain `h1`) — a README's own `# Module/Path` title (or
+  Advanced Setup's plain-info-table fallback, which also renders an `<h1>`) read like a
+  full page title crammed into a small popup. Same underlying symptom `#clipboard h3`
+  a few lines above it in the same file already patched for one specific popup —
+  generalized here so *any* Leightbox content with headings gets sane sizes by default,
+  not just ones someone happened to patch individually. Dark-first (matches this file's
+  own convention), with a `[data-bs-theme="light"]` counterpart added by hand near the
+  bottom alongside the auto-generated block (not itself auto-generated).
+
+Both are reusable outside Simple Setup's own "Readme..." button — Advanced Setup's "i"
+info icon (which shares the same Leightbox popup content, see that screen's own
+`AI-shared` coverage if one exists) benefits from both for free, as would any other
+future Leightbox content.
 
 ## Status
 
