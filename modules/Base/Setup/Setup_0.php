@@ -278,10 +278,10 @@ class Base_Setup extends Module {
 			// a Leightbox popup (same in-page mechanism Advanced Setup's "i"
 			// icon uses - see Base_SetupCommon::get_readme_html()) rather
 			// than a separate tab. Store-only packages (add_store_products()
-			// below) never touch readme_id, so they never get one - only
-			// locally-installed/available modules do, per product decision
-			// (Store cards already point their icon/title at an external
-			// description page instead). First module found under this
+			// below) never touch readme_id, so this stays unset for them -
+			// the template falls back to a "Readme..." button that links out
+			// to $package.url (the Store's description_url) instead, since
+			// there's no local file to show. First module found under this
 			// package key wins, same as icon.
 			if (!$package['readme_id']) {
 				$readme_html = Base_SetupCommon::get_readme_html($s['module']);
@@ -556,10 +556,13 @@ class Base_Setup extends Module {
 			}
 			$sorted[$name] = array();
             $sorted[$name]['core'] = 0;
-			// Deliberately left null, not omitted: Store cards get no Readme
-			// button by design (see AI-shared/Simple-setup-ESS.md), but
-			// {if $package.readme_id} on a truly-missing key is an
-			// E_WARNING under PHP 8.2, not a graceful falsy.
+			// Deliberately left null, not omitted: a Store-only card has no
+			// local README to show, so its "Readme..." button links out to
+			// $package.url (set just below) instead of a Leightbox popup -
+			// see the template's {if $package.readme_id}{elseif $package.url}
+			// fallback (AI-shared/Simple-setup-ESS.md). Omitting the key
+			// entirely (rather than null) would make that same
+			// {if $package.readme_id} check an E_WARNING under PHP 8.2.
 			$sorted[$name]['readme_id'] = null;
 			$sorted[$name]['url'] = $s['description_url'];
 			$sorted[$name]['icon'] = $s['icon_url'];

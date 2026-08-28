@@ -79,16 +79,6 @@
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
 
-.epesi-setup-card-link {
-	display: block;
-	color: inherit;
-	text-decoration: none;
-}
-
-.epesi-setup-card-link:hover {
-	color: #0d6efd;
-}
-
 .epesi-setup-card-icon {
 	width: 64px;
 	height: 64px;
@@ -111,6 +101,11 @@
 .epesi-setup-card-version {
 	font-size: 0.75rem;
 	color: #8b929a;
+	margin-bottom: 0.5rem;
+}
+
+.epesi-setup-card-readme {
+	font-size: 0.75rem;
 	margin-bottom: 0.5rem;
 }
 
@@ -193,6 +188,10 @@
 	color: #fff;
 	cursor: pointer;
 	background-color: #8b929a;
+	/* .readme below renders this as a real <a> (Install/Uninstall stay
+	   onclick-driven divs) - reset the anchor default underline so it
+	   matches its div siblings in the same panel. */
+	text-decoration: none;
 }
 
 .epesi-setup-subaction:hover {
@@ -207,6 +206,7 @@
 .epesi-setup-subaction.disabled:hover { filter: none; }
 .epesi-setup-subaction.uninstall     { background-color: #dc3545 !important; }
 .epesi-setup-subaction.problem       { background-color: #fd7e14 !important; }
+.epesi-setup-subaction.readme        { background-color: #0d6efd !important; }
 
 /* --- "Optional" sub-modules toggle + panel ----------------------------- */
 

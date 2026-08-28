@@ -19,14 +19,36 @@ below is `readme_id` today (a Leightbox id, not a URL) - read those mentions acc
 
 ## The scoping decision
 
-This applies **only to locally-installed/available modules** — the packages built from
-the `$module_dirs`/`$structure` scan and each module's own `simple_setup()` return
-array. It does **not** apply to Epesi Store packages, added separately by
-`Base_Setup::add_store_products()` a bit further down the same method. Store cards keep
-their existing, different behavior on purpose: their icon and title already link out to
-an external Store description page (`$s['description_url']`/`$s['icon_url']`), which is
-a different kind of "more info" affordance than an in-repo README. Don't unify these or
-add a Readme button to Store-only cards.
+**Original 2026-08-28**: the Readme button applied only to locally-installed/available
+modules — the packages built from the `$module_dirs`/`$structure` scan and each module's
+own `simple_setup()` return array — not to Epesi Store packages added separately by
+`Base_Setup::add_store_products()` a bit further down the same method. Store cards kept a
+different, older behavior instead: their icon and title linked out to an external Store
+description page (`$s['description_url']`/`$s['icon_url']`).
+
+**Revised 2026-08-28 (later same day, twice)**: that icon/title external link is gone
+entirely now — `theme_adminltedark/default.tpl`'s icon/title is plain markup, never
+wrapped in an `<a>`, for every card. In its place, every card with a `url`
+(`$package.url`) now gets a "Readme..." button one way or the other:
+
+- Locally-known module with a `README.md` on disk → `readme_id` is set → the button opens
+  it in a Leightbox popup, as before.
+- Store-only card (no local module, so no `readme_id`) → the template's
+  `{if $package.readme_id}{elseif $package.url}` falls through to a plain external link
+  (`target="_blank"`, same button styling) to `$package.url` — the Store's
+  `description_url` — instead of a Leightbox, since there's no local content to render.
+- A locally-known module that's *also* a Store product (e.g. "Epesi Core", "CRM") has
+  both `readme_id` and `url` set (the latter filled in by `add_store_products()`'s "fill
+  in whichever the local module left empty" merge — see below); `readme_id` wins per the
+  `{if}/{elseif}` order, so it still gets the in-page Leightbox, not the external link.
+
+So "Store-only cards never get a Readme button" (the original framing above) no longer
+holds — they do now, it's just an external-link variant of the same button rather than a
+Leightbox. What's unchanged: no card's icon/title is ever clickable, and a Store-only
+card with no `description_url` at all shows no button. `modules/Base/Setup/theme/default.tpl`
+(the pre-AdminLTE legacy theme) never got the Readme feature or this button fallback — it
+still wraps icon/title in the old unconditional `{if $package.url}` link, since that's
+still its only "more info" affordance for every card, local or Store.
 
 This falls out naturally from where the `readme_id` package key is populated:
 
@@ -47,12 +69,15 @@ This falls out naturally from where the `readme_id` package key is populated:
   two fields. Caught because `Premium_Import` — the exact module that comment names —
   showed a broken image after `icon_url` from `ess.epe.si` was briefly slow/unreachable,
   even though nothing local was wrong.
-- For a brand-new Store-only entry (no local `$sorted[$name]` yet), the key is simply
-  never set, so the template's `{if $package.readme_id}` guard is false and no button
-  renders.
+- For a brand-new Store-only entry (no local `$sorted[$name]` yet), `readme_id` is
+  explicitly set to `null` (not omitted — an unset array key under `{if $package.readme_id}`
+  is an E_WARNING under PHP 8.2, not a graceful falsy), so the template's
+  `{if $package.readme_id}` guard is false and it falls through to the `{elseif $package.url}`
+  external-link button instead — see the revision note above.
 
-No extra guard code was needed to keep Store cards Readme-free — it's a consequence of
-where the key is populated, not a separate check.
+No extra guard code was needed to distinguish the two Readme-button variants — it's a
+consequence of where `readme_id` is populated (or left `null`), not a separate check; the
+template's `{if $package.readme_id}{elseif $package.url}` does the rest.
 
 ## Trigger mechanism
 
@@ -196,6 +221,13 @@ by extracting code spans/links to placeholders before bold/italic runs, and by d
 underscore-based emphasis entirely (this codebase's own identifiers are full of
 underscores; `**bold**`/`*italic*` are the only supported emphasis syntax for READMEs
 meant to be viewed through this renderer).
+
+**Revised 2026-08-28 (icon/title link removal)**: the icon/title `<a href="{$package.url}">`
+wrapper and its `.epesi-setup-card-link`/`.epesi-setup-card-link:hover` CSS rules were
+removed outright from `theme_adminltedark/default.tpl`/`default.css` — dead code once the
+`{if $package.readme_id}{elseif $package.url}` button (see "The scoping decision" above)
+became every card's single "more info" affordance. `Setup_0.php`'s two comments
+referencing the old "Store cards get no Readme button" framing were updated to match.
 
 Flag if the Store-scoping decision above ever needs revisiting (e.g. if Store product
 listings gain their own bundled README-equivalent).

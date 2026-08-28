@@ -51,18 +51,12 @@
 	<div id="Base_Setup" class="epesi-setup-grid">
 		{foreach key=name item=package from=$packages}
 			<div class="epesi-setup-card" style="position:relative;"{foreach item=f from=$package.filter} {$f}="1"{/foreach}>
-				{if $package.url}
-					<a href="{$package.url}" target="_blank" class="epesi-setup-card-link">
+				{if $package.icon}
+					<img class="epesi-setup-card-icon" src="{$package.icon}">
 				{/if}
-					{if $package.icon}
-						<img class="epesi-setup-card-icon" src="{$package.icon}">
-					{/if}
-					<div class="epesi-setup-card-name">
-						{$package.name}
-					</div>
-				{if $package.url}
-					</a>
-				{/if}
+				<div class="epesi-setup-card-name">
+					{$package.name}
+				</div>
 				{if $package.version}
 					<div class="epesi-setup-card-version">
 						{$version_label}{$package.version}
@@ -70,6 +64,8 @@
 				{/if}
 				{if $package.readme_id}
 					<a class="lbOn btn btn-sm btn-primary rounded-pill px-3 epesi-setup-card-readme" rel="{$package.readme_id}" href="javascript:void(0)">{$labels.readme}</a>
+				{elseif $package.url}
+					<a class="btn btn-sm btn-primary rounded-pill px-3 epesi-setup-card-readme" href="{$package.url}" target="_blank">{$labels.readme}</a>
 				{/if}
 				<div class="epesi-setup-actions">
 					<div id="show_actions_{$name}" {$package.buttons_tooltip} class="epesi-setup-action {$package.style}" onclick="epesi_setup__toggle_actions('{$name}',this);">
