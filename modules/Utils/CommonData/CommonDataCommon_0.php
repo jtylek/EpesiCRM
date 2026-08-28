@@ -17,38 +17,70 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	public static function bootstrap_icon() { return 'bi-database'; }
 
 	public static $allowed_order = array('key', 'value', 'position');
-	
+
 	/**
 	 * For internal use only.
 	 */
 	public static function admin_caption(){
 		return array('label'=>__('CommonData'), 'section'=>__('Data'));
 	}
-	
+
 	public static function admin_access_levels() {
 		return false;
 	}
 
+	// get_id()/get_value() used to resolve one path segment (or one value) per
+	// DB round-trip, each memoized only after the fact - fine for a single
+	// lookup, but a grid of N rows with per-row CommonData-backed fields (e.g.
+	// a category/status column) meant up to N distinct id/value queries per
+	// page, one per row, since each row's own path was still a first-time
+	// lookup. The tree itself is small, slowly-changing reference data, so
+	// it's cheaper to load it whole once per request and resolve every path/
+	// value from memory afterwards. Shared across get_id()/get_value() as
+	// class-level statics (rather than each keeping its own function-local
+	// `static $cache`) so one bulk load serves both. $clear_cache (used by
+	// remove(), which restructures the tree) drops it all, including the
+	// "loaded" flag, so the next call reloads fresh instead of resolving
+	// against a since-mutated snapshot.
+	private static $tree_loaded = false;
+	private static $id_cache = array();       // [parent_id][akey] => id
+	private static $value_by_id_cache = array(); // [id] => value
+	private static $value_by_name_cache = array(); // ["$name__$translate"] => value
+
+	private static function load_tree() {
+		if (self::$tree_loaded) return;
+		self::$tree_loaded = true;
+		foreach (DB::GetAll('SELECT id, parent_id, akey, value FROM utils_commondata_tree') as $r) {
+			self::$id_cache[$r['parent_id']][$r['akey']] = $r['id'];
+			self::$value_by_id_cache[$r['id']] = $r['value'];
+		}
+	}
+
 	public static function get_id($name, $clear_cache=false) {
-		static $cache;
+		self::load_tree();
 		$name = trim($name,'/');
 		$pcs = explode('/',$name);
 		$id = -1;
 		foreach($pcs as $v) {
 			if($v==='') continue; //ignore empty paths
-			if(isset($cache[$id][$v]) && $cache[$id][$v]) {
-				$id = $cache[$id][$v];
+			if(isset(self::$id_cache[$id][$v]) && self::$id_cache[$id][$v]) {
+				$id = self::$id_cache[$id][$v];
 			} else {
 				$old_id = $id;
 				$id = DB::GetOne('SELECT id FROM utils_commondata_tree WHERE parent_id=%d AND akey=%s',array($id,$v));
 				if($id===null)
 					$id = false;
-				$cache[$old_id][$v] = $id;
+				self::$id_cache[$old_id][$v] = $id;
 				if($id===false)
 					return false;
 			}
 		}
-        if($clear_cache) $cache = array();
+        if($clear_cache) {
+            self::$tree_loaded = false;
+            self::$id_cache = array();
+            self::$value_by_id_cache = array();
+            self::$value_by_name_cache = array();
+        }
 		return $id;
 	}
 
@@ -100,15 +132,16 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @return mixed false on invalid name
 	 */
 	public static function get_value($name,$translate=false){
-		static $cache;
-		if (isset($cache[$name.'__'.$translate])) return $cache[$name.'__'.$translate];
-		$val = false;
+		$cache_key = $name.'__'.$translate;
+		if (isset(self::$value_by_name_cache[$cache_key])) return self::$value_by_name_cache[$cache_key];
 		$id = self::get_id($name);
 		if($id===false) return false;
-		$ret = DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
+		$ret = array_key_exists($id, self::$value_by_id_cache)
+			? self::$value_by_id_cache[$id]
+			: DB::GetOne('SELECT value FROM utils_commondata_tree WHERE id=%d',array($id));
 		if($translate)
 			$ret = _V($ret); // ****** CommonData value translation
-		$cache[$name.'__'.$translate] = $ret;
+		self::$value_by_name_cache[$cache_key] = $ret;
 		return $ret;
 	}
 

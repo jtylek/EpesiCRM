@@ -145,6 +145,23 @@ same for every developer and every computer working on this repo.
   see known-todos.md for those): a real fix shipped now, with a known limitation to
   come back to later, usually because this dev install can't exercise the condition
   that would need testing.
+- [Simple-setup-ESS.md](Simple-setup-ESS.md) — the Simple Setup screen's "Readme..."
+  button (top-level package cards and per-row inside a bundled package's "Optional"
+  dropdown, e.g. CRM's Contact Photo/Fax/...): why it only applies to locally-installed/
+  available modules and never to Epesi Store cards, the dependency-free Markdown
+  renderer behind it, and two real rendering bugs it caught before shipping.
+- [branding-epesi-casing.md](branding-epesi-casing.md) — the product name is "Epesi",
+  not "EPESI"; the codebase itself is inconsistent (most UI strings/translation keys
+  are still all-caps today, fixed one at a time via `lang/en.php` overrides, not by
+  editing call sites), and the word-boundary-regex approach (plus its two failure
+  shapes: code-quotes, before/after narratives) for a repo-wide markdown casing sweep.
+- [performance-profiling.md](performance-profiling.md) — how to profile a slow
+  page in this app (`MODULE_TIMES`/`SQL_TIMES` in `data/config.php`, and why
+  devtools' Network tab "Initiator" column is misleading here), plus two fixed
+  N+1 query patterns on RecordBrowser grids (`Utils_WatchdogCommon`,
+  `Utils_CommonDataCommon`) and the general fix shape to reapply if another
+  one turns up. Also notes a known-but-deprioritized slow external call in
+  Simple Setup/EpesiStore.
 - [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for
   cleanly upgrading an existing install from a manually-uploaded SourceForge release zip:
   what `console.php dev:dist:create` already excludes vs. two gaps found (`AI-shared/`,

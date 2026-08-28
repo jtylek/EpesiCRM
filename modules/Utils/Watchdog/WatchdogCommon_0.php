@@ -86,6 +86,27 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		}  
 		return $cache[$category_name] = $ret;
 	}
+
+	// user_check_if_notified() is called once per visible row by grid column
+	// formatters (e.g. CRM_ContactsCommon::display_contacts_with_notification())
+	// to show a per-row "is this person up to date" icon - a page of 40 rows
+	// meant 40 separate single-row subscription queries even though those rows
+	// typically share only a handful of distinct referenced users. Caching by
+	// (category, user) instead of (category, user, record) fetches one user's
+	// whole subscription set in this category in a single query, so repeat
+	// lookups for the same user across different rows/records become free.
+	private static $subscription_cache = array();
+	private static function _user_last_seen($user_id, $category_id, $internal_id) {
+		if (!isset(self::$subscription_cache[$category_id][$user_id])) {
+			self::$subscription_cache[$category_id][$user_id] = DB::GetAssoc(
+				'SELECT internal_id, last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND category_id=%d',
+				array($user_id, $category_id)
+			);
+		}
+		$subs = self::$subscription_cache[$category_id][$user_id];
+		return array_key_exists($internal_id, $subs) ? $subs[$internal_id] : false;
+	}
+
 	public static function category_exists($category_name) {
 		static $cache = null;
 		if (!$cache) {
@@ -254,7 +275,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	public static function user_check_if_notified($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
 		if (!$category_id) return;
-		$last_seen = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
+		$last_seen = self::_user_last_seen($user_id, $category_id, $id);
 		if ($last_seen===false || $last_seen===null) return null;
 		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
 		if ($last_event===false || $last_event===null) $last_event=-1;

@@ -1,0 +1,127 @@
+# Performance profiling and N+1 query patterns
+
+## How to profile a slow page in this app
+
+Browser devtools' Network tab is misleading here: this app's own `serve.php`
+(the minified JS/CSS bundle server) shows up as the "Initiator" for every
+`process.php`/`ajax.php` XHR it fires, because that's where the client-side
+`Epesi.load_js()`/callback-firing code physically lives — it does **not**
+mean `serve.php` itself is slow. Check the actual row's own time; `serve.php`
+requests are near-instant once cached (0 transferred, ~0ms) and are almost
+never the real bottleneck. The real cost is in `process.php`/`ajax.php`
+itself — the request that calls `Epesi::process()` and does the actual
+module-tree render.
+
+Don't guess which module/query is slow — this codebase has a built-in
+profiler, just gated behind two commented-out constants in `data/config.php`:
+
+```php
+define('MODULE_TIMES',1);
+define('SQL_TIMES',1);
+```
+
+Once both are on, every `process.php` response appends a debug panel
+(`#debug_content`, force-shown via JS) listing:
+- every rendered module's own wall-clock time (`include/epesi.php`'s
+  `MODULE_TIMES` block) — nested by module path, so a slow leaf module's cost
+  rolls up through every ancestor's own total
+- every SQL query run (`include/database.php`'s `SQL_TIMES` instrumentation
+  in `DB::Execute`/`GetOne`/`GetAssoc`/etc.), with args, timing, and the
+  calling function/file/line, plus a total query count and summed query time
+
+This splits "is it the database, or is it PHP?" immediately — e.g. on
+Companies: Browse (see below), only 42% of total render time was SQL; the
+rest was per-row PHP work in `Utils_RecordBrowser`/`Utils_GenericBrowser`.
+From the browser console, the panel's totals can be pulled without dumping
+the whole (often huge) debug blob:
+
+```js
+document.getElementById('debug_content').innerText
+  .split('\n').find(l => l.startsWith('Page renderered'))
+```
+
+**Turn both flags back off when done** — they're real per-request overhead
+(building the debug HTML, `json_encode`-ing query args) not meant to run in
+normal operation.
+
+To find *why* a specific query runs N times, group the debug panel's query
+lines by their "Called by" function+file+line rather than reading them
+one-by-one — that's what turns "234 queries" into "40 of them are
+`Utils_WatchdogCommon::user_check_if_notified`, one per visible row."
+
+## Fixed: two N+1 patterns on RecordBrowser grids (2026-08-28)
+
+Profiling **Companies: Browse** (a representative `Utils_RecordBrowser` grid,
+~40 rows/page) found 234 queries taking 129.5ms of a 310ms total render, with
+78% of the whole page (241ms) inside the `Utils_RecordBrowser|company`
+module. Two call sites accounted for most of the query count:
+
+1. **`Utils_WatchdogCommon::user_check_if_notified($user_id, $category, $id)`**
+   — called once per row by `CRM_ContactsCommon::display_contacts_with_notification()`
+   (a grid column formatter showing a "does this referenced contact have
+   unread updates on this record" icon) with a *different* `$id` (the row's
+   own record id) every time, so no plain per-tuple memoization could help:
+   40 rows meant 40 separate `SELECT ... WHERE user_id=? AND internal_id=?
+   AND category_id=?` queries even though most rows share only a handful of
+   distinct referenced users.
+
+2. **`Utils_CommonDataCommon::get_id()`/`get_value()`** — already had a
+   `static $cache`, but it only memoized a path *after* resolving it, one DB
+   round-trip per unresolved path segment. A grid with a per-row
+   CommonData-backed field (category/status dropdowns etc.) meant every row's
+   distinct value was a fresh cache miss: 42 `get_id` calls + 25 `get_value`
+   calls in one page render.
+
+**Fix shape** (both in the same commit): keyed the cache one level broader
+than the thing that varies per row, and load it in one bulk query instead of
+resolving it incrementally:
+
+- Watchdog: cache by `(category_id, user_id)` → the user's whole subscription
+  map (`internal_id => last_seen_event`) for that category, fetched once per
+  distinct user instead of once per `(user, category, record)` triple. See
+  `Utils_WatchdogCommon::_user_last_seen()` in
+  `modules/Utils/Watchdog/WatchdogCommon_0.php`.
+- CommonData: since `utils_commondata_tree` is small, slowly-changing
+  reference data, load the *entire* table once per request
+  (`Utils_CommonDataCommon::load_tree()` in
+  `modules/Utils/CommonData/CommonDataCommon_0.php`) into shared class-level
+  static indexes (`parent_id+akey -> id`, `id -> value`), and resolve every
+  path/value from memory afterwards. The existing per-segment DB fallback is
+  left in place (untouched) for anything created after the bulk snapshot —
+  self-healing, so nothing had to change about `new_id()`/`set_value()`/etc.
+  `get_id()`'s pre-existing `$clear_cache` param (used by `remove()`, which
+  restructures the tree) now also resets the "loaded" flag, so a
+  same-request write still forces a fresh reload on the next read.
+
+**Result** (Companies: Browse, re-tested twice for stability): 234 → 157
+queries, SQL time 129.5ms → ~63ms, total render 310ms → ~230ms.
+
+**How to apply**: this is the general fix shape for an N+1 found via the
+profiler above in this codebase — a per-row grid formatter calling a
+`FooCommon::get_thing($varies_per_row_id, ...)` helper. Look for a broader,
+*shared* key across rows (a category id, a user id, a parent id — something
+with far fewer distinct values than the row count) to batch on, and prefer
+loading that whole slice in one query over trying to memoize the exact
+per-row tuple, which never repeats. Both fixes here are deliberately
+request-scoped only (a `static`/class-static cache, reset every request) —
+not a cross-request cache (e.g. via `include/cache.php`'s `Cache::` class) —
+specifically to avoid needing to find and instrument every mutation call
+site with invalidation. A cross-request cache would help more (especially
+for CommonData, which barely changes across requests at all) but wasn't
+attempted here for that reason; revisit if request-scoped caching alone
+stops being enough.
+
+## Known but not fixed: Simple Setup / EpesiStore hits an external server
+
+`Base_Setup::simple_setup()`'s `add_store_products()` (see
+`modules/Base/Setup/Setup_0.php`) calls
+`Base_EpesiStoreCommon::get_modules_all_available()`, which round-trips to
+the real `ess.epe.si` store server for the module catalog. On this dev
+machine that one call accounted for essentially the entire ~600-700ms render
+time of Administration: Modules Administration & Store (confirmed by profiling:
+DB time was ~17ms of that, and the outer per-module loop over all 145
+installed/available modules was ~3ms — the remaining ~580ms had no other
+explanation). Not fixed, because that screen is rarely visited compared to
+everyday grids like Companies/Contacts — logged here so a future session
+doesn't have to re-derive the same trace if it comes up again (e.g. slow
+Store screen complaints, or wanting to cache the store catalog response).
