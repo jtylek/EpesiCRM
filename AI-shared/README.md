@@ -157,11 +157,11 @@ same for every developer and every computer working on this repo.
   shapes: code-quotes, before/after narratives) for a repo-wide markdown casing sweep.
 - [performance-profiling.md](performance-profiling.md) — how to profile a slow
   page in this app (`MODULE_TIMES`/`SQL_TIMES` in `data/config.php`, and why
-  devtools' Network tab "Initiator" column is misleading here), plus two fixed
+  devtools' Network tab "Initiator" column is misleading here), plus fixed
   N+1 query patterns on RecordBrowser grids (`Utils_WatchdogCommon`,
-  `Utils_CommonDataCommon`) and the general fix shape to reapply if another
-  one turns up. Also notes a known-but-deprioritized slow external call in
-  Simple Setup/EpesiStore.
+  `Utils_CommonDataCommon`'s `get_id`/`get_value`/`get_array`/`get_nodes`) and
+  the general fix shape to reapply if another one turns up. Also notes a
+  known-but-deprioritized slow external call in Simple Setup/EpesiStore.
 - [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for
   cleanly upgrading an existing install from a manually-uploaded SourceForge release zip:
   what `console.php dev:dist:create` already excludes vs. two gaps found (`AI-shared/`,

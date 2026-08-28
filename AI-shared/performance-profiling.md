@@ -85,16 +85,35 @@ resolving it incrementally:
   reference data, load the *entire* table once per request
   (`Utils_CommonDataCommon::load_tree()` in
   `modules/Utils/CommonData/CommonDataCommon_0.php`) into shared class-level
-  static indexes (`parent_id+akey -> id`, `id -> value`), and resolve every
-  path/value from memory afterwards. The existing per-segment DB fallback is
-  left in place (untouched) for anything created after the bulk snapshot —
-  self-healing, so nothing had to change about `new_id()`/`set_value()`/etc.
-  `get_id()`'s pre-existing `$clear_cache` param (used by `remove()`, which
-  restructures the tree) now also resets the "loaded" flag, so a
-  same-request write still forces a fresh reload on the next read.
+  static indexes (`parent_id+akey -> id`, `id -> value`, and
+  `parent_id+akey -> full row` for the listing methods below), and resolve
+  every path/value from memory afterwards. The existing per-segment DB
+  fallback is left in place (untouched) for anything created after the bulk
+  snapshot — self-healing, so nothing had to change about
+  `new_id()`/`set_value()`/etc. `get_id()`'s pre-existing `$clear_cache` param
+  (used by `remove()`, which restructures the tree) now also resets the
+  "loaded" flag, so a same-request write still forces a fresh reload on the
+  next read.
 
 **Result** (Companies: Browse, re-tested twice for stability): 234 → 157
 queries, SQL time 129.5ms → ~63ms, total render 310ms → ~230ms.
+
+**Follow-up (same day): `get_array()`/`get_nodes()` extended too.** These
+weren't part of the profiled hot path above (each already had its own
+effective `static $cache`, keyed by name/order/root+keys — no N+1 shape was
+found for them on Companies: Browse), but were routed through the same
+`load_tree()` bulk snapshot for consistency, since the infrastructure was
+already there. The one real behavior change: `get_array()` used to let SQL do
+`ORDER BY akey|position|value ASC`; now it `usort()`s the in-memory rows in
+PHP instead, since there's no per-call query left to attach an `ORDER BY` to.
+Verified live against real data (not just Companies: Browse) — the CommonData
+admin browse screen (Administration → CommonData), both the root listing (8
+items) and drilling into `Countries` (~250 items, position-ordered) — matched
+pre-change output exactly, no warnings logged. Worth knowing if a future
+`ORDER BY`-sensitive CommonData collation edge case ever comes up (accented
+characters, locale-specific sort): the comparison is now plain PHP `<=>`
+(byte-order for strings), not the DB's collation - a difference that hasn't
+mattered for the plain-ASCII keys/labels this tree actually holds so far.
 
 **How to apply**: this is the general fix shape for an N+1 found via the
 profiler above in this codebase — a per-row grid formatter calling a
@@ -102,7 +121,7 @@ profiler above in this codebase — a per-row grid formatter calling a
 *shared* key across rows (a category id, a user id, a parent id — something
 with far fewer distinct values than the row count) to batch on, and prefer
 loading that whole slice in one query over trying to memoize the exact
-per-row tuple, which never repeats. Both fixes here are deliberately
+per-row tuple, which never repeats. All the fixes here are deliberately
 request-scoped only (a `static`/class-static cache, reset every request) —
 not a cross-request cache (e.g. via `include/cache.php`'s `Cache::` class) —
 specifically to avoid needing to find and instrument every mutation call

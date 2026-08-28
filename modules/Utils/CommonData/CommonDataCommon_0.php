@@ -29,30 +29,41 @@ class Utils_CommonDataCommon extends ModuleCommon {
 		return false;
 	}
 
-	// get_id()/get_value() used to resolve one path segment (or one value) per
-	// DB round-trip, each memoized only after the fact - fine for a single
-	// lookup, but a grid of N rows with per-row CommonData-backed fields (e.g.
-	// a category/status column) meant up to N distinct id/value queries per
-	// page, one per row, since each row's own path was still a first-time
+	// get_id()/get_value()/get_array()/get_nodes() each used to resolve one
+	// path segment, one value, or one parent's whole child list per DB
+	// round-trip, memoized only after the fact - fine for a single lookup,
+	// but a grid of N rows with per-row CommonData-backed fields (e.g. a
+	// category/status column) meant up to N distinct queries per page, one
+	// per row, since each row's own path/value was still a first-time
 	// lookup. The tree itself is small, slowly-changing reference data, so
-	// it's cheaper to load it whole once per request and resolve every path/
-	// value from memory afterwards. Shared across get_id()/get_value() as
-	// class-level statics (rather than each keeping its own function-local
-	// `static $cache`) so one bulk load serves both. $clear_cache (used by
-	// remove(), which restructures the tree) drops it all, including the
-	// "loaded" flag, so the next call reloads fresh instead of resolving
-	// against a since-mutated snapshot.
+	// it's cheaper to load it whole once per request and resolve every
+	// path/value/listing from memory afterwards. Shared across all four
+	// methods as class-level statics (rather than each keeping its own
+	// function-local `static $cache`) so one bulk load serves all of them.
+	// $clear_cache (used by remove(), which restructures the tree) drops it
+	// all, including the "loaded" flag, so the next call reloads fresh
+	// instead of resolving against a since-mutated snapshot - the same
+	// request-scoped-only discipline this class already applied to get_id()/
+	// get_value() (see AI-shared/performance-profiling.md): no other mutator
+	// here (set_value(), new_array(), extend_array(), rename_key(), ...)
+	// invalidates either, so a same-request read-after-write on those was
+	// already stale before this change and remains exactly as stale, not
+	// worse.
 	private static $tree_loaded = false;
-	private static $id_cache = array();       // [parent_id][akey] => id
-	private static $value_by_id_cache = array(); // [id] => value
+	private static $id_cache = array();            // [parent_id][akey] => id
+	private static $value_by_id_cache = array();   // [id] => value
+	private static $children_by_parent = array();  // [parent_id][akey] => full row (id/value/readonly/position)
 	private static $value_by_name_cache = array(); // ["$name__$translate"] => value
+	private static $array_cache = array();         // [name][order][readinfo] => get_array() result
+	private static $nodes_cache = array();          // [root][uid] => get_nodes() result
 
 	private static function load_tree() {
 		if (self::$tree_loaded) return;
 		self::$tree_loaded = true;
-		foreach (DB::GetAll('SELECT id, parent_id, akey, value FROM utils_commondata_tree') as $r) {
+		foreach (DB::GetAll('SELECT id, parent_id, akey, value, readonly, position FROM utils_commondata_tree') as $r) {
 			self::$id_cache[$r['parent_id']][$r['akey']] = $r['id'];
 			self::$value_by_id_cache[$r['id']] = $r['value'];
+			self::$children_by_parent[$r['parent_id']][$r['akey']] = $r;
 		}
 	}
 
@@ -79,7 +90,10 @@ class Utils_CommonDataCommon extends ModuleCommon {
             self::$tree_loaded = false;
             self::$id_cache = array();
             self::$value_by_id_cache = array();
+            self::$children_by_parent = array();
             self::$value_by_name_cache = array();
+            self::$array_cache = array();
+            self::$nodes_cache = array();
         }
 		return $id;
 	}
@@ -152,16 +166,20 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @return mixed false on invalid name
 	 */
 	public static function get_nodes($root, array $names){
-		static $cache;
 		sort($names);
 		$uid = md5(serialize($names));
-		if(isset($cache[$root][$uid]))
-			return $cache[$root][$uid];
-		$val = false;
+		if(isset(self::$nodes_cache[$root][$uid]))
+			return self::$nodes_cache[$root][$uid];
 		$id = self::get_id($root);
 		if($id===false) return false;
-		$ret = DB::GetAssoc('SELECT id,value FROM utils_commondata_tree WHERE parent_id=%d AND (akey=\''.implode('\' OR akey=\'',array_map(array('DB','addq'),$names)).'\')',array($id));
-		$cache[$root][$uid] = $ret;
+		self::load_tree();
+		$children = self::$children_by_parent[$id] ?? array();
+		$ret = array();
+		foreach($names as $n) {
+			if(isset($children[$n]))
+				$ret[$children[$n]['id']] = $children[$n]['value'];
+		}
+		self::$nodes_cache[$root][$uid] = $ret;
 		return $ret;
 	}
 
@@ -281,25 +299,28 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	 * @return mixed returns an array if such array exists, false otherwise
 	 */
 	public static function get_array($name, $order='value', $readinfo=false, $silent=false){
-		static $cache;
 		$order = self::validate_order($order);
-		if(isset($cache[$name][$order][$readinfo]))
-			return $cache[$name][$order][$readinfo];
+		if(isset(self::$array_cache[$name][$order][$readinfo]))
+			return self::$array_cache[$name][$order][$readinfo];
 		$id = self::get_id($name);
 		if($id===false)
 			if ($silent) return null;
 		else trigger_error('Invalid CommonData::get_array() request: '.$name,E_USER_ERROR);
-		$order_by = match ($order) {
-            'key' => 'akey ASC',
-            'position' => 'position ASC',
-            default => 'value ASC',
-        };
-		if($readinfo)
-			$ret = DB::GetAssoc('SELECT akey, value, readonly, position, id FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id),true);
-		else
-			$ret = DB::GetAssoc('SELECT akey, value FROM utils_commondata_tree WHERE parent_id=%d ORDER BY '.$order_by,array($id));
+		self::load_tree();
+		$rows = array_values(self::$children_by_parent[$id] ?? array());
+		switch ($order) {
+			case 'key': usort($rows, fn($a,$b) => $a['akey'] <=> $b['akey']); break;
+			case 'position': usort($rows, fn($a,$b) => $a['position'] <=> $b['position']); break;
+			default: usort($rows, fn($a,$b) => $a['value'] <=> $b['value']); break;
+		}
+		$ret = array();
+		foreach ($rows as $r) {
+			$ret[$r['akey']] = $readinfo
+				? array('value'=>$r['value'], 'readonly'=>$r['readonly'], 'position'=>$r['position'], 'id'=>$r['id'])
+				: $r['value'];
+		}
 		if ($order === 'key') ksort($ret);
-		$cache[$name][$order][$readinfo] = $ret;
+		self::$array_cache[$name][$order][$readinfo] = $ret;
 		return $ret;
 	}
 
