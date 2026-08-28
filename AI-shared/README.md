@@ -45,6 +45,17 @@ same for every developer and every computer working on this repo.
   class hierarchy, install/uninstall lifecycle, RecordBrowser field types, ACL,
   patches, translations. Paired with a complete working example module at
   `modules/Custom/Tutorial/`.
+- [how-to-write-HELP.md](how-to-write-HELP.md) — how to add a `Base_Help`
+  search/tutorial entry for a module: the `help/tutorials.hlp` DSL, the
+  `helpID` attribute (not a DOM `id`) that resolves `STEPS` targets — menu
+  items via `Menu_0.php`, ActionBar buttons for free, QuickForm fields by
+  `[name=X]` (not `#id` — most have no matching id). Documents four real bugs
+  hit getting the first new tutorial since Contacts' working end to end, two
+  in `Base_Help`'s own shared JS (fixed): `Helper.hooks`' one-time-snapshot
+  timing, and never chaining a `finish` step onto a `click` step's own
+  (about-to-be-destroyed) target. Also flags a second, older `help/main.html`
+  article mechanism that looks unreachable from the live UI today; don't use
+  it for new content.
 - [adminlte-theme.md](adminlte-theme.md) — status of the `adminlte`/`adminltedark`
   themes, plus the recurring CSS/JS architecture traps hit while building them. Also
   covers the module-icon convention's history: `adminlte_icon()`/`Base_AdminlteIcons`

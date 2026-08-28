@@ -462,7 +462,15 @@ class Base_User_Settings extends Module {
                     $new = Base_ThemeCommon::get_template_file($m,'icon.png');
 					if ($new) $icon = $new;
 				}
-            $buttons[]= array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
+            // helpID: lets a Base_Help tutorial (see AI-shared/how-to-write-HELP.md)
+            // click through to a specific settings branch, e.g. "Password" - this
+            // hub has no other stable per-tile identifier (the href is a
+            // create_unique_href(), regenerated per instance). Keyed by $caption
+            // (already translated at this point, since every user_settings()
+            // implementation builds its keys with __(), not _M() - unlike Menu_0.php's
+            // helpID scheme, this one is NOT locale-stable; a tutorial written against
+            // the English caption only resolves correctly for an English-locale run).
+            $buttons[]= array('link'=>'<a class="card text-decoration-none h-100 shadow-sm" helpID="UserSettings_'.htmlspecialchars($caption, ENT_QUOTES).'" '.$arg['action'].'>'.$caption.'</a>','module'=>$arg['module_names'],'icon'=>$icon);
         }
         $theme = $this->pack_module(Base_Theme::module_name());
         $theme->assign('header', __('User Settings'));

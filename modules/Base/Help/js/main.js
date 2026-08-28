@@ -224,6 +224,20 @@ Base_Help = function(){
 
 	this.get_help_element = function (helpid) {
 		if (typeof(this.hooks[helpid])!='undefined') return this.hooks[helpid];
+		// get_all_help_hooks() only ever runs once, ~500ms after Base_Help's own
+		// (static, always-present) content first renders - any [helpID] element
+		// that doesn't exist in the DOM yet at that single moment (e.g. an
+		// ActionBar button on a screen the user hasn't navigated to yet) is
+		// permanently missing from the hooks table otherwise, so a tutorial step
+		// targeting it (anything but a sidebar menu item, which is present from
+		// the start) never resolves - the tour silently stalls on whatever step
+		// came before it. Look the id up live as a fallback, and cache a hit so
+		// repeated polling (every 300ms via timed_update) doesn't re-query.
+		var el = jQuery('[helpID="' + helpid + '"]')[0];
+		if (el) {
+			this.hooks[helpid] = el;
+			return el;
+		}
 		return jQuery(helpid)[0];
 	}
 

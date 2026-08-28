@@ -1,0 +1,15 @@
+[LABEL:Change your password]
+[KEYWORDS:password change reset update credentials login]
+[CONTEXT:true]
+[STEPS:
+hover:Menu
+hover:Menu_My settings
+click:Menu_My settings_Control panel
+click:UserSettings_Password
+fill:[name=new_pass] // Enter your new password
+fill:[name=new_pass_c] // Re-enter your new password to confirm it
+prompt:[name=mail] // Your e-mail address is already filled in - only change it if you also want to update it
+fill:[name=old_pass] // Enter your current password to confirm the change
+click:ActionBar_save // Click Save
+finish:Menu_My settings_Control panel // Your password has been changed
+]

@@ -25,6 +25,10 @@ class Base_User_AdministratorCommon extends Base_AdminModuleCommon {
 				__('Autologin') => 'autologin',
 		]: [];
 	}
+
+	public static function help() {
+		return Base_HelpCommon::retrieve_help_from_file(self::Instance()->get_type());
+	}
 	
 	public static function admin_caption() {
 		return [
