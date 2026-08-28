@@ -31,8 +31,38 @@ epesi_setup__position_centered = function (panelId, trigger) {
 	if (!panel) return;
 	var rect = trigger.getBoundingClientRect();
 	panel.style.position = 'fixed';
-	panel.style.top = (rect.bottom + 4) + 'px';
-	panel.style.left = (rect.left + rect.width / 2) + 'px';
+	/* Panel size varies with its button labels (Install/Uninstall/Readme...)
+	 * and is still display:none at this point (position runs before show,
+	 * both here and in epesi_setup__toggle_actions) - briefly reveal it,
+	 * synchronously and before any repaint, just to measure its real
+	 * rendered size instead of guessing off CSS's min-width. */
+	var wasHidden = panel.style.display === 'none';
+	if (wasHidden) panel.style.display = '';
+	var halfWidth = panel.offsetWidth / 2;
+	var panelHeight = panel.offsetHeight;
+	if (wasHidden) panel.style.display = 'none';
+	var margin = 8;
+	/* Centering purely on the trigger, below it (previous behavior), pushes
+	 * the panel past the viewport's right edge for any card near the end of
+	 * a row, and past the bottom edge for any trigger near the bottom of the
+	 * window (e.g. the last row of a long "Optional" list, which is exactly
+	 * where this fires from) - it's fixed-positioned so nothing clips or
+	 * scrolls it back into view in either direction. Clamp the center point
+	 * horizontally (the panel's own edges - center +/- halfWidth, since
+	 * .epesi-setup-action-panel's CSS still applies transform:translateX
+	 * (-50%) to this left value - must stay within the window) and flip the
+	 * panel above the trigger instead of below when there isn't enough room
+	 * underneath. */
+	var centerX = rect.left + rect.width / 2;
+	var minCenter = halfWidth + margin;
+	var maxCenter = Math.max(minCenter, window.innerWidth - halfWidth - margin);
+	panel.style.left = Math.min(Math.max(centerX, minCenter), maxCenter) + 'px';
+	var top = rect.bottom + 4;
+	if (top + panelHeight + margin > window.innerHeight) {
+		var flippedTop = rect.top - 4 - panelHeight;
+		top = flippedTop >= margin ? flippedTop : Math.max(margin, window.innerHeight - panelHeight - margin);
+	}
+	panel.style.top = top + 'px';
 	epesi_setup__force_paint(panel);
 };
 
