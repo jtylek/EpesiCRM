@@ -54,6 +54,13 @@ document.getElementById('debug').textContent
 (building the debug HTML, `json_encode`-ing query args) not meant to run in
 normal operation.
 
+**The debug panel can silently undercount a request** — see "Known but not
+fixed: initial-load `process()` renders the whole module tree twice" below.
+If a page's DevTools `process.php` time is much larger than what the debug
+panel reports, don't assume the gap is network/Apache overhead; compare
+DevTools' TTFB (`responseStart - requestStart` on the `process.php` resource
+timing entry) against the debug panel's own `Page renderered in Xs` first.
+
 To find *why* a specific query runs N times, group the debug panel's query
 lines by their "Called by" function+file+line rather than reading them
 one-by-one — that's what turns "234 queries" into "40 of them are
@@ -166,6 +173,59 @@ site with invalidation. A cross-request cache would help more (especially
 for CommonData, which barely changes across requests at all) but wasn't
 attempted here for that reason; revisit if request-scoped caching alone
 stops being enough.
+
+## Known but not fixed: initial-load `process()` renders the whole module tree twice (2026-08-29)
+
+DevTools showed a plain post-login `/newsetup` load's `process.php` taking
+613ms, while the debug panel's own `Page renderered in Xs` said ~0.14s for
+the same request — a ~4x gap the panel itself gave no hint of. Traced by
+temporarily adding response headers (`X-Process-Call-N-Time`,
+`X-Before-Go-Time`/`X-After-Go-Time` around `include/epesi.php`'s
+`process()`/`go()` calls, `X-Total-Server-Time` in `process.php` — added,
+measured, reverted; none of this is in the codebase) to timestamp against
+`$_SERVER['REQUEST_TIME_FLOAT']` at each stage. Confirmed only on a fresh
+session/tab's first load (bare URL, no module targeted yet) — a normal
+in-app click (sidebar → Contacts: Browse) does exactly one `process()` call,
+no gap.
+
+**What's happening**: `Epesi::process()` (`include/epesi.php:354`) renders
+the *entire* module tree once via `self::go($root)` (~257ms on Dashboard) to
+figure out what an empty/unresolved URL should even show. Partway through,
+some module calls `location()` (`include/misc.php:52`) — here,
+`Base_Box::push_main()` (`modules/Base/Box/Box_0.php:238`) resolving "no
+main module yet" into the real default/last-visited screen. `location()` is
+a generic side-effect accumulator used from 60+ call sites app-wide
+(RecordBrowser filters, Wizard steps, history back/forward, Box push/pop,
+etc.) — a module only decides to request a redirect *during its own render*,
+so `process()` has no way to know one is coming without executing that first
+pass. When it sees `location()` was called, it wipes `self::$content`
+(discarding the first render entirely — none of its `MODULE_TIMES`/SQL
+stats survive) and calls `self::process()` again for the resolved
+destination (~141ms). **Only the second call's numbers ever reach the debug
+panel** — `$debug`/`self::$content` are fresh per top-level call, and the
+first, more expensive pass leaves no trace unless you go looking for it like
+this.
+
+**Not fixed**: `location()`'s "decide mid-render, discover after" design is
+load-bearing for unrelated features across the whole app (see the call-site
+list above) — resolving destinations without a render pass would be a
+framework-level rewrite, not a scoped fix. Logged here so a future session
+profiling initial-load latency sees the real cost (roughly 2x the visible
+render) and doesn't have to re-derive this trace from scratch. Revisit only
+if initial-load latency becomes a specific priority, and start from
+`Base_Box::push_main()`/`location()` rather than re-profiling from zero.
+
+**How to apply**: when a slow request is a bare/root URL load rather than an
+in-app click, don't trust the debug panel's numbers as the whole story —
+they reflect only the *last* `process()` call in that response. Compare
+against DevTools' TTFB for the same request (see the profiling guide above)
+to see if there's an unexplained gap, and if so, re-add temporary
+`REQUEST_TIME_FLOAT`-relative response headers around `process()`/`go()`
+(same technique as here) to confirm/quantify a repeat render before assuming
+it's environment noise (this machine commonly runs several concurrent
+Claude Code sessions — see [[concurrent-sessions-shared-env]] — which is a
+real potential confound but wasn't the cause here: PHP-side timings summed
+to the observed gap almost exactly).
 
 ## Known but not fixed: Simple Setup / EpesiStore hits an external server
 
