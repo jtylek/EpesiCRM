@@ -496,14 +496,16 @@ class Epesi {
 
 		if(MODULE_TIMES) {
 			$module_times = '';
+			$module_sum = 0;
 			foreach (self::$content as $k => $v) {
 				$style='color:red;font-weight:bold';
 				if ($v['time']<0.5) $style = 'color:orange;font-weight:bold';
 				if ($v['time']<0.05) $style = 'color:green;font-weight:bold';
 				$module_times .= 'Time of loading module <b>'.$k.'</b>: <i>'.'<span style="'.$style.';">'.number_format($v['time'],4).'</span>'.'</i><br>';
+				$module_sum += $v['time'];
 			}
 			$debug .= '<div class="epesi-debug-total">Page renderered in '.(microtime(true)-$time).'s</div>';
-			$debug .= '<details class="epesi-debug-section"><summary>Module load times ('.count(self::$content).')</summary>'.$module_times.'</details>';
+			$debug .= '<details class="epesi-debug-section"><summary>Modules load times ('.count(self::$content).', '.number_format($module_sum,4).'s total)</summary>'.$module_times.'</details>';
 		}
 
 		if(SQL_TIMES) {

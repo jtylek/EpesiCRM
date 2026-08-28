@@ -24,9 +24,9 @@ Once both are on, every `process.php` response appends to a debug panel
 (`#debug_content`, force-shown via JS — see "Debug/error console redesign"
 below for its current UI) listing:
 - a `Page renderered in Xs` total, always visible, followed by a collapsed
-  "Module load times (N)" `<details>` section: every rendered module's own
-  wall-clock time (`include/epesi.php`'s `MODULE_TIMES` block) — nested by
-  module path, so a slow leaf module's cost rolls up through every
+  "Modules load times (N, Xs total)" `<details>` section: every rendered
+  module's own wall-clock time (`include/epesi.php`'s `MODULE_TIMES` block) —
+  nested by module path, so a slow leaf module's cost rolls up through every
   ancestor's own total
 - a collapsed "SQL queries (N, Xs total)" `<details>` section: every SQL
   query run (`include/database.php`'s `SQL_TIMES` instrumentation in
