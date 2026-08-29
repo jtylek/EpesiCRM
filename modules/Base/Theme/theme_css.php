@@ -57,7 +57,7 @@ if (isset($_GET['f'])) {
         } catch (Error $e) {
         }
 
-        $cache_dir = DATA_DIR . '/cache/minify';
+        $cache_dir = TEMP_DIR . '/cache/minify';
         if (!file_exists($cache_dir))
             mkdir($cache_dir, 0777, true);
         Minify::setCache($cache_dir);

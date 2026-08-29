@@ -45,7 +45,7 @@ if (isset($_GET['f'])) {
 		require_once('include/data_dir.php');
 		require_once('include/config.php');
         
-		$cache_dir = DATA_DIR.'/cache/minify';
+		$cache_dir = TEMP_DIR.'/cache/minify';
 		if(!is_dir($cache_dir))
 			@mkdir($cache_dir,0777,true);
 		Minify::setCache($cache_dir);

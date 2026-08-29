@@ -145,22 +145,30 @@ doesn't match the URL actually typed into the browser (`http://localhost/
 applies here too: check access.log for the *absence* of an expected
 follow-up request, not just for errors in it.
 
-## Stale `data/cache/` after swapping the codebase wholesale (not via incremental patches)
+## Stale `temp/<DATA_DIR>/cache/` after swapping the codebase wholesale (not via incremental patches)
 
-Epesi's compiled-template/module cache (`data/cache/<INSTALLATION_ID>/`) and
-minified-asset cache (`data/cache/minify/`) are built against whatever code
-was on disk when they were generated. The normal `update.php` patch flow
-accounts for this, but a bulk code swap done outside that flow (e.g. `git
-checkout` onto a different branch, or overlaying a new release directly) can
-leave old compiled templates referencing classes/methods/theme files the new
-code no longer has — a source of confusing bugs that look like the new code
-is broken when it's actually stale cache.
+Epesi's compiled-module cache (`common.php`), the general-purpose `Cache::`
+store (`<INSTALLATION_ID>/`, Phpfastcache Files driver — see
+`include/cache.php`), the minified-asset cache (`minify/`) and the
+asset-version scan cache (`asset_version.txt`) are all built against whatever
+code was on disk when they were generated. As of 2026-08-29 all four live
+under `temp/<DATA_DIR>/cache/` (e.g. `temp/data/cache/` on a default
+install) instead of `data/cache/` — see `bug-patterns.md`'s "Runtime
+cache/scratch-file call sites default to `DATA_DIR` instead of `TEMP_DIR`"
+entry — but the staleness risk is the same as before the move. The normal
+`update.php` patch flow accounts for this, but a bulk code swap done outside
+that flow (e.g. `git checkout` onto a different branch, or overlaying a new
+release directly) can leave old compiled templates referencing
+classes/methods/theme files the new code no longer has — a source of
+confusing bugs that look like the new code is broken when it's actually
+stale cache.
 
 **How to apply**: after any out-of-band code swap (not done through the
-update wizard), clear `data/cache/` before testing — it's fully regenerable,
-not user data. Confirmed safe 2026-08-13: 76MB / 2,132 files cleared
-(`<INSTALLATION_ID>/` + `minify/`) with no ill effect, immediately after
-pulling `jtylek/epesi`'s `jasiek` branch on top of a PHP 8.2 migration.
+update wizard), clear `temp/<DATA_DIR>/cache/` before testing — all of it is
+fully regenerable, not user data. Confirmed safe 2026-08-13: 76MB / 2,132
+files cleared (`<INSTALLATION_ID>/` + `minify/`, both under `data/cache/` at
+the time, pre-2026-08-29 move) with no ill effect, immediately after pulling
+`jtylek/epesi`'s `jasiek` branch on top of a PHP 8.2 migration.
 
 ## Clear `data/logs/php_errors.log` and `data/logs/cron.log` before starting a migration test pass
 

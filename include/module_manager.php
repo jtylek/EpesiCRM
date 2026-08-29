@@ -635,7 +635,7 @@ class ModuleManager {
 			self::include_common($module_class_name,$version);
 	//    		self::create_common_cache();
 		}
-		if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
+		if(file_exists(TEMP_DIR.'/cache/common.php')) unlink(TEMP_DIR.'/cache/common.php');
 		Cache::clear();
 
 		self::$processed_modules['install'][$module_class_name] = $version;
@@ -717,7 +717,7 @@ class ModuleManager {
 		self::create_load_priority_array();
 		Cache::clear();
 //		self::create_common_cache();
-        if(file_exists(DATA_DIR.'/cache/common.php')) unlink(DATA_DIR.'/cache/common.php');
+        if(file_exists(TEMP_DIR.'/cache/common.php')) unlink(TEMP_DIR.'/cache/common.php');
 
 		print ($module_to_uninstall . " module uninstalled! You can safely remove module directory.<br>");
 		self::$processed_modules['uninstall'][$module_to_uninstall] = -1;
@@ -874,7 +874,7 @@ class ModuleManager {
 
 		$cached = false;
 		if(FORCE_CACHE_COMMON_FILES && empty(self::$individually_loaded_commons)) {
-			$cache_file = DATA_DIR.'/cache/common.php';
+			$cache_file = TEMP_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
 			ob_start();
@@ -978,7 +978,7 @@ class ModuleManager {
 					'} ?>';
 			}
 		}
-		$cache_dir = DATA_DIR.'/cache/';
+		$cache_dir = TEMP_DIR.'/cache/';
 		if(!file_exists($cache_dir))
 			mkdir($cache_dir,0777,true);
 

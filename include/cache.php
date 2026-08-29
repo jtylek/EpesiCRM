@@ -59,7 +59,7 @@ class Cache
                 ]);
             case 'Files':
                 return new \Phpfastcache\Drivers\Files\Config([
-                    'path' => EPESI_LOCAL_DIR . '/' . DATA_DIR . '/cache',
+                    'path' => EPESI_LOCAL_DIR . '/' . TEMP_DIR . '/cache',
                     'securityKey' => INSTALLATION_ID,
                     'defaultTtl' => $defaultTtl,
                 ]);

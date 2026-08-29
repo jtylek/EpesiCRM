@@ -69,7 +69,9 @@ class BackupUtil {
         $this->_chdir_to_epesi();
         // '^temp/' is anchored: _is_excluded() does a bare substring preg_match,
         // and an unanchored 'temp' would also match e.g. data/Base_Theme/templates/.
-        $exclude = array($this->_backup_dir, DATA_DIR . '/cache', '^temp/');
+        // Nothing writes under DATA_DIR/cache any more (all regenerable cache moved
+        // to TEMP_DIR, see AI-shared/bug-patterns.md), so '^temp/' alone covers it.
+        $exclude = array($this->_backup_dir, '^temp/');
         $success = $backup->create($files, $description, $exclude);
         $this->_chdir_back();
         return $success ? $backup : false;

@@ -2297,3 +2297,36 @@ third arg) for the result of any environment self-test is a trap on its own even
 — a bad reading gets treated as permanent fact with no way to self-heal. Give self-test cache entries a
 TTL, and check `Cache::set()` call sites for a missing expiration arg before trusting a cached
 "supported" flag reflects current reality.
+
+## Runtime cache/scratch-file call sites default to `DATA_DIR` instead of `TEMP_DIR`
+
+`include/config.php` deliberately keeps two directories apart: `DATA_DIR` (`data/`) is
+per-instance real data — config, uploads, logs — and `TEMP_DIR` (`temp/<DATA_DIR>`, e.g.
+`temp/data/`) is regenerable Smarty compile/cache/config output, kept in its own top-level
+tree specifically so it can be skipped in one shot by any backup strategy, not just
+`BackupUtil`'s own hardcoded `DATA_DIR . '/cache'` exclude (`include/backups.php`) — an admin
+who backs up the whole `data/` folder wholesale via an external tool (cron `tar`/`rsync`,
+a hosting panel's own backup feature) has no such exclude list to lean on. Despite that,
+four call sites wrote regenerable cache to `DATA_DIR . '/cache/...'` instead — apparently
+missed when `TEMP_DIR` was introduced, since Smarty's own compile/cache (set in
+`modules/Base/Theme/ThemeCommon_0.php`) already used it correctly: on-demand-minify cache
+(`serve.php`, `modules/Base/Theme/theme_css.php`), the compiled module-registry cache
+(`data/cache/common.php`, `include/module_manager.php`), the general-purpose `Cache::`
+store (`data/cache/<INSTALLATION_ID>/`, Phpfastcache Files driver, `include/cache.php`),
+and the asset-version scan cache (`data/cache/asset_version.txt`,
+`epesi_asset_version()` in `include/misc.php`). Fixed 2026-08-29: all four now write under
+`TEMP_DIR` instead, `include/backups.php`'s now-redundant `DATA_DIR . '/cache'` exclude was
+dropped (`'^temp/'` alone covers it), and
+`modules/Base/patches/20260829_relocate_cache_dir_to_temp_dir.php` deletes the whole stale
+`DATA_DIR . '/cache'` directory left behind at the old location on existing installs (safe
+— fully regenerable, not user data, same reasoning as the stale-cache entry in
+`environment-gotchas.md`; confirmed via `git grep`, including `modules/Premium/`, that
+nothing else still writes there).
+
+**How to apply**: any new code that needs a directory for regenerated/disposable output —
+a new on-demand asset pipeline, a new file-based cache, anything you'd be comfortable
+deleting with no data loss — should default to `TEMP_DIR`, not `DATA_DIR`, from the start.
+If you do find another `DATA_DIR . '/cache/...'`-shaped call site for something genuinely
+regenerable, moving it follows the same shape as this fix: swap the constant, and ship a
+`Base/patches/` cleanup for the old path since existing installs won't have it removed by
+a plain code update.

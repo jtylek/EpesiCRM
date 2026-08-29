@@ -273,7 +273,7 @@ function preg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
 function epesi_asset_version() {
 	if (!ASSET_VERSION_CHECK) return 0;
 
-	$cache_file = (defined('DATA_DIR') ? DATA_DIR : 'data') . '/cache/asset_version.txt';
+	$cache_file = (defined('TEMP_DIR') ? TEMP_DIR : 'temp/data') . '/cache/asset_version.txt';
 	if (is_file($cache_file) && (time() - filemtime($cache_file)) < 900)
 		return (int)file_get_contents($cache_file);
 
