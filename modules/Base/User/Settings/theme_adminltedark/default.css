@@ -22,9 +22,13 @@
 
 /* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
  * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
- * menu and Base_Admin's own listing - no bespoke .epesi-user-settings-card
- * sizing needed here.
+ * menu and Base_Admin's own listing. Font-size pinned explicitly on all
+ * three (see admin/images/admintools.css and Base_Admin's own default.css)
+ * since Bootstrap's default here reads smaller than intended in context.
  */
+.epesi-user-settings .card-body span.fw-semibold {
+	font-size: 16px;
+}
 
 /* settings_form.tpl (Base_User_Settings::display_adminlte()) - the actual
  * per-branch settings edit screen (e.g. "Quick Access", "Messenger Alerts"),

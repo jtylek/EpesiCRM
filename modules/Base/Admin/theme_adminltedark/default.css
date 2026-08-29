@@ -26,9 +26,15 @@
 
 /* Card grid itself (.row/.col-sm-6/.col-lg-4/.card/.card-body/.fs-2/etc.) is
  * plain Bootstrap, matching admin/templates/layout.tpl's Admin Utilities
- * menu exactly so both admin listings read as the same size/weight of
- * button - no bespoke .epesi-admin-card sizing needed here.
+ * menu (and Base_User_Settings' own listing) exactly so all three admin/
+ * settings card grids read as the same size/weight of button. Font-size
+ * pinned explicitly on all three (see admin/images/admintools.css and
+ * Base_User_Settings' own default.css) since Bootstrap's default here reads
+ * smaller than intended in context.
  */
+.epesi-admin .card-body span.fw-semibold {
+	font-size: 16px;
+}
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
 [data-bs-theme="light"] .epesi-admin-section-title {

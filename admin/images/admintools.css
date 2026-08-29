@@ -17,6 +17,13 @@
 	margin-top: 1rem;
 }
 
+/* Kept in sync with Base_Admin's and Base_User_Settings' own theme_adminltedark/
+ * default.css copies of this same rule, so all three admin/settings card grids
+ * read as the same size/weight of button. */
+.app-content .card-body span.fw-semibold {
+	font-size: 16px;
+}
+
 /* HTML_QuickForm's default renderer (Modules.tpl) prints a bare, class-less
  * <table> - Bootstrap's reset strips its default browser borders/padding,
  * leaving an unreadable wall of text with no styling of its own.
