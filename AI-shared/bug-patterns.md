@@ -2244,3 +2244,56 @@ query with an explicit `LIMIT` (or an actual pager like `query_order_limit()`
 above) any time the underlying table isn't provably small and fixed — a
 lookup/options table (a handful of Folder or Category rows, a fixed status
 list) is the one legitimate exception, not the default assumption.
+
+## A server-to-itself HTTPS self-test skips no TLS verification, so it false-negatives on a self-signed install — then caches the wrong answer forever (2026-08-29)
+
+`CRM_RoundcubeCommon::multiwin_supported()` (`RoundcubeCommon_0.php:92-113`) gates the "single mail
+window" notice (`Roundcube_0.php:60-65`) on whether the `RCWIN_<n>/` → `RC/?ECID=<n>` rewrite in
+`modules/Libs/RoundCube/.htaccess` is actually in effect, by having the server fetch its own
+`.../RCWIN_0/robots.txt` (via `get_epesi_url()`, whatever scheme the install is actually configured
+with) and checking the response body.
+
+**Root cause, confirmed live on this dev checkout:** `get_epesi_url()` here returns an `https://` URL
+(this install's vhost is HTTPS with a self-signed cert), and neither the `file_get_contents()` nor the
+`curl` branch disabled TLS peer verification — so the self-request's own TLS handshake fails
+(`curl -v` against the same URL reproduced it directly: `schannel: SEC_E_UNTRUSTED_ROOT ... certificate
+chain was issued by an authority that is not trusted`), `$ret` comes back empty, and
+`multiwin_supported()` reports `false` even though the rewrite itself is completely fine — confirmed
+separately with `curl -sk https://localhost/newsetup/modules/Libs/RoundCube/RCWIN_0/robots.txt` (real
+robots.txt body once cert verification is skipped) and even over plain `http://` (no TLS involved at
+all, also fine). Any install serving itself over HTTPS with a cert PHP's default stream/curl trust store
+doesn't already accept — self-signed dev certs being the obvious case, but also a newly-issued cert an
+outdated CA bundle doesn't yet recognize — hits this every time, permanently and reproducibly, not as a
+one-off flake.
+
+**Compounding bug, same function:** the `false` result was cached via `Cache::set()` with no
+expiration — permanent either way (backed by Memcached here per `data/config.php`'s
+`MEMCACHE_SESSION_SERVER`, confirmed by reading the raw cache entry directly with
+`(new Memcached)->get('epesi_<INSTALLATION_ID>_rc_multiwin')`, key format from
+`Cache::get()`/`Cache::set()` in `include/cache.php`). So even fixing the TLS issue in code doesn't
+reach an install that already cached the wrong answer — needed clearing by hand
+(`(new Memcached(...))->delete($key)` for this dev checkout) or, for a real install, a patch.
+
+**Fix**: disabled TLS peer verification for this one self-test request only — a same-server loopback
+check of your own rewrite config, not a security-sensitive external connection, so this is the same
+trust call `config.inc.php` already makes for the real IMAP/SMTP connections (`verify_peer`/
+`verify_peer_name` = `false` in `$config['smtp_conn_options']`/`imap_conn_options`). Also gave the cache
+entry a TTL (1 day if supported, 1 hour if not) so any *other* transient self-test failure
+(`AllowOverride` not yet applied right after deploy, momentary network hiccup) self-heals instead of
+sticking forever the way the TLS case did. Code-only changes don't reach an install with the bad answer
+already cached, so added `patches/20260829_retest_rc_multiwin.php` (`Cache::clear('rc_multiwin')`) to
+force a re-test on next patch sweep. Verified end-to-end in-browser on this dev checkout after clearing
+the cache entry: notice gone, mailbox loads normally.
+
+**How to apply**: any code that has the server make an HTTP(S) request back to its own `get_epesi_url()`
+(or otherwise a URL on the same install) to self-test something must not assume the connection's own
+TLS chain validates — `grep get_epesi_url` turns up ~11 call sites across the codebase (`CRM_Mail`,
+`Utils_Attachment`, `Base_Cron`, `Base_EssClient`, `Utils_RecordBrowser`/`Utils_FileStorage`'s
+`FileActionHandler`s, `Base_User_Login`, `update.php`); check whether each one is a genuine same-server
+loopback test (safe to skip verification, this bug's shape) versus a URL only ever *handed to something
+external* (a cron poller, an email link) where skipping TLS verification would be a real regression,
+before assuming the fix here generalizes. Separately: an unconditional `Cache::set($key, $value)` (no
+third arg) for the result of any environment self-test is a trap on its own even without the TLS angle
+— a bad reading gets treated as permanent fact with no way to self-heal. Give self-test cache entries a
+TTL, and check `Cache::set()` call sites for a missing expiration arg before trusting a cached
+"supported" flag reflects current reality.

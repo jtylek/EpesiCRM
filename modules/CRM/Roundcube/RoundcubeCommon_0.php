@@ -95,18 +95,31 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         if ($supported === null) {
             $test_url = get_epesi_url() . '/modules/Libs/RoundCube/RCWIN_0/robots.txt';
             $ret = '';
-            if(ini_get('allow_url_fopen'))
-                $ret = @file_get_contents($test_url);
-            elseif (extension_loaded('curl')) { // Test if curl is loaded
+            // This is a same-server loopback request purely to check whether the RCWIN_
+            // rewrite is in effect, not a security-sensitive external connection (same
+            // trust call already made for the real IMAP/SMTP connections' verify_peer
+            // in config.inc.php) - skip TLS verification, or a self-signed/otherwise-
+            // untrusted cert on an https:// install (e.g. local dev) makes this request
+            // fail outright and permanently misreports multiwin as unsupported.
+            if(ini_get('allow_url_fopen')) {
+                $ctx = stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]);
+                $ret = @file_get_contents($test_url, false, $ctx);
+            } elseif (extension_loaded('curl')) { // Test if curl is loaded
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Set curl to return the data instead of printing it to the browser.
                 curl_setopt($ch, CURLOPT_URL, $test_url);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
                 $ret = curl_exec($ch);
                 curl_close($ch);
             }
             $supported = strpos($ret, 'User-agent') !== false;
-            Cache::set('rc_multiwin', $supported);
+            // A negative result can be transient (mod_rewrite/.htaccess not yet in
+            // effect right after deploy, a momentary network hiccup on the self-request)
+            // rather than a permanent hosting limitation, so don't cache "false" forever
+            // or it can never self-heal - retest hourly. A positive result is stable.
+            Cache::set('rc_multiwin', $supported, $supported ? 86400 : 3600);
         }
         return $supported;
     }
