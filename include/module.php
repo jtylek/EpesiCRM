@@ -646,7 +646,11 @@ abstract class Module extends ModulePrimitive {
 			.'<div class="modal-header"><h5 class="modal-title"><i class="bi bi-info-circle-fill me-2 text-primary"></i>'.__('Notice').'</h5>'
 			.'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>'
 			// white-space:pre-line + textContent for the same reasons as the confirm modal above.
-			.'<div class="modal-body"><p class="mb-0" id="epesi_alert_modal_msg" style="white-space:pre-line;overflow-wrap:anywhere"></p></div>'
+			// font-size:16px - explicit per request (up from the modal-body's
+			// inherited ~13px default) so the alert's actual message reads
+			// larger than that; the header/footer chrome (Notice/OK) is
+			// untouched.
+			.'<div class="modal-body"><p class="mb-0" id="epesi_alert_modal_msg" style="white-space:pre-line;overflow-wrap:anywhere;font-size:16px"></p></div>'
 			.'<div class="modal-footer">'
 			.'<button type="button" class="btn btn-primary" data-bs-dismiss="modal" autofocus>'.__('OK').'</button>'
 			.'</div></div></div></div>'
