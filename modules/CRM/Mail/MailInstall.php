@@ -61,7 +61,16 @@ class CRM_MailInstall extends ModuleInstall {
         	array('name' => _M('Account Name'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'required'=>true, 'param'=>32,'QFfield_callback'=>array('CRM_MailCommon','QFfield_account_name')),
         	array('name' => _M('Server'),             'type'=>'text', 'extra'=>false, 'visible'=>true, 'param'=>'255', 'required'=>true),
             array('name' => _M('Login'),              'type'=>'text', 'required'=>true, 'param'=>'255', 'extra'=>false, 'visible'=>true),
-            array('name' => _M('Password'),           'type'=>'text', 'required'=>true,'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MailCommon','QFfield_password'), 'display_callback'=>array('CRM_MailCommon','display_password')),
+            // 'required' NOT set here (unlike most fields) - QFfield_password() already
+            // enforces "required" itself, but only on 'add' mode: on 'edit' the field is left
+            // blank on purpose to mean "keep the current password" (see
+            // AI-shared/mail-account-encryption-and-gmail-oauth.md). RecordBrowser's own
+            // generic form-building loop (RecordBrowser_0.php, right after calling this field's
+            // QFfield_callback) unconditionally re-adds a 'required' rule *and* overwrites the
+            // placeholder with "Field required" for any field whose schema declares
+            // 'required'=>true, regardless of what the callback already did - setting it here
+            // would silently stomp the callback's own edit-mode logic every time.
+            array('name' => _M('Password'),           'type'=>'text', 'extra'=>false, 'param'=>'255', 'visible'=>false, 'QFfield_callback'=>array('CRM_MailCommon','QFfield_password'), 'display_callback'=>array('CRM_MailCommon','display_password')),
             array('name' => _M('Security'),           'type'=>'commondata', 'param'=>array('CRM/Mail/Security'), 'extra'=>false, 'visible'=>false, 'QFfield_callback'=>array('CRM_MailCommon','QFfield_security')),
 
             array('name' => _M('SMTP Server'),             'type'=>'text', 'extra'=>false, 'visible'=>false, 'param'=>'255', 'required'=>true),

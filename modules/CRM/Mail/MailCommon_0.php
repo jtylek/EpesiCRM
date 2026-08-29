@@ -55,6 +55,10 @@ class CRM_MailCommon extends ModuleCommon {
             $param['archive_on_sending']=0; // default OFF: auto-archiving SENT mail is opt-in (per-account / compose toggle)
             $param['use_epesi_archive_directories']=1;
         }
+        if($mode=='add' || $mode=='edit') {
+            $param = self::encrypt_account_secret($param, $mode, 'password');
+            $param = self::encrypt_account_secret($param, $mode, 'smtp_password');
+        }
         if($mode=='add' || (isset($acc['default_account']) && !$acc['default_account'])) {
             $count = DB::GetOne('SELECT count(*) FROM rc_accounts_data_1 WHERE active=1 AND f_epesi_user=%d',array(Acl::get_user()));
             if($count) {
@@ -65,6 +69,82 @@ class CRM_MailCommon extends ModuleCommon {
         }
         if($mode=='index') return array();
         return $param;
+    }
+
+    // On 'add', the field is always required (QFfield_password()/QFfield_smtp_password()) so it's
+    // always present and non-empty - encrypt it. On 'edit', only trust the field's emptiness when
+    // its '<field>_submitted' marker is present (a real form submission just went through) -
+    // otherwise this is some other partial update (e.g. the grid's inline single-field edit) that
+    // never touched this field, and RecordBrowserCommon_0.php's update_record() has already merged
+    // the existing (already-encrypted) stored value into $param for it, which must NOT be
+    // re-encrypted. Blank-and-submitted means "leave blank to keep current" - unset the key
+    // entirely so update_record()'s own field-diff loop (`if (!isset($values[$desc['id']])) ...
+    // continue;`) leaves that column untouched rather than nulling it out.
+    private static function encrypt_account_secret($param, $mode, $field) {
+        $marker = $field.'_submitted';
+        if ($mode == 'add') {
+            $param[$field] = self::encrypt($param[$field] ?? '');
+        } elseif (isset($param[$marker])) {
+            if (($param[$field] ?? '') === '') {
+                unset($param[$field]);
+            } else {
+                $param[$field] = self::encrypt($param[$field]);
+            }
+        }
+        unset($param[$marker]);
+        return $param;
+    }
+
+    // ---- Password encryption at rest ----
+    //
+    // AES-256-GCM via openssl_encrypt, same shape as the one other encrypted-secret precedent in
+    // this codebase (CRM_GoogleCalendarSyncCommon::encrypt()/decrypt(), see
+    // AI-shared/mail-account-encryption-and-gmail-oauth.md for the design this follows). Key is a
+    // random 32-byte file generated on first use, stored under this module's own data dir (outside
+    // the DB, data/ is gitignored) - a compromise of one module's key doesn't expose another's.
+    //
+    // Threat model: protects stored passwords against a database-only compromise (a DB dump/leak/
+    // backup theft without filesystem access). Does not protect against a compromised web server
+    // process or filesystem-level access to encryption.key - that's an accepted trade-off, not a
+    // gap to fix here.
+
+    private static function get_encryption_key() {
+        // ModuleManager::create_data_dir()/get_data_dir() resolve DATA_DIR (a bare relative
+        // string, e.g. 'data' - see include/data_dir.php) against the current working
+        // directory, which is fine for a normal request but not for
+        // modules/Libs/RoundCube/RC/config/config.inc.php's own bootstrap: it chdir()s back
+        // to Roundcube's own directory before calling decrypt(), so a relative path here
+        // silently resolves to the wrong place (mkdir/file_get_contents failures, decrypt()
+        // returning ''). Build an absolute path directly instead - same EPESI_LOCAL_DIR-
+        // prefixed pattern that same config.inc.php already uses for its own tmp/log dirs.
+        $dir = EPESI_LOCAL_DIR . '/' . DATA_DIR . '/CRM_Mail/';
+        if (!is_dir($dir)) @mkdir($dir, 0700, true);
+        $key_file = $dir . 'encryption.key';
+        if (!file_exists($key_file)) {
+            file_put_contents($key_file, random_bytes(32));
+            @chmod($key_file, 0600);
+        }
+        return file_get_contents($key_file);
+    }
+
+    public static function encrypt($plain) {
+        if ($plain === null || $plain === '') return '';
+        $iv = random_bytes(12);
+        $tag = '';
+        $cipher = openssl_encrypt((string) $plain, 'aes-256-gcm', self::get_encryption_key(), OPENSSL_RAW_DATA, $iv, $tag);
+        if ($cipher === false) return '';
+        return base64_encode($iv . $tag . $cipher);
+    }
+
+    public static function decrypt($encoded) {
+        if (!$encoded) return '';
+        $raw = base64_decode((string) $encoded, true);
+        if ($raw === false || strlen($raw) < 28) return '';
+        $iv = substr($raw, 0, 12);
+        $tag = substr($raw, 12, 16);
+        $cipher = substr($raw, 28);
+        $plain = openssl_decrypt($cipher, 'aes-256-gcm', self::get_encryption_key(), OPENSSL_RAW_DATA, $iv, $tag);
+        return $plain === false ? '' : $plain;
     }
 
     public static function submit_mail($param, $mode) {
@@ -154,9 +234,20 @@ class CRM_MailCommon extends ModuleCommon {
 	}
 
     public static function QFfield_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('password', $field, $label,array('id'=>$field));
-        $form->setDefaults(array($field=>$default));
-        $form->addRule($field,__('Field required'),'required');
+        $form->addElement('password', $field, $label, array('id'=>$field,'autocomplete'=>'new-password','placeholder'=>$mode=='edit'?__('Leave blank to keep current password'):''));
+        // Present on every real form submission but never a stored column, so it's never merged
+        // back in from the old record on a partial edit (see submit_account()'s use of it) -
+        // that's how we tell "left blank on purpose, keep existing" apart from "not part of this
+        // submission at all" (RecordBrowser's update_record() otherwise re-merges the old,
+        // already-encrypted value into any edit that didn't touch this field).
+        $form->addElement('hidden', $field.'_submitted', 1);
+        if ($mode == 'add') {
+            $form->addRule($field,__('Field required'),'required');
+        } else {
+            // Never round-trip the stored (encrypted) value back into the page - blank on edit,
+            // fixed-length mask on view.
+            $form->setDefaults(array($field => ($mode == 'view' && $default !== '') ? '********' : ''));
+        }
         if($mode=='view') $form->freeze(array($field));
     }
 
@@ -190,9 +281,13 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function QFfield_smtp_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('password', $field, $label,array('id'=>'smtp_pass'));
-        $form->setDefaults(array($field=>$default));
-        if($form->exportValue('smtp_auth'))
+        $form->addElement('password', $field, $label, array('id'=>'smtp_pass','autocomplete'=>'new-password','placeholder'=>$mode=='edit'?__('Leave blank to keep current password'):''));
+        $form->addElement('hidden', $field.'_submitted', 1); // see QFfield_password() for why
+        $form->setDefaults(array($field => ($mode == 'view' && $default !== '') ? '********' : ''));
+        // Required only when SMTP Auth is on AND there's no existing SMTP password to fall back
+        // to (add, or edit of an account that never had one) - otherwise a blank field means
+        // "keep the current one", same as the IMAP password field.
+        if($form->exportValue('smtp_auth') && ($mode=='add' || $default===''))
             $form->addRule($field,__('Field required'),'required');
         if($mode=='view') $form->freeze(array($field));
     }
@@ -584,7 +679,7 @@ class CRM_MailCommon extends ModuleCommon {
         }
         if ($return === null && $only_cached === false) {
             @set_time_limit(0);
-            $mailbox = @imap_open(imap_utf7_encode($server_str), imap_utf7_encode($rec['login']), imap_utf7_encode($rec['password']), OP_READONLY || OP_SILENT);
+            $mailbox = @imap_open(imap_utf7_encode($server_str), imap_utf7_encode($rec['login']), imap_utf7_encode(self::decrypt($rec['password'])), OP_READONLY || OP_SILENT);
             $err = imap_errors();
             $unseen = array();
             if (!$mailbox || $err) {
@@ -743,7 +838,7 @@ class CRM_MailCommon extends ModuleCommon {
 
         $port = $rec['security'] == 'ssl' ? 993 : 143;
         $server = new \Fetch\Server(self::strip_server_port($rec['server']), $port);
-        $server->setAuthentication($rec['login'], $rec['password']);
+        $server->setAuthentication($rec['login'], self::decrypt($rec['password']));
         $server->setFlag('readonly');
         $server->setFlag('novalidate-cert');
         if($rec['security']) $server->setFlag($rec['security']);

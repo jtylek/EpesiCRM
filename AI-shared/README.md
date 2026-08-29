@@ -192,6 +192,12 @@ same for every developer and every computer working on this repo.
   "delete files the new release no longer ships" problem via wipe-then-extract (but only
   for its own `ess.epe.si` channel), and a manifest-file mechanism to bring the same
   cleanup (plus a wholesale `vendor/` rebuild) to the manual-zip path.
+- [mail-account-encryption-and-gmail-oauth.md](mail-account-encryption-and-gmail-oauth.md) —
+  plan (not yet implemented) to encrypt `CRM_Mail`'s `rc_accounts` IMAP/SMTP passwords at
+  rest (AES-256-GCM, following the `CRM_GoogleCalendarSync` precedent and the
+  `Premium/PasswordManager` plan's `update_record()`-merge gotcha) and add a "Gmail (OAuth)"
+  account type alongside plain IMAP, reusing Roundcube's own vendored XOAUTH2 support in its
+  IMAP/SMTP clients (confirmed present) rather than PHP's `imap_open`/c-client.
 
 ## Conventions for investigating/fixing bugs
 

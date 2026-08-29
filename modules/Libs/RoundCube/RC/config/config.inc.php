@@ -14,6 +14,16 @@ require_once('include/config.php');
 require_once('include/database.php');
 require_once('include/session.php'); // load to get class in runtime
 require_once('include/variables.php');
+// This bootstrap is deliberately lightweight - it never goes through include.php's full
+// module system, so CRM_MailCommon (a module Common class, needed below to decrypt
+// f_password/f_smtp_password) isn't loaded by anything above. Pull in just enough of the
+// module chain to load it directly, without ModuleManager::load_modules()'s full module tree:
+// ModulePrimitive -> ModuleCommon (its own parent) -> ModuleManager (get_encryption_key()'s
+// ModuleManager::create_data_dir()/get_data_dir() calls) -> the Common class file itself.
+require_once('include/module_primitive.php');
+require_once('include/module_common.php');
+require_once('include/module_manager.php');
+require_once('modules/CRM/Mail/MailCommon_0.php');
 global $E_SESSION,$E_SESSION_ID;
 $E_SESSION_ID = $_COOKIE[session_name()];
 if(!$E_SESSION_ID)
@@ -49,6 +59,15 @@ try {
 
     global $account;
     $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
+    if($account) {
+        // rc_accounts_data_1.f_password/f_smtp_password are encrypted at rest (see
+        // AI-shared/mail-account-encryption-and-gmail-oauth.md) - this raw DB::GetRow() bypasses
+        // Utils_RecordBrowserCommon::get_record() entirely, so decryption has to happen here,
+        // once, before anything below (including epesi_autologon/epesi_autorelogon's own
+        // 'authenticate' hooks, which read this same $account global) reads either field.
+        $account['f_password'] = CRM_MailCommon::decrypt($account['f_password']);
+        $account['f_smtp_password'] = CRM_MailCommon::decrypt($account['f_smtp_password']);
+    }
     if($E_SESSION['user']!==$account['f_epesi_user']) {
         throw new Exception('Access Denied');
     }
