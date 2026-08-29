@@ -15,18 +15,43 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_User_LoginCommon extends ModuleCommon {
 	/**
+	 * Algorithm used for newly stored password hashes: argon2id (OWASP's
+	 * current recommendation) where the PHP build has libargon2 compiled
+	 * in, bcrypt (PASSWORD_DEFAULT) otherwise - Epesi runs on a wide range
+	 * of hosts and not all of them ship the argon2 extension.
+	 */
+	private static function password_algo() {
+		return defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT;
+	}
+
+	private static function hash_password($pass) {
+		return password_hash($pass, self::password_algo());
+	}
+
+	private static function store_password_hash($user_login_id, $pass) {
+		DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array(self::hash_password($pass), $user_login_id));
+	}
+
+	/**
 	 * Check if username and password is valid login.
-	 * 
+	 *
 	 * @param string
 	 * @param string
 	 * @return bool
 	 */
 	public static function check_login($username, $pass) {
-		$hash = DB::GetOne('SELECT p.password FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($username));
-		if(!$hash) return false;
-		if(strlen($hash)==32) //md5
-		    return md5($pass)==$hash;
-		return password_verify($pass,$hash);
+		$row = DB::GetRow('SELECT p.user_login_id, p.password FROM user_login u JOIN user_password p ON u.id=p.user_login_id WHERE u.login=%s AND u.active=1', array($username));
+		if(!$row || !$row['password']) return false;
+		$hash = $row['password'];
+		if(strlen($hash)==32) { //legacy md5, see patches/20150701_password_hash.php
+			if(md5($pass)!==$hash) return false;
+			self::store_password_hash($row['user_login_id'], $pass); // self-heal to the current algorithm now that we have the plaintext
+			return true;
+		}
+		if(!password_verify($pass,$hash)) return false;
+		if(password_needs_rehash($hash, self::password_algo()))
+			self::store_password_hash($row['user_login_id'], $pass);
+		return true;
 	}
 	
 	public static function submit_login($x) {
@@ -114,7 +139,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 			Base_StatusBarCommon::message(__('Account creation failed.').' '.__('Unable to get id of added user.'), 'error');
 			return false;
 		}
-		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		$pass_hash = self::hash_password($pass);
 		$ret = DB::Execute('INSERT INTO user_password(user_login_id,password,mail) VALUES(%d,%s, %s)', array($user_id, $pass_hash, $mail));
 
 		if($send_mail) {
@@ -138,7 +163,7 @@ class Base_User_LoginCommon extends ModuleCommon {
 		if(DB::Execute('UPDATE user_password SET mail=%s WHERE user_login_id=%d', array($mail, $id)) === false)
 			return false;
 		
-		$pass_hash = function_exists('password_hash')?password_hash($pass,PASSWORD_DEFAULT):md5($pass);
+		$pass_hash = self::hash_password($pass);
 		if($pass!='' && DB::Execute('UPDATE user_password SET password=%s WHERE user_login_id=%d', array($pass_hash, $id))===false)
 			return false;
 		

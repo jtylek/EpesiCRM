@@ -590,3 +590,49 @@ with no obvious logic bug, try replaying the same operation standalone
 before assuming the code is wrong — a transient environment lock (especially
 soon after bulk filesystem operations on the same volume) can look
 identical to a real failure but simply not reproduce on retry.
+
+## Never hard-delete a `user_login` row directly — 60+ tables have an FK into it
+
+Hit 2026-08-29 cleaning up a disposable test account created for
+[password-hashing.md](password-hashing.md)'s live login-flow verification. A
+one-off bootstrapped script (`SET_SESSION=false` + `require 'include.php'` +
+`ModuleManager::load_modules()`, same pattern as the non-destructive
+schema-change recipe in `recordbrowser-live-schema-changes.md`) deleted
+`user_password`/`user_autologin` for the test user then ran
+`DB::Execute('DELETE FROM user_login WHERE id=%d', ...)` — the script didn't
+check `DB::Execute()`'s return value, printed "Deleted" regardless, and the
+delete had actually failed with MySQL error 1451 (FK constraint violation)
+against `base_dashboard_applets`, which had rows for that user because
+logging in once through the real UI auto-populates the Dashboard's default
+applets. This surfaced awkwardly: a *different* Claude session monitoring
+`data/logs/php_errors.log` in the same checkout (see `feedback_concurrent-
+sessions-shared-env` in personal memory — same git tree, multiple sessions)
+found the 1451 error, couldn't find a matching query anywhere in app source
+or a matching request in `access.log` at that timestamp, and reasonably
+suspected a real app bug before asking.
+
+It isn't one. `SELECT TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE
+WHERE REFERENCED_TABLE_NAME='user_login'` on this schema returns **60+
+tables** — every module's `*_favorite`/`*_recent`/`*_edit_history` tables,
+dashboard state, presence tracking (`tools_whoisonline_users`), notify
+cache, filters, shoutbox, messenger, autologin, password-reset tokens, and
+more. This is exactly why the app's own real user-removal path
+(`Base_User_LoginCommon::invalidate_password()`, used by
+`CRM_ContactsCommon::submit_contact()` on Contact delete) deliberately never
+hard-deletes the `user_login` row — it only blanks the password hash and
+flips `Base_UserCommon::change_active_state()`, so ACL/audit/ownership rows
+everywhere else keep something to point at. A one-off script that tries to
+actually `DELETE FROM user_login` is fighting the schema's own design.
+
+**How to apply**: for a real account, don't delete `user_login` at all —
+deactivate + `invalidate_password()`, matching the app's own pattern. For a
+throwaway test account created purely for a verification script, either
+follow the same deactivate-don't-delete approach, or if a full removal is
+genuinely wanted, delete every table that FK's into that specific
+`user_login.id` first (query `information_schema.KEY_COLUMN_USAGE` for the
+current list — don't hardcode one, it grows as modules are added) and check
+`DB::Execute()`'s return value instead of assuming success. Also: if you see
+an FK violation in the error log with no matching app-source query or
+access-log request, suspect a manual/script action from a concurrent
+session before assuming a real app bug — ask, the way the other session did
+here, rather than building a fix for something that isn't broken.

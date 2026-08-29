@@ -116,9 +116,13 @@ same for every developer and every computer working on this repo.
   driving a real browser against this app for UI verification) worth not
   rediscovering each session. Includes: a gitignored `modules/Premium/`
   checkout changing mid-session from concurrent work elsewhere (ask, don't
-  revert); and a transient file-write lock inside one patch's loop aborting
+  revert); a transient file-write lock inside one patch's loop aborting
   the entire update run because `die_on_error` operates at the whole-queue
-  level, not per-item — per-item resilience has to live inside the patch.
+  level, not per-item — per-item resilience has to live inside the patch;
+  and why a script should never hard-`DELETE FROM user_login` (60+ tables
+  FK into it — the real app only deactivates + blanks the password hash),
+  including the FK-1451-with-no-matching-source-query symptom that looks
+  exactly like a real app bug to a session finding it cold.
 - [log-monitoring.md](log-monitoring.md) — one developer's example log-monitoring setup
   (which logs to tail, noise filters, dedicated-window habit). Varies by machine/dev —
   use as a template, not a standard. Has a "Quick start" block up top: once you've
@@ -206,6 +210,12 @@ same for every developer and every computer working on this repo.
   `Premium/PasswordManager` plan's `update_record()`-merge gotcha) and add a "Gmail (OAuth)"
   account type alongside plain IMAP, reusing Roundcube's own vendored XOAUTH2 support in its
   IMAP/SMTP clients (confirmed present) rather than PHP's `imap_open`/c-client.
+- [password-hashing.md](password-hashing.md) — login password hashing in
+  `Base_User_LoginCommon`: argon2id-with-bcrypt-fallback (2026-08-29), the rehash-on-login
+  self-healing that upgrades both remaining pre-2015 raw-MD5 rows and any future
+  `PASSWORD_DEFAULT` change, and why no schema patch was needed for the switch. Verified
+  live the same day — a bcrypt test hash flipped to `$argon2id$...` after a real login
+  through the actual form, not just inspected in code.
 
 ## Conventions for investigating/fixing bugs
 
