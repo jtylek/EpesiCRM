@@ -388,9 +388,9 @@
     text-align: left;
 	box-shadow: none;
 	/* Literal px, not rem - matches Base_Box/theme_adminltedark/default.css's
-	   app-wide default-font override (13px) so the label column and the
+	   app-wide default-font override (--epesi-font-size-base) so the label column and the
 	   actual field controls read at the same size. */
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	/* Row-to-row separation: the old page-bg-coloured line only worked
 	   because it disappeared against a dark label; against a light one it
 	   needs to actually be visible, so this now uses the same border grey
@@ -443,7 +443,7 @@
 	box-shadow: none;
 	position: relative;
 	/* Literal px, not rem - see the matching .label rule above. */
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	/* Was implicit table-cell auto-width (fills whatever the row doesn't
 	   give .label); the flex equivalent, plus min-width:0 so a long
 	   unbreakable value (a URL, an autocomplete widget) can still shrink
@@ -565,7 +565,7 @@
 	width: 100%;
 	/* Was 32px/"3px 5px" - tightened along with .label/.epesi-rv-row/
 	   .long_row .long_label's own sizing below, per request, for a denser
-	   form overall (13px base font, matching sizing throughout). */
+	   form overall (shared base font size, matching sizing throughout). */
 	height: 28px;
 	box-sizing: border-box;
 	line-height: 1.5;

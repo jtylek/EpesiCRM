@@ -26,11 +26,11 @@
 	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
 	   body-level default-font override). Sits right next to the attachment
 	   filename link, which has no font-size of its own and inherits
-	   View_entry.css's .data (13px, itself already fixed the same way) -
-	   used to read smaller than the filename (body's old 16px), but ended
-	   up bigger once .data was fixed to 13px. Matches that same 13px,
-	   staying secondary via color only. */
-	font-size: 13px;
+	   View_entry.css's .data (the shared base size, itself already fixed
+	   the same way) - used to read smaller than the filename (body's old
+	   16px), but ended up bigger once .data was fixed to match. Matches
+	   that same base size, staying secondary via color only. */
+	font-size: var(--epesi-font-size-base);
 }
 
 /* Matches Utils_FileStorage's own file popup width (theme_adminltedark/download.css) rather

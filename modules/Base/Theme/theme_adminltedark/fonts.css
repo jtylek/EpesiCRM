@@ -1,0 +1,19 @@
+/* Single source of truth for the adminltedark theme's default application
+ * font size. Loaded on every page by Base_ThemeCommon::load_theme_assets()
+ * (called from Base_Box), before any per-module theme CSS, so the variable
+ * below is always defined by the time a module references it.
+ *
+ * Change --epesi-font-size-base here to resize body text app-wide. Bootstrap/
+ * AdminLTE's own rem-sized rules (headings, spacing, icons, .form-control,
+ * ...) resolve against the root <html> element, NOT against this value, so
+ * they are unaffected by it - only text that inherits its size (the normal
+ * case for most of the app) or explicitly reads this variable follows it.
+ * A number of components across the app (form fields, RecordBrowser views,
+ * Shoutbox, Calendar, Setup, ...) explicitly reference this same variable
+ * for exactly that reason - grep for "epesi-font-size-base" to find them
+ * all - rather than hardcoding their own pixel value that could drift out
+ * of sync with this one.
+ */
+:root {
+	--epesi-font-size-base: 14px;
+}

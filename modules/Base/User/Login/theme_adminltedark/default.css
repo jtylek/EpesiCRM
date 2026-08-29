@@ -9,9 +9,10 @@
 	   sidebar's always-light-grey background (commit 77d43486) and the boot
 	   splash's fixed palette (theme/index.tpl). */
 	background-color: #ffffff;
-	/* Epesi's global body{font-size:13px} would otherwise shrink all of
-	   Bootstrap/AdminLTE's rem-based sizing on this page; restore a normal
-	   base size so the login page reads at its intended scale. */
+	/* Epesi's global "body { font-size: var(--epesi-font-size-base) }" would
+	   otherwise shrink all of Bootstrap/AdminLTE's rem-based sizing on this
+	   page; restore a normal base size so the login page reads at its
+	   intended scale. */
 	font-size: 16px;
 }
 

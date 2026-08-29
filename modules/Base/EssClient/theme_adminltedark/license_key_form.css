@@ -36,8 +36,8 @@
 	color: var(--bs-body-color);
 	/* Literal px, not rem - was 1rem (16px, root-relative), Bootstrap's
 	   untouched default, never brought down to match Base_Box/theme_
-	   adminltedark/default.css's app-wide default-font override (13px). */
-	font-size: 13px;
+	   adminltedark/default.css's app-wide default-font override (--epesi-font-size-base). */
+	font-size: var(--epesi-font-size-base);
 }
 
 .epesi-lk-data input[type="text"]:focus {

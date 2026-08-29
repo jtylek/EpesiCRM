@@ -102,8 +102,8 @@
 	   body-level default-font override). Sits in the same form as
 	   .epesi-search-full input[type="text"] above, which has no font-size
 	   of its own and inherits body - used to read smaller than that search
-	   box (body's old 16px), but ended up bigger once body dropped to 13px. */
-	font-size: 13px;
+	   box (body's old 16px), but ended up bigger once body dropped below it. */
+	font-size: var(--epesi-font-size-base);
 	cursor: pointer;
 }
 

@@ -89,10 +89,10 @@
 .epesi-setup-card-name {
 	/* Literal px, not rem - was 1rem (16px, root-relative), Bootstrap's
 	   untouched default, never brought down to match Base_Box/theme_
-	   adminltedark/default.css's app-wide default-font override (13px) -
+	   adminltedark/default.css's app-wide default-font override (--epesi-font-size-base) -
 	   same treatment as Base_Dashboard's .epesi-applet-title (a card title
 	   in the same shape of grid). */
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	font-weight: 600;
 	color: #dee2e6;
 	margin-bottom: 0.25rem;

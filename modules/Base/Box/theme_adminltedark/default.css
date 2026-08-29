@@ -6,18 +6,16 @@
  * or the other), so everything the shell needs is defined here.
  */
 
-/* Epesi's global body{font-size:13px} (the legacy default theme's own value)
-   would shrink all of Bootstrap's rem-based sizing (which resolves against
-   the root <html>, not this inherited value) - this override exists so
-   *unstyled* text (anything with no font-size of its own, e.g. Base_Admin's
-   .epesi-admin-access-label control-panel rows) has a sane default to
-   inherit instead. Per request, that default is now a deliberate 13px -
-   the same number as the legacy value above, now applied consistently on
-   purpose rather than as an accidental legacy leftover - down from an
-   intermediate 14px (matching Base_Menu/theme_adminltedark/default.css's
-   #MenuBar .nav-link, the sidebar menu) which itself replaced Bootstrap's
-   default 1rem/16px. Bootstrap's own rem-sized components (headings,
-   spacing, icons) are untouched by this - only inheritance-based text moves.
+/* Epesi's global body font size would otherwise shrink all of Bootstrap's
+   rem-based sizing (which resolves against the root <html>, not this
+   inherited value) - this override exists so *unstyled* text (anything with
+   no font-size of its own, e.g. Base_Admin's .epesi-admin-access-label
+   control-panel rows) has a sane default to inherit instead. The actual
+   value lives in one place - --epesi-font-size-base, defined in
+   Base_Theme/theme_adminltedark/fonts.css and loaded on every page before
+   this file - change it there, not here. Bootstrap's own rem-sized
+   components (headings, spacing, icons) are untouched by this - only
+   inheritance-based text moves.
    "html body", not bare "body": bootstrap.min.css's own Reboot layer
    (loaded via a separate <link>, later in the document than this file's own
    combined bundle) declares a plain "body { font-size: var(--bs-body-font-
@@ -28,7 +26,7 @@
    font-size stayed 16px with a bare "body" selector even after a hard CSS
    reload; switching to "html body" is what actually applied the override). */
 html body {
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	background-color: var(--epesi-bg);
 }
 
@@ -37,12 +35,12 @@ html body {
    the rest of the app, since Bootstrap's own .form-control/.form-select set
    font-size:1rem (16px, resolved against the root <html>, not inherited from
    body above) regardless of any smaller size an ancestor happens to have -
-   the body override above doesn't reach these. Matches the same 13px. */
+   the body override above doesn't reach these. Matches the same base size. */
 .epesi-adminlte .form-control,
 .epesi-adminlte .form-select,
 .epesi-adminlte .form-label,
 .epesi-adminlte .form-check-label {
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 }
 
 /* :root, not .epesi-adminlte - Leightbox popups (modules/Libs/Leightbox/

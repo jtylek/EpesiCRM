@@ -1,5 +1,53 @@
 # AdminLTE theme(s) status
 
+## Base font size centralized into `--epesi-font-size-base`, bumped 13px → 14px (2026-08-29)
+
+An earlier pass (per explicit request) shrank the app's default body/text size to 13px.
+That was done by editing `Base_Box/theme_adminltedark/default.css`'s two "anchor" rules
+(`html body { font-size }` and the `.form-control`/`.form-select`/`.form-label`/
+`.form-check-label` block — needed separately because Bootstrap's own rem-based sizing on
+those resolves against the root `<html>`, not the inherited/overridden `body` value) *plus*
+hardcoding a matching literal `font-size: 13px` in ~28 other spots across ~22 unrelated
+module `theme_adminltedark/*.css` files, wherever that same root-relative-rem or
+equal-specificity gap would otherwise have let a larger size win over the shrunk body
+default. That left the actual "app-wide default" duplicated as a bare number with no single
+place to change it — asked to raise it to 14px, that would have meant re-editing the same
+~24 files again.
+
+**Fix: one new file owns the value.** `modules/Base/Theme/theme_adminltedark/fonts.css`:
+```css
+:root { --epesi-font-size-base: 14px; }
+```
+Loaded on every page by `Base_ThemeCommon::load_theme_assets()` (`ThemeCommon_0.php`,
+called from Base_Box) right alongside Bootstrap/AdminLTE's own CSS, so the variable is
+always defined before any per-module theme CSS references it. All ~28 previously-hardcoded
+matches (Base_Box's own two anchor rules; `Utils_RecordBrowser/View_entry.css`;
+`Apps_Shoutbox`'s chat forms; `Utils_Calendar`; `Base_Setup`; `Libs_QuickForm`;
+`Libs_Leightbox`; `Utils_LeightboxPrompt`; `Base_EssClient`; `Base_About`'s credits;
+`Base_Admin`'s access_panel; `Base_Search`; `Base_User_Settings`; `CRM_Mail`) now read
+`font-size: var(--epesi-font-size-base)` instead of a literal number; each rule's
+explanatory comment was reworded to stop asserting a specific pixel value that would go
+stale the next time this changes. The 13→14px bump itself was then a one-line edit.
+
+**Deliberately NOT folded into this variable** — don't "fix" these thinking they were
+missed:
+- Component-specific `rem` sizes that scale off the browser root independently (headings,
+  icons, badges, etc. — dozens of them app-wide, e.g. `0.85rem`/`1.25rem`). These were never
+  part of the "match the body's own literal px value" pattern; folding them in too would be
+  unrelated scope creep, not a fix.
+- `Utils_Tooltip`'s and `Libs_Leightbox`'s own `.8125rem` (== 13px at the default 16px root,
+  on the hover-tooltip popup and its "pinned" Leightbox variant). Coincidentally close to the
+  old body value but an independent, self-consistent choice shared between just those two
+  files (their own comment: "font size matches ... too"), not a body-size match — both popups
+  attach directly to `<body>`, outside the normal inheritance chain the base variable relies on.
+- `Base_User_Login/theme_adminltedark/default.css`'s `.login-page-adminlte { font-size: 16px }`
+  — deliberately *restoring* Bootstrap's un-shrunk default for the login page specifically, not
+  matching the app body size, so it stays a literal `16px`.
+
+Verified live (Playwright, logged-in session): `getComputedStyle(document.body).fontSize`
+reads `14px` on Dashboard, Contacts (RecordBrowser list, View_entry, Edit form), and the
+Admin panel; `.form-control` fields track the same value; zero console errors.
+
 ## Default color mode (no stored preference) flipped dark → light (2026-08-25)
 
 Per explicit request, ahead of the SourceForge distribution package: a visitor with no
@@ -844,6 +892,14 @@ console errors.
     renders with the legacy/unstyled markup and it's easy to mistake for "this
     part of the reskin just wasn't done yet." Check the exact string passed to
     `$theme->display(...)` before naming the CSS file.
+
+13. **A rule that needs to explicitly match the app's default text size should
+    reference `var(--epesi-font-size-base)`** (`Base_Theme/theme_adminltedark/
+    fonts.css`), never hardcode a literal pixel number. Needed anywhere
+    Bootstrap's own rem-based sizing (resolves against the root `<html>`, not
+    the inherited/overridden `body` value) or an equal-specificity rule would
+    otherwise win over the body default — see the dated entry at the top of
+    this file for the full list of existing call sites and why each needed it.
 
 ## `Premium_ListManager` / `Premium_CampaignManager`: theme_adminltedark added, including the admin config panel (2026-08-19)
 

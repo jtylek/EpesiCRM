@@ -93,7 +93,7 @@
 }
 
 .epesi-adminlte #MenuBar .epesi-submenu .nav-link {
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	min-height: 30px;
 }
 

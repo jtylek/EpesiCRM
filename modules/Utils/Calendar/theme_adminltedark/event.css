@@ -32,7 +32,7 @@
 	cursor: help;
 	padding-top: 1px;
 	padding-right: 1px;
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	border-radius: 0.2rem;
 }
 

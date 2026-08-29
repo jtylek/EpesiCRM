@@ -23,10 +23,10 @@
 	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
 	   body-level default-font override). Not auto-classed "form-control"
 	   (Shoutbox_0.php::chat() gives it a plain 'class="border_radius_6px"'
-	   instead), so that global 13px rule never reached it either - matches
-	   it explicitly now instead. Same fix as chat_form.css's own matching
-	   rule. */
-	font-size: 13px;
+	   instead), so that global base-font rule never reached it either -
+	   matches it explicitly now instead, via the same shared variable.
+	   Same fix as chat_form.css's own matching rule. */
+	font-size: var(--epesi-font-size-base);
 	resize: vertical;
 }
 
@@ -103,10 +103,10 @@
 	/* Literal px, not rem - was 0.85rem (13.6px, resolved against the root
 	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
 	   body-level default-font override) - this is the message text itself,
-	   read right alongside the rest of the app's 13px default. Matches it
-	   explicitly instead of drifting off it. Same fix as chat_form.css's
-	   own #shoutbox_board rule. */
-	font-size: 13px;
+	   read right alongside the rest of the app's shared base font size.
+	   Matches it explicitly instead of drifting off it. Same fix as
+	   chat_form.css's own #shoutbox_board rule. */
+	font-size: var(--epesi-font-size-base);
 }
 
 #shoutbox_board_big .author {

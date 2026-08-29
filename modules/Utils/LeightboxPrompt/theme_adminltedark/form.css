@@ -19,10 +19,10 @@
 	   <html>, untouched by Base_Box/theme_adminltedark/default.css's
 	   body-level default-font override). Used to read smaller than the
 	   field it labels (QuickForm's own {$e.html}, inheriting body's old
-	   16px), but with body now at 13px it ended up bigger instead. Matches
-	   the same 13px app-wide default so the label and the field it
-	   describes read at the same size. */
-	font-size: 13px;
+	   16px), but with body now sized off the shared base variable it
+	   ended up bigger instead. Matches that same app-wide default so
+	   the label and the field it describes read at the same size. */
+	font-size: var(--epesi-font-size-base);
 	color: var(--epesi-text-secondary);
 	margin-bottom: 0.25rem;
 }

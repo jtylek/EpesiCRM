@@ -55,6 +55,10 @@ class Base_ThemeCommon extends ModuleCommon {
 		load_css('libs/bootstrap-icons-1.13.1/bootstrap-icons.min.css',
 		         'libs/bootstrap-icons-1.13.1/__css.php');
 		load_css('libs/adminlte-4.1.0/css/adminlte.min.css');
+		// Single source of truth for the app-wide default font size (see that
+		// file's own header comment) - loaded here so --epesi-font-size-base
+		// is always defined before any per-module theme CSS references it.
+		load_css('modules/Base/Theme/theme_adminltedark/fonts.css');
 		load_js('libs/bootstrap-5.3.8/js/bootstrap.bundle.min.js');
 		// drives the sidebar toggle (data-lte-toggle="sidebar") in the shell
 		load_js('libs/adminlte-4.1.0/js/adminlte.min.js');

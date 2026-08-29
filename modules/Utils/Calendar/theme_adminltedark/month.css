@@ -98,7 +98,7 @@
 #Utils_Calendar__month .weekend_day_header {
 	color: var(--epesi-text-secondary);
 	font-weight: bold;
-	font-size: 13px;
+	font-size: var(--epesi-font-size-base);
 	height: 30px;
 	display: flex;
 	align-items: center;
