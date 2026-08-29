@@ -288,6 +288,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if (($key = array_search($group, $note['attached_to'])) === false) return false;
 		unset($note['attached_to'][$key]);
 		DB::Execute('UPDATE utils_attachment_data_1 SET f_attached_to=%s WHERE id=%d',array(Utils_RecordBrowserCommon::encode_multi($note['attached_to']), $note['id']));
+		Utils_RecordBrowserCommon::clear_record_cache('utils_attachment', $note['id']);
 		self::new_watchdog_event($group, '-', $note['id']);
 		return true;
 	}
@@ -297,6 +298,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		if (array_search($group, $note['attached_to']) !== false) return false;
 		$note['attached_to'][] = $group;
 		DB::Execute('UPDATE utils_attachment_data_1 SET f_attached_to=%s WHERE id=%d',array(Utils_RecordBrowserCommon::encode_multi($note['attached_to']), $note['id']));
+		Utils_RecordBrowserCommon::clear_record_cache('utils_attachment', $note['id']);
 		self::new_watchdog_event($group, '+', $note['id']);
 		return true;
 	}	

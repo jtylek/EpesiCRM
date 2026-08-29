@@ -31,6 +31,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function is_self_view($tab, $id) {
         return self::$self_view_context && self::$self_view_context[0] === $tab && (string)self::$self_view_context[1] === (string)$id;
     }
+
+    // get_record()/get_record_info() used to hit the DB fresh on every call,
+    // even for the same (tab,id) requested repeatedly in one render - e.g. a
+    // grid whose rows link back to the same handful of Contacts/Companies, or
+    // the per-row info tooltip (RecordBrowser_0.php's add_info()) calling
+    // get_record_info() once per visible row. Request-scoped only, mirroring
+    // CRM_ContactsCommon::get_contact()/get_company() (which already cache
+    // this way) and the CommonData fix described in
+    // AI-shared/performance-profiling.md. Cleared per (tab,id) by every
+    // in-place mutator (update_record(), set_active() - covers delete/restore,
+    // delete_record()'s perma branch, set_record_properties()) so a
+    // same-request read-after-write still sees fresh data; a whole-tab clear
+    // backs format_autonumber_str_all_records()'s bulk field write.
+    private static $record_cache = array();
+    private static $record_info_cache = array();
+    public static function clear_record_cache($tab, $id = null) {
+        if ($id === null) {
+            foreach (array_keys(self::$record_cache) as $k) {
+                if (strpos($k, $tab.'|') === 0) unset(self::$record_cache[$k]);
+            }
+            foreach (array_keys(self::$record_info_cache) as $k) {
+                if (strpos($k, $tab.'|') === 0) unset(self::$record_info_cache[$k]);
+            }
+        } else {
+            unset(self::$record_cache[$tab.'|'.$id.'|0'], self::$record_cache[$tab.'|'.$id.'|1']);
+            unset(self::$record_info_cache[$tab.'|'.$id]);
+        }
+    }
     public static $admin_filter = '';
     public static $table_rows = array();
     public static $hash = array();
@@ -393,6 +421,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             DB::Execute('UPDATE ' . $tab . '_data_1 SET indexed = 0, f_' . $field . '=%s WHERE id=%d', array($str, $id));
         }
         DB::CompleteTrans();
+        self::clear_record_cache($tab);
     }
     public static function decode_select_param($param) {
     	if (is_array($param)) return $param;
@@ -1360,6 +1389,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 case 'created_by':  DB::Execute('UPDATE '.$tab.'_data_1 SET created_by=%d WHERE id=%d', array($v, $id));
                                     break;
             }
+        self::clear_record_cache($tab, $id);
     }
 
 	public static function record_processing($tab, $base, $mode, $clone=null) {
@@ -1567,6 +1597,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
             Utils_WatchdogCommon::new_event($tab,$id,'E_'.$edit_id);
         }
+        self::clear_record_cache($tab, $id);
         return DB::CompleteTrans();
     }
     public static function add_recent_entry($tab, $user_id ,$id){
@@ -2051,12 +2082,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
     public static function get_record_info($tab, $id) {
         self::check_table_name($tab);
+        $cache_key = $tab.'|'.$id;
+        if (array_key_exists($cache_key, self::$record_info_cache)) return self::$record_info_cache[$cache_key];
         $created = DB::GetRow('SELECT created_on, created_by FROM '.$tab.'_data_1 WHERE id=%d', array($id));
         $edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC', array($id));
         if (!isset($edited['edited_on'])) $edited['edited_on'] = null;
         if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
         if (!isset($created['created_on'])) trigger_error('There is no such record as '.$id.' in table '.$tab, E_USER_ERROR);
-        return array(   'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
+        return self::$record_info_cache[$cache_key] = array(   'created_on'=>$created['created_on'],'created_by'=>$created['created_by'],
                         'edited_on'=>$edited['edited_on'],'edited_by'=>$edited['edited_by'],
                         'id'=>$id);
     }
@@ -2117,11 +2150,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_record($tab, $id, $htmlspecialchars=true) {
         if (!is_numeric($id)) return null;
         if (isset($id)) {
+            $cache_key = $tab.'|'.$id.'|'.($htmlspecialchars?1:0);
+            if (array_key_exists($cache_key, self::$record_cache)) return self::$record_cache[$cache_key];
             if(!self::check_table_name($tab,false,false)) return null;
             self::init($tab);
             $row = DB::GetRow('SELECT * FROM '.$tab.'_data_1 WHERE id=%d', array($id));
             $record = array('id'=>$id);
-            if (!isset($row['active'])) return null;
+            if (!isset($row['active'])) return self::$record_cache[$cache_key] = null;
             foreach(array('created_by','created_on') as $v)
                 $record[$v] = $row[$v];
             $record[':active'] = $row['active'];
@@ -2135,7 +2170,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     if ($htmlspecialchars && $desc['type'] == 'text') $record[$desc['id']] = htmlspecialchars($record[$desc['id']]);
                 }
             }
-            return $record;
+            return self::$record_cache[$cache_key] = $record;
         } else {
             return null;
         }
@@ -2190,6 +2225,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             return false;
         }
         @DB::Execute('UPDATE ' . $tab . '_data_1 SET active=%d,indexed=0 WHERE id=%d', array($state ? 1 : 0, $id));
+        self::clear_record_cache($tab, $id);
         $tab_prop = DB::GetRow('SELECT id,search_include FROM recordbrowser_table_properties WHERE tab=%s',array($tab));
         if ($tab_prop['search_include'] > 0) {
             DB::Execute('DELETE FROM recordbrowser_search_index WHERE tab_id=%d AND record_id=%d',array($tab_prop['id'],$id));
@@ -2226,6 +2262,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
                 DB::Execute('DELETE FROM ' . $tab . '_data_1 WHERE id=%d', array($id));
                 $ret = DB::Affected_Rows() > 0;
+                self::clear_record_cache($tab, $id);
                 if ($ret) {
                     self::record_processing($tab, $record, 'deleted');
                 }

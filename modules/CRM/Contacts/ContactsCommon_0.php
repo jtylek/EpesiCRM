@@ -76,8 +76,21 @@ class CRM_ContactsCommon extends ModuleCommon {
             if ($cache[$uid] == -1) return null;
             else return $cache[$uid];
         }
-        $cid = Utils_RecordBrowserCommon::get_id('contact','login',$uid);
-        if ($cid === false || $cid === null){
+        // login->contact_id is looked up from 28+ call sites across the app
+        // (every request effectively), but barely ever changes - so unlike
+        // the full contact record below (get_contact(), request-scoped only:
+        // company/phone/etc. change far more often), this one mapping is
+        // worth caching across requests via Cache::. Actively invalidated
+        // from submit_contact()'s 'added'/'edited'/'deleted'/'restored' cases
+        // below; the 1h TTL is a safety net for any write path that bypasses
+        // that hook, not the primary mechanism.
+        $cache_key = 'crm_contact_login_uid_'.$uid;
+        $cid = Cache::get($cache_key);
+        if ($cid === null) {
+            $cid = Utils_RecordBrowserCommon::get_id('contact','login',$uid) ?: 0;
+            Cache::set($cache_key, $cid, 3600);
+        }
+        if (!$cid){
             $cache[$uid] = -1;
             return null;
         }
@@ -1075,6 +1088,16 @@ class CRM_ContactsCommon extends ModuleCommon {
             if (isset($values['email']) && $values['email']=='' && !empty($values['login']) && is_numeric($values['login']) && $mode=='add')
                 $values['email'] = DB::GetOne('SELECT mail FROM user_password WHERE user_login_id=%d', array($values['login']));
         case 'edit':
+            // Stash the pre-edit login so the 'edited' case below (fired
+            // after update_record()'s UPDATE actually commits) can tell
+            // whether login changed and invalidate get_contact_by_user_id()'s
+            // cross-request cache for both the old and new uid. Reads via
+            // get_record() (request-cached already by update_record()'s own
+            // earlier call for this same id), so this is free.
+            if (isset($values['id'])) {
+                $old_record = Utils_RecordBrowserCommon::get_record('contact', $values['id'], false);
+                self::$edit_old_login[$values['id']] = $old_record['login'] ?? null;
+            }
             if (isset($values['create_company'])) {
                 $comp_id = Utils_RecordBrowserCommon::new_record('company',
                     array(  'company_name'=>$values['create_company_name'],
@@ -1139,8 +1162,37 @@ class CRM_ContactsCommon extends ModuleCommon {
 			        else Base_User_LoginCommon::invalidate_password($values['login']);
 		        }
 		        break;
+	        case 'added':
+	            self::clear_login_cache($values['login'] ?? null);
+	            break;
+	        case 'edited':
+	            $old_login = self::$edit_old_login[$values['id']] ?? null;
+	            unset(self::$edit_old_login[$values['id']]);
+	            $new_login = $values['login'] ?? null;
+	            if ((string)$old_login !== (string)$new_login) {
+	                self::clear_login_cache($old_login);
+	                self::clear_login_cache($new_login);
+	            }
+	            break;
+	        case 'deleted':
+	        case 'restored':
+	            // active=1 is part of get_id()'s own WHERE clause, so a
+	            // soft-delete/restore changes what login->contact_id resolves
+	            // to for this uid even though the login field value itself
+	            // didn't change.
+	            self::clear_login_cache($values['login'] ?? null);
+	            break;
         }
         return $values;
+    }
+    // Bridges the pre-edit login value (captured in 'edit', before the DB
+    // write) to the 'edited' case (fired after it), so a same-request
+    // login-field change can invalidate both the old and new uid's cache
+    // entry - see get_contact_by_user_id().
+    private static $edit_old_login = array();
+    private static function clear_login_cache($uid) {
+        if (!$uid) return;
+        Cache::clear('crm_contact_login_uid_'.$uid);
     }
 
     public static function search_format_contact($id) {

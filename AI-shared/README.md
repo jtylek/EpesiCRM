@@ -170,9 +170,19 @@ same for every developer and every computer working on this repo.
   page in this app (`MODULE_TIMES`/`SQL_TIMES` in `data/config.php`, and why
   devtools' Network tab "Initiator" column is misleading here), plus fixed
   N+1 query patterns on RecordBrowser grids (`Utils_WatchdogCommon`,
-  `Utils_CommonDataCommon`'s `get_id`/`get_value`/`get_array`/`get_nodes`) and
-  the general fix shape to reapply if another one turns up. Also notes a
-  known-but-deprioritized slow external call in Simple Setup/EpesiStore, and
+  `Utils_CommonDataCommon`'s `get_id`/`get_value`/`get_array`/`get_nodes`, and
+  `Utils_RecordBrowserCommon::get_record()`/`get_record_info()` - the latter
+  had zero caching at all, not just a partial-cache-miss shape, so its fix
+  needed real mutator-side invalidation rather than an optional one) and the
+  general fix shape to reapply if another one turns up. Also covers
+  `CRM_ContactsCommon::get_contact_by_user_id()`'s login→contact_id mapping,
+  the one cache in this doc that's cross-request (via `Cache::`, not just
+  request-scoped) since it's read on nearly every request but changes almost
+  never - and the gotcha that testing cross-request caching from inside a
+  single PHP process is misleading (the pre-existing request-scoped cache
+  masks it), so verification used separate CLI-invoked processes per step.
+  Also notes a known-but-deprioritized slow external call in Simple
+  Setup/EpesiStore, and
   the 2026-08-28 `#debug_content` redesign (fixed bottom bar, collapsible
   error cards, `symfony/var-dumper` for SQL query args).
 - [release-packaging-plan.md](release-packaging-plan.md) — plan (not yet implemented) for

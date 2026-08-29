@@ -174,6 +174,132 @@ for CommonData, which barely changes across requests at all) but wasn't
 attempted here for that reason; revisit if request-scoped caching alone
 stops being enough.
 
+## Fixed: `Utils_RecordBrowserCommon::get_record()`/`get_record_info()` had no cache at all (2026-08-29)
+
+Profiling the post-login **Dashboard** (three `Utils_RecordBrowser` grid widgets:
+Tasks, PhoneCall, Calendar) found 348 queries / 155.5ms SQL time out of a
+169ms total render — 92% of the render was SQL. Unlike the Watchdog/
+CommonData case above, these two weren't a partial-cache-miss-per-row
+problem — they had **zero caching of any kind**, every single call a fresh
+`DB::GetRow()`:
+
+- `get_record($tab, $id)` — 101 calls, ~40ms. Called every time a grid
+  renders a linked-record label (`create_default_linked_label()`,
+  `record_link_open_tag()`), so the same Contact/Company showing up as
+  "linked to" on several Task/PhoneCall/Meeting rows was re-fetched from
+  scratch each time.
+- `get_record_info($tab, $id)` — 56 calls (28 calls × 2 queries each:
+  `created_on/by` from `_data_1`, `edited_on/by` from `_edit_history`).
+  Called **once per visible grid row** by `RecordBrowser_0.php:906`'s
+  `add_info()` — the hover-info tooltip icon shown on every row.
+
+Together: 157 of 348 queries (45%), ~77ms (50% of SQL time), from two
+functions that already had a proven fix shape sitting two methods above
+`get_record()` in the same file — `CRM_ContactsCommon::get_contact()`/
+`get_company()` (`ContactsCommon_0.php:112-123`) have used a plain
+`static $cache` keyed by id for years.
+
+**Fix**: class-level `private static $record_cache` / `$record_info_cache`
+in `Utils_RecordBrowserCommon`, keyed `"$tab|$id|$htmlspecialchars"` /
+`"$tab|$id"` respectively (the `$htmlspecialchars` flag changes
+`get_record()`'s output, so it's part of the key, not ignored). Request-
+scoped only, same discipline as the CommonData fix above.
+
+**Invalidation** (the part CommonData's fix didn't need, since it deals with
+add-only tree data): `get_record()` had never been cached before, so unlike
+the CommonData case, *every* mutator needed a real invalidation call, not
+just an optional one — a same-request read-after-write (edit a record, then
+redisplay it) was already correct and must stay correct. Added
+`Utils_RecordBrowserCommon::clear_record_cache($tab, $id = null)` (clears
+one record, or the whole tab when `$id` is omitted), called from:
+- `update_record()` — after the field-`UPDATE` loop, before `CompleteTrans()`
+- `set_active()` — after the `active` flag flip (covers both `delete_record()`'s
+  soft-delete path and `restore_record()`)
+- `delete_record()`'s `$perma` branch — after the `DELETE`
+- `set_record_properties()` — after its `created_on`/`created_by` overwrite
+- `format_autonumber_str_all_records()` — whole-tab clear, since it rewrites
+  one field across every row in the table
+- `Utils_AttachmentCommon::attach_note()`/`detach_note()` — these write
+  `utils_attachment_data_1` directly via `DB::Execute()`, bypassing
+  `update_record()` entirely, so needed their own explicit
+  `Utils_RecordBrowserCommon::clear_record_cache('utils_attachment', $id)` call
+
+**Not covered**: a handful of rare, admin-triggered bulk field-type-conversion
+writes in `RecordBrowser_0.php` (converting a column's stored type, e.g.
+select→text, across every record in a table) and one bulk write in
+`CRM_MailCommon` (clearing other accounts' "default" flag) still bypass the
+cache directly. Same judgment call as CommonData's fix: these are rare,
+narrow, admin-only paths, not part of any hot request path, and a repo-wide
+sweep for every raw `UPDATE ..._data_1` (including inside `modules/Premium/`,
+which Grep can't even see - it's gitignored, see CLAUDE.md) wasn't worth
+chasing for this pass. Revisit if a same-request stale-read bug is ever
+actually observed from one of these.
+
+**Verified live** (not just re-derived from source): edited a Task's title via
+the UI (Edit → change Title → Save, which is a **single** `process.php`
+request that calls `update_record()` then immediately re-renders the view
+template) and confirmed both the new title and the now-populated "Edited by"
+line (from `get_record_info()`, previously "This record was never edited")
+appeared correctly on the very next render - proving the invalidation fires
+before the redisplay, not just that the happy path is faster. Reverted the
+test edit after.
+
+**Result** (Dashboard, re-tested twice for stability): 348 → 223 queries,
+SQL time 155.5ms → ~105ms.
+
+## Fixed: `CRM_ContactsCommon::get_contact_by_user_id()` login→contact_id now cached cross-request (2026-08-29)
+
+Follow-up to the fix above, from a user suggestion made *before* profiling had
+actually pinpointed `get_record()`/`get_record_info()` as the bigger hotspot.
+`get_contact_by_user_id($uid)` (`ContactsCommon_0.php:73-96`) — "which Contact
+is this logged-in user" — already had a request-scoped `static $cache`, so it
+wasn't the Dashboard's bottleneck (only ~2 queries there). But it's called
+from 28+ files across the app, i.e. on effectively every request, and the
+login→contact_id mapping it resolves changes about as rarely as data gets:
+normally set once when a Contact is linked to a user account and untouched
+for the record's lifetime. That combination (called everywhere, changes
+almost never) is exactly what's worth a cross-request cache even though no
+single page shows a big win from it.
+
+**Fix**: the `login` id (not the full contact record — that stays
+request-scoped only via `get_contact()`, which changes far more often:
+company, phone, etc.) is now cached via `include/cache.php`'s `Cache::`
+class under key `crm_contact_login_uid_{$uid}`, sentinel `0` for "no linked
+contact" (real ids are never `0`), 1h TTL as a safety net rather than the
+primary mechanism.
+
+**Invalidation**: hooked into `CRM_ContactsCommon::submit_contact()` — the
+`contact` table's one registered `record_processing()` callback (confirmed:
+only one row in `recordbrowser_processing_methods` for `tab='contact'`) —
+by adding handlers for the `'added'`/`'edited'`/`'deleted'`/`'restored'`
+modes (previously unhandled; only `'add'`/`'edit'`/`'delete'` were, for the
+Base_User-account side effects). `'edited'` needed the *old* login value to
+invalidate both the old and new uid's entry (a contact's link could in
+theory move from one user to another) — captured in `'edit'` (pre-write) via
+`Utils_RecordBrowserCommon::get_record()` (free: already request-cached by
+`update_record()`'s own earlier call for that id) into a private static
+bridge array, consumed and cleared in `'edited'` (post-write). `'deleted'`/
+`'restored'` also invalidate even though the `login` field value itself
+doesn't change on a soft-delete/restore — `get_id()`'s own query filters
+`active=1`, so what it resolves to for that uid still flips.
+
+**Verified in isolation, not through the live browser session**: cross-
+request behavior can't be exercised within one PHP process (`get_contact_by
+_user_id()`'s pre-existing request-scoped `static $cache` masks the `Cache::`
+layer entirely if you call it twice in the same script — tripped over this
+first, cost a debugging detour). Test used a scratch contact + a synthetic
+fake uid (`999999`, `SET_SESSION=false` bootstrap keeps CLI test scripts off
+the live session per `AI-shared/environment-gotchas.md`, well above the
+dev DB's real max user id of 3), with each step run as a **separate `php`
+process** to genuinely simulate separate requests:
+link → cache invalidated → next process resolves fresh and re-primes the
+cache → a third process, after directly corrupting the DB row's `login`
+value out from under it, still returned the *stale cached* contact
+(proving it was actually reading `Cache::`, not silently re-querying) →
+soft-delete → invalidated → resolves to null → restore → invalidated →
+resolves correctly again. Scratch contact perma-deleted and the cache key
+cleared at the end; confirmed gone from the DB after.
+
 ## Fixed: initial-load `process()` was rendering the whole module tree twice (2026-08-29)
 
 DevTools showed a plain post-login `/newsetup` load's `process.php` taking
