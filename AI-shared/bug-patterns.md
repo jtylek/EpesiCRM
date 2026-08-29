@@ -4,6 +4,104 @@ These are already-fixed bugs, kept here not for their fix (see git history/
 commit messages for that) but because their *root-cause shape* is generic
 enough to plausibly recur elsewhere in this codebase.
 
+## A module with more than one RecordBrowser-wrapping leaf needs `caption()` set for *each* leaf, not just the default one
+
+`Base_MainModuleIndicator` (the app-header title-bar text next to the
+hamburger icon, `MainModuleIndicator_0.php::body()`) reads
+`$box_module->get_main_module()->caption()` — a *live instance* method,
+resolved once per request against whichever module is actually on screen.
+`CRM_PhoneCall::caption()` is the reference pattern: `if (isset($this->rb))
+return $this->rb->caption();`, delegating to the wrapped
+`Utils_RecordBrowser` child's own `caption()` (`$this->caption . ': ' .
+$this->action`). The gotcha: if a module has *multiple* menu leaves, each
+building its own RecordBrowser child (e.g. a main list plus a lookup-table
+management screen), `caption()` only reads whichever leaf's child got
+assigned to the property it checks — a leaf that builds its RecordBrowser
+into a local variable instead of that same instance property leaves the
+title bar silently blank for that one screen, while every other leaf (and
+the same module's single-leaf case) works fine. Found in
+`modules/Premium/PasswordManager/PasswordManager_0.php`: `body()` (the
+Passwords list) correctly set `$this->rb = $this->init_module(...)`, but
+`folders()` (a second leaf, the Folders lookup screen) originally built a
+local `$rb` instead — the title bar showed blank specifically on that one
+screen, everything else about it worked. Fixed by assigning `$this->rb` in
+every leaf that displays a RecordBrowser child, not just the first one
+written.
+
+**How to apply**: when adding a second (or third) menu leaf to a module that
+already has a working `caption()` delegating to `$this->rb`, check that the
+new leaf also assigns its RecordBrowser child to that same property — not a
+local variable — or its title bar will be silently blank while everything
+else about the screen renders correctly.
+
+## `CRM_ContactsCommon::get_contact_by_user_id()` returns the full contact record, not a bare id
+
+Despite reading like an id lookup, `get_contact_by_user_id($uid)`
+(`ContactsCommon_0.php`) returns `CRM_ContactsCommon::get_contact($cid)` — the
+**entire contact record array** — or `null`, never a scalar id directly. Code
+that assumes a scalar (`$id = get_contact_by_user_id($uid); array($id)`) ends
+up wrapping an array-in-an-array (or a whole record where a bare int was
+expected) with no obvious error at the call site — it can silently propagate
+into a stored field (e.g. a `crm_contact` multiselect default) as garbage.
+Found writing `modules/Premium/PasswordManager/PasswordManager_0.php`'s
+`default_shared_with()` (defaulting a Shared With picker to the current
+user's own contact): the bug wasn't caught by code review, only by live
+testing (`var_dump()`ing the actual return value) — the mistake matched a
+stale assumption already written into that module's own in-progress design
+notes, which is exactly how it slipped through.
+
+**How to apply**: never assume this function's return shape from its name or
+from a design note written before it was actually exercised — `var_dump()`
+(or read the function body, `ContactsCommon_0.php`'s `get_contact_by_user_id()`)
+before trusting it in new code, and pull the `['id']` key if you actually
+need the scalar.
+
+## `update_record()` merges old field values into partial edits — poison for "blank means unchanged" fields
+
+`Utils_RecordBrowserCommon::update_record($tab, $id, $values, ...)` merges the
+*existing* record's own stored value into `$values` for any field the caller
+didn't explicitly pass, before invoking the table's processing callback
+(`RecordBrowserCommon_0.php`, the `$process_method_args` merge loop right
+before `record_processing($tab, $process_method_args, 'edit')`). This runs for
+every caller of `update_record()` — not just the full multi-field edit form,
+but also RecordBrowser's own grid inline-single-field-edit feature
+(`modules/Utils/RecordBrowser/grid.php`), which calls
+`update_record($tab, $id, array($element=>$value))` with everything else
+omitted on purpose.
+
+This is invisible for ordinary fields (the merged-in old value is identical to
+what's already stored, so re-saving it is a no-op) but actively dangerous for
+any field whose processing callback treats "this key is present and
+non-empty" as a signal meaning "the user just typed/changed this" — e.g. a
+password field where a genuinely blank submission means "leave unchanged" and
+must NOT be re-derived/re-encrypted from whatever's already stored. Found
+building `modules/Premium/PasswordManager/` (see its `PasswordManagerCommon_0.php::
+submit_password_entry()`): editing only the unrelated `Folder` column via a
+raw `update_record()` call (standing in for the grid's inline-edit path)
+arrived at the processing callback with `$values['password']` silently
+populated from the *old ciphertext* — indistinguishable by content alone from
+a blank or a genuine new plaintext value — and re-encrypting it on that false
+signal double-encrypted and permanently corrupted the stored password.
+
+**How to apply**: a `RecordBrowser` processing callback can never safely infer
+"the user touched this field" from `isset($values[$field]) && $values[$field]
+!== ''` alone in `'edit'`/`'editing'` mode, if being merged from an untouched
+edit needs to be distinguishable from a real submission. Add a virtual
+hidden marker field (not a real declared column) alongside the real one in its
+`QFfield_callback` — present on any genuine form submission, never
+reconstructed by the old-value merge since it was never a stored column — and
+gate the "did the user change this" logic on the marker's presence, not the
+field's own content.
+
+**Confirmed recurring, not a one-off**: independently re-derived 2026-08-29
+for `AI-shared/mail-account-encryption-and-gmail-oauth.md`'s `CRM_Mail`
+password-encryption plan (§"A second, independent design already planned the
+same pattern") — same trap, same `password_submitted`-marker fix, a
+completely different module. Any future "encrypt/hash on save" processing
+callback for a masked/secret `RecordBrowser` field should assume this trap
+applies and build the marker field in from the start, rather than
+discovering it via a corrupted-secret bug report.
+
 ## Raw DB record vs. form submission — same variable, different shape
 
 `RecordBrowser`'s processing-callback convention passes the *same* `$values`
@@ -2040,3 +2138,109 @@ inside *any* `.tpl` file in this codebase (not just `theme/index.tpl`),
 wrap it in `{literal}...{/literal}` before assuming it's done. A raw
 `<script>` with real JS braces is never safe to leave unwrapped in a
 Smarty 2 template.
+
+## A RecordBrowser addon-tab `<func>_access()` gate is called with two *different* arities in the same render — a required-param signature fatals on the second call (2026-08-29)
+
+Found live (a real browser session hit it) building
+`modules/Premium/PasswordManager/`'s "Access Log" addon tab
+(`access_log_addon`, registered via `new_addon()`). Declared its gate as
+`access_log_addon_access($record, $rb)` — 2 required params, matching the
+call RecordBrowser's own addon loader makes
+(`RecordBrowser_0.php`'s `view_entry_details()`, ~line 1363:
+`call_user_func(array($row['module'].'Common',$row['func'].'_access'),
+$this->record, $this)`). That call alone is fine. But the same addon tab's
+content is then rendered via `display_module()` (line 1367), and *every*
+`display_module()` call independently runs its own generic access gate —
+`module.php`'s `display_module()` → `ModulePrimitive::check_access()`
+(`module_primitive.php:85`) → `ModuleManager::check_access()`
+(`module_manager.php:1021-1026`) — which calls the *same*
+`'<func>_access'` method again, this time with **zero** arguments
+(`call_user_func(array($sing, $m . '_access'))`, no args at all). A
+2-required-param signature has no default for either param, so PHP throws
+`ArgumentCountError` (fatal, not a warning) on that second call — the tab's
+pre-check passes, then rendering it immediately fatals.
+
+The existing precedent this addon's own code comment cited,
+`CRM_ContactsCommon::contact_attachment_addon_access()`, already takes
+**zero** params — which is exactly why it never hit this: it happens to be
+compatible with both call sites, not because zero-args is documented
+anywhere as the required convention.
+
+**Fix**: dropped both params from the signature
+(`access_log_addon_access()`) — PHP allows calling a function with *more*
+arguments than it declares (excess args are silently ignored), so a
+zero-param function is safe to call from both sites; only the reverse
+(declaring required params a zero-arg caller can't satisfy) fatals.
+
+**How to apply**: any new RecordBrowser addon-tab `<func>_access()`
+callback should take **no required parameters**, regardless of whether the
+first call site you find (or write) happens to pass some — `Utils_
+RecordBrowserCommon::new_addon()`'s own gate mechanism is invoked from at
+least two places in the same render with different arities, and only a
+zero-arg (or all-optional-with-defaults) signature is guaranteed compatible
+with all of them. Don't infer the required signature from a single call
+site's arguments; grep for every place `'_access'` on that class actually
+gets invoked before assuming a given param list is safe. This is a distinct
+gotcha from `admin_access()`/`body_access()`/`admin_caption()`-style
+module-level gates (`ModuleManager::check_access()`'s direct callers,
+e.g. `Base_Admin`'s `list_admin_modules()`), which only ever call with zero
+args — those were never at risk here, only the addon-tab convention, which
+uniquely gets double-checked through two different code paths.
+
+## `Utils_GenericBrowser` fed via a raw `DB::GetAll()` + loop never gets a pager, even with real data behind it
+
+Found 2026-08-29, same `Premium_PasswordManager` "Access Log" feature as the
+entry above — two nearly-identical methods in the same file
+(`PasswordManager_0.php`), one correct, one not, written minutes apart.
+`admin()` (the system-wide log) builds its `Utils_GenericBrowser` via
+`$gb->query_order_limit($query, $query_qty)` and renders a normal "Records 1
+to N of N / Page ... / rows per page" footer. `access_log_addon()` (the
+per-record tab, added first) instead did `DB::GetAll('SELECT * FROM ...
+WHERE entry_id=%d ...')` and looped the full result through
+`$gb->get_new_row()`/`add_data()` — no `LIMIT`, no pager, ever, regardless
+of row count. Both looked identical in casual testing (a record with only a
+few log rows), but the addon version would have silently shown *every* row
+on one page for a heavily-accessed record instead of paginating.
+
+**Root cause**: `Utils_GenericBrowser`'s pager only gets built as a side
+effect of `get_limit($total)` actually running (it sets `$this->rows_qty =
+$max` and computes offset/per-page from real request state) —
+`query_order_limit()` calls this internally as part of turning a base query
+into a `DB::SelectLimit()` call. Feeding rows into the browser any other
+way (a raw query fetched in full, `add_row()`/`get_new_row()` called in a
+plain loop) never touches that code path, so the browser has no row count
+to build a "Page X of Y" footer from at all — not a bug in the fetched
+data, just a silently-skipped feature. `set_inline_display()` (present on
+both methods here) is unrelated — it only controls whether the module's own
+HTML renders inline in the parent vs. its own ajax-loaded container, not
+whether pagination UI appears.
+
+**Fix**: rewrote `access_log_addon()` to use `query_order_limit()` +
+`add_row()` on the fetched `ADORecordSet`, matching `admin()`'s own shape
+exactly (see that method, or `Utils_FileStorage::admin()`/`get_sql_query()`,
+the precedent both were built from).
+
+**How to apply**: any time a `Utils_GenericBrowser` instance is populated
+from a plain SQL query (not a RecordBrowser recordset, which has its own
+separate query-builder path) rather than `Utils_RecordBrowser`'s own
+crits/query-builder machinery, use `query_order_limit($query, $query_qty)`
+(or the lower-level `get_query_order()`/`get_search_query()`/`get_limit()`
+trio when custom filters need to compose with it, as `Utils_FileStorage::
+get_sql_query()` does) — never a raw fetch-everything query looped through
+`get_new_row()`/`add_row()` directly, even if the current row count makes
+the missing pager invisible during testing. A small addon-scoped table is
+exactly the case most likely to look fine with a handful of test rows and
+only surface the missing pager once real usage accumulates more than one
+page's worth.
+
+**General rule, not just a `Utils_GenericBrowser` pager gotcha**: an
+unbounded `DB::GetAll()`/`DB::GetAssoc()` against a table that grows with
+real usage (an access log, an activity feed, anything keyed by
+user/record/time rather than a small fixed lookup set) is a standing risk
+even outside GenericBrowser — the query itself (not just the missing pager
+UI) gets slower and heavier every row the table gains, with nothing forcing
+a second look once it stops being "a handful of rows" in dev. Default to a
+query with an explicit `LIMIT` (or an actual pager like `query_order_limit()`
+above) any time the underlying table isn't provably small and fixed — a
+lookup/options table (a handful of Folder or Category rows, a fixed status
+list) is the one legitimate exception, not the default assumption.
