@@ -41,7 +41,21 @@ if(!array_key_exists('tools_whoisonline', $_SESSION)
     $current_user = Base_AclCommon::get_user();
     $session_id = EpesiSession::truncated_id();
     if ($current_user && Base_User_SettingsCommon::get('Tools_WhoIsOnline','show_me')) {
+        // DB::Replace() is check-then-insert-or-update, not atomic (ADOdb's own doc
+        // comment on Replace() warns of this), so two concurrent requests for a
+        // session not yet recorded here (e.g. several modules' AJAX calls firing at
+        // once right after login) can both find no existing row and both attempt an
+        // INSERT. The loser hits a harmless MySQL 1062 "Duplicate entry ... for key
+        // 'PRIMARY'" - the row ends up with the correct data either way - so
+        // suppress logging just that expected race instead of spamming
+        // php_errors.log on every occurrence.
+        $saved_error_fn = DB::IgnoreErrors();
         DB::Replace('tools_whoisonline_users', array('session_name'=>$session_id, 'user_login_id'=>$current_user), array('session_name'), true);
+        $errno = DB::ErrorNo();
+        DB::IgnoreErrors($saved_error_fn);
+        if ($errno && $errno != 1062) {
+            epesi_log("DB error [EXECUTE] $errno: ".DB::ErrorMsg()."\nQuery: Tools_WhoIsOnlineCommon Replace tools_whoisonline_users\n", 'php_errors.log');
+        }
     }
     if ($session_id && !$current_user) {
         DB::Execute('DELETE FROM tools_whoisonline_users WHERE session_name=%s', array($session_id));
