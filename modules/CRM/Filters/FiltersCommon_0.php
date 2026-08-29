@@ -50,7 +50,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 		Base_ActionBarCommon::add('filter',__('Filters'),'class="lbOn" rel="crm_filters"');
 	}
 
-	public static function set_profile($prof) {
+	public static function set_profile($prof, $notify = true) {
 		if(preg_match('/^c([0-9,]+)$/',$prof,$reqs)) {
 			$ret = $reqs[1];
 			if(!str_contains($ret,','))
@@ -84,7 +84,7 @@ class CRM_FiltersCommon extends ModuleCommon {
 //		$this->set_module_variable('profile',$ret);
 		$_SESSION['client']['filter_'.Acl::get_user()]['value'] = $ret;
 		$_SESSION['client']['filter_'.Acl::get_user()]['desc'] = $desc;
-		location(array());
+		if ($notify) location(array());
 	}
 
 	public static function crits_special_values()

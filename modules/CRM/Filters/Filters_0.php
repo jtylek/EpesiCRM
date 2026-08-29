@@ -68,7 +68,14 @@ class CRM_Filters extends Module {
 
 		Libs_LeightboxCommon::display('crm_filters',$profiles_out,__('Perspective'),true);
 		if(!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc']))
-			CRM_FiltersCommon::set_profile('my');
+			// $notify=false: this is a same-request lazy default, not a real
+			// change - CRM_FiltersCommon::get()'s own lazy fallback already
+			// gives every earlier-rendered container (main, incl. Dashboard's
+			// Tasks/PhoneCall/Meeting widgets) this exact value in this same
+			// pass, so forcing Epesi::process()'s discard-and-rerender here
+			// only ever redraws the tree a second time for a label ('desc')
+			// that only this module's own container reads.
+			CRM_FiltersCommon::set_profile('my', false);
 		    
 		//Base_ActionBarCommon::add('folder',__('Filters'),'class="lbOn" rel="crm_filters"',$this->get_module_variable('profile_desc',__('My records')));
 		if (isset($_REQUEST['__location'])) $in_use = (CRM_FiltersCommon::$in_use===$_REQUEST['__location']);

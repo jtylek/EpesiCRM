@@ -174,7 +174,7 @@ for CommonData, which barely changes across requests at all) but wasn't
 attempted here for that reason; revisit if request-scoped caching alone
 stops being enough.
 
-## Known but not fixed: initial-load `process()` renders the whole module tree twice (2026-08-29)
+## Fixed: initial-load `process()` was rendering the whole module tree twice (2026-08-29)
 
 DevTools showed a plain post-login `/newsetup` load's `process.php` taking
 613ms, while the debug panel's own `Page renderered in Xs` said ~0.14s for
@@ -189,31 +189,85 @@ in-app click (sidebar → Contacts: Browse) does exactly one `process()` call,
 no gap.
 
 **What's happening**: `Epesi::process()` (`include/epesi.php:354`) renders
-the *entire* module tree once via `self::go($root)` (~257ms on Dashboard) to
-figure out what an empty/unresolved URL should even show. Partway through,
-some module calls `location()` (`include/misc.php:52`) — here,
-`Base_Box::push_main()` (`modules/Base/Box/Box_0.php:238`) resolving "no
-main module yet" into the real default/last-visited screen. `location()` is
-a generic side-effect accumulator used from 60+ call sites app-wide
-(RecordBrowser filters, Wizard steps, history back/forward, Box push/pop,
-etc.) — a module only decides to request a redirect *during its own render*,
-so `process()` has no way to know one is coming without executing that first
-pass. When it sees `location()` was called, it wipes `self::$content`
+the *entire* module tree once via `self::go($root)` to figure out what an
+empty/unresolved URL should even show. Partway through, some module calls
+`location()` (`include/misc.php:52`). `location()` is a generic side-effect
+accumulator used from 60+ call sites app-wide (RecordBrowser filters, Wizard
+steps, history back/forward, Box push/pop, etc.) — a module only decides to
+request a redirect *during its own render*, so `process()` has no way to
+know one is coming without executing that first pass. When it sees
+`location()` was called — for *any* non-empty-looking call, even
+`location(array())` with nothing in it — it wipes `self::$content`
 (discarding the first render entirely — none of its `MODULE_TIMES`/SQL
-stats survive) and calls `self::process()` again for the resolved
-destination (~141ms). **Only the second call's numbers ever reach the debug
-panel** — `$debug`/`self::$content` are fresh per top-level call, and the
-first, more expensive pass leaves no trace unless you go looking for it like
-this.
+stats survive) and calls `self::process()` again (`$loc!==false` at
+`epesi.php:393`, and `array() !== false` in PHP). **Only the second call's
+numbers ever reach the debug panel** — `$debug`/`self::$content` are fresh
+per top-level call, and the first, more expensive pass leaves no trace
+unless you go looking for it like this.
 
-**Not fixed**: `location()`'s "decide mid-render, discover after" design is
-load-bearing for unrelated features across the whole app (see the call-site
-list above) — resolving destinations without a render pass would be a
-framework-level rewrite, not a scoped fix. Logged here so a future session
-profiling initial-load latency sees the real cost (roughly 2x the visible
-render) and doesn't have to re-derive this trace from scratch. Revisit only
-if initial-load latency becomes a specific priority, and start from
-`Base_Box::push_main()`/`location()` rather than re-profiling from zero.
+**Root cause, corrected**: an earlier pass at this investigation (see git
+blame on this section) suspected `Base_Box::push_main()` (resolving "no main
+module yet") as the trigger, reasoning from the "no main module yet" framing
+alone rather than an actual captured trace. Instrumenting `location()`
+itself (`static $traced` + `debug_backtrace()`, first call per request only,
+logged to a scratch file — added, captured, reverted) showed the real
+trigger on a fresh session's bare load is
+`CRM_Filters::body()`'s one-time lazy default-profile init
+(`modules/CRM/Filters/Filters_0.php:70`, guarded by
+`!isset($_SESSION['client']['filter_'.Acl::get_user()]['desc'])` so it only
+fires once per session): `CRM_FiltersCommon::set_profile('my')` sets the
+session's filter value/desc and then unconditionally called `location(array())`
+— an *empty* array, not an actual redirect target — purely to force the
+whole tree to redraw. `push_main()` was never in the trace; `Base_HomePage`
+only *packs* its target as a child module (see its own comment,
+`modules/Base/HomePage/HomePage_0.php:32-45`) and never calls `push_main()`
+itself.
+
+That empty-array call was provably redundant: `CRM_FiltersCommon::get()`
+(`FiltersCommon_0.php:41-47`, called by the Dashboard's Tasks/PhoneCall/
+Meeting widgets and Calendar) has its own independent lazy fallback that sets
+the *same* session `value` the moment anything reads the filter — and `main`
+renders before `filter` in `Base/Box/default.ini`'s container order, so by
+the time `CRM_Filters::body()` runs, every earlier container already saw the
+correct filter value in this same pass regardless. The only thing the lazy
+init's `location()` call was announcing was the `desc` string (a UI label
+CRM_Filters' own container is the only reader of) — nothing upstream needed
+the redraw.
+
+**Fix**: `CRM_FiltersCommon::set_profile($prof, $notify = true)` — the
+lazy-default call site now passes `$notify = false`, skipping `location()`
+for that one case only. The two real call sites (`Filters_0.php:58`, a user
+actually picking a different filter, and `ContactsCommon_0.php:1078`) are
+untouched, still default `$notify = true` — a real filter *change* still
+needs the full redraw so already-rendered containers pick up the new value.
+
+**Verified live**: cleared cookies, logged in fresh (genuinely new PHP
+session, no persisted filter `desc`), confirmed via the `location()`
+backtrace instrumentation that it no longer fires on this path; a second
+fresh-tab bare load (same session, already authenticated — the exact
+scenario originally profiled) produced *no* `location()` call at all.
+DevTools TTFB for that request dropped to ~377ms against the debug panel's
+own ~315ms (previously a ~4x gap, now consistent with ordinary bootstrap
+overhead) — no discarded first pass left. Confirmed the `CRM_Filters`
+"Perspective: My records" label still renders correctly from the
+non-notifying lazy path (reads `$_SESSION[...]['desc']` within the same
+pass, set before its own render), and that the explicit filter-picker UI
+still opens normally with no console errors, since the real-change path
+(`Filters_0.php:58`) wasn't touched by this fix.
+
+**Not exhaustively fixed**: this closes the one diagnosed, profiled trigger.
+`location()`'s general "decide mid-render, discover after" design is still
+shared by the other 59+ call sites (RecordBrowser filters, Wizard steps,
+history back/forward, Box push/pop, etc.) and any of them calling
+`location()` — even with an empty array, as this one did — still forces the
+same discard-and-rerender by design; that's inherent to how `process()`
+propagates a session-wide state change to containers that already rendered
+before the change happened, not a bug in each individual site. Resolving
+destinations without a render pass at all would be a framework-level
+rewrite, not a scoped fix — not attempted. Revisit only if a *different*
+`location()` call site is independently profiled as a real cost; start from
+the `location()` backtrace-instrumentation technique above (fast — under an
+hour end to end) rather than assuming the trigger without a captured trace.
 
 **How to apply**: when a slow request is a bare/root URL load rather than an
 in-app click, don't trust the debug panel's numbers as the whole story —
@@ -225,7 +279,11 @@ to see if there's an unexplained gap, and if so, re-add temporary
 it's environment noise (this machine commonly runs several concurrent
 Claude Code sessions — see [[concurrent-sessions-shared-env]] — which is a
 real potential confound but wasn't the cause here: PHP-side timings summed
-to the observed gap almost exactly).
+to the observed gap almost exactly). Once a gap is confirmed, don't guess
+the trigger from the framing of "what looks unresolved" — instrument
+`location()` itself (first-call-only `debug_backtrace()` to a scratch file)
+to get the actual caller; the first hypothesis here (`Base_Box::push_main()`)
+turned out wrong when actually traced.
 
 ## Fixed: `Utils_RecordBrowserCommon::get_description_fields()`'s cache guard never actually cached (2026-08-29)
 
