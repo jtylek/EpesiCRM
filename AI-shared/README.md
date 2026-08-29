@@ -103,6 +103,14 @@ same for every developer and every computer working on this repo.
   visually verified or merged.
 - [bug-patterns.md](bug-patterns.md) — subtle, already-fixed bugs whose *root-cause
   shape* is likely to recur elsewhere in the codebase.
+- [recordbrowser-live-schema-changes.md](recordbrowser-live-schema-changes.md) —
+  evolving an in-development RecordBrowser module's schema without losing real data
+  already entered through the UI (`new_record_field()`/`set_display_callback()`/
+  `new_addon()` instead of drop-and-recreate reinstall), the `$cols` per-view
+  column-override mechanism vs. `set_header_properties()` (different jobs, easy to
+  conflate), and one addon-building nuance beyond `Dev-Tutorial.md` §11.8's own
+  coverage (drop the redundant parent-link column from a scoped addon's own `$cols`).
+  Written building `modules/Premium/PasswordManager/`.
 - [environment-gotchas.md](environment-gotchas.md) — DB/server-level issues that
   looked like application bugs but weren't, plus dev-tooling setup notes (e.g.
   driving a real browser against this app for UI verification) worth not
