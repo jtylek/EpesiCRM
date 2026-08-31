@@ -1,5 +1,7 @@
 # How to add a proper mouseover tooltip to a RecordBrowser field
 
+> **Status:** REFERENCE - recipe for adding a RecordBrowser column tooltip.
+
 Recipe distilled from three repeat requests in one day (2026-08-12): Companies Browse's
 "Company Name" column, Premium Tickets Browse's "Ticket ID" column, Contacts Browse's
 "Last Name" column. All three had the exact same root cause and the exact same fix

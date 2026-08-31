@@ -1,5 +1,7 @@
 # Epesi Module Development Tutorial
 
+> **Status:** REFERENCE - how to build an Epesi module. Paired with modules/Custom/Tutorial/.
+
 A from-the-ground-up guide to writing modules for this codebase, grounded in the actual
 source (not the framework's aspirational docs) plus the official developer tutorial at
 [epesi.org/devtutorial](https://epesi.org/devtutorial). Written 2026-08-03. See

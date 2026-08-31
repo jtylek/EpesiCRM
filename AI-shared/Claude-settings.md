@@ -1,5 +1,7 @@
 # Claude Code Remote Control and cross-session messaging
 
+> **Status:** REFERENCE - Remote Control vs. cross-session messaging. Machine-specific (set 2026-08-26).
+
 Written 2026-08-26. Covers two related but *separate* Claude Code mechanisms that came up
 while disabling one of them on a dev machine: **Remote Control** (human control of a
 session from another device) and **cross-session messaging** (agent-to-agent, via the

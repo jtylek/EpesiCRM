@@ -1,5 +1,7 @@
 # Bug patterns worth recognizing if they recur
 
+> **Status:** REFERENCE - already-fixed bugs whose root-cause shape is likely to recur.
+
 These are already-fixed bugs, kept here not for their fix (see git history/
 commit messages for that) but because their *root-cause shape* is generic
 enough to plausibly recur elsewhere in this codebase.

@@ -1,5 +1,7 @@
 # `DEMO_MODE`: what it actually does, and the gap vs. "let a visitor pick an employee"
 
+> **Status:** REFERENCE - how DEMO_MODE actually works.
+
 Scanned 2026-08-27 (all 19 `DEMO_MODE` call sites in the tree) after being asked whether it could
 back a "replace login with a select box, let a test visitor pick an employee" flow. Short answer:
 the select-box login already exists, but it selects **user login accounts**, not CRM "Employee"

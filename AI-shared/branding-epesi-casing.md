@@ -1,5 +1,7 @@
 # Branding: the product name is "Epesi", not "EPESI"
 
+> **Status:** REFERENCE - the product name is "Epesi", not "EPESI".
+
 Written 2026-08-28. The application/framework name is styled **"Epesi"** (capital E,
 rest lowercase) — not the all-caps "EPESI" that shows up throughout older code, docs,
 and translation strings. Use "Epesi" in new prose (docs, comments, commit messages,

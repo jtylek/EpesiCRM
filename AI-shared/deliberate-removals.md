@@ -1,5 +1,7 @@
 # Deliberate removals
 
+> **Status:** REFERENCE - features removed on purpose. Do not silently reintroduce.
+
 Features that are *missing on purpose*, at explicit user request — not oversights,
 regressions, or gaps to silently fill back in. If a request implies re-adding one of
 these, surface the tension and confirm first rather than just doing it.

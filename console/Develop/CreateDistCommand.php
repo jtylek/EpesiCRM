@@ -72,6 +72,13 @@ class CreateDistCommand extends Command
             // that step. .htaccess itself (this dev instance's own, already-tuned
             // copy) IS excluded, since setup.php generates the real one fresh.
             '^(\.htaccess|\.gitignore|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
+            // Static-analysis tooling (tools/composer.json + tools/vendor/, see that
+            // file). Same reasoning as phpstan.*/rector.* above - the configs were
+            // already excluded, so leaving the tools they configure in the package
+            // would have been inconsistent. Excluded whether or not tools/vendor/ is
+            // committed, so the gitignore decision can be revisited without this
+            // needing to change.
+            '^tools(' . $sep . '|$)',
         );
         // Guard against the output file landing inside the tree being archived
         // (e.g. a bare filename with no path) and trying to zip itself.

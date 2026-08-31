@@ -33,6 +33,10 @@ return RectorConfig::configure()
         __DIR__ . '/modules/Base/Theme/smarty',
         __DIR__ . '/console/Develop',
         __DIR__ . '/modules/Tests',
+        // Separately-licensed, gitignored nested git repos - not ours to rewrite, and CI
+        // checks out neither. Mirrors phpstan.neon's excludePaths. See CLAUDE.md.
+        __DIR__ . '/modules/Premium',
+        __DIR__ . '/modules/Custom',
         // skip globally: mass null→(string) casting is a PHP 9 prep, not a 8.2 target;
         // 199 files of mostly-unnecessary casts. Left for Jasiek to review properly.
         NullToStrictStringFuncCallArgRector::class,

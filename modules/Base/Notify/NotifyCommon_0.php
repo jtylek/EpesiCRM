@@ -19,6 +19,10 @@ class Base_NotifyCommon extends ModuleCommon {
 	public static function bootstrap_icon() { return 'bi-bell-fill'; }
 
 	//interval to poll for new notifications
+	// NOTE: this value is restated as a literal in modules/Base/Notify/refresh.php's
+	// pre-bootstrap early-out (it runs before load_modules(), so it cannot read this
+	// constant). Change both together. A mismatch is not a correctness problem - the
+	// early-out is fail-open - but it either wastes a bootstrap or skips a poll cycle.
 	const refresh_rate = 30; //seconds
 	const refresh_rate_telegram = 300; //seconds
 

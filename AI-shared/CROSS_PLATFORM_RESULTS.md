@@ -1,5 +1,7 @@
 # Cross-platform test results — Epesi PHP 8.2 (RC2 `v20260701-rc2`)
 
+> **Status:** RESULTS MATRIX - PHP 8.2 migration pass/fail across hosting environments.
+
 Fill this in as you test each platform. Legend: ✅ pass · ⚠️ works with a caveat · ❌ fail · ⬜ not tested yet.
 Any ❌ → paste the error-log line to Claude → fix in Epesi code (not vendor) → number in `MIGRATION_NOTES.md` → re-test.
 Baseline reference: Linux/XAMPP PHP 8.2 = fully ✅ (dev box).

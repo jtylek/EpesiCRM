@@ -1,5 +1,7 @@
 # Demo data generation via `console.php`
 
+> **Status:** REFERENCE - the demo:generate:* console commands and their gotchas.
+
 Four commands, `modules/../console/Demo/Generate*Command.php` (namespace `Epesi\Console\Demo`,
 registered in `console.php`), use `Faker` to seed a dev install with realistic-looking records:
 

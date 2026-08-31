@@ -120,7 +120,27 @@ $config['default_host'] = ($account['f_security']?$account['f_security'].'://':'
 $config['default_port'] = $account['f_security']=='ssl'?993:143;
 $config['imap_delimiter'] = ($account['f_imap_delimiter']?$account['f_imap_delimiter']:null);
 $config['imap_ns_personal'] = ($account['f_imap_root']?$account['f_imap_root']:null);
-$config['imap_cache'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
+/*
+ * Which memcache driver Roundcube should use, or '' if it cannot use one.
+ *
+ * These three settings used to test class_exists('Memcache') only - the *old* pecl
+ * extension. An install running the modern `memcached` extension (which provides a
+ * `Memcached` class and no `Memcache` class) therefore fell back to 'db' for both the IMAP
+ * cache and session storage, even though memcached was running and the rest of Epesi was
+ * already using it through include/cache.php. Found 2026-08-31 on a box in exactly that
+ * state. include/session.php's EpesiSessionMemcachedStorage has always checked for both.
+ *
+ * Roundcube 1.7 ships separate 'memcache' and 'memcached' drivers
+ * (program/lib/Roundcube/{cache,session}/), both reading the same memcache_hosts config
+ * key, so picking the right name is all that is needed.
+ */
+$epesi_rc_memcache_driver = '';
+if (MEMCACHE_SESSION_SERVER) {
+    if (class_exists('Memcached')) $epesi_rc_memcache_driver = 'memcached';
+    elseif (class_exists('Memcache')) $epesi_rc_memcache_driver = 'memcache';
+}
+
+$config['imap_cache'] = $epesi_rc_memcache_driver ?: 'db';
 
 // SMTP server host (for sending mails).
 // To use SSL/TLS connection, enter hostname with prefix ssl:// or tls://
@@ -173,8 +193,8 @@ $config['temp_dir'] = $data_dir;
 $config['session_auth_name'] = 'roundcube_sessauth_ecid' . $CID;
 $config['session_name'] = "roundcube_sessid_ecid" . $CID;
 $config['session_lifetime'] = 480;
-$config['session_storage'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?'memcache':'db';
-$config['memcache_hosts'] = (MEMCACHE_SESSION_SERVER && class_exists('Memcache'))?array(MEMCACHE_SESSION_SERVER):null; // e.g. array( 'localhost:11211', '192.168.1.12:11211', 'unix:///var/tmp/memcached.sock' );
+$config['session_storage'] = $epesi_rc_memcache_driver ?: 'db';
+$config['memcache_hosts'] = $epesi_rc_memcache_driver ? array(MEMCACHE_SESSION_SERVER) : null; // e.g. array( 'localhost:11211', '192.168.1.12:11211', 'unix:///var/tmp/memcached.sock' );
 $config['default_charset'] = 'UTF-8';
 $config['htmleditor'] = 1;
 $config['preview_pane'] = true;

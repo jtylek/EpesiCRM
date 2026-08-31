@@ -2080,12 +2080,61 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return true;
     }
 
+    /**
+     * Warm get_record_info()'s cache for a whole page of records in two queries.
+     *
+     * get_record_info() is called once per visible grid row by RecordBrowser_0.php's
+     * add_info() (the per-row hover-info icon). Its per-id cache, added 2026-08-29,
+     * removes repeats but not the first fetch - and every row is a distinct id, so a
+     * 20-row grid still paid 2 queries per row: 40 of 168 queries on Contacts: Browse
+     * (measured 2026-08-31). The row ids are all known before the render loop starts, so
+     * two grouped queries answer the whole page.
+     *
+     * Ids already cached are skipped, so calling this twice is free, and anything it
+     * misses still resolves through get_record_info()'s own per-id path - it is a warm-up,
+     * never a required step.
+     *
+     * @param string $tab record table
+     * @param array  $ids record ids to prefetch
+     */
+    public static function prefetch_record_info($tab, array $ids) {
+        self::check_table_name($tab);
+        $want = array();
+        foreach ($ids as $id) {
+            if (!is_numeric($id)) continue;
+            $id = (int) $id;
+            if (!array_key_exists($tab.'|'.$id, self::$record_info_cache)) $want[$id] = $id;
+        }
+        if (count($want) < 2) return; // one row is what the per-id path already does well
+        $in = implode(',', $want);
+
+        $created = DB::GetAll('SELECT id, created_on, created_by FROM '.$tab.'_data_1 WHERE id IN ('.$in.')');
+        // Latest edit per record. GROUP BY on the joined row rather than a correlated
+        // subquery per id - MAX(edited_on) alone cannot carry edited_by along with it.
+        $edited = array();
+        $rows = DB::GetAll('SELECT '.$tab.'_id AS rid, edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id IN ('.$in.') ORDER BY edited_on ASC');
+        foreach ($rows as $r) $edited[$r['rid']] = $r; // ASC, so the last write per id wins
+
+        foreach ($created as $c) {
+            $id = $c['id'];
+            self::$record_info_cache[$tab.'|'.$id] = array(
+                'created_on' => $c['created_on'],
+                'created_by' => $c['created_by'],
+                'edited_on'  => $edited[$id]['edited_on'] ?? null,
+                'edited_by'  => $edited[$id]['edited_by'] ?? null,
+                'id'         => $id,
+            );
+        }
+        // Ids with no _data_1 row are deliberately left uncached: get_record_info()
+        // trigger_error()s on that case and must keep doing so.
+    }
+
     public static function get_record_info($tab, $id) {
         self::check_table_name($tab);
         $cache_key = $tab.'|'.$id;
         if (array_key_exists($cache_key, self::$record_info_cache)) return self::$record_info_cache[$cache_key];
         $created = DB::GetRow('SELECT created_on, created_by FROM '.$tab.'_data_1 WHERE id=%d', array($id));
-        $edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC', array($id));
+        $edited = DB::GetRow('SELECT edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id=%d ORDER BY edited_on DESC LIMIT 1', array($id));
         if (!isset($edited['edited_on'])) $edited['edited_on'] = null;
         if (!isset($edited['edited_by'])) $edited['edited_by'] = null;
         if (!isset($created['created_on'])) trigger_error('There is no such record as '.$id.' in table '.$tab, E_USER_ERROR);

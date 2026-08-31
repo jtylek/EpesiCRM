@@ -1,5 +1,7 @@
 # TODO
 
+> **Status:** LIVING LIST - follow-up work deferred during AI-assisted sessions. Entries are open unless moved to "Done".
+
 Follow-up work items intentionally deferred during AI-assisted sessions — distinct
 from [known-todos.md](known-todos.md) (which audits `TODO`/`FIXME`/`XXX` markers
 already present in Epesi's own code). Entries here are decisions made to ship a real,

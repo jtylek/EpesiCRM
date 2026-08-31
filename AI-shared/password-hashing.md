@@ -1,5 +1,7 @@
 # Login password hashing
 
+> **Status:** DONE, verified live 2026-08-29 - argon2id with rehash-on-login self-healing.
+
 ## Current state (as of 2026-08-29)
 
 `modules/Base/User/Login/LoginCommon_0.php` (`Base_User_LoginCommon`) owns all login-password

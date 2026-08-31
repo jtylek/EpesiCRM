@@ -1,5 +1,7 @@
 # Sidebar menu search/filter — plan
 
+> **Status:** DONE - implemented; see Base/Menu/Menu_0.php and its theme_adminltedark/default.css. Kept for the design rationale.
+
 Planned and approved 2026-08-14; implemented and verified in the same session. Builds
 directly on [how-menu-works.md](how-menu-works.md) — read that first for the
 file:line detail behind every claim below.

@@ -1,5 +1,7 @@
 # Epesi 1.9.1 → PHP 8.2 Migration Notes
 
+> **Status:** REFERENCE - authoritative PHP 7.4 -> 8.2 migration log, still growing. Treat as stable.
+
 Working notes from the PHP 7.4 → 8.2 migration of Epesi 1.9.1.
 Kept in-repo so findings survive and stay versioned with the code.
 

@@ -1,5 +1,7 @@
 # Legacy install cleanup (epesi-adminlte migration)
 
+> **Status:** DONE - shipped as modules/Base/patches/20260819_cleanup_legacy_adminlte_migration_dirs.php; runs automatically on update.
+
 2026-08-19. The epesi-adminlte migration reorganized several bundled/vendored
 libraries in place rather than adding new paths alongside old ones:
 

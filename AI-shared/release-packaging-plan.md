@@ -1,5 +1,7 @@
 # SourceForge release packaging & upgrade plan
 
+> **Status:** PLAN, dated 2026-08-24 - NOT implemented. Names an `update:apply` console command that does not exist yet.
+
 Planned 2026-08-24, not yet implemented. Written at Jasiek's request after describing the SourceForge
 (https://sourceforge.net/projects/epesi/) release process: a zip is generated and published there; new
 installs just unzip it; **upgrading an existing install by overwriting with the new zip leaves behind

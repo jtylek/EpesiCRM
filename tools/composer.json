@@ -1,0 +1,21 @@
+{
+    "//": [
+        "Static-analysis tooling, kept deliberately OUT of the root composer.json.",
+        "",
+        "The root vendor/ tree is committed to git so a deployment needs no composer run.",
+        "Adding phpstan/rector there would (a) add ~69 MB / ~3100 files to every clone and",
+        "release zip, and (b) put their bootstrap files into vendor/composer/autoload_files.php,",
+        "which vendor/autoload.php requires on EVERY request - so if those packages were then",
+        "gitignored to control the size, a fresh clone would fatal on every page load.",
+        "",
+        "Installing them here instead keeps the root vendor/ production-only and untouched.",
+        "tools/vendor/ is gitignored; run `composer install -d tools` to get them."
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "rector/rector": "^2.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

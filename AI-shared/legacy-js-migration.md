@@ -1,5 +1,7 @@
 # Legacy JS libraries: inventory and elimination plan
 
+> **Status:** IN PROGRESS - Prototype.js and script.aculo.us fully removed (2026-08-06); the jQuery 1.11.3 bump is still deferred, see TODO.md.
+
 As of 2026-07-30, every page loaded (hard-coded in `index.php`'s `$jses`
 array, bypassing Epesi's own `load_js()` module-asset system entirely):
 

@@ -1,5 +1,7 @@
 # Environment / DB gotchas that looked like application bugs
 
+> **Status:** REFERENCE - DB/server/tooling issues that looked like application bugs.
+
 (See `CLAUDE.md`'s "Environment quirks" and "Error handling" sections first —
 some overlap exists deliberately; this file covers additional gotchas found
 during work on this codebase that aren't yet folded into CLAUDE.md.)

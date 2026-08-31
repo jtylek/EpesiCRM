@@ -1,5 +1,7 @@
 # Simple Setup: per-module "Readme..." button vs. Epesi Store cards
 
+> **Status:** DONE - the Simple Setup "Readme..." button, shipped. Also documents two rendering bugs it caught.
+
 Written 2026-08-28, revised 2026-08-28 (new-tab → Leightbox). A "Readme..." pill button
 on package cards on the admin Setup screen's Simple view (`Base_Setup::simple_setup()`,
 `modules/Base/Setup/Setup_0.php`), opening that module's `README.md` (rendered to HTML)

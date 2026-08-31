@@ -55,7 +55,7 @@ parameters:
 			path: include/module_manager.php
 
 		-
-			message: '#^Path in require_once\(\) "data/cache/common\.php" is not a file or it does not exist\.$#'
+			message: '#^Path in require_once\(\) "temp/data/cache/common\.php" is not a file or it does not exist\.$#'
 			identifier: requireOnce.fileNotFound
 			count: 1
 			path: include/module_manager.php
@@ -213,7 +213,7 @@ parameters:
 		-
 			message: '#^Instantiated class SOAP_Value not found\.$#'
 			identifier: class.notFound
-			count: 42
+			count: 41
 			path: modules/CRM/Contacts/soap.php
 
 		-
@@ -263,18 +263,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: modules/CRM/Roundcube/patches/20130617_add_thread_view5.php
-
-		-
-			message: '#^Class HTML_QuickForm referenced with incorrect case\: HTML_Quickform\.$#'
-			identifier: class.nameCase
-			count: 1
-			path: modules/Libs/Codepress/CodepressCommon_0.php
-
-		-
-			message: '#^Static call to instance method HTML_QuickForm\:\:registerElementType\(\)\.$#'
-			identifier: method.staticCall
-			count: 1
-			path: modules/Libs/Codepress/CodepressCommon_0.php
 
 		-
 			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
@@ -421,222 +409,6 @@ parameters:
 			path: modules/Libs/TCPDF/TCPDFCommon_0.php
 
 		-
-			message: '#^Access to an undefined property Premium_Accounts\:\:\$rb\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Accounts/Accounts_0.php
-
-		-
-			message: '#^Access to an undefined property Premium_CaseManagement_Case\:\:\$rb\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/CaseManagement/Case/Case_0.php
-
-		-
-			message: '#^Access to an undefined property Premium_ExchangeRate\:\:\$rb\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/ExchangeRate/ExchangeRate_0.php
-
-		-
-			message: '#^Access to an undefined property Premium_Expenses\:\:\$rb\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Expenses/Expenses_0.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$balance_field_label\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Addon.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$recordset\.$#'
-			identifier: property.notFound
-			count: 7
-			path: modules/Premium/Payments/Addon.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Addon\:\:\$summarize_field_label\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Addon.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Agent\:\:\$params\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Agent.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Agent\:\:\$plugin\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Agent.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$agent\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$params\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$recordset\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property Premium_Payments_Entry\:\:\$status_description\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Entry.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetAIM_Response\:\:\$error_message\.$#'
-			identifier: property.notFound
-			count: 3
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetAIM.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$approved_amount\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$avs_code\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$card_balance\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$card_num\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$error_message\.$#'
-			identifier: property.notFound
-			count: 3
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$ref_trans_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$test_mode\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$user_ref\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$version\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetCP_Response\:\:\$xml\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetCP.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetSIM\:\:\$api_login_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetSIM\:\:\$md5_setting\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetSIM_Form\:\:\$x_delim_char\.$#'
-			identifier: property.notFound
-			count: 1
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/AuthorizeNetSIM.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetXMLResponse\:\:\$response\.$#'
-			identifier: property.notFound
-			count: 6
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/shared/AuthorizeNetXMLResponse.php
-
-		-
-			message: '#^Access to an undefined property AuthorizeNetXMLResponse\:\:\$xpath_xml\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Payments/Plugins/AuthorizeNet/anet_php_sdk/lib/shared/AuthorizeNetXMLResponse.php
-
-		-
-			message: '#^Undefined variable\: \$data$#'
-			identifier: variable.undefined
-			count: 1
-			path: modules/Premium/Payments/Plugins/Paypal/IpnListener.php
-
-		-
-			message: '#^Array has 2 duplicate keys with value ''visible'' \(''visible'', ''visible''\)\.$#'
-			identifier: array.duplicateKey
-			count: 2
-			path: modules/Premium/Projects/Tickets/TicketsInstall.php
-
-		-
-			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
-			identifier: whitespace.fileEnd
-			count: 1
-			path: modules/Premium/Projects/Tickets/patches/20120619_develoeprs_group.php
-
-		-
-			message: '#^Call to an undefined static method Premium_TimesheetCommon\:\:get_customer_options\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: modules/Premium/Timesheet/patches/premium_timesheets_add_customer2.php
-
-		-
-			message: '#^Access to an undefined property Premium_Vacation\:\:\$rb\.$#'
-			identifier: property.notFound
-			count: 2
-			path: modules/Premium/Vacation/Vacation_0.php
-
-		-
 			message: '#^Method Utils_AttachmentCommon\:\:rb_access\(\) should return bool but return statement is missing\.$#'
 			identifier: return.missing
 			count: 2
@@ -679,20 +451,20 @@ parameters:
 			path: modules/Utils/CommonData/qf_group.php
 
 		-
-			message: '#^Call to an undefined static method Premium_AccountsCommon\:\:recalculate_missing_amounts\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Call to static method recalculate_missing_amounts\(\) on an unknown class Premium_AccountsCommon\.$#'
+			identifier: class.notFound
 			count: 1
 			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
 
 		-
-			message: '#^Call to an undefined static method Premium_ExpensesCommon\:\:recalculate_missing_amounts\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Call to static method recalculate_missing_amounts\(\) on an unknown class Premium_ExpensesCommon\.$#'
+			identifier: class.notFound
 			count: 1
 			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
 
 		-
-			message: '#^Call to an undefined static method Premium_TimesheetCommon\:\:recalculate_missing_amounts\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Call to static method recalculate_missing_amounts\(\) on an unknown class Premium_TimesheetCommon\.$#'
+			identifier: class.notFound
 			count: 1
 			path: modules/Utils/CurrencyField/CurrencyFieldCommon_0.php
 

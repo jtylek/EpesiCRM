@@ -21,6 +21,10 @@ return RectorConfig::configure()
         __DIR__ . '/vendor',
         __DIR__ . '/modules/Base/Theme/smarty',
         __DIR__ . '/modules/Tests',
+        // Separately-licensed, gitignored nested git repos - not ours to rewrite, and CI
+        // checks out neither. Mirrors phpstan.neon's excludePaths. See CLAUDE.md.
+        __DIR__ . '/modules/Premium',
+        __DIR__ . '/modules/Custom',
     ])
     ->withPhpVersion(PhpVersion::PHP_82)
     ->withSets([

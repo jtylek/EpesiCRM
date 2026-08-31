@@ -1,5 +1,7 @@
 # Standalone entry points: admin/, update.php, check.php, setup.php
 
+> **Status:** REFERENCE - admin/, update.php, check.php, setup.php PHP/view split.
+
 These four run outside (or before) the normal module/theme pipeline — they must
 work pre-install, pre-login, or without a full session, so none of them go
 through `Base_ThemeResolver`/`Base_ThemeCommon::init_smarty()` the way ordinary

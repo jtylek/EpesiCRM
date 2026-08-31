@@ -1,5 +1,7 @@
 # PROPOSAL — a small, high-ROI functional test suite for Epesi
 
+> **Status:** PROPOSAL - undecided, not implemented. There is no test suite; codeception.yml/tests/ were removed.
+
 **Status:** proposal for Jasiek's decision (architecture / investment level — not a mechanics change).
 **Not an RC blocker.** The PHP 8.2 RC (`v20260701-rc1`) is already tagged; this is a quality/credibility
 investment best started *during* the RC→stable window, in parallel with cross-platform testing.

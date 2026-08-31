@@ -802,6 +802,20 @@ class Utils_RecordBrowser extends Module {
             $this->render_add_in_table_row($gb, $cols, $form, $admin);
         }
 
+        // Warm the per-row hover-info cache for the whole page in two queries instead of
+        // two per row (add_info() below calls get_html_record_info() -> get_record_info()
+        // once per record). Pure warm-up: anything not covered still resolves per-id.
+        // See AI-shared/performance-profiling.md.
+        //
+        // Mirrors the exact conditions the add_info() call site below is gated on - both
+        // are loop-invariant, read straight off $this->disabled rather than off the $da
+        // that the loop builds per row.
+        $info_disabled = $this->disabled['actions'] === true
+            || (is_array($this->disabled['actions']) && in_array('info', $this->disabled['actions']));
+        if (!$pdf && !$info_disabled) {
+            Utils_RecordBrowserCommon::prefetch_record_info($this->tab, array_column($records, 'id'));
+        }
+
         $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {

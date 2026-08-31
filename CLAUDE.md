@@ -49,31 +49,43 @@ Lint (what CI's `lint` job runs, minus vendor/Roundcube/dev-tool exclusions):
 /opt/lampp/bin/php -l path/to/file.php       # this Linux machine
 ```
 
-Static analysis (level 0, own code only — `include/` + `modules/`; baseline in `phpstan-baseline.neon` means
-CI only fails on *new* findings):
+**The analysis tools below live in their own composer project (`tools/composer.json`), not the root one** —
+the root `vendor/` is committed to git so a deployment needs no composer run, and adding ~69 MB of dev
+tooling to it (plus their bootstraps to `autoload_files.php`, which every request loads) would be wrong.
+Install them once with:
 ```
-vendor/bin/phpstan analyse -c phpstan.neon
-```
-
-Rector dry-run (advisory in CI, checks for PHP 8.2 syntax opportunities — should report zero changes):
-```
-vendor/bin/rector process --dry-run --config rector-php82.php
+composer install -d tools     # creates tools/vendor/, which is gitignored
 ```
 
-CLI console (module management, cache/theme rebuild, backups, patch/module scaffolding — see
-`console.php` for the full command list):
+Static analysis (level 0, own code only — `include/` + `modules/`, minus the gitignored `Premium`/`Custom`
+trees so a local run matches CI; baseline in `phpstan-baseline.neon` means CI only fails on *new* findings).
+Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
+```
+tools/vendor/bin/phpstan analyse -c phpstan.neon
+```
+
+Rector dry-run (advisory in CI, checks for PHP 8.2 syntax opportunities). It currently applies **zero**
+actual rules — the ~10 files it reports are whitespace-only re-prints from Rector 2.x, which is why the CI
+job is advisory rather than blocking:
+```
+tools/vendor/bin/rector process --dry-run --config rector-php82.php
+```
+
+CI (`.github/workflows/ci.yml`) runs the three above plus a docs check on every push/PR.
+
+CLI console (module management, cache/theme rebuild, backups, patch/module scaffolding). **`list` is the
+authoritative command inventory — run it rather than trusting a list written down here, which rots:**
 ```
 /c/xampp82/php/php.exe console.php list             # Windows
 /opt/lampp/bin/php console.php list                  # this Linux machine
-/c/xampp82/php/php.exe console.php dev:create:module
-/c/xampp82/php/php.exe console.php dev:create:patch
+/c/xampp82/php/php.exe console.php dev:module:create # e.g. scaffold a new module
 ```
 
-**Tests:** `codeception.yml` and `tests/` are an empty skeleton (no real `*Cest.php`/`*Cept.php` suite yet;
-`modules/Tests/*` are demo/example modules, not automated tests) — see `AI-shared/PROPOSAL_functional_tests.md` for
-the (undecided) plan. Don't assume a test command will validate a change; verify by running the app instead.
-`php update.php` from the CLI is a real mutating operation against the live DB, not a dry check — be careful
-running it outside a disposable environment.
+**Tests:** there is no test suite. `codeception.yml` and `tests/` were removed (see
+`AI-shared/MIGRATION_NOTES.md`); `modules/Tests/*` are demo/example modules, not automated tests. See
+`AI-shared/PROPOSAL_functional_tests.md` for the (undecided) plan. Don't assume a test command will validate
+a change; verify by running the app instead. `php update.php` from the CLI is a real mutating operation
+against the live DB, not a dry check — be careful running it outside a disposable environment.
 
 ## Architecture
 

@@ -1,5 +1,7 @@
 # Sharing custom Claude Code skills across developers/computers
 
+> **Status:** REFERENCE - how to make a custom Claude Code skill shared across developers.
+
 How to make a custom `/trigger-name` action (e.g. `/monitor-error-logs`, see
 `log-monitoring.md`) work the same way for every developer, on every computer, every
 time this repo is checked out — not just on the machine it was first written on.

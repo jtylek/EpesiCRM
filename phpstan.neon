@@ -39,6 +39,12 @@ parameters:
         - modules/Libs/RoundCube/RC/plugins/*
         - modules/Tests/*
         - modules/Base/Theme/smarty/*
+        # Separately-licensed, gitignored nested git repos (see CLAUDE.md's Environment quirks).
+        # CI checks out neither, so analysing them locally produced a baseline that could never
+        # match CI's - the mismatch this file's own note below complained about. Excluding them
+        # makes a local run reproduce CI exactly. Each is its own repo and runs its own checks.
+        - modules/Premium/*
+        - modules/Custom/*
         # nested composer installs (own composer.json under these dirs, populated by
         # composer.json's post-install-cmd) - third-party code, not ours to fix. Kept in
         # scanDirectories above so Epesi code calling into TCPDF/PhpSpreadsheet/Fetch still

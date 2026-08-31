@@ -1,5 +1,7 @@
 # Log monitoring — example setup
 
+> **Status:** REFERENCE - one developer's setup. A template, not a standard; paths vary per machine.
+
 Log paths, XAMPP/Apache config, and OS all vary by machine and developer, so there's no
 single "correct" set of logs to tail — **this file documents one developer's working
 setup as a worked example**, not a prescribed standard. If you're setting up monitoring

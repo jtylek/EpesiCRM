@@ -1,5 +1,7 @@
 # How the sidebar/left menu works
 
+> **Status:** REFERENCE - sidebar/menu internals. Written 2026-08-14.
+
 Notes from a 2026-08-14 investigation into the AdminLTE sidebar menu, done ahead of
 planning a menu search/filter feature. Facts as of that date — verify against current
 code before relying on line numbers for anything consequential.

@@ -1,5 +1,7 @@
 # Known TODO/FIXME/XXX markers (audited 2026-08-04)
 
+> **Status:** AUDIT, dated 2026-08-04 - every TODO/FIXME/XXX marker in Epesi's own code, re-verified as still open at that date.
+
 A full-repo scan for `TODO`/`FIXME`/`XXX:` in Epesi's own code (excluding vendored
 third-party code — `vendor/`, `modules/Libs/RoundCube/RC/`, `modules/Libs/TCPDF/vendor/`,
 `libs/adodb/`, `libs/minify/`, `modules/Libs/Codepress/`, `modules/Base/Mail/class.phpmailer.php`).

@@ -107,6 +107,55 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		return array_key_exists($internal_id, $subs) ? $subs[$internal_id] : false;
 	}
 
+	// Second half of the same N+1 the (category, user) subscription cache above fixed.
+	// Removing the per-row *subscription* query left user_check_if_notified()'s other
+	// per-row query - 'SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=? AND
+	// category_id=?' - still running once per subscribed row (20 of 168 queries on a
+	// 20-row Contacts: Browse, measured 2026-08-31). The subscription map already tells
+	// us the exact internal_id set that can reach this point, so one grouped query over
+	// that set answers every row. Keyed by category only: the set of ids is a property of
+	// the category snapshot, not of the asking user.
+	private static $last_event_cache = array();
+	private static function _last_event($category_id, $internal_id, array $known_ids) {
+		if (!isset(self::$last_event_cache[$category_id])) {
+			self::$last_event_cache[$category_id] = array();
+			if ($known_ids) {
+				$ids = array_map('intval', $known_ids);
+				self::$last_event_cache[$category_id] = DB::GetAssoc(
+					'SELECT internal_id, MAX(id) FROM utils_watchdog_event WHERE category_id=%d AND internal_id IN ('
+						. implode(',', $ids) . ') GROUP BY internal_id',
+					array($category_id)
+				);
+			}
+		}
+		if (array_key_exists($internal_id, self::$last_event_cache[$category_id]))
+			return self::$last_event_cache[$category_id][$internal_id];
+		// Self-healing fallback, same shape as Utils_CommonDataCommon::load_tree()'s: an
+		// id outside the snapshot (subscribed after it was taken, or a caller reaching
+		// here by another route) still resolves, just with its own query.
+		$ret = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($internal_id, $category_id));
+		return self::$last_event_cache[$category_id][$internal_id] = $ret;
+	}
+
+	// new_event() writes a row that _last_event()'s snapshot would then be stale about
+	// for the rest of the request. Cheap to drop the whole category rather than patch one
+	// entry - events are written far less often than the grids read them.
+	private static function _clear_last_event_cache($category_id) {
+		unset(self::$last_event_cache[$category_id]);
+	}
+
+	// Drops both request-scoped snapshots for one category. Every mutator of
+	// utils_watchdog_subscription calls this: subscribe/unsubscribe/notified within the
+	// same request must be visible to the next read, exactly the read-after-write
+	// requirement AI-shared/performance-profiling.md records for get_record()'s cache.
+	// (The subscription snapshot has been in place since 2026-08-28 without this - a
+	// latent stale read that only became load-bearing once _last_event() started deriving
+	// its own id set from it.)
+	private static function _clear_subscription_cache($category_id) {
+		unset(self::$subscription_cache[$category_id]);
+		unset(self::$last_event_cache[$category_id]);
+	}
+
 	public static function category_exists($category_name) {
 		static $cache = null;
 		if (!$cache) {
@@ -135,6 +184,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		DB::Execute('DELETE FROM utils_watchdog_category_subscription WHERE category_id=%d',array($category_id));
 		DB::Execute('DELETE FROM utils_watchdog_subscription WHERE category_id=%d',array($category_id));
 		DB::Execute('DELETE FROM utils_watchdog_event WHERE category_id=%d',array($category_id));
+		self::_clear_subscription_cache($category_id);
 		DB::Execute('DELETE FROM utils_watchdog_category WHERE id=%d',array($category_id));
 	}
 	// *********************************** New event ***************************
@@ -156,6 +206,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		$category_id = self::get_category_id($category_name, false);
 		if (!$category_id) return;
 		DB::Execute('INSERT INTO utils_watchdog_event (category_id, internal_id, message, event_time) VALUES (%d,%d,%s,%T)',array($category_id,$id,$message,time()));
+		self::_clear_last_event_cache($category_id);
 		$event_id = DB::Insert_ID('utils_watchdog_event', 'id');
 		$count = DB::GetOne('SELECT COUNT(*) FROM utils_watchdog_event WHERE category_id=%d AND internal_id=%d', array($category_id,$id));
 		if ($count==1) {
@@ -225,6 +276,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($time===null) $time=time();
 		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=(SELECT MAX(id) FROM utils_watchdog_event AS uwe WHERE uwe.internal_id=uws.internal_id AND uwe.category_id=uws.category_id AND (event_time<=%T OR event_time IS NULL)) WHERE user_id=%d AND category_id=%d', array($time, $user_id, $category_id));
 		DB::Execute('UPDATE utils_watchdog_subscription AS uws SET last_seen_event=-1 WHERE last_seen_event IS NULL');
+		self::_clear_subscription_cache($category_id);
 	}
 	public static function user_notified($user_id, $category_name, $id) {
 		$category_id = self::get_category_id($category_name);
@@ -234,6 +286,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		DB::Execute('UPDATE utils_watchdog_subscription SET last_seen_event=%d WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($last_event,$user_id,$id,$category_id));
 		$min_last_seen = DB::GetOne('SELECT MIN(last_seen_event) FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d',array($id,$category_id));
 		DB::Execute('DELETE FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d AND (id<%d OR event_time<=%T)', array($id,$category_id,$min_last_seen, date('Y-m-d H:i:s', strtotime('-3 month'))));
+		self::_clear_subscription_cache($category_id);
 	}
 
 	public static function user_subscribe($user_id, $category_name, $id) {
@@ -243,6 +296,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if ($lse===false || $lse===null) $lse=-1;
 		$already_subscribed = DB::GetOne('SELECT last_seen_event FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 		if ($already_subscribed===false || $already_subscribed===null) DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array($lse,$user_id,$id,$category_id));
+		self::_clear_subscription_cache($category_id);
 		if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 		if (self::$log) error_log('User '.$user_id.' subscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
@@ -256,11 +310,14 @@ class Utils_WatchdogCommon extends ModuleCommon {
 			else DB::Execute('INSERT INTO utils_watchdog_category_subscription (user_id, category_id) VALUES (%d,%d)',array($user_id,$category_id));
 		} else {
 			if ($already_subscribed!==false && $already_subscribed!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
-			else { 
+			else {
 				DB::Execute('INSERT INTO utils_watchdog_subscription (last_seen_event, user_id, internal_id, category_id) VALUES (%d,%d,%d,%d)',array(-1,$user_id,$id,$category_id));
+				// notified() -> user_notified() clears the cache itself; the unconditional
+				// clear at the end of this method covers the DELETE branch above.
 				if ($user_id==Acl::get_user()) self::notified($category_name, $id);
 			}
 		}
+		self::_clear_subscription_cache($category_id);
 		if (self::$log) error_log('User '.$user_id.' '.($already_subscribed?'un-':'').'watched '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
@@ -269,6 +326,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$category_id) return;
 		if ($user_id!==null) DB::Execute('DELETE FROM utils_watchdog_subscription WHERE user_id=%d AND internal_id=%d AND category_id=%d',array($user_id,$id,$category_id));
 		else DB::Execute('DELETE FROM utils_watchdog_subscription WHERE internal_id=%d AND category_id=%d',array($id,$category_id));
+		self::_clear_subscription_cache($category_id);
 		if (self::$log) error_log('User '.$user_id.' unsubscribed to '.$category_name.':'.$id."\n",3,'data/subscriptions.log');
 	}
 
@@ -277,7 +335,10 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		if (!$category_id) return;
 		$last_seen = self::_user_last_seen($user_id, $category_id, $id);
 		if ($last_seen===false || $last_seen===null) return null;
-		$last_event = DB::GetOne('SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=%d AND category_id=%d', array($id,$category_id));
+		// _user_last_seen() has just guaranteed the subscription map for this
+		// (category, user) is loaded; its keys are every internal_id that can reach this
+		// line, so _last_event() can resolve them all from one grouped query.
+		$last_event = self::_last_event($category_id, $id, array_keys(self::$subscription_cache[$category_id][$user_id]));
 		if ($last_event===false || $last_event===null) $last_event=-1;
 		if ($last_seen==$last_event || $last_event==-1) return true;
 		$ret = array();

@@ -1,0 +1,142 @@
+name: CI
+
+# The lint/phpstan/rector jobs CLAUDE.md and phpstan.neon have always described.
+# They did not exist until 2026-08-31 - see AI-shared/optimization-plan-opus.md B1.
+#
+# Scope note: modules/Premium/ and modules/Custom/ are gitignored, separately-licensed
+# nested git repos (CLAUDE.md, "Environment quirks"), so they are never present in a CI
+# checkout. phpstan.neon/rector*.php exclude them explicitly so a local run reproduces
+# what CI sees instead of drowning in findings CI can never report.
+
+on:
+  push:
+    branches: [ epesi-adminlte, ess-migration ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: '8.2'
+
+jobs:
+  lint:
+    name: php -l
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      # Vendored third-party trees are excluded: they ship as-is and are not ours to fix
+      # (AI-shared/README.md, "Conventions for investigating/fixing bugs"). Roundcube is
+      # ~35% of modules/ on its own.
+      - name: Lint all first-party PHP
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find include modules admin console \
+            *.php \
+            -name '*.php' \
+            -not -path 'modules/Libs/RoundCube/RC/*' \
+            -not -path '*/vendor/*' \
+            -not -path 'modules/Base/Theme/smarty/*' \
+            -not -path 'modules/Tests/*' \
+            -not -path 'console/Develop/*' \
+            2>/dev/null | sort -u)
+          echo "Linting ${#files[@]} files"
+          rc=0
+          for f in "${files[@]}"; do
+            if ! out=$(php -d error_reporting=E_ALL -l "$f" 2>&1); then
+              echo "::error file=$f::$out"
+              rc=1
+            fi
+          done
+          exit $rc
+
+  phpstan:
+    name: PHPStan (level 0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      # vendor/ is committed to this repo, so the app needs no composer run. The
+      # analysis tools live in their own project (tools/composer.json) precisely so they
+      # stay out of it - see that file for why.
+      - name: Install analysis tools
+        run: composer install -d tools --no-interaction --no-progress
+
+      # The baseline (phpstan-baseline.neon) absorbs the pre-existing findings, so this job
+      # fails only on NEW ones. Regenerate it with --generate-baseline as real bugs get
+      # cleared, so it shrinks over time.
+      - name: Analyse
+        run: tools/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --error-format=github
+
+  rector:
+    name: Rector PHP 8.2 (advisory)
+    runs-on: ubuntu-latest
+    # Advisory only, as documented in rector-php82.php's own header: it surfaces 8.2-level
+    # opportunities for review, it does not gate the build. Rector 2.x also re-prints
+    # whitespace on files it touches, which would fail a blocking job for no real finding.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      - name: Install analysis tools
+        run: composer install -d tools --no-interaction --no-progress
+
+      - name: Dry-run
+        run: tools/vendor/bin/rector process --dry-run --config rector-php82.php --no-progress-bar
+
+  docs:
+    name: Docs match reality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      # CLAUDE.md drifted from the code repeatedly (four wrong facts found 2026-08-31:
+      # two invented console commands, a removed test skeleton, a CI job that did not
+      # exist). Verifiable claims get verified - see AI-shared/optimization-plan-opus.md B4.
+      #
+      # CLAUDE.md only, deliberately: it is the file Claude Code auto-loads every session
+      # and the one that must be trustworthy. AI-shared/ is explicitly allowed to contain
+      # approved-but-unimplemented plans (release-packaging-plan.md names an `update:apply`
+      # command that does not exist yet, correctly), so the same check there would be noise.
+      - name: Every console.php command named in CLAUDE.md must exist
+        run: |
+          set -euo pipefail
+          # console.php needs no DB connection to print its command list.
+          php console.php list --no-ansi 2>/dev/null \
+            | grep -oE '^\s{2,}[a-z]+(:[a-z:]+)+' | tr -d ' ' | sort -u > actual-commands.txt
+          echo "console.php exposes $(wc -l < actual-commands.txt) commands"
+          rc=0
+          # No pipe into the loop: a `while read` in a pipeline runs in a subshell and
+          # would throw away rc.
+          for cmd in $(grep -ohE 'console\.php [a-z]+(:[a-z:]+)+' CLAUDE.md | sed 's/console\.php //' | sort -u); do
+            if grep -qx "$cmd" actual-commands.txt; then
+              echo "  ok  $cmd"
+            else
+              echo "::error file=CLAUDE.md::documents 'console.php $cmd', which console.php does not expose"
+              rc=1
+            fi
+          done
+          exit $rc

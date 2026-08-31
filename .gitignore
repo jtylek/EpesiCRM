@@ -52,3 +52,9 @@ data/*
 # Personal deployment notes for this developer's own hosting account (domain,
 # paths, repo layout) - not meant to be shared across computers/developers.
 AI-shared/DirectAdmin-git-sync.md
+
+# Static-analysis tooling (tools/composer.json - phpstan, rector), installed
+# separately from the app so the committed vendor/ tree stays production-only.
+# See tools/composer.json for why they are not root dependencies. Run
+# `composer install -d tools` to get them.
+/tools/vendor/

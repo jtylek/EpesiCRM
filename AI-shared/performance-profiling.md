@@ -1,5 +1,7 @@
 # Performance profiling and N+1 query patterns
 
+> **Status:** REFERENCE - how to profile a slow page, plus the N+1 fixes already applied. Read before optimizing anything.
+
 ## How to profile a slow page in this app
 
 Browser devtools' Network tab is misleading here: this app's own `serve.php`
@@ -125,6 +127,26 @@ resolving it incrementally:
   distinct user instead of once per `(user, category, record)` triple. See
   `Utils_WatchdogCommon::_user_last_seen()` in
   `modules/Utils/Watchdog/WatchdogCommon_0.php`.
+
+  > **Correction (2026-08-31): this fix was only half of the N+1.**
+  > `user_check_if_notified()` runs *two* per-row queries, and only the
+  > subscription lookup was batched here. The other one —
+  > `SELECT MAX(id) FROM utils_watchdog_event WHERE internal_id=? AND
+  > category_id=?` at what is now `WatchdogCommon_0.php:284` — kept running once
+  > per subscribed row, and was still 20 of the 168 queries on a 20-row
+  > Contacts: Browse three months later. Fixed 2026-08-31 by
+  > `_last_event()`, which batches it over the internal_id set the subscription
+  > map already provides. **The lesson worth carrying:** when a profiler
+  > attributes N queries to one function, check whether that function issues
+  > more than one query per call before declaring the N+1 closed — grouping by
+  > caller file:line hides a second query inside the same callee.
+  >
+  > The same pass also added the invalidation this cache never had:
+  > `user_subscribe()`/`user_unsubscribe()`/`user_notified()`/
+  > `user_purge_notifications()`/`unregister_category()` all mutate
+  > `utils_watchdog_subscription` and none of them cleared the snapshot, so a
+  > same-request subscribe-then-read returned stale data. See
+  > `_clear_subscription_cache()`.
 - CommonData: since `utils_commondata_tree` is small, slowly-changing
   reference data, load the *entire* table once per request
   (`Utils_CommonDataCommon::load_tree()` in
@@ -473,3 +495,109 @@ explanation). Not fixed, because that screen is rarely visited compared to
 everyday grids like Companies/Contacts — logged here so a future session
 doesn't have to re-derive the same trace if it comes up again (e.g. slow
 Store screen complaints, or wanting to cache the store catalog response).
+
+## Fixed: three more grid N+1s + the notification poller (2026-08-31)
+
+Profiling **Contacts: Browse** (20 rows) found 168 queries / 0.0885s SQL of a
+0.283s render — only 31% SQL, so ~69% was PHP. Grouping the SQL panel by caller
+showed **99 of 168 queries came from four call sites**, all the per-row-formatter
+shape this document already describes:
+
+| Count | Call site | Nature |
+|---|---|---|
+| 40x | `RecordBrowserCommon_0.php:2124` (`get_record_info()`) | 2 queries × 20 rows |
+| 20x | `WatchdogCommon_0.php:330` (`check_if_notified()`) | residual `MAX(id)`, see the correction above |
+| 20x | `RoundcubeCommon_0.php:50` (`get_mailto_link()`) | **identical** query, 20× |
+| 19x | `ContactsCommon_0.php:134` (`get_company()`) | one company at a time |
+
+**Fixed (three of the four):**
+
+1. **`CRM_RoundcubeCommon`** — `get_mailto_link()` ran
+   `get_records_count('rc_accounts', ['epesi_user' => Acl::get_user()])` once per
+   e-mail cell. That call takes **no per-row argument at all** — same table, same
+   user, same criteria every time — and `get_records_count()` has no cache
+   (`RecordBrowserCommon_0.php:1672`), so each one was a fresh `build_query()` +
+   `COUNT(*)`. Now a `user_has_mail_account()` memo keyed by user id, shared with
+   `attachment_getters()`/`file_field_getters()` which ran the same query.
+   **20 → 1.** The debug panel's duplicate-args underline had been flagging all 20
+   as exact repeats — worth reading as the strong signal it is.
+2. **`Utils_RecordBrowserCommon::prefetch_record_info($tab, $ids)`** — new. The
+   per-id cache from 2026-08-29 removed repeats but every grid row is a *distinct*
+   id, so the page still paid 2 queries per row. `RecordBrowser_0.php`'s render loop
+   now warms the whole page in two grouped queries first. Pure warm-up: uncovered
+   ids still fall through to the per-id path, and rows with no `_data_1` row are
+   deliberately left uncached so `get_record_info()`'s `trigger_error()` still fires.
+   **40 → 2.**
+3. **`Utils_WatchdogCommon::_last_event()`** — see the correction above. **20 → 1.**
+
+**Not fixed:** `CRM_ContactsCommon::get_company()` (19x). Genuinely distinct ids, so
+it needs the same prefetch treatment as (2), but the linked-company ids are not as
+cleanly available before the loop. Left as the next one to take.
+
+**Result** (Contacts: Browse): **168 → 91 queries**, SQL 0.0885s → 0.0462s, render
+0.283s → 0.245s. Companies/Tasks/Phonecalls/Meetings all landed at 72-81 queries.
+Note the render time moved much less than the query count — a direct consequence of
+SQL being under a third of the total. **The remaining ~0.10s of non-SQL time inside
+`Utils_RecordBrowser` is now clearly the main target, and it has never been
+function-profiled.** Do that (Xdebug/Excimer on one `process.php`) before optimizing
+further; `MODULE_TIMES`/`SQL_TIMES` cannot see inside it.
+
+**Verification** (both scripted, not eyeballed):
+- `prefetch_record_info()` vs. the per-id path across 240 records in 4 tables
+  (contact/company/task/phonecall): byte-identical for all 240, 120 queries → 2 per
+  table. Also cross-checked one record's rendered tooltip against the DB, and a
+  record *with* edit history against a raw `ORDER BY edited_on DESC LIMIT 1`.
+- `user_check_if_notified()` before/after across all 500 real subscriptions in 7
+  categories: identical for all 500.
+
+### Fixed: `Base/Notify/refresh.php` bootstrapped the whole app to say "nothing new"
+
+The browser polls this endpoint every 30s (`Base_NotifyCommon::refresh_rate`) and the
+server rejects anything earlier — but the rejection happened *after*
+`ModuleManager::load_modules()`, i.e. after loading all ~95 modules / ~150 files.
+Measured: **8 requests, 637ms**, the largest cost on the page after `process.php`.
+
+Fixed with a pre-bootstrap early-out that reproduces just enough of
+`get_session_token()` + `is_refresh_due()` to prove a poll is early, using the session
+and one query. **Deliberately fail-open** — it exits only when it can positively show
+the poll is too early; anything unexpected falls through to the original path.
+
+Two subtleties that cost a round trip each and are easy to get wrong again:
+- **one_cache mode.** `get_session_token()` finds the row by `single_cache_uid`, not
+  by `md5(user_id.'__'.session_id)`. Probing only the derived token silently
+  fail-opens for every session except the one that created the row — which is
+  precisely the multi-session case one_cache exists for. The probe matches either.
+- **`telegram=0` is mandatory, not cosmetic.** Telegram rows also carry
+  `single_cache_uid` but run on `refresh_rate_telegram` (300s), so letting one match
+  answers this poller with the wrong cycle's timestamp.
+
+**Result:** ~80ms (max 147ms) → **~11-13ms** when not due; unchanged when it is.
+Verified by forcing `last_refresh=0`, confirming the next poll took the full path
+(84ms) and restored its own timestamp, then that subsequent polls went fast again.
+
+`Utils/RecordBrowser/indexer.php` already used this shape (an mtime guard ahead of
+`load_modules()`) — it is the model to copy for `Apps/Shoutbox/refresh.php` and
+`Utils/Messenger/refresh.php`, which still pay the full bootstrap.
+
+### Known, NOT fixed: 240 hidden `<img>` elements are downloaded per grid page
+
+The plan that drove this pass assumed the grids' row-action icons were still PNGs
+that wanted converting to `bootstrap_icon()`. **That premise was wrong, and the
+reality is worse.** Under adminltedark the icons are *already* Bootstrap Icons
+glyphs — but they are drawn by CSS `::before` on the `<a>`, selected via
+`[src*=...]` attribute matching on an `<img>` that is then `display:none`
+(`GenericBrowser/theme_adminltedark/default.css`, the long commented block around
+line 510).
+
+So each grid page emits ~240 `<img>` elements (≈25 distinct URLs), the browser
+downloads every one of them (`display:none` does not prevent fetching — confirmed
+live: `complete: true, naturalWidth: 14`), and not one is ever shown.
+
+**Why it was not fixed here:** removing the `<img>` breaks every one of those
+`[src*=...]` CSS selectors, so it is a coordinated PHP + CSS change
+(`GenericBrowser_0.php:939-942` emits `<i class="bi ...">`, and the matching
+`::before` rules come out), not a one-sided edit. That CSS block's own comments
+document two previous attempts at this area that were gotten wrong and had to be
+fixed after a user report, and a half-done version visibly breaks every grid in the
+app. Worth doing deliberately, with visual verification at desktop and mobile widths
+in both themes — not as a drive-by.

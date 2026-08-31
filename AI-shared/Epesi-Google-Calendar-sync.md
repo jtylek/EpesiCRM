@@ -1,5 +1,7 @@
 # Google Calendar Sync — approved design (2026-08-24)
 
+> **Status:** PLAN - approved design, NOT implemented. modules/CRM/GoogleCalendarSync/ does not exist yet.
+
 Approved plan for a new installable module, `modules/CRM/GoogleCalendarSync/`, that pushes each user's
 Epesi meetings to their own Google Calendar. Not yet implemented — this is the design to build from,
 checked in ahead of the code so the shape survives a context reset / different machine picking up the
@@ -92,7 +94,7 @@ tab/session. Both `connect()` (building the "Connect" link) and `admin()` (displ
 into Google Cloud Console) call this same helper, so they always agree.
 
 **Remaining next steps, in order:** (1) `php -l` already clean on all three files — run
-`vendor/bin/phpstan analyse -c phpstan.neon` too once phpstan is available in this environment (it
+`tools/vendor/bin/phpstan analyse -c phpstan.neon` too (phpstan is available as of 2026-08-31 - `composer install -d tools`) (it
 isn't currently installed here); (2) `console.php module:install CRM/GoogleCalendarSync`, confirm both
 tables + the ACL permission get created; (3) get a real Google Cloud OAuth Client ID/Secret from the
 user (enable the Calendar API, Web-application credential type) and work through the "Verification"
@@ -294,7 +296,7 @@ config screen (install-wide), both gated by `Base_AclCommon::check_permission('G
 ## Verification (once built)
 
 1. `php -l` every new PHP file (`/c/xampp82/php/php.exe` on Windows) — done, clean.
-   `vendor/bin/phpstan analyse -c phpstan.neon` still needs to run once phpstan is available (not
+   `tools/vendor/bin/phpstan analyse -c phpstan.neon` still needs to run (phpstan available as of 2026-08-31) (not
    installed in this environment as of 2026-08-28).
 2. `php console.php module:install CRM/GoogleCalendarSync` — confirm tables + ACL permission created.
    Not yet run.

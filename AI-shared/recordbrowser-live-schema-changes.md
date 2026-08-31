@@ -1,5 +1,7 @@
 # Evolving an in-development RecordBrowser module without losing data
 
+> **Status:** REFERENCE - evolving a RecordBrowser schema without losing real data.
+
 `AI-shared/Dev-Tutorial.md` §8 correctly says: while a module is still pre-launch
 (nothing installed anywhere else), don't write patches for every schema change — just
 edit `install()`/`uninstall()` and reinstall through Setup/`console.php module:uninstall`

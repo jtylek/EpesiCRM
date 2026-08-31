@@ -1,5 +1,7 @@
 # Premium/Import guided wizard — plan
 
+> **Status:** PLAN - approved, NOT implemented.
+
 Planned and approved 2026-08-18. Extends into a shared `Utils_Wizard` AdminLTE template used by both
 `Premium/Import` and `FirstRun`.
 

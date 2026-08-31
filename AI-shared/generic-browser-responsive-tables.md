@@ -1,5 +1,7 @@
 # Utils_GenericBrowser mobile/responsive table (implemented on `mobile-gb`, unverified)
 
+> **Status:** DONE - merged into epesi-adminlte as e6a18586f; the CSS is live in GenericBrowser/theme_adminltedark/default.css. (Earlier "not yet merged" note was stale.)
+
 **Status as of 2026-08-11: implemented on the `mobile-gb` branch; visual verification
 found the mobile_cols/favs-watchdog bug documented below (now fixed), not yet re-verified
 in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`

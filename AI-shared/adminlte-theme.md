@@ -1,5 +1,7 @@
 # AdminLTE theme(s) status
 
+> **Status:** IN PROGRESS - status of the adminlte/adminltedark themes: what is themed, what is not, and the recurring CSS/JS traps.
+
 ## Base font size centralized into `--epesi-font-size-base`, bumped 13px → 14px (2026-08-29)
 
 An earlier pass (per explicit request) shrank the app's default body/text size to 13px.

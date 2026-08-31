@@ -146,14 +146,30 @@ module.
 ```bash
 git clone https://github.com/jtylek/epesi.git
 cd epesi
-composer install
+composer install            # the app itself
+composer install -d tools   # once: PHPStan + Rector, used by CI and by `php -l`-adjacent checks
 ```
 
 Requires a LAMP-style stack — PHP 8.0+ (8.2 recommended) and MySQL or PostgreSQL.
 Point your web server's document root at the checkout and open it in a browser to run
-the setup wizard. See
-[`CLAUDE.md`](CLAUDE.md) for the full architecture, local commands (lint, static
-analysis, console tooling), and environment notes.
+the setup wizard.
+
+**Why the second command:** the app's own `vendor/` is committed to the repo, so a
+deployment needs no Composer run at all. The static-analysis tools are a different
+matter — they're ~68 MB, they're dev-only, and they'd end up in every release package —
+so they live in their own project under [`tools/`](tools/) with a gitignored
+`tools/vendor/`. `tools/composer.lock` *is* committed, so everyone gets the same pinned
+versions. Run it once per clone and then:
+
+```bash
+tools/vendor/bin/phpstan analyse -c phpstan.neon
+tools/vendor/bin/rector process --dry-run --config rector-php82.php
+```
+
+Both also run in CI on every push and pull request
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)), alongside `php -l` over all
+first-party code. See [`CLAUDE.md`](CLAUDE.md) for the full architecture, local commands,
+and environment notes.
 
 ## Documentation map
 

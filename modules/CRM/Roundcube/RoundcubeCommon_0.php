@@ -41,14 +41,35 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         Base_User_SettingsCommon::save('CRM_Roundcube', 'standard_mailto', $value);
     }
 
+    /**
+     * Does the current user have any mail account configured?
+     *
+     * Request-scoped memo, keyed by user id. get_mailto_link() below is a grid column
+     * formatter - it runs once per visible e-mail cell, and the query it used to issue
+     * directly takes no per-row argument at all, so a 20-row Contacts: Browse spent 20
+     * identical build_query()+COUNT(*) round trips answering the same question. Keyed by
+     * user rather than cached as a bare bool because Acl::get_user() genuinely changes
+     * mid-request on some paths (e.g. Utils/RecordBrowser/indexer.php's set_sa_user()).
+     *
+     * Request-scoped only, same discipline as the other grid caches - see
+     * AI-shared/performance-profiling.md.
+     */
+    private static function user_has_mail_account() {
+        static $cache = array();
+        $uid = Acl::get_user();
+        if (!isset($cache[$uid])) {
+            $cache[$uid] = (bool) Utils_RecordBrowserCommon::get_records_count('rc_accounts', array('epesi_user' => $uid));
+        }
+        return $cache[$uid];
+    }
+
 	public static function get_mailto_link($v) {
         if(isset($_REQUEST['rc_mailto'])) {
             Base_BoxCommon::push_module(CRM_Roundcube::module_name(),'new_mail',array($_REQUEST['rc_mailto']));
             unset($_REQUEST['rc_mailto']);
         }
         if (!CRM_RoundcubeCommon::use_standard_mailto()) {
-            $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
-            if($ret) {
+            if(self::user_has_mail_account()) {
                 return '<a '.Module::create_href(array('rc_mailto'=>$v)).'>'.$v.'</a>';
             }
         }
@@ -56,14 +77,12 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
 	}
 
 	public static function attachment_getters() {
-	        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
-		if($ret)
+		if(self::user_has_mail_account())
 			return array(_M('Mail')=>array('func'=>'mail_file','icon'=>Base_ThemeCommon::get_template_file(CRM_Roundcube::module_name(), 'icon.png')));
 	}
 
     public static function file_field_getters() {
-        $ret = Utils_RecordBrowserCommon::get_records_count('rc_accounts',array('epesi_user'=>Acl::get_user()));
-        if($ret)
+        if(self::user_has_mail_account())
             // 'icon' (a PNG) is the legacy-theme fallback; 'bi' is a Bootstrap
             // icon class name, used by Utils_FileStorage's AdminLTE-dark
             // download.tpl instead of the PNG where supported.

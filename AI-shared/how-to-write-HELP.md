@@ -1,5 +1,7 @@
 # How to write a Base_Help entry for a module (2026-08-28)
 
+> **Status:** REFERENCE - how to add a Base_Help tutorial entry.
+
 `Base_Help` (F1 / Support → Help, or the navbar Help icon on the default theme) is a
 search box over guided, coach-mark-style tutorials contributed by *other* modules — it
 ships with no content of its own. This doc is what it took to get the very first new

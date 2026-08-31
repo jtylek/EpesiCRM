@@ -1,5 +1,7 @@
 # Dependency upgrades (composer)
 
+> **Status:** FINDINGS, dated 2026-08-24 - composer upgrade results. Read before re-attempting a TCPDF or Symfony bump.
+
 Findings from bumping composer dependencies flagged by GitHub Dependabot, so the next
 upgrade pass doesn't re-discover the same platform blockers and breaking-API changes from
 scratch. This repo has **no automated test suite** (`codeception.yml`/`tests/` are an empty

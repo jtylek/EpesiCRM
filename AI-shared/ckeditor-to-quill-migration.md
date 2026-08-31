@@ -1,5 +1,7 @@
 # CKEditor → Quill migration
 
+> **Status:** DONE - merged as 8d47bec1, plus a 2026-08-12 toolbar-switch follow-up. modules/Libs/CKEditor/ keeps 2 inert wrappers on purpose.
+
 **Status as of 2026-08-11: done, on branch `ckeditor-to-quill` (off `jasiek`), not yet
 merged.** Triggered by a real mobile bug the same night: `ck.js` crashed on a `null`
 tracked CKEditor instance (a failed `CKEDITOR.replace()`, more likely on mobile/touch -

@@ -1,5 +1,7 @@
 # CRM_Mail: password encryption at rest + Gmail OAuth account type — plan (2026-08-29)
 
+> **Status:** PLAN - Phase 1 (password encryption at rest) NOT implemented; Gmail OAuth deferred. Gmail already works via an app-specific password.
+
 Written in response to a request to plan (1) encrypting the plaintext IMAP/SMTP passwords `CRM_Mail`
 (`modules/CRM/Mail/`) stores in `rc_accounts`, and (2) adding a second "Gmail (OAuth)" account type alongside
 today's plain-IMAP account, so no password is stored for Gmail accounts at all. Two phases, phase 1 is
@@ -14,7 +16,7 @@ round-trip the stored value into the edit form (blank-on-edit, masked-on-view, r
 needed); `get_unread_messages()`, `get_connection()`, and `modules/Libs/RoundCube/RC/config/config.inc.php`
 (covers both autologon plugins transitively, since they read the same `$account` global) all decrypt at
 point of use. Migration patch: `modules/CRM/Mail/patches/20260829_encrypt_account_passwords.php`. `php -l`
-clean on every changed/new file; `vendor/bin/phpstan` still not installed in this environment (same gap
+clean on every changed/new file; `vendor/bin/phpstan` still not installed in this environment [RESOLVED 2026-08-31: installed via `composer install -d tools`, run it as `tools/vendor/bin/phpstan`] (same gap
 noted in `Epesi-Google-Calendar-sync.md`). Not yet verified against a real running instance — see Phase 1's
 verification checklist below before considering this fully done.
 
