@@ -658,8 +658,14 @@ class Apps_Shoutbox extends Module {
 
 		//if shoutbox is diplayed, call myFunctions->refresh from refresh.php file every 5s
 		eval_js_once('shoutbox_refresh'.($big?'_big':'').' = function(){if(!document.getElementById(\'shoutbox_board'.($big?'_big':'').'\')) return;'.
+			// Shoutbox needs this most: its response is never empty - it re-renders the
+			// last 20 messages every time - so unlike Notify and Messenger it has no
+			// server-side early-out to fall back on, and at 10-30s it is the fastest
+			// timer of the four.
+			'if(document.hidden) return;'.
 			'jQuery(\'#shoutbox_board'.($big?'_big':'').'\').load(\'modules/Apps/Shoutbox/refresh.php?uid=\'+encodeURIComponent(shoutbox_uid));'.
-			'};setInterval(\'shoutbox_refresh'.($big?'_big':'').'()\','.($big?'10000':'30000').')');
+			'};document.addEventListener(\'visibilitychange\',function(){if(!document.hidden) shoutbox_refresh'.($big?'_big':'').'();});'.
+			'setInterval(\'shoutbox_refresh'.($big?'_big':'').'()\','.($big?'10000':'30000').')');
 		eval_js('shoutbox_refresh'.($big?'_big':'').'()');
 	}
 

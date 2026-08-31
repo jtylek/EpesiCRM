@@ -137,7 +137,12 @@ class Utils_MessengerCommon extends ModuleCommon {
 }
 
 eval_js_once('utils_messenger_on = true; utils_messenger_refresh = function(){'.
+			// A hidden tab cannot show the alarm's confirm dialog anyway, and every poll
+			// skipped is a whole request not served. The visibilitychange listener below
+			// runs one on the way back, so a returning tab does not wait out the 180s.
+			'if(document.hidden) return;'.
 			'if(utils_messenger_on) jQuery.ajax(\'modules/Utils/Messenger/refresh.php\',{method:\'get\',dataType:\'script\'});'.
-			'};setInterval(\'utils_messenger_refresh()\',180000);utils_messenger_refresh()');
+			'};document.addEventListener(\'visibilitychange\',function(){if(!document.hidden) utils_messenger_refresh();});'.
+			'setInterval(\'utils_messenger_refresh()\',180000);utils_messenger_refresh()');
 
 ?>

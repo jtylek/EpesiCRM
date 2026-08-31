@@ -1,6 +1,6 @@
 # Optimization plan (Opus session, 2026-08-31)
 
-> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in section 8, 9 and 10); Tier 3 is untouched by design.
+> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in sections 8, 9 and 10). Tier 3 started in section 11: A2.3 shipped, 3.1 recommended for striking on measurement, 3.2/3.4 still open.
 
 A performance + developer-experience plan for this Epesi checkout, written from
 measurements taken on this machine rather than from reading code alone. Every number
@@ -963,3 +963,87 @@ have been silently truncated and then reported as missing).
 previous behaviour when unset, or documentation — nothing changes stored or seed data. The
 one thing an existing install may want after upgrading is unrelated and already recorded:
 §66's stale `temp/data/cache/common.php`.
+
+---
+
+## 11. Tier 3, first pass (2026-08-31, branch `optimization`)
+
+Measured before building, per §9's lesson. The headline finding is that **3.1 no longer
+earns its risk**, and the reason is that Tier 1 already took its payoff.
+
+### The numbers this pass rests on
+
+Web SAPI (opcache on), steady state, this machine. CLI numbers are useless here — opcache
+is off for CLI, which inflates every file-loading figure by 4-5x. Take these under Apache
+or not at all.
+
+| Phase | Cost |
+|---|---|
+| `include.php` bootstrap — what an early-out poll pays | ~6.5 ms |
+| `load_modules()` | ~13.5 ms (bundle) / ~17 ms (per-module) |
+| Full poll (bootstrap + `load_modules()`) | ~20 ms |
+| `load_modules()` split: file loading | ~12 ms |
+| `load_modules()` split: registration + bookkeeping | ~2.2 ms |
+
+Two things follow that the plan did not know:
+
+- **`load_modules()` is class-declaration *execution*, not parsing.** opcache caches
+  compilation, not binding, so 95 files' worth of class declarations still cost ~12 ms
+  every request. That is why `FORCE_CACHE_COMMON_FILES` — 71 `require`s down to 1 — buys
+  only ~3 ms rather than the order of magnitude A3 implies. 3.2's target is real, but it
+  is the *declaration* cost, and any design that still declares all 95 classes will not
+  move it.
+- **A2's remaining cost is nearly gone.** §8 measured these pollers at ~80 ms each because
+  every poll ran the full bootstrap. With 1.4's and §10's early-outs in place the common
+  path is ~6.5 ms.
+
+### 3.1 (coalesce the four pollers): not worth doing, at these numbers
+
+Coalescing removes *duplicate bootstraps*, not work. Notify polls at 30 s and Messenger at
+180 s, so folding Messenger into Notify eliminates ~20 requests/hour/user × ~6.5 ms ≈
+**0.14 s/hour/user**. That is the entire prize, against a refactor that moves four modules'
+JS onto a shared dispatcher and has to reconcile four different response types (Notify
+JSON, Messenger executable JS, Shoutbox HTML into a `.load()` target, indexer a
+self-rescheduling `setTimeout`), three different intervals and two different auth shapes
+(the indexer needs `CID` + a session token and elevates to SA).
+
+Recommend striking 3.1 unless it is re-justified by a measurement, or unless it is wanted
+for a non-performance reason (one dispatcher is a better place to put policy than four
+copies — which is exactly what the item below ran into).
+
+### What shipped instead: A2.3, which was never given a tier number
+
+A2 listed three fixes. A2.1 became 1.4 and shipped; A2.2 became 3.1; **A2.3 — back off when
+the tab is hidden — was never placed in any tier**, despite being the cheapest item in the
+section. It is also, now, the largest remaining saving in it: a hidden tab keeps polling,
+and browsers throttle background timers without stopping them. A CRM user with five tabs
+open runs five sets of pollers; gating on `document.hidden` takes that to one.
+
+Shipped for the three *status* pollers, each with a `visibilitychange` listener that fires
+one refresh on the way back so a returning tab does not wait out its interval:
+
+| Poller | Interval | Note |
+|---|---|---|
+| `Base_Notify` (`js/main.js`) | 30 s | A hidden tab has nobody to show a notification to. |
+| `Utils_Messenger` | 180 s | A hidden tab cannot show the alarm's confirm dialog. |
+| `Apps_Shoutbox` | 10-30 s | **The one that needed it most** — its response is never empty (it re-renders the last 20 messages), so it is the one poller with no server-side early-out available, and it has the fastest timer. This is also the answer to §10's "Shoutbox cannot copy 1.4's early-out": it cannot, but it can decline to ask. |
+
+`Utils/RecordBrowser/indexer.php` is deliberately **not** gated. It is not a status poller —
+it indexes 30 records per run and reschedules itself. Gating it would pause real work
+whenever every tab happened to be hidden. The line drawn is: gate pollers that ask "is
+there anything for me?", never work queues.
+
+Verified: `php -l` on both PHP files, and the *generated* JavaScript for all three (both
+Shoutbox `$big` variants) extracted and parsed with `node --check` — the concatenation is
+where this shape of code usually breaks, not the PHP.
+
+Not measurable from the CLI: the saving is per hidden tab, so it wants the §7 browser
+procedure with several tabs open to quantify.
+
+### Still open after this pass
+
+- **3.2** — unchanged in value, better understood: the target is ~12 ms of class-declaration
+  execution per request, and the bundle is not a substitute for it.
+- **3.4** — untouched.
+- **3.1** — recommend striking; see above.
+- **3.3** — already answered in §10 (no hotspot left to aim at).
