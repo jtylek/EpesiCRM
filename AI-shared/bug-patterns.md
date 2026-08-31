@@ -64,6 +64,7 @@ assuming a fresh bug - most entries here were originally diagnosed as something 
 - [A cache written but never read, because "skip" is the default](#a-cache-thats-written-but-never-read-because-the-skip-cache-flag-defaults-to-skip)
 - [Batching a per-row query flips every integer column to string](#replacing-a-per-row-query-with-a-batched-one-silently-changes-every-integer-columns-php-type-because-bound-and-unbound-adodb-queries-type-results-differently-2026-08-31)
 - [Cache/scratch writes defaulting to `DATA_DIR` instead of `TEMP_DIR`](#runtime-cachescratch-file-call-sites-default-to-data_dir-instead-of-temp_dir)
+- [A raw `require_once` of a Common file defeats the common-bundle guard](#a-raw-require_once-of-a-common-file-defeats-the-force_cache_common_files-guard-and-takes-the-whole-app-down-2026-08-31)
 
 **Environment & config**
 
@@ -2614,3 +2615,50 @@ start/stop timer, an `ob_start()`/`ob_get_clean()`, an open/close, a lock/unlock
 counter's initialise/read. Constants make that pairing implicit and free; a variable does
 not. The count matters here: `SQL_TIMES` had 40 call sites and `MODULE_TIMES` 7, and only
 3 of the 47 were pairs that could span a flip.
+
+
+## A raw `require_once` of a Common file defeats the `FORCE_CACHE_COMMON_FILES` guard, and takes the whole app down (2026-08-31)
+
+`FORCE_CACHE_COMMON_FILES` concatenates every installed module's `*Common_0.php` into one
+bundle and `require_once`s that instead of the individual files. `require_once` dedupes by
+*path*, not by the symbols a file declares, so if any Common class is already loaded when
+the bundle is required, the bundle re-declares it and PHP raises `E_COMPILE_ERROR:
+Cannot declare class X, because the name is already in use`. That is fatal for the entire
+request, not just one module.
+
+`ModuleManager::load_modules()` guarded against this with `empty(self::$individually_loaded_commons)`
+— but that array is only written by `include_common()`. **A plain `require_once` of a
+Common file is invisible to it.** There is exactly such a call site, and it is the one the
+bug shows up in: `modules/Libs/RoundCube/RC/config/config.inc.php` bootstraps Epesi
+deliberately lightweight, skipping the module system, and does
+`require_once('modules/CRM/Mail/MailCommon_0.php')` directly to get at password
+decryption. Roundcube's `epesi_init` plugin then calls `load_modules()`, which saw an
+empty array, required the bundle, and fataled on `CRM_MailCommon`. Symptom: **the webmail
+client does not load**, with nothing useful in `data/logs/php_errors.log` — that bootstrap
+sets its own narrow `error_reporting()` and skips Epesi's handler.
+
+The second, more confusing half of the symptom: the visible output was a long row of
+literal `?>?>?>?>…`. `load_modules()` wraps the bundle require in
+`ob_start()`/`ob_end_clean()`, so bundle output is normally discarded. A compile error
+aborts before `ob_end_clean()` runs, and PHP flushes the buffer at shutdown instead — so
+the stray output only becomes visible *because* something else fataled. It is a separate
+latent bug: `create_common_cache()` force-appends `?>` after each file (correctly, since
+files no longer reliably end with a close tag — `MIGRATION_NOTES.md` §66), but 128 files
+*do* still end with one, and two close tags in a row leave everything between them in HTML
+mode. 85 stray `?>` were in the generated bundle.
+
+**How to apply.** Both are fixed (guard now also checks the class table via
+`ModuleManager::any_common_already_declared()`; `create_common_cache()` strips a trailing
+close tag). The transferable lessons:
+
+- **A guard built on your own bookkeeping only sees call sites that used your API.** If
+  the invariant is "is this class loaded", ask PHP (`get_declared_classes()` /
+  `class_exists`), not a private array you maintain. The class-table scan measured
+  0.04 ms against 254 classes — the bookkeeping was not buying speed worth the hole.
+- **A gitignored tree can hold the offending call site.** `modules/Premium/` is invisible
+  to Claude's Grep; this one happened to be in a vendored tree instead. Sweep with plain
+  `grep` (see `CLAUDE.md`).
+- **"The bundle lints clean" is not "the app works".** Both defects survived
+  `php -l` on the generated bundle and a successful `console.php cache:rebuild`; only
+  loading the actual webmail exposed them. Same shape as the `===`/`==` lesson in
+  `optimization-plan-opus.md` §10: a verification is worth exactly what it checked.

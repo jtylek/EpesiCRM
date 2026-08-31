@@ -217,16 +217,24 @@ page reload/incognito test, suspect this **before** the edit itself, a typo,
 or browser/session caching — rebuild the cache (or delete
 `temp/data/cache/common.php`) and retest.
 
-**As of 2026-08-31 this machine has it ON** (`FORCE_CACHE_COMMON_FILES = 1` in
-`data/config.php`, set by Jasiek), matching the new shipped default for fresh
-installs — see below. So the rebuild is no longer an exceptional step to
-remember: **every `Common_0.php` edit on this machine needs a
-`console.php cache:rebuild` (or admin → Clear Cache) before it does
-anything.** That is the deliberate trade — it is the configuration real
-installs run, so bugs that only appear under the bundle (a duplicate `use`,
-a redeclare, anything sensitive to being concatenated into one compilation
-unit — see `modules/CRM/GoogleCalendarSync/GoogleCalendarSyncCommon_0.php:394`)
-now surface here instead of in production.
+**Don't assume which way this machine is set — read `data/config.php`.** It was flipped
+twice on 2026-08-31 alone (on to match the new shipped default, then back off when the
+webmail broke), and it is gitignored, so nothing here can stay authoritative about it.
+What is stable is the consequence: **while it is `1`, every `Common_0.php` edit needs a
+`console.php cache:rebuild` (or admin → Clear Cache) before it does anything at all.**
+
+The upside of running it on locally is that bugs which only appear under the bundle
+surface here instead of in production — anything sensitive to 95 files becoming one
+compilation unit. Two of those are real and were both found this way (see
+`bug-patterns.md`, "A raw `require_once` of a Common file defeats the
+`FORCE_CACHE_COMMON_FILES` guard"):
+
+- a duplicate `use` across two Common files is an instant `E_COMPILE_ERROR` (see
+  `modules/CRM/GoogleCalendarSync/GoogleCalendarSyncCommon_0.php:394`) — `CRM_Calendar`
+  and `Premium_PasswordManager` both import `Symfony\Component\HttpFoundation\Request`,
+  so installing that Premium module still kills the app under the bundle;
+- a Common class already loaded by a raw `require_once` gets re-declared by the bundle.
+  This is what broke the webmail, and it is fixed in `ModuleManager`.
 
 ### History of the default, so it doesn't get flipped a fourth time
 

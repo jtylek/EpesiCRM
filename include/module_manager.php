@@ -31,6 +31,9 @@ class ModuleManager {
 	// whole-bundle require is skipped for this request - require_once dedupes the bundle
 	// file by path, not by the symbols it declares, so blindly requiring it would fatal
 	// with "Cannot redeclare" on anything already loaded this way.
+	// This only sees loads that went through include_common(); a plain require_once()
+	// of a Common file is invisible here, so the same check is also made against the
+	// class table - see any_common_already_declared().
 	private static $individually_loaded_commons = array();
 
 	/**
@@ -873,7 +876,7 @@ class ModuleManager {
 		}
 
 		$cached = false;
-		if(FORCE_CACHE_COMMON_FILES && empty(self::$individually_loaded_commons)) {
+		if(FORCE_CACHE_COMMON_FILES && empty(self::$individually_loaded_commons) && !self::any_common_already_declared()) {
 			$cache_file = TEMP_DIR.'/cache/common.php';
 			if(!file_exists($cache_file))
 				self::create_common_cache();
@@ -954,6 +957,39 @@ class ModuleManager {
 		return false;
 	}
 	
+	/**
+	 * True if any module Common class is already declared.
+	 *
+	 * The $individually_loaded_commons bookkeeping above only sees Commons loaded
+	 * through include_common(). A plain require_once() of a Common file bypasses it
+	 * entirely, and there is such a call site: modules/Libs/RoundCube/RC/config/
+	 * config.inc.php requires MailCommon_0.php directly, because that bootstrap
+	 * deliberately skips the module system. The Roundcube plugin then calls
+	 * load_modules(), which used to see an empty array, require the whole bundle and
+	 * fatal with 'Cannot declare class CRM_MailCommon' - a compile error, so the
+	 * ob_end_clean() below never ran and the buffer PHP flushed at shutdown showed the
+	 * bundle's separators as a row of literal '?>'. That was the webmail breaking
+	 * under FORCE_CACHE_COMMON_FILES=1.
+	 *
+	 * Checking the class table instead of our own bookkeeping catches every such call
+	 * site, including ones in gitignored Premium modules that no sweep here can see.
+	 * Measured at 0.04 ms against 254 declared classes, and a normal request reaches
+	 * load_modules() with none of these declared, so the bundle is not disabled for
+	 * anyone who was getting it before.
+	 *
+	 * Skipping the bundle is safe rather than merely non-fatal: the per-module path it
+	 * falls back to calls include_common(), whose require_once() is a no-op for the
+	 * already-loaded file but still runs the Instance() registration the raw require
+	 * skipped.
+	 */
+	private static function any_common_already_declared() {
+		foreach (get_declared_classes() as $class) {
+			if (substr($class, -6) === 'Common' && is_subclass_of($class, 'ModuleCommon'))
+				return true;
+		}
+		return false;
+	}
+
 	public static final function create_common_cache() {
         if(!FORCE_CACHE_COMMON_FILES) return;
 
@@ -966,7 +1002,13 @@ class ModuleManager {
 			$file = self::get_module_file_name($module);
 			$file_url = 'modules/' . $path . '/' . $file . 'Common_'.$version.'.php';
 			if(file_exists($file_url)) {
-				$ret .= file_get_contents ($file_url);
+				/* Drop a trailing close tag if the file still has one (128 of them do).
+				   The separator below appends its own, and two in a row leave everything
+				   between them in HTML mode - which emitted one literal '?>' per file into
+				   the bundle's output. load_modules() discards that buffer, so it stayed
+				   invisible until something fataled mid-bundle and the buffer was flushed
+				   at shutdown instead. */
+				$ret .= preg_replace('/\?>\s*$/', '', file_get_contents($file_url));
 				/* Files no longer reliably end with a closing PHP close-tag, so force one
 				   here - otherwise the open-tag appended below is parsed as more of the
 				   previous file's (still-open) PHP code instead of a new open tag. */
