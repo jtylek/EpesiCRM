@@ -928,8 +928,14 @@ false under `===`.
   exists to prevent. 3.3 is additionally *answered rather than pending*: §9's profile found
   no single hotspot left in the row loop, so there is no target to optimise until a new
   profile finds one.
-- **2.5's remaining half** — the prod/dev default decision for `FORCE_CACHE_COMMON_FILES`.
-  A decision, not a task; it needs an owner, not an investigation.
+- **2.5 is now closed.** ~~The prod/dev default decision for `FORCE_CACHE_COMMON_FILES`.~~
+  Decided by Jasiek 2026-08-31: **`setup.php` writes `1` for fresh installs again.** Most
+  installs are production installs, and the developer cost is one `console.php
+  cache:rebuild` after a `Common_0.php` edit. `include/config.php`'s fallback deliberately
+  stays `0` — it only governs installs predating the define, and flipping it would change
+  behaviour for existing installs on upgrade, which was not what was decided. The value has
+  now moved twice (`8fa13be19` 1 → `d9283c47a` 0 → this), so the reasoning for each flip is
+  tabulated in `environment-gotchas.md` to stop a fourth round.
 - **PHPStan level 2** — level 1 is in. Level 2 starts checking unknown methods on typed
   expressions, which the missing autoload makes noisy; it wants its own pass, not a config
   bump.
@@ -937,7 +943,13 @@ false under `===`.
   Common-layer invariants, not page totals — `Epesi::process()` needs browser session
   state to render a real screen. Section 7's procedure still applies, minus the
   `config.php` edit it used to require.
-- **Open decision, unchanged:** whether `Dev-Tutorial.md` should reach module developers.
+- **Decision closed (2026-08-31):** `Dev-Tutorial.md` reaches module developers through the
+  git repo, and that is enough. Developers clone; the zipped distribution exists for
+  SourceForge and the Softaculous autoinstaller, whose audience is end users installing the
+  app, not people writing modules. `CreateDistCommand.php`'s `^AI-shared(/|$)` exclusion is
+  therefore correct as-is and needs no counterpart. **Corollary worth remembering:** a
+  released install has no `AI-shared/` on disk, so anything shipped to end users must not
+  point at it — the generated `data/config.php` did, and was reworded here.
 
 ### Note for whoever picks this up
 
@@ -950,4 +962,4 @@ have been silently truncated and then reported as missing).
 **No patch file is needed.** Everything here is code, config *defaults* that reproduce the
 previous behaviour when unset, or documentation — nothing changes stored or seed data. The
 one thing an existing install may want after upgrading is unrelated and already recorded:
-§66's stale `data/cache/common.php`.
+§66's stale `temp/data/cache/common.php`.

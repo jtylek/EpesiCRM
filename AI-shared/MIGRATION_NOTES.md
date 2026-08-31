@@ -1929,12 +1929,12 @@ no-op. Reworked to a **CSS-class toggle** (one icon, no second image):
 
 **Why (Jasiek).** Investigating dashboard/page-load performance, Jasiek enabled `FORCE_CACHE_COMMON_FILES` — an
 existing (default-OFF) perf toggle that concatenates every installed module's `*Common_X.php` into one
-pre-built `data/cache/common.php`, so `ModuleManager::load_modules()` does one `require_once` instead of a
+pre-built `temp/data/cache/common.php`, so `ModuleManager::load_modules()` does one `require_once` instead of a
 `stat()`+`open()` per module (128 files / ~1.1MB of source in this install — measured ~15ms/request of raw
 file-I/O overhead saved). Turning it on immediately broke **every** request that reaches
 `ModuleManager::load_modules()` — i.e. nearly the whole app (`process.php`, `ajax.php`-style refresh endpoints,
 `indexer.php`, etc.) — with `ParseError: syntax error, unexpected token "<", expecting end of file` in the
-generated `data/cache/common.php`.
+generated `temp/data/cache/common.php`.
 
 **Root cause.** `ModuleManager::create_common_cache()`
 ([include/module_manager.php:949](include/module_manager.php)) builds the combined file by looping over every
@@ -1960,12 +1960,12 @@ comment in PHP is terminated by `?>` wherever it appears, not just by the newlin
 comment phrased without literal tag syntax.
 
 **Upgrade-gap note:** pure code fix in a core include, reaches every install on update — no DB patch needed.
-But `data/cache/common.php` is a **stale on-disk artifact**, not stored business data: `create_common_cache()`
+But `temp/data/cache/common.php` is a **stale on-disk artifact**, not stored business data: `create_common_cache()`
 only (re)runs when the file doesn't already exist, so any install that already hit this bug needs its broken
-cache file deleted once (`data/cache/common.php`) after updating, or it'll keep loading the old broken version
+cache file deleted once (`temp/data/cache/common.php`) after updating, or it'll keep loading the old broken version
 forever. Not worth a formal patch (purely a rebuildable cache directory) — noted here instead.
 
-**Verify:** regenerated `data/cache/common.php` (1.26MB) lints clean; full page load + AJAX round-trip
+**Verify:** regenerated `temp/data/cache/common.php` (1.26MB) lints clean; full page load + AJAX round-trip
 (`process.php`, `Utils/RecordBrowser/indexer.php`, `Utils/Messenger/refresh.php`, `Base/Notify/refresh.php`)
 all verified 200 with zero console errors via a real browser, with `FORCE_CACHE_COMMON_FILES=1` live.
 **STATUS: fixed and verified working.**

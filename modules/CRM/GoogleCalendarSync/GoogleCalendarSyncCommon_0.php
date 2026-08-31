@@ -391,7 +391,7 @@ class CRM_GoogleCalendarSyncCommon extends ModuleCommon {
 	}
 
 	// fully-qualified, not `use`-imported: CalendarCommon_0.php already imports Request into
-	// the shared data/cache/common.php compilation unit (see module_manager.php's
+	// the shared temp/data/cache/common.php compilation unit (see module_manager.php's
 	// create_common_cache()), and a duplicate `use` of the same class there is a PHP fatal.
 	public static function oauth_callback(\Symfony\Component\HttpFoundation\Request $request, $args) {
 		$home = rtrim(get_epesi_url(), '/') . '/';

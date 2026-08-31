@@ -602,14 +602,17 @@ define(\'MINIFY_SOURCES\',1);
 
 /*
  * Bundle every module\'s Common_0.php into one cached file
- * (data/cache/common.php) instead of one require per module per request.
- * Real perf win on a production install with many modules, but masks
- * Common_0.php edits until the cache is rebuilt (see
- * AI-shared/environment-gotchas.md) - off by default for fresh installs so
- * active development isn\'t surprised by stale code; a production admin can
- * opt in once the install is stable.
+ * (temp/data/cache/common.php) instead of one require per module per request.
+ * A real win on a production install with many modules, which is what most
+ * installs are - so it is on by default.
+ *
+ * The cost: the bundle is used whenever it exists, with no timestamp check,
+ * so editing any Common_0.php has no effect until the bundle is rebuilt -
+ * Administration -> Clear Cache, or php console.php cache:rebuild. There is
+ * no warning, the old code simply keeps running. Set this to 0 if you
+ * actively develop modules on this install.
  */
-define(\'FORCE_CACHE_COMMON_FILES\',0);
+define(\'FORCE_CACHE_COMMON_FILES\',1);
 
 /*
  * Poll for a shipped JS/CSS fix and prompt long-open tabs to reload (this

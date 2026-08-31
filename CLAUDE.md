@@ -31,10 +31,17 @@ that split and other details.
 - No build step: PHP/theme files are served directly from `modules/` and `theme*/` — there's nothing to
   compile or bundle for normal development.
 - `data/` is the runtime data directory (config, cache, uploads, logs, per-instance state) and is gitignored
-  except for a few shipped defaults; `temp/` holds Smarty compile/cache output and is fully gitignored.
+  except for a few shipped defaults; `temp/` holds Smarty compile output and other generated caches
+  (including the common-file bundle below) and is fully gitignored.
 - `modules/Premium/` is a separately-licensed, gitignored tree (each premium module is its own git repo).
   Claude Code's Grep tool silently skips gitignored paths, so an exhaustive sweep that must include Premium
   needs plain `grep`/`git grep --no-index` via Bash instead.
+- **`Common_0.php` edits need a cache rebuild here.** `FORCE_CACHE_COMMON_FILES` is `1` on this install
+  (and, since 2026-08-31, in what `setup.php` writes for fresh installs), so every module's `*Common_0.php`
+  is served from one bundle, `temp/data/cache/common.php`. The check is `file_exists()`, not a timestamp —
+  so an edit to any `Common_0.php` has **no effect at all**, with no warning, until
+  `php console.php cache:rebuild` (or Administration → Clear Cache). Don't debug a "the edit didn't work"
+  symptom without doing that first; see `AI-shared/environment-gotchas.md` for the full trap.
 
 ## Commands
 

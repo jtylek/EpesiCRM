@@ -2402,7 +2402,7 @@ four call sites wrote regenerable cache to `DATA_DIR . '/cache/...'` instead —
 missed when `TEMP_DIR` was introduced, since Smarty's own compile/cache (set in
 `modules/Base/Theme/ThemeCommon_0.php`) already used it correctly: on-demand-minify cache
 (`serve.php`, `modules/Base/Theme/theme_css.php`), the compiled module-registry cache
-(`data/cache/common.php`, `include/module_manager.php`), the general-purpose `Cache::`
+(`temp/data/cache/common.php`, `include/module_manager.php`), the general-purpose `Cache::`
 store (`data/cache/<INSTALLATION_ID>/`, Phpfastcache Files driver, `include/cache.php`),
 and the asset-version scan cache (`data/cache/asset_version.txt`,
 `epesi_asset_version()` in `include/misc.php`). Fixed 2026-08-29: all four now write under
