@@ -71,7 +71,7 @@ class CreateDistCommand extends Command
             // (copy('htaccess.txt','data/.htaccess')), so removing it would break
             // that step. .htaccess itself (this dev instance's own, already-tuned
             // copy) IS excluded, since setup.php generates the real one fresh.
-            '^(\.htaccess|\.gitignore|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
+            '^(\.htaccess|\.gitattributes|\.gitignore|debug\.php|PEAR\.php|phpstan.*|playbook\.yml|rector.*)$',
             // Static-analysis tooling (tools/composer.json + tools/vendor/, see that
             // file). Same reasoning as phpstan.*/rector.* above - the configs were
             // already excluded, so leaving the tools they configure in the package
@@ -79,6 +79,25 @@ class CreateDistCommand extends Command
             // committed, so the gitignore decision can be revisited without this
             // needing to change.
             '^tools(' . $sep . '|$)',
+            // Internal development notes - the living notes for developers/AI assistants
+            // working ON Epesi, not documentation for people running it. The root-level
+            // "*.md except README.md" rule above only matches root level, so this whole
+            // folder (38 files, ~700 KB - MIGRATION_NOTES.md alone is 243 KB) was
+            // shipping in every release package. Flagged as a gap in
+            // AI-shared/release-packaging-plan.md; closed 2026-08-31.
+            //
+            // This matters beyond size: this command archives the WORKING TREE, not
+            // `git ls-files`, so a gitignored file that happens to exist locally still
+            // ships. AI-shared/DirectAdmin-git-sync.md is gitignored precisely because it
+            // holds one developer's own hosting account details (domain, paths) - without
+            // this rule, building a release on that machine would put them in the zip.
+            //
+            // Nothing at runtime reads this folder (every reference in modules/ is a
+            // source comment), so excluding it cannot affect a running install. README.md
+            // does link into it; those links resolve on GitHub, which is where the README
+            // is actually read, and the package is not where anyone goes for the module
+            // tutorial - `git clone` is.
+            '^AI-shared(' . $sep . '|$)',
         );
         // Guard against the output file landing inside the tree being archived
         // (e.g. a bare filename with no path) and trying to zip itself.

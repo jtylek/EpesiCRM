@@ -1,6 +1,6 @@
 # SourceForge release packaging & upgrade plan
 
-> **Status:** PLAN, dated 2026-08-24 - NOT implemented. Names an `update:apply` console command that does not exist yet.
+> **Status:** PLAN, dated 2026-08-24 - mostly NOT implemented; the packaging-exclusion gap (step 1) was closed 2026-08-31. Names an `update:apply` console command that does not exist yet.
 
 Planned 2026-08-24, not yet implemented. Written at Jasiek's request after describing the SourceForge
 (https://sourceforge.net/projects/epesi/) release process: a zip is generated and published there; new
@@ -25,11 +25,24 @@ Two existing pieces are directly relevant — read both before building anything
    already catches `CLAUDE.md`), and a root-tooling group: `.htaccess`, `.gitignore`, `debug.php`,
    `PEAR.php`, `phpstan*`, `playbook.yml`, `rector*` (already catches both `rector.php` and
    `rector-php82.php`).
-   - **Gap found while researching this plan: `AI-shared/` and `.gitattributes` are NOT in the current
+   - ~~**Gap found while researching this plan: `AI-shared/` and `.gitattributes` are NOT in the current
      exclude list**, even though Jasiek named both. First implementation step is adding
      `'^AI-shared(' . $sep . '|$)'` and `.gitattributes` to the `$exclude` array in
      `CreateDistCommand.php` (mirrors the existing `.git`/`.claude`/`.github` entries and the
-     `.htaccess`/`.gitignore` group respectively).
+     `.htaccess`/`.gitignore` group respectively).~~
+     **DONE 2026-08-31** — both added exactly as described, plus `^tools(sep|$)` for the new
+     `tools/` static-analysis project. Verified by building a real package: 38 `AI-shared/`
+     entries and `.gitattributes` gone, `README.md`/`index.php`/`htaccess.txt`/`modules/Tools/`
+     all still present. Two things worth knowing for the rest of this plan:
+     - **`modules/Tools/` is a real, shipped module tree** (SessionKeeper, SetDefaults,
+       WhoIsOnline). The `^` anchor is what keeps `^tools(sep|$)` from eating it — any future
+       exclusion pattern here needs the same care.
+     - **This command archives the working tree, not `git ls-files`**, so a *gitignored* file
+       that exists locally still ships. That is what makes the `AI-shared/` exclusion a
+       correctness fix and not just a size one: `AI-shared/DirectAdmin-git-sync.md` is
+       gitignored because it holds one developer's own hosting account details, and without
+       the folder-level rule, building a release on that machine would have put them in the
+       SourceForge zip.
 2. **`update.php`'s in-app self-updater already solves the exact "leftover files" problem this plan is
    about — for a different distribution channel.** `EpesiPackageDownloader`/`EpesiUpdatePackage`
    (`update.php`) drive an update against `http://ess.epe.si/update.json`: it downloads *both* the package
