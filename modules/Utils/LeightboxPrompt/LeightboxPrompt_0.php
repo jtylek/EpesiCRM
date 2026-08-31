@@ -100,12 +100,12 @@ class Utils_LeightboxPrompt extends Module {
                     $th->assign('id', $this->get_instance_id());
                     $th->display('form');
                     $form_contents = ob_get_clean();
-                    
+
                     $next_button['open'] = '<a ' . $this->get_form_show_href($option_key) . ' ' . $tooltip . '>';
                     $sections[] = '<div id="'.$this->group.'_'.$option_key.'_form_section" class="'.$this->group.'_form_section" style="display:none;">'.$form_contents.'</div>';
                     if ($this->selected_option ===  $option_key)
                     	$active_option = $option_key; // open this selection if selected_option set
-                    
+
                     if ($option['form']->exportValue('submited') && !$option['form']->validate())						
 						$active_option = $option_key; // open this selection if form submitted but not valid
                     

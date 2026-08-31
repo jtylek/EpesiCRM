@@ -22,6 +22,9 @@ goes stale):
   given `modules/Premium/`/`Custom/` module for PHP 8.x compatibility issues and
   reintroduced deliberately-removed dependencies (Quick Jump, Theme installation, ...),
   then fixes them. See `deliberate-removals.md`.
+- **`/ci-local`** (`.claude/skills/ci-local/SKILL.md`) — runs `tools\ci-local.bat` (lint,
+  PHPStan, Rector, `console.php list`) and analyzes the captured output. See
+  `ci-workflow.md` for why this exists instead of GitHub's own CI.
 
 Add a new bullet here whenever a new shared skill is created, so this file doubles as a
 quick inventory, not just a how-to.

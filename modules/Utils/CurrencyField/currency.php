@@ -36,7 +36,7 @@ class HTML_QuickForm_currency extends HTML_QuickForm_input {
 				$id = 'currency_field_'.$name;
 				$this->updateAttributes(array('id'=>$id));
 			}
-			
+
 			$this->dec_digits = DB::GetOne('SELECT MAX(decimals) FROM utils_currency');
 
 			$str .= $this->_getTabs() . '<div style="position: relative;">';

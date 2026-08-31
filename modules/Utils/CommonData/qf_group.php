@@ -47,24 +47,24 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 		if (isset($options['empty_option']))
 			$this->_add_empty_fields = $options['empty_option'];
 	} //end constructor
-	
+
 	function _createElements() {
 		$name = $this->_name;
 		$cd = array($this->_cd_root);
 		$attributes = $this->getAttributes();
-		
+
 		$this->_elements[] = new HTML_QuickForm_commondata($name.'____0', null, $cd, $attributes);
 		for($i=1; $i<$this->_cd_depth; $i++) {
 			$cd[] = $name.'____'.($i-1);
 			$this->_elements[] = new HTML_QuickForm_commondata($name.'____'.$i, null, $cd, $attributes);
 		}
 	}
-	
+
 	function exportValue(&$submitValues, $assoc = false) {
 		$ret = parent::exportValue($submitValues, false);
 		return $this->translateRetValues($ret);
 	}
-	
+
 	function translateRetValues($ret) {
 		$ret2 = array();
 		foreach($ret as $k=>$v) {
@@ -73,7 +73,7 @@ class HTML_QuickForm_commondata_group extends HTML_QuickForm_group {
 		}
 		return $ret2;
 	}
-	
+
 	function getValue() {
 		$ret = parent::getValue();
 		return $this->translateRetValues($ret);

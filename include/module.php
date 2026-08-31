@@ -1130,7 +1130,7 @@ abstract class Module extends ModulePrimitive {
 
 		$m->mark_displayed();
 
-		
+
 		if($m->is_inline_display()) {
 		    $ret = Epesi::$content[$path]['value'];
 		    Epesi::$content[$path]['value'] = '';
@@ -1315,15 +1315,15 @@ abstract class Module extends ModulePrimitive {
 
 	//endregion
 	//region Register Methods
-	
+
 	/////////////////////////
 	// registered methods
 	private static $registered_methods = array();
-	
+
 	public static function register_method($name, $func) {
 		self::$registered_methods[$name] = $func;
 	}
-	
+
 	public function & __call($func_name, array $args=array()) {
 		if(isset(self::$registered_methods[$func_name]))
 			$ret = call_user_func_array(self::$registered_methods[$func_name], array_merge(array($this),$args));

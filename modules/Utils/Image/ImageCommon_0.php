@@ -72,8 +72,8 @@ class Utils_ImageCommon extends ModuleCommon {
 				if( $im ) {
 					//constrain proportions if needed
 					$t_im = imagecreatetruecolor($thumb_width, $thumb_height);
-					
-					
+
+
 					//header("Content-type: image/png");
 					//imagesavealpha($t_im, true);
 					$background = imagecolorallocate($t_im, 0, 0, 0);
@@ -82,7 +82,7 @@ class Utils_ImageCommon extends ModuleCommon {
 			 		imagesavealpha($t_im, true);
 
 			 		imagecopyresampled($t_im, $im, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height);
-			
+
 					imagepng($t_im, $thumb_real);
 					imagecolordeallocate($t_im,$background);
 					imagedestroy($t_im);
@@ -94,9 +94,9 @@ class Utils_ImageCommon extends ModuleCommon {
 				if( $im ) {
 					//constrain proportions if needed
 					$t_im = imagecreatetruecolor($thumb_width, $thumb_height);
-			
+
 					imagecopyresampled($t_im, $im, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height);
-			
+
 					imagejpeg($t_im, $thumb_real, 90);
 					imagedestroy($im);
 					imagedestroy($t_im);
@@ -107,16 +107,16 @@ class Utils_ImageCommon extends ModuleCommon {
 				if( $im ) {
 					$imgSource = $im;
 					$imgDestination1 = imagecreatetruecolor($thumb_width, $thumb_height); 
-					
+
 					$black = imagecolorallocate($imgDestination1, 0, 0, 1); 
-					
+
 					imagefill($imgDestination1, 0, 0, $black); 
 					imagecolortransparent($imgDestination1, $black); 
-					
+
 					imagecopyresampled($imgDestination1, $imgSource, 0, 0, 0, 0, $thumb_width, $thumb_height, $width, $height); 
-					
+
 					imagetruecolortopalette($imgDestination1, true, 256); 
-					
+
 					imagegif($imgDestination1, $thumb_real); 
 					imagecolordeallocate($imgDestination1,$black);
 					imagedestroy($imgDestination1);

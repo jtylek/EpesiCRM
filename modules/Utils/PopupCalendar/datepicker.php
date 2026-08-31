@@ -69,7 +69,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 		else $cleanValue = '';
         return $this->_prepareValue($cleanValue, $assoc);
 	}
-	
+
 	function onQuickFormEvent($event, $arg, &$caller)
     {
         if ('updateValue' != $event) {
@@ -126,7 +126,7 @@ class HTML_QuickForm_datepicker extends HTML_QuickForm_input {
 			$caller->applyFilter($this->getName(),$this->reg2time(...));
 		return parent::onQuickFormEvent($event,$arg,$caller);
 	}
-	
+
 	function reg2time($value) {
 		if (!$value) return '';
 		return strftime('%Y-%m-%d',Base_RegionalSettingsCommon::reg2time($value,false));

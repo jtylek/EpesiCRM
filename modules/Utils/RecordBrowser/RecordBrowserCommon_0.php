@@ -2664,10 +2664,10 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function create_record_tooltip($text, $tab, $id, $nolink=false, $tooltip=true){
     	if (!$tooltip || $nolink || self::is_self_view($tab, $id) || Utils_TooltipCommon::is_tooltip_code_in_str($text))
     		return $text;
-    	 
+
     	if (!is_array($tooltip))
     		return self::create_default_record_tooltip_ajax($text, $tab, $id);
-    
+
     	//args name => expected index (in case of numeric indexed array)
     	// 'safe_html' only applies to the callable-tip/ajax_create() branch
     	// below (see its own $safe_html doc). Every custom per-record tooltip
@@ -2710,13 +2710,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		unset($tooltip_create_args['args'], $tooltip_create_args['safe_html']);
     		$tooltip_create_callback = array('Utils_TooltipCommon', 'create');
     	}
-    	 
+
     	array_unshift($tooltip_create_args, $text);
-    	 
+
     	//remove null values from end of the create_tooltip_args to ensure default argument values are set in the callback
     	while (is_null(end($tooltip_create_args)))
     		array_pop($tooltip_create_args);
-    	 
+
     	return call_user_func_array($tooltip_create_callback, array_values($tooltip_create_args)); // array_values: PHP 8 treats string keys in call_user_func_array as named args; these keys ('tip','args'...) are positional payload, not param names
         //return call_user_func_array($tooltip_create_callback, $tooltip_create_args);
     }

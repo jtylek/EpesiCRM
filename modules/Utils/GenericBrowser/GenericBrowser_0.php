@@ -48,18 +48,18 @@ class Utils_GenericBrowser extends Module {
 		$this->custom_label = $arg;
 		$this->custom_label_args = $args;
 	}
-	
+
 	public function set_resizable_columns($arg = true){
 		$this->resizable_columns = $arg;
 	}
-	
+
 	public function set_fixed_columns_class($classes = array()){
 		if (!is_array($classes)) {
 			$classes = array($classes);
 		}
-		
+
 		$classes[] = 'Utils_GenericBrowser__actions';
-	
+
 		$classes = array_map(fn($c) => (str_starts_with($c, '.'))? $c: '.'.$c, $classes);	
 		$this->fixed_columns_selector = implode(',', $classes);
 	}
@@ -86,9 +86,9 @@ class Utils_GenericBrowser extends Module {
 		foreach($arg as $v) {
 			if (!is_array($v))
 				$v = array('name' => $v);
-			
+
 			$this->columns[] = $v;
-			
+
 			$col_names[] = $v['name'] ?? null;
 		}
 		$this->columns_width_id = md5(serialize($col_names));
@@ -575,7 +575,7 @@ class Utils_GenericBrowser extends Module {
 		} else {
 			$where = array();
 		}
-		
+
 		if(!$this->columns)
 			trigger_error('columns array empty, please call set_table_columns',E_USER_ERROR);
 
@@ -1080,7 +1080,7 @@ class Utils_GenericBrowser extends Module {
 				if ($this->absolute_width) {
 					if (is_array($v) && isset($v['dummy'])) {
 						$reverse_col = array_reverse($col, true);
-				
+
 						foreach ($reverse_col as $kk=>$vv)
 							if (isset($vv['width'])) {
 								if (stripos($vv['attrs'], 'colspan')===false) break;
@@ -1136,7 +1136,7 @@ class Utils_GenericBrowser extends Module {
 			}
 			if ($this->absolute_width)
 				foreach ($col as $k=>$v) if (isset($v['width'])) $col[$k]['attrs'] .= ' width="'.$v['width'].'"';
-			
+
 			ksort($col);
 			$expanded = $this->expandable ? ' expanded' : '';
 			foreach($col as $v)
@@ -1198,7 +1198,7 @@ class Utils_GenericBrowser extends Module {
 			$theme->display();
 		$this->set_module_variable('show_all_triggered',false);
 	}
-	
+
 	public function show_all() {
 		return $this->get_module_variable('show_all_triggered',false);
 	}

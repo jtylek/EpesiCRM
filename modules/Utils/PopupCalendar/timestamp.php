@@ -46,7 +46,7 @@ require_once 'datepicker.php';
 class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 {
 	private $_elementName;
-	
+
 	// }}}
 	// {{{ constructor
 
