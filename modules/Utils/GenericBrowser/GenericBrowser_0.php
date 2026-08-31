@@ -1020,10 +1020,12 @@ class Utils_GenericBrowser extends Module {
             eval_js_once('gb_expandable["'.$md5_id.'"] = {};');
             eval_js_once('gb_expanded["'.$md5_id.'"] = 0;');
 
-            eval_js_once('gb_expand_icon = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand.gif').'";');
-            eval_js_once('gb_collapse_icon = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse.gif').'";');
-            eval_js_once('gb_expand_icon_off = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'expand_gray.gif').'";');
-            eval_js_once('gb_collapse_icon_off = "'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(), 'collapse_gray.gif').'";');
+            // Four gb_*_icon variables were emitted here (expand/collapse and an
+            // _off pair). All four are gone as of 2026-08-31. The expand/collapse
+            // pair had exactly one reader, js/table_overflow.js's two .src writes,
+            // which stopped doing anything once these actions became <i class="bi ...">
+            // and are removed too. The _off pair was read by nothing at all, and had
+            // not been for some time - it predates the icon conversion.
         }
 
 		foreach($this->rows as $i=>$r) {

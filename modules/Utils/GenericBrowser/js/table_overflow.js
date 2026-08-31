@@ -227,8 +227,15 @@ gb_expandable_init = function(table,id) {
     });
     gb_collapse(table,id);
     gb_expandable[table][id] = id;
-    document.getElementById("gb_less_"+table+'_'+id).childNodes[0].src = gb_collapse_icon;
-    document.getElementById("gb_more_"+table+'_'+id).childNodes[0].src = gb_expand_icon;
+    // The two lines that used to sit here rewrote each toggle icon's .src to
+    // gb_expand_icon/gb_collapse_icon. Removed 2026-08-31: GenericBrowser_0.php
+    // emits these two actions as <i class="bi ..."> now, so childNodes[0] is an
+    // <i> and the writes landed as an inert .src expando on it - no error, no
+    // effect. Nothing is lost with them gone: the toggle shows and hides two
+    // separate anchors (gb_more_ / gb_less_), each carrying its own permanently
+    // correct glyph, so there is no longer one element whose artwork has to be
+    // swapped. That swap only ever mattered for the raster theme, where
+    // plus_gray.png and expand.gif were different images on the same element.
     // handlers to expand on click in the empty space of the cell - for a
     // 'tall_preview' column (e.g. Utils_Attachment's Note field - see
     // AttachmentInstall.php), click-to-toggle instead works from anywhere in

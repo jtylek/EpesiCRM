@@ -942,16 +942,24 @@
 }
 
 /* The two rules above cover this <img>'s src as GenericBrowser_0.php first
-   renders it - but js/table_overflow.js's gb_expandable_init() (run via
-   this row's own __add_row_js() callback, right after the row lands in the
-   DOM) unconditionally overwrites both icons' src to gb_expand_icon/
-   gb_collapse_icon ("expand.gif"/"collapse.gif" - GenericBrowser_0.php's
-   own eval_js_once() calls a few hundred lines up), so by the time either
-   icon is actually visible on screen neither :has() condition above still
-   matches - a gap that predates the mobile actions menu but was invisible
-   until that menu made these two actions show up somewhere the missing
-   glyph was obvious (they'd always rendered blank in the real table too).
-   Same glyphs, keyed to the post-swap filenames instead. */
+   renders it. These two cover the post-swap filenames, because
+   js/table_overflow.js's gb_expandable_init() used to rewrite both icons'
+   src to "expand.gif"/"collapse.gif" right after the row landed in the DOM,
+   so by the time either icon was visible neither rule above still matched -
+   a gap that predated the mobile actions menu but was invisible until that
+   menu made these two actions show up somewhere the missing glyph was
+   obvious (they'd always rendered blank in the real table too).
+
+   That swap was removed 2026-08-31 along with the gb_*_icon variables it
+   read, so nothing rewrites these src values any more. All four rules are
+   kept regardless, on the same reasoning as every other [src*=".."] rule in
+   this file (see the 2026-08-31 note further down): they no longer match the
+   converted case at all - GenericBrowser_0.php emits <i class="bi ..."> for
+   its own expand/collapse artwork, so there is no <img> for :has() to find -
+   and they exist for icons this module cannot identify, which still arrive
+   as images. Deleting them would only matter to a caller that reaches this
+   file with one of these four filenames as a real <img>, which is exactly
+   the case they are here to serve. */
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="GenericBrowser"][src*="/expand.gif"])::before {
 	content: "\f282";
 }
