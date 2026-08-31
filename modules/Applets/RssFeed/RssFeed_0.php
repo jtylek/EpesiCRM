@@ -24,7 +24,7 @@ class Applets_RssFeed extends Module {
 		$name = md5($this->get_path().$values['rssfeed']);
 
 		//div for updating
-		print('<div id="rssfeed_'.$name.'" style="width: 270px; padding: 5px 5px 5px 20px;">'.__('Loading RSS...').'</div>');
+		print('<div id="rssfeed_'.$name.'" style="width: 100%; box-sizing: border-box; padding: 5px 5px 5px 20px;">'.__('Loading RSS...').'</div>');
 
 		//interval execution
 		eval_js_once('var rssfeedcache = Array();'.
