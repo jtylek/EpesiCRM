@@ -47,6 +47,7 @@ most expensive mistake this folder can cause, and it has happened.
 
 **When something is slow**
 - [performance-profiling.md](performance-profiling.md) — how to profile, and the N+1 fixes already applied.
+- [query-budget-check.md](query-budget-check.md) — the `dev:query:budget` N+1 regression guard: how it works, how to add a scenario.
 - [optimization-plan-opus.md](optimization-plan-opus.md) — measured baseline + the sequenced optimization plan.
 
 **Working on a specific area**
@@ -84,7 +85,7 @@ most expensive mistake this folder can cause, and it has happened.
 ## Continuous integration
 
 `.github/workflows/ci.yml` exists as of 2026-08-31 and runs on push/PR: `php -l` over all
-first-party PHP, PHPStan level 0 (baselined — fails only on *new* findings), an advisory
+first-party PHP, PHPStan level 1 (baselined — fails only on *new* findings), an advisory
 Rector 8.2 dry-run, and a docs check that every `console.php` command named in `CLAUDE.md`
 actually exists.
 

@@ -903,22 +903,18 @@ Everything above is one edit away from coming back — "just call `get_record()`
 cached" is a reasonable-looking change that reintroduces the N+1 silently, because the
 output is identical and only the query count moves.
 
-The command measures **slope**, not a fixed budget. Each scenario runs over 5 records and
-over 25, after a discarded warm-up, and asserts the query count does not grow. A fixed
-budget was tried first and was wrong: cold scenarios legitimately include one-off schema
-reads (RecordBrowser's `_field`/`_callback` lookups, Watchdog's category id) that have
-nothing to do with row count, so every scenario failed its first run for reasons that were
-not bugs — and a budget loose enough to admit them is loose enough to hide a real per-row
-query on a small fixture.
+The command asserts **slope, not a fixed budget**: each scenario runs over 5 records and
+over 25, after a discarded warm-up, and the query count must not grow. Five scenarios, one
+per fix — `get_record_info()`, `get_company()`, `get_record()`, the Roundcube mailto check,
+Watchdog's `check_if_notified()`. All flat, and confirmed to actually catch a regression by
+stubbing out both prefetch functions.
 
-Five scenarios, one per fix: `get_record_info()`, `get_company()`, `get_record()`, the
-Roundcube mailto check, Watchdog's `check_if_notified()`. Confirmed to actually catch a
-regression by stubbing out both prefetch functions — it reports `5 rows: 10 queries /
-25 rows: 50 queries` and exits non-zero.
+It does **not** cover whole-page counts: `Epesi::process()` renders from browser session
+state, so page totals stay the manual measurement described at the top of this file.
 
-It needs a populated database, so it is a local pre-push check rather than a CI job.
-It also does **not** cover whole-page counts: `Epesi::process()` renders from browser
-session state, so page totals stay a browser measurement.
+**Full write-up — how it works, why slope rather than a threshold, why the warm-up uses the
+smaller set, and how to add a scenario — is in
+[query-budget-check.md](query-budget-check.md).** Read that before adding one.
 
 ## Fixed: `Utils/Messenger/refresh.php` bootstrapped the whole app to say "nothing due"
 
