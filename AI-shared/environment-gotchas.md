@@ -236,13 +236,29 @@ compilation unit. Two of those are real and were both found this way (see
 - a Common class already loaded by a raw `require_once` gets re-declared by the bundle.
   This is what broke the webmail, and it is fixed in `ModuleManager`.
 
-### History of the default, so it doesn't get flipped a fourth time
+### History of the default, and the measurement that should end the argument
 
 | Date | Shipped default (`setup.php`) | Why |
 |---|---|---|
 | 2026-08-14 (`8fa13be19`) | `1` | Explicit perf choice; `setup.php` started writing the flag instead of leaving it to `include/config.php`. |
 | 2026-08-27 (`d9283c47a`) | `0` | The trap kept biting *this dev machine* (below), and a regenerated `data/config.php` silently re-armed it. |
-| 2026-08-31 | `1` | Jasiek's call, closing `optimization-plan-opus.md` item 2.5: most installs are production installs, and the dev cost is one command. |
+| 2026-08-31 (`5e3ed0378`) | `1` | Jasiek's call, closing `optimization-plan-opus.md` item 2.5: most installs are production installs, and the dev cost is one command. Shipped without measuring it, and without loading the app - the webmail broke within the hour. |
+| 2026-08-31 (same day) | `0` | Reverted once it was finally measured. See below - the flag is worth ~3.5 ms with opcache and nothing without it. |
+
+**The measurement, so nobody has to re-derive it.** Web SAPI, opcache on, 95 modules,
+local disk: `load_modules()` costs ~13.5 ms with the bundle and ~17 ms without — the flag
+buys **~3.5 ms**, about 1% of a 245 ms page render. Under CLI, where opcache is off, it
+buys **nothing** (~83 ms with, ~79 ms without). That surprises people, so the reason is
+worth stating: without opcache the compiler does identical work whether the code arrives
+as 71 files or one, and with opcache compilation is already cached in both cases. The only
+thing the bundle can ever save is per-file open overhead, ~50 µs × 71 files. The "71
+requires become 1" framing in `optimization-plan-opus.md` A3 makes it sound like far more
+than that.
+
+So it is off by default: ~1% of a render does not pay for a stale-code trap, a duplicate-
+`use` fatal and a re-declare fatal. It stays available because the one case not measured
+here is a network filesystem, where per-file `stat`/open overhead is much larger than on
+local disk — that is the install where turning it on could actually matter.
 
 `include/config.php`'s own fallback stays `0` on purpose — it applies only to
 installs old enough that their `data/config.php` never had the define written,

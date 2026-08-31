@@ -928,10 +928,15 @@ false under `===`.
   exists to prevent. 3.3 is additionally *answered rather than pending*: §9's profile found
   no single hotspot left in the row loop, so there is no target to optimise until a new
   profile finds one.
-- **2.5 is now closed.** ~~The prod/dev default decision for `FORCE_CACHE_COMMON_FILES`.~~
-  Decided by Jasiek 2026-08-31: **`setup.php` writes `1` for fresh installs again.** Most
-  installs are production installs, and the developer cost is one `console.php
-  cache:rebuild` after a `Common_0.php` edit. `include/config.php`'s fallback deliberately
+- **2.5 is now closed — off, on measurement.** ~~The prod/dev default decision for
+  `FORCE_CACHE_COMMON_FILES`.~~ It was flipped on and then back off the same day
+  (2026-08-31): the flag is worth ~3.5 ms per request with opcache and nothing without
+  it, roughly 1% of a page render, which does not pay for the stale-`Common_0.php` trap
+  or the two fatals the single compilation unit makes possible. It stays available for
+  installs on a network filesystem, the one case not measured. Full numbers and the
+  reasoning in `environment-gotchas.md`; the two fatals in `bug-patterns.md`.
+  **The process lesson is the more valuable half: it shipped on a plausible argument,
+  was never measured, and broke the webmail within the hour.** `include/config.php`'s fallback deliberately
   stays `0` — it only governs installs predating the define, and flipping it would change
   behaviour for existing installs on upgrade, which was not what was decided. The value has
   now moved twice (`8fa13be19` 1 → `d9283c47a` 0 → this), so the reasoning for each flip is

@@ -37,8 +37,8 @@ that split and other details.
   Claude Code's Grep tool silently skips gitignored paths, so an exhaustive sweep that must include Premium
   needs plain `grep`/`git grep --no-index` via Bash instead.
 - **`Common_0.php` edits need a cache rebuild when `FORCE_CACHE_COMMON_FILES` is on.** Check
-  `data/config.php` for its current value — it is gitignored and gets flipped. When it is `1`
-  (which is what `setup.php` writes for fresh installs as of 2026-08-31), every module's
+  `data/config.php` for its current value — it is gitignored and gets flipped. It ships off
+  (measured: worth ~3.5 ms with opcache, nothing without), but when it is `1`, every module's
   `*Common_0.php` is served from one bundle, `temp/data/cache/common.php`, and the check is
   `file_exists()`, not a timestamp — so an edit to any `Common_0.php` has **no effect at all**,
   with no warning, until `php console.php cache:rebuild` (or Administration → Clear Cache).
