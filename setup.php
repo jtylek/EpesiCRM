@@ -601,30 +601,6 @@ define(\'MINIFY_ENCODE\',1);
 define(\'MINIFY_SOURCES\',1);
 
 /*
- * Bundle every module\'s Common_0.php into one cached file
- * (temp/data/cache/common.php) instead of one require per module per
- * request. Off by default, on measurement: it saves about 3.5ms per request
- * with opcache enabled, and nothing at all without it (the compiler does the
- * same work whether the code arrives as 71 files or one, so only the
- * per-file open overhead is ever saved). That is roughly 1% of a page
- * render, against three real costs:
- *
- *  - the bundle is used whenever it exists, with no timestamp check, so
- *    editing any Common_0.php has no effect until it is rebuilt, with no
- *    warning - Administration -> Clear Cache, or php console.php
- *    cache:rebuild;
- *  - every module\'s Common class ends up in one compilation unit, so two
- *    modules importing the same class name (a duplicate "use" statement) is
- *    an instant fatal for the whole application;
- *  - a Common class already loaded by something outside the module system
- *    gets re-declared by the bundle.
- *
- * Worth turning on if your modules live on a network filesystem, where the
- * per-file overhead this removes is much larger than it is on local disk.
- */
-define(\'FORCE_CACHE_COMMON_FILES\',0);
-
-/*
  * Poll for a shipped JS/CSS fix and prompt long-open tabs to reload (this
  * app never reloads index.php on its own, so a tab can otherwise keep
  * running stale JS indefinitely - see AI-shared/bug-patterns.md). Off by

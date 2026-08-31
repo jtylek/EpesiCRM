@@ -1,6 +1,6 @@
 # Optimization plan (Opus session, 2026-08-31)
 
-> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in sections 8, 9 and 10). Tier 3 started in section 11: A2.3 shipped, 3.1 recommended for striking on measurement, 3.2/3.4 still open.
+> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in sections 8, 9 and 10). Tier 3: A2.3 and 3.4 shipped (§11, §12), 3.1 recommended for striking on measurement, 3.2 still open.
 
 A performance + developer-experience plan for this Epesi checkout, written from
 measurements taken on this machine rather than from reading code alone. Every number
@@ -1050,6 +1050,87 @@ procedure with several tabs open to quantify.
 
 - **3.2** — unchanged in value, better understood: the target is ~12 ms of class-declaration
   execution per request, and the bundle is not a substitute for it.
-- **3.4** — untouched.
+- **3.4** — untouched at the end of this pass; done in §12.
 - **3.1** — recommend striking; see above.
 - **3.3** — already answered in §10 (no hotspot left to aim at).
+
+---
+
+## 12. Tier 3, second pass (2026-08-31, still later): 3.4
+
+### What shipped
+
+`serve.php` (root) and `modules/Base/Theme/theme_css.php` were two ~70-line,
+near-but-not-quite-identical copies of the same Minify "Files"-controller boilerplate
+(file-list validation, cache dir setup, `Minify::serve()` call) — the duplication A5/3.4
+actually meant by "which loader handles this" confusion, since the two had quietly drifted
+(one climbs `dirname(__FILE__)` four levels for its own-directory check, the other computes
+it directly; one has a `!MINIFY_SOURCES` branch, the other doesn't because its rewrite must
+always run). Both now call a single shared `epesi_serve_minified()` in the new
+`include/serve_minified.php`, taking the extension whitelist and any Minify option
+overrides (theme_css.php's url-rewriting CSS minifier) as parameters. Neither entry
+point's URL, query-string shape, or `Epesi::load_css()`/`load_js()` loader-grouping
+changed — see "What was deliberately not merged" below for why that grouping is load
+bearing.
+
+`libs/bootstrap-icons-1.13.1/__css.php` (a 12-line location shim that `chdir()`s and
+`require`s `serve.php` unmodified, so relative `url("fonts/...")` refs in the vendored
+bootstrap-icons CSS resolve against its own directory rather than the project root) picks
+up the consolidation automatically and was not itself touched. `modules/Base/Theme/asset.php`
+was deliberately left alone — see below.
+
+Also fixed in passing: `setup.php`'s new-install `data/config.php` template still wrote
+`define('FORCE_CACHE_COMMON_FILES',0)` plus its old descriptive comment, missed by 2.5's
+removal (§10) because that removal touched `include/config.php`'s default and this
+install's own `data/config.php`, not the template that generates *new* installs' copies.
+Nothing has read the constant since 2.5 shipped; the block was dead weight describing a
+mechanism that no longer exists. Removed.
+
+### What was deliberately not merged
+
+- **Not folded into one HTTP endpoint / one `Epesi::load_css()` loader group.**
+  `Epesi::prepare_minified_files()` batches every CSS URL sharing the same `$loader` string
+  into one combined Minify bundle URL. Core framework CSS (bootstrap/adminlte/fonts.css,
+  loaded once on every page including anonymous login) currently sits in its own group with
+  a URL that stays stable across navigations, so the browser reuses it from cache; module CSS
+  sits in a second group whose file list — and therefore URL — changes on every navigation
+  (already noted in A5). Collapsing both into one loader would put the stable framework CSS
+  in the same combined URL as the ever-changing module CSS, forcing a full re-download of
+  bootstrap/adminlte on every navigation instead of just the module CSS that actually
+  changed — a real regression, caught by tracing `prepare_minified_files()` before writing
+  any code, not by measurement after the fact.
+- **`asset.php` left as its own implementation**, not merged into the shared Minify-based
+  function. It serves one binary file at a time (images/fonts, arbitrary content-types) with
+  ETag/Last-Modified conditional-GET support that the other three don't have; `serve.php`'s
+  own docblock already notes Minify's "Files" controller "only knows HTML, CSS, and JS."
+  Forcing images through it would be forcing together two genuinely different jobs, which is
+  the same reason `design-philosophy.md`-checked items get rejected elsewhere in this
+  document (§6).
+
+### Verified
+
+- CLI: the pre-change and post-change output compared byte-for-byte for every reachable
+  request shape — a 5-file JS bundle, a single vendor CSS file, a single module CSS file, and
+  a 2-file module CSS combine (all via the real `Epesi::load_css()`/`load_js()`-generated
+  file lists, not invented ones) — using the pre-change file content checked out via `git
+  show HEAD:...` and run through the real project tree via PHP CLI (not a git worktree: one
+  was attempted first and aborted on Windows `MAX_PATH` failures under
+  `modules/Libs/PHPExcel/vendor/...`, cleaned up with no effect on the working tree). All
+  identical. The only non-identical case was a request for CSS files that don't exist in
+  either version (a guessed-wrong test path) — old code let that fall through to
+  `Minify::serve()` with an empty file list, which returns Minify's own 400; new code
+  short-circuits to a plain 404 first. Not reachable from the running app, which only ever
+  requests paths `Base_ThemeResolver::resolve()` already confirmed exist — noted as a minor,
+  intentional improvement rather than chased further.
+- Browser (Edge via Playwright, live dev server): login page loads clean, zero console
+  errors/warnings, all six of `serve.php`/`theme_css.php`/`__css.php`'s real generated bundle
+  URLs (including a live 5-file `theme_css.php` combine) returned 200. Screenshot confirms
+  fonts, AdminLTE styling and Bootstrap Icons glyphs all rendered — the two things `__css.php`
+  and the icon-glyph conversion (§8) exist to get right.
+
+### Note for whoever picks this up
+
+No patch file needed — code and a stale-template cleanup only, no stored/seed data changed.
+`include/serve_minified.php` is now the one place that owns Minify "Files"-controller setup
+for text-asset bundling; a future third caller (if one ever needs a differently-filtered
+Minify endpoint) should extend it rather than copying `theme_css.php` again.
