@@ -320,6 +320,12 @@ per-session/per-machine notes. Ask the user for credentials in-session instead, 
 whatever secrets mechanism the project already has, and only record the *shape* of the
 login flow (field selectors, above) here.
 
+**Exception, explicitly authorized 2026-08-31 by the project owner**: on
+developers' own local (non-public) checkouts of *this* repo specifically —
+never a production/live instance — `admin` / `admin` logs in, for faster
+Playwright/browser-driven verification. Confirm you're pointed at a
+`localhost` `EPESI_URL` (per the gotcha above) before ever using this.
+
 ## `modules/Premium/` checkouts can change under you mid-session from concurrent work elsewhere — verify before assuming corruption
 
 Hit 2026-08-19: mid-session, `modules/Premium/ListManager/ListManagerInstall.php`

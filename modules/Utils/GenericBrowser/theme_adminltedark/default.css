@@ -391,7 +391,9 @@
 	display: block;
 	width: 100%;
 	margin-top: 0.25rem;
-	border: 0;
+	background-color: var(--epesi-bg);
+	color: inherit;
+	border: 1px solid #495057;
 	border-radius: 0.2rem;
 	padding: 2px 4px;
 }

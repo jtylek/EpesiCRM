@@ -27,7 +27,7 @@
 	background-color: #495057 !important;
 	color: #fff !important;
 	padding: 0.3rem 0.7rem;
-	font-size: 0.85rem;
+	font-size: 14px;
 	cursor: pointer;
 }
 
@@ -46,8 +46,15 @@
 	justify-content: flex-start;
 }
 
+/* Label and data are two separate pills with a real gap between them, not one
+   pill split by a color change - a pixel-width margin or a label-vs-card
+   background difference too subtle to read at a glance (light mode's label
+   fill is #f1f3f5 on a #fff card) made the two read as glued together even
+   though a border was technically present. An actual gap can't fail that way
+   regardless of theme colors. */
 .epesi-rbf-pair {
 	display: flex;
+	gap: 0.4rem;
 }
 
 /* Card: bg sits between the page (--epesi-bg #1a1d20, see Base_Box) and the
@@ -72,11 +79,11 @@
     padding-left: 5px;
     padding-right: 5px;
 
-	-webkit-border-radius: 4px 0 0 4px;
-	-moz-border-radius: 4px 0 0 4px;
-    border-radius: 4px 0 0 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+    border-radius: 4px;
 	box-shadow: none;
-	font-size: 0.8rem;
+	font-size: 14px;
 
 	background: #2b3035;
 }
@@ -87,11 +94,10 @@
 	text-align: left;
     background-color: #2b3035;
 
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+    border-radius: 4px;
 	border: 1px solid #495057;
-	border-left: none;
 	box-shadow: none;
 }
 
@@ -99,19 +105,19 @@
 .Utils_RecordBrowser__Filter .data select {
     background-color: #2b3035;
     border: none;
+    box-sizing: border-box;
     width: 100px;
 	height: 24px;
-	font-size: 0.8rem;
-	margin-left: 2px;
-	-webkit-border-radius: 0 4px 4px 0;
-	-moz-border-radius: 0 4px 4px 0;
-    border-radius: 0 4px 4px 0;
+	font-size: 14px;
+	padding: 0 6px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+    border-radius: 4px;
 }
 .Utils_RecordBrowser__Filter .data select {
-	margin-right: 2px;
 	height: 26px;
     width: 98px;
-	padding: 4px 0;
+	padding: 4px 6px;
 }
 
 .Utils_RecordBrowser__Filter .data input[type='checkbox'] {
@@ -187,18 +193,17 @@
  * cell across ALL rows, so every label lines up to the same width and every
  * select/input starts at the same x, which independently-sized flex pairs
  * can't do. .epesi-rbf-pair becomes display:contents so its .label/.data
- * children join the grid directly instead of forming their own nested row;
- * .buttons (a sibling of the pairs, not inside one - see elements.tpl) spans
- * both columns to sit full-width beneath them.
- *
- * label/data keep the desktop rule's left/right rounding (4px 0 0 4px /
- * 0 4px 4px 0, further up this file) unmodified here - they're still side by
- * side, just full width now, so a top/bottom split (this block's previous
- * approach) produced a stair-step outline instead of a clean pill. */
+ * children join the grid directly instead of forming their own nested row
+ * (which also means its own `gap` no longer applies - column-gap on the grid
+ * itself takes over that job here); .buttons (a sibling of the pairs, not
+ * inside one - see elements.tpl) spans both columns to sit full-width
+ * beneath them. label/data are both fully rounded now (further up this
+ * file), so no left/right-only rounding to preserve here. */
 @media (max-width: 767.98px) {
 	.epesi-rbf-row {
 		display: grid;
 		grid-template-columns: max-content 1fr;
+		column-gap: 0.4rem;
 		row-gap: 0.4rem;
 	}
 
@@ -207,7 +212,6 @@
 	}
 
 	.Utils_RecordBrowser__Filter .data {
-		border-left: 1px solid #495057;
 		min-width: 0;
 	}
 
@@ -218,10 +222,6 @@
 	.Utils_RecordBrowser__Filter .data select {
 		width: 100%;
 		box-sizing: border-box;
-		margin-left: 0;
-	}
-	.Utils_RecordBrowser__Filter .data select {
-		margin-right: 0;
 	}
 
 	.Utils_RecordBrowser__Filter .buttons {
@@ -256,10 +256,4 @@
 [data-bs-theme="light"] .Utils_RecordBrowser__Filter .data select:focus,
 [data-bs-theme="light"] .Utils_RecordBrowser__Filter .data textarea:focus {
   background-color: #eaf2ff;
-}
-
-@media (max-width: 767.98px) {
-  [data-bs-theme="light"] .Utils_RecordBrowser__Filter .data {
-    border-left: 1px solid #dee2e6;
-  }
 }
