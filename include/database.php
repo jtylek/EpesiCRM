@@ -18,6 +18,10 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 //require_once('vendor/adodb/adodb-php/adodb-errorhandler.inc.php');  // openpsa-style drop-in: new ADOdb 5.22 via composer
 require_once('vendor/adodb/adodb-php/adodb.inc.php');               // (old libs/adodb was v5.20.2 from 2015, had removed each() - now gone entirely, setup.php's last use of it switched to this same vendor copy)
 require_once('misc.php');
+// Every DB call below checks Profiling::$sql. Required here rather than left to the
+// caller because index.php, init_js.php, theme_css.php, setup.php and Roundcube's
+// config.inc.php all pull in this file directly, without going through include.php.
+require_once('include/profiling.php');
 
 /**
  * This class maintains database connection.
@@ -387,11 +391,11 @@ return $ret;
 /** * Execute SQL * * @param sql SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text) * @param [inputarr] holds the input data to bind to. Null elements will be set to null. * @return RecordSet or false */
 public static function &Execute( $sql , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("Execute",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"Execute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"Execute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
@@ -484,11 +488,11 @@ public static function &SelectLimit( $sql , $nrows = -1 , $offset = -1 , $inputa
 $args = func_get_args();
 if (!isset($args[1])) $args[1] = $nrows;
 if (!isset($args[2])) $args[2] = $offset;
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
 $ret = self::call_with_retry("SelectLimit",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"SelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"SelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
@@ -502,74 +506,74 @@ return $ret;
 
 public static function &GetAll( $sql , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetAll",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &GetAssoc( $sql , $inputarr = false , $force_array = false , $first2cols = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetAssoc",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetAssoc( $secs2cache , $sql = false , $inputarr = false , $force_array = false , $first2cols = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetAssoc",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetAssoc", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 /** * Return first element of first row of sql statement. Recordset is disposed * for you. * * @param sql SQL statement * @param [inputarr] input bind array */
 public static function &GetOne( $sql , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetOne",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetOne( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetOne",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetOne", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &GetCol( $sql , $inputarr = false , $trim = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetCol",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetCol( $secs , $sql = false , $inputarr = false , $trim = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetCol",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetCol", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
@@ -590,52 +594,52 @@ return $ret;
 /** * * @param sql SQL statement * @param [inputarr] input bind array */
 public static function &GetArray( $sql , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetArray",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetAll( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetAll",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetAll", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetArray( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetArray",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetArray", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 /** * Return one row of sql statement. Recordset is disposed for you. * * @param sql SQL statement * @param [inputarr] input bind array */
 public static function &GetRow( $sql , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("GetRow",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"GetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"GetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &CacheGetRow( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheGetRow",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheGetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheGetRow", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
@@ -651,40 +655,40 @@ public static function &CacheSelectLimit( $secs2cache , $sql , $nrows = -1 , $of
 $args = func_get_args();
 if(!isset($args[2])) $args[2] = $nrows;
 if(!isset($args[3])) $args[3] = $offset;
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[4]);
 $ret = self::call_with_retry("CacheSelectLimit",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheSelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheSelectLimit", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 /** * Flush cached recordsets that match a particular $sql statement. * If $sql == false, then we purge all files in the cache. */
 public static function &CacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("CacheFlush",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 
 public static function &xCacheFlush( $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[1]);
 $ret = self::call_with_retry("xCacheFlush",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"xCacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"xCacheFlush", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 /** * Execute SQL, caching recordsets. * * @param [secs2cache] seconds to cache data, set to 0 to force query. * This is an optional parameter. * @param sql SQL statement to execute * @param [inputarr] holds the input data to bind to * @return RecordSet or false */
 public static function &CacheExecute( $secs2cache , $sql = false , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[2]);
 $ret = self::call_with_retry("CacheExecute",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CacheExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CacheExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
@@ -971,21 +975,21 @@ return $ret;
 /** * Will select the supplied $page number from a recordset, given that it is paginated in pages of * $nrows rows per page. It also saves two boolean values saying if the given page is the first * and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination. * * See readme.htm#ex8 for an example of usage. * * @param sql * @param nrows is the number of rows per page to get * @param page is the page number to get (1-based) * @param [inputarr] array of bind variables * @param [secs2cache] is a private parameter only used by jlim * @return the recordset ($rs->databaseType == 'array') * * NOTE: phpLens uses a different algorithm and does not use PageExecute(). * */
 public static function &PageExecute( $sql , $nrows , $page , $inputarr = false , $secs2cache = 0 ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[0] = self::TypeControl($sql,$args[3]);
 $ret = self::call_with_retry("PageExecute",$args);
 self::$queries_qty++;
-if(SQL_TIMES)self::$queries[] = array("func"=>"PageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"PageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 
 /** * Will select the supplied $page number from a recordset, given that it is paginated in pages of * $nrows rows per page. It also saves two boolean values saying if the given page is the first * and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination. * * @param secs2cache seconds to cache data, set to 0 to force query * @param sql * @param nrows is the number of rows per page to get * @param page is the page number to get (1-based) * @param [inputarr] array of bind variables * @return the recordset ($rs->databaseType == 'array') */
 public static function &CachePageExecute( $secs2cache , $sql , $nrows , $page , $inputarr = false ) {
 $args = func_get_args();
-if(SQL_TIMES) $time = microtime(true);
+if(Profiling::$sql) $time = microtime(true);
 $args[1] = self::TypeControl($sql,$args[4]);
 $ret = self::call_with_retry("CachePageExecute",$args);
-if(SQL_TIMES)self::$queries[] = array("func"=>"CachePageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
+if(Profiling::$sql)self::$queries[] = array("func"=>"CachePageExecute", "args"=>$args, "time"=>microtime(true)-$time, "caller"=>get_function_caller());
 return $ret;
 }
 

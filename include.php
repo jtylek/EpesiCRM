@@ -54,6 +54,9 @@ try {
     require_once('include/module_manager.php');
     require_once('include/autoloader.php');
     require_once('include/session.php');
+    // The session is the only place a per-session profiling override can live, so this
+    // has to come after session.php - everything before it profiles per config.php.
+    Profiling::apply_session_override();
     require_once('include/variables.php');
     require_once('include/history.php');
     require_once('include/patches.php');

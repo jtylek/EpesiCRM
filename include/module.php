@@ -1064,7 +1064,11 @@ abstract class Module extends ModulePrimitive {
 			$_REQUEST[$m->create_unique_key($k)] = & $_REQUEST[$v];
 		}
 
-		if(MODULE_TIMES)
+		// Read once and reuse for the matching stop below, rather than testing the flag
+		// twice: a flag that changed in between would leave $time unset here and read
+		// there. See include/profiling.php.
+		$profile_time = Profiling::$modules;
+		if($profile_time)
 			$time = microtime(true);
 		//define key in array so it is before its children
 		$path = $m->get_path();
@@ -1121,7 +1125,7 @@ abstract class Module extends ModulePrimitive {
 			if(DEBUG)
 				Epesi::debug('Fast process of '.$path);
 		}
-		if(MODULE_TIMES)
+		if($profile_time)
 			Epesi::$content[$path]['time'] = microtime(true)-$time;
 
 		$m->mark_displayed();

@@ -272,7 +272,10 @@ class Epesi {
 
 		self::$content[$path]['span'] = 'main_content';
 		self::$content[$path]['module'] = $m;
-		if(MODULE_TIMES)
+		// One read, reused by the matching stop below - see include/module.php's twin and
+		// include/profiling.php for why the flag must not be tested twice.
+		$profile_time = Profiling::$modules;
+		if($profile_time)
 		    $time = microtime(true);
 		//go
 		ob_start();
@@ -284,7 +287,7 @@ class Epesi {
 		ob_end_clean();
 		self::$content[$path]['js'] = $m->get_jses();
 
-		if(MODULE_TIMES)
+		if($profile_time)
 		    self::$content[$path]['time'] = microtime(true)-$time;
 	}
 
@@ -352,7 +355,11 @@ class Epesi {
 	// === END custom-type eager-load ===
 
 	public static function process($url, $history_call=false,$refresh=false) {
-		if(MODULE_TIMES)
+		// This pair spans the whole request, so it is the one most exposed to the flag
+		// moving underneath it - the admin screen that toggles profiling is itself
+		// rendered inside this call. Read once. See include/profiling.php.
+		$profile_time = Profiling::$modules;
+		if($profile_time)
 			$time = microtime(true);
 
 		$url = str_replace('&amp;','&',$url); //do we need this if we set arg_separator.output to &?
@@ -494,7 +501,7 @@ class Epesi {
 		}
 		$debug .= self::debug();
 
-		if(MODULE_TIMES) {
+		if($profile_time) {
 			$module_times = '';
 			$module_sum = 0;
 			foreach (self::$content as $k => $v) {
@@ -508,7 +515,7 @@ class Epesi {
 			$debug .= '<details class="epesi-debug-section"><summary>Modules load times ('.count(self::$content).', '.number_format($module_sum,4).'s total)</summary>'.$module_times.'</details>';
 		}
 
-		if(SQL_TIMES) {
+		if(Profiling::$sql) {
 			$queries = DB::GetQueries();
 			$sum = 0;
 			$qty = 0;
