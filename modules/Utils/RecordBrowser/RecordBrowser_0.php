@@ -817,6 +817,37 @@ class Utils_RecordBrowser extends Module {
             Utils_RecordBrowserCommon::prefetch_record_info($this->tab, array_column($records, 'id'));
         }
 
+        // Same warm-up one level out, for columns that link to another recordset: every
+        // such cell resolves its target through Utils_RecordBrowserCommon::get_record()
+        // (usually via a module helper like CRM_ContactsCommon::get_company()), and the
+        // ids are distinct per row, so the per-id cache never hits. One query per linked
+        // table replaces one per row - 19 of them on Contacts: Browse, item A1.4 in
+        // AI-shared/optimization-plan-opus.md.
+        //
+        // commondata fields are excluded: their 'ref_table' is a CommonData array name,
+        // not a recordset, and Utils_CommonDataCommon has its own tree cache. Multi-tab
+        // references ('contact,company') and the '__RECORDSETS__' pseudo-tab are excluded
+        // too - their stored values are 'tab/id' tokens rather than bare ids, so there is
+        // nothing to batch per table, and neither names a real _data_1 table.
+        if (!$pdf) {
+            $linked_ids = array();
+            foreach ($query_cols as $argsid) {
+                $args = $this->table_rows[$hash[$argsid]] ?? null;
+                if (!$args || !empty($args['commondata']) || empty($args['ref_table'])) continue;
+                if ($args['type'] !== 'select' && $args['type'] !== 'multiselect') continue;
+                if ($args['ref_table'] === '__RECORDSETS__' || strpos($args['ref_table'], ',') !== false) continue;
+                foreach ($records as $row) {
+                    if (!isset($row[$argsid])) continue;
+                    foreach ((array) $row[$argsid] as $v) {
+                        if (is_numeric($v) && $v > 0) $linked_ids[$args['ref_table']][(int) $v] = $v;
+                    }
+                }
+            }
+            foreach ($linked_ids as $ref_table => $ids) {
+                Utils_RecordBrowserCommon::prefetch_records($ref_table, $ids);
+            }
+        }
+
         $data_rows_offset = 0;
         foreach ($records as $row) {
             if ($this->browse_mode!='recent' && isset($limit)) {

@@ -2099,30 +2099,36 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
      */
     public static function prefetch_record_info($tab, array $ids) {
         self::check_table_name($tab);
-        $want = array();
+        $want = array(); // (int) id => the id exactly as the caller passed it
         foreach ($ids as $id) {
             if (!is_numeric($id)) continue;
-            $id = (int) $id;
-            if (!array_key_exists($tab.'|'.$id, self::$record_info_cache)) $want[$id] = $id;
+            $key = (int) $id;
+            if (!array_key_exists($tab.'|'.$key, self::$record_info_cache)) $want[$key] = $id;
         }
         if (count($want) < 2) return; // one row is what the per-id path already does well
-        $in = implode(',', $want);
+        // Bound, not interpolated - an unbound IN list makes ADOdb skip the prepared
+        // statement and return every column as a string, so created_by would land in the
+        // cache as '1' here and as 1 through get_record_info(). See prefetch_records().
+        $in = implode(',', array_fill(0, count($want), '%d'));
+        $bind = array_values($want);
 
-        $created = DB::GetAll('SELECT id, created_on, created_by FROM '.$tab.'_data_1 WHERE id IN ('.$in.')');
+        $created = DB::GetAll('SELECT id, created_on, created_by FROM '.$tab.'_data_1 WHERE id IN ('.$in.')', $bind);
         // Latest edit per record. GROUP BY on the joined row rather than a correlated
         // subquery per id - MAX(edited_on) alone cannot carry edited_by along with it.
         $edited = array();
-        $rows = DB::GetAll('SELECT '.$tab.'_id AS rid, edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id IN ('.$in.') ORDER BY edited_on ASC');
+        $rows = DB::GetAll('SELECT '.$tab.'_id AS rid, edited_on, edited_by FROM '.$tab.'_edit_history WHERE '.$tab.'_id IN ('.$in.') ORDER BY edited_on ASC', $bind);
         foreach ($rows as $r) $edited[$r['rid']] = $r; // ASC, so the last write per id wins
 
         foreach ($created as $c) {
-            $id = $c['id'];
+            $id = (int) $c['id'];
+            // 'id' echoes back the caller's spelling, as get_record_info() does - it
+            // returns array(..., 'id'=>$id) straight from its own argument.
             self::$record_info_cache[$tab.'|'.$id] = array(
                 'created_on' => $c['created_on'],
                 'created_by' => $c['created_by'],
                 'edited_on'  => $edited[$id]['edited_on'] ?? null,
                 'edited_by'  => $edited[$id]['edited_by'] ?? null,
-                'id'         => $id,
+                'id'         => $want[$id],
             );
         }
         // Ids with no _data_1 row are deliberately left uncached: get_record_info()
@@ -2206,6 +2212,95 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
         return $purifier->purify(implode('<br>', $lines));
     }
+    /**
+     * Warm get_record()'s per-id cache for a whole set of ids in one query.
+     *
+     * Same idea and same guarantees as prefetch_record_info() above, one level out: a
+     * grid whose rows carry a select/multiselect pointing at another recordset resolves
+     * that link once per row through get_record(), and the ids are all distinct, so the
+     * per-id cache added 2026-08-29 never gets a hit. Contacts: Browse spent 19 queries
+     * this way in CRM_ContactsCommon::get_company() (measured 2026-08-31, item A1.4);
+     * every module with a linked column pays the same shape.
+     *
+     * Pure warm-up: ids it skips still resolve through get_record()'s own path, so a
+     * miss costs nothing but the query it would have run anyway.
+     *
+     * The row -> record transformation below is get_record()'s, duplicated deliberately
+     * rather than factored out - the two must stay byte-identical, and a shared private
+     * helper taking a raw $row would still have to be kept in step. If you change one,
+     * change the other.
+     *
+     * @param string $tab             record table
+     * @param array  $ids             record ids to prefetch
+     * @param bool   $htmlspecialchars must match what the later get_record() calls pass;
+     *                                 the cache is keyed on it
+     */
+    public static function prefetch_records($tab, array $ids, $htmlspecialchars = true) {
+        $flag = $htmlspecialchars ? 1 : 0;
+        $want = array(); // (int) id => the id exactly as the caller passed it
+        foreach ($ids as $id) {
+            if (!is_numeric($id) || $id <= 0) continue;
+            $key = (int) $id;
+            if (isset($want[$key])) continue;
+            if (array_key_exists($tab.'|'.$key.'|'.$flag, self::$record_cache)) continue;
+            $want[$key] = $id;
+        }
+        if (count($want) < 2) return; // one row is what the per-id path already does well
+        // check_table_name() deliberately returns true for the '__RECORDSETS__' pseudo-tab
+        // and for any comma-joined multi-tab reference, neither of which has a _data_1
+        // table - init() and display_callback_cache() both special-case them the same way.
+        // Without this, a multi-tab column whose stored 'tab/id' tokens happened to look
+        // numeric would reach a SELECT against a table that does not exist.
+        if ($tab === '__RECORDSETS__' || strpos($tab, ',') !== false) return;
+        if (!self::check_table_name($tab, false, false)) return;
+
+        // init() rewrites the self::$table_rows/$hash statics for whichever tab it was
+        // last called with. get_record() has always left them pointing at the *linked*
+        // table as a side effect; doing that here instead would move that side effect to
+        // a different point in the render, so snapshot and put them back.
+        $saved_rows = self::$table_rows;
+        $saved_hash = self::$hash;
+        self::init($tab);
+        $table_rows = self::$table_rows;
+        self::$table_rows = $saved_rows;
+        self::$hash = $saved_hash;
+
+        // The ids go in as *bound* parameters, not interpolated into the SQL, and that is
+        // load-bearing beyond the usual injection argument: with mysqli, ADOdb runs a
+        // bound query as a prepared statement and hands back native PHP ints for integer
+        // columns, while an unbound query returns every column as a string. get_record()
+        // binds, so an unbound batch here would quietly cache '1' where the per-id path
+        // caches 1 - same output through ==, different through === or serialize().
+        $placeholders = implode(',', array_fill(0, count($want), '%d'));
+        $rows = DB::GetAll('SELECT * FROM '.$tab.'_data_1 WHERE id IN ('.$placeholders.')', array_keys($want));
+        foreach ($rows as $row) {
+            $id = (int) $row['id'];
+            $cache_key = $tab.'|'.$id.'|'.$flag;
+            // get_record() puts the id back in the record as the caller spelled it, not
+            // as the database returned it; keep that, or a '5' from a grid row would come
+            // back as 5 only when the prefetch happened to run.
+            $record = array('id' => $want[$id]);
+            unset($want[$id]);
+            if (!isset($row['active'])) { self::$record_cache[$cache_key] = null; continue; }
+            foreach (array('created_by','created_on') as $v) $record[$v] = $row[$v];
+            $record[':active'] = $row['active'];
+            foreach ($table_rows as $field => $desc) {
+                if ($desc['type']==='multiselect' || $desc['type'] === 'file') {
+                    if (!isset($row['f_'.$desc['id']])) $r = array();
+                    else $r = self::decode_multi($row['f_'.$desc['id']]);
+                    $record[$desc['id']] = $r;
+                } else {
+                    $record[$desc['id']] = ($row['f_'.$desc['id']] ?? '');
+                    if ($htmlspecialchars && $desc['type'] == 'text') $record[$desc['id']] = htmlspecialchars($record[$desc['id']]);
+                }
+            }
+            self::$record_cache[$cache_key] = $record;
+        }
+        // Ids with no row at all: get_record() caches null for those, so match it rather
+        // than leaving them to run a second doomed query each.
+        foreach ($want as $id => $_orig) self::$record_cache[$tab.'|'.$id.'|'.$flag] = null;
+    }
+
     public static function get_record($tab, $id, $htmlspecialchars=true) {
         if (!is_numeric($id)) return null;
         if (isset($id)) {
