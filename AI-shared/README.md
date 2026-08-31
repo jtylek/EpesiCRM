@@ -67,6 +67,7 @@ most expensive mistake this folder can cause, and it has happened.
 - [branding-epesi-casing.md](branding-epesi-casing.md) — it's "Epesi", not "EPESI".
 
 **Tooling and process**
+- [ci-workflow.md](ci-workflow.md) — CI is disabled on GitHub (no Actions minutes); how to run the same checks locally.
 - [log-monitoring.md](log-monitoring.md) — example log-tailing setup (a template, not a standard).
 - [sharing-skills.md](sharing-skills.md) — how to make a `/skill-name` skill shared across developers.
 - [dependency-upgrades.md](dependency-upgrades.md) — composer bump findings. Read before re-attempting TCPDF/Symfony.
@@ -95,6 +96,11 @@ message or the PR description.
 Before that date there was **no CI at all**, despite `CLAUDE.md` and `phpstan.neon` both
 describing jobs in the present tense — and neither PHPStan nor Rector was even installed.
 Noted because several documents were written against that false assumption.
+
+As of 2026-09-01 the workflow is **manually disabled on GitHub** (no Actions minutes
+available on this repo, so it could never run remotely anyway) and has had zero runs. See
+[ci-workflow.md](ci-workflow.md) for the reasoning and how to run the equivalent checks
+locally instead.
 
 ## Conventions for investigating/fixing bugs
 
