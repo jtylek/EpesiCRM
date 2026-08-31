@@ -21,7 +21,6 @@ try {
     ret($e->getMessage());
 }
 
-ModuleManager::create_common_cache();
 Base_ThemeCommon::themeup();
 
 foreach ($patches as $patch) {

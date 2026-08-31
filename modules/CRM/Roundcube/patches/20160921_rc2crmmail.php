@@ -62,5 +62,4 @@ replace_to_mail_in('utils_watchdog_category', 'callback');
 replace_to_mail_in('recordbrowser_addon', 'module');
 
 ModuleManager::create_load_priority_array();
-ModuleManager::create_common_cache();
 Cache::clear();

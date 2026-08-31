@@ -89,8 +89,8 @@ Admin/README.md`'s convention for a User Management tile) this same way: those a
 implement a given method* via `Cache::` (memcache-backed here, cross-*request*, not just
 request-scoped like most of this file's other examples). A method newly added to an
 already-installed module's `Common` class silently won't appear until that cache entry is
-cleared. `console.php cache:rebuild` (`Cache::clear()` + `ModuleManager::
-create_common_cache()`) does this safely — it's just a cache, always safe to clear in dev.
+cleared. `console.php cache:rebuild` (`Cache::clear()`) does this safely — it's just a
+cache, always safe to clear in dev.
 
 ## `$cols` controls which columns a *specific* browse call shows — `set_header_properties()` doesn't
 

@@ -58,13 +58,10 @@ by exact string — a Setup `simple_setup()` package name, an ACL permission nam
 CommonData array id, anything used as a `switch`/`==` key rather than just displayed
 (→ needs the full rename-everywhere treatment done here, coordinated across every call
 site and every language file's key).
-
-**Either way, a lang-file edit alone isn't enough to see it live** — both
-`load()`'s per-language merge (`Base_LangCommon::load()`) and
-`FORCE_CACHE_COMMON_FILES`'s common-class bundle are cached; run
-`console.php cache:rebuild` (`Cache::clear()` + `ModuleManager::create_common_cache()`)
-after editing any `lang/<code>.php` file, same as the `FORCE_CACHE_COMMON_FILES`
-gotcha in `environment-gotchas.md`. The rest of the `EPESI`-keyed strings in `en.php`
+**Either way, a lang-file edit alone isn't enough to see it live** — `load()`'s per-language
+merge (`Base_LangCommon::load()`) caches the merged result via
+`Cache::get('lang_merged_'.$lang_code)`; run `console.php cache:rebuild` (`Cache::clear()`)
+after editing any `lang/<code>.php` file. The rest of the `EPESI`-keyed strings in `en.php`
 are still unfixed — do them opportunistically (checking each one's blast radius as
 above first), not in one blind sweep.
 

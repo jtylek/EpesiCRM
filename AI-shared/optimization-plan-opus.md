@@ -928,19 +928,20 @@ false under `===`.
   exists to prevent. 3.3 is additionally *answered rather than pending*: §9's profile found
   no single hotspot left in the row loop, so there is no target to optimise until a new
   profile finds one.
-- **2.5 is now closed — off, on measurement.** ~~The prod/dev default decision for
-  `FORCE_CACHE_COMMON_FILES`.~~ It was flipped on and then back off the same day
-  (2026-08-31): the flag is worth ~3.5 ms per request with opcache and nothing without
-  it, roughly 1% of a page render, which does not pay for the stale-`Common_0.php` trap
-  or the two fatals the single compilation unit makes possible. It stays available for
-  installs on a network filesystem, the one case not measured. Full numbers and the
-  reasoning in `environment-gotchas.md`; the two fatals in `bug-patterns.md`.
-  **The process lesson is the more valuable half: it shipped on a plausible argument,
-  was never measured, and broke the webmail within the hour.** `include/config.php`'s fallback deliberately
-  stays `0` — it only governs installs predating the define, and flipping it would change
-  behaviour for existing installs on upgrade, which was not what was decided. The value has
-  now moved twice (`8fa13be19` 1 → `d9283c47a` 0 → this), so the reasoning for each flip is
-  tabulated in `environment-gotchas.md` to stop a fourth round.
+- **2.5 is now closed — removed, on measurement.** ~~The prod/dev default decision for
+  `FORCE_CACHE_COMMON_FILES`.~~ Same day (2026-08-31): flipped on, broke the webmail
+  within the hour, fixed, flipped back off once actually measured, then removed
+  entirely — `ModuleManager`'s bundle branch, `create_common_cache()`, both constants,
+  every call site. The flag was worth ~3.5 ms per request with opcache and nothing
+  without it (roughly 1% of a page render), against a stale-`Common_0.php` trap with no
+  warning and two ways for one compilation unit to fatal the whole app. Full numbers,
+  what was removed, and what to do if this is proposed again: `deliberate-removals.md`'s
+  "`FORCE_CACHE_COMMON_FILES` common-class bundle" entry.
+  **The process lesson is the more valuable half: it shipped on a plausible argument
+  from this plan's own §A3 framing, was never measured, and broke the webmail within
+  the hour.** The value moved three times in one day (`8fa13be19` 1 → `d9283c47a` 0 →
+  `5e3ed0378` 1 → `df9a0cf82` 0 → removed) before anyone asked what it was actually
+  worth.
 - **PHPStan level 2** — level 1 is in. Level 2 starts checking unknown methods on typed
   expressions, which the missing autoload makes noisy; it wants its own pass, not a config
   bump.

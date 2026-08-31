@@ -390,9 +390,11 @@ class CRM_GoogleCalendarSyncCommon extends ModuleCommon {
 		return rtrim(get_epesi_url(), '/') . '/ajax.php?' . http_build_query(array('key'=>$key, 'cid'=>0));
 	}
 
-	// fully-qualified, not `use`-imported: CalendarCommon_0.php already imports Request into
-	// the shared temp/data/cache/common.php compilation unit (see module_manager.php's
-	// create_common_cache()), and a duplicate `use` of the same class there is a PHP fatal.
+	// Fully-qualified rather than `use`-imported. This was once load-bearing: the
+	// FORCE_CACHE_COMMON_FILES bundle concatenated every Common class into one
+	// compilation unit, where a second `use` of a name CalendarCommon_0.php already
+	// imported was a fatal. That bundle is gone (see AI-shared/deliberate-removals.md),
+	// so this is now only a style choice.
 	public static function oauth_callback(\Symfony\Component\HttpFoundation\Request $request, $args) {
 		$home = rtrim(get_epesi_url(), '/') . '/';
 		$code = $request->query->get('code');

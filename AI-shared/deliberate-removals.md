@@ -370,3 +370,75 @@ No schema ever created (like this one) → a plain `DELETE FROM modules WHERE
 name=...` patch is safe and worth shipping. Real schema, or an `*Install.php`
 that might still need to stay loadable → leave it alone, same as CKEditor/
 OpenFlashChart/`Develop_*` above.
+
+## `FORCE_CACHE_COMMON_FILES` common-class bundle (removed 2026-08-31)
+
+Every module's `*Common_0.php` used to be concatenatable into one cached file,
+`temp/data/cache/common.php`, so `ModuleManager::load_modules()` could do one
+`require_once` instead of ~71. The flag defaulted off since inception; the same day it
+was turned on for fresh installs (`5e3ed0378`, part of `optimization-plan-opus.md` item
+2.5), then reverted (`df9a0cf82`) once actually measured, then the whole mechanism was
+cut. **If a future performance pass proposes reintroducing "bundle the Common classes",
+read this entry and the measurement below first — it has already been tried twice and
+measured once.**
+
+**Why it existed.** `optimization-plan-opus.md` §A3 framed `load_modules()`'s per-request
+cost as "~71 `require`s + `file_exists()` calls", and the bundle turns that into one. That
+framing implied an order-of-magnitude win.
+
+**What it actually measured.** Web SAPI, opcache on, 95 modules, local disk:
+`load_modules()` cost ~13.5 ms bundled vs. ~17 ms unbundled — **~3.5 ms per request**,
+about 1% of a 245 ms page render. Under CLI, where opcache is off, it measured **worse**
+than nothing (~83 ms bundled vs. ~79 ms unbundled). The reason generalizes past this
+codebase: without opcache, the compiler does identical work whether the code arrives as
+71 files or 1 — only the file-open overhead is saved, and that is small on local disk.
+With opcache, compilation is already cached either way, so what remains is the same small
+overhead. **The bundle can only ever save `stat`/open cost, never compilation cost** — the
+"71 requires become 1" framing invites exactly the opposite assumption, and it was the
+plan's own author who made it.
+
+**What it cost, against that ~3.5 ms:**
+
+1. **Silently stale code, no warning.** The bundle is used whenever `file_exists()` is
+   true, with no timestamp/hash check — so an edit to any `Common_0.php` had zero effect
+   until an explicit `cache:rebuild`. Confirmed live on this machine 3 times (2026-08-13,
+   2026-08-25, and implicitly every time the flag was on) — see `bug-patterns.md`'s
+   "turning a config constant into a runtime flag" entry and `environment-gotchas.md`'s
+   former `FORCE_CACHE_COMMON_FILES` section for the incidents.
+2. **A duplicate `use` across two Common files was an instant fatal for the whole app,**
+   because every module's Common class became one PHP compilation unit. `CRM_Calendar`
+   and `Premium_PasswordManager` both `use Symfony\Component\HttpFoundation\Request` —
+   installing that Premium module would have fataled the entire application under the
+   bundle. Never hit in practice only because that module was never installed here.
+3. **A Common class loaded outside the module system (a raw `require_once`, bypassing
+   `include_common()`) got re-declared by the bundle — `E_COMPILE_ERROR`, the whole
+   request down.** This is what actually happened: `modules/Libs/RoundCube/RC/config/
+   config.inc.php` raw-requires `MailCommon_0.php` because that bootstrap deliberately
+   skips the module system, and the webmail client stopped loading within an hour of the
+   flag going on (`5e3ed0378` → broke it; `e257b7a93` shipped a same-day fix keyed on
+   `get_declared_classes()` instead of the guard's own bookkeeping — moot now that the
+   bundle itself is gone, but the fix commit is worth reading for the mechanism). The
+   visible symptom, a page of literal `?>?>?>…`, was a second bug layered on the first:
+   `create_common_cache()` force-appended a `?>` separator, but 128 files already ended
+   with their own, and two close tags in a row leave everything between them in HTML
+   mode — 85 stray `?>` were sitting in every generated bundle, invisible until the
+   compile error stopped the output buffer from being discarded normally.
+
+**What was removed.** `ModuleManager::load_modules()`'s bundle branch, `create_common_cache()`,
+`any_common_already_declared()`, `$individually_loaded_commons` and its bookkeeping write,
+the `FORCE_CACHE_COMMON_FILES` and `CACHE_COMMON_FILES` (the latter was dead — defined,
+never read, since before this investigation) constants and their `include/config.php`
+defaults, every `create_common_cache()` call site (`console/CacheRebuildCommand.php`,
+`console/RebuildAllCommand.php`, `admin/modules/ClearCache.php`, two install/upgrade/
+patch call sites), and the config-checklist row in `admin/modules/ConfigInfo.php`.
+`console.php cache:rebuild` and admin "Clear Cache" still exist and still do something
+real — they call `Cache::clear()`, which is unrelated general-purpose caching (menu
+lookups, `check_common_methods()`, language merges) that this removal does not touch.
+
+**How to apply if this is proposed again.** Don't re-derive the "71 requires → 1" framing
+from a fresh reading of `load_modules()` — it is the exact framing that led here twice.
+Measure first, under the web SAPI with opcache on (CLI figures are meaningless — opcache
+is off there and inflates every file-loading number 4-5x). If a case for it appears on a
+network filesystem — the one scenario not measured here, where `stat`/open overhead is
+genuinely large — treat that as a fresh proposal with fresh numbers from that environment,
+not a reason to restore this code unmeasured.

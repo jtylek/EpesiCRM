@@ -154,9 +154,11 @@ even in light mode as a result. Fixed by following the convention every other
 default*, `[data-bs-theme="light"]` is the override - never the reverse. Worth grepping
 for this exact mistake if a future dark-mode CSS addition looks "inverted" in one theme.
 
-**Also found, unrelated to Quill's own correctness**: this dev environment's
-`ModuleManager::create_common_cache()`/`commons_with_code` caching (`include/
-module_manager.php`) did not reliably run a freshly-`module:install`-ed module's
+**Also found, unrelated to Quill's own correctness** (historical: `create_common_cache()`
+and the `FORCE_CACHE_COMMON_FILES` bundle it belonged to were removed 2026-08-31, see
+`deliberate-removals.md` — this paragraph records the investigation as it happened):
+this dev environment's `ModuleManager::create_common_cache()`/`commons_with_code` caching
+(`include/module_manager.php`) did not reliably run a freshly-`module:install`-ed module's
 `Common_0.php` top-level code on every request, even after `console.php cache:rebuild`
 and fresh logins - `Libs_QuillCommon`'s own `load_css()` calls (the file's only job)
 intermittently never fired. Root cause not fully chased (limited value chasing pre-existing

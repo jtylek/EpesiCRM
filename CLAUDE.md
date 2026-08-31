@@ -32,18 +32,10 @@ that split and other details.
   compile or bundle for normal development.
 - `data/` is the runtime data directory (config, cache, uploads, logs, per-instance state) and is gitignored
   except for a few shipped defaults; `temp/` holds Smarty compile output and other generated caches
-  (including the common-file bundle below) and is fully gitignored.
+  and is fully gitignored.
 - `modules/Premium/` is a separately-licensed, gitignored tree (each premium module is its own git repo).
   Claude Code's Grep tool silently skips gitignored paths, so an exhaustive sweep that must include Premium
   needs plain `grep`/`git grep --no-index` via Bash instead.
-- **`Common_0.php` edits need a cache rebuild when `FORCE_CACHE_COMMON_FILES` is on.** Check
-  `data/config.php` for its current value — it is gitignored and gets flipped. It ships off
-  (measured: worth ~3.5 ms with opcache, nothing without), but when it is `1`, every module's
-  `*Common_0.php` is served from one bundle, `temp/data/cache/common.php`, and the check is
-  `file_exists()`, not a timestamp — so an edit to any `Common_0.php` has **no effect at all**,
-  with no warning, until `php console.php cache:rebuild` (or Administration → Clear Cache).
-  Don't debug a "the edit didn't work" symptom without checking that first; see
-  `AI-shared/environment-gotchas.md`.
 
 ## Commands
 

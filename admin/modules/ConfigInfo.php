@@ -57,7 +57,6 @@ class ConfigInfo extends AdminModule {
             $this->row('Reducing Transfer: ', $yn(REDUCING_TRANSFER)),
             $this->row('Minify Encode: ', $yn(MINIFY_ENCODE)),
             $this->row('Minify sources: ', $yn(MINIFY_SOURCES)),
-            $this->row('Force cache common files: ', $yn(FORCE_CACHE_COMMON_FILES)),
             // Configured vs. actually selected. The two can differ - a pinned driver
             // whose extension is missing degrades down Cache::driver_chain() - and the
             // difference is exactly what you want to see on a "why is this slow" visit,

@@ -2619,6 +2619,12 @@ not. The count matters here: `SQL_TIMES` had 40 call sites and `MODULE_TIMES` 7,
 
 ## A raw `require_once` of a Common file defeats the `FORCE_CACHE_COMMON_FILES` guard, and takes the whole app down (2026-08-31)
 
+**`FORCE_CACHE_COMMON_FILES` and the guard fix below were removed the same day** (see
+`deliberate-removals.md`) once actually measured — worth ~3.5 ms/request with opcache,
+nothing without. Left here as the record of *why* two Common-bundling schemes are
+dangerous in general; the specific guard code no longer exists to be reintroduced by
+copy-paste.
+
 `FORCE_CACHE_COMMON_FILES` concatenates every installed module's `*Common_0.php` into one
 bundle and `require_once`s that instead of the individual files. `require_once` dedupes by
 *path*, not by the symbols a file declares, so if any Common class is already loaded when

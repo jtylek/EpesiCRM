@@ -20,17 +20,16 @@ class ClearCache extends SteppedAdminModule {
 
     public function action() {
         Cache::clear();
-        ModuleManager::create_common_cache();
         return true;
     }
 
     public function start_text() {
         $this->set_button_text('Clear Cache');
-        return '<center>This clears EPESI\'s internal cache (menus, common-method lookups, theme/module cache) and rebuilds it. Continue?</center>';
+        return '<center>This clears EPESI\'s internal cache (menus, common-method lookups, theme/module cache). It is rebuilt as it is needed. Continue?</center>';
     }
 
     public function success_text() {
-        return '<center>Cache cleared and rebuilt.</center>';
+        return '<center>Cache cleared.</center>';
     }
 
     public function failure_text() {

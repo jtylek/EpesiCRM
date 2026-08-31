@@ -241,9 +241,9 @@ clicked through it live:
    have a `help()` method" cross-request (`Cache::get('common_method_help')`, via
    phpfastcache/memcached here, 24h default TTL) — a cache entry from before your
    module had `help()` stays stale until it expires or is cleared. Fix:
-   `/c/xampp82/php/php.exe console.php cache:rebuild` (`Cache::clear()` +
-   `ModuleManager::create_common_cache()`). Don't assume "it's not appearing in
-   search" means your DSL/registration is wrong — clear this cache first.
+   `/c/xampp82/php/php.exe console.php cache:rebuild` (`Cache::clear()`). Don't assume
+   "it's not appearing in search" means your DSL/registration is wrong — clear this
+   cache first.
 2. **The guided walk-through can get stuck partway**, in two visibly different ways
    that mean two different bugs:
    - Arrow stays parked on the *current* step, never advancing (e.g. sitting on a
