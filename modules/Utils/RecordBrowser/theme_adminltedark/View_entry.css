@@ -1151,3 +1151,21 @@
 [data-bs-theme="light"] .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
   border-color: #0d6efd !important;
 }
+
+/* Favourite / watchdog state colours (2026-08-31).
+
+   RecordBrowserCommon::get_fav_button_tags() and WatchdogCommon::
+   get_change_subscription_icon_tags() now emit <i class="bi ..."> directly instead of a
+   raster <img> that this file used to hide and paint over. These carry the colours that
+   previously lived in the matching [src*="..."] ::before rules above, which no longer
+   match (no <img>) and are kept only for icons still rendered as images. Defined in both
+   this file and the other surface's stylesheet because the same two functions render
+   into the grid and into the record view, and per-module theme CSS does not cascade
+   between them. */
+i.action_button.epesi-fav-on   { color: #ffc107; }   /* gold star - on favourites */
+i.action_button.epesi-watch-on { color: #198754; }   /* green eye - watching, nothing new */
+i.action_button.epesi-watch-new{ color: #fd7e14; }   /* orange eye - unseen events */
+
+/* Base sizing for those glyphs on the record-view surface, matching what the grid's own
+   stylesheet gives them there. */
+i.action_button { font-size: 1rem; line-height: 1; vertical-align: middle; }

@@ -218,6 +218,89 @@ class Utils_GenericBrowser extends Module {
 	/**
 	 * For internal use only.
 	 */
+	/**
+	 * Bootstrap Icons glyph for each row action this module owns.
+	 *
+	 * These used to be raster PNGs emitted as <img>, which the adminltedark theme then
+	 * hid with display:none and painted over with a ::before glyph selected by
+	 * [src*="..."] - so every grid page shipped ~240 <img> elements that were downloaded
+	 * and never shown (measured 2026-08-31). Emitting the glyph directly removes both the
+	 * elements and the requests, and matches what Base_ActionBar's own adminltedark
+	 * template has always done (its $icon_map).
+	 *
+	 * Keyed by the same action keyword __add_row_action() already uses, so there is no
+	 * cross-module filename collision to worry about (Premium/Import ships its own
+	 * edit.png/view.png, and reaches the path branch below, not this map).
+	 */
+	private static $bi_action_icons = array(
+		'view'             => 'bi-eye',
+		'edit'             => 'bi-pencil-square',
+		'delete'           => 'bi-trash',
+		'info'             => 'bi-info-circle-fill',
+		'print'            => 'bi-printer',
+		'restore'          => 'bi-arrow-counterclockwise',
+		'active-on'        => 'bi-toggle-on',
+		'active-off'       => 'bi-toggle-off',
+		'move-up'          => 'bi-arrow-up',
+		'move-down'        => 'bi-arrow-down',
+		'move-up-down'     => 'bi-arrow-down-up',
+		'history'          => 'bi-clock-history',
+		'history_inactive' => 'bi-clock-history',
+		// Reached through the path branch (callers pass a resolved template file), so
+		// keyed by filename stem as well - see action_icon_tag().
+		'expand'           => 'bi-chevron-down',
+		'collapse'         => 'bi-chevron-up',
+		'plus_gray'        => 'bi-chevron-down',
+		'minus_gray'       => 'bi-chevron-up',
+	);
+
+	/**
+	 * Render one row-action icon: a Bootstrap Icons glyph where we know which glyph the
+	 * icon means, the original <img> otherwise.
+	 *
+	 * The <img> fallback is deliberate and load-bearing, not a leftover. Third-party and
+	 * legacy modules (Premium/Import ships folder/manual/copy/checkbox icons, and the
+	 * default theme exists only for old modules now) pass their own artwork through the
+	 * path branch, and there is no way to know what glyph an arbitrary PNG means. Those
+	 * keep working exactly as before; converting a module is then just a matter of it
+	 * declaring bootstrap_icon(), with nothing here to change.
+	 *
+	 * @param string|null $keyword action keyword for the keyword branch, null for a path
+	 * @param bool        $off     disabled variant - drawn dimmed rather than as a
+	 *                             separate "-off" image
+	 * @param string      $path    resolved image path, used for the fallback and for
+	 *                             module-identity lookup
+	 */
+	private static function action_icon_tag($keyword, $off, $path) {
+		$bi = null;
+		if ($keyword !== null && isset(self::$bi_action_icons[$keyword])) {
+			$bi = self::$bi_action_icons[$keyword];
+		} elseif ($path) {
+			$stem = strtolower(pathinfo($path, PATHINFO_FILENAME));
+			// Only this module's own artwork is matched by stem; another module's
+			// edit.png must not silently borrow our glyph.
+			if (isset(self::$bi_action_icons[$stem]) && str_contains(str_replace('\\', '/', $path), '/GenericBrowser/')) {
+				$bi = self::$bi_action_icons[$stem];
+			} elseif (preg_match('/[-_]small$/', $stem)) {
+				// Plain require_once at the point of use, same as Base_Menu and the
+				// ActionBar template - it is not a Module subclass, so the autoloader
+				// never sees it.
+				require_once('modules/Base/Theme/bootstrap_icons.php');
+				// A module's own identity icon used as a row shortcut (CRM_Contacts'
+				// "New Meeting/Task/Phonecall", Utils_Attachment's notes icon). Let the
+				// module declare its own glyph rather than mapping each file here - the
+				// same resolve() the sidebar and launcher already use, so the icon reads
+				// identically everywhere. Returns null when the module declares nothing,
+				// which keeps its <img>.
+				$bi = Base_BootstrapIcons::resolve($path, null, null);
+			}
+		}
+		if ($bi) {
+			return '<i class="bi '.$bi.' action_button'.($off ? ' action_button_off' : '').'"></i>';
+		}
+		return '<img class="action_button'.($off ? ' action_button_off' : '').'" src="'.$path.'" border="0">';
+	}
+
 	public function __add_row_action($num,$tag_attrs,$label,$tooltip,$icon,$order=0,$off=false,$size=1,$keep_table=false) {
 		if (!isset($icon)) $icon = strtolower(trim($label));
 		switch ($icon) {
@@ -937,9 +1020,9 @@ class Utils_GenericBrowser extends Module {
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null, 500, $arr['keep_table'] ?? false).' '.$arr['tag_attrs'].'>';
 					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
-							$actions .= '<img class="action_button" src="'.Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png').'" border="0">';
+							$actions .= self::action_icon_tag($icon, (bool)$arr['off'], Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png'));
 					    } elseif(file_exists($icon)) {
-							$actions .= '<img class="action_button" src="'.$icon.'" border="0">';
+							$actions .= self::action_icon_tag(null, false, $icon);
 					    } else {
 							$actions .= $arr['label'];
 					    }

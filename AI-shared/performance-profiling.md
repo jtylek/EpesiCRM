@@ -579,7 +579,7 @@ Verified by forcing `last_refresh=0`, confirming the next poll took the full pat
 `load_modules()`) — it is the model to copy for `Apps/Shoutbox/refresh.php` and
 `Utils/Messenger/refresh.php`, which still pay the full bootstrap.
 
-### Known, NOT fixed: 240 hidden `<img>` elements are downloaded per grid page
+### Fixed: grid row-action icons emit Bootstrap Icons glyphs, not hidden <img> (2026-08-31)
 
 The plan that drove this pass assumed the grids' row-action icons were still PNGs
 that wanted converting to `bootstrap_icon()`. **That premise was wrong, and the
@@ -589,15 +589,54 @@ glyphs — but they are drawn by CSS `::before` on the `<a>`, selected via
 (`GenericBrowser/theme_adminltedark/default.css`, the long commented block around
 line 510).
 
-So each grid page emits ~240 `<img>` elements (≈25 distinct URLs), the browser
-downloads every one of them (`display:none` does not prevent fetching — confirmed
-live: `complete: true, naturalWidth: 14`), and not one is ever shown.
+So each grid page emits 240 `<img>` elements (12 distinct URLs x 20 rows), the
+browser downloads every one of them (`display:none` does not prevent fetching -
+confirmed live: `complete: true, naturalWidth: 14`), and not one is ever shown.
+The *network* cost is smaller than that sounds - 12 files, ~3.9 KB, fetched once per
+browser cache lifetime and 0 bytes on any later navigation (measured) - so the real
+price was 240 surplus DOM nodes and 240 `:has()` evaluations per grid render, not
+bandwidth.
 
-**Why it was not fixed here:** removing the `<img>` breaks every one of those
-`[src*=...]` CSS selectors, so it is a coordinated PHP + CSS change
-(`GenericBrowser_0.php:939-942` emits `<i class="bi ...">`, and the matching
-`::before` rules come out), not a one-sided edit. That CSS block's own comments
-document two previous attempts at this area that were gotten wrong and had to be
-fixed after a user report, and a half-done version visibly breaks every grid in the
-app. Worth doing deliberately, with visual verification at desktop and mobile widths
-in both themes — not as a drive-by.
+**Fixed the same day.** `GenericBrowser_0.php`'s new `action_icon_tag()` emits
+`<i class="bi bi-...">` directly for every action whose meaning it knows - the same
+thing `Base_ActionBar`'s adminltedark template has always done (its `$icon_map`).
+`RecordBrowserCommon::get_fav_button_tags()` and
+`WatchdogCommon::get_change_subscription_icon_tags()` were converted at their own call
+sites. **Result: 240 hidden `<img>` per grid page -> 0**, verified across Contacts,
+Companies, Tasks, Phonecalls and Meetings.
+
+**The key correction to the entry above**: this was never really "sprite vs. individual
+PNGs". A sprite *does* exist - `Base/ActionBar/theme/icons.png`, 16 KB, driven by
+`background-position` - and it is the legacy theme's original design. But adminltedark
+does not use it: ActionBar was migrated to Bootstrap Icons glyphs and emits no `<img>`
+at all. GenericBrowser simply never got that migration, and was worked around in CSS
+instead. Re-spriting would have been a step backwards; finishing the migration was the
+fix. The default/legacy theme now exists only for old modules and is slated for
+retirement, so glyphs are the single icon mechanism going forward.
+
+**Three things worth knowing before touching this again:**
+
+- **The raster `<img>` fallback is load-bearing, not leftover.** `action_icon_tag()`
+  falls back to the original `<img>` for any icon it cannot identify. `Premium/Import`
+  ships its own folder/manual/copy/checkbox artwork through the same path branch and has
+  22 of its own `[src*=...]` rules in a **gitignored, separate git repo** - it keeps
+  working untouched. Note its `edit.png`/`view.png` deliberately do *not* borrow
+  GenericBrowser's glyph: the stem lookup is gated on the path being GenericBrowser's
+  own. Converting a module later means it declaring `bootstrap_icon()`, with nothing
+  here to change.
+- **`:is()` takes the specificity of its most specific argument.** The generic
+  `:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button` rule
+  therefore carries the weight of an *id*, so a bare `.epesi-fav-on { color: ... }` lost
+  to it and the star/eye rendered grey instead of gold/green. The state-colour rules need
+  the same `:is(...)` prefix. Caught by reading `getComputedStyle()`, not by looking at
+  the page.
+- **The mobile actions menu clones these `<a>`s** into `#epesi-gb-actions-menu` outside
+  the table. Putting the class on the element itself (rather than selecting a sibling
+  `<img>` via `:has()`) means clones carry it for free - verified: 10 glyphs, 0 images in
+  the open menu.
+
+**Still on images** (a fixed handful per page, not per row, so far less costly): the
+record view's own tools row - `RecordBrowser/theme/{info,clipboard,history_inactive}.png`
+plus the Calendar/Tasks/PhoneCall/Attachment shortcuts, 7 `<img>` per record view. Same
+shape, different emitter (`View_entry`, not GenericBrowser's action loop), and
+`View_entry.css` still has 16 `[src*=...]` rules driving them.

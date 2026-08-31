@@ -1791,3 +1791,53 @@
     background-color: #e9ecef;
   }
 }
+
+/* ---- row-action icons emitted as Bootstrap Icons glyphs (2026-08-31) ----
+
+   GenericBrowser_0.php's action_icon_tag() now emits <i class="bi bi-..."> directly for
+   every action whose meaning it knows, instead of an <img> that the [src*="..."] rules
+   further up hide and paint over. Same approach Base_ActionBar's own adminltedark
+   template has always used.
+
+   Why it changed: the <img> were display:none but still fetched - 240 of them per grid
+   page (12 distinct URLs x 20 rows), none ever visible. Hiding an image does not stop
+   the browser loading it.
+
+   Those [src*="..."] ::before rules are deliberately left in place: they still drive
+   every icon this module cannot identify - Premium/Import's own folder/manual/copy
+   artwork, and anything a legacy module passes through the path branch, which keep
+   rendering as <img>. They simply no longer match for the converted ones (no <img>, no
+   :has() match), so the two mechanisms coexist without double-drawing.
+
+   Matches the sizing/colour the a::before rule above gives the glyphs it draws, so a
+   converted and an unconverted icon sitting next to each other look identical. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button {
+	font-size: 1rem;
+	color: #8b929a;
+	line-height: 1;
+	vertical-align: middle;
+}
+
+/* Disabled actions used to be a separate "<name>-off.png" file; dimmed here instead,
+   the same 0.4 opacity the -off ::before rules above use. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button_off {
+	opacity: 0.4;
+}
+
+/* Favourite / watchdog state colours (2026-08-31).
+
+   RecordBrowserCommon::get_fav_button_tags() and WatchdogCommon::
+   get_change_subscription_icon_tags() now emit <i class="bi ..."> directly instead of a
+   raster <img> that this file used to hide and paint over. These carry the colours that
+   previously lived in the matching [src*="..."] ::before rules above, which no longer
+   match (no <img>) and are kept only for icons still rendered as images. Defined in both
+   this file and the other surface's stylesheet because the same two functions render
+   into the grid and into the record view, and per-module theme CSS does not cascade
+   between them. */
+/* Same :is(...) prefix as the generic i.action_button rule above, deliberately: :is()
+   takes the specificity of its most specific argument, so that rule carries the weight of
+   #epesi-gb-actions-menu (an id) and a bare .epesi-fav-on selector loses to it - the
+   glyphs rendered grey instead of gold/green until these were scoped to match. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-fav-on   { color: #ffc107; }   /* gold star - on favourites */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-watch-on { color: #198754; }   /* green eye - watching, nothing new */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-watch-new{ color: #fd7e14; }   /* orange eye - unseen events */

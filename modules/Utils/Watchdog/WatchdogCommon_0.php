@@ -431,17 +431,23 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		load_js('modules/Utils/Watchdog/subscribe.js');
 		$tag_id = 'watchdog_sub_button_'.$category_name.'_'.$id;
 		$href = ' onclick="utils_watchdog_set_subscribe('.(($last_seen===null)?1:0).',\''.$category_name.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"';
+		// Bootstrap Icons glyph rather than not_watching_small/watching_small/
+		// watching_small_new_events.png. Those were already invisible under adminltedark
+		// - hidden by CSS and painted over with this same glyph - but still downloaded
+		// once per row. See AI-shared/performance-profiling.md (2026-08-31). The green/
+		// orange colours that used to live in the [src*=] rules now hang off the state
+		// classes.
 		if ($last_seen===null) {
-			$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','not_watching_small.png');
+			$glyph = 'bi-eye-slash';                        // not watching
 		} else {
 			if ($last_seen===true) {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small.png');
+				$glyph = 'bi-eye-fill epesi-watch-on';      // watching, nothing new
 			} else {
-				$icon = Base_ThemeCommon::get_template_file('Utils_Watchdog','watching_small_new_events.png');
+				$glyph = 'bi-eye-fill epesi-watch-new';     // watching, unseen events
 			}
 		}
 		$tooltip = Utils_TooltipCommon::ajax_open_tag_attrs(array(__CLASS__, 'ajax_subscription_tooltip'), array($category_name, $id), 300, true, true);
-		return '<a '.$href.' '.$tooltip.'><img border="0" src="'.$icon.'"></a>';
+		return '<a '.$href.' '.$tooltip.'><i class="bi '.$glyph.' action_button"></i></a>';
 	}
 
 	public static function ajax_subscription_tooltip($category_name, $id)
