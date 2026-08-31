@@ -683,16 +683,38 @@
 					"}".
 					"document.querySelectorAll('.Utils_GenericBrowser').forEach(function(table){".
 						"var headerCell=table.querySelector('.Utils_GenericBrowser__th.Utils_GenericBrowser__actions');".
-						"if(!headerCell)return;".
+						// The actions column used to be this pass's entry ticket: no
+						// ".Utils_GenericBrowser__actions" header and the whole table was skipped -
+						// so every grid without row actions (Administrator > Login Audit, Shoutbox,
+						// Search results, Contacts > Activities, Cron, Reports, Fax, Lang) kept the raw
+						// weight-proportional split and its clipped columns, even though nothing in the
+						// width math below actually needs an actions column to exist. A grid only gets
+						// one from add_action() or, via GenericBrowser_0.php's expand-action fallback,
+						// from set_expandable(true) - LoginAudit_0.php calls neither. It is now just one
+						// more fixed-width contributor: present, it is measured and reserved exactly as
+						// before; absent, it reserves 0 and the content-aware split below runs on the
+						// remaining columns unchanged.
+						"var actionsWidth=0;".
+						"if(headerCell){".
 						"var maxWidth=0;".
 						"table.querySelectorAll('.Utils_GenericBrowser__tbody .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
 							"var w=naturalWidth(cell);".
 							"if(w>maxWidth)maxWidth=w;".
 						"});".
-						"if(maxWidth<=0)return;".
-						"var actionsWidth=Math.floor(maxWidth+8);".
+						// maxWidth<=0 means there were no body action cells to measure - an empty grid,
+						// or one whose rows have not arrived yet. That used to abandon the table the
+						// same way a missing header did; keep the width the column already carries
+						// (GenericBrowser_0.php's own inline px guess, or this script's last result)
+						// instead, so the reservation stays honest and the columns beside it are still
+						// sized.
+						"if(maxWidth>0){".
+						"actionsWidth=Math.floor(maxWidth+8);".
 						"headerCell.style.width=actionsWidth+'px';".
 						"headerCell.style.minWidth=actionsWidth+'px';".
+						"}else{".
+						"actionsWidth=Math.ceil(parseFloat(headerCell.style.width)||headerCell.getBoundingClientRect().width||0);".
+						"}".
+						"}".
 						"var container=table.closest('.table-responsive')||table.parentElement;".
 						"if(!container)return;".
 						"var containerWidth=container.clientWidth;".

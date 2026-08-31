@@ -53,7 +53,7 @@ most expensive mistake this folder can cause, and it has happened.
 - [adminlte-theme.md](adminlte-theme.md) — theme status and the recurring CSS/JS traps.
 - [how-menu-works.md](how-menu-works.md) — sidebar/menu internals.
 - [menu-search-plan.md](menu-search-plan.md) — the sidebar search box's design rationale.
-- [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) — mobile grid layout.
+- [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) — grid layout: column sizing (why declared weights still matter) + mobile reflow.
 - [recordbrowser-live-schema-changes.md](recordbrowser-live-schema-changes.md) — evolving a schema without losing data.
 - [tooltips-howto.md](tooltips-howto.md) — adding a RecordBrowser column tooltip.
 - [how-to-write-HELP.md](how-to-write-HELP.md) — adding a Base_Help tutorial entry.

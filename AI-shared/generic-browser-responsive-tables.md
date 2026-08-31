@@ -1,21 +1,220 @@
-# Utils_GenericBrowser mobile/responsive table (implemented on `mobile-gb`, unverified)
+# Utils_GenericBrowser grid layout: column sizing and mobile reflow
 
-> **Status:** DONE - merged into epesi-adminlte as e6a18586f; the CSS is live in GenericBrowser/theme_adminltedark/default.css. (Earlier "not yet merged" note was stale.)
+> **Status:** DONE - both halves are shipped and live. Part 1 (column sizing) shipped as
+> 8dec01fcc on 2026-08-31 and was extended the same day to grids without an actions column.
+> Part 2 (mobile reflow) merged as e6a18586f; the CSS is live in
+> `GenericBrowser/theme_adminltedark/default.css`. Filename kept as-is so existing links
+> keep resolving, though the file now covers more than responsive tables.
 
-**Status as of 2026-08-11: implemented on the `mobile-gb` branch; visual verification
-found the mobile_cols/favs-watchdog bug documented below (now fixed), not yet re-verified
-in a browser, not merged to `jasiek`/`karina`.** Triggered by `CRM_LoginAudit`
-being unreadable on narrow/mobile viewports (7 columns squeezed into one line).
-Decision: fix it **generically for every `Utils_GenericBrowser`/`Utils_RecordBrowser`
-list**, not just Login Audit — confirmed this reaches RecordBrowser's Browse mode too,
+Two related but independent mechanisms decide how a `Utils_GenericBrowser` grid lays out.
+They live in different files and fire under different conditions, and confusing them wastes
+time - so both are documented here rather than in two docs that drift apart:
+
+- **[Part 1: column sizing](#part-1-column-sizing-desktop-widths)** - JS in
+  `Base/Box/theme_adminltedark/default.tpl` that converts every column to px against its
+  container and moves unused width to columns short of their content. Runs at all widths.
+- **[Part 2: mobile reflow](#part-2-mobile-reflow-the-2-line-grid)** - CSS in
+  `Utils/GenericBrowser/theme_adminltedark/default.css` that turns each row into a 2-line
+  CSS Grid below 767.98px, plus the per-screen opt-outs that accumulated around it.
+
+Both are deliberately **generic**: they apply to every `Utils_GenericBrowser` /
+`Utils_RecordBrowser` list, not one module. That reaches RecordBrowser Browse mode too,
 since `RecordBrowser_0.php` renders its grid via a genuine child
-`Utils_GenericBrowser::module_name()` instance (`RecordBrowser_0.php:298` etc.), which
-goes through this same GenericBrowser theme — RecordBrowser's own
-`theme_adminltedark/Browsing_records.tpl` only renders the surrounding page chrome
-(filters/tabs), not the grid itself, and GenericBrowser's `theme_adminltedark/` has
-exactly one template/CSS pair (no per-caller override to miss). Do this work on its
-own `mobile-gb` branch (see [[mobile-gb-branch]]), not mixed into `jasiek`/`karina`
-mainline work.
+`Utils_GenericBrowser::module_name()` instance (`RecordBrowser_0.php:298` etc.) going
+through this same GenericBrowser theme - RecordBrowser's own
+`theme_adminltedark/Browsing_records.tpl` renders only the surrounding page chrome
+(filters/tabs), not the grid, and GenericBrowser's `theme_adminltedark/` has exactly one
+template/CSS pair, so there is no per-caller override to miss.
+
+---
+
+# Part 1: column sizing (desktop widths)
+
+## Where the code is
+
+**All of it is client-side JS, and it lives in exactly one place:**
+`modules/Base/Box/theme_adminltedark/default.tpl`, in the `{php}` block, as the
+`epesiSizeGbActions()` function inside the third `eval_js_once(...)` call. Nothing in
+`modules/Utils/GenericBrowser/` does width math beyond emitting the initial percentages.
+
+Consequences worth internalising before touching anything:
+
+- It is **theme-scoped**. The legacy `theme/` (non-AdminLTE) rendering path has no
+  equivalent - there, the server-emitted percentages are the final word.
+- It is **page-wide**, not per-module: the entry point is
+  `document.querySelectorAll('.Utils_GenericBrowser')`. Every grid on the page is sized,
+  including grids nested in dashboard applets (`#dashboard .epesi-applet-body .epesi-gb.card`,
+  `Base/Dashboard/theme_adminltedark/default.css`), Search results, Shoutbox history, and
+  RecordBrowser's own Browse grid.
+- The function name says "Actions" for historical reasons only. It sizes every column.
+
+It runs on: initial load, `document.fonts.ready`, jQuery `e:load` (Epesi's "AJAX content
+patch finished" event - paging/sorting/filtering replaces a table's rows wholesale), and a
+150ms-debounced `window resize`. It does **not** run when a dashboard applet is dragged into
+a different-width column, so widths there stay stale until one of the above fires.
+
+## The server side: what the JS starts from
+
+`GenericBrowser_0.php` (~line 969 onward) turns each column's declared `'width' => N` weight
+into `width="<intval(100*N/all_width)>%"`, and
+`Base/Theme/smarty/plugins/function.html_grid_epesi.php`'s `html_grid_epesi_attrs_to_div()`
+rewrites that presentation attribute into an inline `style="width:N%"` on the
+`<div role="columnheader">` - because the grid is CSS-table-display divs, not a real
+`<table>`, and a `width=` attribute on a div does nothing at all.
+
+**So there is no `width` attribute in the live DOM.** JS that reads
+`th.getAttribute('width')` finds nothing and falls through to `th.style.width`. Any test
+harness that puts `width="10%"` on a div is not reproducing the real markup.
+
+Three column kinds exist, and the JS classifies each one **once** into
+`data-epesi-col-kind`, never re-deriving it:
+
+| Kind | Declared as | Sized by |
+|---|---|---|
+| percent | numeric weight (the common case) | weighted split + redistribution below |
+| absolute | non-numeric CSS length, e.g. `'12em'` (Utils_Attachment's `edited_on`) | measured content + 6px |
+| fixed icon | `Utils_RecordBrowser__favs` / `__watchdog` (`'24px'`) | measured content + 2px, or 0 when the mobile breakpoint has hidden it |
+
+The one-shot classification is load-bearing: this same pass writes plain `NNpx` back onto
+`th.style.width`, so on the *next* run a percent column would look exactly like an absolute
+one and get mis-routed into content measurement - which for a free-text Note column means
+measuring thousands of px of unwrapped content and locking the column there. Same reason
+`data-epesi-orig-percent` caches the original percentage.
+
+## The pipeline, in order
+
+1. **Actions column** (`.Utils_GenericBrowser__actions`), if the grid has one: measure the
+   widest actions cell, reserve `+8`. **A grid without one reserves 0 and continues.**
+2. **Fixed/absolute columns**: measure each column's own content, set px, add to
+   `fixedWidth`.
+3. **Force-collapse** any `div.expandable.expanded` taller than one line (guarded by
+   `forceCollapse`, false on resize - without the guard a row the user just expanded gets
+   re-collapsed a moment later).
+4. **Weighted split**: `availableWidth = containerWidth - actionsWidth - fixedWidth - 2`,
+   divided among percent columns in proportion to their cached original percentages. This is
+   `basePx`.
+5. **Content-aware redistribution** (the 2026-08-31 change), below.
+
+### Redistribution: surplus moves to shortfall, smallest-first
+
+`columnNaturalWidth(table, idx)` measures a column's widest content by cloning **every** cell
+of that column into ONE detached, `table-layout:auto` throwaway table and reading
+`scrollWidth` - one forced layout per column rather than one per cell, which matters because
+this runs on load, on fonts.ready, on e:load and on every debounced resize. Then:
+
+- A column whose `basePx` exceeds what its content needs contributes the difference to a
+  `pool`. **A column can only ever donate what it does not need** - that is what keeps this
+  safe on grids whose weights are meaningful (a Note at 90 against a date at 12 has no
+  surplus, so nothing is taken from it).
+- Columns short of their content are filled **smallest-deficit-first** (water-filling), not
+  proportionally. Proportional sharing hands nearly the whole pool to a bottomless free-text
+  column and leaves a genuinely fixable 28px shortfall still clipping.
+- Donors then give back the amount actually taken, in proportion to their spare.
+- No shortfall anywhere, or no surplus anywhere, means the pass is a **no-op** and the layout
+  is byte-for-byte the pre-2026-08-31 weighted split.
+
+## Are the declared weights dead code now? No.
+
+Asked directly, and worth recording because the answer is not obvious. The weights are still:
+
+- **the baseline** - `basePx` is what decides which columns have surplus and which are short,
+  so changing a weight changes both the starting point and the donor/receiver roles;
+- **the entire answer whenever demand exceeds supply** - a narrow container (a dashboard
+  applet, typically) leaves no surplus, `pool` is 0, and the result is the plain proportional
+  split;
+- **the only sizing the legacy `theme/` path has** (no JS there at all);
+- **literal pixels under `absolute_width(true)`** - `RecordBrowser_0.php:936` sets it for PDF
+  export, where the declared numbers are used as-is and no JS is involved.
+
+What *is* effectively dead is the uniform default: RecordBrowser gives every ordinary text
+column the same weight (all seven of Contacts: Browse arrive as 14), so "proportional" there
+degraded to "every column identical regardless of content" - which is the whole reason the
+redistribution pass exists.
+
+## The 2026-08-31 gate removal
+
+The pass used to open with `if(!headerCell)return;` - no `.Utils_GenericBrowser__actions`
+header meant the entire table was skipped, even though nothing in the width math needs an
+actions column to exist. A grid only gets one from `add_action()` or, via
+`GenericBrowser_0.php`'s `$expand_action_only` fallback, from `set_expandable(true)`.
+
+Grids calling neither, and therefore silently excluded until now: **Administrator > Login
+Audit** (`CRM/LoginAudit`), Shoutbox, Search results, Contacts > Activities, Cron, Reports,
+Fax, Base/Lang Administrator. All of them kept the raw proportional split - which for Login
+Audit meant a Duration column sitting on 100px it never used while User Name clipped.
+
+A second `if(maxWidth<=0)return;` (actions header present but no measurable action cells - an
+empty grid) abandoned the table the same way; it now keeps whatever width the column already
+carries and sizes the rest.
+
+Measured on a Login-Audit-shaped grid at a 1100px container:
+
+| | column widths |
+|---|---|
+| before | 100 / 100 / 150 / 150 / 100 / 100 / 249 / 150 |
+| after | 108 / 152 / 145 / 145 / 73 / 103 / 209 / 164 |
+
+An actions-bearing grid measures byte-identical before and after.
+
+## Traps (all of these were paid for once already)
+
+- **Never measure a live cell's `scrollWidth`.** `col_resizable.js` forces
+  `table-layout:fixed`, so a body cell's box tracks the COLUMN's current width - including
+  the width this very function assigned last run. Measure, add a buffer, repeat, and the
+  column grows unboundedly on every resize tick (reproduced as ~10px per call with no actual
+  resize). Always clone into a detached `table-layout:auto` holder that keeps the `.epesi-gb`
+  / `.Utils_GenericBrowser` classes, so the theme's icon and hidden-image rules still apply.
+- **Round so the row lands UNDER the container, never over.** `Math.floor` for shares,
+  `Math.ceil` only for values working *against* the total (a fixed column's own footprint, a
+  donor's give-back), minus a 2px buffer. Chrome and Firefox do not round table columns
+  identically and 1px over is enough to trigger `.table-responsive`'s scrollbar.
+- **CSS must not set `width`/`min-width` `!important`** on these columns - it fights the
+  inline value this script writes, the same way it used to fight the PHP-computed one.
+- The whole body is wrapped in `try/catch` deliberately: an uncaught exception in any one
+  `e:load` observer aborts the entire shared script line it runs in, including the StatusBar
+  call right after it.
+
+## Verifying a change to this code without app credentials
+
+The emitted JS can be reconstructed and tested standalone, which is much faster than a
+login-and-click-through pass and catches the whole class of "does this table get sized at
+all" questions:
+
+1. Slice the lines between `eval_js_once(` and its closing `);` out of the template, strip
+   the trailing `.`, and eval it as a PHP expression - it is pure string-literal
+   concatenation, so this is safe and exact.
+2. `node --check` the result. Catches unbalanced braces in the concatenated string, which
+   `php -l` on the template cannot see. (`php -l` still matters, but the template is a Smarty
+   file - extract the `{php}...{/php}` block to a temp file first.)
+3. Build a `file://` harness page: inline
+   `modules/Utils/GenericBrowser/theme_adminltedark/default.css`, hand-write grid markup
+   matching `html_grid_epesi_attrs_to_div()`'s real output (inline `style="width:N%"`, NOT a
+   `width=` attribute - see above), stub `window.jQuery` to a no-op `.on()`, and append the
+   reconstructed JS.
+4. Drive it with `chromium.launch({ executablePath: <the ms-playwright chromium under
+   AppData/Local> })` and read back `getBoundingClientRect().width` per header, plus
+   `wrapper.scrollWidth > wrapper.clientWidth` for the scrollbar regression, and a count of
+   cells where `firstChild.scrollWidth > clientWidth` for clipping.
+5. Run the same harness against the pre-change JS from `git show HEAD:<file>` for a true A/B,
+   and once more with an actions column to prove the existing path is untouched.
+
+A caveat on the harness: it is not a substitute for the real page for anything involving the
+surrounding chrome (card padding, sidebar width, the real actions-column content), and small
+absolute discrepancies against the live app are expected there. It is authoritative for
+*relative* questions - does this grid get sized at all, did the actions path change, which
+column gained and which donated.
+
+See [environment-gotchas.md](environment-gotchas.md) for the browser/Playwright specifics on
+this machine, and its standing rule: credentials for the real app are asked for in-session,
+never written into a git-tracked doc.
+
+---
+
+# Part 2: mobile reflow (the 2-line grid)
+
+Triggered by `CRM_LoginAudit` being unreadable on narrow/mobile viewports (7 columns
+squeezed onto one line). Sections below are in the order they were written, so later ones
+correct earlier ones; the per-screen opt-outs near the end are the most-edited part.
 
 ## Why it squeezes instead of scrolling
 
@@ -32,6 +231,12 @@ relative weights (e.g. Login Audit's `LoginAudit_0.php:87-94`: 20/15/15/10/10/25
 not pixels, converted to percentages of that fixed 100% (`GenericBrowser_0.php:833-856`)
 — so on a narrow viewport every column just shrinks proportionally instead of the row
 scrolling sideways or wrapping.
+
+**Superseded for the AdminLTE theme (2026-08-31):** those percentages are now only the
+*starting point* - see Part 1 above, which re-sizes every column to px against the real
+container and moves unused width to columns short of their content. The paragraph above
+still describes the legacy `theme/` path exactly, and the CSS-level reason
+`.table-responsive` never engages.
 
 ## Key files
 
