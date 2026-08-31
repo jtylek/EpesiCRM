@@ -50,7 +50,7 @@ html body {
    this theme's default.tpl writes to document.documentElement (:root) for
    the same reason. */
 :root {
-	--epesi-sidebar-width: 200px;
+	--epesi-sidebar-width: 220px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
 
