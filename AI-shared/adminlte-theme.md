@@ -2,6 +2,63 @@
 
 > **Status:** IN PROGRESS - status of the adminlte/adminltedark themes: what is themed, what is not, and the recurring CSS/JS traps.
 
+## `.epesi-fullbleed`: opt-in for a screen that must fill the content column (2026-08-31)
+
+Added for CRM_Roundcube, whose whole body is one `<iframe>` hosting Roundcube's complete
+mail client - its own sidebar, toolbars, message list and preview pane. The content
+column's normal breathing room doesn't read as breathing room around something like that,
+just as a dead grey frame drawn around a second application, with Roundcube's own bottom
+status bar stranded well above the window bottom. Reported as padding on all four sides.
+
+**Four separate sources had to go**, none of them obvious from the module's own markup:
+
+| Side | Source |
+|---|---|
+| top + bottom | `.app-content { padding: 1rem 0 }` (Base_Box's own rule) |
+| left + right | Bootstrap's `.container-fluid` gutter, 0.75rem each side |
+| bottom (again) | `adminlte.min.css`'s own `.app-main { padding-bottom }` - 12px at 14px base |
+| bottom (again) | `Roundcube_0.php`'s `eval_js()` height guess, `clientHeight - 130` |
+
+That last 12px is the one worth remembering: it is invisible on an ordinary screen (it just
+trails the content) but it is exactly the difference between a full-bleed page fitting the
+window and being 12px scrollable with a dead band under the pane. Measured, not guessed -
+`document.documentElement.scrollHeight` read 912 against a 900px viewport with the first
+three already fixed.
+
+**The contract:** a module puts `.epesi-fullbleed` on the single top-level element of its
+own output. `Base_Box/theme_adminltedark/default.css` then zeroes all three paddings above
+and gives that element
+`height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height))`. Nothing
+else on the page changes.
+
+**Why `:has()` and not a class on `.app-content` or a body flag.** This is an AJAX-push SPA:
+`Epesi.text()` only ever rewrites the module's own `<span>`
+(`Epesi::$content[$path]['span']`) - `.app-main`, `.app-content` and `.container-fluid` all
+outlive the navigation. A class set while rendering this screen would therefore have to be
+explicitly unset again by *every other screen in the app*, which is exactly the kind of
+cleanup that gets missed. Keying off the presence of the opted-in element makes the
+exception disappear on its own the moment the module's markup is replaced. Verified:
+padding measured back at `16px 0px` / `12px` / `12px` on Dashboard, Shoutbox and Contacts
+after visiting mail, and `0px` everywhere on mail itself.
+
+The height being a `calc()` over the two `--epesi-*` variables (rather than a measured pixel
+count in JS) is what lets it survive an ActionBar that wraps onto a second row, or collapses
+away entirely under `body.epesi-actionbar-empty` - default.tpl's ResizeObserver already
+keeps both in sync with the bars' real rendered heights, and a `calc()` referencing them
+re-resolves for free. The `eval_js()` it replaced ran once per render and did neither.
+
+Two smaller traps that cost time here:
+
+- **`display:block` on the iframe is required.** An iframe is inline by default, so at
+  `height:100%` it sits on a text baseline and the descender gap pushes its bottom few px
+  out of the wrapper.
+- **Specificity, not `!important`.** `:has()` takes the specificity of its most specific
+  argument, so `.epesi-adminlte .app-content:has(.epesi-fullbleed)` is 3 classes against the
+  2 of the `.app-content` rule, and the `.container-fluid` and `.app-main` overrides outrank
+  their single-class vendor rules regardless of stylesheet load order - which matters,
+  since Base_Box's own bundle goes out *before* bootstrap/adminlte (see the `#ActionBar`
+  padding comment in that file for the same trap biting the other way).
+
 ## Base font size centralized into `--epesi-font-size-base`, bumped 13px → 14px (2026-08-29)
 
 An earlier pass (per explicit request) shrank the app's default body/text size to 13px.

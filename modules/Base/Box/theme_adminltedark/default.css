@@ -605,6 +605,63 @@ html body {
 	overflow-y: hidden;
 }
 
+/* ---- full-bleed screens ----
+ *
+ * Opt-in for a screen whose whole body is a self-contained second UI that has
+ * to fill the content column edge to edge - currently only CRM_Roundcube,
+ * which is one <iframe> hosting Roundcube's complete client (its own sidebar,
+ * toolbars, message list and preview pane). Around something like that the
+ * column's usual 1rem/0.75rem breathing room doesn't read as breathing room
+ * at all, just as a dead frame drawn around another application, with the
+ * mail client's own bottom status bar stranded well above the window bottom.
+ * A module opts in by putting .epesi-fullbleed on the single top-level
+ * element of its own output; every other screen keeps the normal padding.
+ *
+ * :has() rather than a class toggled onto .app-content itself: this is an
+ * AJAX-push SPA, and Epesi.text() only ever rewrites the module's own <span>
+ * (Epesi::$content[$path]['span']) - .app-content and .container-fluid both
+ * outlive the navigation - so a class or body flag set while rendering this
+ * screen would have to be explicitly unset again by every other screen in the
+ * app. Keying off the presence of the opted-in element instead makes the
+ * exception disappear on its own the moment that markup is replaced.
+ *
+ * Specificity is what keeps these override-free of !important: :has() takes
+ * the specificity of its most specific argument, so the first selector is 3
+ * classes against the 2 of the .app-content rule above, and the second
+ * outranks Bootstrap's own single-class .container-fluid gutter rule
+ * regardless of which stylesheet happens to load last. */
+.epesi-adminlte .app-content:has(.epesi-fullbleed) {
+	padding: 0;
+}
+.epesi-adminlte #content_body > .container-fluid:has(.epesi-fullbleed) {
+	padding-left: 0;
+	padding-right: 0;
+}
+/* adminlte.min.css's own .app-main carries a padding-bottom (12px at the
+   current font size) that this file never had a reason to touch: on an
+   ordinary screen it just trails the content. On a full-bleed one it is the
+   difference between the page fitting the window exactly and being 12px
+   scrollable, with a dead band below the pane - measured, not assumed, on
+   the Roundcube screen at 1600x900 (document.scrollHeight 912 vs a 900px
+   viewport). Left alone everywhere else. */
+.epesi-adminlte .app-main:has(.epesi-fullbleed) {
+	padding-bottom: 0;
+}
+
+/* The content column is only ever as tall as its content, so a full-bleed
+   screen also has to be told how much "the rest of the window" is: the
+   viewport minus the two fixed bars .app-main already reserves its
+   padding-top for. Expressed against the same two variables rather than a
+   measured pixel count, so it follows an ActionBar that wraps onto a second
+   row - or collapses away entirely (body.epesi-actionbar-empty, further down)
+   - with no JS of its own: the ResizeObserver in this theme's default.tpl
+   already keeps both in sync with the bars' real rendered heights, and a
+   calc() referencing them re-resolves whenever they change. */
+.epesi-adminlte .epesi-fullbleed {
+	height: calc(100vh - var(--epesi-header-height) - var(--epesi-actionbar-height));
+	overflow: hidden;
+}
+
 /* ---- collapsed / mobile ---- */
 
 /* Sidebar is off-canvas below lg and toggled by AdminLTE's data-lte-toggle. */

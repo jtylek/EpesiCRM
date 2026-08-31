@@ -71,16 +71,31 @@ class CRM_Roundcube extends Module {
             // Replaces the old animated images/loader-0.gif background - the
             // spinner sits over the iframe until Roundcube's own page inside
             // it finishes loading, then the iframe's onload hides it.
-            print('<div class="position-relative">'
+            //
+            // .epesi-fullbleed (Base_Box/theme_adminltedark/default.css) drops
+            // the content column's own padding and sizes this wrapper to the
+            // rest of the window, so Roundcube - a complete mail client with
+            // its own sidebar, toolbars and panes - fills the frame instead of
+            // sitting inset inside a border of ours. It replaces the -130px
+            // eval_js() height guess the legacy branch below still uses: that
+            // ran once per render against document.documentElement, so it
+            // neither followed a window resize nor knew the real height of the
+            // two fixed bars above it (see that CSS rule for how the variables
+            // it uses instead are kept in sync).
+            //
+            // display:block on the iframe matters: an iframe is inline by
+            // default, so at height:100% it still sits on a text baseline and
+            // the descender gap below it pushes its bottom few px out of view.
+            print('<div class="position-relative epesi-fullbleed">'
                 .'<div class="position-absolute top-50 start-50 translate-middle">'
                 .'<div class="spinner-border text-primary" role="status"><span class="visually-hidden">'.__('Loading...').'</span></div>'
                 .'</div>'
-                .'<iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame" onload="this.previousElementSibling.style.display=\'none\';"></iframe>'
+                .'<iframe style="border:0;display:block;width:100%;height:100%" border="0" src="'.$rc_src.'" id="rc_frame" onload="this.previousElementSibling.style.display=\'none\';"></iframe>'
                 .'</div>');
         } else {
             print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame"></iframe></div>');
+            eval_js('var dim={height:document.documentElement.clientHeight};var rc=document.getElementById("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         }
-        eval_js('var dim={height:document.documentElement.clientHeight};var rc=document.getElementById("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
         $epesi_mail_name = EPESI . ' - ' . get_epesi_url();
         eval_js_once("if (typeof navigator != 'undefined') { navigator.registerProtocolHandler('mailto', '$epesi_mail_url', '$epesi_mail_name'); }");
