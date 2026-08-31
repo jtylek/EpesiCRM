@@ -303,8 +303,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 		}
 		$table.='</table>';
 
-        $config = HTMLPurifier_Config::createDefault();
-        $purifier = new HTMLPurifier($config);
+        // One purifier per request, not one per call. HTMLPurifier builds its
+        // HTML/CSS definitions lazily on the first purify(), so a fresh instance
+        // per call rebuilds the whole definition set every time - this runs once
+        // per grid row. See AI-shared/performance-profiling.md (2026-08-31).
+        static $purifier = null;
+        if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
         $return = $purifier->purify($table);
 
 		return $return;

@@ -691,3 +691,141 @@ rather than reasoning about the selector or trusting the screenshot.
 Sizing needed care too: the record-view tools row is deliberately `1.25rem` (matched to
 the ActionBar directly above it), not the grid's `1rem`, and its state-colour rules need
 the `.epesi-rv-tools` prefix or the row's own grey wins on a specificity tie.
+
+## Fixed: a fresh `HTMLPurifier` per grid row - half the RecordBrowser row loop (2026-08-31)
+
+This closes **item 2.1** of `optimization-plan-opus.md` - "one Xdebug or Excimer profile
+of a single Contacts: Browse `process.php` request, to turn *0.10s somewhere in
+RecordBrowser* into a ranked function list". The plan called it the highest-value
+remaining item and said everything about RecordBrowser was guesswork until it existed.
+It now exists, and the answer was a single line.
+
+### First: there is no profiler extension on this machine, and two obvious workarounds don't apply
+
+`C:\xampp82\php` has **no Xdebug, no Excimer, no tideways** - `php -m` lists `memcached`
+as the only non-core extension of interest, and `php/ext/` ships no profiler DLL. Worth
+knowing before planning any profiling work here; the plan assumed one was available.
+
+Two pure-PHP substitutes look viable and are not:
+
+- **`register_tick_function` + `declare(ticks=1)`** - `declare(ticks)` is *compile-time
+  and per-file*. It only fires for statements in the file that declares it, so it cannot
+  sample across a call tree spanning `RecordBrowser_0.php`, `RecordBrowserCommon_0.php`,
+  `GenericBrowser`, and vendor code. Useless as a general sampler.
+- **A `pcntl` interval timer** - `pcntl` does not exist on Windows.
+
+**What does work, and is what produced the numbers below:** temporary manual probes
+(`microtime(true)` pairs aggregated by label into a static, dumped to a scratch file at
+the end of `show_data()`). Coarse phases first, then drill into whichever dominates.
+Two rounds were enough to go from "0.10s somewhere" to one line. Instrument, measure,
+**then** revert the instrumentation - the probes are not in the tree.
+
+Practical notes if you redo this: define the probe class in a `*Common_0.php` (Commons
+load eagerly, so it is guaranteed defined for every caller - putting it in the module
+class file risks a fatal from any path that loads the Common without the module), and
+drive the page from the browser rather than CLI, because `show_data()` depends on module
+variables and the theme render path.
+
+### The ranked list (Contacts: Browse, 20 rows, warm, averaged over 3 renders)
+
+| Phase | Time | Share of row loop |
+|---|---|---|
+| **A. row loop (inclusive)** | **0.0753s** | 100% |
+| - I. actions block | 0.0499s | 66% |
+| - - **J. `add_info`/`get_html_record_info()`** | **0.0380s** | **50%** |
+| - - K. `call_additional_actions_methods()` | 0.0088s | 12% |
+| - - view/edit/delete hrefs + `get_access()` | 0.0031s | 4% |
+| - F. column loop (7 cols x 20 rows) | 0.0207s | 27% |
+| - B-E, H (record_processing, fav, watchdog, per-row access) | 0.0042s | 6% |
+| L. `display_module()` (GenericBrowser) | 0.0146s | - |
+| M. pre-loop (query + setup) | 0.0050s | - |
+
+The 0.10s the plan was chasing is real and it is **one function**:
+`get_html_record_info()`, at ~1.9ms per row. Everything the plan listed as a suspect -
+per-row `get_access()`, `get_template_file()` per icon, tooltip building, `get_val()` -
+is collectively 6% of the loop. Note how cheap the per-row access checks turned out to
+be (0.0009s/20 rows): **A4's "cheap things visible without a profile" would have been
+wasted work**, which is the whole argument for profiling before optimizing.
+
+### Root cause, and a corrected hypothesis
+
+`get_html_record_info()` ended with:
+
+```php
+$config = HTMLPurifier_Config::createDefault();
+$purifier = new HTMLPurifier($config);
+return $purifier->purify(implode('<br>', $lines));
+```
+
+A brand-new purifier per row, to sanitise a ~5-line string the function itself just
+assembled from a record id, `get_user_label()` and `time2reg()`.
+
+The obvious hypothesis - "constructing HTMLPurifier is expensive" - is **wrong**, and
+sub-probes proved it before anything was changed:
+
+| Sub-phase | Time (20 rows) |
+|---|---|
+| `$purifier->purify()` | 0.0382s (90% of J) |
+| `HTMLPurifier_Config::createDefault()` | 0.0008s |
+| `new HTMLPurifier($config)` | 0.0005s |
+| `get_user_label()` + `time2reg()` lines | 0.0010s |
+
+The constructor is nearly free. HTMLPurifier builds its `HTMLDefinition`/`CSSDefinition`
+**lazily, on the first `purify()` call** - so a fresh instance per row rebuilt the entire
+definition set 20x per page, and the cost landed in `purify()`, not in `new`. Same
+defect, different line than expected. Had the fix been applied on the hypothesis alone
+it would still have worked, but for a reason the comment would have got wrong.
+
+### The fix
+
+Memoize the purifier in a request-scoped `static` - the shape this file already uses
+everywhere:
+
+```php
+static $purifier = null;
+if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
+return $purifier->purify(implode('<br>', $lines));
+```
+
+**Measured: `get_html_record_info()` 0.0380s -> 0.0168s per page; the whole row loop
+0.0753s -> 0.0519s (-31%).**
+
+The same `new HTMLPurifier()`-per-call shape existed at **five** sites; all five now
+memoize, each with its own static because the configs differ:
+
+| Site | Config | Called |
+|---|---|---|
+| `Utils_RecordBrowserCommon::get_html_record_info()` | default | per grid row |
+| `Utils_TooltipCommon::format_info_tooltip()` | default | per grid row |
+| `CRM_Calendar::…` (`Calendar_0.php`) | `HTML.AllowedElements=span` | per event |
+| `CRM_PhoneCallCommon::display_subject()` | `HTML.ForbiddenElements` | per record |
+| `Utils_SafeHtml_HtmlPurifier::output()` | `URI.AllowedSchemes` + `data:` | per call |
+
+**A latent ordering bug fell out of this.** `PhoneCallCommon_0.php` called
+`$config->set('HTML.ForbiddenElements', …)` *after* `new HTMLPurifier($config)`. It works
+today only because the config object is shared by reference and the `set()` still lands
+before the first `purify()` - but memoizing without reordering would have silently
+applied the restriction to nobody. The `set()` now precedes construction, so the order is
+no longer load-bearing.
+
+### Verification
+
+A scratch script purified 8 payloads - including the exact shape `get_html_record_info()`
+builds, plus `<script>`, `onerror=`, a `javascript:` scheme and a `data:` URI - through
+each of the four configs, comparing fresh-per-call against one shared instance:
+**8/8 byte-identical for all four configs**, 1.8x-12.5x faster. Confirmed live afterwards:
+20 record-info tooltips render with correct content
+(`<strong>Record ID:</strong> 88<br><strong>Created by:</strong> Tylek Janusz<br>27/08/2026 21:47`),
+Calendar renders clean, no new entries in `data/logs/php_errors.log`.
+
+Sanitisation behaviour is deliberately unchanged. `get_user_label()` can carry
+user-supplied names, so the purify call is doing real work and was left in place - only
+the engine rebuild was removed.
+
+### What is left in that function
+
+`purify()` still costs ~0.7ms/row (0.0143s/page) even shared. Removing that means
+arguing the assembled string needs no sanitising at all, or purifying only the
+`get_user_label()` fragment - a change to the sanitisation contract, not an
+optimisation, and it needs its own decision. The row loop's next-largest item is now the
+column loop at 0.0207s, spread across 7 columns x 20 rows with no single hotspot.

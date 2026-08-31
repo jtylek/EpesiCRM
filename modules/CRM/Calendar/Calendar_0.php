@@ -266,9 +266,16 @@ class CRM_Calendar extends Module {
             ///////////////////
             // right column
 
-            $config = HTMLPurifier_Config::createDefault();
-            $config->set('HTML.AllowedElements','span');//            $config->set('HTML.AllowedElements','span');
-            $purifier = new HTMLPurifier($config);
+            // One purifier per request, not one per event row - HTMLPurifier
+            // builds its definitions lazily on the first purify(), so a fresh
+            // instance per row rebuilds them all every time.
+            // See AI-shared/performance-profiling.md (2026-08-31).
+            static $purifier = null;
+            if ($purifier === null) {
+                $config = HTMLPurifier_Config::createDefault();
+                $config->set('HTML.AllowedElements','span');
+                $purifier = new HTMLPurifier($config);
+            }
             $row['title'] = $purifier->purify($row['title']);
 
             $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);

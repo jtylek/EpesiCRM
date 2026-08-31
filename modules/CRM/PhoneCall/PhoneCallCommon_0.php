@@ -138,9 +138,18 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	}
     public static function display_subject($record, $nolink = false) {
 
-        $config = HTMLPurifier_Config::createDefault();
-        $purifier = new HTMLPurifier($config);
-		$config->set('HTML.ForbiddenElements','a, i, script');
+        // One purifier per request, not one per call - HTMLPurifier builds its
+        // definitions lazily on the first purify(), so a fresh instance rebuilds
+        // them every time. See AI-shared/performance-profiling.md (2026-08-31).
+        // The ForbiddenElements line used to sit *after* new HTMLPurifier() and
+        // only took effect because the config object is shared by reference;
+        // it is set before construction now so the order is no longer load-bearing.
+        static $purifier = null;
+        if ($purifier === null) {
+            $config = HTMLPurifier_Config::createDefault();
+            $config->set('HTML.ForbiddenElements','a, i, script');
+            $purifier = new HTMLPurifier($config);
+        }
         $record['subject'] = $purifier->purify($record['subject']);
         $record['description'] = $purifier->purify($record['description']);
 

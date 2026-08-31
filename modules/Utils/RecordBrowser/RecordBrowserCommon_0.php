@@ -2196,8 +2196,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $lines[] = '<strong>'.__('Created by').':</strong> '.$created_by;
         $lines[] = Base_RegionalSettingsCommon::time2reg($info['created_on']);
 
-        $config = HTMLPurifier_Config::createDefault();
-        $purifier = new HTMLPurifier($config);
+        // One purifier per request, not one per row. HTMLPurifier builds its
+        // HTML/CSS definitions lazily on the *first* purify() call, so a fresh
+        // instance per row rebuilt the entire definition set once per grid row -
+        // measured at ~1.9ms/row, half of the whole row loop on a 20-row grid.
+        // Reusing one instance takes get_html_record_info() from 0.040s to
+        // 0.017s per page. See AI-shared/performance-profiling.md (2026-08-31).
+        static $purifier = null;
+        if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
         return $purifier->purify(implode('<br>', $lines));
     }
     public static function get_record($tab, $id, $htmlspecialchars=true) {

@@ -7,8 +7,10 @@ below is reproducible — see "How these numbers were taken" at the end.
 **Scope note:** sections 1-7 are the plan as originally written (2026-08-31), left
 unedited so the reasoning and the pre-change measurements stay readable. **Tier 0 and
 Tier 1 were implemented the same day — see the implementation log in §8 for what shipped,
-what the plan got wrong, and what is still open.** `performance-profiling.md` remains the
-authoritative record of the performance work itself.
+what the plan got wrong, and what is still open. §9 covers the second pass: item 2.1
+(the function-level profile), which found that every suspect §A4 named was wrong.**
+`performance-profiling.md` remains the authoritative record of the performance work
+itself.
 
 **Design constraint applied throughout:** every proposal was checked against
 `design-philosophy.md` — a module developer must keep writing plain PHP and get a
@@ -747,28 +749,58 @@ the checklist view.
    `::before` and selected via `[src*=...]` on an `<img>` that is then `display:none`.
    The real defect is bigger: **240 hidden `<img>` elements per grid page, every one
    actually downloaded** (confirmed live: `complete: true, naturalWidth: 14`), none ever
-   shown. **Not implemented** — removing the `<img>` breaks every one of those CSS
-   selectors, so it is a coordinated PHP + CSS change to a block whose own comments
-   record two prior attempts that were gotten wrong and had to be fixed after a user
-   report. A half-done version visibly breaks every grid. See
-   `performance-profiling.md`'s entry for the corrected spec.
+   shown. Removing the `<img>` breaks every one of those CSS selectors, so it is a
+   coordinated PHP + CSS change to a block whose own comments record two prior attempts
+   that were gotten wrong and had to be fixed after a user report. **Since done** —
+   `10b3f45da` + `ab9b408d3`, 240 hidden `<img>` → 0 on both grid and record view. It
+   broke exactly the way the warning predicted first (`isCoreAction()` read the removed
+   `<img>`'s `src` and every row action fell through to the kebab menu); see
+   `performance-profiling.md`'s "grep for absence assertions" entry.
+
+## 9. Second implementation pass (2026-08-31, later)
+
+### 2.1 done — and it was one line
+
+The plan asked for "one Xdebug or Excimer profile … to turn *0.10s somewhere in
+RecordBrowser* into a ranked function list", and called it the highest-information item
+on the list. Done, with two corrections to the plan's assumptions:
+
+- **There is no profiler extension on this machine** — no Xdebug, no Excimer, no
+  tideways, and none shipped in `php/ext/`. The plan assumed one was available. Two
+  pure-PHP substitutes also don't apply here: `declare(ticks)` is compile-time per-file
+  so it cannot sample across a call tree, and `pcntl` doesn't exist on Windows. What
+  worked was temporary `microtime()` probes aggregated by label — coarse phases first,
+  then drill. Two rounds. Full method in `performance-profiling.md`.
+- **The answer is `get_html_record_info()`, at 50% of the row loop** — it built a fresh
+  `HTMLPurifier` per row, and HTMLPurifier builds its definitions lazily on first
+  `purify()`, so every row rebuilt the whole definition set. Memoizing it took the row
+  loop **0.0753s → 0.0519s (−31%)**. The same shape existed at five sites; all five now
+  memoize. Verified byte-identical output across all four configs including hostile
+  inputs.
+
+Worth recording that **every suspect A4 named was wrong.** Per-row `get_access()`,
+`get_template_file()` per icon, tooltip building and `get_val()` together account for 6%
+of the row loop; the per-row access checks A4 singled out cost 0.0009s per 20 rows.
+Acting on that list without profiling would have been pure wasted work — which is the
+argument for 2.1 having been ranked first, and the reason to keep it ranked first for
+`Utils_GenericBrowser` if that ever comes up.
 
 ### Still open
 
 - **1.4 (partial)** — `CRM_ContactsCommon::get_company()`, 19 queries/page. Needs the
   same prefetch as 1.2; the linked-company ids are less cleanly available before the loop.
-- **1.6** — the hidden-`<img>` refactor above, with its premise corrected.
-- **2.1** — **the most valuable remaining item.** With SQL now under a third of the
-  render, ~0.10s of non-SQL time inside `Utils_RecordBrowser` is the dominant cost and
-  has still never been function-profiled. `MODULE_TIMES`/`SQL_TIMES` cannot see inside
-  it; this needs Xdebug or Excimer on one `process.php`. Everything else about
-  RecordBrowser is guesswork until it exists.
+  Note this is now a *query-count* item, not a wall-clock one: SQL is well under a third
+  of the render and the row loop's remaining non-SQL cost has no single hotspot left.
 - **2.2-2.6, Tier 3** — untouched, as scoped.
 - Shoutbox and Messenger pollers still pay the full bootstrap; 1.4's early-out is the
   model to copy.
+- **Open decision, not a task:** whether `Dev-Tutorial.md` should reach module
+  developers. `AI-shared/` no longer ships in release zips (`4e74778d7`), which settled
+  the accidental half of that question but not the deliberate half.
 
 ### Note for whoever picks this up
 
-Nothing here is committed — it is all in the working tree, on `ess-migration`. The
-performance changes are independent of the docs/CI changes and can be split into
-separate commits if wanted.
+Tier 0/Tier 1 and the icon work are committed (`3a4744919`, `10b3f45da`, `ab9b408d3`).
+The §9 purifier changes touch six files across `Utils_RecordBrowser`, `Utils_Tooltip`,
+`Utils_SafeHtml`, `CRM_Calendar` and `CRM_PhoneCall`. No patch file is needed for any of
+it — these are code fixes, no stored or seed data changes.
