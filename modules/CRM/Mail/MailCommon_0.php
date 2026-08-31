@@ -266,14 +266,22 @@ class CRM_MailCommon extends ModuleCommon {
     public static function QFfield_smtp_auth(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
         $form->addElement('checkbox', $field, $label,'',array('onchange'=>'CRM_Mail.smtp_auth_change(this.checked)','id'=>$field,'class'=>'epesi-switch'));
         $form->setDefaults(array($field=>$default));
-        if ($mode == 'edit' || $mode == 'add') {
-            eval_js('CRM_Mail.smtp_auth_change('.($default?1:0).')');
-        }
+        // Dependent fields (SMTP Login/Password/Security, below) bake their own
+        // initial disabled state from exportValue('smtp_auth') directly, so no
+        // page-load eval_js() sync is needed here - onchange above still handles
+        // live toggling from an actual user click. This matters beyond tidiness:
+        // an unconditional page-load .prop('disabled', ...) poke on #smtp_pass
+        // (formerly here) marks that field as script-touched, and Edge/Chrome
+        // withhold their native password-reveal-eye affordance from password
+        // fields mutated by script on load - unlike the plain #password field,
+        // which no script ever touches and which does get the reveal eye.
         if($mode=='view') $form->freeze(array($field));
     }
 
     public static function QFfield_smtp_login(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('text', $field, $label,array('id'=>'smtp_login'));
+        $attr = array('id'=>'smtp_login');
+        if(!$form->exportValue('smtp_auth')) $attr['disabled'] = 'disabled';
+        $form->addElement('text', $field, $label, $attr);
         $form->setDefaults(array($field=>$default));
         if($form->exportValue('smtp_auth'))
             $form->addRule($field,__('Field required'),'required');
@@ -281,7 +289,9 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function QFfield_smtp_password(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('password', $field, $label, array('id'=>'smtp_pass','autocomplete'=>'new-password','placeholder'=>$mode=='edit'?__('Leave blank to keep current password'):''));
+        $attr = array('id'=>'smtp_pass','autocomplete'=>'new-password','placeholder'=>$mode=='edit'?__('Leave blank to keep current password'):'');
+        if(!$form->exportValue('smtp_auth')) $attr['disabled'] = 'disabled';
+        $form->addElement('password', $field, $label, $attr);
         $form->addElement('hidden', $field.'_submitted', 1); // see QFfield_password() for why
         $form->setDefaults(array($field => ($mode == 'view' && $default !== '') ? '********' : ''));
         // Required only when SMTP Auth is on AND there's no existing SMTP password to fall back
@@ -293,7 +303,9 @@ class CRM_MailCommon extends ModuleCommon {
     }
 
     public static function QFfield_smtp_security(&$form, $field, $label, $mode, $default, $desc, $rb=null) {
-        $form->addElement('commondata', $field, $label,array('CRM/Mail/Security'),array('empty_option'=>true),array('id'=>'smtp_security'));
+        $attr = array('id'=>'smtp_security');
+        if(!$form->exportValue('smtp_auth')) $attr['disabled'] = 'disabled';
+        $form->addElement('commondata', $field, $label,array('CRM/Mail/Security'),array('empty_option'=>true),$attr);
         $form->addRule($field,__('OpenSSL not available - cannot set TLS/SSL. Please contact EPESI administrator.'),'callback',array('CRM_MailCommon','check_ssl'));
         $form->setDefaults(array($field=>$default));
         if($mode=='view') $form->freeze(array($field));
