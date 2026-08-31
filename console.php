@@ -42,4 +42,4 @@ $application->add(new \Epesi\Console\Develop\QueryBudgetCommand());
 $application->add(new \Epesi\Console\ShellCommand());
 $application->add(new \Epesi\Console\RebuildAllCommand());
 $application->add(new \Epesi\Console\RemoveAllCommand());
-$application->run($input);
+$application->run();
