@@ -6,6 +6,9 @@ Features that are *missing on purpose*, at explicit user request — not oversig
 regressions, or gaps to silently fill back in. If a request implies re-adding one of
 these, surface the tension and confirm first rather than just doing it.
 
+See [load-bearing-oddities.md](load-bearing-oddities.md) for the converse case: code and
+config that is *present* on purpose despite looking like cruft, and breaks when tidied up.
+
 Some of these (Quick Jump, Theme installation) are recurring reintroduction bugs
 specifically in `modules/Premium/`/`modules/Custom/` — separate, gitignored, never-swept
 repos (see `CLAUDE.md`). The `/fix-old-epesi-module` skill

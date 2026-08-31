@@ -41,6 +41,7 @@ most expensive mistake this folder can cause, and it has happened.
 **When something looks broken**
 - [bug-patterns.md](bug-patterns.md) — fixed bugs whose root-cause *shape* recurs. Check when a bug feels familiar.
 - [deliberate-removals.md](deliberate-removals.md) — features removed on purpose. Don't reintroduce.
+- [load-bearing-oddities.md](load-bearing-oddities.md) — the converse: code that looks like cruft but isn't. Read before "tidying up".
 - [environment-gotchas.md](environment-gotchas.md) — DB/server/tooling issues that looked like app bugs.
 - [known-todos.md](known-todos.md) — audited TODO/FIXME markers in Epesi's own code.
 
