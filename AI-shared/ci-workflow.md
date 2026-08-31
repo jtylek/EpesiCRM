@@ -48,13 +48,27 @@ the full sweep.
 
 **phpstan** (level 2, baselined — only *new* findings matter):
 ```powershell
-tools\vendor\bin\phpstan.bat analyse -c phpstan.neon
+tools\vendor\bin\phpstan.bat analyse -c phpstan.neon --no-ansi --no-progress
 ```
 
-**rector** (advisory PHP 8.2 dry-run; currently applies zero real rules — see CLAUDE.md):
+**rector** (advisory PHP 8.3 dry-run; applies real rules only rarely — see CLAUDE.md):
 ```powershell
-tools\vendor\bin\rector.bat process --dry-run --config rector-php82.php
+tools\vendor\bin\rector.bat process --dry-run --config rector-php83.php --no-ansi --no-progress-bar
 ```
+`--no-ansi`/`--no-progress`/`--no-progress-bar` matter mainly when redirecting output to a
+file (as `tools\ci-local.bat` and the `/ci-local` skill do) — without them the file fills
+up with raw ANSI color escapes and progress-bar carriage-return noise, unreadable outside
+a terminal. Rector still prints one small ANSI-colored warning box (deprecated per-version
+PHP set notice) even with `--no-ansi` — a Symfony/Rector deprecation-handler quirk that
+ignores the flag; harmless, not worth chasing.
+
+The ~10 files Rector used to report on every dry-run (CLAUDE.md's "whitespace-only
+re-prints from Rector 2.x") were fixed for real on 2026-09-01 — ran
+`rector process --config rector-php82.php` (no `--dry-run`) once to apply the trailing-tab
+strip, confirmed with `git diff --ignore-all-space` that every changed file had zero
+non-whitespace diff. A fresh dry-run now reports 0 files. If it starts reporting files
+again, don't assume it's the same harmless noise — confirm with `--ignore-all-space`
+before treating a new report as advisory-only.
 
 **docs** (every `console.php` command CLAUDE.md names must exist):
 ```powershell

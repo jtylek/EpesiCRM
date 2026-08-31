@@ -140,13 +140,15 @@ push the problem onto every other developer.
 
 **Looks like:** a job nobody bothered to make blocking.
 
-**Why:** Rector applies **zero** actual rules to this codebase - the ~10 files it reports
-are whitespace-only re-prints from Rector 2.x, not PHP 8.2 findings. `rector-php82.php`'s
-own header has always described it as advisory. Making it blocking fails the build for no
-real finding.
+**Why:** Rector applies real rules only rarely on this codebase - the ~10 files it used to
+report on every dry-run were whitespace-only re-prints from Rector 2.x, not real findings
+(fixed for real 2026-09-01, see `ci-workflow.md`; a clean dry-run now reports 0 files).
+`rector-php83.php`'s own header has always described it as advisory. Making it blocking
+would fail the build the moment a genuine rewrite opportunity shows up, before anyone's
+had a chance to review the diff.
 
 **Check before changing:** `tools/vendor/bin/rector process --dry-run --config
-rector-php82.php --output-format=json` - if `applied_rectors` is empty for every file,
+rector-php83.php --output-format=json` - if `applied_rectors` is empty for every file,
 there is still nothing to gate on.
 
 ---

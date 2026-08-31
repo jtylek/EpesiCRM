@@ -11,7 +11,7 @@ releases), but potentially anywhere in the Core tree.
 ## What should NOT be in the release zip
 
 Jasiek's list: `.claude/`, `.git/`, `.github/`, `AI-shared/`, `.gitattributes`, `.gitignore`, `CLAUDE.md`,
-`rector-php82.php`, `rector.php`. `data/` must be preserved (excluded from the zip, never touched on
+`rector-php83.php`, `rector.php`. `data/` must be preserved (excluded from the zip, never touched on
 upgrade).
 
 ## Current state: this is partially built already
@@ -24,7 +24,7 @@ Two existing pieces are directly relevant — read both before building anything
    directory entry itself), `temp/`, stray root `*.zip` files, all root `*.md` except `README.md` (this
    already catches `CLAUDE.md`), and a root-tooling group: `.htaccess`, `.gitignore`, `debug.php`,
    `PEAR.php`, `phpstan*`, `playbook.yml`, `rector*` (already catches both `rector.php` and
-   `rector-php82.php`).
+   `rector-php83.php`).
    - ~~**Gap found while researching this plan: `AI-shared/` and `.gitattributes` are NOT in the current
      exclude list**, even though Jasiek named both. First implementation step is adding
      `'^AI-shared(' . $sep . '|$)'` and `.gitattributes` to the `$exclude` array in

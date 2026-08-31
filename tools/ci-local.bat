@@ -55,16 +55,16 @@ if "!LINT_FAIL!"=="0" (echo   OK) else (echo   ** lint errors found above **)
 echo.
 echo --- [2/4] PHPStan (level 2, baselined - fails only on NEW findings) ---
 if exist "tools\vendor\bin\phpstan.bat" (
-  call tools\vendor\bin\phpstan.bat analyse -c phpstan.neon
+  call tools\vendor\bin\phpstan.bat analyse -c phpstan.neon --no-ansi --no-progress
   if errorlevel 1 set "PHPSTAN_FAIL=1"
 ) else (
   echo   SKIPPED - run "composer install -d tools" first ^(tools\vendor not installed^).
 )
 
 echo.
-echo --- [3/4] Rector PHP 8.2 dry-run (advisory - never fails this script) ---
+echo --- [3/4] Rector PHP 8.3 dry-run (advisory - never fails this script) ---
 if exist "tools\vendor\bin\rector.bat" (
-  call tools\vendor\bin\rector.bat process --dry-run --config rector-php82.php
+  call tools\vendor\bin\rector.bat process --dry-run --config rector-php83.php --no-ansi --no-progress-bar
 ) else (
   echo   SKIPPED - run "composer install -d tools" first ^(tools\vendor not installed^).
 )

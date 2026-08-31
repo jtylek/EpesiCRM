@@ -163,7 +163,7 @@ versions. Run it once per clone and then:
 
 ```bash
 tools/vendor/bin/phpstan analyse -c phpstan.neon
-tools/vendor/bin/rector process --dry-run --config rector-php82.php
+tools/vendor/bin/rector process --dry-run --config rector-php83.php
 ```
 
 Both also run in CI on every push and pull request

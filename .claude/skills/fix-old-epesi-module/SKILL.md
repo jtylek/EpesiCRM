@@ -33,7 +33,7 @@ concurrent work from another session on the same nested repo.
 ## 3. Scan for PHP 8.x compatibility issues
 
 Run the project's existing static-analysis tooling, scoped to just this module directory (both configs
-already cover `modules/` broadly, Premium included — see `rector.php`, `rector-php82.php`,
+already cover `modules/` broadly, Premium included — see `rector.php`, `rector-php83.php`,
 `phpstan.neon` at the repo root). `AI-shared/environment-gotchas.md`'s "Rector and PHPStan are
 installed globally" entry explains why these are bare commands, not `vendor/bin/rector`/
 `vendor/bin/phpstan`, on a machine that's had the global Composer install done — if they're not found
@@ -42,7 +42,7 @@ installs) or ask the user:
 
 ```
 rector process <module-path> --config=rector.php --dry-run
-rector process <module-path> --config=rector-php82.php --dry-run
+rector process <module-path> --config=rector-php83.php --dry-run
 phpstan analyse <module-path> -c phpstan.neon
 ```
 

@@ -85,9 +85,9 @@ jobs:
         run: tools/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --error-format=github
 
   rector:
-    name: Rector PHP 8.2 (advisory)
+    name: Rector PHP 8.3 (advisory)
     runs-on: ubuntu-latest
-    # Advisory only, as documented in rector-php82.php's own header: it surfaces 8.2-level
+    # Advisory only, as documented in rector-php83.php's own header: it surfaces 8.3-level
     # opportunities for review, it does not gate the build. Rector 2.x also re-prints
     # whitespace on files it touches, which would fail a blocking job for no real finding.
     continue-on-error: true
@@ -103,7 +103,7 @@ jobs:
         run: composer install -d tools --no-interaction --no-progress
 
       - name: Dry-run
-        run: tools/vendor/bin/rector process --dry-run --config rector-php82.php --no-progress-bar
+        run: tools/vendor/bin/rector process --dry-run --config rector-php83.php --no-progress-bar
 
   docs:
     name: Docs match reality

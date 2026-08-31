@@ -1620,7 +1620,7 @@ cleared out of tracked code:
 - The already-documented `simple_setup()` declared-non-static bug just above
   this entry also hit `Premium/Import` alongside 14 core modules.
 
-**Root cause**: `phpstan.neon` and `rector-php82.php` both list `paths:
+**Root cause**: `phpstan.neon` and `rector-php83.php` both list `paths:
 [include, modules]`, which *would* include `modules/Premium` - but Premium
 is a separately-licensed tree, gitignored and each module its own nested git
 repo (see main `CLAUDE.md`), so it's simply not present in CI's checkout at

@@ -385,7 +385,7 @@ is the standard global-bin location Composer adds during setup) — so `rector` 
 `phpstan` now resolve directly from any project directory, no `vendor/bin/` prefix,
 no per-project `composer.json` entry. Usage is otherwise unchanged: run from inside a
 project and point at its own config, e.g. `phpstan analyse -c phpstan.neon`,
-`rector process --dry-run --config rector-php82.php`.
+`rector process --dry-run --config rector-php83.php`.
 
 This repo's own `composer.json` deliberately does **not** list either tool as a
 dependency — CI installs both isolated into scratch dirs per run

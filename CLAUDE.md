@@ -71,11 +71,12 @@ Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so 
 tools/vendor/bin/phpstan analyse -c phpstan.neon
 ```
 
-Rector dry-run (advisory in CI, checks for PHP 8.2 syntax opportunities). It currently applies **zero**
-actual rules — the ~10 files it reports are whitespace-only re-prints from Rector 2.x, which is why the CI
-job is advisory rather than blocking:
+Rector dry-run (advisory in CI, checks for PHP 8.3 syntax opportunities; bumped from the PHP 8.2 set
+2026-09-01 once that sweep reported clean). It applies real rules only rarely — the ~10 files it used to
+report on every dry-run were whitespace-only re-prints from Rector 2.x, fixed for real 2026-09-01 (a clean
+run now reports 0 files) — which is why the CI job is advisory rather than blocking regardless:
 ```
-tools/vendor/bin/rector process --dry-run --config rector-php82.php
+tools/vendor/bin/rector process --dry-run --config rector-php83.php
 ```
 
 CI (`.github/workflows/ci.yml`) runs the three above plus a docs check on every push/PR,
