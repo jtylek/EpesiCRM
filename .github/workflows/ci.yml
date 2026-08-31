@@ -36,6 +36,10 @@ jobs:
       # Vendored third-party trees are excluded: they ship as-is and are not ours to fix
       # (AI-shared/README.md, "Conventions for investigating/fixing bugs"). Roundcube is
       # ~35% of modules/ on its own.
+      #
+      # console/Develop/ used to be excluded here too, which did not match that rationale -
+      # it is first-party, and all of it lints clean. Dropped 2026-08-31, when a new command
+      # landed there and would otherwise have gone unlinted.
       - name: Lint all first-party PHP
         run: |
           set -euo pipefail
@@ -46,7 +50,6 @@ jobs:
             -not -path '*/vendor/*' \
             -not -path 'modules/Base/Theme/smarty/*' \
             -not -path 'modules/Tests/*' \
-            -not -path 'console/Develop/*' \
             2>/dev/null | sort -u)
           echo "Linting ${#files[@]} files"
           rc=0
@@ -126,12 +129,12 @@ jobs:
           set -euo pipefail
           # console.php needs no DB connection to print its command list.
           php console.php list --no-ansi 2>/dev/null \
-            | grep -oE '^\s{2,}[a-z]+(:[a-z:]+)+' | tr -d ' ' | sort -u > actual-commands.txt
+            | grep -oE '^\s{2,}[a-z][a-z-]*(:[a-z-]+)+' | tr -d ' ' | sort -u > actual-commands.txt
           echo "console.php exposes $(wc -l < actual-commands.txt) commands"
           rc=0
           # No pipe into the loop: a `while read` in a pipeline runs in a subshell and
           # would throw away rc.
-          for cmd in $(grep -ohE 'console\.php [a-z]+(:[a-z:]+)+' CLAUDE.md | sed 's/console\.php //' | sort -u); do
+          for cmd in $(grep -ohE 'console\.php [a-z][a-z-]*(:[a-z-]+)+' CLAUDE.md | sed 's/console\.php //' | sort -u); do
             if grep -qx "$cmd" actual-commands.txt; then
               echo "  ok  $cmd"
             else

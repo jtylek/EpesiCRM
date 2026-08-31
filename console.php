@@ -47,6 +47,7 @@ $application->add(new \Epesi\Console\Develop\CreateModuleCommand());
 $application->add(new \Epesi\Console\Develop\CreatePatchCommand());
 $application->add(new \Epesi\Console\Develop\CreateTestModuleCommand());
 $application->add(new \Epesi\Console\Develop\CreateDistCommand());
+$application->add(new \Epesi\Console\Develop\QueryBudgetCommand());
 $application->add(new \Epesi\Console\ShellCommand());
 $application->add(new \Epesi\Console\RebuildAllCommand());
 $application->add(new \Epesi\Console\RemoveAllCommand());
