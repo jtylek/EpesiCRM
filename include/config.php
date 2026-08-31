@@ -34,6 +34,22 @@ if(!defined('MINIFY_SOURCES')) define('MINIFY_SOURCES',0);
 if(!defined('INSTALLATION_ID')) define('INSTALLATION_ID',md5(DATABASE_NAME.'#'.DATABASE_HOST.'#'.DATABASE_DRIVER));
 if(!defined('SESSION_TYPE')) define('SESSION_TYPE','file'); //file,memcache or sql
 if(!defined('MEMCACHE_SESSION_SERVER')) define('MEMCACHE_SESSION_SERVER','');
+
+/* Application cache (include/cache.php), as opposed to the session store above.
+ *
+ * These used to be the same setting: the cache layer picked a memcached driver if and
+ * only if MEMCACHE_SESSION_SERVER was set, so an install could not use memcached for the
+ * cache without also moving its sessions there, or the reverse. CACHE_TYPE/CACHE_SERVER
+ * split them apart.
+ *
+ * 'auto' keeps the historical behaviour exactly - memcached when a server is configured,
+ * then Apcu, Zendshm, Sqlite, Files - so an install that sets neither of these notices no
+ * difference. Name a driver to pin one: memcached, memcache, redis, predis, apcu,
+ * zendshm, sqlite, files. CACHE_SERVER is host:port for the networked drivers and falls
+ * back to MEMCACHE_SESSION_SERVER when unset, which is what makes 'auto' backwards
+ * compatible. */
+if(!defined('CACHE_TYPE')) define('CACHE_TYPE','auto');
+if(!defined('CACHE_SERVER')) define('CACHE_SERVER',MEMCACHE_SESSION_SERVER);
 if(!defined('MEMCACHE_SESSION_TOKEN')) define('MEMCACHE_SESSION_TOKEN','epesi_'.INSTALLATION_ID.'_');
 if(!defined('FILE_SESSION_DIR')) define('FILE_SESSION_DIR',session_save_path());
 if(!defined('FILE_SESSION_TOKEN')) define('FILE_SESSION_TOKEN','epesi_'.INSTALLATION_ID.'_');

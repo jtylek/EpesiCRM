@@ -621,6 +621,20 @@ define(\'FORCE_CACHE_COMMON_FILES\',0);
 define(\'ASSET_VERSION_CHECK\',0);
 
 /*
+ * Application cache driver, independent of where sessions are stored.
+ *
+ * \'auto\' (the default) uses memcached when MEMCACHE_SESSION_SERVER or
+ * CACHE_SERVER names one, then falls back through APCu, Zend SHM, SQLite
+ * and finally plain files. Pin one instead with memcached, memcache,
+ * redis, predis, apcu, zendshm, sqlite or files; a pinned driver whose
+ * extension is missing still degrades down the same chain rather than
+ * breaking the install. CACHE_SERVER is host:port for the networked
+ * drivers and defaults to MEMCACHE_SESSION_SERVER.
+ */
+//define(\'CACHE_TYPE\',\'auto\');
+//define(\'CACHE_SERVER\',\'127.0.0.1:11211\');
+
+/*
  * Show donation links in Epesi
  */
 //define(\'SUGGEST_DONATION\',1);

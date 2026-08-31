@@ -58,6 +58,12 @@ class ConfigInfo extends AdminModule {
             $this->row('Minify Encode: ', $yn(MINIFY_ENCODE)),
             $this->row('Minify sources: ', $yn(MINIFY_SOURCES)),
             $this->row('Force cache common files: ', $yn(FORCE_CACHE_COMMON_FILES)),
+            // Configured vs. actually selected. The two can differ - a pinned driver
+            // whose extension is missing degrades down Cache::driver_chain() - and the
+            // difference is exactly what you want to see on a "why is this slow" visit,
+            // so show the driver in use rather than only what config.php asked for.
+            $this->row('Cache driver (configured): ', CACHE_TYPE),
+            $this->row('Cache driver (in use): ', Cache::active_driver() ?: 'none'),
             $this->row('Asset version check (stale-tab reload prompt): ', $yn(ASSET_VERSION_CHECK)),
             $this->row('Currency rate auto-fetch: ', $yn(CURRENCY_RATE_AUTO_FETCH)),
             $this->row('Suggest Donation: ', $yn(SUGGEST_DONATION)),
