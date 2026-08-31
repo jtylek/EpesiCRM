@@ -651,10 +651,42 @@ the same opt-in shape as the grid.
 this row with no image". That was a sound hook *only while every other link had an `<img>`*.
 Removing them made every icon match, so each one got `font-size:0` and a funnel glyph
 stamped in front of it. Fixed by testing for no icon child of any kind
-(`:not(:has(img)):not(:has(i))`), which is what it always meant. **Before deleting markup
-that CSS keys on, grep for selectors that assert its *absence*, not just its presence** -
-`:not(:has(...))` is the shape to look for, and it fails silently and ugly rather than
-not at all.
+(`:not(:has(img)):not(:has(i))`), which is what it always meant.
+
+**Before deleting markup that other code keys on, grep for everything that asserts its
+*absence*, not just its presence - and in every language, not just CSS.** This is the
+single most useful thing to carry out of this change, because the version of the rule
+written here first was too narrow and the bigger instance got through it.
+
+- **CSS**: `:not(:has(img))` and friends. Fails silently and ugly rather than not at all.
+- **JS**: `querySelector('img')` / `getAttribute('src')` - the same assertion in another
+  language, and the one that actually shipped broken. `Base_Box/theme_adminltedark/
+  default.tpl`'s `isCoreAction()` classified every row action by reading the `<img>`'s
+  `src` and matching filename regexes against it. With no `<img>`, `src` was `''`, every
+  regex failed, and **every action on every grid in the app fell through to "extra" and
+  hid behind the More-actions kebab**. Fixed in `8dec01fcc` by having
+  `action_icon_tag()` mark core actions server-side with an `action_button_core` class -
+  deliberately not re-derived from the `bi-*` name, since a module identity glyph can
+  legitimately coincide with a core one.
+
+**And the process lesson, which is the part worth internalising:** the kebab regression
+was visible in a verification screenshot and got explained away as "the actions are
+probably collapsed because of the viewport width" - a plausible rendering explanation
+that was never checked. In the same pass, two Utils_Attachment actions ("Copy link" and
+"Cut") collapsed onto one glyph because the `[-_]small$` branch over-matched
+`copy_small.png`/`cut_small.png`; that was also looked at directly and filed as an
+acceptable identity-icon change (narrowed to `/^icon[-_]small$/` in `8dec01fcc` - and
+note it is *not* fixable via `resolve()`'s `$by_filename` map, which is keyed by basename
+alone, while the same `copy_small.png` deliberately means `bi-copy` for CRM_Mail and
+`bi-link` for Utils_Attachment).
+
+A concurrent session hit the mirror image of this on the same day - narrowing a
+light-override selector in a way that read as a pure narrowing, silently reverting
+light-mode table icons, then over-correcting and painting the fav/watch state glyphs
+black - and reached the same conclusion independently: **a plausible explanation for what
+you are looking at terminates the check, which is exactly what makes it dangerous.**
+Assert resolved values (`getComputedStyle`, element counts, DOM shape) in every theme
+rather than reasoning about the selector or trusting the screenshot.
 
 Sizing needed care too: the record-view tools row is deliberately `1.25rem` (matched to
 the ActionBar directly above it), not the grid's `1rem`, and its state-colour rules need
