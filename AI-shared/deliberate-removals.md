@@ -442,3 +442,44 @@ is off there and inflates every file-loading number 4-5x). If a case for it appe
 network filesystem — the one scenario not measured here, where `stat`/open overhead is
 genuinely large — treat that as a fresh proposal with fresh numbers from that environment,
 not a reason to restore this code unmeasured.
+
+## Multi-tenant hosting (host → `DATA_DIR`/DB mapping) removed (2026-09-01)
+
+Epesi could once serve several tenants from one codebase: `include/data_dir.php`
+`include_once`d an optional, untracked, repo-root `map.php` defining a `$virtual_hosts`
+array (host string/regex → data-dir name, `false` for "forbidden", or a redirect spec).
+Whichever `DATA_DIR` it picked determined which `<DATA_DIR>/config.php` got loaded next
+in `include/config.php` — and that file is where `DATABASE_HOST/USER/PASSWORD/NAME` live,
+so "different data dirs" meant "different databases" for free, routed purely off the
+incoming `Host` header. No `map.php` ever shipped in this repo — confirmed absent, and
+`phpstan-baseline.neon` had carried a standing suppression for exactly that missing
+`include_once()` since before this investigation, i.e. static analysis had been tolerating
+it as permanently gone. Removed at explicit user request as no-longer-used.
+
+**What was removed:**
+- `include/data_dir.php` — collapsed from the full `map.php`/`$virtual_hosts` matching
+  loop (regex host matching, redirect-spec handling, `die('Forbidden')`, a CLI
+  `readline()` prompt for the install URL, and a `hosting/`-directory redirect fallback)
+  down to `if (!defined('DATA_DIR')) define('DATA_DIR', 'data');`. Every consumer
+  (`ModuleManager::get_data_dir()`, `TEMP_DIR`, `include/backups.php`, patches, etc.) only
+  ever reads the `DATA_DIR` constant as an opaque string, so nothing downstream changed.
+- The CLI-only `DATA_DIR` override knobs that existed solely so one crontab/console
+  invocation could target a different tenant per call (HTTP requests have a `Host` header
+  to resolve from; CLI scripts don't): `console.php`'s `--data-dir` option (and the now-
+  unused `ArgvInput`/`InputOption` imports), `update.php`'s "any bare CLI arg that isn't
+  `-f`/`-b` is the data dir" parsing (CLI usage is now `update.php [-f] [-b]`, was
+  `update.php <data_dir> [-f] [-b]`), and `cron.php`/`monitoring.php`'s `$argv[1]` checks.
+- The `phpstan-baseline.neon` suppression for `map.php` not existing (`include/data_dir.php`).
+- The "multi-tenant installs sharing one codebase" framing in `include/config.php`'s
+  `TEMP_DIR` comment — the `temp/<DATA_DIR>` nesting itself was kept (still legitimately
+  useful for excluding regenerable cache from data backups in one shot), just reworded
+  since the multi-tenant justification no longer applies.
+
+**No patch shipped** — this is bootstrap logic, not stored/seed data or an `*Install.php`
+change, so there's nothing for existing installs to migrate; the code change alone reaches
+every install on next deploy.
+
+**How to apply.** If a future request wants multi-host/multi-tenant routing back, it needs
+to be designed and built fresh — don't restore `map.php`/`$virtual_hosts` handling from git
+history, and don't reintroduce a CLI `--data-dir`-style override without a concrete reason
+one is needed again (there was no other use for it once per-tenant routing was gone).

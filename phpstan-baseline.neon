@@ -235,12 +235,6 @@ parameters:
 			path: include/compatibility_check.php
 
 		-
-			message: '#^Path in include_once\(\) "map\.php" is not a file or it does not exist\.$#'
-			identifier: includeOnce.fileNotFound
-			count: 1
-			path: include/data_dir.php
-
-		-
 			message: '#^Constant DATABASE_DRIVER not found\.$#'
 			identifier: constant.notFound
 			count: 3

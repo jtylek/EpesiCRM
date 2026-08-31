@@ -363,7 +363,6 @@ class EpesiUpdate
         $this->CLI = (php_sapi_name() == 'cli');
         if ($this->CLI) {
             global $argv;
-            // allow to define DATA directory for CLI in argument
             if (isset($argv)) {
                 define('EPESI_DIR','/');
                 foreach (array_slice($argv, 1) as $x) {
@@ -371,8 +370,6 @@ class EpesiUpdate
                         $this->cli_force_update = true;
                     } elseif ($x == '-b') {
                         $this->cli_create_backup = true;
-                    } else {
-                        define('DATA_DIR', $x);
                     }
                 }
             }

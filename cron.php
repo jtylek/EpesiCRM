@@ -11,9 +11,6 @@ define('CID',false);
 define('SET_SESSION',false);
 if (php_sapi_name() == 'cli') {
     define('EPESI_DIR', '/');
-    if (isset($argv[1])) {
-        define('DATA_DIR', $argv[1]);
-    }
 } elseif (!isset($_GET['token'])) {
     die('Missing token in URL - please go to Administrator Panel->Cron and copy valid cron URL.');
 } else {
