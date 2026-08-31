@@ -635,8 +635,27 @@ retirement, so glyphs are the single icon mechanism going forward.
   `<img>` via `:has()`) means clones carry it for free - verified: 10 glyphs, 0 images in
   the open menu.
 
-**Still on images** (a fixed handful per page, not per row, so far less costly): the
-record view's own tools row - `RecordBrowser/theme/{info,clipboard,history_inactive}.png`
-plus the Calendar/Tasks/PhoneCall/Attachment shortcuts, 7 `<img>` per record view. Same
-shape, different emitter (`View_entry`, not GenericBrowser's action loop), and
-`View_entry.css` still has 16 `[src*=...]` rules driving them.
+**The record view was finished the same day too.** Its tools row (`info`/`clipboard`/
+`history`/`history_inactive`, the favourite star, the watchdog eye, and the New Meeting/
+Task/Phonecall/Note shortcuts) emitted 7 more `<img>` per record view from a different
+place - `RecordBrowser_0.php`'s `view_entry` block, plus `ContactsCommon`/`TasksCommon`/
+`PhoneCallCommon`/`MeetingCommon`. All converted; **0 images on the grid *and* the record
+view** across Contacts, Companies, Tasks, Phonecalls and Meetings.
+
+Module-identity shortcuts go through the new `Base_BootstrapIcons::tag($module)`, which
+returns null when a module declares no `bootstrap_icon()` so the caller keeps its `<img>` -
+the same opt-in shape as the grid.
+
+**This is where the conversion nearly shipped broken, and the trap generalises:**
+`View_entry.css` identified the CRM-filter link by `a:not(:has(img))` - "the only link in
+this row with no image". That was a sound hook *only while every other link had an `<img>`*.
+Removing them made every icon match, so each one got `font-size:0` and a funnel glyph
+stamped in front of it. Fixed by testing for no icon child of any kind
+(`:not(:has(img)):not(:has(i))`), which is what it always meant. **Before deleting markup
+that CSS keys on, grep for selectors that assert its *absence*, not just its presence** -
+`:not(:has(...))` is the shape to look for, and it fails silently and ugly rather than
+not at all.
+
+Sizing needed care too: the record-view tools row is deliberately `1.25rem` (matched to
+the ActionBar directly above it), not the grid's `1rem`, and its state-colour rules need
+the `.epesi-rv-tools` prefix or the row's own grey wins on a specificity tie.

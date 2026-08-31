@@ -280,7 +280,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
                     'status'      => 0,
                     'related'     => $related_id
                 );
-                $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', $meeting_defaults, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'" /></a>';
+                $ret['new']['event'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Meeting')).' '.Utils_RecordBrowserCommon::create_new_record_href('crm_meeting', $meeting_defaults, 'none', false).'>'.(Base_BootstrapIcons::tag('CRM_Calendar') ?: '<img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Calendar','icon-small.png').'">').'</a>';
             }
 			if (CRM_TasksInstall::is_installed()) {
                 $task_defaults = array(
@@ -294,10 +294,10 @@ class CRM_PhoneCallCommon extends ModuleCommon {
                     'deadline'    => date('Y-m-d', strtotime('+1 day')),
                     'related'     => $related_id
                 );
-                $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $task_defaults).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'"></a>';
+                $ret['new']['task'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Task')).' '.Utils_RecordBrowserCommon::create_new_record_href('task', $task_defaults).'>'.(Base_BootstrapIcons::tag('CRM_Tasks') ?: '<img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_Tasks','icon-small.png').'">').'</a>';
             }
             $values['related'] = $related_id;
-			$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'><img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'"></a>';
+			$ret['new']['phonecall'] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Phonecall')).' '.Utils_RecordBrowserCommon::create_new_record_href('phonecall', $values, 'none', false).'>'.(Base_BootstrapIcons::tag('CRM_PhoneCall') ?: '<img border="0" src="'.Base_ThemeCommon::get_template_file('CRM_PhoneCall','icon-small.png').'">').'</a>';
 			$ret['new']['note'] = Utils_RecordBrowser::$rb_obj->add_note_button('phonecall/'.$values['id']);
 			return $ret;
 		case 'adding':

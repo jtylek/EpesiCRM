@@ -56,6 +56,26 @@ class Base_BootstrapIcons {
 	);
 
 	/**
+	 * A module's own icon as a ready-to-print <i> tag, for the "New Meeting"/"New Task"/
+	 * "New Note"-style record shortcuts that used to print a raster <img> of the module's
+	 * icon-small.png. Those images were already invisible under adminltedark (hidden by
+	 * CSS, painted over by a ::before glyph keyed on [src*="..."]) but still downloaded -
+	 * see AI-shared/performance-profiling.md, 2026-08-31.
+	 *
+	 * Returns null when the module declares no bootstrap_icon(), so the caller can keep
+	 * printing its original <img>.
+	 *
+	 * @param string      $module  module name, "Vendor_Module" or "Vendor/Module"
+	 * @param string      $classes extra classes for the tag (sizing/state)
+	 * @return string|null
+	 */
+	public static function tag($module, $classes = 'action_button') {
+		$bi = self::resolve(null, $module, null);
+		if (!$bi) return null;
+		return '<i class="bi '.$bi.($classes ? ' '.$classes : '').'"></i>';
+	}
+
+	/**
 	 * @param string|null $icon a bare icon filename ("companies.png"), or a
 	 *        full resolved path (e.g. "modules/CRM/Calendar/theme/icon.png") -
 	 *        only the basename is used for the filename lookup, and if

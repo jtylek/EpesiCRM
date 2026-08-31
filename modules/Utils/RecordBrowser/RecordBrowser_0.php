@@ -11,6 +11,7 @@
  */
 
 defined("_VALID_ACCESS") || die();
+require_once('modules/Base/Theme/bootstrap_icons.php');
 
 class Utils_RecordBrowser extends Module {
     private $table_rows = array();
@@ -313,7 +314,7 @@ class Utils_RecordBrowser extends Module {
 	
 	public function add_note_button($key=null) {
 		$href = $this->add_note_button_href($key);
-		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Note')).' '.$href.'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'"></a>';
+		return '<a '.Utils_TooltipCommon::open_tag_attrs(__('New Note')).' '.$href.'>'.(Base_BootstrapIcons::tag('Utils_Attachment') ?: '<img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_Attachment','icon_small.png').'">').'</a>';
 	}
     // BODY //////////////////////////////////////////////////////////////////////////////////////////////////////
     public function body($def_order=array(), $crits=array(), $cols=array(), $filters_set=array()) {
@@ -1261,7 +1262,12 @@ class Utils_RecordBrowser extends Module {
         }
 
         if ($mode!='add') {
-            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','info.png').'" /></a>');
+            // Bootstrap Icons glyphs rather than raster <img> for this whole tools row -
+            // same conversion as the grid's row actions (see GenericBrowser_0.php's
+            // action_icon_tag() and AI-shared/performance-profiling.md, 2026-08-31). The
+            // images were already invisible here too: View_entry.css hid them and painted
+            // a ::before glyph selected by [src*="..."].
+            $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><i class="bi bi-info-circle-fill action_button"></i></a>');
 
 			if ($mode!='history') {
 				if ($this->favorites)
@@ -1270,11 +1276,14 @@ class Utils_RecordBrowser extends Module {
 					$theme -> assign('subscription_tooltip', Utils_WatchdogCommon::get_change_subscription_icon($this->tab, $id));
 				if ($this->full_history) {
 					$info = Utils_RecordBrowserCommon::get_record_info($this->tab, $id);
-					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('This record was never edited')).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history_inactive.png').'" /></a>');
-					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href($this->navigate(...), array('view_edit_history', $id)).'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','history.png').'" /></a>');
+					// Same glyph both states - "never edited" is the dimmed, hrefless
+					// variant, not a different icon (matches what history_inactive.png
+					// vs history.png meant).
+					if ($info['edited_on']===null) $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('This record was never edited')).'><i class="bi bi-clock-history action_button action_button_off"></i></a>');
+					else $theme -> assign('history_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to view edit history of currently displayed record')).' '.$this->create_callback_href($this->navigate(...), array('view_edit_history', $id)).'><i class="bi bi-clock-history action_button"></i></a>');
 				}
 				if ($this->clipboard_pattern) {
-					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><img border="0" src="'.Base_ThemeCommon::get_template_file('Utils_RecordBrowser','clipboard.png').'" /></a>');
+					$theme -> assign('clipboard_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(__('Click to export values to copy')).' '.Libs_LeightboxCommon::get_open_href('clipboard').'><i class="bi bi-clipboard action_button"></i></a>');
 					$record = Utils_RecordBrowserCommon::get_record($this->tab, $id);
 					/* for every field name store its value */
 					$data = Utils_RecordBrowserCommon::get_record_vals($this->tab, $record, true, array_column($this->table_rows, 'id'));

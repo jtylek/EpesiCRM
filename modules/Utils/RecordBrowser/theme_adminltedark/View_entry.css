@@ -199,11 +199,19 @@
    own navbar "Perspective" link (Base/Theme/bootstrap_icons.php isn't
    involved here, but reusing the same glyph keeps "filter" reading the
    same everywhere in this theme). */
-.epesi-rv-tools a:not(:has(img)) {
+/* ":not(:has(img))" meant "a bare text link" only for as long as every OTHER link in
+   this row carried an <img>. Once those became <i class="bi"> glyphs (2026-08-31) this
+   matched every icon in the row instead - each one got font-size:0 and a funnel stamped
+   in front of it. Test for "no icon child of any kind", which is what it always meant.
+
+   Still deliberately matches BOTH bare-"F" links - CRM_Contacts' crm_filter and
+   Utils_Attachment's unrelated "File history" - see the mobile block far below, which is
+   scoped to .epesi-rv-crmfilter precisely because those two must not be conflated. */
+.epesi-rv-tools a:not(:has(img)):not(:has(i)) {
 	font-size: 0;
 }
 
-.epesi-rv-tools a:not(:has(img))::before {
+.epesi-rv-tools a:not(:has(img)):not(:has(i))::before {
 	font-size: 1rem;
 	content: "\f3e1";
 }
@@ -1162,10 +1170,24 @@
    this file and the other surface's stylesheet because the same two functions render
    into the grid and into the record view, and per-module theme CSS does not cascade
    between them. */
-i.action_button.epesi-fav-on   { color: #ffc107; }   /* gold star - on favourites */
-i.action_button.epesi-watch-on { color: #198754; }   /* green eye - watching, nothing new */
-i.action_button.epesi-watch-new{ color: #fd7e14; }   /* orange eye - unseen events */
+/* Scoped with .epesi-rv-tools so these beat the row's own grey
+   ".epesi-rv-tools i.action_button { color: #8b929a }" below - that selector has equal
+   specificity to a bare "i.action_button.epesi-fav-on", so on a tie the later rule would
+   have won and the star/eye would render grey. */
+.epesi-rv-tools i.action_button.epesi-fav-on   { color: #ffc107; }   /* gold star - on favourites */
+.epesi-rv-tools i.action_button.epesi-watch-on { color: #198754; }   /* green eye - watching, nothing new */
+.epesi-rv-tools i.action_button.epesi-watch-new{ color: #fd7e14; }   /* orange eye - unseen events */
 
-/* Base sizing for those glyphs on the record-view surface, matching what the grid's own
-   stylesheet gives them there. */
-i.action_button { font-size: 1rem; line-height: 1; vertical-align: middle; }
+/* Sizing for the glyphs this row now emits directly (RecordBrowser_0.php's tools row,
+   plus the favourite/watchdog buttons). 1.25rem, NOT the 1rem the grid uses - this row
+   was deliberately matched to the ActionBar sitting directly above it, see the
+   .epesi-rv-tools a::before rule above. A first pass here set 1rem and the converted
+   star rendered visibly smaller than the icons either side of it. */
+.epesi-rv-tools i.action_button {
+	font-size: 1.25rem;
+	line-height: 1;
+	color: #8b929a;
+}
+
+/* "Never edited" - dimmed rather than a separate history_inactive.png. */
+.epesi-rv-tools i.action_button_off { opacity: 0.4; }
