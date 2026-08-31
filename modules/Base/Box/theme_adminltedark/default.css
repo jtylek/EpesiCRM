@@ -50,7 +50,13 @@ html body {
    this theme's default.tpl writes to document.documentElement (:root) for
    the same reason. */
 :root {
-	--epesi-sidebar-width: 220px;
+	/* 210px is the narrowest value that still keeps every shipped menu label on one
+	   line - measured across all 27 sidebar links with every group expanded: at 200px
+	   "User Activity Report" wraps to two rows (nothing is ever clipped, the sidebar
+	   just gets a taller item), at 210px and above none do. Worth re-measuring rather
+	   than trimming further, since a longer translation of a menu label will wrap
+	   sooner than the English one does. */
+	--epesi-sidebar-width: 210px;
 	--epesi-header-height: 3.5rem;
 	--epesi-actionbar-height: 3rem;
 
