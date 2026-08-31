@@ -62,6 +62,19 @@ a terminal. Rector still prints one small ANSI-colored warning box (deprecated p
 PHP set notice) even with `--no-ansi` — a Symfony/Rector deprecation-handler quirk that
 ignores the flag; harmless, not worth chasing.
 
+**Don't "modernize" `rector-php83.php` to silence that deprecation notice** (tried
+2026-09-01). The warning tells you to replace `->withSets([SetList::PHP_83])` with
+`->withPhpSets(php83: true)`, but the new API is cumulative, not a like-for-like rename:
+it re-applies every per-version set from PHP 5.3 up through 8.3 (each rule self-gates by
+target version internally), where the old constant loaded only `config/set/php83.php`'s
+six PHP-8.3-specific rules. Tested: dry-run findings went from 0 files to 517, almost all
+`LongArrayToShortArrayRector` (`array()` → `[]`, a PHP 5.4-era style rule) — noise
+unrelated to this config's actual purpose (surfacing 8.3-level changes the core migration
+didn't target). Rector's own `SetList` constants no longer have a non-deprecated
+equivalent for "just this one version's rules" — that granularity was deliberately
+removed upstream, not an oversight here. Leave the deprecated `SetList::PHP_83` constant
+in place; the console warning is cosmetic on an already-advisory job.
+
 The ~10 files Rector used to report on every dry-run (CLAUDE.md's "whitespace-only
 re-prints from Rector 2.x") were fixed for real on 2026-09-01 — ran
 `rector process --config rector-php82.php` (no `--dry-run`) once to apply the trailing-tab
