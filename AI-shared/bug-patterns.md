@@ -6,6 +6,95 @@ These are already-fixed bugs, kept here not for their fix (see git history/
 commit messages for that) but because their *root-cause shape* is generic
 enough to plausibly recur elsewhere in this codebase.
 
+## Index
+
+One line per pattern, grouped. Skim the group that matches what you are touching before
+assuming a fresh bug - most entries here were originally diagnosed as something else.
+
+**RecordBrowser & the data layer**
+
+- [`get_contact_by_user_id()` returns a record, not an id](#crm_contactscommonget_contact_by_user_id-returns-the-full-contact-record-not-a-bare-id)
+- [`update_record()` merges old values into partial edits](#update_record-merges-old-field-values-into-partial-edits--poison-for-blank-means-unchanged-fields)
+- [Edit history logging untouched fields as changed](#recordbrowser-edit-history-logging-a-field-as-changed-on-every-save-even-when-untouched)
+- [Status "quick shortcut" bypassing the follow-up prompt](#status-fields-quick-shortcut-click-bypassed-the-follow-up-prompt-entirely)
+- [A record's identity field linking to itself on its own page](#a-records-own-identity-field-linkingtooltipping-to-itself-on-its-own-view-entry-page)
+- [Watchdog type-label callback indexes a nonexistent record](#watchdog-type-label-callback-indexes-a-record-that-doesnt-exist-for-the-generic-no-rid-call)
+- [Addon `*_related` grid only shows rows added through itself](#an-addon-_related-admin-grid-only-shows-rows-added-through-itself--not-addon-wiring-done-directly-by-other-modules-installphp)
+- [`Utils_GenericBrowser` fed by raw `DB::GetAll()` never gets a pager](#utils_genericbrowser-fed-via-a-raw-dbgetall--loop-never-gets-a-pager-even-with-real-data-behind-it)
+- [A weight-proportional column split collapsing to equal columns](#a-weight-proportional-column-split-silently-becomes-all-columns-equal-when-every-weight-is-the-framework-default-2026-08-31)
+
+**Forms (QuickForm) & fields**
+
+- [Raw DB record vs. form submission: same name, different shape](#raw-db-record-vs-form-submission--same-variable-different-shape)
+- [`setDefaults()` must precede `addElement()` for a `static`](#setdefaults-must-run-before-addelement-for-a-quickform-static-element)
+- [Setting a `datepicker` from JS needs the regional format](#setting-a-datepicker-quickform-fields-value-from-js-needs-the-regional-format-not-iso-2026-08-21)
+- [A `QFfield_callback` adding a second element renders nothing](#a-qffield_callback-adding-a-second-form-addelement-renders-nothing-2026-08-21)
+- [Required `select` offering an empty choice that fails its own rule](#required-commondataselect-fields-always-offered-an-empty-----choice-thats-guaranteed-to-fail-that-same-fields-own-required-rule)
+
+**JavaScript & client state**
+
+- [Base_StatusBar: one shared timeout for every severity](#base_statusbar-one-shared-timeoutfade-for-every-message-severity-and-every-caller)
+- [`Utils_PopupCalendar` off-screen: `clonePosition()` has no viewport](#utils_popupcalendar-rendering-off-screen-cloneposition-has-no-viewport-awareness-and-the-popup-wrapper-cant-be-measured-directly)
+- [Uncaught exception in a document handler eats the click](#an-uncaught-exception-in-a-document-level-handler-silently-eats-the-click-that-triggered-it--invisible-on-mobile-no-devtools)
+- [`eval_js_once()` in `Base_Box`s shell assumed one render](#eval_js_once-inside-base_boxs-own-shell-template-assumed-the-shell-renders-once-it-doesnt)
+- [`load_js()`s already-sent flag set before the flush](#load_jss-already-sent-session-flag-is-set-before-the-response-is-actually-flushed)
+- [`eval_js_once()` skips a script that must re-run per render](#eval_js_once-permanently-skips-a-script-that-needs-to-re-run-every-time-its-target-element-is-freshly-re-rendered-not-just-once-ever)
+- [`Libs_Leightbox` id colliding with the module its own DOM ids](#libs_leightboxcommondisplayid--using-a-bare-module-class-name-as-id-collides-with-that-same-modules-own-dom-ids-breaking-its-unrelated-js)
+
+**CSS & theming**
+
+- [`.form_error` absolute with no `top` escapes its row](#form_errors-position-absolute-had-no-top-so-it-escaped-its-field-row)
+- [`<select>` percentage width in a CSS multi-column container](#select-percentage-width-unreliable-inside-a-css-multi-column-container)
+- [Legacy add/edit form fields: four stacked bugs, one investigation](#legacy-theme-addedit-form-fields-wrapped-misaligned-clipped-then-overflowing--four-stacked-bugs-one-investigation)
+- [`epesi-switch` and `timestamp` losing CSS fights in `.data`](#epesi-switch-checkboxes-and-timestamp-fields-losing-css-fights-inside-recordbrowsers-data-cell)
+- [Applet header colour lost to an exact specificity tie](#dashboard-applet-header-losing-its-assigned-color-in-adminltedarks-light-mode-an-exact-specificity-tie-broken-by-source-order)
+- [White-on-white `<select>`/`<textarea>` in a fixed-light popup](#native-selecttextarea-text-goes-white-on-white-inside-a-popup-pinned-to-fixed-light-chrome-under-dark-mode)
+- [One Bootstrap Icons glyph never paints, and `getComputedStyle` lies](#one-specific-bootstrap-icons-glyph-bi-square-f584-silently-never-paints-in-this-apps-vendored-font---and-getcomputedstyle-cant-be-trusted-to-diagnose-it)
+- [`.form_error`s solid overlay hiding what is being typed](#form_errors-solid-overlay-could-hide-whats-being-typed-indefinitely--the-css-relied-on-js-reliably-finding-the-error-span-which-it-didnt-for-every-template-shape)
+- [Narrowing a selector inside the light-override layer drops id-weight](#narrowing-a-selector-inside-the-theme_adminltedark-light-override-layer-silently-drops-the-id-weight-its-is-was-carrying-2026-08-31)
+
+**Templates (Smarty)**
+
+- [Dead template variable with no `isset()` guard](#dead-smarty-template-variable-with-no-isset-guard-new-in-contacttpl)
+- [`$event_info` unset for timeless meetings, guarded inconsistently](#meeting-day-card-widget-event_info-unset-for-timeless-meetings-guarded-inconsistently)
+- [A raw `<script>` in a `.tpl` without `{literal}` fatals every request](#a-raw-script-block-added-to-a-tpl-file-without-literal-fatals-every-request-2026-08-28)
+
+**Caching**
+
+- [A cache written but never read, because "skip" is the default](#a-cache-thats-written-but-never-read-because-the-skip-cache-flag-defaults-to-skip)
+- [Batching a per-row query flips every integer column to string](#replacing-a-per-row-query-with-a-batched-one-silently-changes-every-integer-columns-php-type-because-bound-and-unbound-adodb-queries-type-results-differently-2026-08-31)
+- [Cache/scratch writes defaulting to `DATA_DIR` instead of `TEMP_DIR`](#runtime-cachescratch-file-call-sites-default-to-data_dir-instead-of-temp_dir)
+
+**Environment & config**
+
+- [Making a config constant runtime-mutable breaks paired start/stop checks](#turning-a-config-constant-into-a-runtime-flag-breaks-every-paired-if-flag-start--if-flag-stop-that-spans-the-moment-it-changes-2026-08-31)
+- [Outbound-network features failing silently by hosting environment](#whoisother-outbound-network-dependent-features-can-fail-silently-by-hosting-environment-not-code-bug-2026-08-21)
+- [`load_js()`/`load_css()` are per-session, not per-file-version](#load_jsload_css-are-per-session-not-per-file-version---editing-an-already-loaded-jscss-file-mid-session-shows-nothing-until-a-fresh-tablogin-2026-08-21-css-half-confirmed-2026-08-28)
+- [`cron.php`s shared token: loose comparison, predictable value](#cronphpmonitoringphps-shared-token-loose-comparison-and-a-predictable-value-fixed-2026-08-24)
+- [A self-signed HTTPS self-test false-negatives, then caches it forever](#a-server-to-itself-https-self-test-skips-no-tls-verification-so-it-false-negatives-on-a-self-signed-install--then-caches-the-wrong-answer-forever-2026-08-29)
+
+**Module system, Setup & admin**
+
+- [Multi-leaf module needs `caption()` on every leaf](#a-module-with-more-than-one-recordbrowser-wrapping-leaf-needs-caption-set-for-each-leaf-not-just-the-default-one)
+- ["Restore Defaults" bypassing the admin-default override chain](#restore-defaults-bypassing-the-admin-configured-default-override-chain)
+- [Non-static `simple_setup()` drops the module from Setup](#moduleinstallsimple_setup-declared-non-static-silently-drops-the-module-from-the-setup-screen-entirely)
+- [Simple Setup package icon needs two opt-ins, not one file](#local-modules-simple-setup-package-icon-needs-two-separate-opt-ins-not-just-a-themed-asset-file)
+
+**PHP 8 migration artifacts**
+
+- [`strtotime()` reads slash dates as m/d/y regardless of locale](#strtotime-always-reads-slash-dates-as-mdy-regardless-of-app-locale)
+- [Legacy access-rule crits with non-string keys](#legacy-format-access-rule-crits-with-non-string-keys-a-php-7482-migration-artifact-not-a-fresh-bug)
+- [`modules/Premium/` is invisible to every migration tool](#modulespremium-is-invisible-to-every-php-82-migration-tool---old-syntax-bugs-there-only-surface-at-runtime)
+- [Addon-tab `access()` called with two different arities](#a-recordbrowser-addon-tab-func_access-gate-is-called-with-two-different-arities-in-the-same-render--a-required-param-signature-fatals-on-the-second-call-2026-08-29)
+
+**Diagnosis traps**
+
+- [A settings/data report that looks like a browser bug usually is not](#a-settingsdata-report-that-looks-like-a-browser-bug-usually-isnt)
+- [Fixing one caller of shared data left a second caller unfixed](#fixing-one-caller-of-a-shared-tooltip-helper-left-a-second-caller-of-the-same-underlying-data-unfixed)
+- [A fixed JS bug "returning" in one window: stale client state](#an-already-fixed-js-bug-coming-back-in-one-browser-window-but-not-incognito-stale-client-state-not-a-regression)
+- ["Invalid date" surviving a hard reload: browser autofill](#invalid-date---clearing-recurring-again-surviving-a-hard-reload-and-a-brand-new-tab-browser-autofill-not-stale-js)
+
+---
 ## A module with more than one RecordBrowser-wrapping leaf needs `caption()` set for *each* leaf, not just the default one
 
 `Base_MainModuleIndicator` (the app-header title-bar text next to the
@@ -2424,3 +2513,104 @@ measured content, and cap what each column can take at what it actually needs, s
 pathological column cannot drain the pool. Do not reason about this from the numbers in the
 source — measure `scrollWidth - clientWidth` per cell in the running grid, which reports the
 real shortfall per column and is what confirmed both the diagnosis and the fix here.
+
+## Replacing a per-row query with a batched one silently changes every integer column's PHP type, because bound and unbound ADOdb queries type results differently (2026-08-31)
+
+The standard fix for an N+1 in this codebase is to replace `SELECT ... WHERE id=%d` run
+once per row with one `SELECT ... WHERE id IN (...)` run once per page, and prime the
+same cache the per-row path reads. That is what `Utils_RecordBrowserCommon`'s
+`prefetch_record_info()` and `prefetch_records()` do. The trap is that the batched query
+usually gets written with the ids **interpolated into the SQL** — they came out of the
+database, they are known to be integers, so there is nothing to escape — while the per-row
+query it replaces used a **bound** parameter. Those two produce different PHP types:
+
+```php
+DB::GetAll('SELECT id, created_by, active FROM company_data_1 WHERE id IN (%d,%d)', array(1,2));
+//   -> id, created_by, active are all PHP int
+
+DB::GetAll('SELECT id, created_by, active FROM company_data_1 WHERE id IN (1,2)');
+//   -> id, created_by, active are all PHP string
+```
+
+It is **not** a GetRow-vs-GetAll difference, which is the natural first guess when the
+per-row path used `GetRow` — `DB::GetRow` with no bind array returns strings too. ADOdb on
+mysqli runs a query with bound parameters as a real prepared statement, and mysqli's
+prepared-statement result carries native column types; an unbound query goes through the
+plain text protocol, where every column arrives as a string. The typing follows the
+*column definition*, not the value, so a `varchar` holding `"007"` stays a string in both —
+only genuinely-integer columns flip.
+
+Why it matters even though nothing visibly breaks: the values go into a request-scoped
+cache that other code reads back. Every `==` comparison, every `if`, every rendered
+string behaves identically. What changes is `===`, `serialize()`, `json_encode()` (`1` vs
+`"1"` in the payload), and `array_search`/`in_array` in strict mode. So it survives casual
+testing, and it survives a verification pass that compares with `==`.
+
+**How it was found, and the reason this entry exists at all:** the prefetch was compared
+against the per-id path with `serialize()` over every record in four recordsets, both
+`htmlspecialchars` modes, plus ids that do not exist. That reported 952 mismatches out of
+952. A comparison written with `==` — the obvious way — would have reported zero and the
+type change would have shipped. It nearly did ship anyway: `prefetch_record_info()`, added
+in an earlier pass and documented as "verified byte-identical across 240 records", had the
+interpolated `IN` list and had been caching string `created_by` where the per-id path
+cached int. That claim was true under `==`.
+
+Two rules follow:
+
+- When batching a query to replace a per-row one, **bind the ids** rather than
+  interpolating them, so the driver takes the same path it took before. This is not the
+  usual injection argument (ids straight out of the database need no escaping) — it is
+  about not changing the result's shape underneath a cache.
+- When asserting that a rewrite is equivalent, compare with `serialize()` or `===`, and
+  say which in the claim. "Verified identical" is only worth what the comparison operator
+  was.
+
+Same shape to watch for anywhere a `DB::GetAll` batch replaces a `DB::GetRow`/`GetOne` per
+row: `Utils_CommonDataCommon::load_tree()`, any future `prefetch_*` helper, and the
+"grouped query instead of one per row" fixes described in
+`AI-shared/performance-profiling.md`.
+
+## Turning a config *constant* into a runtime flag breaks every paired `if (FLAG) start` / `if (FLAG) stop` that spans the moment it changes (2026-08-31)
+
+`MODULE_TIMES` and `SQL_TIMES` were `define()`d constants, so this shape was safe
+everywhere it appeared:
+
+```php
+if (MODULE_TIMES) $time = microtime(true);
+   ... whole module renders here ...
+if (MODULE_TIMES) Epesi::$content[$path]['time'] = microtime(true) - $time;
+```
+
+A constant cannot change between the two halves, so the second `if` runs only when the
+first one did, and `$time` is always set. Replacing the constant with a mutable
+`Profiling::$modules` (so a super-admin can profile their own session without editing
+`data/config.php`) quietly removed that guarantee — and the very first thing anyone does
+with the new switch is turn it on *from a screen that is itself rendered inside the
+outermost timing pair*. The flag went false→true mid-request, the stop half ran, the start
+half never had, and PHP 8.2 logged `Undefined variable $time` at
+`include/module.php:1125`.
+
+**Why it is worse than a stray warning here:** `error.php`'s `REPORT_ALL_ERRORS` mode
+blanks a module's entire rendered output on the *first* `E_WARNING` of a request (see
+`CLAUDE.md`'s Error handling section). So on an install running that mode, ticking "show
+module render times" would have blanked the admin screen that contains the tick box — a
+setting that breaks the page you set it on, and looks like the setting itself is broken.
+
+Two fixes, both applied, and the first is the one that matters:
+
+1. **Do not mutate the live flags at all.** `Profiling::set_session_override()` writes the
+   session and returns; the new value is picked up at the *next* request's bootstrap, where
+   it lands before anything renders. The admin form says so ("apply from your next request
+   onward") rather than treating it as a wart to hide. A toggle that takes effect one
+   request later is a much smaller cost than a toggle that can blank a screen.
+2. **Read the flag once per pair**, into a local, and test the local at both ends
+   (`$profile_time = Profiling::$modules;`). Belt and braces — with (1) in place nothing
+   can flip mid-request, but the next person to make one of these runtime-mutable does not
+   have to rediscover the coupling.
+
+**The general rule:** when converting a `define()` to a runtime-mutable flag, grep for
+every use and check whether any two of them are *paired across a span of work* — a
+start/stop timer, an `ob_start()`/`ob_get_clean()`, an open/close, a lock/unlock, a
+counter's initialise/read. Constants make that pairing implicit and free; a variable does
+not. The count matters here: `SQL_TIMES` had 40 call sites and `MODULE_TIMES` 7, and only
+3 of the 47 were pairs that could span a flip.

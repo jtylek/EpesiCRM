@@ -57,9 +57,12 @@ Install them once with:
 composer install -d tools     # creates tools/vendor/, which is gitignored
 ```
 
-Static analysis (level 0, own code only — `include/` + `modules/`, minus the gitignored `Premium`/`Custom`
-trees so a local run matches CI; baseline in `phpstan-baseline.neon` means CI only fails on *new* findings).
-Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
+Static analysis (level 1, own code only — `include/` + `modules/` + `console/`, minus the gitignored
+`Premium`/`Custom` trees so a local run matches CI; baseline in `phpstan-baseline.neon` means CI only fails
+on *new* findings). Level 1 adds undefined-variable detection, which is worth more here than the level
+number suggests: an undefined read is an `E_WARNING` under PHP 8.2, and `REPORT_ALL_ERRORS` blanks a
+module's whole output on the first warning of a request (see Error handling below). Regenerate the baseline
+with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
 ```
 tools/vendor/bin/phpstan analyse -c phpstan.neon
 ```
@@ -86,6 +89,16 @@ authoritative command inventory — run it rather than trusting a list written d
 `AI-shared/PROPOSAL_functional_tests.md` for the (undecided) plan. Don't assume a test command will validate
 a change; verify by running the app instead. `php update.php` from the CLI is a real mutating operation
 against the live DB, not a dry check — be careful running it outside a disposable environment.
+
+The one automated check that does exist is a *performance* regression guard, not a correctness one —
+`php console.php dev:query:budget` asserts that the per-row query counts the 2026-08-31 N+1 work
+established stay flat as row count grows. Run it after touching `Utils_RecordBrowser`, `Utils_Watchdog`,
+`CRM_Roundcube` or `CRM_Contacts`. It needs a populated database, so it is local-only and not a CI job.
+
+**Profiling:** `MODULE_TIMES`/`SQL_TIMES` in `data/config.php` are still the install-wide default, but a
+super-admin no longer has to edit them — Administration → *PHP & SQL Errors to mail* turns either debug
+panel on for **their own session only** (`include/profiling.php`). Read the flags as `Profiling::$sql` /
+`Profiling::$modules`; reading the constants directly skips the session override.
 
 ## Architecture
 

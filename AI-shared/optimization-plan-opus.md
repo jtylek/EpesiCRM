@@ -1,5 +1,7 @@
 # Optimization plan (Opus session, 2026-08-31)
 
+> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in section 8, 9 and 10); Tier 3 is untouched by design.
+
 A performance + developer-experience plan for this Epesi checkout, written from
 measurements taken on this machine rather than from reading code alone. Every number
 below is reproducible — see "How these numbers were taken" at the end.
@@ -787,10 +789,12 @@ argument for 2.1 having been ranked first, and the reason to keep it ranked firs
 
 ### Still open
 
-- **1.4 (partial)** — `CRM_ContactsCommon::get_company()`, 19 queries/page. Needs the
-  same prefetch as 1.2; the linked-company ids are less cleanly available before the loop.
-  Note this is now a *query-count* item, not a wall-clock one: SQL is well under a third
-  of the render and the row loop's remaining non-SQL cost has no single hotspot left.
+- **1.2 (partial), the item §2 calls A1.4** — `CRM_ContactsCommon::get_company()`,
+  19 queries/page. Needs the same prefetch as the rest of 1.2; the linked-company ids are
+  less cleanly available before the loop. (This bullet was numbered "1.4" when first
+  written, which is the poller early-out — a slip; 1.4 is done.) Note this is now a
+  *query-count* item, not a wall-clock one: SQL is well under a third of the render and
+  the row loop's remaining non-SQL cost has no single hotspot left.
 - **2.2-2.6, Tier 3** — untouched, as scoped.
 - Shoutbox and Messenger pollers still pay the full bootstrap; 1.4's early-out is the
   model to copy.
@@ -804,3 +808,146 @@ Tier 0/Tier 1 and the icon work are committed (`3a4744919`, `10b3f45da`, `ab9b40
 The §9 purifier changes touch six files across `Utils_RecordBrowser`, `Utils_Tooltip`,
 `Utils_SafeHtml`, `CRM_Calendar` and `CRM_PhoneCall`. No patch file is needed for any of
 it — these are code fixes, no stored or seed data changes.
+
+---
+
+## 10. Third implementation pass (2026-08-31, later still): all of Tier 2
+
+Tier 2 is done, plus the A1.4 prefetch left over from Tier 1 and the Messenger poller.
+Tier 3 is untouched, deliberately — see "What is left" below.
+
+### Shipped
+
+| # | Item | Result |
+|---|---|---|
+| 1.2 rest (A1.4) | Linked-record prefetch | `Utils_RecordBrowserCommon::prefetch_records()`, called by the grid for every select/multiselect column pointing at a recordset. Not Contacts-specific: any module with a linked column gets it. 19 queries → 1 per linked table. |
+| Messenger poller | Early-out above `load_modules()` | Same shape as 1.4's — one existence query instead of a 95-module bootstrap. |
+| 2.2 | `CACHE_TYPE` / `CACHE_SERVER` | Cache driver no longer keyed off `MEMCACHE_SESSION_SERVER`. Redis/Predis/Sqlite added to the chain; a pinned driver with a missing extension degrades instead of fatalling. `auto` reproduces the old behaviour exactly. |
+| 2.3 | Admin-toggleable profiling | `include/profiling.php`. A super-admin switches either debug panel on **for their own session** from Administration → PHP & SQL Errors. The config constants stay as the install-wide default. |
+| 2.4 | Query-count regression guard | `php console.php dev:query:budget` — 5 scenarios, all flat. |
+| 2.5 | `FORCE_CACHE_COMMON_FILES` | Closed as already-answered — see the corrections below. |
+| 2.6 | PHPStan level 1 | Level raised, `console/` added to the analysed paths, baseline regenerated (217 entries / 413 findings). One real bug found and fixed on the way (`module:list` reported the *previous* row's state for any unrecognised state). |
+| §4.6 | `bug-patterns.md` index | 51 patterns, grouped into 10 categories, every anchor verified to resolve. |
+
+### Four things the plan got wrong (and a fifth, below, that was mine)
+
+1. **Item 2.5's premise was already answered, two weeks before the plan was written.**
+   2.5 asks to "find out why `FORCE_CACHE_COMMON_FILES` is off before proposing it".
+   `MIGRATION_NOTES.md` §66 (2026-08-13) answers it in full: the generator was broken by
+   the no-closing-tag convention, has since been fixed (`0ffdd53a6`, `9e66c598b`), and was
+   verified working live with the flag on. What actually remains is a *decision* — whether
+   to default it on in production — weighed against the developer hazard already recorded
+   in `environment-gotchas.md`. Not an investigation. Nothing shipped for it here.
+
+2. **§4's suggested-rewrite item 4 is moot.** It asks for a note "stating plainly that no
+   CI exists". CI exists (item 0.1 built it) and `README.md` has a Continuous integration
+   section. Struck.
+
+3. **"Shoutbox and Messenger pollers still pay the full bootstrap; 1.4's early-out is the
+   model to copy" — only half true.** Messenger can copy it and now does: it polls every
+   180s and almost always has nothing to say, so an existence check answers it. Shoutbox
+   **cannot**. Its response is never empty — it re-renders the last 20 messages on every
+   poll, and the client does `jQuery(...).load()`, which would blank the board on an empty
+   response. Making Shoutbox cheap means either caching the rendered HTML against a
+   message-set fingerprint (invalidation has to cover deletes, the admin flag and the
+   per-user `to_user_login_id` split) or a JS change so the client tolerates a "nothing
+   new" reply. Both are Tier 3 in size, and the second is really part of 3.1. Left alone.
+
+4. **A fixed query budget was the wrong shape for 2.4, and the first version of the
+   command shipped it anyway.** Cold scenarios legitimately include one-off schema reads —
+   RecordBrowser's `_field`/`_callback` lookups, Watchdog's category id — that have
+   nothing to do with row count. Every scenario came in "over budget" on the first run,
+   and all four overages were those. A budget loose enough to admit them is loose enough
+   to hide a real per-row query on a small fixture. The command now measures **slope**:
+   each scenario runs over 5 records and over 25, after a discarded warm-up, and the
+   assertion is that the count does not grow. Verified by injecting the regression — with
+   both prefetch functions stubbed out it reports `5 rows: 10 queries / 25 rows: 50
+   queries` and exits non-zero.
+
+### Verified in the running app
+
+Logged in, both grids and the toggle exercised end to end (2026-08-31, Edge via Playwright):
+
+- **Contacts: Browse is now 73 queries** — 168 originally, 91 after the previous pass. The
+  SQL panel shows exactly one `SELECT * FROM company_data_1 WHERE id IN (?,?,…)` with 19
+  bound placeholders and zero per-row `get_company()` calls. Company names render on every
+  row; Tasks, Meetings and Companies grids all render normally. Zero console errors or
+  warnings across the whole session.
+- **The session toggle works in both directions** and is independent per flag — SQL on with
+  modules off shows only the SQL panel; both on shows both; both off hides the debug bar
+  entirely. `data/config.php` was never touched, which was the whole point.
+
+### A fifth thing the plan got wrong — this one was mine
+
+Turning `MODULE_TIMES` from a `define()` into a mutable `Profiling::$modules` broke the
+paired timing sites. A constant cannot change between `if (FLAG) $time = microtime(true)`
+and `if (FLAG) … - $time`, so the pairing was implicit and free; a variable can, and the
+first thing anyone does with the new switch is turn it on *from a screen rendered inside
+the outermost pair*. `Undefined variable $time`, `include/module.php:1125` — caught in the
+error log during the browser check, not by any of the CLI verification, because nothing on
+the CLI flips the flag mid-request.
+
+It mattered more than a stray warning: under `REPORT_ALL_ERRORS` the first warning of a
+request blanks that module's whole output, so on such an install ticking "show module
+render times" would have blanked the screen containing the tick box.
+
+Fixed by making `set_session_override()` write the session and nothing else — the new value
+is picked up at the next request's bootstrap, before anything renders, and the form says so
+— plus reading the flag once per pair into a local. Re-ran the exact sequence afterwards:
+no new log entries. Full write-up in `bug-patterns.md`; the general rule is that converting
+a constant to a runtime flag means grepping for uses that are *paired across a span of
+work*, which was 3 of 47 sites here.
+
+### One finding worth more than the item that produced it
+
+`prefetch_records()` was written to be byte-identical to `get_record()`, and a
+`serialize()`-level comparison across 952 records said it was not: integer columns came
+back as `1` through the per-id path and `'1'` through the batch. The cause is not GetRow
+vs GetAll — it is **bound vs unbound parameters**. ADOdb on mysqli runs a bound query as a
+prepared statement, which returns native PHP ints for integer columns; an unbound query
+returns every column as a string. `get_record()` binds (`WHERE id=%d`), so any batch
+replacement that interpolates its `IN (...)` list silently changes the type of every
+integer column it caches.
+
+That is a trap for exactly the work this plan asks for — replacing per-row queries with
+batched ones — so it is written up in `bug-patterns.md`. It had already been shipped once:
+`prefetch_record_info()` (item 1.2, previous pass) interpolated its `IN` list, so it was
+caching string `created_by` where `get_record_info()` cached int. Both bind now, and both
+were re-verified byte-identical (952 and 468 records, both `htmlspecialchars` modes,
+including ids that do not exist).
+
+The lesson generalises past this codebase: **"verified identical" is only worth what the
+comparison operator was.** The previous pass's identical claim was true under `==` and
+false under `===`.
+
+### What is left
+
+- **Tier 3 (3.1–3.4)** — untouched by design. The plan scopes these as "structural, own
+  branch, own design note", and 3.2 as "largest win, largest risk; changes a core
+  invariant". Shipping them inside a Tier 2 sweep would be the exact mistake the tiering
+  exists to prevent. 3.3 is additionally *answered rather than pending*: §9's profile found
+  no single hotspot left in the row loop, so there is no target to optimise until a new
+  profile finds one.
+- **2.5's remaining half** — the prod/dev default decision for `FORCE_CACHE_COMMON_FILES`.
+  A decision, not a task; it needs an owner, not an investigation.
+- **PHPStan level 2** — level 1 is in. Level 2 starts checking unknown methods on typed
+  expressions, which the missing autoload makes noisy; it wants its own pass, not a config
+  bump.
+- **Whole-page query counts are still browser-only.** `dev:query:budget` guards the
+  Common-layer invariants, not page totals — `Epesi::process()` needs browser session
+  state to render a real screen. Section 7's procedure still applies, minus the
+  `config.php` edit it used to require.
+- **Open decision, unchanged:** whether `Dev-Tutorial.md` should reach module developers.
+
+### Note for whoever picks this up
+
+The §10 changes touch `include/` (`cache.php`, `config.php`, `database.php`, `epesi.php`,
+`module.php`, new `profiling.php`), `Utils_RecordBrowser`, `Base_Error`,
+`Utils_Messenger`, `console/`, `admin/modules/ConfigInfo.php`, `setup.php`, `phpstan.neon`
+and the CI docs-check regex (it only matched `[a-z:]`, so a hyphenated command name would
+have been silently truncated and then reported as missing).
+
+**No patch file is needed.** Everything here is code, config *defaults* that reproduce the
+previous behaviour when unset, or documentation — nothing changes stored or seed data. The
+one thing an existing install may want after upgrading is unrelated and already recorded:
+§66's stale `data/cache/common.php`.

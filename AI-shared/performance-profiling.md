@@ -829,3 +829,111 @@ arguing the assembled string needs no sanitising at all, or purifying only the
 `get_user_label()` fragment - a change to the sanitisation contract, not an
 optimisation, and it needs its own decision. The row loop's next-largest item is now the
 column loop at 0.0207s, spread across 7 columns x 20 rows with no single hotspot.
+
+---
+
+## Fixed: the last grid N+1 — linked columns — plus a guard so these stay fixed (2026-08-31)
+
+Closes the item the plan calls A1.4, the one left over when the other three grid N+1s were
+fixed earlier the same day.
+
+### The N+1
+
+`CRM_ContactsCommon::get_company()` memoizes per id, so the usual "add a cache" answer had
+already been applied and did nothing: a 20-row Contacts grid links 19 *distinct*
+companies, so every call was a first call. 19 queries per page, all
+`Utils_RecordBrowserCommon::get_record('company', $id)` underneath.
+
+### The fix, and why it is not in `CRM_Contacts`
+
+`Utils_RecordBrowserCommon::prefetch_records($tab, $ids)` — the same warm-up shape as
+`prefetch_record_info()`, one level out: one `SELECT ... WHERE id IN (...)` that primes
+`self::$record_cache`, after which the per-row `get_record()` calls are cache hits. Pure
+warm-up; anything it misses still resolves through the per-id path.
+
+The call site is `Utils_RecordBrowser_0.php`'s grid loop, not Contacts. Before rendering
+rows it walks `$query_cols`, picks out every `select`/`multiselect` column whose
+`ref_table` is a real recordset, collects those ids off the already-loaded `$records`, and
+prefetches one table at a time. So it is not a Contacts fix that happens to live in
+RecordBrowser — **every module with a linked column gets it**, including ones not written
+yet. Excluded on purpose: `commondata` fields (their `ref_table` is a CommonData array
+name, and `Utils_CommonDataCommon` has its own tree cache) and multi-recordset references
+like `contact,company` (stored as `tab/id` tokens, so there is nothing to batch per table).
+
+**19 queries → 1 per linked table.**
+
+### The bug this nearly shipped with
+
+The batch query first interpolated its ids into the SQL instead of binding them. That
+changes every integer column from `int` to `string`, because ADOdb runs a bound query as a
+mysqli prepared statement and an unbound one through the text protocol. Full write-up in
+`bug-patterns.md` — it is the trap for this entire class of fix, and `prefetch_record_info()`
+had already shipped with it. Both bind now.
+
+Verification was `serialize()`-level, not `==`: 952 records for `prefetch_records` and 468
+for `prefetch_record_info`, across four recordsets, both `htmlspecialchars` modes,
+including ids that do not exist (the `null`-caching branch). Zero mismatches. The same
+comparison written with `==` reports zero mismatches *before* the fix too, which is exactly
+how the first one got through.
+
+## Fixed: profiling no longer requires editing `data/config.php` (2026-08-31)
+
+`MODULE_TIMES`/`SQL_TIMES` were read as constants at every measurement point, so profiling
+meant editing config, reloading, and remembering to undo it — install-wide, for every user,
+outliving the session that wanted it. On a machine where more than one person or agent
+session shares the tree, that is not a private act.
+
+`include/profiling.php` holds `Profiling::$sql` / `Profiling::$modules`, initialised from
+the constants (so an install that sets them keeps behaving exactly as before, CLI and cron
+included) and overridable **per session** by a super-admin from Administration → *PHP & SQL
+Errors to mail*. Both directions work: a session can also silence a panel that config.php
+turned on globally.
+
+Read the flags, never the constants — a constant read skips the override. `database.php`
+requires `profiling.php` itself rather than leaving it to callers, because `index.php`,
+`init_js.php`, `theme_css.php`, `setup.php` and Roundcube's `config.inc.php` all pull the
+DB layer in without going through `include.php`.
+
+The procedure in this file's "How to profile a slow page" section still applies; it just
+no longer starts and ends with a config edit.
+
+## The guard: `php console.php dev:query:budget`
+
+Everything above is one edit away from coming back — "just call `get_record()` here, it's
+cached" is a reasonable-looking change that reintroduces the N+1 silently, because the
+output is identical and only the query count moves.
+
+The command measures **slope**, not a fixed budget. Each scenario runs over 5 records and
+over 25, after a discarded warm-up, and asserts the query count does not grow. A fixed
+budget was tried first and was wrong: cold scenarios legitimately include one-off schema
+reads (RecordBrowser's `_field`/`_callback` lookups, Watchdog's category id) that have
+nothing to do with row count, so every scenario failed its first run for reasons that were
+not bugs — and a budget loose enough to admit them is loose enough to hide a real per-row
+query on a small fixture.
+
+Five scenarios, one per fix: `get_record_info()`, `get_company()`, `get_record()`, the
+Roundcube mailto check, Watchdog's `check_if_notified()`. Confirmed to actually catch a
+regression by stubbing out both prefetch functions — it reports `5 rows: 10 queries /
+25 rows: 50 queries` and exits non-zero.
+
+It needs a populated database, so it is a local pre-push check rather than a CI job.
+It also does **not** cover whole-page counts: `Epesi::process()` renders from browser
+session state, so page totals stay a browser measurement.
+
+## Fixed: `Utils/Messenger/refresh.php` bootstrapped the whole app to say "nothing due"
+
+Same fix as `Base/Notify/refresh.php` got earlier (see above), and the same fail-open rule:
+one existence query using nothing but the session and DB, and anything that does not line
+up falls through to the original path. Messenger polls every 180s — a sixth of Notify's
+rate, so a sixth of the payoff, but the same ~80ms of pointless bootstrap per poll.
+
+### Why `Apps/Shoutbox/refresh.php` does *not* get the same treatment
+
+Its response is never empty. It re-renders the last 20 messages on every poll and the
+client does `jQuery('#shoutbox_board').load(...)`, which writes the response straight into
+the DOM — so an early-out returning nothing blanks the board. Making it cheap means either
+caching the rendered HTML against a message-set fingerprint (invalidation would have to
+cover deletes, the Shoutbox Admin flag, and the per-user `to_user_login_id` split) or a
+client-side change so "nothing new" is a valid reply. Both are larger than they look, and
+the second belongs with the poller-coalescing work. Left alone deliberately — this note
+exists so the next person does not re-derive it.
