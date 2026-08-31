@@ -85,9 +85,12 @@ most expensive mistake this folder can cause, and it has happened.
 ## Continuous integration
 
 `.github/workflows/ci.yml` exists as of 2026-08-31 and runs on push/PR: `php -l` over all
-first-party PHP, PHPStan level 1 (baselined — fails only on *new* findings), an advisory
-Rector 8.2 dry-run, and a docs check that every `console.php` command named in `CLAUDE.md`
-actually exists.
+first-party PHP, PHPStan level 2 (baselined — fails only on *new* findings), an advisory
+Rector 8.2 dry-run, a docs check that every `console.php` command named in `CLAUDE.md`
+actually exists, and an advisory check (item B6, `optimization-plan-opus.md`) that a diff
+modifying an `*Install.php` also adds a new `patches/*.php` for that module — silenced for
+a genuinely patch-free change with a `No-Patch-Needed: <reason>` trailer in a commit
+message or the PR description.
 
 Before that date there was **no CI at all**, despite `CLAUDE.md` and `phpstan.neon` both
 describing jobs in the present tense — and neither PHPStan nor Rector was even installed.

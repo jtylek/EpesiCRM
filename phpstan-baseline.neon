@@ -13,8 +13,176 @@ parameters:
 			path: console/Develop/CreateTestModuleCommand.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(array  Array representation of an element\)\: Unexpected token "Array", expected variable at offset 121 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool      Whether an element is required\)\: Unexpected token "Whether", expected variable at offset 160 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool    true\: collect all hidden elements into string; false\: process them as usual form elements\)\: Unexpected token "true", expected variable at offset 50 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool    true\: render an array of labels to many labels, \$key 0 to ''label'' and the oterh to "label_\$key"\)\: Unexpected token "true", expected variable at offset 162 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed      element name or array \(''element name'' \=\> ''style name''\)\)\: Unexpected token "element", expected variable at offset 82 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object    An HTML_QuickForm_element object\)\: Unexpected token "An", expected variable at offset 103 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string     style name if \$elementName is not an array\)\: Unexpected token "style", expected variable at offset 161 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    Error associated with the element\)\: Unexpected token "Error", expected variable at offset 215 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiArray.php
+
+		-
 			message: '#^Function smarty_function_eval not found\.$#'
 			identifier: function.notFound
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array  Array representation of an element\)\: Unexpected token "Array", expected variable at offset 121 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool       Whether a group is required\)\: Unexpected token "Whether", expected variable at offset 182 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool      Whether an element is required\)\: Unexpected token "Whether", expected variable at offset 202 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool    true\: render an array of labels to many labels, \$key 0 to ''label'' and the oterh to "label_\$key"\)\: Unexpected token "true", expected variable at offset 121 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean     The element required\)\: Unexpected token "The", expected variable at offset 334 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_group object being visited\)\: Unexpected token "An", expected variable at offset 110 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_header element being visited\)\: Unexpected token "An", expected variable at offset 81 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object    An HTML_QuickForm_element object\)\: Unexpected token "An", expected variable at offset 145 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object  reference to the Smarty template engine instance\)\: Unexpected token "reference", expected variable at offset 50 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element error template\)\: Unexpected token "The", expected variable at offset 1104 on line 23$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element error\)\: Unexpected token "The", expected variable at offset 383 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element error\)\: Unexpected token "The", expected variable at offset 453 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element html rendering\)\: Unexpected token "The", expected variable at offset 279 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element html rendering\)\: Unexpected token "The", expected variable at offset 398 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element label\)\: Unexpected token "The", expected variable at offset 233 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The element label\)\: Unexpected token "The", expected variable at offset 352 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The required element template\)\: Unexpected token "The", expected variable at offset 630 on line 14$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The template source\)\: Unexpected token "The", expected variable at offset 236 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string     An error message associated with a group\)\: Unexpected token "An", expected variable at offset 237 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/EpesiSmartyRenderer.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    Error associated with the element\)\: Unexpected token "Error", expected variable at offset 257 on line 8$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: include/EpesiSmartyRenderer.php
 
@@ -121,6 +289,12 @@ parameters:
 			path: include/epesi.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(string javascript code\)\: Unexpected token "javascript", expected variable at offset 77 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/epesi.php
+
+		-
 			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -131,6 +305,156 @@ parameters:
 			identifier: return.missing
 			count: 1
 			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array\)\: Unexpected token "\\n \* ", expected variable at offset 176 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool if set to false the function will be called only once, location\(\) doesn''t affect with double call\)\: Unexpected token "if", expected variable at offset 121 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool if set to true the function will return currently hold list of functions \(don''t use it in modules\)\)\: Unexpected token "if", expected variable at offset 234 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean append contents of js file instead of use src tag\?\)\: Unexpected token "append", expected variable at offset 78 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer depth counter, for internal use\)\: Unexpected token "depth", expected variable at offset 160 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer depth counter, for internal use\)\: Unexpected token "depth", expected variable at offset 230 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer length\)\: Unexpected token "length", expected variable at offset 73 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer maximum depth of the tree\)\: Unexpected token "maximum", expected variable at offset 116 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer maximum depth of the tree\)\: Unexpected token "maximum", expected variable at offset 186 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed function to call\)\: Unexpected token "function", expected variable at offset 55 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed glob flags\)\: Unexpected token "glob", expected variable at offset 157 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed list of arguments\)\: Unexpected token "list", expected variable at offset 88 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 2
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string css file path and name\)\: Unexpected token "css", expected variable at offset 49 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string destination directory\)\: Unexpected token "destination", expected variable at offset 205 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string directory to remove\)\: Unexpected token "directory", expected variable at offset 106 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string glob pattern\)\: Unexpected token "glob", expected variable at offset 128 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string javascript file\)\: Unexpected token "javascript", expected variable at offset 44 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string javascrpit code\)\: Unexpected token "javascrpit", expected variable at offset 88 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string javascrpit code\)\: Unexpected token "javascrpit", expected variable at offset 98 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string source directory\)\: Unexpected token "source", expected variable at offset 171 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string starting directory\)\: Unexpected token "starting", expected variable at offset 79 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string starting directory\)\: Unexpected token "starting", expected variable at offset 92 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/misc.php
+
+		-
+			message: '#^Call to method display\(\) on an unknown class Twig_Environment\.$#'
+			identifier: class.notFound
+			count: 1
+			path: include/module.php
+
+		-
+			message: '#^Call to method render\(\) on an unknown class Twig_Environment\.$#'
+			identifier: class.notFound
+			count: 1
+			path: include/module.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$twig contains unknown class Twig_Environment\.$#'
+			identifier: class.notFound
+			count: 2
+			path: include/module.php
 
 		-
 			message: '#^Variable \$name in isset\(\) always exists and is not nullable\.$#'
@@ -151,10 +475,136 @@ parameters:
 			path: include/module_manager.php
 
 		-
-			message: '#^Path in require_once\(\) "temp/data/cache/common\.php" is not a file or it does not exist\.$#'
-			identifier: requireOnce.fileNotFound
+			message: '#^PHPDoc tag @param has invalid value \(array modules list\)\: Unexpected token "modules", expected variable at offset 352 on line 9$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array modules list\)\: Unexpected token "modules", expected variable at offset 366 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array table with loaded modules\)\: Unexpected token "table", expected variable at offset 295 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int version to which module should be downgraded\)\: Unexpected token "version", expected variable at offset 165 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int version to which module should be upgraded\)\: Unexpected token "version", expected variable at offset 163 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer module version to check\)\: Unexpected token "module", expected variable at offset 254 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer module version\)\: Unexpected token "module", expected variable at offset 334 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(module name\)\: Unexpected token "name", expected variable at offset 117 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object module\)\: Unexpected token "module", expected variable at offset 392 on line 11$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string function name\)\: Unexpected token "function", expected variable at offset 417 on line 12$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 102 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 103 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 136 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 138 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 49 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 97 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 99 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module to check if all requirements are satisifed\)\: Unexpected token "module", expected variable at offset 185 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_manager.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string function name\)\: Unexpected token "function", expected variable at offset 334 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_primitive.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 112 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_primitive.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 115 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: include/module_primitive.php
+
+		-
+			message: '#^Path in require\(\) "Minify\.php" is not a file or it does not exist\.$#'
+			identifier: require.fileNotFound
+			count: 1
+			path: include/serve_minified.php
 
 		-
 			message: '#^Call to an undefined method EpesiSessionMemcachedStorage\:\:get\(\)\.$#'
@@ -175,10 +625,34 @@ parameters:
 			path: include/session.php
 
 		-
+			message: '#^Access to property \$compile_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 4
+			path: include/simple_login.php
+
+		-
+			message: '#^Access to property \$compile_id on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: include/simple_login.php
+
+		-
+			message: '#^Access to property \$template_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: include/simple_login.php
+
+		-
 			message: '#^Instantiated class Smarty not found\.$#'
 			identifier: class.notFound
 			count: 1
 			path: include/simple_login.php
+
+		-
+			message: '#^Call to an undefined method HTML_QuickForm_element\:\:setQuillProps\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Applets/Note/NoteCommon_0.php
 
 		-
 			message: '#^Variable \$recents might not be defined\.$#'
@@ -211,10 +685,28 @@ parameters:
 			path: modules/Base/ActionBar/ActionBar_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed action bar entry\)\: Unexpected token "action", expected variable at offset 108 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/ActionBar/ActionBar_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed action bar entry\)\: Unexpected token "action", expected variable at offset 142 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/ActionBar/ActionBar_0.php
+
+		-
 			message: '#^Variable \$mod_ok might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: modules/Base/Admin/Admin_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:has_nav_history\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/Box/BoxCommon_0.php
 
 		-
 			message: '#^Call to an undefined method Base_Dashboard\:\:create_main_href\(\)\.$#'
@@ -227,6 +719,24 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: modules/Base/Dashboard/Dashboard_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/Dashboard/Dashboard_0.php
+
+		-
+			message: '#^Method Base_EpesiStoreCommon\:\:get_downloaded_modules\(\) has invalid return type associative\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/EpesiStore/EpesiStoreCommon_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:pop_main\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/EpesiStore/EpesiStore_0.php
 
 		-
 			message: '#^Variable \$required_modules in isset\(\) always exists and is not nullable\.$#'
@@ -259,6 +769,12 @@ parameters:
 			path: modules/Base/HomePage/HomePage_0.php
 
 		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/Lang/Administrator/Administrator_0.php
+
+		-
 			message: '#^Variable \$org might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -267,6 +783,36 @@ parameters:
 		-
 			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
 			identifier: constant.notFound
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string email message\)\: Unexpected token "email", expected variable at offset 196 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string recipent\)\: Unexpected token "recipent", expected variable at offset 143 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string sender''s name\)\: Unexpected token "sender", expected variable at offset 253 on line 11$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string sender\)\: Unexpected token "sender", expected variable at offset 228 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string subject\)\: Unexpected token "subject", expected variable at offset 170 on line 8$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: modules/Base/Mail/MailCommon_0.php
 
@@ -281,6 +827,36 @@ parameters:
 			identifier: isset.variable
 			count: 1
 			path: modules/Base/Mail/class.phpmailer.php
+
+		-
+			message: '#^Call to an undefined method OAuth\:\:getOauth64\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
+
+		-
+			message: '#^Call to method Initialize\(\) on an unknown class ntlm_sasl_client_class\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
+
+		-
+			message: '#^Call to method NTLMResponse\(\) on an unknown class ntlm_sasl_client_class\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
+
+		-
+			message: '#^Call to method TypeMsg1\(\) on an unknown class ntlm_sasl_client_class\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
+
+		-
+			message: '#^Call to method TypeMsg3\(\) on an unknown class ntlm_sasl_client_class\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
 
 		-
 			message: '#^Instantiated class ntlm_sasl_client_class not found\.$#'
@@ -301,10 +877,34 @@ parameters:
 			path: modules/Base/Mail/class.smtp.php
 
 		-
+			message: '#^Call to an undefined method Module\:\:get_main_module\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/MainModuleIndicator/MainModuleIndicator_0.php
+
+		-
 			message: '#^Variable \$active_module might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: modules/Base/MainModuleIndicator/MainModuleIndicator_0.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$depth$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$m$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$prefix$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
 
 		-
 			message: '#^Variable \$aw in isset\(\) always exists and is not nullable\.$#'
@@ -325,20 +925,86 @@ parameters:
 			path: modules/Base/Menu/Menu_0.php
 
 		-
-			message: '#^Parameter \$section of method Base_Print_Printer\:\:print_section\(\) has invalid type Smarty\.$#'
+			message: '#^Method Base_Print_Printer\:\:new_section\(\) has invalid return type Smarty\.$#'
 			identifier: class.notFound
 			count: 1
+			path: modules/Base/Print/Printer.php
+
+		-
+			message: '#^Parameter \$section of method Base_Print_Printer\:\:print_section\(\) has invalid type Smarty\.$#'
+			identifier: class.notFound
+			count: 2
 			path: modules/Base/Print/Printer.php
 
 		-
 			message: '#^Parameter \$section of method Base_Print_Printer\:\:set_footer\(\) has invalid type Smarty\.$#'
 			identifier: class.notFound
-			count: 1
+			count: 2
 			path: modules/Base/Print/Printer.php
 
 		-
 			message: '#^Constant SYSTEM_TIMEZONE not found\.$#'
 			identifier: constant.notFound
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean convert from local time to server time\)\: Unexpected token "convert", expected variable at offset 113 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean convert to client time\)\: Unexpected token "convert", expected variable at offset 221 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean convert to client time\)\: Unexpected token "convert", expected variable at offset 559 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean use regional user format\)\: Unexpected token "use", expected variable at offset 601 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed same as time2reg\(\)''s \$t\)\: Unexpected token "same", expected variable at offset 178 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed string\-strtotime recognizable string, null\-current time, int\-unix time\)\: Unexpected token "string\-strtotime", expected variable at offset 88 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed \{0,false,null,''''\}\-no date,\{1,true\}\-with date,\{2,''without_year''\}\-date without year, \{3,''with_weekday''\}\-date with weekday\)\: Unexpected token "\{", expected variable at offset 420 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed \{0,false,null,''''\}\-no time \(you probably don''t want to set it\!\),\{1,true,''with_seconds''\}\-time with seconds,\{2,''without_seconds''\}\-time without seconds \(default \- seconds are noise in the UI; pass true explicitly if you need them\)\)\: Unexpected token "\{", expected variable at offset 176 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string date format\)\: Unexpected token "date", expected variable at offset 170 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string\)\: Unexpected token "\\n\\t \* ", expected variable at offset 93 on line 4$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
 
@@ -353,6 +1019,42 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: modules/Base/Search/Search_0.php
+
+		-
+			message: '#^Comparison operation "\<" between int and \*NEVER\* results in an error\.$#'
+			identifier: smaller.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Comparison operation "\=\=" between \*NEVER\* and \-1 results in an error\.$#'
+			identifier: equal.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Comparison operation "\=\=" between \*NEVER\* and \-2 results in an error\.$#'
+			identifier: equal.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Comparison operation "\=\=" between int and \*NEVER\* results in an error\.$#'
+			identifier: equal.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Comparison operation "\>" between int and \*NEVER\* results in an error\.$#'
+			identifier: greater.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Comparison operation "\>\=" between \*NEVER\* and 0 results in an error\.$#'
+			identifier: greaterOrEqual.invalid
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
 
 		-
 			message: '#^Variable \$filter might not be defined\.$#'
@@ -373,6 +1075,42 @@ parameters:
 			path: modules/Base/Setup/Setup_0.php
 
 		-
+			message: '#^Access to property \$cache_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Access to property \$compile_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 4
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Access to property \$compile_id on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Access to property \$config_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Access to property \$template_dir on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 2
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^Call to method register_modifier\(\) on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
 			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -385,8 +1123,80 @@ parameters:
 			path: modules/Base/Theme/ThemeCommon_0.php
 
 		-
-			message: '#^Path in require\(\) "Minify\.php" is not a file or it does not exist\.$#'
-			identifier: require.fileNotFound
+			message: '#^PHPDoc tag @param has invalid value \(bool sets whether there should be an error displayed if css is not present, true by default\)\: Unexpected token "sets", expected variable at offset 129 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string css file name, ''default'' by default\)\: Unexpected token "css", expected variable at offset 77 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 225 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 297 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 47 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string path and filename \(path relative to specified module\)\)\: Unexpected token "path", expected variable at offset 255 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string path and filename \(path relative to specified module\)\)\: Unexpected token "path", expected variable at offset 327 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array list of available themes\)\: Unexpected token "list", expected variable at offset 63 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/Theme_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool if set to true, module name will not be added to the filename and you should then pass a result of get_module_file_name\(\) function as filename\)\: Unexpected token "if", expected variable at offset 155 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/Theme_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string name for smarty variable\)\: Unexpected token "name", expected variable at offset 218 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/Theme_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string name of theme file to use \(without extension\)\)\: Unexpected token "name", expected variable at offset 93 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/Theme_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable contents\)\: Unexpected token "variable", expected variable at offset 261 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/Theme/Theme_0.php
+
+		-
+			message: '#^Constant EPESI_SERVE_ROOT not found\.$#'
+			identifier: constant.notFound
 			count: 1
 			path: modules/Base/Theme/theme_css.php
 
@@ -397,10 +1207,196 @@ parameters:
 			path: modules/Base/User/Administrator/Administrator_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(integer user id \(get from User module\)\)\: Unexpected token "user", expected variable at offset 504 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer user id \(get from User module\)\)\: Unexpected token "user", expected variable at offset 63 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string destination mail address\)\: Unexpected token "destination", expected variable at offset 134 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string mail address\)\: Unexpected token "mail", expected variable at offset 94 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string new mail address\)\: Unexpected token "new", expected variable at offset 112 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string password\)\: Unexpected token "password", expected variable at offset 107 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string password\)\: Unexpected token "password", expected variable at offset 125 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string password, if empty, don''t change pass\)\: Unexpected token "password", expected variable at offset 147 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string username\)\: Unexpected token "username", expected variable at offset 67 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string username\)\: Unexpected token "username", expected variable at offset 77 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string username\)\: Unexpected token "username", expected variable at offset 80 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string\)\: Unexpected token "\\n\\t \* ", expected variable at offset 76 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string\)\: Unexpected token "\\n\\t \* ", expected variable at offset 94 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Login/LoginCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed value\)\: Unexpected token "value", expected variable at offset 195 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed value\)\: Unexpected token "value", expected variable at offset 197 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 134 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 136 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 146 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 53 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string module name\)\: Unexpected token "module", expected variable at offset 55 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable name\)\: Unexpected token "variable", expected variable at offset 164 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable name\)\: Unexpected token "variable", expected variable at offset 166 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable name\)\: Unexpected token "variable", expected variable at offset 176 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable name\)\: Unexpected token "variable", expected variable at offset 83 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string variable name\)\: Unexpected token "variable", expected variable at offset 85 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/Settings/SettingsCommon_0.php
+
+		-
 			message: '#^Call to an undefined method Base_User_Settings\:\:create_main_href\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: modules/Base/User/Settings/Settings_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:pop_main\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/User/Settings/Settings_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool is active\?\)\: Unexpected token "is", expected variable at offset 99 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/UserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer user id\)\: Unexpected token "user", expected variable at offset 54 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/UserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer user id\)\: Unexpected token "user", expected variable at offset 75 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/UserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string username\)\: Unexpected token "username", expected variable at offset 103 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/UserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string username\)\: Unexpected token "username", expected variable at offset 47 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Base/User/UserCommon_0.php
 
 		-
 			message: '#^Constant DATABASE_NAME not found\.$#'
@@ -411,6 +1407,12 @@ parameters:
 		-
 			message: '#^Call to an undefined static method Acl\:\:del_group\(\)\.$#'
 			identifier: staticMethod.notFound
+			count: 1
+			path: modules/Base/patches/RB_permissions2.php
+
+		-
+			message: '#^Call to method install\(\) on an unknown class Custom_Prosperix_AccessRestrictionsInstall\.$#'
+			identifier: class.notFound
 			count: 1
 			path: modules/Base/patches/RB_permissions2.php
 
@@ -437,6 +1439,12 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: modules/Base/patches/notes_addons.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:export_values\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Calendar/Calendar_0.php
 
 		-
 			message: '#^Variable \$int_id might not be defined\.$#'
@@ -475,6 +1483,12 @@ parameters:
 			path: modules/CRM/Contacts/ContactsCommon_0.php
 
 		-
+			message: '#^Call to method getProxy\(\) on an unknown class SOAP_WSDL\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/CRM/Contacts/sample_soap_client.php
+
+		-
 			message: '#^Call to static method isError\(\) on an unknown class PEAR\.$#'
 			identifier: class.notFound
 			count: 1
@@ -501,6 +1515,30 @@ parameters:
 		-
 			message: '#^Access to an undefined property EpesiContacts\:\:\$__typedef\.$#'
 			identifier: property.notFound
+			count: 1
+			path: modules/CRM/Contacts/soap.php
+
+		-
+			message: '#^Call to method addObjectMap\(\) on an unknown class SOAP_Server\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/CRM/Contacts/soap.php
+
+		-
+			message: '#^Call to method getDISCO\(\) on an unknown class SOAP_DISCO_Server\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/CRM/Contacts/soap.php
+
+		-
+			message: '#^Call to method getWSDL\(\) on an unknown class SOAP_DISCO_Server\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/CRM/Contacts/soap.php
+
+		-
+			message: '#^Call to method service\(\) on an unknown class SOAP_Server\.$#'
+			identifier: class.notFound
 			count: 1
 			path: modules/CRM/Contacts/soap.php
 
@@ -553,6 +1591,18 @@ parameters:
 			path: modules/CRM/Contacts/soap.php
 
 		-
+			message: '#^Call to an undefined method Module\:\:create_open_link\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/CRM/Fax/Fax_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Fax/Fax_0.php
+
+		-
 			message: '#^Call to an undefined method CRM_Filters\:\:create_main_href\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -589,6 +1639,18 @@ parameters:
 			path: modules/CRM/GoogleCalendarSync/GoogleCalendarSync_0.php
 
 		-
+			message: '#^Call to method setAuthentication\(\) on an unknown class Fetch\\Server\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/CRM/Mail/MailCommon_0.php
+
+		-
+			message: '#^Call to method setFlag\(\) on an unknown class Fetch\\Server\.$#'
+			identifier: class.notFound
+			count: 3
+			path: modules/CRM/Mail/MailCommon_0.php
+
+		-
 			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -614,6 +1676,18 @@ parameters:
 
 		-
 			message: '#^Call to an undefined method CRM_Mail\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Mail/Mail_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:export_values\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Mail/Mail_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:get_href\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: modules/CRM/Mail/Mail_0.php
@@ -709,6 +1783,78 @@ parameters:
 			path: modules/Libs/PHPExcel/PHPExcelCommon_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Data to be used to populate options\)\: Unexpected token "Data", expected variable at offset 166 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Either a typical HTML attribute string or an associative array\)\: Unexpected token "Either", expected variable at offset 230 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Label\(s\) for the select\)\: Unexpected token "Label", expected variable at offset 114 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    Select name attribute\)\: Unexpected token "Select", expected variable at offset 64 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$values$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^Property HTML_QuickForm_automulti\:\:\$_format_callback has unknown class callback as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^Property HTML_QuickForm_automulti\:\:\$_options_callback has unknown class callback as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^Property HTML_QuickForm_automulti\:\:\$_options_callback_args has unknown class callback as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/automulti/automulti.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Data to be used to populate options\)\: Unexpected token "Data", expected variable at offset 167 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Either a typical HTML attribute string or an associative array\)\: Unexpected token "Either", expected variable at offset 231 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Label\(s\) for the select\)\: Unexpected token "Label", expected variable at offset 115 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    Select name attribute\)\: Unexpected token "Select", expected variable at offset 65 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php
+
+		-
 			message: '#^Variable \$strValues in empty\(\) always exists and is always falsy\.$#'
 			identifier: empty.variable
 			count: 1
@@ -727,15 +1873,75 @@ parameters:
 			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
 
 		-
+			message: '#^Call to method fetchRow\(\) on an unknown class db_result\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
 			message: '#^Call to static method raiseError\(\) on an unknown class PEAR\.$#'
 			identifier: class.notFound
 			count: 3
 			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
 
 		-
+			message: '#^Method HTML_QuickForm_multiselect\:\:load\(\) has invalid return type PEAR_Error\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
 			message: '#^Method HTML_QuickForm_multiselect\:\:load\(\) should return PEAR_Error but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Method HTML_QuickForm_multiselect\:\:loadArray\(\) has invalid return type PEAR_Error\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^Method HTML_QuickForm_multiselect\:\:loadDbResult\(\) has invalid return type PEAR_Error\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Data to be used to populate options\)\: Unexpected token "Data", expected variable at offset 166 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Either a typical HTML attribute string or an associative array\)\: Unexpected token "Either", expected variable at offset 230 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed     Label\(s\) for the select\)\: Unexpected token "Label", expected variable at offset 114 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    Select name attribute\)\: Unexpected token "Select", expected variable at offset 64 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$values$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
+			message: '#^PHPDoc tag @throws with type PEAR_Error is not subtype of Throwable$#'
+			identifier: throws.notThrowable
+			count: 4
 			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
 
 		-
@@ -767,6 +1973,162 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool        Whether an element is required\)\: Unexpected token "Whether", expected variable at offset 230 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool       Whether a group is required\)\: Unexpected token "Whether", expected variable at offset 176 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool       Whether an element is required\)\: Unexpected token "Whether", expected variable at offset 173 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed       Element label \(if using an array of labels, you should set the appropriate template\)\)\: Unexpected token "Element", expected variable at offset 117 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object      An HTML_QuickForm object being visited\)\: Unexpected token "An", expected variable at offset 109 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object      An HTML_QuickForm object being visited\)\: Unexpected token "An", expected variable at offset 192 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object      An HTML_QuickForm_group object being visited\)\: Unexpected token "An", expected variable at offset 110 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_element object being visited\)\: Unexpected token "An", expected variable at offset 102 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_group object being visited\)\: Unexpected token "An", expected variable at offset 107 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_header element being visited\)\: Unexpected token "An", expected variable at offset 81 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_hidden object being visited\)\: Unexpected token "An", expected variable at offset 111 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object     An HTML_QuickForm_html element being visited\)\: Unexpected token "An", expected variable at offset 94 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      \(optional\) Name of the element to apply template for\)\: Unexpected token "\(", expected variable at offset 138 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      Element name\)\: Unexpected token "Element", expected variable at offset 76 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      Error message associated with the element\)\: Unexpected token "Error", expected variable at offset 289 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      Name of the group to apply template for\)\: Unexpected token "Name", expected variable at offset 165 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      Name of the group to apply template for\)\: Unexpected token "Name", expected variable at offset 341 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The HTML surrounding an element\)\: Unexpected token "The", expected variable at offset 100 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The HTML surrounding an element\)\: Unexpected token "The", expected variable at offset 73 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The HTML surrounding group elements\)\: Unexpected token "The", expected variable at offset 273 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The HTML surrounding the header\)\: Unexpected token "The", expected variable at offset 71 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string      The HTML surrounding the required note\)\: Unexpected token "The", expected variable at offset 100 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string     An error message associated with a group\)\: Unexpected token "An", expected variable at offset 228 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string     An error message associated with an element\)\: Unexpected token "An", expected variable at offset 228 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string    The HTML surrounding the form tags\)\: Unexpected token "The", expected variable at offset 66 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string     operator name\)\: Unexpected token "operator", expected variable at offset 117 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Libs/QuickForm/Rule/CompareString.php
 
 		-
 			message: '#^Constant DATABASE_HOST not found\.$#'
@@ -895,6 +2257,66 @@ parameters:
 			path: modules/Libs/RoundCube/RC/public_html/index.php
 
 		-
+			message: '#^Call to method SetAuthor\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetAutoPageBreak\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetCreator\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetFooterMargin\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetHeaderMargin\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetKeywords\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method SetMargins\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method setFooterFont\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method setHeaderFont\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
+			message: '#^Call to method setImageScale\(\) on an unknown class TCPDF\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Libs/TCPDF/TCPDFCommon_0.php
+
+		-
 			message: '#^Instantiated class TCPDF not found\.$#'
 			identifier: class.notFound
 			count: 1
@@ -937,6 +2359,18 @@ parameters:
 			path: modules/Utils/Attachment/FileActionHandler.php
 
 		-
+			message: '#^Binary operation "\*" between string and 60 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: modules/Utils/Calendar/Calendar_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Calendar/Calendar_0.php
+
+		-
 			message: '#^Variable \$dest_id in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
@@ -955,6 +2389,18 @@ parameters:
 			path: modules/Utils/Calendar/Calendar_0.php
 
 		-
+			message: '#^Binary operation "\*" between string and 60 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 2
+			path: modules/Utils/CalendarBusyReport/CalendarBusyReport_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/CalendarBusyReport/CalendarBusyReport_0.php
+
+		-
 			message: '#^Variable \$ev_start might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -965,6 +2411,24 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: modules/Utils/CalendarBusyReport/CalendarBusyReport_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string filename\)\: Unexpected token "filename", expected variable at offset 94 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CatFile/CatFile_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer post id\)\: Unexpected token "post", expected variable at offset 110 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/CommentCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string comment group id\)\: Unexpected token "comment", expected variable at offset 69 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/CommentCommon_0.php
 
 		-
 			message: '#^Call to an undefined static method DB\:\:error\(\)\.$#'
@@ -979,6 +2443,54 @@ parameters:
 			path: modules/Utils/Comment/Comment_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(bool true to allow replying\)\: Unexpected token "true", expected variable at offset 89 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool true to enable moderation\)\: Unexpected token "true", expected variable at offset 99 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool true to enable tree structure\)\: Unexpected token "true", expected variable at offset 104 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool true to reply on comment page, false to place button on ActionBar\)\: Unexpected token "true", expected variable at offset 103 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer id of a comment to which this one replies\)\: Unexpected token "id", expected variable at offset 167 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer number of comments per page\)\: Unexpected token "number", expected variable at offset 107 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string identifier of the comment group\)\: Unexpected token "identifier", expected variable at offset 152 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string text message\)\: Unexpected token "text", expected variable at offset 135 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
+
+		-
 			message: '#^Method Utils_CommonDataCommon\:\:remove\(\) should return true but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -987,6 +2499,78 @@ parameters:
 		-
 			message: '#^Method Utils_CommonDataCommon\:\:remove_by_id\(\) should return true but return statement is missing\.$#'
 			identifier: return.missing
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array initialization value\)\: Unexpected token "initialization", expected variable at offset 87 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool whether method should overwrite if array already exists, otherwise the data will be appended\)\: Unexpected token "whether", expected variable at offset 124 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean order by key instead of value\)\: Unexpected token "order", expected variable at offset 87 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean translate\?\)\: Unexpected token "translate", expected variable at offset 77 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer entry id\)\: Unexpected token "entry", expected variable at offset 76 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed order value to be validated\)\: Unexpected token "order", expected variable at offset 114 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string array name\)\: Unexpected token "array", expected variable at offset 47 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string array name\)\: Unexpected token "array", expected variable at offset 50 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string array name\)\: Unexpected token "array", expected variable at offset 57 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string array name\)\: Unexpected token "array", expected variable at offset 59 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string array name\)\: Unexpected token "array", expected variable at offset 68 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CommonData/CommonDataCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string entry name\)\: Unexpected token "entry", expected variable at offset 66 on line 4$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: modules/Utils/CommonData/CommonDataCommon_0.php
 
@@ -1039,10 +2623,46 @@ parameters:
 			path: modules/Utils/CurrencyField/currency.php
 
 		-
+			message: '#^Binary operation "\*" between \-1\|1 and string results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: modules/Utils/CurrencyField/currency.php
+
+		-
+			message: '#^Binary operation "\+" between string and \(float\|int\) results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: modules/Utils/CurrencyField/currency.php
+
+		-
 			message: '#^Variable \$value on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
 			path: modules/Utils/CurrencyField/currency.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string identifier of the menu entries group\)\: Unexpected token "identifier", expected variable at offset 75 on line 3$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CustomMenu/CustomMenuCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array or string arguments\)\: Unexpected token "or", expected variable at offset 118 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CustomMenu/CustomMenu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(function name\)\: Unexpected token "name", expected variable at offset 158 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CustomMenu/CustomMenu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string identifier of the menu entries group\)\: Unexpected token "identifier", expected variable at offset 159 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/CustomMenu/CustomMenu_0.php
 
 		-
 			message: '#^Access to an undefined property Utils_FileStorage\:\:\$caption\.$#'
@@ -1063,10 +2683,160 @@ parameters:
 			path: modules/Utils/FileUpload/FileUpload_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(method method for submit action\)\: Unexpected token "method", expected variable at offset 220 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(method method for submit action\)\: Unexpected token "method", expected variable at offset 49 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed refer to QuickForm addElement\(\) method\)\: Unexpected token "refer", expected variable at offset 90 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed refer to QuickForm addRule\(\) method\)\: Unexpected token "refer", expected variable at offset 87 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed refer to QuickForm createElement\(\) method\)\: Unexpected token "refer", expected variable at offset 93 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string\)\: Unexpected token "\\n\\t ", expected variable at offset 51 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array array with column names\)\: Unexpected token "array", expected variable at offset 352 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool enabling paging, true by default\)\: Unexpected token "enabling", expected variable at offset 188 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool enabling paging, true by default\)\: Unexpected token "enabling", expected variable at offset 94 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool true to force order reset\)\: Unexpected token "true", expected variable at offset 392 on line 11$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string SQL query that selects all elements for the table\)\: Unexpected token "SQL", expected variable at offset 122 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string SQL query that will return number of rows in the table\)\: Unexpected token "SQL", expected variable at offset 190 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string columns to force order\)\: Unexpected token "columns", expected variable at offset 324 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string template file that should be used to display the table, use Base_ThemeCommon\:\:get_template_filename\(\) for proper filename\)\: Unexpected token "template", expected variable at offset 50 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
 			message: '#^Variable \$max_actions on left side of \?\?\= always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
 			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array array with row data\)\: Unexpected token "array", expected variable at offset 493 on line 15$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed list of arguments\)\: Unexpected token "list", expected variable at offset 520 on line 15$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string href\)\: Unexpected token "href", expected variable at offset 253 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string href\)\: Unexpected token "href", expected variable at offset 255 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string js\)\: Unexpected token "js", expected variable at offset 80 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string label\)\: Unexpected token "label", expected variable at offset 279 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string label\)\: Unexpected token "label", expected variable at offset 281 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string tooltip\)\: Unexpected token "tooltip", expected variable at offset 81 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/GenericBrowser/RowObject.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int max height\. When specified, first parameter becomes responsible for max width\.\)\: Unexpected token "max", expected variable at offset 116 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Image/ImageCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int max size\.\)\: Unexpected token "max", expected variable at offset 91 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Image/ImageCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string path to image\)\: Unexpected token "path", expected variable at offset 62 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Image/ImageCommon_0.php
 
 		-
 			message: '#^Call to an undefined method Utils_Menu\:\:help\(\)\.$#'
@@ -1075,10 +2845,94 @@ parameters:
 			path: modules/Utils/Menu/Menu_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(string displayed text\)\: Unexpected token "displayed", expected variable at offset 58 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string name of the submenu\)\: Unexpected token "name", expected variable at offset 139 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string optional path to an icon\)\: Unexpected token "optional", expected variable at offset 136 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string optional path to an icon\)\: Unexpected token "optional", expected variable at offset 177 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string target address of the link\)\: Unexpected token "target", expected variable at offset 91 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
+
+		-
 			message: '#^Access to an undefined property Utils_Messenger\:\:\$lp\.$#'
 			identifier: property.notFound
 			count: 1
 			path: modules/Utils/Messenger/Messenger_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:export_values\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Messenger/Messenger_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:get_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Messenger/Messenger_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:push_main\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Messenger/Messenger_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array submenu with this node''s children\. Also, it''s just displaying the text, so any links must be made on your own\.\)\: Unexpected token "submenu", expected variable at offset 175 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Path/Path_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array submenu with this node''s children\. Also, it''s just displaying the text, so any links must be made on your own\.\)\: Unexpected token "submenu", expected variable at offset 186 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Path/Path_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string title\. This is pure HTML, so if you want any links, you must spacify them on your own\.\)\: Unexpected token "title", expected variable at offset 71 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Path/Path_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string title\. This is pure HTML, so if you want any links, you must spacify them on your own\.\)\: Unexpected token "title", expected variable at offset 82 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Path/Path_0.php
+
+		-
+			message: '#^Binary operation "\*" between string and 60 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 3
+			path: modules/Utils/Planner/PlannerCommon_0.php
+
+		-
+			message: '#^Binary operation "\*" between string and 60 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: modules/Utils/Planner/Planner_0.php
 
 		-
 			message: '#^File begins with UTF\-8 BOM character\. This may cause problems when running the code in the web browser\.$#'
@@ -1135,6 +2989,36 @@ parameters:
 			path: modules/Utils/PopupCalendar/timestamp.php
 
 		-
+			message: '#^Call to an undefined method HTML_QuickForm_Renderer\:\:toHtml\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/PopupCalendar/timestamp.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int	 Increment by this value\)\: Unexpected token "Increment", expected variable at offset 177 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/PopupCalendar/timestamp.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int	 The end number\)\: Unexpected token "The", expected variable at offset 147 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/PopupCalendar/timestamp.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int	 The start number\)\: Unexpected token "The", expected variable at offset 115 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/PopupCalendar/timestamp.php
+
+		-
+			message: '#^Call to an undefined method Utils_RecordBrowser_CritsInterface\:\:is_empty\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/Access.php
+
+		-
 			message: '#^Unsafe usage of new static\(\)\.$#'
 			identifier: new.static
 			count: 4
@@ -1151,6 +3035,30 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: modules/Utils/RecordBrowser/Filters/Filters_0.php
+
+		-
+			message: '#^Default value of the parameter \#5 \$return_in_array \(false\) of method Utils_RecordBrowserCommon\:\:get_access\(\) is incompatible with type string\.$#'
+			identifier: parameter.defaultValue
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(Record ID \- ID of the record\)\: Unexpected token "ID", expected variable at offset 111 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(RecordSet \- name of the recordset\)\: Unexpected token "\-", expected variable at offset 69 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(Revision ID \- RB will backtrace all edits on that record down\-to and including edit with this ID\)\: Unexpected token "ID", expected variable at offset 153 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
 
 		-
 			message: '#^Variable \$id in isset\(\) always exists and is not nullable\.$#'
@@ -1174,6 +3082,24 @@ parameters:
 			message: '#^Access to an undefined property Utils_RecordBrowser\:\:\$watchdog\.$#'
 			identifier: property.notFound
 			count: 6
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:switch_tab\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tab_icon\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
 			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
 
 		-
@@ -1237,6 +3163,12 @@ parameters:
 			path: modules/Utils/RecordBrowser/RecordPickerFS/select_all.php
 
 		-
+			message: '#^Call to method assign\(\) on an unknown class Smarty\.$#'
+			identifier: class.notFound
+			count: 4
+			path: modules/Utils/RecordBrowser/RecordPrinter.php
+
+		-
 			message: '#^Call to an undefined method Utils_RecordBrowser_Reports\:\:tag\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -1267,10 +3199,124 @@ parameters:
 			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
 
 		-
+			message: '#^Access to an undefined property Module\:\:\$record\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Access to an undefined property Module\:\:\$view_fields_permission\.$#'
+			identifier: property.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:accept\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:construct\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:exportValues\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:get_access\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:get_name\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:init\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:prepare_view_entry_details\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:validate\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/grid.php
+
+		-
+			message: '#^Cannot access property \$record on null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: modules/Utils/RecordBrowser/object_wrapper/Recordset.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$field RBO_FieldDefinition\)\: Unexpected token "\$field", expected type at offset 9 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/RecordBrowser/object_wrapper/Recordset.php
+
+		-
+			message: '#^PHPDoc tag @param references unknown parameter\: \$field_name$#'
+			identifier: parameter.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/object_wrapper/fields.php
+
+		-
+			message: '#^Parameter \$advanced_properties_callback of method RBO_Field_Select\:\:set_advanced_properties_callback\(\) has invalid type callback\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/object_wrapper/fields.php
+
+		-
+			message: '#^Parameter \$crits_callback of method RBO_Field_Select\:\:set_crits_callback\(\) has invalid type callback\.$#'
+			identifier: class.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/object_wrapper/fields.php
+
+		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
 			count: 1
 			path: modules/Utils/RecordBrowser/patches/20161129_export_customization.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:construct\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/print.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:disable_pagination\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/print.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:set_header_properties\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/print.php
+
+		-
+			message: '#^Call to an undefined method Module\:\:show_data\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/print.php
 
 		-
 			message: '#^Access to an undefined property Utils_TabbedBrowser\:\:\$caption\.$#'
@@ -1279,8 +3325,152 @@ parameters:
 			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(integer tab number\)\: Unexpected token "tab", expected variable at offset 133 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer tab number\)\: Unexpected token "tab", expected variable at offset 97 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(method method that will be called when tab is displayed\)\: Unexpected token "method", expected variable at offset 212 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string tab caption\)\: Unexpected token "tab", expected variable at offset 182 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string template file that will be used\)\: Unexpected token "template", expected variable at offset 128 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array arguments for the callback\)\: Unexpected token "arguments", expected variable at offset 158 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array keys are captions, values are values\)\: Unexpected token "keys", expected variable at offset 61 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(array parameters that will be passed to the callback\)\: Unexpected token "parameters", expected variable at offset 232 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool keep a real \<table\>''s structure instead of flattening it \(see to_safe_html\(\)''s \$keep_table doc\) \- opt in only when \$tip''s HTML is known to be safe to keep, e\.g\. Utils_GenericBrowser\\RowObject\:\:add_info\(\)''s Watchdog changes\-list caller\)\: Unexpected token "keep", expected variable at offset 382 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool passed through to to_safe_html\(\)''s \$keep_table \- only meaningful when \$safe_html is true; keeps a real \<table\>''s structure \(e\.g\. Watchdog''s Field/Old value/New value changes grid\) instead of flattening rows to "Label\: value" lines\)\: Unexpected token "passed", expected variable at offset 668 on line 9$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool render the callback''s HTML via to_safe_html\(\$content,\$keep_table\)\+innerHTML \(keeps \<strong\>/\<b\>/\<br\>\) instead of the default to_plain_text\(\)\+textContent flatten \- opt in only for callbacks whose HTML is safe to keep\)\: Unexpected token "render", expected variable at offset 436 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool render the callback''s HTML via to_safe_html\(\) \(keeps \<strong\>/\<b\>/\<br\>\) instead of flattening it to plain text \- see ajax_open_tag_attrs\(\)''s \$safe_html doc\)\: Unexpected token "render", expected variable at offset 270 on line 8$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean help tooltip\? \(you can turn off help tooltips\)\)\: Unexpected token "help", expected variable at offset 149 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(boolean help tooltip\? \(you can turn off help tooltips\)\)\: Unexpected token "help", expected variable at offset 173 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(callback method that will be called to get tooltip content\)\: Unexpected token "method", expected variable at offset 165 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int max_width unused under adminlte \(fixed via \.epesi\-tooltip\-popup''s own max\-width\); kept for the legacy theme''s Utils_Tooltip\.show\(\)\)\: Unexpected token "max_width", expected variable at offset 235 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int max_width unused under adminlte, see open_tag_attrs\(\)\)\: Unexpected token "max_width", expected variable at offset 200 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(int unused under adminlte \(fixed via \.epesi\-tooltip\-popup''s own max\-width\); kept for the legacy theme''s Utils_Tooltip\.load_ajax\(\)\)\: Unexpected token "unused", expected variable at offset 294 on line 7$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed callback\)\: Unexpected token "callback", expected variable at offset 132 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string text\)\: Unexpected token "text", expected variable at offset 110 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string text\)\: Unexpected token "text", expected variable at offset 94 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string tooltip text\)\: Unexpected token "tooltip", expected variable at offset 117 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string tooltip text\)\: Unexpected token "tooltip", expected variable at offset 141 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tooltip/TooltipCommon_0.php
+
+		-
 			message: '#^Call to an undefined method Utils_Tray\:\:get_filter_values\(\)\.$#'
 			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Tray/Tray_0.php
+
+		-
+			message: '#^Default value of the parameter \#2 \$display_tray_select \(true\) of method Utils_Tray\:\:set_filters\(\) is incompatible with type string\.$#'
+			identifier: parameter.defaultValue
 			count: 1
 			path: modules/Utils/Tray/Tray_0.php
 
@@ -1291,8 +3481,56 @@ parameters:
 			path: modules/Utils/Tray/Tray_0.php
 
 		-
+			message: '#^PHPDoc tag @param has invalid value \(array structure of tree\.\)\: Unexpected token "structure", expected variable at offset 810 on line 26$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tree/Tree_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(bool set false if you want to close branches\.\)\: Unexpected token "set", expected variable at offset 69 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Tree/Tree_0.php
+
+		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(integer starting page number\)\: Unexpected token "starting", expected variable at offset 129 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(method method to process the data\)\: Unexpected token "method", expected variable at offset 135 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(mixed next page\)\: Unexpected token "next", expected variable at offset 113 on line 5$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(object HTML QuickForm renderer object\)\: Unexpected token "HTML", expected variable at offset 88 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(page name or number\)\: Unexpected token "name", expected variable at offset 36 on line 3$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(string alias for the page\)\: Unexpected token "alias", expected variable at offset 145 on line 6$#'
+			identifier: phpDoc.parseError
 			count: 1
 			path: modules/Utils/Wizard/Wizard_0.php
 

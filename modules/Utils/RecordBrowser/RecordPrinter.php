@@ -42,7 +42,7 @@ class Utils_RecordBrowser_RecordPrinter extends Base_Print_Printer
      * @see new_section
      * @see print_section
      * @see set_footer
-     * @return null It doesn't have to return value
+     * @return void It doesn't have to return value
      */
     protected function print_document($data)
     {

@@ -1,6 +1,7 @@
-# Baseline captures the ~316 pre-existing findings (mostly no-PSR-4-autoload noise); with it included,
-# CI flags only NEW issues (regressions). Regenerate it from the phpstan CI job's artifact as we clear
-# real bugs, so it shrinks over time.
+# Baseline captures the pre-existing findings (mostly no-PSR-4-autoload/dynamic-dispatch
+# noise - see optimization-plan-opus.md's "PHPStan level 2" implementation log for the
+# breakdown); with it included, CI flags only NEW issues (regressions). Regenerate it from
+# the phpstan CI job's artifact as we clear real bugs, so it shrinks over time.
 includes:
     - phpstan-baseline.neon
 
@@ -11,10 +12,14 @@ parameters:
     # than the level number suggests - reading an undefined variable is an E_WARNING under PHP
     # 8.2, and error.php's REPORT_ALL_ERRORS mode blanks a module's whole rendered output on
     # the first warning of a request (see CLAUDE.md). Raised to 1 on 2026-08-31 with the ~220
-    # pre-existing findings baselined, so CI fails on *new* ones only. Level 2 next; it starts
-    # checking unknown methods on every typed expression, which the missing autoload makes
-    # noisy, so it needs its own pass rather than a config bump.
-    level: 1
+    # pre-existing findings baselined, so CI fails on *new* ones only. Raised to 2 the same
+    # day: it starts checking unknown methods on every typed expression, which the missing
+    # autoload makes noisy (mostly Module::__call()'s dynamic dispatch, which PHPStan can't
+    # see through, and pre-standardized "@param type description" PHPDoc with no $varname,
+    # silently tolerated below level 2 and only parsed - and flagged as malformed - here).
+    # ~130 genuinely-typed findings and ~270 malformed-PHPDoc-syntax findings baselined; a
+    # few real docblock bugs fixed on the way, see the plan doc.
+    level: 2
     phpVersion: 80200
     paths:
         - include

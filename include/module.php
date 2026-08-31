@@ -148,7 +148,7 @@ abstract class Module extends ModulePrimitive {
 	 * Gets child module with specified node id.
 	 *
 	 * @param string $id
-	 * @return module object
+	 * @return Module object
 	 */
 	public final function & get_child($id) {
 		if($this->fast_process || isset($this->frozen_modules[$id])) {
@@ -1018,7 +1018,7 @@ abstract class Module extends ModulePrimitive {
 	 * which name is passed as third parameter.
 	 * You can pass additional arguments.
 	 *
-	 * @param module $m child module
+	 * @param Module $m child module
 	 * @param mixed $args arguments
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else true
@@ -1036,7 +1036,7 @@ abstract class Module extends ModulePrimitive {
 	 * You can pass additional arguments.
 	 * Attention: do not pass the result of this function by one module to another module.
 	 *
-	 * @param module $m child module
+	 * @param Module $m child module
 	 * @param mixed $args arguments
 	 * @param string $function_name function to call (get output from), if user has enought privileges.
 	 * @return mixed if access denied returns false, else string

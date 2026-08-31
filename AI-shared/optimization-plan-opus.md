@@ -1,6 +1,13 @@
 # Optimization plan (Opus session, 2026-08-31)
 
-> **Status:** PLAN, partly implemented - Tier 0, Tier 1 and Tier 2 are done (see the implementation logs in sections 8, 9 and 10). Tier 3: A2.3 and 3.4 shipped (§11, §12), 3.1 recommended for striking on measurement, 3.2 still open.
+> **Status:** every item in this plan is now shipped, closed, or formally struck - see
+> sections 8-14 for the implementation logs and §6 for the handful of items rejected by
+> design from the start. Tier 0, Tier 1 and Tier 2 are done (§8, §9, §10). Tier 3 is fully
+> resolved: A2.3 and 3.4 shipped (§11, §12), 3.1 closed/struck on measurement (§11), 3.2
+> closed/rejected on risk (§11), 3.3 answered - no hotspot to aim at (§10). B6 shipped (§13,
+> never tiered - the upgrade-gap CI check). PHPStan level 2 shipped (§14). Nothing left to
+> pick up from this document without a new measurement or a new profile surfacing a fresh
+> target - see each closed item's own note for what would reopen it.
 
 A performance + developer-experience plan for this Epesi checkout, written from
 measurements taken on this machine rather than from reading code alone. Every number
@@ -1017,6 +1024,12 @@ Recommend striking 3.1 unless it is re-justified by a measurement, or unless it 
 for a non-performance reason (one dispatcher is a better place to put policy than four
 copies — which is exactly what the item below ran into).
 
+**Closed 2026-08-31, Jasiek's call: struck, on this recommendation.** Not doing it. If
+this is ever re-justified it will be by a fresh measurement, not by re-reading this
+section — Tier 1/§10/§11 already moved the ground it was originally proposed on twice
+(the 80ms-per-poll bootstrap cost the plan measured is gone, and A2.3's `visibilitychange`
+gating took the remaining per-tab cost too).
+
 ### What shipped instead: A2.3, which was never given a tier number
 
 A2 listed three fixes. A2.1 became 1.4 and shipped; A2.2 became 3.1; **A2.3 — back off when
@@ -1049,10 +1062,19 @@ procedure with several tabs open to quantify.
 ### Still open after this pass
 
 - **3.2** — unchanged in value, better understood: the target is ~12 ms of class-declaration
-  execution per request, and the bundle is not a substitute for it.
-- **3.4** — untouched at the end of this pass; done in §12.
-- **3.1** — recommend striking; see above.
-- **3.3** — already answered in §10 (no hotspot left to aim at).
+  execution per request, and the bundle is not a substitute for it. **Closed 2026-08-31,
+  Jasiek's call: not doing it.** ~12 ms/request (roughly 3-4% of the ~283-364 ms renders
+  §1 measured) was never going to justify making eager Common-class registration
+  declarative — the plan's own words for this item were "changes a core invariant" and
+  "largest win, largest risk." Revisit only if a future profile finds bootstrap cost has
+  become a much larger share of render time than it is today.
+- **3.1** — recommend striking; see above. **Closed 2026-08-31, Jasiek's call: struck.**
+- **3.3** — already answered in §10 (no hotspot left to aim at). **Closed as answered,
+  2026-08-31.** Nothing to build: this item was never a task in its own right, it was a
+  placeholder for whatever §2.1's profile found, and §9 found nothing — every suspect §A4
+  named cost under 6% of the row loop combined. Reopen only if a *new* profile (§9's method:
+  `microtime()` probes, since this machine has no Xdebug/Excimer/tideways) finds an actual
+  hotspot; until then there is no target to optimize.
 
 ---
 
@@ -1134,3 +1156,154 @@ No patch file needed — code and a stale-template cleanup only, no stored/seed 
 `include/serve_minified.php` is now the one place that owns Minify "Files"-controller setup
 for text-asset bundling; a future third caller (if one ever needs a differently-filtered
 Minify endpoint) should extend it rather than copying `theme_css.php` again.
+
+---
+
+## 13. B6 (2026-08-31, still later): the upgrade-gap CI check
+
+### What shipped
+
+A new `upgrade-gap` job in `.github/workflows/ci.yml`, alongside the lint/phpstan/rector/
+docs jobs item 0.1 built. On every push/PR it diffs the commit range, and for any
+**modified** `*Install.php` (status `M` — a brand-new one belongs to a module nobody has
+installed yet, so it needs no patch by definition), checks whether the same diff also
+**adds** a `patches/*.php` file under that same module directory. If not, it posts a
+`::warning::` annotation naming the file — never a build failure, `continue-on-error: true`
+same as the Rector job, for the reason CLAUDE.md and `MEMORY.md`'s saved
+`feedback_patch-discipline-judgment` entry both already say: plenty of `Install.php`
+changes are cosmetic/pre-release and genuinely need no patch, so this can only ever be a
+prompt to make the decision consciously, not an automatic answer.
+
+**The opt-out** is a `No-Patch-Needed: <reason>` trailer — checked in any commit message in
+the diffed range, and (for `pull_request` events) anywhere in the PR description, matching
+this repo's own existing trailer convention (`Co-Authored-By: ...`). It's a whole-run
+opt-out rather than per-file: this is advisory, not a gate, so a little over-permissiveness
+costs nothing and keeps the check simple.
+
+**Diff range:** `pull_request` events use `base.sha...head.sha` (three-dot — merge-base
+diff, so unrelated commits landed on the base branch after the PR branched don't show up as
+"changes this PR made"). `push` events use `before..after`; a branch's first-ever push (or
+a manual `workflow_dispatch` run, which has neither field) has no prior commit to diff
+against and the job exits clean rather than erroring. `fetch-depth: 0` on this job's
+checkout only — the other jobs never need history, only the tree, so they stay on the
+default shallow clone.
+
+### Verified
+
+Dry-run of the exact bash extracted from the YAML (`bash -n` syntax-checked, then run with
+the same env-var interface the workflow uses) against real history, not invented cases:
+
+- **95be987bb** (`modules/CRM/Mail/MailInstall.php` modified, two new
+  `modules/CRM/Mail/patches/*.php` in the same commit — the correct-discipline case) → no
+  warning, exit 0.
+- **b6c332999** (20 `*Install.php` files modified for the "EPESI" → "Epesi" branding-casing
+  sweep, genuinely no patch needed — see that commit's own message) → 20 warnings, one per
+  file, exit 1. A real historical example of precisely the case this check exists to
+  surface: this commit would have been a good candidate for the `No-Patch-Needed:` trailer,
+  had the check existed at the time.
+- Simulated `PUSH_BEFORE` of the all-zero SHA (new-branch push) → clean skip, exit 0.
+- Simulated `pull_request` event over the same b6c332999 diff, with a `No-Patch-Needed:`
+  trailer in `PR_BODY` → skipped with no warnings, exit 0; without the trailer, same 20
+  warnings as the push case.
+- `pull_request.body` is read via `env:`, never interpolated into the `run:` script text —
+  the standard GitHub Actions script-injection guard for untrusted PR content (a PR body is
+  attacker-controlled).
+
+Not verified: an actual GitHub Actions run (no push to a branch this session doesn't own,
+per `MEMORY.md`'s concurrent-sessions note) — the dry-run above exercises the exact script
+GitHub would run, with the exact env vars GitHub would set, which is the practical ceiling
+short of that.
+
+### Note for whoever picks this up
+
+`CLAUDE.md`'s CI line and `AI-shared/README.md`'s "Continuous integration" section both
+updated to mention this job. No patch file needed - CI config and docs only.
+
+---
+
+## 14. PHPStan level 2 (2026-08-31, still later)
+
+### What the flood actually was
+
+Raising `phpstan.neon`'s `level` from 1 to 2 went from 0 to 440 findings. The plan's own
+prediction (B5: "level 2 starts checking unknown methods on every typed expression, which
+the missing autoload makes noisy") was right in kind but the *dominant* category wasn't
+autoload at all:
+
+| Count | Identifier | What it actually is |
+|---|---|---|
+| 273 | `phpDoc.parseError` | Old-style `@param type description` tags with no `$varname` — valid to PHP (which ignores PHPDoc entirely), silently *tolerated* below level 2, and only *parsed* (and therefore flagged as malformed) starting at level 2. Nothing to do with autoload. |
+| 66 | `class.notFound` | Vendor classes (Smarty ×25, TCPDF ×10, Twig ×4, RoundCube's SOAP/NTLM stack, ...) referenced in PHPDoc or via `new` that `scanDirectories` doesn't make visible for reasons not fully chased down (TCPDF's real class file is on disk inside a `scanDirectories`-covered path and still isn't found — worth someone with deeper PHPStan-internals familiarity revisiting, low value relative to cost right now). |
+| 40→45 | `method.notFound` | Mostly `Module::__call()`'s dynamic dispatch (confirmed: `include/module.php:1327`) — a subclass-only method (`push_main`, `pop_main`, `has_nav_history`, ...) called on a value PHPStan now correctly types as the *base* `Module` class, which doesn't declare it. No static-hierarchy visibility (§A3/§10's framing) means PHPStan can't narrow `ModuleManager::get_instance($path)`'s return type by the literal string `$path` passed in, so it can never know a call site passing `'/Base_Box|0'` gets a `Base_Box` back. Count went *up* by 5 after the `get_instance()` docblock fix below — expected, see that section. |
+| 10 | `binaryOp.invalid` | `string * 60` (minutes→seconds conversions on a DB/`$_POST` value typed `string`). Works fine at runtime — PHP coerces numeric strings — PHPStan just doesn't trust the string type instead of proving numeric-ness. |
+| 6→3 | `equal.invalid`/`smaller.invalid`/`greater.invalid`/`greaterOrEqual.invalid` | All in `Base_Setup_0.php::validate()`, all downstream of `foreach ($data as $k => $v) ${$k} = $v;` — a PHP4-era variable-variable / `extract()`-shaped pattern. PHPStan can't trace what `${$k}` assigns, so it believes `$installed` (declared `array()` just above) is still empty afterward, making the loop that reads it dead code, making everything inside `*NEVER*`-typed. A known, structural PHPStan blind spot around dynamic variables, not a bug. |
+| the rest | `parameter.notFound`, `throws.notThrowable`, `parameter.defaultValue`, `ignore.count`, `property.notFound`, `property.nonObject` | Stale/malformed docblocks (param names that don't match the signature, `@throws PEAR_Error` where `PEAR_Error` predates `Throwable`), and one genuine "worth a look, not chased" flagged below. |
+
+### Fixed for real (not baselined)
+
+Three genuine docblock defects, found by tracing *why* PHPStan believed something false
+rather than accepting the finding at face value — the same discipline the level-1 rollout's
+`module:list` bug came from:
+
+- **`include/module_manager.php`'s `ModuleManager::get_instance()`** was documented
+  `@return bool null if module instance was not found, requested module object otherwise` —
+  a malformed tag PHPStan reads literally as `@return bool`, so every caller narrowing past a
+  `!$x` check gets `$x: true`, and then a real method call on it reads as "Cannot call method
+  X() on true." This is the single highest-leverage fix in this pass: `get_instance()` is
+  core infrastructure called throughout the framework. Corrected to
+  `@return Module|null null if module instance was not found, requested module object otherwise`
+  (kept the explanatory prose, fixed only the type token) and `@param string module name` to
+  `@param string $path module path` (also a `phpDoc.parseError` on its own). This traded 6
+  `method.nonObject` findings for 5 new, more-honest `method.notFound` ones (see the
+  `method.notFound` row above) rather than eliminating the category — PHPStan still can't
+  know a specific call site's `$path` narrows the return type further, and no docblock fix on
+  the generic method can teach it that. Still strictly more correct than a flatly wrong `bool`.
+- **`include/module.php`**, 3 sites: `@return module object` and two `@param module $m` tags
+  → `Module` (PHP class names are case-insensitive so this never affected runtime, but
+  `class.nameCase` is real signal the case is wrong, and it costs nothing to fix).
+- **`modules/Utils/RecordBrowser/RecordPrinter.php`'s `print_document()`** was documented
+  `@return null It doesn't have to return value` — again read literally, `@return null`
+  *requires* an explicit `return null;`/`return;` on every path, which this method (correctly,
+  by its own stated intent) doesn't have. Changed to `@return void`, matching what "doesn't
+  have to return value" actually meant.
+
+Also cleaned up in passing: the level-1 baseline had one dead entry
+(`include/module_manager.php`'s `temp/data/cache/common.php` require) left over from item
+2.5's removal (§10) — nobody had regenerated the baseline since, so it sat as harmless but
+stale weight. Gone on this regeneration.
+
+### Flagged, not chased
+
+`modules/Utils/RecordBrowser/object_wrapper/Recordset.php:147`, inside
+`__QFfield_magic_callback()`: `$rb_obj->record` is read unconditionally, but the parameter
+above it is declared `$rb_obj = null`. If a real caller ever hits this path with `$rb_obj`
+actually null, that's a real (if merely `E_WARNING`-under-PHP-8, not fatal) property-access-
+on-null. Tracing every caller of this magic callback to determine whether `null` is really
+reachable there was out of scope for this pass; baselined along with everything else, worth a
+closer look if anyone touches this file.
+
+### Baselined
+
+Everything else — baseline regenerated at level 2, 3541 lines / all of the remaining ~430
+findings absorbed, 0 new. This mirrors the level-1 rollout's own precedent (§10: "PHPStan
+reported 21 errors ... Baseline regenerated: 211 findings absorbed, 0 new") rather than
+hand-fixing hundreds of decades-old PHPDoc comments for no runtime benefit.
+
+### Verified
+
+- `php -l` on all three docblock-edited files.
+- Full `tools/vendor/bin/phpstan analyse -c phpstan.neon` run: `[OK] No errors` after the
+  baseline regeneration, confirming the new baseline actually matches what the analyser
+  currently reports (not just that generation succeeded).
+- Re-ran the raw (`--error-format=raw`) analysis before vs. after the three docblock fixes
+  and diffed the identifier counts (see the `method.notFound`/`class.nameCase`/
+  `method.nonObject`/`return.missing` rows above) to confirm each fix did what it was
+  supposed to and nothing else moved unexpectedly.
+
+### Note for whoever picks this up
+
+`CLAUDE.md` (two spots — the Commands section and the "no PSR-4 autoload" line in "Working
+in this codebase", which had been stale since level 0), `AI-shared/README.md`, and
+`.github/workflows/ci.yml`'s PHPStan job name (stale at "(level 0)" since the level-1 rollout
+— nobody had updated the display name either time) all now say level 2. No patch file needed
+— docblocks, CI config, and documentation only, nothing that touches stored or seed data.

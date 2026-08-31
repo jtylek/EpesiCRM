@@ -58,12 +58,15 @@ Install them once with:
 composer install -d tools     # creates tools/vendor/, which is gitignored
 ```
 
-Static analysis (level 1, own code only — `include/` + `modules/` + `console/`, minus the gitignored
+Static analysis (level 2, own code only — `include/` + `modules/` + `console/`, minus the gitignored
 `Premium`/`Custom` trees so a local run matches CI; baseline in `phpstan-baseline.neon` means CI only fails
 on *new* findings). Level 1 adds undefined-variable detection, which is worth more here than the level
 number suggests: an undefined read is an `E_WARNING` under PHP 8.2, and `REPORT_ALL_ERRORS` blanks a
-module's whole output on the first warning of a request (see Error handling below). Regenerate the baseline
-with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
+module's whole output on the first warning of a request (see Error handling below). Level 2 adds unknown
+method/property detection on typed expressions — mostly noise here (`Module::__call()`'s dynamic dispatch
+and pre-standardized PHPDoc without the missing PSR-4 autoload look identical to PHPStan), baselined, but
+it did catch a few genuinely wrong return-type docblocks on core methods (`AI-shared/optimization-plan-opus.md`).
+Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
 ```
 tools/vendor/bin/phpstan analyse -c phpstan.neon
 ```
@@ -75,7 +78,11 @@ job is advisory rather than blocking:
 tools/vendor/bin/rector process --dry-run --config rector-php82.php
 ```
 
-CI (`.github/workflows/ci.yml`) runs the three above plus a docs check on every push/PR.
+CI (`.github/workflows/ci.yml`) runs the three above plus a docs check on every push/PR,
+and an advisory check that a diff modifying an `*Install.php` also adds a new
+`patches/*.php` for that module — see "Working in this codebase" below for why, and add
+a `No-Patch-Needed: <reason>` trailer to a commit message or PR description to silence it
+for a change that genuinely needs no patch.
 
 CLI console (module management, cache/theme rebuild, backups, patch/module scaffolding). **`list` is the
 authoritative command inventory — run it rather than trusting a list written down here, which rots:**
@@ -178,8 +185,9 @@ mind before enabling it broadly or treating a blank module as a hard crash.
 ## Working in this codebase
 
 - This is a 16+ year old codebase with layered legacy patterns (PHP4-style code migrated forward, no PSR-4
-  autoload for Epesi's own classes — hence PHPStan running at level 0). Prefer surgical, convention-matching
-  changes over introducing modern-PHP idioms wholesale.
+  autoload for Epesi's own classes — a real ceiling on how high PHPStan's level can usefully go, though not
+  as low a one as it first looks; see "Commands" above). Prefer surgical, convention-matching changes over
+  introducing modern-PHP idioms wholesale.
 - A fix that changes stored/seed data (an `*Install.php` default, a one-off DB `UPDATE`, a `data/` file) only
   reaches fresh installs and the dev DB — **existing installs need a patch** (see Patches above) or the fix
   never reaches real users. This is the single most common way a "fixed" bug regresses on upgrade.
