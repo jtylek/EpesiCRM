@@ -2332,3 +2332,95 @@ If you do find another `DATA_DIR . '/cache/...'`-shaped call site for something 
 regenerable, moving it follows the same shape as this fix: swap the constant, and ship a
 `Base/patches/` cleanup for the old path since existing installs won't have it removed by
 a plain code update.
+
+## Narrowing a selector inside the `theme_adminltedark` light-override layer silently drops the id-weight its `:is()` was carrying (2026-08-31)
+
+Every `theme_adminltedark/*.css` carries a `[data-bs-theme="light"]` override block at the
+bottom, headed "auto-generated, see `gen_light_override.js`". **That script does not exist** —
+not in the working tree, not in any commit (`git log --all -- '*gen_light_override*'` is
+empty). Treat those blocks as hand-maintained despite the header, and expect no regeneration
+to fix anything you leave inconsistent.
+
+The trap is in how those blocks are usually written. A dark default and its light twin
+routinely share an `:is(...)` prefix that names both a class-scoped surface and an id, e.g.
+`Utils/GenericBrowser/theme_adminltedark/default.css`:
+
+```css
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before          { color: #8b929a; }  /* (1,0,2) */
+[data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before { color: #6c757d; }  /* (1,1,2) */
+```
+
+`:is()` takes the specificity of its **most specific argument**, so the id arm gives *both*
+rules an id's worth of weight, and the light one wins by the one extra attribute selector.
+Rewriting the light rule the shorter, obvious way to make it stop reaching the id —
+`[data-bs-theme="light"] .epesi-gb .Utils_GenericBrowser a::before` — reads like a pure
+narrowing but drops it from (1,1,2) to (0,3,2), which now *loses to the dark default*. The
+symptom is not the element you were narrowing away from: it is the element you meant to keep,
+silently reverting to its dark-mode colour in light mode, with a selector that still visibly
+"matches" it in devtools. Adding class names does not help — no number of classes outranks an
+id.
+
+The same shape bites in the other direction when you then try to out-weight those rules. A
+panel pinned to a fixed palette needed `#epesi-gb-actions-menu.show i.action_button` to beat
+the light twin at (1,2,1); `.show` is free specificity (the panel is `display:none` without
+it), but it also drew level with the sibling `:is(...) i.action_button.epesi-fav-on` state
+rule and, being later in the file, painted the gold star and green eye black — while the
+`<img>`-backed star beside them, matched by a `:has()` rule one step more specific, stayed
+gold. Fixed with explicit `:not(.epesi-fav-on):not(.epesi-watch-on):not(.epesi-watch-new)`
+guards rather than more weight.
+
+**How to apply**: never re-scope a selector in one of these override blocks by editing its
+`:is()` arms — copy the prefix verbatim from the rule you have to beat, and exclude what you
+don't want by out-weighting it elsewhere (end of file, `.show`-style free classes) or by
+`:not()` guards. And do not reason about which rule wins by reading the selectors: for any
+theme-pinned element, assert the resolved value in both themes. Loading the real stylesheet
+into a scratch page under `temp/` (gitignored, served by the local XAMPP) with the element's
+real markup and reading `getComputedStyle(el).color` / `getComputedStyle(el, '::before')` with
+`data-bs-theme` flipped both ways catches all of this in seconds, and catches it for the
+elements you were *not* editing — which is where this bug shape actually lands.
+
+## A weight-proportional column split silently becomes "all columns equal" when every weight is the framework default (2026-08-31)
+
+`epesiSizeGbActions()` (`Base_Box/theme_adminltedark/default.tpl`) sizes a
+`Utils_GenericBrowser` table by splitting the available width between its columns in
+proportion to each one's declared weight — `set_header_properties()`'s `width`, arriving as
+`width="NN%"` for the numeric case. That is correct *if* the weights say something about the
+columns. They usually do not: RecordBrowser hands every ordinary text column the same default,
+so on Contacts: Browse all seven text columns arrive as weight `14` and "proportional" reduces
+to "every column identical, whatever is in it".
+
+Nothing looks broken — the table fills its container and no column is obviously wrong — but any
+column whose content runs longer than average clips against the `text-overflow: ellipsis` on
+`.Utils_GenericBrowser__td` while its neighbours sit half empty. Measured on Contacts at a
+1404px container: Email needed 205px and was given 177, while the other six columns held 292px
+between them that nothing was using — ten times the shortfall, in the same row, unreachable.
+The symptom reads as "this column is too narrow", which invites the wrong fix (bumping that one
+field's weight server-side); the actual defect is that the split has no idea what the columns
+contain, so the next field whose data grows clips in exactly the same way.
+
+**Fixed** by keeping the weighted split as the baseline and adding a second pass that moves
+genuinely unused width to columns short of their content. Two properties keep that safe on the
+minority of tables whose weights *are* meaningful (a Note column at 90 against a date at 12):
+
+- A column can only donate what it does not need for its own content, so a wide, full column
+  has no surplus to lose and nothing is taken from it. Where no column is short, the pass is a
+  no-op and the layout is exactly what it was.
+- Deficits are filled **smallest-first** (water-filling), not in proportion to how short each
+  column is. A Note column measures its full unwrapped text — routinely thousands of px — so a
+  proportional share would hand it nearly the whole pool and leave a fixable 28px shortfall
+  like Email's still clipping.
+
+Widths are measured with one throwaway detached auto-layout table **per column** (every cell of
+that column at once) rather than the per-cell clone the same function already uses elsewhere:
+one forced layout per column instead of one per row, which matters because this runs on load,
+on `document.fonts.ready`, on `e:load` and on every debounced resize.
+
+**How to apply**: before "fix" a too-narrow grid column by raising its own weight, check what
+the other columns' weights actually are — if they are all the same number, the weights are a
+default and no per-field value will hold up as data changes. More generally, any layout pass
+that distributes space by declared weight is only as good as those weights, and a framework
+that stamps one default on every field turns it into an equal split; make the pass fall back to
+measured content, and cap what each column can take at what it actually needs, so a
+pathological column cannot drain the pool. Do not reason about this from the numbers in the
+source — measure `scrollWidth - clientWidth` per cell in the running grid, which reports the
+real shortfall per column and is what confirmed both the diagnosis and the fix here.

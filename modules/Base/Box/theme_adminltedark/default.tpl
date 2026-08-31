@@ -368,6 +368,16 @@
 				// toggle for something that's core to RecordBrowser itself, used on
 				// every table with this feature on, not a module bolt-on.
 				"if(a.querySelector('input[type=\"submit\"]'))return true;".
+				// GenericBrowser_0.php's action_icon_tag() marks the glyphs it draws for this
+				// module's OWN actions (view/edit/delete/info/print/restore/history, the
+				// active/move pairs, expand/collapse) with "action_button_core", so they are
+				// recognised here without an <img> to read a filename off. This has to exist
+				// at all because a converted action has no <img>: every one of them fell
+				// through to "extra" and entire rows collapsed behind the "More actions"
+				// toggle, which is what the icon conversion (2026-08-31) silently did to
+				// every grid in the app. The src checks below stay for the actions still
+				// rendered as images.
+				"if(a.querySelector('i.action_button_core'))return true;".
 				"var img=a.querySelector('img');".
 				"var src=img?(img.getAttribute('src')||''):'';".
 				// CRM_Mail's own "copy" row action (actions_for_mails()/copy() in
@@ -621,6 +631,53 @@
 					// is now divs laid out via CSS table-display, not real <td>/<th>
 					// elements, so the column position has to be computed from DOM
 					// position among the row's own children instead.
+					// Widest natural content in one column, measured the same detached,
+					// auto-layout way naturalWidth() measures a single cell and for the same
+					// reason (table-layout:fixed makes a live cell report the COLUMN's width,
+					// not its content's). Every cell of the column goes into ONE throwaway table
+					// and the browser is asked for the result, rather than cloning and measuring
+					// each cell in turn: one forced layout per column instead of one per cell,
+					// which matters because this runs on load, on fonts.ready, on e:load and on
+					// every debounced resize.
+					//
+					// Cells are cloned in whatever expanded/collapsed state they are currently in
+					// - this runs after the force-collapse pass below, so a collapsed cell
+					// measures its one clamped line, which is exactly the width that would stop it
+					// showing an ellipsis. Returns 0 when there is nothing to measure, which the
+					// caller reads as "no opinion" and leaves that column on its weight alone.
+					"function columnNaturalWidth(table,idx){".
+					"var rows=table.querySelectorAll('.Utils_GenericBrowser__tbody > .Utils_GenericBrowser__tr');".
+					"if(!rows.length)return 0;".
+					"var holder=document.createElement('div');".
+					"holder.className='epesi-gb';".
+					"holder.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:-9999px;';".
+					"var mt=document.createElement('div');".
+					"mt.className='Utils_GenericBrowser';".
+					"mt.style.cssText='table-layout:auto;width:auto;';".
+					"var tb=document.createElement('div');".
+					"tb.className='Utils_GenericBrowser__tbody';".
+					"var any=false;".
+					"Array.prototype.forEach.call(rows,function(row){".
+					"var cell=row.children[idx];".
+					"if(!cell)return;".
+					"var tr=document.createElement('div');".
+					"tr.className='Utils_GenericBrowser__tr';".
+					"tr.appendChild(cell.cloneNode(true));".
+					"tb.appendChild(tr);".
+					"any=true;".
+					"});".
+					"if(!any)return 0;".
+					"mt.appendChild(tb);".
+					"holder.appendChild(mt);".
+					"document.body.appendChild(holder);".
+					"var w=0;".
+					"Array.prototype.forEach.call(tb.children,function(tr){".
+					"var cw=tr.firstChild.scrollWidth;".
+					"if(cw>w)w=cw;".
+					"});".
+					"document.body.removeChild(holder);".
+					"return w;".
+					"}".
 					"function cellIndexOf(el){".
 						"return Array.prototype.indexOf.call(el.parentNode.children,el);".
 					"}".
@@ -747,7 +804,14 @@
 									// here instead, before naturalWidth() clones this same cell,
 									// so the measurement and the applied padding always agree
 									// with each other.
-									"cell.style.padding='0.25rem 0.25rem 0.1rem';".
+									// Side padding trimmed 0.25rem -> 0.1rem (2026-08-31, per
+									// request: "decrease the column width just to make it
+									// fit"), alongside the smaller glyph itself in
+									// Utils/GenericBrowser/theme_adminltedark/default.css and
+									// the smaller fit buffer below. Vertical padding left
+									// alone - it sets this icon's alignment against the text
+									// rows beside it, not the column's width.
+									"cell.style.padding='0.25rem 0.1rem 0.1rem';".
 									"cell.style.textAlign='center';".
 									// Same reasoning as the Actions column's own vertical-align:top
 									// override (Utils/GenericBrowser/theme_adminlte/default.css) -
@@ -761,7 +825,15 @@
 									"var w2=naturalWidth(cell);if(w2>fw)fw=w2;".
 								"});".
 								"if(!hiddenCol){".
-									"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=8;}fw=Math.ceil(fw);".
+									// The +8 fit buffer these icon columns used to get was set
+								// when the cell still had 0.25rem of side padding and a
+								// full-size glyph; with both trimmed it was most of what
+								// was left of the extra width. +2 still absorbs the
+								// sub-pixel difference between this detached clone and the
+								// real cell (the reason a buffer exists at all) without
+								// padding the column out. The fw<=0 fallback is unchanged:
+								// it means there were no body rows to measure.
+								"if(fw<=0){fw=parseFloat(th.style.width)||th.getBoundingClientRect().width||24;}else{fw+=2;}fw=Math.ceil(fw);".
 									"th.style.width=fw+'px';".
 									"fixedWidth+=fw;".
 								"}".
@@ -822,9 +894,68 @@
 						"if(totalPercent<=0)return;".
 						"var availableWidth=containerWidth-actionsWidth-fixedWidth-2;".
 						"if(availableWidth<0)availableWidth=0;".
+						// The weight-proportional split above is the whole story only when the
+						// weights actually carry information. They usually do not: RecordBrowser
+						// hands every ordinary text column the same default (all seven of Contacts:
+						// Browse's arrive here as weight 14), so "proportional" degrades to "every
+						// column identical, regardless of what is in it" - and a column whose
+						// content is simply longer than average clips against its ellipsis while its
+						// neighbours sit half empty. Measured on Contacts: Email needed 205px and got
+						// 177, while the other six columns held 292px between them that nothing used.
+						//
+						// So: keep the weighted split as the baseline (it is the only thing that
+						// respects a table whose weights ARE meaningful, e.g. a Note column at 90
+						// against a date at 12), then move unused width to the columns that are short
+						// of their content. A column can only ever donate what it does not need for
+						// its own content, which is what keeps this safe on those meaningful-weight
+						// tables: a huge Note column has little or no surplus to give away, so nothing
+						// is taken from it, and where no column is short the whole pass is a no-op and
+						// the layout is byte-for-byte what it was before.
+						//
+						// Deficits are filled smallest-first (water-filling), not in proportion to how
+						// short each column is: a Note column measures its full unwrapped text,
+						// routinely thousands of px, so a proportional share would hand it nearly the
+						// whole pool and leave a genuinely-fixable 28px shortfall like Email's still
+						// clipping. Smallest-first settles every column it can afford outright and
+						// gives what is left to the bottomless one.
+						"var basePx=[];".
+						"var wantPx=[];".
 						"percentCols.forEach(function(th,i){".
-							"var px=Math.floor((percents[i]/totalPercent)*availableWidth);".
-							"th.style.width=px+'px';".
+						"basePx.push(Math.floor((percents[i]/totalPercent)*availableWidth));".
+						"wantPx.push(columnNaturalWidth(table,cellIndexOf(th)));".
+						"});".
+						"var pool=0,wanters=[];".
+						"basePx.forEach(function(px,i){".
+						"if(wantPx[i]>0&&px>wantPx[i])pool+=px-wantPx[i];".
+						"else if(wantPx[i]>px)wanters.push(i);".
+						"});".
+						"if(pool>0&&wanters.length){".
+						"wanters.sort(function(a,b){return (wantPx[a]-basePx[a])-(wantPx[b]-basePx[b]);});".
+						"var left=pool;".
+						"wanters.forEach(function(idx,n){".
+						"var share=Math.floor(left/(wanters.length-n));".
+						"var give=Math.min(wantPx[idx]-basePx[idx],share);".
+						"if(give>0){basePx[idx]+=give;left-=give;}".
+						"});".
+						// Reclaim the same total from the donors, in proportion to how much spare
+						// each had, so the row still sums to availableWidth.
+						"var taken=pool-left;".
+						"if(taken>0){".
+						"var spare=basePx.map(function(px,i){return (wantPx[i]>0&&px>wantPx[i])?px-wantPx[i]:0;});".
+						"var spareTotal=spare.reduce(function(a,b){return a+b;},0);".
+						"if(spareTotal>0)basePx.forEach(function(px,i){".
+						// Ceil, not round, on the amount each donor gives back: this file's own
+						// rounding rule (see the header comment above) is that every piece rounds so
+						// the row's real total lands a little UNDER the container, never over, since
+						// Chrome and Firefox do not round table columns identically and 1px over is
+						// enough to trigger ".table-responsive"'s scrollbar. Here the value works
+						// against the total, so it rounds up.
+						"if(spare[i]>0)basePx[i]=px-Math.ceil(spare[i]*taken/spareTotal);".
+						"});".
+						"}".
+						"}".
+						"percentCols.forEach(function(th,i){".
+						"th.style.width=basePx[i]+'px';".
 						"});".
 					"});".
 				"}catch(e){}".

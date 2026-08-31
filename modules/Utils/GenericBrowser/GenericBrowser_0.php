@@ -273,15 +273,29 @@ class Utils_GenericBrowser extends Module {
 	 */
 	private static function action_icon_tag($keyword, $off, $path) {
 		$bi = null;
+		// Whether the glyph came out of this module's OWN action map, as opposed to a
+		// module's identity icon used as a row shortcut. The adminltedark theme's
+		// isCoreAction() (Base_Box/theme_adminltedark/default.tpl) needs that distinction
+		// to decide which actions render inline and which group behind the "More actions"
+		// toggle, and it used to read it off the <img src> filename - which this method
+		// had just stopped emitting for exactly these icons, so every action fell through
+		// to "extra" and whole rows collapsed behind the toggle. Marked here rather than
+		// re-derived from the bi-* name over there: this is the side that actually knows,
+		// and a module identity glyph is free to coincide with a core one.
+		$core = false;
 		if ($keyword !== null && isset(self::$bi_action_icons[$keyword])) {
 			$bi = self::$bi_action_icons[$keyword];
+			$core = true;
 		} elseif ($path) {
 			$stem = strtolower(pathinfo($path, PATHINFO_FILENAME));
 			// Only this module's own artwork is matched by stem; another module's
 			// edit.png must not silently borrow our glyph.
 			if (isset(self::$bi_action_icons[$stem]) && str_contains(str_replace('\\', '/', $path), '/GenericBrowser/')) {
 				$bi = self::$bi_action_icons[$stem];
-			} elseif (preg_match('/[-_]small$/', $stem)) {
+				// Same map, same module's own artwork - the expand/collapse pair reaches this
+				// branch rather than the keyword one, and counted as core before too.
+				$core = true;
+			} elseif (preg_match('/^icon[-_]small$/', $stem)) {
 				// Plain require_once at the point of use, same as Base_Menu and the
 				// ActionBar template - it is not a Module subclass, so the autoloader
 				// never sees it.
@@ -292,11 +306,25 @@ class Utils_GenericBrowser extends Module {
 				// same resolve() the sidebar and launcher already use, so the icon reads
 				// identically everywhere. Returns null when the module declares nothing,
 				// which keeps its <img>.
+				//
+				// Matched on the exact "icon-small"/"icon_small" stem, not any "*_small"
+				// (2026-08-31 fix): the module-identity convention IS that filename, and
+				// every such shortcut in the app - Premium included - uses it. The looser
+				// pattern also swallowed action artwork that merely ends the same way, and
+				// resolve() then fell through to the OWNING module's identity glyph: CRM_Mail's
+				// "copy" row action rendered as an envelope, Utils_Attachment's "Copy link"
+				// and "Cut" both as a journal. Those cannot be repaired by adding filename
+				// entries to resolve()'s map either - it is keyed by basename alone, and the
+				// very same copy_small.png deliberately means bi-copy for Mail but bi-link
+				// for Attachment (see the [src*=".."] rules in Utils/GenericBrowser/
+				// theme_adminltedark/default.css). Left as an <img>, each keeps the correct
+				// per-module glyph those rules already paint, and isCoreAction() gets back
+				// the src it reads CRM_Mail's "keep this one inline" carve-out from.
 				$bi = Base_BootstrapIcons::resolve($path, null, null);
 			}
 		}
 		if ($bi) {
-			return '<i class="bi '.$bi.' action_button'.($off ? ' action_button_off' : '').'"></i>';
+			return '<i class="bi '.$bi.' action_button'.($core ? ' action_button_core' : '').($off ? ' action_button_off' : '').'"></i>';
 		}
 		return '<img class="action_button'.($off ? ' action_button_off' : '').'" src="'.$path.'" border="0">';
 	}

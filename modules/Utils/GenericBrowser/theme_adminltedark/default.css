@@ -12,9 +12,15 @@
 .epesi-gb {
 	overflow: visible;
 	/* Cascades to the table cells, toolbar and pagination below (none of
-	   which set their own font-size/line-height except where noted) for a
-	   denser table overall. */
-	font-size: 0.8rem;
+	   which set their own font-size/line-height except where noted).
+	   Was a hardcoded 0.8rem for a denser table - which resolved against the
+	   root <html> (16px), not the app's own body size, so it rendered 12.8px
+	   and drifted a full pixel below the rest of the app for no stated reason.
+	   Now the shared variable, per request: one place to change it, and the
+	   grid reads at the same size as everything else. Defined on :root in
+	   Base_Theme/theme_adminltedark/fonts.css, which Base_Box loads before any
+	   per-module theme CSS, so it is always available here. */
+	font-size: var(--epesi-font-size-base);
 	line-height: 1.25;
 }
 
@@ -157,7 +163,7 @@
 	border: 1px solid #495057;
 	border-radius: 0.25rem;
 	padding: 0.25rem 0.5rem;
-	font-size: 0.8rem;
+	font-size: var(--epesi-font-size-base);
 }
 
 .epesi-gb-search input[type="text"]:focus,
@@ -756,7 +762,7 @@
 	background-color: #2b2f33;
 	color: #dee2e6;
 	padding: 0.25rem 0.5rem;
-	font-size: 0.8rem;
+	font-size: var(--epesi-font-size-base);
 }
 
 #add_in_table_row .Utils_GenericBrowser__td input[type="text"]:focus,
@@ -796,7 +802,7 @@
 	background: #dc3545;
 	color: #fff;
 	font-weight: bold;
-	font-size: 0.8rem;
+	font-size: var(--epesi-font-size-base);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1110,7 +1116,7 @@
 	border: 1px solid #495057;
 	color: #ced4da;
 	text-decoration: none;
-	font-size: 0.8rem;
+	font-size: var(--epesi-font-size-base);
 }
 
 .epesi-gb-pager a:hover {
@@ -1134,7 +1140,7 @@
 	border: 1px solid #495057;
 	border-radius: 0.25rem;
 	padding: 0.15rem 0.4rem;
-	font-size: 0.8rem;
+	font-size: var(--epesi-font-size-base);
 }
 
 @media (max-width: 575.98px) {
@@ -1645,14 +1651,26 @@
 	table-layout: auto !important;
 }
 
+/* Same fixed light grey/black scheme as .app-sidebar and the alert/confirm
+   modals (Base_Box/theme_adminltedark/default.css) and Libs_Leightbox's
+   #Leightbox_header - this panel stays this colour in both light and dark
+   mode, per request, rather than following the shell's per-theme surface
+   colour. It used to be dark-surface (#2b3035) with a light-mode override
+   flipping it to white; under dark mode its #ced4da/#8b929a glyphs on that
+   near-black background were barely readable, which is what prompted this.
+   The panel's own light-mode override block was removed rather than kept in
+   sync - see the note where it used to live, further down. */
 #epesi-gb-actions-menu {
 	display: none;
 	position: fixed;
 	z-index: 1055;
 	max-width: 90vw;
 	overflow-x: auto;
-	background-color: #2b3035;
-	border: 1px solid #495057;
+	background-color: #dee2e6;
+	/* Same divider value the alert/confirm modals pin for this palette;
+	   Bootstrap's own --bs-border-color tracks the ambient dark theme and
+	   goes light-on-light against this fixed grey. */
+	border: 1px solid #ced4da;
 	border-radius: 0.375rem;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
 	padding: 0.25rem;
@@ -1672,12 +1690,16 @@
 	align-items: center;
 	justify-content: center;
 	padding: 0.5rem 0.65rem;
-	color: #ced4da;
+	color: #000;
 	text-decoration: none;
 }
 
+/* The old value (#2b3035) was the panel's own background, so hover was
+   invisible. Same translucent-black wash the sidebar's menu links use on this
+   palette (--lte-sidebar-hover-bg), which works on any grey behind it. */
 #epesi-gb-actions-menu a:hover {
-	background-color: #2b3035;
+	background-color: rgba(0, 0, 0, 0.075);
+	border-radius: 0.25rem;
 }
 
 /* ==== adminltedark: light-mode override (auto-generated, see gen_light_override.js) ==== */
@@ -1743,7 +1765,24 @@
   color: #212529;
 }
 
+/* Keep the shared ":is(...)" prefix verbatim from the dark default above, id
+   arm included, even though this rule wants to reach the table only: :is()
+   takes the specificity of its most specific argument, so dropping the id arm
+   here drops this rule from (1,1,2) to (0,3,2) and the dark default's own
+   (1,0,2) then wins - light-mode table icons silently revert to the dark grey.
+   The actions panel, which is pinned to one fixed grey/black scheme in both
+   themes, is excluded by out-weighting this rule at the end of the file
+   instead. */
 [data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a::before {
+  color: #6c757d;
+}
+
+/* The i.action_button glyphs GenericBrowser_0.php emits directly (2026-08-31)
+   carry #8b929a from their own rule at the end of this file, which has no light
+   variant - so in light mode a converted icon rendered visibly lighter than the
+   unconverted <img>-backed one beside it, which that rule's own comment says it
+   means to match. Same value, same scoping as the ::before rule above. */
+[data-bs-theme="light"] :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button {
   color: #6c757d;
 }
 
@@ -1769,18 +1808,12 @@
   background-color: #e9ecef;
 }
 
-[data-bs-theme="light"] #epesi-gb-actions-menu {
-  background-color: #fff;
-  border: 1px solid #ced4da;
-}
-
-[data-bs-theme="light"] #epesi-gb-actions-menu a {
-  color: #343a40;
-}
-
-[data-bs-theme="light"] #epesi-gb-actions-menu a:hover {
-  background-color: #f1f3f5;
-}
+/* #epesi-gb-actions-menu's [data-bs-theme="light"] override used to live here
+   (white panel, #343a40 links, #f1f3f5 hover) - removed, not merely unneeded:
+   the base rule further up now hardcodes the always-light-grey sidebar scheme
+   unconditionally, so these would have fought it in light mode rather than
+   expressing a real light/dark divergence. Same treatment .app-sidebar's own
+   override got in Base_Box/theme_adminltedark/default.css. */
 
 @media (max-width: 991.98px) {
   [data-bs-theme="light"] .epesi-gb-actions-toggle {
@@ -1841,3 +1874,69 @@
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-fav-on   { color: #ffc107; }   /* gold star - on favourites */
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-watch-on { color: #198754; }   /* green eye - watching, nothing new */
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) i.action_button.epesi-watch-new{ color: #fd7e14; }   /* orange eye - unseen events */
+
+/* ---- favourite / watchdog columns: smaller glyph, tighter column (2026-08-31) ----
+
+   Per request, the Browse grid's two icon-only columns were carrying more width
+   than a single small icon needs. Two halves to that: the glyph itself shrinks
+   here, and the column measurement that reads it (epesiSizeGbActions() in
+   Base_Box/theme_adminltedark/default.tpl) had its side padding and its
+   fit buffer trimmed to match - the column is sized from a clone of this very
+   cell, so a smaller glyph narrows the column on its own and the two numbers
+   there are what's left over.
+
+   Scoped to the grid only: the same two functions render these icons into the
+   record view as well (see the fav/watch colour rules above), which was not part
+   of the request. The class on the cell is put there by that same sizing pass,
+   which is also what the mobile-hide rule further up keys off.
+
+   The ":is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu)" prefix is
+   copied from the rules these have to beat rather than written the shorter,
+   obvious way: those weigh an id through :is(), so a plain descendant selector
+   loses to them however many classes it names. It cannot leak into the panel -
+   the column class sits on the cell, which stays behind in the table; the panel
+   only ever receives clones of the <a> inside it. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) :is(.Utils_RecordBrowser__favs, .Utils_RecordBrowser__watchdog) i.action_button {
+	font-size: 0.8rem;
+}
+
+/* Same, for a fav/watchdog icon still rendered as an <img> with a ::before glyph
+   painted over it - the path a module that hasn't been converted still takes. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) :is(.Utils_RecordBrowser__favs, .Utils_RecordBrowser__watchdog) a::before {
+	font-size: 0.8rem;
+}
+
+/* ---- actions panel: black glyphs on its fixed grey (2026-08-31) ----
+
+   #epesi-gb-actions-menu is pinned to the sidebar's always-light-grey scheme in
+   both themes (see its own rule above), so the muted #8b929a the icons carry
+   inside the table - readable there against the table's own per-theme surface -
+   is the wrong colour on it. Panel-scoped black instead, for both mechanisms
+   that draw an icon: the <i class="bi ..."> glyphs GenericBrowser_0.php emits
+   directly, and the ::before glyphs the [src*="..."] rules still paint over an
+   <img> for actions this module cannot identify (Premium/Import's artwork, and
+   anything a legacy module routes through the path branch).
+
+   Deliberately at the end of the file, and scoped to ".show": each of these has
+   to beat both the shared ":is(.epesi-gb .Utils_GenericBrowser,
+   #epesi-gb-actions-menu)" default and that selector's [data-bs-theme="light"]
+   twin, whose extra attribute selector would otherwise outrank a bare
+   "#epesi-gb-actions-menu ..." (:is() takes the specificity of its most specific
+   argument, so both already weigh an id). ".show" buys back that one step for
+   free - the panel is display:none without it - leaving a tie that source order
+   decides here. The fav/watch state colours stay untouched inside the panel -
+   the gold star / green-or-orange eye are meaningful signals, the same carve-out
+   the alert/confirm modals make for their own question and danger colours. The
+   ::before rule loses to them on specificity alone (their ":has(img[src*=..]
+   [src*=..])" arm outweighs it), but the i.action_button one had to be told:
+   ".show" put it level with ".epesi-fav-on" and, being later in the file, it was
+   winning and painting those glyphs black while the <img>-backed star beside
+   them stayed gold. Hence the explicit :not() guards rather than a bare
+   ".action_button". */
+#epesi-gb-actions-menu.show i.action_button:not(.epesi-fav-on):not(.epesi-watch-on):not(.epesi-watch-new) {
+	color: #000;
+}
+
+#epesi-gb-actions-menu.show a::before {
+	color: #000;
+}
