@@ -5,14 +5,24 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    # Start low: Epesi has no PSR-4 autoload for its own classes (custom module loader), so higher
-    # levels flood with "unknown class/method". Level 0 catches the high-value stuff (undefined
-    # functions/classes/methods, wrong arg counts). Raise gradually once a baseline exists.
-    level: 0
+    # Epesi has no PSR-4 autoload for its own classes (custom module loader), so high levels
+    # flood with "unknown class/method". Level 0 catches undefined functions/classes/methods
+    # and wrong arg counts; level 1 adds undefined-variable detection, which matters more here
+    # than the level number suggests - reading an undefined variable is an E_WARNING under PHP
+    # 8.2, and error.php's REPORT_ALL_ERRORS mode blanks a module's whole rendered output on
+    # the first warning of a request (see CLAUDE.md). Raised to 1 on 2026-08-31 with the ~220
+    # pre-existing findings baselined, so CI fails on *new* ones only. Level 2 next; it starts
+    # checking unknown methods on every typed expression, which the missing autoload makes
+    # noisy, so it needs its own pass rather than a config bump.
+    level: 1
     phpVersion: 80200
     paths:
         - include
         - modules
+        # console/ is first-party too and CI never looked at it - the Symfony commands in
+        # there are the one part of this tree with a real autoloader, so they analyse
+        # cleanly and are worth keeping that way.
+        - console
 
     # Load minimal stubs for legacy third-party libs so PHPStan can resolve symbols.
     stubFiles:

@@ -1,6 +1,18 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: console/Develop/CreateModuleCommand.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: console/Develop/CreateTestModuleCommand.php
+
+		-
 			message: '#^Function smarty_function_eval not found\.$#'
 			identifier: function.notFound
 			count: 1
@@ -13,10 +25,82 @@ parameters:
 			path: include/EpesiSmartyRenderer.php
 
 		-
+			message: '#^Constant DATABASE_HOST not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: include/backups.php
+
+		-
+			message: '#^Constant DATABASE_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: include/backups.php
+
+		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: include/backups.php
+
+		-
+			message: '#^Constant DATABASE_USER not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: include/backups.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/cache.php
+
+		-
+			message: '#^Constant INSTALLATION_ID not found\.$#'
+			identifier: constant.notFound
+			count: 5
+			path: include/cache.php
+
+		-
+			message: '#^Constant DATABASE_DRIVER not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/compatibility_check.php
+
+		-
 			message: '#^Path in include_once\(\) "map\.php" is not a file or it does not exist\.$#'
 			identifier: includeOnce.fileNotFound
 			count: 1
 			path: include/data_dir.php
+
+		-
+			message: '#^Constant DATABASE_DRIVER not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: include/database.php
+
+		-
+			message: '#^Constant DATABASE_HOST not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/database.php
+
+		-
+			message: '#^Constant DATABASE_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/database.php
+
+		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/database.php
+
+		-
+			message: '#^Constant DATABASE_USER not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: include/database.php
 
 		-
 			message: '#^Function set_magic_quotes_runtime not found\.$#'
@@ -25,9 +109,9 @@ parameters:
 			path: include/database.php
 
 		-
-			message: '#^Undefined variable\: \$time$#'
+			message: '#^Variable \$ret might not be defined\.$#'
 			identifier: variable.undefined
-			count: 20
+			count: 1
 			path: include/database.php
 
 		-
@@ -37,16 +121,28 @@ parameters:
 			path: include/epesi.php
 
 		-
-			message: '#^Undefined variable\: \$time$#'
-			identifier: variable.undefined
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
 			count: 1
-			path: include/epesi.php
+			path: include/error.php
 
 		-
 			message: '#^Function location\(\) should return string but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
 			path: include/misc.php
+
+		-
+			message: '#^Variable \$name in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: include/module.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 6
+			path: include/module_manager.php
 
 		-
 			message: '#^Method ModuleManager\:\:create_load_priority_array\(\) should return array but return statement is missing\.$#'
@@ -61,6 +157,18 @@ parameters:
 			path: include/module_manager.php
 
 		-
+			message: '#^Call to an undefined method EpesiSessionMemcachedStorage\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: include/session.php
+
+		-
+			message: '#^Constant FILE_SESSION_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 4
+			path: include/session.php
+
+		-
 			message: '#^Unsafe usage of new static\(\)\.$#'
 			identifier: new.static
 			count: 1
@@ -73,10 +181,70 @@ parameters:
 			path: include/simple_login.php
 
 		-
+			message: '#^Variable \$recents might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Applets/RssFeed/rsslib.php
+
+		-
+			message: '#^Variable \$recents might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Applets/Weather/rsslib.php
+
+		-
+			message: '#^Variable \$admin in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Base/Acl/AclCommon_0.php
+
+		-
 			message: '#^Array has 2 duplicate keys with value ''CRM_Fax'' \(''CRM_Fax'', ''CRM_Fax''\)\.$#'
 			identifier: array.duplicateKey
 			count: 1
 			path: modules/Base/Acl/patches/20120626_new_permission.php
+
+		-
+			message: '#^Call to an undefined method Base_ActionBar\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/ActionBar/ActionBar_0.php
+
+		-
+			message: '#^Variable \$mod_ok might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Admin/Admin_0.php
+
+		-
+			message: '#^Call to an undefined method Base_Dashboard\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Base/Dashboard/Dashboard_0.php
+
+		-
+			message: '#^Call to an undefined method Base_Dashboard\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/Dashboard/Dashboard_0.php
+
+		-
+			message: '#^Variable \$required_modules in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Base/EpesiStore/EpesiStore_0.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Base/Error/ErrorCommon_0.php
+
+		-
+			message: '#^Variable \$f might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: modules/Base/Help/HelpCommon_0.php
 
 		-
 			message: '#^Call to an undefined static method Base_HomePageCommon\:\:load\(\)\.$#'
@@ -85,8 +253,32 @@ parameters:
 			path: modules/Base/HomePage/HomePageCommon_0.php
 
 		-
+			message: '#^Variable \$last_row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Base/HomePage/HomePage_0.php
+
+		-
+			message: '#^Variable \$org might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Lang/Administrator/Administrator_0.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Base/Mail/MailCommon_0.php
+
+		-
 			message: '#^Undefined variable\: \$$#'
 			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Mail/class.phpmailer.php
+
+		-
+			message: '#^Variable \$_SERVER in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
 			count: 1
 			path: modules/Base/Mail/class.phpmailer.php
 
@@ -103,6 +295,36 @@ parameters:
 			path: modules/Base/Mail/class.smtp.php
 
 		-
+			message: '#^Variable \$fields in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Base/Mail/class.smtp.php
+
+		-
+			message: '#^Variable \$active_module might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/MainModuleIndicator/MainModuleIndicator_0.php
+
+		-
+			message: '#^Variable \$aw in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
+
+		-
+			message: '#^Variable \$bw in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
+
+		-
+			message: '#^Variable \$target might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Menu/Menu_0.php
+
+		-
 			message: '#^Parameter \$section of method Base_Print_Printer\:\:print_section\(\) has invalid type Smarty\.$#'
 			identifier: class.notFound
 			count: 1
@@ -115,6 +337,48 @@ parameters:
 			path: modules/Base/Print/Printer.php
 
 		-
+			message: '#^Constant SYSTEM_TIMEZONE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsCommon_0.php
+
+		-
+			message: '#^Constant SYSTEM_TIMEZONE not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Base/RegionalSettings/RegionalSettingsInstall.php
+
+		-
+			message: '#^Variable \$keyword might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Search/Search_0.php
+
+		-
+			message: '#^Variable \$filter might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Variable \$post_install in empty\(\) is never defined\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Variable \$style might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Base/Setup/Setup_0.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: modules/Base/Theme/ThemeCommon_0.php
+
+		-
 			message: '#^Instantiated class Smarty not found\.$#'
 			identifier: class.notFound
 			count: 1
@@ -125,6 +389,24 @@ parameters:
 			identifier: require.fileNotFound
 			count: 1
 			path: modules/Base/Theme/theme_css.php
+
+		-
+			message: '#^Call to an undefined method Base_User_Administrator\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Base/User/Administrator/Administrator_0.php
+
+		-
+			message: '#^Call to an undefined method Base_User_Settings\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Base/User/Settings/Settings_0.php
+
+		-
+			message: '#^Constant DATABASE_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: modules/Base/patches/20260814_utf8mb4_migration.php
 
 		-
 			message: '#^Call to an undefined static method Acl\:\:del_group\(\)\.$#'
@@ -155,6 +437,42 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: modules/Base/patches/notes_addons.php
+
+		-
+			message: '#^Variable \$int_id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Calendar/Calendar_0.php
+
+		-
+			message: '#^Variable \$c might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/CRM/Calendar/Event/Event_0.php
+
+		-
+			message: '#^Variable \$contact might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Contacts/ContactsCommon_0.php
+
+		-
+			message: '#^Variable \$crit_callback might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Contacts/ContactsCommon_0.php
+
+		-
+			message: '#^Variable \$order might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Contacts/ContactsCommon_0.php
+
+		-
+			message: '#^Variable \$rb in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/CRM/Contacts/ContactsCommon_0.php
 
 		-
 			message: '#^Call to static method isError\(\) on an unknown class PEAR\.$#'
@@ -229,6 +547,54 @@ parameters:
 			path: modules/CRM/Contacts/soap.php
 
 		-
+			message: '#^Variable \$HTTP_RAW_POST_DATA might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Contacts/soap.php
+
+		-
+			message: '#^Call to an undefined method CRM_Filters\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Filters/Filters_0.php
+
+		-
+			message: '#^Variable \$bck_note might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Followup/FollowupCommon_0.php
+
+		-
+			message: '#^Variable \$bck_note_path might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Followup/FollowupCommon_0.php
+
+		-
+			message: '#^Variable \$fwd_note might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Followup/FollowupCommon_0.php
+
+		-
+			message: '#^Variable \$fwd_note_path might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Followup/FollowupCommon_0.php
+
+		-
+			message: '#^Call to an undefined method CRM_GoogleCalendarSync\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/GoogleCalendarSync/GoogleCalendarSync_0.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/CRM/Mail/MailCommon_0.php
+
+		-
 			message: '#^Instantiated class Fetch\\Server not found\.$#'
 			identifier: class.notFound
 			count: 1
@@ -245,6 +611,48 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: modules/CRM/Mail/Mail_0.php
+
+		-
+			message: '#^Call to an undefined method CRM_Mail\:\:create_main_href\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Mail/Mail_0.php
+
+		-
+			message: '#^Variable \$customers in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/CRM/Meeting/MeetingCommon_0.php
+
+		-
+			message: '#^Variable \$customers in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/CRM/PhoneCall/PhoneCallCommon_0.php
+
+		-
+			message: '#^Variable \$id might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/PhoneCall/PhoneCallCommon_0.php
+
+		-
+			message: '#^Variable \$nr might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/PhoneCall/PhoneCallCommon_0.php
+
+		-
+			message: '#^Variable \$old_related might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/PhoneCall/PhoneCallCommon_0.php
+
+		-
+			message: '#^Call to an undefined method CRM_PhoneCall\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/PhoneCall/PhoneCall_0.php
 
 		-
 			message: '#^Call to an undefined static method CRM_RoundcubeCommon\:\:create_thread\(\)\.$#'
@@ -265,6 +673,30 @@ parameters:
 			path: modules/CRM/Roundcube/patches/20130617_add_thread_view5.php
 
 		-
+			message: '#^Constant DATABASE_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/CRM/Roundcube/patches/20140724_collation.php
+
+		-
+			message: '#^Variable \$customers in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/CRM/Tasks/TasksCommon_0.php
+
+		-
+			message: '#^Variable \$old_related might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/CRM/Tasks/TasksCommon_0.php
+
+		-
+			message: '#^Call to an undefined method CRM_Tasks\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/CRM/Tasks/Tasks_0.php
+
+		-
 			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -275,6 +707,18 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: modules/Libs/PHPExcel/PHPExcelCommon_0.php
+
+		-
+			message: '#^Variable \$strValues in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/autoselect/autoselect.php
+
+		-
+			message: '#^Variable \$strValues in empty\(\) always exists and is always falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/groupselect/groupselect.php
 
 		-
 			message: '#^Call to an undefined static method DB\:\:isError\(\)\.$#'
@@ -307,6 +751,12 @@ parameters:
 			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
 
 		-
+			message: '#^Static method DB\:\:Connect\(\) invoked with 2 parameters, 0 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: modules/Libs/QuickForm/FieldTypes/multiselect/multiselect.php
+
+		-
 			message: '#^Access to an undefined property HTML_QuickForm_Renderer_EpesiDefault\:\:\$_formName\.$#'
 			identifier: property.notFound
 			count: 3
@@ -317,6 +767,48 @@ parameters:
 			identifier: property.notFound
 			count: 4
 			path: modules/Libs/QuickForm/Renderer/EpesiDefault.php
+
+		-
+			message: '#^Constant DATABASE_HOST not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Libs/RoundCube/RC/config/config.inc.php
+
+		-
+			message: '#^Constant DATABASE_NAME not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Libs/RoundCube/RC/config/config.inc.php
+
+		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Libs/RoundCube/RC/config/config.inc.php
+
+		-
+			message: '#^Constant DATABASE_USER not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Libs/RoundCube/RC/config/config.inc.php
+
+		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: modules/Libs/RoundCube/RC/config/config.inc.php
+
+		-
+			message: '#^Constant RCMAIL_VERSION not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: modules/Libs/RoundCube/RC/config/defaults.inc.php
+
+		-
+			message: '#^Constant RCUBE_INSTALL_PATH not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: modules/Libs/RoundCube/RC/config/defaults.inc.php
 
 		-
 			message: '#^Access to constant ERROR_COOKIES_DISABLED on an unknown class rcmail\.$#'
@@ -409,6 +901,12 @@ parameters:
 			path: modules/Libs/TCPDF/TCPDFCommon_0.php
 
 		-
+			message: '#^Function __ invoked with 3 parameters, 1\-2 required\.$#'
+			identifier: arguments.count
+			count: 3
+			path: modules/Libs/TCPDF/TCPDF_0.php
+
+		-
 			message: '#^Method Utils_AttachmentCommon\:\:rb_access\(\) should return bool but return statement is missing\.$#'
 			identifier: return.missing
 			count: 2
@@ -421,10 +919,64 @@ parameters:
 			path: modules/Utils/Attachment/Attachment_0.php
 
 		-
+			message: '#^Variable \$buffer might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/Attachment/FileActionHandler.php
+
+		-
+			message: '#^Variable \$filename might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/Attachment/FileActionHandler.php
+
+		-
+			message: '#^Variable \$mime might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/Attachment/FileActionHandler.php
+
+		-
+			message: '#^Variable \$dest_id in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Utils/Calendar/Calendar_0.php
+
+		-
+			message: '#^Variable \$ev_start might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/Calendar/Calendar_0.php
+
+		-
+			message: '#^Variable \$label might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/Calendar/Calendar_0.php
+
+		-
+			message: '#^Variable \$ev_start might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/CalendarBusyReport/CalendarBusyReport_0.php
+
+		-
+			message: '#^Variable \$label might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/CalendarBusyReport/CalendarBusyReport_0.php
+
+		-
 			message: '#^Call to an undefined static method DB\:\:error\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: modules/Utils/Comment/CommentInstall.php
+
+		-
+			message: '#^Method Module\:\:get_unique_href_variable\(\) invoked with 2 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: modules/Utils/Comment/Comment_0.php
 
 		-
 			message: '#^Method Utils_CommonDataCommon\:\:remove\(\) should return true but return statement is missing\.$#'
@@ -487,16 +1039,40 @@ parameters:
 			path: modules/Utils/CurrencyField/currency.php
 
 		-
+			message: '#^Variable \$value on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: modules/Utils/CurrencyField/currency.php
+
+		-
 			message: '#^Access to an undefined property Utils_FileStorage\:\:\$caption\.$#'
 			identifier: property.notFound
 			count: 2
 			path: modules/Utils/FileStorage/FileStorage_0.php
 
 		-
+			message: '#^Constant EPESI_LOCAL_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 3
+			path: modules/Utils/FileUpload/Dropzone.php
+
+		-
 			message: '#^Access to an undefined property Utils_FileUpload\:\:\$added_upload_elem\.$#'
 			identifier: property.notFound
 			count: 2
 			path: modules/Utils/FileUpload/FileUpload_0.php
+
+		-
+			message: '#^Variable \$max_actions on left side of \?\?\= always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: modules/Utils/GenericBrowser/GenericBrowser_0.php
+
+		-
+			message: '#^Call to an undefined method Utils_Menu\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Menu/Menu_0.php
 
 		-
 			message: '#^Access to an undefined property Utils_Messenger\:\:\$lp\.$#'
@@ -508,6 +1084,48 @@ parameters:
 			message: '#^File begins with UTF\-8 BOM character\. This may cause problems when running the code in the web browser\.$#'
 			identifier: whitespace.bom
 			count: 1
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$label might not be defined\.$#'
+			identifier: variable.undefined
+			count: 7
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 34
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$param1 might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$param2 might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$param3 might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$time_frames in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Utils/Planner/Planner_0.php
+
+		-
+			message: '#^Variable \$type might not be defined\.$#'
+			identifier: variable.undefined
+			count: 8
 			path: modules/Utils/Planner/Planner_0.php
 
 		-
@@ -529,9 +1147,75 @@ parameters:
 			path: modules/Utils/RecordBrowser/CustomRecordsets/CustomRecordsets_0.php
 
 		-
+			message: '#^Variable \$crits might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/Filters/Filters_0.php
+
+		-
+			message: '#^Variable \$id in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
+			message: '#^Variable \$tab_crits might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
+			message: '#^Variable \$tabs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowserCommon_0.php
+
+		-
 			message: '#^Access to an undefined property Utils_RecordBrowser\:\:\$watchdog\.$#'
 			identifier: property.notFound
 			count: 6
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Call to an undefined method Utils_RecordBrowser\:\:help\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$form might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$i might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$last_row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$r in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$row might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
+
+		-
+			message: '#^Variable \$rpicker_ind might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
 			path: modules/Utils/RecordBrowser/RecordBrowser_0.php
 
 		-
@@ -553,6 +1237,36 @@ parameters:
 			path: modules/Utils/RecordBrowser/RecordPickerFS/select_all.php
 
 		-
+			message: '#^Call to an undefined method Utils_RecordBrowser_Reports\:\:tag\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
+
+		-
+			message: '#^Variable \$end_format might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
+
+		-
+			message: '#^Variable \$ref_rec might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
+
+		-
+			message: '#^Variable \$results might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
+
+		-
+			message: '#^Variable \$start_format might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: modules/Utils/RecordBrowser/Reports/Reports_0.php
+
+		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
 			count: 1
@@ -565,7 +1279,25 @@ parameters:
 			path: modules/Utils/TabbedBrowser/TabbedBrowser_0.php
 
 		-
+			message: '#^Call to an undefined method Utils_Tray\:\:get_filter_values\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: modules/Utils/Tray/Tray_0.php
+
+		-
+			message: '#^Variable \$tray_slot in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: modules/Utils/Tray/Tray_0.php
+
+		-
 			message: '#^File ends with a trailing whitespace\. This may cause problems when running the code in the web browser\. Remove the closing \?\> mark or remove the whitespace\.$#'
 			identifier: whitespace.fileEnd
 			count: 1
+			path: modules/Utils/Wizard/Wizard_0.php
+
+		-
+			message: '#^Variable \$name might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
 			path: modules/Utils/Wizard/Wizard_0.php

@@ -36,14 +36,20 @@ class ListModulesCommand extends Command
         $table->setHeaders(array('<fg=white;options=bold>Name</fg=white;options=bold>', '<fg=white;options=bold>Version</fg=white;options=bold>', '<fg=white;options=bold>State</fg=white;options=bold>'));
         foreach ($modules as $name => $module) {
 
+            // Four separate ifs with no else left $state holding the *previous* row's
+            // value for any state outside this list, and undefined altogether on the
+            // first row - so an unrecognised state silently mislabelled the module as
+            // whatever came before it. Chained, with an explicit fallback.
             if ($module['state'] === (string)ModuleManager::MODULE_ENABLED)
                 $state = "<fg=green>Active</fg=green>";
-            if ($module['state'] === (string)ModuleManager::MODULE_DISABLED)
+            elseif ($module['state'] === (string)ModuleManager::MODULE_DISABLED)
                 $state = "<fg=yellow>Inactive</fg=yellow>";
-            if ($module['state'] === (string)ModuleManager::MODULE_NOT_FOUND)
+            elseif ($module['state'] === (string)ModuleManager::MODULE_NOT_FOUND)
                 $state = "<fg=cyan>Files Not Found</fg=cyan>";
-            if ($module['state'] === null)
+            elseif ($module['state'] === null)
                 $state = "<fg=red>Not installed</fg=red>";
+            else
+                $state = "<fg=magenta>Unknown (".var_export($module['state'], true).")</fg=magenta>";
 
             $table->addRow(array($name, $module['version'], $state));
         }
