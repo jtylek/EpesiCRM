@@ -646,3 +646,38 @@ an FK violation in the error log with no matching app-source query or
 access-log request, suspect a manual/script action from a concurrent
 session before assuming a real app bug — ask, the way the other session did
 here, rather than building a fix for something that isn't broken.
+
+## Xdebug is not installed in this XAMPP (PHP 8.2.12, ZTS x64) — would only be worth it in `develop` mode
+
+Checked 2026-08-31 (`/c/xampp82/php/php.exe -m`): no `xdebug` in the loaded
+module list. Considered whether installing it would help an AI session
+specifically, as distinct from a human using an IDE.
+
+Step debugging (`xdebug.mode=debug` + an IDE listening over DBGp) wouldn't
+help a Claude Code session at all — there's no DBGp client tool available,
+so breakpoints/stepping have nothing to attach to; an AI session's
+"debugging" is reading code, adding temporary `error_log()`/`var_dump()`,
+and rerunning. Profiling (`mode=profile`, cachegrind output) is also low
+value — the binary format wants a viewer like qcachegrind, not something
+worth parsing ad hoc for the rare case this app's performance is in
+question.
+
+`xdebug.mode=develop` is the one mode worth it: it replaces PHP's bare
+"Notice: ..." text with a full stack trace + call args on every
+warning/notice/error, which is exactly the missing piece when chasing down
+which line trips the *first* `E_WARNING`/`E_NOTICE` under `error.php`'s
+`REPORT_ALL_ERRORS` mode — see `CLAUDE.md`'s "Error handling" section: that
+mode blanks the whole module's rendered output (including inside a compiled
+Smarty template) on the first hit, with no indication of where. A stock
+`php_errors.log` line under that mode gives file+line but no call chain;
+`develop` mode's trace would.
+
+**How to apply**: if asked to install Xdebug on this box, get the DLL build
+matching this exact PHP build (8.2, ZTS, VC15/16 x64 — verify with `php -v`
+first since XAMPP updates can change TS/NTS or the VC version) from
+xdebug.org's wizard, and set `xdebug.mode=develop` only — not `debug` (no
+client to use it) or `profile` (not worth the ongoing overhead for how
+rarely profiling comes up here). Don't install it reflexively "because it
+might help" — the win is narrow and specific to the `REPORT_ALL_ERRORS`
+blank-page problem, not general-purpose debugging assistance for an AI
+session.
