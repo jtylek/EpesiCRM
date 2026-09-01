@@ -175,6 +175,10 @@ fixes reduce but don't eliminate the risk. Don't silently re-enable it (or
 reinstall the Birthdays applet / re-add it to distros.ini) as a "fix" for an
 unrelated complaint; confirm with the user first, per this file's header.
 
+**Update 2026-09-01**: `modules/Applets/Birthdays` itself was deleted outright (not just
+uninstalled) as part of the wider legacy-applets code removal below — re-adding Birthdays
+now needs restoring the module from git history, not just reinstalling it via Setup.
+
 ## `Libs/CKEditor` — 2 wrapper files kept, not fully removed (2026-08-11)
 
 CKEditor was replaced app-wide by `Libs/Quill` (see `ckeditor-to-quill-migration.md`
@@ -483,3 +487,82 @@ every install on next deploy.
 to be designed and built fresh — don't restore `map.php`/`$virtual_hosts` handling from git
 history, and don't reintroduce a CLI `--data-dir`-style override without a concrete reason
 one is needed again (there was no other use for it once per-tenant routing was gone).
+
+## Legacy `Applets/{Birthdays,Calc,Google,Host,Weather}` deleted outright (2026-09-01)
+
+At explicit user request, five of the nine `modules/Applets/*` dashboard applets were
+deleted from the tree entirely — not just uninstalled — so they no longer appear in either
+Advanced or Simple Setup on any install, fresh or existing: `Birthdays` (see the update to
+the entry above), `Calc` (calculator), `Google` (a bare Google search box), `Host` (prints
+the server's IP/hostname), `Weather`. `Clock`, `MonthView`, `Note`, and `RssFeed` were kept
+— **MonthView was initially deleted in the same pass, then explicitly restored** after the
+user caught the mistake; if MonthView ever looks like a target for this same cleanup again,
+confirm first, this is not an oversight.
+
+**Zero schema risk**: all five removed applets' `install()` only ever called
+`Base_ThemeCommon::install_default_theme()` (theme registration, no `CREATE TABLE`, no
+`Variable::set()`), confirmed by reading each `*Install.php` before deleting — same
+"nothing to leak" case `Libs_ScriptAculoUs` documents above. On this dev instance, four of
+the five (`Calc`, `Google`, `Host`, `Weather`) were already not installed; `MonthView` (kept)
+was Active and untouched. **No uninstall patch shipped** for any of the five, on the same
+"tolerated orphaned row" reasoning as the `Develop/*` removal above — a stray `modules`
+table row on another install that happened to have one of these installed self-quarantines
+via `MODULE_NOT_FOUND` with no fatal error, and there's no schema for a cleanup patch to
+drop anyway.
+
+**Also removed**: their `Applets/*` lines in `modules/FirstRun/distros.ini`'s `[CRM
+installation]` preset (including a pre-existing duplicate `Applets/Calc` line, unrelated to
+this cleanup, removed in the same edit) so a fresh install's first-run wizard doesn't try to
+install a module that no longer exists.
+
+**Confirmed zero cross-references** in the tracked tree (`git grep`) and in the gitignored
+`modules/Premium/`/`modules/Custom/` trees (plain `grep`, per `CLAUDE.md`'s Premium-sweep
+note) before deleting — nothing `requires()`'d any of the five. The one real coupling found,
+`CRM_Calendar`/`Utils_Calendar`'s `scope=mine` query param and the `jump_to_date`/
+`switch_to_tab`/`open_add` deep-link handling in `CRM_Calendar::body()`, turned out to be
+**MonthView's**, not one of the five actually removed — moot once MonthView was restored,
+left untouched.
+
+**How to apply.** If a future request wants any of these five back, they need to be
+restored from git history (`git log --diff-filter=D -- modules/Applets/<Name>`) — don't
+recreate them from scratch, the originals are simple but not trivial to rebuild faithfully
+(e.g. `Weather`'s RSS-based fetch/cache in `refresh.php`/`rsslib.php`).
+
+## "Additional applets" / "Error reporting" / "Web Notifications" folded into Epesi Core, no longer separately toggleable (2026-09-01)
+
+Companion change to the removal above, same request. `Applets_Clock`, `Applets_Note`,
+`Applets_RssFeed`, `Applets_MonthView`, `Base_Error`, and `Base_Notify` all used to declare
+their own `'option'=>...` key in `simple_setup()` (`Setup_0.php`), making each its own row
+under Epesi Core's "Optional" dropdown on the Simple Setup screen — see
+`Simple-setup-ESS.md` for how that grouping works. All six were changed to the plain
+`return __('Epesi Core');` shape ~40 other always-bundled core modules already use (no
+`option` key at all), which merges them into the *same* `$packages['Epesi Core']` bucket as
+everything else — see `Base_Setup::simple_setup()`'s `foreach ($structure as $s)` loop,
+keyed on `$s['package'].($s['option']?'|'.$s['option']:'')`. **Net effect**: none of these
+six can be individually installed/uninstalled from Simple Setup anymore — only as part of
+uninstalling all of Epesi Core, which is already blocked (`'core'=>1` on `Base_SetupInstall`
+covers the whole merged bucket). The "Optional" toggle itself disappears from the Epesi Core
+card entirely once `$package.options` is empty (`theme_adminltedark/default.tpl`'s
+`{if !empty($package.options)}` guard) — verified live via screenshot, matches the CRM
+package's own still-populated Optional dropdown (Account Manager, Contact Photo, etc.,
+unrelated and untouched) staying exactly as before.
+
+**One collision avoided**: `Base_NotifyInstall::simple_setup()` used to also return
+`'version'=>self::version` (its own `'2.0'`) — harmless while it had its own dedicated
+`'Epesi Core|Web Notifications'` packages-array key, but `$packages[$key]['version']` is
+set unconditionally whenever `isset($s['version'])`, with **no "first/identity wins" guard**
+(unlike `readme_id`, which explicitly has one — see `Simple-setup-ESS.md`). Once merged into
+the shared `'Epesi Core'` key, that assignment would have raced `Base_SetupInstall`'s own
+`'version'=>EPESI_REVISION` (the real CalVer shown on the card) depending on module scan
+order, potentially showing "2.0" instead of the real product version. Dropped the `version`
+key when removing `option` — none of the other ~40 plain-string `Epesi Core` modules set
+their own version either, so this just brings Notify in line with that convention.
+
+Each of the six modules' `README.md` ("...listed under its Optional list as **X**") was
+also updated to stop describing a UI element that no longer exists for them.
+
+**How to apply.** If a future request wants any of these six to be independently
+installable/uninstallable again, restore the `'option'=>__('...')` key in that module's
+`simple_setup()` (and, for `Base_Notify` specifically, re-add `'version'=>self::version` —
+safe again once it's back to its own dedicated packages key). Don't do this silently as a
+side effect of an unrelated Setup-screen change; confirm first, per this file's header.

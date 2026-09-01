@@ -6,8 +6,8 @@ Pops up OS tray/desktop notifications for the user, including Telegram delivery.
 CommonData option list (Disable/Manually/10s/30s/1min) that lets users choose how often the
 client polls for new notifications.
 
-Part of the **Epesi Core** package on the admin Setup screen, listed under its Optional
-list as **Web Notifications**.
+Part of the **Epesi Core** package on the admin Setup screen — bundled with core, not a
+separately installable option.
 
 ## License
 

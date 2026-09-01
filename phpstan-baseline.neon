@@ -655,12 +655,6 @@ parameters:
 			path: modules/Applets/RssFeed/rsslib.php
 
 		-
-			message: '#^Variable \$recents might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: modules/Applets/Weather/rsslib.php
-
-		-
 			message: '#^Variable \$admin in empty\(\) always exists and is not falsy\.$#'
 			identifier: empty.variable
 			count: 1

@@ -3,7 +3,7 @@
  * @author pbukowski@telaxus.com
  * @copyright 2008 Janusz Tylek
  * @license MIT
- * @version 1.1
+ * @version 2.0
  * @package epesi-applets
  * @subpackage note
  */
@@ -23,7 +23,7 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("1.1");
+		return array("2.0");
 	}
 	
 	public function requires($v) {
@@ -40,7 +40,7 @@ class Applets_NoteInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-        return array('package'=>__('Epesi Core'), 'option'=>__('Additional applets'));
+        return __('Epesi Core');
 	}
 	
 }

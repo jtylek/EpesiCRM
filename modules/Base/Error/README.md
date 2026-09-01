@@ -4,8 +4,8 @@ Provides error-to-mail reporting: when enabled, application errors are sent to t
 stored in the `error_mail` variable it installs, so administrators can be notified of runtime
 errors without watching the logs directly. It depends on `Base_Mail` to deliver the reports.
 
-Part of the **Epesi Core** package on the admin Setup screen, listed under its Optional
-list as **Error reporting**.
+Part of the **Epesi Core** package on the admin Setup screen — bundled with core, not a
+separately installable option.
 
 ## License
 

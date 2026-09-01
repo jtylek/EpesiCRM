@@ -25,7 +25,7 @@ class Base_ErrorInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.0.0');
+		return array('2.0');
 	}
 
 	// ************************************
@@ -45,7 +45,7 @@ class Base_ErrorInstall extends ModuleInstall {
 	}
 	
 	public static function simple_setup() {
-        return array('package'=>__('Epesi Core'), 'option'=>__('Error reporting'));
+        return __('Epesi Core');
 	}
 }	
 
