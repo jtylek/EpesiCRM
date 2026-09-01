@@ -185,7 +185,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	public static function simple_setup() {
-		return array('package'=>__('CRM'), 'version'=>'2.1', 'icon'=>true, 'url'=>'http://epe.si/free-crm');
+		return array('package'=>__('CRM'), 'version'=>'2.0', 'icon'=>true, 'url'=>'http://epe.si/free-crm');
 	}
 
 	public function version() {
