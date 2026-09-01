@@ -214,8 +214,12 @@ class CRM_Calendar extends Module {
 
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'agendaX');
 		$columns = array(
+			// Widths are normalized against their sum by Utils_GenericBrowser
+			// (25/75 here), so these are effectively percentages. Start is
+			// 'nowrap' and its longest value is a single formatted datetime -
+			// give the rest to Title, which is the column that gets truncated.
 			array('name'=>__('Start'), 'order'=>'e.starts', 'width'=>25, 'wrapmode'=>'nowrap'),
-			array('name'=>__('Title'), 'order'=>'e.title','width'=>50),
+			array('name'=>__('Title'), 'order'=>'e.title','width'=>75),
 		);
 		$gb->set_table_columns($columns);
 
