@@ -877,6 +877,17 @@
 	color: #fd7e14;
 }
 
+/* Utils_Watchdog's per-row "Mark as read" action (Watchdog_0.php::applet(), its own
+   theme/mark_as_read.png) - marks that one entry read without opening the record, the
+   info tooltip beside it being enough to tell whether the record is worth a visit.
+   With no rule of its own it fell through the blanket "a img:not(.file_inline)
+   {display:none}" above with no ::before glyph, so the action rendered as an empty,
+   zero-width <a> - still present and still clickable, just nothing to see or aim at.
+   bi-book-half (a half-read book) per request. */
+:is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Watchdog"][src*="/mark_as_read.png"])::before {
+	content: "\f193";
+}
+
 :is(.epesi-gb .Utils_GenericBrowser, #epesi-gb-actions-menu) a:has(img[src*="Calendar"][src*="/icon-small.png"])::before {
 	content: "\f1e8";
 }

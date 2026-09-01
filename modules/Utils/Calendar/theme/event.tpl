@@ -46,7 +46,7 @@
 	        <div id="event_time">{if isset($view_href)}<a {$view_href}>{$start_time}</a>{else}{$start_time}{/if}</div>
 	    </div>
 	     <div class="row {if $draggable}{$handle_class}{/if}">
-	        <span id="event_title">{$title_s}</span>
+	        <span id="event_title">{if isset($bi_icon)}{$bi_icon}{/if}{$title_s}</span>
 	    </div>
 	</span>
 {if $with_div}

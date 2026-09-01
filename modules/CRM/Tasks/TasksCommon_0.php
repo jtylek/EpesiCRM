@@ -176,7 +176,11 @@ class CRM_TasksCommon extends ModuleCommon {
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		if ($v>=3 || $nolink) return $status[$v];
+		// Only a Closed task has a plain-text Status; every other one, Canceled
+		// included, keeps the link to the Follow-up prompt (per request - the cutoff
+		// here used to be $v>=3, which took Canceled with it). Same rule as
+		// CRM_Meeting/CRM_PhoneCall, off the same constant.
+		if ($v==CRM_CommonCommon::STATUS_CLOSED || $nolink) return $status[$v];
 		CRM_FollowupCommon::drawLeightbox($prefix);
 		if (!Utils_RecordBrowserCommon::get_access('task', 'edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
@@ -284,7 +288,7 @@ class CRM_TasksCommon extends ModuleCommon {
 	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'task',
-				__('Tasks'),
+				__('Task'),
 				$rid,
 				$events,
 				'title',
@@ -465,12 +469,15 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
-			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+			// nolink=false + screen_reader_label=false: keep the icon+link markup
+			// (the link itself gets flattened away by to_safe_html() when this
+			// value lands in format_record_tooltip() below) but drop the
+			// [Person]/[Company] indicator span - see that param's own doc.
+			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), false, array('id'=>'customers'), false);
             $cuss[] = str_replace('&nbsp;',' ',$c);
 		}
 
 		$inf2 += array(	__('Task')=> '<b>'.$next['title'].'</b>',
-						__('Description')=> $next['description'],
 						__('Assigned to')=> implode('<br>',$emps),
 						__('Contacts')=> implode('<br>',$cuss),
 						__('Status')=> Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
@@ -482,12 +489,19 @@ class CRM_TasksCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customers'] = $r['customers'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] = 
-									'<center><b>'.
-										__('Task').
-									'</b></center><br>'.
-									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
-									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
+		// Shared record-tooltip layout (heading + two label/value pairs per
+		// row + full-width description + one-line footer) rather than this
+		// module's own markup, so every event type's popup has the same
+		// shape - see Utils_TooltipCommon::format_record_tooltip(). Needs
+		// its consumers to opt out of table flattening (create()/
+		// open_tag_attrs()' $keep_table), or it collapses back to a list.
+		$next['custom_tooltip'] = Utils_TooltipCommon::format_record_tooltip(
+			Base_BootstrapIcons::type_tag('CRM_Tasks'),
+			__('Task'),
+			$inf2,
+			array(__('Description') => $next['description']),
+			CRM_ContactsCommon::get_short_record_info($r['created_by'], $r['created_on'])
+		);
 		return $next;
 	}
 

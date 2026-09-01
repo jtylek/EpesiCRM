@@ -214,7 +214,13 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$v = $record[$desc['id']];
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
-		if ($v>=2 || $nolink) return $status[$v];
+		// Only a Closed call has a plain-text Status; every other one, On Hold and
+		// Canceled included, keeps the link to the Follow-up prompt (per request - the
+		// cutoff here used to be $v>=2, which killed the link from On Hold onwards).
+		// Same rule as CRM_Meeting/CRM_Tasks, off the same constant. $nolink
+		// (print/export/e-mail renderings) and the edit-permission check below still
+		// return plain text regardless of status.
+		if ($v==CRM_CommonCommon::STATUS_CLOSED || $nolink) return $status[$v];
 		if (!Utils_RecordBrowserCommon::get_access('phonecall', 'edit', $record) && !Base_AclCommon::i_am_admin()) return $status[$v];
 		CRM_FollowupCommon::drawLeightbox($prefix);
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
@@ -357,7 +363,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 	public static function watchdog_label($rid = null, $events = array(), $details = true) {
 		return Utils_RecordBrowserCommon::watchdog_label(
 				'phonecall',
-				__('Phonecalls'),
+				__('Phonecall'),
 				$rid,
 				$events,
 				'subject',
@@ -492,10 +498,18 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$next['id'] = $r['id'];
 
 		$next['start'] = strtotime($r['date_and_time']);
-		$next['end'] = strtotime($r['date_and_time'])+15*60;
 
-		$next['duration'] = intval(15*60);
+		// -1 = "no duration", the same sentinel CRM_TasksCommon uses for a
+		// deadline. A phonecall records WHEN the call is, nothing more - the
+		// recordset has no duration field, and crm_event_update() below only
+		// ever writes date_and_time back, so the 15 minutes this used to
+		// invent was never stored and never editable. It still had two
+		// visible effects worth being rid of: the calendar drew a 15-minute
+		// block (and a resize handle that silently discarded whatever you
+		// dragged it to), and a call late in the evening could spill the
+		// block across midnight into the next day's cell.
 
+		$next['duration'] = -1;
 		$next['title'] = (string)$r['subject'];
 		$next['description'] = (string)$r['description'];
 		$next['color'] = 'gray';
@@ -544,11 +558,14 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$next['busy_label'] = $r['employees'];
 
 		$cuss = array();
-		$c = CRM_ContactsCommon::display_company_contact(array('customer'=>$r['customer']), true, array('id'=>'customer'));
+		// nolink=false + screen_reader_label=false: keep the icon+link markup
+		// (the link itself gets flattened away by to_safe_html() when this
+		// value lands in format_record_tooltip() below) but drop the
+		// [Person]/[Company] indicator span - see that param's own doc.
+		$c = CRM_ContactsCommon::display_company_contact(array('customer'=>$r['customer']), false, array('id'=>'customer'), false);
 		$cuss[] = str_replace('&nbsp;',' ',$c);
 
 		$inf2 += array(	__('Phonecall') => '<b>'.$next['title'].'</b>',
-						__('Description')=> $next['description'],
 						__('Assigned to')=> implode('<br>',$emps),
 						__('Contacts')=> implode('<br>',$cuss),
 						__('Status')=> Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
@@ -560,12 +577,19 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customer'] = $r['customer'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] = 
-									'<center><b>'.
-										__('Phonecall').
-									'</b></center><br>'.
-									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
-									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
+		// Shared record-tooltip layout (heading + two label/value pairs per
+		// row + full-width description + one-line footer) rather than this
+		// module's own markup, so every event type's popup has the same
+		// shape - see Utils_TooltipCommon::format_record_tooltip(). Needs
+		// its consumers to opt out of table flattening (create()/
+		// open_tag_attrs()' $keep_table), or it collapses back to a list.
+		$next['custom_tooltip'] = Utils_TooltipCommon::format_record_tooltip(
+			Base_BootstrapIcons::type_tag('CRM_PhoneCall'),
+			__('Phonecall'),
+			$inf2,
+			array(__('Description') => $next['description']),
+			CRM_ContactsCommon::get_short_record_info($r['created_by'], $r['created_on'])
+		);
 		return $next;
 	}
 

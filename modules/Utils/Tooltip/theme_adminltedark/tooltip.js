@@ -109,11 +109,14 @@ function epesi_tooltip_hide_popup() {
 // except for callbacks that opted into $safe_html (data-tooltip-html), whose
 // response skips that decode step and is safe the same way open_tag_attrs()'s
 // is.
-function epesi_tooltip_show_popup(el, content, asHtml) {
+// extraClass marks the ajax popups (see epesi_tooltip_ajax_load()) so CSS can
+// give them one shared width instead of each shrink-to-fitting its own longest
+// line - see .epesi-tooltip-popup-ajax in default.css.
+function epesi_tooltip_show_popup(el, content, asHtml, extraClass) {
 	epesi_tooltip_hide_popup();
 	if (!content) return;
 	var popup = document.createElement('div');
-	popup.className = 'epesi-tooltip-popup';
+	popup.className = 'epesi-tooltip-popup' + (extraClass ? ' ' + extraClass : '');
 	if (asHtml) popup.innerHTML = content;
 	else popup.textContent = content;
 	document.body.appendChild(popup);
@@ -140,7 +143,7 @@ function epesi_tooltip_ajax_apply(el, text, asHtml) {
 	el.setAttribute('data-tooltip-ajax', text);
 	if (epesi_tooltip_current_el !== el) return;
 	if (text) {
-		if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, asHtml);
+		if (!epesi_tooltip_popup_el) epesi_tooltip_show_popup(el, text, asHtml, 'epesi-tooltip-popup-ajax');
 		else {
 			if (asHtml) epesi_tooltip_popup_el.innerHTML = text;
 			else epesi_tooltip_popup_el.textContent = text;
@@ -178,11 +181,11 @@ function epesi_tooltip_ajax_load(el, tooltipId) {
 			var cached = epesi_tooltip_ajax_cache[tooltipId];
 			el.setAttribute('data-tooltip-ajax', cached);
 			el.setAttribute('data-epesi-tooltip-loaded', '1');
-			epesi_tooltip_show_popup(el, cached, asHtml);
+			epesi_tooltip_show_popup(el, cached, asHtml, 'epesi-tooltip-popup-ajax');
 			return;
 		}
 
-		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip-ajax') || '', asHtml);
+		epesi_tooltip_show_popup(el, el.getAttribute('data-tooltip-ajax') || '', asHtml, 'epesi-tooltip-popup-ajax');
 
 		if (el.getAttribute('data-epesi-tooltip-loaded') == '1') return;
 		el.setAttribute('data-epesi-tooltip-loaded', '1');

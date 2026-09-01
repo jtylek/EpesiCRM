@@ -78,7 +78,25 @@ class CRM_CalendarCommon extends ModuleCommon {
 
 					array('name'=>'start_day','label'=>__('Start day at'), 'type'=>'select', 'values'=>$start_day, 'default'=>'8:00'),
 					array('name'=>'end_day','label'=>__('End day at'), 'type'=>'select', 'values'=>$end_day, 'default'=>'17:00'),
-					array('name'=>'interval','label'=>__('Interval of grid'), 'type'=>'select', 'values'=>array('0:15'=>__('15 minutes'),'0:30'=>__('30 minutes'),'1:00'=>__('1 hour'),'2:00'=>__('2 hours')), 'default'=>'1:00')
+					array('name'=>'interval','label'=>__('Interval of grid'), 'type'=>'select', 'values'=>array('0:15'=>__('15 minutes'),'0:30'=>__('30 minutes'),'1:00'=>__('1 hour'),'2:00'=>__('2 hours')), 'default'=>'1:00'),
+					// How far forward the Agenda VIEW reaches - the same spans the
+					// Agenda applet offers (self::agenda_days_values()). Read by
+					// Utils_Calendar::agenda() for the legacy grid's default To date
+					// and by fullcalendar() for the Modern grid's list view. Both
+					// count forward from today, so the default 7 means "the next 7
+					// days", not "the current week".
+					// Labeled plainly "Agenda", not the old "Look for events in" -
+					// this sits in a flat list next to Day/Week-only settings
+					// (start_day/end_day/interval), with nothing on this page
+					// tying it to the Agenda view specifically. __('Agenda') is
+					// already translated everywhere (applet_caption(), etc.), so
+					// this needs no new lang/ entries either.
+					// Per-applet "Look for events in" settings are separate and
+					// unaffected - an applet is configured on the dashboard, per tab,
+					// and its own settings box is already titled "Agenda" (see
+					// applet_caption()), so relabeling that field too would read as
+					// "Agenda: Agenda".
+					array('name'=>'agenda_days','label'=>__('Agenda'), 'type'=>'select', 'values'=>self::agenda_days_values(), 'default'=>'7')
 				)
 			);
 		}
@@ -96,8 +114,18 @@ class CRM_CalendarCommon extends ModuleCommon {
 		return __('Displays Calendar Agenda');
 	}
 
+	/**
+	 * Spans offered by the Agenda dashboard applet's "Look for events in" setting and
+	 * by the identical one in My settings -> Calendar (which sets how much the Agenda
+	 * VIEW covers, not the applet). Defined once so the two can't drift apart; keys
+	 * are a plain number of days, which is what every reader actually wants.
+	 */
+	public static function agenda_days_values() {
+		return array('1'=>__('1 day'),'2'=>__('2 days'),'3'=>__('3 days'),'5'=>__('5 days'),'7'=>__('1 week'),'14'=>__('2 weeks'), '30'=>__('1 month'), '61'=>__('2 months'));
+	}
+
 	public static function applet_settings() {
-		$ret = array(	array('name'=>'days', 'label'=>__('Look for events in'), 'type'=>'select', 'default'=>'7', 'values'=>array('1'=>__('1 day'),'2'=>__('2 days'),'3'=>__('3 days'),'5'=>__('5 days'),'7'=>__('1 week'),'14'=>__('2 weeks'), '30'=>__('1 month'), '61'=>__('2 months'))));
+		$ret = array(	array('name'=>'days', 'label'=>__('Look for events in'), 'type'=>'select', 'default'=>'7', 'values'=>self::agenda_days_values()));
 		$custom_events = self::get_event_handlers();
 		if (!empty($custom_events)) {
 			foreach ($custom_events as $id=>$l)

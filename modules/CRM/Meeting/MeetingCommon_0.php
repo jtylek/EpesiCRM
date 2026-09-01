@@ -360,7 +360,10 @@ class CRM_MeetingCommon extends ModuleCommon {
 		if (!$v) $v = 0;
 		$status = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 		if (!Utils_RecordBrowserCommon::get_access('crm_meeting','edit', $record) && !Base_AclCommon::i_am_admin()) return false;
-		if ($v>=2) return false;
+		// Only a Closed meeting has a plain-text Status; every other one, On Hold and
+		// Canceled included, keeps the link to the Follow-up prompt (per request - the
+		// cutoff here used to be $v>=2, which killed the link from On Hold onwards).
+		if ($v==CRM_CommonCommon::STATUS_CLOSED) return false;
 		if (isset($_REQUEST['form_name']) && $_REQUEST['form_name']==$prefix.'_follow_up_form' && $_REQUEST['id']==$record['id']) {
 			unset($_REQUEST['form_name']);
 			$v = $_REQUEST['closecancel'];
@@ -738,12 +741,15 @@ class CRM_MeetingCommon extends ModuleCommon {
 		
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
-			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'));
+			// nolink=false + screen_reader_label=false: keep the icon+link markup
+			// (the link itself gets flattened away by to_safe_html() when this
+			// value lands in format_record_tooltip() below) but drop the
+			// [Person]/[Company] indicator span - see that param's own doc.
+			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), false, array('id'=>'customers'), false);
             $cuss[] = str_replace('&nbsp;',' ',$c);
 		}
 
 		$inf2 += array(	__('Event')=> '<b>'.$next['title'].'</b>',
-						__('Description')=> $next['description'],
 						__('Assigned to')=> implode('<br>',$emps),
 						__('Contacts')=> implode('<br>',$cuss),
 						__('Status')=> Utils_CommonDataCommon::get_value('CRM/Status/'.$r['status'],true),
@@ -757,12 +763,19 @@ class CRM_MeetingCommon extends ModuleCommon {
 		$next['employees'] = $r['employees'];
 		$next['customers'] = $r['customers'];
 		$next['status'] = $r['status']<=2?'active':'closed';
-		$next['custom_tooltip'] = 
-									'<center><b>'.
-										__('Meeting').
-									'</b></center><br>'.
-									Utils_TooltipCommon::format_info_tooltip($inf2).'<hr>'.
-									CRM_ContactsCommon::get_html_record_info($r['created_by'],$r['created_on'],null,null);
+		// Shared record-tooltip layout (heading + two label/value pairs per
+		// row + full-width description + one-line footer) rather than this
+		// module's own markup, so every event type's popup has the same
+		// shape - see Utils_TooltipCommon::format_record_tooltip(). Needs
+		// its consumers to opt out of table flattening (create()/
+		// open_tag_attrs()' $keep_table), or it collapses back to a list.
+		$next['custom_tooltip'] = Utils_TooltipCommon::format_record_tooltip(
+			Base_BootstrapIcons::type_tag('CRM_Meeting'),
+			__('Meeting'),
+			$inf2,
+			array(__('Description') => $next['description']),
+			CRM_ContactsCommon::get_short_record_info($r['created_by'], $r['created_on'])
+		);
 		return $next;
 	}
 

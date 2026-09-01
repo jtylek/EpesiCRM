@@ -18,6 +18,20 @@ class CRM_CommonCommon extends ModuleCommon {
 	// modules/Base/Theme/bootstrap_icons.php.
 	public static function bootstrap_icon() { return 'bi-gear'; }
 
+	/**
+	 * Key of the "Closed" entry in the CRM/Status common data array
+	 * (CommonInstall.php: 0=Open, 1=In Progress, 2=On Hold, 3=Closed, 4=Canceled).
+	 *
+	 * Named here rather than hardcoded three times: CRM_Meeting, CRM_Tasks and
+	 * CRM_PhoneCall each decide from it whether their Status field renders as the
+	 * Follow-up leightbox link or as plain text, and the three had drifted to three
+	 * different cutoffs ($v>=2, $v>=3, $v>=2) - which is how On Hold and Canceled
+	 * ended up dead on some record types and clickable on others. Closed is the one
+	 * status the prompt has nothing left to offer: every other one, Canceled
+	 * included, is a state a record can still legitimately be moved out of.
+	 */
+	const STATUS_CLOSED = 3;
+
 	public static function user_settings() {
 		if(Acl::is_user()) {
 			$methods = array('none'=>__('None'),

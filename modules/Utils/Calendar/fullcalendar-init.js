@@ -198,6 +198,55 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			var props = arg.event.extendedProps || {};
 			if (props.tooltip) arg.el.setAttribute('title', props.tooltip);
 			if (props.viewAttrs) arg.el.style.cursor = 'pointer';
+			// "What kind of record is this" glyph in front of the title, the
+			// same one the Agenda applet and the legacy day/week/month chips
+			// show (biIcon is a bare "bi-..." class from
+			// Utils_CalendarCommon::event_to_fullcalendar()). Built here
+			// rather than server-side because it is view-dependent, and only
+			// the client knows which view is on screen:
+			//   multiMonthYear - skipped in the GRID (a year cell has no
+			//                    room), but not in its "+N more" popover,
+			//                    which is roomy - see inPopover below
+			//   dayGridMonth   - the smaller variant, matching what the
+			//                    legacy month grid does via bi_icon_small
+			// The title node differs per view (.fc-event-title in the grids,
+			// .fc-list-event-title in the Agenda list), hence the pair of
+			// selectors. currentColor, not a fixed muted grey: these chips
+			// are painted in the seven Epesi event colors.
+			//
+			// A "+N more" popover row is the same event rendered again, in a
+			// context that has room for a full-size glyph whatever the view
+			// behind it is. closest() rather than a flag off arg: FullCalendar
+			// gives eventDidMount no "you are in a popover" signal, but the
+			// row is already inside the popover's own subtree by the time this
+			// runs (Preact mounts children before their parent), so walking up
+			// works even before that subtree is attached to the document.
+			var viewType = (arg.view || {}).type;
+			var inPopover = !!(arg.el.closest && arg.el.closest('.fc-popover'));
+			if (props.biIcon && (inPopover || viewType !== 'multiMonthYear')) {
+				var ic = document.createElement('i');
+				ic.className = 'bi ' + props.biIcon + ' fc-epesi-type-icon' +
+					(!inPopover && viewType === 'dayGridMonth' ? ' fc-epesi-type-icon--sm' : '');
+				if (inPopover) {
+					// The glyph REPLACES the generic colored bullet here
+					// rather than joining it - two leading markers on one
+					// short row, one of which says nothing the chip's own
+					// color doesn't already say, just crowds the line. Only
+					// ever dropped when there is a real glyph to put in its
+					// place, so an event source that declares no icon keeps
+					// its bullet.
+					var dot = arg.el.querySelector('.fc-daygrid-event-dot');
+					if (dot && !arg.el.querySelector('.fc-epesi-type-icon')) {
+						dot.parentNode.replaceChild(ic, dot);
+					} else if (!arg.el.querySelector('.fc-epesi-type-icon')) {
+						arg.el.insertBefore(ic, arg.el.firstChild);
+					}
+				} else {
+					var titleEl = arg.el.querySelector('.fc-event-title, .fc-list-event-title');
+					if (titleEl && !titleEl.querySelector('.fc-epesi-type-icon'))
+						titleEl.insertBefore(ic, titleEl.firstChild);
+				}
+			}
 			// Small delete affordance appended into the rendered event -
 			// FullCalendar has no built-in delete gesture, and deleteAttrs
 			// (already ACL-gated - absent when the handler suppressed it,

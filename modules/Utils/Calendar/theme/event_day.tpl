@@ -63,10 +63,10 @@
 	                <img {$tip_tag_attrs} src="{$theme_dir}/Utils/Calendar/info_iphone.png" onClick="event_menu('{$event_id}')" width="26" height="26" border="0" style="cursor: pointer;">
 {/if}
 		</span>
-			<span id="event_time">{if isset($view_href)}<a {$view_href}>{/if}{$start_time}{if $duration} - {$end_time} ({$duration}){/if}{if isset($view_href)}</a>{/if}</span>
+			<span id="event_time">{if isset($view_href)}<a {$view_href}>{/if}{$start_time}{if $duration && $duration != '---'} - {$end_time} ({$duration}){/if}{if isset($view_href)}</a>{/if}</span>
 		</div>
 		 <div class="row {if $draggable}{$handle_class}{/if}">
-			<span id="event_title">{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}</span>
+			<span id="event_title">{if isset($bi_icon)}{$bi_icon}{/if}{$title}{if $description!=''} - {$description|truncate:100:"..."}{/if}</span>
 		</div>
 	</span>
 {if $with_div}

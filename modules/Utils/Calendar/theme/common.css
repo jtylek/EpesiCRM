@@ -105,3 +105,25 @@ div.navigation-menu .trash:hover img {
 	padding-top: 1px;
 	padding-left: 1px;
 }
+
+/* Event-type glyph ("what kind of record is this" - Meeting/Task/Phonecall/...)
+ * printed in front of an event title by event.tpl / event_day.tpl and by the
+ * Agenda list, from the bi-... class CRM_Calendar_EventCommon::get_all()
+ * resolves per event source. currentColor, not a fixed grey: an event chip is
+ * painted in one of the seven Epesi event colors (event_<color>), and a fixed
+ * grey is unreadable on several of them.
+ */
+.utils_calendar_type_icon {
+	color: inherit;
+	opacity: 0.75;
+	margin-right: 3px;
+	vertical-align: baseline;
+}
+
+/* Month grid only - the cell is a few pixels tall and stacks a whole day's
+ * events, so the glyph shrinks rather than pushing the title out of view.
+ * Set via $ev['bi_icon_small'] in Utils_Calendar::month(). */
+.utils_calendar_type_icon_sm {
+	font-size: 0.75em;
+	margin-right: 2px;
+}

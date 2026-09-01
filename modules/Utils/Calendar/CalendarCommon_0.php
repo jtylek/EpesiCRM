@@ -10,6 +10,25 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_CalendarCommon extends ModuleCommon {
+	/**
+	 * Renders the "what kind of record is this" glyph for one event - the
+	 * bare "bi-..." class CRM_Calendar_EventCommon::get_all() already
+	 * resolved once per event source into $ev['bi_icon'] - or '' when this
+	 * source declares no icon, so a caller can concatenate it straight in
+	 * front of a title without a guard.
+	 *
+	 * Not Base_BootstrapIcons::type_tag(): that one is styled for a
+	 * mixed-record LIST (muted + trailing margin), while an event chip sits
+	 * on one of the seven Epesi event colors and has to inherit currentColor
+	 * to stay readable. $ev['bi_icon_small'] is set by the month grid, whose
+	 * cells are a few pixels tall - see Utils_Calendar::month().
+	 */
+	public static function icon_tag($ev) {
+		if (empty($ev['bi_icon'])) return '';
+		return '<i class="bi '.$ev['bi_icon'].' utils_calendar_type_icon'.
+			(!empty($ev['bi_icon_small'])? ' utils_calendar_type_icon_sm': '').'"></i>';
+	}
+
 	public static function print_event($ev,$mode='',$with_div=true) {
 		$th = Base_ThemeCommon::init_smarty();
 		$ex = self::process_event($ev);
@@ -21,6 +40,7 @@ class Utils_CalendarCommon extends ModuleCommon {
 		$th->assign('with_div',$with_div);
 		$th->assign('title',$title);
 		$th->assign('title_s',$title_s);
+		$th->assign('bi_icon',self::icon_tag($ev));
 		$th->assign('description',$ev['description']);
 		$th->assign('color',$ev['color']);
 		$th->assign('start',$ex['start']);
@@ -40,7 +60,9 @@ class Utils_CalendarCommon extends ModuleCommon {
 		ob_start();
 		Base_ThemeCommon::display_smarty($th,'Utils_Calendar','event_tip');
 		$tip = ob_get_clean();
-		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip,false));
+		// keep_table=true for the same reason as CRM_Calendar::applet() - the
+		// handler's custom_tooltip inside this tip is a real <table>.
+		$th->assign('tip_tag_attrs',Utils_TooltipCommon::open_tag_attrs($tip,false,500,true));
 
 		if(!isset($ev['view_action']) || $ev['view_action']===true)
 			$th->assign('view_href', Module::create_href(array('UCev_id'=>$ev['id'], 'UCaction'=>'view')));
@@ -124,7 +146,14 @@ class Utils_CalendarCommon extends ModuleCommon {
 			// already sets these false when the viewer lacks edit access) - no
 			// new permission logic, just a type mapping.
 			'startEditable' => !isset($ev['move_action']) || $ev['move_action'] !== false,
-			'durationEditable' => !$timeless && (!isset($ev['edit_action']) || $ev['edit_action'] !== false),
+			// Resizable only if there is a duration to resize. A Task (a
+			// deadline) and a Phonecall (a point in time) both report
+			// duration<=0 and have no duration field to write back to - their
+			// handlers' crm_event_update() ignores the $duration argument
+			// entirely - so a resize handle on them offered an edit that was
+			// silently thrown away. $end is null in exactly that case (see
+			// above), which makes it the honest test.
+			'durationEditable' => $end !== null && (!isset($ev['edit_action']) || $ev['edit_action'] !== false),
 			'extendedProps' => array(
 				// Verbatim ' href="..." onClick="..." ' attribute fragments, the
 				// exact same ones the legacy event chip (event.tpl/event_day.tpl)
@@ -148,6 +177,11 @@ class Utils_CalendarCommon extends ModuleCommon {
 				'deleteAttrs' => self::action_href($ev, 'delete_action',
 					Module::create_confirm_href(__('Delete this event?'), array('UCev_id'=>$ev['id'], 'UCaction'=>'delete'))),
 				'tooltip' => strip_tags((string)($ev['description'] ?? '')),
+				// Bare "bi-..." class, not markup - fullcalendar-init.js builds
+				// the <i> itself, because only the client knows which view is
+				// on screen (the month grid shrinks it, the year grid has no
+				// room for it at all).
+				'biIcon' => !empty($ev['bi_icon'])? $ev['bi_icon']: null,
 			),
 		);
 	}

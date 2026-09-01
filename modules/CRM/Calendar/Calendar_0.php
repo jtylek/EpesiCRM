@@ -9,6 +9,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('modules/Base/Theme/bootstrap_icons.php');
+
 class CRM_Calendar extends Module {
 	private $lp;
 	
@@ -102,6 +104,7 @@ class CRM_Calendar extends Module {
 			'start_day'=>Base_User_SettingsCommon::get('CRM_Calendar','start_day'),
 			'end_day'=>Base_User_SettingsCommon::get('CRM_Calendar','end_day'),
 			'interval'=>Base_User_SettingsCommon::get('CRM_Calendar','interval'),
+			'agenda_days'=>Base_User_SettingsCommon::get('CRM_Calendar','agenda_days'),
 			'default_date'=>$default_date,
 			'custom_agenda_cols'=>array(
 				array('name'=>__('Type'), 'order'=>'cus_col_0','width'=>6,'wrapmode'=>'nowrap'),
@@ -239,9 +242,20 @@ class CRM_Calendar extends Module {
 				if ($conf['events_handlers__'.$id]) {
 					$cb = explode('::',$cb);
 					if (!is_callable($cb)) continue;
+					// This applet's rows are a merge of every registered handler's
+					// events (Meetings, Tasks, Phonecalls, plus whatever a Premium
+					// module registered), so the Title column alone doesn't say what
+					// kind of thing a row is - prefix each with its own module's
+					// sidebar icon. A handler is registered as
+					// "<Module>Common::crm_calendar_handler"
+					// (CRM_CalendarCommon::new_event_handler()), so the owning module
+					// is the callback class minus its "Common" suffix - no second
+					// handler->icon registry to keep in sync.
+					$bi_icon = Base_BootstrapIcons::type_tag(preg_replace('/Common$/', '', $cb[0]));
 					$add = call_user_func($cb, 'get_all', $start, $end, CRM_Calendar_EventCommon::$filter);
 					foreach ($add as $v) {
 						$v['id'] = $id . '#' . $v['id'];
+						$v['bi_icon'] = $bi_icon;
 						$ret[str_pad($v['start'], 16, '0', STR_PAD_LEFT).'__'.$c] = $v;
 						$c++;
 					}
@@ -282,7 +296,10 @@ class CRM_Calendar extends Module {
             }
             $row['title'] = $purifier->purify($row['title']);
 
-            $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip']);
+            // keep_table=true: the handler's tooltip is a real <table>
+            // (Utils_TooltipCommon::format_record_tooltip()), and without
+            // this to_safe_html() flattens it back to "Label: value" lines.
+            $title = Utils_TooltipCommon::create($row['title'],$row['custom_tooltip'],true,300,true);
 
 			$day = (isset($row['timeless']) && $row['timeless'])?$row['timeless']:Base_RegionalSettingsCommon::time2reg($row['start'], false, true, true, false);
 			if ($day<date('Y-m-d')) $class = 'past';
@@ -298,7 +315,7 @@ class CRM_Calendar extends Module {
 					'order_value'=> (isset($row['timeless']) && $row['timeless']) ? strtotime($row['timeless']) : $row['start']
 				),
 				array(
-					'value'=>$view_action.$title.'</a>'
+					'value'=>($row['bi_icon'] ?? '').$view_action.$title.'</a>'
 				)
 			);
 		}

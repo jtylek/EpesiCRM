@@ -10,6 +10,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('modules/Base/Theme/bootstrap_icons.php');
+
 class Utils_Watchdog extends Module {
 	public function body() {
 		
@@ -45,8 +47,12 @@ class Utils_Watchdog extends Module {
             $records_limit = null;
         }
 		$header = array(
-					array('name'=>__('Cat.'),'width'=>5),
-					array('name'=>__('Title'),'width'=>15)
+					// Utils_GenericBrowser normalizes widths against their sum, so
+					// these are effectively percentages (15/85). The category is a
+					// single short recordset caption; Title is what actually
+					// truncates, so it gets the rest.
+					array('name'=>__('Category'),'width'=>15),
+					array('name'=>__('Title'),'width'=>85)
 					);
 		if (count($categories)==1) {
 			$title = call_user_func($methods[$categories[0]]);
@@ -78,14 +84,27 @@ class Utils_Watchdog extends Module {
                 continue;
             }
 			$gb_row = $gb->get_new_row();
+			// A type glyph in front of the title, since the Category column is dropped
+			// entirely when a single category is selected and is a truncated word
+			// even when it isn't. A category is registered as
+			// "<Module>Common::watchdog_label" (Utils_WatchdogCommon::
+			// register_category()), so the owning module is the callback class minus
+			// its "Common" suffix - which is where the icon is declared. The
+			// recordset name (set by Utils_RecordBrowserCommon::watchdog_label(), the
+			// only frame that knows it) lets a module owning more than one category
+			// give each its own icon rather than having them all read alike - that's
+			// CRM_Contacts, whose 'company' rows would otherwise carry Contacts'
+			// person glyph. Absent for a category that isn't RecordBrowser-backed,
+			// which just falls back to the module's own icon.
+			$bi_icon = Base_BootstrapIcons::type_tag(preg_replace('/Common$/', '', $methods[$v][0]), $data['recordset'] ?? null);
 			if (count($categories)==1) {
 				$gb_row->add_data(
-					$data['title']
+					$bi_icon.$data['title']
 				);
 			} else {  
 				$gb_row->add_data(
 					$data['category'], 
-					$data['title']
+					$bi_icon.$data['title']
 				);
 			}
 			$gb_row->add_action(Utils_WatchdogCommon::get_confirm_change_subscr_href($v, $k),'Stop Watching',__('Click to stop watching this record for changes'), Base_ThemeCommon::get_template_file(Utils_Watchdog::module_name(),'watching_small_new_events.png'));
@@ -101,7 +120,7 @@ class Utils_Watchdog extends Module {
 		if ($records_limit && $count < $records_qty)
 			print(__('Displaying %s of %s records', array($count, $records_qty)));
 		$this->set_module_variable('display_at_time', time());
-		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Mark all entries as read')).' '.$this->create_confirm_callback_href(__('This will mark all entries in selected categories as read, are you sure you want to continue?'),$this->purge_subscriptions_applet(...), array($categories)).'><img src="'.Base_ThemeCommon::get_template_file('Utils_Watchdog','purge.png').'" border="0"></a>';
+		if ($something_to_purge) $opts['actions'][] = '<a '.Utils_TooltipCommon::open_tag_attrs(__('Mark all entries as read')).' '.$this->create_confirm_callback_href(__('This will mark all entries in selected categories as read, are you sure you want to continue?'),$this->purge_subscriptions_applet(...), array($categories)).'><i class="bi bi-book-fill"></i></a>';
 		// Wrapper class, not the table itself: theme_adminltedark's GenericBrowser CSS
 		// ("Utils_Watchdog's own dashboard applet", Utils/GenericBrowser/theme_adminltedark/
 		// default.css) uses it to opt this applet's row actions out of the mobile kebab collapse

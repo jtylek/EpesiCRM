@@ -153,3 +153,60 @@
 	text-decoration: none;
 	cursor: default;
 }
+
+/* Event-type glyph prepended into the event title by fullcalendar-init.js's
+ * eventDidMount (see its comment for which views get it and at what size) -
+ * same "what kind of record is this" idea as the legacy chips' own
+ * .utils_calendar_type_icon in common.css. currentColor so it stays readable
+ * against every fc-epesi-ev--<color> chip background.
+ */
+.fc-epesi-type-icon {
+	color: inherit;
+	opacity: 0.8;
+	margin-right: 3px;
+	vertical-align: baseline;
+}
+
+/* Month view - a dayGrid cell stacks several pills in very little height. */
+.fc-epesi-type-icon--sm {
+	font-size: 0.75em;
+	margin-right: 2px;
+}
+
+/* "+N more" popover (a day cell that ran out of room, most often in Year
+ * view where every cell is tiny). FullCalendar's own default body is
+ * min-width:220px with tight padding - that was sized for a one-line
+ * "time + title" chip, and these rows carry a type glyph and a real record
+ * title, so it is widened and given room to breathe. max-height + scroll so
+ * a busy day cannot grow the popover past the viewport.
+ */
+.fc .fc-more-popover .fc-popover-body {
+	min-width: 340px;
+	max-width: 460px;
+	max-height: 60vh;
+	overflow-y: auto;
+	padding: 10px 12px;
+}
+
+.fc .fc-more-popover .fc-popover-title {
+	font-weight: 600;
+	padding: 4px 2px;
+}
+
+/* One row per event - the default dayGrid pill spacing is too tight to read
+ * once these are the whole content of a box instead of one line in a cell. */
+.fc .fc-more-popover .fc-daygrid-event {
+	padding: 3px 2px;
+	font-size: 0.85rem;
+	line-height: 1.4;
+}
+
+/* Full size here even when the view behind the popover is Month or Year,
+ * where the in-grid glyph is shrunk or suppressed - fullcalendar-init.js
+ * omits the --sm modifier for a popover row. It sits where the generic
+ * colored bullet used to (that node is replaced, not hidden), so it needs
+ * the bullet's own right margin. */
+.fc .fc-more-popover .fc-epesi-type-icon {
+	font-size: 1em;
+	margin-right: 6px;
+}

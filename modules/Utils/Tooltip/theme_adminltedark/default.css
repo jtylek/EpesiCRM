@@ -46,6 +46,22 @@
 	pointer-events: none;
 }
 
+/* One shared width for the ajax tooltips (ajax_open_tag_attrs(), i.e. the
+   RecordBrowser/Watchdog record-info popups), per request: shrink-to-fit sized
+   every row's popup to its own longest value, so hovering down a list of
+   records redrew a differently shaped box each time. Sync "help" tooltips
+   (open_tag_attrs(), usually one short phrase) deliberately keep max-content -
+   padding a two-word hint out to 340px would read worse, not better.
+
+   :not(:has(table)) leaves the changes-list tooltip (a real <table>, see the
+   rules below) sizing to its own columns, which is what its colgroup
+   percentages and table-layout:fixed are for. The min() fallback is the same
+   narrow-viewport guard as max-width above - see its comment for why a popup
+   wider than the viewport can't be positioned back inside it. */
+.epesi-tooltip-popup-ajax:not(:has(table)) {
+	width: min(340px, calc(100vw - 16px));
+}
+
 /* Utils_RecordBrowser's theme_adminltedark/changes_list.tpl (Watchdog/
    ActivityReport "what changed" tooltips, ajax_open_tag_attrs(...,
    $safe_html=true) - see Utils_TooltipCommon::to_safe_html()'s $keep_table
@@ -100,6 +116,19 @@
 	border-top: 1px solid rgba(0, 0, 0, .2);
 }
 
+/* ...except on the very first row, where that same rule drew a rule across the
+   top of the whole popup (Utils_Watchdog's changes tooltip opens on one) - a
+   separator with nothing above it to separate from, per request. Kept as an
+   override rather than a border-BOTTOM on the preceding group, since a group is
+   a run of rows, not one element, and the last group would then trail a line the
+   same way. padding-top goes with it so the first line sits on the popup's own
+   padding instead of 6px below it. */
+.epesi-tooltip-popup tr:first-child td.group_header,
+#tooltip_leightbox_mode_content tr:first-child td.group_header {
+	border-top: 0;
+	padding-top: 0;
+}
+
 .epesi-tooltip-popup td.message,
 #tooltip_leightbox_mode_content td.message {
 	text-align: center;
@@ -125,3 +154,70 @@
 	background-color: #d9f2df;
 }
 
+
+/* ---- Utils_TooltipCommon::format_record_tooltip() ---------------------
+   A record-info popup: type glyph + heading, then one label/value pair per
+   row in two aligned columns, then full-width rows (description), then a
+   one-line footer. Wider than the default popup so the data column has room
+   to align - min() keeps it inside a narrow viewport for the same reason
+   .epesi-tooltip-popup's own max-width does (epesi_tooltip_position() can
+   only slide the popup's left edge; a popup wider than the viewport has no
+   valid position left to slide to).
+
+   Its own width rule, deliberately: .epesi-tooltip-popup-ajax's uniform
+   340px is excluded via :not(:has(table)), so a table-shaped tooltip would
+   otherwise fall back to width:max-content and go back to a different shape
+   per row - the exact thing that exclusion's sibling rule was added to fix.
+   Setting the width here covers the table case without narrowing that
+   selector. */
+.epesi-tooltip-popup:has(.epesi-tt-table),
+#tooltip_leightbox_mode_content:has(.epesi-tt-table) {
+	width: min(440px, calc(100vw - 16px));
+	max-width: min(440px, calc(100vw - 16px));
+}
+
+/* white-space:pre-line on the popup turns the newlines between generated
+   table rows into real line breaks inside cells - harmless in a flattened
+   "Label: value" list, but it double-spaces every row of a real table. */
+.epesi-tooltip-popup .epesi-tt-table,
+#tooltip_leightbox_mode_content .epesi-tt-table {
+	white-space: normal;
+}
+
+.epesi-tooltip-popup .epesi-tt-table td,
+#tooltip_leightbox_mode_content .epesi-tt-table td {
+	padding: 2px 8px 2px 0;
+}
+
+/* Type glyph + record type, centered over the whole grid. */
+.epesi-tooltip-popup td.epesi-tt-head,
+#tooltip_leightbox_mode_content td.epesi-tt-head {
+	text-align: center;
+	font-size: 1.05em;
+	padding-bottom: 6px;
+}
+
+.epesi-tooltip-popup td.epesi-tt-label,
+#tooltip_leightbox_mode_content td.epesi-tt-label {
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/* A description spans both columns, so its label sits inline in front of the
+   text rather than in the label column - only the label is bold, via its own
+   <b> (see format_record_tooltip() for why not a bold cell + <span>). */
+.epesi-tooltip-popup td.epesi-tt-full,
+#tooltip_leightbox_mode_content td.epesi-tt-full {
+	white-space: normal;
+	padding-top: 6px;
+	border-top: 1px solid rgba(0, 0, 0, .15);
+}
+
+/* Who/when, the least important line in the popup. */
+.epesi-tooltip-popup td.epesi-tt-meta,
+#tooltip_leightbox_mode_content td.epesi-tt-meta {
+	padding-top: 6px;
+	border-top: 1px solid rgba(0, 0, 0, .15);
+	color: #555;
+	font-size: .95em;
+}

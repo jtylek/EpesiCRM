@@ -144,7 +144,9 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function to_safe_html($tip, $keep_table = false) {
 		if ($keep_table) {
 			$safe = preg_replace('#</(div|p|li)>#i', '<br>', $tip);
-			$safe = strip_tags($safe, '<strong><b><br><table><colgroup><col><tr><th><td>');
+			// <i> kept here for the same reason as in the flattening branch
+			// below - see its comment (applies to both branches).
+			$safe = strip_tags($safe, '<strong><b><br><i><table><colgroup><col><tr><th><td>');
 			return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 		}
 		$safe = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
@@ -153,7 +155,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 		// onto one line the same way a real <table>'s </td><td> does above.
 		$safe = preg_replace('#</div>\s*<div[^>]*\brole="(?:cell|columnheader)"[^>]*>#i', ' | ', $safe);
 		$safe = preg_replace('#</(tr|div|p|li)>#i', '<br>', $safe);
-		$safe = strip_tags($safe, '<strong><b><br>');
+		// <i> for Bootstrap icon glyphs (Base_BootstrapIcons::type_tag(), e.g.
+		// the record-type icon on Utils_Watchdog's Category tooltip row) - an
+		// empty element whose whole content is its class attribute, so
+		// stripping it dropped the glyph entirely rather than degrading it.
+		$safe = strip_tags($safe, '<strong><b><br><i>');
 		return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 	}
 
@@ -258,10 +264,16 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param boolean help tooltip? (you can turn off help tooltips)
 	 * @return string text with tooltip
 	 */
-	public static function create( $text, $tip, $help=true, $max_width=300) {
+	/**
+	 * @param bool $keep_table keep a real <table>'s structure instead of
+	 *        flattening it to "Label: value" lines - see to_safe_html()'s
+	 *        $keep_table doc. Opt in only when $tip's HTML is known to be
+	 *        safe to keep, e.g. anything built by format_record_tooltip().
+	 */
+	public static function create( $text, $tip, $help=true, $max_width=300, $keep_table=false) {
 		self::show_help();
 		if((!$help || self::$help_tooltips) && is_string($tip) && $tip!=='')
-			return '<span '.self::open_tag_attrs($tip,$help,$max_width).'>'.$text.'</span>';
+			return '<span '.self::open_tag_attrs($tip,$help,$max_width,$keep_table).'>'.$text.'</span>';
 		else
 			return $text;
 	}
@@ -274,10 +286,11 @@ class Utils_TooltipCommon extends ModuleCommon {
 	 * @param array arguments for the callback
 	 * @param int max_width unused under adminlte, see open_tag_attrs()
 	 * @param bool render the callback's HTML via to_safe_html() (keeps <strong>/<b>/<br>) instead of flattening it to plain text - see ajax_open_tag_attrs()'s $safe_html doc
+	 * @param bool keep a real <table>'s structure instead of flattening it to "Label: value" lines - only read when $safe_html is true (see req.php), the pairing format_record_tooltip() output needs; mirrors create()'s own $keep_table
 	 * @return string text with tooltip
 	 */
-	public static function ajax_create( $text, $callback, $args=array(), $max_width=300, $safe_html=false) {
-		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width,$safe_html).'>'.$text.'</span>';
+	public static function ajax_create( $text, $callback, $args=array(), $max_width=300, $safe_html=false, $keep_table=false) {
+		return '<span '.self::ajax_open_tag_attrs($callback,$args,$max_width,$safe_html,$keep_table).'>'.$text.'</span>';
 	}
 
     public static function is_tooltip_code_in_str($str)
@@ -312,6 +325,87 @@ class Utils_TooltipCommon extends ModuleCommon {
         $return = $purifier->purify($table);
 
 		return $return;
+	}
+
+	/**
+	 * A record-info tooltip: an optional type glyph + heading, then one
+	 * label/value pair per row in two aligned columns (field name | data),
+	 * then any full-width rows (a long description belongs here, spanning
+	 * both columns rather than wrapping inside the narrow data column), then
+	 * a one-line footer.
+	 *
+	 * Returns a real <table>, so a caller must ask for it to survive:
+	 * pass $keep_table=true to create()/open_tag_attrs(), or to_safe_html()
+	 * flattens the whole thing back into "Label: value" lines.
+	 *
+	 * Deliberately generic rather than calendar-specific: any module with a
+	 * "what is this record" hover popup should be able to call this instead of
+	 * hand-rolling its own table, so the shape stays consistent between e.g.
+	 * the Agenda applet, the calendar chips, and whatever adopts it next.
+	 * format_info_tooltip() stays as-is for the plain one-pair-per-line case.
+	 *
+	 * Empty values are dropped (same rule format_info_tooltip() uses), so a
+	 * caller can pass its full field set without pre-filtering and a record
+	 * with no contacts/description simply gets a shorter popup. Note that a
+	 * literal 0 is NOT empty - "Notes: 0" is meaningful.
+	 *
+	 * @param string|null $icon_html ready-made glyph for the heading line,
+	 *        e.g. Base_BootstrapIcons::type_tag('CRM_Meeting'). Passed in
+	 *        rather than resolved here so this stays independent of the icon
+	 *        registry; null for no glyph.
+	 * @param string|null $heading  record type, e.g. __('Meeting')
+	 * @param array $pairs          label => value, one row each. Pass the
+	 *        BARE label - the ':' separator is added here, so a key that already
+	 *        ends in one renders "Created by::" (the long-standing shape of
+	 *        CRM_ContactsCommon::get_html_record_info()'s output under adminlte)
+	 * @param array $full_width     label => value, one row each spanning both
+	 *        columns, rendered after $pairs
+	 * @param string|null $footer   single full-width line under everything
+	 *        (e.g. "Created: ..."), already formatted by the caller
+	 * @return string
+	 */
+	public static function format_record_tooltip($icon_html, $heading, $pairs, $full_width = array(), $footer = null) {
+		$empty = function($v) {
+			return $v === null || (is_string($v) && trim(strip_tags($v)) === '');
+		};
+
+		// .epesi-tooltip-popup's own CSS pins table-layout:fixed, under which
+		// column widths are taken from the FIRST row - and this table's first
+		// row is a colspan heading, which says nothing about either column.
+		// Without an explicit colgroup the two columns size ambiguously (the
+		// same constraint Utils_RecordBrowser's changes_list.tpl colgroup
+		// exists for).
+		$html = '<table class="epesi-tt-table">'.
+			'<colgroup><col style="width:28%"><col style="width:72%"></colgroup>';
+
+		if ($heading !== null && $heading !== '')
+			$html .= '<tr><td class="epesi-tt-head" colspan="2">'.
+				(string)$icon_html.'<b>'.$heading.'</b></td></tr>';
+
+		foreach ($pairs as $k => $v) {
+			if ($empty($v)) continue;
+			$html .= '<tr><td class="epesi-tt-label">'.$k.':</td><td>'.$v.'</td></tr>';
+		}
+
+		foreach ($full_width as $k => $v) {
+			if ($empty($v)) continue;
+			// <b> around the label rather than a bold <td> + <span> value:
+			// <span> is not in to_safe_html()'s $keep_table allowlist, so it is
+			// stripped and the value inherits the cell's bold.
+			$html .= '<tr><td class="epesi-tt-full" colspan="2"><b>'.
+				$k.':</b> '.$v.'</td></tr>';
+		}
+
+		if (!$empty($footer))
+			$html .= '<tr><td class="epesi-tt-meta" colspan="2">'.$footer.'</td></tr>';
+
+		$html .= '</table>';
+
+		// Same one-purifier-per-request reasoning as format_info_tooltip() -
+		// see its comment; this runs once per grid row too.
+		static $purifier = null;
+		if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
+		return $purifier->purify($html);
 	}
 
 	public static function tooltip_leightbox_mode() {

@@ -10,6 +10,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('modules/Base/Theme/bootstrap_icons.php');
+
 class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 	public static $filter = null;
 	private static $my_id = null;
@@ -30,6 +32,7 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$ret = call_user_func($callback, 'get', $nid[1]);
 			if ($ret===null) return null;
 			$ret['id'] = $nid[0].'#'.$ret['id'];
+			$ret['bi_icon'] = self::handler_icon($callback[0]);
 			return $ret;
 		}
 	}
@@ -49,9 +52,11 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 		foreach (self::$events_handlers as $handler) {
 			$callback = explode('::',$custom_handlers[$handler]);
 			if (!is_callable($callback)) continue;
+			$bi_icon = self::handler_icon($callback[0]);
 			$result_ext = call_user_func($callback, 'get_all', $start, $end, $filter);
 			foreach ($result_ext as $v) if ($v!==null) {
 				$v['id'] = $handler.'#'.$v['id'];
+				$v['bi_icon'] = $bi_icon;
 				$v['custom_agenda_col_0'] = $v['type'] ?? '---';
 				if (isset($v['description'])) $v['custom_agenda_col_1'] = $v['description'];
 				if (isset($v['employees'])) {
@@ -92,6 +97,27 @@ class CRM_Calendar_EventCommon extends Utils_Calendar_EventCommon {
 			$callback = explode('::', $callback);
 			return call_user_func($callback, 'update', $check[1], $start, $duration, $timeless);
 		}
+	}
+
+	/**
+	 * The "what kind of record is this" glyph for one event source, as a bare
+	 * "bi-..." class name (or null when the owning module declares no icon).
+	 *
+	 * A handler is registered as "<Module>Common::crm_calendar_handler"
+	 * (CRM_CalendarCommon::new_event_handler()), so its owning module is the
+	 * callback class minus the "Common" suffix - the same derivation
+	 * CRM_Calendar::applet() uses, and no second handler->icon registry to
+	 * keep in sync.
+	 *
+	 * Deliberately NOT a finished <i> tag the way Base_BootstrapIcons::
+	 * type_tag() returns one: every calendar surface wants the same glyph at
+	 * a different size and color (a muted list glyph in Agenda, currentColor
+	 * on a colored day/week chip, shrunk again in the month grid), so the
+	 * markup is each renderer's business - see Utils_CalendarCommon::icon_tag().
+	 * Resolved once per handler by the callers, not once per event row.
+	 */
+	public static function handler_icon($callback_class) {
+		return Base_BootstrapIcons::resolve(null, preg_replace('/Common$/', '', $callback_class), null);
 	}
 
 	public static function get_alarm($id) {

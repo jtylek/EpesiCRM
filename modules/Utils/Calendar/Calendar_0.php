@@ -20,6 +20,13 @@ class Utils_Calendar extends Module {
 				  'start_day'=>'8:00',
 				  'end_day'=>'17:00',
 				  'interval'=>'1:00',
+				  // How many days forward the Agenda covers - CRM_Calendar passes
+				  // the user's own CRM_Calendar/agenda_days setting (see
+				  // CRM_CalendarCommon::agenda_days_values()). 7 reproduces what
+				  // both engines did when this span was hardcoded, so a caller
+				  // that constructs this module without it (Tests_Calendar) is
+				  // unaffected.
+				  'agenda_days'=>7,
 				  'default_date'=>null,
 				  'head_col_width'=>'90px',
 				  // 'legacy' (default) = the Smarty-rendered day/week/month/
@@ -412,7 +419,11 @@ class Utils_Calendar extends Module {
 
 		/////////////// controls ////////////////////////
 		$start = & $this->get_module_variable('agenda_start',date('Y-m-d',$this->date));
-		$end = & $this->get_module_variable('agenda_end',date('Y-m-d',$this->date + (7 * 24 * 60 * 60)));
+		// strtotime('+N days') rather than the N*86400 this used to add: across a
+		// DST change the arithmetic version lands at 23:00 of the day BEFORE and
+		// date() then reports it, which is invisible at 7 days but off by one for
+		// the 30/61-day spans agenda_days now allows.
+		$end = & $this->get_module_variable('agenda_end',date('Y-m-d',strtotime('+'.(int)$this->settings['agenda_days'].' days',$this->date)));
 
 		$form = $this->init_module(Libs_QuickForm::module_name(),null,'agenda_frm');
 
@@ -471,7 +482,7 @@ class Utils_Calendar extends Module {
 
 			$ex = Utils_CalendarCommon::process_event($row);
 
-			$rrr = array(array('value'=>$ex['start'],'order_value'=>$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),'<a '.$view_h.'>'.$row['title'].'</a>');
+			$rrr = array(array('value'=>$ex['start'],'order_value'=>$row['start']),Utils_TooltipCommon::create($ex['duration'],$ex['end'],false),Utils_CalendarCommon::icon_tag($row).'<a '.$view_h.'>'.$row['title'].'</a>');
 			foreach($add_cols as $a)
 				if (isset($row['custom_agenda_col_'.$a]))
 					$rrr[] = $row['custom_agenda_col_'.$a];
@@ -950,6 +961,12 @@ class Utils_Calendar extends Module {
 		$this->js('Utils_Calendar.page_type=\'month\'');
 		$ev_out = 'function() {';
 		foreach($ret as $ev) {
+			// A month cell is a few pixels tall and stacks a whole day's
+			// events - the type glyph still fits, at the smaller size
+			// Utils_CalendarCommon::icon_tag() switches to for this flag.
+			// Week/Day (which print the same event.tpl/event_day.tpl chip)
+			// have room for it at full size and don't set this.
+			$ev['bi_icon_small'] = true;
 			$this->print_event($ev);
 			if(!isset($ev['timeless']) || !$ev['timeless'])
 				$ev_start = strtotime(Base_RegionalSettingsCommon::time2reg($ev['start'],true,true,true,false));
@@ -1074,6 +1091,28 @@ class Utils_Calendar extends Module {
 		}
 		$interval = $to_hms($this->settings['interval']);
 
+		// Agenda = FullCalendar's listWeek. Its duration is overridden in place
+		// rather than by registering a custom view, so the view keeps its name -
+		// the toolbar button, fullcalendar-init.js's phone-width fallback and the
+		// remembered-view state it writes to localStorage all address it as
+		// 'listWeek' and keep working untouched.
+		//
+		// Applied at every span INCLUDING the default 7, per request: listWeek's
+		// stock duration is {weeks:1}, and FullCalendar aligns a whole-week view
+		// to the start of the week, so the Agenda used to open on a week already
+		// half in the past. Any {days:N} anchors on the current date instead, so
+		// the default now reads "the next 7 days from today" - the same
+		// today-forward window the legacy Agenda tab and the Agenda applet have
+		// always used, and the only sensible reading of a span like "3 days".
+		$fc_views = array('multiMonthYear' => array('buttonText' => __('Year')));
+		$agenda_days = (int)$this->settings['agenda_days'];
+		if ($agenda_days > 0)
+			// buttonText repeated per-view on purpose: the top-level
+			// buttonText['list'] below is resolved from the view's own duration
+			// unit, which this override changes from weeks to days - pinning it
+			// here keeps the toolbar button reading "Agenda" whatever the span is.
+			$fc_views['listWeek'] = array('duration' => array('days' => $agenda_days), 'buttonText' => __('Agenda'));
+
 		$time_fmt = Base_User_SettingsCommon::get('Base_RegionalSettings', 'time');
 		$hour12 = str_contains((string)$time_fmt, '%I');
 		$time_format = array('hour' => '2-digit', 'minute' => '2-digit', 'hour12' => $hour12);
@@ -1102,7 +1141,7 @@ class Utils_Calendar extends Module {
 				'day' => __('Day'),
 				'list' => __('Agenda'),
 			),
-			'views' => array('multiMonthYear' => array('buttonText' => __('Year'))),
+			'views' => $fc_views,
 			'noEventsText' => __('No events to display'),
 			// Week/Day default to showing only [start_day, end_day] - an
 			// event outside it (an early call, a late meeting, ...) is still
@@ -1119,6 +1158,27 @@ class Utils_Calendar extends Module {
 			// epesiToggleHours expands the grid to the full day.
 			'businessHours' => array('daysOfWeek' => array(0, 1, 2, 3, 4, 5, 6), 'startTime' => $start_day, 'endTime' => $end_day),
 			'slotDuration' => $interval,
+			// An event with no end (Utils_CalendarCommon::event_to_fullcalendar()
+			// emits end=null whenever the handler reports duration<=0 - a Task's
+			// deadline, a timeless-ish Phonecall) is a POINT IN TIME, not an
+			// hour-long block. FullCalendar's own default for those is
+			// '01:00:00', and that invented hour is invisible on most rows but
+			// changes the rendering outright near midnight: a task due 23:55
+			// became 23:55-00:55, which is multi-day, and dayGrid draws a
+			// multi-day event as a solid block spanning both cells instead of
+			// the usual dot + time. Zero says what the data actually says.
+			// timeGrid still shows these - eventMinHeight gives a zero-duration
+			// event a floor of its own.
+			'defaultTimedEventDuration' => '00:00:00',
+			// ...and in the time grid those zero-duration events get ONE fixed
+			// height regardless of the slot size, instead of collapsing to a
+			// sliver. Just tall enough for FullCalendar's "short" layout (time
+			// and title on one line, see eventShortHeight below), which is all
+			// there is to show for a Task or a Phonecall. It never grows with
+			// the zoom level the way a Meeting's block does, because there is
+			// no duration for it to represent.
+			'eventMinHeight' => 22,
+			'eventShortHeight' => 30,
 			'eventTimeFormat' => $time_format,
 			'slotLabelFormat' => $time_format,
 			// 'auto' fits the (usually short) configured range exactly; the
@@ -1152,7 +1212,14 @@ class Utils_Calendar extends Module {
 			$config['headerToolbar'] = array('left' => 'prev,next', 'center' => 'title', 'right' => 'today');
 			unset($config['views']); // multiMonthYear button text, now unreachable
 			$config['dayMaxEvents'] = 2; // cap event pills in a narrow dashboard column
-			$config['height'] = 320; // fixed compact height instead of 'auto' (which sizes to a full day/week grid this embed never shows)
+			// 'auto' = exactly as tall as the grid it draws. Safe here even
+			// though it would be wrong for a full-page calendar (where it
+			// would stretch to a whole day/week timeline): this embed is
+			// Month-only - the headerToolbar above drops the view switcher
+			// entirely - so "the grid it draws" is always the month grid, and
+			// the applet ends up tall enough to show the full month, 5-row or
+			// 6-row, instead of clipping it into a 320px scroller.
+			$config['height'] = 'auto';
 		}
 		if ($this->custom_day_click_href_js !== null) {
 			// A day-click template is supplied - it replaces FullCalendar's own
