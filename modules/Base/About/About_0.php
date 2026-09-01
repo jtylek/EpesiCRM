@@ -21,7 +21,7 @@ class Base_About extends Module {
 		$is_adminlte = Base_ThemeCommon::is_adminlte_family();
 		if ($is_adminlte) Base_ThemeCommon::load_css($this->get_type(), 'credits', false);
 		$file = $is_adminlte ? 'credits_adminlte.html' : 'credits.html';
-		$credits = str_replace(array('__VERSION__','__YEAR__'),array(EPESI_VERSION.' rev'.EPESI_REVISION,date('Y')),@file_get_contents($this->get_module_dir().'/'.$file));
+		$credits = str_replace(array('__VERSION__','__YEAR__'),array(EPESI_VERSION.' rev '.EPESI_REVISION,date('Y')),@file_get_contents($this->get_module_dir().'/'.$file));
 		$trans_credits = @file_get_contents($this->get_module_dir().'/translations_credits.html');
 		$credits = str_replace('<!-- ** TRANSLATIONS CREDITS ** -->', $trans_credits, $credits);
 		return $credits;

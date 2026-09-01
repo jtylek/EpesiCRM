@@ -3002,6 +3002,50 @@ whether the gap is worth a real patch (§82) or a direct one-off fix is enough (
 
 ---
 
+### §84 — Release renamed again: CalVer `20260701-rcN` → **Epesi 2.0** (2026-09-01)
+
+**Decision (Jasiek):** the upcoming release drops the CalVer `20260701-rcN` scheme §75/PHASE 5 STATUS
+introduced and is versioned **Epesi 2.0** instead. Trigger: the advisory PHP 8.3 Rector sweep
+(`rector-php83.php`, bumped from the PHP 8.2 set the same day per `AI-shared/README.md`'s CI section)
+started reporting clean — 0 files needing changes — signaling the PHP 8.2 migration itself is mature
+enough to ship as a numbered release rather than another dated release-candidate.
+
+**What changed:** `include/version.php` — `EPESI_VERSION` `'20260701-rc2'` → `'2.0'`,
+`EPESI_REVISION` `'2.1'` → `'2.0'` (edited directly by Jasiek, not via a Claude Code session). Both
+constants feed the "Ver." label on the Setup screen's Epesi Core card, the About popup
+(`Base_About::get_info()` — fixed the same day to read "rev 2.0" instead of "rev2.0", a pre-existing
+missing-space bug in that string concatenation, unrelated to the renumbering itself), backup filenames,
+and `admin/modules/ConfigInfo.php`'s revision row.
+
+**PHASE 5 STATUS's `version_compare`-safety constraint still holds, checked explicitly:**
+`version_compare('1.9.1', '2.0', '<')` → `true` — a real pre-migration 1.9.1 install still correctly
+sees `2.0` as newer and triggers `epesi_requires_update()`'s auto-update banner, same invariant §1504
+documented for the CalVer value it replaces. **Not yet true for this specific dev DB**: its own
+`variables.version` row still holds the pre-renumbering `'20260701-rc2'` string from before this
+decision, and `version_compare('20260701-rc2', '2.0', '<')` is `false` — harmless right now purely
+because `'20260701...'` outranks `'2.0'` at the first numeric segment, not because the two schemes are
+actually compatible. If a future `update.php`/`console.php` run on *this* checkout behaves oddly around
+"already up to date" detection, this stale DB row — not the new version scheme — is the first thing to
+check; it wasn't corrected as part of this decision.
+
+Companion applet-version bump the same session, unrelated to the release-numbering decision above but
+using the same "2.0" number: `Applets_Clock`/`Note`/`RssFeed`/`MonthView`'s own per-module `version()`
+labels were bumped from their old `1.0`/`1.1` strings to `"2.0"` at explicit request — purely a label
+change (all four are single-entry `version()` arrays with no `upgrade_1()`/`downgrade_1()` methods, so
+the stored `modules.version` vkey stayed `0` throughout, no real upgrade ran). The Setup screen's
+Advanced-view version dropdown and `console.php module:list` both read the **cached**
+`available_modules.version` column, not a live `version()` call — needs "Rebuild modules database" (the
+Setup screen's ActionBar button, or `Base_SetupCommon::refresh_available_modules()` directly) to pick up
+a `version()` label change; this was done for this dev DB, but the same is true for any other install
+touching this pattern.
+
+**How to apply.** Don't reintroduce the `20260701-rcN` CalVer framing in new docs/comments going
+forward — `CLAUDE.md`'s opening paragraph and this entry are the current source of truth on the release
+number. If the version scheme changes again, update both, plus re-check the `version_compare` invariant
+above against whatever the real minimum pre-migration version in the field is (currently `1.9.1`).
+
+---
+
 ## MERGE CHECKLIST — experiment/composer-deps → main
 
 > **MILESTONE 2026-06-27: entire Core tested locally on PHP 8.2.** All Core modules + Administrator + cron exercised; runtime fixes §23–§41 applied.

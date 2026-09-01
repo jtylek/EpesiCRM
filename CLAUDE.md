@@ -5,7 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 Epesi BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
-Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2, currently released as CalVer `20260701-rc1`. The full
+Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2. The upcoming release is versioned **Epesi 2.0**
+(`EPESI_VERSION`/`EPESI_REVISION` in `include/version.php`) rather than continuing the CalVer
+`20260701-rcN` pre-release scheme — decided 2026-09-01 once the advisory PHP 8.3 Rector sweep
+(`rector-php83.php`) started reporting clean, see `AI-shared/MIGRATION_NOTES.md` §84. The full
 migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
 also reach existing installs — lives in `AI-shared/MIGRATION_NOTES.md`. Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
