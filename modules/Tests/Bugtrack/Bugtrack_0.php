@@ -2,10 +2,9 @@
 /**
  * Software Development - Bug Tracking
  *
- * @author Janusz Tylek <jtylek@telaxus.com>
- * @copyright Copyright &copy; 2008, Janusz Tylek
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
- * @version 1.0
  * @package epesi-tests
  * @subpackage bugtrack
  */
@@ -17,6 +16,11 @@ class Tests_Bugtrack extends Module {
 	public function body() {
 		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'bugtrack','bugtrack');
 		$this->display_module($this->rb);
+		TestsCommon::source_card($this, 'modules/Tests/Bugtrack/', array(
+			'Install' => 'BugtrackInstall.php',
+			'Main' => 'Bugtrack_0.php',
+			'Common' => 'BugtrackCommon_0.php',
+		));
 	}
 
 	public function caption(){

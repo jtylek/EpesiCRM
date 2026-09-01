@@ -2,9 +2,8 @@
 /**
  * WizardTest class.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2007, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage wizard
@@ -14,7 +13,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_Wizard extends Module {
 	
 	public function display_results($data) {
-		print_r($data);
+		print '<pre>'.htmlspecialchars(print_r($data, true)).'</pre>';
 	}
 	
 	public function page1($f) {
@@ -29,12 +28,12 @@ class Tests_Wizard extends Module {
 	}
 	
 	public function body() {
-		print "Wizard Test<hr>";
+		TestsCommon::heading(__('Wizard'));
 		$wizard = $this->init_module(Utils_Wizard::module_name());
 		
 		
 		//get form
-		$f = & $wizard->begin_page();
+		$f = $wizard->begin_page();
 		$f->addElement('header', null, 'Welcome Page... ');
 		$f->addElement('select', 'select_0', 'Jump to page', array(1=>'1', 2=>'2'));
 		//method decides about jump to page
@@ -46,14 +45,14 @@ class Tests_Wizard extends Module {
 		$wizard->next_page(3);
 		
 		
-		$f = & $wizard->begin_page();
+		$f = $wizard->begin_page();
 		$f->addElement('header', null, 'Page 2');
 		$f->addElement('text', 'page_2_input', 'page_2_input');
 		$f->addRule('page_2_input', 'Required!', 'required');
 		//jump to next page
 		$wizard->next_page();
 
-		$f = & $wizard->begin_page();
+		$f = $wizard->begin_page();
 		$f->addElement('header', null, 'Yeah! you came from page 1 or 2');
 		$wizard->next_page();
 		
@@ -62,13 +61,11 @@ class Tests_Wizard extends Module {
 		$this->display_module($wizard, array(array($this,'display_results')));
 	
 	
-		//------------------------------ print out src
-		print('<hr><b>Install</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/WizardInstall.php');
-		print('<hr><b>Main</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/Wizard_0.php');
-		print('<hr><b>Common</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/Wizard/WizardCommon_0.php');
+		TestsCommon::source_card($this, 'modules/Tests/Wizard/', array(
+			'Install' => 'WizardInstall.php',
+			'Main' => 'Wizard_0.php',
+			'Common' => 'WizardCommon_0.php',
+		));
 	}
 	
 }

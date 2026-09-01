@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2007, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage Report

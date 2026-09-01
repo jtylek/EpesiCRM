@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2007, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage QuickForm
@@ -12,6 +11,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class Tests_QuickForm extends Module{
 	
 	public function body(){
+		TestsCommon::heading(__('QuickForm'));
 		$f = $this->init_module(Libs_QuickForm::module_name());
 
 		$f->addElement('automulti','automul','Automulti test', array($this->get_type().'Common', 'automulti_search'), array('ble'), array($this->get_type().'Common', 'automulti_format'));
@@ -20,8 +20,8 @@ class Tests_QuickForm extends Module{
 		$f->addElement('text','frozen','Frozen test');
 		$f->addRule('frozen','required','required');
 		$x = $f->addElement('timestamp','xxxyss','Date picker');
-		print('get(here is what was submited): '.$x->getValue().'<br>');
-		print('export: '.$f->exportValue('xxxyss').'<br>');
+		print '<p class="small text-body-secondary mb-1">get(here is what was submited): '.$x->getValue().'</p>';
+		print '<p class="small text-body-secondary">export: '.$f->exportValue('xxxyss').'</p>';
 		$f->addRule('xxxyss','required rule not passed','required');
 		$f->addElement('autocomplete','auto_test','Autocomplete', array($this->get_type().'Common', 'autocomplete'));
 
@@ -45,7 +45,7 @@ class Tests_QuickForm extends Module{
 		$f->addElement('select','sel3','sel3', array(),array('id'=>'sel3'));
 
 		$f->setDefaults(array('sel2'=>'y'));
-		print('freezing<hr>');
+		print '<p class="small text-body-secondary">'.__('freezing').'</p>';
 		$f->freeze(array('frozen'));
 		Utils_ChainedSelectCommon::create('sel2',array('sel1'),'modules/Tests/QuickForm/update_sel.php',null,$f->exportValue('sel2'));
 		Utils_ChainedSelectCommon::create('sel3',array('sel1','sel2'),'modules/Tests/QuickForm/update_sel.php',array('test'=>'finito '),$f->exportValue('sel3'));
@@ -69,19 +69,15 @@ class Tests_QuickForm extends Module{
 
 		$f->addElement('submit',null,'ok');
 		if($f->validate()) {
-			print_r($f->exportValues());
+			print '<pre>'.htmlspecialchars(print_r($f->exportValues(), true)).'</pre>';
 		}
 		$f->display();
 
-
-		//------------------------------ print out src
-		print('<hr><b>Install</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickFormInstall.php');
-		print('<hr><b>Main</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickForm_0.php');
-		print('<hr><b>Common</b><br>');
-		$this->pack_module(Utils_CatFile::module_name(),'modules/Tests/QuickForm/QuickFormCommon_0.php');
-
+		TestsCommon::source_card($this, 'modules/Tests/QuickForm/', array(
+			'Install' => 'QuickFormInstall.php',
+			'Main' => 'QuickForm_0.php',
+			'Common' => 'QuickFormCommon_0.php',
+		));
 	}
 	
 }

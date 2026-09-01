@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2007, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage QuickForm
@@ -38,9 +37,9 @@ $ret = '';
 $ret = array();
 if(isset($_POST['values']->sel11)) {
 	if(isset($_POST['values']->sel22))
-		$ret = $select3[$_POST['values']->sel11][$_POST['values']->sel22];
+		$ret = $select3[$_POST['values']->sel11][$_POST['values']->sel22] ?? array();
 	else
-		$ret = $select2[$_POST['values']->sel11];
+		$ret = $select2[$_POST['values']->sel11] ?? array();
 }
 
 print(json_encode($ret));

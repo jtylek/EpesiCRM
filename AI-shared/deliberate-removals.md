@@ -592,3 +592,68 @@ installable/uninstallable again, restore the `'option'=>__('...')` key in that m
 `simple_setup()` (and, for `Base_Notify` specifically, re-add `'version'=>self::version` —
 safe again once it's back to its own dedicated packages key). Don't do this silently as a
 side effect of an unrelated Setup-screen change; confirm first, per this file's header.
+
+## Seven thin `modules/Tests/*` demo modules deleted (2026-09-01)
+
+`modules/Tests/` is a pack of demo/example modules (**not** an automated test suite —
+see `PROPOSAL_functional_tests.md`). An audit of all 19 sorted them by what a developer
+or an AI agent can actually learn from them, and the seven that taught nothing beyond a
+widget's own signature were deleted: **`Tests/Attachment`, `Tests/Comment`,
+`Tests/Image`, `Tests/Lang`, `Tests/Menu`, `Tests/Search`, `Tests/TabbedBrowser`**.
+Tree went 19 modules / 220 files / ~4,392 PHP LOC → 12 / 126 / ~3,061.
+
+Each was one `init_module()` plus two or three setters. Two had a further problem —
+they demonstrated **hooks with no consumer left anywhere** in `modules/` + `include/`:
+
+- `Tests_Search` — `body()` was empty, and `advanced_search()` /
+  `advanced_search_access()` have zero callers (only the `search()` hook it also
+  defined is still live, via `Base_Search_0.php`'s `call_user_func`).
+- `Tests_Menu` — its `quick_menu()` hook is dead too, the A-Z Quick Jump having been
+  removed 2026-07-27 (see that entry above).
+
+`Tests/Lang` additionally shipped 35 `lang/<code>.php` files to demonstrate two
+translatable strings; `Tests/Attachment` shipped another 35. Those two accounted for
+78 of the 94 deleted files.
+
+All seven had `install()`/`uninstall()` that were always just `return true;` — none
+created schema of its own, so this is the delete-outright case, not the
+CKEditor/OpenFlashChart "write a real uninstall patch first" case. Cleanup patch for
+existing installs: `modules/Base/patches/20260901_remove_orphaned_tests_demo_module_rows.php`
+(guarded DELETE of the seven tracking rows, same pattern as the Codepress one above).
+On this checkout all seven were uninstalled via `console.php module:uninstall` *before*
+deleting the directories, so `ModuleManager::uninstall()` could do its own cleanup.
+
+**What was deliberately KEPT, and why** — these are the closest thing the repo has to
+executable API documentation, and unlike prose they cannot drift out of sync:
+
+- `Tests/RecordBrowser` — every `RBO_Field_*` type in one `Recordset.php`, plus
+  **field-level** ACL (`add_access($set,'view','ADMIN',$crits,$fields)`).
+- `Tests/Bugtrack` — smallest complete real business module; also the *old* array-based
+  `install_new_recordset` API sitting next to RecordBrowser's *new* OO `RBO_Recordset`
+  one, which is the only side-by-side comparison of the two generations in the tree.
+- `Tests/Callbacks` — the only end-to-end demonstration of the request/navigation model
+  (`create_callback_href`, `is_back()`, `create_back_href($n)`, `Base_Box::push_main()`,
+  and the return-`true`/`false` "render instead of" vs "fall through to parent"
+  semantics). No prose doc covers this.
+- `Tests/QuickForm` — element-type catalogue (`automulti`, `autoselect`, `autocomplete`,
+  4-level cascading `commondata` via `Utils_ChainedSelectCommon::create()`, freeze, groups).
+- `Tests/Tooltip` — the only `_1` multi-version module in the tree, kept specifically to
+  demonstrate `version()`'s array-length semantics (`Dev-Tutorial.md` §4 relies on it).
+- `Tests/{Report,Calendar,Wizard,SharedUniqueHref,Leightbox,Colorpicker,GenericBrowser}`
+  — each the **sole** worked example of its API (`Utils/RecordBrowser/Reports`,
+  subclassing `Utils_Calendar_Event`, `Utils_Wizard`, `share_unique_href_variable()`,
+  `Utils_RecordBrowser_RecordPicker`, and — for Colorpicker — a written case study of the
+  `$('some_id')`-resolves-to-jQuery's-tag-selector bug in `colorpicker.js`'s header).
+
+Two fixes went in alongside the trim: `Tests_RecordBrowser::$rb` is now a declared
+`private $rb` rather than an undeclared dynamic property (PHP 8.2 `E_DEPRECATED`; the
+sibling `Tests_Bugtrack` already did this correctly, and a module that exists to be
+copied from should not teach the deprecated shape), and `TestsInstall::requires()` now
+lists every surviving module — it previously omitted `RecordBrowser`, `Bugtrack`,
+`Attachment` and `Report`, i.e. installing the "Tests" pack got you the thin widget
+demos but *not* the reference material, which had to be installed by hand.
+
+**How to apply**: if asked to trim `modules/Tests/` further, check first whether the
+candidate is the last remaining caller of the API it demonstrates — that, not line
+count, is what made the keep/delete call here. Deleting `Tests/Menu` did cost the
+`Utils_Menu` widget its only AdminLTE exerciser (see `adminlte-theme.md`'s entry).

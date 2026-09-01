@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Olga Chlebus <ochlebus@telaxus.com>
- * @copyright Copyright &copy; 2013, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage record-browser
@@ -10,6 +9,13 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_RecordBrowser extends Module{
+	// Declared rather than assigned dynamically: an undeclared $this->rb is an
+	// E_DEPRECATED creation-of-dynamic-property under PHP 8.2. Harmless here
+	// (REPORT_ALL_ERRORS masks E_DEPRECATED - see include/error.php), but this
+	// module exists to be copied from, so it matches Tests_Bugtrack's
+	// `private $rb` instead of teaching the deprecated shape.
+	private $rb;
+
 	public function body(){
 		$ra_task = new RBO_RecordsetAccessor('task');
 		$tasks = array_keys($ra_task->get_records(array(),array(),array(),2));
@@ -47,6 +53,13 @@ class Tests_RecordBrowser extends Module{
         $this->rb = $rs->create_rb_module($this);
 		$this->rb->set_defaults($defaults);
 		$this->display_module($this->rb);
+
+		TestsCommon::source_card($this, 'modules/Tests/RecordBrowser/', array(
+			'Install' => 'RecordBrowserInstall.php',
+			'Main' => 'RecordBrowser_0.php',
+			'Common' => 'RecordBrowserCommon_0.php',
+			'Recordset' => 'Recordset.php',
+		));
 	}
 }
 

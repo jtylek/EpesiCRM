@@ -2,10 +2,9 @@
 /**
  * Software Development - Bug Tracking
  *
- * @author Janusz Tylek <jtylek@telaxus.com>
- * @copyright Copyright &copy; 2008, Janusz Tylek
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
- * @version 1.0
  * @package epesi-tests
  * @subpackage bugtrack
  */

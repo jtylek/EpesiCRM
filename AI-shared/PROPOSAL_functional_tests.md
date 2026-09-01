@@ -11,7 +11,8 @@ investment best started *during* the RC→stable window, in parallel with cross-
 Epesi has historically been criticised for "no tests". The reality in the repo confirms it:
 - `codeception.yml` exists and `codeception/codeception` is in `composer` — but it's an **empty skeleton**:
   no `*Cest.php` / `*Cept.php` / `*.feature` anywhere.
-- `modules/Tests/*` (220 files) are **demo/example modules** (Attachment, Bugtrack, RecordBrowser…),
+- `modules/Tests/*` (126 files, down from 220 in the 2026-09-01 trim — see
+  `deliberate-removals.md`) are **demo/example modules** (Bugtrack, RecordBrowser, Callbacks…),
   **not** automated tests.
 
 This migration added the **first real automated quality gate — PHPStan in CI** (lint 8.2/8.3 + Rector +

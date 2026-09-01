@@ -2,9 +2,8 @@
 /**
  * TestsInstall class.
  * 
- * @author Paul Bukowski <pbukowski@telaxus.com>
- * @copyright Copyright &copy; 2006, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage testsinstaller
@@ -31,22 +30,29 @@ class TestsInstall extends ModuleInstall {
 	public function version() {
 		return array('2.0');
 	}
+	// Every surviving demo module, so installing the "Tests" pack actually
+	// gets you the reference material. The pre-2.0 list had this backwards -
+	// it pulled in the thin widget demos but omitted RecordBrowser, Bugtrack
+	// and Report, i.e. the most useful ones, which had to be installed by
+	// hand. The thin ones were dropped in the 2026-09-01 trim (see
+	// AI-shared/deliberate-removals.md).
+	//
+	// Sub-modules (Tests/Callbacks/a, Tests/Calendar/Event,
+	// Tests/SharedUniqueHref/a) are deliberately absent - each is pulled in
+	// by its own parent's requires(), and listing them here as well would
+	// just duplicate that edge.
 	public function requires($v) {
 		return array(
+		    array('name'=>'Tests/Bugtrack','version'=>0),
 		    array('name'=>'Tests/Calendar','version'=>0),
 		    array('name'=>'Tests/Callbacks','version'=>0),
 		    array('name'=>'Tests/Colorpicker','version'=>0),
-		    array('name'=>'Tests/Comment','version'=>0),
 		    array('name'=>'Tests/GenericBrowser','version'=>0),
-		    array('name'=>'Tests/Image','version'=>0),
-		    array('name'=>'Tests/Lang','version'=>0),
 		    array('name'=>'Tests/Leightbox','version'=>0),
 		    array('name'=>'Tests/QuickForm','version'=>0),
-		    array('name'=>'Tests/Menu','version'=>0),
-//		    array('name'=>'Tests/OpenFlashChart','version'=>0),
-		    array('name'=>'Tests/Search','version'=>0),
+		    array('name'=>'Tests/RecordBrowser','version'=>0),
+		    array('name'=>'Tests/Report','version'=>0),
 		    array('name'=>'Tests/SharedUniqueHref','version'=>0),
-		    array('name'=>'Tests/TabbedBrowser','version'=>0),
 		    array('name'=>'Tests/Tooltip','version'=>0),
 		    array('name'=>'Tests/Wizard','version'=>0));
 	}

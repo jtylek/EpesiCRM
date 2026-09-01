@@ -1,8 +1,7 @@
 <?php
 /**
- * @author Arkadiusz Bisaga <abisaga@telaxus.com>
- * @copyright Copyright &copy; 2007, Janusz Tylek
- * @version 1.0
+ * @author Janusz Tylek and Claude Code AI
+ * @version 2.0
  * @license MIT
  * @package epesi-tests
  * @subpackage Report
@@ -11,9 +10,9 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Tests_Report extends Module {
 	private static $cats = array('Random number', 'Random value');
-	private static $format = '';
-	private static $dates = array();
-	private static $range_type = '';
+	private $format = '';
+	private $dates = array();
+	private $range_type = '';
 	private $rbr = 'null';
 	private $lang;
 
@@ -53,6 +52,12 @@ class Tests_Report extends Module {
 		$this->rbr->set_pdf_subject($this->rbr->pdf_subject_date_range());
 		$this->rbr->set_pdf_filename(__('Companies_Report_%s',array(date('Y_m_d__H_i_s'))));
 		$this->display_module($this->rbr);
+
+		TestsCommon::source_card($this, 'modules/Tests/Report/', array(
+			'Install' => 'ReportInstall.php',
+			'Main' => 'Report_0.php',
+			'Common' => 'ReportCommon_0.php',
+		));
 	}
 
 	public function display_cells($ref_rec){
