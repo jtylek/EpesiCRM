@@ -1104,14 +1104,35 @@ class Utils_Calendar extends Module {
 		// the default now reads "the next 7 days from today" - the same
 		// today-forward window the legacy Agenda tab and the Agenda applet have
 		// always used, and the only sensible reading of a span like "3 days".
-		$fc_views = array('multiMonthYear' => array('buttonText' => __('Year')));
+		// A Task/Phonecall has no real duration - Utils_CalendarCommon::
+		// event_to_fullcalendar() omits 'end' for these (see its own comment),
+		// so FullCalendar falls back to defaultTimedEventDuration to decide how
+		// much room to draw. Set PER VIEW, deliberately with no top-level
+		// default at all: dayGrid/list only ever print a dot/row (no
+		// duration-driven height to begin with), but a timeGrid segment's
+		// pixel height IS duration*pxPerMinute, so it needs its own explicit,
+		// nonzero value or the event is not shrunk, it's INVISIBLE. Confirmed
+		// empirically that a top-level '00:00:00' silently defeats a per-view
+		// override here too - not just "unneeded elsewhere", but actively
+		// wrong to set - which is why every view below states its own value
+		// rather than most of them relying on a shared default.
+		$fc_views = array(
+			'dayGridMonth' => array('defaultTimedEventDuration' => '00:00:00'),
+			'multiMonthYear' => array('buttonText' => __('Year'), 'defaultTimedEventDuration' => '00:00:00'),
+			// Tall enough for time + title, same fixed height regardless of
+			// zoom level - durationEditable is already false for these (see
+			// event_to_fullcalendar()'s $end!==null check), so this is a
+			// display nicety only, never a resize handle.
+			'timeGridWeek' => array('defaultTimedEventDuration' => '00:30:00'),
+			'timeGridDay' => array('defaultTimedEventDuration' => '00:30:00'),
+		);
 		$agenda_days = (int)$this->settings['agenda_days'];
 		if ($agenda_days > 0)
 			// buttonText repeated per-view on purpose: the top-level
 			// buttonText['list'] below is resolved from the view's own duration
 			// unit, which this override changes from weeks to days - pinning it
 			// here keeps the toolbar button reading "Agenda" whatever the span is.
-			$fc_views['listWeek'] = array('duration' => array('days' => $agenda_days), 'buttonText' => __('Agenda'));
+			$fc_views['listWeek'] = array('duration' => array('days' => $agenda_days), 'buttonText' => __('Agenda'), 'defaultTimedEventDuration' => '00:00:00');
 
 		$time_fmt = Base_User_SettingsCommon::get('Base_RegionalSettings', 'time');
 		$hour12 = str_contains((string)$time_fmt, '%I');
@@ -1158,25 +1179,18 @@ class Utils_Calendar extends Module {
 			// epesiToggleHours expands the grid to the full day.
 			'businessHours' => array('daysOfWeek' => array(0, 1, 2, 3, 4, 5, 6), 'startTime' => $start_day, 'endTime' => $end_day),
 			'slotDuration' => $interval,
-			// An event with no end (Utils_CalendarCommon::event_to_fullcalendar()
-			// emits end=null whenever the handler reports duration<=0 - a Task's
-			// deadline, a timeless-ish Phonecall) is a POINT IN TIME, not an
-			// hour-long block. FullCalendar's own default for those is
-			// '01:00:00', and that invented hour is invisible on most rows but
-			// changes the rendering outright near midnight: a task due 23:55
-			// became 23:55-00:55, which is multi-day, and dayGrid draws a
-			// multi-day event as a solid block spanning both cells instead of
-			// the usual dot + time. Zero says what the data actually says.
-			// timeGrid still shows these - eventMinHeight gives a zero-duration
-			// event a floor of its own.
-			'defaultTimedEventDuration' => '00:00:00',
-			// ...and in the time grid those zero-duration events get ONE fixed
-			// height regardless of the slot size, instead of collapsing to a
-			// sliver. Just tall enough for FullCalendar's "short" layout (time
-			// and title on one line, see eventShortHeight below), which is all
-			// there is to show for a Task or a Phonecall. It never grows with
-			// the zoom level the way a Meeting's block does, because there is
-			// no duration for it to represent.
+			// No top-level defaultTimedEventDuration - see $fc_views above for why
+			// each view sets its own instead. (Background: a Task/Phonecall
+			// reports duration<=0, e.g. a deadline or a point-in-time call.
+			// FullCalendar's OWN built-in default for a missing end is 1 hour,
+			// which used to invent a visible block and, right at midnight,
+			// spill a task due 23:55 into 23:55-00:55 - multi-day, which
+			// dayGrid draws as a solid block across two cells instead of the
+			// usual dot + time.)
+			//
+			// Only really matters for the Agenda list row (dayGrid month
+			// cells are dot + time, one row tall regardless) - keeps a
+			// zero-duration entry from collapsing shorter than its own text.
 			'eventMinHeight' => 22,
 			'eventShortHeight' => 30,
 			'eventTimeFormat' => $time_format,

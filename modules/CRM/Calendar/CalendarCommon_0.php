@@ -215,10 +215,28 @@ class CRM_CalendarCommon extends ModuleCommon {
 		$events = CRM_Calendar_EventCommon::get_all($start, $end);
 		$notice = ob_get_clean();
 
+		// Keyed by 'Y-m-d' -> the user's own regional date format (no
+		// weekday - the Agenda list already prints that separately via
+		// FullCalendar's own locale). Only the Agenda/list view's per-day
+		// header actually reads this (fullcalendar-init.js swaps it in for
+		// FullCalendar's own English-only day-side text, which ignores
+		// Regional Settings entirely), but the request doesn't say which
+		// view is asking, and building it is a plain in-memory loop - cheap
+		// enough at $max_days' worst case (400) to not bother threading a
+		// view hint through just to skip it for Month/Week/Day/Year.
+		// '+1 day' (calendar-day arithmetic), not $d+=86400 (raw epoch
+		// seconds) - the latter skips or repeats a day across a DST
+		// transition, which is exactly the class of date bug this endpoint
+		// exists to get right.
+		$day_labels = array();
+		for ($d = strtotime($start); $d < strtotime($end); $d = strtotime('+1 day', $d))
+			$day_labels[date('Y-m-d', $d)] = Base_RegionalSettingsCommon::time2reg($d, false, true, false);
+
 		return new JsonResponse(array(
 			'ok' => true,
 			'notice' => $notice !== '' ? strip_tags($notice) : null,
 			'events' => Utils_CalendarCommon::events_to_fullcalendar($events),
+			'dayLabels' => $day_labels,
 		));
 	}
 

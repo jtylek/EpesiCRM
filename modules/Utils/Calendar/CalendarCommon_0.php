@@ -134,12 +134,20 @@ class Utils_CalendarCommon extends ModuleCommon {
 		if (!empty($ev['color'])) $classNames[] = 'fc-epesi-ev--'.preg_replace('/[^a-z0-9_-]/', '', (string)$ev['color']);
 		if (!empty($ev['recurring'])) $classNames[] = 'fc-epesi-ev--recurring';
 
-		return array(
+		$out = array(
 			'id' => (string)$ev['id'],
 			'title' => (string)$ev['title'],
 			'start' => $start,
-			'end' => $end,
 			'allDay' => $timeless,
+			// dayGrid's default ('auto') eventDisplay renders any all-day event
+			// as a solid 'block' pill, same treatment as a real multi-day date
+			// range - appropriate for an event that actually spans several
+			// days, wrong for a single-day event that merely has no time
+			// component (a Task deadline, a timeless Meeting). Pin those to
+			// 'list-item' (dot + title, no background fill) so they read as
+			// the same kind of row as every timed event, just sorted first -
+			// FullCalendar already sorts all-day before timed within a cell.
+			'display' => $timeless ? 'list-item' : 'auto',
 			'classNames' => $classNames,
 			// Straight from the handler's own tri-state (true/absent = default
 			// allowed, false = refused, e.g. CRM_MeetingCommon::crm_event_get()
@@ -184,6 +192,20 @@ class Utils_CalendarCommon extends ModuleCommon {
 				'biIcon' => !empty($ev['bi_icon'])? $ev['bi_icon']: null,
 			),
 		);
+
+		// $end===null (a Task/Phonecall - see above) omits the 'end' KEY
+		// entirely rather than sending 'end'=>null. FullCalendar's own
+		// "no end given" fallback (Calendar_0.php's per-view
+		// defaultTimedEventDuration) only fires for a genuinely ABSENT end -
+		// an explicit null is instead taken at face value as a real
+		// zero-length event, which a timeGrid view then draws at 0 pixels
+		// tall: invisible, not just short. Found by actually looking in a
+		// browser after the first attempt (setting defaultTimedEventDuration
+		// alone) silently made Tasks/Phonecalls disappear from Day/Week
+		// entirely instead of shrinking them.
+		if ($end !== null) $out['end'] = $end;
+
+		return $out;
 	}
 
 	/**

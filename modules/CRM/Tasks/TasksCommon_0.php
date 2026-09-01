@@ -469,11 +469,13 @@ class CRM_TasksCommon extends ModuleCommon {
 
 		$cuss = array();
 		foreach ($r['customers'] as $c) {
-			// nolink=false + screen_reader_label=false: keep the icon+link markup
-			// (the link itself gets flattened away by to_safe_html() when this
-			// value lands in format_record_tooltip() below) but drop the
-			// [Person]/[Company] indicator span - see that param's own doc.
-			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), false, array('id'=>'customers'), false);
+			// screen_reader_label=false: icon instead of the [Person]/[Company]
+			// text (see that param's own doc) - nolink stays true, not just for
+			// its usual no-link reason but because create_default_linked_label()
+			// double-wraps a contact's label in <a> when nolink=false (its own
+			// link plus contact_format_default()'s), and HTMLPurifier silently
+			// drops the inner <a>'s content on a deleted-but-linked record.
+			$c = CRM_ContactsCommon::display_company_contact(array('customers'=>$c), true, array('id'=>'customers'), false);
             $cuss[] = str_replace('&nbsp;',' ',$c);
 		}
 
@@ -495,12 +497,18 @@ class CRM_TasksCommon extends ModuleCommon {
 		// shape - see Utils_TooltipCommon::format_record_tooltip(). Needs
 		// its consumers to opt out of table flattening (create()/
 		// open_tag_attrs()' $keep_table), or it collapses back to a list.
+		$edit_info = Utils_RecordBrowserCommon::get_record_info('task', $r['id']);
 		$next['custom_tooltip'] = Utils_TooltipCommon::format_record_tooltip(
 			Base_BootstrapIcons::type_tag('CRM_Tasks'),
 			__('Task'),
 			$inf2,
 			array(__('Description') => $next['description']),
-			CRM_ContactsCommon::get_short_record_info($r['created_by'], $r['created_on'])
+			// Latest edit, if any, in place of the creation info - see
+			// get_short_record_info()'s own doc for why only one line ever shows.
+			CRM_ContactsCommon::get_short_record_info(
+				$r['created_by'], $r['created_on'],
+				$edit_info['edited_by'], $edit_info['edited_on']
+			)
 		);
 		return $next;
 	}

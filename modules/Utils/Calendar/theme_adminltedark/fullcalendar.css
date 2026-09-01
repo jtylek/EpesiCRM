@@ -149,3 +149,114 @@
 	font-size: 1em;
 	margin-right: 6px;
 }
+
+
+/* Day view's own day-of-week header is still technically a FullCalendar
+ * navLink (see fullcalendar-init.js's datesSet handler) but clicking it is a
+ * same-view/same-date no-op - styled here to read as plain text instead of
+ * inviting a click that visibly does nothing. Week/Month's day headers are
+ * untouched (genuinely useful navLinks - Week/Month -> Day) since this only
+ * applies while epesi-fc-no-day-drilldown is set, i.e. only in Day view
+ * itself. Matches theme/fullcalendar.css's rule of the same name - missing
+ * here until now, which is why Day view's header still read as a live link
+ * under this (the actually active) theme.
+ */
+.epesi-fc-container.epesi-fc-no-day-drilldown .fc-col-header-cell-cushion {
+	color: inherit;
+	text-decoration: none;
+	cursor: default;
+}
+
+/* Month and Year view's weekday header ("Sun", "Mon"...) is structurally
+ * an <a> (FullCalendar's own dayGrid/multimonth header markup) - this
+ * theme's own generic ".fc a { color: var(--epesi-link) }" rule is what
+ * makes it look clickable - but unlike Week/Day view's day-of-week header,
+ * a dayGrid column here spans every Monday in the month/year, not one
+ * specific date, so FullCalendar has no navLinks drill-down wired up for
+ * it. Confirmed live in both views: the header <a> carries neither a
+ * data-navlink attribute nor a title, while the day-number <a> below does.
+ * Same shape of fix as .epesi-fc-no-day-drilldown above, scoped to these
+ * two views instead of Day view.
+ */
+.epesi-fc-container .fc-dayGridMonth-view .fc-col-header-cell-cushion,
+.epesi-fc-container .fc-multiMonthYear-view .fc-col-header-cell-cushion {
+	color: inherit;
+	text-decoration: none;
+	cursor: default;
+}
+
+/* Bigger day-of-month numbers (1, 2, 3...) - these ARE a real navLink
+ * (FullCalendar's built-in day-cell -> Day view drill-down, see 'navLinks'
+ * in Calendar_0.php), so a more prominent tap target doubles as making the
+ * actually-clickable thing look more clickable, now that the header above
+ * no longer competes with it for that same visual cue.
+ */
+.epesi-fc-container .fc-dayGridMonth-view .fc-daygrid-day-number {
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+
+/* See theme/fullcalendar.css's matching rule for why (repositioning only -
+ * this file's own .fc-list-day-cushion background rule above is unaffected). */
+.epesi-fc-container.fc .fc-list-day-cushion {
+	display: flex;
+	justify-content: flex-start;
+	gap: 0.5rem;
+}
+
+/* "Agenda: " prefix (fullcalendar-init.js's applyListDecorations()) - a
+ * sibling span, not text merged into .fc-toolbar-title itself, so it
+ * inherits that element's own styling by matching font-size/weight/color
+ * rather than fighting for the same node. */
+.epesi-fc-container.fc .epesi-agenda-title-prefix {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--epesi-text);
+}
+
+/* .fc-toolbar-chunk is plain display:block and .fc-toolbar-title is an <h2>
+ * (block by default) - without this, the prefix span above and the title
+ * stack onto two lines instead of reading as one "Agenda: Sep 1 - 3, 2026"
+ * line, since a block-level heading always starts its own line regardless of
+ * an inline sibling before it. Scoped to :has(the prefix) so this doesn't
+ * touch the toolbar's OTHER chunks (the prev/next/today buttons, the view
+ * switcher), which already lay out correctly via FullCalendar's own CSS. */
+.epesi-fc-container.fc .fc-toolbar-chunk:has(.epesi-agenda-title-prefix) {
+	display: flex;
+	align-items: baseline;
+	gap: 0.35rem;
+}
+
+/* Year view's title, replaced by a native <select> of nearby years
+ * (fullcalendar-init.js's applyYearPicker()) - see theme/fullcalendar.css's
+ * matching rule for the full rationale. Duplicated verbatim per this file's
+ * own existing practice (theme_adminltedark does not fall back to
+ * theme_adminlte - see Base_ThemeResolver::resolve()). */
+.epesi-fc-container.fc .epesi-fc-year-select {
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1.2;
+	padding: 0.1rem 1.5rem 0.1rem 0.4rem;
+	border: 1px solid var(--epesi-border);
+	border-radius: 0.25rem;
+	background-color: var(--epesi-surface);
+	color: var(--epesi-text);
+}
+
+/* Day/Week/Month/Agenda title, forwarded to CRM_Calendar's own hidden
+ * popup-calendar trigger - see theme/fullcalendar.css's matching rule for
+ * the full rationale. */
+.epesi-fc-container.fc .epesi-fc-title-link {
+	color: var(--epesi-link);
+}
+
+.epesi-fc-container.fc .epesi-fc-title-link:hover {
+	text-decoration: underline;
+}
+
+/* Hidden Utils_PopupCalendar trigger (CRM_Calendar's Calendar_0.php) - never
+ * shown, only activated programmatically via the title-click forwarding
+ * above, same convention as Applets_MonthView's own ".epesi-mv-jump". */
+.epesi-fc-jump {
+	display: none;
+}

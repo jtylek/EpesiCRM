@@ -7,6 +7,9 @@
 // container is guaranteed to exist by the time this runs.
 var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 	var instances = {};
+	// mountId -> {'Y-m-d': "<regionally-formatted date>"}, refreshed on every
+	// feed() response - see applyListDecorations() below.
+	var dayLabelsByMount = {};
 
 	// Event action attributes (viewAttrs/editAttrs/deleteAttrs in the JSON feed)
 	// are verbatim ' href="javascript:void(0)" onClick="_chj(...);" ' fragments -
@@ -36,7 +39,7 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 	// already expect - deliberately not FullCalendar's own ISO-with-offset
 	// default, so there is exactly one place (Base_RegionalSettingsCommon::
 	// time2reg() on the PHP side) that knows how to convert between them.
-	function feed(url) {
+	function feed(url, mountId) {
 		return function (info, success, failure) {
 			var sep = url.indexOf('?') >= 0 ? '&' : '?';
 			var full = url + sep + 'start=' + info.startStr.slice(0, 10) + '&end=' + info.endStr.slice(0, 10);
@@ -54,11 +57,73 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 				// console rather than inventing new status-bar plumbing for
 				// what is a rare edge case (100+ events in one visible range).
 				if (data.notice) console.warn('[Calendar]', data.notice);
+				// Stashed even for a view that isn't Agenda right now - cheap,
+				// and it's exactly what applyListDecorations() needs the next
+				// time the Agenda/list view is the one settling.
+				dayLabelsByMount[mountId] = data.dayLabels || {};
 				success(data.events || []);
 			};
 			xhr.onerror = function () { failure(new Error('network error')); };
 			xhr.send();
 		};
+	}
+
+	// Agenda/listWeek-only cosmetic pass, run once the event store has
+	// settled (config.eventsSet - fires after every successful feed(), even
+	// an empty one, so the day-header rows this walks are guaranteed to
+	// already exist in the DOM by the time this runs). A no-op for every
+	// other view: neither a '.fc-toolbar-title' rewrite nor a '.fc-list-day'
+	// row exists to touch there, so the two DOM queries below just find
+	// nothing.
+	//
+	// 1) Prefixes the toolbar title with "Agenda: " (localized - reuses
+	//    config.buttonText.list, the same translated string already on the
+	//    Agenda toolbar button, rather than a second translation of the same
+	//    word) in front of FullCalendar's own native date-range title -
+	//    left otherwise untouched, so it still reads correctly for whatever
+	//    span agenda_days is currently set to.
+	// 2) Reformats each day-group's right-hand date (FullCalendar's own
+	//    listDaySideFormat, English-only - Epesi's Regional Settings date
+	//    format has no equivalent FullCalendar option) using the label the
+	//    server already computed with Base_RegionalSettingsCommon::
+	//    time2reg() for that exact 'Y-m-d' (see fullcalendar_events()'s
+	//    'dayLabels'), keyed off the row's own data-date attribute so it
+	//    can't drift from what the row is actually showing.
+	function applyListDecorations(mountId) {
+		var inst = instances[mountId];
+		if (!inst) return;
+		var isList = inst.cal && inst.cal.view.type === 'listWeek';
+		// A sibling node placed BEFORE '.fc-toolbar-title', never text written
+		// INTO it - that title element is Preact-owned (FullCalendar's own
+		// toolbar), and overwriting its textContent directly fought its own
+		// re-render on the next navigation/view-switch: this code and
+		// FullCalendar's vdom diff each think they own the single text node
+		// inside it, and whichever one runs second doesn't necessarily REPLACE
+		// the other's content, so an in-place textContent write here was
+		// observed to sometimes STACK ("Agenda: Sep 1 - 3, 2026Sep 4 - 6,
+		// 2026") instead of overwrite. A plain sibling has no such owner to
+		// fight - added/removed wholesale, never mutated in place, so no vdom
+		// state to get out of sync with.
+		var titleEl = inst.el.querySelector('.fc-toolbar-title');
+		var prefixEl = inst.el.querySelector('.epesi-agenda-title-prefix');
+		if (isList && titleEl) {
+			if (!prefixEl) {
+				prefixEl = document.createElement('span');
+				prefixEl.className = 'epesi-agenda-title-prefix';
+				titleEl.parentNode.insertBefore(prefixEl, titleEl);
+			}
+			prefixEl.textContent = inst.agendaLabel + ': ';
+		} else if (prefixEl) {
+			prefixEl.remove();
+		}
+		if (!isList) return;
+		var labels = dayLabelsByMount[mountId] || {};
+		var rows = inst.el.querySelectorAll('.fc-list-day[data-date]');
+		for (var i = 0; i < rows.length; i++) {
+			var label = labels[rows[i].getAttribute('data-date')];
+			var sideEl = rows[i].querySelector('.fc-list-day-side-text');
+			if (label && sideEl) sideEl.textContent = label;
+		}
 	}
 
 	// POSTs a drag-move/resize to CRM_CalendarCommon::fullcalendar_update().
@@ -184,7 +249,32 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 		if (window.innerWidth <= 767.98 && config.initialView !== 'listWeek') config.initialView = 'listWeek';
 		// events is a function reference, not JSON-serializable - built here
 		// rather than passed through the (JSON-encoded) config object.
-		if (feedUrl) config.events = feed(feedUrl);
+		if (feedUrl) config.events = feed(feedUrl, mountId);
+
+		var origEventsSet = config.eventsSet;
+		config.eventsSet = function (evs) {
+			applyListDecorations(mountId);
+			// A month with enough events grows the page past the viewport
+			// height, which summons the page's own vertical scrollbar AFTER
+			// FullCalendar already laid out its internal "scrollgrid" (the
+			// header row and the day-grid body are two SEPARATE elements,
+			// deliberately kept width-matched by FullCalendar itself so the
+			// header stays visually aligned with the body's columns while
+			// only the body scrolls). That resync only re-runs on a real
+			// window 'resize' event; cal.updateSize() (FullCalendar's own
+			// documented resize API) does NOT trigger it - confirmed
+			// empirically, it left the header (measured pre-scrollbar) still
+			// wider than the body's own clipped scroll area, so the
+			// rightmost column's day number rendered past the clipped edge
+			// with nothing there to scroll to. A synthetic resize event is
+			// the same fix FullCalendar's own issue tracker points to for
+			// this category of desync. Dispatched on the whole window, not
+			// scoped to this instance - harmless (every other mounted
+			// instance just redoes the same cheap reflow) and simpler than
+			// reaching into FullCalendar's internals for a narrower hook.
+			window.dispatchEvent(new Event('resize'));
+			if (origEventsSet) origEventsSet(evs);
+		};
 
 		var origEventClick = config.eventClick;
 		config.eventClick = function (arg) {
@@ -313,6 +403,49 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			};
 		}
 
+		// Year view's toolbar title is otherwise plain, unclickable text
+		// (just "2026") with no way to reach a year more than one prev/next
+		// step away. Swapped for a native <select> of nearby years while
+		// multiMonthYear is the active view - a sibling node inserted before
+		// the title and added/removed wholesale on every render, never a
+		// mutation of the title node itself, for the same reason
+		// applyListDecorations()'s prefix span above is a sibling rather than
+		// a textContent write: that node is Preact-owned (FullCalendar's own
+		// toolbar), and a directly-written child fights its own re-render on
+		// the next navigation. The real title is hidden (style.display, not
+		// removed) rather than replaced, so FullCalendar keeps owning it
+		// untouched and can still overwrite its text on every render as usual.
+		function applyYearPicker(view, titleEl) {
+			var isYear = view.type === 'multiMonthYear';
+			var picker = el.querySelector('.epesi-fc-year-select');
+			if (!isYear) {
+				if (picker) picker.remove();
+				if (titleEl) titleEl.style.display = '';
+				return;
+			}
+			if (!titleEl) return;
+			titleEl.style.display = 'none';
+			var year = view.currentStart.getFullYear();
+			if (!picker) {
+				picker = document.createElement('select');
+				picker.className = 'epesi-fc-year-select';
+				picker.setAttribute('aria-label', 'Year');
+				titleEl.parentNode.insertBefore(picker, titleEl);
+				picker.addEventListener('change', function () {
+					cal.gotoDate(new Date(parseInt(picker.value, 10), 0, 1));
+				});
+			}
+			// Options are rebuilt around the current year on every render
+			// (not just once at creation) so the range keeps following
+			// wherever prev/next/today navigated to, rather than going stale
+			// once the current year drifts outside whatever range was built
+			// when the picker first appeared.
+			var options = '';
+			for (var y = year - 6; y <= year + 6; y++)
+				options += '<option value="' + y + '"' + (y === year ? ' selected' : '') + '>' + y + '</option>';
+			picker.innerHTML = options;
+		}
+
 		// Fires on initial render and on every navigation (view switch,
 		// prev/next/today) - the only hook into FullCalendar's entirely
 		// client-side navigation, so it's also the only place that can keep
@@ -332,24 +465,46 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 			// saveViewState() - theme/fullcalendar.css scopes the "don't look
 			// like a link" styling to it.
 			el.classList.toggle('epesi-fc-no-day-drilldown', info.view.type === 'timeGridDay');
+			var titleEl = el.querySelector('.fc-toolbar-title');
+			applyYearPicker(info.view, titleEl);
 			// Re-applied every render (assignment, not addEventListener - safe
 			// against duplicate bindings whether FullCalendar reuses or
 			// recreates the title node on navigation) - forwards a click on
 			// the plain-text toolbar title to an already-wired trigger
 			// elsewhere on the page (e.g. Applets_MonthView's own "jump to
 			// date" popup-calendar link), since FullCalendar's title has no
-			// click behavior of its own.
-			if (titleClickForwardSelector) {
-				var titleEl = el.querySelector('.fc-toolbar-title');
-				if (titleEl) {
-					titleEl.style.cursor = 'pointer';
-					titleEl.style.userSelect = 'none';
-					titleEl.onclick = function (ev) {
-						ev.preventDefault();
-						var target = document.querySelector(titleClickForwardSelector);
-						if (target) target.click();
-					};
-				}
+			// click behavior of its own. Never wired for Year view - the
+			// select above already owns that node's interaction there.
+			if (titleClickForwardSelector && titleEl && info.view.type !== 'multiMonthYear') {
+				titleEl.classList.add('epesi-fc-title-link');
+				titleEl.style.cursor = 'pointer';
+				titleEl.style.userSelect = 'none';
+				// The trigger this forwards to is one shared Utils_PopupCalendar
+				// instance (CRM_Calendar::body()'s "calendar_selector"), reused by
+				// every view's title - so without this it drew whatever
+				// month/day/decade grid it last happened to be left showing,
+				// independent of which view its title was actually clicked from.
+				// Stashed as data-* on the target rather than baked into a fixed
+				// PHP-side mode: the view can change client-side (view switch,
+				// prev/next) without any server round-trip, so only this handler -
+				// re-assigned on every datesSet, closing over the CURRENT info -
+				// knows what view/date the click was actually made from.
+				// getMonth() is already 0-based, matching Utils_PopupCalendar's
+				// own month-index convention (main2.js's monthName[]).
+				var d = info.view.currentStart;
+				var viewType = info.view.type;
+				titleEl.onclick = function (ev) {
+					ev.preventDefault();
+					var target = document.querySelector(titleClickForwardSelector);
+					if (!target) return;
+					target.setAttribute('data-fc-view-type', viewType);
+					target.setAttribute('data-fc-year', d.getFullYear());
+					target.setAttribute('data-fc-month', d.getMonth());
+					target.setAttribute('data-fc-day', d.getDate());
+					target.click();
+				};
+			} else if (titleEl) {
+				titleEl.classList.remove('epesi-fc-title-link');
 			}
 			if (origDatesSet) origDatesSet(info);
 		};
@@ -404,8 +559,21 @@ var EpesiFullCalendar = window.EpesiFullCalendar || (function () {
 		cal = new FullCalendar.Calendar(el, config);
 		cal.render();
 		applyToggleHoursState();
-		instances[mountId] = { cal: cal, el: el };
+		instances[mountId] = { cal: cal, el: el, agendaLabel: (config.buttonText && config.buttonText.list) || 'Agenda' };
 	}
 
-	return { mount: mount, feed: feed, write: write, extractOnclick: extractOnclick, runOnclick: runOnclick };
+	// Client-side "jump to date" for a Day/Week/Month/Agenda toolbar title
+	// wired to a Utils_PopupCalendar trigger (CRM_Calendar's own
+	// title_click_forward_selector setup - see Calendar_0.php) - calls
+	// straight into the live FullCalendar instance instead of a server
+	// round-trip, matching how prev/next/today already navigate this engine
+	// with no page reload. A no-op if the instance is gone (e.g. the calendar
+	// box was popped) rather than throwing into Utils_PopupCalendar's own
+	// onClick handler.
+	function gotoDate(mountId, date) {
+		var inst = instances[mountId];
+		if (inst && inst.cal) inst.cal.gotoDate(date);
+	}
+
+	return { mount: mount, feed: feed, write: write, extractOnclick: extractOnclick, runOnclick: runOnclick, gotoDate: gotoDate };
 })();

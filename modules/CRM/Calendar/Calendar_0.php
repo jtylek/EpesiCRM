@@ -122,6 +122,17 @@ class CRM_Calendar extends Module {
 		}
 		$args['explicit_navigation'] = $explicit_navigation;
 
+		// Forwards a click on the FullCalendar toolbar title (Day/Week/Month/
+		// Agenda - never Year, which fullcalendar-init.js gives its own
+		// native year <select> instead) to a hidden Utils_PopupCalendar
+		// trigger printed below - same title_click_forward_selector
+		// mechanism Applets_MonthView's embedded mini calendar already uses
+		// (see that module's comment). Only meaningful for the FullCalendar
+		// engine: the legacy grid renders its own visible popup_calendar
+		// per-view already (Utils_Calendar's day()/week()/month()/year()).
+		$fc_title_jump = $args['engine'] === 'fullcalendar';
+		if ($fc_title_jump) $args['title_click_forward_selector'] = '.epesi-fc-jump a';
+
 		// Applets_MonthView's day-click can ask to land here with the
 		// add-event flow already open (one click total, instead of a click to
 		// arrive plus a click on "Add event") - reuses get_new_event_href_js()
@@ -153,6 +164,61 @@ class CRM_Calendar extends Module {
 		CRM_CalendarCommon::$mode = $view_type;
 		$theme->assign('calendar',$this->get_html_of_module($c));
 		$theme->display();
+
+		if ($fc_title_jump) {
+			// Same $mount_id formula Utils_Calendar::fullcalendar() derives
+			// internally (see that method) - $c->get_path() is stable/
+			// deterministic, so this matches regardless of call order.
+			// Anchors the popup on the live title element itself (always
+			// visible, genuinely where the user just clicked) rather than
+			// this trigger's own geometry - the trigger is never shown, only
+			// activated programmatically via the title-click forwarding set
+			// up above, so a display:none rect would be all-zero.
+			$mount_id = 'utils-calendar-fc-'.md5($c->get_path());
+			// Single-quoted JS string literal, not json_encode() (which always emits
+			// double quotes) - this whole expression is spliced straight into an
+			// onClick="..." HTML attribute (PopupCalendarCommon_0.php::create_href()),
+			// itself double-quoted, with no further escaping applied there. A
+			// double-quoted literal closed that attribute early on its first quote,
+			// truncating the handler mid-expression - every FullCalendar view (Day/
+			// Week/Month/Agenda) threw "Unexpected end of input" the moment something
+			// called .click() on the resulting <a> (fullcalendar-init.js's title-click
+			// forwarding). Epesi::escapeJS(..., false, true) escapes the single quotes
+			// this literal is wrapped in and leaves any double quotes alone, matching
+			// how $link_text below escapes for ITS OWN (double-quoted, but JS-context
+			// not HTML-attribute-context) string instead.
+			$selector_js = "'".Epesi::escapeJS('#'.$mount_id.' .fc-toolbar-title', false, true)."'";
+			// This trigger is one shared Utils_PopupCalendar instance ('calendar_selector'
+			// below), reused by every view's title - left at a fixed mode='day' it opened
+			// showing whatever grid/level it last happened to be left at (e.g. a decade
+			// grid), independent of which view's title was actually clicked. Reset here,
+			// on every open, to what that view should offer: Month -> pick a month
+			// (mode='month', a page of 12 months - see show_year()'s mode=='month' branch,
+			// which finalizes the pick immediately instead of drilling to a day grid);
+			// Day/Week/Agenda -> pick a day (mode='day'), centered on the period the user
+			// was actually looking at (data-fc-year/month/day, stashed by
+			// fullcalendar-init.js's title handler right before it clicks this - `this` is
+			// the trigger <a> itself, since this whole $pos_js runs as part of its own
+			// onClick). Year view never reaches this trigger at all (fullcalendar-init.js's
+			// "info.view.type !== 'multiMonthYear'" guard) - it already has its own native
+			// year <select> (applyYearPicker()), left untouched.
+			// Single-quoted JS string literals throughout, same reason as $selector_js
+			// above: this all lands inside the same double-quoted onClick="..." attribute.
+			$mode_reset_js = 'var vt=this.dataset.fcViewType;'.
+				'if(typeof datepicker_calendar_selector!==\'undefined\'){'.
+					'if(vt===\'dayGridMonth\'){datepicker_calendar_selector.mode=\'month\';datepicker_calendar_selector.show_year(this.dataset.fcYear);}'.
+					'else{datepicker_calendar_selector.mode=\'day\';datepicker_calendar_selector.show_month(this.dataset.fcYear,this.dataset.fcMonth,this.dataset.fcDay);}'.
+				'}';
+			$pos_js = $mode_reset_js.'var t=document.querySelector('.$selector_js.');if(t)jQuery(popup).clonePosition(t,{setWidth:false,setHeight:false,offsetTop:t.offsetHeight});';
+			// Raw JS, not a create_unique_href_js() server round trip:
+			// FullCalendar's own navigation (prev/next/today, view
+			// switching) never reloads the page, so picking a date here
+			// calls straight into the live instance the same way -
+			// EpesiFullCalendar.gotoDate() (fullcalendar-init.js).
+			$link_text = 'EpesiFullCalendar.gotoDate('.json_encode($mount_id).',new Date(__YEAR__,__MONTH__-1,__DAY__))';
+			print('<div class="epesi-fc-jump">'.Utils_PopupCalendarCommon::show('calendar_selector', $link_text, 'day', $args['first_day_of_week'], $pos_js, '').'</div>');
+		}
+
 		$events = $c->get_displayed_events();
 		if (!empty($events['events'])) {
 			switch ($view_type) {
