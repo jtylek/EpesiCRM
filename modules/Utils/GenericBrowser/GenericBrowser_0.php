@@ -236,6 +236,12 @@ class Utils_GenericBrowser extends Module {
 		'view'             => 'bi-eye',
 		'edit'             => 'bi-pencil-square',
 		'delete'           => 'bi-trash',
+		// Generic "create" and "associate" actions, same vocabulary as
+		// Base_ActionBar's own 'add'. The map had no glyph for either, so a row
+		// action meaning "make a new record" or "link these two" had nothing to
+		// use and fell through to the <img> branch with no artwork behind it.
+		'add'              => 'bi-plus-lg',
+		'link'             => 'bi-link-45deg',
 		'info'             => 'bi-info-circle-fill',
 		'print'            => 'bi-printer',
 		'restore'          => 'bi-arrow-counterclockwise',
