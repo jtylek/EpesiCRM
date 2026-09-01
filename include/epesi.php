@@ -344,7 +344,6 @@ class Epesi {
 			'timestamp'        => array('modules/Utils/PopupCalendar/timestamp.php','HTML_QuickForm_timestamp'),
 			'currency'         => array('modules/Utils/CurrencyField/currency.php','HTML_QuickForm_currency'),
 			'quill'            => array('modules/Libs/Quill/quill.php','HTML_Quickform_quill'),
-			'codepress'        => array('modules/Libs/Codepress/HTML_Quickform_codepress_0.php','HTML_Quickform_codepress'),
 			'critsvalue'       => array('modules/Utils/QueryBuilder/quickform_crits.php','HTML_QuickForm_crits'),
 		);
 		foreach ($types as $type => $reg) {

@@ -1759,12 +1759,6 @@ parameters:
 			path: modules/CRM/Tasks/Tasks_0.php
 
 		-
-			message: '#^Call to an undefined static method HTML_QuickForm_element\:\:HTML_QuickForm_element\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: modules/Libs/Codepress/HTML_Quickform_codepress_0.php
-
-		-
 			message: '#^Call to static method load\(\) on an unknown class PhpOffice\\PhpSpreadsheet\\IOFactory\.$#'
 			identifier: class.notFound
 			count: 1

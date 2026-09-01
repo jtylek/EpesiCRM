@@ -236,13 +236,39 @@ all, chart data goes straight into the page as inline JSON) are deleted.
 `Utils_RecordBrowser_ReportsInstall::requires()` now lists `Libs_ChartJSInstall`
 instead, with a `20260818_swap_openflashchart_dependency_for_chartjs.php` patch
 calling `ModuleManager::install('Libs/ChartJS')` for existing installs. The
-`modules/Tests/OpenFlashChart` demo module (unlike `Tests/Codepress`, which
-still demos a working feature) was deleted outright - no value in a demo of
-functionality that no longer exists.
+`modules/Tests/OpenFlashChart` demo module was deleted outright - no value in
+a demo of functionality that no longer exists. (`Tests/Codepress` was cited
+here as the contrasting case at the time - it was later removed too, see the
+`Libs/Codepress` entry below.)
 
 **How to apply**: if asked to finish the `Libs/OpenFlashChart` cleanup / delete
 it entirely - same answer as CKEditor: don't, without first writing and testing
 a real uninstall patch.
+
+## `Libs/Codepress` + `Tests/Codepress` — removed entirely (2026-09-01)
+
+`Libs_Codepress` vendored the CodePress 0.9.6 syntax-highlighting JS editor
+(`modules/Libs/Codepress/0.9.6/`) as a custom QuickForm element type
+(`'codepress'`, registered in `include/epesi.php`'s `register_custom_qf_types()`).
+Its only caller anywhere in the tracked tree was `Tests_Codepress`, a demo
+module rendering a CodePress-editable textarea pre-filled with its own source
+— no real feature depended on it (unlike `Libs/OpenFlashChart` above, which
+was still wired into live Reports code when it was replaced).
+
+Unlike the CKEditor/OpenFlashChart entries above, **this one was deleted
+outright, `*Install.php` included** — both modules' `install()`/`uninstall()`
+were always just `return true;` with no schema of their own, so there was
+nothing for `ModuleManager::uninstall()` to protect and no orphan-row risk
+beyond a bare tracking row (same reasoning as the `Libs/ScriptAculoUs`
+removal — see "Orphaned `modules` DB row after upgrade" below). Cleanup patch:
+`modules/Base/patches/20260901_remove_orphaned_codepress_module_rows.php`
+(deletes both rows, guarded by an existence + code-gone check, same pattern
+as ScriptAculoUs's own patch).
+
+**How to apply**: if asked to add syntax-highlighted code editing to a form
+again, don't resurrect this — it's a 2008-era unmaintained library with no
+Prism/CodeMirror-style active alternative vendored yet; treat it as a fresh
+"pick and vendor a library" decision, not a revert.
 
 ## Setup wizard tooltip/JS component attempts — see `adminlte-theme.md`
 
