@@ -1,6 +1,24 @@
 # PROPOSAL — a small, high-ROI functional test suite for Epesi
 
-> **Status:** PROPOSAL - undecided, not implemented. There is no test suite; codeception.yml/tests/ were removed.
+> # ⛔ Superseded — the live plan is [test-suite-plan.md](test-suite-plan.md)
+>
+> **Do not add notes, status or scope to this file.** It is kept for the "Why" section's rationale only.
+> Everything current — the tiers, the measured feasibility numbers, the parked status, and the running
+> notes — lives in `test-suite-plan.md`. If you arrived here looking for "the test suite proposal",
+> that is the file you want.
+>
+> **Status:** SUPERSEDED (2026-09-01) - keep for the "Why" section's rationale, not the approach and
+> **not the scope list**. Three premises below are now false:
+>
+> - Codeception is *not* "already bundled" - removed in `MIGRATION_NOTES.md` §51/§52.
+> - The nightly-CI staging has nothing to run on - `.github/workflows/ci.yml` is manually disabled with no
+>   Actions minutes (`ci-workflow.md`).
+> - **Scope item 10 tests a feature that no longer exists.** The A-Z quick jump was removed codebase-wide
+>   on 2026-07-27 (`deliberate-removals.md`), with no replacement. Its "guards the §53 fix" citation is
+>   wrong too - §53 is the composer `require` dependency audit, unrelated. Don't revive either.
+>
+> The newer plan also measures a transactional-rollback seam that removes this document's largest cost
+> item, the install-Epesi-on-the-runner fixture step.
 
 **Status:** proposal for Jasiek's decision (architecture / investment level — not a mechanics change).
 **Not an RC blocker.** The PHP 8.2 RC (`v20260701-rc1`) is already tagged; this is a quality/credibility

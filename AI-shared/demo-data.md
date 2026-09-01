@@ -2,13 +2,42 @@
 
 > **Status:** REFERENCE - the demo:generate:* console commands and their gotchas.
 
-Four commands, `modules/../console/Demo/Generate*Command.php` (namespace `Epesi\Console\Demo`,
+Five commands, `modules/../console/Demo/Generate*Command.php` (namespace `Epesi\Console\Demo`,
 registered in `console.php`), use `Faker` to seed a dev install with realistic-looking records:
 
-- `demo:generate:contacts [--count=N] [--create-company]`
+- `demo:generate:contacts [--count=N] [--create-company] [--employees=N]`
 - `demo:generate:phonecalls [--count=N]`
 - `demo:generate:meetings [--count=N]`
 - `demo:generate:tasks [--count=N]`
+- `demo:generate:shoutbox [--count=N]`
+
+**There is no `demo:generate:companies`** — companies are created only as a side effect of
+`demo:generate:contacts --create-company`. (Step 3 below named one for a while; it never existed.)
+
+**The generated data is not reproducible.** `\Faker\Factory::create()` is called with no seed, so every
+run produces different records. Fine for eyeballing a dev install, not fine for anything asserting on
+specific values — see `test-suite-plan.md`, which proposes a `--seed=N` option for exactly that reason.
+
+## Realism constraints on generated records (2026-09-01)
+
+Faker's raw output is not shaped like real CRM data, so three commands constrain it. Both helpers are
+traits in `console/Demo/`, used by meetings/phonecalls/tasks:
+
+- **`BusinessHours`** — Faker's `dateTimeBetween()` gives a useful *date* but a time-of-day drawn
+  uniformly across 24h, which produced demo calendars full of 03:47 meetings, calls and deadlines.
+  Times are now placed in a **09:00–20:00** window on **15-minute** boundaries. For meetings the
+  duration is chosen first and the window holds the *whole* meeting, so a 3h meeting starts by 17:00.
+- **`ShortTitle`** — `sentence(4)` routinely ran past 40 characters and wrapped in grid rows. Titles
+  and subjects are capped at **30 characters**, trimmed on word boundaries so they still read as
+  sentences rather than being cut mid-word.
+- **Meeting durations** are 1h–3h in half-hour steps (`GenerateMeetingsCommand::DURATIONS`), up from
+  the old 30min/1h/2h.
+- **Employee `title`** uses Faker's `jobTitle` ("Sales Manager"), not `title` ("Prof.") — the contact
+  recordset's Title is a free-text position field, not an honorific. The customer-contact path still
+  uses `title`; worth changing too if demo customers ever need to look right.
+
+Both traits use **static properties rather than constants**: constants in traits require PHP 8.2 and
+this app supports 8.1+ (see `environment-gotchas.md` on the floor).
 
 All four run as user id 1 (`Acl::set_user(1)`) so `Utils_RecordBrowserCommon::new_record()`'s
 `created_by` binding has a real value in a CLI context, which never has a session.
@@ -34,14 +63,22 @@ clear message if it comes back empty - they never fall back to "any contact," an
 employee themselves. The expected setup order on a fresh install is:
 
 1. Create your own company and your own contact by hand (or through normal first-run setup).
-2. Use RecordBrowser's **Clone** feature on your own contact to create however many additional
-   employees you want - clones keep the same `company_name`, so they automatically satisfy
-   `employees_crits()`.
-3. *Then* run `demo:generate:contacts`/`:companies` (customers - any company, unrelated to yours)
+   Still manual: `get_main_company()` derives your company from *your own contact's*
+   `company_name` (the contact whose `login` field is your user id), so nothing can create it
+   until that record exists. See `test-suite-plan.md` for the proposal to do this in FirstRun.
+2. `demo:generate:contacts --employees=10` (added 2026-09-01) fills the employee pool - contacts
+   with `company_name` set to your own company, which is the only thing `employees_crits()`
+   actually requires. This replaces the old "clone your own contact by hand" step; RecordBrowser's
+   **Clone** feature still works if you prefer it.
+3. *Then* run `demo:generate:contacts --create-company` (customers - any company, unrelated to yours)
    and `demo:generate:phonecalls`/`:meetings`/`:tasks` (which will now only ever assign employees
    from step 2, picking 1-2 at random per record).
 
-Re-running the generators later (e.g. after cloning more employees) picks up the larger pool
+`--employees=N` and `--count=N` are independent, so `--count=100 --employees=10` seeds both pools in
+one run. `--employees` on its own generates *only* employees - it does not also emit the single
+customer contact that a bare `demo:generate:contacts` still defaults to.
+
+Re-running the generators later (e.g. after adding more employees) picks up the larger pool
 automatically - the query runs fresh every time, nothing is cached.
 
 **Demo contacts must never create real logins.** `demo:generate:contacts` used to have a

@@ -694,7 +694,7 @@ the `.epesi-rv-tools` prefix or the row's own grey wins on a specificity tie.
 
 ## Fixed: a fresh `HTMLPurifier` per grid row - half the RecordBrowser row loop (2026-08-31)
 
-This closes **item 2.1** of `optimization-plan-opus.md` - "one Xdebug or Excimer profile
+This closes **item 2.1** of `REFERENCE-optimization-opus-AI.md` - "one Xdebug or Excimer profile
 of a single Contacts: Browse `process.php` request, to turn *0.10s somewhere in
 RecordBrowser* into a ranked function list". The plan called it the highest-value
 remaining item and said everything about RecordBrowser was guesswork until it existed.

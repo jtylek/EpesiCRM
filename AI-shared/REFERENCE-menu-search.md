@@ -1,14 +1,15 @@
-# Sidebar menu search/filter — plan
+# Sidebar menu search/filter — how it works
 
-> **Status:** DONE - implemented; see Base/Menu/Menu_0.php and its theme_adminltedark/default.css. Kept for the design rationale.
+> **Status:** REFERENCE - shipped 2026-08-14, keyboard navigation added 2026-08-21. Describes live
+> behaviour in `Base/Menu/Menu_0.php` and its `theme_adminltedark/default.css`. Converted from a plan
+> doc to reference on 2026-09-01; the planning framing is gone, the design rationale is not.
 
-Planned and approved 2026-08-14; implemented and verified in the same session. Builds
-directly on [how-menu-works.md](how-menu-works.md) — read that first for the
-file:line detail behind every claim below.
+The search box under the sidebar logo that narrows the AdminLTE menu tree as you type. Builds directly
+on [how-menu-works.md](how-menu-works.md) — read that first for the file:line detail behind every claim
+below.
 
-**Status: implemented** (`modules/Base/Menu/Menu_0.php`,
-`modules/Base/Menu/theme_adminltedark/default.css`). Three real bugs surfaced only by
-actually driving it in a browser, worth remembering:
+**Three bugs here surfaced only by driving it in a browser.** They are the most reusable thing in this
+file, so they come first:
 1. `#MenuBar`'s direct child is a generated AJAX-patch span
    (`<span id="/Base_Box|0|2content">`), not `ul.epesi-menu` — a `:scope >` selector
    assuming the latter was a direct child never matched anything. Fixed by
@@ -21,7 +22,7 @@ actually driving it in a browser, worth remembering:
    closed after Escape. Fixed by manipulating `.show`/`aria-expanded`/`.collapsed`
    directly instead of going through the Collapse instance's animated API — also
    better UX for a per-keystroke filter than a slide animation firing every keystroke.
-3. The `.epesi-menu-hidden { display: none; }` CSS rule was described in this plan and
+3. The `.epesi-menu-hidden { display: none; }` CSS rule was described in this doc and
    in code comments but never actually written into `default.css` — the JS was
    correctly toggling the class the whole time, it just did nothing visually.
    `document.styleSheets` + a direct `getComputedStyle` check on a hidden-by-class
@@ -35,7 +36,7 @@ folders to hunt for it. The ask: a search box just under the logo (top of `#Menu
 that narrows the tree as the user types, expanding whatever ancestor folders are
 needed to reveal a match.
 
-## Scope
+## Constraints that shaped it
 
 - **AdminLTE (`adminltedark`) sidebar only.** It's the only actively maintained
   AdminLTE-family theme (`adminlte-theme.md`: light `adminlte` was deleted outright,
@@ -48,7 +49,7 @@ needed to reveal a match.
   only visually collapsed via Bootstrap's `.collapse`. No AJAX/server round trip is
   needed or wanted.
 
-## Design decisions
+## How it works, and why
 
 1. **Placement** — prepend the search box's HTML to the string `Menu_0.php::body()`
    assigns to the `menu` Smarty var, so it lands inside `#MenuBar`, above the
@@ -87,7 +88,7 @@ needed to reveal a match.
    existing installs through normal deployment (CLAUDE.md's upgrade-gap discipline
    only applies to stored/seed data changes).
 
-## Files changed
+## Where it lives
 
 ### `modules/Base/Menu/Menu_0.php`
 - New private method building the search box markup (icon-prefixed input + clear
@@ -125,7 +126,7 @@ needed to reveal a match.
 - Clear button appears only while the input is non-empty; Escape does the same as
   clicking it.
 
-## Follow-up: keyboard navigation (2026-08-21)
+## Keyboard navigation (added 2026-08-21)
 
 Added Up/Down/Enter handling to the same `keydown` listener that already had
 Escape (`menu_search_js()`, `modules/Base/Menu/Menu_0.php`):
@@ -152,7 +153,7 @@ Escape (`menu_search_js()`, `modules/Base/Menu/Menu_0.php`):
   `visibleLinks()` has no query dependency — not requested but free and
   consistent, so left in rather than special-cased away.
 
-## Verification
+## Regression checklist
 
 No automated test suite exists for this app (CLAUDE.md) — verify by running it:
 

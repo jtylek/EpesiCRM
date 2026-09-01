@@ -2711,7 +2711,7 @@ lives at `include/EpesiArray.php`.
 - Comment-only references (no functional change): `setup.php`, 3 theme CSS files
   (`modules/Libs/QuickForm/theme/default.css`, `modules/Utils/GenericBrowser/theme_adminltedark/
   default.css`, `modules/FirstRun/theme_adminltedark/default.css`), and the "current-state"
-  `AI-shared/` docs (`standalone-entrypoints.md`, `import-wizard-plan.md`, `bug-patterns.md`,
+  `AI-shared/` docs (`standalone-entrypoints.md`, `REFERENCE-import-wizard.md`, `bug-patterns.md`,
   `adminlte-theme.md`, `TODO.md`)
 
 **Deliberately NOT touched:** this doc's own §11/§12 historical entries — they're a dated record
@@ -3043,6 +3043,64 @@ touching this pattern.
 forward — `CLAUDE.md`'s opening paragraph and this entry are the current source of truth on the release
 number. If the version scheme changes again, update both, plus re-check the `version_compare` invariant
 above against whatever the real minimum pre-migration version in the field is (currently `1.9.1`).
+
+---
+
+### §85 — Minimum PHP floor corrected: **8.0 → 8.1** (the declared floor was never runnable) (2026-09-01)
+
+**The bug.** `CompatibilityCheck::system_check()` declared `$desired_version = '8.0'`, and the README
+advertised "PHP 8.0+ (8.2 recommended)". Both were wrong: **Epesi cannot start on PHP 8.0.** The
+rationale in the code comment (and in `environment-gotchas.md`) named *constructor property promotion*
+as the binding constraint — that is 8.0+, so it justified an 8.0 floor and looked right.
+
+**The real binding constraints are 8.1-only, and they are in the bootstrap:**
+
+- **First-class callable syntax** (`$this->autoload(...)`, PHP 8.1) — `include/autoloader.php:29,33`,
+  `include/error.php:327-329`, `include/session.php:486`, `include/patches.php:452`,
+  `include/module.php:768,862`. `module.php`'s own comment even says so: *"PHP 8.1 first-class callable
+  (Rector converted `array($this,'m')` → `$this->m(...)`)"* — so this arrived as a **Rector by-product**
+  during the migration, and nothing re-checked the advertised floor afterwards.
+- **`: never` return types** (PHP 8.1) — `Applets/RssFeed/refresh.php:22`,
+  `Base/EpesiStore/runpatches.php:12`, `Utils/RecordBrowser/object_wrapper/RecordsetAccessor.php:11`.
+
+**Why it mattered more than a wrong number.** These are **parse errors**, not runtime warnings, in files
+`include.php` requires on *every* request — so an 8.0 install fatals immediately rather than degrading.
+And `compatibility_check.php` is what `check.php` (setup's Compatibility step) and the admin
+"PHP Environment" screen both read, so an 8.0 user was told **"PHP version: OK"** and then hit a white
+screen. The check actively vouched for a configuration that cannot run.
+
+**Fixed:** `include/compatibility_check.php:34` → `'8.1'`, with a comment naming the actual constructs
+(not the promotion red herring, so this doesn't get "corrected" back); `README.md` ×3 (badge + two prose
+spots); `AI-shared/environment-gotchas.md` heading *and* rationale.
+
+**Nothing in the tree needs 8.2** — checked for readonly classes, DNF types and trait constants; none
+present. 8.2 stays "recommended" (what the release is developed and tested against), not required. This
+is why `console/Demo/BusinessHours.php` and `ShortTitle.php` use **static properties rather than trait
+constants**, which would have been an 8.2-only construct and would have silently raised the floor again.
+
+**Corroboration nobody looked at.** `rector.php` — the config actually applied to this codebase, as
+distinct from the advisory sweep — has targeted `PhpVersion::PHP_81` / `SetList::PHP_81` all along. The
+tooling encoded the real floor correctly while three docs and the runtime check all said 8.0.
+
+**And the clean 8.3 sweep is not an 8.3 support claim.** `rector-php83.php` (`SetList::PHP_83`, advisory)
+reports **0 files** as of 2026-09-01, which is what triggered the Epesi 2.0 rename (§84). Read it as "no
+pre-8.3 idioms left worth modernizing" and nothing more:
+
+- Rector is a **refactoring** tool, not a compatibility checker — it rewrites *forward* into newer idioms
+  and never looks for what a newer PHP would break.
+- So 0 findings is equally consistent with "8.3-ready" and with "never once run on 8.3". The result
+  cannot tell those apart, which is precisely the mistake this whole entry is about: **a green tool being
+  read as a guarantee it never made.** The old `$desired_version = '8.0'` passing was the same shape.
+- CI lints at **8.2 only** (`PHP_VERSION` in `ci.yml`).
+
+Correct phrasing is **"8.3-clean under Rector"**, not "supports 8.3". Establishing real 8.3 support is
+cheap now — `php -l` on an 8.3 binary plus a run — and should happen before any release note says 8.3.
+
+**How to apply.** `system_check()`'s `$desired_version` is the single source of truth — read it, don't
+cite a remembered number. More generally: **a Rector run can raise the language floor as a side effect**,
+and neither `php -l` (run on 8.2 here) nor PHPStan will tell you, because both are configured at the
+*target* version, not the floor. Any future floor change is one line there plus the README and
+`environment-gotchas.md`.
 
 ---
 

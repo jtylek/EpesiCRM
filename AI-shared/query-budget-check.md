@@ -133,7 +133,7 @@ five were checked — with both prefetch functions disabled the command reports
 
 **Whole-page query counts.** `Epesi::process()` renders from module-tree state that lives
 in a browser session, so a faithful page render needs a browser. Page totals stay a manual
-measurement — the procedure is section 7 of `optimization-plan-opus.md`, and it no longer
+measurement — the procedure is section 7 of `REFERENCE-optimization-opus-AI.md`, and it no longer
 needs a `config.php` edit now that a super-admin can switch the SQL panel on for their own
 session.
 

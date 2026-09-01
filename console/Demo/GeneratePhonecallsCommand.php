@@ -12,6 +12,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeneratePhonecallsCommand extends Command
 {
+    use BusinessHours;
+    use ShortTitle;
+
     protected function configure()
     {
         $this
@@ -114,7 +117,7 @@ class GeneratePhonecallsCommand extends Command
             }
 
             $values = [];
-            $values['subject'] = rtrim($faker->sentence(4), '.');
+            $values['subject'] = $this->short_title($faker);
             $values['customer'] = $customer;
             $values['phone'] = $phone;
             $values['permission'] = $faker->randomElement([0, 1, 2]);
@@ -122,7 +125,11 @@ class GeneratePhonecallsCommand extends Command
             $values['employees'] = $employees;
             $values['status'] = $faker->randomElement([0, 1, 2, 3, 4]);
             $values['priority'] = $faker->randomElement([0, 1, 2]);
-            $values['date_and_time'] = $when->format('Y-m-d H:i:s');
+            // Faker's date, but a working-hours clock time - nobody demos 03:47 calls.
+            // gmdate(), not date(): the slot is seconds-from-midnight, not a timestamp,
+            // so a local timezone offset would shift every record.
+            $values['date_and_time'] = $when->format('Y-m-d')
+                . ' ' . gmdate('H:i:s', $this->business_hours_start($faker));
 
             $id = \Utils_RecordBrowserCommon::new_record('phonecall', $values);
             $table->addRow([$id, $values['subject'], $values['date_and_time']]);

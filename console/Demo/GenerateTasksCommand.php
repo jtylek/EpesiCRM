@@ -12,6 +12,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class GenerateTasksCommand extends Command
 {
+    use BusinessHours;
+    use ShortTitle;
+
     protected function configure()
     {
         $this
@@ -91,7 +94,7 @@ class GenerateTasksCommand extends Command
             $customers = $customer_pool ? (array) $faker->randomElements($customer_pool, min(count($customer_pool), $faker->numberBetween(0, 2))) : [];
 
             $values = [];
-            $values['title'] = rtrim($faker->sentence(4), '.');
+            $values['title'] = $this->short_title($faker);
             $values['description'] = $faker->sentence(10);
             $values['employees'] = $employees;
             $values['customers'] = $customers;
@@ -103,7 +106,12 @@ class GenerateTasksCommand extends Command
             // showing every generated task as "Longterm: Yes" regardless of
             // the random data above.
             $values['longterm'] = 0;
-            $values['deadline'] = $deadline->format('Y-m-d H:i:s');
+            // Faker's date, but a working-hours clock time - a deadline of 03:47
+            // reads as broken data. gmdate(), not date(): the slot is
+            // seconds-from-midnight, not a timestamp, so a local timezone offset
+            // would shift every record.
+            $values['deadline'] = $deadline->format('Y-m-d')
+                . ' ' . gmdate('H:i:s', $this->business_hours_start($faker));
 
             $id = \Utils_RecordBrowserCommon::new_record('task', $values);
             $table->addRow([$id, $values['title'], $values['deadline']]);

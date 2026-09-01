@@ -7,7 +7,7 @@
  * it back - a global change, for every user of the install, that outlives the session
  * that wanted it. On a machine where more than one person (or more than one agent
  * session) works against the same tree, that is not a private act. See
- * AI-shared/optimization-plan-opus.md item B3 / 2.3.
+ * AI-shared/REFERENCE-optimization-opus-AI.md item B3 / 2.3.
  *
  * The constants stay exactly as they were and remain the *default*: an install that sets
  * SQL_TIMES=1 in config.php behaves as it always did, including for requests that have no

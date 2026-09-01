@@ -1,6 +1,16 @@
-# Optimization plan (Opus session, 2026-08-31)
+# Optimization work, 2026-08-31 — findings, decisions and implementation log
 
-> **Status:** every item in this plan is now shipped, closed, or formally struck - see
+> **Status:** REFERENCE - nothing here is open work. Reclassified from "plan" on 2026-09-01: it is now
+> the measured baseline (§1), the findings behind the N+1 and bootstrap fixes (§2–§3), the record of what
+> was deliberately *not* done and why (§6), the measurement procedure (§7), and the implementation logs
+> (§8–§14). Read it for why the code is shaped this way, not for work to pick up.
+>
+> **Do not renumber the sections.** They are cited from outside this file — `item 2.1`, `item 2.3`,
+> `item 2.4`, `§A1`, `§A3`, `item B6`, `section 7`, `§10` — from `console/Develop/QueryBudgetCommand.php`,
+> `.github/workflows/ci.yml`, `query-budget-check.md`, `performance-profiling.md` and others. The Tier 0–3
+> sequencing in §5 is spent, but §8–§14 refer back to it constantly, so it stays as the logs' scaffolding.
+>
+> Original status line, still accurate: every item is shipped, closed, or formally struck - see
 > sections 8-14 for the implementation logs and §6 for the handful of items rejected by
 > design from the start. Tier 0, Tier 1 and Tier 2 are done (§8, §9, §10). Tier 3 is fully
 > resolved: A2.3 and 3.4 shipped (§11, §12), 3.1 closed/struck on measurement (§11), 3.2
@@ -459,7 +469,7 @@ structural.
 added since — `performance-profiling.md`, `password-hashing.md`, `demo-mode.md`,
 `demo-data.md`, `Simple-setup-ESS.md`, `branding-epesi-casing.md`,
 `recordbrowser-live-schema-changes.md`, `mail-account-encryption-and-gmail-oauth.md`,
-`how-to-write-HELP.md`, `import-wizard-plan.md`, `Epesi-Google-Calendar-sync.md`.
+`how-to-write-HELP.md`, `REFERENCE-import-wizard.md`, `Epesi-Google-Calendar-sync.md`.
 
 A session that opens `INDEX.md` first — a reasonable guess — gets a confidently-worded
 index that omits the most operationally useful file in the directory. `CLAUDE.md` points
@@ -507,9 +517,17 @@ consulted more linearly and is less urgent.
 The folder mixes, with no consistent marker:
 
 - **Verified fact** — `password-hashing.md` (confirmed live the same day)
-- **Approved but unimplemented plan** — `menu-search-plan.md`,
-  `Epesi-Google-Calendar-sync.md`, `import-wizard-plan.md`,
+- **Approved but unimplemented plan** — `REFERENCE-menu-search.md`,
+  `Epesi-Google-Calendar-sync.md`, `REFERENCE-import-wizard.md`,
   `mail-account-encryption-and-gmail-oauth.md`, `release-packaging-plan.md`
+  > **2026-09-01 postscript — this list was itself wrong, which sharpens the point.** Re-verified
+  > against the code: only `release-packaging-plan.md` was genuinely unimplemented. The menu search and
+  > the Import wizard had *already shipped* when this was written, Google Calendar Sync was built weeks
+  > later, and mail encryption Phase 1 shipped too. All four kept status lines saying "NOT implemented"
+  > for weeks. The two now prefixed `REFERENCE-` were renamed that day precisely so the filename can no
+  > longer disagree with the content. The real lesson is stronger than Problem 4 states: a status marker
+  > at the top is necessary but not sufficient — **nothing re-checks the marker against the code**, and
+  > `Premium/` being gitignored means no tool ever could for the Import one.
 - **Implemented but unverified** — `generic-browser-responsive-tables.md` ("not yet
   visually verified or merged")
 - **Silently wrong** — `INDEX.md`

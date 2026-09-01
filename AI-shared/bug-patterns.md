@@ -2667,4 +2667,4 @@ close tag). The transferable lessons:
 - **"The bundle lints clean" is not "the app works".** Both defects survived
   `php -l` on the generated bundle and a successful `console.php cache:rebuild`; only
   loading the actual webmail exposed them. Same shape as the `===`/`==` lesson in
-  `optimization-plan-opus.md` §10: a verification is worth exactly what it checked.
+  `REFERENCE-optimization-opus-AI.md` §10: a verification is worth exactly what it checked.

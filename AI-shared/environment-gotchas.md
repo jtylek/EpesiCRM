@@ -487,18 +487,42 @@ Administrator") PowerShell. Any tool chocolatey would install (e.g. `rsync`, for
 cleaner alternative to the `robocopy /E` merge-copy pattern in `MIGRATION_NOTES.md` §70)
 hits the same wall.
 
-## Minimum PHP version: 8.0 required, 8.2 recommended — single source of truth is `include/compatibility_check.php`
+## Minimum PHP version: 8.1 required, 8.2 recommended — single source of truth is `include/compatibility_check.php`
 
 If asked "what PHP version does Epesi need," don't guess from `composer.json` — it
 declares no explicit `"php"` platform constraint, so it won't tell you. The actual
 enforced floor is `CompatibilityCheck::system_check()`
 (`include/compatibility_check.php:30-41`), shared by both `check.php` (setup's
 "Compatibility check" step) and the logged-in admin "PHP Environment & config.php"
-screen (`admin/modules/ConfigInfo.php`). Floor is PHP 8.0 because Epesi's own code
-uses constructor property promotion (8.0+-only syntax) — anything older fails to
-parse before the check itself could even run. 8.2 is called out as "recommended"
-because that's what this release (`20260701-rc1`) is actually developed and tested
-against, per `MIGRATION_NOTES.md`.
+screen (`admin/modules/ConfigInfo.php`). **Floor is PHP 8.1** — corrected from 8.0 on
+2026-09-01. Constructor property promotion (8.0+) is not the binding constraint; the
+bootstrap uses **first-class callable syntax** (`$this->autoload(...)` in
+`include/autoloader.php`, likewise in `error.php`, `session.php`, `patches.php`,
+`module.php`) and `: never` return types (`Applets/RssFeed/refresh.php`,
+`Base/EpesiStore/runpatches.php`, `RecordsetAccessor.php`), all **8.1+**. Those are
+parse errors on 8.0, in files loaded on every request — so an 8.0 install fatals
+immediately, and the old `$desired_version = '8.0'` reported it as OK first. Nothing
+in the tree needs 8.2. 8.2 remains "recommended" because that is what the release is
+developed and tested against, per `MIGRATION_NOTES.md`.
+
+**Corroboration:** `rector.php` — the config actually applied to this codebase, as
+opposed to the advisory sweep — targets `PhpVersion::PHP_81` and `SetList::PHP_81`.
+The tooling had already encoded 8.1 while the docs still said 8.0.
+
+**The 8.3 question, since the advisory sweep is now clean.** `rector-php83.php`
+(`SetList::PHP_83`, advisory, never blocking) reports **0 files** as of 2026-09-01.
+That means "no pre-8.3 idioms left that Rector would modernize" — a maturity signal,
+and the trigger for the Epesi 2.0 rename (§84). It is **not** an 8.3 support claim:
+
+- Rector is a **refactoring** tool, not a compatibility checker. It rewrites code
+  *forward* into newer idioms; it does not look for things 8.3 would break.
+- Zero findings is therefore equally consistent with "8.3-ready" and with "nobody has
+  ever run this on 8.3" — the result cannot distinguish them.
+- CI lints at **8.2 only** (`PHP_VERSION` in `ci.yml`); there is no 8.3 lint job.
+
+So the accurate phrasing is **"8.3-clean under Rector"**, never "supports 8.3".
+Establishing the latter means `php -l` on an 8.3 binary plus a real run — worth doing
+before any release note mentions 8.3, and cheap now that the sweep is quiet.
 
 **How to apply**: read `system_check()`'s `$desired_version` directly rather than
 citing a remembered number — if a future patch raises the floor (e.g. to drop 8.0/8.1

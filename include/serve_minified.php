@@ -4,7 +4,7 @@
  * points, serve.php (root) and modules/Base/Theme/theme_css.php. Both used to
  * carry their own ~70-line copy of this (file-list validation, Minify setup,
  * cache dir) that had drifted into two almost-but-not-quite-identical
- * versions - see AI-shared/optimization-plan-opus.md, item 3.4.
+ * versions - see AI-shared/REFERENCE-optimization-opus-AI.md, item 3.4.
  *
  * Deliberately does not require include.php: these two entry points are hit
  * on every page load (often several times, once per distinct loader/theme

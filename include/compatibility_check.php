@@ -29,9 +29,15 @@ class CompatibilityCheck {
 
     private static function system_check() {
         $php_version = phpversion();
-        // EPESI's own code (constructor property promotion etc., see
-        // CLAUDE.md) parses only on PHP 8.0+; this checkout targets 8.2.
-        $desired_version = '8.0';
+        // 8.1, not 8.0: the bootstrap itself uses first-class callable syntax
+        // ($this->autoload(...) in include/autoloader.php, and the same in
+        // include/error.php, session.php, patches.php, module.php), which is
+        // PHP 8.1+ - as are the `: never` return types in RssFeed/refresh.php,
+        // EpesiStore/runpatches.php and RecordsetAccessor.php. Those are parse
+        // errors below 8.1, so an 8.0 install fatals on every request rather
+        // than degrading; this check previously passed it as OK first. Nothing
+        // in the tree needs 8.2, which stays the recommended/targeted version.
+        $desired_version = '8.1';
         $php_version_ok = version_compare($php_version, $desired_version, '>=');
         $status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least PHP ' . $desired_version . ' (8.2 recommended)';
         $tests = array(

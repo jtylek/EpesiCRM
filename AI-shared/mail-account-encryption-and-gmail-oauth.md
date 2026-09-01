@@ -1,6 +1,10 @@
 # CRM_Mail: password encryption at rest + Gmail OAuth account type — plan (2026-08-29)
 
-> **Status:** PLAN - Phase 1 (password encryption at rest) NOT implemented; Gmail OAuth deferred. Gmail already works via an app-specific password.
+> **Status:** PARTLY DONE - **Phase 1 (password encryption at rest) IS implemented**:
+> `CRM_MailCommon::encrypt_account_secret()` (`MailCommon_0.php:59-83`) encrypts `password` and
+> `smtp_password` on add/edit, with the blank-means-keep-current handling documented there. Phase 2
+> (Gmail OAuth) remains **deferred by decision** — Gmail already works via an app-specific password,
+> so don't start it unprompted. (Header corrected 2026-09-01: it read "Phase 1 … NOT implemented".)
 
 Written in response to a request to plan (1) encrypting the plaintext IMAP/SMTP passwords `CRM_Mail`
 (`modules/CRM/Mail/`) stores in `rc_accounts`, and (2) adding a second "Gmail (OAuth)" account type alongside

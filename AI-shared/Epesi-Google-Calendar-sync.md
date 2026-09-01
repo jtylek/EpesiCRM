@@ -1,6 +1,11 @@
 # Google Calendar Sync — approved design (2026-08-24)
 
-> **Status:** PLAN - approved design, NOT implemented. modules/CRM/GoogleCalendarSync/ does not exist yet.
+> **Status:** ON HOLD - **built, not abandoned.** `modules/CRM/GoogleCalendarSync/` exists (3 PHP files,
+> ~775 lines, `php -l` clean) and reached a real live "Connected" state via Google OAuth; paused
+> 2026-08-28 on `insufficient authentication scopes`, which is Google Console configuration rather than
+> a code defect — see "On hold" below and the module's own `README.md`. `simple_setup()` is commented
+> out and the module is uninstalled from this dev instance. (Header corrected 2026-09-01: it still said
+> "NOT implemented … does not exist yet", contradicting the two sections directly beneath it.)
 
 Approved plan for a new installable module, `modules/CRM/GoogleCalendarSync/`, that pushes each user's
 Epesi meetings to their own Google Calendar. Not yet implemented — this is the design to build from,

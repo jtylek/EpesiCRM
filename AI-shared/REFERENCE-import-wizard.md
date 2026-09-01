@@ -1,11 +1,17 @@
-# Premium/Import guided wizard — plan
+# Premium/Import guided wizard — how it works
 
-> **Status:** PLAN - approved, NOT implemented.
+> **Status:** REFERENCE - shipped and verified live 2026-08-18. `Premium/Import/Import_0.php:314` builds
+> the flow on `Utils_Wizard`. Converted from a plan doc to reference on 2026-09-01; the planning framing
+> is gone, the design rationale and the five browser-only bugs are not.
+>
+> Its header claimed "approved, NOT implemented" for two weeks while the paragraph directly beneath said
+> "implemented and verified live" — `Premium/` is gitignored, so no tool and no session ever re-checked
+> it. Worth remembering as a shape: **a gitignored tree's docs go stale silently.**
 
-Planned and approved 2026-08-18. Extends into a shared `Utils_Wizard` AdminLTE template used by both
-`Premium/Import` and `FirstRun`.
+The guided import flow, built on a shared `Utils_Wizard` AdminLTE template used by both `Premium/Import`
+and `FirstRun`.
 
-**Status: implemented and verified live** (2026-08-18). `Premium/Import` commits so far: `cf24218..ede708f`
+**Shipped** (2026-08-18). `Premium/Import` commits: `cf24218..ede708f`
 on the module's own nested repo (`jtylek/Premium-Import`, pushed - includes the "Match values" fix (bug #3),
 the sticky-callback-hijacking fix (bug #4, `7ac63c0`), the Permission-column case-sensitivity fix (bug #5,
 `ede708f`), and an AdminLTE layout polish pass over the wizard's own screens, also `ede708f`); the shared
@@ -198,7 +204,7 @@ consumer re-skinning the bare `<ul>` with its own CSS hack:
 - This supersedes the original plan's idea of Import re-skinning the bare `<ul>` itself the same way FirstRun
   did — Import's wizard now gets a real stepper for free via the shared template, same as FirstRun does.
 
-## Premium/Import wizard design
+## Design, and why
 
 ### Entry point & routing
 `admin()` (`Import_0.php:34`) routes to a new `import_wizard()` instead of `files()`:
@@ -249,7 +255,7 @@ New step copy only (backend class/method/table names untouched): "recordset" →
 fields" → "fixed values", "common data" → "match values", one short explanatory line per step. The raw
 `Import/ImportLimit`-in-commondata confirm text is dropped entirely — chunking is now invisible.
 
-## Files touched
+## Where it lives
 - `modules/Utils/Wizard/theme_adminltedark/default.tpl`, `default.css` — new, shared stepper (benefits
   `FirstRun` and `Develop/ModuleCreator` too, no changes needed in either).
 - `modules/FirstRun/theme_adminltedark/default.css` — remove now-dead `ul`/`li` rules; opportunistic
@@ -264,7 +270,7 @@ fields" → "fixed values", "common data" → "match values", one short explanat
   fallback-to-literal convention).
 - No changes to `Utils_Wizard`'s PHP logic, `FirstRun_0.php`, or `ModuleCreator_0.php` — template-only.
 
-## Verification
+## Regression checklist
 - `C:\xampp82\php\php.exe -l` on every new/changed PHP file.
 - Launch the app; drive the Import wizard end-to-end: small single-sheet CSV; multi-sheet XLSX (worksheet
   picker + "import another sheet" loop); a file large enough to force multi-request chunked parsing/import;

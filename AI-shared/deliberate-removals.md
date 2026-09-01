@@ -406,13 +406,13 @@ OpenFlashChart/`Develop_*` above.
 Every module's `*Common_0.php` used to be concatenatable into one cached file,
 `temp/data/cache/common.php`, so `ModuleManager::load_modules()` could do one
 `require_once` instead of ~71. The flag defaulted off since inception; the same day it
-was turned on for fresh installs (`5e3ed0378`, part of `optimization-plan-opus.md` item
+was turned on for fresh installs (`5e3ed0378`, part of `REFERENCE-optimization-opus-AI.md` item
 2.5), then reverted (`df9a0cf82`) once actually measured, then the whole mechanism was
 cut. **If a future performance pass proposes reintroducing "bundle the Common classes",
 read this entry and the measurement below first — it has already been tried twice and
 measured once.**
 
-**Why it existed.** `optimization-plan-opus.md` §A3 framed `load_modules()`'s per-request
+**Why it existed.** `REFERENCE-optimization-opus-AI.md` §A3 framed `load_modules()`'s per-request
 cost as "~71 `require`s + `file_exists()` calls", and the bundle turns that into one. That
 framing implied an order-of-magnitude win.
 

@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="https://sourceforge.net/projects/epesi"><img src="https://img.shields.io/sourceforge/dt/epesi.svg" alt="SourceForge downloads"></a>
-  <img src="https://img.shields.io/badge/PHP-8.0%2B-777bb4" alt="PHP 8.0 or newer (8.2 recommended)">
+  <img src="https://img.shields.io/badge/PHP-8.1%2B-777bb4" alt="PHP 8.1 or newer (8.2 recommended)">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
 </p>
 
@@ -99,7 +99,7 @@ for the implementation history.
   and a Telegram integration — all real modules you can read as reference implementations.
 - **PWA, zero client install.** Runs in any modern browser, installable to a home screen,
   no desktop client to distribute or update.
-- **Ordinary LAMP stack.** PHP 8.0+ (8.2 recommended) + MySQL or PostgreSQL. No build
+- **Ordinary LAMP stack.** PHP 8.1+ (8.2 recommended) + MySQL or PostgreSQL. No build
   step — `modules/` and `theme*/` are served directly, nothing to compile or bundle.
 - **AI-agent ready.** This repo is set up to be productively worked on by an AI coding
   agent from the first clone — see below.
@@ -150,7 +150,7 @@ composer install            # the app itself
 composer install -d tools   # once: PHPStan + Rector, used by CI and by `php -l`-adjacent checks
 ```
 
-Requires a LAMP-style stack — PHP 8.0+ (8.2 recommended) and MySQL or PostgreSQL.
+Requires a LAMP-style stack — PHP 8.1+ (8.2 recommended) and MySQL or PostgreSQL.
 Point your web server's document root at the checkout and open it in a browser to run
 the setup wizard.
 

@@ -12,6 +12,12 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class GenerateMeetingsCommand extends Command
 {
+    use BusinessHours;
+    use ShortTitle;
+
+    /** Meeting lengths, in seconds: 1h to 3h in half-hour steps. */
+    const DURATIONS = [3600, 5400, 7200, 9000, 10800];
+
     protected function configure()
     {
         $this
@@ -81,6 +87,8 @@ class GenerateMeetingsCommand extends Command
             '<fg=white;options=bold>Id</fg=white;options=bold>',
             '<fg=white;options=bold>Title</fg=white;options=bold>',
             '<fg=white;options=bold>Date</fg=white;options=bold>',
+            '<fg=white;options=bold>Start</fg=white;options=bold>',
+            '<fg=white;options=bold>End</fg=white;options=bold>',
         ]);
 
         $faker = \Faker\Factory::create();
@@ -90,11 +98,19 @@ class GenerateMeetingsCommand extends Command
             $employees = (array) $faker->randomElements($employee_ids, min(count($employee_ids), $faker->numberBetween(1, 2)));
             $customers = $customer_pool ? (array) $faker->randomElements($customer_pool, min(count($customer_pool), $faker->numberBetween(0, 2))) : [];
 
+            // Duration is picked first because it constrains how late the meeting can
+            // start: the window is what the whole meeting has to fit inside, so a 3h
+            // meeting can start no later than 17:00 for a 20:00 day_end.
+            $duration = $faker->randomElement(self::DURATIONS);
+            $start = $this->business_hours_start($faker, $duration);
+
             $values = [];
-            $values['title'] = rtrim($faker->sentence(4), '.');
+            $values['title'] = $this->short_title($faker);
             $values['date'] = $when->format('Y-m-d');
-            $values['time'] = '1970-01-01 ' . $when->format('H:i:s');
-            $values['duration'] = $faker->randomElement([1800, 3600, 7200]);
+            // gmdate(), not date(): $start is seconds-from-midnight, not a real
+            // timestamp, so a local timezone offset would shift every meeting.
+            $values['time'] = '1970-01-01 ' . gmdate('H:i:s', $start);
+            $values['duration'] = $duration;
             $values['description'] = $faker->sentence(10);
             $values['employees'] = $employees;
             $values['customers'] = $customers;
@@ -103,7 +119,11 @@ class GenerateMeetingsCommand extends Command
             $values['permission'] = $faker->randomElement([0, 1, 2]);
 
             $id = \Utils_RecordBrowserCommon::new_record('crm_meeting', $values);
-            $table->addRow([$id, $values['title'], $values['date']]);
+            // Start/End columns make the DAY_START..DAY_END window verifiable by eye.
+            $table->addRow([
+                $id, $values['title'], $values['date'],
+                gmdate('H:i', $start), gmdate('H:i', $start + $duration),
+            ]);
             $progress->advance();
         }
         $progress->finish();

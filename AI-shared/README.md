@@ -48,12 +48,12 @@ most expensive mistake this folder can cause, and it has happened.
 **When something is slow**
 - [performance-profiling.md](performance-profiling.md) — how to profile, and the N+1 fixes already applied.
 - [query-budget-check.md](query-budget-check.md) — the `dev:query:budget` N+1 regression guard: how it works, how to add a scenario.
-- [optimization-plan-opus.md](optimization-plan-opus.md) — measured baseline + the sequenced optimization plan.
+- [REFERENCE-optimization-opus-AI.md](REFERENCE-optimization-opus-AI.md) — **REFERENCE.** Measured baseline, the N+1/bootstrap findings, what was deliberately not done, and the implementation logs. Section numbers are cited from code/CI — don't renumber.
 
 **Working on a specific area**
 - [adminlte-theme.md](adminlte-theme.md) — theme status and the recurring CSS/JS traps.
 - [how-menu-works.md](how-menu-works.md) — sidebar/menu internals.
-- [menu-search-plan.md](menu-search-plan.md) — the sidebar search box's design rationale.
+- [REFERENCE-menu-search.md](REFERENCE-menu-search.md) — **REFERENCE.** How the sidebar search box works, plus three browser-only bugs.
 - [generic-browser-responsive-tables.md](generic-browser-responsive-tables.md) — grid layout: column sizing (why declared weights still matter) + mobile reflow.
 - [recordbrowser-live-schema-changes.md](recordbrowser-live-schema-changes.md) — evolving a schema without losing data.
 - [tooltips-howto.md](tooltips-howto.md) — adding a RecordBrowser column tooltip.
@@ -77,18 +77,23 @@ most expensive mistake this folder can cause, and it has happened.
 - [TODO.md](TODO.md) — follow-up work *we* deferred (vs. known-todos.md's pre-existing code markers).
 
 **Not implemented (plans only)**
-- [PROPOSAL_functional_tests.md](PROPOSAL_functional_tests.md) — a test suite. Still undecided.
-- [Epesi-Google-Calendar-sync.md](Epesi-Google-Calendar-sync.md) — one-way Epesi → Google Calendar sync.
-- [import-wizard-plan.md](import-wizard-plan.md) — Premium/Import as a Utils_Wizard stepper.
-- [release-packaging-plan.md](release-packaging-plan.md) — clean upgrade from a manual release zip.
-- [mail-account-encryption-and-gmail-oauth.md](mail-account-encryption-and-gmail-oauth.md) — encrypt rc_accounts passwords; Gmail OAuth.
+- [test-suite-plan.md](test-suite-plan.md) — an automated PHP test suite, in four independent tiers. **Parked 2026-09-01** (deliberately not started, not blocked); §0 has the notes to resume from.
+- [PROPOSAL_functional_tests.md](PROPOSAL_functional_tests.md) — the earlier Codeception+CI take, superseded. Don't add to it.
+- [release-packaging-plan.md](release-packaging-plan.md) — clean upgrade from a manual release zip. Still genuinely unbuilt: the `update:apply` command it names does not exist (`console.php list` has only `dev:dist:create`).
+
+**Shipped, kept for the design rationale** — these were filed under "plans only" while their status
+lines claimed they were unbuilt. All three were re-verified against the code on 2026-09-01 and corrected;
+don't move them back on the strength of a header alone.
+- [REFERENCE-import-wizard.md](REFERENCE-import-wizard.md) — **REFERENCE.** `Premium/Import/Import_0.php:314` builds the flow on `Utils_Wizard`. Kept for the five browser-only bugs it records.
+- [Epesi-Google-Calendar-sync.md](Epesi-Google-Calendar-sync.md) — **ON HOLD, built.** Module exists and reached live "Connected"; paused on a Google Console scope issue, not a code defect.
+- [mail-account-encryption-and-gmail-oauth.md](mail-account-encryption-and-gmail-oauth.md) — **Phase 1 DONE** (`encrypt_account_secret()`); Gmail OAuth Phase 2 deferred by decision.
 
 ## Continuous integration
 
 `.github/workflows/ci.yml` exists as of 2026-08-31 and runs on push/PR: `php -l` over all
 first-party PHP, PHPStan level 2 (baselined — fails only on *new* findings), an advisory
-Rector 8.2 dry-run, a docs check that every `console.php` command named in `CLAUDE.md`
-actually exists, and an advisory check (item B6, `optimization-plan-opus.md`) that a diff
+Rector 8.3 dry-run (bumped from 8.2 on 2026-09-01; the config lists the six 8.3 rules explicitly rather than using the deprecated `SetList::PHP_83`), a docs check that every `console.php` command named in `CLAUDE.md`
+actually exists, and an advisory check (item B6, `REFERENCE-optimization-opus-AI.md`) that a diff
 modifying an `*Install.php` also adds a new `patches/*.php` for that module — silenced for
 a genuinely patch-free change with a `No-Patch-Needed: <reason>` trailer in a commit
 message or the PR description.
@@ -131,6 +136,16 @@ here rather than only in your own private memory.
   2026-08-31 and had been silently stale since 2026-08-05, omitting eleven files
   including `performance-profiling.md`; a session that opened it first got a
   confidently-worded index that was simply wrong.
-- **When a plan ships, change its status line.** `menu-search-plan.md` and
-  `generic-browser-responsive-tables.md` both described themselves as unimplemented long
-  after they had shipped.
+- **When a plan ships, change its status line — and rename the file.** A doc that ships
+  stops being a plan, so `<topic>-plan.md` becomes **`REFERENCE-<topic>.md`**. Repoint the
+  references when you do (`grep -rn '<old-name>' --include=*.md --include=*.php .` — code
+  comments cite these too). Done for `REFERENCE-menu-search.md` and
+  `REFERENCE-import-wizard.md` on 2026-09-01.
+- **Status lines go stale in the "already done" direction, not just the "not yet" one.**
+  On 2026-09-01 *four* docs still said NOT implemented for work that had shipped —
+  the menu search, the Import wizard, Google Calendar Sync, mail-password encryption
+  Phase 1 — and `generic-browser-responsive-tables.md` had done the same earlier. Two of
+  those had a contradicting "implemented and verified live" paragraph in their own body.
+  When you touch a doc, re-check its header against the code rather than trusting it; for
+  anything under `Premium/` assume nobody ever has, since it is gitignored and invisible
+  to every tool here.

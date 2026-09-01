@@ -13,6 +13,30 @@ migration log — root causes, decisions, and a running "upgrade-gap" discipline
 also reach existing installs — lives in `AI-shared/MIGRATION_NOTES.md`. Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
 
+**PHP: 8.1 minimum, 8.2 target, 8.3 sweep clean (but not an 8.3 support claim).** The floor is
+enforced in one place — `CompatibilityCheck::system_check()`'s `$desired_version`
+(`include/compatibility_check.php`) — so read that rather than citing a number from memory. It said `8.0`
+until 2026-09-01, which was never runnable: the bootstrap uses **first-class callable syntax**
+(`$this->autoload(...)` in `include/autoloader.php`, likewise `error.php`/`session.php`/`patches.php`/
+`module.php`) and `: never` return types, both **8.1-only**, in files loaded on every request — parse
+errors on 8.0, so the app fatals at startup while the check reported "PHP version: OK". `rector.php`, the
+config actually applied to this codebase, independently targets `PhpVersion::PHP_81` — the tooling already
+encoded the real floor while the docs said 8.0. Nothing in the tree needs 8.2. See
+`AI-shared/MIGRATION_NOTES.md` §85 and `AI-shared/environment-gotchas.md`.
+
+**On the clean 8.3 sweep:** `rector-php83.php` (advisory; it lists Rector's six PHP 8.3 rules explicitly, since `SetList::PHP_83` is deprecated in Rector 2.6 — see that file's header) reports **0 files** as of
+2026-09-01. Read that as "no pre-8.3 idioms left worth modernizing" — a code-maturity signal, and what
+triggered the Epesi 2.0 rename (§84). It is **not** evidence the app runs on 8.3: Rector is a refactoring
+tool, not a compatibility checker, and it only rewrites *forward*, so zero findings is equally consistent
+with never having tested 8.3 at all. CI still lints at 8.2 only (`PHP_VERSION` in `ci.yml`). Claiming 8.3
+support needs `php -l` plus a real run on an 8.3 binary; until someone does that, say "8.3-clean under
+Rector", not "supports 8.3".
+
+The trap worth remembering: **a Rector run can raise the language floor as a side effect** (that is where
+the first-class callables came from), and neither `php -l` nor PHPStan will catch it, since both run at
+the *target* version rather than the floor. Prefer constructs at or below 8.1 in new code — e.g. use
+static properties, not constants, in a trait (trait constants are 8.2+).
+
 `AI-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
 git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate removals that look like bugs,
 recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
@@ -68,7 +92,7 @@ number suggests: an undefined read is an `E_WARNING` under PHP 8.2, and `REPORT_
 module's whole output on the first warning of a request (see Error handling below). Level 2 adds unknown
 method/property detection on typed expressions — mostly noise here (`Module::__call()`'s dynamic dispatch
 and pre-standardized PHPDoc without the missing PSR-4 autoload look identical to PHPStan), baselined, but
-it did catch a few genuinely wrong return-type docblocks on core methods (`AI-shared/optimization-plan-opus.md`).
+it did catch a few genuinely wrong return-type docblocks on core methods (`AI-shared/REFERENCE-optimization-opus-AI.md`).
 Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
 ```
 tools/vendor/bin/phpstan analyse -c phpstan.neon

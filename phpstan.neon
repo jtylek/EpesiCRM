@@ -1,5 +1,5 @@
 # Baseline captures the pre-existing findings (mostly no-PSR-4-autoload/dynamic-dispatch
-# noise - see optimization-plan-opus.md's "PHPStan level 2" implementation log for the
+# noise - see REFERENCE-optimization-opus-AI.md's "PHPStan level 2" implementation log for the
 # breakdown); with it included, CI flags only NEW issues (regressions). Regenerate it from
 # the phpstan CI job's artifact as we clear real bugs, so it shrinks over time.
 includes:
