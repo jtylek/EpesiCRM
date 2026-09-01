@@ -810,6 +810,7 @@ class Utils_AttachmentCommon extends ModuleCommon {
 
                 foreach ($values['attached_to'] as $token) {
                 	$token = Utils_RecordBrowserCommon::decode_record_token($token);
+                	if ($token === false) continue;
                    	$subscribers = Utils_WatchdogCommon::get_subscribers($token['tab'], $token['id']);
                     foreach ($subscribers as $user_id) {
                         Utils_WatchdogCommon::user_subscribe($user_id, 'utils_attachment', $note_id);
@@ -834,8 +835,13 @@ class Utils_AttachmentCommon extends ModuleCommon {
         $ret = false;
         foreach($note['attached_to'] as $token) {
         	$token = Utils_RecordBrowserCommon::decode_record_token($token);
-        	if(!Utils_RecordBrowserCommon::check_table_name($token['tab'], false, false)
-               || Utils_RecordBrowserCommon::get_access($token['tab'],'view',$token['id'])) {
+        	// attached_to isn't always a record reference - Utils_Attachment's $group
+        	// can be an arbitrary string key with no linked record, so there's nothing
+        	// to restrict access to and the note falls through to its own permission
+        	// field instead.
+        	if ($token === false
+        	    || !Utils_RecordBrowserCommon::check_table_name($token['tab'], false, false)
+                || Utils_RecordBrowserCommon::get_access($token['tab'],'view',$token['id'])) {
                 $ret = true;
                 break;
             }

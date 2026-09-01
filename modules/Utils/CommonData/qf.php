@@ -54,7 +54,7 @@ class HTML_QuickForm_commondata extends HTML_QuickForm_select {
 				$this->updateAttributes(array('id'=>$id));
 			}
 			$val = $this->getValue();
-			$val = $val[0];
+			$val = is_array($val) ? ($val[0] ?? null) : null;
 			if($this->_flagFrozen) {
 				eval_js('new Utils_CommonData_freeze(\''.Epesi::escapeJS($id,false).'\', \''.Epesi::escapeJS(json_encode($this->_cd),false).'\')');
 				$html = '<span id="'.$id.'_label">&nbsp;</span>';
