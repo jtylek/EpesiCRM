@@ -10,6 +10,8 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+require_once('modules/Base/Theme/bootstrap_icons.php');
+
 class CRM_Contacts_Activities extends Module {
 	private $display;
 	private $theme;
@@ -129,13 +131,20 @@ class CRM_Contacts_Activities extends Module {
 	
 	public function display_activities($events, $tasks, $phonecalls){
 		$gb = $this->init_module(Utils_GenericBrowser::module_name(),'activities','activities');
-		$gb->set_table_columns(array(	array('name'=>__('Type'), 'wrapmode'=>'nowrap', 'width'=>8),
+		$gb->set_table_columns(array(	array('name'=>__('Type'), 'wrapmode'=>'nowrap', 'width'=>4),
 										array('name'=>__('Subject'), 'width'=>20),
+										array('name'=>__('Status'), 'wrapmode'=>'nowrap', 'width'=>6),
 										array('name'=>__('Date/Deadline'), 'wrapmode'=>'nowrap', 'width'=>8),
 										array('name'=>__('Employees'), 'width'=>11),
-										array('name'=>__('Customers'), 'width'=>11),
-										array('name'=>__('Attachments'), 'width'=>4)
+										array('name'=>__('Customers'), 'width'=>11)
 										));
+		// Meeting/Task/Phonecall all store 'status' against the same shared
+		// commondata category (see e.g. CRM_TasksCommon::display_status()) -
+		// a plain translated label here rather than calling each type's own
+		// display_status(), which expects a RecordBrowser column $desc and
+		// draws an interactive Follow-up leightbox on click, not a fit for
+		// this mixed-type overview row.
+		$status_labels = Utils_CommonDataCommon::get_translated_array('CRM/Status');
 		$amount = 0;
 		if ($this->display['events']) $amount += count($events);
 		if ($this->display['tasks']) $amount += count($tasks);
@@ -172,11 +181,11 @@ class CRM_Contacts_Activities extends Module {
 					if (isset($v['description']) && $v['description']!='') $title = '<span '.Utils_TooltipCommon::open_tag_attrs($v['description'], false).'>'.$title.'</span>';
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('crm_meeting', $v['id']));
 					$gb_row->add_data(	__('Meeting'),
-								$title, 
-								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2), 
+								Base_BootstrapIcons::type_tag('CRM_Meeting').$title,
+								$status_labels[$v['status']] ?? $v['status'],
+								Base_RegionalSettingsCommon::time2reg($v['start'],$v['duration']==-1?false:2),
 								CRM_ContactsCommon::display_contact(array('employees'=>$v['employees']), false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')),
-								CRM_ContactsCommon::display_company_contact(array('customers'=>$v['customers']), false, array('id'=>'customers', 'param'=>';::')),
-								Utils_AttachmentCommon::count('crm_meeting/'.$v['id'])
+								CRM_ContactsCommon::display_company_contact(array('customers'=>$v['customers']), false, array('id'=>'customers', 'param'=>';::'))
 							);
 				}
 			} elseif($t['deadline'] == $maxt) {
@@ -184,12 +193,12 @@ class CRM_Contacts_Activities extends Module {
                 $v = Utils_RecordBrowserCommon::filter_record_by_access('task', $v);
 				if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('task', $v['id']));
-					$gb_row->add_data(	__('Task'), 
-								CRM_TasksCommon::display_title($v, false), 
-								(!isset($v['deadline']) || !$v['deadline'])?__('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false), 
-								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
-								CRM_ContactsCommon::display_company_contact($v, false, array('id'=>'customers')), 
-								Utils_AttachmentCommon::count('task/'.$v['id'])
+					$gb_row->add_data(	__('Task'),
+								Base_BootstrapIcons::type_tag('CRM_Tasks').CRM_TasksCommon::display_title($v, false),
+								$status_labels[$v['status']] ?? $v['status'],
+								(!isset($v['deadline']) || !$v['deadline'])?__('No deadline'):Base_RegionalSettingsCommon::time2reg($v['deadline'],false,true,false),
+								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')),
+								CRM_ContactsCommon::display_company_contact($v, false, array('id'=>'customers'))
 							);
 				}
 			} else {
@@ -197,12 +206,12 @@ class CRM_Contacts_Activities extends Module {
                 $v = Utils_RecordBrowserCommon::filter_record_by_access('phonecall', $v);
                 if($i>=$limit['offset'] && $v) {
 					$gb_row->add_info(Utils_RecordBrowserCommon::get_html_record_info('phonecall', $v['id']));
-					$gb_row->add_data(	__('Phonecall'), 
-								CRM_PhoneCallCommon::display_subject($v), 
-								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2), 
-								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')), 
-								CRM_PhoneCallCommon::display_contact_name($v, false), 
-								Utils_AttachmentCommon::count('phonecall/'.$v['id'])
+					$gb_row->add_data(	__('Phonecall'),
+								Base_BootstrapIcons::type_tag('CRM_PhoneCall').CRM_PhoneCallCommon::display_subject($v),
+								$status_labels[$v['status']] ?? $v['status'],
+								Base_RegionalSettingsCommon::time2reg($v['date_and_time'],2),
+								CRM_ContactsCommon::display_contact($v, false, array('id'=>'employees', 'param'=>';CRM_ContactsCommon::contact_format_no_company')),
+								CRM_PhoneCallCommon::display_contact_name($v, false)
 							);
 				}
 			}
