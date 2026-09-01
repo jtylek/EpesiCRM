@@ -21,6 +21,10 @@ class Utils_PopupCalendarInstall extends ModuleInstall {
 		return true;
 	}
 	
+	public function version() {
+		return array('2.0');
+	}
+
 	public function requires($v) {
 		return array(
 			array('name'=>Base_ThemeInstall::module_name(), 'version'=>0),

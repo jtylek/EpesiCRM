@@ -18,6 +18,10 @@ class Tests_GenericBrowserInstall extends ModuleInstall {
 		return true;
 	}
 	
+	public function version() {
+		return array('2.0');
+	}
+
 	public function requires($v) {
 		return array(array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
 			array('name'=>Utils_GenericBrowserInstall::module_name(),'version'=>0));

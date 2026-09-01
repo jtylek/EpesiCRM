@@ -23,7 +23,7 @@ class Base_StatusBarInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.0.0');
+		return array('2.0');
 	}
 	public function requires($v) {
 		return array();

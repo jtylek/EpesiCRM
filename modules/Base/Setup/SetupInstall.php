@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_SetupInstall extends ModuleInstall {
 	public function version() {
-		return array('1.0.0');
+		return array('2.0');
 	}
 	
 	public function install() {		

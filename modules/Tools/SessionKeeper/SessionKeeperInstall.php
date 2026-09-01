@@ -22,7 +22,7 @@ class Tools_SessionKeeperInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("0.9");
+		return array("2.0");
 	}
 	
 	public function requires($v) {

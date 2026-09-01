@@ -36,6 +36,9 @@ class Utils_CommonDataInstall extends ModuleInstall {
 		Base_ThemeCommon::uninstall_default_theme($this->get_type());
 		return $ret;
 	}
+	public function version() {
+		return array('2.0');
+	}
 	public function requires($v) {
 		return array(
 			array('name'=>Base_LangInstall::module_name(),'version'=>0),

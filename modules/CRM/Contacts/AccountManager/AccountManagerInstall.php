@@ -26,7 +26,7 @@ class CRM_Contacts_AccountManagerInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array("1.0");
+		return array("2.0");
 	}
 
 	public static function simple_setup() {

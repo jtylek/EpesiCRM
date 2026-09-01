@@ -25,7 +25,7 @@ class Base_SupportInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.1');
+		return array('2.0');
 	}
 
 	public static function info() {

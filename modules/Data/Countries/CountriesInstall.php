@@ -675,7 +675,7 @@ class Data_CountriesInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('2008');
+		return array('2.0');
 	}
 	
 	public function requires($v) {

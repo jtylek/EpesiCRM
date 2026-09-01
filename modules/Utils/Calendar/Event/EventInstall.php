@@ -15,7 +15,7 @@ class Utils_Calendar_EventInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.0.0');
+		return array('2.0');
 	}
 }
 

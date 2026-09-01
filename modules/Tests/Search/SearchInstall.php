@@ -17,6 +17,9 @@ class Tests_SearchInstall extends ModuleInstall {
 	public function uninstall() {
 		return true;
 	}
+	public function version() {
+		return array('2.0');
+	}
 	public function requires($v) {
 		return array(
 			array('name'=>Base_SearchInstall::module_name(),'version'=>0));

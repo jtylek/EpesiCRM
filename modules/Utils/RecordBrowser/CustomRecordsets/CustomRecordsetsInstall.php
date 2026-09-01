@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Utils_RecordBrowser_CustomRecordsetsInstall extends ModuleInstall
 {
-    const version = '1.0';
+    const version = '2.0';
 
     public function install()
     {

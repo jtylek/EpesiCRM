@@ -24,7 +24,7 @@ class Utils_ImageInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('0.8.9');
+		return array('2.0');
 	}
 	public function requires($v) {
 		if(!function_exists('imagecreatefromjpeg')) return array(array('name'=>'php5-gd','version'=>0));

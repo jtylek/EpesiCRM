@@ -32,7 +32,7 @@ class Base_AdminInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array('1.0.0');
+		return array('2.0');
 	}
 
 	public static function simple_setup() {

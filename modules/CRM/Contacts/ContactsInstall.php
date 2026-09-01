@@ -189,7 +189,7 @@ class CRM_ContactsInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('0.9');
+		return array('2.0');
 	}
 
 	public static function post_install() {

@@ -12,7 +12,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 class Base_PrintInstall extends ModuleInstall
 {
-    const version = '1.5.0';
+    const version = '2.0';
 
     public function install()
     {

@@ -52,7 +52,7 @@ class CRM_Contacts_CountyInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('1.0');
+		return array('2.0');
 	}
 }
 

@@ -17,6 +17,9 @@ class Tests_LeightboxInstall extends ModuleInstall{
 	public function uninstall() {
 		return true;
 	}
+	public function version() {
+		return array('2.0');
+	}
 	public function requires($v) {
 		return array(array('name'=>Utils_CatFileInstall::module_name(),'version'=>0),
 			array('name'=>Utils_PopupCalendarInstall::module_name(),'version'=>0),

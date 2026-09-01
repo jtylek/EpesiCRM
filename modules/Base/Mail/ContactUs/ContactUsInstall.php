@@ -34,7 +34,7 @@ class Base_Mail_ContactUsInstall extends ModuleInstall {
 	}
 
 	public function version() {
-		return array('1.0');
+		return array('2.0');
 	}
 }
 

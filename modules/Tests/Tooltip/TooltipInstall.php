@@ -38,7 +38,7 @@ class Tests_TooltipInstall extends ModuleInstall {
 	}
 	
 	public function version() {
-		return array(0=>'1.0',1=>'1.5'); //version names
+		return array(0=>'1.0',1=>'2.0'); //version names
 	}
 }
 

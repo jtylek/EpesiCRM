@@ -21,7 +21,7 @@ class Utils_LeightboxPromptInstall extends ModuleInstall {
 		return true;
 	}
 	public function version() {
-		return array("1.0");
+		return array("2.0");
 	}
 	
 	public function requires($v) {

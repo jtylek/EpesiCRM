@@ -45,7 +45,7 @@ class Utils_BBCodeInstall extends ModuleInstall {
 		);
 	}
 	public function version() {
-		return array('1.0');
+		return array('2.0');
 	}
 }
 

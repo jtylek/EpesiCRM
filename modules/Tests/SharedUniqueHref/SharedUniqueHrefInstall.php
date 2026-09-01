@@ -17,6 +17,9 @@ class Tests_SharedUniqueHrefInstall extends ModuleInstall {
 	public function uninstall() {
 		return true;
 	}
+	public function version() {
+		return array('2.0');
+	}
 	public function requires($v) {
 		return array(array('name'=>'Tests_SharedUniqueHref_a','version'=>0));
 	}

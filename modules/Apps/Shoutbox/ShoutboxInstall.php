@@ -40,7 +40,7 @@ class Apps_ShoutboxInstall extends ModuleInstall {
 		return $ret;
 	}
 	public function version() {
-		return array("1.0");
+		return array("2.0");
 	}
 
 	public static function simple_setup() {

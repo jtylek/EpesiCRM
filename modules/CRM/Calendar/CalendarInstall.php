@@ -49,7 +49,7 @@ class CRM_CalendarInstall extends ModuleInstall {
 		);
 	}
 	public function version() {
-		return array('0.1.0');
+		return array('2.0');
 	}
 }
 
