@@ -76,6 +76,63 @@ class Base_BootstrapIcons {
 	}
 
 	/**
+	 * A module's icon for one specific recordset it owns, for the modules that
+	 * own several and shouldn't have them all read alike - CRM_Contacts
+	 * registers both 'contact' and 'company', and a person glyph is plainly
+	 * wrong for the latter.
+	 *
+	 * Declared as a `public static function bootstrap_recordset_icons()` on the
+	 * same <Module>Common class as bootstrap_icon(), returning a recordset-name
+	 * => "bi-..." map - the same "module opts in by defining a conventionally-
+	 * named method" shape, so a per-recordset icon lives next to the module's
+	 * own instead of in a central table here. The module's bootstrap_icon()
+	 * remains the answer for every recordset the map doesn't name, so a module
+	 * owning a single recordset (the common case) declares nothing extra.
+	 *
+	 * Distinct from $by_filename above, which disambiguates by *icon filename*
+	 * for the callers that only ever hold one (menu links, the ActionBar
+	 * launcher). This one is for callers that hold the recordset name itself.
+	 *
+	 * @param string|null $module    module name, "Vendor_Module" or "Vendor/Module"
+	 * @param string|null $recordset recordset ("tab") name, e.g. 'company'
+	 * @return string|null a "bi-..." class name, or null when the module
+	 *         declares no override for this recordset
+	 */
+	public static function resolve_recordset($module, $recordset) {
+		if (!$module || !$recordset) return null;
+		$class = str_replace('/', '_', $module).'Common';
+		if (!is_callable(array($class, 'bootstrap_recordset_icons'))) return null;
+		$map = call_user_func(array($class, 'bootstrap_recordset_icons'));
+		return (is_array($map) && !empty($map[$recordset]))? $map[$recordset]: null;
+	}
+
+	/**
+	 * A small "what kind of record is this" glyph to print immediately before a
+	 * title/subject in a list that mixes several record types - the Activities
+	 * tab under a Contact/Company, the Agenda applet, the Watchdog applet. Same
+	 * per-module icon the sidebar menu shows, so a row reads as "the thing the
+	 * Meetings/Tasks/Phonecalls menu entry points at" without a Type column.
+	 *
+	 * Returns '' (not null) when the module declares no bootstrap_icon() - these
+	 * callers concatenate the result straight into a table cell, and an absent
+	 * icon should just leave the title unprefixed rather than needing a guard at
+	 * every call site.
+	 *
+	 * @param string|null $module    module name, "Vendor_Module" or "Vendor/Module"
+	 * @param string|null $recordset the recordset this row belongs to, when the
+	 *        caller knows it - lets a module that owns several override the icon
+	 *        per recordset (see resolve_recordset()). Optional: a caller whose
+	 *        rows are one-recordset-per-module can leave it out.
+	 * @return string
+	 */
+	public static function type_tag($module, $recordset = null) {
+		if (!$module) return '';
+		$bi = self::resolve_recordset($module, $recordset) ?: self::resolve(null, $module, null);
+		if (!$bi) return '';
+		return '<i class="bi '.$bi.' epesi-type-icon text-muted me-1"></i>';
+	}
+
+	/**
 	 * @param string|null $icon a bare icon filename ("companies.png"), or a
 	 *        full resolved path (e.g. "modules/CRM/Calendar/theme/icon.png") -
 	 *        only the basename is used for the filename lookup, and if

@@ -1,0 +1,53 @@
+/* AdminLTE override for theme/Reply.css's flat header-blue.gif submit
+   button (Base_ThemeResolver::resolve() tries theme_adminltedark/ first, so
+   the legacy background-image rule never applies once this file exists) -
+   restyled as real Bootstrap primary/secondary pill buttons instead.
+   Also drops Reply.tpl's old hard-coded 100px/850px label|field grid columns
+   (label now stacks above the field instead of beside it) - that fixed
+   850px column never shrank, so the whole page needed horizontal scroll on
+   a viewport narrower than ~950px. */
+#Utils_Comment__Reply {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	width: 100%;
+	max-width: 950px;
+}
+
+#Utils_Comment__Reply .post_input textarea {
+	width: 100%;
+	max-width: 850px;
+	height: 200px;
+	box-sizing: border-box;
+}
+
+#Utils_Comment__Reply .submit {
+	display: flex;
+	gap: .5rem;
+}
+
+#Utils_Comment__Reply .submit input {
+	border: 0;
+	border-radius: 50rem;
+	padding: .375rem 1rem;
+	font-size: .875rem;
+	line-height: 1.5;
+}
+
+#Utils_Comment__Reply .submit input[type="submit"] {
+	color: #fff;
+	background-color: #0d6efd;
+}
+
+#Utils_Comment__Reply .submit input[type="submit"]:hover {
+	background-color: #0b5ed7;
+}
+
+#Utils_Comment__Reply .submit input[type="button"] {
+	color: #fff;
+	background-color: #6c757d;
+}
+
+#Utils_Comment__Reply .submit input[type="button"]:hover {
+	background-color: #5c636a;
+}

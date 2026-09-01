@@ -18,6 +18,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 	// indicator, etc.) instead of a central map - see
 	// modules/Base/Theme/bootstrap_icons.php.
 	public static function bootstrap_icon() { return 'bi-person-vcard-fill'; }
+	// This module owns two recordsets, and the person glyph above is only right
+	// for one of them - see Base_BootstrapIcons::resolve_recordset(). Same
+	// bi-building the sidebar's own Companies entry resolves to (via that class's
+	// $by_filename map, keyed on the menu link's companies.png), so the two
+	// surfaces can't disagree.
+	public static function bootstrap_recordset_icons() {
+		return array('company' => 'bi-building');
+	}
 
     public static $paste_or_new = 'new';
 	static $field = null;
@@ -239,7 +247,19 @@ class CRM_ContactsCommon extends ModuleCommon {
         $my_company = CRM_ContactsCommon::get_main_company();
         return array('(company_name' => $my_company, '|related_companies' => array($my_company));
     }
-    public static function display_company_contact($record, $nolink, $desc) {
+    /**
+     * @param bool $screen_reader_label include the indicator's hidden
+     *        "[Person]"/"[Company]" span (see company_contact_format_default())
+     *        alongside its icon - true everywhere this renders straight into
+     *        the DOM, where CSS display:none actually hides it and only
+     *        assistive tech reads it back. False for a value that will pass
+     *        through Utils_TooltipCommon::to_safe_html() first (e.g. a
+     *        format_record_tooltip() pair): that flattens HTML by stripping
+     *        disallowed tags, which drops the wrapping <span> but keeps its
+     *        text - display:none never gets a chance to apply, so the
+     *        "hidden" label would render as plain visible text instead.
+     */
+    public static function display_company_contact($record, $nolink, $desc, $screen_reader_label = true) {
         $v = $record[$desc['id']];
         if (!is_array($v) && !preg_match('#([a-zA-Z]+/[1-9][0-9]*)|((C|P):[1-9][0-9]*)#', $v)) return $v;
         $def = '';
@@ -247,16 +267,16 @@ class CRM_ContactsCommon extends ModuleCommon {
 		if (count($v)>100) return count($v).' '.__('values');
         foreach($v as $k=>$w){
             if ($def) $def .= '<br>';
-            $def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w, $nolink));
+            $def .= Utils_RecordBrowserCommon::no_wrap(self::autoselect_company_contact_format($w, $nolink, $screen_reader_label));
         }
         if (!$def)  $def = '---';
         return $def;
     }
-    public static function autoselect_company_contact_format($arg, $def = false) {
+    public static function autoselect_company_contact_format($arg, $def = false, $screen_reader_label = true) {
     	//backward compatibility
     	$nolink = ($def === false)? false: true;
 
-    	return self::company_contact_format_default($arg, $nolink);
+    	return self::company_contact_format_default($arg, $nolink, true, $screen_reader_label);
     }
     public static function select_list_company_contact_format($arg) {
     	// Used for the company/contact dual-select widget option labels only:
@@ -265,7 +285,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     	// the per-record "[Company]"/"[Person]" indicator here would be redundant.
     	return self::company_contact_format_default($arg, true, false);
     }
-	public static function company_contact_format_default($arg,$nolink=false,$show_indicator=true) {
+	public static function company_contact_format_default($arg,$nolink=false,$show_indicator=true,$screen_reader_label=true) {
     	//backward compatibility
         $id = null;
 
@@ -280,6 +300,14 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     	$val = Utils_RecordBrowserCommon::create_default_linked_label($tab, $id, $nolink, false);
 
+    	// $screen_reader_label=false strips the label's own markup here, before
+    	// the indicator below is prepended, so the indicator's <i> icon isn't
+    	// caught by the strip_tags() at the bottom of this function - every
+    	// other ($screen_reader_label=true) caller keeps that original
+    	// behavior unchanged (whole value, indicator included, stripped
+    	// together when nolink).
+    	if ($nolink && !$screen_reader_label) $val = strip_tags($val);
+
     	if ($show_indicator) {
     		$indicator_text = ($tab == 'contact' ? __('Person') : __('Company'));
 
@@ -288,11 +316,15 @@ class CRM_ContactsCommon extends ModuleCommon {
     			// background-image - bi-building matches Base_BootstrapIcons's own
     			// choice for "companies" by filename, for consistency with the
     			// sidebar/launcher icons. Hidden text kept for the same
-    			// accessibility purpose the default theme's own hidden span served.
+    			// accessibility purpose the default theme's own hidden span served -
+    			// unless $screen_reader_label says it won't stay hidden (see this
+    			// function's own doc), in which case the icon alone is the indicator.
     			$bs_icon = array('company' => array('bi-building', '#0d6efd'), 'contact' => array('bi-person-fill', '#0d6efd'));
     			$bi = $bs_icon[$tab] ?? null;
+    			$hidden_label = $screen_reader_label ? '<span style="display:none">['.$indicator_text.'] </span>' : '';
     			$rindicator = $bi ?
-    			'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i><span style="display:none">['.$indicator_text.'] </span>' : "[$indicator_text] ";
+    			'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i>'.$hidden_label
+    			: ($screen_reader_label ? "[$indicator_text] " : '');
     		} else {
     			$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
     					'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
@@ -301,7 +333,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     		}
     		$val = $rindicator.$val;
     	}
-    	if ($nolink)
+    	if ($nolink && $screen_reader_label)
     		return strip_tags($val);
     	return $val;
     }
@@ -1239,6 +1271,40 @@ class CRM_ContactsCommon extends ModuleCommon {
 
     public static function company_bbcode($text, $param, $opt) {
         return Utils_RecordBrowserCommon::record_bbcode('company', array('company_name'), $text, $param, $opt);
+    }
+
+    /**
+     * "Created: Tylek Janusz 27/08/2026 22:03" - who and when on ONE line,
+     * for a compact tooltip footer. Pass $edited_by/$edited_on (e.g. from
+     * Utils_RecordBrowserCommon::get_record_info()) and, when the record has
+     * been edited since creation, the line becomes "Edited: <who> <when>"
+     * for the latest edit instead - always exactly one line, never both.
+     *
+     * get_html_record_info() above is the full version: its own two-row table
+     * ("Created by:" / "Created on:"), which is what a record-detail popup
+     * wants but is three lines of chrome for a hover tooltip. It also reads
+     * badly under the adminlte family, where Utils_TooltipCommon::
+     * to_safe_html() flattens that table with a "</td><td>" -> ": " rule -
+     * its keys already end in ':' (see below), so every caller renders
+     * "Created by::". This one owns its own separator and has no such
+     * problem; get_html_record_info() is left alone because the legacy theme
+     * renders it as a real table where that ':' is the only separator.
+     *
+     * @return string plain "Label: value" text, no markup
+     */
+    public static function get_short_record_info($created_by, $created_on, $edited_by = null, $edited_on = null) {
+        $edited = $edited_on !== null;
+        $by = $edited ? $edited_by : $created_by;
+        $on = $edited ? $edited_on : $created_on;
+
+        $who = '';
+        if ($by !== null) {
+            $contact = CRM_ContactsCommon::contact_format_no_company(CRM_ContactsCommon::get_contact_by_user_id($by), true);
+            $who = ($contact != '')? $contact: Base_UserCommon::get_user_login($by);
+            $who = str_replace('&nbsp;', ' ', $who);
+        }
+        $when = $on? Base_RegionalSettingsCommon::time2reg($on): '';
+        return ($edited ? __('Edited') : __('Created')).': '.trim($who.' '.$when);
     }
 
     public static function get_html_record_info($created_by,$created_on,$edited_by=null,$edited_on=null, $id=null) {

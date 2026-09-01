@@ -170,6 +170,29 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		else $last_seen = DB::GetOne('SELECT 1 FROM utils_watchdog_category_subscription WHERE user_id=%d AND category_id=%d',array($user,$category_id));
 		return ($last_seen!==false && $last_seen!==null);
 	}
+	/**
+	 * The module owning a category, derived from its registered callback
+	 * ("CRM_MeetingCommon::watchdog_label" -> "CRM_Meeting") - the same
+	 * derivation Utils_Watchdog's applet does inline with the category map it
+	 * already has in hand, for callers that only hold a category name (see
+	 * Utils_RecordBrowserCommon::watchdog_record_tooltip()). Base_BootstrapIcons
+	 * wants a module name, and the module is where the icon is declared.
+	 *
+	 * Cached per request like category_exists() above - one query, keyed by
+	 * md5(name) the same way the table stores it.
+	 *
+	 * @param string $category_name category name as registered (RecordBrowser
+	 *        registers each recordset under its tab name)
+	 * @return string|null "Vendor_Module", or null for an unknown category
+	 */
+	public static function get_category_module($category_name) {
+		static $cache = null;
+		if ($cache === null) $cache = DB::GetAssoc('SELECT name, callback FROM utils_watchdog_category');
+		$callback = $cache[md5($category_name)] ?? null;
+		if (!$callback) return null;
+		return preg_replace('/Common$/', '', explode('::', $callback)[0]);
+	}
+
 	// ****************** registering ************************
 	public static function register_category($category_name, $callback) {
 		$exists = DB::GetOne('SELECT name FROM utils_watchdog_category WHERE name=%s',array(md5($category_name)));

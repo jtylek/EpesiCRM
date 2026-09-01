@@ -2,6 +2,145 @@
 
 > **Status:** IN PROGRESS - status of the adminlte/adminltedark themes: what is themed, what is not, and the recurring CSS/JS traps.
 
+## Module icons: where they're declared and everything that renders one (2026-09-01)
+
+Reference note, written while adding activity-type icons to the Activities tab / Agenda
+applet / Watchdog applet. Consolidates what was previously spread across
+`bootstrap_icons.php`'s header and the two icon sections further down this file.
+
+**Where an icon is declared.** One place: a `public static function bootstrap_icon()` on
+the module's own `Common` class, returning a Bootstrap Icons class name
+(`CRM_MeetingCommon::bootstrap_icon()` -> `'bi-calendar-date'`). Same "module opts in by
+defining a conventionally-named method" shape as `menu()`/`user_settings()`/`home_page()`.
+~40 modules declare one; not declaring one is the normal case for a module that never
+appears in a menu or panel. There is **no central module->icon map** - that was removed
+deliberately (renamed from `Base_AdminlteIcons` 2026-08-14).
+
+**Where it's resolved.** `modules/Base/Theme/bootstrap_icons.php` - `Base_BootstrapIcons`,
+plain PHP (`require_once`'d, not a `Module`), because consumers pull it in from a Smarty
+`{php}` block or mid-render private method. Four entry points:
+
+| method | returns | used by |
+| --- | --- | --- |
+| `resolve($icon, $module, $fallback)` | `'bi-...'` class name | everything below; `$fallback` defaults to a generic window glyph, pass `null` to mean "keep your own raster icon" |
+| `tag($module, $classes)` | `<i class="bi ...">` or `null` | the "New Meeting"/"New Task"/"New Note" record shortcuts |
+| `type_tag($module, $recordset)` | `<i class="bi ... epesi-type-icon text-muted me-1">` or `''` | a type glyph before a title in a list mixing several record types |
+| `resolve_recordset($module, $recordset)` | `'bi-...'` or `null` | per-recordset override (below) |
+
+`resolve()` tries, in order: the `$by_filename` map (keyed on an icon file's *basename*),
+then `$module`'s `bootstrap_icon()`, then `$fallback`. The filename map exists only to tell
+apart two things registered by the **same** module where the caller holds nothing but an
+icon filename - `companies.png` -> `bi-building` vs CRM_Contacts' own
+`bi-person-vcard-fill`. It is not a place to add module icons.
+
+**Per-recordset override (added 2026-09-01).** A module owning several recordsets can give
+each its own glyph with a `public static function bootstrap_recordset_icons()` on the same
+`Common` class, returning a `recordset-name => 'bi-...'` map. Only `CRM_ContactsCommon`
+declares one today (`'company' => 'bi-building'`); every recordset the map doesn't name
+falls back to the module's `bootstrap_icon()`, so a module owning one recordset - the
+common case - declares nothing extra. Added because Watchdog's applet can name the owning
+module (its categories are registered as `<Module>Common::watchdog_label`) but had no other
+way to tell `contact` from `company`, so Companies rows carried a person glyph.
+
+**Everything that renders one:**
+
+- **Sidebar menu** - `Base_Menu::build_menu_html()`. Per-link `__icon_small__`/`__icon__`
+  first (so one module's two links can differ), then the parent module. Submenus fall back
+  to `bi-folder2`, leaves to the generic window glyph.
+- **Header module indicator** - `Base_MainModuleIndicator` +
+  `theme_adminltedark/default.tpl`. `module_icon` (the active module's `icon()`, when it
+  exposes one) takes priority over `module_type`, and `module_type` is deliberately *not*
+  passed alongside it: `Utils_RecordBrowser::navigate()` replaces Base_Box's tracked main
+  module with a bare `Utils_RecordBrowser`, so `module_type` is wrong for single-record
+  views while the icon path stays right.
+- **ActionBar launcher / launchpad** - `Base/ActionBar/theme_adminltedark/default.tpl` and
+  `launchpad.tpl`.
+- **Admin panels** - `Base/Admin/theme_adminltedark/default.tpl` + `access_panel.tpl`, with
+  a `bi-gear` fallback.
+- **Record shortcuts** (`tag()`) - the New Meeting/Task/Phonecall/Note buttons in
+  `CRM_ContactsCommon`, `CRM_MeetingCommon`, `CRM_TasksCommon`, `CRM_PhoneCallCommon`,
+  `RecordBrowser_0::add_note_button()`. These pass `$fallback=null` and `?:` back to their
+  original `<img>`, so a module without `bootstrap_icon()` keeps its raster icon.
+- **New-record type chooser** - `Utils/RecordBrowser/theme_adminltedark/new_record_leightbox.tpl`.
+- **Mixed-type list rows** (`type_tag()`, added 2026-09-01) - the Activities tab under a
+  Contact/Company (`CRM_Contacts_Activities`), the Agenda applet (`CRM_Calendar::applet()`,
+  module derived from each calendar handler's `<Module>Common::crm_calendar_handler`
+  callback), and the Watchdog applet (`Utils_Watchdog::applet()`, module from the category
+  callback + recordset name from `Utils_RecordBrowserCommon::watchdog_label()`).
+
+**`set_icon()` / `recordbrowser_table_properties.icon` is not a second icon source - don't
+read it as one.** It looks like a legacy raster leftover and it half is, but it still feeds
+the resolver, so it's easy to get wrong in both directions:
+`Utils_RecordBrowserCommon::set_icon()` stores a **module-relative** path
+(`Base_ThemeCommon::get_template_filename()` -> `"CRM/Meeting/icon.png"`).
+`RecordBrowser_0::init()` immediately expands it through
+`Base_ThemeCommon::get_template_file()` into the full `modules/CRM/Meeting/theme/icon.png`,
+and `RecordBrowser::icon()` hands *that* to MainModuleIndicator, whose template feeds it to
+`resolve()` - which auto-extracts the module from the `modules/<Module>/theme.../` shape and
+returns that module's `bootstrap_icon()`. So **no raster recordset icon is ever drawn**; the
+stored path survives only as a module+table discriminator. Two consequences: (1) don't add
+a new consumer that reads the column and renders the PNG, and (2) don't resolve icons *from*
+the stored value in new code either - the raw stored form is module-relative and won't match
+`resolve()`'s path branch. Ask the module's `Common` class instead, which is where the icon
+actually lives.
+
+## `Utils_Menu` (the JS fly-out menu widget) themed, per a user screenshot of `Tests/Menu` (2026-09-01)
+
+First `theme_adminltedark/` coverage for `Utils_Menu` - previously it only had the
+legacy `theme/default.css`, whose bright-green (`#B0FFB0`) boxes stood out badly next
+to the rest of an otherwise-`adminltedark` page (reported via a screenshot of the
+`Tests/Menu` demo module, which is this widget's only exerciser under this theme -
+see below). New file: `modules/Utils/Menu/theme_adminltedark/default.css`.
+
+**Why this was never covered by Base_Menu's own sidebar theming work**: they're two
+separate widgets that happen to share the "Menu" name. `Base_Menu` (`Base/Menu/
+theme_adminltedark/default.css`) renders the actual sidebar as a static Bootstrap
+accordion and, under adminlte, does not use `Utils_Menu` at all - see `Base_Menu::
+body()`'s branch on `Base_ThemeCommon::is_adminlte_family()`, and the doc comment on
+`build_menu_html()`: "Utils_Menu's vertical mode is built for a floating menu:
+submenus are hover-triggered fly-outs... in a scrolling sidebar that is unusable...
+Nothing else uses this path, and Utils_Menu is untouched." `Utils_Menu` only renders
+under adminlte via `Tests_Menu` (this demo) - confirmed by grepping every
+`init_module("Utils/Menu"...)` call site app-wide - so this had zero real-screen
+impact before now, just an ugly demo page.
+
+**menu.js's markup couldn't be intercepted, only reached into**: `Utils_Menu::body()`
+emits a loading-spinner `<div>`, then `js/menu.js`'s `CustomMenubar` builds the real
+`<table>`-based menu client-side and injects it via `innerHTML` - no template step
+exists to convert it to div/flexbox markup the way the rest of the legacy theme was
+(see this file's "Legacy theme/ converted to div-only layout" entry). Same shape of
+problem as `Utils_Tree`/`Premium_KnowledgeBase`'s `tree_view.css` (this file's own
+entry above): the new CSS targets the classes `menu.js` already emits
+(`.root_item_link`, `.root_item_link_right`, `.root_item_link_down`, `.submenu`,
+`.custom_opener`, ...) rather than changing the JS - lower risk given `menu.js` is a
+single shared file with no theme branching of its own, so any markup/class change
+would apply to the legacy theme's rendering too.
+
+**Visual choice**: reused the fixed grey/black (`#DEE2E6`/`#000`) sidebar-chrome
+convention (`Base_Box/theme_adminltedark/default.css`'s `.app-sidebar`, already reused
+for Leightbox popups and `Utils_Tooltip` - see "Leightbox popups" entry below) for
+both the menu's root box and its fly-out submenu panels, rather than `Base_Menu`'s own
+white/blue-accent `.nav-link` palette - this widget floats over arbitrary page content
+instead of living in the sidebar itself, so the fly-out-popup convention fit better
+than the in-sidebar one. Submenu chevrons are plain CSS border-triangles (no icon
+font/image dependency), consistent with `Base_Menu`'s own preference for fresh
+`epesi-*`/generic classes over AdminLTE's own component classes (trap #2 below).
+
+Verified live (Playwright, logged in as `admin` on this checkout): `Tests/Menu`'s
+vertical menu, its nested fly-out (hover on an "s" entry), and the horizontal `menu2`
+variant's dropdown all render with the grey chrome instead of green; zero console
+errors.
+
+> **⚠ The harness for that verification no longer exists.** `Tests/Menu` was deleted
+> later the same day in the `modules/Tests/` trim (see `deliberate-removals.md`), which
+> judged it on teaching value — ~100 copy-pasted `add_link("aaa")` calls — without
+> weighing this second role. Since `Base_Menu` does not use `Utils_Menu` under adminlte
+> at all (see above), **`modules/Utils/Menu/theme_adminltedark/default.css` now has no
+> way to be exercised on any screen in the app**, and a regression in it would be
+> invisible. The CSS itself is untouched and still shipped. To re-verify or change it,
+> restore the demo from git history (`git checkout <rev> -- modules/Tests/Menu`, e.g.
+> from the commit preceding the trim) rather than hand-building a new harness.
+
 ## `.epesi-fullbleed`: opt-in for a screen that must fill the content column (2026-08-31)
 
 Added for CRM_Roundcube, whose whole body is one `<iframe>` hosting Roundcube's complete

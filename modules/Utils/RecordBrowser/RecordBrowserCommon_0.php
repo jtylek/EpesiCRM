@@ -2832,6 +2832,65 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $data = self::get_record_tooltip_data($tab, $record_id);
         return Utils_TooltipCommon::format_info_tooltip($data);
     }
+
+    /**
+     * Utils_Watchdog's applet tooltip: the record's tooltip fields in
+     * Utils_TooltipCommon::format_record_tooltip()'s shared two-column layout,
+     * headed by the watchdog category prefixed with the owning module's type
+     * glyph - the same icon+caption pairing the applet's Category column and
+     * title cell show, and the same popup shape CRM_Calendar's Agenda applet
+     * renders, so the two read as one thing. Attached by watchdog_label() below
+     * in place of the plain default tooltip.
+     *
+     * The icon is resolved here (at hover time) rather than baked into the
+     * stored callback args, so those stay the three plain values a session-stored
+     * tooltip should hold. The owning module comes from the category's registered
+     * callback ("CRM_MeetingCommon::watchdog_label"); RecordBrowser registers its
+     * recordsets under the tab name (see new_record_set()), which is what
+     * get_category_module() is keyed by.
+     *
+     * Labels are passed bare - format_record_tooltip() appends the ':' itself,
+     * and get_record_tooltip_data()'s keys are plain field names.
+     */
+    public static function watchdog_record_tooltip($tab, $record_id, $category)
+    {
+        require_once('modules/Base/Theme/bootstrap_icons.php');
+
+        $data = self::get_record_tooltip_data($tab, $record_id);
+
+        // A long-text field is a paragraph, not a value - it reads as a
+        // full-width row under the pairs rather than squeezed into the 72%
+        // value column. By type, not by a list of field names: which recordsets
+        // carry one is per-install (none of the stock Watchdog categories mark
+        // theirs as tooltip-visible; a customized or Premium recordset may).
+        $full_width = array();
+        foreach (self::init($tab) as $desc) {
+            if ($desc['type'] !== 'long text') continue;
+            $label = _V($desc['name']);
+            if (!isset($data[$label])) continue;
+            $full_width[$label] = $data[$label];
+            unset($data[$label]);
+        }
+
+        // Same footer line the calendar tooltips use - Created, or Edited in
+        // place of it once the record has a later edit (see that function's
+        // own doc). is_callable-guarded because every record here carries
+        // created/edited info but RecordBrowser itself is Utils, usable
+        // without the CRM tree - the helper lives in CRM_Contacts because
+        // resolving a user id to a person is that module's job.
+        $info = self::get_record_info($tab, $record_id);
+        $footer = is_callable(array('CRM_ContactsCommon', 'get_short_record_info'))
+            ? CRM_ContactsCommon::get_short_record_info($info['created_by'], $info['created_on'], $info['edited_by'], $info['edited_on'])
+            : null;
+
+        return Utils_TooltipCommon::format_record_tooltip(
+            Base_BootstrapIcons::type_tag(Utils_WatchdogCommon::get_category_module($tab), $tab),
+            $category,
+            $data,
+            $full_width,
+            $footer
+        );
+    }
     public static function display_linked_field_label($record, $nolink=false, $desc=null, $tab = ''){
     	return Utils_RecordBrowserCommon::create_linked_label_r($tab, $desc['id'], $record, $nolink);
     }
@@ -3034,15 +3093,41 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             $r = self::get_record($tab, $rid);
             if ($r===null) return null;
 			if (!self::get_access($tab, 'view', $r)) return null;
+            // Tooltip deliberately switched off in all three label branches:
+            // each would otherwise attach the plain default record tooltip
+            // (default_record_tooltip()), and watchdog_record_tooltip() below
+            // attaches the same thing plus its leading Category row instead.
             if (is_array($label) && is_callable($label)) {
-            	$label = self::create_linked_text(call_user_func($label, $r, true), $tab, $rid);
+            	$label = self::create_linked_text(call_user_func($label, $r, true), $tab, $rid, false, false);
             } elseif ($label) {
-                $label = self::create_linked_label_r($tab, $label, $r, false, true);
+                $label = self::create_linked_label_r($tab, $label, $r, false, false);
             } else {
-                $label = self::create_default_linked_label($tab, $rid, false, false);
+                $label = self::create_default_linked_label($tab, $rid, false, false, false);
+            }
+
+            // $cat is empty only for get_edit_details_label() above, which wants
+            // the events list rather than a Watchdog row's linked title - no
+            // category to name there. The is_self_view()/is_tooltip_code_in_str()
+            // pair mirrors create_record_tooltip()'s own guards, which the
+            // branches above no longer run.
+            if ($cat && !self::is_self_view($tab, $rid) && !Utils_TooltipCommon::is_tooltip_code_in_str($label)) {
+                // safe_html=true for the same reason create_default_record_tooltip_ajax()
+                // passes it - format_record_tooltip() output is HTMLPurifier-sanitized.
+                // keep_table=true on top of it (only read when safe_html is, see
+                // Utils/Tooltip/req.php): without it to_safe_html() flattens that
+                // table straight back to the "Label: value" list it replaced.
+                $label = Utils_TooltipCommon::ajax_create($label, array(__CLASS__, 'watchdog_record_tooltip'), array($tab, $rid, $cat), 300, true, true);
             }
 
             $ret['title'] = $label;
+            // Which recordset this row is, for Utils_Watchdog's applet - a
+            // category is registered as "<Module>Common::watchdog_label", so the
+            // applet can name the owning module on its own but has no other way
+            // to tell apart two categories that share one (CRM_Contacts registers
+            // both 'contact' and 'company'). This frame is the only one that
+            // knows. Just the name, not an icon: resolving it is
+            // Base_BootstrapIcons' job, per <Module>Common's own declaration.
+            $ret['recordset'] = $tab;
             $ret['view_href'] = Utils_RecordBrowserCommon::create_record_href($tab, $rid);
             $events_display = array();
             $events = array_reverse($events);
@@ -3133,7 +3218,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 // If all events are the same and output is empty we can safely
                 // mark all as notified.
                 $all_events = Utils_WatchdogCommon::check_if_notified($tab, $rid);
-                if (count($all_events) == count($events)) {
+                // check_if_notified() returns an array of missed events, or true/null
+                // when there's nothing to list (fully seen / no category) - count()
+                // no longer accepts those under PHP 8, so map them to the counts
+                // PHP 7's legacy count() gave them (1 for true, 0 for null).
+                $all_events_count = is_array($all_events) ? count($all_events) : ($all_events ? 1 : 0);
+                if ($all_events_count == count($events)) {
                     Utils_WatchdogCommon::notified($tab, $rid);
                 }
                 $ret = null;

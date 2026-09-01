@@ -1,5 +1,13 @@
+/* Reply.tpl used to lay the label and field out as a table-like grid with
+   a hard-coded 100px/850px column split - the field's column could never
+   shrink below 850px, forcing the whole page into horizontal scroll on a
+   narrower viewport. Stacked rows (label above field) size to whatever
+   width is actually available instead. */
 #Utils_Comment__Reply {
-	width: 950px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	max-width: 950px;
 }
 
 #Utils_Comment__Reply .post_label {
@@ -11,8 +19,10 @@
 }
 
 #Utils_Comment__Reply .post_input textarea {
-	width: 850px;
+	width: 100%;
+	max-width: 850px;
 	height: 200px;
+	box-sizing: border-box;
 }
 
 #Utils_Comment__Reply input {

@@ -93,7 +93,10 @@ var Base_Notify = {
 			if (Notification.permission === 'notsupported') {
 				message = 'Notifications not supported';
 			}
-			alert(message);
+			// Styled AdminLTE modal instead of the native alert() box - falls back to
+			// alert() off-AdminLTE, where window.epesi_alert is never injected
+			// (see Module::inject_alert_modal()).
+			if (typeof epesi_alert === 'function') epesi_alert(message); else alert(message);
 		}
 		
 		return false;
