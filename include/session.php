@@ -351,7 +351,7 @@ class EpesiSessionMemcachedStorage extends EpesiSessionStorage
 	
 	public static function active()
 	{
-		return MEMCACHE_SESSION_SERVER? true: false;		
+		return MEMCACHE_SESSION_SERVER && (extension_loaded('memcached') || extension_loaded('memcache'));
 	}
 	
 	public function __construct($lifetime)
