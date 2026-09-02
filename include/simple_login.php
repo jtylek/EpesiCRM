@@ -5,11 +5,12 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 class SimpleLogin {
 
     static function form() {
-        try {
-            $anonymous = Variable::get('anonymous_setup');
-        } catch (NoSuchVariableException $e) {
-            $anonymous = true;
-        }
+        // Gated, and no longer fails open: anonymous_setup only suppresses the
+        // login form while there is genuinely no super-admin to log in as.
+        // This used to read the Variable directly and default a MISSING row to
+        // true - i.e. no login form at all - see
+        // Base_AclCommon::anonymous_setup_active().
+        $anonymous = Base_AclCommon::anonymous_setup_active();
 
         if (!Base_AclCommon::is_user() && Base_User_LoginCommon::is_banned()) {
             return self::t('You have exceeded the number of allowed login attempts.');

@@ -37,16 +37,102 @@ class Base_AclCommon extends ModuleCommon {
 	}
 
 	/**
+	 * Is the "anonymous_setup" bootstrap bypass currently in effect?
+	 *
+	 * anonymous_setup makes every visitor - logged in or not - read as an
+	 * administrator, so setup.php/FirstRun can install modules and write
+	 * configuration before any account exists to authenticate as. It is set by
+	 * Base_SetupInstall::install() and cleared by FirstRun once the real
+	 * super-admin has been created.
+	 *
+	 * The flag on its own is NOT enough to grant the bypass. It only applies
+	 * while there is genuinely no super-admin yet: once an admin=2 user
+	 * exists the bootstrap window is over by definition, so a stale flag must
+	 * not leave the install wide open forever. That failure mode was real -
+	 * the demo:generate:* console commands used to set the flag and never
+	 * restore it, which silently turned every visitor into a super-admin on
+	 * any install where demo data had been generated.
+	 *
+	 * Order matters for cost: the flag is read first (Variable:: loads the
+	 * whole table once per request, so this is free) and the admin-exists
+	 * query only runs on an install that actually has the flag set.
+	 *
+	 * Variable::get()'s second argument suppresses NoSuchVariableException so
+	 * a missing row reads as "off" - never as "on", which is how
+	 * SimpleLogin::form()'s own catch block used to treat it.
+	 *
+	 * Read this rather than Variable::get('anonymous_setup') directly.
+	 *
+	 * @return bool
+	 */
+	public static function anonymous_setup_active() {
+		static $active;
+		if (!isset($active))
+			$active = (bool) Variable::get('anonymous_setup', false)
+				&& !DB::GetOne('SELECT id FROM user_login WHERE admin=2');
+		return $active;
+	}
+
+	/**
+	 * Explicit, process-local elevation for the one install step that runs
+	 * before any account exists.
+	 *
+	 * i_am_sa()/i_am_admin() deliberately do NOT consult anonymous_setup any
+	 * more: a DB flag is inheritable by any incoming request, which is what
+	 * made those two helpers untrustworthy as an access gate in the first
+	 * place. This property is the replacement, and it is a different kind of
+	 * thing - it lives only in the running process, is never persisted, and is
+	 * set from exactly one place (FirstRun::done(), around
+	 * ModuleManager::install('Base'), the only install that happens before the
+	 * super-admin exists). No HTTP request can turn it on.
+	 *
+	 * It stays set until end_bootstrap_install() or the end of the request,
+	 * whichever comes first - FirstRun's own early `return false` paths abort
+	 * the wizard anyway, and nothing survives the request.
+	 *
+	 * Do not add a second caller without a very good reason. If you need
+	 * "is the install still being bootstrapped?" for a UI gate rather than for
+	 * an install step, that is anonymous_setup_active(), not this.
+	 */
+	private static $bootstrap_install = false;
+
+	public static function begin_bootstrap_install() { self::$bootstrap_install = true; }
+	public static function end_bootstrap_install()   { self::$bootstrap_install = false; }
+
+	/**
+	 * Breadcrumb for the one thing that could plausibly go wrong with the
+	 * change above: an install-time code path that used to ride on
+	 * anonymous_setup and is now denied.
+	 *
+	 * Only ever fires inside a genuine bootstrap window (flag set, no
+	 * super-admin yet) with no elevation active - so it is silent on every
+	 * normal install, and writes at most one line per request. If a fresh
+	 * install ever misbehaves, firstrun.log says so explicitly instead of
+	 * leaving a silent permission denial to be guessed at.
+	 */
+	private static function log_bootstrap_denial($what) {
+		static $logged = false;
+		if ($logged || self::$bootstrap_install || !self::anonymous_setup_active()) return;
+		$logged = true;
+		if (function_exists('epesi_log'))
+			epesi_log(date('Y-m-d H:i:s') . ': ' . $what
+				. '() denied during the anonymous_setup bootstrap window, with no bootstrap'
+				. " elevation active. If a fresh install misbehaves, start here.\n", 'firstrun.log');
+	}
+
+	/**
 	 * Return if user calling this function is Super Administrator.
 	 * 
 	 * @return bool
 	 */
 	public static function i_am_sa() {
-		static $ret, $user;
+		static $ret, $user, $boot;
 		$new_user = self::get_user();
-		if (!isset($ret) || $new_user != $user) { 
+		if (!isset($ret) || $new_user != $user || $boot !== self::$bootstrap_install) {
 			$user = $new_user;
-			$ret = (Variable::get('anonymous_setup') || self::get_admin_level()>=2);
+			$boot = self::$bootstrap_install;
+			$ret = ($boot || self::get_admin_level()>=2);
+			if (!$ret) self::log_bootstrap_denial('i_am_sa');
 		}
 		return $ret;
 	}
@@ -57,11 +143,13 @@ class Base_AclCommon extends ModuleCommon {
 	 * @return bool true if currently logged in user is an administrator
 	 */
 	public static function i_am_admin() {
-		static $ret, $user;
+		static $ret, $user, $boot;
 		$new_user = self::get_user();
-		if (!isset($ret) || $new_user != $user) { 
+		if (!isset($ret) || $new_user != $user || $boot !== self::$bootstrap_install) {
 			$user = $new_user;
-			$ret = (Variable::get('anonymous_setup') || self::get_admin_level()>=1);
+			$boot = self::$bootstrap_install;
+			$ret = ($boot || self::get_admin_level()>=1);
+			if (!$ret) self::log_bootstrap_denial('i_am_admin');
 		}
 		return $ret;
 	}

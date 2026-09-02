@@ -29,12 +29,23 @@ class GenerateMeetingsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        \Variable::set('anonymous_setup', 1);
         // Utils_RecordBrowserCommon::new_record() stamps created_by with
         // Acl::get_user(), which reads $_SESSION['user'] - always empty in a
         // CLI context, which then fails to bind to the created_by column's
-        // %d placeholder. Run as the first superadmin (user id 1).
-        \Acl::set_user(1);
+        // %d placeholder. Run as the real superadmin instead.
+        //
+        // This deliberately does NOT set anonymous_setup. It used to, and
+        // never restored it - which left every install where demo data had
+        // been generated permanently in "any visitor is a super-admin" mode.
+        // It was never needed either: new_record() runs no ACL check at all,
+        // it only reads Acl::get_user() for created_by, and set_sa_user()
+        // supplies a genuine admin=2 user for anything downstream that does
+        // check. See AI-private/anonymous-setup-hardening.md.
+        \Acl::set_sa_user();
+        if (!\Acl::get_user()) {
+            $output->writeln('<error>No super-admin (user_login.admin=2) found - run the setup wizard first.</error>');
+            return Command::FAILURE;
+        }
         $count = $input->getOption('count') ?: 1;
 
         // Employees is restricted (CRM_MeetingCommon::employees_crits()) to

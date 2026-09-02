@@ -1,6 +1,8 @@
 # Standalone entry points: admin/, update.php, check.php, setup.php
 
-> **Status:** REFERENCE - admin/, update.php, check.php, setup.php PHP/view split.
+> **Status:** REFERENCE - admin/, update.php, check.php, setup.php: the PHP/view split, the
+> Smarty 2 traps that come with it, and how these surfaces gate access. The pre-split version
+> is at `AI-private/archive/standalone-entrypoints.md`.
 
 These four run outside (or before) the normal module/theme pipeline — they must
 work pre-install, pre-login, or without a full session, so none of them go
@@ -39,39 +41,51 @@ touched** — only the renderer files moved out of it; don't confuse the two.
   `$_GET` key throws "element already exists" — exclude the submit param name
   from any generic query-string-forwarding loop.
 
-## `anonymous_setup` — a real security issue found and fixed here (2026-07-29)
+## `anonymous_setup`: the bootstrap flag, and how it is kept out of the ACL primitives
 
-This install has the `anonymous_setup` Variable set to `1`. `Base_AclCommon::
-i_am_sa()`/`i_am_admin()` are written as
-`Variable::get('anonymous_setup') || <real admin check>` — under this mode they
-return `true` for **any visitor, logged in or not**. That's deliberate framework
-behavior for a wide-open demo/dev instance, not a bug in `Base_Acl` — but
-`admin/AdminIndex.php`, `update.php`, and `check.php` were all trusting
-`i_am_sa()`/`i_am_admin()` (or `SimpleLogin::form()`, which structurally can't
-even produce a login form once anonymous_setup is on) as their own access gate.
-That meant all three admin/maintenance surfaces were reachable by a completely
-anonymous visitor on any install with `anonymous_setup=1`.
+`anonymous_setup` is a bootstrap flag stored as a `Variable`. It exists because `setup.php` and
+FirstRun have to install modules and write configuration **before any account exists to
+authenticate as** — the classic chicken-and-egg: you cannot require an admin login before there
+is an admin.
 
-**Fixed**: all three now require a real logged-in session
-(`SimpleLogin::force_login_form()`/`force_login_page()` — new methods that
-render the login form without the anonymous_setup bypass) and check
-`Base_AclCommon::get_admin_level()` directly (queries the DB, ignores the
-bypass) instead of `i_am_sa()`/`i_am_admin()`. If you're auditing access control
-anywhere else in the codebase, treat `i_am_sa()`/`i_am_admin()` as
-**untrustworthy for gating truly sensitive surfaces** on any instance where
-`anonymous_setup` might be on — prefer `get_admin_level()` directly there.
+It used to be folded directly into `Base_AclCommon::i_am_sa()`/`i_am_admin()`, which made both
+return `true` for **any visitor** on an install where it was set. That is why `admin/`,
+`update.php` and `check.php` each had to be special-cased *around* the primitives rather than
+fixed once — every call site inherited the bypass and had to know to opt out.
 
-## `check.php` used to do real work on every view (fixed 2026-07-29)
+**As of 2026-09-02 the primitives don't consult it at all**, so `i_am_admin()` and `i_am_sa()`
+mean what they say. Two things replaced it:
 
-It was unconditionally running `Base_LangCommon::update_translations()`
+- **`Base_AclCommon::anonymous_setup_active()`** — read this, never
+  `Variable::get('anonymous_setup')`. It ignores the flag once a real super-admin
+  (`user_login.admin=2`) exists, so the bootstrap window cannot outlive itself, and treats a
+  missing row as "off" rather than throwing. Only two callers remain, both UI gates for the
+  bootstrap window itself: `Base_SetupCommon::admin_access()` and `SimpleLogin::form()`.
+- **`Base_AclCommon::begin_bootstrap_install()` / `end_bootstrap_install()`** — a process-local
+  elevation, never persisted, set from exactly one place: `FirstRun::done()`, around
+  `ModuleManager::install('Base')`, the one install step that runs before the super-admin
+  exists. **No request can turn it on.** Don't add a second caller without a very good reason;
+  if you want "is this install still bootstrapping?" for a *UI* gate, that's
+  `anonymous_setup_active()`.
+
+`admin/AdminIndex.php`, `update.php` and `check.php` keep their own stronger gate regardless:
+`SimpleLogin::force_login_form()`/`force_login_page()` (which render a login form without the
+bypass) plus a direct `Base_AclCommon::get_admin_level()` check.
+
+**For a genuinely sensitive admin or maintenance surface, still prefer `get_admin_level()`** —
+it queries the DB and depends on nothing else. `i_am_admin()`/`i_am_sa()` are now trustworthy
+for ordinary in-app authorization.
+
+## `check.php` is meant to be read-only — keep it that way
+
+It used to unconditionally run `Base_LangCommon::update_translations()`
 (rescans every module's `lang/`, rewrites all 37 `data/Base_Lang/base/*.php`
-files) and `ModuleManager::create_load_priority_array()` on *every* view, past
-login — almost certainly the cause of historical "check.php hangs Apache"
-reports for what's supposed to be a read-only compatibility report. Both calls
-were removed; `get_orphaned_modules()` (the one thing check.php actually needs)
-reads the DB directly.
+files) and `ModuleManager::create_load_priority_array()` on *every* view, past login — almost
+certainly the cause of historical "check.php hangs Apache" reports for what is supposed to be
+a read-only compatibility report. Both calls were removed; `get_orphaned_modules()`, the one
+thing check.php actually needs, reads the DB directly.
 
-## FirstRun wizard needed its own theme-fallback fix (2026-07-30)
+## Anything running before `Base` installs needs its own theme fallback
 
 `modules/FirstRun/FirstRun_0.php` (the post-setup admin-creation wizard) runs
 **before** the `Base` module installs — at that point

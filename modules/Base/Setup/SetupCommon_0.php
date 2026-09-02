@@ -22,7 +22,9 @@ class Base_SetupCommon extends ModuleCommon {
 
 	public static function admin_access() {
 	    if(DEMO_MODE) return false;
-		if (Variable::get('anonymous_setup')) return true;
+		// Gated: a stale anonymous_setup no longer opens this screen once a real
+		// super-admin exists - see Base_AclCommon::anonymous_setup_active().
+		if (Base_AclCommon::anonymous_setup_active()) return true;
 		return Base_AclCommon::i_am_admin();
 	}
 

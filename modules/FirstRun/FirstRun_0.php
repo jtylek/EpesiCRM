@@ -159,6 +159,14 @@ class FirstRun extends Module {
 		} else
 			$pkgs = $this->ini[$d[0]['setup_type']]['package'] ?? array();
 		
+		// Everything from here until the super-admin exists runs with no
+		// account to authenticate as, so it needs admin rights it cannot
+		// earn. Elevate explicitly, process-locally, for exactly that window:
+		// i_am_sa()/i_am_admin() no longer honour the anonymous_setup DB flag,
+		// precisely because a persisted flag is inheritable by any request.
+		// See Base_AclCommon::begin_bootstrap_install().
+		Acl::begin_bootstrap_install();
+
 		$t = microtime(true);
 		epesi_log(date('Y-m-d H:i:s').': installing "Base" ...'."\n",'firstrun.log');
 		if(!ModuleManager::install('Base',null,false)) {
@@ -191,6 +199,11 @@ class FirstRun extends Module {
 		}
 
 		Acl::set_user($user_id, true);
+
+		// A real super-admin now exists and is the session user, so every
+		// later step in this method (the package installs, the menu freeze,
+		// the cache rebuilds) passes ordinary ACL checks on its own merits.
+		Acl::end_bootstrap_install();
 
 		Variable::set('anonymous_setup',false);
 		epesi_log(date('Y-m-d H:i:s').': done ('.(microtime(true)-$t)."s).\n",'firstrun.log');
