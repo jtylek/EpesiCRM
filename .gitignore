@@ -49,9 +49,11 @@ data/*
 # don't belong in the EPESI codebase's history.
 /parts-kits/
 
-# Personal deployment notes for this developer's own hosting account (domain,
-# paths, repo layout) - not meant to be shared across computers/developers.
-AI-shared/DirectAdmin-git-sync.md
+# Same idea as Premium/Custom above: its own nested git repo (synced with
+# https://github.com/jtylek/AI-private), not part of this one. Unlike
+# AI-shared/ (tracked here, all developers), this is shared only with core
+# Epesi developers - currently Jasiek and Karina.
+/AI-private/
 
 # Static-analysis tooling (tools/composer.json - phpstan, rector), installed
 # separately from the app so the committed vendor/ tree stays production-only.
