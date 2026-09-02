@@ -197,6 +197,20 @@
 	padding-bottom: 6px;
 }
 
+/* The type glyph here (Base_BootstrapIcons::type_tag()) carries Bootstrap's own
+   .text-muted class, whose var(--bs-secondary-color) !important overrides the
+   plain (non-!important) color:#000 this popup sets above - so instead of
+   inheriting this popup's always-black text like everything else in it, the
+   glyph followed Bootstrap's dark-mode secondary color, which is too light
+   against this popup's own fixed light-grey background (#DEE2E6) to read.
+   Scoped to just this popup/leightbox, not a global .epesi-type-icon override -
+   the same glyph shows up unscoped inside dark applet rows (Watchdog, Agenda)
+   where it's already legible via ordinary inheritance and should stay that way. */
+.epesi-tooltip-popup td.epesi-tt-head .epesi-type-icon.text-muted,
+#tooltip_leightbox_mode_content td.epesi-tt-head .epesi-type-icon.text-muted {
+	color: #000 !important;
+}
+
 .epesi-tooltip-popup td.epesi-tt-label,
 #tooltip_leightbox_mode_content td.epesi-tt-label {
 	font-weight: bold;

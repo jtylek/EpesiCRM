@@ -319,9 +319,24 @@ class CRM_ContactsCommon extends ModuleCommon {
     			// accessibility purpose the default theme's own hidden span served -
     			// unless $screen_reader_label says it won't stay hidden (see this
     			// function's own doc), in which case the icon alone is the indicator.
+    			// class="visually-hidden" (Bootstrap's clip-rect screen-reader-only
+    			// utility, loaded globally), not style="display:none": a value bound
+    			// for a tooltip passes through HTMLPurifier (format_record_tooltip())
+    			// and/or Utils_TooltipCommon::to_safe_html() before it reaches the
+    			// DOM, and CSS.AllowTricky is off by default, so HTMLPurifier drops
+    			// the "display" property from any inline style - a hidden span's
+    			// style attribute included - leaving the label visible. A pure class
+    			// attribute isn't touched by that filter, so it survives intact (see
+    			// $rindicator's own comment for why the wrapping tag needs to
+    			// survive too).
     			$bs_icon = array('company' => array('bi-building', '#0d6efd'), 'contact' => array('bi-person-fill', '#0d6efd'));
     			$bi = $bs_icon[$tab] ?? null;
-    			$hidden_label = $screen_reader_label ? '<span style="display:none">['.$indicator_text.'] </span>' : '';
+    			$hidden_label = $screen_reader_label ? '<span class="visually-hidden">['.$indicator_text.'] </span>' : '';
+    			// <i>/<span> specifically (not e.g. <b>) because both survive
+    			// Utils_TooltipCommon::to_safe_html()'s tag allowlist - see that
+    			// function's own comment for why an icon glyph and this label need
+    			// to keep reaching the DOM by class alone, with no content of their
+    			// own for the allowlist to preserve.
     			$rindicator = $bi ?
     			'<i class="bi '.$bi[0].'" style="margin:1px 0.5em 1px 1px; color:'.$bi[1].';" aria-hidden="true"></i>'.$hidden_label
     			: ($screen_reader_label ? "[$indicator_text] " : '');
@@ -329,7 +344,7 @@ class CRM_ContactsCommon extends ModuleCommon {
     			$icon = array('company' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'company.png'),
     					'contact' => Base_ThemeCommon::get_template_file(CRM_Contacts::module_name(), 'person.png'));
     			$rindicator = isset($icon[$tab]) ?
-    			'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span style="display:none">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
+    			'<span style="margin:1px 0.5em 1px 1px; width:1.5em; height:1.5em; display:inline-block; vertical-align:middle; background-image:url(\''.$icon[$tab].'\'); background-repeat:no-repeat; background-position:left center; background-size:100%"><span class="visually-hidden">['.$indicator_text.'] </span></span>' : "[$indicator_text] ";
     		}
     		$val = $rindicator.$val;
     	}

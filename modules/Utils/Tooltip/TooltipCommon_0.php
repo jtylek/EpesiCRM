@@ -144,9 +144,9 @@ class Utils_TooltipCommon extends ModuleCommon {
 	public static function to_safe_html($tip, $keep_table = false) {
 		if ($keep_table) {
 			$safe = preg_replace('#</(div|p|li)>#i', '<br>', $tip);
-			// <i> kept here for the same reason as in the flattening branch
+			// <i>/<span> kept here for the same reason as in the flattening branch
 			// below - see its comment (applies to both branches).
-			$safe = strip_tags($safe, '<strong><b><br><i><table><colgroup><col><tr><th><td>');
+			$safe = strip_tags($safe, '<strong><b><br><i><span><table><colgroup><col><tr><th><td>');
 			return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 		}
 		$safe = preg_replace('#</td>\s*<td[^>]*>#i', ': ', $tip);
@@ -159,7 +159,14 @@ class Utils_TooltipCommon extends ModuleCommon {
 		// the record-type icon on Utils_Watchdog's Category tooltip row) - an
 		// empty element whose whole content is its class attribute, so
 		// stripping it dropped the glyph entirely rather than degrading it.
-		$safe = strip_tags($safe, '<strong><b><br><i>');
+		// <span> for the same reason, for class="visually-hidden" accessible-
+		// label wrappers (CRM_ContactsCommon::company_contact_format_default())
+		// - stripping the tag but keeping its text defeated the whole point of
+		// marking that text screen-reader-only, rendering it as plain visible
+		// text instead. Neither tag does anything visually on its own without
+		// a class, so allowing them through adds no styling/layout surface
+		// beyond what the class attribute already grants.
+		$safe = strip_tags($safe, '<strong><b><br><i><span>');
 		return self::collapse_blank_lines($safe, '#<br\s*/?>#i', '<br>');
 	}
 
