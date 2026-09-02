@@ -42,14 +42,6 @@ git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate rem
 recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
 worth a look before assuming something is broken/missing rather than intentional.
 
-**Check whether `AI-private/` exists at the repo root, and if so, read its `README.md`.**
-It's a separate nested git repo (gitignored here, synced independently with
-`github.com/jtylek/AI-private`), so it's only present on a checkout where a core developer
-has cloned it — don't assume it exists. It holds notes too sensitive or account-specific
-for `AI-shared/` (deployment credentials-adjacent setup, etc.) and access is restricted to
-core Epesi developers (currently Jasiek and Karina) — treat its contents as confidential,
-and don't surface or repeat them outside a conversation with one of those developers.
-
 `.claude/` itself is git-tracked (unlike `.vscode/`), so custom Claude Code skills under `.claude/skills/`
 (the mechanism behind `/skill-name` triggers) sync across developers/computers the same way `AI-shared/`
 does — only `settings.json`/`*.lock` inside it stay personal, excluded individually in `.gitignore`. Author

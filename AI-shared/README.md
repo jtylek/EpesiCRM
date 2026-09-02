@@ -31,6 +31,14 @@ most expensive mistake this folder can cause, and it has happened.
 - **`AI-shared/`** (this folder) — the living, lower-ceremony layer in between. Edited
   often; expected to go stale in places.
 
+**Check whether `AI-private/` exists at the repo root, and if so, read its `README.md`.**
+It's a separate nested git repo (gitignored here, synced independently with
+`github.com/jtylek/AI-private`), so it's only present on a checkout where a core developer
+has cloned it — don't assume it exists. It holds notes too sensitive or account-specific
+for this folder (deployment credentials-adjacent setup, etc.) and access is restricted to
+core Epesi developers (currently Jasiek and Karina) — treat its contents as confidential,
+and don't surface or repeat them outside a conversation with one of those developers.
+
 ## Files
 
 **Start here**
