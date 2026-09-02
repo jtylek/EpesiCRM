@@ -132,3 +132,42 @@ assuming a real regression in Epesi's own code.
 
 On NTFS with `core.fileMode=true`, `git status` shows ~30 vendored scripts as modified with
 zero content diff. It is the executable bit, not a change.
+
+## Windows: a nested repo without `.gitattributes` rewrites whole files on commit
+
+The main repo pins `* text=auto eol=lf` in `.gitattributes`, so line endings are normalized
+to LF on commit no matter what a given developer's `core.autocrlf` says. **The nested repos —
+`modules/Premium/*`, `modules/Custom/*` — have no `.gitattributes` of their own and do not
+inherit the main repo's.** They fall back to `core.autocrlf`, which is `true` on a typical
+Windows install.
+
+If such a repo's blobs were committed with CRLF (from a machine that had the conversion off),
+every commit made here converts them to LF — so a one-line comment change lands as a
+**whole-file diff**. Hit for real: a one-line edit to a Premium module reported 2375
+insertions and 2375 deletions, and 20 of that repo's 93 tracked files were in the same state.
+
+**Check before committing to a nested repo** — this compares what git would store against
+what is already stored:
+
+```bash
+git -C <repo> rev-parse HEAD:<file>          # stored blob
+git -C <repo> hash-object <file>             # what a commit would store
+```
+
+Different hashes with an unmodified file means the conversion is about to fire.
+
+**The fix is per-repo local config, not a content change:**
+
+```bash
+git -C <repo> config core.autocrlf false
+```
+
+Verify it is safe first — `git -C <repo> -c core.autocrlf=false status --porcelain` must come
+back **empty**. If it lists files, that repo stores LF while its working tree holds CRLF, and
+turning the conversion off would make every file look modified; leave it alone and use the
+one-off `git -c core.autocrlf=false commit` instead.
+
+This config lives in `.git/config`, so it is **not** shared — every clone and every other
+machine needs it again. A `.gitattributes` committed into the nested repo would travel, but
+adding one to a CRLF-stored repo renormalizes every file in one churny commit, so it is a
+deliberate decision rather than a quick fix.
