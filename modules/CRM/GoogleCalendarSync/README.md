@@ -52,7 +52,7 @@ Pushes each Epesi user's meetings to their own Google Calendar. One-way only: Ep
 truth, changes made directly on the Google side are never pulled back or diffed against. Each user
 connects their own Google account; syncing runs on a 15-minute cron interval, not push webhooks.
 
-Design background and implementation notes: `AI-shared/Epesi-Google-Calendar-sync.md`.
+Design background and implementation notes: `AI-private/Epesi-Google-Calendar-sync.md`.
 
 ## Setting up the Google side (one-time, per installation)
 

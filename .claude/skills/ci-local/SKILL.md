@@ -7,7 +7,7 @@ allowed-tools: [Bash, Read]
 # Run the local CI script and analyze it
 
 Background: `.github/workflows/ci.yml` is `disabled_manually` on GitHub (no Actions
-minutes on this repo — see `AI-shared/ci-workflow.md`), so `tools\ci-local.bat` is the
+minutes on this repo — see `AI-private/ci-workflow.md`), so `tools\ci-local.bat` is the
 only way these checks actually run. This skill runs it and reads the result so the user
 doesn't have to.
 
@@ -58,7 +58,7 @@ Walk the four sections:
    caught. If the whole section is empty/missing rather than just incomplete, suspect the
    same class of bug hit and fixed 2026-09-01 (`console.php` blanking all output on an
    undefined-variable warning under `REPORT_ALL_ERRORS` — see
-   `AI-shared/ci-workflow.md`) rather than assuming the command list itself is wrong.
+   `AI-private/ci-workflow.md`) rather than assuming the command list itself is wrong.
 
 ## 3. Report concisely
 

@@ -64,7 +64,7 @@ class CRM_MailInstall extends ModuleInstall {
             // 'required' NOT set here (unlike most fields) - QFfield_password() already
             // enforces "required" itself, but only on 'add' mode: on 'edit' the field is left
             // blank on purpose to mean "keep the current password" (see
-            // AI-shared/mail-account-encryption-and-gmail-oauth.md). RecordBrowser's own
+            // AI-private/mail-account-encryption-and-gmail-oauth.md). RecordBrowser's own
             // generic form-building loop (RecordBrowser_0.php, right after calling this field's
             // QFfield_callback) unconditionally re-adds a 'required' rule *and* overwrites the
             // placeholder with "Field required" for any field whose schema declares

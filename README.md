@@ -88,7 +88,7 @@ this lives in the shared grid/theme layer, a module author gets the mobile layou
 free the same way they get the desktop one: by declaring fields, not by writing
 responsive CSS. See [`AI-shared/adminlte-theme.md`](AI-shared/adminlte-theme.md) and
 [`AI-shared/generic-browser-responsive-tables.md`](AI-shared/generic-browser-responsive-tables.md)
-for the implementation history.
+for how it works.
 
 ## Why developers like it
 
@@ -176,10 +176,10 @@ and environment notes.
 | File | What it's for |
 |---|---|
 | [`CLAUDE.md`](CLAUDE.md) | Architecture, bootstrap chain, module system, commands — read first |
-| [`AI-shared/`](AI-shared/) | Living notes: feature status, tutorials, bug patterns, environment gotchas |
+| [`AI-shared/`](AI-shared/) | Developer notes: framework concepts, module-development recipes, bug patterns, environment gotchas |
 | [`AI-shared/Dev-Tutorial.md`](AI-shared/Dev-Tutorial.md) | How to write a module from scratch, paired with `modules/Custom/Tutorial/` |
 | [`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) | The founding principle: business logic in PHP, view generated for you |
-| [`AI-shared/MIGRATION_NOTES.md`](AI-shared/MIGRATION_NOTES.md) | PHP 7.4 → 8.2 migration log — root causes and decisions |
+| [`AI-shared/MIGRATION_NOTES.md`](AI-shared/MIGRATION_NOTES.md) | The PHP floor, upgrade-gap discipline, and why old code looks the way it does |
 
 ## Support
 

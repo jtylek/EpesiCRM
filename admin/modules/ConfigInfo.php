@@ -20,7 +20,7 @@ class ConfigInfo extends AdminModule {
 
     // Live connection charset, not a config.php constant - DB::Connect()
     // (include/database.php) hardcodes MySQL connections to utf8mb4 (see
-    // AI-shared/MIGRATION_NOTES.md §68's legacy-utf8/emoji-mangling fix and
+    // AI-private/archive/MIGRATION_NOTES.md §68's legacy-utf8/emoji-mangling fix and
     // patches/20260814_utf8mb4_migration.php), so this is what actually
     // catches an install that hasn't had that patch applied yet - a stale
     // "utf8" here means table data can still silently mangle 4-byte

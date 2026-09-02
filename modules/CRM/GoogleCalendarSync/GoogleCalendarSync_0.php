@@ -1,7 +1,7 @@
 <?php
 /**
  * Pushes each user's Epesi meetings to their own Google Calendar (one-way,
- * Epesi -> Google). See AI-shared/Epesi-Google-Calendar-sync.md for the
+ * Epesi -> Google). See AI-private/Epesi-Google-Calendar-sync.md for the
  * design this was built from.
  * @author Claude Code
  * @copyright Janusz Tylek

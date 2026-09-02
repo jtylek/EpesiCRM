@@ -320,7 +320,7 @@ class Epesi {
 	// a plain classname string with the class already loaded (no vendor patch, no autoload for Epesi's
 	// own classes per CLAUDE.md), NOT the array($file,$class) pair Epesi historically used. So each
 	// entry below require_once's its file explicitly and registers the string, matching what stock
-	// openpsa expects — see AI-shared/MIGRATION_NOTES.md §12.7/§13/§15.1 for the history (an earlier
+	// openpsa expects — see AI-private/archive/MIGRATION_NOTES.md §12.7/§13/§15.1 for the history (an earlier
 	// approach patched the vendor file to accept both formats; that patch is lost on every composer
 	// update, so this eager-load function is the permanent, vendor-edit-free fix instead).
 	// REVERSIBLE: delete this whole function + its single call site to restore lazy behavior.

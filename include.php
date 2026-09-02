@@ -12,7 +12,7 @@ if (__FILE__ == realpath($_SERVER['SCRIPT_FILENAME'])) die("Direct access forbid
 defined("_VALID_ACCESS") || define("_VALID_ACCESS", true);
 
 // Mirrors the security headers/memory_limit from the root .htaccess template (htaccess.txt) so
-// they still apply on hosts where that file gets rejected (see AI-shared/MIGRATION_NOTES.md §55)
+// they still apply on hosts where that file gets rejected (see AI-private/archive/MIGRATION_NOTES.md §55)
 // or where mod_php isn't in use (php_value there is silently ignored under PHP-FPM/CGI).
 if (PHP_SAPI !== 'cli') {
     header('X-Frame-Options: SAMEORIGIN');

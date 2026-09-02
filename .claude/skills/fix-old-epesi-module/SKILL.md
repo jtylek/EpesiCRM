@@ -25,7 +25,7 @@ module) is its own git repo, gitignored from this one — the `Grep` tool silent
 paths, so use plain `grep`/`git grep --no-index` via `Bash` for anything in this tree instead.
 
 Before editing, check the module's *own* `git status`/`git log` (from inside its directory) — it has
-independent history from the main repo. Per `AI-shared/environment-gotchas.md`'s "can change under you
+independent history from the main repo. Per `AI-private/archive/environment-gotchas.md`'s "can change under you
 mid-session" entry: if anything in there looks unexpectedly already-fixed or looks like corruption,
 don't assume and don't revert — flag the specific diff to the user and ask; it may be legitimate
 concurrent work from another session on the same nested repo.
@@ -34,7 +34,7 @@ concurrent work from another session on the same nested repo.
 
 Run the project's existing static-analysis tooling, scoped to just this module directory (both configs
 already cover `modules/` broadly, Premium included — see `rector.php`, `rector-php83.php`,
-`phpstan.neon` at the repo root). `AI-shared/environment-gotchas.md`'s "Rector and PHPStan are
+`phpstan.neon` at the repo root). `AI-private/archive/environment-gotchas.md`'s "Rector and PHPStan are
 installed globally" entry explains why these are bare commands, not `vendor/bin/rector`/
 `vendor/bin/phpstan`, on a machine that's had the global Composer install done — if they're not found
 on PATH, fall back to how CI installs them (`.github/workflows/php-checks.yml`, isolated `/tmp`

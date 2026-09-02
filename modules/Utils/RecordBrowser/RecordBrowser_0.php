@@ -822,7 +822,7 @@ class Utils_RecordBrowser extends Module {
         // (usually via a module helper like CRM_ContactsCommon::get_company()), and the
         // ids are distinct per row, so the per-id cache never hits. One query per linked
         // table replaces one per row - 19 of them on Contacts: Browse, item A1.4 in
-        // AI-shared/REFERENCE-optimization-opus-AI.md.
+        // AI-private/REFERENCE-optimization-opus-AI.md.
         //
         // commondata fields are excluded: their 'ref_table' is a CommonData array name,
         // not a recordset, and Utils_CommonDataCommon has its own tree cache. Multi-tab

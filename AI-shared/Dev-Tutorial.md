@@ -64,8 +64,8 @@ Use the console command rather than hand-writing the three files — it gets the
 naming and `defined("_VALID_ACCESS")` guard right every time:
 
 ```
-/c/xampp82/php/php.exe console.php dev:module:create Custom/Tutorial --require Utils/RecordBrowser
-/c/xampp82/php/php.exe console.php dev:module:patch Custom/Tutorial "add priority field"
+php console.php dev:module:create Custom/Tutorial --require Utils/RecordBrowser
+php console.php dev:module:patch Custom/Tutorial "add priority field"
 ```
 
 (**Correction to `CLAUDE.md`**: the actual registered command names are

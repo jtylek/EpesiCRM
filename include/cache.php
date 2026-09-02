@@ -83,7 +83,7 @@ class Cache
     }
 
     /** Which driver init() settled on. Worth reading rather than inferring from the
-     *  extension list - see AI-shared/REFERENCE-optimization-opus-AI.md section 7 note 6. */
+     *  extension list - see AI-private/REFERENCE-optimization-opus-AI.md section 7 note 6. */
     public static function active_driver()
     {
         return self::$active_driver;

@@ -2,7 +2,7 @@
 
 > **Status:** REFERENCE - founding principle, from the framework's creator. Stable; the test to apply to redesign work.
 
-Recorded 2026-08-03, from Janusz Tylek ("Jasiek"), the framework's creator, explaining
+Recorded 2026-08-03 from Janusz Tylek, the framework's creator, explaining
 the principle behind Epesi's original design — important context for evaluating any
 redesign work, not just a historical note.
 

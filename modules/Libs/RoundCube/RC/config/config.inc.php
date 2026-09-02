@@ -61,7 +61,7 @@ try {
     $account = DB::GetRow('SELECT * FROM rc_accounts_data_1 WHERE id=%d AND active=1',array($id));
     if($account) {
         // rc_accounts_data_1.f_password/f_smtp_password are encrypted at rest (see
-        // AI-shared/mail-account-encryption-and-gmail-oauth.md) - this raw DB::GetRow() bypasses
+        // AI-private/mail-account-encryption-and-gmail-oauth.md) - this raw DB::GetRow() bypasses
         // Utils_RecordBrowserCommon::get_record() entirely, so decryption has to happen here,
         // once, before anything below (including epesi_autologon/epesi_autorelogon's own
         // 'authenticate' hooks, which read this same $account global) reads either field.

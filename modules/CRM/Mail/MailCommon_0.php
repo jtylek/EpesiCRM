@@ -99,7 +99,7 @@ class CRM_MailCommon extends ModuleCommon {
     //
     // AES-256-GCM via openssl_encrypt, same shape as the one other encrypted-secret precedent in
     // this codebase (CRM_GoogleCalendarSyncCommon::encrypt()/decrypt(), see
-    // AI-shared/mail-account-encryption-and-gmail-oauth.md for the design this follows). Key is a
+    // AI-private/mail-account-encryption-and-gmail-oauth.md for the design this follows). Key is a
     // random 32-byte file generated on first use, stored under this module's own data dir (outside
     // the DB, data/ is gitignored) - a compromise of one module's key doesn't expose another's.
     //

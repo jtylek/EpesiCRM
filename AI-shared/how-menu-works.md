@@ -130,5 +130,33 @@ styling a new sidebar filter input consistently.
 ## No existing menu search/filter feature
 
 Grepped `AI-shared/` and `MIGRATION_NOTES.md`: nothing planned or in progress for a
-sidebar search/filter box as of 2026-08-14. See `known-todos.md`/`TODO.md` if a plan
+sidebar search/filter box as of 2026-08-14. See the sidebar-search section below if a plan
 for this is written up and parked rather than implemented immediately.
+
+## The sidebar search box
+
+A client-side filter over the sidebar, living entirely inside `Base_Menu` — it is a good worked
+example of the conventions above, so read it before adding anything else to the sidebar.
+
+- **Placement without touching Box.** The search markup is prepended to the string
+  `Menu_0.php::body()` assigns to the `menu` Smarty var, so it lands inside `#MenuBar`, above
+  the `<ul class="epesi-menu">`. The whole feature stays in the one module that already owns
+  this markup.
+- **Pure DOM filtering, no round trip** — the entire (already ACL-filtered) tree is in the DOM;
+  submenus are only visually collapsed.
+- **Matching** is a case-insensitive substring match against each item's own `.nav-label` text,
+  which is already the user's translated display text. Matching a folder reveals it expanded
+  with all children unfiltered; matching a leaf expands every ancestor to reveal it.
+- **Expand/collapse goes through Bootstrap's own API** —
+  `bootstrap.Collapse.getOrCreateInstance(el, {toggle:false}).show()` / `.hide()` on the
+  ancestor `.collapse` elements, never hand-rolled `style.display`. `bootstrap` is a confirmed
+  global here. This keeps the chevron-rotation CSS (keyed off `[aria-expanded="true"]`) in sync
+  for free, since Bootstrap updates `aria-expanded`/`.collapsed` itself.
+- **Clearing restores, it doesn't collapse everything.** The filter tracks which `.collapse`
+  elements *it* opened in a JS `Set`, so clearing leaves anything the user had expanded
+  beforehand untouched.
+- **Lifecycle** follows the `#MenuBar` convention exactly: `eval_js()` on every render, guarded
+  by an idempotency marker property on the element.
+
+This is adminltedark-only. The legacy theme's menu is `Utils_Menu`, a JS-generated hover
+fly-out widget rather than a DOM tree — adding search there would be a separate effort.

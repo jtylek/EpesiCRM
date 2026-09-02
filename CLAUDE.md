@@ -8,9 +8,10 @@ Epesi BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). Thi
 Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2. The upcoming release is versioned **Epesi 2.0**
 (`EPESI_VERSION`/`EPESI_REVISION` in `include/version.php`) rather than continuing the CalVer
 `20260701-rcN` pre-release scheme — decided 2026-09-01 once the advisory PHP 8.3 Rector sweep
-(`rector-php83.php`) started reporting clean, see `AI-shared/MIGRATION_NOTES.md` §84. The full
+(`rector-php83.php`) started reporting clean, see `AI-private/archive/MIGRATION_NOTES.md` §84. The full
 migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
-also reach existing installs — lives in `AI-shared/MIGRATION_NOTES.md`. Read the relevant section there before
+also reach existing installs — is distilled in `AI-shared/MIGRATION_NOTES.md` (the full numbered
+log is archived at `AI-private/archive/MIGRATION_NOTES.md`). Read the relevant section there before
 touching old/legacy code; it usually already explains why something looks the way it does.
 
 **PHP: 8.1 minimum, 8.2 target, 8.3 sweep clean (but not an 8.3 support claim).** The floor is
@@ -22,7 +23,8 @@ until 2026-09-01, which was never runnable: the bootstrap uses **first-class cal
 errors on 8.0, so the app fatals at startup while the check reported "PHP version: OK". `rector.php`, the
 config actually applied to this codebase, independently targets `PhpVersion::PHP_81` — the tooling already
 encoded the real floor while the docs said 8.0. Nothing in the tree needs 8.2. See
-`AI-shared/MIGRATION_NOTES.md` §85 and `AI-shared/environment-gotchas.md`.
+`AI-private/archive/MIGRATION_NOTES.md` §85, plus `AI-shared/MIGRATION_NOTES.md` and
+`AI-shared/environment-gotchas.md`.
 
 **On the clean 8.3 sweep:** `rector-php83.php` (advisory; it lists Rector's six PHP 8.3 rules explicitly, since `SetList::PHP_83` is deprecated in Rector 2.6 — see that file's header) reports **0 files** as of
 2026-09-01. Read that as "no pre-8.3 idioms left worth modernizing" — a code-maturity signal, and what
@@ -37,17 +39,22 @@ the first-class callables came from), and neither `php -l` nor PHPStan will catc
 the *target* version rather than the floor. Prefer constructs at or below 8.1 in new code — e.g. use
 static properties, not constants, in a trait (trait constants are 8.2+).
 
-`AI-shared/` holds lower-ceremony, more frequently updated notes shared across developers/computers via
-git — ongoing feature status (e.g. the AdminLTE theme rewrite), deliberate removals that look like bugs,
-recurring bug-root-cause shapes, and environment/tooling gotchas. Check its `README.md` for the full index;
-worth a look before assuming something is broken/missing rather than intentional.
+`AI-shared/` holds lower-ceremony developer notes shared across developers/computers via git — how the
+framework's pieces actually work, theming conventions, deliberate removals that look like bugs, recurring
+bug-root-cause shapes, and environment gotchas. Check its `README.md` for the index; worth a look before
+assuming something is broken/missing rather than intentional.
+
+`AI-private/` is a separate nested git repo (gitignored here, present only on a core developer's
+checkout) holding what must not be public: deployment and hosting details, account-specific setup,
+internal planning, and `AI-private/archive/`, the full long-form version of several `AI-shared/`
+documents. Read its `README.md` if the directory exists, and treat its contents as confidential.
 
 `.claude/` itself is git-tracked (unlike `.vscode/`), so custom Claude Code skills under `.claude/skills/`
 (the mechanism behind `/skill-name` triggers) sync across developers/computers the same way `AI-shared/`
 does — only `settings.json`/`*.lock` inside it stay personal, excluded individually in `.gitignore`. Author
 a new shared skill directly at `.claude/skills/<name>/SKILL.md`, not the legacy `commands/<name>.md` format
-(unreliable across Claude Code surfaces). See `AI-shared/sharing-skills.md` for the gitignore gotcha behind
-that split and other details.
+(unreliable across Claude Code surfaces). See `AI-private/sharing-skills.md` for the gitignore gotcha
+behind that split and other details.
 
 ## Environment quirks (this machine)
 
@@ -92,7 +99,8 @@ number suggests: an undefined read is an `E_WARNING` under PHP 8.2, and `REPORT_
 module's whole output on the first warning of a request (see Error handling below). Level 2 adds unknown
 method/property detection on typed expressions — mostly noise here (`Module::__call()`'s dynamic dispatch
 and pre-standardized PHPDoc without the missing PSR-4 autoload look identical to PHPStan), baselined, but
-it did catch a few genuinely wrong return-type docblocks on core methods (`AI-shared/REFERENCE-optimization-opus-AI.md`).
+it did catch a few genuinely wrong return-type docblocks on core methods
+(`AI-private/REFERENCE-optimization-opus-AI.md`).
 Regenerate the baseline with `--generate-baseline` as real bugs get cleared, so it shrinks over time:
 ```
 tools/vendor/bin/phpstan analyse -c phpstan.neon
@@ -121,8 +129,8 @@ authoritative command inventory — run it rather than trusting a list written d
 ```
 
 **Tests:** there is no test suite. `codeception.yml` and `tests/` were removed (see
-`AI-shared/MIGRATION_NOTES.md`); `modules/Tests/*` are demo/example modules, not automated tests. See
-`AI-shared/PROPOSAL_functional_tests.md` for the (undecided) plan. Don't assume a test command will validate
+`AI-private/archive/MIGRATION_NOTES.md`); `modules/Tests/*` are demo/example modules, not automated tests.
+See `AI-private/test-suite-plan.md` for the (undecided) plan. Don't assume a test command will validate
 a change; verify by running the app instead. `php update.php` from the CLI is a real mutating operation
 against the live DB, not a dry check — be careful running it outside a disposable environment.
 
@@ -182,13 +190,13 @@ filter/CRUD behavior from scratch.
 ### Rendering
 
 Smarty **2** (vendored/patched-in-place under `modules/Base/Theme/smarty/`, deliberately not upgraded — see
-`AI-shared/MIGRATION_NOTES.md` §17) is the template engine; `include/EpesiSmartyRenderer.php` wraps it for the
+`AI-private/archive/MIGRATION_NOTES.md` §17) is the template engine; `include/EpesiSmartyRenderer.php` wraps it for the
 non-legacy (admin/setup/update) views. Smarty 2 template modifier callbacks must be plain functions —
 closures don't work.
 
 The front end still loads an old jQuery (1.11.3 + jquery-migrate) on every page alongside AdminLTE's own
 JS/Bootstrap. Prototype.js and Scriptaculous were fully removed as of 2026-08-06 (see
-`AI-shared/legacy-js-migration.md` for the full history) — `$` is jQuery's own default binding now, not
+`AI-shared/legacy-js-migration.md`) — `$` is jQuery's own default binding now, not
 Prototype's. This matters for old/legacy code still assuming Prototype semantics: a bare `$('some_id')`
 (no `#`) is jQuery's *tag-name* selector, not an ID lookup — it never returns `null`/`undefined`, so an
 `if (!el) return` guard written for Prototype's `$` won't catch it, and the returned (empty) jQuery

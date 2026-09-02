@@ -84,11 +84,11 @@ class CreateDistCommand extends Command
             // "*.md except README.md" rule above only matches root level, so this whole
             // folder (38 files, ~700 KB - MIGRATION_NOTES.md alone is 243 KB) was
             // shipping in every release package. Flagged as a gap in
-            // AI-shared/release-packaging-plan.md; closed 2026-08-31.
+            // AI-private/release-packaging-plan.md; closed 2026-08-31.
             //
             // This matters beyond size: this command archives the WORKING TREE, not
             // `git ls-files`, so a gitignored file that happens to exist locally still
-            // ships. AI-shared/DirectAdmin-git-sync.md is gitignored precisely because it
+            // ships. AI-private/DirectAdmin-git-sync.md is gitignored precisely because it
             // holds one developer's own hosting account details (domain, paths) - without
             // this rule, building a release on that machine would put them in the zip.
             //

@@ -2,7 +2,7 @@
 /**
  * Pushes each user's Epesi meetings to their own Google Calendar (one-way,
  * Epesi -> Google). Per-user OAuth, cron-polled. See
- * AI-shared/Epesi-Google-Calendar-sync.md for the design this was built from.
+ * AI-private/Epesi-Google-Calendar-sync.md for the design this was built from.
  *
  * Talks to Google directly over curl (OAuth2 token endpoint + the Calendar
  * v3 REST API) rather than the official google/apiclient SDK - that SDK's

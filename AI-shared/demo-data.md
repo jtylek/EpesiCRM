@@ -16,7 +16,7 @@ registered in `console.php`), use `Faker` to seed a dev install with realistic-l
 
 **The generated data is not reproducible.** `\Faker\Factory::create()` is called with no seed, so every
 run produces different records. Fine for eyeballing a dev install, not fine for anything asserting on
-specific values — see `test-suite-plan.md`, which proposes a `--seed=N` option for exactly that reason.
+specific values — adding a `--seed=N` option is the obvious fix if that ever matters.
 
 ## Realism constraints on generated records (2026-09-01)
 
@@ -65,7 +65,7 @@ employee themselves. The expected setup order on a fresh install is:
 1. Create your own company and your own contact by hand (or through normal first-run setup).
    Still manual: `get_main_company()` derives your company from *your own contact's*
    `company_name` (the contact whose `login` field is your user id), so nothing can create it
-   until that record exists. See `test-suite-plan.md` for the proposal to do this in FirstRun.
+   until that record exists. Automating it in FirstRun has been proposed but not built.
 2. `demo:generate:contacts --employees=10` (added 2026-09-01) fills the employee pool - contacts
    with `company_name` set to your own company, which is the only thing `employees_crits()`
    actually requires. This replaces the old "clone your own contact by hand" step; RecordBrowser's

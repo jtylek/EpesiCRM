@@ -3,7 +3,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 // rc_accounts' Password/SMTP Password columns were plaintext until now (see
-// AI-shared/mail-account-encryption-and-gmail-oauth.md for the full design) - this one-time
+// AI-private/mail-account-encryption-and-gmail-oauth.md for the full design) - this one-time
 // migration encrypts whatever's already stored, in place, using CRM_MailCommon::encrypt() (AES-256-GCM).
 // Idempotent-safe to re-run: encrypt() output never round-trips back through decrypt() as valid
 // base64 plaintext by coincidence in any realistic scenario, but there's no live install yet for

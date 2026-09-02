@@ -1,6 +1,6 @@
 <?php
 /**
- * Regression guard for the N+1 fixes in AI-shared/REFERENCE-optimization-opus-AI.md (item 2.4).
+ * Regression guard for the N+1 fixes in AI-private/REFERENCE-optimization-opus-AI.md (item 2.4).
  *
  * It measures *slope*, not a fixed budget. Each scenario runs twice - once over a small
  * set of records, once over a set five times larger - and the invariant asserted is that
@@ -27,7 +27,7 @@
  *
  * Exit code is non-zero when any scenario's query count grows with the row count, so it
  * works as a pre-push check. It needs a populated database, which is why it is a local
- * command and not a CI job - see AI-shared/REFERENCE-optimization-opus-AI.md section 10.
+ * command and not a CI job - see AI-private/REFERENCE-optimization-opus-AI.md section 10.
  */
 namespace Epesi\Console\Develop;
 
@@ -95,7 +95,7 @@ class QueryBudgetCommand extends Command
 
         $output->writeln('');
         if ($failed) {
-            $output->writeln(sprintf('<error>%d scenario(s) scale with row count.</error> A per-row query came back - see AI-shared/REFERENCE-optimization-opus-AI.md section A1.', $failed));
+            $output->writeln(sprintf('<error>%d scenario(s) scale with row count.</error> A per-row query came back - see AI-private/REFERENCE-optimization-opus-AI.md section A1.', $failed));
             return Command::FAILURE;
         }
         $output->writeln(sprintf('<info>All %d scenario(s) flat.</info>%s', $ran, $skipped ? " $skipped skipped." : ''));

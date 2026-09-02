@@ -1,7 +1,7 @@
 name: CI
 
 # The lint/phpstan/rector jobs CLAUDE.md and phpstan.neon have always described.
-# They did not exist until 2026-08-31 - see AI-shared/REFERENCE-optimization-opus-AI.md B1.
+# They did not exist until 2026-08-31 - see AI-private/REFERENCE-optimization-opus-AI.md B1.
 #
 # Scope note: modules/Premium/ and modules/Custom/ are gitignored, separately-licensed
 # nested git repos (CLAUDE.md, "Environment quirks"), so they are never present in a CI
@@ -118,7 +118,7 @@ jobs:
 
       # CLAUDE.md drifted from the code repeatedly (four wrong facts found 2026-08-31:
       # two invented console commands, a removed test skeleton, a CI job that did not
-      # exist). Verifiable claims get verified - see AI-shared/REFERENCE-optimization-opus-AI.md B4.
+      # exist). Verifiable claims get verified - see AI-private/REFERENCE-optimization-opus-AI.md B4.
       #
       # CLAUDE.md only, deliberately: it is the file Claude Code auto-loads every session
       # and the one that must be trustworthy. AI-shared/ is explicitly allowed to contain
@@ -154,7 +154,7 @@ jobs:
     # blocks the build. See CLAUDE.md: a fix to an *Install.php default only reaches fresh
     # installs unless a patches/*.php file ships alongside it for the same module - the
     # single most common way a "fixed" bug regresses on upgrade. Item B6,
-    # AI-shared/REFERENCE-optimization-opus-AI.md.
+    # AI-private/REFERENCE-optimization-opus-AI.md.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4

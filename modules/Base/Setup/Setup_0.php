@@ -565,7 +565,7 @@ class Base_Setup extends Module {
 			// local README to show, so its "Readme..." button links out to
 			// $package.url (set just below) instead of a Leightbox popup -
 			// see the template's {if $package.readme_id}{elseif $package.url}
-			// fallback (AI-shared/Simple-setup-ESS.md). Omitting the key
+			// fallback (AI-private/Simple-setup-ESS.md). Omitting the key
 			// entirely (rather than null) would make that same
 			// {if $package.readme_id} check an E_WARNING under PHP 8.2.
 			$sorted[$name]['readme_id'] = null;

@@ -3,9 +3,8 @@
 > **Status:** REFERENCE - how the query-budget check works and how to add a scenario. Run it after touching RecordBrowser, Watchdog, Roundcube or Contacts.
 
 ```
-/c/xampp82/php/php.exe console.php dev:query:budget        # Windows
-/opt/lampp/bin/php console.php dev:query:budget            # this Linux machine
-... dev:query:budget -v                                    # list every measured query
+php console.php dev:query:budget        # use the real PHP binary — see CLAUDE.md
+php console.php dev:query:budget -v     # list every measured query
 ```
 
 Exit code is non-zero when anything regressed, so it works as a pre-push check.
@@ -133,12 +132,11 @@ five were checked — with both prefetch functions disabled the command reports
 
 **Whole-page query counts.** `Epesi::process()` renders from module-tree state that lives
 in a browser session, so a faithful page render needs a browser. Page totals stay a manual
-measurement — the procedure is section 7 of `REFERENCE-optimization-opus-AI.md`, and it no longer
-needs a `config.php` edit now that a super-admin can switch the SQL panel on for their own
-session.
+measurement — the procedure is in [performance-profiling.md](performance-profiling.md), and it no
+longer needs a `config.php` edit now that a super-admin can switch the SQL panel on for their
+own session.
 
-**CI.** It needs a populated database and CI has none, so this is a local pre-push check.
-Provisioning a real install in CI is its own project; nothing here assumes it.
+**CI.** It needs a populated database, so this is a local pre-push check, not a CI job.
 
 **Correctness.** This is a performance guard only. There is still no test suite — see
-`CLAUDE.md`'s Tests note and `PROPOSAL_functional_tests.md`.
+`CLAUDE.md`'s Tests note.
