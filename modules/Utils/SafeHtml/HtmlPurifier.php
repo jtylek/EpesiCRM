@@ -16,7 +16,7 @@ class Utils_SafeHtml_HtmlPurifier
     {
         // One purifier per request, not one per call - HTMLPurifier builds its
         // definitions lazily on the first purify(), so a fresh instance rebuilds
-        // them every time. See AI-shared/performance-profiling.md (2026-08-31).
+        // them every time. See AI-shared/performance.md (2026-08-31).
         static $purifier = null;
         if ($purifier === null) {
             $config = HTMLPurifier_Config::createDefault();

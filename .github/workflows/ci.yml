@@ -34,7 +34,7 @@ jobs:
           coverage: none
 
       # Vendored third-party trees are excluded: they ship as-is and are not ours to fix
-      # (AI-shared/README.md, "Conventions for investigating/fixing bugs"). Roundcube is
+      # (AI-shared/README.md, "Conventions"). Roundcube is
       # ~35% of modules/ on its own.
       #
       # console/Develop/ used to be excluded here too, which did not match that rationale -

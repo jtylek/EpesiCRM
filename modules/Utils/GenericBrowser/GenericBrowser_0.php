@@ -1185,7 +1185,7 @@ class Utils_GenericBrowser extends Module {
 
 		// Column drag-to-resize (js/col_resizable.js, jQuery colResizable) was
 		// dropped when this grid's markup moved from a real <table> to CSS
-		// table-display divs (see AI-shared/adminlte-theme.md) - the vendored
+		// table-display divs (see AI-shared/theming-and-frontend.md) - the vendored
 		// plugin hard-requires an actual <table> element and has no
 		// div-compatible equivalent. $resizable_columns/set_resizable_columns()
 		// are kept as inert API surface (RecordBrowser_0.php still calls

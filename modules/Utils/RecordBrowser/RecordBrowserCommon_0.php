@@ -39,7 +39,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     // get_record_info() once per visible row. Request-scoped only, mirroring
     // CRM_ContactsCommon::get_contact()/get_company() (which already cache
     // this way) and the CommonData fix described in
-    // AI-shared/performance-profiling.md. Cleared per (tab,id) by every
+    // AI-shared/performance.md. Cleared per (tab,id) by every
     // in-place mutator (update_record(), set_active() - covers delete/restore,
     // delete_record()'s perma branch, set_record_properties()) so a
     // same-request read-after-write still sees fresh data; a whole-tab clear
@@ -2160,7 +2160,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 		// Bootstrap Icons glyph rather than star_fav.png/star_nofav.png. Those were
 		// already invisible under adminltedark - hidden by CSS and painted over with
 		// this same glyph - but still downloaded once per row. See
-		// AI-shared/performance-profiling.md (2026-08-31). The gold colour that used to
+		// AI-shared/performance.md (2026-08-31). The gold colour that used to
 		// live in the [src*=] rule now hangs off .epesi-fav-on.
 		$glyph = $isfav==false ? 'bi-star' : 'bi-star-fill epesi-fav-on';
 		return '<a '.Utils_TooltipCommon::open_tag_attrs(($isfav?__('This item is on your favorites list').'<br>'.__('Click to remove it from your favorites'):__('Click to add this item to favorites'))).' onclick="utils_recordbrowser_set_favorite('.($isfav?0:1).',\''.$tab.'\','.$id.',\''.$tag_id.'\')" href="javascript:void(0);"><i class="bi '.$glyph.' action_button"></i></a>';
@@ -2207,7 +2207,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         // instance per row rebuilt the entire definition set once per grid row -
         // measured at ~1.9ms/row, half of the whole row loop on a 20-row grid.
         // Reusing one instance takes get_html_record_info() from 0.040s to
-        // 0.017s per page. See AI-shared/performance-profiling.md (2026-08-31).
+        // 0.017s per page. See AI-shared/performance.md (2026-08-31).
         static $purifier = null;
         if ($purifier === null) $purifier = new HTMLPurifier(HTMLPurifier_Config::createDefault());
         return $purifier->purify(implode('<br>', $lines));

@@ -22,7 +22,7 @@
  * "displayed as a table" CSS layout algorithm, not a literal <table>
  * element) - and so per-row wrapper elements stay real boxes (needed for
  * col.js's/table_overflow.js's/sort_fields.js's/sort_nodes.js's DOM hooks -
- * see AI-shared/adminlte-theme.md), unlike a CSS Grid + display:contents
+ * see AI-shared/theming-and-frontend.md), unlike a CSS Grid + display:contents
  * approach which would leave a cloned drag-helper row an invisible,
  * zero-box element.
  *

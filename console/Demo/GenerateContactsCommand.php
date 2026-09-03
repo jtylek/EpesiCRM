@@ -127,7 +127,7 @@ class GenerateContactsCommand extends Command
      * The Employees picker in PhoneCalls/Meetings/Tasks is restricted by
      * CRM_{PhoneCall,Meeting,Tasks}Common::employees_crits() to contacts whose
      * f_company_name (or f_related_companies) is your own company - see
-     * AI-shared/demo-data.md. Until now nothing created those, so the three
+     * AI-shared/environment-and-setup.md. Until now nothing created those, so the three
      * activity generators hard-failed on a fresh install and you had to make
      * your own contact by hand and clone it. This fills that pool.
      *

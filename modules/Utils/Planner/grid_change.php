@@ -57,7 +57,7 @@ foreach ($cleanFrames as $day=>$v) {
 			// Was a <tr> of 4 <td>s - now a flat run of 4 divs; the grid's own
 			// column tracks (see $timeframe_string below) wrap every 4 into a
 			// new visual row, the same way <tr> boundaries used to (see
-			// AI-shared/adminlte-theme.md).
+			// AI-shared/theming-and-frontend.md).
 			$next = '<div style="width:90px">'.$headers[$day].'</div>'.
 						'<div>'.Utils_PlannerCommon::format_time($start*60).'</div>'.
 						'<div>'.Utils_PlannerCommon::format_time($t*60).'</div>'.

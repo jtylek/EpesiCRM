@@ -52,7 +52,7 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
      * mid-request on some paths (e.g. Utils/RecordBrowser/indexer.php's set_sa_user()).
      *
      * Request-scoped only, same discipline as the other grid caches - see
-     * AI-shared/performance-profiling.md.
+     * AI-shared/performance.md.
      */
     private static function user_has_mail_account() {
         static $cache = array();

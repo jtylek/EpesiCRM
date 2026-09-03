@@ -147,7 +147,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 	// Drops both request-scoped snapshots for one category. Every mutator of
 	// utils_watchdog_subscription calls this: subscribe/unsubscribe/notified within the
 	// same request must be visible to the next read, exactly the read-after-write
-	// requirement AI-shared/performance-profiling.md records for get_record()'s cache.
+	// requirement AI-shared/performance.md records for get_record()'s cache.
 	// (The subscription snapshot has been in place since 2026-08-28 without this - a
 	// latent stale read that only became load-bearing once _last_event() started deriving
 	// its own id set from it.)
@@ -457,7 +457,7 @@ class Utils_WatchdogCommon extends ModuleCommon {
 		// Bootstrap Icons glyph rather than not_watching_small/watching_small/
 		// watching_small_new_events.png. Those were already invisible under adminltedark
 		// - hidden by CSS and painted over with this same glyph - but still downloaded
-		// once per row. See AI-shared/performance-profiling.md (2026-08-31). The green/
+		// once per row. See AI-shared/performance.md (2026-08-31). The green/
 		// orange colours that used to live in the [src*=] rules now hang off the state
 		// classes.
 		if ($last_seen===null) {

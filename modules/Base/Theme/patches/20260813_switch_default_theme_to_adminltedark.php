@@ -7,7 +7,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 // Base_ThemeCommon::get_default_template()) keeps rendering that way forever,
 // since nothing else ever changes this Variable after install. Opt existing
 // installs into adminltedark on upgrade, matching the project's stated
-// direction (see AI-shared/adminlte-theme.md) rather than leaving them stuck
+// direction (see AI-shared/theming-and-frontend.md) rather than leaving them stuck
 // on the theme nobody is investing further design work in.
 $current = Variable::get('default_theme', false);
 if ($current === false || $current === 'default') {

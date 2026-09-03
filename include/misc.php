@@ -256,8 +256,8 @@ function preg_tree($path, $pattern, $maxdepth = -1, $d = 0) {
  * index.php on its own, and serve.php sends a one-year Cache-Control on JS/
  * CSS, so a tab that's stayed open keeps running whatever JS was in memory
  * at its original load indefinitely - see AI-shared/bug-patterns.md's
- * "already-fixed JS bug coming back" entry for the incident this exists to
- * catch. Called both from index.php (every full page load) and
+ * "a fixed bug coming back is stale client state" entry for the failure
+ * shape this exists to catch. Called both from index.php (every full page load) and
  * check_version.php (polled every 20 minutes per open tab by
  * Epesi.updateCheck in include/epesi.js), so results are cached for 15
  * minutes - a full scan takes over a second, too slow to pay inline on

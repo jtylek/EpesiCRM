@@ -11,8 +11,7 @@
  * output shouldn't live inside DATA_DIR, so any backup strategy that just
  * archives DATA_DIR wholesale - not only BackupUtil's own exclude list (now
  * simplified to just '^temp/', see include/backups.php) - doesn't need to
- * know to skip it. Full writeup: AI-shared/bug-patterns.md, "Runtime
- * cache/scratch-file call sites default to DATA_DIR instead of TEMP_DIR".
+ * know to skip it.
  *
  * This patch removes the entire stale DATA_DIR . '/cache' directory left
  * behind at the old location so it doesn't keep sitting there as dead weight

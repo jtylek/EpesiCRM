@@ -60,7 +60,7 @@ class Base_BootstrapIcons {
 	 * "New Note"-style record shortcuts that used to print a raster <img> of the module's
 	 * icon-small.png. Those images were already invisible under adminltedark (hidden by
 	 * CSS, painted over by a ::before glyph keyed on [src*="..."]) but still downloaded -
-	 * see AI-shared/performance-profiling.md, 2026-08-31.
+	 * see AI-shared/performance.md, 2026-08-31.
 	 *
 	 * Returns null when the module declares no bootstrap_icon(), so the caller can keep
 	 * printing its original <img>.

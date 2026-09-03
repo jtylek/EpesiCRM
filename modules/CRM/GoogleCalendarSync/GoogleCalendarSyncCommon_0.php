@@ -393,7 +393,7 @@ class CRM_GoogleCalendarSyncCommon extends ModuleCommon {
 	// Fully-qualified rather than `use`-imported. This was once load-bearing: the
 	// FORCE_CACHE_COMMON_FILES bundle concatenated every Common class into one
 	// compilation unit, where a second `use` of a name CalendarCommon_0.php already
-	// imported was a fatal. That bundle is gone (see AI-shared/deliberate-removals.md),
+	// imported was a fatal. That bundle is gone (see AI-shared/dont-reintroduce.md),
 	// so this is now only a style choice.
 	public static function oauth_callback(\Symfony\Component\HttpFoundation\Request $request, $args) {
 		$home = rtrim(get_epesi_url(), '/') . '/';

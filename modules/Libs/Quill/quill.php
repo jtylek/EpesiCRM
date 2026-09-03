@@ -88,7 +88,7 @@ class HTML_QuickForm_quill extends HTML_QuickForm_element {
 
     // Adds a live "switch toolbar" button (mirrors CKEditor's old toolbarswitch
     // plugin, not ported when this element replaced ckeditor.php - see
-    // AI-shared/ckeditor-to-quill-migration.md's "Not ported" note) that lets the
+    // AI-shared/dont-reintroduce.md's "Not ported" note) that lets the
     // user flip between the Basic and Advanced presets for just this instance,
     // without touching their saved Base_User_SettingsCommon 'editor' default -
     // the starting toolbar is still whatever setQuillProps()/setToolbarPreset()

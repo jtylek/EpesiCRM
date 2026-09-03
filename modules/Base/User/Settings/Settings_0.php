@@ -462,7 +462,7 @@ class Base_User_Settings extends Module {
                     $new = Base_ThemeCommon::get_template_file($m,'icon.png');
 					if ($new) $icon = $new;
 				}
-            // helpID: lets a Base_Help tutorial (see AI-shared/how-to-write-HELP.md)
+            // helpID: lets a Base_Help tutorial (see AI-shared/help-tutorials.md)
             // click through to a specific settings branch, e.g. "Password" - this
             // hub has no other stable per-tile identifier (the href is a
             // create_unique_href(), regenerated per instance). Keyed by $caption

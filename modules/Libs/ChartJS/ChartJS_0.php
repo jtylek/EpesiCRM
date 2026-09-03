@@ -6,7 +6,7 @@
  *
  * Canvas-based line/bar chart module. Replaces Libs/OpenFlashChart (Flash,
  * non-functional in every browser since ~2021 - see
- * AI-shared/deliberate-removals.md) - Utils/RecordBrowser/Reports is the
+ * AI-shared/dont-reintroduce.md) - Utils/RecordBrowser/Reports is the
  * only real caller.
  *
  * @license MIT

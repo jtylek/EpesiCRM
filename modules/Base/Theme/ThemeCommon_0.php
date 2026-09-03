@@ -252,7 +252,7 @@ class Base_ThemeCommon extends ModuleCommon {
 	/**
 	 * True for any theme built on the Bootstrap/AdminLTE framework - currently
 	 * just 'adminltedark' ('adminlte', the light-only original, was removed
-	 * 2026-08-04, see AI-shared/adminlte-theme.md: adminltedark covers light
+	 * 2026-08-04, see AI-shared/theming-and-frontend.md: adminltedark covers light
 	 * mode itself via the navbar toggle, and the project isn't investing in a
 	 * second, separately-maintained family member). Call sites that used to
 	 * check get_default_template() === 'adminlte' to pick Bootstrap-based

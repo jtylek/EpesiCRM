@@ -25,18 +25,17 @@ module) is its own git repo, gitignored from this one — the `Grep` tool silent
 paths, so use plain `grep`/`git grep --no-index` via `Bash` for anything in this tree instead.
 
 Before editing, check the module's *own* `git status`/`git log` (from inside its directory) — it has
-independent history from the main repo. Per `AI-private/archive/environment-gotchas.md`'s "can change under you
-mid-session" entry: if anything in there looks unexpectedly already-fixed or looks like corruption,
+independent history from the main repo. A nested repo can change under you mid-session: if anything
+in there looks unexpectedly already-fixed or looks like corruption,
 don't assume and don't revert — flag the specific diff to the user and ask; it may be legitimate
 concurrent work from another session on the same nested repo.
 
 ## 3. Scan for PHP 8.x compatibility issues
 
 Run the project's existing static-analysis tooling, scoped to just this module directory (both configs
-already cover `modules/` broadly, Premium included — see `rector.php`, `rector-php83.php`,
-`phpstan.neon` at the repo root). `AI-private/archive/environment-gotchas.md`'s "Rector and PHPStan are
-installed globally" entry explains why these are bare commands, not `vendor/bin/rector`/
-`vendor/bin/phpstan`, on a machine that's had the global Composer install done — if they're not found
+already cover `modules/` broadly — see `rector.php`, `rector-php83.php`,
+`phpstan.neon` at the repo root. These may be bare commands rather than `vendor/bin/rector`/
+`vendor/bin/phpstan` on a machine that has had a global Composer install done — if they're not found
 on PATH, fall back to how CI installs them (`.github/workflows/php-checks.yml`, isolated `/tmp`
 installs) or ask the user:
 
@@ -49,18 +48,17 @@ phpstan analyse <module-path> -c phpstan.neon
 These cover the bulk of real PHP 8.x breakage (removed functions like `each()`/`create_function()`,
 curly-brace string/array offsets, PHP4-style constructors, PHP 8.2 dynamic-property deprecations,
 undefined methods/functions/wrong arg counts) far more reliably than hand-written regex checks — a
-module that's never been swept by the PHP 7.4→8.2 migration (see `AI-shared/MIGRATION_NOTES.md`,
-especially §49's removed-function list and §50) should be expected to have real findings, not false
-positives.
+module that's never been swept by the PHP 7.4→8.2 migration should be expected to have real findings,
+not false positives.
 
 As a cheap supplementary check (catches anything outside those tools' rule sets), also grep the module
-for the specific removed-function names §49 already catalogued as having bitten this codebase before:
+for the specific removed-function names already known to have bitten this codebase before:
 `create_function`, `each(`, `get_magic_quotes_gpc`, `get_magic_quotes_runtime`, `money_format`,
 `convert_cyr_string`, `ezmlm_hash`, `image2wbmp`, `read_exif_data`, `call_user_method`.
 
 ## 4. Scan for reintroduced deliberately-removed dependencies
 
-Read `AI-shared/deliberate-removals.md` fresh each time (it's a living document, expected to grow —
+Read `AI-shared/dont-reintroduce.md` fresh each time (it's a living document, expected to grow —
 don't rely on a memorized list) and grep the module for every removed API/feature documented there that
 a never-migrated module could still be calling. Two confirmed-recurring ones as of 2026-08-21, both
 already hit real Premium modules and documented there with the exact fix:
@@ -94,7 +92,7 @@ Suggest the user actually install/upgrade the module (Administration → Modules
 or `console.php module:install`) to confirm the fix worked, since that's how the exact same fixes were
 validated originally.
 
-If this scan turns up a genuinely new broken pattern not already in `AI-shared/deliberate-removals.md`
+If this scan turns up a genuinely new broken pattern not already in `AI-shared/dont-reintroduce.md`
 or `MIGRATION_NOTES.md` §49, that's worth recording there afterward (per that folder's own "Maintaining
 this folder" section) so the next module doesn't need to rediscover it — offer to add it, don't do it
 silently.

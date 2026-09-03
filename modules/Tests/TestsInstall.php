@@ -35,7 +35,7 @@ class TestsInstall extends ModuleInstall {
 	// it pulled in the thin widget demos but omitted RecordBrowser, Bugtrack
 	// and Report, i.e. the most useful ones, which had to be installed by
 	// hand. The thin ones were dropped in the 2026-09-01 trim (see
-	// AI-shared/deliberate-removals.md).
+	// AI-shared/dont-reintroduce.md).
 	//
 	// Sub-modules (Tests/Callbacks/a, Tests/Calendar/Event,
 	// Tests/SharedUniqueHref/a) are deliberately absent - each is pulled in

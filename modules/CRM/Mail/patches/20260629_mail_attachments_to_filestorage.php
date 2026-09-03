@@ -15,7 +15,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 // 2026-08-20: one row hit "Storing data failed" (file_put_contents() returned false) mid-run —
 // transient (a lock from AV/indexer scanning right after a large git checkout in the same data/
 // tree is the leading suspect; every row succeeded on retry a few minutes later, see
-// AI-shared/environment-gotchas.md). But this loop had no per-row error handling, so that one
+// AI-shared/environment-and-setup.md). But this loop had no per-row error handling, so that one
 // failure propagated out of the patch and — via update.php's apply_new($die_on_error=true), see
 // include/patches.php — aborted the *entire* patch queue, not just this attachment. Per-row
 // try/catch below, logging with error_log() rather than trigger_error()/throwing: the patch

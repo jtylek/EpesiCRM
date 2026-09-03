@@ -86,8 +86,8 @@ menu, and the sidebar, search, and filter bars all adapt to portrait/landscape p
 viewports — see the mobile gallery shots above, taken straight from a phone. Because
 this lives in the shared grid/theme layer, a module author gets the mobile layout for
 free the same way they get the desktop one: by declaring fields, not by writing
-responsive CSS. See [`AI-shared/adminlte-theme.md`](AI-shared/adminlte-theme.md) and
-[`AI-shared/generic-browser-responsive-tables.md`](AI-shared/generic-browser-responsive-tables.md)
+responsive CSS. See [`AI-shared/theming-and-frontend.md`](AI-shared/theming-and-frontend.md) and
+[`AI-shared/framework-internals.md`](AI-shared/framework-internals.md)
 for how it works.
 
 ## Why developers like it
@@ -179,7 +179,8 @@ and environment notes.
 | [`AI-shared/`](AI-shared/) | Developer notes: framework concepts, module-development recipes, bug patterns, environment gotchas |
 | [`AI-shared/Dev-Tutorial.md`](AI-shared/Dev-Tutorial.md) | How to write a module from scratch, paired with `modules/Custom/Tutorial/` |
 | [`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) | The founding principle: business logic in PHP, view generated for you |
-| [`AI-shared/MIGRATION_NOTES.md`](AI-shared/MIGRATION_NOTES.md) | The PHP floor, upgrade-gap discipline, and why old code looks the way it does |
+| [`AI-shared/recordbrowser-recipes.md`](AI-shared/recordbrowser-recipes.md) | Changing a recordset that already holds data, and the callback rules |
+| [`AI-shared/bug-patterns.md`](AI-shared/bug-patterns.md) | Recurring failure shapes, indexed by symptom |
 
 ## Support
 

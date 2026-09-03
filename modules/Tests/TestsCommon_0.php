@@ -34,14 +34,14 @@ class TestsCommon extends ModuleCommon {
 	 * unlike a normal single-open-at-a-time accordion). Bootstrap's
 	 * collapse/accordion JS is already relied on elsewhere in the app
 	 * (Base_Menu's submenu toggle, Base_Box's shell), so no new component
-	 * risk here - see AI-shared/adminlte-theme.md's Tooltip entry for why a
+	 * risk here - see AI-shared/theming-and-frontend.md's Tooltip entry for why a
 	 * *hover*-driven Bootstrap component was avoided instead; this is a
 	 * plain click toggle, not that.
 	 *
 	 * highlight_file() (via Utils_CatFile) always renders on an implicit
 	 * white background - the explicit background/color here isn't
 	 * decorative, it's what keeps the code legible once the surrounding page
-	 * is the dark theme (see AI-shared/adminlte-theme.md's tooltip/leightbox
+	 * is the dark theme (see AI-shared/theming-and-frontend.md's tooltip/leightbox
 	 * "fixed light chrome" entries for the same trap in other widgets).
 	 *
 	 * @param Module $module calling module instance (owns pack_module())

@@ -806,7 +806,7 @@ class Utils_RecordBrowser extends Module {
         // Warm the per-row hover-info cache for the whole page in two queries instead of
         // two per row (add_info() below calls get_html_record_info() -> get_record_info()
         // once per record). Pure warm-up: anything not covered still resolves per-id.
-        // See AI-shared/performance-profiling.md.
+        // See AI-shared/performance.md.
         //
         // Mirrors the exact conditions the add_info() call site below is gated on - both
         // are loop-invariant, read straight off $this->disabled rather than off the $da
@@ -1295,7 +1295,7 @@ class Utils_RecordBrowser extends Module {
         if ($mode!='add') {
             // Bootstrap Icons glyphs rather than raster <img> for this whole tools row -
             // same conversion as the grid's row actions (see GenericBrowser_0.php's
-            // action_icon_tag() and AI-shared/performance-profiling.md, 2026-08-31). The
+            // action_icon_tag() and AI-shared/performance.md, 2026-08-31). The
             // images were already invisible here too: View_entry.css hid them and painted
             // a ::before glyph selected by [src*="..."].
             $theme -> assign('info_tooltip', '<a '.Utils_TooltipCommon::open_tag_attrs(Utils_RecordBrowserCommon::get_html_record_info($this->tab, $id)).'><i class="bi bi-info-circle-fill action_button"></i></a>');
@@ -1484,7 +1484,7 @@ class Utils_RecordBrowser extends Module {
         // PhoneCall's default.tpl, Attachment's View_entry.tpl) still read
         // cols/rows/no_empty for their own fixed-column table/flex layout -
         // out of scope for the CSS-driven fluid columns the generic
-        // View_entry.tpl now uses (see AI-shared/adminlte-theme.md). Do
+        // View_entry.tpl now uses (see AI-shared/theming-and-frontend.md). Do
         // not remove this without also updating all of those templates.
         $theme->assign('cols', 2);
         $theme->assign('longfields', $longfields);

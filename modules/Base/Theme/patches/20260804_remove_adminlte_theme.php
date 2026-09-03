@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 // The light-only 'adminlte' theme was removed 2026-08-04 (see
-// AI-shared/adminlte-theme.md) - every modules/*/theme_adminlte/ directory is
+// AI-shared/theming-and-frontend.md) - every modules/*/theme_adminlte/ directory is
 // gone, so an install that still has it selected as the global default would
 // otherwise silently fall back to raw, unstyled markup on next load. Migrate
 // to its dark fork, the sole remaining AdminLTE-family member (already the

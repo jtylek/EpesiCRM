@@ -140,7 +140,7 @@ class CRM_PhoneCallCommon extends ModuleCommon {
 
         // One purifier per request, not one per call - HTMLPurifier builds its
         // definitions lazily on the first purify(), so a fresh instance rebuilds
-        // them every time. See AI-shared/performance-profiling.md (2026-08-31).
+        // them every time. See AI-shared/performance.md (2026-08-31).
         // The ForbiddenElements line used to sit *after* new HTMLPurifier() and
         // only took effect because the config object is shared by reference;
         // it is set before construction now so the order is no longer load-bearing.

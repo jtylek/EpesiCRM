@@ -44,7 +44,7 @@ class Utils_CommonDataCommon extends ModuleCommon {
 	// all, including the "loaded" flag, so the next call reloads fresh
 	// instead of resolving against a since-mutated snapshot - the same
 	// request-scoped-only discipline this class already applied to get_id()/
-	// get_value() (see AI-shared/performance-profiling.md): no other mutator
+	// get_value() (see AI-shared/performance.md): no other mutator
 	// here (set_value(), new_array(), extend_array(), rename_key(), ...)
 	// invalidates either, so a same-request read-after-write on those was
 	// already stale before this change and remains exactly as stale, not

@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 // Deletes on-disk files/directories that were removed from the tracked source tree at various
-// points during the PHP 7.4 -> 8.2 migration (see AI-shared/MIGRATION_NOTES.md), but that a plain
+// points during the PHP 7.4 -> 8.2 migration, but that a plain
 // git checkout/pull never leaves behind on disk. This patch exists for installs that instead get
 // upgraded by copying/extracting a new release directly over an old one (e.g. cPanel/Softaculous-
 // style deploys, or any rsync/robocopy-style merge that only overwrites-and-adds and never

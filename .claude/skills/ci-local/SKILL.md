@@ -6,20 +6,19 @@ allowed-tools: [Bash, Read]
 
 # Run the local CI script and analyze it
 
-Background: `.github/workflows/ci.yml` is `disabled_manually` on GitHub (no Actions
-minutes on this repo — see `AI-private/ci-workflow.md`), so `tools\ci-local.bat` is the
-only way these checks actually run. This skill runs it and reads the result so the user
-doesn't have to.
+Background: `.github/workflows/ci.yml` is `disabled_manually` on GitHub, so
+`tools\ci-local.bat` is the only way these checks actually run. This skill runs it and
+reads the result so the user doesn't have to.
 
 ## 1. Run the script, capturing output to a file
 
 Don't let PowerShell's own `2>&1` do the redirect — it wraps a native command's stderr in
-`ErrorRecord` objects and can garble the batch script's interleaved output (established
-2026-09-01). Let `cmd.exe` do its own redirection instead. From the Bash tool, `/c` needs
-escaping as `//c`:
+`ErrorRecord` objects and can garble the batch script's interleaved output. Let `cmd.exe`
+do its own redirection instead. From the Bash tool, `/c` needs escaping as `//c`, and the
+script is run from this checkout's own `tools\` directory:
 
 ```
-cmd //c "C:\xampp82\htdocs\newsetup\tools\ci-local.bat > <scratchpad>\ci-output.txt 2>&1"
+cmd //c "tools\ci-local.bat > <scratchpad>\ci-output.txt 2>&1"
 ```
 
 Write `<scratchpad>\ci-output.txt` into the current session's scratchpad directory (see
@@ -55,10 +54,10 @@ Walk the four sections:
 4. **console.php list** — cross-check against every `console.php <command>` named in
    CLAUDE.md's Commands section; every one of them should appear in the printed command
    list. A missing one is what the (currently un-runnable) `docs` CI job would have
-   caught. If the whole section is empty/missing rather than just incomplete, suspect the
-   same class of bug hit and fixed 2026-09-01 (`console.php` blanking all output on an
-   undefined-variable warning under `REPORT_ALL_ERRORS` — see
-   `AI-private/ci-workflow.md`) rather than assuming the command list itself is wrong.
+   caught. If the whole section is empty/missing rather than just incomplete, suspect
+   `console.php` blanking all output on an undefined-variable warning under
+   `REPORT_ALL_ERRORS` — a known failure shape — rather than assuming the command list
+   itself is wrong.
 
 ## 3. Report concisely
 

@@ -353,7 +353,7 @@ class CRM_Calendar extends Module {
             // One purifier per request, not one per event row - HTMLPurifier
             // builds its definitions lazily on the first purify(), so a fresh
             // instance per row rebuilds them all every time.
-            // See AI-shared/performance-profiling.md (2026-08-31).
+            // See AI-shared/performance.md (2026-08-31).
             static $purifier = null;
             if ($purifier === null) {
                 $config = HTMLPurifier_Config::createDefault();

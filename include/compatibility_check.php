@@ -234,7 +234,7 @@ class CompatibilityCheck {
     // into a longblob column on every request via a raw, unbound query - a
     // large pasted note can exceed max_allowed_packet, and ADOdb's mysqli
     // driver swallows the resulting failure silently (see
-    // AI-shared/environment-gotchas.md). 1M is the historical MySQL/MariaDB
+    // AI-shared/environment-and-setup.md). 1M is the historical MySQL/MariaDB
     // stock default this bites hardest, hence the hard-fail threshold below.
     public static function database_settings_check() {
         if (!DB::is_mysql()) return null;

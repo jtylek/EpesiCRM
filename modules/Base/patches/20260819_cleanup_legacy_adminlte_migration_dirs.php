@@ -7,7 +7,7 @@
  * TCPDF, PHPExcel and the PEAR QuickForm copy moved from a hand-bundled
  * folder under the owning module to a composer-managed vendor/ folder in
  * the same spot; CKEditor and OpenFlashChart were swapped for Quill and
- * ChartJS (see AI-shared/ckeditor-to-quill-migration.md), leaving their
+ * ChartJS (see AI-shared/dont-reintroduce.md), leaving their
  * module folders behind as thin install/common-class stubs; Roundcube
  * moved from modules/CRM/Roundcube/RC to modules/Libs/RoundCube/RC; and
  * the front-end libs/ folder moved from Prototype.js/jQuery UI theme

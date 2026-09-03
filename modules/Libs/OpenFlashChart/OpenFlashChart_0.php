@@ -14,7 +14,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-// OpenFlashChart -> ChartJS migration, 2026-08-18 (AI-shared/deliberate-removals.md):
+// OpenFlashChart -> ChartJS migration, 2026-08-18 (AI-shared/dont-reintroduce.md):
 // replaced by modules/Libs/ChartJS - Flash itself has rendered nothing in any
 // browser since ~2021 (Adobe killed Flash Player Dec 2020), so this was already
 // non-functional, not just legacy. This module is kept installed - not

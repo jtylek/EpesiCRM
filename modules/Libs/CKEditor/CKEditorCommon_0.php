@@ -9,7 +9,7 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
-// CKEditor -> Quill migration, 2026-08-11 (AI-shared/ckeditor-to-quill-migration.md):
+// CKEditor -> Quill migration, 2026-08-11 (AI-shared/dont-reintroduce.md):
 // replaced app-wide by modules/Libs/Quill. This module is kept installed - not
 // uninstalled/deleted - purely so ModuleManager::uninstall() (which needs
 // CKEditorInstall.php loadable to run its own uninstall() hook, and refuses to

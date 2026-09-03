@@ -2,7 +2,7 @@
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
 // Seven modules/Tests/* demo modules were deleted in the 2026-09-01 trim of that tree
-// (see AI-shared/deliberate-removals.md) - each was a three-to-ten-line "call this widget"
+// (see AI-shared/dont-reintroduce.md) - each was a three-to-ten-line "call this widget"
 // snippet teaching nothing the widget's own signature doesn't, and Tests_Search/Tests_Menu
 // additionally demonstrated hooks that no longer have any consumer (advanced_search,
 // advanced_search_access, quick_menu). All seven had install()/uninstall() that were always

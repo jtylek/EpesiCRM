@@ -5,16 +5,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 Epesi BIM is a web-based CRM/ERP (PHP + MySQL/PostgreSQL, jQuery front end). This checkout is
-Epesi 1.9.1 mid-migration from PHP 7.4 to PHP 8.2. The upcoming release is versioned **Epesi 2.0**
-(`EPESI_VERSION`/`EPESI_REVISION` in `include/version.php`) rather than continuing the CalVer
-`20260701-rcN` pre-release scheme — decided 2026-09-01 once the advisory PHP 8.3 Rector sweep
-(`rector-php83.php`) started reporting clean, see `AI-private/archive/MIGRATION_NOTES.md` §84. The full
-migration log — root causes, decisions, and a running "upgrade-gap" discipline for shipping fixes so they
-also reach existing installs — is distilled in `AI-shared/MIGRATION_NOTES.md` (the full numbered
-log is archived at `AI-private/archive/MIGRATION_NOTES.md`). Read the relevant section there before
-touching old/legacy code; it usually already explains why something looks the way it does.
+**Epesi 2.0, revision 1.0** (`EPESI_VERSION`/`EPESI_REVISION` in `include/version.php`) and is PHP 8.2
+compatible — the result of migrating the prior Epesi 1.9.1 release from PHP 7.4 (see below for the
+fuller PHP 8.1/8.2/8.3 breakdown). The full numbered migration log — root causes and decisions — is
+archived at `AI-private/archive/MIGRATION_NOTES.md`; read the relevant section before touching
+old/legacy code, as it usually already explains why something looks the way it does. The one rule
+out of it that governs new work — the **upgrade-gap discipline**, i.e. that a fix changing stored or
+seed data must also ship a `patches/` file or it never reaches existing installs — is in
+`AI-shared/Dev-Tutorial.md` §8.
 
-**PHP: 8.1 minimum, 8.2 target, 8.3 sweep clean (but not an 8.3 support claim).** The floor is
+**PHP: 8.1 minimum, 8.2 recommended/tested, 8.3 confirmed running in production.** The floor is
 enforced in one place — `CompatibilityCheck::system_check()`'s `$desired_version`
 (`include/compatibility_check.php`) — so read that rather than citing a number from memory. It said `8.0`
 until 2026-09-01, which was never runnable: the bootstrap uses **first-class callable syntax**
@@ -23,26 +23,29 @@ until 2026-09-01, which was never runnable: the bootstrap uses **first-class cal
 errors on 8.0, so the app fatals at startup while the check reported "PHP version: OK". `rector.php`, the
 config actually applied to this codebase, independently targets `PhpVersion::PHP_81` — the tooling already
 encoded the real floor while the docs said 8.0. Nothing in the tree needs 8.2. See
-`AI-private/archive/MIGRATION_NOTES.md` §85, plus `AI-shared/MIGRATION_NOTES.md` and
-`AI-shared/environment-gotchas.md`.
+`AI-private/archive/MIGRATION_NOTES.md` §85, plus `AI-shared/environment-and-setup.md`.
 
-**On the clean 8.3 sweep:** `rector-php83.php` (advisory; it lists Rector's six PHP 8.3 rules explicitly, since `SetList::PHP_83` is deprecated in Rector 2.6 — see that file's header) reports **0 files** as of
-2026-09-01. Read that as "no pre-8.3 idioms left worth modernizing" — a code-maturity signal, and what
-triggered the Epesi 2.0 rename (§84). It is **not** evidence the app runs on 8.3: Rector is a refactoring
-tool, not a compatibility checker, and it only rewrites *forward*, so zero findings is equally consistent
-with never having tested 8.3 at all. CI still lints at 8.2 only (`PHP_VERSION` in `ci.yml`). Claiming 8.3
-support needs `php -l` plus a real run on an 8.3 binary; until someone does that, say "8.3-clean under
-Rector", not "supports 8.3".
+**On 8.3: no longer just "Rector-clean," now confirmed running for real.** `rector-php83.php` (advisory;
+it lists Rector's six PHP 8.3 rules explicitly, since `SetList::PHP_83` is deprecated in Rector 2.6 — see
+that file's header) reports **0 files** as of 2026-09-01 — "no pre-8.3 idioms left worth modernizing," a
+code-maturity signal, and what triggered the Epesi 2.0 rename (§84). That alone was never proof the app
+*runs* on 8.3 (Rector only rewrites forward), but there is real-run evidence too: a live production
+install runs PHP **8.3.28**, confirmed via `php -l` on deployed files plus a real end-to-end request
+(login page renders, client traffic logged correctly). CI still lints at 8.2 only (`PHP_VERSION` in
+`ci.yml`), so 8.2 remains the tested-in-CI baseline — but "8.3-clean under Rector" can now be upgraded to
+"runs in production on 8.3.28," not just an advisory signal.
 
 The trap worth remembering: **a Rector run can raise the language floor as a side effect** (that is where
 the first-class callables came from), and neither `php -l` nor PHPStan will catch it, since both run at
 the *target* version rather than the floor. Prefer constructs at or below 8.1 in new code — e.g. use
 static properties, not constants, in a trait (trait constants are 8.2+).
 
-`AI-shared/` holds lower-ceremony developer notes shared across developers/computers via git — how the
-framework's pieces actually work, theming conventions, deliberate removals that look like bugs, recurring
-bug-root-cause shapes, and environment gotchas. Check its `README.md` for the index; worth a look before
-assuming something is broken/missing rather than intentional.
+`AI-shared/` holds lower-ceremony developer notes shared across developers/computers via git, scoped to
+one job: **understanding Epesi and building modules on it.** `Dev-Tutorial.md` is the entry point (Part A
+builds a working module from scratch, Part B is the reference); alongside it are RecordBrowser recipes,
+theming and front-end conventions, environment setup, features removed on purpose, recurring bug shapes
+indexed by symptom, and — separately marked — the framework's own internals. Check its `README.md` for
+the index; worth a look before assuming something is broken/missing rather than intentional.
 
 `AI-private/` is a separate nested git repo (gitignored here, present only on a core developer's
 checkout) holding what must not be public: deployment and hosting details, account-specific setup,
@@ -196,7 +199,7 @@ closures don't work.
 
 The front end still loads an old jQuery (1.11.3 + jquery-migrate) on every page alongside AdminLTE's own
 JS/Bootstrap. Prototype.js and Scriptaculous were fully removed as of 2026-08-06 (see
-`AI-shared/legacy-js-migration.md`) — `$` is jQuery's own default binding now, not
+`AI-shared/theming-and-frontend.md`) — `$` is jQuery's own default binding now, not
 Prototype's. This matters for old/legacy code still assuming Prototype semantics: a bare `$('some_id')`
 (no `#`) is jQuery's *tag-name* selector, not an ID lookup — it never returns `null`/`undefined`, so an
 `if (!el) return` guard written for Prototype's `$` won't catch it, and the returned (empty) jQuery
