@@ -1892,18 +1892,17 @@ class Utils_RecordBrowser extends Module {
 		}
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'fields');
         $gb->set_table_columns(array(
-            array('name'=>__('Field'), 'width'=>20),
-            array('name'=>__('Caption'), 'width'=>20),
-            array('name'=>__('Help Message'), 'width'=>12),
-            array('name'=>__('Type'), 'width'=>10),
-            array('name'=>__('Table view'), 'width'=>5),
-            array('name'=>__('Tooltip'), 'width'=>5),
-            array('name'=>__('Required'), 'width'=>5),
-            array('name'=>__('Filter'), 'width'=>5),
-            array('name'=>__('Export'), 'width'=>5),
-            array('name'=>__('Parameters'), 'width'=>27),
-            array('name'=>__('Value display function'), 'width'=>5),
-            array('name'=>__('Field generator function'), 'width'=>5)
+            array('name'=>__('Field'), 'width'=>10),
+            array('name'=>__('Caption'), 'width'=>10),
+            array('name'=>__('Type'), 'width'=>8),
+            array('name'=>__('Table view'), 'width'=>8),
+            array('name'=>__('Tooltip'), 'width'=>6),
+            array('name'=>__('Required'), 'width'=>7),
+            array('name'=>__('Filter'), 'width'=>6),
+            array('name'=>__('Export'), 'width'=>6),
+            array('name'=>__('Parameters'), 'width'=>20),
+            array('name'=>__('Value display function'), 'width'=>10),
+            array('name'=>__('Field generator function'), 'width'=>10)
 		));
 		
 		$display_callbacbacks = DB::GetAssoc('SELECT field, callback FROM '.$this->tab.'_callback WHERE freezed=1');
@@ -1990,7 +1989,6 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$field),
                         array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>$args['name']),
-                        array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
                         array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>__('Page Split')),
                         array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
                         array('style'=>'background-color: #DEE2E6; color: #000;', 'value'=>''),
@@ -2027,7 +2025,6 @@ class Utils_RecordBrowser extends Module {
                     $gb_row->add_data(
                         $field,
                         $args['name'],
-                        $args['help'],
                         $types[$args['type']] ?? $args['type'],
                         $args['visible']?'<b>'.__('Yes').'</b>':__('No'),
                         $args['tooltip']?'<b>'.__('Yes').'</b>':__('No'),
