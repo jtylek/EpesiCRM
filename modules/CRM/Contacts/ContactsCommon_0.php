@@ -260,6 +260,16 @@ class CRM_ContactsCommon extends ModuleCommon {
      *        "hidden" label would render as plain visible text instead.
      */
     public static function display_company_contact($record, $nolink, $desc, $screen_reader_label = true) {
+        // $desc['screen_reader_label'] wins when set: this callback is reached
+        // via RecordBrowserCommon::call_display_callback()'s generic dispatch
+        // (get_val() -> call_display_callback()), which always calls display
+        // callbacks as (record, nolink, desc, tab) - the fixed 4th slot is
+        // $tab, a non-empty string, so it always overrides this parameter's
+        // own default via positional binding. Callers reached through that
+        // generic path (e.g. get_record_tooltip_data()) signal false via
+        // $desc instead; direct callers (Meeting/PhoneCall/Tasks agenda
+        // tooltips) keep using the positional argument as before.
+        if (array_key_exists('screen_reader_label', $desc)) $screen_reader_label = $desc['screen_reader_label'];
         $v = $record[$desc['id']];
         if (!is_array($v) && !preg_match('#([a-zA-Z]+/[1-9][0-9]*)|((C|P):[1-9][0-9]*)#', $v)) return $v;
         $def = '';

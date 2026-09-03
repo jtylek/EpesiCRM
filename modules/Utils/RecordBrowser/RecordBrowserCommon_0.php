@@ -2822,7 +2822,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $data = array();
         foreach ($cols as $desc) {
             if ($desc['tooltip'] && $access[$desc['id']]) {
-                $data[_V($desc['name'])] = self::get_val($tab, $desc['id'], $record, true);
+                // screen_reader_label=false: this value is headed into a
+                // format_record_tooltip()/format_info_tooltip() pair (see
+                // CRM_ContactsCommon::display_company_contact()'s own doc on
+                // that param) - to_safe_html() there strips the wrapping
+                // <span> but keeps its text, so without this the hidden
+                // "[Person]"/"[Company]" indicator would render as visible
+                // text instead of staying hidden behind its icon.
+                $data[_V($desc['name'])] = self::get_val($tab, $desc['id'], $record, true, array('screen_reader_label' => false));
             }
         }
         return $data;
