@@ -391,13 +391,9 @@ class Base_Setup extends Module {
 				'readme_id' => $p['readme_id']);
 			}
 		}
-		// Order requested: Installed, Available, Updates, My Purchases, All,
-		// Store. The last three only exist when Store integration is
-		// installed and enabled (add_store_products() below) - 'All' is
-		// added there too, between My Purchases and Store, so it lands in
-		// the right spot when the Store tabs are present; the fallback
-		// after this block adds it at the end otherwise (Store integration
-		// off/uninstalled - nothing to be positioned before).
+		// Order requested: Installed, Available, Updates, My Purchases,
+		// Store. The last two only exist when Store integration is
+		// installed and enabled (add_store_products() below).
 		$filters = array(
 			__('Installed') => array('arg'=>'installed'),
 			__('Available') => array('arg'=>'available')
@@ -412,8 +408,6 @@ class Base_Setup extends Module {
             $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';
             Base_ActionBarCommon::add($icon, $text, $href, $desc);
 		}
-		if (!isset($filters[__('All')]))
-			$filters[__('All')] = array('arg'=>'');
 
 		foreach ($sorted as $name=>$v) {
 			ksort($sorted[$name]['options']);
@@ -488,7 +482,6 @@ class Base_Setup extends Module {
 		}
 		$filters[__('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
 		$filters[__('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
-		$filters[__('All')] = array('arg'=>'');
 		$filters[__('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
 		if (!$registered) 
 			return;
@@ -501,8 +494,18 @@ class Base_Setup extends Module {
 			$name = htmlspecialchars_decode($s['name']); // Module name is translated on the server
 
             $label = $s['action'];
-            $downloaded = ($label != Base_EpesiStoreCommon::ACTION_BUY
-                           && $label != Base_EpesiStoreCommon::ACTION_DOWNLOAD);
+            // Base_EpesiStoreCommon::next_possible_action() only ever returns
+            // something other than ACTION_BUY once the license account
+            // already reports the module as bought+paid - ACTION_DOWNLOAD
+            // included, it just means "bought, not yet pulled to this
+            // install". Excluding it here (as this used to) meant a module
+            // purchased but not yet downloaded (e.g. Invoices already lists
+            // it, but epesi_store_modules has no row for it because it
+            // reached this install some other way - a private git clone,
+            // console.php module:install) never got tagged 'purchases' and
+            // silently vanished from the My Purchases filter despite being
+            // genuinely bought.
+            $purchased = ($label != Base_EpesiStoreCommon::ACTION_BUY);
             if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
 			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
 				$s['total_price'] = __('Free');
@@ -519,14 +522,14 @@ class Base_Setup extends Module {
             // always take precedence over whatever the Store server reports
             // for that same display name (e.g. Premium_Import's "Data
             // Import" package colliding with a same-named commercial Store
-            // product). $downloaded only means "the Store's license account
+            // product). $purchased only means "the Store's license account
             // says we bought this" - it says nothing about local state, and
             // used alone here previously let a locally-known module get
             // unconditionally clobbered by a fresh "Store"/buy entry a few
             // lines down whenever this installation's license hadn't
             // purchased it through the Store itself.
             if (isset($sorted[$name])) {
-              if ($downloaded) {
+              if ($purchased) {
 				$sorted[$name]['filter'][] = 'purchases';
                 if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
                     // Replace (not append to) the locally-installed entry's
