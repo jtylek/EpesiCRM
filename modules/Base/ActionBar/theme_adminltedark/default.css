@@ -110,6 +110,37 @@
 	content: "\f28e";
 }
 
+/* Base_EpesiStore_0's cart-review "Buy" button (own 'buy' icon key, see
+   default.tpl) - a solid pill button standing out from every other
+   icon-over-label ActionBar entry, per request. align-self:center
+   overrides .epesi-actionbar-group's align-items:stretch (line 18 above),
+   which would otherwise stretch this to the row's full height instead of
+   sizing to its own content like a normal button. */
+.epesi-actionbar-buy {
+	display: inline-flex;
+	align-self: center;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.3rem 1rem;
+	font-size: 0.8rem;
+	white-space: nowrap;
+}
+
+.epesi-actionbar-buy .bi {
+	font-size: 1rem;
+	line-height: 1;
+}
+
+/* Overrides the generic 2-line-reservation/76px-cap rule below, sized for
+   the stacked icon-over-label buttons - this is a single-line inline label
+   next to its own icon instead. */
+.epesi-actionbar-buy .epesi-actionbar-label {
+	max-width: none;
+	min-height: 0;
+	white-space: nowrap;
+	overflow-wrap: normal;
+}
+
 .epesi-actionbar-label {
 	max-width: 76px;
 	overflow-wrap: anywhere;

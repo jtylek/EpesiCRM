@@ -107,6 +107,15 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// (Base_ActionBar/theme_adminltedark/default.tpl) points this at
 			// a distinct glyph (bi-cart3).
 			'cart'		=> 8,
+			// Base_EpesiStore_0's cart-review "Buy" checkout button used the
+			// 'folder' key outright - own key now, same sprite position as
+			// 'folder' so the legacy theme is unaffected; the AdminLTE
+			// theme's icon_map AND its template (Base_ActionBar/
+			// theme_adminltedark/default.tpl) both key off this one
+			// specifically to render it as a solid pill button distinct from
+			// every other (icon-over-label) ActionBar entry, not just a
+			// different glyph.
+			'buy'		=> 8,
 			'scan'		=> 17,
 			// Base_Setup_0's "Rebuild modules database" used the 'scan' key
 			// outright - own key now, same sprite position as 'scan' so the

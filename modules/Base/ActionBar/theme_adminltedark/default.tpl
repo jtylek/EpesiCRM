@@ -25,6 +25,7 @@
 		'delete'    => 'bi-trash',
 		'store-disable' => 'bi-bag-x',
 		'cart'      => 'bi-cart3',
+		'buy'       => 'bi-bag-check',
 		'save'      => 'bi-check2-square',
 		// RecordBrowser_0.php's "Export" (CSV download) button - own key now,
 		// not sharing 'save' any more, since the two rendered identically
@@ -93,14 +94,25 @@
 	<div class="epesi-actionbar-group">
 		{foreach item=i from=$icons}
 		{$i.open}
-			<span class="epesi-actionbar-btn" helpID="{$i.helpID}">
-				{if $i.icon_url}
-					<img src="{$i.icon_url}" alt="">
-				{else}
+			{if $i.icon == 'buy'}
+				{* Store cart checkout: a solid Bootstrap pill button rather
+				   than this bar's usual icon-over-label style, so it reads
+				   as the primary call-to-action next to Back/Clear cart -
+				   per request. *}
+				<span class="btn btn-primary rounded-pill epesi-actionbar-buy" helpID="{$i.helpID}">
 					<i class="bi {$i.bi_icon}"></i>
-				{/if}
-				<span class="epesi-actionbar-label">{$i.label}</span>
-			</span>
+					<span class="epesi-actionbar-label">{$i.label}</span>
+				</span>
+			{else}
+				<span class="epesi-actionbar-btn" helpID="{$i.helpID}">
+					{if $i.icon_url}
+						<img src="{$i.icon_url}" alt="">
+					{else}
+						<i class="bi {$i.bi_icon}"></i>
+					{/if}
+					<span class="epesi-actionbar-label">{$i.label}</span>
+				</span>
+			{/if}
 		{$i.close}
 		{/foreach}
 	</div>

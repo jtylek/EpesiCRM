@@ -474,7 +474,14 @@ class Base_EpesiStore extends Module {
         }
         if ($show_cart) {
             $this->display_cart_items($items);
-            Base_ActionBarCommon::add('folder', __('Buy'), $f->get_submit_form_href());
+            // Explicit position=1 (every other cart-screen button is the
+            // default 0) so this sorts after Back/Clear cart regardless of
+            // icon sprite order - see ActionBar_0.php::compare(). Own 'buy'
+            // icon key, not 'folder', so the AdminLTE theme can single this
+            // one button out for its pill-button treatment (Base_ActionBar/
+            // theme_adminltedark/default.tpl) without affecting every other
+            // 'folder'-icon action app-wide.
+            Base_ActionBarCommon::add('buy', __('Buy'), $f->get_submit_form_href(), null, 1);
             $f->display();
         }
     }
