@@ -816,9 +816,42 @@ class Base_EpesiStore extends Module {
         
         $form_name = null;
         print create_html_form($form_name, $payment_url, $data, '_blank');
-        print('<div style="text-align:center;padding:2em;">'
-                . '<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
-                . __('Continue to payment') . '</button></div>');
+
+        // Same centered-card pattern as Base_EssClient's registration
+        // confirmation (EssClient_0.php ~56-67) and this module's own
+        // empty-cart screen (display_cart() above) - consistent "nice
+        // card" look for a standalone confirmation screen rather than a
+        // data grid.
+        $amount_display = htmlspecialchars(number_format((float) $value, 2) . ' ' . $curr_code);
+        $description_display = htmlspecialchars($description);
+        $notice = __('You will be taken to the Epesi Store to securely complete this payment.');
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            print('<div class="d-flex justify-content-center py-4">');
+            print('<div class="card" style="max-width:600px;width:100%;">');
+            print('<div class="card-body text-center">');
+            print('<i class="bi bi-credit-card text-primary" style="font-size:3rem;"></i>');
+            print('<h3 class="mt-3 mb-3">' . __('Complete your purchase') . '</h3>');
+            print('<div class="text-start bg-body-tertiary rounded p-3 mb-3">');
+            print('<div class="mb-2"><span class="fw-bold">' . __('Amount') . ':</span> ' . $amount_display . '</div>');
+            print('<div><span class="fw-bold">' . __('Description') . ':</span> ' . $description_display . '</div>');
+            print('</div>');
+            print('<div class="alert alert-info d-flex align-items-start gap-2 text-start mb-3" role="alert">');
+            print('<i class="bi bi-info-circle-fill mt-1"></i><div>' . $notice . '</div>');
+            print('</div>');
+            print('<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+                    . __('Continue to payment') . '</button>');
+            print('</div></div></div>');
+        } else {
+            print('<div class="important_notice">');
+            print('<div style="margin: 5px">' . __('Complete your purchase') . '</div>');
+            print('<div class="important_notice_frame"><span style="font-weight:bold;">' . __('Amount') . ': </span>' . $amount_display . '<br/>');
+            print('<span style="font-weight:bold;">' . __('Description') . ': </span>' . $description_display . '</div>');
+            print('<div style="margin: 5px">' . $notice . '</div>');
+            print('<div style="text-align:center;padding:1em;">'
+                    . '<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+                    . __('Continue to payment') . '</button></div>');
+            print('</div>');
+        }
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback, $column_widths = array(), $column_labels = array()) {
