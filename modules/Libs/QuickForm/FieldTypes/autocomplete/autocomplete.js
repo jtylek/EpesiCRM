@@ -11,6 +11,15 @@
 function EpesiAutocompleter(elementId, updateId, url, options) {
 	this.element = document.getElementById(elementId);
 	this.update = document.getElementById(updateId);
+	// Both ids come from the server-rendered HTML this same response just
+	// inserted, so they're normally present - but this constructor also runs
+	// from a stale eval_js response landing after its containing modal/tab/row
+	// was already closed or replaced (a timing race inherent to Epesi's push-
+	// style AJAX). Bail out instead of dereferencing null a few lines down.
+	if (!this.element || !this.update) {
+		this.disabled = true;
+		return;
+	}
 	this.url = url;
 	this.options = options || {};
 	this.options.paramName = this.options.paramName || this.element.name;
