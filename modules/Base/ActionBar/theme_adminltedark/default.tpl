@@ -24,6 +24,7 @@
 		'add'       => 'bi-plus-lg',
 		'delete'    => 'bi-trash',
 		'store-disable' => 'bi-bag-x',
+		'cart'      => 'bi-cart3',
 		'save'      => 'bi-check2-square',
 		// RecordBrowser_0.php's "Export" (CSV download) button - own key now,
 		// not sharing 'save' any more, since the two rendered identically
@@ -38,7 +39,9 @@
 		'login-as'  => 'bi-person-circle',
 		'admin-panel' => 'bi-person-workspace',
 		'admin-tools' => 'bi-motherboard',
+		'license-key' => 'bi-key',
 		'scan'      => 'bi-upc-scan',
+		'db-rebuild' => 'bi-database-down',
 		'filter'    => 'bi-funnel',
 		'retry'     => 'bi-arrow-repeat',
 		'send'      => 'bi-send',

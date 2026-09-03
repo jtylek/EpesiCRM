@@ -209,6 +209,25 @@ class Base_EssClientCommon extends Base_AdminModuleCommon {
         Module::static_set_module_variable(Base_EssClient::module_name(), 'messages', $msgs);
     }
 
+    /**
+     * Error messages queued by add_client_message_error() since the last
+     * time they were consumed (by this or by client_messages_frame()).
+     * Lets a caller that never renders the floating client_messages_frame()
+     * itself - e.g. an ajax action callback like the Store's Download/Update
+     * buttons in Base_Setup - show the real failure cause instead of a
+     * generic "see user messages" text.
+     * @return string[] queued error messages, oldest first
+     */
+    public static function pop_client_error_messages() {
+        $msgs = Module::static_get_module_variable(Base_EssClient::module_name(), 'messages', array(array(), array(), array()));
+        $errors = $msgs[2];
+        if ($errors) {
+            $msgs[2] = array();
+            Module::static_set_module_variable(Base_EssClient::module_name(), 'messages', $msgs);
+        }
+        return $errors;
+    }
+
     public static function client_messages_frame() {
         static $printed = null;
         if($printed)

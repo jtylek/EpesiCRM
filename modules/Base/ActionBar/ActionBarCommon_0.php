@@ -66,6 +66,17 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// (bi-person-workspace / bi-motherboard).
 			'admin-panel'	=> 16,
 			'admin-tools'	=> 16,
+			// Base_EpesiStore_0's "License Key"/"Register Epesi!" button used
+			// its own theme icon.png file directly (a raw path, not a key
+			// here at all) - own key now, same sprite position as 'settings'
+			// so the legacy theme is unaffected; only the AdminLTE theme's
+			// icon_map (Base_ActionBar/theme_adminltedark/default.tpl) points
+			// this at a distinct glyph (bi-key). A raw file-path icon also
+			// used to always sort last in the ActionBar regardless of its
+			// explicit position (ActionBar_0.php's compare() gated on a known
+			// icon key before ever checking position) - giving it a real key
+			// here fixes that too.
+			'license-key'	=> 16,
 			// Premium_PriorityListCommon's "Add to priority list" / "Remove from
 			// priority list" used the 'favorites' key outright (star icon, shared
 			// with every other bookmark-style action) - own keys now, same sprite
@@ -89,7 +100,20 @@ class Base_ActionBarCommon extends ModuleCommon {
 			// (Base_ActionBar/theme_adminltedark/default.tpl) points this at a
 			// distinct glyph (bi-bag-x).
 			'store-disable'	=> 12,
+			// Base_EpesiStoreCommon's cart-status button used the 'folder' key
+			// outright (same folder icon as every other "open a list" action) -
+			// own key now, same sprite position as 'folder' so the legacy
+			// theme is unaffected; only the AdminLTE theme's icon_map
+			// (Base_ActionBar/theme_adminltedark/default.tpl) points this at
+			// a distinct glyph (bi-cart3).
+			'cart'		=> 8,
 			'scan'		=> 17,
+			// Base_Setup_0's "Rebuild modules database" used the 'scan' key
+			// outright - own key now, same sprite position as 'scan' so the
+			// legacy theme is unaffected; only the AdminLTE theme's icon_map
+			// (Base_ActionBar/theme_adminltedark/default.tpl) points this at
+			// a distinct glyph (bi-database-down).
+			'db-rebuild'	=> 17,
 			'filter'	=> 18,
 			'retry'		=> 19,
 			'send'		=> 20,

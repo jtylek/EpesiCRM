@@ -53,6 +53,13 @@ class Base_BootstrapIcons {
 		// theme_adminltedark/default.tpl uses for its 'back' action, so the
 		// glyph reads the same wherever a "back.png" shows up.
 		'back'      => 'bi-arrow-left',
+		// Not a module-disambiguation entry either - Base_EpesiStore::icon()'s
+		// own synthetic lookup key (no real cart.png file), so the module
+		// indicator (Base_MainModuleIndicator) can show a shopping-cart glyph
+		// for the Cart screen specifically, distinct from
+		// Base_EpesiStoreCommon::bootstrap_icon()'s bi-box-seam (the module's
+		// generic sidebar/launcher icon).
+		'cart'      => 'bi-cart3',
 	);
 
 	/**

@@ -1,0 +1,34 @@
+/* Base/EpesiStore's own Buy-listing/Cart grids (GB_module()/GB_generic(),
+   wrapped via set_prefix()/set_postfix() in .epesi-store-grid) - a larger,
+   better-padded delete/add-to-cart row action icon, roughly matching the
+   module icon's own size (GB_row_data_transform_module()'s 30px <img>).
+   Scoped here rather than in Utils_GenericBrowser's own theme, since every
+   other GenericBrowser table in the app keeps the smaller default action
+   icon/padding - this is a per-screen request, not a framework-wide one.
+
+   Specificity, not just !important, has to beat the shared rules directly:
+   both target the same elements with !important already, so only a higher-
+   specificity selector (extra .epesi-store-grid ancestor class) wins
+   regardless of stylesheet load order. */
+.epesi-store-grid .epesi-gb .Utils_GenericBrowser .Utils_GenericBrowser__tr .Utils_GenericBrowser__td.Utils_GenericBrowser__actions {
+	padding-left: 0.75rem !important;
+	/* Every .Utils_GenericBrowser__td is explicitly vertical-align:top by
+	   default (theme_adminltedark/default.css); this cell had no override
+	   of its own, so the delete icon sat pinned to the row's top edge
+	   instead of centered against the row's actual (taller, wrapped-
+	   description) height. */
+	vertical-align: middle !important;
+}
+
+.epesi-store-grid .epesi-gb .Utils_GenericBrowser i.action_button {
+	font-size: 1.5rem !important;
+}
+
+/* Price is always the last column (MODULE_COLUMN_WIDTHS' order), so
+   :last-child reaches it without needing a per-field class hook from PHP.
+   Matches EpesiStore_0.php::display_cart_total()'s own right-aligned
+   footer total. */
+.epesi-store-grid .epesi-gb .Utils_GenericBrowser__tr > .Utils_GenericBrowser__td:last-child,
+.epesi-store-grid .epesi-gb .Utils_GenericBrowser__tr > .Utils_GenericBrowser__th:last-child {
+	text-align: right;
+}

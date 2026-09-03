@@ -25,12 +25,26 @@ class Base_ActionBar extends Module {
 	 * @return int comparison result
 	 */
 	public function compare($a, $b) {
-		if (!isset(Base_ActionBarCommon::$available_icons[$a['icon']])) return 1;
-		if (!isset(Base_ActionBarCommon::$available_icons[$b['icon']])) return -1;
 		if (!isset($a['position'])) $a['position'] = 0;
 		if (!isset($b['position'])) $b['position'] = 0;
+		// position is the intentional, explicit ordering signal and must win
+		// outright - it used to be checked only after an "is this icon a
+		// known Base_ActionBarCommon::$available_icons key" gate below, which
+		// silently discarded any explicit position on a button using a real
+		// custom icon file (e.g. Base_EpesiStore's own icon.png on its
+		// License Key button, via str_contains('/')+file_exists() in
+		// ActionBar_0.php's body()) - that button always sorted last
+		// regardless of position, since an unknown icon key made this
+		// function return 1/-1 immediately, before position was ever read.
 		$ret = $a['position'] - $b['position'];
-		if($ret==0) $ret = Base_ActionBarCommon::$available_icons[$a['icon']]-Base_ActionBarCommon::$available_icons[$b['icon']];
+		if ($ret == 0) {
+			$a_known = isset(Base_ActionBarCommon::$available_icons[$a['icon']]);
+			$b_known = isset(Base_ActionBarCommon::$available_icons[$b['icon']]);
+			if (!$a_known || !$b_known)
+				$ret = $b_known <=> $a_known; // known icon sorts before unknown, same as before
+			else
+				$ret = Base_ActionBarCommon::$available_icons[$a['icon']] - Base_ActionBarCommon::$available_icons[$b['icon']];
+		}
 		if($ret==0) $ret = strcmp(strip_tags($a['label']),strip_tags($b['label']));
 		return $ret;
 	}

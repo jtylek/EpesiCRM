@@ -93,8 +93,7 @@ class Base_EssClient extends Module {
                     }
                     Base_ActionBarCommon::add('delete', __('Revoke license key'), $this->create_confirm_callback_href(__('Are you sure you want to revoke your Epesi License Key?'), array('Base_EssClientCommon', 'clear_license_key')));
                 }
-                $url = get_epesi_url() . '/modules/Base/EssClient/tos/tos.php';
-                Base_ActionBarCommon::add('search', __('Terms & Conditions'), 'target="_blank" href="' . $url . '"');
+                $this->terms_and_conditions_button();
                 Base_ActionBarCommon::add('settings', __('Edit license key'), $this->create_callback_href($this->license_key_form(...)));
             }
         } catch (Exception $e) {
@@ -134,6 +133,24 @@ class Base_EssClient extends Module {
         print(__('For more information please visit this page: %s', array($help_link)));
         print('</div>');
 
+    }
+
+    /**
+     * "Terms & Conditions" ActionBar button, post-registration: opens the
+     * full text in a Leightbox instead of a new tab/window
+     * (tos/tos.php - still used directly by the pre-registration consent
+     * screen's own link in terms_and_conditions(), left untouched since
+     * that's a separate legal-consent flow, not just "go read this").
+     * Same lang-fallback + {{CURRENT_YEAR}} substitution as tos.php itself.
+     */
+    private function terms_and_conditions_button() {
+        $lang = Base_LangCommon::get_lang_code();
+        $file = 'modules/Base/EssClient/tos/' . $lang . '_tos.html';
+        if (!file_exists($file)) $file = 'modules/Base/EssClient/tos/en_tos.html';
+        $tos_html = str_replace('{{CURRENT_YEAR}}', date('Y'), file_get_contents($file));
+        $leightbox_id = 'ess_client_tos';
+        Libs_LeightboxCommon::display($leightbox_id, $tos_html, __('Terms and Conditions'), 1);
+        Base_ActionBarCommon::add('search', __('Terms & Conditions'), Libs_LeightboxCommon::get_open_href($leightbox_id));
     }
 
     private function terms_and_conditions() {

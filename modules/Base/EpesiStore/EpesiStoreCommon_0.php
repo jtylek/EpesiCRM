@@ -23,6 +23,11 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     const ACTION_UPDATE = 'update';  // __('Update')
     const ACTION_INSTALL = 'install';  // __('Install')
     const ACTION_RESTORE = 'restore';  // __('Restore')
+    // Not a real server-side order action like the five above (never sent to
+    // order_submit()) - purely a local handle_module_action() case that adds
+    // the module to the session cart instead of buying it immediately. See
+    // AI-private/ESS-checkout.md.
+    const ACTION_ADD_TO_CART = 'add_to_cart';
     //
     const MOD_PATH = 'Base_EpesiStoreCommon';
     const CART_VAR = 'cart';
@@ -141,6 +146,75 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 
     public static function empty_cart() {
         return Module::static_set_module_variable(self::MOD_PATH, self::CART_VAR, array());
+    }
+
+    /**
+     * Add a module to the session cart. Static (no use of an instance) so
+     * both the Store tab's cards (Setup_0.php) and the Advanced-view grid's
+     * row action (EpesiStore_0.php::cart_add_item(), which now just delegates
+     * here) share one implementation.
+     * @param array $r module data (as returned by get_modules_all_available()/
+     *        modules_list()), keyed on 'id' to de-dupe
+     */
+    public static function cart_add_item($r) {
+        $items = self::get_cart();
+        if (!isset($r['id']))
+            return;
+        foreach ($items as $it) {
+            if (isset($it['id']) && $it['id'] == $r['id'])
+                return;
+        }
+        $items[$r['id']] = $r;
+        self::set_cart($items);
+    }
+
+    /**
+     * @param int|string $id module id
+     * @return bool whether this module is already in the cart
+     */
+    public static function cart_has_item($id) {
+        foreach (self::get_cart() as $it) {
+            if (isset($it['id']) && $it['id'] == $id)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param array $r module data previously passed to cart_add_item()
+     */
+    public static function cart_remove_item($r) {
+        $items = self::get_cart();
+        $key = array_search($r, $items);
+        if ($key !== false) {
+            unset($items[$key]);
+            self::set_cart($items);
+        }
+    }
+
+    /**
+     * ActionBar cart-status indicator ("Your cart is empty" / "N item(s) in
+     * cart"), navigating to the cart review screen (EpesiStore_0::form_cart()).
+     * @param bool $display_empty show it even when the cart is empty (the
+     *        Store tab always shows it; the Advanced-view grid only shows it
+     *        once something is in the cart, matching its pre-existing behavior)
+     * @param int $position ActionBar ordering - see Base_ActionBarCommon::add()
+     */
+    public static function navigation_button_cart($display_empty = false, $position = 0) {
+        $count = count(self::get_cart());
+        if (!$display_empty && !$count)
+            return;
+        $label = $count ? __('%d item(s) in cart', array($count)) : __('Your cart is empty');
+        Base_ActionBarCommon::add('cart', $label, self::cart_href(), __('Data is stored until close or refresh of browser\'s EPESI window or tab'), $position);
+    }
+
+    public static function cart_href() {
+        return Base_BoxCommon::main_module_instance()->create_callback_href(array(__CLASS__, 'show_cart'));
+    }
+
+    public static function show_cart() {
+        Base_BoxCommon::push_module(Base_EpesiStore::module_name(), 'form_cart');
+        return false;
     }
 
     public static function get_download_queue() {
@@ -358,11 +432,50 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
                 $needs_payment = $response['needs_payment'] ?? false;
                 if (!$needs_payment)
                     break;
-                $return = self::_display_payments_for_order($response['order_id']);
+                $return = self::display_payments_for_order($response['order_id']);
                 if ($return === true) {
                     Base_ActionBarCommon::add('back', __('Back'), Base_BoxCommon::main_module_instance()->create_back_href());
                     return true;
                 }
+                break;
+            case self::ACTION_ADD_TO_CART:
+                self::cart_add_item($module);
+                // Bundle required modules into the cart too - order_submit()
+                // (the instant-buy ACTION_BUY case above) already does this
+                // for a direct purchase via array_merge($module['id'],
+                // $module['needed_modules']); the cart needs the same
+                // behavior so a bundled product (e.g. E-mail Campaign
+                // Manager requiring List Manager) doesn't leave its
+                // dependency out of checkout.
+                if (!empty($module['needed_modules'])) {
+                    $added_names = array();
+                    foreach (self::get_module_info($module['needed_modules']) as $needed) {
+                        if ($needed) {
+                            self::cart_add_item($needed);
+                            $added_names[] = $needed['name'];
+                        }
+                    }
+                    // Called out explicitly, not folded into the generic
+                    // response_callback status-bar message (which only
+                    // knows $action/$return, not which dependencies got
+                    // pulled in) - window.epesi_alert() is this app's
+                    // styled alert() replacement (see include/epesi.php's
+                    // Epesi::escapeJS(), ThemeCommon_0.php's guarantee it
+                    // exists on every AdminLTE page).
+                    if ($added_names) {
+                        // Two lines, not one sentence with a parenthetical -
+                        // the modal sets this via textContent under
+                        // white-space:pre-line (module.php's
+                        // inject_alert_modal()), so a literal "\n" (not
+                        // "<br>", which textContent won't parse) renders as
+                        // a real line break; Epesi::escapeJS() already knows
+                        // to carry a raw newline into the JS string literal.
+                        $msg = __('Also added %s to your cart.', array(implode(', ', $added_names)))
+                                . "\n" . __('Required by %s.', array($module['name']));
+                        eval_js('if (typeof epesi_alert === "function") epesi_alert(\'' . Epesi::escapeJS($msg) . '\');');
+                    }
+                }
+                $return = true;
                 break;
             case self::ACTION_DOWNLOAD:
             case self::ACTION_UPDATE:
@@ -395,7 +508,12 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return $return;
     }
 
-    private static function _display_payments_for_order($order_id) {
+    /**
+     * Public: also called from EpesiStore_0::form_buy_items() (cart checkout,
+     * one order for however many modules were in the cart), not just the
+     * single-item ACTION_BUY case above.
+     */
+    public static function display_payments_for_order($order_id) {
         $orders = Base_EssClientCommon::server()->orders_list();
         if (isset($orders[$order_id])) {
             $o = $orders[$order_id];

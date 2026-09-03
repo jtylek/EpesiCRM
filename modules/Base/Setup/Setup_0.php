@@ -61,7 +61,7 @@ class Base_Setup extends Module {
 
 		$simple = Base_SetupCommon::is_simple_setup();
 
-		Base_ActionBarCommon::add('scan',__('Rebuild modules database'),$this->create_confirm_callback_href(__('Parsing for additional modules may take up to several minutes, do you wish to continue?'),array('Base_Setup','parse_modules_folder_refresh')));
+		Base_ActionBarCommon::add('db-rebuild',__('Rebuild modules database'),$this->create_confirm_callback_href(__('Parsing for additional modules may take up to several minutes, do you wish to continue?'),array('Base_Setup','parse_modules_folder_refresh')),null,10);
 		if (!$store) Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
 		
 		if ($simple)
@@ -215,7 +215,7 @@ class Base_Setup extends Module {
 	}
 
 	public function simple_setup() {
-		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href(__('Switch to advanced view?'),$this->switch_simple(...),false));
+		Base_ActionBarCommon::add('settings', __('Advanced view'),$this->create_confirm_callback_href(__('Switch to advanced view?'),$this->switch_simple(...),false),null,20);
 
 		$module_dirs = $this->get_module_dirs();
 		$is_required = ModuleManager::required_modules(true);
@@ -399,14 +399,12 @@ class Base_Setup extends Module {
 			__('Available') => array('arg'=>'available')
 		);
 		if (ModuleManager::is_installed('Base_EpesiStore')>=0) {
-            $store_visible = Base_SetupCommon::is_store_visible();
-            if ($store_visible)
+            // The "Disable/Enable EPESI Store" toggle itself lives only in
+            // Advanced view now (Base_EpesiStore::manage()) - see
+            // AI-private/ESS-checkout.md. Store visibility still gates
+            // whether this Simple/card view populates Store products below.
+            if (Base_SetupCommon::is_store_visible())
                 $this->add_store_products($sorted, $filters);
-            $icon = $store_visible ? 'store-disable' : 'add';
-            $text = $store_visible ? __('Disable EPESI Store') : __('Enable EPESI Store');
-            $href = $this->create_callback_href(array('Base_SetupCommon', 'set_store_visibility'), array(!$store_visible));
-            $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';
-            Base_ActionBarCommon::add($icon, $text, $href, $desc);
 		}
 
 		foreach ($sorted as $name=>$v) {
@@ -439,6 +437,15 @@ class Base_Setup extends Module {
 		if ($ret!==true) {
 			$msg = __( 'Error');
 			if (is_string($ret) && $ret) $msg .= ': '.$ret;
+			// The generic "File download error"/"Connection try limit
+			// exceeded" text (thrown by Base_EpesiStoreCommon) points the
+			// user at "user messages", but this ajax callback never renders
+			// Base_EssClientCommon::client_messages_frame() - so without
+			// this, the real cause (queued by ClientRequester::call() when
+			// the actual HTTP/cURL request failed) stayed invisible until
+			// some unrelated screen happened to print that frame.
+			$details = Base_EssClientCommon::pop_client_error_messages();
+			if ($details) $msg .= '<br/>' . implode('<br/>', $details);
 			Base_StatusBarCommon::message($msg, 'error');
 		} else {
             $msg = __('Action successful');
@@ -446,6 +453,16 @@ class Base_Setup extends Module {
 				case Base_EpesiStoreCommon::ACTION_BUY:
 					$msg = __( 'Purchase successful');
 					break;
+				case Base_EpesiStoreCommon::ACTION_ADD_TO_CART:
+					// No status-bar banner here - it rendered as a
+					// disruptive full-width "click anywhere to dismiss"
+					// overlay for something this routine. The ActionBar's
+					// own cart-count indicator
+					// (Base_EpesiStoreCommon::navigation_button_cart(),
+					// re-rendered on this same response) already reflects
+					// the add; a bundled-dependency add still gets its own
+					// window.epesi_alert() from handle_module_action().
+					return;
 				case Base_EpesiStoreCommon::ACTION_DOWNLOAD:
 				case Base_EpesiStoreCommon::ACTION_UPDATE:
 					Base_SetupCommon::refresh_available_modules();
@@ -482,10 +499,12 @@ class Base_Setup extends Module {
 		}
 		$filters[__('Updates')] = array('arg'=>'updates', 'attrs'=>$filters_attrs);
 		$filters[__('My Purchases')] = array('arg'=>'purchases', 'attrs'=>$filters_attrs);
-		$filters[__('Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
-		if (!$registered) 
+		$filters[__('Epesi Store')] = array('arg'=>'store', 'attrs'=>$filters_attrs);
+		if (!$registered)
 			return;
-		
+
+		Base_EpesiStoreCommon::navigation_button_cart(true, 50);
+
 		$store = Base_EpesiStoreCommon::get_modules_all_available();
         print Base_EssClientCommon::client_messages_frame();
         if(!$store)
@@ -506,16 +525,38 @@ class Base_Setup extends Module {
             // silently vanished from the My Purchases filter despite being
             // genuinely bought.
             $purchased = ($label != Base_EpesiStoreCommon::ACTION_BUY);
-            if (!isset($s['total_price'])) $s['total_price'] = $s['price'];
-			if ($label==Base_EpesiStoreCommon::ACTION_BUY && $s['total_price']===0) {
-				$s['total_price'] = __('Free');
-				$label = 'obtain license';
+			// $s['price'] is this module's own price - not $s['total_price'],
+			// which bundles in required-module costs (e.g. E-mail Campaign
+			// Manager's total_price already includes List Manager's own $49)
+			// and would misrepresent a single item's price here. See
+			// EpesiStore_0.php::display_cart_total() for the fuller story
+			// (that same mixup double-counted a bundled dependency's price
+			// in the cart total) and AI-private/ESS-checkout.md.
+			// A paid, not-yet-bought module goes to the cart instead of an
+			// instant single-module purchase. Free modules are unaffected:
+			// no payment step to batch, so they keep the original one-click
+			// "obtain license" path below.
+			$add_to_cart = false;
+			if ($label==Base_EpesiStoreCommon::ACTION_BUY) {
+				if ($s['price']===0) {
+					$s['price'] = __('Free');
+					$label = 'obtain license';
+				} else {
+					$add_to_cart = true;
+				}
 			}
-			$b_label = _V(ucfirst($label)); // ****** EpesiStoreCommon - translations added in comments
+			// Already-in-cart: show a settled "In cart" state (matching
+			// e.g. simple_setup_sort()'s installed/disabled convention)
+			// instead of offering "Add to cart" again - still clickable,
+			// just pointed at the cart itself rather than re-adding.
+			$in_cart = $add_to_cart && Base_EpesiStoreCommon::cart_has_item($s['id']);
+			$b_label = $in_cart ? __('In cart') : ($add_to_cart ? __('Add to cart') : _V(ucfirst($label))); // ****** EpesiStoreCommon - translations added in comments
             $button = array(
                 'label' => $b_label,
-                'style' => 'install',
-                'href'  => Base_EpesiStoreCommon::action_href($s, $s['action'], array('Base_Setup', 'response_callback')));
+                'style' => $in_cart ? 'disabled' : 'install',
+                'href'  => $in_cart
+                    ? Base_EpesiStoreCommon::cart_href()
+                    : Base_EpesiStoreCommon::action_href($s, $add_to_cart ? Base_EpesiStoreCommon::ACTION_ADD_TO_CART : $s['action'], array('Base_Setup', 'response_callback')));
             // A name that already exists in $sorted came from the local
             // module-dir scan above (simple_setup()'s $module_dirs loop) -
             // local presence, installed or merely available on disk, must
@@ -598,7 +639,7 @@ class Base_Setup extends Module {
 				$sorted[$name]['style'] = $style;
 				$sorted[$name]['filter'] = array('purchases');
 			} else {
-				$sorted[$name]['status'] = __('Price: %s', array($s['total_price']));
+				$sorted[$name]['status'] = __('Price: %s', array($s['price']));
 				$sorted[$name]['style'] = 'store';
 				$sorted[$name]['filter'] = array('store');
                 $sorted[$name]['buttons_tooltip'] = $this->included_modules_text($s);

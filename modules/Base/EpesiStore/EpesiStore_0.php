@@ -17,11 +17,59 @@ class Base_EpesiStore extends Module {
     const color_success = 'green';
     const color_failure = 'gray';
 
-    protected $banned_columns_module = array('id', 'owner_id', 'path', 'files', 'active');
+    // 'action' is the raw server-suggested action string (e.g. "buy") -
+    // not a real interactive column, just noise once row actions (the
+    // trash-icon remove, the ActionBar's own Buy button) already cover it.
+    // 'required_modules'/'needed_modules' dropped per request too - the
+    // per-module "repository::name" formatting that used to build
+    // 'required_modules' for display is gone with it (dead work otherwise -
+    // see AI-private/ESS-checkout.md).
+    // 'total_price' dropped, not 'price' (reversed from an earlier pass):
+    // for a bundled product (e.g. E-mail Campaign Manager, which requires
+    // List Manager) 'price' ($199) and 'total_price' ($248 = $199 + List
+    // Manager's own $49) are genuinely different - 'total_price' is the
+    // combined cost including required modules. Wrongly assumed identical
+    // and used for the "Price" column/cart total, which double-counted a
+    // bundled dependency's price: it's both folded into the parent's
+    // 'total_price' AND listed again as its own separate cart row (Common's
+    // ACTION_ADD_TO_CART adds required modules as their own line items).
+    // 'price' is each row's own standalone price - correct for a per-row
+    // column, and what the cart total (display_cart_total()) must sum.
+    protected $banned_columns_module = array('id', 'owner_id', 'path', 'files', 'active', 'bought', 'paid', 'repository', 'package_file', 'action', 'required_modules', 'needed_modules', 'total_price');
     protected $banned_columns_order = array('id', 'installation_id');
 
+    // Relative column widths for the Buy listing and Cart grids
+    // (GB_module()/GB_generic()) - Description is the only field with any
+    // real variable-length content, so it gets most of the room; see
+    // AI-private/ESS-checkout.md.
+    const MODULE_COLUMN_WIDTHS = array('item' => 12, 'description' => 62, 'version' => 15, 'price' => 11);
+    // Shortened rather than fighting for more width - "Version" kept
+    // truncating to "Ve..." even at a generous share; 'price' already reads
+    // fine via the default ucwords() label.
+    const MODULE_COLUMN_LABELS = array('version' => 'Ver.');
+
     public function body() {
-        
+
+    }
+
+    // Base_MainModuleIndicator delegation (MainModuleIndicator_0.php's
+    // caption()/icon() calls on the active main module) - without these the
+    // navbar's module indicator showed blank whenever Base_EpesiStore itself
+    // is the pushed main module (e.g. the Cart screen, reached directly via
+    // Base_EpesiStoreCommon::show_cart()), since neither method existed here
+    // before.
+    public function caption() {
+        return __('Epesi Store');
+    }
+
+    // 'cart.png' is a synthetic lookup key, not a real file - it only needs
+    // to resolve via Base_BootstrapIcons::$by_filename (bootstrap_icons.php),
+    // which returns a shopping-cart glyph directly without needing this
+    // module's own bootstrap_icon() (Base_EpesiStoreCommon's is bi-box-seam,
+    // used for the sidebar/launcher - a generic "store" icon there, not
+    // specific enough for "you're looking at your cart" here).
+    public function icon() {
+        return 'cart.png';
     }
 
     public function admin() {
@@ -39,15 +87,17 @@ class Base_EpesiStore extends Module {
         $button_label = Base_EssClientCommon::has_license_key()
                 ? __('License Key') : __('Register Epesi!');
 		Base_ActionBarCommon::add(
-                Base_ThemeCommon::get_template_file('Base_EpesiStore','icon.png'),
+                'license-key',
                 $button_label,
-                $this->create_callback_href($this->display_registration_form(...)));
+                $this->create_callback_href($this->display_registration_form(...)),
+                null, 30);
 
         $invoices_form_name = null;
         print create_html_form($invoices_form_name, Base_EssClientCommon::get_invoices_url(),
                 array('key' => Base_EssClientCommon::get_license_key(), 'noheader' => 1), '_blank');
         Base_ActionBarCommon::add('invoices', __('Invoices'),
-                'href="javascript:void(0)" onClick="document.' . $invoices_form_name . '.submit();"');
+                'href="javascript:void(0)" onClick="document.' . $invoices_form_name . '.submit();"',
+                null, 40);
 
         $setup = $this->init_module('Base_Setup');
         $setup->set_inline_display();
@@ -61,6 +111,15 @@ class Base_EpesiStore extends Module {
         }
 
         Base_ActionBarCommon::add('settings', __('Simple view'), $this->create_callback_href($this->switch_simple(...), true));
+        // Only shown here (Advanced view), not on the Simple/card Store tab
+        // (Setup_0.php::add_store_products() used to add it there too) - see
+        // AI-private/ESS-checkout.md.
+        $store_visible = Base_SetupCommon::is_store_visible();
+        $icon = $store_visible ? 'store-disable' : 'add';
+        $text = $store_visible ? __('Disable EPESI Store') : __('Enable EPESI Store');
+        $href = $this->create_callback_href(array('Base_SetupCommon', 'set_store_visibility'), array(!$store_visible));
+        $desc = $store_visible ? __('Disabling communication with EPESI Store will improve processing speed, but will not update the list of additional modules in the store.') : '';
+        Base_ActionBarCommon::add($icon, $text, $href, $desc);
         $tb = $this->init_module('Utils_TabbedBrowser');
         $tb->set_tab('Modules Setup', $this->setup_admin(...), array($setup));
 		$tb->set_tab('Epesi Store', $this->form_main_store(...), array());
@@ -82,19 +141,10 @@ class Base_EpesiStore extends Module {
     }
 
     private function navigation_buttons() {
-        $this->navigation_button_cart();
+        Base_EpesiStoreCommon::navigation_button_cart();
         $this->navigation_button_your_modules();
         $this->navigation_button_orders();
         $this->navigation_button_downloads(false);
-    }
-
-    private function navigation_button_cart($display_empty = false) {
-        $count = count(Base_EpesiStoreCommon::get_cart());
-        if ($display_empty || $count) {
-            if ($count == 0)
-                $count = __('Empty');
-            Base_ActionBarCommon::add('folder', __('Cart').' ('.$count.')', $this->href_navigate('form_cart'), __('Data is stored until close or refresh of browser\'s EPESI window or tab'));
-        }
     }
 
     private function navigation_button_downloads($display_empty = false) {
@@ -144,12 +194,92 @@ class Base_EpesiStore extends Module {
         if ($total === null)
             $x = $gb->get_limit($ret['total']);
         $this->set_module_variable('modules_total', $ret['total']);
-        if (!$ret['total'])
+        // Already-owned (bought+paid) modules don't belong in a "buy this"
+        // listing - see AI-private/ESS-checkout.md. Filtered client-side
+        // since modules_list() has no "exclude owned" option of its own;
+        // $ret['total']/the pager above are computed server-side before this
+        // filter runs, so a catalog large enough to span many pages could in
+        // principle under-fill a page after filtering - not a real issue at
+        // today's catalog size (one page).
+        $modules = array_filter($ret['modules'], function($m) {
+            return !(!empty($m['bought']) && !empty($m['paid']));
+        });
+        if (!$modules)
             print(__('Unfortunately there are no modules available for you.'));
         else {
-            $gb = $this->GB_module($gb, $ret['modules'], $this->GB_row_additional_actions_store(...));
+            $this->compute_dependency_notes($modules);
+            $gb = $this->GB_module($gb, $modules, $this->GB_row_additional_actions_store(...), self::MODULE_COLUMN_WIDTHS, self::MODULE_COLUMN_LABELS);
+            $this->scope_store_grid($gb);
             $this->display_module($gb);
         }
+    }
+
+    /**
+     * id => "Requires: X" / "Required by: Y" note, read by
+     * GB_row_data_transform_module() (keyed off $data['id']) to fold into
+     * Description. A property, not a field added onto each item, precisely
+     * so the items passed to GB_module() stay byte-identical to what's
+     * actually stored in the cart - GB_row_additional_actions_cart()'s
+     * cart_remove_item() does an exact array_search() against the stored
+     * cart, which an extra synthetic key on the same array would silently
+     * break (the delete button would stop matching any row).
+     */
+    private $dependency_notes = array();
+
+    /**
+     * id => array of names of OTHER items in the same list whose
+     * needed_modules names this id - read by GB_row_additional_actions_cart()
+     * to disable the delete action for a module something else in the cart
+     * still depends on (removing it alone would silently orphan the
+     * dependant's bundle - see AI-private/ESS-checkout.md). Same
+     * property-not-item-field reasoning as $dependency_notes.
+     */
+    private $required_by = array();
+
+    /**
+     * Populates $dependency_notes/$required_by for this item list - computed
+     * here (not in the transform/action callback, which only ever see one
+     * row at a time) since "who requires this module" needs visibility
+     * across the whole list.
+     */
+    private function compute_dependency_notes(array $items) {
+        $this->dependency_notes = array();
+        $this->required_by = array();
+        $name_by_id = array();
+        foreach ($items as $it) {
+            if (isset($it['id'])) $name_by_id[$it['id']] = $it['name'] ?? '';
+        }
+        foreach ($items as $it) {
+            foreach ($it['needed_modules'] ?? array() as $needed_id) {
+                $this->required_by[$needed_id][] = $it['name'] ?? '';
+            }
+        }
+        foreach ($items as $it) {
+            if (!isset($it['id'])) continue;
+            $notes = array();
+            $needs = array();
+            foreach ($it['needed_modules'] ?? array() as $needed_id) {
+                if (isset($name_by_id[$needed_id])) $needs[] = $name_by_id[$needed_id];
+            }
+            if ($needs)
+                $notes[] = __('Requires: %s', array(implode(', ', $needs)));
+            if (!empty($this->required_by[$it['id']]))
+                $notes[] = __('Required by: %s', array(implode(', ', $this->required_by[$it['id']])));
+            if ($notes)
+                $this->dependency_notes[$it['id']] = implode(' · ', $notes);
+        }
+    }
+
+    /**
+     * Wraps a Buy-listing/Cart Utils_GenericBrowser instance in
+     * .epesi-store-grid and loads this module's own theme CSS, so
+     * theme_adminltedark/default.css's larger action-icon/padding overrides
+     * apply only here, not to every GenericBrowser table in the app.
+     */
+    private function scope_store_grid(Utils_GenericBrowser $gb) {
+        Base_ThemeCommon::load_css(self::module_name(), 'default', false);
+        $gb->set_prefix('<div class="epesi-store-grid">');
+        $gb->set_postfix('</div>');
     }
 
 	static $return = true;
@@ -233,29 +363,115 @@ class Base_EpesiStore extends Module {
     private function display_cart_items($items) {
         Base_ActionBarCommon::add('delete', __('Clear cart'), $this->create_callback_href(array('Base_EpesiStoreCommon', 'empty_cart')));
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'cartlist');
-        $gb = $this->GB_module($gb, $items, $this->GB_row_additional_actions_cart(...));
+        $this->compute_dependency_notes($items);
+        $gb = $this->GB_module($gb, $items, $this->GB_row_additional_actions_cart(...), self::MODULE_COLUMN_WIDTHS, self::MODULE_COLUMN_LABELS);
+        $this->scope_store_grid($gb);
         $this->display_module($gb);
+        $this->display_cart_total($items);
+    }
+
+    /**
+     * Splits a pre-formatted price string (e.g. "$&nbsp;49.00") into a
+     * right-aligned "whole" span (min-width so shorter numbers, e.g. $49,
+     * still end at the same x as $199) and a left-aligned ".00"-and-beyond
+     * span - the standard decimal-alignment trick. Plain text-align:right
+     * alone only lines up the string's right edge, which for "$49.00" vs
+     * "$199.00" leaves the decimals themselves offset by the extra digit.
+     * Shared by GB_row_data_transform_module()'s Price column and
+     * display_cart_total()'s footer total, so both align on the same rule.
+     * Returns the original string unsplit if it doesn't look like "...N.NN".
+     */
+    private static function align_price_decimal($price) {
+        if (!is_string($price) || !preg_match('/^(.*?)(\.\d+)$/', trim($price), $m))
+            return $price;
+        return '<span style="display:inline-block;min-width:3ch;text-align:right;">' . $m[1] . '</span>'
+                . '<span style="display:inline-block;text-align:left;">' . $m[2] . '</span>';
+    }
+
+    /**
+     * Sums each item's own 'price' (same pre-formatted-by-the-server display
+     * string the Price column itself shows, e.g. "$&nbsp;49.00" - there's no
+     * separate raw numeric field available here) and prints a grand total
+     * row directly under the cart grid. Deliberately NOT 'total_price' -
+     * that field bundles in a module's own required-module cost (e.g. E-mail
+     * Campaign Manager's 'total_price' already includes List Manager's $49),
+     * and List Manager is also its own separate cart row (ACTION_ADD_TO_CART
+     * adds required modules as their own line items) - summing 'total_price'
+     * across all rows double-counts every bundled dependency. Assumes a
+     * single currency across the cart (this store only ever shows one) - the
+     * total re-uses whichever currency prefix/suffix the priced items
+     * themselves used, which may itself be/contain HTML (e.g. "&nbsp;") -
+     * printed as-is, not htmlspecialchars()'d, same as every other
+     * server-supplied price/description string in this transform.
+     */
+    private function display_cart_total($items) {
+        $sum = 0;
+        $prefix = '';
+        $suffix = '';
+        $matched = false;
+        foreach ($items as $item) {
+            $price = $item['price'] ?? null;
+            if (!is_string($price) || !preg_match('/^(\D*)([\d.,]+)(\D*)$/', trim($price), $m))
+                continue;
+            $matched = true;
+            $prefix = $m[1];
+            $suffix = $m[3];
+            $sum += (float) str_replace(',', '', $m[2]);
+        }
+        if (!$matched) return;
+        // Styled as a second, immediately-adjacent "card" so it reads as
+        // this table's own footer row instead of a disconnected line below
+        // it - GenericBrowser's own card (theme_adminltedark/default.tpl's
+        // <div class="epesi-gb card mb-3">) has no summary-row hook of its
+        // own to extend instead. Column widths mirror MODULE_COLUMN_WIDTHS
+        // so the total lines up under the Price column.
+        $label_pct = self::MODULE_COLUMN_WIDTHS['item'] + self::MODULE_COLUMN_WIDTHS['description'] + self::MODULE_COLUMN_WIDTHS['version'];
+        $price_pct = self::MODULE_COLUMN_WIDTHS['price'];
+        print('<div class="epesi-gb card mb-3" style="margin-top:-1rem;border-top-left-radius:0;border-top-right-radius:0;">'
+                . '<div class="d-flex align-items-center">'
+                . '<div class="fw-bold text-end px-3 py-2" style="flex:' . $label_pct . ' ' . $label_pct . ' 0;">' . __('Total Price') . '</div>'
+                . '<div class="fw-bold text-end px-3 py-2" style="flex:' . $price_pct . ' ' . $price_pct . ' 0;font-variant-numeric:tabular-nums;">' . self::align_price_decimal($prefix . number_format($sum, 2) . $suffix) . '</div>'
+                . '</div></div>');
     }
 
     private function display_cart($items) {
         if (count($items) == 0) {
-            print(__('Cart is empty!'));
+            // Same centered-card pattern as Base_EssClient's registration
+            // confirmation (EssClient_0.php ~56-77) - consistent "nice card"
+            // look for a standalone status screen, not a data grid.
+            if (Base_ThemeCommon::is_adminlte_family()) {
+                print('<div class="d-flex justify-content-center py-4">');
+                print('<div class="card" style="max-width:600px;width:100%;">');
+                print('<div class="card-body text-center">');
+                print('<i class="bi bi-cart-x text-muted" style="font-size:3rem;"></i>');
+                print('<h3 class="mt-3 mb-3">' . __('Your cart is empty') . '</h3>');
+                print('<p class="text-muted mb-3">' . __('Add modules from the Store to buy several at once.') . '</p>');
+                print('<a class="btn btn-primary" ' . $this->create_back_href() . '>' . __('Continue shopping') . '</a>');
+                print('</div></div></div>');
+            } else {
+                print('<div class="important_notice">' . __('Your cart is empty') . '</div>');
+            }
             return;
         }
 
         $f = $this->init_module(Libs_QuickForm::module_name());
         $show_cart = true;
         if ($f->validate() && $f->exportValue('submited')) {
-            $recent_items = $this->_cart_items_on_server($items);
-            if ($recent_items == $items) {
+            $price_changed = $this->_refresh_cart_prices($items);
+            if (!$price_changed) {
                 $show_cart = false;
                 $this->form_buy_items($items);
             } else {
-                print('<span style="color:red">' . __('Some modules has changed on server. This is updated list.') . '</span>');
-                Base_EpesiStoreCommon::set_cart($recent_items);
-                $items = $recent_items;
+                $message = __('One or more prices changed on the server since these items were added to your cart. The list below has been refreshed with the current prices - please review it and click Buy again to confirm the purchase.');
+                if (Base_ThemeCommon::is_adminlte_family()) {
+                    print('<div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">'
+                            . '<i class="bi bi-exclamation-triangle-fill mt-1"></i><div>' . $message . '</div></div>');
+                } else {
+                    print('<span style="color:red">' . $message . '</span>');
+                }
+                Base_EpesiStoreCommon::set_cart($items);
             }
-        } 
+        }
         if ($show_cart) {
             $this->display_cart_items($items);
             Base_ActionBarCommon::add('folder', __('Buy'), $f->get_submit_form_href());
@@ -263,29 +479,69 @@ class Base_EpesiStore extends Module {
         }
     }
 
-    private function _cart_items_on_server($items) {
+    /**
+     * Re-checks each cart item's own 'price' against the server, in place,
+     * and reports whether anything actually changed. Deliberately narrower
+     * than the old whole-array equality check it replaced (compared every
+     * field, not just price) - the items originally stored in the cart came
+     * from whichever screen added them (modules_list() for the Buy listing/
+     * Simple-view cards, get_module_info() for a bundled dependency added by
+     * ACTION_ADD_TO_CART), while this re-check always calls get_module_info()
+     * - two different ESS server endpoints, plausibly returning slightly
+     * different field sets/values for the same module even when nothing
+     * priced actually changed, which made the old check false-positive on
+     * effectively every cart. Only price is what a pre-purchase re-check is
+     * actually meant to protect against, so only price is compared - and
+     * only price is overwritten in place, keeping every other field (name,
+     * needed_modules, etc. - some of which get_module_info()'s own response
+     * shape may not even carry) exactly as originally stored.
+     * @return bool whether any item's price changed
+     */
+    private function _refresh_cart_prices(array &$items) {
         $ids = array();
         foreach ($items as $r)
             $ids[] = $r['id'];
-        return Base_EpesiStoreCommon::get_module_info($ids);
+        $current = Base_EpesiStoreCommon::get_module_info($ids);
+        $changed = false;
+        foreach ($items as &$item) {
+            $new_price = $current[$item['id']]['price'] ?? null;
+            if ($new_price !== null && ($item['price'] ?? null) !== $new_price) {
+                $item['price'] = $new_price;
+                $changed = true;
+            }
+        }
+        unset($item);
+        return $changed;
     }
 
     private function form_buy_items($items) {
-        $this->navigation_button_orders();
-        $this->navigation_button_your_modules();
-
         $server_response = $this->_order_submit($items);
         $this->client_messages();
-        $this->display_order_submit_response($items, $server_response);
+        $this->display_order_submit_response($server_response);
     }
 
-    private function display_order_submit_response($ordered_items, $server_response) {
-        foreach ($ordered_items as $r) {
-            $info = & $server_response[$r['id']];
-            $success = $info === true ? true : false;
-            $message = is_string($info) ? ' (' . $info . ')' : "";
-            print("{$r['name']} - <span style=\"color: " . ($success ? self::color_success : self::color_failure) . "\">" . $success ? __('Ordered') : __('Not ordered') . "$message</span><br/>");
+    /**
+     * order_submit() returns one order for however many module ids were
+     * submitted - {order_id, needs_payment}, the same shape
+     * Base_EpesiStoreCommon::handle_module_action()'s single-item ACTION_BUY
+     * case already relies on, not a per-item {module_id: true|string} map
+     * (this used to assume the latter, a stale contract - the order was
+     * placed server-side but the checkout never reached the payment step).
+     */
+    private function display_order_submit_response($server_response) {
+        $ordered = isset($server_response['order_id']) && $server_response['order_id'] !== null;
+        if (!$ordered) {
+            print('<span style="color: ' . self::color_failure . '">' . __('Order failed.') . '</span><br/>');
+            $this->navigation_button_your_modules();
+            return;
         }
+        if (!empty($server_response['needs_payment'])
+                && Base_EpesiStoreCommon::display_payments_for_order($server_response['order_id']) === true) {
+            Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
+            return;
+        }
+        print('<span style="color: ' . self::color_success . '">' . __('Order placed successfully.') . '</span><br/>');
+        $this->navigation_button_your_modules();
     }
 
     private function _order_submit($items) {
@@ -301,16 +557,7 @@ class Base_EpesiStore extends Module {
      * @param array $r modules data
      */
     public function cart_add_item($r) {
-        $items = Base_EpesiStoreCommon::get_cart();
-        // user module id to compare orders in cart
-        if (!isset($r['id']))
-            return;
-        foreach ($items as $it) {
-            if (isset($it['id']) && $it['id'] == $r['id'])
-                return;
-        }
-        $items[$r['id']] = $r;
-        Base_EpesiStoreCommon::set_cart($items);
+        Base_EpesiStoreCommon::cart_add_item($r);
     }
 
     /**
@@ -318,12 +565,7 @@ class Base_EpesiStore extends Module {
      * @param array $r modules data
      */
     public function cart_remove_item($r) {
-        $items = Base_EpesiStoreCommon::get_cart();
-        $key = array_search($r, $items);
-        if ($key !== false) {
-            unset($items[$key]);
-            Base_EpesiStoreCommon::set_cart($items);
-        }
+        Base_EpesiStoreCommon::cart_remove_item($r);
     }
 
     public function form_orders() {
@@ -572,8 +814,8 @@ class Base_EpesiStore extends Module {
                 . __('Continue to payment') . '</button></div>');
     }
 
-    protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback) {
-        return $this->GB_generic($gb, $items, $this->banned_columns_module, $this->GB_row_data_transform_module(...), $row_additional_actions_callback);
+    protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback, $column_widths = array(), $column_labels = array()) {
+        return $this->GB_generic($gb, $items, $this->banned_columns_module, $this->GB_row_data_transform_module(...), $row_additional_actions_callback, $column_widths, $column_labels);
     }
 
     protected function GB_order(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback = null) {
@@ -622,32 +864,74 @@ class Base_EpesiStore extends Module {
         if (isset($data['active']))
             unset($data['active']);
         if (isset($data['icon_url']) && $data['icon_url'])
-            $data['name'] = "<img style=\"max-height: 30px; float: right\" src=\"{$data['icon_url']}\" alt=\"{$data['name']} icon\"/>" . $data['name'];
+            // Icon first, then the name, inline - the old float:right put the
+            // icon at the cell's right edge instead of leading the name.
+            $data['name'] = "<img style=\"max-height: 30px; vertical-align: middle; margin-right: 6px;\" src=\"{$data['icon_url']}\" alt=\"{$data['name']} icon\"/>" . $data['name'];
         unset($data['icon_url']);
 
+        // "Readme..." button leading the description text, not the
+        // description itself as a link - full-size (per request), not
+        // shrunk to match the Store tab's own smaller card button.
         if (isset($data['description_url']) && $data['description_url'])
-            $data['description'] = "<a target=\"_blank\" href=\"{$data['description_url']}\">{$data['description']}</a>";
+            $data['description'] = '<a class="btn btn-sm btn-primary rounded-pill px-3 me-2" target="_blank" href="'
+                    . $data['description_url'] . '">' . __('Readme...') . '</a>' . $data['description'];
         unset($data['description_url']);
-        
-        $required_modules = & $data['required_modules'];
-        unset($data['needed_modules']);
-		if (!is_array($required_modules)) $required_modules = explode(', ',$required_modules);
-        if (isset($required_modules)) {
-            foreach($required_modules as $k => & $m) {
-                $mi = Base_EpesiStoreCommon::get_module_info($m);
-                if($mi)
-                    $m = "{$mi['repository']}::{$mi['name']}";
-                else
-                    $m = '(' . __('Unrecognized module') . ')';
-            }
-            $required_modules = implode(', ', $required_modules);
-        }
-        if (!isset($data['bought']))
-            $data['bought'] = 0;
-        if (!isset($data['paid']))
-            $data['paid'] = 0;
+        // Requires/Required by note (computed for the whole item list by
+        // compute_dependency_notes() before this row ever reaches
+        // GB_generic(), keyed by id in $this->dependency_notes since this
+        // one row alone doesn't know about its siblings) - folded into
+        // Description rather than kept as its own column, for clarity on
+        // why a bundled dependency (e.g. List Manager) shows up alongside
+        // the module that needs it.
+        if (isset($data['id']) && !empty($this->dependency_notes[$data['id']]))
+            $data['description'] = ($data['description'] !== '' ? $data['description'] . '<br>' : '')
+                    . '<small class="text-muted">' . htmlspecialchars($this->dependency_notes[$data['id']]) . '</small>';
+        // overflow_box=>false: wraps the cell in place (white-space:normal)
+        // instead of Utils_GenericBrowser's default truncate-with-hover-
+        // preview, which read as "description is too long" on this column -
+        // see AI-private/ESS-checkout.md.
+        $data['description'] = array('value' => $data['description'], 'overflow_box' => false);
 
-        return $data;
+        // Right-aligned (inline style, not the .epesi-store-grid CSS's own
+        // :last-child rule - that one covers the header th, but a data cell
+        // value here is the one place PHP can guarantee the style lands
+        // regardless of any CSS specificity/load-order surprise) with the
+        // decimal point itself aligned across rows: splitting into a
+        // right-aligned "whole" span (min-width so shorter numbers, e.g.
+        // $49, still end at the same x as $199) and a left-aligned
+        // ".00"-and-beyond span is the standard trick - plain
+        // text-align:right alone only lines up the string's right edge,
+        // which for "$49.00" vs "$199.00" leaves the decimals themselves
+        // offset by the extra digit.
+        if (isset($data['price']))
+            $data['price'] = array(
+                'value' => self::align_price_decimal($data['price']),
+                'style' => 'text-align:right;font-variant-numeric:tabular-nums;',
+            );
+
+        // "Item" reads better than "Name" as a column header here - renamed
+        // in place, and the whole row reordered into a fixed column order
+        // (item, description, version, price, then anything left over) -
+        // GB_generic() derives both the header row (from the first item)
+        // and each data row's own cell order from this same array's key
+        // order, and different items don't necessarily carry the exact same
+        // set of optional fields (e.g. description_url present on some,
+        // absent on others) - left to natural key order, that silently
+        // shifted a row's cells out of alignment with the header AND with
+        // other rows (reported as "Price"/"Version" values landing in each
+        // other's columns depending on the item).
+        $data = array_combine(
+            array_map(fn($k) => $k === 'name' ? 'item' : $k, array_keys($data)),
+            array_values($data)
+        );
+        $ordered = array();
+        foreach (array('item', 'description', 'version', 'price') as $k) {
+            if (array_key_exists($k, $data)) {
+                $ordered[$k] = $data[$k];
+                unset($data[$k]);
+            }
+        }
+        return $ordered + $data;
     }
 
     private function module_info_tooltip($module_id) {
@@ -686,6 +970,18 @@ class Base_EpesiStore extends Module {
     }
 
     protected function GB_row_additional_actions_cart($row, $data) {
+        // Removing a module something else in the cart still requires
+        // (e.g. List Manager while E-mail Campaign Manager is also in the
+        // cart) used to silently leave the dependant behind with a missing
+        // dependency - disabled instead (dimmed icon, off=true, no removal
+        // href) until the dependant itself is removed first. Requires
+        // $this->required_by, populated by compute_dependency_notes() for
+        // the whole cart before this callback runs per-row.
+        if (isset($data['id']) && !empty($this->required_by[$data['id']])) {
+            $message = __('Required by %s - remove that module from the cart first.', array(implode(', ', $this->required_by[$data['id']])));
+            $row->add_action(Utils_TooltipCommon::open_tag_attrs($message, false), __('Remove from cart'), $message, 'delete', 0, true);
+            return;
+        }
         $row->add_action($this->create_callback_href($this->cart_remove_item(...), array($data)), 'delete', __('Remove from cart'));
     }
 
@@ -700,7 +996,7 @@ class Base_EpesiStore extends Module {
         $row->add_action($this->create_callback_href($this->download_as_zip(...), array($data)), 'append data', 'Download as zip file');
     }
 
-    protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null) {
+    protected function GB_generic(Utils_GenericBrowser $gb, array $items, $banned_columns = array(), $row_data_transform_callback = null, $row_additional_actions_callback = null, $column_widths = array(), $column_labels = array()) {
         if (count($items)) {
             // add column headers
             $first_el = reset($items);
@@ -710,7 +1006,9 @@ class Base_EpesiStore extends Module {
             foreach ($first_el as $k => $v) {
                 if (in_array($k, $banned_columns))
                     continue;
-                $columns[] = array('name' => ucwords(str_replace('_', ' ', $k)));
+                $col = array('name' => isset($column_labels[$k]) ? __($column_labels[$k]) : ucwords(str_replace('_', ' ', $k)));
+                if (isset($column_widths[$k])) $col['width'] = $column_widths[$k];
+                $columns[] = $col;
             }
             $gb->set_table_columns($columns);
             // add elements
