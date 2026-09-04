@@ -588,6 +588,19 @@ class Base_Setup extends Module {
                     $sorted[$name]['style'] = 'disabled';
                     $sorted[$name]['status'] = __('Files modified');
                 }
+                if ($label == Base_EpesiStoreCommon::ACTION_INSTALL) {
+                    // Already fully downloaded and current - still offer a
+                    // way to force a fresh re-download (e.g. to recover a
+                    // file that got deleted or corrupted outside the
+                    // Store's own modified-file detection, or just to pull
+                    // a known-clean copy) instead of only offering that
+                    // once the Store itself thinks an update or repair is
+                    // due.
+                    $sorted[$name]['buttons'][] = array(
+                        'label' => __('Download'),
+                        'style' => 'install',
+                        'href' => Base_EpesiStoreCommon::action_href($s, Base_EpesiStoreCommon::ACTION_DOWNLOAD, array('Base_Setup', 'response_callback')));
+                }
               }
                 // Same "local presence wins" principle as above, extended to
                 // icon/url: a locally-known module's own icon
@@ -628,8 +641,23 @@ class Base_Setup extends Module {
                         $style = 'disabled';
                         break;
                     case Base_EpesiStoreCommon::ACTION_INSTALL:
+                        // Reported by the Store as already downloaded and
+                        // current, but no local module directory was found
+                        // above to merge this card into (e.g. the files
+                        // were never actually pulled to this install, or
+                        // were removed after the fact) - offering "Install"
+                        // here would be a dead end, since ACTION_INSTALL has
+                        // no handler of its own (handle_module_action()
+                        // no-ops it; the real Install button only exists on
+                        // a locally-scanned entry). Point the button at a
+                        // real re-download instead, so a purchased module
+                        // stuck in this state is always recoverable by the
+                        // user rather than needing a database fix.
                         $status = __('Ready to use');
                         $style = 'disabled';
+                        $button['label'] = __('Download');
+                        $button['style'] = 'install';
+                        $button['href'] = Base_EpesiStoreCommon::action_href($s, Base_EpesiStoreCommon::ACTION_DOWNLOAD, array('Base_Setup', 'response_callback'));
                         break;
                     case Base_EpesiStoreCommon::ACTION_UPDATE:
                         $status = __('To update');
@@ -644,9 +672,7 @@ class Base_Setup extends Module {
 				$sorted[$name]['filter'] = array('store');
                 $sorted[$name]['buttons_tooltip'] = $this->included_modules_text($s);
 			}
-            if ($label != Base_EpesiStoreCommon::ACTION_INSTALL) {
-                $sorted[$name]['buttons'] = array($button);
-            }
+            $sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
             if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
                 $sorted[$name]['filter'][] = 'updates';
