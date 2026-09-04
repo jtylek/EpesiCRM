@@ -373,6 +373,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
         self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
+        epesi_log(sprintf('Downloaded and extracted %s (module_id=%s, version=%s) from %s',
+                $module_info['name'], $module_info['id'], $module_info['version'], $file), 'download.log');
     }
 
     public static function post_install_refresh_by_ajax() {
@@ -619,8 +621,19 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
+        // Every download/update writes its zip under a fresh timestamped
+        // name (make_temp_filename()) and only the DB row - never the file
+        // it replaces - got cleaned up here, so data/Base_EpesiStore/ grew
+        // one orphaned zip per re-download forever. is_module_modified()
+        // only ever reads whatever row currently exists, so the file this
+        // row is about to supersede is safe to remove (a first-ever
+        // download for this module has no previous row/file to clean up).
+        $previous_file = DB::GetOne('SELECT file FROM epesi_store_modules WHERE module_id=%d', array($module_id));
         DB::Execute('DELETE FROM epesi_store_modules WHERE module_id=%d', array($module_id));
         DB::Execute('INSERT INTO epesi_store_modules(module_id, version, module_license_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
+        if ($previous_file && $previous_file !== $file) {
+            @unlink(self::Instance()->get_data_dir() . $previous_file);
+        }
     }
 
     public static function is_update_available($force_check = false) {

@@ -588,19 +588,13 @@ class Base_Setup extends Module {
                     $sorted[$name]['style'] = 'disabled';
                     $sorted[$name]['status'] = __('Files modified');
                 }
-                if ($label == Base_EpesiStoreCommon::ACTION_INSTALL) {
-                    // Already fully downloaded and current - still offer a
-                    // way to force a fresh re-download (e.g. to recover a
-                    // file that got deleted or corrupted outside the
-                    // Store's own modified-file detection, or just to pull
-                    // a known-clean copy) instead of only offering that
-                    // once the Store itself thinks an update or repair is
-                    // due.
-                    $sorted[$name]['buttons'][] = array(
-                        'label' => __('Download'),
-                        'style' => 'install',
-                        'href' => Base_EpesiStoreCommon::action_href($s, Base_EpesiStoreCommon::ACTION_DOWNLOAD, array('Base_Setup', 'response_callback')));
-                }
+                // Deliberately no extra action for ACTION_INSTALL here - a
+                // module already downloaded, current and unmodified is
+                // registered locally (this is the merge branch), so the
+                // only sanctioned way to pull a new copy is via an actual
+                // ESS-side version bump (ACTION_UPDATE above). A plain
+                // "Download" button here would let a user redundantly
+                // refetch the exact same file already on disk.
               }
                 // Same "local presence wins" principle as above, extended to
                 // icon/url: a locally-known module's own icon
