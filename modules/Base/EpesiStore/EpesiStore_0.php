@@ -521,7 +521,28 @@ class Base_EpesiStore extends Module {
         return $changed;
     }
 
+    /**
+     * Confirms the purchase before ever contacting the ESS server -
+     * order_submit() (which creates both the ess_orders row and the
+     * ess_module_licenses rows, unpaid but active, on the ESS server) used to
+     * run the instant this screen was reached. A user who added items to
+     * cart and then abandoned checkout (closed the tab, never completed
+     * payment) left a permanent unpaid order + license behind, indistinguishable
+     * from one mid-payment. Now nothing is created server-side until this
+     * screen's own "Confirm order" submit fires _confirm_order().
+     */
     private function form_buy_items($items) {
+        $this->display_cart_items($items);
+        $f = $this->init_module(Libs_QuickForm::module_name(), null, 'confirm_order');
+        if ($f->validate() && $f->exportValue('submited')) {
+            $this->_confirm_order($items);
+        } else {
+            Base_ActionBarCommon::add('buy', __('Confirm order'), $f->get_submit_form_href(), null, 1);
+            $f->display();
+        }
+    }
+
+    private function _confirm_order($items) {
         $server_response = $this->_order_submit($items);
         $this->client_messages();
         $this->display_order_submit_response($server_response);

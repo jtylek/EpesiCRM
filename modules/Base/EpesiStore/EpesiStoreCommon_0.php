@@ -509,7 +509,7 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     /**
-     * Public: also called from EpesiStore_0::form_buy_items() (cart checkout,
+     * Public: also called from EpesiStore_0::_confirm_order() (cart checkout,
      * one order for however many modules were in the cart), not just the
      * single-item ACTION_BUY case above.
      */
