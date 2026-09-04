@@ -103,8 +103,16 @@ class Utils_TabbedBrowser extends Module {
 			}
 			$final_captions[$group] = '<span id="tabbed_browser_submenu_'.$group.'"'.$selected_c.'>'.$group.'&nbsp;'.'<img src="'.Base_ThemeCommon::get_template_file('Utils_TabbedBrowser','submenu.png').'">'.'</span>';
 			$captions_subs[$group] = $subs;
+			// Size the group toggle to its popup's width right away (see
+			// theme/default.js's tabbedbrowser_sync_width) so it's already
+			// full width on first paint instead of visibly growing on the
+			// user's first hover/focus. eval_js() is guaranteed to run only
+			// after this render's load_js()'d scripts (tb_.js, the theme's
+			// default.js) have loaded - see Base_Setup's theme/default.tpl
+			// for the same eval_js-after-load_js pattern.
+			eval_js('tabbedbrowser_sync_width(\''.escapeJS($group,false,true).'\')');
 		}
-		$this->tag = md5($body.$this->page); 
+		$this->tag = md5($body.$this->page);
 		$theme->assign('selected', $this->page);
 		$theme->assign('captions', $final_captions);
 		$theme->assign('captions_submenus', $captions_subs);

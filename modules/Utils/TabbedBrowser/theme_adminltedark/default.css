@@ -87,8 +87,17 @@
 	z-index: 1055;
 }
 
-.epesi-tb-submenu span {
+/* Specificity here (2 classes + element) must beat the .epesi-tb-nav
+   .tabbed_browser_unselected/.tabbed_browser_selected rule above (2 classes)
+   - submenu items share those same classes since TabbedBrowser_0.php::
+   get_link() renders top-level tabs and sub-tabs identically, and they're
+   nested inside .epesi-tb-nav too, so without the extra .epesi-tb-nav
+   qualifier below that rule's display:inline-flex wins and each sub-tab
+   shrink-wraps to its own text instead of filling the submenu's width. */
+.epesi-tb-nav .epesi-tb-submenu span {
 	display: block;
+	width: 100%;
+	box-sizing: border-box;
 	padding: 0.4rem 0.6rem;
 	border-radius: 0.25rem;
 	font-size: 0.85rem;
