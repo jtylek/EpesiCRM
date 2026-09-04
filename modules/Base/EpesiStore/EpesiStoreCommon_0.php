@@ -11,6 +11,9 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
@@ -370,6 +373,8 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     private static function store_info_about_downloaded_module($module_license, $file) {
         $module_info = self::get_module_info($module_license['module']);
         self::add_downloaded_module($module_info['id'], $module_info['version'], $module_license['id'], $file);
+        epesi_log(sprintf('Downloaded and extracted %s (module_id=%s, version=%s) from %s',
+                $module_info['name'], $module_info['id'], $module_info['version'], $file), 'download.log');
     }
 
     public static function post_install_refresh_by_ajax() {
@@ -528,6 +533,31 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
         return "No such order to perform payment.";
     }
 
+    /**
+     * Ajax poll target for EpesiStore_0::form_payment_frame()'s "Continue to
+     * payment" card - lets the client swap it to a "Paid" state on its own
+     * once the order is settled, instead of leaving a stale, clickable
+     * button up after the user already paid in the payment tab (which risked
+     * a second payment on the same order). $order_id is bound server-side at
+     * create_ajax_callback_url() time, not client-supplied, so there's no
+     * order-ownership check to do here.
+     *
+     * The order has no stored 'paid' flag - to_pay is computed fresh server-
+     * side on every orders_list() call, and a fully-paid order can leave a
+     * tiny positive float residue instead of exact 0.0, so this treats
+     * anything under half a cent as paid rather than comparing === 0.0.
+     */
+    public static function payment_status_ajax(Request $request, $args) {
+        $order_id = $args['order_id'];
+        $orders = Base_EssClientCommon::server()->orders_list();
+        if (!isset($orders[$order_id]))
+            return new JsonResponse(array('paid' => false));
+        $keys = array_keys($orders[$order_id]['price']);
+        $currency = reset($keys);
+        $to_pay = (float) $orders[$order_id]['price'][$currency]['to_pay'];
+        return new JsonResponse(array('paid' => $to_pay < 0.005));
+    }
+
     private static function crc_file_matches($file, $crc) {
         static $is_php_526 = null;
         if (!is_readable($file))
@@ -591,8 +621,19 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
     }
 
     private static function add_downloaded_module($module_id, $version, $module_license_id, $file) {
+        // Every download/update writes its zip under a fresh timestamped
+        // name (make_temp_filename()) and only the DB row - never the file
+        // it replaces - got cleaned up here, so data/Base_EpesiStore/ grew
+        // one orphaned zip per re-download forever. is_module_modified()
+        // only ever reads whatever row currently exists, so the file this
+        // row is about to supersede is safe to remove (a first-ever
+        // download for this module has no previous row/file to clean up).
+        $previous_file = DB::GetOne('SELECT file FROM epesi_store_modules WHERE module_id=%d', array($module_id));
         DB::Execute('DELETE FROM epesi_store_modules WHERE module_id=%d', array($module_id));
         DB::Execute('INSERT INTO epesi_store_modules(module_id, version, module_license_id, file) VALUES (%d, %s, %d, %s)', array($module_id, $version, $module_license_id, $file));
+        if ($previous_file && $previous_file !== $file) {
+            @unlink(self::Instance()->get_data_dir() . $previous_file);
+        }
     }
 
     public static function is_update_available($force_check = false) {

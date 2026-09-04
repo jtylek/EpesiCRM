@@ -89,7 +89,7 @@ class Base_EpesiStore extends Module {
 		Base_ActionBarCommon::add(
                 'license-key',
                 $button_label,
-                $this->create_callback_href($this->display_registration_form(...)),
+                $this->href_navigate('form_license'),
                 null, 30);
 
         $invoices_form_name = null;
@@ -291,6 +291,22 @@ class Base_EpesiStore extends Module {
         $m = $this->init_module(Base_EssClient::module_name());
         $this->display_module($m, array(true), 'admin');
 		return self::$return;
+    }
+
+    // Reached from manage()'s 'license-key' ActionBar button via
+    // href_navigate() (a real push_module(), like form_orders()/
+    // form_your_modules()/form_cart()), not a raw create_callback_href() -
+    // display_registration_form() below always renders Base_EssClient with
+    // store=true, which suppresses EssClient's own Back button and its
+    // is_back()-triggered parent->reset() (see Base_EssClient::admin()), so
+    // nothing ever cleared a raw callback registration: the license screen
+    // got stuck showing on every later visit to this admin panel, and its
+    // only Back control was the ActionBar's generic nav-history fallback
+    // (landing on Dashboard) rather than a real return to this screen.
+    // back_button()/pop_main() here give it a real, self-popping screen.
+    public function form_license() {
+        $this->back_button();
+        $this->display_registration_form();
     }
 
     public function form_your_modules() {
@@ -813,9 +829,23 @@ class Base_EpesiStore extends Module {
         $this->back_button();
         $this->payments_data_button();
 
+        // to_pay is always computed fresh by the caller (buy_module_ajax(),
+        // the cart's Pay button) - if it's already ~0 here the order was
+        // fully paid before this screen was even reached (e.g. the user
+        // paid, then came back to this same link/history entry). Skip the
+        // "Continue to payment" card entirely in that case: submitting the
+        // payment form again would just open ess.epe.si's own generic
+        // "This payment was already processed." page instead of anything
+        // useful - go straight to the paid state with a way to see the
+        // Invoices instead.
+        if (((float) $value) < 0.005) {
+            print($this->payment_received_card());
+            return;
+        }
+
         $payment_url = Base_EssClientCommon::get_payments_url();
         $description = $modules ? "Payment for: $modules" : "Order id: $order_id";
-        
+
         $data = array(
             'action_url' => $payment_url,
             'record_id' => $order_id,
@@ -834,7 +864,7 @@ class Base_EpesiStore extends Module {
             if (isset($credentials[$key]))
                 $data[$key] = $credentials[$key];
         }
-        
+
         $form_name = null;
         print create_html_form($form_name, $payment_url, $data, '_blank');
 
@@ -846,6 +876,16 @@ class Base_EpesiStore extends Module {
         $amount_display = htmlspecialchars(number_format((float) $value, 2) . ' ' . $curr_code);
         $description_display = htmlspecialchars($description);
         $notice = __('You will be taken to the Epesi Store to securely complete this payment.');
+        // Payment itself stays a real new tab (target="_blank" above) -
+        // ess.epe.si's own X-Frame-Options: SAMEORIGIN, plus PayPal's own
+        // anti-framing on its hosted checkout step, rule out embedding it as
+        // an iframe (cross-session discussion, 2026-09-04). Instead this
+        // card polls payment_status_ajax() and swaps itself to "Paid" once
+        // the order settles, so it can't be left showing a stale, clickable
+        // "Continue to payment" button after the user already paid in the
+        // other tab.
+        $card_id = uniqid('epesi_store_payment_card_');
+        print('<div id="' . $card_id . '">');
         if (Base_ThemeCommon::is_adminlte_family()) {
             print('<div class="d-flex justify-content-center py-4">');
             print('<div class="card" style="max-width:600px;width:100%;">');
@@ -859,7 +899,7 @@ class Base_EpesiStore extends Module {
             print('<div class="alert alert-info d-flex align-items-start gap-2 text-start mb-3" role="alert">');
             print('<i class="bi bi-info-circle-fill mt-1"></i><div>' . $notice . '</div>');
             print('</div>');
-            print('<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+            print('<button type="button" class="btn btn-primary" onclick="this.disabled=true;document.' . $form_name . '.submit();">'
                     . __('Continue to payment') . '</button>');
             print('</div></div></div>');
         } else {
@@ -869,10 +909,83 @@ class Base_EpesiStore extends Module {
             print('<span style="font-weight:bold;">' . __('Description') . ': </span>' . $description_display . '</div>');
             print('<div style="margin: 5px">' . $notice . '</div>');
             print('<div style="text-align:center;padding:1em;">'
-                    . '<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+                    . '<button type="button" class="btn btn-primary" onclick="this.disabled=true;document.' . $form_name . '.submit();">'
                     . __('Continue to payment') . '</button></div>');
             print('</div>');
         }
+        print('</div>');
+
+        $status_url = $this->create_ajax_callback_url(
+                array('Base_EpesiStoreCommon', 'payment_status_ajax'), array('order_id' => $order_id));
+        eval_js_once($this->payment_poll_js());
+        eval_js('epesi_store_payment_poll(' . json_encode($card_id) . ',' . json_encode($status_url) . ',' . json_encode($this->payment_received_card()) . ');');
+    }
+
+    // Shared "paid" state for form_payment_frame() - shown either up front
+    // (order already fully paid when the screen is reached) or swapped in
+    // by the payment poll once payment_status_ajax() reports paid=true.
+    // Links out to the Invoices page (same hidden-form-in-a-new-tab pattern
+    // as manage()'s Invoices ActionBar button above) rather than leaving the
+    // user with only a generic "thanks" and no next step.
+    private function payment_received_card() {
+        $invoices_form_name = null;
+        $invoices_form = create_html_form($invoices_form_name, Base_EssClientCommon::get_invoices_url(),
+                array('key' => Base_EssClientCommon::get_license_key(), 'noheader' => 1), '_blank');
+        $invoices_onclick = 'document.' . $invoices_form_name . '.submit();';
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            return $invoices_form
+                    . '<div class="d-flex justify-content-center py-4"><div class="card" style="max-width:600px;width:100%;">'
+                    . '<div class="card-body text-center"><i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>'
+                    . '<h3 class="mt-3 mb-3">' . __('Payment received') . '</h3>'
+                    . '<p class="mb-3">' . __('Thank you - your payment has been received.') . '</p>'
+                    . '<button type="button" class="btn btn-primary" onclick="' . $invoices_onclick . '">' . __('View invoices') . '</button>'
+                    . '</div></div></div>';
+        }
+        return $invoices_form
+                . '<div class="important_notice"><div style="margin:5px">' . __('Payment received') . '</div>'
+                . '<div style="margin:5px">' . __('Thank you - your payment has been received.') . '</div>'
+                . '<div style="text-align:center;padding:1em;">'
+                . '<button type="button" class="btn btn-primary" onclick="' . $invoices_onclick . '">' . __('View invoices') . '</button></div>'
+                . '</div>';
+    }
+
+    // Defined once per session (eval_js_once) - form_payment_frame() kicks
+    // it off per-render (eval_js) with the specific card id/status url/paid
+    // markup for that order. Bounded deliberately (Page Visibility-gated,
+    // capped attempts) rather than an unconditional forever-poll - see the
+    // 2026-08-25 AccessLogs incident (AI-private/ESS-checkout.md) where an
+    // unbounded client poll against ess.epe.si accumulated 503K rows from a
+    // handful of installs.
+    private function payment_poll_js() {
+        return <<<'JS'
+function epesi_store_payment_poll(card_id, status_url, paid_html) {
+    var attempts = 0, max_attempts = 40, interval_ms = 15000, timer = null;
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function check() {
+        var el = document.getElementById(card_id);
+        if (!el) { stop(); return; }
+        if (document.hidden) return;
+        if (++attempts > max_attempts) { stop(); return; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', status_url, true);
+        xhr.onload = function() {
+            if (xhr.status !== 200) return;
+            var data;
+            try { data = JSON.parse(xhr.responseText); } catch (e) { return; }
+            if (data && data.paid) {
+                stop();
+                var target = document.getElementById(card_id);
+                if (target) target.innerHTML = paid_html;
+            }
+        };
+        xhr.send();
+    }
+    timer = setInterval(check, interval_ms);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) check();
+    });
+}
+JS;
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback, $column_widths = array(), $column_labels = array()) {

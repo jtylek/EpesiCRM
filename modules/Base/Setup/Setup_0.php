@@ -599,6 +599,13 @@ class Base_Setup extends Module {
                     $sorted[$name]['style'] = 'disabled';
                     $sorted[$name]['status'] = __('Files modified');
                 }
+                // Deliberately no extra action for ACTION_INSTALL here - a
+                // module already downloaded, current and unmodified is
+                // registered locally (this is the merge branch), so the
+                // only sanctioned way to pull a new copy is via an actual
+                // ESS-side version bump (ACTION_UPDATE above). A plain
+                // "Download" button here would let a user redundantly
+                // refetch the exact same file already on disk.
               }
                 // Same "local presence wins" principle as above, extended to
                 // icon/url: a locally-known module's own icon
@@ -639,8 +646,23 @@ class Base_Setup extends Module {
                         $style = 'disabled';
                         break;
                     case Base_EpesiStoreCommon::ACTION_INSTALL:
+                        // Reported by the Store as already downloaded and
+                        // current, but no local module directory was found
+                        // above to merge this card into (e.g. the files
+                        // were never actually pulled to this install, or
+                        // were removed after the fact) - offering "Install"
+                        // here would be a dead end, since ACTION_INSTALL has
+                        // no handler of its own (handle_module_action()
+                        // no-ops it; the real Install button only exists on
+                        // a locally-scanned entry). Point the button at a
+                        // real re-download instead, so a purchased module
+                        // stuck in this state is always recoverable by the
+                        // user rather than needing a database fix.
                         $status = __('Ready to use');
                         $style = 'disabled';
+                        $button['label'] = __('Download');
+                        $button['style'] = 'install';
+                        $button['href'] = Base_EpesiStoreCommon::action_href($s, Base_EpesiStoreCommon::ACTION_DOWNLOAD, array('Base_Setup', 'response_callback'));
                         break;
                     case Base_EpesiStoreCommon::ACTION_UPDATE:
                         $status = __('To update');
@@ -655,9 +677,7 @@ class Base_Setup extends Module {
 				$sorted[$name]['filter'] = array('store');
                 $sorted[$name]['buttons_tooltip'] = $this->included_modules_text($s);
 			}
-            if ($label != Base_EpesiStoreCommon::ACTION_INSTALL) {
-                $sorted[$name]['buttons'] = array($button);
-            }
+            $sorted[$name]['buttons'] = array($button);
 			$sorted[$name]['version'] = $s['version'];
             if ($label == Base_EpesiStoreCommon::ACTION_UPDATE) {
                 $sorted[$name]['filter'][] = 'updates';
