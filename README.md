@@ -33,6 +33,14 @@ working, responsive UI from the declaration. See
 [`AI-shared/design-philosophy.md`](AI-shared/design-philosophy.md) for the reasoning
 behind this, straight from the framework's creator.
 
+**This repo is also set up so an AI coding agent can work on it correctly from a fresh
+clone.** [`CLAUDE.md`](CLAUDE.md) and the [`AI-shared/`](AI-shared/) knowledge base document
+this codebase's actual conventions — module anatomy, `RecordBrowser` field types, the patch
+system, known bug patterns and deliberate design decisions that look like bugs but aren't —
+so an agent (or a new developer) doesn't have to reverse-engineer them from 16+ years of
+code. See [Build modules in plain English with an AI agent](#build-modules-in-plain-english-with-an-ai-agent)
+below.
+
 ## Gallery
 
 <table>
@@ -101,19 +109,19 @@ for how it works.
   no desktop client to distribute or update.
 - **Ordinary LAMP stack.** PHP 8.1+ (8.2 recommended) + MySQL or PostgreSQL. No build
   step — `modules/` and `theme*/` are served directly, nothing to compile or bundle.
-- **AI-agent ready.** This repo is set up to be productively worked on by an AI coding
-  agent from the first clone — see below.
+- **AI-agent ready.** `CLAUDE.md` and `AI-shared/` document this codebase's conventions
+  up front, so an AI coding agent — or a new developer — can work on it correctly from
+  the first clone instead of reverse-engineering 16+ years of code. See below.
 
 ## Build modules in plain English with an AI agent
 
-This repository ships pre-trained for AI-assisted development. [`AI-shared/`](AI-shared/)
-is a git-tracked knowledge base — architecture rationale, the module-authoring tutorial,
-known bug patterns, deliberate design decisions that look like bugs but aren't — written
-specifically so an AI agent (or a new developer) starting from a fresh clone doesn't have
-to rediscover the framework's conventions from scratch. Combined with
-[`CLAUDE.md`](CLAUDE.md) at the repo root, an agent can go from a plain-English feature
-request to a working module respecting this codebase's actual conventions, not generic
-PHP idioms.
+[`AI-shared/`](AI-shared/) is a git-tracked knowledge base — architecture rationale, the
+module-authoring tutorial, known bug patterns, deliberate design decisions that look like
+bugs but aren't — written specifically so an AI agent (or a new developer) starting from a
+fresh clone doesn't have to rediscover the framework's conventions from scratch. Combined
+with [`CLAUDE.md`](CLAUDE.md) at the repo root, an agent can go from a plain-English
+feature request to a working module respecting this codebase's actual conventions, not
+generic PHP idioms.
 
 **Recommended setup:**
 1. Clone this repo.
