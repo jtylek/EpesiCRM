@@ -319,7 +319,18 @@ class Base_Setup extends Module {
 				// no $option===null variant ever runs, so that branch never fires -
 				// still get the key: {if $package.readme_id} on a truly-missing
 				// array key is an E_WARNING under PHP 8.2, not a graceful falsy.
+				// 'icon'/'version'/'url' need the same treatment - the template
+				// checks all three the same unguarded way (default.tpl), and a
+				// module that's genuinely options-only (e.g. it ships no root
+				// package, only optional sub-features) never reaches the
+				// $option===null branch below that would otherwise set them.
+				// Missing 'icon' in particular blanked the ENTIRE card grid
+				// (not just that one card) under REPORT_ALL_ERRORS, since it's
+				// the first of the three checked per card.
 				$sorted[$name]['readme_id'] = null;
+				$sorted[$name]['icon'] = null;
+				$sorted[$name]['version'] = null;
+				$sorted[$name]['url'] = null;
 			}
 			$sorted[$name]['core'] |= $p['core'];
 
