@@ -34,7 +34,7 @@
 	<nav class="app-header navbar navbar-expand">
 		<div class="container-fluid justify-content-center">
 			<a class="navbar-brand d-flex align-items-center" href="{$url}">
-				{$site_title}
+				<img src="{$url}/images/epesi-store-logo.jpg" alt="{$site_title}" style="max-height:32px;" />
 			</a>
 		</div>
 	</nav>
