@@ -808,9 +808,23 @@ class Base_EpesiStore extends Module {
         $this->back_button();
         $this->payments_data_button();
 
+        // to_pay is always computed fresh by the caller (buy_module_ajax(),
+        // the cart's Pay button) - if it's already ~0 here the order was
+        // fully paid before this screen was even reached (e.g. the user
+        // paid, then came back to this same link/history entry). Skip the
+        // "Continue to payment" card entirely in that case: submitting the
+        // payment form again would just open ess.epe.si's own generic
+        // "This payment was already processed." page instead of anything
+        // useful - go straight to the paid state with a way to see the
+        // Invoices instead.
+        if (((float) $value) < 0.005) {
+            print($this->payment_received_card());
+            return;
+        }
+
         $payment_url = Base_EssClientCommon::get_payments_url();
         $description = $modules ? "Payment for: $modules" : "Order id: $order_id";
-        
+
         $data = array(
             'action_url' => $payment_url,
             'record_id' => $order_id,
@@ -829,7 +843,7 @@ class Base_EpesiStore extends Module {
             if (isset($credentials[$key]))
                 $data[$key] = $credentials[$key];
         }
-        
+
         $form_name = null;
         print create_html_form($form_name, $payment_url, $data, '_blank');
 
@@ -864,7 +878,7 @@ class Base_EpesiStore extends Module {
             print('<div class="alert alert-info d-flex align-items-start gap-2 text-start mb-3" role="alert">');
             print('<i class="bi bi-info-circle-fill mt-1"></i><div>' . $notice . '</div>');
             print('</div>');
-            print('<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+            print('<button type="button" class="btn btn-primary" onclick="this.disabled=true;document.' . $form_name . '.submit();">'
                     . __('Continue to payment') . '</button>');
             print('</div></div></div>');
         } else {
@@ -874,24 +888,44 @@ class Base_EpesiStore extends Module {
             print('<span style="font-weight:bold;">' . __('Description') . ': </span>' . $description_display . '</div>');
             print('<div style="margin: 5px">' . $notice . '</div>');
             print('<div style="text-align:center;padding:1em;">'
-                    . '<button type="button" class="btn btn-primary" onclick="document.' . $form_name . '.submit();">'
+                    . '<button type="button" class="btn btn-primary" onclick="this.disabled=true;document.' . $form_name . '.submit();">'
                     . __('Continue to payment') . '</button></div>');
             print('</div>');
         }
         print('</div>');
 
-        $paid_message = Base_ThemeCommon::is_adminlte_family()
-                ? '<div class="d-flex justify-content-center py-4"><div class="card" style="max-width:600px;width:100%;">'
-                    . '<div class="card-body text-center"><i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>'
-                    . '<h3 class="mt-3 mb-3">' . __('Payment received') . '</h3>'
-                    . '<p class="mb-0">' . __('Thank you - your payment has been received.') . '</p>'
-                    . '</div></div></div>'
-                : '<div class="important_notice"><div style="margin:5px">' . __('Payment received') . '</div>'
-                    . '<div style="margin:5px">' . __('Thank you - your payment has been received.') . '</div></div>';
         $status_url = $this->create_ajax_callback_url(
                 array('Base_EpesiStoreCommon', 'payment_status_ajax'), array('order_id' => $order_id));
         eval_js_once($this->payment_poll_js());
-        eval_js('epesi_store_payment_poll(' . json_encode($card_id) . ',' . json_encode($status_url) . ',' . json_encode($paid_message) . ');');
+        eval_js('epesi_store_payment_poll(' . json_encode($card_id) . ',' . json_encode($status_url) . ',' . json_encode($this->payment_received_card()) . ');');
+    }
+
+    // Shared "paid" state for form_payment_frame() - shown either up front
+    // (order already fully paid when the screen is reached) or swapped in
+    // by the payment poll once payment_status_ajax() reports paid=true.
+    // Links out to the Invoices page (same hidden-form-in-a-new-tab pattern
+    // as manage()'s Invoices ActionBar button above) rather than leaving the
+    // user with only a generic "thanks" and no next step.
+    private function payment_received_card() {
+        $invoices_form_name = null;
+        $invoices_form = create_html_form($invoices_form_name, Base_EssClientCommon::get_invoices_url(),
+                array('key' => Base_EssClientCommon::get_license_key(), 'noheader' => 1), '_blank');
+        $invoices_onclick = 'document.' . $invoices_form_name . '.submit();';
+        if (Base_ThemeCommon::is_adminlte_family()) {
+            return $invoices_form
+                    . '<div class="d-flex justify-content-center py-4"><div class="card" style="max-width:600px;width:100%;">'
+                    . '<div class="card-body text-center"><i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>'
+                    . '<h3 class="mt-3 mb-3">' . __('Payment received') . '</h3>'
+                    . '<p class="mb-3">' . __('Thank you - your payment has been received.') . '</p>'
+                    . '<button type="button" class="btn btn-primary" onclick="' . $invoices_onclick . '">' . __('View invoices') . '</button>'
+                    . '</div></div></div>';
+        }
+        return $invoices_form
+                . '<div class="important_notice"><div style="margin:5px">' . __('Payment received') . '</div>'
+                . '<div style="margin:5px">' . __('Thank you - your payment has been received.') . '</div>'
+                . '<div style="text-align:center;padding:1em;">'
+                . '<button type="button" class="btn btn-primary" onclick="' . $invoices_onclick . '">' . __('View invoices') . '</button></div>'
+                . '</div>';
     }
 
     // Defined once per session (eval_js_once) - form_payment_frame() kicks
