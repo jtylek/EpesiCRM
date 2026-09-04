@@ -11,6 +11,9 @@
  */
 defined("_VALID_ACCESS") || die('Direct access forbidden');
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
 	// AdminLTE-only: Base_BootstrapIcons::resolve() looks this up for this
 	// module's icon (sidebar menu, ActionBar launcher, admin panels, module
@@ -526,6 +529,31 @@ class Base_EpesiStoreCommon extends Base_AdminModuleCommon {
             return true;
         }
         return "No such order to perform payment.";
+    }
+
+    /**
+     * Ajax poll target for EpesiStore_0::form_payment_frame()'s "Continue to
+     * payment" card - lets the client swap it to a "Paid" state on its own
+     * once the order is settled, instead of leaving a stale, clickable
+     * button up after the user already paid in the payment tab (which risked
+     * a second payment on the same order). $order_id is bound server-side at
+     * create_ajax_callback_url() time, not client-supplied, so there's no
+     * order-ownership check to do here.
+     *
+     * The order has no stored 'paid' flag - to_pay is computed fresh server-
+     * side on every orders_list() call, and a fully-paid order can leave a
+     * tiny positive float residue instead of exact 0.0, so this treats
+     * anything under half a cent as paid rather than comparing === 0.0.
+     */
+    public static function payment_status_ajax(Request $request, $args) {
+        $order_id = $args['order_id'];
+        $orders = Base_EssClientCommon::server()->orders_list();
+        if (!isset($orders[$order_id]))
+            return new JsonResponse(array('paid' => false));
+        $keys = array_keys($orders[$order_id]['price']);
+        $currency = reset($keys);
+        $to_pay = (float) $orders[$order_id]['price'][$currency]['to_pay'];
+        return new JsonResponse(array('paid' => $to_pay < 0.005));
     }
 
     private static function crc_file_matches($file, $crc) {

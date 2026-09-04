@@ -825,6 +825,16 @@ class Base_EpesiStore extends Module {
         $amount_display = htmlspecialchars(number_format((float) $value, 2) . ' ' . $curr_code);
         $description_display = htmlspecialchars($description);
         $notice = __('You will be taken to the Epesi Store to securely complete this payment.');
+        // Payment itself stays a real new tab (target="_blank" above) -
+        // ess.epe.si's own X-Frame-Options: SAMEORIGIN, plus PayPal's own
+        // anti-framing on its hosted checkout step, rule out embedding it as
+        // an iframe (cross-session discussion, 2026-09-04). Instead this
+        // card polls payment_status_ajax() and swaps itself to "Paid" once
+        // the order settles, so it can't be left showing a stale, clickable
+        // "Continue to payment" button after the user already paid in the
+        // other tab.
+        $card_id = uniqid('epesi_store_payment_card_');
+        print('<div id="' . $card_id . '">');
         if (Base_ThemeCommon::is_adminlte_family()) {
             print('<div class="d-flex justify-content-center py-4">');
             print('<div class="card" style="max-width:600px;width:100%;">');
@@ -852,6 +862,59 @@ class Base_EpesiStore extends Module {
                     . __('Continue to payment') . '</button></div>');
             print('</div>');
         }
+        print('</div>');
+
+        $paid_message = Base_ThemeCommon::is_adminlte_family()
+                ? '<div class="d-flex justify-content-center py-4"><div class="card" style="max-width:600px;width:100%;">'
+                    . '<div class="card-body text-center"><i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>'
+                    . '<h3 class="mt-3 mb-3">' . __('Payment received') . '</h3>'
+                    . '<p class="mb-0">' . __('Thank you - your payment has been received.') . '</p>'
+                    . '</div></div></div>'
+                : '<div class="important_notice"><div style="margin:5px">' . __('Payment received') . '</div>'
+                    . '<div style="margin:5px">' . __('Thank you - your payment has been received.') . '</div></div>';
+        $status_url = $this->create_ajax_callback_url(
+                array('Base_EpesiStoreCommon', 'payment_status_ajax'), array('order_id' => $order_id));
+        eval_js_once($this->payment_poll_js());
+        eval_js('epesi_store_payment_poll(' . json_encode($card_id) . ',' . json_encode($status_url) . ',' . json_encode($paid_message) . ');');
+    }
+
+    // Defined once per session (eval_js_once) - form_payment_frame() kicks
+    // it off per-render (eval_js) with the specific card id/status url/paid
+    // markup for that order. Bounded deliberately (Page Visibility-gated,
+    // capped attempts) rather than an unconditional forever-poll - see the
+    // 2026-08-25 AccessLogs incident (AI-private/ESS-checkout.md) where an
+    // unbounded client poll against ess.epe.si accumulated 503K rows from a
+    // handful of installs.
+    private function payment_poll_js() {
+        return <<<'JS'
+function epesi_store_payment_poll(card_id, status_url, paid_html) {
+    var attempts = 0, max_attempts = 40, interval_ms = 15000, timer = null;
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function check() {
+        var el = document.getElementById(card_id);
+        if (!el) { stop(); return; }
+        if (document.hidden) return;
+        if (++attempts > max_attempts) { stop(); return; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', status_url, true);
+        xhr.onload = function() {
+            if (xhr.status !== 200) return;
+            var data;
+            try { data = JSON.parse(xhr.responseText); } catch (e) { return; }
+            if (data && data.paid) {
+                stop();
+                var target = document.getElementById(card_id);
+                if (target) target.innerHTML = paid_html;
+            }
+        };
+        xhr.send();
+    }
+    timer = setInterval(check, interval_ms);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) check();
+    });
+}
+JS;
     }
 
     protected function GB_module(Utils_GenericBrowser $gb, array $items, $row_additional_actions_callback, $column_widths = array(), $column_labels = array()) {
