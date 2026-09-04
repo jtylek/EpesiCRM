@@ -51,20 +51,34 @@ one-recordset module declares nothing extra.
 1. **CSS loads per rendering module.** `modules/X/theme_adminltedark/default.css` is
    fetched only when module `X` itself renders. Putting a style under the wrong module
    produces a silently unstyled screen.
-2. **The file is named after the *template*, not always `default.css`.**
+2. **"Renders" means *calls `$theme->display()`*, not merely "ran as part of the page."**
+   `display_smarty()` auto-loads CSS for whichever module owns the `Base_Theme` instance
+   doing the displaying (`$this->parent->get_type()`) — not for every ancestor that
+   happened to be in the call chain. A wrapper module whose `body()` only calls
+   `$this->display_module($child)`, and never `$theme->display()` itself, gets **no**
+   auto-loaded CSS of its own, even though its `body()` genuinely ran. This bites a
+   `QFfield_callback` (or similar hook) that injects styled markup — a `static` QuickForm
+   element, an embedded `Utils_GenericBrowser` table rendered via output buffering, etc. —
+   into a *different* module's own screen (e.g. `Utils_RecordBrowser`'s view/edit template):
+   your module's `theme_adminltedark/default.css` is never requested, because your module
+   never triggered its own template render; only the screen-owning module's CSS loads.
+   Fix: call `Base_ThemeCommon::load_css('Your_Module', 'default', false)` explicitly from
+   wherever the styled markup is actually built, rather than assuming the file loads just
+   because your module's code ran.
+3. **The file is named after the *template*, not always `default.css`.**
    `Base_ThemeCommon::display_smarty()` swaps `.tpl` for `.css` on whatever name was passed
    to `display()` — `$theme->display('tree_view')` loads `tree_view.css`. Naming it
    `default.css` when the module does not display `'default'` means it silently never
    loads, and the screen looks like a piece of the reskin nobody finished. Check the exact
    string passed to `display(...)` before naming the file.
-3. **Never reuse AdminLTE's own class names** on markup it does not control
+4. **Never reuse AdminLTE's own class names** on markup it does not control
    (`.nav-treeview`, `.menu-open`, `--lte-sidebar-*`). Its own CSS/JS partially applies and
    produces silently-broken behaviour — toggles that flip ARIA state but show nothing. Use
    fresh `epesi-*` names.
-4. **Reference `var(--epesi-font-size-base)`** rather than a literal pixel size anywhere a
+5. **Reference `var(--epesi-font-size-base)`** rather than a literal pixel size anywhere a
    rule must match the app's default text size. Bootstrap's rem sizing resolves against the
    root `<html>`, not the overridden `body` value.
-5. **Don't set `width`/`min-width` `!important` on a grid column.** Grids size their own
+6. **Don't set `width`/`min-width` `!important` on a grid column.** Grids size their own
    columns from JavaScript, and `!important` fights the inline value that script writes.
 
 ## Writing JavaScript
