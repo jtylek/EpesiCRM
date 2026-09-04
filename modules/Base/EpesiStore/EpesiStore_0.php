@@ -89,7 +89,7 @@ class Base_EpesiStore extends Module {
 		Base_ActionBarCommon::add(
                 'license-key',
                 $button_label,
-                $this->create_callback_href($this->display_registration_form(...)),
+                $this->href_navigate('form_license'),
                 null, 30);
 
         $invoices_form_name = null;
@@ -291,6 +291,22 @@ class Base_EpesiStore extends Module {
         $m = $this->init_module(Base_EssClient::module_name());
         $this->display_module($m, array(true), 'admin');
 		return self::$return;
+    }
+
+    // Reached from manage()'s 'license-key' ActionBar button via
+    // href_navigate() (a real push_module(), like form_orders()/
+    // form_your_modules()/form_cart()), not a raw create_callback_href() -
+    // display_registration_form() below always renders Base_EssClient with
+    // store=true, which suppresses EssClient's own Back button and its
+    // is_back()-triggered parent->reset() (see Base_EssClient::admin()), so
+    // nothing ever cleared a raw callback registration: the license screen
+    // got stuck showing on every later visit to this admin panel, and its
+    // only Back control was the ActionBar's generic nav-history fallback
+    // (landing on Dashboard) rather than a real return to this screen.
+    // back_button()/pop_main() here give it a real, self-popping screen.
+    public function form_license() {
+        $this->back_button();
+        $this->display_registration_form();
     }
 
     public function form_your_modules() {
