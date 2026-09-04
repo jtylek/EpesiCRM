@@ -18,9 +18,13 @@
 ## What is Epesi?
 
 Epesi is a **module framework with a full CRM built on top of it** — a Progressive Web App
-you install on your own server, then extend. Out of the box you get Contacts, Companies,
-Calendar, E-mail, Tasks, Phonecalls and a dashboard you can rearrange
-per user. Because it's a framework underneath, that CRM is also a starting point: add the
+you install on your own server, then extend. Out of the box you get a shared address book
+of Contacts and Companies, a shared Calendar, E-mail, shared Tasks and Phonecalls, and a
+dashboard you can rearrange per user. Just as much, it's a **notes and file-sharing tool**:
+every record — a contact, a company, a task, an event — can carry notes and attached files
+that the whole team sees, so employees have one place to organize and share the business
+records that actually matter, instead of scattering them across inboxes and personal
+drives. Because it's a framework underneath, that CRM is also a starting point: add the
 modules your business actually needs and Epesi grows into a full ERP — inventory,
 invoicing, project tracking, whatever your domain requires — without you starting from an
 empty repo.
