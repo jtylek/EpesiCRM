@@ -288,12 +288,12 @@ class Utils_TooltipCommon extends ModuleCommon {
 	/**
 	 * Returns string that if displayed will create text with tooltip loaded via ajax.
 	 *
-	 * @param string text
-	 * @param mixed callback
-	 * @param array arguments for the callback
-	 * @param int max_width unused under adminlte, see open_tag_attrs()
-	 * @param bool render the callback's HTML via to_safe_html() (keeps <strong>/<b>/<br>) instead of flattening it to plain text - see ajax_open_tag_attrs()'s $safe_html doc
-	 * @param bool keep a real <table>'s structure instead of flattening it to "Label: value" lines - only read when $safe_html is true (see req.php), the pairing format_record_tooltip() output needs; mirrors create()'s own $keep_table
+	 * @param string $text
+	 * @param mixed $callback
+	 * @param array $args arguments for the callback
+	 * @param int $max_width unused under adminlte, see open_tag_attrs()
+	 * @param bool $safe_html render the callback's HTML via to_safe_html() (keeps <strong>/<b>/<br>) instead of flattening it to plain text - see ajax_open_tag_attrs()'s $safe_html doc
+	 * @param bool $keep_table keep a real <table>'s structure instead of flattening it to "Label: value" lines - only read when $safe_html is true (see req.php), the pairing format_record_tooltip() output needs; mirrors create()'s own $keep_table
 	 * @return string text with tooltip
 	 */
 	public static function ajax_create( $text, $callback, $args=array(), $max_width=300, $safe_html=false, $keep_table=false) {
