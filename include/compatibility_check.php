@@ -40,9 +40,17 @@ class CompatibilityCheck {
         $desired_version = '8.1';
         $php_version_ok = version_compare($php_version, $desired_version, '>=');
         $status = $php_version_ok ? $php_version : $php_version . ' - EPESI requires at least PHP ' . $desired_version . ' (8.2 recommended)';
-        $tests = array(
-            array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2),
-        );
+        $tests = array();
+        // EPESI_VERSION/EPESI_REVISION (include/version.php) are only defined once
+        // data/config.php exists and include.php has run - not the case for this same
+        // check running stand-alone, pre-install (see check.php's $config guard above).
+        if (defined('EPESI_VERSION')) {
+            $tests[] = array('label' => 'Epesi version', 'status' => EPESI_VERSION, 'severity' => 0);
+            $tests[] = array('label' => 'Epesi revision', 'status' => EPESI_REVISION, 'severity' => 0);
+        } else {
+            $tests[] = array('label' => 'Epesi version', 'status' => 'not installed yet', 'severity' => 1);
+        }
+        $tests[] = array('label' => 'PHP version', 'status' => $status, 'severity' => $php_version_ok ? 0 : 2);
         return array('label' => 'System', 'tests' => $tests, 'solution' => 'http://forum.epesibim.com');
     }
 
