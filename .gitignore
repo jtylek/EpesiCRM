@@ -29,11 +29,16 @@ modules/Custom/*
 # Epesi runtime data directory in full - config, cache, uploads, stored
 # files, logs, per-instance tokens, everything under it is either
 # regenerated or user/instance content, never source. Ignore everything
-# except the one placeholder that keeps the directory present in a fresh
+# except the placeholder that keeps the directory present in a fresh
 # checkout (git doesn't track empty directories, and the app expects data/
-# to already exist on a new install).
+# to already exist on a new install) and the .htaccess that denies direct
+# web access to everything else placed under it (config.php is separately
+# self-protected via its own _VALID_ACCESS guard, but nothing else here is -
+# see modules/Base/patches/20260908_protect_data_dir.php for existing
+# installs, which never get this file just by pulling new code).
 data/*
 !data/index.html
+!data/.htaccess
 
 # Smarty compile/cache/config output (see TEMP_DIR, include/config.php) —
 # lives outside data/ entirely so it's never swept into data backups
