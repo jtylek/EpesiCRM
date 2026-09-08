@@ -22,6 +22,20 @@ class Base_MainModuleIndicatorInstall extends ModuleInstall {
         Variable::set('login_logo_file','');
 		Base_ThemeCommon::install_default_theme(Base_MainModuleIndicatorInstall::module_name());
 		$this->create_data_dir();
+		// logo()/login_logo() (MainModuleIndicator_0.php) render the uploaded logo as a
+		// plain <img src="data/Base_MainModuleIndicator/..."> URL (theme/logo.tpl,
+		// theme/login-logo.tpl) - override data/.htaccess's blanket deny (see
+		// modules/Base/patches/20260908_protect_data_dir.php) for just this directory.
+		file_put_contents($this->get_data_dir() . '.htaccess', <<<'HTACCESS'
+<ifModule mod_authz_core.c>
+    Require all granted
+</ifModule>
+<ifModule !mod_authz_core.c>
+    Allow from all
+</ifModule>
+
+HTACCESS
+		);
 		return true;
 	}
 	

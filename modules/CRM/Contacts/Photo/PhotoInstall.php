@@ -18,6 +18,20 @@ class CRM_Contacts_PhotoInstall extends ModuleInstall {
 		Utils_RecordBrowserCommon::set_tpl('contact', Base_ThemeCommon::get_template_filename('CRM/Contacts/Photo', 'Contact'));
 		Utils_RecordBrowserCommon::register_processing_callback('contact', array('CRM_Contacts_PhotoCommon', 'submit_contact'));
 		$this->create_data_dir();
+		// PhotoCommon_0.php's submit_contact() assigns photo_src as a plain
+		// data/CRM_Contacts_Photo/... path, rendered directly as <img src="{$photo_src}">
+		// (theme/Contact.tpl) - override data/.htaccess's blanket deny (see
+		// modules/Base/patches/20260908_protect_data_dir.php) for just this directory.
+		file_put_contents($this->get_data_dir() . '.htaccess', <<<'HTACCESS'
+<ifModule mod_authz_core.c>
+    Require all granted
+</ifModule>
+<ifModule !mod_authz_core.c>
+    Allow from all
+</ifModule>
+
+HTACCESS
+		);
 
         ModuleManager::include_common('CRM_Contacts_Photo', 0);
         DB::CreateTable(CRM_Contacts_PhotoCommon::table_name,
