@@ -21,6 +21,33 @@ A fatal in `install()` is the usual symptom, since these sit at the top of it �
 then fails to install or upgrade with nothing else having run. `install_new_recordset()` is
 idempotent, so re-running the install after the fix is safe.
 
+## Removed APIs that *do* need a replacement
+
+Unlike the three above, deleting these loses real behaviour. Repoint them instead.
+
+| Call | Why it went | Replace with |
+|---|---|---|
+| `Libs_CKEditorCommon::QFfield_cb()` / `display_cb()` | went with the rest of that class in the Quill migration; core never used the callback form, only `addElement('ckeditor')` | `Libs_QuillCommon::QFfield_cb()` / `display_cb()` |
+| `HTML_QuickForm` element type `'ckeditor'` + `$el->setFCKProps($w,$h,$adv)` | type no longer registered | `'quill'` + `setQuillProps(null,$h,$adv)` — pass `null` for width, see below |
+| `Base_ThemeCommon::get_template_dir()` | returned `data/Base_Theme/templates/<theme>/`, and theme storage under `data/` is gone | `Base_ThemeCommon::get_template_file('<Module/Path>/<rest>')`, which resolves through `Base_ThemeResolver` |
+
+**The QFfield pair is the nastier one**, because it does not fatal.
+`Utils_RecordBrowserCommon::call_QFfield_callback()` finds the stored callback uncallable,
+raises `E_USER_NOTICE`, and simply never adds the field to the form — so a rich-text field
+silently disappears from add/edit (or blanks the whole module under `REPORT_ALL_ERRORS`)
+with nothing in the UI to say why.
+
+It also needs **two** fixes, not one: the `*Install.php` field definition covers fresh
+installs, but an existing install already has the old callback string sitting in that
+recordset's `<tab>_callback` table, so it needs a `patches/` file as well — the
+upgrade-gap discipline in [Dev-Tutorial.md](Dev-Tutorial.md) §8. `ModuleManager::install()`
+marks patches applied without running them, which is why a fresh install proves nothing
+here.
+
+**Width `null` for Quill, always.** Quill's toolbar is inserted as the container's
+preceding *sibling* with no width of its own, so it only lines up when neither element has
+one. An explicit width (the old `'99%'`/`'800'`) misaligns the two.
+
 ## There is no separate mobile codepath
 
 The entire legacy mobile subsystem is gone: `mobile.php`, `libs/UiUIKit/`, device

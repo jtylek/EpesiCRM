@@ -82,6 +82,15 @@ multi-leaf module needs `caption()` per leaf. A second leaf that assigns its Rec
 child to a local variable, instead of the same property `caption()` reads, gets a silently
 blank title.
 
+**A whole screen has no title bar at all.** Same cause one step further out:
+`Base_MainModuleIndicator` builds the bar from the main module's `caption()`, and the usual
+implementation is `if (isset($this->rb)) return $this->rb->caption();` — which returns
+nothing on any screen that is not a RecordBrowser. A "merge these records", wizard or
+report view reached from an action button therefore renders with no indication of where you
+are. Give `caption()` a fallback; deriving it from the module's own `menu()` keeps the bar
+and the sidebar from drifting apart. Only modules that actually become the main module need
+one — an addon that nothing `push_main()`s never has `caption()` called.
+
 **A framework callback is invoked in more than one context than you wrote it for.** Two
 instances of the same shape: a Watchdog type-label callback is also called *generically*,
 with no `$rid`, so indexing a record in that call fatals; and a RecordBrowser addon tab's
@@ -98,6 +107,16 @@ QuickForm rules in [recordbrowser-recipes.md](recordbrowser-recipes.md).
 
 **A date is stored a month out.** `strtotime()` reads slash-separated numeric dates as
 m/d/y whatever the app locale — see [recordbrowser-recipes.md](recordbrowser-recipes.md).
+
+**A report dies with `Unsupported operand types: int + string`.** A report cell is a
+*display* string, so a summed column is adding strings onto an int accumulator. PHP 8's
+saner string-to-number conversions made that a `TypeError` for any non-numeric string — and
+**`''` counts as non-numeric**, so a single empty cell in a column with a row or column
+summary takes down the whole report, where PHP 7 read it as 0 and carried on. Cast:
+`(float)` gives back exactly the old coercion (leading numeric prefix, else 0) and cannot
+throw. Worth knowing the general shape, not just the report case: under PHP 8, arithmetic
+on any value that might be a formatted or empty display string needs the cast, and a
+leading-numeric string like `"12.5 PLN"` only warns while `"abc"` and `""` throw.
 
 ## Caching and queries
 
