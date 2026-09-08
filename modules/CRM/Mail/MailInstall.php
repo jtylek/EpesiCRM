@@ -250,9 +250,18 @@ class CRM_MailInstall extends ModuleInstall {
                 'QFfield_callback'=>array('CRM_MailCommon','QFfield_hidden')
             ),
             array(
+                // 'long text' (TEXT), not a sized 'text' (VARCHAR): this used to
+                // be text/4096*4, which is fine on a legacy utf8mb3 column
+                // (16384 chars = 49152 bytes) but exceeds the 65535-byte row
+                // limit at 4 bytes per character, so CREATE TABLE fails on every
+                // fresh install against a utf8mb4 database - now the default.
+                // Shortening it does not help: the other VARCHARs in this
+                // recordset already push the row past the limit, so even
+                // VARCHAR(16383) fails with "Row size too large" (ERROR 1118).
+                // Existing installs are unaffected - their column kept the old
+                // 3-byte charset - which is why this went unnoticed for years.
                 'name' => _M('References'),
-                'type'=>'text',
-                'param'=>4096*4,
+                'type'=>'long text',
                 'extra'=>false,
                 'visible'=>false,
                 'required'=>false,
