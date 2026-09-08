@@ -414,14 +414,14 @@ class Utils_RecordBrowser_Reports extends Module {
 					if ($this->row_summary!==false) {
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($total[$k])) $total[$k] = 0;
-							$total[$k] += strip_tags($w);
+							$total[$k] += (float)strip_tags($w);
 						}
 					}
 					if ($this->col_summary!==false) {
 						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = array();
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($this->cols_total[$i][$k])) $this->cols_total[$i][$k] = 0;
-							$this->cols_total[$i][$k] += strip_tags($w);
+							$this->cols_total[$i][$k] += (float)strip_tags($w);
 						}
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
@@ -458,14 +458,14 @@ class Utils_RecordBrowser_Reports extends Module {
 							foreach ($v[$c] as $k=>$w) {
 								if (!isset($total[$k])) $total[$k] = 0;
 								if($w) $empty = false;
-								$total[$k] += strip_tags($w);
+								$total[$k] += (float)strip_tags($w);
 							}
 						}
 						if ($this->col_summary!==false) {
 							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = array();
 							foreach ($v[$c] as $k=>$w) {
 								if (!isset($this->cols_total[$c][$i][$k])) $this->cols_total[$c][$i][$k] = 0;
-								$this->cols_total[$c][$i][$k] += strip_tags($w);
+								$this->cols_total[$c][$i][$k] += (float)strip_tags($w);
 							}
 						}
 						$next = $this->format_cell($format, $v[$c]);
@@ -536,7 +536,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					if ($this->row_summary!==false) {
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($total[$k])) $total[$k] = 0;
-							$total[$k] += strip_tags($w);
+							$total[$k] += (float)strip_tags($w);
 						}
 					}
 					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref, 'col_total');
