@@ -24,12 +24,19 @@
  * history/session/session_client rows plus the FK actually being in place to trigger.
  *
  * Fix: find every column still on a non-utf8mb4 charset directly via information_schema.COLUMNS
- * (not TABLE_COLLATION). Try a plain CONVERT first (covers any other, non-FK straggler). For
- * whatever is still blocked afterward, collect every FK constraint touching those tables in
- * either direction (a table's own FK column, or another table's FK that references a column
- * here), drop them all, retry the CONVERT for every affected table, then recreate each FK with
- * its original definition - only after all the affected tables have converted, so a constraint
- * is never recreated while its two sides are still on mismatched charsets.
+ * (not TABLE_COLLATION). A table with no FK involvement at all gets a plain CONVERT attempt
+ * immediately (covers any other, non-FK straggler). A table that participates in a live FK in
+ * either direction - its own FK column, or another table's FK referencing a column here - skips
+ * straight to the FK-aware path instead of attempting a CONVERT known in advance to fail:
+ * empirically (found running this against a real production dump twice, once fresh and once
+ * already-migrated) MySQL refuses to CONVERT a column touched by a FOREIGN KEY unconditionally,
+ * even when both sides are still on the same (old) charset and would stay in sync - not only
+ * when they'd end up mismatched - so there's no case where attempting it first is worth the
+ * doomed query and its log noise. For whatever ends up in the FK-aware path, collect every FK
+ * touching those tables in either direction, drop them all, retry the CONVERT for every affected
+ * table, then recreate each FK with its original definition - only after all the affected tables
+ * have converted, so a constraint is never recreated while its two sides are still on mismatched
+ * charsets.
  *
  * Idempotent: columns and FKs are both re-queried from information_schema on every run (no
  * checkpoint state needed, same reasoning as §68) - a constraint already dropped by a prior
@@ -64,17 +71,34 @@ function epesi_20260908_convert_table($table, $charset, $collation) {
     DB::Execute('ALTER TABLE ' . $t . ' CONVERT TO CHARACTER SET ' . $charset . ' COLLATE ' . $collation);
 }
 
+function epesi_20260908_has_fk($table) {
+    return (bool) DB::GetOne(
+        "SELECT 1 FROM information_schema.KEY_COLUMN_USAGE
+         WHERE CONSTRAINT_SCHEMA=%s AND (TABLE_NAME=%s OR REFERENCED_TABLE_NAME=%s)
+           AND REFERENCED_TABLE_NAME IS NOT NULL LIMIT 1",
+        array(DATABASE_NAME, $table, $table)
+    );
+}
+
 $tables = epesi_20260908_unconverted_tables($charset);
 
-$stillBlocked = array();
+// A table with no FK involvement at all gets tried directly - covers any non-FK straggler.
+// A table with FK involvement in either direction skips straight to $remaining below: attempting
+// it first is a known-doomed query (see docblock) that only adds log noise.
+$remaining = array();
 foreach ($tables as $table) {
     Patch::require_time(3);
+    if (epesi_20260908_has_fk($table)) {
+        $remaining[] = $table;
+        continue;
+    }
     epesi_20260908_convert_table($table, $charset, $collation);
 }
 
 // Re-check from information_schema rather than trusting Execute()'s return value or an
 // exception - see docblock: failed queries here don't throw, so this is the only reliable signal.
-$remaining = epesi_20260908_unconverted_tables($charset);
+// Also covers the (unlikely but possible) non-FK straggler that failed for some other reason.
+$remaining = array_unique(array_merge($remaining, epesi_20260908_unconverted_tables($charset)));
 if (!$remaining) {
     return;
 }
