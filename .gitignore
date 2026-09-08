@@ -11,6 +11,13 @@ Thumbs.db
 .history/
 .playwright-mcp/
 
+# Optional fast-install file read by setup.php ($fast_install_filename) to
+# pre-fill the database form. It holds the database password in the application
+# root, so it must never be committed. write_config() deletes it once the
+# install succeeds, but an abandoned or failed attempt deliberately leaves it
+# on disk so the values can be corrected and the wizard retried.
+/installation_config.php
+
 # Each module here is a separately purchased/installed premium add-on,
 # managed by its own git repository - not part of this one.
 modules/Premium/
