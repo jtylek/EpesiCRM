@@ -107,7 +107,13 @@ class Base_Admin extends Module {
 				'bi_icon'=>'bi-person-workspace',
 			);
 			if (!DEMO_MODE && !HOSTING_MODE) {
-				$admin_tools_url = rtrim(get_epesi_url(), '/') . '/admin/';
+				// get_epesi_url(true): /admin/ is a sibling directory on whatever
+				// server is actually serving this request - on a dev/localhost copy
+				// of a real site, the configured EPESI_URL still names the public
+				// domain (AI-shared/environment-and-setup.md), which would otherwise
+				// send this link off to production instead of the local copy's own
+				// admin tools.
+				$admin_tools_url = rtrim(get_epesi_url(true), '/') . '/admin/';
 				$buttons[__('Administration')][] = array(
 					'link'=>'<a class="card text-decoration-none h-100 shadow-sm" href="'.htmlspecialchars($admin_tools_url).'" target="_blank">'.__('Admin Tools').'</a>',
 					'bi_icon'=>'bi-motherboard',

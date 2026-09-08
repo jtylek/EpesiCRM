@@ -390,8 +390,13 @@ function recalculate_time($date,$time) {
 
 function escapeJS($str,$double=true,$single=true) {return Epesi::escapeJS($str,$double,$single);}
 
-function get_epesi_url() {
-    if(defined('EPESI_URL')) return rtrim(EPESI_URL,'/') . '/';
+// $current_request skips the configured EPESI_URL and always derives the URL from
+// this request's own host - for links that must point at whatever server is actually
+// serving right now (e.g. the sibling /admin/ tool directory), not the (possibly
+// stale, on a dev/localhost copy of a real site) absolute production URL in
+// data/config.php. See AI-shared/environment-and-setup.md "EPESI_URL is absolute".
+function get_epesi_url($current_request = false) {
+    if(!$current_request && defined('EPESI_URL')) return rtrim(EPESI_URL,'/') . '/';
 	if(php_sapi_name() == 'cli')
 		return dirname(__FILE__, 2);
 	$protocol = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS'])!== "off") ? 'https://' : 'http://';
