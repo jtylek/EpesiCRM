@@ -73,10 +73,11 @@ class Base_SetupCommon extends ModuleCommon {
 	// README.md, so callers can fall back (Advanced Setup falls back to the
 	// plain info() table; Simple Setup simply shows no Readme button).
 	public static function get_readme_html($module) {
-		$file = 'modules/'.ModuleManager::get_module_dir_path($module).'/README.md';
+		$dir = ModuleManager::get_module_dir_path($module);
+		$file = 'modules/'.$dir.'/README.md';
 		if (!is_file($file))
 			return null;
-		return self::markdown_to_html(file_get_contents($file));
+		return self::markdown_to_html(file_get_contents($file), EPESI_DIR.'modules/'.$dir.'/');
 	}
 
 	// Deliberately minimal, dependency-free Markdown -> HTML: headings, bold/
@@ -86,7 +87,10 @@ class Base_SetupCommon extends ModuleCommon {
 	// modules/Custom/Tutorial/README.md). No vendored library since this is
 	// an internal, admin-only viewer for our own trusted, source-controlled
 	// docs, not a general-purpose renderer.
-	private static function markdown_to_html($md) {
+	//
+	// $base is the URL prefix a relative link in this README resolves against
+	// (the module's own directory) - see resolve_readme_href().
+	private static function markdown_to_html($md, $base = '') {
 		$md = str_replace("\r\n", "\n", $md);
 		$lines = explode("\n", $md);
 		$n = count($lines);
@@ -94,9 +98,9 @@ class Base_SetupCommon extends ModuleCommon {
 		$in_list = null;
 		$paragraph_buf = array();
 
-		$flush_paragraph = function() use (&$paragraph_buf, &$html) {
+		$flush_paragraph = function() use (&$paragraph_buf, &$html, $base) {
 			if ($paragraph_buf) {
-				$html[] = '<p>'.self::markdown_inline(implode(' ', $paragraph_buf)).'</p>';
+				$html[] = '<p>'.self::markdown_inline(implode(' ', $paragraph_buf), $base).'</p>';
 				$paragraph_buf = array();
 			}
 		};
@@ -134,7 +138,7 @@ class Base_SetupCommon extends ModuleCommon {
 				$flush_paragraph();
 				$close_list();
 				$level = strlen($m[1]);
-				$html[] = "<h$level>".self::markdown_inline(trim($m[2]))."</h$level>";
+				$html[] = "<h$level>".self::markdown_inline(trim($m[2]), $base)."</h$level>";
 				$i++;
 				continue;
 			}
@@ -164,12 +168,12 @@ class Base_SetupCommon extends ModuleCommon {
 				}
 				$t = '<table><thead><tr>';
 				foreach ($header_cells as $c)
-					$t .= '<th>'.self::markdown_inline($c).'</th>';
+					$t .= '<th>'.self::markdown_inline($c, $base).'</th>';
 				$t .= '</tr></thead><tbody>';
 				foreach ($rows as $r) {
 					$t .= '<tr>';
 					foreach ($r as $c)
-						$t .= '<td>'.self::markdown_inline($c).'</td>';
+						$t .= '<td>'.self::markdown_inline($c, $base).'</td>';
 					$t .= '</tr>';
 				}
 				$t .= '</tbody></table>';
@@ -187,7 +191,7 @@ class Base_SetupCommon extends ModuleCommon {
 					$quote_lines[] = $m2[1];
 					$i++;
 				}
-				$html[] = '<blockquote><p>'.self::markdown_inline(implode(' ', $quote_lines)).'</p></blockquote>';
+				$html[] = '<blockquote><p>'.self::markdown_inline(implode(' ', $quote_lines), $base).'</p></blockquote>';
 				continue;
 			}
 
@@ -196,7 +200,7 @@ class Base_SetupCommon extends ModuleCommon {
 				$flush_paragraph();
 				if ($in_list !== 'ul') { $close_list(); $html[] = '<ul>'; $in_list = 'ul'; }
 				$i++;
-				$html[] = '<li>'.self::markdown_inline(self::markdown_list_item($m[1], $lines, $i, $n)).'</li>';
+				$html[] = '<li>'.self::markdown_inline(self::markdown_list_item($m[1], $lines, $i, $n), $base).'</li>';
 				continue;
 			}
 
@@ -205,7 +209,7 @@ class Base_SetupCommon extends ModuleCommon {
 				$flush_paragraph();
 				if ($in_list !== 'ol') { $close_list(); $html[] = '<ol>'; $in_list = 'ol'; }
 				$i++;
-				$html[] = '<li>'.self::markdown_inline(self::markdown_list_item($m[1], $lines, $i, $n)).'</li>';
+				$html[] = '<li>'.self::markdown_inline(self::markdown_list_item($m[1], $lines, $i, $n), $base).'</li>';
 				continue;
 			}
 
@@ -246,6 +250,22 @@ class Base_SetupCommon extends ModuleCommon {
 		return implode(' ', $item_lines);
 	}
 
+	// A README's relative link points at a file next to that README (its own
+	// license.html, a doc/ page), but get_readme_html()'s fragment is embedded
+	// in a Leightbox popup on the app's own page - so the browser resolves the
+	// bare href against EPESI_DIR, not the module directory, and the link 404s.
+	// Seen live as GET /<epesi>/license.html -> 404 from the Premium ListManager
+	// and Sync READMEs, both of which link their license as
+	// "[`license.html`](license.html)" (the same construct whose *label* the
+	// nested-placeholder loop in markdown_inline() already had to fix).
+	// Left untouched: anything already absolute - a scheme (http:, mailto:),
+	// protocol-relative "//host", root-relative "/path", or a bare "#fragment".
+	private static function resolve_readme_href($href, $base) {
+		if ($base === '' || preg_match('#^([a-z][a-z0-9+.-]*:|//|/|\#)#i', $href))
+			return $href;
+		return $base.$href;
+	}
+
 	private static function markdown_table_row($line) {
 		$line = trim($line);
 		$line = preg_replace('/^\|/', '', $line);
@@ -270,7 +290,7 @@ class Base_SetupCommon extends ModuleCommon {
 	// a literal underscore is more machinery than a good-enough internal
 	// docs viewer needs. Use **bold**/*italic* in READMEs meant for this
 	// renderer.
-	private static function markdown_inline($text) {
+	private static function markdown_inline($text, $base = '') {
 		$text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 
 		$placeholders = array();
@@ -279,16 +299,27 @@ class Base_SetupCommon extends ModuleCommon {
 			$placeholders[$key] = '<code>'.$m[1].'</code>';
 			return $key;
 		}, $text);
-		$text = preg_replace_callback('/\[([^\]]+)\]\(([^)\s]+)\)/', function($m) use (& $placeholders) {
+		$text = preg_replace_callback('/\[([^\]]+)\]\(([^)\s]+)\)/', function($m) use (& $placeholders, $base) {
 			$key = "\x00P".count($placeholders)."\x00";
-			$placeholders[$key] = '<a href="'.$m[2].'" target="_blank" rel="noopener">'.$m[1].'</a>';
+			$placeholders[$key] = '<a href="'.self::resolve_readme_href($m[2], $base).'" target="_blank" rel="noopener">'.$m[1].'</a>';
 			return $key;
 		}, $text);
 
 		$text = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $text);
 		$text = preg_replace('/\*(.+?)\*/s', '<em>$1</em>', $text);
 
-		return strtr($text, $placeholders);
+		// Placeholders nest: a link label can itself hold a code span, as in
+		// [`license.html`](license.html) - the code span is extracted first, so
+		// the link's stored replacement contains the code span's own key rather
+		// than its markup. strtr() never re-scans what it just substituted, so a
+		// single pass left that inner key sitting in the output, surfacing as a
+		// stray "P0" inside the rendered link (hit by every Premium README
+		// linking its own license.html that way). Each pass resolves at least one
+		// level, so the placeholder count is a safe upper bound on passes needed.
+		for ($pass = 0; $pass <= count($placeholders) && strpos($text, "\x00P") !== false; $pass++)
+			$text = strtr($text, $placeholders);
+
+		return $text;
 	}
 }
 ?>

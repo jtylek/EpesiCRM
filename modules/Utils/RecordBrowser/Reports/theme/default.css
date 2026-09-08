@@ -48,3 +48,33 @@ number (wyrownanie do prawej)
 .Utils_GenericBrowser .Utils_GenericBrowser__tr:hover .row-desc {
     background-color: white;
 }
+
+/* Report range picker (date_picker.tpl).
+ *
+ * Its controls carry Bootstrap's .form-select/.form-control now, so they pick up
+ * the theme's own field chrome instead of rendering as bare native widgets. Both
+ * of those are width:100% by default, which does not suit this row: a
+ * HTML_QuickForm 'date' element renders TWO selects (year + month) inside a
+ * single .epesi_data cell, so at 100% each they would stack instead of sitting
+ * side by side, and the whole bar would stretch edge to edge. Sizing them to
+ * their content keeps the original layout and adds only the styling.
+ */
+.Utils_RecordBrowser_Reports__date_picker {
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.Utils_RecordBrowser_Reports__date_picker select.form-select,
+.Utils_RecordBrowser_Reports__date_picker input.form-control {
+    display: inline-block;
+    width: auto;
+    margin-right: 0.25rem;
+}
+
+/* The label cells sit in the same flex row as the fields; without this they
+   align to the top of a taller control next to them. */
+.Utils_RecordBrowser_Reports__date_picker .epesi_label,
+.Utils_RecordBrowser_Reports__date_picker .epesi_data {
+    display: flex;
+    align-items: center;
+}

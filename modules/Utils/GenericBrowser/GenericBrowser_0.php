@@ -236,6 +236,12 @@ class Utils_GenericBrowser extends Module {
 		'view'             => 'bi-eye',
 		'edit'             => 'bi-pencil-square',
 		'delete'           => 'bi-trash',
+		// Generic "create" and "associate" actions, same vocabulary as
+		// Base_ActionBar's own 'add'. The map had no glyph for either, so a row
+		// action meaning "make a new record" or "link these two" had nothing to
+		// use and fell through to the <img> branch with no artwork behind it.
+		'add'              => 'bi-plus-lg',
+		'link'             => 'bi-link-45deg',
 		'info'             => 'bi-info-circle-fill',
 		'print'            => 'bi-printer',
 		'restore'          => 'bi-arrow-counterclockwise',
@@ -1049,7 +1055,23 @@ class Utils_GenericBrowser extends Module {
 					$actions = '';
 					foreach($this->actions[$i] as $icon=>$arr) {
 						$actions .= '<a '.Utils_TooltipCommon::open_tag_attrs($arr['tooltip'] ?? $arr['label'], $arr['tooltip']===null, 500, $arr['keep_table'] ?? false).' '.$arr['tag_attrs'].'>';
-					    if ($icon=='view' || $icon=='delete' || $icon=='edit' || $icon=='info' || $icon=='restore' || $icon=='append data' || $icon=='active-on' || $icon=='active-off' || $icon=='history' || $icon=='move-down' || $icon=='move-up' || $icon=='history_inactive' || $icon=='print' || $icon == 'move-up-down') {
+					    // Which keywords count as "one of this module's own actions"
+					    // is now read from $bi_action_icons rather than repeated as a
+					    // literal list here. The two had to be kept in step by hand,
+					    // and were not: a keyword present in the map but missing from
+					    // this list fell through to the plain-text branch below, so it
+					    // rendered as a text link - which then also failed the theme's
+					    // isCoreAction() check and got buried behind "More actions".
+					    //
+					    // Equivalent to the previous list by construction: every
+					    // keyword it named is in the map except 'append data', kept
+					    // explicitly (Base_EpesiStore's "Download as zip", which has
+					    // real artwork and no glyph, so it still takes the <img> path
+					    // inside action_icon_tag()). The map's expand/collapse/
+					    // plus_gray/minus_gray entries are only ever passed as resolved
+					    // file paths, never as bare keywords, so they keep reaching the
+					    // path branch below as before.
+					    if (isset(self::$bi_action_icons[$icon]) || $icon == 'append data') {
 							$actions .= self::action_icon_tag($icon, (bool)$arr['off'], Base_ThemeCommon::get_template_file(Utils_GenericBrowser::module_name(),$icon.($arr['off']?'-off':'').'.png'));
 					    } elseif(file_exists($icon)) {
 							$actions .= self::action_icon_tag(null, false, $icon);

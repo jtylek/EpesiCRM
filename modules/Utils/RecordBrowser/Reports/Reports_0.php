@@ -194,15 +194,15 @@ class Utils_RecordBrowser_Reports extends Module {
 		$maxyear = date('Y',strtotime('+5 years'));
 		if ($show_dates) {
 			$display_stuff_js = 'document.getElementById(\'day_elements\').style.display=\'none\';document.getElementById(\'month_elements\').style.display=\'none\';document.getElementById(\'week_elements\').style.display=\'none\';document.getElementById(\'year_elements\').style.display=\'none\';document.getElementById(this.value+\'_elements\').style.display=\'block\';';
-			$form->addElement('select', 'date_range_type', __('Display report'), array('day'=>__('Days'), 'week'=>__('Weeks'), 'month'=>__('Months'), 'year'=>__('Years')), array('onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
-			$form->addElement('datepicker', 'from_day', __('From Date'));
-			$form->addElement('datepicker', 'to_day', __('To Date'));
-			$form->addElement('date', 'from_week', __('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'to_week', __('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'from_month', __('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'to_month', __('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'from_year', __('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
-			$form->addElement('date', 'to_year', __('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear));
+			$form->addElement('select', 'date_range_type', __('Display report'), array('day'=>__('Days'), 'week'=>__('Weeks'), 'month'=>__('Months'), 'year'=>__('Years')), array('class'=>'form-select', 'onChange'=>$display_stuff_js, 'onKeyUp'=>$display_stuff_js));
+			$form->addElement('datepicker', 'from_day', __('From Date'), array('class'=>'form-control'));
+			$form->addElement('datepicker', 'to_day', __('To Date'), array('class'=>'form-control'));
+			$form->addElement('date', 'from_week', __('From week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
+			$form->addElement('date', 'to_week', __('To week'), array('format'=>'Y W','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
+			$form->addElement('date', 'from_month', __('From month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
+			$form->addElement('date', 'to_month', __('To month'), array('format'=>'Y m','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
+			$form->addElement('date', 'from_year', __('From year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
+			$form->addElement('date', 'to_year', __('To year'), array('format'=>'Y','language'=>Base_LangCommon::get_lang_code(),'minYear'=>$minyear,'maxYear'=>$maxyear), array('class'=>'form-select'));
 			$form->registerRule('check_dates', 'callback', 'check_dates', $this);
 			$form->addRule(array('date_range_type','from_day','to_day','from_week','to_week','from_month','to_month','from_year','to_year'), __('\'From\' date must be earlier than \'To\' date'), 'check_dates');
 		}
@@ -218,7 +218,7 @@ class Utils_RecordBrowser_Reports extends Module {
 			$form->setDefaults(array('date_range_type'=>'month'));
 			$form->setDefaults($datepicker_defaults);
 		}
-		$form->addElement('submit', 'submit', __('Show'));
+		$form->addElement('submit', 'submit', __('Show'), array('class'=>'submit btn btn-primary'));
 
 //		$failed = false;
 		$other = $vals = $form->exportValues();
@@ -414,14 +414,25 @@ class Utils_RecordBrowser_Reports extends Module {
 					if ($this->row_summary!==false) {
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($total[$k])) $total[$k] = 0;
-							$total[$k] += strip_tags($w);
+							// (float) is load-bearing, not decoration: a report cell is a
+							// display string, so it can be non-numeric - most commonly just
+							// empty for a row with no value in that column. PHP 8's saner
+							// string-to-number conversion made "int + non-numeric string" a
+							// TypeError ("Unsupported operand types: int + string"), and ''
+							// counts as non-numeric, so one empty cell in a summed column
+							// fatals the whole report where PHP 7 silently read it as 0.
+							// The cast restores exactly the old coercion - leading numeric
+							// prefix, else 0 - and cannot throw. Same idiom as the
+							// (float)strip_tags() calls in the chart code further down.
+							// Repeated at all five summing sites; full note here only.
+							$total[$k] += (float)strip_tags($w);
 						}
 					}
 					if ($this->col_summary!==false) {
 						if (!isset($this->cols_total[$i])) $this->cols_total[$i] = array();
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($this->cols_total[$i][$k])) $this->cols_total[$i][$k] = 0;
-							$this->cols_total[$i][$k] += strip_tags($w);
+							$this->cols_total[$i][$k] += (float)strip_tags($w);
 						}
 					}
 					$res_ref = $this->format_cell($this->format, $res_ref);
@@ -458,14 +469,14 @@ class Utils_RecordBrowser_Reports extends Module {
 							foreach ($v[$c] as $k=>$w) {
 								if (!isset($total[$k])) $total[$k] = 0;
 								if($w) $empty = false;
-								$total[$k] += strip_tags($w);
+								$total[$k] += (float)strip_tags($w);
 							}
 						}
 						if ($this->col_summary!==false) {
 							if (!isset($this->cols_total[$c][$i])) $this->cols_total[$c][$i] = array();
 							foreach ($v[$c] as $k=>$w) {
 								if (!isset($this->cols_total[$c][$i][$k])) $this->cols_total[$c][$i][$k] = 0;
-								$this->cols_total[$c][$i][$k] += strip_tags($w);
+								$this->cols_total[$c][$i][$k] += (float)strip_tags($w);
 							}
 						}
 						$next = $this->format_cell($format, $v[$c]);
@@ -536,7 +547,7 @@ class Utils_RecordBrowser_Reports extends Module {
 					if ($this->row_summary!==false) {
 						foreach ($res_ref as $k=>$w) {
 							if (!isset($total[$k])) $total[$k] = 0;
-							$total[$k] += strip_tags($w);
+							$total[$k] += (float)strip_tags($w);
 						}
 					}
 					$res_ref = $this->format_cell(array($this->format,'total'), $res_ref, 'col_total');

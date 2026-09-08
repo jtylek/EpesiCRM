@@ -474,7 +474,7 @@ function mysql_connect_diagnostics($host) {
 }
 
 function write_config($host, $user, $pass, $dbname, $engine, $other) {
-    global $install_lang_load;
+    global $install_lang_load, $fast_install_filename;
 	$local_dir = dirname(str_replace('\\','/',__FILE__), 2);
 	$script_filename = str_replace('\\','/',$_SERVER['SCRIPT_FILENAME']);
 	$other_conf = '';
@@ -667,8 +667,21 @@ define(\'INSTALLATION_ID\',\''.md5(__FILE__ . strval(microtime(true))).'\');
 
 	ob_end_flush();
 
-	if(file_exists(DATA_DIR.'/config.php'))
+	if(file_exists(DATA_DIR.'/config.php')) {
+		// The fast-install file holds the database password in the application
+		// root, so delete it once it has served its purpose. The unlink near the
+		// top of this script targets easyinstall.php - this mechanism's previous
+		// name - and was never updated when the file was renamed, so until now
+		// the credentials were left on disk forever.
+		//
+		// Deleted here rather than at read time (see $fast_install_filename
+		// above) because config.php existing is what tells us the install
+		// actually succeeded: rm_config() removes it on failure, and a failed
+		// attempt must keep the fast-install file so the values can be
+		// corrected and the wizard retried.
+		@unlink($fast_install_filename);
 		header("Location: setup.php?install_lang={$install_lang_load}&check=1");
+	}
 	ob_end_flush();
 }
 
