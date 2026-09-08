@@ -69,8 +69,16 @@ class DB {
 			epesi_log("DB error [$context] $errno: $errmsg" . ($detail !== '' ? "\n$label: $detail" : '') . "\n", 'php_errors.log');
 		};
         if (self::is_mysql()) {
-			// For MySQL
-    		$new->Execute('SET NAMES "utf8mb4"');
+			// For MySQL. Use the mysqli set_charset() API (ADOdb's SetCharSet()), not a raw
+			// `SET NAMES` query - a plain query changes the session-level charset correctly but
+			// never updates mysqli's own internal charset tracking, so GetCharSet() (and
+			// anything else relying on mysqli_character_set_name(), e.g. real_escape_string()'s
+			// charset-awareness) keeps reporting the connection's pre-SET-NAMES charset forever.
+			// Confirmed live 2026-09-08: with the old SET NAMES query, character_set_client/
+			// connection/results were correctly utf8mb4 (SET NAMES did work), but GetCharSet()
+			// still reported latin1 - ConfigInfo's "Database Charset" health-check row was
+			// showing a false negative even though data storage/transmission was already fine.
+    		$new->SetCharSet('utf8mb4');
 		} elseif (self::is_postgresql()) {
 			// For PostgreSQL
 			@$new->Execute('SET bytea_output = "escape";');
