@@ -38,8 +38,6 @@ class ConfigInfo extends AdminModule {
     private function config_rows() {
         $yn = function($v) { return $v ? 'YES' : 'NO'; };
         return array(
-            $this->row('epesi version:', EPESI_VERSION),
-            $this->row('epesi revison:', EPESI_REVISION),
             $this->row('Database Name:', DATABASE_NAME),
             $this->row('Database Driver:', DATABASE_DRIVER),
             $this->database_charset_row(),

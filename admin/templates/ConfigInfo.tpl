@@ -13,7 +13,7 @@
 </div>
 {/foreach}
 
-<h5 class="mt-4">EPESI config.php</h5>
+<h5 class="mt-4">Epesi config.php</h5>
 <div class="list-group list-group-flush">
 	{foreach from=$config_rows item=row}
 	<div class="list-group-item d-flex justify-content-between align-items-center">
