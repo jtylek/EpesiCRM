@@ -1387,12 +1387,6 @@ parameters:
 			path: modules/Base/User/UserCommon_0.php
 
 		-
-			message: '#^Constant DATABASE_NAME not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: modules/Base/patches/20260814_utf8mb4_migration.php
-
-		-
 			message: '#^Call to an undefined static method Acl\:\:del_group\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1

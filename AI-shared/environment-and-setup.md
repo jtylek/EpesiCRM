@@ -158,11 +158,14 @@ item, and even with it off `apply_new()` still stops at the first non-`SUCCESS` 
 (deliberate — later patches may assume earlier ones succeeded). So one transient failure
 162 rows into a migration loop aborts the entire update run.
 
-Resilience has to live inside the patch: wrap per-item work in try/catch, log with
-`error_log()` — **never `trigger_error()`**, which `Patch::error_handler()` converts
-straight back into a fatal `PatchException` — and let the patch's own idempotency pick up
-skipped items on the next run. `modules/Base/patches/20260814_utf8mb4_migration.php` is the
-pattern to copy.
+Resilience has to live inside the patch: log failures with `error_log()` — **never
+`trigger_error()`**, which `Patch::error_handler()` converts straight back into a fatal
+`PatchException` — and let the patch's own idempotency pick up skipped items on the next run.
+`modules/Base/patches/20260908_utf8mb4_migration_fk_columns.php` is the pattern to copy: since
+`DB::Execute()` never throws (it only logs via its own `raiseErrorFn`), an explicit try/catch
+around it is inert — the real resilience is re-deriving the work list from `information_schema`
+(or equivalent live state) on every run, so a partial failure just leaves that item eligible
+again next time, no checkpoint/cursor state needed.
 
 And if a patch dies mid-loop with no obvious logic bug, replay the operation standalone
 before assuming the code is wrong. A transient filesystem lock (antivirus, a search indexer,
