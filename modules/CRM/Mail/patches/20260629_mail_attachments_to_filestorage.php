@@ -21,8 +21,7 @@ defined("_VALID_ACCESS") || die('Direct access forbidden');
 // try/catch below, logging with error_log() rather than trigger_error()/throwing: the patch
 // runner's own error_handler() (Patch::error_handler() in include/patches.php) converts
 // trigger_error() back into a fatal PatchException, which would undo the point of catching it
-// here — same reasoning as modules/Base/patches/20260814_utf8mb4_migration.php's per-table
-// try/catch. A short retry absorbs exactly the transient-lock case observed; anything still
+// here. A short retry absorbs exactly the transient-lock case observed; anything still
 // failing after that is logged and skipped — idempotency means the next run of this same patch
 // picks up any leftover rows automatically, no manual bookkeeping needed.
 //
