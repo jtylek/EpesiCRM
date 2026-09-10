@@ -124,6 +124,17 @@
     width: auto;
 }
 
+/* Premium/Timesheet's Customer filter is a crm_company autoselect: a closed
+   <select id="filter__customer"> (HTML_QuickForm_autoselect::toHtml(), shown
+   until clicked) that swaps to a search <input id="__autocomplete_id_
+   filter__customer__search"> (HTML_QuickForm_autocomplete::toHtml()) once
+   focused - both need room for full company names, e.g. "Viking Importing
+   Co." doesn't fit the shared 100px/98px filter-input width above. */
+#filter__customer,
+#__autocomplete_id_filter__customer__search {
+    width: 220px;
+}
+
 .Utils_RecordBrowser__Filter .data input:focus,
 .Utils_RecordBrowser__Filter .data select:focus,
 .Utils_RecordBrowser__Filter .data textarea:focus {

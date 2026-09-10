@@ -3413,7 +3413,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 
         //backward compatibility
         if ($single_tab) {
-        	if (is_array($tab_crits) && !isset($tab_crits[$single_tab])) $tab_crits = array($single_tab=>$tab_crits);
+        	// A CritsInterface object can't already be tab-keyed (that requires
+        	// an array), and isset() on a non-ArrayAccess object throws the same
+        	// "Cannot use object ... as array" this block exists to prevent -
+        	// so it always gets wrapped, unlike the plain-array case below.
+        	if ($tab_crits instanceof Utils_RecordBrowser_CritsInterface) $tab_crits = array($single_tab=>$tab_crits);
+        	elseif (is_array($tab_crits) && !isset($tab_crits[$single_tab])) $tab_crits = array($single_tab=>$tab_crits);
         }
         foreach($tabs as $t=>$caption) {
             if(!empty($tab_crits) && !isset($tab_crits[$t])) continue;
