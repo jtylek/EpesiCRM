@@ -496,7 +496,16 @@ input.epesi-switch[type="checkbox"] + label {
 div.data.timestamp > div,
 div.data.time > div {
 	display: flex;
-	flex-wrap: wrap;
+	/* nowrap, not wrap: a field-width edge case (date input + hour/minute
+	   group landing just past the available width by a few px - varies by
+	   browser/OS font metrics, so it doesn't reproduce at every width in
+	   every browser) was pushing the hour/minute group onto its own line in
+	   Timesheet's Start/End (RecordBrowser type 'timestamp') across
+	   add/edit/view/clone alike. The single-line reading is the whole point
+	   of this rule, so never wrap instead of only usually not wrapping -
+	   worst case at extreme widths content overflows horizontally rather
+	   than breaking the row. */
+	flex-wrap: nowrap;
 	align-items: center;
 	gap: 10px;
 }
