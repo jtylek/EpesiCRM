@@ -17,6 +17,13 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function bootstrap_icon() { return 'bi-cash-coin'; }
 
 	public static function format($val, $currency=null) {
+		// Every sibling accessor (get_code/get_precission/get_decimal_point/get_symbol/...)
+		// opens with this; format() did not, so if it happened to be the first
+		// CurrencyField call of a request, self::$cache was still null and the array read
+		// below raised "Trying to access array offset on value of type null". That is an
+		// E_WARNING, and under REPORT_ALL_ERRORS the first warning of a request blanks the
+		// rendering module's entire output - see error.php and the note in CLAUDE.md.
+		self::load_cache();
 		if (!isset($currency) || !$currency) {
 			$val = self::get_values($val);
 			$currency = $val[1];
