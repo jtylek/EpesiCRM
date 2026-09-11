@@ -47,9 +47,24 @@ class Base_LangCommon extends ModuleCommon {
 		if (isset($custom_translations[$original]) && $custom_translations[$original] && $translate)
 			$translated = $custom_translations[$original];
 
-		$translated = @vsprintf($translated,$arg);
-		if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
-		
+		// Only substitute when args were actually passed - many callers translate
+		// a string containing a literal %d/%s here and sprintf() it themselves
+		// afterward (e.g. Utils_CurrencyField_0::show_usage()), so an empty $arg
+		// must leave those placeholders alone rather than treating them as a
+		// too-few-arguments error. When $arg is non-empty, vsprintf() also
+		// doubles as validation that the (possibly hand-edited) translation's
+		// placeholder count still matches the original's - PHP 8 turns a
+		// mismatch there into a thrown ValueError instead of the old
+		// warning-and-false, so it's caught the same way @ used to swallow it.
+		if ($arg) {
+			try {
+				$translated = @vsprintf($translated,$arg);
+			} catch (ValueError $e) {
+				$translated = false;
+			}
+			if ($original && !$translated) $translated = '<b>Invalid translation, misused char % (use double %%)</b>';
+		}
+
 		return $translated;
 	}
 	
