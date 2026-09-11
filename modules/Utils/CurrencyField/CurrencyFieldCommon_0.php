@@ -276,6 +276,94 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $rate!==false && $rate!==null ? (float)$rate : null;
 	}
 
+	/** Rate provenance values, stored in a document's "Rate Source" field. */
+	const RATE_SOURCE_MANUAL  = 'manual';         // typed by a user - never overwritten
+	const RATE_SOURCE_RELATED = 'related_record'; // a premium_exchangerate record on the document
+	const RATE_SOURCE_ECB     = 'ecb';            // utils_currency_rate, the daily cache
+	const RATE_SOURCE_SAME    = 'same';           // both currencies identical, rate is 1
+	const RATE_SOURCE_NONE    = 'none';           // nothing available - do not invent one
+
+	/**
+	 * Resolves which exchange rate a document should be booked at, in priority order.
+	 * This is the single place that order lives; every accounting module calls it rather
+	 * than reimplementing the precedence. See AI-private/Epesi-Accounting-plan.md §2.2.
+	 *
+	 *   1. $manual_rate  - a rate a user typed on the document. Always wins, never
+	 *                      overwritten, because a bank's rate is not the ECB's (a real
+	 *                      account payment on this install sits 4.1% off the ECB rate for
+	 *                      its own date).
+	 *   2. a premium_exchangerate record attached to $related - the legacy per-document
+	 *                      mechanism, kept readable because production data exists in it.
+	 *   3. get_cached_rate() - the daily ECB-backed cache, as of the document's own date.
+	 *   4. nothing         - returns null with source 'none'. Callers must leave the field
+	 *                      empty rather than substitute today's rate or today's home
+	 *                      currency; see §1.3c on why a synthesised historical rate would
+	 *                      be inventing data.
+	 *
+	 * @param int         $from_currency_id Currency the document is denominated in.
+	 * @param int         $to_currency_id   Currency to express it in (home, or an account's).
+	 * @param string      $date             Document date - rates are looked up as of this.
+	 * @param string|null $related          "<tab>/<id>", e.g. "premium_invoice/574".
+	 * @param float|null  $manual_rate      A rate already recorded on the document, if any.
+	 * @return array{rate: float|null, source: string}
+	 */
+	public static function resolve_rate($from_currency_id, $to_currency_id, $date, $related = null, $manual_rate = null) {
+		if ($manual_rate !== null && $manual_rate !== '' && is_numeric($manual_rate) && (float)$manual_rate != 0.0) {
+			return array('rate' => (float)$manual_rate, 'source' => self::RATE_SOURCE_MANUAL);
+		}
+		if (!$from_currency_id || !$to_currency_id) {
+			return array('rate' => null, 'source' => self::RATE_SOURCE_NONE);
+		}
+		if ($from_currency_id == $to_currency_id) {
+			return array('rate' => 1.0, 'source' => self::RATE_SOURCE_SAME);
+		}
+		$rate = self::rate_from_related_record($from_currency_id, $to_currency_id, $related);
+		if ($rate !== null) {
+			return array('rate' => $rate, 'source' => self::RATE_SOURCE_RELATED);
+		}
+		$rate = self::get_cached_rate($from_currency_id, $to_currency_id, $date ?: date('Y-m-d'));
+		if ($rate !== null) {
+			return array('rate' => (float)$rate, 'source' => self::RATE_SOURCE_ECB);
+		}
+		return array('rate' => null, 'source' => self::RATE_SOURCE_NONE);
+	}
+
+	/**
+	 * A rate for $from -> $to taken from a premium_exchangerate record attached to
+	 * $related, or null. That recordset stores a rate as a PAIR OF AMOUNTS rather than a
+	 * number (e.g. 100 CZK <-> 17.50 PLN), so the rate is one amount divided by the other,
+	 * and the pair may be stored in either direction.
+	 *
+	 * Premium/ExchangeRate is optional, so this is guarded the same way
+	 * recalculate_missing_amounts() guards its Premium calls.
+	 *
+	 * Reads the table directly rather than through get_records(), deliberately: RB filters
+	 * by the *viewer's* access, and premium_exchangerate is restricted to manager/accounting.
+	 * Going through RB would mean an employee with invoice access but not rate access
+	 * silently resolving a different rate (the ECB fallback) than the one the document is
+	 * actually booked at - i.e. the rate would depend on who is looking. The booked rate is
+	 * a property of the document, not user-scoped data.
+	 */
+	private static function rate_from_related_record($from_currency_id, $to_currency_id, $related) {
+		if (!$related || ModuleManager::is_installed('Premium_ExchangeRate') < 0) return null;
+		$records = DB::GetAll('SELECT f_foreign_currency AS foreign_currency, f_base_currency AS base_currency'
+			. ' FROM premium_exchangerate_data_1 WHERE active=1 AND f_related=%s', array($related));
+		if (!$records) return null;
+		foreach ($records as $r) {
+			$foreign = self::get_values($r['foreign_currency']);
+			$base    = self::get_values($r['base_currency']);
+			if (!is_numeric($foreign[0]) || !is_numeric($base[0]) || !$foreign[0] || !$base[0]) continue;
+			if ($foreign[1] == $from_currency_id && $base[1] == $to_currency_id) {
+				return (float)$base[0] / (float)$foreign[0];
+			}
+			// stored the other way round - invert rather than ignore it
+			if ($base[1] == $from_currency_id && $foreign[1] == $to_currency_id) {
+				return (float)$foreign[0] / (float)$base[0];
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Formats an exchange rate for display, by SIGNIFICANT DIGITS rather than a fixed
 	 * number of decimals.
