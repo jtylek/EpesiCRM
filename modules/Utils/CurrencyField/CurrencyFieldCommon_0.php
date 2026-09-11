@@ -279,7 +279,7 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	/** Rate provenance values, stored in a document's "Rate Source" field. */
 	const RATE_SOURCE_MANUAL  = 'manual';         // typed by a user - never overwritten
 	const RATE_SOURCE_RELATED = 'related_record'; // a premium_exchangerate record on the document
-	const RATE_SOURCE_ECB     = 'ecb';            // utils_currency_rate, the daily cache
+	const RATE_SOURCE_DAILY   = 'daily';          // utils_currency_rate, the daily rate cache
 	const RATE_SOURCE_SAME    = 'same';           // both currencies identical, rate is 1
 	const RATE_SOURCE_NONE    = 'none';           // nothing available - do not invent one
 
@@ -294,7 +294,17 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	 *                      its own date).
 	 *   2. a premium_exchangerate record attached to $related - the legacy per-document
 	 *                      mechanism, kept readable because production data exists in it.
-	 *   3. get_cached_rate() - the daily ECB-backed cache, as of the document's own date.
+	 *   3. get_cached_rate() - the daily rate cache, as of the document's own date. Filled by
+	 *                      fetch_daily_rates() from api.frankfurter.dev, which republishes
+	 *                      ECB reference rates. Deliberately called 'daily' and not 'ecb':
+	 *                      the ECB publishes against EUR only, so every non-EUR pair here
+	 *                      (CZK->PLN, USD->PLN) is a cross-rate *derived* from two EUR legs,
+	 *                      never something the ECB itself published. The actual provider is
+	 *                      recorded per row in utils_currency_rate.source ('frankfurter'),
+	 *                      so this field does not have to guess - and will not start lying
+	 *                      if the provider is ever swapped.
+	 *                      These are also mid-market reference fixings, not transactable
+	 *                      rates, which is exactly why step 1 has to be able to beat them.
 	 *   4. nothing         - returns null with source 'none'. Callers must leave the field
 	 *                      empty rather than substitute today's rate or today's home
 	 *                      currency; see §1.3c on why a synthesised historical rate would
@@ -323,9 +333,36 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		}
 		$rate = self::get_cached_rate($from_currency_id, $to_currency_id, $date ?: date('Y-m-d'));
 		if ($rate !== null) {
-			return array('rate' => (float)$rate, 'source' => self::RATE_SOURCE_ECB);
+			return array('rate' => (float)$rate, 'source' => self::RATE_SOURCE_DAILY);
 		}
 		return array('rate' => null, 'source' => self::RATE_SOURCE_NONE);
+	}
+
+	/**
+	 * Decides which rate counts as user-supplied, for resolve_rate()'s first step.
+	 *
+	 * The rule, shared by every accounting module so they behave alike: a document's rate is
+	 * re-resolved automatically unless a human has set it. Typing a value that differs from
+	 * what is stored makes it the manual rate from then on, and once a document's source is
+	 * 'manual' it keeps its rate even across later edits - re-resolving would quietly
+	 * replace a bank's real rate with the ECB's.
+	 *
+	 * @param  mixed  $old_rate   Rate currently stored on the record (null when adding).
+	 * @param  string $old_source Rate Source currently stored on the record.
+	 * @param  mixed  $new_rate   Rate present in the values being submitted.
+	 * @return float|null The manual rate to honour, or null to let resolution run.
+	 */
+	public static function manual_rate_from_submit($old_rate, $old_source, $new_rate) {
+		$has_new = $new_rate !== null && $new_rate !== '' && is_numeric($new_rate) && (float)$new_rate != 0.0;
+		// A value the user changed in this submit always becomes the manual rate.
+		if ($has_new && ((float)$old_rate == 0.0 || (float)$old_rate != (float)$new_rate)) {
+			return (float)$new_rate;
+		}
+		// Otherwise an existing manual rate stands.
+		if ($old_source === self::RATE_SOURCE_MANUAL && (float)$old_rate != 0.0) {
+			return (float)$old_rate;
+		}
+		return null;
 	}
 
 	/**
