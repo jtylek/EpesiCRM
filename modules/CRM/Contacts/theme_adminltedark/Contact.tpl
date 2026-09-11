@@ -127,31 +127,25 @@
 			{$block.item.full_field}
 		</div>
 	{else}
+		{* Row-major, not column-major: each row of up to $cols fields renders
+		   as its own .epesi-rv-columns, left to right, before moving to the
+		   next row - so reading order (top to bottom) matches Manage Fields'
+		   own order (e.g. Employees, Customers, Related), instead of filling
+		   one column all the way down before starting the next. *}
 		{php}
-			$items = $this->_tpl_vars['block']['items'];
-			$this->_tpl_vars['mss_block_rows'] = ceil(count($items)/$this->_tpl_vars['cols']);
-			$this->_tpl_vars['mss_block_no_empty'] = count($items)-floor(count($items)/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-			if ($this->_tpl_vars['mss_block_no_empty']==0) $this->_tpl_vars['mss_block_no_empty'] = $this->_tpl_vars['cols']+1;
+			$this->_tpl_vars['mss_block_grid'] = array_chunk($this->_tpl_vars['block']['items'], $this->_tpl_vars['cols'], true);
 		{/php}
-		<div class="epesi-rv-columns">
-			{assign var=x value=1}
-			{assign var=y value=1}
-			{foreach key=k item=f from=$block.items name=secondary_block_items}
-				{if $y==1}
-				<div class="column" style="width: {$cols_percent}%;">
-					<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
-				{/if}
-					{$f.full_field}
-				{if $y==$mss_block_rows or ($y==$mss_block_rows-1 and $x>$mss_block_no_empty)}
-					{assign var=y value=1}
-					{assign var=x value=$x+1}
+		{foreach key=rk item=mss_row from=$mss_block_grid name=secondary_block_rows}
+			<div class="epesi-rv-columns">
+				{foreach key=k item=f from=$mss_row name=secondary_block_row_items}
+					<div class="column" style="width: {$cols_percent}%;">
+						<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+							{$f.full_field}
+						</div>
 					</div>
-				</div>
-				{else}
-					{assign var=y value=$y+1}
-				{/if}
-			{/foreach}
-		</div>
+				{/foreach}
+			</div>
+		{/foreach}
 	{/if}
 {/foreach}
 </div>
