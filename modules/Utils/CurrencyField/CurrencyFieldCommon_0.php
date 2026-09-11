@@ -282,6 +282,10 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	const RATE_SOURCE_DAILY   = 'daily';          // utils_currency_rate, the daily rate cache
 	const RATE_SOURCE_SAME    = 'same';           // both currencies identical, rate is 1
 	const RATE_SOURCE_NONE    = 'none';           // nothing available - do not invent one
+	// Computed from two amounts already on the record rather than looked up - e.g. an
+	// account payment, where the rate the bank actually applied is exactly
+	// Amount / Original Amount and so can never disagree with the stored figures.
+	const RATE_SOURCE_DERIVED = 'derived';
 
 	/**
 	 * Resolves which exchange rate a document should be booked at, in priority order.
