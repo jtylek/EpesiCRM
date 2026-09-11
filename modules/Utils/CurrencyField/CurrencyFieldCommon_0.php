@@ -123,6 +123,93 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 
+	/**
+	 * Every currency-typed field that exists anywhere, core or Premium alike -
+	 * RecordBrowser field metadata (recordbrowser_table_properties + each tab's own
+	 * <tab>_field table) is itself DB-driven, so this needs no source-code awareness of
+	 * which modules exist. Shared by find_currency_usage() and count_currency_usage_by_tab().
+	 *
+	 * @return array of array('tab', 'column', 'field_caption')
+	 */
+	private static function currency_field_columns() {
+		$out = array();
+		if (ModuleManager::is_installed('Utils_RecordBrowser') < 0) return $out;
+		$tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties') ?: array();
+		foreach ($tabs as $tab) {
+			Utils_RecordBrowserCommon::check_table_name($tab);
+			$fields = DB::GetAssoc('SELECT field, caption FROM '.$tab.'_field WHERE type=%s', array('currency')) ?: array();
+			foreach ($fields as $field => $caption) {
+				$out[] = array('tab'=>$tab, 'column'=>'f_'.Utils_RecordBrowserCommon::get_field_id($field), 'field_caption'=>$caption ?: $field);
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Finds recordset rows referencing $currency_id in one of their currency-typed
+	 * fields. A currency-field value is stored as '<amount>__<currency_id>' (see
+	 * format_default()), so a stored value "uses" this currency iff its column ends in
+	 * exactly '__<currency_id>' - checked with RIGHT() rather than LIKE so the literal
+	 * underscores in the separator never need wildcard-escaping.
+	 *
+	 * @param $limit stop once this many matches are collected (null: no cap - used by
+	 *   is_currency_used() to stop at the first match; the admin usage report wants every
+	 *   match, since GenericBrowser's own paging handles display size).
+	 * @param $tab_filter restrict the scan to one recordset (null: every recordset with a
+	 *   currency field).
+	 * @return array('rows'=>array(array('tab','field_caption','record_id')), 'truncated'=>bool)
+	 */
+	public static function find_currency_usage($currency_id, $limit = null, $tab_filter = null) {
+		$rows = array();
+		$truncated = false;
+		$suffix = '__'.$currency_id;
+		foreach (self::currency_field_columns() as $col) {
+			if ($tab_filter !== null && $col['tab'] !== $tab_filter) continue;
+			if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
+			$sql = 'SELECT id FROM '.$col['tab'].'_data_1 WHERE RIGHT('.$col['column'].', %d)=%s';
+			if ($limit !== null) $sql .= ' LIMIT '.((int)($limit - count($rows)) + 1);
+			$ids = DB::GetCol($sql, array(strlen($suffix), $suffix)) ?: array();
+			foreach ($ids as $id) {
+				if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
+				$rows[] = array('tab'=>$col['tab'], 'field_caption'=>$col['field_caption'], 'record_id'=>$id);
+			}
+		}
+		return array('rows'=>$rows, 'truncated'=>$truncated);
+	}
+
+	public static function is_currency_used($currency_id) {
+		return (bool) self::find_currency_usage($currency_id, 1)['rows'];
+	}
+
+	/**
+	 * Per-recordset match counts for $currency_id - backs the "Show usage" summary screen
+	 * (one row per recordset, before drilling into any single one's actual records). A
+	 * COUNT(DISTINCT id) per tab is much cheaper than fetching every matching id just to
+	 * count them in PHP, and correctly counts a record once even if it has two currency
+	 * fields both referencing this currency.
+	 *
+	 * @return array tab => array('caption', 'count'), sorted by caption
+	 */
+	public static function count_currency_usage_by_tab($currency_id) {
+		$suffix = '__'.$currency_id;
+		$by_tab = array();
+		foreach (self::currency_field_columns() as $col) $by_tab[$col['tab']][] = $col['column'];
+
+		$result = array();
+		foreach ($by_tab as $tab => $columns) {
+			$conds = array();
+			$params = array();
+			foreach ($columns as $column) {
+				$conds[] = 'RIGHT('.$column.', %d)=%s';
+				array_push($params, strlen($suffix), $suffix);
+			}
+			$count = (int) DB::GetOne('SELECT COUNT(DISTINCT id) FROM '.$tab.'_data_1 WHERE '.implode(' OR ', $conds), $params);
+			if ($count) $result[$tab] = array('caption'=>Utils_RecordBrowserCommon::get_caption($tab), 'count'=>$count);
+		}
+		uasort($result, fn($a, $b) => strcasecmp($a['caption'], $b['caption']));
+		return $result;
+	}
+
 	public static function get_rate_backfill_start() {
 		$v = Variable::get('utils_currency_rate_backfill_start', false);
 		return $v ?: date('Y-m-d', strtotime('-1 year'));
