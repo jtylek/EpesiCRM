@@ -130,10 +130,9 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	 * which modules exist. Shared by find_currency_usage() and count_currency_usage_by_tab().
 	 *
 	 * Also resolves, once per tab, that tab's own "Exchange Rate"/"Exchanged Amount"
-	 * companion fields if it has them (by caption - Premium_Accounts/Expenses/Timesheet/
-	 * Vehicles already store these next to their currency field, filled in by their own
-	 * recalculate_missing_amounts() hooks; this report just displays whatever they stored,
-	 * not computing a rate itself). A tab without such fields gets null columns.
+	 * companion fields if it has them (matched on field name or caption override - this
+	 * report just displays whatever a module stored there, it does not compute a rate
+	 * itself). A tab without such fields gets null columns.
 	 *
 	 * @return array of array('tab', 'column', 'field_caption', 'rate_column', 'exchanged_column')
 	 */
@@ -145,8 +144,14 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 			Utils_RecordBrowserCommon::check_table_name($tab);
 			$fields = DB::GetAssoc('SELECT field, caption FROM '.$tab.'_field WHERE type=%s', array('currency')) ?: array();
 			if (!$fields) continue;
-			$rate_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE caption=%s', array(__('Exchange Rate')));
-			$exchanged_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE caption=%s', array(__('Exchanged Amount')));
+			// Match on `field` OR `caption`. `caption` alone finds nothing in practice: it
+			// holds only an explicit per-install *override*, and is empty for almost every
+			// field (609 empty vs 7 set on the reference install) - RecordBrowser keeps the
+			// canonical English label in `field` and translates it at display time. Matching
+			// caption only meant these two columns rendered blank for every row of every
+			// recordset, including Premium_Payments_Entries, which does define both fields.
+			$rate_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s OR caption=%s', array('Exchange Rate', __('Exchange Rate')));
+			$exchanged_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s OR caption=%s', array('Exchanged Amount', __('Exchanged Amount')));
 			$rate_column = $rate_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($rate_field) : null;
 			$exchanged_column = $exchanged_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($exchanged_field) : null;
 			foreach ($fields as $field => $caption) {
@@ -262,6 +267,77 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if ($currency_id == $target_currency_id) return 1.0;
 		$rate = DB::GetOne('SELECT rate FROM utils_currency_rate WHERE currency_id=%d AND target_currency_id=%d AND rate_date<=%D ORDER BY rate_date DESC LIMIT 1', array($currency_id, $target_currency_id, $date));
 		return $rate!==false && $rate!==null ? (float)$rate : null;
+	}
+
+	/**
+	 * Formats an exchange rate for display, by SIGNIFICANT DIGITS rather than a fixed
+	 * number of decimals.
+	 *
+	 * A fixed decimal count cannot serve every currency pair at once: 2 dp renders
+	 * HUF->EUR (0.00257) as "0.00" and JPY->USD (0.00674) as "0.01", and even 5 dp is
+	 * ~4% out on IDR->EUR. Rates are therefore stored unrounded (the column is F ->
+	 * DOUBLE/FLOAT8, same as utils_currency_rate.rate) and only rounded here, for
+	 * display. See AI-private/Epesi-Accounting-plan.md §2.2.
+	 *
+	 * Trailing zeros are trimmed, but at least 2 decimals are kept so a rate of exactly
+	 * 1 reads as "1.00" rather than "1".
+	 *
+	 * @param  float|string $rate
+	 * @param  int          $significant Significant digits to keep (default 6).
+	 * @return string Empty string if $rate is not numeric.
+	 */
+	public static function format_rate($rate, $significant = 6) {
+		if ($rate === null || $rate === '' || !is_numeric($rate)) return '';
+		$rate = (float)$rate;
+		if ($significant < 1) $significant = 1;
+		if ($rate == 0.0) return '0.00';
+
+		// Decimals needed so that $significant digits survive, whatever the magnitude:
+		// 25.34 -> 4 dp, 1.0856 -> 5 dp, 0.0000578 -> 10 dp.
+		$decimals = $significant - 1 - (int)floor(log10(abs($rate)));
+		if ($decimals < 2) $decimals = 2;
+		if ($decimals > 12) $decimals = 12; // beyond a double's useful precision
+
+		$out = number_format($rate, $decimals, '.', '');
+		if (str_contains($out, '.')) {
+			$out = rtrim($out, '0');
+			// keep a minimum of 2 decimals
+			$dot = strpos($out, '.');
+			$kept = strlen($out) - $dot - 1;
+			if ($kept < 2) $out = number_format((float)$out, 2, '.', '');
+		}
+		return $out;
+	}
+
+	/**
+	 * Checks that every named currency-typed field in $values is denominated in
+	 * $expected_currency, alerting and returning false on the first that is not.
+	 *
+	 * Intended for a processing callback guarding "one currency per document": a line whose
+	 * currency disagrees with its parent's is rejected rather than coerced, because
+	 * silently relabelling an amount that arrived from an import or an API caller would
+	 * change what it means. Lives here rather than in either accounting module so both can
+	 * use it without depending on each other.
+	 *
+	 * @param  array $values            Record values, as handed to a processing callback.
+	 * @param  array $fields            Field ids to check, e.g. array('net_price','gross_price').
+	 * @param  int|null $expected_currency utils_currency.id; no check when empty.
+	 * @return bool true when consistent, or when there is nothing to check.
+	 */
+	public static function check_fields_currency($values, $fields, $expected_currency) {
+		if (!$expected_currency) return true;
+		foreach ($fields as $f) {
+			if (empty($values[$f])) continue;
+			list($amount, $currency) = self::get_values($values[$f]);
+			if ($currency && $currency != $expected_currency) {
+				Epesi::alert(__('Line currency (%s) must match the document currency (%s).', array(
+					self::get_code($currency),
+					self::get_code($expected_currency),
+				)));
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static function fetch_json($url) {
