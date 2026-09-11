@@ -1527,11 +1527,21 @@ class Utils_RecordBrowser extends Module {
     			'text' => Utils_TooltipCommon::open_tag_attrs(_V($desc['help']), false))
     		: false;
     	
+    	// $desc['style'] is a stored column (task_field.style etc.), snapshotted once when
+    	// the field was created (RecordBrowserCommon_0::add_field() defaults it to the type
+    	// for time/timestamp/currency - see that method). A field created before that default
+    	// existed, or hand-blanked via the admin Edit Field screen, is permanently stuck with
+    	// an empty style, silently losing the '.timestamp'/'.time' CSS class every theme's
+    	// default.css/View_entry.css key their one-line layout off - the field still renders,
+    	// just wrapped onto several lines (e.g. CRM_Tasks' Deadline: type=timestamp, style='').
+    	// Re-derive the same default here, at render time, so a stale/blank stored style
+    	// self-heals instead of needing a per-field DB patch.
+    	$style = !empty($desc['style']) ? $desc['style'] : (in_array($desc['type'], array('time','timestamp','currency')) ? $desc['type'] : '');
     	$ret = array('label'=>$field_form_data['label'],
     			'element'=>$desc['id'],
     			'advanced'=>$this->advanced[$desc['id']] ?? '',
     			'html'=>$field_form_data['html'],
-    			'style'=>$desc['style'].($field_form_data['frozen']?' frozen':''),
+    			'style'=>$style.($field_form_data['frozen']?' frozen':''),
     			'error'=>$field_form_data['error'],
     			'required'=>$desc['required'] ?? null,
     			'type'=>$desc['type'],
