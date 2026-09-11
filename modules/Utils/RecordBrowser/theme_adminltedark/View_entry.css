@@ -387,6 +387,21 @@
    way a separate .longfields block did. */
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row.long_row {
 	column-span: all;
+	/* Reported: a multiselect field (e.g. "Group") immediately followed by a
+	   long text field (e.g. "Memo") rendered glued together with no gap,
+	   despite every ordinary .epesi-rv-row above already carrying
+	   margin-bottom:3px. Root cause is a column-span:all quirk, not a missing
+	   rule: browsers drop a normal-flow sibling's trailing margin right at a
+	   spanning element's boundary (the preceding multiselect row's own
+	   margin-bottom never renders against this row), so the gap has to come
+	   from THIS row's own margin instead of the previous row's. :not(:first-
+	   child) skips the very first row in the container - there the gap
+	   between this block and whatever precedes it (the primary $fields grid)
+	   is already provided by the .epesi-rv-fluid+.epesi-rv-fluid sibling rule
+	   above, and this margin would just double it. */
+}
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row.long_row:not(:first-child) {
+	margin-top: 3px;
 }
 
 .Utils_RecordBrowser__View_entry .label {
@@ -650,10 +665,16 @@
 }
 
 .Utils_RecordBrowser__View_entry .edit .frozen,
-.Utils_RecordBrowser__View_entry .data .static_field,
 .Utils_RecordBrowser__View_entry .data input {
 	padding-right: 0px; /* iPad fix for fields extending over the <td> element */
 }
+
+/* .static_field (calculated/static fields, e.g. Duration) deliberately left out of the
+   padding-right:0 rule above - it left right-aligned values (currency/number/time) glued to
+   the .data cell's right edge with no breathing room. Falls back to the shared
+   "padding: 2px 5px" rule (above) instead, matching every other field's right padding. Frozen
+   fields are unaffected: ".frozen .static_field" below sets its own padding:0 at equal
+   specificity but later in source order, so it still wins for that case. */
 
 .Utils_RecordBrowser__View_entry .frozen .static_field {
 	padding: 0px;
