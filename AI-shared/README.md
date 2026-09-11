@@ -39,7 +39,8 @@ environment quirks. This folder is the lower-ceremony layer underneath it.
 
 - [framework-internals.md](framework-internals.md) — how the framework itself is built:
   grid column sizing, code that must not be tidied away, the standalone entry points, the
-  menu render paths. You need this only when changing the framework's own machinery.
+  menu render paths, RecordBrowser's record view/edit field layout. You need this only when
+  changing the framework's own machinery.
 
 ## Conventions
 

@@ -248,6 +248,24 @@
 	overflow: hidden;
 }
 
+/* Top-level field blocks - the main $fields grid, then zero or more
+   $secondary_fields/$secondary_blocks blocks (RecordBrowser_0.php's
+   view_entry_details()): .epesi-rv-fluid, .epesi-rv-columns, .longfields.
+   Used to be structurally fixed at exactly two ("everything", "then
+   multiselects", "then longfields" always last), so nothing here ever
+   needed inter-block spacing of its own - whatever gap happened to exist
+   between them was incidental. Now that multiselect and long text fields
+   interleave in RecordBrowser's own configured field order, several such
+   sibling blocks can land back to back with nothing between them, reading
+   as one field glued directly onto the next - reported on CRM_Meeting once
+   Description (long text) was moved ahead of Employees/Related (multiselect)
+   in Manage Fields. row-gap:3px (.view/.edit below) is what already
+   separates ordinary fields from each other - matching it here keeps a
+   block boundary from reading any differently. */
+.Utils_RecordBrowser__View_entry :is(.epesi-rv-fluid, .epesi-rv-columns, .longfields) + :is(.epesi-rv-fluid, .epesi-rv-columns, .longfields) {
+	margin-top: 3px;
+}
+
 .Utils_RecordBrowser__View_entry {
     width: 100%;
 	/* Single source of truth for the gap between side-by-side field columns,
@@ -359,6 +377,16 @@
 }
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
 	margin-bottom: 0;
+}
+/* Long text fields share the .multiselects fluid container with multiselect
+   fields now (RecordBrowser_0.php::view_entry_details()'s $secondary_fields
+   keeps both in their configured RecordBrowser field order). column-span:all
+   is what keeps a long text row (single_field.tpl's .long_row class) full-
+   width and breaking the column flow at its actual position, instead of
+   every long text field always sinking below every multiselect field the
+   way a separate .longfields block did. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row.long_row {
+	column-span: all;
 }
 
 .Utils_RecordBrowser__View_entry .label {
@@ -732,11 +760,48 @@
    shared by every automulti field app-wide, not just RecordBrowser's - this
    file only carries this screen's colours on top of it. */
 
+/* Was height:80px - shorter than #multiselect's own 160px (Employees sits
+   right next to Customers/Related in e.g. CRM_Tasks/CRM_PhoneCall and read
+   as visibly different heights for what are both "pick several records"
+   widgets). First fix here just bumped this select to height:160px to
+   match - wrong, because automulti (unlike #multiselect) has a *second* row
+   above its list: the search-box/Remove-button row (automulti.php's toHtml,
+   first <tr>). Giving the list its own 160px on top of that row made the
+   whole widget ~30px TALLER than #multiselect overall (confirmed by
+   measuring both: #multiselect's table renders ~162px total, automulti's
+   came out ~194px) - the opposite mismatch, automulti now overhanging
+   #multiselect instead of falling short of it.
+   Fixed properly by making the whole widget flex (column) at a fixed total
+   height matching #multiselect, with the search row auto-sized and the
+   list row (last-child) taking whatever's left via flex-grow - so the list
+   is exactly as tall as it needs to be to make the OUTER box match, self-
+   adjusting if the search row's own height ever changes (font-size, etc.)
+   instead of hardcoding that remainder as a second magic number. tbody
+   already renders as display:contents (Libs/QuickForm's own ".automulti
+   tbody" rule), so these two <tr>s are direct flex children here.
+   Can't just delete this override and rely on Libs/QuickForm/
+   theme_adminltedark/default.css's own ".automulti .main-element select"
+   rule the way the #multiselect fix below does - that rule has no ID
+   selector to fall back on, so it ties in specificity with this file's own
+   ".Utils_RecordBrowser__View_entry .data select{height:28px}" (further
+   down) and loses to it on cascade order (this bundle loads after Libs/
+   QuickForm's). Needs an equal-or-more-specific rule scoped here to win,
+   same as it always did. */
 .Utils_RecordBrowser__View_entry .edit .automulti {
 	background-color: #2b3035;
+	display: flex;
+	flex-direction: column;
+	height: 160px;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti tr:first-child {
+	flex: 0 0 auto;
+}
+.Utils_RecordBrowser__View_entry .edit .automulti tr:last-child {
+	flex: 1 1 auto;
+	min-height: 0;
 }
 .Utils_RecordBrowser__View_entry .edit .automulti select {
-	height: 80px;
+	height: 100%;
 }
 .Utils_RecordBrowser__View_entry .edit .automulti td {
 	padding: 0;
@@ -875,6 +940,32 @@
 .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus,
 .Utils_RecordBrowser__View_entry .data input.epesi-switch[type="checkbox"]:checked:focus-visible {
 	border-color: #0d6efd !important;
+}
+
+/* input.epesi-switch's own height:1.25em !important (Libs/QuickForm/
+   theme_adminltedark/default.css) renders ~17.5px tall - shorter than the
+   28px every other field's input/select gets from this file's own ".data
+   input:not([type=button])/select" rule above (also matched by the switch,
+   but loses to the !important). A switch is normally the only child of its
+   .data cell, so there's nothing else there to stretch the row up to the
+   usual ~29px (28px content + border) via .epesi-rv-row's default
+   align-items:stretch - the row falls back to .epesi-rv-row's own 24px
+   floor instead, one field (confirmed on CRM_Meeting's "Timeless")
+   rendering visibly shorter than its neighbours, with knock-on effects on
+   spacing further down the layout (a shorter .column here than its sibling
+   .column makes the *next* .epesi-rv-columns group - e.g. Employees -
+   butt up against this one with no gap, while the taller sibling column
+   gets a stray gap of its own before its own next field - see
+   CRM_Meeting/theme_adminltedark/default.tpl's column split). min-height
+   (not height) matches that same 28px target without fighting the switch's
+   own !important height; flex/align-items:center centers the still-compact
+   switch inside the now-taller cell instead of top-aligning it against the
+   cell's own padding-less edge. */
+.Utils_RecordBrowser__View_entry .data:has(> input.epesi-switch[type="checkbox"]) {
+	display: flex;
+	align-items: center;
+	min-height: 28px;
+	box-sizing: border-box;
 }
 
 /* Was width:100%;height:100px here - Libs/QuickForm/theme_adminltedark/

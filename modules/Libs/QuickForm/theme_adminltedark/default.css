@@ -344,8 +344,28 @@
 .automulti .main-element {
 	flex: 1 1 100%;
 }
+/* Same box (height included) as #multiselect's own from/to lists above, so
+   an automulti field (Customers, Related, ...) doesn't render visibly
+   shorter than a multiselect field (Employees) sitting right next to it in
+   the same form - both are "pick several records" widgets and read as one
+   family. RecordBrowser's own Utils/RecordBrowser/theme_adminltedark/
+   View_entry.css used to hardcode a shorter height (80px) for this select
+   in edit mode; removed there so it defers to this rule instead, the same
+   way it already defers to #multiselect's height (see that file's own
+   comment on the point). */
 .automulti .main-element select {
 	width: 100%;
+	height: 160px;
+	border: 1px solid #495057;
+	border-radius: 0.375rem;
+	padding: 0.25rem;
+	font-size: var(--epesi-font-size-base);
+	background-color: #2b3035;
+}
+.automulti .main-element select:focus {
+	outline: none;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 
 /* ---- settings checkboxes rendered as on/off switches ----
@@ -548,6 +568,11 @@ div.data.timestamp > div > div:last-child input {
 [data-bs-theme="light"] #multiselect .buttons .button input[disabled],
 [data-bs-theme="light"] #multiselect .buttons .button input[readonly] {
   background-color: #ced4da;
+}
+
+[data-bs-theme="light"] .automulti .main-element select {
+  border: 1px solid #ced4da;
+  background-color: #fff;
 }
 
 [data-bs-theme="light"] .automulti .button input {

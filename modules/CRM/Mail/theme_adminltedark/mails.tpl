@@ -196,13 +196,50 @@
 
 			{* Body - full width *}
 			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
-				{$longfields.body.full_field}
-				{foreach key=k item=f from=$longfields name=fields}
-					{if $k!='body'}
-						{$f.full_field}
-					{/if}
-				{/foreach}
+				{$secondary_fields.body.full_field}
 			</div>
+
+			{* Any other multiselect/long text field (e.g. an admin-added custom
+			   field), in the RecordBrowser field order configured for this table
+			   (RecordBrowser_0.php's $secondary_blocks) - same "don't silently
+			   drop a custom field" fallback convention as the field grid above.
+			   Body is skipped here since it already rendered, fixed-position,
+			   just above. *}
+			{foreach key=bk item=block from=$secondary_blocks name=secondary_blocks}
+				{if $block.type=='long'}
+					{if $block.item.element!="body"}
+						<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+							{$block.item.full_field}
+						</div>
+					{/if}
+				{else}
+					<div class="epesi-rv-columns">
+						{php}
+							$items = $this->_tpl_vars['block']['items'];
+							$this->_tpl_vars['mss_block_rows'] = ceil(count($items)/2);
+							$this->_tpl_vars['mss_block_no_empty'] = count($items)-floor(count($items)/2)*2;
+							if ($this->_tpl_vars['mss_block_no_empty']==0) $this->_tpl_vars['mss_block_no_empty'] = 3;
+						{/php}
+						{assign var=x value=1}
+						{assign var=y value=1}
+						{foreach key=k item=f from=$block.items name=secondary_block_items}
+							{if $y==1}
+							<div class="column" style="width: 50%;">
+								<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+							{/if}
+							{$f.full_field}
+							{if $y==$mss_block_rows or ($y==$mss_block_rows-1 and $x>$mss_block_no_empty)}
+								{assign var=y value=1}
+								{assign var=x value=$x+1}
+								</div>
+							</div>
+							{else}
+								{assign var=y value=$y+1}
+							{/if}
+						{/foreach}
+					</div>
+				{/if}
+			{/foreach}
 
 			{* Attachments - full width, underneath Body; always a plain download link, even
 			   for PNG/JPG (see MailCommon_0.php::get_attachments_html()). *}

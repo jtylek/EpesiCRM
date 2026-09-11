@@ -1464,30 +1464,42 @@ class Utils_RecordBrowser extends Module {
     public function view_entry_details($from, $to, $form_data, $theme=null, $main_page = false, $tab_label = null){
         if ($theme==null) $theme = $this->init_module(Base_Theme::module_name());
         $fields = array();
-        $longfields = array();
+        // Multiselect and long text fields both render outside the main
+        // multicolumn field grid (see below/templates), but must still
+        // respect their relative RecordBrowser field order between each
+        // other - e.g. a long text field moved above a multiselect field in
+        // Manage Fields has to render above it, not always sink to the
+        // bottom. $secondary_fields keeps them together, in that shared
+        // position order; $secondary_blocks (built below) additionally
+        // splits that sequence into contiguous multiselect runs vs single
+        // long-text entries, for templates that column-balance multiselects
+        // in PHP/Smarty rather than via CSS multi-column.
+        $secondary_fields = array();
 
         foreach($this->table_rows as $desc) {
             if (!isset($form_data[$desc['id']]) || $form_data[$desc['id']]['type']=='hidden') continue;
             if ($desc['position'] >= $from && ($to == -1 || $desc['position'] < $to)) {
 				if ($tab_label) $this->fields_in_tabs[$tab_label][] = $desc['id'];
-                
+
 				$opts = $this->get_field_display_options($desc, $form_data);
-				
+
 				if (!$opts) continue;
-				
-                if ($desc['type']<>'long text') $fields[$desc['id']] = $opts; else $longfields[$desc['id']] = $opts;
+
+                if ($desc['type']=='multiselect' || $desc['type']=='long text') $secondary_fields[$desc['id']] = $opts; else $fields[$desc['id']] = $opts;
             }
         }
         $theme->assign('fields', $fields);
-        // Compat shim, kept deliberately: several per-table custom templates
-        // (Contact.tpl, Contact/Photo's Contact.tpl, mails.tpl, Meeting's and
-        // PhoneCall's default.tpl, Attachment's View_entry.tpl) still read
-        // cols/rows/no_empty for their own fixed-column table/flex layout -
-        // out of scope for the CSS-driven fluid columns the generic
-        // View_entry.tpl now uses (see AI-shared/theming-and-frontend.md). Do
-        // not remove this without also updating all of those templates.
+        // 'cols' still drives several per-table custom templates' (Contact.tpl,
+        // Contact/Photo's Contact.tpl, mails.tpl, Meeting's and PhoneCall's
+        // default.tpl, Attachment's View_entry.tpl) own fixed-column-count
+        // table/flex layout math (rows/no_empty computed in the template
+        // itself from this) - out of scope for the CSS-driven fluid columns
+        // the generic View_entry.tpl uses instead (see
+        // AI-shared/theming-and-frontend.md). Do not remove this without also
+        // updating all of those templates.
         $theme->assign('cols', 2);
-        $theme->assign('longfields', $longfields);
+        $theme->assign('secondary_fields', $secondary_fields);
+        $theme->assign('secondary_blocks', self::group_secondary_fields($secondary_fields));
         $theme->assign('action', self::$mode=='history'?'view':self::$mode);
         $theme->assign('form_data', $form_data);
         // Only meaningful while fields are actually editable - view/history mode
@@ -1511,6 +1523,31 @@ class Utils_RecordBrowser extends Module {
 		if ($tpl) Base_ThemeCommon::load_css('Utils_RecordBrowser','View_entry');
         $theme->display(($tpl!=='')?$tpl:'View_entry', ($tpl!==''));
         if (!$main_page && self::$mode=='view') print('</form>');
+    }
+
+    // Splits an ordered multiselect+long-text sequence (view_entry_details()'s
+    // $secondary_fields) into contiguous runs: consecutive multiselect fields
+    // become one 'multiselect_group' block (so templates can still column-
+    // balance them as a batch), each long text field is its own 'long' block.
+    // Walking the resulting blocks in order reproduces the original
+    // RecordBrowser field order exactly, including a long text field
+    // interrupting a run of multiselects (or vice versa).
+    private static function group_secondary_fields($secondary_fields) {
+        $blocks = array();
+        $group = array();
+        foreach ($secondary_fields as $id => $opts) {
+            if ($opts['type'] == 'multiselect') {
+                $group[$id] = $opts;
+            } else {
+                if ($group) {
+                    $blocks[] = array('type' => 'multiselect_group', 'items' => $group);
+                    $group = array();
+                }
+                $blocks[] = array('type' => 'long', 'item' => $opts);
+            }
+        }
+        if ($group) $blocks[] = array('type' => 'multiselect_group', 'items' => $group);
+        return $blocks;
     }
     
     public function get_field_display_options($desc, $form_data = array()) {

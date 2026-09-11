@@ -2,6 +2,22 @@
     width: 100%;
 }
 
+/* Top-level field blocks - the main $fields grid, then zero or more
+   $secondary_fields/$secondary_blocks blocks (RecordBrowser_0.php's
+   view_entry_details()): .epesi-rv-fluid, .epesi-rv-columns, .longfields.
+   Used to be structurally fixed at exactly two ("everything", "then
+   multiselects", "then longfields" always last), so nothing here ever
+   needed inter-block spacing of its own - whatever gap happened to exist
+   between them was incidental. Now that multiselect and long text fields
+   interleave in RecordBrowser's own configured field order, several such
+   sibling blocks can land back to back with nothing between them, reading
+   as one field glued directly onto the next. row-gap:3px (.view/.edit
+   above) is what already separates ordinary fields from each other -
+   matching it here keeps a block boundary from reading any differently. */
+.Utils_RecordBrowser__View_entry :is(.epesi-rv-fluid, .epesi-rv-columns, .longfields) + :is(.epesi-rv-fluid, .epesi-rv-columns, .longfields) {
+	margin-top: 3px;
+}
+
 .Utils_RecordBrowser__container {
 	background-color: #CCC;
 	padding: 2px 2px 2px 2px; 
@@ -359,6 +375,15 @@
 	   theme controls) ends up visibly shorter than a row holding an
 	   <input>. A shared min-height gives every row the same floor. */
 	min-height: 28px;
+}
+/* Long text fields share the .multiselects fluid container with multiselect
+   fields now (RecordBrowser_0.php::view_entry_details()'s $secondary_fields
+   keeps both in their configured RecordBrowser field order). column-span:all
+   is what keeps a long text row full-width and breaking the column flow at
+   its actual position, instead of every long text field always sinking
+   below every multiselect field the way a separate .longfields block did. */
+.Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row.long_row {
+	column-span: all;
 }
 .Utils_RecordBrowser__View_entry .epesi-rv-fluid .epesi-rv-row:last-child {
 	margin-bottom: 0;
