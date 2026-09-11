@@ -86,12 +86,27 @@ lists):
 1. `Utils_CurrencyField::show_usage()` - a summary: one row per recordset that uses this currency, with a
    match count (`Utils_CurrencyFieldCommon::count_currency_usage_by_tab()`, a `COUNT(DISTINCT id)` per
    tab rather than fetching every id just to count them) and a "Show usage" action per row.
-2. `show_usage_detail($id, $tab)` - the actual records for one recordset (Recordset / Field / Record,
-   the last a link via `create_linked_label()`/`create_linked_text()`). `$tab` is only the *initial*
-   selection (whichever summary row was clicked); a "Recordset" filter stays on screen (defaulting to
-   that tab, with an "All" option) so the user can switch between recordsets without going back to the
-   summary. Picking a specific tab scopes `find_currency_usage()`'s scan to just that recordset's own
-   currency fields - only "All" pays for a full scan across every recordset.
+2. `show_usage_detail($id, $tab)` - the actual records for one recordset: Recordset / Date / Record /
+   Field / Value / Exchange Rate / Exchanged Amount, sorted by Date descending by default. Value is the
+   currency field's own raw `'<amount>__<currency_id>'`, formatted via
+   `Utils_CurrencyFieldCommon::format()` (which already knows how to split and format that string given
+   just the value, with no separate currency id needed). `$tab` is only the
+   *initial* selection (whichever summary row was clicked); a "Recordset" filter (plus an "Exchange Rate:
+   All/Set/Missing" filter) stays on screen so the user can narrow down without going back to the summary.
+   Picking a specific tab scopes `find_currency_usage()`'s scan to just that recordset's own currency
+   fields - only "All" pays for a full scan across every recordset.
+   - **Record** is a link via `create_linked_label()`/`create_linked_text()`, same as the summary.
+   - **Date** is the record's own `created_on` (every `<tab>_data_1` table has this column, regardless of
+     module) - a generic proxy for "when," not necessarily whatever business-specific date field (payment
+     date, transaction date, ...) that recordset might also have.
+   - **Exchange Rate**/**Exchanged Amount** are *not* computed by this report - they're read straight off
+     that same tab's own fields captioned exactly `"Exchange Rate"`/`"Exchanged Amount"` (matched via
+     `__()` at lookup time, so this assumes those captions - Premium_Accounts/Expenses/Timesheet/Vehicles
+     already store these, filled in by their own `recalculate_missing_amounts()` hooks; see
+     `Utils_CurrencyFieldCommon::currency_field_columns()`). A tab without fields by those exact captions
+     just shows "missing" for every row in both columns, indistinguishable from a real missing rate - if a
+     Premium module uses different caption text, this needs updating to match. The "Set"/"Missing" filter
+     reflects whichever of those two ways a row can be empty.
 
 Since matches come from an arbitrary number of unrelated recordset tables/columns, there's no single
 real query for GenericBrowser's own `query_order_limit()` (the mechanism `show_rates()` also uses) to run

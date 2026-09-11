@@ -129,7 +129,13 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	 * <tab>_field table) is itself DB-driven, so this needs no source-code awareness of
 	 * which modules exist. Shared by find_currency_usage() and count_currency_usage_by_tab().
 	 *
-	 * @return array of array('tab', 'column', 'field_caption')
+	 * Also resolves, once per tab, that tab's own "Exchange Rate"/"Exchanged Amount"
+	 * companion fields if it has them (by caption - Premium_Accounts/Expenses/Timesheet/
+	 * Vehicles already store these next to their currency field, filled in by their own
+	 * recalculate_missing_amounts() hooks; this report just displays whatever they stored,
+	 * not computing a rate itself). A tab without such fields gets null columns.
+	 *
+	 * @return array of array('tab', 'column', 'field_caption', 'rate_column', 'exchanged_column')
 	 */
 	private static function currency_field_columns() {
 		$out = array();
@@ -138,8 +144,19 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		foreach ($tabs as $tab) {
 			Utils_RecordBrowserCommon::check_table_name($tab);
 			$fields = DB::GetAssoc('SELECT field, caption FROM '.$tab.'_field WHERE type=%s', array('currency')) ?: array();
+			if (!$fields) continue;
+			$rate_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE caption=%s', array(__('Exchange Rate')));
+			$exchanged_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE caption=%s', array(__('Exchanged Amount')));
+			$rate_column = $rate_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($rate_field) : null;
+			$exchanged_column = $exchanged_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($exchanged_field) : null;
 			foreach ($fields as $field => $caption) {
-				$out[] = array('tab'=>$tab, 'column'=>'f_'.Utils_RecordBrowserCommon::get_field_id($field), 'field_caption'=>$caption ?: $field);
+				$out[] = array(
+					'tab'=>$tab,
+					'column'=>'f_'.Utils_RecordBrowserCommon::get_field_id($field),
+					'field_caption'=>$caption ?: $field,
+					'rate_column'=>$rate_column,
+					'exchanged_column'=>$exchanged_column,
+				);
 			}
 		}
 		return $out;
@@ -150,14 +167,16 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	 * fields. A currency-field value is stored as '<amount>__<currency_id>' (see
 	 * format_default()), so a stored value "uses" this currency iff its column ends in
 	 * exactly '__<currency_id>' - checked with RIGHT() rather than LIKE so the literal
-	 * underscores in the separator never need wildcard-escaping.
+	 * underscores in the separator never need wildcard-escaping. Each match also carries
+	 * the record's creation date and its tab's Exchange Rate/Exchanged Amount values (raw,
+	 * as stored - null if that tab has no such fields).
 	 *
 	 * @param $limit stop once this many matches are collected (null: no cap - used by
 	 *   is_currency_used() to stop at the first match; the admin usage report wants every
 	 *   match, since GenericBrowser's own paging handles display size).
 	 * @param $tab_filter restrict the scan to one recordset (null: every recordset with a
 	 *   currency field).
-	 * @return array('rows'=>array(array('tab','field_caption','record_id')), 'truncated'=>bool)
+	 * @return array('rows'=>array(array('tab','field_caption','record_id','raw_value','created_on','rate','exchanged')), 'truncated'=>bool)
 	 */
 	public static function find_currency_usage($currency_id, $limit = null, $tab_filter = null) {
 		$rows = array();
@@ -166,12 +185,25 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		foreach (self::currency_field_columns() as $col) {
 			if ($tab_filter !== null && $col['tab'] !== $tab_filter) continue;
 			if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
-			$sql = 'SELECT id FROM '.$col['tab'].'_data_1 WHERE RIGHT('.$col['column'].', %d)=%s';
+			$rate_select = $col['rate_column'] ?: 'NULL';
+			$exchanged_select = $col['exchanged_column'] ?: 'NULL';
+			$sql = 'SELECT id, '.$col['column'].' AS raw_value, created_on, '.$rate_select.' AS rate_val, '.$exchanged_select.' AS exchanged_val'.
+				' FROM '.$col['tab'].'_data_1 WHERE RIGHT('.$col['column'].', %d)=%s';
 			if ($limit !== null) $sql .= ' LIMIT '.((int)($limit - count($rows)) + 1);
-			$ids = DB::GetCol($sql, array(strlen($suffix), $suffix)) ?: array();
-			foreach ($ids as $id) {
+			$ret = DB::Execute($sql, array(strlen($suffix), $suffix));
+			$matches = array();
+			if ($ret) while ($r = $ret->FetchRow()) $matches[] = $r;
+			foreach ($matches as $r) {
 				if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
-				$rows[] = array('tab'=>$col['tab'], 'field_caption'=>$col['field_caption'], 'record_id'=>$id);
+				$rows[] = array(
+					'tab'=>$col['tab'],
+					'field_caption'=>$col['field_caption'],
+					'record_id'=>$r['id'],
+					'raw_value'=>$r['raw_value'],
+					'created_on'=>$r['created_on'],
+					'rate'=>$r['rate_val'],
+					'exchanged'=>$r['exchanged_val'],
+				);
 			}
 		}
 		return array('rows'=>$rows, 'truncated'=>$truncated);

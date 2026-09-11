@@ -149,6 +149,8 @@ class Utils_CurrencyField extends Module {
 		$currency = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
 		if (!$currency) return false;
 
+		print('<h5 class="mt-3 mb-3">'.sprintf(__('Currency usage: %s'), $currency['code']).'</h5>');
+
 		$by_tab = Utils_CurrencyFieldCommon::count_currency_usage_by_tab($id);
 
 		$gb = $this->init_module('Utils_GenericBrowser', null, 'currency_usage_summary');
@@ -172,20 +174,39 @@ class Utils_CurrencyField extends Module {
 		$currency = DB::GetRow('SELECT * FROM utils_currency WHERE id=%d', array($id));
 		if (!$currency) return false;
 
+		print('<h5 class="mt-3 mb-3">'.sprintf(__('Currency usage: %s'), $currency['code']).'</h5>');
+
 		$by_tab = Utils_CurrencyFieldCommon::count_currency_usage_by_tab($id);
 
-		// $tab is only the *initial* selection (whichever row's "Show usage" got clicked
-		// on the summary screen) - once the user picks something else here, that's what
-		// sticks across reloads of this same screen.
+		// $tab is the *initial* selection (whichever row's "Show usage" got clicked on the
+		// summary screen); from then on the filter below can change it. But this method
+		// runs on the same persistent Utils_CurrencyField instance regardless of which
+		// summary row was clicked, so get_module_variable()'s default only ever seeds
+		// filter_tab once - without this check, clicking a *different* row later would
+		// still find filter_tab already set (to whatever was clicked first) and ignore the
+		// new $tab entirely. Comparing against the last-seen incoming $tab tells a genuine
+		// new navigation (argument changed) apart from an in-screen filter postback
+		// (argument unchanged, since it's baked into the callback that redraws this screen).
+		if ($this->get_module_variable('last_tab_arg') !== $tab) {
+			$this->set_module_variable('filter_tab', $tab);
+			$this->set_module_variable('last_tab_arg', $tab);
+		}
 		$filter_tab = $this->get_module_variable('filter_tab', $tab);
+		$filter_rate = $this->get_module_variable('filter_rate', '');
 		$form = $this->init_module('Libs_QuickForm', null, 'filter');
-		$form->setDefaults(array('tab' => $filter_tab));
+		$form->setDefaults(array('tab' => $filter_tab, 'rate' => $filter_rate));
 		$el = $form->addElement('select', 'tab', __('Recordset'), array(), array('onChange' => $form->get_submit_form_js()));
 		$el->addOption(__('All'), '');
 		foreach ($by_tab as $t => $info) $el->addOption($info['caption'], $t);
+		$el_rate = $form->addElement('select', 'rate', __('Exchange Rate'), array(), array('onChange' => $form->get_submit_form_js()));
+		$el_rate->addOption(__('All'), '');
+		$el_rate->addOption(__('Set'), 'set');
+		$el_rate->addOption(__('Missing'), 'missing');
 		$form->display_as_row();
 		$filter_tab = $form->exportValue('tab');
+		$filter_rate = $form->exportValue('rate');
 		$this->set_module_variable('filter_tab', $filter_tab);
+		$this->set_module_variable('filter_rate', $filter_rate);
 
 		$usage = Utils_CurrencyFieldCommon::find_currency_usage($id, null, $filter_tab ?: null);
 
@@ -195,27 +216,43 @@ class Utils_CurrencyField extends Module {
 		// they come from an arbitrary number of unrelated recordset tables/columns. A temp
 		// table is connection-scoped, so it can't leak into another request/user.
 		DB::Execute('DROP TABLE IF EXISTS tmp_currency_usage');
-		DB::Execute('CREATE TEMPORARY TABLE tmp_currency_usage (tab VARCHAR(64), tab_caption VARCHAR(255), field_caption VARCHAR(255), record_id INT)');
+		DB::Execute('CREATE TEMPORARY TABLE tmp_currency_usage (tab VARCHAR(64), tab_caption VARCHAR(255), field_caption VARCHAR(255), record_id INT, value_display VARCHAR(255), created_on VARCHAR(32), rate_status VARCHAR(10), rate_display VARCHAR(255), exchanged_display VARCHAR(255))');
 		foreach (array_chunk($usage['rows'], 500) as $chunk) {
 			$placeholders = array();
 			$params = array();
 			foreach ($chunk as $match) {
 				$tab_caption = $by_tab[$match['tab']]['caption'] ?? Utils_RecordBrowserCommon::get_caption($match['tab']);
-				$placeholders[] = '(%s, %s, %s, %d)';
-				array_push($params, $match['tab'], $tab_caption, $match['field_caption'], $match['record_id']);
+				$has_rate = $match['rate'] !== null && $match['rate'] !== '';
+				$placeholders[] = '(%s, %s, %s, %d, %s, %s, %s, %s, %s)';
+				array_push($params,
+					$match['tab'], $tab_caption, $match['field_caption'], $match['record_id'],
+					Utils_CurrencyFieldCommon::format($match['raw_value']), $match['created_on'],
+					$has_rate ? 'set' : 'missing',
+					$has_rate ? $match['rate'] : __('missing'),
+					($match['exchanged'] !== null && $match['exchanged'] !== '') ? $match['exchanged'] : __('missing')
+				);
 			}
-			DB::Execute('INSERT INTO tmp_currency_usage (tab, tab_caption, field_caption, record_id) VALUES '.implode(',', $placeholders), $params);
+			DB::Execute('INSERT INTO tmp_currency_usage (tab, tab_caption, field_caption, record_id, value_display, created_on, rate_status, rate_display, exchanged_display) VALUES '.implode(',', $placeholders), $params);
 		}
 
 		$gb = $this->init_module('Utils_GenericBrowser', null, 'currency_usage_detail');
 		$gb->set_table_columns(array(
 			array('name'=>__('Recordset'), 'order'=>'tab_caption'),
-			array('name'=>__('Field'), 'order'=>'field_caption'),
+			array('name'=>__('Date'), 'order'=>'created_on'),
 			array('name'=>__('Record'), 'order'=>'record_id'),
+			array('name'=>__('Field'), 'order'=>'field_caption'),
+			array('name'=>__('Value')),
+			array('name'=>__('Exchange Rate'), 'order'=>'rate_status'),
+			array('name'=>__('Exchanged Amount')),
 		));
+		$gb->set_default_order(array(__('Date')=>'DESC'));
 
-		$query = 'SELECT tab, tab_caption, field_caption, record_id FROM tmp_currency_usage';
-		$query_qty = 'SELECT COUNT(*) FROM tmp_currency_usage';
+		$where = array();
+		if ($filter_rate) $where[] = 'rate_status='.DB::qstr($filter_rate);
+		$where_sql = $where ? ' WHERE '.implode(' AND ', $where) : '';
+
+		$query = 'SELECT tab, tab_caption, field_caption, record_id, value_display, created_on, rate_display, exchanged_display FROM tmp_currency_usage'.$where_sql;
+		$query_qty = 'SELECT COUNT(*) FROM tmp_currency_usage'.$where_sql;
 
 		$ret = $gb->query_order_limit($query, $query_qty);
 		if ($ret) while ($row = $ret->FetchRow()) {
@@ -224,7 +261,8 @@ class Utils_CurrencyField extends Module {
 			$desc_fields = Utils_RecordBrowserCommon::get_description_fields($row['tab']);
 			$link = $desc_fields ? Utils_RecordBrowserCommon::create_linked_label($row['tab'], $desc_fields, $row['record_id']) : '';
 			if (!$link) $link = Utils_RecordBrowserCommon::create_linked_text('#'.$row['record_id'], $row['tab'], $row['record_id']);
-			$gb->add_row($row['tab_caption'], $row['field_caption'], $link);
+			$date = $row['created_on'] ? date('Y-m-d H:i', strtotime($row['created_on'])) : '';
+			$gb->add_row($row['tab_caption'], $date, $link, $row['field_caption'], $row['value_display'], $row['rate_display'], $row['exchanged_display']);
 		}
 
 		Base_ActionBarCommon::add('back', __('Back'), $this->create_back_href());
