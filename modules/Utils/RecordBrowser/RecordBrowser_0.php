@@ -1922,10 +1922,8 @@ class Utils_RecordBrowser extends Module {
     }
     public function setup_loader() {
         if (isset($_REQUEST['field_pos'])) {
-            [$field, $position] = $_REQUEST['field_pos'];
-            // adjust position
-            $position += 2;
-            Utils_RecordBrowserCommon::change_field_position($this->tab, $field, $position);
+            [$field, $anchor] = $_REQUEST['field_pos'];
+            Utils_RecordBrowserCommon::change_field_position($this->tab, $field, $anchor);
         }
         $this->init(true);
         $action = $this->get_module_variable_or_unique_href_variable('setup_action', 'show');
@@ -1938,6 +1936,9 @@ class Utils_RecordBrowser extends Module {
 			Base_ActionBarCommon::add('add',__('New page'),$this->create_callback_href($this->new_page(...)));
 		}
         $gb = $this->init_module(Utils_GenericBrowser::module_name(), null, 'fields');
+        // Keep every field on one page: drag-reorder anchors on the preceding row's field
+        // name, which only exists to anchor on when that row is actually rendered.
+        $gb->force_per_page(max(1, count($this->table_rows)));
         $gb->set_table_columns(array(
             array('name'=>__('Field'), 'width'=>10),
             array('name'=>__('Caption'), 'width'=>10),

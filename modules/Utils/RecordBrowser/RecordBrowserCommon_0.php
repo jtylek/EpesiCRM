@@ -1052,7 +1052,15 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         @DB::Execute('UPDATE '.$tab.'_data_1 SET indexed=0');
     }
     public static function change_field_position($tab, $field, $new_pos){
-    	$new_pos = is_string($new_pos)? (self::get_field_position($tab, $new_pos)+1): $new_pos;
+    	if (is_string($new_pos)) {
+    		$anchor_pos = self::get_field_position($tab, $new_pos);
+    		$old_pos = self::get_field_position($tab, $field);
+    		// Moving forward past the anchor: removing $field from before it shifts the
+    		// anchor back by one, so the target slot is the anchor's own (pre-move)
+    		// position, not one past it - using +1 unconditionally here lands $field one
+    		// slot later than the anchor instead of right after it.
+    		$new_pos = ($old_pos && $old_pos < $anchor_pos) ? $anchor_pos : $anchor_pos + 1;
+    	}
 
         if ($new_pos <= 2) return; // make sure that no field is before "General" tab split
         

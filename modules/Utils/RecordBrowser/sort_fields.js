@@ -14,7 +14,11 @@ function rb_admin_sort_fields_init(table_md5) {
             containment: "parent",
             items: "> div.sortable",
             update: function (event, ui) {
-                _chj(jq.param({"field_pos": [ui.item.attr("field_name"), ui.item.index()]}), "", "");
+                // Anchor on the preceding row's field name, not a DOM index - the field list is
+                // paginated (Records per page), so a raw index is only valid within the current
+                // page and silently reorders the wrong fields once there's more than one page.
+                var anchor = ui.item.prev().attr("field_name") || "General";
+                _chj(jq.param({"field_pos": [ui.item.attr("field_name"), anchor]}), "", "");
             }
         }
     );
