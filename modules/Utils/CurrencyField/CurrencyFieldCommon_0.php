@@ -17,6 +17,13 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 	public static function bootstrap_icon() { return 'bi-cash-coin'; }
 
 	public static function format($val, $currency=null) {
+		// Every sibling accessor (get_code/get_precission/get_decimal_point/get_symbol/...)
+		// opens with this; format() did not, so if it happened to be the first
+		// CurrencyField call of a request, self::$cache was still null and the array read
+		// below raised "Trying to access array offset on value of type null". That is an
+		// E_WARNING, and under REPORT_ALL_ERRORS the first warning of a request blanks the
+		// rendering module's entire output - see error.php and the note in CLAUDE.md.
+		self::load_cache();
 		if (!isset($currency) || !$currency) {
 			$val = self::get_values($val);
 			$currency = $val[1];
@@ -123,6 +130,130 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		return $cache;
 	}
 
+	/**
+	 * Every currency-typed field that exists anywhere, core or Premium alike -
+	 * RecordBrowser field metadata (recordbrowser_table_properties + each tab's own
+	 * <tab>_field table) is itself DB-driven, so this needs no source-code awareness of
+	 * which modules exist. Shared by find_currency_usage() and count_currency_usage_by_tab().
+	 *
+	 * Also resolves, once per tab, that tab's own "Exchange Rate"/"Exchanged Amount"
+	 * companion fields if it has them (matched on field name or caption override - this
+	 * report just displays whatever a module stored there, it does not compute a rate
+	 * itself). A tab without such fields gets null columns.
+	 *
+	 * @return array of array('tab', 'column', 'field_caption', 'rate_column', 'exchanged_column')
+	 */
+	private static function currency_field_columns() {
+		$out = array();
+		if (ModuleManager::is_installed('Utils_RecordBrowser') < 0) return $out;
+		$tabs = DB::GetCol('SELECT tab FROM recordbrowser_table_properties') ?: array();
+		foreach ($tabs as $tab) {
+			Utils_RecordBrowserCommon::check_table_name($tab);
+			$fields = DB::GetAssoc('SELECT field, caption FROM '.$tab.'_field WHERE type=%s', array('currency')) ?: array();
+			if (!$fields) continue;
+			// Match on `field` OR `caption`. `caption` alone finds nothing in practice: it
+			// holds only an explicit per-install *override*, and is empty for almost every
+			// field (609 empty vs 7 set on the reference install) - RecordBrowser keeps the
+			// canonical English label in `field` and translates it at display time. Matching
+			// caption only meant these two columns rendered blank for every row of every
+			// recordset, including Premium_Payments_Entries, which does define both fields.
+			$rate_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s OR caption=%s', array('Exchange Rate', __('Exchange Rate')));
+			$exchanged_field = DB::GetOne('SELECT field FROM '.$tab.'_field WHERE field=%s OR caption=%s', array('Exchanged Amount', __('Exchanged Amount')));
+			$rate_column = $rate_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($rate_field) : null;
+			$exchanged_column = $exchanged_field ? 'f_'.Utils_RecordBrowserCommon::get_field_id($exchanged_field) : null;
+			foreach ($fields as $field => $caption) {
+				$out[] = array(
+					'tab'=>$tab,
+					'column'=>'f_'.Utils_RecordBrowserCommon::get_field_id($field),
+					'field_caption'=>$caption ?: $field,
+					'rate_column'=>$rate_column,
+					'exchanged_column'=>$exchanged_column,
+				);
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Finds recordset rows referencing $currency_id in one of their currency-typed
+	 * fields. A currency-field value is stored as '<amount>__<currency_id>' (see
+	 * format_default()), so a stored value "uses" this currency iff its column ends in
+	 * exactly '__<currency_id>' - checked with RIGHT() rather than LIKE so the literal
+	 * underscores in the separator never need wildcard-escaping. Each match also carries
+	 * the record's creation date and its tab's Exchange Rate/Exchanged Amount values (raw,
+	 * as stored - null if that tab has no such fields).
+	 *
+	 * @param $limit stop once this many matches are collected (null: no cap - used by
+	 *   is_currency_used() to stop at the first match; the admin usage report wants every
+	 *   match, since GenericBrowser's own paging handles display size).
+	 * @param $tab_filter restrict the scan to one recordset (null: every recordset with a
+	 *   currency field).
+	 * @return array('rows'=>array(array('tab','field_caption','record_id','raw_value','created_on','rate','exchanged')), 'truncated'=>bool)
+	 */
+	public static function find_currency_usage($currency_id, $limit = null, $tab_filter = null) {
+		$rows = array();
+		$truncated = false;
+		$suffix = '__'.$currency_id;
+		foreach (self::currency_field_columns() as $col) {
+			if ($tab_filter !== null && $col['tab'] !== $tab_filter) continue;
+			if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
+			$rate_select = $col['rate_column'] ?: 'NULL';
+			$exchanged_select = $col['exchanged_column'] ?: 'NULL';
+			$sql = 'SELECT id, '.$col['column'].' AS raw_value, created_on, '.$rate_select.' AS rate_val, '.$exchanged_select.' AS exchanged_val'.
+				' FROM '.$col['tab'].'_data_1 WHERE RIGHT('.$col['column'].', %d)=%s';
+			if ($limit !== null) $sql .= ' LIMIT '.((int)($limit - count($rows)) + 1);
+			$ret = DB::Execute($sql, array(strlen($suffix), $suffix));
+			$matches = array();
+			if ($ret) while ($r = $ret->FetchRow()) $matches[] = $r;
+			foreach ($matches as $r) {
+				if ($limit !== null && count($rows) >= $limit) { $truncated = true; break; }
+				$rows[] = array(
+					'tab'=>$col['tab'],
+					'field_caption'=>$col['field_caption'],
+					'record_id'=>$r['id'],
+					'raw_value'=>$r['raw_value'],
+					'created_on'=>$r['created_on'],
+					'rate'=>$r['rate_val'],
+					'exchanged'=>$r['exchanged_val'],
+				);
+			}
+		}
+		return array('rows'=>$rows, 'truncated'=>$truncated);
+	}
+
+	public static function is_currency_used($currency_id) {
+		return (bool) self::find_currency_usage($currency_id, 1)['rows'];
+	}
+
+	/**
+	 * Per-recordset match counts for $currency_id - backs the "Show usage" summary screen
+	 * (one row per recordset, before drilling into any single one's actual records). A
+	 * COUNT(DISTINCT id) per tab is much cheaper than fetching every matching id just to
+	 * count them in PHP, and correctly counts a record once even if it has two currency
+	 * fields both referencing this currency.
+	 *
+	 * @return array tab => array('caption', 'count'), sorted by caption
+	 */
+	public static function count_currency_usage_by_tab($currency_id) {
+		$suffix = '__'.$currency_id;
+		$by_tab = array();
+		foreach (self::currency_field_columns() as $col) $by_tab[$col['tab']][] = $col['column'];
+
+		$result = array();
+		foreach ($by_tab as $tab => $columns) {
+			$conds = array();
+			$params = array();
+			foreach ($columns as $column) {
+				$conds[] = 'RIGHT('.$column.', %d)=%s';
+				array_push($params, strlen($suffix), $suffix);
+			}
+			$count = (int) DB::GetOne('SELECT COUNT(DISTINCT id) FROM '.$tab.'_data_1 WHERE '.implode(' OR ', $conds), $params);
+			if ($count) $result[$tab] = array('caption'=>Utils_RecordBrowserCommon::get_caption($tab), 'count'=>$count);
+		}
+		uasort($result, fn($a, $b) => strcasecmp($a['caption'], $b['caption']));
+		return $result;
+	}
+
 	public static function get_rate_backfill_start() {
 		$v = Variable::get('utils_currency_rate_backfill_start', false);
 		return $v ?: date('Y-m-d', strtotime('-1 year'));
@@ -143,6 +274,206 @@ class Utils_CurrencyFieldCommon extends ModuleCommon {
 		if ($currency_id == $target_currency_id) return 1.0;
 		$rate = DB::GetOne('SELECT rate FROM utils_currency_rate WHERE currency_id=%d AND target_currency_id=%d AND rate_date<=%D ORDER BY rate_date DESC LIMIT 1', array($currency_id, $target_currency_id, $date));
 		return $rate!==false && $rate!==null ? (float)$rate : null;
+	}
+
+	/** Rate provenance values, stored in a document's "Rate Source" field. */
+	const RATE_SOURCE_MANUAL  = 'manual';         // typed by a user - never overwritten
+	const RATE_SOURCE_RELATED = 'related_record'; // a premium_exchangerate record on the document
+	const RATE_SOURCE_DAILY   = 'daily';          // utils_currency_rate, the daily rate cache
+	const RATE_SOURCE_SAME    = 'same';           // both currencies identical, rate is 1
+	const RATE_SOURCE_NONE    = 'none';           // nothing available - do not invent one
+	// Computed from two amounts already on the record rather than looked up - e.g. an
+	// account payment, where the rate the bank actually applied is exactly
+	// Amount / Original Amount and so can never disagree with the stored figures.
+	const RATE_SOURCE_DERIVED = 'derived';
+
+	/**
+	 * Resolves which exchange rate a document should be booked at, in priority order.
+	 * This is the single place that order lives; every accounting module calls it rather
+	 * than reimplementing the precedence. See AI-private/Epesi-Accounting-plan.md §2.2.
+	 *
+	 *   1. $manual_rate  - a rate a user typed on the document. Always wins, never
+	 *                      overwritten, because a bank's rate is not the ECB's (a real
+	 *                      account payment on this install sits 4.1% off the ECB rate for
+	 *                      its own date).
+	 *   2. a premium_exchangerate record attached to $related - the legacy per-document
+	 *                      mechanism, kept readable because production data exists in it.
+	 *   3. get_cached_rate() - the daily rate cache, as of the document's own date. Filled by
+	 *                      fetch_daily_rates() from api.frankfurter.dev, which republishes
+	 *                      ECB reference rates. Deliberately called 'daily' and not 'ecb':
+	 *                      the ECB publishes against EUR only, so every non-EUR pair here
+	 *                      (CZK->PLN, USD->PLN) is a cross-rate *derived* from two EUR legs,
+	 *                      never something the ECB itself published. The actual provider is
+	 *                      recorded per row in utils_currency_rate.source ('frankfurter'),
+	 *                      so this field does not have to guess - and will not start lying
+	 *                      if the provider is ever swapped.
+	 *                      These are also mid-market reference fixings, not transactable
+	 *                      rates, which is exactly why step 1 has to be able to beat them.
+	 *   4. nothing         - returns null with source 'none'. Callers must leave the field
+	 *                      empty rather than substitute today's rate or today's home
+	 *                      currency; see §1.3c on why a synthesised historical rate would
+	 *                      be inventing data.
+	 *
+	 * @param int         $from_currency_id Currency the document is denominated in.
+	 * @param int         $to_currency_id   Currency to express it in (home, or an account's).
+	 * @param string      $date             Document date - rates are looked up as of this.
+	 * @param string|null $related          "<tab>/<id>", e.g. "premium_invoice/574".
+	 * @param float|null  $manual_rate      A rate already recorded on the document, if any.
+	 * @return array{rate: float|null, source: string}
+	 */
+	public static function resolve_rate($from_currency_id, $to_currency_id, $date, $related = null, $manual_rate = null) {
+		if ($manual_rate !== null && $manual_rate !== '' && is_numeric($manual_rate) && (float)$manual_rate != 0.0) {
+			return array('rate' => (float)$manual_rate, 'source' => self::RATE_SOURCE_MANUAL);
+		}
+		if (!$from_currency_id || !$to_currency_id) {
+			return array('rate' => null, 'source' => self::RATE_SOURCE_NONE);
+		}
+		if ($from_currency_id == $to_currency_id) {
+			return array('rate' => 1.0, 'source' => self::RATE_SOURCE_SAME);
+		}
+		$rate = self::rate_from_related_record($from_currency_id, $to_currency_id, $related);
+		if ($rate !== null) {
+			return array('rate' => $rate, 'source' => self::RATE_SOURCE_RELATED);
+		}
+		$rate = self::get_cached_rate($from_currency_id, $to_currency_id, $date ?: date('Y-m-d'));
+		if ($rate !== null) {
+			return array('rate' => (float)$rate, 'source' => self::RATE_SOURCE_DAILY);
+		}
+		return array('rate' => null, 'source' => self::RATE_SOURCE_NONE);
+	}
+
+	/**
+	 * Decides which rate counts as user-supplied, for resolve_rate()'s first step.
+	 *
+	 * The rule, shared by every accounting module so they behave alike: a document's rate is
+	 * re-resolved automatically unless a human has set it. Typing a value that differs from
+	 * what is stored makes it the manual rate from then on, and once a document's source is
+	 * 'manual' it keeps its rate even across later edits - re-resolving would quietly
+	 * replace a bank's real rate with the ECB's.
+	 *
+	 * @param  mixed  $old_rate   Rate currently stored on the record (null when adding).
+	 * @param  string $old_source Rate Source currently stored on the record.
+	 * @param  mixed  $new_rate   Rate present in the values being submitted.
+	 * @return float|null The manual rate to honour, or null to let resolution run.
+	 */
+	public static function manual_rate_from_submit($old_rate, $old_source, $new_rate) {
+		$has_new = $new_rate !== null && $new_rate !== '' && is_numeric($new_rate) && (float)$new_rate != 0.0;
+		// A value the user changed in this submit always becomes the manual rate.
+		if ($has_new && ((float)$old_rate == 0.0 || (float)$old_rate != (float)$new_rate)) {
+			return (float)$new_rate;
+		}
+		// Otherwise an existing manual rate stands.
+		if ($old_source === self::RATE_SOURCE_MANUAL && (float)$old_rate != 0.0) {
+			return (float)$old_rate;
+		}
+		return null;
+	}
+
+	/**
+	 * A rate for $from -> $to taken from a premium_exchangerate record attached to
+	 * $related, or null. That recordset stores a rate as a PAIR OF AMOUNTS rather than a
+	 * number (e.g. 100 CZK <-> 17.50 PLN), so the rate is one amount divided by the other,
+	 * and the pair may be stored in either direction.
+	 *
+	 * Premium/ExchangeRate is optional, so this is guarded the same way
+	 * recalculate_missing_amounts() guards its Premium calls.
+	 *
+	 * Reads the table directly rather than through get_records(), deliberately: RB filters
+	 * by the *viewer's* access, and premium_exchangerate is restricted to manager/accounting.
+	 * Going through RB would mean an employee with invoice access but not rate access
+	 * silently resolving a different rate (the ECB fallback) than the one the document is
+	 * actually booked at - i.e. the rate would depend on who is looking. The booked rate is
+	 * a property of the document, not user-scoped data.
+	 */
+	private static function rate_from_related_record($from_currency_id, $to_currency_id, $related) {
+		if (!$related || ModuleManager::is_installed('Premium_ExchangeRate') < 0) return null;
+		$records = DB::GetAll('SELECT f_foreign_currency AS foreign_currency, f_base_currency AS base_currency'
+			. ' FROM premium_exchangerate_data_1 WHERE active=1 AND f_related=%s', array($related));
+		if (!$records) return null;
+		foreach ($records as $r) {
+			$foreign = self::get_values($r['foreign_currency']);
+			$base    = self::get_values($r['base_currency']);
+			if (!is_numeric($foreign[0]) || !is_numeric($base[0]) || !$foreign[0] || !$base[0]) continue;
+			if ($foreign[1] == $from_currency_id && $base[1] == $to_currency_id) {
+				return (float)$base[0] / (float)$foreign[0];
+			}
+			// stored the other way round - invert rather than ignore it
+			if ($base[1] == $from_currency_id && $foreign[1] == $to_currency_id) {
+				return (float)$foreign[0] / (float)$base[0];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Formats an exchange rate for display, by SIGNIFICANT DIGITS rather than a fixed
+	 * number of decimals.
+	 *
+	 * A fixed decimal count cannot serve every currency pair at once: 2 dp renders
+	 * HUF->EUR (0.00257) as "0.00" and JPY->USD (0.00674) as "0.01", and even 5 dp is
+	 * ~4% out on IDR->EUR. Rates are therefore stored unrounded (the column is F ->
+	 * DOUBLE/FLOAT8, same as utils_currency_rate.rate) and only rounded here, for
+	 * display. See AI-private/Epesi-Accounting-plan.md §2.2.
+	 *
+	 * Trailing zeros are trimmed, but at least 2 decimals are kept so a rate of exactly
+	 * 1 reads as "1.00" rather than "1".
+	 *
+	 * @param  float|string $rate
+	 * @param  int          $significant Significant digits to keep (default 6).
+	 * @return string Empty string if $rate is not numeric.
+	 */
+	public static function format_rate($rate, $significant = 6) {
+		if ($rate === null || $rate === '' || !is_numeric($rate)) return '';
+		$rate = (float)$rate;
+		if ($significant < 1) $significant = 1;
+		if ($rate == 0.0) return '0.00';
+
+		// Decimals needed so that $significant digits survive, whatever the magnitude:
+		// 25.34 -> 4 dp, 1.0856 -> 5 dp, 0.0000578 -> 10 dp.
+		$decimals = $significant - 1 - (int)floor(log10(abs($rate)));
+		if ($decimals < 2) $decimals = 2;
+		if ($decimals > 12) $decimals = 12; // beyond a double's useful precision
+
+		$out = number_format($rate, $decimals, '.', '');
+		if (str_contains($out, '.')) {
+			$out = rtrim($out, '0');
+			// keep a minimum of 2 decimals
+			$dot = strpos($out, '.');
+			$kept = strlen($out) - $dot - 1;
+			if ($kept < 2) $out = number_format((float)$out, 2, '.', '');
+		}
+		return $out;
+	}
+
+	/**
+	 * Checks that every named currency-typed field in $values is denominated in
+	 * $expected_currency, alerting and returning false on the first that is not.
+	 *
+	 * Intended for a processing callback guarding "one currency per document": a line whose
+	 * currency disagrees with its parent's is rejected rather than coerced, because
+	 * silently relabelling an amount that arrived from an import or an API caller would
+	 * change what it means. Lives here rather than in either accounting module so both can
+	 * use it without depending on each other.
+	 *
+	 * @param  array $values            Record values, as handed to a processing callback.
+	 * @param  array $fields            Field ids to check, e.g. array('net_price','gross_price').
+	 * @param  int|null $expected_currency utils_currency.id; no check when empty.
+	 * @return bool true when consistent, or when there is nothing to check.
+	 */
+	public static function check_fields_currency($values, $fields, $expected_currency) {
+		if (!$expected_currency) return true;
+		foreach ($fields as $f) {
+			if (empty($values[$f])) continue;
+			list($amount, $currency) = self::get_values($values[$f]);
+			if ($currency && $currency != $expected_currency) {
+				Epesi::alert(__('Line currency (%s) must match the document currency (%s).', array(
+					self::get_code($currency),
+					self::get_code($expected_currency),
+				)));
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static function fetch_json($url) {

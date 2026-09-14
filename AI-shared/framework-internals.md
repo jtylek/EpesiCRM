@@ -404,3 +404,88 @@ happens exactly once instead of assuming the original node lives forever.
 everything scoped `.epesi-adminlte #MenuBar ...`. A module's CSS loads only when that
 module renders, so sidebar styling belongs in Base_Menu's own stylesheet, not Box's, even
 though Box owns the `#MenuBar` wrapper element.
+
+---
+
+# 5. RecordBrowser record view/edit field layout
+
+`Utils_RecordBrowser::view_entry_details()` (`RecordBrowser_0.php`) builds two groups for
+every view/edit/history render, assigned to whichever template ends up displaying the
+record (the generic `View_entry.tpl` or a per-table custom `$tpl`):
+
+- `$fields` — every field except `multiselect`/`long text`. Always renders first,
+  multicolumn.
+- `$secondary_fields` — `multiselect` and `long text` fields together, kept in their shared
+  RecordBrowser field order (`table_rows`/`position`, i.e. Manage Fields' own order) rather
+  than grouped by type. Moving a long text field above a multiselect field in Manage Fields
+  moves it above that field on screen too.
+
+`group_secondary_fields()` (private, same file) splits `$secondary_fields` further into
+ordered blocks — a `multiselect_group` block per contiguous run of multiselect fields, a
+`long` block per individual long text field — as `$secondary_blocks`, for templates that
+column-balance multiselects in PHP/Smarty rather than via CSS (below). Walking
+`$secondary_blocks` in order reproduces `$secondary_fields`'s order exactly, including a long
+text field splitting one run of multiselects into two.
+
+**This used to be simpler and less correct.** The old code put every non-long-text field
+(multiselect included) into `$fields`, and every template separately re-extracted multiselect
+out of `$fields` into its own local `$multiselects` array before rendering. Net effect: short
+fields, then *every* multiselect field, then *every* long text field — always in that type
+order, never the admin-configured one. A template still doing that extract-then-render-two-
+separate-blocks dance has not been ported to the current contract.
+
+## Two rendering mechanisms share the same data
+
+- **CSS multi-column** (`Utils_RecordBrowser/theme{,_adminltedark}/View_entry.tpl`, its 3
+  identical `Premium/Payments/theme_adminltedark/view_entry_*.tpl` clones, and — the one
+  exception among the "custom `$tpl`" templates — `CRM_PhoneCall/theme_adminltedark/
+  default.tpl`): `$fields` and `$secondary_fields` render into `.epesi-rv-fluid` containers
+  (CSS `column-width`, browser decides the column count). A long text row carries a
+  `long_row` class (set by `single_field.tpl` when going through `{$f.full_field}`, or
+  written directly by a template that builds rows inline) which `View_entry.css`'s
+  `.epesi-rv-fluid .epesi-rv-row.long_row { column-span: all; }` uses to force it full-width
+  and break the column flow at its actual position — no PHP row/column math needed for this
+  group.
+- **Fixed PHP-computed column count** (`CRM_Contacts`/`Contacts/Photo`'s `Contact.tpl`,
+  `CRM_Mail`/`CRM_Roundcube`'s `mails.tpl`, `CRM_PhoneCall`'s *light* theme and
+  `CRM_Meeting`'s *both* themes' `default.tpl`, `Utils_Attachment`'s `View_entry.tpl`): these
+  use `.epesi-rv-columns`/`.column` with a template-computed row count (`$cols`/
+  `$cols_percent`, still assigned by `view_entry_details()` for exactly this). They loop over
+  `$secondary_blocks`, computing `$mss_block_rows`/`$mss_block_no_empty` fresh per
+  `multiselect_group` block (an inline `{php}` block) so each run of multiselects is
+  column-balanced independently, and render each `long` block as its own full-width
+  `.longfields` div.
+
+## Fields the ordering does not apply to
+
+Some per-table templates hardcode specific fields at fixed positions, by design, regardless
+of Manage Fields order — these are simply excluded (by field id) from the `$secondary_blocks`
+loop, not driven by configured position:
+
+- `Utils_Attachment`'s `note` (rendered right after Title) and `attached_to` (rendered in a
+  fixed Attached-to/Permission/Sticky row) — AdminLTE-dark theme.
+- `CRM_Mail`/`CRM_Roundcube`'s `body` (rendered full-width, fixed, right after the
+  From/To/Cc/etc rows).
+
+A *new* field added to one of these tables still falls through each template's own generic
+fallback loop, in configured order — only these specific, already-placed fields are pinned.
+
+## Writing a new per-table `$tpl`
+
+Consume `$secondary_fields` (flat, for a CSS-multicolumn layout) or `$secondary_blocks`
+(grouped, for a PHP-computed fixed column count) directly — don't re-derive a local
+`$multiselects` array from `$fields` the way pre-change templates did. `$fields` no longer
+contains multiselect or long text fields at all.
+
+## Spacing between top-level blocks
+
+Nothing gave `.epesi-rv-fluid`/`.epesi-rv-columns`/`.longfields` siblings a gap from each
+other outside mobile breakpoints — only `row-gap: 3px` *within* one block's `.view`/`.edit`
+(`.epesi-rv-row` to `.epesi-rv-row`). Harmless while there were at most two top-level blocks
+in a fixed order; once `$secondary_blocks` can interleave several of them, adjacent blocks
+render glued together with zero visual break. `View_entry.css` (both themes) now carries a
+general rule for this — `:is(.epesi-rv-fluid, .epesi-rv-columns, .longfields) + :is(...)`
+scoped under `.Utils_RecordBrowser__View_entry`, `margin-top: 3px` — that fires on any two
+such divs that end up adjacent siblings, regardless of nesting depth (it also covers, e.g.,
+Attachment's own stack of fixed `.epesi-rv-columns` rows, pre-existing and unrelated to
+`$secondary_blocks`). A new template does not need its own version of this.

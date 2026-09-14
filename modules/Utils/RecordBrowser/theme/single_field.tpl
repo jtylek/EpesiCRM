@@ -1,5 +1,5 @@
-<div class="epesi-rv-row">
-    <div class="label{if $f.type == 'long text'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+<div class="epesi-rv-row{if $f.type == 'multiselect'} multiselect_row{/if}{if $f.type == 'long text'} long_row{/if}">
+    <div class="label{if $f.type == 'long text'} long_label{/if}{if $f.type == 'multiselect'} multiselect_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
     <div class="data{if $f.type == 'long text'} long_data{/if} {$f.style}" id="_{$f.element}__data">
         {if $f.error}{$f.error}{/if}
         {if $f.help}

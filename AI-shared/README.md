@@ -25,6 +25,9 @@ environment quirks. This folder is the lower-ceremony layer underneath it.
   holds data, column overrides, addon tabs, tooltips, and the callback rules behind them.
 - [theming-and-frontend.md](theming-and-frontend.md) — icons, where a module's CSS goes,
   and the JavaScript conventions.
+- [Epesi-multicurrency.md](Epesi-multicurrency.md) — currency/exchange-rate tables, how a
+  `'currency'` RecordBrowser field stores its value, and how to find every use of a currency
+  across all recordsets (Premium included) via metadata alone.
 - [help-tutorials.md](help-tutorials.md) — adding a guided Help tutorial to a module.
 
 ## When something is wrong
@@ -39,7 +42,8 @@ environment quirks. This folder is the lower-ceremony layer underneath it.
 
 - [framework-internals.md](framework-internals.md) — how the framework itself is built:
   grid column sizing, code that must not be tidied away, the standalone entry points, the
-  menu render paths. You need this only when changing the framework's own machinery.
+  menu render paths, RecordBrowser's record view/edit field layout. You need this only when
+  changing the framework's own machinery.
 
 ## Conventions
 

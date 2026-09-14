@@ -1,18 +1,9 @@
-{* Split multiselects out from the regular fields - long text fields are
-   already kept separate by RecordBrowser_0.php itself ($longfields). No
-   row/column pre-computation anymore: the fluid CSS multi-column container
-   below (.epesi-rv-fluid) lets the browser decide how many columns fit,
-   based on available width, instead of a fixed PHP-computed count. *}
-{php}
-	$this->_tpl_vars['multiselects'] = array();
-{/php}
-{foreach key=k item=f from=$fields name=fields}
-	{if $f.type=="multiselect"}
-		{php}
-			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-		{/php}
-	{/if}
-{/foreach}
+{* $fields (short fields only) and $secondary_fields (multiselect + long
+   text, in their shared RecordBrowser field order - RecordBrowser_0.php's
+   view_entry_details()) are both PHP-built now, no template-side splitting.
+   A long text row's column-span:all (View_entry.css, via single_field.tpl's
+   long_row class) forces it full-width and breaks the column flow at its
+   exact position, rather than always sinking below every multiselect. *}
 
 {* Only the record header/container chrome is restyled here (a Bootstrap
    card instead of the gray rounded box). The field grid below now uses a
@@ -84,26 +75,19 @@
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-fluid {if $action == 'view'}view{else}edit{/if}">
 	{foreach key=k item=f from=$fields name=fields}
-		{if $f.type!="multiselect"}
-			{if !isset($focus) && $f.type=="text"}
-				{assign var=focus value=$f.element}
-			{/if}
-			{$f.full_field}
+		{if !isset($focus) && $f.type=="text"}
+			{assign var=focus value=$f.element}
 		{/if}
+		{$f.full_field}
 	{/foreach}
 </div>
-{if !empty($multiselects)}
+{if !empty($secondary_fields)}
 	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
-		{foreach key=k item=f from=$multiselects name=fields}
+		{foreach key=k item=f from=$secondary_fields name=fields}
 			{$f.full_field}
 		{/foreach}
 	</div>
 {/if}
-<div class="longfields {if $action == 'view'}view{else}edit{/if}">
-	{foreach key=k item=f from=$longfields name=fields}
-		{$f.full_field}
-	{/foreach}
-</div>
 </div>
 
 {if $main_page}

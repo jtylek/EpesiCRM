@@ -1,24 +1,12 @@
 {* Get total number of fields to display *}
 {assign var=count value=0}
-{php}
-    $this->_tpl_vars['multiselects'] = array();
-{/php}
 {foreach key=k item=f from=$fields name=fields}
-    {if $f.type!="multiselect"}
-        {assign var=count value=$count+1}
-    {else}
-        {php}
-            $this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-        {/php}
-    {/if}
+    {assign var=count value=$count+1}
 {/foreach}
 {php}
     $this->_tpl_vars['rows'] = ceil($this->_tpl_vars['count']/$this->_tpl_vars['cols']);
-    $this->_tpl_vars['mss_rows'] = ceil(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols']);
     $this->_tpl_vars['no_empty'] = $this->_tpl_vars['count']-floor($this->_tpl_vars['count']/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
     if ($this->_tpl_vars['no_empty']==0) $this->_tpl_vars['no_empty'] = $this->_tpl_vars['cols']+1;
-    $this->_tpl_vars['mss_no_empty'] = count($this->_tpl_vars['multiselects'])-floor(count($this->_tpl_vars['multiselects'])/$this->_tpl_vars['cols'])*$this->_tpl_vars['cols'];
-    if ($this->_tpl_vars['mss_no_empty']==0) $this->_tpl_vars['mss_no_empty'] = $this->_tpl_vars['cols']+1;
     $this->_tpl_vars['cols_percent'] = 100 / $this->_tpl_vars['cols'];
 {/php}
 
@@ -91,13 +79,13 @@
                     <div class="column" style="flex: 1 1 0; min-width: 0;">
                         <div class="{if $action == 'view'}view{else}edit{/if}">
                         <div class="epesi-rv-row">
-                        <div class="data long_data {$longfields.note.style}" id="_{$longfields.note.element}__data">
-                            {if $longfields.note.error}{$longfields.note.error}{/if}
-                            {if $longfields.note.help}
-                                <div class="help"><img src="{$longfields.note.help.icon}" alt="help" {$longfields.note.help.text}></div>
+                        <div class="data long_data {$secondary_fields.note.style}" id="_{$secondary_fields.note.element}__data">
+                            {if $secondary_fields.note.error}{$secondary_fields.note.error}{/if}
+                            {if $secondary_fields.note.help}
+                                <div class="help"><img src="{$secondary_fields.note.help.icon}" alt="help" {$secondary_fields.note.help.text}></div>
                             {/if}
                             <div>
-                                {$longfields.note.html}{if $action == 'view'}&nbsp;{/if}
+                                {$secondary_fields.note.html}{if $action == 'view'}&nbsp;{/if}
                             </div>
                         </div>
                         </div>
@@ -124,7 +112,6 @@
                     {assign var=y value=1}
                     {foreach key=k item=f from=$fields name=fields}
                         {if $k!='title' && $k!='permission' && $k!='edited_on' && $k!='sticky' && $k!='crypted'}
-                        {if $f.type!="multiselect"}
                             {if !isset($focus) && $f.type=="text"}
                                 {assign var=focus value=$f.element}
                             {/if}
@@ -143,37 +130,43 @@
                                 {assign var=y value=$y+1}
                             {/if}
                         {/if}
-                        {/if}
                     {/foreach}
                 </div>
-                {if !empty($multiselects)}
-                    <div class="epesi-rv-columns">
-                        {assign var=x value=1}
-                        {assign var=y value=1}
-                        {foreach key=k item=f from=$multiselects name=fields}
-                            {if $y==1}
-                                <div class="column" style="width: {$cols_percent}%;">
-                                <div class="multiselects {if $action == 'view'}view{else}edit{/if}">
-                            {/if}
-                            {$f.full_field}
-                            {if $y==$mss_rows or ($y==$mss_rows-1 and $x>$mss_no_empty)}
-                                {assign var=y value=1}
-                                {assign var=x value=$x+1}
-                                </div>
-                                </div>
-                            {else}
-                                {assign var=y value=$y+1}
-                            {/if}
+                {* Multiselect and long text fields (e.g. Attached to, Note, or
+                   any admin-added custom field), in their shared RecordBrowser
+                   field order (RecordBrowser_0.php's $secondary_blocks) - Note
+                   is skipped here since it already rendered, fixed-position,
+                   above. *}
+                {foreach key=bk item=block from=$secondary_blocks name=secondary_blocks}
+                    {if $block.type=='long'}
+                        {if $block.item.element!="note"}
+                            <div class="longfields {if $action == 'view'}view{else}edit{/if}">
+                                {$block.item.full_field}
+                            </div>
+                        {/if}
+                    {else}
+                        {* Row-major, not column-major: each row of up to $cols
+                           fields renders as its own .epesi-rv-columns, left to
+                           right, before moving to the next row - so reading order
+                           (top to bottom) matches Manage Fields' own order,
+                           instead of filling one column all the way down before
+                           starting the next. *}
+                        {php}
+                            $this->_tpl_vars['mss_block_grid'] = array_chunk($this->_tpl_vars['block']['items'], $this->_tpl_vars['cols'], true);
+                        {/php}
+                        {foreach key=rk item=mss_row from=$mss_block_grid name=secondary_block_rows}
+                            <div class="epesi-rv-columns">
+                                {foreach key=k item=f from=$mss_row name=secondary_block_row_items}
+                                    <div class="column" style="width: {$cols_percent}%;">
+                                        <div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+                                            {$f.full_field}
+                                        </div>
+                                    </div>
+                                {/foreach}
+                            </div>
                         {/foreach}
-                    </div>
-                {/if}
-                <div class="longfields {if $action == 'view'}view{else}edit{/if}">
-                    {foreach key=k item=f from=$longfields name=fields}
-                        {if $k!='note'}
-                            {$f.full_field}
-                        {/if}
-                    {/foreach}
-                </div>
+                    {/if}
+                {/foreach}
             </div>
 
             {if $main_page}

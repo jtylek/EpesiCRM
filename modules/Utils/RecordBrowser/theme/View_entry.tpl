@@ -1,18 +1,12 @@
-{* Split multiselects out from the regular fields - long text fields are
-   already kept separate by RecordBrowser_0.php itself ($longfields). No
-   row/column pre-computation anymore: the fluid CSS multi-column container
+{* $fields (short fields only) and $secondary_fields (multiselect + long
+   text, in their shared RecordBrowser field order - RecordBrowser_0.php's
+   view_entry_details()) are both PHP-built now, no template-side splitting.
+   No row/column pre-computation either: the fluid CSS multi-column container
    below (.epesi-rv-fluid) lets the browser decide how many columns fit,
-   based on available width, instead of a fixed PHP-computed count. *}
-{php}
-	$this->_tpl_vars['multiselects'] = array();
-{/php}
-{foreach key=k item=f from=$fields name=fields}
-	{if $f.type=="multiselect"}
-		{php}
-			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-		{/php}
-	{/if}
-{/foreach}
+   based on available width, instead of a fixed PHP-computed count. A long
+   text row inside that same container gets column-span:all (View_entry.css)
+   so it still renders full-width and breaks the column flow, while keeping
+   its position relative to any multiselect fields around it. *}
 
 {if $main_page}
 <div class="Utils_RecordBrowser__table">
@@ -81,31 +75,35 @@
 <div class="Utils_RecordBrowser__View_entry">
 <div class="epesi-rv-fluid {if $action == 'view'}view{else}edit{/if}">
 	{foreach key=k item=f from=$fields name=fields}
-		{if $f.type!="multiselect"}
-			{if !isset($focus) && $f.type=="text"}
-				{assign var=focus value=$f.element}
-			{/if}
-			<div class="epesi-rv-row">
-				<div class="label{if $f.type == 'long text'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
-				<div class="data{if $f.type == 'long text'} long_data{/if} {$f.style}" id="_{$f.element}__data">
-					{if $f.error}{$f.error}{/if}
-					{if $f.help}
-						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
-					{/if}
-					<div>
-						{$f.html}{if $action == 'view'}&nbsp;{/if}
-					</div>
+		{if !isset($focus) && $f.type=="text"}
+			{assign var=focus value=$f.element}
+		{/if}
+		<div class="epesi-rv-row">
+			<div class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+			<div class="data {$f.style}" id="_{$f.element}__data">
+				{if $f.error}{$f.error}{/if}
+				{if $f.help}
+					<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
+				{/if}
+				<div>
+					{$f.html}{if $action == 'view'}&nbsp;{/if}
 				</div>
 			</div>
-		{/if}
+		</div>
 	{/foreach}
 </div>
-{if !empty($multiselects)}
+{if !empty($secondary_fields)}
+	{* Multiselect and long text fields, in their shared RecordBrowser field
+	   order. Still one fluid multi-column container, so multiselect rows
+	   flow side by side same as before - a long text row instead gets
+	   column-span:all (View_entry.css) to force a full-width break at its
+	   exact position in that order, rather than always sinking below every
+	   multiselect. *}
 	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
-		{foreach key=k item=f from=$multiselects name=fields}
-			<div class="epesi-rv-row">
-				<div class="label">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
-				<div class="data {$f.style}" id="_{$f.element}__data">
+		{foreach key=k item=f from=$secondary_fields name=fields}
+			<div class="epesi-rv-row{if $f.type == 'long text'} long_row{/if}">
+				<div class="label{if $f.type == 'long text'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+				<div class="data{if $f.type == 'long text'} long_data{/if} {$f.style}" id="_{$f.element}__data">
 					{if $f.error}{$f.error}{/if}
 					{if $f.help}
 						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>
@@ -118,16 +116,6 @@
 		{/foreach}
 	</div>
 {/if}
-{* Long text fields were always full-width, single-column - unaffected by
-   the column split either before or after this change, so left going
-   through single_field.tpl/{$f.full_field} in a plain table exactly as
-   before, just without the outer colspan wrapper (no longer needed, since
-   there's no outer table to span). *}
-<div class="longfields {if $action == 'view'}view{else}edit{/if}" style="border-top: none;">
-	{foreach key=k item=f from=$longfields name=fields}
-		{$f.full_field}
-	{/foreach}
-</div>
 </div>
 
 {if $main_page}

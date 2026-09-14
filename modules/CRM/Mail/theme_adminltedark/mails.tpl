@@ -196,13 +196,44 @@
 
 			{* Body - full width *}
 			<div class="longfields {if $action == 'view'}view{else}edit{/if}">
-				{$longfields.body.full_field}
-				{foreach key=k item=f from=$longfields name=fields}
-					{if $k!='body'}
-						{$f.full_field}
-					{/if}
-				{/foreach}
+				{$secondary_fields.body.full_field}
 			</div>
+
+			{* Any other multiselect/long text field (e.g. an admin-added custom
+			   field), in the RecordBrowser field order configured for this table
+			   (RecordBrowser_0.php's $secondary_blocks) - same "don't silently
+			   drop a custom field" fallback convention as the field grid above.
+			   Body is skipped here since it already rendered, fixed-position,
+			   just above. *}
+			{foreach key=bk item=block from=$secondary_blocks name=secondary_blocks}
+				{if $block.type=='long'}
+					{if $block.item.element!="body"}
+						<div class="longfields {if $action == 'view'}view{else}edit{/if}">
+							{$block.item.full_field}
+						</div>
+					{/if}
+				{else}
+					{* Row-major, not column-major: each row of up to 2 fields
+					   renders as its own .epesi-rv-columns, left to right, before
+					   moving to the next row - so reading order (top to bottom)
+					   matches Manage Fields' own order, instead of filling one
+					   column all the way down before starting the next. *}
+					{php}
+						$this->_tpl_vars['mss_block_grid'] = array_chunk($this->_tpl_vars['block']['items'], 2, true);
+					{/php}
+					{foreach key=rk item=mss_row from=$mss_block_grid name=secondary_block_rows}
+						<div class="epesi-rv-columns">
+							{foreach key=k item=f from=$mss_row name=secondary_block_row_items}
+								<div class="column" style="width: 50%;">
+									<div class="multiselects {if $action == 'view'}view{else}edit{/if}">
+										{$f.full_field}
+									</div>
+								</div>
+							{/foreach}
+						</div>
+					{/foreach}
+				{/if}
+			{/foreach}
 
 			{* Attachments - full width, underneath Body; always a plain download link, even
 			   for PNG/JPG (see MailCommon_0.php::get_attachments_html()). *}

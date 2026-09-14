@@ -51,7 +51,12 @@ class HTML_QuickForm_timestamp extends HTML_QuickForm_group
 	// {{{ constructor
 
 	function __construct($elementName = null, $elementLabel = null, $options = array(), $attributes = null) {
-		parent::__construct($elementName, $elementLabel, $attributes); // PHP4 ctor → openpsa parent::__construct
+		// Deliberately grandparent, not parent::__construct(): the original PHP4-style
+		// ctor called HTML_QuickForm_element's ctor directly, skipping HTML_QuickForm_group's
+		// (whose 3rd param is $elements, not $attributes — parent::__construct here would
+		// silently misroute $attributes into _elements, e.g. via a leftover 'onchange' array,
+		// short-circuiting _createElementsIfNotExist() and crashing setValue() on a string).
+		HTML_QuickForm_element::__construct($elementName, $elementLabel, $attributes);
 		$this->_elementName = $elementName;
 		$this->_persistantFreeze = true;
 		$this->_appendName = true;

@@ -27,17 +27,6 @@
    needs the id present to keep matching). View_entry.css (loaded alongside
    any custom $tpl by RecordBrowser_0.php) already covers .label/.data/
    .epesi-rv-fluid/etc, so no separate CSS needed here. *}
-{php}
-	$this->_tpl_vars['multiselects'] = array();
-{/php}
-{foreach key=k item=f from=$fields name=fields}
-	{if $f.type=="multiselect"}
-		{php}
-			$this->_tpl_vars['multiselects'][] = $this->_tpl_vars['f'];
-		{/php}
-	{/if}
-{/foreach}
-
 <div class="epesi-rv-header">
 	<div class="epesi-rv-tools">
 		{if isset($subscription_tooltip)}
@@ -176,24 +165,18 @@
 				$k!='phone' &&
 				$k!='other_phone' &&
 				$k!='other_phone_number' &&
-				$k!='date_and_time' &&
-                            $f.type != 'multiselect')}
+				$k!='date_and_time')}
 			{$f.full_field}
 		{/if}
 	{/foreach}
 </div>
-{if !empty($multiselects)}
+{if !empty($secondary_fields)}
 	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
-		{foreach key=k item=f from=$multiselects name=fields}
+		{foreach key=k item=f from=$secondary_fields name=fields}
 			{$f.full_field}
 		{/foreach}
 	</div>
 {/if}
-<div class="longfields {if $action == 'view'}view{else}edit{/if}">
-	{foreach key=k item=f from=$longfields name=fields}
-		{$f.full_field}
-	{/foreach}
-</div>
 </div>
 </div>
 
