@@ -512,10 +512,10 @@ class Utils_RecordBrowser extends Module {
             } else {
                 $arr['width'] = 100;
 			}
-            // Every column's value cell is right-aligned (set below), so the
-            // header is too - otherwise it renders left-aligned over a
+            // Numeric/currency columns right-align their value cell (set below), so
+            // right-align the header too - otherwise it renders left-aligned over a
             // right-aligned value.
-            $arr['attrs'] = 'style="text-align:right;"';
+            if ($args['style']=='currency' || $args['style']=='number') $arr['attrs'] = 'style="text-align:right;"';
             $arr['name'] = _V($arr['name']); // ****** Translate field name for table header
             if (isset($this->more_table_properties[$args['id']])) {
                 foreach (array('name','wrapmode','width','display','order') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
@@ -889,9 +889,9 @@ class Utils_RecordBrowser extends Module {
                 $args = $this->table_rows[$field];
                 $value = $this->get_val($field, $row, ($special || $pdf), $args);
                 if (strip_tags($value)=='') $value .= '&nbsp;';
-                if ($args['style']=='noexpand') $value = array('style'=>'text-align:right;','class'=>'Utils_RecordBrowser__noexpand','value'=>$value,'overflow_box'=>false);
-                elseif ($args['style']=='tall_preview') $value = array('style'=>'text-align:right;','class'=>'Utils_RecordBrowser__tallpreview','value'=>$value,'overflow_box'=>false);
-                else $value = array('style'=>'text-align:right;','value'=>$value);
+                if ($args['style']=='currency' || $args['style']=='number') $value = array('style'=>'text-align:right;','value'=>$value);
+                elseif ($args['style']=='noexpand') $value = array('class'=>'Utils_RecordBrowser__noexpand','value'=>$value,'overflow_box'=>false);
+                elseif ($args['style']=='tall_preview') $value = array('class'=>'Utils_RecordBrowser__tallpreview','value'=>$value,'overflow_box'=>false);
                 if ($grid_enabled && !in_array($args['type'], array('calculated','multiselect','commondata'))) {
                     $table = '<div class="Utils_RecordBrowser__grid_table" style="width:100%;display:flex;"><div id="grid_form_field_'.$argsid.'_'.$row['id'].'" style="display:none;">Loading...</div><div id="grid_value_field_'.$argsid.'_'.$row['id'].'" style="flex:1 1 auto;min-width:0;">';
                     $ed_icon = '</div><div style="min-width:18px;width:18px;padding:0px;margin:0px;flex:0 0 18px;">'.
