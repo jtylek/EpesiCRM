@@ -18,6 +18,16 @@ required. A custom `.tpl` via `set_tpl()`, a `display_callback` and the rest are
 escape hatches for the exceptional case**, not the normal path a developer is expected to
 take.
 
+**This is a default, not a mandate.** For a simple record with a simple view, the generated
+add/edit/view screen should be the developer's first move — that's the whole point, it's what
+frees them from writing a template at all. But whether to use it is a case-by-case call for
+the developer, not a rule to force through. Some modules carry genuinely complex recordsets
+where not every field belongs in front of the user, or the generic layout doesn't fit what the
+screen needs to communicate — a custom template is the right tool there, not a shortcut around
+the framework. Reaching for `set_tpl()`/`display_callback` on a record that actually warrants
+it isn't cutting against this principle; it's what makes them escape hatches for the
+exceptional case rather than a sign the generic screen is broken.
+
 The same principle decides where computation lives. Layout that a module author would
 otherwise have to hand-write is generated for them — whether that generation happens in
 PHP, in a template, or by handing the decision to the browser through CSS. Moving it

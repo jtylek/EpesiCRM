@@ -44,6 +44,8 @@ environment quirks. This folder is the lower-ceremony layer underneath it.
   grid column sizing, code that must not be tidied away, the standalone entry points, the
   menu render paths, RecordBrowser's record view/edit field layout. You need this only when
   changing the framework's own machinery.
+- [Epesi-ajax-rewrite.md](Epesi-ajax-rewrite.md) — plan (not yet started) for moving the
+  `process.php` DOM-patch push onto `ajax.php`'s Symfony Request/Response model.
 
 ## Conventions
 
