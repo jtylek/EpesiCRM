@@ -244,11 +244,18 @@
 			{/if}
 
 			{* Row 5: Attached to (left column), Permission + Sticky stacked
-			   (right column) *}
+			   (right column). 'attached_to' is type=multiselect, so
+			   view_entry_details() (RecordBrowser_0.php) always routes its
+			   $opts into $secondary_fields, never $fields - the same split
+			   that keeps it out of the generic fallback loop below (see that
+			   loop's own unset($items['attached_to'])). Reading it from
+			   $fields here was a silent no-op ($fields.attached_to is
+			   undefined, so .full_field resolves to nothing) - this whole
+			   column rendered empty, with no visible error. *}
 			<div class="epesi-rv-columns">
 					<div class="column" style="flex: 1 1 0; min-width: 0;">
 						<div class="{if $action == 'view'}view{else}edit{/if}">
-							{$fields.attached_to.full_field}
+							{$secondary_fields.attached_to.full_field}
 						</div>
 					</div>
 					<div class="column" style="flex: 1 1 0; min-width: 0;">

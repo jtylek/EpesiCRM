@@ -1,7 +1,14 @@
 autoselect_on_hide = function (element,mode) {
-	var new_value=document.getElementById("__autocomplete_id_"+element+"__search").value.split('__');
+	// The blur listener in autocomplete.js fires this ~250ms after the search
+	// box loses focus - long enough for its containing modal/tab/row to have
+	// already been closed or replaced by Epesi's push-style AJAX (the same
+	// race EpesiAutocompleter's own constructor guards against). Bail instead
+	// of dereferencing a search box that's no longer in the DOM.
+	var search_el = document.getElementById("__autocomplete_id_"+element+"__search");
+	if (!search_el) return;
+	var new_value=search_el.value.split('__');
 	if (new_value && typeof(new_value[1])!="undefined") {
-		document.getElementById("__autocomplete_id_"+element+"__search").value="";
+		search_el.value="";
 		autoselect_add_value(element, new_value[0], new_value[1]);
 	} else new_value=false;
 	if (mode==1 || new_value) {
@@ -11,7 +18,7 @@ autoselect_on_hide = function (element,mode) {
 		var evt = document.createEvent('HTMLEvents');
 		evt.initEvent('change', true, true);
 		document.getElementById(element).dispatchEvent(evt);
-		document.getElementById("__autocomplete_id_"+element+"__search").value="";
+		search_el.value="";
 	}
 }
 

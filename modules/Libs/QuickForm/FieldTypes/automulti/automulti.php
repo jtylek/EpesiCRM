@@ -270,8 +270,19 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
 			$list = '';
 			$attrString = $this->_getAttrString($this->_attributes);
 			$mainElement .= $tabs . '<select' . $attrString . ' onclick="automulti_remove_button_update(\''.$myName.'\');">'."\n";
-			if ($this->_format_callback) foreach ($this->_values as $value) {
-				$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
+			// $list (the hidden input's submitted value, below) has to be built from
+			// $this->_values unconditionally - a field with no format callback (e.g.
+			// Utils_Attachment's invisible 'attached_to', whose recordset span is too
+			// broad for one) still needs its selection to round-trip through submit,
+			// even though there's nothing to call to render a human-readable <option>
+			// label for it. Gating $list construction on $this->_format_callback the
+			// same way the visible <option> markup is meant no format callback => the
+			// hidden input always rendered value="" regardless of what was selected,
+			// silently discarding the value on every submit.
+			foreach ($this->_values as $value) {
+				if ($this->_format_callback) {
+					$mainElement .= $tabs . "\t".'<option value="'.$value.'">' . call_user_func($this->_format_callback, $value, $this->_options_callback_args) . '</option>'."\n";
+				}
 				$list .= '__SEP__'.$value;
             }
 			$mainElement .= $tabs . '</select>';
@@ -337,7 +348,31 @@ class HTML_QuickForm_automulti extends HTML_QuickForm_element {
                 $value = $this->_findValue($caller->_submitValues);
                 // Fix for bug #4465 & #5269
                 // XXX: should we push this to element::onQuickFormEvent()?
-                if (null === $value && ((is_callable(array($caller,'isSubmitted')) && !$caller->isSubmitted()) || $this->isFrozen())) {
+                //
+                // Used to gate this fallback on (!isSubmitted() || isFrozen()) -
+                // dropped that guard entirely, since it's redundant with the null
+                // check it's attached to. _findValue($caller->_submitValues)
+                // returning null means $this->getName() is simply not a key in
+                // _submitValues at all - toHtml() below always emits the hidden
+                // var_holder input for any element that actually gets rendered
+                // (frozen included), so a real submit of a rendered field always
+                // supplies at least an empty string there, which _findValue
+                // returns as non-null. Null here therefore never means "user
+                // cleared their selection" (that submits '' - a real, non-null
+                // cell - not a missing key); it means this element was never
+                // rendered into the submitted form at all, e.g. Utils_Attachment's
+                // invisible 'attached_to' (added to the form so its default can
+                // travel through, but never part of the view template's field loop
+                // - see prepare_view_entry_details() in RecordBrowser_0.php).
+                // Gating the fallback on !isSubmitted() meant that on every submit
+                // after the first (isSubmitted() true from then on), such a
+                // field's default was never re-applied, silently losing the value
+                // it was set up to carry. Confirmed live: exportValues()['attached_to']
+                // came back as an empty array on every save regardless of the
+                // field's real default, so every note ever saved through the addon
+                // ended up with a NULL f_attached_to - the Notes tab was empty
+                // everywhere.
+                if (null === $value) {
                     $value = $this->_findValue($caller->_defaultValues);
                 }
             }
