@@ -768,6 +768,22 @@
 									"var raw0=th.getAttribute('width')||th.style.width||'';".
 									"colKind=(raw0.indexOf('%')===-1&&/(em|px|rem)$/.test(raw0))?'absolute':'percent';".
 									"th.setAttribute('data-epesi-col-kind',colKind);".
+									// Cache the browser's own rendering of that CSS length, in px, before
+									// this script ever touches th.style.width below - parseFloat() of an
+									// em/rem length silently drops the unit (parseFloat("12em") === 12,
+									// not ~192px), and on a table with no body rows yet to measure
+									// naturally, that bare number is exactly what the zero-row fallback a
+									// few lines down would otherwise take as a literal px width, e.g.
+									// Utils_Attachment's 'edited_on'=>"12em" (Attachment_0.php) rendering
+									// as a 12px-wide column - unreadably thin, though not itself an
+									// overflow risk since a too-small fixed column only ever leaves the
+									// remaining percent column(s) MORE room, never less. Same
+									// once-on-first-sight caching pattern as data-epesi-orig-percent right
+									// below, for the same reason: a later run (resize, e:load) would
+									// otherwise re-derive from this function's own prior "NNpx" write
+									// instead of the real original length. Only meaningful for an
+									// 'absolute' column (the fallback below never reads it otherwise).
+									"if(colKind==='absolute')th.setAttribute('data-epesi-abs-natural-px',th.getBoundingClientRect().width);".
 								"}".
 								"if(colKind==='absolute'){".
 									"var idxAbs=cellIndexOf(th);".
@@ -777,7 +793,7 @@
 										"if(!cell)return;".
 										"var wAbs=naturalWidth(cell);if(wAbs>fwAbs)fwAbs=wAbs;".
 									"});".
-									"var awPx=fwAbs>0?Math.ceil(fwAbs+6):(parseFloat(th.style.width)||th.getBoundingClientRect().width||0);".
+									"var awPx=fwAbs>0?Math.ceil(fwAbs+6):(parseFloat(th.getAttribute('data-epesi-abs-natural-px'))||th.getBoundingClientRect().width||0);".
 									"th.style.width=awPx+'px';".
 									"fixedWidth+=awPx;".
 								"}else{".
