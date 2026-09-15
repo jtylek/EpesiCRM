@@ -11,6 +11,10 @@ Thumbs.db
 .history/
 .playwright-mcp/
 
+# Ad-hoc screenshots (Claude's own Playwright UI verification, manual debugging
+# captures, etc.) - never source, never worth committing.
+/screenshots/
+
 # Optional fast-install file read by setup.php ($fast_install_filename) to
 # pre-fill the database form. It holds the database password in the application
 # root, so it must never be committed. write_config() deletes it once the

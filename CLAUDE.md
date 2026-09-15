@@ -73,6 +73,9 @@ behind that split and other details.
 - `modules/Premium/` is a separately-licensed, gitignored tree (each premium module is its own git repo).
   Claude Code's Grep tool silently skips gitignored paths, so an exhaustive sweep that must include Premium
   needs plain `grep`/`git grep --no-index` via Bash instead.
+- **Playwright screenshots:** save to `/screenshots/` (gitignored), never the repo root — a Playwright
+  screenshot/snapshot filename with no directory prefix saves to the current working directory, which for
+  this project is the repo root.
 
 ## Commands
 
