@@ -69,7 +69,17 @@ class Utils_FileUpload_Dropzone extends Module
         	'acceptedFiles' => $this->acceptedFiles,
             'dictDefaultMessage' => __('Drop files here or click to upload')
         ];
-        eval_js('jq(".dz-hidden-input").remove(); if (document.querySelector("#' . $identifier . '") && !document.querySelector("#' . $identifier . '").dropzone) {
+        // Scoped to this dropzone's own container, not jq(".dz-hidden-input") page-wide: with
+        // more than one 'file'-type field on the same form (e.g. Items' Main Photo + Additional
+        // Photos), an unscoped selector here deleted the hidden <input> Dropzone #1 had just
+        // created out from under it the moment Dropzone #2's get_div() ran its own copy of this
+        // same line - leaving Dropzone #1's own `this.hiddenFileInput` JS reference pointing at a
+        // detached node. Dropzone.js recreates that hidden input on every file selection (so the
+        // same file can be picked again) via `this.hiddenFileInput.parentNode.removeChild(...)`;
+        // with parentNode already null from the cross-field removal above, that throws "Cannot
+        // read properties of null (reading 'removeChild')" the moment a user picks a file - one
+        // 'file' field alone never hit this, since nothing else on the page shared the selector.
+        eval_js('jq("#' . $identifier . ' .dz-hidden-input").remove(); if (document.querySelector("#' . $identifier . '") && !document.querySelector("#' . $identifier . '").dropzone) {
             var dz = new Dropzone("#' . $identifier . '", '.json_encode($options).');
             dz.on("removedfile", function(file) {
                    jq.ajax({

@@ -101,9 +101,9 @@
 	   multiselect. *}
 	<div class="epesi-rv-fluid multiselects {if $action == 'view'}view{else}edit{/if}">
 		{foreach key=k item=f from=$secondary_fields name=fields}
-			<div class="epesi-rv-row{if $f.type == 'long text'} long_row{/if}">
-				<div class="label{if $f.type == 'long text'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
-				<div class="data{if $f.type == 'long text'} long_data{/if} {$f.style}" id="_{$f.element}__data">
+			<div class="epesi-rv-row{if $f.type == 'long text' || $f.type == 'file'} long_row{/if}">
+				<div class="label{if $f.type == 'long text' || $f.type == 'file'} long_label{/if}">{$f.label}{if $f.required}*{/if}{$f.advanced}</div>
+				<div class="data{if $f.type == 'long text' || $f.type == 'file'} long_data{/if} {$f.style}" id="_{$f.element}__data">
 					{if $f.error}{$f.error}{/if}
 					{if $f.help}
 						<div class="help"><img src="{$f.help.icon}" alt="help" {$f.help.text}></div>

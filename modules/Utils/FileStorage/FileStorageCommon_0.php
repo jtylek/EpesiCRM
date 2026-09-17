@@ -133,9 +133,36 @@ class Utils_FileStorageCommon extends ModuleCommon {
     
     public static function get_default_action_urls($meta) {
     	$id = is_numeric($meta)? $meta: $meta['id'];
-    	
+
     	$default_action_handler = new Utils_FileStorage_ActionHandler();
     	return $default_action_handler->getActionUrls($id);
+    }
+
+    // Plain-argument equivalent of Utils_FileStorage_ActionHandler::createRemote() (protected,
+    // Request-shaped) for callers with just a file_id and no HTTP request to build - generates a
+    // token-based modules/Utils/FileStorage/remote.php URL that serves the file to an
+    // unauthenticated caller (Utils_FileStorage_RemoteActionHandler::$forUsersOnly = false) until
+    // $expires. Used e.g. by Allegro offer image URLs, which Allegro's own servers must be able to
+    // fetch with no Epesi session. Originally lived only as Utils_AttachmentCommon::create_remote()
+    // (CRM_Roundcube's remote mail attachments) despite having nothing Attachment-specific about
+    // it - moved here so a caller with no reason to depend on Utils_Attachment doesn't have to.
+    public static function create_remote_link($file_id, $expires) {
+        // utils_filestorage_remote.created_by has no real "system" user row to reference - called
+        // with no Acl user set (a CLI/cron script that never logged in), Acl::get_user() returns a
+        // falsy value, the INSERT fails, and DB::Insert_ID() then returns 0 - silently handing back
+        // a URL for a row that was never created, rather than an error. Found live 2026-09-17
+        // calling this from a bare CLI script with no session. A caller in that situation needs
+        // Acl::set_sa_user() (or a resolved real login) before this, same as e.g.
+        // import_k2_items.php already does for its own RecordBrowser writes.
+        $user = Acl::get_user();
+        if (!$user) trigger_error('Utils_FileStorageCommon::create_remote_link() needs a real Acl user - created_by is required. Call Acl::set_sa_user() first if running outside a normal web session.', E_USER_ERROR);
+
+        $token = md5($file_id.$expires.mt_rand());
+        DB::Execute('INSERT INTO utils_filestorage_remote(file_id,token,created_on,created_by,expires_on) VALUES (%d,%s,%T,%d,%T)',
+            array($file_id, $token, time(), $user, $expires));
+        $id = DB::Insert_ID('utils_filestorage_remote', 'id');
+        if (!$id) trigger_error('Utils_FileStorageCommon::create_remote_link() failed to insert a utils_filestorage_remote row.', E_USER_ERROR);
+        return get_epesi_url().'/modules/Utils/FileStorage/remote.php?'.http_build_query(array('id'=>$id, 'token'=>$token));
     }
     
     public static function get_storage_file_path($hash)

@@ -1489,7 +1489,13 @@ class Utils_RecordBrowser extends Module {
 
 				if (!$opts) continue;
 
-                if ($desc['type']=='multiselect' || $desc['type']=='long text') $secondary_fields[$desc['id']] = $opts; else $fields[$desc['id']] = $opts;
+                // 'file' (Dropzone) joins 'long text' here for the same reason: a
+                // gallery/upload widget needs the full row width single_field.tpl's
+                // long_row class gives it, not the ~420px multi-column slot ordinary
+                // short fields share - crammed into that narrow column, two 'file'
+                // fields next to each other (e.g. a Main/Additional Photos pair)
+                // overflowed sideways into a horizontal scrollbar instead of stacking.
+                if ($desc['type']=='multiselect' || $desc['type']=='long text' || $desc['type']=='file') $secondary_fields[$desc['id']] = $opts; else $fields[$desc['id']] = $opts;
             }
         }
         $theme->assign('fields', $fields);
