@@ -49,7 +49,7 @@ class Patches extends SteppedAdminModule {
             if ($patch->was_applied()) {
                 $installed_count++;
                 if ($filter == 'installed')
-                    $rows[] = $this->row($patch, 'installed', 'text-bg-success');
+                    $rows[] = $this->row($patch, 'installed', 'text-bg-success', false, null, $patch->get_applied_info());
             } else {
                 $new_count++;
                 if ($filter == 'uninstalled')
@@ -99,7 +99,7 @@ class Patches extends SteppedAdminModule {
         foreach ($this->_patches_ran as $patch) {
             $status = $patch->get_apply_status();
             if ($status === Patch::STATUS_SUCCESS) {
-                $rows[] = $this->row($patch, 'patch installed', 'text-bg-success');
+                $rows[] = $this->row($patch, 'patch installed', 'text-bg-success', false, null, $patch->get_applied_info());
                 $patched_success++;
             } elseif ($status === Patch::STATUS_ERROR) {
                 $extra = "File: {$patch->get_file()}\n{$patch->get_apply_error_msg()}";
@@ -137,10 +137,12 @@ class Patches extends SteppedAdminModule {
         ));
     }
 
-    private function row(Patch $patch, $status_text, $badge_class, $strong = false, $extra = null) {
+    private function row(Patch $patch, $status_text, $badge_class, $strong = false, $extra = null, $applied_info = null) {
         return array(
             'module' => $patch->get_module(),
             'description' => $patch->get_short_description(),
+            'name' => $applied_info['name'] ?? $patch->get_file(),
+            'date' => $applied_info['date'] ?? null,
             'status_text' => $status_text,
             'badge_class' => $badge_class,
             'strong' => $strong,

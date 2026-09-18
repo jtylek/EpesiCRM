@@ -313,8 +313,12 @@ class PatchesDB
     {
         $tables_db = DB::MetaTables();
         if (!in_array('patches', $tables_db)) {
-            DB::CreateTable('patches', "id C(32) KEY NOTNULL");
-        } //md5 id
+            // id: md5 of the patch's relative file path - sole lookup key, unchanged since
+            // this table's introduction. name/date are purely informational (which file, and
+            // when mark_applied() ran) for the admin Patches screen - was_applied() below never
+            // reads them, so their presence/absence cannot affect whether a patch runs again.
+            DB::CreateTable('patches', "id C(32) KEY NOTNULL, name C(255), date T");
+        }
     }
 
     public function was_applied($identifier)
@@ -322,9 +326,14 @@ class PatchesDB
         return 1 == DB::GetOne('SELECT 1 FROM patches WHERE id=%s', array($identifier));
     }
 
-    public function mark_applied($identifier)
+    public function mark_applied($identifier, $name = null)
     {
-        DB::Execute('INSERT INTO patches VALUES(%s)', array($identifier));
+        DB::Execute('INSERT INTO patches (id, name, date) VALUES (%s, %s, %s)', array($identifier, $name, date('Y-m-d H:i:s')));
+    }
+
+    public function get_applied_info($identifier)
+    {
+        return DB::GetRow('SELECT name, date FROM patches WHERE id=%s', array($identifier));
     }
 
 }
@@ -484,12 +493,24 @@ class Patch
 
     function mark_applied()
     {
-        $this->DB->mark_applied($this->get_identifier());
+        $this->DB->mark_applied($this->get_identifier(), $this->file);
     }
 
     function was_applied()
     {
         return $this->DB->was_applied($this->get_identifier());
+    }
+
+    /**
+     * The recorded name/date for an already-applied patch (see PatchesDB::get_applied_info()).
+     * Only meaningful after was_applied() is true - a patch that hasn't run yet has no row to
+     * read back, so callers checking a not-yet-applied patch get null.
+     *
+     * @return array{name: ?string, date: ?string}|null
+     */
+    function get_applied_info()
+    {
+        return $this->DB->get_applied_info($this->get_identifier());
     }
 
     function get_identifier()

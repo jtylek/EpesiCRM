@@ -11,19 +11,31 @@
 </div>
 	{/if}
 
-<div role="table" style="display: grid; grid-template-columns: auto 1fr auto; align-items: center;">
+<div class="table-responsive">
+<table class="table table-sm table-hover align-middle mb-3">
+	<thead>
+		<tr>
+			<th>{'Module'|t}</th>
+			<th>{'Patch'|t}</th>
+			<th class="text-nowrap">{'Applied'|t}</th>
+			<th class="text-end">{'Status'|t}</th>
+		</tr>
+	</thead>
+	<tbody>
 	{foreach from=$rows item=row}
-	<div role="row" style="display: contents;">
-		<div class="border-bottom py-1 pe-2{if $row.strong} fw-semibold{/if}" role="cell">{$row.module}</div>
-		<div class="border-bottom py-1 pe-2{if $row.strong} fw-semibold{/if}" role="cell">{$row.description}</div>
-		<div class="border-bottom py-1 text-end" role="cell"><span class="badge {$row.badge_class}">{$row.status_text}</span></div>
-	</div>
-	{if $row.extra}
-	<div role="row" style="display: contents;">
-		<div class="border-bottom py-1" role="cell" style="grid-column: 1 / -1;"><pre class="text-muted small mb-0">{$row.extra|escape}</pre></div>
-	</div>
-	{/if}
+		<tr>
+			<td class="text-nowrap">{$row.module}</td>
+			<td>
+				<div{if $row.strong} class="fw-semibold"{/if}>{$row.description}</div>
+				<div class="text-muted small font-monospace text-truncate" style="max-width: 480px;" title="{$row.name}">{$row.name}</div>
+				{if $row.extra}<pre class="text-muted small mb-0 mt-1">{$row.extra|escape}</pre>{/if}
+			</td>
+			<td class="text-nowrap text-muted small">{if $row.date}{$row.date}{else}&mdash;{/if}</td>
+			<td class="text-end"><span class="badge {$row.badge_class}">{$row.status_text}</span></td>
+		</tr>
 	{/foreach}
+	</tbody>
+</table>
 </div>
 
 <div class="d-flex gap-3 mb-3">
