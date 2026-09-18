@@ -96,9 +96,17 @@ class CRM_Roundcube extends Module {
             print('<div style="background:transparent url(images/loader-0.gif) no-repeat 50% 50%;"><iframe style="border:0" border="0" src="'.$rc_src.'" width="100%" height="300px" id="rc_frame"></iframe></div>');
             eval_js('var dim={height:document.documentElement.clientHeight};var rc=document.getElementById("rc_frame");rc.style.height=(Math.max(dim.height,document.documentElement.clientHeight)-130)+"px";');
         }
-        $epesi_mail_url = get_epesi_url() . '?rc_mailto=%s';
-        $epesi_mail_name = EPESI . ' - ' . get_epesi_url();
-        eval_js_once("if (typeof navigator != 'undefined') { navigator.registerProtocolHandler('mailto', '$epesi_mail_url', '$epesi_mail_name'); }");
+        // registerProtocolHandler() throws a SecurityError unless the handler URL is
+        // in the document's own origin, and get_epesi_url() is the configured
+        // EPESI_URL - whose scheme/host need not match the tab (HSTS-upgraded
+        // localhost, https front end over an http:// EPESI_URL, second hostname,
+        // reverse proxy). So take only the path from the configured URL and the
+        // origin from the browser. This only makes Epesi an option for mailto:
+        // links, so if the browser still refuses (blocked, insecure context, ...)
+        // log it rather than let window.onerror pop an alert the user can't act on.
+        $epesi_mail_path = json_encode((string)parse_url(get_epesi_url(), PHP_URL_PATH) . '?rc_mailto=%s', JSON_UNESCAPED_SLASHES);
+        $epesi_mail_name = json_encode(EPESI . ' - ', JSON_UNESCAPED_SLASHES);
+        eval_js_once("if (typeof navigator != 'undefined' && navigator.registerProtocolHandler) { try { navigator.registerProtocolHandler('mailto', location.origin + $epesi_mail_path, $epesi_mail_name + location.origin); } catch (e) { if (window.console) console.warn('mailto handler not registered: ' + e.message); } }");
     }
 
     public function push_settings($s) {
