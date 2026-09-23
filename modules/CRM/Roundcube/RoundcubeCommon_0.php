@@ -23,15 +23,6 @@ class CRM_RoundcubeCommon extends Base_AdminModuleCommon {
         return array();
     }
 
-    public static function user_settings() {
-        if(Utils_RecordBrowserCommon::get_access('rc_accounts', 'browse')) {
-            return array(__('Roundcube settings')=>array(
-                array('name'=>'standard_mailto','label'=>__("Use standard mailto links"),'type'=>'checkbox','default'=>0)
-            ));
-        }
-        return array();
-    }
-
     public static function use_standard_mailto() {
         return Base_User_SettingsCommon::get('CRM_Roundcube', 'standard_mailto');
     }

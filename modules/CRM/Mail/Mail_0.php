@@ -318,7 +318,19 @@ class CRM_Mail extends Module {
 		$this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'rc_accounts','rc_accounts');
 		$this->rb->set_defaults(array('epesi_user'=>Acl::get_user()));
 		$order = array(array('login'=>'DESC'), array('epesi_user'=>Acl::get_user()),array('epesi_user'=>false));
+
+		// Folded in from the old standalone "Roundcube settings" tile in My
+		// settings - the only setting it ever held, so it now lives on the
+		// screen it actually affects instead of a separate tile next to it.
+		$form = $this->init_module(Libs_QuickForm::module_name());
+		$form->addElement('checkbox', 'standard_mailto', __('Use standard mailto links'), null, array('onchange'=>$form->get_submit_form_js(), 'class'=>'epesi-switch'));
+		if ($form->validate()) {
+			CRM_RoundcubeCommon::set_standard_mailto($form->exportValue('standard_mailto'));
+		}
+		$form->setDefaults(array('standard_mailto'=>CRM_RoundcubeCommon::use_standard_mailto()));
+
 		$this->display_module($this->rb,$order);
+		$form->display_as_row();
 	}
 
 }
