@@ -26,9 +26,8 @@ class CRM_Tasks extends Module
         $me = CRM_ContactsCommon::get_my_record();
         CRM_CommonCommon::status_filter($this->rb);
         $this->rb->set_filters_defaults(array('employees' => $this->rb->crm_perspective_default(), 'status' => '__NO_CLOSED__'));
-        $this->rb->set_custom_filter('longterm', array('type' => 'select', 'label' => __('Display tasks marked as'), 'args' => array('__NULL__' => __('Both'), 1 => __('Short-term'), 2 => __('Long-term')), 'trans' => array('__NULL__' => array(), 1 => array('!longterm' => 1), 2 => array('longterm' => 1))));
         $this->rb->set_defaults(array('employees' => array($me['id']), 'status' => 0, 'permission' => 0, 'priority' => CRM_CommonCommon::get_default_priority()));
-        $this->rb->set_default_order(array('deadline' => 'ASC', 'longterm' => 'ASC', 'priority' => 'DESC', 'title' => 'ASC'));
+        $this->rb->set_default_order(array('deadline' => 'ASC', 'priority' => 'DESC', 'title' => 'ASC'));
         $this->display_module($this->rb);
     }
 
@@ -39,8 +38,6 @@ class CRM_Tasks extends Module
         if (isset($conf['subtitle']) && $conf['subtitle']) {
             $opts['title'] .= ' - ' . $conf['subtitle'];
         }
-        $short = ($conf['term'] == 's' || $conf['term'] == 'b');
-        $long = ($conf['term'] == 'l' || $conf['term'] == 'b');
         $related = $conf['related'];
         $rb = $this->init_module(Utils_RecordBrowser::module_name(), 'task', 'task');
         $status = array();
@@ -54,8 +51,6 @@ class CRM_Tasks extends Module
         }
         $crits = array();
         $crits['status'] = $status;
-        if ($short && !$long) $crits['!longterm'] = 1;
-        if (!$short && $long) $crits['longterm'] = 1;
         if ($related !== "none") {
             if ($related == 0) {
                 $crits['employees'] = 'USER';

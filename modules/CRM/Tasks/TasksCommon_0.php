@@ -49,7 +49,6 @@ class CRM_TasksCommon extends ModuleCommon {
 					__('Customers')=> $customers,
 					__('Status')=>$status[$r['status']],
 					__('Deadline')=>$r['deadline']!=''?Base_RegionalSettingsCommon::time2reg($r['deadline'],false):__('Not set'),
-					__('Longterm')=>$r['longterm']!=0?__('Yes'):__('No'),
 					__('Permission')=>$access[$r['permission']],
 					__('Priority')=>$priority[$r['priority']],
 					);
@@ -95,13 +94,6 @@ class CRM_TasksCommon extends ModuleCommon {
 				  'name' => 'subtitle',
 				  'type' => 'text',
 				  'default' => ''),
-            array('label'   => __('Display tasks marked as'), 'name' => 'term',
-                  'type'    => 'select',
-                  'values'  => array('s' => __('Short-term'),
-                                     'l' => __('Long-term'), 'b' => __('Both')),
-                  'default' => 's',
-                  'rule'    => array(array('message' => __('Field required'),
-                                           'type'    => 'required')))
         );
         $statuses = Utils_CommonDataCommon::get_translated_array('CRM/Status');
         ksort($statuses);
