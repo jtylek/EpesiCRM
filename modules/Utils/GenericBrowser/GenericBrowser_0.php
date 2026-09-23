@@ -1082,11 +1082,6 @@ class Utils_GenericBrowser extends Module {
 					}
 					$col[$column_no]['label'] = $actions;
                     $col[$column_no]['attrs'] .= ' class="Utils_GenericBrowser__actions Utils_GenericBrowser__td"';
-
-					// Add overflow_box to actions
-					$settings = Base_User_SettingsCommon::get('Utils_GenericBrowser', 'zoom_actions');
-					if ($settings==2 || ($settings==1 && detect_iphone()))
-						$col[$column_no]['attrs'] .= ' onmouseover="if(typeof(table_overflow_show)!=\'undefined\')table_overflow_show(this,true,event);" onmouseout="if(typeof(table_overflow_hide)!=\'undefined\')table_overflow_hide();"';
 				} else {
 					$col[$column_no]['label'] = '&nbsp;';
                     $col[$column_no]['attrs'] .= 'nowrap="nowrap"'.' class="Utils_GenericBrowser__td"';

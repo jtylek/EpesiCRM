@@ -1,7 +1,22 @@
 var utils_genericbrowser__last_td = false;
 var utils_genericbrowser__firefox_fix = false;
 
+// When the last touch began or ended, so table_overflow_show() can tell a real
+// mouse hover from the synthetic mouseover a phone replays for every tap. The
+// preview is a hover feature: on a tap it popped up a copy of the cell under
+// the finger - over the actions cell (the since-removed "Zoom 'Actions'
+// buttons" user setting) it showed the kebab again beside the kebab's own
+// menu. Per request (2026-09-23), touch never opens it. Timed
+// rather than cleared by the next mousemove (theme_adminltedark/tooltip.js's
+// epesi_touch_active) so it does not depend on the browser firing mouseover
+// before that mousemove; a real hover more than a second after a touch, on
+// touch+mouse hardware, still previews.
+var utils_genericbrowser__last_touch = 0;
+document.addEventListener('touchstart', function() { utils_genericbrowser__last_touch = Date.now(); }, {capture: true, passive: true});
+document.addEventListener('touchend', function() { utils_genericbrowser__last_touch = Date.now(); }, {capture: true, passive: true});
+
 table_overflow_show = function (e_td, force, evt) {
+	if (Date.now() - utils_genericbrowser__last_touch < 1000) return;
 	var e_tip = document.getElementById("table_overflow");
 	if (!e_tip) return;
 	// *** firefox fix ***

@@ -285,11 +285,40 @@
 				"var b=document.querySelector('.epesi-gb-actions-open');".
 				"if(b)b.classList.remove('epesi-gb-actions-open');".
 			"}".
-			"function openMenuFor(btn,wrap){".
+			// kebab=true is the mobile kebab, which per request (2026-09-23) offers the
+			// basic row actions only - view/edit/delete and one expand-or-collapse icon.
+			// Info is left out too: RowObject::add_info() gives it no click action (only
+			// Watchdog's applet asks for its lightbox mode, and applets show icons inline,
+			// not through this kebab), just a hover tooltip, which a tap never opens
+			// (theme_adminltedark/tooltip.js), so on a phone it did nothing. Module extras (Contacts' New Meeting/Task/Phonecall, ...) are whatever
+			// ensureToggles() already moved into .epesi-gb-actions-extra, so that
+			// classification is reused rather than repeated. Any other core action a
+			// table has (quick-add Save, restore, move, history) stays, since it is the
+			// only way to reach that action on a phone. The "More actions" toggle
+			// (desktop) omits kebab and still lists every action it was given.
+			//
+			// GenericBrowser_0.php emits expand and collapse as a pair of <a>s
+			// (gb_more_<row>/gb_less_<row>) and table_overflow.js's gb_expand()/
+			// gb_collapse()/gb_expandable_init() keep exactly one visible, or neither
+			// when the row has nothing to expand. The menu's own "a{display:flex
+			// !important}" (Utils/GenericBrowser/theme_adminltedark/default.css) forces
+			// every clone visible, which is how both chevrons used to show at once, so
+			// the hidden half is skipped here instead. Tapping the one that is shown
+			// flips the real pair and closes the menu; the next open picks up the other
+			// icon. The clone's id is dropped so the page never holds two elements
+			// with the same gb_more_/gb_less_ id.
+			"function isToggleAction(a){return /^gb_(more|less)_/.test(a.id);}".
+			"function isInfoAction(a){return !!a.querySelector('i.action_button_core.bi-info-circle-fill');}".
+			"function openMenuFor(btn,wrap,kebab){".
 				"var wasOpen=btn.classList.contains('epesi-gb-actions-open');".
 				"closeMenu();".
 				"if(wasOpen)return;".
-				"var actions=wrap.querySelectorAll('a');".
+				"var actions=Array.prototype.filter.call(wrap.querySelectorAll('a'),function(a){".
+					"if(!kebab)return true;".
+					"if(a.closest('.epesi-gb-actions-extra'))return false;".
+					"if(isInfoAction(a))return false;".
+					"return !isToggleAction(a)||a.style.display!=='none';".
+				"});".
 				"if(!actions.length)return;".
 				"var m=getMenu();".
 				"m.innerHTML='';".
@@ -305,7 +334,9 @@
 				// render as icons with empty space where the label used to
 				// be rather than nothing at all.
 				"actions.forEach(function(a){".
-					"m.appendChild(a.cloneNode(true));".
+					"var c=a.cloneNode(true);".
+					"if(isToggleAction(a)){c.removeAttribute('id');c.addEventListener('click',closeMenu);}".
+					"m.appendChild(c);".
 				"});".
 				"m.classList.add('show');".
 				"var r=btn.getBoundingClientRect();".
@@ -408,7 +439,7 @@
 			"}".
 			"function ensureToggles(){".
 				"document.querySelectorAll('.Utils_GenericBrowser .Utils_GenericBrowser__td.Utils_GenericBrowser__actions').forEach(function(cell){".
-					"if(cell.querySelector('.epesi-gb-actions-toggle'))return;".
+					"if(cell.querySelector('.epesi-gb-actions-icons'))return;".
 					"var links=Array.prototype.slice.call(cell.querySelectorAll('a'));".
 					"if(!links.length)return;".
 					// The "extra" actions (per request) group into their own
@@ -448,21 +479,27 @@
 					// any state carry over untouched. On mobile this wrapper
 					// (including the "More actions" toggle nested inside it) is
 					// hidden as a whole and this cell's OWN kebab takes over -
-					// openMenuFor(btn,wrap) still finds every <a>, core and extra
-					// alike, via querySelectorAll('a') reaching into the nested
-					// .epesi-gb-actions-extra span regardless of depth.
+					// openMenuFor(btn,wrap,true) reaches every <a> via
+					// querySelectorAll('a'), then drops the ones inside the nested
+					// .epesi-gb-actions-extra span, so the kebab shows core actions
+					// only (minus info - see openMenuFor()).
+					// A row whose every action is a module extra or info gets no kebab at
+					// all: the kebab leaves both out, so it would open nothing. The wrapper
+					// is still built so the mobile CSS hides those actions too.
 					"var wrap=document.createElement('span');".
 					"wrap.className='epesi-gb-actions-icons';".
 					"while(cell.firstChild)wrap.appendChild(cell.firstChild);".
-					"var btn=document.createElement('button');".
-					"btn.type='button';".
-					"btn.className='epesi-gb-actions-toggle';".
-					"btn.setAttribute('aria-label','Actions');".
-					"btn.addEventListener('click',function(e){".
-						"e.stopPropagation();".
-						"openMenuFor(btn,wrap);".
-					"});".
-					"cell.appendChild(btn);".
+					"if(links.some(function(a){return isCoreAction(a)&&!isInfoAction(a);})){".
+						"var btn=document.createElement('button');".
+						"btn.type='button';".
+						"btn.className='epesi-gb-actions-toggle';".
+						"btn.setAttribute('aria-label','Actions');".
+						"btn.addEventListener('click',function(e){".
+							"e.stopPropagation();".
+							"openMenuFor(btn,wrap,true);".
+						"});".
+						"cell.appendChild(btn);".
+					"}".
 					"cell.appendChild(wrap);".
 				"});".
 			"}".
