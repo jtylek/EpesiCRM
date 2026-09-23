@@ -62,8 +62,7 @@ class Base_DashboardCommon extends ModuleCommon {
                        9 => 'yellow',
                       10 => 'dark-yellow');
 		return array(__('Misc')=>array(
-					array('name'=>'default_color','label'=>__('Default dashboard applet color'), 'type'=>'select', 'values'=>$color, 'default'=>'4'),
-					array('name'=>'remember_tab','label'=>__('Remember last visited dashboard tab'), 'type'=>'checkbox', 'default'=>true)
+					array('name'=>'default_color','label'=>__('Default dashboard applet color'), 'type'=>'select', 'values'=>$color, 'default'=>'4')
 				)
 				);
 	}

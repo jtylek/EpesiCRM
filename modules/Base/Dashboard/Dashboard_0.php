@@ -201,17 +201,14 @@ class Base_Dashboard extends Module {
 				$this->tb->end_tab();
 			}
 
-			$remember_tab = Base_User_SettingsCommon::get('Base_Dashboard','remember_tab');
-			if($remember_tab) {
-				if(isset($_REQUEST['__homepage_req_session__'])  && isset($_SESSION['client']['dashboard_tab'])) {
-					$this->tb->switch_tab($_SESSION['client']['dashboard_tab']);//force switch tab
-				} elseif(isset($_SESSION['client']['dashboard_tab'])) {
-					$this->tb->set_default_tab($_SESSION['client']['dashboard_tab']);
-				} else {
-					$this->tb->set_default_tab($this->tb->get_tab());
-				}
-				$_SESSION['client']['dashboard_tab'] = $this->tb->get_tab();
+			if(isset($_REQUEST['__homepage_req_session__'])  && isset($_SESSION['client']['dashboard_tab'])) {
+				$this->tb->switch_tab($_SESSION['client']['dashboard_tab']);//force switch tab
+			} elseif(isset($_SESSION['client']['dashboard_tab'])) {
+				$this->tb->set_default_tab($_SESSION['client']['dashboard_tab']);
+			} else {
+				$this->tb->set_default_tab($this->tb->get_tab());
 			}
+			$_SESSION['client']['dashboard_tab'] = $this->tb->get_tab();
 
 			$this->display_module($this->tb);
 			$this->tb->tag();
