@@ -2837,11 +2837,54 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 // <span> but keeps its text, so without this the hidden
                 // "[Person]"/"[Company]" indicator would render as visible
                 // text instead of staying hidden behind its icon.
-                $data[_V($desc['name'])] = self::get_val($tab, $desc['id'], $record, true, array('screen_reader_label' => false));
+                $val = self::get_val($tab, $desc['id'], $record, true, array('screen_reader_label' => false));
+                // A "long text" field is a BBCode-rendered paragraph, not a
+                // short value - display_long_text()/format_long_text() can hand
+                // back the record's entire note verbatim (colors/bold/underline
+                // spans included), which blew up this hover popup to the size
+                // of the whole note (reported against Base_Search's result
+                // list). Cut it down to a plain preview here so every caller of
+                // get_record_tooltip_data() (this one, watchdog_record_tooltip())
+                // gets the same fix.
+                if ($desc['type'] === 'long text') {
+                    $val = self::tooltip_text_preview($val);
+                }
+                $data[_V($desc['name'])] = $val;
             }
         }
         return $data;
     }
+
+    /**
+     * Reduces a "long text" field's rendered HTML (BBCode output - <br> line
+     * breaks, <b>/<u>/<span style="color:..."> runs) to a plain preview for a
+     * hover tooltip: every tag is dropped except line breaks (kept so a
+     * multi-paragraph note doesn't collapse into one run-on line), and the
+     * result is capped at $max_len characters. Colors/bold/underline/links
+     * are deliberately not preserved - a tooltip is a "what is this" preview,
+     * not a rendering of the full record.
+     */
+    public static function tooltip_text_preview($html, $max_len = 300)
+    {
+        if (!is_string($html) || $html === '') {
+            return $html;
+        }
+        $text = preg_replace('#<br\s*/?>|</(p|div|li|tr)>#i', "\n", $html);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES);
+        $text = trim(preg_replace('/\n{3,}/', "\n\n", $text));
+
+        $truncated = mb_strlen($text) > $max_len;
+        if ($truncated) {
+            $text = mb_substr($text, 0, $max_len);
+        }
+
+        $text = htmlspecialchars($text);
+        if ($truncated) {
+            $text .= '&hellip;';
+        }
+        return nl2br($text);
+    }
+
     public static function default_record_tooltip($tab, $record_id)
     {
         $data = self::get_record_tooltip_data($tab, $record_id);
