@@ -76,17 +76,7 @@ class Utils_RecordBrowser_Filters extends Module {
 	}
 	
 	public function get_filters_visibility() {
-		$ret = Utils_RecordBrowser_FiltersCommon::get_filters_visibility($this->tab);
-
-		if (!$this->saving_filters_enabled()) {
-			if (!$this->isset_module_variable('filters_defaults')) {
-				$this->set_module_variable('filters_defaults', $this->crits);
-			} elseif ($this->crits != $this->get_module_variable('filters_defaults')) {
-				$ret = true;
-			}
-		}
-
-		return $ret? true: false;
+		return Utils_RecordBrowser_FiltersCommon::get_filters_visibility($this->tab)? true: false;
 	}
 	
 	protected function process_filters($filters_set) {
@@ -422,10 +412,8 @@ class Utils_RecordBrowser_Filters extends Module {
 	
 	protected function save_filters($def_filter) {
 		$this->rb_obj->set_filters($def_filter);
-	
-		if ($this->saving_filters_enabled()) {
-			Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $def_filter);
-		}
+
+		Base_User_SettingsCommon::save($this->get_type(), $this->tab . '_filters', $def_filter);
 	}
 
     protected static function get_filters_for_qf($filters)
@@ -439,11 +427,9 @@ class Utils_RecordBrowser_Filters extends Module {
 	
 	protected function get_saved_filters() {
         $defaults = $this->rb_obj->get_filters();
-		if ($this->saving_filters_enabled()) {
-			$saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
-			if ($saved_filters) {
-				$defaults = $saved_filters;
-			}
+		$saved_filters = Base_User_SettingsCommon::get($this->get_type(), $this->tab . '_filters');
+		if ($saved_filters) {
+			$defaults = $saved_filters;
 		}
         foreach ($this->rb_obj->get_filters(true) as $k => $v) {
 			$defaults[$k] = $v;
@@ -451,11 +437,7 @@ class Utils_RecordBrowser_Filters extends Module {
 
 		return $defaults;
 	}
-	
-	protected function saving_filters_enabled() {
-		return Base_User_SettingsCommon::get($this->get_type(), 'save_filters');
-	}
-	
+
 	public function get_field_type($filter_name) {
 		$desc = $this->table_rows[$filter_name];
 		

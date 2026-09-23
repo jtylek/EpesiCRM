@@ -23,16 +23,8 @@ class Utils_RecordBrowser_FiltersCommon extends ModuleCommon {
 	
 	public static function get_filters_visibility($tab) {
 		$ret = Base_User_SettingsCommon::get(self::module_name(), $tab . '_show_filters');
-			
+
 		return $ret? true: false;
-	}
-	
-	public static function user_settings(){
-		return array(
-			__('Browsing records')=>array(
-				array('name'=>'save_filters','label'=>__('Save filters'),'type'=>'checkbox','default'=>0)
-			)
-		);
 	}
 }
 
