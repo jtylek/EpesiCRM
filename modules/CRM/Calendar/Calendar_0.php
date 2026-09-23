@@ -184,9 +184,8 @@ class CRM_Calendar extends Module {
 			// Week/Month/Agenda) threw "Unexpected end of input" the moment something
 			// called .click() on the resulting <a> (fullcalendar-init.js's title-click
 			// forwarding). Epesi::escapeJS(..., false, true) escapes the single quotes
-			// this literal is wrapped in and leaves any double quotes alone, matching
-			// how $link_text below escapes for ITS OWN (double-quoted, but JS-context
-			// not HTML-attribute-context) string instead.
+			// this literal is wrapped in and leaves any double quotes alone - $link_text
+			// below now gets the identical single-quoted treatment, for the same reason.
 			$selector_js = "'".Epesi::escapeJS('#'.$mount_id.' .fc-toolbar-title', false, true)."'";
 			// This trigger is one shared Utils_PopupCalendar instance ('calendar_selector'
 			// below), reused by every view's title - left at a fixed mode='day' it opened
@@ -215,7 +214,7 @@ class CRM_Calendar extends Module {
 			// switching) never reloads the page, so picking a date here
 			// calls straight into the live instance the same way -
 			// EpesiFullCalendar.gotoDate() (fullcalendar-init.js).
-			$link_text = 'EpesiFullCalendar.gotoDate('.json_encode($mount_id).',new Date(__YEAR__,__MONTH__-1,__DAY__))';
+			$link_text = 'EpesiFullCalendar.gotoDate(\''.Epesi::escapeJS($mount_id, false, true).'\',new Date(__YEAR__,__MONTH__-1,__DAY__))';
 			print('<div class="epesi-fc-jump">'.Utils_PopupCalendarCommon::show('calendar_selector', $link_text, 'day', $args['first_day_of_week'], $pos_js, '').'</div>');
 		}
 
