@@ -49,43 +49,6 @@ so an agent (or a new developer) doesn't have to reverse-engineer them from 16+ 
 code. See [Build modules in plain English with an AI agent](#build-modules-in-plain-english-with-an-ai-agent)
 below.
 
-## Gallery
-
-<table>
-  <tr>
-    <td width="50%"><img src="/images/screenshots/dashboard.jpg" alt="Dashboard with configurable widgets"></td>
-    <td width="50%"><img src="/images/screenshots/dashboard-darkmode.jpg" alt="Dark mode theme"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Configurable per-user dashboard</sub></td>
-    <td align="center"><sub>Built-in dark mode</sub></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="/images/screenshots/contacts.jpg" alt="Contacts browser"></td>
-    <td width="50%"><img src="/images/screenshots/companies.jpg" alt="Companies browser"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Contacts — generated list, search &amp; filters</sub></td>
-    <td align="center"><sub>Companies — same generated CRUD, different table</sub></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="/images/screenshots/calendar.jpg" alt="Calendar"></td>
-    <td width="50%"><img src="/images/screenshots/roundcube.jpg" alt="Roundcube webmail integration"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Calendar — day/week/month/agenda views</sub></td>
-    <td align="center"><sub>Built-in webmail (Roundcube) embedded in the UI</sub></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="/images/screenshots/mobile-contacts-portrait.jpg" alt="Contacts browser on a phone, portrait"></td>
-    <td width="50%"><img src="/images/screenshots/mobile-contacts-landscape.jpg" alt="Contacts browser on a phone, landscape"></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>PWA on a phone — same generated grid, responsive layout</sub></td>
-    <td align="center"><sub>Landscape</sub></td>
-  </tr>
-</table>
-
 ## New: AdminLTE theme, mobile-friendly out of the box
 
 The UI has been rebuilt on top of [AdminLTE](https://adminlte.io/)/Bootstrap
@@ -97,9 +60,8 @@ That rebuild included a **generic mobile/responsive pass across the whole framew
 not a per-module patch: the same data-grid component every `Utils_RecordBrowser`/
 `Utils_GenericBrowser` list uses (Contacts, Companies, Login Audit, any module you
 build) keeps every column readable and scrolls sideways below the tablet breakpoint,
-non-essential columns (row actions, favorites/watchdog toggles) collapse into a kebab
-menu, and the sidebar, search, and filter bars all adapt to portrait/landscape phone
-viewports — see the mobile gallery shots above, taken straight from a phone. Because
+row actions collapse into a kebab menu, favorites/watchdog toggles are hidden, and the
+sidebar, search, and filter bars all adapt to portrait/landscape phone viewports. Because
 this lives in the shared grid/theme layer, a module author gets the mobile layout for
 free the same way they get the desktop one: by declaring fields, not by writing
 responsive CSS. See [`AI-shared/theming-and-frontend.md`](AI-shared/theming-and-frontend.md) and
