@@ -11,14 +11,15 @@ function name instead.
 
 ---
 
-# 1. Grid column sizing and mobile reflow
+# 1. Grid column sizing and mobile scrolling
 
 The on-screen grid is **not a real `<table>`**. It is CSS table-display `<div>`s —
 `Utils_GenericBrowser__thead` / `__tbody` / `__tr` / `__th` / `__td` — emitted by
 `Base/Theme/smarty/plugins/function.html_grid_epesi.php`. The wrapper carries an inline
 `width:100%; table-layout:fixed`, so it always fills its container exactly and the
-surrounding `.table-responsive` (`overflow-x:auto`) never engages. That is why a narrow
-viewport squeezes columns instead of scrolling.
+surrounding `.table-responsive` (`overflow-x:auto`) never engages on its own. That is why a
+narrow container squeezes columns instead of scrolling, unless CSS overrides the width (see
+"Mobile: horizontal scroll" below).
 
 Because it is divs, **a `width=` attribute does nothing** — `html_grid_epesi_attrs_to_div()`
 rewrites it into an inline `style="width:N%"`. There is no `width` attribute in the live
@@ -97,29 +98,28 @@ content". That is the whole reason redistribution exists.
 - The whole body is wrapped in `try/catch` deliberately: an uncaught exception in an
   `e:load` observer aborts the entire shared script line it runs in.
 
-## Mobile reflow (the 2-line grid)
+## Mobile: horizontal scroll
 
-At `max-width: 767.98px` each row becomes an N-column CSS Grid instead of letting
-`display:table-cell` squeeze every column proportionally. Header and body rows share the
-`__tr` class, so one rule keeps them column-aligned.
+At `max-width: 767.98px`, `theme_adminltedark/default.css` gives the wrapper
+`width: max-content !important; min-width: 100% !important`. Every row stays one line,
+aligned under its header, and `.table-responsive` scrolls the table sideways. The same
+pair of declarations is applied at every width to the Premium_Import screens.
 
-`theme_adminltedark/default.tpl` computes `mobile_cols = max(1, ceil($visible_count/2))`
-and appends `--epesi-gb-mobile-cols` to the wrapper's inline style; `default.css` consumes
-it in `grid-template-columns: repeat(var(--epesi-gb-mobile-cols, 2), 1fr)`. Computing it
-per table is what lets one generic rule work for grids with any number of columns.
+Two details that are easy to get wrong:
 
-Three details that are easy to get wrong:
+- **`max-content` also switches the table to auto layout.** Under CSS Tables 3, fixed
+  layout applies only when the width is a length, a percentage, `min-content` or
+  `fit-content`. The inline px widths `epesiSizeGbActions()` writes are therefore minimums,
+  not a hard lock, and the script needs no mobile branch. Only `!important` beats the
+  inline `width:100%`.
+- **A free-text column's natural width is its whole text on one line.** Utils_Attachment's
+  Notes/Journal grid is excluded (`.epesi-gb:not(:has(.epesi-attachment-notes))`) and keeps
+  the proportional squeeze. Any other grid with a tall-preview text column needs the same
+  opt-out.
 
-- **Force the ancestors to `display:block` first.** A `display:grid` child of a
-  `display:table-row-group` parent risks the browser generating an anonymous `table-row`
-  wrapper per the CSS table anonymous-box rules, breaking the wrap.
-- **Move the row separator from `__td` to `__tr`.** On `__td` it fires on every *physical*
-  line, so one logical row reads as two rows with a separator between them.
-- **`__th`/`__td` need `width: auto !important`** inside the same block. Their inline
-  `style="width:N%"` is sized against the whole row for the desktop layout; on a grid item
-  a percentage resolves against its own already-narrow track, compounding down to
-  near-zero and clipping headers to one or two characters. Only `!important` beats an
-  inline style.
+This replaced a 2026-08-10 layout that turned each row into an N-column CSS Grid wrapping
+onto two lines. It was reverted by request on 2026-09-23 in favour of the scrollbar. Look
+in the git history for `--epesi-gb-mobile-cols` if the two-line layout ever comes back.
 
 At `max-width: 991.98px` a separate, older rule collapses the row-actions column into a
 kebab menu and hides the favs/watchdog columns. Extend that pattern rather than inventing a

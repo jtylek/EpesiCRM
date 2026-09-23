@@ -96,7 +96,7 @@ framework's older default theme.
 That rebuild included a **generic mobile/responsive pass across the whole framework**,
 not a per-module patch: the same data-grid component every `Utils_RecordBrowser`/
 `Utils_GenericBrowser` list uses (Contacts, Companies, Login Audit, any module you
-build) reflows into a compact two-line-per-row layout below the tablet breakpoint,
+build) keeps every column readable and scrolls sideways below the tablet breakpoint,
 non-essential columns (row actions, favorites/watchdog toggles) collapse into a kebab
 menu, and the sidebar, search, and filter bars all adapt to portrait/landscape phone
 viewports — see the mobile gallery shots above, taken straight from a phone. Because

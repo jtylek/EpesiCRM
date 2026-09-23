@@ -63,13 +63,14 @@ class Utils_Attachment extends Module {
         Base_ThemeCommon::load_css('Utils_Attachment','browse');
 
         $this->rb = $this->init_module(Utils_RecordBrowser::module_name(),'utils_attachment','utils_attachment');
-        // Opt this addon's grid out of the generic 767.98px 2-line-per-row mobile layout
-        // (theme_adminltedark/default.css's "mobile: 2-line-per-row layout" block) - its
-        // 'note' column is a wide tall_preview text column, not a fixed value that benefits
-        // from an even grid split, and it rendered fine as a plain proportional-width table
-        // before that fix. Same set_prefix()/set_postfix() wrapping technique as this file's
-        // own view_edit_history()/".epesi-rb-changes-history" opt-out, just injected via
-        // set_data_gb() since this addon calls show_data() directly rather than body().
+        // Opt this addon's grid out of the generic 767.98px mobile horizontal-scroll rule
+        // (theme_adminltedark/default.css's "mobile: horizontal scroll" block) - its 'note'
+        // column is a wide tall_preview text column whose natural width is the whole note on
+        // one line, so it stays a plain proportional-width table instead. The same wrapper
+        // also keys that file's "Edited on" min-width rule. Same set_prefix()/set_postfix()
+        // wrapping technique as this file's own view_edit_history()/".epesi-rb-changes-history"
+        // opt-out, just injected via set_data_gb() since this addon calls show_data() directly
+        // rather than body().
         $gb = $this->rb->init_module(Utils_GenericBrowser::module_name(), null, 'utils_attachment');
         $gb->set_prefix('<div class="epesi-attachment-notes">');
         $gb->set_postfix('</div>');
