@@ -24,12 +24,13 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             return;
         }
         $this->settings_view = 'password';
+        Base_ThemeCommon::load_css($this->get_type(), 'default', false);
 
         $form = $this->init_module(Libs_QuickForm::module_name(),__('Saving settings'));
 
         //pass
         $form->addElement('header', null, __('Change password'));
-        $form->addElement('html','<tr><td colspan=2>'.__('Leave password boxes empty if you prefer your current password').'</td></tr>');
+        $form->addElement('html','<div class="epesi-uas-hint">'.__('Leave password boxes empty if you prefer your current password').'</div>');
         $form->addElement('password','new_pass',__('New password'));
         $form->addElement('password','new_pass_c',__('Confirm new password'));
         $form->addRule(array('new_pass', 'new_pass_c'), __('Your passwords don\'t match'), 'compare');
@@ -63,7 +64,9 @@ class Base_User_Administrator extends Module implements Base_AdminInterface {
             $ret = DB::Execute('SELECT p.mail FROM user_password p  WHERE p.user_login_id=%d', Acl::get_user());
             if(($row = $ret->FetchRow())) $form->setDefaults(array('mail'=>$row[0]));
 
+            print('<div class="card mb-3"><div class="card-body" id="epesi-user-settings-form">');
             $form->display();
+            print('</div></div>');
         }
     }
 

@@ -1,0 +1,100 @@
+/* "My settings: user" (body()) renders its QuickForm via the plain
+ * $form->display() renderer (modules/Libs/QuickForm/Renderer/EpesiDefault.php),
+ * not display_as_column()/row() - so it gets none of the .card/grid styling
+ * those two get from Libs_QuickForm's own theme_adminltedark/column.css and
+ * row.tpl. Fixed here, scoped to this module only (Administrator_0.php prints
+ * the #epesi-user-settings-form wrapper only around this one form), rather
+ * than by adding shared rules to Libs_QuickForm/theme_adminltedark/default.css -
+ * that file's plain #quickform/.quickform-row output is also used by several
+ * other, unrelated screens (RecordBrowser, CRM_Fax, Base_EpesiStore, ...) this
+ * change was never meant to touch. Same reasoning FirstRun/theme_adminltedark/
+ * default.css's own #FirstRun-scoped port of this same fix already documents.
+ *
+ * All colours below are Bootstrap CSS variables, which already swap between
+ * light/dark via [data-bs-theme] - no separate light-mode override section
+ * needed (same reason Libs_QuickForm's own column.css has none).
+ */
+
+#epesi-user-settings-form #quickform {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+#epesi-user-settings-form .quickform-row {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+}
+
+#epesi-user-settings-form .quickform-row > .header {
+	flex: 1 1 100%;
+	font-weight: 600;
+	font-size: 1rem;
+	padding-bottom: 0.35rem;
+	margin-top: 0.5rem;
+	border-bottom: 1px solid var(--bs-border-color);
+}
+
+#epesi-user-settings-form .quickform-row:first-child > .header {
+	margin-top: 0;
+}
+
+#epesi-user-settings-form .quickform-row > .element {
+	flex: 0 0 210px;
+	text-align: right;
+	color: var(--bs-secondary-color);
+}
+
+#epesi-user-settings-form .quickform-row > [class^="element_"] {
+	flex: 1 1 auto;
+	min-width: 200px;
+	position: relative;
+}
+
+#epesi-user-settings-form .epesi-uas-hint {
+	flex: 1 1 100%;
+	color: var(--bs-secondary-color);
+	font-size: 0.85rem;
+}
+
+#epesi-user-settings-form input[type="text"],
+#epesi-user-settings-form input[type="password"] {
+	width: 100%;
+	max-width: 320px;
+	box-sizing: border-box;
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--bs-border-color);
+	border-radius: 0.375rem;
+	background-color: var(--bs-body-bg);
+	color: var(--bs-body-color);
+	font-size: var(--epesi-font-size-base);
+}
+
+#epesi-user-settings-form input[type="text"]:focus,
+#epesi-user-settings-form input[type="password"]:focus {
+	outline: none;
+	border-color: var(--bs-primary);
+	box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), .25);
+}
+
+#epesi-user-settings-form .error {
+	display: block;
+	color: var(--bs-danger);
+	font-size: 0.85rem;
+}
+
+#epesi-user-settings-form .required_note,
+#epesi-user-settings-form .required_note_star {
+	color: var(--bs-secondary-color);
+	font-size: 0.85rem;
+}
+
+@media (max-width: 767.98px) {
+	#epesi-user-settings-form .quickform-row > .element,
+	#epesi-user-settings-form .quickform-row > [class^="element_"] {
+		flex: 1 1 100%;
+		text-align: left;
+	}
+}
