@@ -19,4 +19,13 @@ RedirectMatch 404 /\.git(/|$)
 <IfModule mod_headers.c>
 Header always append X-Frame-Options SAMEORIGIN
 Header set X-XSS-Protection "1; mode=block"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# REPORT-ONLY: blocks nothing. Each violation shows in the browser's DevTools console as
+# "[Report Only] Refused to ...", i.e. what this policy would block if the header name were
+# changed to Content-Security-Policy. 'unsafe-inline'/'unsafe-eval' can't go: the UI is built
+# on inline on* handlers, and every page navigation eval()s process.php's response.
+# Google Fonts are only used by the setup/update screens.
+Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 </IfModule>

@@ -21,7 +21,10 @@ require_once('include/session.php');
 
 // if it's direct request to this file return content-type: text/javascript
 // otherwise it's include and do not send header.
-if (isset($_SERVER['SCRIPT_FILENAME']) && $_SERVER['SCRIPT_FILENAME'] == __FILE__)
+// realpath(): SCRIPT_FILENAME uses forward slashes on Windows and keeps symlinks, __FILE__
+// doesn't, so a plain == never matched there and this went out as text/html - which the
+// X-Content-Type-Options: nosniff header from .htaccess makes browsers refuse to execute.
+if (isset($_SERVER['SCRIPT_FILENAME']) && realpath($_SERVER['SCRIPT_FILENAME']) == __FILE__)
     header("Content-type: text/javascript");
 
 $client_id = $_SESSION['num_of_clients'] ?? 0;
