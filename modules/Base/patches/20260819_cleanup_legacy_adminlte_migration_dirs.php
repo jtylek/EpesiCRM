@@ -44,7 +44,7 @@ $legacy_dirs = array(
     'modules/Libs/OpenFlashChart' => array('OpenFlashChartInstall.php', 'OpenFlashChart_0.php', 'patches'),
     'modules/Libs/QuickForm' => array('.hidden', 'FieldTypes', 'QuickFormCommon_0.php', 'QuickFormInstall.php', 'QuickForm_0.php', 'Renderer', 'Rule', 'autohide_fields.js', 'epesi-qf.patch', 'requires.php', 'select.js', 'theme', 'theme_adminltedark', 'patches'),
     'modules/CRM/Roundcube' => array('RemoteAttachment.php', 'RoundcubeCommon_0.php', 'RoundcubeInstall.php', 'Roundcube_0.php', 'help', 'patches', 'theme'),
-    'libs' => array('HistoryKeeper.js', 'adminlte-4.1.0', 'bootstrap-5.3.8', 'bootstrap-icons-1.13.1', 'fullcalendar-6.1.21', 'jquery-1.11.3.js', 'jquery-1.11.3.min.js', 'jquery-migrate-1.2.1.js', 'jquery-migrate-1.2.1.min.js', 'jquery-ui-1.10.1.custom.min.css', 'jquery-ui-1.10.1.custom.min.js', 'lgpl-3.0.txt', 'minify'),
+    'libs' => array('HistoryKeeper.js', 'adminlte-4.1.0', 'bootstrap-5.3.8', 'bootstrap-icons-1.13.1', 'fullcalendar-6.1.21', 'jquery-3.7.1.js', 'jquery-3.7.1.min.js', 'jquery-migrate-3.6.0.js', 'jquery-migrate-3.6.0.min.js', 'jquery-ui-1.14.2.min.css', 'jquery-ui-1.14.2.min.js', 'lgpl-3.0.txt', 'minify'),
 );
 
 $removed = 0;

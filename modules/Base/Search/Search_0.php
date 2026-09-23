@@ -52,8 +52,8 @@ class Base_Search extends Module {
 		$form->addGroup($search_categories_checkboxes,'search_categories','','</li><li>');
 		
 		$form->addElement('submit', 'quick_search_submit',  __('Search'), array('class'=>'submit'));
-		$form->addElement('button', 'quick_search_select_none',  __('Deselect all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").removeAttr("checked")','class'=>'submit'));
-		$form->addElement('button', 'quick_search_select_all',  __('Select all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").attr("checked","checked")','class'=>'submit'));
+		$form->addElement('button', 'quick_search_select_none',  __('Deselect all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").prop("checked",false)','class'=>'submit'));
+		$form->addElement('button', 'quick_search_select_all',  __('Select all'), array('onClick'=>'jq("#'.$form->getAttribute('name').' input[type=checkbox]").prop("checked",true)','class'=>'submit'));
 
 		$defaults['quick_search']=$qs_keyword;
 

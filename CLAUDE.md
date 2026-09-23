@@ -200,8 +200,10 @@ Smarty **2** (vendored/patched-in-place under `modules/Base/Theme/smarty/`, deli
 non-legacy (admin/setup/update) views. Smarty 2 template modifier callbacks must be plain functions —
 closures don't work.
 
-The front end still loads an old jQuery (1.11.3 + jquery-migrate) on every page alongside AdminLTE's own
-JS/Bootstrap. Prototype.js and Scriptaculous were fully removed as of 2026-08-06 (see
+The front end loads jQuery 3.7.1 + jquery-migrate 3.6.0 + jQuery UI 1.14.2 on every page alongside
+AdminLTE's own JS/Bootstrap (upgraded from 1.11.3 on 2026-09-23 — migrate 3.x no longer papers over
+jQuery 1.9's removals, so use `.prop()` for checked/disabled/selected; see that doc's "What actually
+loads"). Prototype.js and Scriptaculous were fully removed as of 2026-08-06 (see
 `AI-shared/theming-and-frontend.md`) — `$` is jQuery's own default binding now, not
 Prototype's. This matters for old/legacy code still assuming Prototype semantics: a bare `$('some_id')`
 (no `#`) is jQuery's *tag-name* selector, not an ID lookup — it never returns `null`/`undefined`, so an

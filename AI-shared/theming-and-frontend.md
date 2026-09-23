@@ -127,8 +127,20 @@ an inert shell; see [dont-reintroduce.md](dont-reintroduce.md).
 
 ## What actually loads
 
-- **jQuery 1.11.3** + `jquery-migrate-1.2.1` + `jquery-ui-1.10.1`, hard-coded in
-  `index.php`'s `$jses` array — bypassing Epesi's own `load_js()` module-asset system.
+- **jQuery 3.7.1** + `jquery-migrate-3.6.0` + `jquery-ui-1.14.2`, hard-coded in
+  `index.php`'s `$jses` array — bypassing Epesi's own `load_js()` module-asset system
+  (upgraded from 1.11.3 / migrate 1.2.1 / UI 1.10.1 on 2026-09-23).
+  - Migrate 3.x does **not** restore what jQuery 1.9 removed, which the old migrate 1.x
+    silently did: use `.prop('checked'|'disabled'|'selected', bool)`, never
+    `.attr('checked', ...)`/`.removeAttr('checked')` — under jQuery 3 those touch only the
+    attribute, so a box the user already toggled doesn't change. Also no `.live()`/`.die()`,
+    `$.browser`, `.toggle(fn, fn)`.
+  - Migrate is **muted in the production bundle** (`include/jquery-migrate-mute.js`) and logs
+    with stack traces under `DEBUG_JS` — turn that on to see deprecated calls in the console.
+    Even when muted, `jQuery.migrateWarnings` in the console lists every one hit so far.
+  - jQuery UI 1.14 makes its deprecated widget options opt-in (`$.uiBackCompat === true`,
+    off here): dialog `dialogClass`, button `icons`/`text`, `buttonset` etc. are ignored —
+    use the 1.12+ replacements (`classes`, `icon`, `controlgroup`).
 - **Bootstrap 5 + AdminLTE 4**, loaded when that theme is active. The theme chrome itself
   is jQuery-free; the legacy stack is the widget layer underneath.
 - **Prototype.js and script.aculo.us are not loaded**, and neither is `jQuery.noConflict()`.

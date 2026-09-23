@@ -79,9 +79,10 @@ $smarty->assign('IPHONE', (bool)IPHONE);
 
 ini_set('include_path', 'libs/minify' . PATH_SEPARATOR . '.' . PATH_SEPARATOR . 'libs' . PATH_SEPARATOR . ini_get('include_path'));
 require_once('Minify/Build.php');
-$jquery = DEBUG_JS ? 'libs/jquery-1.11.3.js' : 'libs/jquery-1.11.3.min.js';
-$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-1.2.1.js' : 'libs/jquery-migrate-1.2.1.min.js';
-$jses = array($jquery, $jquery_migrate, 'libs/jquery-ui-1.10.1.custom.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
+$jquery = DEBUG_JS ? 'libs/jquery-3.7.1.js' : 'libs/jquery-3.7.1.min.js';
+$jquery_migrate = DEBUG_JS ? 'libs/jquery-migrate-3.6.0.js' : 'libs/jquery-migrate-3.6.0.min.js';
+$jses = DEBUG_JS ? array($jquery) : array($jquery, 'include/jquery-migrate-mute.js');
+array_push($jses, $jquery_migrate, 'libs/jquery-ui-1.14.2.min.js', 'libs/HistoryKeeper.js', 'include/epesi.js');
 if(!DEBUG_JS) {
 	$jsses_build = new Minify_Build($jses);
 	$jsses_src = $jsses_build->uri('serve.php?' . http_build_query(array('f' => array_values($jses))));
@@ -91,7 +92,7 @@ if(!DEBUG_JS) {
 	foreach($jses as $js)
 		$js_tags_html .= "<script type='text/javascript' src='$js'></script>";
 }
-$csses = array('libs/jquery-ui-1.10.1.custom.min.css');
+$csses = array('libs/jquery-ui-1.14.2.min.css');
 $csses_build = new Minify_Build($csses);
 $csses_src = $csses_build->uri('serve.php?'.http_build_query(array('f'=>array_values($csses))));
 
