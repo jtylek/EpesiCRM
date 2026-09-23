@@ -625,6 +625,28 @@ class Utils_AttachmentCommon extends ModuleCommon {
             $form->setDefaults(array($field => $default));
     }
 
+    // Wraps the generic multiselect rendering just to add one rule: block a
+    // save that leaves 'attached_to' empty. get_access() (below) walks
+    // 'attached_to' tokens to decide who may view a note - an empty list
+    // means get_access() always returns false, so a note saved with the
+    // field cleared (the "Remove" button on this widget allows it, since the
+    // field itself is 'required'=>false - see AttachmentInstall.php) becomes
+    // inaccessible to everyone, including its own author, immediately after
+    // saving, with "Access denied" the only thing shown back (see
+    // submit_attachment()'s 'view' case) and no way to reopen it to fix.
+    public static function QFfield_attached_to(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
+        Utils_RecordBrowserCommon::QFfield_multiselect($form, $field, $label, $mode, $default, $desc, $rb_obj);
+        if ($mode == 'add' || $mode == 'edit') {
+            $form->addFormRule(array('Utils_AttachmentCommon', 'require_attached_to'));
+        }
+    }
+
+    public static function require_attached_to($a) {
+        if (!empty($a['attached_to'])) return array();
+        Epesi::alert(__('This note must be attached to at least one record, or it becomes inaccessible right after saving. Please select at least one record in "Attached to" before saving.'));
+        return array('attached_to' => __('At least one attached record is required'));
+    }
+
     public static function QFfield_date(&$form, $field, $label, $mode, $default, $desc, $rb_obj) {
         $form->addElement('static', $field, $label)->freeze();
         $form->setDefaults(array($field=>Base_RegionalSettingsCommon::time2reg($default,false,true,false)));

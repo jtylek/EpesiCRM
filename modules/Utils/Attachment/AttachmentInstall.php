@@ -108,6 +108,7 @@ class Utils_AttachmentInstall extends ModuleInstall {
         		'required' => false,
         		'extra' => false,
         		'visible'=>false,
+        		'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_attached_to'),
         	),
         );
         Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
