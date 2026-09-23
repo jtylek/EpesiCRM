@@ -518,7 +518,14 @@ class Utils_RecordBrowser extends Module {
             if ($args['style']=='currency' || $args['style']=='number') $arr['attrs'] = 'style="text-align:right;"';
             $arr['name'] = _V($arr['name']); // ****** Translate field name for table header
             if (isset($this->more_table_properties[$args['id']])) {
-                foreach (array('name','wrapmode','width','display','order') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
+                // 'attrs' (e.g. a marker class="..." for a caller's own CSS hook, same
+                // shape as the currency/number style's own $arr['attrs'] above) is opt-in -
+                // no existing caller passed it before this was added, so whitelisting it
+                // here is a no-op for every other set_header_properties() call. $pdf mode
+                // below still unconditionally overwrites $arr['attrs'] with its own
+                // border/color styling, so a caller-supplied class here never leaks into a
+                // printed/PDF header.
+                foreach (array('name','wrapmode','width','display','order','attrs') as $v) if (isset($this->more_table_properties[$args['id']][$v])) {
                     if (is_numeric($this->more_table_properties[$args['id']][$v]) && $v=='width') $this->more_table_properties[$args['id']][$v] = $this->more_table_properties[$args['id']][$v]*10;
                     $arr[$v] = $this->more_table_properties[$args['id']][$v];
                 }

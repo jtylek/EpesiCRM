@@ -96,6 +96,26 @@ class Utils_AttachmentCommon extends ModuleCommon {
 		return $caption . ' (' . $r['recordset'] . ')';
 	}
 
+	// 'Attached to' (utils_attachment's own multiselect-of-record-tokens field) has no
+	// display_callback of its own by default and falls back to the generic
+	// Utils_RecordBrowserCommon::display_multiselect() - fine everywhere it's actually
+	// used, except CRM_Contacts_NotesAggregate's "Related Notes" addon (Attachment_0.php's
+	// force_multiple mode, the only place this column is ever forced visible in a browse
+	// grid), where it sits right next to the wide 'Note' tall_preview column with no room
+	// to spare on a phone - reported: the column made every row unreadable on mobile.
+	// Wraps that same default rendering in a marker span purely so theme_adminltedark/
+	// default.css's mobile media query has a stable :has() hook to hide the whole cell
+	// (paired with the 'attached_to' header's own marker class - see Attachment_0.php's
+	// set_header_properties() call) - calls display_multiselect() directly rather than
+	// through get_val(), since registering this function AS the field's own
+	// display_callback means get_val() would otherwise recurse into itself. Wired up via
+	// a patch (Utils_RecordBrowserCommon::set_display_callback()), same shape as the
+	// existing 20260924_require_attached_to.php patch for this same field's
+	// QFfield_callback.
+	public static function display_attached_to($record, $nolink = false, $desc = null, $tab = null) {
+		return '<span class="epesi-attachment-attached-to-value">' . Utils_RecordBrowserCommon::display_multiselect($record, $nolink, $desc, $tab) . '</span>';
+	}
+
 	// utils_attachment_related's processing_callback - add/edit/delete a row
 	// here just wires/unwires the real addon via new_addon()/delete_addon()
 	// above (same as CRM_TasksCommon::processing_related()); 'edit' falls

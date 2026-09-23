@@ -1446,6 +1446,29 @@
 	min-width: 6.5em;
 }
 
+/* CRM_Contacts_NotesAggregate's "Related Notes" addon (Attachment_0.php's
+ * force_multiple mode) is the only place Utils_Attachment's own 'Attached to' column is
+ * ever forced visible in a browse grid - reported: on a phone it sits right next to the
+ * wide 'Note' tall_preview column with no room to spare, making every row unreadable
+ * (the Note text and the Attached-to links both crushed down to a few characters wide).
+ * Header cell carries its own marker class directly (Attachment_0.php's
+ * set_header_properties() 'attrs' override); the body cell has no class of its own to
+ * key off (get_val()'s generic multiselect rendering doesn't add one), so
+ * Utils_AttachmentCommon::display_attached_to() wraps its value in a marker span instead
+ * and :has() reaches the surrounding .Utils_GenericBrowser__td from there - same
+ * "no class on the td" shape as the favourite/watchdog columns elsewhere in this file,
+ * just solved with :has() instead of JS since there's no cellIndex-measuring script
+ * already running for this table. Column simply drops off the single-group Notes/Journal
+ * tab too where it would otherwise apply, but it's never rendered there in the first
+ * place (force_multiple is what makes RecordBrowser_0.php include it in $query_cols at
+ * all), so this rule has no effect outside the Related Notes case it's fixing. */
+@media (max-width: 767.98px) {
+	.epesi-gb .Utils_GenericBrowser__th.epesi-attachment-attached-to-header,
+	.epesi-gb .Utils_GenericBrowser__td:has(.epesi-attachment-attached-to-value) {
+		display: none;
+	}
+}
+
 /* Admin Control Panel (Base_Admin's own "epesi-admin-panel" wrapper -
    see Admin_0.php::body()) opts every table it contains out of the mobile
    kebab collapse above, at any viewport width: administrators need every

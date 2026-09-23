@@ -93,7 +93,13 @@ class Utils_Attachment extends Module {
         $this->rb->set_additional_actions_method($this->add_actions(...));
         $this->rb->set_header_properties(array(
             'sticky'=>array('width'=>1,'display'=>false),
-            'attached_to' => array('width'=>"16em"),
+            // 'attrs' class is a pure CSS hook (theme_adminltedark/default.css's mobile
+            // media query, paired with the matching marker AttachmentCommon::
+            // display_attached_to() wraps each cell's value in) - only ever rendered as
+            // a column at all in force_multiple mode (CRM_Contacts_NotesAggregate's
+            // "Related Notes" addon), where it otherwise crowds out the wide Note column
+            // on a phone-width screen.
+            'attached_to' => array('width'=>"16em", 'attrs'=>'class="epesi-attachment-attached-to-header"'),
             'edited_on'=>array('width'=>"12em"),
             'title'=>array('width'=>"20em"),
         ));

@@ -109,6 +109,11 @@ class Utils_AttachmentInstall extends ModuleInstall {
         		'extra' => false,
         		'visible'=>false,
         		'QFfield_callback'=>array('Utils_AttachmentCommon','QFfield_attached_to'),
+        		// Wraps the generic multiselect rendering in a marker span the mobile
+        		// media query keys off (see Utils_AttachmentCommon::display_attached_to()'s
+        		// own comment) - existing installs get this via a patch instead, since
+        		// display_callback is stored per-field.
+        		'display_callback'=>array('Utils_AttachmentCommon','display_attached_to'),
         	),
         );
         Utils_RecordBrowserCommon::install_new_recordset('utils_attachment',$fields);
