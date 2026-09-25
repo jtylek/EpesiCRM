@@ -48,11 +48,13 @@ this (architecture decisions, conventions, what's next).
 
 ## Getting started
 
-**From a release zip** (no Composer, Node or command line needed; how to build one is below):
+**From a release zip:**
 
-1. Create a folder in the web root, e.g. `C:\xampp\htdocs\epesi`, and unpack the zip into it.
-2. Create an empty database, e.g. in phpMyAdmin.
-3. Open the site (`http://localhost/epesi/`). The **setup wizard** asks first for a one-time
+1. Download a release zip from <https://sourceforge.net/projects/epesi/> (no Composer, Node
+   or command line needed).
+2. Create a folder in the web root, e.g. `C:\xampp\htdocs\epesi`, and unpack the zip into it.
+3. Create an empty database, e.g. in phpMyAdmin.
+4. Open the site (`http://localhost/epesi/`). The **setup wizard** asks first for a one-time
    setup code: open `storage/app/setup-code.txt` in the epesi folder and copy it. Then the
    wizard checks the server, asks for the database and creates the tables, and continues with
    Epesi's FirstRun: the setup type (which modules), the administrator account, how to send
