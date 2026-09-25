@@ -1,0 +1,4 @@
+/* The compose toggle, dimmed while the sent copy goes to the ordinary Sent folder. */
+#compose-toolbar a.button.archive.epesi-archive-off {
+    opacity: 0.45;
+}

@@ -1,0 +1,21 @@
+{
+    "id": "epesi/crm-phonecalls",
+    "name": "Phone Calls",
+    "description": "Logged calls, against either a contact and company in the system or a customer named by hand.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-phone",
+    "namespace": "Epesi\\Modules\\CRM\\PhoneCalls\\",
+    "path": "Epesi/CRM/PhoneCalls",
+    "provider_class": "Epesi\\Modules\\CRM\\PhoneCalls\\PhoneCallsServiceProvider",
+    "plugin_class": "Epesi\\Modules\\CRM\\PhoneCalls\\PhoneCallsPlugin",
+    "panels": [
+        "main"
+    ],
+    "core": true,
+    "requires": [
+        "epesi/recordbrowser"
+    ],
+    "provides": []
+}

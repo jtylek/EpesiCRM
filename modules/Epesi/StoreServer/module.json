@@ -1,0 +1,16 @@
+{
+    "id": "epesi/store-server",
+    "name": "Store Server",
+    "description": "Serves the Epesi module catalog: products, releases, licences and the public download API. Installed on the vendor's own instance, not shipped to customers.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Store",
+    "icon": "heroicon-o-building-storefront",
+    "namespace": "Epesi\\Modules\\StoreServer\\",
+    "path": "Epesi/StoreServer",
+    "provider_class": "Epesi\\Modules\\StoreServer\\StoreServerServiceProvider",
+    "plugin_class": "Epesi\\Modules\\StoreServer\\StoreServerPlugin",
+    "panels": ["administration"],
+    "requires": [],
+    "provides": ["store_catalog_api"]
+}

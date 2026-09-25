@@ -1,0 +1,19 @@
+# Only public/ is meant to be served. When epesi is unpacked straight into a
+# web root (a shared host's public_html/crm, XAMPP's htdocs/epesi), this
+# rewrites every request into public/ internally, so epesi answers at the
+# folder's own address (example.com/crm/, not example.com/crm/public/).
+# Nothing outside public/ can be reached: /crm/.env becomes public/.env, which
+# doesn't exist, and epesi answers 404. public/index.php lines its base path
+# up with the address (App\Support\Setup\BasePath).
+#
+# A server whose document root is public/ never reads this file.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Without mod_rewrite the rules above can't protect .env, storage/ and
+# vendor/, so serve nothing at all.
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>

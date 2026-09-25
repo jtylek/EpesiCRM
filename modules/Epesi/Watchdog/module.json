@@ -1,0 +1,16 @@
+{
+    "id": "epesi/watchdog",
+    "name": "Watchdog",
+    "description": "Watch records (or whole record types) and get notified when someone else changes them. Port of Epesi's Utils/Watchdog.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Core",
+    "icon": "heroicon-o-eye",
+    "namespace": "Epesi\\Modules\\Watchdog\\",
+    "path": "Epesi/Watchdog",
+    "provider_class": "Epesi\\Modules\\Watchdog\\WatchdogServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Watchdog\\WatchdogPlugin",
+    "panels": ["main"],
+    "requires": ["epesi/recordbrowser"],
+    "provides": []
+}

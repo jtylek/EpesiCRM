@@ -1,0 +1,16 @@
+{
+    "id": "epesi/reminders",
+    "name": "Reminders",
+    "description": "Reminders on tasks, meetings and phone calls: a set time before the event or a fixed date, for you or colleagues, delivered to the bell and optionally by e-mail. Port of Epesi's Utils/Messenger alerts.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Productivity",
+    "icon": "heroicon-o-bell-alert",
+    "namespace": "Epesi\\Modules\\Reminders\\",
+    "path": "Epesi/Reminders",
+    "provider_class": "Epesi\\Modules\\Reminders\\RemindersServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Reminders\\RemindersPlugin",
+    "panels": ["main"],
+    "requires": ["epesi/recordbrowser"],
+    "provides": []
+}

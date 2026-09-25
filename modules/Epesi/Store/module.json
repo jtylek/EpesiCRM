@@ -1,0 +1,16 @@
+{
+    "id": "epesi/store",
+    "name": "Store",
+    "description": "Browse the Epesi module catalog and install or update modules from it.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Store",
+    "icon": "heroicon-o-shopping-bag",
+    "namespace": "Epesi\\Modules\\Store\\",
+    "path": "Epesi/Store",
+    "provider_class": "Epesi\\Modules\\Store\\StoreServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Store\\StorePlugin",
+    "panels": ["administration"],
+    "requires": [],
+    "provides": []
+}

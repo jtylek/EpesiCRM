@@ -1,0 +1,21 @@
+{
+    "id": "epesi/recordbrowser",
+    "name": "Record Browser",
+    "description": "The recordset engine: a module declares a recordset's fields and the List, View, Create and Edit screens are built from them. Also lets an administrator add fields to an existing recordset from the GUI.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Core",
+    "icon": "heroicon-o-table-cells",
+    "namespace": "Epesi\\Modules\\RecordBrowser\\",
+    "path": "Epesi/RecordBrowser",
+    "provider_class": "Epesi\\Modules\\RecordBrowser\\RecordBrowserServiceProvider",
+    "plugin_class": "Epesi\\Modules\\RecordBrowser\\RecordBrowserPlugin",
+    "panels": [
+        "administration"
+    ],
+    "core": true,
+    "requires": [
+        "epesi/commondata"
+    ],
+    "provides": []
+}

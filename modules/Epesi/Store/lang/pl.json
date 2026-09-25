@@ -1,0 +1,11 @@
+{
+    "Base URL of the store API, e.g. https://store.epesi.com/store-api": "Bazowy adres API sklepu, np. https://store.epesi.com/store-api",
+    "Catalog URL": "Adres katalogu",
+    "Not installed": "Niezainstalowany",
+    "Optional. Required only for paid modules.": "Opcjonalne. Wymagane tylko dla płatnych modułów.",
+    "Refresh": "Odśwież",
+    "Store": "Sklep",
+    "Store settings": "Ustawienia sklepu",
+    "Store settings saved": "Zapisano ustawienia sklepu",
+    "Update": "Aktualizuj"
+}

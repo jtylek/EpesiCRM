@@ -1,0 +1,14 @@
+{
+    "An entry with this key already exists at this level.": "Wpis z tym kluczem już istnieje na tym poziomie.",
+    "Common Data": "Wspólne listy",
+    "Entries": "Wpisy",
+    "entry": "wpis",
+    "Locked": "Zablokowany",
+    "New entry": "Nowy wpis",
+    "Order reset": "Kolejność zresetowana",
+    "Renumbers the entries at this level into key order. Any order you dragged them into is lost.": "Numeruje wpisy na tym poziomie ponownie według klucza. Kolejność ustawiona przeciąganiem zostanie utracona.",
+    "Reset order by key": "Resetuj kolejność według klucza",
+    "Used by code to read this entry back. Cannot contain \"/\".": "Używany w kodzie do odczytania tego wpisu. Nie może zawierać \"/\".",
+    "Value": "Wartość",
+    "What people see. Leave empty for an entry that only groups the entries below it.": "To, co widać. Zostaw puste dla wpisu, który jedynie grupuje wpisy poniżej."
+}

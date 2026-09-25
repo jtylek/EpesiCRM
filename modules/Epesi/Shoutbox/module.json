@@ -1,0 +1,16 @@
+{
+    "id": "epesi/shoutbox",
+    "name": "Shoutbox",
+    "description": "A dashboard chat: short messages to everyone or to one colleague. Port of Epesi's Apps/Shoutbox.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Productivity",
+    "icon": "heroicon-o-chat-bubble-left-right",
+    "namespace": "Epesi\\Modules\\Shoutbox\\",
+    "path": "Epesi/Shoutbox",
+    "provider_class": "Epesi\\Modules\\Shoutbox\\ShoutboxServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Shoutbox\\ShoutboxPlugin",
+    "panels": ["main"],
+    "requires": [],
+    "provides": []
+}

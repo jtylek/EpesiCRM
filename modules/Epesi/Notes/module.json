@@ -1,0 +1,16 @@
+{
+    "id": "epesi/notes",
+    "name": "Notes",
+    "description": "Free-form notes, optionally attached to a Contact.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Productivity",
+    "icon": "heroicon-o-pencil-square",
+    "namespace": "Epesi\\Modules\\Notes\\",
+    "path": "Epesi/Notes",
+    "provider_class": "Epesi\\Modules\\Notes\\NotesServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Notes\\NotesPlugin",
+    "panels": ["main"],
+    "requires": ["epesi/recordbrowser"],
+    "provides": []
+}

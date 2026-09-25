@@ -1,0 +1,21 @@
+/*
+ * FullCalendar ships light-only defaults as CSS variables on :root. Its sticky
+ * column header (and the list view's sticky day rows) are painted with
+ * --fc-page-bg-color (#fff), which in Filament's dark mode leaves the weekday
+ * names as white text on a white bar. Map those variables onto the panel's own
+ * gray palette instead, so the calendar follows Filament's theme toggle
+ * (a `dark` class on <html>).
+ */
+.fc {
+    --fc-page-bg-color: var(--gray-50);
+}
+
+.dark .fc {
+    --fc-page-bg-color: var(--gray-950);
+    --fc-border-color: var(--gray-700);
+    --fc-neutral-bg-color: rgb(255 255 255 / 0.05);
+    --fc-neutral-text-color: var(--gray-400);
+    --fc-non-business-color: rgb(255 255 255 / 0.03);
+    --fc-more-link-bg-color: var(--gray-700);
+    --fc-list-event-hover-bg-color: rgb(255 255 255 / 0.05);
+}

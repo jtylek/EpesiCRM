@@ -1,0 +1,21 @@
+{
+    "id": "epesi/crm-meetings",
+    "name": "Meetings",
+    "description": "Scheduled meetings with a date, time and duration, assigned to employees and optionally tied to contacts and companies.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-calendar-days",
+    "namespace": "Epesi\\Modules\\CRM\\Meetings\\",
+    "path": "Epesi/CRM/Meetings",
+    "provider_class": "Epesi\\Modules\\CRM\\Meetings\\MeetingsServiceProvider",
+    "plugin_class": "Epesi\\Modules\\CRM\\Meetings\\MeetingsPlugin",
+    "panels": [
+        "main"
+    ],
+    "core": true,
+    "requires": [
+        "epesi/recordbrowser"
+    ],
+    "provides": []
+}

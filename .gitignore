@@ -1,0 +1,38 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+# Separate private notes repo, nested here for a core developer's checkout only.
+/AI-private
+/auth.json
+/database/*.sqlite*
+# Installed modules arrive as zips at runtime; only first-party ones under the
+# Epesi vendor ship with the core.
+/modules/*
+!/modules/Epesi
+/node_modules
+/public/build
+/public/hot
+# Roundcube, downloaded by `php artisan roundcube:install`, and its web-root link.
+/public/roundcube
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/roundcube
+/storage/roundcube.*
+/storage/framework/roundcube*
+# Scratch output of development tools, e.g. screenshots (temp/screenshots).
+/temp
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db

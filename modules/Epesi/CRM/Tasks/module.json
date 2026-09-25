@@ -1,0 +1,21 @@
+{
+    "id": "epesi/crm-tasks",
+    "name": "Tasks",
+    "description": "Work items with a deadline, assigned to employees and optionally tied to contacts and companies.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-check-circle",
+    "namespace": "Epesi\\Modules\\CRM\\Tasks\\",
+    "path": "Epesi/CRM/Tasks",
+    "provider_class": "Epesi\\Modules\\CRM\\Tasks\\TasksServiceProvider",
+    "plugin_class": "Epesi\\Modules\\CRM\\Tasks\\TasksPlugin",
+    "panels": [
+        "main"
+    ],
+    "core": true,
+    "requires": [
+        "epesi/recordbrowser"
+    ],
+    "provides": []
+}

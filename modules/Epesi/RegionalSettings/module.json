@@ -1,0 +1,18 @@
+{
+    "id": "epesi/regional-settings",
+    "name": "Regional Settings",
+    "description": "Per-user timezone, date/time format and location preferences.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Personalization",
+    "icon": "heroicon-o-globe-alt",
+    "namespace": "Epesi\\Modules\\RegionalSettings\\",
+    "path": "Epesi/RegionalSettings",
+    "provider_class": "Epesi\\Modules\\RegionalSettings\\RegionalSettingsServiceProvider",
+    "plugin_class": "Epesi\\Modules\\RegionalSettings\\RegionalSettingsPlugin",
+    "panels": [
+        "user-settings"
+    ],
+    "requires": [],
+    "provides": []
+}

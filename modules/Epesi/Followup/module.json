@@ -1,0 +1,16 @@
+{
+    "id": "epesi/followup",
+    "name": "Follow-up",
+    "description": "Close a task, meeting or phone call and schedule the next one in one step, leaving a note on both. Port of Epesi's CRM/Followup.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-arrow-uturn-right",
+    "namespace": "Epesi\\Modules\\Followup\\",
+    "path": "Epesi/Followup",
+    "provider_class": "Epesi\\Modules\\Followup\\FollowupServiceProvider",
+    "plugin_class": null,
+    "panels": ["main"],
+    "requires": ["epesi/recordbrowser"],
+    "provides": []
+}

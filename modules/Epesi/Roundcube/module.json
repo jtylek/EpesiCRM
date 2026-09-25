@@ -1,0 +1,16 @@
+{
+    "id": "epesi/roundcube",
+    "name": "Roundcube",
+    "description": "The Roundcube webmail as a full IMAP client on a Mailbox page: logged in to your mail account automatically, sending through the account's own SMTP server, an Archive button that files mail into the CRM, and CRM contacts in its address book. Port of Epesi's CRM/Roundcube.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-inbox",
+    "namespace": "Epesi\\Modules\\Roundcube\\",
+    "path": "Epesi/Roundcube",
+    "provider_class": "Epesi\\Modules\\Roundcube\\RoundcubeServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Roundcube\\RoundcubePlugin",
+    "panels": ["main"],
+    "requires": ["epesi/mail"],
+    "provides": []
+}
