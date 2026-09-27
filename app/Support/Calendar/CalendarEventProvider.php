@@ -29,9 +29,12 @@ interface CalendarEventProvider
      * (see Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility) — no separate ACL
      * filtering is needed here.
      *
+     * $mine narrows them to records $user is an employee or a customer on:
+     * Epesi's "my records" perspective, which the dashboard's Agenda shows.
+     *
      * @return Collection<int, CalendarEvent>
      */
-    public static function calendarEvents(Carbon $start, Carbon $end, User $user): Collection;
+    public static function calendarEvents(Carbon $start, Carbon $end, User $user, bool $mine = false): Collection;
 
     /**
      * Singular, human label for this source, used by the "new event" type

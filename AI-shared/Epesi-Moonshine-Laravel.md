@@ -24,7 +24,7 @@ whether or not MoonShine is ever adopted.
 |---|---|---|
 | PHP files under `app/` + `modules/` | 224 | 226 |
 | …that import `Filament\` | 156 (70%) | **148** (65%) |
-| Resources on the RecordBrowser engine (`extends RecordsetResource`) | 1 (`Epesi/Notes`) | **6** |
+| Resources on the RecordBrowser engine (`extends RecordsetResource`) | 1 | **6** |
 | Hand-written Filament resources (`extends Resource`) | 11 | **7** |
 | Filament panels | 2 | 2 |
 
@@ -268,13 +268,13 @@ made the CRM's UI framework a property of four methods.
 Extract the four compile methods behind an interface — `FieldRenderer`, with
 `FilamentFieldRenderer` and `MoonShineFieldRenderer` implementations — selected by config.
 
-Port `Epesi/Notes` first: it is the reference implementation, it is already on the engine, and
-it exercises text, long text, relation and boolean fields.
+Port `Epesi/CRM/PhoneCalls` first: it is already on the engine, and it exercises text, long
+text, relation and boolean fields.
 
 Run both stacks side by side, Filament on `/` and MoonShine on `/ms`, against one database.
 This is where the Livewire-payload hypothesis from §4 gets measured rather than asserted.
 
-**Gate:** does a Notes record round-trip — list, filter, search, view, create, edit, custom
+**Gate:** does a phone call record round-trip — list, filter, search, view, create, edit, custom
 fields, history — with no behaviour lost?
 
 ### Phase 3 — The rest of the surface
@@ -288,7 +288,7 @@ In rough descending order of risk:
 3. **14 addons** — `HasMany` with `creatable()`, placed in detail-page tabs. Preserve the
    convention that a RelationManager is called an *addon*.
 4. **Role administration**, hand-built over `spatie/laravel-permission`.
-5. **Module plugins** — `NotesPlugin` etc. become service-provider `boot()` registrations;
+5. **Module plugins** — `TasksPlugin` etc. become service-provider `boot()` registrations;
    `ModuleRegistry::pluginsFor()` returns registration callbacks rather than
    `Filament\Contracts\Plugin` instances.
 6. **The 6 custom pages**, including `Epesi/Store`'s Blade view.

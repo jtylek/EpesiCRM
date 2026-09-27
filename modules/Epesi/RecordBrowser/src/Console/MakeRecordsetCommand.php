@@ -22,7 +22,7 @@ use Illuminate\Support\Str;
 class MakeRecordsetCommand extends Command
 {
     protected $signature = 'make:epesi-recordset
-        {module : the module to add it to, e.g. Epesi/Notes}
+        {module : the module to add it to, e.g. Epesi/Attachments}
         {name : singular model name, e.g. Invoice}';
 
     protected $description = 'Scaffold a recordset (model, migration, resource with fields(), page stubs) inside a module';

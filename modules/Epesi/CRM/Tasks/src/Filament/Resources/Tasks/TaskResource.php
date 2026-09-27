@@ -20,12 +20,15 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class TaskResource extends RecordsetResource
 {
     protected static ?string $model = Task::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCheckCircle;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $recordTitleAttribute = 'title';
 

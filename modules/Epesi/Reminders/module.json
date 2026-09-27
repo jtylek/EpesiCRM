@@ -11,6 +11,7 @@
     "provider_class": "Epesi\\Modules\\Reminders\\RemindersServiceProvider",
     "plugin_class": "Epesi\\Modules\\Reminders\\RemindersPlugin",
     "panels": ["main"],
+    "core": true,
     "requires": ["epesi/recordbrowser"],
     "provides": []
 }

@@ -117,6 +117,36 @@ class RecordBrowsingTest extends TestCase
         Livewire::test(ListContacts::class)->assertSet('activeTab', 'all');
     }
 
+    public function test_visited_column_is_toggleable_and_hidden_by_default(): void
+    {
+        $user = $this->userWithRole('employee');
+        $this->actingAs($user);
+
+        $company = $this->company('Alpha');
+        RecentRecords::visit($user, $company, 50);
+
+        $table = Livewire::test(ListCompanies::class)
+            ->set('activeTab', 'recent')
+            ->instance()
+            ->getTable();
+
+        $visited = $table->getColumn('recordbrowser_visited_at');
+        $this->assertTrue($visited->isToggleable());
+        $this->assertTrue($visited->isToggledHiddenByDefault());
+    }
+
+    public function test_created_updated_and_deleted_columns_are_not_offered_on_the_list(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $table = Livewire::test(ListCompanies::class)->instance()->getTable();
+
+        $this->assertNull($table->getColumn('creator.name'));
+        $this->assertNull($table->getColumn('created_at'));
+        $this->assertNull($table->getColumn('updated_at'));
+        $this->assertNull($table->getColumn('deleted_at'));
+    }
+
     public function test_a_star_marks_a_favorite_and_the_favorites_tab_lists_them(): void
     {
         $user = $this->userWithRole('employee');

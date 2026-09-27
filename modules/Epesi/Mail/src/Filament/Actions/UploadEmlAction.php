@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Mail\Filament\Actions;
 
+use App\Support\Demo;
 use Epesi\Modules\Mail\Services\MailArchiver;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -16,13 +17,14 @@ use Throwable;
  * Archive messages saved from any mail client as .eml files — the manual
  * "Archive" button Epesi had inside Roundcube, for people who don't use the
  * IMAP archive folder. On a record's E-mails tab the messages are also linked
- * to that record, matched or not.
+ * to that record, matched or not. Unavailable in demo mode, which takes no
+ * files.
  */
 class UploadEmlAction
 {
     public static function make(?Model $record = null): Action
     {
-        return Action::make('uploadEml')
+        return Demo::guard(Action::make('uploadEml')
             ->label('Archive .eml')
             ->icon(Heroicon::OutlinedArrowUpTray)
             ->color('gray')
@@ -66,6 +68,6 @@ class UploadEmlAction
                     ->body($failed ? trans_choice('{1} :count file could not be read as e-mail.|[2,*] :count files could not be read as e-mail.', $failed, ['count' => $failed]) : null)
                     ->status($failed ? 'warning' : 'success')
                     ->send();
-            });
+            }));
     }
 }

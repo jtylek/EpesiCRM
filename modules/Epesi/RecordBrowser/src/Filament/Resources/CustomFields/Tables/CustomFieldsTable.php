@@ -4,7 +4,6 @@ namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Tables;
 
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldActions;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -23,6 +22,11 @@ class CustomFieldsTable
             ->defaultGroup('model_type')
             ->defaultSort('position')
             ->columns([
+                TextColumn::make('model_type')
+                    ->label('Recordset')
+                    ->formatStateUsing(fn (string $state): string => CustomFieldRegistry::participatingModels()[$state] ?? $state)
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('label')->searchable()->sortable(),
                 TextColumn::make('name')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')
@@ -44,10 +48,6 @@ class CustomFieldsTable
             ->recordActions([
                 ViewAction::make()->iconButton()->tooltip(__('View')),
                 EditAction::make()->iconButton()->tooltip(__('Edit')),
-                DeleteAction::make()
-                    ->iconButton()
-                    ->tooltip(__('Remove definition'))
-                    ->modalDescription(__('The field disappears from every screen. Its database column and the data in it are kept — use "Drop column" to remove those too.')),
                 CustomFieldActions::dropColumn()->iconButton(),
             ]);
     }

@@ -7,7 +7,8 @@ Watchdog tells people when **someone else** changes a record they care about. It
 of legacy Epesi's `Utils/Watchdog`. A user watches single records, or whole record types, and
 learns about changes in two places:
 
-- **the bell** in the top bar: one notification per change, with who changed what;
+- **the bell** in the top bar: one notification per change, with who changed what, listed until
+  it is read;
 - **the Watched page**: one row per watched record, with how many changes are new.
 
 Both places share one read state. A change marked read in either place, or seen by opening the
@@ -21,10 +22,18 @@ not provide it.
 - **Automatic watching.** The author of a new record watches it from the start, as
   RecordBrowser's `add_record()` did. A user who watches a record type starts watching a record
   of that type the first time they're told about it.
+- **Watching lapses.** A subscription ends after 90 days with nothing happening: no change to
+  the record, and nothing new seen by its user. A record that keeps changing stays watched.
+  Watching a whole type does not lapse.
 - **Bell notification.** The title is "Task: Call the bank", with the record type and title. The
   body says who did what: "Ann updated: Title, Status.", "Ann created.", "Ann deleted." or
-  "Ann restored.". **Open** goes to the record's View page with its History addon open,
-  because History is where the changes are.
+  "Ann restored.". Clicking the notification goes to the record's View page with its History
+  addon open, because History is where the changes are. That is its **Open** action, stretched
+  invisibly over the whole notification (`AppServiceProvider::compactBellNotifications()`).
+- **The bell lists only unread notifications**, as Epesi's tray listed only unseen changes. A
+  notification leaves it once it is read, dismissed (✕), or its record opened. The one header
+  action is **Mark all as read**: with read ones out of the list, Filament's Clear would do the
+  same, so it is hidden.
 - **Watched page** (`/watched`, "Watched" in the menu). It lists the records you watch. By
   default it shows only those with new changes; the "Has new changes" filter shows the rest.
   - Columns: Type, Record, Changed by, Changes, the number of new changes, and Last change.
@@ -44,6 +53,7 @@ not provide it.
 | `utils_watchdog_category_subscription` | `epesi_watchdog_category_subscriptions`; a category is the record type's morph alias (`task`) |
 | `utils_watchdog_category` + a callback per module | `Watchdog::$recordTypes`, extended by `Watchdog::enableFor()` |
 | `notified()` when a record is viewed | `Watchdog::markSeen()` when the View page builds its header actions |
+| `user_notified()` deleting events older than 3 months; subscriptions kept for good | subscriptions with nothing happening for 90 days are deleted (see [Subscriptions lapse](#subscriptions-lapse)); `activity_log` is History and stays |
 | `has_access_to_record()` | `Watchdog::canSee()` |
 | Tray notification (`notification()`), **computed from the subscriptions** | Filament's database notifications (the bell), **stored as rows** |
 | Dashboard applet with "Mark all as read" | the Watched page |
@@ -61,7 +71,7 @@ two in step itself (see [One read state](#one-read-state-in-two-places)).
 | `activity_log` | Every change to every record (`subject_type`/`subject_id`, `causer_*`, `event`, changed `properties`). Watchdog writes nothing here. |
 | `epesi_watchdog_subscriptions` | One user watching one record, and `last_seen_activity_id`: the last change they have seen. |
 | `epesi_watchdog_category_subscriptions` | One user watching every record of a type. |
-| `notifications` | Laravel's own table, read by Filament's bell. Each notification's `data` is its rendered text (title, body, icon, actions) plus a `watchdog` key: `{subject_type, subject_id, activity_id}`. |
+| `notifications` | Laravel's own table, read by Filament's bell. Each notification's `data` is its rendered text (title, body, icon, actions) plus a `watchdog` key: `{subject_type, subject_id, activity_id}`. A read one stays in the table, out of the bell's sight, for 30 days (see [Read notifications are pruned](#read-notifications-are-pruned)). |
 
 **Unseen changes** are the `activity_log` rows of the subscription's record that are:
 - newer than `last_seen_activity_id`, and
@@ -71,6 +81,32 @@ Two copies of that rule have to be kept in step:
 - `Watchdog::unseenActivities()`, for one subscription;
 - `Subscription::scopeWithUnseenChanges()`, the same rule as one query for a whole list (the
   Watched page's filter and menu badge).
+
+### Subscriptions lapse
+
+Every record a user creates, and every record they hear of through watching its type, gives
+them a subscription, so without a limit the table only grows. A subscription is deleted when
+both of these are true (`Subscription::prunable()`):
+- its `updated_at` is more than 90 days old (`Subscription::EXPIRES_AFTER_DAYS`). That column is
+  set when watching starts and moved whenever `Watchdog::see()` advances `last_seen_activity_id`;
+- its record has no `activity_log` row from the last 90 days, by anyone, the subscriber included.
+
+Laravel's `model:prune` does the deleting, in bulk (`MassPrunable`, no model events). The
+module schedules it daily from `WatchdogServiceProvider`, so it needs `php artisan
+schedule:run` in cron; without cron, subscriptions never lapse. Category subscriptions never
+lapse.
+
+Unseen changes older than 90 days go with the subscription, off the Watched page. Their bell
+notifications stay until they are read.
+
+### Read notifications are pruned
+
+The bell doesn't show read notifications, so nothing would ever look at them again.
+`DatabaseNotifications::pruneRead()` deletes the bell's notifications (`data->format` is
+`filament`) read more than 30 days ago (`KEEP_READ_DAYS`). Unread ones stay however old they
+are. The scheduler runs it daily from `WatchdogServiceProvider`, next to the subscriptions' prune,
+so it also needs cron. With Watchdog disabled, Filament's own bell lists read notifications again
+and nothing prunes them.
 
 ## How a change reaches people
 
@@ -118,8 +154,10 @@ Every way of marking something read updates both:
 |---|---|---|
 | opens the record (View page) | seen up to the latest change | that record's all read |
 | clicks Mark as read on the Watched page (row or bulk) | seen up to the latest change | that record's all read |
-| clicks Open, or Mark all as read, in the bell | seen up to the notification's change | read |
-| dismisses one (✕), or clicks Clear, in the bell | seen up to the notification's change | deleted |
+| clicks a notification, or Mark all as read, in the bell | seen up to the notification's change | read |
+| dismisses one (✕) in the bell | seen up to the notification's change | deleted |
+
+Read or deleted, a notification is out of the bell either way.
 
 ### Rules
 
@@ -130,7 +168,7 @@ Every way of marking something read updates both:
 - **Never backwards.** `last_seen_activity_id` only moves forward. Reading an old notification
   after a newer one is harmless.
 - **Only unread notifications count.** A notification that is already read was synced when it
-  was read. Dismissing or clearing read ones changes nothing.
+  was read, and the bell no longer lists it.
 - **Opening a record marks its notifications read even if you don't watch it.** That covers a
   record you stopped watching after it notified you.
 
@@ -145,9 +183,13 @@ Every way of marking something read updates both:
     existed.
 - **`Filament\Livewire\DatabaseNotifications`** (in this module) is the bell. It is a subclass
   of Filament's `Filament\Livewire\DatabaseNotifications`. It overrides:
-  - `markNotificationAsRead()`, `markAllNotificationsAsRead()`, `removeNotification()` and
-    `clearNotifications()`: each calls `markNotifiedSeen()` on the affected unread
-    notifications first, then the parent method.
+  - `markNotificationAsRead()`, `markAllNotificationsAsRead()` and `removeNotification()`: each
+    calls `markNotifiedSeen()` on the affected unread notifications first, then the parent
+    method.
+  - `getNotifications()`, the list, to unread only. Not `getNotificationsQuery()`: Filament's
+    `removeNotification()` deletes through that query, and by then `markNotifiedSeen()` has
+    marked the notification read, so an unread-only query would miss it.
+  - `clearNotificationsAction()`, hidden.
   - This has to be a subclass. Filament marks notifications read with one bulk `update()` and
     deletes them with a bulk `delete()`, which fire no model events, so there is nothing to
     listen to.
@@ -155,6 +197,9 @@ Every way of marking something read updates both:
     repeated on the overrides, because Livewire reads them from the overriding method.
 - **The View page** calls `markSeen()` from `WatchdogServiceProvider::headerActions()`. That
   runs when the page builds its header actions, which is also where the eye toggle comes from.
+  `RecordExtensions::headerActions()` callbacks get the page as a second argument, so this one
+  can tell the bell to reload (see below). `markSeen()` returns how many notifications it marked
+  read, and the page tells the bell only when that is more than none.
 - **The Watched page** calls `markSeen()` from its Mark as read actions.
 
 ### Putting the bell in the panel
@@ -177,14 +222,16 @@ work as before.
 
 ### Refreshing the other place at once
 
-The bell polls every 60 seconds and the sidebar doesn't poll. So each side tells the other
+The bell polls every 60 seconds and the sidebar doesn't poll. The main panel is also a SPA
+(`->spa()`), and Filament keeps the end of the top bar, the bell included, from page to page
+(`x-persist`). So opening a record doesn't redraw the bell either. Each side tells the other
 through Livewire events, instead of waiting:
 
 | Event | Sent by | Received by |
 |---|---|---|
 | `refresh-sidebar` | the bell, and the Watched page's Mark as read | Filament's sidebar, which re-renders the Watched badge |
 | `watchdog-seen` | the bell | the Watched page, which re-renders its table |
-| `databaseNotificationsSent` | the Watched page's Mark as read | the bell, which reloads its list (Filament's own "new notifications" event) |
+| `databaseNotificationsSent` | the Watched page's Mark as read, and a View page that marked notifications read | the bell, which reloads its list (Filament's own "new notifications" event) |
 
 ### The JSON lookup
 
@@ -221,7 +268,8 @@ The bell belongs to no one module. Any module can send to it: build a Filament
 does this.
 
 Those notifications have no `watchdog` key. Watchdog's bell passes them straight to Filament's
-behaviour: read is only read, and dismissed is only deleted.
+behaviour: read is only read, and dismissed is only deleted. Like every notification, one that
+is read leaves the bell and is pruned 30 days later.
 
 A module that wants the same two-way sync for its own state would need its own key and handler.
 Today only Watchdog has one.
@@ -230,7 +278,7 @@ Today only Watchdog has one.
 
 - **Notifications sent before the `watchdog` key existed.** They can't be matched to a change.
   Reading them in the bell doesn't clear the Watched page, and opening their record doesn't mark
-  them read. Clearing the bell once gets rid of them.
+  them read. Mark all as read once gets rid of them.
 - **Mark as unread** (Filament's `markNotificationAsUnread`) does not un-see the change. No
   notification offers that action today.
 - **Stop watching** leaves the record's notifications in the bell as they were.
@@ -248,8 +296,11 @@ Today only Watchdog has one.
 - links to the History tab in any language;
 - type watchers never seeing private records, and getting a subscription;
 - the Watched page's columns, filter and badge;
-- all the read paths: the View page, the Watched page, and the bell's mark read, mark all,
-  dismiss and clear, including per-change behaviour;
+- subscriptions lapsing after 90 days with nothing happening, and the prune being scheduled;
+- all the read paths: the View page (and its telling the bell), the Watched page, and the bell's
+  mark read, mark all and dismiss, including per-change behaviour;
+- the bell listing only unread notifications, without Clear;
+- read notifications pruned after 30 days, and that prune being scheduled;
 - the panel rendering Watchdog's bell and not Filament's.
 
 The suite runs on SQLite. The JSON comparison above is MySQL-specific and was checked there by

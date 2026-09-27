@@ -40,7 +40,7 @@ class CloneRecordAction
             ->modalHeading(__('Clone this record?'))
             ->modalDescription(__('This will create a duplicate copy of this record. You\'ll be taken to the new copy to make changes before saving.'))
             ->modalSubmitActionLabel(__('Clone'))
-            ->action(function (Model $record) use ($resource, $resetAttributes) {
+            ->action(function (Model $record, Action $action) use ($resource, $resetAttributes): void {
                 $replica = $record->replicate([...$resetAttributes, 'created_by', 'legacy_id']);
                 // Suppress LogsActivity's own automatic "created" entry — a
                 // clone gets a "cloned" History row instead, logged manually
@@ -61,7 +61,9 @@ class CloneRecordAction
                     ->success()
                     ->send();
 
-                return redirect($resource::getUrl('edit', ['record' => $replica]));
+                // Not return redirect(): that reloads the page, where the
+                // action's own redirect follows the panel's SPA mode.
+                $action->redirect($resource::getUrl('edit', ['record' => $replica]));
             });
     }
 }

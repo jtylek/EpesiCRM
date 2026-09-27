@@ -38,12 +38,12 @@ class RemindersServiceProvider extends ServiceProvider
 
         Gate::policy(Reminder::class, ReminderPolicy::class);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([SendRemindersCommand::class]);
-        }
+        // Not only on the command line: the cron URL and "Run now" under
+        // Administration → Cron run it within a web request.
+        $this->commands([SendRemindersCommand::class]);
 
         // Messenger's cron() asked for cron2() every minute; here that is
-        // Laravel's scheduler, which needs `schedule:run` in cron.
+        // Laravel's scheduler, which needs cron (cron.php; AI-shared/cron.md).
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('reminders:send')
                 ->everyMinute()

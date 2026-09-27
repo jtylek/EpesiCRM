@@ -62,7 +62,6 @@ class SetupTest extends TestCase
     {
         return [
             'code' => SetupCode::current(),
-            'profile' => 'crm',
             'demo_data' => false,
             'admin_name' => 'Jan Kowalski',
             'admin_email' => 'jan@example.test',
@@ -87,8 +86,8 @@ class SetupTest extends TestCase
 
         $this->get(route('filament.setup.install'))
             ->assertOk()
-            ->assertSee('Welcome to epesi')
-            ->assertSee('CRM installation');
+            ->assertSee('epesi setup')
+            ->assertSee('Load demo data');
     }
 
     public function test_the_wizard_installs_modules_creates_the_administrator_and_saves_mail_settings(): void
@@ -105,12 +104,12 @@ class SetupTest extends TestCase
         $this->assertTrue($admin->hasRole('super_admin'));
         $this->assertAuthenticatedAs($admin);
 
-        // Core modules always, then the CRM profile's own.
+        // Every "core": true module installs unconditionally.
         $installed = Module::query()->pluck('module_id')->all();
         foreach (['epesi/recordbrowser', 'epesi/commondata', 'epesi/crm-contacts', 'epesi/mail', 'epesi/reminders', 'epesi/regional-settings'] as $id) {
             $this->assertContains($id, $installed);
         }
-        $this->assertNotContains('epesi/store-server', $installed);
+        $this->assertNotContains('epesi/roundcube', $installed);
 
         $env = File::get($this->scratch.'/.env');
         $this->assertStringContainsString('MAIL_MAILER=smtp', $env);
@@ -213,7 +212,7 @@ class SetupTest extends TestCase
             ->assertSee('Server check')
             ->assertSee('PHP extension intl')
             ->assertSee('Create the tables')
-            ->assertDontSee('CRM installation');
+            ->assertDontSee('Load demo data');
 
         $this->assertFileExists($this->scratch.'/setup-code.txt', 'written before anyone is told to look for it');
 
@@ -297,6 +296,14 @@ class SetupTest extends TestCase
         $this->assertStringContainsString('.env.example is missing', (new FirstBoot($base))->problems($base.'/.env')[0]);
     }
 
+    public function test_an_installation_runs_queued_work_straight_away(): void
+    {
+        // Every .env starts from this file, and epesi runs no queue worker
+        // (AI-shared/cron.md): with `database`, whatever Laravel, Filament or
+        // a module queues would wait in `jobs` for good.
+        $this->assertSame('sync', Dotenv::parse(File::get(base_path('.env.example')))['QUEUE_CONNECTION']);
+    }
+
     /**
      * Points the default connection at an empty SQLite file, so the wizard
      * sees a database without tables. Callers put "sqlite" back at the end
@@ -371,7 +378,7 @@ class SetupTest extends TestCase
     {
         File::put($this->scratch.'/.env', "APP_ENV=local\nAPP_DEBUG=true\n");
 
-        app(Installer::class)->install(new InstallOptions('core', 'Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG, development: true));
+        app(Installer::class)->install(new InstallOptions('Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG, development: true));
 
         $env = Dotenv::parse(File::get($this->scratch.'/.env'));
         $this->assertSame('local', $env['APP_ENV']);
@@ -381,11 +388,11 @@ class SetupTest extends TestCase
     public function test_setup_cannot_run_twice(): void
     {
         $installer = app(Installer::class);
-        $options = new InstallOptions('core', 'Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG);
+        $options = new InstallOptions('Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG);
         $installer->install($options);
 
         $this->expectException(SetupException::class);
-        $installer->install(new InstallOptions('core', 'Eve', 'eve@example.test', 'correct horse battery'));
+        $installer->install(new InstallOptions('Eve', 'eve@example.test', 'correct horse battery'));
     }
 
     public function test_the_wizard_closes_once_installed(): void
@@ -397,7 +404,7 @@ class SetupTest extends TestCase
 
     public function test_demo_data_is_optional(): void
     {
-        app(Installer::class)->install(new InstallOptions('core', 'Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG, demoData: true));
+        app(Installer::class)->install(new InstallOptions('Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG, demoData: true));
 
         $this->assertTrue(Company::query()->withoutGlobalScopes()->where('company_name', 'Acme Corp')->exists());
         $this->assertTrue(User::query()->where('email', 'employee@example.com')->exists());
@@ -405,7 +412,7 @@ class SetupTest extends TestCase
 
     public function test_the_administrator_finishes_with_the_module_pages(): void
     {
-        $admin = app(Installer::class)->install(new InstallOptions('crm', 'Jan Kowalski', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG));
+        $admin = app(Installer::class)->install(new InstallOptions('Jan Kowalski', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG));
         $this->actingAs($admin);
 
         $this->get('/')->assertRedirect(route('filament.setup.finish'));
@@ -449,7 +456,7 @@ class SetupTest extends TestCase
 
     public function test_the_module_pages_can_be_skipped(): void
     {
-        $admin = app(Installer::class)->install(new InstallOptions('crm', 'Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG));
+        $admin = app(Installer::class)->install(new InstallOptions('Jan', 'jan@example.test', 'correct horse battery', InstallOptions::MAIL_LOG));
         $this->actingAs($admin);
         Filament::setCurrentPanel('setup');
 
@@ -485,7 +492,6 @@ class SetupTest extends TestCase
             '--admin-name' => 'Jan',
             '--admin-email' => 'jan@example.test',
             '--admin-password' => 'correct horse battery',
-            '--profile' => 'core',
             '--mail' => 'log',
             '--no-interaction' => true,
             '--force' => true,

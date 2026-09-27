@@ -11,14 +11,15 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Remembers which rows the demo data created (the `demo_records` table), so
  * Administration → Demo data can remove exactly those again: the demo users,
- * companies, contacts, tasks, calls, meetings and shoutbox messages, with
- * everything hanging off them. What the administrator added (their own
- * account, contact and company from setup, and any record since) stays.
+ * companies, contacts, tasks, calls, meetings, shoutbox messages, notes and
+ * e-mails, with everything hanging off them. What the administrator added
+ * (their own account, contact and company from setup, and any record since)
+ * stays.
  */
 class DemoData
 {
     /** Deleted in this order, so no row outlives one it points to. */
-    protected const ORDER = ['epesi_shoutbox_messages', 'phone_calls', 'tasks', 'meetings', 'contacts', 'companies', 'users'];
+    protected const ORDER = ['epesi_attachments', 'epesi_mails', 'epesi_mail_threads', 'epesi_shoutbox_messages', 'phone_calls', 'tasks', 'meetings', 'contacts', 'companies', 'users'];
 
     public static function remember(Model $record): void
     {

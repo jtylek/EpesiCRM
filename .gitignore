@@ -19,6 +19,9 @@
 # Epesi vendor ship with the core.
 /modules/*
 !/modules/Epesi
+# Separately licensed modules: each one is its own nested git repo, not part of
+# this one.
+/modules/Premium/
 /node_modules
 /public/build
 /public/hot

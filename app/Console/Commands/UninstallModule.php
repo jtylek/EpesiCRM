@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class UninstallModule extends Command
 {
-    protected $signature = 'module:uninstall {module : module id, e.g. epesi/notes}';
+    protected $signature = 'module:uninstall {module : module id, e.g. epesi/roundcube}';
 
     protected $description = 'Remove an installed module (its database tables are left alone)';
 

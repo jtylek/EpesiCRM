@@ -42,11 +42,23 @@ window.initEpesiCalendar = function (el, wire) {
         eventResize: (info) => persistReschedule(wire, info),
 
         // Empty-cell click: opens the "New event" type picker
-        // (App\Filament\Pages\Calendar::createEventAction()). Clicking an
-        // existing event still goes through FullCalendar's own url-based
-        // navigation, unaffected — this only fires on empty cells.
+        // (App\Filament\Pages\Calendar::createEventAction()).
         dateClick: (info) => {
             wire.mountAction('createEvent', { date: info.dateStr, allDay: info.allDay });
+        },
+
+        // An event is a link to its record. Followed like the panel's own
+        // links (its SPA mode), so the page isn't reloaded and full screen
+        // lasts. A modified click (new tab or window) is left to the browser.
+        eventClick: (info) => {
+            const e = info.jsEvent;
+
+            if (!info.event.url || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+                return;
+            }
+
+            e.preventDefault();
+            window.Livewire.navigate(info.event.url);
         },
     });
 

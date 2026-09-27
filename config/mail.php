@@ -65,9 +65,12 @@ return [
             'transport' => 'resend',
         ],
 
+        // "This server's mail system": php.ini's sendmail_path, or on Windows
+        // its SMTP server and port (App\Support\Mail\ServerMailTransport).
+        // MAIL_SENDMAIL_PATH forces a sendmail command of your own.
         'sendmail' => [
-            'transport' => 'sendmail',
-            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
+            'transport' => 'native',
+            'path' => env('MAIL_SENDMAIL_PATH'),
         ],
 
         'log' => [

@@ -7,11 +7,15 @@ use Epesi\Modules\RecordBrowser\Console\MakeRecordsetCommand;
 use Epesi\Modules\RecordBrowser\Console\RecordsetCheckCommand;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
+use Filament\Actions\Action;
+use Filament\Actions\Events\ActionCalled;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\View\TablesRenderHook;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -38,6 +42,16 @@ class RecordBrowserServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'epesi-recordbrowser');
 
+        // Whatever an addon's action did (add, delete, unlink...), the View
+        // page recounts the badges on its tabs (ViewRecord::withCountBadge()).
+        Event::listen(ActionCalled::class, function (Action $action): void {
+            $livewire = $action->getLivewire();
+
+            if ($livewire instanceof RelationManager) {
+                $livewire->dispatch('addon-changed');
+            }
+        });
+
         // A list's browse-mode tabs go in the table's toolbar, left of the
         // search box, rather than floating above the table. The hook sits
         // inside the toolbar's left-aligned actions, so bulk actions line up
@@ -54,6 +68,9 @@ class RecordBrowserServiceProvider extends ServiceProvider
         // The History addon marks a change's old value red and its new value
         // green, as a diff does: a pale solid tint under light mode's dark
         // text, a translucent one over dark mode's panel under its light text.
+        // A long text's diff (TextDiff) strikes its removed words through
+        // (<del>) and leaves added ones (<ins>) unlined; "…" is the unchanged
+        // text left out.
         FilamentView::registerRenderHook(
             PanelsRenderHook::STYLES_AFTER,
             fn (): HtmlString => new HtmlString('<style>'
@@ -63,6 +80,10 @@ class RecordBrowserServiceProvider extends ServiceProvider
                 .'.epesi-history-new{background:var(--success-100)}'
                 .'.dark .epesi-history-old{background:color-mix(in oklab,var(--danger-500) 30%,transparent)}'
                 .'.dark .epesi-history-new{background:color-mix(in oklab,var(--success-500) 30%,transparent)}'
+                .'del.epesi-history-old{text-decoration:line-through}'
+                .'ins.epesi-history-new{text-decoration:none}'
+                .'.epesi-history-gap{color:var(--gray-500)}'
+                .'.dark .epesi-history-gap{color:var(--gray-400)}'
                 .'</style>'),
         );
 

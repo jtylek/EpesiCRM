@@ -127,7 +127,9 @@ class PackageRelease extends Command
         $this->components->task("Writing {$count} files", fn () => $zip->close());
 
         // `sha256sum -c epesi-2.0.zip.sha256` checks a download against it.
-        File::put($file.'.sha256', hash_file('sha256', $file).'  '.basename($file).PHP_EOL);
+        // "\n", not PHP_EOL: built on Windows, a "\r" would become part of
+        // the file name sha256sum looks for.
+        File::put($file.'.sha256', hash_file('sha256', $file).'  '.basename($file)."\n");
 
         $this->components->info('Release written to '.$file.' ('.round(filesize($file) / 1048576, 1).' MB), with its checksum in '.basename($file).'.sha256.');
 

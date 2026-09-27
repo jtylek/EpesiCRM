@@ -198,8 +198,9 @@ Once the tables exist, the same address asks:
    - **Core only**: the CRM records and the calendar.
 
    Also **Load demo data**: about 100 companies and 100 contacts, 30 tasks, 30 phone calls and
-   30 meetings, a shoutbox conversation, and two demo users (`manager@example.com` and
-   `employee@example.com`, password `password`). See [Demo data](#demo-data).
+   30 meetings, a shoutbox conversation, 100 notes, a full priority list for each user, and two
+   demo users (`manager@example.com` and `employee@example.com`, password `password`). See
+   [Demo data](#demo-data).
 2. **Administrator.** Name, e-mail (the login) and password.
 3. **Mail.** How epesi sends its own e-mail (password resets, reminders): this server's mail
    system (sendmail, usually right on a hosted server), an SMTP server, or not yet
@@ -330,18 +331,22 @@ back afterwards. The details also go to `storage/logs/laravel.log` either way.
 
 ### 5. Add the cron job
 
-Mail fetching (every 5 minutes) and reminders (every minute) run from Laravel's scheduler,
-as Epesi's `cron.php` did. In the panel's **Cron Jobs**, add one entry that runs every minute:
+Mail fetching (every 5 minutes) and reminders (every minute) run from `cron.php`, as in Epesi.
+**Administration → Cron** shows the line for this installation. In the panel's **Cron Jobs**,
+add one entry that runs every minute:
 
 ```
-* * * * * /usr/local/bin/php /home/account/epesi/artisan schedule:run >> /dev/null 2>&1
+* * * * * /usr/local/bin/php /home/account/epesi/cron.php > /dev/null 2>&1
 ```
 
 Use your account's path to the epesi folder. The PHP command-line path differs between hosts
 (`/usr/bin/php`, `/usr/local/bin/php`, `/opt/cpanel/ea-php83/root/usr/bin/php`); the cron
 page or the host's help usually names it. It must be PHP 8.2 or newer, which isn't always
-the default `php`. Nothing else needs a background process: notifications and reminders are
-sent without a queue worker.
+the default `php`. A host whose cron can only call an address gets the **cron URL** from the
+same page instead. Nothing else needs a background process: notifications and reminders are
+sent without a queue worker. Within a few minutes, Administration → Cron should say "Cron is
+running". [cron.md](cron.md) lists every task, and what happens when the host allows cron only
+every 5 or 15 minutes.
 
 ### 6. Afterwards
 
@@ -361,6 +366,9 @@ sent without a queue worker.
   Until then, other signed-in users get a short "epesi is being updated, try again in a few
   minutes" page (HTTP 503) instead of an error. The login page keeps working. With a shell,
   `php artisan epesi:update` does the same (`--pretend` only lists).
+
+  An update never changes `.env`. If yours still says `QUEUE_CONNECTION=database`, from an
+  install older than the switch to `sync`, change it to `sync` (see [cron.md](cron.md)).
 - **If setup stopped part-way,** open the address again. The wizard continues where it
   stopped, and running **Install** again is safe.
 
@@ -373,7 +381,11 @@ sent without a queue worker.
 - generated records up to 100 companies, 100 contacts, 30 tasks, 30 phone calls and 30
   meetings, spread over the three users as creators and over the permission levels. Past
   activities are mostly closed and upcoming ones open;
-- 25 shoutbox messages, some of them private, when the Shoutbox module is installed.
+- 25 shoutbox messages, some of them private, when the Shoutbox module is installed;
+- 100 notes on companies, contacts, tasks, phone calls and meetings, written by the three
+  users over the last month, when the Attachments module is installed;
+- ten open tasks, phone calls and meetings on each user's priority list, when the PriorityList
+  module is installed: for the manager and the employee, from what is assigned to them.
 
 The generated records come from word lists in the seeder, not Faker: Faker is a development
 package, and the release zip leaves those out. The random generator has a fixed seed, so every
@@ -517,7 +529,7 @@ anything. They expect the application to work at the folder's own address
 - **Automatic upgrades.** After unpacking new files, the installer must bring the database up
   to date. `php artisan epesi:update` fits, provided the installer can run it; otherwise it
   needs the same kind of callable entry point.
-- **Cron.** The installer should create the `schedule:run` cron job (step 5 of the shared
+- **Cron.** The installer should create the `cron.php` cron job (step 5 of the shared
   hosting setup). Installers of this kind can usually set up cron jobs for an application.
 - **Requirements.** PHP 8.2+ and the extensions from the server check, declared in the
   installer's metadata.

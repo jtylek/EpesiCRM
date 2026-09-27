@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Actions\NewCalendarEventAction;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
@@ -10,10 +11,10 @@ use App\Support\Calendar\CalendarRegistry;
 use BackedEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Radio;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 /**
  * Merges every registered App\Support\Calendar\CalendarEventProvider's events
@@ -26,6 +27,8 @@ class Calendar extends Page
     use TranslatesPageLabels;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected string $view = 'filament.pages.calendar';
 
@@ -92,34 +95,10 @@ class Calendar extends Page
     /**
      * "New event" picker opened from an empty-cell click
      * (resources/js/calendar.js's dateClick handler calls
-     * $wire.mountAction('createEvent', {date, allDay})) — the Filament
-     * equivalent of Epesi's Leightbox "New Event" type picker
-     * (CRM_Calendar::body()).
+     * $wire.mountAction('createEvent', {date, allDay})).
      */
     public function createEventAction(): Action
     {
-        return Action::make('createEvent')
-            ->label('New event')
-            ->modalHeading(__('New event'))
-            ->modalSubmitActionLabel(__('Continue'))
-            ->schema([
-                Radio::make('type')
-                    ->label('Type')
-                    ->options(fn (): array => collect(CalendarRegistry::all())
-                        ->mapWithKeys(fn (string $provider): array => [$provider::calendarKey() => $provider::calendarLabel()])
-                        ->all())
-                    ->required(),
-            ])
-            ->action(function (array $data, array $arguments, Action $action): void {
-                $provider = CalendarRegistry::find($data['type']);
-
-                if (! $provider) {
-                    return;
-                }
-
-                $date = Carbon::parse($arguments['date']);
-
-                $action->redirect($provider::calendarCreateUrl($date, (bool) ($arguments['allDay'] ?? false)));
-            });
+        return NewCalendarEventAction::make();
     }
 }

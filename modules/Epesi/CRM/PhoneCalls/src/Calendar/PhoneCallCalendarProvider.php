@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\CRM\PhoneCalls\Calendar;
 
+use App\Enums\RecordStatus;
 use App\Models\User;
 use App\Support\Calendar\CalendarColor;
 use App\Support\Calendar\CalendarEvent;
@@ -9,6 +10,7 @@ use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
 use Epesi\Modules\CRM\PhoneCalls\Filament\Resources\PhoneCalls\PhoneCallResource;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class PhoneCallCalendarProvider implements CalendarEventProvider
@@ -18,11 +20,14 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
         return 'phone_call';
     }
 
-    public static function calendarEvents(Carbon $start, Carbon $end, User $user): Collection
+    public static function calendarEvents(Carbon $start, Carbon $end, User $user, bool $mine = false): Collection
     {
         return PhoneCall::query()
             ->whereNotNull('called_at')
             ->whereBetween('called_at', [$start, $end])
+            ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
+                ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
+                ->orWhereHas('contact', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
             ->get()
             ->map(fn (PhoneCall $phoneCall): CalendarEvent => new CalendarEvent(
                 id: self::calendarKey().'-'.$phoneCall->id,
@@ -33,6 +38,8 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
                 url: PhoneCallResource::getUrl('view', ['record' => $phoneCall]),
                 color: CalendarColor::css($phoneCall->status->getColor()),
                 durationEditable: false,
+                finished: in_array($phoneCall->status, RecordStatus::finished(), true),
+                description: $phoneCall->description,
             ))
             ->values();
     }

@@ -39,7 +39,6 @@ class EpesiInstall extends Command
         {--admin-name= : with --admin-email and --admin-password, install without the web wizard}
         {--admin-email=}
         {--admin-password=}
-        {--profile= : setup type from config/setup.php (default: crm)}
         {--mail=sendmail : sendmail, smtp or log}
         {--demo : also load the demo data}
         {--roundcube : also download and install the Roundcube webmail (GPL-3.0, from roundcube.net)}
@@ -178,7 +177,6 @@ class EpesiInstall extends Command
 
         try {
             $installer->install(new InstallOptions(
-                profile: $this->option('profile') ?: (string) config('setup.default_profile'),
                 adminName: (string) $this->option('admin-name'),
                 adminEmail: (string) $this->option('admin-email'),
                 adminPassword: (string) $this->option('admin-password'),

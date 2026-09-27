@@ -64,6 +64,41 @@ A separate Filament panel (`/administration`), gated to the `super_admin` role s
 concerns that don't belong in the day-to-day CRM UI: login/session audit history, module
 management, and role administration.
 
+## Full screen and SPA mode
+
+The main panel's top bar has a full-screen button left of the notifications bell
+(`resources/views/filament/components/fullscreen-toggle.blade.php`): the browser's Fullscreen
+API, what F11 does. A browser leaves that full screen on every page load, so the main panel runs
+in Filament's **SPA mode** (`->spa()` in `MainPanelProvider`): a click swaps the page's content
+through Livewire's `wire:navigate` and the document stays. Links into the other panels
+(Administration, user settings, setup) still load in full: SPA mode never removes a stylesheet
+it has loaded, and theirs differ from the main panel's.
+
+What this asks of code in the main panel:
+
+- **Links.** Filament's own links, actions, table rows and breadcrumbs get `wire:navigate` by
+  themselves. A hand-written `<a href>` to a page doesn't, and reloads, which ends full screen.
+  Write it with `{{ \Filament\Support\generate_href_html($url) }}` (in a PHP string,
+  `generate_href_html($url)->toHtml()`), which also leaves out the other panels. A file
+  download stays a plain link: navigating to a file would try to show it as a page.
+- **Redirects.** An action's `$action->redirect($url)` follows SPA mode. A page's
+  `$this->redirect($url)` needs `navigate: FilamentView::hasSpaMode($url)`, and
+  `return redirect(...)` always reloads.
+- **Page scripts.** A page's own script goes in `@assets ... @endassets`, which puts it in the
+  head. Livewire waits for a new head script before it starts Alpine on the page. A script in the
+  page's content runs only after that, too late for an `x-init` that calls it (the Calendar's
+  `calendar.js` is the example). An inline script in the content runs again on every visit.
+- **JavaScript that follows a link itself** (FullCalendar's event click, say) calls
+  `Livewire.navigate(url)`.
+
+Where a browser can't keep a page in full screen, or you'd rather have no address bar at all,
+epesi installs as an app: the manifest (`WebAppManifestController`, linked in every panel's
+head) asks for a window of its own, and Chrome and Edge offer "Install epesi" from the address
+bar. It is a route rather than a file in `public/` because its scope must be epesi's address
+exactly as the app generates it: in a subfolder the dashboard is `/epesi-laravel`, with no
+trailing slash, and the installed window shows an address strip over any page outside the
+scope. The icons in `public/images/pwa/` are the legacy Epesi ones.
+
 ## Calendar
 
 A pluggable, multi-source calendar page merges events from every registered

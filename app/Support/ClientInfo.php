@@ -7,28 +7,26 @@ use Illuminate\Http\Request;
 /**
  * Port of Epesi's get_client_ip_address()/get_client_host_name()/parse_user_agent()
  * (include/misc.php), used by App\Http\Middleware\TrackLoginAudit for the same
- * display-only "who/where" fields CRM_LoginAudit recorded — never for feature
- * detection or security decisions, every one of these headers is spoofable.
+ * "who/where" fields CRM_LoginAudit recorded — never for feature detection or
+ * security decisions. The host name and device come from what the browser
+ * says, so they are display-only; the address is the connection's own.
  */
 class ClientInfo
 {
     /**
-     * Same header-precedence chain as the original: X-Real-IP, then
-     * X-Forwarded-For (first hop only), CF-Connecting-IP, Client-IP, falling
-     * back to the raw connection address.
+     * The address the request came from, as Laravel sees it: the connection's
+     * own, or the one a proxy forwarded, but only a proxy listed as trusted
+     * (trustProxies() in bootstrap/app.php) — a host behind Cloudflare or a
+     * load balancer lists it there.
+     *
+     * Not the original's chain (X-Real-IP, X-Forwarded-For, CF-Connecting-IP,
+     * Client-IP, then the connection): any browser can send those headers,
+     * so a visitor could put any address they liked into the login audit. On
+     * a public demo that audit is the record of who used it.
      */
     public static function ip(Request $request): string
     {
-        $address = $request->server('REMOTE_ADDR', '');
-
-        foreach (['X-Real-IP', 'X-Forwarded-For', 'CF-Connecting-IP', 'Client-IP'] as $header) {
-            if ($request->headers->has($header)) {
-                $address = $request->headers->get($header);
-                break;
-            }
-        }
-
-        return trim(explode(',', (string) $address)[0]);
+        return (string) $request->ip();
     }
 
     /**

@@ -27,6 +27,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -122,7 +123,7 @@ class RemindersRelationManager extends RelationManager
     {
         return $table
             ->recordTitle(fn (Reminder $record): string => 'reminder at '.$record->remind_at->format('Y-m-d H:i'))
-            ->modifyQueryUsing(fn (Builder $query): Builder => $this->visibleReminders($query)
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::visibleReminders($query)
                 ->with(['recipients.contact', 'creator.contact']))
             ->defaultSort('remind_at')
             ->columns([
@@ -183,7 +184,13 @@ class RemindersRelationManager extends RelationManager
         return false;
     }
 
-    protected function visibleReminders(Builder $query): Builder
+    /** The tab's count is what the table lists: only the reminders the user may see. */
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        return (string) static::visibleReminders($ownerRecord->reminders()->getQuery())->count();
+    }
+
+    protected static function visibleReminders(Builder $query): Builder
     {
         $user = Auth::user();
 

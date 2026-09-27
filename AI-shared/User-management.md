@@ -1,7 +1,8 @@
 # User management
 
-Covers the Users screen in the Administration panel and its **Log in as user** action, the
-port of legacy Epesi's "Log as user". Legacy references are paths inside the legacy epesiCRM
+Covers the Users screen in the Administration panel: making a user from a contact, Reset
+Password, Change Username, the History of a user, and the **Log in as user** action, the port
+of legacy Epesi's "Log as user". Legacy references are paths inside the legacy epesiCRM
 checkout. The main ones are `modules/Base/User/Administrator/Administrator_0.php`
 (`log_as_user()`) and `AdministratorCommon_0.php` (`get_log_as_user_access()`).
 
@@ -16,7 +17,13 @@ which only super_admin can open (`User::canAccessPanel()`).
 - **Accounts are deactivated, never deleted.** "Deactivate" and "Reactivate" flip `active`.
   An inactive user can't open any panel, and their records and Login Audit rows stay.
 - **Password.** The Edit form has a password field only when creating a user. After that,
-  the password changes through the separate "Reset Password" action on the View page.
+  the password changes through the separate "Reset Password" action on the View page. Left
+  blank there, it e-mails the user a link to choose their own password, as when creating one
+  (`NewAccountMailer`), so nobody has to know it; typed, it sets that password.
+  When creating, the password is optional: left blank, the user is e-mailed a link to choose
+  their own (see [Mail-server-settings.md](Mail-server-settings.md)).
+- **Username.** "Change Username" on the View page changes the e-mail address the user signs
+  in with. It is the login's own: the contact's e-mail address stays as it is.
 - **Policies don't restrict super_admin.** filament-shield is configured with
   `define_via_gate` and `intercept_gate: 'before'`, so every Gate check passes for
   super_admin. `UserPolicy` therefore never refuses the only role that can reach this screen.
@@ -24,6 +31,75 @@ which only super_admin can open (`User::canAccessPanel()`).
   "Deactivate" is hidden on your own account by the action's own `visible()` check, and
   `UserPolicy::delete()` would not stop it. The same reason applies to CommonData's readonly
   guard (see [Common-data.md](Common-data.md)).
+
+## A user is made from a contact
+
+All user management happens here, in Administration → Users. A contact has no Login tab: it had
+Reset Password and Change Username, which moved to the user's View page.
+
+**Creating a user.** The Contact choice replaces the Name field (`UserForm`, `CreateUser`):
+
+- The choice searches contacts that have no login yet, by any words of their first name, last
+  name or e-mail address, and offers 50 at a time.
+- Choosing one fills in its e-mail address (read-only: it is the sign-in name). The user's name
+  is the contact's, and the two are linked (`contacts.user_id`) in the same transaction as the
+  user is created.
+- **A contact with no e-mail address can't be made a user.** It is offered, marked "(no e-mail
+  address)", so nobody wonders why a person can't be found. Choosing it shows a warning that it
+  has no e-mail address and clears the choice. Creating with it is refused too (a request can
+  skip the warning), as is a contact that already has a login.
+- The address is taken from the contact again when the user is created, whatever the form
+  posted. An address another login already uses is refused by the e-mail field.
+- Editing a user still shows its own name and e-mail address.
+
+**Any contact can be made a user, not only your own staff.** The choice is not limited to the
+contacts of your company, nor to a group or permission. A customer's or a supplier's contact
+can have a login too. This is what a customer portal needs: the person is already a contact,
+and the login's role decides what they can open. Don't add such a filter to the choice.
+
+**The contact as a badge.** On the list and the View page, the Contact column shows the
+contact's name as a badge with a link icon that opens the contact in the main panel
+(`UserResource::contactBadge()`, built on `LinkedRecords`; contacts aren't in this panel, so it
+builds the link for the main one). An account with no contact shows its own name as plain text
+(`User::displayName()`). The list searches by the contact's first and last name as well as the
+login's, and sorts by the contact's last name.
+
+**Reset Password and Change Username** are `UserActions::resetPassword()` and
+`changeUsername()`, on the View page's header. Reset Password with the password left blank
+sends the link, unless the account can't sign in (no role, or deactivated: the reset page would
+refuse it, so the administrator is told and nothing is sent), or a link went out in the last
+minute (the password broker's throttle: the administrator is told to wait), or the mail server
+fails (told to check Mail Server). There is no demo-mode guard: demo mode has no
+Administration panel, so a demo account's password and username can't be changed at all.
+
+The contact form still has a *Linked User* field (a plain link, `ContactResource`); password,
+username and roles aren't managed there.
+
+### History of a user
+
+The View page has the same History tab as every record (`HistoryRelationManager`, added by
+`UserResource::getRelations()`; `historyFields()` gives it the labels). It records, by whom and
+when:
+
+| Event | What is logged |
+| --- | --- |
+| `created` | name, e-mail address, active (`User::getActivitylogOptions()`) |
+| `updated` | a change of name, e-mail address (Change Username or Edit) or active (Deactivate / Reactivate), old → new |
+| `password changed` | only that it changed: never the password, nor its hash (`User::booted()`, for every way a password changes) |
+| `password link sent` | that a link to choose a password went out (a new user, or Reset Password left blank), and who sent it; not the link |
+| `roles changed` | the role names, old → new (`EditUser`, `CreateUser`) |
+| `contact linked` | the contact the login was made for (`CreateUser`) |
+
+The password is left out of `getActivitylogOptions()` on purpose. The `remember_token` that every
+sign-in changes isn't logged either, so signing in adds nothing. A password set from the
+e-mailed link has nobody signed in: the user is recorded as the one who changed it
+(`UserActivity`). As with any record, an edit made while logged in as someone is recorded under
+that user's name (see Login Audit, below).
+
+### Tests
+
+`tests/Feature/UserManagementTest.php` (actions, contact badge, History), `CreateUserTest.php`
+(the Contact choice) and `UsersTableTest.php` (the Contact column: shown, searched, sorted).
 
 ## Log in as user
 
@@ -167,9 +243,9 @@ that gap, but it isn't built.
 | Login Audit shows only the impersonated login | `impersonated_by` / "Logged in by" names the administrator |
 | Offered on the user list and user edit form, and on a contact's View page (`CRM_ContactsCommon::QFfield_login()` action bar, `CRM_Contacts::user_actions()` row action) | Users list and user View page only |
 
-The contact-side entry point is not ported. A Contact's linked login already has its own
-actions in `ContactLoginEntries` (Reset Password, Change Username). To add Log in as user there,
-reuse `UserActions::logInAs()` with the contact's `user` as the record, rather than a second
+The contact-side entry point is not ported, and a contact has no Login tab any more (see
+"A user is made from a contact"). To add Log in as user to a contact's page, reuse
+`UserActions::logInAs()` with the contact's `user` as the record, rather than a second
 implementation.
 
 ### Tests

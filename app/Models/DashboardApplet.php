@@ -6,11 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Where one applet sits on one user's dashboard: legacy's
- * base_dashboard_applets (col/pos per user_login_id), keyed by the widget's
- * class rather than a module name. A class that no longer exists (a module
- * moved or removed) is simply skipped, and that widget falls back to a
- * default place.
+ * One applet on one user's dashboard: legacy's base_dashboard_applets (tab,
+ * col, pos per user_login_id) with its base_dashboard_settings folded into
+ * `settings`, and the widget's class in place of a module name. A class that
+ * no longer exists (a module moved, disabled or removed) is simply skipped.
  */
 class DashboardApplet extends Model
 {
@@ -18,9 +17,11 @@ class DashboardApplet extends Model
 
     protected $fillable = [
         'user_id',
+        'dashboard_tab_id',
         'widget',
         'col',
         'pos',
+        'settings',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class DashboardApplet extends Model
         return [
             'col' => 'integer',
             'pos' => 'integer',
+            'settings' => 'array',
         ];
     }
 
@@ -37,5 +39,13 @@ class DashboardApplet extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<DashboardTab, $this>
+     */
+    public function tab(): BelongsTo
+    {
+        return $this->belongsTo(DashboardTab::class, 'dashboard_tab_id');
     }
 }

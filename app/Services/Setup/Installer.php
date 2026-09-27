@@ -5,13 +5,13 @@ namespace App\Services\Setup;
 use App\Models\Module;
 use App\Models\User;
 use App\Services\Modules\ModuleInstaller;
+use App\Support\Mail\MailConfig;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Setup\EnvFile;
 use App\Support\Setup\SetupCode;
 use App\Support\Setup\SetupState;
 use Database\Seeders\DemoDataSeeder;
 use Database\Seeders\RoleSeeder;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -55,17 +55,13 @@ class Installer
                 throw new SetupException('This system is already set up.');
             }
 
-            $profile = config("setup.profiles.{$options->profile}");
-
-            if (! is_array($profile)) {
-                throw new SetupException("Unknown setup type \"{$options->profile}\".");
-            }
-
             @set_time_limit(0);
 
             (new RoleSeeder)->run();
 
-            $modules = $profile['modules'] ?? [];
+            // Every "core": true module installs unconditionally; this is
+            // only ever Roundcube on top, if chosen.
+            $modules = [];
 
             if ($options->roundcube) {
                 $modules[] = RoundcubeSetup::MODULE_PATH;
@@ -94,7 +90,6 @@ class Installer
 
             SetupState::writeMarker([
                 'installed_at' => now()->toIso8601String(),
-                'profile' => $options->profile,
                 'modules' => $installed,
                 'finish_pending' => true,
             ]);
@@ -172,12 +167,6 @@ class Installer
     }
 
     /**
-     * FirstRun's "Mail settings" page. Epesi kept these in its variables
-     * table; here they are the application mailer's own .env keys. When .env
-     * can't be written (a locked-down host) setup still finishes, and the
-     * warning says what to set by hand.
-     */
-    /**
      * An installed system runs in production mode: .env.example's
      * APP_DEBUG=true would show configuration values, the database password
      * among them, on every error page. `epesi:install --dev` keeps a
@@ -201,42 +190,29 @@ class Installer
         $env->set($values);
     }
 
+    /**
+     * FirstRun's "Mail settings" page, sending system mail from the
+     * administrator's address. Epesi kept these in its variables table; here
+     * they are the application mailer's own .env keys (MailConfig), which
+     * Administration → Mail Server changes later. When .env can't be written
+     * (a locked-down host) setup still finishes, and the warning says what to
+     * set by hand.
+     */
     protected function configureMail(InstallOptions $options): void
     {
-        $values = match ($options->mailMethod) {
-            InstallOptions::MAIL_SMTP => [
-                'MAIL_MAILER' => 'smtp',
-                'MAIL_SCHEME' => $options->smtpSecurity === 'ssl' ? 'smtps' : 'smtp',
-                'MAIL_HOST' => $options->smtpHost,
-                'MAIL_PORT' => $options->smtpPort ?: ($options->smtpSecurity === 'ssl' ? 465 : 587),
-                'MAIL_USERNAME' => $options->smtpUsername,
-                'MAIL_PASSWORD' => $options->smtpPassword,
-            ],
-            InstallOptions::MAIL_LOG => ['MAIL_MAILER' => 'log'],
-            default => ['MAIL_MAILER' => 'sendmail'],
-        };
+        $warning = MailConfig::write(MailConfig::envValues(
+            $options->mailMethod,
+            $options->smtpHost,
+            $options->smtpPort,
+            $options->smtpSecurity,
+            $options->smtpUsername,
+            $options->smtpPassword,
+            $options->adminEmail,
+            config('app.name'),
+        ));
 
-        // FirstRun sent system mail from the administrator's address.
-        $values += [
-            'MAIL_FROM_ADDRESS' => $options->adminEmail,
-            'MAIL_FROM_NAME' => config('app.name'),
-        ];
-
-        $env = new EnvFile;
-
-        if (! $env->writable()) {
-            $this->warnings[] = 'The mail settings could not be saved because .env is not writable. Set these in .env yourself: '
-                .collect($values)->map(fn ($v, $k): string => $k.'='.($k === 'MAIL_PASSWORD' ? '…' : $v))->implode(', ');
-
-            return;
-        }
-
-        $env->set($values);
-
-        try {
-            Artisan::call('config:clear');
-        } catch (Throwable) {
-            // A config cache that can't be cleared only delays the change.
+        if ($warning !== null) {
+            $this->warnings[] = $warning;
         }
     }
 }

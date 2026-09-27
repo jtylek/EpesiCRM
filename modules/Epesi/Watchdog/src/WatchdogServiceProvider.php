@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Watchdog;
 
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
 use Epesi\Modules\Watchdog\Filament\Livewire\DatabaseNotifications;
 use Epesi\Modules\Watchdog\Listeners\NotifySubscribers;
 use Epesi\Modules\Watchdog\Models\CategorySubscription;
@@ -10,6 +11,7 @@ use Epesi\Modules\Watchdog\Models\Subscription;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +36,20 @@ class WatchdogServiceProvider extends ServiceProvider
         $activity = ActivitylogServiceProvider::determineActivityModel();
         $activity::created(fn (Model $row) => app(NotifySubscribers::class)($row));
 
-        RecordExtensions::headerActions('watchdog', fn (Model $record): array => static::headerActions($record));
+        RecordExtensions::headerActions('watchdog', fn (Model $record, ViewRecord $page): array => static::headerActions($record, $page));
+
+        // Subscriptions with nothing happening for 90 days lapse (see
+        // Subscription::prunable()), and read notifications, which the bell
+        // no longer shows, go after 30. Laravel's scheduler, which needs
+        // `schedule:run` in cron.
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $schedule->command('model:prune', ['--model' => [Subscription::class]])
+                ->daily()
+                ->withoutOverlapping();
+            $schedule->call(fn () => DatabaseNotifications::pruneRead())
+                ->name('Prune read bell notifications')
+                ->daily();
+        });
 
         // Named by its class, as Filament names the panel's own components.
         Livewire::component(DatabaseNotifications::class, DatabaseNotifications::class);
@@ -46,9 +61,13 @@ class WatchdogServiceProvider extends ServiceProvider
      * the record is being looked at, which is what marks its changes read
      * (Utils_WatchdogCommon::notified() on record view).
      *
+     * The bell has to be told: the main panel is a SPA, and the top bar the
+     * bell sits in is kept from page to page, so it would show the record's
+     * notifications until its next poll.
+     *
      * @return array<int, Action>
      */
-    protected static function headerActions(Model $record): array
+    protected static function headerActions(Model $record, ViewRecord $page): array
     {
         $user = Auth::user();
 
@@ -56,7 +75,9 @@ class WatchdogServiceProvider extends ServiceProvider
             return [];
         }
 
-        Watchdog::markSeen($user, $record);
+        if (Watchdog::markSeen($user, $record) > 0) {
+            $page->dispatch('databaseNotificationsSent');
+        }
 
         return [
             Action::make('watchdogToggle')

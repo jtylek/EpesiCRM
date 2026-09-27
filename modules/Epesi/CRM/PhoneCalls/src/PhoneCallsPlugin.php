@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\CRM\PhoneCalls;
 
+use Epesi\Modules\CRM\PhoneCalls\Filament\Widgets\PhoneCallsWidget;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -24,10 +25,13 @@ class PhoneCallsPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->discoverResources(
-            in: __DIR__.'/Filament/Resources',
-            for: 'Epesi\Modules\CRM\PhoneCalls\\Filament\\Resources',
-        );
+        $panel
+            ->discoverResources(
+                in: __DIR__.'/Filament/Resources',
+                for: 'Epesi\Modules\CRM\PhoneCalls\\Filament\\Resources',
+            )
+            // The Phone calls applet on the dashboard.
+            ->widgets([PhoneCallsWidget::class]);
     }
 
     public function boot(Panel $panel): void {}

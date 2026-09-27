@@ -10,8 +10,9 @@ use Illuminate\Support\Str;
 /**
  * Scaffolds a module in place under modules/, ready to develop against and to
  * release with `module:package`. Deliberately minimal: manifest, service
- * provider, Filament plugin. modules/Epesi/Notes is the worked example of what
- * to add next (models, migrations, Filament resources).
+ * provider, Filament plugin. `make:epesi-recordset` adds a recordset to it, and
+ * modules/Epesi/CRM/Tasks is a worked example of one (model, policy, Filament
+ * resource).
  */
 class MakeEpesiModule extends Command
 {

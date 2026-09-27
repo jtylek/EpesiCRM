@@ -206,6 +206,25 @@ class RoundcubeTest extends TestCase
         $this->assertSame(PHP_BINARY, app(RoundcubeInstaller::class)->php());
     }
 
+    public function test_the_php_command_line_can_be_named(): void
+    {
+        config(['epesi-roundcube.php' => '/usr/local/php85/bin/php']);
+
+        $this->assertSame('/usr/local/php85/bin/php', app(RoundcubeInstaller::class)->php());
+    }
+
+    /** The web server's own binary is no command line: "lsphp" ends in "php" but isn't one. */
+    public function test_a_web_servers_php_binary_is_not_taken_for_the_command_line(): void
+    {
+        foreach (['/usr/bin/php', '/usr/bin/php8.3', 'C:/xampp/php/php.exe'] as $binary) {
+            $this->assertTrue(RoundcubeInstaller::isCommandLine($binary), $binary);
+        }
+
+        foreach (['/opt/alt/php83/usr/bin/lsphp', '/usr/sbin/php-fpm', 'C:/xampp/apache/bin/httpd.exe'] as $binary) {
+            $this->assertFalse(RoundcubeInstaller::isCommandLine($binary), $binary);
+        }
+    }
+
     public function test_the_page_frames_roundcube_logged_in_with_a_ticket(): void
     {
         $this->pretendInstalled();

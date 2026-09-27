@@ -31,5 +31,10 @@ class CompaniesServiceProvider extends ServiceProvider
         // App\Policies\XPolicy; a module's model matches neither half of
         // that convention, so the binding has to be explicit.
         Gate::policy(Company::class, CompanyPolicy::class);
+
+        // The companies table itself is a core migration; this module's own
+        // are data it owns (the Group list). The installer runs them once
+        // itself with --path; this keeps `php artisan migrate` aware of them.
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 }

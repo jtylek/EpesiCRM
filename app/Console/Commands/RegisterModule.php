@@ -13,7 +13,7 @@ use Illuminate\Console\Command;
  */
 class RegisterModule extends Command
 {
-    protected $signature = 'module:register {path : module directory relative to modules/, e.g. Epesi/Notes}';
+    protected $signature = 'module:register {path : module directory relative to modules/, e.g. Epesi/Roundcube}';
 
     protected $description = 'Register a module whose files are already in modules/';
 

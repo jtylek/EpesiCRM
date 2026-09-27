@@ -15,7 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -31,9 +30,9 @@ use LogicException;
  * Create and Edit are built here, at run time, from that one list — the port of
  * what `Utils_RecordBrowser` does with a `<table>_field` table.
  *
- *     class NoteResource extends RecordsetResource
+ *     class MemoResource extends RecordsetResource
  *     {
- *         protected static ?string $model = Note::class;
+ *         protected static ?string $model = Memo::class;
  *
  *         public static function fields(): array
  *         {
@@ -157,7 +156,6 @@ abstract class RecordsetResource extends Resource
         $sections = static::groupIntoSections(
             array_filter(static::resolvedFields(), fn (Field $field): bool => $field->isInView()),
             fn (Field $field): mixed => $field->toInfolistEntry(),
-            columnFlow: true,
         );
 
         return static::extendInfolist($schema->inlineLabel()->components($sections));
@@ -170,13 +168,15 @@ abstract class RecordsetResource extends Resource
      * `page_split`, expressed as a property of the field rather than a marker
      * you position between fields.
      *
+     * Within a section, fields flow down the first column and then down the
+     * second (see flowIntoColumns) on View, Create and Edit alike, so a
+     * record's field order reads the same regardless of which page it's on.
+     *
      * @param  array<int, Field>  $fields
      * @param  callable(Field): mixed  $build
-     * @param  bool  $columnFlow  read down the first column, then down the second,
-     *                            rather than across each row (see flowIntoColumns)
      * @return array<int, Section>
      */
-    protected static function groupIntoSections(array $fields, callable $build, bool $columnFlow = false): array
+    protected static function groupIntoSections(array $fields, callable $build): array
     {
         $grouped = [];
         $options = [];
@@ -198,9 +198,7 @@ abstract class RecordsetResource extends Resource
         foreach ($grouped as $title => $pairs) {
             [$collapsible, $collapsed, $description] = $options[$title];
 
-            $components = $columnFlow
-                ? static::flowIntoColumns($pairs)
-                : array_column($pairs, 1);
+            $components = static::flowIntoColumns($pairs);
 
             $section = Section::make($title === '' ? null : __($title))
                 ->description($description)
@@ -217,9 +215,9 @@ abstract class RecordsetResource extends Resource
     }
 
     /**
-     * Two-column reading order for the View page: the fields in `fields()`
-     * order run down the first column and carry on down the second, as in
-     * Epesi's two-column record view, instead of Filament's row by row.
+     * Two-column reading order for View, Create and Edit alike: the fields in
+     * `fields()` order run down the first column and carry on down the second,
+     * as in Epesi's two-column record view, instead of Filament's row by row.
      *
      * A grid can't flow that way around a field spanning both columns, so each
      * stretch of ordinary fields becomes its own grid (the CSS that turns on
@@ -280,10 +278,7 @@ abstract class RecordsetResource extends Resource
         }
 
         $table = $table
-            ->columns([
-                ...array_map(fn (Field $field): mixed => $field->toTableColumn(), $fields),
-                ...static::standardTableColumns($fields),
-            ])
+            ->columns(array_map(fn (Field $field): mixed => $field->toTableColumn(), $fields))
             ->filters($filters)
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActions([
@@ -305,44 +300,6 @@ abstract class RecordsetResource extends Resource
         }
 
         return static::extendTable($table);
-    }
-
-    /**
-     * Created/updated/deleted and who by — available in the column chooser on
-     * every recordset, hidden until asked for, matching what the hand-written
-     * tables in this app already offer. A recordset that wants one of these
-     * *visible* declares it in `fields()` (`Field::dateTime('updated_at')
-     * ->label('Updated')->onlyInTable()`); the declaration wins and this stops
-     * adding it.
-     *
-     * @param  array<int, Field>  $declared
-     * @return array<int, TextColumn>
-     */
-    protected static function standardTableColumns(array $declared): array
-    {
-        $model = static::getModel();
-        $taken = array_map(fn (Field $field): string => $field->getStateName(), $declared);
-
-        $columns = [];
-
-        $add = function (string $name, callable $build) use (&$columns, $taken): void {
-            if (! in_array($name, $taken, true)) {
-                $columns[] = $build()->toggleable(isToggledHiddenByDefault: true);
-            }
-        };
-
-        if (method_exists($model, 'creator')) {
-            $add('creator.name', fn (): TextColumn => TextColumn::make('creator.name')->label('Created By'));
-        }
-
-        $add('created_at', fn (): TextColumn => TextColumn::make('created_at')->dateTime()->sortable());
-        $add('updated_at', fn (): TextColumn => TextColumn::make('updated_at')->dateTime()->sortable());
-
-        if (static::modelSoftDeletes()) {
-            $add('deleted_at', fn (): TextColumn => TextColumn::make('deleted_at')->dateTime()->sortable());
-        }
-
-        return $columns;
     }
 
     /**
@@ -389,8 +346,8 @@ abstract class RecordsetResource extends Resource
 
     /**
      * Resolved by convention from the resource's own name, so a recordset
-     * declares no page list: NoteResource looks for Pages\ListNotes,
-     * Pages\CreateNote, Pages\ViewNote and Pages\EditNote in its own namespace.
+     * declares no page list: MemoResource looks for Pages\ListMemos,
+     * Pages\CreateMemo, Pages\ViewMemo and Pages\EditMemo in its own namespace.
      * That is exactly what `make:filament-resource` has always generated, so
      * an existing resource needs no renaming to move onto the engine.
      *

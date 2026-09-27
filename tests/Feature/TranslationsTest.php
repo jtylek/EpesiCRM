@@ -205,14 +205,6 @@ class TranslationsTest extends TestCase
             }
         }
 
-        foreach (config('setup.profiles') as $profile) {
-            foreach (array_filter([$profile['label'] ?? null, $profile['description'] ?? null]) as $key) {
-                if (! isset($polish[$key])) {
-                    $missing[$key] = 'config/setup.php';
-                }
-            }
-        }
-
         ksort($missing);
 
         $this->assertSame([], $missing, 'No Polish for these (string => where):');

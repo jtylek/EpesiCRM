@@ -1,0 +1,17 @@
+{
+    "id": "epesi/priority-list",
+    "name": "Priority List",
+    "description": "Your next actions: up to 10 tasks, meetings or phone calls you mean to work on next, in the order you choose, ticked off as done. A dashboard applet and a flag on each record.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "CRM",
+    "icon": "heroicon-o-flag",
+    "namespace": "Epesi\\Modules\\PriorityList\\",
+    "path": "Epesi/PriorityList",
+    "provider_class": "Epesi\\Modules\\PriorityList\\PriorityListServiceProvider",
+    "plugin_class": "Epesi\\Modules\\PriorityList\\PriorityListPlugin",
+    "panels": ["main", "administration"],
+    "core": true,
+    "requires": ["epesi/recordbrowser"],
+    "provides": []
+}

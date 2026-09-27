@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 class DisableModule extends SetModuleState
 {
-    protected $signature = 'module:disable {module : module id, e.g. epesi/notes}';
+    protected $signature = 'module:disable {module : module id, e.g. epesi/roundcube}';
 
     protected $description = 'Disable an installed module without removing it';
 

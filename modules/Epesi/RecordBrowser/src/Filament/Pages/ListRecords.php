@@ -112,7 +112,8 @@ abstract class ListRecords extends BaseListRecords
                     ->label('Visited')
                     ->dateTime()
                     ->state(fn (Model $record): ?string => ($this->visits ??= RecentRecords::visitsOf(Auth::user(), $this->getRecordType()))[$record->getKey()] ?? null)
-                    ->visible(fn (): bool => $this->getBrowseMode() === BrowseMode::Recent),
+                    ->visible(fn (): bool => $this->getBrowseMode() === BrowseMode::Recent)
+                    ->toggleable(isToggledHiddenByDefault: true),
             ]);
         }
 

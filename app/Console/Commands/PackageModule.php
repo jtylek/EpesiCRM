@@ -18,7 +18,7 @@ use ZipArchive;
 class PackageModule extends Command
 {
     protected $signature = 'module:package
-        {path : module directory relative to modules/, e.g. Epesi/Notes}
+        {path : module directory relative to modules/, e.g. Epesi/Roundcube}
         {--out= : output directory (default: storage/app/private/module-packages)}';
 
     protected $description = 'Build a distributable zip from a module directory';

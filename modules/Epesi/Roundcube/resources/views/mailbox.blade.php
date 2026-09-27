@@ -25,6 +25,15 @@
         </x-filament::section>
     @else
         {{--
+            The page's own gutter (HasCompactTableStyles) would otherwise
+            border every side of the frame; scoped to this page only, since
+            it's rendered inside the Livewire-swapped page content.
+        --}}
+        <style>
+            #fi-main-content{padding-inline:0!important}
+            .fi-page-header-main-ctn{padding-block-end:0!important}
+        </style>
+        {{--
             wire:ignore keeps Livewire from re-rendering (and so reloading) the
             frame; new logins arrive as the epesi-roundcube-load event.
         --}}
@@ -56,10 +65,10 @@
                     this.colorMode(this.$store.theme);
                     this.$refs.frame.src = url;
                 },
-                {{-- 11px below the frame: this box's 1px border and the page's 10px bottom padding. --}}
+                {{-- 1px below the frame: this box's bottom border. --}}
                 fit() {
                     const frame = this.$refs.frame;
-                    frame.style.height = Math.max(320, Math.floor(window.innerHeight - frame.getBoundingClientRect().top - 11)) + 'px';
+                    frame.style.height = Math.max(320, Math.floor(window.innerHeight - frame.getBoundingClientRect().top - 1)) + 'px';
                 },
                 {{-- Roundcube's Elastic skin reads this cookie; the open page is switched in place. --}}
                 colorMode(theme) {
@@ -92,7 +101,7 @@
             x-on:resize.window="fit()"
             x-on:message.window="receive($event)"
             x-on:epesi-roundcube-load.window="load($event.detail.url)"
-            style="border: 1px solid rgb(128 128 128 / 0.25); border-radius: 0.75rem; overflow: hidden;"
+            style="border: 1px solid rgb(128 128 128 / 0.25); overflow: hidden;"
         >
             <div x-cloak x-show="broken" style="padding: 0.75rem 1rem; font-size: 0.875rem; color: rgb(220 38 38);">
                 {!! __('The mail client didn\'t load: the web server sent Roundcube\'s pages to Epesi instead of serving them itself. See "Web server requirements" in :doc.', ['doc' => '<code>AI-shared/Epesi-Laravel-Roundcube.md</code>']) !!}

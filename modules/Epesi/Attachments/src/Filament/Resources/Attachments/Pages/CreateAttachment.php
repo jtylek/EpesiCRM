@@ -3,16 +3,16 @@
 namespace Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages;
 
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\AttachmentResource;
+use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\Concerns\AlertsWhenNotAttached;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\Concerns\BelongsToOwnerRecord;
 use Epesi\Modules\Attachments\Models\Attachment;
 use Epesi\Modules\RecordBrowser\Filament\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 
 class CreateAttachment extends CreateRecord
 {
-    use BelongsToOwnerRecord;
+    use AlertsWhenNotAttached, BelongsToOwnerRecord;
 
     protected static string $resource = AttachmentResource::class;
 
@@ -29,20 +29,15 @@ class CreateAttachment extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $type = Arr::pull($data, 'attach_to_type');
-        $id = Arr::pull($data, 'attach_to_id');
-        $owner = $this->ownerRecord;
-
-        if ($owner === null && filled($type)) {
-            $owner = AttachmentResource::findRecord($type, $id)
-                ?? throw ValidationException::withMessages(['data.attach_to_id' => 'Choose a record you can see.']);
-        }
+        $rows = Arr::pull($data, 'attach_to') ?? [];
 
         /** @var Attachment $note */
         $note = parent::handleRecordCreation($data);
 
-        if ($owner) {
-            $note->attachTo($owner);
+        if ($this->ownerRecord) {
+            $note->attachTo($this->ownerRecord);
+        } else {
+            AttachmentResource::syncAttachedTo($note, $rows);
         }
 
         return $note;

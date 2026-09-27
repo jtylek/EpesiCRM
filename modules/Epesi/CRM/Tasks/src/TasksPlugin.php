@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\CRM\Tasks;
 
+use Epesi\Modules\CRM\Tasks\Filament\Widgets\TasksWidget;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -24,10 +25,13 @@ class TasksPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->discoverResources(
-            in: __DIR__.'/Filament/Resources',
-            for: 'Epesi\Modules\CRM\Tasks\\Filament\\Resources',
-        );
+        $panel
+            ->discoverResources(
+                in: __DIR__.'/Filament/Resources',
+                for: 'Epesi\Modules\CRM\Tasks\\Filament\\Resources',
+            )
+            // The Tasks applet on the dashboard.
+            ->widgets([TasksWidget::class]);
     }
 
     public function boot(Panel $panel): void {}

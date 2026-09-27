@@ -40,5 +40,16 @@ abstract class TestCase extends BaseTestCase
         // missing one from TranslationsTest.
         Storage::fake(CustomTranslations::DISK);
         app('translator')->setLoaded([]);
+
+        // The cron URL's token (Administration → Cron): not the app's own
+        // file, and not another test run's.
+        config(['cron.token_path' => storage_path('framework/testing/cron-token-'.getmypid().'.txt')]);
+    }
+
+    protected function tearDown(): void
+    {
+        @unlink((string) config('cron.token_path'));
+
+        parent::tearDown();
     }
 }

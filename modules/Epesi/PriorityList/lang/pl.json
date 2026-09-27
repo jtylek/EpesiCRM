@@ -1,0 +1,23 @@
+{
+    "Add to priority list": "Dodaj do listy priorytetów",
+    "Added to your priority list": "Dodano do Twojej listy priorytetów",
+    "Close :record? Its status becomes Closed, and it leaves every priority list it is on.": "Zamknąć :record? Jego status zmieni się na Zamknięte i zniknie ze wszystkich list priorytetów, na których jest.",
+    "Do some work first: finish something on it, or take something off.": "Najpierw trochę popracuj: dokończ coś z listy albo coś z niej zdejmij.",
+    "Done: :record": "Zrobione: :record",
+    "Done: close it": "Zrobione: zamknij",
+    "Drag to reorder": "Przeciągnij, aby zmienić kolejność",
+    "Anyone can add one to their priority list with the flag on its page.": "Każdy będzie mógł dodać taki rekord do swojej listy priorytetów przyciskiem na jego stronie.",
+    "Nobody can add a new one, and any already on a priority list stop showing there, until it is turned on again.": "Nikt nie doda już takiego rekordu, a te już dodane znikną z list priorytetów, dopóki znów nie zostanie włączony.",
+    "Number :position on your priority list. Click to take it off.": "Pozycja :position na Twojej liście priorytetów. Kliknij, aby zdjąć z listy.",
+    "On priority list": "Na liście priorytetów",
+    "Priority list": "Lista priorytetów",
+    "Priority list (:count/:limit)": "Lista priorytetów (:count/:limit)",
+    "Priority list types": "Typy na liście priorytetów",
+    "Put it on your priority list: the :limit things you work on next.": "Dodaj do listy priorytetów: :limit spraw, którymi zajmiesz się w następnej kolejności.",
+    "Put up to :limit tasks, meetings or phone calls on it with Add to priority list on their page.": "Dodaj do niej do :limit zadań, spotkań lub rozmów telefonicznych przyciskiem Dodaj do listy priorytetów na ich stronie.",
+    "Take off the list": "Zdejmij z listy",
+    "Taken off your priority list": "Zdjęto z Twojej listy priorytetów",
+    "The tasks, meetings and phone calls you work on next, in order": "Zadania, spotkania i rozmowy telefoniczne, którymi zajmiesz się w następnej kolejności",
+    "Your priority list is empty": "Twoja lista priorytetów jest pusta",
+    "Your priority list is full!": "Twoja lista priorytetów jest pełna!"
+}

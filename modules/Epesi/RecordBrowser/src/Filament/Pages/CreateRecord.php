@@ -18,6 +18,9 @@ abstract class CreateRecord extends BaseCreateRecord
     use HasResourceIconBreadcrumb;
     use HidesPageHeading;
 
+    /** No "Create & create another" button (AI-shared/conventions.md). */
+    protected static bool $canCreateAnother = false;
+
     /**
      * Matches View/Edit's compact "label beside value" layout — see
      * EditRecord::hasInlineLabels() in this namespace for why this
@@ -36,10 +39,7 @@ abstract class CreateRecord extends BaseCreateRecord
             // getCreateFormAction() renders type="submit"; moved here
             // (outside the <form>), it needs formId('form') or the button
             // has no owning form and clicking it is a silent no-op.
-            $this->getCreateFormAction()->label('Create')->icon(Heroicon::OutlinedCheck)->color('success')->formId('form'),
-            ...($this->canCreateAnother() ? [
-                $this->getCreateAnotherFormAction()->icon(Heroicon::OutlinedPlus),
-            ] : []),
+            $this->getCreateFormAction()->label('Save')->icon(Heroicon::OutlinedCheck)->color('success')->formId('form'),
             $this->getCancelFormAction()->icon(Heroicon::OutlinedXMark),
         ];
     }

@@ -17,6 +17,10 @@ trait HasCompactTableStyles
         $headedTable = '.fi-ta-header-ctn:has(>.fi-ta-header):not(:has(>.fi-ta-filters-above-content-ctn))';
 
         return new HtmlString('<style>'
+            // Filament's 4rem topbar, down to 3rem: still room for its 2.25rem
+            // search box and avatar. The topbar, the sticky sidebar's offset and
+            // the sidebar header all read this variable, so they move together.
+            .'.fi-body{--topbar-height:3rem}'
             .'.fi-main{padding-inline-start:10px!important;padding-inline-end:10px!important}'
             .'.fi-ta-text:not(.fi-inline),.fi-ta-icon,.fi-ta-color,.fi-ta-image,.fi-ta-select,.fi-ta-toggle,.fi-ta-text-input,.fi-ta-range-summary,.fi-ta-text-summary,.fi-ta-icon-count-summary,.fi-ta-values-summary,.fi-ta-cell.fi-ta-selection-cell,.fi-ta-cell:has(.fi-ta-actions),.fi-ta-cell:has(.fi-ta-record-checkbox){padding-block:.375rem!important}'
             // Row checkbox + action icons: Filament starts them 1.5rem in from the
@@ -64,6 +68,18 @@ trait HasCompactTableStyles
             // the page. .5rem cancels the nav groups' -.5rem margin, so an item
             // ends at the sidebar's edge and the page's 10px gutter is the gap.
             .'.fi-sidebar-nav{padding-block-start:.75rem!important;padding-inline-end:.5rem!important;scrollbar-gutter:auto!important}'
+            // Filament's 1.75rem between top-level sections (Dashboard's own
+            // ungrouped bucket, CRM, Store Server, …) reads as a gap between
+            // unrelated pages of the menu; .25rem still separates them without
+            // the extra scroll a growing number of groups would otherwise cost.
+            .'.fi-sidebar-nav-groups{row-gap:.25rem!important}'
+            // Same for a group's own label above its items: Filament's .25rem
+            // gap plus the label button's .5rem padding block reads as its own
+            // extra row. The collapse chevron (.fi-icon-btn) is 2.25rem square
+            // but self-cancels most of that with a negative margin, so it stays
+            // clickable at this padding.
+            .'.fi-sidebar-group{row-gap:0!important}'
+            .'.fi-sidebar-group-btn{padding-block:.375rem!important}'
             .'.fi-sidebar-group-items{row-gap:0!important}'
             .'.fi-sidebar-item-btn{padding-block:.375rem!important}'
             .'</style>');

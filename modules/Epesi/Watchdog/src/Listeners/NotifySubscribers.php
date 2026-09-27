@@ -74,9 +74,10 @@ class NotifySubscribers
             $notification->data['watchdog'] = Watchdog::notificationData($record, $activity);
 
             // sendNow(), not Filament's sendToDatabase(): Filament's database
-            // notification is ShouldQueue, and with the default database queue
-            // it would wait in `jobs` for a worker most installs don't run.
-            // Epesi wrote its watchdog events in the same request too.
+            // notification is ShouldQueue, and on an install whose .env still
+            // says QUEUE_CONNECTION=database it would wait in `jobs` for a
+            // worker most installs don't run. Epesi wrote its watchdog events
+            // in the same request too.
             NotificationFacade::sendNow($group, $notification);
         }
     }

@@ -7,9 +7,10 @@ use Symfony\Component\Finder\Finder;
 use Throwable;
 
 /**
- * Which modules a setup profile installs, and in what order: every core module,
- * the profile's own list, and anything those require — sorted so a module
- * always comes after what it requires (ModuleInstaller refuses otherwise).
+ * Which modules a setup installs, and in what order: every core module, the
+ * given extra paths (Roundcube, at setup), and anything those require —
+ * sorted so a module always comes after what it requires (ModuleInstaller
+ * refuses otherwise).
  */
 class ModulePlan
 {
@@ -17,7 +18,7 @@ class ModulePlan
     protected ?array $available = null;
 
     /**
-     * @param  array<int, string>  $paths  module paths from config('setup.profiles.*.modules')
+     * @param  array<int, string>  $paths  extra module paths to install on top of every core module
      * @return array<int, ModuleManifest> in install order
      */
     public function for(array $paths): array

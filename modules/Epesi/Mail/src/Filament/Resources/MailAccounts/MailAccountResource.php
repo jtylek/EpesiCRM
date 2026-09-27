@@ -3,6 +3,7 @@
 namespace Epesi\Modules\Mail\Filament\Resources\MailAccounts;
 
 use App\Filament\Concerns\TranslatesResourceLabels;
+use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\Pages\CreateMailAccount;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\Pages\EditMailAccount;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Mailer\Transport\Smtp\SmtpTransport;
 use Throwable;
+use UnitEnum;
 
 /**
  * "Mail accounts" — rc_accounts. Each user sees and manages only their own.
@@ -44,6 +46,8 @@ class MailAccountResource extends Resource
     protected static ?string $model = MailAccount::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $navigationLabel = 'Mail accounts';
 
@@ -64,6 +68,16 @@ class MailAccountResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('user_id', Auth::id());
+    }
+
+    /**
+     * Not in demo mode: every visitor shares the demo accounts, so a mailbox
+     * password typed in here would be everyone's, and "Test" and "Fetch now"
+     * would connect the server to any host a visitor names.
+     */
+    public static function canAccess(): bool
+    {
+        return ! Demo::enabled() && parent::canAccess();
     }
 
     public static function form(Schema $schema): Schema

@@ -18,9 +18,11 @@ use Filament\Tables\Table;
  * on every record listed in `utils_attachment_related`: the same list as the
  * sidebar's Notes, narrowed to this record.
  *
- * A note opens on AttachmentResource's own pages rather than in a modal —
- * the rich-text editor needs the whole page — with this record carried along
- * so the page reads as part of it and comes back to this tab.
+ * Clicking a note's preview expands it in place, right here in the tab (see
+ * AttachmentResource::preview()); View/Edit open on AttachmentResource's own
+ * pages instead of a modal — the rich-text editor needs the whole page — with
+ * this record carried along so the page reads as part of it and comes back to
+ * this tab.
  */
 class NotesRelationManager extends RelationManager
 {
@@ -38,7 +40,11 @@ class NotesRelationManager extends RelationManager
     {
         return AttachmentResource::notesTable($table, attachedTo: false)
             ->recordTitle(fn (Attachment $record): string => $record->label())
-            ->recordUrl(fn (Attachment $record): string => $this->noteUrl('view', $record))
+            // Filament otherwise defaults a relation manager's row link to the
+            // View action's URL (InteractsWithRelationshipTable::makeTable());
+            // an explicit null opts out, since clicking the preview expands
+            // it in place instead — the eye icon is the only way to the page.
+            ->recordUrl(null)
             ->headerActions([
                 CreateAction::make()
                     ->label('New note')

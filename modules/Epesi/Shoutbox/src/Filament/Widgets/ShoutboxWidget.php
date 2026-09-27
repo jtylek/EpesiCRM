@@ -2,6 +2,8 @@
 
 namespace Epesi\Modules\Shoutbox\Filament\Widgets;
 
+use App\Filament\Dashboard\Applet;
+use App\Filament\Dashboard\IsApplet;
 use Epesi\Modules\Shoutbox\Filament\Concerns\ComposesMessages;
 use Epesi\Modules\Shoutbox\Filament\Concerns\RedrawsWhenChanged;
 use Epesi\Modules\Shoutbox\Models\Message;
@@ -15,9 +17,10 @@ use Illuminate\Support\Facades\Auth;
  * one — to everyone, or to one colleague (Epesi's "To:" autoselect). Polls
  * for new messages, as Epesi's refresh.php did.
  */
-class ShoutboxWidget extends Widget
+class ShoutboxWidget extends Widget implements Applet
 {
     use ComposesMessages;
+    use IsApplet;
     use RedrawsWhenChanged;
 
     protected string $view = 'epesi-shoutbox::widget';
@@ -31,6 +34,16 @@ class ShoutboxWidget extends Widget
     public static function canView(): bool
     {
         return Auth::user()?->hasAnyRole(['super_admin', 'manager', 'employee']) ?? false;
+    }
+
+    public static function getAppletCaption(): string
+    {
+        return __('Shoutbox');
+    }
+
+    public static function getAppletDescription(): ?string
+    {
+        return __('Short messages to everyone or to one colleague');
     }
 
     /**

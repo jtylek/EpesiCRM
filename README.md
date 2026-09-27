@@ -57,11 +57,11 @@ this (architecture decisions, conventions, what's next).
 4. Open the site (`http://localhost/epesi/`). The **setup wizard** asks first for a one-time
    setup code: open `storage/app/setup-code.txt` in the epesi folder and copy it. Then the
    wizard checks the server, asks for the database and creates the tables, and continues with
-   Epesi's FirstRun: the setup type (which modules), the administrator account, how to send
-   e-mail, and whether to download the Roundcube webmail. Roundcube is a separate GPL-3.0
-   project, so it is only downloaded if you say yes; you can also add it later from the
-   Mailbox page or Administration → Modules. After installing, the wizard shows each
-   installed module's own setup page (your company and your name, regional defaults).
+   Epesi's FirstRun: whether to download the Roundcube webmail, whether to load demo data, the
+   administrator account, and how to send e-mail. Roundcube is a separate GPL-3.0 project, so
+   it is only downloaded if you say yes; you can also add it later from the Mailbox page or
+   Administration → Modules. After installing, the wizard shows each installed module's own
+   setup page (your company and your name, regional defaults).
 
 **From a git checkout:**
 
@@ -90,7 +90,7 @@ For scripted installs, the same can be done without the browser:
 
 ```bash
 php artisan epesi:install --db-connection=mysql --db-database=epesi --db-username=epesi \
-    --admin-name="Jan Kowalski" --admin-email=jan@example.com --admin-password=... --profile=crm
+    --admin-name="Jan Kowalski" --admin-email=jan@example.com --admin-password=...
 ```
 
 For development with demo data instead:

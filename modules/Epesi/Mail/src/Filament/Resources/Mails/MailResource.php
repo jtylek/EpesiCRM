@@ -18,6 +18,7 @@ use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 /**
  * The mail archive — CRM/Mail's `rc_mails` browser. Messages are never
@@ -38,6 +40,8 @@ class MailResource extends Resource
     protected static ?string $model = Mail::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $navigationLabel = 'E-mails';
 
@@ -62,29 +66,39 @@ class MailResource extends Resource
                 ->compact()
                 ->schema([
                     TextEntry::make('from')->inlineLabel()->placeholder(__('-')),
-                    TextEntry::make('date')->label('Date')->dateTime('Y-m-d H:i')->inlineLabel(),
                     TextEntry::make('to')->inlineLabel()->placeholder(__('-')),
                     TextEntry::make('cc')->label('Cc')->inlineLabel()
                         ->visible(fn (Mail $record): bool => filled($record->cc)),
+                    TextEntry::make('date')->label('Date')->dateTime('Y-m-d H:i')->inlineLabel(),
+                    TextEntry::make('subject')
+                        ->label('Subject')
+                        ->inlineLabel()
+                        ->weight(FontWeight::Bold)
+                        ->placeholder(__('(no subject)')),
                     LinkedRecords::badges(TextEntry::make('linked'), static::linkedRecords(...), Records::label(...))
                         ->label('Linked to')
                         ->placeholder(__('Not linked to any record'))
-                        ->inlineLabel(),
-                    TextEntry::make('files')
-                        ->label('Attachments')
-                        ->state(fn (Mail $record): HtmlString => static::attachmentLinks($record))
-                        ->visible(fn (Mail $record): bool => $record->attachments->where('inline', false)->isNotEmpty())
                         ->inlineLabel(),
                 ]),
             ViewEntry::make('body')
                 ->hiddenLabel()
                 ->view('epesi-mail::body'),
+            Section::make()
+                ->compact()
+                ->visible(fn (Mail $record): bool => $record->attachments->where('inline', false)->isNotEmpty())
+                ->schema([
+                    TextEntry::make('files')
+                        ->label('Attachments')
+                        ->state(fn (Mail $record): HtmlString => static::attachmentLinks($record))
+                        ->inlineLabel(),
+                ]),
             Section::make(__('Conversation'))
                 ->compact()
                 ->collapsible()
                 ->visible(fn (Mail $record): bool => ($record->thread?->message_count ?? 0) > 1)
                 ->schema([
                     TextEntry::make('thread_messages')
+                        ->label('Conversation')
                         ->hiddenLabel()
                         ->state(fn (Mail $record): HtmlString => static::threadList($record)),
                 ]),

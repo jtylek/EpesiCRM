@@ -20,12 +20,15 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class PhoneCallResource extends RecordsetResource
 {
     protected static ?string $model = PhoneCall::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhone;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $recordTitleAttribute = 'subject';
 

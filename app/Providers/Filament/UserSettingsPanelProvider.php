@@ -2,13 +2,17 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Login;
+use App\Filament\Auth\RequestPasswordReset;
+use App\Filament\Auth\ResetPassword;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
+use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
 use App\Providers\Filament\Concerns\HasBoxedFieldStyles;
 use App\Providers\Filament\Concerns\HasCompactTableStyles;
-use App\Providers\Filament\Concerns\HasSquareCardStyles;
+use App\Providers\Filament\Concerns\HasSmallCardCorners;
 use App\Support\Modules\ModuleRegistry;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -39,16 +43,18 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class UserSettingsPanelProvider extends PanelProvider
 {
+    use HasAuthBrandingStyles;
     use HasBoxedFieldStyles;
     use HasCompactTableStyles;
-    use HasSquareCardStyles;
+    use HasSmallCardCorners;
 
     public function panel(Panel $panel): Panel
     {
         return $panel
             ->id('user-settings')
             ->path('user-settings')
-            ->login()
+            ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->brandName(fn (): string => __('epesi settings'))
             ->colors([
                 'primary' => Color::Amber,
@@ -57,7 +63,7 @@ class UserSettingsPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->squareCardStyles()),
+                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->smallCardCornerStyles().$this->authBrandingStyles()),
             )
             ->plugins(ModuleRegistry::pluginsFor('user-settings'))
             ->middleware([

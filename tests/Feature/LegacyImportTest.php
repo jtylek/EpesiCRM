@@ -142,6 +142,40 @@ class LegacyImportTest extends TestCase
         $this->assertSame(['contact#2: email "ann@acme.test" is already used by contact#1, left blank'], $summary->warnings);
     }
 
+    public function test_groups_are_checked_against_legacy_s_own_list_not_the_installed_one(): void
+    {
+        $this->legacy()->create('utils_commondata_tree', function (Blueprint $t) {
+            $t->integer('id');
+            $t->integer('parent_id');
+            $t->string('akey');
+            $t->text('value')->nullable();
+            $t->boolean('readonly')->default(false);
+            $t->integer('position')->default(0);
+        });
+        // "partner" was added by an administrator in Epesi, so the installed
+        // default list doesn't have it; "gone" was deleted from Epesi's list.
+        DB::connection('legacy')->table('utils_commondata_tree')->insert([
+            ['id' => 1, 'parent_id' => -1, 'akey' => 'Companies_Groups', 'value' => null],
+            ['id' => 2, 'parent_id' => 1, 'akey' => 'customer', 'value' => 'Customer'],
+            ['id' => 3, 'parent_id' => 1, 'akey' => 'partner', 'value' => 'Partner'],
+            ['id' => 4, 'parent_id' => -1, 'akey' => 'Contacts_Groups', 'value' => null],
+            ['id' => 5, 'parent_id' => 4, 'akey' => 'custm', 'value' => 'Customer'],
+            ['id' => 6, 'parent_id' => 4, 'akey' => 'partner', 'value' => 'Partner'],
+        ]);
+        $this->legacyRecordTable('company_data_1');
+        DB::connection('legacy')->table('company_data_1')->insert(['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_company_name' => 'Acme', 'f_group' => '__customer__partner__gone__']);
+        $this->legacyRecordTable('contact_data_1');
+        DB::connection('legacy')->table('contact_data_1')->insert(['id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_last_name' => 'Buyer', 'f_first_name' => 'Ann', 'f_group' => '__custm__partner__gone__']);
+
+        activity()->disableLogging();
+        (new CompaniesImporter)->run(withHistory: false);
+        (new ContactsImporter)->run(withHistory: false);
+        activity()->enableLogging();
+
+        $this->assertSame(['customer', 'partner'], Company::withTrashed()->where('legacy_id', 1)->sole()->groups);
+        $this->assertSame(['customer', 'partner'], Contact::withTrashed()->where('legacy_id', 1)->sole()->groups, '"custm" renamed after the check');
+    }
+
     public function test_mail_accounts_addresses_messages_threads_links_and_attachments_are_imported(): void
     {
         [$user, $ann, $acme, $task] = $this->coreRecords();
@@ -221,7 +255,7 @@ class LegacyImportTest extends TestCase
             $t->dateTime('created_on');
             $t->integer('created_by')->nullable();
             $t->integer('active')->default(1);
-            foreach (['company_name', 'last_name', 'first_name', 'email'] as $f) {
+            foreach (['company_name', 'last_name', 'first_name', 'email', 'group'] as $f) {
                 $t->text("f_{$f}")->nullable();
             }
         });

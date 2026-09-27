@@ -1,4 +1,7 @@
 {
+    "Customer": "Klient",
     "Dissociate": "Odłącz",
-    "Tax ID": "NIP"
+    "Other": "Inny",
+    "Tax ID": "NIP",
+    "Vendor": "Dostawca"
 }

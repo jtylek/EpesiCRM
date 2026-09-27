@@ -111,7 +111,7 @@ class Module extends Model
     }
 
     /**
-     * Absolute path of the module's own directory, e.g. <app>/modules/Epesi/Notes.
+     * Absolute path of the module's own directory, e.g. <app>/modules/Epesi/Mail.
      */
     public function directory(): string
     {

@@ -122,10 +122,12 @@ class Watchdog
      * what opening the record does, as Utils_WatchdogCommon::notified() did —
      * and the bell's notifications of it as read. The subscription is left
      * alone for a record the user does not watch.
+     *
+     * @return int how many bell notifications that marked read
      */
-    public static function markSeen(User $user, Model $record): void
+    public static function markSeen(User $user, Model $record): int
     {
-        static::see($user, $record->getMorphClass(), $record->getKey(), static::latestActivityId($record));
+        return static::see($user, $record->getMorphClass(), $record->getKey(), static::latestActivityId($record));
     }
 
     /**
@@ -166,12 +168,13 @@ class Watchdog
 
     /**
      * $user has seen the record's changes up to and including $upTo: never
-     * moved back past a later change already seen.
+     * moved back past a later change already seen. Returns how many bell
+     * notifications that marked read.
      */
-    protected static function see(User $user, string $type, int|string $id, ?int $upTo): void
+    protected static function see(User $user, string $type, int|string $id, ?int $upTo): int
     {
         if ($upTo === null) {
-            return;
+            return 0;
         }
 
         Subscription::query()
@@ -181,7 +184,7 @@ class Watchdog
                 ->orWhere('last_seen_activity_id', '<', $upTo))
             ->update(['last_seen_activity_id' => $upTo]);
 
-        $user->unreadNotifications()
+        return $user->unreadNotifications()
             ->where('data->watchdog->subject_type', $type)
             ->where('data->watchdog->subject_id', $id)
             ->where('data->watchdog->activity_id', '<=', $upTo)

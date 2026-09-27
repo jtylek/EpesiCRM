@@ -12,15 +12,12 @@ use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
- * The destructive half of the custom-field screen, kept away from the ordinary
- * Delete action on purpose.
+ * The destructive half of the custom-field screen.
  *
- * There are three ways to get rid of a field, and they are not the same thing:
+ * There are two ways to get rid of a field, and they are not the same thing:
  *
  * - turn `active` off — hidden everywhere, data untouched, reversible;
- * - Delete the definition — the field is gone from every screen, the column and
- *   its data stay (recoverable only through SQL);
- * - Drop column — the column and everything in it are gone.
+ * - Drop column — the definition, the column and everything in it are gone.
  */
 class CustomFieldActions
 {

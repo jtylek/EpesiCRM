@@ -4,6 +4,7 @@ namespace Epesi\Modules\Mail\Filament\Resources\Mails\Pages;
 
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
+use App\Support\Demo;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
@@ -27,6 +28,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Facades\FilamentView;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -157,6 +159,14 @@ class ComposeMail extends Page
 
     public function send(): void
     {
+        // Demo mode: the demo mustn't send mail for its visitors. No account
+        // can be added there either (MailAccountResource).
+        if (Demo::enabled()) {
+            Demo::unavailable();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         $account = MailAccount::query()
@@ -204,7 +214,7 @@ class ComposeMail extends Page
             ->status($sender->warnings() === [] ? 'success' : 'warning')
             ->send();
 
-        $this->redirect($this->returnUrl);
+        $this->redirect($this->returnUrl, navigate: FilamentView::hasSpaMode($this->returnUrl));
     }
 
     protected function addresses(string $name): TagsInput

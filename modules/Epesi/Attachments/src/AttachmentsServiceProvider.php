@@ -15,7 +15,8 @@ use Illuminate\Support\ServiceProvider;
 /**
  * Puts a "Notes" tab on every record type listed in $recordTypes — the port
  * of Epesi's `utils_attachment_related` table, whose rows each wired the
- * Attachment addon onto one recordset with new_addon().
+ * Attachment addon onto one recordset with new_addon(). Registered with
+ * `first: true` so it leads the tab strip and is what a record opens to.
  *
  * Each of those models gets an `attachments()` relation at runtime
  * (resolveRelationUsing), so the core models carry no knowledge of this
@@ -43,6 +44,7 @@ class AttachmentsServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'attachments');
 
         Gate::policy(Attachment::class, AttachmentPolicy::class);
 
@@ -54,7 +56,7 @@ class AttachmentsServiceProvider extends ServiceProvider
                 static::defineRelation($alias);
             }
 
-            RecordExtensions::addon(NotesRelationManager::class, static::$recordTypes);
+            RecordExtensions::addon(NotesRelationManager::class, static::$recordTypes, first: true);
         });
     }
 

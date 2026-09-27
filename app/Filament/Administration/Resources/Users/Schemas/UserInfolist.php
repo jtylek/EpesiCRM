@@ -2,6 +2,7 @@
 
 namespace App\Filament\Administration\Resources\Users\Schemas;
 
+use App\Filament\Administration\Resources\Users\UserResource;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -18,7 +19,7 @@ class UserInfolist
                     ->columnSpanFull()
                     ->columns(2)
                     ->components([
-                        TextEntry::make('name'),
+                        UserResource::contactBadge(TextEntry::make('contact')->label('Contact')),
                         TextEntry::make('email'),
                         TextEntry::make('roles.name')->label('Roles')->badge()->placeholder(__('- none -')),
                         IconEntry::make('active')->boolean(),

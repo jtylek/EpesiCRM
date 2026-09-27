@@ -76,11 +76,17 @@ class RoundcubeInstaller
 
     /**
      * The PHP command line, to run Roundcube's own scripts. From a web page
-     * PHP_BINARY is the web server itself (httpd.exe under XAMPP's mod_php),
-     * so look next to PHP's install and its php.ini instead.
+     * PHP_BINARY is the web server itself (httpd.exe under XAMPP's mod_php,
+     * LiteSpeed's lsphp), so look next to PHP's install and its php.ini
+     * instead. `ROUNDCUBE_PHP` names it outright for a host where that finds
+     * the wrong one.
      */
     public function php(): string
     {
+        if ($configured = config('epesi-roundcube.php')) {
+            return (string) $configured;
+        }
+
         if (PHP_SAPI === 'cli' && PHP_BINARY !== '') {
             return PHP_BINARY;
         }
@@ -92,18 +98,29 @@ class RoundcubeInstaller
             $candidates[] = dirname($ini).DIRECTORY_SEPARATOR.$name;
         }
 
-        if (PHP_BINARY !== '' && preg_match('/php[\d.]*(\.exe)?$/i', basename(PHP_BINARY))) {
+        if (PHP_BINARY !== '' && static::isCommandLine(PHP_BINARY)) {
             array_unshift($candidates, PHP_BINARY);
         }
 
         foreach ($candidates as $candidate) {
-            if (is_file($candidate) && is_executable($candidate)) {
+            // Quiet: on shared hosting open_basedir keeps PHP's own binaries
+            // out of reach, and probing one is a warning Laravel throws.
+            if (@is_file($candidate) && @is_executable($candidate)) {
                 return $candidate;
             }
         }
 
         // Left to the PATH.
         return $name;
+    }
+
+    /**
+     * Whether a PHP binary's name is the command line's: "php", "php8.3",
+     * "php.exe". Anchored, since a web server's own "lsphp" ends in "php" too.
+     */
+    public static function isCommandLine(string $binary): bool
+    {
+        return (bool) preg_match('/^php[\d.]*(\.exe)?$/i', basename($binary));
     }
 
     /** @return string the verified tarball */

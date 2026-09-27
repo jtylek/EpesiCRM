@@ -1,10 +1,17 @@
 {
-    "Attach to": "Dołącz do",
+    "Attach to a record": "Dołącz do rekordu",
     "Attached to": "Dołączone do",
+    "Copied!": "Skopiowano!",
     "Created by": "Utworzony przez",
+    "deleted file": "usunięty plik",
+    "Download": "Pobierz",
     "Edited on": "Zmieniono",
+    "Get link (valid for 7 days)": "Pobierz link (ważny 7 dni)",
     "New note": "Nowa notatka",
     "Note": "Notatka",
     "Notes": "Notatki",
-    "Sticky": "Przyklejona"
+    "Record": "Rekord",
+    "The note was not saved": "Notatka nie została zapisana",
+    "Sticky": "Przyklejona",
+    "{1} :count file|[2,*] :count files": "{1} :count plik|[2,4] :count pliki|[5,*] :count plików"
 }

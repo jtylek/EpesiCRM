@@ -5,6 +5,7 @@ namespace Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use App\Support\AddressFields;
+use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\MeetingsRelationManager;
@@ -21,12 +22,15 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class ContactResource extends RecordsetResource
 {
     protected static ?string $model = Contact::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     /**
      * The real column Filament searches and orders option lists by; what a
@@ -112,13 +116,15 @@ class ContactResource extends RecordsetResource
                 AddressFields::block('home_', 'Home Address', collapsible: true, collapsed: true),
             ),
 
-            // The linked login. Read-only detail lives on the View page's own
-            // Login tab (ContactLoginEntries), not in the infolist.
+            // The linked login. Not in the infolist, and no Login tab: a login is
+            // managed in Administration → Users, where one is made from a
+            // contact. Fixed in demo mode: unlinking a demo account's contact
+            // would break its view of its own company for every visitor.
             Field::relation('user_id', User::class)
                 ->label('Linked User')
                 ->titleAttribute('email')
                 ->inView(false)
-                ->section('Login', description: 'Links this contact to a portal login. Password changes and role assignment happen via that user\'s account, not here — see the "Reset Password" action and the Shield Roles resource.')
+                ->section('Login', description: 'Links this contact to a portal login. Password, username and roles are managed in Administration → Users, where a login is made from a contact.')
                 ->formUsing(fn (Select $component): Select => $component
                     ->relationship(
                         'user',
@@ -127,7 +133,9 @@ class ContactResource extends RecordsetResource
                             ->whereDoesntHave('contact', fn (Builder $query) => $query
                                 ->when($record, fn (Builder $query) => $query->whereKeyNot($record->getKey()))),
                     )
-                    ->unique(ignoreRecord: true))
+                    ->unique(ignoreRecord: true)
+                    ->disabled(fn (): bool => Demo::enabled())
+                    ->hint(fn (): ?string => Demo::enabled() ? __('Unavailable in demo mode') : null))
                 ->columnUsing(fn (): TextColumn => TextColumn::make('user.email')
                     ->label('Login')
                     ->placeholder(__('-'))

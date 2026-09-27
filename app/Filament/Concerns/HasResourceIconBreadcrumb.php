@@ -13,9 +13,26 @@ use Illuminate\Support\HtmlString;
  * namespace's parent, App\Filament\Pages) rather than overriding getHeading()
  * on List alone, so it appears on every page type for a resource instead of
  * just its List page.
+ *
+ * Also leaves out the record title Filament puts between the two on a View or
+ * Edit page: "Tasks > View", not "Tasks > Send offer > View".
  */
 trait HasResourceIconBreadcrumb
 {
+    /**
+     * Filament's Resources\Pages\Page::getBreadcrumbs(), which
+     * InteractsWithRecord overrides to add the record title. The page shows
+     * the title in its first row anyway, and a long one wrapped the header
+     * onto several lines.
+     */
+    public function getBreadcrumbs(): array
+    {
+        return [
+            ...$this->getResourceBreadcrumbs(),
+            $this->getBreadcrumb(),
+        ];
+    }
+
     public function getResourceBreadcrumbs(): array
     {
         $breadcrumbs = parent::getResourceBreadcrumbs();

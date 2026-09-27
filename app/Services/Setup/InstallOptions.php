@@ -4,9 +4,9 @@ namespace App\Services\Setup;
 
 /**
  * Everything the setup wizard (or `epesi:install --admin-email=...`) collects —
- * FirstRun's setup type, administrator and mail settings pages, and whether
- * to download the Roundcube webmail. `development` (epesi:install --dev)
- * keeps .env's APP_ENV/APP_DEBUG instead of switching to production.
+ * FirstRun's administrator and mail settings pages, and whether to download
+ * the Roundcube webmail. `development` (epesi:install --dev) keeps .env's
+ * APP_ENV/APP_DEBUG instead of switching to production.
  */
 final class InstallOptions
 {
@@ -17,7 +17,6 @@ final class InstallOptions
     public const MAIL_LOG = 'log';
 
     public function __construct(
-        public readonly string $profile,
         public readonly string $adminName,
         public readonly string $adminEmail,
         public readonly string $adminPassword,

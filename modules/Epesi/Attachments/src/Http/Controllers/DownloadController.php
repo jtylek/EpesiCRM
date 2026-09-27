@@ -4,6 +4,7 @@ namespace Epesi\Modules\Attachments\Http\Controllers;
 
 use App\Models\StoredFile;
 use Epesi\Modules\Attachments\Models\Attachment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -11,15 +12,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * Serves one file of a note. Files live in the private file storage (the port
  * of Epesi's `.htaccess: deny from all` data directory, see
- * App\Services\FileStorage), so this is the only way to reach them, and it
- * asks the same question the Notes tab does: may this user see this note? The
- * model's ownership scope already hides someone else's private note, which
- * makes it a 404 rather than a 403 — the same answer a note that does not
- * exist gets. A file is only served through a note that holds it.
+ * App\Services\FileStorage), so this is the only way to reach them (bar the
+ * signed "Get link" URL, see SharedFileController), and it asks the same
+ * question the Notes tab does: may this user see this note? The model's
+ * ownership scope already hides someone else's private note, which makes it
+ * a 404 rather than a 403 — the same answer a note that does not exist gets.
+ * A file is only served through a note that holds it.
  */
 class DownloadController
 {
-    public function __invoke(int $attachment, int $file): StreamedResponse
+    public function __invoke(int $attachment, int $file, Request $request): StreamedResponse
     {
         abort_unless(Auth::check(), 403);
 
@@ -31,6 +33,14 @@ class DownloadController
 
         abort_unless($stored?->isOnDisk(), 404);
 
-        return $stored->download();
+        // "View": rendered in the browser rather than saved, for a type it's
+        // safe to (isPreviewable()) — an unrecognised ?preview=1 on anything
+        // else just downloads it same as before.
+        $inline = $request->boolean('preview') && $stored->isPreviewable();
+
+        return $stored->response(
+            headers: ['X-Content-Type-Options' => 'nosniff'],
+            disposition: $inline ? 'inline' : 'attachment',
+        );
     }
 }

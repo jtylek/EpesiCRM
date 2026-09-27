@@ -4,6 +4,7 @@ namespace Epesi\Modules\Watchdog\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -16,6 +17,15 @@ use Spatie\Activitylog\ActivitylogServiceProvider;
  */
 class Subscription extends Model
 {
+    use MassPrunable;
+
+    /**
+     * How long a subscription lasts with nothing happening: no change to its
+     * record, and nothing new seen by its user (seeing moves updated_at, as
+     * starting to watch sets it).
+     */
+    public const EXPIRES_AFTER_DAYS = 90;
+
     protected $table = 'epesi_watchdog_subscriptions';
 
     protected $fillable = [
@@ -61,5 +71,30 @@ class Subscription extends Model
                 ->whereNull("{$log}.causer_id")
                 ->orWhere("{$log}.causer_type", '!=', (new User)->getMorphClass())
                 ->orWhereColumn("{$log}.causer_id", '!=', "{$subscriptions}.user_id")));
+    }
+
+    /**
+     * Subscriptions nothing has happened to in EXPIRES_AFTER_DAYS, for
+     * `model:prune` to delete (scheduled by WatchdogServiceProvider). Without
+     * it every record a user created, or heard of through watching its type,
+     * would stay theirs to watch for good. Epesi kept its subscriptions and
+     * dropped events older than three months instead; here the events are
+     * the records' History, which stays.
+     */
+    public function prunable(): Builder
+    {
+        $cutoff = now()->subDays(self::EXPIRES_AFTER_DAYS);
+        $activity = ActivitylogServiceProvider::determineActivityModel();
+        $log = (new $activity)->getTable();
+        $subscriptions = $this->getTable();
+
+        return static::query()
+            ->where("{$subscriptions}.updated_at", '<', $cutoff)
+            ->whereNotExists(fn (QueryBuilder $changes): QueryBuilder => $changes
+                ->selectRaw('1')
+                ->from($log)
+                ->whereColumn("{$log}.subject_type", "{$subscriptions}.subscribable_type")
+                ->whereColumn("{$log}.subject_id", "{$subscriptions}.subscribable_id")
+                ->where("{$log}.created_at", '>=', $cutoff));
     }
 }

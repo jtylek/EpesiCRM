@@ -68,6 +68,20 @@ class ServedFromFolderTest extends TestCase
         $this->serve('/crm/login', fix: false)->assertNotFound();
     }
 
+    /**
+     * An installed app (WebAppManifestController) shows an address strip over
+     * any page outside its scope. The dashboard is /crm, with no trailing
+     * slash, which a scope of /crm/ would leave out.
+     */
+    public function test_the_installed_app_covers_every_page_of_the_folder(): void
+    {
+        $manifest = $this->serve('/crm/manifest.webmanifest')->assertOk()->json();
+
+        $this->assertSame('http://example.com/crm', $manifest['scope']);
+        $this->assertSame('http://example.com/crm', $manifest['start_url']);
+        $this->assertSame('http://example.com/crm/images/pwa/icon-192.png', $manifest['icons'][0]['src']);
+    }
+
     public function test_files_outside_public_are_not_served(): void
     {
         // /crm/.env reaches public/index.php (there is no public/.env), and

@@ -5,13 +5,16 @@
 <x-filament-widgets::widget>
     <x-filament::section :heading="__('Mail')" icon="heroicon-o-envelope" compact>
         <x-slot name="afterHeader">
-            <x-filament::icon-button
-                icon="heroicon-m-arrow-path"
-                color="gray"
-                size="sm"
-                :label="__('Check now')"
-                wire:click="refreshCounts"
-            />
+            <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <x-filament::icon-button
+                    icon="heroicon-m-arrow-path"
+                    color="gray"
+                    size="sm"
+                    :label="__('Check now')"
+                    wire:click="refreshCounts"
+                />
+                @include('filament.dashboard.configure-applet')
+            </div>
         </x-slot>
 
         {{-- Matches the server-side cache: asking more often gets the same answer. --}}

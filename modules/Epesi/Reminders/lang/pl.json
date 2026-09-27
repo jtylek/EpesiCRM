@@ -2,6 +2,7 @@
     "Add one to be reminded of this record at a chosen time.": "Dodaj przypomnienie, aby otrzymać powiadomienie o tym rekordzie w wybranym czasie.",
     "Also send by e-mail": "Wyślij też e-mailem",
     "At a fixed date and time": "O określonej dacie i godzinie",
+    "Deliver the reminders that are due (bell notifications, and e-mail where asked for)": "Wysyła należne przypomnienia (powiadomienia w dzwonku oraz e-mail, gdy o to poproszono)",
     "hours": "godzin",
     "How long before": "Ile wcześniej",
     "minutes": "minut",
@@ -21,5 +22,6 @@
     "This record has no time to remind you before.": "Ten rekord nie ma godziny, przed którą można przypomnieć.",
     "Turn off": "Wyłącz",
     "Unit": "Jednostka",
+    "Your reminders that are due or coming up": "Twoje zaległe i nadchodzące przypomnienia",
     "✓ = delivered": "✓ = dostarczone"
 }

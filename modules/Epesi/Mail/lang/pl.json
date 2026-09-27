@@ -11,6 +11,7 @@
     "Archive e-mail files": "Archiwizuj pliki e-mail",
     "Archive folder": "Folder archiwum",
     "Archive in CRM": "Archiwizuj w CRM",
+    "Archive new mail from every IMAP account (archive folder, plus auto-archive folders)": "Archiwizuje nową pocztę ze wszystkich kont IMAP (folder archiwum oraz foldery automatycznej archiwizacji)",
     "Archive sent messages by default": "Domyślnie archiwizuj wysłane wiadomości",
     "Archiving": "Archiwizacja",
     "Attachments": "Załączniki",
@@ -71,6 +72,7 @@
     "To": "Do",
     "unavailable": "niedostępne",
     "Unlink": "Odłącz",
+    "Unread mail in your accounts and recently archived mail": "Nieprzeczytana poczta na Twoich kontach i ostatnio zarchiwizowane wiadomości",
     "{0} No messages archived|{1} :count message archived|[2,*] :count messages archived": "{0} Nie zarchiwizowano żadnej wiadomości|{1} Zarchiwizowano :count wiadomość|[2,4] Zarchiwizowano :count wiadomości|[5,*] Zarchiwizowano :count wiadomości",
     "{1} :count file could not be read as e-mail.|[2,*] :count files could not be read as e-mail.": "{1} Nie udało się odczytać :count pliku jako wiadomości e-mail.|[2,*] Nie udało się odczytać :count plików jako wiadomości e-mail."
 }

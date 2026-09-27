@@ -17,8 +17,7 @@ use Throwable;
  * Deliberately pure PHP — ZipArchive, file moves, Artisan::call() — with no
  * shell out and no package registry, so it works on hosting where neither is
  * available and can run inside the request instead of needing a queue worker
- * (this app's QUEUE_CONNECTION is `database`, so a queued job would sit
- * untouched until someone runs one).
+ * (epesi runs none; see AI-shared/cron.md).
  */
 class ModuleInstaller
 {

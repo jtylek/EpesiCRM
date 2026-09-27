@@ -15,12 +15,15 @@ use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use UnitEnum;
 
 class CompanyResource extends RecordsetResource
 {
     protected static ?string $model = Company::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $recordTitleAttribute = 'company_name';
 

@@ -23,36 +23,4 @@ return [
      */
     'marker_path' => env('SETUP_MARKER_PATH', storage_path('app/epesi-installed.json')),
 
-    /*
-     * The "Setup type" choices — Epesi's modules/FirstRun/distros.ini. Core
-     * modules ("core": true in module.json: the record engine, CommonData and
-     * the five CRM recordsets) are always installed; these are what comes on
-     * top. Paths are relative to modules/, and a module missing from disk is
-     * skipped, as FirstRun did. Required modules are pulled in automatically.
-     */
-    'profiles' => [
-        'crm' => [
-            'label' => 'CRM installation',
-            'description' => 'Contacts, companies, tasks, meetings, phone calls and the calendar, plus notes and files on every record, watching records, follow-ups, reminders, e-mail archiving and the shoutbox.',
-            'modules' => [
-                'Epesi/RegionalSettings',
-                'Epesi/Attachments',
-                'Epesi/Watchdog',
-                'Epesi/Followup',
-                'Epesi/Reminders',
-                'Epesi/Mail',
-                'Epesi/Shoutbox',
-            ],
-        ],
-        'core' => [
-            'label' => 'Core only',
-            'description' => 'Contacts, companies, tasks, meetings, phone calls and the calendar. More modules can be enabled later under Administration → Modules.',
-            'modules' => [
-                'Epesi/RegionalSettings',
-            ],
-        ],
-    ],
-
-    'default_profile' => 'crm',
-
 ];

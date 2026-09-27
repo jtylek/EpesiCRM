@@ -19,6 +19,11 @@ final readonly class CalendarEvent
         public string $url,
         public ?string $color = null,
         public ?bool $durationEditable = null,
+        // Closed or canceled: the dashboard's Agenda leaves these out, as
+        // Epesi's applet did.
+        public bool $finished = false,
+        // For the Agenda's tooltip; the Calendar page doesn't get it.
+        public ?string $description = null,
     ) {}
 
     /**

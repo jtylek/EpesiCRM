@@ -20,6 +20,8 @@ php artisan epesi:install        # real install: checks the server, .env, databa
                                  # (or skip it: the /setup wizard does all of that in the browser too)
 php artisan epesi:package        # release zip with vendor/ + public/build/, installs from the browser
 php artisan epesi:update         # after unpacking a new release: core + module migrations (also Administration → Database update)
+php cron.php                     # what the server's cron runs every minute: the due tasks, in this process
+                                 # (= epesi:cron; also the /cron?token= URL; see AI-shared/cron.md, Administration → Cron)
 php artisan migrate --seed       # fresh schema + demo data (development)
 php artisan serve                # dev server
 composer run dev                 # server + queue listener + log tail + vite, concurrently
@@ -43,14 +45,24 @@ SQLite but that's stale and not what's actually used; don't assume SQLite withou
 `recordset:check [--strict]`, `customfields:sync`. Languages: `lang:import-epesi <code> <epesi path>`
 (see [AI-shared/Epesi-Laravel-Translations.md](AI-shared/Epesi-Laravel-Translations.md) — UI strings are JSON keys in `lang/` and
 each module's `lang/`; add new strings to `lang/pl.json` or the module's, or `TranslationsTest` fails). Legacy cutover: `import:legacy {tab=all}
-{--dry-run} {--no-history}`.
+{--dry-run} {--no-history}`. Demo mode (`DEMO_MODE=true`, see [AI-shared/Demo-mode.md](AI-shared/Demo-mode.md)):
+`demo:reset {--force}` empties the database and reinstalls with demo data, keeping `login_audits`
+(it refuses outside demo mode; the scheduler runs it nightly); `demo:audit {--days=} {--csv}`.
+Anything a visitor could use to spoil a demo for the next one needs `Demo::guard()` or a
+`Demo::enabled()` check.
 
 Tests run on in-memory SQLite (`phpunit.xml`) and boot every module straight from its
 `module.json` (`MODULES_FROM_MANIFESTS`) instead of the `modules` table, so they never touch the
 MySQL database. They cover the dashboard, `import:legacy`, and the Attachments, Watchdog,
-Followup, Shoutbox, Mail and Reminders modules (`tests/Feature/Modules/`). SQLite is laxer
+Followup, Shoutbox, Mail, Reminders and PriorityList modules (`tests/Feature/Modules/`). SQLite is laxer
 than MySQL, so a green run doesn't prove a migration will run on MySQL (see the module
 constraints below).
+
+Several sessions often work in this checkout at once. Test runs still share the fake disks and
+compiled views under `storage/framework/testing/`, and every run tests the other sessions'
+half-finished edits too. Before running tests, read
+[AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md): it asks you to tell
+the other sessions (`ListAgents`, `SendMessage`) before a run and again with the result.
 
 ## Architecture
 
@@ -89,8 +101,8 @@ builds a full Filament CRUD experience (List/View/Create/Edit, filters, search, 
 page registration) from a model's `fields()` declaration, plus administrator-added custom
 fields via `HasCustomFields`. Shared base pages
 (`ListRecords`/`ViewRecord`/`CreateRecord`/`EditRecord`) and `HasOwnershipVisibility` live here
-so both core and module resources build on one foundation. `Epesi/Notes` is the reference
-implementation of a resource built entirely on the engine.
+so both core and module resources build on one foundation. The CRM recordsets under
+`Epesi/CRM` are resources built entirely on the engine; `Companies` is the smallest.
 
 Every model used in a polymorphic relationship must register a **morph alias**
 (`AppServiceProvider::registerMorphAliases()`) — a short string instead of the FQCN — so it can
@@ -106,8 +118,9 @@ so install/enable/disable happens from the Admin GUI with no code deploy. Config
 a `bootstrap/cache/epesi-modules.php` cache) drives what's autoloaded/booted; `MODULES_LOAD=false`
 skips loading modules entirely as a recovery switch if one throws.
 
-Existing modules: `Epesi/RecordBrowser` (core), `Epesi/Notes` (worked example on the engine),
-`Epesi/Store` + `Epesi/StoreServer` (module store client/server, both `panels: ["administration"]`),
+Existing modules: `Epesi/RecordBrowser` (core),
+`Epesi/Store` (core, `panels: ["administration"]`: browses a module catalog and installs from
+it; the catalog server it talks to is a separate module kept outside this repository),
 and the five CRM recordsets under `Epesi/CRM` — `Contacts`, `Companies`, `Tasks`, `Meetings`,
 `PhoneCalls`, all `"core": true` and all built on the engine. `Epesi/Roundcube` embeds the
 Roundcube webmail on a Mailbox page; Roundcube itself is downloaded by `php artisan
@@ -139,6 +152,11 @@ Non-obvious constraints worth knowing before touching module code:
   `module:register`, run `php artisan migrate --pretend --path=modules/<Vendor>/<Name>/database/migrations`
   to see the generated names. MySQL doesn't roll back table creation, so a failed module
   migration leaves a half-built table behind that has to be dropped before retrying.
+- A table's first `NOT NULL` `timestamp()` column gets `ON UPDATE CURRENT_TIMESTAMP` from
+  MySQL/MariaDB (XAMPP's has `explicit_defaults_for_timestamp` off): every update of the row
+  overwrites it with the database's clock, local time rather than the app's UTC. SQLite doesn't,
+  so tests don't catch it. Make such a column `nullable()` or give it `useCurrent()`
+  (`cron_calls.started_at` had this, see [AI-shared/cron.md](AI-shared/cron.md)).
 
 ### Legacy data import
 

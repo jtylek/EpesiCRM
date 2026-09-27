@@ -64,6 +64,28 @@ class StoredFile extends Model
         return $this->content?->mime_type;
     }
 
+    /**
+     * Safe to serve with `Content-Disposition: inline` for a "View" action —
+     * a browser renders it directly rather than downloading it. Deliberately
+     * a small allow-list rather than "anything but a blocklist": SVG carries
+     * `<script>` same as HTML/XML does, and inline-rendering that from this
+     * app's own origin (with the viewer's session cookie) would be a stored
+     * XSS vector, so it's excluded even though it is, visually, an image.
+     */
+    public function isPreviewable(): bool
+    {
+        $mime = $this->mimeType();
+
+        return match (true) {
+            $mime === null => false,
+            $mime === 'image/svg+xml' => false,
+            str_starts_with($mime, 'image/'),
+            str_starts_with($mime, 'video/'),
+            str_starts_with($mime, 'audio/') => true,
+            default => in_array($mime, ['application/pdf', 'text/plain', 'text/csv', 'application/json'], true),
+        };
+    }
+
     /** Another use of the same content under its own name — Epesi's add_files() clone. */
     public function copy(?string $name = null): self
     {

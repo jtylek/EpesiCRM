@@ -6,6 +6,10 @@
 --}}
 <x-filament-widgets::widget>
     <x-filament::section :heading="__('Shoutbox')" icon="heroicon-o-chat-bubble-left-right" compact>
+        <x-slot name="afterHeader">
+            @include('filament.dashboard.configure-applet')
+        </x-slot>
+
         <div wire:poll.10s="poll" style="display: flex; flex-direction: column; gap: 0.75rem;">
             @include('epesi-shoutbox::compose')
 

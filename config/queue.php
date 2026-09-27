@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    // epesi runs no queue worker (AI-shared/cron.md): queued work runs
+    // straight away, within the request, rather than wait in `jobs` forever.
+    'default' => env('QUEUE_CONNECTION', 'sync'),
 
     /*
     |--------------------------------------------------------------------------

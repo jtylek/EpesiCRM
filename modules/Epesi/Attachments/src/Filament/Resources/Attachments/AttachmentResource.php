@@ -16,11 +16,16 @@ use Epesi\Modules\Attachments\Models\AttachmentLink;
 use Epesi\Modules\RecordBrowser\Filament\Infolists\SwitchEntry;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
+use Epesi\Modules\RecordBrowser\Recordset\Field;
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -31,6 +36,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -41,9 +48,13 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Spatie\Activitylog\Models\Activity;
+use UnitEnum;
 
 /**
  * Notes — the port of Epesi's Utils/Attachment records, as full pages: the
@@ -67,6 +78,8 @@ class AttachmentResource extends Resource
     protected static bool $isGloballySearchable = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?int $navigationSort = 50;
 
@@ -92,33 +105,75 @@ class AttachmentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([
-            // Only on a note started from the Notes list: from a record's
-            // tab, that record is what it is attached to.
-            Select::make('attach_to_type')
-                ->label('Attach to')
-                ->placeholder('Nothing')
-                ->options(fn (): array => collect(AttachmentsServiceProvider::$recordTypes)
-                    ->mapWithKeys(fn (string $type): array => [$type => Str::headline($type)])
-                    ->all())
-                ->live()
-                ->afterStateUpdated(fn (Set $set) => $set('attach_to_id', null))
-                ->visible(fn ($livewire): bool => $livewire instanceof CreateAttachment && $livewire->ownerRecord === null),
-            Select::make('attach_to_id')
-                ->label('Record')
-                ->searchable()
-                ->getSearchResultsUsing(fn (Get $get, string $search): array => static::searchRecords((string) $get('attach_to_type'), $search))
-                ->getOptionLabelUsing(fn (Get $get, $value): ?string => ($record = static::findRecord((string) $get('attach_to_type'), $value))
-                    ? strip_tags((string) static::recordTitle($record))
-                    : null)
-                ->requiredWith('attach_to_type')
-                ->disabled(fn (Get $get): bool => blank($get('attach_to_type')))
-                ->visible(fn ($livewire): bool => $livewire instanceof CreateAttachment && $livewire->ownerRecord === null),
             TextInput::make('title')
                 ->maxLength(255)
                 ->columnSpanFull(),
             RichEditor::make('note')
                 ->extraInputAttributes(['class' => 'epesi-note-editor'])
                 ->columnSpanFull(),
+            // The records the note is on, as Epesi's "Attached to" multiselect
+            // (a note can be on several) — not virtual columns of the note:
+            // the pages read it out of the form's data (attachedToState()) and
+            // put it back with syncAttachedTo(). A note is on at least one
+            // record. A table, so each record is one line with its delete icon
+            // at the end and the labels once above the columns; the button to
+            // add one is on the label's line (a hint action, in place of the
+            // repeater's own below the table) together with the warning when
+            // there is none (attachedToLabel()). Left out only on a note
+            // started from a record's tab, where that record is what it is
+            // attached to; editing one from the tab still shows it, so it can
+            // be moved. Each Select's own validation refuses a record you
+            // can't see: its option label comes back blank.
+            Repeater::make('attach_to')
+                ->label(fn (Repeater $component, $livewire): Htmlable => static::attachedToLabel(
+                    (string) $livewire->getErrorBag()->first($component->getStatePath()),
+                ))
+                ->markAsRequired(false)
+                // Filament names a field in its messages after its label,
+                // which is markup here.
+                ->validationAttribute(mb_strtolower(__('Attached to')))
+                ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to'])
+                ->required()
+                ->minItems(1)
+                ->defaultItems(1)
+                ->addable(false)
+                ->hintAction(
+                    Action::make('attachToRecord')
+                        ->label('Attach to a record')
+                        ->color('gray')
+                        ->size(Size::ExtraSmall)
+                        ->button()
+                        ->action(function (Get $get, Set $set): void {
+                            $rows = $get('attach_to') ?? [];
+                            $rows[(string) Str::uuid()] = ['type' => null, 'id' => null];
+                            $set('attach_to', $rows);
+                        }),
+                )
+                ->reorderable(false)
+                ->compact()
+                ->columnSpanFull()
+                ->table([
+                    TableColumn::make(__('Type'))->markAsRequired()->width('30%'),
+                    TableColumn::make(__('Record'))->markAsRequired(),
+                ])
+                ->schema([
+                    Select::make('type')
+                        ->options(fn (): array => collect(AttachmentsServiceProvider::$recordTypes)
+                            ->mapWithKeys(fn (string $type): array => [$type => Str::headline($type)])
+                            ->all())
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set) => $set('id', null)),
+                    Select::make('id')
+                        ->searchable()
+                        ->required()
+                        ->getSearchResultsUsing(fn (Get $get, string $search): array => static::searchRecords((string) $get('type'), $search))
+                        ->getOptionLabelUsing(fn (Get $get, $value): ?string => ($record = static::findRecord((string) $get('type'), $value))
+                            ? strip_tags((string) static::recordTitle($record))
+                            : null)
+                        ->disabled(fn (Get $get): bool => blank($get('type'))),
+                ])
+                ->visible(fn ($livewire): bool => ! ($livewire instanceof CreateAttachment && $livewire->ownerRecord !== null)),
             // Straight into the file storage, which keeps a content once however
             // many notes and e-mails carry it (App\Services\FileStorage): the
             // field's state is the note's StoredFile ids, not paths on a disk.
@@ -147,6 +202,7 @@ class AttachmentResource extends Resource
         return $schema->columns(2)->inlineLabel()->components([
             TextEntry::make('title')
                 ->placeholder('-')
+                ->weight(FontWeight::Bold)
                 ->columnSpanFull(),
             // Right under the title, in a card of its own: the body is what
             // the page is for, the rows below only describe it.
@@ -183,6 +239,11 @@ class AttachmentResource extends Resource
     public static function table(Table $table): Table
     {
         return static::notesTable($table, attachedTo: true)
+            // Filament otherwise defaults a resource list's row link to the
+            // View action's URL (ListRecords::makeTable()); an explicit null
+            // opts out, since clicking the preview expands it in place
+            // instead (see preview()) — the eye icon is the only way in.
+            ->recordUrl(null)
             ->recordActions([
                 ViewAction::make()->iconButton()->tooltip('View'),
                 EditAction::make()->iconButton()->tooltip('Edit'),
@@ -192,8 +253,13 @@ class AttachmentResource extends Resource
 
     /**
      * What the Notes list and a record's Notes tab share: sticky notes on
-     * top, then newest first, as in Epesi. The tab leaves out "Attached to",
-     * which there is the record itself.
+     * top, then newest first, as in Epesi. "Attached to" (the tab leaves it
+     * out, which there is the record itself), "Files" and "Edited on" render
+     * as lines under the note itself (preview()) rather than their own
+     * columns, so Note is nearly the whole row — none of the three is a real
+     * column any more, so none has a sortable header; the default sort above
+     * still applies. Sticky stays a real column (a live toggle, not text)
+     * rather than joining them.
      */
     public static function notesTable(Table $table, bool $attachedTo): Table
     {
@@ -211,30 +277,12 @@ class AttachmentResource extends Resource
                     ->width('1%'),
                 TextColumn::make('note')
                     ->label('Note')
-                    ->state(fn (Attachment $record): HtmlString => static::preview($record))
+                    ->state(fn (Attachment $record): HtmlString => static::preview($record, $attachedTo))
                     ->wrap()
                     ->searchable(['title', 'note']),
-                ...($attachedTo ? [
-                    LinkedRecords::style(
-                        TextColumn::make('attached_to')
-                            ->state(fn (Attachment $record): array => array_keys(static::attachedTo($record))),
-                        fn (Attachment $record, string $state): ?string => static::attachedTo($record)[$state] ?? null,
-                    )
-                        ->label('Attached to')
-                        ->placeholder('-'),
-                ] : []),
-                TextColumn::make('files')
-                    ->label('Files')
-                    ->state(fn (Attachment $record): HtmlString => static::fileLinks($record))
-                    ->placeholder('-'),
                 TextColumn::make('permission')
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Edited on')
-                    ->description(fn (Attachment $record): string => $record->creator?->name ?? '')
-                    ->dateTime()
-                    ->sortable(),
             ])
             ->filters([
                 Filter::make('sticky')
@@ -253,6 +301,67 @@ class AttachmentResource extends Resource
     public static function getRelations(): array
     {
         return [HistoryRelationManager::class];
+    }
+
+    /**
+     * Not built on the RecordBrowser engine (its RichEditor and file upload
+     * need a bespoke form), so History has nothing to read a field's label or
+     * value from unless this hands them over — same Field objects a recordset
+     * declares, used here only for their labels/formatLoggedValue(), never a
+     * form or column.
+     *
+     * @return array<int, Field>
+     */
+    public static function historyFields(): array
+    {
+        return [
+            Field::text('title'),
+            Field::longText('note')->richText(),
+            Field::select('permission', RecordPermission::class),
+            Field::boolean('sticky'),
+            Field::make('files', FieldType::Multiselect)
+                ->historyUsing(fn (mixed $old, mixed $new, Activity $entry): ?HtmlString => static::historyFileChanges(
+                    (array) $old,
+                    (array) $new,
+                    (array) $entry->properties->get('file_names', []),
+                )),
+        ];
+    }
+
+    /**
+     * A change of a note's files for its History tab: the files taken off,
+     * struck through, and the ones added, by name. The names are the ones
+     * logged with the change (Attachment::tapActivity()). An entry logged
+     * before that holds ids alone, looked up in the file storage, where a file
+     * taken off the note is gone.
+     *
+     * @param  array<int|string, int|string>  $old
+     * @param  array<int|string, int|string>  $new
+     * @param  array<int|string, string>  $names  id => name
+     */
+    public static function historyFileChanges(array $old, array $new, array $names): ?HtmlString
+    {
+        $old = array_map('strval', $old);
+        $new = array_map('strval', $new);
+        $removed = array_diff($old, $new);
+        $added = array_diff($new, $old);
+
+        if ($removed === [] && $added === []) {
+            return null;
+        }
+
+        $unnamed = array_diff([...$removed, ...$added], array_map('strval', array_keys($names)));
+
+        if ($unnamed !== []) {
+            $names += StoredFile::query()->whereKey($unnamed)->pluck('name', 'id')->all();
+        }
+
+        $name = fn (string $id): string => e($names[$id] ?? __('deleted file'));
+
+        return new HtmlString(implode(' ', [
+            ...array_map(fn (string $id): string => '<del class="epesi-history-old">− '.$name($id).'</del>', $removed),
+            ...array_map(fn (string $id): string => '<ins class="epesi-history-new">+ '.$name($id).'</ins>', $added),
+        ]));
     }
 
     public static function getPages(): array
@@ -299,6 +408,77 @@ class AttachmentResource extends Resource
     }
 
     /**
+     * "Attached to" with its warning after it on the same line, when the field
+     * has one. The label is where it goes because the field's own message
+     * comes under the table, out of sight on a long note; that one is hidden
+     * (AttachmentsPlugin). The required mark is drawn here too, since Filament
+     * would put it after the warning.
+     */
+    public static function attachedToLabel(string $error): Htmlable
+    {
+        return new HtmlString(e(__('Attached to')).'<sup class="fi-fo-field-label-required-mark">*</sup>'
+            .($error !== '' ? '<span class="epesi-attach-to-error">'.e($error).'</span>' : ''));
+    }
+
+    /**
+     * The form's "Attached to" rows for a note: the records it is on that a
+     * note can be put on and you can see.
+     *
+     * @return array<int, array{type: string, id: int|string}>
+     */
+    public static function attachedToState(Attachment $note): array
+    {
+        return static::editableLinks($note)
+            ->map(fn (AttachmentLink $link): array => ['type' => $link->attachable_type, 'id' => $link->attachable_id])
+            ->all();
+    }
+
+    /**
+     * Puts the note on the records the form's "Attached to" rows name, and
+     * takes it off the ones it showed that are no longer among them. A record
+     * the form couldn't show (one you can't see, or of a type notes aren't put
+     * on) keeps its link: leaving it out of the rows was never a choice.
+     *
+     * @param  array<int|string, array{type?: string, id?: int|string|null}>  $rows
+     */
+    public static function syncAttachedTo(Attachment $note, array $rows): void
+    {
+        $wanted = collect($rows)
+            ->map(fn (array $row): ?Model => static::findRecord((string) ($row['type'] ?? ''), $row['id'] ?? null))
+            ->filter();
+
+        foreach (static::editableLinks($note) as $link) {
+            $stays = $wanted->contains(fn (Model $record): bool => $record->getMorphClass() === $link->attachable_type
+                && (string) $record->getKey() === (string) $link->attachable_id);
+
+            if (! $stays) {
+                $link->delete();
+            }
+        }
+
+        $wanted->each(fn (Model $record) => $note->attachTo($record));
+    }
+
+    /**
+     * The links the "Attached to" field can show and change. The morphTo load
+     * applies each model's ownership scope, so a record you can't see comes
+     * back null and is left out.
+     *
+     * @return Collection<int, AttachmentLink>
+     */
+    protected static function editableLinks(Attachment $note): Collection
+    {
+        $types = array_filter(AttachmentsServiceProvider::$recordTypes, fn (string $type): bool => Relation::getMorphedModel($type) !== null);
+
+        return $note->links()
+            ->whereIn('attachable_type', $types)
+            ->with('attachable')
+            ->get()
+            ->filter(fn (AttachmentLink $link): bool => $link->attachable !== null)
+            ->values();
+    }
+
+    /**
      * Searched on whatever the type's own resource searches globally.
      *
      * @return array<int|string, string>
@@ -331,25 +511,190 @@ class AttachmentResource extends Resource
 
     /**
      * Title on the first line, the start of the body under it — Epesi's
-     * display_note() "tall preview".
+     * display_note() "tall preview". Clicking it swaps in the full note
+     * (title + rich text, same markup the view page renders) right there in
+     * the table, and clicking that collapses it back — an expand in place,
+     * not a navigation, so View (the eye icon) stays the one way to reach the
+     * note's own page. Files, "Attached to" and "Edited on" sit underneath,
+     * outside the toggle, so they show either way (metaLines()).
      */
-    protected static function preview(Attachment $record): HtmlString
+    protected static function preview(Attachment $record, bool $attachedTo): HtmlString
     {
+        $title = filled($record->title) ? e($record->title) : '';
         $body = Str::limit(trim(html_entity_decode(strip_tags((string) $record->note))), 200);
-        $title = filled($record->title) ? '<strong>'.e($record->title).'</strong>' : '';
+        $collapsed = implode('<br>', array_filter([$title !== '' ? "<strong>{$title}</strong>" : '', e($body)]));
 
-        return new HtmlString(implode('<br>', array_filter([$title, e($body)])));
+        $full = implode('', array_filter([
+            $title !== '' ? "<div class=\"epesi-note-full-title\">{$title}</div>" : '',
+            '<div class="fi-prose epesi-note-full-body">'.((string) $record->note).'</div>',
+        ]));
+
+        return new HtmlString(
+            '<div class="epesi-note-preview" x-data="{ expanded: false }">'
+            .'<div class="epesi-note-toggle" x-show="!expanded" x-on:click="expanded = true">'.$collapsed.'</div>'
+            .'<div class="epesi-note-toggle" x-show="expanded" x-cloak x-on:click="expanded = false">'.$full.'</div>'
+            .static::metaLines($record, $attachedTo)
+            .'</div>'
+        );
+    }
+
+    /**
+     * Under the note, one plain line each — instead of columns of their own,
+     * so Note keeps nearly the whole row: the files (a count badge, then each
+     * file's chip exactly as the view page shows it; no label, the badge says
+     * what they are, and no line at all for a note without files), "Attached
+     * to" (list only — the tab's record is what it's attached to) and
+     * Edited on.
+     */
+    protected static function metaLines(Attachment $record, bool $attachedTo): string
+    {
+        $files = $record->storedFiles();
+        $lines = [];
+
+        if ($files->isNotEmpty()) {
+            $count = $files->count();
+            $lines[] = '<div class="epesi-note-meta-line">'
+                .static::metaChip(trans_choice('{1} :count file|[2,*] :count files', $count, ['count' => $count]), null)
+                .$files->map(fn (StoredFile $file): string => static::fileChip($record, $file))->implode('')
+                .'</div>';
+        }
+
+        if ($attachedTo) {
+            $chips = collect(static::attachedTo($record))
+                ->map(fn (?string $url, string $label): string => static::metaChip($label, $url))
+                ->implode('');
+
+            if ($chips !== '') {
+                $lines[] = static::metaLine(__('Attached to'), $chips);
+            }
+        }
+
+        $editedOn = e($record->updated_at?->translatedFormat('M j, Y H:i:s') ?? '');
+        $editor = $record->creator ? ' <span class="epesi-note-meta-by">'.e($record->creator->name).'</span>' : '';
+        $lines[] = static::metaLine(__('Edited on'), $editedOn.$editor);
+
+        return '<div class="epesi-note-meta">'.implode('', $lines).'</div>';
+    }
+
+    protected static function metaLine(string $label, string $value): string
+    {
+        return '<div class="epesi-note-meta-line">'.static::metaGroup($label, $value).'</div>';
+    }
+
+    protected static function metaGroup(string $label, string $value): string
+    {
+        return '<span class="epesi-note-meta-group"><span class="epesi-note-meta-label">'.e($label).'</span>'.$value.'</span>';
+    }
+
+    protected static function metaChip(string $label, ?string $url): string
+    {
+        if ($url === null) {
+            return '<span class="epesi-note-meta-chip">'.e($label).'</span>';
+        }
+
+        return sprintf(
+            '<a href="%s" class="epesi-note-meta-chip">%s %s</a>',
+            e($url),
+            e($label),
+            static::icon('heroicon-o-link'),
+        );
     }
 
     protected static function fileLinks(Attachment $record): HtmlString
     {
-        $links = $record->storedFiles()->map(fn (StoredFile $file): string => sprintf(
-            '<a href="%s" class="text-primary-600 underline" target="_blank">%s</a>',
-            e(route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey()])),
-            e($file->name),
-        ));
+        $chips = $record->storedFiles()->map(fn (StoredFile $file): string => static::fileChip($record, $file));
 
-        return new HtmlString($links->implode('<br>') ?: '-');
+        return new HtmlString($chips->implode('') ?: '-');
+    }
+
+    /**
+     * One file: a type icon and its name, clicking either opens it (a
+     * preview for a type isPreviewable() can render, a download otherwise —
+     * same fallback the plain filename link always was), plus explicit
+     * View/Download/Get link actions for anyone who wants a specific one.
+     * Epesi's Utils_FileStorage_FileLeightbox popup, as three inline icons
+     * instead of a popup.
+     */
+    protected static function fileChip(Attachment $record, StoredFile $file): string
+    {
+        $downloadUrl = route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey()]);
+        $markdown = static::isMarkdown($file);
+        $viewUrl = $markdown
+            ? route('epesi.attachments.markdown', ['attachment' => $record->getKey(), 'file' => $file->getKey()])
+            : route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey(), 'preview' => 1]);
+        $previewable = $markdown || $file->isPreviewable();
+
+        $actions = $previewable
+            ? sprintf('<a href="%s" target="_blank" class="epesi-file-action" title="%s">%s</a>', e($viewUrl), e(__('View')), static::icon('heroicon-o-eye'))
+            : '';
+        $actions .= sprintf('<a href="%s" target="_blank" class="epesi-file-action" title="%s">%s</a>', e($downloadUrl), e(__('Download')), static::icon('heroicon-o-arrow-down-tray'));
+        $actions .= static::shareLinkButton($record, $file);
+
+        return sprintf(
+            '<span class="epesi-file-chip">'
+            .'<a href="%s" target="_blank" class="epesi-file-badge" title="%s">%s<span>%s</span></a>'
+            .'<span class="epesi-file-actions">%s</span>'
+            .'</span>',
+            e($previewable ? $viewUrl : $downloadUrl),
+            e($file->name),
+            static::icon(static::fileIcon($file)),
+            e($file->name),
+            $actions,
+        );
+    }
+
+    /**
+     * "Get link": a signed URL good for whoever holds it, login or not, for
+     * a week — for pasting into an e-mail or handing to someone outside the
+     * CRM (SharedFileController, the `signed` route middleware is the only
+     * gate). Copies to the clipboard rather than navigating, since the
+     * point is to hand the URL to someone else, not open it here.
+     */
+    protected static function shareLinkButton(Attachment $record, StoredFile $file): string
+    {
+        $url = URL::temporarySignedRoute('epesi.attachments.shared', now()->addWeek(), [
+            'attachment' => $record->getKey(),
+            'file' => $file->getKey(),
+        ]);
+
+        $title = __('Get link (valid for 7 days)');
+        $onClick = sprintf(
+            'navigator.clipboard.writeText(this.dataset.url);this.title=%s;setTimeout(()=>this.title=this.dataset.title,1500)',
+            json_encode((string) __('Copied!')),
+        );
+
+        return sprintf(
+            '<button type="button" class="epesi-file-action" title="%s" data-title="%s" data-url="%s" onclick="%s">%s</button>',
+            e($title),
+            e($title),
+            e($url),
+            e($onClick),
+            static::icon('heroicon-o-link'),
+        );
+    }
+
+    protected static function icon(string $name): string
+    {
+        return svg($name, 'w-4 h-4')->toHtml();
+    }
+
+    protected static function isMarkdown(StoredFile $file): bool
+    {
+        return in_array(strtolower(pathinfo($file->name, PATHINFO_EXTENSION)), ['md', 'markdown'], true);
+    }
+
+    protected static function fileIcon(StoredFile $file): string
+    {
+        $mime = (string) $file->mimeType();
+
+        return match (true) {
+            str_starts_with($mime, 'image/') => 'heroicon-o-photo',
+            str_starts_with($mime, 'video/') => 'heroicon-o-film',
+            str_starts_with($mime, 'audio/') => 'heroicon-o-musical-note',
+            $mime === 'application/pdf', str_starts_with($mime, 'text/') => 'heroicon-o-document-text',
+            in_array($mime, ['application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed'], true) => 'heroicon-o-archive-box',
+            default => 'heroicon-o-document',
+        };
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace Epesi\Modules\Mail\Filament\Widgets;
 
+use App\Filament\Dashboard\Applet;
+use App\Filament\Dashboard\IsApplet;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
 use Epesi\Modules\Mail\Models\Mail;
@@ -16,8 +18,10 @@ use Illuminate\Support\Facades\Auth;
  * latest mail archived from your mailboxes — Epesi's CRM_Mail applet and its
  * unread-count tray notification.
  */
-class UnreadMailWidget extends Widget
+class UnreadMailWidget extends Widget implements Applet
 {
+    use IsApplet;
+
     protected string $view = 'epesi-mail::unread-widget';
 
     protected int|string|array $columnSpan = 1;
@@ -33,6 +37,16 @@ class UnreadMailWidget extends Widget
         return $user !== null
             && $user->hasAnyRole(['super_admin', 'manager', 'employee'])
             && MailAccount::query()->where('user_id', $user->id)->whereNotNull('imap_host')->exists();
+    }
+
+    public static function getAppletCaption(): string
+    {
+        return __('Mail');
+    }
+
+    public static function getAppletDescription(): ?string
+    {
+        return __('Unread mail in your accounts and recently archived mail');
     }
 
     public function refreshCounts(): void

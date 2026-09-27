@@ -87,10 +87,14 @@ Mailbox.
 Two things differ when the installer runs from a web page instead of the command line.
 `RoundcubeInstaller` handles both:
 
-- **`PHP_BINARY` isn't PHP.** Under Apache's mod_php (XAMPP) it is `httpd.exe`. Roundcube's
-  `bin/initdb.sh` is a PHP script, so `RoundcubeInstaller::php()` runs it with `PHP_BINARY`
-  only on the CLI. Elsewhere it looks for `php`/`php.exe` in `PHP_BINDIR` and next to the
-  loaded `php.ini` (`C:\xampp82\php\php.exe`), then falls back to the `PATH`.
+- **`PHP_BINARY` isn't PHP.** Under Apache's mod_php (XAMPP) it is `httpd.exe`, under
+  LiteSpeed `lsphp`. Roundcube's `bin/initdb.sh` is a PHP script, so
+  `RoundcubeInstaller::php()` runs it with `PHP_BINARY` only on the CLI. Elsewhere it looks
+  for `php`/`php.exe` in `PHP_BINDIR` and next to the loaded `php.ini`
+  (`C:\xampp82\php\php.exe`), then falls back to the `PATH`. On shared hosting
+  `open_basedir` keeps those paths out of reach, so they can't be checked and the `PATH`'s
+  `php` is what runs; if that is the wrong PHP, `ROUNDCUBE_PHP` in `.env` names the right
+  one (`config/epesi-roundcube.php`'s `php`).
 - **No CA certificates.** XAMPP's PHP ships without `curl.cainfo`, so an HTTPS download fails
   certificate checks. The download verifies against
   `Composer\CaBundle\CaBundle::getSystemCaRootBundlePath()`: the system's bundle when there is

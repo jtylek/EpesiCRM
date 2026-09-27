@@ -32,7 +32,7 @@ class ModalHeaderActionsTest extends TestCase
         $create = $notes()->mountAction(TestAction::make('create')->table())->instance()->getMountedAction();
         $this->assertOnHeadingLine($create, true);
         $this->assertSame(
-            [['Create', 'success', Heroicon::OutlinedCheck], ['Create & create another', 'gray', Heroicon::OutlinedPlus], ['Cancel', 'gray', Heroicon::OutlinedXMark]],
+            [['Save', 'success', Heroicon::OutlinedCheck], ['Cancel', 'gray', Heroicon::OutlinedXMark]],
             array_map(fn (Action $action): array => [$action->getLabel(), $action->getColor(), $action->getIcon()], array_values($create->getVisibleModalFooterActions())),
         );
 

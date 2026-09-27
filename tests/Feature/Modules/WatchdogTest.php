@@ -11,6 +11,8 @@ use Epesi\Modules\Watchdog\Filament\Pages\Watched;
 use Epesi\Modules\Watchdog\Models\Subscription;
 use Epesi\Modules\Watchdog\Watchdog;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -102,6 +104,14 @@ class WatchdogTest extends TestCase
         $this->get(ViewTask::getUrl(['record' => $task]))->assertOk()->assertSee('Watching');
         $this->assertSame(0, Watchdog::unseenCount($author, $task));
         $this->assertSame(0, $author->unreadNotifications()->count(), 'the bell agrees');
+
+        // The bell stays on screen from page to page: the View page tells it
+        // to reload when it marked something read, and only then.
+        $this->actingAs($viewer);
+        $task->update(['title' => 'Offer v3']);
+        $this->actingAs($author);
+        Livewire::test(ViewTask::class, ['record' => $task->getKey()])->assertDispatched('databaseNotificationsSent');
+        Livewire::test(ViewTask::class, ['record' => $task->getKey()])->assertNotDispatched('databaseNotificationsSent');
 
         $this->actingAs($viewer);
         Livewire::test(ViewTask::class, ['record' => $task->getKey()])
@@ -259,7 +269,7 @@ class WatchdogTest extends TestCase
         $this->assertNull(Watched::getNavigationBadge());
     }
 
-    public function test_dismissing_notifications_in_the_bell_marks_their_changes_seen(): void
+    public function test_dismissing_a_notification_in_the_bell_marks_its_change_seen(): void
     {
         $author = $this->userWithRole('employee');
         $other = $this->userWithRole('employee');
@@ -279,10 +289,92 @@ class WatchdogTest extends TestCase
         Livewire::test(DatabaseNotifications::class)->call('removeNotification', $budgetNotification->id);
         $this->assertSame(0, Watchdog::unseenCount($author, $budget));
         $this->assertSame(1, Watchdog::unseenCount($author, $offer));
+        $this->assertSame(1, $author->notifications()->count());
+    }
 
-        Livewire::test(DatabaseNotifications::class)->call('clearNotifications');
-        $this->assertSame(0, Watchdog::unseenCount($author, $offer));
-        $this->assertSame(0, $author->notifications()->count());
+    public function test_the_bell_lists_only_unread_notifications(): void
+    {
+        $author = $this->userWithRole('employee');
+        $other = $this->userWithRole('employee');
+
+        $this->actingAs($author);
+        $budget = Task::create(['title' => 'Budget', 'permission' => RecordPermission::Public]);
+        $offer = Task::create(['title' => 'Offer', 'permission' => RecordPermission::Public]);
+
+        $this->actingAs($other);
+        $budget->update(['title' => 'Budget 2027']);
+        $offer->update(['title' => 'Offer v2']);
+
+        $this->actingAs($author);
+        Watchdog::markSeen($author, $budget);
+
+        $bell = Livewire::test(DatabaseNotifications::class);
+        $listed = $bell->instance()->getNotifications()->getCollection();
+        $this->assertSame([$offer->id], $listed->map(fn ($notification) => $notification->data['watchdog']['subject_id'])->all());
+
+        // With read ones gone, Clear would only repeat Mark all as read.
+        $bell->assertActionVisible('markAllNotificationsAsRead')
+            ->assertActionHidden('clearNotifications');
+    }
+
+    public function test_read_notifications_are_pruned_after_30_days(): void
+    {
+        $author = $this->userWithRole('employee');
+        $other = $this->userWithRole('employee');
+
+        $this->actingAs($author);
+        $task = Task::create(['title' => 'Budget', 'permission' => RecordPermission::Public]);
+
+        $this->actingAs($other);
+        $task->update(['title' => 'Budget 2027']);
+        $task->update(['title' => 'Budget 2028']);
+        $task->update(['title' => 'Budget 2029']);
+
+        [$old, $recent, $unread] = $author->notifications()->get()
+            ->sortBy(fn ($notification): int => $notification->data['watchdog']['activity_id'])
+            ->values()
+            ->all();
+        $old->update(['read_at' => now()->subDays(DatabaseNotifications::KEEP_READ_DAYS + 1)]);
+        $recent->update(['read_at' => now()->subDays(DatabaseNotifications::KEEP_READ_DAYS - 1)]);
+        $unread->update(['created_at' => now()->subYear()]);
+
+        $this->assertSame(1, DatabaseNotifications::pruneRead());
+        $this->assertNull($old->fresh());
+        $this->assertNotNull($recent->fresh());
+        $this->assertNotNull($unread->fresh(), 'an unread one stays however old');
+
+        $this->assertTrue(collect(app(Schedule::class)->events())->contains(
+            fn (Event $event): bool => $event->description === 'Prune read bell notifications',
+        ), 'the scheduler prunes them');
+    }
+
+    public function test_a_subscription_lapses_after_90_days_with_nothing_happening(): void
+    {
+        $author = $this->userWithRole('employee');
+        $other = $this->userWithRole('employee');
+
+        $this->actingAs($author);
+        $quiet = Task::create(['title' => 'Quiet', 'permission' => RecordPermission::Public]);
+        $busy = Task::create(['title' => 'Busy', 'permission' => RecordPermission::Public]);
+
+        $this->travel(Subscription::EXPIRES_AFTER_DAYS - 1)->days();
+        $this->actingAs($other);
+        $busy->update(['title' => 'Busy still']);
+
+        $this->travel(2)->days();
+        // Started watching today: a quiet record is not dropped the next night.
+        Watchdog::subscribe($other, $quiet);
+
+        $this->artisan('model:prune', ['--model' => [Subscription::class]])->assertSuccessful();
+
+        $this->assertFalse(Watchdog::isSubscribed($author, $quiet));
+        $this->assertTrue(Watchdog::isSubscribed($author, $busy), 'a change in the last 90 days keeps it');
+        $this->assertTrue(Watchdog::isSubscribed($other, $quiet));
+
+        $this->assertTrue(collect(app(Schedule::class)->events())->contains(
+            fn (Event $event): bool => str_contains($event->command, 'model:prune')
+                && str_contains($event->command, Subscription::class),
+        ), 'the scheduler prunes them');
     }
 
     public function test_the_panel_uses_the_bell_that_marks_changes_seen(): void

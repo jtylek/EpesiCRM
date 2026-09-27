@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\CRM\Meetings\Calendar;
 
+use App\Enums\RecordStatus;
 use App\Models\User;
 use App\Support\Calendar\CalendarColor;
 use App\Support\Calendar\CalendarEvent;
@@ -9,6 +10,7 @@ use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class MeetingCalendarProvider implements CalendarEventProvider
@@ -18,10 +20,13 @@ class MeetingCalendarProvider implements CalendarEventProvider
         return 'meeting';
     }
 
-    public static function calendarEvents(Carbon $start, Carbon $end, User $user): Collection
+    public static function calendarEvents(Carbon $start, Carbon $end, User $user, bool $mine = false): Collection
     {
         return Meeting::query()
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
+                ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
+                ->orWhereHas('customers', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
             ->get()
             ->filter(fn (Meeting $meeting): bool => $meeting->starts_at !== null)
             ->map(fn (Meeting $meeting): CalendarEvent => new CalendarEvent(
@@ -34,6 +39,8 @@ class MeetingCalendarProvider implements CalendarEventProvider
                 allDay: false,
                 url: MeetingResource::getUrl('view', ['record' => $meeting]),
                 color: CalendarColor::css($meeting->status->getColor()),
+                finished: in_array($meeting->status, RecordStatus::finished(), true),
+                description: $meeting->description,
             ))
             ->values();
     }

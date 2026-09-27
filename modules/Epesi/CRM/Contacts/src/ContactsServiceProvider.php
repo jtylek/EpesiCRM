@@ -35,5 +35,10 @@ class ContactsServiceProvider extends ServiceProvider
         Gate::policy(Contact::class, ContactPolicy::class);
 
         SetupSteps::register('contacts-your-company', YourCompanyStep::class, 10);
+
+        // The contacts table itself is a core migration; this module's own
+        // are data it owns (the Group list). The installer runs them once
+        // itself with --path; this keeps `php artisan migrate` aware of them.
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 }

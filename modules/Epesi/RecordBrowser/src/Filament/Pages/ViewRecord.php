@@ -21,6 +21,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 
 /**
  * Shared base for every resource's View page — extend this instead of
@@ -35,13 +36,15 @@ use Illuminate\Support\Str;
  * (Concerns\HasRelationManagers::getRelationManagersContentComponent()), so
  * there's no supported extension point for adding a non-relation tab to that
  * strip — this re-implements that method, adding Record Info and any
- * resource-specific static-entry tabs (e.g. Contact's Login) around them.
+ * resource-specific static-entry tabs (getAdditionalContentTabs(), unused at present) around them.
  * Every resource here lists its addons as plain class-strings (no
  * RelationGroup/RelationManagerConfiguration), so that's all this handles.
  *
- * **Tab order (general rule, not resource-specific):** real addons first
- * (e.g. Contacts on Company), then any `getAdditionalContentTabs()` entries
- * (e.g. Login on Contact), then Record Info, then History last — History
+ * **Tab order (general rule, not resource-specific):** any RecordExtensions
+ * addon registered with `first: true` (e.g. Attachments' Notes) leads, then
+ * the resource's own real addons (e.g. Contacts on Company), then every
+ * other RecordExtensions addon, then any `getAdditionalContentTabs()`
+ * entries (none at present), then Record Info, then History last — History
  * (identified by relationship name `activities`, the one every resource's
  * `ActivitiesRelationManager` copy uses) and Record Info are always the
  * last two tabs, in that order, on every resource.
@@ -61,7 +64,7 @@ use Illuminate\Support\Str;
  * the array for every resource, the default tab is computed explicitly
  * (see below) rather than left at Alpine's own default of 1 — a resource
  * with no non-History addon (Contact, Task, Meeting, PhoneCall) would
- * otherwise default onto Login or Record Info instead of History.
+ * otherwise default onto Record Info instead of History.
  */
 abstract class ViewRecord extends BaseViewRecord
 {
@@ -78,12 +81,14 @@ abstract class ViewRecord extends BaseViewRecord
     /**
      * The resource's own addons plus whatever other modules registered for
      * this record type through RecordExtensions (e.g. Attachments' Notes
-     * tab). Going through getAllRelationManagers() keeps Filament's own
-     * canViewForRecord() filtering in play for both halves.
+     * tab, pinned with `first: true` ahead of the resource's own). Going
+     * through getAllRelationManagers() keeps Filament's own
+     * canViewForRecord() filtering in play for every half.
      */
     protected function getAllRelationManagers(): array
     {
         return [
+            ...RecordExtensions::firstAddonsFor($this->getRecord()),
             ...parent::getAllRelationManagers(),
             ...RecordExtensions::addonsFor($this->getRecord()),
         ];
@@ -104,7 +109,7 @@ abstract class ViewRecord extends BaseViewRecord
             ? [Favorites::toggleAction()]
             : [];
 
-        foreach ([...$favorites, ...RecordExtensions::headerActionsFor($this->getRecord())] as $action) {
+        foreach ([...$favorites, ...RecordExtensions::headerActionsFor($this->getRecord(), $this)] as $action) {
             if ($action instanceof ActionGroup) {
                 $action->livewire($this);
                 $this->mergeCachedActions($action->getFlatActions());
@@ -130,7 +135,7 @@ abstract class ViewRecord extends BaseViewRecord
         );
         $otherManagers = array_diff_key($managers, $historyManagers);
 
-        $buildManagerTab = fn (string $manager): Tab => $manager::getTabComponent($ownerRecord, static::class)
+        $buildManagerTab = fn (string $manager): Tab => static::withCountBadge($manager::getTabComponent($ownerRecord, static::class), $manager, $ownerRecord)
             ->key(static::addonTab($manager), isInheritable: false)
             ->schema(fn (): array => [
                 Livewire::make($manager, [...$managerLivewireData, ...$manager::getDefaultProperties()])
@@ -146,7 +151,7 @@ abstract class ViewRecord extends BaseViewRecord
 
         // Default tab: the first real addon (Contacts on Company) if there
         // is one, otherwise History — never Record Info or an additional
-        // content tab like Login. $otherManagers always sits first when
+        // content tab. $otherManagers always sits first when
         // non-empty, and the (always present) History tab always sits last.
         $defaultActiveTab = $otherManagers === [] ? count($tabs) : 1;
 
@@ -159,6 +164,41 @@ abstract class ViewRecord extends BaseViewRecord
             ->extraAttributes(['class' => 'epesi-addon-tabs'])
             ->tabs($tabs);
     }
+
+    /**
+     * How many records the addon lists, on its tab — "0" included, so a glance
+     * at the strip says which addons are worth opening. A zero is gray, a
+     * count is in the accent color.
+     *
+     * The count is the addon's own relationship, so it follows the same row
+     * visibility as its table; an addon whose table narrows the relationship
+     * further (Reminders) returns the right number from `getBadge()`, as does
+     * one that wants no count at all by deferring it. Any badge an addon sets
+     * for itself wins.
+     *
+     * @param  class-string<RelationManager>  $manager
+     */
+    protected static function withCountBadge(Tab $tab, string $manager, Model $ownerRecord): Tab
+    {
+        if ($manager::isBadgeDeferred($ownerRecord, static::class)) {
+            return $tab;
+        }
+
+        $count = $manager::getBadge($ownerRecord, static::class)
+            ?? (string) $ownerRecord->{$manager::getRelationshipName()}()->count();
+
+        return $tab
+            ->badge($count)
+            ->badgeColor($manager::getBadgeColor($ownerRecord, static::class)
+                ?? fn (?string $badge): ?string => $badge === '0' ? 'gray' : null);
+    }
+
+    /**
+     * An addon's Create, Delete, Associate... ran (see RecordBrowserServiceProvider):
+     * rendering the page again recounts the tabs' badges.
+     */
+    #[On('addon-changed')]
+    public function refreshAddonBadges(): void {}
 
     /**
      * The `?tab=` value that opens $manager's addon — `history::tab` for
@@ -176,7 +216,7 @@ abstract class ViewRecord extends BaseViewRecord
 
     /**
      * Extension point for a resource-specific tab that isn't backed by a
-     * RelationManager/addon (e.g. Contact's "Login" section) — see the class
+     * RelationManager/addon (none at present: Contact's Login tab moved to Administration → Users) — see the class
      * docblock for where this lands in the overall tab order (after the real
      * addons, before Record Info/History). Empty by default; override in a
      * resource's View page to add one.
@@ -190,7 +230,7 @@ abstract class ViewRecord extends BaseViewRecord
 
     /**
      * A Tab of plain infolist entries (TextEntry etc.) bound to $record —
-     * for a tab that isn't a RelationManager, e.g. Record Info or Login.
+     * for a tab that isn't a RelationManager, e.g. Record Info.
      *
      * `Tab::make(...)->model($record)->schema($entries)` looks like it should
      * work (Component::model() exists) but silently renders every entry
@@ -221,7 +261,7 @@ abstract class ViewRecord extends BaseViewRecord
      * single-line "Label: value" text via `hiddenLabel()` + `prefix()`
      * (see that class), so turning on the inline-label grid there would
      * only add a blank label column to their left. Callers whose entries
-     * use ordinary visible labels (e.g. Contact's "Login" tab) should pass
+     * use ordinary visible labels (a tab of ordinary labelled entries) should pass
      * true to match the same side-by-side layout as the main infolist.
      *
      * @param  array<Component>  $entries

@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use App\Support\Countries;
+use App\Support\Demo;
 use App\Support\Locale\Locales;
 use App\Support\Zones;
 use BackedEnum;
@@ -154,6 +155,12 @@ class RegionalSettings extends Page
 
         // The page was drawn in the old language; reload it in the new one.
         if ($settings->wasChanged('language')) {
+            // In demo mode the language chosen at login would otherwise
+            // still win over the one just saved.
+            if (Demo::enabled()) {
+                Demo::rememberLocale($settings->language);
+            }
+
             $this->redirect(static::getUrl());
         }
     }

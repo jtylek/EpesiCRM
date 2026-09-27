@@ -7,6 +7,7 @@ use Closure;
 use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RecordBrowser\History\TextDiff;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -32,11 +33,14 @@ use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 
 /**
  * One field of a recordset, and the single source every screen is built from —
@@ -99,6 +103,9 @@ class Field
 
     protected bool $fullWidth = false;
 
+    /** Value is HTML from a rich-text editor, e.g. a resource's own RichEditor outside the engine's form builder — formatLoggedValue() strips markup for the History addon instead of showing it raw. */
+    protected bool $richText = false;
+
     protected ?string $help = null;
 
     protected ?string $placeholder = null;
@@ -116,6 +123,9 @@ class Field
     protected ?Closure $filterUsing = null;
 
     protected ?Closure $crits = null;
+
+    /** @var (Closure(mixed, mixed, Activity, bool): (string|Htmlable|null))|null see historyUsing() */
+    protected ?Closure $historyUsing = null;
 
     /** Set while the select builds its offered list — see offerOnlyCrits(). */
     protected bool $offering = false;
@@ -358,6 +368,30 @@ class Field
     public function isFullWidth(): bool
     {
         return $this->fullWidth || $this->type === FieldType::LongText;
+    }
+
+    public function richText(): static
+    {
+        $this->richText = true;
+
+        return $this;
+    }
+
+    /**
+     * How the History addon shows a change of this field when one value at a
+     * time can't tell it: the callback gets the old and the new value
+     * together (null for a record just created), the activity entry (for
+     * anything the model logged beside them) and whether the whole change is
+     * wanted (the Show modal) or a line's worth. It returns escaped HTML, or
+     * null to fall back to "old → new".
+     *
+     * @param  Closure(mixed $old, mixed $new, Activity $entry, bool $whole): (string|Htmlable|null)  $callback
+     */
+    public function historyUsing(Closure $callback): static
+    {
+        $this->historyUsing = $callback;
+
+        return $this;
     }
 
     /**
@@ -910,6 +944,12 @@ class Field
             return '-';
         }
 
+        if ($this->richText) {
+            $plain = TextDiff::plainText((string) $value);
+
+            return $plain === '' ? '-' : $plain;
+        }
+
         return match ($this->type) {
             FieldType::Boolean => $value ? __('Yes') : __('No'),
             FieldType::Select, FieldType::Multiselect => implode(', ', array_map(fn (mixed $one): string => $this->optionLabel($one), (array) $value)),
@@ -922,6 +962,53 @@ class Field
             FieldType::Time => Carbon::parse($value)->translatedFormat($table->getDefaultTimeDisplayFormat()),
             default => is_array($value) ? implode(', ', $value) : (string) $value,
         };
+    }
+
+    /**
+     * A change the History addon shows from both values at once, or null for
+     * its usual "old → new": the field's historyUsing() callback, else, for
+     * long text, the words that changed (TextDiff) rather than two copies of
+     * the whole text.
+     */
+    public function formatLoggedChange(mixed $old, mixed $new, Activity $entry, bool $whole = false): ?HtmlString
+    {
+        if ($this->historyUsing !== null) {
+            $change = ($this->historyUsing)($old, $new, $entry, $whole);
+
+            return $change === null ? null : new HtmlString($change instanceof Htmlable ? $change->toHtml() : $change);
+        }
+
+        if ($this->type !== FieldType::LongText) {
+            return null;
+        }
+
+        // The Show modal, for rich text: the words that didn't change keep
+        // their bold/italic/code/links rather than being flattened to plain
+        // text first, as the compact "Changes" line does either way.
+        $html = $whole && $this->richText
+            ? TextDiff::renderRich((string) $old, (string) $new)
+            : TextDiff::render($this->loggedText($old), $this->loggedText($new), $whole);
+
+        return new HtmlString($html ?? '<span class="epesi-history-gap">'.e(__('Only the formatting changed')).'</span>');
+    }
+
+    /**
+     * A long text as it read after a logged change, for the History addon's
+     * Show modal: rich text rendered (and sanitized: it is stored HTML), plain
+     * text with its line breaks.
+     */
+    public function formatLoggedVersion(mixed $value): HtmlString
+    {
+        if (blank($value)) {
+            return new HtmlString('-');
+        }
+
+        return new HtmlString($this->richText ? Str::sanitizeHtml((string) $value) : nl2br(e((string) $value)));
+    }
+
+    protected function loggedText(mixed $value): string
+    {
+        return $this->richText ? TextDiff::plainText((string) $value) : TextDiff::normalize((string) $value);
     }
 
     protected function optionLabel(mixed $value): string

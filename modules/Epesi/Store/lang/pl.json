@@ -1,11 +1,12 @@
 {
-    "Base URL of the store API, e.g. https://store.epesi.com/store-api": "Bazowy adres API sklepu, np. https://store.epesi.com/store-api",
-    "Catalog URL": "Adres katalogu",
+    "Check that this server can reach the internet, then click Refresh.": "Sprawdź, czy ten serwer ma połączenie z internetem, a potem kliknij Odśwież.",
+    "Epesi Store": "Sklep Epesi",
     "Not installed": "Niezainstalowany",
     "Optional. Required only for paid modules.": "Opcjonalne. Wymagane tylko dla płatnych modułów.",
     "Refresh": "Odśwież",
     "Store": "Sklep",
     "Store settings": "Ustawienia sklepu",
     "Store settings saved": "Zapisano ustawienia sklepu",
+    "The store has no modules published yet.": "Sklep nie ma jeszcze opublikowanych modułów.",
     "Update": "Aktualizuj"
 }

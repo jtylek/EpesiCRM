@@ -5,23 +5,25 @@ namespace App\Support;
 /**
  * The epesi version, from the VERSION file at the top of the application:
  * the one place a release sets it. The full form (2.0.0) is what module
- * manifests' "epesi_core" constraints are checked against; people see the
+ * manifests' "epesi_core" constraints are checked against (version_compare()
+ * orders a pre-release suffix such as RC1 before the plain release, so a
+ * release candidate still satisfies every module's "^2.0"); people see the
  * short form (epesi 2.0), without a patch number of 0.
  */
 class Version
 {
     protected static ?string $current = null;
 
-    /** e.g. "2.0.0" */
+    /** e.g. "2.0.0", or "2.0.0RC1" for a release candidate */
     public static function current(): string
     {
         return static::$current ??= static::read();
     }
 
-    /** e.g. "2.0" for 2.0.0, "2.0.1" for 2.0.1 */
+    /** e.g. "2.0" for 2.0.0, "2.0.1" for 2.0.1, "2.0RC1" for 2.0.0RC1 */
     public static function short(): string
     {
-        return preg_replace('/^(\d+\.\d+)\.0$/', '$1', static::current());
+        return preg_replace('/^(\d+\.\d+)\.0([^0-9].*)?$/', '$1$2', static::current());
     }
 
     /** e.g. "epesi 2.0" */

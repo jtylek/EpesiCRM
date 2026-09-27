@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Filament\Commands\FileGenerators\ResourceViewRecordPageClassGenerator;
 use App\Filament\Navigation\AlphabeticalNavigationManager;
+use App\Filament\Support\DemoAnalytics;
+use App\Filament\Support\DemoNotice;
 use App\Filament\Support\ImpersonationNotice;
 use App\Listeners\FinalizeLoginAudit;
 use App\Models\LoginAudit;
@@ -11,15 +13,23 @@ use App\Models\Module;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
 use App\Models\User;
+use App\Services\Cron\CronLog;
 use App\Services\LegacyImport\ImporterRegistry;
+use App\Support\Demo;
+use App\Support\Mail\ServerMailTransport;
 use App\Support\NoIdentityAutofill;
 use App\Support\RetryingFilesystem;
 use App\Support\Translations\CustomTranslationLoader;
 use App\Support\Version;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -38,6 +48,7 @@ use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\ServiceProvider;
@@ -126,13 +137,72 @@ class AppServiceProvider extends ServiceProvider
         $this->translateAllLabels();
         $this->putModalActionsOnHeadingLine();
         $this->hideZeroActiveFiltersBadge();
+        $this->compactBellNotifications();
+        $this->offerRowsPerPageUpToAScreenful();
         $this->giveEveryAddonAColumnSelector();
         $this->showVersion();
+        $this->lockDownDemoMode();
+        $this->wrapWidePreBlocksInsteadOfOverflowing();
 
         Event::listen(Logout::class, FinalizeLoginAudit::class);
 
+        // "This server's mail system" (config/mail.php's sendmail mailer).
+        ServerMailTransport::register();
+
+        // Administration → Cron: each scheduled task's last run, however cron runs.
+        Event::subscribe(CronLog::class);
+
         // On every panel: a user logged in as can be sent to any of them.
         FilamentView::registerRenderHook(PanelsRenderHook::CONTENT_START, fn () => ImpersonationNotice::render());
+
+        // Google Analytics on a demo that has an ID for it, once the visitor
+        // accepts (DemoAnalytics). Empty everywhere else.
+        FilamentView::registerRenderHook(PanelsRenderHook::HEAD_END, fn () => DemoAnalytics::head());
+        FilamentView::registerRenderHook(PanelsRenderHook::FOOTER, fn () => DemoAnalytics::consent());
+
+        // Installable as an app, in a window of its own with no address bar.
+        FilamentView::registerRenderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.components.web-app-head'));
+    }
+
+    /**
+     * Demo mode (App\Support\Demo): what one visitor could do to spoil the
+     * demo for the next, or to use the server for something else. Each hook
+     * asks Demo::enabled() when it runs, so these cost nothing on a normal
+     * installation. The modules guard their own actions the same way
+     * (Demo::guard()); the Administration panel and the setup wizard are
+     * closed by DisabledInDemo.
+     *
+     * - Bulk and permanent deletes say "Unavailable in demo mode": one
+     *   visitor would otherwise empty a list for everyone until the reset.
+     * - No file uploads, in forms or into the rich editor: the demo would be
+     *   a place to leave files for strangers to download. Livewire's own
+     *   upload endpoint, which any form component could be pointed at, is
+     *   capped at 1 MB on top of that.
+     * - No e-mail leaves the server: Laravel's mailer drops every message
+     *   (reminders, watching, password resets). Sending from a mail account
+     *   is closed in the Mail module, which has no accounts in the demo.
+     */
+    private function lockDownDemoMode(): void
+    {
+        foreach ([DeleteBulkAction::class, ForceDeleteAction::class, ForceDeleteBulkAction::class] as $class) {
+            $class::configureUsing(fn (Action $action): Action => Demo::guard($action), isImportant: true);
+        }
+
+        FileUpload::configureUsing(fn (FileUpload $upload): FileUpload => Demo::enabled()
+            ? $upload->disabled()->helperText(__('Unavailable in demo mode'))
+            : $upload, isImportant: true);
+        RichEditor::configureUsing(fn (RichEditor $editor): RichEditor => Demo::enabled()
+            ? $editor->fileAttachments(false)
+            : $editor, isImportant: true);
+
+        // Returning false from a MessageSending listener cancels the message.
+        Event::listen(MessageSending::class, fn (): ?bool => Demo::enabled() ? false : null);
+
+        FilamentView::registerRenderHook(PanelsRenderHook::CONTENT_AFTER, fn () => DemoNotice::render());
+
+        if (Demo::enabled()) {
+            config(['livewire.temporary_file_upload.rules' => ['required', 'file', 'max:1024']]);
+        }
     }
 
     /**
@@ -290,8 +360,9 @@ class AppServiceProvider extends ServiceProvider
             ->extraModalWindowAttributes(fn (Action $action): array => $onHeadingLine($action) ? ['class' => 'epesi-modal-actions-in-header'] : []));
 
         CreateAction::configureUsing(fn (CreateAction $action) => $action
+            ->modalSubmitActionLabel('Save')
+            ->createAnother(false)
             ->modalSubmitAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedCheck)->color('success'))
-            ->createAnotherAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedPlus))
             ->modalCancelAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedXMark)));
 
         EditAction::configureUsing(fn (EditAction $action) => $action
@@ -330,6 +401,100 @@ class AppServiceProvider extends ServiceProvider
             PanelsRenderHook::STYLES_AFTER,
             fn (): HtmlString => new HtmlString('<style>.epesi-no-active-filters .fi-icon-btn-badge-ctn{display:none}</style>'),
         );
+    }
+
+    /**
+     * A rich-text field's code block (`->prose()`, e.g. a Note or the
+     * History Show modal) has no overflow rule of its own in Filament's
+     * `.fi-prose` CSS — this app has no @tailwindcss/typography plugin to
+     * supply one either. A `<pre>` is `white-space: pre` by default, so a
+     * long line (or a whole paragraph typed into a "code block" by mistake,
+     * which is prose, not code that must keep its exact line breaks) doesn't
+     * wrap, and spills out of its card instead — cut off, not just wide.
+     * Wrapped rather than scrolled (tried first, but a scrollbar for text
+     * that reads fine wrapped is its own annoyance): every line stays
+     * readable without hiding any of it sideways, and a genuinely unbreakable
+     * token (a long URL) still breaks rather than overflowing again.
+     * Attachments' own markdown viewer scrolls its code blocks instead
+     * (modules/Epesi/Attachments/resources/views/markdown.blade.php) — real
+     * fenced code there, where a line's exact breaks are worth keeping.
+     */
+    private function wrapWidePreBlocksInsteadOfOverflowing(): void
+    {
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::STYLES_AFTER,
+            fn (): HtmlString => new HtmlString('<style>.fi-prose pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}</style>'),
+        );
+    }
+
+    /**
+     * The bell's list (Watchdog, Reminders) in less space: Filament pads each
+     * notification like a toast and spaces its lines apart, so a screen held
+     * about six. Tighter padding and lines, and a smaller icon. The text
+     * wrapper is dissolved (display: contents) so title, date and body share
+     * one grid. Toasts (not .fi-inline) keep Filament's layout.
+     *
+     * The whole notification opens its record: its "Open" action is stretched,
+     * invisible, over it rather than shown as a link of its own. It stays a
+     * real link, marking the notification read as before, so a middle click
+     * opens a new tab and a screen reader still reads "Open"; the ✕ is kept
+     * above it. Done here rather than by dropping the action, which is stored
+     * with each notification, so the ones already sent work the same.
+     *
+     * The main panel is a SPA and keeps the bell from page to page, so its
+     * slide-over would stay open over the record just opened: a plain click
+     * closes it. A click that opens a new tab or window leaves it open.
+     * data-navigate-once: the listener is on the document, which outlives
+     * every page.
+     */
+    private function compactBellNotifications(): void
+    {
+        $n = '.fi-no-database .fi-no-notification.fi-inline';
+        $linked = "{$n}:has(.fi-no-notification-actions a)";
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::STYLES_AFTER,
+            fn (): HtmlString => new HtmlString('<style>'
+                ."{$n}{padding:.5rem .75rem;gap:.625rem;position:relative}"
+                ."{$n} .fi-no-notification-icon{width:1.25rem;height:1.25rem}"
+                ."{$n} .fi-no-notification-main{margin-top:0;gap:0}"
+                ."{$n} .fi-no-notification-text{display:contents}"
+                ."{$n} :is(.fi-no-notification-title,.fi-no-notification-date,.fi-no-notification-body){line-height:1.125rem}"
+                ."{$n} .fi-no-notification-actions{position:absolute;inset:0;margin:0;padding:0;opacity:0}"
+                ."{$n} .fi-no-notification-actions .fi-link{position:absolute;inset:0}"
+                ."{$n} .fi-no-notification-close-btn{position:relative;z-index:1}"
+                ."{$linked}:hover{background:color-mix(in srgb,var(--gray-500) 10%,transparent)}"
+                ."{$linked}:has(a:focus-visible){outline:2px solid var(--primary-600);outline-offset:-2px}"
+                .'</style>'),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SCRIPTS_AFTER,
+            fn (): HtmlString => new HtmlString(<<<'HTML'
+                <script data-navigate-once>
+                    document.addEventListener('click', (event) => {
+                        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+                        if (! event.target.closest('.fi-no-database .fi-no-notification-actions a')) return
+                        window.dispatchEvent(new CustomEvent('close-modal', { detail: { id: 'database-notifications' } }))
+                    }, true)
+                </script>
+                HTML),
+        );
+    }
+
+    /**
+     * Global default for a table's "Per page" choices, instead of Filament's
+     * 5, 10, 25, 50: a full-screen list has room for about 15 rows, which
+     * Filament didn't offer, so 15 is also the default. A table that sets its
+     * own (the dashboard widgets, Translations) keeps them: this runs before
+     * the table's own configuration. A per-page choice saved in the session
+     * that is no longer offered falls back to the default.
+     */
+    private function offerRowsPerPageUpToAScreenful(): void
+    {
+        Table::configureUsing(fn (Table $table) => $table
+            ->paginationPageOptions([10, 15, 20, 25, 30])
+            ->defaultPaginationPageOption(15));
     }
 
     /**

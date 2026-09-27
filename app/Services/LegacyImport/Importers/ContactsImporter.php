@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\LegacyIdMap;
 use App\Services\LegacyImport\LegacyValue;
-use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Illuminate\Database\Eloquent\Model;
@@ -103,10 +102,11 @@ class ContactsImporter extends Importer
         $column = $this->trackedFields()[$legacyField];
 
         return match ($legacyField) {
-            'group' => [$column => $this->groupKeys(array_map(
+            // Filtered against legacy's list, so under legacy's keys; renamed after.
+            'group' => [$column => array_map(
                 fn (string $key): string => self::GROUP_KEY_REMAP[$key] ?? $key,
-                LegacyValue::multi($raw)
-            ), 'Contacts_Groups')],
+                $this->commonDataKeys(LegacyValue::multi($raw), 'Contacts_Groups')
+            )],
             'permission' => [$column => $raw !== null && $raw !== '' ? (int) $raw : RecordPermission::Public->value],
             'company_name' => [$column => $raw !== null && $raw !== '' ? $this->companies->get((int) $raw) : null],
             'login' => [$column => $raw !== null && $raw !== '' ? $this->users->get((int) $raw) : null],
@@ -160,28 +160,5 @@ class ContactsImporter extends Importer
         }
 
         $user->syncRoles($roles);
-    }
-
-    /**
-     * Group keys, filtered to those the shared list actually offers — what the
-     * enum's tryFrom() did before the list moved into CommonData.
-     *
-     * An empty list means commondata has not been imported yet (it is the first
-     * tab of `import:legacy all` for exactly this reason). Filtering against
-     * nothing would silently drop every group, so pass the keys through
-     * untouched instead and let a later commondata import make them resolve.
-     *
-     * @param  list<string>  $keys
-     * @return list<string>
-     */
-    private function groupKeys(array $keys, string $list): array
-    {
-        $known = CommonData::array($list);
-
-        if ($known === []) {
-            return array_values($keys);
-        }
-
-        return array_values(array_filter($keys, fn (string $key): bool => array_key_exists($key, $known)));
     }
 }

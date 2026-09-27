@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\CronController;
 use App\Http\Controllers\LeaveImpersonationController;
+use App\Http\Controllers\WebAppManifestController;
 use Illuminate\Support\Facades\Route;
 
 // The "main" Filament panel is mounted at the root path (see
@@ -15,3 +17,14 @@ Route::get('/setup', fn () => redirect()->route('filament.setup.install'));
 
 // POST, like logout: a link or an image elsewhere mustn't switch accounts.
 Route::post('/impersonation/leave', LeaveImpersonationController::class)->name('impersonation.leave');
+
+// Fetched by the browser on every panel, the login page included: no session.
+Route::get('/manifest.webmanifest', WebAppManifestController::class)
+    ->withoutMiddleware('web')
+    ->name('web-app.manifest');
+
+// The cron URL (Administration → Cron), called every minute by a host's cron
+// or an outside service: no session, no cookies.
+Route::get('/cron', CronController::class)
+    ->withoutMiddleware('web')
+    ->name('cron');

@@ -1,6 +1,15 @@
 {
+    "1 week forward": "tydzień naprzód",
+    "2 days forward": "2 dni naprzód",
     "Customer": "Klient",
+    "Include future calls": "Pokaż przyszłe rozmowy",
+    "Include missed (past) calls": "Pokaż zaległe (przeszłe) rozmowy",
+    "Include today's calls": "Pokaż dzisiejsze rozmowy",
+    "List of phone calls to do": "Lista rozmów telefonicznych do wykonania",
+    "New phone call": "Nowa rozmowa telefoniczna",
+    "No calls to make": "Brak rozmów do wykonania",
     "Other Customer (not in system)": "Inny klient (spoza systemu)",
     "Other Customer Name": "Nazwa innego klienta",
-    "Phone Number": "Numer telefonu"
+    "Phone Number": "Numer telefonu",
+    "Your login is not linked to a contact, so no calls are assigned to you.": "Twój login nie jest powiązany z kontaktem, więc nie masz przypisanych rozmów."
 }

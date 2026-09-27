@@ -80,15 +80,17 @@ class MailServiceProvider extends ServiceProvider
         Gate::policy(MailAccount::class, MailAccountPolicy::class);
         Gate::policy(MailAddress::class, MailAddressPolicy::class);
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([FetchMailCommand::class]);
+        // Not only on the command line: the cron URL and "Run now" under
+        // Administration → Cron run it within a web request.
+        $this->commands([FetchMailCommand::class]);
 
+        if ($this->app->runningInConsole()) {
             // `import:legacy mail` (and part of `import:legacy all`).
             $this->app->make(ImporterRegistry::class)->register('mail', MailImporter::class);
         }
 
-        // Epesi fetched from cron.php; here it is Laravel's scheduler, which
-        // likewise needs `schedule:run` in cron.
+        // Epesi fetched from cron.php; here it is Laravel's scheduler, run by
+        // cron (cron.php; AI-shared/cron.md).
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             $schedule->command('mail:fetch')
                 ->cron((string) config('epesi-mail.fetch_schedule'))

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
@@ -165,5 +166,27 @@ class Attachment extends Model
             ->logOnlyDirty()
             ->logOnly(['title', 'note', 'permission', 'sticky', 'files'])
             ->useLogName('attachment');
+    }
+
+    /**
+     * A change to the files is logged with their names (`file_names`, id =>
+     * name), which History shows instead of ids. The ids alone won't do: a
+     * file taken off a note is deleted (booted()), name and all. This runs
+     * before that deletion, since LogsActivity registers its listeners in
+     * bootTraits(), ahead of booted()'s.
+     */
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $ids = array_map('strval', [
+            ...(array) data_get($activity->properties, 'old.files'),
+            ...(array) data_get($activity->properties, 'attributes.files'),
+        ]);
+
+        if ($ids !== []) {
+            $activity->properties = $activity->properties->put(
+                'file_names',
+                StoredFile::query()->whereKey(array_unique($ids))->pluck('name', 'id')->all(),
+            );
+        }
     }
 }

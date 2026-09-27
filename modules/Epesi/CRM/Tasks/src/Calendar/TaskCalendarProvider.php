@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\CRM\Tasks\Calendar;
 
+use App\Enums\RecordStatus;
 use App\Models\User;
 use App\Support\Calendar\CalendarColor;
 use App\Support\Calendar\CalendarEvent;
@@ -9,6 +10,7 @@ use App\Support\Calendar\CalendarEventProvider;
 use Carbon\Carbon;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource;
 use Epesi\Modules\CRM\Tasks\Models\Task;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class TaskCalendarProvider implements CalendarEventProvider
@@ -18,11 +20,14 @@ class TaskCalendarProvider implements CalendarEventProvider
         return 'task';
     }
 
-    public static function calendarEvents(Carbon $start, Carbon $end, User $user): Collection
+    public static function calendarEvents(Carbon $start, Carbon $end, User $user, bool $mine = false): Collection
     {
         return Task::query()
             ->whereNotNull('deadline')
             ->whereBetween('deadline', [$start, $end])
+            ->when($mine, fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query
+                ->whereHas('employees', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))
+                ->orWhereHas('customers', fn (Builder $contacts): Builder => $contacts->where('user_id', $user->id))))
             ->get()
             ->map(fn (Task $task): CalendarEvent => new CalendarEvent(
                 id: self::calendarKey().'-'.$task->id,
@@ -33,6 +38,8 @@ class TaskCalendarProvider implements CalendarEventProvider
                 url: TaskResource::getUrl('view', ['record' => $task]),
                 color: CalendarColor::css($task->status->getColor()),
                 durationEditable: false,
+                finished: in_array($task->status, RecordStatus::finished(), true),
+                description: $task->description,
             ))
             ->values();
     }

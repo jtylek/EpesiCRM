@@ -23,6 +23,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Locked;
 use Throwable;
+use UnitEnum;
 
 /**
  * Your mailbox in the Roundcube webmail — Epesi's CRM_Roundcube screen. The
@@ -37,6 +38,8 @@ class Mailbox extends Page
     use TranslatesPageLabels;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInbox;
+
+    protected static string|UnitEnum|null $navigationGroup = 'CRM';
 
     protected static ?string $navigationLabel = 'Mailbox';
 

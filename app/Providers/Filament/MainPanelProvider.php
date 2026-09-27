@@ -2,19 +2,25 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Administration\Resources\LoginAudits\LoginAuditResource;
+use App\Filament\Administration\Pages\About;
+use App\Filament\Auth\Login;
+use App\Filament\Auth\RequestPasswordReset;
+use App\Filament\Auth\ResetPassword;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
+use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
 use App\Providers\Filament\Concerns\HasBoxedFieldStyles;
 use App\Providers\Filament\Concerns\HasCompactTableStyles;
-use App\Providers\Filament\Concerns\HasSquareCardStyles;
+use App\Providers\Filament\Concerns\HasSmallCardCorners;
+use App\Support\Demo;
 use App\Support\Modules\ModuleRegistry;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\RegionalSettings\Filament\Pages\RegionalSettings;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,6 +31,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -35,9 +42,10 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class MainPanelProvider extends PanelProvider
 {
+    use HasAuthBrandingStyles;
     use HasBoxedFieldStyles;
     use HasCompactTableStyles;
-    use HasSquareCardStyles;
+    use HasSmallCardCorners;
 
     public function panel(Panel $panel): Panel
     {
@@ -45,18 +53,38 @@ class MainPanelProvider extends PanelProvider
             ->default()
             ->id('main')
             ->path('')
-            ->login()
+            ->login(Login::class)
+            ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->brandName('epesi')
             ->colors([
                 'primary' => Color::Amber,
                 'gray' => Color::Neutral,
             ])
-            ->sidebarWidth('16rem')
+            ->sidebarWidth('13rem')
+            // A topbar button (next to the logo) hides the sidebar entirely
+            // and another (the hamburger, reused from mobile) brings it back
+            // — Filament's own toggle, nothing custom. Not
+            // sidebarCollapsibleOnDesktop(), which shrinks to an icon-only
+            // rail rather than hiding it: that still spends width on every
+            // page, where the point here is reclaiming it.
+            ->sidebarFullyCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->squareCardStyles()),
+                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->smallCardCornerStyles().$this->authBrandingStyles()),
             )
+            // A click swaps the page's content (Livewire's wire:navigate)
+            // instead of loading a new page, so full screen lasts: a browser
+            // leaves it on every page load. The other panels still load in
+            // full, since SPA mode never removes a stylesheet and theirs
+            // differ from this one's.
+            ->spa()
+            ->spaUrlExceptions(fn (): array => collect(Filament::getPanels())
+                ->reject(fn (Panel $other): bool => $other->getId() === 'main')
+                ->map(fn (Panel $other): string => url($other->getPath()).'*')
+                ->values()
+                ->all())
+            ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.fullscreen-toggle'))
             // No ->discoverResources() for app/Filament/Resources: every CRM
             // recordset is now a module under modules/Epesi/CRM, and reaches
             // this panel through its plugin in the list below.
@@ -86,9 +114,11 @@ class MainPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->userMenuItems([
-                'profile' => fn (Action $action): Action => auth()->user()?->contact
-                    ? $action->url(ContactResource::getUrl('view', ['record' => auth()->user()->contact]))
-                    : $action,
+                Action::make('my-profile')
+                    ->label('My Profile')
+                    ->icon(Heroicon::OutlinedUserCircle)
+                    ->url(fn (): string => ContactResource::getUrl('view', ['record' => auth()->user()->contact]))
+                    ->visible(fn (): bool => auth()->user()?->contact !== null),
                 Action::make('settings')
                     ->label('Settings')
                     ->icon(Heroicon::OutlinedCog6Tooth)
@@ -96,8 +126,8 @@ class MainPanelProvider extends PanelProvider
                 Action::make('administration')
                     ->label('Administration')
                     ->icon(Heroicon::OutlinedShieldCheck)
-                    ->url(fn (): string => LoginAuditResource::getUrl(panel: 'administration'))
-                    ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false),
+                    ->url(fn (): string => About::getUrl(panel: 'administration'))
+                    ->visible(fn (): bool => ! Demo::enabled() && (auth()->user()?->hasRole('super_admin') ?? false)),
             ]);
     }
 }

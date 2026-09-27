@@ -13,6 +13,7 @@
     "panels": [
         "user-settings"
     ],
+    "core": true,
     "requires": [],
     "provides": []
 }

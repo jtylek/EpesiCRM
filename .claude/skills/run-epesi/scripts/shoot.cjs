@@ -68,7 +68,11 @@ function findPlaywright() {
         await page.goto(base.replace(/\/$/, '') + '/' + route.replace(/^\//, ''), { waitUntil: 'networkidle' });
         if (page.url().includes('/login')) throw new Error(`Sent to the login page for ${route}: the session was not accepted.`);
         if (tab) {
-            await page.getByRole('tab', { name: tab }).first().click();
+            // Filament's tab items are sometimes plain buttons (the dashboard's).
+            await page.getByRole('tab', { name: tab }).or(page.getByRole('button', { name: tab, exact: true })).first().click();
+            await page.waitForLoadState('networkidle');
+            // The dashboard's applets load lazily after the tab switches.
+            await page.waitForTimeout(2500);
             await page.waitForLoadState('networkidle');
         }
         await page.waitForTimeout(500);

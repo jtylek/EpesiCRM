@@ -1,5 +1,12 @@
 <x-filament-panels::page>
-    @vite('resources/js/calendar.js')
+    {{--
+        In the page's head (Livewire's @assets), not here in its content: on
+        a click from another page (the main panel's SPA mode) a script here
+        would only run after the x-init below has already looked for it.
+    --}}
+    @assets
+        @vite('resources/js/calendar.js')
+    @endassets
 
     <div
         wire:ignore

@@ -9,13 +9,15 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Talks to a store server's public API. Everything it returns is treated as
+ * Talks to the epesi store's public API. Everything it returns is treated as
  * untrusted input: the catalog only decides *what to offer*, and the downloaded
  * package still goes through the core's own ModuleArchive validation plus a
  * checksum comparison before anything is installed.
  */
 class StoreClient
 {
+    public const API_URL = 'https://store.epe.si/store-api';
+
     public const TIMEOUT_SECONDS = 20;
 
     /**
@@ -23,17 +25,13 @@ class StoreClient
      */
     public function catalog(): array
     {
-        $settings = StoreSetting::current();
-
-        if (! $settings->isConfigured()) {
-            throw new ModuleException('No store configured yet — set the catalog URL in Store settings.');
-        }
+        $licenceKey = StoreSetting::current()->licence_key;
 
         try {
             $response = Http::timeout(self::TIMEOUT_SECONDS)
-                ->when(filled($settings->licence_key), fn ($request) => $request->withToken($settings->licence_key))
+                ->when(filled($licenceKey), fn ($request) => $request->withToken($licenceKey))
                 ->acceptJson()
-                ->get(rtrim($settings->catalog_url, '/').'/catalog');
+                ->get(self::API_URL.'/catalog');
         } catch (Throwable $exception) {
             throw new ModuleException('Could not reach the store: '.$exception->getMessage(), previous: $exception);
         }

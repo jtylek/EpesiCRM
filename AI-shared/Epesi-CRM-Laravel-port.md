@@ -26,7 +26,7 @@ Field counts include administrator-added custom fields, so they move.
 `CRM` is a **plain grouping directory** — no `module.json`, no namespace, nothing owns it.
 `ModuleManifest` allows a module path of two segments or more precisely so first-party
 features can group the way legacy Epesi's `modules/` tree did. Nothing else about a nested
-module is special: it registers, packages to a zip and installs exactly like `Epesi/Notes`.
+module is special: it registers, packages to a zip and installs exactly like any other module.
 
 ## What a CRM module owns
 
@@ -52,7 +52,7 @@ The core app deliberately keeps:
 ## Declaring a recordset
 
 A resource extends `RecordsetResource`, sets `$model`, and declares `fields()`. There is no
-form class, no infolist class, no table class, and no History relation manager. `Epesi/Notes`
+form class, no infolist class, no table class, and no History relation manager. `Companies`
 is the smallest example; `Contacts` is the largest.
 
 One `Field` fans out to as many as four Filament objects — form component, infolist entry,

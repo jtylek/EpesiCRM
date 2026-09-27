@@ -19,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
             before: AuthenticatesRequests::class,
             prepend: RedirectToSetup::class,
         );
+
+        // Cron decides for itself: a task marked evenInMaintenanceMode() (the
+        // demo reset) still runs, every other one waits.
+        $middleware->preventRequestsDuringMaintenance(except: ['cron']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -64,7 +64,7 @@ class ModuleManifest
             throw new ModuleException("Invalid module id \"{$id}\" — expected lowercase \"vendor/name\".");
         }
 
-        // Two segments minimum ("Epesi/Notes"), more allowed so first-party
+        // Two segments minimum ("Epesi/Mail"), more allowed so first-party
         // features can be grouped the way old Epesi's modules/ tree groups them
         // ("Epesi/CRM/Contacts", where CRM is a plain directory that owns
         // nothing). Nesting a module *inside another module* works too, but see

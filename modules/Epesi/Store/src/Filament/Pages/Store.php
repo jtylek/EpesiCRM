@@ -23,7 +23,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
 use Throwable;
-use UnitEnum;
 
 /**
  * Browse a store server's catalog and install or update from it.
@@ -43,8 +42,6 @@ class Store extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Store';
-
     protected string $view = 'epesi-store::store';
 
     /** @var array<int, array<string, mixed>>|null */
@@ -54,12 +51,12 @@ class Store extends Page implements HasTable
 
     public function getTitle(): string
     {
-        return __('Store');
+        return __('Epesi Store');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('Store');
+        return __('Epesi Store');
     }
 
     protected function getHeaderActions(): array
@@ -81,7 +78,8 @@ class Store extends Page implements HasTable
             ->columns([
                 TextColumn::make('name')
                     ->weight('medium')
-                    ->description(fn (array $record): ?string => $record['description'] ?? null),
+                    ->description(fn (array $record): ?string => $record['description'] ?? null)
+                    ->wrap(),
                 TextColumn::make('category')
                     ->placeholder(__('-')),
                 TextColumn::make('price_label')
@@ -108,8 +106,8 @@ class Store extends Page implements HasTable
             // run, so a fetch error isn't known yet at this point.
             ->emptyStateHeading(fn (): string => $this->catalogError ?? 'Nothing in the catalog')
             ->emptyStateDescription(fn (): string => $this->catalogError
-                ? 'Check the catalog URL in Store settings.'
-                : 'The store has no modules published yet.')
+                ? __('Check that this server can reach the internet, then click Refresh.')
+                : __('The store has no modules published yet.'))
             ->paginated(false);
     }
 
@@ -167,20 +165,14 @@ class Store extends Page implements HasTable
         return Action::make('settings')
             ->label('Store settings')
             ->icon(Heroicon::OutlinedCog6Tooth)
-            ->fillForm(fn (): array => StoreSetting::current()->only(['catalog_url', 'licence_key']))
+            ->fillForm(fn (): array => StoreSetting::current()->only(['licence_key']))
             ->schema([
-                TextInput::make('catalog_url')
-                    ->label('Catalog URL')
-                    ->helperText(__('Base URL of the store API, e.g. https://store.epesi.com/store-api'))
-                    ->url()
-                    ->required(),
                 TextInput::make('licence_key')
                     ->label('Licence key')
                     ->helperText(__('Optional. Required only for paid modules.')),
             ])
             ->action(function (array $data): void {
                 StoreSetting::current()->update([
-                    'catalog_url' => $data['catalog_url'],
                     'licence_key' => $data['licence_key'] ?: null,
                 ]);
 

@@ -2,12 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RecordPermission;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
+use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\EditTask;
+use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
+use Epesi\Modules\CRM\Tasks\Models\Task;
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\Page as ResourcePage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
@@ -63,6 +68,21 @@ class PageHeaderTest extends TestCase
                 ->assertOk()
                 ->assertSee('fi-breadcrumbs', false)
                 ->assertDontSee('fi-header-heading', false);
+        }
+    }
+
+    public function test_a_record_page_leaves_the_record_title_out_of_the_breadcrumbs(): void
+    {
+        Filament::setCurrentPanel('main');
+        $this->actingAs($this->userWithRole('employee'));
+        $task = Task::create(['title' => 'Send offer', 'permission' => RecordPermission::Public]);
+
+        foreach ([ViewTask::class => 'View', EditTask::class => 'Edit'] as $page => $label) {
+            $breadcrumbs = array_values(array_map(strval(...), Livewire::test($page, ['record' => $task->getKey()])->instance()->getBreadcrumbs()));
+
+            $this->assertCount(2, $breadcrumbs);
+            $this->assertStringContainsString('Tasks', $breadcrumbs[0]);
+            $this->assertSame($label, $breadcrumbs[1]);
         }
     }
 }

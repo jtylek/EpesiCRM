@@ -19,7 +19,7 @@ Epesi set itself up in two stages:
 |---|---|
 | `setup.php` (database, compatibility) | the first half of `/setup/install`, or `php artisan epesi:install` |
 | FirstRun wizard | `/setup/install` |
-| `distros.ini` | `config/setup.php` → `profiles` |
+| `distros.ini` | not ported — every module epesi ships is `"core": true` and installs unconditionally, except Roundcube |
 | A module's `post_install()` / `post_install_process()` | a `SetupStep` registered with `SetupSteps::register()`, shown at `/setup/finish` |
 | Language and License pages | not ported |
 
@@ -133,26 +133,28 @@ The pages:
 
 0. **Setup code** — only if this browser session hasn't already given it on the database
    pages. See [Security](#security).
-1. **Setup type** — a choice of profile from `config/setup.php`:
-   - **CRM installation** (default): Regional Settings, Attachments, Watchdog, Follow-up,
-     Reminders, Mail, Shoutbox.
-   - **Core only**: Regional Settings.
-
-   Both include every core module. There is also a **Load demo data** switch: sample
-   companies, contacts, calls, tasks and meetings, plus two demo users (`manager@example.com`,
-   `employee@example.com`, password `password`). Meant for evaluation only.
+1. **Options** — every module epesi ships is `"core": true` except Roundcube, so there is no
+   longer a profile to choose; this step just asks the two remaining questions:
+   - **Install Roundcube?** — only when `modules/Epesi/Roundcube` is present. Explains in plain
+     words what Roundcube is, that it is a separate project under the GPL-3.0 (linked), and
+     that it is downloaded from roundcube.net (about 7 MB) only if chosen
+     (`RoundcubeSetup::notice()`). The answer is required, with no default: **Yes, download and
+     install Roundcube** or **No, not now**. Nothing GPL is downloaded without a yes.
+   - **Load demo data** — sample companies, contacts, calls, tasks and meetings, plus two demo
+     users (`manager@example.com`, `employee@example.com`, password `password`). Meant for
+     evaluation only.
 2. **Administrator** — name, e-mail (the sign-in address), password (at least 8 characters)
    and confirmation. With demo data on, the two demo addresses are refused.
 3. **Mail** — how epesi sends its own e-mail (password resets, reminders):
-   - *This server's mail system* → `MAIL_MAILER=sendmail` (Epesi's "local php.ini settings");
+   - *This server's mail system* → `MAIL_MAILER=sendmail` (Epesi's "local php.ini settings": php.ini's
+     `sendmail_path`, or on Windows its `SMTP` and `smtp_port`; see
+     [Mail-server-settings.md](Mail-server-settings.md));
    - *An SMTP server* → host, port, security (STARTTLS / SSL/TLS / none), login, password;
    - *Don't send e-mail yet* → `MAIL_MAILER=log`.
-4. **Webmail** — only when `modules/Epesi/Roundcube` is present. Explains in plain words what
-   Roundcube is, that it is a separate project under the GPL-3.0 (linked), and that it is
-   downloaded from roundcube.net (about 7 MB) only if chosen (`RoundcubeSetup::notice()`).
-   The answer is required, with no default: **Yes, download and install Roundcube** or **No,
-   not now**. Nothing GPL is downloaded without a yes.
-5. **Install** — lists exactly the modules that will be installed, in order, and an
+
+   Changed afterwards in Administration → Mail Server, which writes the same keys (see
+   [Mail-server-settings.md](Mail-server-settings.md)).
+4. **Install** — lists exactly the modules that will be installed, in order, and an
    **Install** button. With Roundcube chosen, it says the download follows and to keep the
    page open.
 
@@ -162,10 +164,9 @@ On **Install**, `App\Services\Setup\Installer` does, in order:
    re-checks that the system isn't installed;
 2. creates the roles (`RoleSeeder`: super_admin, manager, employee);
 3. registers the modules through the ordinary `ModuleInstaller::registerExisting()`, which runs
-   each module's migrations. The list is every `"core": true` module plus the profile's,
+   each module's migrations. The list is every `"core": true` module plus Roundcube if chosen,
    with anything they `require` pulled in, sorted so a module always comes after what it
-   requires (`App\Services\Setup\ModulePlan`). A module listed in a profile but missing from
-   `modules/` is skipped, as FirstRun did. The modules are then loaded into the running
+   requires (`App\Services\Setup\ModulePlan`). The modules are then loaded into the running
    process (their PSR-4 namespaces and service providers, `Installer::load()`), because this
    request started with none installed. Without that, saving the administrator's demo
    records failed on the CRM morph aliases that the modules' providers register. The test
@@ -178,8 +179,8 @@ On **Install**, `App\Services\Setup\Installer` does, in order:
    `.env` isn't writable, setup still finishes and shows a warning naming the keys to set by
    hand;
 6. writes the **marker file** (`config('setup.marker_path')`, by default
-   `storage/app/epesi-installed.json`) recording the time, the profile, the installed modules
-   and `finish_pending: true`, and deletes the setup code file;
+   `storage/app/epesi-installed.json`) recording the time, the installed modules and
+   `finish_pending: true`, and deletes the setup code file;
 7. if Roundcube was chosen: the `Epesi/Roundcube` module was installed with the others in
    step 3, and now `App\Services\Setup\RoundcubeSetup::download()` downloads and sets up
    Roundcube itself (see [Epesi-Laravel-Roundcube.md](Epesi-Laravel-Roundcube.md)). This comes
@@ -231,7 +232,7 @@ php artisan epesi:install --no-interaction \
     --db-username=epesi --db-password=secret \
     --app-url=https://crm.example.com \
     --admin-name="Jan Kowalski" --admin-email=jan@example.com --admin-password=... \
-    --profile=crm --mail=sendmail
+    --mail=sendmail
 ```
 
 `--admin-name` and `--admin-password` are required with `--admin-email`. `--demo` loads the
@@ -346,24 +347,13 @@ SetupSteps::register('invoicing-numbering', InvoicingSetupStep::class, order: 30
   *later* from Administration → Modules doesn't show its page; like FirstRun, these pages run
   once, at setup.
 
-## Adding or changing a setup type
+## Making a module part of every install
 
-Edit `config/setup.php`:
-
-```php
-'profiles' => [
-    'crm' => [
-        'label' => 'CRM installation',
-        'description' => '...',
-        'modules' => ['Epesi/RegionalSettings', 'Epesi/Attachments', /* ... */],
-    ],
-],
-'default_profile' => 'crm',
-```
-
-Modules are listed by **path** under `modules/` (`Epesi/Mail`), not by id. Core modules never
-need listing. Requirements are resolved automatically, so listing a module that requires
-another is enough.
+Add `"core": true` to its `module.json`. Core modules install unconditionally (see
+`App\Services\Setup\ModulePlan::for()`), can't be disabled or uninstalled from Administration →
+Modules (`Module::isCore()`), and never need listing anywhere for setup to bring them in.
+Roundcube is deliberately the only module that isn't core: it downloads someone else's GPL
+software from the internet, so it stays an explicit, opt-in choice on the Options step.
 
 ## Files
 
@@ -373,7 +363,7 @@ another is enough.
 | `.htaccess` | rewrites into `public/` when unpacked into a web root, keeping everything else unreachable |
 | `app/Console/Commands/EpesiInstall.php` | the server stage on the command line, and scripted installs |
 | `app/Console/Commands/PackageRelease.php` | `epesi:package`, the release zip |
-| `config/setup.php` | profiles, default profile, setup code path, `SETUP_TOKEN`, marker path |
+| `config/setup.php` | setup code path, `SETUP_TOKEN`, marker path |
 | `app/Support/Setup/SetupCode.php` | the one-time setup code |
 | `app/Services/Setup/Requirements.php`, `DatabaseSetup.php` | the server check and the database connection, for the wizard and the command |
 | `app/Services/Setup/RoundcubeSetup.php`, `app/Filament/Actions/InstallRoundcubeAction.php` | the Webmail question: module + download, and the button that offers it later |
@@ -386,6 +376,7 @@ another is enough.
 | `app/Support/Setup/SetupState.php` | installed? finish pending? the marker file |
 | `app/Support/Setup/SetupStep.php`, `SetupSteps.php` | the module page contract and registry |
 | `app/Support/Setup/EnvFile.php` | writes keys into `.env`, keeping the rest of the file |
+| `app/Support/Mail/MailConfig.php` | the `MAIL_*` keys for the Mail step's answers; also used by Administration → Mail Server |
 | `app/Http/Middleware/RedirectToSetup.php` | sends requests to the wizard until done |
 | `database/seeders/DemoDataSeeder.php` | the optional demo data |
 | `modules/Epesi/CRM/Contacts/src/Setup/YourCompanyStep.php` | "Your company" |

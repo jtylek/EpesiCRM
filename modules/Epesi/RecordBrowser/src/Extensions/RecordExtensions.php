@@ -3,11 +3,13 @@
 namespace Epesi\Modules\RecordBrowser\Extensions;
 
 use Closure;
+use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 
 /**
  * How one module reaches into another's record pages — the port of Epesi's
@@ -18,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  *
  *     RecordExtensions::addon(NotesRelationManager::class);              // every record
  *     RecordExtensions::addon(NotesRelationManager::class, ['task']);    // tasks only
+ *     RecordExtensions::addon(NotesRelationManager::class, first: true); // ahead of the resource's own tabs
  *     RecordExtensions::headerActions('watchdog', fn (Model $record): array => [...]);
  *     RecordExtensions::emailLink('mail', fn (Model $record, string $email): ?string => ...);
  *
@@ -35,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 class RecordExtensions
 {
-    /** @var array<class-string<RelationManager>, array<int, string>|null> */
+    /** @var array<class-string<RelationManager>, array{types: array<int, string>|null, first: bool}> */
     protected static array $addons = [];
 
     /** @var array<string, array{callback: Closure, types: array<int, string>|null}> */
@@ -47,14 +50,18 @@ class RecordExtensions
     /**
      * @param  class-string<RelationManager>  $manager
      * @param  array<int, string>|null  $types  morph aliases; null means every record type
+     * @param  bool  $first  ahead of the resource's own tabs (ViewRecord::getAllRelationManagers()) rather than after them
      */
-    public static function addon(string $manager, ?array $types = null): void
+    public static function addon(string $manager, ?array $types = null, bool $first = false): void
     {
-        static::$addons[$manager] = $types;
+        static::$addons[$manager] = ['types' => $types, 'first' => $first];
     }
 
     /**
-     * @param  Closure(Model): array<Action|ActionGroup>  $callback
+     * The callback is also given the View page, for a module that reacts to
+     * the record being opened (Watchdog tells the bell to reload).
+     *
+     * @param  Closure(Model, ViewRecord): array<Action|ActionGroup>  $callback
      * @param  array<int, string>|null  $types  morph aliases; null means every record type
      */
     public static function headerActions(string $key, Closure $callback, ?array $types = null): void
@@ -81,20 +88,42 @@ class RecordExtensions
      */
     public static function addonsFor(Model $record): array
     {
-        return collect(static::$addons)
-            ->filter(fn (?array $types): bool => static::applies($types, $record))
+        return static::applicableAddons($record)
+            ->filter(fn (array $entry): bool => ! $entry['first'])
             ->keys()
             ->all();
     }
 
     /**
+     * Addons registered with `first: true` — pinned ahead of the resource's
+     * own tabs instead of after them; see ViewRecord::getAllRelationManagers().
+     *
+     * @return array<int, class-string<RelationManager>>
+     */
+    public static function firstAddonsFor(Model $record): array
+    {
+        return static::applicableAddons($record)
+            ->filter(fn (array $entry): bool => $entry['first'])
+            ->keys()
+            ->all();
+    }
+
+    /**
+     * @return Collection<class-string<RelationManager>, array{types: array<int, string>|null, first: bool}>
+     */
+    protected static function applicableAddons(Model $record): Collection
+    {
+        return collect(static::$addons)->filter(fn (array $entry): bool => static::applies($entry['types'], $record));
+    }
+
+    /**
      * @return array<int, Action|ActionGroup>
      */
-    public static function headerActionsFor(Model $record): array
+    public static function headerActionsFor(Model $record, ViewRecord $page): array
     {
         return collect(static::$headerActions)
             ->filter(fn (array $entry): bool => static::applies($entry['types'], $record))
-            ->flatMap(fn (array $entry): array => ($entry['callback'])($record))
+            ->flatMap(fn (array $entry): array => ($entry['callback'])($record, $page))
             ->values()
             ->all();
     }

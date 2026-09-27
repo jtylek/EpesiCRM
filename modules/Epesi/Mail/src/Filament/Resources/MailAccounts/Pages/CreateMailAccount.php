@@ -5,6 +5,7 @@ namespace Epesi\Modules\Mail\Filament\Resources\MailAccounts\Pages;
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +15,13 @@ class CreateMailAccount extends CreateRecord
     use HidesPageHeading;
 
     protected static string $resource = MailAccountResource::class;
+
+    protected static bool $canCreateAnother = false;
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()->label('Save');
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

@@ -4,6 +4,7 @@ namespace Tests\Feature\Modules;
 
 use App\Enums\RecordPermission;
 use App\Models\User;
+use Closure;
 use Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\Pages\ViewMeeting;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
@@ -15,6 +16,7 @@ use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Notifications\ReminderMail;
 use Epesi\Modules\Reminders\Reminders;
 use Filament\Actions\Testing\TestAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -278,6 +280,25 @@ class RemindersTest extends TestCase
         $this->assertNotNull($due->recipientRows()->sole()->dismissed_at);
 
         $this->get('/')->assertOk()->assertSeeLivewire(MyRemindersWidget::class);
+    }
+
+    public function test_the_widget_shows_the_description_of_the_record_on_hover(): void
+    {
+        $me = $this->userWithRole('employee');
+        $this->actingAs($me);
+        $described = Task::create(['title' => 'Call the bank', 'description' => "Ask about <b>fees</b>\nand the card"]);
+        $bare = Task::create(['title' => 'Someday']);
+        $withDescription = $this->remind($described, '2026-09-24 08:00:00', [$me]);
+        $without = $this->remind($bare, '2026-09-25 08:00:00', [$me]);
+
+        $tooltip = fn (?string $expected): Closure => fn (TextColumn $column): bool => $column->getTooltip()?->toHtml() === $expected;
+        $expected = "Ask about &lt;b&gt;fees&lt;/b&gt;<br />\nand the card";
+
+        Livewire::test(MyRemindersWidget::class)
+            ->assertTableColumnExists('record', $tooltip($expected), $withDescription)
+            ->assertTableColumnExists('remind_at', $tooltip($expected), $withDescription)
+            ->assertTableColumnExists('record', $tooltip(null), $without)
+            ->assertTableColumnExists('remind_at', $tooltip(null), $without);
     }
 
     public function test_only_the_author_or_a_manager_can_change_a_reminder(): void

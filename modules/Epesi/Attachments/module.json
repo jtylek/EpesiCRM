@@ -11,6 +11,7 @@
     "provider_class": "Epesi\\Modules\\Attachments\\AttachmentsServiceProvider",
     "plugin_class": "Epesi\\Modules\\Attachments\\AttachmentsPlugin",
     "panels": ["main"],
+    "core": true,
     "requires": ["epesi/recordbrowser"],
     "provides": []
 }

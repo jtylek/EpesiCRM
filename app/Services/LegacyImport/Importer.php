@@ -32,6 +32,9 @@ abstract class Importer
     /** @var array<int, object> raw legacy rows by legacy id, for history replay's "current value" fallback. */
     private array $liveRows = [];
 
+    /** @var array<string, list<string>|null> legacy commondata list => its keys, null when it has none */
+    private array $legacyLists = [];
+
     public function __construct()
     {
         $this->reader = new RecordBrowserReader;
@@ -73,6 +76,58 @@ abstract class Importer
 
     /** Extra per-row side effects after save (ContactsImporter uses this for role assignment). */
     protected function afterSave(object $row, Model $model): void {}
+
+    /**
+     * A multiselect commondata field's keys (a record's Group), filtered to
+     * those legacy's own list offers: a key whose entry was deleted in Epesi
+     * is dropped, as the enum's tryFrom() did before these lists moved into
+     * CommonData.
+     *
+     * Checked against the legacy database, not this one: a fresh install
+     * already holds the module's default list, which lacks every group an
+     * administrator added in Epesi, and the commondata tab may not have run
+     * yet. A list the legacy database doesn't have lets the keys through.
+     *
+     * @param  list<string>  $keys
+     * @return list<string>
+     */
+    protected function commonDataKeys(array $keys, string $list): array
+    {
+        if (! array_key_exists($list, $this->legacyLists)) {
+            $this->legacyLists[$list] = $this->legacyListKeys($list);
+        }
+
+        $known = $this->legacyLists[$list];
+
+        if ($known === null) {
+            return array_values($keys);
+        }
+
+        return array_values(array_filter($keys, fn (string $key): bool => in_array($key, $known, true)));
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function legacyListKeys(string $list): ?array
+    {
+        $legacy = DB::connection('legacy');
+
+        if (! $legacy->getSchemaBuilder()->hasTable('utils_commondata_tree')) {
+            return null;
+        }
+
+        $id = $legacy->table('utils_commondata_tree')->where('parent_id', -1)->where('akey', $list)->value('id');
+
+        if ($id === null) {
+            return null;
+        }
+
+        // Stored through htmlspecialchars(), decoded as CommonDataImporter does.
+        return $legacy->table('utils_commondata_tree')->where('parent_id', $id)->pluck('akey')
+            ->map(fn (string $key): string => html_entity_decode($key, ENT_QUOTES | ENT_HTML5))
+            ->all();
+    }
 
     public function run(bool $withHistory = true): ImportSummary
     {

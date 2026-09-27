@@ -38,16 +38,25 @@ open keeps the badge but not the icon.
   Dashboard's -2) still counts, pinning an item above the list.
 - **View before Edit, everywhere.** Clicking a table row opens the record's View page, not
   Edit — including on vendor/plugin resources that only register an Edit action by default.
-- **Tab order on a View page**: real addons first, then any additional static tabs (e.g. a
-  Login tab), then Record Info, then **History always last**. The default-active tab is the
+- **Tab order on a View page**: real addons first, then any additional static tabs
+  (`getAdditionalContentTabs()`; none at present), then Record Info, then **History always last**. The default-active tab is the
   first real addon if one exists, otherwise History — never Record Info or another static
   tab.
+- **Every addon tab shows how many records it lists**, "0" included (gray; a count is in the
+  accent color), so the strip says which addons are worth opening. `ViewRecord::withCountBadge()`
+  counts the addon's relationship, so a new addon needs nothing and follows the same row
+  visibility as its table. An addon whose table narrows the relationship further overrides
+  `getBadge()` (Reminders shows only the reminders you may see); Record Info has no count.
+  Any Create/Delete/Associate... run inside an addon makes the page recount
+  (`addon-changed`, see `RecordBrowserServiceProvider`).
 
 ## Page header
 
 Every page, in every panel, reads the same at the top: its sidebar icon and name as the first
 breadcrumb, header actions on the same line, and no large `<h1>` title (Filament's default).
 A resource page reads "(icon) Contacts > List", and a standalone page reads "(icon) Calendar".
+A record's View/Edit page reads "(icon) Contacts > View", without the record's title between
+the two: the page shows the title in its first row anyway.
 
 - **Resource pages** get this by extending RecordBrowser's `ListRecords`/`ViewRecord`/
   `EditRecord`/`CreateRecord`. A page that extends Filament's own classes has to mix in
@@ -63,14 +72,14 @@ included, and fails for any page that is missing one of these traits.
 
 - One action group, not Filament's default split between header and form-bottom actions.
   Edit: Save + Cancel + Delete in the header ("Cancel" relabels the View action rather than
-  using browser-history cancel); redirects to View on save. Create: Create + "Create & create
-  another" + Cancel in the header.
+  using browser-history cancel); redirects to View on save. Create: Save + Cancel in the
+  header. There is no "Create & create another" anywhere — pages and modals both switch it off.
 - A header Save/Create action needs `formId('form')` — without it, moving these buttons into
   the header leaves them outside the actual `<form>` element and clicking does nothing.
 - **Modals follow the same rule.** An action modal's footer actions (Create/Save, Cancel,
   Close…) sit on the heading's line instead of under the form, and there is no corner close
   button (Cancel does that job). Create/Edit modals style their buttons as the pages do:
-  Create/Save green with a check, "Create & create another" with a plus, Cancel with an X.
+  Save green with a check (the label is Save on Create too), Cancel with an X.
   This is a global default (`AppServiceProvider::putModalActionsOnHeadingLine()`), so a new
   modal needs nothing. Confirmation dialogs (`requiresConfirmation()`), slide-overs, small
   centred modals and modals with no footer keep Filament's own layout.
@@ -92,7 +101,8 @@ Every model opts in with a `HasCustomFields` concern, and administrator-added fi
 reach its forms, tables, infolists and history through the same code path a shipped field
 takes. A recordset built on `RecordsetResource` gets this from `fields()` and needs nothing
 else; the concern is also what lets a model that is *not* yet on the engine still carry
-custom fields.
+custom fields. See [Custom-fields.md](Custom-fields.md) for how an administrator adds, edits
+and removes one from Administration → Fields.
 
 ## General code style
 

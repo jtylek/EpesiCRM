@@ -49,8 +49,8 @@ use Throwable;
  * before any database exists. `php artisan epesi:install` does the same part
  * on the command line.
  *
- * Once the tables exist it is FirstRun: setup type, administrator, mail
- * settings, confirm, then install.
+ * Once the tables exist it is FirstRun: options (Roundcube, demo data),
+ * administrator, mail settings, confirm, then install.
  *
  * The setup code is asked for once per browser session (SetupCode), on
  * whichever of the two comes first.
@@ -88,7 +88,6 @@ class InstallWizard extends SimplePage
         }
 
         $this->form->fill([
-            'profile' => config('setup.default_profile'),
             'demo_data' => false,
             'mail_method' => InstallOptions::MAIL_SENDMAIL,
             'smtp_security' => 'tls',
@@ -102,7 +101,7 @@ class InstallWizard extends SimplePage
 
     public function getHeading(): string|Htmlable|null
     {
-        return __('Welcome to epesi');
+        return null;
     }
 
     public function getSubheading(): string|Htmlable|null
@@ -136,10 +135,9 @@ class InstallWizard extends SimplePage
             ->components([
                 Wizard::make(array_values(array_filter([
                     $this->codeStep(),
-                    $this->setupTypeStep(),
+                    $this->optionsStep(),
                     $this->administratorStep(),
                     $this->mailStep(),
-                    $this->webmailStep(),
                     $this->confirmStep(),
                 ])))
                     ->submitAction(new HtmlString(Blade::render(
@@ -379,23 +377,30 @@ class InstallWizard extends SimplePage
         return true;
     }
 
-    protected function setupTypeStep(): Step
+    protected function optionsStep(): Step
     {
-        $profiles = collect(config('setup.profiles'));
+        $roundcubeAvailable = fn (): bool => app(RoundcubeSetup::class)->available();
 
-        return Step::make('Setup type')
+        return Step::make('Options')
             ->icon(Heroicon::OutlinedSquares2x2)
             ->schema([
-                Radio::make('profile')
-                    ->label('What would you like to install?')
-                    ->options($profiles->map(fn (array $p): string => __($p['label']))->all())
-                    ->descriptions($profiles->map(fn (array $p): string => isset($p['description']) ? __($p['description']) : '')->all())
+                Text::make(RoundcubeSetup::notice())->visible($roundcubeAvailable),
+                Radio::make('roundcube')
+                    ->label('Would you like to install Roundcube?')
+                    ->options([
+                        'yes' => __('Yes, download and install Roundcube'),
+                        'no' => __('No, not now'),
+                    ])
+                    ->descriptions([
+                        'yes' => __('This computer needs to be connected to the internet. It adds a minute or two to the installation.'),
+                        'no' => __('You can add it later: open Mailbox in the menu, or Administration → Modules.'),
+                    ])
                     ->required()
-                    ->live(),
-                Text::make(__('If you are not sure, choose CRM installation. Modules can be turned on and off later under Administration → Modules.')),
+                    ->visible($roundcubeAvailable)
+                    ->validationMessages(['required' => __('Please choose yes or no.')]),
                 Toggle::make('demo_data')
                     ->label('Load demo data')
-                    ->helperText(__('About 100 companies and contacts, 30 tasks, phone calls and meetings, a shoutbox conversation, and two demo users (manager@example.com and employee@example.com, password "password"). For trying epesi out; remove it all later under Administration → Demo data.')),
+                    ->helperText(__('About 100 companies and contacts, 30 tasks, phone calls and meetings, notes, a few archived e-mails, a shoutbox conversation, and two demo users (manager@example.com and employee@example.com, password "password"). For trying epesi out; remove it all later under Administration → Demo data.')),
             ]);
     }
 
@@ -450,7 +455,7 @@ class InstallWizard extends SimplePage
                     ])
                     ->descriptions([
                         InstallOptions::MAIL_SENDMAIL => __('On a hosted server this is usually right.'),
-                        InstallOptions::MAIL_LOG => __('Messages are written to the application log instead. Change this later in .env.'),
+                        InstallOptions::MAIL_LOG => __('Messages are written to the application log instead. Change this later in Administration → Mail Server.'),
                     ])
                     ->required()
                     ->live(),
@@ -466,47 +471,18 @@ class InstallWizard extends SimplePage
             ]);
     }
 
-    /**
-     * Roundcube is someone else's GPL software, downloaded from the internet,
-     * so it is asked for, never assumed. Only when the module is in this copy.
-     */
-    protected function webmailStep(): ?Step
-    {
-        if (! app(RoundcubeSetup::class)->available()) {
-            return null;
-        }
-
-        return Step::make('Webmail')
-            ->icon(Heroicon::OutlinedInbox)
-            ->schema([
-                Text::make(RoundcubeSetup::notice()),
-                Radio::make('roundcube')
-                    ->label('Would you like to install Roundcube?')
-                    ->options([
-                        'yes' => __('Yes, download and install Roundcube'),
-                        'no' => __('No, not now'),
-                    ])
-                    ->descriptions([
-                        'yes' => __('This computer needs to be connected to the internet. It adds a minute or two to the installation.'),
-                        'no' => __('You can add it later: open Mailbox in the menu, or Administration → Modules.'),
-                    ])
-                    ->required()
-                    ->validationMessages(['required' => __('Please choose yes or no.')]),
-            ]);
-    }
-
     protected function confirmStep(): Step
     {
         return Step::make('Install')
             ->icon(Heroicon::OutlinedCheckCircle)
             ->schema([
-                Text::make(fn (Get $get): Htmlable => $this->summary((string) $get('profile'), $get('roundcube') === 'yes')),
+                Text::make(fn (Get $get): Htmlable => $this->summary($get('roundcube') === 'yes')),
             ]);
     }
 
-    protected function summary(string $profile, bool $roundcube = false): Htmlable
+    protected function summary(bool $roundcube = false): Htmlable
     {
-        $paths = config("setup.profiles.{$profile}.modules", []);
+        $paths = [];
 
         if ($roundcube) {
             $paths[] = RoundcubeSetup::MODULE_PATH;
@@ -539,7 +515,6 @@ class InstallWizard extends SimplePage
 
         try {
             $admin = $installer->install(new InstallOptions(
-                profile: $data['profile'],
                 adminName: $data['admin_name'],
                 adminEmail: $data['admin_email'],
                 adminPassword: $data['admin_password'],

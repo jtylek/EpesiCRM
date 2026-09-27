@@ -3,6 +3,7 @@
 use App\Providers\AppServiceProvider;
 use App\Providers\Filament\AdministrationPanelProvider;
 use App\Providers\Filament\MainPanelProvider;
+use App\Providers\Filament\PortalPanelProvider;
 use App\Providers\Filament\SetupPanelProvider;
 use App\Providers\Filament\UserSettingsPanelProvider;
 use App\Providers\ModuleServiceProvider;
@@ -15,5 +16,6 @@ return [
     MainPanelProvider::class,
     UserSettingsPanelProvider::class,
     AdministrationPanelProvider::class,
+    PortalPanelProvider::class,
     SetupPanelProvider::class,
 ];

@@ -41,6 +41,20 @@ class CommonDataImporter
     ];
 
     /**
+     * Legacy subtrees that import as readonly regardless of legacy's own
+     * flag. `Contacts/Access` is Epesi's per-contact access control
+     * (manager/employee/accounting); this port replaced it with real
+     * spatie/laravel-permission roles instead of a live field (see Contact's
+     * docblock), so nothing reads this array anymore and it should not be
+     * editable from the administration screen like a module-owned list is.
+     *
+     * @var list<string> legacy paths whose entire subtree imports readonly
+     */
+    protected const FORCE_READONLY_SUBTREES = [
+        'Contacts',
+    ];
+
+    /**
      * $withHistory is accepted and ignored: this table has no
      * `*_edit_history` counterpart in Epesi, so there is nothing for
      * --no-history to skip. The parameter keeps the signature every other
@@ -103,7 +117,7 @@ class CommonDataImporter
                 continue;
             }
 
-            $node = $this->upsert($row, $key, $parentId, $summary);
+            $node = $this->upsert($row, $key, $parentId, $legacyPath, $summary);
 
             $imported++;
             $imported += $this->importChildren($childrenOf, (int) $row->id, $node->getKey(), $legacyPath, $summary);
@@ -112,13 +126,13 @@ class CommonDataImporter
         return $imported;
     }
 
-    protected function upsert(object $row, string $key, ?int $parentId, ImportSummary $summary): CommonDataNode
+    protected function upsert(object $row, string $key, ?int $parentId, string $legacyPath, ImportSummary $summary): CommonDataNode
     {
         $attributes = [
             'parent_id' => $parentId,
             'key' => $key,
             'value' => $row->value === null ? null : $this->decode($row->value),
-            'readonly' => (bool) $row->readonly,
+            'readonly' => (bool) $row->readonly || $this->isForcedReadonly($legacyPath),
             'position' => (int) $row->position,
         ];
 
@@ -149,5 +163,16 @@ class CommonDataImporter
     protected function decode(string $value): string
     {
         return html_entity_decode($value, ENT_QUOTES | ENT_HTML5);
+    }
+
+    protected function isForcedReadonly(string $legacyPath): bool
+    {
+        foreach (self::FORCE_READONLY_SUBTREES as $subtree) {
+            if ($legacyPath === $subtree || str_starts_with($legacyPath, $subtree.'/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

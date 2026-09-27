@@ -48,6 +48,9 @@ class DemoDataPage extends Page
         'phone_calls' => 'Phone Calls',
         'meetings' => 'Meetings',
         'epesi_shoutbox_messages' => 'Shoutbox',
+        'epesi_attachments' => 'Notes',
+        'epesi_mails' => 'E-mails',
+        'epesi_mail_threads' => 'E-mail threads',
         'users' => 'Users',
     ];
 
@@ -95,7 +98,7 @@ class DemoDataPage extends Page
                 ->visible(fn (): bool => DemoData::present())
                 ->requiresConfirmation()
                 ->modalHeading(__('Remove the demo data?'))
-                ->modalDescription(__('The demo companies, contacts, tasks, phone calls, meetings, shoutbox messages and the demo users (manager@example.com, employee@example.com) are deleted for good, with their history and notes. This can\'t be undone.'))
+                ->modalDescription(__('The demo companies, contacts, tasks, phone calls, meetings, e-mails, shoutbox messages and the demo users (manager@example.com, employee@example.com) are deleted for good, with their history and notes. This can\'t be undone.'))
                 ->modalSubmitActionLabel(__('Remove the demo data'))
                 ->action(function (): void {
                     try {
