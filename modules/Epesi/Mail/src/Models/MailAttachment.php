@@ -58,9 +58,9 @@ class MailAttachment extends Model
     public function url(bool $inline = false): string
     {
         if ($inline) {
-            // Signed and short-lived: the body viewer is a sandboxed iframe
-            // with an opaque origin, so the browser sends no session cookie
-            // with its image requests — the signature is the authorisation.
+            // Signed and short-lived: the signature is the authorisation, so
+            // the body viewer's images load whether or not its sandboxed
+            // iframe sends the session cookie.
             return URL::temporarySignedRoute('epesi.mail.attachment', now()->addHour(), [
                 'mail' => $this->mail_id,
                 'attachment' => $this->getKey(),
@@ -69,6 +69,38 @@ class MailAttachment extends Model
         }
 
         return route('epesi.mail.attachment', ['mail' => $this->mail_id, 'attachment' => $this->getKey()]);
+    }
+
+    /**
+     * The "View" link for the attachments list (FileChip), null when the
+     * type isn't safe to render inline — same allow list as Notes, see
+     * StoredFile::isPreviewable().
+     */
+    public function previewUrl(): ?string
+    {
+        if (! ($this->storedFile?->isPreviewable() ?? false)) {
+            return null;
+        }
+
+        return route('epesi.mail.attachment', ['mail' => $this->mail_id, 'attachment' => $this->getKey(), 'preview' => 1]);
+    }
+
+    /**
+     * "Get link": a signed URL good for whoever holds it, login or not, for
+     * a week — no route of its own, unlike Notes' SharedFileController: this
+     * one already accepts a valid signature in place of a session
+     * (AttachmentController, built for the sandboxed body viewer's embedded
+     * images), so signing the normal download route is enough. Previewable
+     * inline, same as ->previewUrl(); anything else downloads, same as
+     * ->url().
+     */
+    public function shareUrl(): string
+    {
+        return URL::temporarySignedRoute('epesi.mail.attachment', now()->addWeek(), array_filter([
+            'mail' => $this->mail_id,
+            'attachment' => $this->getKey(),
+            'preview' => ($this->storedFile?->isPreviewable() ?? false) ? 1 : null,
+        ], fn (mixed $value): bool => $value !== null));
     }
 
     public function humanSize(): string

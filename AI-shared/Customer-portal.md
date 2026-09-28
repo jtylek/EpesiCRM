@@ -72,9 +72,11 @@ Two Filament details make this work, both easy to "simplify" back into a bug:
   `ContactResource::fields()` already has (`toFormComponent()` for Edit, `toInfolistEntry()` for
   View — both self-contained, needing no Resource around them), so labels, `maxLength`, rules and
   the way an e-mail or web address shows as a linked badge match the main Contacts screens: `last_name`, `first_name`, `title`,
-  `work_phone`, `mobile_phone`, `fax`, `email`, `web_address`, and both address blocks via
-  `App\Support\AddressFields::block(...)` (shared with `ContactResource`, handles the
-  country/zone select pairing). `email` gets its own uniqueness rule
+  `work_phone`, `mobile_phone`, `fax`, `email`, `web_address`, and the addresses, the same
+  `Field::collection('addresses', Address::class)` as `ContactResource` (a card per address, see
+  [Epesi-custom-fields.md](Epesi-custom-fields.md#collections)). The form is bound to the contact
+  (`->model()`), so the addresses load from it and `getState()` saves them through
+  `syncCollection()`. `email` gets its own uniqueness rule
   (`unique(table: 'contacts', column: 'email', ignorable: $this->contact)`), since this form
   isn't Resource-bound.
 - **Left off the form entirely, not merely disabled**: `company_id`, `permission`, `groups`,

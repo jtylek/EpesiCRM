@@ -9,6 +9,7 @@ use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Throwable;
@@ -136,13 +137,40 @@ class MailSender
             $mailbox = $this->mailboxes->make($account);
 
             try {
-                $mailbox->append((string) $account->sent_folder, $raw);
+                $mailbox->append($this->sentFolder($mailbox, (string) $account->sent_folder), $raw);
             } finally {
                 $mailbox->close();
             }
         } catch (Throwable $e) {
             $this->warnings[] = "The message was sent, but no copy was saved in \"{$account->sent_folder}\": {$e->getMessage()}";
         }
+    }
+
+    /**
+     * The Sent folder's full path on the server. Many servers keep every
+     * folder under INBOX ("INBOX.Sent" on DirectAdmin's and cPanel's
+     * Dovecot), where a bare "Sent" doesn't exist, and the server's refusal
+     * reaches us only as webklex's "failed to send literal string". So a
+     * name the server doesn't have is looked up as the last level of one it
+     * does, the shallowest first.
+     */
+    protected function sentFolder(Imap\Mailbox $mailbox, string $name): string
+    {
+        $folders = $mailbox->folders();
+
+        if (in_array($name, $folders, true)) {
+            return $name;
+        }
+
+        usort($folders, fn (string $a, string $b): int => strlen($a) <=> strlen($b));
+
+        foreach ($folders as $folder) {
+            if (strcasecmp((string) preg_replace('~^.*[./]~', '', $folder), $name) === 0) {
+                return $folder;
+            }
+        }
+
+        throw new RuntimeException('there is no such folder on the server');
     }
 
     protected function withSignature(string $html, MailAccount $account): string

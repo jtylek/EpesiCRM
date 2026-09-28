@@ -2,9 +2,12 @@
 
 namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Schemas;
 
+use Epesi\Modules\CommonData\Models\CommonDataNode;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
+use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Epesi\Modules\RecordBrowser\Recordset\LinkableRecordsets;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -14,6 +17,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 
@@ -30,15 +35,21 @@ class CustomFieldForm
                         ->label('Recordset')
                         ->options(CustomFieldRegistry::participatingModels())
                         ->required()
+                        // An address takes fewer types than a recordset.
+                        ->live()
                         // The column lives on one table; moving a definition to
                         // another recordset would leave its data behind.
                         ->disabledOn('edit')
                         ->helperText(__('Which records this field is added to.')),
 
                     Select::make('type')
-                        ->options(static::typeOptions())
+                        ->options(fn (Get $get): array => static::typeOptions($get('model_type')))
                         ->required()
                         ->live()
+                        // Several files, but one shared-list value: the two
+                        // toggles share `params.multiple`, so neither can carry
+                        // a default of its own without overwriting the other's.
+                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('params.multiple', $state === FieldType::File->value))
                         ->disabledOn('edit')
                         ->helperText(__('Changing the type later is only possible where the stored values survive it.')),
 
@@ -87,6 +98,114 @@ class CustomFieldForm
                         ->statePath('params.decimals')
                         ->visible(fn (Get $get): bool => $get('type') === FieldType::Decimal->value),
 
+                    TextInput::make('prefix')
+                        ->maxLength(16)
+                        ->statePath('params.prefix')
+                        ->helperText(__('Put in front of the number, e.g. "INV-".'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Autonumber->value),
+
+                    TextInput::make('pad_length')
+                        ->label('Digits')
+                        ->numeric()
+                        ->minValue(1)
+                        ->maxValue(20)
+                        ->default(4)
+                        ->statePath('params.pad_length')
+                        ->helperText(__('Padded up to this many digits.'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Autonumber->value),
+
+                    TextInput::make('pad_mask')
+                        ->label('Pad character')
+                        ->required()
+                        ->length(1)
+                        ->default('0')
+                        ->statePath('params.pad_mask')
+                        ->helperText(__('What fills the number up to that many digits, e.g. "0" for "0042".'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Autonumber->value),
+
+                    Toggle::make('multiple_files')
+                        ->label('Several files')
+                        ->statePath('params.multiple')
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::File->value),
+
+                    // What a link field points at. Locked once created: its
+                    // stored keys belong to that recordset.
+                    Select::make('recordset')
+                        ->label('Links to')
+                        ->options(fn (): array => LinkableRecordsets::options())
+                        ->required()
+                        ->disabledOn('edit')
+                        ->statePath('params.recordset')
+                        ->helperText(__('Which kind of record it links to.'))
+                        ->visible(fn (Get $get): bool => in_array($get('type'), [
+                            FieldType::Relation->value, FieldType::Relations->value,
+                        ], true)),
+
+                    // Arrays are the top-level lists and any entry with
+                    // entries of its own (Administration → Common Data).
+                    Select::make('array')
+                        ->label('List')
+                        ->options(fn (): array => CommonDataNode::query()
+                            ->where(fn (Builder $query): Builder => $query->whereNull('parent_id')->orWhereHas('children'))
+                            ->orderBy('path')
+                            ->pluck('path', 'path')
+                            ->all())
+                        ->searchable()
+                        ->required()
+                        ->statePath('params.array')
+                        ->helperText(__('Which shared list (Administration → Common Data) it offers.'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::CommonData->value),
+
+                    // One value is a string column, several a JSON one, so it
+                    // can't change once the column exists.
+                    Toggle::make('multiple_values')
+                        ->label('Several values')
+                        ->disabledOn('edit')
+                        ->statePath('params.multiple')
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::CommonData->value),
+
+                    TextInput::make('max_size_mb')
+                        ->label('Maximum file size (MB)')
+                        ->integer()
+                        ->minValue(1)
+                        ->maxValue(1024)
+                        ->default(50)
+                        ->statePath('params.max_size_mb')
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::File->value),
+
+                    // Which collection type its items are. Locked once
+                    // created: its items are rows of that type's table.
+                    Select::make('collection')
+                        ->label('Collection')
+                        ->options(fn (): array => CollectionItem::options())
+                        ->required()
+                        ->disabledOn('edit')
+                        ->statePath('params.collection')
+                        ->helperText(__('What each record can have any number of, e.g. addresses.'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Collection->value),
+
+                    // Legacy keeps this list in a recordset of its own per
+                    // field (task_related); here it's the field's setting.
+                    Select::make('recordsets')
+                        ->label('Recordsets')
+                        ->multiple()
+                        ->options(fn (): array => LinkableRecordsets::options())
+                        ->statePath('params.recordsets')
+                        ->helperText(__('Which kinds of record it can link to. Empty offers them all.'))
+                        ->visible(fn (Get $get): bool => $get('type') === FieldType::Related->value),
+
+                    // Legacy's "Minutes Interval" choices, 60 being full hours.
+                    Select::make('minutes_step')
+                        ->label('Minutes interval')
+                        ->options([1 => '1', 2 => '2', 5 => '5', 10 => '10', 15 => '15', 20 => '20', 30 => '30', 60 => __('Full hours')])
+                        ->default(1)
+                        ->selectablePlaceholder(false)
+                        ->statePath('params.minutes_step')
+                        ->helperText(__('Times can be picked this many minutes apart.'))
+                        ->visible(fn (Get $get): bool => in_array($get('type'), [
+                            FieldType::Time->value, FieldType::DateTime->value,
+                        ], true)),
+
                     KeyValue::make('options')
                         ->label('Choices')
                         ->keyLabel('Stored value')
@@ -133,14 +252,19 @@ class CustomFieldForm
     }
 
     /**
+     * Every type an administrator may add, or, for a collection type's items
+     * (an address), those an item can hold (FieldType::fitsCollectionItem()).
+     *
      * @return array<string, string>
      */
-    protected static function typeOptions(): array
+    protected static function typeOptions(?string $recordset): array
     {
+        $class = $recordset !== null ? Relation::getMorphedModel($recordset) : null;
+        $isItem = is_string($class) && is_subclass_of($class, CollectionItem::class);
         $options = [];
 
         foreach (FieldType::cases() as $type) {
-            if ($type->isAdministratorDefinable()) {
+            if ($type->isAdministratorDefinable() && (! $isItem || $type->fitsCollectionItem())) {
                 $options[$type->value] = $type->label();
             }
         }

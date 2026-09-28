@@ -320,7 +320,7 @@ class MailTest extends TestCase
 
     public function test_a_sent_message_is_copied_into_the_imap_sent_folder(): void
     {
-        $server = $this->fakeServer(new FakeMailbox);
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => [], 'Sent' => []]));
         $sender = app(MailSender::class);
 
         $archived = $sender->send($this->account(), $this->user, ['ann@customer.test'], 'Hello', '<p>Hi</p>',
@@ -338,7 +338,7 @@ class MailTest extends TestCase
 
     public function test_a_failed_sent_copy_is_a_warning_not_a_failed_send(): void
     {
-        $server = $this->fakeServer(new FakeMailbox);
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => [], 'Sent' => []]));
         $server->failing = true;
         $sender = app(MailSender::class);
 
@@ -347,6 +347,28 @@ class MailTest extends TestCase
         $this->assertCount(1, $this->transport->sent);
         $this->assertNotNull($archived);
         $this->assertStringContainsString('no copy was saved in "Sent"', $sender->warnings()[0]);
+    }
+
+    public function test_the_sent_copy_finds_the_sent_folder_under_the_servers_inbox(): void
+    {
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => [], 'INBOX.Archive.Sent' => [], 'INBOX.Sent' => []]));
+        $sender = app(MailSender::class);
+
+        $sender->send($this->account(), $this->user, ['ann@customer.test'], 'Hello', '<p>Hi</p>');
+
+        $this->assertCount(1, $server->appended['INBOX.Sent'] ?? []);
+        $this->assertSame([], $sender->warnings());
+    }
+
+    public function test_a_sent_folder_the_server_does_not_have_is_named_in_the_warning(): void
+    {
+        $server = $this->fakeServer(new FakeMailbox(['INBOX' => [], 'INBOX.Drafts' => []]));
+        $sender = app(MailSender::class);
+
+        $sender->send($this->account(), $this->user, ['ann@customer.test'], 'Hello', '<p>Hi</p>');
+
+        $this->assertSame([], $server->appended);
+        $this->assertSame(['The message was sent, but no copy was saved in "Sent": there is no such folder on the server'], $sender->warnings());
     }
 
     public function test_the_contact_page_has_e_mail_tabs_and_compose_sends(): void
@@ -432,7 +454,8 @@ class MailTest extends TestCase
 
         $this->get(MailResource::getUrl('view', ['record' => $mail]))
             ->assertOk()
-            ->assertSee('sandbox="allow-popups allow-popups-to-escape-sandbox"', false)
+            ->assertSee('sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"', false)
+            ->assertDontSee('allow-scripts', false)
             ->assertSee('offer.pdf')
             ->assertDontSee('<script>alert(1)</script>', false);
 
@@ -452,6 +475,81 @@ class MailTest extends TestCase
         $this->get($logo->url(inline: true))->assertOk()->assertHeader('Content-Type', 'image/png');
         $this->get(route('epesi.mail.attachment', ['mail' => $mail->id, 'attachment' => $logo->id, 'inline' => 1]))
             ->assertForbidden();
+    }
+
+    public function test_a_mailto_link_in_the_body_opens_compose_instead_of_the_system_mail_client(): void
+    {
+        $this->account();
+        $mail = app(MailArchiver::class)->archive(
+            Eml::make(html: '<p>Call me — <a href="mailto:ann@customer.test?subject=Re">ann@customer.test</a></p>'),
+            $this->user,
+        );
+
+        $this->get(MailResource::getUrl('view', ['record' => $mail]))
+            ->assertOk()
+            // e()-escaped: the tag lands in the iframe's srcdoc attribute,
+            // which Blade's `{{ $html }}` escapes once (see body.blade.php).
+            ->assertSee(e('<a target="_top" href="'.ComposeAction::url(to: 'ann@customer.test').'">'), false)
+            ->assertDontSee('mailto:', false);
+    }
+
+    public function test_a_mailto_link_in_the_body_stays_plain_when_the_viewer_cannot_send(): void
+    {
+        $mail = app(MailArchiver::class)->archive(
+            Eml::make(html: '<p><a href="mailto:ann@customer.test">ann@customer.test</a></p>'),
+            $this->user,
+        );
+
+        $this->get(MailResource::getUrl('view', ['record' => $mail]))
+            ->assertOk()
+            ->assertSee('mailto:ann@customer.test', false);
+    }
+
+    public function test_the_from_and_to_headers_link_each_address_to_compose(): void
+    {
+        $this->account();
+        $mail = app(MailArchiver::class)->archive(Eml::make(), $this->user);
+
+        $this->get(MailResource::getUrl('view', ['record' => $mail]))
+            ->assertOk()
+            ->assertSee('Ann Buyer &lt;<a href="'.e(ComposeAction::url(to: 'ann@customer.test')).'" style="text-decoration:underline">ann@customer.test</a>&gt;', false)
+            ->assertSee('<a href="'.e(ComposeAction::url(to: 'me@ourcompany.test')).'" style="text-decoration:underline">me@ourcompany.test</a>', false);
+    }
+
+    public function test_the_from_and_to_headers_stay_plain_when_the_viewer_cannot_send(): void
+    {
+        $mail = app(MailArchiver::class)->archive(Eml::make(), $this->user);
+
+        // Contiguous and unlinked: if an address were still wrapped in an
+        // <a>, this exact substring wouldn't appear.
+        $this->get(MailResource::getUrl('view', ['record' => $mail]))
+            ->assertOk()
+            ->assertSee('Ann Buyer &lt;ann@customer.test&gt;', false);
+    }
+
+    public function test_the_attachments_list_previews_pdfs_inline_and_offers_a_get_link_like_notes_do(): void
+    {
+        $this->account();
+        $mail = app(MailArchiver::class)->archive(Eml::make(), $this->user);
+        $pdf = $mail->attachments->firstWhere('name', 'offer.pdf');
+
+        $response = $this->get(MailResource::getUrl('view', ['record' => $mail]))
+            ->assertOk()
+            ->assertSee('offer.pdf')
+            ->assertSee('title="Get link (valid for 7 days)"', false)
+            ->assertSee($pdf->previewUrl(), false)
+            ->assertSee('id="epesi-file-preview"', false);
+        $this->assertSame(1, substr_count($response->getContent(), 'title="View"'));
+        $this->assertSame(2, substr_count($response->getContent(), 'data-file-preview '), 'the name and View open the pop-up, Download does not');
+
+        $preview = $this->get($pdf->previewUrl())->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringStartsWith('inline', (string) $preview->headers->get('Content-Disposition'));
+
+        // The share link works logged out, same as Notes' "Get link".
+        $shareUrl = $pdf->shareUrl();
+        auth()->logout();
+        $shared = $this->get($shareUrl)->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringStartsWith('inline', (string) $shared->headers->get('Content-Disposition'));
     }
 
     public function test_mail_accounts_are_private_to_their_owner_and_never_echo_passwords(): void
@@ -526,5 +624,21 @@ class MailTest extends TestCase
             ->assertHasActionErrors(['files']);
 
         $this->assertSame(1, Mail::count());
+    }
+
+    public function test_the_list_filters_by_any_part_of_the_sender(): void
+    {
+        $archiver = app(MailArchiver::class);
+        $fromAnn = $archiver->archive(Eml::make(), $this->user);
+        $fromBob = $archiver->archive(Eml::make(from: 'Bob Seller <bob@supplier.test>', messageId: 'bob@supplier.test'), $this->user);
+
+        Livewire::test(ListMails::class)
+            ->assertCanSeeTableRecords([$fromAnn, $fromBob])
+            ->filterTable('sender', ['from' => 'ann@customer'])
+            ->assertCanSeeTableRecords([$fromAnn])
+            ->assertCanNotSeeTableRecords([$fromBob])
+            ->filterTable('sender', ['from' => 'bob seller'])
+            ->assertCanSeeTableRecords([$fromBob])
+            ->assertCanNotSeeTableRecords([$fromAnn]);
     }
 }

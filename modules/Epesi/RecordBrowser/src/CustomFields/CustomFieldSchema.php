@@ -2,8 +2,11 @@
 
 namespace Epesi\Modules\RecordBrowser\CustomFields;
 
+use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
+use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Facades\Schema;
@@ -32,6 +35,14 @@ use RuntimeException;
  *   that already has rows cannot be NOT NULL — "required" is validation only;
  * - a per-model cap keeps anyone from walking into InnoDB's row limit by
  *   accident.
+ *
+ * Some types keep no column at all (FieldType::hasColumn()): `Autonumber` is
+ * derived from the row's own key (`Field::formatAutonumber()`), `Related`
+ * keeps its links in the shared link table (HasRecordLinks), and `Collection`
+ * its items in its collection type's table, keyed by the field
+ * (HasCollections). `add()`/`change()`/`sync()` skip them rather than reach
+ * `define()`'s `default` arm, which is the actual "this type cannot be
+ * administrator-added" refusal for anything else missing here.
  */
 class CustomFieldSchema
 {
@@ -44,6 +55,10 @@ class CustomFieldSchema
 
     public function add(CustomField $field): void
     {
+        if (! $field->type->hasColumn()) {
+            return;
+        }
+
         $table = $this->tableFor($field);
 
         if (Schema::hasColumn($table, (string) $field->column)) {
@@ -89,6 +104,24 @@ class CustomFieldSchema
      */
     public function drop(CustomField $field): void
     {
+        // Its "column" is its rows in the shared link table.
+        if (in_array($field->type, [FieldType::Related, FieldType::Relations], true)) {
+            RecordLink::query()->where('source_type', $field->model_type)->where('field', $field->column)->delete();
+
+            return;
+        }
+
+        // And a collection's is its items, rows of its type's table.
+        if ($field->type === FieldType::Collection) {
+            $type = Relation::getMorphedModel((string) ($field->params['collection'] ?? ''));
+
+            if (is_string($type) && is_subclass_of($type, CollectionItem::class)) {
+                $type::query()->where('owner_type', $field->model_type)->where('field', $field->column)->delete();
+            }
+
+            return;
+        }
+
         $table = $this->tableFor($field);
 
         if (! Schema::hasColumn($table, (string) $field->column)) {
@@ -110,6 +143,10 @@ class CustomFieldSchema
         $created = [];
 
         foreach (CustomField::query()->orderBy('model_type')->orderBy('id')->get() as $field) {
+            if (! $field->type->hasColumn()) {
+                continue;
+            }
+
             $table = $field->modelTable();
 
             if ($table === null || ! Schema::hasTable($table)) {
@@ -174,7 +211,18 @@ class CustomFieldSchema
             FieldType::Date => $blueprint->date($column),
             FieldType::DateTime => $blueprint->dateTime($column),
             FieldType::Time => $blueprint->time($column),
-            FieldType::Multiselect => $blueprint->json($column),
+            // StoredFile ids (StoredFileIds), the files themselves being in the
+            // shared file storage.
+            FieldType::Multiselect, FieldType::File => $blueprint->json($column),
+
+            // The linked record's key. No foreign key: uninstalling the target
+            // recordset's module must not break this table, and a key whose
+            // record has gone shows as "#id" (Field::loggedRelatedTitle()).
+            FieldType::Relation => $blueprint->unsignedBigInteger($column),
+
+            // One key, or several as JSON — the same shapes a module's own
+            // commondata field takes (Field::cast()).
+            FieldType::CommonData => ($params['multiple'] ?? false) ? $blueprint->json($column) : $blueprint->string($column, 128),
 
             // A boolean is the one type that can be NOT NULL: adding a column
             // with a default fills existing rows with it, so there is never a

@@ -36,21 +36,31 @@ class UsersImporter
         $seenEmails = User::query()->pluck('email')->flip()->all();
 
         foreach ($logins as $login) {
-            $mail = DB::connection('legacy')->table('user_password')
+            $mail = trim((string) DB::connection('legacy')->table('user_password')
                 ->where('user_login_id', $login->id)
-                ->value('mail');
-
-            $email = $this->uniqueEmail($mail, $login->login, $seenEmails);
-            $seenEmails[$email] = true;
+                ->value('mail'));
 
             $user = User::query()->firstOrNew(['legacy_id' => $login->id]);
             $isNew = ! $user->exists;
-            $user->name = $login->login;
-            $user->email = $email;
-            $user->legacy_id = $login->id;
+
             if ($isNew) {
+                $user->name = $login->login;
                 $user->password = Hash::make(Str::random(40));
             }
+
+            // An existing user keeps whatever email this app already has
+            // unless legacy actually offers a real (non-blank) one to
+            // replace it with — legacy having no mail on file is not a
+            // reason to downgrade an address already confirmed to work
+            // (found 2026-09-27: a re-import silently turned real working
+            // logins like j@epe.si into jasiek@imported.invalid, since
+            // legacy's own user_password.mail was blank for them).
+            if ($isNew || $mail !== '') {
+                $user->email = $this->uniqueEmail($mail, $login->login, $seenEmails);
+            }
+
+            $seenEmails[$user->email] = true;
+            $user->legacy_id = $login->id;
             $user->save();
 
             $isNew ? $summary->created++ : $summary->updated++;

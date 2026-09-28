@@ -49,6 +49,12 @@ trait HasBoxedFieldStyles
             .'@media (min-width:1024px){.rb-column-flow>.fi-grid{grid-auto-flow:column!important;grid-template-rows:repeat(var(--rb-rows),auto)!important}}'
             .'.fi-in-entry.fi-in-entry-has-inline-label{align-items:stretch!important}'
             .'.fi-in-entry.fi-in-entry-has-inline-label .fi-in-entry-label-ctn{align-items:center!important}'
+            // A linked-record/e-mail/web-address badge (LinkedRecords::style()) is the only
+            // badge with a link icon after it; Filament's badge component has no font-size
+            // rule for anything above its "sm" size, so the only way to read as large as the
+            // plain-text fields around it (text-sm) is to override the badge label directly,
+            // leaving its padding and icon size alone.
+            .'.fi-in-entry-content-col .fi-badge:has(.fi-icon) .fi-badge-label{font-size:.875rem!important}'
             .'</style>');
     }
 }

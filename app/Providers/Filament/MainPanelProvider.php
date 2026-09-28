@@ -84,7 +84,11 @@ class MainPanelProvider extends PanelProvider
                 ->map(fn (Panel $other): string => url($other->getPath()).'*')
                 ->values()
                 ->all())
+            ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.history-navigation'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.fullscreen-toggle'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.command-palette'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.link-copied-modal'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.file-preview-modal'))
             // No ->discoverResources() for app/Filament/Resources: every CRM
             // recordset is now a module under modules/Epesi/CRM, and reaches
             // this panel through its plugin in the list below.

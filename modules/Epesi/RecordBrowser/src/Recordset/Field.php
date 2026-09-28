@@ -2,15 +2,24 @@
 
 namespace Epesi\Modules\RecordBrowser\Recordset;
 
+use App\Models\StoredFile;
+use App\Services\FileStorage;
+use App\Support\Files\FileChip;
 use BackedEnum;
 use Closure;
 use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
 use Epesi\Modules\RecordBrowser\History\TextDiff;
+use Epesi\Modules\RecordBrowser\Models\CollectionItem;
+use Epesi\Modules\RecordBrowser\Models\RecordLink;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -35,12 +44,17 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
+use Throwable;
 
 /**
  * One field of a recordset, and the single source every screen is built from —
@@ -256,6 +270,89 @@ class Field
             ->param('relationship', $name);
     }
 
+    /**
+     * A formatted number derived from the record's key — Epesi's `autonumber`
+     * (`decode_autonumber_param()`'s three-part param, e.g. "#__4__0" for
+     * "#0042"). Legacy stores the formatted string in a real column and
+     * rewrites every row when the format changes
+     * (`format_autonumber_str_all_records()`); deriving it from the key
+     * instead needs no column, no migration and no backfill when $prefix or
+     * $padLength changes later.
+     */
+    public static function autonumber(string $name, string $prefix = '', int $padLength = 4, string $padMask = '0'): static
+    {
+        return static::make($name, FieldType::Autonumber)
+            ->param('prefix', $prefix)
+            ->param('pad_length', $padLength)
+            ->param('pad_mask', $padMask);
+    }
+
+    /**
+     * Files kept in the shared file storage (App\Services\FileStorage), as
+     * legacy's `file` field. The column is JSON holding StoredFile ids: a
+     * module casts it to StoredFileIds and uses HasFileFields (HasCustomFields
+     * brings it), which releases the files when they're taken off.
+     */
+    public static function file(string $name, bool $multiple = true, int $maxSizeMb = 50): static
+    {
+        return static::make($name, FieldType::File)
+            ->param('multiple', $multiple)
+            ->param('max_size_mb', $maxSizeMb);
+    }
+
+    /**
+     * Links to records of any recordset — Epesi's `__RECORDSETS__` select, the
+     * Related field on tasks, meetings and phone calls. Kept in one shared
+     * table (HasRecordLinks, which HasCustomFields brings), not a column.
+     * $recordsets (model classes or morph aliases) narrows what it offers;
+     * null offers every recordset with a View page (LinkableRecordsets).
+     *
+     * @param  list<string>|null  $recordsets
+     */
+    public static function related(string $name, ?array $recordsets = null): static
+    {
+        return static::make($name, FieldType::Related)->param('recordsets', $recordsets === null ? null : array_values(array_map(
+            fn (string $one): string => class_exists($one) ? Relation::getMorphAlias($one) : $one,
+            $recordsets,
+        )));
+    }
+
+    /**
+     * What a record has none or many of and owns alone — its addresses:
+     * items of the collection type $type (a CollectionItem subclass, or its
+     * morph alias), each a row of the type's own table rather than a column
+     * here (HasCollections, which HasCustomFields brings). The form repeats
+     * the type's fields once per item; the first item is the primary one.
+     *
+     * @param  class-string<CollectionItem>|string  $type
+     */
+    public static function collection(string $name, string $type): static
+    {
+        return static::make($name, FieldType::Collection)
+            ->param('collection', class_exists($type) ? $type : (Relation::getMorphedModel($type) ?? $type));
+    }
+
+    /** At most this many items in a collection: a meeting's one location. */
+    public function maxItems(int $count): static
+    {
+        return $this->param('max_items', $count);
+    }
+
+    /**
+     * @return class-string<CollectionItem>|null a collection field's type, null
+     *                                           when it isn't installed
+     */
+    public function collectionType(): ?string
+    {
+        $type = $this->getParam('collection');
+
+        if (is_string($type) && ! class_exists($type)) {
+            $type = Relation::getMorphedModel($type);
+        }
+
+        return is_string($type) && is_subclass_of($type, CollectionItem::class) ? $type : null;
+    }
+
     public function label(?string $label): static
     {
         $this->label = $label;
@@ -283,6 +380,16 @@ class Field
     public function maxLength(int $length): static
     {
         return $this->param('length', $length);
+    }
+
+    /**
+     * How many minutes apart the times a Time or DateTime field offers are —
+     * legacy's "Minutes Interval" on a `time`/`timestamp` field. 60 offers
+     * full hours only.
+     */
+    public function minutesStep(int $minutes): static
+    {
+        return $this->param('minutes_step', $minutes);
     }
 
     public function param(string $key, mixed $value): static
@@ -364,10 +471,10 @@ class Field
         return $this;
     }
 
-    /** Spans both columns: asked for with fullWidth(), and always for long text. */
+    /** Spans both columns: asked for with fullWidth(), and always for long text and a collection's cards. */
     public function isFullWidth(): bool
     {
-        return $this->fullWidth || $this->type === FieldType::LongText;
+        return $this->fullWidth || in_array($this->type, [FieldType::LongText, FieldType::Collection], true);
     }
 
     public function richText(): static
@@ -492,6 +599,12 @@ class Field
         return $this;
     }
 
+    /** Whether the list's search box looks in this field: as set, else by its type. */
+    public function isSearchable(): bool
+    {
+        return $this->searchable ?? $this->isSearchableByDefault();
+    }
+
     public function help(?string $help): static
     {
         $this->help = $help;
@@ -582,6 +695,7 @@ class Field
             FieldType::Multiselect => 'array',
             FieldType::CommonData => $this->isMultipleValued() ? 'array' : null,
             FieldType::Select => is_string($options) && enum_exists($options) ? $options : null,
+            FieldType::File => StoredFileIds::class,
             default => null,
         };
     }
@@ -614,8 +728,10 @@ class Field
             FieldType::Decimal => TextInput::make($this->name)->numeric(),
             FieldType::Boolean => Toggle::make($this->name),
             FieldType::Date => DatePicker::make($this->name),
-            FieldType::DateTime => DateTimePicker::make($this->name)->seconds(false),
-            FieldType::Time => TimePicker::make($this->name)->seconds(false),
+            // minutesStep() covers both pickers: the JavaScript one steps its
+            // minute input, the native one gets it as `step` in seconds.
+            FieldType::DateTime => DateTimePicker::make($this->name)->seconds(false)->minutesStep($this->minutesStepParam()),
+            FieldType::Time => TimePicker::make($this->name)->seconds(false)->minutesStep($this->minutesStepParam()),
             FieldType::Email => TextInput::make($this->name)->email()->maxLength($this->lengthParam()),
             // Not ->url(): that demands a scheme, and people type (and legacy
             // holds) "www.example.com". A host, optional port and path is
@@ -631,6 +747,18 @@ class Field
                 ->multiple($this->isMultipleValued())
                 ->searchable(),
             FieldType::Relation, FieldType::Relations => $this->relationSelect(),
+            FieldType::File => $this->fileUpload(),
+            FieldType::Related => $this->relatedSelect(),
+            FieldType::Collection => $this->collectionRepeater(),
+            // Read-only: the key it derives from doesn't exist until the
+            // record is saved, so nothing here is ever submitted. Set from
+            // afterStateHydrated() rather than state() — a form field's
+            // state() writes into the Livewire component immediately, which
+            // needs a container this doesn't have yet while still being built.
+            FieldType::Autonumber => TextInput::make($this->name)
+                ->disabled()
+                ->dehydrated(false)
+                ->afterStateHydrated(fn (TextInput $component, ?Model $record) => $component->state($this->formatAutonumber($record?->getKey()))),
             default => TextInput::make($this->name)->maxLength($this->lengthParam()),
         };
     }
@@ -656,6 +784,604 @@ class Field
         }
 
         return $this->type === FieldType::Relations ? $select->multiple() : $select;
+    }
+
+    /**
+     * One search over every recordset the field offers; each value is a token
+     * ("company:12"). No column to fill: the links are saved after the record
+     * (saveRelationshipsUsing), through syncRecordLinks(), which leaves a link
+     * to a record this user can't see alone — it was never in their form.
+     */
+    protected function relatedSelect(): Select
+    {
+        return Select::make($this->name)
+            ->multiple()
+            ->searchable()
+            ->getSearchResultsUsing(fn (string $search): array => $this->relatedSearch($search))
+            ->getOptionLabelsUsing(fn (array $values): array => $this->relatedLabels($values))
+            ->afterStateHydrated(fn (Select $component, ?Model $record) => $component->state(
+                $this->linkedRecordsOf($record)
+                    ->map(fn (Model $linked): string => RecordLink::tokenFor($linked->getMorphClass(), $linked->getKey()))
+                    ->all(),
+            ))
+            ->dehydrated(false)
+            ->saveRelationshipsUsing(fn (Model $record, ?array $state) => method_exists($record, 'syncRecordLinks')
+                ? $record->syncRecordLinks($this->name, $state ?? [], $this->relatedRecordsets())
+                : null);
+    }
+
+    /**
+     * The morph aliases this field offers: its own list, as far as those are
+     * linkable, or every linkable recordset.
+     *
+     * @return list<string>
+     */
+    public function relatedRecordsets(): array
+    {
+        $linkable = array_keys(LinkableRecordsets::options());
+        $own = $this->getParam('recordsets');
+
+        return is_array($own) && $own !== [] ? array_values(array_intersect($own, $linkable)) : $linkable;
+    }
+
+    /**
+     * Records matching $search in every offered recordset, by the columns its
+     * resource searches globally — as the Notes addon's "Attached to" picker.
+     *
+     * @return array<string, string> token => label
+     */
+    public function relatedSearch(string $search): array
+    {
+        $results = [];
+
+        foreach ($this->relatedRecordsets() as $alias) {
+            $resource = LinkableRecordsets::resource($alias);
+            $columns = array_filter($resource::getGloballySearchableAttributes(), fn (string $column): bool => ! str_contains($column, '.'));
+
+            if ($columns === []) {
+                continue;
+            }
+
+            $matches = Relation::getMorphedModel($alias)::query()
+                ->where(function (Builder $query) use ($columns, $search): void {
+                    foreach ($columns as $column) {
+                        $query->orWhere($column, 'like', "%{$search}%");
+                    }
+                })
+                ->limit(10)
+                ->get();
+
+            foreach ($matches as $match) {
+                $results[RecordLink::tokenFor($alias, $match->getKey())] = $this->relatedLabel($match);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param  array<int, mixed>  $tokens
+     * @return array<string, string> token => label, for the records this user can see
+     */
+    protected function relatedLabels(array $tokens): array
+    {
+        $ids = [];
+
+        foreach ($tokens as $token) {
+            if ($parsed = RecordLink::parseToken($token)) {
+                $ids[$parsed[0]][] = $parsed[1];
+            }
+        }
+
+        $labels = [];
+
+        foreach ($ids as $alias => $keys) {
+            $class = Relation::getMorphedModel($alias);
+
+            if (! is_string($class) || ! is_subclass_of($class, Model::class)) {
+                continue;
+            }
+
+            foreach ($class::query()->whereKey($keys)->get() as $record) {
+                $labels[RecordLink::tokenFor($alias, $record->getKey())] = $this->relatedLabel($record);
+            }
+        }
+
+        return $labels;
+    }
+
+    /** "Company: Acme Ltd" — which recordset, then the record's own title. */
+    protected function relatedLabel(Model $record): string
+    {
+        return LinkableRecordsets::label($record->getMorphClass()).': '.LinkedRecords::title($record);
+    }
+
+    /**
+     * @return Collection<int, Model>
+     */
+    protected function linkedRecordsOf(?Model $record): Collection
+    {
+        return $record?->exists && method_exists($record, 'linkedRecords')
+            ? collect($record->linkedRecords($this->name)->all())
+            : collect();
+    }
+
+    /**
+     * A list page's links, loaded for the whole page when its first row asks —
+     * a query for the links and one per recordset they point at, rather than
+     * two per row.
+     */
+    protected function preloadRecordLinks(Column $column): void
+    {
+        try {
+            $records = $column->getTable()->getRecords();
+        } catch (Throwable) {
+            return;
+        }
+
+        $records = $records instanceof EloquentCollection ? $records : (method_exists($records, 'getCollection') ? $records->getCollection() : null);
+
+        $first = $records instanceof EloquentCollection ? $records->first() : null;
+
+        if ($first instanceof Model && method_exists($first, 'recordLinks')) {
+            $records->loadMissing('recordLinks.target');
+        }
+    }
+
+    /**
+     * Straight into the file storage, as the Notes addon's upload field: the
+     * state is StoredFile ids, never paths on a disk.
+     */
+    protected function fileUpload(): FileUpload
+    {
+        return FileUpload::make($this->name)
+            ->multiple($this->isMultipleValued())
+            ->maxSize(max(1, (int) $this->getParam('max_size_mb', 50)) * 1024)
+            ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => (string) app(FileStorage::class)->putUpload($file)->getKey())
+            ->fetchFileInformation(false)
+            ->getUploadedFileUsing(fn (?Model $record, string $file): ?array => $this->uploadedFile($record, $file))
+            // Only the record's own files and new uploads: an id typed into
+            // the request would otherwise attach someone else's file.
+            ->preventFilePathTampering();
+    }
+
+    /**
+     * What the upload field shows for a file the record already holds — and
+     * only for those, so an id slipped into the form's state names nothing.
+     *
+     * @return array{name: string, size: int, type: ?string, url: string}|null
+     */
+    protected function uploadedFile(?Model $record, string $id): ?array
+    {
+        if (! $record?->exists || ! in_array($id, StoredFileIds::decode($record->getAttribute($this->name)), true)) {
+            return null;
+        }
+
+        $file = StoredFile::query()->with('content')->find($id);
+
+        return $file === null ? null : [
+            'name' => $file->name,
+            'size' => $file->size(),
+            'type' => $file->mimeType(),
+            'url' => $this->fileUrl($record, $file),
+        ];
+    }
+
+    /**
+     * Where one of a record's files is served (RecordFileController), behind
+     * the same "may you see this record" check as its View page. $preview asks
+     * for it inline, which the controller only grants to a previewable type.
+     */
+    public function fileUrl(Model $record, StoredFile $file, bool $preview = false): string
+    {
+        return route('epesi.records.file', array_filter([
+            'type' => $record->getMorphClass(),
+            'id' => $record->getKey(),
+            'field' => $this->name,
+            'file' => $file->getKey(),
+            'preview' => $preview ? 1 : null,
+        ]));
+    }
+
+    /**
+     * The record's files as pills — the same FileChip the Notes addon and the
+     * Mail archive show, so a file looks and opens the same everywhere.
+     * $limit keeps a list row short: the first few, then "+N". Null when there
+     * are none, so the entry shows its placeholder.
+     */
+    protected function fileChips(Model $record, ?int $limit = null): ?HtmlString
+    {
+        // HasFileFields; without it the model's files aren't looked after, and
+        // recordset:check says so.
+        $files = method_exists($record, 'storedFiles') ? $record->storedFiles($this->name) : collect();
+
+        if ($files->isEmpty()) {
+            return null;
+        }
+
+        $shown = $limit === null ? $files : $files->take($limit);
+
+        $html = $shown->map(fn (StoredFile $file): string => FileChip::render(
+            $file,
+            $this->fileUrl($record, $file),
+            $file->isPreviewable() ? $this->fileUrl($record, $file, preview: true) : null,
+        ))->implode('');
+
+        if ($files->count() > $shown->count()) {
+            $html .= ' <span class="text-sm text-gray-500">+'.($files->count() - $shown->count()).'</span>';
+        }
+
+        return new HtmlString($html);
+    }
+
+    // ---------------------------------------------------------- Collection --
+
+    /**
+     * One card per item, its Kind and the type's fields, reorderable: the
+     * first card is the primary item. Filled from the relation and saved
+     * after the record through syncCollection(), as the Related select is —
+     * not Repeater::relationship(), which saves the rows itself and would
+     * bypass the History entry and the items' own events. Each card keeps
+     * its item's id, which syncCollection() only honours for this field's
+     * own items.
+     */
+    protected function collectionRepeater(): Repeater
+    {
+        $type = $this->collectionType();
+
+        $repeater = Repeater::make($this->name)
+            ->schema(fn (): array => $type === null ? [] : [
+                Hidden::make('id'),
+                $type::kindField()->toFormComponent(),
+                ...array_map(
+                    fn (Field $field): mixed => $field->toFormComponent(),
+                    array_values(array_filter($type::resolvedFields(), fn (Field $field): bool => $field->isInForm())),
+                ),
+            ])
+            ->columns(2)
+            ->defaultItems(0)
+            ->collapsible()
+            ->itemLabel(fn (array $state): ?string => $type === null ? null : $this->collectionItemLabel($type, $state))
+            ->addActionLabel($type === null ? null : $type::addActionLabel())
+            ->dehydrated(false)
+            ->loadStateFromRelationshipsUsing(fn (Repeater $component, Model $record) => $component->state($this->collectionState($record)))
+            // The cards as they stand, the form having been validated: an
+            // item's own getState() drops a key two of its inputs share (an
+            // address's Zone, a select or a text box by country) — whichever
+            // is hidden takes it along.
+            ->saveRelationshipsUsing(fn (Repeater $component, Model $record) => method_exists($record, 'syncCollection')
+                ? $record->syncCollection($this->name, array_values((array) $component->getRawState()))
+                : null);
+
+        if (is_int($max = $this->getParam('max_items'))) {
+            $repeater = $repeater->maxItems($max);
+        }
+
+        return $repeater;
+    }
+
+    /**
+     * The record's items as the form's cards: each item's id and values.
+     *
+     * @return list<array<string, mixed>>
+     */
+    protected function collectionState(Model $record): array
+    {
+        if (! method_exists($record, 'collection')) {
+            return [];
+        }
+
+        return $record->collection($this->name)->get()
+            ->map(fn (CollectionItem $item): array => ['id' => $item->getKey(), ...Arr::only($item->attributesToArray(), $item->getFillable())])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * A card's heading, "Home: Main St 1, Warsaw", from what the card holds.
+     *
+     * @param  class-string<CollectionItem>  $type
+     * @param  array<string, mixed>  $state
+     */
+    protected function collectionItemLabel(string $type, array $state): ?string
+    {
+        $item = new $type;
+        $item->forceFill(array_intersect_key($state, array_flip($item->getFillable())));
+
+        $label = implode(': ', array_filter([$item->kindLabel(), $item->summary()], filled(...)));
+
+        return $label === '' ? null : $label;
+    }
+
+    /**
+     * The record's items, primary first — the loaded relation when a list
+     * page loaded the whole page's (preloadCollection()).
+     *
+     * @return EloquentCollection<int, CollectionItem>
+     */
+    public function collectionItemsOf(?Model $record): EloquentCollection
+    {
+        if (! $record?->exists || ! method_exists($record, 'collection') || $this->collectionType() === null) {
+            return new EloquentCollection;
+        }
+
+        return $record->relationLoaded($this->name)
+            ? $record->getRelation($this->name)
+            : $record->collection($this->name)->get();
+    }
+
+    /**
+     * One line per item for the View page: the kind as a badge, the summary,
+     * and any administrator's fields after it. Null when there are none, so
+     * the entry shows its placeholder.
+     */
+    protected function collectionLines(Model $record): ?HtmlString
+    {
+        $items = $this->collectionItemsOf($record);
+
+        if ($items->isEmpty()) {
+            return null;
+        }
+
+        return new HtmlString(view('epesi-recordbrowser::collection-items', [
+            'items' => $items->map(fn (CollectionItem $item): array => [
+                'kind' => $item->kindLabel(),
+                'summary' => $item->summary(),
+                'extra' => $item->extraValues(),
+            ])->all(),
+        ])->render());
+    }
+
+    /** The field of an item the list shows for the primary one: the one its type marks inTable(). */
+    protected function collectionListField(): ?Field
+    {
+        $type = $this->collectionType();
+
+        if ($type === null) {
+            return null;
+        }
+
+        foreach ($type::resolvedFields() as $field) {
+            if ($field->isInTable() && $field->type->hasColumn()) {
+                return $field;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The item columns the list's search box and global search look in.
+     *
+     * @return list<string>
+     */
+    public function collectionSearchColumns(): array
+    {
+        $type = $this->collectionType();
+
+        if ($type === null) {
+            return [];
+        }
+
+        return array_values(array_map(
+            fn (Field $field): string => $field->name,
+            array_filter($type::resolvedFields(), fn (Field $field): bool => $field->type->hasColumn() && $field->isSearchable()),
+        ));
+    }
+
+    /** The primary item's value in the list, loaded for the whole page at once. */
+    protected function collectionColumn(): TextColumn
+    {
+        $column = TextColumn::make($this->name);
+
+        return $column->state(function (Model $record) use ($column): ?string {
+            $this->preloadCollection($column);
+
+            $first = $this->collectionItemsOf($record)->first();
+            $shown = $this->collectionListField();
+
+            if ($first === null) {
+                return null;
+            }
+
+            if ($shown === null) {
+                return $first->summary();
+            }
+
+            $value = $first->getAttribute($shown->name);
+
+            return blank($value) ? null : $shown->formatLoggedValue($value);
+        });
+    }
+
+    /**
+     * A list page's items, loaded for the whole page when its first row asks —
+     * one query per collection field rather than one per row.
+     */
+    protected function preloadCollection(Column $column): void
+    {
+        try {
+            $records = $column->getTable()->getRecords();
+        } catch (Throwable) {
+            return;
+        }
+
+        $records = $records instanceof EloquentCollection ? $records : (method_exists($records, 'getCollection') ? $records->getCollection() : null);
+
+        if ($records instanceof EloquentCollection && $records->first() instanceof Model && method_exists($records->first(), 'collection')) {
+            $records->loadMissing($this->name);
+        }
+    }
+
+    /**
+     * This field's items whose owner is the row of $owners — for a subquery
+     * that sorts, searches or filters the owners by their items.
+     */
+    protected function collectionItemsQuery(Builder $owners): Builder
+    {
+        $owner = $owners->getModel();
+
+        return $this->collectionType()::query()
+            ->whereColumn('owner_id', $owner->getQualifiedKeyName())
+            ->where('owner_type', $owner->getMorphClass())
+            ->where('field', $this->name);
+    }
+
+    /** By the primary item's value: a subquery on the first item. */
+    protected function collectionSortQuery(): ?Closure
+    {
+        $shown = $this->collectionListField();
+
+        return $shown === null ? null : fn (Builder $query, string $direction): Builder => $query->orderBy(
+            $this->collectionItemsQuery($query)->select($shown->name)->orderBy('position')->orderBy('id')->limit(1)->toBase(),
+            $direction,
+        );
+    }
+
+    /** Any item matching, so a contact is found by their second address too. */
+    protected function collectionSearchQuery(): ?Closure
+    {
+        $columns = $this->collectionSearchColumns();
+
+        return $columns === [] ? null : fn (Builder $query, string $search): Builder => $query->whereExists(
+            $this->collectionItemsQuery($query)
+                ->where(function (Builder $items) use ($columns, $search): void {
+                    foreach ($columns as $column) {
+                        $items->orWhere($column, 'like', "%{$search}%");
+                    }
+                })
+                ->toBase(),
+        );
+    }
+
+    /**
+     * Has any (yes or no), which kinds, and the item fields the type marks
+     * filterable() — Country and City for an address. Filament gives a
+     * filter of several inputs no heading, so each input names the field.
+     */
+    protected function collectionFilter(): ?Filter
+    {
+        $type = $this->collectionType();
+
+        if ($type === null) {
+            return null;
+        }
+
+        $label = __($this->getLabel());
+        $kind = $type::kindField();
+
+        /** @var array<string, array{0: Field, 1: bool}> $inputs item column => [field, is a choice] */
+        $inputs = [];
+        $schema = [
+            Select::make('has')->label($label)->options(['1' => __('Yes'), '0' => __('No')]),
+            // Already translated, with the field's name in it: not looked
+            // up once more as a whole.
+            Select::make('kinds')->label(__(':field: kind', ['field' => $label]))
+                ->translateLabel(false)
+                ->options(fn (): array => $kind->commonDataOptions())
+                ->multiple(),
+        ];
+
+        foreach ($type::resolvedFields() as $field) {
+            if (! $field->filterable || ! $field->type->hasColumn() || $field->isMultipleValued()) {
+                continue;
+            }
+
+            $input = $field->toFormComponent();
+
+            if ($input instanceof Select) {
+                $schema[] = $input->multiple()->required(false)->live(false)->clearAfterStateUpdatedHooks();
+                $inputs[$field->name] = [$field, true];
+            } elseif ($field->type->isTextual() || $field->type === FieldType::LongText) {
+                $schema[] = TextInput::make($field->name)->label($field->getLabel());
+                $inputs[$field->name] = [$field, false];
+            }
+        }
+
+        $wanted = fn (array $data): array => array_filter(
+            array_intersect_key($data, $inputs),
+            fn (mixed $value): bool => filled($value),
+        );
+
+        return Filter::make($this->name)
+            ->schema($schema)
+            ->query(function (Builder $query, array $data) use ($inputs, $wanted): Builder {
+                $has = $data['has'] ?? null;
+                $kinds = array_values(array_filter((array) ($data['kinds'] ?? [])));
+                $values = $wanted($data);
+
+                if ($has === '0' || $has === 0) {
+                    return $query->whereNotExists($this->collectionItemsQuery($query)->toBase());
+                }
+
+                if (blank($has) && $kinds === [] && $values === []) {
+                    return $query;
+                }
+
+                $items = $this->collectionItemsQuery($query)->when($kinds !== [], fn (Builder $items): Builder => $items->whereIn('kind', $kinds));
+
+                foreach ($values as $column => $value) {
+                    $inputs[$column][1]
+                        ? $items->whereIn($column, (array) $value)
+                        : $items->where($column, 'like', '%'.$value.'%');
+                }
+
+                return $query->whereExists($items->toBase());
+            })
+            ->indicateUsing(function (array $data) use ($label, $kind, $inputs, $wanted): array {
+                $indicators = [];
+
+                if (filled($data['has'] ?? null)) {
+                    $indicators[] = Indicator::make($label.': '.($data['has'] ? __('Yes') : __('No')))->removeField('has');
+                }
+
+                if ($kinds = array_filter((array) ($data['kinds'] ?? []))) {
+                    $indicators[] = Indicator::make(__(':field: kind', ['field' => $label]).': '.implode(', ', array_map(fn (string $key): string => $kind->commonDataLabel($key), $kinds)))
+                        ->removeField('kinds');
+                }
+
+                foreach ($wanted($data) as $column => $value) {
+                    [$field] = $inputs[$column];
+                    $indicators[] = Indicator::make(__($field->getLabel()).': '.implode(', ', array_map(
+                        fn (mixed $one): string => $field->formatLoggedValue($one),
+                        (array) $value,
+                    )))->removeField($column);
+                }
+
+                return $indicators;
+            });
+    }
+
+    /**
+     * A change of a collection: the items taken off, struck through, and the
+     * ones added, by the one-line summaries logged with it — an edited item
+     * is one of each. A record just created lists its items; a change of
+     * order alone says so.
+     */
+    protected function loggedCollectionChange(mixed $old, mixed $new, Activity $entry): ?HtmlString
+    {
+        $old = array_values(array_map('strval', (array) $old));
+        $new = array_values(array_map('strval', (array) $new));
+
+        if ($entry->event === 'created') {
+            return $new === [] ? null : new HtmlString(implode('; ', array_map(fn (string $line): string => '<span class="epesi-history-new">'.e($line).'</span>', $new)));
+        }
+
+        if ($old === $new) {
+            return null;
+        }
+
+        $removed = array_diff($old, $new);
+        $added = array_diff($new, $old);
+
+        if ($removed === [] && $added === []) {
+            return new HtmlString(e(__('Reordered')).': <span class="epesi-history-new">'.e(implode('; ', $new)).'</span>');
+        }
+
+        return new HtmlString(implode(' ', [
+            ...array_map(fn (string $line): string => '<del class="epesi-history-old">− '.e($line).'</del>', $removed),
+            ...array_map(fn (string $line): string => '<ins class="epesi-history-new">+ '.e($line).'</ins>', $added),
+        ]));
     }
 
     // ---------------------------------------------------------------- View --
@@ -705,6 +1431,17 @@ class Field
             FieldType::CommonData => TextEntry::make($this->name)
                 ->formatStateUsing(fn (mixed $state): string => $this->commonDataLabel($state)),
             FieldType::Relation, FieldType::Relations => $this->relationEntry(),
+            FieldType::Autonumber => TextEntry::make($this->name)
+                ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
+            FieldType::File => TextEntry::make($this->name)
+                ->state(fn (Model $record): ?HtmlString => $this->fileChips($record)),
+            FieldType::Related => LinkedRecords::badges(
+                TextEntry::make($this->name),
+                fn (Model $record): Collection => $this->linkedRecordsOf($record),
+                $this->relatedLabel(...),
+            ),
+            FieldType::Collection => TextEntry::make($this->name)
+                ->state(fn (Model $record): ?HtmlString => $this->collectionLines($record)),
             default => TextEntry::make($this->name),
         };
     }
@@ -744,7 +1481,7 @@ class Field
     public function toTableColumn(): Column
     {
         $column = $this->buildTableColumn()
-            ->label($this->getLabel())
+            ->label($this->columnLabel())
             ->toggleable(isToggledHiddenByDefault: ! $this->inTable);
 
         if ($column instanceof TextColumn) {
@@ -756,10 +1493,39 @@ class Field
         }
 
         $column = $column
-            ->sortable($this->sortable ?? $this->isSortableByDefault())
-            ->searchable($this->searchable ?? $this->isSearchableByDefault());
+            ->sortable($this->sortable ?? $this->isSortableByDefault(), query: $this->sortQuery())
+            ->searchable($this->isSearchable(), query: $this->searchQuery());
 
         return $this->columnUsing ? ($this->columnUsing)($column, $this) : $column;
+    }
+
+    /** A collection's column is named after the item field it shows: "City". */
+    protected function columnLabel(): string
+    {
+        return $this->type === FieldType::Collection && ($shown = $this->collectionListField()) !== null
+            ? $shown->getLabel()
+            : $this->getLabel();
+    }
+
+    /** How a field with no column of its own sorts, if it does. */
+    protected function sortQuery(): ?Closure
+    {
+        return $this->type === FieldType::Collection ? $this->collectionSortQuery() : null;
+    }
+
+    /** How a field with no column of its own is searched, if it is. */
+    protected function searchQuery(): ?Closure
+    {
+        return match ($this->type) {
+            // No real column to LIKE-search: read the number back to the key
+            // it names instead — Ticket's own search before this existed did
+            // the same thing by hand.
+            FieldType::Autonumber => fn (Builder $query, string $search): Builder => ($id = $this->autonumberId($search)) !== null
+                ? $query->whereKey($id)
+                : $query,
+            FieldType::Collection => $this->collectionSearchQuery(),
+            default => null,
+        };
     }
 
     protected function buildTableColumn(): Column
@@ -791,8 +1557,30 @@ class Field
                 ->url(fn (?string $state): ?string => static::webAddressUrl($state))
                 ->openUrlInNewTab(),
             FieldType::Relation, FieldType::Relations => $this->relationColumn(),
+            FieldType::Autonumber => TextColumn::make($this->name)
+                ->state(fn (Model $record): string => $this->formatAutonumber($record->getKey())),
+            FieldType::File => TextColumn::make($this->name)
+                ->state(fn (Model $record): ?HtmlString => $this->fileChips($record, limit: 2)),
+            FieldType::Related => $this->relatedColumn(),
+            FieldType::Collection => $this->collectionColumn(),
             default => TextColumn::make($this->name),
         };
+    }
+
+    /** The same badges as on the View page, the page's links loaded at once. */
+    protected function relatedColumn(): TextColumn
+    {
+        $column = TextColumn::make($this->name);
+
+        return LinkedRecords::badges(
+            $column,
+            function (Model $record) use ($column): Collection {
+                $this->preloadRecordLinks($column);
+
+                return $this->linkedRecordsOf($record);
+            },
+            $this->relatedLabel(...),
+        );
     }
 
     /** The same badges as on the View page. */
@@ -824,16 +1612,30 @@ class Field
      * Sorting and searching are free on a real column and impossible on a
      * derived one: a relation column's displayed value comes from the related
      * resource's record title, which may be an accessor (Contact's full_name)
-     * with no SQL equivalent, so those default off there.
+     * with no SQL equivalent, so those default off there. Autonumber has the
+     * same problem — the formatted string doesn't sort the way its padding
+     * suggests once a key outgrows it — but it gets its own searchable()
+     * query in toTableColumn() rather than going without. A collection sorts
+     * and searches through subqueries on its items (sortQuery(),
+     * searchQuery()) when it has something to sort and search by.
      */
     protected function isSortableByDefault(): bool
     {
-        return ! $this->type->isRelational() && ! $this->type->isMultiple() && ! $this->isMultipleValued();
+        if ($this->type === FieldType::Collection) {
+            return $this->collectionListField() !== null;
+        }
+
+        return ! $this->type->isRelational() && ! $this->type->isMultiple() && ! $this->isMultipleValued()
+            && ! in_array($this->type, [FieldType::Autonumber, FieldType::File], true);
     }
 
     protected function isSearchableByDefault(): bool
     {
-        return $this->type->isTextual() || $this->type === FieldType::LongText;
+        if ($this->type === FieldType::Collection) {
+            return $this->collectionSearchColumns() !== [];
+        }
+
+        return $this->type->isTextual() || $this->type === FieldType::LongText || $this->type === FieldType::Autonumber;
     }
 
     public function toTableFilter(): ?BaseFilter
@@ -859,6 +1661,23 @@ class Field
             in_array($this->type, [FieldType::Integer, FieldType::Decimal], true) => $this->rangeFilter(
                 fn (string $name, string $label): TextInput => TextInput::make($name)->label($label)->numeric(),
             ),
+            // Which recordsets it links to — a record filter can come later.
+            $this->type === FieldType::Related => SelectFilter::make($this->name)
+                ->options(array_intersect_key(LinkableRecordsets::options(), array_flip($this->relatedRecordsets())))
+                ->multiple()
+                ->query(fn (Builder $query, array $data): Builder => filled($data['values'] ?? null)
+                    ? $query->whereHas('recordLinks', fn (Builder $links): Builder => $links
+                        ->where('field', $this->name)
+                        ->whereIn('target_type', $data['values']))
+                    : $query),
+            // No files is stored as null (StoredFileIds), so "has files" is a
+            // plain null check.
+            $this->type === FieldType::File => TernaryFilter::make($this->name)
+                ->queries(
+                    true: fn (Builder $query): Builder => $query->whereNotNull($this->name),
+                    false: fn (Builder $query): Builder => $query->whereNull($this->name),
+                ),
+            $this->type === FieldType::Collection => $this->collectionFilter(),
             default => $this->containsFilter(),
         };
 
@@ -936,9 +1755,10 @@ class Field
      * A value from the activity log as the View page shows it — the status's
      * name rather than its number, the contact's name rather than its id —
      * for the History addon, which has nothing but what was logged. Dates use
-     * the table's formats, as a list column does.
+     * the table's formats, as a list column does, or Filament's defaults with
+     * no table (a collection item's one-line summary).
      */
-    public function formatLoggedValue(mixed $value, Table $table): string
+    public function formatLoggedValue(mixed $value, ?Table $table = null): string
     {
         if ($value === null || $value === '' || $value === []) {
             return '-';
@@ -957,9 +1777,11 @@ class Field
             FieldType::Relation => $this->loggedRelatedTitle($value),
             // A date is logged either as it was typed or as midnight UTC:
             // either way it is the day that was meant, so no time zone shift.
-            FieldType::Date => Carbon::parse($value)->translatedFormat($table->getDefaultDateDisplayFormat()),
-            FieldType::DateTime => Carbon::parse($value)->setTimezone(FilamentTimezone::get())->translatedFormat($table->getDefaultDateTimeDisplayFormat()),
-            FieldType::Time => Carbon::parse($value)->translatedFormat($table->getDefaultTimeDisplayFormat()),
+            FieldType::Date => Carbon::parse($value)->translatedFormat($table?->getDefaultDateDisplayFormat() ?? 'M j, Y'),
+            FieldType::DateTime => Carbon::parse($value)->setTimezone(FilamentTimezone::get())->translatedFormat($table?->getDefaultDateTimeDisplayFormat() ?? 'M j, Y H:i:s'),
+            FieldType::Time => Carbon::parse($value)->translatedFormat($table?->getDefaultTimeDisplayFormat() ?? 'H:i:s'),
+            // The items' one-line summaries, as logged.
+            FieldType::Collection => implode('; ', (array) $value),
             default => is_array($value) ? implode(', ', $value) : (string) $value,
         };
     }
@@ -976,6 +1798,14 @@ class Field
             $change = ($this->historyUsing)($old, $new, $entry, $whole);
 
             return $change === null ? null : new HtmlString($change instanceof Htmlable ? $change->toHtml() : $change);
+        }
+
+        if ($this->type === FieldType::File) {
+            return $this->loggedFileChange($old, $new, (array) $entry->properties->get('file_names', []));
+        }
+
+        if ($this->type === FieldType::Collection) {
+            return $this->loggedCollectionChange($old, $new, $entry);
         }
 
         if ($this->type !== FieldType::LongText) {
@@ -1004,6 +1834,39 @@ class Field
         }
 
         return new HtmlString($this->richText ? Str::sanitizeHtml((string) $value) : nl2br(e((string) $value)));
+    }
+
+    /**
+     * A change of a file field: the files taken off, struck through, and the
+     * ones added, by the names logged with the change (HasFileFields'
+     * tapActivity()) — a file taken off is deleted straight after, name and
+     * all. The same look as a note's files in its History.
+     *
+     * @param  array<int|string, string>  $names  id => name
+     */
+    protected function loggedFileChange(mixed $old, mixed $new, array $names): ?HtmlString
+    {
+        $old = StoredFileIds::decode($old);
+        $new = StoredFileIds::decode($new);
+        $removed = array_diff($old, $new);
+        $added = array_diff($new, $old);
+
+        if ($removed === [] && $added === []) {
+            return null;
+        }
+
+        $unnamed = array_diff([...$removed, ...$added], array_map('strval', array_keys($names)));
+
+        if ($unnamed !== []) {
+            $names += StoredFile::query()->whereKey($unnamed)->pluck('name', 'id')->all();
+        }
+
+        $name = fn (string $id): string => e($names[$id] ?? __('deleted file'));
+
+        return new HtmlString(implode(' ', [
+            ...array_map(fn (string $id): string => '<del class="epesi-history-old">− '.$name($id).'</del>', $removed),
+            ...array_map(fn (string $id): string => '<ins class="epesi-history-new">+ '.$name($id).'</ins>', $added),
+        ]));
     }
 
     protected function loggedText(mixed $value): string
@@ -1051,11 +1914,50 @@ class Field
         return (string) ($resource ? $resource::getRecordTitle($related) : $related->getAttribute($this->relatedTitleAttribute()));
     }
 
+    // --------------------------------------------------------------- Autonumber --
+
+    /**
+     * "$prefix" plus the key padded to $padLength with $padMask — legacy's
+     * `format_autonumber_str()`. A null key (an unsaved record) pads with
+     * "?" instead, exactly as legacy does, rather than a real digit that
+     * doesn't exist yet.
+     */
+    public function formatAutonumber(int|string|null $id): string
+    {
+        $prefix = (string) $this->getParam('prefix', '');
+        $padLength = (int) $this->getParam('pad_length', 0);
+        $padMask = $id === null ? '?' : (string) $this->getParam('pad_mask', '0');
+
+        return $prefix.str_pad((string) $id, $padLength, $padMask, STR_PAD_LEFT);
+    }
+
+    /**
+     * The record key a formatted number reads back to, or null when $search
+     * doesn't look like one of this field's numbers — used to make the table
+     * column searchable despite holding no real column to search.
+     */
+    protected function autonumberId(string $search): ?int
+    {
+        $prefix = (string) $this->getParam('prefix', '');
+        $padMask = (string) $this->getParam('pad_mask', '0');
+        $pattern = '/^'.preg_quote($prefix, '/').preg_quote($padMask, '/').'*(\d+)$/';
+
+        return preg_match($pattern, trim($search), $matches) ? (int) $matches[1] : null;
+    }
+
     // ------------------------------------------------------------- Helpers --
 
     protected function lengthParam(): int
     {
         return (int) $this->getParam('length', 255);
+    }
+
+    /** Null for every minute, Filament's own default. */
+    protected function minutesStepParam(): ?int
+    {
+        $step = (int) $this->getParam('minutes_step', 0);
+
+        return $step > 1 ? $step : null;
     }
 
     /**

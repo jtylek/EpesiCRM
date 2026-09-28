@@ -101,8 +101,8 @@ Every model opts in with a `HasCustomFields` concern, and administrator-added fi
 reach its forms, tables, infolists and history through the same code path a shipped field
 takes. A recordset built on `RecordsetResource` gets this from `fields()` and needs nothing
 else; the concern is also what lets a model that is *not* yet on the engine still carry
-custom fields. See [Custom-fields.md](Custom-fields.md) for how an administrator adds, edits
-and removes one from Administration → Fields.
+custom fields. See [Epesi-custom-fields.md](Epesi-custom-fields.md#part-2--custom-fields) for
+how an administrator adds, edits and removes one from Administration → Fields.
 
 ## General code style
 

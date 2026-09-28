@@ -59,7 +59,39 @@
                         this.broken = !(frame.contentWindow.rcmail || frame.contentWindow.epesiRoundcube);
                     } catch (e) {
                         this.broken = false;
+                        return;
                     }
+
+                    if (!this.broken) {
+                        this.bridgeCommandPalette(frame);
+                    }
+                },
+                {{--
+                    A keydown inside the frame's own document never reaches
+                    window.top, so the "/" quick switcher (command-palette.
+                    blade.php) needs its own copy of the same guard here, and
+                    forwards to the same open-modal event it listens for. A
+                    fresh frame document (every reload) needs this again.
+                --}}
+                bridgeCommandPalette(frame) {
+                    frame.contentWindow.addEventListener('keydown', (event) => {
+                        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
+                            return;
+                        }
+
+                        const target = frame.contentDocument.activeElement;
+
+                        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName) || target?.isContentEditable) {
+                            return;
+                        }
+
+                        if (document.querySelector('.fi-modal.fi-modal-open')) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        window.dispatchEvent(new CustomEvent('open-modal', { detail: { id: 'command-palette' } }));
+                    });
                 },
                 load(url) {
                     this.colorMode(this.$store.theme);

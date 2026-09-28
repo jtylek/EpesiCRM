@@ -43,8 +43,13 @@ class ImportLegacyData extends Command
 
     protected $description = 'Import records and edit history from the legacy Epesi database';
 
-    /** @var array<string, class-string> in required dependency order */
-    private const IMPORTERS = [
+    /**
+     * In required dependency order. Public for LegacyRecordRefs, which reads
+     * which legacy tab became which model from the importers.
+     *
+     * @var array<string, class-string>
+     */
+    public const IMPORTERS = [
         'users' => UsersImporter::class,
         'companies' => CompaniesImporter::class,
         'contacts' => ContactsImporter::class,

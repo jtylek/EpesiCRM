@@ -1,22 +1,9 @@
-# Menu & search
+# Navigation groups
 
-The sidebar has two ways to find a page as the number of modules grows: a "/" quick switcher
-that jumps straight to any page by name, and navigation groups that fold related pages under
-one collapsible heading instead of listing every one flat.
+The sidebar folds related pages under one collapsible heading instead of listing every one
+flat, once there's enough of them.
 
-## Quick switcher ("/")
-
-Pressing `/` anywhere in the main panel (unless a field already has focus) opens a centered
-"Jump to…" modal: type a few letters of a sidebar item's label, arrow through the matches,
-Enter navigates. `resources/views/filament/components/command-palette.blade.php`, wired in
-through `MainPanelProvider`'s `BODY_END` render hook. The item list is
-`Filament::getNavigation()` flattened across every group, so it needs nothing when a resource,
-page or navigation group is added — the same list the sidebar itself renders from.
-
-## Navigation groups
-
-A resource or page joins a named group in the sidebar with Filament's own
-`$navigationGroup`:
+A resource or page joins a named group with Filament's own `$navigationGroup`:
 
 ```php
 protected static string|UnitEnum|null $navigationGroup = 'CRM';

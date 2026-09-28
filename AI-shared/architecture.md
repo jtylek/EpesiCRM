@@ -66,13 +66,17 @@ management, and role administration.
 
 ## Full screen and SPA mode
 
-The main panel's top bar has a full-screen button left of the notifications bell
-(`resources/views/filament/components/fullscreen-toggle.blade.php`): the browser's Fullscreen
-API, what F11 does. A browser leaves that full screen on every page load, so the main panel runs
-in Filament's **SPA mode** (`->spa()` in `MainPanelProvider`): a click swaps the page's content
-through Livewire's `wire:navigate` and the document stays. Links into the other panels
-(Administration, user settings, setup) still load in full: SPA mode never removes a stylesheet
-it has loaded, and theirs differ from the main panel's.
+The main panel's top bar has back/forward buttons after the search box
+(`resources/views/filament/components/history-navigation.blade.php`, plain
+`window.history.back()`/`forward()`) and a full-screen button next to those, left of the
+notifications bell (`fullscreen-toggle.blade.php`): the browser's Fullscreen API, what F11 does.
+Real full screen
+hides the browser's own chrome, taking its address bar and back/forward buttons with it, which
+is why the top bar carries its own. A browser leaves full screen on every page load, so the main
+panel runs in Filament's **SPA mode** (`->spa()` in `MainPanelProvider`): a click swaps the
+page's content through Livewire's `wire:navigate` and the document stays. Links into the other
+panels (Administration, user settings, setup) still load in full: SPA mode never removes a
+stylesheet it has loaded, and theirs differ from the main panel's.
 
 What this asks of code in the main panel:
 

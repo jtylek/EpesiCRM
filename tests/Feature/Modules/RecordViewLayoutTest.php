@@ -26,13 +26,16 @@ class RecordViewLayoutTest extends TestCase
 
         $html = $this->get(ViewContact::getUrl(['record' => $contact]))->assertOk()->getContent();
 
-        // 11 ordinary fields make a run of 6 rows; the Address section's 6 make 3.
+        // 11 ordinary fields make a run of 6 rows; Memo and Addresses span
+        // both columns.
         preg_match_all('/class="rb-column-flow" style="--rb-rows: (\d+)"/', $html, $runs);
-        $this->assertSame(['6', '3'], $runs[1]);
+        $this->assertSame(['6'], $runs[1]);
 
         // Memo spans both columns, so it sits after the first run, not in it.
         $firstRun = strpos($html, 'rb-column-flow');
         $this->assertGreaterThan(strpos($html, 'Permission', $firstRun), strpos($html, 'Memo', $firstRun));
-        $this->assertLessThan(strpos($html, 'Address 1', $firstRun), strpos($html, 'Memo', $firstRun));
+        // The Addresses entry's label, not Mail's MailAddressesRelationManager.
+        preg_match('/>\s*Addresses\s*</', $html, $addresses, PREG_OFFSET_CAPTURE, $firstRun);
+        $this->assertLessThan($addresses[0][1], strpos($html, 'Memo', $firstRun));
     }
 }

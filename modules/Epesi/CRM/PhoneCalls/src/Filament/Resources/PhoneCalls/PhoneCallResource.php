@@ -100,6 +100,9 @@ class PhoneCallResource extends RecordsetResource
             Field::relations('employees', Contact::class)
                 ->required()
                 ->crits(fn (Builder $query): Builder => $query->ofCompany(auth()->user()?->companyId())),
+            // Any other record the call is about — Epesi's `__RECORDSETS__`
+            // Related field.
+            Field::related('related')->label('Related'),
 
             StatusField::make(),
             Field::select('priority', RecordPriority::class)

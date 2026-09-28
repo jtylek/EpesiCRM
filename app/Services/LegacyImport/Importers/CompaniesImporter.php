@@ -6,6 +6,7 @@ use App\Enums\RecordPermission;
 use App\Services\LegacyImport\Importer;
 use App\Services\LegacyImport\LegacyValue;
 use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\RecordBrowser\Models\Address;
 
 /**
  * Legacy `company` recordset (CRM_ContactsInstall::install()'s company
@@ -54,6 +55,28 @@ class CompaniesImporter extends Importer
             'postal_code' => 'postal_code',
             'tax_id' => 'tax_id',
         ];
+    }
+
+    /** The address is an item of the Addresses collection now, not columns. */
+    protected function historyOnlyColumns(): array
+    {
+        return ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
+    }
+
+    /**
+     * The address as a Business item, when it has a street, a city or a
+     * postal code (Address::isAddress()).
+     */
+    protected function collections(object $row): array
+    {
+        $address = [];
+
+        foreach ($this->historyOnlyColumns() as $column) {
+            $value = trim((string) ($row->{"f_{$column}"} ?? ''));
+            $address[$column] = $value === '' ? null : $value;
+        }
+
+        return ['addresses' => Address::isAddress($address) ? [['kind' => 'business', ...$address]] : []];
     }
 
     protected function decodeTrackedValue(string $legacyField, ?string $raw): array

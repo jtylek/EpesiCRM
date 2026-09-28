@@ -5,6 +5,7 @@ namespace Epesi\Modules\Mail\Filament\Resources\Mails;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -72,6 +73,14 @@ class MailTable
         return [
             SelectFilter::make('direction')
                 ->options([Mail::INCOMING => __('Received'), Mail::OUTGOING => 'Sent']),
+            // Any part of the sender: a name or an address. Not a list of
+            // senders to pick from, since one person's "Name <address>" comes
+            // in as many forms as their mail clients write it.
+            Filter::make('sender')
+                ->schema([TextInput::make('from')->label('From')])
+                ->query(fn (Builder $query, array $data): Builder => $query
+                    ->when(filled($data['from'] ?? null), fn (Builder $q): Builder => $q->where('from', 'like', '%'.$data['from'].'%')))
+                ->indicateUsing(fn (array $data): ?string => filled($data['from'] ?? null) ? __('From').': '.$data['from'] : null),
             TernaryFilter::make('has_attachments')
                 ->label('Has attachments')
                 ->queries(

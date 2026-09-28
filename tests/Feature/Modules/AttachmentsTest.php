@@ -481,6 +481,7 @@ class AttachmentsTest extends TestCase
             ->assertSee('/attachments/'.$note->id.'/files/'.$doc->id.'/shared?', escape: false);
 
         $this->assertSame(1, substr_count($response->getContent(), 'title="View"'));
+        $this->assertSame(2, substr_count($response->getContent(), 'data-file-preview '), 'only the PDF opens in the pop-up: its name and View');
     }
 
     public function test_the_notes_tab_shows_a_files_count_badge_then_each_ones_chip(): void

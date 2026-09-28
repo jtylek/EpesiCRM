@@ -104,5 +104,7 @@ class TasksImporter extends Importer
             array_filter($customerRefs, fn (array $ref) => $ref['type'] === 'company')
         ));
         $model->customerCompanies()->sync($customerCompanyIds);
+
+        $this->importRelated($row, $model);
     }
 }

@@ -281,12 +281,10 @@ class DemoDataSeeder extends Seeder
             'company_name' => 'Acme Corp',
             'phone' => '+1 555 0100',
             'email' => 'hello@acme.test',
-            'city' => 'Springfield',
-            'country' => 'US',
             'groups' => ['manager'],
             'permission' => RecordPermission::Private,
             'created_by' => $admin->id,
-        ]);
+        ], ['city' => 'Springfield', 'country' => 'US']);
 
         $manager = $this->demoUser('Morgan Manager', 'manager@example.com');
         $manager->assignRole('manager');
@@ -320,12 +318,10 @@ class DemoDataSeeder extends Seeder
             'company_name' => 'Wayne Enterprises',
             'phone' => '+1 555 0142',
             'email' => 'contact@wayne.test',
-            'city' => 'Gotham',
-            'country' => 'US',
             'groups' => ['customer'],
             'permission' => RecordPermission::Private,
             'created_by' => $employee->id,
-        ]);
+        ], ['city' => 'Gotham', 'country' => 'US']);
 
         $bruce = $this->record(Contact::class, [
             'first_name' => 'Bruce',
@@ -334,12 +330,10 @@ class DemoDataSeeder extends Seeder
             'title' => 'CEO',
             'email' => 'bruce@wayne.test',
             'work_phone' => '+1 555 0199',
-            'city' => 'Gotham',
-            'country' => 'US',
             'groups' => ['customer'],
             'permission' => RecordPermission::PublicReadOnly,
             'created_by' => $employee->id,
-        ]);
+        ], ['city' => 'Gotham', 'country' => 'US']);
 
         // A public vendor anyone with panel access should see regardless of
         // who created it.
@@ -347,12 +341,10 @@ class DemoDataSeeder extends Seeder
             'company_name' => 'Stark Industries',
             'phone' => '+1 555 0175',
             'email' => 'sales@stark.test',
-            'city' => 'Malibu',
-            'country' => 'US',
             'groups' => ['vendor'],
             'permission' => RecordPermission::Public,
             'created_by' => $manager->id,
-        ]);
+        ], ['city' => 'Malibu', 'country' => 'US']);
 
         $tony = $this->record(Contact::class, [
             'first_name' => 'Tony',
@@ -481,6 +473,7 @@ class DemoDataSeeder extends Seeder
     protected function generate(array $users, array $staff): array
     {
         $companies = [];
+        $cities = [];
         $taken = [];
 
         foreach (range(1, self::COMPANIES) as $i) {
@@ -496,20 +489,27 @@ class DemoDataSeeder extends Seeder
             $name = $first.' '.$this->pick(self::COMPANY_KINDS);
             $domain = strtolower(str_replace(' ', '', $first)).'.test';
 
-            $companies[] = $this->record(Company::class, [
-                'company_name' => $name,
-                'short_name' => explode(' ', $name)[0],
-                'phone' => $this->phone($prefix),
-                'email' => 'office@'.$domain,
-                'web_address' => 'https://www.'.$domain,
+            // In the order the columns were once drawn in, so the fixed seed
+            // still gives the same demo data.
+            $phone = $this->phone($prefix);
+            $address = [
                 'address_1' => mt_rand(1, 180).' '.$this->pick(self::STREETS),
                 'city' => $city,
                 'postal_code' => sprintf('%05d', mt_rand(10000, 99999)),
                 'country' => $country,
+            ];
+
+            $companies[] = $company = $this->record(Company::class, [
+                'company_name' => $name,
+                'short_name' => explode(' ', $name)[0],
+                'phone' => $phone,
+                'email' => 'office@'.$domain,
+                'web_address' => 'https://www.'.$domain,
                 'groups' => [$this->pick(['customer', 'customer', 'customer', 'vendor', 'other'])],
                 'permission' => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::PublicReadOnly, RecordPermission::Private]),
                 'created_by' => $this->pick($users)->id,
-            ]);
+            ], $address);
+            $cities[$company->id] = [$city, $country];
         }
 
         $contacts = [];
@@ -531,20 +531,24 @@ class DemoDataSeeder extends Seeder
             }
             $emails[$email] = true;
 
-            $contacts[] = $this->record(Contact::class, [
+            // The company's city, else any, drawn where the column once was.
+            $attributes = [
                 'first_name' => $first,
                 'last_name' => $last,
                 'company_id' => $company?->id,
                 'title' => $this->pick(self::JOB_TITLES),
                 'email' => $email,
                 'work_phone' => $company?->phone,
-                'mobile_phone' => $this->phone($company ? $this->prefixOf($company->country) : '+1'),
-                'city' => $company?->city ?? $this->pick(self::CITIES)[0],
-                'country' => $company?->country ?? 'US',
+                'mobile_phone' => $this->phone($company ? $this->prefixOf($cities[$company->id][1]) : '+1'),
+            ];
+            [$city, $country] = $company ? $cities[$company->id] : [$this->pick(self::CITIES)[0], 'US'];
+
+            $contacts[] = $this->record(Contact::class, [
+                ...$attributes,
                 'groups' => ['customer'],
                 'permission' => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::PublicReadOnly, RecordPermission::Private]),
                 'created_by' => $this->pick($users)->id,
-            ]);
+            ], ['city' => $city, 'country' => $country]);
         }
 
         // Past work mostly done, upcoming work mostly open.
@@ -816,11 +820,19 @@ class DemoDataSeeder extends Seeder
      * @param  array<string, mixed>  $attributes
      * @return T
      */
-    protected function record(string $class, array $attributes): Model
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>|null  $address  the record's one address, a Business one (the Addresses collection)
+     */
+    protected function record(string $class, array $attributes, ?array $address = null): Model
     {
         $record = new $class;
         $record->forceFill($attributes)->save();
         DemoData::remember($record);
+
+        if ($address !== null) {
+            $record->syncCollection('addresses', [['kind' => 'business', ...$address]]);
+        }
 
         return $record;
     }

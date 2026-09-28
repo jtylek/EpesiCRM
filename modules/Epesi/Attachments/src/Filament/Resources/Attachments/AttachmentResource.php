@@ -5,6 +5,7 @@ namespace Epesi\Modules\Attachments\Filament\Resources\Attachments;
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
 use App\Services\FileStorage;
+use App\Support\Files\FileChip;
 use BackedEnum;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\CreateAttachment;
@@ -479,7 +480,8 @@ class AttachmentResource extends Resource
     }
 
     /**
-     * Searched on whatever the type's own resource searches globally.
+     * Searched on whatever the type's own resource searches globally, its own
+     * columns only: a dot path ("addresses.city") names a relation's.
      *
      * @return array<int|string, string>
      */
@@ -495,7 +497,9 @@ class AttachmentResource extends Resource
         return $class::query()
             ->where(function (Builder $query) use ($resource, $search): void {
                 foreach ($resource::getGloballySearchableAttributes() as $column) {
-                    $query->orWhere($column, 'like', "%{$search}%");
+                    if (! str_contains($column, '.')) {
+                        $query->orWhere($column, 'like', "%{$search}%");
+                    }
                 }
             })
             ->limit(25)
@@ -612,89 +616,45 @@ class AttachmentResource extends Resource
      * preview for a type isPreviewable() can render, a download otherwise —
      * same fallback the plain filename link always was), plus explicit
      * View/Download/Get link actions for anyone who wants a specific one.
-     * Epesi's Utils_FileStorage_FileLeightbox popup, as three inline icons
-     * instead of a popup.
+     * The chip itself is FileChip::render() — shared with the Mail archive,
+     * which serves the same StoredFile model behind its own download route.
      */
     protected static function fileChip(Attachment $record, StoredFile $file): string
     {
         $downloadUrl = route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey()]);
-        $markdown = static::isMarkdown($file);
-        $viewUrl = $markdown
-            ? route('epesi.attachments.markdown', ['attachment' => $record->getKey(), 'file' => $file->getKey()])
-            : route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey(), 'preview' => 1]);
-        $previewable = $markdown || $file->isPreviewable();
+        $viewUrl = match (true) {
+            static::isMarkdown($file) => route('epesi.attachments.markdown', ['attachment' => $record->getKey(), 'file' => $file->getKey()]),
+            $file->isPreviewable() => route('epesi.attachments.download', ['attachment' => $record->getKey(), 'file' => $file->getKey(), 'preview' => 1]),
+            default => null,
+        };
 
-        $actions = $previewable
-            ? sprintf('<a href="%s" target="_blank" class="epesi-file-action" title="%s">%s</a>', e($viewUrl), e(__('View')), static::icon('heroicon-o-eye'))
-            : '';
-        $actions .= sprintf('<a href="%s" target="_blank" class="epesi-file-action" title="%s">%s</a>', e($downloadUrl), e(__('Download')), static::icon('heroicon-o-arrow-down-tray'));
-        $actions .= static::shareLinkButton($record, $file);
-
-        return sprintf(
-            '<span class="epesi-file-chip">'
-            .'<a href="%s" target="_blank" class="epesi-file-badge" title="%s">%s<span>%s</span></a>'
-            .'<span class="epesi-file-actions">%s</span>'
-            .'</span>',
-            e($previewable ? $viewUrl : $downloadUrl),
-            e($file->name),
-            static::icon(static::fileIcon($file)),
-            e($file->name),
-            $actions,
-        );
+        return FileChip::render($file, $downloadUrl, $viewUrl, static::shareLinkButton($record, $file));
     }
 
     /**
      * "Get link": a signed URL good for whoever holds it, login or not, for
      * a week — for pasting into an e-mail or handing to someone outside the
      * CRM (SharedFileController, the `signed` route middleware is the only
-     * gate). Copies to the clipboard rather than navigating, since the
-     * point is to hand the URL to someone else, not open it here.
+     * gate). The button itself is FileChip::shareButton() — shared with the
+     * Mail archive's own "Get link", which signs the same download route
+     * instead of a route of its own (MailAttachment::shareUrl()).
      */
     protected static function shareLinkButton(Attachment $record, StoredFile $file): string
     {
-        $url = URL::temporarySignedRoute('epesi.attachments.shared', now()->addWeek(), [
+        return FileChip::shareButton(URL::temporarySignedRoute('epesi.attachments.shared', now()->addWeek(), [
             'attachment' => $record->getKey(),
             'file' => $file->getKey(),
-        ]);
-
-        $title = __('Get link (valid for 7 days)');
-        $onClick = sprintf(
-            'navigator.clipboard.writeText(this.dataset.url);this.title=%s;setTimeout(()=>this.title=this.dataset.title,1500)',
-            json_encode((string) __('Copied!')),
-        );
-
-        return sprintf(
-            '<button type="button" class="epesi-file-action" title="%s" data-title="%s" data-url="%s" onclick="%s">%s</button>',
-            e($title),
-            e($title),
-            e($url),
-            e($onClick),
-            static::icon('heroicon-o-link'),
-        );
+        ]));
     }
 
     protected static function icon(string $name): string
     {
-        return svg($name, 'w-4 h-4')->toHtml();
+        return FileChip::icon($name);
     }
 
     protected static function isMarkdown(StoredFile $file): bool
     {
         return in_array(strtolower(pathinfo($file->name, PATHINFO_EXTENSION)), ['md', 'markdown'], true);
-    }
-
-    protected static function fileIcon(StoredFile $file): string
-    {
-        $mime = (string) $file->mimeType();
-
-        return match (true) {
-            str_starts_with($mime, 'image/') => 'heroicon-o-photo',
-            str_starts_with($mime, 'video/') => 'heroicon-o-film',
-            str_starts_with($mime, 'audio/') => 'heroicon-o-musical-note',
-            $mime === 'application/pdf', str_starts_with($mime, 'text/') => 'heroicon-o-document-text',
-            in_array($mime, ['application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed'], true) => 'heroicon-o-archive-box',
-            default => 'heroicon-o-document',
-        };
     }
 
     /**

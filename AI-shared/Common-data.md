@@ -219,5 +219,5 @@ their enums are gone. Deliberately left as enums:
   Legacy also has zones for only four countries (US, CA, PL, RO), so Australia's list would
   disappear, and its Canadian codes differ (`LB`/`YK` against ISO `NL`/`YT`). Either adopt
   legacy's coding and migrate stored values, or correct the imported keys to ISO. Step 4 is what unblocks the `__COMMON__` third of every
-legacy `select` field — see the legacy parity section of
-[filament-fields.md](filament-fields.md).
+legacy `select` field — see
+[Epesi-custom-fields.md](Epesi-custom-fields.md#selects-across-several-recordsets).

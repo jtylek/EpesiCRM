@@ -3,13 +3,13 @@
 namespace Epesi\Modules\CRM\Companies\Filament\Resources\Companies;
 
 use App\Enums\RecordPermission;
-use App\Support\AddressFields;
 use BackedEnum;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\RelationManagers\ContactsRelationManager;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\RelationManagers\MeetingsRelationManager;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\RelationManagers\PhoneCallsRelationManager;
 use Epesi\Modules\CRM\Companies\Filament\Resources\Companies\RelationManagers\TasksRelationManager;
 use Epesi\Modules\CRM\Companies\Models\Company;
+use Epesi\Modules\RecordBrowser\Models\Address;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Forms\Components\TextInput;
@@ -58,7 +58,8 @@ class CompanyResource extends RecordsetResource
                 ->filterable(),
             Field::longText('memo'),
 
-            ...AddressFields::block(),
+            // Offices, billing, shipping: the list shows the first one's city.
+            Field::collection('addresses', Address::class)->inTable()->filterable(),
         ];
     }
 

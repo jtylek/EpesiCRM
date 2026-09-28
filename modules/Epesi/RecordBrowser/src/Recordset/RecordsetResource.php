@@ -305,20 +305,26 @@ abstract class RecordsetResource extends Resource
     /**
      * Filament's own default is `[$recordTitleAttribute]`; every searchable
      * field of the recordset is a better answer, and it is the nearest thing to
-     * Epesi's `recordbrowser_search_index` that costs nothing to maintain.
+     * Epesi's `recordbrowser_search_index` that costs nothing to maintain. A
+     * collection adds its items' searchable fields as dot paths
+     * ("addresses.city"), which Filament looks up through the collection's
+     * relation (HasCollections), so a record is found by any of its items.
      *
      * @return array<int, string>
      */
     public static function getGloballySearchableAttributes(): array
     {
-        $searchable = array_values(array_map(
-            fn (Field $field): string => $field->name,
-            array_filter(
-                static::resolvedFields(),
-                fn (Field $field): bool => ! $field->type->isRelational()
-                    && ($field->type->isTextual() || $field->type === FieldType::LongText),
-            ),
-        ));
+        $searchable = [];
+
+        foreach (static::resolvedFields() as $field) {
+            if ($field->type === FieldType::Collection) {
+                foreach ($field->collectionSearchColumns() as $column) {
+                    $searchable[] = "{$field->name}.{$column}";
+                }
+            } elseif (! $field->type->isRelational() && ($field->type->isTextual() || $field->type === FieldType::LongText)) {
+                $searchable[] = $field->name;
+            }
+        }
 
         return $searchable !== [] ? $searchable : parent::getGloballySearchableAttributes();
     }

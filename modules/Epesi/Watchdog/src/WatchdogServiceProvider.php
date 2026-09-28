@@ -79,6 +79,10 @@ class WatchdogServiceProvider extends ServiceProvider
             $page->dispatch('databaseNotificationsSent');
         }
 
+        if (! Watchdog::isToggleable($record)) {
+            return [];
+        }
+
         return [
             Action::make('watchdogToggle')
                 ->label(fn (): string => Watchdog::isSubscribed($user, $record) ? __('Watching') : __('Watch'))

@@ -48,12 +48,6 @@ class Company extends Model
         'memo',
         'groups',
         'permission',
-        'address_1',
-        'address_2',
-        'city',
-        'country',
-        'zone',
-        'postal_code',
         'tax_id',
     ];
 

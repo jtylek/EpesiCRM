@@ -14,7 +14,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * to anyone who may view the message. `?inline=1` is how the sandboxed body
  * viewer shows embedded images (via a signed URL, see MailAttachment::url()),
  * and is only honoured for raster images, so a crafted link can't make the
- * browser render an attached HTML or SVG file.
+ * browser render an attached HTML or SVG file. `?preview=1` is the
+ * Attachments list's "View" action — same StoredFile::isPreviewable() allow
+ * list the Notes tab uses, gated the normal way (session or signature, then
+ * the message's own visibility), not restricted to images.
  */
 class AttachmentController
 {
@@ -34,8 +37,10 @@ class AttachmentController
         $file = $message->attachments()->with('storedFile.content')->findOrFail($attachment);
         abort_unless($file->storedFile?->isOnDisk(), 404);
 
-        $inline = $request->boolean('inline') && str_starts_with((string) $file->mime_type, 'image/')
+        $embeddedImage = $request->boolean('inline') && str_starts_with((string) $file->mime_type, 'image/')
             && $file->mime_type !== 'image/svg+xml';
+        $preview = $request->boolean('preview') && $file->storedFile->isPreviewable();
+        $inline = $embeddedImage || $preview;
 
         return $file->storedFile->response($file->name, [
             'Content-Type' => $inline ? $file->mime_type : 'application/octet-stream',

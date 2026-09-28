@@ -49,15 +49,20 @@ class AttachmentsPlugin implements Plugin
                     .'.dark .epesi-note-meta-chip{background:color-mix(in oklab,var(--gray-500) 15%,transparent);box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--gray-400) 35%,transparent)}'
                     .'.epesi-note-meta-chip:hover{color:var(--primary-600)}'
                     .'.epesi-note-meta-chip svg{width:.75rem;height:.75rem}'
-                    .'.epesi-file-chip{display:inline-flex;align-items:center;gap:.375rem;margin:.125rem;padding:.125rem .5rem .125rem .375rem;border-radius:9999px;background:var(--gray-50);box-shadow:inset 0 0 0 1px var(--gray-300);font-size:.75rem;line-height:1.25rem;vertical-align:middle}'
-                    .'.dark .epesi-file-chip{background:color-mix(in oklab,var(--gray-500) 15%,transparent);box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--gray-400) 35%,transparent)}'
+                    // The colours of Filament's primary badge, as the "Linked
+                    // to" badges have (LinkedRecords), so a file stands out
+                    // as something to click in the same way.
+                    .'.epesi-file-chip{display:inline-flex;align-items:center;gap:.375rem;margin:.125rem;padding:.125rem .5rem .125rem .375rem;border-radius:9999px;background:var(--primary-50);box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--primary-600) 10%,transparent);color:var(--primary-700);font-size:.75rem;font-weight:500;line-height:1.25rem;vertical-align:middle}'
+                    .'.dark .epesi-file-chip{background:color-mix(in oklab,var(--primary-400) 10%,transparent);box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--primary-400) 30%,transparent);color:var(--primary-400)}'
                     .'.epesi-file-badge{display:inline-flex;align-items:center;gap:.375rem;color:inherit;text-decoration:none}'
-                    .'.epesi-file-badge:hover{color:var(--primary-600)}'
+                    .'.epesi-file-badge:hover span{text-decoration:underline}'
                     .'.epesi-file-badge svg{width:1rem;height:1rem;flex-shrink:0}'
-                    .'.epesi-file-actions{display:inline-flex;align-items:center;gap:.25rem;margin-inline-start:.25rem;padding-inline-start:.375rem;border-inline-start:1px solid var(--gray-300)}'
-                    .'.dark .epesi-file-actions{border-inline-start-color:color-mix(in oklab,var(--gray-500) 40%,transparent)}'
-                    .'.epesi-file-action{display:inline-flex;padding:0;border:0;background:none;color:var(--gray-400);cursor:pointer}'
-                    .'.epesi-file-action:hover{color:var(--primary-600)}'
+                    .'.epesi-file-actions{display:inline-flex;align-items:center;gap:.25rem;margin-inline-start:.25rem;padding-inline-start:.375rem;border-inline-start:1px solid color-mix(in oklab,var(--primary-600) 20%,transparent)}'
+                    .'.dark .epesi-file-actions{border-inline-start-color:color-mix(in oklab,var(--primary-400) 30%,transparent)}'
+                    .'.epesi-file-action{display:inline-flex;padding:0;border:0;background:none;color:color-mix(in oklab,var(--primary-700) 55%,transparent);cursor:pointer}'
+                    .'.epesi-file-action:hover{color:var(--primary-700)}'
+                    .'.dark .epesi-file-action{color:color-mix(in oklab,var(--primary-400) 60%,transparent)}'
+                    .'.dark .epesi-file-action:hover{color:var(--primary-300)}'
                     .'.epesi-file-action svg{width:1rem;height:1rem}'
                     .'</style>'),
             );

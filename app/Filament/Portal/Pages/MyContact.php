@@ -5,9 +5,9 @@ namespace App\Filament\Portal\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
-use App\Support\AddressFields;
 use BackedEnum;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Models\Address;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -93,9 +93,11 @@ class MyContact extends Page
                         // that build for the final render, so a plain value
                         // captured here would still show what $this->contact
                         // held before save()'s update() changed it, not after.
+                        // A collection reads its items off the record itself.
                         ...array_map(
-                            fn (Field $field): mixed => $field->toInfolistEntry()
-                                ->state(fn (): mixed => $this->contact->getAttribute($field->name))
+                            fn (Field $field): mixed => ($field->type->hasColumn()
+                                ? $field->toInfolistEntry()->state(fn (): mixed => $this->contact->getAttribute($field->name))
+                                : $field->toInfolistEntry())
                                 ->visible(fn (): bool => ! $this->editing),
                             $this->fields(),
                         ),
@@ -110,7 +112,9 @@ class MyContact extends Page
     {
         $field = fn (Field $field): mixed => $field->toFormComponent();
 
+        // The record, so the addresses load from and save to it.
         return $schema
+            ->model($this->contact)
             ->statePath('data')
             ->columns(2)
             ->components(array_map($field, $this->fields()));
@@ -132,17 +136,22 @@ class MyContact extends Page
                 ->formUsing(fn (TextInput $component): TextInput => $component
                     ->unique(table: 'contacts', column: 'email', ignorable: $this->contact)),
             Field::url('web_address')->label('Web Address')->maxLength(64),
-            ...AddressFields::block(collapsible: true),
-            ...AddressFields::block('home_', 'Home Address', collapsible: true, collapsed: true),
+            Field::collection('addresses', Address::class),
         ];
     }
 
     /**
+     * The fields held in the contact's own columns: the form fills and saves
+     * the addresses itself.
+     *
      * @return array<int, string>
      */
     protected function fieldNames(): array
     {
-        return array_map(fn (Field $field): string => $field->name, $this->fields());
+        return array_values(array_map(
+            fn (Field $field): string => $field->name,
+            array_filter($this->fields(), fn (Field $field): bool => $field->type->hasColumn()),
+        ));
     }
 
     /**

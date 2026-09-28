@@ -9,11 +9,15 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * The value is what `custom_fields.type` stores for an administrator-added
  * field, so renaming a case is a stored-data change and needs a migration.
  *
- * Deliberately smaller than Epesi's list: `currency` collapses into Decimal
- * (Epesi's 128-char encoded string is not worth reproducing), `calculated` is
- * an Eloquent accessor and so is code-only, `hidden` is `->onlyInTable()`/
- * `active = false`, and `page_split` is `Field::section()`. `commondata` and
- * `file` wait on a reference-data store and a disk convention respectively.
+ * Some of Epesi's types aren't cases here: `hidden` is `->onlyInTable()`/
+ * `active = false`, and `page_split` is `Field::section()`. `currency` and
+ * `calculated` have no equivalent yet — Decimal drops a currency value's
+ * currency, and an accessor-backed field has no column to sort or search on.
+ * A select over several named recordsets (`contact,company`) becomes one
+ * Relation(s) field per target; one over any recordset (`__RECORDSETS__`) is
+ * Related. Collection has no legacy counterpart: what a record has none or
+ * many of (its addresses), kept in a table of its own per collection type.
+ * See AI-shared/Epesi-custom-fields.md.
  */
 enum FieldType: string
 {
@@ -33,6 +37,10 @@ enum FieldType: string
     case Email = 'email';
     case Url = 'url';
     case Phone = 'phone';
+    case Autonumber = 'autonumber';
+    case File = 'file';
+    case Related = 'related';
+    case Collection = 'collection';
 
     public function label(): string
     {
@@ -53,6 +61,10 @@ enum FieldType: string
             self::Email => __('E-mail'),
             self::Url => __('Web address'),
             self::Phone => __('Phone number'),
+            self::Autonumber => __('Automatic number'),
+            self::File => __('File'),
+            self::Related => __('Link to any record'),
+            self::Collection => __('Collection'),
         };
     }
 
@@ -80,21 +92,41 @@ enum FieldType: string
      */
     public function isMultiple(): bool
     {
-        return in_array($this, [self::Multiselect, self::Relations], true);
+        return in_array($this, [self::Multiselect, self::Relations, self::Related, self::Collection], true);
     }
 
     /**
-     * Types an administrator may add from the GUI. Relations are excluded in
-     * v1: picking a target recordset needs a model chooser and a foreign key
-     * that survives the target being uninstalled, which is its own piece of
-     * work — a module declaring `Field::relation()` in code is unaffected.
-     *
-     * CommonData is excluded for the same shape of reason: the field is
-     * meaningless without an array to point at, and offering the type before
-     * the form can offer that picker would only produce empty selects.
+     * Whether the value is a column on the record's own table — not for a
+     * value derived from the key (Autonumber), nor for links kept elsewhere: a
+     * pivot, or for an administrator's field the shared link table
+     * (Relations), or that table (Related), nor for a collection's items, rows
+     * of the collection type's own table.
+     */
+    public function hasColumn(): bool
+    {
+        return ! in_array($this, [self::Autonumber, self::Relations, self::Related, self::Collection], true);
+    }
+
+    /**
+     * Types a collection item (an address) can take, for the fields an
+     * administrator adds to one: a value in a column of the item's own table.
+     * Not a link, a file or a number derived from the key, which need a
+     * record of their own to hang on, and not a collection inside a
+     * collection.
+     */
+    public function fitsCollectionItem(): bool
+    {
+        return ! in_array($this, [self::Relation, self::Relations, self::Related, self::File, self::Autonumber, self::Collection], true);
+    }
+
+    /**
+     * Types an administrator may add from the GUI — every one, since the
+     * form picks a link field's target recordset, a shared list's array and a
+     * collection's type. Kept as the one place to withhold a type that a form
+     * can't offer yet.
      */
     public function isAdministratorDefinable(): bool
     {
-        return ! $this->isRelational() && $this !== self::CommonData;
+        return true;
     }
 }

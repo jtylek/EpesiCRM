@@ -10,9 +10,10 @@ use Tests\Concerns\SignsInUsers;
 use Tests\TestCase;
 
 /**
- * epesi without the address bar: the top bar's full-screen button, which
- * lasts across clicks because the main panel runs in SPA mode (a browser
- * leaves full screen on every page load), and the web app manifest, which
+ * epesi without the address bar: the top bar's back/forward and full-screen
+ * buttons, which last across clicks because the main panel runs in SPA mode
+ * (a browser leaves full screen on every page load and real full screen
+ * takes the browser's own chrome with it), and the web app manifest, which
  * lets the browser install epesi as an app in a window of its own.
  */
 class FullScreenTest extends TestCase
@@ -36,6 +37,25 @@ class FullScreenTest extends TestCase
             ->assertOk()
             ->assertSee('document.documentElement.requestFullscreen()', false)
             ->assertSee('Exit full screen');
+    }
+
+    public function test_the_top_bar_has_back_and_forward_buttons(): void
+    {
+        $this->actingAs($this->userWithRole('employee'))
+            ->get('/')
+            ->assertOk()
+            ->assertSee('window.history.back()', false)
+            ->assertSee('window.history.forward()', false)
+            ->assertSee('Back')
+            ->assertSee('Forward');
+    }
+
+    public function test_backspace_goes_back(): void
+    {
+        $this->actingAs($this->userWithRole('employee'))
+            ->get('/')
+            ->assertOk()
+            ->assertSee("event.key !== 'Backspace'", false);
     }
 
     public function test_links_stay_in_the_page_except_into_another_panel(): void

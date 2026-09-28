@@ -32,11 +32,6 @@ removed, or its purpose changes.
   machine, Administration → Cron, the traps (`proc_open` under `schedule:run`, stale locks,
   maintenance mode), adding and testing a task in a module, the files, and how Epesi's
   `cron.php` maps here.
-- [Custom-fields.md](Custom-fields.md) — administrator-added fields on any recordset
-  (Administration → Fields): why each one is a real database column rather than a JSON blob or
-  EAV, adding/editing/removing a field from the browser, turning a field off versus dropping its
-  column and data, "Repair columns", the per-recordset field limit, and the types withheld from
-  the admin screen (relations, shared lists).
 - [Customer-portal.md](Customer-portal.md) — the beginning of a customer portal: a separate
   panel (`/portal`) where a login with the `customer` role sees only its own contact. Covers
   why it isn't the main panel with one more role, the page that opens in View mode and edits
@@ -55,6 +50,20 @@ removed, or its purpose changes.
   under `Epesi/CRM`: what a CRM module owns, how a recordset is declared, the escape hatches
   the `Field` DSL needed and why, the traps that come with models living outside `app/`, and
   how to verify a recordset without a test suite.
+- [Epesi-custom-fields.md](Epesi-custom-fields.md) — everything about a recordset's fields,
+  in four parts and a plan:
+  - the `Field` DSL and its `FieldType` enum, the components Filament ships and how the DSL
+    maps onto them, and which of the two to extend when a type is missing;
+  - custom fields (Administration → Fields): why each one is a real column, adding, editing and
+    removing one, Active against Drop column, Repair columns, the field limit and the types
+    offered;
+  - legacy Epesi's field types against the port's: `file`, "link to any record" with its shared
+    link table, the missing `currency` and `calculated`, the add-field screen, and the closed
+    enum;
+  - collections and related records: addresses, phone numbers (with the messengers on each),
+    e-mail addresses and online accounts as collections a record owns, a tab on each record for
+    every recordset that links to it, and the minimal record they allow;
+  - an eleven-step plan, with its progress.
 - [Epesi-Laravel-Roundcube.md](Epesi-Laravel-Roundcube.md) — the design for embedding the
   Roundcube webmail as a full IMAP client (the `Epesi/Roundcube` module): downloading and
   upgrading Roundcube, why it lives in `storage/`, the generated config, single sign-on through one-time tickets, the
@@ -74,15 +83,24 @@ removed, or its purpose changes.
   adding a language with `lang:import-epesi`, the tests that catch untranslated strings, the
   Administration → Translations page for custom translations, and the problems found and
   fixed while building it.
-- [Menu-Search.md](Menu-Search.md) — the sidebar's "/" quick switcher (jump to any page by
-  name) and its navigation groups: how a resource or page joins one (`$navigationGroup`),
-  why there's no central registry, the CRM group as the working example, the icon constraint
-  (a group or its items can have icons, never both), and the compact spacing between groups.
+- [Keyboard-shortcuts.md](Keyboard-shortcuts.md) — how to use every keyboard shortcut in the
+  main panel: `/` for the quick switcher (jump to any page by name, bridged in from inside
+  Roundcube's iframe too), Backspace to go back a page, and — once a List page is open —
+  A/F/R for its tabs, S to search, N for a new record, ↑/↓/PageUp/PageDown/Enter for its rows,
+  and search's own Enter landing on the first result row with no Tab needed. Also Ctrl/Cmd+S
+  to save and Escape to cancel on a Create or Edit page (the former is Filament's own default,
+  the latter isn't), and a Create page's first field focused on load. The reference table up
+  top, the mechanics (and the guard every one of them shares, bar one exception) after, and
+  the shape a new one follows.
 - [Mail-server-settings.md](Mail-server-settings.md) — Administration → Mail Server (legacy's
   Mail server settings): the `.env` keys and the one class that writes them, "This server's mail
   system" as php.ini's mail settings (a Windows XAMPP PC reaching Papercut), the Test button,
   a new user or Reset Password left blank e-mailing a link to choose a password, trying it on a
   Windows PC, and what isn't done.
+- [Navigation-groups.md](Navigation-groups.md) — folding related sidebar pages under one
+  collapsible heading: how a resource or page joins one (`$navigationGroup`), why there's no
+  central registry, the CRM group as the working example, the icon constraint (a group or its
+  items can have icons, never both), and the compact spacing between groups.
 - [Notes-Files-storage.md](Notes-Files-storage.md) — the files on a note (the `Epesi/Attachments`
   module): kept once in the shared file storage, the pill per file with its View, Download and
   Get link buttons, the two routes (signed-in download and preview, and the signed link that
@@ -112,11 +130,6 @@ removed, or its purpose changes.
   - how the bell and the Watched page share one read state: Watchdog's subclass of
     Filament's bell, why it is set in the plugin's `boot()`, and the refresh events;
   - making a record type watchable, and what isn't covered.
-- [filament-fields.md](filament-fields.md) — the field types Filament actually ships (form,
-  layout, infolist, table), how they are extended, and how the RecordBrowser `Field` DSL and
-  its `FieldType` enum map onto them; which of the two to extend when a field type is
-  missing; and a legacy-parity pass naming every Epesi field type that is done, that still
-  needs building, and why a closed enum blocks module-provided types.
 - [Epesi-Moonshine-Laravel.md](Epesi-Moonshine-Laravel.md) — evaluation of MoonShine as an
   alternative to Filament, and the phased plan that would get there: where it genuinely fits
   Epesi's engine, where it doesn't, and why the `Field` DSL is what makes the question

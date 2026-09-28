@@ -129,5 +129,7 @@ class PhoneCallsImporter extends Importer
         ));
 
         $model->employees()->sync($employeeIds);
+
+        $this->importRelated($row, $model);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\RecordBrowser\Console;
 
+use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
@@ -78,6 +79,33 @@ class RecordsetCheckCommand extends Command
         foreach ($resource::fields() as $field) {
             $displayed[] = $field->getStateName();
 
+            // Derived from the key, not stored — no column to be missing.
+            if ($field->type === FieldType::Autonumber) {
+                continue;
+            }
+
+            // Kept in the shared link table, which the model reaches through
+            // HasRecordLinks (HasCustomFields brings it).
+            if ($field->type === FieldType::Related) {
+                if (! method_exists($model, 'recordLinks')) {
+                    $this->components->twoColumnDetail(
+                        "{$resource}::fields() {$field->name}",
+                        '<fg=red>a "link to any record" field needs the model using HasRecordLinks (or HasCustomFields)</>',
+                    );
+                    $problems++;
+                }
+
+                continue;
+            }
+
+            // Its items are rows of the collection type's own table, which
+            // the model reaches through HasCollections.
+            if ($field->type === FieldType::Collection) {
+                $problems += $this->checkCollection($resource, $model, $field);
+
+                continue;
+            }
+
             // A belongsToMany has no column of its own; the pivot is its
             // storage, and a missing relationship shows up as an Eloquent
             // error long before this would help.
@@ -100,10 +128,75 @@ class RecordsetCheckCommand extends Command
                 );
                 $problems++;
             }
+
+            // Without the cast the column isn't recognised as holding files:
+            // they're never released, and the download route won't serve them.
+            if ($field->type === FieldType::File
+                && (($model->getCasts()[$field->name] ?? null) !== StoredFileIds::class || ! method_exists($model, 'fileColumns'))) {
+                $this->components->twoColumnDetail(
+                    "{$resource}::fields() {$field->name}",
+                    '<fg=red>a file field needs the column cast to StoredFileIds and the model using HasFileFields (or HasCustomFields)</>',
+                );
+                $problems++;
+            }
         }
 
         if ($this->option('strict')) {
             $problems += $this->reportUndisplayedColumns($resource, $table, $columns, $displayed);
+        }
+
+        return $problems;
+    }
+
+    /**
+     * A collection field needs the model using HasCollections, and its type
+     * a table holding every field it declares.
+     *
+     * @param  class-string<RecordsetResource>  $resource
+     */
+    protected function checkCollection(string $resource, Model $model, Field $field): int
+    {
+        $problems = 0;
+        $type = $field->collectionType();
+
+        if (! method_exists($model, 'syncCollection')) {
+            $this->components->twoColumnDetail(
+                "{$resource}::fields() {$field->name}",
+                '<fg=red>a collection field needs the model using HasCollections (or HasCustomFields)</>',
+            );
+            $problems++;
+        }
+
+        if ($type === null) {
+            $this->components->twoColumnDetail(
+                "{$resource}::fields() {$field->name}",
+                '<fg=red>its collection type is not a CollectionItem in the morph map</>',
+            );
+
+            return $problems + 1;
+        }
+
+        $table = (new $type)->getTable();
+
+        if (! Schema::hasTable($table)) {
+            $this->components->twoColumnDetail(
+                "{$resource}::fields() {$field->name}",
+                "<fg=red>no table `{$table}` for {$type} — is the migration missing?</>",
+            );
+
+            return $problems + 1;
+        }
+
+        $columns = Schema::getColumnListing($table);
+
+        foreach (['owner_type', 'owner_id', 'field', 'kind', 'position', ...array_map(fn (Field $one): string => $one->name, array_filter($type::fields(), fn (Field $one): bool => $one->type->hasColumn()))] as $column) {
+            if (! in_array($column, $columns, true)) {
+                $this->components->twoColumnDetail(
+                    "{$type}::fields() {$column}",
+                    "<fg=red>no column `{$table}`.`{$column}` — is the migration missing?</>",
+                );
+                $problems++;
+            }
         }
 
         return $problems;

@@ -205,7 +205,7 @@ The steps shipped today:
 
 | Key | Module | Page | What it saves |
 |---|---|---|---|
-| `contacts-your-company` | CRM/Contacts (order 10) | **Your company**: company name, short name, your first and last name (prefilled from the administrator's name, split at the last space), then address, country, state, phone, fax, web address | a public Company, and the administrator's own Contact in it with their e-mail and `user_id`, which is what links the login to a person (`User::contact()`) |
+| `contacts-your-company` | CRM/Contacts (order 10) | **Your company**: company name, short name, your first and last name (prefilled from the administrator's name, split at the last space), then address, country, state, phone, fax, web address | a public Company, and the administrator's own Contact in it with their e-mail and `user_id`, which is what links the login to a person (`User::contact()`); the address, when it has a street, city or postal code, becomes a Business address of both |
 | `regional-settings-defaults` | RegionalSettings (order 20) | **Regional settings**: language, timezone, date format, time format, country, state | the system-wide defaults (the `epesi_regional_settings` row with no user), and the same values as the administrator's own settings. New users start from the defaults (`RegionalSetting::defaults()` / `current()`) |
 
 These run on the request *after* installation on purpose: a module's service provider (which

@@ -39,18 +39,38 @@ class Watchdog
      */
     public static array $recordTypes = ['company', 'contact', 'task', 'meeting', 'phone_call'];
 
+    /**
+     * Watchable types with no manual Watch toggle on their View page: still
+     * notified automatically (e.g. subscribed via a linked record), but
+     * never a record anyone edits again, so offering to watch it by hand
+     * makes no sense. Mail is the only one so far — an archived message
+     * never changes after it arrives.
+     *
+     * @var array<int, string>
+     */
+    protected static array $readOnlyTypes = [];
+
     protected static bool $notificationsMuted = false;
 
-    public static function enableFor(string $morphAlias): void
+    public static function enableFor(string $morphAlias, bool $toggleable = true): void
     {
         if (! in_array($morphAlias, static::$recordTypes, true)) {
             static::$recordTypes[] = $morphAlias;
+        }
+
+        if (! $toggleable && ! in_array($morphAlias, static::$readOnlyTypes, true)) {
+            static::$readOnlyTypes[] = $morphAlias;
         }
     }
 
     public static function watches(Model $record): bool
     {
         return in_array($record->getMorphClass(), static::$recordTypes, true);
+    }
+
+    public static function isToggleable(Model $record): bool
+    {
+        return ! in_array($record->getMorphClass(), static::$readOnlyTypes, true);
     }
 
     /**

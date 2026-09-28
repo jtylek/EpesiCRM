@@ -84,6 +84,9 @@ class TaskResource extends RecordsetResource
                 ->crits(fn (Builder $query): Builder => $query->ofCompany(auth()->user()?->companyId())),
             Field::relations('customers', Contact::class)->label('Contacts'),
             Field::relations('customerCompanies', Company::class)->label('Companies'),
+            // Any other record the task is about — Epesi's `__RECORDSETS__`
+            // Related field.
+            Field::related('related')->label('Related'),
 
             Field::longText('description'),
         ];

@@ -9,6 +9,7 @@ use App\Services\LegacyImport\LegacyIdMap;
 use App\Services\LegacyImport\LegacyValue;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Models\Address;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +38,11 @@ class ContactsImporter extends Importer
     private LegacyIdMap $users;
 
     private const GROUP_KEY_REMAP = ['custm' => 'customer'];
+
+    /** Column prefix => the kind its address becomes, in order. */
+    private const ADDRESSES = ['' => 'business', 'home_' => 'home'];
+
+    private const ADDRESS_FIELDS = ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
 
     public function __construct()
     {
@@ -95,6 +101,44 @@ class ContactsImporter extends Importer
             'home_postal_code' => 'home_postal_code',
             'login' => 'user_id',
         ];
+    }
+
+    /** Both addresses are items of the Addresses collection now, not columns. */
+    protected function historyOnlyColumns(): array
+    {
+        $columns = [];
+
+        foreach (array_keys(self::ADDRESSES) as $prefix) {
+            foreach (self::ADDRESS_FIELDS as $field) {
+                $columns[] = $prefix.$field;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * The main address as a Business item, then the home one as Home, each
+     * when it has a street, a city or a postal code (Address::isAddress()).
+     */
+    protected function collections(object $row): array
+    {
+        $items = [];
+
+        foreach (self::ADDRESSES as $prefix => $kind) {
+            $address = [];
+
+            foreach (self::ADDRESS_FIELDS as $field) {
+                $value = trim((string) ($row->{"f_{$prefix}{$field}"} ?? ''));
+                $address[$field] = $value === '' ? null : $value;
+            }
+
+            if (Address::isAddress($address)) {
+                $items[] = ['kind' => $kind, ...$address];
+            }
+        }
+
+        return ['addresses' => $items];
     }
 
     protected function decodeTrackedValue(string $legacyField, ?string $raw): array

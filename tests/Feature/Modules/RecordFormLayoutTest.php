@@ -28,11 +28,10 @@ class RecordFormLayoutTest extends TestCase
 
         $html = $this->get(EditContact::getUrl(['record' => $contact]))->assertOk()->getContent();
 
-        // The leading section's 12 fields (View's 11 plus the form-only Fax)
-        // make a run of 6 rows; Address's 6 make 3; the form-only Home Address
-        // section's 7 (Home Phone plus its own address block) make 4; the
-        // form-only Login section's 1 makes 1.
+        // The leading section's 13 fields (View's 11 plus the form-only Home
+        // Phone and Fax) make a run of 7 rows; Memo and the Addresses cards
+        // span both columns; the form-only Login section's 1 makes 1.
         preg_match_all('/class="rb-column-flow" style="--rb-rows: (\d+)"/', $html, $runs);
-        $this->assertSame(['6', '3', '4', '1'], $runs[1]);
+        $this->assertSame(['7', '1'], $runs[1]);
     }
 }

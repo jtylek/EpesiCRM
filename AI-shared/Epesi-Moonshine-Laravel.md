@@ -257,7 +257,7 @@ therefore what the `Field` DSL could not say on its own, is the honest MoonShine
   custom fields, filters and history keep working.
 
 Nothing needed a new `FieldType`, and nothing needed a subclassed Filament component — the
-decision ladder in [filament-fields.md](filament-fields.md) held.
+decision ladder in [Epesi-custom-fields.md](Epesi-custom-fields.md#which-one-to-extend) held.
 
 **This phase contained no MoonShine work**, and none of it is wasted if MoonShine is
 rejected: it deleted ~1,300 lines, removed five drifted copies of the History addon, and

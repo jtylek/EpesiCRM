@@ -4,7 +4,6 @@ namespace Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts;
 
 use App\Enums\RecordPermission;
 use App\Models\User;
-use App\Support\AddressFields;
 use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\CRM\Companies\Models\Company;
@@ -13,6 +12,7 @@ use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\Phon
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\TasksRelationManager;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
+use Epesi\Modules\RecordBrowser\Models\Address;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Forms\Components\Select;
@@ -94,6 +94,7 @@ class ContactResource extends RecordsetResource
 
             Field::phone('work_phone')->inTable(),
             Field::phone('mobile_phone')->inTable(),
+            Field::phone('home_phone')->label('Home Phone')->inView(false)->notInTable(),
             Field::text('fax')->maxLength(64)->inView(false),
             Field::email('email')
                 ->inTable()
@@ -105,16 +106,8 @@ class ContactResource extends RecordsetResource
                 ->filterable(),
             Field::longText('memo'),
 
-            ...AddressFields::block(collapsible: true),
-
-            // Form-only: the View page shows these nowhere, and the list would
-            // not benefit from a second set of address columns.
-            Field::phone('home_phone')->label('Home Phone')->inView(false)->notInTable()
-                ->section('Home Address', collapsible: true, collapsed: true),
-            ...array_map(
-                fn (Field $field): Field => $field->inView(false)->notInTable(),
-                AddressFields::block('home_', 'Home Address', collapsible: true, collapsed: true),
-            ),
+            // Business, home and any other: the list shows the first one's city.
+            Field::collection('addresses', Address::class)->inTable()->filterable(),
 
             // The linked login. Not in the infolist, and no Login tab: a login is
             // managed in Administration → Users, where one is made from a

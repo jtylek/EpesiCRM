@@ -2,7 +2,11 @@
 
 namespace Epesi\Modules\RecordBrowser\CustomFields;
 
+use Closure;
+use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
+use Epesi\Modules\RecordBrowser\Models\RecordLink;
+use Epesi\Modules\RecordBrowser\Recordset\CollectionFields;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +34,9 @@ class CustomFieldRegistry
 
     /** @var array<class-string, array<int, Field>> */
     protected static array $fields = [];
+
+    /** @var array<class-string, array<string, Closure>> */
+    protected static array $relations = [];
 
     /**
      * @return array<string, array<int, array<string, mixed>>> morph alias => definitions
@@ -86,19 +93,86 @@ class CustomFieldRegistry
      */
     public static function fieldsFor(string $model): array
     {
-        return static::$fields[$model] ??= array_map(
-            fn (array $definition): Field => static::toField($definition),
+        return static::$fields[$model] ??= array_values(array_filter(array_map(
+            fn (array $definition): ?Field => static::toField($definition),
             static::forModel($model),
-        );
+        )));
     }
 
     /**
      * @param  class-string<Model>  $model
-     * @return array<int, string> the `cf_*` columns, for mergeFillable()
+     * @return array<int, string> the `cf_*` columns, for mergeFillable() — only
+     *                            the fields that have one (FieldType::hasColumn())
      */
     public static function columnsFor(string $model): array
     {
-        return array_column(static::forModel($model), 'column');
+        return array_column(
+            array_filter(static::forModel($model), fn (array $definition): bool => FieldType::from((string) $definition['type'])->hasColumn()),
+            'column',
+        );
+    }
+
+    /**
+     * The relationships a model's link fields need, for
+     * Model::resolveRelationUsing() (HasCustomFields): a belongsTo on the
+     * field's own column for "link to one record", and for "link to many
+     * records" a morphToMany over the shared link table (RecordLink), held to
+     * the field and its target — so neither needs a pivot of its own.
+     *
+     * A field whose target recordset is gone (its module uninstalled) gets no
+     * relationship and no Field (toField()); its data stays.
+     *
+     * @param  class-string<Model>  $model
+     * @return array<string, Closure(Model): mixed> relationship name => resolver
+     */
+    public static function relationsFor(string $model): array
+    {
+        if (isset(static::$relations[$model])) {
+            return static::$relations[$model];
+        }
+
+        $relations = [];
+
+        foreach (static::forModel($model) as $definition) {
+            $type = FieldType::from((string) $definition['type']);
+            $target = static::targetOf($definition);
+
+            if (! $type->isRelational() || $target === null) {
+                continue;
+            }
+
+            $column = (string) $definition['column'];
+            $alias = (string) $definition['params']['recordset'];
+
+            $relations[static::relationshipName($column)] = $type === FieldType::Relation
+                ? fn (Model $record) => $record->belongsTo($target, $column)
+                : fn (Model $record) => $record->morphToMany($target, 'source', (new RecordLink)->getTable(), 'source_id', 'target_id')
+                    ->withPivotValue('field', $column)
+                    ->withPivotValue('target_type', $alias)
+                    ->withTimestamps();
+        }
+
+        return static::$relations[$model] = $relations;
+    }
+
+    /** "cf12" for the column "cf_12": never the column's own name. */
+    public static function relationshipName(string $column): string
+    {
+        return Str::camel($column);
+    }
+
+    /**
+     * The model a link field points at, from its `recordset` (a morph alias).
+     *
+     * @param  array<string, mixed>  $definition
+     * @return class-string<Model>|null
+     */
+    protected static function targetOf(array $definition): ?string
+    {
+        $alias = $definition['params']['recordset'] ?? null;
+        $class = is_string($alias) ? Relation::getMorphedModel($alias) : null;
+
+        return is_string($class) && is_subclass_of($class, Model::class) ? $class : null;
     }
 
     /**
@@ -121,12 +195,38 @@ class CustomFieldRegistry
     /**
      * @param  array<string, mixed>  $definition
      */
-    public static function toField(array $definition): Field
+    public static function toField(array $definition): ?Field
     {
         $type = FieldType::from((string) $definition['type']);
+        $column = (string) $definition['column'];
+        $params = (array) ($definition['params'] ?? []);
 
-        return Field::make((string) $definition['column'], $type)
-            ->params((array) ($definition['params'] ?? []))
+        // What Field::relation()/relations() would set, pointing at the
+        // relationship relationsFor() registers.
+        if ($type->isRelational()) {
+            $target = static::targetOf($definition);
+
+            if ($target === null) {
+                return null;
+            }
+
+            $params += ['model' => $target, 'relationship' => static::relationshipName($column)];
+        }
+
+        // Its type, stored as a morph alias; one whose module is gone leaves
+        // its items where they are, as a link field's target does.
+        if ($type === FieldType::Collection) {
+            $class = is_string($params['collection'] ?? null) ? Relation::getMorphedModel($params['collection']) : null;
+
+            if (! is_string($class) || ! is_subclass_of($class, CollectionItem::class)) {
+                return null;
+            }
+
+            $params['collection'] = $class;
+        }
+
+        return Field::make($column, $type)
+            ->params($params)
             ->label((string) $definition['label'])
             ->required((bool) $definition['required'])
             ->section($definition['section'] ?? null)
@@ -183,6 +283,8 @@ class CustomFieldRegistry
     {
         static::$definitions = null;
         static::$fields = [];
+        static::$relations = [];
+        CollectionFields::flush();
 
         $fromDatabase = static::readDatabase() ?? [];
 
@@ -201,6 +303,8 @@ class CustomFieldRegistry
     {
         static::$definitions = null;
         static::$fields = [];
+        static::$relations = [];
+        CollectionFields::flush();
     }
 
     /**

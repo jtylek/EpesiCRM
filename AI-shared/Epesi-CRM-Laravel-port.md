@@ -5,7 +5,8 @@ actually involves, what the `Field` DSL could not express on its own, and the tr
 with models living in modules rather than `app/`.
 
 Read [architecture.md](architecture.md) for the engine and module system in general, and
-[filament-fields.md](filament-fields.md) for the `Field` → Filament mapping. This file is the
+[Epesi-custom-fields.md](Epesi-custom-fields.md#part-1--the-field-dsl-and-filament) for the
+`Field` → Filament mapping. This file is the
 worked case.
 
 ## The five modules
@@ -107,7 +108,8 @@ What they are actually doing:
   `danger` when overdue and not closed.
 
 Nothing needed a new `FieldType`, and nothing needed a subclassed Filament component. The
-decision ladder in [filament-fields.md](filament-fields.md) held for the whole port.
+decision ladder in [Epesi-custom-fields.md](Epesi-custom-fields.md#which-one-to-extend) held
+for the whole port.
 
 ## What the port added to the engine
 
@@ -117,11 +119,13 @@ rather than per-resource workarounds:
 - **Section options.** `->section('Address', collapsible: true, collapsed: true)` and
   `->section('Login', description: '…')`. The first field to name a section decides how it
   renders, so the options are stated once.
-- **`App\Support\AddressFields`.** The address block, declared three times (Contact billing,
-  Contact home, Company). Only Zone is hard: it is a `Select` when the chosen country has a
-  known state list and a free-text input when it does not — two components for one field, so
-  they are wrapped in a `Group` that still occupies one cell of the two-column grid. It
-  returns `Field` objects, so custom fields, filters and history keep working.
+- **`App\Support\AddressFields`.** An address's Country and Zone. Only Zone is hard: it is a
+  `Select` when the chosen country has a known state list and a free-text input when it does
+  not — two components for one field, so they are wrapped in a `Group` that still occupies one
+  cell of the two-column grid. It returns `Field` objects. The address block it once declared
+  three times (Contact billing, Contact home, Company) is now the Address collection type, as
+  many addresses as a record needs (see
+  [Epesi-custom-fields.md](Epesi-custom-fields.md#collections)).
 - **A field-level `changes` column on the shared History addon.** Five per-resource copies of
   `ActivitiesRelationManager` had drifted into two different versions; the richer one (which
   renders `field: old → new`, the `<tab>_edit_history_data` half of Epesi's history) is now

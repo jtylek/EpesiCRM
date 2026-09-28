@@ -178,13 +178,14 @@ class HistoryRelationManager extends RelationManager
                     return Section::make(__($fields[$key]->getLabel()))
                         ->schema([
                             TextEntry::make("changes_{$key}")
-                                ->label(__('Changes'))
+                                ->hiddenLabel()
                                 ->state($fields[$key]->formatLoggedChange(data_get($record->properties->get('old', collect()), $key), $value, $record, whole: true))
                                 ->visible(! $created),
                             TextEntry::make("version_{$key}")
-                                ->label($created ? __('As created') : __('After this edit'))
+                                ->label(__('As created'))
                                 ->state($fields[$key]->formatLoggedVersion($value))
-                                ->prose(),
+                                ->prose()
+                                ->visible($created),
                         ]);
                 })
                 ->values()

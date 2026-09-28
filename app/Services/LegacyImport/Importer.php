@@ -20,10 +20,13 @@ use Illuminate\Support\Facades\DB;
  * trackedFields()/decodeTrackedValue() and are history-replayed. Composite
  * fields that combine several legacy columns into one (PhoneCall's
  * Customer/Other-Customer/Phone chain) and relation/pivot fields
- * (Employees, Customers, Related Companies, Access) are import-only, via
+ * (Employees, Customers, Related Companies, Related, Access) are import-only, via
  * extraAttributes()/syncPivots() — matching Spatie's own LogsActivity, which
  * likewise never tracks pivot-table changes on the live app either, so this
- * isn't a new gap.
+ * isn't a new gap. A collection's items (a contact's addresses) are current
+ * state only as well, via collections(); the legacy fields they come from
+ * still replay into History under their old column names
+ * (historyOnlyColumns()).
  */
 abstract class Importer
 {
@@ -34,6 +37,11 @@ abstract class Importer
 
     /** @var array<string, list<string>|null> legacy commondata list => its keys, null when it has none */
     private array $legacyLists = [];
+
+    /** The running import's summary, for what syncPivots() has to report. */
+    protected ImportSummary $summary;
+
+    private ?LegacyRecordRefs $recordRefs = null;
 
     public function __construct()
     {
@@ -73,6 +81,30 @@ abstract class Importer
 
     /** Attach pivot relations after save — current state only. */
     protected function syncPivots(object $row, Model $model): void {}
+
+    /**
+     * Tracked columns the model no longer has: replayed into History under
+     * their own names, as history recorded against them before reads, but
+     * not stored on the record — a contact's address columns, now its
+     * address items (collections()).
+     *
+     * @return list<string>
+     */
+    protected function historyOnlyColumns(): array
+    {
+        return [];
+    }
+
+    /**
+     * The row's items for the model's collection fields
+     * (HasCollections::syncCollection()), current state only: field => items.
+     *
+     * @return array<string, list<array<string, mixed>>>
+     */
+    protected function collections(object $row): array
+    {
+        return [];
+    }
 
     /** Extra per-row side effects after save (ContactsImporter uses this for role assignment). */
     protected function afterSave(object $row, Model $model): void {}
@@ -129,9 +161,36 @@ abstract class Importer
             ->all();
     }
 
+    /**
+     * A `__RECORDSETS__` field ("__task/7__company/3__") as the links of the
+     * model's "link to any record" field (HasRecordLinks), current state only.
+     * A reference to a record that isn't here — its recordset isn't ported, or
+     * it wasn't imported — is skipped and reported, and comes in on a later
+     * run once it is.
+     */
+    protected function importRelated(object $row, Model $model, string $legacyField = 'related', string $field = 'related'): void
+    {
+        $this->recordRefs ??= LegacyRecordRefs::fromImporters();
+        $tokens = [];
+
+        foreach (LegacyValue::typedRefMulti($row->{"f_{$legacyField}"} ?? null) as $ref) {
+            $token = $this->recordRefs->token($ref['type'], $ref['id']);
+
+            if ($token === null) {
+                $this->summary->warn("{$this->legacyTab()}#{$row->id}: {$legacyField} \"{$ref['type']}/{$ref['id']}\" isn't imported here, link skipped");
+
+                continue;
+            }
+
+            $tokens[] = $token;
+        }
+
+        $model->syncRecordLinks($field, $tokens);
+    }
+
     public function run(bool $withHistory = true): ImportSummary
     {
-        $summary = new ImportSummary;
+        $summary = $this->summary = new ImportSummary;
         $modelClass = $this->modelClass();
         $userMap = LegacyIdMap::for(User::class);
         $tracked = $this->trackedFields();
@@ -149,7 +208,7 @@ abstract class Importer
             /** @var Model $model */
             $model = $modelClass::withTrashed()->firstOrNew(['legacy_id' => $row->id]);
             $isNew = ! $model->exists;
-            $model->forceFill($attributes);
+            $model->forceFill(array_diff_key($attributes, array_flip($this->historyOnlyColumns())));
             $model->legacy_id = $row->id;
             $model->created_by = $userMap->get((int) ($row->created_by ?? 0));
             $model->timestamps = false;
@@ -163,6 +222,7 @@ abstract class Importer
             $isNew ? $summary->created++ : $summary->updated++;
 
             $this->syncPivots($row, $model);
+            $this->importCollections($row, $model);
             $this->afterSave($row, $model);
         }
 
@@ -171,6 +231,24 @@ abstract class Importer
         }
 
         return $summary;
+    }
+
+    /**
+     * collections() into the model. Each item takes the id of the item in
+     * its place from an earlier run, so running the import again updates the
+     * items rather than replacing them.
+     */
+    private function importCollections(object $row, Model $model): void
+    {
+        foreach ($this->collections($row) as $field => $items) {
+            $existing = $model->collection($field)->pluck('id')->all();
+
+            $model->syncCollection($field, array_map(
+                fn (array $item, int $i): array => ['id' => $existing[$i] ?? null, ...$item],
+                array_values($items),
+                array_keys(array_values($items)),
+            ));
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Support\AddressFields;
 use App\Support\Setup\SetupStep;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
+use Epesi\Modules\RecordBrowser\Models\Address;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -66,12 +67,16 @@ class YourCompanyStep implements SetupStep
             : ['first_name' => $name];
     }
 
+    /**
+     * The address goes to both, as a Business address (the Addresses
+     * collection), when it has a street, a city or a postal code.
+     */
     public function handle(array $data, User $admin): void
     {
         $address = collect($data)->only(['address_1', 'address_2', 'city', 'postal_code', 'country', 'zone'])->all();
+        $addresses = Address::isAddress($address) ? [['kind' => 'business', ...$address]] : [];
 
         $company = Company::create([
-            ...$address,
             'company_name' => $data['company_name'],
             'short_name' => $data['short_name'] ?? null,
             'phone' => $data['phone'] ?? null,
@@ -79,12 +84,12 @@ class YourCompanyStep implements SetupStep
             'web_address' => $data['web_address'] ?? null,
             'permission' => RecordPermission::Public,
         ]);
+        $company->syncCollection('addresses', $addresses);
 
         // Update rather than add when the administrator already has a
         // contact — the page can be reached again after a failed save.
         $contact = Contact::query()->withoutGlobalScopes()->firstOrNew(['user_id' => $admin->id]);
         $contact->fill([
-            ...$address,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'company_id' => $company->id,
@@ -92,5 +97,6 @@ class YourCompanyStep implements SetupStep
             'permission' => RecordPermission::Public,
         ]);
         $contact->forceFill(['user_id' => $admin->id])->save();
+        $contact->syncCollection('addresses', $addresses);
     }
 }

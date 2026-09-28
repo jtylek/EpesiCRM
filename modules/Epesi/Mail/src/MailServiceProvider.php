@@ -117,7 +117,11 @@ class MailServiceProvider extends ServiceProvider
                 : null);
 
             if (class_exists(Watchdog::class)) {
-                Watchdog::enableFor('mail');
+                // Watched, not toggleable: an archived message never changes
+                // again, so there is nothing to offer a manual Watch button
+                // for — but a subscriber to a linked company/contact still
+                // wants to hear about new mail on it (MailArchiver::subscribeWatchers()).
+                Watchdog::enableFor('mail', toggleable: false);
             }
         });
     }

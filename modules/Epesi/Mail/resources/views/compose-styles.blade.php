@@ -29,7 +29,17 @@
         min-width: 8rem;
     }
 
+    {{--
+        A starting size that still leaves Attachments in view, not the
+        26rem this used to be. It still grows with the message on its own
+        (nothing below caps its height), and the drag handle (needs its own
+        overflow, or the browser won't show one) lets the sender make more
+        room up front — after a manual drag it scrolls past that height
+        instead of growing further, same as any resizable textarea.
+    --}}
     .epesi-compose-body .fi-fo-rich-editor-content .tiptap {
-        min-height: 26rem;
+        min-height: 12rem;
+        overflow-y: auto;
+        resize: vertical;
     }
 </style>

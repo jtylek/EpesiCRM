@@ -8,6 +8,7 @@ use App\Models\User;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Repeater;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
@@ -113,23 +114,32 @@ class PortalTest extends TestCase
     {
         $this->actingAs($this->customer);
 
+        $undoRepeaterFake = Repeater::fake();
+
         Livewire::test(MyContact::class)
             ->callAction('edit')
-            ->fillForm(['city' => 'Shelbyville'])
+            ->fillForm(['title' => 'Owner', 'addresses' => [['kind' => 'home', 'city' => 'Shelbyville', 'country' => 'US']]])
             ->callAction('cancel')
             ->assertSet('editing', false)
             ->assertActionVisible('edit');
 
-        $this->assertNotSame('Shelbyville', $this->contact->refresh()->city);
+        $this->assertNull($this->contact->refresh()->title);
+        $this->assertCount(0, $this->contact->addresses);
+
+        $undoRepeaterFake();
     }
 
     public function test_saving_updates_the_contact_logs_it_as_the_customers_own_and_returns_to_view_mode(): void
     {
         $this->actingAs($this->customer);
+        $undoRepeaterFake = Repeater::fake();
 
         Livewire::test(MyContact::class)
             ->callAction('edit')
-            ->fillForm(['mobile_phone' => '555-0100', 'city' => 'Springfield', 'home_city' => 'Shelbyville'])
+            ->fillForm(['mobile_phone' => '555-0100', 'addresses' => [
+                ['kind' => 'business', 'city' => 'Springfield', 'country' => 'US'],
+                ['kind' => 'home', 'city' => 'Shelbyville', 'country' => 'US'],
+            ]])
             ->callAction('save')
             ->assertHasNoFormErrors()
             ->assertNotified('Saved')
@@ -137,12 +147,14 @@ class PortalTest extends TestCase
             ->assertActionVisible('edit')
             ->assertActionHidden('save')
             ->assertSee('555-0100')
-            ->assertSee('Springfield');
+            ->assertSee('Springfield, United States')
+            ->assertSee('Shelbyville, United States');
+
+        $undoRepeaterFake();
 
         $this->contact->refresh();
         $this->assertSame('555-0100', $this->contact->mobile_phone);
-        $this->assertSame('Springfield', $this->contact->city);
-        $this->assertSame('Shelbyville', $this->contact->home_city);
+        $this->assertSame(['Springfield', 'Shelbyville'], $this->contact->addresses->pluck('city')->all());
 
         $activity = Activity::query()->where('subject_type', $this->contact->getMorphClass())->where('subject_id', $this->contact->id)->latest('id')->first();
         $this->assertSame($this->customer->id, $activity->causer_id);

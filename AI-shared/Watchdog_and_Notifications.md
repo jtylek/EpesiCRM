@@ -18,7 +18,9 @@ not provide it.
 ## What the user sees
 
 - **Watch toggle.** Every watchable record's View page has an eye button in its header: "Watch"
-  or "Watching". It's Epesi's ActionBar subscription icon.
+  or "Watching". It's Epesi's ActionBar subscription icon. A type enabled with `toggleable:
+  false` (Mail: an archived message never changes again) skips the button — it can still be
+  watched automatically, just never by hand.
 - **Automatic watching.** The author of a new record watches it from the start, as
   RecordBrowser's `add_record()` did. A user who watches a record type starts watching a record
   of that type the first time they're told about it.
@@ -251,7 +253,9 @@ A module whose records should be watchable needs four things:
 
 1. **A morph alias** for the model; every polymorphically used model needs one anyway.
 2. **`Watchdog::enableFor('alias')`**, called from the module's service provider. It is the port
-   of `Utils_RecordBrowserCommon::enable_watchdog()`.
+   of `Utils_RecordBrowserCommon::enable_watchdog()`. Pass `toggleable: false` for a record type
+   nobody edits again once created (Mail does this) — it stays watchable and notifies, but its
+   View page gets no manual Watch button.
 3. **Activity logging** on the model, so its changes are `activity_log` rows. RecordBrowser
    models already have it.
 4. **A resource in the main panel** with a View page. `Watchdog::label()`, `title()`, `url()`
@@ -259,7 +263,7 @@ A module whose records should be watchable needs four things:
    field labels. Without one, the notification falls back to the morph alias and the record id.
 
 The eye toggle appears through `RecordExtensions::headerActions()` on every RecordBrowser View
-page. It shows only for types that `Watchdog::watches()`.
+page. It shows only for types that `Watchdog::watches()` and, within those, `Watchdog::isToggleable()`.
 
 ## Other modules and the bell
 
