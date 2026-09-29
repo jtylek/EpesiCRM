@@ -22,8 +22,8 @@ class LinkRecordAction
 {
     /** Columns searched per record type when picking a record. */
     protected const SEARCH = [
-        'contact' => ['first_name', 'last_name', 'email'],
-        'company' => ['company_name', 'email'],
+        'contact' => ['first_name', 'last_name'],
+        'company' => ['company_name'],
         'task' => ['title'],
         'meeting' => ['title'],
         'phone_call' => ['subject'],

@@ -40,6 +40,7 @@ class MailsRelationManager extends RelationManager
             ->defaultSort('date', 'desc')
             ->columns(MailTable::columns())
             ->filters(MailTable::filters())
+            ->columnManager(false)
             ->recordUrl(fn (Mail $record): string => MailResource::getUrl('view', ['record' => $record]))
             ->headerActions([
                 ComposeAction::make($this->getOwnerRecord()),

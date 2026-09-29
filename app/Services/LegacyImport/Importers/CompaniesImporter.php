@@ -30,9 +30,13 @@ class CompaniesImporter extends Importer
         return 'company';
     }
 
+    /**
+     * email is no longer a column here (it's an EmailAddress collection
+     * item) — its own "already taken" check is withoutTakenEmails() instead.
+     */
     protected function uniqueColumns(): array
     {
-        return ['email'];
+        return [];
     }
 
     protected function trackedFields(): array
@@ -57,26 +61,58 @@ class CompaniesImporter extends Importer
         ];
     }
 
-    /** The address is an item of the Addresses collection now, not columns. */
+    private const ADDRESS_FIELDS = ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
+
+    /** Legacy field => the kind its number becomes, in order. */
+    private const PHONES = ['phone' => 'work', 'fax' => 'fax'];
+
+    /** The address, the phone, the fax, the e-mail and the web address are collection items now, not columns. */
     protected function historyOnlyColumns(): array
     {
-        return ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
+        return [...self::ADDRESS_FIELDS, ...array_keys(self::PHONES), 'web_address', 'email'];
     }
 
     /**
      * The address as a Business item, when it has a street, a city or a
-     * postal code (Address::isAddress()).
+     * postal code (Address::isAddress()); the phone and the fax as phone
+     * numbers of kinds Work and Fax; the web address as an online account
+     * of kind Website.
      */
     protected function collections(object $row): array
     {
         $address = [];
 
-        foreach ($this->historyOnlyColumns() as $column) {
+        foreach (self::ADDRESS_FIELDS as $column) {
             $value = trim((string) ($row->{"f_{$column}"} ?? ''));
             $address[$column] = $value === '' ? null : $value;
         }
 
-        return ['addresses' => Address::isAddress($address) ? [['kind' => 'business', ...$address]] : []];
+        $phones = [];
+
+        foreach (self::PHONES as $field => $kind) {
+            if (($number = trim((string) ($row->{"f_{$field}"} ?? ''))) !== '') {
+                $phones[] = ['kind' => $kind, 'value' => $number];
+            }
+        }
+
+        $web = trim((string) ($row->f_web_address ?? ''));
+
+        $email = mb_strtolower(trim((string) ($row->f_email ?? '')));
+        $emails = $this->withoutTakenEmails($row, array_filter([
+            $email,
+            ...$this->legacyExtraEmails($row, 'company'),
+        ]));
+
+        return [
+            'addresses' => Address::isAddress($address) ? [['kind' => 'business', ...$address]] : [],
+            'phones' => $phones,
+            'online_accounts' => $web === '' ? [] : [['kind' => 'website', 'value' => $web]],
+            'emails' => array_map(
+                fn (string $value, int $i): array => ['kind' => $i === 0 && $value === $email ? 'work' : 'other', 'value' => $value],
+                array_values($emails),
+                array_keys(array_values($emails)),
+            ),
+        ];
     }
 
     protected function decodeTrackedValue(string $legacyField, ?string $raw): array

@@ -20,7 +20,7 @@ class ViewContact extends ViewRecord
     {
         return [
             EditAction::make()->icon(Heroicon::OutlinedPencil),
-            CloneRecordAction::make(ContactResource::class, ['email', 'user_id']),
+            CloneRecordAction::make(ContactResource::class, ['user_id']),
         ];
     }
 }

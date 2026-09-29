@@ -88,8 +88,12 @@ once, globally" pattern as `AI-private/`, see `login_audit_analysis.md` there fo
   listed, so a home/office IP that changes doesn't quietly start looking like a returning visitor.
   Never guessed from traffic patterns — a real returning visitor deserves to be seen, not silently
   folded into "own testing".
+- `ip_geo_cache.sqlite` — city/country per external IP, looked up from `ipwho.is` (free, HTTPS,
+  no key) the first time an IP is seen and cached from then on, so a rerun doesn't re-query IPs
+  it already knows. A failed lookup (offline, rate limit) isn't cached — next run just retries.
 - `login_audit_report.html` — regenerated every run: per-day own/external split, external sessions
-  table, "returning visitor" flag for an external IP seen on more than one day.
+  table (with location and duration), "returning visitor" flag for an external IP seen on more
+  than one day.
 
 On demand only (`deploy.sh visitors`) — the demo's traffic doesn't justify a cron job yet.
 

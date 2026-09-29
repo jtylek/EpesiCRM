@@ -6,7 +6,6 @@ use App\Filament\Setup\Pages\FinishSetup;
 use App\Filament\Setup\Pages\InstallWizard;
 use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\SetLocale;
-use App\Providers\Filament\Concerns\HasSmallCardCorners;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -32,8 +31,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class SetupPanelProvider extends PanelProvider
 {
-    use HasSmallCardCorners;
-
     /**
      * The wizard's step bar (Setup code, Server check, Database, Options,
      * Administrator, Mail, Install) has more steps than Filament's own
@@ -61,7 +58,7 @@ class SetupPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
                 'gray' => Color::Neutral,
             ])
-            ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => $this->smallCardCornerStyles())
+            ->viteTheme('resources/css/filament/epesi/theme.css')
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => $this->compactWizardHeaderStyles())
             // Not at the panel root: that is Filament's own "go to the first
             // page" route, which for a panel with no navigation leads back to

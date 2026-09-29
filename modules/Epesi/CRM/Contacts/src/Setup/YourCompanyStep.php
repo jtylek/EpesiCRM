@@ -69,7 +69,9 @@ class YourCompanyStep implements SetupStep
 
     /**
      * The address goes to both, as a Business address (the Addresses
-     * collection), when it has a street, a city or a postal code.
+     * collection), when it has a street, a city or a postal code. The phone
+     * and fax become the company's Work and Fax numbers, the web address its
+     * Website.
      */
     public function handle(array $data, User $admin): void
     {
@@ -79,24 +81,27 @@ class YourCompanyStep implements SetupStep
         $company = Company::create([
             'company_name' => $data['company_name'],
             'short_name' => $data['short_name'] ?? null,
-            'phone' => $data['phone'] ?? null,
-            'fax' => $data['fax'] ?? null,
-            'web_address' => $data['web_address'] ?? null,
             'permission' => RecordPermission::Public,
         ]);
         $company->syncCollection('addresses', $addresses);
+        $company->syncCollection('phones', [
+            ['kind' => 'work', 'value' => $data['phone'] ?? null],
+            ['kind' => 'fax', 'value' => $data['fax'] ?? null],
+        ]);
+        $company->syncCollection('online_accounts', [['kind' => 'website', 'value' => $data['web_address'] ?? null]]);
 
         // Update rather than add when the administrator already has a
         // contact — the page can be reached again after a failed save.
         $contact = Contact::query()->withoutGlobalScopes()->firstOrNew(['user_id' => $admin->id]);
+        $email = $contact->exists ? ($contact->primaryEmail() ?? $admin->email) : $admin->email;
         $contact->fill([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'company_id' => $company->id,
-            'email' => $contact->email ?? $admin->email,
             'permission' => RecordPermission::Public,
         ]);
         $contact->forceFill(['user_id' => $admin->id])->save();
         $contact->syncCollection('addresses', $addresses);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => $email]]);
     }
 }

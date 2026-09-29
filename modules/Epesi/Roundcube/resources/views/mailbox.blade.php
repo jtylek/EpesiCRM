@@ -25,7 +25,7 @@
         </x-filament::section>
     @else
         {{--
-            The page's own gutter (HasCompactTableStyles) would otherwise
+            The page's own gutter (the theme's compact-tables.css) would otherwise
             border every side of the frame; scoped to this page only, since
             it's rendered inside the Livewire-swapped page content.
         --}}

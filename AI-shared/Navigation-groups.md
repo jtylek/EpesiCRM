@@ -35,7 +35,8 @@ icon of its own rather than stripping icons from its items.
 there is more than one group: 1.75rem between top-level sections (Dashboard's own bucket,
 CRM, Store Server, …), plus another gap between a group's own label and its first item
 (the label's `.5rem` padding block, on top of `.25rem` between it and the item list).
-`HasCompactTableStyles` (shared by every panel provider, despite the name) overrides all
+The theme's `compact-tables.css` (`resources/css/filament/epesi/`, which covers the sidebar
+too, despite the name) overrides all
 three down to `.25rem`/`0`/`.375rem` respectively, alongside its existing
 `.fi-sidebar-group-items{row-gap:0}` for the items inside a group. The collapse chevron
 (`.fi-icon-btn`, nominally 2.25rem square) stays clickable at the tighter padding — it

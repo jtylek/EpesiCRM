@@ -71,11 +71,13 @@ Two Filament details make this work, both easy to "simplify" back into a bug:
 - Editable — the "personal details" the user asked for, reusing the exact `Field` declarations
   `ContactResource::fields()` already has (`toFormComponent()` for Edit, `toInfolistEntry()` for
   View — both self-contained, needing no Resource around them), so labels, `maxLength`, rules and
-  the way an e-mail or web address shows as a linked badge match the main Contacts screens: `last_name`, `first_name`, `title`,
-  `work_phone`, `mobile_phone`, `fax`, `email`, `web_address`, and the addresses, the same
-  `Field::collection('addresses', Address::class)` as `ContactResource` (a card per address, see
-  [Epesi-custom-fields.md](Epesi-custom-fields.md#collections)). The form is bound to the contact
-  (`->model()`), so the addresses load from it and `getState()` saves them through
+  the way an e-mail address or a website shows as a linked badge match the main Contacts screens:
+  `last_name`, `first_name`, `title`, `email`, and three collections, the same as
+  `ContactResource`'s (a card per item, see
+  [Epesi-custom-fields.md](Epesi-custom-fields.md#collections)): phone numbers
+  (`Field::collection('phones', PhoneNumber::class)`, each with its messengers), addresses
+  (`Address`) and online accounts (`OnlineAccount`, the website among them). The form is bound
+  to the contact (`->model()`), so the items load from it and `getState()` saves them through
   `syncCollection()`. `email` gets its own uniqueness rule
   (`unique(table: 'contacts', column: 'email', ignorable: $this->contact)`), since this form
   isn't Resource-bound.

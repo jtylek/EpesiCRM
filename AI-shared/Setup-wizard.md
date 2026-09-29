@@ -117,6 +117,52 @@ from the project directory, after `composer install`.
      [Scripted installs](#scripted-installs));
    - otherwise: prints the URL to open, `<APP_URL>/setup`, and the setup code.
 
+### Consolidating migrations before a release
+
+Fresh installations can use a baseline that creates the final database structure directly,
+without replaying every development alteration. Existing installations still need the
+incremental migrations that upgrade their schema and data; Laravel does not compare a
+baseline with an existing database and calculate the missing changes.
+
+For the first stable release, the recommended approach is to consolidate development
+migrations into clean PHP migrations, provided development databases can be rebuilt or
+given an explicit transition path. For example, a table's initial migration can create its
+final columns and indexes instead of creating an earlier definition and altering it many
+times. This is release preparation guidance, not an automatic feature of the installer or
+package command.
+
+Keep core migrations in `database/migrations` and module migrations in their owning modules,
+so modules can still install independently. Preserve required initial data through seeders
+or module installation steps. Review migrations that modify data or perform other work:
+reproducing the final table structure alone does not reproduce those effects. Verify that
+the consolidated installation produces the same schema and required initial data as the
+full migration history, including checks on MySQL/MariaDB as well as SQLite.
+
+After the first stable release, retain the baseline plus incremental migrations required
+by supported older installations. Do not replace that history with final definitions on
+every release. A later consolidation needs an explicit minimum supported upgrade version
+and a transition path for installations below the new baseline. See
+[the distribution notes](Epesi-Laravel-distro.md) for packaging and release procedures.
+
+Laravel also provides [SQL schema squashing](https://laravel.com/docs/12.x/migrations#squashing-migrations):
+
+```bash
+php artisan schema:dump
+```
+
+This writes the current database schema to `database/schema`. When no migrations have been
+recorded for a connection, Laravel loads its schema dump first, then runs migrations not
+included in the dump. The optional `--prune` flag deletes existing migration files; it
+should only be used once the supported upgrade paths have been accounted for. A schema
+dump is not a backup of application data or a replacement for data migrations.
+
+SQL dumps are less suitable for Epesi's distribution than consolidated PHP migrations:
+Laravel's dump/load mechanism requires database command-line clients, which may be absent
+on shared hosting; dumps must match the database connection used, including the testing
+connection; and a whole-installation dump would couple independently installed modules.
+PHP schema migrations preserve the browser installer's existing approach and database
+portability without adding that command-line dependency.
+
 ## Step 2: the wizard — `/setup/install`
 
 `app/Filament/Setup/Pages/InstallWizard.php`, in a small Filament panel of its own
@@ -205,7 +251,7 @@ The steps shipped today:
 
 | Key | Module | Page | What it saves |
 |---|---|---|---|
-| `contacts-your-company` | CRM/Contacts (order 10) | **Your company**: company name, short name, your first and last name (prefilled from the administrator's name, split at the last space), then address, country, state, phone, fax, web address | a public Company, and the administrator's own Contact in it with their e-mail and `user_id`, which is what links the login to a person (`User::contact()`); the address, when it has a street, city or postal code, becomes a Business address of both |
+| `contacts-your-company` | CRM/Contacts (order 10) | **Your company**: company name, short name, your first and last name (prefilled from the administrator's name, split at the last space), then address, country, state, phone, fax, web address | a public Company, and the administrator's own Contact in it with their e-mail and `user_id`, which is what links the login to a person (`User::contact()`); the address, when it has a street, city or postal code, becomes a Business address of both; the phone and fax become the company's Work and Fax numbers, the web address its Website (online account) |
 | `regional-settings-defaults` | RegionalSettings (order 20) | **Regional settings**: language, timezone, date format, time format, country, state | the system-wide defaults (the `epesi_regional_settings` row with no user), and the same values as the administrator's own settings. New users start from the defaults (`RegionalSetting::defaults()` / `current()`) |
 
 These run on the request *after* installation on purpose: a module's service provider (which

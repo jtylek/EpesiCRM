@@ -36,8 +36,10 @@ class CreateUser extends CreateRecord
     {
         $this->contact = Contact::query()->findOrFail($this->data['contact_id'] ?? null);
 
-        $data['name'] = $this->contact->full_name ?: $this->contact->email;
-        $data['email'] = $this->contact->email;
+        $email = $this->contact->primaryEmail();
+
+        $data['name'] = $this->contact->full_name ?: $email;
+        $data['email'] = $email;
 
         $this->passwordGenerated = blank($data['password'] ?? null);
 

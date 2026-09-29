@@ -4,6 +4,7 @@ namespace Epesi\Modules\RecordBrowser\Models;
 
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldSchema;
+use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -80,6 +81,9 @@ class CustomField extends Model
 
         static::updated(function (self $field): void {
             app(CustomFieldSchema::class)->change($field);
+            if ($field->isDirty('position')) {
+                app(FieldOverrides::class)->syncCustomPosition($field);
+            }
         });
 
         // Deleting a definition leaves its column (and the data in it) alone —

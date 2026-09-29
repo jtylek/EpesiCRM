@@ -168,10 +168,10 @@ choices are inline buttons.
   it is invalid HTML: the browser closes the outer link at the first inner one and tears the
   first pill apart (an empty pill and loose contents). The Files column therefore has
   `->disabledClick()`. Any column that prints its own links needs the same. A test asserts it.
-- **The file pills' CSS is in the plugin, not in a stylesheet.** The project's own Tailwind
-  build (`resources/css/app.css`) scans only `resources/**/*.blade.php`, `resources/**/*.js` and
-  the compiled views, never the modules' PHP, and the panels have no theme of their own, so
-  nothing guarantees a utility class written into `fileChip()`'s markup exists. The pill's
+- **The file pills' CSS is in the plugin, not in a stylesheet.** The panels' theme
+  (`resources/css/filament/epesi/theme.css`) is compiled when a release is built, from the
+  modules present then. A module installed later from a zip isn't scanned, so nothing
+  guarantees that a utility class written into `fileChip()`'s markup exists. The pill's
   styles are therefore a `<style>` block added by `AttachmentsPlugin` through the panel's
   `STYLES_AFTER` render hook (as the History addon's red and green are), using Filament's own
   colour variables (`--gray-*`, `--primary-*`) and a `.dark` variant each.

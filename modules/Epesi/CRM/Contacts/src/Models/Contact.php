@@ -5,9 +5,6 @@ namespace Epesi\Modules\CRM\Contacts\Models;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Meetings\Models\Meeting;
-use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
-use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -51,13 +47,7 @@ class Contact extends Model
         'memo',
         'groups',
         'title',
-        'work_phone',
-        'mobile_phone',
-        'fax',
-        'email',
-        'web_address',
         'permission',
-        'home_phone',
         'user_id',
     ];
 
@@ -112,39 +102,21 @@ class Contact extends Model
     }
 
     /**
-     * Inverse of Task::customers() — tasks logged against this contact as
-     * the customer. Backs the "Tasks" addon on Contact's View page.
-     */
-    public function tasksAsCustomer(): BelongsToMany
-    {
-        return $this->belongsToMany(Task::class, 'task_customer');
-    }
-
-    /**
-     * Inverse of PhoneCall::contact() — calls logged against this contact.
-     * Backs the "Phone Calls" addon on Contact's View page.
-     */
-    public function phoneCallsAsCustomer(): HasMany
-    {
-        return $this->hasMany(PhoneCall::class);
-    }
-
-    /**
-     * Inverse of Meeting::customers() — meetings this contact is a customer
-     * of. Backs the "Meetings" addon on Contact's View page.
-     */
-    public function meetingsAsCustomer(): BelongsToMany
-    {
-        return $this->belongsToMany(Meeting::class, 'meeting_customer');
-    }
-
-    /**
      * The login this contact is linked to, i.e. Epesi's contact.login FK
      * into user_login.id. Nullable — most contacts have no login.
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The contact's first e-mail address — what a login made from this
+     * contact takes (UserForm/CreateUser). One query, not the whole relation.
+     */
+    public function primaryEmail(): ?string
+    {
+        return $this->collection('emails')->value('value');
     }
 
     public function creator(): BelongsTo

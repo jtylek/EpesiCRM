@@ -11,7 +11,6 @@ use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ListContacts;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
-use Epesi\Modules\Mail\Filament\RelationManagers\MailAddressesRelationManager;
 use Epesi\Modules\Mail\Filament\RelationManagers\MailsRelationManager;
 use Epesi\Modules\Mail\Filament\Resources\MailAccounts\MailAccountResource;
 use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
@@ -21,7 +20,6 @@ use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ViewMail;
 use Epesi\Modules\Mail\Filament\Widgets\UnreadMailWidget;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
-use Epesi\Modules\Mail\Models\MailAddress;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Mail\Services\MailFetcher;
@@ -59,17 +57,15 @@ class MailTest extends TestCase
         $this->user = $this->userWithRole('employee', ['name' => 'Eli', 'email' => 'eli@ourcompany.test']);
         $this->actingAs($this->user);
 
-        Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee', 'email' => 'me@ourcompany.test'])
-            ->forceFill(['user_id' => $this->user->id])->save();
+        $eli = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee']);
+        $eli->forceFill(['user_id' => $this->user->id])->save();
+        $eli->syncCollection('emails', [['kind' => 'work', 'value' => 'me@ourcompany.test']]);
         $this->user->refresh();
 
-        $this->ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer', 'email' => 'ann@customer.test']);
+        $this->ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer']);
+        $this->ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@customer.test']]);
         $this->customer = Company::create(['company_name' => 'Customer Ltd']);
-        MailAddress::create([
-            'addressable_type' => 'company',
-            'addressable_id' => $this->customer->id,
-            'email' => 'Sales@Customer.test',
-        ]);
+        $this->customer->syncCollection('emails', [['kind' => 'other', 'value' => 'Sales@Customer.test']]);
 
         $this->transport = new RecordingTransport;
         $this->app->instance(SmtpTransportFactory::class, new class($this->transport) extends SmtpTransportFactory
@@ -378,8 +374,7 @@ class MailTest extends TestCase
 
         $this->get(ViewContact::getUrl(['record' => $this->ann]))
             ->assertOk()
-            ->assertSee('E-mails')
-            ->assertSee('E-mail addresses');
+            ->assertSee('E-mails');
 
         Livewire::test(MailsRelationManager::class, ['ownerRecord' => $this->ann, 'pageClass' => ViewContact::class])
             ->assertOk()
@@ -404,7 +399,8 @@ class MailTest extends TestCase
 
     public function test_an_address_in_a_list_is_cut_short_and_mails_to_without_an_account(): void
     {
-        Contact::create(['first_name' => 'Husam', 'last_name' => 'Aljarmozi', 'email' => 'husam.aljarmozi@globaladvocates.net']);
+        $husam = Contact::create(['first_name' => 'Husam', 'last_name' => 'Aljarmozi']);
+        $husam->syncCollection('emails', [['kind' => 'work', 'value' => 'husam.aljarmozi@globaladvocates.net']]);
 
         Livewire::test(ListContacts::class)
             ->assertSeeHtml('href="mailto:ann@customer.test"')
@@ -438,9 +434,11 @@ class MailTest extends TestCase
         app(MailArchiver::class)->archive(Eml::make(from: 'ann.private@home.test', messageId: 'home@x'), $this->user);
         $this->assertSame(0, $this->ann->mails()->count());
 
-        Livewire::test(MailAddressesRelationManager::class, ['ownerRecord' => $this->ann, 'pageClass' => ViewContact::class])
-            ->callAction(TestAction::make('create')->table(), data: ['email' => 'ann.private@home.test'])
-            ->assertHasNoActionErrors();
+        // Adding a second address, as the contact's own form does.
+        $this->ann->syncCollection('emails', [
+            ['id' => $this->ann->emails->sole()->id, 'kind' => 'work', 'value' => 'ann@customer.test'],
+            ['kind' => 'other', 'value' => 'ann.private@home.test'],
+        ]);
 
         $this->assertSame(1, $this->ann->mails()->count());
     }

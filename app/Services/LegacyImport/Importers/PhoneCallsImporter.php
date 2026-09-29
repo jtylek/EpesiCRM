@@ -95,18 +95,20 @@ class PhoneCallsImporter extends Importer
             $contactId = $this->contacts->get($ref['id']);
         } elseif ($ref && $ref['type'] === 'company') {
             $companyId = $this->companies->get($ref['id']);
-            $companyPhone = $companyId ? Company::withTrashed()->find($companyId)?->phone : null;
+            $companyPhone = $companyId ? $this->firstPhone(Company::withTrashed()->find($companyId), 'work') : null;
         }
 
+        // The legacy choice by the kind the contact's number was imported
+        // as (ContactsImporter), the company's by its Phone's (Work).
         $phoneNumber = null;
         if ($otherCustomer && ($row->f_other_phone ?? false)) {
             $phoneNumber = $row->f_other_phone_number ?: null;
         } elseif ($row->f_phone !== null && $row->f_phone !== '') {
             $contact = $contactId ? Contact::withTrashed()->find($contactId) : null;
             $phoneNumber = match ((int) $row->f_phone) {
-                1 => $contact?->mobile_phone,
-                2 => $contact?->work_phone,
-                3 => $contact?->home_phone,
+                1 => $this->firstPhone($contact, 'mobile'),
+                2 => $this->firstPhone($contact, 'work'),
+                3 => $this->firstPhone($contact, 'home'),
                 4 => $companyPhone,
                 default => null,
             };
@@ -119,6 +121,12 @@ class PhoneCallsImporter extends Importer
             'other_customer_name' => $otherCustomerName,
             'phone_number' => $phoneNumber,
         ];
+    }
+
+    /** The record's first phone number of $kind, as typed. */
+    private function firstPhone(Contact|Company|null $record, string $kind): ?string
+    {
+        return $record?->collection('phones')->where('kind', $kind)->value('value');
     }
 
     protected function syncPivots(object $row, Model $model): void

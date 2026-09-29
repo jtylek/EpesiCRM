@@ -2,13 +2,32 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Token efficiency
+
+- Don't re-read a file right after Edit/Write touches it just to "verify" the change — the
+  tool call already errors if the edit failed, and the result is tracked without a re-read.
+- Prefer Grep/Glob with a targeted pattern over Bash `cat`/`grep`/broad file reads. When
+  reading a file, use offset/limit to pull the relevant slice instead of the whole thing when
+  the file is large and the target is known.
+- Don't spawn a subagent (Agent tool) for something doable directly in 1-3 tool calls — reserve
+  subagents for genuinely broad/open-ended exploration or when the user asks for one by name.
+- See also "Session start" below for which docs to read (and when) in this repo specifically.
+
 ## What this repo is
 
 A from-scratch rewrite of [Epesi](https://github.com/jtylek/epesiCRM) (a legacy PHP/AdminLTE
 CRM) on **Laravel 12 + Filament 5 + Livewire**. Not a code migration — Epesi's modules are
-reimplemented feature by feature against the real legacy source. See [README.md](README.md)
-for the project overview and [AI-shared/](AI-shared/) for architecture and conventions
-documents — read those before making non-trivial changes.
+reimplemented feature by feature against the real legacy source.
+
+## Session start
+
+Don't read [README.md](README.md) or anything under [AI-shared/](AI-shared/) just because a
+session is starting — both cost tokens for context most tasks don't need. Open README.md only
+when the project overview itself is actually needed (e.g. explaining the project, or genuine
+uncertainty about what this repo is). Open an AI-shared doc only when it's relevant to the
+change at hand: this file links the specific doc for a topic inline (e.g. `AI-shared/cron.md`)
+wherever it's relevant — read that one doc, not the whole directory, before a non-trivial
+change in that area.
 
 ## Commands
 
@@ -63,6 +82,10 @@ compiled views under `storage/framework/testing/`, and every run tests the other
 half-finished edits too. Before running tests, read
 [AI-shared/concurrent-session-tests.md](AI-shared/concurrent-session-tests.md): it asks you to tell
 the other sessions (`ListAgents`, `SendMessage`) before a run and again with the result.
+
+Don't run the full suite (`composer test` / `php artisan test` with no filter) speculatively
+while iterating — it's slow and, per above, disruptive to other sessions' runs. Save it for when
+the user asks to commit; use a `--filter`/path-scoped run for changes made along the way.
 
 ## Architecture
 

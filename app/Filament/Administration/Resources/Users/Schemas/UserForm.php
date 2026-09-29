@@ -99,7 +99,7 @@ class UserForm
 
                 if ($contact === null) {
                     $fail(__('This contact no longer exists.'));
-                } elseif (blank($contact->email)) {
+                } elseif (blank($contact->primaryEmail())) {
                     $fail(__('This contact has no e-mail address, so it can\'t be made a user.'));
                 } elseif ($contact->user_id !== null) {
                     $fail(__('This contact already has a login.'));
@@ -107,8 +107,9 @@ class UserForm
             }])
             ->afterStateUpdated(function (mixed $state, Set $set): void {
                 $contact = filled($state) ? Contact::query()->find($state) : null;
+                $email = $contact?->primaryEmail();
 
-                if ($contact !== null && blank($contact->email)) {
+                if ($contact !== null && blank($email)) {
                     Notification::make()
                         ->title(__(':name can\'t be made a user', ['name' => $contact->full_name ?: __('This contact')]))
                         ->body(__('This contact has no e-mail address. Add one to the contact first, then choose it again.'))
@@ -122,7 +123,7 @@ class UserForm
                     return;
                 }
 
-                $set('email', $contact?->email);
+                $set('email', $email);
             });
     }
 
@@ -142,7 +143,7 @@ class UserForm
             $query->where(fn ($query) => $query
                 ->where('first_name', 'like', "%{$word}%")
                 ->orWhere('last_name', 'like', "%{$word}%")
-                ->orWhere('email', 'like', "%{$word}%"));
+                ->orWhereHas('emails', fn ($query) => $query->where('value', 'like', "%{$word}%")));
         }
 
         return $query
@@ -156,6 +157,6 @@ class UserForm
 
     protected static function label(Contact $contact): string
     {
-        return trim(($contact->full_name ?: '#'.$contact->getKey()).' · '.($contact->email ?: __('(no e-mail address)')));
+        return trim(($contact->full_name ?: '#'.$contact->getKey()).' · '.($contact->primaryEmail() ?: __('(no e-mail address)')));
     }
 }

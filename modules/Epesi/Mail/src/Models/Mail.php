@@ -105,7 +105,7 @@ class Mail extends Model
     }
 
     /**
-     * Who archived it — what RecordBrowser's Record Info tab calls "created by".
+     * Who archived it — what RecordBrowser's Record Info entries call "created by".
      *
      * @return BelongsTo<User, $this>
      */

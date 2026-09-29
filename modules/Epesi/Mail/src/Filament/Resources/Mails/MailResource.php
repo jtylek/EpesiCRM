@@ -118,6 +118,7 @@ class MailResource extends Resource
             ->defaultSort('date', 'desc')
             ->columns(MailTable::columns())
             ->filters(MailTable::filters())
+            ->columnManager(false)
             ->toolbarActions([
                 DeleteBulkAction::make(),
             ]);

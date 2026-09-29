@@ -6,6 +6,7 @@ use Closure;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -62,6 +63,9 @@ class LinkedRecords
     {
         return $component
             ->badge()
+            // Medium size, as every other link badge (a collection item's, an
+            // e-mail's or a web address's) is.
+            ->size(TextSize::Medium)
             ->url(fn (Model $record, mixed $state): ?string => $url($record, $state))
             ->icon(fn (Model $record, mixed $state): ?Heroicon => filled($url($record, $state)) ? Heroicon::OutlinedLink : null)
             ->iconPosition(IconPosition::After);

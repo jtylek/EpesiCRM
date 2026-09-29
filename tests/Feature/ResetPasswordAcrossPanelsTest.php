@@ -83,7 +83,8 @@ class ResetPasswordAcrossPanelsTest extends TestCase
         Role::findOrCreate('customer');
         $user = User::factory()->create(['email' => $email]);
         $user->assignRole('customer');
-        Contact::create(['first_name' => 'Joe', 'last_name' => 'Buyer', 'email' => $email, 'user_id' => $user->id]);
+        $contact = Contact::create(['first_name' => 'Joe', 'last_name' => 'Buyer', 'user_id' => $user->id]);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => $email]]);
 
         return $user;
     }

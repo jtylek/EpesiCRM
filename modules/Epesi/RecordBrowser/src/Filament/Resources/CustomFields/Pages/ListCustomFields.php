@@ -2,10 +2,12 @@
 
 namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages;
 
+use App\Support\Demo;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldSchema;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource;
+use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
@@ -14,6 +16,24 @@ use Filament\Support\Icons\Heroicon;
 class ListCustomFields extends ListRecords
 {
     protected static string $resource = CustomFieldResource::class;
+
+    public function canReorderFields(): bool
+    {
+        $alias = $this->tableFilters['model_type']['value'] ?? null;
+
+        return ! Demo::enabled() && filled($alias)
+            && blank($this->tableFilters['origin']['value'] ?? null)
+            && blank($this->getTableSearch())
+            && app(FieldOverrides::class)->canReorder($alias);
+    }
+
+    public function reorderTable(array $order, int|string|null $draggedRecordKey = null): void
+    {
+        app(FieldOverrides::class)->authorize();
+        abort_unless($this->canReorderFields() && $this->isTableReordering(), 403);
+        app(FieldOverrides::class)->reorder($this->tableFilters['model_type']['value'], $order);
+        $this->flushCachedTableRecords();
+    }
 
     protected function getHeaderActions(): array
     {

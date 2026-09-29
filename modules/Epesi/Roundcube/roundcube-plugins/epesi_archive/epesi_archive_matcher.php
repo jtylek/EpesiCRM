@@ -33,22 +33,12 @@ final class epesi_archive_matcher
 
         $in = implode(', ', array_fill(0, count($emails), '?'));
 
-        $queries = [
-            "SELECT id FROM contacts WHERE deleted_at IS NULL AND lower(email) IN ({$in}) LIMIT 1",
-            "SELECT id FROM companies WHERE deleted_at IS NULL AND lower(email) IN ({$in}) LIMIT 1",
-            'SELECT a.id FROM epesi_mail_addresses a'
-                ." LEFT JOIN contacts c ON a.addressable_type = 'contact' AND c.id = a.addressable_id AND c.deleted_at IS NULL"
-                ." LEFT JOIN companies k ON a.addressable_type = 'company' AND k.id = a.addressable_id AND k.deleted_at IS NULL"
-                ." WHERE lower(a.email) IN ({$in}) AND (c.id IS NOT NULL OR k.id IS NOT NULL) LIMIT 1",
-        ];
+        $sql = 'SELECT e.id FROM epesi_recordbrowser_email_addresses e'
+            ." LEFT JOIN contacts c ON e.owner_type = 'contact' AND c.id = e.owner_id AND c.deleted_at IS NULL"
+            ." LEFT JOIN companies k ON e.owner_type = 'company' AND k.id = e.owner_id AND k.deleted_at IS NULL"
+            ." WHERE lower(e.value) IN ({$in}) AND (c.id IS NOT NULL OR k.id IS NOT NULL) LIMIT 1";
 
-        foreach ($queries as $sql) {
-            if ($selectOne($sql, $emails)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $selectOne($sql, $emails) !== null;
     }
 
     /**

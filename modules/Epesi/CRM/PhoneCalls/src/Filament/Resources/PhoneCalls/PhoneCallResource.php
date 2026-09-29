@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class PhoneCallResource extends RecordsetResource
@@ -64,12 +65,14 @@ class PhoneCallResource extends RecordsetResource
                     ->label('Customer')
                     ->visible(fn (PhoneCall $record): bool => $record->other_customer)),
 
+            // Live, as is Company: Phone Number suggests their numbers.
             Field::relation('contact_id', Contact::class)
                 ->label('Contact')
                 ->inTable()
                 ->filterable()
                 ->formUsing(fn (Select $component): Select => $component
                     ->searchable(['first_name', 'last_name'])
+                    ->live()
                     ->visible(fn (Get $get): bool => ! $get('other_customer')))
                 ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
                     ->visible(fn (PhoneCall $record): bool => ! $record->other_customer))
@@ -80,12 +83,23 @@ class PhoneCallResource extends RecordsetResource
                 ->label('Company')
                 ->filterable()
                 ->formUsing(fn (Select $component): Select => $component
+                    ->live()
                     ->visible(fn (Get $get): bool => ! $get('other_customer')))
                 ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
                     ->visible(fn (PhoneCall $record): bool => ! $record->other_customer))
                 ->columnUsing(fn (TextColumn $column): TextColumn => $column->searchable()),
 
-            Field::phone('phone_number')->label('Phone Number'),
+            // Suggests the contact's and the company's numbers, but stays
+            // text: a call keeps the number it was made to after the
+            // contact's changes.
+            Field::phone('phone_number')->label('Phone Number')
+                ->formUsing(fn (TextInput $component): TextInput => $component
+                    ->extraInputAttributes(fn (TextInput $component): array => ['list' => $component->getId().'-numbers'])
+                    ->belowContent(fn (TextInput $component, Get $get): ?HtmlString => static::numberSuggestions(
+                        $component->getId().'-numbers',
+                        $get('other_customer') ? null : $get('contact_id'),
+                        $get('other_customer') ? null : $get('company_id'),
+                    ))),
 
             Field::dateTime('called_at')
                 ->label('Date and Time')
@@ -101,8 +115,10 @@ class PhoneCallResource extends RecordsetResource
                 ->required()
                 ->crits(fn (Builder $query): Builder => $query->ofCompany(auth()->user()?->companyId())),
             // Any other record the call is about — Epesi's `__RECORDSETS__`
-            // Related field.
-            Field::related('related')->label('Related'),
+            // Related field, restricted to Companies and Contacts: unrestricted
+            // it offers every recordset with a View page, which put Phone
+            // Calls on Mail's and Notes' own "linked from" tabs too.
+            Field::related('related', [Company::class, Contact::class])->label('Related'),
 
             StatusField::make(),
             Field::select('priority', RecordPriority::class)
@@ -116,5 +132,39 @@ class PhoneCallResource extends RecordsetResource
 
             Field::longText('description'),
         ];
+    }
+
+    /**
+     * The numbers of the contact and the company picked, as a datalist the
+     * Phone Number input offers, each labelled by its kind ("Mobile", the
+     * company's "Acme Ltd: Work"). Filament's own datalist() takes the
+     * values alone. Each record through its own query, so one the user
+     * can't see offers nothing.
+     */
+    protected static function numberSuggestions(string $id, mixed $contactId, mixed $companyId): ?HtmlString
+    {
+        $contact = filled($contactId) ? Contact::query()->find($contactId) : null;
+        $company = filled($companyId) ? Company::query()->find($companyId) : null;
+        $options = [];
+
+        foreach ($contact?->phones ?? [] as $phone) {
+            $options[$phone->value] ??= (string) $phone->kindLabel();
+        }
+
+        foreach ($company?->phones ?? [] as $phone) {
+            $options[$phone->value] ??= implode(': ', array_filter([$company->company_name, $phone->kindLabel()], filled(...)));
+        }
+
+        unset($options['']);
+
+        if ($options === []) {
+            return null;
+        }
+
+        return new HtmlString('<datalist id="'.e($id).'">'.implode('', array_map(
+            fn (string $number, string $label): string => '<option value="'.e($number).'" label="'.e($label).'"></option>',
+            array_keys($options),
+            $options,
+        )).'</datalist>');
     }
 }

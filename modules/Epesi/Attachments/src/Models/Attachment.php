@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -86,6 +87,14 @@ class Attachment extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function latestEdit(): MorphOne
+    {
+        return $this->morphOne(Activity::class, 'subject')->ofMany(
+            ['created_at' => 'max', 'id' => 'max'],
+            fn (Builder $query) => $query->whereIn('event', ['created', 'updated']),
+        );
     }
 
     /**

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -136,7 +137,7 @@ abstract class RecordsetResource extends Resource
             fn (Field $field): bool => ! in_array($field->name, $names, true),
         );
 
-        return [...$declared, ...array_values($custom)];
+        return app(FieldOverrides::class)->resolve(static::getModel(), [...$declared, ...array_values($custom)]);
     }
 
     // ---------------------------------------------------------------- Form --
@@ -273,12 +274,12 @@ abstract class RecordsetResource extends Resource
             $fields,
         )));
 
-        if (static::modelSoftDeletes()) {
+        if (static::modelSoftDeletes() && Auth::user()?->hasRole('super_admin')) {
             $filters[] = TrashedFilter::make();
         }
 
         $table = $table
-            ->columns(array_map(fn (Field $field): mixed => $field->toTableColumn(), $fields))
+            ->columns(array_merge(...array_map(fn (Field $field): array => $field->toTableColumns(), $fields)))
             ->filters($filters)
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActions([

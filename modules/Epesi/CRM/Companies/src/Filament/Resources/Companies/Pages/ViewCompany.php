@@ -16,7 +16,7 @@ class ViewCompany extends ViewRecord
     {
         return [
             EditAction::make()->icon(Heroicon::OutlinedPencil),
-            CloneRecordAction::make(CompanyResource::class, ['email']),
+            CloneRecordAction::make(CompanyResource::class),
         ];
     }
 }

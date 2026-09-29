@@ -36,10 +36,13 @@ Everything about a recordset's fields, in one place:
     e-mail, a task or a meeting, or any record a module adds.
 
   A contact can then start with just a name and fill in over time.
-- **Eleven steps.** Steps 1–5 are done: step 4 finished Administration → Fields, and step 5
-  built collections and moved addresses into them. Steps 6–9 add phone numbers, online accounts
-  and e-mail addresses as collections, and the related-record tabs. Steps 10–11 add `calculated`
-  and `currency`.
+- **Eleven steps.** Steps 1–8 are done: step 4 finished Administration → Fields, step 5 built
+  collections and moved addresses into them, step 6 moved phone numbers (with their
+  messengers) and websites, step 7 moved e-mail addresses — absorbing Mail's
+  `epesi_mail_addresses` table and its "E-mail addresses" tab into the same collection — and
+  step 8 gave every recordset a tab of records linking to it, replacing the hand-written
+  Tasks/Phone Calls/Meetings/Contacts relation managers. Step 9 moves Notes and Mail onto the
+  same mechanism; steps 10–11 add `calculated` and `currency`.
 
 ## Part 1 — The `Field` DSL and Filament
 
@@ -86,8 +89,8 @@ Two consequences worth internalising:
 - **`FieldType` values are stored data.** `custom_fields.type` holds the enum's string value for
   every administrator-added field, so renaming a case is a migration, not a refactor.
 - **The enum is the framework-neutral part.** A `FieldType` says what a field *means*; only the
-  `build*` methods know Filament exists. That separation is what keeps the MoonShine question
-  answerable — see [Epesi-Moonshine-Laravel.md](Epesi-Moonshine-Laravel.md).
+  `build*` methods know Filament exists. That separation is what would keep a future
+  UI-framework question answerable, should one ever come up.
 
 ### What Filament provides
 
@@ -208,9 +211,76 @@ scaffolds it into a new recordset by default.
 ### Administration → Fields
 
 `Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\CustomFieldResource`, gated to
-`super_admin` like the rest of the Administration panel. It lists every custom field on every
-recordset, grouped by recordset by default, with a **Recordset** filter and column to narrow it
-down.
+`super_admin` like the rest of the Administration panel. It lists module-defined and custom
+fields together, grouped by recordset, with **Recordset** and **Origin** filters. Rows open
+View before Edit. Custom fields retain their existing View/Create/Edit pages and the
+confirmed **Drop column** action on View. Module-defined fields open a properties dialog;
+they cannot be dropped or structurally changed from this screen.
+
+#### Editing module-defined fields
+
+The module's `fields()` declaration remains the default definition. Administration → Fields
+stores only explicitly customized properties in `epesi_recordbrowser_field_overrides`, keyed
+by the recordset's stable morph alias and the field's name. No database columns or PHP files
+are changed. Each editable property has **Use module default**; clearing it enables an
+override, and selecting it again resumes inheritance. **Reset to module defaults** removes
+all overrides for that field. Explicit overrides survive module updates; untouched properties
+take the module's latest defaults.
+
+The editor offers Label, Help text, Group, Position, form/view visibility, default list-column
+visibility, filtering and Required where supported. Positions are compared across the resolved
+field list; module defaults use declaration order in increments of ten, followed by active
+custom fields in their configured order. Group still determines which card contains a field.
+List visibility changes the default, preserving users' saved column preferences.
+
+To arrange fields by dragging, select a single **Recordset**, clear search and **Origin**,
+then choose **Reorder fields**. Drag rows by their handles and select **Done reordering**
+when finished. Each drop saves immediately. Reorder mode shows the entire recordset, including
+custom and inactive fields, regardless of pagination or the previous column sort. The saved
+order is used by forms and record views; Group membership still determines which card a field
+appears in. Collection-item forms use the same ordering.
+
+Reordering writes position overrides for module and custom fields together, preserving other
+settings. Custom fields also retain the numeric Position editor; changing that number updates
+their saved drag position. The catalogue displays the same effective order as the field
+resolver. A module that locks a field's `position` disables drag reordering for that recordset.
+The server validates the complete recordset membership before saving an order atomically;
+partial lists, duplicate rows and rows from another recordset are rejected. Demo mode and
+non-administrator requests cannot reorder fields.
+
+Module-required fields cannot be made optional or removed from forms. Inputs absent from the
+module's form cannot be exposed through an override. Non-null database columns without a
+default also lock Required and form visibility. Making an optional field required validates
+future form submissions; it does not backfill existing records. A field cannot be both
+required and hidden from the form. Hiding a field preserves its data and History and is not
+an access-control mechanism. Types, names, relationship targets and storage settings remain
+module-owned; PHP callbacks and export settings are not offered here.
+
+Modules can further restrict editable properties with `->administratorEditable([...])` on
+a `Field`, using keys such as `label`, `help`, `section`, `position`, `show_in_form`,
+`show_in_view`, `show_in_table`, `filterable` and `required`. An empty array locks all
+properties. This restricts the engine's safe defaults; it cannot unlock a required input.
+Restrictions are checked on save, including for super admins, and reapplied when resolving
+previously saved overrides after a module update.
+
+`FieldOverrides` applies settings to copies in `RecordsetResource::resolvedFields()` and
+`CollectionItem::resolvedFields()`. Forms, views, tables, filters, History labels and Watchdog
+labels consume the resolved definitions. Its cache is request-local and invalidated on save,
+along with the collection-field registry. Missing override storage during installation uses
+the module defaults. Disabled or removed modules leave their settings dormant until their
+recordsets are registered again.
+
+Collection-item settings apply to the shared item forms and supported list/filter behavior.
+Their Group and view-visibility controls stay locked: collection types author their own
+summaries rather than rendering an ordinary record infolist. Their internal Kind/Service
+selector is not part of this catalogue. Module field names must remain stable; a module that
+renames a field must explicitly migrate any settings it wants to retain.
+
+Legacy's `RecordBrowser::view_field()` offered captions, table visibility, required status,
+filtering, export, help and type-specific settings. This override layer restores the safe
+presentation and validation controls for shipped fields, without reproducing browser-entered
+PHP or runtime changes to their storage. `FieldOverridesTest` covers inheritance/reset,
+rendering and validation, collection items, module restrictions and administrator access.
 
 #### Adding a field
 
@@ -625,13 +695,13 @@ cases, and leaves the registry as a decision of its own.
 ### The problem
 
 Before collections, a record held a fixed number of each kind of contact detail, each in columns
-of its own. Addresses have since become a collection ([step 5](#step-5-done)); phone numbers,
-e-mail addresses and web addresses are still columns:
+of its own. Addresses have since become a collection ([step 5](#step-5-done)), phone numbers and
+web addresses too ([step 6](#step-6-done)), and e-mail addresses last ([step 7](#step-7-done)):
 
-- A contact has one e-mail address, a work, mobile and home phone and a fax, and had two
-  addresses: `address_1` … `zone`, and the same six again prefixed `home_`. A company has one
-  e-mail, one phone, one fax, and had one address.
-- A third address had nowhere to go, and a second mobile number still hasn't. Each extra slot is
+- A contact has one e-mail address, and had a work, mobile and home phone, a fax, a web address
+  and two addresses: `address_1` … `zone`, and the same six again prefixed `home_`. A company
+  has one e-mail, and had one phone, one fax, one web address and one address.
+- A third address had nowhere to go, and neither had a second mobile number. Each extra slot is
   a migration and another set of columns. `AddressFields::block()` took a column prefix only so
   that Contact could declare its address twice.
 - Where more than one is needed, it is bolted on elsewhere. Extra e-mail addresses live in Mail's
@@ -640,8 +710,9 @@ e-mail addresses and web addresses are still columns:
   Roundcube address book is a UNION of four SELECTs. Extra postal addresses would need another
   recordset with another tab, and every consumer (a shipping form, a mail merge) would have to
   enumerate that too.
-- A consumer that needs "a phone number" must know the column names. The Phone Calls importer
-  maps legacy's phone choice 1, 2 and 3 onto `mobile_phone`, `work_phone` and `home_phone`.
+- A consumer that needed "a phone number" had to know the column names. The Phone Calls
+  importer mapped legacy's phone choice 1, 2 and 3 onto `mobile_phone`, `work_phone` and
+  `home_phone`.
 
 The records that link to a contact have the same kind of problem. Each tab on a contact's View page
 (Tasks, Phone Calls, Meetings) is a hand-written relation manager, and each is written again for
@@ -725,7 +796,7 @@ recordset can use them without depending on Contacts:
 | `Address` | Address 1, Address 2, City, Postal code, Country, Zone | Business, Home, Billing, Shipping, Other |
 | `PhoneNumber` | Number, Messengers | Work, Mobile, Home, Fax, Other |
 | `EmailAddress` | Address | Work, Private, Other |
-| `OnlineAccount` | Handle | Website, LinkedIn, Telegram, Microsoft Teams, Facebook, X, Instagram, Other |
+| `OnlineAccount` | Handle | Website, LinkedIn, Telegram, Microsoft Teams, Facebook, X, Instagram, GitHub, Other |
 
 A module adds a type of its own in the same way (bank accounts, for example): a model extending
 `CollectionItem`, a migration for its table and a morph alias.
@@ -785,11 +856,20 @@ service:
 | LinkedIn | `https://www.linkedin.com/in/<handle>` |
 | Telegram | `https://t.me/<handle>`, without the `@` |
 | Microsoft Teams | `https://teams.microsoft.com/l/chat/0/0?users=<handle>` |
-| Facebook, X, Instagram | `https://www.facebook.com/<handle>`, `https://x.com/<handle>`, `https://www.instagram.com/<handle>` |
+| Facebook, X, Instagram, GitHub | `https://www.facebook.com/<handle>`, `https://x.com/<handle>`, `https://www.instagram.com/<handle>`, `https://github.com/<handle>` |
 
 A handle that is already a URL links to itself, whatever the service. These patterns live in
 code, since CommonData holds only a key and a label. A service an administrator adds (Discord,
 say) shows its handle as plain text unless the handle is a URL.
+
+**Validation checks the handle's shape, not whether the account is real.** Website, and any
+kind given a pasted URL, need something that looks like a domain (a dot in the host, with or
+without a scheme); Teams needs an e-mail address, since that's what it holds; every other kind
+needs a plain handle — letters, digits, `.`, `_` and `-`, with an optional leading `@`
+(`OnlineAccount::handleRule()`). That's as far as it goes: "jdfksdfj" is exactly as
+valid-looking an X handle as a real one, and only X itself could tell them apart, so it passes.
+The check catches what's *never* a handle for that service (spaces, a stray `@` mid-string, a
+sentence typed into the wrong field), not whether that one is taken.
 
 #### Kind and order
 
@@ -826,8 +906,19 @@ to agree with the order, and the order alone can't contradict itself.
 
 #### The form
 
-The form shows a `Repeater` of the type's fields plus Kind, one card per item, reorderable, with
-"Add address" (or "Add phone number") beneath. It is wired the way the `Related` field's select
+The form shows a `Repeater` of the type's fields plus Kind, one card per item, reorderable.
+
+- **Collapsed.** A saved item's card starts collapsed to its label ("Work: +48 22 555 01 01"),
+  which says what it holds, so a record's form stays short. A card just added opens, and so does
+  one holding a validation error (Filament's own `expand` event).
+- **One row above the cards.** "Add phone number" (or "Add address") comes first, then one badge
+  that toggles between Collapse all and Expand all, starting from how the cards start. Filament
+  puts Add below the cards and shows both of the others, so the row is laid out in CSS
+  (`epesi-collection-repeater`, in RecordBrowserServiceProvider's styles) and the toggle is an
+  Alpine flag (`allCollapsed`) that shows one of Filament's two actions at a time. New cards are
+  still added at the end: the first card is the primary item.
+
+It is wired the way the `Related` field's select
 is: `dehydrated(false)`, filled from the relation when the form loads, and saved by
 `saveRelationshipsUsing()` calling `syncCollection()` after the record is saved. Don't use
 Filament's `Repeater::relationship()`: it saves the rows itself, and so would bypass the History
@@ -856,27 +947,36 @@ Validation:
 
 #### View page, list, search and filters
 
-- **View page.** One line per item: the kind as a badge, then the summary, then any
-  administrator's field that holds something ("Gate code: 4412"). An e-mail address links
-  through `RecordExtensions::emailLink()`, as the `Email` type does. A phone number shows an icon
-  per messenger, and each icon opens the app on that number (`https://wa.me/48600100200`,
-  `https://signal.me/#p/+48600100200`, `viber://chat?number=%2B48600100200`,
-  `https://t.me/+48600100200`). The link patterns for the four messengers the list starts with
-  live in code, since CommonData holds only a key and a label. A messenger an administrator adds
-  shows as a badge without a link.
+- **View page.** One line per item (`collection-items.blade.php`): the kind as a badge, then the
+  summary, then the item's own badges, then any administrator's field that holds something
+  ("Gate code: 4412").
+  - An item with a page elsewhere (`CollectionItem::url()`) shows its summary as a badge with a
+    link icon, opening in a new tab, as the `Url` type does: an online account's profile. An
+    e-mail address will link through `RecordExtensions::emailLink()`, as the `Email` type does.
+  - A phone number has a badge per messenger (`CollectionItem::links()`), and each opens the app
+    on that number (`https://wa.me/48600100200`, `https://signal.me/#p/+48600100200`,
+    `viber://chat?number=%2B48600100200`, `https://t.me/+48600100200`). The link patterns for the
+    four messengers the list starts with live in code (`PhoneNumber::MESSENGER_LINKS`), since
+    CommonData holds only a key and a label. A messenger an administrator adds shows as a badge
+    without a link, and so does any messenger on a number without its country code.
 - **List.** `->inTable()` shows the primary item: the e-mail address, the phone number, or the
   City of the first address (the field its type marks `inTable()`, which also names the column).
-  `->columnsForKinds(['work',
-  'mobile'])` shows the first item of each named kind as a column of its own instead, which keeps
-  the Work phone and Mobile phone columns the Contacts list has now. A page's items load in one
-  query per collection field, as the Related field's links do.
-- **Sorting** uses a subquery on the first item (`sortable(query:)`). **Searching** matches any
-  item, so a contact is found by their second e-mail address.
-- **Global search.** `getGloballySearchableAttributes()` adds each collection's searchable fields
-  as dot paths: `emails.value`, `phones.digits`, `addresses.city`.
+  `->columnsForKinds(['work' => 'Work Phone', 'mobile' => 'Mobile Phone'])` shows the first item
+  of each named kind as a column of its own instead (`phones_work`, `phones_mobile`), which keeps
+  the Work Phone and Mobile Phone columns of the Contacts list. A page's items load in one query
+  per collection field, as the Related field's links do.
+- **Sorting** uses a subquery on the first item (`sortable(query:)`), or the first of its kind.
+  **Searching** matches any item, so a contact is found by their second e-mail address. The
+  type names the columns (`CollectionItem::searchColumns()`) and can reshape the term per column
+  (`searchTerm()`): a phone number is also looked for by the digits typed, so "600100200" and
+  "600-100-200" both find "600 100 200".
+- **Global search.** `getGloballySearchableAttributes()` adds each collection's search columns
+  as dot paths: `emails.value`, `phones.digits`, `addresses.city`, `online_accounts.value`.
 - **Filters.** `->filterable()` gives one filter of several inputs: has any (yes or no), which
-  kinds, and the type's own filterable fields, such as Country (a choice) and City (contains) for
-  addresses. Each input names its field, since Filament gives such a filter no heading.
+  kinds (named by the type: "Online accounts: Service"), and the type's own filterable fields,
+  such as Country (a choice) and City (contains) for addresses, or Messengers for phone numbers
+  (any of those picked, a JSON match). Each input names its field, since Filament gives such a
+  filter no heading.
 
 #### History and Watchdog
 
@@ -1087,9 +1187,9 @@ Eleven steps, in order. Each one ships on its own and leaves the engine working.
 | 3 | "Link to any record" | 3–5 days | — | Done |
 | 4 | Record and shared-list selects in Administration → Fields | 1–2 days | Step 3's link table | Done |
 | 5 | Collections, starting with addresses | 4–6 days | — | Done |
-| 6 | Phone numbers, with messengers, and online accounts | 2–3 days | Step 5 | |
-| 7 | E-mail addresses as a collection | 3–4 days | Step 5 | |
-| 8 | A tab for every recordset that links here | 3–5 days | — | |
+| 6 | Phone numbers, with messengers, and online accounts | 2–3 days | Step 5 | Done |
+| 7 | E-mail addresses as a collection | 3–4 days | Step 5 | Done |
+| 8 | A tab for every recordset that links here | 3–5 days | — | Done |
 | 9 | Notes and Mail on the shared link table | 2–3 days | Step 8 | |
 | 10 | `->calculated()` | 1 day | — | |
 | 11 | `currency` | 3–4 days | A new Currencies module | |
@@ -1184,83 +1284,134 @@ What differs from the plan:
   an item can hold (`FieldType::fitsCollectionItem()`).
 - **Home Phone** moved up beside the contact's other phones: its Home Address section is gone.
 
-### Step 6: phone numbers, with messengers, and online accounts
+### Step 6: done
 
-- **The `PhoneNumber` type.** Its table (`value`, `digits`, `messengers`), its morph alias,
-  `phone_number`, `Phone_Kinds` (Work, Mobile, Home, Fax, Other), and `Phone_Messengers`
-  (WhatsApp, Signal, Viber, Telegram).
-- **Messengers.** A multiple select on each number, and on the View page an icon per messenger
-  that opens the app on the number. The apps' links need the international prefix, so the form
-  warns when a messenger is ticked on a number that doesn't start with `+`. The list gets a
-  Messengers filter ("on WhatsApp").
-- **Contacts and Companies.** A contact's four phone columns and a company's two become items. The
-  Contacts list keeps its Work and Mobile columns through `->columnsForKinds()`.
-- **Phone Calls.** The Phone Number field suggests the contact's numbers, and the importer maps
-  legacy's phone choice onto kinds.
-- **The `OnlineAccount` type.** Its table (`value`), its morph alias, `online_account`, and
-  `Online_Account_Kinds` (Website, LinkedIn, Telegram, Microsoft Teams, Facebook, X, Instagram,
-  Other), with the kind required. The View page links each handle by its service. The list gets
-  a Service filter ("has LinkedIn"), and global search finds a handle.
-- **Websites.** Contacts' and companies' `web_address` becomes an online account of kind Website,
-  and a migration then drops the column. The legacy importers and the demo seeder map
-  `f_web_address` the same way, and `YourCompanyStep` writes one.
-- **Customer portal.** `MyContact` declares both collections.
-- **Tests:**
-  - searching by digits, and the list's kind columns;
-  - the Phone Calls suggestions;
-  - a messenger's icon links to the number, and the warning on a number without `+`;
-  - the Messengers filter;
-  - each service's link, including a pasted URL and an administrator's service;
-  - the migration moves a web address;
-  - the portal saves a number and an account.
+Described under [Collections](#collections). A contact's work, mobile and home phone and fax
+are phone numbers of those kinds, in that order, and a company's phone and fax of kinds Work
+and Fax; both records' web address is an online account of kind Website. The pieces:
 
-### Step 7: e-mail addresses as a collection
+| File | What it is |
+| --- | --- |
+| `modules/Epesi/RecordBrowser/src/Models/PhoneNumber.php` | The PhoneNumber type, alias `phone_number`: the number, its digits (set on save), its messengers and their links |
+| `modules/Epesi/RecordBrowser/src/Models/OnlineAccount.php` | The OnlineAccount type, alias `online_account`: the handle, its link by service, and its shape check against the chosen service (`handleRule()`) |
+| `modules/Epesi/RecordBrowser/database/migrations/2026_09_28_150000_…`, `…150100_…`, `…150200_…` | The two tables, and the `Phone_Kinds`, `Phone_Messengers` and `Online_Account_Kinds` lists |
+| `modules/Epesi/RecordBrowser/database/migrations/2026_09_29_100000_add_github_to_online_account_kinds.php` | GitHub, added to `Online_Account_Kinds` after an install may already have the list without it (a later migration, not an edit to `…150200_…`, which every install has already run) |
+| `modules/Epesi/CRM/Companies/database/migrations/2026_09_28_160000_…`, `modules/Epesi/CRM/Contacts/database/migrations/2026_09_28_160100_…` | Moving the phone, fax and web address columns into items |
+| `tests/Feature/Modules/PhoneNumbersAndOnlineAccountsTest.php` | The tests; `PortalTest` saves a number and an account |
+
+What the engine gained on the way, in `Field` and `CollectionItem`:
+
+- `->columnsForKinds()` and `Field::toTableColumns()`, which the list builders call instead of
+  `toTableColumn()`: one field can make several columns.
+- `CollectionItem::searchColumns()` and `searchTerm()`, so a type searches a column it keeps for
+  searching (a phone number's digits) by a term of its own.
+- `CollectionItem::url()` and `links()`, for the View page's links, and `historyDetails()`, what
+  a History line adds in brackets (a number's messengers).
+- `CollectionItem::kindFieldLabel()`: the kind of an online account is its Service, on the form
+  and in the filter.
+- The collection filter matches a field holding several values (Messengers) by any of those
+  picked.
+
+What differs from the plan:
+
+- **Messengers are badges, not icons.** The app has no brand icon set, so each is a badge with
+  the messenger's name and a chat icon, linking out as a web address's badge does.
+- **The country code.** A number starting with `00` has it too, as with `+`. A messenger on a
+  number with neither is a badge without a link, since a link without the country code would
+  open a chat with the wrong number. The form's warning is a hint beside Messengers, not an
+  error: the number saves either way.
+- **Phone Calls.** The Phone Number field suggests the company's numbers as well as the
+  contact's ("Acme Ltd: Work"), since legacy's phone choice 4 was the company's phone. The
+  suggestions are a datalist the input points at, labelled by kind: Filament's own `datalist()`
+  takes values alone. Contact and Company became live fields for it.
+- **Online accounts.** A handle holding a `/` (`linkedin.com/in/ann`) counts as a URL without its
+  scheme and links to itself, as one starting with `http(s)://` does.
+- **The Contacts list** shows Email before the Work Phone and Mobile Phone columns: the phones
+  are one full-width field now, after Memo, and the list takes its columns in field order.
+- **Company's Contacts tab** (until step 8 replaces it) takes the phone numbers on its quick
+  form, and shows the Work Phone column through `columnsForKinds()`.
+
+### Step 7: done
 
 - **The `EmailAddress` type.** Its table (`value`, lower-cased, with a unique index), its morph
   alias, `email_address`, and `Email_Kinds` (Work, Private, Other).
 - **Contacts and Companies.** A contact's and a company's `email` becomes their first item, and
-  Mail's `epesi_mail_addresses` rows follow it. The migration moves them in that order:
-  contacts' addresses, then companies', then Mail's. An address already taken by an earlier
-  record isn't moved; the migration lists it with both records for an administrator to settle.
-  Mail then drops the table, `MailAddress` and the "E-mail addresses" tab.
-- **Consumers.** `ContactMatcher`, `relinkExisting()` on the item's `saved` event,
-  `Records::emailsOf()`, the compose page's suggestions, `MailArchiver`, `LinkRecordAction`, the
-  Roundcube address book, `UserForm` and `CreateUser`, and the portal.
-- **Import.** The contacts and companies importers, and legacy's `rc_multiple_emails`. An
-  address already on another record is skipped and reported in the import summary.
-- **Tests:**
-  - mail from a contact's second address is linked to the contact;
-  - adding an address links the mail already archived from it;
-  - the address book lists every address;
-  - a user made from a contact takes its primary address;
-  - a contact's address can't be added to a company or to a second contact, and the message
-    names the record that has it;
-  - the migration moves a shared address once and lists it.
+  Mail's `epesi_mail_addresses` rows follow it. Three migrations move them in that order:
+  Contacts' own, then Companies', then Mail's, each named `move_*_email(s)_into_items*`. An
+  address already taken by an earlier record isn't moved; the migration logs it
+  (`Log::warning()`) for an administrator to settle. Mail then drops the table, `MailAddress`
+  and the "E-mail addresses" tab.
+- **Consumers.** `ContactMatcher`, `relinkExisting()` on the item's `saved` event (moved from a
+  `Contact`/`Company` `saved` listener to an `EmailAddress::saved()` one, so it now covers any
+  recordset using the type, not only Contacts/Companies), `Records::emailsOf()`, `MailArchiver`,
+  `LinkRecordAction`, the Roundcube address book and archive matcher, `UserForm` and
+  `CreateUser` (via `Contact::primaryEmail()`), and the portal.
+- **Import.** The contacts and companies importers gained `Importer::legacyExtraEmails()` and
+  `withoutTakenEmails()` (on the base `Importer` class, so both share them); `MailImporter` lost
+  `importAddresses()` entirely, since `rc_multiple_emails` is read from the two importers instead.
+- **What differs from the plan.**
+  - The uniqueness message on the form names the conflicting record
+    (`RecordBrowser\Filament\LinkedRecords::title()`) but doesn't call out a soft-deleted one by
+    name — `MorphTo`'s own query still applies `SoftDeletingScope`, so a trashed owner's `title()`
+    can't be resolved from the item's `owner` relation; the message falls back to "another
+    record" in that case rather than naming it and suggesting Restore.
+  - `LinkRecordAction`'s and `UserForm`'s contact/company picker no longer search by e-mail
+    address, except `UserForm`'s (kept via `orWhereHas('emails', …)`, since losing "find a
+    contact to link a login to by their address" would be a real regression); `LinkRecordAction`
+    drops it rather than adding a join to a picker whose job is finding a record by name.
+  - `Field::email('email')` (the plain scalar type) still exists — nothing here removed
+    `FieldType::Email`, only Contacts'/Companies' own use of it.
 
-### Step 8: a tab for every recordset that links here
+### Step 8: done
 
-- **What links where.** A registry that reads every main-panel `RecordsetResource`'s
-  `resolvedFields()` for `Relation`, `Relations` and `Related` fields, and maps each target alias
-  to the recordsets and fields pointing at it. It is built once per request, since custom fields
-  can add to it.
-- **The tab.** One relation manager, configured per linking recordset, registered through
-  `RecordExtensions` for every target. `->listedOnTarget(false)` opts a field out.
-- **Its table.** Built by the linking recordset's own `table()`. Its row actions become View
-  and Edit, and both open the record's own pages. Its bulk actions go. A single-record linking
-  field's column and filter are dropped, and a **Linked as** filter is added when several fields
-  point here.
-- **Create from here.** `CreateRecord` fills a link from `?link=alias:id`.
-- **Clean-up.** Delete the seven hand-written relation managers, and the inverse relations
-  (`tasksAsCustomer` and the like) that nothing else uses.
-- **Tests:**
-  - a contact's tabs list tasks through each of the three field kinds;
-  - a private task stays hidden from another employee;
-  - the tab offers the recordset's own filters, including a custom field's, and they narrow it;
-  - Linked as narrows a contact's Tasks tab to the tasks naming them as customer;
-  - a company's Phone Calls tab has no Company column or filter;
-  - Edit shows only to a user who may edit the record, and no row offers Delete;
-  - New fills the link in;
-  - a test module's recordset with a `Relation` to Contact gets a tab with no code in Contacts.
+| File | What it is |
+| --- | --- |
+| `modules/Epesi/RecordBrowser/src/Recordset/IncomingLinks.php` | The registry: `for($target)` reads every main-panel `RecordsetResource`'s `resolvedFields()` for `Relation`, `Relations` and `Related` fields pointing at `$target`'s model, built fresh per call so an administrator's link field counts too; `addons()` turns that into the tab list; `query()` is the shared `WHERE` behind both the tab and its badge count |
+| `modules/Epesi/RecordBrowser/src/Filament/RelationManagers/LinkedRecordsRelationManager.php` | The one relation manager behind every such tab, configured per linking recordset (`sourceResource`). Builds its table from the linking recordset's own `table()`, drops a single-relation field's column and filter, adds **Linked as** when several fields point here, and turns row actions into View/Edit (no Delete, no bulk actions) and the header action into New with `?link=` set |
+| `RecordExtensions::addonsFor()` | Appends `IncomingLinks::addons($record)` to a record's addon list |
+| `ViewRecord::getRelationManagersContentComponent()` | Builds each such tab's `Tab` (title, badge, schema) from a `RelationManagerConfiguration` instead of a relation manager class string |
+| `CreateRecord::afterFill()` | Reads `?link=alias:id` and fills the field(s) on the create form that point at that record |
+| `Field::listedOnTarget()`/`isListedOnTarget()` | The per-field opt-out |
+| `tests/Feature/Modules/IncomingLinksTest.php` | The tests |
+
+What differs from the plan:
+
+- **What links where** isn't cached across a request, unlike the custom-field and collection
+  registries (`CustomFieldRegistry`, `CollectionFields`). `IncomingLinks::for()` is cheap enough
+  (one pass over already-resolved fields) that a page building several tabs just calls it again
+  per tab rather than adding a third cache to invalidate.
+- **The clean-up went further than the seven relation managers.** Company's `ContactsRelationManager`
+  doubled as an inline "add a contact from the company page" form (`CreateAction` with its own
+  fields), which the generic tab doesn't reproduce — its New action opens the linking
+  recordset's own Create page instead, with the link pre-filled, in keeping with "no inline modal
+  forms" above. `CompanyContactsEmailTest`, which tested that inline form's e-mail-uniqueness
+  validation, was deleted; the same validation is covered generically by `EmailAddressesTest`.
+  `AddonBadgesTest`'s generic "an addon action tells the page to recount" test, which had used
+  that same form as a convenient writable relation manager, was repointed at the Reminders addon
+  instead (still a real inline `CreateAction` on a View page).
+- **The last test on the plan's list — a test module's recordset with a `Relation` to Contact
+  gets a tab with no code in Contacts — wasn't added.** There's no fixture module in the test
+  suite to declare one. The mechanism it would prove is already exercised by every recordset
+  `IncomingLinksTest` uses: none of Tasks', Phone Calls' or Meetings' tabs on Contact are wired
+  up from Contacts' own module. It's also proven by a real one: the private `Premium/ProjectsTickets`
+  module (see below) already had its own hand-written "Projects" tab on Company/Contact from
+  before step 8 existed, registered the old way (`RecordExtensions::addon()`); once its
+  `ProjectResource` gained proper `Field::relations('customerContacts', Contact::class)` /
+  `customerCompanies` fields, Contact's page showed **two** "Projects" tabs — the hand-written
+  one and the generic one `IncomingLinks` now builds from those same fields. The fix was the
+  same as the CRM's own cleanup: delete the module's hand-written relation manager and its
+  registration, since the fields it already declared make the tab superfluous. Any other module
+  with a similar hand-rolled "linked records" tab needs the same cleanup — the fields, not the
+  tab, are what's needed now.
+- **`IncomingLinks::for()` only builds tabs for a target that is itself a recordset** — a model
+  with its own main-panel View page (`LinkableRecordsets::resource() !== null`). Without that
+  guard, `Field::relation('user_id', User::class)` on Contact (the linked-login field) made
+  Administration's `ViewUser` page — which shares the same `ViewRecord` base as every main-panel
+  resource — grow a "Contacts" tab of its own, breaking `UserManagementTest`'s "an account with
+  no contact shows its name and no link" (the tab's own "New" button always links to
+  `/contacts/create`, even with nothing to show). A `Relation`/`Relations`/`Related` field can
+  point at any model; a tab only makes sense when the far side is a recordset a user can browse
+  to on its own.
 
 ### Step 9: Notes and Mail on the shared link table
 

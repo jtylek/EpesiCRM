@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -33,7 +34,7 @@ class AddressFields
         return Field::text('country')->formUsing(fn (TextInput $component, Field $field): Select => Select::make('country')
             ->label($field->getLabel())
             ->required($field->isRequired())
-            ->options(Countries::options())
+            ->options(fn (): array => CommonData::array('Countries'))
             ->searchable()
             ->native(false)
             ->live()
@@ -49,14 +50,26 @@ class AddressFields
             ->formUsing(fn (): Group => Group::make([
                 Select::make('zone')
                     ->label($label)
-                    ->options(fn (Get $get): array => Zones::forCountry($get('country')))
+                    ->options(fn (Get $get): array => static::zonesFor($get('country')))
                     ->searchable()
                     ->native(false)
-                    ->visible(fn (Get $get): bool => Zones::hasZones($get('country'))),
+                    ->visible(fn (Get $get): bool => static::zonesFor($get('country')) !== []),
                 TextInput::make('zone')
                     ->label($label)
                     ->maxLength(64)
-                    ->visible(fn (Get $get): bool => ! Zones::hasZones($get('country'))),
+                    ->visible(fn (Get $get): bool => static::zonesFor($get('country')) === []),
             ])->columns(1));
+    }
+
+    /**
+     * A country's zone list, or empty for one with none — including an
+     * unchosen country, which a bare 'Countries/'.$country would resolve to
+     * the Countries list itself rather than an empty path.
+     *
+     * @return array<string, string>
+     */
+    protected static function zonesFor(?string $country): array
+    {
+        return filled($country) ? CommonData::array('Countries/'.$country) : [];
     }
 }

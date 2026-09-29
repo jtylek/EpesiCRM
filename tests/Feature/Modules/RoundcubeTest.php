@@ -9,7 +9,6 @@ use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
-use Epesi\Modules\Mail\Models\MailAddress;
 use Epesi\Modules\Mail\Services\ContactMatcher;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\MailArchiver;
@@ -289,21 +288,22 @@ class RoundcubeTest extends TestCase
      */
     public function test_the_archive_check_agrees_with_what_archiving_links(): void
     {
-        $own = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee', 'email' => 'me@ourcompany.test']);
+        $own = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee']);
         $own->forceFill(['user_id' => $this->user->id])->save();
-        MailAddress::create(['addressable_type' => 'contact', 'addressable_id' => $own->id, 'email' => 'eli@home.test']);
+        $own->syncCollection('emails', [['kind' => 'work', 'value' => 'me@ourcompany.test'], ['kind' => 'other', 'value' => 'eli@home.test']]);
         $this->user->refresh();
 
-        $ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer', 'email' => 'ann@customer.test']);
-        MailAddress::create(['addressable_type' => 'contact', 'addressable_id' => $ann->id, 'email' => 'ann.private@customer.test']);
-        Company::create(['company_name' => 'Customer Ltd', 'email' => 'sales@customer.test']);
+        $ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer']);
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@customer.test'], ['kind' => 'other', 'value' => 'ann.private@customer.test']]);
+        $customer = Company::create(['company_name' => 'Customer Ltd']);
+        $customer->syncCollection('emails', [['kind' => 'work', 'value' => 'sales@customer.test']]);
 
         $secret = Contact::create(['first_name' => 'Sam', 'last_name' => 'Secret', 'permission' => 2]);
         $secret->forceFill(['created_by' => $this->userWithRole('employee')->id])->save();
-        MailAddress::create(['addressable_type' => 'contact', 'addressable_id' => $secret->id, 'email' => 'sam@elsewhere.test']);
+        $secret->syncCollection('emails', [['kind' => 'other', 'value' => 'sam@elsewhere.test']]);
 
-        $gone = Contact::create(['first_name' => 'Gone', 'last_name' => 'Away', 'email' => 'gone@customer.test']);
-        MailAddress::create(['addressable_type' => 'contact', 'addressable_id' => $gone->id, 'email' => 'gone.too@customer.test']);
+        $gone = Contact::create(['first_name' => 'Gone', 'last_name' => 'Away']);
+        $gone->syncCollection('emails', [['kind' => 'work', 'value' => 'gone@customer.test'], ['kind' => 'other', 'value' => 'gone.too@customer.test']]);
         $gone->delete();
 
         $pdo = DB::connection()->getPdo();

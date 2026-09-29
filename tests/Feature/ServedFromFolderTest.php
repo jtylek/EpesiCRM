@@ -50,7 +50,7 @@ class ServedFromFolderTest extends TestCase
 
         $this->serve('/crm/login')
             ->assertOk()
-            ->assertSee('http://example.com/crm/css/filament/', false)
+            ->assertSee('http://example.com/crm/build/assets/theme-', false)
             ->assertDontSee('/crm/public/', false);
     }
 

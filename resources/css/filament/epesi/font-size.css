@@ -1,0 +1,21 @@
+/*
+ * The admin-authored theme's font size. Filament and Tailwind size almost
+ * everything in rem, which is always relative to the *root* (<html>) font
+ * size, not the nearest ancestor — so unlike compact-tables.css's per-panel
+ * overrides, this has to change <html> itself rather than being scoped with
+ * `:where(.fi-panel-…)`. It still only ever applies where it's meant to,
+ * because the classes below are only ever toggled on pages that render
+ * CurrentTheme::appearanceScript() (main, user settings, Administration —
+ * never setup or the customer portal). See AI-shared/Epesi-custom-themes.md.
+ *
+ * Absent by default (this app's own shipped size, unconditionally, for a
+ * guest or anyone with no chosen or default theme, or a theme whose font
+ * size is "default").
+ */
+html.epesi-font-sm {
+    font-size: 87.5%;
+}
+
+html.epesi-font-lg {
+    font-size: 112.5%;
+}

@@ -4,6 +4,7 @@ namespace Epesi\Modules\RecordBrowser\Extensions;
 
 use Closure;
 use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
+use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -88,10 +89,10 @@ class RecordExtensions
      */
     public static function addonsFor(Model $record): array
     {
-        return static::applicableAddons($record)
+        return [...static::applicableAddons($record)
             ->filter(fn (array $entry): bool => ! $entry['first'])
             ->keys()
-            ->all();
+            ->all(), ...IncomingLinks::addons($record)];
     }
 
     /**

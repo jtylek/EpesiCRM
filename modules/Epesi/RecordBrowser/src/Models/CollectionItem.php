@@ -6,6 +6,7 @@ use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RecordBrowser\CustomFields\CustomFieldRegistry;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
+use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -130,7 +131,7 @@ abstract class CollectionItem extends Model
             fn (Field $field): bool => ! in_array($field->name, $names, true) && $field->type->fitsCollectionItem(),
         );
 
-        return [...$declared, ...array_values($custom)];
+        return app(FieldOverrides::class)->resolve(static::class, [...$declared, ...array_values($custom)]);
     }
 
     /** The item's Kind, from the type's CommonData list in the list's own order. */
@@ -138,14 +139,41 @@ abstract class CollectionItem extends Model
     {
         return Field::commonData('kind', static::kinds())
             ->param('order', 'position')
-            ->label('Kind')
+            ->label(static::kindFieldLabel())
             ->required(static::kindRequired());
+    }
+
+    /** What the type calls its kind: "Service" for an online account. */
+    public static function kindFieldLabel(): string
+    {
+        return 'Kind';
     }
 
     /** Whether every item needs a kind: a type whose kind decides what its value means. */
     public static function kindRequired(): bool
     {
         return false;
+    }
+
+    /**
+     * The columns the list's search box and global search look in: the
+     * searchable fields', and any the type keeps for searching alone (a
+     * phone number's digits).
+     *
+     * @return list<string>
+     */
+    public static function searchColumns(): array
+    {
+        return array_values(array_map(
+            fn (Field $field): string => $field->name,
+            array_filter(static::resolvedFields(), fn (Field $field): bool => $field->type->hasColumn() && $field->isSearchable()),
+        ));
+    }
+
+    /** $search as the list's search box looks for it in $column; null leaves the column out. */
+    public static function searchTerm(string $column, string $search): ?string
+    {
+        return $search;
     }
 
     /** The type's name for one item: "Address". */
@@ -224,19 +252,49 @@ abstract class CollectionItem extends Model
         return $values;
     }
 
+    /** Where the summary links to on the View page (an online account's profile), or null. */
+    public function url(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Badges after the summary on the View page, each linking out when it
+     * has a URL: a phone number's messengers.
+     *
+     * @return list<array{label: string, url: ?string}>
+     */
+    public function links(): array
+    {
+        return [];
+    }
+
     /**
      * The item as the History addon records it: kind, summary and the
-     * administrator's fields, "Home: Main St 1, Warsaw (Gate code: 4412)".
-     * Compared before and after a save, so a change to any of them is logged.
+     * details, "Home: Main St 1, Warsaw (Gate code: 4412)". Compared before
+     * and after a save, so a change to any of them is logged.
      */
     public function historyLine(): string
     {
         $line = $this->summary();
 
-        if ($extra = $this->extraValues()) {
-            $line .= ' ('.implode(', ', array_map(fn (string $label, string $value): string => "{$label}: {$value}", array_keys($extra), $extra)).')';
+        if ($details = $this->historyDetails()) {
+            $line .= ' ('.implode(', ', $details).')';
         }
 
         return ($kind = $this->kindLabel()) !== null ? "{$kind}: {$line}" : $line;
+    }
+
+    /**
+     * What the History line adds in brackets after the summary: the
+     * administrator's fields, "Gate code: 4412".
+     *
+     * @return list<string>
+     */
+    protected function historyDetails(): array
+    {
+        $extra = $this->extraValues();
+
+        return array_map(fn (string $label, string $value): string => "{$label}: {$value}", array_keys($extra), array_values($extra));
     }
 }

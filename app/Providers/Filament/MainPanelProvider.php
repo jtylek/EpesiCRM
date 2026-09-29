@@ -7,18 +7,17 @@ use App\Filament\Auth\Login;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Filament\Pages\Dashboard;
+use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
-use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
-use App\Providers\Filament\Concerns\HasBoxedFieldStyles;
-use App\Providers\Filament\Concerns\HasCompactTableStyles;
-use App\Providers\Filament\Concerns\HasSmallCardCorners;
+use App\Support\Appearance\AppName;
+use App\Support\Appearance\CurrentTheme;
 use App\Support\Demo;
 use App\Support\Modules\ModuleRegistry;
+use Epesi\Modules\Appearance\Filament\Pages\Appearance;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
-use Epesi\Modules\RegionalSettings\Filament\Pages\RegionalSettings;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -31,22 +30,18 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class MainPanelProvider extends PanelProvider
 {
-    use HasAuthBrandingStyles;
-    use HasBoxedFieldStyles;
-    use HasCompactTableStyles;
-    use HasSmallCardCorners;
-
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -55,11 +50,15 @@ class MainPanelProvider extends PanelProvider
             ->path('')
             ->login(Login::class)
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
-            ->brandName('epesi')
+            // Administration → Themes' "Application name" field — see
+            // App\Support\Appearance\AppName. "epesi" until an administrator
+            // sets one of their own.
+            ->brandName(fn (): string => AppName::current())
             ->colors([
                 'primary' => Color::Amber,
                 'gray' => Color::Neutral,
             ])
+            ->viteTheme('resources/css/filament/epesi/theme.css')
             ->sidebarWidth('13rem')
             // A topbar button (next to the logo) hides the sidebar entirely
             // and another (the hamburger, reused from mobile) brings it back
@@ -69,10 +68,6 @@ class MainPanelProvider extends PanelProvider
             // page, where the point here is reclaiming it.
             ->sidebarFullyCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
-            ->renderHook(
-                PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->smallCardCornerStyles().$this->authBrandingStyles()),
-            )
             // A click swaps the page's content (Livewire's wire:navigate)
             // instead of loading a new page, so full screen lasts: a browser
             // leaves it on every page load. The other panels still load in
@@ -89,6 +84,10 @@ class MainPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.command-palette'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.link-copied-modal'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.file-preview-modal'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.keyboard-help-modal'))
+            // A user's chosen theme's density and font size, applied before
+            // first paint — see App\Support\Appearance\CurrentTheme.
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             // No ->discoverResources() for app/Filament/Resources: every CRM
             // recordset is now a module under modules/Epesi/CRM, and reaches
             // this panel through its plugin in the list below.
@@ -103,6 +102,9 @@ class MainPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
+                // After AuthenticateSession (needs Auth::user()) and before
+                // anything renders: see the middleware's own docblock.
+                ApplyThemeColor::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
@@ -126,12 +128,16 @@ class MainPanelProvider extends PanelProvider
                 Action::make('settings')
                     ->label('Settings')
                     ->icon(Heroicon::OutlinedCog6Tooth)
-                    ->url(fn (): string => RegionalSettings::getUrl(panel: 'user-settings')),
+                    ->url(fn (): string => Appearance::getUrl(panel: 'user-settings')),
                 Action::make('administration')
                     ->label('Administration')
                     ->icon(Heroicon::OutlinedShieldCheck)
                     ->url(fn (): string => About::getUrl(panel: 'administration'))
                     ->visible(fn (): bool => ! Demo::enabled() && (auth()->user()?->hasRole('super_admin') ?? false)),
+                Action::make('keyboard-help')
+                    ->label('Keyboard help')
+                    ->icon(Heroicon::OutlinedCommandLine)
+                    ->alpineClickHandler("\$dispatch('open-modal', { id: 'keyboard-help' })"),
             ]);
     }
 }

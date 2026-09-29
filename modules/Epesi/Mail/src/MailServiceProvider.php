@@ -3,31 +3,26 @@
 namespace Epesi\Modules\Mail;
 
 use App\Services\LegacyImport\ImporterRegistry;
-use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Console\FetchMailCommand;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
-use Epesi\Modules\Mail\Filament\RelationManagers\MailAddressesRelationManager;
 use Epesi\Modules\Mail\Filament\RelationManagers\MailsRelationManager;
 use Epesi\Modules\Mail\LegacyImport\MailImporter;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Models\MailAccountFolder;
-use Epesi\Modules\Mail\Models\MailAddress;
 use Epesi\Modules\Mail\Models\MailAttachment;
 use Epesi\Modules\Mail\Models\MailLink;
 use Epesi\Modules\Mail\Models\MailThread;
 use Epesi\Modules\Mail\Policies\MailAccountPolicy;
-use Epesi\Modules\Mail\Policies\MailAddressPolicy;
 use Epesi\Modules\Mail\Policies\MailPolicy;
 use Epesi\Modules\Mail\Services\ContactMatcher;
 use Epesi\Modules\Mail\Services\Imap\MailboxFactory;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Epesi\Modules\Watchdog\Watchdog;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
@@ -45,20 +40,12 @@ class MailServiceProvider extends ServiceProvider
      */
     public static array $recordTypes = ['contact', 'company', 'task', 'meeting', 'phone_call'];
 
-    /**
-     * Record types that can have extra e-mail addresses (rc_multiple_emails).
-     *
-     * @var array<int, string>
-     */
-    public static array $addressTypes = ['contact', 'company'];
-
     public function register(): void
     {
         Relation::morphMap([
             'mail' => Mail::class,
             'mail_account' => MailAccount::class,
             'mail_account_folder' => MailAccountFolder::class,
-            'mail_address' => MailAddress::class,
             'mail_attachment' => MailAttachment::class,
             'mail_link' => MailLink::class,
             'mail_thread' => MailThread::class,
@@ -78,7 +65,6 @@ class MailServiceProvider extends ServiceProvider
 
         Gate::policy(Mail::class, MailPolicy::class);
         Gate::policy(MailAccount::class, MailAccountPolicy::class);
-        Gate::policy(MailAddress::class, MailAddressPolicy::class);
 
         // Not only on the command line: the cron URL and "Run now" under
         // Administration → Cron run it within a web request.
@@ -104,7 +90,6 @@ class MailServiceProvider extends ServiceProvider
             $this->defineRelations();
 
             RecordExtensions::addon(MailsRelationManager::class, static::$recordTypes);
-            RecordExtensions::addon(MailAddressesRelationManager::class, static::$addressTypes);
             RecordExtensions::headerActions(
                 'mail',
                 fn (Model $record): array => [ComposeAction::make($record)->color('gray')],
@@ -128,38 +113,29 @@ class MailServiceProvider extends ServiceProvider
 
     protected function defineRelations(): void
     {
-        foreach (array_unique([...static::$recordTypes, ...static::$addressTypes]) as $alias) {
+        foreach (static::$recordTypes as $alias) {
             $class = Relation::getMorphedModel($alias);
 
-            if (! $class) {
-                continue;
-            }
-
-            if (in_array($alias, static::$recordTypes, true)) {
+            if ($class) {
                 $class::resolveRelationUsing('mails', fn (Model $record): MorphToMany => $record
                     ->morphToMany(Mail::class, 'linkable', 'epesi_mail_links')
                     ->withTimestamps());
-            }
-
-            if (in_array($alias, static::$addressTypes, true)) {
-                $class::resolveRelationUsing('mailAddresses', fn (Model $record): MorphMany => $record
-                    ->morphMany(MailAddress::class, 'addressable'));
             }
         }
     }
 
     /**
      * A contact or company given a new e-mail address picks up the mail
-     * already archived from it — reload_mails() on save.
+     * already archived from it — reload_mails() on save. Now that addresses
+     * are EmailAddress items rather than a column, this listens to the
+     * item's own saved event instead of the owner's.
      */
     protected function relinkWhenAnAddressChanges(): void
     {
-        foreach ([Contact::class, Company::class] as $class) {
-            $class::saved(function (Model $record): void {
-                if ($record->wasChanged('email') || ($record->wasRecentlyCreated && filled($record->email))) {
-                    app(ContactMatcher::class)->relinkExisting($record, (string) $record->email);
-                }
-            });
-        }
+        EmailAddress::saved(function (EmailAddress $item): void {
+            if (($item->wasChanged('value') || $item->wasRecentlyCreated) && filled($item->value) && $item->owner !== null) {
+                app(ContactMatcher::class)->relinkExisting($item->owner, $item->value);
+            }
+        });
     }
 }

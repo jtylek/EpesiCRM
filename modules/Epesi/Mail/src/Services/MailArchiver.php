@@ -125,8 +125,7 @@ class MailArchiver
         $employee = $user?->contact;
         $ownAddresses = array_filter([
             mb_strtolower((string) $account?->email),
-            mb_strtolower((string) $employee?->email),
-            ...($employee ? $employee->mailAddresses()->pluck('email')->all() : []),
+            ...($employee ? $employee->collection('emails')->pluck('value')->all() : []),
         ]);
 
         // Your own contact, matched by your addresses or not, is always

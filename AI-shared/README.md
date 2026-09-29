@@ -64,6 +64,21 @@ removed, or its purpose changes.
     e-mail addresses and online accounts as collections a record owns, a tab on each record for
     every recordset that links to it, and the minimal record they allow;
   - an eleven-step plan, with its progress.
+- [Epesi-custom-themes.md](Epesi-custom-themes.md) — making epesi skinnable. It covers:
+  - one base theme shared by every panel, replacing the inline CSS that used to live in the
+    panel providers' traits;
+  - `Epesi\Modules\Appearance`: admin-authored, named `Theme`s (an accent colour and a
+    compact/comfortable density) on Administration → Themes, and the Appearance page in
+    user-settings where every user picks one — built, not a free per-user preference;
+  - why the accent colour needs real middleware (`ApplyThemeColor`), not a render hook or a
+    plugin hook, and the `&`-nesting trap gating `compact-tables.css` behind a class raised;
+  - the still-undesigned stylesheet-skin layer (fonts, corner radius, the sidebar) a `Theme`
+    could reference later, and why a module's skin would have to ship as finished CSS;
+  - which panels a theme's colour and density each apply to, and why they differ;
+  - whether ready-made Filament themes and switcher plugins fit (Filament 4/5 yes, 3 no);
+  - what a theme doesn't reach yet (Roundcube, the calendar);
+  - how legacy Epesi's `Base/Theme` maps here;
+  - a five-step plan.
 - [Epesi-Laravel-Roundcube.md](Epesi-Laravel-Roundcube.md) — the design for embedding the
   Roundcube webmail as a full IMAP client (the `Epesi/Roundcube` module): downloading and
   upgrading Roundcube, why it lives in `storage/`, the generated config, single sign-on through one-time tickets, the
@@ -130,10 +145,6 @@ removed, or its purpose changes.
   - how the bell and the Watched page share one read state: Watchdog's subclass of
     Filament's bell, why it is set in the plugin's `boot()`, and the refresh events;
   - making a record type watchable, and what isn't covered.
-- [Epesi-Moonshine-Laravel.md](Epesi-Moonshine-Laravel.md) — evaluation of MoonShine as an
-  alternative to Filament, and the phased plan that would get there: where it genuinely fits
-  Epesi's engine, where it doesn't, and why the `Field` DSL is what makes the question
-  answerable.
 
 ## Writing these docs
 

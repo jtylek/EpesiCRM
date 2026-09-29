@@ -47,7 +47,7 @@ class Records
         }
 
         if ($record instanceof Contact || $record instanceof Company) {
-            return array_filter([$record->email]);
+            return $record->collection('emails')->pluck('value')->all();
         }
 
         $emails = [];
@@ -60,9 +60,7 @@ class Records
             $related = $record->{$relation};
 
             foreach ($related instanceof Model ? [$related] : ($related ?? []) as $model) {
-                if (filled($model->email ?? null)) {
-                    $emails[] = $model->email;
-                }
+                $emails = [...$emails, ...($model->collection('emails')->pluck('value')->all())];
             }
         }
 

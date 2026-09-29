@@ -5,9 +5,6 @@ namespace Epesi\Modules\CRM\Companies\Models;
 use App\Enums\RecordPermission;
 use App\Models\User;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
-use Epesi\Modules\CRM\Meetings\Models\Meeting;
-use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
-use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasCustomFields;
 use Epesi\Modules\RecordBrowser\Models\Concerns\HasOwnershipVisibility;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,10 +38,6 @@ class Company extends Model
     protected $fillable = [
         'company_name',
         'short_name',
-        'phone',
-        'fax',
-        'email',
-        'web_address',
         'memo',
         'groups',
         'permission',
@@ -73,34 +66,6 @@ class Company extends Model
     public function relatedContacts(): BelongsToMany
     {
         return $this->belongsToMany(Contact::class);
-    }
-
-    /**
-     * Inverse of Task::customerCompanies() — tasks logged against this
-     * company as the customer. Backs the "Tasks" addon on Company's View
-     * page.
-     */
-    public function tasksAsCustomer(): BelongsToMany
-    {
-        return $this->belongsToMany(Task::class, 'task_customer_company');
-    }
-
-    /**
-     * Inverse of PhoneCall::company() — calls logged against this company.
-     * Backs the "Phone Calls" addon on Company's View page.
-     */
-    public function phoneCallsAsCustomer(): HasMany
-    {
-        return $this->hasMany(PhoneCall::class);
-    }
-
-    /**
-     * Inverse of Meeting::customerCompanies() — meetings this company is a
-     * customer of. Backs the "Meetings" addon on Company's View page.
-     */
-    public function meetingsAsCustomer(): BelongsToMany
-    {
-        return $this->belongsToMany(Meeting::class, 'meeting_customer_company');
     }
 
     public function creator(): BelongsTo

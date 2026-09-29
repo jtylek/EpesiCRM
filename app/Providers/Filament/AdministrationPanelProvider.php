@@ -15,9 +15,7 @@ use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
-use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
-use App\Providers\Filament\Concerns\HasCompactTableStyles;
-use App\Providers\Filament\Concerns\HasSmallCardCorners;
+use App\Support\Appearance\CurrentTheme;
 use App\Support\Modules\ModuleRegistry;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Actions\Action;
@@ -29,14 +27,16 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -52,10 +52,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class AdministrationPanelProvider extends PanelProvider
 {
-    use HasAuthBrandingStyles;
-    use HasCompactTableStyles;
-    use HasSmallCardCorners;
-
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -65,17 +61,25 @@ class AdministrationPanelProvider extends PanelProvider
             ->passwordReset(RequestPasswordReset::class, ResetPassword::class)
             ->brandName(fn (): string => __('epesi administration'))
             ->colors([
-                'primary' => Color::Slate,
+                // Epesi Green (#269c34), the shipped default theme's accent
+                // — fixed, not the signed-in user's own theme (see the
+                // HEAD_END render hook below: ApplyThemeColor only runs on
+                // main and user-settings).
+                'primary' => Color::hex('#269c34'),
                 'gray' => Color::Neutral,
             ])
+            ->viteTheme('resources/css/filament/epesi/theme.css')
             ->sidebarWidth('16rem')
-            ->renderHook(
-                PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->smallCardCornerStyles().$this->authBrandingStyles()),
-            )
+            ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Administration/Resources'), for: 'App\Filament\Administration\Resources')
             ->pages([About::class, Cron::class, DatabaseUpdate::class, DemoDataPage::class, MailServer::class, Translations::class])
             ->renderHook(PanelsRenderHook::CONTENT_START, fn () => UpdateNotice::render())
+            // A user's chosen theme's density, applied before first paint —
+            // see App\Support\Appearance\CurrentTheme. Not the accent
+            // colour: this panel keeps its own fixed Epesi Green so it stays
+            // recognisable regardless of the signed-in user's own theme
+            // (ApplyThemeColor is wired into main and user-settings only).
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             ->plugins([
                 FilamentShieldPlugin::make(),
                 ...ModuleRegistry::pluginsFor('administration'),

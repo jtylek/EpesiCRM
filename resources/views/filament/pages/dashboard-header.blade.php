@@ -3,7 +3,7 @@
     in the middle of the line, between the breadcrumb and the header actions,
     rather than on a row of its own above the applets. Only shown when there
     is more than one tab. Same classes as Filament's, so the app's own header
-    styles (HasCompactTableStyles) still apply.
+    styles (the theme's compact-tables.css) still apply.
 --}}
 @php
     $tabs = $this->dashboardTabs;

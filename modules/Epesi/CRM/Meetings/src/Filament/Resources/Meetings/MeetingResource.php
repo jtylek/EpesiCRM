@@ -87,8 +87,10 @@ class MeetingResource extends RecordsetResource
             Field::relations('customers', Contact::class)->label('Contacts'),
             Field::relations('customerCompanies', Company::class)->label('Companies'),
             // Any other record the meeting is about — Epesi's `__RECORDSETS__`
-            // Related field.
-            Field::related('related')->label('Related'),
+            // Related field, restricted to Companies and Contacts: unrestricted
+            // it offers every recordset with a View page, which put Meetings
+            // on Mail's and Notes' own "linked from" tabs too.
+            Field::related('related', [Company::class, Contact::class])->label('Related'),
 
             Field::longText('description'),
         ];

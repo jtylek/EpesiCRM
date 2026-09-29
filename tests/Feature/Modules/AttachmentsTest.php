@@ -29,6 +29,88 @@ class AttachmentsTest extends TestCase
 {
     use RefreshDatabase, SignsInUsers;
 
+    public function test_notes_can_be_filtered_to_those_with_attached_files(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $file = app(FileStorage::class)->put('Attachment content', 'note.txt');
+        $withFile = Attachment::create(['title' => 'With file', 'files' => [$file->id], 'permission' => RecordPermission::Public]);
+        $emptyFiles = Attachment::create(['title' => 'Empty files', 'files' => [], 'permission' => RecordPermission::Public]);
+        $withoutFiles = Attachment::create(['title' => 'Without files', 'permission' => RecordPermission::Public]);
+
+        Livewire::test(ListAttachments::class)
+            ->filterTable('has_attachments')
+            ->assertCanSeeTableRecords([$withFile])
+            ->assertCanNotSeeTableRecords([$emptyFiles, $withoutFiles])
+            ->removeTableFilter('has_attachments')
+            ->assertCanSeeTableRecords([$withFile, $emptyFiles, $withoutFiles]);
+    }
+
+    public function test_edited_by_filters_the_latest_editor_instead_of_the_creator_or_an_earlier_editor(): void
+    {
+        $author = $this->userWithRole('employee');
+        $editor = $this->userWithRole('employee');
+        $this->actingAs($author);
+        $edited = Attachment::create(['title' => 'Edited', 'permission' => RecordPermission::Public]);
+        $original = Attachment::create(['title' => 'Original', 'permission' => RecordPermission::Public]);
+        $legacy = Attachment::create(['title' => 'Without history', 'permission' => RecordPermission::Public]);
+        $legacy->activities()->delete();
+        $private = Attachment::create(['title' => 'Private', 'permission' => RecordPermission::Private]);
+
+        $this->actingAs($editor);
+        $edited->update(['note' => 'Latest edit']);
+        $private->update(['note' => 'Must remain hidden']);
+
+        $list = Livewire::test(ListAttachments::class)
+            ->filterTable('edited_by', $editor->id)
+            ->assertCanSeeTableRecords([$edited])
+            ->assertCanNotSeeTableRecords([$original, $legacy, $private]);
+
+        $list->filterTable('edited_by', $author->id)
+            ->assertCanSeeTableRecords([$original, $legacy])
+            ->assertCanNotSeeTableRecords([$edited, $private]);
+
+        $list->removeTableFilter('edited_by')
+            ->assertCanSeeTableRecords([$edited, $original, $legacy])
+            ->assertCanNotSeeTableRecords([$private]);
+
+        $this->assertSame($editor->id, $edited->fresh()->latestEdit->causer_id);
+    }
+
+    public function test_notes_can_be_filtered_by_an_inclusive_edited_date_range(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $notes = collect([
+            '2026-09-10 23:59:59',
+            '2026-09-11 00:00:00',
+            '2026-09-12 23:59:59',
+            '2026-09-13 00:00:00',
+        ])->map(function (string $date): Attachment {
+            $note = Attachment::create(['title' => $date, 'permission' => RecordPermission::Public]);
+            $note->forceFill(['updated_at' => $date])->saveQuietly();
+
+            return $note;
+        });
+
+        $list = Livewire::test(ListAttachments::class);
+        $this->assertNull($list->instance()->getTable()->getFilter('sticky'));
+
+        $list
+            ->assertCanSeeTableRecords($notes)
+            ->filterTable('updated_at', ['from' => '2026-09-11', 'until' => '2026-09-12'])
+            ->assertCanSeeTableRecords([$notes[1], $notes[2]])
+            ->assertCanNotSeeTableRecords([$notes[0], $notes[3]]);
+
+        $list->filterTable('updated_at', ['from' => '2026-09-11', 'until' => null])
+            ->assertCanSeeTableRecords([$notes[1], $notes[2], $notes[3]])
+            ->assertCanNotSeeTableRecords([$notes[0]]);
+
+        $list->filterTable('updated_at', ['from' => null, 'until' => '2026-09-12'])
+            ->assertCanSeeTableRecords([$notes[0], $notes[1], $notes[2]])
+            ->assertCanNotSeeTableRecords([$notes[3]]);
+
+        $list->removeTableFilter('updated_at')->assertCanSeeTableRecords($notes);
+    }
+
     public function test_every_core_record_type_gets_an_attachments_relation(): void
     {
         $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
@@ -531,7 +613,7 @@ class AttachmentsTest extends TestCase
 
         $files = strpos($html, 'report.pdf');
         $attachedTo = strpos($html, 'Attached to');
-        $editedOn = strpos($html, 'Edited on');
+        $editedOn = strpos($html, 'epesi-note-meta-label">Edited on</span>');
 
         $this->assertNotFalse($files);
         $this->assertLessThan($attachedTo, $files);

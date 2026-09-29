@@ -14,6 +14,7 @@ use Epesi\Modules\RecordBrowser\Files\StoredFileIds;
 use Epesi\Modules\RecordBrowser\History\TextDiff;
 use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -29,8 +30,11 @@ use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Component as SchemaComponent;
+use Filament\Schemas\Schema;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\Size;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Facades\FilamentTimezone;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Column;
@@ -51,6 +55,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
@@ -101,6 +106,20 @@ class Field
 
     protected bool $inForm = true;
 
+    protected bool $listedOnTarget = true;
+
+    public function listedOnTarget(bool $listed = true): static
+    {
+        $this->listedOnTarget = $listed;
+
+        return $this;
+    }
+
+    public function isListedOnTarget(): bool
+    {
+        return $this->listedOnTarget;
+    }
+
     protected bool $inView = true;
 
     /** Shown as a table column without the user turning it on. */
@@ -110,6 +129,9 @@ class Field
     protected bool $tableToggleable = true;
 
     protected bool $filterable = false;
+
+    /** A Collection field's filter: item fields only (e.g. City, Country), without the Has/Kind inputs. */
+    protected bool $collectionFilterItemFieldsOnly = false;
 
     protected ?bool $searchable = null;
 
@@ -339,6 +361,18 @@ class Field
     }
 
     /**
+     * In the list, the first item of each kind named here as a column of its
+     * own, instead of one column for the primary item: a contact's Work and
+     * Mobile phones. Each column is labelled as given, else by its kind.
+     *
+     * @param  array<int|string, string>  $kinds  kind keys, or kind => column label
+     */
+    public function columnsForKinds(array $kinds): static
+    {
+        return $this->param('kind_columns', $kinds);
+    }
+
+    /**
      * @return class-string<CollectionItem>|null a collection field's type, null
      *                                           when it isn't installed
      */
@@ -363,6 +397,70 @@ class Field
     public function getLabel(): string
     {
         return $this->label ?? Str::headline($this->name);
+    }
+
+    /** @var list<string>|null Additional module restrictions on administrator settings. */
+    protected ?array $administratorProperties = null;
+
+    public function administratorEditable(array $properties): static
+    {
+        $this->administratorProperties = $properties;
+
+        return $this;
+    }
+
+    public function administratorDefaults(): array
+    {
+        return [
+            'label' => $this->getLabel(),
+            'help' => $this->help,
+            'section' => $this->getSection(),
+            'show_in_form' => $this->inForm,
+            'show_in_view' => $this->inView,
+            'show_in_table' => $this->inTable,
+            'filterable' => $this->filterable,
+            'required' => $this->required,
+        ];
+    }
+
+    public function administratorEditableProperties(): array
+    {
+        $properties = ['label', 'help', 'section', 'position', 'show_in_view'];
+
+        if ($this->isInColumnChooser()) {
+            $properties[] = 'show_in_table';
+        }
+
+        if ($this->inForm && ! $this->required && $this->type !== FieldType::Autonumber) {
+            $properties[] = 'show_in_form';
+            $properties[] = 'required';
+        }
+
+        if ($this->type !== FieldType::Time && $this->type !== FieldType::Autonumber) {
+            $properties[] = 'filterable';
+        }
+
+        return $this->administratorProperties === null
+            ? $properties
+            : array_values(array_intersect($properties, $this->administratorProperties));
+    }
+
+    public function withAdministratorProperties(array $properties): static
+    {
+        $field = clone $this;
+        $mapping = [
+            'label' => 'label', 'help' => 'help', 'section' => 'section',
+            'show_in_form' => 'inForm', 'show_in_view' => 'inView',
+            'show_in_table' => 'inTable', 'filterable' => 'filterable', 'required' => 'required',
+        ];
+
+        foreach (array_intersect_key($properties, array_flip($this->administratorEditableProperties())) as $key => $value) {
+            if (isset($mapping[$key])) {
+                $field->{$mapping[$key]} = $value;
+            }
+        }
+
+        return $field;
     }
 
     public function required(bool $required = true): static
@@ -578,9 +676,10 @@ class Field
         return $this->inForm(false)->inView(false)->inTable();
     }
 
-    public function filterable(bool $filterable = true): static
+    public function filterable(bool $filterable = true, bool $itemFieldsOnly = false): static
     {
         $this->filterable = $filterable;
+        $this->collectionFilterItemFieldsOnly = $itemFieldsOnly;
 
         return $this;
     }
@@ -1040,7 +1139,29 @@ class Field
             ])
             ->columns(2)
             ->defaultItems(0)
-            ->collapsible()
+            // A saved item starts collapsed to its label, which already says
+            // what it holds ("Work: +48 22 555 01 01"), to keep a record's
+            // form short; a card just added opens to be filled in.
+            ->collapsed(fn (?Schema $item): bool => filled(data_get($item?->getRawState(), 'id')))
+            // One row above the cards (the epesi-collection-repeater styles):
+            // Add first, then Collapse all and Expand all as one toggle, which
+            // starts from how the cards start.
+            ->extraAttributes(fn (Repeater $component): array => [
+                'class' => 'epesi-collection-repeater',
+                'x-data' => '{ allCollapsed: '.Js::from($this->allItemsSaved($component)).' }',
+            ])
+            // Orange, as New and Edit are.
+            ->addAction(fn (Action $action): Action => $action->icon(Heroicon::OutlinedPlus)->color('primary'))
+            ->collapseAllAction(fn (Action $action): Action => $action->badge()
+                ->size(Size::Medium)
+                ->icon(Heroicon::OutlinedChevronDoubleUp)
+                ->alpineClickHandler('allCollapsed = true')
+                ->extraAttributes(['x-show' => '! allCollapsed']))
+            ->expandAllAction(fn (Action $action): Action => $action->badge()
+                ->size(Size::Medium)
+                ->icon(Heroicon::OutlinedChevronDoubleDown)
+                ->alpineClickHandler('allCollapsed = false')
+                ->extraAttributes(['x-show' => 'allCollapsed']))
             ->itemLabel(fn (array $state): ?string => $type === null ? null : $this->collectionItemLabel($type, $state))
             ->addActionLabel($type === null ? null : $type::addActionLabel())
             ->dehydrated(false)
@@ -1058,6 +1179,14 @@ class Field
         }
 
         return $repeater;
+    }
+
+    /** Whether the repeater holds cards and every one is a saved item: they all start collapsed. */
+    protected function allItemsSaved(Repeater $repeater): bool
+    {
+        $items = collect((array) $repeater->getRawState());
+
+        return $items->isNotEmpty() && $items->every(fn (mixed $item): bool => filled(data_get($item, 'id')));
     }
 
     /**
@@ -1111,9 +1240,11 @@ class Field
     }
 
     /**
-     * One line per item for the View page: the kind as a badge, the summary,
-     * and any administrator's fields after it. Null when there are none, so
-     * the entry shows its placeholder.
+     * One line per item for the View page: the kind as a badge, the summary
+     * (a link when the item has a page elsewhere, as an online account
+     * does), the item's own badges (a phone number's messengers) and any
+     * administrator's fields after it. Null when there are none, so the
+     * entry shows its placeholder.
      */
     protected function collectionLines(Model $record): ?HtmlString
     {
@@ -1127,6 +1258,8 @@ class Field
             'items' => $items->map(fn (CollectionItem $item): array => [
                 'kind' => $item->kindLabel(),
                 'summary' => $item->summary(),
+                'url' => $item->url(),
+                'links' => $item->links(),
                 'extra' => $item->extraValues(),
             ])->all(),
         ])->render());
@@ -1159,14 +1292,7 @@ class Field
     {
         $type = $this->collectionType();
 
-        if ($type === null) {
-            return [];
-        }
-
-        return array_values(array_map(
-            fn (Field $field): string => $field->name,
-            array_filter($type::resolvedFields(), fn (Field $field): bool => $field->type->hasColumn() && $field->isSearchable()),
-        ));
+        return $type === null ? [] : $type::searchColumns();
     }
 
     /** The primary item's value in the list, loaded for the whole page at once. */
@@ -1174,24 +1300,36 @@ class Field
     {
         $column = TextColumn::make($this->name);
 
-        return $column->state(function (Model $record) use ($column): ?string {
-            $this->preloadCollection($column);
+        return $column
+            ->state(function (Model $record) use ($column): ?string {
+                $this->preloadCollection($column);
 
-            $first = $this->collectionItemsOf($record)->first();
-            $shown = $this->collectionListField();
+                $first = $this->collectionItemsOf($record)->first();
+                $shown = $this->collectionListField();
 
-            if ($first === null) {
-                return null;
-            }
+                if ($first === null) {
+                    return null;
+                }
 
-            if ($shown === null) {
-                return $first->summary();
-            }
+                if ($shown === null) {
+                    return $first->summary();
+                }
 
-            $value = $first->getAttribute($shown->name);
+                $value = $first->getAttribute($shown->name);
 
-            return blank($value) ? null : $shown->formatLoggedValue($value);
-        });
+                return blank($value) ? null : $shown->formatLoggedValue($value);
+            })
+            // Cut short with the full value on hover, as a long company name
+            // or e-mail address otherwise pushes the list past the page.
+            ->limit(25, '…')
+            ->tooltip(fn (TextColumn $column, ?string $state): ?string => mb_strwidth((string) $state) > $column->getCharacterLimit() ? $state : null)
+            // The same link the primary item gets on the View page (an
+            // e-mail address opens compose, an online account its profile).
+            ->url(function (Model $record) use ($column): ?string {
+                $this->preloadCollection($column);
+
+                return $this->collectionItemsOf($record)->first()?->url();
+            });
     }
 
     /**
@@ -1238,16 +1376,26 @@ class Field
         );
     }
 
-    /** Any item matching, so a contact is found by their second address too. */
+    /**
+     * Any item matching, so a contact is found by their second address too —
+     * each column by the term as its type looks for it there (a phone
+     * number's digits by the digits typed).
+     */
     protected function collectionSearchQuery(): ?Closure
     {
+        $type = $this->collectionType();
         $columns = $this->collectionSearchColumns();
 
         return $columns === [] ? null : fn (Builder $query, string $search): Builder => $query->whereExists(
             $this->collectionItemsQuery($query)
-                ->where(function (Builder $items) use ($columns, $search): void {
+                ->where(function (Builder $items) use ($type, $columns, $search): void {
+                    // Nothing, when no column takes the term.
+                    $items->whereRaw('1 = 0');
+
                     foreach ($columns as $column) {
-                        $items->orWhere($column, 'like', "%{$search}%");
+                        if (($term = $type::searchTerm($column, $search)) !== null) {
+                            $items->orWhere($column, 'like', "%{$term}%");
+                        }
                     }
                 })
                 ->toBase(),
@@ -1256,8 +1404,9 @@ class Field
 
     /**
      * Has any (yes or no), which kinds, and the item fields the type marks
-     * filterable() — Country and City for an address. Filament gives a
-     * filter of several inputs no heading, so each input names the field.
+     * filterable() — Country and City for an address, Messengers for a
+     * phone number. Filament gives a filter of several inputs no heading,
+     * so each input names the field.
      */
     protected function collectionFilter(): ?Filter
     {
@@ -1269,32 +1418,35 @@ class Field
 
         $label = __($this->getLabel());
         $kind = $type::kindField();
+        $kindLabel = __(':field: :kind', ['field' => $label, 'kind' => __($kind->getLabel())]);
 
-        /** @var array<string, array{0: Field, 1: bool}> $inputs item column => [field, is a choice] */
+        /** @var array<string, array{0: Field, 1: 'in'|'like'|'json'}> $inputs item column => [field, how it matches] */
         $inputs = [];
-        $schema = [
+        $schema = $this->collectionFilterItemFieldsOnly ? [] : [
             Select::make('has')->label($label)->options(['1' => __('Yes'), '0' => __('No')]),
             // Already translated, with the field's name in it: not looked
             // up once more as a whole.
-            Select::make('kinds')->label(__(':field: kind', ['field' => $label]))
+            Select::make('kinds')->label($kindLabel)
                 ->translateLabel(false)
                 ->options(fn (): array => $kind->commonDataOptions())
                 ->multiple(),
         ];
 
         foreach ($type::resolvedFields() as $field) {
-            if (! $field->filterable || ! $field->type->hasColumn() || $field->isMultipleValued()) {
+            if (! $field->filterable || ! $field->type->hasColumn()) {
                 continue;
             }
 
             $input = $field->toFormComponent();
 
+            // A choice matches one of the values picked; a field holding
+            // several (JSON) matches when it holds any of them.
             if ($input instanceof Select) {
                 $schema[] = $input->multiple()->required(false)->live(false)->clearAfterStateUpdatedHooks();
-                $inputs[$field->name] = [$field, true];
+                $inputs[$field->name] = [$field, $field->isMultipleValued() || $field->type === FieldType::Multiselect ? 'json' : 'in'];
             } elseif ($field->type->isTextual() || $field->type === FieldType::LongText) {
                 $schema[] = TextInput::make($field->name)->label($field->getLabel());
-                $inputs[$field->name] = [$field, false];
+                $inputs[$field->name] = [$field, 'like'];
             }
         }
 
@@ -1321,14 +1473,20 @@ class Field
                 $items = $this->collectionItemsQuery($query)->when($kinds !== [], fn (Builder $items): Builder => $items->whereIn('kind', $kinds));
 
                 foreach ($values as $column => $value) {
-                    $inputs[$column][1]
-                        ? $items->whereIn($column, (array) $value)
-                        : $items->where($column, 'like', '%'.$value.'%');
+                    match ($inputs[$column][1]) {
+                        'in' => $items->whereIn($column, (array) $value),
+                        'json' => $items->where(function (Builder $items) use ($column, $value): void {
+                            foreach ((array) $value as $one) {
+                                $items->orWhereJsonContains($column, $one);
+                            }
+                        }),
+                        'like' => $items->where($column, 'like', '%'.$value.'%'),
+                    };
                 }
 
                 return $query->whereExists($items->toBase());
             })
-            ->indicateUsing(function (array $data) use ($label, $kind, $inputs, $wanted): array {
+            ->indicateUsing(function (array $data) use ($label, $kind, $kindLabel, $inputs, $wanted): array {
                 $indicators = [];
 
                 if (filled($data['has'] ?? null)) {
@@ -1336,7 +1494,7 @@ class Field
                 }
 
                 if ($kinds = array_filter((array) ($data['kinds'] ?? []))) {
-                    $indicators[] = Indicator::make(__(':field: kind', ['field' => $label]).': '.implode(', ', array_map(fn (string $key): string => $kind->commonDataLabel($key), $kinds)))
+                    $indicators[] = Indicator::make($kindLabel.': '.implode(', ', array_map(fn (string $key): string => $kind->commonDataLabel($key), $kinds)))
                         ->removeField('kinds');
                 }
 
@@ -1411,9 +1569,11 @@ class Field
             FieldType::Select => TextEntry::make($this->name)->badge(),
             FieldType::Multiselect => TextEntry::make($this->name)->badge(),
             // Linked as in the list — see RecordExtensions::emailLink() — with
-            // the same badge and link icon as a web address.
+            // the same badge and link icon as a web address. Medium size, as
+            // every other link badge (collection items, related records) is.
             FieldType::Email => TextEntry::make($this->name)
                 ->badge()
+                ->size(TextSize::Medium)
                 ->icon(Heroicon::OutlinedLink)
                 ->iconPosition(IconPosition::After)
                 ->url(fn (Model $record, ?string $state): ?string => filled($state) ? RecordExtensions::emailUrlFor($record, $state) : null),
@@ -1421,6 +1581,7 @@ class Field
             // look as a related record's badge.
             FieldType::Url => TextEntry::make($this->name)
                 ->badge()
+                ->size(TextSize::Medium)
                 ->icon(Heroicon::OutlinedLink)
                 ->iconPosition(IconPosition::After)
                 ->url(fn (?string $state): ?string => static::webAddressUrl($state))
@@ -1451,7 +1612,7 @@ class Field
      * else gets https:// in front, so "www.example.com" links out instead of
      * resolving against this site and a "javascript:" value can't become an href.
      */
-    protected static function webAddressUrl(?string $state): ?string
+    public static function webAddressUrl(?string $state): ?string
     {
         $state = trim((string) $state);
 
@@ -1477,6 +1638,59 @@ class Field
     }
 
     // --------------------------------------------------------------- Table --
+
+    /**
+     * The list's columns for this field: one, or for a collection shown by
+     * kind (columnsForKinds()) one per kind.
+     *
+     * @return list<Column>
+     */
+    public function toTableColumns(): array
+    {
+        $kinds = $this->type === FieldType::Collection ? $this->getParam('kind_columns') : null;
+
+        if (! is_array($kinds) || $kinds === [] || $this->collectionListField() === null) {
+            return [$this->toTableColumn()];
+        }
+
+        $columns = [];
+
+        foreach ($kinds as $kind => $label) {
+            $columns[] = is_int($kind) ? $this->kindColumn($label) : $this->kindColumn($kind, $label);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * The first item of $kind, by the value its type shows in the list
+     * (collectionListField()) and sorted by it; the search box still looks
+     * in every item, whichever of the columns is shown.
+     */
+    protected function kindColumn(string $kind, ?string $label = null): Column
+    {
+        $shown = $this->collectionListField();
+        $column = TextColumn::make("{$this->name}_{$kind}");
+
+        $column = $column
+            ->label($label ?? $this->collectionType()::kindField()->commonDataLabel($kind))
+            ->state(function (Model $record) use ($column, $kind, $shown): ?string {
+                $this->preloadCollection($column);
+
+                $value = $this->collectionItemsOf($record)->firstWhere('kind', $kind)?->getAttribute($shown->name);
+
+                return blank($value) ? null : $shown->formatLoggedValue($value);
+            })
+            ->placeholder($this->placeholder ?? '-')
+            ->toggleable(isToggledHiddenByDefault: ! $this->inTable)
+            ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy(
+                $this->collectionItemsQuery($query)->where('kind', $kind)->select($shown->name)->orderBy('position')->orderBy('id')->limit(1)->toBase(),
+                $direction,
+            ))
+            ->searchable($this->isSearchable(), query: $this->searchQuery());
+
+        return $this->columnUsing ? ($this->columnUsing)($column, $this) : $column;
+    }
 
     public function toTableColumn(): Column
     {
@@ -1544,6 +1758,7 @@ class Field
             // RecordExtensions::emailLink() for where the link goes.
             FieldType::Email => TextColumn::make($this->name)
                 ->badge()
+                ->size(TextSize::Medium)
                 ->icon(Heroicon::OutlinedLink)
                 ->iconPosition(IconPosition::After)
                 ->limit(25, '…')
@@ -1552,6 +1767,7 @@ class Field
             // The same badge, link icon and new tab as on the View page.
             FieldType::Url => TextColumn::make($this->name)
                 ->badge()
+                ->size(TextSize::Medium)
                 ->icon(Heroicon::OutlinedLink)
                 ->iconPosition(IconPosition::After)
                 ->url(fn (?string $state): ?string => static::webAddressUrl($state))
@@ -1567,7 +1783,10 @@ class Field
         };
     }
 
-    /** The same badges as on the View page, the page's links loaded at once. */
+    /**
+     * The same badges as on the View page, the page's links loaded at once,
+     * one per row and capped at 3 with a "+N" count beyond that.
+     */
     protected function relatedColumn(): TextColumn
     {
         $column = TextColumn::make($this->name);
@@ -1580,17 +1799,17 @@ class Field
                 return $this->linkedRecordsOf($record);
             },
             $this->relatedLabel(...),
-        );
+        )->listWithLineBreaks()->limitList(3);
     }
 
-    /** The same badges as on the View page. */
+    /** The same badges as on the View page, one per row, capped at 3 with a "+N" count beyond that. */
     protected function relationColumn(): TextColumn
     {
         return LinkedRecords::style(
             TextColumn::make((string) $this->getParam('relationship'))
                 ->state(fn (Model $record): array => $this->relatedTitles($record)),
             fn (Model $record, string $state): ?string => $this->relatedUrl($record, $state),
-        );
+        )->listWithLineBreaks()->limitList(3);
     }
 
     /** The View page of the related record titled $state, when it has one. */
@@ -2010,11 +2229,11 @@ class Field
         // No panel means no resource registry to ask — console commands and
         // queued work build Fields too. Null is a supported answer everywhere
         // it's used: the field falls back to plain values with no links.
-        if (! is_string($model) || Filament::getCurrentPanel() === null) {
+        if (! is_string($model)) {
             return null;
         }
 
-        return Filament::getModelResource($model);
+        return LinkableRecordsets::resource(Relation::getMorphAlias($model));
     }
 
     /**

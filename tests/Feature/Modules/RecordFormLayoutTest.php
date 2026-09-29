@@ -28,10 +28,9 @@ class RecordFormLayoutTest extends TestCase
 
         $html = $this->get(EditContact::getUrl(['record' => $contact]))->assertOk()->getContent();
 
-        // The leading section's 13 fields (View's 11 plus the form-only Home
-        // Phone and Fax) make a run of 7 rows; Memo and the Addresses cards
-        // span both columns; the form-only Login section's 1 makes 1.
+        // E-mail addresses are a full-width collection between scalar runs.
+        // The form-only Login section also keeps its own one-row run.
         preg_match_all('/class="rb-column-flow" style="--rb-rows: (\d+)"/', $html, $runs);
-        $this->assertSame(['7', '1'], $runs[1]);
+        $this->assertSame(['3', '1', '1'], $runs[1]);
     }
 }

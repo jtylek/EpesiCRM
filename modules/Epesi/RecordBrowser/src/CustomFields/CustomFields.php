@@ -76,10 +76,10 @@ class CustomFields
      */
     public static function tableColumns(string $model): array
     {
-        return array_map(
-            fn (Field $field): Column => $field->toTableColumn(),
+        return array_merge(...array_map(
+            fn (Field $field): array => $field->toTableColumns(),
             static::fields($model, fn (Field $field): bool => $field->isInColumnChooser()),
-        );
+        ));
     }
 
     /**

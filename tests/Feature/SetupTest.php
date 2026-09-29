@@ -440,7 +440,7 @@ class SetupTest extends TestCase
         $contact = $admin->fresh()->contact;
         $this->assertSame('Jan', $contact->first_name);
         $this->assertSame('Kowalski Sp. z o.o.', $contact->company->company_name);
-        $this->assertSame('jan@example.test', $contact->email);
+        $this->assertSame('jan@example.test', $contact->primaryEmail());
 
         $this->assertSame('Europe/Warsaw', RegionalSetting::defaults()->timezone);
         $this->assertSame('d/m/Y', RegionalSetting::query()->where('user_id', $admin->id)->value('date_format'));

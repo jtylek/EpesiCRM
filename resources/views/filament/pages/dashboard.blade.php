@@ -27,7 +27,7 @@
     1rem in, under the applet's title, rather than Filament's 1.5rem. Columns
     sit 1rem apart rather than 1.5rem, and the last one ends .5rem from the
     card's edge rather than 1.5rem, so the wrapping column gets the room. A
-    row actions cell keeps its own padding (HasCompactTableStyles). An applet
+    row actions cell keeps its own padding (the theme's compact-tables.css). An applet
     that stacks its columns (Tasks) has records, not rows: .fi-ta-record, with
     the same side padding.
 --}}

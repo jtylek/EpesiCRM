@@ -44,6 +44,9 @@ class ContactsImporter extends Importer
 
     private const ADDRESS_FIELDS = ['address_1', 'address_2', 'city', 'country', 'zone', 'postal_code'];
 
+    /** Legacy field => the kind its number becomes, in order: the work number is the primary one. */
+    private const PHONES = ['work_phone' => 'work', 'mobile_phone' => 'mobile', 'home_phone' => 'home', 'fax' => 'fax'];
+
     public function __construct()
     {
         parent::__construct();
@@ -66,9 +69,13 @@ class ContactsImporter extends Importer
         return 'contact';
     }
 
+    /**
+     * email is no longer a column here (it's an EmailAddress collection
+     * item) — its own "already taken" check is withoutTakenEmails() instead.
+     */
     protected function uniqueColumns(): array
     {
-        return ['email'];
+        return [];
     }
 
     protected function trackedFields(): array
@@ -103,10 +110,10 @@ class ContactsImporter extends Importer
         ];
     }
 
-    /** Both addresses are items of the Addresses collection now, not columns. */
+    /** Both addresses, the phones, the e-mail and the web address are collection items now, not columns. */
     protected function historyOnlyColumns(): array
     {
-        $columns = [];
+        $columns = [...array_keys(self::PHONES), 'web_address', 'email'];
 
         foreach (array_keys(self::ADDRESSES) as $prefix) {
             foreach (self::ADDRESS_FIELDS as $field) {
@@ -119,11 +126,13 @@ class ContactsImporter extends Importer
 
     /**
      * The main address as a Business item, then the home one as Home, each
-     * when it has a street, a city or a postal code (Address::isAddress()).
+     * when it has a street, a city or a postal code (Address::isAddress());
+     * the work, mobile and home numbers and the fax as phone numbers of
+     * those kinds; the web address as an online account of kind Website.
      */
     protected function collections(object $row): array
     {
-        $items = [];
+        $addresses = [];
 
         foreach (self::ADDRESSES as $prefix => $kind) {
             $address = [];
@@ -134,11 +143,36 @@ class ContactsImporter extends Importer
             }
 
             if (Address::isAddress($address)) {
-                $items[] = ['kind' => $kind, ...$address];
+                $addresses[] = ['kind' => $kind, ...$address];
             }
         }
 
-        return ['addresses' => $items];
+        $phones = [];
+
+        foreach (self::PHONES as $field => $kind) {
+            if (($number = trim((string) ($row->{"f_{$field}"} ?? ''))) !== '') {
+                $phones[] = ['kind' => $kind, 'value' => $number];
+            }
+        }
+
+        $web = trim((string) ($row->f_web_address ?? ''));
+
+        $email = mb_strtolower(trim((string) ($row->f_email ?? '')));
+        $emails = $this->withoutTakenEmails($row, array_filter([
+            $email,
+            ...$this->legacyExtraEmails($row, 'contact'),
+        ]));
+
+        return [
+            'addresses' => $addresses,
+            'phones' => $phones,
+            'online_accounts' => $web === '' ? [] : [['kind' => 'website', 'value' => $web]],
+            'emails' => array_map(
+                fn (string $value, int $i): array => ['kind' => $i === 0 && $value === $email ? 'work' : 'other', 'value' => $value],
+                array_values($emails),
+                array_keys(array_values($emails)),
+            ),
+        ];
     }
 
     protected function decodeTrackedValue(string $legacyField, ?string $raw): array

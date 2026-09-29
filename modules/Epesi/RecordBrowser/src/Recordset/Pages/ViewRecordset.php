@@ -9,8 +9,9 @@ use Filament\Support\Icons\Heroicon;
 
 /**
  * The View page of a recordset: the record read-only, the addon tab strip
- * (module addons, then Record Info, then History) inherited from ViewRecord,
- * and the two record operations every recordset gets — Edit and Clone.
+ * and the Record Info/History kebab at the end of the header row (both
+ * inherited from ViewRecord), and the two record operations every recordset
+ * gets — Edit and Clone.
  *
  * Clone is on by default because duplicating a record is a recordset operation
  * in Epesi too, not a per-feature extra. A recordset that shouldn't offer it

@@ -3,6 +3,7 @@
 namespace App\Services\LegacyImport;
 
 use App\Models\User;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
@@ -108,6 +109,69 @@ abstract class Importer
 
     /** Extra per-row side effects after save (ContactsImporter uses this for role assignment). */
     protected function afterSave(object $row, Model $model): void {}
+
+    /**
+     * This row's extra e-mail addresses from legacy's rc_multiple_emails
+     * (`f_record_type`/`f_record_id` naming this tab and row) — absorbed into
+     * the owner's own E-mail addresses collection (ContactsImporter's and
+     * CompaniesImporter's collections()) instead of Mail's separate table.
+     *
+     * @return list<string>
+     */
+    protected function legacyExtraEmails(object $row, string $recordType): array
+    {
+        $legacy = DB::connection('legacy');
+
+        if (! $legacy->getSchemaBuilder()->hasTable('rc_multiple_emails_data_1')) {
+            return [];
+        }
+
+        return $legacy->table('rc_multiple_emails_data_1')
+            ->where('active', 1)
+            ->where('f_record_type', $recordType)
+            ->where('f_record_id', $row->id)
+            ->pluck('f_email')
+            ->map(fn ($email): string => mb_strtolower(trim((string) $email)))
+            ->filter()
+            ->all();
+    }
+
+    /**
+     * $values with any address already claimed by a *different* record
+     * removed and reported (an address belongs to one record) — a value
+     * already on this row's own record (a re-run) isn't a conflict.
+     *
+     * @param  list<string>  $values
+     * @return list<string>
+     */
+    protected function withoutTakenEmails(object $row, array $values): array
+    {
+        $modelClass = $this->modelClass();
+        $kept = [];
+
+        foreach (array_values(array_unique($values)) as $value) {
+            $conflict = EmailAddress::query()->where('value', $value)->first();
+
+            if ($conflict !== null) {
+                // Without global scopes, so a soft-deleted owner is still
+                // named here — an administrator-facing report, unlike the
+                // live form's gentler message for a record they can't open.
+                $ownerClass = Relation::getMorphedModel($conflict->owner_type);
+                $owner = $ownerClass ? $ownerClass::query()->withoutGlobalScopes()->find($conflict->owner_id) : null;
+
+                if (! ($owner instanceof $modelClass && $owner->legacy_id === $row->id)) {
+                    $label = $owner ? "{$conflict->owner_type} #{$owner->legacy_id}" : "{$conflict->owner_type} #{$conflict->owner_id}";
+                    $this->summary->warn("{$this->legacyTab()}#{$row->id}: e-mail address \"{$value}\" is already used by {$label}, skipped");
+
+                    continue;
+                }
+            }
+
+            $kept[] = $value;
+        }
+
+        return $kept;
+    }
 
     /**
      * A multiselect commondata field's keys (a record's Group), filtered to

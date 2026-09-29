@@ -1,0 +1,20 @@
+{
+    "id": "epesi/appearance",
+    "name": "Appearance",
+    "description": "Admin-defined named themes (accent colour, compact/comfortable density); every user picks one.",
+    "version": "1.0.0",
+    "epesi_core": "^2.0",
+    "category": "Personalization",
+    "icon": "heroicon-o-swatch",
+    "namespace": "Epesi\\Modules\\Appearance\\",
+    "path": "Epesi/Appearance",
+    "provider_class": "Epesi\\Modules\\Appearance\\AppearanceServiceProvider",
+    "plugin_class": "Epesi\\Modules\\Appearance\\AppearancePlugin",
+    "panels": [
+        "administration",
+        "user-settings"
+    ],
+    "core": true,
+    "requires": [],
+    "provides": []
+}

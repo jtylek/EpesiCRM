@@ -4,8 +4,12 @@ namespace Epesi\Modules\RecordBrowser\Filament\Pages;
 
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
+use Epesi\Modules\RecordBrowser\Models\RecordLink;
+use Epesi\Modules\RecordBrowser\Recordset\FieldType;
+use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Filament\Resources\Pages\CreateRecord as BaseCreateRecord;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * Shared base for every resource's Create page — see EditRecord in this
@@ -20,6 +24,29 @@ abstract class CreateRecord extends BaseCreateRecord
 
     /** No "Create & create another" button (AI-shared/conventions.md). */
     protected static bool $canCreateAnother = false;
+
+    protected function afterFill(): void
+    {
+        $token = RecordLink::parseToken(request()->query('link'));
+
+        if ($token === null || ! ($model = Relation::getMorphedModel($token[0]))) {
+            return;
+        }
+
+        $target = $model::query()->find($token[1]);
+
+        if (! $target) {
+            return;
+        }
+
+        foreach (IncomingLinks::for($target)[static::getResource()] ?? [] as $field) {
+            $this->data[$field->getStateName()] = match ($field->type) {
+                FieldType::Relation => $target->getKey(),
+                FieldType::Relations => [$target->getKey()],
+                FieldType::Related => [$token[0].':'.$token[1]],
+            };
+        }
+    }
 
     /**
      * Matches View/Edit's compact "label beside value" layout — see

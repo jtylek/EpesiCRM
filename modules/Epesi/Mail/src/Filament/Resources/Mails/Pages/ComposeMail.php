@@ -5,8 +5,6 @@ namespace Epesi\Modules\Mail\Filament\Resources\Mails\Pages;
 use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Support\Demo;
-use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Filament\Actions\ComposeAction;
 use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
 use Epesi\Modules\Mail\MailServiceProvider;
@@ -14,6 +12,7 @@ use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
 use Epesi\Modules\Mail\Services\MailSender;
 use Epesi\Modules\Mail\Support\Records;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -312,8 +311,11 @@ class ComposeMail extends Page
      */
     protected function addressBook(): array
     {
-        return Contact::query()->whereNotNull('email')->orderBy('last_name')->limit(500)->pluck('email')
-            ->concat(Company::query()->whereNotNull('email')->limit(500)->pluck('email'))
+        return EmailAddress::query()
+            ->whereIn('owner_type', ['contact', 'company'])
+            ->orderBy('value')
+            ->limit(1000)
+            ->pluck('value')
             ->unique()->values()->all();
     }
 

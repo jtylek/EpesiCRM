@@ -104,6 +104,28 @@ class CollectionsTest extends TestCase
         $undoRepeaterFake();
     }
 
+    public function test_saved_items_start_collapsed_and_a_new_one_open(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $undoRepeaterFake = Repeater::fake();
+        $contact = ContactResource::getModel()::create(['last_name' => 'Buyer', 'first_name' => 'Ann']);
+        $contact->syncCollection('addresses', [['kind' => 'business', 'city' => 'Warsaw', 'country' => 'PL']]);
+        $saved = ['id' => $contact->addresses->sole()->id, 'kind' => 'business', 'city' => 'Warsaw', 'country' => 'PL'];
+
+        // The Collapse all / Expand all toggle starts from the same: all collapsed.
+        $page = Livewire::test(EditContact::class, ['record' => $contact->getRouteKey()])
+            ->assertSeeHtml('isCollapsed: true')
+            ->assertSeeHtml('x-data="{ allCollapsed: true }"');
+        // The page's sections are collapsibles too, open.
+        $open = substr_count($page->html(), 'isCollapsed: false');
+
+        $page->set('data.addresses', [$saved, ['kind' => 'home', 'city' => null, 'country' => null]])
+            ->assertSeeHtml('isCollapsed: true');
+        $this->assertSame($open + 1, substr_count($page->html(), 'isCollapsed: false'));
+
+        $undoRepeaterFake();
+    }
+
     public function test_an_item_needs_its_city_and_country(): void
     {
         $this->actingAs($this->userWithRole('employee'));
@@ -407,7 +429,6 @@ class CollectionsTest extends TestCase
 
         $this->assertFalse(Schema::hasColumn('contacts', 'home_city'));
         $this->assertFalse(Schema::hasColumn('contacts', 'address_1'));
-        $this->assertTrue(Schema::hasColumn('contacts', 'home_phone'));
 
         $items = fn (int $id): array => DB::table('epesi_recordbrowser_addresses')
             ->where('owner_type', 'contact')->where('owner_id', $id)->where('field', 'addresses')

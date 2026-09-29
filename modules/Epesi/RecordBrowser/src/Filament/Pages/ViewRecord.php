@@ -8,46 +8,48 @@ use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
 use Epesi\Modules\RecordBrowser\Filament\Schemas\RecordInfoEntries;
+use Epesi\Modules\RecordBrowser\Recordset\IncomingLinks;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ViewRecord as BaseViewRecord;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\RelationManagers\RelationManagerConfiguration;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Livewire;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 
 /**
  * Shared base for every resource's View page — extend this instead of
- * Filament's own ViewRecord. Moves the "Record Info" section out of the
- * infolist and into its own tab alongside the addon tabs (Contacts,
- * History, ...) — "addon" being what we call a Filament `RelationManager`
- * tab in this codebase, matching Epesi's own term for the same concept: a
- * tab of related data attached to a record. Record Info reads like just
- * another addon's panel instead of a card sitting above them.
+ * Filament's own ViewRecord. The tab strip holds only the resource's real
+ * addons (Contacts, History, ...) — "addon" being what we call a Filament
+ * `RelationManager` tab in this codebase, matching Epesi's own term for the
+ * same concept: a tab of related data attached to a record. Record Info and
+ * History aren't tabs: they sit behind a kebab (an icon-only `ActionGroup`)
+ * at the very end of the header actions row — after Edit/Clone and whatever
+ * a resource or module (Favorites, Watchdog's Watch, Mail's Send e-mail)
+ * adds — since with every addon shown too, the tab strip got too busy to
+ * scan, and neither one reads as "related records" the way an addon does.
+ * Picking either from the kebab opens it as a modal.
  *
  * Filament only builds tabs out of `RelationManager` classes
  * (Concerns\HasRelationManagers::getRelationManagersContentComponent()), so
  * there's no supported extension point for adding a non-relation tab to that
- * strip — this re-implements that method, adding Record Info and any
- * resource-specific static-entry tabs (getAdditionalContentTabs(), unused at present) around them.
- * Every resource here lists its addons as plain class-strings (no
- * RelationGroup/RelationManagerConfiguration), so that's all this handles.
- *
- * **Tab order (general rule, not resource-specific):** any RecordExtensions
- * addon registered with `first: true` (e.g. Attachments' Notes) leads, then
- * the resource's own real addons (e.g. Contacts on Company), then every
- * other RecordExtensions addon, then any `getAdditionalContentTabs()`
- * entries (none at present), then Record Info, then History last — History
- * (identified by relationship name `activities`, the one every resource's
- * `ActivitiesRelationManager` copy uses) and Record Info are always the
- * last two tabs, in that order, on every resource.
+ * strip — this re-implements that method, adding any resource-specific
+ * static-entry tabs (getAdditionalContentTabs(), unused at present) after the
+ * real addons. Every resource here lists its addons as plain class-strings
+ * (no RelationGroup/RelationManagerConfiguration), so that's all this
+ * handles. A resource with no real addons at all (e.g. Administration's
+ * ViewUser, whose only RelationManager is History) ends up with an empty
+ * strip, hidden rather than rendered.
  *
  * Deliberately does NOT call ->livewireProperty('activeRelationManager') the
  * way the base implementation does: that property is what Filament's own
@@ -59,12 +61,10 @@ use Livewire\Attributes\On;
  * which isn't fought by that hook. Deep-linking to a tab comes from Tabs'
  * own persistTabInQueryString() instead of that property's `?relation=`:
  * `?tab=notes::tab` opens the Notes tab (see addonTab() for the key), which
- * is how a note page returns to it. Since Alpine's `activeTab` is a
- * plain 1-indexed position and History/Record Info no longer sit at a fixed end of
- * the array for every resource, the default tab is computed explicitly
- * (see below) rather than left at Alpine's own default of 1 — a resource
- * with no non-History addon (Contact, Task, Meeting, PhoneCall) would
- * otherwise default onto Record Info instead of History.
+ * is how a note page returns to it. The default active tab is always the
+ * first addon (Alpine's own default of index 1) — Record Info and History
+ * are never part of the tab array, so there's no longer a case where that
+ * default needs to skip past them.
  */
 abstract class ViewRecord extends BaseViewRecord
 {
@@ -95,10 +95,11 @@ abstract class ViewRecord extends BaseViewRecord
     }
 
     /**
-     * Appends the favorite star, where the recordset keeps favorites, and
-     * module-registered header actions (e.g. Watchdog's Watch toggle) after
-     * the page's own, so every View page gets them without each
-     * getHeaderActions() override having to remember a parent call.
+     * Appends the favorite star, where the recordset keeps favorites,
+     * module-registered header actions (e.g. Watchdog's Watch toggle) and,
+     * always last, the Record Info/History kebab — after the page's own, so
+     * every View page gets them without each getHeaderActions() override
+     * having to remember a parent call.
      */
     public function cacheInteractsWithHeaderActions(): void
     {
@@ -109,7 +110,7 @@ abstract class ViewRecord extends BaseViewRecord
             ? [Favorites::toggleAction()]
             : [];
 
-        foreach ([...$favorites, ...RecordExtensions::headerActionsFor($this->getRecord(), $this)] as $action) {
+        foreach ([...$favorites, ...RecordExtensions::headerActionsFor($this->getRecord(), $this), $this->recordInfoAndHistoryKebab()] as $action) {
             if ($action instanceof ActionGroup) {
                 $action->livewire($this);
                 $this->mergeCachedActions($action->getFlatActions());
@@ -128,41 +129,98 @@ abstract class ViewRecord extends BaseViewRecord
 
         /** @var array<class-string<RelationManager>> $managers */
         $managers = $this->getCachedRelationManagers();
+        $otherManagers = static::withoutHistory($managers);
 
-        $historyManagers = array_filter(
-            $managers,
-            fn (string $manager): bool => $manager::getRelationshipName() === 'activities',
-        );
-        $otherManagers = array_diff_key($managers, $historyManagers);
+        $buildManagerTab = function (string|RelationManagerConfiguration $manager) use ($ownerRecord, $managerLivewireData): Tab {
+            if ($manager instanceof RelationManagerConfiguration) {
+                $properties = $manager->getProperties();
+                $resource = $properties['sourceResource'];
+                $fields = IncomingLinks::for($ownerRecord)[$resource];
 
-        $buildManagerTab = fn (string $manager): Tab => static::withCountBadge($manager::getTabComponent($ownerRecord, static::class), $manager, $ownerRecord)
-            ->key(static::addonTab($manager), isInheritable: false)
-            ->schema(fn (): array => [
-                Livewire::make($manager, [...$managerLivewireData, ...$manager::getDefaultProperties()])
-                    ->key($manager),
-            ]);
+                return Tab::make($resource::getTitleCasePluralModelLabel())
+                    ->key(Str::kebab(Str::plural(Str::beforeLast(class_basename($resource), 'Resource'))).'::tab', isInheritable: false)
+                    ->badge((string) IncomingLinks::query($resource, $ownerRecord, $fields)->count())
+                    ->badgeColor(fn (?string $badge): ?string => $badge === '0' ? 'gray' : null)
+                    ->schema(fn (): array => [Livewire::make($manager->relationManager, [...$managerLivewireData, ...$properties])->key($resource)]);
+            }
+
+            return static::withCountBadge($manager::getTabComponent($ownerRecord, static::class), $manager, $ownerRecord)
+                ->key(static::addonTab($manager), isInheritable: false)
+                ->schema(fn (): array => [
+                    Livewire::make($manager, [...$managerLivewireData, ...$manager::getDefaultProperties()])
+                        ->key($manager),
+                ]);
+        };
 
         $tabs = collect($otherManagers)
             ->map($buildManagerTab)
             ->concat($this->getAdditionalContentTabs($ownerRecord))
-            ->push(static::entriesTab('Record Info', $ownerRecord, RecordInfoEntries::components()))
-            ->concat(collect($historyManagers)->map($buildManagerTab))
             ->all();
-
-        // Default tab: the first real addon (Contacts on Company) if there
-        // is one, otherwise History — never Record Info or an additional
-        // content tab. $otherManagers always sits first when
-        // non-empty, and the (always present) History tab always sits last.
-        $defaultActiveTab = $otherManagers === [] ? count($tabs) : 1;
 
         return Tabs::make()
             ->key('relationManagerTabs')
-            ->activeTab($defaultActiveTab)
+            ->activeTab(1)
             ->persistTabInQueryString()
             ->contained(false)
-            // Spacing around the strip: HasCompactTableStyles.
+            ->visible($tabs !== [])
+            // Spacing around the strip: resources/css/filament/epesi/compact-tables.css.
             ->extraAttributes(['class' => 'epesi-addon-tabs'])
             ->tabs($tabs);
+    }
+
+    /**
+     * $managers, minus whichever one is History (identified by relationship
+     * name `activities`, the one every resource's shared HistoryRelationManager
+     * copy uses) — the addon tabs and the header kebab both start from this.
+     *
+     * @param  array<class-string<RelationManager>|RelationManagerConfiguration>  $managers
+     * @return array<class-string<RelationManager>|RelationManagerConfiguration>
+     */
+    protected static function withoutHistory(array $managers): array
+    {
+        return array_diff_key($managers, array_filter(
+            $managers,
+            fn ($manager): bool => is_string($manager) && $manager::getRelationshipName() === 'activities',
+        ));
+    }
+
+    /**
+     * The header row's last action: Record Info always, History only for a
+     * resource that has it (every CRM recordset does; a resource without one
+     * — none at present — would just get a one-item kebab). Both open as a
+     * modal instead of a tab; see the class docblock for why they moved out
+     * of the addon tab strip.
+     */
+    protected function recordInfoAndHistoryKebab(): ActionGroup
+    {
+        $record = $this->getRecord();
+        $managerLivewireData = ['ownerRecord' => $record, 'pageClass' => static::class];
+
+        /** @var array<class-string<RelationManager>> $managers */
+        $managers = $this->getCachedRelationManagers();
+        $historyManager = collect(array_diff_key($managers, static::withoutHistory($managers)))->first();
+
+        return ActionGroup::make([
+            Action::make('record-info')
+                ->label(__('Record Info'))
+                ->icon(Heroicon::OutlinedInformationCircle)
+                ->modalHeading(__('Record Info'))
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
+                ->schema(fn (Schema $schema): Schema => $schema->record($record)->inlineLabel()->components(RecordInfoEntries::components())),
+            Action::make('history')
+                ->label(__('History'))
+                ->icon(Heroicon::OutlinedClock)
+                ->modalHeading(fn (): HtmlString => new HtmlString(view('filament.components.history-modal-heading')->render()))
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
+                ->modalWidth(Width::FourExtraLarge)
+                ->extraModalWindowAttributes(['class' => 'epesi-history-modal'])
+                ->visible($historyManager !== null)
+                ->schema(fn (): array => $historyManager ? [
+                    Livewire::make($historyManager, [...$managerLivewireData, ...$historyManager::getDefaultProperties()])->key($historyManager),
+                ] : []),
+        ])->color('gray');
     }
 
     /**
@@ -201,11 +259,14 @@ abstract class ViewRecord extends BaseViewRecord
     public function refreshAddonBadges(): void {}
 
     /**
-     * The `?tab=` value that opens $manager's addon — `history::tab` for
-     * HistoryRelationManager, `phone-calls::tab` for PhoneCallsRelationManager.
+     * The `?tab=` value that opens $manager's addon — `notes::tab` for
+     * NotesRelationManager, `phone-calls::tab` for PhoneCallsRelationManager.
      * Filament would key the tab by its slugged label, but the label is
-     * translated ("Historia"), so a link built that way would miss the tab
-     * for anyone reading another language.
+     * translated, so a link built that way would miss the tab for anyone
+     * reading another language. Doesn't apply to History or Record Info —
+     * they aren't tabs; deep-link to them with `?action=history` /
+     * `?action=record-info` instead (Filament's own
+     * InteractsWithActions::$defaultAction), as Watchdog::url() does.
      *
      * @param  class-string<RelationManager>  $manager
      */
@@ -218,61 +279,12 @@ abstract class ViewRecord extends BaseViewRecord
      * Extension point for a resource-specific tab that isn't backed by a
      * RelationManager/addon (none at present: Contact's Login tab moved to Administration → Users) — see the class
      * docblock for where this lands in the overall tab order (after the real
-     * addons, before Record Info/History). Empty by default; override in a
-     * resource's View page to add one.
+     * addons). Empty by default; override in a resource's View page to add one.
      *
      * @return array<Tab>
      */
     protected function getAdditionalContentTabs(Model $ownerRecord): array
     {
         return [];
-    }
-
-    /**
-     * A Tab of plain infolist entries (TextEntry etc.) bound to $record —
-     * for a tab that isn't a RelationManager, e.g. Record Info.
-     *
-     * `Tab::make(...)->model($record)->schema($entries)` looks like it should
-     * work (Component::model() exists) but silently renders every entry
-     * blank: Schema::getConstantState() walks up
-     * `getParentComponent()->getContainer()->getConstantState()` looking for
-     * a bound record, and that walk passes through the Tabs strip's own
-     * schema, which has no record of its own and resolves to `[]` — an
-     * empty array, not null, so the `??` chain stops there and never reaches
-     * the record set on the Tab itself. Passing a pre-built `Schema` (with
-     * `->record()` called directly on it) via `childComponents()` instead of
-     * a bare component array via `schema()` binds the record on that
-     * innermost schema directly, so it's found on the first step instead of
-     * needing to fall through to the Tab.
-     *
-     * Entries are wrapped in a `Section` titled the same as the tab (rather
-     * than passed straight to the tab's schema) so the panel reads like the
-     * Contacts/History relation manager tabs next to it — each of those is a
-     * bordered card with its own repeated heading, not a bare list.
-     *
-     * `compact()`/`dense()` (Filament's own header-padding/child-gap
-     * modifiers) rather than hand-rolled CSS, since — unlike the panel-wide
-     * tweaks in MainPanelProvider's STYLES_AFTER hook — this should only
-     * affect these entries-only tabs, not every Section in the app (e.g. the
-     * Address section on the main infolist).
-     *
-     * `$inlineLabel` defaults to false because it would misalign
-     * `RecordInfoEntries` — those entries are already rendered as compact
-     * single-line "Label: value" text via `hiddenLabel()` + `prefix()`
-     * (see that class), so turning on the inline-label grid there would
-     * only add a blank label column to their left. Callers whose entries
-     * use ordinary visible labels (a tab of ordinary labelled entries) should pass
-     * true to match the same side-by-side layout as the main infolist.
-     *
-     * @param  array<Component>  $entries
-     * @param  array<Action>  $headerActions
-     */
-    protected static function entriesTab(string $label, Model $record, array $entries, array $headerActions = [], bool $inlineLabel = false): Tab
-    {
-        return Tab::make($label)->childComponents(
-            Schema::make()->record($record)->inlineLabel($inlineLabel)->components([
-                Section::make(__($label))->columns(2)->compact()->dense()->headerActions($headerActions)->components($entries),
-            ]),
-        );
     }
 }

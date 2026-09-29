@@ -13,12 +13,14 @@ stays the actual class name; "addon" is the concept name.
 
 - **One header row.** An addon table's search box, filters and column selector sit on its
   heading's line, not on a toolbar row below it; they wrap under the heading only when the
-  line is too narrow (`HasCompactTableStyles`). The same goes for any table given a
+  line is too narrow (the theme's `compact-tables.css`). The same goes for any table given a
   `->heading()`, such as the Watched records and Shoutbox pages.
 - **Every addon has a column selector.** Each of its columns is toggleable and shown by
   default (`AppServiceProvider::giveEveryAddonAColumnSelector()`), so a new addon needs
   nothing. `->toggleable(isToggledHiddenByDefault: true)` starts a column hidden;
   `->toggleable(false)` keeps one out of the selector.
+  The Record History popup is an exception: all columns are always visible, with no
+  column selector or redundant table heading beneath the modal title.
 
 ## Linked records
 
@@ -39,14 +41,19 @@ open keeps the badge but not the icon.
 - **View before Edit, everywhere.** Clicking a table row opens the record's View page, not
   Edit — including on vendor/plugin resources that only register an Edit action by default.
 - **Tab order on a View page**: real addons first, then any additional static tabs
-  (`getAdditionalContentTabs()`; none at present), then Record Info, then **History always last**. The default-active tab is the
-  first real addon if one exists, otherwise History — never Record Info or another static
-  tab.
+  (`getAdditionalContentTabs()`; none at present). Record Info and History aren't tabs — they
+  sit behind a kebab (an icon-only dropdown) as the very last header action, after Edit/Clone
+  and whatever a resource or module adds, and open as a modal when picked; a resource with no
+  real addons at all (e.g. Administration's ViewUser) shows no tab strip. The default-active
+  tab is always the first real addon. Deep-link to Record Info/History with
+  `?action=record-info` / `?action=history` (Filament's own
+  `InteractsWithActions::$defaultAction`) rather than `?tab=`.
 - **Every addon tab shows how many records it lists**, "0" included (gray; a count is in the
   accent color), so the strip says which addons are worth opening. `ViewRecord::withCountBadge()`
   counts the addon's relationship, so a new addon needs nothing and follows the same row
   visibility as its table. An addon whose table narrows the relationship further overrides
-  `getBadge()` (Reminders shows only the reminders you may see); Record Info has no count.
+  `getBadge()` (Reminders shows only the reminders you may see). Record Info/History, behind
+  the kebab, show no count.
   Any Create/Delete/Associate... run inside an addon makes the page recount
   (`addon-changed`, see `RecordBrowserServiceProvider`).
 
@@ -90,10 +97,11 @@ included, and fails for any page that is missing one of these traits.
 
 ## Record Info
 
-Every View page has a Record Info tab (Record ID, Updated At/By, Created At/By, Deleted At
-for trashed records) built from a shared entries list rather than duplicated per resource.
-"Updated By"/"Created By" show the linked CRM contact's name when one exists, falling back to
-the raw account name otherwise.
+Every View page has a Record Info action (Record ID, Updated At/By, Created At/By, Deleted At
+for trashed records), opened as a modal from the kebab at the end of the header actions row, and
+built from a shared entries list rather than duplicated per resource. "Updated By"/"Created By"
+show the linked CRM contact's name when one exists, falling back to the raw account name
+otherwise.
 
 ## Custom fields
 

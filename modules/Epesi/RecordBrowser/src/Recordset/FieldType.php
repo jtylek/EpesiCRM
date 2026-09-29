@@ -16,7 +16,8 @@ namespace Epesi\Modules\RecordBrowser\Recordset;
  * A select over several named recordsets (`contact,company`) becomes one
  * Relation(s) field per target; one over any recordset (`__RECORDSETS__`) is
  * Related. Collection has no legacy counterpart: what a record has none or
- * many of (its addresses), kept in a table of its own per collection type.
+ * many of (its addresses, phone numbers, online accounts), kept in a table of
+ * its own per collection type.
  * See AI-shared/Epesi-custom-fields.md.
  */
 enum FieldType: string

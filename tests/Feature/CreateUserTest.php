@@ -103,7 +103,8 @@ class CreateUserTest extends TestCase
     public function test_a_contact_that_already_has_a_login_cannot_be_chosen_again(): void
     {
         $taken = User::factory()->create(['email' => 'cy@example.test']);
-        $cy = Contact::create(['first_name' => 'Cy', 'last_name' => 'Tester', 'email' => 'cy@example.test', 'user_id' => $taken->id]);
+        $cy = Contact::create(['first_name' => 'Cy', 'last_name' => 'Tester', 'user_id' => $taken->id]);
+        $cy->syncCollection('emails', [['kind' => 'work', 'value' => 'cy@example.test']]);
 
         Livewire::test(CreateUser::class)
             ->set('data.contact_id', $cy->id)
@@ -131,7 +132,8 @@ class CreateUserTest extends TestCase
         $this->contact('Ann', 'ann@example.test');
         $this->contact('Bob', null);
         $cy = User::factory()->create();
-        Contact::create(['first_name' => 'Cy', 'last_name' => 'Tester', 'email' => 'cy@example.test', 'user_id' => $cy->id]);
+        $cyContact = Contact::create(['first_name' => 'Cy', 'last_name' => 'Tester', 'user_id' => $cy->id]);
+        $cyContact->syncCollection('emails', [['kind' => 'work', 'value' => 'cy@example.test']]);
 
         Livewire::test(CreateUser::class)
             ->assertFormFieldExists('contact_id', function (Select $field): bool {
@@ -153,7 +155,8 @@ class CreateUserTest extends TestCase
     {
         // A customer's contact: what a customer portal needs a login for.
         $customer = Company::create(['company_name' => 'Acme Ltd']);
-        $dee = Contact::create(['first_name' => 'Dee', 'last_name' => 'Customer', 'email' => 'dee@acme.test', 'company_id' => $customer->id]);
+        $dee = Contact::create(['first_name' => 'Dee', 'last_name' => 'Customer', 'company_id' => $customer->id]);
+        $dee->syncCollection('emails', [['kind' => 'work', 'value' => 'dee@acme.test']]);
 
         Livewire::test(CreateUser::class)
             ->assertFormFieldExists('contact_id', fn (Select $field): bool => $field->getSearchResults('customer') === [$dee->id => 'Dee Customer · dee@acme.test'])
@@ -181,6 +184,9 @@ class CreateUserTest extends TestCase
 
     protected function contact(string $firstName, ?string $email): Contact
     {
-        return Contact::create(['first_name' => $firstName, 'last_name' => 'Tester', 'email' => $email]);
+        $contact = Contact::create(['first_name' => $firstName, 'last_name' => 'Tester']);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => $email]]);
+
+        return $contact;
     }
 }

@@ -1,0 +1,136 @@
+/*
+ * "Boxed row" styling for inline-label field rows on View/Edit/Create pages,
+ * echoing old Epesi's shaded-label-cell table layout. Scoped to the
+ * `-has-inline-label` modifier classes Filament already adds, so it applies
+ * everywhere inline labels are on (every resource's View/Edit/Create) and skips
+ * the tabs that deliberately opt out (Record Info, Contact's Login) without any
+ * extra selectors.
+ *
+ * Edit/Create only box the label column, not the value column: the value side
+ * there is already a native input with its own border/background, so boxing it
+ * too would nest a box inside a box. View boxes both sides since a plain
+ * TextEntry has no chrome of its own.
+ *
+ * Two extra fixes on top of the box/spacing rules: a fixed label-column width
+ * (both View and Edit/Create) so a `columnSpanFull()` field's label (e.g. Memo,
+ * Description) lines up with every other row's label instead of being computed
+ * as 1/3 of that one field's own (much wider) row; and `align-items: stretch`
+ * (View only) so an empty/short value box grows to match its label's height
+ * instead of collapsing to a sliver.
+ *
+ * `.rb-column-flow` wraps a RecordBrowser View/Create/Edit grid whose fields
+ * read down the first column and then down the second
+ * (RecordsetResource::flowIntoColumns): from the `lg` breakpoint up its
+ * `--rb-rows` sets how many rows the first column takes, and below that it
+ * stays one column.
+ *
+ * The tight schema gap is for field rows; a grid of widgets (the dashboard's, a
+ * page's header widgets — or their lazy-load placeholders) gets a card-sized
+ * gap back.
+ */
+:where(.fi-panel-main, .fi-panel-user-settings) {
+    .fi-in-entry.fi-in-entry-has-inline-label > .fi-in-entry-label-col {
+        background-color: var(--gray-100) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 0.25rem 0.625rem !important;
+    }
+
+    .fi-in-entry.fi-in-entry-has-inline-label > .fi-in-entry-content-col {
+        background-color: var(--gray-50) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 0.25rem 0.625rem !important;
+    }
+
+    .dark & .fi-in-entry.fi-in-entry-has-inline-label > .fi-in-entry-label-col {
+        background-color: color-mix(in oklab, var(--color-white) 10%, transparent) !important;
+        border-color: color-mix(in oklab, var(--color-white) 10%, transparent) !important;
+    }
+
+    .dark & .fi-in-entry.fi-in-entry-has-inline-label > .fi-in-entry-content-col {
+        background-color: color-mix(in oklab, var(--color-white) 5%, transparent) !important;
+        border-color: color-mix(in oklab, var(--color-white) 10%, transparent) !important;
+    }
+
+    .fi-fo-field.fi-fo-field-has-inline-label > .fi-fo-field-label-col {
+        background-color: var(--gray-100) !important;
+        border: 1px solid var(--gray-200) !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 0.25rem 0.625rem !important;
+    }
+
+    .dark & .fi-fo-field.fi-fo-field-has-inline-label > .fi-fo-field-label-col {
+        background-color: color-mix(in oklab, var(--color-white) 10%, transparent) !important;
+        border-color: color-mix(in oklab, var(--color-white) 10%, transparent) !important;
+    }
+
+    .fi-in-entry.fi-in-entry-has-inline-label,
+    .fi-fo-field.fi-fo-field-has-inline-label {
+        row-gap: 0.25rem !important;
+        column-gap: 0.5rem !important;
+    }
+
+    .fi-section-content-ctn {
+        padding: 0.25rem !important;
+    }
+
+    .fi-section-content {
+        padding: 0.25rem !important;
+    }
+
+    .fi-section-header {
+        padding: 0.5rem !important;
+    }
+
+    .fi-sc.fi-sc-has-gap {
+        gap: 0.25rem !important;
+    }
+
+    .fi-sc.fi-sc-has-gap:has(> .fi-wi-widget, > .fi-loading-section) {
+        gap: 1rem !important;
+    }
+
+    @media (min-width: 640px) {
+        .fi-in-entry.fi-in-entry-has-inline-label,
+        .fi-fo-field.fi-fo-field-has-inline-label {
+            grid-template-columns: 16rem minmax(0, 1fr) minmax(0, 1fr) !important;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .rb-column-flow > .fi-grid {
+            grid-auto-flow: column !important;
+            grid-template-rows: repeat(var(--rb-rows), auto) !important;
+        }
+    }
+
+    .fi-in-entry.fi-in-entry-has-inline-label {
+        align-items: stretch !important;
+    }
+
+    .fi-in-entry.fi-in-entry-has-inline-label .fi-in-entry-label-ctn {
+        align-items: center !important;
+    }
+
+    /*
+     * A linked-record/e-mail/web-address badge (LinkedRecords::style()) is the
+     * only badge with a link icon after it; Filament's badge component has no
+     * font-size rule for anything above its "sm" size, so the only way to read
+     * as large as the plain-text fields around it (text-sm) is to override it
+     * directly. Its default (`fi-size-md`, i.e. no size modifier) padding is
+     * sized for that smaller text-xs font, so left alone it pads the row
+     * taller than a plain-text value sitting in the same content-col padding;
+     * matching its line-height to text-sm's and dropping its own vertical
+     * padding (the content-col's padding already supplies that) keeps every
+     * row — text or badge — the same height. Set on the badge itself, not
+     * just its `.fi-badge-label` span: a single-related-record badge has no
+     * such span, its link sitting straight inside the badge (Filament's
+     * list-of-badges TextEntry markup, as opposed to its single-badge one).
+     */
+    .fi-in-entry-content-col .fi-badge:has(.fi-icon) {
+        font-size: 0.875rem !important;
+        line-height: 1.25rem !important;
+        padding: 0 0.375rem !important;
+    }
+}

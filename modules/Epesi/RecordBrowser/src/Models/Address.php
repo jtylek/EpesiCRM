@@ -3,8 +3,7 @@
 namespace Epesi\Modules\RecordBrowser\Models;
 
 use App\Support\AddressFields;
-use App\Support\Countries;
-use App\Support\Zones;
+use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 
 /**
@@ -74,8 +73,8 @@ class Address extends CollectionItem
     /** "Main St 1, 00-001 Warsaw, Poland", the zone's and country's names for their codes. */
     public function summary(): string
     {
-        $zone = Zones::forCountry($this->country)[$this->zone] ?? $this->zone;
-        $country = Countries::options()[$this->country] ?? $this->country;
+        $zone = (filled($this->country) ? CommonData::array('Countries/'.$this->country) : [])[$this->zone] ?? $this->zone;
+        $country = CommonData::array('Countries')[$this->country] ?? $this->country;
 
         return implode(', ', array_filter(
             [$this->address_1, $this->address_2, trim($this->postal_code.' '.$this->city), $zone, $country],

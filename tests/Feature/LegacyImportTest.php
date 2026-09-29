@@ -12,7 +12,6 @@ use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
-use Epesi\Modules\Mail\Models\MailAddress;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -95,7 +94,7 @@ class LegacyImportTest extends TestCase
         $this->assertSame(['created', 'updated'], $company->activities()->orderBy('created_at')->pluck('event')->all());
     }
 
-    public function test_a_company_email_an_earlier_company_already_has_is_left_blank_and_reported(): void
+    public function test_a_company_email_an_earlier_company_already_has_is_skipped_and_reported(): void
     {
         $this->legacyRecordTable('company_data_1');
         DB::connection('legacy')->table('company_data_1')->insert([
@@ -107,15 +106,16 @@ class LegacyImportTest extends TestCase
             ['id' => 6, 'created_on' => '2020-01-06 10:00:00', 'f_company_name' => 'Other Twin', 'f_email' => 'other@acme.test', 'active' => 1],
         ]);
 
-        $emails = fn (): array => Company::withTrashed()->orderBy('legacy_id')->pluck('email', 'legacy_id')->all();
+        $emails = fn (): array => Company::withTrashed()->orderBy('legacy_id')->get()
+            ->mapWithKeys(fn (Company $c): array => [$c->legacy_id => $c->emails->first()?->value])->all();
         $expected = [1 => 'info@acme.test', 2 => null, 3 => null, 4 => null, 5 => 'other@acme.test', 6 => null];
 
         activity()->disableLogging();
         $summary = (new CompaniesImporter)->run(withHistory: false);
         $this->assertSame($expected, $emails());
         $this->assertSame([
-            'company#2: email "info@acme.test" is already used by company#1, left blank',
-            'company#6: email "other@acme.test" is already used by company#5, left blank',
+            'company#2: e-mail address "info@acme.test" is already used by company #1, skipped',
+            'company#6: e-mail address "other@acme.test" is already used by company #5, skipped',
         ], $summary->warnings);
 
         // Re-running is idempotent: the same records keep the address.
@@ -125,7 +125,36 @@ class LegacyImportTest extends TestCase
         $this->assertSame($summary->warnings, $again->warnings);
     }
 
-    public function test_a_contact_email_an_earlier_contact_already_has_is_left_blank_and_reported(): void
+    /**
+     * rc_multiple_emails' extra addresses are absorbed into the owner's own
+     * E-mail addresses collection now (Importer::legacyExtraEmails()) rather
+     * than Mail's separate table.
+     */
+    public function test_a_companys_extra_address_from_rc_multiple_emails_becomes_an_other_item(): void
+    {
+        $this->legacyRecordTable('company_data_1');
+        DB::connection('legacy')->table('company_data_1')->insert([
+            'id' => 1, 'created_on' => '2020-01-01 10:00:00', 'f_company_name' => 'Acme', 'f_email' => 'info@acme.test',
+        ]);
+        $this->legacy()->create('rc_multiple_emails_data_1', function (Blueprint $t) {
+            $t->integer('id');
+            $t->integer('active')->default(1);
+            $t->text('f_record_type');
+            $t->integer('f_record_id');
+            $t->text('f_email');
+        });
+        DB::connection('legacy')->table('rc_multiple_emails_data_1')->insert(['id' => 1, 'f_record_type' => 'company', 'f_record_id' => 1, 'f_email' => 'Sales@acme.test']);
+
+        activity()->disableLogging();
+        (new CompaniesImporter)->run(withHistory: false);
+        activity()->enableLogging();
+
+        $company = Company::withTrashed()->where('legacy_id', 1)->sole();
+        $this->assertSame(['info@acme.test', 'sales@acme.test'], $company->emails->pluck('value')->all());
+        $this->assertSame(['work', 'other'], $company->emails->pluck('kind')->all());
+    }
+
+    public function test_a_contact_email_an_earlier_contact_already_has_is_skipped_and_reported(): void
     {
         $this->legacyRecordTable('contact_data_1');
         DB::connection('legacy')->table('contact_data_1')->insert([
@@ -138,8 +167,10 @@ class LegacyImportTest extends TestCase
         $summary = (new ContactsImporter)->run(withHistory: false);
         activity()->enableLogging();
 
-        $this->assertSame([1 => 'ann@acme.test', 2 => null, 3 => null], Contact::withTrashed()->orderBy('legacy_id')->pluck('email', 'legacy_id')->all());
-        $this->assertSame(['contact#2: email "ann@acme.test" is already used by contact#1, left blank'], $summary->warnings);
+        $emails = Contact::withTrashed()->orderBy('legacy_id')->get()
+            ->mapWithKeys(fn (Contact $c): array => [$c->legacy_id => $c->emails->first()?->value])->all();
+        $this->assertSame([1 => 'ann@acme.test', 2 => null, 3 => null], $emails);
+        $this->assertSame(['contact#2: e-mail address "ann@acme.test" is already used by contact #1, skipped'], $summary->warnings);
     }
 
     public function test_groups_are_checked_against_legacy_s_own_list_not_the_installed_one(): void
@@ -191,8 +222,6 @@ class LegacyImportTest extends TestCase
         $this->assertSame('imap-secret', $account->imap_password);
         $this->assertSame('smtp-plain', $account->smtp_password);
 
-        $this->assertTrue(MailAddress::query()->where('email', 'sales@acme.test')->where('addressable_id', $acme->id)->exists());
-
         // Messages, links (new-style, old-style and Related tokens) and threads.
         $offer = Mail::query()->where('legacy_id', 11)->sole();
         $reply = Mail::query()->where('legacy_id', 12)->sole();
@@ -235,10 +264,12 @@ class LegacyImportTest extends TestCase
         $user = User::factory()->create();
         $user->forceFill(['legacy_id' => 7])->save();
 
-        $me = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee', 'email' => 'eli@ours.test']);
+        $me = Contact::create(['first_name' => 'Eli', 'last_name' => 'Employee']);
         $me->forceFill(['legacy_id' => 1, 'user_id' => $user->id])->save();
-        $ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer', 'email' => 'ann@acme.test']);
+        $me->syncCollection('emails', [['kind' => 'work', 'value' => 'eli@ours.test']]);
+        $ann = Contact::create(['first_name' => 'Ann', 'last_name' => 'Buyer']);
         $ann->forceFill(['legacy_id' => 5])->save();
+        $ann->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@acme.test']]);
         $acme = Company::create(['company_name' => 'Acme']);
         $acme->forceFill(['legacy_id' => 3])->save();
         $task = Task::create(['title' => 'Send offer']);
@@ -272,13 +303,6 @@ class LegacyImportTest extends TestCase
                 'smtp_auth', 'smtp_login', 'smtp_password', 'smtp_security', 'default_account', 'archive_on_sending', 'imap_root'] as $f) {
                 $t->text("f_{$f}")->nullable();
             }
-        });
-        $this->legacy()->create('rc_multiple_emails_data_1', function (Blueprint $t) {
-            $t->integer('id');
-            $t->integer('active')->default(1);
-            $t->text('f_record_type');
-            $t->integer('f_record_id');
-            $t->text('f_email');
         });
         $this->legacy()->create('rc_mails_data_1', function (Blueprint $t) {
             $t->integer('id');
@@ -321,8 +345,6 @@ class LegacyImportTest extends TestCase
             'f_security' => 'ssl', 'f_smtp_server' => 'smtp.acme.test', 'f_smtp_auth' => '1',
             'f_smtp_password' => 'smtp-plain', 'f_smtp_security' => 'tls', 'f_default_account' => '1', 'f_imap_root' => 'INBOX.',
         ]);
-        $l->table('rc_multiple_emails_data_1')->insert(['id' => 1, 'f_record_type' => 'company', 'f_record_id' => 3, 'f_email' => 'Sales@acme.test']);
-
         $mime = str_repeat('a', 32);
         $l->table('rc_mails_data_1')->insert([
             [

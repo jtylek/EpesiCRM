@@ -42,9 +42,10 @@ class PortalTest extends TestCase
         $this->customer = User::factory()->create(['name' => 'joe', 'email' => 'joe@acme.test']);
         $this->customer->assignRole('customer');
         $this->contact = Contact::create([
-            'first_name' => 'Joe', 'last_name' => 'Marcozzi', 'email' => 'joe@acme.test',
+            'first_name' => 'Joe', 'last_name' => 'Marcozzi',
             'company_id' => $company->id, 'user_id' => $this->customer->id,
         ]);
+        $this->contact->syncCollection('emails', [['kind' => 'work', 'value' => 'joe@acme.test']]);
 
         Filament::setCurrentPanel('portal');
     }
@@ -100,6 +101,7 @@ class PortalTest extends TestCase
     public function test_edit_switches_to_the_form_prefilled_with_the_current_values(): void
     {
         $this->actingAs($this->customer);
+        $undoRepeaterFake = Repeater::fake();
 
         Livewire::test(MyContact::class)
             ->callAction('edit')
@@ -107,7 +109,13 @@ class PortalTest extends TestCase
             ->assertActionVisible('save')
             ->assertActionVisible('cancel')
             ->assertActionHidden('edit')
-            ->assertFormSet(['first_name' => 'Joe', 'last_name' => 'Marcozzi', 'email' => 'joe@acme.test']);
+            ->assertFormSet([
+                'first_name' => 'Joe',
+                'last_name' => 'Marcozzi',
+                'emails' => [['id' => $this->contact->emails->sole()->id, 'kind' => 'work', 'value' => 'joe@acme.test']],
+            ]);
+
+        $undoRepeaterFake();
     }
 
     public function test_cancel_discards_changes_and_returns_to_view_mode(): void
@@ -136,10 +144,14 @@ class PortalTest extends TestCase
 
         Livewire::test(MyContact::class)
             ->callAction('edit')
-            ->fillForm(['mobile_phone' => '555-0100', 'addresses' => [
-                ['kind' => 'business', 'city' => 'Springfield', 'country' => 'US'],
-                ['kind' => 'home', 'city' => 'Shelbyville', 'country' => 'US'],
-            ]])
+            ->fillForm([
+                'phones' => [['kind' => 'mobile', 'value' => '555-0100', 'messengers' => ['signal']]],
+                'addresses' => [
+                    ['kind' => 'business', 'city' => 'Springfield', 'country' => 'US'],
+                    ['kind' => 'home', 'city' => 'Shelbyville', 'country' => 'US'],
+                ],
+                'online_accounts' => [['kind' => 'linkedin', 'value' => 'joe-marcozzi']],
+            ])
             ->callAction('save')
             ->assertHasNoFormErrors()
             ->assertNotified('Saved')
@@ -153,8 +165,9 @@ class PortalTest extends TestCase
         $undoRepeaterFake();
 
         $this->contact->refresh();
-        $this->assertSame('555-0100', $this->contact->mobile_phone);
+        $this->assertSame([['mobile', '555-0100', ['signal']]], $this->contact->phones->map(fn ($phone): array => [$phone->kind, $phone->value, $phone->messengers])->all());
         $this->assertSame(['Springfield', 'Shelbyville'], $this->contact->addresses->pluck('city')->all());
+        $this->assertSame(['joe-marcozzi'], $this->contact->online_accounts->pluck('value')->all());
 
         $activity = Activity::query()->where('subject_type', $this->contact->getMorphClass())->where('subject_id', $this->contact->id)->latest('id')->first();
         $this->assertSame($this->customer->id, $activity->causer_id);
@@ -188,7 +201,8 @@ class PortalTest extends TestCase
 
     public function test_a_new_customer_user_is_emailed_a_link_that_opens_the_portal(): void
     {
-        $bob = Contact::create(['first_name' => 'Bob', 'last_name' => 'Buyer', 'email' => 'bob@example.test']);
+        $bob = Contact::create(['first_name' => 'Bob', 'last_name' => 'Buyer']);
+        $bob->syncCollection('emails', [['kind' => 'work', 'value' => 'bob@example.test']]);
 
         $this->actingAs($this->userWithRole('super_admin'));
         Filament::setCurrentPanel('administration');

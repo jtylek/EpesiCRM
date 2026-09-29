@@ -14,7 +14,6 @@ use Epesi\Modules\CRM\PhoneCalls\Models\PhoneCall;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
-use Epesi\Modules\Mail\Models\MailAddress;
 use Epesi\Modules\Mail\Models\MailThread;
 use Epesi\Modules\Mail\Services\MailArchiver;
 use Illuminate\Database\Connection;
@@ -25,16 +24,19 @@ use Illuminate\Support\Str;
 /**
  * `import:legacy mail`: CRM/Mail's data from the legacy Epesi database —
  *
- *   rc_accounts        → MailAccount (passwords decrypted with the legacy
- *                        install's key file, re-encrypted with this app's key)
- *   rc_multiple_emails → MailAddress
- *   rc_mails           → Mail, with its Contacts/Related links, its thread and
- *                        its attachments (read from the legacy data directory)
+ *   rc_accounts → MailAccount (passwords decrypted with the legacy install's
+ *                 key file, re-encrypted with this app's key)
+ *   rc_mails    → Mail, with its Contacts/Related links, its thread and its
+ *                 attachments (read from the legacy data directory)
+ *
+ * rc_multiple_emails (extra addresses) is imported by ContactsImporter/
+ * CompaniesImporter instead, as further items of the contact's/company's own
+ * E-mail addresses collection — see Importer::legacyExtraEmails().
  *
  * Idempotent like the core importers: mails upsert by `legacy_id`, accounts by
- * owner + address, extra addresses by address, and a mail's links and
- * attachments are rebuilt on every run. Must run after users, companies,
- * contacts, tasks, meetings and phone calls, which it links to.
+ * owner + address, and a mail's links and attachments are rebuilt on every
+ * run. Must run after users, companies, contacts, tasks, meetings and phone
+ * calls, which it links to.
  *
  * Mail edit history isn't replayed: the only editable part of an archived
  * message was its links.
@@ -82,7 +84,6 @@ class MailImporter
         }
 
         $this->importAccounts();
-        $this->importAddresses();
         $this->importMails();
 
         return $this->summary;
@@ -203,31 +204,6 @@ class MailImporter
         return $plain;
     }
 
-    // ----------------------------------------------------------- Addresses --
-
-    protected function importAddresses(): void
-    {
-        if (! $this->legacy()->getSchemaBuilder()->hasTable('rc_multiple_emails_data_1')) {
-            return;
-        }
-
-        foreach ($this->legacy()->table('rc_multiple_emails_data_1')->where('active', 1)->orderBy('id')->cursor() as $row) {
-            $class = ['contact' => Contact::class, 'company' => Company::class][$row->f_record_type] ?? null;
-            $id = $class ? $this->maps[$class]->get((int) $row->f_record_id) : null;
-
-            if ($id === null || blank($row->f_email)) {
-                $this->summary->warn("rc_multiple_emails#{$row->id}: its {$row->f_record_type} wasn't imported, skipped");
-
-                continue;
-            }
-
-            $address = MailAddress::query()->firstOrNew(['email' => mb_strtolower(trim($row->f_email))]);
-            $isNew = ! $address->exists;
-            $address->fill(['addressable_type' => (new $class)->getMorphClass(), 'addressable_id' => $id])->save();
-            $isNew ? $this->summary->created++ : $this->summary->updated++;
-        }
-    }
-
     // --------------------------------------------------------------- Mails --
 
     protected function importMails(): void
@@ -323,7 +299,7 @@ class MailImporter
     protected function direction(string $from, ?int $employeeId, ?int $userId): string
     {
         $own = array_filter([
-            $employeeId ? Contact::withTrashed()->find($employeeId)?->email : null,
+            ...($employeeId ? Contact::withTrashed()->find($employeeId)?->collection('emails')->pluck('value')->all() ?? [] : []),
             ...($userId ? MailAccount::query()->where('user_id', $userId)->pluck('email')->all() : []),
         ]);
 

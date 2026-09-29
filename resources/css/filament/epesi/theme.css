@@ -1,0 +1,24 @@
+/*
+ * epesi's Filament theme, which every panel loads (->viteTheme() in each panel
+ * provider) in place of Filament's precompiled stylesheet: Filament's own CSS,
+ * compiled with Tailwind against epesi's sources so the utility classes in
+ * epesi's and the modules' views exist, followed by epesi's overrides. See
+ * AI-shared/Epesi-custom-themes.md.
+ *
+ * The overrides sit outside any cascade layer, so they win over Filament's
+ * layered rules whatever the selector. Each file names the panels it applies
+ * to with `:where(.fi-panel-…)` (the class Filament puts on <body>), which adds
+ * nothing to a selector's specificity.
+ */
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import './compact-tables.css';
+@import './font-size.css';
+@import './boxed-fields.css';
+@import './small-card-corners.css';
+@import './auth-branding.css';
+@import './history-modal.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/**/*';
+@source '../../../../modules/**/resources/views/**/*';
+@source '../../../../modules/**/src/**/*';

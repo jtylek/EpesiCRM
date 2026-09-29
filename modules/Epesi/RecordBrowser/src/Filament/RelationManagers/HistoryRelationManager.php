@@ -61,23 +61,28 @@ class HistoryRelationManager extends RelationManager
         $fields = $this->loggedFields();
 
         return $table
+            ->heading(null)
             ->recordTitleAttribute('description')
             ->defaultSort('created_at', 'desc')
             // Event, By and When shrink to their content (a 1% width on an
             // auto-layout table); Changes, last, takes the rest of the row.
             ->columns([
                 TextColumn::make('event')
+                    ->toggleable(false)
                     ->width('1%'),
                 TextColumn::make('causer.name')
+                    ->toggleable(false)
                     ->label('By')
                     ->width('1%')
                     ->getStateUsing(fn (Activity $record): string => self::causerName($record)),
                 TextColumn::make('created_at')
+                    ->toggleable(false)
                     ->label('When')
                     ->width('1%')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('changes')
+                    ->toggleable(false)
                     ->label('Changes')
                     ->getStateUsing(function (Activity $record) use ($fields, $table): string|HtmlString {
                         $changed = self::changed($record);

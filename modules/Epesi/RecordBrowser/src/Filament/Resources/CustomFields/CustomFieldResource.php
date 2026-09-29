@@ -3,6 +3,7 @@
 namespace Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields;
 
 use App\Filament\Concerns\TranslatesResourceLabels;
+use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\CreateCustomField;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\EditCustomField;
@@ -10,7 +11,7 @@ use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ListCustom
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Pages\ViewCustomField;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Schemas\CustomFieldForm;
 use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Schemas\CustomFieldInfolist;
-use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Tables\CustomFieldsTable;
+use Epesi\Modules\RecordBrowser\Filament\Resources\CustomFields\Tables\FieldCatalogue;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -42,7 +43,10 @@ class CustomFieldResource extends Resource
 
     protected static ?string $modelLabel = 'field';
 
-    protected static ?int $navigationSort = 20;
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->active && auth()->user()?->hasRole('super_admin') && ! Demo::enabled();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -56,7 +60,7 @@ class CustomFieldResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return CustomFieldsTable::configure($table);
+        return FieldCatalogue::configure($table);
     }
 
     public static function getPages(): array

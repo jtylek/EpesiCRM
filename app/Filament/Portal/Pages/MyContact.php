@@ -8,9 +8,11 @@ use App\Filament\Concerns\TranslatesPageLabels;
 use BackedEnum;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Models\Address;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
+use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Filament\Actions\Action;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -112,7 +114,7 @@ class MyContact extends Page
     {
         $field = fn (Field $field): mixed => $field->toFormComponent();
 
-        // The record, so the addresses load from and save to it.
+        // The record, so the collections load from and save to it.
         return $schema
             ->model($this->contact)
             ->statePath('data')
@@ -129,20 +131,16 @@ class MyContact extends Page
             Field::text('last_name')->required()->maxLength(64),
             Field::text('first_name')->required()->maxLength(64),
             Field::text('title')->maxLength(64),
-            Field::phone('work_phone'),
-            Field::phone('mobile_phone'),
-            Field::text('fax')->maxLength(64),
-            Field::email('email')
-                ->formUsing(fn (TextInput $component): TextInput => $component
-                    ->unique(table: 'contacts', column: 'email', ignorable: $this->contact)),
-            Field::url('web_address')->label('Web Address')->maxLength(64),
+            Field::collection('emails', EmailAddress::class)->label('E-mail addresses'),
+            Field::collection('phones', PhoneNumber::class)->label('Phone numbers'),
             Field::collection('addresses', Address::class),
+            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
         ];
     }
 
     /**
      * The fields held in the contact's own columns: the form fills and saves
-     * the addresses itself.
+     * the collections itself.
      *
      * @return array<int, string>
      */

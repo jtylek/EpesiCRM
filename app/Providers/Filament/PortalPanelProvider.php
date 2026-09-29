@@ -9,7 +9,6 @@ use App\Http\Middleware\DisabledInDemo;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
-use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -17,13 +16,11 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -44,8 +41,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class PortalPanelProvider extends PanelProvider
 {
-    use HasAuthBrandingStyles;
-
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -58,12 +53,9 @@ class PortalPanelProvider extends PanelProvider
                 'primary' => Color::Emerald,
                 'gray' => Color::Neutral,
             ])
+            ->viteTheme('resources/css/filament/epesi/theme.css')
             // One page, nothing to navigate between.
             ->navigation(false)
-            ->renderHook(
-                PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->authBrandingStyles()),
-            )
             ->pages([MyContact::class])
             ->middleware([
                 DisabledInDemo::class,

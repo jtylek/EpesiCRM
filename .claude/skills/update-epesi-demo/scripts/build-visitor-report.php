@@ -5,6 +5,8 @@
  * --raw, one per deploy.sh visitors run) into one deduped login_audits.csv,
  * and renders login_audit_report.html from it — see
  * demo-visitors/login_audit_analysis.md for the design this implements.
+ * External IPs get a city/country looked up via ipwho.is and cached in
+ * ip_geo_cache.sqlite (pdo_sqlite), so a rerun only looks up new IPs.
  *
  * Plain PHP, no Composer/Laravel: this runs against a directory outside any
  * checkout, from deploy.sh, with only the PHP already on the machine.
@@ -23,6 +25,62 @@ function fail(string $message): never
 {
     fwrite(STDERR, $message.PHP_EOL);
     exit(1);
+}
+
+function open_geo_cache(string $dir): PDO
+{
+    $db = new PDO('sqlite:'.$dir.'/ip_geo_cache.sqlite');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db->exec('CREATE TABLE IF NOT EXISTS ip_geo (
+        ip TEXT PRIMARY KEY,
+        city TEXT,
+        country TEXT,
+        looked_up_at TEXT NOT NULL
+    )');
+
+    return $db;
+}
+
+/**
+ * City + country for an external IP, from ipwho.is (free, HTTPS, no API
+ * key) — cached in ip_geo_cache.sqlite so a rerun only looks up IPs it
+ * hasn't seen before. A lookup failure (offline, rate limit, private IP)
+ * isn't cached, so the next run just tries again instead of getting stuck
+ * on a blank forever.
+ */
+function geolocate(PDO $db, string $ip): string
+{
+    $cached = $db->prepare('SELECT city, country FROM ip_geo WHERE ip = ?');
+    $cached->execute([$ip]);
+    $row = $cached->fetch(PDO::FETCH_ASSOC);
+
+    if ($row !== false) {
+        return format_location($row['city'], $row['country']);
+    }
+
+    $json = @file_get_contents('https://ipwho.is/'.urlencode($ip), false, stream_context_create([
+        'http' => ['timeout' => 4],
+    ]));
+    $data = $json !== false ? json_decode($json, true) : null;
+
+    if (! is_array($data) || ($data['success'] ?? false) !== true) {
+        return '—';
+    }
+
+    $city = (string) ($data['city'] ?? '');
+    $country = (string) ($data['country'] ?? '');
+
+    $db->prepare('INSERT OR REPLACE INTO ip_geo (ip, city, country, looked_up_at) VALUES (?, ?, ?, ?)')
+        ->execute([$ip, $city, $country, gmdate('Y-m-d\TH:i:s\Z')]);
+
+    return format_location($city, $country);
+}
+
+function format_location(?string $city, ?string $country): string
+{
+    $parts = array_values(array_filter([$city, $country], fn (?string $v): bool => $v !== null && $v !== ''));
+
+    return $parts === [] ? '—' : implode(', ', $parts);
 }
 
 /**
@@ -145,10 +203,29 @@ function local_datetime(string $utcDateTime): string
 }
 
 /**
+ * started_at to ended_at, which TrackLoginAudit bumps on every request of a
+ * still-active session — so this is "seen active for", not "time to logout".
+ */
+function duration(string $startedAt, string $endedAt): string
+{
+    $start = new DateTime($startedAt, new DateTimeZone('UTC'));
+    $end = new DateTime($endedAt, new DateTimeZone('UTC'));
+    $minutes = max(0, (int) round(($end->getTimestamp() - $start->getTimestamp()) / 60));
+
+    if ($minutes < 60) {
+        return $minutes.'m';
+    }
+
+    $hours = intdiv($minutes, 60);
+
+    return $hours.'h '.($minutes % 60).'m';
+}
+
+/**
  * @param  array<int, array<string, string>>  $rows
  * @param  array<int, string>  $ownIps
  */
-function build_report(array $rows, array $ownIps): string
+function build_report(array $rows, array $ownIps, PDO $geoDb): string
 {
     $external = array_values(array_filter($rows, fn (array $r): bool => ! in_array($r['ip_address'], $ownIps, true)));
     $own = array_values(array_filter($rows, fn (array $r): bool => in_array($r['ip_address'], $ownIps, true)));
@@ -201,9 +278,11 @@ function build_report(array $rows, array $ownIps): string
         $badge = in_array($row['ip_address'], $returning, true) ? ' <span class="badge">returning</span>' : '';
         $externalRowsHtml .= '<tr><td>'.e(local_datetime($row['started_at'])).'</td>'
             .'<td>'.e($row['ip_address']).$badge.'</td>'
+            .'<td>'.e(geolocate($geoDb, $row['ip_address'])).'</td>'
             .'<td>'.e($row['host_name']).'</td>'
             .'<td>'.e($row['device']).'</td>'
-            .'<td>'.e($row['login']).'</td></tr>';
+            .'<td>'.e($row['login']).'</td>'
+            .'<td class="num">'.e(duration($row['started_at'], $row['ended_at'])).'</td></tr>';
     }
 
     $ownRowsHtml = '';
@@ -211,7 +290,8 @@ function build_report(array $rows, array $ownIps): string
         $ownRowsHtml .= '<tr><td>'.e(local_datetime($row['started_at'])).'</td>'
             .'<td>'.e($row['ip_address']).'</td>'
             .'<td>'.e($row['device']).'</td>'
-            .'<td>'.e($row['login']).'</td></tr>';
+            .'<td>'.e($row['login']).'</td>'
+            .'<td class="num">'.e(duration($row['started_at'], $row['ended_at'])).'</td></tr>';
     }
 
     $totalExternalIps = count(array_unique(array_column($external, 'ip_address')));
@@ -241,7 +321,7 @@ function build_report(array $rows, array $ownIps): string
   header { padding: 26px 6%; background: var(--bg-alt); border-bottom: 1px solid var(--border); }
   header h1 { margin: 0; color: #fff; font-size: 1.5em; }
   header .range { color: var(--muted); font-size: 14px; margin-top: 4px; }
-  main { max-width: 1100px; margin: 0 auto; padding: 30px 6% 80px; }
+  main { max-width: 1600px; margin: 0 auto; padding: 30px 6% 80px; }
   .stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; }
   .stat { background: var(--bg-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px 20px; min-width: 140px; }
   .stat .n { font-size: 1.6em; font-weight: 700; color: #fff; }
@@ -284,14 +364,14 @@ function build_report(array $rows, array $ownIps): string
 
   <h2>External sessions</h2>
   <table>
-    <tr><th>Started ({$tz})</th><th>IP</th><th>Host</th><th>Device</th><th>Login</th></tr>
+    <tr><th>Started ({$tz})</th><th>IP</th><th>Location</th><th>Host</th><th>Device</th><th>Login</th><th class="num">Duration</th></tr>
     {$externalRowsHtml}
   </table>
 
   <details>
     <summary>Your own testing ({$ownSessions} {$ownLabel})</summary>
     <table>
-      <tr><th>Started ({$tz})</th><th>IP</th><th>Device</th><th>Login</th></tr>
+      <tr><th>Started ({$tz})</th><th>IP</th><th>Device</th><th>Login</th><th class="num">Duration</th></tr>
       {$ownRowsHtml}
     </table>
   </details>
@@ -319,7 +399,8 @@ if (! is_dir($dir)) {
 detect_and_record_own_ip($dir);
 $rows = merge_raw_csvs($dir);
 $ownIps = load_own_ips($dir);
-file_put_contents($dir.'/login_audit_report.html', build_report($rows, $ownIps));
+$geoDb = open_geo_cache($dir);
+file_put_contents($dir.'/login_audit_report.html', build_report($rows, $ownIps, $geoDb));
 
 $externalCount = count(array_filter($rows, fn (array $r): bool => ! in_array($r['ip_address'], $ownIps, true)));
 echo count($rows)." sessions total, $externalCount external. Report: $dir/login_audit_report.html".PHP_EOL;

@@ -137,6 +137,8 @@ class AppServiceProvider extends ServiceProvider
         $this->translateAllLabels();
         $this->putModalActionsOnHeadingLine();
         $this->hideZeroActiveFiltersBadge();
+        $this->closeFiltersPanelOnApply();
+        $this->closeColumnManagerOnApply();
         $this->compactBellNotifications();
         $this->offerRowsPerPageUpToAScreenful();
         $this->giveEveryAddonAColumnSelector();
@@ -401,6 +403,59 @@ class AppServiceProvider extends ServiceProvider
             PanelsRenderHook::STYLES_AFTER,
             fn (): HtmlString => new HtmlString('<style>.epesi-no-active-filters .fi-icon-btn-badge-ctn{display:none}</style>'),
         );
+    }
+
+    /**
+     * A table's filter panel otherwise stays open after Apply, needing a
+     * click outside to dismiss it — Filament's Apply button doesn't close the
+     * dropdown it sits in. The dropdown's Alpine wrapper (filamentDropdown,
+     * vendor/filament/support/resources/js/components/dropdown.js) exposes a
+     * close(), reachable from the button since it sits inside the same
+     * x-data scope.
+     *
+     * ->extraAttributes(['x-on:click' => 'close()']) looks like the natural
+     * way to add that, but does nothing: Action::toButtonHtml() always
+     * builds the button's own x-on:click first (from getAlpineClickHandler(),
+     * null here since this action has no URL/selected-records handling to
+     * generate one) and only then ->merge()s the extra attributes onto it —
+     * and Filament's ComponentAttributeBag::merge() keeps the receiver's own
+     * attributes over the merged-in ones for any key that already exists,
+     * even a null one, so the extra x-on:click is dropped silently. Setting
+     * alpineClickHandler() instead wins immediately: getAlpineClickHandler()
+     * returns it before any of that.
+     *
+     * alpineClickHandler() has its own side effect to undo, though: it always
+     * calls livewireClickHandlerEnabled(false) alongside itself (it exists
+     * for actions that are Alpine-only, e.g. CopyAction), which would drop
+     * this button's wire:click="applyTableFilters" and leave the button
+     * closing the panel without ever applying the filters. Re-enabling it
+     * after restores that wire:click; both it and the Alpine close() are
+     * independent listeners on the same click, so both still fire.
+     */
+    private function closeFiltersPanelOnApply(): void
+    {
+        Table::configureUsing(fn (Table $table) => $table
+            ->filtersApplyAction(fn (Action $action): Action => $action
+                ->alpineClickHandler('close()')
+                ->livewireClickHandlerEnabled()));
+    }
+
+    /**
+     * The column manager dropdown has the same Apply-doesn't-close-it
+     * problem as the filters panel above, but the fix differs: unlike the
+     * filters Apply button (plain wire:click, no Alpine handler of its
+     * own), this one is already Alpine-only — Filament gives it
+     * alpineClickHandler('applyTableColumnManager') to sync the dropdown's
+     * deferred column state to Livewire (column-manager.js). Overwriting
+     * that handler instead of appending to it would close the panel
+     * without ever applying the change, so close() is chained after it
+     * rather than replacing it.
+     */
+    private function closeColumnManagerOnApply(): void
+    {
+        Table::configureUsing(fn (Table $table) => $table
+            ->columnManagerApplyAction(fn (Action $action): Action => $action
+                ->alpineClickHandler('applyTableColumnManager(); close()')));
     }
 
     /**

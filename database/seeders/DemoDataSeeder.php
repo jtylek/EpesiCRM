@@ -279,12 +279,10 @@ class DemoDataSeeder extends Seeder
     {
         $ourCompany = $this->record(Company::class, [
             'company_name' => 'Acme Corp',
-            'phone' => '+1 555 0100',
-            'email' => 'hello@acme.test',
             'groups' => ['manager'],
             'permission' => RecordPermission::Private,
             'created_by' => $admin->id,
-        ], ['city' => 'Springfield', 'country' => 'US']);
+        ], $this->details(['city' => 'Springfield', 'country' => 'US'], ['work' => '+1 555 0100'], email: 'hello@acme.test'));
 
         $manager = $this->demoUser('Morgan Manager', 'manager@example.com');
         $manager->assignRole('manager');
@@ -292,12 +290,11 @@ class DemoDataSeeder extends Seeder
             'first_name' => 'Morgan',
             'last_name' => 'Manager',
             'company_id' => $ourCompany->id,
-            'email' => 'manager@example.com',
             'groups' => ['office'],
             'permission' => RecordPermission::Private,
             'user_id' => $manager->id,
             'created_by' => $admin->id,
-        ]);
+        ], $this->details(email: 'manager@example.com'));
 
         $employee = $this->demoUser('Eli Employee', 'employee@example.com');
         $employee->assignRole('employee');
@@ -305,57 +302,50 @@ class DemoDataSeeder extends Seeder
             'first_name' => 'Eli',
             'last_name' => 'Employee',
             'company_id' => $ourCompany->id,
-            'email' => 'employee@example.com',
             'groups' => ['office'],
             'permission' => RecordPermission::Private,
             'user_id' => $employee->id,
             'created_by' => $admin->id,
-        ]);
+        ], $this->details(email: 'employee@example.com'));
 
         // A customer company the employee created themselves — visible to
         // them (created_by match) even though it's Private.
         $customer = $this->record(Company::class, [
             'company_name' => 'Wayne Enterprises',
-            'phone' => '+1 555 0142',
-            'email' => 'contact@wayne.test',
             'groups' => ['customer'],
             'permission' => RecordPermission::Private,
             'created_by' => $employee->id,
-        ], ['city' => 'Gotham', 'country' => 'US']);
+        ], $this->details(['city' => 'Gotham', 'country' => 'US'], ['work' => '+1 555 0142'], email: 'contact@wayne.test'));
 
+        $bruceWorkPhone = '+1 555 0199';
         $bruce = $this->record(Contact::class, [
             'first_name' => 'Bruce',
             'last_name' => 'Wayne',
             'company_id' => $customer->id,
             'title' => 'CEO',
-            'email' => 'bruce@wayne.test',
-            'work_phone' => '+1 555 0199',
             'groups' => ['customer'],
             'permission' => RecordPermission::PublicReadOnly,
             'created_by' => $employee->id,
-        ], ['city' => 'Gotham', 'country' => 'US']);
+        ], $this->details(['city' => 'Gotham', 'country' => 'US'], ['work' => $bruceWorkPhone], email: 'bruce@wayne.test'));
 
         // A public vendor anyone with panel access should see regardless of
         // who created it.
         $vendor = $this->record(Company::class, [
             'company_name' => 'Stark Industries',
-            'phone' => '+1 555 0175',
-            'email' => 'sales@stark.test',
             'groups' => ['vendor'],
             'permission' => RecordPermission::Public,
             'created_by' => $manager->id,
-        ], ['city' => 'Malibu', 'country' => 'US']);
+        ], $this->details(['city' => 'Malibu', 'country' => 'US'], ['work' => '+1 555 0175'], email: 'sales@stark.test'));
 
         $tony = $this->record(Contact::class, [
             'first_name' => 'Tony',
             'last_name' => 'Stark',
             'company_id' => $vendor->id,
             'title' => 'CEO',
-            'email' => 'tony@stark.test',
             'groups' => ['customer'],
             'permission' => RecordPermission::Public,
             'created_by' => $manager->id,
-        ]);
+        ], $this->details(email: 'tony@stark.test'));
 
         // Phone calls, tasks and meetings — spread across permission levels
         // and creators the same way, so HasOwnershipVisibility has real
@@ -363,7 +353,7 @@ class DemoDataSeeder extends Seeder
         $privateCall = $this->record(PhoneCall::class, [
             'subject' => 'Follow-up on invoice #1042',
             'contact_id' => $bruce->id,
-            'phone_number' => $bruce->work_phone,
+            'phone_number' => $bruceWorkPhone,
             'permission' => RecordPermission::Private,
             'status' => RecordStatus::Open,
             'priority' => RecordPriority::High,
@@ -474,6 +464,8 @@ class DemoDataSeeder extends Seeder
     {
         $companies = [];
         $cities = [];
+        $phones = [];
+        $domains = [];
         $taken = [];
 
         foreach (range(1, self::COMPANIES) as $i) {
@@ -502,17 +494,17 @@ class DemoDataSeeder extends Seeder
             $companies[] = $company = $this->record(Company::class, [
                 'company_name' => $name,
                 'short_name' => explode(' ', $name)[0],
-                'phone' => $phone,
-                'email' => 'office@'.$domain,
-                'web_address' => 'https://www.'.$domain,
                 'groups' => [$this->pick(['customer', 'customer', 'customer', 'vendor', 'other'])],
                 'permission' => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::PublicReadOnly, RecordPermission::Private]),
                 'created_by' => $this->pick($users)->id,
-            ], $address);
+            ], $this->details($address, ['work' => $phone], 'https://www.'.$domain, email: 'office@'.$domain));
             $cities[$company->id] = [$city, $country];
+            $phones[$company->id] = $phone;
+            $domains[$company->id] = $domain;
         }
 
         $contacts = [];
+        $mobiles = [];
         $emails = [];
 
         foreach (range(1, self::CONTACTS) as $i) {
@@ -520,7 +512,7 @@ class DemoDataSeeder extends Seeder
             $last = $this->pick(self::LAST_NAMES);
             // A few people with no company, as in any address book.
             $company = mt_rand(1, 10) === 1 ? null : $this->pick($companies);
-            $domain = $company ? substr((string) $company->email, strpos((string) $company->email, '@') + 1) : 'mail.test';
+            $domain = $company ? $domains[$company->id] : 'mail.test';
 
             // Contact e-mail is unique too: a namesake at the same company
             // gets a number.
@@ -531,24 +523,24 @@ class DemoDataSeeder extends Seeder
             }
             $emails[$email] = true;
 
-            // The company's city, else any, drawn where the column once was.
+            // The title and then the city, in the order they were once drawn in.
             $attributes = [
                 'first_name' => $first,
                 'last_name' => $last,
                 'company_id' => $company?->id,
                 'title' => $this->pick(self::JOB_TITLES),
-                'email' => $email,
-                'work_phone' => $company?->phone,
-                'mobile_phone' => $this->phone($company ? $this->prefixOf($cities[$company->id][1]) : '+1'),
             ];
+            $mobile = $this->phone($company ? $this->prefixOf($cities[$company->id][1]) : '+1');
+            // The company's city, else any.
             [$city, $country] = $company ? $cities[$company->id] : [$this->pick(self::CITIES)[0], 'US'];
 
-            $contacts[] = $this->record(Contact::class, [
+            $contacts[] = $contact = $this->record(Contact::class, [
                 ...$attributes,
                 'groups' => ['customer'],
                 'permission' => $this->pick([RecordPermission::Public, RecordPermission::Public, RecordPermission::PublicReadOnly, RecordPermission::Private]),
                 'created_by' => $this->pick($users)->id,
-            ], ['city' => $city, 'country' => $country]);
+            ], $this->details(['city' => $city, 'country' => $country], ['work' => $company ? $phones[$company->id] : null, 'mobile' => $mobile], email: $email));
+            $mobiles[$contact->id] = $mobile;
         }
 
         // Past work mostly done, upcoming work mostly open.
@@ -587,7 +579,7 @@ class DemoDataSeeder extends Seeder
                 'description' => $this->pick(self::NOTES),
                 'contact_id' => $contact->id,
                 'company_id' => $company?->id,
-                'phone_number' => $contact->mobile_phone,
+                'phone_number' => $mobiles[$contact->id],
                 'called_at' => $calledAt,
                 'status' => $status($calledAt->isPast()),
                 'priority' => $priority(),
@@ -812,29 +804,44 @@ class DemoDataSeeder extends Seeder
     /**
      * Creates a record with every attribute given, created_by included (not
      * fillable, so plain create() would drop it outside `db:seed`), and
-     * remembers it as demo data.
+     * remembers it as demo data, then its collections (details()).
      *
      * @template T of Model
      *
      * @param  class-string<T>  $class
      * @param  array<string, mixed>  $attributes
+     * @param  array<string, list<array<string, mixed>>>  $collections  field => items
      * @return T
      */
-    /**
-     * @param  array<string, mixed>  $attributes
-     * @param  array<string, mixed>|null  $address  the record's one address, a Business one (the Addresses collection)
-     */
-    protected function record(string $class, array $attributes, ?array $address = null): Model
+    protected function record(string $class, array $attributes, array $collections = []): Model
     {
         $record = new $class;
         $record->forceFill($attributes)->save();
         DemoData::remember($record);
 
-        if ($address !== null) {
-            $record->syncCollection('addresses', [['kind' => 'business', ...$address]]);
+        foreach ($collections as $field => $items) {
+            $record->syncCollection($field, $items);
         }
 
         return $record;
+    }
+
+    /**
+     * A contact's or company's collections: its address as a Business one,
+     * its numbers by kind (a blank one left out) and its website.
+     *
+     * @param  array<string, mixed>|null  $address
+     * @param  array<string, ?string>  $phones  kind => number
+     * @return array<string, list<array<string, mixed>>> field => items
+     */
+    protected function details(?array $address = null, array $phones = [], ?string $website = null, ?string $email = null, string $emailKind = 'work'): array
+    {
+        return [
+            'addresses' => $address === null ? [] : [['kind' => 'business', ...$address]],
+            'phones' => array_map(fn (string $kind, ?string $number): array => ['kind' => $kind, 'value' => $number], array_keys($phones), $phones),
+            'online_accounts' => $website === null ? [] : [['kind' => 'website', 'value' => $website]],
+            'emails' => $email === null ? [] : [['kind' => $emailKind, 'value' => $email]],
+        ];
     }
 
     /**

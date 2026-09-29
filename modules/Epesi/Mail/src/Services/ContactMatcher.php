@@ -2,18 +2,15 @@
 
 namespace Epesi\Modules\Mail\Services;
 
-use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\Mail\Models\Mail;
-use Epesi\Modules\Mail\Models\MailAddress;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Which CRM records an e-mail address belongs to — CRM_MailCommon::
- * look_contact(): a contact's or company's own e-mail field, or one of its
- * additional addresses.
+ * look_contact(): every EmailAddress item whose value matches, whichever
+ * record owns it.
  *
  * Visibility is deliberately not applied: linking a message to a private
  * contact reveals nothing, since only people who can open that contact see
@@ -36,20 +33,13 @@ class ContactMatcher
             return collect();
         }
 
-        $contacts = Contact::query()->withoutGlobalScopes()->whereNull('deleted_at')
-            ->whereIn(DB::raw('lower(email)'), $emails)->get();
-        $companies = Company::query()->withoutGlobalScopes()->whereNull('deleted_at')
-            ->whereIn(DB::raw('lower(email)'), $emails)->get();
-
-        // The owning record without the ownership scope either: the Mailbox
+        // The owning record without the ownership scope: the Mailbox
         // archives while someone is signed in, and the scope would hide
         // another user's private contact here.
-        $extra = MailAddress::query()->whereIn('email', $emails)
-            ->with(['addressable' => fn ($query) => $query->withoutGlobalScope('ownership')])
+        return EmailAddress::query()->whereIn('value', $emails)
+            ->with(['owner' => fn ($query) => $query->withoutGlobalScope('ownership')])
             ->get()
-            ->pluck('addressable')->filter();
-
-        return $contacts->concat($companies)->concat($extra)
+            ->pluck('owner')->filter()
             ->unique(fn (Model $m): string => $m->getMorphClass().':'.$m->getKey())
             ->values();
     }

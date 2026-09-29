@@ -5,13 +5,12 @@ namespace Epesi\Modules\RegionalSettings\Filament\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
-use App\Support\Countries;
 use App\Support\Demo;
 use App\Support\Locale\Locales;
-use App\Support\Zones;
 use BackedEnum;
 use Carbon\Carbon;
 use DateTimeZone;
+use Epesi\Modules\CommonData\Facades\CommonData;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -122,7 +121,7 @@ class RegionalSettings extends Page
                 ->columns(2)
                 ->schema([
                     Select::make('country')
-                        ->options(Countries::options())
+                        ->options(fn (): array => CommonData::array('Countries'))
                         ->searchable()
                         ->native(false)
                         ->live()
@@ -133,17 +132,29 @@ class RegionalSettings extends Page
                     Group::make([
                         Select::make('state')
                             ->label('State / Province')
-                            ->options(fn (Get $get): array => Zones::forCountry($get('country')))
+                            ->options(fn (Get $get): array => static::zonesFor($get('country')))
                             ->searchable()
                             ->native(false)
-                            ->visible(fn (Get $get): bool => Zones::hasZones($get('country'))),
+                            ->visible(fn (Get $get): bool => static::zonesFor($get('country')) !== []),
                         TextInput::make('state')
                             ->label('State / Province')
                             ->maxLength(64)
-                            ->visible(fn (Get $get): bool => ! Zones::hasZones($get('country'))),
+                            ->visible(fn (Get $get): bool => static::zonesFor($get('country')) === []),
                     ])->columns(1),
                 ]),
         ];
+    }
+
+    /**
+     * A country's zone list, or empty for one with none — including an
+     * unchosen country, which a bare 'Countries/'.$country would resolve to
+     * the Countries list itself rather than an empty path.
+     *
+     * @return array<string, string>
+     */
+    protected static function zonesFor(?string $country): array
+    {
+        return filled($country) ? CommonData::array('Countries/'.$country) : [];
     }
 
     public function save(): void

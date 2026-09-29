@@ -86,7 +86,8 @@ class UsersTableTest extends TestCase
     {
         $user = User::factory()->create(['name' => $login, 'email' => strtolower($firstName).'@example.test']);
         $user->assignRole('employee');
-        Contact::create(['first_name' => $firstName, 'last_name' => $lastName, 'email' => $user->email, 'user_id' => $user->id]);
+        $contact = Contact::create(['first_name' => $firstName, 'last_name' => $lastName, 'user_id' => $user->id]);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => $user->email]]);
 
         return $user;
     }

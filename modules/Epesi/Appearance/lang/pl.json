@@ -1,0 +1,22 @@
+{
+    "Accent colour": "Kolor akcentu",
+    "Appearance": "Wygląd",
+    "Appearance saved": "Zapisano wygląd",
+    "Application name saved": "Zapisano nazwę aplikacji",
+    "Application name:": "Nazwa aplikacji:",
+    "Comfortable": "Komfortowy",
+    "Compact": "Kompaktowy",
+    "Default": "Domyślne",
+    "Default theme": "Motyw domyślny",
+    "Density": "Gęstość",
+    "Font size": "Rozmiar czcionki",
+    "Large": "Duża",
+    "Leave blank to keep this panel's own colour.": "Pozostaw puste, aby zachować własny kolor tego panelu.",
+    "Small": "Mała",
+    "This panel's own colour": "Własny kolor tego panelu",
+    "Theme": "Motyw",
+    "What a user gets until they choose one of their own.": "Motyw, który dostaje użytkownik, dopóki nie wybierze własnego.",
+    "Your administrator hasn't set up any themes yet.": "Administrator nie skonfigurował jeszcze żadnych motywów.",
+    "theme": "motyw",
+    "themes": "motywy"
+}

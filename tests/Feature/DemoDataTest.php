@@ -130,7 +130,7 @@ class DemoDataTest extends TestCase
 
     public function test_the_demo_e_mails_are_threaded_and_filed_with_their_contacts(): void
     {
-        $bruce = Contact::query()->withoutGlobalScopes()->where('email', 'bruce@wayne.test')->sole();
+        $bruce = Contact::query()->withoutGlobalScopes()->whereHas('emails', fn ($q) => $q->where('value', 'bruce@wayne.test'))->sole();
         $reply = Mail::query()->where('message_id', 'renewal-2@acme.test')->sole();
 
         $this->assertSame(3, MailThread::query()->count());
@@ -142,7 +142,7 @@ class DemoDataTest extends TestCase
 
     public function test_it_is_the_same_demo_every_time(): void
     {
-        $generated = fn (): array => Company::query()->withoutGlobalScopes()->where('email', 'like', 'office@%')->orderBy('id')->pluck('company_name')->all();
+        $generated = fn (): array => Company::query()->withoutGlobalScopes()->whereHas('emails', fn ($q) => $q->where('value', 'like', 'office@%'))->orderBy('id')->pluck('company_name')->all();
         $first = $generated();
 
         DemoData::remove();
@@ -154,7 +154,7 @@ class DemoDataTest extends TestCase
 
     public function test_removing_it_keeps_you_and_what_you_added(): void
     {
-        $demoContact = Contact::query()->withoutGlobalScopes()->where('email', 'bruce@wayne.test')->sole();
+        $demoContact = Contact::query()->withoutGlobalScopes()->whereHas('emails', fn ($q) => $q->where('value', 'bruce@wayne.test'))->sole();
         $demoCompany = $demoContact->company;
 
         // Something real, added after setup, that refers to demo records.

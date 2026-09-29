@@ -4,6 +4,7 @@ namespace Epesi\Modules\Attachments\Filament\Resources\Attachments;
 
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
+use App\Models\User;
 use App\Services\FileStorage;
 use App\Support\Files\FileChip;
 use BackedEnum;
@@ -24,6 +25,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
@@ -44,6 +46,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -259,13 +263,16 @@ class AttachmentResource extends Resource
      * as lines under the note itself (preview()) rather than their own
      * columns, so Note is nearly the whole row — none of the three is a real
      * column any more, so none has a sortable header; the default sort above
-     * still applies. Sticky stays a real column (a live toggle, not text)
-     * rather than joining them.
+     * still applies. Only a record's Notes tab shows the live Sticky toggle;
+     * the standalone Notes list leaves that column out. No column selector:
+     * both remaining columns opt out of
+     * `AppServiceProvider::giveEveryAddonAColumnSelector()`, since there's
+     * nothing worth hiding on a table that's essentially one column.
      */
     public static function notesTable(Table $table, bool $attachedTo): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['creator', ...($attachedTo ? ['links.attachable'] : [])]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['creator', 'latestEdit.causer', ...($attachedTo ? ['links.attachable'] : [])]))
             ->defaultSort(fn (Builder $query): Builder => $query
                 ->orderByDesc('epesi_attachments.sticky')
                 ->orderByDesc('epesi_attachments.updated_at'))
@@ -274,18 +281,58 @@ class AttachmentResource extends Resource
                 // column saves without asking the policy itself), which moves
                 // the note to or from the top of the list.
                 ToggleColumn::make('sticky')
+                    ->visible(! $attachedTo)
                     ->disabled(fn (Attachment $record): bool => ! (auth()->user()?->can('update', $record) ?? false))
+                    ->toggleable(false)
                     ->width('1%'),
                 TextColumn::make('note')
                     ->label('Note')
                     ->state(fn (Attachment $record): HtmlString => static::preview($record, $attachedTo))
                     ->wrap()
-                    ->searchable(['title', 'note']),
-                TextColumn::make('permission')
-                    ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(['title', 'note'])
+                    ->toggleable(false),
             ])
-            ->filters([
+            ->filters($attachedTo ? [
+                Filter::make('has_attachments')
+                    ->label('Has Attachments')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->whereJsonLength('epesi_attachments.files', '>', 0)),
+                SelectFilter::make('edited_by')
+                    ->label('Edited by')
+                    ->options(fn (): array => User::query()->orderBy('name')->pluck('name', 'id')->all())
+                    ->searchable()
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['value'] ?? null, fn (Builder $query, $userId): Builder => $query
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereHas('latestEdit', fn (Builder $query): Builder => $query
+                                    ->where('causer_type', (new User)->getMorphClass())
+                                    ->where('causer_id', $userId))
+                                ->orWhere(fn (Builder $query): Builder => $query
+                                    ->whereDoesntHave('latestEdit')
+                                    ->where('epesi_attachments.created_by', $userId))))),
+                Filter::make('updated_at')
+                    ->label('Edited on')
+                    ->schema([
+                        DatePicker::make('from')->label('Edited on from'),
+                        DatePicker::make('until')->label('Edited on until')->afterOrEqual('from'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('epesi_attachments.updated_at', '>=', $date))
+                        ->when($data['until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('epesi_attachments.updated_at', '<=', $date)))
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make(__('Edited on from').': '.$data['from'])->removeField('from');
+                        }
+
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make(__('Edited on until').': '.$data['until'])->removeField('until');
+                        }
+
+                        return $indicators;
+                    }),
+            ] : [
                 Filter::make('sticky')
                     ->toggle()
                     ->query(fn (Builder $query): Builder => $query->where('epesi_attachments.sticky', true)),
@@ -574,7 +621,8 @@ class AttachmentResource extends Resource
         }
 
         $editedOn = e($record->updated_at?->translatedFormat('M j, Y H:i:s') ?? '');
-        $editor = $record->creator ? ' <span class="epesi-note-meta-by">'.e($record->creator->name).'</span>' : '';
+        $editedBy = $record->latestEdit ? $record->latestEdit->causer : $record->creator;
+        $editor = $editedBy instanceof User ? ' <span class="epesi-note-meta-by">'.e($editedBy->name).'</span>' : '';
         $lines[] = static::metaLine(__('Edited on'), $editedOn.$editor);
 
         return '<div class="epesi-note-meta">'.implode('', $lines).'</div>';

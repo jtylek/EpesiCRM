@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Every e-mail address the Epesi user may see: contacts' and companies' own,
- * plus the extra addresses (epesi_mail_addresses) of those records. Ids are
- * prefixed by kind — c<contact>, k<company>, a<extra address>.
+ * Every e-mail address the Epesi user may see: every EmailAddress collection
+ * item (epesi_recordbrowser_email_addresses) owned by a contact or a company —
+ * their own address and any extra one alike, now that both are items of the
+ * same collection. Ids are prefixed by owner kind — c<item id>, k<item id>.
  *
  * Visibility repeats HasOwnershipVisibility (modules/Epesi/RecordBrowser/src/
  * Models/Concerns/HasOwnershipVisibility.php) and the Contact/Company hooks
@@ -163,14 +164,10 @@ class epesi_addressbook_backend extends rcube_addressbook
         $companies = 'k.deleted_at IS NULL AND '.$this->visible('k', 'k.id = '.(int) ($this->epesi['company_id'] ?? 0));
 
         return implode(' UNION ALL ', [
-            'SELECT '.$this->db->concat("'c'", 'c.id').' AS ID, '.$contactName.' AS name, c.first_name AS firstname, c.last_name AS surname, c.email AS email'
-                ." FROM contacts c WHERE c.email IS NOT NULL AND c.email <> '' AND ".$contacts,
-            'SELECT '.$this->db->concat("'k'", 'k.id').' AS ID, k.company_name AS name, NULL AS firstname, NULL AS surname, k.email AS email'
-                ." FROM companies k WHERE k.email IS NOT NULL AND k.email <> '' AND ".$companies,
-            'SELECT '.$this->db->concat("'a'", 'a.id').' AS ID, '.$contactName.' AS name, c.first_name AS firstname, c.last_name AS surname, a.email AS email'
-                ." FROM epesi_mail_addresses a INNER JOIN contacts c ON a.addressable_type = 'contact' AND c.id = a.addressable_id WHERE ".$contacts,
-            'SELECT '.$this->db->concat("'a'", 'a.id').' AS ID, k.company_name AS name, NULL AS firstname, NULL AS surname, a.email AS email'
-                ." FROM epesi_mail_addresses a INNER JOIN companies k ON a.addressable_type = 'company' AND k.id = a.addressable_id WHERE ".$companies,
+            'SELECT '.$this->db->concat("'c'", 'e.id').' AS ID, '.$contactName.' AS name, c.first_name AS firstname, c.last_name AS surname, e.value AS email'
+                ." FROM epesi_recordbrowser_email_addresses e INNER JOIN contacts c ON e.owner_type = 'contact' AND c.id = e.owner_id WHERE ".$contacts,
+            'SELECT '.$this->db->concat("'k'", 'e.id').' AS ID, k.company_name AS name, NULL AS firstname, NULL AS surname, e.value AS email'
+                ." FROM epesi_recordbrowser_email_addresses e INNER JOIN companies k ON e.owner_type = 'company' AND k.id = e.owner_id WHERE ".$companies,
         ]);
     }
 

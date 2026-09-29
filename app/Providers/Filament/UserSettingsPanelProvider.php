@@ -5,14 +5,12 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\Login;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
 use App\Http\Middleware\RedirectToSetup;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackLoginAudit;
-use App\Providers\Filament\Concerns\HasAuthBrandingStyles;
-use App\Providers\Filament\Concerns\HasBoxedFieldStyles;
-use App\Providers\Filament\Concerns\HasCompactTableStyles;
-use App\Providers\Filament\Concerns\HasSmallCardCorners;
+use App\Support\Appearance\CurrentTheme;
 use App\Support\Modules\ModuleRegistry;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -25,12 +23,13 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -43,11 +42,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class UserSettingsPanelProvider extends PanelProvider
 {
-    use HasAuthBrandingStyles;
-    use HasBoxedFieldStyles;
-    use HasCompactTableStyles;
-    use HasSmallCardCorners;
-
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -60,17 +54,20 @@ class UserSettingsPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
                 'gray' => Color::Neutral,
             ])
+            ->viteTheme('resources/css/filament/epesi/theme.css')
             ->sidebarWidth('16rem')
-            ->renderHook(
-                PanelsRenderHook::STYLES_AFTER,
-                fn (): HtmlString => new HtmlString($this->compactTableStyles().$this->boxedFieldStyles().$this->smallCardCornerStyles().$this->authBrandingStyles()),
-            )
+            // A user's chosen theme's density and font size, applied before
+            // first paint — see App\Support\Appearance\CurrentTheme.
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
             ->plugins(ModuleRegistry::pluginsFor('user-settings'))
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
+                // After AuthenticateSession (needs Auth::user()) and before
+                // anything renders: see the middleware's own docblock.
+                ApplyThemeColor::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,

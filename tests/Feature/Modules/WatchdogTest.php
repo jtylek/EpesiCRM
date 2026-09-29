@@ -132,11 +132,27 @@ class WatchdogTest extends TestCase
         $task->update(['title' => 'Call the bank today']);
 
         $url = Watchdog::url($task);
-        $this->assertSame(ViewTask::getUrl(['record' => $task, 'tab' => 'history::tab'], panel: 'main'), $url);
+        $this->assertSame(ViewTask::getUrl(['record' => $task, 'action' => 'history'], panel: 'main'), $url);
         $this->assertSame($url, $author->notifications()->sole()->data['actions'][0]['url']);
 
-        // The tab reads "Historia" in Polish and keeps its key all the same.
-        $this->actingAs($author)->get($url)->assertOk()->assertSee('Historia')->assertSee('history::tab', false);
+        // `?action=history` is what the URL asks the page to mount on load
+        // (Filament's own InteractsWithActions::$defaultAction); simulate
+        // that mount directly since a plain HTTP `get()` can't run the
+        // `wire:init` JS that does it in the browser. Livewire::test() mounts
+        // the component directly, skipping the SetLocale middleware a real
+        // request would run, so the author's Polish is set by hand here.
+        $this->actingAs($author);
+        app()->setLocale('pl');
+        $action = Livewire::test(ViewTask::class, ['record' => $task->getKey()])
+            ->mountAction('history')
+            ->instance()
+            ->getMountedAction();
+
+        $this->assertNotNull($action);
+        // The heading is a rendered view (history-modal-heading.blade.php: the
+        // "Record History" text plus the maximize/restore buttons), not a
+        // plain string.
+        $this->assertStringContainsString('Historia rekordu', (string) $action->getModalHeading());
     }
 
     public function test_watching_a_record_type_never_reveals_private_records(): void

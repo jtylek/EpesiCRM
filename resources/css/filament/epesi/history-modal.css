@@ -1,0 +1,35 @@
+/*
+ * The History action's modal (ViewRecord::recordInfoAndHistoryKebab(),
+ * heading markup in resources/views/filament/components/history-modal-
+ * heading.blade.php): Filament's default modal chrome (1.5rem all round)
+ * leaves little room for the table itself, and the maximize/restore buttons
+ * ride along inside the heading `<h2>` (no header slot on an action modal),
+ * so they're pulled out to sit beside the close button with absolute
+ * positioning instead of where they'd otherwise fall in the heading's flow.
+ */
+.epesi-history-modal .fi-modal-header {
+    padding: 1rem 1rem 0;
+}
+
+.epesi-history-modal .fi-modal-content {
+    padding: 0.75rem 1rem 1rem;
+}
+
+.epesi-history-modal .epesi-history-maximize-btn {
+    position: absolute;
+    top: 1rem;
+    inset-inline-end: 3rem;
+}
+
+/* Toggled onto .fi-modal-window by history-modal-heading.blade.php. */
+.fi-modal-window.epesi-history-max {
+    max-width: none;
+    width: calc(100dvw - 2rem);
+    height: calc(100dvh - 2rem);
+}
+
+.epesi-history-max .fi-modal-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}

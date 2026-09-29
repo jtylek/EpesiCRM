@@ -3,8 +3,6 @@
 namespace Epesi\Modules\Watchdog;
 
 use App\Models\User;
-use Epesi\Modules\RecordBrowser\Filament\Pages\ViewRecord;
-use Epesi\Modules\RecordBrowser\Filament\RelationManagers\HistoryRelationManager;
 use Epesi\Modules\Watchdog\Models\CategorySubscription;
 use Epesi\Modules\Watchdog\Models\Subscription;
 use Filament\Facades\Filament;
@@ -333,9 +331,14 @@ class Watchdog
     }
 
     /**
-     * The record's View page with its History addon open: everywhere this
+     * The record's View page with its History modal open: everywhere this
      * links from (the bell, the Watched list) says the record changed, and
-     * History is where the changes are.
+     * History is where the changes are. `?action=history` is Filament's own
+     * `InteractsWithActions::$defaultAction` convention (any page mounts and
+     * opens the named action on load) — History lives behind
+     * ViewRecord's kebab as an action named 'history' rather than a tab, since
+     * modules/Epesi/RecordBrowser moved Record Info/History off the addon tab
+     * strip into modal actions.
      */
     public static function url(Model $record): ?string
     {
@@ -347,7 +350,7 @@ class Watchdog
 
         return $resource::getUrl('view', [
             'record' => $record,
-            'tab' => ViewRecord::addonTab(HistoryRelationManager::class),
+            'action' => 'history',
         ], panel: 'main');
     }
 
@@ -358,8 +361,8 @@ class Watchdog
     public static function fieldLabel(Model $record, string $column): string
     {
         $resource = static::resourceFor($record);
-        $field = $resource && method_exists($resource, 'fields')
-            ? collect($resource::fields())->first(fn ($field): bool => ($field->name ?? null) === $column)
+        $field = $resource && method_exists($resource, 'resolvedFields')
+            ? collect($resource::resolvedFields())->first(fn ($field): bool => ($field->name ?? null) === $column)
             : null;
 
         return __($field?->getLabel() ?? Str::headline($column));

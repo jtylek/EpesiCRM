@@ -7,16 +7,15 @@ use App\Models\User;
 use App\Support\Demo;
 use BackedEnum;
 use Epesi\Modules\CRM\Companies\Models\Company;
-use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\MeetingsRelationManager;
-use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\PhoneCallsRelationManager;
-use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\RelationManagers\TasksRelationManager;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\RecordBrowser\Filament\LinkedRecords;
 use Epesi\Modules\RecordBrowser\Models\Address;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
+use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
@@ -92,22 +91,25 @@ class ContactResource extends RecordsetResource
                 ->label('Related Companies')
                 ->titleAttribute('company_name'),
 
-            Field::phone('work_phone')->inTable(),
-            Field::phone('mobile_phone')->inTable(),
-            Field::phone('home_phone')->label('Home Phone')->inView(false)->notInTable(),
-            Field::text('fax')->maxLength(64)->inView(false),
-            Field::email('email')
-                ->inTable()
-                ->formUsing(fn (TextInput $component): TextInput => $component->unique(ignoreRecord: true)),
-            Field::url('web_address')->label('Web Address')->maxLength(64),
+            Field::collection('emails', EmailAddress::class)
+                ->label('E-mail addresses')
+                ->inTable(),
             Field::select('permission', RecordPermission::class)
                 ->required()
-                ->default(RecordPermission::Public)
-                ->filterable(),
+                ->default(RecordPermission::Public),
             Field::longText('memo'),
 
+            // Work, mobile, home, fax and any other, each with the apps that
+            // reach it. The list keeps a column for Work and one for Mobile.
+            Field::collection('phones', PhoneNumber::class)
+                ->label('Phone numbers')
+                ->columnsForKinds(['work' => 'Work Phone', 'mobile' => 'Mobile Phone'])
+                ->inTable(),
             // Business, home and any other: the list shows the first one's city.
-            Field::collection('addresses', Address::class)->inTable()->filterable(),
+            // Filterable by City/Country only — Has/Kind stay off the panel.
+            Field::collection('addresses', Address::class)->inTable()->filterable(itemFieldsOnly: true),
+            // The website, LinkedIn and the like, each linking to its page.
+            Field::collection('online_accounts', OnlineAccount::class)->label('Online accounts'),
 
             // The linked login. Not in the infolist, and no Login tab: a login is
             // managed in Administration → Users, where one is made from a
@@ -133,15 +135,6 @@ class ContactResource extends RecordsetResource
                     ->label('Login')
                     ->placeholder(__('-'))
                     ->toggleable(isToggledHiddenByDefault: true)),
-        ];
-    }
-
-    public static function addons(): array
-    {
-        return [
-            TasksRelationManager::class,
-            PhoneCallsRelationManager::class,
-            MeetingsRelationManager::class,
         ];
     }
 }

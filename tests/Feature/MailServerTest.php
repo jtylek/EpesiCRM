@@ -308,7 +308,10 @@ class MailServerTest extends TestCase
 
     protected function contact(string $firstName, string $email): Contact
     {
-        return Contact::create(['first_name' => $firstName, 'last_name' => 'Tester', 'email' => $email]);
+        $contact = Contact::create(['first_name' => $firstName, 'last_name' => 'Tester']);
+        $contact->syncCollection('emails', [['kind' => 'work', 'value' => $email]]);
+
+        return $contact;
     }
 
     protected function employeeRoleId(): int

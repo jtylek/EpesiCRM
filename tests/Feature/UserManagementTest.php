@@ -52,7 +52,8 @@ class UserManagementTest extends TestCase
         $this->admin = $this->userWithRole('super_admin', ['name' => 'root']);
         $this->ann = User::factory()->create(['name' => 'annk', 'email' => 'ann@example.test']);
         $this->ann->assignRole('employee');
-        $this->annContact = Contact::create(['first_name' => 'Ann', 'last_name' => 'Kowalska', 'email' => 'ann@example.test', 'user_id' => $this->ann->id]);
+        $this->annContact = Contact::create(['first_name' => 'Ann', 'last_name' => 'Kowalska', 'user_id' => $this->ann->id]);
+        $this->annContact->syncCollection('emails', [['kind' => 'work', 'value' => 'ann@example.test']]);
 
         $this->actingAs($this->admin);
         Filament::setCurrentPanel('administration');
@@ -207,7 +208,7 @@ class UserManagementTest extends TestCase
             ->assertNotified('Username updated');
 
         $this->assertSame('ann.k@example.test', $this->ann->refresh()->email);
-        $this->assertSame('ann@example.test', $this->annContact->refresh()->email, 'the contact\'s own address is left alone');
+        $this->assertSame('ann@example.test', $this->annContact->refresh()->primaryEmail(), 'the contact\'s own address is left alone');
     }
 
     public function test_a_username_another_login_has_is_refused(): void
@@ -253,7 +254,7 @@ class UserManagementTest extends TestCase
 
     // ------------------------------------------------------------- History --
 
-    public function test_the_view_page_has_a_history_tab(): void
+    public function test_the_view_page_has_a_history_action_in_its_kebab(): void
     {
         Livewire::test(ViewUser::class, ['record' => $this->ann->getKey()])
             ->assertSee('History');
@@ -341,7 +342,8 @@ class UserManagementTest extends TestCase
 
     public function test_a_new_users_history_starts_with_who_made_it_for_which_contact_and_with_which_roles(): void
     {
-        $bob = Contact::create(['first_name' => 'Bob', 'last_name' => 'Nowak', 'email' => 'bob@example.test']);
+        $bob = Contact::create(['first_name' => 'Bob', 'last_name' => 'Nowak']);
+        $bob->syncCollection('emails', [['kind' => 'work', 'value' => 'bob@example.test']]);
 
         Livewire::test(CreateUser::class)
             ->fillForm(['contact_id' => $bob->id, 'roles' => [Role::findByName('employee')->id], 'password' => 'a-long-password', 'password_confirmation' => 'a-long-password'])

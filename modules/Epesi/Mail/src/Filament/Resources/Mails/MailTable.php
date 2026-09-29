@@ -41,8 +41,9 @@ class MailTable
                 ->grow(false)
                 ->sortable(),
             TextColumn::make('subject')
+                ->label(__('E-mail'))
                 ->weight('medium')
-                ->description(fn (Mail $record): string => $record->snippet(90))
+                ->description(fn (Mail $record): string => $record->snippet(560))
                 ->placeholder(__('(no subject)'))
                 ->wrap()
                 ->grow()
@@ -50,7 +51,8 @@ class MailTable
             TextColumn::make('from')
                 ->limit(40)
                 ->tooltip(fn (Mail $record): ?string => $record->from)
-                ->grow(false),
+                ->grow(false)
+                ->width('12rem'),
             TextColumn::make('attachments_count')
                 ->label('')
                 ->counts('attachments')
@@ -60,8 +62,8 @@ class MailTable
             $withLinks ? LinkedRecords::badges(TextColumn::make('linked'), fn (Mail $record): iterable => $record->links->pluck('linkable'))
                 ->label('Linked to')
                 ->listWithLineBreaks()
-                ->grow(false)
-                ->toggleable() : null,
+                ->limitList(3)
+                ->grow(false) : null,
         ]));
     }
 

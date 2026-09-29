@@ -11,6 +11,10 @@ use Epesi\Modules\RecordBrowser\Filament\Pages\ListRecords;
 use Epesi\Modules\RecordBrowser\History\SaveActivity;
 use Epesi\Modules\RecordBrowser\Models\Address;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
+use Epesi\Modules\RecordBrowser\Models\EmailAddress;
+use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
+use Epesi\Modules\RecordBrowser\Models\PhoneNumber;
+use Epesi\Modules\RecordBrowser\Recordset\FieldOverrides;
 use Filament\Actions\Action;
 use Filament\Actions\Events\ActionCalled;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -43,9 +47,13 @@ class RecordBrowserServiceProvider extends ServiceProvider
             // Collection types (CollectionItem): the alias is what an
             // administrator's Collection field stores as its type.
             'address' => Address::class,
+            'phone_number' => PhoneNumber::class,
+            'online_account' => OnlineAccount::class,
+            'email_address' => EmailAddress::class,
         ]);
 
         $this->app->scoped(SaveActivity::class);
+        $this->app->scoped(FieldOverrides::class);
     }
 
     public function boot(): void
@@ -134,6 +142,17 @@ class RecordBrowserServiceProvider extends ServiceProvider
                 .'.epesi-collection-item{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .5rem}'
                 .'.epesi-collection-extra{color:var(--gray-500)}'
                 .'.dark .epesi-collection-extra{color:var(--gray-400)}'
+                // A collection's cards on the form (Field::collectionRepeater()):
+                // Filament puts Add below them and Collapse all / Expand all
+                // above; both go in one row above the cards, Add first. The
+                // cards sit closer and their headers are lower than
+                // Filament's, so a collapsed list reads as a list.
+                .'.fi-fo-repeater.epesi-collection-repeater{grid-template-columns:auto 1fr;align-items:center;column-gap:.75rem;row-gap:.5rem}'
+                .'.epesi-collection-repeater>.fi-fo-repeater-add{grid-row:1;grid-column:1;width:auto}'
+                .'.epesi-collection-repeater>.fi-fo-repeater-actions{grid-row:1;grid-column:2}'
+                .'.epesi-collection-repeater>.fi-fo-repeater-items{grid-row:2;grid-column:1/-1;gap:.375rem}'
+                .'.epesi-collection-repeater .fi-fo-repeater-item-header{padding-block:.375rem;padding-inline:.75rem}'
+                .'.epesi-collection-repeater .fi-fo-repeater-item-content{padding:.75rem}'
                 // Same background a row's own :hover already gives it
                 // (row.css), for the row the keyboard currently has
                 // highlighted (list-keyboard-nav.blade.php).
