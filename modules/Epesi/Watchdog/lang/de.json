@@ -16,14 +16,14 @@
     "Record": "Aufzeichnung",
     "Record types": "Datensatztypen",
     "Restored": "Wiederhergestellt",
-    "Stop watching": " Beobachten beenden",
+    "Stop watching": "Nicht mehr beobachten",
     "Stopped watching this record": "Ich habe aufgehört, mir diese Aufnahme anzusehen",
     "System": "System",
     "Updated": "Update erfolgreich",
     "Watch": "Beobachten",
-    "Watch record types": "Arten von Überwachungsprotokollen",
-    "Watched": "Gesehen",
-    "Watched records": "Gesehene Aufzeichnungen",
-    "Watching": "Zuschauen",
-    "Watching this record": "Diese Platte ansehen"
+    "Watch record types": "Datensatztypen beobachten",
+    "Watched": "Beobachtet",
+    "Watched records": "Beobachtete Datensätze",
+    "Watching": "Wird beobachtet",
+    "Watching this record": "Du beobachtest diesen Datensatz"
 }
