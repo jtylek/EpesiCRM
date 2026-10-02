@@ -9,6 +9,7 @@ use App\Filament\Concerns\TranslatesPageLabels;
 use App\Models\User;
 use App\Support\Calendar\CalendarEventTooltip;
 use App\Support\Calendar\CalendarRegistry;
+use App\Support\Calendar\WorkingHours;
 use BackedEnum;
 use Carbon\Carbon;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
@@ -110,6 +111,15 @@ class Calendar extends Page
             $allDay,
             $user,
         );
+    }
+
+    /**
+     * Called from resources/js/calendar.js when the user expands or collapses
+     * the hours outside their working hours (kept in the session).
+     */
+    public function rememberExpanded(bool $morning, bool $evening): void
+    {
+        WorkingHours::setExpanded($morning, $evening);
     }
 
     /**

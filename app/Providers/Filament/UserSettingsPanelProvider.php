@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\Login;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
+use App\Filament\UserSettings\Pages\CalendarSettings;
 use App\Http\Middleware\ApplyThemeColor;
 use App\Http\Middleware\PersistUiState;
 use App\Http\Middleware\RedirectToDatabaseUpdate;
@@ -60,6 +61,7 @@ class UserSettingsPanelProvider extends PanelProvider
             // A user's chosen theme's density and font size, applied before
             // first paint — see App\Support\Appearance\CurrentTheme.
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): Htmlable => CurrentTheme::appearanceScript(Auth::user()))
+            ->pages([CalendarSettings::class])
             ->plugins(ModuleRegistry::pluginsFor('user-settings'))
             ->middleware([
                 EncryptCookies::class,

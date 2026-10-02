@@ -18,6 +18,7 @@
 @import './auth-branding.css';
 @import './history-modal.css';
 @import './dashboard-applets.css';
+@import './datetime-picker.css';
 @import './recordset-catalogue.css';
 
 @source '../../../../app/Filament/**/*';

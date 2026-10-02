@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/filament/epesi/theme.css',
                 'resources/js/app.js',
                 'resources/js/calendar.js',
+                'resources/js/datetime-clock.js',
             ],
             refresh: true,
         }),

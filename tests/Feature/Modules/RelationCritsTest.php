@@ -139,7 +139,7 @@ class RelationCritsTest extends TestCase
         $meeting->employees()->sync([Auth::user()->contact->id]);
 
         Livewire::test(EditMeeting::class, ['record' => $meeting->id])
-            ->assertSet('data.date', '2026-10-06 00:55')
+            ->assertSet('data.date', '2026-10-06 00:55:00')
             ->set('data.date', '2026-10-06T01:05')
             ->call('save')
             ->assertHasNoFormErrors();

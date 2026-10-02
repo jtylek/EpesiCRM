@@ -168,3 +168,84 @@
     pointer-events: none;
     border: 0;
 }
+
+/*
+ * Day/Week views: the hours outside the user's working hours collapse into one
+ * bar above (morning) and below (evening) the grid, with an event count and an
+ * expand/collapse button (resources/js/calendar.js's initWorkingHours).
+ */
+.fc .epesi-calendar-collapsed-hours {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.85em;
+    color: var(--primary-600);
+    background-color: var(--fc-neutral-bg-color);
+    border: 1px solid var(--fc-border-color);
+    border-radius: 0.375rem;
+}
+
+.dark .fc .epesi-calendar-collapsed-hours {
+    color: var(--primary-400);
+}
+
+.fc .epesi-calendar-collapsed-hours[hidden] {
+    display: none;
+}
+
+.fc .epesi-calendar-collapsed-hours:first-of-type {
+    margin-bottom: 0.25rem;
+}
+
+.fc .epesi-calendar-collapsed-hours:last-of-type {
+    margin-top: 0.25rem;
+}
+
+.fc .epesi-calendar-collapsed-hours button {
+    color: var(--primary-600);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.dark .fc .epesi-calendar-collapsed-hours button {
+    color: var(--primary-400);
+}
+
+.fc .epesi-calendar-collapsed-hours button:hover {
+    text-decoration: underline;
+}
+
+/* Dark line where the working hours begin/end while the outside hours are expanded. */
+.fc .fc-timegrid-slot.epesi-work-boundary {
+    border-top: 2px solid var(--gray-800);
+}
+
+.dark .fc .fc-timegrid-slot.epesi-work-boundary {
+    border-top-color: var(--gray-300);
+}
+
+.fc .epesi-calendar-collapsed-row[hidden] {
+    display: none;
+}
+
+.fc .epesi-calendar-collapsed-row > td {
+    padding: 0.25rem 0;
+    border: 0;
+}
+
+.fc .epesi-calendar-collapsed-row .epesi-calendar-collapsed-hours {
+    margin: 0;
+}
+
+.fc .epesi-calendar-collapsed-hours button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.fc .epesi-calendar-collapsed-hours button svg {
+    width: 1rem;
+    height: 1rem;
+}

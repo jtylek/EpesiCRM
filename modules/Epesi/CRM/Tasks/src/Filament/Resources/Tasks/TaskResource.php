@@ -19,6 +19,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -55,6 +56,21 @@ class TaskResource extends RecordsetResource
                 ->notInTable()
                 ->formUsing(fn (Toggle $component): Toggle => $component
                     ->live()
+                    // The picker's state format differs (a bare date vs date and
+                    // time), so carry the chosen day over instead of losing it.
+                    ->afterStateUpdated(function (Get $get, Set $set, ?bool $state): void {
+                        $deadline = $get('deadline');
+
+                        if (blank($deadline)) {
+                            return;
+                        }
+
+                        $set('deadline', $state
+                            // Timed → timeless: the day as the user saw it.
+                            ? RegionalSetting::toUser(Carbon::parse($deadline, config('app.timezone')))->format('Y-m-d')
+                            // Timeless → timed: that day's midnight on the user's clock.
+                            : RegionalSetting::fromUser(Carbon::parse($deadline))->format('Y-m-d H:i:s'));
+                    })
                     ->default(fn (): bool => request()->boolean('timeless'))),
 
             StatusField::make(),
@@ -62,6 +78,13 @@ class TaskResource extends RecordsetResource
                 ->inTable()
                 ->filterable()
                 ->formUsing(fn (DateTimePicker $component): DateTimePicker => $component
+                    // A saved timeless deadline is a bare calendar day, the format
+                    // the date-only picker below reads.
+                    ->formatStateUsing(fn (DateTimePicker $component, mixed $state): mixed => $component->getRecord()?->timeless && filled($state)
+                        ? Carbon::parse($state)->format('Y-m-d')
+                        : $state)
+                    // Timeless: a date only, no time selector.
+                    ->time(fn (Get $get): bool => ! $get('timeless'))
                     ->displayFormat(fn (Get $get): string => $get('timeless') ? RegionalSetting::dateFormat() : RegionalSetting::dateTimeFormat())
                     // A timeless deadline is a calendar day, not an instant: never shift it.
                     ->timezone(fn (Get $get): ?string => $get('timeless') ? config('app.timezone') : null)

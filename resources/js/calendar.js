@@ -49,7 +49,7 @@ function formatPhpDate(format, date, locale) {
 // class for why this replaces Epesi's separate JSON ajax.php endpoint.
 window.initEpesiCalendar = function (el, wire) {
     const viewStorageKey = 'epesi.calendar.view';
-    const availableViews = new Set(['dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listWeek']);
+    const availableViews = new Set(['dayGridMonth', 'timeGridWeek', 'timeGridDay', 'timeGridSevenDay', 'listWeek']);
     const requestedView = new URLSearchParams(window.location.search).get('view');
     let initialView = availableViews.has(requestedView) ? requestedView : 'timeGridWeek';
 
@@ -63,9 +63,44 @@ window.initEpesiCalendar = function (el, wire) {
         }
     }
 
+    // Working hours: Day/Week views show only these in full; the hours before
+    // and after collapse into a bar with an event count (see initWorkingHours).
+    const work = {
+        start: parseInt(el.dataset.workStart, 10),
+        end: parseInt(el.dataset.workEnd, 10),
+        expanded: { morning: false, evening: false },
+        labels: {},
+    };
+    try {
+        work.expanded = { ...work.expanded, ...JSON.parse(el.dataset.expanded || '{}') };
+        work.labels = JSON.parse(el.dataset.labels || '{}');
+    } catch {}
+    const hh = (h) => String(h).padStart(2, '0') + ':00:00';
+
     const calendar = new Calendar(el, {
+        slotMinTime: work.expanded.morning || !(work.start > 0) ? '00:00:00' : hh(work.start),
+        slotMaxTime: work.expanded.evening || !(work.end < 24) ? '24:00:00' : hh(work.end),
+        // When the outside hours are shown, a dark line marks where the
+        // working hours start and end (the slot at that hour gets a top border).
+        slotLaneClassNames: slotBoundaryClasses(work),
+        slotLabelClassNames: slotBoundaryClasses(work),
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
         initialView,
+        // The List view's period, from the user's Calendar settings.
+        views: {
+            // Seven days starting today (not the calendar week).
+            timeGridSevenDay: {
+                type: 'timeGrid',
+                duration: { days: 7 },
+                buttonText: work.labels.sevenDays || '7 days',
+            },
+            listWeek: {
+                duration: {
+                    '1d': { days: 1 }, '3d': { days: 3 }, '7d': { days: 7 },
+                    '2w': { weeks: 2 }, '1m': { months: 1 },
+                }[el.dataset.listRange] || { days: 7 },
+            },
+        },
         // The page's language (config/app.php's available_locales); English
         // is FullCalendar's built-in default.
         locales: [deLocale, esLocale, frLocale, plLocale],
@@ -108,7 +143,7 @@ window.initEpesiCalendar = function (el, wire) {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'listWeek,timeGridDay,timeGridWeek,dayGridMonth',
+            right: 'listWeek,timeGridDay,timeGridWeek,timeGridSevenDay,dayGridMonth',
         },
         height: 'auto',
         editable: true,
@@ -156,7 +191,7 @@ window.initEpesiCalendar = function (el, wire) {
             const tooltip = event.extendedProps.tooltip;
 
             if (tooltip) {
-                el.setAttribute('x-tooltip', `{ content: ${JSON.stringify(tooltip)}, theme: $store.theme, allowHTML: true, placement: 'top', followCursor: true }`);
+                el.setAttribute('x-tooltip', `{ content: ${JSON.stringify(tooltip)}, theme: $store.theme, allowHTML: true }`);
             }
         },
 
@@ -190,7 +225,168 @@ window.initEpesiCalendar = function (el, wire) {
     calendar.render();
 
     initTitleDatePicker(el, calendar);
+    initWorkingHours(el, calendar, wire, work);
 };
+
+// Heroicons (outline) chevron-down / chevron-up.
+const ICON_EXPAND = 'm19.5 8.25-7.5 7.5-7.5-7.5';
+const ICON_COLLAPSE = 'm4.5 15.75 7.5-7.5 7.5 7.5';
+
+function icon(path) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.5');
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', path);
+    p.setAttribute('stroke-linecap', 'round');
+    p.setAttribute('stroke-linejoin', 'round');
+    svg.append(p);
+
+    return svg;
+}
+
+function slotBoundaryClasses(work) {
+    return ({ date }) => {
+        if (date.getUTCMinutes() !== 0) {
+            return [];
+        }
+
+        const hour = date.getUTCHours();
+
+        if (hour === work.start && work.start > 0 && work.expanded.morning) {
+            return ['epesi-work-boundary'];
+        }
+
+        if (hour === work.end && work.end < 24 && work.expanded.evening) {
+            return ['epesi-work-boundary'];
+        }
+
+        return [];
+    };
+}
+
+// Collapses the hours outside the working hours in the Day and Week views.
+// FullCalendar can't fold part of its time axis, so the slot range shrinks to
+// the working hours and a bar above (morning) and below (evening) the grid
+// stands in for what's hidden: it counts the events there and expands them.
+function initWorkingHours(el, calendar, wire, work) {
+    const harness = el.querySelector('.fc-view-harness');
+
+    if (!harness || !(work.start > 0 || work.end < 24)) {
+        return;
+    }
+
+    const hour12 = el.dataset.hour12 === '1';
+    const timeLabel = (h) => new Intl.DateTimeFormat(el.dataset.locale || 'en', {
+        timeZone: 'UTC', hour: 'numeric', minute: '2-digit', hour12,
+    }).format(new Date(Date.UTC(2000, 0, 1, h % 24)));
+    const hasMorning = work.start > 0;
+    const hasEvening = work.end < 24;
+
+    const makeBar = (part) => {
+        const bar = document.createElement('div');
+        bar.className = 'epesi-calendar-collapsed-hours';
+        const text = document.createElement('span');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.addEventListener('click', () => {
+            work.expanded[part] = !work.expanded[part];
+            wire.rememberExpanded(work.expanded.morning, work.expanded.evening);
+            refresh();
+        });
+        bar.append(text, button);
+        bar.text = text;
+        bar.button = button;
+
+        return bar;
+    };
+
+    const morningBar = makeBar('morning');
+    const eveningBar = makeBar('evening');
+    harness.after(eveningBar);
+
+    // The morning bar is a row of the grid's own table, between the all-day
+    // row and the time slots. FullCalendar rebuilds the table on a view
+    // change, so the row is put back whenever it has been displaced.
+    const morningRow = document.createElement('tr');
+    morningRow.className = 'epesi-calendar-collapsed-row';
+    const morningCell = document.createElement('td');
+    morningCell.colSpan = 1;
+    morningCell.append(morningBar);
+    morningRow.append(morningCell);
+
+    const placeMorningRow = () => {
+        const slots = harness.querySelector('.fc-timegrid-body')?.closest('tr');
+
+        if (slots && slots.previousElementSibling !== morningRow) {
+            slots.before(morningRow);
+        }
+    };
+
+    new MutationObserver(placeMorningRow).observe(harness, { childList: true, subtree: true });
+
+    // Events in the visible range that touch [from, to) hours of any day.
+    const countOutside = (fromHour, toHour) => {
+        const { activeStart, activeEnd } = calendar.view;
+        const day = 86400000;
+        const hour = 3600000;
+        const ids = new Set();
+
+        calendar.getEvents().forEach((event) => {
+            if (event.allDay || !event.start) {
+                return;
+            }
+
+            const s = event.start.getTime();
+            const e = Math.max(event.end ? event.end.getTime() : s, s + 1);
+
+            for (let d = activeStart.getTime(); d < activeEnd.getTime(); d += day) {
+                if (s < d + toHour * hour && e > d + fromHour * hour) {
+                    ids.add(event.id || event._instance.instanceId);
+                    break;
+                }
+            }
+        });
+
+        return ids.size;
+    };
+
+    const fill = (bar, part, label, count) => {
+        const open = work.expanded[part];
+        bar.text.textContent = `${label} · ${(count === 1 ? work.labels.one : work.labels.other).replace(':count', count)}`;
+        bar.button.replaceChildren(
+            icon(open ? ICON_COLLAPSE : ICON_EXPAND),
+            document.createTextNode(open ? work.labels.collapse : work.labels.expand),
+        );
+        bar.classList.toggle('is-expanded', open);
+    };
+
+    const refresh = () => {
+        const timeGrid = ['timeGridDay', 'timeGridSevenDay', 'timeGridWeek'].includes(calendar.view.type);
+
+        calendar.setOption('slotMinTime', work.expanded.morning || !hasMorning ? '00:00:00' : hh2(work.start));
+        calendar.setOption('slotMaxTime', work.expanded.evening || !hasEvening ? '24:00:00' : hh2(work.end));
+
+        placeMorningRow();
+        morningRow.hidden = !timeGrid || !hasMorning;
+        morningBar.hidden = morningRow.hidden;
+        eveningBar.hidden = !timeGrid || !hasEvening;
+
+        if (timeGrid) {
+            fill(morningBar, 'morning', work.labels.before.replace(':time', timeLabel(work.start)), countOutside(0, work.start));
+            fill(eveningBar, 'evening', work.labels.after.replace(':time', timeLabel(work.end)), countOutside(work.end, 24));
+        }
+    };
+
+    const hh2 = (h) => String(h).padStart(2, '0') + ':00:00';
+
+    calendar.on('datesSet', refresh);
+    calendar.on('eventsSet', refresh);
+    refresh();
+}
 
 // Makes the toolbar title (e.g. "September 2026") a date picker: click it to
 // jump the calendar (whatever view is active) to any month/week/day.

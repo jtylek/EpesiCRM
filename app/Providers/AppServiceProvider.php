@@ -31,6 +31,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Auth\Http\Responses\Contracts\LoginResponse as LoginResponseContract;
 use Filament\Commands\FileGenerators\Resources\Pages\ResourceViewRecordPageClassGenerator as BaseResourceViewRecordPageClassGenerator;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -136,7 +137,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker->minutesStep(5));
+        // Not the browser's native date/time input — that follows the browser's
+        // locale (AM/PM, mm/dd/yyyy) — but Filament's own, which shows the
+        // user's Regional Settings formats.
+        DateTimePicker::configureUsing(fn (DateTimePicker $picker): DateTimePicker => $picker
+            ->minutesStep(5)
+            ->native(false)
+            ->displayFormat(fn (DateTimePicker $component): string => $component->hasTime()
+                ? RegionalSetting::dateTimeFormat()
+                : RegionalSetting::dateFormat()));
 
         $this->preferViewOverEditOnRecordClick();
         $this->blockIdentityAutofillOnAllTextFields();
@@ -165,6 +174,55 @@ class AppServiceProvider extends ServiceProvider
 
         // On every panel: a user logged in as can be sent to any of them.
         FilamentView::registerRenderHook(PanelsRenderHook::CONTENT_START, fn () => ImpersonationNotice::render());
+
+        // Tooltips follow the pointer and stay above it across every panel.
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_START,
+            fn (): HtmlString => new HtmlString(<<<'HTML'
+                <script>
+                    document.addEventListener('alpine:init', () => {
+                        const alpine = window.Alpine
+                        const registerPlugin = alpine.plugin.bind(alpine)
+
+                        alpine.plugin = (plugin, ...args) => {
+                            if (typeof plugin.defaultProps === 'function') {
+                                plugin.defaultProps({ placement: 'top' })
+                            }
+
+                            return registerPlugin(plugin, ...args)
+                        }
+                    }, { once: true })
+
+                    const pointer = { x: 0, y: 0 }
+
+                    document.addEventListener('pointermove', (event) => {
+                        pointer.x = event.clientX
+                        pointer.y = event.clientY
+
+                        const trigger = event.target instanceof Element
+                            ? event.target.closest('[x-tooltip]')
+                            : null
+                        const tooltip = trigger?.__x_tippy
+
+                        if (!tooltip) {
+                            return
+                        }
+
+                        if (!tooltip.__epesiPointerAnchor) {
+                            tooltip.__epesiPointerAnchor = true
+                            tooltip.setProps({
+                                placement: 'top',
+                                getReferenceClientRect: () => new DOMRect(pointer.x, pointer.y, 0, 0),
+                            })
+                        }
+
+                        if (tooltip.state.isVisible) {
+                            tooltip.popperInstance?.update()
+                        }
+                    }, true)
+                </script>
+                HTML),
+        );
 
         // Google Analytics on a demo that has an ID for it, once the visitor
         // accepts (DemoAnalytics). Empty everywhere else.
@@ -531,6 +589,9 @@ class AppServiceProvider extends ServiceProvider
                 ."{$linked}:has(a:focus-visible){outline:2px solid var(--primary-600);outline-offset:-2px}"
                 .'</style>'),
         );
+
+        // A clock face in the date-time picker's time column.
+        FilamentView::registerRenderHook(PanelsRenderHook::SCRIPTS_AFTER, fn () => view('filament.components.datetime-clock'));
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,

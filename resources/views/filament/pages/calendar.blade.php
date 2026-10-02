@@ -17,5 +17,18 @@
         data-timezone="{{ \Epesi\Modules\RegionalSettings\Models\RegionalSetting::timezoneName() }}"
         data-date-format="{{ \Epesi\Modules\RegionalSettings\Models\RegionalSetting::dateFormat() }}"
         data-hour12="{{ str_contains(\Epesi\Modules\RegionalSettings\Models\RegionalSetting::timeFormat(), 'A') ? 1 : 0 }}"
+        data-work-start="{{ \App\Support\Calendar\WorkingHours::get()['start'] }}"
+        data-work-end="{{ \App\Support\Calendar\WorkingHours::get()['end'] }}"
+        data-list-range="{{ \App\Support\Calendar\ListRange::get() }}"
+        data-expanded="{{ json_encode(\App\Support\Calendar\WorkingHours::expanded()) }}"
+        data-labels="{{ json_encode([
+            'before' => __('Before :time'),
+            'after' => __('After :time'),
+            'expand' => __('Expand'),
+            'collapse' => __('Collapse'),
+            'sevenDays' => __('7 days'),
+            'one' => __(':count event'),
+            'other' => __(':count events'),
+        ]) }}"
     ></div>
 </x-filament-panels::page>
