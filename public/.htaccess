@@ -23,3 +23,28 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Compressed: the theme stylesheet goes from 639 KB to 66 KB, a list page's
+# HTML from 530 KB to 41 KB, and Livewire's JSON answers shrink the same way
+# (AI-shared/Epesi-optimization.md).
+<IfModule mod_deflate.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript text/javascript application/json image/svg+xml
+    </IfModule>
+</IfModule>
+
+# Kept by the browser. Plain FilesMatch blocks, without Apache 2.4 expressions,
+# which some hosts' servers refuse with an error on every page.
+<IfModule mod_headers.c>
+    # A week for what may keep its name across releases (Filament's files carry
+    # ?v=<version> anyway).
+    <FilesMatch "\.(css|js|mjs|woff2?|ttf|svg|png|jpe?g|gif|webp|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+
+    # A year for a name with a content hash (Vite's build/assets/, Filament's
+    # fonts): new content gets a new name.
+    <FilesMatch "-[A-Za-z0-9_]{8}\.(css|js|mjs|woff2?)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

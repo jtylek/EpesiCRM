@@ -40,7 +40,7 @@ class MeetingCalendarProvider implements CalendarEventProvider
                     : null,
                 allDay: false,
                 url: MeetingResource::getUrl('view', ['record' => $meeting]),
-                color: CalendarColor::css($meeting->status->getColor()),
+                color: CalendarColor::forKind(CalendarColor::MEETING, in_array($meeting->status, RecordStatus::finished(), true)),
                 finished: in_array($meeting->status, RecordStatus::finished(), true),
                 description: $meeting->description,
                 customers: $meeting->customers->pluck('full_name')

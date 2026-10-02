@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Attachments\Models;
 
+use App\Enums\NoteFormat;
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
 use App\Models\User;
@@ -33,6 +34,7 @@ class Attachment extends Model
     protected $fillable = [
         'title',
         'note',
+        'format',
         'files',
         'permission',
         'sticky',
@@ -42,6 +44,7 @@ class Attachment extends Model
     {
         return [
             'files' => 'array',
+            'format' => NoteFormat::class,
             'permission' => RecordPermission::class,
             'sticky' => 'boolean',
         ];
@@ -136,9 +139,22 @@ class Attachment extends Model
             return (string) $this->title;
         }
 
-        $text = trim(html_entity_decode(strip_tags((string) $this->note)));
+        $text = $this->plainText();
 
         return $text === '' ? 'Note #'.$this->getKey() : Str::limit($text, 60);
+    }
+
+    /**
+     * The body as HTML, whatever it was written in.
+     */
+    public function bodyHtml(): string
+    {
+        return ($this->format ?? NoteFormat::Html)->toHtml($this->note);
+    }
+
+    public function plainText(): string
+    {
+        return ($this->format ?? NoteFormat::Html)->toPlainText($this->note);
     }
 
     /**
@@ -173,7 +189,7 @@ class Attachment extends Model
     {
         return LogOptions::defaults()
             ->logOnlyDirty()
-            ->logOnly(['title', 'note', 'permission', 'sticky', 'files'])
+            ->logOnly(['title', 'note', 'format', 'permission', 'sticky', 'files'])
             ->useLogName('attachment');
     }
 

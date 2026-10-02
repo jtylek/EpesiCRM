@@ -152,6 +152,12 @@ class PackageRelease extends Command
             }
         }
 
+        // A different one in every zip: unpacked over an installation, it
+        // tells FrameworkCaches::guard() that the cached config and routes
+        // belong to the files it replaced.
+        $zip->addFromString($prefix.'bootstrap/release-id', $name.'-'.gmdate('YmdHis').'-'.bin2hex(random_bytes(4))."\n");
+        $count++;
+
         $this->components->task("Writing {$count} files", fn () => $zip->close());
 
         // `sha256sum -c epesi-2.0.zip.sha256` checks a download against it.

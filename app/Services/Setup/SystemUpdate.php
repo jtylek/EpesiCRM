@@ -5,8 +5,11 @@ namespace App\Services\Setup;
 use App\Models\Module;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleRegistry;
+use App\Support\Optimize\FrameworkCaches;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
@@ -101,12 +104,13 @@ class SystemUpdate
         if ($stale !== []) {
             ModuleRegistry::refresh();
 
-            foreach (['route:clear', 'view:clear', 'filament:optimize-clear'] as $command) {
-                try {
-                    Artisan::call($command);
-                } catch (Throwable) {
-                    // A cache that can't be cleared shouldn't fail the update.
-                }
+            // Rebuilt by cron in a later process (FrameworkCaches).
+            app(FrameworkCaches::class)->forget();
+
+            try {
+                Artisan::call('view:clear');
+            } catch (Throwable) {
+                // A cache that can't be cleared shouldn't fail the update.
             }
         }
 
@@ -150,16 +154,60 @@ class SystemUpdate
     }
 
     /**
-     * pendingCount() for the notice: remembered for the request, and 0 when
-     * the database can't be asked (not installed, or unreachable).
+     * pendingCount() for the notice and RedirectToDatabaseUpdate, which ask
+     * on every page load: remembered for the request, and in the cache for as
+     * long as fingerprint() stays the same. 0 when the database can't be
+     * asked (not installed, or unreachable).
      */
     public static function waiting(): int
     {
         try {
-            return static::$pendingCache ??= app(static::class)->pendingCount();
+            return static::$pendingCache ??= app(static::class)->cachedPendingCount();
         } catch (Throwable) {
             return 0;
         }
+    }
+
+    public function cachedPendingCount(): int
+    {
+        $fingerprint = $this->fingerprint();
+
+        if ($fingerprint === null) {
+            return $this->pendingCount();
+        }
+
+        return (int) Cache::remember('epesi-system-update:'.$fingerprint, now()->addDay(), fn (): int => $this->pendingCount());
+    }
+
+    /**
+     * What pending() depends on, for a fraction of its cost: the migration
+     * folders' modification times (a new migration file changes its folder's),
+     * every registered module's module.json, and the size of the migrations
+     * and modules tables. Running a migration adds a row, and syncManifests()
+     * moves a module's updated_at, so neither needs to forget anything.
+     * Null when the tables can't be read (not installed yet).
+     */
+    public function fingerprint(): ?string
+    {
+        try {
+            $migrations = DB::table('migrations')->selectRaw('count(*) as total, max(id) as last')->first();
+            $modules = DB::table('modules')->orderBy('id')->get(['path', 'updated_at']);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $parts = ['migrations|'.$migrations?->total.'|'.$migrations?->last];
+
+        foreach ($modules as $module) {
+            $file = Module::directoryFor($module->path).DIRECTORY_SEPARATOR.'module.json';
+            $parts[] = $module->path.'|'.$module->updated_at.'|'.(is_file($file) ? filemtime($file).'|'.filesize($file) : '-');
+        }
+
+        foreach ($this->paths() as $folder) {
+            $parts[] = $folder.'|'.(@filemtime($folder) ?: '-');
+        }
+
+        return hash('xxh128', implode("\n", $parts));
     }
 
     /**

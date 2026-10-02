@@ -90,7 +90,11 @@ trait HasCollections
         $type = CollectionFields::field(static::class, $field)?->collectionType()
             ?? throw new InvalidArgumentException(static::class." has no collection field \"{$field}\".");
 
+        // chaperone(): each item gets this record as its owner when loaded, so
+        // an item that asks for its owner (an e-mail address building its
+        // compose link) doesn't load it again, once per row on a list page.
         return $this->morphMany($type, 'owner')
+            ->chaperone('owner')
             ->where('field', $field)
             ->orderBy('position')
             ->orderBy('id');

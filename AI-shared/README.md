@@ -98,6 +98,15 @@ removed, or its purpose changes.
   adding a language with `lang:import-epesi`, the tests that catch untranslated strings, the
   Administration → Translations page for custom translations, and the problems found and
   fixed while building it.
+- [Epesi-optimization.md](Epesi-optimization.md) — making epesi faster, measured before and
+  after: the caches cron builds on an installation (`epesi:optimize`, `FrameworkCaches`) and
+  how they are kept current, `CACHE_STORE=auto` and memcached (with the Windows memcached clock
+  bug), the cached-route fix for folder installations, compression and browser caching in
+  `.htaccess`, the per-row queries and per-request checks removed from the code, and what is
+  still open (php.ini, profiling, queue).
+- [Jalali_and_Hijri_calendars.md](Jalali_and_Hijri_calendars.md) — a plan for per-user
+  Jalali and Hijri calendar support, including Umm al-Qura and tabular/civil Hijri variants,
+  Gregorian storage, date entry and display, calendar navigation, and validation.
 - [Keyboard-shortcuts.md](Keyboard-shortcuts.md) — how to use every keyboard shortcut in the
   main panel: `/` for the quick switcher (jump to any page by name, bridged in from inside
   Roundcube's iframe too), Backspace to go back a page, and — once a List page is open —

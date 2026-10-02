@@ -14,6 +14,8 @@
 # Separate private notes repo, nested here for a core developer's checkout only.
 /AI-private
 /auth.json
+# Written into each release zip by `epesi:package` (FrameworkCaches::guard()).
+/bootstrap/release-id
 /database/*.sqlite*
 # Installed modules arrive as zips at runtime; only first-party ones under the
 # Epesi vendor ship with the core.

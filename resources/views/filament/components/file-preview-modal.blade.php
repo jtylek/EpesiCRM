@@ -21,11 +21,45 @@
     has no href to render.
 --}}
 <div
-    x-data="{ url: null, kind: 'frame', name: '', download: '', maximized: false }"
+    x-data="{
+        url: null, kind: 'frame', name: '', download: '', maximized: false, touch: false,
+        async renderPdf(pages) {
+            // Phone browsers download a PDF instead of showing it in a frame,
+            // so draw its pages with pdf.js (bundled in public/vendor/pdfjs: the legacy
+            // build, which also runs on browsers a few years old).
+            const url = this.url;
+            pages.replaceChildren();
+            try {
+                const pdfjs = await import('{{ asset('vendor/pdfjs/pdf.min.mjs') }}?v={{ @filemtime(public_path('vendor/pdfjs/pdf.min.mjs')) }}');
+                pdfjs.GlobalWorkerOptions.workerSrc = '{{ asset('vendor/pdfjs/pdf.worker.min.mjs') }}?v={{ @filemtime(public_path('vendor/pdfjs/pdf.worker.min.mjs')) }}';
+                const pdf = await pdfjs.getDocument({ url, withCredentials: true }).promise;
+                for (let n = 1; n <= pdf.numPages && this.url === url; n++) {
+                    const page = await pdf.getPage(n);
+                    const viewport = page.getViewport({ scale: (pages.clientWidth / page.getViewport({ scale: 1 }).width) * (window.devicePixelRatio || 1) });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.cssText = 'width:100%;margin-bottom:.5rem;background:#fff';
+                    pages.appendChild(canvas);
+                    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+                }
+            } catch (e) {
+                console.error(e);
+                // The reason too (a browser too old for pdf.js, a refused download, ...), small,
+                // so a failure on someone's phone can be told apart from another.
+                pages.textContent = @js(__('This file could not be previewed.'));
+                const reason = document.createElement('small');
+                reason.style.cssText = 'display:block;margin-top:.5rem;opacity:.7;word-break:break-word';
+                reason.textContent = (e && (e.name ? e.name + ': ' : '') + (e.message || e)) || '';
+                pages.appendChild(reason);
+            }
+        },
+    }"
     x-on:click.window="
         const link = $event.target.closest('a[data-file-preview]');
         if (! link || $event.button !== 0 || $event.ctrlKey || $event.metaKey || $event.shiftKey || $event.altKey) return;
-        if (window.matchMedia('(pointer: coarse)').matches) return;
+        if (['frame'].includes(link.dataset.kind) && window.matchMedia('(pointer: coarse)').matches) return;
+        touch = window.matchMedia('(pointer: coarse)').matches;
         $event.preventDefault();
         url = link.href;
         kind = link.dataset.kind;
@@ -111,7 +145,11 @@
             <video class="epesi-file-preview-media" x-bind:src="url" controls></video>
         </template>
 
-        <template x-if="url && kind === 'frame'">
+        <template x-if="url && kind === 'pdf' && touch">
+            <div class="epesi-file-preview-pdf" x-init="$nextTick(() => renderPdf($el))"></div>
+        </template>
+
+        <template x-if="url && kind === 'frame' || url && kind === 'pdf' && ! touch">
             <iframe class="epesi-file-preview-frame" x-bind:src="url" x-bind:title="name"></iframe>
         </template>
     </x-filament::modal>

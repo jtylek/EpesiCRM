@@ -3,15 +3,30 @@
 namespace App\Support\Calendar;
 
 /**
- * Resolves one of Filament's own color names (the same tokens RecordStatus/
- * RecordPriority::getColor() already return for table badges — see
- * app/Enums/RecordStatus.php) to the CSS value FullCalendar wants, instead of
- * inventing a second color scheme for the calendar.
+ * The calendar colors its events by kind, not by status: meetings green, tasks
+ * blue, phone calls orange, any other event dark grey unless it names its own
+ * color, and a finished (closed/canceled) event light grey whatever its kind.
  */
 final class CalendarColor
 {
-    public static function css(string $filamentColorName): string
+    public const MEETING = '#16a34a';
+
+    public const TASK = '#2563eb';
+
+    public const PHONE_CALL = '#f97316';
+
+    public const OTHER = '#4b5563';
+
+    public const FINISHED = '#d1d5db';
+
+    public static function css(string $color): string
     {
-        return "var(--{$filamentColorName}-500)";
+        return str_starts_with($color, '#') ? $color : "var(--{$color}-500)";
+    }
+
+    /** The color of an event of one kind; $kind is one of the kind constants. */
+    public static function forKind(string $kind, bool $finished = false): string
+    {
+        return self::css($finished ? self::FINISHED : $kind);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Services\DemoReset;
 use App\Support\Demo;
+use App\Support\Optimize\FrameworkCaches;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -26,3 +27,12 @@ Schedule::command('demo:reset', ['--force'])
     ->when(fn (): bool => Demo::enabled() && DemoReset::interrupted())
     ->evenInMaintenanceMode()
     ->withoutOverlapping();
+
+// Builds Laravel's and Filament's caches on an installation, rebuilds them
+// after a change, and picks memcached when it works (FrameworkCaches,
+// CacheStore). No withoutOverlapping(): its lock lives in the cache store,
+// and this task is what switches away from a memcached that stopped answering.
+// Cron's own once-a-minute rule (CronRunner) keeps two runs apart.
+Schedule::command('epesi:optimize')
+    ->everyMinute()
+    ->when(fn (): bool => app(FrameworkCaches::class)->wanted());

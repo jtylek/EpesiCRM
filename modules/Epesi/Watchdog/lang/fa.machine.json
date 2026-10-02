@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who ایجاد شده.",
+    ":who deleted.": ":who حذف شده.",
+    ":who restored.": ":who بازیابی شد.",
+    ":who updated.": ":who به‌روزرسانی شد.",
+    ":who updated: :fields.": ":who به‌روزرسانی‌شده: :fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "از تغییرات هر رکورد از انواع انتخاب‌شده مطلع شوید، نه فقط آن‌هایی که زیر نظر دارید.",
+    "Changed by": "تغییر داده شده توسط",
+    "Changes": "تغییرات",
+    "Has new changes": "دارای تغییرات جدید",
+    "Last change": "آخرین تغییر",
+    "Record": "ثبت‌شده",
+    "Record types": "انواع رکوردها",
+    "Stopped watching this record": "پایش این رکورد متوقف شد",
+    "System": "سیستم",
+    "Watch record types": "انواع سوابق را مشاهده کنید",
+    "Watched records": "سوابق زیر نظر",
+    "Watching": "نظارت",
+    "Watching this record": "نظارت بر این رکورد"
+}

@@ -81,9 +81,13 @@ class PhoneCallResource extends RecordsetResource
                 // One column for both kinds of call: the typed name when the
                 // customer isn't in the system (it has no link or icon then).
                 ->columnUsing(fn (TextColumn $column): TextColumn => $column
-                    ->state(fn (PhoneCall $record): ?string => $record->other_customer
-                        ? $record->other_customer_name
-                        : ($record->customer ? LinkedRecords::title($record->customer) : null)))
+                    ->state(function (TextColumn $column, PhoneCall $record): ?string {
+                        Field::preloadOnPage($column, 'customer');
+
+                        return $record->other_customer
+                            ? $record->other_customer_name
+                            : ($record->customer ? LinkedRecords::title($record->customer) : null);
+                    }))
                 ->suggestPhoneNumbers('phone_number')
                 ->formUsing(fn (Select $component): Select => $component
                     ->required(fn (Get $get): bool => ! (bool) $get('other_customer'))

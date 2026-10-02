@@ -56,7 +56,7 @@ class RegionalSettings extends Page
     {
         $this->form->fill(RegionalSetting::current()->only([
             'language',
-            'timezone', 'date_format', 'time_format', 'country', 'state',
+            'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
         ]));
     }
 
@@ -116,6 +116,27 @@ class RegionalSettings extends Page
                             ->all())
                         ->native(false)
                         ->required(),
+                    Select::make('calendar_system')
+                        ->label('Calendar')
+                        ->options([
+                            'gregorian' => __('Gregorian'),
+                            'jalali' => __('Jalali (Solar Hijri)'),
+                            'hijri' => __('Hijri'),
+                        ])
+                        ->default('gregorian')
+                        ->live()
+                        ->native(false)
+                        ->required(),
+                    Select::make('hijri_variant')
+                        ->label('Hijri calendar')
+                        ->options([
+                            'umalqura' => __('Umm al-Qura'),
+                            'civil' => __('Tabular / civil'),
+                        ])
+                        ->default('umalqura')
+                        ->native(false)
+                        ->visible(fn (Get $get): bool => $get('calendar_system') === 'hijri')
+                        ->required(fn (Get $get): bool => $get('calendar_system') === 'hijri'),
                 ]),
             Section::make($locationHeading)
                 ->columns(2)

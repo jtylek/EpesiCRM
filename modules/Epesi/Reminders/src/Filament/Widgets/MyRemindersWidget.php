@@ -59,6 +59,7 @@ class MyRemindersWidget extends RecordsetApplet
                 TextColumn::make('remind_at')
                     ->label('When')
                     ->dateTime()
+                    ->formatStateUsing(fn (Reminder $record): ?string => RegionalSetting::display($record->remind_at))
                     ->description(fn (Reminder $record): string => $record->remind_at->diffForHumans())
                     ->color(fn (Reminder $record): ?string => $record->remind_at->isPast() ? 'danger' : null)
                     ->icon(fn (Reminder $record): ?Heroicon => $record->remind_at->isPast() ? Heroicon::OutlinedBellAlert : null)

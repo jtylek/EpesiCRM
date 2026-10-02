@@ -15,6 +15,7 @@ use Epesi\Modules\RecordBrowser\History\TextDiff;
 use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\OnlineAccount;
 use Epesi\Modules\RecordBrowser\Models\RecordLink;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
@@ -61,6 +62,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ClosureValidationRule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
 use Throwable;
@@ -936,10 +938,14 @@ class Field
             FieldType::Integer => TextInput::make($this->name)->integer(),
             FieldType::Decimal => TextInput::make($this->name)->numeric(),
             FieldType::Boolean => Toggle::make($this->name),
-            FieldType::Date => DatePicker::make($this->name),
+            FieldType::Date => RegionalSetting::calendarSystem() === 'gregorian'
+                ? DatePicker::make($this->name)
+                : $this->calendarDateInput($this->name),
             // minutesStep() covers both pickers: the JavaScript one steps its
             // minute input, the native one gets it as `step` in seconds.
-            FieldType::DateTime => DateTimePicker::make($this->name)->seconds(false)->minutesStep($this->minutesStepParam()),
+            FieldType::DateTime => RegionalSetting::calendarSystem() === 'gregorian'
+                ? DateTimePicker::make($this->name)->seconds(false)->minutesStep($this->minutesStepParam())
+                : $this->calendarDateTimeInput($this->name),
             FieldType::Time => TimePicker::make($this->name)->seconds(false)->minutesStep($this->minutesStepParam()),
             FieldType::Email => TextInput::make($this->name)->email()->maxLength($this->lengthParam()),
             // Not ->url(): that demands a scheme, and people type (and legacy
@@ -972,6 +978,38 @@ class Field
                 ->afterStateHydrated(fn (TextInput $component, ?Model $record) => $component->state($this->formatAutonumber($record?->getKey()))),
             default => TextInput::make($this->name)->maxLength($this->lengthParam()),
         };
+    }
+
+    protected function calendarDateInput(string $name): TextInput
+    {
+        return TextInput::make($name)
+            ->placeholder('YYYY-MM-DD')
+            ->inputMode('numeric')
+            ->formatStateUsing(fn (mixed $state): ?string => RegionalSetting::formatDateInput($state))
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateInput($state) : null)
+            ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                try {
+                    RegionalSetting::parseDateInput((string) $value);
+                } catch (Throwable) {
+                    $fail(__('Enter a valid date in YYYY-MM-DD format.'));
+                }
+            })]);
+    }
+
+    protected function calendarDateTimeInput(string $name): TextInput
+    {
+        return TextInput::make($name)
+            ->placeholder('YYYY-MM-DD HH:MM')
+            ->inputMode('numeric')
+            ->formatStateUsing(fn (mixed $state): ?string => RegionalSetting::formatDateTimeInput($state))
+            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateTimeInput($state) : null)
+            ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                try {
+                    RegionalSetting::parseDateTimeInput((string) $value);
+                } catch (Throwable) {
+                    $fail(__('Enter a valid date and time in YYYY-MM-DD HH:MM format.'));
+                }
+            })]);
     }
 
     protected function relationSelect(): Select
@@ -1698,17 +1736,46 @@ class Field
      */
     protected function preloadCollection(Column $column): void
     {
+        $records = static::pageRecords($column);
+
+        if ($records !== null && method_exists($records->first(), 'collection')) {
+            $records->loadMissing($this->name);
+        }
+    }
+
+    /**
+     * The same for a column showing a relationship (Relation, Relations,
+     * Customer): the related records of every row on the page in one query,
+     * not one per row. Call it from the column's state() closure. A no-op
+     * outside a list page, and after the first row.
+     */
+    public static function preloadOnPage(Column $column, string $relationship): void
+    {
+        $records = static::pageRecords($column);
+
+        if ($records === null || $relationship === '' || ! $records->first()->isRelation($relationship)) {
+            return;
+        }
+
+        try {
+            $records->loadMissing($relationship);
+        } catch (Throwable) {
+            // Then each row loads its own, as before.
+        }
+    }
+
+    /** The rows of the list page $column is drawn on, or null outside one. */
+    protected static function pageRecords(Column $column): ?EloquentCollection
+    {
         try {
             $records = $column->getTable()->getRecords();
         } catch (Throwable) {
-            return;
+            return null;
         }
 
         $records = $records instanceof EloquentCollection ? $records : (method_exists($records, 'getCollection') ? $records->getCollection() : null);
 
-        if ($records instanceof EloquentCollection && $records->first() instanceof Model && method_exists($records->first(), 'collection')) {
-            $records->loadMissing($this->name);
-        }
+        return $records instanceof EloquentCollection && $records->first() instanceof Model ? $records : null;
     }
 
     /**
@@ -1923,8 +1990,10 @@ class Field
     {
         return match ($this->type) {
             FieldType::Boolean => IconEntry::make($this->name)->boolean(),
-            FieldType::Date => TextEntry::make($this->name)->date(),
-            FieldType::DateTime => TextEntry::make($this->name)->dateTime(),
+            FieldType::Date => TextEntry::make($this->name)
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? RegionalSetting::display(Carbon::parse($state), dateOnly: true) : null),
+            FieldType::DateTime => TextEntry::make($this->name)
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? RegionalSetting::display(Carbon::parse($state)) : null),
             FieldType::Time => TextEntry::make($this->name)->time(),
             FieldType::Select => TextEntry::make($this->name)->badge(),
             FieldType::Multiselect => TextEntry::make($this->name)->badge(),
@@ -2108,8 +2177,10 @@ class Field
         return match ($this->type) {
             FieldType::Boolean => IconColumn::make($this->name)->boolean(),
             FieldType::LongText => TextColumn::make($this->name)->limit(60),
-            FieldType::Date => TextColumn::make($this->name)->date(),
-            FieldType::DateTime => TextColumn::make($this->name)->dateTime(),
+            FieldType::Date => TextColumn::make($this->name)
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? RegionalSetting::display(Carbon::parse($state), dateOnly: true) : null),
+            FieldType::DateTime => TextColumn::make($this->name)
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? RegionalSetting::display(Carbon::parse($state)) : null),
             FieldType::Time => TextColumn::make($this->name)->time(),
             FieldType::Select, FieldType::Multiselect => TextColumn::make($this->name)->badge(),
             FieldType::CommonData => TextColumn::make($this->name)
@@ -2169,7 +2240,11 @@ class Field
     {
         return LinkedRecords::style(
             TextColumn::make((string) $this->getParam('relationship'))
-                ->state(fn (Model $record): array => $this->relatedTitles($record)),
+                ->state(function (TextColumn $column, Model $record): array {
+                    static::preloadOnPage($column, (string) $this->getParam('relationship'));
+
+                    return $this->relatedTitles($record);
+                }),
             fn (Model $record, string $state): ?string => $this->relatedUrl($record, $state),
         )->listWithLineBreaks()->limitList(3);
     }
@@ -2189,7 +2264,11 @@ class Field
     protected function customerColumn(): TextColumn
     {
         return LinkedRecords::style(
-            TextColumn::make($this->name)->state(fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::title($target) : null),
+            TextColumn::make($this->name)->state(function (TextColumn $column, Model $record): ?string {
+                static::preloadOnPage($column, $this->name);
+
+                return ($target = $this->customerTargetOf($record)) ? LinkedRecords::title($target) : null;
+            }),
             fn (Model $record): ?string => ($target = $this->customerTargetOf($record)) ? LinkedRecords::url($target) : null,
         )->icon(fn (Model $record): string|BackedEnum|null => ($target = $this->customerTargetOf($record))
             ? $this->customerIcon(RecordLink::tokenFor($target->getMorphClass(), $target->getKey()))
@@ -2259,7 +2338,9 @@ class Field
                 ->searchable()
                 ->preload(),
             in_array($this->type, [FieldType::Date, FieldType::DateTime], true) => $this->rangeFilter(
-                fn (string $name, string $label): DatePicker => DatePicker::make($name)->label($label),
+                fn (string $name, string $label): mixed => RegionalSetting::calendarSystem() === 'gregorian'
+                    ? DatePicker::make($name)->label($label)
+                    : $this->calendarDateInput($name)->label($label),
             ),
             in_array($this->type, [FieldType::Integer, FieldType::Decimal], true) => $this->rangeFilter(
                 fn (string $name, string $label): TextInput => TextInput::make($name)->label($label)->numeric(),
@@ -2380,8 +2461,8 @@ class Field
             FieldType::Relation => $this->loggedRelatedTitle($value),
             // A date is logged either as it was typed or as midnight UTC:
             // either way it is the day that was meant, so no time zone shift.
-            FieldType::Date => Carbon::parse($value)->translatedFormat($table?->getDefaultDateDisplayFormat() ?? 'M j, Y'),
-            FieldType::DateTime => Carbon::parse($value)->setTimezone(FilamentTimezone::get())->translatedFormat($table?->getDefaultDateTimeDisplayFormat() ?? 'M j, Y H:i:s'),
+            FieldType::Date => RegionalSetting::display(Carbon::parse($value), dateOnly: true) ?? '-',
+            FieldType::DateTime => RegionalSetting::display(Carbon::parse($value)) ?? '-',
             FieldType::Time => Carbon::parse($value)->translatedFormat($table?->getDefaultTimeDisplayFormat() ?? 'H:i:s'),
             // The items' one-line summaries, as logged.
             FieldType::Collection => implode('; ', (array) $value),

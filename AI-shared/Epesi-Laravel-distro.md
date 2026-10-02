@@ -178,7 +178,8 @@ has no `APP_KEY`, it:
 - checks that the folder can take `.env`, that `storage/` and `bootstrap/cache/` are writable
   and that `.env.example` exists. If not, it shows a plain page listing what to fix;
 - copies `.env.example` to `.env` and sets a fresh `APP_KEY`, with `SESSION_DRIVER=file`
-  and `CACHE_STORE=file`, because there is no database yet;
+  and `CACHE_STORE=auto`, because there is no database yet. `auto` is the file store until
+  cron finds a working memcached on the server ([Epesi-optimization.md](Epesi-optimization.md));
 - sets `APP_ENV=production` and `APP_DEBUG=false` in the `.env` it created.
   `.env.example` is set up for development, and with debug on, any error page would show
   configuration values (the database password among them) to whoever sees it. A
@@ -265,6 +266,10 @@ similar. It needs no shell access.
 - **Apache with `.htaccess` and mod_rewrite**, which almost every shared host has. On an
   nginx-only host, see [Where to put the files](#2-where-to-put-the-files).
 - **Cron jobs**, for mail fetching and reminders. Most panels have them.
+- **OPcache**, ideally with the sizes in `php-production.ini`. Not required, but every page is
+  much slower without it. Administration → About shows how the server compares, and the setup
+  wizard warns about each setting below the recommendation. On shared hosting, ask the host
+  for the OPcache sizes; the panel's PHP settings page covers the rest.
 - Optional, for Roundcube:
   - outbound HTTPS to github.com (the download);
   - symlinks allowed in the web space;
@@ -372,6 +377,10 @@ sent without a queue worker. Within a few minutes, Administration → Cron shoul
 running". [cron.md](cron.md) lists every task, and what happens when the host allows cron only
 every 5 or 15 minutes.
 
+Cron also builds the caches that make every page 100-150 ms faster (`epesi:optimize`, see
+[Epesi-optimization.md](Epesi-optimization.md)), and switches to memcached when the server has
+it. Without cron, epesi runs without them.
+
 ### 6. Afterwards
 
 - **Sign in** at the site address with the administrator's e-mail and password. Add users
@@ -391,8 +400,14 @@ every 5 or 15 minutes.
   minutes" page (HTTP 503) instead of an error. The login page keeps working. With a shell,
   `php artisan epesi:update` does the same (`--pretend` only lists).
 
+  The caches built for the old files go by themselves: every zip carries its own
+  `bootstrap/release-id`, the first page load after unpacking sees a different one and drops
+  them, and the next cron run builds them again.
+
   An update never changes `.env`. If yours still says `QUEUE_CONNECTION=database`, from an
-  install older than the switch to `sync`, change it to `sync` (see [cron.md](cron.md)).
+  install older than the switch to `sync`, change it to `sync` (see [cron.md](cron.md)). An
+  install older than `CACHE_STORE=auto` says `CACHE_STORE=file`; change it to `auto` to use
+  memcached where the server has it.
 - **If setup stopped part-way,** open the address again. The wizard continues where it
   stopped, and running **Install** again is safe.
 
@@ -591,6 +606,9 @@ listing.
 | `app/Filament/Support/UpdateNotice.php` | the "database changes are waiting" bar on Administration pages |
 | `app/Http/Middleware/RedirectToDatabaseUpdate.php` | sends administrators to the update, shows everyone else `resources/views/epesi/updating.blade.php` |
 | `app/Console/Commands/EpesiUpdate.php` | `epesi:update` |
+| `php-production.ini` | the recommended `php.ini` settings, compared on Administration → About (see [Epesi-optimization.md](Epesi-optimization.md)) |
+| `bootstrap/release-id` (in the zip only) | the build id that tells `FrameworkCaches::guard()` a new release was unpacked |
+| `app/Support/Optimize/*`, `config/optimize.php`, `app/Console/Commands/EpesiOptimize.php` | the caches cron builds, and `CACHE_STORE=auto` (see [Epesi-optimization.md](Epesi-optimization.md)) |
 | `database/seeders/DemoDataSeeder.php` | the demo data |
 | `app/Support/DemoData.php`, `app/Filament/Administration/Pages/DemoDataPage.php` | remembering and removing it (Administration → Demo data) |
 

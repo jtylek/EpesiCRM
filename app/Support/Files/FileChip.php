@@ -84,6 +84,7 @@ class FileChip
         return match (true) {
             str_starts_with($mime, 'image/') => 'image',
             str_starts_with($mime, 'video/') => 'video',
+            $mime === 'application/pdf' => 'pdf',
             default => 'frame',
         };
     }

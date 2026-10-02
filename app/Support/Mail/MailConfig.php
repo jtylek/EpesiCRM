@@ -3,10 +3,9 @@
 namespace App\Support\Mail;
 
 use App\Services\Setup\InstallOptions;
+use App\Support\Optimize\FrameworkCaches;
 use App\Support\Setup\EnvFile;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
-use Throwable;
 
 /**
  * How epesi sends its own e-mail, kept in .env's MAIL_* keys. Epesi kept these
@@ -116,9 +115,10 @@ class MailConfig
     }
 
     /**
-     * Writes the values to .env and drops the config cache so they apply.
-     * When .env can't be written (a locked-down host) nothing is changed and
-     * the returned text says what to set by hand.
+     * Writes the values to .env and drops the caches so they apply; cron
+     * builds them again (FrameworkCaches). When .env can't be written (a
+     * locked-down host) nothing is changed and the returned text says what
+     * to set by hand.
      *
      * @param  array<string, string|int|null>  $values
      * @return string|null a warning, or null when the settings were saved
@@ -135,11 +135,9 @@ class MailConfig
 
         $env->set($values);
 
-        try {
-            Artisan::call('config:clear');
-        } catch (Throwable) {
-            // A config cache that can't be cleared only delays the change.
-        }
+        // All of them, not only the config: cron rebuilds only when none is
+        // left, in a process that starts without them.
+        app(FrameworkCaches::class)->forget();
 
         return null;
     }

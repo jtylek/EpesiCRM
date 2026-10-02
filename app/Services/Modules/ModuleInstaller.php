@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleRegistry;
 use App\Support\Modules\VersionConstraint;
+use App\Support\Optimize\FrameworkCaches;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -374,13 +375,16 @@ class ModuleInstaller
     {
         ModuleRegistry::refresh();
 
-        foreach (['config:clear', 'route:clear', 'view:clear', 'filament:optimize-clear'] as $command) {
-            try {
-                Artisan::call($command);
-            } catch (Throwable) {
-                // A cache that can't be cleared shouldn't fail the install; the
-                // worst case is a stale panel until the next deploy clears it.
-            }
+        // Config, routes, events, Filament's components and Blade Icons. Cron
+        // builds them again in a later process (FrameworkCaches): this one's
+        // panels predate the change.
+        app(FrameworkCaches::class)->forget();
+
+        try {
+            Artisan::call('view:clear');
+        } catch (Throwable) {
+            // Compiled views that can't be cleared shouldn't fail the install:
+            // Blade recompiles a view whose source changed anyway.
         }
     }
 }

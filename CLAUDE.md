@@ -41,6 +41,9 @@ php artisan epesi:package        # release zip with vendor/ + public/build/, ins
                                  # --translate [--legacy=<old epesi>]: translations skill + strict
                                  # translation tests first; --test: whole suite first (AI-shared/Epesi-Laravel-distro.md)
 php artisan epesi:update         # after unpacking a new release: core + module migrations (also Administration → Database update)
+php artisan epesi:optimize       # cron's every-minute cache check: builds config/route/event/Filament/icon caches
+                                 # on an installation (never in a git checkout), picks memcached for CACHE_STORE=auto;
+                                 # --clear removes them (AI-shared/Epesi-optimization.md)
 php cron.php                     # what the server's cron runs every minute: the due tasks, in this process
                                  # (= epesi:cron; also the /cron?token= URL; see AI-shared/cron.md, Administration → Cron)
 php artisan migrate --seed       # fresh schema + demo data (development)

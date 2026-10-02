@@ -14,7 +14,9 @@ use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
  */
 class RegionalSettingsDefaultsStep implements SetupStep
 {
-    protected const FIELDS = ['language', 'timezone', 'date_format', 'time_format', 'country', 'state'];
+    protected const FIELDS = [
+        'language', 'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
+    ];
 
     public function label(): string
     {

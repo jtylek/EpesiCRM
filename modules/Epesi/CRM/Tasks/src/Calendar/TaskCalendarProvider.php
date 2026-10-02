@@ -38,7 +38,7 @@ class TaskCalendarProvider implements CalendarEventProvider
                 end: null,
                 allDay: $task->timeless,
                 url: TaskResource::getUrl('view', ['record' => $task]),
-                color: CalendarColor::css($task->status->getColor()),
+                color: CalendarColor::forKind(CalendarColor::TASK, in_array($task->status, RecordStatus::finished(), true)),
                 durationEditable: false,
                 finished: in_array($task->status, RecordStatus::finished(), true),
                 description: $task->description,

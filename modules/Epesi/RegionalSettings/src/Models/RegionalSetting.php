@@ -3,8 +3,10 @@
 namespace Epesi\Modules\RegionalSettings\Models;
 
 use App\Models\User;
+use App\Support\Demo;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Epesi\Modules\RegionalSettings\Calendar\CalendarDateConverter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +26,8 @@ class RegionalSetting extends Model
         'timezone',
         'date_format',
         'time_format',
+        'calendar_system',
+        'hijri_variant',
         'country',
         'state',
     ];
@@ -55,6 +59,9 @@ class RegionalSetting extends Model
     /** Resolved settings per signed-in user. Scoped to the request, so it never outlives one (or a test). */
     public const RESOLVED_BINDING = 'epesi.regional-settings.resolved';
 
+    /** Demo-mode languages that come with their own calendar: Arabic the Umm al-Qura Hijri, Persian the Jalali. */
+    private const DEMO_CALENDARS = ['ar' => 'hijri', 'fa' => 'jalali'];
+
     protected static function booted(): void
     {
         static::saved(fn () => app(self::RESOLVED_BINDING)->exchangeArray([]));
@@ -78,7 +85,9 @@ class RegionalSetting extends Model
         // what it was given, never what the database itself filled in.
         return static::query()->firstOrCreate(
             ['user_id' => Auth::id()],
-            $defaults->only(['timezone', 'date_format', 'time_format', 'country', 'state']),
+            $defaults->only([
+                'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
+            ]),
         );
     }
 
@@ -92,6 +101,8 @@ class RegionalSetting extends Model
             'timezone' => config('app.timezone', 'UTC'),
             'date_format' => 'Y-m-d',
             'time_format' => 'H:i',
+            'calendar_system' => 'gregorian',
+            'hijri_variant' => 'umalqura',
         ]);
     }
 
@@ -109,6 +120,16 @@ class RegionalSetting extends Model
         if (! isset($resolved[$key])) {
             $resolved[$key] = (Auth::id() === null ? null : static::query()->where('user_id', Auth::id())->first())
                 ?? static::defaults();
+
+            // The demo's accounts are shared by every visitor, so a visitor's
+            // calendar can't be stored on one: Arabic and Persian visitors
+            // get theirs (see DEMO_CALENDARS) for this request instead.
+            if (Demo::enabled() && isset(self::DEMO_CALENDARS[app()->getLocale()])) {
+                $resolved[$key] = $resolved[$key]->replicate()->forceFill([
+                    'calendar_system' => self::DEMO_CALENDARS[app()->getLocale()],
+                    'hijri_variant' => 'umalqura',
+                ]);
+            }
         }
 
         return $resolved[$key];
@@ -144,6 +165,74 @@ class RegionalSetting extends Model
         return static::dateFormat().' '.static::timeFormat($seconds);
     }
 
+    public static function calendarSystem(): string
+    {
+        $system = static::effective()->calendar_system;
+
+        return in_array($system, CalendarDateConverter::SYSTEMS, true) ? $system : 'gregorian';
+    }
+
+    public static function hijriVariant(): string
+    {
+        $variant = static::effective()->hijri_variant;
+
+        return in_array($variant, CalendarDateConverter::HIJRI_VARIANTS, true) ? $variant : 'umalqura';
+    }
+
+    public static function formatCalendarDate(string $gregorianDate): string
+    {
+        return CalendarDateConverter::format($gregorianDate, static::calendarSystem(), static::hijriVariant());
+    }
+
+    public static function parseCalendarDate(string $calendarDate): string
+    {
+        return CalendarDateConverter::parse($calendarDate, static::calendarSystem(), static::hijriVariant());
+    }
+
+    public static function formatDateInput(mixed $state): ?string
+    {
+        if (blank($state)) {
+            return null;
+        }
+
+        return static::formatCalendarDate(Carbon::parse($state)->format('Y-m-d'));
+    }
+
+    public static function parseDateInput(string $calendarDate): string
+    {
+        return static::parseCalendarDate($calendarDate);
+    }
+
+    public static function formatDateTimeInput(mixed $state): ?string
+    {
+        if (blank($state)) {
+            return null;
+        }
+
+        $moment = static::toUser(Carbon::parse($state, config('app.timezone', 'UTC')));
+
+        return static::formatCalendarDate($moment->format('Y-m-d')).' '.$moment->format('H:i');
+    }
+
+    public static function parseDateTimeInput(string $value): string
+    {
+        $value = CalendarDateConverter::normalizeInputDigits($value);
+
+        if (! preg_match('/^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})(?::(\d{2}))?$/', $value, $matches)) {
+            throw new \InvalidArgumentException('Date and time must use YYYY-MM-DD HH:MM.');
+        }
+
+        $date = static::parseCalendarDate($matches[1]);
+        $time = $matches[2].':'.($matches[3] ?? '00');
+        $wallClock = Carbon::createFromFormat('!Y-m-d H:i:s', $date.' '.$time, 'UTC');
+
+        if ($wallClock === false || $wallClock->format('Y-m-d H:i:s') !== $date.' '.$time) {
+            throw new \InvalidArgumentException('The date and time are invalid.');
+        }
+
+        return static::fromUser($wallClock)->format('Y-m-d H:i:s');
+    }
+
     /**
      * A stored moment as the signed-in user sees it: same instant, their
      * timezone. Hand the result to ->format(static::dateTimeFormat()).
@@ -165,8 +254,8 @@ class RegionalSetting extends Model
         }
 
         return $dateOnly
-            ? $moment->format(static::dateFormat())
-            : static::toUser($moment)->format(static::dateTimeFormat());
+            ? static::effective()->formatDateOnly($moment)
+            : static::effective()->formatDateTime($moment);
     }
 
     /**
@@ -195,7 +284,24 @@ class RegionalSetting extends Model
      */
     public function formatDate(CarbonInterface $moment): string
     {
-        return $moment->clone()->setTimezone($this->timezone)->format($this->date_format);
+        $gregorianDate = $moment->clone()->setTimezone($this->timezone ?: config('app.timezone', 'UTC'))->format('Y-m-d');
+
+        if (($this->calendar_system ?? 'gregorian') !== 'gregorian') {
+            return CalendarDateConverter::format($gregorianDate, $this->calendar_system, $this->hijri_variant ?? 'umalqura');
+        }
+
+        return $moment->clone()->setTimezone($this->timezone ?: config('app.timezone', 'UTC'))->format($this->date_format ?: 'Y-m-d');
+    }
+
+    public function formatDateOnly(CarbonInterface $moment): string
+    {
+        $gregorianDate = $moment->format('Y-m-d');
+
+        if (($this->calendar_system ?? 'gregorian') !== 'gregorian') {
+            return CalendarDateConverter::format($gregorianDate, $this->calendar_system, $this->hijri_variant ?? 'umalqura');
+        }
+
+        return Carbon::parse($gregorianDate)->format($this->date_format ?: 'Y-m-d');
     }
 
     /**
@@ -203,7 +309,7 @@ class RegionalSetting extends Model
      */
     public function formatTime(CarbonInterface $moment): string
     {
-        return $moment->clone()->setTimezone($this->timezone)->format($this->time_format);
+        return $moment->clone()->setTimezone($this->timezone ?: config('app.timezone', 'UTC'))->format($this->time_format ?: 'H:i');
     }
 
     /**
@@ -212,5 +318,10 @@ class RegionalSetting extends Model
     public function formatDateTime(CarbonInterface $moment): string
     {
         return $this->formatDate($moment).' '.$this->formatTime($moment);
+    }
+
+    public function formatWallClockDateTime(CarbonInterface $moment): string
+    {
+        return $this->formatDateOnly($moment).' '.$moment->format($this->time_format ?: 'H:i');
     }
 }

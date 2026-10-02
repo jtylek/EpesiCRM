@@ -17,6 +17,7 @@ use Epesi\Modules\Mail\Filament\Resources\Mails\MailResource;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ComposeMail;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ListMails;
 use Epesi\Modules\Mail\Filament\Resources\Mails\Pages\ViewMail;
+use Epesi\Modules\Mail\Filament\Resources\Mails\MailTable;
 use Epesi\Modules\Mail\Filament\Widgets\UnreadMailWidget;
 use Epesi\Modules\Mail\Models\Mail;
 use Epesi\Modules\Mail\Models\MailAccount;
@@ -25,8 +26,10 @@ use Epesi\Modules\Mail\Services\MailArchiver;
 use Epesi\Modules\Mail\Services\MailFetcher;
 use Epesi\Modules\Mail\Services\MailSender;
 use Epesi\Modules\Mail\Services\SmtpTransportFactory;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Roundcube\Filament\Pages\Mailbox;
 use Filament\Actions\Testing\TestAction;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -78,6 +81,23 @@ class MailTest extends TestCase
                 return $this->transport;
             }
         });
+    }
+
+    public function test_mail_date_filter_uses_the_selected_calendar_input(): void
+    {
+        RegionalSetting::query()->create([
+            'user_id' => $this->user->id,
+            'timezone' => 'UTC',
+            'calendar_system' => 'jalali',
+        ]);
+
+        $filter = collect(MailTable::filters())->first(fn ($filter): bool => $filter->getName() === 'date');
+        $components = $filter->getSchemaComponents();
+
+        $this->assertCount(2, $components);
+        $this->assertInstanceOf(TextInput::class, $components[0]);
+        $this->assertInstanceOf(TextInput::class, $components[1]);
+        $this->assertSame('2024-03-20', RegionalSetting::parseDateInput('۱۴۰۳-۰۱-۰۱'));
     }
 
     protected function account(array $attributes = []): MailAccount
@@ -401,12 +421,13 @@ class MailTest extends TestCase
     public function test_an_address_in_a_list_is_cut_short_and_mails_to_without_an_account(): void
     {
         $husam = Contact::create(['first_name' => 'Husam', 'last_name' => 'Aljarmozi']);
-        $husam->syncCollection('emails', [['kind' => 'work', 'value' => 'husam.aljarmozi@globaladvocates.net']]);
+        // Longer than the 35 characters an e-mail column shows (Field::collectionColumn()).
+        $husam->syncCollection('emails', [['kind' => 'work', 'value' => 'husam.aljarmozi@globaladvocates-group.net']]);
 
         Livewire::test(ListContacts::class)
             ->assertSeeHtml('href="mailto:ann@customer.test"')
-            ->assertSeeHtml('href="mailto:husam.aljarmozi@globaladvocates.net"')
-            ->assertSee('husam.aljarmozi@globaladv…');
+            ->assertSeeHtml('href="mailto:husam.aljarmozi@globaladvocates-group.net"')
+            ->assertSee('husam.aljarmozi@globaladvocates-gro…');
 
         $this->get(ViewContact::getUrl(['record' => $this->ann]))
             ->assertOk()

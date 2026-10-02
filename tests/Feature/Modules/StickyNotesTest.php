@@ -155,9 +155,9 @@ class StickyNotesTest extends TestCase
         $this->assertSame([], $columns[1]->pluck('title')->all());
 
         // And back out to the last column.
-        $widget->call('reorder', $b->id, 0, '3');
+        $widget->call('reorder', $b->id, 0, '2');
 
-        $this->assertSame(['B'], $widget->instance()->columns()[3]->pluck('title')->all());
+        $this->assertSame(['B'], $widget->instance()->columns()[2]->pluck('title')->all());
     }
 
     public function test_a_note_cannot_be_dragged_by_someone_else(): void

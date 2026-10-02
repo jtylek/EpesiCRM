@@ -474,7 +474,7 @@ plugin registrations.
 
 ## Shipped languages
 
-German, English, Spanish, French, Italian, Japanese, Polish, Portuguese (Brazilian), Russian,
+German, English, Spanish, Persian, French, Hebrew, Italian, Japanese, Polish, Portuguese (Brazilian), Russian,
 Arabic and Chinese (simplified) are offered (`available_locales`). The six added after Polish
 (ar, it, ja, pt, ru, zh) came from old Epesi's community translations
 (`lang:import-epesi`, about 440 strings each) plus a DeepL pass for the rest — see

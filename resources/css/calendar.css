@@ -55,14 +55,40 @@
     border: 0;
 }
 
-/* Weekday headers match the view-selector buttons: dark background, light text. */
-.fc .fc-col-header-cell {
-    background-color: var(--fc-button-bg-color);
-    border-color: var(--fc-button-bg-color);
+.epesi-calendar-range-notice {
+    margin-block-end: 0.75rem;
+    color: var(--gray-600);
+    font-size: 0.875rem;
 }
 
-.fc .fc-col-header-cell-cushion {
-    color: var(--fc-button-text-color);
+.dark .epesi-calendar-range-notice {
+    color: var(--gray-300);
+}
+
+/* Day titles (weekday/day headers, list view date separators): light accent background, dark accent text. */
+.fc {
+    --epesi-day-title-bg: var(--primary-100);
+    --epesi-day-title-text: var(--primary-800);
+}
+
+.dark .fc {
+    --epesi-day-title-bg: color-mix(in srgb, var(--primary-500) 20%, transparent);
+    --epesi-day-title-text: var(--primary-300);
+}
+
+.fc .fc-col-header-cell,
+.fc .fc-list-day-cushion {
+    background-color: var(--epesi-day-title-bg);
+}
+
+.fc .fc-col-header-cell {
+    border-color: var(--fc-border-color);
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-list-day-cushion,
+.fc .fc-list-day-cushion a {
+    color: var(--epesi-day-title-text);
 }
 
 .fc .epesi-calendar-event-content {
@@ -76,6 +102,14 @@
     width: 0.875rem;
     height: 0.875rem;
     flex-shrink: 0;
+}
+
+/* The time never shrinks or ellipsizes; the title gives way instead. */
+.fc .epesi-calendar-event-content .fc-event-time {
+    flex-shrink: 0;
+    font-weight: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .fc .epesi-calendar-event-title {
@@ -248,4 +282,83 @@
 .fc .epesi-calendar-collapsed-hours button svg {
     width: 1rem;
     height: 1rem;
+}
+
+/* The view select and the two-row day headers are for phones only. */
+.fc .epesi-calendar-view-select {
+    display: none;
+}
+
+.fc .epesi-calendar-mobile-day-header {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+    .fc .fc-prev-button,
+    .fc .fc-next-button,
+    .fc .fc-toolbar-chunk .fc-button-group:has(.fc-listWeek-button, .fc-timeGridDay-button) {
+        display: none;
+    }
+
+    .fc .epesi-calendar-view-select {
+        display: block;
+        padding: 0.4em 1.75rem 0.4em 0.65em;
+        border-radius: 0.25rem;
+        border: 1px solid var(--fc-button-border-color);
+        background-color: var(--fc-button-bg-color);
+        color: var(--fc-button-text-color);
+        font-size: 1em;
+    }
+}
+
+.fc .fc-list-day > th {
+    background-color: var(--epesi-day-title-bg);
+    border: 0;
+}
+
+/* A border in the accent color keeps a date separator apart from the (green) meeting rows. */
+.fc .fc-list-day-cushion {
+    border-top: 2px solid var(--epesi-day-title-text);
+    border-bottom: 2px solid var(--epesi-day-title-text);
+}
+
+.fc .epesi-calendar-event-bubble {
+    justify-content: center;
+    width: 100%;
+}
+
+/*
+ * Overlapping events in the time grid: FullCalendar gives each stacked event
+ * half the column. Keep them full width instead and just step each deeper
+ * one in from the left, so the title keeps its room. The depth is the
+ * harness's z-index (stack depth + 1).
+ */
+.fc .fc-timegrid-event-harness[style*="z-index: 2"] { left: 12px !important; right: 0 !important; margin-right: 0 !important; }
+.fc .fc-timegrid-event-harness[style*="z-index: 3"] { left: 24px !important; right: 0 !important; margin-right: 0 !important; }
+.fc .fc-timegrid-event-harness[style*="z-index: 4"] { left: 36px !important; right: 0 !important; margin-right: 0 !important; }
+.fc .fc-timegrid-event-harness[style*="z-index: 5"] { left: 48px !important; right: 0 !important; margin-right: 0 !important; }
+.fc .fc-timegrid-event-harness[style*="z-index: 6"] { left: 60px !important; right: 0 !important; margin-right: 0 !important; }
+
+/* FullCalendar puts a " - " after the time of a time-grid event; the icon separates it enough. */
+.fc .epesi-calendar-event-content .fc-event-time::after { content: none; }
+.fc .epesi-calendar-event-content .fc-event-time { margin: 0; }
+
+/* Time-grid events taller than one line: time and type icon on the first line, the title on the second. */
+.fc .fc-timegrid-event {
+    container-type: size;
+}
+
+@container (min-height: 2.4rem) {
+    .fc .epesi-calendar-event-content:not(.epesi-calendar-event-bubble) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        width: 100%;
+    }
+
+    .fc .epesi-calendar-event-content:not(.epesi-calendar-event-bubble) .epesi-calendar-event-title {
+        flex: 0 0 100%;
+    }
 }

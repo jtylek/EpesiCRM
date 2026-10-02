@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\StatusField;
 use BackedEnum;
 use Carbon\Carbon;
+use Closure;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Tasks\Models\Task;
@@ -16,6 +17,7 @@ use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
@@ -25,6 +27,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 use UnitEnum;
 
 class TaskResource extends RecordsetResource
@@ -65,6 +68,20 @@ class TaskResource extends RecordsetResource
                             return;
                         }
 
+                        if (RegionalSetting::calendarSystem() !== 'gregorian') {
+                            $set('deadline', $state
+                                ? RegionalSetting::formatCalendarDate(RegionalSetting::toUser(Carbon::parse(
+                                    RegionalSetting::parseDateTimeInput($deadline),
+                                    config('app.timezone', 'UTC'),
+                                ))->format('Y-m-d'))
+                                : RegionalSetting::formatDateTimeInput(RegionalSetting::fromUser(Carbon::parse(
+                                    RegionalSetting::parseDateInput($deadline),
+                                    'UTC',
+                                ))));
+
+                            return;
+                        }
+
                         $set('deadline', $state
                             // Timed → timeless: the day as the user saw it.
                             ? RegionalSetting::toUser(Carbon::parse($deadline, config('app.timezone')))->format('Y-m-d')
@@ -77,18 +94,58 @@ class TaskResource extends RecordsetResource
             Field::dateTime('deadline')
                 ->inTable()
                 ->filterable()
-                ->formUsing(fn (DateTimePicker $component): DateTimePicker => $component
-                    // A saved timeless deadline is a bare calendar day, the format
-                    // the date-only picker below reads.
-                    ->formatStateUsing(fn (DateTimePicker $component, mixed $state): mixed => $component->getRecord()?->timeless && filled($state)
-                        ? Carbon::parse($state)->format('Y-m-d')
-                        : $state)
-                    // Timeless: a date only, no time selector.
-                    ->time(fn (Get $get): bool => ! $get('timeless'))
-                    ->displayFormat(fn (Get $get): string => $get('timeless') ? RegionalSetting::dateFormat() : RegionalSetting::dateTimeFormat())
-                    // A timeless deadline is a calendar day, not an instant: never shift it.
-                    ->timezone(fn (Get $get): ?string => $get('timeless') ? config('app.timezone') : null)
-                    ->default(fn (): ?string => request()->query('deadline')))
+                ->formUsing(function (DateTimePicker|TextInput $component): DateTimePicker|TextInput {
+                    if ($component instanceof TextInput) {
+                        return $component
+                            ->inputMode('numeric')
+                            ->placeholder(fn (Get $get): string => $get('timeless') ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:MM')
+                            ->formatStateUsing(fn (mixed $state, Get $get): ?string => blank($state)
+                                ? null
+                                : ($get('timeless')
+                                    ? RegionalSetting::formatDateInput($state)
+                                    : RegionalSetting::formatDateTimeInput($state)))
+                            ->dehydrateStateUsing(fn (?string $state, Get $get): ?string => blank($state)
+                                ? null
+                                : ($get('timeless')
+                                    ? RegionalSetting::parseDateInput($state)
+                                    : RegionalSetting::parseDateTimeInput($state)))
+                            ->rules(fn (Get $get): array => [function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                                try {
+                                    if ($get('timeless')) {
+                                        RegionalSetting::parseDateInput((string) $value);
+                                    } else {
+                                        RegionalSetting::parseDateTimeInput((string) $value);
+                                    }
+                                } catch (Throwable) {
+                                    $fail(__('Enter a valid date in YYYY-MM-DD format.'));
+                                }
+                            }])
+                            ->default(function (Get $get): ?string {
+                                $deadline = request()->query('deadline');
+
+                                if (blank($deadline)) {
+                                    return null;
+                                }
+
+                                return $get('timeless')
+                                    ? RegionalSetting::formatDateInput($deadline)
+                                    : RegionalSetting::formatDateTimeInput($deadline);
+                            });
+                    }
+
+                    return $component
+                        // A saved timeless deadline is a bare calendar day, the format
+                        // the date-only picker below reads.
+                        ->formatStateUsing(fn (DateTimePicker $component, mixed $state): mixed => $component->getRecord()?->timeless && filled($state)
+                            ? Carbon::parse($state)->format('Y-m-d')
+                            : $state)
+                        // Timeless: a date only, no time selector.
+                        ->time(fn (Get $get): bool => ! $get('timeless'))
+                        ->displayFormat(fn (Get $get): string => $get('timeless') ? RegionalSetting::dateFormat() : RegionalSetting::dateTimeFormat())
+                        // A timeless deadline is a calendar day, not an instant: never shift it.
+                        ->timezone(fn (Get $get): ?string => $get('timeless') ? config('app.timezone') : null)
+                        ->default(fn (): ?string => request()->query('deadline'));
+                })
                 ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
                     ->formatStateUsing(fn (Task $record, ?Carbon $state): string => static::formatDeadline($record, $state)))
                 ->columnUsing(fn (TextColumn $column): TextColumn => $column
@@ -157,7 +214,7 @@ class TaskResource extends RecordsetResource
         }
 
         return $record->timeless
-            ? $state->format(RegionalSetting::dateFormat())
-            : RegionalSetting::toUser($state)->format(RegionalSetting::dateTimeFormat());
+            ? RegionalSetting::effective()->formatDateOnly($state)
+            : RegionalSetting::display($state) ?? '-';
     }
 }

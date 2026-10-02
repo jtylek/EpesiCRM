@@ -8,14 +8,17 @@ use App\Models\User;
 use App\Support\StatusField;
 use BackedEnum;
 use Carbon\Carbon;
+use Closure;
 use Epesi\Modules\CRM\Companies\Models\Company;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Epesi\Modules\CRM\Meetings\Models\Meeting;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
@@ -23,6 +26,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ClosureValidationRule;
+use Throwable;
 use UnitEnum;
 
 class MeetingResource extends RecordsetResource
@@ -53,28 +58,54 @@ class MeetingResource extends RecordsetResource
                 ->required()
                 ->inTable()
                 ->filterable()
-                ->formUsing(fn (DatePicker $component): DateTimePicker => DateTimePicker::make($component->getName())
-                    ->label($component->getLabel())
-                    ->required()
-                    ->seconds(false)
-                    ->default(fn (): string => Carbon::parse(
-                        (request()->query('date') ?: now()->toDateString()).' '.(request()->query('time') ?: now()->format('H:i')),
-                    )->roundMinutes(5)->toDateTimeString())
-                    ->formatStateUsing(fn (?Meeting $record, ?string $state): ?string => $record?->starts_at?->toDateTimeString() ?? $state)
-                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Carbon::parse($state)->toDateString() : null))
+                ->formUsing(function (DatePicker|TextInput $component): DateTimePicker|TextInput {
+                    if ($component instanceof TextInput) {
+                        return TextInput::make($component->getName())
+                            ->label($component->getLabel())
+                            ->required()
+                            ->placeholder('YYYY-MM-DD HH:MM')
+                            ->inputMode('numeric')
+                            ->default(fn (): string => Carbon::parse(
+                                (request()->query('date') ?: now()->toDateString()).' '.(request()->query('time') ?: now()->format('H:i')),
+                            )->roundMinutes(5)->toDateTimeString())
+                            ->formatStateUsing(fn (?Meeting $record, ?string $state): ?string => RegionalSetting::formatDateTimeInput($record?->starts_at ?? $state))
+                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateTimeInput($state) : null)
+                            ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                                try {
+                                    RegionalSetting::parseDateTimeInput((string) $value);
+                                } catch (Throwable) {
+                                    $fail(__('Enter a valid date and time in YYYY-MM-DD HH:MM format.'));
+                                }
+                            })]);
+                    }
+
+                    return DateTimePicker::make($component->getName())
+                        ->label($component->getLabel())
+                        ->required()
+                        ->seconds(false)
+                        ->default(fn (): string => Carbon::parse(
+                            (request()->query('date') ?: now()->toDateString()).' '.(request()->query('time') ?: now()->format('H:i')),
+                        )->roundMinutes(5)->toDateTimeString())
+                        ->formatStateUsing(fn (?Meeting $record, ?string $state): ?string => $record?->starts_at?->toDateTimeString() ?? $state)
+                        ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Carbon::parse($state)->toDateString() : null);
+                })
                 ->columnUsing(fn (TextColumn $column): TextColumn => $column
                     ->state(fn (Meeting $record): ?Carbon => $record->starts_at)
-                    ->dateTime()
+                    ->formatStateUsing(fn (?Carbon $state): ?string => RegionalSetting::display($state))
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('date', $direction)->orderBy('time', $direction)))
                 ->viewUsing(fn (TextEntry $entry): TextEntry => $entry
                     ->label('Date and Time')
                     ->state(fn (Meeting $record): ?Carbon => $record->starts_at)
-                    ->dateTime()),
+                    ->formatStateUsing(fn (?Carbon $state): ?string => RegionalSetting::display($state))),
             Field::time('time')
                 ->required()
                 ->inView(false)
                 ->formUsing(fn (): Hidden => Hidden::make('time')
-                    ->dehydrateStateUsing(fn (Get $get): ?string => filled($get('date')) ? Carbon::parse($get('date'))->format('H:i:s') : null)),
+                    ->dehydrateStateUsing(fn (Get $get): ?string => filled($get('date'))
+                        ? Carbon::parse(RegionalSetting::calendarSystem() === 'gregorian'
+                            ? $get('date')
+                            : RegionalSetting::parseDateTimeInput($get('date')))->format('H:i:s')
+                        : null)),
 
             Field::select('duration_minutes', [
                 15 => '15 min',

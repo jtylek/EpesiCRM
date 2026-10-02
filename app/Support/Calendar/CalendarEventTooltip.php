@@ -14,7 +14,10 @@ final class CalendarEventTooltip
     public static function make(CalendarEvent $event, string $provider): HtmlString
     {
         // The event is already on the user's wall clock (see CalendarRegistry::eventsBetween()).
-        $date = $event->start->format($event->allDay ? RegionalSetting::dateFormat() : RegionalSetting::dateTimeFormat());
+        $settings = RegionalSetting::effective();
+        $date = $event->allDay
+            ? $settings->formatDateOnly($event->start)
+            : $settings->formatWallClockDateTime($event->start);
 
         return AppletTooltip::details(
             type: $provider::calendarLabel(),

@@ -7,7 +7,9 @@ use App\Support\Appearance\AppName;
 use App\Support\Appearance\CurrentTheme;
 use Epesi\Modules\Appearance\Models\AppearanceSetting;
 use Epesi\Modules\Appearance\Models\Theme;
+use Epesi\Modules\Appearance\Models\UserAppearance;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Once;
 use Illuminate\Support\ServiceProvider;
 
 class AppearanceServiceProvider extends ServiceProvider
@@ -35,7 +37,10 @@ class AppearanceServiceProvider extends ServiceProvider
         // Only from here does App\Support\Appearance\CurrentTheme resolve to
         // anything — see its docblock for why core code doesn't call Theme
         // directly.
-        CurrentTheme::resolveUsing(function (?User $user): ?array {
+        // Both are asked several times per page (the layout, the theme
+        // middleware, the brand), so once() keeps the answer for the request;
+        // saving any of the three models forgets it.
+        CurrentTheme::resolveUsing(fn (?User $user): ?array => once(function () use ($user): ?array {
             $theme = Theme::resolveFor($user);
 
             return $theme ? [
@@ -43,9 +48,14 @@ class AppearanceServiceProvider extends ServiceProvider
                 'compact' => $theme->isCompact(),
                 'font_size' => $theme->font_size,
             ] : null;
-        });
+        }));
 
         // Same reasoning, for the one global setting that isn't a Theme.
-        AppName::resolveUsing(fn (): string => AppearanceSetting::appName());
+        AppName::resolveUsing(fn (): string => once(fn (): string => AppearanceSetting::appName()));
+
+        foreach ([Theme::class, UserAppearance::class, AppearanceSetting::class] as $model) {
+            $model::saved(fn () => Once::flush());
+            $model::deleted(fn () => Once::flush());
+        }
     }
 }

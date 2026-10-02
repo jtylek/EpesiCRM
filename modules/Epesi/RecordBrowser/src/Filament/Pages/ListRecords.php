@@ -6,10 +6,12 @@ use App\Filament\Concerns\HasResourceIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Models\User;
 use App\Support\StatusField;
+use Carbon\Carbon;
 use Epesi\Modules\RecordBrowser\Browsing\BrowseMode;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Resources\Pages\ListRecords as BaseListRecords;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -117,6 +119,9 @@ abstract class ListRecords extends BaseListRecords
                     ->label('Visited')
                     ->dateTime()
                     ->state(fn (Model $record): ?string => ($this->visits ??= RecentRecords::visitsOf(Auth::user(), $this->getRecordType()))[$record->getKey()] ?? null)
+                    ->formatStateUsing(fn (?string $state): ?string => filled($state)
+                        ? RegionalSetting::display(Carbon::parse($state))
+                        : null)
                     ->visible(fn (): bool => $this->getBrowseMode() === BrowseMode::Recent)
                     ->toggleable(isToggledHiddenByDefault: true),
             ]);
@@ -129,7 +134,7 @@ abstract class ListRecords extends BaseListRecords
             && $table->getFilter('edited_by') === null
             && $table->getFilter(self::MY_RECORDS_FILTER) === null
             && method_exists($model = app(static::getModel()), 'activities')
-            && Schema::hasColumn($model->getTable(), 'created_by')) {
+            && static::hasCreatedBy($model->getTable())) {
             $table->pushFilters([
                 Filter::make(self::MY_RECORDS_FILTER)
                     ->label('My records')
@@ -145,6 +150,19 @@ abstract class ListRecords extends BaseListRecords
         $this->applyDefaultMyRecords($table);
 
         return $table;
+    }
+
+    /** @var array<string, bool> table => has a created_by column, for this process */
+    protected static array $createdByColumns = [];
+
+    /**
+     * Schema::hasColumn() is an information_schema query on MySQL, and
+     * table() runs on every list page and every Livewire request on one. A
+     * table's columns only change in a migration, which a new process follows.
+     */
+    protected static function hasCreatedBy(string $table): bool
+    {
+        return static::$createdByColumns[$table] ??= Schema::hasColumn($table, 'created_by');
     }
 
     /** The "My records" toggle filter of a list that has no Employees filter. */

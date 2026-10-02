@@ -9,6 +9,7 @@ use App\Support\Modules\ModuleManifest;
 use Filament\Facades\Filament;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
@@ -77,6 +78,26 @@ class SystemUpdateTest extends TestCase
 
         $this->assertSame(['Epesi/Probe' => ['2099_01_01_000000_create_epesi_update_probe_table']], $pending);
         $this->assertSame(1, SystemUpdate::waiting());
+    }
+
+    public function test_page_loads_reuse_the_answer_until_something_changes(): void
+    {
+        $this->assertSame(1, SystemUpdate::waiting());
+
+        SystemUpdate::flush();
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->assertSame(1, SystemUpdate::waiting());
+        $queries = implode("\n", array_column(DB::getQueryLog(), 'query'));
+        DB::disableQueryLog();
+
+        $this->assertStringNotContainsString('select "migration" from "migrations"', $queries, 'from the cache');
+        $this->assertStringNotContainsString('select * from "modules"', $queries);
+
+        // Running it adds a row to migrations, which changes the fingerprint.
+        $this->artisan('epesi:update')->assertSuccessful();
+        SystemUpdate::flush();
+        $this->assertSame(0, SystemUpdate::waiting());
     }
 
     public function test_it_brings_a_changed_module_manifest_into_the_modules_table(): void

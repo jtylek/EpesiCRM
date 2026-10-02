@@ -210,8 +210,13 @@ class AppServiceProvider extends ServiceProvider
 
                         if (!tooltip.__epesiPointerAnchor) {
                             tooltip.__epesiPointerAnchor = true
+                            // In the top bar the label goes to the left of the pointer,
+                            // clear of the cursor, which extends right and down from its
+                            // tip (a large one would cover a label below or above it).
+                            const inTopbar = !!trigger.closest('.fi-topbar')
                             tooltip.setProps({
-                                placement: 'top',
+                                placement: inTopbar ? 'left' : 'top',
+                                offset: inTopbar ? [0, 16] : [0, 10],
                                 getReferenceClientRect: () => new DOMRect(pointer.x, pointer.y, 0, 0),
                             })
                         }

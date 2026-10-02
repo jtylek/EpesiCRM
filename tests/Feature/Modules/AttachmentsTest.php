@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Modules;
 
+use App\Enums\NoteFormat;
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
 use App\Models\StoredFileContent;
@@ -17,6 +18,7 @@ use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\ContactResource;
 use Epesi\Modules\CRM\Contacts\Filament\Resources\Contacts\Pages\ViewContact;
 use Epesi\Modules\CRM\Contacts\Models\Contact;
 use Filament\Actions\Testing\TestAction;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -79,6 +81,7 @@ class AttachmentsTest extends TestCase
     public function test_notes_can_be_filtered_by_an_inclusive_edited_date_range(): void
     {
         $this->actingAs($this->userWithRole('employee'));
+        Filament::setCurrentPanel(Filament::getPanel('main'));
         $notes = collect([
             '2026-09-10 23:59:59',
             '2026-09-11 00:00:00',
@@ -265,6 +268,70 @@ class AttachmentsTest extends TestCase
         $note = $contact->attachments()->sole();
         $this->assertSame('Meeting recap', $note->title);
         $this->assertTrue($note->sticky);
+    }
+
+    public function test_a_markdown_note_is_created_stored_as_markdown_and_rendered_safely(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann']);
+
+        Livewire::withQueryParams(['attachable_type' => 'contact', 'attachable_id' => $contact->id])
+            ->test(CreateAttachment::class)
+            ->fillForm([
+                'title' => 'MD',
+                'editor' => 'markdown',
+                'format' => NoteFormat::Markdown->value,
+                'note_markdown' => "# Heading\n\n**bold** <script>alert(1)</script> [x](javascript:alert(1))",
+                'permission' => RecordPermission::Public->value,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $note = $contact->attachments()->sole();
+        $this->assertSame(NoteFormat::Markdown, $note->format);
+        $this->assertStringStartsWith('# Heading', $note->note);
+        $this->assertStringContainsString('<h1>Heading</h1>', $note->bodyHtml());
+        $this->assertStringContainsString('<strong>bold</strong>', $note->bodyHtml());
+        $this->assertStringNotContainsString('<script', $note->bodyHtml());
+        $this->assertStringNotContainsString('javascript:', $note->bodyHtml());
+        $this->assertStringStartsWith('Heading', $note->plainText());
+    }
+
+    public function test_switching_the_editor_converts_the_text_and_the_default_comes_from_user_settings(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+
+        $this->assertSame(NoteFormat::Html, NoteFormat::default());
+        NoteFormat::setDefault(NoteFormat::Markdown);
+
+        Livewire::test(CreateAttachment::class)
+            ->assertFormSet(['format' => NoteFormat::Markdown, 'editor' => 'markdown'])
+            ->fillForm(['note_markdown' => '**bold**'])
+            ->fillForm(['editor' => 'preview'])
+            ->assertFormSet(['format' => NoteFormat::Markdown])
+            ->fillForm(['editor' => 'html'])
+            ->assertFormSet(fn (array $state) => str_contains(json_encode($state['note']), 'bold'))
+            ->fillForm(['editor' => 'markdown'])
+            ->assertFormSet(['note_markdown' => '**bold**']);
+    }
+
+    public function test_a_note_started_from_the_list_is_attached_to_the_users_own_contact_by_default(): void
+    {
+        $user = $this->userWithRole('employee');
+        $contact = Contact::create(['last_name' => 'Smith', 'first_name' => 'Ann', 'user_id' => $user->id]);
+        $this->actingAs($user);
+
+        Livewire::test(CreateAttachment::class)
+            ->assertFormSet(fn (array $state) => array_values($state['attach_to']) === [['type' => 'contact', 'id' => $contact->id]]);
+    }
+
+    public function test_notes_without_a_format_are_html(): void
+    {
+        $this->actingAs($this->userWithRole('employee'));
+        $note = Attachment::create(['note' => '<p>Hi <b>there</b></p>', 'permission' => RecordPermission::Public]);
+
+        $this->assertSame(NoteFormat::Html, $note->fresh()->format);
+        $this->assertSame('<p>Hi <b>there</b></p>', $note->fresh()->bodyHtml());
     }
 
     public function test_a_note_is_edited_on_its_page_and_saves_to_its_view_page(): void

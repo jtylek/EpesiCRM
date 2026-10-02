@@ -13,8 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Port of Epesi's CRM_LoginAuditCommon::init()/update() (on_init/shutdown
  * hooks in the old module) as a middleware: on the first authenticated
- * request of a session, opens a login_audits row; on every later one,
- * bumps its ended_at so it always reflects "still active as of last request".
+ * request of a session, opens a login_audits row; on later ones, bumps its
+ * ended_at, at most once a minute, so it reflects "still active as of the
+ * last request", to the minute.
  *
  * Mirrors the original's self-heal too — the session (independent of the
  * database) can outlive its login_audits row (e.g. a DB reset while the
@@ -28,6 +29,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class TrackLoginAudit
 {
+    /** Seconds between two writes of ended_at for one session. */
+    public const TOUCH_EVERY = 60;
+
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
@@ -42,13 +46,20 @@ class TrackLoginAudit
     private function track(Request $request): void
     {
         $user = Auth::user();
-        $auditId = $request->session()->get('login_audit_id');
-        $tracked = $auditId
-            && $request->session()->get('login_audit_user_id') === $user->id
-            && LoginAudit::whereKey($auditId)->exists();
+        $session = $request->session();
+        $auditId = $session->get('login_audit_id');
+        $ours = $auditId && $session->get('login_audit_user_id') === $user->id;
 
-        if ($tracked) {
+        // ended_at to the minute is enough, and every Livewire request (the
+        // Shoutbox polls every 10 seconds per open tab) passes through here:
+        // no queries at all within a minute of the last write.
+        if ($ours && now()->getTimestamp() - (int) $session->get('login_audit_touched_at', 0) < self::TOUCH_EVERY) {
+            return;
+        }
+
+        if ($ours && LoginAudit::whereKey($auditId)->exists()) {
             LoginAudit::whereKey($auditId)->update(['ended_at' => now()]);
+            $session->put('login_audit_touched_at', now()->getTimestamp());
 
             return;
         }
@@ -68,7 +79,8 @@ class TrackLoginAudit
             ...array_filter(['impersonated_by' => Impersonation::impersonatorId()]),
         ]);
 
-        $request->session()->put('login_audit_id', $audit->id);
-        $request->session()->put('login_audit_user_id', $user->id);
+        $session->put('login_audit_id', $audit->id);
+        $session->put('login_audit_user_id', $user->id);
+        $session->put('login_audit_touched_at', now()->getTimestamp());
     }
 }

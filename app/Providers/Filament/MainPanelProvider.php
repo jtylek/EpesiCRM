@@ -80,6 +80,8 @@ class MainPanelProvider extends PanelProvider
                 ->map(fn (Panel $other): string => url($other->getPath()).'*')
                 ->values()
                 ->all())
+            // Icon links to the modules chosen in User Settings → Quick Access, before the search box.
+            ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_BEFORE, fn (): View => view('filament.components.quick-access'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.history-navigation'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): View => view('filament.components.fullscreen-toggle'))
             ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('filament.components.command-palette'))

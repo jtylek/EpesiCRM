@@ -54,6 +54,9 @@ return [
         'Epesi\\Modules\\CRM\\Tasks\\' => 'Epesi/CRM/Tasks',
         'Epesi\\Modules\\CRM\\Meetings\\' => 'Epesi/CRM/Meetings',
         'Epesi\\Modules\\CRM\\PhoneCalls\\' => 'Epesi/CRM/PhoneCalls',
+
+        // Core too: the dashboard config and the demo data name its classes.
+        'Epesi\\Modules\\StickyNotes\\' => 'Epesi/StickyNotes',
     ],
 
     /*

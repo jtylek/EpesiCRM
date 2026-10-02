@@ -33,10 +33,13 @@ what that can break, and how to run tests while someone else is working in the t
   `view:clear` and empties that folder while the other run renders from it.
   `App\Support\RetryingFilesystem` only covers the temporary file a compile is writing, not
   a compiled view deleted before it is included.
-- **The app's caches.** The same `afterChange()` also runs `config:clear`, `route:clear` and
-  `filament:optimize-clear`, which act on the checkout's real `bootstrap/cache`. A development
-  checkout caches none of these, so it changes nothing there. With `config:cache` or
-  `route:cache` in place, a test run removes them.
+- **The app's caches.** The same `afterChange()` also calls `FrameworkCaches::forget()`
+  (config, routes, events, Filament's components, Blade Icons), which acts on the checkout's
+  real `bootstrap/cache`. A development checkout caches none of these (`optimize.enabled` is
+  off in a git checkout), so it changes nothing there. With caches in place, a test run
+  removes them. Never build them in this checkout: a cached config outlives `phpunit.xml`, and
+  every test run would then use the MySQL database. `OptimizeTest` uses stand-in files in a
+  scratch folder for that reason.
 - **The working tree.** A run tests every file as it is on disk, including another session's
   half-finished edits. A failure may come from their change, not yours. This isn't a race
   between runs, and taking turns doesn't fix it.

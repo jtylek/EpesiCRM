@@ -23,6 +23,7 @@ use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\RecordBrowser\Browsing\Favorites;
 use Epesi\Modules\RecordBrowser\Browsing\RecentRecords;
 use Epesi\Modules\Reminders\Reminders;
+use Epesi\Modules\StickyNotes\Models\StickyNote;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -663,17 +664,21 @@ class DemoDataSeeder extends Seeder
                 $meeting->customerCompanies()->attach($company->id);
             }
 
+            // Nobody logs in as the administrator in the demo, so the
+            // visitors' accounts get the reminders.
             if ($i <= 10) {
-                $this->reminder($task, $setupUser);
+                $this->reminder($task, $users);
             }
             if ($i <= 5) {
-                $this->reminder($call, $setupUser);
-                $this->reminder($meeting, $setupUser);
+                $this->reminder($call, $users);
+                $this->reminder($meeting, $users);
             }
         }
 
         $this->shoutbox($users);
-        $this->stickyNotes($setupUser);
+        foreach ($users as $user) {
+            $this->stickyNotes($user);
+        }
 
         // After everything above, so adding notes changed none of it.
         $records = ['company' => $companies, 'contact' => $contacts, 'task' => $tasks, 'phone_call' => $calls, 'meeting' => $meetings];
@@ -781,7 +786,10 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    protected function reminder(Model $record, User $user): void
+    /**
+     * @param  list<User>  $users  who is reminded; the first one is the author
+     */
+    protected function reminder(Model $record, array $users): void
     {
         if (! class_exists(Reminders::class) || ! Schema::hasTable('epesi_reminders')) {
             return;
@@ -792,9 +800,9 @@ class DemoDataSeeder extends Seeder
             'before_minutes' => 15,
             'message' => 'Review the details and prepare for this activity.',
             'send_email' => false,
-            'created_by' => $user->id,
+            'created_by' => $users[0]->id,
         ]);
-        $reminder->recipients()->attach($user->id);
+        $reminder->recipients()->attach(array_map(fn (User $user): int => $user->id, $users));
     }
 
     /**
@@ -1009,17 +1017,12 @@ class DemoDataSeeder extends Seeder
     }
 
     /**
-     * Three Markdown sticky notes for the user, one per column of the Notes
-     * tab, when the StickyNotes module is installed.
+     * Three Markdown sticky notes for the user (notes are private, so every
+     * account is given its own), one per column of the Notes
+     * tab. StickyNotes is a core module, so it is always installed.
      */
     protected function stickyNotes(User $user): void
     {
-        $note = 'Epesi\\Modules\\StickyNotes\\Models\\StickyNote';
-
-        if (! class_exists($note) || ! Schema::hasTable((new $note)->getTable())) {
-            return;
-        }
-
         $notes = [
             ['Today', 'yellow', "## Priorities\n\n1. Call **Wayne Enterprises** about the renewal\n2. Send the *updated quote* to Acme\n3. Prepare Friday's team meeting\n\n> Finish the first two before lunch."],
             ['Ideas', 'green', "- Weekly customer **newsletter**\n- Tag contacts by `industry`\n- Follow up on every phone call within 24 hours\n\nSee [Epesi](https://epesi.org) for more."],
@@ -1027,7 +1030,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($notes as $col => [$title, $color, $body]) {
-            $sticky = new $note;
+            $sticky = new StickyNote;
             $sticky->forceFill([
                 'user_id' => $user->id,
                 'title' => $title,

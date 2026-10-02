@@ -2,6 +2,7 @@
 
 namespace Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages;
 
+use App\Enums\NoteFormat;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\AttachmentResource;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\Concerns\AlertsWhenNotAttached;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\Concerns\BelongsToOwnerRecord;
@@ -29,6 +30,8 @@ class EditAttachment extends EditRecord
         $note = $this->getRecord();
 
         $data['attach_to'] = AttachmentResource::attachedToState($note);
+        $data['editor'] = ($note->format ?? NoteFormat::Html)->value;
+        $data['note_markdown'] = $note->format === NoteFormat::Markdown ? $note->note : '';
 
         return $data;
     }
@@ -36,6 +39,7 @@ class EditAttachment extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $rows = Arr::pull($data, 'attach_to') ?? [];
+        $data = AttachmentResource::foldNoteState($data, $this->data['note_markdown'] ?? '');
 
         /** @var Attachment $note */
         $note = parent::handleRecordUpdate($record, $data);

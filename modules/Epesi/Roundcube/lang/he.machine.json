@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "ארכוב הודעה זו לאחר שליחתה",
+    "Archive to the CRM": "ארכיון ל-CRM",
+    "Archiving failed": "הארכיב נכשל",
+    "Ask your administrator to install it.": "בקשו מהמנהל שלכם להתקין אותו.",
+    "Cannot move to archive from this folder": "לא ניתן להעביר לארכיון מהתיקיה הזו",
+    "Mailbox": "תיבת דואר",
+    "Matching contact or company not found. Click again to force archive without contact association.": "לא נמצא איש קשר או חברה תואמים. לחץ שוב כדי לכפות ארכוב ללא שיוך לאיש קשר.",
+    "Message already archived": "ההודעה כבר הועברה לארכיון",
+    "Set up a mail account": "הגדרת חשבון דואר אלקטרוני",
+    "Switching account — please wait…": "מעבר בין חשבונות — אנא המתן…",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "תוכנת הדואר האלקטרוני לא נטענה: שרת האינטרנט שלח את דפי Roundcube ל-Epesi במקום להציג אותם בעצמו. ראו \"דרישות שרת האינטרנט\" ב:doc-.",
+    "The mail client, Roundcube, isn't installed yet.": "תוכנת הדואר האלקטרוני Roundcube עדיין לא הותקנה.",
+    "You have no mail account with an incoming (IMAP) server yet.": "עדיין אין לך חשבון דואר עם שרת נכנס (IMAP).",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "שרת הדואר שלך דחה את הכניסה. בדוק את החשבון הזה תחת 'הגדרות' > 'חשבונות דואר'."
+}

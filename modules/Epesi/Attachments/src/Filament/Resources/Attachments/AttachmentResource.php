@@ -2,12 +2,14 @@
 
 namespace Epesi\Modules\Attachments\Filament\Resources\Attachments;
 
+use App\Enums\NoteFormat;
 use App\Enums\RecordPermission;
 use App\Models\StoredFile;
 use App\Models\User;
 use App\Services\FileStorage;
 use App\Support\Files\FileChip;
 use BackedEnum;
+use Closure;
 use Epesi\Modules\Attachments\AttachmentsServiceProvider;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\CreateAttachment;
 use Epesi\Modules\Attachments\Filament\Resources\Attachments\Pages\EditAttachment;
@@ -28,12 +30,16 @@ use Filament\Actions\ViewAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -58,8 +64,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ClosureValidationRule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spatie\Activitylog\Models\Activity;
+use Throwable;
 use UnitEnum;
 
 /**
@@ -114,8 +122,83 @@ class AttachmentResource extends Resource
             TextInput::make('title')
                 ->maxLength(255)
                 ->columnSpanFull(),
+            // HTML (rich text) or Markdown, chosen here per note: the format is
+            // stored with the note so it renders the way it was written. The
+            // switch has a third button, Preview, which shows the note as it
+            // will read without changing the format. The two editors keep
+            // their own state and the switch converts one into the other
+            // (NoteFormat::convert()); the pages save the visible one as
+            // `note` (foldNoteState()).
+            Hidden::make('format')
+                ->default(fn (): NoteFormat => NoteFormat::default()),
+            ToggleButtons::make('editor')
+                ->hiddenLabel()
+                ->options([
+                    NoteFormat::Html->value => __('HTML'),
+                    NoteFormat::Markdown->value => __('Markdown'),
+                    'preview' => __('Preview'),
+                ])
+                ->default(fn (): string => NoteFormat::default()->value)
+                ->inline()
+                ->grouped()
+                ->required()
+                ->live()
+                ->dehydrated(false)
+                ->afterStateUpdated(function (Get $get, Set $set, mixed $state): void {
+                    $to = NoteFormat::tryFrom((string) $state);
+                    $from = NoteFormat::fromState($get('format'));
+
+                    if ($to === null || $from === null || $from === $to) {
+                        return;
+                    }
+
+                    $text = $from === NoteFormat::Markdown ? (string) $get('note_markdown') : static::editorHtml($get('note'));
+
+                    $set('format', $to->value);
+                    $set($to === NoteFormat::Markdown ? 'note_markdown' : 'note', $from->convert($text, $to));
+                })
+                ->columnSpanFull(),
             RichEditor::make('note')
+                ->hiddenLabel()
                 ->extraInputAttributes(['class' => 'epesi-note-editor'])
+                ->visible(fn (Get $get): bool => $get('editor') !== 'preview' && NoteFormat::fromState($get('format')) !== NoteFormat::Markdown)
+                ->dehydratedWhenHidden()
+                ->columnSpanFull(),
+            MarkdownEditor::make('note_markdown')
+                ->hiddenLabel()
+                ->visible(fn (Get $get): bool => $get('editor') !== 'preview' && NoteFormat::fromState($get('format')) === NoteFormat::Markdown)
+                ->dehydrated(false)
+                ->columnSpanFull(),
+            Section::make(__('Preview'))
+                ->compact()
+                ->visible(fn (Get $get): bool => $get('editor') === 'preview')
+                ->columnSpanFull()
+                ->components([
+                    TextEntry::make('note_preview')
+                        ->hiddenLabel()
+                        ->state(fn (Get $get): HtmlString => new HtmlString(
+                            NoteFormat::fromState($get('format')) === NoteFormat::Markdown
+                                ? NoteFormat::Markdown->toHtml((string) $get('note_markdown'))
+                                : static::editorHtml($get('note')),
+                        ))
+                        ->html()
+                        ->prose(),
+                ]),
+            // Straight into the file storage, which keeps a content once however
+            // many notes and e-mails carry it (App\Services\FileStorage): the
+            // field's state is the note's StoredFile ids, not paths on a disk.
+            FileUpload::make('files')
+                ->multiple()
+                ->maxSize(50 * 1024)
+                ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => (string) app(FileStorage::class)->putUpload($file)->getKey())
+                ->fetchFileInformation(false)
+                ->getUploadedFileUsing(fn (?Model $record, string $file): ?array => static::uploadedFile($record, $file))
+                // Only the note's own files and new uploads: an id typed into
+                // the request would otherwise attach someone else's file.
+                ->preventFilePathTampering()
+                // The label beside the drop zone, laid out like "Attached to".
+                ->inlineLabel()
+                ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to'])
                 ->columnSpanFull(),
             // The records the note is on, as Epesi's "Attached to" multiselect
             // (a note can be on several) — not virtual columns of the note:
@@ -135,13 +218,16 @@ class AttachmentResource extends Resource
                     (string) $livewire->getErrorBag()->first($component->getStatePath()),
                 ))
                 ->markAsRequired(false)
+                ->inlineLabel()
                 // Filament names a field in its messages after its label,
                 // which is markup here.
                 ->validationAttribute(mb_strtolower(__('Attached to')))
                 ->extraFieldWrapperAttributes(['class' => 'epesi-attach-to'])
                 ->required()
                 ->minItems(1)
-                ->defaultItems(1)
+                // A note started from the Notes list begins on the signed-in
+                // user's own contact, the usual thing to attach it to.
+                ->default(fn (): array => [static::ownContactRow()])
                 ->addable(false)
                 ->hintAction(
                     Action::make('attachToRecord')
@@ -180,27 +266,44 @@ class AttachmentResource extends Resource
                         ->disabled(fn (Get $get): bool => blank($get('type'))),
                 ])
                 ->visible(fn ($livewire): bool => ! ($livewire instanceof CreateAttachment && $livewire->ownerRecord !== null)),
-            // Straight into the file storage, which keeps a content once however
-            // many notes and e-mails carry it (App\Services\FileStorage): the
-            // field's state is the note's StoredFile ids, not paths on a disk.
-            FileUpload::make('files')
-                ->multiple()
-                ->maxSize(50 * 1024)
-                ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => (string) app(FileStorage::class)->putUpload($file)->getKey())
-                ->fetchFileInformation(false)
-                ->getUploadedFileUsing(fn (?Model $record, string $file): ?array => static::uploadedFile($record, $file))
-                // Only the note's own files and new uploads: an id typed into
-                // the request would otherwise attach someone else's file.
-                ->preventFilePathTampering()
-                ->columnSpanFull(),
             Select::make('permission')
                 ->options(RecordPermission::class)
                 ->default(RecordPermission::Public)
                 ->required()
-                ->selectablePlaceholder(false),
+                ->selectablePlaceholder(false)
+                ->inlineLabel()
+                ->extraFieldWrapperAttributes(['class' => 'epesi-inline-centered']),
             Toggle::make('sticky')
-                ->inline(false),
+                ->inlineLabel()
+                ->extraFieldWrapperAttributes(['class' => 'epesi-inline-centered']),
         ]);
+    }
+
+    /**
+     * The form holds the note in two editors; this puts the Markdown one's
+     * text into `note`, which is what is saved, when Markdown is the format.
+     * `note_markdown` is not dehydrated, so the pages hand it over from the
+     * raw form state.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    public static function foldNoteState(array $data, mixed $markdown): array
+    {
+        if (NoteFormat::fromState($data['format'] ?? null) === NoteFormat::Markdown) {
+            $data['note'] = (string) $markdown;
+        }
+
+        return $data;
+    }
+
+    /**
+     * The rich-text editor's state as HTML: a string, or the editor's own
+     * JSON document once something has been typed.
+     */
+    public static function editorHtml(mixed $state): string
+    {
+        return is_array($state) ? RichContentRenderer::make($state)->toHtml() : (string) $state;
     }
 
     public static function infolist(Schema $schema): Schema
@@ -219,6 +322,7 @@ class AttachmentResource extends Resource
                     TextEntry::make('note')
                         ->hiddenLabel()
                         ->inlineLabel(false)
+                        ->state(fn (Attachment $record): string => $record->bodyHtml())
                         ->html()
                         ->prose()
                         ->placeholder('-'),
@@ -251,9 +355,11 @@ class AttachmentResource extends Resource
             // instead (see preview()) — the eye icon is the only way in.
             ->recordUrl(null)
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('View'),
-                EditAction::make()->iconButton()->tooltip('Edit'),
-                DeleteAction::make()->iconButton()->tooltip('Delete'),
+                \Filament\Actions\ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ]);
     }
 
@@ -272,6 +378,30 @@ class AttachmentResource extends Resource
      */
     public static function notesTable(Table $table, bool $attachedTo): Table
     {
+        $dateInput = static function (string $name, string $label): DatePicker|TextInput {
+            if (RegionalSetting::calendarSystem() === 'gregorian') {
+                $input = DatePicker::make($name)->label($label);
+
+                return $name === 'until' ? $input->afterOrEqual('from') : $input;
+            }
+
+            $input = TextInput::make($name)
+                ->label($label)
+                ->placeholder('YYYY-MM-DD')
+                ->inputMode('numeric')
+                ->formatStateUsing(fn (mixed $state): ?string => RegionalSetting::formatDateInput($state))
+                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateInput($state) : null)
+                ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                    try {
+                        RegionalSetting::parseDateInput((string) $value);
+                    } catch (Throwable) {
+                        $fail(__('Enter a valid date in YYYY-MM-DD format.'));
+                    }
+                })]);
+
+            return $name === 'until' ? $input->afterOrEqual('from') : $input;
+        };
+
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['creator', 'latestEdit.causer', ...($attachedTo ? ['links.attachable'] : [])]))
             ->defaultSort(fn (Builder $query): Builder => $query
@@ -302,8 +432,8 @@ class AttachmentResource extends Resource
                 Filter::make('updated_at')
                     ->label('Edited on')
                     ->schema([
-                        DatePicker::make('from')->label('Edited on from'),
-                        DatePicker::make('until')->label('Edited on until')->afterOrEqual('from'),
+                        $dateInput('from', 'Edited on from'),
+                        $dateInput('until', 'Edited on until'),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when($data['from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('epesi_attachments.updated_at', '>=', $date))
@@ -372,6 +502,7 @@ class AttachmentResource extends Resource
         return [
             Field::text('title'),
             Field::longText('note')->richText(),
+            Field::text('format'),
             Field::select('permission', RecordPermission::class),
             Field::boolean('sticky'),
             Field::make('files', FieldType::Multiselect)
@@ -449,6 +580,23 @@ class AttachmentResource extends Resource
     public static function ownerUrl(Model $owner): string
     {
         return Filament::getModelResource($owner)::getUrl('view', ['record' => $owner, 'tab' => 'notes::tab']);
+    }
+
+    /**
+     * The "Attached to" row for the signed-in user's contact; a blank one when
+     * they have none, or can't attach notes to contacts.
+     *
+     * @return array{type: ?string, id: ?int}
+     */
+    protected static function ownContactRow(): array
+    {
+        $contact = auth()->user()?->contact;
+
+        if ($contact && static::findRecord('contact', $contact->getKey())) {
+            return ['type' => 'contact', 'id' => $contact->getKey()];
+        }
+
+        return ['type' => null, 'id' => null];
     }
 
     /**
@@ -579,12 +727,12 @@ class AttachmentResource extends Resource
     protected static function preview(Attachment $record, bool $attachedTo): HtmlString
     {
         $title = filled($record->title) ? e($record->title) : '';
-        $body = Str::limit(trim(html_entity_decode(strip_tags((string) $record->note))), 200);
+        $body = Str::limit($record->plainText(), 200);
         $collapsed = implode('<br>', array_filter([$title !== '' ? "<strong>{$title}</strong>" : '', e($body)]));
 
         $full = implode('', array_filter([
             $title !== '' ? "<div class=\"epesi-note-full-title\">{$title}</div>" : '',
-            '<div class="fi-prose epesi-note-full-body">'.((string) $record->note).'</div>',
+            '<div class="fi-prose epesi-note-full-body">'.$record->bodyHtml().'</div>',
         ]));
 
         return new HtmlString(

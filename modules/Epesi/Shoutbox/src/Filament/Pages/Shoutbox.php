@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
 use BackedEnum;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Shoutbox\Filament\Concerns\ComposesMessages;
 use Epesi\Modules\Shoutbox\Filament\Concerns\RedrawsWhenChanged;
 use Epesi\Modules\Shoutbox\Models\Message;
@@ -118,6 +119,7 @@ class Shoutbox extends Page implements HasTable
                     ->label('Posted')
                     ->width('11rem')
                     ->dateTime()
+                    ->formatStateUsing(fn (Message $record): ?string => RegionalSetting::display($record->created_at))
                     // Ordered in SQL over every message, not the page shown; the
                     // id breaks a tie between two posted in the same second.
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query

@@ -37,6 +37,14 @@ class AttachmentsPlugin implements Plugin
                     // (AttachmentResource::attachedToLabel()), so the field's
                     // message under the table would say it twice.
                     .'.epesi-attach-to>.fi-fo-field-content-col>.fi-fo-field-wrp-error-message{display:none}'
+                    .'.epesi-attach-to .fi-fo-field-label-ctn{align-items:center}'
+                    .'.epesi-attach-to .fi-fo-field-label{display:flex;align-items:center}'
+                    .'.epesi-inline-centered{align-items:center}'
+                    .'.epesi-inline-centered .fi-fo-field-label-col{align-self:center}'
+                    .'.epesi-inline-centered .fi-fo-field-content-col{align-self:center}'
+                    .'@media(min-width:40rem){.epesi-attach-to.fi-fo-field-has-inline-label{display:flex;align-items:flex-start;gap:1rem}.epesi-attach-to.fi-fo-field-has-inline-label>.fi-fo-field-label-col{flex:none;width:auto;height:auto}.epesi-attach-to.fi-fo-field-has-inline-label>.fi-fo-field-content-col{flex:1 1 0;min-width:0;grid-column:auto}}'
+                    .'.epesi-attach-to table{width:100%}'
+                    .'.epesi-attach-to>.fi-fo-field-label-col{padding-top:.5rem}'
                     .'.epesi-attach-to-error{margin-inline-start:.5rem;font-weight:400;color:var(--danger-600)}'
                     .'.dark .epesi-attach-to-error{color:var(--danger-400)}'
                     .'.epesi-note-toggle{cursor:pointer}'

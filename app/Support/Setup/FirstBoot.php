@@ -9,7 +9,8 @@ namespace App\Support\Setup;
  * Laravel can't encrypt a cookie without APP_KEY, and .env.example keeps
  * sessions and the cache in the database, which isn't configured yet. So on
  * the first web request, while .env is missing or has no key, this writes one
- * from .env.example with a new key and file-based sessions and cache. The
+ * from .env.example with a new key, file-based sessions and the "auto" cache
+ * (files until cron finds memcached working). The
  * setup wizard then takes over and asks for the database in the browser.
  *
  * Runs from public/index.php, before the application boots, so it uses plain
@@ -42,7 +43,9 @@ class FirstBoot
         $values = [
             'APP_KEY' => 'base64:'.base64_encode(random_bytes(32)),
             'SESSION_DRIVER' => 'file',
-            'CACHE_STORE' => 'file',
+            // Memcached when cron finds it working, the file store otherwise
+            // (App\Support\Optimize\CacheStore).
+            'CACHE_STORE' => 'auto',
         ];
 
         // .env.example is set up for development. A copy started here is an

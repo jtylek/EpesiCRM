@@ -8,8 +8,8 @@ use Epesi\Modules\RecordBrowser\Models\CollectionItem;
 use Epesi\Modules\RecordBrowser\Models\CustomField;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -29,12 +29,17 @@ class FieldOverrides
             return $this->overrides;
         }
 
-        if (! Schema::hasTable(self::TABLE)) {
+        // Asked straight away rather than through Schema::hasTable(), an
+        // information_schema query on MySQL on every page: the table is only
+        // missing before the update that adds it.
+        try {
+            $rows = DB::table(self::TABLE)->get();
+        } catch (QueryException) {
             return [];
         }
 
         $this->overrides = [];
-        foreach (DB::table(self::TABLE)->get() as $row) {
+        foreach ($rows as $row) {
             $this->overrides[$row->model_type][$row->field] = json_decode($row->properties, true, flags: JSON_THROW_ON_ERROR);
         }
 

@@ -24,7 +24,7 @@
         <div wire:poll.10s="poll" style="display: flex; flex-direction: column; gap: 0.75rem;">
             @include('epesi-shoutbox::compose')
 
-            <ul style="display: flex; flex-direction: column; gap: 0.5rem; max-height: max(24rem, calc(100vh - 17rem)); overflow-y: auto; font-size: 0.875rem; margin: 0; padding: 0; list-style: none;">
+            <ul style="display: flex; flex-direction: column; gap: 0.5rem; max-height: max(16rem, calc(100vh - 25rem)); overflow-y: auto; font-size: 0.875rem; margin: 0; padding: 0; list-style: none;">
                 @forelse ($this->getShouts() as $shout)
                     @php($background = $shout->bubbleBackground(auth()->user()))
                     <li

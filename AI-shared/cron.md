@@ -44,6 +44,7 @@ This is what `php artisan schedule:list` shows on an installation with every mod
 | `mail:fetch` | every 5 minutes (`MAIL_FETCH_SCHEDULE`) | Mail module | Archives mail from each account's `CRM Archive` IMAP folder, and INBOX/Sent where auto-archive is on |
 | `model:prune --model=…\Subscription` | daily at 00:00 | Watchdog module | Deletes watched-record subscriptions with nothing happening for 90 days (see [Watchdog_and_Notifications.md](Watchdog_and_Notifications.md#subscriptions-lapse)) |
 | `demo:reset --force` | daily at `DEMO_RESET_AT` (in `DEMO_TIMEZONE`), and every 15 minutes while a reset is unfinished | core, demo mode only | Puts the demo data back (see [Demo-mode.md](Demo-mode.md)) |
+| `epesi:optimize` | every minute, on an installation (not a git checkout) or with `CACHE_STORE=auto` | core | Builds Laravel's and Filament's caches, rebuilds them after a change, and picks memcached when it works (see [Epesi-optimization.md](Epesi-optimization.md)) |
 
 - **Modules add their own tasks.** A disabled module's tasks disappear with it. Run
   `schedule:list` for the current list.
@@ -61,7 +62,8 @@ don't happen:
 - mail is never fetched from IMAP. Uploading `.eml` files and sending from the CRM still
   archive mail;
 - Watchdog subscriptions never lapse;
-- a demo is never reset.
+- a demo is never reset;
+- the caches that make every page faster are never built, and memcached is never used.
 
 ## Setting it up
 
@@ -282,10 +284,12 @@ without ever clicking "Run cron jobs manually".
 - **Once a minute at most.** However often `cron.php` or the cron URL is called, a task runs at
   most once a minute. "Run now" on the Cron page is the exception.
 - **A crashed task can stay locked for a day.** `withoutOverlapping()` takes a lock in the cache
-  (`CACHE_STORE`, `database` by default). A task killed mid-run keeps its lock until it expires,
-  24 hours by default, and is skipped until then. `php artisan schedule:clear-cache` removes the
-  locks. The cron and the web server must use the same cache store. The `array` store would
-  never lock at all.
+  (`CACHE_STORE`: `auto` on an installation, which is memcached or files). A task killed
+  mid-run keeps its lock until it expires, 24 hours by default, and is skipped until then.
+  `php artisan schedule:clear-cache` removes the locks. The cron and the web server must use
+  the same cache store, which `auto` ensures: both read the same probe file. The `array` store
+  would never lock at all. `epesi:optimize` takes no such lock, because it is the task that
+  switches away from a memcached that stopped answering.
 - **Maintenance mode stops everything but the demo reset.** While `php artisan down` is in
   effect, `cron.php`, the cron URL and `schedule:run` skip every task not marked
   `evenInMaintenanceMode()`. Only `demo:reset` is, because an unfinished reset is what keeps
@@ -356,6 +360,7 @@ $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
 | `database/migrations/2026_09_30_000000_create_cron_tables.php` | `cron_tasks` and `cron_calls` |
 | `database/migrations/2026_09_30_010000_record_how_cron_ran.php` | `cron_tasks.last_via`, and `cron_calls.started_at` no longer overwritten |
 | `tests/Feature/CronTest.php` | The tests |
+| `routes/console.php` | The core app's tasks: `demo:reset`, `epesi:optimize` |
 
 ## Epesi's version, and how it maps here
 

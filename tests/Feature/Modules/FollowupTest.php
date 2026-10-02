@@ -16,6 +16,7 @@ use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ListTasks;
 use Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\Pages\ViewTask;
 use Epesi\Modules\CRM\Tasks\Models\Task;
 use Epesi\Modules\Followup\Followup;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\Concerns\SignsInUsers;
@@ -62,6 +63,33 @@ class FollowupTest extends TestCase
         $this->assertInstanceOf(Meeting::class, $meeting);
         $this->assertSame('Plan', $meeting->title);
         $this->assertSame('2027-01-05', $meeting->date->toDateString());
+    }
+
+    public function test_jalali_meeting_follow_up_stores_the_selected_local_time_as_utc(): void
+    {
+        $user = $this->userWithRole('employee');
+        RegionalSetting::query()->create([
+            'user_id' => $user->id,
+            'timezone' => 'Europe/Warsaw',
+            'calendar_system' => 'jalali',
+        ]);
+        $this->actingAs($user);
+        $task = Task::create(['title' => 'Plan', 'permission' => RecordPermission::Public]);
+
+        Livewire::test(ViewTask::class, ['record' => $task->getKey()])
+            ->callAction('followup', data: [
+                'status' => RecordStatus::Closed->value,
+                'followup' => 'meeting',
+                'title' => 'Review plan',
+                'when' => '۱۴۰۳-۰۱-۰۱ 10:15',
+            ])
+            ->assertHasNoActionErrors();
+
+        $meeting = Meeting::query()->where('title', 'Review plan')->sole();
+
+        $this->assertSame('2024-03-20', $meeting->date->toDateString());
+        $this->assertSame('09:15:00', $meeting->time);
+        $this->assertSame('2024-03-20 09:15:00', $meeting->starts_at->toDateTimeString());
     }
 
     public function test_the_header_action_closes_the_record(): void

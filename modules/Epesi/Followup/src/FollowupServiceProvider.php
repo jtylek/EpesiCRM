@@ -3,7 +3,9 @@
 namespace Epesi\Modules\Followup;
 
 use App\Enums\RecordStatus;
+use Closure;
 use Epesi\Modules\RecordBrowser\Extensions\RecordExtensions;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
@@ -17,6 +19,8 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\ClosureValidationRule;
+use Throwable;
 
 class FollowupServiceProvider extends ServiceProvider
 {
@@ -39,6 +43,21 @@ class FollowupServiceProvider extends ServiceProvider
      */
     protected static function action(): Action
     {
+        $when = RegionalSetting::calendarSystem() === 'gregorian'
+            ? DateTimePicker::make('when')->seconds(false)
+            : TextInput::make('when')
+                ->placeholder('YYYY-MM-DD HH:MM')
+                ->inputMode('numeric')
+                ->formatStateUsing(fn (mixed $state): ?string => RegionalSetting::formatDateTimeInput($state))
+                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateTimeInput($state) : null)
+                ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                    try {
+                        RegionalSetting::parseDateTimeInput((string) $value);
+                    } catch (Throwable) {
+                        $fail(__('Enter a valid date and time in YYYY-MM-DD HH:MM format.'));
+                    }
+                })]);
+
         return Action::make('followup')
             ->label('Close / Follow-up')
             ->icon(Heroicon::OutlinedArrowUturnRight)
@@ -72,9 +91,8 @@ class FollowupServiceProvider extends ServiceProvider
                     ->maxLength(255)
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),
-                DateTimePicker::make('when')
+                $when
                     ->label('When')
-                    ->seconds(false)
                     ->default(now()->addDay()->setTime(9, 0))
                     ->visible(fn (Get $get): bool => $get('followup') !== 'none')
                     ->required(fn (Get $get): bool => $get('followup') !== 'none'),

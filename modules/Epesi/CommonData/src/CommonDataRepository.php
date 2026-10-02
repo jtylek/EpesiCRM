@@ -23,10 +23,16 @@ class CommonDataRepository
      * Caching per path instead means a write has to invalidate entries it
      * cannot enumerate — a tree() result under some ancestor may include the
      * node that just changed — and a version prefix retires all of them at
-     * once. Entries under retired versions are never read again; the cache
-     * store expires them on its own schedule.
+     * once. Entries under retired versions are never read again, and expire
+     * after ENTRY_TTL: forever, they would pile up in the file store.
+     *
+     * The version is a time in milliseconds, not a count from 1: memcached
+     * (CACHE_STORE=auto) may evict the version key while older entries
+     * survive, and a count starting again at 1 would read them back.
      */
     protected const VERSION_KEY = 'commondata:version';
+
+    protected const ENTRY_TTL = 86400;
 
     public const ORDERS = ['value', 'key', 'position'];
 
@@ -263,14 +269,21 @@ class CommonDataRepository
      */
     public static function invalidate(): void
     {
-        Cache::forever(self::VERSION_KEY, (int) Cache::get(self::VERSION_KEY, 1) + 1);
+        // Always ahead of the last one, even for two writes in a millisecond.
+        Cache::forever(self::VERSION_KEY, max((int) Cache::get(self::VERSION_KEY, 0) + 1, static::now()));
     }
 
     protected function remember(string $key, callable $callback): mixed
     {
-        $version = (int) Cache::rememberForever(self::VERSION_KEY, fn (): int => 1);
+        $version = (int) Cache::rememberForever(self::VERSION_KEY, fn (): int => static::now());
 
-        return Cache::rememberForever("commondata:{$version}:{$key}", $callback);
+        // Hashed: a path may hold spaces, which a memcached key can't.
+        return Cache::remember("commondata:{$version}:".hash('xxh128', $key), self::ENTRY_TTL, $callback);
+    }
+
+    protected static function now(): int
+    {
+        return (int) floor(microtime(true) * 1000);
     }
 
     /**

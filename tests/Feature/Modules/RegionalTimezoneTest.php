@@ -53,6 +53,68 @@ class RegionalTimezoneTest extends TestCase
         $this->assertSame('Y-m-d H:i', RegionalSetting::dateTimeFormat());
     }
 
+    public function test_regional_date_formatting_uses_the_selected_calendar_without_changing_gregorian_storage(): void
+    {
+        $user = $this->userWithRole('manager');
+        RegionalSetting::query()->create([
+            'user_id' => $user->id,
+            'timezone' => 'UTC',
+            'calendar_system' => 'jalali',
+        ]);
+        $this->actingAs($user);
+
+        $stored = Carbon::parse('2024-03-20 00:00:00', 'UTC');
+
+        $this->assertSame('2024-03-20 00:00:00', $stored->format('Y-m-d H:i:s'));
+        $this->assertSame('1403-01-01', RegionalSetting::effective()->formatDate($stored));
+        $this->assertSame('1403-01-01', RegionalSetting::display($stored, dateOnly: true));
+        $this->assertSame('1403-01-01 00:00', RegionalSetting::display($stored));
+        $this->assertSame('1403-01-01', RegionalSetting::formatDateInput('2024-03-20'));
+        $this->assertSame('2024-03-20', RegionalSetting::parseDateInput('1403-01-01'));
+    }
+
+    public function test_date_only_calendar_display_does_not_shift_with_the_users_timezone(): void
+    {
+        $user = $this->userWithRole('manager');
+        RegionalSetting::query()->create([
+            'user_id' => $user->id,
+            'timezone' => 'America/Los_Angeles',
+            'calendar_system' => 'jalali',
+        ]);
+        $this->actingAs($user);
+
+        $stored = Carbon::parse('2024-03-20 00:00:00', 'UTC');
+
+        $this->assertSame('1403-01-01', RegionalSetting::display($stored, dateOnly: true));
+        $this->assertSame('1402-12-29 17:00', RegionalSetting::display($stored));
+    }
+
+    public function test_demo_visitors_get_the_calendar_of_their_arabic_or_persian_language(): void
+    {
+        config(['demo.enabled' => true]);
+        $this->actingAs($this->userWithRole('manager'));
+
+        foreach (['en' => 'gregorian', 'ar' => 'hijri', 'fa' => 'jalali'] as $locale => $system) {
+            app()->setLocale($locale);
+            app()->instance(RegionalSetting::RESOLVED_BINDING, new \ArrayObject);
+
+            $this->assertSame($system, RegionalSetting::calendarSystem(), $locale);
+        }
+
+        app()->setLocale('ar');
+        app()->instance(RegionalSetting::RESOLVED_BINDING, new \ArrayObject);
+        $this->assertSame('umalqura', RegionalSetting::hijriVariant());
+        $this->assertSame('1445-09-10', RegionalSetting::formatCalendarDate('2024-03-20'));
+
+        app()->setLocale('fa');
+        app()->instance(RegionalSetting::RESOLVED_BINDING, new \ArrayObject);
+        $this->assertSame('1403-01-01', RegionalSetting::formatCalendarDate('2024-03-20'));
+
+        config(['demo.enabled' => false]);
+        app()->instance(RegionalSetting::RESOLVED_BINDING, new \ArrayObject);
+        $this->assertSame('gregorian', RegionalSetting::calendarSystem());
+    }
+
     public function test_wall_clock_values_round_trip_through_the_users_timezone(): void
     {
         $this->actingAs($this->warsawUser());

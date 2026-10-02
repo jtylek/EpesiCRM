@@ -1,0 +1,20 @@
+{
+    ":who created.": ":who נוצר.",
+    ":who deleted.": ":who נמחק.",
+    ":who restored.": ":who שוחזר.",
+    ":who updated.": ":who עודכן.",
+    ":who updated: :fields.": ":who עודכן: :fields.",
+    "Be notified about changes to every record of the chosen types, not just the ones you watch.": "קבל התראות על שינויים בכל הרשומות מהסוגים שנבחרו, ולא רק באלה שאתה עוקב אחריהן.",
+    "Changed by": "שונה על ידי",
+    "Changes": "שינויים",
+    "Has new changes": "יש שינויים חדשים",
+    "Last change": "שינוי אחרון",
+    "Record": "רשומה",
+    "Record types": "סוגי רשומות",
+    "Stopped watching this record": "הפסקתי לעקוב אחר רשומה זו",
+    "System": "מערכת",
+    "Watch record types": "סוגי רשומות ב-Watch",
+    "Watched records": "רשומות במעקב",
+    "Watching": "צפייה",
+    "Watching this record": "מעקב אחר רשומה זו"
+}

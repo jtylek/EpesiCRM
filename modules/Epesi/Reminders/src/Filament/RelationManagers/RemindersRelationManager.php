@@ -5,6 +5,7 @@ namespace Epesi\Modules\Reminders\Filament\RelationManagers;
 use App\Filament\Concerns\TranslatesRelationManagerLabels;
 use App\Models\User;
 use Carbon\CarbonInterface;
+use Closure;
 use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Reminders;
@@ -30,6 +31,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ClosureValidationRule;
+use Throwable;
 
 /**
  * The "Reminders" addon on tasks, meetings and phone calls — the port of
@@ -58,6 +61,27 @@ class RemindersRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         $start = $this->startTime();
+        $remindAt = RegionalSetting::calendarSystem() === 'gregorian'
+            ? DateTimePicker::make('remind_at')->seconds(false)
+            : TextInput::make('remind_at')
+                ->placeholder('YYYY-MM-DD HH:MM')
+                ->inputMode('numeric')
+                ->formatStateUsing(fn (mixed $state): ?string => RegionalSetting::formatDateTimeInput($state))
+                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? RegionalSetting::parseDateTimeInput($state) : null)
+                ->rules([new ClosureValidationRule(function (string $attribute, mixed $value, Closure $fail): void {
+                    try {
+                        RegionalSetting::parseDateTimeInput((string) $value);
+                    } catch (Throwable) {
+                        $fail(__('Enter a valid date and time in YYYY-MM-DD HH:MM format.'));
+                    }
+                })]);
+
+        $remindAt
+            ->label('Remind at')
+            ->default(fn (): string => ($start ?? now()->addHour())->copy()->roundMinutes(5)->toDateTimeString())
+            ->required()
+            ->visible(fn (Get $get): bool => $get('timing') === 'at')
+            ->columnSpanFull();
 
         return $schema->columns(2)->components([
             ToggleButtons::make('timing')
@@ -87,13 +111,7 @@ class RemindersRelationManager extends RelationManager
                 ->selectablePlaceholder(false)
                 ->required()
                 ->visible(fn (Get $get): bool => $get('timing') === 'before'),
-            DateTimePicker::make('remind_at')
-                ->label('Remind at')
-                ->seconds(false)
-                ->default(fn (): string => ($start ?? now()->addHour())->copy()->roundMinutes(5)->toDateTimeString())
-                ->required()
-                ->visible(fn (Get $get): bool => $get('timing') === 'at')
-                ->columnSpanFull(),
+            $remindAt,
             Select::make('recipients')
                 ->label('Remind')
                 ->relationship(
@@ -131,6 +149,7 @@ class RemindersRelationManager extends RelationManager
                 TextColumn::make('remind_at')
                     ->label('Remind at')
                     ->dateTime()
+                    ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
                     ->description(fn (Reminder $record): string => $record->timingLabel())
                     ->color(fn (Reminder $record): ?string => $record->remind_at->isPast() ? 'gray' : null)
                     ->sortable(),

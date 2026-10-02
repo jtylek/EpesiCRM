@@ -177,6 +177,44 @@ class RelationCritsTest extends TestCase
         $this->assertSame([], $select->getSearchResults('Leaver'));
     }
 
+    public function test_meeting_date_time_form_uses_the_selected_calendar(): void
+    {
+        \Epesi\Modules\RegionalSettings\Models\RegionalSetting::query()->create([
+            'user_id' => Auth::id(),
+            'timezone' => 'UTC',
+            'calendar_system' => 'jalali',
+        ]);
+        $this->assertSame(
+            '2024-03-20 10:15:00',
+            \Epesi\Modules\RegionalSettings\Models\RegionalSetting::parseDateTimeInput('۱۴۰۳-۰۱-۰۱ 10:15'),
+        );
+
+        $dateField = collect(\Epesi\Modules\CRM\Meetings\Filament\Resources\Meetings\MeetingResource::fields())
+            ->first(fn ($field): bool => $field->name === 'date');
+
+        $this->assertInstanceOf(
+            \Filament\Forms\Components\TextInput::class,
+            $dateField->toFormComponent(),
+        );
+    }
+
+    public function test_task_deadline_form_uses_the_selected_calendar(): void
+    {
+        \Epesi\Modules\RegionalSettings\Models\RegionalSetting::query()->create([
+            'user_id' => Auth::id(),
+            'timezone' => 'UTC',
+            'calendar_system' => 'jalali',
+        ]);
+
+        $deadlineField = collect(\Epesi\Modules\CRM\Tasks\Filament\Resources\Tasks\TaskResource::fields())
+            ->first(fn ($field): bool => $field->name === 'deadline');
+
+        $this->assertInstanceOf(
+            \Filament\Forms\Components\TextInput::class,
+            $deadlineField->toFormComponent(),
+        );
+    }
+
     public function test_the_crits_still_keep_new_choices_out(): void
     {
         $task = Task::create(['title' => 'Dial', 'permission' => RecordPermission::Public]);

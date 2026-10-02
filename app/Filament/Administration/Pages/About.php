@@ -5,6 +5,7 @@ namespace App\Filament\Administration\Pages;
 use App\Filament\Concerns\HasPageIconBreadcrumb;
 use App\Filament\Concerns\HidesPageHeading;
 use App\Filament\Concerns\TranslatesPageLabels;
+use App\Support\Optimize\PhpSettings;
 use App\Support\Version;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -16,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 
 /**
  * Port of Epesi's Base/About (Support > About): version, license and where
@@ -78,6 +80,7 @@ class About extends Page
                         ->link()
                         ->url(self::WEBSITE_URL, shouldOpenInNewTab: true),
                 ]),
+            $this->phpSettingsSection(),
             Section::make(__('License'))
                 ->compact()
                 ->headerActions([
@@ -102,5 +105,40 @@ class About extends Page
                         ->color('gray'),
                 ]),
         ]);
+    }
+
+    /**
+     * The web server's php.ini against the production recommendation
+     * (PhpSettings), collapsed when everything meets it.
+     */
+    protected function phpSettingsSection(): Section
+    {
+        $rows = PhpSettings::compare();
+        $below = count(array_filter($rows, fn (array $row): bool => ! $row['ok']));
+
+        $html = collect($rows)->map(function (array $row): string {
+            $color = $row['ok'] ? 'var(--success-600)' : 'var(--warning-600)';
+
+            return '<tr>'
+                .'<td style="padding:.15rem 1rem .15rem 0"><code>'.e($row['setting']).'</code></td>'
+                .'<td style="padding:.15rem 1rem .15rem 0;color:'.$color.';font-weight:600">'.e($row['current']).'</td>'
+                .'<td style="padding:.15rem 1rem .15rem 0">'.e($row['recommended']).'</td>'
+                .'<td style="padding:.15rem 0;color:var(--gray-500)">'.e($row['why']).'</td></tr>';
+        })->implode('');
+
+        $head = '<tr style="text-align:start"><th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('Setting')).'</th>'
+            .'<th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('This server')).'</th>'
+            .'<th style="padding:.15rem 1rem .15rem 0;text-align:start">'.e(__('Recommended')).'</th><th></th></tr>';
+
+        return Section::make(__('PHP settings'))
+            ->description($below === 0
+                ? __('This server meets every recommended php.ini setting.')
+                : __(':count of the recommended php.ini settings are not met. The file php-production.ini in the epesi folder holds them, ready to copy into php.ini. On shared hosting, the OPcache sizes can only be changed by the host.', ['count' => $below]))
+            ->compact()
+            ->collapsible()
+            ->collapsed($below === 0)
+            ->schema([
+                Text::make(new HtmlString('<div style="overflow-x:auto"><table style="font-size:.875rem">'.$head.$html.'</table></div>')),
+            ]);
     }
 }

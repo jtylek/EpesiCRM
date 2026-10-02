@@ -2,6 +2,7 @@
 
 namespace App\Services\Setup;
 
+use App\Support\Optimize\PhpSettings;
 use App\Support\Setup\EnvFile;
 
 /**
@@ -57,6 +58,25 @@ class Requirements
         // choice some hosts make, so it doesn't fail the check.
         $modules = is_writable(base_path('modules'));
         $rows[] = $this->row('modules/ writable', $modules, $modules ? 'OK' : 'not writable (installing modules from the web page won\'t work)', required: false);
+
+        // Speed, not a requirement: warnings only. Only in the browser, since
+        // the command line's php.ini isn't the web server's.
+        if (! app()->runningInConsole()) {
+            $below = PhpSettings::belowRecommendation();
+
+            foreach ($below as $setting) {
+                $rows[] = $this->row(
+                    "php.ini {$setting['setting']}",
+                    false,
+                    __(':current, :recommended recommended (see php-production.ini)', ['current' => $setting['current'], 'recommended' => $setting['recommended']]),
+                    required: false,
+                );
+            }
+
+            if ($below === []) {
+                $rows[] = $this->row('php.ini settings for speed', true, 'OK');
+            }
+        }
 
         return $rows;
     }

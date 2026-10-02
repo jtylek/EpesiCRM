@@ -1,0 +1,16 @@
+{
+    "Archive this message after sending": "پس از ارسال، این پیام را بایگانی کنید",
+    "Archive to the CRM": "آرشیو در CRM",
+    "Archiving failed": "آرشیو ناموفق بود",
+    "Ask your administrator to install it.": "از مدیر خود بخواهید آن را نصب کند.",
+    "Cannot move to archive from this folder": "نمی‌توان از این پوشه به بایگانی منتقل کرد",
+    "Mailbox": "صندوق پستی",
+    "Matching contact or company not found. Click again to force archive without contact association.": "تماس یا شرکت مطابقت‌دهنده پیدا نشد. برای بایگانی اجباری بدون ارتباط با تماس، دوباره کلیک کنید.",
+    "Message already archived": "پیام قبلاً بایگانی شده است",
+    "Set up a mail account": "راه‌اندازی حساب ایمیل",
+    "Switching account — please wait…": "تغییر حساب کاربری — لطفاً منتظر بمانید…",
+    "The mail client didn't load: the web server sent Roundcube's pages to Epesi instead of serving them itself. See \"Web server requirements\" in :doc.": "کلاینت ایمیل بارگذاری نشد: سرور وب صفحات Roundcube را به جای ارائهٔ مستقیم، برای Epesi ارسال کرد. به «نیازمندی‌های سرور وب» مراجعه کنید:doc.",
+    "The mail client, Roundcube, isn't installed yet.": "کلاینت ایمیل Roundcube هنوز نصب نشده است.",
+    "You have no mail account with an incoming (IMAP) server yet.": "شما هنوز هیچ حساب ایمیلی با سرور ورودی (IMAP) ندارید.",
+    "Your mail server refused the login. Check this account under Settings > Mail accounts.": "سرور ایمیل شما ورود را رد کرد. این حساب را در بخش تنظیمات > حساب‌های ایمیل بررسی کنید."
+}

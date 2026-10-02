@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Optimize\CacheStore;
 use Illuminate\Support\Str;
 
 return [
@@ -15,7 +16,12 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    // "auto": memcached when cron has found it working, otherwise the file
+    // store (App\Support\Optimize\CacheStore). A fresh installation's .env
+    // gets "auto".
+    'default' => CacheStore::resolve(env('CACHE_STORE', 'database')),
+
+    'auto' => env('CACHE_STORE') === 'auto',
 
     /*
     |--------------------------------------------------------------------------
@@ -112,6 +118,9 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-'),
+    // With the installation's folder in it: one memcached server is shared by
+    // every epesi on the machine, and two of them must not read each other's
+    // entries.
+    'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-'.substr(md5(base_path()), 0, 8).'-cache-'),
 
 ];

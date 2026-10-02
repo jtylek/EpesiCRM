@@ -2,6 +2,8 @@
 
 namespace Epesi\Modules\RecordBrowser\Filament\Schemas;
 
+use Carbon\CarbonInterface;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,6 +39,7 @@ class RecordInfoEntries
             TextEntry::make('updated_at')
                 ->label(__('Updated'))
                 ->dateTime()
+                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
                 ->suffix(function (Model $record): string {
                     $by = method_exists($record, 'lastUpdater') ? $record->lastUpdater()?->displayName() : null;
 
@@ -45,10 +48,12 @@ class RecordInfoEntries
             TextEntry::make('created_at')
                 ->label(__('Created'))
                 ->dateTime()
+                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
                 ->suffix(fn (Model $record): string => ($by = $record->creator?->displayName()) ? ' '.__('by :name', ['name' => $by]) : ''),
             TextEntry::make('deleted_at')
                 ->label(__('Deleted'))
                 ->dateTime()
+                ->formatStateUsing(fn (?CarbonInterface $state): ?string => RegionalSetting::display($state))
                 ->visible(fn (Model $record): bool => method_exists($record, 'trashed') && $record->trashed()),
         ];
     }

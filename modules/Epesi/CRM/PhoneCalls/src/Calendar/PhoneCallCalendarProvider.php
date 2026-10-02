@@ -40,7 +40,7 @@ class PhoneCallCalendarProvider implements CalendarEventProvider
                 end: null,
                 allDay: false,
                 url: PhoneCallResource::getUrl('view', ['record' => $phoneCall]),
-                color: CalendarColor::css($phoneCall->status->getColor()),
+                color: CalendarColor::forKind(CalendarColor::PHONE_CALL, in_array($phoneCall->status, RecordStatus::finished(), true)),
                 durationEditable: false,
                 finished: in_array($phoneCall->status, RecordStatus::finished(), true),
                 description: $phoneCall->description,

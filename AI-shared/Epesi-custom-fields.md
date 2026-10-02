@@ -408,6 +408,23 @@ How it works (`RecordsetFeatures`):
 - Not built yet: a shortcut to Features from the Mail settings, a `--features` option on
   `make:epesi-recordset`, and a warning on the toggle that counts existing links.
 
+Example: a Tickets recordset that should take notes and e-mails. The note form's "Attached to"
+type list and the e-mail "Link to record" type list are not configured anywhere of their own;
+both read `RecordsetFeatures::aliasesFor()`.
+
+- Administrator: Administration → Recordsets → Features, pick Tickets, tick Notes (and E-mails).
+  Applies from the next page load. Ticket then appears in the note's "Attached to" types and
+  gets a Notes tab.
+- Developer, as the default for the recordset: in the module's service provider
+  `register()`/`boot()`, with the model's morph alias registered first:
+
+  ```php
+  Attachments::enableFor('ticket');                          // Notes
+  RecordsetFeatures::enableByDefault('mail', 'ticket');      // E-mails
+  ```
+
+  An administrator can still turn either off under Features.
+
 ### Limits and available types
 
 A recordset can carry at most 64 administrator-added fields

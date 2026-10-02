@@ -7,6 +7,7 @@ use App\Models\User;
 use Epesi\Modules\RecordBrowser\Recordset\Field;
 use Epesi\Modules\RecordBrowser\Recordset\FieldType;
 use Epesi\Modules\RecordBrowser\Recordset\RecordsetResource;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -80,6 +81,7 @@ class HistoryRelationManager extends RelationManager
                     ->label('When')
                     ->width('1%')
                     ->dateTime()
+                    ->formatStateUsing(fn (Activity $record): ?string => RegionalSetting::display($record->created_at))
                     ->sortable(),
                 TextColumn::make('changes')
                     ->toggleable(false)

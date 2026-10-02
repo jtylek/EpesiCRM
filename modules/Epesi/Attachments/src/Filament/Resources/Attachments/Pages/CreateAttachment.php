@@ -30,6 +30,7 @@ class CreateAttachment extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         $rows = Arr::pull($data, 'attach_to') ?? [];
+        $data = AttachmentResource::foldNoteState($data, $this->data['note_markdown'] ?? '');
 
         /** @var Attachment $note */
         $note = parent::handleRecordCreation($data);

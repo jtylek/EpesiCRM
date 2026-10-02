@@ -289,7 +289,7 @@ class SetupTest extends TestCase
         $this->assertMatchesRegularExpression('/^base64:.{44}$/', $env['APP_KEY']);
         $this->assertSame(32, strlen(base64_decode(substr($env['APP_KEY'], 7))));
         $this->assertSame('file', $env['SESSION_DRIVER'], 'no database yet');
-        $this->assertSame('file', $env['CACHE_STORE']);
+        $this->assertSame('auto', $env['CACHE_STORE'], 'memcached when cron finds it, files until then');
         $this->assertSame('production', $env['APP_ENV'], 'an installation, not .env.example\'s development settings');
         $this->assertSame('false', $env['APP_DEBUG']);
 

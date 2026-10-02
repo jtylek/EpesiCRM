@@ -25,7 +25,9 @@ class SystemRegionalSettings extends Page
     use HidesPageHeading;
     use TranslatesPageLabels;
 
-    protected const FIELDS = ['language', 'timezone', 'date_format', 'time_format', 'country', 'state'];
+    protected const FIELDS = [
+        'language', 'timezone', 'date_format', 'time_format', 'calendar_system', 'hijri_variant', 'country', 'state',
+    ];
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeAlt;
 

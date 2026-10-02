@@ -81,7 +81,9 @@ final readonly class CalendarEvent
             'end' => $this->end?->format('Y-m-d\TH:i:s'),
             'allDay' => $this->allDay,
             'url' => $this->url,
-            'color' => $this->color,
+            'color' => $this->color ?? CalendarColor::forKind(CalendarColor::OTHER, $this->finished),
+            'textColor' => $this->finished ? '#1f2937' : null,
+            'finished' => $this->finished ?: null,
             'durationEditable' => $this->durationEditable,
         ], fn (mixed $value): bool => $value !== null);
     }

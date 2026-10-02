@@ -75,7 +75,10 @@ class MailResource extends Resource
                     TextEntry::make('cc')->label('Cc')->inlineLabel()
                         ->visible(fn (Mail $record): bool => filled($record->cc))
                         ->state(fn (Mail $record): HtmlString => static::addressLinks($record->cc)),
-                    TextEntry::make('date')->label('Date')->dateTime()->inlineLabel(),
+                    TextEntry::make('date')
+                        ->label('Date')
+                        ->state(fn (Mail $record): ?string => RegionalSetting::display($record->date))
+                        ->inlineLabel(),
                     TextEntry::make('subject')
                         ->label('Subject')
                         ->inlineLabel()

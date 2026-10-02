@@ -18,6 +18,7 @@ use Epesi\Modules\Reminders\Filament\Widgets\MyRemindersWidget;
 use Epesi\Modules\Reminders\Models\Reminder;
 use Epesi\Modules\Reminders\Notifications\ReminderMail;
 use Epesi\Modules\Reminders\Reminders;
+use Epesi\Modules\RegionalSettings\Models\RegionalSetting;
 use Filament\Actions\Testing\TestAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -129,6 +130,22 @@ class RemindersTest extends TestCase
         $this->assertSame('2026-09-25 17:00:00', $reminder->remind_at->toDateTimeString());
         $this->assertNull($reminder->before_minutes);
         $this->assertFalse($reminder->send_email);
+    }
+
+    public function test_reminder_date_time_parser_converts_jalali_local_input_to_utc(): void
+    {
+        $me = $this->userWithRole('employee');
+        $this->actingAs($me);
+        RegionalSetting::query()->create([
+            'user_id' => $me->id,
+            'timezone' => 'Europe/Warsaw',
+            'calendar_system' => 'jalali',
+        ]);
+
+        $this->assertSame(
+            '2024-03-20 09:15:00',
+            RegionalSetting::parseDateTimeInput('۱۴۰۳-۰۱-۰۱ 10:15'),
+        );
     }
 
     public function test_colleagues_who_cannot_see_the_record_cannot_be_reminded_of_it(): void
